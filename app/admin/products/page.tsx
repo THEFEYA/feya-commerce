@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import type { AdminCatalogRow } from '@/lib/types';
 
@@ -32,10 +33,10 @@ export default async function AdminProductsPage() {
     <main className="page-shell">
       <div className="container">
         <nav className="top-nav">
-          <a href="/admin" className="brand-mark">TheFEYA Admin</a>
+          <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <a href="/admin/review">Review</a>
-            <a href="/shop">Shop</a>
+            <Link href="/admin/review">Review</Link>
+            <Link href="/shop">Shop</Link>
           </div>
         </nav>
 
