@@ -1,8 +1,8 @@
-import { getMissingSupabaseEnvMessage, getSupabaseBrowserClient } from '@/lib/supabase';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import type { ReviewQueueSummary } from '@/lib/types';
 
 async function getReviewQueues(): Promise<{ rows: ReviewQueueSummary[]; error?: string }> {
-  const supabase = getSupabaseBrowserClient();
+  const supabase = getSupabaseReadClient();
 
   if (!supabase) {
     return { rows: [], error: getMissingSupabaseEnvMessage() };
