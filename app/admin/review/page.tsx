@@ -2,6 +2,39 @@ import Link from 'next/link';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import type { ReviewQueueSummary } from '@/lib/types';
 
+const REVIEW_COPY: Record<string, { title: string; priority: 'high' | 'medium' | 'low'; description: string; nextStep: string }> = {
+  needs_price: {
+    title: 'Needs price',
+    priority: 'high',
+    description: 'Products that cannot safely enter storefront logic until price data is resolved.',
+    nextStep: 'Review source price rows and configuration prices.',
+  },
+  missing_media: {
+    title: 'Missing media',
+    priority: 'high',
+    description: 'Products without enough image data for a reliable public product card or PDP.',
+    nextStep: 'Check media drafts and source images before publishing.',
+  },
+  fallback_price_review_rows: {
+    title: 'Fallback price review',
+    priority: 'medium',
+    description: 'Rows using visible/fallback pricing instead of stronger option-level price evidence.',
+    nextStep: 'Confirm whether fallback prices are acceptable or need correction.',
+  },
+  storefront_excluded: {
+    title: 'Storefront excluded',
+    priority: 'medium',
+    description: 'Products kept out of public storefront candidates by readiness or safety rules.',
+    nextStep: 'Audit exclusion reasons before expanding public catalog.',
+  },
+  sampler_excluded_rows: {
+    title: 'Sampler excluded',
+    priority: 'low',
+    description: 'Sampler/probnik rows intentionally excluded from public price ranges.',
+    nextStep: 'Audit only. This is expected behavior, not a launch blocker.',
+  },
+};
+
 async function getReviewQueues(): Promise<{ rows: ReviewQueueSummary[]; error?: string }> {
   const supabase = getSupabaseReadClient();
 
@@ -20,8 +53,13 @@ async function getReviewQueues(): Promise<{ rows: ReviewQueueSummary[]; error?: 
   return { rows: (data || []) as ReviewQueueSummary[] };
 }
 
+function getCode(row: ReviewQueueSummary) {
+  return String(row.queue_code || row.status || row.review_queue || row.queue_name || 'review_queue');
+}
+
 function getTitle(row: ReviewQueueSummary) {
-  return String(row.queue_name || row.queue_code || row.status || row.review_queue || 'Review queue');
+  const code = getCode(row);
+  return REVIEW_COPY[code]?.title || String(row.queue_name || code);
 }
 
 function getCount(row: ReviewQueueSummary) {
@@ -43,6 +81,13 @@ export default async function AdminReviewPage() {
           </div>
         </nav>
 
+        <section className="phase-banner">
+          <div className="phase-label">Read-only admin gate</div>
+          <p>
+            Эти очереди показывают, что мешает расширять каталог и что нужно проверить перед Product Builder и визуальной полировкой.
+          </p>
+        </section>
+
         <section className="section-head">
           <div>
             <h2>Очереди проверки</h2>
@@ -52,13 +97,24 @@ export default async function AdminReviewPage() {
 
         {error ? <div className="notice">{error}</div> : null}
 
-        <section className="grid admin-grid">
-          {rows.map((row, index) => (
-            <div className="card metric" key={`${getTitle(row)}-${index}`}>
-              <strong>{getCount(row)}</strong>
-              <span>{getTitle(row)}</span>
-            </div>
-          ))}
+        <section className="grid review-grid">
+          {rows.map((row, index) => {
+            const code = getCode(row);
+            const copy = REVIEW_COPY[code];
+            const priority = copy?.priority || 'medium';
+
+            return (
+              <div className={`card review-card priority-${priority}`} key={`${code}-${index}`}>
+                <span className={`status-pill ${priority === 'high' ? 'danger' : priority === 'medium' ? 'warning' : 'ok'}`}>
+                  {priority} priority
+                </span>
+                <strong>{getCount(row)}</strong>
+                <h3>{getTitle(row)}</h3>
+                <p>{copy?.description || 'Review queue returned from Supabase.'}</p>
+                <span>{copy?.nextStep || 'Review in the next admin phase.'}</span>
+              </div>
+            );
+          })}
         </section>
 
         {!error && rows.length === 0 ? <div className="notice">Очереди пока не загружены.</div> : null}
