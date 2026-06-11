@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { ProductCard } from '@/components/ProductCard';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import type { StorefrontProduct } from '@/lib/types';
@@ -54,10 +55,10 @@ export default async function ProductPreviewPage({ params }: PageProps) {
     <main className="page-shell">
       <div className="container">
         <nav className="top-nav">
-          <a href="/" className="brand-mark">TheFEYA</a>
+          <Link href="/" className="brand-mark">TheFEYA</Link>
           <div className="nav-links">
-            <a href="/shop">Shop</a>
-            <a href="/admin">Admin</a>
+            <Link href="/shop">Shop</Link>
+            <Link href="/admin">Admin</Link>
           </div>
         </nav>
 
