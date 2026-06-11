@@ -1,8 +1,8 @@
-import { getMissingSupabaseEnvMessage, getSupabaseBrowserClient } from '@/lib/supabase';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import type { AdminCatalogRow } from '@/lib/types';
 
 async function getProducts(): Promise<{ rows: AdminCatalogRow[]; error?: string }> {
-  const supabase = getSupabaseBrowserClient();
+  const supabase = getSupabaseReadClient();
 
   if (!supabase) {
     return { rows: [], error: getMissingSupabaseEnvMessage() };
@@ -57,13 +57,13 @@ export default async function AdminProductsPage() {
                 <th>Etsy ID</th>
                 <th>Readiness</th>
                 <th>Publish</th>
-                <th>Notes</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((row) => (
                 <tr key={row.canonical_product_id}>
-                  <td>{asText(row.card_title || row.draft_site_title || row.h1 || row.raw_title)}</td>
+                  <td>{asText(row.card_title || row.draft_site_title || row.h1)}</td>
                   <td>{asText(row.matched_etsy_listing_id || row.etsy_listing_id)}</td>
                   <td>{asText(row.readiness_status || row.readiness_label || row.status)}</td>
                   <td>{asText(row.publish_status)}</td>
