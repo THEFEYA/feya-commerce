@@ -23,10 +23,12 @@ jobs:
           node-version: 22
 
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: npm install --no-audit --no-fund --silent
 
       - name: Typecheck
         run: npm run typecheck
 
       - name: Build
-        run: npm run build
+        run: |
+          set -o pipefail
+          npm run build 2>&1 | tail -n 120
