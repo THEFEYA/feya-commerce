@@ -6,6 +6,8 @@ import type { StorefrontProduct } from '@/lib/types';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+const PHASE_A_STOREFRONT_LIMIT = 250;
+
 async function getProducts(): Promise<{ products: StorefrontProduct[]; error?: string }> {
   const supabase = getSupabaseReadClient();
 
@@ -16,7 +18,7 @@ async function getProducts(): Promise<{ products: StorefrontProduct[]; error?: s
   const { data, error } = await supabase
     .from('feya_commerce_v_step7_storefront_products_api')
     .select('*')
-    .limit(60);
+    .limit(PHASE_A_STOREFRONT_LIMIT);
 
   if (error) {
     return { products: [], error: error.message };
