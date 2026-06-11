@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { ProductCard } from '@/components/ProductCard';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import type { StorefrontProduct } from '@/lib/types';
@@ -28,9 +29,9 @@ export default async function ShopPage() {
     <main className="page-shell">
       <div className="container">
         <nav className="top-nav">
-          <a href="/" className="brand-mark">TheFEYA</a>
+          <Link href="/" className="brand-mark">TheFEYA</Link>
           <div className="nav-links">
-            <a href="/admin">Admin</a>
+            <Link href="/admin">Admin</Link>
           </div>
         </nav>
 
