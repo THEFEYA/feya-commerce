@@ -1,5 +1,5 @@
 import { ProductCard } from '@/components/ProductCard';
-import { getMissingSupabaseEnvMessage, getSupabaseBrowserClient } from '@/lib/supabase';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import type { StorefrontProduct } from '@/lib/types';
 
 type PageProps = {
@@ -7,7 +7,7 @@ type PageProps = {
 };
 
 async function getProduct(slug: string): Promise<{ product: StorefrontProduct | null; error?: string }> {
-  const supabase = getSupabaseBrowserClient();
+  const supabase = getSupabaseReadClient();
 
   if (!supabase) {
     return { product: null, error: getMissingSupabaseEnvMessage() };
