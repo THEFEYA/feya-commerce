@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import type { ReviewQueueSummary } from '@/lib/types';
 
@@ -35,10 +36,10 @@ export default async function AdminReviewPage() {
     <main className="page-shell">
       <div className="container">
         <nav className="top-nav">
-          <a href="/admin" className="brand-mark">TheFEYA Admin</a>
+          <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <a href="/admin/products">Products</a>
-            <a href="/shop">Shop</a>
+            <Link href="/admin/products">Products</Link>
+            <Link href="/shop">Shop</Link>
           </div>
         </nav>
 
