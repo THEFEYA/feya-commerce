@@ -31,7 +31,12 @@ export type StorefrontProduct = {
 export type ReviewQueueSummary = {
   queue_code?: string | null;
   queue_name?: string | null;
+  status?: string | null;
+  review_queue?: string | null;
   item_count?: number | null;
+  count?: number | null;
+  row_count?: number | null;
+  total?: number | null;
   priority?: number | null;
   description?: string | null;
   [key: string]: unknown;
@@ -40,10 +45,16 @@ export type ReviewQueueSummary = {
 export type AdminCatalogRow = {
   canonical_product_id: string;
   matched_etsy_listing_id?: string | null;
+  etsy_listing_id?: string | null;
   draft_site_title?: string | null;
   card_title?: string | null;
+  h1?: string | null;
   readiness_status?: string | null;
+  readiness_label?: string | null;
+  status?: string | null;
   publish_status?: string | null;
+  next_action?: string | null;
+  notes?: string | null;
   do_not_publish_flag?: boolean | null;
   [key: string]: unknown;
 };
