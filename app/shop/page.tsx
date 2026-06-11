@@ -3,6 +3,9 @@ import { ProductCard } from '@/components/ProductCard';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import type { StorefrontProduct } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 async function getProducts(): Promise<{ products: StorefrontProduct[]; error?: string }> {
   const supabase = getSupabaseReadClient();
 
