@@ -45,6 +45,12 @@ export default async function ShopPage() {
 
         {error ? <div className="notice">{error}</div> : null}
 
+        {!error && products.length === 0 ? (
+          <div className="notice">
+            No products returned from Supabase yet. Check that the safe storefront view has rows and that anon read access is enabled for this view.
+          </div>
+        ) : null}
+
         <section className="grid product-grid">
           {products.map((product) => (
             <ProductCard key={product.canonical_product_id} product={product} />
