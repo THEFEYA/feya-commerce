@@ -1,3 +1,24 @@
+export type StorefrontConfiguration = {
+  configuration_id?: string | null;
+  configuration_label?: string | null;
+  configuration_name?: string | null;
+  option_name?: string | null;
+  option_value?: string | null;
+  raw_option_value?: string | null;
+  title?: string | null;
+  label?: string | null;
+  price_amount?: number | null;
+  price?: number | null;
+  amount?: number | null;
+  min_price?: number | null;
+  max_price?: number | null;
+  currency?: string | null;
+  has_fallback_price?: boolean | null;
+  components?: unknown;
+  selected_options?: unknown;
+  [key: string]: unknown;
+};
+
 export type StorefrontProduct = {
   canonical_product_id: string;
   product_slug: string | null;
@@ -49,12 +70,18 @@ export type AdminCatalogRow = {
   draft_site_title?: string | null;
   card_title?: string | null;
   h1?: string | null;
+  source_title?: string | null;
+  raw_title?: string | null;
   readiness_status?: string | null;
   readiness_label?: string | null;
   status?: string | null;
   publish_status?: string | null;
+  storefront_status?: string | null;
+  publication_status?: string | null;
   next_action?: string | null;
   notes?: string | null;
+  review_reason?: string | null;
+  blocker_reason?: string | null;
   do_not_publish_flag?: boolean | null;
   [key: string]: unknown;
 };
