@@ -1,9 +1,9 @@
 import { ProductCard } from '@/components/ProductCard';
-import { getMissingSupabaseEnvMessage, getSupabaseBrowserClient } from '@/lib/supabase';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import type { StorefrontProduct } from '@/lib/types';
 
 async function getProducts(): Promise<{ products: StorefrontProduct[]; error?: string }> {
-  const supabase = getSupabaseBrowserClient();
+  const supabase = getSupabaseReadClient();
 
   if (!supabase) {
     return { products: [], error: getMissingSupabaseEnvMessage() };
