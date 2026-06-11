@@ -40,6 +40,13 @@ export default async function ShopPage() {
           </div>
         </nav>
 
+        <section className="phase-banner">
+          <div className="phase-label">Phase B skeleton</div>
+          <p>
+            Live storefront preview connected to safe Supabase views. The next design pass will improve the visual system without replacing real data.
+          </p>
+        </section>
+
         <section className="section-head">
           <div>
             <h2>Shop preview</h2>
@@ -47,6 +54,15 @@ export default async function ShopPage() {
           </div>
           <p className="muted">{products.length} loaded</p>
         </section>
+
+        <div className="toolbar" aria-label="Planned storefront filters">
+          <span className="filter-chip">All pieces</span>
+          <span className="filter-chip">Festival</span>
+          <span className="filter-chip">Stage</span>
+          <span className="filter-chip">Armor</span>
+          <span className="filter-chip">Acrylic</span>
+          <span className="filter-chip">Needs final UX</span>
+        </div>
 
         {error ? <div className="notice">{error}</div> : null}
 
