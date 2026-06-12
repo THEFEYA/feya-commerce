@@ -80,8 +80,8 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
     setTimeout(() => setAdded(false), 1300);
   };
 
-  return <div data-testid="product-page" className="relative pt-20 lg:pt-[74px]">
-    <div className="container-feya py-2">
+  return <div data-testid="product-page" className="relative pt-[104px] lg:pt-[104px]">
+    <div className="container-feya py-3">
       <div className="flex items-center gap-2 text-[10px] tracking-[0.22em] uppercase text-[var(--smoke)]">
         <Link href="/" className="hover:text-white">Atelier</Link><ChevronRight size={10} />
         <Link href="/shop" className="hover:text-white">Shop</Link><ChevronRight size={10} />
@@ -109,7 +109,7 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
         </div>
       </div>
 
-      <aside className="col-span-12 lg:col-span-5 lg:sticky lg:top-20 self-start">
+      <aside className="col-span-12 lg:col-span-5 lg:sticky lg:top-[104px] self-start">
         <h1 className="font-tall text-bone leading-[0.98] tracking-[0.01em] line-clamp-2" style={{ fontSize: 'clamp(28px, 2.8vw, 38px)' }}>{shortHead}</h1>
         {tail ? <p className="editorial-italic text-[var(--bone-dim)] text-[12px] mt-1 leading-relaxed line-clamp-1">{tail}</p> : null}
 
@@ -121,11 +121,11 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
             <span className="truncate">{activeConfigLabel}</span>
             <ChevronDown size={15} className={`transition-transform ${configOpen ? 'rotate-180' : ''}`} />
           </button>
-          {configOpen ? <div className="absolute left-0 right-0 top-full mt-2 z-[80] glass-strong rounded-lg p-1.5 shadow-2xl max-h-[250px] overflow-auto">
+          {configOpen ? <div className="absolute left-0 right-0 top-full mt-2 z-[80] rounded-lg border border-[rgba(216,214,211,.22)] bg-[rgba(5,5,8,.96)] p-1.5 shadow-[0_28px_80px_rgba(0,0,0,.75)] backdrop-blur-xl max-h-[250px] overflow-auto">
             {options.map((o, i) => {
               const key = optionKey(o, i);
               const active = key === configKey;
-              return <button key={key} type="button" onClick={() => { setConfigKey(key); setConfigOpen(false); }} className={`w-full text-left px-4 py-2.5 rounded-md transition-all ${active ? 'bg-[rgba(212,178,106,.12)] text-[var(--gold-warm)]' : 'text-bone hover:bg-white/10'}`}>{optionLabel(o, i)}</button>;
+              return <button key={key} type="button" onClick={() => { setConfigKey(key); setConfigOpen(false); }} className={`w-full text-left px-4 py-2.5 rounded-md text-[13px] transition-all ${active ? 'bg-[rgba(212,178,106,.14)] text-[var(--gold-warm)]' : 'text-[var(--bone-dim)] hover:text-white hover:bg-white/10'}`}>{optionLabel(o, i)}</button>;
             })}
           </div> : null}
         </div>
@@ -144,16 +144,16 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
         <div className="mt-2">
           <div className="eyebrow text-[10px] mb-1.5">Delivery</div>
           <div className="grid grid-cols-2 gap-2.5">
-            <button onClick={() => setDelivery('standard')} className={`glass rounded-md px-3 py-2 text-left transition-all ${delivery === 'standard' ? 'border-white bg-[rgba(255,255,255,.07)] shadow-[0_0_0_1px_rgba(255,255,255,.28),0_0_28px_rgba(216,214,211,.08)]' : ''}`}><div className="flex items-center gap-3"><span className="h-8 w-8 rounded-full border border-[rgba(216,214,211,0.22)] flex items-center justify-center shrink-0"><Truck size={14} /></span><span><span className="block font-semibold text-[13px]">Standard UPS</span><span className="block text-[10.5px] text-[var(--bone-dim)]">14–21 business days · Included</span></span></div></button>
-            <button onClick={() => setDelivery('express')} className={`glass rounded-md px-3 py-2 text-left transition-all ${delivery === 'express' ? 'border-[var(--gold)] bg-[rgba(212,178,106,.08)] shadow-[0_0_0_1px_rgba(212,178,106,.35),0_0_30px_rgba(212,178,106,.12)]' : ''}`}><div className="flex items-center gap-3"><span className="h-8 w-8 rounded-full border border-[rgba(212,178,106,0.42)] flex items-center justify-center shrink-0 text-[var(--gold)]"><Zap size={14} /></span><span><span className="block font-semibold text-[13px]">Express DHL</span><span className="block text-[10.5px] text-[var(--bone-dim)]">7–10 business days · +$45</span></span></div></button>
+            <button onClick={() => setDelivery('standard')} className={`rounded-md px-3 py-2 text-left border transition-all bg-[linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012))] ${delivery === 'standard' ? 'border-white shadow-[0_0_0_1px_rgba(255,255,255,.42),0_0_30px_rgba(216,214,211,.10)]' : 'border-[rgba(216,214,211,.16)] hover:border-[rgba(216,214,211,.38)]'}`}><div className="flex items-center gap-3"><span className={`h-8 w-8 rounded-full border flex items-center justify-center shrink-0 ${delivery === 'standard' ? 'border-white/55 text-white' : 'border-[rgba(216,214,211,0.22)]'}`}><Truck size={14} /></span><span><span className="block font-semibold text-[13px]">Standard UPS</span><span className="block text-[10.5px] text-[var(--bone-dim)]">14–21 business days · Included</span></span></div></button>
+            <button onClick={() => setDelivery('express')} className={`rounded-md px-3 py-2 text-left border transition-all bg-[linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012))] ${delivery === 'express' ? 'border-[var(--gold)] bg-[rgba(212,178,106,.08)] shadow-[0_0_0_1px_rgba(212,178,106,.40),0_0_30px_rgba(212,178,106,.14)]' : 'border-[rgba(216,214,211,.16)] hover:border-[rgba(212,178,106,.38)]'}`}><div className="flex items-center gap-3"><span className={`h-8 w-8 rounded-full border flex items-center justify-center shrink-0 text-[var(--gold)] ${delivery === 'express' ? 'border-[var(--gold)]' : 'border-[rgba(212,178,106,0.42)]'}`}><Zap size={14} /></span><span><span className="block font-semibold text-[13px]">Express DHL</span><span className="block text-[10.5px] text-[var(--bone-dim)]">7–10 business days · +$45</span></span></div></button>
           </div>
           <p className="text-[11px] text-[var(--bone-dim)] mt-1.5">Production time is calculated before shipping. Made to order.</p>
         </div>
 
-        <div className="mt-2 glass rounded-md px-3 py-2 grid grid-cols-3 gap-3">
-          <div><div className="eyebrow-dim">Ordered</div><strong className="text-[13px]">Jun 12</strong></div>
-          <div><div className="eyebrow-dim">Ready</div><strong className="text-[13px]">Jun 26 – Jul 03</strong></div>
-          <div><div className="eyebrow-dim">Delivered</div><strong className="text-[13px] text-[var(--gold-warm)]">{delivery === 'express' ? 'Jul 03 – Jul 10' : 'Jul 10 – Jul 24'}</strong></div>
+        <div className="mt-2 rounded-md px-3 py-2.5 grid grid-cols-3 gap-3 border border-[rgba(216,214,211,.09)] bg-[rgba(255,255,255,.018)]">
+          <div className="flex items-center gap-3"><span className="h-9 w-9 rounded-full border border-[rgba(216,214,211,.18)] flex items-center justify-center text-[var(--bone-dim)] shrink-0"><ShoppingBag size={14} /></span><span><div className="eyebrow-dim">Ordered</div><strong className="text-[13px]">Jun 12</strong></span></div>
+          <div className="flex items-center gap-3"><span className="h-9 w-9 rounded-full border border-[rgba(216,214,211,.18)] flex items-center justify-center text-[var(--bone-dim)] shrink-0"><Scissors size={14} /></span><span><div className="eyebrow-dim">Ready</div><strong className="text-[13px]">Jun 26 – Jul 03</strong></span></div>
+          <div className="flex items-center gap-3"><span className="h-9 w-9 rounded-full border border-[rgba(212,178,106,.36)] flex items-center justify-center text-[var(--gold)] shrink-0"><Truck size={14} /></span><span><div className="eyebrow-dim">Delivered</div><strong className="text-[13px] text-[var(--gold-warm)]">{delivery === 'express' ? 'Jul 03 – Jul 10' : 'Jul 10 – Jul 24'}</strong></span></div>
         </div>
 
         <div className="mt-2 border-t border-[rgba(216,214,211,0.12)] pt-2 flex items-end justify-between"><div className="eyebrow text-[10px]">Total · {qty} × {formatPrice(sale, currency)}</div><div className="font-price text-gold-grad text-[29px] leading-none">{formatPrice(total, currency)}</div></div>
