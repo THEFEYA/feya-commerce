@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowUpRight, Check, ChevronLeft, ChevronRight, FileText, Heart, RotateCcw, Ruler, Scissors, Share2, ShoppingBag, Truck, Zap } from 'lucide-react';
 import { colorStyle } from '@/components/colors';
 import { ProductCard } from '@/components/ProductCard';
@@ -38,6 +38,7 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const thumbnailRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   const activeConfig = options.find((o, i) => optionKey(o, i) === configKey) || options[0] || null;
   const regular = optionPrice(activeConfig) ?? p.max_price ?? p.min_price ?? 0;
@@ -57,6 +58,10 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
     .reduce((sum, option) => sum + (optionPrice(option) || 0), 0);
   const fullSetSavings = fullPrice && separateTotal > fullPrice ? separateTotal - fullPrice : 0;
   const selectedIsFullSet = activeConfig ? isFullSetLabel(optionLabel(activeConfig, 0)) : false;
+
+  useEffect(() => {
+    thumbnailRefs.current[idx]?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+  }, [idx]);
 
   const moveImage = (direction: number) => {
     if (gallery.length <= 1) return;
@@ -80,8 +85,8 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
 
     <section className="container-feya pb-4 grid grid-cols-12 gap-5 lg:gap-7">
       <div className="col-span-12 lg:col-span-7 grid grid-cols-12 gap-3 lg:gap-4">
-        <div className="col-span-2 hidden lg:grid grid-cols-2 gap-2 max-h-[540px] overflow-y-auto pr-1">
-          {gallery.map((g, i) => <button key={`${i}-${g.url}`} onClick={() => setIdx(i)} className={`relative aspect-[4/5] rounded-sm overflow-hidden border transition-all shrink-0 bg-[rgba(255,255,255,0.025)] ${idx === i ? 'border-white' : 'border-[rgba(216,214,211,0.12)] opacity-55 hover:opacity-100'}`}>
+        <div className="col-span-2 hidden lg:flex flex-col gap-3 max-h-[650px] overflow-y-auto pr-1">
+          {gallery.map((g, i) => <button ref={(node) => { thumbnailRefs.current[i] = node; }} key={`${i}-${g.url}`} onClick={() => setIdx(i)} className={`relative w-full aspect-[4/5] rounded-sm overflow-hidden border transition-all shrink-0 bg-[rgba(255,255,255,0.025)] ${idx === i ? 'border-white opacity-100' : 'border-[rgba(216,214,211,0.12)] opacity-55 hover:opacity-100'}`}>
             {g.url ? <img src={String(g.url)} alt="" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover object-center" /> : null}
           </button>)}
         </div>
