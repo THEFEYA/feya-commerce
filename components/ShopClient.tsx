@@ -11,10 +11,22 @@ const COLORS = ['Gold', 'Silver', 'Black', 'White', 'Red', 'Holographic'];
 const SIZES = ['XS','S','M','L','XL','XXL','XXXL','Custom'];
 const MATERIALS = ['Mirror Acrylic', 'Vegan Leather', 'Mirror Chrome', 'Holographic Vinyl', 'Resin'];
 const OCCASIONS = ['Festival', 'Stage', 'Burning Man', 'Editorial', 'Carnival'];
+const STYLES = ['Desert', 'Rave', 'Stage', 'Editorial', 'Futuristic', 'Goddess', 'Warrior'];
+const PRODUCTION_TIMES = ['7–10 days', '14–21 days', '21–28 days', '30+ days'];
 const SORTS = ['Editorial pick', 'Best sellers', 'Price · low to high', 'Price · high to low', 'Newest'];
 
 function contains(p: StorefrontProduct, q: string) {
-  return `${productTitle(p)} ${p.meta_description || ''} ${p.material || ''} ${p.color || ''}`.toLowerCase().includes(q.toLowerCase());
+  return `${productTitle(p)} ${p.meta_description || ''} ${p.material || ''} ${p.color || ''} ${p.product_type || ''} ${p.production_profile || ''} ${p.shipping_profile || ''}`.toLowerCase().includes(q.toLowerCase());
+}
+
+function matchesProduction(p: StorefrontProduct, value: string) {
+  if (!value) return true;
+  const text = `${p.production_profile || ''} ${p.shipping_profile || ''} ${p.meta_description || ''}`.toLowerCase();
+  if (value === '7–10 days') return /7|10|express/.test(text);
+  if (value === '14–21 days') return /14|21|standard|ups|made/.test(text) || !text.trim();
+  if (value === '21–28 days') return /21|28/.test(text);
+  if (value === '30+ days') return /30|month/.test(text);
+  return true;
 }
 
 export function ShopClient({ products, error }: { products: StorefrontProduct[]; error?: string }) {
@@ -25,6 +37,8 @@ export function ShopClient({ products, error }: { products: StorefrontProduct[];
   const [size, setSize] = useState('');
   const [material, setMaterial] = useState('');
   const [occasion, setOccasion] = useState('');
+  const [style, setStyle] = useState('');
+  const [productionTime, setProductionTime] = useState('');
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState(SORTS[0]);
   const [sortOpen, setSortOpen] = useState(false);
@@ -38,6 +52,8 @@ export function ShopClient({ products, error }: { products: StorefrontProduct[];
       if (size === 'Custom' && p.size_mode !== 'custom') return false;
       if (material && !contains(p, material.replace('Mirror ', ''))) return false;
       if (occasion && !contains(p, occasion)) return false;
+      if (style && !contains(p, style)) return false;
+      if (productionTime && !matchesProduction(p, productionTime)) return false;
       if (search.trim() && !contains(p, search.trim())) return false;
       return true;
     });
@@ -45,14 +61,14 @@ export function ShopClient({ products, error }: { products: StorefrontProduct[];
     if (sort === 'Price · high to low') list = list.sort((a,b)=>(mainRegularPrice(b)||0)-(mainRegularPrice(a)||0));
     if (sort === 'Newest') list = list.reverse();
     return list;
-  }, [products, category, priceMin, priceMax, color, size, material, occasion, search, sort]);
+  }, [products, category, priceMin, priceMax, color, size, material, occasion, style, productionTime, search, sort]);
 
-  const clear = () => { setCategory('All'); setPriceMin(0); setPriceMax(1000); setColor(''); setSize(''); setMaterial(''); setOccasion(''); setSearch(''); setSort(SORTS[0]); };
-  const activeCount = Number(category !== 'All') + Number(priceMin > 0 || priceMax < 1000) + Number(Boolean(color)) + Number(Boolean(size)) + Number(Boolean(material)) + Number(Boolean(occasion)) + Number(Boolean(search));
+  const clear = () => { setCategory('All'); setPriceMin(0); setPriceMax(1000); setColor(''); setSize(''); setMaterial(''); setOccasion(''); setStyle(''); setProductionTime(''); setSearch(''); setSort(SORTS[0]); };
+  const activeCount = Number(category !== 'All') + Number(priceMin > 0 || priceMax < 1000) + Number(Boolean(color)) + Number(Boolean(size)) + Number(Boolean(material)) + Number(Boolean(occasion)) + Number(Boolean(style)) + Number(Boolean(productionTime)) + Number(Boolean(search));
 
-  return <div data-testid="shop-page" className="relative pt-28 lg:pt-32">
+  return <div data-testid="shop-page" className="relative pt-24 lg:pt-28">
     <section className="container-feya py-8 lg:py-10"><div className="eyebrow mb-3 reveal">Atelier collection · Festival/Stage 26</div><h1 className="display-hero text-bone reveal reveal-d1" style={{ fontSize: 'clamp(44px, 6.5vw, 96px)' }}>The <span className="editorial-italic text-gold-grad">shop</span></h1><p className="editorial-italic text-[var(--bone-dim)] mt-4 text-lg">{products.length || 200} pieces, made to be seen. Filter by world, material or stage-readiness.</p></section>
-    <div className="sticky top-[73px] lg:top-[78px] z-30 border-y border-[rgba(216,214,211,0.12)] bg-[rgba(7,7,10,0.82)] backdrop-blur-xl category-tabs-recovered"><div className="container-feya flex items-center gap-8 overflow-x-auto no-scrollbar py-4">
+    <div className="sticky top-[62px] lg:top-[64px] z-30 border-y border-[rgba(216,214,211,0.12)] bg-[rgba(7,7,10,0.88)] backdrop-blur-xl category-tabs-recovered"><div className="container-feya flex items-center gap-8 overflow-x-auto no-scrollbar py-3.5">
       {CATEGORIES.map((c) => <button key={c} onClick={() => setCategory(c)} className={`chip ${category === c ? 'chip-active' : ''}`}>{c}</button>)}
       <div className="ml-auto relative shrink-0"><button onClick={() => setSortOpen(v=>!v)} className="chip flex items-center gap-2"><SlidersHorizontal size={13} /> {sort}</button>{sortOpen && <div className="absolute right-0 top-12 w-64 glass-strong rounded-xl p-2 z-50">{SORTS.map((s)=><button key={s} onClick={()=>{setSort(s);setSortOpen(false);}} className="w-full text-left px-4 py-3 rounded-lg text-[11px] tracking-[0.18em] uppercase text-bone hover:bg-white/10">{s}</button>)}</div>}</div>
     </div></div>
@@ -64,6 +80,8 @@ export function ShopClient({ products, error }: { products: StorefrontProduct[];
         <div><div className="eyebrow text-[10.5px] mb-3">Size</div><div className="flex flex-wrap gap-1.5">{SIZES.map(s=><button key={s} onClick={()=>setSize(size===s?'':s)} className={`size-pill ${size===s && s !== 'Custom' ? 'size-pill-active' : ''} ${size===s && s === 'Custom' ? 'size-pill-custom' : ''}`}>{s}</button>)}</div></div>
         <div><div className="eyebrow text-[10.5px] mb-3">Material</div>{MATERIALS.map(m=><button key={m} onClick={()=>setMaterial(material===m?'':m)} className="w-full flex items-center gap-2 text-left text-[12px] text-[var(--bone-dim)] py-1.5 hover:text-white"><span className={`w-3.5 h-3.5 border ${material===m?'bg-gold border-gold':'border-[rgba(216,214,211,0.3)]'}`} />{m}</button>)}</div>
         <div><div className="eyebrow text-[10.5px] mb-3">Occasion / Event</div>{OCCASIONS.map(o=><button key={o} onClick={()=>setOccasion(occasion===o?'':o)} className="w-full flex items-center gap-2 text-left text-[12px] text-[var(--bone-dim)] py-1.5 hover:text-white"><span className={`w-3.5 h-3.5 border ${occasion===o?'bg-gold border-gold':'border-[rgba(216,214,211,0.3)]'}`} />{o}</button>)}</div>
+        <div><div className="eyebrow text-[10.5px] mb-3">Style / World</div><div className="flex flex-wrap gap-2">{STYLES.map(s=><button key={s} onClick={()=>setStyle(style===s?'':s)} className={`chip ${style===s?'chip-active':''}`}>{s}</button>)}</div></div>
+        <div><div className="eyebrow text-[10.5px] mb-3">Production time</div>{PRODUCTION_TIMES.map(t=><button key={t} onClick={()=>setProductionTime(productionTime===t?'':t)} className="w-full flex items-center gap-2 text-left text-[12px] text-[var(--bone-dim)] py-1.5 hover:text-white"><span className={`w-3.5 h-3.5 border ${productionTime===t?'bg-gold border-gold':'border-[rgba(216,214,211,0.3)]'}`} />{t}</button>)}</div>
         {activeCount > 0 && <button onClick={clear} className="w-full text-left flex items-center gap-2 text-[var(--gold)] hover:text-white text-[11px] tracking-[0.22em] uppercase pt-2 border-t border-[rgba(216,214,211,0.10)]"><X size={12} /> Clear all filters</button>}
       </div></aside>
       <main className="col-span-12 lg:col-span-10"><div className="flex items-center justify-between mb-5"><div className="eyebrow-dim">{filtered.length} of {products.length} pieces</div></div>{error ? <div className="glass rounded-xl p-6 text-bone-dim">{error}</div> : null}{products.length > 0 && filtered.length === 0 ? <div className="glass rounded-xl p-6 text-bone-dim">No products match these filters.</div> : null}<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 lg:gap-6">{filtered.map((p, i)=><ProductCard key={p.canonical_product_id} product={p} index={i} />)}</div></main>
