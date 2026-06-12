@@ -5,18 +5,21 @@ import { ProductDetailClient } from '@/components/ProductDetailClient';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import { STOREFRONT_CARD_SELECT, STOREFRONT_PDP_SELECT, STOREFRONT_VIEW_V3 } from '@/lib/storefront';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 300;
 
 type PageProps = { params: Promise<{ slug: string }> };
 
 async function getProduct(slug: string) {
   const supabase = getSupabaseReadClient();
   if (!supabase) return { product: null, related: [], error: getMissingSupabaseEnvMessage() };
-  const { data, error } = await supabase.from(STOREFRONT_VIEW_V3).select(STOREFRONT_PDP_SELECT).eq('product_slug', slug).maybeSingle();
-  if (error) return { product: null, related: [], error: error.message };
-  const { data: related } = await supabase.from(STOREFRONT_VIEW_V3).select(STOREFRONT_CARD_SELECT).limit(8);
-  return { product: data, related: related || [] };
+
+  const [productResult, relatedResult] = await Promise.all([
+    supabase.from(STOREFRONT_VIEW_V3).select(STOREFRONT_PDP_SELECT).eq('product_slug', slug).maybeSingle(),
+    supabase.from(STOREFRONT_VIEW_V3).select(STOREFRONT_CARD_SELECT).limit(4),
+  ]);
+
+  if (productResult.error) return { product: null, related: [], error: productResult.error.message };
+  return { product: productResult.data, related: relatedResult.data || [] };
 }
 
 export default async function ProductPage({ params }: PageProps) {
