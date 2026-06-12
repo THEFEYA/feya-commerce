@@ -4,12 +4,12 @@ import { ArrowUpRight } from 'lucide-react';
 import { useState } from 'react';
 import { colorStyle } from '@/components/colors';
 import { SalePrice } from '@/components/SalePrice';
-import type { StorefrontProduct } from '@/lib/types';
+import type { StorefrontMedia, StorefrontProduct } from '@/lib/types';
 import { colorOptions, mainRegularPrice, productSlug, productTitle, salePrice, worldLabel } from '@/lib/storefront';
 
 function galleryHoverUrl(product: StorefrontProduct, primary: string) {
-  const gallery = Array.isArray(product.media_gallery) ? product.media_gallery : [];
-  const found = gallery.find((item: any) => item?.url && item.url !== primary);
+  const gallery: StorefrontMedia[] = Array.isArray(product.media_gallery) ? product.media_gallery as StorefrontMedia[] : [];
+  const found = gallery.find((item) => item.url && item.url !== primary);
   return found?.url || '';
 }
 
