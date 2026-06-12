@@ -1,11 +1,12 @@
 'use client';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { colorStyle } from '@/components/colors';
 import { ProductCard } from '@/components/ProductCard';
 import type { StorefrontProduct } from '@/lib/types';
 import { categoryLabel, colorLabel, mainRegularPrice, productTitle } from '@/lib/storefront';
 
+const PAGE_SIZE = 20;
 const CATEGORIES = ['All', 'Corsets', 'Harness', 'Masks', 'Armor', 'Bodysuits', 'Stage Looks', 'Skirts', 'Accessories'];
 const COLORS = ['Gold', 'Silver', 'Black', 'White', 'Red', 'Holographic'];
 const SIZES = ['XS','S','M','L','XL','XXL','XXXL','Custom'];
@@ -42,6 +43,7 @@ export function ShopClient({ products, error }: { products: StorefrontProduct[];
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState(SORTS[0]);
   const [sortOpen, setSortOpen] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const filtered = useMemo(() => {
     let list = products.filter((p) => {
@@ -63,6 +65,12 @@ export function ShopClient({ products, error }: { products: StorefrontProduct[];
     return list;
   }, [products, category, priceMin, priceMax, color, size, material, occasion, style, productionTime, search, sort]);
 
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [category, priceMin, priceMax, color, size, material, occasion, style, productionTime, search, sort]);
+
+  const visibleProducts = filtered.slice(0, visibleCount);
+  const canLoadMore = visibleCount < filtered.length;
   const clear = () => { setCategory('All'); setPriceMin(0); setPriceMax(1000); setColor(''); setSize(''); setMaterial(''); setOccasion(''); setStyle(''); setProductionTime(''); setSearch(''); setSort(SORTS[0]); };
   const activeCount = Number(category !== 'All') + Number(priceMin > 0 || priceMax < 1000) + Number(Boolean(color)) + Number(Boolean(size)) + Number(Boolean(material)) + Number(Boolean(occasion)) + Number(Boolean(style)) + Number(Boolean(productionTime)) + Number(Boolean(search));
 
@@ -84,7 +92,7 @@ export function ShopClient({ products, error }: { products: StorefrontProduct[];
         <div><div className="eyebrow text-[10.5px] mb-3">Production time</div>{PRODUCTION_TIMES.map(t=><button key={t} onClick={()=>setProductionTime(productionTime===t?'':t)} className="w-full flex items-center gap-2 text-left text-[12px] text-[var(--bone-dim)] py-1.5 hover:text-white"><span className={`w-3.5 h-3.5 border ${productionTime===t?'bg-gold border-gold':'border-[rgba(216,214,211,0.3)]'}`} />{t}</button>)}</div>
         {activeCount > 0 && <button onClick={clear} className="w-full text-left flex items-center gap-2 text-[var(--gold)] hover:text-white text-[11px] tracking-[0.22em] uppercase pt-2 border-t border-[rgba(216,214,211,0.10)]"><X size={12} /> Clear all filters</button>}
       </div></aside>
-      <main className="col-span-12 lg:col-span-10"><div className="flex items-center justify-between mb-5"><div className="eyebrow-dim">{filtered.length} of {products.length} pieces</div></div>{error ? <div className="glass rounded-xl p-6 text-bone-dim">{error}</div> : null}{products.length > 0 && filtered.length === 0 ? <div className="glass rounded-xl p-6 text-bone-dim">No products match these filters.</div> : null}<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 lg:gap-6">{filtered.map((p, i)=><ProductCard key={p.canonical_product_id} product={p} index={i} />)}</div></main>
+      <main className="col-span-12 lg:col-span-10"><div className="flex items-center justify-between mb-5"><div className="eyebrow-dim">Showing {visibleProducts.length} of {filtered.length} pieces</div></div>{error ? <div className="glass rounded-xl p-6 text-bone-dim">{error}</div> : null}{products.length > 0 && filtered.length === 0 ? <div className="glass rounded-xl p-6 text-bone-dim">No products match these filters.</div> : null}<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 lg:gap-6">{visibleProducts.map((p, i)=><ProductCard key={p.canonical_product_id} product={p} index={i} />)}</div>{canLoadMore ? <div className="flex justify-center pt-10"><button onClick={() => setVisibleCount((count) => Math.min(count + PAGE_SIZE, filtered.length))} className="btn-ghost">Show 20 more</button></div> : null}</main>
     </section>
   </div>;
 }
