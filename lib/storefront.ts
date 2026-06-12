@@ -121,11 +121,19 @@ export function colorOptions(product: StorefrontProduct) {
   return values.length ? values : [colorLabel(product)];
 }
 export function getMedia(product: StorefrontProduct) {
-  const gallery = asMediaGallery(product).filter((m) => m?.url);
+  const unique = new Map<string, StorefrontMedia>();
+  asMediaGallery(product)
+    .filter((m) => m?.url)
+    .sort((a, b) => Number(a.position || 0) - Number(b.position || 0))
+    .forEach((item) => {
+      const url = String(item.url);
+      if (!unique.has(url)) unique.set(url, item);
+    });
+  const gallery = Array.from(unique.values());
   if (gallery.length) return gallery;
   const fallbacks = [product.primary_image_url, product.secondary_image_url, product.hover_image_url]
     .filter(Boolean)
     .filter((url, index, list) => list.indexOf(url) === index)
-    .map((url, index) => ({ url, alt: index === 0 ? product.primary_image_alt : productTitle(product), media_type: 'image' }));
+    .map((url, index) => ({ url, alt: index === 0 ? product.primary_image_alt : productTitle(product), media_type: 'image', position: index + 1 }));
   return fallbacks as StorefrontMedia[];
 }
