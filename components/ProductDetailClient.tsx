@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowUpRight, Check, ChevronLeft, ChevronRight, FileText, Heart, RotateCcw, Ruler, Scissors, Share2, ShoppingBag, Truck, Zap } from 'lucide-react';
+import { ArrowUpRight, Check, ChevronDown, ChevronLeft, ChevronRight, FileText, Heart, RotateCcw, Ruler, Scissors, Share2, ShoppingBag, Truck, Zap } from 'lucide-react';
 import { colorStyle } from '@/components/colors';
 import { ProductCard } from '@/components/ProductCard';
 import { SalePrice } from '@/components/SalePrice';
@@ -32,6 +32,7 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
 
   const [idx, setIdx] = useState(0);
   const [configKey, setConfigKey] = useState(fullKey || (options[0] ? optionKey(options[0], 0) : ''));
+  const [configOpen, setConfigOpen] = useState(false);
   const [size, setSize] = useState('M');
   const [colorIdx, setColorIdx] = useState(0);
   const [delivery, setDelivery] = useState('standard');
@@ -41,6 +42,7 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
   const thumbnailRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   const activeConfig = options.find((o, i) => optionKey(o, i) === configKey) || options[0] || null;
+  const activeConfigLabel = activeConfig ? optionLabel(activeConfig, 0) : 'Full Set';
   const regular = optionPrice(activeConfig) ?? p.max_price ?? p.min_price ?? 0;
   const sale = salePrice(regular) || regular;
   const currency = activeConfig?.currency || p.currency || 'EUR';
@@ -113,11 +115,19 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
 
         <div className="mt-2"><SalePrice regular={regular} sale={sale} currency={currency} variant="pdp" testidPrefix="pdp-price" /></div>
 
-        <div className="mt-2">
+        <div className="mt-2 relative">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Configuration</div><div className="eyebrow-dim">{options.length || 1} options</div></div>
-          <select value={configKey} onChange={(e) => setConfigKey(e.target.value)} className="w-full h-10 rounded-md bg-[rgba(255,255,255,0.035)] border border-[rgba(216,214,211,0.18)] text-bone px-4 focus:outline-none focus:border-white">
-            {options.map((o, i) => <option key={optionKey(o, i)} value={optionKey(o, i)}>{optionLabel(o, i)}</option>)}
-          </select>
+          <button type="button" onClick={() => setConfigOpen((open) => !open)} className="w-full h-10 rounded-md bg-[rgba(255,255,255,0.035)] border border-[rgba(216,214,211,0.18)] text-bone px-4 focus:outline-none focus:border-white flex items-center justify-between text-left">
+            <span className="truncate">{activeConfigLabel}</span>
+            <ChevronDown size={15} className={`transition-transform ${configOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {configOpen ? <div className="absolute left-0 right-0 top-full mt-2 z-[80] glass-strong rounded-lg p-1.5 shadow-2xl max-h-[250px] overflow-auto">
+            {options.map((o, i) => {
+              const key = optionKey(o, i);
+              const active = key === configKey;
+              return <button key={key} type="button" onClick={() => { setConfigKey(key); setConfigOpen(false); }} className={`w-full text-left px-4 py-2.5 rounded-md transition-all ${active ? 'bg-[rgba(212,178,106,.12)] text-[var(--gold-warm)]' : 'text-bone hover:bg-white/10'}`}>{optionLabel(o, i)}</button>;
+            })}
+          </div> : null}
         </div>
         <p className="mt-1.5 min-h-[18px] text-[12px] leading-relaxed text-[var(--gold-warm)]">{savingsText}</p>
 
@@ -134,8 +144,8 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
         <div className="mt-2">
           <div className="eyebrow text-[10px] mb-1.5">Delivery</div>
           <div className="grid grid-cols-2 gap-2.5">
-            <button onClick={() => setDelivery('standard')} className={`glass rounded-md px-3 py-2 text-left ${delivery === 'standard' ? 'border-white' : ''}`}><div className="flex items-center gap-3"><span className="h-8 w-8 rounded-full border border-[rgba(216,214,211,0.22)] flex items-center justify-center shrink-0"><Truck size={14} /></span><span><span className="block font-semibold text-[13px]">Standard UPS</span><span className="block text-[10.5px] text-[var(--bone-dim)]">14–21 business days · Included</span></span></div></button>
-            <button onClick={() => setDelivery('express')} className={`glass rounded-md px-3 py-2 text-left ${delivery === 'express' ? 'border-white' : ''}`}><div className="flex items-center gap-3"><span className="h-8 w-8 rounded-full border border-[rgba(212,178,106,0.42)] flex items-center justify-center shrink-0 text-[var(--gold)]"><Zap size={14} /></span><span><span className="block font-semibold text-[13px]">Express DHL</span><span className="block text-[10.5px] text-[var(--bone-dim)]">7–10 business days · +$45</span></span></div></button>
+            <button onClick={() => setDelivery('standard')} className={`glass rounded-md px-3 py-2 text-left transition-all ${delivery === 'standard' ? 'border-white bg-[rgba(255,255,255,.07)] shadow-[0_0_0_1px_rgba(255,255,255,.28),0_0_28px_rgba(216,214,211,.08)]' : ''}`}><div className="flex items-center gap-3"><span className="h-8 w-8 rounded-full border border-[rgba(216,214,211,0.22)] flex items-center justify-center shrink-0"><Truck size={14} /></span><span><span className="block font-semibold text-[13px]">Standard UPS</span><span className="block text-[10.5px] text-[var(--bone-dim)]">14–21 business days · Included</span></span></div></button>
+            <button onClick={() => setDelivery('express')} className={`glass rounded-md px-3 py-2 text-left transition-all ${delivery === 'express' ? 'border-[var(--gold)] bg-[rgba(212,178,106,.08)] shadow-[0_0_0_1px_rgba(212,178,106,.35),0_0_30px_rgba(212,178,106,.12)]' : ''}`}><div className="flex items-center gap-3"><span className="h-8 w-8 rounded-full border border-[rgba(212,178,106,0.42)] flex items-center justify-center shrink-0 text-[var(--gold)]"><Zap size={14} /></span><span><span className="block font-semibold text-[13px]">Express DHL</span><span className="block text-[10.5px] text-[var(--bone-dim)]">7–10 business days · +$45</span></span></div></button>
           </div>
           <p className="text-[11px] text-[var(--bone-dim)] mt-1.5">Production time is calculated before shipping. Made to order.</p>
         </div>
