@@ -4,8 +4,7 @@ import { ShopClient } from '@/components/ShopClient';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import { STOREFRONT_CARD_SELECT, STOREFRONT_FALLBACK_CARD_SELECT, STOREFRONT_VIEW_V1, STOREFRONT_VIEW_V2, STOREFRONT_VIEW_V3 } from '@/lib/storefront';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 300;
 
 async function getProducts() {
   const supabase = getSupabaseReadClient();
