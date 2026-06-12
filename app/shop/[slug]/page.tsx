@@ -4,14 +4,16 @@ import { Header } from '@/components/Header';
 import { ProductDetailClient } from '@/components/ProductDetailClient';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import { STOREFRONT_FALLBACK_CARD_SELECT, STOREFRONT_MEDIA_FAST_SELECT, STOREFRONT_MEDIA_FAST_VIEW, STOREFRONT_VIEW_V1, STOREFRONT_VIEW_V2 } from '@/lib/storefront';
+import type { StorefrontProduct } from '@/lib/types';
 
 export const revalidate = 300;
 
 type PageProps = { params: Promise<{ slug: string }> };
+type SupabaseReader = NonNullable<ReturnType<typeof getSupabaseReadClient>>;
 
 const PDP_FAST_SELECT = `${STOREFRONT_FALLBACK_CARD_SELECT},configurations,pdp_option_count,has_multiple_pdp_options`;
 
-async function attachMedia(supabase: any, product: any, slug: string) {
+async function attachMedia(supabase: SupabaseReader, product: StorefrontProduct, slug: string) {
   if (!product) return product;
   const media = await supabase
     .from(STOREFRONT_MEDIA_FAST_VIEW)
@@ -43,7 +45,7 @@ async function getProduct(slug: string) {
     .eq('product_slug', slug)
     .maybeSingle();
 
-  if (!v2.error && v2.data) return { product: await attachMedia(supabase, v2.data, slug), related: [] };
+  if (!v2.error && v2.data) return { product: await attachMedia(supabase, v2.data as StorefrontProduct, slug), related: [] };
 
   const v1 = await supabase
     .from(STOREFRONT_VIEW_V1)
@@ -51,7 +53,7 @@ async function getProduct(slug: string) {
     .eq('product_slug', slug)
     .maybeSingle();
 
-  if (!v1.error && v1.data) return { product: await attachMedia(supabase, v1.data, slug), related: [] };
+  if (!v1.error && v1.data) return { product: await attachMedia(supabase, v1.data as StorefrontProduct, slug), related: [] };
   return { product: null, related: [], error: v2.error?.message || v1.error?.message || 'Product not found.' };
 }
 
