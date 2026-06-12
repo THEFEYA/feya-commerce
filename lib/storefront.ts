@@ -3,6 +3,7 @@ import type { StorefrontConfiguration, StorefrontMedia, StorefrontProduct } from
 export const STOREFRONT_VIEW_V3 = 'feya_commerce_v_step7_storefront_products_api_v3';
 export const STOREFRONT_VIEW_V2 = 'feya_commerce_v_step7_storefront_products_api_v2';
 export const STOREFRONT_VIEW_V1 = 'feya_commerce_v_step7_storefront_products_api';
+export const STOREFRONT_MEDIA_FAST_VIEW = 'feya_commerce_v_step7_product_media_gallery_fast_v1';
 export const SALE_PERCENT = 20;
 export const SALE_RATE = 0.2;
 
@@ -10,6 +11,9 @@ export const STOREFRONT_CARD_SELECT = [
   'canonical_product_id','product_slug','matched_etsy_listing_id','source_url','card_title','h1','seo_title','meta_description','product_type','material','color','size_mode','production_profile','shipping_profile','handmade_flag','styled_imagery_flag','primary_image_url','primary_image_alt','secondary_image_url','hover_image_url','video_url','media_count','has_video','min_price','max_price','currency','has_fallback_price','has_sampler_excluded_price','public_configuration_count','public_price_row_count','pdp_option_count','has_multiple_pdp_options','storefront_candidate_flag'
 ].join(',');
 export const STOREFRONT_PDP_SELECT = [STOREFRONT_CARD_SELECT, 'configurations', 'media_gallery'].join(',');
+export const STOREFRONT_MEDIA_FAST_SELECT = [
+  'product_slug','primary_image_url','primary_image_alt','secondary_image_url','hover_image_url','video_url','has_video','media_count','media_gallery'
+].join(',');
 export const STOREFRONT_FALLBACK_CARD_SELECT = [
   'canonical_product_id','product_slug','matched_etsy_listing_id','source_url','card_title','h1','seo_title','meta_description','product_type','material','color','size_mode','production_profile','shipping_profile','handmade_flag','styled_imagery_flag','primary_image_url','primary_image_alt','min_price','max_price','currency','has_fallback_price','has_sampler_excluded_price','public_configuration_count','public_price_row_count','storefront_candidate_flag'
 ].join(',');
@@ -119,5 +123,9 @@ export function colorOptions(product: StorefrontProduct) {
 export function getMedia(product: StorefrontProduct) {
   const gallery = asMediaGallery(product).filter((m) => m?.url);
   if (gallery.length) return gallery;
-  return product.primary_image_url ? [{ url: product.primary_image_url, alt: product.primary_image_alt, media_type: 'image' }] : [];
+  const fallbacks = [product.primary_image_url, product.secondary_image_url, product.hover_image_url]
+    .filter(Boolean)
+    .filter((url, index, list) => list.indexOf(url) === index)
+    .map((url, index) => ({ url, alt: index === 0 ? product.primary_image_alt : productTitle(product), media_type: 'image' }));
+  return fallbacks as StorefrontMedia[];
 }
