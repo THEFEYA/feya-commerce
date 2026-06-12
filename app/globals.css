@@ -40,8 +40,8 @@ button { cursor: pointer; }
 .font-display { font-family: Italiana, 'Cormorant Garamond', serif; font-weight: 400; }
 .font-editorial { font-family: 'Cormorant Garamond', serif; }
 .font-tall { font-family: Italiana, 'Cormorant Garamond', serif; font-weight: 400; letter-spacing: .02em; line-height: 1.15; }
-.font-price { font-family: Manrope, Inter, sans-serif; font-weight: 600; font-feature-settings: 'tnum' on, 'lnum' on; }
-.font-price-strike { font-family: Manrope, Inter, sans-serif; font-weight: 500; font-feature-settings: 'tnum' on, 'lnum' on; }
+.font-price { font-family: Manrope, Inter, sans-serif; font-weight: 500; letter-spacing: .035em; font-feature-settings: 'tnum' on, 'lnum' on; }
+.font-price-strike { font-family: Manrope, Inter, sans-serif; font-weight: 400; font-feature-settings: 'tnum' on, 'lnum' on; }
 .font-sans { font-family: Manrope, system-ui, sans-serif; }
 
 .eyebrow, .eyebrow-gold, .eyebrow-dim { font-family: Manrope, sans-serif; text-transform: uppercase; font-size: 11px; font-weight: 600; letter-spacing: .32em; }
@@ -90,8 +90,8 @@ button { cursor: pointer; }
 .primary-media, .hover-media { position: absolute; inset: 0; display: block; }
 .primary-media { z-index: 0; opacity: 1; }
 .hover-media { z-index: 1; object-fit: cover; opacity: 0; }
-.product-card:hover .primary-media { opacity: 0 !important; }
-.product-card:hover .hover-media { opacity: 1 !important; }
+.product-card.hover-ready:hover .primary-media { opacity: 0 !important; }
+.product-card.hover-ready:hover .hover-media { opacity: 1 !important; }
 .product-card:hover .img-wrap img, .product-card:hover .img-wrap video { transform: scale(1.07); filter: saturate(1.08) contrast(1.10); }
 .product-card .img-wrap::after { content: ''; position: absolute; inset: 0; z-index: 2; background: linear-gradient(180deg, transparent 55%, rgba(7,7,10,.85) 100%), radial-gradient(120% 60% at 50% 100%, rgba(7,7,10,.6), transparent 65%); pointer-events: none; }
 .product-card .img-wrap::before { content: ''; position: absolute; top: 0; left: -150%; width: 80%; height: 100%; z-index: 3; background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.18) 50%, transparent 70%); transition: left 1s ease; pointer-events: none; }
