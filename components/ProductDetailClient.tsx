@@ -76,14 +76,14 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
       </div>
     </div>
 
-    <section className="container-feya pb-5 grid grid-cols-12 gap-5 lg:gap-7">
+    <section className="container-feya pb-4 grid grid-cols-12 gap-5 lg:gap-7">
       <div className="col-span-12 lg:col-span-7 grid grid-cols-12 gap-3 lg:gap-4">
-        <div className="col-span-2 hidden lg:flex flex-col gap-3 max-h-[450px] overflow-y-auto no-scrollbar">
-          {gallery.map((g, i) => <button key={`${i}-${g.url}`} onClick={() => setIdx(i)} className={`relative aspect-[4/5] rounded-sm overflow-hidden border transition-all shrink-0 ${idx === i ? 'border-white' : 'border-[rgba(216,214,211,0.12)] opacity-55 hover:opacity-100'}`}>
-            {g.url ? <img src={String(g.url)} alt="" className="absolute inset-0 w-full h-full object-cover object-top" /> : null}
+        <div className="col-span-2 hidden lg:grid grid-cols-2 gap-2 max-h-[420px] overflow-y-auto pr-1">
+          {gallery.map((g, i) => <button key={`${i}-${g.url}`} onClick={() => setIdx(i)} className={`relative aspect-square rounded-sm overflow-hidden border transition-all shrink-0 bg-[rgba(255,255,255,0.025)] ${idx === i ? 'border-white' : 'border-[rgba(216,214,211,0.12)] opacity-55 hover:opacity-100'}`}>
+            {g.url ? <img src={String(g.url)} alt="" className="absolute inset-0 w-full h-full object-contain object-center" /> : null}
           </button>)}
         </div>
-        <div className="col-span-12 lg:col-span-10 relative rounded-md overflow-hidden bg-[rgba(255,255,255,0.025)] h-[410px] lg:h-[455px] border border-[rgba(216,214,211,0.12)]">
+        <div className="col-span-12 lg:col-span-10 relative rounded-md overflow-hidden bg-[rgba(255,255,255,0.025)] h-[385px] lg:h-[405px] xl:h-[420px] border border-[rgba(216,214,211,0.12)]">
           {main ? <img src={String(main)} alt={shortHead} className="absolute inset-0 w-full h-full object-contain object-center" /> : null}
           {gallery.length > 1 ? <>
             <button onClick={() => moveImage(-1)} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/45 backdrop-blur border border-white/15 flex items-center justify-center hover:bg-white hover:text-ink transition-all"><ChevronLeft size={17} /></button>
@@ -94,12 +94,12 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
       </div>
 
       <aside className="col-span-12 lg:col-span-5 lg:sticky lg:top-20 self-start">
-        <h1 className="font-tall text-bone leading-[0.98] tracking-[0.01em] line-clamp-2" style={{ fontSize: 'clamp(30px, 3.1vw, 42px)' }}>{shortHead}</h1>
+        <h1 className="font-tall text-bone leading-[0.98] tracking-[0.01em] line-clamp-2" style={{ fontSize: 'clamp(28px, 2.8vw, 38px)' }}>{shortHead}</h1>
         {tail ? <p className="editorial-italic text-[var(--bone-dim)] text-[12px] mt-1 leading-relaxed line-clamp-1">{tail}</p> : null}
 
-        <div className="mt-2.5"><SalePrice regular={regular} sale={sale} currency={currency} variant="pdp" testidPrefix="pdp-price" /></div>
+        <div className="mt-2"><SalePrice regular={regular} sale={sale} currency={currency} variant="pdp" testidPrefix="pdp-price" /></div>
 
-        <div className="mt-2.5">
+        <div className="mt-2">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Configuration</div><div className="eyebrow-dim">{options.length || 1} options</div></div>
           <select value={configKey} onChange={(e) => setConfigKey(e.target.value)} className="w-full h-10 rounded-md bg-[rgba(255,255,255,0.035)] border border-[rgba(216,214,211,0.18)] text-bone px-4 focus:outline-none focus:border-white">
             {options.map((o, i) => <option key={optionKey(o, i)} value={optionKey(o, i)}>{optionLabel(o, i)}</option>)}
@@ -107,17 +107,17 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
         </div>
         {selectedIsFullSet && fullSetSavings > 0 ? <p className="mt-1.5 text-[12px] leading-relaxed text-[var(--gold-warm)]">Best value: save {formatPrice(salePrice(fullSetSavings) || fullSetSavings, currency)} compared with buying the pieces separately.</p> : null}
 
-        <div className="mt-2.5">
+        <div className="mt-2">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Color · {colors[colorIdx] || colors[0] || 'Mirror'}</div><div className="eyebrow-dim">{colors.length || 1} shade</div></div>
           <div className="flex gap-2">{colors.map((c, i) => <button key={c + i} onClick={() => setColorIdx(i)} className={`w-8 h-8 rounded-full border-2 ${i === colorIdx ? 'border-white' : 'border-[rgba(216,214,211,0.28)]'}`} style={colorStyle(c)} title={c} />)}</div>
         </div>
 
-        <div className="mt-2.5">
+        <div className="mt-2">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Size · {size}</div><a href="#description" className="eyebrow-dim hover:text-white flex items-center gap-1"><Ruler size={12} /> Size guide</a></div>
           <div className="flex flex-wrap gap-1.5">{SIZES.map((s) => <button key={s} onClick={() => setSize(s)} className={`size-pill ${size === s && s !== 'Custom' ? 'size-pill-active' : ''} ${size === s && s === 'Custom' ? 'size-pill-custom' : ''}`}>{s}</button>)}</div>
         </div>
 
-        <div className="mt-2.5">
+        <div className="mt-2">
           <div className="eyebrow text-[10px] mb-1.5">Delivery</div>
           <div className="grid grid-cols-2 gap-2.5">
             <button onClick={() => setDelivery('standard')} className={`glass rounded-md px-3 py-2 text-left ${delivery === 'standard' ? 'border-white' : ''}`}><Truck size={14} /><div className="font-semibold mt-1 text-[13px]">Standard UPS</div><div className="text-[10.5px] text-[var(--bone-dim)]">14–21 business days · Included</div></button>
@@ -126,21 +126,21 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
           <p className="text-[11px] text-[var(--bone-dim)] mt-1.5">Production time is calculated before shipping. Made to order.</p>
         </div>
 
-        <div className="mt-2.5 glass rounded-md px-3 py-2 grid grid-cols-3 gap-3">
+        <div className="mt-2 glass rounded-md px-3 py-2 grid grid-cols-3 gap-3">
           <div><div className="eyebrow-dim">Ordered</div><strong className="text-[13px]">Jun 12</strong></div>
           <div><div className="eyebrow-dim">Ready</div><strong className="text-[13px]">Jun 26 – Jul 03</strong></div>
           <div><div className="eyebrow-dim">Delivered</div><strong className="text-[13px] text-[var(--gold-warm)]">{delivery === 'express' ? 'Jul 03 – Jul 10' : 'Jul 10 – Jul 24'}</strong></div>
         </div>
 
-        <div className="mt-2.5 border-t border-[rgba(216,214,211,0.12)] pt-2.5 flex items-end justify-between"><div className="eyebrow text-[10px]">Total · {qty} × {formatPrice(sale, currency)}</div><div className="font-price text-gold-grad text-[29px] leading-none">{formatPrice(total, currency)}</div></div>
+        <div className="mt-2 border-t border-[rgba(216,214,211,0.12)] pt-2 flex items-end justify-between"><div className="eyebrow text-[10px]">Total · {qty} × {formatPrice(sale, currency)}</div><div className="font-price text-gold-grad text-[29px] leading-none">{formatPrice(total, currency)}</div></div>
         <div className="mt-2 grid grid-cols-[112px_1fr] gap-2.5"><div className="h-10 rounded-md border border-[rgba(216,214,211,0.18)] grid grid-cols-3 items-center"><button onClick={() => setQty(Math.max(1, qty - 1))}>−</button><span className="text-center">{qty}</span><button onClick={() => setQty(qty + 1)}>+</button></div><button className="btn-chrome justify-center rounded-md h-10" onClick={addToBag}>{added ? <Check size={14} /> : <ShoppingBag size={14} />} Add to bag</button></div>
         <button className="btn-gold justify-center rounded-md h-10 w-full mt-2" onClick={addToBag}>Buy it now <ArrowUpRight size={13} /></button>
         <div className="recovered-policy-row mt-2.5 flex flex-wrap justify-center gap-4 text-[9px] tracking-[0.22em] uppercase"><a href="#save"><Heart size={11} className="inline mr-1" />Save</a><a href="#share"><Share2 size={11} className="inline mr-1" />Share</a><a href="#shipping"><Truck size={11} className="inline mr-1" />Shipping</a><a href="#returns"><RotateCcw size={11} className="inline mr-1" />Returns</a><a href="#policies"><FileText size={11} className="inline mr-1" />Store policies</a></div>
       </aside>
     </section>
 
-    <section id="description" className="container-feya py-9 border-t border-[rgba(216,214,211,0.12)] grid grid-cols-12 gap-8">
-      <div className="col-span-12 lg:col-span-7"><div className="eyebrow-gold mb-3">About this piece</div><h2 className="display-section text-bone mb-5" style={{ fontSize: 'clamp(30px, 3.2vw, 48px)' }}>{shortHead}</h2><div className="space-y-4 text-[15px] text-[var(--bone-dim)] leading-[1.8]"><p>{p.meta_description || `${shortHead} is a made-to-order TheFEYA statement piece for festivals, stage performance and editorial looks.`}</p><p>Made for performers, dancers, DJs, drag queens, stylists and festival guests who want a reflective look with strong presence. Each piece is prepared by hand and styled to work as a centerpiece or part of a complete look.</p><p>Production is made to order in our atelier. We ship worldwide, tracked and insured, with standard and express delivery options shown above.</p><p>Available in standard sizes or custom sizing. Each piece arrives with atelier packaging and care guidance.</p></div></div>
+    <section id="description" className="container-feya py-7 border-t border-[rgba(216,214,211,0.12)] grid grid-cols-12 gap-7">
+      <div className="col-span-12 lg:col-span-7"><div className="eyebrow-gold mb-3">About this piece</div><h2 className="display-section text-bone mb-4" style={{ fontSize: 'clamp(24px, 2.3vw, 34px)' }}>{shortHead}</h2><div className="space-y-4 text-[15px] text-[var(--bone-dim)] leading-[1.8]"><p>{p.meta_description || `${shortHead} is a made-to-order TheFEYA statement piece for festivals, stage performance and editorial looks.`}</p><p>Made for performers, dancers, DJs, drag queens, stylists and festival guests who want a reflective look with strong presence. Each piece is prepared by hand and styled to work as a centerpiece or part of a complete look.</p><p>Production is made to order in our atelier. We ship worldwide, tracked and insured, with standard and express delivery options shown above.</p><p>Available in standard sizes or custom sizing. Each piece arrives with atelier packaging and care guidance.</p></div></div>
       <div className="col-span-12 lg:col-span-5 space-y-0"><Detail icon={<Scissors size={15} />} title="What's included" lines={[optionLabel(activeConfig || {}, 0), 'Atelier dust bag', 'Care card and replacement hardware kit']} /><Detail icon={<Ruler size={15} />} title="Sizing & fit" lines={['Available in XS–XXXL standard sizing.', 'Custom sizing is available for made-to-order pieces.']} /><Detail icon={<Truck size={15} />} title="Shipping & delivery" id="shipping" lines={['Worldwide tracked and insured shipping.', 'Standard UPS 14–21 business days.', 'Express DHL 7–10 business days.']} /><Detail icon={<RotateCcw size={15} />} title="Returns & exchanges" id="returns" lines={['Standard-size pieces follow store policy.', 'Custom-sized pieces are final sale once production begins.']} /><Detail icon={<FileText size={15} />} title="Handmade variation" id="policies" lines={['Each TheFEYA piece is one-of-a-kind.', 'Mirror panels and handmade details may vary slightly.']} /></div>
     </section>
 
