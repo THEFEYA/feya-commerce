@@ -4,16 +4,45 @@ import { ArrowUpRight, Sparkles, Scissors, Ruler, Truck, Globe2 } from 'lucide-r
 import { Header } from '@/components/Header';
 import { ProductCard } from '@/components/ProductCard';
 import { getSupabaseReadClient } from '@/lib/supabase';
-import { STOREFRONT_CARD_SELECT, STOREFRONT_VIEW_V3 } from '@/lib/storefront';
+import { STOREFRONT_FALLBACK_CARD_SELECT, STOREFRONT_MEDIA_FAST_SELECT, STOREFRONT_MEDIA_FAST_VIEW, STOREFRONT_VIEW_V2 } from '@/lib/storefront';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 300;
+
+async function mergeMedia(supabase, products) {
+  const slugs = products.map((product) => product.product_slug).filter(Boolean);
+  if (!slugs.length) return products;
+
+  const media = await supabase
+    .from(STOREFRONT_MEDIA_FAST_VIEW)
+    .select(STOREFRONT_MEDIA_FAST_SELECT)
+    .in('product_slug', slugs);
+
+  if (media.error || !media.data?.length) return products;
+
+  const bySlug = new Map(media.data.map((item) => [item.product_slug, item]));
+  return products.map((product) => {
+    const item = bySlug.get(product.product_slug);
+    if (!item) return product;
+    return {
+      ...product,
+      primary_image_url: item.primary_image_url || product.primary_image_url,
+      primary_image_alt: item.primary_image_alt || product.primary_image_alt,
+      secondary_image_url: item.secondary_image_url || product.secondary_image_url,
+      hover_image_url: item.hover_image_url || product.hover_image_url,
+      video_url: item.video_url || product.video_url,
+      has_video: item.has_video ?? product.has_video,
+      media_count: item.media_count ?? product.media_count,
+      media_gallery: item.media_gallery || product.media_gallery,
+    };
+  });
+}
 
 async function getProducts() {
   const supabase = getSupabaseReadClient();
   if (!supabase) return [];
-  const { data } = await supabase.from(STOREFRONT_VIEW_V3).select(STOREFRONT_CARD_SELECT).limit(16);
-  return data || [];
+  const { data, error } = await supabase.from(STOREFRONT_VIEW_V2).select(STOREFRONT_FALLBACK_CARD_SELECT).limit(16);
+  if (error || !data?.length) return [];
+  return mergeMedia(supabase, data);
 }
 
 export default async function HomePage() {
