@@ -6,7 +6,8 @@ import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supab
 import { STOREFRONT_FALLBACK_CARD_SELECT, STOREFRONT_MEDIA_FAST_SELECT, STOREFRONT_MEDIA_FAST_VIEW, STOREFRONT_VIEW_V1, STOREFRONT_VIEW_V2 } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
 
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 type PageProps = { params: Promise<{ slug: string }> };
 type SupabaseReader = NonNullable<ReturnType<typeof getSupabaseReadClient>>;
