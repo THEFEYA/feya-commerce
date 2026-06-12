@@ -23,12 +23,14 @@ function galleryHoverUrl(product: StorefrontProduct, primary: string) {
 
 export function ProductCard({ product: p, index = 0 }: { product: StorefrontProduct; index?: number }) {
   const [hovered, setHovered] = useState(false);
+  const [hoverReady, setHoverReady] = useState(false);
   const primary = p.primary_image_url || '';
   const gallerySwap = galleryHoverUrl(p, primary);
   const swap = p.hover_image_url || p.secondary_image_url || gallerySwap || '';
   const cleanSwap = swap && swap !== primary ? swap : '';
   const video = p.has_video ? (p.video_url || '') : '';
   const hasHoverMedia = Boolean(cleanSwap || video);
+  const canSwap = Boolean(hasHoverMedia && (video || hoverReady));
   const colors = colorOptions(p);
   const regular = mainRegularPrice(p);
   const sale = salePrice(regular);
@@ -37,10 +39,10 @@ export function ProductCard({ product: p, index = 0 }: { product: StorefrontProd
   const title = productTitle(p);
 
   return (
-    <Link prefetch href={`/shop/${slug}`} data-testid={`product-card-${slug}`} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} className="product-card reveal group block focus:outline-none focus-visible:ring-1 focus-visible:ring-white/60" style={{ animationDelay: `${(index % 8) * 60}ms` }}>
+    <Link prefetch href={`/shop/${slug}`} data-testid={`product-card-${slug}`} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} className={`product-card reveal group block focus:outline-none focus-visible:ring-1 focus-visible:ring-white/60 ${hasHoverMedia ? 'has-hover' : ''} ${canSwap ? 'hover-ready' : ''}`} style={{ animationDelay: `${(index % 8) * 60}ms` }}>
       <div className="img-wrap relative">
-        {primary ? <img src={primary} alt={title} loading="lazy" className={`primary-media transition-opacity duration-500 ${hasHoverMedia ? 'group-hover:opacity-0' : ''} ${hovered && hasHoverMedia ? 'opacity-0' : 'opacity-100'}`} /> : <div className="h-full grid place-items-center text-sm text-[var(--smoke)]">Missing image</div>}
-        {video ? <video src={video} muted playsInline loop preload="none" autoPlay={hovered} className={`hover-media transition-opacity duration-500 group-hover:opacity-100 ${hovered ? 'opacity-100' : 'opacity-0'}`} /> : cleanSwap ? <img src={cleanSwap} alt="" loading="lazy" className={`hover-media transition-opacity duration-500 group-hover:opacity-100 ${hovered ? 'opacity-100' : 'opacity-0'}`} aria-hidden="true" /> : null}
+        {primary ? <img src={primary} alt={title} loading="lazy" className={`primary-media transition-opacity duration-500 ${hovered && canSwap ? 'opacity-0' : 'opacity-100'}`} /> : <div className="h-full grid place-items-center text-sm text-[var(--smoke)]">Missing image</div>}
+        {video ? <video src={video} muted playsInline loop preload="none" autoPlay={hovered} className={`hover-media transition-opacity duration-500 ${hovered ? 'opacity-100' : 'opacity-0'}`} /> : cleanSwap ? <img src={cleanSwap} alt="" loading="lazy" decoding="async" onLoad={() => setHoverReady(true)} onError={() => setHoverReady(false)} className={`hover-media transition-opacity duration-500 ${hovered && hoverReady ? 'opacity-100' : 'opacity-0'}`} aria-hidden="true" /> : null}
       </div>
       <div className="flex flex-col gap-1.5 px-4 py-4 lg:px-5 lg:py-5">
         <h3 className="font-tall text-bone text-[18px] lg:text-[19px] leading-[1.18] line-clamp-2 min-h-[2.5em]" title={title}>{title}</h3>
