@@ -60,6 +60,9 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
   const fullSalePrice = fullRegularPrice != null ? salePrice(fullRegularPrice) || fullRegularPrice : null;
   const fullSetSavings = fullSalePrice && separateSaleTotal > fullSalePrice ? separateSaleTotal - fullSalePrice : 0;
   const selectedIsFullSet = activeConfig ? isFullSetLabel(optionLabel(activeConfig, 0)) : false;
+  const savingsText = selectedIsFullSet && fullSetSavings > 0
+    ? `Best value: save ${formatPrice(fullSetSavings, currency)} vs ordering pieces separately (${formatPrice(separateSaleTotal, currency)}).`
+    : '';
 
   useEffect(() => {
     thumbnailRefs.current[idx]?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
@@ -116,7 +119,7 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
             {options.map((o, i) => <option key={optionKey(o, i)} value={optionKey(o, i)}>{optionLabel(o, i)}</option>)}
           </select>
         </div>
-        {selectedIsFullSet && fullSetSavings > 0 ? <p className="mt-1.5 text-[12px] leading-relaxed text-[var(--gold-warm)]">Best value: save {formatPrice(fullSetSavings, currency)} vs ordering pieces separately ({formatPrice(separateSaleTotal, currency)}).</p> : null}
+        <p className="mt-1.5 min-h-[18px] text-[12px] leading-relaxed text-[var(--gold-warm)]">{savingsText}</p>
 
         <div className="mt-2">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Color · {colors[colorIdx] || colors[0] || 'Mirror'}</div><div className="eyebrow-dim">{colors.length || 1} shade</div></div>
