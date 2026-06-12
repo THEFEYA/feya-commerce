@@ -52,11 +52,13 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
   const main = activeImage?.url || p.primary_image_url || '';
   const complete = related.filter((x) => x.canonical_product_id !== p.canonical_product_id).slice(0, 4);
 
-  const fullPrice = full ? optionPrice(full) : null;
-  const separateTotal = options
+  const fullRegularPrice = full ? optionPrice(full) : null;
+  const separateRegularTotal = options
     .filter((o, i) => !isFullSetLabel(optionLabel(o, i)))
     .reduce((sum, option) => sum + (optionPrice(option) || 0), 0);
-  const fullSetSavings = fullPrice && separateTotal > fullPrice ? separateTotal - fullPrice : 0;
+  const separateSaleTotal = separateRegularTotal > 0 ? salePrice(separateRegularTotal) || separateRegularTotal : 0;
+  const fullSalePrice = fullRegularPrice != null ? salePrice(fullRegularPrice) || fullRegularPrice : null;
+  const fullSetSavings = fullSalePrice && separateSaleTotal > fullSalePrice ? separateSaleTotal - fullSalePrice : 0;
   const selectedIsFullSet = activeConfig ? isFullSetLabel(optionLabel(activeConfig, 0)) : false;
 
   useEffect(() => {
@@ -114,7 +116,7 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
             {options.map((o, i) => <option key={optionKey(o, i)} value={optionKey(o, i)}>{optionLabel(o, i)}</option>)}
           </select>
         </div>
-        {selectedIsFullSet && fullSetSavings > 0 ? <p className="mt-1.5 text-[12px] leading-relaxed text-[var(--gold-warm)]">Best value: save {formatPrice(salePrice(fullSetSavings) || fullSetSavings, currency)} compared with buying the pieces separately.</p> : null}
+        {selectedIsFullSet && fullSetSavings > 0 ? <p className="mt-1.5 text-[12px] leading-relaxed text-[var(--gold-warm)]">Best value: save {formatPrice(fullSetSavings, currency)} vs ordering pieces separately ({formatPrice(separateSaleTotal, currency)}).</p> : null}
 
         <div className="mt-2">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Color · {colors[colorIdx] || colors[0] || 'Mirror'}</div><div className="eyebrow-dim">{colors.length || 1} shade</div></div>
@@ -129,8 +131,8 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
         <div className="mt-2">
           <div className="eyebrow text-[10px] mb-1.5">Delivery</div>
           <div className="grid grid-cols-2 gap-2.5">
-            <button onClick={() => setDelivery('standard')} className={`glass rounded-md px-3 py-2 text-left ${delivery === 'standard' ? 'border-white' : ''}`}><Truck size={14} /><div className="font-semibold mt-1 text-[13px]">Standard UPS</div><div className="text-[10.5px] text-[var(--bone-dim)]">14–21 business days · Included</div></button>
-            <button onClick={() => setDelivery('express')} className={`glass rounded-md px-3 py-2 text-left ${delivery === 'express' ? 'border-white' : ''}`}><Zap size={14} className="text-[var(--gold)]" /><div className="font-semibold mt-1 text-[13px]">Express DHL</div><div className="text-[10.5px] text-[var(--bone-dim)]">7–10 business days · +$45</div></button>
+            <button onClick={() => setDelivery('standard')} className={`glass rounded-md px-3 py-2 text-left ${delivery === 'standard' ? 'border-white' : ''}`}><div className="flex items-center gap-3"><span className="h-8 w-8 rounded-full border border-[rgba(216,214,211,0.22)] flex items-center justify-center shrink-0"><Truck size={14} /></span><span><span className="block font-semibold text-[13px]">Standard UPS</span><span className="block text-[10.5px] text-[var(--bone-dim)]">14–21 business days · Included</span></span></div></button>
+            <button onClick={() => setDelivery('express')} className={`glass rounded-md px-3 py-2 text-left ${delivery === 'express' ? 'border-white' : ''}`}><div className="flex items-center gap-3"><span className="h-8 w-8 rounded-full border border-[rgba(212,178,106,0.42)] flex items-center justify-center shrink-0 text-[var(--gold)]"><Zap size={14} /></span><span><span className="block font-semibold text-[13px]">Express DHL</span><span className="block text-[10.5px] text-[var(--bone-dim)]">7–10 business days · +$45</span></span></div></button>
           </div>
           <p className="text-[11px] text-[var(--bone-dim)] mt-1.5">Production time is calculated before shipping. Made to order.</p>
         </div>
