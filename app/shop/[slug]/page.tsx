@@ -1,189 +1,149 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { ProductCard } from '@/components/ProductCard';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
-import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
+import { asConfigurations, asMediaGallery, categoryLabel, colorLabel, mainRegularPrice, money, optionLabel, optionPrice, salePrice, splitTitle, STOREFRONT_VIEW_V3 } from '@/lib/storefront';
+import type { StorefrontProduct } from '@/lib/types';
 
-type PageProps = {
-  params: Promise<{ slug: string }>;
-};
+type PageProps = { params: Promise<{ slug: string }> };
 
-async function getProduct(slug: string): Promise<{ product: StorefrontProduct | null; error?: string }> {
+async function getProduct(slug: string): Promise<{ product: StorefrontProduct | null; related: StorefrontProduct[]; error?: string }> {
   const supabase = getSupabaseReadClient();
+  if (!supabase) return { product: null, related: [], error: getMissingSupabaseEnvMessage() };
 
-  if (!supabase) {
-    return { product: null, error: getMissingSupabaseEnvMessage() };
-  }
+  const { data, error } = await supabase.from(STOREFRONT_VIEW_V3).select('*').eq('product_slug', slug).maybeSingle();
+  if (error) return { product: null, related: [], error: error.message };
 
-  const { data, error } = await supabase
-    .from('feya_commerce_v_step7_storefront_products_api')
-    .select('*')
-    .eq('product_slug', slug)
-    .maybeSingle();
-
-  if (error) {
-    return { product: null, error: error.message };
-  }
-
-  return { product: data as StorefrontProduct | null };
+  const { data: related } = await supabase.from(STOREFRONT_VIEW_V3).select('*').limit(8);
+  return { product: data as StorefrontProduct | null, related: (related || []) as StorefrontProduct[] };
 }
 
-function formatMoney(amount: number | null | undefined, currency = 'USD') {
-  if (amount == null) return null;
-
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: 0,
-  }).format(amount);
+function getMainOption(product: StorefrontProduct) {
+  const options = asConfigurations(product);
+  const full = options.find((option, index) => /full\s*set|complete/i.test(optionLabel(option, index)));
+  return full || options[0] || null;
 }
 
-function formatPrice(product: StorefrontProduct) {
-  const currency = product.currency || 'USD';
-  const min = product.min_price;
-  const max = product.max_price;
-
-  if (min == null && max == null) return 'Price under review';
-
-  if (min != null && max != null && min !== max) {
-    return `${formatMoney(min, currency)} – ${formatMoney(max, currency)}`;
-  }
-
-  return formatMoney(min ?? max ?? 0, currency);
-}
-
-function getConfigurations(product: StorefrontProduct): StorefrontConfiguration[] {
-  if (!Array.isArray(product.configurations)) return [];
-  return product.configurations as StorefrontConfiguration[];
-}
-
-function getConfigurationLabel(configuration: StorefrontConfiguration, index: number) {
-  return String(
-    configuration.configuration_label ||
-      configuration.configuration_name ||
-      configuration.option_value ||
-      configuration.raw_option_value ||
-      configuration.title ||
-      configuration.label ||
-      `Configuration ${index + 1}`,
-  );
-}
-
-function getConfigurationPrice(configuration: StorefrontConfiguration, fallbackCurrency: string | null) {
-  const currency = configuration.currency || fallbackCurrency || 'USD';
-  const single = configuration.price_amount ?? configuration.price ?? configuration.amount;
-
-  if (single != null) return formatMoney(single, currency);
-
-  const min = configuration.min_price;
-  const max = configuration.max_price;
-
-  if (min != null && max != null && min !== max) {
-    return `${formatMoney(min, currency)} – ${formatMoney(max, currency)}`;
-  }
-
-  if (min != null || max != null) return formatMoney(min ?? max, currency);
-
-  return 'Price under review';
+function getMedia(product: StorefrontProduct) {
+  const gallery = asMediaGallery(product).filter((item) => item.url);
+  if (gallery.length > 0) return gallery;
+  return product.primary_image_url ? [{ url: product.primary_image_url, alt: product.primary_image_alt, media_type: 'image', is_primary: true }] : [];
 }
 
 export default async function ProductPreviewPage({ params }: PageProps) {
   const { slug } = await params;
-  const { product, error } = await getProduct(slug);
-  const configurations = product ? getConfigurations(product).slice(0, 8) : [];
+  const { product, related, error } = await getProduct(slug);
+
+  if (error) {
+    return <main className="page-shell"><div className="feya-content"><div className="notice">{error}</div></div></main>;
+  }
+  if (!product) {
+    return <main className="page-shell"><div className="feya-content"><div className="notice">Product not found.</div></div></main>;
+  }
+
+  const media = getMedia(product);
+  const mainImage = media[0]?.url || product.primary_image_url;
+  const { title, subtitle } = splitTitle(product);
+  const options = asConfigurations(product).slice().sort((a, b) => Number(a.sort_order || 0) - Number(b.sort_order || 0));
+  const selected = getMainOption(product);
+  const regular = optionPrice(selected || {}) ?? mainRegularPrice(product);
+  const sale = salePrice(regular);
+  const currency = (selected?.currency || product.currency || 'EUR') as string;
+  const color = colorLabel(product);
+  const category = categoryLabel(product);
+  const visibleRelated = related.filter((item) => item.canonical_product_id !== product.canonical_product_id).slice(0, 4);
 
   return (
     <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/" className="brand-mark">TheFEYA</Link>
-          <div className="nav-links">
-            <Link href="/shop">Shop</Link>
-            <Link href="/admin">Admin</Link>
-          </div>
+      <div className="feya-announcement">Express DHL · Worldwide shipping · Made to order in our atelier</div>
+      <header className="feya-header">
+        <Link href="/" className="feya-logo">FEYA</Link>
+        <nav className="feya-nav">
+          <Link href="/">Home</Link><Link href="/shop">Shop</Link><Link href="/shop">Festival</Link><Link href="/shop">Stage</Link><Link href="/shop">Desert</Link><Link href="/shop">Editorial</Link><Link href="/admin">Atelier OS</Link>
         </nav>
+        <div className="feya-actions"><span>⌕</span><span>♡</span><span>♙</span><span className="feya-bag">Bag · 0</span></div>
+      </header>
 
-        {error ? <div className="notice">{error}</div> : null}
-
-        {!error && !product ? <div className="notice">Product not found.</div> : null}
-
-        {product ? (
-          <>
-            <section className="grid pdp-grid">
-              <ProductCard product={product} />
-              <div className="card pdp-panel">
-                <p className="badge">Read-only PDP preview</p>
-                <h1>{product.h1 || product.card_title || 'Untitled product'}</h1>
-                <p className="muted">{product.meta_description || 'Description draft is not approved yet.'}</p>
-                <div className="pdp-price">{formatPrice(product)}</div>
-                <div className="badge-row">
-                  {product.material ? <span className="badge">{product.material}</span> : null}
-                  {product.color ? <span className="badge">{product.color}</span> : null}
-                  {product.size_mode ? <span className="badge">{product.size_mode}</span> : null}
-                  {product.public_configuration_count ? <span className="badge">{product.public_configuration_count} configurations</span> : null}
-                  {product.has_fallback_price ? <span className="badge">Fallback price review</span> : null}
-                  {product.handmade_flag ? <span className="badge">Handmade</span> : null}
+      <section className="feya-pdp">
+        <div className="feya-breadcrumb"><span>Atelier</span><span>›</span><span>Shop</span><span>›</span><span>{category}</span><span>›</span><span>{title}</span></div>
+        <div className="feya-pdp-top">
+          <div className="feya-gallery">
+            <div className="feya-thumbs">
+              {media.map((item, index) => (
+                <div className="feya-thumb" key={`${item.url}-${index}`}>
+                  <Image src={String(item.url)} alt={String(item.alt || title)} fill sizes="120px" />
                 </div>
-                <div className="notice" style={{ marginTop: '24px' }}>
-                  Product options are read-only in Phase B. Configuration selector and Add to Bag will be added only after review flows are stable.
-                </div>
-              </div>
-            </section>
+              ))}
+            </div>
+            <div className="feya-main-photo">
+              {mainImage ? <Image src={mainImage} alt={product.primary_image_alt || title} fill priority sizes="(max-width: 900px) 92vw, 52vw" /> : <div className="feya-missing-image">Missing image</div>}
+              <span className="feya-gallery-count">1 / {media.length || 1}</span>
+            </div>
+          </div>
 
-            <section className="section-head">
-              <div>
-                <h2>Configurations</h2>
-                <p className="muted">Read-only view of available set/option logic from Supabase.</p>
-              </div>
-            </section>
+          <aside className="feya-buybox">
+            <h1>{title}</h1>
+            {subtitle ? <p className="feya-subtitle">{subtitle}</p> : null}
+            <div className="feya-pdp-price">
+              <span className="feya-pdp-sale">{money(sale, currency) || 'Atelier price'}</span>
+              {regular ? <span className="feya-pdp-old">{money(regular, currency)}</span> : null}
+              <span className="feya-sale-chip">−20%</span>
+              <span className="feya-pdp-range">Range {money(product.min_price, product.currency || currency)} – {money(product.max_price, product.currency || currency)}</span>
+            </div>
 
-            {configurations.length > 0 ? (
-              <div className="configuration-list">
-                {configurations.map((configuration, index) => (
-                  <div className="configuration-card" key={`${getConfigurationLabel(configuration, index)}-${index}`}>
-                    <div className="section-head" style={{ margin: 0 }}>
-                      <h3>{getConfigurationLabel(configuration, index)}</h3>
-                      <span className="status-pill warning">{getConfigurationPrice(configuration, product.currency)}</span>
-                    </div>
-                    <p>
-                      Future selector row. Components, size/color/material options and exact buy-box behavior will be reviewed in Product Builder before checkout is added.
-                    </p>
-                    {configuration.has_fallback_price ? <div className="badge-row"><span className="badge">Fallback price review</span></div> : null}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="notice">No configuration payload available yet. Treat this as a whole-product draft until Product Builder review.</div>
-            )}
+            <div className="feya-form-block">
+              <div className="feya-label-row"><span>Configuration</span><span>{product.pdp_option_count || options.length} options</span></div>
+              <select className="feya-select" defaultValue={selected ? optionLabel(selected, 0) : ''}>
+                {options.map((option, index) => <option key={`${option.configuration_id || option.source_price_row_id || index}`} value={optionLabel(option, index)}>{optionLabel(option, index)}</option>)}
+              </select>
+            </div>
 
-            <section className="grid pdp-section-grid">
-              <div className="card pdp-info-block">
-                <h3>What’s included</h3>
-                <p>Will be generated from component/configuration data. Must clearly state what is included and what is not included.</p>
-              </div>
-              <div className="card pdp-info-block">
-                <h3>Materials & care</h3>
-                <p>Will use canonical material data and TheFEYA snippet rules. Avoid wrong material claims.</p>
-              </div>
-              <div className="card pdp-info-block">
-                <h3>Sizing & fit</h3>
-                <p>Will explain adjustable/custom sizing, measurements and fit notes before launch.</p>
-              </div>
-              <div className="card pdp-info-block">
-                <h3>Production time</h3>
-                <p>Default handmade production logic will be shown here after content approval.</p>
-              </div>
-              <div className="card pdp-info-block">
-                <h3>Shipping & returns</h3>
-                <p>Short commercial summary with detailed policy links later. No tax/customs promises without policy review.</p>
-              </div>
-              <div className="card pdp-info-block">
-                <h3>Handmade / styled imagery note</h3>
-                <p>Will explain handmade variation and styled/AI-assisted imagery flags where relevant.</p>
-              </div>
-            </section>
-          </>
-        ) : null}
-      </div>
+            <div className="feya-value-note">✦ Best value for the complete look<br /><span>Bundle price — every piece styled to match.</span></div>
+
+            <div className="feya-form-block">
+              <div className="feya-label-row"><span>Color · {color}</span><span>1 shade</span></div>
+              <div className="feya-color-row"><span className={`feya-filter-swatch`}><i className={`feya-swatch-${color.toLowerCase().replace(/[^a-z]+/g, '')}`} /></span></div>
+            </div>
+
+            <div className="feya-form-block">
+              <div className="feya-label-row"><span>Size · M</span><span>Size guide</span></div>
+              <div className="feya-size-row">{['XS','S','M','L','XL','XXL','XXXL','Custom'].map((size) => <span className={`feya-size-pill ${size === 'M' ? 'active' : ''}`} key={size}>{size}</span>)}</div>
+            </div>
+
+            <div className="feya-form-block">
+              <div className="feya-label-row"><span>Delivery</span></div>
+              <div className="feya-delivery-row"><div className="feya-delivery-card active"><strong>Standard UPS</strong><span>14–21 business days · Included</span></div><div className="feya-delivery-card"><strong>Express DHL</strong><span>7–10 business days · +$45</span></div></div>
+              <p className="muted">Production time is calculated before shipping. Made to order.</p>
+            </div>
+
+            <div className="feya-timeline"><div><span>Ordered</span><strong>Jun 12</strong></div><div><span>Ready</span><strong>Jun 26 – Jul 03</strong></div><div><span>Delivered</span><strong>Jul 10 – Jul 24</strong></div></div>
+            <div className="feya-total-row"><span>Total · 1 × {money(sale, currency)}</span><strong>{money(sale, currency)}</strong></div>
+            <div className="feya-cta-row"><div className="feya-qty"><button>−</button><span>1</span><button>+</button></div><button className="feya-add">Add to bag</button></div>
+            <button className="feya-buy">Buy it now ↗</button>
+            <div className="feya-policy-row"><span>♡ Save</span><span>↗ Share</span><span>▱ Shipping</span><span>↻ Returns</span><span>▧ Store policies</span></div>
+          </aside>
+        </div>
+
+        <section className="feya-description">
+          <div>
+            <div className="feya-kicker">About this piece</div>
+            <h2>{title}</h2>
+            <p>{product.meta_description || `${title} is a made-to-order TheFEYA statement piece for festivals, stage performance and editorial looks.`}</p>
+            <p>Made for performers, dancers, DJs, drag queens, stylists and festival guests who want a reflective look with strong presence. Each piece is prepared by hand and styled to work as a centerpiece or part of a full look.</p>
+            <p>Production is made to order in our atelier. We ship worldwide, tracked and insured, with standard and express delivery options shown above.</p>
+          </div>
+          <div className="feya-detail-list">
+            <div><h3>What’s included</h3><p>Selected configuration, care note, and atelier packaging. Full set includes every listed component where available.</p></div>
+            <div><h3>Sizing & fit</h3><p>Available in XS–XXXL standard sizing with custom sizing option.</p></div>
+            <div><h3>Shipping & delivery</h3><p>Standard UPS 14–21 business days or Express DHL 7–10 business days after production.</p></div>
+            <div><h3>Returns & exchanges</h3><p>Standard-size pieces follow store policy. Custom-sized pieces are final sale after production begins.</p></div>
+            <div><h3>Handmade variation</h3><p>Each TheFEYA piece is handmade. Small differences in finish and fit are part of the signature, not a flaw.</p></div>
+          </div>
+        </section>
+
+        <section className="section-head"><div><div className="feya-kicker">Complete the look</div><h2>Same world.</h2></div><Link href="/shop" className="feya-sort">View all ↗</Link></section>
+        <section className="feya-grid">{visibleRelated.map((item) => <ProductCard key={item.canonical_product_id} product={item} />)}</section>
+      </section>
     </main>
   );
 }
