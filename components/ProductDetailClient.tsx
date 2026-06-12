@@ -37,6 +37,7 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
   const [delivery, setDelivery] = useState('standard');
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   const activeConfig = options.find((o, i) => optionKey(o, i) === configKey) || options[0] || null;
   const regular = optionPrice(activeConfig) ?? p.max_price ?? p.min_price ?? 0;
@@ -46,7 +47,8 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
   const colors = colorOptions(p);
   const { head, tail } = splitTitle(productTitle(p));
   const shortHead = compactHead(head);
-  const main = gallery[idx]?.url || p.primary_image_url || '';
+  const activeImage = gallery[idx];
+  const main = activeImage?.url || p.primary_image_url || '';
   const complete = related.filter((x) => x.canonical_product_id !== p.canonical_product_id).slice(0, 4);
 
   const fullPrice = full ? optionPrice(full) : null;
@@ -78,18 +80,20 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
 
     <section className="container-feya pb-4 grid grid-cols-12 gap-5 lg:gap-7">
       <div className="col-span-12 lg:col-span-7 grid grid-cols-12 gap-3 lg:gap-4">
-        <div className="col-span-2 hidden lg:grid grid-cols-2 gap-2 max-h-[420px] overflow-y-auto pr-1">
-          {gallery.map((g, i) => <button key={`${i}-${g.url}`} onClick={() => setIdx(i)} className={`relative aspect-square rounded-sm overflow-hidden border transition-all shrink-0 bg-[rgba(255,255,255,0.025)] ${idx === i ? 'border-white' : 'border-[rgba(216,214,211,0.12)] opacity-55 hover:opacity-100'}`}>
-            {g.url ? <img src={String(g.url)} alt="" className="absolute inset-0 w-full h-full object-contain object-center" /> : null}
+        <div className="col-span-2 hidden lg:grid grid-cols-2 gap-2 max-h-[540px] overflow-y-auto pr-1">
+          {gallery.map((g, i) => <button key={`${i}-${g.url}`} onClick={() => setIdx(i)} className={`relative aspect-[4/5] rounded-sm overflow-hidden border transition-all shrink-0 bg-[rgba(255,255,255,0.025)] ${idx === i ? 'border-white' : 'border-[rgba(216,214,211,0.12)] opacity-55 hover:opacity-100'}`}>
+            {g.url ? <img src={String(g.url)} alt="" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover object-center" /> : null}
           </button>)}
         </div>
-        <div className="col-span-12 lg:col-span-10 relative rounded-md overflow-hidden bg-[rgba(255,255,255,0.025)] h-[385px] lg:h-[405px] xl:h-[420px] border border-[rgba(216,214,211,0.12)]">
-          {main ? <img src={String(main)} alt={shortHead} className="absolute inset-0 w-full h-full object-contain object-center" /> : null}
-          {gallery.length > 1 ? <>
-            <button onClick={() => moveImage(-1)} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/45 backdrop-blur border border-white/15 flex items-center justify-center hover:bg-white hover:text-ink transition-all"><ChevronLeft size={17} /></button>
-            <button onClick={() => moveImage(1)} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/45 backdrop-blur border border-white/15 flex items-center justify-center hover:bg-white hover:text-ink transition-all"><ChevronRight size={17} /></button>
-          </> : null}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/55 backdrop-blur text-xs text-white">{idx + 1} / {gallery.length || 1}</div>
+        <div className="col-span-12 lg:col-span-10 flex justify-center">
+          <button type="button" onClick={() => main && setLightboxOpen(true)} className="relative w-full max-w-[520px] aspect-[4/5] rounded-md overflow-hidden bg-[rgba(255,255,255,0.025)] border border-[rgba(216,214,211,0.12)] text-left">
+            {main ? <img src={String(main)} alt={activeImage?.alt || shortHead} loading={idx === 0 ? 'eager' : 'lazy'} decoding="async" className="absolute inset-0 w-full h-full object-cover object-center" /> : null}
+            {gallery.length > 1 ? <>
+              <span onClick={(event) => { event.stopPropagation(); moveImage(-1); }} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/45 backdrop-blur border border-white/15 flex items-center justify-center hover:bg-white hover:text-ink transition-all"><ChevronLeft size={17} /></span>
+              <span onClick={(event) => { event.stopPropagation(); moveImage(1); }} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/45 backdrop-blur border border-white/15 flex items-center justify-center hover:bg-white hover:text-ink transition-all"><ChevronRight size={17} /></span>
+            </> : null}
+            <span className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/55 backdrop-blur text-xs text-white">{idx + 1} / {gallery.length || 1}</span>
+          </button>
         </div>
       </div>
 
@@ -145,6 +149,11 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
     </section>
 
     {complete.length ? <section className="container-feya py-12"><div className="flex items-end justify-between mb-6"><div><div className="eyebrow-gold mb-3">Complete the look</div><h2 className="display-section text-bone" style={{ fontSize: 'clamp(36px,5vw,64px)' }}>Same world.</h2></div><Link href="/shop" className="btn-ghost">View all <ArrowUpRight size={13} /></Link></div><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">{complete.map((item, i) => <ProductCard key={item.canonical_product_id || i} product={item} index={i} />)}</div></section> : null}
+
+    {lightboxOpen ? <div className="fixed inset-0 z-[120] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setLightboxOpen(false)}>
+      <button type="button" className="absolute right-5 top-5 h-10 w-10 rounded-full border border-white/20 bg-black/40 text-white text-xl" onClick={() => setLightboxOpen(false)}>×</button>
+      {main ? <img src={String(main)} alt={activeImage?.alt || shortHead} className="max-h-[90vh] max-w-full object-contain" /> : null}
+    </div> : null}
   </div>;
 }
 
