@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Search, ShoppingBag, User, Menu, Heart } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { FeyaMark } from '@/components/FeyaMark';
@@ -14,7 +15,15 @@ const NAV = [
   ['/admin', 'Atelier OS'],
 ];
 
+function navIsActive(pathname: string, href: string, label: string) {
+  if (href === '/') return pathname === '/';
+  if (label === 'Shop') return pathname === '/shop' || pathname.startsWith('/shop/');
+  if (label === 'Atelier OS') return pathname.startsWith('/admin');
+  return false;
+}
+
 export function Header() {
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [count, setCount] = useState(0);
 
@@ -39,7 +48,10 @@ export function Header() {
       <div className="container-feya flex items-center justify-between py-3 lg:py-3.5">
         <Link href="/" data-testid="logo-link" className="flex items-center gap-2.5 group"><FeyaMark variant="chrome" width={84} className="transition-transform duration-500 group-hover:scale-[1.03]" /></Link>
         <nav className="hidden lg:flex items-center gap-5 xl:gap-6" data-testid="primary-nav">
-          {NAV.map(([href, label]) => <Link key={href + label} href={href} className="relative text-[10.5px] tracking-[0.22em] uppercase font-medium transition-colors duration-300 text-[#C8C2B5] hover:text-white">{label}</Link>)}
+          {NAV.map(([href, label]) => {
+            const active = navIsActive(pathname, href, label);
+            return <Link key={href + label} href={href} className={`relative text-[10.5px] tracking-[0.22em] uppercase font-medium transition-colors duration-300 ${active ? 'text-white nav-active-glow' : 'text-[#C8C2B5] hover:text-white'}`}>{label}</Link>;
+          })}
         </nav>
         <div className="flex items-center gap-2">
           <button aria-label="Search" className="hidden sm:flex w-9 h-9 items-center justify-center rounded-full border border-transparent text-[#C8C2B5] hover:text-white hover:border-[rgba(216,214,211,0.4)] transition-all"><Search size={15} strokeWidth={1.4} /></button>
