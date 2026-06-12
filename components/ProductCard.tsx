@@ -21,7 +21,7 @@ export function ProductCard({ product: p, index = 0 }: { product: StorefrontProd
   const title = productTitle(p);
 
   return (
-    <Link href={`/shop/${slug}`} data-testid={`product-card-${slug}`} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} className="product-card reveal group block focus:outline-none focus-visible:ring-1 focus-visible:ring-white/60" style={{ animationDelay: `${(index % 8) * 60}ms` }}>
+    <Link prefetch href={`/shop/${slug}`} data-testid={`product-card-${slug}`} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} className="product-card reveal group block focus:outline-none focus-visible:ring-1 focus-visible:ring-white/60" style={{ animationDelay: `${(index % 8) * 60}ms` }}>
       <div className="img-wrap relative">
         {primary ? <img src={primary} alt={title} loading="lazy" className={`primary-media transition-opacity duration-500 ${hovered && (cleanSwap || video) ? 'opacity-0' : 'opacity-100'}`} /> : <div className="h-full grid place-items-center text-sm text-[var(--smoke)]">Missing image</div>}
         {video ? <video src={video} muted playsInline loop preload="none" autoPlay={hovered} className={`hover-media transition-opacity duration-500 ${hovered ? 'opacity-100' : 'opacity-0'}`} /> : cleanSwap ? <img src={cleanSwap} alt="" loading="lazy" className={`hover-media transition-opacity duration-500 ${hovered ? 'opacity-100' : 'opacity-0'}`} aria-hidden="true" /> : null}
