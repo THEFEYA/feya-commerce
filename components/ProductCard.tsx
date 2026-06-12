@@ -7,10 +7,17 @@ import { SalePrice } from '@/components/SalePrice';
 import type { StorefrontProduct } from '@/lib/types';
 import { colorOptions, mainRegularPrice, productSlug, productTitle, salePrice, worldLabel } from '@/lib/storefront';
 
+function galleryHoverUrl(product: StorefrontProduct, primary: string) {
+  const gallery = Array.isArray(product.media_gallery) ? product.media_gallery : [];
+  const found = gallery.find((item: any) => item?.url && item.url !== primary);
+  return found?.url || '';
+}
+
 export function ProductCard({ product: p, index = 0 }: { product: StorefrontProduct; index?: number }) {
   const [hovered, setHovered] = useState(false);
   const primary = p.primary_image_url || '';
-  const swap = p.hover_image_url || p.secondary_image_url || '';
+  const gallerySwap = galleryHoverUrl(p, primary);
+  const swap = p.hover_image_url || p.secondary_image_url || gallerySwap || '';
   const cleanSwap = swap && swap !== primary ? swap : '';
   const video = p.has_video ? (p.video_url || '') : '';
   const colors = colorOptions(p);
