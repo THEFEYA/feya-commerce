@@ -1,6 +1,8 @@
 import type { StorefrontConfiguration, StorefrontMedia, StorefrontProduct } from '@/lib/types';
 
 export const STOREFRONT_VIEW_V3 = 'feya_commerce_v_step7_storefront_products_api_v3';
+export const STOREFRONT_VIEW_V2 = 'feya_commerce_v_step7_storefront_products_api_v2';
+export const STOREFRONT_VIEW_V1 = 'feya_commerce_v_step7_storefront_products_api';
 export const SALE_PERCENT = 20;
 export const SALE_RATE = 0.2;
 
@@ -8,6 +10,9 @@ export const STOREFRONT_CARD_SELECT = [
   'canonical_product_id','product_slug','matched_etsy_listing_id','source_url','card_title','h1','seo_title','meta_description','product_type','material','color','size_mode','production_profile','shipping_profile','handmade_flag','styled_imagery_flag','primary_image_url','primary_image_alt','secondary_image_url','hover_image_url','video_url','media_count','has_video','min_price','max_price','currency','has_fallback_price','has_sampler_excluded_price','public_configuration_count','public_price_row_count','pdp_option_count','has_multiple_pdp_options','storefront_candidate_flag'
 ].join(',');
 export const STOREFRONT_PDP_SELECT = [STOREFRONT_CARD_SELECT, 'configurations', 'media_gallery'].join(',');
+export const STOREFRONT_FALLBACK_CARD_SELECT = [
+  'canonical_product_id','product_slug','matched_etsy_listing_id','source_url','card_title','h1','seo_title','meta_description','product_type','material','color','size_mode','production_profile','shipping_profile','handmade_flag','styled_imagery_flag','primary_image_url','primary_image_alt','min_price','max_price','currency','has_fallback_price','has_sampler_excluded_price','public_configuration_count','public_price_row_count','storefront_candidate_flag'
+].join(',');
 
 export function formatPrice(amount: number | null | undefined, currency = 'EUR') {
   if (amount == null || Number.isNaN(Number(amount))) return '—';
@@ -30,8 +35,24 @@ export function optionPrice(option: StorefrontConfiguration | null | undefined) 
   const value = option.price_amount ?? option.price ?? option.amount ?? option.min_price ?? option.max_price;
   return typeof value === 'number' ? value : value == null ? null : Number(value);
 }
+function normalizedOptionLabel(label: string) {
+  return label.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+function isFullSet(label: string) {
+  return /full\s*set|complete\s*set|complete\s*look/i.test(label);
+}
 export function sortedOptions(product: StorefrontProduct) {
-  return asConfigurations(product).slice().sort((a, b) => {
+  const byLabel = new Map<string, StorefrontConfiguration>();
+  asConfigurations(product).forEach((option, index) => {
+    const label = optionLabel(option, index);
+    const key = normalizedOptionLabel(label);
+    const current = byLabel.get(key);
+    if (!current || (optionPrice(option) || 0) > (optionPrice(current) || 0)) byLabel.set(key, option);
+  });
+  return Array.from(byLabel.values()).sort((a, b) => {
+    const aLabel = optionLabel(a), bLabel = optionLabel(b);
+    const aFull = isFullSet(aLabel), bFull = isFullSet(bLabel);
+    if (aFull !== bFull) return aFull ? 1 : -1;
     const aSort = Number(a.sort_order || 0), bSort = Number(b.sort_order || 0);
     if (aSort !== bSort) return aSort - bSort;
     return (optionPrice(a) || 0) - (optionPrice(b) || 0);
@@ -39,7 +60,7 @@ export function sortedOptions(product: StorefrontProduct) {
 }
 export function fullSetOption(product: StorefrontProduct) {
   const options = sortedOptions(product);
-  return options.find((option, index) => /full\s*set|complete/i.test(optionLabel(option, index))) || [...options].sort((a, b) => (optionPrice(b) || 0) - (optionPrice(a) || 0))[0] || null;
+  return options.find((option, index) => isFullSet(optionLabel(option, index))) || [...options].sort((a, b) => (optionPrice(b) || 0) - (optionPrice(a) || 0))[0] || null;
 }
 export function mainRegularPrice(product: StorefrontProduct) {
   return optionPrice(fullSetOption(product)) ?? product.max_price ?? product.min_price ?? null;
@@ -71,6 +92,14 @@ export function categoryLabel(product: StorefrontProduct) {
   if (/bodysuit|body|catsuit|jumpsuit/.test(text)) return 'Bodysuits';
   if (/skirt/.test(text)) return 'Skirts';
   return 'Stage Looks';
+}
+export function worldLabel(product: StorefrontProduct) {
+  const text = `${productTitle(product)} ${product.meta_description || ''} ${product.product_type || ''}`.toLowerCase();
+  if (/burning\s*man|desert/.test(text)) return 'Burning Man';
+  if (/festival|rave/.test(text)) return 'Festival Look';
+  if (/stage|performance|dance|show/.test(text)) return 'Stage Look';
+  if (/editorial|red carpet|fashion/.test(text)) return 'Editorial';
+  return categoryLabel(product);
 }
 export function colorLabel(product: StorefrontProduct) {
   const text = `${product.color || ''} ${productTitle(product)} ${product.material || ''}`.toLowerCase();
