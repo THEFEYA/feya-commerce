@@ -7,10 +7,18 @@ import { SalePrice } from '@/components/SalePrice';
 import type { StorefrontMedia, StorefrontProduct } from '@/lib/types';
 import { colorOptions, mainRegularPrice, productSlug, productTitle, salePrice, worldLabel } from '@/lib/storefront';
 
+function normalizeGallery(value: unknown): StorefrontMedia[] {
+  let raw = value;
+  if (typeof value === 'string') {
+    try { raw = JSON.parse(value) as unknown; } catch { raw = []; }
+  }
+  return Array.isArray(raw) ? raw as StorefrontMedia[] : [];
+}
+
 function galleryHoverUrl(product: StorefrontProduct, primary: string) {
-  const gallery: StorefrontMedia[] = Array.isArray(product.media_gallery) ? product.media_gallery as StorefrontMedia[] : [];
-  const found = gallery.find((item) => item.url && item.url !== primary);
-  return found?.url || '';
+  const gallery = normalizeGallery(product.media_gallery);
+  const urls = gallery.map((item) => item.url).filter((url): url is string => Boolean(url));
+  return urls.find((url) => url !== primary) || '';
 }
 
 export function ProductCard({ product: p, index = 0 }: { product: StorefrontProduct; index?: number }) {
@@ -20,6 +28,7 @@ export function ProductCard({ product: p, index = 0 }: { product: StorefrontProd
   const swap = p.hover_image_url || p.secondary_image_url || gallerySwap || '';
   const cleanSwap = swap && swap !== primary ? swap : '';
   const video = p.has_video ? (p.video_url || '') : '';
+  const hasHoverMedia = Boolean(cleanSwap || video);
   const colors = colorOptions(p);
   const regular = mainRegularPrice(p);
   const sale = salePrice(regular);
@@ -30,8 +39,8 @@ export function ProductCard({ product: p, index = 0 }: { product: StorefrontProd
   return (
     <Link prefetch href={`/shop/${slug}`} data-testid={`product-card-${slug}`} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} className="product-card reveal group block focus:outline-none focus-visible:ring-1 focus-visible:ring-white/60" style={{ animationDelay: `${(index % 8) * 60}ms` }}>
       <div className="img-wrap relative">
-        {primary ? <img src={primary} alt={title} loading="lazy" className={`primary-media transition-opacity duration-500 ${hovered && (cleanSwap || video) ? 'opacity-0' : 'opacity-100'}`} /> : <div className="h-full grid place-items-center text-sm text-[var(--smoke)]">Missing image</div>}
-        {video ? <video src={video} muted playsInline loop preload="none" autoPlay={hovered} className={`hover-media transition-opacity duration-500 ${hovered ? 'opacity-100' : 'opacity-0'}`} /> : cleanSwap ? <img src={cleanSwap} alt="" loading="lazy" className={`hover-media transition-opacity duration-500 ${hovered ? 'opacity-100' : 'opacity-0'}`} aria-hidden="true" /> : null}
+        {primary ? <img src={primary} alt={title} loading="lazy" className={`primary-media transition-opacity duration-500 ${hasHoverMedia ? 'group-hover:opacity-0' : ''} ${hovered && hasHoverMedia ? 'opacity-0' : 'opacity-100'}`} /> : <div className="h-full grid place-items-center text-sm text-[var(--smoke)]">Missing image</div>}
+        {video ? <video src={video} muted playsInline loop preload="none" autoPlay={hovered} className={`hover-media transition-opacity duration-500 group-hover:opacity-100 ${hovered ? 'opacity-100' : 'opacity-0'}`} /> : cleanSwap ? <img src={cleanSwap} alt="" loading="lazy" className={`hover-media transition-opacity duration-500 group-hover:opacity-100 ${hovered ? 'opacity-100' : 'opacity-0'}`} aria-hidden="true" /> : null}
       </div>
       <div className="flex flex-col gap-1.5 px-4 py-4 lg:px-5 lg:py-5">
         <h3 className="font-tall text-bone text-[18px] lg:text-[19px] leading-[1.18] line-clamp-2 min-h-[2.5em]" title={title}>{title}</h3>
