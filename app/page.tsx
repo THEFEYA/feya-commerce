@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ProductCard } from '@/components/ProductCard';
 import { getSupabaseReadClient } from '@/lib/supabase';
-import { STOREFRONT_VIEW_V3 } from '@/lib/storefront';
+import { STOREFRONT_CARD_SELECT, STOREFRONT_VIEW_V3 } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -10,7 +10,7 @@ export const revalidate = 0;
 async function getProducts() {
   const supabase = getSupabaseReadClient();
   if (!supabase) return [] as StorefrontProduct[];
-  const { data } = await supabase.from(STOREFRONT_VIEW_V3).select('*').limit(12);
+  const { data } = await supabase.from(STOREFRONT_VIEW_V3).select(STOREFRONT_CARD_SELECT).limit(12);
   return (data || []) as StorefrontProduct[];
 }
 
