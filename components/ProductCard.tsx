@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 import Image from 'next/image';
@@ -6,7 +5,7 @@ import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { categoryLabel, colorOptions, mainRegularPrice, money, salePrice, slugFor, productTitle } from '@/lib/storefront';
 
-function addVisualBagItem(product) {
+function addVisualBagItem() {
   const key = 'feya_visual_bag';
   const current = Number.parseInt(window.localStorage?.getItem(key) || '0', 10) || 0;
   window.localStorage?.setItem(key, String(current + 1));
@@ -30,7 +29,7 @@ export function ProductCard({ product, priority = false }) {
       window.location.href = `/shop/${slug}`;
       return;
     }
-    addVisualBagItem(product);
+    addVisualBagItem();
     setAdded(true);
     window.setTimeout(() => setAdded(false), 1400);
   };
