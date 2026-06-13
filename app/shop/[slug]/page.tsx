@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { ProductDetailClient } from '@/components/ProductDetailClient';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
-import { STOREFRONT_FALLBACK_CARD_SELECT, STOREFRONT_MEDIA_FAST_SELECT, STOREFRONT_MEDIA_FAST_VIEW, STOREFRONT_VIEW_V1, STOREFRONT_VIEW_V2 } from '@/lib/storefront';
+import { STOREFRONT_FALLBACK_CARD_SELECT, STOREFRONT_MEDIA_FAST_SELECT, STOREFRONT_MEDIA_FAST_VIEW, STOREFRONT_PDP_SELECT, STOREFRONT_V4_PDP_SELECT, STOREFRONT_VIEW_V1, STOREFRONT_VIEW_V2, STOREFRONT_VIEW_V3, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -40,6 +40,22 @@ async function getProduct(slug: string) {
   const supabase = getSupabaseReadClient();
   if (!supabase) return { product: null, related: [], error: getMissingSupabaseEnvMessage() };
 
+  const v4 = await supabase
+    .from(STOREFRONT_VIEW_V4)
+    .select(STOREFRONT_V4_PDP_SELECT)
+    .eq('product_slug', slug)
+    .maybeSingle();
+
+  if (!v4.error && v4.data) return { product: await attachMedia(supabase, v4.data as StorefrontProduct, slug), related: [] };
+
+  const v3 = await supabase
+    .from(STOREFRONT_VIEW_V3)
+    .select(STOREFRONT_PDP_SELECT)
+    .eq('product_slug', slug)
+    .maybeSingle();
+
+  if (!v3.error && v3.data) return { product: await attachMedia(supabase, v3.data as StorefrontProduct, slug), related: [] };
+
   const v2 = await supabase
     .from(STOREFRONT_VIEW_V2)
     .select(PDP_FAST_SELECT)
@@ -55,7 +71,7 @@ async function getProduct(slug: string) {
     .maybeSingle();
 
   if (!v1.error && v1.data) return { product: await attachMedia(supabase, v1.data as StorefrontProduct, slug), related: [] };
-  return { product: null, related: [], error: v2.error?.message || v1.error?.message || 'Product not found.' };
+  return { product: null, related: [], error: v4.error?.message || v3.error?.message || v2.error?.message || v1.error?.message || 'Product not found.' };
 }
 
 export default async function ProductPage({ params }: PageProps) {
