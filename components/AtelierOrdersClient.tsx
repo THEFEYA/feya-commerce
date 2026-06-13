@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, ArrowUpRight, BadgeCheck, ClipboardList, PackageCheck, Ruler, ShieldCheck, Truck } from 'lucide-react';
+import { AlertTriangle, ArrowUpRight, BadgeCheck, ClipboardList, PackageCheck, ShieldCheck, Truck, UserRound } from 'lucide-react';
 import { formatPrice } from '@/lib/storefront';
 
 type DraftItem = {
@@ -14,6 +14,13 @@ type DraftItem = {
   qty?: number;
   price?: number;
   currency?: string;
+  configuration_id?: string;
+  component_code?: string;
+  component_family?: string;
+  price_confidence_status?: string;
+  label_confidence_status?: string;
+  is_full_set?: boolean;
+  is_bundle?: boolean;
 };
 
 type CheckoutDraft = {
@@ -28,8 +35,6 @@ type CheckoutDraft = {
     fullName?: string;
     phone?: string;
     address?: string;
-    eventDate?: string;
-    measurements?: string;
     note?: string;
   };
   payment_status?: string;
@@ -42,7 +47,6 @@ const DRAFT_KEY = 'feya_checkout_draft_v1';
 const PIPELINE = [
   { label: 'Draft received', icon: ClipboardList },
   { label: 'Price / label review', icon: ShieldCheck },
-  { label: 'Measurements check', icon: Ruler },
   { label: 'Production queue', icon: PackageCheck },
   { label: 'Shipping / tracking', icon: Truck },
 ];
@@ -57,6 +61,15 @@ function readDraft(): CheckoutDraft | null {
   }
 }
 
+function itemWarnings(item: DraftItem) {
+  const warnings: string[] = [];
+  if (!item.configuration_id) warnings.push('Missing configuration_id');
+  if (!item.component_code) warnings.push('Missing component_code');
+  if (item.price_confidence_status === 'unverified') warnings.push('Unverified price');
+  if (item.label_confidence_status === 'unverified') warnings.push('Unverified label');
+  return warnings;
+}
+
 export function AtelierOrdersClient() {
   const [draft, setDraft] = useState<CheckoutDraft | null>(null);
 
@@ -67,20 +80,21 @@ export function AtelierOrdersClient() {
   const items = Array.isArray(draft?.items) ? draft?.items || [] : [];
   const currency = draft?.currency || items[0]?.currency || 'EUR';
   const warnings = useMemo(() => {
-    const list = ['Price contract: frontend_temp_v1 until Supabase v4 is active'];
+    const list = ['Local preview draft: Supabase order-draft queue is not connected yet'];
     if (!draft?.contact?.email) list.push('Missing customer email');
     if (!draft?.contact?.address) list.push('Missing shipping address');
-    if (!draft?.contact?.measurements) list.push('No measurement profile attached');
-    return list;
-  }, [draft]);
+    if (!items.length) list.push('No items attached');
+    for (const item of items) list.push(...itemWarnings(item));
+    return Array.from(new Set(list));
+  }, [draft, items]);
 
   if (!draft) {
     return (
-      <section className="container-feya pt-[170px] pb-20">
+      <section className="container-feya pt-10 pb-20">
         <div className="glass rounded-2xl p-8">
-          <div className="eyebrow-gold mb-3">Atelier orders</div>
+          <div className="eyebrow-gold mb-3">Admin Orders</div>
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,68px)' }}>No local draft yet</h1>
-          <p className="mt-4 text-[var(--bone-dim)] max-w-xl">Create a checkout draft first. This internal preview reads only the local checkout draft until the Supabase order-draft API is connected in production.</p>
+          <p className="mt-4 text-[var(--bone-dim)] max-w-xl">Create a checkout draft first. This screen reads only the local checkout draft until Supabase order drafts are connected.</p>
           <Link href="/checkout" className="btn-chrome mt-6">Go to checkout draft <ArrowUpRight size={13} /></Link>
         </div>
       </section>
@@ -88,48 +102,48 @@ export function AtelierOrdersClient() {
   }
 
   return (
-    <section className="container-feya pt-[170px] pb-20">
+    <section className="container-feya pt-10 pb-20">
       <div className="border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
-        <div className="eyebrow-gold mb-3 flex items-center gap-2"><BadgeCheck size={14} /> Atelier order review</div>
-        <h1 className="font-tall text-bone leading-[0.98] tracking-[0.035em]" style={{ fontSize: 'clamp(32px,4.5vw,62px)' }}>Internal draft review</h1>
-        <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[var(--bone-dim)]">This is the production-side view of a checkout draft. It is designed to become the internal order dashboard after Supabase order drafts, auth and payment provider webhook are connected.</p>
+        <div className="eyebrow-gold mb-3 flex items-center gap-2"><BadgeCheck size={14} /> Admin Orders</div>
+        <h1 className="font-tall text-bone leading-[0.98] tracking-[0.035em]" style={{ fontSize: 'clamp(32px,4.5vw,62px)' }}>Draft review queue</h1>
+        <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Internal review of checkout requests. This will become the Supabase-backed order queue after auth, order drafts and payment webhook are connected.</p>
       </div>
 
       <div className="grid grid-cols-12 gap-6 lg:gap-8">
         <div className="col-span-12 lg:col-span-7 space-y-5">
           <section className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
-            <div className="eyebrow-gold mb-4">Customer brief</div>
+            <div className="eyebrow-gold mb-4 flex items-center gap-2"><UserRound size={14} /> Customer brief</div>
             <div className="grid md:grid-cols-2 gap-3 text-[13px] text-[var(--bone-dim)]">
               <Info label="Name" value={draft.contact?.fullName} />
               <Info label="Email" value={draft.contact?.email} />
               <Info label="Phone" value={draft.contact?.phone} />
-              <Info label="Event / deadline" value={draft.contact?.eventDate} />
-              <Info label="Shipping address" value={draft.contact?.address} wide />
               <Info label="Shipping method" value={draft.delivery === 'express' ? 'Express DHL' : 'Standard UPS'} />
+              <Info label="Shipping address" value={draft.contact?.address} wide />
+              <Info label="Customer note" value={draft.contact?.note} wide />
             </div>
           </section>
 
           <section className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
             <div className="eyebrow-gold mb-4">Items for production</div>
             <div className="space-y-3">
-              {items.map((item, index) => (
-                <div key={`${item.title}-${index}`} className="grid grid-cols-[68px_1fr] gap-3 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3">
+              {items.map((item, index) => {
+                const itemReview = itemWarnings(item);
+                return <div key={`${item.title}-${index}`} className="grid grid-cols-[68px_1fr] gap-3 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3">
                   <div className="relative h-[86px] rounded-md overflow-hidden bg-black/30">{item.image ? <img src={item.image} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}</div>
                   <div>
-                    <div className="text-bone text-[14px] leading-snug">{item.title || 'Atelier piece'}</div>
+                    <div className="text-bone text-[14px] leading-snug">{item.title || 'TheFEYA piece'}</div>
                     <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{item.config || 'Option'} · {item.color || 'Color'} · {item.size || 'Size'} · Qty {item.qty || 1}</div>
                     <div className="mt-2 font-price text-gold-grad text-[22px] leading-none">{formatPrice((item.price || 0) * (item.qty || 1), item.currency || currency)}</div>
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {item.component_code ? <Pill>{item.component_code}</Pill> : null}
+                      {item.component_family ? <Pill>{item.component_family}</Pill> : null}
+                      {item.is_full_set ? <Pill tone="warning">Full set</Pill> : null}
+                      {item.is_bundle ? <Pill tone="warning">Bundle</Pill> : null}
+                      {itemReview.map((warning) => <Pill key={warning} tone="danger">{warning}</Pill>)}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
-            <div className="eyebrow-gold mb-4">Measurements & notes</div>
-            <div className="space-y-3 text-[13px] leading-relaxed text-[var(--bone-dim)]">
-              <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4">{draft.contact?.measurements || 'No measurements added yet.'}</div>
-              <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4">{draft.contact?.note || 'No extra atelier note added yet.'}</div>
+                </div>;
+              })}
             </div>
           </section>
         </div>
@@ -169,10 +183,10 @@ export function AtelierOrdersClient() {
 }
 
 function Info({ label, value, wide }: { label: string; value?: string; wide?: boolean }) {
-  return (
-    <div className={`rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 ${wide ? 'md:col-span-2' : ''}`}>
-      <div className="eyebrow-dim mb-1">{label}</div>
-      <div className="text-bone">{value || 'Not provided'}</div>
-    </div>
-  );
+  return <div className={`rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 ${wide ? 'md:col-span-2' : ''}`}><div className="eyebrow-dim mb-1">{label}</div><div className="text-bone">{value || 'Not provided'}</div></div>;
+}
+
+function Pill({ children, tone = 'neutral' }: { children: string; tone?: 'neutral' | 'warning' | 'danger' }) {
+  const cls = tone === 'danger' ? 'border-[rgba(196,64,88,.34)] text-[var(--ruby-soft)] bg-[rgba(160,32,56,.08)]' : tone === 'warning' ? 'border-[rgba(212,178,106,.30)] text-[var(--gold-warm)] bg-[rgba(212,178,106,.07)]' : 'border-[rgba(216,214,211,.16)] text-[var(--bone-dim)] bg-black/15';
+  return <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] ${cls}`}>{children}</span>;
 }
