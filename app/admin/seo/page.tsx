@@ -126,7 +126,7 @@ export default async function AdminSeoPage() {
           <div>SEO blockers</div>
         </div>
         <div className="divide-y divide-[rgba(216,214,211,.08)]">
-          {seoRows.map(({ product, issues, readiness }) => <Link key={product.canonical_product_id} href={`/shop/${productSlug(product)}`} className="grid grid-cols-[76px_1.5fr_0.7fr_1.3fr] gap-4 items-center px-5 py-4 hover:bg-[rgba(212,178,106,.045)] transition-colors">
+          {seoRows.map(({ product, issues, readiness }) => <Link key={product.canonical_product_id} href={`/admin/products/${productSlug(product)}`} className="grid grid-cols-[76px_1.5fr_0.7fr_1.3fr] gap-4 items-center px-5 py-4 hover:bg-[rgba(212,178,106,.045)] transition-colors">
             <div className="relative h-20 w-16 rounded-lg overflow-hidden bg-black/30 border border-[rgba(216,214,211,.10)]">
               {product.primary_image_url ? <img src={product.primary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}
             </div>
