@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 function isAdminPath(pathname: string) {
-  return pathname === '/admin' || pathname.startsWith('/admin/');
+  return pathname === '/admin' || pathname.startsWith('/admin/') || pathname.startsWith('/api/admin/');
 }
 
 export function middleware(request: NextRequest) {
@@ -26,5 +26,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/api/admin/:path*'],
 };
