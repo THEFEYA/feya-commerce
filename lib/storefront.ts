@@ -4,8 +4,8 @@ export const STOREFRONT_VIEW_V3 = 'feya_commerce_v_step7_storefront_products_api
 export const STOREFRONT_VIEW_V2 = 'feya_commerce_v_step7_storefront_products_api_v2';
 export const STOREFRONT_VIEW_V1 = 'feya_commerce_v_step7_storefront_products_api';
 export const STOREFRONT_MEDIA_FAST_VIEW = 'feya_commerce_v_step7_product_media_gallery_fast_v1';
-export const SALE_PERCENT = 20;
-export const SALE_RATE = 0.2;
+export const SALE_PERCENT = 0;
+export const SALE_RATE = 0;
 
 export const STOREFRONT_CARD_SELECT = [
   'canonical_product_id','product_slug','matched_etsy_listing_id','source_url','card_title','h1','seo_title','meta_description','product_type','material','color','size_mode','production_profile','shipping_profile','handmade_flag','styled_imagery_flag','primary_image_url','primary_image_alt','secondary_image_url','hover_image_url','video_url','media_count','has_video','min_price','max_price','currency','has_fallback_price','has_sampler_excluded_price','public_configuration_count','public_price_row_count','pdp_option_count','has_multiple_pdp_options','storefront_candidate_flag'
@@ -18,6 +18,64 @@ export const STOREFRONT_FALLBACK_CARD_SELECT = [
   'canonical_product_id','product_slug','matched_etsy_listing_id','source_url','card_title','h1','seo_title','meta_description','product_type','material','color','size_mode','production_profile','shipping_profile','handmade_flag','styled_imagery_flag','primary_image_url','primary_image_alt','min_price','max_price','currency','has_fallback_price','has_sampler_excluded_price','public_configuration_count','public_price_row_count','storefront_candidate_flag'
 ].join(',');
 
+const CYRILLIC_OPTION_LABELS: Record<string, string> = {
+  'трусики': 'Panties',
+  'подвязки': 'Garters',
+  'юбка': 'Skirt',
+  'вершина': 'Top',
+  'топ': 'Top',
+  'только топ': 'Top',
+  'топ и юбка': 'Top + Skirt',
+  'полный комплект': 'Full Set',
+  'полный набор': 'Full Set',
+  'комплект': 'Full Set',
+  'маска': 'Mask',
+  'плечо': 'Shoulder',
+  'одно плечо': 'Single Shoulder',
+  'плечи': 'Shoulders',
+  'браслет': 'Bracelet',
+  'чокер': 'Choker',
+  'колье': 'Choker',
+  'воротник': 'Choker',
+  'корсет': 'Corset',
+  'боди': 'Bodysuit',
+  'крылья': 'Wings',
+  'пояс': 'Belt',
+  'хвост': 'Tail',
+  'спина': 'Spine',
+  'позвоночник': 'Spine',
+  'перчатки': 'Gloves',
+  'головной убор': 'Headpiece',
+  'корона': 'Headpiece',
+  'чехлы для ног': 'Leg Covers',
+  'наручи для предплечья': 'Forearm Bracers',
+  'наручи *2': 'Arm Bracers',
+  'элементы защиты бицепсов': 'Biceps Armor',
+  'верхняя накидка (ткань)': 'Cape Overlay',
+  'нагрудный ремень': 'Chest Harness',
+  'женский наряд': "Women's Outfit",
+  'мужской наряд': "Men's Outfit",
+  'золото': 'Gold',
+  'серебро': 'Silver',
+  'черный': 'Black',
+  'чёрный': 'Black',
+  'белый': 'White',
+  'красный': 'Red',
+};
+
+function hasCyrillic(value: string) {
+  return /[А-Яа-яЁё]/.test(value);
+}
+
+function publicOptionLabel(value: unknown, index = 0) {
+  const raw = String(value || '').trim();
+  if (!raw) return `Option ${index + 1}`;
+  const normalized = raw.toLowerCase().replace(/\s+/g, ' ').trim();
+  if (CYRILLIC_OPTION_LABELS[normalized]) return CYRILLIC_OPTION_LABELS[normalized];
+  if (hasCyrillic(raw)) return `Option ${index + 1}`;
+  return raw;
+}
+
 export function formatPrice(amount: number | null | undefined, currency = 'EUR') {
   if (amount == null || Number.isNaN(Number(amount))) return '—';
   return new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(Number(amount));
@@ -29,7 +87,9 @@ export function asMediaGallery(product: StorefrontProduct): StorefrontMedia[] {
   return Array.isArray(product.media_gallery) ? product.media_gallery as StorefrontMedia[] : [];
 }
 export function optionLabel(option: StorefrontConfiguration, index = 0) {
-  return String(option.configuration_label || option.configuration_name || option.option_value || option.raw_option_value || option.raw_option_text || option.title || option.label || `Option ${index + 1}`);
+  const preferred = option.configuration_label || option.configuration_name || option.option_value || option.title || option.label;
+  if (preferred) return publicOptionLabel(preferred, index);
+  return `Option ${index + 1}`;
 }
 export function optionKey(option: StorefrontConfiguration, index = 0) {
   return String(option.configuration_id || option.configuration_price_id || option.source_price_row_id || option.sellable_configuration_id || index);
@@ -70,7 +130,7 @@ export function mainRegularPrice(product: StorefrontProduct) {
   return optionPrice(fullSetOption(product)) ?? product.max_price ?? product.min_price ?? null;
 }
 export function salePrice(regular: number | null | undefined) {
-  return regular == null ? null : Math.round(Number(regular) * (1 - SALE_RATE));
+  return regular == null ? null : Number(regular);
 }
 export function productTitle(product: StorefrontProduct) {
   return product.card_title || product.h1 || 'Atelier piece';
