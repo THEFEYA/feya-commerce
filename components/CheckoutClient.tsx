@@ -20,6 +20,7 @@ type CartItem = {
 
 const CART_KEY = 'feya_visual_cart_v1';
 const DRAFT_KEY = 'feya_checkout_draft_v1';
+const CHECKOUT_TOP_OFFSET = 210;
 
 function readCart(): CartItem[] {
   if (typeof window === 'undefined') return [];
@@ -100,7 +101,7 @@ export function CheckoutClient() {
 
   if (!items.length) {
     return (
-      <section className="container-feya pt-[230px] pb-20">
+      <section className="container-feya pb-20" style={{ paddingTop: CHECKOUT_TOP_OFFSET }}>
         <div className="glass rounded-2xl p-8">
           <div className="eyebrow-gold mb-3">Checkout</div>
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(28px,4vw,48px)' }}>Your bag is empty</h1>
@@ -112,10 +113,10 @@ export function CheckoutClient() {
   }
 
   return (
-    <section className="container-feya pt-[285px] pb-20">
-      <div className="border-b border-[rgba(216,214,211,.12)] pb-6 mb-7">
-        <div className="eyebrow-gold mb-3 flex items-center gap-2"><ShieldCheck size={14} /> Checkout</div>
-        <h1 className="font-tall text-bone leading-[0.95] tracking-[0.02em]" style={{ fontSize: 'clamp(28px,3vw,40px)' }}>Checkout details</h1>
+    <section className="container-feya pb-20" style={{ paddingTop: CHECKOUT_TOP_OFFSET }}>
+      <div className="border-b border-[rgba(216,214,211,.12)] pb-5 mb-7">
+        <div className="eyebrow-gold mb-3 flex items-center gap-2"><ShieldCheck size={13} /> Checkout</div>
+        <h1 className="font-tall text-bone leading-none tracking-[0.02em]" style={{ fontSize: 'clamp(30px,3vw,44px)' }}>Checkout details</h1>
         <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Enter contact and delivery details. Product options are already saved in your bag. Add a note only if you need something specific.</p>
       </div>
 
