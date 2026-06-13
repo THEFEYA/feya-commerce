@@ -106,20 +106,21 @@ export default async function AdminComponentReviewPage() {
       <div className="space-y-4">
         {reviewRows.map(({ product, configs, flaggedConfigs }) => {
           const visibleConfigs = (flaggedConfigs.length ? flaggedConfigs : configs.filter((config) => config.is_full_set || config.is_bundle)).slice(0, 6);
+          const adminHref = `/admin/products/${productSlug(product)}`;
           return <article key={product.canonical_product_id} className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
             <div className="grid grid-cols-[76px_1fr_auto] gap-4 items-start">
               <div className="relative h-24 w-[76px] rounded-lg overflow-hidden bg-black/30 border border-[rgba(216,214,211,.10)]">
                 {product.primary_image_url ? <img src={product.primary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}
               </div>
               <div>
-                <Link href={`/shop/${productSlug(product)}`} className="text-bone text-[17px] leading-snug hover:text-[var(--gold-warm)] transition-colors">{productTitle(product)}</Link>
+                <Link href={adminHref} className="text-bone text-[17px] leading-snug hover:text-[var(--gold-warm)] transition-colors">{productTitle(product)}</Link>
                 <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'Product'} · {product.canonical_color_label || product.color || 'Color'}</div>
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {flaggedConfigs.length ? <Chip tone="danger">{flaggedConfigs.length} mapping issues</Chip> : <Chip tone="warning">Set/bundle review</Chip>}
                   <Chip>{configs.length} configurations</Chip>
                 </div>
               </div>
-              <Link href={`/shop/${productSlug(product)}`} className="btn-ghost px-4 py-3 text-[10px]">Open <ArrowUpRight size={12} /></Link>
+              <Link href={adminHref} className="btn-ghost px-4 py-3 text-[10px]">Review <ArrowUpRight size={12} /></Link>
             </div>
 
             <div className="mt-5 grid md:grid-cols-2 xl:grid-cols-3 gap-3">
