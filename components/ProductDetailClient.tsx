@@ -8,15 +8,11 @@ import { colorStyle } from '@/components/colors';
 import { ProductCard } from '@/components/ProductCard';
 import { SalePrice } from '@/components/SalePrice';
 import type { StorefrontProduct } from '@/lib/types';
-import { categoryLabel, colorOptions, formatPrice, getMedia, optionKey, optionLabel, optionPrice, productSlug, productTitle, salePrice, sortedOptions, splitTitle } from '@/lib/storefront';
+import { categoryLabel, colorOptions, componentCode, formatPrice, getMedia, isFullSetOption, optionCompareAtPrice, optionDiscountPercent, optionKey, optionLabel, optionPrice, productSlug, productTitle, sortedOptions, splitTitle } from '@/lib/storefront';
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Custom'];
 const CART_KEY = 'feya_visual_cart_v1';
 const COUNT_KEY = 'feya_visual_bag';
-
-function isFullSetLabel(label: string) {
-  return /full\s*set|complete\s*set|complete\s*look/i.test(label);
-}
 
 function compactHead(raw: string) {
   return raw
@@ -39,7 +35,7 @@ function readCart() {
 export function ProductDetailClient({ product: p, related }: { product: StorefrontProduct; related: StorefrontProduct[] }) {
   const gallery = useMemo(() => getMedia(p), [p]);
   const options = useMemo(() => sortedOptions(p), [p]);
-  const full = options.find((o, i) => isFullSetLabel(optionLabel(o, i)));
+  const full = options.find((o, i) => isFullSetOption(o, i));
   const fullKey = full ? optionKey(full, options.indexOf(full)) : '';
 
   const [idx, setIdx] = useState(0);
@@ -53,9 +49,13 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
   const thumbnailRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   const activeConfig = options.find((o, i) => optionKey(o, i) === configKey) || options[0] || null;
-  const activeConfigLabel = activeConfig ? optionLabel(activeConfig, 0) : 'Full Set';
-  const regular = optionPrice(activeConfig) ?? p.max_price ?? p.min_price ?? 0;
-  const sale = salePrice(regular) || regular;
+  const activeConfigIndex = activeConfig ? Math.max(0, options.indexOf(activeConfig)) : 0;
+  const activeConfigLabel = activeConfig ? optionLabel(activeConfig, activeConfigIndex) : 'Full Set';
+  const display = optionPrice(activeConfig) ?? p.full_set_display_price_amount ?? p.max_price ?? p.min_price ?? 0;
+  const compareAt = optionCompareAtPrice(activeConfig);
+  const hasCompareAt = compareAt != null && display != null && compareAt > display;
+  const regular = hasCompareAt ? compareAt : display;
+  const sale = display;
   const currency = activeConfig?.currency || p.currency || 'EUR';
   const total = sale * qty;
   const colors = colorOptions(p);
@@ -69,14 +69,14 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
 
   const fullRegularPrice = full ? optionPrice(full) : null;
   const separateRegularTotal = options
-    .filter((o, i) => !isFullSetLabel(optionLabel(o, i)))
+    .filter((o, i) => !isFullSetOption(o, i))
     .reduce((sum, option) => sum + (optionPrice(option) || 0), 0);
-  const separateSaleTotal = separateRegularTotal > 0 ? salePrice(separateRegularTotal) || separateRegularTotal : 0;
-  const fullSalePrice = fullRegularPrice != null ? salePrice(fullRegularPrice) || fullRegularPrice : null;
-  const fullSetSavings = fullSalePrice && separateSaleTotal > fullSalePrice ? separateSaleTotal - fullSalePrice : 0;
-  const selectedIsFullSet = activeConfig ? isFullSetLabel(optionLabel(activeConfig, 0)) : false;
+  const v4Savings = typeof p.full_set_savings_amount === 'number' ? p.full_set_savings_amount : null;
+  const computedSavings = fullRegularPrice && separateRegularTotal > fullRegularPrice ? separateRegularTotal - fullRegularPrice : 0;
+  const fullSetSavings = v4Savings ?? computedSavings;
+  const selectedIsFullSet = activeConfig ? isFullSetOption(activeConfig, activeConfigIndex) : false;
   const savingsText = selectedIsFullSet && fullSetSavings > 0
-    ? `Best value: save ${formatPrice(fullSetSavings, currency)} vs ordering pieces separately (${formatPrice(separateSaleTotal, currency)}).`
+    ? `Best value: save ${formatPrice(fullSetSavings, currency)} vs ordering pieces separately${separateRegularTotal > 0 ? ` (${formatPrice(separateRegularTotal, currency)})` : ''}.`
     : '';
 
   useEffect(() => {
@@ -103,6 +103,17 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
       qty,
       price: sale,
       currency,
+      price_contract_version: p.price_contract_version || null,
+      price_confidence_status: activeConfig?.price_confidence_status || p.price_confidence_status || null,
+      label_confidence_status: activeConfig?.needs_label_review ? 'needs_review' : activeConfig?.public_label ? 'approved' : null,
+      component_code: componentCode(activeConfig),
+      component_family: activeConfig?.component_family || null,
+      is_full_set: activeConfig ? isFullSetOption(activeConfig, activeConfigIndex) : false,
+      is_bundle: activeConfig?.is_bundle || false,
+      configuration_id: activeConfig?.configuration_id || activeConfig?.configuration_price_id || activeConfig?.source_price_row_id || null,
+      public_label: activeConfig?.public_label || activeConfigLabel,
+      unit_price_amount: sale,
+      compare_at_price_amount: hasCompareAt ? compareAt : null,
     };
     const next = existingIndex >= 0
       ? current.map((item: { id: string; qty: number }) => item.id === id ? { ...item, qty: item.qty + qty } : item)
@@ -151,7 +162,7 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
         <h1 className="font-tall text-bone leading-[0.98] tracking-[0.01em] line-clamp-2" style={{ fontSize: 'clamp(28px, 2.8vw, 38px)' }}>{shortHead}</h1>
         {tail ? <p className="editorial-italic text-[var(--bone-dim)] text-[12px] mt-1 leading-relaxed line-clamp-1">{tail}</p> : null}
 
-        <div className="mt-2"><SalePrice regular={regular} sale={sale} currency={currency} variant="pdp" testidPrefix="pdp-price" /></div>
+        <div className="mt-2"><SalePrice regular={regular} sale={sale} currency={currency} variant="pdp" testidPrefix="pdp-price" discountPercent={optionDiscountPercent(activeConfig)} /></div>
 
         <div className="mt-2 relative">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Configuration</div><div className="eyebrow-dim">{options.length || 1} options</div></div>
