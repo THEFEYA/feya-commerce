@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowUpRight, Mail, MapPin, MessageSquareText, Minus, Phone, Plus, ShoppingBag, Truck, User, Zap } from 'lucide-react';
+import { ArrowUpRight, Mail, MapPin, MessageSquareText, Minus, Phone, Plus, Truck, User, Zap } from 'lucide-react';
 import { formatPrice } from '@/lib/storefront';
 
 type CartItem = {
@@ -69,10 +69,10 @@ export function CartClient() {
   };
 
   return (
-    <section className="container-feya pt-32 pb-20">
+    <section className="container-feya pt-[180px] lg:pt-[172px] pb-20">
       <div className="mb-7 border-b border-[rgba(216,214,211,.12)] pb-5">
-        <div className="eyebrow-gold mb-2">Atelier checkout</div>
-        <h1 className="display-section text-bone leading-none" style={{ fontSize: 'clamp(34px,4.2vw,58px)' }}>Your atelier bag</h1>
+        <div className="eyebrow-gold mb-3">Atelier checkout</div>
+        <h1 className="font-tall text-bone leading-[0.95] tracking-[0.04em]" style={{ fontSize: 'clamp(30px,3.3vw,46px)' }}>Your atelier bag</h1>
       </div>
 
       {!items.length ? (
