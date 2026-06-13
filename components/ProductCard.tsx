@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { colorStyle } from '@/components/colors';
 import { SalePrice } from '@/components/SalePrice';
 import type { StorefrontMedia, StorefrontProduct } from '@/lib/types';
-import { colorOptions, mainRegularPrice, productSlug, productTitle, salePrice, worldLabel } from '@/lib/storefront';
+import { colorOptions, mainCompareAtPrice, mainRegularPrice, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 
 function normalizeGallery(value: unknown): StorefrontMedia[] {
   let raw = value;
@@ -32,8 +32,11 @@ export function ProductCard({ product: p, index = 0 }: { product: StorefrontProd
   const hasHoverMedia = Boolean(cleanSwap || video);
   const canSwap = Boolean(hasHoverMedia && (video || hoverReady));
   const colors = colorOptions(p);
-  const regular = mainRegularPrice(p);
-  const sale = salePrice(regular);
+  const display = mainRegularPrice(p);
+  const compareAt = mainCompareAtPrice(p);
+  const hasCompareAt = compareAt != null && display != null && compareAt > display;
+  const regular = hasCompareAt ? compareAt : display;
+  const sale = hasCompareAt ? display : display;
   const currency = p.currency || 'EUR';
   const slug = productSlug(p);
   const title = productTitle(p);
