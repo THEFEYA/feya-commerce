@@ -1,7 +1,26 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { ArrowUpRight, BadgeCheck, Bell, CalendarDays, FileText, Heart, MapPin, MessageCircle, PackageCheck, Ruler, ShieldCheck, ShoppingBag, Sparkles, UserRound, WandSparkles } from 'lucide-react';
+import { formatPrice } from '@/lib/storefront';
+
+const DRAFT_KEY = 'feya_checkout_draft_v1';
+
+type LocalDraft = {
+  items?: Array<{ title?: string; qty?: number; price?: number; currency?: string }>;
+  total?: number;
+  currency?: string;
+  delivery?: string;
+  payment_status?: string;
+  order_status?: string;
+  created_at?: string;
+  contact?: {
+    email?: string;
+    fullName?: string;
+    eventDate?: string;
+  };
+};
 
 const MODULES = [
   { title: 'Orders', status: 'Order history', description: 'Track payment, production, shipping, delivery and return status without exposing internal raw data.', icon: ShoppingBag },
@@ -36,7 +55,27 @@ const ADMIN_HANDOFF = [
   'Shipping and tracking status',
 ];
 
+function readLocalDraft(): LocalDraft | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const value = window.localStorage.getItem(DRAFT_KEY);
+    return value ? JSON.parse(value) : null;
+  } catch {
+    return null;
+  }
+}
+
 export function AccountClient() {
+  const [draft, setDraft] = useState<LocalDraft | null>(null);
+
+  useEffect(() => {
+    setDraft(readLocalDraft());
+  }, []);
+
+  const draftItems = Array.isArray(draft?.items) ? draft?.items || [] : [];
+  const currency = draft?.currency || draftItems[0]?.currency || 'EUR';
+  const unitCount = draftItems.reduce((sum, item) => sum + Number(item.qty || 1), 0);
+
   return (
     <section className="container-feya pt-[170px] pb-20">
       <div className="grid grid-cols-12 gap-8 items-end border-b border-[rgba(216,214,211,.12)] pb-8 mb-8">
@@ -53,6 +92,30 @@ export function AccountClient() {
           <Link href="/cart" className="btn-gold justify-center rounded-md h-11 w-full mt-5">Continue from bag <ArrowUpRight size={13} /></Link>
         </div>
       </div>
+
+      <section className="mb-8 rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+          <div>
+            <div className="eyebrow-gold mb-3 flex items-center gap-2"><Bell size={14} /> Current order draft</div>
+            {draft ? (
+              <>
+                <h2 className="product-card-title text-bone text-[28px] leading-tight">Draft in progress</h2>
+                <p className="mt-2 text-[13px] leading-relaxed text-[var(--bone-dim)]">{unitCount} unit(s), {draftItems.length} item line(s), {formatPrice(draft.total || 0, currency)} · payment status: {draft.payment_status || 'not_started'} · order status: {draft.order_status || 'draft_only'}</p>
+                <p className="mt-1 text-[12px] text-[var(--smoke)]">{draft.contact?.email || 'No email yet'}{draft.contact?.eventDate ? ` · Event: ${draft.contact.eventDate}` : ''}</p>
+              </>
+            ) : (
+              <>
+                <h2 className="product-card-title text-bone text-[28px] leading-tight">No active draft</h2>
+                <p className="mt-2 text-[13px] leading-relaxed text-[var(--bone-dim)]">Start from the bag, prepare checkout details, then the draft will appear here before payment.</p>
+              </>
+            )}
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Link href="/checkout" className="btn-chrome justify-center rounded-md h-11 px-5">Open checkout <ArrowUpRight size={13} /></Link>
+            <Link href="/studio/orders" className="btn-gold justify-center rounded-md h-11 px-5">Atelier review <ArrowUpRight size={13} /></Link>
+          </div>
+        </div>
+      </section>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-8">
         {MODULES.map(({ title, status, description, icon: Icon }) => (
