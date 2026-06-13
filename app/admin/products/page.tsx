@@ -1,6 +1,6 @@
 // @ts-nocheck
 import Link from 'next/link';
-import { ArrowUpRight, Boxes, ImageIcon, Search, ShieldAlert, Tags, WalletCards } from 'lucide-react';
+import { ArrowUpRight, Boxes, ImageIcon, Search, Tags, WalletCards } from 'lucide-react';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, formatPrice, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
@@ -121,7 +121,8 @@ export default async function AdminProductsPage() {
           {rows.map((product) => {
             const flags = productFlags(product);
             const price = product.min_price != null ? formatPrice(product.min_price, product.currency || 'EUR') : '—';
-            return <Link key={product.canonical_product_id} href={`/shop/${productSlug(product)}`} className="grid grid-cols-[80px_1.8fr_0.8fr_0.9fr_1.2fr] gap-4 items-center px-5 py-4 hover:bg-[rgba(212,178,106,.045)] transition-colors">
+            const slug = productSlug(product);
+            return <Link key={product.canonical_product_id} href={`/admin/products/${slug}`} className="grid grid-cols-[80px_1.8fr_0.8fr_0.9fr_1.2fr] gap-4 items-center px-5 py-4 hover:bg-[rgba(212,178,106,.045)] transition-colors">
               <div className="relative h-20 w-16 rounded-lg overflow-hidden bg-black/30 border border-[rgba(216,214,211,.10)]">
                 {product.primary_image_url ? <img src={product.primary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}
               </div>
