@@ -117,13 +117,14 @@ export default async function AdminPriceReviewPage() {
           const fullSetPrice = product.full_set_display_price_amount;
           const componentSum = product.component_sum_display_price_amount;
           const savings = product.full_set_savings_amount;
+          const adminHref = `/admin/products/${productSlug(product)}`;
           return <article key={product.canonical_product_id} className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
             <div className="grid grid-cols-[76px_1fr_auto] gap-4 items-start">
               <div className="relative h-24 w-[76px] rounded-lg overflow-hidden bg-black/30 border border-[rgba(216,214,211,.10)]">
                 {product.primary_image_url ? <img src={product.primary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}
               </div>
               <div>
-                <Link href={`/shop/${productSlug(product)}`} className="text-bone text-[17px] leading-snug hover:text-[var(--gold-warm)] transition-colors">{productTitle(product)}</Link>
+                <Link href={adminHref} className="text-bone text-[17px] leading-snug hover:text-[var(--gold-warm)] transition-colors">{productTitle(product)}</Link>
                 <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'Product'} · {product.canonical_color_label || product.color || 'Color'}</div>
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   <Chip tone="warning">{product.price_confidence_status || 'unknown price'}</Chip>
@@ -131,10 +132,7 @@ export default async function AdminPriceReviewPage() {
                   {product.has_unverified_discount ? <Chip tone="danger">Unverified discount</Chip> : null}
                 </div>
               </div>
-              <div className="text-right">
-                <div className="eyebrow-dim mb-2">Card price</div>
-                <div className="font-price text-gold-grad text-[26px] leading-none">{money(product.min_price, currency)}</div>
-              </div>
+              <Link href={adminHref} className="btn-ghost px-4 py-3 text-[10px]">Review <ArrowUpRight size={12} /></Link>
             </div>
 
             <div className="mt-5 grid md:grid-cols-3 gap-3">
