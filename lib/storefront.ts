@@ -1,5 +1,6 @@
 import type { StorefrontConfiguration, StorefrontMedia, StorefrontProduct } from '@/lib/types';
 
+export const STOREFRONT_VIEW_V4 = 'feya_commerce_v_step7_storefront_products_api_v4';
 export const STOREFRONT_VIEW_V3 = 'feya_commerce_v_step7_storefront_products_api_v3';
 export const STOREFRONT_VIEW_V2 = 'feya_commerce_v_step7_storefront_products_api_v2';
 export const STOREFRONT_VIEW_V1 = 'feya_commerce_v_step7_storefront_products_api';
@@ -10,7 +11,14 @@ export const SALE_RATE = 0;
 export const STOREFRONT_CARD_SELECT = [
   'canonical_product_id','product_slug','matched_etsy_listing_id','source_url','card_title','h1','seo_title','meta_description','product_type','material','color','size_mode','production_profile','shipping_profile','handmade_flag','styled_imagery_flag','primary_image_url','primary_image_alt','secondary_image_url','hover_image_url','video_url','media_count','has_video','min_price','max_price','currency','has_fallback_price','has_sampler_excluded_price','public_configuration_count','public_price_row_count','pdp_option_count','has_multiple_pdp_options','storefront_candidate_flag'
 ].join(',');
+
+export const STOREFRONT_V4_CARD_SELECT = [
+  STOREFRONT_CARD_SELECT,
+  'price_contract_version','price_source_mode','price_confidence_status','has_unverified_discount','has_russian_public_label','needs_price_review','needs_label_review','full_set_display_price_amount','component_sum_display_price_amount','full_set_savings_amount','full_set_savings_percent','category_label','world_label','canonical_color_label','color_options'
+].join(',');
+
 export const STOREFRONT_PDP_SELECT = [STOREFRONT_CARD_SELECT, 'configurations', 'media_gallery'].join(',');
+export const STOREFRONT_V4_PDP_SELECT = [STOREFRONT_V4_CARD_SELECT, 'configurations', 'media_gallery'].join(',');
 export const STOREFRONT_MEDIA_FAST_SELECT = [
   'product_slug','primary_image_url','primary_image_alt','secondary_image_url','hover_image_url','video_url','has_video','media_count','media_gallery'
 ].join(',');
@@ -67,6 +75,16 @@ function hasCyrillic(value: string) {
   return /[А-Яа-яЁё]/.test(value);
 }
 
+function toNumber(value: unknown) {
+  if (value == null || value === '') return null;
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : null;
+}
+
+function stringField(value: unknown) {
+  return typeof value === 'string' && value.trim() ? value.trim() : '';
+}
+
 function publicOptionLabel(value: unknown, index = 0) {
   const raw = String(value || '').trim();
   if (!raw) return `Option ${index + 1}`;
@@ -87,7 +105,7 @@ export function asMediaGallery(product: StorefrontProduct): StorefrontMedia[] {
   return Array.isArray(product.media_gallery) ? product.media_gallery as StorefrontMedia[] : [];
 }
 export function optionLabel(option: StorefrontConfiguration, index = 0) {
-  const preferred = option.configuration_label || option.configuration_name || option.option_value || option.title || option.label;
+  const preferred = option.public_label || option.configuration_label || option.configuration_name || option.option_value || option.title || option.label;
   if (preferred) return publicOptionLabel(preferred, index);
   return `Option ${index + 1}`;
 }
@@ -96,14 +114,36 @@ export function optionKey(option: StorefrontConfiguration, index = 0) {
 }
 export function optionPrice(option: StorefrontConfiguration | null | undefined) {
   if (!option) return null;
-  const value = option.price_amount ?? option.price ?? option.amount ?? option.min_price ?? option.max_price;
-  return typeof value === 'number' ? value : value == null ? null : Number(value);
+  return toNumber(option.display_price_amount)
+    ?? toNumber(option.sale_price_amount)
+    ?? toNumber(option.base_price_amount)
+    ?? toNumber(option.price_amount)
+    ?? toNumber(option.price)
+    ?? toNumber(option.amount)
+    ?? toNumber(option.min_price)
+    ?? toNumber(option.max_price);
+}
+export function optionCompareAtPrice(option: StorefrontConfiguration | null | undefined) {
+  if (!option) return null;
+  return toNumber(option.compare_at_price_amount);
+}
+export function optionDiscountPercent(option: StorefrontConfiguration | null | undefined) {
+  if (!option) return null;
+  return toNumber(option.discount_percent);
+}
+export function componentCode(option: StorefrontConfiguration | null | undefined) {
+  return stringField(option?.component_code) || null;
 }
 function normalizedOptionLabel(label: string) {
   return label.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 }
 function isFullSet(label: string) {
   return /full\s*set|complete\s*set|complete\s*look/i.test(label);
+}
+export function isFullSetOption(option: StorefrontConfiguration | null | undefined, index = 0) {
+  if (!option) return false;
+  if (option.is_full_set === true) return true;
+  return isFullSet(optionLabel(option, index));
 }
 export function sortedOptions(product: StorefrontProduct) {
   const byLabel = new Map<string, StorefrontConfiguration>();
@@ -115,7 +155,7 @@ export function sortedOptions(product: StorefrontProduct) {
   });
   return Array.from(byLabel.values()).sort((a, b) => {
     const aLabel = optionLabel(a), bLabel = optionLabel(b);
-    const aFull = isFullSet(aLabel), bFull = isFullSet(bLabel);
+    const aFull = isFullSetOption(a) || isFullSet(aLabel), bFull = isFullSetOption(b) || isFullSet(bLabel);
     if (aFull !== bFull) return aFull ? 1 : -1;
     const aSort = Number(a.sort_order || 0), bSort = Number(b.sort_order || 0);
     if (aSort !== bSort) return aSort - bSort;
@@ -124,10 +164,13 @@ export function sortedOptions(product: StorefrontProduct) {
 }
 export function fullSetOption(product: StorefrontProduct) {
   const options = sortedOptions(product);
-  return options.find((option, index) => isFullSet(optionLabel(option, index))) || [...options].sort((a, b) => (optionPrice(b) || 0) - (optionPrice(a) || 0))[0] || null;
+  return options.find((option, index) => isFullSetOption(option, index)) || [...options].sort((a, b) => (optionPrice(b) || 0) - (optionPrice(a) || 0))[0] || null;
 }
 export function mainRegularPrice(product: StorefrontProduct) {
-  return optionPrice(fullSetOption(product)) ?? product.max_price ?? product.min_price ?? null;
+  return optionPrice(fullSetOption(product)) ?? toNumber(product.full_set_display_price_amount) ?? product.max_price ?? product.min_price ?? null;
+}
+export function mainCompareAtPrice(product: StorefrontProduct) {
+  return optionCompareAtPrice(fullSetOption(product));
 }
 export function salePrice(regular: number | null | undefined) {
   return regular == null ? null : Number(regular);
@@ -148,6 +191,8 @@ export function splitTitle(raw: string | null | undefined) {
   return { head: t, tail: '' };
 }
 export function categoryLabel(product: StorefrontProduct) {
+  const explicit = stringField(product.category_label);
+  if (explicit) return explicit;
   const text = `${product.product_type || ''} ${productTitle(product)}`.toLowerCase();
   if (/mask|headpiece|helmet|crown/.test(text)) return 'Masks';
   if (/corset|bustier|chest|breastplate|acrylic top/.test(text)) return 'Corsets';
@@ -158,6 +203,8 @@ export function categoryLabel(product: StorefrontProduct) {
   return 'Stage Looks';
 }
 export function worldLabel(product: StorefrontProduct) {
+  const explicit = stringField(product.world_label);
+  if (explicit) return explicit;
   const text = `${productTitle(product)} ${product.meta_description || ''} ${product.product_type || ''}`.toLowerCase();
   if (/burning\s*man|desert/.test(text)) return 'Burning Man';
   if (/festival|rave/.test(text)) return 'Festival Look';
@@ -166,6 +213,8 @@ export function worldLabel(product: StorefrontProduct) {
   return categoryLabel(product);
 }
 export function colorLabel(product: StorefrontProduct) {
+  const explicit = stringField(product.canonical_color_label);
+  if (explicit) return explicit;
   const text = `${product.color || ''} ${productTitle(product)} ${product.material || ''}`.toLowerCase();
   if (text.includes('gold')) return 'Gold';
   if (text.includes('silver')) return 'Silver';
@@ -176,6 +225,7 @@ export function colorLabel(product: StorefrontProduct) {
   return (product.color || '').split(',')[0] || 'Mirror';
 }
 export function colorOptions(product: StorefrontProduct) {
+  if (Array.isArray(product.color_options) && product.color_options.length) return product.color_options.filter(Boolean);
   const text = `${product.color || ''} ${productTitle(product)} ${product.material || ''}`.toLowerCase();
   const values = ['Gold','Silver','Black','White','Red','Holographic'].filter((c) => c === 'Holographic' ? /holo|iridescent/.test(text) : text.includes(c.toLowerCase()));
   return values.length ? values : [colorLabel(product)];
