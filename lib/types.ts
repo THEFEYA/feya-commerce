@@ -29,6 +29,24 @@ export type StorefrontConfiguration = {
   currency?: string | null;
   has_fallback_price?: boolean | null;
   sort_order?: number | null;
+
+  // v4 storefront contract fields. These are optional so the frontend remains
+  // backward-compatible with v1/v2/v3 safe views until v4 exists in Supabase.
+  public_label?: string | null;
+  component_code?: string | null;
+  component_family?: string | null;
+  is_full_set?: boolean | null;
+  is_bundle?: boolean | null;
+  bundle_component_codes?: string[] | null;
+  base_price_amount?: number | null;
+  sale_price_amount?: number | null;
+  compare_at_price_amount?: number | null;
+  display_price_amount?: number | null;
+  discount_percent?: number | null;
+  price_source_mode?: string | null;
+  price_confidence_status?: string | null;
+  has_russian_raw_label?: boolean | null;
+  needs_label_review?: boolean | null;
   [key: string]: unknown;
 };
 
@@ -68,6 +86,23 @@ export type StorefrontProduct = {
   has_multiple_pdp_options?: boolean | null;
   configurations: unknown;
   storefront_candidate_flag: boolean | null;
+
+  // v4 storefront contract fields. Optional until Supabase v4 exists.
+  price_contract_version?: string | null;
+  price_source_mode?: string | null;
+  price_confidence_status?: string | null;
+  has_unverified_discount?: boolean | null;
+  has_russian_public_label?: boolean | null;
+  needs_price_review?: boolean | null;
+  needs_label_review?: boolean | null;
+  full_set_display_price_amount?: number | null;
+  component_sum_display_price_amount?: number | null;
+  full_set_savings_amount?: number | null;
+  full_set_savings_percent?: number | null;
+  category_label?: string | null;
+  world_label?: string | null;
+  canonical_color_label?: string | null;
+  color_options?: string[] | null;
   [key: string]: unknown;
 };
 
