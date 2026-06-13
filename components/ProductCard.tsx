@@ -87,6 +87,9 @@ export function ProductCard({ product: p, index = 0 }: { product: StorefrontProd
   const cleanSwap = mediaCandidates.find((url) => url && url !== primary) || '';
   const video = p.has_video ? (p.video_url || '') : '';
   const hasHoverMedia = Boolean(video || cleanSwap);
+  const primaryClassName = hasHoverMedia
+    ? 'primary-media transition-opacity duration-500 group-hover:opacity-0'
+    : 'primary-static-media h-full w-full object-cover transition-transform duration-700';
   const colors = colorOptions(p);
   const display = mainRegularPrice(p);
   const compareAt = mainCompareAtPrice(p);
@@ -100,7 +103,7 @@ export function ProductCard({ product: p, index = 0 }: { product: StorefrontProd
   return (
     <Link prefetch href={`/shop/${slug}`} data-testid={`product-card-${slug}`} className={`product-card reveal group block focus:outline-none focus-visible:ring-1 focus-visible:ring-white/60 ${hasHoverMedia ? 'has-hover-media' : ''}`} style={{ animationDelay: `${(index % 8) * 60}ms` }}>
       <div className="img-wrap relative overflow-hidden">
-        {primary ? <img src={primary} alt={title} loading="lazy" className="primary-media transition-opacity duration-500 group-hover:opacity-0" /> : <div className="h-full grid place-items-center text-sm text-[var(--smoke)]">Missing image</div>}
+        {primary ? <img src={primary} alt={title} loading="lazy" className={primaryClassName} /> : <div className="h-full grid place-items-center text-sm text-[var(--smoke)]">Missing image</div>}
         {video ? <video src={video} muted playsInline loop preload="metadata" className="hover-media absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" /> : cleanSwap ? <img src={cleanSwap} alt="" loading={index < 24 ? 'eager' : 'lazy'} decoding="async" className="hover-media absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" aria-hidden="true" /> : null}
       </div>
       <div className="flex flex-col gap-1.5 px-4 py-4 lg:px-5 lg:py-5">
