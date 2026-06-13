@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowUpRight, CalendarDays, FileText, Mail, MapPin, Phone, ShieldCheck, Truck, User } from 'lucide-react';
+import { ArrowUpRight, Mail, MapPin, Phone, ShieldCheck, Truck, User } from 'lucide-react';
 import { formatPrice } from '@/lib/storefront';
 
 type CartItem = {
@@ -42,8 +42,6 @@ export function CheckoutClient() {
     fullName: '',
     phone: '',
     address: '',
-    eventDate: '',
-    measurements: '',
     note: '',
   });
 
@@ -76,7 +74,7 @@ export function CheckoutClient() {
     const draft = buildDraft();
     window.localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
     setSaving(true);
-    setDraftStatus('Saving draft...');
+    setDraftStatus('Preparing checkout...');
 
     try {
       const response = await fetch('/api/checkout/drafts', {
@@ -86,12 +84,12 @@ export function CheckoutClient() {
       });
       const result = await response.json().catch(() => null);
       if (response.ok && result?.ok) {
-        setDraftStatus(`Draft saved: ${result.draft_number || result.order_draft_id}`);
+        setDraftStatus(`Checkout draft saved: ${result.draft_number || result.order_draft_id}`);
       } else {
-        setDraftStatus(result?.error || 'Draft saved locally. Backend draft API is not ready yet.');
+        setDraftStatus(result?.error || 'Checkout draft saved locally. Secure payment step is not active yet.');
       }
     } catch {
-      setDraftStatus('Draft saved locally. Backend draft API is not available yet.');
+      setDraftStatus('Checkout draft saved locally. Secure payment step is not active yet.');
     } finally {
       setSaving(false);
     }
@@ -99,11 +97,11 @@ export function CheckoutClient() {
 
   if (!items.length) {
     return (
-      <section className="container-feya pt-[170px] pb-20">
+      <section className="container-feya pt-[150px] pb-20">
         <div className="glass rounded-2xl p-8">
-          <div className="eyebrow-gold mb-3">Checkout draft</div>
+          <div className="eyebrow-gold mb-3">Checkout</div>
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,68px)' }}>Your bag is empty</h1>
-          <p className="mt-4 text-[var(--bone-dim)]">Add a piece before preparing checkout.</p>
+          <p className="mt-4 text-[var(--bone-dim)]">Add a piece before checkout.</p>
           <Link href="/shop" className="btn-chrome mt-6">Continue shopping <ArrowUpRight size={13} /></Link>
         </div>
       </section>
@@ -111,11 +109,11 @@ export function CheckoutClient() {
   }
 
   return (
-    <section className="container-feya pt-[170px] pb-20">
-      <div className="border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
-        <div className="eyebrow-gold mb-3 flex items-center gap-2"><ShieldCheck size={14} /> Secure checkout draft</div>
-        <h1 className="font-tall text-bone leading-[0.98] tracking-[0.035em]" style={{ fontSize: 'clamp(32px,4.5vw,62px)' }}>Prepare your order</h1>
-        <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[var(--bone-dim)]">This is the safe order-draft layer before payment provider connection. It collects customer details, event deadline and production notes without creating a paid order or storing card data.</p>
+    <section className="container-feya pt-[145px] pb-20">
+      <div className="border-b border-[rgba(216,214,211,.12)] pb-6 mb-7">
+        <div className="eyebrow-gold mb-3 flex items-center gap-2"><ShieldCheck size={14} /> Secure checkout</div>
+        <h1 className="font-tall text-bone leading-[0.95] tracking-[0.025em]" style={{ fontSize: 'clamp(34px,4vw,56px)' }}>Checkout details</h1>
+        <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Enter your contact and delivery details. Measurements are not required here because the selected product options are already in your bag. Add a note only if you need something specific.</p>
       </div>
 
       <div className="grid grid-cols-12 gap-6 lg:gap-8">
@@ -127,14 +125,8 @@ export function CheckoutClient() {
               <Field icon={<User size={14} />} placeholder="Full name" value={form.fullName} onChange={(value) => update('fullName', value)} />
               <Field icon={<Phone size={14} />} placeholder="Phone" value={form.phone} onChange={(value) => update('phone', value)} />
               <Field icon={<MapPin size={14} />} placeholder="Country, city, street, ZIP" value={form.address} onChange={(value) => update('address', value)} />
-              <Field icon={<CalendarDays size={14} />} placeholder="Event date or delivery deadline" value={form.eventDate} onChange={(value) => update('eventDate', value)} />
+              <textarea value={form.note} onChange={(event) => update('note', event.target.value)} placeholder="Optional note: delivery deadline, color concern, styling request..." className="min-h-[105px] w-full rounded-lg border border-[rgba(216,214,211,.14)] bg-black/20 px-4 py-3 text-[14px] text-bone outline-none focus:border-white/50 placeholder:text-[var(--smoke)]" />
             </div>
-          </section>
-
-          <section className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
-            <div className="eyebrow-gold mb-4 flex items-center gap-2"><FileText size={14} /> Measurements & atelier notes</div>
-            <textarea value={form.measurements} onChange={(event) => update('measurements', event.target.value)} placeholder="Measurements: height, bust, waist, hips, shoulder width, arm length, thigh, custom notes..." className="min-h-[115px] w-full rounded-lg border border-[rgba(216,214,211,.14)] bg-black/20 px-4 py-3 text-[14px] text-bone outline-none focus:border-white/50" />
-            <textarea value={form.note} onChange={(event) => update('note', event.target.value)} placeholder="Extra note: event, styling wishes, color concerns, rush timing, custom request..." className="mt-3 min-h-[95px] w-full rounded-lg border border-[rgba(216,214,211,.14)] bg-black/20 px-4 py-3 text-[14px] text-bone outline-none focus:border-white/50" />
           </section>
         </div>
 
@@ -165,12 +157,12 @@ export function CheckoutClient() {
             <div className="mt-5 space-y-2 text-[13px] text-[var(--bone-dim)]">
               <div className="flex justify-between"><span>Subtotal</span><span>{formatPrice(subtotal, currency)}</span></div>
               <div className="flex justify-between"><span>Shipping</span><span>{shipping ? formatPrice(shipping, currency) : 'Included'}</span></div>
-              <div className="pt-4 border-t border-[rgba(216,214,211,.12)] flex justify-between items-end"><span className="eyebrow">Draft total</span><span className="font-price text-gold-grad text-[34px] leading-none">{formatPrice(total, currency)}</span></div>
+              <div className="pt-4 border-t border-[rgba(216,214,211,.12)] flex justify-between items-end"><span className="eyebrow">Total</span><span className="font-price text-gold-grad text-[34px] leading-none">{formatPrice(total, currency)}</span></div>
             </div>
 
-            <button onClick={saveDraft} disabled={saving} className="btn-gold justify-center rounded-md h-11 w-full mt-5 disabled:opacity-60 disabled:cursor-wait">{saving ? 'Saving...' : 'Save checkout draft'} <ArrowUpRight size={13} /></button>
+            <button onClick={saveDraft} disabled={saving} className="btn-gold justify-center rounded-md h-11 w-full mt-5 disabled:opacity-60 disabled:cursor-wait">{saving ? 'Preparing...' : 'Continue to payment'} <ArrowUpRight size={13} /></button>
             {draftStatus ? <p className="mt-3 text-[12px] leading-relaxed text-[var(--gold-warm)]">{draftStatus}</p> : null}
-            <p className="mt-3 text-[11px] leading-relaxed text-[var(--smoke)]">Payment is intentionally not active yet. Final paid order creation will be connected only after the secure provider and v4 price contract are ready.</p>
+            <p className="mt-3 text-[11px] leading-relaxed text-[var(--smoke)]">Secure payment is not active in this preview yet. This step currently saves a safe checkout draft only.</p>
           </section>
         </aside>
       </div>
