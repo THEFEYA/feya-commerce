@@ -72,7 +72,7 @@ export function Header() {
         <div className="flex items-center gap-2">
           <button aria-label="Search" className="hidden sm:flex w-9 h-9 items-center justify-center rounded-full border border-transparent text-[#C8C2B5] hover:text-white hover:border-[rgba(216,214,211,0.4)] transition-all"><Search size={15} strokeWidth={1.4} /></button>
           <button aria-label="Wishlist" className="hidden sm:flex w-9 h-9 items-center justify-center rounded-full border border-transparent text-[#C8C2B5] hover:text-white hover:border-[rgba(216,214,211,0.4)] transition-all"><Heart size={15} strokeWidth={1.4} /></button>
-          <button aria-label="Account" className="hidden sm:flex w-9 h-9 items-center justify-center rounded-full border border-transparent text-[#C8C2B5] hover:text-white hover:border-[rgba(216,214,211,0.4)] transition-all"><User size={15} strokeWidth={1.4} /></button>
+          <Link href="/account" aria-label="Account" className="hidden sm:flex w-9 h-9 items-center justify-center rounded-full border border-transparent text-[#C8C2B5] hover:text-white hover:border-[rgba(216,214,211,0.4)] transition-all"><User size={15} strokeWidth={1.4} /></Link>
           <Link href="/cart" aria-label="Bag" className={`relative flex items-center gap-2 px-3.5 h-9 rounded-full border transition-all ${count > 0 ? 'border-[var(--gold)] text-white bg-[rgba(212,178,106,0.10)]' : 'border-[rgba(216,214,211,0.4)] text-white'}`}>
             <ShoppingBag size={14} strokeWidth={1.4} />
             <span className="text-[10.5px] tracking-[0.22em] uppercase hidden md:inline">Bag</span>
