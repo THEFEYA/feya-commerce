@@ -78,62 +78,56 @@ export default async function HomePage() {
     <main className="relative min-h-screen overflow-hidden">
       <Header />
 
-      <section className="relative min-h-[760px] pt-32 lg:pt-40 flex items-center border-b border-[rgba(216,214,211,0.12)] overflow-hidden">
+      <section className="relative min-h-[560px] pt-28 lg:pt-32 flex items-center border-b border-[rgba(216,214,211,0.12)] overflow-hidden">
         <div className="absolute inset-0 opacity-40">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_20%,rgba(216,214,211,0.26),transparent_32%),radial-gradient(circle_at_18%_82%,rgba(212,178,106,0.22),transparent_35%)]" />
-          <div className="absolute right-0 top-0 bottom-0 w-[58%] opacity-30 text-[22vw] font-display tracking-[-0.08em] text-white/10 flex items-center justify-center">
+          <div className="absolute right-0 top-0 bottom-0 w-[50%] opacity-20 text-[13vw] font-display tracking-[-0.08em] text-white/10 flex items-center justify-center">
             FEYA
           </div>
         </div>
 
-        <div className="container-feya relative z-10 grid lg:grid-cols-12 gap-10 items-center">
-          <div className="lg:col-span-7">
-            <div className="eyebrow-gold mb-6">
-              Atelier · Berlin · Est. 2018 · Made to order
+        <div className="container-feya relative z-10 grid lg:grid-cols-12 gap-8 items-center">
+          <div className="lg:col-span-6">
+            <div className="eyebrow-gold mb-5">
+              FEYA Atelier · Made to order
             </div>
 
             <h1
-              className="display-hero text-bone"
-              style={{ fontSize: 'clamp(54px,8vw,128px)' }}
+              className="font-tall text-bone leading-[0.95] tracking-[0.03em]"
+              style={{ fontSize: 'clamp(44px,5.5vw,82px)' }}
             >
-              Handmade pieces for{' '}
-              <span className="editorial-italic text-gold-grad">
-                stage, festival
-              </span>{' '}
-              and desert.
+              FEYA Atelier
             </h1>
 
-            <p className="editorial-italic text-[var(--bone-dim)] text-xl lg:text-2xl mt-8 max-w-2xl">
-              Hand-cut mirror acrylic. Vegan leather harnesses. Statement looks
-              for festivals, performances and the desert sun.
+            <p className="editorial-italic text-[var(--bone-dim)] text-lg lg:text-xl mt-6 max-w-xl">
+              Handmade statement pieces for stage, festival and desert looks.
             </p>
 
-            <div className="flex flex-wrap gap-4 mt-9">
+            <div className="flex flex-wrap gap-4 mt-8">
               <Link href="/shop" className="btn-chrome">
-                Shop the collection <ArrowUpRight size={14} />
+                Shop catalog <ArrowUpRight size={14} />
               </Link>
 
               <Link href="/shop" className="btn-ghost">
-                Express ready in 7d <ArrowUpRight size={14} />
+                View new pieces <ArrowUpRight size={14} />
               </Link>
             </div>
           </div>
 
-          <div className="lg:col-span-5 hidden lg:grid grid-cols-2 gap-4 opacity-90">
-            {best.map((p, i) => (
-              <div
+          <div className="lg:col-span-6 hidden lg:grid grid-cols-3 gap-4 opacity-90">
+            {best.slice(0, 3).map((p, i) => (
+              <Link
+                href={`/shop/${p.product_slug}`}
                 key={p.canonical_product_id}
-                className={`relative rounded-md overflow-hidden border border-white/10 ${
-                  i % 2 ? 'translate-y-14' : ''
-                }`}
+                className={`relative rounded-md overflow-hidden border border-white/10 ${i === 1 ? 'translate-y-8' : ''}`}
               >
                 <img
                   src={p.primary_image_url || ''}
-                  className="w-full h-[310px] object-cover"
+                  className="w-full h-[360px] object-cover"
                   alt=""
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-              </div>
+              </Link>
             ))}
           </div>
         </div>
