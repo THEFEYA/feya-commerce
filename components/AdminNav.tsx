@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Boxes, Home, ImageIcon, Layers3, PackageSearch, Tags, WalletCards } from 'lucide-react';
+import { BarChart3, Boxes, ClipboardList, Home, ImageIcon, Layers3, PackageSearch, Tags, WalletCards } from 'lucide-react';
 
 const NAV = [
   { href: '/admin', label: 'Overview', note: 'Control cockpit', icon: Home },
@@ -12,6 +12,7 @@ const NAV = [
   { href: '/admin/review/components', label: 'Components', note: 'full set / bundle', icon: Boxes },
   { href: '/admin/media', label: 'Media QA', note: 'hover & gallery', icon: ImageIcon },
   { href: '/admin/seo', label: 'SEO Readiness', note: 'graph & feeds', icon: Layers3 },
+  { href: '/admin/orders', label: 'Orders', note: 'draft review queue', icon: ClipboardList },
 ];
 
 function isActive(pathname: string, href: string) {
