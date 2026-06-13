@@ -75,7 +75,7 @@ export function CheckoutClient() {
     const draft = buildDraft();
     window.localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
     setSaving(true);
-    setDraftStatus('Preparing secure payment step...');
+    setDraftStatus('Saving checkout request...');
 
     try {
       const response = await fetch('/api/checkout/drafts', {
@@ -85,13 +85,13 @@ export function CheckoutClient() {
       });
       const result = await response.json().catch(() => null);
       if (response.ok && result?.ok) {
-        setDraftStatus(`Draft saved: ${result.draft_number || result.order_draft_id}`);
+        setDraftStatus(`Checkout request saved: ${result.draft_number || result.order_draft_id}`);
       } else {
-        setDraftStatus(result?.error || 'Draft saved locally. Secure payment provider is not connected yet.');
+        setDraftStatus(result?.error || 'Checkout request saved locally. Payment provider is not connected in this preview.');
       }
       setPaymentStep(true);
     } catch {
-      setDraftStatus('Draft saved locally. Secure payment provider is not connected yet.');
+      setDraftStatus('Checkout request saved locally. Payment provider is not connected in this preview.');
       setPaymentStep(true);
     } finally {
       setSaving(false);
@@ -100,10 +100,10 @@ export function CheckoutClient() {
 
   if (!items.length) {
     return (
-      <section className="container-feya pt-[185px] pb-20">
+      <section className="container-feya pt-[230px] pb-20">
         <div className="glass rounded-2xl p-8">
           <div className="eyebrow-gold mb-3">Checkout</div>
-          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(32px,4.5vw,56px)' }}>Your bag is empty</h1>
+          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(28px,4vw,48px)' }}>Your bag is empty</h1>
           <p className="mt-4 text-[var(--bone-dim)]">Add a piece before checkout.</p>
           <Link href="/shop" className="btn-chrome mt-6">Continue shopping <ArrowUpRight size={13} /></Link>
         </div>
@@ -112,10 +112,10 @@ export function CheckoutClient() {
   }
 
   return (
-    <section className="container-feya pt-[215px] pb-20">
+    <section className="container-feya pt-[285px] pb-20">
       <div className="border-b border-[rgba(216,214,211,.12)] pb-6 mb-7">
-        <div className="eyebrow-gold mb-3 flex items-center gap-2"><ShieldCheck size={14} /> Secure checkout</div>
-        <h1 className="font-tall text-bone leading-[0.95] tracking-[0.02em]" style={{ fontSize: 'clamp(30px,3.4vw,46px)' }}>Checkout details</h1>
+        <div className="eyebrow-gold mb-3 flex items-center gap-2"><ShieldCheck size={14} /> Checkout</div>
+        <h1 className="font-tall text-bone leading-[0.95] tracking-[0.02em]" style={{ fontSize: 'clamp(28px,3vw,40px)' }}>Checkout details</h1>
         <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Enter contact and delivery details. Product options are already saved in your bag. Add a note only if you need something specific.</p>
       </div>
 
@@ -133,7 +133,7 @@ export function CheckoutClient() {
           </section>
         </div>
 
-        <aside className="col-span-12 lg:col-span-5 lg:sticky lg:top-[120px] self-start space-y-4">
+        <aside className="col-span-12 lg:col-span-5 lg:sticky lg:top-[135px] self-start space-y-4">
           <section className="rounded-2xl border border-[rgba(216,214,211,.14)] bg-[linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018))] p-5 shadow-[0_30px_80px_rgba(0,0,0,.45)]">
             <div className="eyebrow-gold mb-4">Order review</div>
             <div className="space-y-3 max-h-[330px] overflow-auto pr-1">
@@ -157,16 +157,20 @@ export function CheckoutClient() {
               </div>
             </div>
 
+            <div className="mt-5 rounded-xl border border-[rgba(212,178,106,.24)] bg-[rgba(212,178,106,.055)] p-4">
+              <div className="eyebrow-gold mb-2">Payment status</div>
+              <p className="text-[12px] leading-relaxed text-[var(--bone-dim)]">Real card payment is not connected in this preview. The site must use a payment provider; it must not collect card numbers directly.</p>
+            </div>
+
             <div className="mt-5 space-y-2 text-[13px] text-[var(--bone-dim)]">
               <div className="flex justify-between"><span>Subtotal</span><span>{formatPrice(subtotal, currency)}</span></div>
               <div className="flex justify-between"><span>Shipping</span><span>{shipping ? formatPrice(shipping, currency) : 'Included'}</span></div>
               <div className="pt-4 border-t border-[rgba(216,214,211,.12)] flex justify-between items-end"><span className="eyebrow">Total</span><span className="font-price text-gold-grad text-[34px] leading-none">{formatPrice(total, currency)}</span></div>
             </div>
 
-            <button onClick={saveDraft} disabled={saving} className="btn-gold justify-center rounded-md h-11 w-full mt-5 disabled:opacity-60 disabled:cursor-wait">{saving ? 'Preparing...' : 'Continue to secure payment'} <ArrowUpRight size={13} /></button>
+            <button onClick={saveDraft} disabled={saving} className="btn-gold justify-center rounded-md h-11 w-full mt-5 disabled:opacity-60 disabled:cursor-wait">{saving ? 'Saving...' : 'Save checkout request'} <ArrowUpRight size={13} /></button>
             {draftStatus ? <p className="mt-3 text-[12px] leading-relaxed text-[var(--gold-warm)]">{draftStatus}</p> : null}
-            {paymentStep ? <div className="mt-4 rounded-xl border border-[rgba(212,178,106,.24)] bg-[rgba(212,178,106,.06)] p-4"><div className="eyebrow-gold mb-2">Payment provider step</div><p className="text-[12px] leading-relaxed text-[var(--bone-dim)]">In production this area will open the secure payment provider form. We do not collect card numbers directly on the site. Provider connection is disabled in this preview.</p></div> : null}
-            <p className="mt-3 text-[11px] leading-relaxed text-[var(--smoke)]">Secure payment is not active in this preview yet. This step currently saves a safe checkout draft only.</p>
+            {paymentStep ? <div className="mt-4 rounded-xl border border-[rgba(216,214,211,.14)] bg-black/25 p-4"><div className="eyebrow-gold mb-2">Next production step</div><p className="text-[12px] leading-relaxed text-[var(--bone-dim)]">Connect Stripe, PayPal, or another provider. After that this block can redirect to the secure provider checkout.</p></div> : null}
           </section>
         </aside>
       </div>
