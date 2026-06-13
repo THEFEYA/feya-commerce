@@ -14,9 +14,20 @@ function normalizeGallery(value: unknown): StorefrontMedia[] {
   return Array.isArray(raw) ? raw as StorefrontMedia[] : [];
 }
 
+function mediaUrl(item: StorefrontMedia): string {
+  const media = item as StorefrontMedia & {
+    image_url?: string;
+    src?: string;
+    public_url?: string;
+    media_url?: string;
+    url?: string;
+  };
+  return media.url || media.image_url || media.src || media.public_url || media.media_url || '';
+}
+
 function galleryHoverUrl(product: StorefrontProduct, primary: string) {
   const gallery = normalizeGallery(product.media_gallery);
-  const urls = gallery.map((item) => item.url).filter((url): url is string => Boolean(url));
+  const urls = gallery.map(mediaUrl).filter((url): url is string => Boolean(url));
   return urls.find((url) => url !== primary) || '';
 }
 
@@ -26,6 +37,7 @@ export function ProductCard({ product: p, index = 0 }: { product: StorefrontProd
   const swap = p.hover_image_url || p.secondary_image_url || gallerySwap || '';
   const cleanSwap = swap && swap !== primary ? swap : '';
   const video = p.has_video ? (p.video_url || '') : '';
+  const hoverSource = video || cleanSwap || primary;
   const colors = colorOptions(p);
   const display = mainRegularPrice(p);
   const compareAt = mainCompareAtPrice(p);
@@ -40,7 +52,7 @@ export function ProductCard({ product: p, index = 0 }: { product: StorefrontProd
     <Link prefetch href={`/shop/${slug}`} data-testid={`product-card-${slug}`} className="product-card reveal group block focus:outline-none focus-visible:ring-1 focus-visible:ring-white/60" style={{ animationDelay: `${(index % 8) * 60}ms` }}>
       <div className="img-wrap relative overflow-hidden">
         {primary ? <img src={primary} alt={title} loading="lazy" className="primary-media transition-opacity duration-500 group-hover:opacity-0" /> : <div className="h-full grid place-items-center text-sm text-[var(--smoke)]">Missing image</div>}
-        {video ? <video src={video} muted playsInline loop preload="metadata" className="hover-media absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" /> : cleanSwap ? <img src={cleanSwap} alt="" loading={index < 24 ? 'eager' : 'lazy'} decoding="async" className="hover-media absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" aria-hidden="true" /> : null}
+        {video ? <video src={video} muted playsInline loop preload="metadata" className="hover-media absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" /> : hoverSource ? <img src={hoverSource} alt="" loading={index < 24 ? 'eager' : 'lazy'} decoding="async" className="hover-media absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" aria-hidden="true" /> : null}
       </div>
       <div className="flex flex-col gap-1.5 px-4 py-4 lg:px-5 lg:py-5">
         <h3 className="product-card-title text-bone text-[18px] lg:text-[19px] leading-[1.15] line-clamp-2 min-h-[2.45em]" title={title}>{title}</h3>
