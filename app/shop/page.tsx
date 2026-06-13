@@ -6,18 +6,42 @@ import { STOREFRONT_CARD_SELECT, STOREFRONT_FALLBACK_CARD_SELECT, STOREFRONT_MED
 
 export const revalidate = 300;
 
+const MEDIA_LOOKUP_CHUNK_SIZE = 35;
+
+function chunkValues(values, size) {
+  const chunks = [];
+  for (let index = 0; index < values.length; index += size) {
+    chunks.push(values.slice(index, index + size));
+  }
+  return chunks;
+}
+
+async function fetchMediaForSlugs(supabase, slugs) {
+  const rows = [];
+  const uniqueSlugs = Array.from(new Set(slugs.filter(Boolean)));
+
+  for (const chunk of chunkValues(uniqueSlugs, MEDIA_LOOKUP_CHUNK_SIZE)) {
+    const media = await supabase
+      .from(STOREFRONT_MEDIA_FAST_VIEW)
+      .select(STOREFRONT_MEDIA_FAST_SELECT)
+      .in('product_slug', chunk);
+
+    if (!media.error && media.data?.length) {
+      rows.push(...media.data);
+    }
+  }
+
+  return rows;
+}
+
 async function mergeMedia(supabase, products) {
   const slugs = products.map((product) => product.product_slug).filter(Boolean);
   if (!slugs.length) return products;
 
-  const media = await supabase
-    .from(STOREFRONT_MEDIA_FAST_VIEW)
-    .select(STOREFRONT_MEDIA_FAST_SELECT)
-    .in('product_slug', slugs);
+  const mediaRows = await fetchMediaForSlugs(supabase, slugs);
+  if (!mediaRows.length) return products;
 
-  if (media.error || !media.data?.length) return products;
-
-  const bySlug = new Map(media.data.map((item) => [item.product_slug, item]));
+  const bySlug = new Map(mediaRows.map((item) => [item.product_slug, item]));
   return products.map((product) => {
     const item = bySlug.get(product.product_slug);
     if (!item) return product;
