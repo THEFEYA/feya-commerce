@@ -94,7 +94,7 @@ export default async function AdminMediaQaPage() {
 
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
         {qaRows.map(({ product, issues }) => <article key={product.canonical_product_id} className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
-          <Link href={`/shop/${productSlug(product)}`} className="group block">
+          <Link href={`/admin/products/${productSlug(product)}`} className="group block">
             <div className="relative aspect-[4/5] bg-black/30 overflow-hidden">
               {product.primary_image_url ? <img src={product.primary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" /> : <div className="h-full w-full grid place-items-center text-[var(--smoke)] text-sm">Missing image</div>}
               {product.secondary_image_url || product.hover_image_url ? <img src={product.hover_image_url || product.secondary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" /> : null}
