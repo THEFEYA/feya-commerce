@@ -35,7 +35,8 @@ function readCart(): CartItem[] {
 export function CheckoutClient() {
   const [items, setItems] = useState<CartItem[]>([]);
   const [delivery, setDelivery] = useState<'standard' | 'express'>('standard');
-  const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [draftStatus, setDraftStatus] = useState('');
   const [form, setForm] = useState({
     email: '',
     fullName: '',
@@ -57,23 +58,43 @@ export function CheckoutClient() {
 
   const update = (key: keyof typeof form, value: string) => setForm((current) => ({ ...current, [key]: value }));
 
-  const saveDraft = () => {
-    const draft = {
-      version: 1,
-      items,
-      delivery,
-      shipping,
-      subtotal,
-      total,
-      currency,
-      contact: form,
-      payment_status: 'not_started',
-      order_status: 'draft_only',
-      created_at: new Date().toISOString(),
-    };
+  const buildDraft = () => ({
+    version: 1,
+    items,
+    delivery,
+    shipping,
+    subtotal,
+    total,
+    currency,
+    contact: form,
+    payment_status: 'not_started',
+    order_status: 'draft_only',
+    created_at: new Date().toISOString(),
+  });
+
+  const saveDraft = async () => {
+    const draft = buildDraft();
     window.localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
-    setSaved(true);
-    setTimeout(() => setSaved(false), 1800);
+    setSaving(true);
+    setDraftStatus('Saving draft...');
+
+    try {
+      const response = await fetch('/api/checkout/drafts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(draft),
+      });
+      const result = await response.json().catch(() => null);
+      if (response.ok && result?.ok) {
+        setDraftStatus(`Draft saved: ${result.draft_number || result.order_draft_id}`);
+      } else {
+        setDraftStatus(result?.error || 'Draft saved locally. Backend draft API is not ready yet.');
+      }
+    } catch {
+      setDraftStatus('Draft saved locally. Backend draft API is not available yet.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (!items.length) {
@@ -147,7 +168,8 @@ export function CheckoutClient() {
               <div className="pt-4 border-t border-[rgba(216,214,211,.12)] flex justify-between items-end"><span className="eyebrow">Draft total</span><span className="font-price text-gold-grad text-[34px] leading-none">{formatPrice(total, currency)}</span></div>
             </div>
 
-            <button onClick={saveDraft} className="btn-gold justify-center rounded-md h-11 w-full mt-5">{saved ? 'Draft saved' : 'Save checkout draft'} <ArrowUpRight size={13} /></button>
+            <button onClick={saveDraft} disabled={saving} className="btn-gold justify-center rounded-md h-11 w-full mt-5 disabled:opacity-60 disabled:cursor-wait">{saving ? 'Saving...' : 'Save checkout draft'} <ArrowUpRight size={13} /></button>
+            {draftStatus ? <p className="mt-3 text-[12px] leading-relaxed text-[var(--gold-warm)]">{draftStatus}</p> : null}
             <p className="mt-3 text-[11px] leading-relaxed text-[var(--smoke)]">Payment is intentionally not active yet. Final paid order creation will be connected only after the secure provider and v4 price contract are ready.</p>
           </section>
         </aside>
