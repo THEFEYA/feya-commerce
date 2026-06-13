@@ -142,7 +142,7 @@ export function CartClient() {
               <div className="flex justify-between text-[13px] text-[var(--bone-dim)]"><span>Subtotal</span><span>{formatPrice(subtotal, currency)}</span></div>
               <div className="flex justify-between text-[13px] text-[var(--bone-dim)] mt-2"><span>Shipping</span><span>{shipping ? formatPrice(shipping, currency) : 'Included'}</span></div>
               <div className="mt-4 pt-4 border-t border-[rgba(216,214,211,.12)] flex justify-between items-end"><span className="eyebrow">Total</span><span className="font-price text-gold-grad text-[34px] leading-none">{formatPrice(total, currency)}</span></div>
-              <button className="btn-gold justify-center rounded-md h-11 w-full mt-5">Continue to secure payment <ArrowUpRight size={13} /></button>
+              <Link href="/checkout" className="btn-gold justify-center rounded-md h-11 w-full mt-5">Continue to checkout draft <ArrowUpRight size={13} /></Link>
               <p className="mt-3 text-[11px] leading-relaxed text-[var(--smoke)]">Payment gateway is not connected yet. This is a safe checkout preview; no card data is collected here.</p>
             </div>
           </aside>
