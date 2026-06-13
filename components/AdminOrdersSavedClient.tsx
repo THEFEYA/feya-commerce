@@ -1,51 +1,44 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AlertTriangle, ClipboardList, PackageCheck, ShieldCheck } from 'lucide-react';
+import { AlertTriangle, ClipboardList, PackageCheck, ShieldCheck, type LucideIcon } from 'lucide-react';
 import { formatPrice } from '@/lib/storefront';
 
 type DraftItem = {
   order_draft_item_id?: string | null;
-  product_slug?: string | null;
   product_title?: string | null;
   image_url?: string | null;
   public_label?: string | null;
   configuration_label?: string | null;
   component_code?: string | null;
-  component_family?: string | null;
   is_full_set?: boolean | null;
   is_bundle?: boolean | null;
   color?: string | null;
   size?: string | null;
   quantity?: number | null;
-  unit_price_amount?: number | null;
   line_total_amount?: number | null;
   currency?: string | null;
   price_confidence_status?: string | null;
-  label_confidence_status?: string | null;
 };
 
 type DraftRow = {
   order_draft_id: string;
   draft_number?: string | null;
-  email?: string | null;
   full_name?: string | null;
-  phone?: string | null;
-  shipping_address?: string | null;
-  delivery_method?: string | null;
+  email?: string | null;
   total_amount?: number | null;
   currency?: string | null;
   payment_status?: string | null;
   order_status?: string | null;
-  production_status?: string | null;
-  shipping_status?: string | null;
   has_price_review_warning?: boolean | null;
   has_label_review_warning?: boolean | null;
   created_at?: string | null;
   items?: DraftItem[] | null;
 };
 
-type ResponsePayload = { ok?: boolean; error?: string; drafts?: DraftRow[] };
+type ApiPayload = { ok?: boolean; error?: string; drafts?: DraftRow[] };
+
+type MetricProps = { label: string; value: string | number; note: string; icon: LucideIcon };
 
 function Chip({ children, tone = 'neutral' }: { children: string; tone?: 'neutral' | 'warning' | 'danger' }) {
   const className = tone === 'danger'
@@ -56,7 +49,7 @@ function Chip({ children, tone = 'neutral' }: { children: string; tone?: 'neutra
   return <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] ${className}`}>{children}</span>;
 }
 
-function Metric({ label, value, note, icon: Icon }: { label: string; value: string | number; note: string; icon: any }) {
+function Metric({ label, value, note, icon: Icon }: MetricProps) {
   return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
     <div className="flex items-center justify-between gap-4 mb-4"><div className="eyebrow-dim">{label}</div><Icon size={16} className="text-[var(--gold-warm)]" /></div>
     <div className="font-price text-gold-grad text-[38px] leading-none">{value}</div>
@@ -65,7 +58,7 @@ function Metric({ label, value, note, icon: Icon }: { label: string; value: stri
 }
 
 export function AdminOrdersSavedClient() {
-  const [payload, setPayload] = useState<ResponsePayload>({ drafts: [] });
+  const [payload, setPayload] = useState<ApiPayload>({ drafts: [] });
   const [loading, setLoading] = useState(true);
 
   async function load() {
@@ -84,21 +77,21 @@ export function AdminOrdersSavedClient() {
   useEffect(() => { load(); }, []);
 
   const drafts = payload.drafts || [];
-  const warnings = drafts.filter((draft) => draft.has_price_review_warning || draft.has_label_review_warning).length;
   const itemCount = drafts.reduce((sum, draft) => sum + (draft.items?.length || 0), 0);
+  const warningCount = drafts.filter((draft) => draft.has_price_review_warning || draft.has_label_review_warning).length;
 
   return <section className="container-feya pb-10">
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <Metric icon={ClipboardList} label="Saved drafts" value={loading ? '…' : drafts.length} note="Loaded from protected admin API." />
       <Metric icon={PackageCheck} label="Items" value={loading ? '…' : itemCount} note="Draft items stored in Supabase." />
-      <Metric icon={ShieldCheck} label="Warnings" value={loading ? '…' : warnings} note="Price or label warning flags." />
+      <Metric icon={ShieldCheck} label="Warnings" value={loading ? '…' : warningCount} note="Price or label warning flags." />
       <Metric icon={AlertTriangle} label="Payment off" value="0" note="Paid order finalization remains disabled." />
     </div>
 
     {payload.error ? <div className="rounded-2xl border border-[rgba(212,178,106,.28)] bg-[rgba(212,178,106,.06)] p-5 text-[13px] leading-relaxed text-[var(--gold-warm)] mb-5"><AlertTriangle size={15} className="inline mr-2" />{payload.error}</div> : null}
 
     <div className="flex items-center justify-between gap-4 mb-4">
-      <div><div className="eyebrow-gold">Supabase saved drafts</div><p className="mt-2 text-[12px] text-[var(--bone-dim)]">Protected read-only view. Customer/order data is not exposed through public table grants.</p></div>
+      <div><div className="eyebrow-gold">Supabase saved drafts</div><p className="mt-2 text-[12px] text-[var(--bone-dim)]">Protected read-only view. Public table grants stay closed.</p></div>
       <button type="button" onClick={load} className="btn-ghost px-4 py-2 text-[10px]" disabled={loading}>{loading ? 'Loading…' : 'Refresh'}</button>
     </div>
 
