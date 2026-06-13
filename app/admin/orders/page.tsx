@@ -1,5 +1,6 @@
 import { ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
+import { AdminOrdersSavedClient } from '@/components/AdminOrdersSavedClient';
 import { AtelierOrdersClient } from '@/components/AtelierOrdersClient';
 
 export default function AdminOrdersPage() {
@@ -9,11 +10,12 @@ export default function AdminOrdersPage() {
         <div>
           <div className="eyebrow-gold mb-3">Admin · Orders</div>
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Order drafts</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Local checkout draft review inside Control Tower. Supabase saved-draft reading stays staged until the read contract is verified.</p>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Saved Supabase drafts plus local preview fallback. Payment remains off; this is review and production-prep only.</p>
         </div>
         <Link href="/checkout" className="btn-ghost">Create test draft <ArrowUpRight size={13} /></Link>
       </div>
     </section>
+    <AdminOrdersSavedClient />
     <AtelierOrdersClient />
   </main>;
 }
