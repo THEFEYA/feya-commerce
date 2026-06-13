@@ -4,7 +4,8 @@ import { AtelierOrdersClient } from '@/components/AtelierOrdersClient';
 import { getMissingSupabaseServiceEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
 import { formatPrice } from '@/lib/storefront';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 type DraftRow = {
   order_draft_id: string;
