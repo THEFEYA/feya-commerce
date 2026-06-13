@@ -69,10 +69,10 @@ export function CartClient() {
   };
 
   return (
-    <section className="container-feya pt-[180px] lg:pt-[172px] pb-20">
+    <section className="container-feya pt-[230px] lg:pt-[218px] pb-20">
       <div className="mb-7 border-b border-[rgba(216,214,211,.12)] pb-5">
         <div className="eyebrow-gold mb-3">Atelier checkout</div>
-        <h1 className="font-tall text-bone leading-[0.95] tracking-[0.04em]" style={{ fontSize: 'clamp(30px,3.3vw,46px)' }}>Your atelier bag</h1>
+        <h1 className="font-tall text-bone leading-[1.05] tracking-[0.035em]" style={{ fontSize: 'clamp(28px,2.6vw,38px)' }}>Your atelier bag</h1>
       </div>
 
       {!items.length ? (
