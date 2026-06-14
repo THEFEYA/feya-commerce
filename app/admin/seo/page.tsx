@@ -1,6 +1,7 @@
 // @ts-nocheck
 import Link from 'next/link';
 import { ArrowUpRight, FileSearch, ImageIcon, Link2, SearchCheck, Shapes } from 'lucide-react';
+import { AdminQueueQuickReviewClient } from '@/components/AdminQueueQuickReviewClient';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
@@ -126,24 +127,30 @@ export default async function AdminSeoPage() {
           <div>SEO blockers</div>
         </div>
         <div className="divide-y divide-[rgba(216,214,211,.08)]">
-          {seoRows.map(({ product, issues, readiness }) => <Link key={product.canonical_product_id} href={`/admin/products/${productSlug(product)}`} className="grid grid-cols-[76px_1.5fr_0.7fr_1.3fr] gap-4 items-center px-5 py-4 hover:bg-[rgba(212,178,106,.045)] transition-colors">
-            <div className="relative h-20 w-16 rounded-lg overflow-hidden bg-black/30 border border-[rgba(216,214,211,.10)]">
-              {product.primary_image_url ? <img src={product.primary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}
-            </div>
-            <div>
-              <div className="text-bone text-[15px] leading-snug line-clamp-2">{productTitle(product)}</div>
-              <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'No category'} · {product.canonical_color_label || product.color || 'No color'}</div>
-              <div className="mt-2 text-[11px] text-[var(--bone-dim)]">/{productSlug(product)}</div>
-            </div>
-            <div>
-              <div className="font-price text-gold-grad text-[28px] leading-none">{readiness.score}</div>
-              <div className="mt-2"><Chip tone={readiness.tone}>{readiness.label}</Chip></div>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {issues.slice(0, 6).map((issue) => <Chip key={issue} tone={issue.includes('Missing') || issue.includes('Blocked') || issue.includes('Unverified') ? 'danger' : 'warning'}>{issue}</Chip>)}
-              {!issues.length ? <Chip tone="ok">OK</Chip> : null}
-            </div>
-          </Link>)}
+          {seoRows.map(({ product, issues, readiness }) => {
+            const slug = productSlug(product);
+            return <article key={product.canonical_product_id} className="px-5 py-4 hover:bg-[rgba(212,178,106,.035)] transition-colors">
+              <Link href={`/admin/products/${slug}`} className="grid grid-cols-[76px_1.5fr_0.7fr_1.3fr] gap-4 items-center">
+                <div className="relative h-20 w-16 rounded-lg overflow-hidden bg-black/30 border border-[rgba(216,214,211,.10)]">
+                  {product.primary_image_url ? <img src={product.primary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}
+                </div>
+                <div>
+                  <div className="text-bone text-[15px] leading-snug line-clamp-2">{productTitle(product)}</div>
+                  <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'No category'} · {product.canonical_color_label || product.color || 'No color'}</div>
+                  <div className="mt-2 text-[11px] text-[var(--bone-dim)]">/{slug}</div>
+                </div>
+                <div>
+                  <div className="font-price text-gold-grad text-[28px] leading-none">{readiness.score}</div>
+                  <div className="mt-2"><Chip tone={readiness.tone}>{readiness.label}</Chip></div>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {issues.slice(0, 6).map((issue) => <Chip key={issue} tone={issue.includes('Missing') || issue.includes('Blocked') || issue.includes('Unverified') ? 'danger' : 'warning'}>{issue}</Chip>)}
+                  {!issues.length ? <Chip tone="ok">OK</Chip> : null}
+                </div>
+              </Link>
+              <AdminQueueQuickReviewClient productSlug={slug} canonicalProductId={product.canonical_product_id} sourceRoute="/admin/seo" approvedEventType="seo_ready_checked" subjectType="seo" approvedLabel="Mark SEO ready" />
+            </article>;
+          })}
           {!seoRows.length ? <div className="p-6 text-[13px] text-[var(--bone-dim)]">No SEO rows returned from v4.</div> : null}
         </div>
       </div>
