@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Boxes, ClipboardList, Home, ImageIcon, Layers3, PackageSearch, Rocket, Tags, WalletCards } from 'lucide-react';
+import { BarChart3, Boxes, ClipboardList, FileText, Home, ImageIcon, Layers3, PackageSearch, Rocket, Tags, WalletCards } from 'lucide-react';
 
 const NAV = [
   { href: '/admin', label: 'Overview', note: 'Control cockpit', icon: Home },
   { href: '/admin/products', label: 'Products', note: 'v4 catalog table', icon: PackageSearch },
   { href: '/admin/launch', label: 'Launch Pipeline', note: 'ready / blocked', icon: Rocket },
+  { href: '/admin/content', label: 'Content Pipeline', note: 'copy readiness', icon: FileText },
   { href: '/admin/review/labels', label: 'Label Review', note: 'buyer-facing labels', icon: Tags },
   { href: '/admin/review/prices', label: 'Price Review', note: 'confidence & sums', icon: WalletCards },
   { href: '/admin/review/components', label: 'Components', note: 'full set / bundle', icon: Boxes },
