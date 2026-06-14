@@ -35,6 +35,10 @@ async function loadReviewEvents(): Promise<AdminReviewEvent[]> {
   return (data || []) as AdminReviewEvent[];
 }
 
+function planSlug(key: string) {
+  return key.split(':')[1] || key;
+}
+
 function toneForStage(stage: SeoCollectionPlanStage) {
   if (stage === 'Blocked') return 'danger';
   if (stage === 'Needs More Products') return 'warning';
@@ -110,6 +114,7 @@ export default async function SeoCollectionPlanningPage() {
               <div className="text-bone text-[16px] leading-tight">{plan.label}</div>
               <div className="mt-2 text-[11px] text-[var(--bone-dim)]">Future URL: {plan.href}</div>
               <div className="mt-2 text-[11px] leading-relaxed text-[var(--bone-dim)]">{plan.planNote}</div>
+              <Link href={`/admin/collections/${plan.axis}/${planSlug(plan.key)}`} className="mt-3 inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.16em] text-[var(--gold-warm)] hover:text-white">Open plan <ArrowUpRight size={12} /></Link>
             </div>
             <div><Chip tone={toneForStage(plan.planStage)}>{plan.planStage}</Chip></div>
             <div className="font-price text-gold-grad text-[30px] leading-none">{plan.priorityScore}</div>
