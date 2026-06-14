@@ -11,6 +11,7 @@ const NAV = [
   { href: '/admin/indexation', label: 'Indexation', note: 'search readiness', icon: FileSearch },
   { href: '/admin/seo-lab', label: 'SEO Lab', note: 'rule scoring', icon: BarChart3 },
   { href: '/admin/seo-approval', label: 'SEO Approval', note: 'draft review', icon: CheckCircle2 },
+  { href: '/admin/seo-export', label: 'SEO Export', note: 'approved drafts', icon: FileText },
   { href: '/admin/content', label: 'Content Pipeline', note: 'copy readiness', icon: FileText },
   { href: '/admin/graph', label: 'Product Graph', note: 'SEO candidates', icon: GitBranch },
   { href: '/admin/collections', label: 'Collections', note: 'SEO planning', icon: ListTree },
