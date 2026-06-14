@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Boxes, ClipboardList, Home, ImageIcon, Layers3, PackageSearch, Tags, WalletCards } from 'lucide-react';
+import { BarChart3, Boxes, ClipboardList, Home, ImageIcon, Layers3, PackageSearch, Rocket, Tags, WalletCards } from 'lucide-react';
 
 const NAV = [
   { href: '/admin', label: 'Overview', note: 'Control cockpit', icon: Home },
   { href: '/admin/products', label: 'Products', note: 'v4 catalog table', icon: PackageSearch },
+  { href: '/admin/launch', label: 'Launch Pipeline', note: 'ready / blocked', icon: Rocket },
   { href: '/admin/review/labels', label: 'Label Review', note: 'buyer-facing labels', icon: Tags },
   { href: '/admin/review/prices', label: 'Price Review', note: 'confidence & sums', icon: WalletCards },
   { href: '/admin/review/components', label: 'Components', note: 'full set / bundle', icon: Boxes },
@@ -46,7 +47,7 @@ export function AdminNav() {
 
       <div className="mt-auto rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/20 p-4">
         <div className="flex items-center gap-2 eyebrow-dim mb-2"><BarChart3 size={13} /> Mode</div>
-        <div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">Read-only admin foundation. Write actions stay locked until review flows and Supabase mutations are approved.</div>
+        <div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">Internal control mode. Payment remains off until the launch checklist is ready.</div>
       </div>
     </div>
   </aside>;
