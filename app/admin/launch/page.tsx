@@ -1,7 +1,8 @@
 // @ts-nocheck
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, FileSearch, Rocket, ShieldAlert, Sparkles } from 'lucide-react';
-import { getProductEvents, getProductFlags, getProductReadiness, type AdminReviewEvent, type ProductReadiness } from '@/lib/admin-readiness';
+import { getLaunchStage, type LaunchStageLabel } from '@/lib/admin-pipeline';
+import { getProductEvents, getProductFlags, getProductReadiness, type AdminReviewEvent } from '@/lib/admin-readiness';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
@@ -9,8 +10,6 @@ import type { StorefrontProduct } from '@/lib/types';
 export const revalidate = 300;
 
 const LIMIT = 250;
-
-type LaunchStage = 'Blocked' | 'Needs Review' | 'Can Prepare SEO' | 'Can Prepare Feed' | 'Ready for Future Payment';
 
 async function loadProducts() {
   const supabase = getSupabaseReadClient();
@@ -36,30 +35,6 @@ async function loadReviewEvents(): Promise<AdminReviewEvent[]> {
 
   if (error) return [];
   return (data || []) as AdminReviewEvent[];
-}
-
-function launchStage(readiness: ProductReadiness): LaunchStage {
-  if (readiness.label === 'Blocked') return 'Blocked';
-  if (readiness.label === 'Draft' || readiness.label.startsWith('Needs ')) return 'Needs Review';
-  if (readiness.label === 'SEO Ready') return 'Can Prepare SEO';
-  if (readiness.label === 'Ready for Storefront') return 'Can Prepare Feed';
-  return 'Needs Review';
-}
-
-function stageTone(stage: LaunchStage) {
-  if (stage === 'Blocked') return 'danger';
-  if (stage === 'Needs Review') return 'warning';
-  if (stage === 'Can Prepare SEO') return 'neutral';
-  if (stage === 'Can Prepare Feed') return 'success';
-  return 'success';
-}
-
-function stageNote(stage: LaunchStage) {
-  if (stage === 'Blocked') return 'Do not publish. Needs-fix event exists.';
-  if (stage === 'Needs Review') return 'Data/review layer is still open.';
-  if (stage === 'Can Prepare SEO') return 'Operational blockers are closed; SEO work can be prepared.';
-  if (stage === 'Can Prepare Feed') return 'Ready for collection/feed prep, payment still off.';
-  return 'Future payment candidate only after provider + webhook.';
 }
 
 function Chip({ children, tone = 'neutral' }) {
@@ -92,20 +67,20 @@ export default async function LaunchPipelinePage() {
   const [{ products, error }, reviewEvents] = await Promise.all([loadProducts(), loadReviewEvents()]);
   const rows = products.map((product) => {
     const readiness = getProductReadiness(product, getProductEvents(product, reviewEvents));
-    const stage = launchStage(readiness);
+    const stage = getLaunchStage(readiness);
     const flags = getProductFlags(product);
     return { product, readiness, stage, flags };
   });
 
   const counts = rows.reduce((acc, row) => {
-    acc[row.stage] = (acc[row.stage] || 0) + 1;
+    acc[row.stage.label] = (acc[row.stage.label] || 0) + 1;
     return acc;
-  }, {} as Record<LaunchStage, number>);
+  }, {} as Record<LaunchStageLabel, number>);
 
   const priorityRows = rows
     .sort((a, b) => {
-      const order: Record<LaunchStage, number> = { 'Blocked': 0, 'Needs Review': 1, 'Can Prepare SEO': 2, 'Can Prepare Feed': 3, 'Ready for Future Payment': 4 };
-      return order[a.stage] - order[b.stage];
+      const order: Record<LaunchStageLabel, number> = { 'Blocked': 0, 'Needs Review': 1, 'Can Prepare SEO': 2, 'Can Prepare Feed': 3, 'Ready for Future Payment': 4 };
+      return order[a.stage.label] - order[b.stage.label];
     })
     .slice(0, 120);
 
@@ -115,7 +90,7 @@ export default async function LaunchPipelinePage() {
         <div>
           <div className="eyebrow-gold mb-3">Admin · Launch Pipeline</div>
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Launch pipeline</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Operational launch layer from shared readiness logic. This prepares SEO/feed/publish decisions while payment remains intentionally off.</p>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Operational launch layer from shared pipeline logic. This prepares SEO/feed/publish decisions while payment remains intentionally off.</p>
         </div>
         <div className="flex gap-3">
           <Link href="/admin" className="btn-ghost">Admin cockpit <ArrowUpRight size={13} /></Link>
@@ -135,22 +110,15 @@ export default async function LaunchPipelinePage() {
 
       <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
         <div className="grid grid-cols-[76px_1.5fr_1fr_1fr_1fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.22em] text-[var(--smoke)]">
-          <div>Image</div>
-          <div>Product</div>
-          <div>Launch stage</div>
-          <div>Readiness</div>
-          <div>Open flags</div>
+          <div>Image</div><div>Product</div><div>Launch stage</div><div>Readiness</div><div>Open flags</div>
         </div>
         <div className="divide-y divide-[rgba(216,214,211,.08)]">
           {priorityRows.map(({ product, readiness, stage, flags }) => {
             const slug = productSlug(product);
             return <Link key={product.canonical_product_id || slug} href={`/admin/products/${slug}`} className="grid grid-cols-[76px_1.5fr_1fr_1fr_1fr] gap-4 items-center px-5 py-4 hover:bg-[rgba(212,178,106,.04)] transition-colors">
               <div className="relative h-20 w-16 rounded-lg overflow-hidden bg-black/30 border border-[rgba(216,214,211,.10)]">{product.primary_image_url ? <img src={product.primary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}</div>
-              <div>
-                <div className="text-bone text-[15px] leading-snug line-clamp-2">{productTitle(product)}</div>
-                <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'Product'} · {product.canonical_color_label || product.color || 'Color'}</div>
-              </div>
-              <div><Chip tone={stageTone(stage)}>{stage}</Chip><div className="mt-2 text-[11px] leading-relaxed text-[var(--bone-dim)]">{stageNote(stage)}</div></div>
+              <div><div className="text-bone text-[15px] leading-snug line-clamp-2">{productTitle(product)}</div><div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'Product'} · {product.canonical_color_label || product.color || 'Color'}</div></div>
+              <div><Chip tone={stage.tone}>{stage.label}</Chip><div className="mt-2 text-[11px] leading-relaxed text-[var(--bone-dim)]">{stage.note}</div></div>
               <div><Chip tone={readiness.tone}>{readiness.label}</Chip></div>
               <div className="flex flex-wrap gap-1.5">
                 {flags.labelReview ? <Chip tone="warning">Label</Chip> : null}
