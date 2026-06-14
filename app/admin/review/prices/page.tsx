@@ -1,6 +1,7 @@
 // @ts-nocheck
 import Link from 'next/link';
 import { ArrowUpRight, BadgePercent, Calculator, CircleDollarSign, WalletCards } from 'lucide-react';
+import { AdminQueueQuickReviewClient } from '@/components/AdminQueueQuickReviewClient';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, formatPrice, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
@@ -131,6 +132,7 @@ export default async function AdminPriceReviewPage() {
                   {product.needs_price_review ? <Chip tone="danger">Needs price review</Chip> : null}
                   {product.has_unverified_discount ? <Chip tone="danger">Unverified discount</Chip> : null}
                 </div>
+                <AdminQueueQuickReviewClient productSlug={productSlug(product)} canonicalProductId={product.canonical_product_id} sourceRoute="/admin/review/prices" approvedEventType="price_review_approved" subjectType="price" approvedLabel="Mark price reviewed" />
               </div>
               <Link href={adminHref} className="btn-ghost px-4 py-3 text-[10px]">Review <ArrowUpRight size={12} /></Link>
             </div>
