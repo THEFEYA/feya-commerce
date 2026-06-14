@@ -4,6 +4,8 @@ import { getMediaSeoPlan } from '@/lib/media-seo';
 
 export type SeoScoreStage = 'Blocked' | 'Needs Content' | 'Needs Media' | 'Needs SEO Work' | 'Ready for Draft' | 'Ready for Review';
 
+type SeoProductRecord = StorefrontProduct & Record<string, unknown>;
+
 export type SeoScore = {
   productSlug: string;
   title: string;
@@ -17,9 +19,9 @@ export type SeoScore = {
   notes: string[];
 };
 
-function textValue(product: any, keys: string[]) {
+function textValue(product: SeoProductRecord, keys: string[]) {
   for (const key of keys) {
-    const value = product?.[key];
+    const value = product[key];
     if (typeof value === 'string' && value.trim()) return value.trim();
   }
   return '';
@@ -56,27 +58,32 @@ function scoreContent(description: string) {
   return 24;
 }
 
-function scoreStructuredData(product: any) {
+function hasValue(value: unknown) {
+  return value !== null && value !== undefined && value !== '';
+}
+
+function scoreStructuredData(product: SeoProductRecord) {
   let score = 0;
   if (productTitle(product)) score += 25;
-  if (product?.primary_image_url) score += 25;
-  if (product?.display_price_amount || product?.price || product?.price_amount) score += 25;
-  if (product?.slug || product?.product_slug) score += 25;
+  if (product.primary_image_url) score += 25;
+  if (hasValue(product.display_price_amount) || hasValue(product.price) || hasValue(product.price_amount)) score += 25;
+  if (hasValue(product.slug) || hasValue(product.product_slug)) score += 25;
   return clampScore(score);
 }
 
 export function getSeoScore(product: StorefrontProduct): SeoScore {
+  const seoProduct = product as SeoProductRecord;
   const slug = productSlug(product);
   const title = productTitle(product);
-  const meta = textValue(product, ['meta_description', 'seo_description', 'description_meta']);
-  const description = textValue(product, ['description', 'product_description', 'body', 'content']);
+  const meta = textValue(seoProduct, ['meta_description', 'seo_description', 'description_meta']);
+  const description = textValue(seoProduct, ['description', 'product_description', 'body', 'content']);
   const media = getMediaSeoPlan(product);
 
   const titleScore = scoreTitle(title);
   const metaScore = scoreMeta(meta);
   const contentScore = scoreContent(description);
   const mediaScore = media.stage === 'Ready for Image Sitemap' ? 90 : media.stage === 'Blocked' ? 0 : 45;
-  const structuredDataScore = scoreStructuredData(product);
+  const structuredDataScore = scoreStructuredData(seoProduct);
   const overallScore = clampScore((titleScore + metaScore + contentScore + mediaScore + structuredDataScore) / 5);
 
   const notes: string[] = [];
