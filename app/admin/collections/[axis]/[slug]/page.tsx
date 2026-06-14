@@ -89,11 +89,12 @@ export default async function AdminCollectionPlanDetailPage({ params }: PageProp
         <div>
           <div className="eyebrow-gold mb-3">Admin · Collection Plan Detail</div>
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>{plan.label}</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Internal collection planning detail. This is not a public collection page and does not create sitemap, feed or publish actions.</p>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Internal collection planning detail. The public route is a noindex preview and is not added to sitemap or feeds.</p>
           <div className="mt-4 flex flex-wrap gap-1.5"><Chip>{plan.axis}</Chip><Chip tone={toneForStage(plan.planStage)}>{plan.planStage}</Chip><Chip>{plan.href}</Chip></div>
         </div>
         <div className="flex gap-3">
           <Link href="/admin/collections" className="btn-ghost">Collections <ArrowUpRight size={13} /></Link>
+          <Link href={plan.href} className="btn-ghost">Noindex preview <ArrowUpRight size={13} /></Link>
           <Link href="/admin/graph" className="btn-ghost">Product graph <ArrowUpRight size={13} /></Link>
         </div>
       </div>
