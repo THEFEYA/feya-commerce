@@ -3,28 +3,10 @@
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { ArrowUpRight, Filter, Search } from 'lucide-react';
+import type { AdminProductTableRow, ReadinessTone } from '@/lib/admin-readiness';
 
-type Tone = 'neutral' | 'warning' | 'danger' | 'success';
-
-type Chip = {
-  label: string;
-  tone?: Tone;
-};
-
-export type AdminProductRow = {
-  id: string;
-  slug: string;
-  title: string;
-  imageUrl?: string | null;
-  subtitle: string;
-  price: string;
-  confidence: string;
-  configCount: number;
-  configNote: string;
-  readinessLabel: string;
-  readinessTone: Tone;
-  reviewChips: Chip[];
-};
+type AdminProductRow = AdminProductTableRow;
+type Tone = ReadinessTone;
 
 const filters = [
   { label: 'All', value: 'all' },
