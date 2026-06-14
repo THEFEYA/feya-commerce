@@ -16,6 +16,7 @@ const NAV = [
   { href: '/admin/seo-change-sets', label: 'SEO Change Sets', note: 'review rows', icon: FileText },
   { href: '/admin/seo-applied-values', label: 'SEO Values', note: 'approved values', icon: CheckCircle2 },
   { href: '/admin/seo-storefront-preview', label: 'SEO Preview', note: 'storefront compare', icon: FileSearch },
+  { href: '/admin/seo-gate', label: 'SEO Gate', note: 'pipeline status', icon: FileText },
   { href: '/admin/content', label: 'Content Pipeline', note: 'copy readiness', icon: FileText },
   { href: '/admin/graph', label: 'Product Graph', note: 'SEO candidates', icon: GitBranch },
   { href: '/admin/collections', label: 'Collections', note: 'SEO planning', icon: ListTree },
