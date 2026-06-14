@@ -1,6 +1,7 @@
 // @ts-nocheck
 import Link from 'next/link';
 import { ArrowUpRight, Film, ImageIcon, Images, Sparkles } from 'lucide-react';
+import { AdminQueueQuickReviewClient } from '@/components/AdminQueueQuickReviewClient';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
@@ -93,27 +94,33 @@ export default async function AdminMediaQaPage() {
       </div>
 
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {qaRows.map(({ product, issues }) => <article key={product.canonical_product_id} className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
-          <Link href={`/admin/products/${productSlug(product)}`} className="group block">
-            <div className="relative aspect-[4/5] bg-black/30 overflow-hidden">
-              {product.primary_image_url ? <img src={product.primary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" /> : <div className="h-full w-full grid place-items-center text-[var(--smoke)] text-sm">Missing image</div>}
-              {product.secondary_image_url || product.hover_image_url ? <img src={product.hover_image_url || product.secondary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" /> : null}
-              <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">{issues.slice(0,2).map((issue) => <Chip key={issue} tone={issue.includes('Missing') || issue.includes('No ') ? 'danger' : 'warning'}>{issue}</Chip>)}</div>
-            </div>
-            <div className="p-5">
-              <div className="text-bone text-[16px] leading-snug line-clamp-2">{productTitle(product)}</div>
-              <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'Product'} · {product.canonical_color_label || product.color || 'Color'}</div>
-              <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-                <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/15 p-2"><div className="eyebrow-dim mb-1">Media</div><div className="font-price text-bone text-[18px] leading-none">{Number(product.media_count || 0)}</div></div>
-                <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/15 p-2"><div className="eyebrow-dim mb-1">Depth</div><div className="font-price text-bone text-[18px] leading-none">{galleryDepth(product)}</div></div>
-                <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/15 p-2"><div className="eyebrow-dim mb-1">Video</div><div className="font-price text-bone text-[18px] leading-none">{product.has_video || product.video_url ? 'Yes' : 'No'}</div></div>
+        {qaRows.map(({ product, issues }) => {
+          const slug = productSlug(product);
+          return <article key={product.canonical_product_id} className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
+            <Link href={`/admin/products/${slug}`} className="group block">
+              <div className="relative aspect-[4/5] bg-black/30 overflow-hidden">
+                {product.primary_image_url ? <img src={product.primary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" /> : <div className="h-full w-full grid place-items-center text-[var(--smoke)] text-sm">Missing image</div>}
+                {product.secondary_image_url || product.hover_image_url ? <img src={product.hover_image_url || product.secondary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" /> : null}
+                <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">{issues.slice(0,2).map((issue) => <Chip key={issue} tone={issue.includes('Missing') || issue.includes('No ') ? 'danger' : 'warning'}>{issue}</Chip>)}</div>
               </div>
-              <div className="mt-4 flex flex-wrap gap-1.5">
-                {issues.map((issue) => <Chip key={issue} tone={issue.includes('Missing') || issue.includes('No ') ? 'danger' : 'warning'}>{issue}</Chip>)}
+              <div className="p-5">
+                <div className="text-bone text-[16px] leading-snug line-clamp-2">{productTitle(product)}</div>
+                <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'Product'} · {product.canonical_color_label || product.color || 'Color'}</div>
+                <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                  <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/15 p-2"><div className="eyebrow-dim mb-1">Media</div><div className="font-price text-bone text-[18px] leading-none">{Number(product.media_count || 0)}</div></div>
+                  <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/15 p-2"><div className="eyebrow-dim mb-1">Depth</div><div className="font-price text-bone text-[18px] leading-none">{galleryDepth(product)}</div></div>
+                  <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/15 p-2"><div className="eyebrow-dim mb-1">Video</div><div className="font-price text-bone text-[18px] leading-none">{product.has_video || product.video_url ? 'Yes' : 'No'}</div></div>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-1.5">
+                  {issues.map((issue) => <Chip key={issue} tone={issue.includes('Missing') || issue.includes('No ') ? 'danger' : 'warning'}>{issue}</Chip>)}
+                </div>
               </div>
+            </Link>
+            <div className="px-5 pb-5">
+              <AdminQueueQuickReviewClient productSlug={slug} canonicalProductId={product.canonical_product_id} sourceRoute="/admin/media" approvedEventType="media_checked" subjectType="media" approvedLabel="Mark media checked" />
             </div>
-          </Link>
-        </article>)}
+          </article>;
+        })}
 
         {!qaRows.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">No media QA rows returned from v4.</div> : null}
       </div>
