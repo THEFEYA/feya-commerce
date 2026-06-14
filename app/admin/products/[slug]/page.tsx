@@ -2,8 +2,9 @@
 import Link from 'next/link';
 import { ArrowUpRight, Boxes, ImageIcon, ShieldAlert, Tags, WalletCards } from 'lucide-react';
 import { AdminReviewActionsClient } from '@/components/AdminReviewActionsClient';
+import { getProductFlags } from '@/lib/admin-readiness';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
-import { asConfigurations, asMediaGallery, formatPrice, optionLabel, optionPrice, productSlug, productTitle, STOREFRONT_V4_PDP_SELECT, STOREFRONT_VIEW_V4, worldLabel, categoryLabel, colorLabel } from '@/lib/storefront';
+import { asMediaGallery, formatPrice, optionLabel, optionPrice, productSlug, productTitle, STOREFRONT_V4_PDP_SELECT, STOREFRONT_VIEW_V4, worldLabel, categoryLabel, colorLabel } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -49,12 +50,13 @@ export default async function AdminProductDetailPage({ params }: PageProps) {
     return <main className="min-h-screen bg-[#07070A]"><section className="container-feya pt-10 pb-16"><div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-6 text-[var(--bone-dim)]">{error || 'Product not found.'}</div><Link href="/admin/products" className="btn-ghost mt-5">Back to products</Link></section></main>;
   }
 
-  const configs = asConfigurations(product);
+  const flags = getProductFlags(product);
+  const configs = flags.configs;
   const media = asMediaGallery(product);
-  const missingComponents = configs.filter((config) => !config.component_code).length;
-  const labelReview = Boolean(product.needs_label_review || configs.some((config) => config.needs_label_review));
-  const priceReview = product.price_confidence_status === 'unverified' || Boolean(product.needs_price_review);
-  const mediaReview = !(product.secondary_image_url || product.hover_image_url || product.has_video || Number(product.media_count || 0) > 1);
+  const missingComponents = flags.missingComponent;
+  const labelReview = flags.labelReview;
+  const priceReview = flags.priceReview;
+  const mediaReview = flags.mediaReview;
   const slugValue = productSlug(product);
   const storefrontHref = `/shop/${slugValue}`;
   const adminHref = `/admin/products/${slugValue}`;
