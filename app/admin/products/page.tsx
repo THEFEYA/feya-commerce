@@ -1,53 +1,15 @@
 // @ts-nocheck
 import Link from 'next/link';
 import { ArrowUpRight, Boxes, CheckCircle2, ImageIcon, Search, Tags, WalletCards } from 'lucide-react';
-import { AdminProductsFilterClient, type AdminProductRow } from '@/components/AdminProductsFilterClient';
+import { AdminProductsFilterClient } from '@/components/AdminProductsFilterClient';
+import { getProductEvents, getProductFlags, getProductReadiness, toAdminProductTableRow, type AdminReviewEvent } from '@/lib/admin-readiness';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
-import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, formatPrice, productSlug, productTitle, worldLabel } from '@/lib/storefront';
-import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
+import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
+import type { StorefrontProduct } from '@/lib/types';
 
 export const revalidate = 300;
 
 const ADMIN_PRODUCTS_LIMIT = 250;
-
-type ReviewEvent = {
-  review_event_id: string;
-  event_type: string;
-  event_status?: string | null;
-  product_slug?: string | null;
-  canonical_product_id?: string | null;
-  created_at?: string | null;
-};
-
-function parseConfigurations(value: unknown): StorefrontConfiguration[] {
-  if (!value) return [];
-  if (Array.isArray(value)) return value as StorefrontConfiguration[];
-  if (typeof value === 'string') {
-    try {
-      const parsed = JSON.parse(value);
-      return Array.isArray(parsed) ? parsed as StorefrontConfiguration[] : [];
-    } catch {
-      return [];
-    }
-  }
-  return [];
-}
-
-function hasSecondMedia(product: StorefrontProduct) {
-  return Boolean(product.secondary_image_url || product.hover_image_url || product.has_video || Number(product.media_count || 0) > 1);
-}
-
-function productFlags(product: StorefrontProduct) {
-  const configs = parseConfigurations(product.configurations);
-  const missingComponent = configs.filter((config) => !config.component_code).length;
-  const labelReview = Boolean(product.needs_label_review || configs.some((config) => config.needs_label_review));
-  const priceReview = product.price_confidence_status === 'unverified' || Boolean(product.needs_price_review);
-  const mediaReview = !hasSecondMedia(product);
-  const fullSet = configs.some((config) => config.is_full_set);
-  const bundle = configs.some((config) => config.is_bundle);
-
-  return { configs, missingComponent, labelReview, priceReview, mediaReview, fullSet, bundle };
-}
 
 async function getProducts(): Promise<{ rows: StorefrontProduct[]; error?: string }> {
   const supabase = getSupabaseReadClient();
@@ -62,7 +24,7 @@ async function getProducts(): Promise<{ rows: StorefrontProduct[]; error?: strin
   return { rows: (data || []) as StorefrontProduct[] };
 }
 
-async function getReviewEvents(): Promise<ReviewEvent[]> {
+async function getReviewEvents(): Promise<AdminReviewEvent[]> {
   const supabase = getSupabaseServiceClient();
   if (!supabase) return [];
 
@@ -72,43 +34,7 @@ async function getReviewEvents(): Promise<ReviewEvent[]> {
     .limit(1000);
 
   if (error) return [];
-  return (data || []) as ReviewEvent[];
-}
-
-function productEvents(product: StorefrontProduct, events: ReviewEvent[]) {
-  const slug = productSlug(product);
-  return events
-    .filter((event) => event.product_slug === slug || event.canonical_product_id === product.canonical_product_id)
-    .sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
-}
-
-function latestEventMap(events: ReviewEvent[]) {
-  const map = new Map<string, ReviewEvent>();
-  for (const event of events) {
-    if (!map.has(event.event_type)) map.set(event.event_type, event);
-  }
-  return map;
-}
-
-function readinessStatus(product: StorefrontProduct, events: ReviewEvent[]) {
-  const flags = productFlags(product);
-  const latest = latestEventMap(events);
-
-  if (latest.has('needs_fix')) return { label: 'Blocked', tone: 'danger' };
-  if (!events.length) return { label: 'Draft', tone: 'neutral' };
-
-  const labelOk = !flags.labelReview || latest.has('label_review_approved');
-  const priceOk = !flags.priceReview || latest.has('price_review_approved');
-  const componentOk = !flags.missingComponent || latest.has('component_mapping_checked');
-  const mediaOk = !flags.mediaReview || latest.has('media_checked');
-  const seoOk = latest.has('seo_ready_checked');
-
-  if (!labelOk) return { label: 'Needs Label Review', tone: 'warning' };
-  if (!priceOk) return { label: 'Needs Price Review', tone: 'warning' };
-  if (!componentOk) return { label: 'Needs Component Mapping', tone: 'warning' };
-  if (!mediaOk) return { label: 'Needs Media QA', tone: 'warning' };
-  if (!seoOk) return { label: 'SEO Ready', tone: 'warning' };
-  return { label: 'Ready for Storefront', tone: 'success' };
+  return (data || []) as AdminReviewEvent[];
 }
 
 function Metric({ label, value, note, icon: Icon }) {
@@ -122,40 +48,16 @@ function Metric({ label, value, note, icon: Icon }) {
   </div>;
 }
 
-function productRow(product: StorefrontProduct, readiness: { label: string; tone: 'neutral' | 'warning' | 'danger' | 'success' }): AdminProductRow {
-  const flags = productFlags(product);
-  const price = product.min_price != null ? formatPrice(product.min_price, product.currency || 'EUR') : '—';
-  const slug = productSlug(product);
-  const chips = [];
-  if (flags.labelReview) chips.push({ label: 'Label', tone: 'warning' });
-  if (flags.priceReview) chips.push({ label: 'Price', tone: 'warning' });
-  if (flags.missingComponent) chips.push({ label: `Component ${flags.missingComponent}`, tone: 'danger' });
-  if (flags.mediaReview) chips.push({ label: 'Media', tone: 'danger' });
-  if (!chips.length) chips.push({ label: 'OK', tone: 'neutral' });
-
-  return {
-    id: product.canonical_product_id || slug,
-    slug,
-    title: productTitle(product),
-    imageUrl: product.primary_image_url,
-    subtitle: `${worldLabel(product)} · ${product.category_label || product.product_type || 'Product'} · ${product.canonical_color_label || product.color || 'Color'}`,
-    price,
-    confidence: product.price_confidence_status || 'unknown',
-    configCount: flags.configs.length,
-    configNote: flags.fullSet ? 'Full set' : flags.bundle ? 'Bundle' : 'Options',
-    readinessLabel: readiness.label,
-    readinessTone: readiness.tone,
-    reviewChips: chips,
-  };
-}
-
 export default async function AdminProductsPage() {
   const [{ rows, error }, reviewEvents] = await Promise.all([getProducts(), getReviewEvents()]);
-  const readinessRows = rows.map((product) => ({ product, readiness: readinessStatus(product, productEvents(product, reviewEvents)) }));
-  const tableRows = readinessRows.map(({ product, readiness }) => productRow(product, readiness));
+  const readinessRows = rows.map((product) => {
+    const events = getProductEvents(product, reviewEvents);
+    return { product, readiness: getProductReadiness(product, events) };
+  });
+  const tableRows = readinessRows.map(({ product, readiness }) => toAdminProductTableRow(product, readiness));
   const totals = rows.reduce((acc, product) => {
-    const flags = productFlags(product);
-    const readiness = readinessStatus(product, productEvents(product, reviewEvents));
+    const flags = getProductFlags(product);
+    const readiness = getProductReadiness(product, getProductEvents(product, reviewEvents));
     acc.configs += flags.configs.length;
     acc.label += flags.labelReview ? 1 : 0;
     acc.price += flags.priceReview ? 1 : 0;
