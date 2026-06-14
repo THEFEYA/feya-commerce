@@ -18,10 +18,24 @@ type ReviewEvent = {
 
 type ApiPayload = { ok?: boolean; error?: string; events?: ReviewEvent[]; event?: ReviewEvent };
 
+type InitialBlockers = {
+  label: boolean;
+  price: boolean;
+  component: boolean;
+  media: boolean;
+};
+
 type Props = {
   productSlug: string;
   canonicalProductId?: string | null;
   sourceRoute: string;
+  initialBlockers: InitialBlockers;
+};
+
+type Readiness = {
+  status: 'Draft' | 'Needs Label Review' | 'Needs Price Review' | 'Needs Component Mapping' | 'Needs Media QA' | 'SEO Ready' | 'Ready for Storefront' | 'Blocked';
+  tone: 'neutral' | 'warning' | 'danger' | 'success';
+  note: string;
 };
 
 const actions = [
@@ -41,7 +55,45 @@ function eventTone(eventType: string) {
   return eventType === 'needs_fix' ? 'text-[var(--ruby-soft)] border-[rgba(196,64,88,.34)] bg-[rgba(160,32,56,.08)]' : 'text-[var(--gold-warm)] border-[rgba(212,178,106,.28)] bg-[rgba(212,178,106,.06)]';
 }
 
-export function AdminReviewActionsClient({ productSlug, canonicalProductId, sourceRoute }: Props) {
+function readinessTone(tone: Readiness['tone']) {
+  if (tone === 'success') return 'border-[rgba(108,183,138,.35)] bg-[rgba(108,183,138,.08)] text-[#a9dfbd]';
+  if (tone === 'danger') return 'border-[rgba(196,64,88,.36)] bg-[rgba(160,32,56,.08)] text-[var(--ruby-soft)]';
+  if (tone === 'warning') return 'border-[rgba(212,178,106,.32)] bg-[rgba(212,178,106,.07)] text-[var(--gold-warm)]';
+  return 'border-[rgba(216,214,211,.14)] bg-black/15 text-[var(--bone-dim)]';
+}
+
+function computeReadiness(initialBlockers: InitialBlockers, latestByType: Map<string, ReviewEvent>, eventCount: number): Readiness {
+  if (latestByType.has('needs_fix')) {
+    return { status: 'Blocked', tone: 'danger', note: 'A review event marked this product as needing a fix.' };
+  }
+
+  if (!eventCount) {
+    return { status: 'Draft', tone: 'neutral', note: 'No admin review events recorded yet.' };
+  }
+
+  const labelOk = !initialBlockers.label || latestByType.has('label_review_approved');
+  const priceOk = !initialBlockers.price || latestByType.has('price_review_approved');
+  const componentOk = !initialBlockers.component || latestByType.has('component_mapping_checked');
+  const mediaOk = !initialBlockers.media || latestByType.has('media_checked');
+  const seoOk = latestByType.has('seo_ready_checked');
+
+  if (!labelOk) return { status: 'Needs Label Review', tone: 'warning', note: 'Label review is still open in v4 or not approved by admin.' };
+  if (!priceOk) return { status: 'Needs Price Review', tone: 'warning', note: 'Price confidence is still unverified or not approved by admin.' };
+  if (!componentOk) return { status: 'Needs Component Mapping', tone: 'warning', note: 'One or more configurations still need component mapping approval.' };
+  if (!mediaOk) return { status: 'Needs Media QA', tone: 'warning', note: 'Media QA is still open or not approved by admin.' };
+  if (!seoOk) return { status: 'SEO Ready', tone: 'warning', note: 'Operational checks are done; SEO approval is the next required event.' };
+
+  return { status: 'Ready for Storefront', tone: 'success', note: 'Required admin checks are recorded and no blocking event is present.' };
+}
+
+function CheckRow({ label, done }: { label: string; done: boolean }) {
+  return <div className="flex items-center justify-between gap-3 rounded-lg border border-[rgba(216,214,211,.08)] bg-black/15 px-3 py-2">
+    <span className="text-[12px] text-[var(--bone-dim)]">{label}</span>
+    <span className={done ? 'text-[10px] uppercase tracking-[0.16em] text-[#a9dfbd]' : 'text-[10px] uppercase tracking-[0.16em] text-[var(--gold-warm)]'}>{done ? 'Done' : 'Open'}</span>
+  </div>;
+}
+
+export function AdminReviewActionsClient({ productSlug, canonicalProductId, sourceRoute, initialBlockers }: Props) {
   const [events, setEvents] = useState<ReviewEvent[]>([]);
   const [note, setNote] = useState('');
   const [status, setStatus] = useState('');
@@ -74,6 +126,13 @@ export function AdminReviewActionsClient({ productSlug, canonicalProductId, sour
     }
     return map;
   }, [events]);
+
+  const readiness = useMemo(() => computeReadiness(initialBlockers, latestByType, events.length), [initialBlockers, latestByType, events.length]);
+  const labelOk = !initialBlockers.label || latestByType.has('label_review_approved');
+  const priceOk = !initialBlockers.price || latestByType.has('price_review_approved');
+  const componentOk = !initialBlockers.component || latestByType.has('component_mapping_checked');
+  const mediaOk = !initialBlockers.media || latestByType.has('media_checked');
+  const seoOk = latestByType.has('seo_ready_checked');
 
   async function recordAction(action: typeof actions[number]) {
     setSaving(action.event_type);
@@ -112,6 +171,20 @@ export function AdminReviewActionsClient({ productSlug, canonicalProductId, sour
         <p className="text-[13px] leading-relaxed text-[var(--bone-dim)] max-w-2xl">Actions are saved as append-only review events. Product data, prices, labels, media, SEO and payment state are not changed here.</p>
       </div>
       <button type="button" onClick={loadEvents} className="btn-ghost px-4 py-2 text-[10px]" disabled={loading}><RefreshCw size={12} /> {loading ? 'Loading' : 'Refresh'}</button>
+    </div>
+
+    <div className={`mt-5 rounded-xl border p-4 ${readinessTone(readiness.tone)}`}>
+      <div className="eyebrow-dim mb-2">Consolidated readiness status</div>
+      <div className="text-[24px] leading-none font-price">{readiness.status}</div>
+      <p className="mt-3 text-[12px] leading-relaxed opacity-85">{readiness.note}</p>
+    </div>
+
+    <div className="mt-4 grid sm:grid-cols-2 xl:grid-cols-5 gap-2">
+      <CheckRow label="Label" done={labelOk} />
+      <CheckRow label="Price" done={priceOk} />
+      <CheckRow label="Components" done={componentOk} />
+      <CheckRow label="Media" done={mediaOk} />
+      <CheckRow label="SEO" done={seoOk} />
     </div>
 
     <div className="mt-5 grid sm:grid-cols-2 xl:grid-cols-3 gap-2">
