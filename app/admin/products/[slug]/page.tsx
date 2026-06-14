@@ -1,6 +1,7 @@
 // @ts-nocheck
 import Link from 'next/link';
 import { ArrowUpRight, Boxes, ImageIcon, ShieldAlert, Tags, WalletCards } from 'lucide-react';
+import { AdminReviewActionsClient } from '@/components/AdminReviewActionsClient';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import { asConfigurations, asMediaGallery, formatPrice, optionLabel, optionPrice, productSlug, productTitle, STOREFRONT_V4_PDP_SELECT, STOREFRONT_VIEW_V4, worldLabel, categoryLabel, colorLabel } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
@@ -54,7 +55,9 @@ export default async function AdminProductDetailPage({ params }: PageProps) {
   const labelReview = Boolean(product.needs_label_review || configs.some((config) => config.needs_label_review));
   const priceReview = product.price_confidence_status === 'unverified' || Boolean(product.needs_price_review);
   const mediaReview = !(product.secondary_image_url || product.hover_image_url || product.has_video || Number(product.media_count || 0) > 1);
-  const storefrontHref = `/shop/${productSlug(product)}`;
+  const slugValue = productSlug(product);
+  const storefrontHref = `/shop/${slugValue}`;
+  const adminHref = `/admin/products/${slugValue}`;
 
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.12),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
     <section className="container-feya pt-10 pb-16">
@@ -62,7 +65,7 @@ export default async function AdminProductDetailPage({ params }: PageProps) {
         <div>
           <div className="eyebrow-gold mb-3">Admin · Product Detail</div>
           <h1 className="font-tall text-bone leading-[0.95]" style={{ fontSize: 'clamp(36px,5.5vw,74px)' }}>{productTitle(product)}</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Read-only product control card from the v4 storefront contract.</p>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Read-only product control card from the v4 storefront contract. Admin actions below are saved as append-only review events.</p>
           <div className="mt-4 flex flex-wrap gap-1.5">
             <Chip>{worldLabel(product)}</Chip>
             <Chip>{categoryLabel(product)}</Chip>
@@ -110,6 +113,8 @@ export default async function AdminProductDetailPage({ params }: PageProps) {
               <Blocker label="Media QA" active={mediaReview} />
             </div>
           </Panel>
+
+          <AdminReviewActionsClient productSlug={slugValue} canonicalProductId={product.canonical_product_id} sourceRoute={adminHref} />
 
           <Panel title="Pricing" icon={WalletCards}>
             <div className="grid sm:grid-cols-3 gap-3">
