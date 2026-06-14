@@ -114,7 +114,7 @@ export default async function AdminProductDetailPage({ params }: PageProps) {
             </div>
           </Panel>
 
-          <AdminReviewActionsClient productSlug={slugValue} canonicalProductId={product.canonical_product_id} sourceRoute={adminHref} />
+          <AdminReviewActionsClient productSlug={slugValue} canonicalProductId={product.canonical_product_id} sourceRoute={adminHref} initialBlockers={{ label: labelReview, price: priceReview, component: missingComponents > 0, media: mediaReview }} />
 
           <Panel title="Pricing" icon={WalletCards}>
             <div className="grid sm:grid-cols-3 gap-3">
