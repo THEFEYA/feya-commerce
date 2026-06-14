@@ -1,6 +1,7 @@
 // @ts-nocheck
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, FileText, ImageIcon, MessageSquareText, ShieldAlert } from 'lucide-react';
+import { getContentStage, type ContentStageLabel } from '@/lib/admin-pipeline';
 import { getProductEvents, getProductFlags, getProductReadiness, type AdminReviewEvent } from '@/lib/admin-readiness';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle, worldLabel } from '@/lib/storefront';
@@ -34,16 +35,6 @@ async function loadReviewEvents(): Promise<AdminReviewEvent[]> {
   return (data || []) as AdminReviewEvent[];
 }
 
-function contentStage(product: StorefrontProduct, readinessLabel: string) {
-  const flags = getProductFlags(product);
-  if (readinessLabel === 'Blocked') return { label: 'Blocked', tone: 'danger', note: 'Product has a blocking review event.' };
-  if (readinessLabel === 'Draft' || readinessLabel.startsWith('Needs ')) return { label: 'Data Not Ready', tone: 'warning', note: 'Wait for label/price/component/media checks.' };
-  if (!product.primary_image_url || flags.configs.length === 0) return { label: 'Needs Content Inputs', tone: 'warning', note: 'Missing media or configuration context.' };
-  if (readinessLabel === 'SEO Ready') return { label: 'Can Draft Content', tone: 'success', note: 'Safe enough to prepare controlled copy drafts.' };
-  if (readinessLabel === 'Ready for Storefront') return { label: 'Can Review Content', tone: 'success', note: 'Ready for content QA and future SEO collection mapping.' };
-  return { label: 'Data Not Ready', tone: 'warning', note: 'Review product data first.' };
-}
-
 function Chip({ children, tone = 'neutral' }) {
   const className = tone === 'danger'
     ? 'border-[rgba(196,64,88,.34)] text-[var(--ruby-soft)] bg-[rgba(160,32,56,.08)]'
@@ -74,7 +65,7 @@ export default async function ContentPreparationPage() {
   const [{ products, error }, reviewEvents] = await Promise.all([loadProducts(), loadReviewEvents()]);
   const rows = products.map((product) => {
     const readiness = getProductReadiness(product, getProductEvents(product, reviewEvents));
-    const stage = contentStage(product, readiness.label);
+    const stage = getContentStage(product, readiness);
     const flags = getProductFlags(product);
     return { product, readiness, stage, flags };
   });
@@ -82,11 +73,11 @@ export default async function ContentPreparationPage() {
   const counts = rows.reduce((acc, row) => {
     acc[row.stage.label] = (acc[row.stage.label] || 0) + 1;
     return acc;
-  }, {} as Record<string, number>);
+  }, {} as Record<ContentStageLabel, number>);
 
   const visibleRows = rows
     .sort((a, b) => {
-      const order: Record<string, number> = { 'Blocked': 0, 'Data Not Ready': 1, 'Needs Content Inputs': 2, 'Can Draft Content': 3, 'Can Review Content': 4 };
+      const order: Record<ContentStageLabel, number> = { 'Blocked': 0, 'Data Not Ready': 1, 'Needs Content Inputs': 2, 'Can Draft Content': 3, 'Can Review Content': 4 };
       return (order[a.stage.label] || 99) - (order[b.stage.label] || 99);
     })
     .slice(0, 120);
