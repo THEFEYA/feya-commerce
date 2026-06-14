@@ -14,6 +14,7 @@ const ALLOWED_TARGET_FIELDS = new Set([
 ]);
 
 const ALLOWED_STATUSES = new Set(['pending', 'approved', 'rejected', 'applied', 'superseded']);
+const REVIEW_STATUSES = new Set(['approved', 'rejected']);
 
 type SeoChangeSetInput = {
   product_slug?: string;
@@ -27,6 +28,11 @@ type SeoChangeSetInput = {
   rule_pack_version?: string | null;
   template_pack_version?: string | null;
   status?: string | null;
+};
+
+type SeoChangeSetStatusInput = {
+  change_set_id?: string;
+  status?: string;
 };
 
 function cleanText(value: unknown) {
@@ -57,6 +63,22 @@ function normalizePayload(input: SeoChangeSetInput) {
       rule_pack_version: cleanText(input.rule_pack_version) || 'manual_v1',
       template_pack_version: cleanText(input.template_pack_version) || 'template_v1',
       status,
+    },
+  };
+}
+
+function normalizeStatusPayload(input: SeoChangeSetStatusInput) {
+  const changeSetId = cleanText(input.change_set_id);
+  const status = cleanText(input.status);
+
+  if (!changeSetId) return { error: 'Missing change_set_id.' };
+  if (!REVIEW_STATUSES.has(status)) return { error: `Unsupported review status: ${status || 'empty'}` };
+
+  return {
+    changeSetId,
+    row: {
+      status,
+      reviewed_at: new Date().toISOString(),
     },
   };
 }
@@ -102,6 +124,39 @@ export async function POST(request: NextRequest) {
     .from('feya_commerce_seo_change_sets')
     .insert(normalized.row)
     .select('change_set_id,product_slug,target_field,status,created_at')
+    .single();
+
+  if (error) {
+    return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ ok: true, change_set: data });
+}
+
+export async function PATCH(request: NextRequest) {
+  const supabase = getSupabaseServiceClient();
+  if (!supabase) {
+    return NextResponse.json({ ok: false, error: getMissingSupabaseServiceEnvMessage() }, { status: 503 });
+  }
+
+  let input: SeoChangeSetStatusInput;
+  try {
+    input = await request.json();
+  } catch {
+    return NextResponse.json({ ok: false, error: 'Invalid JSON payload.' }, { status: 400 });
+  }
+
+  const normalized = normalizeStatusPayload(input);
+  if ('error' in normalized) {
+    return NextResponse.json({ ok: false, error: normalized.error }, { status: 400 });
+  }
+
+  const { data, error } = await supabase
+    .from('feya_commerce_seo_change_sets')
+    .update(normalized.row)
+    .eq('change_set_id', normalized.changeSetId)
+    .eq('status', 'pending')
+    .select('change_set_id,product_slug,target_field,status,reviewed_at')
     .single();
 
   if (error) {
