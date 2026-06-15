@@ -24,12 +24,12 @@ export function AdminSeoChangeSetCreateClient({ productSlug, fields }: Props) {
 
   async function createChangeSets() {
     if (!changedFields.length) {
-      setStatus('No changed fields to queue.');
+      setStatus('Нет изменённых полей для очереди.');
       return;
     }
 
     setSaving(true);
-    setStatus('Saving pending change sets...');
+    setStatus('Создаю pending-строки...');
     try {
       for (const field of changedFields) {
         const response = await fetch('/api/admin/seo-change-sets', {
@@ -48,18 +48,18 @@ export function AdminSeoChangeSetCreateClient({ productSlug, fields }: Props) {
           }),
         });
         const payload = await response.json() as ApiResponse;
-        if (!response.ok || !payload.ok) throw new Error(payload.error || `Could not create ${field.field}.`);
+        if (!response.ok || !payload.ok) throw new Error(payload.error || `Не удалось создать строку для ${field.field}.`);
       }
-      setStatus(`Created ${changedFields.length} pending change set rows.`);
+      setStatus(`Создано pending-строк: ${changedFields.length}.`);
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : 'Could not create change sets.');
+      setStatus(error instanceof Error ? error.message : 'Не удалось создать pending-строки.');
     } finally {
       setSaving(false);
     }
   }
 
   return <div className="mt-4 flex flex-wrap items-center gap-2">
-    <button type="button" onClick={createChangeSets} disabled={saving || !changedFields.length} className="btn-ghost px-4 py-2 text-[10px] disabled:opacity-60"><Layers3 size={13} /> {saving ? 'Saving...' : 'Create pending change sets'}</button>
+    <button type="button" onClick={createChangeSets} disabled={saving || !changedFields.length} className="btn-ghost px-4 py-2 text-[10px] disabled:opacity-60"><Layers3 size={13} /> {saving ? 'Создаю...' : 'Создать pending-строки'}</button>
     {status ? <span className="text-[11px] leading-relaxed text-[var(--gold-warm)]">{status}</span> : null}
   </div>;
 }
