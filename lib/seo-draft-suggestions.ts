@@ -89,7 +89,7 @@ function safeColorLabel(product: StorefrontProduct) {
   return KNOWN_COLORS.includes(label) ? label : '';
 }
 
-function productMaterial(product: StorefrontProduct) {
+function materialDetail(product: StorefrontProduct) {
   const raw = rawProductText(product);
   const hasMirrorMetallic = /metallic|reflective|mirror/.test(raw);
   const hasHolographic = /holographic|iridescent|\bholo\b/.test(raw);
@@ -112,6 +112,16 @@ function productMaterial(product: StorefrontProduct) {
   return 'handmade finish';
 }
 
+function visualDescriptor(product: StorefrontProduct) {
+  const raw = rawProductText(product);
+  const color = safeColorLabel(product);
+
+  if (/holographic|iridescent|\bholo\b/.test(raw)) return 'Holographic';
+  if (/mirror\s*acrylic|acrylic/.test(raw) && /mirror|reflective/.test(raw)) return 'Mirror Acrylic';
+  if (/metallic|reflective|mirror/.test(raw)) return 'Metallic';
+  return color;
+}
+
 function productNoun(product: StorefrontProduct) {
   const category = categoryLabel(product);
   const text = `${product.product_type || ''} ${productTitle(product)}`.toLowerCase();
@@ -127,34 +137,39 @@ function productNoun(product: StorefrontProduct) {
 }
 
 function worldPhrase(product: StorefrontProduct) {
+  const raw = rawProductText(product);
   const world = worldLabel(product);
+
+  if (/rave/.test(raw) && /festival/.test(raw)) return 'Rave and Festival Looks';
+  if (/rave/.test(raw)) return 'Rave Looks';
+  if (/burning\s*man/i.test(world) || /burning\s*man|desert/.test(raw)) return 'Burning Man Looks';
   if (/editorial/i.test(world)) return 'Editorial Looks';
-  if (/burning\s*man/i.test(world)) return 'Burning Man Looks';
   if (/festival|rave/i.test(world)) return 'Festival Looks';
   if (/stage|performance/i.test(world)) return 'Stage Looks';
   return world || 'Stage Looks';
 }
 
-function productCore(product: StorefrontProduct) {
-  return uniqueParts([safeColorLabel(product), productMaterial(product), productNoun(product)]).join(' ');
+function demandTitleCore(product: StorefrontProduct) {
+  return uniqueParts([visualDescriptor(product), productNoun(product)]).join(' ');
 }
 
 function buildTitle(product: StorefrontProduct) {
-  return clampDraft(`${titleCase(productCore(product))} for ${worldPhrase(product)} by TheFEYA`, 138);
+  return clampDraft(`${titleCase(demandTitleCore(product))} for ${worldPhrase(product)} by TheFEYA`, 138);
 }
 
 function buildMeta(product: StorefrontProduct) {
-  const core = productCore(product).toLowerCase();
+  const core = demandTitleCore(product).toLowerCase();
+  const material = materialDetail(product);
   const world = worldPhrase(product).toLowerCase();
-  return clampDraft(`Shop a ${core} by TheFEYA, handmade for ${world}, stage performance, photoshoots and event styling.`, 155);
+  return clampDraft(`Shop a ${core} by TheFEYA, handmade in ${material} for ${world}, stage performance and event styling.`, 155);
 }
 
 function buildH1(product: StorefrontProduct) {
-  return clampDraft(`${titleCase(productCore(product))} for ${worldPhrase(product)}`, 90);
+  return clampDraft(`${titleCase(demandTitleCore(product))} for ${worldPhrase(product)}`, 90);
 }
 
 function buildAlt(product: StorefrontProduct) {
-  return clampDraft(`${titleCase(productCore(product))} by TheFEYA for ${worldPhrase(product)}`, 120);
+  return clampDraft(`${titleCase(materialDetail(product))} ${productNoun(product)} by TheFEYA for ${worldPhrase(product)}`, 120);
 }
 
 function collectionHint(product: StorefrontProduct) {
@@ -162,9 +177,9 @@ function collectionHint(product: StorefrontProduct) {
 }
 
 function outline(product: StorefrontProduct) {
-  const core = productCore(product);
+  const core = demandTitleCore(product);
   const world = worldPhrase(product);
-  const material = productMaterial(product);
+  const material = materialDetail(product);
   return [
     `${sentenceCase(core)} by TheFEYA, designed as an original handmade look rather than a custom-from-scratch atelier piece.`,
     `Material and finish: ${material}; describe shine, texture, comfort and construction only from verified product facts.`,
