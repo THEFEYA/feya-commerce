@@ -15,7 +15,7 @@ type Props = {
   fields: FieldPreview[];
 };
 
-type ApiResponse = { ok?: boolean; error?: string };
+type ApiResponse = { ok?: boolean; error?: string; replaced?: number; created?: number };
 
 export function AdminSeoChangeSetCreateClient({ productSlug, fields }: Props) {
   const changedFields = fields.filter((field) => field.changed && field.proposedValue.trim());
@@ -29,37 +29,29 @@ export function AdminSeoChangeSetCreateClient({ productSlug, fields }: Props) {
     }
 
     setSaving(true);
-    setStatus('Создаю черновики на проверку...');
+    setStatus('Заменяю старые черновики и создаю новые...');
     try {
-      for (const field of changedFields) {
-        const response = await fetch('/api/admin/seo-change-sets', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            product_slug: productSlug,
-            source_route: '/admin/seo-apply',
-            target_field: field.field,
-            current_value: field.currentValue || null,
-            proposed_value: field.proposedValue,
-            reason: 'Created from SEO Apply Preview',
-            rule_pack_version: 'manual_v1',
-            template_pack_version: 'template_v1',
-            status: 'pending',
-          }),
-        });
-        const payload = await response.json() as ApiResponse;
-        if (!response.ok || !payload.ok) throw new Error(payload.error || `Не удалось создать черновик для ${field.field}.`);
-      }
-      setStatus(`Создано черновиков на проверку: ${changedFields.length}.`);
+      const response = await fetch('/api/admin/seo-change-sets-replace', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_slug: productSlug,
+          source_route: '/admin/seo-apply',
+          fields: changedFields,
+        }),
+      });
+      const payload = await response.json() as ApiResponse;
+      if (!response.ok || !payload.ok) throw new Error(payload.error || 'Не удалось заменить черновики.');
+      setStatus(`Готово: старых отклонено ${payload.replaced || 0}, новых создано ${payload.created || 0}.`);
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : 'Не удалось создать черновики на проверку.');
+      setStatus(error instanceof Error ? error.message : 'Не удалось заменить черновики.');
     } finally {
       setSaving(false);
     }
   }
 
   return <div className="mt-4 flex flex-wrap items-center gap-2">
-    <button type="button" onClick={createChangeSets} disabled={saving || !changedFields.length} className="btn-ghost px-4 py-2 text-[10px] disabled:opacity-60"><Layers3 size={13} /> {saving ? 'Создаю...' : 'Создать черновики на проверку'}</button>
+    <button type="button" onClick={createChangeSets} disabled={saving || !changedFields.length} className="btn-ghost px-4 py-2 text-[10px] disabled:opacity-60"><Layers3 size={13} /> {saving ? 'Заменяю...' : 'Заменить старые черновики'}</button>
     {status ? <span className="text-[11px] leading-relaxed text-[var(--gold-warm)]">{status}</span> : null}
   </div>;
 }
