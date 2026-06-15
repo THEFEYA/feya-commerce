@@ -17,6 +17,7 @@ export type SeoDraftSuggestion = {
 type ProductRecord = StorefrontProduct & Record<string, unknown>;
 
 const UNSAFE_MATERIAL_TERMS = ['ceramic', 'latex', 'lame', 'lamé', 'plastic'];
+const KNOWN_COLORS = ['Gold', 'Silver', 'Black', 'White', 'Red', 'Holographic'];
 
 function cleanText(value: string) {
   return value.replace(/\s+/g, ' ').trim();
@@ -25,6 +26,13 @@ function cleanText(value: string) {
 function sentenceCase(value: string) {
   const cleaned = cleanText(value);
   return cleaned ? cleaned.charAt(0).toUpperCase() + cleaned.slice(1) : cleaned;
+}
+
+function titleCase(value: string) {
+  return cleanText(value)
+    .split(' ')
+    .map((word) => (word === 'TheFEYA' ? word : word.charAt(0).toUpperCase() + word.slice(1)))
+    .join(' ');
 }
 
 function textValue(value: unknown) {
@@ -49,7 +57,8 @@ function clampDraft(value: string, maxLength: number) {
   if (cleaned.length <= maxLength) return cleaned;
   const slice = cleaned.slice(0, maxLength + 1);
   const lastSpace = slice.lastIndexOf(' ');
-  return `${slice.slice(0, lastSpace > 40 ? lastSpace : maxLength).trim()}`;
+  const clipped = slice.slice(0, lastSpace > 40 ? lastSpace : maxLength).trim();
+  return clipped.replace(/[,.&-]+$/, '').trim();
 }
 
 function rawProductText(product: StorefrontProduct) {
@@ -75,19 +84,32 @@ function ignoredUnsafeMaterialTerms(product: StorefrontProduct) {
   return UNSAFE_MATERIAL_TERMS.filter((term) => raw.includes(term));
 }
 
+function safeColorLabel(product: StorefrontProduct) {
+  const label = colorLabel(product);
+  return KNOWN_COLORS.includes(label) ? label : '';
+}
+
 function productMaterial(product: StorefrontProduct) {
   const raw = rawProductText(product);
-  const parts: string[] = [];
+  const hasMirrorMetallic = /metallic|reflective|mirror/.test(raw);
+  const hasHolographic = /holographic|iridescent|\bholo\b/.test(raw);
+  const hasAcrylic = /mirror\s*acrylic|acrylic/.test(raw);
+  const hasVeganLeather = /vegan\s*leather|faux\s*leather/.test(raw);
+  const hasLeather = !hasVeganLeather && /\bleather\b/.test(raw);
 
-  if (/mirror\s*acrylic|acrylic/.test(raw)) parts.push(raw.includes('mirror') ? 'mirror acrylic' : 'acrylic');
-  if (/vegan\s*leather|faux\s*leather/.test(raw)) parts.push('vegan leather');
-  else if (/\bleather\b/.test(raw)) parts.push('leather');
-  if (/holographic|iridescent|\bholo\b/.test(raw)) parts.push('holographic finish');
-  if (/metallic|reflective|mirror/.test(raw) && !parts.some((part) => part.includes('mirror'))) parts.push('mirror metallic finish');
-  if (/\bchain\b/.test(raw)) parts.push('chain details');
-  if (/silicone/.test(raw)) parts.push('silicone details');
+  if (hasAcrylic) return hasMirrorMetallic ? 'mirror acrylic' : 'acrylic';
+  if (hasVeganLeather) {
+    if (hasHolographic) return 'holographic vegan leather';
+    if (hasMirrorMetallic) return 'metallic vegan leather';
+    return 'vegan leather';
+  }
+  if (hasLeather) return hasMirrorMetallic ? 'metallic leather' : 'leather';
+  if (hasHolographic) return 'holographic finish';
+  if (hasMirrorMetallic) return 'mirror metallic finish';
+  if (/\bchain\b/.test(raw)) return 'chain details';
+  if (/silicone/.test(raw)) return 'silicone details';
 
-  return uniqueParts(parts).slice(0, 2).join(' and ') || 'handmade finish';
+  return 'handmade finish';
 }
 
 function productNoun(product: StorefrontProduct) {
@@ -113,25 +135,26 @@ function worldPhrase(product: StorefrontProduct) {
   return world || 'Stage Looks';
 }
 
+function productCore(product: StorefrontProduct) {
+  return uniqueParts([safeColorLabel(product), productMaterial(product), productNoun(product)]).join(' ');
+}
+
 function buildTitle(product: StorefrontProduct) {
-  const title = `${colorLabel(product)} ${productMaterial(product)} ${productNoun(product)} for ${worldPhrase(product)} | TheFEYA`;
-  return clampDraft(title, 138);
+  return clampDraft(`${titleCase(productCore(product))} for ${worldPhrase(product)} by TheFEYA`, 138);
 }
 
 function buildMeta(product: StorefrontProduct) {
-  const color = colorLabel(product).toLowerCase();
-  const material = productMaterial(product);
-  const noun = productNoun(product).toLowerCase();
+  const core = productCore(product).toLowerCase();
   const world = worldPhrase(product).toLowerCase();
-  return clampDraft(`Shop a ${color} ${material} ${noun} by TheFEYA, handmade for ${world}, stage performance, festivals, photoshoots and event styling.`, 158);
+  return clampDraft(`Shop a ${core} by TheFEYA, handmade for ${world}, stage performance, photoshoots and event styling.`, 155);
 }
 
 function buildH1(product: StorefrontProduct) {
-  return clampDraft(`${colorLabel(product)} ${productMaterial(product)} ${productNoun(product)} for ${worldPhrase(product)}`, 90);
+  return clampDraft(`${titleCase(productCore(product))} for ${worldPhrase(product)}`, 90);
 }
 
 function buildAlt(product: StorefrontProduct) {
-  return clampDraft(`${colorLabel(product)} ${productMaterial(product)} ${productNoun(product)} by TheFEYA for ${worldPhrase(product)}`, 120);
+  return clampDraft(`${titleCase(productCore(product))} by TheFEYA for ${worldPhrase(product)}`, 120);
 }
 
 function collectionHint(product: StorefrontProduct) {
@@ -139,12 +162,11 @@ function collectionHint(product: StorefrontProduct) {
 }
 
 function outline(product: StorefrontProduct) {
-  const noun = productNoun(product);
-  const color = colorLabel(product);
+  const core = productCore(product);
   const world = worldPhrase(product);
   const material = productMaterial(product);
   return [
-    `${sentenceCase(color)} ${noun.toLowerCase()} by TheFEYA, designed as an original handmade look rather than a custom-from-scratch atelier piece.`,
+    `${sentenceCase(core)} by TheFEYA, designed as an original handmade look rather than a custom-from-scratch atelier piece.`,
     `Material and finish: ${material}; describe shine, texture, comfort and construction only from verified product facts.`,
     `Use case: ${world}, stage performance, festival styling, photoshoots and event looks where the product type is relevant.`,
     'Fit and sizing: mention adjustable/custom sizing only where supported by product data and brand policy.',
