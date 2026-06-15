@@ -9,12 +9,24 @@ type AdminProductRow = AdminProductTableRow;
 type Tone = ReadinessTone;
 
 const filters = [
-  { label: 'All', value: 'all' },
-  { label: 'Draft', value: 'Draft' },
-  { label: 'Needs Review', value: 'needs-review' },
-  { label: 'Ready', value: 'Ready for Storefront' },
-  { label: 'Blocked', value: 'Blocked' },
+  { label: 'Все', value: 'all' },
+  { label: 'Черновики', value: 'Draft' },
+  { label: 'Нужна проверка', value: 'needs-review' },
+  { label: 'Готово', value: 'Ready for Storefront' },
+  { label: 'Заблокировано', value: 'Blocked' },
 ];
+
+function readinessLabel(label: string) {
+  if (label === 'Draft') return 'Черновик';
+  if (label === 'Needs Label Review') return 'Проверить название';
+  if (label === 'Needs Price Review') return 'Проверить цену';
+  if (label === 'Needs Component Mapping') return 'Проверить компоненты';
+  if (label === 'Needs Media QA') return 'Проверить медиа';
+  if (label === 'SEO Ready') return 'Проверить SEO';
+  if (label === 'Ready for Storefront') return 'Готово для витрины';
+  if (label === 'Blocked') return 'Заблокировано';
+  return label;
+}
 
 function StatusChip({ children, tone = 'neutral' }: { children: string; tone?: Tone }) {
   const className = tone === 'danger'
@@ -40,7 +52,7 @@ export function AdminProductsFilterClient({ rows }: { rows: AdminProductRow[] })
   const visibleRows = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     return rows.filter((row) => {
-      const matchesQuery = !normalizedQuery || [row.title, row.subtitle, row.slug, row.readinessLabel, row.confidence].join(' ').toLowerCase().includes(normalizedQuery);
+      const matchesQuery = !normalizedQuery || [row.title, row.subtitle, row.slug, readinessLabel(row.readinessLabel), row.confidence].join(' ').toLowerCase().includes(normalizedQuery);
       return matchesQuery && matchesStatus(row, activeFilter);
     });
   }, [rows, query, activeFilter]);
@@ -50,22 +62,22 @@ export function AdminProductsFilterClient({ rows }: { rows: AdminProductRow[] })
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <label className="relative block flex-1">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--smoke)]" />
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search product, slug, status..." className="w-full rounded-xl border border-[rgba(216,214,211,.12)] bg-black/20 py-3 pl-10 pr-4 text-[13px] text-bone outline-none placeholder:text-[var(--smoke)] focus:border-white/40" />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Поиск по товару, slug или статусу..." className="w-full rounded-xl border border-[rgba(216,214,211,.12)] bg-black/20 py-3 pl-10 pr-4 text-[13px] text-bone outline-none placeholder:text-[var(--smoke)] focus:border-white/40" />
         </label>
         <div className="flex flex-wrap gap-2">
           {filters.map((filter) => <button key={filter.value} type="button" onClick={() => setActiveFilter(filter.value)} className={`rounded-full border px-3 py-2 text-[10px] uppercase tracking-[0.16em] transition ${activeFilter === filter.value ? 'border-[rgba(212,178,106,.48)] bg-[rgba(212,178,106,.10)] text-[var(--gold-warm)]' : 'border-[rgba(216,214,211,.12)] bg-black/15 text-[var(--bone-dim)] hover:border-white/30'}`}>{filter.label}</button>)}
         </div>
       </div>
-      <div className="mt-3 flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-[var(--smoke)]"><Filter size={12} /> Showing {visibleRows.length} of {rows.length}</div>
+      <div className="mt-3 flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-[var(--smoke)]"><Filter size={12} /> Показано {visibleRows.length} из {rows.length}</div>
     </div>
 
     <div className="hidden lg:grid grid-cols-[80px_1.6fr_0.9fr_0.7fr_1.2fr_1.2fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.22em] text-[var(--smoke)]">
-      <div>Media</div>
-      <div>Product</div>
-      <div>Readiness</div>
-      <div>Price</div>
-      <div>Config</div>
-      <div>Review state</div>
+      <div>Медиа</div>
+      <div>Товар</div>
+      <div>Готовность</div>
+      <div>Цена</div>
+      <div>Опции</div>
+      <div>Проверки</div>
     </div>
 
     <div className="divide-y divide-[rgba(216,214,211,.08)]">
@@ -77,7 +89,7 @@ export function AdminProductsFilterClient({ rows }: { rows: AdminProductRow[] })
           <div className="text-bone text-[15px] leading-snug line-clamp-2">{row.title}</div>
           <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{row.subtitle}</div>
         </div>
-        <div><StatusChip tone={row.readinessTone}>{row.readinessLabel}</StatusChip></div>
+        <div><StatusChip tone={row.readinessTone}>{readinessLabel(row.readinessLabel)}</StatusChip></div>
         <div>
           <div className="font-price text-gold-grad text-[21px] leading-none">{row.price}</div>
           <div className="mt-1 text-[10px] uppercase tracking-[0.16em] text-[var(--smoke)]">{row.confidence}</div>
@@ -92,7 +104,7 @@ export function AdminProductsFilterClient({ rows }: { rows: AdminProductRow[] })
         </div>
       </Link>)}
 
-      {!visibleRows.length ? <div className="p-6 text-[13px] text-[var(--bone-dim)]">No products match this filter.</div> : null}
+      {!visibleRows.length ? <div className="p-6 text-[13px] text-[var(--bone-dim)]">Под этот фильтр товары не найдены.</div> : null}
     </div>
   </div>;
 }
