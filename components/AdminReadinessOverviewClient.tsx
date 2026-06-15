@@ -57,11 +57,11 @@ export function AdminReadinessOverviewClient({ products, labelReview, priceRevie
     try {
       const response = await fetch('/api/admin/review-events', { cache: 'no-store' });
       const payload = await response.json() as ApiPayload;
-      if (!response.ok || !payload.ok) throw new Error(payload.error || 'Could not load review events.');
+      if (!response.ok || !payload.ok) throw new Error(payload.error || 'Не удалось загрузить проверочные события.');
       setEvents(payload.events || []);
       setError('');
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : 'Could not load review events.');
+      setError(loadError instanceof Error ? loadError.message : 'Не удалось загрузить проверочные события.');
       setEvents([]);
     } finally {
       setLoading(false);
@@ -84,26 +84,26 @@ export function AdminReadinessOverviewClient({ products, labelReview, priceRevie
   return <section className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5 mb-8">
     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between mb-5">
       <div>
-        <div className="eyebrow-gold mb-2 flex items-center gap-2"><ClipboardCheck size={14} /> Control Tower readiness</div>
-        <p className="text-[13px] leading-relaxed text-[var(--bone-dim)] max-w-3xl">Combines v4 blocker counts with saved admin review events. This is not payment logic and does not mutate product data.</p>
+        <div className="eyebrow-gold mb-2 flex items-center gap-2"><ClipboardCheck size={14} /> Сводка готовности</div>
+        <p className="text-[13px] leading-relaxed text-[var(--bone-dim)] max-w-3xl">Объединяет блокеры из v4-контракта и сохранённые проверочные события. Это не логика оплаты и не прямое изменение товара.</p>
       </div>
-      <button type="button" onClick={load} className="btn-ghost px-4 py-2 text-[10px]" disabled={loading}><RefreshCw size={12} /> {loading ? 'Loading' : 'Refresh events'}</button>
+      <button type="button" onClick={load} className="btn-ghost px-4 py-2 text-[10px]" disabled={loading}><RefreshCw size={12} /> {loading ? 'Загрузка' : 'Обновить события'}</button>
     </div>
 
     {error ? <div className="rounded-xl border border-[rgba(212,178,106,.25)] bg-[rgba(212,178,106,.06)] p-3 text-[12px] text-[var(--gold-warm)] mb-4"><AlertTriangle size={13} className="inline mr-2" />{error}</div> : null}
 
     <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-      <Metric label="v4 Products" value={products} note="Current safe storefront contract slice." />
-      <Metric label="Open blockers" value={labelReview + priceReview + componentIssues + mediaReview} tone="warning" note="Label, price, component and media issues from v4." />
-      <Metric label="Reviewed products" value={stats.reviewedProducts} tone="success" note="Products with at least one admin review event." />
-      <Metric label="SEO ready events" value={stats.seoReadyEvents} tone="success" note="Products marked with SEO ready events." />
-      <Metric label="Blocked events" value={stats.blockedEvents} tone={stats.blockedEvents ? 'danger' : 'neutral'} note="Needs-fix review events. These block launch." />
+      <Metric label="Товары v4" value={products} note="Текущий срез storefront-контракта." />
+      <Metric label="Открытые блокеры" value={labelReview + priceReview + componentIssues + mediaReview} tone="warning" note="Названия, цены, компоненты и медиа из v4." />
+      <Metric label="Проверенные товары" value={stats.reviewedProducts} tone="success" note="Товары, где уже есть хотя бы одно проверочное событие." />
+      <Metric label="SEO готово" value={stats.seoReadyEvents} tone="success" note="Товары, отмеченные как готовые по SEO." />
+      <Metric label="Блокеры" value={stats.blockedEvents} tone={stats.blockedEvents ? 'danger' : 'neutral'} note="События “нужны исправления”, которые блокируют запуск." />
     </div>
 
     <div className="mt-4 grid md:grid-cols-3 gap-3">
-      <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4"><CheckCircle2 size={14} className="text-[#a9dfbd] mb-2" /><div className="text-bone text-[13px]">{stats.actionEvents} total review events</div></div>
-      <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4"><ShieldAlert size={14} className="text-[var(--gold-warm)] mb-2" /><div className="text-bone text-[13px]">{stats.orderDraftReviews} order drafts reviewed</div></div>
-      <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4"><AlertTriangle size={14} className="text-[var(--gold-warm)] mb-2" /><div className="text-bone text-[13px]">Payment stays off until provider + webhook are verified.</div></div>
+      <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4"><CheckCircle2 size={14} className="text-[#a9dfbd] mb-2" /><div className="text-bone text-[13px]">Всего проверочных событий: {stats.actionEvents}</div></div>
+      <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4"><ShieldAlert size={14} className="text-[var(--gold-warm)] mb-2" /><div className="text-bone text-[13px]">Проверено черновиков заказов: {stats.orderDraftReviews}</div></div>
+      <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4"><AlertTriangle size={14} className="text-[var(--gold-warm)] mb-2" /><div className="text-bone text-[13px]">Оплата остаётся выключенной до проверки провайдера и webhook.</div></div>
     </div>
   </section>;
 }
