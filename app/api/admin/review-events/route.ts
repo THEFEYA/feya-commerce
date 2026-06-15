@@ -51,15 +51,15 @@ function normalizePayload(input: ReviewEventInput) {
   const eventStatus = cleanText(input.event_status) || (eventType === 'needs_fix' ? 'needs_fix' : 'recorded');
 
   if (!ALLOWED_EVENT_TYPES.has(eventType)) {
-    return { error: `Unsupported review event type: ${eventType || 'empty'}` };
+    return { error: `Неподдерживаемый тип проверочного события: ${eventType || 'пусто'}` };
   }
 
   if (!ALLOWED_SUBJECT_TYPES.has(subjectType)) {
-    return { error: `Unsupported review subject type: ${subjectType}` };
+    return { error: `Неподдерживаемый тип объекта проверки: ${subjectType}` };
   }
 
   if (!ALLOWED_STATUSES.has(eventStatus)) {
-    return { error: `Unsupported review event status: ${eventStatus}` };
+    return { error: `Неподдерживаемый статус проверочного события: ${eventStatus}` };
   }
 
   return {
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
   try {
     input = await request.json();
   } catch {
-    return NextResponse.json({ ok: false, error: 'Invalid JSON payload.' }, { status: 400 });
+    return NextResponse.json({ ok: false, error: 'Некорректный JSON-запрос.' }, { status: 400 });
   }
 
   const normalized = normalizePayload(input);
