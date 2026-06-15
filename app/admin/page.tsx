@@ -135,11 +135,11 @@ export default async function AdminPage() {
     <section className="container-feya pt-10 pb-16">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
         <div>
-          <div className="eyebrow-gold mb-3">FEYA Control Tower · Internal Admin</div>
-          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(46px,7vw,96px)' }}>Admin cockpit</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Внутренняя панель качества каталога: v4 contract, shared readiness logic, review events, labels, prices, components, media, SEO readiness и order review.</p>
+          <div className="eyebrow-gold mb-3">FEYA · Внутренняя админка</div>
+          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(46px,7vw,96px)' }}>Панель контроля</h1>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Внутренняя панель качества каталога: v4-контракт, единая логика готовности, проверочные события, названия, цены, компоненты, медиа, SEO-готовность и черновики заказов.</p>
         </div>
-        <Link href="/shop" className="btn-ghost self-start lg:self-auto">Storefront <ArrowUpRight size={13} /></Link>
+        <Link href="/shop" className="btn-ghost self-start lg:self-auto">Витрина <ArrowUpRight size={13} /></Link>
       </div>
 
       {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
@@ -147,11 +147,11 @@ export default async function AdminPage() {
       <AdminReadinessOverviewClient products={stats.products} labelReview={stats.labelReview} priceReview={stats.unverifiedPrice} componentIssues={stats.missingComponent} mediaReview={stats.mediaNeedsReview} />
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        <StatCard label="Ready" value={stats.ready} tone="success" note="Closed through shared readiness logic." />
-        <StatCard label="Needs review" value={stats.needsReview} tone="warning" note="Label, price, component, media or SEO stage remains open." />
-        <StatCard label="Draft" value={stats.draft} note="No review events yet." />
-        <StatCard label="Blocked" value={stats.blocked} tone="danger" note="Contains needs_fix event." />
-        <StatCard label="Products in v4" value={stats.products} note="Safe storefront contract slice." />
+        <StatCard label="Готово" value={stats.ready} tone="success" note="Закрыто через общую логику готовности." />
+        <StatCard label="Нужна проверка" value={stats.needsReview} tone="warning" note="Открыт этап названия, цены, компонентов, медиа или SEO." />
+        <StatCard label="Черновики" value={stats.draft} note="Пока нет проверочных событий." />
+        <StatCard label="Заблокировано" value={stats.blocked} tone="danger" note="Есть событие “нужны исправления”." />
+        <StatCard label="Товары v4" value={stats.products} note="Срез storefront-контракта для админки." />
       </div>
 
       <div className="grid grid-cols-12 gap-6 lg:gap-8">
