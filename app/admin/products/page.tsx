@@ -72,25 +72,25 @@ export default async function AdminProductsPage() {
     <section className="container-feya pt-10 pb-16">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
         <div>
-          <div className="eyebrow-gold mb-3">Admin · Product Control</div>
-          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Products</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Interactive v4 catalog control table with readiness filters from v4 flags and admin review events.</p>
+          <div className="eyebrow-gold mb-3">Админка · Контроль товаров</div>
+          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Товары</h1>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Интерактивная таблица v4-каталога: готовность товара, цена, компоненты, медиа и события проверки.</p>
         </div>
         <div className="flex gap-3">
-          <Link href="/admin" className="btn-ghost">Admin cockpit <ArrowUpRight size={13} /></Link>
-          <Link href="/shop" className="btn-ghost">Storefront <ArrowUpRight size={13} /></Link>
+          <Link href="/admin" className="btn-ghost">Панель управления <ArrowUpRight size={13} /></Link>
+          <Link href="/shop" className="btn-ghost">Витрина <ArrowUpRight size={13} /></Link>
         </div>
       </div>
 
       {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
 
       <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
-        <Metric icon={Search} label="Products" value={rows.length} note="Loaded from v4 safe contract." />
-        <Metric icon={Boxes} label="Configurations" value={totals.configs} note="Public sellable options in current slice." />
-        <Metric icon={Tags} label="Label review" value={totals.label} note="Products with label review flags." />
-        <Metric icon={WalletCards} label="Price review" value={totals.price} note="Unverified price confidence." />
-        <Metric icon={ImageIcon} label="Media QA" value={totals.media} note="Missing second/hover/gallery signal." />
-        <Metric icon={CheckCircle2} label="Ready" value={totals.ready} note={`Blocked: ${totals.blocked}`} />
+        <Metric icon={Search} label="Товары" value={rows.length} note="Загружены из безопасного v4-контракта." />
+        <Metric icon={Boxes} label="Опции" value={totals.configs} note="Публичные продаваемые варианты." />
+        <Metric icon={Tags} label="Названия" value={totals.label} note="Требуют проверки названий." />
+        <Metric icon={WalletCards} label="Цены" value={totals.price} note="Цены с неподтверждённым статусом." />
+        <Metric icon={ImageIcon} label="Медиа" value={totals.media} note="Нет второго/hover/gallery сигнала." />
+        <Metric icon={CheckCircle2} label="Готово" value={totals.ready} note={`Заблокировано: ${totals.blocked}`} />
       </div>
 
       <AdminProductsFilterClient rows={tableRows} />
