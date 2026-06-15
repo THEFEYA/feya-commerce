@@ -39,15 +39,34 @@ type Readiness = {
 };
 
 const actions = [
-  { label: 'Mark label reviewed', event_type: 'label_review_approved', subject_type: 'label', status: 'approved' },
-  { label: 'Mark price reviewed', event_type: 'price_review_approved', subject_type: 'price', status: 'approved' },
-  { label: 'Mark component checked', event_type: 'component_mapping_checked', subject_type: 'component', status: 'approved' },
-  { label: 'Mark media checked', event_type: 'media_checked', subject_type: 'media', status: 'approved' },
-  { label: 'Mark SEO ready', event_type: 'seo_ready_checked', subject_type: 'seo', status: 'approved' },
-  { label: 'Needs fix', event_type: 'needs_fix', subject_type: 'product', status: 'needs_fix' },
+  { label: 'Название проверено', event_type: 'label_review_approved', subject_type: 'label', status: 'approved' },
+  { label: 'Цена проверена', event_type: 'price_review_approved', subject_type: 'price', status: 'approved' },
+  { label: 'Компоненты проверены', event_type: 'component_mapping_checked', subject_type: 'component', status: 'approved' },
+  { label: 'Медиа проверены', event_type: 'media_checked', subject_type: 'media', status: 'approved' },
+  { label: 'SEO проверено', event_type: 'seo_ready_checked', subject_type: 'seo', status: 'approved' },
+  { label: 'Нужны исправления', event_type: 'needs_fix', subject_type: 'product', status: 'needs_fix' },
 ];
 
+function readinessLabel(status: Readiness['status']) {
+  if (status === 'Draft') return 'Черновик';
+  if (status === 'Needs Label Review') return 'Проверить название';
+  if (status === 'Needs Price Review') return 'Проверить цену';
+  if (status === 'Needs Component Mapping') return 'Проверить компоненты';
+  if (status === 'Needs Media QA') return 'Проверить медиа';
+  if (status === 'SEO Ready') return 'Проверить SEO';
+  if (status === 'Ready for Storefront') return 'Готово для витрины';
+  if (status === 'Blocked') return 'Заблокировано';
+  return status;
+}
+
 function eventLabel(eventType: string) {
+  if (eventType === 'label_review_approved') return 'Название проверено';
+  if (eventType === 'price_review_approved') return 'Цена проверена';
+  if (eventType === 'component_mapping_checked') return 'Компоненты проверены';
+  if (eventType === 'media_checked') return 'Медиа проверены';
+  if (eventType === 'seo_ready_checked') return 'SEO проверено';
+  if (eventType === 'needs_fix') return 'Нужны исправления';
+  if (eventType === 'internal_note_added') return 'Внутренняя заметка';
   return eventType.replaceAll('_', ' ');
 }
 
@@ -64,11 +83,11 @@ function readinessTone(tone: Readiness['tone']) {
 
 function computeReadiness(initialBlockers: InitialBlockers, latestByType: Map<string, ReviewEvent>, eventCount: number): Readiness {
   if (latestByType.has('needs_fix')) {
-    return { status: 'Blocked', tone: 'danger', note: 'A review event marked this product as needing a fix.' };
+    return { status: 'Blocked', tone: 'danger', note: 'По товару есть событие “нужны исправления”.' };
   }
 
   if (!eventCount) {
-    return { status: 'Draft', tone: 'neutral', note: 'No admin review events recorded yet.' };
+    return { status: 'Draft', tone: 'neutral', note: 'Проверочные события по этому товару ещё не записаны.' };
   }
 
   const labelOk = !initialBlockers.label || latestByType.has('label_review_approved');
@@ -77,19 +96,19 @@ function computeReadiness(initialBlockers: InitialBlockers, latestByType: Map<st
   const mediaOk = !initialBlockers.media || latestByType.has('media_checked');
   const seoOk = latestByType.has('seo_ready_checked');
 
-  if (!labelOk) return { status: 'Needs Label Review', tone: 'warning', note: 'Label review is still open in v4 or not approved by admin.' };
-  if (!priceOk) return { status: 'Needs Price Review', tone: 'warning', note: 'Price confidence is still unverified or not approved by admin.' };
-  if (!componentOk) return { status: 'Needs Component Mapping', tone: 'warning', note: 'One or more configurations still need component mapping approval.' };
-  if (!mediaOk) return { status: 'Needs Media QA', tone: 'warning', note: 'Media QA is still open or not approved by admin.' };
-  if (!seoOk) return { status: 'SEO Ready', tone: 'warning', note: 'Operational checks are done; SEO approval is the next required event.' };
+  if (!labelOk) return { status: 'Needs Label Review', tone: 'warning', note: 'Название ещё требует проверки.' };
+  if (!priceOk) return { status: 'Needs Price Review', tone: 'warning', note: 'Цена ещё не подтверждена.' };
+  if (!componentOk) return { status: 'Needs Component Mapping', tone: 'warning', note: 'Компоненты ещё не подтверждены.' };
+  if (!mediaOk) return { status: 'Needs Media QA', tone: 'warning', note: 'Медиа ещё требуют проверки.' };
+  if (!seoOk) return { status: 'SEO Ready', tone: 'warning', note: 'Операционные проверки закрыты, осталось подтвердить SEO.' };
 
-  return { status: 'Ready for Storefront', tone: 'success', note: 'Required admin checks are recorded and no blocking event is present.' };
+  return { status: 'Ready for Storefront', tone: 'success', note: 'Все обязательные проверки записаны, блокирующих событий нет.' };
 }
 
 function CheckRow({ label, done }: { label: string; done: boolean }) {
   return <div className="flex items-center justify-between gap-3 rounded-lg border border-[rgba(216,214,211,.08)] bg-black/15 px-3 py-2">
     <span className="text-[12px] text-[var(--bone-dim)]">{label}</span>
-    <span className={done ? 'text-[10px] uppercase tracking-[0.16em] text-[#a9dfbd]' : 'text-[10px] uppercase tracking-[0.16em] text-[var(--gold-warm)]'}>{done ? 'Done' : 'Open'}</span>
+    <span className={done ? 'text-[10px] uppercase tracking-[0.16em] text-[#a9dfbd]' : 'text-[10px] uppercase tracking-[0.16em] text-[var(--gold-warm)]'}>{done ? 'Готово' : 'Открыто'}</span>
   </div>;
 }
 
@@ -105,12 +124,12 @@ export function AdminReviewActionsClient({ productSlug, canonicalProductId, sour
     try {
       const response = await fetch(`/api/admin/review-events?product_slug=${encodeURIComponent(productSlug)}`, { cache: 'no-store' });
       const payload = await response.json() as ApiPayload;
-      if (!response.ok || !payload.ok) throw new Error(payload.error || 'Could not load review events.');
+      if (!response.ok || !payload.ok) throw new Error(payload.error || 'Не удалось загрузить события проверки.');
       const filtered = (payload.events || []).filter((event) => event.product_slug === productSlug || event.canonical_product_id === canonicalProductId);
       setEvents(filtered);
       setStatus('');
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : 'Could not load review events.');
+      setStatus(error instanceof Error ? error.message : 'Не удалось загрузить события проверки.');
       setEvents([]);
     } finally {
       setLoading(false);
@@ -136,7 +155,7 @@ export function AdminReviewActionsClient({ productSlug, canonicalProductId, sour
 
   async function recordAction(action: typeof actions[number]) {
     setSaving(action.event_type);
-    setStatus('Saving review event...');
+    setStatus('Сохраняю событие проверки...');
     try {
       const response = await fetch('/api/admin/review-events', {
         method: 'POST',
@@ -153,12 +172,12 @@ export function AdminReviewActionsClient({ productSlug, canonicalProductId, sour
         }),
       });
       const payload = await response.json() as ApiPayload;
-      if (!response.ok || !payload.ok) throw new Error(payload.error || 'Could not save review event.');
-      setStatus('Review event saved.');
+      if (!response.ok || !payload.ok) throw new Error(payload.error || 'Не удалось сохранить событие проверки.');
+      setStatus('Событие проверки сохранено.');
       setNote('');
       await loadEvents();
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : 'Could not save review event.');
+      setStatus(error instanceof Error ? error.message : 'Не удалось сохранить событие проверки.');
     } finally {
       setSaving(null);
     }
@@ -167,23 +186,23 @@ export function AdminReviewActionsClient({ productSlug, canonicalProductId, sour
   return <section className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
       <div>
-        <div className="eyebrow-gold mb-3 flex items-center gap-2"><ClipboardCheck size={14} /> Admin review actions</div>
-        <p className="text-[13px] leading-relaxed text-[var(--bone-dim)] max-w-2xl">Actions are saved as append-only review events. Product data, prices, labels, media, SEO and payment state are not changed here.</p>
+        <div className="eyebrow-gold mb-3 flex items-center gap-2"><ClipboardCheck size={14} /> Действия проверки товара</div>
+        <p className="text-[13px] leading-relaxed text-[var(--bone-dim)] max-w-2xl">Действия записываются как проверочные события. Товар, цены, названия, медиа, SEO и оплата здесь напрямую не меняются.</p>
       </div>
-      <button type="button" onClick={loadEvents} className="btn-ghost px-4 py-2 text-[10px]" disabled={loading}><RefreshCw size={12} /> {loading ? 'Loading' : 'Refresh'}</button>
+      <button type="button" onClick={loadEvents} className="btn-ghost px-4 py-2 text-[10px]" disabled={loading}><RefreshCw size={12} /> {loading ? 'Загрузка' : 'Обновить'}</button>
     </div>
 
     <div className={`mt-5 rounded-xl border p-4 ${readinessTone(readiness.tone)}`}>
-      <div className="eyebrow-dim mb-2">Consolidated readiness status</div>
-      <div className="text-[24px] leading-none font-price">{readiness.status}</div>
+      <div className="eyebrow-dim mb-2">Единый статус готовности</div>
+      <div className="text-[24px] leading-none font-price">{readinessLabel(readiness.status)}</div>
       <p className="mt-3 text-[12px] leading-relaxed opacity-85">{readiness.note}</p>
     </div>
 
     <div className="mt-4 grid sm:grid-cols-2 xl:grid-cols-5 gap-2">
-      <CheckRow label="Label" done={labelOk} />
-      <CheckRow label="Price" done={priceOk} />
-      <CheckRow label="Components" done={componentOk} />
-      <CheckRow label="Media" done={mediaOk} />
+      <CheckRow label="Название" done={labelOk} />
+      <CheckRow label="Цена" done={priceOk} />
+      <CheckRow label="Компоненты" done={componentOk} />
+      <CheckRow label="Медиа" done={mediaOk} />
       <CheckRow label="SEO" done={seoOk} />
     </div>
 
@@ -195,29 +214,29 @@ export function AdminReviewActionsClient({ productSlug, canonicalProductId, sour
             <span className="text-bone text-[13px]">{action.label}</span>
             {saved ? <CheckCircle2 size={15} className="text-[var(--gold-warm)]" /> : null}
           </div>
-          <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{saved?.created_at ? new Date(saved.created_at).toLocaleDateString() : 'No event yet'}</div>
+          <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{saved?.created_at ? new Date(saved.created_at).toLocaleDateString() : 'События ещё нет'}</div>
         </button>;
       })}
     </div>
 
     <div className="mt-4 grid gap-3">
       <label className="grid gap-2">
-        <span className="eyebrow-dim flex items-center gap-2"><MessageSquarePlus size={12} /> Internal note for next action</span>
-        <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="Optional internal note..." className="min-h-[92px] rounded-xl border border-[rgba(216,214,211,.12)] bg-black/20 px-4 py-3 text-[13px] text-bone outline-none focus:border-white/40 placeholder:text-[var(--smoke)]" />
+        <span className="eyebrow-dim flex items-center gap-2"><MessageSquarePlus size={12} /> Внутренняя заметка для следующего действия</span>
+        <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="Необязательная внутренняя заметка..." className="min-h-[92px] rounded-xl border border-[rgba(216,214,211,.12)] bg-black/20 px-4 py-3 text-[13px] text-bone outline-none focus:border-white/40 placeholder:text-[var(--smoke)]" />
       </label>
-      <button type="button" onClick={() => recordAction({ label: 'Add internal note', event_type: 'internal_note_added', subject_type: 'product', status: 'recorded' })} disabled={Boolean(saving) || !note.trim()} className="btn-ghost justify-center disabled:opacity-50"><MessageSquarePlus size={13} /> Add internal note</button>
+      <button type="button" onClick={() => recordAction({ label: 'Добавить заметку', event_type: 'internal_note_added', subject_type: 'product', status: 'recorded' })} disabled={Boolean(saving) || !note.trim()} className="btn-ghost justify-center disabled:opacity-50"><MessageSquarePlus size={13} /> Добавить заметку</button>
     </div>
 
     {status ? <div className="mt-4 rounded-xl border border-[rgba(212,178,106,.22)] bg-[rgba(212,178,106,.055)] p-3 text-[12px] leading-relaxed text-[var(--gold-warm)]"><ShieldAlert size={13} className="inline mr-2" />{status}</div> : null}
 
     <div className="mt-5 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4">
-      <div className="eyebrow-dim mb-3">Recent events</div>
+      <div className="eyebrow-dim mb-3">Последние события</div>
       <div className="space-y-2">
         {events.slice(0, 8).map((event) => <div key={event.review_event_id} className="flex flex-col gap-1 rounded-lg border border-[rgba(216,214,211,.08)] bg-black/15 px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
           <span className={`inline-flex w-fit rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] ${eventTone(event.event_type)}`}>{eventLabel(event.event_type)}</span>
-          <span className="text-[11px] text-[var(--bone-dim)]">{event.created_at ? new Date(event.created_at).toLocaleString() : 'No date'}</span>
+          <span className="text-[11px] text-[var(--bone-dim)]">{event.created_at ? new Date(event.created_at).toLocaleString() : 'Нет даты'}</span>
         </div>)}
-        {!events.length ? <div className="text-[12px] text-[var(--bone-dim)]">No review events for this product yet.</div> : null}
+        {!events.length ? <div className="text-[12px] text-[var(--bone-dim)]">Проверочных событий по этому товару пока нет.</div> : null}
       </div>
     </div>
   </section>;
