@@ -45,10 +45,10 @@ type CheckoutDraft = {
 const DRAFT_KEY = 'feya_checkout_draft_v1';
 
 const PIPELINE = [
-  { label: 'Draft received', icon: ClipboardList },
-  { label: 'Price / label review', icon: ShieldCheck },
-  { label: 'Production queue', icon: PackageCheck },
-  { label: 'Shipping / tracking', icon: Truck },
+  { label: 'Черновик получен', icon: ClipboardList },
+  { label: 'Проверка цены и названия', icon: ShieldCheck },
+  { label: 'Очередь производства', icon: PackageCheck },
+  { label: 'Доставка и трекинг', icon: Truck },
 ];
 
 function readDraft(): CheckoutDraft | null {
@@ -63,10 +63,10 @@ function readDraft(): CheckoutDraft | null {
 
 function itemWarnings(item: DraftItem) {
   const warnings: string[] = [];
-  if (!item.configuration_id) warnings.push('Missing configuration_id');
-  if (!item.component_code) warnings.push('Missing component_code');
-  if (item.price_confidence_status === 'unverified') warnings.push('Unverified price');
-  if (item.label_confidence_status === 'unverified') warnings.push('Unverified label');
+  if (!item.configuration_id) warnings.push('Нет configuration_id');
+  if (!item.component_code) warnings.push('Нет component_code');
+  if (item.price_confidence_status === 'unverified') warnings.push('Цена не проверена');
+  if (item.label_confidence_status === 'unverified') warnings.push('Название не проверено');
   return warnings;
 }
 
@@ -80,10 +80,10 @@ export function AtelierOrdersClient() {
   const items = Array.isArray(draft?.items) ? draft?.items || [] : [];
   const currency = draft?.currency || items[0]?.currency || 'EUR';
   const warnings = useMemo(() => {
-    const list = ['Local preview draft: Supabase order-draft queue is not connected yet'];
-    if (!draft?.contact?.email) list.push('Missing customer email');
-    if (!draft?.contact?.address) list.push('Missing shipping address');
-    if (!items.length) list.push('No items attached');
+    const list = ['Локальный резервный черновик: основная очередь Supabase проверяется выше'];
+    if (!draft?.contact?.email) list.push('Нет email клиента');
+    if (!draft?.contact?.address) list.push('Нет адреса доставки');
+    if (!items.length) list.push('Нет позиций в черновике');
     for (const item of items) list.push(...itemWarnings(item));
     return Array.from(new Set(list));
   }, [draft, items]);
@@ -92,10 +92,10 @@ export function AtelierOrdersClient() {
     return (
       <section className="container-feya pt-10 pb-20">
         <div className="glass rounded-2xl p-8">
-          <div className="eyebrow-gold mb-3">Admin Orders</div>
-          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,68px)' }}>No local draft yet</h1>
-          <p className="mt-4 text-[var(--bone-dim)] max-w-xl">Create a checkout draft first. This screen reads only the local checkout draft until Supabase order drafts are connected.</p>
-          <Link href="/checkout" className="btn-chrome mt-6">Go to checkout draft <ArrowUpRight size={13} /></Link>
+          <div className="eyebrow-gold mb-3">Локальный резервный черновик</div>
+          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,68px)' }}>Локального черновика пока нет</h1>
+          <p className="mt-4 text-[var(--bone-dim)] max-w-xl">Создай тестовый черновик через checkout, если нужно проверить резервное локальное сохранение. Основная очередь черновиков Supabase находится выше.</p>
+          <Link href="/checkout" className="btn-chrome mt-6">Перейти к тестовому checkout <ArrowUpRight size={13} /></Link>
         </div>
       </section>
     );
@@ -104,41 +104,41 @@ export function AtelierOrdersClient() {
   return (
     <section className="container-feya pt-10 pb-20">
       <div className="border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
-        <div className="eyebrow-gold mb-3 flex items-center gap-2"><BadgeCheck size={14} /> Admin Orders</div>
-        <h1 className="font-tall text-bone leading-[0.98] tracking-[0.035em]" style={{ fontSize: 'clamp(32px,4.5vw,62px)' }}>Draft review queue</h1>
-        <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Internal review of checkout requests. This will become the Supabase-backed order queue after auth, order drafts and payment webhook are connected.</p>
+        <div className="eyebrow-gold mb-3 flex items-center gap-2"><BadgeCheck size={14} /> Локальный резервный черновик</div>
+        <h1 className="font-tall text-bone leading-[0.98] tracking-[0.035em]" style={{ fontSize: 'clamp(32px,4.5vw,62px)' }}>Резервная проверка черновика</h1>
+        <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Внутренняя проверка checkout-запроса из localStorage. Основной рабочий источник для админки — сохранённые черновики Supabase выше.</p>
       </div>
 
       <div className="grid grid-cols-12 gap-6 lg:gap-8">
         <div className="col-span-12 lg:col-span-7 space-y-5">
           <section className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
-            <div className="eyebrow-gold mb-4 flex items-center gap-2"><UserRound size={14} /> Customer brief</div>
+            <div className="eyebrow-gold mb-4 flex items-center gap-2"><UserRound size={14} /> Данные клиента</div>
             <div className="grid md:grid-cols-2 gap-3 text-[13px] text-[var(--bone-dim)]">
-              <Info label="Name" value={draft.contact?.fullName} />
+              <Info label="Имя" value={draft.contact?.fullName} />
               <Info label="Email" value={draft.contact?.email} />
-              <Info label="Phone" value={draft.contact?.phone} />
-              <Info label="Shipping method" value={draft.delivery === 'express' ? 'Express DHL' : 'Standard UPS'} />
-              <Info label="Shipping address" value={draft.contact?.address} wide />
-              <Info label="Customer note" value={draft.contact?.note} wide />
+              <Info label="Телефон" value={draft.contact?.phone} />
+              <Info label="Способ доставки" value={draft.delivery === 'express' ? 'Express DHL' : 'Standard UPS'} />
+              <Info label="Адрес доставки" value={draft.contact?.address} wide />
+              <Info label="Заметка клиента" value={draft.contact?.note} wide />
             </div>
           </section>
 
           <section className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
-            <div className="eyebrow-gold mb-4">Items for production</div>
+            <div className="eyebrow-gold mb-4">Позиции для производства</div>
             <div className="space-y-3">
               {items.map((item, index) => {
                 const itemReview = itemWarnings(item);
                 return <div key={`${item.title}-${index}`} className="grid grid-cols-[68px_1fr] gap-3 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3">
                   <div className="relative h-[86px] rounded-md overflow-hidden bg-black/30">{item.image ? <img src={item.image} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}</div>
                   <div>
-                    <div className="text-bone text-[14px] leading-snug">{item.title || 'TheFEYA piece'}</div>
-                    <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{item.config || 'Option'} · {item.color || 'Color'} · {item.size || 'Size'} · Qty {item.qty || 1}</div>
+                    <div className="text-bone text-[14px] leading-snug">{item.title || 'Изделие TheFEYA'}</div>
+                    <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{item.config || 'Опция'} · {item.color || 'Цвет'} · {item.size || 'Размер'} · Кол-во {item.qty || 1}</div>
                     <div className="mt-2 font-price text-gold-grad text-[22px] leading-none">{formatPrice((item.price || 0) * (item.qty || 1), item.currency || currency)}</div>
                     <div className="mt-3 flex flex-wrap gap-1.5">
                       {item.component_code ? <Pill>{item.component_code}</Pill> : null}
                       {item.component_family ? <Pill>{item.component_family}</Pill> : null}
-                      {item.is_full_set ? <Pill tone="warning">Full set</Pill> : null}
-                      {item.is_bundle ? <Pill tone="warning">Bundle</Pill> : null}
+                      {item.is_full_set ? <Pill tone="warning">Полный комплект</Pill> : null}
+                      {item.is_bundle ? <Pill tone="warning">Комплект</Pill> : null}
                       {itemReview.map((warning) => <Pill key={warning} tone="danger">{warning}</Pill>)}
                     </div>
                   </div>
@@ -150,23 +150,23 @@ export function AtelierOrdersClient() {
 
         <aside className="col-span-12 lg:col-span-5 space-y-5">
           <section className="rounded-2xl border border-[rgba(216,214,211,.14)] bg-[linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018))] p-5 shadow-[0_30px_80px_rgba(0,0,0,.45)]">
-            <div className="eyebrow-gold mb-4">Draft summary</div>
+            <div className="eyebrow-gold mb-4">Сводка черновика</div>
             <div className="space-y-2 text-[13px] text-[var(--bone-dim)]">
-              <div className="flex justify-between"><span>Subtotal</span><span>{formatPrice(draft.subtotal || 0, currency)}</span></div>
-              <div className="flex justify-between"><span>Shipping</span><span>{draft.shipping ? formatPrice(draft.shipping, currency) : 'Included'}</span></div>
-              <div className="pt-4 border-t border-[rgba(216,214,211,.12)] flex justify-between items-end"><span className="eyebrow">Draft total</span><span className="font-price text-gold-grad text-[34px] leading-none">{formatPrice(draft.total || 0, currency)}</span></div>
+              <div className="flex justify-between"><span>Товары</span><span>{formatPrice(draft.subtotal || 0, currency)}</span></div>
+              <div className="flex justify-between"><span>Доставка</span><span>{draft.shipping ? formatPrice(draft.shipping, currency) : 'Включена'}</span></div>
+              <div className="pt-4 border-t border-[rgba(216,214,211,.12)] flex justify-between items-end"><span className="eyebrow">Итого черновик</span><span className="font-price text-gold-grad text-[34px] leading-none">{formatPrice(draft.total || 0, currency)}</span></div>
             </div>
           </section>
 
           <section className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
-            <div className="eyebrow-gold mb-4 flex items-center gap-2"><AlertTriangle size={14} /> Review warnings</div>
+            <div className="eyebrow-gold mb-4 flex items-center gap-2"><AlertTriangle size={14} /> Предупреждения проверки</div>
             <div className="space-y-2">
               {warnings.map((warning) => <div key={warning} className="rounded-lg border border-[rgba(212,178,106,.22)] bg-[rgba(212,178,106,.055)] px-3 py-2 text-[12px] leading-relaxed text-[var(--gold-warm)]">{warning}</div>)}
             </div>
           </section>
 
           <section className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
-            <div className="eyebrow-gold mb-4">Production pipeline</div>
+            <div className="eyebrow-gold mb-4">Процесс обработки</div>
             <div className="space-y-3">
               {PIPELINE.map(({ label, icon: Icon }, index) => (
                 <div key={label} className="flex items-center gap-3 text-[13px] text-[var(--bone-dim)]">
@@ -183,7 +183,7 @@ export function AtelierOrdersClient() {
 }
 
 function Info({ label, value, wide }: { label: string; value?: string; wide?: boolean }) {
-  return <div className={`rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 ${wide ? 'md:col-span-2' : ''}`}><div className="eyebrow-dim mb-1">{label}</div><div className="text-bone">{value || 'Not provided'}</div></div>;
+  return <div className={`rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 ${wide ? 'md:col-span-2' : ''}`}><div className="eyebrow-dim mb-1">{label}</div><div className="text-bone">{value || 'Не указано'}</div></div>;
 }
 
 function Pill({ children, tone = 'neutral' }: { children: string; tone?: 'neutral' | 'warning' | 'danger' }) {
