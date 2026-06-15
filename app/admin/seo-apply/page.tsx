@@ -3,17 +3,31 @@ import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, FileText, Layers3, ShieldAlert } from 'lucide-react';
 import { AdminSeoChangeSetCreateClient } from '@/components/AdminSeoChangeSetCreateClient';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
-import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
+import { STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 import { buildSeoApplyPreviews, summarizeSeoApplyPreviews } from '@/lib/seo-apply-preview';
 import type { AdminReviewEvent } from '@/lib/admin-readiness';
 import type { StorefrontProduct } from '@/lib/types';
 
 export const revalidate = 300;
 
+const SEO_APPLY_PRODUCT_SELECT = [
+  'canonical_product_id',
+  'product_slug',
+  'card_title',
+  'h1',
+  'seo_title',
+  'meta_description',
+  'product_type',
+  'material',
+  'color',
+  'primary_image_url',
+  'primary_image_alt',
+].join(',');
+
 async function loadProducts() {
   const supabase = getSupabaseReadClient();
   if (!supabase) return { products: [], error: getMissingSupabaseEnvMessage() };
-  const { data, error } = await supabase.from(STOREFRONT_VIEW_V4).select(STOREFRONT_V4_CARD_SELECT).limit(250);
+  const { data, error } = await supabase.from(STOREFRONT_VIEW_V4).select(SEO_APPLY_PRODUCT_SELECT).limit(250);
   if (error) return { products: [], error: error.message };
   return { products: (data || []) as StorefrontProduct[], error: null };
 }
