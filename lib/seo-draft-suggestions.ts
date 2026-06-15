@@ -122,6 +122,15 @@ function visualDescriptor(product: StorefrontProduct) {
   return color;
 }
 
+function secondaryMaterialDetail(product: StorefrontProduct) {
+  const visual = visualDescriptor(product).toLowerCase();
+  const material = materialDetail(product);
+  if (visual === 'metallic' && material.startsWith('metallic ')) return material.replace(/^metallic\s+/, '');
+  if (visual === 'holographic' && material.startsWith('holographic ')) return material.replace(/^holographic\s+/, '');
+  if (visual === 'mirror acrylic' && material === 'mirror acrylic') return 'acrylic';
+  return material;
+}
+
 function productNoun(product: StorefrontProduct) {
   const category = categoryLabel(product);
   const text = `${product.product_type || ''} ${productTitle(product)}`.toLowerCase();
@@ -159,9 +168,9 @@ function buildTitle(product: StorefrontProduct) {
 
 function buildMeta(product: StorefrontProduct) {
   const core = demandTitleCore(product).toLowerCase();
-  const material = materialDetail(product);
+  const material = secondaryMaterialDetail(product);
   const world = worldPhrase(product).toLowerCase();
-  return clampDraft(`Shop a ${core} by TheFEYA, handmade in ${material} for ${world}, stage performance and event styling.`, 155);
+  return clampDraft(`Shop a ${core} by TheFEYA, handmade with ${material} for ${world}, stage performance and event styling.`, 155);
 }
 
 function buildH1(product: StorefrontProduct) {
@@ -179,7 +188,7 @@ function collectionHint(product: StorefrontProduct) {
 function outline(product: StorefrontProduct) {
   const core = demandTitleCore(product);
   const world = worldPhrase(product);
-  const material = materialDetail(product);
+  const material = secondaryMaterialDetail(product);
   return [
     `${sentenceCase(core)} by TheFEYA, designed as an original handmade look rather than a custom-from-scratch atelier piece.`,
     `Material and finish: ${material}; describe shine, texture, comfort and construction only from verified product facts.`,
