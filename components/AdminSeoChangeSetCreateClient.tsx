@@ -29,7 +29,7 @@ export function AdminSeoChangeSetCreateClient({ productSlug, fields }: Props) {
     }
 
     setSaving(true);
-    setStatus('Создаю pending-строки...');
+    setStatus('Создаю черновики на проверку...');
     try {
       for (const field of changedFields) {
         const response = await fetch('/api/admin/seo-change-sets', {
@@ -48,18 +48,18 @@ export function AdminSeoChangeSetCreateClient({ productSlug, fields }: Props) {
           }),
         });
         const payload = await response.json() as ApiResponse;
-        if (!response.ok || !payload.ok) throw new Error(payload.error || `Не удалось создать строку для ${field.field}.`);
+        if (!response.ok || !payload.ok) throw new Error(payload.error || `Не удалось создать черновик для ${field.field}.`);
       }
-      setStatus(`Создано pending-строк: ${changedFields.length}.`);
+      setStatus(`Создано черновиков на проверку: ${changedFields.length}.`);
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : 'Не удалось создать pending-строки.');
+      setStatus(error instanceof Error ? error.message : 'Не удалось создать черновики на проверку.');
     } finally {
       setSaving(false);
     }
   }
 
   return <div className="mt-4 flex flex-wrap items-center gap-2">
-    <button type="button" onClick={createChangeSets} disabled={saving || !changedFields.length} className="btn-ghost px-4 py-2 text-[10px] disabled:opacity-60"><Layers3 size={13} /> {saving ? 'Создаю...' : 'Создать pending-строки'}</button>
+    <button type="button" onClick={createChangeSets} disabled={saving || !changedFields.length} className="btn-ghost px-4 py-2 text-[10px] disabled:opacity-60"><Layers3 size={13} /> {saving ? 'Создаю...' : 'Создать черновики на проверку'}</button>
     {status ? <span className="text-[11px] leading-relaxed text-[var(--gold-warm)]">{status}</span> : null}
   </div>;
 }
