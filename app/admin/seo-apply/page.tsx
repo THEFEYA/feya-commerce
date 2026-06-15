@@ -10,6 +10,8 @@ import type { StorefrontProduct } from '@/lib/types';
 
 export const revalidate = 300;
 
+const SEO_APPLY_PRODUCT_LIMIT = 50;
+
 const SEO_APPLY_PRODUCT_SELECT = [
   'canonical_product_id',
   'product_slug',
@@ -27,7 +29,7 @@ const SEO_APPLY_PRODUCT_SELECT = [
 async function loadProducts() {
   const supabase = getSupabaseReadClient();
   if (!supabase) return { products: [], error: getMissingSupabaseEnvMessage() };
-  const { data, error } = await supabase.from(STOREFRONT_VIEW_V4).select(SEO_APPLY_PRODUCT_SELECT).limit(250);
+  const { data, error } = await supabase.from(STOREFRONT_VIEW_V4).select(SEO_APPLY_PRODUCT_SELECT).limit(SEO_APPLY_PRODUCT_LIMIT);
   if (error) return { products: [], error: error.message };
   return { products: (data || []) as StorefrontProduct[], error: null };
 }
@@ -54,7 +56,7 @@ export default async function SeoApplyPreviewPage() {
   const [{ products, error }, events] = await Promise.all([loadProducts(), loadReviewEvents()]);
   const previews = buildSeoApplyPreviews(products, events);
   const summary = summarizeSeoApplyPreviews(previews);
-  const visiblePreviews = previews.filter((preview) => preview.status !== 'Pending Approval').slice(0, 80);
+  const visiblePreviews = previews.filter((preview) => preview.status !== 'Pending Approval').slice(0, SEO_APPLY_PRODUCT_LIMIT);
 
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]"><section className="container-feya pt-10 pb-16">
     <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7"><div><div className="eyebrow-gold mb-3">Admin · SEO Apply Preview</div><h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>SEO apply</h1><p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Read-only preview of approved SEO draft values before any future controlled SEO content step.</p></div><div className="flex gap-3"><Link href="/admin/seo-change-sets" className="btn-ghost">Change Sets <ArrowUpRight size={13} /></Link><Link href="/admin/seo-export" className="btn-ghost">SEO Export <ArrowUpRight size={13} /></Link><Link href="/admin/seo-approval" className="btn-ghost">SEO Approval <ArrowUpRight size={13} /></Link></div></div>
