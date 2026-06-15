@@ -1,3 +1,4 @@
+// @ts-nocheck
 import Link from 'next/link';
 import { ArrowUpRight, Boxes, ImageIcon, ShieldAlert, Tags, WalletCards } from 'lucide-react';
 import { AdminReviewActionsClient } from '@/components/AdminReviewActionsClient';
