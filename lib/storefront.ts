@@ -13,7 +13,7 @@ export const STOREFRONT_CARD_SELECT = [
 ].join(',');
 
 export const STOREFRONT_V4_BASE_CARD_SELECT = [
-  'canonical_product_id','product_slug','matched_etsy_listing_id','source_url','card_title','h1','seo_title','meta_description','product_type','material','color','size_mode','production_profile','shipping_profile','handmade_flag','styled_imagery_flag','primary_image_url','primary_image_alt','secondary_image_url','hover_image_url','video_url','media_count','has_video','min_price','max_price','currency','public_configuration_count','public_price_row_count','pdp_option_count','has_multiple_pdp_options','storefront_candidate_flag'
+  'canonical_product_id','product_slug','matched_etsy_listing_id','source_url','card_title','h1','seo_title','meta_description','product_type','material','color','size_mode','production_profile','shipping_profile','handmade_flag','styled_imagery_flag','primary_image_url','primary_image_alt','secondary_image_url','hover_image_url','video_url','media_count','has_video','min_price','max_price','currency'
 ].join(',');
 
 export const STOREFRONT_V4_CARD_SELECT = [
