@@ -10,6 +10,14 @@ export const revalidate = 300;
 
 const LABEL_REVIEW_LIMIT = 250;
 
+const REASON_LABELS: Record<string, string> = {
+  'Product label review': 'Проверка названия товара',
+  'Russian public label flag': 'Русская публичная подпись',
+  'Configuration label review': 'Проверка названия опции',
+  'Russian raw source label exists': 'Есть русский исходный текст',
+  'No configurations returned': 'Опции не вернулись из v4',
+};
+
 function parseConfigurations(value: unknown): StorefrontConfiguration[] {
   if (!value) return [];
   if (Array.isArray(value)) return value as StorefrontConfiguration[];
@@ -25,11 +33,19 @@ function parseConfigurations(value: unknown): StorefrontConfiguration[] {
 }
 
 function labelText(config: StorefrontConfiguration) {
-  return config.public_label || config.configuration_label || config.configuration_name || config.option_value || config.title || config.label || 'Option';
+  return config.public_label || config.configuration_label || config.configuration_name || config.option_value || config.title || config.label || 'Опция';
 }
 
 function rawLabelText(config: StorefrontConfiguration) {
   return config.raw_option_text || config.raw_option_value || config.configuration_name || config.option_value || '—';
+}
+
+function reasonLabel(reason: string) {
+  return REASON_LABELS[reason] || reason;
+}
+
+function reasonTone(reason: string) {
+  return reason.includes('Russian') || reason.includes('No configurations') ? 'danger' : 'warning';
 }
 
 function labelReviewReasons(product: StorefrontProduct) {
@@ -79,23 +95,23 @@ export default async function AdminLabelReviewPage() {
     <section className="container-feya pt-10 pb-16">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
         <div>
-          <div className="eyebrow-gold mb-3">Admin Review · Labels</div>
-          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Label review</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Очередь проверки buyer-facing названий вариантов. Смысл: не выпускать raw collector labels, русские внутренние подписи и непонятные варианты в SEO, PDP, cart и future feeds.</p>
+          <div className="eyebrow-gold mb-3">Админка · Проверка названий</div>
+          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Проверка названий</h1>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Очередь проверки публичных названий вариантов. Цель: не выпускать служебные подписи, внутренние русские тексты и непонятные варианты в SEO, публичную карточку товара, корзину и будущие фиды.</p>
         </div>
         <div className="flex gap-3">
-          <Link href="/admin" className="btn-ghost">Admin cockpit <ArrowUpRight size={13} /></Link>
-          <Link href="/admin/products" className="btn-ghost">Products <ArrowUpRight size={13} /></Link>
+          <Link href="/admin" className="btn-ghost">Панель контроля <ArrowUpRight size={13} /></Link>
+          <Link href="/admin/products" className="btn-ghost">Товары <ArrowUpRight size={13} /></Link>
         </div>
       </div>
 
       {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <Metric icon={Tags} label="Products queued" value={reviewRows.length} note="Products with label review reasons in current v4 slice." />
-        <Metric icon={Languages} label="Config rows" value={configReviewCount} note="Configuration labels needing review or missing public label." />
-        <Metric icon={Search} label="Russian raw" value={russianRawCount} note="Raw source still exists internally; not buyer-facing." />
-        <Metric icon={Tags} label="Loaded" value={rows.length} note="Products read from v4 safe contract." />
+        <Metric icon={Tags} label="Товары в очереди" value={reviewRows.length} note="Товары с причинами для проверки названий в текущем v4-срезе." />
+        <Metric icon={Languages} label="Строки опций" value={configReviewCount} note="Опции без публичной подписи или с причиной для проверки." />
+        <Metric icon={Search} label="Русский исходник" value={russianRawCount} note="Исходный текст остаётся только внутри админки, не для покупателя." />
+        <Metric icon={Tags} label="Загружено" value={rows.length} note="Товары, прочитанные из v4-контракта." />
       </div>
 
       <div className="space-y-4">
@@ -109,33 +125,33 @@ export default async function AdminLabelReviewPage() {
               </div>
               <div>
                 <Link href={adminHref} className="text-bone text-[17px] leading-snug hover:text-[var(--gold-warm)] transition-colors">{productTitle(product)}</Link>
-                <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'Product'} · {product.canonical_color_label || product.color || 'Color'}</div>
+                <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'Товар'} · {product.canonical_color_label || product.color || 'Цвет'}</div>
                 <div className="mt-3 flex flex-wrap gap-1.5">
-                  {reasons.map((reason) => <Chip key={reason} tone={reason.includes('Russian') ? 'danger' : 'warning'}>{reason}</Chip>)}
+                  {reasons.map((reason) => <Chip key={reason} tone={reasonTone(reason)}>{reasonLabel(reason)}</Chip>)}
                 </div>
-                <AdminQueueQuickReviewClient productSlug={productSlug(product)} canonicalProductId={product.canonical_product_id} sourceRoute="/admin/review/labels" approvedEventType="label_review_approved" subjectType="label" approvedLabel="Mark label reviewed" />
+                <AdminQueueQuickReviewClient productSlug={productSlug(product)} canonicalProductId={product.canonical_product_id} sourceRoute="/admin/review/labels" approvedEventType="label_review_approved" subjectType="label" approvedLabel="Название проверено" />
               </div>
-              <Link href={adminHref} className="btn-ghost px-4 py-3 text-[10px]">Review <ArrowUpRight size={12} /></Link>
+              <Link href={adminHref} className="btn-ghost px-4 py-3 text-[10px]">Проверить <ArrowUpRight size={12} /></Link>
             </div>
 
             <div className="mt-5 grid md:grid-cols-2 gap-3">
               {flaggedConfigs.map((config, index) => <div key={config.configuration_id || `${product.canonical_product_id}-${index}`} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4">
-                <div className="eyebrow-dim mb-2">Configuration</div>
+                <div className="eyebrow-dim mb-2">Опция</div>
                 <div className="text-bone text-[14px] leading-snug">{labelText(config)}</div>
-                <div className="mt-2 text-[11px] leading-relaxed text-[var(--bone-dim)]">Raw/source: {rawLabelText(config)}</div>
+                <div className="mt-2 text-[11px] leading-relaxed text-[var(--bone-dim)]">Исходный текст: {rawLabelText(config)}</div>
                 <div className="mt-3 flex flex-wrap gap-1.5">
-                  {!config.public_label ? <Chip tone="danger">Missing public label</Chip> : null}
-                  {config.needs_label_review ? <Chip tone="warning">Needs review</Chip> : null}
-                  {config.has_russian_raw_label ? <Chip tone="danger">Russian raw</Chip> : null}
+                  {!config.public_label ? <Chip tone="danger">Нет публичной подписи</Chip> : null}
+                  {config.needs_label_review ? <Chip tone="warning">Нужна проверка</Chip> : null}
+                  {config.has_russian_raw_label ? <Chip tone="danger">Русский исходник</Chip> : null}
                   {config.component_code ? <Chip>{config.component_code}</Chip> : null}
                 </div>
               </div>)}
-              {!flaggedConfigs.length ? <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 text-[13px] text-[var(--bone-dim)]">Product-level label flag only. No flagged configuration rows in current payload.</div> : null}
+              {!flaggedConfigs.length ? <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 text-[13px] text-[var(--bone-dim)]">Есть только флаг на уровне товара. Строк опций для проверки в текущем payload нет.</div> : null}
             </div>
           </article>;
         })}
 
-        {!reviewRows.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">No label review rows returned from v4.</div> : null}
+        {!reviewRows.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">Строк для проверки названий из v4 сейчас нет.</div> : null}
       </div>
     </section>
   </main>;
