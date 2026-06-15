@@ -12,8 +12,12 @@ export const STOREFRONT_CARD_SELECT = [
   'canonical_product_id','product_slug','matched_etsy_listing_id','source_url','card_title','h1','seo_title','meta_description','product_type','material','color','size_mode','production_profile','shipping_profile','handmade_flag','styled_imagery_flag','primary_image_url','primary_image_alt','secondary_image_url','hover_image_url','video_url','media_count','has_video','min_price','max_price','currency','has_fallback_price','has_sampler_excluded_price','public_configuration_count','public_price_row_count','pdp_option_count','has_multiple_pdp_options','storefront_candidate_flag'
 ].join(',');
 
+export const STOREFRONT_V4_BASE_CARD_SELECT = [
+  'canonical_product_id','product_slug','matched_etsy_listing_id','source_url','card_title','h1','seo_title','meta_description','product_type','material','color','size_mode','production_profile','shipping_profile','handmade_flag','styled_imagery_flag','primary_image_url','primary_image_alt','secondary_image_url','hover_image_url','video_url','media_count','has_video','min_price','max_price','currency','public_configuration_count','public_price_row_count','pdp_option_count','has_multiple_pdp_options','storefront_candidate_flag'
+].join(',');
+
 export const STOREFRONT_V4_CARD_SELECT = [
-  STOREFRONT_CARD_SELECT,
+  STOREFRONT_V4_BASE_CARD_SELECT,
   'price_contract_version','price_source_mode','price_confidence_status','has_unverified_discount','has_russian_public_label','needs_price_review','needs_label_review','full_set_display_price_amount','component_sum_display_price_amount','full_set_savings_amount','full_set_savings_percent','category_label','world_label','canonical_color_label','color_options'
 ].join(',');
 
