@@ -118,11 +118,11 @@ export function getProductReadiness(product: StorefrontProduct, events: AdminRev
 export function getReviewChips(product: StorefrontProduct): ReviewChip[] {
   const flags = getProductFlags(product);
   const chips: ReviewChip[] = [];
-  if (flags.labelReview) chips.push({ label: 'Label', tone: 'warning' });
-  if (flags.priceReview) chips.push({ label: 'Price', tone: 'warning' });
-  if (flags.missingComponent) chips.push({ label: `Component ${flags.missingComponent}`, tone: 'danger' });
-  if (flags.mediaReview) chips.push({ label: 'Media', tone: 'danger' });
-  if (!chips.length) chips.push({ label: 'OK', tone: 'neutral' });
+  if (flags.labelReview) chips.push({ label: 'Название', tone: 'warning' });
+  if (flags.priceReview) chips.push({ label: 'Цена', tone: 'warning' });
+  if (flags.missingComponent) chips.push({ label: `Компоненты ${flags.missingComponent}`, tone: 'danger' });
+  if (flags.mediaReview) chips.push({ label: 'Медиа', tone: 'danger' });
+  if (!chips.length) chips.push({ label: 'ОК', tone: 'neutral' });
   return chips;
 }
 
@@ -134,11 +134,11 @@ export function toAdminProductTableRow(product: StorefrontProduct, readiness: Pr
     slug,
     title: productTitle(product),
     imageUrl: product.primary_image_url,
-    subtitle: `${worldLabel(product)} · ${product.category_label || product.product_type || 'Product'} · ${product.canonical_color_label || product.color || 'Color'}`,
+    subtitle: `${worldLabel(product)} · ${product.category_label || product.product_type || 'Товар'} · ${product.canonical_color_label || product.color || 'Цвет'}`,
     price: product.min_price != null ? formatPrice(product.min_price, product.currency || 'EUR') : '—',
-    confidence: product.price_confidence_status || 'unknown',
+    confidence: product.price_confidence_status || 'неизвестно',
     configCount: flags.configs.length,
-    configNote: flags.fullSet ? 'Full set' : flags.bundle ? 'Bundle' : 'Options',
+    configNote: flags.fullSet ? 'Полный комплект' : flags.bundle ? 'Комплект' : 'Опции',
     readinessLabel: readiness.label,
     readinessTone: readiness.tone,
     reviewChips: getReviewChips(product),
