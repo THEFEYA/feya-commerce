@@ -14,6 +14,10 @@ export type SeoDraftSuggestion = {
   safetyNotes: string[];
 };
 
+type ProductRecord = StorefrontProduct & Record<string, unknown>;
+
+const UNSAFE_MATERIAL_TERMS = ['ceramic', 'latex', 'lame', 'lamé', 'plastic'];
+
 function cleanText(value: string) {
   return value.replace(/\s+/g, ' ').trim();
 }
@@ -41,42 +45,93 @@ function uniqueParts(parts: string[]) {
 }
 
 function clampDraft(value: string, maxLength: number) {
-  const cleaned = cleanText(value);
+  const cleaned = cleanText(value.replace(/\s+\|\s+/g, ' '));
   if (cleaned.length <= maxLength) return cleaned;
   const slice = cleaned.slice(0, maxLength + 1);
   const lastSpace = slice.lastIndexOf(' ');
   return `${slice.slice(0, lastSpace > 40 ? lastSpace : maxLength).trim()}`;
 }
 
+function rawProductText(product: StorefrontProduct) {
+  const record = product as ProductRecord;
+  return [
+    product.material,
+    product.product_type,
+    product.category_label,
+    product.world_label,
+    product.card_title,
+    product.h1,
+    product.seo_title,
+    record.source_title,
+    record.raw_title,
+  ]
+    .map(textValue)
+    .join(' ')
+    .toLowerCase();
+}
+
+function ignoredUnsafeMaterialTerms(product: StorefrontProduct) {
+  const raw = rawProductText(product);
+  return UNSAFE_MATERIAL_TERMS.filter((term) => raw.includes(term));
+}
+
 function productMaterial(product: StorefrontProduct) {
-  return textValue(product.material) || 'handmade material';
+  const raw = rawProductText(product);
+  const parts: string[] = [];
+
+  if (/mirror\s*acrylic|acrylic/.test(raw)) parts.push(raw.includes('mirror') ? 'mirror acrylic' : 'acrylic');
+  if (/vegan\s*leather|faux\s*leather/.test(raw)) parts.push('vegan leather');
+  else if (/\bleather\b/.test(raw)) parts.push('leather');
+  if (/holographic|iridescent|\bholo\b/.test(raw)) parts.push('holographic finish');
+  if (/metallic|reflective|mirror/.test(raw) && !parts.some((part) => part.includes('mirror'))) parts.push('mirror metallic finish');
+  if (/\bchain\b/.test(raw)) parts.push('chain details');
+  if (/silicone/.test(raw)) parts.push('silicone details');
+
+  return uniqueParts(parts).slice(0, 2).join(' and ') || 'handmade finish';
+}
+
+function productNoun(product: StorefrontProduct) {
+  const category = categoryLabel(product);
+  const text = `${product.product_type || ''} ${productTitle(product)}`.toLowerCase();
+
+  if (/corset|bustier|breastplate|chest|acrylic top|overbust/.test(text) || category === 'Corsets') return 'Corset Top';
+  if (/harness|garter|belt|choker|strap/.test(text) || category === 'Harness') return 'Harness Set';
+  if (/mask|headpiece|helmet|crown/.test(text) || category === 'Masks') return 'Mask';
+  if (/bodysuit|body|catsuit|jumpsuit/.test(text) || category === 'Bodysuits') return 'Bodysuit';
+  if (/skirt/.test(text) || category === 'Skirts') return 'Skirt';
+  if (/armor|shoulder|bracer|arm|spine|tail|wing|robot/.test(text) || category === 'Armor') return 'Armor Piece';
+
+  return category.replace(/s$/, '') || 'Stage Look';
+}
+
+function worldPhrase(product: StorefrontProduct) {
+  const world = worldLabel(product);
+  if (/editorial/i.test(world)) return 'Editorial Looks';
+  if (/burning\s*man/i.test(world)) return 'Burning Man Looks';
+  if (/festival|rave/i.test(world)) return 'Festival Looks';
+  if (/stage|performance/i.test(world)) return 'Stage Looks';
+  return world || 'Stage Looks';
 }
 
 function buildTitle(product: StorefrontProduct) {
-  const parts = uniqueParts([
-    colorLabel(product),
-    categoryLabel(product),
-    productMaterial(product),
-    worldLabel(product),
-    'handmade festival stage outfit',
-  ]);
-  return clampDraft(parts.join(' | '), 138);
+  const title = `${colorLabel(product)} ${productMaterial(product)} ${productNoun(product)} for ${worldPhrase(product)} | TheFEYA`;
+  return clampDraft(title, 138);
 }
 
 function buildMeta(product: StorefrontProduct) {
-  const category = categoryLabel(product).toLowerCase();
   const color = colorLabel(product).toLowerCase();
-  const world = worldLabel(product).toLowerCase();
-  const material = productMaterial(product).toLowerCase();
-  return clampDraft(`Shop a ${color} ${category} by TheFEYA, handmade in ${material} for ${world}, stage performance, festivals, photoshoots and statement event styling.`, 158);
+  const material = productMaterial(product);
+  const noun = productNoun(product).toLowerCase();
+  const world = worldPhrase(product).toLowerCase();
+  return clampDraft(`Shop a ${color} ${material} ${noun} by TheFEYA, handmade for ${world}, stage performance, festivals, photoshoots and event styling.`, 158);
 }
 
 function buildH1(product: StorefrontProduct) {
-  return clampDraft(`${colorLabel(product)} ${categoryLabel(product)} for ${worldLabel(product)}`, 90);
+  return clampDraft(`${colorLabel(product)} ${productMaterial(product)} ${productNoun(product)} for ${worldPhrase(product)}`, 90);
 }
 
 function buildAlt(product: StorefrontProduct) {
-  return clampDraft(`${colorLabel(product)} ${categoryLabel(product)} by TheFEYA, handmade ${productMaterial(product)} look for ${worldLabel(product)}`, 120);
+  return clampDraft(`${colorLabel(product)} ${productMaterial(product)} ${productNoun(product)} by TheFEYA for ${worldPhrase(product)}`, 120);
 }
 
 function collectionHint(product: StorefrontProduct) {
@@ -84,12 +139,12 @@ function collectionHint(product: StorefrontProduct) {
 }
 
 function outline(product: StorefrontProduct) {
-  const category = categoryLabel(product);
+  const noun = productNoun(product);
   const color = colorLabel(product);
-  const world = worldLabel(product);
+  const world = worldPhrase(product);
   const material = productMaterial(product);
   return [
-    `${sentenceCase(color)} ${category.toLowerCase()} by TheFEYA, designed as an original handmade look rather than a custom-from-scratch atelier piece.`,
+    `${sentenceCase(color)} ${noun.toLowerCase()} by TheFEYA, designed as an original handmade look rather than a custom-from-scratch atelier piece.`,
     `Material and finish: ${material}; describe shine, texture, comfort and construction only from verified product facts.`,
     `Use case: ${world}, stage performance, festival styling, photoshoots and event looks where the product type is relevant.`,
     'Fit and sizing: mention adjustable/custom sizing only where supported by product data and brand policy.',
@@ -100,11 +155,13 @@ function outline(product: StorefrontProduct) {
 export function buildSeoDraftSuggestion(product: StorefrontProduct): SeoDraftSuggestion {
   const score = getSeoScore(product);
   const mediaPlan = getMediaSeoPlan(product);
+  const ignoredTerms = ignoredUnsafeMaterialTerms(product);
   const safetyNotes = [
     'Draft only: do not publish without admin approval.',
     'Do not invent materials, components, sizes, discounts, delivery promises or event guarantees.',
     'Keep TheFEYA positioning: original handmade designs with limited sizing/color/detail adjustments.',
   ];
+  if (ignoredTerms.length) safetyNotes.push(`Ignored unverified material terms from source data: ${ignoredTerms.join(', ')}.`);
   if (score.stage === 'Blocked') safetyNotes.push('Resolve blocked structured data inputs before using this draft publicly.');
   if (mediaPlan.stage !== 'Ready for Image Sitemap') safetyNotes.push('Complete Media SEO before using image sitemap or Pinterest exports.');
 
