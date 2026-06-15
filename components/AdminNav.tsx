@@ -5,28 +5,28 @@ import { usePathname } from 'next/navigation';
 import { BarChart3, Boxes, CheckCircle2, ClipboardList, FileImage, FileSearch, FileText, GitBranch, Home, ImageIcon, Layers3, ListTree, PackageSearch, Rocket, Tags, WalletCards } from 'lucide-react';
 
 const NAV = [
-  { href: '/admin', label: 'Overview', note: 'Control cockpit', icon: Home },
-  { href: '/admin/products', label: 'Products', note: 'v4 catalog table', icon: PackageSearch },
-  { href: '/admin/launch', label: 'Launch Pipeline', note: 'ready / blocked', icon: Rocket },
-  { href: '/admin/indexation', label: 'Indexation', note: 'search readiness', icon: FileSearch },
-  { href: '/admin/seo-lab', label: 'SEO Lab', note: 'rule scoring', icon: BarChart3 },
-  { href: '/admin/seo-approval', label: 'SEO Approval', note: 'draft review', icon: CheckCircle2 },
-  { href: '/admin/seo-export', label: 'SEO Export', note: 'approved drafts', icon: FileText },
-  { href: '/admin/seo-apply', label: 'SEO Apply', note: 'change preview', icon: Layers3 },
-  { href: '/admin/seo-change-sets', label: 'SEO Change Sets', note: 'review rows', icon: FileText },
-  { href: '/admin/seo-applied-values', label: 'SEO Values', note: 'approved values', icon: CheckCircle2 },
-  { href: '/admin/seo-storefront-preview', label: 'SEO Preview', note: 'storefront compare', icon: FileSearch },
-  { href: '/admin/seo-gate', label: 'SEO Gate', note: 'pipeline status', icon: FileText },
-  { href: '/admin/content', label: 'Content Pipeline', note: 'copy readiness', icon: FileText },
-  { href: '/admin/graph', label: 'Product Graph', note: 'SEO candidates', icon: GitBranch },
-  { href: '/admin/collections', label: 'Collections', note: 'SEO planning', icon: ListTree },
-  { href: '/admin/review/labels', label: 'Label Review', note: 'buyer-facing labels', icon: Tags },
-  { href: '/admin/review/prices', label: 'Price Review', note: 'confidence & sums', icon: WalletCards },
-  { href: '/admin/review/components', label: 'Components', note: 'full set / bundle', icon: Boxes },
-  { href: '/admin/media', label: 'Media QA', note: 'hover & gallery', icon: ImageIcon },
-  { href: '/admin/media-seo', label: 'Media SEO', note: 'image readiness', icon: FileImage },
-  { href: '/admin/seo', label: 'SEO Readiness', note: 'graph & feeds', icon: Layers3 },
-  { href: '/admin/orders', label: 'Orders', note: 'draft review queue', icon: ClipboardList },
+  { href: '/admin', label: 'Обзор', note: 'Панель контроля', icon: Home },
+  { href: '/admin/products', label: 'Товары', note: 'Таблица v4-каталога', icon: PackageSearch },
+  { href: '/admin/launch', label: 'Запуск', note: 'готово / заблокировано', icon: Rocket },
+  { href: '/admin/indexation', label: 'Индексация', note: 'готовность к поиску', icon: FileSearch },
+  { href: '/admin/seo-lab', label: 'SEO-лаборатория', note: 'оценка правил', icon: BarChart3 },
+  { href: '/admin/seo-approval', label: 'Проверка SEO', note: 'черновики на проверке', icon: CheckCircle2 },
+  { href: '/admin/seo-export', label: 'SEO-экспорт', note: 'одобренные тексты', icon: FileText },
+  { href: '/admin/seo-apply', label: 'Создать SEO-правки', note: 'предпросмотр изменений', icon: Layers3 },
+  { href: '/admin/seo-change-sets', label: 'Очередь SEO-правок', note: 'строки на проверке', icon: FileText },
+  { href: '/admin/seo-applied-values', label: 'SEO-значения', note: 'одобренные значения', icon: CheckCircle2 },
+  { href: '/admin/seo-storefront-preview', label: 'SEO-предпросмотр', note: 'сравнение с витриной', icon: FileSearch },
+  { href: '/admin/seo-gate', label: 'SEO-шлюз', note: 'статус процесса', icon: FileText },
+  { href: '/admin/content', label: 'Контент', note: 'готовность текстов', icon: FileText },
+  { href: '/admin/graph', label: 'Товарные связи', note: 'SEO-кандидаты', icon: GitBranch },
+  { href: '/admin/collections', label: 'Коллекции', note: 'SEO-планирование', icon: ListTree },
+  { href: '/admin/review/labels', label: 'Проверка названий', note: 'публичные названия', icon: Tags },
+  { href: '/admin/review/prices', label: 'Проверка цен', note: 'точность и суммы', icon: WalletCards },
+  { href: '/admin/review/components', label: 'Компоненты', note: 'комплект / набор', icon: Boxes },
+  { href: '/admin/media', label: 'Проверка медиа', note: 'hover и галерея', icon: ImageIcon },
+  { href: '/admin/media-seo', label: 'SEO медиа', note: 'готовность картинок', icon: FileImage },
+  { href: '/admin/seo', label: 'SEO-готовность', note: 'связи и фиды', icon: Layers3 },
+  { href: '/admin/orders', label: 'Заказы', note: 'черновики заказов', icon: ClipboardList },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -41,8 +41,8 @@ export function AdminNav() {
     <div className="flex h-full flex-col p-5">
       <Link href="/admin" className="rounded-2xl border border-[rgba(216,214,211,.13)] bg-[rgba(255,255,255,.035)] p-4 hover:border-[rgba(212,178,106,.35)] transition-colors">
         <div className="eyebrow-gold mb-2">FEYA</div>
-        <div className="font-tall text-[32px] leading-none text-bone">Control Tower</div>
-        <div className="mt-2 text-[11px] leading-relaxed text-[var(--bone-dim)]">Internal admin · v4 quality layer</div>
+        <div className="font-tall text-[32px] leading-none text-bone">Панель управления</div>
+        <div className="mt-2 text-[11px] leading-relaxed text-[var(--bone-dim)]">Внутренняя админка · слой качества v4</div>
       </Link>
 
       <nav className="mt-5 space-y-1.5 overflow-y-auto pr-1">
@@ -59,8 +59,8 @@ export function AdminNav() {
       </nav>
 
       <div className="mt-auto rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/20 p-4">
-        <div className="flex items-center gap-2 eyebrow-dim mb-2"><BarChart3 size={13} /> Mode</div>
-        <div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">Internal control mode. Payment remains off until the launch checklist is ready.</div>
+        <div className="flex items-center gap-2 eyebrow-dim mb-2"><BarChart3 size={13} /> Режим</div>
+        <div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">Внутренний режим контроля. Оплата остаётся выключенной до готовности чеклиста запуска.</div>
       </div>
     </div>
   </aside>;
