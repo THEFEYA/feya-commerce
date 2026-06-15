@@ -42,9 +42,19 @@ type MetricProps = { label: string; value: string | number; note: string; icon: 
 type OrderAction = { label: string; event_type: string; status: 'recorded' | 'needs_fix' | 'approved' };
 
 const orderActions: OrderAction[] = [
-  { label: 'Mark draft reviewed', event_type: 'order_draft_reviewed', status: 'approved' },
-  { label: 'Needs fix', event_type: 'needs_fix', status: 'needs_fix' },
+  { label: 'Черновик проверен', event_type: 'order_draft_reviewed', status: 'approved' },
+  { label: 'Нужны исправления', event_type: 'needs_fix', status: 'needs_fix' },
 ];
+
+function statusLabel(status?: string | null) {
+  if (status === 'draft_only') return 'Черновик';
+  if (status === 'not_started') return 'Не начато';
+  if (status === 'approved') return 'Одобрено';
+  if (status === 'recorded') return 'Записано';
+  if (status === 'needs_fix') return 'Нужны исправления';
+  if (status === 'unverified') return 'Не проверено';
+  return status || '—';
+}
 
 function Chip({ children, tone = 'neutral' }: { children: string; tone?: 'neutral' | 'warning' | 'danger' }) {
   const className = tone === 'danger'
@@ -77,7 +87,7 @@ export function AdminOrdersSavedClient() {
       const data = await response.json();
       setPayload(data);
     } catch (error) {
-      setPayload({ ok: false, error: error instanceof Error ? error.message : 'Could not load saved drafts.', drafts: [] });
+      setPayload({ ok: false, error: error instanceof Error ? error.message : 'Не удалось загрузить черновики заказов.', drafts: [] });
     } finally {
       setLoading(false);
     }
@@ -96,7 +106,7 @@ export function AdminOrdersSavedClient() {
   async function recordOrderEvent(draft: DraftRow, action: OrderAction) {
     const note = noteByDraft[draft.order_draft_id] || '';
     setSavingDraftId(draft.order_draft_id);
-    setStatusByDraft((current) => ({ ...current, [draft.order_draft_id]: 'Saving review event...' }));
+    setStatusByDraft((current) => ({ ...current, [draft.order_draft_id]: 'Сохраняю событие проверки...' }));
     try {
       const response = await fetch('/api/admin/review-events', {
         method: 'POST',
@@ -117,11 +127,11 @@ export function AdminOrdersSavedClient() {
         }),
       });
       const result = await response.json() as ReviewResponse;
-      if (!response.ok || !result.ok) throw new Error(result.error || 'Could not save review event.');
-      setStatusByDraft((current) => ({ ...current, [draft.order_draft_id]: 'Review event saved.' }));
+      if (!response.ok || !result.ok) throw new Error(result.error || 'Не удалось сохранить событие проверки.');
+      setStatusByDraft((current) => ({ ...current, [draft.order_draft_id]: 'Событие проверки сохранено.' }));
       setNoteByDraft((current) => ({ ...current, [draft.order_draft_id]: '' }));
     } catch (error) {
-      setStatusByDraft((current) => ({ ...current, [draft.order_draft_id]: error instanceof Error ? error.message : 'Could not save review event.' }));
+      setStatusByDraft((current) => ({ ...current, [draft.order_draft_id]: error instanceof Error ? error.message : 'Не удалось сохранить событие проверки.' }));
     } finally {
       setSavingDraftId(null);
     }
@@ -129,17 +139,17 @@ export function AdminOrdersSavedClient() {
 
   return <section className="container-feya pb-10">
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <Metric icon={ClipboardList} label="Saved drafts" value={loading ? '…' : drafts.length} note="Loaded from protected admin API." />
-      <Metric icon={PackageCheck} label="Items" value={loading ? '…' : itemCount} note="Draft items stored in Supabase." />
-      <Metric icon={ShieldCheck} label="Warnings" value={loading ? '…' : warningCount} note="Price or label warning flags." />
-      <Metric icon={AlertTriangle} label="Payment off" value="0" note="Paid order finalization remains disabled." />
+      <Metric icon={ClipboardList} label="Черновики" value={loading ? '…' : drafts.length} note="Загружены из защищённого API админки." />
+      <Metric icon={PackageCheck} label="Позиции" value={loading ? '…' : itemCount} note="Позиции черновиков сохранены в Supabase." />
+      <Metric icon={ShieldCheck} label="Предупреждения" value={loading ? '…' : warningCount} note="Флаги проверки цены или названия." />
+      <Metric icon={AlertTriangle} label="Оплата выключена" value="0" note="Создание оплаченного заказа отключено." />
     </div>
 
     {payload.error ? <div className="rounded-2xl border border-[rgba(212,178,106,.28)] bg-[rgba(212,178,106,.06)] p-5 text-[13px] leading-relaxed text-[var(--gold-warm)] mb-5"><AlertTriangle size={15} className="inline mr-2" />{payload.error}</div> : null}
 
     <div className="flex items-center justify-between gap-4 mb-4">
-      <div><div className="eyebrow-gold">Supabase saved drafts</div><p className="mt-2 text-[12px] text-[var(--bone-dim)]">Protected read-only view. Public table grants stay closed.</p></div>
-      <button type="button" onClick={load} className="btn-ghost px-4 py-2 text-[10px]" disabled={loading}>{loading ? 'Loading…' : 'Refresh'}</button>
+      <div><div className="eyebrow-gold">Черновики заказов из Supabase</div><p className="mt-2 text-[12px] text-[var(--bone-dim)]">Защищённое чтение только через админку. Публичный доступ к таблицам закрыт.</p></div>
+      <button type="button" onClick={load} className="btn-ghost px-4 py-2 text-[10px]" disabled={loading}>{loading ? 'Загрузка…' : 'Обновить'}</button>
     </div>
 
     <div className="space-y-4">
@@ -150,16 +160,16 @@ export function AdminOrdersSavedClient() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <div className="eyebrow-gold mb-2">{draft.draft_number || draft.order_draft_id}</div>
-              <div className="text-bone text-[18px] leading-snug">{draft.full_name || 'Unnamed customer'}</div>
-              <div className="mt-1 text-[12px] text-[var(--bone-dim)]">{draft.email || 'No email'} · {draft.created_at ? new Date(draft.created_at).toLocaleString() : 'No date'}</div>
+              <div className="text-bone text-[18px] leading-snug">{draft.full_name || 'Без имени'}</div>
+              <div className="mt-1 text-[12px] text-[var(--bone-dim)]">{draft.email || 'Нет email'} · {draft.created_at ? new Date(draft.created_at).toLocaleString() : 'Нет даты'}</div>
               <div className="mt-3 flex flex-wrap gap-1.5">
-                <Chip>{draft.order_status || 'draft_only'}</Chip>
-                <Chip>{draft.payment_status || 'not_started'}</Chip>
-                {draft.has_price_review_warning ? <Chip tone="warning">Price warning</Chip> : null}
-                {draft.has_label_review_warning ? <Chip tone="warning">Label warning</Chip> : null}
+                <Chip>{statusLabel(draft.order_status)}</Chip>
+                <Chip>{statusLabel(draft.payment_status)}</Chip>
+                {draft.has_price_review_warning ? <Chip tone="warning">Проверить цену</Chip> : null}
+                {draft.has_label_review_warning ? <Chip tone="warning">Проверить название</Chip> : null}
               </div>
             </div>
-            <div className="text-right"><div className="eyebrow-dim mb-2">Draft total</div><div className="font-price text-gold-grad text-[34px] leading-none">{formatPrice(Number(draft.total_amount || 0), currency)}</div></div>
+            <div className="text-right"><div className="eyebrow-dim mb-2">Сумма черновика</div><div className="font-price text-gold-grad text-[34px] leading-none">{formatPrice(Number(draft.total_amount || 0), currency)}</div></div>
           </div>
 
           <div className="mt-5 grid md:grid-cols-2 xl:grid-cols-3 gap-3">
@@ -167,26 +177,26 @@ export function AdminOrdersSavedClient() {
               <div className="relative h-[76px] rounded-md overflow-hidden bg-black/30">{item.image_url ? <img src={item.image_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}</div>
               <div>
                 <div className="text-bone text-[13px] leading-snug line-clamp-2">{item.product_title || 'TheFEYA piece'}</div>
-                <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{item.public_label || item.configuration_label || 'Option'} · {item.color || 'Color'} · {item.size || 'Size'} · Qty {item.quantity || 1}</div>
+                <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{item.public_label || item.configuration_label || 'Опция'} · {item.color || 'Цвет'} · {item.size || 'Размер'} · Кол-во {item.quantity || 1}</div>
                 <div className="mt-2 font-price text-gold-grad text-[20px] leading-none">{formatPrice(Number(item.line_total_amount || 0), item.currency || currency)}</div>
-                <div className="mt-2 flex flex-wrap gap-1.5">{item.component_code ? <Chip>{item.component_code}</Chip> : null}{item.is_full_set ? <Chip tone="warning">Full set</Chip> : null}{item.is_bundle ? <Chip tone="warning">Bundle</Chip> : null}{item.price_confidence_status ? <Chip tone={item.price_confidence_status === 'approved' ? 'neutral' : 'warning'}>{item.price_confidence_status}</Chip> : null}</div>
+                <div className="mt-2 flex flex-wrap gap-1.5">{item.component_code ? <Chip>{item.component_code}</Chip> : null}{item.is_full_set ? <Chip tone="warning">Полный комплект</Chip> : null}{item.is_bundle ? <Chip tone="warning">Комплект</Chip> : null}{item.price_confidence_status ? <Chip tone={item.price_confidence_status === 'approved' ? 'neutral' : 'warning'}>{statusLabel(item.price_confidence_status)}</Chip> : null}</div>
               </div>
             </div>)}
           </div>
 
           <div className="mt-5 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4">
-            <div className="eyebrow-gold mb-3 flex items-center gap-2"><ClipboardList size={13} /> Order review actions</div>
-            <textarea value={noteByDraft[draft.order_draft_id] || ''} onChange={(event) => updateNote(draft.order_draft_id, event.target.value)} placeholder="Optional internal note for this draft..." className="min-h-[78px] w-full rounded-xl border border-[rgba(216,214,211,.12)] bg-black/20 px-4 py-3 text-[13px] text-bone outline-none focus:border-white/40 placeholder:text-[var(--smoke)]" />
+            <div className="eyebrow-gold mb-3 flex items-center gap-2"><ClipboardList size={13} /> Действия проверки заказа</div>
+            <textarea value={noteByDraft[draft.order_draft_id] || ''} onChange={(event) => updateNote(draft.order_draft_id, event.target.value)} placeholder="Внутренняя заметка к этому черновику..." className="min-h-[78px] w-full rounded-xl border border-[rgba(216,214,211,.12)] bg-black/20 px-4 py-3 text-[13px] text-bone outline-none focus:border-white/40 placeholder:text-[var(--smoke)]" />
             <div className="mt-3 flex flex-wrap gap-2">
-              {orderActions.map((action) => <button key={action.event_type} type="button" onClick={() => recordOrderEvent(draft, action)} disabled={savingDraftId === draft.order_draft_id} className="btn-ghost px-4 py-2 text-[10px] disabled:opacity-60"><CheckCircle2 size={13} /> {savingDraftId === draft.order_draft_id ? 'Saving...' : action.label}</button>)}
-              <button type="button" onClick={() => recordOrderEvent(draft, { label: 'Add internal note', event_type: 'internal_note_added', status: 'recorded' })} disabled={savingDraftId === draft.order_draft_id || !(noteByDraft[draft.order_draft_id] || '').trim()} className="btn-ghost px-4 py-2 text-[10px] disabled:opacity-50"><MessageSquarePlus size={13} /> Add note</button>
+              {orderActions.map((action) => <button key={action.event_type} type="button" onClick={() => recordOrderEvent(draft, action)} disabled={savingDraftId === draft.order_draft_id} className="btn-ghost px-4 py-2 text-[10px] disabled:opacity-60"><CheckCircle2 size={13} /> {savingDraftId === draft.order_draft_id ? 'Сохраняю...' : action.label}</button>)}
+              <button type="button" onClick={() => recordOrderEvent(draft, { label: 'Добавить заметку', event_type: 'internal_note_added', status: 'recorded' })} disabled={savingDraftId === draft.order_draft_id || !(noteByDraft[draft.order_draft_id] || '').trim()} className="btn-ghost px-4 py-2 text-[10px] disabled:opacity-50"><MessageSquarePlus size={13} /> Добавить заметку</button>
             </div>
             {draftStatus ? <div className="mt-3 text-[12px] leading-relaxed text-[var(--gold-warm)]">{draftStatus}</div> : null}
           </div>
         </article>;
       })}
 
-      {!loading && !drafts.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">No saved Supabase drafts yet. Create one from checkout, then refresh this block.</div> : null}
+      {!loading && !drafts.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">Сохранённых черновиков заказов пока нет. Создай тестовый черновик через checkout, затем обнови этот блок.</div> : null}
     </div>
   </section>;
 }
