@@ -40,6 +40,23 @@ async function loadReviewEvents(): Promise<AdminReviewEvent[]> {
   return (data || []) as AdminReviewEvent[];
 }
 
+function statusLabel(status: string) {
+  if (status === 'Pending Approval') return 'Ждёт проверки';
+  if (status === 'Ready for Change Set') return 'Можно создать черновик';
+  if (status === 'Blocked') return 'Заблокировано';
+  return status;
+}
+
+function fieldLabel(field: string) {
+  if (field === 'seo_title') return 'SEO title';
+  if (field === 'meta_description') return 'Meta description';
+  if (field === 'h1') return 'H1';
+  if (field === 'primary_image_alt') return 'Alt главного фото';
+  if (field === 'collection_hint') return 'Коллекция';
+  if (field === 'description_outline') return 'План описания';
+  return field;
+}
+
 export default async function SeoApplyPreviewPage() {
   const [{ products, error }, events] = await Promise.all([loadProducts(), loadReviewEvents()]);
   const previews = buildSeoApplyPreviews(products, events);
@@ -52,9 +69,9 @@ export default async function SeoApplyPreviewPage() {
         <div className="mb-7 border-b border-[rgba(216,214,211,.12)] pb-7">
           <div className="eyebrow-gold mb-3">Админка · SEO Apply</div>
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>SEO Apply</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Внутренний предпросмотр SEO-изменений. На этой странице теперь видны и pending rows, чтобы можно было создать change set.</p>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Внутренний предпросмотр SEO-изменений. Здесь создаются pending-строки для ручной проверки в SEO Change Sets.</p>
           <div className="mt-5 flex gap-3">
-            <Link href="/admin/seo-change-sets" className="btn-ghost">Change Sets</Link>
+            <Link href="/admin/seo-change-sets" className="btn-ghost">Очередь SEO-правок</Link>
             <Link href="/admin/seo-export" className="btn-ghost">SEO Export</Link>
             <Link href="/admin/seo-approval" className="btn-ghost">SEO Approval</Link>
           </div>
@@ -75,8 +92,8 @@ export default async function SeoApplyPreviewPage() {
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <div className="mb-3 flex flex-wrap gap-2">
-                    <span className="inline-flex rounded-full border border-[rgba(212,178,106,.30)] px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-[var(--gold-warm)]">{preview.status}</span>
-                    <span className="inline-flex rounded-full border border-[rgba(212,178,106,.30)] px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-[var(--gold-warm)]">score {preview.score}</span>
+                    <span className="inline-flex rounded-full border border-[rgba(212,178,106,.30)] px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-[var(--gold-warm)]">{statusLabel(preview.status)}</span>
+                    <span className="inline-flex rounded-full border border-[rgba(212,178,106,.30)] px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-[var(--gold-warm)]">Оценка {preview.score}</span>
                   </div>
                   <Link href={`/admin/seo-lab/${preview.productSlug}`} className="text-bone text-[18px] leading-snug hover:text-[var(--gold-warm)]">{preview.title}</Link>
                   <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">/{preview.productSlug}</div>
@@ -89,10 +106,10 @@ export default async function SeoApplyPreviewPage() {
               <div className="mt-5 space-y-2">
                 {preview.fields.map((field) => (
                   <div key={field.field} className="grid gap-3 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 lg:grid-cols-[170px_1fr_1fr_88px]">
-                    <div className="eyebrow-dim">{field.field}</div>
+                    <div className="eyebrow-dim">{fieldLabel(field.field)}</div>
                     <div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">{field.currentValue || '—'}</div>
                     <div className="text-[12px] leading-relaxed text-bone">{field.proposedValue || '—'}</div>
-                    <div className="text-[10px] uppercase tracking-[0.16em] text-[var(--gold-warm)]">{field.changed ? 'change' : 'same'}</div>
+                    <div className="text-[10px] uppercase tracking-[0.16em] text-[var(--gold-warm)]">{field.changed ? 'изменить' : 'без изменений'}</div>
                   </div>
                 ))}
               </div>
