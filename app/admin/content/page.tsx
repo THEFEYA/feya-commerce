@@ -7,7 +7,10 @@ import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseService
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
 
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+const CONTENT_PRODUCTS_LIMIT = 500;
 
 async function loadProducts() {
   const supabase = getSupabaseReadClient();
@@ -16,7 +19,7 @@ async function loadProducts() {
   const { data, error } = await supabase
     .from(STOREFRONT_VIEW_V4)
     .select(STOREFRONT_V4_CARD_SELECT)
-    .limit(250);
+    .limit(CONTENT_PRODUCTS_LIMIT);
 
   if (error) return { products: [], error: error.message };
   return { products: (data || []) as StorefrontProduct[], error: null };
