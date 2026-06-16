@@ -2,6 +2,7 @@
 import { Header } from '@/components/Header';
 import { ShopClient } from '@/components/ShopClient';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
+import { summarizeCollections } from '@/lib/public-collections';
 import { STOREFRONT_CARD_SELECT, STOREFRONT_FALLBACK_CARD_SELECT, STOREFRONT_MEDIA_FAST_SELECT, STOREFRONT_MEDIA_FAST_VIEW, STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V1, STOREFRONT_VIEW_V2, STOREFRONT_VIEW_V3, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 
 export const dynamic = 'force-dynamic';
@@ -82,5 +83,6 @@ async function getProducts() {
 
 export default async function ShopPage() {
   const { products, error } = await getProducts();
-  return <main className="relative min-h-screen"><Header /><ShopClient products={products} error={error} /></main>;
+  const collections = summarizeCollections(products);
+  return <main className="relative min-h-screen"><Header /><ShopClient products={products} error={error} collections={collections} /></main>;
 }
