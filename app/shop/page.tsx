@@ -1,83 +1,88 @@
-import Link from 'next/link';
-import { ProductCard } from '@/components/ProductCard';
+// @ts-nocheck
+import { Header } from '@/components/Header';
+import { ShopClient } from '@/components/ShopClient';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
-import type { StorefrontProduct } from '@/lib/types';
+import { summarizeCollections } from '@/lib/public-collections';
+import { STOREFRONT_CARD_SELECT, STOREFRONT_FALLBACK_CARD_SELECT, STOREFRONT_MEDIA_FAST_SELECT, STOREFRONT_MEDIA_FAST_VIEW, STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V1, STOREFRONT_VIEW_V2, STOREFRONT_VIEW_V3, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const PHASE_A_STOREFRONT_LIMIT = 250;
+const MEDIA_LOOKUP_CHUNK_SIZE = 35;
+const SHOP_PRODUCTS_LIMIT = 500;
 
-async function getProducts(): Promise<{ products: StorefrontProduct[]; error?: string }> {
+function chunkValues(values, size) {
+  const chunks = [];
+  for (let index = 0; index < values.length; index += size) {
+    chunks.push(values.slice(index, index + size));
+  }
+  return chunks;
+}
+
+async function fetchMediaForSlugs(supabase, slugs) {
+  const rows = [];
+  const uniqueSlugs = Array.from(new Set(slugs.filter(Boolean)));
+
+  for (const chunk of chunkValues(uniqueSlugs, MEDIA_LOOKUP_CHUNK_SIZE)) {
+    const media = await supabase
+      .from(STOREFRONT_MEDIA_FAST_VIEW)
+      .select(STOREFRONT_MEDIA_FAST_SELECT)
+      .in('product_slug', chunk);
+
+    if (!media.error && media.data?.length) {
+      rows.push(...media.data);
+    }
+  }
+
+  return rows;
+}
+
+async function mergeMedia(supabase, products) {
+  const slugs = products.map((product) => product.product_slug).filter(Boolean);
+  if (!slugs.length) return products;
+
+  const mediaRows = await fetchMediaForSlugs(supabase, slugs);
+  if (!mediaRows.length) return products;
+
+  const bySlug = new Map(mediaRows.map((item) => [item.product_slug, item]));
+  return products.map((product) => {
+    const item = bySlug.get(product.product_slug);
+    if (!item) return product;
+    return {
+      ...product,
+      primary_image_url: item.primary_image_url || product.primary_image_url,
+      primary_image_alt: item.primary_image_alt || product.primary_image_alt,
+      secondary_image_url: item.secondary_image_url || product.secondary_image_url,
+      hover_image_url: item.hover_image_url || product.hover_image_url,
+      video_url: item.video_url || product.video_url,
+      has_video: item.has_video ?? product.has_video,
+      media_count: item.media_count ?? product.media_count,
+      media_gallery: item.media_gallery || product.media_gallery,
+    };
+  });
+}
+
+async function getProducts() {
   const supabase = getSupabaseReadClient();
+  if (!supabase) return { products: [], error: getMissingSupabaseEnvMessage() };
 
-  if (!supabase) {
-    return { products: [], error: getMissingSupabaseEnvMessage() };
-  }
+  const v4 = await supabase.from(STOREFRONT_VIEW_V4).select(STOREFRONT_V4_CARD_SELECT).limit(SHOP_PRODUCTS_LIMIT);
+  if (!v4.error && v4.data?.length) return { products: await mergeMedia(supabase, v4.data) };
 
-  const { data, error } = await supabase
-    .from('feya_commerce_v_step7_storefront_products_api')
-    .select('*')
-    .limit(PHASE_A_STOREFRONT_LIMIT);
+  const v3 = await supabase.from(STOREFRONT_VIEW_V3).select(STOREFRONT_CARD_SELECT).limit(SHOP_PRODUCTS_LIMIT);
+  if (!v3.error && v3.data?.length) return { products: await mergeMedia(supabase, v3.data) };
 
-  if (error) {
-    return { products: [], error: error.message };
-  }
+  const v2 = await supabase.from(STOREFRONT_VIEW_V2).select(STOREFRONT_FALLBACK_CARD_SELECT).limit(SHOP_PRODUCTS_LIMIT);
+  if (!v2.error && v2.data?.length) return { products: await mergeMedia(supabase, v2.data) };
 
-  return { products: (data || []) as StorefrontProduct[] };
+  const v1 = await supabase.from(STOREFRONT_VIEW_V1).select(STOREFRONT_FALLBACK_CARD_SELECT).limit(SHOP_PRODUCTS_LIMIT);
+  if (!v1.error && v1.data?.length) return { products: await mergeMedia(supabase, v1.data) };
+
+  return { products: [], error: v4.error?.message || v3.error?.message || v2.error?.message || v1.error?.message || 'No storefront products returned.' };
 }
 
 export default async function ShopPage() {
   const { products, error } = await getProducts();
-
-  return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/" className="brand-mark">TheFEYA</Link>
-          <div className="nav-links">
-            <Link href="/admin">Admin</Link>
-          </div>
-        </nav>
-
-        <section className="phase-banner">
-          <div className="phase-label">Phase B skeleton</div>
-          <p>
-            Live storefront preview connected to safe Supabase views. The next design pass will improve the visual system without replacing real data.
-          </p>
-        </section>
-
-        <section className="section-head">
-          <div>
-            <h2>Shop preview</h2>
-            <p className="muted">Read-only storefront candidates from the safe Supabase API view.</p>
-          </div>
-          <p className="muted">{products.length} loaded</p>
-        </section>
-
-        <div className="toolbar" aria-label="Planned storefront filters">
-          <span className="filter-chip">All pieces</span>
-          <span className="filter-chip">Festival</span>
-          <span className="filter-chip">Stage</span>
-          <span className="filter-chip">Armor</span>
-          <span className="filter-chip">Acrylic</span>
-          <span className="filter-chip">Needs final UX</span>
-        </div>
-
-        {error ? <div className="notice">{error}</div> : null}
-
-        {!error && products.length === 0 ? (
-          <div className="notice">
-            No products returned from Supabase yet. Check that the safe storefront view has rows and that anon read access is enabled for this view.
-          </div>
-        ) : null}
-
-        <section className="grid product-grid">
-          {products.map((product) => (
-            <ProductCard key={product.canonical_product_id} product={product} />
-          ))}
-        </section>
-      </div>
-    </main>
-  );
+  const collections = summarizeCollections(products);
+  return <main className="relative min-h-screen"><Header /><ShopClient products={products} error={error} collections={collections} /></main>;
 }

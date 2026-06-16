@@ -1,189 +1,195 @@
+// @ts-nocheck
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ProductCard } from '@/components/ProductCard';
+import { Header } from '@/components/Header';
+import { ProductDetailClient } from '@/components/ProductDetailClient';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
-import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
+import { collectionsForProduct } from '@/lib/public-collections';
+import {
+  STOREFRONT_FALLBACK_CARD_SELECT,
+  STOREFRONT_MEDIA_FAST_SELECT,
+  STOREFRONT_MEDIA_FAST_VIEW,
+  STOREFRONT_PDP_SELECT,
+  STOREFRONT_V4_PDP_SELECT,
+  STOREFRONT_VIEW_V1,
+  STOREFRONT_VIEW_V2,
+  STOREFRONT_VIEW_V3,
+  STOREFRONT_VIEW_V4,
+  getMedia,
+  mainRegularPrice,
+  productTitle,
+} from '@/lib/storefront';
+import type { StorefrontProduct } from '@/lib/types';
 
-type PageProps = {
-  params: Promise<{ slug: string }>;
-};
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-async function getProduct(slug: string): Promise<{ product: StorefrontProduct | null; error?: string }> {
-  const supabase = getSupabaseReadClient();
+type PageProps = { params: Promise<{ slug: string }> };
+type SupabaseReader = NonNullable<ReturnType<typeof getSupabaseReadClient>>;
 
-  if (!supabase) {
-    return { product: null, error: getMissingSupabaseEnvMessage() };
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thefeya.com';
+const PDP_FAST_SELECT = `${STOREFRONT_FALLBACK_CARD_SELECT},configurations,pdp_option_count,has_multiple_pdp_options`;
+
+function canonicalProductUrl(slug: string) {
+  return `${siteUrl}/shop/${slug}`;
+}
+
+function textValue(product: StorefrontProduct, keys: string[]) {
+  const record = product as StorefrontProduct & Record<string, unknown>;
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === 'string' && value.trim()) return value.trim();
+  }
+  return '';
+}
+
+function productDescription(product: StorefrontProduct) {
+  return textValue(product, ['meta_description', 'seo_description', 'description_meta', 'description']) || `${productTitle(product)} by TheFEYA, an original handmade design for stage, festival, desert and editorial styling.`;
+}
+
+function productImages(product: StorefrontProduct) {
+  const mediaUrls = getMedia(product).map((item) => item.url).filter(Boolean);
+  const fallbackUrls = [product.primary_image_url, product.secondary_image_url, product.hover_image_url].filter(Boolean);
+  return Array.from(new Set([...mediaUrls, ...fallbackUrls]));
+}
+
+function productJsonLd(product: StorefrontProduct, slug: string) {
+  const price = mainRegularPrice(product);
+  const jsonLd: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: productTitle(product),
+    description: productDescription(product),
+    image: productImages(product),
+    sku: product.canonical_product_id || slug,
+    url: canonicalProductUrl(slug),
+    brand: {
+      '@type': 'Brand',
+      name: 'TheFEYA',
+    },
+  };
+
+  if (price != null) {
+    jsonLd.offers = {
+      '@type': 'Offer',
+      url: canonicalProductUrl(slug),
+      price: String(price),
+      priceCurrency: product.currency || 'EUR',
+      availability: 'https://schema.org/PreOrder',
+      itemCondition: 'https://schema.org/NewCondition',
+    };
   }
 
-  const { data, error } = await supabase
-    .from('feya_commerce_v_step7_storefront_products_api')
-    .select('*')
+  return jsonLd;
+}
+
+async function attachMedia(supabase: SupabaseReader, product: StorefrontProduct, slug: string) {
+  if (!product) return product;
+  const media = await supabase
+    .from(STOREFRONT_MEDIA_FAST_VIEW)
+    .select(STOREFRONT_MEDIA_FAST_SELECT)
     .eq('product_slug', slug)
     .maybeSingle();
 
-  if (error) {
-    return { product: null, error: error.message };
-  }
-
-  return { product: data as StorefrontProduct | null };
+  if (media.error || !media.data) return product;
+  return {
+    ...product,
+    primary_image_url: media.data.primary_image_url || product.primary_image_url,
+    primary_image_alt: media.data.primary_image_alt || product.primary_image_alt,
+    secondary_image_url: media.data.secondary_image_url || product.secondary_image_url,
+    hover_image_url: media.data.hover_image_url || product.hover_image_url,
+    video_url: media.data.video_url || product.video_url,
+    has_video: media.data.has_video ?? product.has_video,
+    media_count: media.data.media_count ?? product.media_count,
+    media_gallery: media.data.media_gallery || product.media_gallery,
+  };
 }
 
-function formatMoney(amount: number | null | undefined, currency = 'USD') {
-  if (amount == null) return null;
+async function getProduct(slug: string) {
+  const supabase = getSupabaseReadClient();
+  if (!supabase) return { product: null, related: [], error: getMissingSupabaseEnvMessage() };
 
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: 0,
-  }).format(amount);
+  const v4 = await supabase
+    .from(STOREFRONT_VIEW_V4)
+    .select(STOREFRONT_V4_PDP_SELECT)
+    .eq('product_slug', slug)
+    .maybeSingle();
+
+  if (!v4.error && v4.data) return { product: await attachMedia(supabase, v4.data as StorefrontProduct, slug), related: [] };
+
+  const v3 = await supabase
+    .from(STOREFRONT_VIEW_V3)
+    .select(STOREFRONT_PDP_SELECT)
+    .eq('product_slug', slug)
+    .maybeSingle();
+
+  if (!v3.error && v3.data) return { product: await attachMedia(supabase, v3.data as StorefrontProduct, slug), related: [] };
+
+  const v2 = await supabase
+    .from(STOREFRONT_VIEW_V2)
+    .select(PDP_FAST_SELECT)
+    .eq('product_slug', slug)
+    .maybeSingle();
+
+  if (!v2.error && v2.data) return { product: await attachMedia(supabase, v2.data as StorefrontProduct, slug), related: [] };
+
+  const v1 = await supabase
+    .from(STOREFRONT_VIEW_V1)
+    .select(STOREFRONT_FALLBACK_CARD_SELECT)
+    .eq('product_slug', slug)
+    .maybeSingle();
+
+  if (!v1.error && v1.data) return { product: await attachMedia(supabase, v1.data as StorefrontProduct, slug), related: [] };
+  return { product: null, related: [], error: v4.error?.message || v3.error?.message || v2.error?.message || v1.error?.message || 'Product not found.' };
 }
 
-function formatPrice(product: StorefrontProduct) {
-  const currency = product.currency || 'USD';
-  const min = product.min_price;
-  const max = product.max_price;
-
-  if (min == null && max == null) return 'Price under review';
-
-  if (min != null && max != null && min !== max) {
-    return `${formatMoney(min, currency)} – ${formatMoney(max, currency)}`;
-  }
-
-  return formatMoney(min ?? max ?? 0, currency);
-}
-
-function getConfigurations(product: StorefrontProduct): StorefrontConfiguration[] {
-  if (!Array.isArray(product.configurations)) return [];
-  return product.configurations as StorefrontConfiguration[];
-}
-
-function getConfigurationLabel(configuration: StorefrontConfiguration, index: number) {
-  return String(
-    configuration.configuration_label ||
-      configuration.configuration_name ||
-      configuration.option_value ||
-      configuration.raw_option_value ||
-      configuration.title ||
-      configuration.label ||
-      `Configuration ${index + 1}`,
-  );
-}
-
-function getConfigurationPrice(configuration: StorefrontConfiguration, fallbackCurrency: string | null) {
-  const currency = configuration.currency || fallbackCurrency || 'USD';
-  const single = configuration.price_amount ?? configuration.price ?? configuration.amount;
-
-  if (single != null) return formatMoney(single, currency);
-
-  const min = configuration.min_price;
-  const max = configuration.max_price;
-
-  if (min != null && max != null && min !== max) {
-    return `${formatMoney(min, currency)} – ${formatMoney(max, currency)}`;
-  }
-
-  if (min != null || max != null) return formatMoney(min ?? max, currency);
-
-  return 'Price under review';
-}
-
-export default async function ProductPreviewPage({ params }: PageProps) {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const { product, error } = await getProduct(slug);
-  const configurations = product ? getConfigurations(product).slice(0, 8) : [];
+  const { product } = await getProduct(slug);
 
-  return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/" className="brand-mark">TheFEYA</Link>
-          <div className="nav-links">
-            <Link href="/shop">Shop</Link>
-            <Link href="/admin">Admin</Link>
-          </div>
-        </nav>
+  if (!product) {
+    return {
+      title: 'Product not found | TheFEYA',
+      robots: { index: false, follow: true },
+    };
+  }
 
-        {error ? <div className="notice">{error}</div> : null}
+  const title = productTitle(product);
+  const description = productDescription(product);
+  const images = productImages(product);
 
-        {!error && !product ? <div className="notice">Product not found.</div> : null}
+  return {
+    title,
+    description,
+    alternates: { canonical: `/shop/${slug}` },
+    openGraph: {
+      title,
+      description,
+      url: `/shop/${slug}`,
+      type: 'website',
+      images: images.slice(0, 4),
+    },
+  };
+}
 
-        {product ? (
-          <>
-            <section className="grid pdp-grid">
-              <ProductCard product={product} />
-              <div className="card pdp-panel">
-                <p className="badge">Read-only PDP preview</p>
-                <h1>{product.h1 || product.card_title || 'Untitled product'}</h1>
-                <p className="muted">{product.meta_description || 'Description draft is not approved yet.'}</p>
-                <div className="pdp-price">{formatPrice(product)}</div>
-                <div className="badge-row">
-                  {product.material ? <span className="badge">{product.material}</span> : null}
-                  {product.color ? <span className="badge">{product.color}</span> : null}
-                  {product.size_mode ? <span className="badge">{product.size_mode}</span> : null}
-                  {product.public_configuration_count ? <span className="badge">{product.public_configuration_count} configurations</span> : null}
-                  {product.has_fallback_price ? <span className="badge">Fallback price review</span> : null}
-                  {product.handmade_flag ? <span className="badge">Handmade</span> : null}
-                </div>
-                <div className="notice" style={{ marginTop: '24px' }}>
-                  Product options are read-only in Phase B. Configuration selector and Add to Bag will be added only after review flows are stable.
-                </div>
-              </div>
-            </section>
+export default async function ProductPage({ params }: PageProps) {
+  const { slug } = await params;
+  const { product, related, error } = await getProduct(slug);
+  if (error) return <main className="min-h-screen"><Header /><div className="container-feya pt-40"><div className="glass rounded-xl p-6 text-bone-dim">{error}</div></div></main>;
+  if (!product) return <main className="min-h-screen"><Header /><div className="container-feya pt-40"><div className="glass rounded-xl p-6">Product not found. <Link className="text-gold" href="/shop">Back to shop</Link></div></div></main>;
 
-            <section className="section-head">
-              <div>
-                <h2>Configurations</h2>
-                <p className="muted">Read-only view of available set/option logic from Supabase.</p>
-              </div>
-            </section>
+  const jsonLd = productJsonLd(product, slug);
+  const productCollections = collectionsForProduct(product);
 
-            {configurations.length > 0 ? (
-              <div className="configuration-list">
-                {configurations.map((configuration, index) => (
-                  <div className="configuration-card" key={`${getConfigurationLabel(configuration, index)}-${index}`}>
-                    <div className="section-head" style={{ margin: 0 }}>
-                      <h3>{getConfigurationLabel(configuration, index)}</h3>
-                      <span className="status-pill warning">{getConfigurationPrice(configuration, product.currency)}</span>
-                    </div>
-                    <p>
-                      Future selector row. Components, size/color/material options and exact buy-box behavior will be reviewed in Product Builder before checkout is added.
-                    </p>
-                    {configuration.has_fallback_price ? <div className="badge-row"><span className="badge">Fallback price review</span></div> : null}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="notice">No configuration payload available yet. Treat this as a whole-product draft until Product Builder review.</div>
-            )}
-
-            <section className="grid pdp-section-grid">
-              <div className="card pdp-info-block">
-                <h3>What’s included</h3>
-                <p>Will be generated from component/configuration data. Must clearly state what is included and what is not included.</p>
-              </div>
-              <div className="card pdp-info-block">
-                <h3>Materials & care</h3>
-                <p>Will use canonical material data and TheFEYA snippet rules. Avoid wrong material claims.</p>
-              </div>
-              <div className="card pdp-info-block">
-                <h3>Sizing & fit</h3>
-                <p>Will explain adjustable/custom sizing, measurements and fit notes before launch.</p>
-              </div>
-              <div className="card pdp-info-block">
-                <h3>Production time</h3>
-                <p>Default handmade production logic will be shown here after content approval.</p>
-              </div>
-              <div className="card pdp-info-block">
-                <h3>Shipping & returns</h3>
-                <p>Short commercial summary with detailed policy links later. No tax/customs promises without policy review.</p>
-              </div>
-              <div className="card pdp-info-block">
-                <h3>Handmade / styled imagery note</h3>
-                <p>Will explain handmade variation and styled/AI-assisted imagery flags where relevant.</p>
-              </div>
-            </section>
-          </>
-        ) : null}
+  return <main className="relative min-h-screen">
+    <Header />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
+    <ProductDetailClient product={product} related={related} />
+    {productCollections.length ? <section className="container-feya py-10 border-t border-[rgba(216,214,211,.12)]">
+      <div className="eyebrow-gold mb-4">Explore related collections</div>
+      <div className="flex flex-wrap gap-2">
+        {productCollections.map((collection) => <Link key={collection.slug} href={`/collections/${collection.slug}`} className="chip">{collection.title}</Link>)}
       </div>
-    </main>
-  );
+    </section> : null}
+  </main>;
 }
