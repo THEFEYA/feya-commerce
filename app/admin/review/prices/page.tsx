@@ -6,9 +6,10 @@ import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supab
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, formatPrice, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
 
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-const PRICE_REVIEW_LIMIT = 250;
+const PRICE_REVIEW_LIMIT = 500;
 
 function parseConfigurations(value: unknown): StorefrontConfiguration[] {
   if (!value) return [];
@@ -168,7 +169,7 @@ export default async function AdminPriceReviewPage() {
           </article>;
         })}
 
-        {!reviewRows.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">No price review rows returned from v4.</div> : null}
+        {!reviewRows.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">No price review rows returned from storefront contract.</div> : null}
       </div>
     </section>
   </main>;
