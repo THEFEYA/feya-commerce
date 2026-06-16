@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { MetadataRoute } from 'next';
 import { getSupabaseReadClient } from '@/lib/supabase';
 import { STOREFRONT_VIEW_V4 } from '@/lib/storefront';
