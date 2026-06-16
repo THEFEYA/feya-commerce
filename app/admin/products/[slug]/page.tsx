@@ -11,9 +11,33 @@ export const revalidate = 0;
 
 type PageProps = { params: Promise<{ slug: string }> };
 
+const CANONICAL_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function isCanonicalProductId(value: string) {
+  return CANONICAL_ID_PATTERN.test(value);
+}
+
+async function getBuilderProduct(slug: string): Promise<{ product: StorefrontProduct | null; error?: string }> {
+  const supabase = getSupabaseReadClient();
+  if (!supabase) return { product: null, error: getMissingSupabaseEnvMessage() };
+
+  const { data, error } = await supabase
+    .from(ADMIN_PRODUCT_BUILDER_DETAIL_VIEW)
+    .select(ADMIN_PRODUCT_BUILDER_DETAIL_SELECT)
+    .eq('canonical_product_id', slug)
+    .maybeSingle();
+
+  if (error) return { product: null, error: error.message };
+  return { product: data ? toBuilderStorefrontProduct(data) : null };
+}
+
 async function getProduct(slug: string): Promise<{ product: StorefrontProduct | null; error?: string }> {
   const supabase = getSupabaseReadClient();
   if (!supabase) return { product: null, error: getMissingSupabaseEnvMessage() };
+
+  if (isCanonicalProductId(slug)) {
+    return getBuilderProduct(slug);
+  }
 
   const { data, error } = await supabase
     .from(STOREFRONT_VIEW_V4)
@@ -24,14 +48,7 @@ async function getProduct(slug: string): Promise<{ product: StorefrontProduct | 
   if (error) return { product: null, error: error.message };
   if (data) return { product: data as StorefrontProduct };
 
-  const { data: builderData, error: builderError } = await supabase
-    .from(ADMIN_PRODUCT_BUILDER_DETAIL_VIEW)
-    .select(ADMIN_PRODUCT_BUILDER_DETAIL_SELECT)
-    .eq('canonical_product_id', slug)
-    .maybeSingle();
-
-  if (builderError) return { product: null, error: builderError.message };
-  return { product: builderData ? toBuilderStorefrontProduct(builderData) : null };
+  return getBuilderProduct(slug);
 }
 
 export default async function AdminProductDetailPage({ params }: PageProps) {
