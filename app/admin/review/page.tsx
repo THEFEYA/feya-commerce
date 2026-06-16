@@ -2,6 +2,20 @@ import Link from 'next/link';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import type { ReviewQueueSummary } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+const REVIEW_QUEUE_SUMMARY_SELECT = [
+  'queue_code',
+  'status',
+  'review_queue',
+  'queue_name',
+  'item_count',
+  'count',
+  'row_count',
+  'total',
+].join(',');
+
 const REVIEW_COPY: Record<string, { title: string; priority: 'high' | 'medium' | 'low'; description: string; nextStep: string }> = {
   needs_price: {
     title: 'Needs price',
@@ -44,7 +58,7 @@ async function getReviewQueues(): Promise<{ rows: ReviewQueueSummary[]; error?: 
 
   const { data, error } = await supabase
     .from('feya_commerce_v_step8_review_queues_summary')
-    .select('*');
+    .select(REVIEW_QUEUE_SUMMARY_SELECT);
 
   if (error) {
     return { rows: [], error: error.message };
