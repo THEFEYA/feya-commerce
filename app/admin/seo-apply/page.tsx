@@ -7,9 +7,11 @@ import { buildSeoApplyPreviews, summarizeSeoApplyPreviews } from '@/lib/seo-appl
 import type { AdminReviewEvent } from '@/lib/admin-readiness';
 import type { StorefrontProduct } from '@/lib/types';
 
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-const LIMIT = 50;
+const SEO_APPLY_PRODUCTS_LIMIT = 500;
+const SEO_APPLY_VISIBLE_LIMIT = 50;
 const PRODUCT_SELECT = [
   'canonical_product_id',
   'product_slug',
@@ -27,7 +29,7 @@ const PRODUCT_SELECT = [
 async function loadProducts() {
   const supabase = getSupabaseServiceClient();
   if (!supabase) return { products: [], error: getMissingSupabaseEnvMessage() };
-  const { data, error } = await supabase.from(STOREFRONT_VIEW_V4).select(PRODUCT_SELECT).limit(LIMIT);
+  const { data, error } = await supabase.from(STOREFRONT_VIEW_V4).select(PRODUCT_SELECT).limit(SEO_APPLY_PRODUCTS_LIMIT);
   if (error) return { products: [], error: error.message };
   return { products: (data || []) as StorefrontProduct[], error: null };
 }
@@ -61,7 +63,7 @@ export default async function SeoApplyPreviewPage() {
   const [{ products, error }, events] = await Promise.all([loadProducts(), loadReviewEvents()]);
   const previews = buildSeoApplyPreviews(products, events);
   const summary = summarizeSeoApplyPreviews(previews);
-  const visiblePreviews = previews.slice(0, LIMIT);
+  const visiblePreviews = previews.slice(0, SEO_APPLY_VISIBLE_LIMIT);
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
@@ -83,7 +85,7 @@ export default async function SeoApplyPreviewPage() {
           <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-3">Предпросмотр</div><div className="font-price text-gold-grad text-[40px] leading-none">{summary.total || 0}</div></div>
           <div className="rounded-2xl border border-[rgba(108,183,138,.35)] bg-[rgba(108,183,138,.08)] p-5"><div className="eyebrow-dim mb-3">Готово</div><div className="font-price text-gold-grad text-[40px] leading-none">{summary['Ready for Change Set'] || 0}</div></div>
           <div className="rounded-2xl border border-[rgba(196,64,88,.34)] bg-[rgba(160,32,56,.08)] p-5"><div className="eyebrow-dim mb-3">Заблокировано</div><div className="font-price text-gold-grad text-[40px] leading-none">{summary.Blocked || 0}</div></div>
-          <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-3">Поля с изменениями</div><div className="font-price text-gold-grad text-[40px] leading-none">{summary.changedFields || 0}</div></div>
+          <div className="rounded-2xl border border-[rgba(216,214,211/.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-3">Поля с изменениями</div><div className="font-price text-gold-grad text-[40px] leading-none">{summary.changedFields || 0}</div></div>
         </div>
 
         <div className="space-y-4">
