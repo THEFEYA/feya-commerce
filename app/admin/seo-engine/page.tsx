@@ -46,6 +46,53 @@ async function loadEngine() {
   };
 }
 
+const STATUS_LABELS = {
+  connected: 'подключено',
+  active: 'активно',
+  approved: 'одобрено',
+  applied: 'применено',
+  planned: 'запланировано',
+  manual_only: 'ручной ввод',
+  manual_import: 'ручной импорт',
+  optional_later: 'позже / опционально',
+  paid_later: 'платно позже',
+  later_after_indexation: 'после индексации',
+  draft: 'черновик',
+};
+
+const SOURCE_LABELS = {
+  product_dna: 'ДНК товара / текущие данные',
+  manual_seed: 'Ручные ключевые фразы',
+  old_etsy_data: 'Старые данные Etsy',
+  google_ads_keyword_planner: 'Google Ads Keyword Planner',
+  google_trends: 'Google Trends',
+  erank: 'eRank',
+  search_console: 'Google Search Console',
+  dataforseo: 'DataForSEO',
+};
+
+function statusLabel(status = '') {
+  return STATUS_LABELS[status] || status || 'нет данных';
+}
+
+function sourceLabel(source) {
+  return SOURCE_LABELS[source.source_code] || source.source_name || source.source_code;
+}
+
+function sourceNote(source) {
+  const notes = {
+    product_dna: 'Главный внутренний источник смысла: тип товара, материал, цвет, контекст, стиль и брендовые правила.',
+    manual_seed: 'Ручные ключи, которые мы можем добавить сами до подключения внешних сервисов.',
+    old_etsy_data: 'Исторические сигналы из Etsy: старые titles, tags, organic queries и кластеры после импорта.',
+    google_ads_keyword_planner: 'Будущий источник частотности, конкуренции и гео-метрик ключевых слов.',
+    google_trends: 'Будущий опциональный источник сезонности и трендов.',
+    erank: 'Опциональная проверка marketplace-ключей через экспорт/импорт.',
+    search_console: 'Будет нужен после индексации, когда появятся реальные показы и клики.',
+    dataforseo: 'Платный fallback, если данных Google Ads будет недостаточно.',
+  };
+  return notes[source.source_code] || source.notes || source.source_code;
+}
+
 function tone(status = '') {
   if (['connected', 'active', 'approved', 'applied'].includes(status)) return 'success';
   if (['planned', 'manual_only', 'manual_import', 'optional_later', 'paid_later', 'later_after_indexation', 'draft'].includes(status)) return 'warning';
@@ -75,27 +122,27 @@ export default async function SeoEnginePage() {
     <section className="container-feya pt-10 pb-16">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
         <div>
-          <div className="eyebrow-gold mb-3">Admin · SEO Content Intelligence Engine</div>
+          <div className="eyebrow-gold mb-3">Админка · SEO-движок</div>
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>SEO Engine</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Pre-indexation workspace for keyword candidates, SEO briefs, content assets, QA checks and anti-cannibalization memory.</p>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Рабочая зона до индексации: кандидаты ключевых слов, SEO-брифы, англоязычные контент-черновики, проверки качества, история генераций и конфликты ключей.</p>
         </div>
-        <div className="flex flex-wrap gap-3"><Link href="/admin/seo-lab" className="btn-ghost">SEO Lab <ArrowUpRight size={13} /></Link><Link href="/admin/content" className="btn-ghost">Content <ArrowUpRight size={13} /></Link><Link href="/admin/products" className="btn-ghost">Products <ArrowUpRight size={13} /></Link></div>
+        <div className="flex flex-wrap gap-3"><Link href="/admin/seo-lab" className="btn-ghost">SEO Lab <ArrowUpRight size={13} /></Link><Link href="/admin/content" className="btn-ghost">Контент <ArrowUpRight size={13} /></Link><Link href="/admin/products" className="btn-ghost">Товары <ArrowUpRight size={13} /></Link></div>
       </div>
 
-      {error ? <div className="rounded-2xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] p-5 text-[13px] leading-relaxed text-[var(--bone-dim)] mb-7">Apply <span className="text-bone">supabase/migrations/20260616_seo_content_engine_v1.sql</span> in Supabase, then refresh. First database response: {error}</div> : null}
+      {error ? <div className="rounded-2xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] p-5 text-[13px] leading-relaxed text-[var(--bone-dim)] mb-7">Сначала примени миграцию <span className="text-bone">supabase/migrations/20260616_seo_content_engine_v1.sql</span> в Supabase, затем обнови экран. Ответ базы: {error}</div> : null}
 
-      <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8"><Metric icon={SearchCheck} label="Keywords" value={counts.keywords} /><Metric icon={FileText} label="Briefs" value={counts.briefs} /><Metric icon={FileCheck2} label="Assets" value={counts.assets} /><Metric icon={ShieldCheck} label="QA" value={counts.checks} /><Metric icon={FlaskConical} label="Runs" value={counts.runs} /><Metric icon={Layers3} label="Conflicts" value={counts.conflicts} /></div>
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8"><Metric icon={SearchCheck} label="Ключи" value={counts.keywords} /><Metric icon={FileText} label="Брифы" value={counts.briefs} /><Metric icon={FileCheck2} label="Контент" value={counts.assets} /><Metric icon={ShieldCheck} label="Проверки" value={counts.checks} /><Metric icon={FlaskConical} label="Запуски" value={counts.runs} /><Metric icon={Layers3} label="Конфликты" value={counts.conflicts} /></div>
 
       <div className="grid xl:grid-cols-[1fr_420px] gap-6">
         <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold mb-1">Source adapters</div><div className="text-[12px] text-[var(--bone-dim)]">External services are signals, not the core.</div></div><Database size={18} className="text-[var(--gold-warm)]" /></div>
-          <div className="divide-y divide-[rgba(216,214,211,.08)]">{sources.length ? sources.map((source) => <div key={source.source_code} className="grid md:grid-cols-[1fr_140px] gap-4 px-5 py-4 items-center"><div><div className="text-bone text-[14px] leading-snug">{source.source_name}</div><div className="mt-1 text-[11px] leading-relaxed text-[var(--bone-dim)]">{source.notes || source.source_code}</div></div><Chip tone={tone(source.connection_status)}>{source.connection_status}</Chip></div>) : <div className="px-5 py-5 text-[13px] text-[var(--bone-dim)]">No source rows yet.</div>}</div>
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold mb-1">Источники данных</div><div className="text-[12px] text-[var(--bone-dim)]">Внешние сервисы дают сигналы. Ядро системы — наши товары, ДНК и утверждённый контент.</div></div><Database size={18} className="text-[var(--gold-warm)]" /></div>
+          <div className="divide-y divide-[rgba(216,214,211,.08)]">{sources.length ? sources.map((source) => <div key={source.source_code} className="grid md:grid-cols-[1fr_170px] gap-4 px-5 py-4 items-center"><div><div className="text-bone text-[14px] leading-snug">{sourceLabel(source)}</div><div className="mt-1 text-[11px] leading-relaxed text-[var(--bone-dim)]">{sourceNote(source)}</div></div><Chip tone={tone(source.connection_status)}>{statusLabel(source.connection_status)}</Chip></div>) : <div className="px-5 py-5 text-[13px] text-[var(--bone-dim)]">Источники ещё не загружены.</div>}</div>
         </div>
 
-        <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-black/20 p-5"><div className="eyebrow-gold mb-4">Next practical slice</div><div className="space-y-3 text-[13px] leading-relaxed text-[var(--bone-dim)]"><p>1. Apply migration in Supabase.</p><p>2. Generate first manual/old-Etsy keyword candidates.</p><p>3. Build first SEO brief draft for one product.</p><p>4. Save first content asset draft and QA result.</p></div></div>
+        <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-black/20 p-5"><div className="eyebrow-gold mb-4">Следующий практический шаг</div><div className="space-y-3 text-[13px] leading-relaxed text-[var(--bone-dim)]"><p>1. Применить миграцию в Supabase.</p><p>2. Сохранить первые ключевые фразы из SEO Lab.</p><p>3. Создать SEO-бриф для одного товара.</p><p>4. Создать первый англоязычный контент-черновик и русскую QA-проверку.</p></div></div>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden"><div className="grid grid-cols-[1.2fr_.7fr_.8fr_.8fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.22em] text-[var(--smoke)]"><div>Page</div><div>Type</div><div>Brief</div><div>QA</div></div><div className="divide-y divide-[rgba(216,214,211,.08)]">{rows.length ? rows.map((row, index) => <div key={`${row.page_type}-${row.product_slug || row.collection_slug || index}`} className="grid grid-cols-[1.2fr_.7fr_.8fr_.8fr] gap-4 px-5 py-4 items-center"><div><div className="text-bone text-[14px] leading-snug">{row.product_slug || row.collection_slug || 'Unassigned'}</div><div className="mt-1 text-[11px] text-[var(--bone-dim)]">{row.primary_keyword || 'No primary keyword yet'}</div></div><Chip>{row.page_type || 'page'}</Chip><Chip tone={tone(row.brief_status)}>{row.brief_status || 'none'}</Chip><Chip tone={row.qa_approved ? 'success' : 'warning'}>{row.qa_approved ? 'approved' : row.check_status || 'none'}</Chip></div>) : <div className="px-5 py-5 text-[13px] text-[var(--bone-dim)]">No SEO Engine status rows yet.</div>}</div></div>
+      <div className="mt-6 rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden"><div className="grid grid-cols-[1.2fr_.7fr_.8fr_.8fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.22em] text-[var(--smoke)]"><div>Страница</div><div>Тип</div><div>Бриф</div><div>Проверка</div></div><div className="divide-y divide-[rgba(216,214,211,.08)]">{rows.length ? rows.map((row, index) => <div key={`${row.page_type}-${row.product_slug || row.collection_slug || index}`} className="grid grid-cols-[1.2fr_.7fr_.8fr_.8fr] gap-4 px-5 py-4 items-center"><div><div className="text-bone text-[14px] leading-snug">{row.product_slug || row.collection_slug || 'Не привязано'}</div><div className="mt-1 text-[11px] text-[var(--bone-dim)]">{row.primary_keyword || 'Главный ключ ещё не выбран'}</div></div><Chip>{row.page_type || 'page'}</Chip><Chip tone={tone(row.brief_status)}>{statusLabel(row.brief_status)}</Chip><Chip tone={row.qa_approved ? 'success' : 'warning'}>{row.qa_approved ? 'одобрено' : statusLabel(row.check_status)}</Chip></div>) : <div className="px-5 py-5 text-[13px] text-[var(--bone-dim)]">SEO-статусы ещё не созданы.</div>}</div></div>
     </section>
   </main>;
 }
