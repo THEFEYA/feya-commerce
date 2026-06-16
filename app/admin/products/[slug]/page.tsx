@@ -1,7 +1,6 @@
 // @ts-nocheck
 import Link from 'next/link';
 import { AdminProductDetailView } from '@/components/AdminProductDetailView';
-import { ADMIN_PRODUCT_BUILDER_DETAIL_SELECT, ADMIN_PRODUCT_BUILDER_DETAIL_VIEW, toBuilderStorefrontProduct } from '@/lib/admin-product-builder-detail';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import { STOREFRONT_V4_PDP_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
@@ -22,16 +21,7 @@ async function getProduct(slug: string): Promise<{ product: StorefrontProduct | 
     .maybeSingle();
 
   if (error) return { product: null, error: error.message };
-  if (data) return { product: data as StorefrontProduct };
-
-  const { data: builderData, error: builderError } = await supabase
-    .from(ADMIN_PRODUCT_BUILDER_DETAIL_VIEW)
-    .select(ADMIN_PRODUCT_BUILDER_DETAIL_SELECT)
-    .eq('canonical_product_id', slug)
-    .maybeSingle();
-
-  if (builderError) return { product: null, error: builderError.message };
-  return { product: builderData ? toBuilderStorefrontProduct(builderData) : null };
+  return { product: data as StorefrontProduct | null };
 }
 
 export default async function AdminProductDetailPage({ params }: PageProps) {
