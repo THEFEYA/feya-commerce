@@ -6,16 +6,17 @@ import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supab
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
 
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-const LABEL_REVIEW_LIMIT = 250;
+const LABEL_REVIEW_LIMIT = 500;
 
 const REASON_LABELS: Record<string, string> = {
   'Product label review': 'Проверка названия товара',
   'Russian public label flag': 'Русская публичная подпись',
   'Configuration label review': 'Проверка названия опции',
   'Russian raw source label exists': 'Есть русский исходный текст',
-  'No configurations returned': 'Опции не вернулись из v4',
+  'No configurations returned': 'Опции не вернулись из storefront contract',
 };
 
 function parseConfigurations(value: unknown): StorefrontConfiguration[] {
@@ -108,10 +109,10 @@ export default async function AdminLabelReviewPage() {
       {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <Metric icon={Tags} label="Товары в очереди" value={reviewRows.length} note="Товары с причинами для проверки названий в текущем v4-срезе." />
+        <Metric icon={Tags} label="Товары в очереди" value={reviewRows.length} note="Товары с причинами для проверки названий в текущем storefront-candidate срезе." />
         <Metric icon={Languages} label="Строки опций" value={configReviewCount} note="Опции без публичной подписи или с причиной для проверки." />
         <Metric icon={Search} label="Русский исходник" value={russianRawCount} note="Исходный текст остаётся только внутри админки, не для покупателя." />
-        <Metric icon={Tags} label="Загружено" value={rows.length} note="Товары, прочитанные из v4-контракта." />
+        <Metric icon={Tags} label="Загружено" value={rows.length} note="Товары, прочитанные из storefront contract." />
       </div>
 
       <div className="space-y-4">
@@ -151,7 +152,7 @@ export default async function AdminLabelReviewPage() {
           </article>;
         })}
 
-        {!reviewRows.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">Строк для проверки названий из v4 сейчас нет.</div> : null}
+        {!reviewRows.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">Строк для проверки названий из storefront contract сейчас нет.</div> : null}
       </div>
     </section>
   </main>;
