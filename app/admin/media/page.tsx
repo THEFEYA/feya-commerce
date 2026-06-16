@@ -6,9 +6,10 @@ import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supab
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
 
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-const MEDIA_QA_LIMIT = 250;
+const MEDIA_QA_LIMIT = 500;
 
 async function loadProducts(): Promise<{ rows: StorefrontProduct[]; error?: string }> {
   const supabase = getSupabaseReadClient();
@@ -89,7 +90,7 @@ export default async function AdminMediaQaPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Metric icon={ImageIcon} label="Missing primary" value={missingPrimary} note="Products without primary image URL." />
         <Metric icon={Sparkles} label="Missing hover" value={missingHover} note="No second/hover/video signal for card swap." />
-        <Metric icon={Images} label="Thin gallery" value={thinGallery} note="Less than 4 media assets in current v4 slice." />
+        <Metric icon={Images} label="Thin gallery" value={thinGallery} note="Less than 4 media assets in current storefront-candidate slice." />
         <Metric icon={Film} label="Video ready" value={hasVideo} note="Products with video signal available." />
       </div>
 
@@ -122,7 +123,7 @@ export default async function AdminMediaQaPage() {
           </article>;
         })}
 
-        {!qaRows.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">No media QA rows returned from v4.</div> : null}
+        {!qaRows.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">No media QA rows returned from storefront contract.</div> : null}
       </div>
     </section>
   </main>;
