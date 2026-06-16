@@ -27,7 +27,7 @@ export function AdminGenerateKeywordCandidatesButton({ productSlug }: Props) {
         throw new Error(data.error || 'Не удалось сохранить ключевые фразы.');
       }
       setStatus('success');
-      setMessage(`Сохранено ключевых фраз: ${data.generated_count || 0}.`);
+      setMessage(`Сохранено ключевых фраз: ${data.generated_count || 0}. Следующий шаг — SEO-бриф на английский контент.`);
     } catch (error) {
       setStatus('error');
       setMessage(error instanceof Error ? error.message : 'Не удалось сохранить ключевые фразы.');
