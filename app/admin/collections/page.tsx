@@ -7,7 +7,10 @@ import { buildSeoCollectionPlans, summarizeSeoCollectionPlans, type SeoCollectio
 import type { AdminReviewEvent } from '@/lib/admin-readiness';
 import type { StorefrontProduct } from '@/lib/types';
 
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+const COLLECTION_PRODUCTS_LIMIT = 500;
 
 async function loadProducts() {
   const supabase = getSupabaseReadClient();
@@ -16,7 +19,7 @@ async function loadProducts() {
   const { data, error } = await supabase
     .from(STOREFRONT_VIEW_V4)
     .select(STOREFRONT_V4_CARD_SELECT)
-    .limit(250);
+    .limit(COLLECTION_PRODUCTS_LIMIT);
 
   if (error) return { products: [], error: error.message };
   return { products: (data || []) as StorefrontProduct[], error: null };
