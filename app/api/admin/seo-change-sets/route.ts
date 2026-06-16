@@ -4,6 +4,8 @@ import { getMissingSupabaseServiceEnvMessage, getSupabaseServiceClient } from '@
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+const SEO_CHANGE_SETS_SELECT = 'change_set_id,product_slug,canonical_product_id,source_event_id,source_route,target_field,current_value,proposed_value,reason,rule_pack_version,template_pack_version,status,reviewed_at,applied_at,created_at';
+
 const ALLOWED_TARGET_FIELDS = new Set([
   'seo_title',
   'meta_description',
@@ -91,8 +93,8 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from('feya_commerce_v_admin_seo_change_sets_v1')
-    .select('*')
-    .limit(300);
+    .select(SEO_CHANGE_SETS_SELECT)
+    .limit(1000);
 
   if (error) {
     return NextResponse.json({ ok: false, error: error.message, change_sets: [] }, { status: 500 });
