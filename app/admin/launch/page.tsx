@@ -7,9 +7,10 @@ import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseService
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
 
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-const LIMIT = 250;
+const LAUNCH_PRODUCTS_LIMIT = 500;
 
 async function loadProducts() {
   const supabase = getSupabaseReadClient();
@@ -18,7 +19,7 @@ async function loadProducts() {
   const { data, error } = await supabase
     .from(STOREFRONT_VIEW_V4)
     .select(STOREFRONT_V4_CARD_SELECT)
-    .limit(LIMIT);
+    .limit(LAUNCH_PRODUCTS_LIMIT);
 
   if (error) return { products: [], error: error.message };
   return { products: (data || []) as StorefrontProduct[], error: null };
@@ -105,7 +106,7 @@ export default async function LaunchPipelinePage() {
         <Metric icon={FileSearch} label="Needs Review" value={counts['Needs Review'] || 0} note="Data or admin review is open." tone="warning" />
         <Metric icon={Sparkles} label="Can Prepare SEO" value={counts['Can Prepare SEO'] || 0} note="Operational checks closed; SEO next." />
         <Metric icon={CheckCircle2} label="Can Prepare Feed" value={counts['Can Prepare Feed'] || 0} note="Safe candidate for feed prep." tone="success" />
-        <Metric icon={Rocket} label="Products" value={rows.length} note="Current v4 slice." />
+        <Metric icon={Rocket} label="Products" value={rows.length} note="Current storefront-candidate slice." />
       </div>
 
       <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
