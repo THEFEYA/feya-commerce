@@ -49,11 +49,11 @@ export function AdminProductDetailView({ product }: { product: StorefrontProduct
 
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.12),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
     <section className="container-feya pt-10 pb-16">
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
-        <div className="max-w-5xl">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-6 mb-7">
+        <div className="max-w-4xl">
           <div className="eyebrow-gold mb-3">Админка · Карточка товара</div>
-          <h1 className="font-tall text-bone leading-[1.02] max-w-5xl" style={{ fontSize: 'clamp(30px,3.4vw,50px)' }}>{productTitle(product)}</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Внутренняя карточка контроля товара. Данные могут приходить из storefront, builder detail или catalog fallback; действия ниже сохраняются как проверочные события и не меняют товар напрямую.</p>
+          <h1 className="text-bone text-[22px] md:text-[24px] lg:text-[26px] leading-snug font-medium max-w-4xl">{productTitle(product)}</h1>
+          <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--bone-dim)]">Внутренняя карточка контроля товара. Данные могут приходить из storefront, builder detail или catalog fallback; действия ниже сохраняются как проверочные события и не меняют товар напрямую.</p>
           <div className="mt-4 flex flex-wrap gap-1.5">
             <Chip>{worldLabel(product)}</Chip>
             <Chip>{categoryLabel(product)}</Chip>
