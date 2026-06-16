@@ -1,5 +1,6 @@
 'use client';
-import { Search, SlidersHorizontal, X, Check } from 'lucide-react';
+import Link from 'next/link';
+import { Search, SlidersHorizontal, X, Check, ArrowUpRight } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { colorStyle } from '@/components/colors';
 import { ProductCard } from '@/components/ProductCard';
@@ -15,6 +16,12 @@ const OCCASIONS = ['Festival', 'Stage', 'Burning Man', 'Editorial', 'Carnival'];
 const STYLES = ['Desert', 'Rave', 'Stage', 'Editorial', 'Futuristic', 'Goddess', 'Warrior'];
 const PRODUCTION_TIMES = ['7–10 days', '14–21 days', '21–28 days', '30+ days'];
 const SORTS = ['Editorial pick', 'Best sellers', 'Price · low to high', 'Price · high to low', 'Newest'];
+
+type ShopCollectionLink = {
+  slug: string;
+  title: string;
+  products?: StorefrontProduct[];
+};
 
 function contains(p: StorefrontProduct, q: string) {
   return `${productTitle(p)} ${p.meta_description || ''} ${p.material || ''} ${p.color || ''} ${p.product_type || ''} ${p.production_profile || ''} ${p.shipping_profile || ''}`.toLowerCase().includes(q.toLowerCase());
@@ -40,7 +47,7 @@ function FilterBox({ checked }: { checked: boolean }) {
   </span>;
 }
 
-export function ShopClient({ products, error }: { products: StorefrontProduct[]; error?: string }) {
+export function ShopClient({ products, error, collections = [] }: { products: StorefrontProduct[]; error?: string; collections?: ShopCollectionLink[] }) {
   const [category, setCategory] = useState('All');
   const [priceMin, setPriceMin] = useState(0);
   const [priceMax, setPriceMax] = useState(1000);
@@ -85,14 +92,15 @@ export function ShopClient({ products, error }: { products: StorefrontProduct[];
   const activeCount = Number(category !== 'All') + Number(priceMin > 0 || priceMax < 1000) + Number(Boolean(color)) + Number(Boolean(size)) + Number(Boolean(material)) + occasion.length + style.length + Number(Boolean(productionTime)) + Number(Boolean(search));
 
   return <div data-testid="shop-page" className="relative pt-24 lg:pt-28">
-    <section className="container-feya py-8 lg:py-10"><div className="eyebrow mb-3 reveal">Atelier collection · Festival/Stage 26</div><h1 className="display-hero text-bone reveal reveal-d1" style={{ fontSize: 'clamp(44px, 6.5vw, 96px)' }}>The <span className="editorial-italic text-gold-grad">shop</span></h1><p className="editorial-italic text-[var(--bone-dim)] mt-4 text-lg">{products.length || 200} pieces, made to be seen. Filter by world, material or stage-readiness.</p></section>
+    <section className="container-feya py-8 lg:py-10"><div className="eyebrow mb-3 reveal">TheFEYA catalog · Real storefront products</div><h1 className="display-hero text-bone reveal reveal-d1" style={{ fontSize: 'clamp(44px, 6.5vw, 96px)' }}>The <span className="editorial-italic text-gold-grad">shop</span></h1><p className="editorial-italic text-[var(--bone-dim)] mt-4 text-lg">{products.length || 200} handmade designs and statement pieces. Filter by world, material or stage-readiness.</p></section>
+    {collections.length > 0 ? <section className="container-feya pb-6"><div className="flex flex-wrap items-center gap-2"><Link href="/collections" className="chip flex items-center gap-2">All collections <ArrowUpRight size={12} /></Link>{collections.slice(0, 9).map((collection) => <Link key={collection.slug} href={`/collections/${collection.slug}`} className="chip flex items-center gap-2">{collection.title}<span className="text-[var(--smoke)]">{collection.products?.length || 0}</span></Link>)}</div></section> : null}
     <div className="sticky top-[62px] lg:top-[64px] z-30 border-y border-[rgba(216,214,211,0.12)] bg-[rgba(7,7,10,0.90)] backdrop-blur-xl category-tabs-recovered"><div className="container-feya flex items-center gap-5 xl:gap-7 overflow-visible py-4 min-h-[58px] whitespace-nowrap">
       {CATEGORIES.map((c) => <button key={c} onClick={() => setCategory(c)} className={`chip shrink-0 ${category === c ? 'chip-active' : ''}`}>{c}</button>)}
       <div className="ml-auto relative shrink-0"><button onClick={() => setSortOpen(v=>!v)} className="chip flex items-center gap-2"><SlidersHorizontal size={13} /> {sort}</button>{sortOpen && <div className="absolute right-0 top-full mt-2 w-[278px] rounded-xl border border-[rgba(216,214,211,.22)] bg-[rgba(5,5,8,.96)] p-2 z-[100] shadow-[0_28px_80px_rgba(0,0,0,.75)] backdrop-blur-xl flex flex-col gap-1 overflow-hidden">{SORTS.map((s)=><button key={s} onClick={()=>{setSort(s);setSortOpen(false);}} className={`block w-full text-left px-4 py-2.5 rounded-lg text-[10px] tracking-[0.20em] uppercase transition-all ${sort === s ? 'text-[var(--gold-warm)] bg-[rgba(212,178,106,.12)]' : 'text-[var(--bone-dim)] hover:text-white hover:bg-white/8'}`}>{s}</button>)}</div>}</div>
     </div></div>
     <section className="container-feya grid grid-cols-12 gap-7 lg:gap-10 py-10">
       <aside className="hidden lg:block col-span-2" data-testid="filter-sidebar"><div className="space-y-7">
-        <div><div className="eyebrow text-[10.5px] mb-2">Search</div><div className="relative"><Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--smoke)]" /><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search atelier…" className="w-full h-9 rounded-md bg-[rgba(255,255,255,0.03)] border border-[rgba(216,214,211,0.18)] text-bone pl-9 pr-3 text-[12.5px] focus:outline-none focus:border-white" /></div></div>
+        <div><div className="eyebrow text-[10.5px] mb-2">Search</div><div className="relative"><Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--smoke)]" /><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search TheFEYA…" className="w-full h-9 rounded-md bg-[rgba(255,255,255,0.03)] border border-[rgba(216,214,211,0.18)] text-bone pl-9 pr-3 text-[12.5px] focus:outline-none focus:border-white" /></div></div>
         <div><div className="eyebrow text-[10.5px] mb-3">Price</div><div className="relative h-7"><div className="absolute top-3 left-0 right-0 h-px bg-[rgba(216,214,211,0.25)]" /><input className="price-range absolute inset-x-0 top-0 w-full bg-transparent appearance-none" type="range" min="0" max="1000" value={priceMin} onChange={e=>setPriceMin(Math.min(Number(e.target.value), priceMax-10))} /><input className="price-range absolute inset-x-0 top-0 w-full bg-transparent appearance-none" type="range" min="0" max="1000" value={priceMax} onChange={e=>setPriceMax(Math.max(Number(e.target.value), priceMin+10))} /></div><div className="flex items-center gap-2 mt-2"><input value={priceMin} onChange={e=>setPriceMin(Number(e.target.value)||0)} className="w-20 h-8 bg-white/5 border border-white/10 rounded px-2 text-xs" /><span className="text-smoke">to</span><input value={priceMax} onChange={e=>setPriceMax(Number(e.target.value)||1000)} className="w-20 h-8 bg-white/5 border border-white/10 rounded px-2 text-xs" /></div></div>
         <div><div className="eyebrow text-[10.5px] mb-3">Color</div><div className="grid grid-cols-3 gap-2">{COLORS.map(c=><button key={c} onClick={()=>setColor(color===c?'':c)} className="flex flex-col items-center gap-1 group"><span className={`w-7 h-7 rounded-full border-2 transition-all ${color===c?'border-white shadow-[0_0_0_3px_rgba(255,255,255,0.18)]':'border-[rgba(216,214,211,0.30)] group-hover:border-white'}`} style={colorStyle(c)} /><span className={`text-[9px] tracking-[0.12em] uppercase ${color===c?'text-white':'text-[#9b988e]'}`}>{c}</span></button>)}</div></div>
         <div><div className="eyebrow text-[10.5px] mb-3">Size</div><div className="flex flex-wrap gap-1.5">{SIZES.map(s=><button key={s} onClick={()=>setSize(size===s?'':s)} className={`size-pill ${size===s && s !== 'Custom' ? 'size-pill-active' : ''} ${size===s && s === 'Custom' ? 'size-pill-custom' : ''}`}>{s}</button>)}</div></div>
