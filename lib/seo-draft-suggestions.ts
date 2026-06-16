@@ -190,7 +190,7 @@ function outline(product: StorefrontProduct) {
   const world = worldPhrase(product);
   const material = secondaryMaterialDetail(product);
   return [
-    `${sentenceCase(core)} by TheFEYA, designed as an original handmade look rather than a custom-from-scratch atelier piece.`,
+    `${sentenceCase(core)} by TheFEYA, designed as an original handmade look rather than a custom-from-scratch service.`,
     `Material and finish: ${material}; describe shine, texture, comfort and construction only from verified product facts.`,
     `Use case: ${world}, stage performance, festival styling, photoshoots and event looks where the product type is relevant.`,
     'Fit and sizing: mention adjustable/custom sizing only where supported by product data and brand policy.',
