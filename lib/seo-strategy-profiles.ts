@@ -24,6 +24,12 @@ export type SeoStrategyProfile = {
   };
 };
 
+export type SeoStrategyRecommendation = {
+  strategy: SeoStrategyProfile;
+  reasonRu: string;
+  matchedSignals: string[];
+};
+
 export const SEO_STRATEGY_PROFILES: SeoStrategyProfile[] = [
   {
     code: 'part_focus',
@@ -85,4 +91,39 @@ export const SEO_STRATEGY_PROFILES: SeoStrategyProfile[] = [
 
 export function getSeoStrategyProfile(code: string) {
   return SEO_STRATEGY_PROFILES.find((profile) => profile.code === code) || SEO_STRATEGY_PROFILES[0];
+}
+
+function includesAny(text: string, words: string[]) {
+  return words.some((word) => text.includes(word));
+}
+
+export function recommendSeoStrategy(input: { productText?: string; keywordBuckets?: string[]; isWeakProduct?: boolean }): SeoStrategyRecommendation {
+  const text = (input.productText || '').toLowerCase();
+  const buckets = input.keywordBuckets || [];
+
+  if (input.isWeakProduct) {
+    return { strategy: getSeoStrategyProfile('experimental_niche_focus'), reasonRu: 'Товар помечен как слабый или тестовый, поэтому лучше использовать нишевую гипотезу, а не занимать основные ключи.', matchedSignals: ['weak_product'] };
+  }
+
+  if (buckets.includes('material_keywords') || includesAny(text, ['acrylic', 'mirror', 'holographic', 'metallic', 'vegan leather', 'gold', 'silver'])) {
+    return { strategy: getSeoStrategyProfile('material_visual_focus'), reasonRu: 'В товаре сильный сигнал материала, цвета или визуального эффекта. Лучше усилить material/image направление.', matchedSignals: ['material', 'visual'] };
+  }
+
+  if (buckets.includes('context_event_keywords') || includesAny(text, ['festival', 'stage', 'burning man', 'cosplay', 'performance', 'rave'])) {
+    return { strategy: getSeoStrategyProfile('event_focus'), reasonRu: 'В товаре сильный сценарий использования: событие, сцена или фестиваль. Нужен event-focused угол.', matchedSignals: ['event', 'context'] };
+  }
+
+  if (buckets.includes('persona_style_keywords') || includesAny(text, ['goddess', 'robot', 'warrior', 'alien', 'drag queen', 'angel', 'demon'])) {
+    return { strategy: getSeoStrategyProfile('persona_style_focus'), reasonRu: 'В товаре сильный образ или персона. Стратегия должна усилить style/persona, но с контролем каннибализации.', matchedSignals: ['persona', 'style'] };
+  }
+
+  if (buckets.includes('image_seo_keywords')) {
+    return { strategy: getSeoStrategyProfile('image_seo_focus'), reasonRu: 'У товара выраженный визуальный потенциал для Google Images. Усиливаем image SEO.', matchedSignals: ['image_seo'] };
+  }
+
+  if (buckets.includes('long_tail_buyer_keywords')) {
+    return { strategy: getSeoStrategyProfile('commercial_intent_focus'), reasonRu: 'Есть покупательские long-tail фразы. Лучше усилить commercial intent и конверсионный смысл.', matchedSignals: ['buyer_intent'] };
+  }
+
+  return { strategy: getSeoStrategyProfile('part_focus'), reasonRu: 'Базовая безопасная стратегия: сначала закрепить товар за его основной частью и типом.', matchedSignals: ['part'] };
 }
