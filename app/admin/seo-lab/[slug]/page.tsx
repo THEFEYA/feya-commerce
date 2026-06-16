@@ -7,14 +7,17 @@ import { buildSeoDraftSuggestion } from '@/lib/seo-draft-suggestions';
 import { buildSeoScores, type SeoScoreStage } from '@/lib/seo-scoring';
 import type { StorefrontProduct } from '@/lib/types';
 
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+const SEO_LAB_DETAIL_PRODUCTS_LIMIT = 500;
 
 type PageProps = { params: Promise<{ slug: string }> };
 
 async function loadProducts() {
   const supabase = getSupabaseReadClient();
   if (!supabase) return { products: [], error: getMissingSupabaseEnvMessage() };
-  const { data, error } = await supabase.from(STOREFRONT_VIEW_V4).select(STOREFRONT_V4_CARD_SELECT).limit(250);
+  const { data, error } = await supabase.from(STOREFRONT_VIEW_V4).select(STOREFRONT_V4_CARD_SELECT).limit(SEO_LAB_DETAIL_PRODUCTS_LIMIT);
   if (error) return { products: [], error: error.message };
   return { products: (data || []) as StorefrontProduct[], error: null };
 }
