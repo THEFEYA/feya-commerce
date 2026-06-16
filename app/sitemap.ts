@@ -1,9 +1,24 @@
 import type { MetadataRoute } from 'next';
 import { getSupabaseReadClient } from '@/lib/supabase';
 import { STOREFRONT_VIEW_V4 } from '@/lib/storefront';
+import { summarizeCollections } from '@/lib/public-collections';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thefeya.com';
 const PRODUCT_LIMIT = 500;
+
+const SITEMAP_PRODUCT_SELECT = [
+  'product_slug',
+  'updated_at',
+  'card_title',
+  'h1',
+  'seo_title',
+  'meta_description',
+  'product_type',
+  'material',
+  'color',
+  'category_label',
+  'world_label',
+].join(',');
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -18,10 +33,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const { data, error } = await supabase
     .from(STOREFRONT_VIEW_V4)
-    .select('product_slug,updated_at')
+    .select(SITEMAP_PRODUCT_SELECT)
     .limit(PRODUCT_LIMIT);
 
   if (error || !data?.length) return staticRoutes;
+
+  const collections = summarizeCollections(data);
+
+  const collectionRoutes: MetadataRoute.Sitemap = collections.map((collection) => ({
+    url: `${siteUrl}/collections/${collection.slug}`,
+    lastModified: now,
+    changeFrequency: 'weekly',
+    priority: 0.75,
+  }));
 
   const productRoutes: MetadataRoute.Sitemap = data
     .filter((row) => row.product_slug)
@@ -32,5 +56,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }));
 
-  return [...staticRoutes, ...productRoutes];
+  return [...staticRoutes, ...collectionRoutes, ...productRoutes];
 }
