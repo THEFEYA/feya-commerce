@@ -102,6 +102,10 @@ export function productMatchesCollection(product: StorefrontProduct, collection:
   return collection.match.some((term) => text.includes(normalize(term)));
 }
 
+export function collectionsForProduct(product: StorefrontProduct) {
+  return PUBLIC_COLLECTIONS.filter((collection) => productMatchesCollection(product, collection));
+}
+
 export function productsForCollection(products: StorefrontProduct[], slug: string) {
   const collection = getPublicCollection(slug);
   if (!collection) return [];
