@@ -43,20 +43,22 @@ export function AdminProductDetailView({ product }: { product: StorefrontProduct
   const priceReview = flags.priceReview;
   const mediaReview = flags.mediaReview;
   const slugValue = productSlug(product);
+  const storefrontAvailable = product.storefront_candidate_flag !== false && slugValue !== product.canonical_product_id;
   const storefrontHref = `/shop/${slugValue}`;
   const adminHref = `/admin/products/${slugValue}`;
 
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.12),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
     <section className="container-feya pt-10 pb-16">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
-        <div>
+        <div className="max-w-5xl">
           <div className="eyebrow-gold mb-3">Админка · Карточка товара</div>
-          <h1 className="font-tall text-bone leading-[0.95]" style={{ fontSize: 'clamp(36px,5.5vw,74px)' }}>{productTitle(product)}</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Внутренняя карточка контроля из безопасного v4-контракта. Все действия ниже сохраняются как проверочные события и не меняют товар напрямую.</p>
+          <h1 className="font-tall text-bone leading-[1.02] max-w-5xl" style={{ fontSize: 'clamp(30px,3.4vw,50px)' }}>{productTitle(product)}</h1>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Внутренняя карточка контроля товара. Данные могут приходить из storefront, builder detail или catalog fallback; действия ниже сохраняются как проверочные события и не меняют товар напрямую.</p>
           <div className="mt-4 flex flex-wrap gap-1.5">
             <Chip>{worldLabel(product)}</Chip>
             <Chip>{categoryLabel(product)}</Chip>
             <Chip>{colorLabel(product)}</Chip>
+            {!storefrontAvailable ? <Chip tone="warning">Catalog fallback</Chip> : null}
             {labelReview ? <Chip tone="warning">Проверить название</Chip> : null}
             {priceReview ? <Chip tone="warning">Проверить цену</Chip> : null}
             {missingComponents ? <Chip tone="danger">Нет компонентов: {missingComponents}</Chip> : null}
@@ -65,7 +67,7 @@ export function AdminProductDetailView({ product }: { product: StorefrontProduct
         </div>
         <div className="flex gap-3">
           <Link href="/admin/products" className="btn-ghost">Товары</Link>
-          <Link href={storefrontHref} className="btn-ghost">Витрина <ArrowUpRight size={13} /></Link>
+          {storefrontAvailable ? <Link href={storefrontHref} className="btn-ghost">Витрина <ArrowUpRight size={13} /></Link> : null}
         </div>
       </div>
 
@@ -78,6 +80,7 @@ export function AdminProductDetailView({ product }: { product: StorefrontProduct
             <div className="mt-3 grid grid-cols-4 gap-2">
               {media.slice(0, 8).map((item, index) => <div key={`${item.url || item.image_url}-${index}`} className="relative aspect-square rounded-lg overflow-hidden bg-black/25 border border-[rgba(216,214,211,.10)]">{item.url || item.image_url ? <img src={item.url || item.image_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}</div>)}
             </div>
+            {!media.length ? <div className="mt-3 text-[13px] text-[var(--bone-dim)]">Медиа недоступно в текущем detail contract. Проверь media queue или storefront enrichment.</div> : null}
           </Panel>
 
           <Panel title="Идентичность товара" icon={Tags}>
@@ -123,7 +126,7 @@ export function AdminProductDetailView({ product }: { product: StorefrontProduct
                   <div>{config.component_code ? <Chip>{config.component_code}</Chip> : <Chip tone="danger">Нет</Chip>}</div>
                   <div className="flex flex-wrap gap-1.5">{config.is_full_set ? <Chip tone="warning">Полный комплект</Chip> : null}{config.is_bundle ? <Chip tone="warning">Комплект</Chip> : null}{config.needs_label_review ? <Chip tone="warning">Название</Chip> : null}</div>
                 </div>)}
-                {!configs.length ? <div className="p-4 text-[13px] text-[var(--bone-dim)]">Опции не вернулись из v4-контракта.</div> : null}
+                {!configs.length ? <div className="p-4 text-[13px] text-[var(--bone-dim)]">Опции недоступны в текущем detail contract. Для полного разбора нужен builder detail row или отдельная lightweight detail view.</div> : null}
               </div>
             </div>
           </Panel>
