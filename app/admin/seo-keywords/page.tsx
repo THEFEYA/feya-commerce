@@ -13,23 +13,23 @@ const FILTERS = [
   { key: 'queue_suggested_page_level', label: 'page_level' },
 ] as const;
 
-async function getSeoKeywordRows(): Promise<{ rows: SeoKeywordCleanupReportRow[]; error?: string }> {
+async function getSeoKeywordRows(): Promise<{ rows: SeoKeywordCleanupReportRow[]; totalCount: number | null; error?: string }> {
   const supabase = getSupabaseReadClient();
 
   if (!supabase) {
-    return { rows: [], error: getMissingSupabaseEnvMessage() };
+    return { rows: [], totalCount: null, error: getMissingSupabaseEnvMessage() };
   }
 
-  const { data, error } = await supabase
+  const { data, error, count } = await supabase
     .from('feya_commerce_v_seo_keyword_ai_cleanup_report_v1')
-    .select('*')
+    .select('*', { count: 'exact' })
     .limit(SEO_KEYWORDS_LIMIT);
 
   if (error) {
-    return { rows: [], error: error.message };
+    return { rows: [], totalCount: null, error: error.message };
   }
 
-  return { rows: (data || []) as SeoKeywordCleanupReportRow[] };
+  return { rows: (data || []) as SeoKeywordCleanupReportRow[], totalCount: count };
 }
 
 function asText(value: unknown, fallback = '—') {
@@ -38,12 +38,12 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
-function asBoolean(value: unknown) {
-  return value === true || value === 'true' || value === 1;
+function normalizeStatus(value: unknown) {
+  return asText(value, '').trim().toLowerCase();
 }
 
-function countRows(rows: SeoKeywordCleanupReportRow[], key: keyof SeoKeywordCleanupReportRow) {
-  return rows.filter((row) => asBoolean(row[key])).length;
+function countCleanupStatus(rows: SeoKeywordCleanupReportRow[], status: string) {
+  return rows.filter((row) => normalizeStatus(row.cleanup_pipeline_status) === status).length;
 }
 
 function getUniqueValues(rows: SeoKeywordCleanupReportRow[], key: keyof SeoKeywordCleanupReportRow) {
@@ -51,7 +51,7 @@ function getUniqueValues(rows: SeoKeywordCleanupReportRow[], key: keyof SeoKeywo
 }
 
 function getStatusClass(value: unknown) {
-  const normalized = asText(value, '').toLowerCase();
+  const normalized = normalizeStatus(value);
 
   if (normalized.includes('ready') || normalized.includes('approved') || normalized.includes('clean')) {
     return 'ok';
@@ -65,14 +65,15 @@ function getStatusClass(value: unknown) {
 }
 
 export default async function AdminSeoKeywordsPage() {
-  const { rows, error } = await getSeoKeywordRows();
+  const { rows, totalCount, error } = await getSeoKeywordRows();
 
   const metrics = [
-    { label: 'Total rows shown', value: rows.length },
-    { label: 'needs_ai_cleanup', value: countRows(rows, 'needs_ai_cleanup') },
-    { label: 'needs_human_review', value: countRows(rows, 'needs_human_review') },
-    { label: 'ready_for_metric_validation', value: countRows(rows, 'ready_for_metric_validation') },
-    { label: 'hold', value: countRows(rows, 'should_hold') },
+    { label: 'Total queue rows', value: totalCount ?? rows.length },
+    { label: 'Rows shown', value: rows.length },
+    { label: 'needs_ai_cleanup', value: countCleanupStatus(rows, 'needs_ai_cleanup') },
+    { label: 'needs_human_review', value: countCleanupStatus(rows, 'needs_human_review') },
+    { label: 'ready_for_metric_validation', value: countCleanupStatus(rows, 'ready_for_metric_validation') },
+    { label: 'hold', value: countCleanupStatus(rows, 'hold') },
   ];
 
   return (
@@ -83,6 +84,7 @@ export default async function AdminSeoKeywordsPage() {
           <div className="nav-links">
             <Link href="/admin/review">Review</Link>
             <Link href="/admin/products">Products</Link>
+            <Link href="/admin/seo-keywords">SEO Keywords</Link>
             <Link href="/shop">Shop</Link>
           </div>
         </nav>
