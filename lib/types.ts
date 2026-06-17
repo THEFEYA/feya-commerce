@@ -85,3 +85,24 @@ export type AdminCatalogRow = {
   do_not_publish_flag?: boolean | null;
   [key: string]: unknown;
 };
+
+
+export type SeoKeywordCleanupReportRow = {
+  keyword?: string | null;
+  keyword_norm?: string | null;
+  priority_tier?: string | null;
+  queue_suggested_page_level?: string | null;
+  queue_keyword_axis?: string | null;
+  queue_keyword_pattern?: string | null;
+  validation_status?: string | null;
+  cleanup_pipeline_status?: string | null;
+  cleaned_keyword?: string | null;
+  suggested_keyword?: string | null;
+  should_validate_api?: boolean | null;
+  should_hold?: boolean | null;
+  needs_ai_cleanup?: boolean | null;
+  needs_human_review?: boolean | null;
+  ready_for_metric_validation?: boolean | null;
+  warning_flags?: string[] | string | null;
+  [key: string]: unknown;
+};

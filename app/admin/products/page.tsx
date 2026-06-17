@@ -76,6 +76,7 @@ export default async function AdminProductsPage() {
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
             <Link href="/admin/review">Review</Link>
+            <Link href="/admin/seo-keywords">SEO Keywords</Link>
             <Link href="/shop">Shop</Link>
           </div>
         </nav>
