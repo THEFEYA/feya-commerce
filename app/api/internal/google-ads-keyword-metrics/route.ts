@@ -14,6 +14,7 @@ type UnknownRecord = Record<string, unknown>;
 
 type GoogleAdsMetricRequest = {
   customerId: string | null;
+  loginCustomerId: string | null;
   endpoint: string | null;
   payload: {
     keywords: string[];
@@ -22,6 +23,28 @@ type GoogleAdsMetricRequest = {
     geoTargetConstants?: string[];
   };
 };
+
+type GoogleAdsErrorDiagnostics = {
+  google_ads_http_status: string | null;
+  google_ads_error_status: string | null;
+  google_ads_error_message: string | null;
+  google_ads_error_codes: string[];
+  google_ads_error_details: unknown[];
+  google_ads_request_id: string | null;
+  used_customer_id: string | null;
+  used_login_customer_id: string | null;
+  has_login_customer_id: boolean;
+};
+
+class GoogleAdsApiError extends Error {
+  diagnostics: GoogleAdsErrorDiagnostics;
+
+  constructor(message: string, diagnostics: GoogleAdsErrorDiagnostics) {
+    super(message);
+    this.name = 'GoogleAdsApiError';
+    this.diagnostics = diagnostics;
+  }
+}
 
 function asString(value: unknown) {
   return typeof value === 'string' && value.trim() ? value.trim() : null;
@@ -49,12 +72,44 @@ function safeErrorMessage(value: unknown, fallback: string) {
   return fallback;
 }
 
-function getGoogleApiSafeError(payload: unknown, fallback: string) {
-  if (!payload || typeof payload !== 'object') return fallback;
+function getGoogleApiError(payload: unknown, fallback: string) {
+  if (!payload || typeof payload !== 'object') return { message: fallback, status: null, details: [] as unknown[] };
   const error = 'error' in payload ? payload.error : null;
-  if (!error || typeof error !== 'object') return fallback;
+  if (!error || typeof error !== 'object') return { message: fallback, status: null, details: [] as unknown[] };
   const message = 'message' in error ? safeErrorMessage(error.message, fallback) : fallback;
-  return message;
+  const status = 'status' in error ? asString(error.status) : null;
+  const details = 'details' in error && Array.isArray(error.details) ? error.details : [];
+  return { message, status, details };
+}
+
+function collectGoogleAdsErrorCodes(value: unknown): string[] {
+  const codes = new Set<string>();
+
+  function visit(item: unknown) {
+    if (!item || typeof item !== 'object') return;
+    if (Array.isArray(item)) {
+      item.forEach(visit);
+      return;
+    }
+
+    for (const [key, nestedValue] of Object.entries(item)) {
+      if (key === 'errorCode' && nestedValue && typeof nestedValue === 'object') {
+        for (const codeValue of Object.values(nestedValue)) {
+          const code = asString(codeValue);
+          if (code) codes.add(code);
+        }
+      } else if (typeof nestedValue === 'object') {
+        visit(nestedValue);
+      }
+    }
+  }
+
+  visit(value);
+  return [...codes];
+}
+
+function getGoogleAdsRequestId(headers: Headers) {
+  return headers.get('request-id') || headers.get('x-request-id') || headers.get('google-ads-request-id');
 }
 
 function getBatchStatus(row: UnknownRecord) {
@@ -116,6 +171,7 @@ function buildGoogleAdsRequest(keywords: string[]): GoogleAdsMetricRequest {
 
   return {
     customerId,
+    loginCustomerId: sanitizeCustomerId(process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID),
     endpoint: customerId ? `https://googleads.googleapis.com/v24/customers/${customerId}:generateKeywordHistoricalMetrics` : null,
     payload: {
       keywords,
@@ -128,7 +184,7 @@ function buildGoogleAdsRequest(keywords: string[]): GoogleAdsMetricRequest {
 
 async function runGoogleAdsKeywordMetrics(requestPayload: GoogleAdsMetricRequest, accessToken: string) {
   const developerToken = process.env.GOOGLE_ADS_DEVELOPER_TOKEN;
-  const loginCustomerId = sanitizeCustomerId(process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID);
+  const loginCustomerId = requestPayload.loginCustomerId;
 
   if (!developerToken) throw new Error('GOOGLE_ADS_DEVELOPER_TOKEN is not configured.');
   if (!requestPayload.endpoint) throw new Error('GOOGLE_ADS_CUSTOMER_ID is not configured.');
@@ -149,7 +205,19 @@ async function runGoogleAdsKeywordMetrics(requestPayload: GoogleAdsMetricRequest
   const payload = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new Error(getGoogleApiSafeError(payload, `Google Ads keyword metrics request failed with status ${response.status}.`));
+    const fallback = `Google Ads keyword metrics request failed with status ${response.status}.`;
+    const googleApiError = getGoogleApiError(payload, fallback);
+    throw new GoogleAdsApiError(googleApiError.message, {
+      google_ads_http_status: String(response.status),
+      google_ads_error_status: googleApiError.status,
+      google_ads_error_message: googleApiError.message,
+      google_ads_error_codes: collectGoogleAdsErrorCodes(googleApiError.details),
+      google_ads_error_details: googleApiError.details,
+      google_ads_request_id: getGoogleAdsRequestId(response.headers),
+      used_customer_id: requestPayload.customerId,
+      used_login_customer_id: loginCustomerId,
+      has_login_customer_id: Boolean(loginCustomerId),
+    });
   }
 
   return payload;
@@ -226,8 +294,24 @@ async function handler(request: NextRequest) {
 
     if (!dryRun && keywords.length) {
       const accessToken = await getOAuthAccessToken();
-      await runGoogleAdsKeywordMetrics(googleAdsRequest, accessToken);
-      googleAdsRequestOk = true;
+      try {
+        await runGoogleAdsKeywordMetrics(googleAdsRequest, accessToken);
+        googleAdsRequestOk = true;
+      } catch (error) {
+        if (error instanceof GoogleAdsApiError) {
+          return NextResponse.json({
+            ok: false,
+            batch_id: batchId,
+            keywords_count: keywords.length,
+            dry_run: dryRun,
+            google_ads_request_ok: false,
+            saved_rows: 0,
+            safe_error_message: error.message,
+            ...error.diagnostics,
+          }, { status: 502 });
+        }
+        throw error;
+      }
       // Intentionally not writing yet: target staging/snapshot table mapping is not explicit in this repo.
       savedRows = 0;
     }
