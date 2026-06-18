@@ -108,6 +108,22 @@ function collectGoogleAdsErrorCodes(value: unknown): string[] {
   return [...codes];
 }
 
+function sanitizeGoogleAdsErrorDetails(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(sanitizeGoogleAdsErrorDetails);
+  if (!value || typeof value !== 'object') {
+    return typeof value === 'string' ? value.slice(0, 1000) : value;
+  }
+
+  return Object.fromEntries(
+    Object.entries(value).map(([key, nestedValue]) => {
+      if (/authorization|token|secret|refresh|client_secret|service_role/i.test(key)) {
+        return [key, '[redacted]'];
+      }
+      return [key, sanitizeGoogleAdsErrorDetails(nestedValue)];
+    }),
+  );
+}
+
 function getGoogleAdsRequestId(headers: Headers) {
   return headers.get('request-id') || headers.get('x-request-id') || headers.get('google-ads-request-id');
 }
@@ -212,7 +228,7 @@ async function runGoogleAdsKeywordMetrics(requestPayload: GoogleAdsMetricRequest
       google_ads_error_status: googleApiError.status,
       google_ads_error_message: googleApiError.message,
       google_ads_error_codes: collectGoogleAdsErrorCodes(googleApiError.details),
-      google_ads_error_details: googleApiError.details,
+      google_ads_error_details: sanitizeGoogleAdsErrorDetails(googleApiError.details) as unknown[],
       google_ads_request_id: getGoogleAdsRequestId(response.headers),
       used_customer_id: requestPayload.customerId,
       used_login_customer_id: loginCustomerId,
