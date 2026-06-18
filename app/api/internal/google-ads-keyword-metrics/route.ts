@@ -8,6 +8,9 @@ const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 20;
 const DEFAULT_LANGUAGE_CONSTANT = 'languageConstants/1000';
 const DEFAULT_KEYWORD_PLAN_NETWORK = 'GOOGLE_SEARCH';
+const ALLOWED_BATCH_STATUSES = new Set(['pending', 'queued', 'ready', 'ready_for_fetch']);
+const SENSITIVE_FIELD_PATTERN = /(authorization|access[_-]?token|refresh[_-]?token|developer[_-]?token|client[_-]?secret|service[_-]?role|apikey|api[_-]?key|secret|password|credential|cookie)/i;
+const SENSITIVE_STRING_PATTERN = /(Bearer\s+)[A-Za-z0-9._~+\/-]+=*|((?:developer|refresh|access)[_-]?token[=:]\s*)[^\s,}]+|((?:client[_-]?secret|service[_-]?role[_-]?key|authorization)[=:]\s*)[^\s,}]+/gi;
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -21,6 +24,28 @@ type GoogleAdsMetricRequest = {
     geoTargetConstants?: string[];
   };
 };
+
+type GoogleAdsDiagnostics = {
+  used_customer_id: string | null;
+  used_login_customer_id: string | null;
+  has_login_customer_id: boolean;
+  google_ads_http_status: number | null;
+  google_ads_error_status: string | null;
+  google_ads_error_message: string | null;
+  google_ads_error_codes: string[];
+  google_ads_request_id: string | null;
+  sanitized_google_ads_error_details: unknown;
+};
+
+class GoogleAdsApiError extends Error {
+  diagnostics: GoogleAdsDiagnostics;
+
+  constructor(message: string, diagnostics: GoogleAdsDiagnostics) {
+    super(message);
+    this.name = 'GoogleAdsApiError';
+    this.diagnostics = diagnostics;
+  }
+}
 
 function asString(value: unknown) {
   return typeof value === 'string' && value.trim() ? value.trim() : null;
@@ -56,13 +81,75 @@ function getGoogleApiSafeError(payload: unknown, fallback: string) {
   return message;
 }
 
-function isPendingBatch(row: UnknownRecord) {
-  const statusFields = ['status', 'batch_status', 'request_status', 'processing_status', 'metric_status'];
-  return statusFields.some((field) => asString(row[field])?.toLowerCase() === 'pending');
+function redactSensitiveString(value: string) {
+  return value.replace(SENSITIVE_STRING_PATTERN, (_match, bearerPrefix, tokenPrefix, secretPrefix) => `${bearerPrefix || tokenPrefix || secretPrefix || ''}[REDACTED]`);
+}
+
+function sanitizeErrorDetails(value: unknown, depth = 0): unknown {
+  if (depth > 8) return '[REDACTED_DEPTH_LIMIT]';
+  if (value === null || value === undefined) return value;
+  if (typeof value === 'string') return redactSensitiveString(value).slice(0, 2000);
+  if (typeof value === 'number' || typeof value === 'boolean') return value;
+  if (Array.isArray(value)) return value.slice(0, 25).map((item) => sanitizeErrorDetails(item, depth + 1));
+  if (typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as UnknownRecord)
+        .slice(0, 50)
+        .map(([key, item]) => [key, SENSITIVE_FIELD_PATTERN.test(key) ? '[REDACTED]' : sanitizeErrorDetails(item, depth + 1)]),
+    );
+  }
+  return '[REDACTED_UNSUPPORTED_VALUE]';
+}
+
+function collectGoogleAdsErrorCodes(value: unknown): string[] {
+  const codes = new Set<string>();
+
+  function visit(item: unknown, depth = 0) {
+    if (!item || depth > 8) return;
+    if (Array.isArray(item)) {
+      item.forEach((entry) => visit(entry, depth + 1));
+      return;
+    }
+    if (typeof item !== 'object') return;
+
+    for (const [key, nested] of Object.entries(item as UnknownRecord)) {
+      if (key === 'errorCode' && nested && typeof nested === 'object') {
+        Object.entries(nested as UnknownRecord).forEach(([codeKey, codeValue]) => {
+          const code = asString(codeValue);
+          if (code) codes.add(`${codeKey}:${code}`);
+        });
+      }
+      visit(nested, depth + 1);
+    }
+  }
+
+  visit(value);
+  return Array.from(codes).slice(0, 25);
+}
+
+function getGoogleAdsDiagnostics(requestPayload: GoogleAdsMetricRequest, loginCustomerId: string | null, responseStatus: number | null, requestId: string | null, payload: unknown): GoogleAdsDiagnostics {
+  const error = payload && typeof payload === 'object' && 'error' in payload && payload.error && typeof payload.error === 'object' ? (payload.error as UnknownRecord) : null;
+
+  return {
+    used_customer_id: requestPayload.customerId,
+    used_login_customer_id: loginCustomerId,
+    has_login_customer_id: Boolean(loginCustomerId),
+    google_ads_http_status: responseStatus,
+    google_ads_error_status: error ? asString(error.status) : null,
+    google_ads_error_message: error ? safeErrorMessage(error.message, 'Google Ads keyword metrics request failed.') : null,
+    google_ads_error_codes: collectGoogleAdsErrorCodes(payload),
+    google_ads_request_id: requestId,
+    sanitized_google_ads_error_details: sanitizeErrorDetails(payload),
+  };
+}
+
+function isAllowedBatchStatus(row: UnknownRecord) {
+  const status = asString(row.batch_status)?.toLowerCase();
+  return Boolean(status && ALLOWED_BATCH_STATUSES.has(status));
 }
 
 function getBatchId(row: UnknownRecord) {
-  return asString(row.id) || asString(row.batch_id) || asString(row.request_batch_id);
+  return asString(row.metric_batch_id) || asString(row.batch_id) || asString(row.batchId) || asString(row.id) || asString(row.request_batch_id);
 }
 
 function getKeyword(row: UnknownRecord) {
@@ -144,10 +231,37 @@ async function runGoogleAdsKeywordMetrics(requestPayload: GoogleAdsMetricRequest
   const payload = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new Error(getGoogleApiSafeError(payload, `Google Ads keyword metrics request failed with status ${response.status}.`));
+    const requestId = response.headers.get('request-id') || response.headers.get('x-request-id') || response.headers.get('x-google-ads-request-id');
+    const message = getGoogleApiSafeError(payload, `Google Ads keyword metrics request failed with status ${response.status}.`);
+    throw new GoogleAdsApiError(message, getGoogleAdsDiagnostics(requestPayload, loginCustomerId, response.status, requestId, payload));
   }
 
   return payload;
+}
+
+function getRequestedBatchId(body: UnknownRecord, searchParams: URLSearchParams) {
+  return asString(body.batch_id) || asString(body.batchId) || asString(searchParams.get('batch_id')) || asString(searchParams.get('batchId'));
+}
+
+async function getKeywordRows(supabase: ReturnType<typeof getSupabaseServiceRoleClient>, batchId: string, limit: number) {
+  if (!supabase) return { data: null, error: new Error(getMissingSupabaseServiceRoleEnvMessage()) };
+
+  const metricBatchLookup = await supabase
+    .from('feya_metric_request_batch_keywords_v1')
+    .select('*')
+    .eq('metric_batch_id', batchId)
+    .limit(limit);
+
+  if (!metricBatchLookup.error && metricBatchLookup.data?.length) return metricBatchLookup;
+
+  const legacyBatchLookup = await supabase
+    .from('feya_metric_request_batch_keywords_v1')
+    .select('*')
+    .eq('batch_id', batchId)
+    .limit(limit);
+
+  if (!legacyBatchLookup.error) return legacyBatchLookup;
+  return metricBatchLookup.error ? metricBatchLookup : legacyBatchLookup;
 }
 
 async function handler(request: NextRequest) {
@@ -169,21 +283,20 @@ async function handler(request: NextRequest) {
   }
 
   try {
-    const { data: batches, error: batchError } = await supabase.from('feya_metric_request_batch_v1').select('*').limit(25);
+    const requestedBatchId = getRequestedBatchId(body, searchParams);
+    const { data: batches, error: batchError } = requestedBatchId
+      ? await supabase.from('feya_metric_request_batch_v1').select('*').or(`metric_batch_id.eq.${requestedBatchId},batch_id.eq.${requestedBatchId},batchId.eq.${requestedBatchId}`).limit(1)
+      : await supabase.from('feya_metric_request_batch_v1').select('*').in('batch_status', Array.from(ALLOWED_BATCH_STATUSES)).limit(25);
     if (batchError) throw new Error(batchError.message);
 
-    const batch = ((batches || []) as UnknownRecord[]).find(isPendingBatch) || ((batches || []) as UnknownRecord[])[0] || null;
-    const batchId = batch ? getBatchId(batch) : null;
+    const batch = requestedBatchId ? ((batches || []) as UnknownRecord[])[0] || null : ((batches || []) as UnknownRecord[]).find(isAllowedBatchStatus) || null;
+    const batchId = requestedBatchId || (batch ? getBatchId(batch) : null);
 
-    if (!batch || !batchId) {
+    if (!batchId) {
       return NextResponse.json({ ok: true, batch_id: null, keywords_count: 0, dry_run: dryRun, google_ads_request_ok: false, saved_rows: 0, safe_error_message: 'No pending metric request batch found.' });
     }
 
-    const { data: keywordRows, error: keywordError } = await supabase
-      .from('feya_metric_request_batch_keywords_v1')
-      .select('*')
-      .eq('batch_id', batchId)
-      .limit(limit);
+    const { data: keywordRows, error: keywordError } = await getKeywordRows(supabase, batchId, limit);
     if (keywordError) throw new Error(keywordError.message);
 
     const keywords = Array.from(new Set(((keywordRows || []) as UnknownRecord[]).map(getKeyword).filter((keyword): keyword is string => Boolean(keyword)))).slice(0, limit);
@@ -214,7 +327,8 @@ async function handler(request: NextRequest) {
       write_mode: 'disabled_until_target_metric_table_confirmed',
     });
   } catch (error) {
-    return NextResponse.json({ ok: false, batch_id: null, keywords_count: 0, dry_run: dryRun, google_ads_request_ok: false, saved_rows: 0, safe_error_message: safeErrorMessage(error, 'Google Ads keyword metrics endpoint failed.') }, { status: 500 });
+    const googleAdsDiagnostics = error instanceof GoogleAdsApiError ? error.diagnostics : {};
+    return NextResponse.json({ ok: false, batch_id: null, keywords_count: 0, dry_run: dryRun, google_ads_request_ok: false, saved_rows: 0, safe_error_message: safeErrorMessage(error, 'Google Ads keyword metrics endpoint failed.'), ...googleAdsDiagnostics }, { status: 500 });
   }
 }
 
