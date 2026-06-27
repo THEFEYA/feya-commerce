@@ -41,7 +41,7 @@ export default async function ShopPage() {
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Phase B skeleton</div>
+          <div className="phase-label">Phase A read-only preview</div>
           <p>
             Live storefront preview connected to safe Supabase views. The next design pass will improve the visual system without replacing real data.
           </p>
