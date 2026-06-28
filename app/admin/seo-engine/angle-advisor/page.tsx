@@ -68,38 +68,38 @@ export default async function SeoAngleAdvisorPage() {
   const angles = [
     {
       title: 'Угол через деталь товара',
-      role: 'лучше для product page primary',
+      role: 'лучше для главного ключа карточки',
       phrases: phrases(brief, 'components', ['shoulder armor', 'arm bracers', 'choker collar']),
       useFor: 'главный заголовок, H1, первый абзац, alt-текст, если деталь реально видна на фото.',
-      avoid: 'не копировать тот же title на похожий товар; менять главную деталь или порядок смысла.',
+      avoid: 'не копировать тот же заголовок на похожий товар; менять главную деталь или порядок смысла.',
     },
     {
       title: 'Угол через образ / персонажа',
       role: 'лучше для второго похожего товара',
       phrases: phrases(brief, 'persona', ['futuristic warrior', 'robot warrior costume', 'sci fi armor outfit']),
-      useFor: 'описание, FAQ, вторичные ключи, storytelling без привязки к чужим брендам или франшизам.',
+      useFor: 'описание, FAQ, вторичные ключи, сторителлинг без привязки к чужим брендам или франшизам.',
       avoid: 'не обещать персонажа, если товар визуально не поддерживает этот образ.',
     },
     {
       title: 'Угол через событие',
-      role: 'лучше для collection / landing',
+      role: 'лучше для коллекции или посадочной страницы',
       phrases: phrases(brief, 'event', ['stage performance outfit', 'festival armor', 'burning man armor']),
-      useFor: 'коллекции, внутренние ссылки, блок “where to wear”, сезонные landing pages.',
-      avoid: 'не ставить слишком широкий event keyword главным ключом карточки, если есть точная деталь товара.',
+      useFor: 'коллекции, внутренние ссылки, блок “где носить”, сезонные посадочные страницы.',
+      avoid: 'не ставить слишком широкий событийный ключ главным ключом карточки, если есть точная деталь товара.',
     },
     {
       title: 'Угол через материал / поверхность',
-      role: 'лучше для visual SEO и image SEO',
+      role: 'лучше для визуального SEO и фото',
       phrases: phrases(brief, 'material_color', ['gold armor', 'metallic gold armor', 'reflective gold armor']),
-      useFor: 'alt-тексты, описание поверхности, image filenames, secondary keywords.',
+      useFor: 'alt-тексты, описание поверхности, имена файлов изображений, вторичные ключи.',
       avoid: 'не использовать неверный цвет, holographic, silicone или red, если этого нет в товаре.',
     },
     {
-      title: 'Угол через long-tail',
+      title: 'Угол через точный длинный запрос',
       role: 'лучше для низкой конкуренции',
       phrases: phrases(brief, 'long_tail', ['gold futuristic shoulder armor', 'gold armor set for stage performance']),
-      useFor: 'FAQ, body, meta description, внутренние ссылки, точные поисковые сценарии.',
-      avoid: 'не превращать long-tail в спам; использовать естественно и только там, где он читабелен.',
+      useFor: 'FAQ, основной текст, meta description, внутренние ссылки, точные поисковые сценарии.',
+      avoid: 'не превращать длинные запросы в спам; использовать естественно и только там, где это читабельно.',
     },
   ];
 
@@ -109,9 +109,9 @@ export default async function SeoAngleAdvisorPage() {
         <div>
           <div className="eyebrow-gold mb-2">Админка · SEO · советник угла</div>
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,64px)' }}>Советник уникального угла</h1>
-          <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Экран не запрещает похожие товары. Он помогает развести их по смыслу: один товар вести через деталь, второй через образ, третий через событие, четвёртый через материал или long-tail.</p>
+          <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Экран не запрещает похожие товары. Он помогает развести их по смыслу: один товар вести через деталь, второй через образ, третий через событие, четвёртый через материал или точный длинный запрос.</p>
         </div>
-        <div className="flex flex-wrap gap-2"><Link href="/admin/seo-engine/overlap-policy" className="btn-ghost">Политика похожести <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine/scoring/preview" className="btn-ghost">Preview scoring <ArrowUpRight size={13} /></Link></div>
+        <div className="flex flex-wrap gap-2"><Link href="/admin/seo-engine/overlap-policy" className="btn-ghost">Политика похожести <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine/scoring/preview" className="btn-ghost">Предпросмотр оценки <ArrowUpRight size={13} /></Link></div>
       </div>
 
       {warning || fallbackUsed ? <div className="mb-5 rounded-xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] px-3 py-2 text-[12px] text-[var(--bone-dim)]">{warning || 'Включён защитный образец товара.'}</div> : null}
@@ -125,7 +125,7 @@ export default async function SeoAngleAdvisorPage() {
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4 mb-5">{angles.map((angle) => <AngleCard key={angle.title} {...angle} />)}</div>
 
       <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4 text-[12px] leading-relaxed text-[var(--bone-dim)]">
-        Операторское правило: похожесть не блокирует товар. Блокируется только почти дубль. Для похожих товаров система должна предлагать разные заголовки, разные первые абзацы, разные secondary keywords и разные места использования ключей.
+        Операторское правило: похожесть не блокирует товар. Блокируется только почти дубль. Для похожих товаров система должна предлагать разные заголовки, разные первые абзацы, разные вторичные ключи и разные места использования ключей.
       </div>
     </section>
   </main>;
