@@ -5,6 +5,7 @@ import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supab
 import { STOREFRONT_VIEW_V1, productSlug, productTitle } from '@/lib/storefront';
 import { buildSeoPilotBrief } from '@/lib/seoPilotDraft';
 import { buildSeoMetricImportContract } from '@/lib/seoMetricImportContract';
+import { CsvMetricTemplateButton } from './CsvMetricTemplateButton';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -76,7 +77,7 @@ export default async function SeoMetricImportPage() {
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,64px)' }}>Импорт метрик</h1>
           <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Read-only контракт: какие данные должны вернуться из Google Ads / CSV / eRank / DataForSEO, чтобы scoring ключей стал честным и проверяемым. Записи в Supabase на этом этапе нет.</p>
         </div>
-        <div className="flex flex-wrap gap-2"><Link href="/admin/seo-engine/briefs" className="btn-ghost">SEO-бриф <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine/scoring" className="btn-ghost">Scoring <ArrowUpRight size={13} /></Link></div>
+        <div className="flex flex-wrap gap-2"><CsvMetricTemplateButton candidates={brief.metricValidationPackage} /><Link href="/admin/seo-engine/briefs" className="btn-ghost">SEO-бриф <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine/scoring" className="btn-ghost">Scoring <ArrowUpRight size={13} /></Link></div>
       </div>
 
       {warning || fallbackUsed ? <div className="mb-5 rounded-xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] px-3 py-2 text-[12px] text-[var(--bone-dim)]">{warning || 'Включён защитный образец товара.'}</div> : null}
@@ -86,9 +87,10 @@ export default async function SeoMetricImportPage() {
           <div className="grid sm:grid-cols-3 gap-3">
             <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3"><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">Таблица позже</div><div className="mt-1 text-bone text-[13px]">{contract.proposedTable}</div></div>
             <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3"><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">Режим сейчас</div><div className="mt-1 text-bone text-[13px]">без записи в базу</div></div>
-            <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3"><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">Sample rows</div><div className="mt-1 text-bone text-[13px]">{contract.sampleRows.length}</div></div>
+            <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3"><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">CSV-фраз</div><div className="mt-1 text-bone text-[13px]">{brief.metricValidationPackage.length}</div></div>
           </div>
           <div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Unique key: {contract.uniqueKey.join(' + ')}</div>
+          <div className="mt-3 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Кнопка скачивает полный CSV-шаблон из текущего validation package. Поля метрик остаются пустыми, чтобы их заполнил подтверждённый внешний источник.</div>
         </Panel>
         <Panel title="Что это даёт" icon={ShieldAlert}>
           <div className="space-y-2 text-[11px] leading-relaxed text-[var(--bone-dim)]">
