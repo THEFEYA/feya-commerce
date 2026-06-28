@@ -1,6 +1,5 @@
 'use client';
-import Link from 'next/link';
-import { Search, SlidersHorizontal, X, Check, ArrowUpRight } from 'lucide-react';
+import { Search, SlidersHorizontal, X, Check } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { colorStyle } from '@/components/colors';
 import { ProductCard } from '@/components/ProductCard';
@@ -112,8 +111,7 @@ export function ShopClient({ products, error, collections = [] }: { products: St
 
   return <div data-testid="shop-page" className="relative pt-24 lg:pt-28">
     <section className="container-feya py-8 lg:py-10"><div className="eyebrow mb-3 reveal">TheFEYA catalog · Real storefront products</div><h1 className="display-hero text-bone reveal reveal-d1" style={{ fontSize: 'clamp(44px, 6.5vw, 96px)' }}>The <span className="editorial-italic text-gold-grad">shop</span></h1><p className="editorial-italic text-[var(--bone-dim)] mt-4 text-lg">{products.length || 200} handmade designs and statement pieces. Filter by world, material or stage-readiness.</p></section>
-    {collections.length > 0 ? <section className="container-feya pb-6"><div className="flex flex-wrap items-center gap-2"><Link href="/collections" className="chip flex items-center gap-2">All collections <ArrowUpRight size={12} /></Link>{collections.slice(0, 9).map((collection) => <Link key={collection.slug} href={`/collections/${collection.slug}`} className="chip flex items-center gap-2">{collection.title}<span className="text-[var(--smoke)]">{collection.products?.length || 0}</span></Link>)}</div></section> : null}
-    <div className="sticky top-[62px] lg:top-[64px] z-30 border-y border-[rgba(216,214,211,0.12)] bg-[rgba(7,7,10,0.90)] backdrop-blur-xl category-tabs-recovered"><div className="container-feya flex items-center gap-5 xl:gap-7 overflow-visible py-4 min-h-[58px] whitespace-nowrap">
+    <div className="sticky top-[62px] lg:top-[64px] z-30 border-y border-[rgba(216,214,211,0.12)] bg-[rgba(7,7,10,0.90)] backdrop-blur-xl category-tabs-recovered"><div className="container-feya flex items-center gap-5 xl:gap-7 overflow-x-auto overflow-y-visible py-4 min-h-[58px] whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {CATEGORIES.map((c) => <button key={c} onClick={() => setCategory(c)} className={`chip shrink-0 ${category === c ? 'chip-active' : ''}`}>{c}</button>)}
       <div className="ml-auto relative shrink-0"><button onClick={() => setSortOpen(v=>!v)} className="chip flex items-center gap-2"><SlidersHorizontal size={13} /> {sort}</button>{sortOpen && <div className="absolute right-0 top-full mt-2 w-[278px] rounded-xl border border-[rgba(216,214,211,.22)] bg-[rgba(5,5,8,.96)] p-2 z-[100] shadow-[0_28px_80px_rgba(0,0,0,.75)] backdrop-blur-xl flex flex-col gap-1 overflow-hidden">{SORTS.map((s)=><button key={s} onClick={()=>{setSort(s);setSortOpen(false);}} className={`block w-full text-left px-4 py-2.5 rounded-lg text-[10px] tracking-[0.20em] uppercase transition-all ${sort === s ? 'text-[var(--gold-warm)] bg-[rgba(212,178,106,.12)]' : 'text-[var(--bone-dim)] hover:text-white hover:bg-white/8'}`}>{s}</button>)}</div>}</div>
     </div></div>
