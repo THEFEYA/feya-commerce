@@ -92,6 +92,9 @@ function getStatusClass(value: unknown) {
 export default async function AdminSeoKeywordsPage() {
   const { rows, totalCount, error } = await getSeoKeywordRows();
   const isPartialLoad = totalCount != null && rows.length < totalCount;
+  const metricReadyRows = rows.filter((row) => row.should_validate_api === true && row.should_hold !== true);
+  const notReadyForScoringRows = rows.filter((row) => normalizeStatus(row.validation_status) !== 'validated');
+  const firstWaveRows = metricReadyRows.filter((row) => normalizeStatus(row.priority_tier) === 'tier_1');
 
   const metrics = [
     { label: 'Всего кандидатов', value: totalCount ?? rows.length },
@@ -102,6 +105,13 @@ export default async function AdminSeoKeywordsPage() {
     { label: 'На удержании', value: countTrue(rows, 'should_hold') },
     { label: 'Приоритет 1', value: countByField(rows, 'priority_tier', 'tier_1') },
     { label: 'Приоритет 2', value: countByField(rows, 'priority_tier', 'tier_2') },
+  ];
+
+  const readinessCards = [
+    { title: 'Готово к проверке метрик', value: metricReadyRows.length, text: 'Можно отправлять в Google Ads API, ручной CSV или другой подтверждённый источник.' },
+    { title: 'Первая волна', value: firstWaveRows.length, text: 'Приоритет 1: эти слова логично проверять первыми, чтобы быстрее перейти к SEO-черновику товара.' },
+    { title: 'Нельзя финально оценивать', value: notReadyForScoringRows.length, text: 'Нет подтверждённых метрик. Эти слова нельзя использовать для финального scoring и массовой генерации.' },
+    { title: 'Следующий результат', value: '1', text: 'Первый безопасный SEO-черновик для одного товара после проверки/выбора ключей.' },
   ];
 
   return (
@@ -144,10 +154,20 @@ export default async function AdminSeoKeywordsPage() {
         ) : null}
 
         <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
+          {readinessCards.map((card) => (
+            <div className="card metric" key={card.title}>
+              <strong>{card.value}</strong>
+              <span>{card.title}</span>
+              <small>{card.text}</small>
+            </div>
+          ))}
+        </section>
+
+        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
           <div className="card"><h3>1. Смысл</h3><p>Определяем: товар, коллекция, стиль, событие, alt или спорное слово.</p></div>
           <div className="card"><h3>2. Метрики</h3><p>Проверяем спрос, конкуренцию и регион через API, CSV или другой подтверждённый источник.</p></div>
           <div className="card"><h3>3. Распределение</h3><p>Широкие слова идут в коллекции, точные — в товары, видимые детали — в alt.</p></div>
-          <div className="card"><h3>4. Контент</h3><p>Генерируем SEO-контент только после связки: факты товара + проверенные ключи.</p></div>
+          <div className="card"><h3>4. Черновик контента</h3><p>Готовим SEO-черновик только после связки: факты товара + проверенные ключи.</p></div>
         </section>
 
         <section className="toolbar" aria-label="Доступные read-only фильтры">
