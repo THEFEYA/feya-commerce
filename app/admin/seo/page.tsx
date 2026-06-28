@@ -105,6 +105,7 @@ export default async function AdminSeoPage() {
           <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Первый контрольный слой перед SEO collections, Google/OpenAI feeds и product graph: title/H1, slug, image alt, category/color/context signals, configurations and price confidence.</p>
         </div>
         <div className="flex gap-3">
+          <Link href="/admin/seo-keywords" className="btn-ghost">SEO-ключи <ArrowUpRight size={13} /></Link>
           <Link href="/admin" className="btn-ghost">Admin cockpit <ArrowUpRight size={13} /></Link>
           <Link href="/admin/products" className="btn-ghost">Products <ArrowUpRight size={13} /></Link>
         </div>
