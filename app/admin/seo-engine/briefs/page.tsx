@@ -1,6 +1,6 @@
 // @ts-nocheck
 import Link from 'next/link';
-import { ArrowUpRight, CheckCircle2, FileText, ShieldAlert, Sparkles, UploadCloud } from 'lucide-react';
+import { ArrowUpRight, CheckCircle2, FileText, Layers3, ShieldAlert, Sparkles, UploadCloud } from 'lucide-react';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import { STOREFRONT_VIEW_V1, mainRegularPrice, productSlug, productTitle } from '@/lib/storefront';
 import { buildSeoPilotBrief } from '@/lib/seoPilotDraft';
@@ -145,6 +145,15 @@ function strategyLabel(bucket) {
   return labels[bucket] || 'стратегия не определена';
 }
 
+function sourceLabel(source) {
+  const labels = {
+    product_fact: 'факт товара',
+    strategy_seed: 'гипотеза',
+    queue_match: 'из очереди',
+  };
+  return labels[source] || 'источник';
+}
+
 function toneClass(status) {
   if (status === 'pass' || status === 'ready_for_human_draft_preview' || status === 'component_exact') return 'border-[rgba(108,183,138,.35)] text-[#a9dfbd] bg-[rgba(108,183,138,.08)]';
   if (status === 'blocker' || status === 'blocked' || status === 'rejected_mismatch') return 'border-[rgba(196,64,88,.34)] text-[var(--ruby-soft)] bg-[rgba(160,32,56,.08)]';
@@ -217,24 +226,31 @@ export default async function SeoEngineBriefsPage() {
             <div className="space-y-2">{brief.blockerChecks.map((check) => <div key={check.label} className="grid grid-cols-[118px_84px_1fr] gap-2 items-center rounded-xl border border-[rgba(216,214,211,.09)] bg-black/15 p-2.5"><div className="text-bone text-[12px]">{check.label}</div><Chip status={check.status} compact>{statusLabel(check.status)}</Chip><div className="text-[11px] leading-relaxed text-[var(--bone-dim)]">{check.note}</div></div>)}</div>
           </Panel>
 
-          <Panel title="Релевантные ключи первой волны" icon={UploadCloud}>
-            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-2">{brief.candidateKeywords.length ? brief.candidateKeywords.map((keyword, index) => <div key={`${keyword.keyword_norm || keyword.keyword}-${index}`} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-2.5"><div className="flex items-start justify-between gap-2"><div className="text-bone text-[13px] leading-snug">{keyword.keyword || keyword.keyword_norm}</div><div className="text-[10px] text-[var(--gold-warm)]">{keyword.pilot_relevance_score || 0}</div></div><div className="mt-1.5 text-[10px] leading-relaxed text-[var(--bone-dim)]">{strategyLabel(keyword.pilot_strategy_bucket)} · {statusLabel(keyword.validation_status)}{keyword.should_validate_api ? ' · нужны метрики' : ''}</div><div className="mt-1 text-[10px] leading-relaxed text-[var(--smoke)]">{keyword.pilot_relevance_reason}</div></div>) : <div className="text-[12px] text-[var(--bone-dim)]">Релевантные ключи первой волны не найдены. Это значит, что текущая keyword queue не даёт безопасных ключей для этого товара без расширения семантики.</div>}</div>
+          <Panel title="Релевантные ключи из очереди" icon={UploadCloud}>
+            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-2">{brief.candidateKeywords.length ? brief.candidateKeywords.map((keyword, index) => <div key={`${keyword.keyword_norm || keyword.keyword}-${index}`} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-2.5"><div className="flex items-start justify-between gap-2"><div className="text-bone text-[13px] leading-snug">{keyword.keyword || keyword.keyword_norm}</div><div className="text-[10px] text-[var(--gold-warm)]">{keyword.pilot_relevance_score || 0}</div></div><div className="mt-1.5 text-[10px] leading-relaxed text-[var(--bone-dim)]">{strategyLabel(keyword.pilot_strategy_bucket)} · {statusLabel(keyword.validation_status)}{keyword.should_validate_api ? ' · нужны метрики' : ''}</div><div className="mt-1 text-[10px] leading-relaxed text-[var(--smoke)]">{keyword.pilot_relevance_reason}</div></div>) : <div className="text-[12px] text-[var(--bone-dim)]">В текущей очереди нет достаточно точных ключей для этого товара. Ниже система показывает семантическую карту для расширения.</div>}</div>
           </Panel>
         </div>
 
-        <Panel title="Предпросмотр SEO-черновика" icon={Sparkles}>
-          <div className="grid lg:grid-cols-[.85fr_1fr] gap-5">
-            <div className="space-y-3">
-              <div><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">SEO-заголовок</div><div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-bone text-[13px] leading-relaxed">{brief.draftPreview.seoTitle}</div></div>
-              <div><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">Главный заголовок H1</div><div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-bone text-[13px] leading-relaxed">{brief.draftPreview.h1}</div></div>
-              <div><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">Описание для Google</div><div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-bone text-[13px] leading-relaxed">{brief.draftPreview.metaDescription}</div></div>
-            </div>
-            <div>
-              <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">Черновой текст и тезисы</div>
-              <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-[12px] leading-relaxed text-[var(--bone-dim)]"><p>{brief.draftPreview.intro}</p><ul className="mt-3 space-y-1.5 list-disc pl-5">{brief.draftPreview.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul></div>
-            </div>
-          </div>
+        <Panel title="Семантическая карта для проверки метрик" icon={Layers3}>
+          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-3">{brief.semanticBuckets.map((bucket) => <div key={bucket.id} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3"><div className="flex items-start justify-between gap-3"><div><div className="text-bone text-[14px] leading-snug">{bucket.label}</div><div className="mt-1 text-[10px] leading-relaxed text-[var(--smoke)]">{bucket.purpose}</div></div><div className="text-[10px] text-[var(--gold-warm)]">{bucket.items.length}</div></div><div className="mt-3 space-y-2">{bucket.items.slice(0, 6).map((item) => <div key={`${bucket.id}-${item.phrase}`} className="rounded-lg border border-[rgba(216,214,211,.08)] bg-black/20 p-2"><div className="text-[12px] text-bone leading-snug">{item.phrase}</div><div className="mt-1 text-[10px] leading-relaxed text-[var(--bone-dim)]">{sourceLabel(item.source)} · нужны метрики</div><div className="mt-1 text-[10px] leading-relaxed text-[var(--smoke)]">{item.reason}</div></div>)}</div></div>)}</div>
+          <div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Эти фразы не считаются финальными ключами. Это карта для следующего шага: отправить релевантные группы на Google Ads / CSV / eRank / DataForSEO, получить частотность, конкуренцию, сезонность и затем выбрать стратегию текста.</div>
         </Panel>
+
+        <div className="mt-5">
+          <Panel title="Предпросмотр SEO-черновика" icon={Sparkles}>
+            <div className="grid lg:grid-cols-[.85fr_1fr] gap-5">
+              <div className="space-y-3">
+                <div><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">SEO-заголовок</div><div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-bone text-[13px] leading-relaxed">{brief.draftPreview.seoTitle}</div></div>
+                <div><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">Главный заголовок H1</div><div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-bone text-[13px] leading-relaxed">{brief.draftPreview.h1}</div></div>
+                <div><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">Описание для Google</div><div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-bone text-[13px] leading-relaxed">{brief.draftPreview.metaDescription}</div></div>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">Черновой текст и тезисы</div>
+                <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-[12px] leading-relaxed text-[var(--bone-dim)]"><p>{brief.draftPreview.intro}</p><ul className="mt-3 space-y-1.5 list-disc pl-5">{brief.draftPreview.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul></div>
+              </div>
+            </div>
+          </Panel>
+        </div>
       </> : null}
     </section>
   </main>;
