@@ -146,8 +146,8 @@ function scoreRow(row: CsvRow): ScoreResult {
   const competition = scoreCompetition(row.competition || '');
   const trend = scoreTrend(row);
   const placement = scorePlacement(row.suggested_placement || '');
-  const cannibalSafety = 6;
-  const score = blockers.length ? 0 : productTruth + buyerIntent + demand + competition + trend + placement + cannibalSafety;
+  const portfolioDifferentiation = 6;
+  const score = blockers.length ? 0 : productTruth + buyerIntent + demand + competition + trend + placement + portfolioDifferentiation;
   const notes = [
     `truth ${productTruth}`,
     `intent ${buyerIntent}`,
@@ -155,7 +155,7 @@ function scoreRow(row: CsvRow): ScoreResult {
     `competition ${competition}`,
     `trend ${trend}`,
     `placement ${placement}`,
-    'cannibal safety 6 provisional',
+    'portfolio differentiation 6 provisional',
   ];
 
   if (!row.low_bid && !row.high_bid) notes.push('нет bid-данных');
@@ -211,7 +211,7 @@ export function CsvScoringPreview() {
           <div className="rounded-xl border border-[rgba(212,178,106,.25)] bg-[rgba(212,178,106,.06)] p-3"><div className="text-[10px] text-[var(--gold-warm)]">вторичные</div><div className="text-bone text-[16px]">{secondaryCount}</div></div>
           <div className="rounded-xl border border-[rgba(196,64,88,.25)] bg-[rgba(160,32,56,.06)] p-3"><div className="text-[10px] text-[var(--ruby-soft)]">исключить</div><div className="text-bone text-[16px]">{rejectedCount}</div></div>
         </div>
-        <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Это preview scoring. Балл provisional: anti-cannibalization пока не подключён к соседним товарам, поэтому финальное утверждение ещё заблокировано.</div>
+        <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Это preview scoring. Portfolio overlap не считается штрафом: он нужен, чтобы развести primary angle, title и description между похожими товарами. Финальное утверждение появится позже, когда подключим similarity/uniqueness layer.</div>
       </div>
     </div>
 
