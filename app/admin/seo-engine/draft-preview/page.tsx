@@ -1,6 +1,6 @@
 // @ts-nocheck
 import Link from 'next/link';
-import { ArrowUpRight, FileText } from 'lucide-react';
+import { ArrowUpRight, CheckCircle2, FileText, ShieldAlert } from 'lucide-react';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import { STOREFRONT_VIEW_V1, productSlug, productTitle } from '@/lib/storefront';
 import { buildSeoPilotBrief } from '@/lib/seoPilotDraft';
@@ -10,22 +10,7 @@ export const revalidate = 0;
 
 const PRODUCT_SELECT = 'canonical_product_id,product_slug,matched_etsy_listing_id,card_title,h1,product_type,material,color,primary_image_url,min_price,max_price,currency,storefront_candidate_flag';
 const KEYWORD_SELECT = 'keyword,keyword_norm,priority_tier,validation_status,cleanup_pipeline_status,should_validate_api,should_hold,warning_flags';
-
-const FALLBACK_PRODUCT = {
-  canonical_product_id: '4511817111',
-  product_slug: 'gold-futuristic-armor-set-choker-collar-shoulder-armor-and-arm-bracers-performance-outfit-4511817111',
-  matched_etsy_listing_id: '4511817111',
-  card_title: 'Gold Futuristic Armor Set, Choker Collar, Shoulder Armor and Arm Bracers, Performance Outfit',
-  h1: 'Gold Futuristic Armor Set, Choker Collar, Shoulder Armor and Arm Bracers, Performance Outfit',
-  product_type: 'Armor',
-  material: 'Fabric, Leather, Faux leather',
-  color: 'Gold',
-  primary_image_url: null,
-  min_price: 79,
-  max_price: 308,
-  currency: 'EUR',
-  storefront_candidate_flag: true,
-};
+const FALLBACK_PRODUCT = { canonical_product_id: '4511817111', product_slug: 'gold-futuristic-armor-set-choker-collar-shoulder-armor-and-arm-bracers-performance-outfit-4511817111', matched_etsy_listing_id: '4511817111', card_title: 'Gold Futuristic Armor Set, Choker Collar, Shoulder Armor and Arm Bracers, Performance Outfit', h1: 'Gold Futuristic Armor Set, Choker Collar, Shoulder Armor and Arm Bracers, Performance Outfit', product_type: 'Armor', material: 'Fabric, Leather, Faux leather', color: 'Gold', primary_image_url: null, min_price: 79, max_price: 308, currency: 'EUR', storefront_candidate_flag: true };
 
 async function loadData() {
   const supabase = getSupabaseReadClient();
@@ -45,35 +30,34 @@ function makeDrafts(brief) {
   const persona = bucket(brief, 'persona', ['futuristic warrior', 'sci fi armor outfit']);
   const event = bucket(brief, 'event', ['stage performance outfit', 'festival armor']);
   const material = bucket(brief, 'material_color', ['gold armor', 'metallic gold armor']);
+  const title = brief.productTitle;
   return [
-    { label: 'Через деталь товара', primary: components[0], secondary: [components[1], material[0]], placement: 'title / H1 / intro / alt', title: `${components[0]} | Gold Futuristic Performance Armor`, note: 'Самый безопасный угол для карточки: опирается на реальную видимую деталь товара.' },
-    { label: 'Через образ', primary: persona[0], secondary: [components[0], event[0]], placement: 'описание / FAQ / вторичные ключи', title: `${persona[0]} Outfit | Gold Futuristic Armor`, note: 'Подходит для похожего товара, чтобы не повторять тот же detail-first заголовок.' },
-    { label: 'Через событие', primary: event[0], secondary: [event[1], components[0]], placement: 'коллекция / посадочная / внутренние ссылки', title: `${event[0]} | Gold Futuristic Armor Set`, note: 'Полезно для коллекций и сезонных страниц; не всегда лучший главный ключ карточки.' },
-    { label: 'Через материал / поверхность', primary: material[0], secondary: [material[1], components[0]], placement: 'alt / image SEO / описание поверхности', title: `${material[0]} | Metallic Futuristic Armor`, note: 'Усиление визуального SEO: цвет, блеск, metallic/reflective surface без неверных материалов.' },
+    { id: 'detail', label: 'Через деталь товара', role: 'лучше для карточки', primary: components[0], secondary: [components[1], material[0]], placement: 'title / H1 / intro / alt', seoTitle: `${components[0]} | Gold Futuristic Performance Armor`, h1: title, meta: `Gold futuristic ${components[0]} with stage-ready armor details for performance styling and festival looks.`, intro: `This draft leads with the real visible product detail: ${components[0]}. It keeps the promise exact, useful and safe for a product page.`, bullets: ['точная деталь товара в первом экране', 'подходит для title/H1/alt', 'меньше риска дубля с похожими товарами'], faq: [`What is included in this ${components[0]} look?`, 'Can it be used for stage performance?', 'How should it be styled for festivals?'], alt: [`${components[0]} in gold futuristic armor look`, `${components[1] || components[0]} detail on performance outfit`], links: ['Armor pieces', 'Stage looks', 'Festival looks'] },
+    { id: 'persona', label: 'Через образ', role: 'для похожего товара', primary: persona[0], secondary: [components[0], event[0]], placement: 'описание / FAQ / вторичные ключи', seoTitle: `${persona[0]} Outfit | Gold Futuristic Armor`, h1: title, meta: `A gold futuristic armor outfit for a ${persona[0]} look, stage styling, photoshoots and festival moments.`, intro: `This draft separates the product from similar listings by building the story around the ${persona[0]} image instead of repeating the same detail-first angle.`, bullets: ['хорошо разводит похожие товары', 'усиливает образ и styling', 'не должен обещать то, чего нет на фото'], faq: [`Is this good for a ${persona[0]} look?`, 'Can it be used for photoshoots?', 'Which details create the armor silhouette?'], alt: [`gold futuristic armor for ${persona[0]} styling`, `${persona[0]} inspired gold armor outfit`], links: ['Futuristic looks', 'Warrior outfits', 'Performance accessories'] },
+    { id: 'event', label: 'Через событие', role: 'для коллекции/посадочной', primary: event[0], secondary: [event[1], components[0]], placement: 'коллекция / посадочная / ссылки', seoTitle: `${event[0]} | Gold Futuristic Armor Set`, h1: title, meta: `Gold futuristic armor for ${event[0]}, festival styling, stage performances and statement photoshoot looks.`, intro: `This draft connects the product to where it will be worn. It is useful for collection traffic and internal links, but still keeps product facts visible.`, bullets: ['лучше для collection/landing', 'можно использовать в where-to-wear блоке', 'широкий ключ не должен вытеснять точную деталь'], faq: [`Is this suitable for ${event[0]}?`, 'How can it be styled for festivals?', 'Is it better for stage or photoshoot use?'], alt: [`gold futuristic armor for ${event[0]}`, 'stage performance gold armor outfit detail'], links: ['Burning Man looks', 'Festival armor', 'Stage outfits'] },
+    { id: 'material', label: 'Через материал / поверхность', role: 'для визуального SEO', primary: material[0], secondary: [material[1], components[0]], placement: 'alt / image SEO / описание', seoTitle: `${material[0]} | Metallic Futuristic Armor`, h1: title, meta: `A ${material[0]} with metallic, reflective styling for stage outfits, futuristic looks and festival performance photos.`, intro: `This draft highlights visual search signals: gold, metallic, glossy and reflective surface language without adding unsupported materials.`, bullets: ['подходит для alt и image SEO', 'усиливает цвет и поверхность', 'нельзя добавлять неверные материалы'], faq: ['Is the finish metallic or reflective?', 'What color is the armor?', 'How should this be described in alt text?'], alt: [`${material[0]} with metallic reflective surface`, 'glossy gold futuristic armor detail'], links: ['Gold outfits', 'Metallic looks', 'Image SEO collection'] },
   ];
 }
 
-function Pill({ children }) {
-  return <span className="rounded-full border border-[rgba(216,214,211,.10)] bg-black/20 px-2 py-1 text-[10px] text-[var(--bone-dim)]">{children}</span>;
-}
+function Pill({ children }) { return <span className="rounded-full border border-[rgba(216,214,211,.10)] bg-black/20 px-2 py-1 text-[10px] text-[var(--bone-dim)]">{children}</span>; }
+function Section({ label, children }) { return <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3"><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">{label}</div><div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">{children}</div></div>; }
+function ChoiceCard({ draft, active }) { return <Link href={`/admin/seo-engine/draft-preview?angle=${draft.id}`} className={`block rounded-2xl border p-4 transition-colors ${active ? 'border-[rgba(212,178,106,.55)] bg-[rgba(212,178,106,.08)]' : 'border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] hover:border-[rgba(212,178,106,.30)]'}`}><div className="flex items-start justify-between gap-3"><div><div className="text-bone text-[14px]">{draft.label}</div><div className="mt-1 text-[10px] uppercase tracking-[0.16em] text-[var(--gold-warm)]">{draft.role}</div></div>{active ? <CheckCircle2 size={16} className="text-[var(--gold-warm)]" /> : <ArrowUpRight size={15} className="text-[var(--smoke)]" />}</div><div className="mt-3 text-[11px] text-[var(--bone-dim)]">Главный ключ: {draft.primary}</div></Link>; }
 
-function DraftCard({ draft }) {
-  return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4">
-    <div className="flex items-start justify-between gap-3"><div><div className="text-bone text-[15px]">{draft.label}</div><div className="mt-1 text-[10px] uppercase tracking-[0.16em] text-[var(--gold-warm)]">{draft.placement}</div></div><FileText size={16} className="text-[var(--gold-warm)]" /></div>
-    <div className="mt-3 text-[11px] leading-relaxed"><div><span className="text-bone">Главный ключ:</span> <span className="text-[var(--bone-dim)]">{draft.primary}</span></div><div className="mt-2 flex flex-wrap gap-1.5">{draft.secondary.filter(Boolean).map((item) => <Pill key={item}>{item}</Pill>)}</div><div className="mt-2"><span className="text-bone">SEO title:</span> <span className="text-[var(--bone-dim)]">{draft.title}</span></div><div className="mt-2 text-[var(--bone-dim)]">{draft.note}</div></div>
-  </div>;
-}
-
-export default async function SeoDraftPreviewPage() {
+export default async function SeoDraftPreviewPage({ searchParams }) {
   const { product, keywords, warning, fallbackUsed } = await loadData();
   const brief = buildSeoPilotBrief(product, keywords);
   const drafts = makeDrafts(brief);
+  const params = await searchParams;
+  const activeId = params?.angle || 'detail';
+  const active = drafts.find((draft) => draft.id === activeId) || drafts[0];
+  const blockers = ['Метрики ещё не подтверждены', 'Запись в Supabase отключена', 'Нужна ручная проверка title/meta/claims', 'Проверка похожести пока только как направление, не финальный блокер'];
 
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]"><section className="container-feya pt-7 pb-12">
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-5 mb-5"><div><div className="eyebrow-gold mb-2">Админка · SEO · черновик по углу</div><h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,64px)' }}>SEO-черновик по выбранному углу</h1><p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Предпросмотр показывает, как меняется SEO-черновик в зависимости от угла. Записи в Supabase и публикации нет.</p></div><div className="flex flex-wrap gap-2"><Link href="/admin/seo-engine/angle-advisor" className="btn-ghost">Советник угла <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine/metric-import" className="btn-ghost">Импорт метрик <ArrowUpRight size={13} /></Link></div></div>
+    <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-5 mb-5"><div><div className="eyebrow-gold mb-2">Админка · SEO · активный черновик</div><h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,64px)' }}>Выбор угла и SEO-черновик</h1><p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Выбери угол. Ниже система показывает один полный будущий SEO-черновик. Записи в Supabase и публикации нет.</p></div><div className="flex flex-wrap gap-2"><Link href="/admin/seo-engine/angle-advisor" className="btn-ghost">Советник угла <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine/metric-import" className="btn-ghost">Импорт метрик <ArrowUpRight size={13} /></Link></div></div>
     {warning || fallbackUsed ? <div className="mb-5 rounded-xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] px-3 py-2 text-[12px] text-[var(--bone-dim)]">{warning || 'Включён защитный образец товара.'}</div> : null}
     <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4 mb-5"><div className="eyebrow-gold mb-2">Товар для примера</div><div className="text-bone text-[18px] leading-tight">{brief.productTitle}</div><div className="mt-2 text-[11px] text-[var(--bone-dim)]">Адрес товара: /{brief.productSlug}</div></div>
-    <div className="grid md:grid-cols-2 gap-4">{drafts.map((draft) => <DraftCard key={draft.label} draft={draft} />)}</div>
-    <div className="mt-5 rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4 text-[12px] leading-relaxed text-[var(--bone-dim)]">Операторское правило: сначала выбираем угол, потом проверяем метрики, потом собираем финальный черновик. Этот экран только показывает направление.</div>
+    <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 mb-5">{drafts.map((draft) => <ChoiceCard key={draft.id} draft={draft} active={draft.id === active.id} />)}</div>
+    <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden"><div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold">Активный черновик</div><div className="mt-1 text-bone text-[18px]">{active.label}</div></div><FileText size={17} className="text-[var(--gold-warm)]" /></div><div className="p-4 grid lg:grid-cols-[1fr_.75fr] gap-4"><div className="space-y-3"><Section label="Главный ключ">{active.primary}</Section><Section label="SEO title">{active.seoTitle}</Section><Section label="H1">{active.h1}</Section><Section label="Meta description">{active.meta}</Section><Section label="Intro">{active.intro}</Section></div><div className="space-y-3"><Section label="Вторичные ключи"><div className="flex flex-wrap gap-1.5">{active.secondary.filter(Boolean).map((item) => <Pill key={item}>{item}</Pill>)}</div></Section><Section label="Bullets"><ul className="list-disc pl-5 space-y-1">{active.bullets.map((item) => <li key={item}>{item}</li>)}</ul></Section><Section label="FAQ"><ul className="list-disc pl-5 space-y-1">{active.faq.map((item) => <li key={item}>{item}</li>)}</ul></Section><Section label="Alt-тексты"><ul className="list-disc pl-5 space-y-1">{active.alt.map((item) => <li key={item}>{item}</li>)}</ul></Section><Section label="Внутренние ссылки"><div className="flex flex-wrap gap-1.5">{active.links.map((item) => <Pill key={item}>{item}</Pill>)}</div></Section></div></div></div>
+    <div className="mt-5 rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4"><div className="flex items-center gap-2 text-bone text-[14px] mb-3"><ShieldAlert size={16} className="text-[var(--gold-warm)]" /> QA-блокеры перед сохранением</div><div className="grid md:grid-cols-2 gap-2">{blockers.map((item) => <div key={item} className="rounded-xl border border-[rgba(212,178,106,.20)] bg-[rgba(212,178,106,.06)] p-3 text-[11px] text-[var(--bone-dim)]">{item}</div>)}</div></div>
   </section></main>;
 }
