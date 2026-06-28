@@ -46,6 +46,45 @@ function trimTo(value: string, max: number) {
   return `${value.slice(0, max - 1).trim()}…`;
 }
 
+function titleHas(product: StorefrontProduct, pattern: RegExp) {
+  return pattern.test(productTitle(product));
+}
+
+function humanizeCategory(product: StorefrontProduct) {
+  const raw = normalize(product.category_label || product.product_type);
+  if (titleHas(product, /armor/i)) return 'Armor set';
+  if (titleHas(product, /harness/i)) return 'Harness';
+  if (titleHas(product, /corset|top|bra/i)) return 'Top / corset';
+  if (titleHas(product, /mask/i)) return 'Mask / headpiece';
+  if (titleHas(product, /skirt/i)) return 'Skirt';
+  if (raw === 'costume_component_or_set') return 'Costume set';
+  if (raw) return raw.replace(/_/g, ' ');
+  return 'Statement outfit piece';
+}
+
+function humanizeColor(product: StorefrontProduct) {
+  const raw = normalize(product.canonical_color_label || product.color);
+  const title = productTitle(product);
+  if (/gold|golden/i.test(title)) return 'Gold';
+  if (/silver|chrome/i.test(title)) return 'Silver';
+  if (/black/i.test(title)) return 'Black';
+  if (/white/i.test(title)) return 'White';
+  if (/holographic/i.test(title)) return 'Holographic';
+  if (!raw || raw === 'signature') return 'Color visible in photos';
+  return clean(product.canonical_color_label || product.color).replace(/_/g, ' ');
+}
+
+function humanizeWorld(product: StorefrontProduct) {
+  const raw = clean(worldLabel(product), 'Stage look');
+  if (!raw || raw === 'Product') return 'Stage look';
+  return raw.replace(/_/g, ' ');
+}
+
+function humanizeMaterial(product: StorefrontProduct) {
+  const raw = clean(product.material, 'Atelier materials');
+  return raw.replace(/_/g, ' ');
+}
+
 function uniqueKeywords(keywords: SeoPilotKeyword[]) {
   const seen = new Set<string>();
   const result: SeoPilotKeyword[] = [];
@@ -60,10 +99,10 @@ function uniqueKeywords(keywords: SeoPilotKeyword[]) {
 
 function selectCandidateKeywords(keywords: SeoPilotKeyword[], product: StorefrontProduct) {
   const title = normalize(productTitle(product));
-  const category = normalize(product.category_label || product.product_type);
-  const world = normalize(worldLabel(product));
-  const material = normalize(product.material);
-  const color = normalize(product.canonical_color_label || product.color);
+  const category = normalize(humanizeCategory(product));
+  const world = normalize(humanizeWorld(product));
+  const material = normalize(humanizeMaterial(product));
+  const color = normalize(humanizeColor(product));
   const text = `${title} ${category} ${world} ${material} ${color}`;
 
   const usable = keywords.filter((keyword) => {
@@ -76,18 +115,18 @@ function selectCandidateKeywords(keywords: SeoPilotKeyword[], product: Storefron
     return tokens.some((token) => text.includes(token));
   });
 
-  return uniqueKeywords(usable).slice(0, 8);
+  return uniqueKeywords(usable).slice(0, 12);
 }
 
 function checkProduct(product: StorefrontProduct, candidateKeywords: SeoPilotKeyword[]) {
   const checks: SeoPilotBrief['blockerChecks'] = [];
-  const slug = productSlug(product);
+  const address = productSlug(product);
   const title = productTitle(product);
 
   checks.push({
     label: 'Товарные факты',
     status: product.category_label || product.product_type ? 'pass' : 'blocker',
-    note: product.category_label || product.product_type ? 'Есть category/product_type.' : 'Нет категории товара — нельзя безопасно писать SEO-текст.',
+    note: product.category_label || product.product_type ? 'Категория товара найдена.' : 'Нет категории товара — нельзя безопасно писать SEO-текст.',
   });
 
   checks.push({
@@ -97,21 +136,21 @@ function checkProduct(product: StorefrontProduct, candidateKeywords: SeoPilotKey
   });
 
   checks.push({
-    label: 'Slug',
-    status: slug && slug !== String(product.canonical_product_id || '') ? 'pass' : 'warning',
-    note: slug && slug !== String(product.canonical_product_id || '') ? 'Slug выглядит пригодным.' : 'Slug слабый или похож на ID.',
+    label: 'Адрес товара',
+    status: address && address !== String(product.canonical_product_id || '') ? 'pass' : 'warning',
+    note: address && address !== String(product.canonical_product_id || '') ? 'Адрес товара выглядит пригодным.' : 'Адрес товара слабый или похож на ID.',
   });
 
   checks.push({
     label: 'Цена',
     status: mainRegularPrice(product) ? 'pass' : 'warning',
-    note: mainRegularPrice(product) ? 'Есть display price для preview.' : 'Цена не подтверждена в preview.',
+    note: mainRegularPrice(product) ? 'Есть цена для предпросмотра.' : 'Цена не подтверждена для предпросмотра.',
   });
 
   checks.push({
     label: 'Ключи',
     status: candidateKeywords.length >= 3 ? 'warning' : 'blocker',
-    note: candidateKeywords.length >= 3 ? 'Есть tier_1 кандидаты, но метрики ещё не validated.' : 'Недостаточно релевантных tier_1 ключей для пилота.',
+    note: candidateKeywords.length >= 3 ? 'Есть ключи первой волны, но метрики ещё не подтверждены.' : 'Недостаточно релевантных ключей первой волны для пилота.',
   });
 
   checks.push({
@@ -139,10 +178,10 @@ export function buildSeoPilotBrief(product: StorefrontProduct, keywords: SeoPilo
   const status = resolveStatus(checks);
   const title = productTitle(product);
   const slug = productSlug(product);
-  const category = clean(product.category_label || product.product_type, 'statement piece');
-  const color = clean(product.canonical_color_label || product.color, 'signature');
-  const world = clean(worldLabel(product), 'stage');
-  const material = clean(product.material, 'atelier materials');
+  const category = humanizeCategory(product);
+  const color = humanizeColor(product);
+  const world = humanizeWorld(product);
+  const material = humanizeMaterial(product);
   const primaryKeyword = clean(candidateKeywords[0]?.keyword || candidateKeywords[0]?.keyword_norm, category);
   const secondaryKeyword = clean(candidateKeywords[1]?.keyword || candidateKeywords[1]?.keyword_norm, world);
 
@@ -155,15 +194,15 @@ export function buildSeoPilotBrief(product: StorefrontProduct, keywords: SeoPilo
       { label: 'Цвет', value: color },
       { label: 'Материал', value: material },
       { label: 'Мир / контекст', value: world },
-      { label: 'Цена preview', value: mainRegularPrice(product) ? `${mainRegularPrice(product)} ${product.currency || 'EUR'}` : 'нет подтверждённой цены' },
+      { label: 'Цена для предпросмотра', value: mainRegularPrice(product) ? `${mainRegularPrice(product)} ${product.currency || 'EUR'}` : 'нет подтверждённой цены' },
     ],
     candidateKeywords,
     blockerChecks: checks,
     draftPreview: {
       seoTitle: trimTo(`${title} | ${primaryKeyword} by TheFEYA`, 68),
       h1: title,
-      metaDescription: trimTo(`${title} — handmade ${category.toLowerCase()} in ${color.toLowerCase()} tones for ${world.toLowerCase()}, stage styling and festival looks. Review product facts before publishing.`, 155),
-      intro: `This is a controlled SEO preview for ${title}. The draft uses confirmed product facts first, then checks whether ${primaryKeyword} and ${secondaryKeyword} can support the page without inventing demand metrics.`,
+      metaDescription: trimTo(`${title} — handmade ${category.toLowerCase()} in ${color.toLowerCase()} for ${world.toLowerCase()}, stage styling and festival looks.`, 155),
+      intro: `Controlled SEO preview for ${title}. This draft uses confirmed product facts first, then checks whether ${primaryKeyword} and ${secondaryKeyword} can support the page after real metric validation.`,
       bullets: [
         `Product fact base: ${category}, ${color}, ${material}.`,
         `Visual context: ${world}.`,
@@ -172,7 +211,7 @@ export function buildSeoPilotBrief(product: StorefrontProduct, keywords: SeoPilo
       ],
     },
     decision: status === 'blocked'
-      ? 'Не готово к SEO-черновику: сначала закрыть blocker checks.'
-      : 'Готово к human draft preview, но не к публикации: нужны validated metrics и ручное утверждение.',
+      ? 'Не готово к SEO-черновику: сначала закрыть блокеры.'
+      : 'Можно готовить черновик для ручной проверки, но публиковать ещё нельзя: нужны подтверждённые метрики и ручное утверждение.',
   };
 }
