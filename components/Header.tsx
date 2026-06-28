@@ -24,6 +24,17 @@ function navIsActive(pathname: string, href: string, label: string) {
   return false;
 }
 
+function shopFilterHref(groupTitle: string, item: string) {
+  const params = new URLSearchParams();
+
+  if (groupTitle === 'Categories') params.set('category', item);
+  if (groupTitle === 'Occasion') params.set('occasion', item);
+  if (groupTitle === 'Style / World') params.set('style', item);
+
+  const query = params.toString();
+  return query ? `/shop?${query}` : '/shop';
+}
+
 export function Header() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
@@ -98,7 +109,7 @@ export function Header() {
                   <div className="text-[10px] uppercase tracking-[0.32em] text-[var(--gold-warm)] mb-4">{group.title}</div>
                   <div className="flex flex-wrap gap-2.5">
                     {group.items.map((item) => (
-                      <Link key={item} href="/shop" className="rounded-full border border-[rgba(216,214,211,0.14)] bg-white/[0.025] px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-[#D8D6D3] transition-all hover:border-[rgba(212,178,106,0.55)] hover:bg-[rgba(212,178,106,0.08)] hover:text-white hover:shadow-[0_0_22px_rgba(212,178,106,0.12)]">
+                      <Link key={item} href={shopFilterHref(group.title, item)} className="rounded-full border border-[rgba(216,214,211,0.14)] bg-white/[0.025] px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-[#D8D6D3] transition-all hover:border-[rgba(212,178,106,0.55)] hover:bg-[rgba(212,178,106,0.08)] hover:text-white hover:shadow-[0_0_22px_rgba(212,178,106,0.12)]">
                         {item}
                       </Link>
                     ))}
