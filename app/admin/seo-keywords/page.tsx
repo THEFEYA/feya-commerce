@@ -5,10 +5,11 @@ import type { SeoKeywordCleanupReportRow } from '@/lib/types';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const SEO_KEYWORDS_LIMIT = 200;
+const SEO_KEYWORDS_LIMIT = 500;
 
 const FILTERS = [
   { key: 'cleanup_pipeline_status', label: 'cleanup_pipeline_status' },
+  { key: 'validation_status', label: 'validation_status' },
   { key: 'priority_tier', label: 'priority_tier' },
   { key: 'queue_suggested_page_level', label: 'page_level' },
 ] as const;
@@ -42,8 +43,12 @@ function normalizeStatus(value: unknown) {
   return asText(value, '').trim().toLowerCase();
 }
 
-function countCleanupStatus(rows: SeoKeywordCleanupReportRow[], status: string) {
-  return rows.filter((row) => normalizeStatus(row.cleanup_pipeline_status) === status).length;
+function countByField(rows: SeoKeywordCleanupReportRow[], key: keyof SeoKeywordCleanupReportRow, value: string) {
+  return rows.filter((row) => normalizeStatus(row[key]) === value).length;
+}
+
+function countTrue(rows: SeoKeywordCleanupReportRow[], key: keyof SeoKeywordCleanupReportRow) {
+  return rows.filter((row) => row[key] === true).length;
 }
 
 function getUniqueValues(rows: SeoKeywordCleanupReportRow[], key: keyof SeoKeywordCleanupReportRow) {
@@ -66,14 +71,17 @@ function getStatusClass(value: unknown) {
 
 export default async function AdminSeoKeywordsPage() {
   const { rows, totalCount, error } = await getSeoKeywordRows();
+  const isPartialLoad = totalCount != null && rows.length < totalCount;
 
   const metrics = [
     { label: 'Total queue rows', value: totalCount ?? rows.length },
-    { label: 'Rows shown', value: rows.length },
-    { label: 'needs_ai_cleanup', value: countCleanupStatus(rows, 'needs_ai_cleanup') },
-    { label: 'needs_human_review', value: countCleanupStatus(rows, 'needs_human_review') },
-    { label: 'ready_for_metric_validation', value: countCleanupStatus(rows, 'ready_for_metric_validation') },
-    { label: 'hold', value: countCleanupStatus(rows, 'hold') },
+    { label: 'Rows loaded', value: rows.length },
+    { label: 'needs_human_review', value: countByField(rows, 'cleanup_pipeline_status', 'needs_human_review') },
+    { label: 'validation queued', value: countByField(rows, 'validation_status', 'queued') },
+    { label: 'should_validate_api', value: countTrue(rows, 'should_validate_api') },
+    { label: 'should_hold', value: countTrue(rows, 'should_hold') },
+    { label: 'tier_1', value: countByField(rows, 'priority_tier', 'tier_1') },
+    { label: 'tier_2', value: countByField(rows, 'priority_tier', 'tier_2') },
   ];
 
   return (
@@ -93,7 +101,7 @@ export default async function AdminSeoKeywordsPage() {
           <div className="phase-label">SEO keyword validation gate</div>
           <h1>SEO Keywords</h1>
           <p>
-            Generated keyword candidates are not final SEO keywords until cleaned, validated with real metrics, scored, and approved. This page is read-only and does not invent search volume, competition, CTR, bids, or trend metrics.
+            Current queue candidates are not final SEO keywords. They must pass real metric validation, product/DNA fit checks, anti-cannibalization review, and human approval before they can be used for titles, descriptions, image alt text, or collections.
           </p>
         </section>
 
@@ -107,6 +115,13 @@ export default async function AdminSeoKeywordsPage() {
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
+
+        {!error ? (
+          <section className="notice">
+            <strong>Current decision:</strong> do not run blind AI cleanup or final scoring from this queue. The confirmed Supabase state is human review + metric validation first. OpenAI can help normalize intent and warnings, but it must not invent search volume, competition, CTR, bids, trend, or seasonality metrics.
+            {isPartialLoad ? ` This page loaded ${rows.length} of ${totalCount} rows, so row-level status counts are partial.` : ' The current limit is enough to load the confirmed queue snapshot.'}
+          </section>
+        ) : null}
 
         <section className="toolbar" aria-label="Available read-only filters">
           {FILTERS.map((filter) => {
@@ -143,7 +158,7 @@ export default async function AdminSeoKeywordsPage() {
                 <tr key={`${asText(row.keyword, 'keyword')}-${index}`}>
                   <td>{asText(row.keyword)}</td>
                   <td>{asText(row.keyword_norm)}</td>
-                  <td>{asText(row.priority_tier)}</td>
+                  <td><span className={`status-pill ${getStatusClass(row.priority_tier)}`}>{asText(row.priority_tier)}</span></td>
                   <td>{asText(row.queue_suggested_page_level)}</td>
                   <td>{asText(row.queue_keyword_axis)}</td>
                   <td>{asText(row.queue_keyword_pattern)}</td>
