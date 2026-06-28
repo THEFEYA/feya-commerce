@@ -13,6 +13,9 @@ export type SeoPilotKeyword = {
   should_validate_api?: boolean | null;
   should_hold?: boolean | null;
   warning_flags?: unknown;
+  pilot_relevance_score?: number;
+  pilot_relevance_reason?: string;
+  pilot_strategy_bucket?: 'component_exact' | 'style_event' | 'material_color' | 'rejected_mismatch';
 };
 
 export type SeoPilotBrief = {
@@ -21,6 +24,7 @@ export type SeoPilotBrief = {
   productTitle: string;
   productFacts: Array<{ label: string; value: string }>;
   candidateKeywords: SeoPilotKeyword[];
+  rejectedKeywords: SeoPilotKeyword[];
   blockerChecks: Array<{ label: string; status: 'pass' | 'warning' | 'blocker'; note: string }>;
   draftPreview: {
     seoTitle: string;
@@ -31,6 +35,29 @@ export type SeoPilotBrief = {
   };
   decision: string;
 };
+
+type ProductKeywordProfile = {
+  text: string;
+  allowedComponents: string[];
+  allowedStyleEventTerms: string[];
+  allowedMaterialColorTerms: string[];
+};
+
+const COMPONENT_GROUPS: Record<string, string[]> = {
+  armor: ['armor', 'armour', 'shoulder armor', 'shoulders', 'pauldron', 'shoulder', 'bracer', 'bracers', 'arm bracer', 'arm bracers', 'collar', 'choker', 'mask', 'face mask'],
+  harness: ['harness', 'belt', 'garter', 'garters', 'body harness', 'chest harness'],
+  corset: ['corset', 'top', 'bra', 'bodice', 'crop top'],
+  skirt: ['skirt', 'mini skirt', 'open skirt'],
+  bodysuit: ['bodysuit', 'body suit', 'leotard'],
+  panties: ['panties', 'underwear', 'briefs'],
+  gloves: ['gloves', 'glove'],
+  headpiece: ['headpiece', 'head piece', 'horns', 'crown', 'halo', 'headdress'],
+  mask: ['mask', 'face mask'],
+  bracelet: ['bracelet', 'bracelets', 'armlet', 'armlets', 'cuff', 'cuffs'],
+};
+
+const STYLE_EVENT_TERMS = ['festival', 'stage', 'performance', 'performer', 'dance', 'dancer', 'rave', 'edm', 'burning man', 'desert', 'futuristic', 'warrior', 'robot', 'cyber', 'cosplay', 'costume', 'outfit'];
+const MATERIAL_COLOR_TERMS = ['gold', 'golden', 'silver', 'chrome', 'mirror', 'acrylic', 'leather', 'faux leather', 'black', 'white', 'holographic'];
 
 function clean(value: unknown, fallback = '—') {
   if (value == null || value === '') return fallback;
@@ -44,6 +71,10 @@ function normalize(value: unknown) {
 function trimTo(value: string, max: number) {
   if (value.length <= max) return value;
   return `${value.slice(0, max - 1).trim()}…`;
+}
+
+function hasTerm(text: string, term: string) {
+  return new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(text);
 }
 
 function titleHas(product: StorefrontProduct, pattern: RegExp) {
@@ -85,6 +116,39 @@ function humanizeMaterial(product: StorefrontProduct) {
   return raw.replace(/_/g, ' ');
 }
 
+function productProfile(product: StorefrontProduct): ProductKeywordProfile {
+  const text = normalize(`${productTitle(product)} ${humanizeCategory(product)} ${humanizeColor(product)} ${humanizeWorld(product)} ${humanizeMaterial(product)} ${product.material || ''} ${product.color || ''}`);
+  const allowedComponents = new Set<string>();
+
+  for (const terms of Object.values(COMPONENT_GROUPS)) {
+    if (terms.some((term) => hasTerm(text, term))) {
+      terms.forEach((term) => allowedComponents.add(term));
+    }
+  }
+
+  const allowedStyleEventTerms = STYLE_EVENT_TERMS.filter((term) => hasTerm(text, term) || ['festival', 'stage', 'performance', 'outfit', 'costume'].includes(term));
+  const allowedMaterialColorTerms = MATERIAL_COLOR_TERMS.filter((term) => hasTerm(text, term));
+
+  return {
+    text,
+    allowedComponents: Array.from(allowedComponents),
+    allowedStyleEventTerms,
+    allowedMaterialColorTerms,
+  };
+}
+
+function keywordComponentTerms(keywordText: string) {
+  return Object.values(COMPONENT_GROUPS).flat().filter((term) => hasTerm(keywordText, term));
+}
+
+function keywordStyleTerms(keywordText: string) {
+  return STYLE_EVENT_TERMS.filter((term) => hasTerm(keywordText, term));
+}
+
+function keywordMaterialTerms(keywordText: string) {
+  return MATERIAL_COLOR_TERMS.filter((term) => hasTerm(keywordText, term));
+}
+
 function uniqueKeywords(keywords: SeoPilotKeyword[]) {
   const seen = new Set<string>();
   const result: SeoPilotKeyword[] = [];
@@ -97,25 +161,79 @@ function uniqueKeywords(keywords: SeoPilotKeyword[]) {
   return result;
 }
 
+function scoreKeyword(keyword: SeoPilotKeyword, profile: ProductKeywordProfile): SeoPilotKeyword {
+  const word = normalize(keyword.keyword_norm || keyword.keyword);
+  const componentTerms = keywordComponentTerms(word);
+  const styleTerms = keywordStyleTerms(word);
+  const materialTerms = keywordMaterialTerms(word);
+  const matchedComponents = componentTerms.filter((term) => profile.allowedComponents.some((allowed) => allowed === term));
+  const mismatchedComponents = componentTerms.filter((term) => !matchedComponents.includes(term));
+  const matchedStyle = styleTerms.filter((term) => profile.allowedStyleEventTerms.includes(term));
+  const matchedMaterial = materialTerms.filter((term) => profile.allowedMaterialColorTerms.includes(term));
+
+  if (mismatchedComponents.length) {
+    return {
+      ...keyword,
+      pilot_relevance_score: -100,
+      pilot_strategy_bucket: 'rejected_mismatch',
+      pilot_relevance_reason: `отброшено: в товаре нет детали ${mismatchedComponents[0]}`,
+    };
+  }
+
+  let score = 0;
+  const reasons: string[] = [];
+
+  if (matchedComponents.length) {
+    score += 70 + matchedComponents.length * 5;
+    reasons.push(`деталь товара: ${matchedComponents.slice(0, 2).join(', ')}`);
+  }
+
+  if (matchedStyle.length) {
+    score += 25 + matchedStyle.length * 3;
+    reasons.push(`стиль/событие: ${matchedStyle.slice(0, 2).join(', ')}`);
+  }
+
+  if (matchedMaterial.length) {
+    score += matchedComponents.length || matchedStyle.length ? 12 : 3;
+    reasons.push(`цвет/материал: ${matchedMaterial.slice(0, 2).join(', ')}`);
+  }
+
+  if (!matchedComponents.length && !matchedStyle.length) {
+    return {
+      ...keyword,
+      pilot_relevance_score: score,
+      pilot_strategy_bucket: 'rejected_mismatch',
+      pilot_relevance_reason: 'отброшено: есть только цвет/общее слово, нет детали или события',
+    };
+  }
+
+  return {
+    ...keyword,
+    pilot_relevance_score: score,
+    pilot_strategy_bucket: matchedComponents.length ? 'component_exact' : matchedStyle.length ? 'style_event' : 'material_color',
+    pilot_relevance_reason: reasons.join(' · '),
+  };
+}
+
+function scoreKeywords(keywords: SeoPilotKeyword[], product: StorefrontProduct) {
+  const profile = productProfile(product);
+  return uniqueKeywords(keywords)
+    .filter((keyword) => keyword.should_hold !== true)
+    .filter((keyword) => normalize(keyword.priority_tier) === 'tier_1')
+    .map((keyword) => scoreKeyword(keyword, profile))
+    .sort((a, b) => (b.pilot_relevance_score || 0) - (a.pilot_relevance_score || 0));
+}
+
 function selectCandidateKeywords(keywords: SeoPilotKeyword[], product: StorefrontProduct) {
-  const title = normalize(productTitle(product));
-  const category = normalize(humanizeCategory(product));
-  const world = normalize(humanizeWorld(product));
-  const material = normalize(humanizeMaterial(product));
-  const color = normalize(humanizeColor(product));
-  const text = `${title} ${category} ${world} ${material} ${color}`;
+  return scoreKeywords(keywords, product)
+    .filter((keyword) => (keyword.pilot_relevance_score || 0) >= 25 && keyword.pilot_strategy_bucket !== 'rejected_mismatch')
+    .slice(0, 12);
+}
 
-  const usable = keywords.filter((keyword) => {
-    if (keyword.should_hold === true) return false;
-    if (normalize(keyword.priority_tier) !== 'tier_1') return false;
-    const word = normalize(keyword.keyword_norm || keyword.keyword);
-    if (!word) return false;
-    const tokens = word.split(/\s+/).filter((token) => token.length > 2);
-    if (!tokens.length) return false;
-    return tokens.some((token) => text.includes(token));
-  });
-
-  return uniqueKeywords(usable).slice(0, 12);
+function selectRejectedKeywords(keywords: SeoPilotKeyword[], product: StorefrontProduct) {
+  return scoreKeywords(keywords, product)
+    .filter((keyword) => keyword.pilot_strategy_bucket === 'rejected_mismatch')
+    .slice(0, 8);
 }
 
 function checkProduct(product: StorefrontProduct, candidateKeywords: SeoPilotKeyword[]) {
@@ -150,7 +268,7 @@ function checkProduct(product: StorefrontProduct, candidateKeywords: SeoPilotKey
   checks.push({
     label: 'Ключи',
     status: candidateKeywords.length >= 3 ? 'warning' : 'blocker',
-    note: candidateKeywords.length >= 3 ? 'Есть ключи первой волны, но метрики ещё не подтверждены.' : 'Недостаточно релевантных ключей первой волны для пилота.',
+    note: candidateKeywords.length >= 3 ? 'Есть релевантные ключи первой волны, но метрики ещё не подтверждены.' : 'Недостаточно релевантных ключей первой волны для пилота.',
   });
 
   checks.push({
@@ -174,6 +292,7 @@ function resolveStatus(checks: SeoPilotBrief['blockerChecks']) {
 
 export function buildSeoPilotBrief(product: StorefrontProduct, keywords: SeoPilotKeyword[]): SeoPilotBrief {
   const candidateKeywords = selectCandidateKeywords(keywords, product);
+  const rejectedKeywords = selectRejectedKeywords(keywords, product);
   const checks = checkProduct(product, candidateKeywords);
   const status = resolveStatus(checks);
   const title = productTitle(product);
@@ -197,6 +316,7 @@ export function buildSeoPilotBrief(product: StorefrontProduct, keywords: SeoPilo
       { label: 'Цена для предпросмотра', value: mainRegularPrice(product) ? `${mainRegularPrice(product)} ${product.currency || 'EUR'}` : 'нет подтверждённой цены' },
     ],
     candidateKeywords,
+    rejectedKeywords,
     blockerChecks: checks,
     draftPreview: {
       seoTitle: trimTo(`${title} | ${primaryKeyword} by TheFEYA`, 68),
