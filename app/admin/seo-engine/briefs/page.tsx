@@ -124,6 +124,7 @@ function statusLabel(status) {
     blocker: 'блокер',
     blocked: 'заблокировано',
     needs_metric_validation: 'нужны метрики',
+    needs_metrics: 'нужны метрики',
     ready_for_human_draft_preview: 'готово к черновику',
     tier_1: 'приоритет 1',
     tier_2: 'приоритет 2',
@@ -177,6 +178,20 @@ function StatusStrip({ error, keywordError, fallbackUsed }) {
     <div className={`rounded-xl border px-3 py-2 text-[12px] ${error ? 'border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] text-[var(--bone-dim)]' : 'border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.06)] text-[#a9dfbd]'}`}>Товар: {error ? 'предупреждение по базе' : 'загружен'}</div>
     <div className={`rounded-xl border px-3 py-2 text-[12px] ${keywordError ? 'border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] text-[var(--bone-dim)]' : 'border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.06)] text-[#a9dfbd]'}`}>Ключи: {keywordError ? 'требуют лёгкой догрузки' : 'первая волна загружена'}</div>
     <div className={`rounded-xl border px-3 py-2 text-[12px] ${fallbackUsed ? 'border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] text-[var(--bone-dim)]' : 'border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.06)] text-[#a9dfbd]'}`}>Режим: {fallbackUsed ? 'защитный образец' : 'живые данные'}</div>
+  </div>;
+}
+
+function MetricPackageTable({ rows }) {
+  return <div className="max-h-[420px] overflow-auto rounded-xl border border-[rgba(216,214,211,.10)]">
+    <div className="grid grid-cols-[1fr_145px_190px_110px] gap-3 px-3 py-2 border-b border-[rgba(216,214,211,.10)] bg-black/20 text-[9px] uppercase tracking-[0.18em] text-[var(--smoke)] sticky top-0 z-10">
+      <div>Фраза</div><div>Корзина</div><div>Куда проверять</div><div>Статус</div>
+    </div>
+    <div className="divide-y divide-[rgba(216,214,211,.08)]">{rows.map((row, index) => <div key={`${row.bucketId}-${row.phrase}-${index}`} className="grid grid-cols-[1fr_145px_190px_110px] gap-3 px-3 py-2 text-[11px] leading-relaxed">
+      <div><div className="text-bone text-[12px]">{row.phrase}</div><div className="mt-0.5 text-[10px] text-[var(--smoke)]">{sourceLabel(row.source)} · {row.reason}</div></div>
+      <div className="text-[var(--bone-dim)]">{row.bucketLabel}</div>
+      <div className="text-[var(--bone-dim)]">{row.suggestedPlacement}</div>
+      <div><Chip status="warning" compact>{statusLabel(row.status)}</Chip></div>
+    </div>)}</div>
   </div>;
 }
 
@@ -235,6 +250,13 @@ export default async function SeoEngineBriefsPage() {
           <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-3">{brief.semanticBuckets.map((bucket) => <div key={bucket.id} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3"><div className="flex items-start justify-between gap-3"><div><div className="text-bone text-[14px] leading-snug">{bucket.label}</div><div className="mt-1 text-[10px] leading-relaxed text-[var(--smoke)]">{bucket.purpose}</div></div><div className="text-[10px] text-[var(--gold-warm)]">{bucket.items.length}</div></div><div className="mt-3 space-y-2">{bucket.items.slice(0, 6).map((item) => <div key={`${bucket.id}-${item.phrase}`} className="rounded-lg border border-[rgba(216,214,211,.08)] bg-black/20 p-2"><div className="text-[12px] text-bone leading-snug">{item.phrase}</div><div className="mt-1 text-[10px] leading-relaxed text-[var(--bone-dim)]">{sourceLabel(item.source)} · нужны метрики</div><div className="mt-1 text-[10px] leading-relaxed text-[var(--smoke)]">{item.reason}</div></div>)}</div></div>)}</div>
           <div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Эти фразы не считаются финальными ключами. Это карта для следующего шага: отправить релевантные группы на Google Ads / CSV / eRank / DataForSEO, получить частотность, конкуренцию, сезонность и затем выбрать стратегию текста.</div>
         </Panel>
+
+        <div className="mt-5">
+          <Panel title={`Пакет на проверку метрик · ${brief.metricValidationPackage.length} фраз`} icon={UploadCloud}>
+            <MetricPackageTable rows={brief.metricValidationPackage} />
+            <div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Это read-only пакет. Он не пишет данные в Supabase и не считается финальным SEO-ядром. Следующий инженерный шаг — привязать такой пакет к Google Ads dry-run / CSV export / eRank/DataForSEO import и вернуть реальные метрики для scoring.</div>
+          </Panel>
+        </div>
 
         <div className="mt-5">
           <Panel title="Предпросмотр SEO-черновика" icon={Sparkles}>
