@@ -39,6 +39,14 @@ const PILOT_PRODUCT_SELECT = [
 
 const KEYWORD_SELECT = 'keyword,keyword_norm,priority_tier,queue_suggested_page_level,queue_keyword_axis,queue_keyword_pattern,validation_status,cleanup_pipeline_status,should_validate_api,should_hold,warning_flags';
 
+const EXPORT_SEND_COLUMNS = ['keyword', 'bucket', 'reason', 'suggested_placement', 'language', 'regions', 'validation_status'];
+const EXPORT_RETURN_COLUMNS = ['keyword', 'source', 'avg_monthly_searches', 'competition', 'low_bid', 'high_bid', 'trend', 'seasonality', 'region', 'last_checked'];
+const METRIC_ADAPTERS = [
+  { name: 'Google Ads API', status: 'dry-run first', note: 'Основной официальный источник historical metrics, когда Basic Access и storage подтверждены.' },
+  { name: 'CSV / manual import', status: 'safe fallback', note: 'Самый безопасный обходной путь: выгрузить фразы, проверить внешне, импортировать метрики обратно.' },
+  { name: 'eRank / DataForSEO', status: 'optional adapter', note: 'Не считать обязательным API; использовать как дополнительный источник marketplace/SEO signals.' },
+];
+
 const EMERGENCY_PILOT_PRODUCT = {
   canonical_product_id: '4511817111',
   product_slug: 'gold-futuristic-armor-set-choker-collar-shoulder-armor-and-arm-bracers-performance-outfit-4511817111',
@@ -165,6 +173,10 @@ function Chip({ children, status = 'warning', compact = false }) {
   return <span className={`inline-flex rounded-full border ${compact ? 'px-2 py-0.5 text-[9px]' : 'px-2.5 py-1 text-[10px]'} uppercase tracking-[0.14em] ${toneClass(status)}`}>{children}</span>;
 }
 
+function PillList({ items }) {
+  return <div className="flex flex-wrap gap-1.5">{items.map((item) => <span key={item} className="rounded-full border border-[rgba(216,214,211,.10)] bg-black/20 px-2 py-1 text-[10px] text-[var(--bone-dim)]">{item}</span>)}</div>;
+}
+
 function Panel({ title, children, icon: Icon }) {
   return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
     <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div className="eyebrow-gold">{title}</div>{Icon ? <Icon size={16} className="text-[var(--gold-warm)]" /> : null}</div>
@@ -192,6 +204,27 @@ function MetricPackageTable({ rows }) {
       <div className="text-[var(--bone-dim)]">{row.suggestedPlacement}</div>
       <div><Chip status="warning" compact>{statusLabel(row.status)}</Chip></div>
     </div>)}</div>
+  </div>;
+}
+
+function MetricDryRunContract({ rows }) {
+  const sample = rows.slice(0, 5);
+  return <div className="grid xl:grid-cols-[1fr_.85fr] gap-4">
+    <div className="space-y-3">
+      <div className="grid md:grid-cols-3 gap-2">{METRIC_ADAPTERS.map((adapter) => <div key={adapter.name} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3"><div className="text-bone text-[13px]">{adapter.name}</div><div className="mt-1"><Chip status="warning" compact>{adapter.status}</Chip></div><div className="mt-2 text-[10px] leading-relaxed text-[var(--bone-dim)]">{adapter.note}</div></div>)}</div>
+      <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3">
+        <div className="text-[12px] text-bone mb-2">Поля, которые отправляем на проверку</div>
+        <PillList items={EXPORT_SEND_COLUMNS} />
+      </div>
+      <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3">
+        <div className="text-[12px] text-bone mb-2">Поля, которые должны вернуться для scoring</div>
+        <PillList items={EXPORT_RETURN_COLUMNS} />
+      </div>
+    </div>
+    <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3">
+      <div className="flex items-center justify-between gap-3 mb-3"><div><div className="text-bone text-[13px]">Dry-run payload preview</div><div className="text-[10px] text-[var(--smoke)]">первые {sample.length} из {rows.length} фраз · без записи в Supabase</div></div><Chip status="warning" compact>read-only</Chip></div>
+      <pre className="max-h-[260px] overflow-auto whitespace-pre-wrap rounded-lg bg-black/30 border border-[rgba(216,214,211,.08)] p-3 text-[10px] leading-relaxed text-[var(--bone-dim)]">{JSON.stringify(sample.map((row) => ({ keyword: row.phrase, bucket: row.bucketId, placement: row.suggestedPlacement, language: row.language, regions: row.targetRegions, status: row.status })), null, 2)}</pre>
+    </div>
   </div>;
 }
 
@@ -255,6 +288,12 @@ export default async function SeoEngineBriefsPage() {
           <Panel title={`Пакет на проверку метрик · ${brief.metricValidationPackage.length} фраз`} icon={UploadCloud}>
             <MetricPackageTable rows={brief.metricValidationPackage} />
             <div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Это read-only пакет. Он не пишет данные в Supabase и не считается финальным SEO-ядром. Следующий инженерный шаг — привязать такой пакет к Google Ads dry-run / CSV export / eRank/DataForSEO import и вернуть реальные метрики для scoring.</div>
+          </Panel>
+        </div>
+
+        <div className="mt-5">
+          <Panel title="Dry-run экспорт метрик" icon={UploadCloud}>
+            <MetricDryRunContract rows={brief.metricValidationPackage} />
           </Panel>
         </div>
 
