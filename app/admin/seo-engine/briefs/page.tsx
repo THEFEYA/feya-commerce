@@ -2,11 +2,40 @@
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, FileText, ShieldAlert, Sparkles, UploadCloud } from 'lucide-react';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
-import { STOREFRONT_CARD_SELECT, STOREFRONT_VIEW_V1, mainRegularPrice, productSlug, productTitle } from '@/lib/storefront';
+import { STOREFRONT_VIEW_V1, mainRegularPrice, productSlug, productTitle } from '@/lib/storefront';
 import { buildSeoPilotBrief } from '@/lib/seoPilotDraft';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+
+const PILOT_PRODUCT_SELECT = [
+  'canonical_product_id',
+  'product_slug',
+  'matched_etsy_listing_id',
+  'source_url',
+  'card_title',
+  'h1',
+  'seo_title',
+  'meta_description',
+  'product_type',
+  'material',
+  'color',
+  'size_mode',
+  'production_profile',
+  'shipping_profile',
+  'handmade_flag',
+  'styled_imagery_flag',
+  'primary_image_url',
+  'primary_image_alt',
+  'min_price',
+  'max_price',
+  'currency',
+  'has_fallback_price',
+  'has_sampler_excluded_price',
+  'public_configuration_count',
+  'public_price_row_count',
+  'storefront_candidate_flag',
+].join(',');
 
 const KEYWORD_SELECT = 'keyword,keyword_norm,priority_tier,queue_suggested_page_level,queue_keyword_axis,queue_keyword_pattern,validation_status,cleanup_pipeline_status,should_validate_api,should_hold,warning_flags';
 
@@ -30,7 +59,7 @@ const EMERGENCY_PILOT_PRODUCT = {
 async function loadProducts(supabase) {
   const result = await supabase
     .from(STOREFRONT_VIEW_V1)
-    .select(STOREFRONT_CARD_SELECT)
+    .select(PILOT_PRODUCT_SELECT)
     .limit(24);
 
   return { rows: result.data || [], error: result.error?.message || null };
@@ -67,8 +96,9 @@ async function loadPilotData() {
   if (!supabase) return { product: EMERGENCY_PILOT_PRODUCT, keywords: [], error: getMissingSupabaseEnvMessage(), productError: null, keywordError: null, fallbackUsed: true };
 
   const productsResult = await loadProducts(supabase);
-  const product = pickPilotProduct(productsResult.rows) || EMERGENCY_PILOT_PRODUCT;
-  const fallbackUsed = !pickPilotProduct(productsResult.rows);
+  const pickedProduct = pickPilotProduct(productsResult.rows);
+  const product = pickedProduct || EMERGENCY_PILOT_PRODUCT;
+  const fallbackUsed = !pickedProduct;
 
   let keywordsResult = { rows: [], error: null };
   try {
@@ -87,20 +117,47 @@ async function loadPilotData() {
   };
 }
 
+function statusLabel(status) {
+  const labels = {
+    pass: 'готово',
+    warning: 'проверить',
+    blocker: 'блокер',
+    blocked: 'заблокировано',
+    needs_metric_validation: 'нужны метрики',
+    ready_for_human_draft_preview: 'готово к черновику',
+    tier_1: 'приоритет 1',
+    tier_2: 'приоритет 2',
+    queued: 'в очереди',
+    validated: 'метрики подтверждены',
+    preview_only: 'только предпросмотр',
+    no_writes: 'без записи в базу',
+  };
+  return labels[String(status || '').toLowerCase()] || status || 'нет данных';
+}
+
 function toneClass(status) {
-  if (status === 'pass') return 'border-[rgba(108,183,138,.35)] text-[#a9dfbd] bg-[rgba(108,183,138,.08)]';
-  if (status === 'blocker') return 'border-[rgba(196,64,88,.34)] text-[var(--ruby-soft)] bg-[rgba(160,32,56,.08)]';
+  if (status === 'pass' || status === 'ready_for_human_draft_preview') return 'border-[rgba(108,183,138,.35)] text-[#a9dfbd] bg-[rgba(108,183,138,.08)]';
+  if (status === 'blocker' || status === 'blocked') return 'border-[rgba(196,64,88,.34)] text-[var(--ruby-soft)] bg-[rgba(160,32,56,.08)]';
   return 'border-[rgba(212,178,106,.30)] text-[var(--gold-warm)] bg-[rgba(212,178,106,.07)]';
 }
 
-function Chip({ children, status = 'warning' }) {
-  return <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] ${toneClass(status)}`}>{children}</span>;
+function Chip({ children, status = 'warning', compact = false }) {
+  return <span className={`inline-flex rounded-full border ${compact ? 'px-2 py-0.5 text-[9px]' : 'px-2.5 py-1 text-[10px]'} uppercase tracking-[0.14em] ${toneClass(status)}`}>{children}</span>;
 }
 
 function Panel({ title, children, icon: Icon }) {
   return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
-    <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold mb-1">{title}</div></div>{Icon ? <Icon size={17} className="text-[var(--gold-warm)]" /> : null}</div>
-    <div className="p-5">{children}</div>
+    <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div className="eyebrow-gold">{title}</div>{Icon ? <Icon size={16} className="text-[var(--gold-warm)]" /> : null}</div>
+    <div className="p-4">{children}</div>
+  </div>;
+}
+
+function StatusStrip({ error, keywordError, fallbackUsed }) {
+  if (!error && !keywordError && !fallbackUsed) return null;
+  return <div className="grid md:grid-cols-3 gap-2 mb-5">
+    <div className={`rounded-xl border px-3 py-2 text-[12px] ${error ? 'border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] text-[var(--bone-dim)]' : 'border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.06)] text-[#a9dfbd]'}`}>Товар: {error ? 'предупреждение по базе' : 'загружен'}</div>
+    <div className={`rounded-xl border px-3 py-2 text-[12px] ${keywordError ? 'border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] text-[var(--bone-dim)]' : 'border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.06)] text-[#a9dfbd]'}`}>Ключи: {keywordError ? 'требуют лёгкой догрузки' : 'первая волна загружена'}</div>
+    <div className={`rounded-xl border px-3 py-2 text-[12px] ${fallbackUsed ? 'border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] text-[var(--bone-dim)]' : 'border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.06)] text-[#a9dfbd]'}`}>Режим: {fallbackUsed ? 'защитный образец' : 'живые данные'}</div>
   </div>;
 }
 
@@ -109,60 +166,59 @@ export default async function SeoEngineBriefsPage() {
   const brief = product ? buildSeoPilotBrief(product, keywords) : null;
 
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
-    <section className="container-feya pt-10 pb-16">
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
+    <section className="container-feya pt-7 pb-12">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-5 mb-5">
         <div>
-          <div className="eyebrow-gold mb-3">Админка · SEO Engine · Pilot</div>
-          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Первый SEO-бриф</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Контролируемый read-only pilot: товар выбирается автоматически по качеству данных, ключи берутся лёгкой первой волной. Ничего не записывается в Supabase и ничего не публикуется.</p>
+          <div className="eyebrow-gold mb-2">Админка · SEO · первый бриф</div>
+          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,60px)' }}>Первый SEO-бриф</h1>
+          <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Контрольный экран перед созданием SEO-черновика: система сама выбирает товар, проверяет факты, подтягивает первую волну ключей и показывает, что мешает двигаться дальше. Записи в базу и публикации нет.</p>
         </div>
-        <div className="flex flex-wrap gap-3"><Link href="/admin/seo-keywords" className="btn-ghost">SEO-ключи <ArrowUpRight size={13} /></Link><Link href="/admin/seo" className="btn-ghost">SEO readiness <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine" className="btn-ghost">SEO Engine <ArrowUpRight size={13} /></Link></div>
+        <div className="flex flex-wrap gap-2"><Link href="/admin/seo-keywords" className="btn-ghost">SEO-ключи <ArrowUpRight size={13} /></Link><Link href="/admin/seo" className="btn-ghost">Готовность SEO <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine" className="btn-ghost">SEO-система <ArrowUpRight size={13} /></Link></div>
       </div>
 
-      {error ? <div className="rounded-2xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] p-5 text-[13px] leading-relaxed text-[var(--bone-dim)] mb-7">Storefront query warning: {error}</div> : null}
-      {keywordError ? <div className="rounded-2xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] p-5 text-[13px] leading-relaxed text-[var(--bone-dim)] mb-7">Keyword query warning: {keywordError}. Pilot продолжает работу по товару; ключи будут догружены следующим лёгким слоем.</div> : null}
-      {fallbackUsed ? <div className="rounded-2xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] p-5 text-[13px] leading-relaxed text-[var(--bone-dim)] mb-7">Включён аварийный выбор товара из подтверждённого storefront sample. Это временная защита от timeout, не публикация.</div> : null}
-      {!brief ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)]">Не удалось собрать pilot: нет товара.</div> : null}
+      <StatusStrip error={error} keywordError={keywordError} fallbackUsed={fallbackUsed} />
+
+      {!brief ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)]">Не удалось собрать первый бриф: нет товара.</div> : null}
 
       {brief ? <>
-        <div className="grid lg:grid-cols-[1fr_360px] gap-6 mb-6">
-          <Panel title="Товар для пилота" icon={FileText}>
-            <div className="grid md:grid-cols-[130px_1fr] gap-5 items-start">
-              <div className="relative h-40 rounded-xl overflow-hidden bg-black/30 border border-[rgba(216,214,211,.10)]">{product.primary_image_url ? <img src={product.primary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : <div className="h-full w-full flex items-center justify-center text-[11px] uppercase tracking-[0.18em] text-[var(--smoke)]">no image</div>}</div>
+        <div className="grid lg:grid-cols-[1fr_320px] gap-5 mb-5">
+          <Panel title="Товар для проверки" icon={FileText}>
+            <div className="grid md:grid-cols-[112px_1fr] gap-4 items-start">
+              <div className="relative h-32 rounded-xl overflow-hidden bg-black/30 border border-[rgba(216,214,211,.10)]">{product.primary_image_url ? <img src={product.primary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : <div className="h-full w-full flex items-center justify-center text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">нет фото</div>}</div>
               <div>
-                <h2 className="text-bone text-[22px] leading-tight">{brief.productTitle}</h2>
-                <div className="mt-3 text-[12px] text-[var(--bone-dim)]">/{brief.productSlug}</div>
-                <div className="mt-5 grid sm:grid-cols-2 gap-3">{brief.productFacts.map((fact) => <div key={fact.label} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3"><div className="eyebrow-dim mb-1">{fact.label}</div><div className="text-[13px] text-bone">{fact.value}</div></div>)}</div>
+                <h2 className="text-bone text-[18px] leading-tight">{brief.productTitle}</h2>
+                <div className="mt-2 text-[11px] text-[var(--bone-dim)]">Адрес товара: /{brief.productSlug}</div>
+                <div className="mt-4 grid sm:grid-cols-2 gap-2">{brief.productFacts.map((fact) => <div key={fact.label} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-2.5"><div className="text-[9px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1">{fact.label}</div><div className="text-[12px] text-bone leading-snug">{fact.value}</div></div>)}</div>
               </div>
             </div>
           </Panel>
 
-          <Panel title="Решение gate" icon={brief.status === 'blocked' ? ShieldAlert : CheckCircle2}>
-            <div className="flex flex-wrap gap-2 mb-4"><Chip status={brief.status === 'blocked' ? 'blocker' : 'warning'}>{brief.status}</Chip><Chip status="warning">preview only</Chip><Chip status="warning">no DB writes</Chip></div>
-            <p className="text-[13px] leading-relaxed text-[var(--bone-dim)]">{brief.decision}</p>
+          <Panel title="Решение системы" icon={brief.status === 'blocked' ? ShieldAlert : CheckCircle2}>
+            <div className="flex flex-wrap gap-1.5 mb-3"><Chip status={brief.status} compact>{statusLabel(brief.status)}</Chip><Chip status="warning" compact>только предпросмотр</Chip><Chip status="warning" compact>без записи в базу</Chip></div>
+            <p className="text-[12px] leading-relaxed text-[var(--bone-dim)]">{brief.status === 'blocked' ? 'Пока нельзя делать SEO-черновик: сначала закрыть блокеры ниже.' : 'Можно готовить черновик для ручной проверки, но публиковать ещё нельзя.'}</p>
           </Panel>
         </div>
 
-        <div className="grid xl:grid-cols-[.9fr_1.1fr] gap-6 mb-6">
-          <Panel title="Quality gate" icon={ShieldAlert}>
-            <div className="space-y-3">{brief.blockerChecks.map((check) => <div key={check.label} className="grid grid-cols-[140px_auto_1fr] gap-3 items-center rounded-xl border border-[rgba(216,214,211,.09)] bg-black/15 p-3"><div className="text-bone text-[13px]">{check.label}</div><Chip status={check.status}>{check.status}</Chip><div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">{check.note}</div></div>)}</div>
+        <div className="grid xl:grid-cols-[.9fr_1.1fr] gap-5 mb-5">
+          <Panel title="Проверки качества" icon={ShieldAlert}>
+            <div className="space-y-2">{brief.blockerChecks.map((check) => <div key={check.label} className="grid grid-cols-[118px_84px_1fr] gap-2 items-center rounded-xl border border-[rgba(216,214,211,.09)] bg-black/15 p-2.5"><div className="text-bone text-[12px]">{check.label}</div><Chip status={check.status} compact>{statusLabel(check.status)}</Chip><div className="text-[11px] leading-relaxed text-[var(--bone-dim)]">{check.note}</div></div>)}</div>
           </Panel>
 
-          <Panel title="Tier-1 keyword candidates" icon={UploadCloud}>
-            <div className="grid sm:grid-cols-2 gap-3">{brief.candidateKeywords.length ? brief.candidateKeywords.map((keyword, index) => <div key={`${keyword.keyword_norm || keyword.keyword}-${index}`} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3"><div className="text-bone text-[14px] leading-snug">{keyword.keyword || keyword.keyword_norm}</div><div className="mt-2 flex flex-wrap gap-1.5"><Chip status="warning">{keyword.priority_tier || 'tier'}</Chip><Chip status="warning">{keyword.validation_status || 'queued'}</Chip>{keyword.should_validate_api ? <Chip status="warning">нужны метрики</Chip> : null}</div></div>) : <div className="text-[13px] text-[var(--bone-dim)]">Релевантные tier-1 ключи не найдены или keyword query временно не ответил. Это не блокирует выбор товара, но блокирует финальный scoring.</div>}</div>
+          <Panel title="Ключи первой волны" icon={UploadCloud}>
+            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-2">{brief.candidateKeywords.length ? brief.candidateKeywords.map((keyword, index) => <div key={`${keyword.keyword_norm || keyword.keyword}-${index}`} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-2.5"><div className="text-bone text-[13px] leading-snug">{keyword.keyword || keyword.keyword_norm}</div><div className="mt-1.5 text-[10px] leading-relaxed text-[var(--bone-dim)]">{statusLabel(keyword.priority_tier)} · {statusLabel(keyword.validation_status)}{keyword.should_validate_api ? ' · нужны метрики' : ''}</div></div>) : <div className="text-[12px] text-[var(--bone-dim)]">Релевантные ключи первой волны не найдены или запрос к ключам временно не ответил. Это не блокирует выбор товара, но блокирует финальную SEO-оценку.</div>}</div>
           </Panel>
         </div>
 
-        <Panel title="SEO draft preview" icon={Sparkles}>
-          <div className="grid lg:grid-cols-[.8fr_1fr] gap-6">
-            <div className="space-y-4">
-              <div><div className="eyebrow-dim mb-2">SEO title</div><div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 text-bone text-[15px] leading-relaxed">{brief.draftPreview.seoTitle}</div></div>
-              <div><div className="eyebrow-dim mb-2">H1</div><div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 text-bone text-[15px] leading-relaxed">{brief.draftPreview.h1}</div></div>
-              <div><div className="eyebrow-dim mb-2">Meta description</div><div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 text-bone text-[15px] leading-relaxed">{brief.draftPreview.metaDescription}</div></div>
+        <Panel title="Предпросмотр SEO-черновика" icon={Sparkles}>
+          <div className="grid lg:grid-cols-[.85fr_1fr] gap-5">
+            <div className="space-y-3">
+              <div><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">SEO title</div><div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-bone text-[13px] leading-relaxed">{brief.draftPreview.seoTitle}</div></div>
+              <div><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">H1</div><div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-bone text-[13px] leading-relaxed">{brief.draftPreview.h1}</div></div>
+              <div><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">Meta description</div><div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-bone text-[13px] leading-relaxed">{brief.draftPreview.metaDescription}</div></div>
             </div>
             <div>
-              <div className="eyebrow-dim mb-2">Intro / bullets</div>
-              <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 text-[13px] leading-relaxed text-[var(--bone-dim)]"><p>{brief.draftPreview.intro}</p><ul className="mt-4 space-y-2 list-disc pl-5">{brief.draftPreview.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul></div>
+              <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">Вступление и пункты</div>
+              <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-[12px] leading-relaxed text-[var(--bone-dim)]"><p>{brief.draftPreview.intro}</p><ul className="mt-3 space-y-1.5 list-disc pl-5">{brief.draftPreview.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul></div>
             </div>
           </div>
         </Panel>
