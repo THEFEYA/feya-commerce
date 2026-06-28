@@ -1,29 +1,25 @@
 import Link from 'next/link';
-import { ProductCard } from '@/components/ProductCard';
+import { ShopClient } from '@/components/ShopClient';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
+import { STOREFRONT_CARD_SELECT, STOREFRONT_VIEW_V3 } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const PHASE_A_STOREFRONT_LIMIT = 250;
+const STOREFRONT_LIMIT = 250;
 
 async function getProducts(): Promise<{ products: StorefrontProduct[]; error?: string }> {
   const supabase = getSupabaseReadClient();
 
-  if (!supabase) {
-    return { products: [], error: getMissingSupabaseEnvMessage() };
-  }
+  if (!supabase) return { products: [], error: getMissingSupabaseEnvMessage() };
 
   const { data, error } = await supabase
-    .from('feya_commerce_v_step7_storefront_products_api')
-    .select('*')
-    .limit(PHASE_A_STOREFRONT_LIMIT);
+    .from(STOREFRONT_VIEW_V3)
+    .select(STOREFRONT_CARD_SELECT)
+    .limit(STOREFRONT_LIMIT);
 
-  if (error) {
-    return { products: [], error: error.message };
-  }
-
+  if (error) return { products: [], error: error.message };
   return { products: (data || []) as StorefrontProduct[] };
 }
 
@@ -32,52 +28,22 @@ export default async function ShopPage() {
 
   return (
     <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/" className="brand-mark">TheFEYA</Link>
-          <div className="nav-links">
-            <Link href="/admin">Admin</Link>
-          </div>
+      <div className="feya-announcement">Express DHL · Worldwide shipping · Made to order in our atelier</div>
+      <header className="feya-header">
+        <Link href="/" className="feya-logo">FEYA</Link>
+        <nav className="feya-nav">
+          <Link href="/">Home</Link><Link href="/shop">Shop</Link><Link href="/shop">Festival</Link><Link href="/shop">Stage</Link><Link href="/shop">Desert</Link><Link href="/shop">Editorial</Link><Link href="/admin">Atelier OS</Link>
         </nav>
+        <div className="feya-actions"><span>⌕</span><span>♡</span><span>♙</span><span className="feya-bag">Bag · 0</span></div>
+      </header>
 
-        <section className="phase-banner">
-          <div className="phase-label">Phase B skeleton</div>
-          <p>
-            Live storefront preview connected to safe Supabase views. The next design pass will improve the visual system without replacing real data.
-          </p>
-        </section>
+      <section className="feya-shop-hero">
+        <div className="feya-kicker">Atelier collection · Festival/Stage 26</div>
+        <h1>The <em>shop</em></h1>
+        <p>{products.length || 200} pieces, made to be seen. Filter by world, material or stage-readiness.</p>
+      </section>
 
-        <section className="section-head">
-          <div>
-            <h2>Shop preview</h2>
-            <p className="muted">Read-only storefront candidates from the safe Supabase API view.</p>
-          </div>
-          <p className="muted">{products.length} loaded</p>
-        </section>
-
-        <div className="toolbar" aria-label="Planned storefront filters">
-          <span className="filter-chip">All pieces</span>
-          <span className="filter-chip">Festival</span>
-          <span className="filter-chip">Stage</span>
-          <span className="filter-chip">Armor</span>
-          <span className="filter-chip">Acrylic</span>
-          <span className="filter-chip">Needs final UX</span>
-        </div>
-
-        {error ? <div className="notice">{error}</div> : null}
-
-        {!error && products.length === 0 ? (
-          <div className="notice">
-            No products returned from Supabase yet. Check that the safe storefront view has rows and that anon read access is enabled for this view.
-          </div>
-        ) : null}
-
-        <section className="grid product-grid">
-          {products.map((product) => (
-            <ProductCard key={product.canonical_product_id} product={product} />
-          ))}
-        </section>
-      </div>
+      <ShopClient products={products} error={error} />
     </main>
   );
 }
