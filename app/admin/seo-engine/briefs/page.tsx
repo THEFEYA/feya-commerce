@@ -187,7 +187,10 @@ export default async function SeoEngineBriefsPage() {
               <div className="relative h-32 rounded-xl overflow-hidden bg-black/30 border border-[rgba(216,214,211,.10)]">{product.primary_image_url ? <img src={product.primary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : <div className="h-full w-full flex items-center justify-center text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">нет фото</div>}</div>
               <div>
                 <h2 className="text-bone text-[18px] leading-tight">{brief.productTitle}</h2>
-                <div className="mt-2 text-[11px] text-[var(--bone-dim)]">Адрес товара: /{brief.productSlug}</div>
+                <div className="mt-2 text-[11px] text-[var(--bone-dim)] flex flex-wrap items-center gap-2">
+                  <span>Адрес товара: /{brief.productSlug}</span>
+                  <Link href={`/shop/${brief.productSlug}`} className="text-[var(--gold-warm)] hover:text-white transition-colors inline-flex items-center gap-1">открыть товар <ArrowUpRight size={11} /></Link>
+                </div>
                 <div className="mt-4 grid sm:grid-cols-2 gap-2">{brief.productFacts.map((fact) => <div key={fact.label} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-2.5"><div className="text-[9px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1">{fact.label}</div><div className="text-[12px] text-bone leading-snug">{fact.value}</div></div>)}</div>
               </div>
             </div>
@@ -212,12 +215,12 @@ export default async function SeoEngineBriefsPage() {
         <Panel title="Предпросмотр SEO-черновика" icon={Sparkles}>
           <div className="grid lg:grid-cols-[.85fr_1fr] gap-5">
             <div className="space-y-3">
-              <div><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">SEO title</div><div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-bone text-[13px] leading-relaxed">{brief.draftPreview.seoTitle}</div></div>
-              <div><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">H1</div><div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-bone text-[13px] leading-relaxed">{brief.draftPreview.h1}</div></div>
-              <div><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">Meta description</div><div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-bone text-[13px] leading-relaxed">{brief.draftPreview.metaDescription}</div></div>
+              <div><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">SEO-заголовок</div><div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-bone text-[13px] leading-relaxed">{brief.draftPreview.seoTitle}</div></div>
+              <div><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">Главный заголовок H1</div><div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-bone text-[13px] leading-relaxed">{brief.draftPreview.h1}</div></div>
+              <div><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">Описание для Google</div><div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-bone text-[13px] leading-relaxed">{brief.draftPreview.metaDescription}</div></div>
             </div>
             <div>
-              <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">Вступление и пункты</div>
+              <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">Черновой текст и тезисы</div>
               <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-[12px] leading-relaxed text-[var(--bone-dim)]"><p>{brief.draftPreview.intro}</p><ul className="mt-3 space-y-1.5 list-disc pl-5">{brief.draftPreview.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul></div>
             </div>
           </div>
