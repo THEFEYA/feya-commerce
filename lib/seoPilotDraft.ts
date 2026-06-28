@@ -42,6 +42,30 @@ export type SeoMetricValidationCandidate = {
   targetRegions: string[];
 };
 
+export type SeoScoringFactor = {
+  id: string;
+  label: string;
+  maxPoints: number;
+  purpose: string;
+  requiredInputs: string[];
+};
+
+export type SeoScoringDecisionRule = {
+  role: 'primary' | 'secondary' | 'supporting' | 'long_tail' | 'image_alt' | 'faq' | 'collection' | 'hold' | 'reject';
+  label: string;
+  rule: string;
+};
+
+export type SeoScoringContract = {
+  status: 'waiting_for_metrics';
+  formula: string;
+  totalMaxScore: number;
+  factors: SeoScoringFactor[];
+  decisionRules: SeoScoringDecisionRule[];
+  requiredMetricFields: string[];
+  hardGates: string[];
+};
+
 export type SeoPilotBrief = {
   status: 'blocked' | 'needs_metric_validation' | 'ready_for_human_draft_preview';
   productSlug: string;
@@ -51,6 +75,7 @@ export type SeoPilotBrief = {
   rejectedKeywords: SeoPilotKeyword[];
   semanticBuckets: SeoSemanticBucket[];
   metricValidationPackage: SeoMetricValidationCandidate[];
+  scoringContract: SeoScoringContract;
   blockerChecks: Array<{ label: string; status: 'pass' | 'warning' | 'blocker'; note: string }>;
   draftPreview: {
     seoTitle: string;
@@ -363,6 +388,86 @@ function buildMetricValidationPackage(buckets: SeoSemanticBucket[]): SeoMetricVa
   })));
 }
 
+function buildScoringContract(): SeoScoringContract {
+  const factors: SeoScoringFactor[] = [
+    {
+      id: 'product_truth_fit',
+      label: 'Правда товара',
+      maxPoints: 25,
+      purpose: 'Ключ должен совпадать с реальными деталями, цветом, материалом и назначением товара.',
+      requiredInputs: ['product facts', 'component match', 'color/material match'],
+    },
+    {
+      id: 'buyer_intent_fit',
+      label: 'Намерение покупателя',
+      maxPoints: 15,
+      purpose: 'Понять, ищет ли человек товар, образ, событие, материал или просто вдохновение.',
+      requiredInputs: ['bucket', 'keyword wording', 'commercial intent class'],
+    },
+    {
+      id: 'search_demand',
+      label: 'Спрос',
+      maxPoints: 20,
+      purpose: 'Оценить реальный search volume без выдуманных цифр.',
+      requiredInputs: ['avg_monthly_searches', 'region', 'metric source', 'last_checked'],
+    },
+    {
+      id: 'competition_opportunity',
+      label: 'Шанс пройти конкуренцию',
+      maxPoints: 12,
+      purpose: 'Не выбирать автоматически самые жирные слова, если там слишком высокая конкуренция.',
+      requiredInputs: ['competition', 'CPC/bid range', 'SERP or marketplace difficulty'],
+    },
+    {
+      id: 'trend_event_fit',
+      label: 'Тренд / сезонность / событие',
+      maxPoints: 10,
+      purpose: 'Учитывать фестивали, Burning Man, сезонные пики, performance season и текущий спрос.',
+      requiredInputs: ['trend', 'seasonality', 'event calendar', 'region'],
+    },
+    {
+      id: 'placement_fit',
+      label: 'Место использования',
+      maxPoints: 8,
+      purpose: 'Решить, куда ключ подходит: title, H1, body, FAQ, alt, collection или internal links.',
+      requiredInputs: ['suggested placement', 'page type', 'keyword length'],
+    },
+    {
+      id: 'cannibal_safety',
+      label: 'Безопасность от каннибализации',
+      maxPoints: 10,
+      purpose: 'Не заставлять похожие товары бороться за один и тот же primary keyword.',
+      requiredInputs: ['similar products', 'existing keyword map', 'shared token similarity'],
+    },
+  ];
+
+  return {
+    status: 'waiting_for_metrics',
+    formula: 'final_score = product_truth_fit + buyer_intent_fit + search_demand + competition_opportunity + trend_event_fit + placement_fit + cannibal_safety',
+    totalMaxScore: factors.reduce((sum, factor) => sum + factor.maxPoints, 0),
+    factors,
+    requiredMetricFields: ['avg_monthly_searches', 'competition', 'low_bid', 'high_bid', 'trend', 'seasonality', 'region', 'metric_source', 'last_checked'],
+    hardGates: [
+      'Если ключ содержит деталь, которой нет в товаре — reject независимо от метрик.',
+      'Если цвет/материал противоречит товару — reject независимо от метрик.',
+      'Если нет подтверждённого metric_source — ключ не может стать финальным primary/secondary.',
+      'Если высокий риск каннибализации — ключ нельзя ставить primary без ручного решения.',
+      'Если ключ слишком общий, он чаще идёт в collection/landing, а не в primary карточки товара.',
+    ],
+    decisionRules: [
+      { role: 'primary', label: 'Главный ключ', rule: '85–100 баллов, подтверждённые метрики, точный product truth, коммерческое намерение, низкий риск каннибализации.' },
+      { role: 'secondary', label: 'Вторичные ключи', rule: '70–84 балла, хорошо поддерживают primary, подходят для H2/body/bullets без спама.' },
+      { role: 'supporting', label: 'Поддерживающие ключи', rule: '55–69 баллов, используются естественно в описании, FAQ или внутренних ссылках.' },
+      { role: 'long_tail', label: 'Long-tail', rule: 'Точные длинные фразы с хорошей релевантностью; могут иметь меньший спрос, но выше conversion intent.' },
+      { role: 'image_alt', label: 'Alt-тексты', rule: 'Только визуально подтверждённые детали: цвет, материал, компонент, силуэт, без невидимых claims.' },
+      { role: 'faq', label: 'FAQ', rule: 'Вопросные/сомневающиеся интенты: sizing, styling, festival use, shipping/production only when supported.' },
+      { role: 'collection', label: 'Коллекция / перелинковка', rule: 'Широкие слова вроде festival outfit или stage looks чаще ведут в collection, не в primary конкретного товара.' },
+      { role: 'hold', label: 'На удержании', rule: 'Релевантно, но нет метрик, есть спорный placement или нужен ручной выбор стратегии.' },
+      { role: 'reject', label: 'Исключить', rule: 'Неверный компонент, цвет, материал, событие или misleading buyer intent.' },
+    ],
+  };
+}
+
 function checkProduct(product: StorefrontProduct, candidateKeywords: SeoPilotKeyword[]) {
   const checks: SeoPilotBrief['blockerChecks'] = [];
   const address = productSlug(product);
@@ -393,6 +498,7 @@ export function buildSeoPilotBrief(product: StorefrontProduct, keywords: SeoPilo
   const rejectedKeywords = selectRejectedKeywords(keywords, product);
   const semanticBuckets = buildSemanticBuckets(product, candidateKeywords);
   const metricValidationPackage = buildMetricValidationPackage(semanticBuckets);
+  const scoringContract = buildScoringContract();
   const checks = checkProduct(product, candidateKeywords);
   const status = resolveStatus(checks);
   const title = productTitle(product);
@@ -419,6 +525,7 @@ export function buildSeoPilotBrief(product: StorefrontProduct, keywords: SeoPilo
     rejectedKeywords,
     semanticBuckets,
     metricValidationPackage,
+    scoringContract,
     blockerChecks: checks,
     draftPreview: {
       seoTitle: trimTo(`${title} | ${primaryKeyword} by TheFEYA`, 68),
