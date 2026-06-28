@@ -111,7 +111,7 @@ export default async function SeoAngleAdvisorPage() {
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,64px)' }}>Советник уникального угла</h1>
           <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Экран не запрещает похожие товары. Он помогает развести их по смыслу: один товар вести через деталь, второй через образ, третий через событие, четвёртый через материал или точный длинный запрос.</p>
         </div>
-        <div className="flex flex-wrap gap-2"><Link href="/admin/seo-engine/overlap-policy" className="btn-ghost">Политика похожести <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine/scoring/preview" className="btn-ghost">Предпросмотр оценки <ArrowUpRight size={13} /></Link></div>
+        <div className="flex flex-wrap gap-2"><Link href="/admin/seo-engine/draft-preview" className="btn-ghost">Черновик по углу <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine/overlap-policy" className="btn-ghost">Политика похожести <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine/scoring/preview" className="btn-ghost">Предпросмотр оценки <ArrowUpRight size={13} /></Link></div>
       </div>
 
       {warning || fallbackUsed ? <div className="mb-5 rounded-xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] px-3 py-2 text-[12px] text-[var(--bone-dim)]">{warning || 'Включён защитный образец товара.'}</div> : null}
