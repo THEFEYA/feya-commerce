@@ -1,5 +1,7 @@
-export function ScoringContractPanel({ contract }: { contract: any }) {
-  const roleLabel: Record<string, string> = {
+import type { SeoScoringContract, SeoScoringDecisionRule, SeoScoringFactor } from '@/lib/seoPilotDraft';
+
+export function ScoringContractPanel({ contract }: { contract: SeoScoringContract }) {
+  const roleLabel: Record<SeoScoringDecisionRule['role'], string> = {
     primary: 'главный',
     secondary: 'вторичный',
     supporting: 'поддержка',
@@ -43,7 +45,7 @@ export function ScoringContractPanel({ contract }: { contract: any }) {
     </div>
 
     <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3">
-      {contract.factors.map((factor: any) => <div key={factor.id} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3">
+      {contract.factors.map((factor: SeoScoringFactor) => <div key={factor.id} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3">
         <div className="flex items-start justify-between gap-3"><div className="text-bone text-[13px] leading-snug">{factor.label}</div><div className="text-[13px] text-[var(--gold-warm)]">{factor.maxPoints}</div></div>
         <div className="mt-2 text-[10px] leading-relaxed text-[var(--bone-dim)]">{factor.purpose}</div>
         <div className="mt-2 flex flex-wrap gap-1.5">{factor.requiredInputs.map(pill)}</div>
@@ -57,8 +59,8 @@ export function ScoringContractPanel({ contract }: { contract: any }) {
       </div>
       <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3">
         <div className="text-bone text-[14px] mb-2">Правила распределения в портфель</div>
-        <div className="grid md:grid-cols-2 gap-2">{contract.decisionRules.map((rule: any) => <div key={rule.role} className="rounded-lg border border-[rgba(216,214,211,.08)] bg-black/20 p-2">
-          <div className="flex items-center justify-between gap-2"><div className="text-[12px] text-bone">{rule.label}</div>{chip(roleLabel[rule.role] || rule.role, rule.role === 'reject')}</div>
+        <div className="grid md:grid-cols-2 gap-2">{contract.decisionRules.map((rule: SeoScoringDecisionRule) => <div key={rule.role} className="rounded-lg border border-[rgba(216,214,211,.08)] bg-black/20 p-2">
+          <div className="flex items-center justify-between gap-2"><div className="text-[12px] text-bone">{rule.label}</div>{chip(roleLabel[rule.role], rule.role === 'reject')}</div>
           <div className="mt-1 text-[10px] leading-relaxed text-[var(--bone-dim)]">{rule.rule}</div>
         </div>)}</div>
       </div>
