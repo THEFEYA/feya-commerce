@@ -29,6 +29,19 @@ export type SeoSemanticBucket = {
   items: SeoSemanticSuggestion[];
 };
 
+export type SeoMetricValidationCandidate = {
+  phrase: string;
+  bucketId: string;
+  bucketLabel: string;
+  reason: string;
+  source: SeoSemanticSuggestion['source'];
+  status: 'needs_metrics';
+  suggestedPlacement: string;
+  metricSources: string[];
+  language: 'en';
+  targetRegions: string[];
+};
+
 export type SeoPilotBrief = {
   status: 'blocked' | 'needs_metric_validation' | 'ready_for_human_draft_preview';
   productSlug: string;
@@ -37,6 +50,7 @@ export type SeoPilotBrief = {
   candidateKeywords: SeoPilotKeyword[];
   rejectedKeywords: SeoPilotKeyword[];
   semanticBuckets: SeoSemanticBucket[];
+  metricValidationPackage: SeoMetricValidationCandidate[];
   blockerChecks: Array<{ label: string; status: 'pass' | 'warning' | 'blocker'; note: string }>;
   draftPreview: {
     seoTitle: string;
@@ -322,6 +336,33 @@ function buildSemanticBuckets(product: StorefrontProduct, candidateKeywords: Seo
   return buckets.filter((bucket) => bucket.items.length);
 }
 
+function placementForBucket(bucketId: string) {
+  const placements: Record<string, string> = {
+    components: 'товарная карточка: title / H1 / описание / alt',
+    style: 'товарная карточка или коллекция: описание / H2 / FAQ',
+    event: 'чаще коллекция или landing: collection / body / links',
+    persona: 'вторичный угол: описание / FAQ / long-tail',
+    material_color: 'товарная карточка и image SEO: title / body / alt',
+    long_tail: 'точный long-tail: body / FAQ / meta / internal links',
+  };
+  return placements[bucketId] || 'после метрик решить placement';
+}
+
+function buildMetricValidationPackage(buckets: SeoSemanticBucket[]): SeoMetricValidationCandidate[] {
+  return buckets.flatMap((bucket) => bucket.items.map((item) => ({
+    phrase: item.phrase,
+    bucketId: bucket.id,
+    bucketLabel: bucket.label,
+    reason: item.reason,
+    source: item.source,
+    status: 'needs_metrics' as const,
+    suggestedPlacement: placementForBucket(bucket.id),
+    metricSources: ['Google Ads', 'CSV/manual import', 'eRank/DataForSEO optional'],
+    language: 'en' as const,
+    targetRegions: ['US', 'UK', 'EU', 'CA', 'AU'],
+  })));
+}
+
 function checkProduct(product: StorefrontProduct, candidateKeywords: SeoPilotKeyword[]) {
   const checks: SeoPilotBrief['blockerChecks'] = [];
   const address = productSlug(product);
@@ -351,6 +392,7 @@ export function buildSeoPilotBrief(product: StorefrontProduct, keywords: SeoPilo
   const candidateKeywords = selectCandidateKeywords(keywords, product);
   const rejectedKeywords = selectRejectedKeywords(keywords, product);
   const semanticBuckets = buildSemanticBuckets(product, candidateKeywords);
+  const metricValidationPackage = buildMetricValidationPackage(semanticBuckets);
   const checks = checkProduct(product, candidateKeywords);
   const status = resolveStatus(checks);
   const title = productTitle(product);
@@ -376,6 +418,7 @@ export function buildSeoPilotBrief(product: StorefrontProduct, keywords: SeoPilo
     candidateKeywords,
     rejectedKeywords,
     semanticBuckets,
+    metricValidationPackage,
     blockerChecks: checks,
     draftPreview: {
       seoTitle: trimTo(`${title} | ${primaryKeyword} by TheFEYA`, 68),
