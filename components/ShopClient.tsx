@@ -41,6 +41,12 @@ function toggleValue(list: string[], value: string) {
   return list.includes(value) ? list.filter((item) => item !== value) : [...list, value];
 }
 
+function allowedParamValue(value: string | null, allowed: string[]) {
+  if (!value) return '';
+  const normalized = value.trim().toLowerCase();
+  return allowed.find((item) => item.toLowerCase() === normalized) || '';
+}
+
 function FilterBox({ checked }: { checked: boolean }) {
   return <span className={`w-3.5 h-3.5 border flex items-center justify-center transition-all ${checked ? 'border-[var(--gold)] text-[var(--gold-warm)] shadow-[0_0_10px_rgba(212,178,106,.22)]' : 'border-[rgba(216,214,211,0.34)] text-transparent'}`}>
     {checked ? <Check size={10} strokeWidth={2.4} /> : null}
@@ -61,6 +67,19 @@ export function ShopClient({ products, error, collections = [] }: { products: St
   const [sort, setSort] = useState(SORTS[0]);
   const [sortOpen, setSortOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const nextCategory = allowedParamValue(params.get('category'), CATEGORIES);
+    const nextOccasion = allowedParamValue(params.get('occasion'), OCCASIONS);
+    const nextStyle = allowedParamValue(params.get('style'), STYLES);
+    const nextSearch = params.get('search')?.trim() || '';
+
+    if (nextCategory) setCategory(nextCategory);
+    if (nextOccasion) setOccasion([nextOccasion]);
+    if (nextStyle) setStyle([nextStyle]);
+    if (nextSearch) setSearch(nextSearch);
+  }, []);
 
   const filtered = useMemo(() => {
     let list = products.filter((p) => {
