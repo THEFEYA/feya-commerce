@@ -3,6 +3,8 @@
 import type { SeoMetricValidationCandidate } from '@/lib/seoPilotDraft';
 
 const CSV_COLUMNS = [
+  'product_id',
+  'product_title',
   'keyword',
   'bucket',
   'reason',
@@ -26,8 +28,10 @@ function escapeCsv(value: string | number | null | undefined) {
   return text;
 }
 
-function rowForCandidate(candidate: SeoMetricValidationCandidate) {
+function rowForCandidate(candidate: SeoMetricValidationCandidate, productId: string, productTitle: string) {
   return {
+    product_id: productId,
+    product_title: productTitle,
     keyword: candidate.phrase,
     bucket: candidate.bucketId,
     reason: candidate.reason,
@@ -46,21 +50,22 @@ function rowForCandidate(candidate: SeoMetricValidationCandidate) {
   };
 }
 
-function buildCsv(candidates: SeoMetricValidationCandidate[]) {
-  const rows = candidates.map(rowForCandidate);
+function buildCsv(candidates: SeoMetricValidationCandidate[], productId: string, productTitle: string) {
+  const rows = candidates.map((candidate) => rowForCandidate(candidate, productId, productTitle));
   const header = CSV_COLUMNS.join(',');
   const body = rows.map((row) => CSV_COLUMNS.map((column) => escapeCsv(row[column as keyof typeof row])).join(',')).join('\n');
   return `${header}\n${body}\n`;
 }
 
-export function CsvMetricTemplateButton({ candidates }: { candidates: SeoMetricValidationCandidate[] }) {
+export function CsvMetricTemplateButton({ candidates, productId = 'unknown', productTitle = '' }: { candidates: SeoMetricValidationCandidate[]; productId?: string; productTitle?: string }) {
   function downloadCsv() {
-    const csv = buildCsv(candidates);
+    const csv = buildCsv(candidates, productId, productTitle);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
+    const safeProductId = productId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 32) || 'product';
     link.href = url;
-    link.download = `thefeya-seo-metric-template-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = `thefeya-seo-metrics-${safeProductId}-${new Date().toISOString().slice(0, 10)}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
