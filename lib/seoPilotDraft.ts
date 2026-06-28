@@ -44,7 +44,7 @@ type ProductKeywordProfile = {
 };
 
 const COMPONENT_GROUPS: Record<string, string[]> = {
-  armor: ['armor', 'armour', 'shoulder armor', 'shoulders', 'pauldron', 'shoulder', 'bracer', 'bracers', 'arm bracer', 'arm bracers', 'collar', 'choker', 'mask', 'face mask'],
+  armor: ['armor', 'armour', 'shoulder armor', 'shoulders', 'pauldron', 'shoulder', 'bracer', 'bracers', 'arm bracer', 'arm bracers', 'arm cover', 'arm covers', 'arm guard', 'arm guards', 'gauntlet', 'gauntlets', 'collar', 'choker', 'mask', 'face mask'],
   harness: ['harness', 'belt', 'garter', 'garters', 'body harness', 'chest harness'],
   corset: ['corset', 'top', 'bra', 'bodice', 'crop top'],
   skirt: ['skirt', 'mini skirt', 'open skirt'],
@@ -54,10 +54,12 @@ const COMPONENT_GROUPS: Record<string, string[]> = {
   headpiece: ['headpiece', 'head piece', 'horns', 'crown', 'halo', 'headdress'],
   mask: ['mask', 'face mask'],
   bracelet: ['bracelet', 'bracelets', 'armlet', 'armlets', 'cuff', 'cuffs'],
+  body_spine_tail: ['spine', 'tail'],
 };
 
 const STYLE_EVENT_TERMS = ['festival', 'stage', 'performance', 'performer', 'dance', 'dancer', 'rave', 'edm', 'burning man', 'desert', 'futuristic', 'warrior', 'robot', 'cyber', 'cosplay', 'costume', 'outfit'];
-const MATERIAL_COLOR_TERMS = ['gold', 'golden', 'silver', 'chrome', 'mirror', 'acrylic', 'leather', 'faux leather', 'black', 'white', 'holographic'];
+const MATERIAL_COLOR_TERMS = ['gold', 'golden', 'silver', 'chrome', 'mirror', 'acrylic', 'leather', 'faux leather', 'black', 'white', 'red', 'holographic', 'silicone', 'metallic', 'reflective', 'glossy'];
+const IMPLIED_GOLD_ARMOR_SURFACE_TERMS = ['metallic', 'reflective', 'glossy', 'mirror'];
 
 function clean(value: unknown, fallback = '—') {
   if (value == null || value === '') return fallback;
@@ -119,6 +121,7 @@ function humanizeMaterial(product: StorefrontProduct) {
 function productProfile(product: StorefrontProduct): ProductKeywordProfile {
   const text = normalize(`${productTitle(product)} ${humanizeCategory(product)} ${humanizeColor(product)} ${humanizeWorld(product)} ${humanizeMaterial(product)} ${product.material || ''} ${product.color || ''}`);
   const allowedComponents = new Set<string>();
+  const allowedMaterialColorTerms = new Set<string>(MATERIAL_COLOR_TERMS.filter((term) => hasTerm(text, term)));
 
   for (const terms of Object.values(COMPONENT_GROUPS)) {
     if (terms.some((term) => hasTerm(text, term))) {
@@ -126,14 +129,22 @@ function productProfile(product: StorefrontProduct): ProductKeywordProfile {
     }
   }
 
+  if (hasTerm(text, 'gold') || hasTerm(text, 'golden')) {
+    allowedMaterialColorTerms.add('gold');
+    allowedMaterialColorTerms.add('golden');
+  }
+
+  if ((hasTerm(text, 'gold') || hasTerm(text, 'silver') || hasTerm(text, 'armor')) && (hasTerm(text, 'armor') || hasTerm(text, 'shoulder') || hasTerm(text, 'choker') || hasTerm(text, 'bracer'))) {
+    IMPLIED_GOLD_ARMOR_SURFACE_TERMS.forEach((term) => allowedMaterialColorTerms.add(term));
+  }
+
   const allowedStyleEventTerms = STYLE_EVENT_TERMS.filter((term) => hasTerm(text, term) || ['festival', 'stage', 'performance', 'outfit', 'costume'].includes(term));
-  const allowedMaterialColorTerms = MATERIAL_COLOR_TERMS.filter((term) => hasTerm(text, term));
 
   return {
     text,
     allowedComponents: Array.from(allowedComponents),
     allowedStyleEventTerms,
-    allowedMaterialColorTerms,
+    allowedMaterialColorTerms: Array.from(allowedMaterialColorTerms),
   };
 }
 
@@ -170,6 +181,7 @@ function scoreKeyword(keyword: SeoPilotKeyword, profile: ProductKeywordProfile):
   const mismatchedComponents = componentTerms.filter((term) => !matchedComponents.includes(term));
   const matchedStyle = styleTerms.filter((term) => profile.allowedStyleEventTerms.includes(term));
   const matchedMaterial = materialTerms.filter((term) => profile.allowedMaterialColorTerms.includes(term));
+  const mismatchedMaterial = materialTerms.filter((term) => !matchedMaterial.includes(term));
 
   if (mismatchedComponents.length) {
     return {
@@ -177,6 +189,15 @@ function scoreKeyword(keyword: SeoPilotKeyword, profile: ProductKeywordProfile):
       pilot_relevance_score: -100,
       pilot_strategy_bucket: 'rejected_mismatch',
       pilot_relevance_reason: `отброшено: в товаре нет детали ${mismatchedComponents[0]}`,
+    };
+  }
+
+  if (mismatchedMaterial.length) {
+    return {
+      ...keyword,
+      pilot_relevance_score: -90,
+      pilot_strategy_bucket: 'rejected_mismatch',
+      pilot_relevance_reason: `отброшено: в товаре нет цвета/материала ${mismatchedMaterial[0]}`,
     };
   }
 
