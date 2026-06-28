@@ -12,19 +12,19 @@ const PRODUCT_SELECT = 'canonical_product_id,product_slug,matched_etsy_listing_i
 const KEYWORD_SELECT = 'keyword,keyword_norm,priority_tier,validation_status,cleanup_pipeline_status,should_validate_api,should_hold,warning_flags';
 const FALLBACK_PRODUCT = { canonical_product_id: '4511817111', product_slug: 'gold-futuristic-armor-set-choker-collar-shoulder-armor-and-arm-bracers-performance-outfit-4511817111', matched_etsy_listing_id: '4511817111', card_title: 'Gold Futuristic Armor Set, Choker Collar, Shoulder Armor and Arm Bracers, Performance Outfit', h1: 'Gold Futuristic Armor Set, Choker Collar, Shoulder Armor and Arm Bracers, Performance Outfit', product_type: 'Armor', material: 'Fabric, Leather, Faux leather', color: 'Gold', primary_image_url: null, min_price: 79, max_price: 308, currency: 'EUR', storefront_candidate_flag: true };
 
-async function loadData() {
+function keyOf(product) { return String(product?.canonical_product_id || product?.matched_etsy_listing_id || productSlug(product) || ''); }
+function isSelected(product, selected) { return selected && [product?.canonical_product_id, product?.matched_etsy_listing_id, productSlug(product)].filter(Boolean).map(String).includes(String(selected)); }
+function queryFor(productId, q, angle) { const params = new URLSearchParams(); if (productId) params.set('product', productId); if (q) params.set('q', q); if (angle) params.set('angle', angle); const value = params.toString(); return value ? `?${value}` : ''; }
+async function loadData(selectedProductId) {
   const supabase = getSupabaseReadClient();
   if (!supabase) return { product: FALLBACK_PRODUCT, keywords: [], warning: getMissingSupabaseEnvMessage(), fallbackUsed: true };
-  const products = await supabase.from(STOREFRONT_VIEW_V1).select(PRODUCT_SELECT).limit(24);
-  const product = (products.data || []).filter((item) => productSlug(item) && productTitle(item))[0] || FALLBACK_PRODUCT;
+  const products = await supabase.from(STOREFRONT_VIEW_V1).select(PRODUCT_SELECT).limit(160);
+  const productRows = (products.data || []).filter((item) => productSlug(item) && productTitle(item));
+  const product = productRows.find((item) => isSelected(item, selectedProductId)) || productRows[0] || FALLBACK_PRODUCT;
   const keywords = await supabase.from('feya_commerce_v_seo_keyword_ai_cleanup_report_v1').select(KEYWORD_SELECT).eq('priority_tier', 'tier_1').limit(80);
-  return { product, keywords: keywords.data || [], warning: products.error?.message || keywords.error?.message || null, fallbackUsed: !(products.data || []).length };
+  return { product, keywords: keywords.data || [], warning: products.error?.message || keywords.error?.message || null, fallbackUsed: !productRows.length };
 }
-
-function bucket(brief, id, fallback) {
-  return brief.semanticBuckets.find((item) => item.id === id)?.items?.map((item) => item.phrase) || fallback;
-}
-
+function bucket(brief, id, fallback) { return brief.semanticBuckets.find((item) => item.id === id)?.items?.map((item) => item.phrase) || fallback; }
 function makeDrafts(brief) {
   const components = bucket(brief, 'components', ['shoulder armor', 'arm bracers', 'choker collar']);
   const persona = bucket(brief, 'persona', ['futuristic warrior', 'sci fi armor outfit']);
@@ -38,25 +38,26 @@ function makeDrafts(brief) {
     { id: 'material', label: 'Через материал / поверхность', role: 'для визуального SEO', primary: material[0], secondary: [material[1], components[0]], placement: 'alt / image SEO / описание', seoTitle: `${material[0]} | Metallic Futuristic Armor`, h1: title, meta: `A ${material[0]} with metallic, reflective styling for stage outfits, futuristic looks and festival performance photos.`, intro: `This draft highlights visual search signals: gold, metallic, glossy and reflective surface language without adding unsupported materials.`, bullets: ['подходит для alt и image SEO', 'усиливает цвет и поверхность', 'нельзя добавлять неверные материалы'], faq: ['Is the finish metallic or reflective?', 'What color is the armor?', 'How should this be described in alt text?'], alt: [`${material[0]} with metallic reflective surface`, 'glossy gold futuristic armor detail'], links: ['Gold outfits', 'Metallic looks', 'Image SEO collection'] },
   ];
 }
-
 function Pill({ children }) { return <span className="rounded-full border border-[rgba(216,214,211,.10)] bg-black/20 px-2 py-1 text-[10px] text-[var(--bone-dim)]">{children}</span>; }
 function Section({ label, children }) { return <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3"><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">{label}</div><div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">{children}</div></div>; }
-function ChoiceCard({ draft, active }) { return <Link href={`/admin/seo-engine/draft-preview?angle=${draft.id}`} className={`block rounded-2xl border p-4 transition-colors ${active ? 'border-[rgba(212,178,106,.55)] bg-[rgba(212,178,106,.08)]' : 'border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] hover:border-[rgba(212,178,106,.30)]'}`}><div className="flex items-start justify-between gap-3"><div><div className="text-bone text-[14px]">{draft.label}</div><div className="mt-1 text-[10px] uppercase tracking-[0.16em] text-[var(--gold-warm)]">{draft.role}</div></div>{active ? <CheckCircle2 size={16} className="text-[var(--gold-warm)]" /> : <ArrowUpRight size={15} className="text-[var(--smoke)]" />}</div><div className="mt-3 text-[11px] text-[var(--bone-dim)]">Главный ключ: {draft.primary}</div></Link>; }
-
+function ChoiceCard({ draft, active, productId, q }) { return <Link href={`/admin/seo-engine/draft-preview${queryFor(productId, q, draft.id)}`} className={`block rounded-2xl border p-4 transition-colors ${active ? 'border-[rgba(212,178,106,.55)] bg-[rgba(212,178,106,.08)]' : 'border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] hover:border-[rgba(212,178,106,.30)]'}`}><div className="flex items-start justify-between gap-3"><div><div className="text-bone text-[14px]">{draft.label}</div><div className="mt-1 text-[10px] uppercase tracking-[0.16em] text-[var(--gold-warm)]">{draft.role}</div></div>{active ? <CheckCircle2 size={16} className="text-[var(--gold-warm)]" /> : <ArrowUpRight size={15} className="text-[var(--smoke)]" />}</div><div className="mt-3 text-[11px] text-[var(--bone-dim)]">Главный ключ: {draft.primary}</div></Link>; }
 export default async function SeoDraftPreviewPage({ searchParams }) {
-  const { product, keywords, warning, fallbackUsed } = await loadData();
+  const params = await searchParams;
+  const selectedProductId = params?.product || '';
+  const q = String(params?.q || '').trim();
+  const { product, keywords, warning, fallbackUsed } = await loadData(selectedProductId);
+  const activeKey = keyOf(product);
   const brief = buildSeoPilotBrief(product, keywords);
   const drafts = makeDrafts(brief);
-  const params = await searchParams;
   const activeId = params?.angle || 'detail';
   const active = drafts.find((draft) => draft.id === activeId) || drafts[0];
   const blockers = ['Метрики ещё не подтверждены', 'Запись в Supabase отключена', 'Нужна ручная проверка title/meta/claims', 'Проверка похожести пока только как направление, не финальный блокер'];
-
+  const query = queryFor(activeKey, q, active.id);
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]"><section className="container-feya pt-7 pb-12">
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-5 mb-5"><div><div className="eyebrow-gold mb-2">Админка · SEO · активный черновик</div><h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,64px)' }}>Выбор угла и SEO-черновик</h1><p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Выбери угол. Ниже система показывает один полный будущий SEO-черновик. Записи в Supabase и публикации нет.</p></div><div className="flex flex-wrap gap-2"><Link href="/admin/seo-engine/angle-advisor" className="btn-ghost">Советник угла <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine/metric-import" className="btn-ghost">Импорт метрик <ArrowUpRight size={13} /></Link></div></div>
+    <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-5 mb-5"><div><div className="eyebrow-gold mb-2">Админка · SEO · активный черновик</div><h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,64px)' }}>Выбор угла и SEO-черновик</h1><p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Экран уважает товар, выбранный в Studio. Записи в Supabase и публикации нет.</p></div><div className="flex flex-wrap gap-2"><Link href={`/admin/seo-engine/studio${queryFor(activeKey, q, '')}`} className="btn-ghost">Назад в Studio <ArrowUpRight size={13} /></Link><Link href={`/admin/seo-engine/angle-advisor${queryFor(activeKey, q, '')}`} className="btn-ghost">Советник угла <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine/metric-import" className="btn-ghost">Импорт метрик <ArrowUpRight size={13} /></Link></div></div>
     {warning || fallbackUsed ? <div className="mb-5 rounded-xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] px-3 py-2 text-[12px] text-[var(--bone-dim)]">{warning || 'Включён защитный образец товара.'}</div> : null}
-    <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4 mb-5"><div className="eyebrow-gold mb-2">Товар для примера</div><div className="text-bone text-[18px] leading-tight">{brief.productTitle}</div><div className="mt-2 text-[11px] text-[var(--bone-dim)]">Адрес товара: /{brief.productSlug}</div></div>
-    <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 mb-5">{drafts.map((draft) => <ChoiceCard key={draft.id} draft={draft} active={draft.id === active.id} />)}</div>
+    <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4 mb-5"><div className="eyebrow-gold mb-2">Выбранный товар</div><div className="text-bone text-[18px] leading-tight">{brief.productTitle}</div><div className="mt-2 text-[11px] text-[var(--bone-dim)]">ID: {activeKey} · Адрес товара: /{brief.productSlug}</div></div>
+    <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 mb-5">{drafts.map((draft) => <ChoiceCard key={draft.id} draft={draft} active={draft.id === active.id} productId={activeKey} q={q} />)}</div>
     <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden"><div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold">Активный черновик</div><div className="mt-1 text-bone text-[18px]">{active.label}</div></div><FileText size={17} className="text-[var(--gold-warm)]" /></div><div className="p-4 grid lg:grid-cols-[1fr_.75fr] gap-4"><div className="space-y-3"><Section label="Главный ключ">{active.primary}</Section><Section label="SEO title">{active.seoTitle}</Section><Section label="H1">{active.h1}</Section><Section label="Meta description">{active.meta}</Section><Section label="Intro">{active.intro}</Section></div><div className="space-y-3"><Section label="Вторичные ключи"><div className="flex flex-wrap gap-1.5">{active.secondary.filter(Boolean).map((item) => <Pill key={item}>{item}</Pill>)}</div></Section><Section label="Bullets"><ul className="list-disc pl-5 space-y-1">{active.bullets.map((item) => <li key={item}>{item}</li>)}</ul></Section><Section label="FAQ"><ul className="list-disc pl-5 space-y-1">{active.faq.map((item) => <li key={item}>{item}</li>)}</ul></Section><Section label="Alt-тексты"><ul className="list-disc pl-5 space-y-1">{active.alt.map((item) => <li key={item}>{item}</li>)}</ul></Section><Section label="Внутренние ссылки"><div className="flex flex-wrap gap-1.5">{active.links.map((item) => <Pill key={item}>{item}</Pill>)}</div></Section></div></div></div>
     <div className="mt-5 rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4"><div className="flex items-center gap-2 text-bone text-[14px] mb-3"><ShieldAlert size={16} className="text-[var(--gold-warm)]" /> QA-блокеры перед сохранением</div><div className="grid md:grid-cols-2 gap-2">{blockers.map((item) => <div key={item} className="rounded-xl border border-[rgba(212,178,106,.20)] bg-[rgba(212,178,106,.06)] p-3 text-[11px] text-[var(--bone-dim)]">{item}</div>)}</div></div>
   </section></main>;
