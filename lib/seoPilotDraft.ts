@@ -18,6 +18,20 @@ export type SeoPilotKeyword = {
   pilot_strategy_bucket?: 'component_exact' | 'style_event' | 'material_color' | 'rejected_mismatch';
 };
 
+export type SeoSemanticSuggestion = {
+  phrase: string;
+  reason: string;
+  source: 'product_fact' | 'strategy_seed' | 'queue_match';
+  status: 'needs_metrics';
+};
+
+export type SeoSemanticBucket = {
+  id: 'components' | 'style' | 'event' | 'persona' | 'material_color' | 'long_tail';
+  label: string;
+  purpose: string;
+  items: SeoSemanticSuggestion[];
+};
+
 export type SeoPilotBrief = {
   status: 'blocked' | 'needs_metric_validation' | 'ready_for_human_draft_preview';
   productSlug: string;
@@ -25,6 +39,7 @@ export type SeoPilotBrief = {
   productFacts: Array<{ label: string; value: string }>;
   candidateKeywords: SeoPilotKeyword[];
   rejectedKeywords: SeoPilotKeyword[];
+  semanticBuckets: SeoSemanticBucket[];
   blockerChecks: Array<{ label: string; status: 'pass' | 'warning' | 'blocker'; note: string }>;
   draftPreview: {
     seoTitle: string;
@@ -172,6 +187,97 @@ function uniqueKeywords(keywords: SeoPilotKeyword[]) {
   return result;
 }
 
+function uniqueSuggestions(items: SeoSemanticSuggestion[]) {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const key = normalize(item.phrase);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function seed(phrase: string, reason: string, source: SeoSemanticSuggestion['source'] = 'strategy_seed'): SeoSemanticSuggestion {
+  return { phrase, reason, source, status: 'needs_metrics' };
+}
+
+function buildSemanticBuckets(product: StorefrontProduct, candidateKeywords: SeoPilotKeyword[]): SeoSemanticBucket[] {
+  const title = productTitle(product);
+  const category = humanizeCategory(product);
+  const color = humanizeColor(product);
+  const world = humanizeWorld(product);
+  const material = humanizeMaterial(product);
+  const lower = normalize(`${title} ${category} ${color} ${world} ${material}`);
+  const hasArmor = hasTerm(lower, 'armor');
+  const hasShoulder = hasTerm(lower, 'shoulder') || hasTerm(lower, 'shoulders');
+  const hasChoker = hasTerm(lower, 'choker') || hasTerm(lower, 'collar');
+  const hasBracers = hasTerm(lower, 'bracer') || hasTerm(lower, 'bracers');
+  const hasGold = hasTerm(lower, 'gold') || hasTerm(lower, 'golden');
+  const hasFuturistic = hasTerm(lower, 'futuristic');
+  const queueSeeds = candidateKeywords.slice(0, 4).map((keyword) => seed(clean(keyword.keyword || keyword.keyword_norm), 'уже найдено в текущей очереди ключей', 'queue_match'));
+
+  const componentItems = uniqueSuggestions([
+    hasArmor ? seed('armor set', 'главная товарная деталь из названия', 'product_fact') : null,
+    hasShoulder ? seed('shoulder armor', 'точная часть товара', 'product_fact') : null,
+    hasBracers ? seed('arm bracers', 'точная часть товара', 'product_fact') : null,
+    hasBracers ? seed('arm covers', 'синоним для bracers / arm pieces', 'strategy_seed') : null,
+    hasChoker ? seed('choker collar', 'точная часть товара', 'product_fact') : null,
+    hasArmor && hasShoulder ? seed('shoulder armor set', 'комбинация главной детали и комплекта', 'strategy_seed') : null,
+    ...queueSeeds,
+  ].filter(Boolean) as SeoSemanticSuggestion[]).slice(0, 12);
+
+  const styleItems = uniqueSuggestions([
+    hasFuturistic ? seed('futuristic armor', 'стиль прямо указан в названии', 'product_fact') : null,
+    hasFuturistic && hasArmor ? seed('cyber armor', 'близкий стиль для futuristic armor', 'strategy_seed') : null,
+    hasArmor ? seed('warrior armor', 'персонажная стратегия для armor', 'strategy_seed') : null,
+    hasArmor ? seed('robot armor', 'соседний визуальный мир для futuristic armor', 'strategy_seed') : null,
+    seed('performance outfit', 'назначение прямо указано в названии', 'product_fact'),
+    seed('stage outfit', 'сценический контекст товара', 'strategy_seed'),
+  ].filter(Boolean) as SeoSemanticSuggestion[]).slice(0, 12);
+
+  const eventItems = uniqueSuggestions([
+    seed('stage performance outfit', 'событие / использование: выступление', 'strategy_seed'),
+    seed('festival armor', 'festival/rave стратегия для похожих FEYA товаров', 'strategy_seed'),
+    seed('rave armor', 'низко- и среднечастотная event-гипотеза', 'strategy_seed'),
+    seed('burning man armor', 'ивент-гипотеза для пустынного/futuristic visual world', 'strategy_seed'),
+    seed('desert festival outfit', 'ивент + визуальный мир', 'strategy_seed'),
+  ]).slice(0, 12);
+
+  const personaItems = uniqueSuggestions([
+    hasArmor ? seed('futuristic warrior', 'персонажная стратегия для armor + futuristic', 'strategy_seed') : null,
+    hasArmor ? seed('desert warrior outfit', 'персонаж + Burning Man/desert strategy', 'strategy_seed') : null,
+    hasArmor ? seed('robot warrior costume', 'персонаж + futuristic armor', 'strategy_seed') : null,
+    hasArmor ? seed('sci fi armor outfit', 'sci-fi стратегия без привязки к брендам/франшизам', 'strategy_seed') : null,
+  ].filter(Boolean) as SeoSemanticSuggestion[]).slice(0, 12);
+
+  const materialItems = uniqueSuggestions([
+    hasGold && hasArmor ? seed('gold armor', 'цвет + главная деталь товара', 'product_fact') : null,
+    hasGold && hasArmor ? seed('metallic gold armor', 'surface/style термин для золотой брони', 'strategy_seed') : null,
+    hasGold && hasArmor ? seed('reflective gold armor', 'surface/style термин для глянцевой/зеркальной поверхности', 'strategy_seed') : null,
+    hasGold && hasArmor ? seed('glossy gold armor', 'surface/style термин для блеска', 'strategy_seed') : null,
+    hasGold && hasChoker ? seed('gold choker collar', 'цвет + точная часть товара', 'product_fact') : null,
+    hasGold && hasShoulder ? seed('gold shoulder armor', 'цвет + точная часть товара', 'product_fact') : null,
+  ].filter(Boolean) as SeoSemanticSuggestion[]).slice(0, 12);
+
+  const longTailItems = uniqueSuggestions([
+    hasGold && hasFuturistic && hasShoulder ? seed('gold futuristic shoulder armor', 'long-tail из цвета, стиля и детали', 'strategy_seed') : null,
+    hasGold && hasChoker && hasBracers ? seed('gold choker collar and arm bracers', 'long-tail по фактическим компонентам', 'strategy_seed') : null,
+    hasShoulder && hasBracers ? seed('shoulder armor and arm bracers outfit', 'long-tail по комплекту', 'strategy_seed') : null,
+    hasFuturistic && hasArmor ? seed('futuristic performance armor outfit', 'long-tail: стиль + назначение + деталь', 'strategy_seed') : null,
+    hasGold && hasArmor ? seed('gold armor set for stage performance', 'long-tail под коммерческое назначение', 'strategy_seed') : null,
+    hasArmor ? seed('futuristic warrior armor costume', 'long-tail под persona strategy', 'strategy_seed') : null,
+  ].filter(Boolean) as SeoSemanticSuggestion[]).slice(0, 12);
+
+  return [
+    { id: 'components', label: 'Детали товара', purpose: 'То, что реально входит в товар. Самая безопасная база для title/H1/body.', items: componentItems },
+    { id: 'style', label: 'Стиль', purpose: 'Визуальное направление: futuristic, cyber, warrior, stage.', items: styleItems },
+    { id: 'event', label: 'Событие', purpose: 'Где покупатель будет это использовать: stage, festival, rave, Burning Man.', items: eventItems },
+    { id: 'persona', label: 'Персонаж / образ', purpose: 'Образ покупателя или роли: warrior, robot, sci-fi.', items: personaItems },
+    { id: 'material_color', label: 'Материал / цвет', purpose: 'Gold, metallic, reflective, glossy — только если не противоречит товару.', items: materialItems },
+    { id: 'long_tail', label: 'Long-tail', purpose: 'Длинные точные фразы для низкой конкуренции и лучшей релевантности.', items: longTailItems },
+  ].filter((bucket) => bucket.items.length);
+}
+
 function scoreKeyword(keyword: SeoPilotKeyword, profile: ProductKeywordProfile): SeoPilotKeyword {
   const word = normalize(keyword.keyword_norm || keyword.keyword);
   const componentTerms = keywordComponentTerms(word);
@@ -314,6 +420,7 @@ function resolveStatus(checks: SeoPilotBrief['blockerChecks']) {
 export function buildSeoPilotBrief(product: StorefrontProduct, keywords: SeoPilotKeyword[]): SeoPilotBrief {
   const candidateKeywords = selectCandidateKeywords(keywords, product);
   const rejectedKeywords = selectRejectedKeywords(keywords, product);
+  const semanticBuckets = buildSemanticBuckets(product, candidateKeywords);
   const checks = checkProduct(product, candidateKeywords);
   const status = resolveStatus(checks);
   const title = productTitle(product);
@@ -322,8 +429,8 @@ export function buildSeoPilotBrief(product: StorefrontProduct, keywords: SeoPilo
   const color = humanizeColor(product);
   const world = humanizeWorld(product);
   const material = humanizeMaterial(product);
-  const primaryKeyword = clean(candidateKeywords[0]?.keyword || candidateKeywords[0]?.keyword_norm, category);
-  const secondaryKeyword = clean(candidateKeywords[1]?.keyword || candidateKeywords[1]?.keyword_norm, world);
+  const primaryKeyword = clean(candidateKeywords[0]?.keyword || candidateKeywords[0]?.keyword_norm || semanticBuckets[0]?.items[0]?.phrase, category);
+  const secondaryKeyword = clean(candidateKeywords[1]?.keyword || candidateKeywords[1]?.keyword_norm || semanticBuckets[1]?.items[0]?.phrase, world);
 
   return {
     status,
@@ -338,6 +445,7 @@ export function buildSeoPilotBrief(product: StorefrontProduct, keywords: SeoPilo
     ],
     candidateKeywords,
     rejectedKeywords,
+    semanticBuckets,
     blockerChecks: checks,
     draftPreview: {
       seoTitle: trimTo(`${title} | ${primaryKeyword} by TheFEYA`, 68),
