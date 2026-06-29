@@ -1,6 +1,6 @@
 // @ts-nocheck
 import Link from 'next/link';
-import { ArrowUpRight, Database, Layers3, SearchCheck, SlidersHorizontal, Sparkles, Tags } from 'lucide-react';
+import { ArrowUpRight, Database, ImageIcon, Layers3, PackageSearch, SearchCheck, SlidersHorizontal, Sparkles, Tags } from 'lucide-react';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
@@ -8,7 +8,12 @@ export const revalidate = 0;
 
 const LIMIT = 1200;
 const DISPLAY_LIMIT = 220;
+const PRODUCT_LIMIT = 220;
 const COLUMNS = 'keyword,keyword_norm,bank_bucket,review_status,source_clusters,score,avg_monthly_searches,competition,competition_index,low_bid,high_bid,region,language,metric_source,page_type,role,role_label,last_checked,duplicate_count,reason,notes,source_files';
+const ADMIN_PRODUCTS_VIEW = 'feya_commerce_v_step6_product_catalog_overview';
+const STOREFRONT_ENRICHMENT_VIEW = 'feya_commerce_v_step7_storefront_products_api_v4';
+const PRODUCT_SELECT = 'canonical_product_id,source_shop_code,primary_source_listing_id,matched_etsy_listing_id,draft_site_title,card_title,product_type,publish_status,readiness_status,do_not_publish_flag,updated_at';
+const PRODUCT_ENRICHMENT_SELECT = 'canonical_product_id,product_slug,primary_image_url,primary_image_alt';
 const BUCKETS = ['all', 'product', 'product_or_alt', 'collection', 'commercial_collection', 'visual_collection', 'faq'];
 
 const BUCKET_LABELS = {
@@ -74,6 +79,47 @@ async function countBucket(supabase, bucket) {
   return { count: count ?? 0, error: null };
 }
 
+async function loadProducts() {
+  const supabase = getSupabaseReadClient();
+  if (!supabase) return { products: [], error: getMissingSupabaseEnvMessage() };
+
+  const [{ data: catalogRows, error }, { data: enrichmentRows }] = await Promise.all([
+    supabase.from(ADMIN_PRODUCTS_VIEW).select(PRODUCT_SELECT).limit(PRODUCT_LIMIT),
+    supabase.from(STOREFRONT_ENRICHMENT_VIEW).select(PRODUCT_ENRICHMENT_SELECT).limit(PRODUCT_LIMIT),
+  ]);
+
+  if (error) return { products: [], error: error.message };
+
+  const enrichmentById = new Map();
+  (enrichmentRows || []).forEach((item) => {
+    if (item?.canonical_product_id) enrichmentById.set(item.canonical_product_id, item);
+  });
+
+  const products = (catalogRows || []).map((row) => {
+    const enrichment = enrichmentById.get(row.canonical_product_id) || {};
+    const title = row.card_title || row.draft_site_title || row.matched_etsy_listing_id || row.canonical_product_id;
+    const subtitle = [
+      row.source_shop_code || 'SHOP',
+      row.matched_etsy_listing_id ? `Etsy ${row.matched_etsy_listing_id}` : row.primary_source_listing_id,
+      row.product_type || 'Product',
+    ].filter(Boolean).join(' · ');
+    return {
+      id: row.canonical_product_id,
+      title,
+      subtitle,
+      shop: row.source_shop_code || '',
+      productType: row.product_type || '',
+      readiness: row.readiness_status || row.publish_status || '',
+      imageUrl: enrichment.primary_image_url || '',
+      imageAlt: enrichment.primary_image_alt || '',
+      slug: enrichment.product_slug || row.canonical_product_id,
+      text: `${title} ${subtitle} ${row.product_type || ''} ${enrichment.primary_image_alt || ''}`.toLowerCase(),
+    };
+  }).sort((a, b) => String(a.title || '').localeCompare(String(b.title || '')));
+
+  return { products, error: null };
+}
+
 async function loadRows(filters) {
   const supabase = getSupabaseReadClient();
   if (!supabase) {
@@ -113,6 +159,7 @@ function currentFilters(searchParams) {
     material: normalizeFilter(stringParam(searchParams?.material, '')),
     event: normalizeFilter(stringParam(searchParams?.event, '')),
     q: stringParam(searchParams?.q, '').trim().toLowerCase(),
+    productId: stringParam(searchParams?.product_id, '').trim(),
   };
 }
 
@@ -154,6 +201,32 @@ function queryMatches(text, q) {
 
 function hasActiveDna(filters) {
   return Boolean(filters.component || filters.material || filters.event || filters.q);
+}
+
+function firstMatch(text, values) {
+  return values.find((value) => matchesValue(text, value)) || '';
+}
+
+function inferProductDna(product) {
+  if (!product) return { component: '', material: '', event: '', q: '' };
+  const text = product.text || '';
+  return {
+    component: firstMatch(text, COMPONENTS),
+    material: firstMatch(text, MATERIALS),
+    event: firstMatch(text, EVENTS),
+    q: '',
+  };
+}
+
+function applyProductAutoDna(filters, product) {
+  const inferred = inferProductDna(product);
+  return {
+    ...filters,
+    component: filters.component || inferred.component,
+    material: filters.material || inferred.material,
+    event: filters.event || inferred.event,
+    inferred,
+  };
 }
 
 function matchRow(row, filters) {
@@ -235,8 +308,13 @@ function buildHref(filters, patch = {}) {
   if (next.material) params.set('material', next.material);
   if (next.event) params.set('event', next.event);
   if (next.q) params.set('q', next.q);
+  if (next.productId || next.product_id) params.set('product_id', next.productId || next.product_id);
   const query = params.toString();
   return query ? `/admin/listing-master?${query}` : '/admin/listing-master';
+}
+
+function productHref(product) {
+  return `/admin/listing-master?product_id=${encodeURIComponent(product.id)}`;
 }
 
 function Chip({ children, tone = 'neutral' }) {
@@ -279,64 +357,105 @@ function FilterChip({ type, value, filters, label }) {
 }
 
 function PresetLink({ preset }) {
-  return <Link href={buildHref({ bucket: preset.bucket, component: preset.component, material: preset.material, event: preset.event, q: '' })} className="rounded-2xl border border-[rgba(212,178,106,.20)] bg-[rgba(212,178,106,.055)] p-4 hover:border-[rgba(212,178,106,.45)] transition-colors">
+  return <Link href={buildHref({ bucket: preset.bucket, component: preset.component, material: preset.material, event: preset.event, q: '', productId: '' })} className="rounded-2xl border border-[rgba(212,178,106,.20)] bg-[rgba(212,178,106,.055)] p-4 hover:border-[rgba(212,178,106,.45)] transition-colors">
     <div className="text-bone text-[13px]">{preset.label}</div>
     <div className="mt-2 flex flex-wrap gap-1.5"><Chip tone="success">{preset.component}</Chip><Chip tone="gold">{preset.material}</Chip><Chip tone="warning">{preset.event}</Chip></div>
   </Link>;
 }
 
+function ProductCard({ product, active }) {
+  return <Link href={productHref(product)} className={`grid grid-cols-[44px_1fr] gap-3 rounded-2xl border p-3 transition-colors ${active ? 'border-[rgba(212,178,106,.55)] bg-[rgba(212,178,106,.10)]' : 'border-[rgba(216,214,211,.10)] bg-black/15 hover:border-[rgba(212,178,106,.35)]'}`}>
+    <div className="h-11 w-11 overflow-hidden rounded-xl border border-[rgba(216,214,211,.10)] bg-black/25 flex items-center justify-center">
+      {product.imageUrl ? <img src={product.imageUrl} alt={product.imageAlt || product.title} className="h-full w-full object-cover" /> : <ImageIcon size={16} className="text-[var(--smoke)]" />}
+    </div>
+    <div className="min-w-0">
+      <div className="truncate text-[12px] text-bone">{product.title}</div>
+      <div className="mt-1 truncate text-[10px] text-[var(--bone-dim)]">{product.subtitle}</div>
+    </div>
+  </Link>;
+}
+
 export default async function AdminListingMasterPage({ searchParams }) {
-  const filters = currentFilters(searchParams);
+  const rawFilters = currentFilters(searchParams);
+  const { products, error: productsError } = await loadProducts();
+  const selectedProduct = products.find((product) => product.id === rawFilters.productId) || null;
+  const filters = applyProductAutoDna(rawFilters, selectedProduct);
   const { rows, totalCount, counts, rawCount, error } = await loadRows(filters);
   const firstRows = rows.slice(0, DISPLAY_LIMIT);
   const countsError = countError(counts);
   const dnaActive = hasActiveDna(filters);
+  const inferred = filters.inferred || {};
 
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
     <section className="container-feya pt-10 pb-16">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
         <div>
-          <div className="eyebrow-gold mb-3">Админка · Listing Master · SEO Tags P1</div>
+          <div className="eyebrow-gold mb-3">Админка · Listing Master · SEO Tags P2</div>
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Listing Master</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Read-only слой мастера листинга: approved-подсказки из `vw_seo_keyword_bank_v1_for_listing_master` + первый DNA matching по component / material / event / search. Без записи в товар и без автозамены тегов.</p>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Read-only слой мастера листинга: выбери товар — система сама извлечёт простую DNA из title/type/alt и подберёт approved keywords из `vw_seo_keyword_bank_v1_for_listing_master`. Без записи в товар и без автозамены тегов.</p>
         </div>
-        <div className="flex flex-wrap gap-3"><Link href="/admin/seo-keywords" className="btn-ghost">SEO-ключи <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine/scoring" className="btn-ghost">Scoring <ArrowUpRight size={13} /></Link><Link href="/admin" className="btn-ghost">Админка <ArrowUpRight size={13} /></Link></div>
+        <div className="flex flex-wrap gap-3"><Link href="/admin/products" className="btn-ghost">Товары <ArrowUpRight size={13} /></Link><Link href="/admin/seo-keywords" className="btn-ghost">SEO-ключи <ArrowUpRight size={13} /></Link><Link href="/admin" className="btn-ghost">Админка <ArrowUpRight size={13} /></Link></div>
       </div>
 
       {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">Не удалось загрузить Listing Master keywords. Ответ базы: {error}</div> : null}
+      {productsError ? <div className="rounded-2xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] p-5 text-[var(--bone-dim)] mb-7">Товары не загрузились: {productsError}</div> : null}
       {countsError ? <div className="rounded-2xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] p-5 text-[var(--bone-dim)] mb-7">Один из bucket count-запросов не вернулся: {countsError}</div> : null}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Metric icon={Database} label="Всего approved" value={bucketCount(counts, 'all')} note="Пул view для Listing Master." tone="success" />
-        <Metric icon={Tags} label="Product" value={bucketCount(counts, 'product')} note="Ключи для товарных тегов и title-кандидатов." tone="success" />
-        <Metric icon={Layers3} label="Product / Alt" value={bucketCount(counts, 'product_or_alt')} note="Точные material/component слова для товара и alt." tone="success" />
-        <Metric icon={SearchCheck} label="Matched сейчас" value={formatNumber(totalCount ?? rows.length)} note={dnaActive ? 'Результат текущих DNA-фильтров.' : 'Без DNA-фильтра: показываем общий approved-пул.'} tone="warning" />
+        <Metric icon={PackageSearch} label="Товары" value={formatNumber(products.length)} note="Источник: admin products view." tone="success" />
+        <Metric icon={Layers3} label="Product / Alt" value={bucketCount(counts, 'product_or_alt')} note="Точные material/component слова." tone="success" />
+        <Metric icon={SearchCheck} label="Matched сейчас" value={formatNumber(totalCount ?? rows.length)} note={dnaActive ? 'Результат текущей DNA товара.' : 'Без DNA-фильтра: общий approved-пул.'} tone="warning" />
       </div>
 
       <div className="rounded-2xl border border-[rgba(212,178,106,.18)] bg-[rgba(212,178,106,.045)] p-5 mb-6">
         <div className="flex items-center gap-2 eyebrow-gold mb-2"><Sparkles size={14} /> Текущее решение</div>
-        <p className="text-[13px] leading-relaxed text-[var(--bone-dim)]">Теперь Listing Master умеет сузить keyword bank по DNA товара. Логика простая и безопасная: выбранные component/material/event должны встретиться в keyword/source_clusters. Reject/Hold сюда не попадают вообще.</p>
+        <p className="text-[13px] leading-relaxed text-[var(--bone-dim)]">Теперь Listing Master уже можно использовать от товара: выбранный product автоматически включает component/material/event, если они распознаны в названии, типе или alt. Если авто-DNA не угадала — можно вручную переключить фильтры ниже.</p>
       </div>
 
-      <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5 mb-6">
-        <div className="flex items-center gap-2 eyebrow-gold mb-4"><SlidersHorizontal size={14} /> DNA matching filters</div>
-        <div className="grid xl:grid-cols-[1fr_1fr] gap-5">
-          <div className="space-y-4">
-            <div><div className="eyebrow-dim mb-2">Component</div><div className="flex flex-wrap gap-2">{COMPONENTS.map((item) => <FilterChip key={item} type="component" value={item} filters={filters} />)}</div></div>
-            <div><div className="eyebrow-dim mb-2">Material / Color</div><div className="flex flex-wrap gap-2">{MATERIALS.map((item) => <FilterChip key={item} type="material" value={item} filters={filters} />)}</div></div>
-            <div><div className="eyebrow-dim mb-2">Event / Context</div><div className="flex flex-wrap gap-2">{EVENTS.map((item) => <FilterChip key={item} type="event" value={item} filters={filters} />)}</div></div>
+      <div className="grid xl:grid-cols-[420px_1fr] gap-6 mb-6">
+        <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
+          <div className="flex items-center gap-2 eyebrow-gold mb-4"><PackageSearch size={14} /> Выбрать товар</div>
+          <div className="max-h-[520px] space-y-2 overflow-auto pr-1">
+            {products.slice(0, 80).map((product) => <ProductCard key={product.id} product={product} active={selectedProduct?.id === product.id} />)}
+            {!products.length && !productsError ? <div className="text-[12px] text-[var(--bone-dim)]">Товары не вернулись.</div> : null}
           </div>
-          <div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
+            <div className="flex items-center gap-2 eyebrow-gold mb-4"><SlidersHorizontal size={14} /> Product DNA</div>
+            {selectedProduct ? <div className="grid sm:grid-cols-[96px_1fr] gap-4 rounded-2xl border border-[rgba(212,178,106,.18)] bg-[rgba(212,178,106,.055)] p-4 mb-4">
+              <div className="h-24 w-24 overflow-hidden rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/25 flex items-center justify-center">
+                {selectedProduct.imageUrl ? <img src={selectedProduct.imageUrl} alt={selectedProduct.imageAlt || selectedProduct.title} className="h-full w-full object-cover" /> : <ImageIcon size={18} className="text-[var(--smoke)]" />}
+              </div>
+              <div>
+                <div className="text-bone text-[18px] leading-snug">{selectedProduct.title}</div>
+                <div className="mt-1 text-[12px] text-[var(--bone-dim)]">{selectedProduct.subtitle}</div>
+                <div className="mt-3 flex flex-wrap gap-2"><Chip tone="success">component: {filters.component || '—'}</Chip><Chip tone="gold">material: {filters.material || '—'}</Chip><Chip tone="warning">event: {filters.event || '—'}</Chip></div>
+                <div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Auto detected: {inferred.component || '—'} / {inferred.material || '—'} / {inferred.event || '—'}</div>
+              </div>
+            </div> : <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mb-4 text-[13px] leading-relaxed text-[var(--bone-dim)]">Товар ещё не выбран. Сейчас можно работать руками через DNA filters, но следующий боевой сценарий — выбрать товар слева.</div>}
+
+            <div className="space-y-4">
+              <div><div className="eyebrow-dim mb-2">Component</div><div className="flex flex-wrap gap-2">{COMPONENTS.map((item) => <FilterChip key={item} type="component" value={item} filters={filters} />)}</div></div>
+              <div><div className="eyebrow-dim mb-2">Material / Color</div><div className="flex flex-wrap gap-2">{MATERIALS.map((item) => <FilterChip key={item} type="material" value={item} filters={filters} />)}</div></div>
+              <div><div className="eyebrow-dim mb-2">Event / Context</div><div className="flex flex-wrap gap-2">{EVENTS.map((item) => <FilterChip key={item} type="event" value={item} filters={filters} />)}</div></div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
             <div className="eyebrow-dim mb-2">Search inside approved bank</div>
             <form action="/admin/listing-master" className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4">
               <input type="hidden" name="bucket" value={filters.bucket} />
               <input type="hidden" name="component" value={filters.component} />
               <input type="hidden" name="material" value={filters.material} />
               <input type="hidden" name="event" value={filters.event} />
+              <input type="hidden" name="product_id" value={filters.productId} />
               <input name="q" defaultValue={filters.q} placeholder="Например: gold rave, burning man, chest harness" className="w-full rounded-xl border border-[rgba(216,214,211,.14)] bg-black/25 px-4 py-3 text-[13px] text-bone outline-none focus:border-[rgba(212,178,106,.45)]" />
-              <div className="mt-3 flex flex-wrap gap-2"><button className="btn-ghost" type="submit">Применить поиск</button><Link href="/admin/listing-master" className="btn-ghost">Очистить DNA</Link></div>
+              <div className="mt-3 flex flex-wrap gap-2"><button className="btn-ghost" type="submit">Применить поиск</button><Link href="/admin/listing-master" className="btn-ghost">Очистить товар/DNA</Link></div>
             </form>
-            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
               {PRESETS.map((preset) => <PresetLink key={preset.label} preset={preset} />)}
             </div>
           </div>
@@ -352,7 +471,7 @@ export default async function AdminListingMasterPage({ searchParams }) {
           <div><div className="eyebrow-dim">Активный подбор</div><h2 className="mt-2 text-bone text-[24px]">{BUCKET_LABELS[filters.bucket] || filters.bucket}</h2></div>
           <div className="flex flex-wrap gap-2"><Chip tone="success">Показано {formatNumber(firstRows.length)}</Chip><Chip tone="warning">Matched {formatNumber(totalCount ?? rows.length)}</Chip><Chip>Из выборки {formatNumber(rawCount ?? rows.length)}</Chip></div>
         </div>
-        <p className="mt-4 text-[13px] leading-relaxed text-[var(--bone-dim)]">Активные фильтры: component={filters.component || '—'} · material={filters.material || '—'} · event={filters.event || '—'} · search={filters.q || '—'}. Таблица ограничена первыми {formatNumber(DISPLAY_LIMIT)} строками.</p>
+        <p className="mt-4 text-[13px] leading-relaxed text-[var(--bone-dim)]">Активные фильтры: product={selectedProduct?.title || '—'} · component={filters.component || '—'} · material={filters.material || '—'} · event={filters.event || '—'} · search={filters.q || '—'}. Таблица ограничена первыми {formatNumber(DISPLAY_LIMIT)} строками.</p>
       </div>
 
       <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
