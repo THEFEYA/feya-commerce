@@ -9,6 +9,7 @@ type ScoreResult = { keyword: string; score: number; role: Role; blockers: strin
 const REQUIRED = ['keyword', 'region', 'language', 'metric_source', 'avg_monthly_searches', 'competition', 'last_checked'];
 const SOURCES = ['google_ads', 'google_keyword_planner', 'csv_manual', 'erank', 'dataforseo', 'google_trends', 'search_console_future'];
 const COMPETITION = ['LOW', 'MEDIUM', 'HIGH', 'UNKNOWN'];
+const EXPORT_COLUMNS = ['keyword','score','role','role_label','reason','region','language','metric_source','avg_monthly_searches','competition','competition_index','low_bid','high_bid','trend','seasonality','last_checked','notes'];
 
 function parseCsvLine(line: string) {
   const cells: string[] = [];
@@ -74,6 +75,20 @@ function scoreRow(row: CsvRow): ScoreResult {
 }
 function roleLabel(role: Role) { return ({ primary: 'главный', secondary: 'вторичный', supporting: 'поддержка', long_tail: 'точный длинный', hold: 'удержать', reject: 'исключить' } as Record<Role, string>)[role]; }
 function roleClass(role: Role) { if (role === 'primary' || role === 'secondary') return 'border-[rgba(108,183,138,.35)] text-[#a9dfbd] bg-[rgba(108,183,138,.08)]'; if (role === 'reject') return 'border-[rgba(196,64,88,.34)] text-[var(--ruby-soft)] bg-[rgba(160,32,56,.08)]'; return 'border-[rgba(212,178,106,.30)] text-[var(--gold-warm)] bg-[rgba(212,178,106,.07)]'; }
+function esc(value: string) { return /[",\n\r]/.test(value || '') ? `"${String(value || '').replaceAll('"', '""')}"` : String(value || ''); }
+function downloadScoredCsv(rows: CsvRow[]) {
+  const output = rows.map((row) => {
+    const scored = scoreRow(row);
+    return { ...row, score: String(scored.score), role: scored.role, role_label: roleLabel(scored.role), reason: scored.blockers.length ? scored.blockers.join(' · ') : scored.notes.join(' · ') };
+  });
+  const csv = `${EXPORT_COLUMNS.join(',')}\n${output.map((row) => EXPORT_COLUMNS.map((column) => esc(row[column] || '')).join(',')).join('\n')}\n`;
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `thefeya-scored-keywords-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url);
+}
 
 export function CsvScoringPreview() {
   const [text, setText] = useState('');
@@ -82,7 +97,7 @@ export function CsvScoringPreview() {
   const counts = { primary: results.filter((r) => r.role === 'primary').length, secondary: results.filter((r) => r.role === 'secondary').length, rejected: results.filter((r) => r.role === 'reject').length };
   function handleFile(file: File | null) { if (!file) return; const reader = new FileReader(); reader.onload = () => setText(String(reader.result || '')); reader.readAsText(file); }
   return <div className="space-y-4">
-    <div className="rounded-2xl border border-[rgba(212,178,106,.28)] bg-[rgba(212,178,106,.06)] p-4"><div className="text-bone text-[18px]">1. Нажми “Выбрать файл” и выбери нормализованный CSV</div><div className="mt-2 text-[12px] text-[var(--bone-dim)]">Нужен файл вида thefeya-normalized-google-keywords-....csv. Это preview: записи в Supabase нет.</div><input type="file" accept=".csv,text/csv" onChange={(event) => handleFile(event.target.files?.[0] || null)} className="mt-4 block w-full rounded-xl border border-[rgba(216,214,211,.14)] bg-black/25 p-3 text-[12px] text-bone" /></div>
+    <div className="rounded-2xl border border-[rgba(212,178,106,.28)] bg-[rgba(212,178,106,.06)] p-4"><div className="text-bone text-[18px]">1. Нажми “Выбрать файл” и выбери нормализованный CSV</div><div className="mt-2 text-[12px] text-[var(--bone-dim)]">Нужен файл вида thefeya-normalized-google-keywords-....csv. Это preview: записи в Supabase нет.</div><div className="mt-4 flex flex-wrap gap-2"><input type="file" accept=".csv,text/csv" onChange={(event) => handleFile(event.target.files?.[0] || null)} className="block flex-1 min-w-[260px] rounded-xl border border-[rgba(216,214,211,.14)] bg-black/25 p-3 text-[12px] text-bone" />{rows.length ? <button type="button" onClick={() => downloadScoredCsv(rows)} className="btn-ghost">Скачать scored CSV</button> : null}</div></div>
     <div className="grid lg:grid-cols-[1fr_320px] gap-4"><textarea value={text} onChange={(event) => setText(event.target.value)} placeholder="Или вставь CSV текстом сюда" className="min-h-[220px] w-full rounded-xl border border-[rgba(216,214,211,.12)] bg-black/25 p-3 text-[11px] leading-relaxed text-[var(--bone-dim)] outline-none focus:border-[rgba(212,178,106,.45)]" /><div className="space-y-2"><div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3"><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">Строк</div><div className="mt-1 text-bone text-[18px]">{results.length}</div></div><div className="grid grid-cols-3 gap-2"><div className="rounded-xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.06)] p-3"><div className="text-[10px] text-[#a9dfbd]">главные</div><div className="text-bone text-[16px]">{counts.primary}</div></div><div className="rounded-xl border border-[rgba(212,178,106,.25)] bg-[rgba(212,178,106,.06)] p-3"><div className="text-[10px] text-[var(--gold-warm)]">вторичные</div><div className="text-bone text-[16px]">{counts.secondary}</div></div><div className="rounded-xl border border-[rgba(196,64,88,.25)] bg-[rgba(160,32,56,.06)] p-3"><div className="text-[10px] text-[var(--ruby-soft)]">исключить</div><div className="text-bone text-[16px]">{counts.rejected}</div></div></div><div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Этот scoring принимает normalized Google Keyword Planner CSV. UNKNOWN competition не блокирует строку, но не даёт ставить ключ главным без проверки.</div></div></div>
     <div className="max-h-[480px] overflow-auto rounded-xl border border-[rgba(216,214,211,.10)]"><div className="grid grid-cols-[1fr_80px_120px_1.4fr] gap-3 px-3 py-2 border-b border-[rgba(216,214,211,.10)] bg-black/20 text-[9px] uppercase tracking-[0.18em] text-[var(--smoke)] sticky top-0 z-10"><div>Ключ</div><div>Балл</div><div>Роль</div><div>Почему</div></div><div className="divide-y divide-[rgba(216,214,211,.08)]">{results.length ? results.map((row) => <div key={`${row.keyword}-${row.score}`} className="grid grid-cols-[1fr_80px_120px_1.4fr] gap-3 px-3 py-2 text-[11px] leading-relaxed"><div className="text-bone">{row.keyword}</div><div className="text-[var(--gold-warm)]">{row.score}</div><div><span className={`inline-flex rounded-full border px-2 py-0.5 text-[9px] uppercase tracking-[0.14em] ${roleClass(row.role)}`}>{roleLabel(row.role)}</span></div><div className="text-[var(--bone-dim)]">{row.blockers.length ? row.blockers.join(' · ') : row.notes.join(' · ')}</div></div>) : <div className="p-3 text-[12px] text-[var(--bone-dim)]">Пока CSV не загружен.</div>}</div></div>
   </div>;
