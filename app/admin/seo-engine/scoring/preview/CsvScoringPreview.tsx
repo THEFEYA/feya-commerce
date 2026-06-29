@@ -21,8 +21,9 @@ const HARD_REJECT_RULES = [
   { name: 'jewelry_only', pattern: /\b(necklace|earrings|ring|diamond|pearl|jewelry)\b/ },
   { name: 'not_our_event', pattern: /\b(wedding|bridesmaid|prom|homecoming|office outfit|church outfit)\b/ },
   { name: 'tactical_or_protection', pattern: /\b(motorcycle|tactical|airsoft|paintball|protective gear|body armor vest)\b/ },
+  { name: 'local_store_intent', pattern: /\b(near me|stores near me|store near me|dance store|dance stores|dancewear store|dancewear stores|dance clothing store|dance clothing stores)\b/ },
 ];
-const SOFT_HOLD_PATTERN = /\b(sexy|lingerie|country festival|school|cheap|free|ideas|inspiration)\b/;
+const SOFT_HOLD_PATTERN = /\b(sexy|lingerie|country festival|country concert|school|cheap|free|ideas|inspiration|belly dance|belly dancer|praise dance|line dance|exotic dance|pole dance|costume dance costume)\b/;
 const CORE_MARKET_PATTERN = /\b(rave|edm|festival|burning man|coachella|stage|performance|drag|clubwear|dancer|dance|futuristic|statement)\b/;
 const COMPONENT_PATTERN = /\b(armor|shoulder|bracer|arm cuff|choker|collar|harness|bodysuit|mask|headpiece|horn|corset|skirt|belt|chain|wings)\b/;
 const MATERIAL_PATTERN = /\b(gold|silver|mirror|metallic|reflective|holographic|chrome|leather|acrylic|black|white)\b/;
