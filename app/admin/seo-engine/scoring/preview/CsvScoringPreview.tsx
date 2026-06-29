@@ -13,18 +13,19 @@ const COMPETITION = ['LOW', 'MEDIUM', 'HIGH', 'UNKNOWN'];
 const EXPORT_COLUMNS = ['keyword','score','role','role_label','page_type','reason','region','language','metric_source','avg_monthly_searches','competition','competition_index','low_bid','high_bid','trend','seasonality','last_checked','notes'];
 
 const HARD_REJECT_RULES = [
-  { name: 'brand_or_retailer', pattern: /\b(princess polly|fashion nova|shein|amazon|target|walmart|party city|spirit halloween|dolls kill|iheart raves|iheartraves|etsy|temu|cider|windsor|forever 21|boohoo|nasty gal|prettylittlething)\b/ },
-  { name: 'franchise_or_character', pattern: /\b(shrek|barbie|r2d2|r2-d2|star wars|disney|minion|batman|harry potter|spongebob|tinkerbell)\b/ },
-  { name: 'unrelated_dance_category', pattern: /\b(irish dancer|irish dancing|irish dance|riverdance|rockette|ballet recital|tap dance|jazz dance|lyrical dance)\b/ },
+  { name: 'brand_or_retailer', pattern: /\b(princess polly|fashion nova|shein|amazon|target|walmart|party city|spirit halloween|dolls kill|iheart raves|iheartraves|etsy|temu|cider|windsor|forever 21|boohoo|nasty gal|prettylittlething|badinka|bloch|marena)\b/ },
+  { name: 'franchise_or_character', pattern: /\b(shrek|barbie|r2d2|r2-d2|star wars|disney|minion|batman|harry potter|spongebob|tinkerbell|spiderman|spider man|catwoman|harley quinn|venom|shego|wonder woman|superman)\b/ },
+  { name: 'unrelated_dance_category', pattern: /\b(irish dancer|irish dancing|irish dance|riverdance|rockette|ballet recital|ballet leotard|ballet bodysuit|tap dance|jazz dance|lyrical dance|gymnastics leotard|dance leotards? for girls)\b/ },
   { name: 'kids_or_pet', pattern: /\b(kids|kid|child|children|baby|toddler|girls costume|boys costume|dog costume|pet costume)\b/ },
   { name: 'diy_or_pattern', pattern: /\b(diy|pattern|template|sewing pattern|make your own|how to make)\b/ },
   { name: 'jewelry_only', pattern: /\b(necklace|earrings|ring|diamond|pearl|jewelry)\b/ },
   { name: 'not_our_event', pattern: /\b(wedding|bridesmaid|prom|homecoming|office outfit|church outfit)\b/ },
+  { name: 'shapewear_or_medical', pattern: /\b(faja|shapewear|waist trainer|body slimming|compression bodysuit|post surgery|stage 1 faja|stage 2 faja|bbl suit)\b/ },
   { name: 'tactical_or_protection', pattern: /\b(motorcycle|tactical|airsoft|paintball|protective gear|body armor vest)\b/ },
   { name: 'local_store_intent', pattern: /\b(near me|stores near me|store near me|dance store|dance stores|dancewear store|dancewear stores|dance clothing store|dance clothing stores)\b/ },
   { name: 'industrial_safety_harness', pattern: /\b(fall protection|safety harness|full body harness|full body safety|body safety harness|lanyard|double lanyard|d ring|d-ring|dorsal|osha|ansi|z359|rescue harness|climbing harness|petzl|miller|msa|falltech|fall tech|dbi sala|sala full body|guardian full body|3m body harness|yates full body|palmer safety|wiring harness|wire harness|engine harness|airlift|compressor harness|lt1 wiring|gm performance wiring|street and performance wiring|nelson performance wiring|southwest performance wiring)\b/ },
 ];
-const SOFT_HOLD_PATTERN = /\b(sexy|lingerie|country festival|country concert|school|cheap|free|ideas|inspiration|belly dance|belly dancer|praise dance|line dance|exotic dance|pole dance|costume dance costume)\b/;
+const SOFT_HOLD_PATTERN = /\b(sexy|lingerie|country festival|country concert|school|cheap|free|ideas|inspiration|belly dance|belly dancer|praise dance|line dance|exotic dance|pole dance|costume dance costume|ballet|leotard|leotards|unitard|catsuit|spandex|latex|muscle suit)\b/;
 const CORE_MARKET_PATTERN = /\b(rave|edm|festival|burning man|coachella|stage|performance|drag|clubwear|dancer|dance|futuristic|statement)\b/;
 const COMPONENT_PATTERN = /\b(armor|shoulder|bracer|arm cuff|choker|collar|harness|bodysuit|mask|headpiece|horn|corset|skirt|belt|chain|wings)\b/;
 const MATERIAL_PATTERN = /\b(gold|silver|mirror|metallic|reflective|holographic|chrome|leather|acrylic|black|white)\b/;
