@@ -22,6 +22,7 @@ const HARD_REJECT_RULES = [
   { name: 'not_our_event', pattern: /\b(wedding|bridesmaid|prom|homecoming|office outfit|church outfit)\b/ },
   { name: 'tactical_or_protection', pattern: /\b(motorcycle|tactical|airsoft|paintball|protective gear|body armor vest)\b/ },
   { name: 'local_store_intent', pattern: /\b(near me|stores near me|store near me|dance store|dance stores|dancewear store|dancewear stores|dance clothing store|dance clothing stores)\b/ },
+  { name: 'industrial_safety_harness', pattern: /\b(fall protection|safety harness|full body harness|full body safety|body safety harness|lanyard|double lanyard|d ring|d-ring|dorsal|osha|ansi|z359|rescue harness|climbing harness|petzl|miller|msa|falltech|fall tech|dbi sala|sala full body|guardian full body|3m body harness|yates full body|palmer safety|wiring harness|wire harness|engine harness|airlift|compressor harness|lt1 wiring|gm performance wiring|street and performance wiring|nelson performance wiring|southwest performance wiring)\b/ },
 ];
 const SOFT_HOLD_PATTERN = /\b(sexy|lingerie|country festival|country concert|school|cheap|free|ideas|inspiration|belly dance|belly dancer|praise dance|line dance|exotic dance|pole dance|costume dance costume)\b/;
 const CORE_MARKET_PATTERN = /\b(rave|edm|festival|burning man|coachella|stage|performance|drag|clubwear|dancer|dance|futuristic|statement)\b/;
