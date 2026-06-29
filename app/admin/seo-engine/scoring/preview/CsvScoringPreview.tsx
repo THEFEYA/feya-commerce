@@ -19,13 +19,16 @@ const HARD_REJECT_RULES = [
   { name: 'kids_or_pet', pattern: /\b(kids|kid|child|children|baby|toddler|girls costume|boys costume|dog costume|pet costume)\b/ },
   { name: 'diy_or_pattern', pattern: /\b(diy|pattern|template|sewing pattern|make your own|how to make)\b/ },
   { name: 'jewelry_only', pattern: /\b(necklace|earrings|ring|diamond|pearl|jewelry)\b/ },
-  { name: 'not_our_event', pattern: /\b(wedding|bridesmaid|prom|homecoming|office outfit|church outfit)\b/ },
+  { name: 'bridal_or_period_costume', pattern: /\b(bridal|bride|veil|wedding|bridesmaid|prom|homecoming|flapper|gatsby|1920s|20s headpiece|renaissance|medieval|stage play|theatre mask|theater mask)\b/ },
+  { name: 'not_our_event', pattern: /\b(office outfit|church outfit)\b/ },
+  { name: 'cultural_sensitive_or_not_our_style', pattern: /\b(arab|indian|native american|tribal|korean festival|tokyo mask festival|samurai|soldier|military mask)\b/ },
+  { name: 'medical_or_protection_mask', pattern: /\b(covid|n95|kn95|surgical mask|medical mask|respirator|dust mask|gas mask|face shield|protective face mask)\b/ },
   { name: 'shapewear_or_medical', pattern: /\b(faja|shapewear|waist trainer|body slimming|compression bodysuit|post surgery|stage 1 faja|stage 2 faja|bbl suit)\b/ },
   { name: 'tactical_or_protection', pattern: /\b(motorcycle|tactical|airsoft|paintball|protective gear|body armor vest)\b/ },
   { name: 'local_store_intent', pattern: /\b(near me|stores near me|store near me|dance store|dance stores|dancewear store|dancewear stores|dance clothing store|dance clothing stores)\b/ },
   { name: 'industrial_safety_harness', pattern: /\b(fall protection|safety harness|full body harness|full body safety|body safety harness|lanyard|double lanyard|d ring|d-ring|dorsal|osha|ansi|z359|rescue harness|climbing harness|petzl|miller|msa|falltech|fall tech|dbi sala|sala full body|guardian full body|3m body harness|yates full body|palmer safety|wiring harness|wire harness|engine harness|airlift|compressor harness|lt1 wiring|gm performance wiring|street and performance wiring|nelson performance wiring|southwest performance wiring)\b/ },
 ];
-const SOFT_HOLD_PATTERN = /\b(sexy|lingerie|country festival|country concert|school|cheap|free|ideas|inspiration|belly dance|belly dancer|praise dance|line dance|exotic dance|pole dance|costume dance costume|ballet|leotard|leotards|unitard|catsuit|spandex|latex|muscle suit)\b/;
+const SOFT_HOLD_PATTERN = /\b(sexy|lingerie|country festival|country concert|school|cheap|free|ideas|inspiration|belly dance|belly dancer|praise dance|line dance|exotic dance|pole dance|costume dance costume|ballet|leotard|leotards|unitard|catsuit|spandex|latex|muscle suit|k-pop|kpop|anime|face mask covid|high tech face mask)\b/;
 const CORE_MARKET_PATTERN = /\b(rave|edm|festival|burning man|coachella|stage|performance|drag|clubwear|dancer|dance|futuristic|statement)\b/;
 const COMPONENT_PATTERN = /\b(armor|shoulder|bracer|arm cuff|choker|collar|harness|bodysuit|mask|headpiece|horn|corset|skirt|belt|chain|wings)\b/;
 const MATERIAL_PATTERN = /\b(gold|silver|mirror|metallic|reflective|holographic|chrome|leather|acrylic|black|white)\b/;
