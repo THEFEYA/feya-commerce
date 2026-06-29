@@ -1,6 +1,6 @@
 // @ts-nocheck
 import Link from 'next/link';
-import { ArrowUpRight, Database, FileSearch, Gauge, Layers3, ShieldAlert, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Database, FileSearch, Layers3, ShieldAlert, ShieldCheck, Sparkles } from 'lucide-react';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
@@ -14,7 +14,7 @@ const TABS = [
   { key: 'listing_master', label: 'Listing Master', view: 'vw_seo_keyword_bank_v1_for_listing_master', note: 'approved для мастера листинга' },
   { key: 'hold', label: 'Hold', view: 'vw_seo_keyword_bank_v1_hold', note: 'спорные слова' },
   { key: 'reject', label: 'Reject', view: 'vw_seo_keyword_bank_v1_reject', note: 'память анти-предложений' },
-  { key: 'all', label: 'Все', view: 'seo_keyword_bank_v1', note: 'полная таблица v1' },
+  { key: 'all', label: 'Все', view: null, note: 'approved + hold + reject' },
 ];
 
 const BUCKET_LABELS = {
@@ -40,6 +40,16 @@ async function countView(supabase, view) {
   return { count: count ?? 0, error: null };
 }
 
+async function loadRowsFromView(supabase, view, limit = KEYWORD_LIMIT) {
+  const { data, error, count } = await supabase
+    .from(view)
+    .select(KEYWORD_COLUMNS, { count: 'exact' })
+    .limit(limit);
+
+  if (error) return { rows: [], count: null, error: error.message };
+  return { rows: data || [], count: count ?? 0, error: null };
+}
+
 async function loadBucketRows(supabase) {
   const { data, error } = await supabase
     .from('vw_seo_keyword_bank_v1_by_bucket')
@@ -48,6 +58,20 @@ async function loadBucketRows(supabase) {
 
   if (error) return { rows: [], error: error.message };
   return { rows: data || [], error: null };
+}
+
+function safeCount(value) {
+  return typeof value?.count === 'number' ? value.count : 0;
+}
+
+function sortKeywordRows(rows) {
+  return (rows || []).slice().sort((a, b) => {
+    const scoreDiff = Number(b.score || 0) - Number(a.score || 0);
+    if (scoreDiff) return scoreDiff;
+    const volumeDiff = Number(b.avg_monthly_searches || 0) - Number(a.avg_monthly_searches || 0);
+    if (volumeDiff) return volumeDiff;
+    return String(a.keyword || '').localeCompare(String(b.keyword || ''));
+  });
 }
 
 async function loadKeywords(tabKey) {
@@ -65,43 +89,58 @@ async function loadKeywords(tabKey) {
 
   const activeTab = TABS.find((tab) => tab.key === tabKey) || TABS[0];
 
-  const [approved, hold, reject, listingMaster, all, buckets] = await Promise.all([
+  const [approved, hold, reject, listingMaster, buckets] = await Promise.all([
     countView(supabase, 'vw_seo_keyword_bank_v1_approved'),
     countView(supabase, 'vw_seo_keyword_bank_v1_hold'),
     countView(supabase, 'vw_seo_keyword_bank_v1_reject'),
     countView(supabase, 'vw_seo_keyword_bank_v1_for_listing_master'),
-    countView(supabase, 'seo_keyword_bank_v1'),
     loadBucketRows(supabase),
   ]);
 
-  const { data, error, count } = await supabase
-    .from(activeTab.view)
-    .select(KEYWORD_COLUMNS, { count: 'exact' })
-    .limit(KEYWORD_LIMIT);
+  const derivedAll = {
+    count: safeCount(approved) + safeCount(hold) + safeCount(reject),
+    error: approved.error || hold.error || reject.error || null,
+    derived: true,
+  };
+  const counts = { approved, hold, reject, listingMaster, all: derivedAll };
 
-  if (error) {
+  if (activeTab.key === 'all') {
+    const [approvedRows, holdRows, rejectRows] = await Promise.all([
+      loadRowsFromView(supabase, 'vw_seo_keyword_bank_v1_approved', KEYWORD_LIMIT),
+      loadRowsFromView(supabase, 'vw_seo_keyword_bank_v1_hold', KEYWORD_LIMIT),
+      loadRowsFromView(supabase, 'vw_seo_keyword_bank_v1_reject', KEYWORD_LIMIT),
+    ]);
+    const rowError = approvedRows.error || holdRows.error || rejectRows.error;
+    if (rowError) {
+      return { rows: [], totalCount: derivedAll.count, counts, bucketRows: buckets.rows, error: rowError, bucketError: buckets.error };
+    }
+
     return {
-      rows: [],
-      totalCount: null,
-      counts: { approved, hold, reject, listingMaster, all },
+      rows: sortKeywordRows([...approvedRows.rows, ...holdRows.rows, ...rejectRows.rows]).slice(0, KEYWORD_LIMIT),
+      totalCount: derivedAll.count,
+      counts,
       bucketRows: buckets.rows,
-      error: error.message,
+      error: null,
       bucketError: buckets.error,
     };
   }
 
-  const rows = (data || []).slice().sort((a, b) => {
-    const scoreDiff = Number(b.score || 0) - Number(a.score || 0);
-    if (scoreDiff) return scoreDiff;
-    const volumeDiff = Number(b.avg_monthly_searches || 0) - Number(a.avg_monthly_searches || 0);
-    if (volumeDiff) return volumeDiff;
-    return String(a.keyword || '').localeCompare(String(b.keyword || ''));
-  });
+  const result = await loadRowsFromView(supabase, activeTab.view, KEYWORD_LIMIT);
+  if (result.error) {
+    return {
+      rows: [],
+      totalCount: null,
+      counts,
+      bucketRows: buckets.rows,
+      error: result.error,
+      bucketError: buckets.error,
+    };
+  }
 
   return {
-    rows,
-    totalCount: count,
-    counts: { approved, hold, reject, listingMaster, all },
+    rows: sortKeywordRows(result.rows),
+    totalCount: result.count,
+    counts,
     bucketRows: buckets.rows,
     error: null,
     bucketError: buckets.error,
@@ -112,11 +151,6 @@ function asText(value, fallback = '—') {
   if (value == null || value === '') return fallback;
   if (Array.isArray(value)) return value.length ? value.join(', ') : fallback;
   return String(value);
-}
-
-function asNumber(value) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 function formatNumber(value) {
@@ -137,7 +171,7 @@ function getCount(counts, key) {
 }
 
 function countError(counts) {
-  return Object.entries(counts || {}).find(([, value]) => value?.error)?.[1]?.error || null;
+  return Object.entries(counts || {}).filter(([key]) => key !== 'all').find(([, value]) => value?.error)?.[1]?.error || null;
 }
 
 function bucketName(row) {
@@ -222,7 +256,7 @@ export default async function AdminSeoKeywordsPage({ searchParams }) {
       {countLoadError ? <div className="rounded-2xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] p-5 text-[var(--bone-dim)] mb-7">Один из count-запросов не вернулся: {countLoadError}</div> : null}
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-        <Metric icon={Database} label="Всего в банке" value={getCount(counts, 'all')} note="public.seo_keyword_bank_v1 после UPSERT." />
+        <Metric icon={Database} label="Всего в банке" value={getCount(counts, 'all')} note="Approved + Hold + Reject через публичные views." />
         <Metric icon={ShieldCheck} label="Approved" value={getCount(counts, 'approved')} note="Чистый пул для рекомендаций." tone="success" />
         <Metric icon={Layers3} label="Listing Master" value={getCount(counts, 'listingMaster')} note="Approved buckets для мастера листинга." tone="success" />
         <Metric icon={ShieldAlert} label="Hold" value={getCount(counts, 'hold')} note="Спорные слова до ручной проверки." tone="warning" />
@@ -245,7 +279,7 @@ export default async function AdminSeoKeywordsPage({ searchParams }) {
         </div>
 
         <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
-          <div className="eyebrow-dim mb-3">Approved по bucket</div>
+          <div className="eyebrow-dim mb-3">Bank по bucket/status</div>
           {bucketError ? <div className="text-[12px] leading-relaxed text-[var(--ruby-soft)]">Не удалось загрузить vw_seo_keyword_bank_v1_by_bucket: {bucketError}</div> : null}
           <div className="space-y-2">
             {bucketRows.slice(0, 8).map((row, index) => {
