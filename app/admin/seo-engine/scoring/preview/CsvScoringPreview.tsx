@@ -6,6 +6,8 @@ type CsvRow = Record<string, string>;
 type Role = 'primary' | 'secondary' | 'supporting' | 'long_tail' | 'hold' | 'reject';
 type ScoreResult = { keyword: string; score: number; role: Role; blockers: string[]; notes: string[] };
 
+type ExportRow = CsvRow & { score: string; role: string; role_label: string; reason: string };
+
 const REQUIRED = ['keyword', 'region', 'language', 'metric_source', 'avg_monthly_searches', 'competition', 'last_checked'];
 const SOURCES = ['google_ads', 'google_keyword_planner', 'csv_manual', 'erank', 'dataforseo', 'google_trends', 'search_console_future'];
 const COMPETITION = ['LOW', 'MEDIUM', 'HIGH', 'UNKNOWN'];
@@ -77,7 +79,7 @@ function roleLabel(role: Role) { return ({ primary: 'главный', secondary:
 function roleClass(role: Role) { if (role === 'primary' || role === 'secondary') return 'border-[rgba(108,183,138,.35)] text-[#a9dfbd] bg-[rgba(108,183,138,.08)]'; if (role === 'reject') return 'border-[rgba(196,64,88,.34)] text-[var(--ruby-soft)] bg-[rgba(160,32,56,.08)]'; return 'border-[rgba(212,178,106,.30)] text-[var(--gold-warm)] bg-[rgba(212,178,106,.07)]'; }
 function esc(value: string) { return /[",\n\r]/.test(value || '') ? `"${String(value || '').replaceAll('"', '""')}"` : String(value || ''); }
 function downloadScoredCsv(rows: CsvRow[]) {
-  const output = rows.map((row) => {
+  const output: ExportRow[] = rows.map((row) => {
     const scored = scoreRow(row);
     return { ...row, score: String(scored.score), role: scored.role, role_label: roleLabel(scored.role), reason: scored.blockers.length ? scored.blockers.join(' · ') : scored.notes.join(' · ') };
   });
