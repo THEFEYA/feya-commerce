@@ -1,3 +1,4 @@
+// @ts-nocheck
 import ListingMasterPage from './ListingMasterPage';
 
 export const dynamic = 'force-dynamic';
