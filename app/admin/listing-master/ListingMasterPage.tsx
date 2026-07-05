@@ -11,24 +11,30 @@ const PRODUCT_LIMIT = 500;
 const KEYWORD_LIMIT = 6000;
 const DISPLAY_LIMIT = 160;
 const KEYWORD_SNAPSHOT_LIMIT = 30;
+
 const FOCUS_VIEW = 'feya_commerce_v_listing_master_product_focus_v1';
 const KEYWORD_VIEW = 'vw_seo_keyword_bank_v1_for_listing_master';
+const MATCH_VIEW = 'feya_commerce_v_listing_master_keyword_match_preview_v1';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
+const FALLBACK_VIEW = 'feya_commerce_v_step7_storefront_products_api_v4';
+
 const FOCUS_SELECT = 'canonical_product_id,matched_etsy_listing_id,product_slug,card_title,h1,seo_title,product_type,material,color,canonical_color_label,category_label,source_category_label,operator_section_label,world_label,primary_image_url,primary_image_alt,parent_components_json,child_components_json,component_groups_json,needs_component_review_count,has_component_review_risk,focus_text';
 const FALLBACK_SELECT = 'canonical_product_id,product_slug,card_title,h1,seo_title,product_type,material,color,canonical_color_label,category_label,world_label,primary_image_url,primary_image_alt';
-const FALLBACK_VIEW = 'feya_commerce_v_step7_storefront_products_api_v4';
 const KW_SELECT = 'keyword,keyword_norm,bank_bucket,score,avg_monthly_searches,competition,competition_index,source_clusters,page_type,reason,notes,source_files';
+const MATCH_SELECT = 'keyword,keyword_norm,bank_bucket,score,avg_monthly_searches,competition,competition_index,source_clusters,page_type,reason,notes,source_files,final_match_status,match_score,positive_match_count,negative_match_count,component_match,material_match,color_match,event_match,style_match,persona_match,audience_match,commercial_match,wrong_gender,wrong_product_type,blocked_noise,bodysuit_mismatch,neon_mismatch,snake_mismatch,lego_mismatch,reason_json';
 
 const KEYWORD_TYPES = ['all', 'product', 'product_or_alt', 'collection', 'commercial_collection', 'visual_collection', 'faq'];
 const STRATEGIES = ['demand', 'opportunity', 'niche'];
 const DEFAULT_STRATEGY = 'demand,opportunity,niche';
 const DEFAULT_EXCLUDED_TERMS = ['lego', 'pokemon', 'pokémon', 'gatsby', 'saint patrick', 'st patrick', 'st. patrick', 'santa', 'my little pony', 'casual', 'dinosaur', 'neon', 'snake'];
+const DEFAULT_MATCH_STATUSES = ['STRONG_MATCH', 'MEDIUM_MATCH', 'BROAD_MATCH'];
+
 const KW_LABELS = { all: 'Все типы использования', product: 'Товарные слова', product_or_alt: 'Товар / ALT', collection: 'Категории', commercial_collection: 'Коммерческие посадочные', visual_collection: 'Визуальный поиск', faq: 'FAQ / вопросы' };
 const STRATEGY_LABELS = { demand: 'Больше спроса', opportunity: 'Перспективные', niche: 'Нишевые' };
 const STRATEGY_NOTES = { demand: 'Сначала слова с большим средним спросом.', opportunity: 'Ненулевой спрос + ниже конкуренция.', niche: 'Узкие long-tail слова под конкретный товар.' };
 const STATUS_LABELS = { all: 'Все товары', not_saved: 'Не сохранено', saved: 'Черновик сохранён' };
 
-const COMPONENTS = ['corset', 'bra', 'top', 'harness', 'bodysuit', 'skirt', 'panties', 'arms', 'shoulders', 'legs', 'mask', 'headpiece', 'choker', 'wings', 'spine', 'tail'];
+const COMPONENTS = ['corset', 'bra', 'top', 'harness', 'bodysuit', 'skirt', 'panties', 'shoulders', 'arms', 'legs', 'mask', 'headpiece', 'choker', 'wings', 'spine', 'tail'];
 const MATERIALS = ['gold', 'silver', 'black', 'white', 'mirror', 'acrylic', 'leather', 'vegan leather', 'metallic', 'holographic', 'chain'];
 const EVENTS = ['rave', 'festival', 'burning man', 'stage', 'edm', 'edc', 'coachella', 'halloween', 'cosplay', 'pride', 'drag', 'photoshoot'];
 const STYLES = ['futuristic', 'cyberpunk', 'desert', 'post apocalyptic', 'glam', 'punk', 'goth', 'burlesque', 'cosmic', 'sci fi', 'steampunk', 'fantasy'];
@@ -37,57 +43,96 @@ const AUDIENCES = ['women', 'men', 'couples', 'drag'];
 const FOCUS_FIELDS = ['component', 'material', 'event', 'style', 'persona', 'audience'];
 
 const LABELS = {
-  corset: 'corset', bra: 'bra', top: 'top', harness: 'harness', bodysuit: 'bodysuit', skirt: 'skirt', panties: 'panties', arms: 'arms', shoulders: 'shoulders', legs: 'legs', mask: 'mask', headpiece: 'headpiece', choker: 'choker', wings: 'wings', spine: 'spine', tail: 'tail',
+  corset: 'corset', bra: 'bra', top: 'top', harness: 'harness', bodysuit: 'bodysuit', skirt: 'skirt', panties: 'panties', shoulders: 'shoulders', arms: 'arms', legs: 'legs', mask: 'mask', headpiece: 'headpiece', choker: 'choker', wings: 'wings', spine: 'spine', tail: 'tail',
   gold: 'gold', silver: 'silver', black: 'black', white: 'white', mirror: 'mirror', acrylic: 'acrylic', leather: 'leather', 'vegan leather': 'vegan leather', metallic: 'metallic', holographic: 'holographic', chain: 'chain detail',
   rave: 'rave', festival: 'festival', 'burning man': 'Burning Man', stage: 'stage', edm: 'EDM', edc: 'EDC', coachella: 'Coachella', halloween: 'Halloween', cosplay: 'cosplay', pride: 'Pride', drag: 'drag', photoshoot: 'photoshoot',
   futuristic: 'futuristic', cyberpunk: 'cyberpunk', desert: 'desert', 'post apocalyptic': 'post-apocalyptic', glam: 'glam', punk: 'punk', goth: 'goth', burlesque: 'burlesque', cosmic: 'cosmic', 'sci fi': 'sci-fi', steampunk: 'steampunk', fantasy: 'fantasy',
   warrior: 'warrior', goddess: 'goddess', queen: 'queen', cleopatra: 'Cleopatra', robot: 'robot', alien: 'alien', angel: 'angel', demon: 'demon', 'drag queen': 'drag queen', dancer: 'dancer', performer: 'performer', dj: 'DJ', showgirl: 'showgirl', 'go go dancer': 'go-go dancer', 'pole dancer': 'pole dancer', maleficent: 'Maleficent', cat: 'cat', bunny: 'bunny', couple: 'couple',
   women: 'women', men: 'men', couples: 'couples'
 };
+
 const SYN = {
-  corset: ['corset', 'overbust', 'underbust', 'bodice'], bra: ['bra', 'bralette', 'bustier'], top: ['top', 'crop top', 'chest piece', 'breastplate'], harness: ['harness', 'body harness', 'chest harness', 'garter harness'], bodysuit: ['bodysuit', 'body suit', 'leotard'], skirt: ['skirt', 'mini skirt', 'open skirt'], panties: ['panties'], arms: ['arms', 'arm', 'bracer', 'bracers', 'arm cuff', 'armlet', 'glove', 'bicep', 'forearm'], shoulders: ['shoulder', 'shoulders', 'shoulder piece', 'shoulder_piece', 'shoulder armor'], legs: ['legs', 'leg', 'garter', 'garters', 'leg covers', 'leg harness', 'leg armor'], mask: ['mask', 'face mask'], headpiece: ['headpiece', 'head piece', 'horn', 'crown', 'halo', 'headdress', 'cleopatra'], choker: ['choker', 'collar'], wings: ['wings'], spine: ['spine', 'back piece'], tail: ['tail'],
+  corset: ['corset', 'overbust', 'underbust', 'bodice'], bra: ['bra', 'bralette', 'bustier'], top: ['top', 'crop top', 'chest piece', 'breastplate'], harness: ['harness', 'body harness', 'chest harness', 'garter harness'], bodysuit: ['bodysuit', 'body suit', 'leotard'], skirt: ['skirt', 'mini skirt', 'open skirt'], panties: ['panties'], shoulders: ['shoulder', 'shoulders', 'shoulder piece', 'shoulder_piece', 'shoulder armor'], arms: ['arms', 'arm', 'bracer', 'bracers', 'arm cuff', 'armlet', 'glove', 'bicep', 'forearm'], legs: ['legs', 'leg', 'garter', 'garters', 'leg covers', 'leg harness', 'leg armor'], mask: ['mask', 'face mask'], headpiece: ['headpiece', 'head piece', 'horn', 'crown', 'halo', 'headdress', 'cleopatra'], choker: ['choker', 'collar'], wings: ['wings'], spine: ['spine', 'back piece'], tail: ['tail'],
   gold: ['gold', 'golden'], silver: ['silver', 'chrome'], black: ['black'], white: ['white'], mirror: ['mirror', 'mirrored', 'reflective'], acrylic: ['acrylic'], leather: ['leather', 'faux leather'], 'vegan leather': ['vegan leather', 'faux leather'], metallic: ['metallic', 'metal'], holographic: ['holographic', 'holo', 'iridescent'], chain: ['chain', 'chains', 'body chain'],
   rave: ['rave', 'edm'], festival: ['festival', 'coachella', 'tomorrowland', 'electric forest'], 'burning man': ['burning man', 'burningman'], stage: ['stage', 'performance', 'performer', 'show'], edm: ['edm', 'rave'], edc: ['edc', 'electric daisy carnival'], coachella: ['coachella'], halloween: ['halloween'], cosplay: ['cosplay', 'costume'], pride: ['pride'], drag: ['drag', 'drag queen'], photoshoot: ['photoshoot', 'photo shoot'],
   futuristic: ['futuristic', 'future', 'future fashion'], cyberpunk: ['cyberpunk', 'cyber'], desert: ['desert', 'dune', 'burning man'], 'post apocalyptic': ['post apocalyptic', 'apocalyptic', 'mad max', 'wasteland'], glam: ['glam', 'glamorous', 'red carpet'], punk: ['punk'], goth: ['goth', 'gothic'], burlesque: ['burlesque'], cosmic: ['cosmic', 'space'], 'sci fi': ['sci fi', 'sci-fi', 'science fiction'], steampunk: ['steampunk'], fantasy: ['fantasy', 'fairy'],
   warrior: ['warrior', 'armor', 'armour'], goddess: ['goddess'], queen: ['queen'], cleopatra: ['cleopatra', 'egyptian'], robot: ['robot'], alien: ['alien'], angel: ['angel'], demon: ['demon', 'devil'], 'drag queen': ['drag queen'], dancer: ['dancer', 'dance'], performer: ['performer', 'performance'], dj: ['dj'], showgirl: ['showgirl', 'show girl'], 'go go dancer': ['go go', 'gogo', 'go-go'], 'pole dancer': ['pole dancer', 'pole dance'], maleficent: ['maleficent', 'dark fairy'], cat: ['cat', 'kitty'], bunny: ['bunny', 'rabbit'], couple: ['couple', 'couples', 'matching'],
-  women: ['women', 'woman', 'female', 'womens', "women's"], men: ['men', 'man', 'male', 'mens', "men's"], couples: ['couple', 'couples', 'matching'], drag: ['drag', 'drag queen']
+  women: ['women', 'woman', 'female', 'womens', "women's", 'ladies', 'lady'], men: ['men', 'man', 'male', 'mens', "men's"], couples: ['couple', 'couples', 'matching'], drag: ['drag', 'drag queen']
 };
 
 export default async function ListingMasterPage({ searchParams }) {
-  const filters = readFilters(searchParams);
+  const resolvedSearchParams = await Promise.resolve(searchParams || {});
+  const filters = readFilters(resolvedSearchParams);
   const productData = await loadProducts(filters);
   const selectedProduct = productData.allProducts.find((p) => p.id === filters.productId) || null;
   const active = applyAutoFocus(filters, selectedProduct);
   const keywordData = await loadKeywords(active);
   const rows = keywordData.rows.slice(0, DISPLAY_LIMIT);
   const saved = savedMessage(filters.saved);
-  const productStatus = productSeoStatus(selectedProduct, active, keywordData.totalCount ?? keywordData.rows.length);
+  const productStatus = productSeoStatus(selectedProduct, active, keywordData.totalCount ?? keywordData.rows.length, keywordData.source);
   const snapshot = keywordSnapshot(rows);
 
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
     <section className="container-feya pt-7 pb-14">
       <div className="grid gap-5 lg:grid-cols-[1fr_440px] lg:items-end border-b border-[rgba(216,214,211,.12)] pb-6 mb-6">
-        <div><div className="eyebrow-gold mb-2">Админка · Мастер листинга</div><h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(42px,6vw,72px)' }}>Подбор SEO-слов</h1><p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--bone-dim)]">Выбери товар, проверь авто-фокус, настрой фильтры и нажми “Применить поиск слов”. Дальше — сохранить черновик решения и перейти в SEO-задание.</p></div>
-        <div className="flex flex-wrap gap-3 lg:justify-end"><Link href="/admin/products" className="btn-ghost">Товары <ArrowUpRight size={13} /></Link><Link href="/admin/seo-keywords" className="btn-ghost">SEO-ядро <ArrowUpRight size={13} /></Link><Link href={selectedProduct ? `/admin/seo-engine/briefs?product_id=${selectedProduct.id}` : '/admin/seo-engine/briefs'} className="btn-ghost">SEO-задание <ArrowUpRight size={13} /></Link></div>
+        <div>
+          <div className="eyebrow-gold mb-2">Админка · Мастер листинга</div>
+          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(42px,6vw,72px)' }}>Подбор SEO-слов</h1>
+          <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--bone-dim)]">Выбери товар, проверь авто-фокус, настрой фильтры и нажми “Применить поиск слов”. Теперь выдача идёт через bridge “товар ↔ SEO-ядро”, а не через сырой поиск по тексту.</p>
+        </div>
+        <div className="flex flex-wrap gap-3 lg:justify-end">
+          <Link href="/admin/products" className="btn-ghost">Товары <ArrowUpRight size={13} /></Link>
+          <Link href="/admin/seo-keywords" className="btn-ghost">SEO-ядро <ArrowUpRight size={13} /></Link>
+          <Link href={selectedProduct ? `/admin/seo-engine/briefs?product_id=${selectedProduct.id}` : '/admin/seo-engine/briefs'} className="btn-ghost">SEO-задание <ArrowUpRight size={13} /></Link>
+        </div>
       </div>
 
       {saved ? <Notice tone={saved.tone}>{saved.text}</Notice> : null}
       {productData.error ? <Notice>Предупреждение по товарам: {productData.error}</Notice> : null}
       {keywordData.error ? <Notice tone="danger">Не удалось загрузить SEO-слова: {keywordData.error}</Notice> : null}
 
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-5"><Metric icon={Database} label="Одобренных слов" value={countLabel(keywordData.counts, 'all')} note="Источник: SEO-ядро." tone="success" /><Metric icon={PackageSearch} label="Товары" value={fmt(productData.visibleProducts)} note={`Из ${fmt(productData.totalProducts)}. ${productData.source}.`} tone="success" /><Metric icon={Save} label="Черновиков" value={fmt(productData.statusCounts.saved)} note={`Не сохранено: ${fmt(productData.statusCounts.not_saved)}.`} tone="warning" /><Metric icon={Layers3} label="Товар / ALT" value={countLabel(keywordData.counts, 'product_or_alt')} note="Для карточки и картинок." tone="success" /><Metric icon={SearchCheck} label="Слов сейчас" value={fmt(keywordData.totalCount ?? keywordData.rows.length)} note="После текущих фильтров." tone="warning" /></div>
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-5">
+        <Metric icon={Database} label="Одобренных слов" value={countLabel(keywordData.counts, 'all')} note="Источник: SEO-ядро." tone="success" />
+        <Metric icon={PackageSearch} label="Товары" value={fmt(productData.visibleProducts)} note={`Из ${fmt(productData.totalProducts)}. ${productData.source}.`} tone="success" />
+        <Metric icon={Save} label="Черновиков" value={fmt(productData.statusCounts.saved)} note={`Не сохранено: ${fmt(productData.statusCounts.not_saved)}.`} tone="warning" />
+        <Metric icon={Layers3} label="Товар / ALT" value={countLabel(keywordData.counts, 'product_or_alt')} note="Для карточки и картинок." tone="success" />
+        <Metric icon={SearchCheck} label="Слов сейчас" value={fmt(keywordData.totalCount ?? keywordData.rows.length)} note={keywordData.source === 'bridge' ? 'Bridge match.' : 'Raw bank.'} tone="warning" />
+      </div>
 
       <div className="grid xl:grid-cols-[470px_1fr] gap-6 mb-6">
         <ProductPicker data={productData} filters={filters} selectedProduct={selectedProduct} />
         <div className="space-y-5">
           <FocusSearchForm product={selectedProduct} filters={active} status={productStatus} />
-          <NextStepPanel product={selectedProduct} keywordCount={keywordData.totalCount ?? keywordData.rows.length} saved={Boolean(selectedProduct?.decision)} />
-          <form action={saveDecisionAction} className="rounded-2xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.055)] p-5"><div className="eyebrow-gold mb-2">Зафиксировать решение</div><p className="text-[12px] leading-relaxed text-[var(--bone-dim)] mb-4">После проверки слов нажми “Сохранить черновик решения”. Потом переходи в SEO-задание. Текст здесь ещё не генерируется.</p><HiddenDecisionFields product={selectedProduct} filters={active} keywords={snapshot} /><div className="flex flex-wrap gap-3"><button className="btn-ghost" type="submit" disabled={!selectedProduct}><Save size={13} /> Сохранить черновик решения</button>{selectedProduct ? <Link className="btn-ghost" href={`/admin/seo-engine/briefs?product_id=${selectedProduct.id}`}>Дальше: SEO-задание <ArrowUpRight size={13} /></Link> : null}</div></form>
+          <NextStepPanel product={selectedProduct} keywordCount={keywordData.totalCount ?? keywordData.rows.length} saved={Boolean(selectedProduct?.decision)} source={keywordData.source} />
+          <form action={saveDecisionAction} className="rounded-2xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.055)] p-5">
+            <div className="eyebrow-gold mb-2">Зафиксировать решение</div>
+            <p className="text-[12px] leading-relaxed text-[var(--bone-dim)] mb-4">После проверки слов нажми “Сохранить черновик решения”. Потом переходи в SEO-задание. Текст здесь ещё не генерируется.</p>
+            <HiddenDecisionFields product={selectedProduct} filters={active} keywords={snapshot} />
+            <div className="flex flex-wrap gap-3">
+              <button className="btn-ghost" type="submit" disabled={!selectedProduct || !rows.length}><Save size={13} /> Сохранить черновик решения</button>
+              {selectedProduct ? <Link className="btn-ghost" href={`/admin/seo-engine/briefs?product_id=${selectedProduct.id}`}>Дальше: SEO-задание <ArrowUpRight size={13} /></Link> : null}
+            </div>
+          </form>
         </div>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-5">{KEYWORD_TYPES.map((type) => <KeywordTypeLink key={type} type={type} filters={active} counts={keywordData.counts} />)}</div>
-      <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4 mb-5"><div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"><div><div className="eyebrow-dim">Активный подбор слов</div><h2 className="mt-1 text-bone text-[22px]">{KW_LABELS[active.type] || active.type}</h2></div><div className="flex flex-wrap gap-2"><Chip tone="success">Показано {fmt(rows.length)}</Chip><Chip tone="warning">Найдено {fmt(keywordData.totalCount ?? keywordData.rows.length)}</Chip><Chip>Из выборки {fmt(keywordData.rawCount ?? keywordData.rows.length)}</Chip><Chip tone="gold">{strategyLabel(active.strategy)}</Chip></div></div><p className="mt-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">Фильтры применяются только после кнопки “Применить поиск слов”. Состав и цвет — обязательные совпадения. Сценарий, стиль, персона и аудитория усиливают ранжирование, но не обнуляют весь список.</p></div>
+      <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4 mb-5">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <div className="eyebrow-dim">Активный подбор слов</div>
+            <h2 className="mt-1 text-bone text-[22px]">{KW_LABELS[active.type] || active.type}</h2>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Chip tone="success">Показано {fmt(rows.length)}</Chip>
+            <Chip tone="warning">Найдено {fmt(keywordData.totalCount ?? keywordData.rows.length)}</Chip>
+            <Chip>Из выборки {fmt(keywordData.rawCount ?? keywordData.rows.length)}</Chip>
+            <Chip tone="gold">{strategyLabel(active.strategy)}</Chip>
+            {keywordData.source === 'bridge' ? <Chip tone="success">Bridge match</Chip> : <Chip tone="warning">Raw fallback</Chip>}
+          </div>
+        </div>
+        <p className="mt-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">Фильтры применяются только после кнопки “Применить поиск слов”. Основная совместимость товара и слов теперь считается в Supabase bridge: EXCLUDE скрыт, STRONG / MEDIUM / BROAD показываются по умолчанию.</p>
+      </div>
       <KeywordTable rows={rows} error={keywordData.error} />
     </section>
   </main>;
@@ -99,33 +144,225 @@ async function saveDecisionAction(formData) {
   const supabase = getSupabaseServiceClient();
   if (!productId || !supabase) redirect('/admin/listing-master?saved=error');
   const strategies = strategyValues(formData.getAll('strategy').length ? formData.getAll('strategy') : val(formData.get('strategy')));
-  const manualFocus = { component: valuesOf(formData.getAll('component').length ? formData.getAll('component') : val(formData.get('component'))), material: valuesOf(formData.getAll('material').length ? formData.getAll('material') : val(formData.get('material'))), event: valuesOf(formData.getAll('event').length ? formData.getAll('event') : val(formData.get('event'))), style: valuesOf(formData.getAll('style').length ? formData.getAll('style') : val(formData.get('style'))), persona: valuesOf(formData.getAll('persona').length ? formData.getAll('persona') : val(formData.get('persona'))), audience: valuesOf(formData.getAll('audience').length ? formData.getAll('audience') : val(formData.get('audience'))), strategies, focus_off: focusOffValues(val(formData.get('focus_off'))), q: norm(val(formData.get('q'))), exclude: excludeTerms(val(formData.get('exclude'))), keyword_type: val(formData.get('type')) || 'all' };
+  const manualFocus = {
+    component: valuesOf(formData.getAll('component').length ? formData.getAll('component') : val(formData.get('component'))),
+    material: valuesOf(formData.getAll('material').length ? formData.getAll('material') : val(formData.get('material'))),
+    event: valuesOf(formData.getAll('event').length ? formData.getAll('event') : val(formData.get('event'))),
+    style: valuesOf(formData.getAll('style').length ? formData.getAll('style') : val(formData.get('style'))),
+    persona: valuesOf(formData.getAll('persona').length ? formData.getAll('persona') : val(formData.get('persona'))),
+    audience: valuesOf(formData.getAll('audience').length ? formData.getAll('audience') : val(formData.get('audience'))),
+    strategies,
+    focus_off: focusOffValues(val(formData.get('focus_off'))),
+    q: norm(val(formData.get('q'))),
+    exclude: excludeTerms(val(formData.get('exclude'))),
+    keyword_type: val(formData.get('type')) || 'all'
+  };
   const strategyString = joinValues(strategies);
-  const payload = { canonical_product_id: productId, product_slug: val(formData.get('product_slug')) || null, matched_etsy_listing_id: val(formData.get('matched_etsy_listing_id')) || null, auto_focus_json: parseJson(val(formData.get('auto_focus_json')), {}), manual_focus_json: manualFocus, selected_strategy: strategyString, selected_keywords_json: parseJson(val(formData.get('selected_keywords_json')), []), rejected_keywords_json: manualFocus.exclude, decision_status: 'draft', decision_note: 'Сохранено из Мастера листинга перед генерацией SEO-текста' };
+  const payload = {
+    canonical_product_id: productId,
+    product_slug: val(formData.get('product_slug')) || null,
+    matched_etsy_listing_id: val(formData.get('matched_etsy_listing_id')) || null,
+    auto_focus_json: parseJson(val(formData.get('auto_focus_json')), {}),
+    manual_focus_json: manualFocus,
+    selected_strategy: strategyString,
+    selected_keyword_ids_json: [],
+    selected_keywords_json: parseJson(val(formData.get('selected_keywords_json')), []),
+    rejected_keywords_json: manualFocus.exclude,
+    decision_status: 'draft',
+    decision_note: 'Сохранено из Мастера листинга перед генерацией SEO-текста'
+  };
   const { error } = await supabase.from(DECISIONS_TABLE).insert(payload);
   const href = buildHref({ type: manualFocus.keyword_type, strategy: strategyString, component: joinValues(manualFocus.component), material: joinValues(manualFocus.material), event: joinValues(manualFocus.event), style: joinValues(manualFocus.style), persona: joinValues(manualFocus.persona), audience: joinValues(manualFocus.audience), q: manualFocus.q, exclude: joinValues(manualFocus.exclude), productId, focusApplied: '1' });
   redirect(`${href}${href.includes('?') ? '&' : '?'}saved=${error ? 'error' : 'ok'}`);
 }
 
-async function loadProducts(filters) { const supabase = getSupabaseServiceClient() || getSupabaseReadClient(); if (!supabase) return emptyProducts(getMissingSupabaseEnvMessage()); let result = await supabase.from(FOCUS_VIEW).select(FOCUS_SELECT).limit(PRODUCT_LIMIT); let source = 'Product Focus v1'; let warning = null; if (result.error) { warning = result.error.message; result = await supabase.from(FALLBACK_VIEW).select(FALLBACK_SELECT).limit(PRODUCT_LIMIT); source = result.error ? 'ошибка Product Focus' : 'fallback storefront v4'; } if (result.error) return emptyProducts(`${warning || 'Product Focus'} / ${result.error.message}`); const decisions = await loadDecisionMap(); const allProducts = (result.data || []).map((row) => { const product = normalizeProduct(row); product.decision = decisions.get(product.id) || null; return product; }).sort((a, b) => a.title.localeCompare(b.title)); const sections = buildSections(allProducts); const statusCounts = buildStatusCounts(allProducts); const activeSection = filters.productSection && sections.some((x) => x.key === filters.productSection) ? filters.productSection : ''; const activeStatus = STATUS_LABELS[filters.productStatus] ? filters.productStatus : 'all'; const tokens = tokensOf(filters.productQ); const products = allProducts.filter((p) => !activeSection || p.sectionKey === activeSection).filter((p) => activeStatus === 'all' || p.statusKey === activeStatus).filter((p) => !tokens.length || tokens.every((t) => p.text.includes(t))); return { allProducts, products, visibleProducts: products.length, totalProducts: allProducts.length, sections, statusCounts, activeSection, activeStatus, source, error: warning ? `Product Focus v1 недоступен, включён fallback: ${warning}` : null }; }
-function emptyProducts(error) { return { allProducts: [], products: [], visibleProducts: 0, totalProducts: 0, sections: [], statusCounts: { all: 0, not_saved: 0, saved: 0 }, activeSection: '', activeStatus: 'all', source: 'none', error }; }
-async function loadDecisionMap() { const supabase = getSupabaseServiceClient(); if (!supabase) return new Map(); const { data } = await supabase.from(DECISIONS_TABLE).select('canonical_product_id,decision_status,selected_strategy,updated_at,created_at').limit(2000); const map = new Map(); (data || []).sort((a, b) => new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime()).forEach((row) => { if (row?.canonical_product_id && !map.has(row.canonical_product_id)) map.set(row.canonical_product_id, row); }); return map; }
-function normalizeProduct(row) { const parent = arr(row.parent_components_json); const child = arr(row.child_components_json); const groups = arr(row.component_groups_json); const title = row.card_title || row.h1 || row.seo_title || row.product_slug || row.canonical_product_id || ''; const sectionLabel = row.operator_section_label || row.category_label || 'Other products'; const sectionKey = keyOf(sectionLabel); const sourceCategory = row.source_category_label || row.category_label || row.product_type || ''; const text = [row.focus_text, title, sectionLabel, sourceCategory, row.world_label, row.material, row.canonical_color_label, row.color, row.primary_image_alt, parent.join(' '), child.join(' '), groups.join(' '), row.canonical_product_id, row.matched_etsy_listing_id].filter(Boolean).join(' ').toLowerCase(); return { id: row.canonical_product_id, title, sectionLabel, sectionKey, sourceCategory, productType: row.product_type || '', worldLabel: row.world_label || '', materialRaw: row.material || '', colorRaw: row.canonical_color_label || row.color || '', imageUrl: row.primary_image_url || '', imageAlt: row.primary_image_alt || '', slug: row.product_slug || row.canonical_product_id, etsyId: row.matched_etsy_listing_id || '', parentComponents: parent, childComponents: child, componentGroups: groups, needsComponentReviewCount: Number(row.needs_component_review_count || 0), hasComponentReviewRisk: Boolean(row.has_component_review_risk), text }; }
-async function loadKeywords(filters) { const supabase = getSupabaseReadClient(); if (!supabase) return { rows: [], counts: {}, totalCount: null, rawCount: null, error: getMissingSupabaseEnvMessage() }; const safeType = KEYWORD_TYPES.includes(filters.type) ? filters.type : 'all'; const countEntries = await Promise.all(KEYWORD_TYPES.map(async (type) => [type, await countKeywords(supabase, type)])); const counts = Object.fromEntries(countEntries); let query = supabase.from(KEYWORD_VIEW).select(KW_SELECT, { count: 'exact' }).limit(KEYWORD_LIMIT); if (safeType !== 'all') query = query.eq('bank_bucket', safeType); const { data, error, count } = await query; if (error) return { rows: [], counts, totalCount: null, rawCount: count ?? null, error: error.message }; const rows = applyMatching(data || [], filters); return { rows, counts, totalCount: rows.length, rawCount: count ?? 0, error: null }; }
-async function countKeywords(supabase, type) { let query = supabase.from(KEYWORD_VIEW).select('keyword_norm', { count: 'exact', head: true }); if (type !== 'all') query = query.eq('bank_bucket', type); const { count, error } = await query; return { count: error ? null : count ?? 0, error: error?.message || null }; }
+async function loadProducts(filters) {
+  const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
+  if (!supabase) return emptyProducts(getMissingSupabaseEnvMessage());
+  let result = await supabase.from(FOCUS_VIEW).select(FOCUS_SELECT).limit(PRODUCT_LIMIT);
+  let source = 'Product Focus v1';
+  let warning = null;
+  if (result.error) {
+    warning = result.error.message;
+    result = await supabase.from(FALLBACK_VIEW).select(FALLBACK_SELECT).limit(PRODUCT_LIMIT);
+    source = result.error ? 'ошибка Product Focus' : 'fallback storefront v4';
+  }
+  if (result.error) return emptyProducts(`${warning || 'Product Focus'} / ${result.error.message}`);
+  const decisions = await loadDecisionMap();
+  const allProducts = (result.data || []).map((row) => {
+    const product = normalizeProduct(row);
+    product.decision = decisions.get(product.id) || null;
+    return product;
+  }).sort((a, b) => a.title.localeCompare(b.title));
+  const sections = buildSections(allProducts);
+  const statusCounts = buildStatusCounts(allProducts);
+  const activeSection = filters.productSection && sections.some((x) => x.key === filters.productSection) ? filters.productSection : '';
+  const activeStatus = STATUS_LABELS[filters.productStatus] ? filters.productStatus : 'all';
+  const tokens = tokensOf(filters.productQ);
+  const products = allProducts
+    .filter((p) => !activeSection || p.sectionKey === activeSection)
+    .filter((p) => activeStatus === 'all' || p.statusKey === activeStatus)
+    .filter((p) => !tokens.length || tokens.every((t) => p.text.includes(t)));
+  return { allProducts, products, visibleProducts: products.length, totalProducts: allProducts.length, sections, statusCounts, activeSection, activeStatus, source, error: warning ? `Product Focus v1 недоступен, включён fallback: ${warning}` : null };
+}
 
-function ProductPicker({ data, filters, selectedProduct }) { return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5 xl:sticky xl:top-6 self-start"><div className="flex items-center gap-2 eyebrow-gold mb-4"><PackageSearch size={14} /> Выбрать товар</div><form action="/admin/listing-master" className="mb-4 rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4"><div className="grid gap-3"><input name="product_q" defaultValue={filters.productQ} placeholder="Поиск: gold, harness, Etsy ID, первые слова" className="w-full rounded-xl border border-[rgba(216,214,211,.14)] bg-black/25 px-3 py-2 text-[12px] text-bone outline-none focus:border-[rgba(212,178,106,.45)]" /><div className="grid grid-cols-2 gap-3"><SelectBox name="product_section" label="Раздел товара" value={data.activeSection || ''}><option value="">All products · {data.totalProducts}</option>{data.sections.map((item) => <option key={item.key} value={item.key}>{item.label} · {item.count}</option>)}</SelectBox><SelectBox name="product_status" label="Статус работы" value={data.activeStatus || 'all'}>{Object.keys(STATUS_LABELS).map((key) => <option key={key} value={key}>{STATUS_LABELS[key]} · {fmt(data.statusCounts?.[key] || 0)}</option>)}</SelectBox></div><button type="submit" className="btn-ghost"><Search size={13} /> Найти / применить</button><div className="flex flex-wrap gap-2"><Link href="/admin/listing-master" className="text-[11px] text-[var(--gold-warm)] hover:underline">Сбросить всё</Link><span className="text-[11px] text-[var(--bone-dim)]">Найдено: {fmt(data.visibleProducts)}</span></div></div></form><div className="max-h-[calc(100vh-330px)] min-h-[360px] space-y-2 overflow-auto pr-1">{data.products.slice(0, 160).map((product) => <ProductCard key={product.id} product={product} active={selectedProduct?.id === product.id} filters={filters} />)}{!data.products.length && !data.error ? <div className="text-[12px] text-[var(--bone-dim)]">По этим фильтрам товаров не найдено.</div> : null}</div></div>; }
-function FocusSearchForm({ product, filters, status }) { return <form action="/admin/listing-master" className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><input type="hidden" name="product_id" value={product?.id || filters.productId || ''} /><input type="hidden" name="product_q" value={filters.productQ || ''} /><input type="hidden" name="product_section" value={filters.productSection || ''} /><input type="hidden" name="product_status" value={filters.productStatus || 'all'} /><input type="hidden" name="type" value={filters.type || 'all'} /><input type="hidden" name="focus_applied" value="1" /><div className="flex items-center justify-between gap-3 mb-4"><div className="flex items-center gap-2 eyebrow-gold"><SlidersHorizontal size={14} /> Фокус товара</div><Chip tone={status.tone}>{status.label}</Chip></div>{product ? <div className="grid sm:grid-cols-[96px_1fr] gap-4 rounded-2xl border border-[rgba(212,178,106,.18)] bg-[rgba(212,178,106,.055)] p-4 mb-4"><ProductImage product={product} size="lg" /><div><div className="text-bone text-[18px] leading-snug">{product.title}</div><div className="mt-1 text-[12px] text-[var(--bone-dim)]">{product.sectionLabel} · {product.worldLabel || '—'} · {product.colorRaw || '—'}</div><div className="mt-3 flex flex-wrap gap-2"><Chip tone="success">состав: {labelForMulti(filters.component)}</Chip><Chip tone="gold">материал/цвет: {labelForMulti(filters.material)}</Chip><Chip tone="warning">сценарий: {labelForMulti(filters.event)}</Chip><Chip tone="gold">стиль: {labelForMulti(filters.style)}</Chip><Chip tone="success">персона: {labelForMulti(filters.persona)}</Chip><Chip>аудитория: {labelForMulti(filters.audience)}</Chip>{decisionLabel(product.decision) ? <Chip tone={decisionLabel(product.decision).tone}>{decisionLabel(product.decision).text}</Chip> : null}{product.hasComponentReviewRisk ? <Chip tone="warning">ДНК требует проверки: {product.needsComponentReviewCount}</Chip> : null}</div><div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Source category: {product.sourceCategory || '—'} · components: {product.parentComponents.join(', ') || '—'} / {product.childComponents.join(', ') || '—'}. {status.note}</div></div></div> : <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mb-4 text-[13px] leading-relaxed text-[var(--bone-dim)]">Товар ещё не выбран. Слева можно фильтровать по разделу и статусу работы.</div>}<CheckboxChipGroup title="Состав / часть товара" items={COMPONENTS} field="component" filters={filters} /><CheckboxChipGroup title="Материал / цвет / деталь" items={MATERIALS} field="material" filters={filters} /><CheckboxChipGroup title="Сценарий / событие" items={EVENTS} field="event" filters={filters} /><CheckboxChipGroup title="Стиль / визуальный мир" items={STYLES} field="style" filters={filters} /><CheckboxChipGroup title="Персона / образ" items={PERSONAS} field="persona" filters={filters} /><CheckboxChipGroup title="Аудитория / buyer angle" items={AUDIENCES} field="audience" filters={filters} /><div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-2"><div className="eyebrow-gold mb-3">Режим подбора слов</div><div className="grid gap-3 md:grid-cols-3">{STRATEGIES.map((s) => <CheckboxCard key={s} name="strategy" value={s} checked={strategyValues(filters.strategy).includes(s)} title={STRATEGY_LABELS[s]} note={STRATEGY_NOTES[s]} />)}</div><div className="mt-3 text-[11px] text-[var(--bone-dim)]">По умолчанию включены все три режима. Система сохранит первые 30 слов из общей выдачи.</div></div><div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-4"><div className="eyebrow-gold mb-3">Поиск внутри SEO-ядра</div><div className="grid gap-3 md:grid-cols-[1fr_1fr]"><label><div className="eyebrow-dim mb-1.5">Доп. поиск</div><input name="q" defaultValue={filters.q} placeholder="например: price, shipping" className="field" /></label><label><div className="eyebrow-dim mb-1.5">Минус-слова</div><input name="exclude" defaultValue={valuesOf(filters.exclude).join(', ')} placeholder="neon, snake, dress" className="field" /></label></div></div><div className="mt-4 flex flex-wrap gap-3"><button type="submit" className="btn-ghost"><SearchCheck size={13} /> Применить поиск слов</button><Link href={product ? productHref(product, filters) : '/admin/listing-master'} className="btn-ghost">Сбросить товар/ДНК</Link></div></form>; }
-function CheckboxChipGroup({ title, items, field, filters }) { const selected = valuesOf(filters[field]); return <div className="mb-4"><div className="eyebrow-dim mb-2">{title}</div><div className="flex flex-wrap gap-2">{items.map((item) => <label key={item} className="cursor-pointer"><input className="peer sr-only" type="checkbox" name={field} value={item} defaultChecked={selected.includes(item)} /><span className="inline-flex rounded-full border border-[rgba(216,214,211,.13)] bg-black/10 px-3 py-2 text-[10px] uppercase tracking-[0.15em] text-[var(--bone-dim)] peer-checked:border-[rgba(108,183,138,.55)] peer-checked:bg-[rgba(108,183,138,.11)] peer-checked:text-[#a9dfbd]">{labelFor(item)}</span></label>)}</div></div>; }
+function emptyProducts(error) { return { allProducts: [], products: [], visibleProducts: 0, totalProducts: 0, sections: [], statusCounts: { all: 0, not_saved: 0, saved: 0 }, activeSection: '', activeStatus: 'all', source: 'none', error }; }
+
+async function loadDecisionMap() {
+  const supabase = getSupabaseServiceClient();
+  if (!supabase) return new Map();
+  const { data } = await supabase.from(DECISIONS_TABLE).select('canonical_product_id,decision_status,selected_strategy,updated_at,created_at').limit(2000);
+  const map = new Map();
+  (data || []).sort((a, b) => new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime()).forEach((row) => {
+    if (row?.canonical_product_id && !map.has(row.canonical_product_id)) map.set(row.canonical_product_id, row);
+  });
+  return map;
+}
+
+function normalizeProduct(row) {
+  const parent = arr(row.parent_components_json);
+  const child = arr(row.child_components_json);
+  const groups = arr(row.component_groups_json);
+  const title = row.card_title || row.h1 || row.seo_title || row.product_slug || row.canonical_product_id || '';
+  const sectionLabel = row.operator_section_label || row.category_label || 'Other products';
+  const sectionKey = keyOf(sectionLabel);
+  const sourceCategory = row.source_category_label || row.category_label || row.product_type || '';
+  const text = [row.focus_text, title, sectionLabel, sourceCategory, row.world_label, row.material, row.canonical_color_label, row.color, row.primary_image_alt, parent.join(' '), child.join(' '), groups.join(' '), row.canonical_product_id, row.matched_etsy_listing_id].filter(Boolean).join(' ').toLowerCase();
+  return { id: row.canonical_product_id, title, sectionLabel, sectionKey, sourceCategory, productType: row.product_type || '', worldLabel: row.world_label || '', materialRaw: row.material || '', colorRaw: row.canonical_color_label || row.color || '', imageUrl: row.primary_image_url || '', imageAlt: row.primary_image_alt || '', slug: row.product_slug || row.canonical_product_id, etsyId: row.matched_etsy_listing_id || '', parentComponents: parent, childComponents: child, componentGroups: groups, needsComponentReviewCount: Number(row.needs_component_review_count || 0), hasComponentReviewRisk: Boolean(row.has_component_review_risk), text };
+}
+
+async function loadKeywords(filters) {
+  const supabase = getSupabaseReadClient();
+  if (!supabase) return { rows: [], counts: {}, totalCount: null, rawCount: null, error: getMissingSupabaseEnvMessage(), source: 'none' };
+  const safeType = KEYWORD_TYPES.includes(filters.type) ? filters.type : 'all';
+  const countEntries = await Promise.all(KEYWORD_TYPES.map(async (type) => [type, await countKeywords(supabase, type)]));
+  const counts = Object.fromEntries(countEntries);
+
+  if (filters.productId) {
+    let query = supabase
+      .from(MATCH_VIEW)
+      .select(MATCH_SELECT, { count: 'exact' })
+      .eq('canonical_product_id', filters.productId)
+      .in('final_match_status', DEFAULT_MATCH_STATUSES)
+      .limit(KEYWORD_LIMIT);
+    if (safeType !== 'all') query = query.eq('bank_bucket', safeType);
+    const { data, error, count } = await query;
+    if (!error) {
+      const rows = applyBridgeMatching(data || [], filters);
+      return { rows, counts, totalCount: rows.length, rawCount: count ?? 0, error: null, source: 'bridge' };
+    }
+    const fallback = await loadRawKeywords(supabase, safeType, filters, counts);
+    return { ...fallback, error: `Bridge недоступен, включён raw fallback: ${error.message}`, source: 'raw_fallback' };
+  }
+
+  return loadRawKeywords(supabase, safeType, filters, counts);
+}
+
+async function loadRawKeywords(supabase, safeType, filters, counts) {
+  let query = supabase.from(KEYWORD_VIEW).select(KW_SELECT, { count: 'exact' }).limit(KEYWORD_LIMIT);
+  if (safeType !== 'all') query = query.eq('bank_bucket', safeType);
+  const { data, error, count } = await query;
+  if (error) return { rows: [], counts, totalCount: null, rawCount: count ?? null, error: error.message, source: 'raw' };
+  const rows = applyRawMatching(data || [], filters);
+  return { rows, counts, totalCount: rows.length, rawCount: count ?? 0, error: null, source: 'raw' };
+}
+
+async function countKeywords(supabase, type) {
+  let query = supabase.from(KEYWORD_VIEW).select('keyword_norm', { count: 'exact', head: true });
+  if (type !== 'all') query = query.eq('bank_bucket', type);
+  const { count, error } = await query;
+  return { count: error ? null : count ?? 0, error: error?.message || null };
+}
+
+function ProductPicker({ data, filters, selectedProduct }) {
+  return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5 xl:sticky xl:top-6 self-start">
+    <div className="flex items-center gap-2 eyebrow-gold mb-4"><PackageSearch size={14} /> Выбрать товар</div>
+    <form action="/admin/listing-master" className="mb-4 rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4">
+      <div className="grid gap-3">
+        <input name="product_q" defaultValue={filters.productQ} placeholder="Поиск: gold, harness, Etsy ID, первые слова" className="w-full rounded-xl border border-[rgba(216,214,211,.14)] bg-black/25 px-3 py-2 text-[12px] text-bone outline-none focus:border-[rgba(212,178,106,.45)]" />
+        <div className="grid grid-cols-2 gap-3">
+          <SelectBox name="product_section" label="Раздел товара" value={data.activeSection || ''}><option value="">All products · {data.totalProducts}</option>{data.sections.map((item) => <option key={item.key} value={item.key}>{item.label} · {item.count}</option>)}</SelectBox>
+          <SelectBox name="product_status" label="Статус работы" value={data.activeStatus || 'all'}>{Object.keys(STATUS_LABELS).map((key) => <option key={key} value={key}>{STATUS_LABELS[key]} · {fmt(data.statusCounts?.[key] || 0)}</option>)}</SelectBox>
+        </div>
+        <button type="submit" className="btn-ghost"><Search size={13} /> Найти / применить</button>
+        <div className="flex flex-wrap gap-2"><Link href="/admin/listing-master" className="text-[11px] text-[var(--gold-warm)] hover:underline">Сбросить всё</Link><span className="text-[11px] text-[var(--bone-dim)]">Найдено: {fmt(data.visibleProducts)}</span></div>
+      </div>
+    </form>
+    <div className="max-h-[calc(100vh-330px)] min-h-[360px] space-y-2 overflow-auto pr-1">
+      {data.products.slice(0, 160).map((product) => <ProductCard key={product.id} product={product} active={selectedProduct?.id === product.id} filters={filters} />)}
+      {!data.products.length && !data.error ? <div className="text-[12px] text-[var(--bone-dim)]">По этим фильтрам товаров не найдено.</div> : null}
+    </div>
+  </div>;
+}
+
+function FocusSearchForm({ product, filters, status }) {
+  return <form action="/admin/listing-master" className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
+    <input type="hidden" name="product_id" value={product?.id || filters.productId || ''} />
+    <input type="hidden" name="product_q" value={filters.productQ || ''} />
+    <input type="hidden" name="product_section" value={filters.productSection || ''} />
+    <input type="hidden" name="product_status" value={filters.productStatus || 'all'} />
+    <input type="hidden" name="type" value={filters.type || 'all'} />
+    <input type="hidden" name="focus_applied" value="1" />
+    <div className="flex items-center justify-between gap-3 mb-4"><div className="flex items-center gap-2 eyebrow-gold"><SlidersHorizontal size={14} /> Фокус товара</div><Chip tone={status.tone}>{status.label}</Chip></div>
+    {product ? <div className="grid sm:grid-cols-[96px_1fr] gap-4 rounded-2xl border border-[rgba(212,178,106,.18)] bg-[rgba(212,178,106,.055)] p-4 mb-4">
+      <ProductImage product={product} size="lg" />
+      <div>
+        <div className="text-bone text-[18px] leading-snug">{product.title}</div>
+        <div className="mt-1 text-[12px] text-[var(--bone-dim)]">{product.sectionLabel} · {product.worldLabel || '—'} · {product.colorRaw || '—'}</div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Chip tone="success">состав: {labelForMulti(filters.component)}</Chip>
+          <Chip tone="gold">материал/цвет: {labelForMulti(filters.material)}</Chip>
+          <Chip tone="warning">сценарий: {labelForMulti(filters.event)}</Chip>
+          <Chip tone="gold">стиль: {labelForMulti(filters.style)}</Chip>
+          <Chip tone="success">персона: {labelForMulti(filters.persona)}</Chip>
+          <Chip>аудитория: {labelForMulti(filters.audience)}</Chip>
+          {decisionLabel(product.decision) ? <Chip tone={decisionLabel(product.decision).tone}>{decisionLabel(product.decision).text}</Chip> : null}
+          {product.hasComponentReviewRisk ? <Chip tone="warning">ДНК требует проверки: {product.needsComponentReviewCount}</Chip> : null}
+        </div>
+        <div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Source category: {product.sourceCategory || '—'} · components: {product.parentComponents.join(', ') || '—'} / {product.childComponents.join(', ') || '—'}. {status.note}</div>
+      </div>
+    </div> : <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mb-4 text-[13px] leading-relaxed text-[var(--bone-dim)]">Товар ещё не выбран. Слева можно фильтровать по разделу и статусу работы.</div>}
+    <CheckboxChipGroup title="Состав / часть товара" items={COMPONENTS} field="component" filters={filters} />
+    <CheckboxChipGroup title="Материал / цвет / деталь" items={MATERIALS} field="material" filters={filters} />
+    <CheckboxChipGroup title="Сценарий / событие" items={EVENTS} field="event" filters={filters} />
+    <CheckboxChipGroup title="Стиль / визуальный мир" items={STYLES} field="style" filters={filters} />
+    <CheckboxChipGroup title="Персона / образ" items={PERSONAS} field="persona" filters={filters} />
+    <CheckboxChipGroup title="Аудитория / buyer angle" items={AUDIENCES} field="audience" filters={filters} />
+    <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-2">
+      <div className="eyebrow-gold mb-3">Режим подбора слов</div>
+      <div className="grid gap-3 md:grid-cols-3">{STRATEGIES.map((s) => <CheckboxCard key={s} name="strategy" value={s} checked={strategyValues(filters.strategy).includes(s)} title={STRATEGY_LABELS[s]} note={STRATEGY_NOTES[s]} />)}</div>
+      <div className="mt-3 text-[11px] text-[var(--bone-dim)]">По умолчанию включены все три режима. Повторный клик снимает режим; фильтр применится только после кнопки ниже.</div>
+    </div>
+    <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-4">
+      <div className="eyebrow-gold mb-3">Поиск и минус-слова внутри SEO-ядра</div>
+      <div className="grid gap-3 md:grid-cols-[1fr_1fr]"><label><div className="eyebrow-dim mb-1.5">Доп. поиск</div><input name="q" defaultValue={filters.q} placeholder="например: price, shipping" className="field" /></label><label><div className="eyebrow-dim mb-1.5">Минус-слова</div><input name="exclude" defaultValue={valuesOf(filters.exclude).join(', ')} placeholder="neon, snake, dress" className="field" /></label></div>
+    </div>
+    <div className="mt-4 flex flex-wrap gap-3"><button type="submit" className="btn-ghost"><SearchCheck size={13} /> Применить поиск слов</button><Link href={product ? productHref(product, filters) : '/admin/listing-master'} className="btn-ghost">Сбросить товар/ДНК</Link></div>
+  </form>;
+}
+
+function CheckboxChipGroup({ title, items, field, filters }) {
+  const selected = valuesOf(filters[field]);
+  return <div className="mb-4"><div className="eyebrow-dim mb-2">{title}</div><div className="flex flex-wrap gap-2">{items.map((item) => <label key={item} className="cursor-pointer"><input className="peer sr-only" type="checkbox" name={field} value={item} defaultChecked={selected.includes(item)} /><span className="inline-flex rounded-full border border-[rgba(216,214,211,.13)] bg-black/10 px-3 py-2 text-[10px] uppercase tracking-[0.15em] text-[var(--bone-dim)] peer-checked:border-[rgba(108,183,138,.55)] peer-checked:bg-[rgba(108,183,138,.11)] peer-checked:text-[#a9dfbd]">{labelFor(item)}</span></label>)}</div></div>;
+}
 function CheckboxCard({ name, value, checked, title, note }) { return <label className="cursor-pointer"><input className="peer sr-only" type="checkbox" name={name} value={value} defaultChecked={checked} /><span className="block rounded-2xl border border-[rgba(216,214,211,.12)] bg-black/15 p-3 peer-checked:border-[rgba(212,178,106,.60)] peer-checked:bg-[rgba(212,178,106,.11)]"><div className="text-bone text-[13px]">{title}</div><div className="mt-1.5 text-[10px] leading-relaxed text-[var(--bone-dim)]">{note}</div></span></label>; }
-function NextStepPanel({ product, keywordCount, saved }) { return <div className="rounded-2xl border border-[rgba(212,178,106,.20)] bg-[rgba(212,178,106,.045)] p-4"><div className="eyebrow-gold mb-2">Следующий шаг</div><p className="text-[12px] leading-relaxed text-[var(--bone-dim)]">1) Применить поиск слов и проверить список. 2) Если слова подходят — сохранить черновик решения. 3) После сохранения перейти в SEO-задание.</p><div className="mt-3 flex flex-wrap gap-2"><Chip tone={product ? 'success' : 'warning'}>{product ? 'товар выбран' : 'выбери товар'}</Chip><Chip tone={keywordCount > 0 ? 'success' : 'warning'}>{keywordCount > 0 ? `${fmt(keywordCount)} слов` : 'нет слов'}</Chip><Chip tone={saved ? 'success' : 'warning'}>{saved ? 'черновик уже есть' : 'нужно сохранить'}</Chip></div></div>; }
+function NextStepPanel({ product, keywordCount, saved, source }) { return <div className="rounded-2xl border border-[rgba(212,178,106,.20)] bg-[rgba(212,178,106,.045)] p-4"><div className="eyebrow-gold mb-2">Следующий шаг</div><p className="text-[12px] leading-relaxed text-[var(--bone-dim)]">1) Применить поиск слов и проверить список. 2) Если слова подходят — сохранить черновик решения. 3) После сохранения перейти в SEO-задание.</p><div className="mt-3 flex flex-wrap gap-2"><Chip tone={product ? 'success' : 'warning'}>{product ? 'товар выбран' : 'выбери товар'}</Chip><Chip tone={keywordCount > 0 ? 'success' : 'warning'}>{keywordCount > 0 ? `${fmt(keywordCount)} слов` : 'нет слов'}</Chip><Chip tone={saved ? 'success' : 'warning'}>{saved ? 'черновик уже есть' : 'нужно сохранить'}</Chip><Chip tone={source === 'bridge' ? 'success' : 'warning'}>{source === 'bridge' ? 'bridge включён' : 'raw fallback'}</Chip></div></div>; }
 function HiddenDecisionFields({ product, filters, keywords }) { return <>{['component','material','event','style','persona','audience','q','exclude','type','strategy'].map((name) => <input key={name} type="hidden" name={name} value={filters[name] || ''} />)}<input type="hidden" name="canonical_product_id" value={product?.id || ''} /><input type="hidden" name="product_slug" value={product?.slug || ''} /><input type="hidden" name="matched_etsy_listing_id" value={product?.etsyId || ''} /><input type="hidden" name="auto_focus_json" value={JSON.stringify(autoFocusSnapshot(product, filters.inferred || {}, filters.focusOff || ''))} /><input type="hidden" name="selected_keywords_json" value={JSON.stringify(keywords)} /></>; }
-function KeywordTable({ rows, error }) { return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden"><div className="grid grid-cols-[1.35fr_.42fr_.42fr_.52fr_.52fr_.70fr_.55fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.20em] text-[var(--smoke)]"><div>Ключ</div><div>Совпадение</div><div>SEO</div><div>Спрос</div><div>Конкуренция</div><div>Сигнал</div><div>Почему</div></div><div className="divide-y divide-[rgba(216,214,211,.08)]">{rows.map((row, i) => { const signal = strategySignal(row); return <div key={`${row.keyword_norm || row.keyword}-${i}`} className="grid grid-cols-[1.35fr_.42fr_.42fr_.52fr_.52fr_.70fr_.55fr] gap-4 px-5 py-3 items-center hover:bg-[rgba(212,178,106,.035)]"><div><div className="text-bone text-[13px] leading-snug">{displayKeyword(row)}</div><div className="mt-1 flex flex-wrap gap-1.5"><Chip tone={toneByType(row.bank_bucket)}>{keywordUse(row)}</Chip></div></div><div className="font-price text-[20px] text-[#a9dfbd]">{row.match_score == null ? '—' : row.match_score}</div><div className="font-price text-[20px] text-[var(--gold-warm)]">{asText(row.score)}</div><div className="text-[12px] text-[var(--bone-dim)]">{fmt(row.avg_monthly_searches)}</div><div><Chip tone={String(row.competition || '').toUpperCase() === 'LOW' ? 'success' : String(row.competition || '').toUpperCase() === 'HIGH' ? 'warning' : 'neutral'}>{competitionLabel(row.competition)}</Chip></div><div><Chip tone={signal.tone}>{signal.label}</Chip></div><details className="text-[11px] leading-relaxed text-[var(--bone-dim)]"><summary className="cursor-pointer text-[var(--gold-warm)]">открыть</summary><div className="mt-2 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-2">{asText(row.match_reasons || row.source_clusters || row.source_files)}<br />Google: {fmt(row.avg_monthly_searches)} / {competitionLabel(row.competition)} · {asText(row.reason || row.notes, '')}</div></details></div>; })}{!rows.length && !error ? <div className="px-5 py-6 text-[13px] text-[var(--bone-dim)]">По текущим фильтрам слов не найдено. Сними часть фокуса или минус-слова.</div> : null}</div></div>; }
-function ProductCard({ product, active, filters }) { const focus = inferFocus(product, ''); const hasFocus = Boolean(focus.component || focus.material || focus.event); const decision = decisionLabel(product.decision); return <Link href={productHref(product, filters)} className={`grid grid-cols-[44px_1fr] gap-3 rounded-2xl border p-3 ${active ? 'border-[rgba(212,178,106,.55)] bg-[rgba(212,178,106,.10)]' : 'border-[rgba(216,214,211,.10)] bg-black/15 hover:border-[rgba(212,178,106,.35)]'}`}><ProductImage product={product} /><div className="min-w-0"><div className="truncate text-[12px] text-bone">{product.title}</div><div className="mt-1 truncate text-[10px] text-[var(--bone-dim)]">{product.sectionLabel} · {product.worldLabel || product.colorRaw || '—'}</div><div className="mt-2 flex flex-wrap gap-1.5">{active ? <Chip tone="gold">выбран</Chip> : null}<Chip tone={hasFocus ? 'success' : 'warning'}>{hasFocus ? 'авто-фокус' : 'ручной фокус'}</Chip>{decision ? <Chip tone={decision.tone}>{decision.text}</Chip> : <Chip>не сохранено</Chip>}{product.hasComponentReviewRisk ? <Chip tone="warning">ДНК: проверить</Chip> : null}</div></div></Link>; }
+
+function KeywordTable({ rows, error }) {
+  return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden"><div className="grid grid-cols-[1.35fr_.42fr_.42fr_.52fr_.52fr_.70fr_.55fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.20em] text-[var(--smoke)]"><div>Ключ</div><div>Совпадение</div><div>SEO</div><div>Спрос</div><div>Конкуренция</div><div>Сигнал</div><div>Почему</div></div><div className="divide-y divide-[rgba(216,214,211,.08)]">{rows.map((row, i) => { const signal = strategySignal(row); return <div key={`${row.keyword_norm || row.keyword}-${i}`} className="grid grid-cols-[1.35fr_.42fr_.42fr_.52fr_.52fr_.70fr_.55fr] gap-4 px-5 py-3 items-center hover:bg-[rgba(212,178,106,.035)]"><div><div className="text-bone text-[13px] leading-snug">{displayKeyword(row)}</div><div className="mt-1 flex flex-wrap gap-1.5"><Chip tone={toneByType(row.bank_bucket)}>{keywordUse(row)}</Chip>{row.final_match_status ? <Chip tone={row.final_match_status === 'STRONG_MATCH' ? 'success' : 'gold'}>{matchStatusLabel(row.final_match_status)}</Chip> : null}</div></div><div className="font-price text-[20px] text-[#a9dfbd]">{row.match_score == null ? '—' : row.match_score}</div><div className="font-price text-[20px] text-[var(--gold-warm)]">{asText(row.score)}</div><div className="text-[12px] text-[var(--bone-dim)]">{fmt(row.avg_monthly_searches)}</div><div><Chip tone={String(row.competition || '').toUpperCase() === 'LOW' ? 'success' : String(row.competition || '').toUpperCase() === 'HIGH' ? 'warning' : 'neutral'}>{competitionLabel(row.competition)}</Chip></div><div><Chip tone={signal.tone}>{signal.label}</Chip></div><details className="text-[11px] leading-relaxed text-[var(--bone-dim)]"><summary className="cursor-pointer text-[var(--gold-warm)]">открыть</summary><div className="mt-2 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-2">{asText(row.match_reasons || explainReason(row) || row.source_clusters || row.source_files)}<br />Google: {fmt(row.avg_monthly_searches)} / {competitionLabel(row.competition)} · {asText(row.reason || row.notes, '')}</div></details></div>; })}{!rows.length && !error ? <div className="px-5 py-6 text-[13px] text-[var(--bone-dim)]">По текущим фильтрам слов не найдено. Сними часть фокуса или минус-слова.</div> : null}</div></div>;
+}
+
+function ProductCard({ product, active, filters }) {
+  const focus = inferFocus(product, '');
+  const hasFocus = Boolean(focus.component || focus.material || focus.event || focus.style || focus.persona || focus.audience);
+  const decision = decisionLabel(product.decision);
+  return <Link href={productHref(product, filters)} className={`grid grid-cols-[44px_1fr] gap-3 rounded-2xl border p-3 ${active ? 'border-[rgba(212,178,106,.55)] bg-[rgba(212,178,106,.10)]' : 'border-[rgba(216,214,211,.10)] bg-black/15 hover:border-[rgba(212,178,106,.35)]'}`}><ProductImage product={product} /><div className="min-w-0"><div className="truncate text-[12px] text-bone">{product.title}</div><div className="mt-1 truncate text-[10px] text-[var(--bone-dim)]">{product.sectionLabel} · {product.worldLabel || product.colorRaw || '—'}</div><div className="mt-2 flex flex-wrap gap-1.5">{active ? <Chip tone="gold">выбран</Chip> : null}<Chip tone={hasFocus ? 'success' : 'warning'}>{hasFocus ? 'авто-фокус' : 'ручной фокус'}</Chip>{decision ? <Chip tone={decision.tone}>{decision.text}</Chip> : <Chip>не сохранено</Chip>}{product.hasComponentReviewRisk ? <Chip tone="warning">ДНК: проверить</Chip> : null}</div></div></Link>;
+}
 function ProductImage({ product, size = 'sm' }) { const cls = size === 'lg' ? 'h-24 w-24 rounded-2xl' : 'h-11 w-11 rounded-xl'; return <div className={`${cls} overflow-hidden border border-[rgba(216,214,211,.10)] bg-black/25 flex items-center justify-center`}>{product?.imageUrl ? <img src={product.imageUrl} alt={product.imageAlt || product.title} className="h-full w-full object-cover" loading="lazy" /> : <ImageIcon size={16} className="text-[var(--smoke)]" />}</div>; }
 function SelectBox({ name, label, value, children }) { return <label className="block"><div className="eyebrow-dim mb-1.5">{label}</div><select name={name} defaultValue={value || ''} className="w-full rounded-xl border border-[rgba(216,214,211,.14)] bg-black/25 px-3 py-2 text-[12px] text-bone outline-none focus:border-[rgba(212,178,106,.45)]">{children}</select></label>; }
 function Metric({ label, value, note, icon: Icon, tone = 'neutral' }) { const border = tone === 'success' ? 'border-[rgba(108,183,138,.35)] bg-[rgba(108,183,138,.08)]' : tone === 'warning' ? 'border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.06)]' : 'border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)]'; return <div className={`rounded-2xl border ${border} p-4 min-h-[112px]`}><div className="flex items-center justify-between gap-4 mb-3"><div className="eyebrow-dim">{label}</div><Icon size={15} className="text-[var(--gold-warm)]" /></div><div className="font-price text-gold-grad text-[32px] leading-none">{value}</div><div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">{note}</div></div>; }
-function KeywordTypeLink({ type, filters, counts }) { const active = filters.type === type; return <Link href={buildHref(filters, { type })} className={`rounded-full border px-4 py-2 text-[11px] uppercase tracking-[0.16em] ${active ? 'border-[rgba(212,178,106,.65)] bg-[rgba(212,178,106,.12)] text-[var(--gold-warm)]' : 'border-[rgba(216,214,211,.14)] bg-black/10 text-[var(--bone-dim)]'}`}>{KW_LABELS[type]} · {countLabel(counts, type)}</Link>; }
+function KeywordTypeLink({ type, filters, counts }) { const active = filters.type === type; return <Link href={buildHref(filters, { type, focusApplied: '1' })} className={`rounded-full border px-4 py-2 text-[11px] uppercase tracking-[0.16em] ${active ? 'border-[rgba(212,178,106,.65)] bg-[rgba(212,178,106,.12)] text-[var(--gold-warm)]' : 'border-[rgba(216,214,211,.14)] bg-black/10 text-[var(--bone-dim)]'}`}>{KW_LABELS[type]} · {countLabel(counts, type)}</Link>; }
 function Chip({ children, tone = 'neutral' }) { const cls = tone === 'success' ? 'border-[rgba(108,183,138,.35)] text-[#a9dfbd] bg-[rgba(108,183,138,.08)]' : tone === 'danger' ? 'border-[rgba(196,64,88,.34)] text-[var(--ruby-soft)] bg-[rgba(160,32,56,.08)]' : tone === 'warning' ? 'border-[rgba(212,178,106,.30)] text-[var(--gold-warm)] bg-[rgba(212,178,106,.07)]' : tone === 'gold' ? 'border-[rgba(212,178,106,.35)] text-[var(--gold-warm)] bg-[rgba(212,178,106,.08)]' : 'border-[rgba(216,214,211,.16)] text-[var(--bone-dim)] bg-black/15'; return <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] ${cls}`}>{children}</span>; }
 function Notice({ children, tone = 'warning' }) { const cls = tone === 'danger' ? 'border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)]' : tone === 'success' ? 'border-[rgba(108,183,138,.35)] bg-[rgba(108,183,138,.08)]' : 'border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)]'; return <div className={`rounded-2xl border ${cls} p-4 text-[var(--bone-dim)] mb-5`}>{children}</div>; }
 
@@ -141,7 +378,7 @@ function valuesOf(value) { if (Array.isArray(value)) return value.flatMap((x) =>
 function joinValues(values) { return valuesOf(values).join(','); }
 function focusOffValues(value) { return valuesOf(value).filter((v) => v.includes(':')); }
 function cleanFocusOff(value) { return joinValues(focusOffValues(value)); }
-function strategyValues(value) { const values = valuesOf(value).filter((v) => STRATEGIES.includes(v)); return values.length ? values : [DEFAULT_STRATEGY]; }
+function strategyValues(value) { const values = valuesOf(value).filter((v) => STRATEGIES.includes(v)); return values.length ? values : [...STRATEGIES]; }
 function cleanStrategyMulti(value) { return joinValues(strategyValues(value)); }
 function strategyLabel(value) { return strategyValues(value).map((v) => STRATEGY_LABELS[v] || v).join(' + '); }
 function excludeTerms(value) { return [...DEFAULT_EXCLUDED_TERMS, ...valuesOf(value)].filter((v, i, a) => a.indexOf(v) === i); }
@@ -150,21 +387,48 @@ function escapeRegex(value) { return String(value || '').replace(/[.*+?^${}()|[\
 function termMatch(text, value) { if (!value) return true; const cleanText = norm(text); const terms = SYN[value] || [value]; return terms.some((term) => { const t = norm(term); if (!t) return false; const pattern = `(^|[^a-z0-9])${escapeRegex(t)}([^a-z0-9]|$)`; return new RegExp(pattern, 'i').test(cleanText); }); }
 function fieldScore(text, selected, weight, label) { const matches = valuesOf(selected).filter((value) => termMatch(text, value)); return { matches, score: matches.length ? weight * matches.length : 0, reason: matches.length ? `${label} +${weight * matches.length}: ${matches.map(labelFor).join(', ')}` : '' }; }
 function fieldMatches(text, selected) { const values = valuesOf(selected); return !values.length || values.some((value) => termMatch(text, value)); }
-function firstMatch(text, values, focusOff = '', field = '') { return values.find((v) => termMatch(text, v)) || ''; }
-function inferFocus(product, focusOff = '') { if (!product) return { component: '', material: '', event: '', style: '', persona: '', audience: '' }; return { component: firstMatch(product.text, COMPONENTS, focusOff, 'component'), material: firstMatch(product.text, MATERIALS, focusOff, 'material'), event: firstMatch(product.text, EVENTS, focusOff, 'event'), style: firstMatch(product.text, STYLES, focusOff, 'style'), persona: firstMatch(product.text, PERSONAS, focusOff, 'persona'), audience: firstMatch(product.text, AUDIENCES, focusOff, 'audience') }; }
-function applyAutoFocus(filters, product) { const inferred = inferFocus(product, filters.focusOff); if (filters.focusApplied) return { ...filters, rawFilters: filters, inferred }; return { ...filters, rawFilters: filters, component: filters.component || inferred.component, material: filters.material || inferred.material, event: filters.event || inferred.event, style: filters.style || inferred.style, persona: filters.persona || inferred.persona, audience: filters.audience || inferred.audience, inferred }; }
+function firstMatch(text, values) { return values.find((v) => termMatch(text, v)) || ''; }
+function inferFocus(product) { if (!product) return { component: '', material: '', event: '', style: '', persona: '', audience: '' }; return { component: firstMatch(product.text, COMPONENTS), material: firstMatch(product.text, MATERIALS), event: firstMatch(product.text, EVENTS), style: firstMatch(product.text, STYLES), persona: firstMatch(product.text, PERSONAS), audience: firstMatch(product.text, AUDIENCES) }; }
+function applyAutoFocus(filters, product) { const inferred = inferFocus(product); if (filters.focusApplied) return { ...filters, rawFilters: filters, inferred }; return { ...filters, rawFilters: filters, component: filters.component || inferred.component, material: filters.material || inferred.material, event: filters.event || inferred.event, style: filters.style || inferred.style, persona: filters.persona || inferred.persona, audience: filters.audience || inferred.audience, inferred }; }
+
 function buildSections(products) { const map = new Map(); products.forEach((p) => { const key = p.sectionKey || 'other-products'; const current = map.get(key) || { key, label: p.sectionLabel || 'Other products', count: 0 }; current.count += 1; map.set(key, current); }); return Array.from(map.values()).sort((a, b) => b.count - a.count || a.label.localeCompare(b.label)); }
 function buildStatusCounts(products) { const counts = { all: products.length, not_saved: 0, saved: 0 }; products.forEach((p) => { if (p.decision) counts.saved += 1; else counts.not_saved += 1; p.statusKey = p.decision ? 'saved' : 'not_saved'; }); return counts; }
 function rowText(row) { return `${row.keyword || ''} ${row.keyword_norm || ''} ${row.source_clusters || ''} ${row.page_type || ''} ${row.bank_bucket || ''} ${row.reason || ''} ${row.notes || ''}`.toLowerCase(); }
-function matchRow(row, filters) { const text = rowText(row); const qOk = !filters.q || tokensOf(filters.q).every((t) => termMatch(text, t)); if (!qOk || hasExcluded(text, filters.exclude)) return { eligible: false, score: 0, reasons: [] }; const hardOk = ['component', 'material'].every((field) => fieldMatches(text, filters[field])); if (!hardOk) return { eligible: false, score: 0, reasons: [] }; const parts = [fieldScore(text, filters.component, 45, 'состав'), fieldScore(text, filters.material, 35, 'материал/цвет'), fieldScore(text, filters.event, 20, 'сценарий'), fieldScore(text, filters.style, 14, 'стиль'), fieldScore(text, filters.persona, 12, 'персона'), fieldScore(text, filters.audience, 10, 'аудитория')]; let score = parts.reduce((sum, part) => sum + part.score, 0); const reasons = parts.map((part) => part.reason).filter(Boolean); if (filters.q) { const qScore = Math.min(30, tokensOf(filters.q).length * 10); score += qScore; reasons.push(`поиск +${qScore}: ${filters.q}`); } if (row.bank_bucket === 'product_or_alt') score += 8; if (row.bank_bucket === 'product') score += 6; const hasAnyFocus = FOCUS_FIELDS.some((field) => valuesOf(filters[field]).length) || Boolean(filters.q); return { eligible: !hasAnyFocus || score > 0, score, reasons }; }
-function applyMatching(rows, filters) { const active = Boolean(FOCUS_FIELDS.some((field) => valuesOf(filters[field]).length) || filters.q || filters.exclude); const mapped = rows.map((row) => { const m = matchRow(row, filters); const enriched = { ...row, match_score: active ? m.score : null, match_reasons: m.reasons.join(' · ') }; return { ...enriched, strategy_rank: rank(enriched, filters.strategy) }; }); return (active ? mapped.filter((row) => matchRow(row, filters).eligible) : mapped).sort((a, b) => Number(b.strategy_rank || 0) - Number(a.strategy_rank || 0) || Number(b.match_score || 0) - Number(a.match_score || 0) || Number(b.score || 0) - Number(a.score || 0) || Number(b.avg_monthly_searches || 0) - Number(a.avg_monthly_searches || 0)); }
+
+function applyBridgeMatching(rows, filters) {
+  const mapped = rows.map((row) => {
+    const text = rowText(row);
+    const blocked = !queryOk(text, filters) || hasManualConflict(text, filters);
+    const focusBoost = manualFocusBoost(row, filters);
+    const enriched = { ...row, match_score: Number(row.match_score || 0) + focusBoost.score, match_reasons: [explainReason(row), focusBoost.reason].filter(Boolean).join(' · '), strategy_rank: 0 };
+    enriched.strategy_rank = blocked ? -999999 : rank(enriched, filters.strategy) + statusBoost(row.final_match_status);
+    return { ...enriched, blocked_by_ui: blocked };
+  });
+  return mapped.filter((row) => !row.blocked_by_ui).sort(sortRows);
+}
+
+function applyRawMatching(rows, filters) {
+  const active = Boolean(FOCUS_FIELDS.some((field) => valuesOf(filters[field]).length) || filters.q || filters.exclude);
+  const mapped = rows.map((row) => { const m = matchRawRow(row, filters); const enriched = { ...row, match_score: active ? m.score : null, match_reasons: m.reasons.join(' · ') }; return { ...enriched, strategy_rank: m.eligible ? rank(enriched, filters.strategy) : -999999 }; });
+  return (active ? mapped.filter((row) => row.strategy_rank > -999999) : mapped).sort(sortRows);
+}
+
+function queryOk(text, filters) { const qOk = !filters.q || tokensOf(filters.q).every((t) => termMatch(text, t)); return qOk && !hasExcluded(text, filters.exclude); }
+function matchRawRow(row, filters) { const text = rowText(row); if (!queryOk(text, filters) || hasManualConflict(text, filters)) return { eligible: false, score: 0, reasons: [] }; const parts = [fieldScore(text, filters.component, 45, 'состав'), fieldScore(text, filters.material, 35, 'материал/цвет'), fieldScore(text, filters.event, 20, 'сценарий'), fieldScore(text, filters.style, 14, 'стиль'), fieldScore(text, filters.persona, 12, 'персона'), fieldScore(text, filters.audience, 10, 'аудитория')]; let score = parts.reduce((sum, part) => sum + part.score, 0); const reasons = parts.map((part) => part.reason).filter(Boolean); if (filters.q) { const qScore = Math.min(30, tokensOf(filters.q).length * 10); score += qScore; reasons.push(`поиск +${qScore}: ${filters.q}`); } if (row.bank_bucket === 'product_or_alt') score += 8; if (row.bank_bucket === 'product') score += 6; const hasAnyFocus = FOCUS_FIELDS.some((field) => valuesOf(filters[field]).length) || Boolean(filters.q); return { eligible: !hasAnyFocus || score > 0, score, reasons }; }
+function manualFocusBoost(row, filters) { const parts = [row.component_match && valuesOf(filters.component).length ? 'состав' : '', row.material_match && valuesOf(filters.material).length ? 'материал' : '', row.color_match && valuesOf(filters.material).length ? 'цвет' : '', row.event_match && valuesOf(filters.event).length ? 'сценарий' : '', row.style_match && valuesOf(filters.style).length ? 'стиль' : '', row.persona_match && valuesOf(filters.persona).length ? 'персона' : '', row.audience_match && valuesOf(filters.audience).length ? 'аудитория' : ''].filter(Boolean); return { score: parts.length * 10, reason: parts.length ? `усиление фокуса: ${parts.join(', ')}` : '' }; }
+function hasManualConflict(text, filters) { return hasGenderConflict(text, filters) || hasColorConflict(text, filters) || hasComponentConflict(text, filters); }
+function hasGenderConflict(text, filters) { const audience = valuesOf(filters.audience); if (audience.includes('men') && termMatch(text, 'women')) return true; if (audience.includes('women') && termMatch(text, 'men')) return true; return false; }
+function hasColorConflict(text, filters) { const selected = valuesOf(filters.material).filter((v) => ['gold', 'silver', 'black', 'white', 'holographic'].includes(v)); if (!selected.length) return false; return ['gold', 'silver', 'black', 'white', 'holographic'].some((color) => !selected.includes(color) && termMatch(text, color)); }
+function hasComponentConflict(text, filters) { const selected = valuesOf(filters.component); if (!selected.length) return false; const componentWords = COMPONENTS.filter((item) => !selected.includes(item)); const hasSelected = selected.some((item) => termMatch(text, item)); const hasOtherSpecific = componentWords.some((item) => termMatch(text, item)); return hasOtherSpecific && !hasSelected; }
+function statusBoost(status) { if (status === 'STRONG_MATCH') return 10000; if (status === 'MEDIUM_MATCH') return 7000; if (status === 'BROAD_MATCH') return 4000; return 0; }
+function sortRows(a, b) { return Number(b.strategy_rank || 0) - Number(a.strategy_rank || 0) || Number(b.match_score || 0) - Number(a.match_score || 0) || Number(b.score || 0) - Number(a.score || 0) || Number(b.avg_monthly_searches || 0) - Number(a.avg_monthly_searches || 0); }
 function rank(row, strategy) { const values = strategyValues(strategy); const scores = values.map((s) => rankOne(row, s)); const max = Math.max(...scores); const blend = scores.reduce((sum, item) => sum + item, 0) / Math.max(1, scores.length); return max + blend * 0.08; }
-function rankOne(row, strategy) { const match = Number(row.match_score || 0); const score = Number(row.score || 0); const volume = Number(row.avg_monthly_searches || 0); const comp = String(row.competition || '').toUpperCase(); const idx = Number(row.competition_index || 0); const keyword = String(row.keyword || '').toLowerCase(); const bucket = String(row.bank_bucket || ''); const volumeBoost = volume >= 3000 ? 45 : volume >= 1000 ? 35 : volume >= 500 ? 26 : volume >= 200 ? 18 : volume >= 50 ? 10 : volume > 0 ? 5 : -25; const compBoost = comp === 'LOW' ? 35 : comp === 'MEDIUM' ? 18 : comp === 'HIGH' ? -18 : 0; const idxBoost = idx > 0 ? Math.max(-20, 24 - Math.round(idx / 4)) : 0; const longTail = keyword.split(/\s+/).length >= 3 ? 22 : 0; const buyer = /buy|price|cost|order|shop|for sale|shipping|delivery|outfit|costume|set|wear|clothing/.test(keyword) || bucket.includes('commercial') ? 16 : 0; if (strategy === 'demand') return match * 1.15 + score + volumeBoost * 2 + buyer * 0.35; if (strategy === 'niche') return match * 1.7 + score + longTail + compBoost + buyer * 0.25 - Math.max(0, volumeBoost - 30); return match * 1.35 + score + volumeBoost + compBoost + idxBoost + buyer * 0.4; }
-function keywordSnapshot(rows) { return rows.slice(0, KEYWORD_SNAPSHOT_LIMIT).map((r) => ({ keyword: r.keyword, keyword_norm: r.keyword_norm, bank_bucket: r.bank_bucket, score: r.score, avg_monthly_searches: r.avg_monthly_searches, competition: r.competition, match_score: r.match_score, strategy_rank: r.strategy_rank, reason: r.match_reasons || r.reason || r.notes || '' })); }
+function rankOne(row, strategy) { const match = Number(row.match_score || 0); const score = Number(row.score || 0); const volume = Number(row.avg_monthly_searches || 0); const comp = String(row.competition || '').toUpperCase(); const idx = Number(row.competition_index || 0); const keyword = String(row.keyword || '').toLowerCase(); const bucket = String(row.bank_bucket || ''); const volumeBoost = volume >= 3000 ? 45 : volume >= 1000 ? 35 : volume >= 500 ? 26 : volume >= 200 ? 18 : volume >= 50 ? 10 : volume > 0 ? 5 : -25; const compBoost = comp === 'LOW' ? 35 : comp === 'MEDIUM' ? 18 : comp === 'HIGH' ? -18 : 0; const idxBoost = idx > 0 ? Math.max(-20, 24 - Math.round(idx / 4)) : 0; const longTail = keyword.split(/\s+/).length >= 3 ? 22 : 0; const buyer = /buy|price|cost|order|shop|for sale|shipping|delivery|outfit|costume|set|wear|clothing|website|websites/.test(keyword) || bucket.includes('commercial') ? 16 : 0; if (strategy === 'demand') return match * 1.15 + score + volumeBoost * 2 + buyer * 0.35; if (strategy === 'niche') return match * 1.7 + score + longTail + compBoost + buyer * 0.25 - Math.max(0, volumeBoost - 30); return match * 1.35 + score + volumeBoost + compBoost + idxBoost + buyer * 0.4; }
+function keywordSnapshot(rows) { return rows.slice(0, KEYWORD_SNAPSHOT_LIMIT).map((r) => ({ keyword: r.keyword, keyword_norm: r.keyword_norm, bank_bucket: r.bank_bucket, score: r.score, avg_monthly_searches: r.avg_monthly_searches, competition: r.competition, final_match_status: r.final_match_status || null, match_score: r.match_score, strategy_rank: r.strategy_rank, reason: r.match_reasons || r.reason || r.notes || '' })); }
 function autoFocusSnapshot(product, inferred, focusOff = '') { return { inferred, focus_off: focusOffValues(focusOff), product: product ? { canonical_product_id: product.id, slug: product.slug, etsy_id: product.etsyId, title: product.title, operator_section: product.sectionLabel, source_category: product.sourceCategory, world_label: product.worldLabel, parent_components: product.parentComponents, child_components: product.childComponents, needs_component_review_count: product.needsComponentReviewCount } : null }; }
 function savedMessage(value) { if (value === 'ok') return { tone: 'success', text: 'Черновик решения сохранён. Теперь товар помечен и его можно отправлять в SEO-задание.' }; if (value === 'error') return { tone: 'warning', text: 'Черновик не сохранился. Нужно проверить серверный ключ Supabase или доступ к таблице решений.' }; return null; }
 function decisionLabel(decision) { return decision ? { text: 'черновик сохранён', tone: 'warning' } : null; }
-function productSeoStatus(product, filters, count) { if (!product) return { label: 'товар не выбран', tone: 'neutral', note: 'выбери товар слева' }; if (!FOCUS_FIELDS.some((field) => valuesOf(filters[field]).length)) return { label: 'нужна ручная ДНК', tone: 'warning', note: 'авто-фокус не распознал ни один фокус' }; if (!count) return { label: 'нет слов', tone: 'warning', note: 'сними слишком узкий фокус или минус-слова' }; return { label: 'готов к черновику', tone: 'success', note: 'есть слова под текущий фокус товара' }; }
+function productSeoStatus(product, filters, count, source) { if (!product) return { label: 'товар не выбран', tone: 'neutral', note: 'выбери товар слева' }; if (!FOCUS_FIELDS.some((field) => valuesOf(filters[field]).length)) return { label: 'нужна ручная ДНК', tone: 'warning', note: 'авто-фокус не распознал ни один фокус' }; if (!count) return { label: 'нет слов', tone: 'warning', note: 'bridge не нашёл слов под текущий фокус' }; return { label: source === 'bridge' ? 'готов к черновику' : 'fallback выдача', tone: source === 'bridge' ? 'success' : 'warning', note: source === 'bridge' ? 'слова идут из product-keyword bridge' : 'bridge недоступен, проверяем fallback' }; }
 function buildHref(filters, patch = {}) { const next = { ...filters, ...patch }; const params = new URLSearchParams(); if (next.type && next.type !== 'all') params.set('type', next.type); if (next.strategy && next.strategy !== DEFAULT_STRATEGY) params.set('strategy', next.strategy); FOCUS_FIELDS.forEach((field) => { if (next[field]) params.set(field, next[field]); }); if (next.focusApplied || next.focus_applied) params.set('focus_applied', '1'); if (next.q) params.set('q', next.q); if (next.exclude) params.set('exclude', next.exclude); if (next.productId || next.product_id) params.set('product_id', next.productId || next.product_id); if (next.productQ || next.product_q) params.set('product_q', next.productQ || next.product_q); if (next.productSection || next.product_section) params.set('product_section', next.productSection || next.product_section); if (next.productStatus || next.product_status) params.set('product_status', next.productStatus || next.product_status); const query = params.toString(); return query ? `/admin/listing-master?${query}` : '/admin/listing-master'; }
 function productHref(product, filters = {}) { return buildHref(filters, { productId: product.id, component: '', material: '', event: '', style: '', persona: '', audience: '', q: '', exclude: '', focusApplied: '' }); }
 function countLabel(counts, type) { const value = counts?.[type]?.count; return value == null ? '—' : fmt(value); }
@@ -176,4 +440,6 @@ function asText(value, fallback = '—') { if (value == null || value === '') re
 function competitionLabel(value) { const text = String(value || '').toUpperCase(); if (text === 'LOW') return 'Низкая'; if (text === 'MEDIUM') return 'Средняя'; if (text === 'HIGH') return 'Высокая'; if (text === 'UNKNOWN') return 'Нет данных'; return asText(value); }
 function toneByType(value) { const text = asText(value, '').toLowerCase(); if (text.includes('product')) return 'success'; if (text.includes('commercial') || text.includes('visual') || text.includes('collection')) return 'gold'; if (text.includes('faq')) return 'warning'; return 'neutral'; }
 function keywordUse(row) { const type = row.bank_bucket; if (type === 'product_or_alt') return 'Товар / ALT'; if (type === 'product') return 'Title / описание'; if (type === 'commercial_collection') return 'Посадочная / meta'; if (type === 'visual_collection') return 'ALT / картинки'; if (type === 'collection') return 'Категория'; if (type === 'faq') return 'FAQ'; return 'Проверить'; }
-function strategySignal(row) { const volume = Number(row.avg_monthly_searches || 0); const comp = String(row.competition || '').toUpperCase(); const type = String(row.bank_bucket || ''); const keyword = String(row.keyword || '').toLowerCase(); if (/buy|price|cost|order|shop|for sale|shipping|delivery/.test(keyword) || type.includes('commercial')) return { label: 'покупательский запрос', tone: 'gold' }; if (volume > 0 && comp === 'LOW') return { label: 'низкая конкуренция', tone: 'success' }; if (type.includes('product') && volume <= 500 && volume > 0 && comp !== 'HIGH') return { label: 'нишевая точка', tone: 'success' }; if (volume >= 1000 && comp === 'HIGH') return { label: 'большой спрос', tone: 'warning' }; if (type.includes('visual')) return { label: 'для картинок', tone: 'gold' }; if (type.includes('collection')) return { label: 'для посадочной', tone: 'gold' }; return { label: 'поддержка', tone: 'neutral' }; }
+function matchStatusLabel(value) { if (value === 'STRONG_MATCH') return 'точное'; if (value === 'MEDIUM_MATCH') return 'среднее'; if (value === 'BROAD_MATCH') return 'широкое'; if (value === 'WEAK_MATCH') return 'слабое'; return String(value || 'match').toLowerCase(); }
+function strategySignal(row) { const volume = Number(row.avg_monthly_searches || 0); const comp = String(row.competition || '').toUpperCase(); const type = String(row.bank_bucket || ''); const keyword = String(row.keyword || '').toLowerCase(); if (/buy|price|cost|order|shop|for sale|shipping|delivery|website|websites/.test(keyword) || type.includes('commercial')) return { label: 'покупательский запрос', tone: 'gold' }; if (volume > 0 && comp === 'LOW') return { label: 'низкая конкуренция', tone: 'success' }; if (type.includes('product') && volume <= 500 && volume > 0 && comp !== 'HIGH') return { label: 'нишевая точка', tone: 'success' }; if (volume >= 1000 && comp === 'HIGH') return { label: 'большой спрос', tone: 'warning' }; if (type.includes('visual')) return { label: 'для картинок', tone: 'gold' }; if (type.includes('collection')) return { label: 'для посадочной', tone: 'gold' }; return { label: 'поддержка', tone: 'neutral' }; }
+function explainReason(row) { const pieces = []; if (row.final_match_status) pieces.push(`bridge: ${matchStatusLabel(row.final_match_status)}`); if (row.component_match) pieces.push('состав совпал'); if (row.color_match) pieces.push('цвет совпал'); if (row.material_match) pieces.push('материал совпал'); if (row.event_match) pieces.push('сценарий совпал'); if (row.style_match) pieces.push('стиль совпал'); if (row.persona_match) pieces.push('персона совпала'); if (row.audience_match) pieces.push('аудитория совпала'); if (row.commercial_match) pieces.push('коммерческий intent'); return pieces.join(' · '); }
