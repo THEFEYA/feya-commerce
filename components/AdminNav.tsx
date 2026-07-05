@@ -12,6 +12,7 @@ const NAV = [
   { href: '/admin/seo-lab', label: 'SEO-лаборатория', note: 'оценка правил', icon: BarChart3 },
   { href: '/admin/seo-engine/metric-import/validate', label: 'CSV метрики', note: 'проверка Google-файлов', icon: Upload },
   { href: '/admin/seo-engine/scoring', label: 'Scoring ключей', note: 'баллы и роли ключей', icon: Scale },
+  { href: '/admin/seo-engine/commercial-review', label: 'Commercial review', note: 'новые Google-кандидаты', icon: FileSearch },
   { href: '/admin/seo-engine/briefs', label: 'SEO-бриф', note: 'товар + ключи + черновик', icon: ListChecks },
   { href: '/admin/seo-engine/angle-advisor', label: 'Советник угла', note: 'развести похожие товары', icon: ShieldCheck },
   { href: '/admin/seo-keywords', label: 'SEO-ключи', note: 'keyword bank v1', icon: Tags },
