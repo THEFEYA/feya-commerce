@@ -26,7 +26,14 @@ Do not make a second keyword bank. The final source remains `seo_keyword_bank_v1
 5. Created read-only auto-classification view:
    - 40 auto_promote_safe
    - 7 hold/evidence
-6. Fixed commercial metrics UI crash and simplified the page.
+6. Created read-only candidate insert dry-run view:
+   - 47 rows total
+   - 40 would_insert by initial dry-run logic
+   - 7 excluded_hold
+   - 0 duplicates
+   - 0 bid fields in insert payload
+   - seo_keyword_bank_v1 remains 9570 rows
+7. Fixed commercial metrics UI crash and simplified the page.
 
 ## Important correction
 
@@ -38,27 +45,39 @@ Google Ads CSV -> validation -> scoring -> auto classification -> safe dry-run -
 
 Human review should be only an override for suspicious or strategic exceptions.
 
+## Current dry-run issue
+
+The insert dry-run exposed one real problem before writes:
+
+- 2 `would_insert` rows had proposed bucket `commercial_product_or_collection`
+- this is not a valid `seo_keyword_bank_v1.bank_bucket`
+
+Affected rows:
+
+- `handmade festival clothes` — good commercial/handmade phrase, should map to `commercial_collection`
+- `festival clothes in store` — weak/offline retail phrasing, should be held for first automated insert
+
 ## Next Supabase step
 
-Create a read-only insert dry-run view for the 40 `auto_promote_safe` new commercial candidates.
+Create a corrected read-only insert dry-run v2.
 
 No insert/update/delete yet.
 
-The dry-run should show:
+V2 should:
 
-- which keywords would be inserted into `seo_keyword_bank_v1`
-- target bucket
-- review status proposal
-- metrics to insert
-- duplicate checks by `keyword_norm`
-- excluded rows and reasons
-- confirm bid fields are not used
+- map `commercial_product_or_collection` to a valid bucket only when safe
+- map `handmade festival clothes` -> `commercial_collection`
+- hold/exclude `festival clothes in store` as offline/retail intent for first automated insert
+- keep near me/reddit/noise excluded
+- confirm no duplicates
+- confirm no bid fields in payload
+- return final clean insert count
 
-Do not create insert RPC until the dry-run is clean.
+Do not create insert RPC until v2 dry-run is clean.
 
-## Next project step after dry-run
+## Next project step after v2 dry-run
 
-If dry-run is clean:
+If v2 dry-run is clean:
 
 1. Create guarded insert RPC for safe new candidates.
 2. Execute only after preview is checked.
