@@ -41,7 +41,12 @@ Do not make a second keyword bank. The final source remains `seo_keyword_bank_v1
    - 0 invalid buckets for would_insert
    - 0 bid fields in insert payload
    - seo_keyword_bank_v1 remains 9570 rows
-8. Fixed commercial metrics UI crash and simplified the page.
+8. Created guarded insert RPC:
+   - public.feya_commerce_insert_commercial_candidates_v1(p_source_batch text, p_execute boolean)
+   - dry-run only executed so far
+   - dry-run result: 36 would_insert, 0 inserted, 11 excluded, 0 duplicates, 0 invalid buckets, 0 bid fields in payload
+   - seo_keyword_bank_v1 remains 9570 rows
+9. Fixed commercial metrics UI crash and simplified the page.
 
 ## Important correction
 
@@ -53,59 +58,52 @@ Google Ads CSV -> validation -> scoring -> auto classification -> safe dry-run -
 
 Human review should be only an override for suspicious or strategic exceptions.
 
-## Dry-run v2 status
+## Insert RPC dry-run status
 
-The corrected insert dry-run v2 is clean enough to prepare a guarded insert RPC.
+The guarded insert RPC dry-run is clean.
 
 Clean would_insert:
 
 - 36 rows
-- valid buckets only: commercial_collection = 34, faq = 2
+- valid buckets only
 - duplicate_count = 0
 - invalid_bucket_count = 0
-- bid fields not present in insert payload
+- bid fields not present in payload
+- no near me / reddit / in store rows would insert
 
 Excluded/held:
 
-- 6 local near me rows
-- 4 offline retail in-store rows
-- 1 reddit research row
+- 11 rows
+- local near me / offline in-store / reddit research intent
 
 ## Next Supabase step
 
-Create guarded insert RPC for the 36 clean new commercial candidates.
+Execute guarded insert for the 36 clean new commercial candidates.
 
-Do not execute immediately.
+Run only:
 
-The RPC must support dry-run mode first:
+`select * from public.feya_commerce_insert_commercial_candidates_v1('commercial_v1_a_google_ads_stats_2026_07_05', true);`
 
-- default p_execute = false
-- p_execute = false returns rows that would insert, but writes nothing
-- p_execute = true inserts only dry_run_action = 'would_insert' rows from v2
+Then immediately run post-execute diagnostics.
 
-Required guards:
+Do not run any broad new Google Ads batches until this batch is closed.
 
-- source: public.feya_commerce_v_seo_commercial_candidate_insert_dry_run_v2
-- only dry_run_action = 'would_insert'
-- duplicate_in_bank = false
-- proposed_bank_bucket in valid list
-- normalized_market/region = US
-- normalized_language/language = en
-- avg_monthly_searches > 0
-- no bid fields inserted
-- no near me / reddit / in store / noise rows
+## Expected after execute
 
-Do not create any second keyword bank.
+- inserted_count = 36
+- seo_keyword_bank_v1 row count increases from 9570 to 9606
+- inserted rows have metric_source = commercial_v1_a_google_ads_stats_2026_07_05
+- inserted rows have review_status = approved_draft
+- inserted buckets are commercial_collection or faq
+- excluded hold/evidence rows are not inserted
+- bid fields remain untouched/null for inserted rows
 
-## Next project step after insert RPC
+## Next project step after execute diagnostics
 
-If RPC dry-run is clean:
-
-1. Execute guarded insert for 36 safe candidates.
-2. Verify keyword bank count increases from 9570 to 9606.
-3. Confirm inserted rows have metric_source = commercial_v1_a_google_ads_stats_2026_07_05 and review_status = approved_draft.
-4. Confirm excluded hold/evidence rows are not inserted.
-5. Return to Listing Master and SEO Brief pipeline.
+1. Mark commercial_v1_a batch closed.
+2. Return to Listing Master and SEO Brief pipeline.
+3. Ensure Listing Master/SEO Brief can read the updated approved keyword bank.
+4. Start first real SEO pack generation flow with QA.
 
 ## Guardrails
 
