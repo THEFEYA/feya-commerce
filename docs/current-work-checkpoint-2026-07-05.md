@@ -8,45 +8,44 @@ Repo branch: rebuild/emergent-template-port-v2.
 
 ## Current focus
 
-Commercial keyword metrics are being integrated into the existing SEO keyword pipeline.
+First commercial keyword metrics batch is closed. The project should now return from keyword plumbing to the main SEO production flow:
+
+Listing Master -> SEO Brief -> first real SEO Pack -> QA -> indexation readiness.
 
 Do not make a second keyword bank. The final source remains `seo_keyword_bank_v1` and the `/admin/seo-keywords` page.
 
 `/admin/seo-engine/commercial-review` is only a temporary/staging diagnostics page for Google Ads commercial signals.
 
-## Completed
+## Completed commercial batch
+
+Batch:
+
+- commercial_v1_a_google_ads_stats_2026_07_05
+
+Completed results:
 
 1. Imported first commercial metrics batch into staging.
 2. Updated 66 existing approved keywords through guarded promote RPC.
-3. Confirmed:
-   - 0 reject/hold touched
-   - 0 new candidates inserted
-   - 0 bid fields touched
-4. Created new-candidate staging/review layer for 47 new keywords.
-5. Created read-only auto-classification view:
-   - 40 auto_promote_safe
-   - 7 hold/evidence
-6. Created read-only candidate insert dry-run v1:
-   - 40 would_insert by initial logic
-   - 7 excluded_hold
-   - 0 duplicates
-   - 0 bid fields in insert payload
-   - exposed invalid bucket issue before writes
-7. Created corrected read-only candidate insert dry-run v2:
-   - source view: public.feya_commerce_v_seo_commercial_candidate_insert_dry_run_v2
-   - 47 rows total
-   - 36 would_insert
-   - 11 excluded_hold
-   - 0 duplicates
-   - 0 invalid buckets for would_insert
-   - 0 bid fields in insert payload
-   - seo_keyword_bank_v1 remains 9570 rows
-8. Created guarded insert RPC:
+3. Created new-candidate staging/review layer for 47 new keywords.
+4. Created read-only auto-classification view.
+5. Created candidate insert dry-run v1 and v2.
+6. Created guarded insert RPC:
    - public.feya_commerce_insert_commercial_candidates_v1(p_source_batch text, p_execute boolean)
-   - dry-run only executed so far
-   - dry-run result: 36 would_insert, 0 inserted, 11 excluded, 0 duplicates, 0 invalid buckets, 0 bid fields in payload
-   - seo_keyword_bank_v1 remains 9570 rows
-9. Fixed commercial metrics UI crash and simplified the page.
+7. Executed guarded insert RPC after clean dry-run.
+
+Final post-execute diagnostics:
+
+- seo_keyword_bank_v1 row count: 9570 -> 9606
+- 66 existing approved keywords updated with commercial metrics
+- 36 clean new commercial candidates inserted
+- 11 hold/evidence candidates not inserted
+- 102 total rows now have metric_source = commercial_v1_a_google_ads_stats_2026_07_05
+- inserted rows have review_status = approved_draft
+- inserted buckets are commercial_collection or faq only
+- 0 excluded_hold rows inserted
+- 0 near me / reddit / in store rows inserted
+- 0 invalid buckets inserted
+- 0 bid fields touched
 
 ## Important correction
 
@@ -58,52 +57,36 @@ Google Ads CSV -> validation -> scoring -> auto classification -> safe dry-run -
 
 Human review should be only an override for suspicious or strategic exceptions.
 
-## Insert RPC dry-run status
+## Current status
 
-The guarded insert RPC dry-run is clean.
+Commercial_v1_a batch is closed.
 
-Clean would_insert:
+Do not run another broad Google Ads batch immediately unless it is a clearly scoped missing-metrics task.
 
-- 36 rows
-- valid buckets only
-- duplicate_count = 0
-- invalid_bucket_count = 0
-- bid fields not present in payload
-- no near me / reddit / in store rows would insert
-
-Excluded/held:
-
-- 11 rows
-- local near me / offline in-store / reddit research intent
+Return to the main production pipeline.
 
 ## Next Supabase step
 
-Execute guarded insert for the 36 clean new commercial candidates.
+Run read-only diagnostics to confirm the updated approved keyword bank is visible to Listing Master / SEO Brief sources.
 
-Run only:
+Need to verify:
 
-`select * from public.feya_commerce_insert_commercial_candidates_v1('commercial_v1_a_google_ads_stats_2026_07_05', true);`
+- Listing Master keyword source/view/RPC can see newly inserted approved_draft keywords
+- commercial_collection and faq buckets are handled correctly
+- no hold/reject/local/reddit/in-store rows can appear in Listing Master suggestions
+- SEO Brief source can consume product focus + selected/approved keyword candidates
+- no duplicate screen/workflow is needed
 
-Then immediately run post-execute diagnostics.
+## Next project step
 
-Do not run any broad new Google Ads batches until this batch is closed.
-
-## Expected after execute
-
-- inserted_count = 36
-- seo_keyword_bank_v1 row count increases from 9570 to 9606
-- inserted rows have metric_source = commercial_v1_a_google_ads_stats_2026_07_05
-- inserted rows have review_status = approved_draft
-- inserted buckets are commercial_collection or faq
-- excluded hold/evidence rows are not inserted
-- bid fields remain untouched/null for inserted rows
-
-## Next project step after execute diagnostics
-
-1. Mark commercial_v1_a batch closed.
-2. Return to Listing Master and SEO Brief pipeline.
-3. Ensure Listing Master/SEO Brief can read the updated approved keyword bank.
-4. Start first real SEO pack generation flow with QA.
+1. Verify keyword bank integration into Listing Master / SEO Brief.
+2. Fix only if the updated bank is not visible in existing flows.
+3. Move to SEO Brief page/flow.
+4. Generate first real SEO Pack only after:
+   - Product focus is selected/saved
+   - validated keywords are available
+   - brief is formed from real product facts/components/media
+   - QA rules are ready
 
 ## Guardrails
 
