@@ -65,24 +65,71 @@ Do not run another broad Google Ads batch immediately unless it is a clearly sco
 
 Return to the main production pipeline.
 
+## Listing Master blocker found after diagnostics
+
+The current Listing Master issue is not just a visual bug.
+
+For product `b6e0171f-4d42-4d71-88b1-ee0d4e0e109e` / Etsy `4348580005`, Supabase diagnostics showed:
+
+- product focus view has real title/material/category/media, but normalized DNA fields are mostly empty:
+  - parent_components_json = []
+  - child_components_json = []
+  - context_primary/context_secondary/persona/style/gender/audience = null
+  - color = null, but canonical_color_label = Gold
+- title/focus_text contains useful text signals: shoulders, gold, Burning Man, rave, futuristic, apocalyptic, warrior, men.
+- `vw_seo_keyword_bank_v1_for_listing_master` has 4827 approved rows, but it has no separate product-compatibility DNA columns such as component/material/color/event/style/persona/audience/gender.
+- Because of that, the frontend currently tries to connect product focus and keyword bank by text matching over keyword/source_clusters/page_type/reason/notes.
+- Strict matching like shoulders + gold + rave + futuristic + warrior returns 0 rows.
+- Medium matching shoulders + gold returns only 4 rows.
+- Relaxed shoulders OR gold returns many rows but can include broad/noisy rows if not guarded.
+- A naive substring match for `men` is wrong because it catches `placement` inside reason text.
+- Approved keyword bank contains valid portfolio-wide words that are wrong for this product, such as women/ladies, bodysuit, neon, snake, and legacy noise like lego.
+
+Conclusion: do not keep patching the UI with blind text filters. The correct next layer is a read-only product-keyword compatibility bridge.
+
 ## Next Supabase step
 
-Run read-only diagnostics to confirm the updated approved keyword bank is visible to Listing Master / SEO Brief sources.
+Create a read-only bridge view, not a second keyword bank:
 
-Need to verify:
+`public.feya_commerce_v_listing_master_keyword_match_preview_v1`
 
-- Listing Master keyword source/view/RPC can see newly inserted approved_draft keywords
-- commercial_collection and faq buckets are handled correctly
-- no hold/reject/local/reddit/in-store rows can appear in Listing Master suggestions
-- SEO Brief source can consume product focus + selected/approved keyword candidates
-- no duplicate screen/workflow is needed
+Purpose:
+
+- combine `feya_commerce_v_listing_master_product_focus_v1` with `vw_seo_keyword_bank_v1_for_listing_master`;
+- compute positive match signals for component/material/color/event/style/persona/audience;
+- compute negative flags for wrong gender/product type/noise/bodysuit/neon/snake/lego;
+- expose final match status such as STRONG_MATCH / MEDIUM_MATCH / BROAD_MATCH / EXCLUDE;
+- expose reason_json so the UI can show why a word is suggested or excluded;
+- keep `seo_keyword_bank_v1` as the only source of truth.
+
+Do not:
+
+- create a second SEO Keyword Bank;
+- delete women/bodysuit/neon/snake from the general bank, because they may be valid for other products;
+- mass-change review_status;
+- generate SEO packs until keyword matching works for at least one product.
+
+## Next GitHub step after Supabase bridge exists
+
+Patch `/admin/listing-master` to use the new bridge view for selected product keyword suggestions.
+
+Frontend should:
+
+- keep auto-focus chips/buttons as an operator UI layer;
+- apply filters only after the operator clicks “Применить поиск слов”;
+- use bridge view match_status/reason_json instead of raw text contains where possible;
+- never show EXCLUDE rows in normal suggestions;
+- show a compact reason popup/details only when needed;
+- keep Russian UI labels and English keyword values.
 
 ## Next project step
 
-1. Verify keyword bank integration into Listing Master / SEO Brief.
-2. Fix only if the updated bank is not visible in existing flows.
-3. Move to SEO Brief page/flow.
-4. Generate first real SEO Pack only after:
+1. Create Supabase read-only bridge view for product-keyword matching.
+2. Validate it on product `b6e0171f-4d42-4d71-88b1-ee0d4e0e109e`.
+3. Patch Listing Master to consume the bridge.
+4. Save first clean decision draft.
+5. Move to SEO Brief page/flow.
+6. Generate first real SEO Pack only after:
    - Product focus is selected/saved
    - validated keywords are available
    - brief is formed from real product facts/components/media
