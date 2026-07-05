@@ -35,11 +35,11 @@ normalized AS (
     NULLIF(raw_json ->> 'reason', '') AS source_reason,
     NULLIF(raw_json ->> 'notes', '') AS source_notes,
     NULLIF(raw_json ->> 'metric_source', '') AS metric_source,
-    COALESCE(NULLIF(raw_json ->> 'avg_monthly_searches', '')::numeric, NULLIF(raw_json ->> 'search_volume', '')::numeric) AS avg_monthly_searches,
+    NULLIF(regexp_replace(COALESCE(raw_json ->> 'avg_monthly_searches', raw_json ->> 'search_volume', ''), '[^0-9.\-]', '', 'g'), '')::numeric AS avg_monthly_searches,
     NULLIF(upper(COALESCE(raw_json ->> 'competition', raw_json ->> 'competition_level')), '') AS competition,
-    COALESCE(NULLIF(raw_json ->> 'competition_index', '')::numeric, NULLIF(raw_json ->> 'competition_value', '')::numeric) AS competition_index,
-    COALESCE(NULLIF(raw_json ->> 'low_bid', '')::numeric, NULLIF(raw_json ->> 'low_top_of_page_bid', '')::numeric, NULLIF(raw_json ->> 'low_top_of_page_bid_micros', '')::numeric) AS low_bid,
-    COALESCE(NULLIF(raw_json ->> 'high_bid', '')::numeric, NULLIF(raw_json ->> 'high_top_of_page_bid', '')::numeric, NULLIF(raw_json ->> 'high_top_of_page_bid_micros', '')::numeric) AS high_bid,
+    NULLIF(regexp_replace(COALESCE(raw_json ->> 'competition_index', raw_json ->> 'competition_value', ''), '[^0-9.\-]', '', 'g'), '')::numeric AS competition_index,
+    NULLIF(regexp_replace(COALESCE(raw_json ->> 'low_bid', raw_json ->> 'low_top_of_page_bid', raw_json ->> 'low_top_of_page_bid_micros', ''), '[^0-9.\-]', '', 'g'), '')::numeric AS low_bid,
+    NULLIF(regexp_replace(COALESCE(raw_json ->> 'high_bid', raw_json ->> 'high_top_of_page_bid', raw_json ->> 'high_top_of_page_bid_micros', ''), '[^0-9.\-]', '', 'g'), '')::numeric AS high_bid,
     NULLIF(COALESCE(raw_json ->> 'last_checked', raw_json ->> 'observed_month', raw_json ->> 'created_at'), '') AS metric_date
   FROM raw_candidates
 ),
