@@ -1,0 +1,71 @@
+// @ts-nocheck
+import Link from 'next/link';
+import { ArrowUpRight, CheckCircle2, FileSearch, Hold, ShieldAlert, XCircle } from 'lucide-react';
+import { getMissingSupabaseEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+const REVIEW_VIEW = 'feya_commerce_v_seo_commercial_new_candidate_review_queue_v1';
+const SELECT = 'commercial_id,source_batch,keyword,keyword_norm,normalized_market,normalized_language,avg_monthly_searches,competition,competition_index,suggested_bucket,operator_decision,target_bank_bucket,decision_note,review_priority,suggested_usage';
+const BATCH = 'commercial_v1_a_google_ads_stats_2026_07_05';
+
+export default async function CommercialKeywordReviewPage({ searchParams }) {
+  const q = String(searchParams?.q || '').trim().toLowerCase();
+  const priority = String(searchParams?.priority || 'all');
+  const decision = String(searchParams?.decision || 'needs_review');
+  const loaded = await loadQueue({ q, priority, decision });
+  const rows = loaded.rows || [];
+  const counts = loaded.counts;
+
+  return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
+    <section className="container-feya pt-7 pb-14">
+      <div className="grid gap-5 lg:grid-cols-[1fr_420px] lg:items-end border-b border-[rgba(216,214,211,.12)] pb-6 mb-6">
+        <div><div className="eyebrow-gold mb-2">Админка · SEO · commercial review</div><h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(38px,5.5vw,70px)' }}>Review новых ключей</h1><p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Очередь новых commercial candidates из Google Ads. Они не попадают в SEO-ядро автоматически: сначала ручной review.</p></div>
+        <div className="flex flex-wrap gap-3 lg:justify-end"><Link href="/admin/seo-keywords" className="btn-ghost">SEO-ядро <ArrowUpRight size={13} /></Link><Link href="/admin/listing-master" className="btn-ghost">Listing Master <ArrowUpRight size={13} /></Link></div>
+      </div>
+
+      {loaded.error ? <Notice tone="danger">{loaded.error}</Notice> : null}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-5">
+        <Metric icon={FileSearch} label="В очереди" value={fmt(counts.total)} note="Новые candidates." />
+        <Metric icon={ShieldAlert} label="High" value={fmt(counts.high)} note="Сначала проверить." tone="gold" />
+        <Metric icon={CheckCircle2} label="Approve" value={fmt(counts.approve)} note="Уже отмечено." tone="success" />
+        <Metric icon={Hold} label="Hold" value={fmt(counts.hold)} note="На паузе." tone="gold" />
+        <Metric icon={XCircle} label="Reject" value={fmt(counts.reject)} note="Отклонено." tone="danger" />
+      </div>
+
+      <div className="rounded-2xl border border-[rgba(212,178,106,.20)] bg-[rgba(212,178,106,.045)] p-4 mb-5"><div className="eyebrow-gold mb-2">Важно</div><p className="text-[12px] leading-relaxed text-[var(--bone-dim)]">Этот экран пока показывает review queue. Запись решений уже есть через Supabase RPC; следующий patch добавит кнопки approve / hold / reject прямо здесь.</p></div>
+      <Filters q={q} priority={priority} decision={decision} />
+      <Table rows={rows} />
+    </section>
+  </main>;
+}
+
+async function loadQueue(filters) {
+  const supabase = getSupabaseServiceClient();
+  if (!supabase) return { rows: [], counts: emptyCounts(), error: getMissingSupabaseEnvMessage() };
+  let query = supabase.from(REVIEW_VIEW).select(SELECT, { count: 'exact' }).eq('source_batch', BATCH).order('avg_monthly_searches', { ascending: false }).limit(200);
+  if (filters.priority !== 'all') query = query.eq('review_priority', filters.priority);
+  if (filters.decision !== 'all') query = query.eq('operator_decision', filters.decision);
+  if (filters.q) query = query.ilike('keyword_norm', `%${filters.q}%`);
+  const { data, error } = await query;
+  const counts = await loadCounts(supabase);
+  return { rows: data || [], counts, error: error?.message || null };
+}
+
+async function loadCounts(supabase) {
+  const { data } = await supabase.from(REVIEW_VIEW).select('review_priority,operator_decision').eq('source_batch', BATCH).limit(1000);
+  const counts = emptyCounts();
+  (data || []).forEach((row) => { counts.total += 1; if (row.review_priority === 'high') counts.high += 1; if (row.operator_decision === 'approve_candidate') counts.approve += 1; if (row.operator_decision === 'hold') counts.hold += 1; if (row.operator_decision === 'reject') counts.reject += 1; });
+  return counts;
+}
+function emptyCounts() { return { total: 0, high: 0, approve: 0, hold: 0, reject: 0 }; }
+
+function Filters({ q, priority, decision }) { return <form action="/admin/seo-engine/commercial-review" className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4 mb-5"><div className="grid md:grid-cols-[1fr_190px_220px_160px] gap-3 items-end"><label><div className="eyebrow-dim mb-1.5">Поиск</div><input name="q" defaultValue={q} placeholder="where to buy, websites" className="field" /></label><Select name="priority" label="Приоритет" value={priority}><option value="all">Все</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></Select><Select name="decision" label="Решение" value={decision}><option value="all">Все</option><option value="needs_review">Needs review</option><option value="approve_candidate">Approve candidate</option><option value="hold">Hold</option><option value="reject">Reject</option></Select><button className="btn-ghost" type="submit">Применить</button></div></form>; }
+function Table({ rows }) { return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden"><div className="grid grid-cols-[1.4fr_.5fr_.55fr_.7fr_.8fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.20em] text-[var(--smoke)]"><div>Ключ</div><div>Спрос</div><div>Конкуренция</div><div>Куда</div><div>Статус</div></div><div className="divide-y divide-[rgba(216,214,211,.08)]">{rows.map((row) => <div key={row.commercial_id} className="grid grid-cols-[1.4fr_.5fr_.55fr_.7fr_.8fr] gap-4 px-5 py-4 items-center hover:bg-[rgba(212,178,106,.035)]"><div><div className="text-bone text-[14px] leading-snug">{row.keyword}</div><div className="mt-1 text-[10px] text-[var(--bone-dim)]">{row.suggested_usage} · {row.normalized_market}/{row.normalized_language}</div></div><div className="font-price text-[24px] text-[var(--gold-warm)]">{fmt(row.avg_monthly_searches)}</div><div><Chip tone={String(row.competition).toUpperCase() === 'HIGH' ? 'gold' : 'success'}>{row.competition || '—'} {row.competition_index ? `· ${row.competition_index}` : ''}</Chip></div><div><Chip>{row.target_bank_bucket || row.suggested_bucket || '—'}</Chip></div><div><Chip tone={decisionTone(row.operator_decision)}>{row.operator_decision || 'needs_review'}</Chip>{row.decision_note ? <div className="mt-1 text-[10px] text-[var(--bone-dim)]">{row.decision_note}</div> : null}</div></div>)}{!rows.length ? <div className="px-5 py-6 text-[13px] text-[var(--bone-dim)]">Кандидатов нет.</div> : null}</div></div>; }
+function Select({ name, label, value, children }) { return <label><div className="eyebrow-dim mb-1.5">{label}</div><select name={name} defaultValue={value} className="field">{children}</select></label>; }
+function Metric({ label, value, note, icon: Icon, tone = 'neutral' }) { const border = tone === 'success' ? 'border-[rgba(108,183,138,.35)] bg-[rgba(108,183,138,.08)]' : tone === 'danger' ? 'border-[rgba(196,64,88,.34)] bg-[rgba(160,32,56,.08)]' : tone === 'gold' ? 'border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.06)]' : 'border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)]'; return <div className={`rounded-2xl border ${border} p-4 min-h-[112px]`}><div className="flex items-center justify-between gap-4 mb-3"><div className="eyebrow-dim">{label}</div><Icon size={15} className="text-[var(--gold-warm)]" /></div><div className="font-price text-gold-grad text-[32px] leading-none">{value}</div><div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">{note}</div></div>; }
+function Chip({ children, tone = 'neutral' }) { const cls = tone === 'success' ? 'border-[rgba(108,183,138,.35)] text-[#a9dfbd] bg-[rgba(108,183,138,.08)]' : tone === 'danger' ? 'border-[rgba(196,64,88,.34)] text-[var(--ruby-soft)] bg-[rgba(160,32,56,.08)]' : tone === 'gold' ? 'border-[rgba(212,178,106,.30)] text-[var(--gold-warm)] bg-[rgba(212,178,106,.07)]' : 'border-[rgba(216,214,211,.16)] text-[var(--bone-dim)] bg-black/15'; return <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] ${cls}`}>{children}</span>; }
+function Notice({ children, tone = 'warning' }) { const cls = tone === 'danger' ? 'border-[rgba(196,64,88,.34)] bg-[rgba(160,32,56,.08)]' : 'border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)]'; return <div className={`rounded-2xl border ${cls} p-4 text-[var(--bone-dim)] mb-5`}>{children}</div>; }
+function fmt(v) { const n = Number(v); return Number.isFinite(n) ? new Intl.NumberFormat('en-US').format(n) : '—'; }
+function decisionTone(v) { if (v === 'approve_candidate') return 'success'; if (v === 'reject') return 'danger'; if (v === 'hold') return 'gold'; return 'neutral'; }
