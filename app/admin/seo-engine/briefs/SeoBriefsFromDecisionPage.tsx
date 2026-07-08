@@ -17,6 +17,7 @@ export default async function SeoBriefsFromDecisionPage({ searchParams }) {
   const seoPackDraft = brief ? attachProductIdentity(buildSeoPackDraftContractFromBrief(brief), data) : null;
   const agentInput = seoPackDraft ? buildSeoAgentInputFromDraft(seoPackDraft) : null;
   const contractPreview = seoPackDraft && agentInput ? { seo_pack_draft: seoPackDraft, ai_agent_input: agentInput } : null;
+  const contractApiHref = data.product?.canonical_product_id ? `/api/admin/seo-engine/brief-contract?product_id=${data.product.canonical_product_id}` : null;
 
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
     <section className="container-feya pt-7 pb-12">
@@ -136,6 +137,11 @@ export default async function SeoBriefsFromDecisionPage({ searchParams }) {
               <Fact label="Agent task" value={agentInput.task} />
               <Fact label="Primary keywords" value={seoPackDraft.keyword_roles.primary.length} />
               <Fact label="Secondary keywords" value={seoPackDraft.keyword_roles.secondary.length} />
+            </div>
+            <div className="mb-3 flex flex-wrap gap-3">
+              {contractApiHref ? <Link className="btn-ghost" href={contractApiHref} target="_blank">Открыть JSON endpoint <ArrowUpRight size={13} /></Link> : null}
+              <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>OpenAI generation заблокирована</button>
+              <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Supabase save заблокирован</button>
             </div>
             <JsonPreview value={contractPreview} />
           </Panel>
