@@ -1,24 +1,21 @@
 // @ts-nocheck
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, Code2, FileText, Layers3, ShieldAlert, Sparkles } from 'lucide-react';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
-import { buildSeoPilotBrief } from '@/lib/seoPilotDraft';
-import { buildSeoAgentInputFromDraft, buildSeoPackDraftContractFromBrief } from '@/lib/seoPackContractBuilder';
+import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
 import SeoGenerationPreflightClient from './SeoGenerationPreflightClient';
 
-const FOCUS_VIEW = 'feya_commerce_v_listing_master_product_focus_v1';
-const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
-const PRODUCT_SELECT = 'canonical_product_id,matched_etsy_listing_id,product_slug,card_title,h1,seo_title,meta_description,product_type,material,color,canonical_color_label,category_label,source_category_label,operator_section_label,world_label,primary_image_url,primary_image_alt,parent_components_json,child_components_json,component_groups_json,needs_component_review_count,has_component_review_risk,focus_text';
 const STRATEGY_LABELS = { demand: 'Больше спроса', opportunity: 'Перспективные', niche: 'Нишевые' };
 
 export default async function SeoBriefsFromDecisionPage({ searchParams }) {
   const productId = param(searchParams?.product_id).trim();
-  const data = await loadSeoBriefData(productId);
-  const brief = data.product ? buildSeoPilotBrief(data.product, data.keywords, data.manualFocus) : null;
-  const seoPackDraft = brief ? attachProductIdentity(buildSeoPackDraftContractFromBrief(brief), data) : null;
-  const agentInput = seoPackDraft ? buildSeoAgentInputFromDraft(seoPackDraft) : null;
+  const data = await buildSeoBriefContractBundle(productId);
+  const brief = data.brief;
+  const seoPackDraft = data.seoPackDraft;
+  const agentInput = data.aiAgentInput;
   const contractPreview = seoPackDraft && agentInput ? { seo_pack_draft: seoPackDraft, ai_agent_input: agentInput } : null;
-  const contractApiHref = data.product?.canonical_product_id ? `/api/admin/seo-engine/brief-contract?product_id=${data.product.canonical_product_id}` : null;
+  const activeProductId = data.product?.canonical_product_id || seoPackDraft?.canonical_product_id || productId || '';
+  const contractApiHref = activeProductId ? `/api/admin/seo-engine/brief-contract?product_id=${activeProductId}` : null;
+  const draftPreviewHref = activeProductId ? `/admin/seo-engine/draft-preview?product_id=${activeProductId}` : null;
 
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
     <section className="container-feya pt-7 pb-12">
@@ -26,11 +23,12 @@ export default async function SeoBriefsFromDecisionPage({ searchParams }) {
         <div>
           <div className="eyebrow-gold mb-2">Админка · SEO-задание v2</div>
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(42px,6vw,72px)' }}>SEO-задание товара</h1>
-          <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--bone-dim)]">Этот экран берёт сохранённый черновик из Мастера листинга: товар, ручной Product DNA, режим и выбранные ключи. Здесь проверяем основу перед генерацией SEO-pack и будущим AI-agent шагом.</p>
+          <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--bone-dim)]">Этот экран берёт сохранённый черновик из Мастера листинга: товар, ручной Product DNA, режим и выбранные ключи. Теперь он использует тот же contract bundle, что JSON API, generation preflight и draft review.</p>
         </div>
         <div className="flex flex-wrap gap-3 lg:justify-end">
           <Link href="/admin/listing-master" className="btn-ghost">Мастер листинга <ArrowUpRight size={13} /></Link>
           <Link href="/admin/seo-keywords" className="btn-ghost">SEO-ядро <ArrowUpRight size={13} /></Link>
+          {draftPreviewHref ? <Link href={draftPreviewHref} className="btn-ghost">Draft review <ArrowUpRight size={13} /></Link> : null}
           {data.product?.product_slug ? <Link href={`/shop/${data.product.product_slug}`} className="btn-ghost">Открыть товар <ArrowUpRight size={13} /></Link> : null}
         </div>
       </div>
@@ -125,7 +123,11 @@ export default async function SeoBriefsFromDecisionPage({ searchParams }) {
               <TextList title="Blocked / excluded words" items={brief.draftPreview.blockedWords} />
             </div>
           </div>
-          <div className="mt-4 flex flex-wrap gap-3"><Link className="btn-ghost" href={`/admin/listing-master?product_id=${data.product?.canonical_product_id || ''}`}>Вернуться к ключам</Link><button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Следующий шаг: генерация SEO-пакета</button></div>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link className="btn-ghost" href={`/admin/listing-master?product_id=${activeProductId}`}>Вернуться к ключам</Link>
+            {draftPreviewHref ? <Link className="btn-ghost" href={draftPreviewHref}>Открыть draft review <ArrowUpRight size={13} /></Link> : null}
+            <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Save SEO-pack заблокирован</button>
+          </div>
         </Panel>
 
         {contractPreview ? <div className="mt-5">
@@ -141,10 +143,11 @@ export default async function SeoBriefsFromDecisionPage({ searchParams }) {
             </div>
             <div className="mb-3 flex flex-wrap gap-3">
               {contractApiHref ? <Link className="btn-ghost" href={contractApiHref} target="_blank">Открыть JSON endpoint <ArrowUpRight size={13} /></Link> : null}
+              {draftPreviewHref ? <Link className="btn-ghost" href={draftPreviewHref}>Открыть draft review <ArrowUpRight size={13} /></Link> : null}
               <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>OpenAI generation заблокирована</button>
               <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Supabase save заблокирован</button>
             </div>
-            <div className="mb-3"><SeoGenerationPreflightClient productId={data.product?.canonical_product_id || ''} /></div>
+            <div className="mb-3"><SeoGenerationPreflightClient productId={activeProductId} /></div>
             <JsonPreview value={contractPreview} />
           </Panel>
         </div> : null}
@@ -153,62 +156,6 @@ export default async function SeoBriefsFromDecisionPage({ searchParams }) {
   </main>;
 }
 
-async function loadSeoBriefData(productId) {
-  const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
-  if (!supabase) return { product: null, decision: null, keywords: [], manualFocus: {}, error: getMissingSupabaseEnvMessage() };
-
-  let decisionRows = [];
-  if (getSupabaseServiceClient()) {
-    let q = supabase.from(DECISIONS_TABLE).select('canonical_product_id,product_slug,matched_etsy_listing_id,auto_focus_json,manual_focus_json,selected_strategy,selected_keywords_json,decision_status,updated_at,created_at').limit(2000);
-    if (productId) q = q.eq('canonical_product_id', productId);
-    const result = await q;
-    decisionRows = result.data || [];
-  }
-  decisionRows.sort((a, b) => new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime());
-  const decision = decisionRows[0] || null;
-  const effectiveProductId = productId || decision?.canonical_product_id || '';
-
-  let product = null;
-  if (effectiveProductId) {
-    const productResult = await supabase.from(FOCUS_VIEW).select(PRODUCT_SELECT).eq('canonical_product_id', effectiveProductId).limit(1);
-    product = (productResult.data || [])[0] || null;
-  }
-
-  const keywords = normalizeDecisionKeywords(decision?.selected_keywords_json || []);
-  const manualFocus = decision?.manual_focus_json && typeof decision.manual_focus_json === 'object' ? decision.manual_focus_json : {};
-  return { product, decision, keywords, manualFocus, error: null };
-}
-
-function attachProductIdentity(contract, data) {
-  const canonicalProductId = data.product?.canonical_product_id || data.decision?.canonical_product_id || '';
-  const matchedEtsyListingId = data.product?.matched_etsy_listing_id || data.decision?.matched_etsy_listing_id || null;
-  return {
-    ...contract,
-    canonical_product_id: canonicalProductId,
-    matched_etsy_listing_id: matchedEtsyListingId,
-    product_truth: {
-      ...contract.product_truth,
-      canonical_product_id: canonicalProductId,
-      matched_etsy_listing_id: matchedEtsyListingId,
-      primary_image_url: data.product?.primary_image_url || contract.product_truth.primary_image_url || null,
-      primary_image_alt: data.product?.primary_image_alt || contract.product_truth.primary_image_alt || null,
-    },
-  };
-}
-
-function normalizeDecisionKeywords(value) {
-  const rows = Array.isArray(value) ? value : [];
-  return rows.map((row) => ({
-    ...row,
-    keyword: row.keyword || row.keyword_norm,
-    keyword_norm: row.keyword_norm || row.keyword,
-    priority_tier: 'tier_1',
-    validation_status: row.avg_monthly_searches && String(row.competition || '').toUpperCase() !== 'UNKNOWN' ? 'validated' : 'queued',
-    cleanup_pipeline_status: 'from_listing_master_decision',
-    should_validate_api: false,
-    should_hold: false,
-  }));
-}
 function titleOf(product) { return product?.card_title || product?.h1 || product?.seo_title || product?.product_slug || 'Untitled product'; }
 function param(value) { if (typeof value === 'string') return value; if (Array.isArray(value) && typeof value[0] === 'string') return value[0]; return ''; }
 function statusLabel(value) { const labels = { pass: 'готово', warning: 'проверить', blocker: 'блокер', blocked: 'заблокировано', ready_for_human_draft_preview: 'готово к черновику', needs_metric_validation: 'нужны метрики' }; return labels[String(value || '').toLowerCase()] || value || 'нет данных'; }
