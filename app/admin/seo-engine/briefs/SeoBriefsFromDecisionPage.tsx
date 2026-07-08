@@ -23,12 +23,12 @@ export default async function SeoBriefsFromDecisionPage({ searchParams }) {
         <div>
           <div className="eyebrow-gold mb-2">Админка · SEO-задание v2</div>
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(42px,6vw,72px)' }}>SEO-задание товара</h1>
-          <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--bone-dim)]">Этот экран берёт сохранённый черновик из Мастера листинга: товар, ручной Product DNA, режим и выбранные ключи. Теперь он использует тот же contract bundle, что JSON API, generation preflight и draft review.</p>
+          <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--bone-dim)]">Этот экран берёт сохранённый черновик из Мастера листинга: товар, ручной Product DNA, режим и выбранные ключи. Теперь он использует тот же contract bundle, что JSON API, проверка генерации и проверка черновика.</p>
         </div>
         <div className="flex flex-wrap gap-3 lg:justify-end">
           <Link href="/admin/listing-master" className="btn-ghost">Мастер листинга <ArrowUpRight size={13} /></Link>
           <Link href="/admin/seo-keywords" className="btn-ghost">SEO-ядро <ArrowUpRight size={13} /></Link>
-          {draftPreviewHref ? <Link href={draftPreviewHref} className="btn-ghost">Draft review <ArrowUpRight size={13} /></Link> : null}
+          {draftPreviewHref ? <Link href={draftPreviewHref} className="btn-ghost">Проверка черновика <ArrowUpRight size={13} /></Link> : null}
           {data.product?.product_slug ? <Link href={`/shop/${data.product.product_slug}`} className="btn-ghost">Открыть товар <ArrowUpRight size={13} /></Link> : null}
         </div>
       </div>
@@ -125,8 +125,8 @@ export default async function SeoBriefsFromDecisionPage({ searchParams }) {
           </div>
           <div className="mt-4 flex flex-wrap gap-3">
             <Link className="btn-ghost" href={`/admin/listing-master?product_id=${activeProductId}`}>Вернуться к ключам</Link>
-            {draftPreviewHref ? <Link className="btn-ghost" href={draftPreviewHref}>Открыть draft review <ArrowUpRight size={13} /></Link> : null}
-            <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Save SEO-pack заблокирован</button>
+            {draftPreviewHref ? <Link className="btn-ghost" href={draftPreviewHref}>Открыть проверку черновика <ArrowUpRight size={13} /></Link> : null}
+            <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Сохранить SEO-pack — заблокировано</button>
           </div>
         </Panel>
 
@@ -136,16 +136,16 @@ export default async function SeoBriefsFromDecisionPage({ searchParams }) {
               <span className="text-bone">Read-only bridge:</span> это будущий вход для AI-agent и draft storage. Сейчас здесь нет OpenAI call, нет Supabase write, нет publish action.
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-3">
-              <Fact label="Pack status" value={seoPackDraft.status} />
-              <Fact label="Agent task" value={agentInput.task} />
-              <Fact label="Primary keywords" value={seoPackDraft.keyword_roles.primary.length} />
-              <Fact label="Secondary keywords" value={seoPackDraft.keyword_roles.secondary.length} />
+              <Fact label="Статус pack" value={seoPackDraft.status} />
+              <Fact label="Задача agent" value={agentInput.task} />
+              <Fact label="Главные ключи" value={seoPackDraft.keyword_roles.primary.length} />
+              <Fact label="Вторичные ключи" value={seoPackDraft.keyword_roles.secondary.length} />
             </div>
             <div className="mb-3 flex flex-wrap gap-3">
-              {contractApiHref ? <Link className="btn-ghost" href={contractApiHref} target="_blank">Открыть JSON endpoint <ArrowUpRight size={13} /></Link> : null}
-              {draftPreviewHref ? <Link className="btn-ghost" href={draftPreviewHref}>Открыть draft review <ArrowUpRight size={13} /></Link> : null}
-              <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>OpenAI generation заблокирована</button>
-              <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Supabase save заблокирован</button>
+              {contractApiHref ? <Link className="btn-ghost" href={contractApiHref} target="_blank">Открыть JSON-контракт <ArrowUpRight size={13} /></Link> : null}
+              {draftPreviewHref ? <Link className="btn-ghost" href={draftPreviewHref}>Открыть проверку черновика <ArrowUpRight size={13} /></Link> : null}
+              <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Генерация OpenAI — заблокирована</button>
+              <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Сохранение в Supabase — заблокировано</button>
             </div>
             <div className="mb-3"><SeoGenerationPreflightClient productId={activeProductId} /></div>
             <JsonPreview value={contractPreview} />
