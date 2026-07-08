@@ -2,6 +2,14 @@
 
 import { useMemo, useState } from 'react';
 
+type StorageHealth = {
+  ok?: boolean;
+  status?: string;
+  checked_objects?: Array<{ kind?: string; name?: string; ok?: boolean; status?: string; error_code?: string | null; error_message?: string | null; count?: number | null }>;
+  missing_objects?: string[];
+  note?: string;
+};
+
 type SavePreflightResult = {
   ok?: boolean;
   status?: string;
@@ -14,6 +22,7 @@ type SavePreflightResult = {
   validation_result?: { ok?: boolean; status?: string; issues?: Array<{ code?: string; severity?: string; message?: string }> };
   storage_payload_summary?: Record<string, unknown> | null;
   storage_contract?: Record<string, unknown>;
+  storage_health?: StorageHealth;
   guardrails?: string[];
   message?: string;
 };
@@ -51,12 +60,14 @@ export default function SeoDraftSavePreflightClient({ productId }: { productId: 
     }
   }
 
+  const storageHealth = result?.storage_health || null;
+
   return <div className="rounded-2xl border border-[rgba(212,178,106,.24)] bg-[rgba(212,178,106,.055)] p-4">
     <div className="flex flex-wrap items-start justify-between gap-3">
       <div>
         <div className="eyebrow-gold mb-1">Проверка сохранения черновика</div>
         <div className="max-w-3xl text-[12px] leading-relaxed text-[var(--bone-dim)]">
-          Проверяет будущую запись SEO-черновика в Supabase: storage flag, service-role доступ, validator, payload summary и blockers. Сейчас это только проверка — запись в Supabase не выполняется.
+          Проверяет будущую запись SEO-черновика в Supabase: storage flag, service-role доступ, validator, payload summary, наличие таблиц/views и blockers. Сейчас это только проверка — запись в Supabase не выполняется.
         </div>
       </div>
       <button
@@ -78,6 +89,26 @@ export default function SeoDraftSavePreflightClient({ productId }: { productId: 
         <SaveFact label="Режим проверки" value={result.dry_run === false ? 'выключен' : 'включён'} />
         <SaveFact label="Запись включена" value={result.feature_flag?.enabled ? 'да' : 'нет'} />
       </div>
+
+      {storageHealth ? <div>
+        <div className="mb-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">Проверка SQL storage contract</div>
+        <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3">
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            <span className={`rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] ${storageHealth.ok ? 'border-[rgba(108,183,138,.35)] text-[#a9dfbd] bg-[rgba(108,183,138,.08)]' : 'border-[rgba(212,178,106,.35)] text-[var(--gold-warm)] bg-[rgba(212,178,106,.08)]'}`}>{storageHealth.ok ? 'SQL применён' : 'SQL не применён полностью'}</span>
+            <span className="text-[11px] leading-relaxed text-[var(--bone-dim)]">{translateStorageStatus(storageHealth.status || 'unknown')}</span>
+          </div>
+          {storageHealth.note ? <div className="mb-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">{storageHealth.note}</div> : null}
+          <div className="grid md:grid-cols-2 gap-2">
+            {(storageHealth.checked_objects || []).map((item) => <div key={item.name} className="rounded-lg border border-[rgba(216,214,211,.09)] bg-black/20 p-2.5">
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-[11px] text-bone">{translateObjectName(item.name || 'object')}</div>
+                <span className={`rounded-full border px-2 py-0.5 text-[9px] uppercase tracking-[0.12em] ${item.ok ? 'border-[rgba(108,183,138,.35)] text-[#a9dfbd]' : 'border-[rgba(212,178,106,.35)] text-[var(--gold-warm)]'}`}>{item.ok ? 'есть' : 'нет'}</span>
+              </div>
+              {item.error_message ? <div className="mt-1.5 text-[10px] leading-relaxed text-[var(--bone-dim)]">{item.error_code ? `${item.error_code}: ` : ''}{item.error_message}</div> : null}
+            </div>)}
+          </div>
+        </div>
+      </div> : null}
 
       {result.blockers?.length ? <div>
         <div className="mb-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">Что блокирует сохранение</div>
@@ -135,6 +166,7 @@ function translateBlocker(code: string) {
     feature_flag_disabled: 'флаг сохранения выключен',
     dry_run_only: 'режим только проверки',
     missing_service_role_client: 'нет service-role доступа',
+    storage_contract_not_applied: 'SQL storage contract ещё не применён',
     output_validation_not_passing: 'validator не пропускает черновик',
     insert_flow_not_enabled: 'реальная запись ещё не включена',
   };
@@ -145,6 +177,8 @@ function translateReadinessKey(key: string) {
   const map: Record<string, string> = {
     has_service_role_client: 'service-role доступ',
     storage_feature_flag_enabled: 'флаг сохранения',
+    storage_contract_applied: 'SQL применён',
+    storage_contract_missing: 'чего не хватает в SQL',
     output_validation_status: 'статус validator',
     output_validation_ok: 'validator пропускает',
     payload_ready: 'payload готов',
@@ -153,9 +187,29 @@ function translateReadinessKey(key: string) {
   return map[key] || key;
 }
 
+function translateStorageStatus(status: string) {
+  const map: Record<string, string> = {
+    storage_contract_detected: 'таблицы и views storage contract видны приложению',
+    storage_contract_incomplete: 'часть таблиц/views отсутствует или недоступна',
+    missing_service_role_client: 'нельзя проверить без service-role доступа',
+  };
+  return map[status] || status;
+}
+
+function translateObjectName(name: string) {
+  const map: Record<string, string> = {
+    feya_commerce_seo_pack_drafts_v1: 'таблица SEO-черновиков',
+    feya_commerce_seo_pack_draft_events_v1: 'таблица истории черновиков',
+    feya_commerce_v_seo_pack_drafts_latest_v1: 'view последнего черновика',
+    feya_commerce_v_seo_pack_review_queue_v1: 'view очереди проверки',
+  };
+  return map[name] || name;
+}
+
 function translateValue(value: unknown) {
   if (value === true) return 'да';
   if (value === false) return 'нет';
+  if (Array.isArray(value)) return value.length ? value.map((item) => translateObjectName(String(item))).join(', ') : 'ничего';
   if (value == null) return '—';
   return String(value);
 }
