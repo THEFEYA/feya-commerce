@@ -72,18 +72,18 @@ function Issues({ issues = [] }) {
   return issues.length ? <div className="grid md:grid-cols-2 gap-2">{issues.map((issue, index) => <div key={`${issue.code}-${index}`} className="rounded-xl border border-[rgba(212,178,106,.22)] bg-black/15 p-3">
     <div className="flex flex-wrap gap-2 mb-1.5"><Pill tone={issue.severity === 'blocker' ? 'danger' : 'warning'}>{issue.severity || 'issue'}</Pill><Pill>{issue.code || 'validation'}</Pill></div>
     <div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">{issue.message || 'Needs review'}</div>
-  </div>)}</div> : <div className="rounded-xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.06)] p-3 text-[12px] text-[#a9dfbd]">Validator не нашёл blocker issues в mock output.</div>;
+  </div>)}</div> : <div className="rounded-xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.06)] p-3 text-[12px] text-[#a9dfbd]">Validator не нашёл blocker issues в review output.</div>;
 }
 
 export default async function SeoDraftPreviewPage({ searchParams }) {
   const params = await searchParams;
   const productId = param(params?.product_id || params?.product).trim();
   const bundle = await buildSeoBriefContractBundle(productId);
-  const mockDraft = bundle.aiAgentInput ? buildMockSeoAgentOutput(bundle.aiAgentInput) : null;
-  const validation = mockDraft ? validateSeoAgentOutput(mockDraft) : null;
   const product = bundle.product || null;
   const brief = bundle.brief || null;
   const seoPackDraft = bundle.seoPackDraft || null;
+  const mockDraft = bundle.aiAgentInput ? buildMockSeoAgentOutput(bundle.aiAgentInput, brief) : null;
+  const validation = mockDraft ? validateSeoAgentOutput(mockDraft) : null;
   const activeProductId = seoPackDraft?.canonical_product_id || product?.canonical_product_id || productId;
 
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
@@ -92,7 +92,7 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
         <div>
           <div className="eyebrow-gold mb-2">Админка · SEO · draft review</div>
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,64px)' }}>SEO draft review</h1>
-          <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Этот экран больше не создаёт отдельный старый мир черновиков. Он использует тот же SEO Brief contract bundle, mock/AI output contract и validator, что и generation preflight.</p>
+          <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Этот экран показывает человекочитаемый SEO Brief baseline, завёрнутый в seo_agent_output_v1 для проверки validator/storage pipeline. Это не финальный AI-текст и не publish draft.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {activeProductId ? <Link href={`/admin/seo-engine/briefs?product_id=${activeProductId}`} className="btn-ghost">Назад к SEO Brief <ArrowUpRight size={13} /></Link> : null}
@@ -103,7 +103,7 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
 
       {bundle.error ? <Notice tone="danger">{bundle.error}</Notice> : null}
       {!product ? <Notice tone="danger">Товар не найден в Product Focus view. Открой SEO Brief с конкретным product_id.</Notice> : null}
-      {product && !bundle.decision ? <Notice>Для этого товара нет сохранённого Listing Master decision. Mock draft может быть неполным, потому что нет ручного Product DNA и выбранных ключей.</Notice> : null}
+      {product && !bundle.decision ? <Notice>Для этого товара нет сохранённого Listing Master decision. Draft baseline может быть неполным, потому что нет ручного Product DNA и выбранных ключей.</Notice> : null}
 
       {product && brief && seoPackDraft && mockDraft ? <>
         <div className="grid lg:grid-cols-[.9fr_1.1fr] gap-5 mb-5">
@@ -132,20 +132,20 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
             <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div className="eyebrow-gold">Review gates</div><ShieldAlert size={17} className="text-[var(--gold-warm)]" /></div>
             <div className="p-4 space-y-3">
               <div className="grid sm:grid-cols-3 gap-2">
-                <Fact label="Mock output" value={mockDraft.status} />
+                <Fact label="Review output" value={mockDraft.status} />
                 <Fact label="Validator" value={validation?.status || 'unknown'} />
                 <Fact label="Save allowed" value="no" />
               </div>
               <div className="rounded-xl border border-[rgba(212,178,106,.25)] bg-[rgba(212,178,106,.06)] p-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">
-                Это review preview, а не production save. Supabase save, OpenAI generation и publish остаются заблокированы до storage contract, human review и similarity/cannibalization gate.
+                Главный текст ниже восстановлен из SeoPilotBrief.draftPreview, чтобы не терять качество preview. Supabase save, OpenAI generation и publish остаются заблокированы до storage contract, human review и similarity/cannibalization gate.
               </div>
-              <div className="flex flex-wrap gap-2"><Pill tone={statusTone(validation?.status)}>{validation?.status || 'not_checked'}</Pill><Pill tone="warning">no Supabase write</Pill><Pill tone="warning">no publish</Pill><Pill tone="warning">mock only</Pill></div>
+              <div className="flex flex-wrap gap-2"><Pill tone={statusTone(validation?.status)}>{validation?.status || 'not_checked'}</Pill><Pill tone="success">brief baseline</Pill><Pill tone="warning">no Supabase write</Pill><Pill tone="warning">no publish</Pill><Pill tone="warning">no real OpenAI</Pill></div>
             </div>
           </div>
         </div>
 
         <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden mb-5">
-          <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold">Mock / future AI draft</div><div className="mt-1 text-bone text-[18px]">seo_agent_output_v1</div></div><Sparkles size={17} className="text-[var(--gold-warm)]" /></div>
+          <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold">SEO Brief baseline / review output</div><div className="mt-1 text-bone text-[18px]">seo_agent_output_v1 seeded from draftPreview</div></div><Sparkles size={17} className="text-[var(--gold-warm)]" /></div>
           <div className="p-4 grid lg:grid-cols-[1fr_.85fr] gap-4">
             <div className="space-y-3">
               <Section label="SEO title">{mockDraft.seo_title}</Section>
