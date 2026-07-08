@@ -4,6 +4,7 @@ import {
   type SeoAgentInputContract,
   type SeoKeywordRole,
   type SeoKeywordRoleItem,
+  type SeoManualFocusContract,
   type SeoMetricsStatusContract,
   type SeoPackDraftContract,
   type SeoQaContract,
@@ -25,6 +26,27 @@ function normalizeRole(value: unknown): SeoKeywordRole {
 function text(value: unknown, fallback = '') {
   if (value == null || value === '') return fallback;
   return String(value);
+}
+
+function normalizeFocusValue(value: unknown): string | string[] | null {
+  if (Array.isArray(value)) {
+    const items = value.map((item) => text(item).trim()).filter(Boolean);
+    return items.length ? items : null;
+  }
+  const item = text(value).trim();
+  return item || null;
+}
+
+function normalizeManualFocus(value: SeoPilotBrief['manualFocus']): SeoManualFocusContract {
+  return {
+    component: normalizeFocusValue(value.component),
+    material: normalizeFocusValue(value.material),
+    event: normalizeFocusValue(value.event),
+    style: normalizeFocusValue(value.style),
+    persona: normalizeFocusValue(value.persona),
+    audience: normalizeFocusValue(value.audience),
+    exclude: normalizeFocusValue(value.exclude),
+  };
 }
 
 function factValue(brief: SeoPilotBrief, label: string) {
@@ -124,7 +146,7 @@ export function buildSeoPackDraftContractFromBrief(brief: SeoPilotBrief): SeoPac
     matched_etsy_listing_id: null,
     source_decision_id: null,
     product_truth: productTruth,
-    manual_focus: brief.manualFocus,
+    manual_focus: normalizeManualFocus(brief.manualFocus),
     keyword_roles: keywordRoles,
     metrics_status: metricsStatus,
     excluded_words: brief.draftPreview.blockedWords,
