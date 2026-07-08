@@ -5,7 +5,7 @@ import type { AdminCatalogRow } from '@/lib/types';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const PHASE_B_ADMIN_PRODUCTS_LIMIT = 350;
+const PHASE_A_ADMIN_PRODUCTS_LIMIT = 350;
 
 async function getProducts(): Promise<{ rows: AdminCatalogRow[]; error?: string }> {
   const supabase = getSupabaseReadClient();
@@ -17,7 +17,7 @@ async function getProducts(): Promise<{ rows: AdminCatalogRow[]; error?: string 
   const { data, error } = await supabase
     .from('feya_commerce_v_step6_product_catalog_overview')
     .select('*')
-    .limit(PHASE_B_ADMIN_PRODUCTS_LIMIT);
+    .limit(PHASE_A_ADMIN_PRODUCTS_LIMIT);
 
   if (error) {
     return { rows: [], error: error.message };
