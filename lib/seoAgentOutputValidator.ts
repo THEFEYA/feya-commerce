@@ -1,4 +1,4 @@
-import type { SeoAgentOutputContract, SeoQaContract } from '@/lib/seoPackContract';
+import type { SeoQaContract } from '@/lib/seoPackContract';
 
 export type SeoAgentOutputValidationIssue = {
   code: string;
@@ -55,15 +55,16 @@ export function validateSeoAgentOutput(value: unknown): SeoAgentOutputValidation
     }
   });
 
-  if (!isRecord(value.qa_self_report)) {
+  const qaSelfReport = value.qa_self_report;
+  if (!isRecord(qaSelfReport)) {
     issues.push(blocker('missing_qa_self_report', 'qa_self_report must be present.'));
   } else {
     REQUIRED_QA_KEYS.forEach((key) => {
-      if (!(key in value.qa_self_report)) {
+      if (!(key in qaSelfReport)) {
         issues.push(blocker(`missing_qa_${String(key)}`, `qa_self_report.${String(key)} is required.`));
       }
     });
-    Object.entries(value.qa_self_report).forEach(([key, qaValue]) => {
+    Object.entries(qaSelfReport).forEach(([key, qaValue]) => {
       if (key === 'notes') {
         if (!Array.isArray(qaValue)) issues.push(blocker('invalid_qa_notes', 'qa_self_report.notes must be an array.'));
         return;
