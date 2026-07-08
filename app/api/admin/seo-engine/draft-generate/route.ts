@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
 import { canSaveSeoPackDraft } from '@/lib/seoPackContract';
 import { buildSeoAgentPromptContract, summarizeSeoAgentPromptContract } from '@/lib/seoAgentDraftPrompt';
+import { buildMockSeoAgentOutput } from '@/lib/seoAgentMockDraft';
 import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
 
 export const dynamic = 'force-dynamic';
@@ -19,10 +20,12 @@ export async function GET() {
     expected_body: {
       product_id: 'canonical_product_id UUID',
       dry_run: true,
+      include_mock_output: true,
     },
     generation_pipeline: [
       'load SeoAgentInputContract',
       'build seo_agent_prompt_v1',
+      'build optional mock seo_agent_output_v1 during dry-run',
       'call model only when feature flag and gates pass',
       'validate seo_agent_output_v1',
       'return draft for human review',
@@ -37,6 +40,7 @@ export async function POST(request: Request) {
   const productId = String(body.product_id || body.productId || '').trim();
   const dryRun = body.dry_run !== false;
   const includePrompt = body.include_prompt === true;
+  const includeMockOutput = body.include_mock_output !== false;
   const generationEnabled = process.env.FEYA_SEO_AI_GENERATION_ENABLED === 'true';
   const hasServerKey = Boolean(process.env.OPENAI_API_KEY);
   const hasClientExposedKey = Boolean(process.env.NEXT_PUBLIC_OPENAI_API_KEY);
@@ -80,6 +84,8 @@ export async function POST(request: Request) {
   }
 
   const promptContract = buildSeoAgentPromptContract(bundle.aiAgentInput);
+  const mockOutput = includeMockOutput ? buildMockSeoAgentOutput(bundle.aiAgentInput) : null;
+  const mockOutputValidation = mockOutput ? validateSeoAgentOutput(mockOutput) : null;
   const outputValidationGate = validateSeoAgentOutput(null);
   const canSaveDraft = canSaveSeoPackDraft(bundle.seoPackDraft);
   const blockers = collectGenerationBlockers({ generationEnabled, hasServerKey, dryRun, canSaveDraft, seoPackDraft: bundle.seoPackDraft });
@@ -101,6 +107,8 @@ export async function POST(request: Request) {
       can_save_seo_pack_draft: canSaveDraft,
       prompt_contract_ready: true,
       output_validator_ready: true,
+      mock_output_ready: Boolean(mockOutput),
+      mock_output_validator_passed: Boolean(mockOutputValidation?.ok),
     },
     prompt_contract_summary: summarizeSeoAgentPromptContract(promptContract),
     prompt_contract: includePrompt ? promptContract : undefined,
@@ -109,6 +117,8 @@ export async function POST(request: Request) {
       dry_run_null_output_result: outputValidationGate,
       note: 'The validator is wired. It will validate the real model JSON before any future draft save.',
     },
+    mock_draft_output: mockOutput,
+    mock_draft_validation: mockOutputValidation,
     seo_pack_draft: bundle.seoPackDraft,
     ai_agent_input: bundle.aiAgentInput,
     guardrails: generationGuardrails(),
@@ -130,7 +140,7 @@ export async function POST(request: Request) {
     status: 'generation_not_implemented_yet',
     blocked: true,
     mode: 'preflight_passed_no_model_call',
-    message: 'Preflight passed, prompt contract is ready, but the OpenAI model call is intentionally not implemented in this step.',
+    message: 'Preflight passed, prompt contract is ready, mock output validation is available, but the OpenAI model call is intentionally not implemented in this step.',
     ...preflightPayload,
   }, { status: 501 });
 }
@@ -163,6 +173,7 @@ function generationGuardrails() {
     'The model must consume SeoAgentInputContract, not raw product rows.',
     'The model must return seo_agent_output_v1 JSON only.',
     'Model output must pass validator before any future save.',
+    'Mock output is only for route/UI validation and must not be published.',
     'Product truth and QA gates must outrank keyword volume.',
   ];
 }
