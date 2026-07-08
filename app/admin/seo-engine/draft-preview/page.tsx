@@ -1,64 +1,182 @@
 // @ts-nocheck
 import Link from 'next/link';
-import { ArrowUpRight, CheckCircle2, FileText, ShieldAlert } from 'lucide-react';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
-import { STOREFRONT_VIEW_V1, productSlug, productTitle } from '@/lib/storefront';
-import { buildSeoPilotBrief } from '@/lib/seoPilotDraft';
+import { ArrowUpRight, CheckCircle2, FileText, ShieldAlert, Sparkles } from 'lucide-react';
+import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
+import { buildMockSeoAgentOutput } from '@/lib/seoAgentMockDraft';
+import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const PRODUCT_SELECT = 'canonical_product_id,product_slug,matched_etsy_listing_id,card_title,h1,product_type,material,color,primary_image_url,min_price,max_price,currency,storefront_candidate_flag';
-const KEYWORD_SELECT = 'keyword,keyword_norm,priority_tier,validation_status,cleanup_pipeline_status,should_validate_api,should_hold,warning_flags';
-const FALLBACK_PRODUCT = { canonical_product_id: '4511817111', product_slug: 'gold-futuristic-armor-set-choker-collar-shoulder-armor-and-arm-bracers-performance-outfit-4511817111', matched_etsy_listing_id: '4511817111', card_title: 'Gold Futuristic Armor Set, Choker Collar, Shoulder Armor and Arm Bracers, Performance Outfit', h1: 'Gold Futuristic Armor Set, Choker Collar, Shoulder Armor and Arm Bracers, Performance Outfit', product_type: 'Armor', material: 'Fabric, Leather, Faux leather', color: 'Gold', primary_image_url: null, min_price: 79, max_price: 308, currency: 'EUR', storefront_candidate_flag: true };
+function param(value) {
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value) && typeof value[0] === 'string') return value[0];
+  return '';
+}
 
-function keyOf(product) { return String(product?.canonical_product_id || product?.matched_etsy_listing_id || productSlug(product) || ''); }
-function isSelected(product, selected) { return selected && [product?.canonical_product_id, product?.matched_etsy_listing_id, productSlug(product)].filter(Boolean).map(String).includes(String(selected)); }
-function queryFor(productId, q, angle) { const params = new URLSearchParams(); if (productId) params.set('product', productId); if (q) params.set('q', q); if (angle) params.set('angle', angle); const value = params.toString(); return value ? `?${value}` : ''; }
-async function loadData(selectedProductId) {
-  const supabase = getSupabaseReadClient();
-  if (!supabase) return { product: FALLBACK_PRODUCT, keywords: [], warning: getMissingSupabaseEnvMessage(), fallbackUsed: true };
-  const products = await supabase.from(STOREFRONT_VIEW_V1).select(PRODUCT_SELECT).limit(160);
-  const productRows = (products.data || []).filter((item) => productSlug(item) && productTitle(item));
-  const product = productRows.find((item) => isSelected(item, selectedProductId)) || productRows[0] || FALLBACK_PRODUCT;
-  const keywords = await supabase.from('feya_commerce_v_seo_keyword_ai_cleanup_report_v1').select(KEYWORD_SELECT).eq('priority_tier', 'tier_1').limit(80);
-  return { product, keywords: keywords.data || [], warning: products.error?.message || keywords.error?.message || null, fallbackUsed: !productRows.length };
+function asText(value, fallback = '—') {
+  if (value == null || value === '') return fallback;
+  return String(value);
 }
-function bucket(brief, id, fallback) { return brief.semanticBuckets.find((item) => item.id === id)?.items?.map((item) => item.phrase) || fallback; }
-function makeDrafts(brief) {
-  const components = bucket(brief, 'components', ['shoulder armor', 'arm bracers', 'choker collar']);
-  const persona = bucket(brief, 'persona', ['futuristic warrior', 'sci fi armor outfit']);
-  const event = bucket(brief, 'event', ['stage performance outfit', 'festival armor']);
-  const material = bucket(brief, 'material_color', ['gold armor', 'metallic gold armor']);
-  const title = brief.productTitle;
-  return [
-    { id: 'detail', label: 'Через деталь товара', role: 'лучше для карточки', primary: components[0], secondary: [components[1], material[0]], placement: 'title / H1 / intro / alt', seoTitle: `${components[0]} | Gold Futuristic Performance Armor`, h1: title, meta: `Gold futuristic ${components[0]} with stage-ready armor details for performance styling and festival looks.`, intro: `This draft leads with the real visible product detail: ${components[0]}. It keeps the promise exact, useful and safe for a product page.`, bullets: ['точная деталь товара в первом экране', 'подходит для title/H1/alt', 'меньше риска дубля с похожими товарами'], faq: [`What is included in this ${components[0]} look?`, 'Can it be used for stage performance?', 'How should it be styled for festivals?'], alt: [`${components[0]} in gold futuristic armor look`, `${components[1] || components[0]} detail on performance outfit`], links: ['Armor pieces', 'Stage looks', 'Festival looks'] },
-    { id: 'persona', label: 'Через образ', role: 'для похожего товара', primary: persona[0], secondary: [components[0], event[0]], placement: 'описание / FAQ / вторичные ключи', seoTitle: `${persona[0]} Outfit | Gold Futuristic Armor`, h1: title, meta: `A gold futuristic armor outfit for a ${persona[0]} look, stage styling, photoshoots and festival moments.`, intro: `This draft separates the product from similar listings by building the story around the ${persona[0]} image instead of repeating the same detail-first angle.`, bullets: ['хорошо разводит похожие товары', 'усиливает образ и styling', 'не должен обещать то, чего нет на фото'], faq: [`Is this good for a ${persona[0]} look?`, 'Can it be used for photoshoots?', 'Which details create the armor silhouette?'], alt: [`gold futuristic armor for ${persona[0]} styling`, `${persona[0]} inspired gold armor outfit`], links: ['Futuristic looks', 'Warrior outfits', 'Performance accessories'] },
-    { id: 'event', label: 'Через событие', role: 'для коллекции/посадочной', primary: event[0], secondary: [event[1], components[0]], placement: 'коллекция / посадочная / ссылки', seoTitle: `${event[0]} | Gold Futuristic Armor Set`, h1: title, meta: `Gold futuristic armor for ${event[0]}, festival styling, stage performances and statement photoshoot looks.`, intro: `This draft connects the product to where it will be worn. It is useful for collection traffic and internal links, but still keeps product facts visible.`, bullets: ['лучше для collection/landing', 'можно использовать в where-to-wear блоке', 'широкий ключ не должен вытеснять точную деталь'], faq: [`Is this suitable for ${event[0]}?`, 'How can it be styled for festivals?', 'Is it better for stage or photoshoot use?'], alt: [`gold futuristic armor for ${event[0]}`, 'stage performance gold armor outfit detail'], links: ['Burning Man looks', 'Festival armor', 'Stage outfits'] },
-    { id: 'material', label: 'Через материал / поверхность', role: 'для визуального SEO', primary: material[0], secondary: [material[1], components[0]], placement: 'alt / image SEO / описание', seoTitle: `${material[0]} | Metallic Futuristic Armor`, h1: title, meta: `A ${material[0]} with metallic, reflective styling for stage outfits, futuristic looks and festival performance photos.`, intro: `This draft highlights visual search signals: gold, metallic, glossy and reflective surface language without adding unsupported materials.`, bullets: ['подходит для alt и image SEO', 'усиливает цвет и поверхность', 'нельзя добавлять неверные материалы'], faq: ['Is the finish metallic or reflective?', 'What color is the armor?', 'How should this be described in alt text?'], alt: [`${material[0]} with metallic reflective surface`, 'glossy gold futuristic armor detail'], links: ['Gold outfits', 'Metallic looks', 'Image SEO collection'] },
-  ];
+
+function statusTone(value) {
+  const status = String(value || '').toLowerCase();
+  if (status === 'valid' || status === 'pass' || status === 'draft') return 'success';
+  if (status === 'blocked' || status === 'blocker') return 'danger';
+  return 'warning';
 }
-function Pill({ children }) { return <span className="rounded-full border border-[rgba(216,214,211,.10)] bg-black/20 px-2 py-1 text-[10px] text-[var(--bone-dim)]">{children}</span>; }
-function Section({ label, children }) { return <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3"><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">{label}</div><div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">{children}</div></div>; }
-function ChoiceCard({ draft, active, productId, q }) { return <Link href={`/admin/seo-engine/draft-preview${queryFor(productId, q, draft.id)}`} className={`block rounded-2xl border p-4 transition-colors ${active ? 'border-[rgba(212,178,106,.55)] bg-[rgba(212,178,106,.08)]' : 'border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] hover:border-[rgba(212,178,106,.30)]'}`}><div className="flex items-start justify-between gap-3"><div><div className="text-bone text-[14px]">{draft.label}</div><div className="mt-1 text-[10px] uppercase tracking-[0.16em] text-[var(--gold-warm)]">{draft.role}</div></div>{active ? <CheckCircle2 size={16} className="text-[var(--gold-warm)]" /> : <ArrowUpRight size={15} className="text-[var(--smoke)]" />}</div><div className="mt-3 text-[11px] text-[var(--bone-dim)]">Главный ключ: {draft.primary}</div></Link>; }
+
+function Pill({ children, tone = 'neutral' }) {
+  const cls = tone === 'success'
+    ? 'border-[rgba(108,183,138,.35)] text-[#a9dfbd] bg-[rgba(108,183,138,.08)]'
+    : tone === 'danger'
+      ? 'border-[rgba(196,64,88,.34)] text-[var(--ruby-soft)] bg-[rgba(160,32,56,.08)]'
+      : tone === 'gold' || tone === 'warning'
+        ? 'border-[rgba(212,178,106,.35)] text-[var(--gold-warm)] bg-[rgba(212,178,106,.08)]'
+        : 'border-[rgba(216,214,211,.16)] text-[var(--bone-dim)] bg-black/15';
+  return <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] ${cls}`}>{children}</span>;
+}
+
+function Section({ label, children }) {
+  return <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3">
+    <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">{label}</div>
+    <div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">{children}</div>
+  </div>;
+}
+
+function Fact({ label, value }) {
+  return <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-2.5">
+    <div className="text-[9px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1">{label}</div>
+    <div className="text-[12px] text-bone leading-snug">{asText(value)}</div>
+  </div>;
+}
+
+function Notice({ children, tone = 'warning' }) {
+  const cls = tone === 'danger' ? 'border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)]' : 'border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)]';
+  return <div className={`rounded-2xl border ${cls} p-4 text-[var(--bone-dim)] mb-5`}>{children}</div>;
+}
+
+function ReviewList({ items = [] }) {
+  return items.length ? <ul className="list-disc pl-5 space-y-1.5">{items.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul> : <span>—</span>;
+}
+
+function FaqList({ items = [] }) {
+  return items.length ? <div className="space-y-3">{items.map((item, index) => <div key={`${item.question}-${index}`}>
+    <div className="text-bone text-[12px]">{item.question || 'Question needs review'}</div>
+    <div className="mt-1 text-[12px] leading-relaxed text-[var(--bone-dim)]">{item.answer || 'Answer needs review'}</div>
+    <div className="mt-1"><Pill tone="gold">{item.intent || 'other'}</Pill></div>
+  </div>)}</div> : <span>—</span>;
+}
+
+function Issues({ issues = [] }) {
+  return issues.length ? <div className="grid md:grid-cols-2 gap-2">{issues.map((issue, index) => <div key={`${issue.code}-${index}`} className="rounded-xl border border-[rgba(212,178,106,.22)] bg-black/15 p-3">
+    <div className="flex flex-wrap gap-2 mb-1.5"><Pill tone={issue.severity === 'blocker' ? 'danger' : 'warning'}>{issue.severity || 'issue'}</Pill><Pill>{issue.code || 'validation'}</Pill></div>
+    <div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">{issue.message || 'Needs review'}</div>
+  </div>)}</div> : <div className="rounded-xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.06)] p-3 text-[12px] text-[#a9dfbd]">Validator не нашёл blocker issues в mock output.</div>;
+}
+
 export default async function SeoDraftPreviewPage({ searchParams }) {
   const params = await searchParams;
-  const selectedProductId = params?.product || '';
-  const q = String(params?.q || '').trim();
-  const { product, keywords, warning, fallbackUsed } = await loadData(selectedProductId);
-  const activeKey = keyOf(product);
-  const brief = buildSeoPilotBrief(product, keywords);
-  const drafts = makeDrafts(brief);
-  const activeId = params?.angle || 'detail';
-  const active = drafts.find((draft) => draft.id === activeId) || drafts[0];
-  const blockers = ['Метрики ещё не подтверждены', 'Запись в Supabase отключена', 'Нужна ручная проверка title/meta/claims', 'Проверка похожести пока только как направление, не финальный блокер'];
-  const query = queryFor(activeKey, q, active.id);
-  return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]"><section className="container-feya pt-7 pb-12">
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-5 mb-5"><div><div className="eyebrow-gold mb-2">Админка · SEO · активный черновик</div><h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,64px)' }}>Выбор угла и SEO-черновик</h1><p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Экран уважает товар, выбранный в Studio. Записи в Supabase и публикации нет.</p></div><div className="flex flex-wrap gap-2"><Link href={`/admin/seo-engine/studio${queryFor(activeKey, q, '')}`} className="btn-ghost">Назад в Studio <ArrowUpRight size={13} /></Link><Link href={`/admin/seo-engine/angle-advisor${queryFor(activeKey, q, '')}`} className="btn-ghost">Советник угла <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine/metric-import" className="btn-ghost">Импорт метрик <ArrowUpRight size={13} /></Link></div></div>
-    {warning || fallbackUsed ? <div className="mb-5 rounded-xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] px-3 py-2 text-[12px] text-[var(--bone-dim)]">{warning || 'Включён защитный образец товара.'}</div> : null}
-    <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4 mb-5"><div className="eyebrow-gold mb-2">Выбранный товар</div><div className="text-bone text-[18px] leading-tight">{brief.productTitle}</div><div className="mt-2 text-[11px] text-[var(--bone-dim)]">ID: {activeKey} · Адрес товара: /{brief.productSlug}</div></div>
-    <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 mb-5">{drafts.map((draft) => <ChoiceCard key={draft.id} draft={draft} active={draft.id === active.id} productId={activeKey} q={q} />)}</div>
-    <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden"><div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold">Активный черновик</div><div className="mt-1 text-bone text-[18px]">{active.label}</div></div><FileText size={17} className="text-[var(--gold-warm)]" /></div><div className="p-4 grid lg:grid-cols-[1fr_.75fr] gap-4"><div className="space-y-3"><Section label="Главный ключ">{active.primary}</Section><Section label="SEO title">{active.seoTitle}</Section><Section label="H1">{active.h1}</Section><Section label="Meta description">{active.meta}</Section><Section label="Intro">{active.intro}</Section></div><div className="space-y-3"><Section label="Вторичные ключи"><div className="flex flex-wrap gap-1.5">{active.secondary.filter(Boolean).map((item) => <Pill key={item}>{item}</Pill>)}</div></Section><Section label="Bullets"><ul className="list-disc pl-5 space-y-1">{active.bullets.map((item) => <li key={item}>{item}</li>)}</ul></Section><Section label="FAQ"><ul className="list-disc pl-5 space-y-1">{active.faq.map((item) => <li key={item}>{item}</li>)}</ul></Section><Section label="Alt-тексты"><ul className="list-disc pl-5 space-y-1">{active.alt.map((item) => <li key={item}>{item}</li>)}</ul></Section><Section label="Внутренние ссылки"><div className="flex flex-wrap gap-1.5">{active.links.map((item) => <Pill key={item}>{item}</Pill>)}</div></Section></div></div></div>
-    <div className="mt-5 rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4"><div className="flex items-center gap-2 text-bone text-[14px] mb-3"><ShieldAlert size={16} className="text-[var(--gold-warm)]" /> QA-блокеры перед сохранением</div><div className="grid md:grid-cols-2 gap-2">{blockers.map((item) => <div key={item} className="rounded-xl border border-[rgba(212,178,106,.20)] bg-[rgba(212,178,106,.06)] p-3 text-[11px] text-[var(--bone-dim)]">{item}</div>)}</div></div>
-  </section></main>;
+  const productId = param(params?.product_id || params?.product).trim();
+  const bundle = await buildSeoBriefContractBundle(productId);
+  const mockDraft = bundle.aiAgentInput ? buildMockSeoAgentOutput(bundle.aiAgentInput) : null;
+  const validation = mockDraft ? validateSeoAgentOutput(mockDraft) : null;
+  const product = bundle.product || null;
+  const brief = bundle.brief || null;
+  const seoPackDraft = bundle.seoPackDraft || null;
+  const activeProductId = seoPackDraft?.canonical_product_id || product?.canonical_product_id || productId;
+
+  return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
+    <section className="container-feya pt-7 pb-12">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-5 mb-5">
+        <div>
+          <div className="eyebrow-gold mb-2">Админка · SEO · draft review</div>
+          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,64px)' }}>SEO draft review</h1>
+          <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Этот экран больше не создаёт отдельный старый мир черновиков. Он использует тот же SEO Brief contract bundle, mock/AI output contract и validator, что и generation preflight.</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {activeProductId ? <Link href={`/admin/seo-engine/briefs?product_id=${activeProductId}`} className="btn-ghost">Назад к SEO Brief <ArrowUpRight size={13} /></Link> : null}
+          {activeProductId ? <Link href={`/api/admin/seo-engine/brief-contract?product_id=${activeProductId}`} className="btn-ghost" target="_blank">JSON contract <ArrowUpRight size={13} /></Link> : null}
+          <Link href="/admin/seo-engine/metric-import" className="btn-ghost">Импорт метрик <ArrowUpRight size={13} /></Link>
+        </div>
+      </div>
+
+      {bundle.error ? <Notice tone="danger">{bundle.error}</Notice> : null}
+      {!product ? <Notice tone="danger">Товар не найден в Product Focus view. Открой SEO Brief с конкретным product_id.</Notice> : null}
+      {product && !bundle.decision ? <Notice>Для этого товара нет сохранённого Listing Master decision. Mock draft может быть неполным, потому что нет ручного Product DNA и выбранных ключей.</Notice> : null}
+
+      {product && brief && seoPackDraft && mockDraft ? <>
+        <div className="grid lg:grid-cols-[.9fr_1.1fr] gap-5 mb-5">
+          <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
+            <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div className="eyebrow-gold">Source product</div><FileText size={17} className="text-[var(--gold-warm)]" /></div>
+            <div className="p-4">
+              <div className="grid sm:grid-cols-[118px_1fr] gap-4">
+                <div className="h-32 rounded-xl overflow-hidden border border-[rgba(216,214,211,.10)] bg-black/30">
+                  {product.primary_image_url ? <img src={product.primary_image_url} alt={product.primary_image_alt || product.card_title || ''} className="h-full w-full object-cover" /> : <div className="h-full flex items-center justify-center text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">нет фото</div>}
+                </div>
+                <div>
+                  <div className="text-bone text-[18px] leading-tight">{brief.productTitle}</div>
+                  <div className="mt-2 text-[11px] text-[var(--bone-dim)]">ID: {activeProductId} · /{brief.productSlug}</div>
+                  <div className="mt-4 grid sm:grid-cols-2 gap-2">
+                    <Fact label="Pack status" value={seoPackDraft.status} />
+                    <Fact label="Brief status" value={brief.status} />
+                    <Fact label="Primary keywords" value={seoPackDraft.keyword_roles.primary.length} />
+                    <Fact label="Secondary keywords" value={seoPackDraft.keyword_roles.secondary.length} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
+            <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div className="eyebrow-gold">Review gates</div><ShieldAlert size={17} className="text-[var(--gold-warm)]" /></div>
+            <div className="p-4 space-y-3">
+              <div className="grid sm:grid-cols-3 gap-2">
+                <Fact label="Mock output" value={mockDraft.status} />
+                <Fact label="Validator" value={validation?.status || 'unknown'} />
+                <Fact label="Save allowed" value="no" />
+              </div>
+              <div className="rounded-xl border border-[rgba(212,178,106,.25)] bg-[rgba(212,178,106,.06)] p-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">
+                Это review preview, а не production save. Supabase save, OpenAI generation и publish остаются заблокированы до storage contract, human review и similarity/cannibalization gate.
+              </div>
+              <div className="flex flex-wrap gap-2"><Pill tone={statusTone(validation?.status)}>{validation?.status || 'not_checked'}</Pill><Pill tone="warning">no Supabase write</Pill><Pill tone="warning">no publish</Pill><Pill tone="warning">mock only</Pill></div>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden mb-5">
+          <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold">Mock / future AI draft</div><div className="mt-1 text-bone text-[18px]">seo_agent_output_v1</div></div><Sparkles size={17} className="text-[var(--gold-warm)]" /></div>
+          <div className="p-4 grid lg:grid-cols-[1fr_.85fr] gap-4">
+            <div className="space-y-3">
+              <Section label="SEO title">{mockDraft.seo_title}</Section>
+              <Section label="H1">{mockDraft.h1}</Section>
+              <Section label="Meta description">{mockDraft.meta_description}</Section>
+              <Section label="Intro">{mockDraft.intro}</Section>
+            </div>
+            <div className="space-y-3">
+              <Section label="Bullets"><ReviewList items={mockDraft.bullet_highlights || []} /></Section>
+              <Section label="FAQ"><FaqList items={mockDraft.faq || []} /></Section>
+              <Section label="Image ALT candidates"><ReviewList items={(mockDraft.image_alt_candidates || []).map((item) => `${item.alt_text || 'ALT review needed'} · ${item.truth_basis || 'unknown'}`)} /></Section>
+              <Section label="Internal links"><ReviewList items={(mockDraft.internal_linking_hints || []).map((item) => `${item.anchor || 'anchor'} → ${item.target_type || 'target'} · ${item.reason || 'needs review'}`)} /></Section>
+              <Section label="Generation notes"><ReviewList items={mockDraft.generation_notes || []} /></Section>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden mb-5">
+          <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold">Validator result</div><div className="mt-1 text-bone text-[18px]">Before any future save</div></div><CheckCircle2 size={17} className="text-[var(--gold-warm)]" /></div>
+          <div className="p-4"><Issues issues={validation?.issues || []} /></div>
+        </div>
+
+        <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4">
+          <div className="eyebrow-gold mb-3">Next actions are intentionally disabled</div>
+          <div className="flex flex-wrap gap-3">
+            <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Save draft to Supabase заблокирован</button>
+            <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Approve for publish заблокирован</button>
+            <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Run real OpenAI заблокирован</button>
+          </div>
+        </div>
+      </> : null}
+    </section>
+  </main>;
 }
