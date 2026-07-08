@@ -144,11 +144,16 @@ export type SeoPilotBrief = {
 
 type ProductKeywordProfile = {
   text: string;
+  titleText: string;
   allowedComponents: string[];
   allowedStyleEventTerms: string[];
   allowedMaterialColorTerms: string[];
   manualTerms: string[];
   excludedTerms: string[];
+  primaryTruth: string[];
+  secondaryTruth: string[];
+  imageTruth: string[];
+  cyberpunkMain: boolean;
 };
 
 const COMPONENT_GROUPS: Record<string, string[]> = {
@@ -169,9 +174,16 @@ const STYLE_EVENT_TERMS = ['festival', 'stage', 'performance', 'performer', 'dan
 const MATERIAL_COLOR_TERMS = ['gold', 'golden', 'silver', 'chrome', 'mirror', 'acrylic', 'leather', 'faux leather', 'vegan leather', 'black', 'white', 'red', 'holographic', 'silicone', 'metallic', 'reflective', 'glossy'];
 const IMPLIED_ARMOR_SURFACE_TERMS = ['metallic', 'reflective', 'glossy', 'mirror'];
 const COMMERCIAL_INTENT_PATTERN = /\b(buy|shop|shops|shopping|order|online|price|cost|shipping|delivery|custom|made to order|where to buy|for sale)\b/i;
-const COLLECTION_PATTERN = /\b(festival outfit|festival costume|festival wear|festival clothing|rave outfit|rave wear|burning man outfit|burning man costume|burning man festival|cyberpunk festival outfit)\b/i;
+const COLLECTION_PATTERN = /\b(festival outfit|festival outfits|festival costume|festival costumes|festival wear|festival clothing|rave outfit|rave outfits|rave wear|burning man outfit|burning man outfits|burning man costume|burning man festival|men'?s burning man clothes|men'?s edm festival clothing|gold festival outfit|festival outfits gold|cyberpunk festival outfit)\b/i;
 const CLICHE_PATTERN = /\b(elevate your look|perfect for any occasion|crafted to perfection|turn heads|make a statement|must have)\b/i;
-const FORBIDDEN_PATTERN = /\b(kids|child|bridal|wedding|lego|snake|medical|safety harness|fall protection|diy|pattern|template)\b/i;
+const GLOBAL_FORBIDDEN_PATTERN = /\b(lego|pokemon|pokémon|my little pony|saint patrick|st patrick|santa|gatsby|dinosaur|medical|safety harness|fall protection|diy|pattern|template)\b/i;
+const PRODUCT_FORBIDDEN_PATTERN = /\b(women|woman|female|bodysuit|body suit|panties|underwear|garters|garter|choker|snake|neon|kids|child|children|wedding|bridal)\b/i;
+const PRODUCT_SPECIFIC_EXCLUSIONS = ['women', 'bodysuit', 'panties', 'garters', 'choker', 'snake', 'neon', 'kids', 'wedding', 'bridal'];
+const GLOBAL_BLOCKLIST_NOTE = ['lego', 'pokemon', 'my little pony', 'st patrick', 'santa', 'gatsby', 'dinosaur'];
+const PRIMARY_TRUTH_ORDER = ['post apocalyptic shoulder armor', 'warrior shoulder armor', 'futuristic shoulder armor'];
+const SECONDARY_TRUTH_ORDER = ['cyberpunk shoulder armor', 'gold shoulder armor', 'gold shoulders', 'warrior shoulders'];
+const IMAGE_TRUTH_ORDER = ['gold shoulder armor', 'gold shoulders', 'warrior shoulders'];
+const COLLECTION_TRUTH_ORDER = ['burning man festival costume', 'burning man festival outfits', "men's burning man clothes", "men's edm festival clothing", 'gold festival outfit', 'festival outfits gold', 'cyberpunk festival outfit'];
 
 function clean(value: unknown, fallback = '—') {
   if (value == null || value === '') return fallback;
@@ -204,6 +216,16 @@ function splitFocusValue(value: unknown): string[] {
     .split(/[|,;]+/)
     .map((item) => normalize(item))
     .filter(Boolean);
+}
+
+function uniqueStrings(items: string[]) {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const key = normalize(item);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 function focusTerms(manualFocus?: SeoManualFocus) {
@@ -241,8 +263,11 @@ function humanizeColor(product: StorefrontProduct) {
   return raw;
 }
 
-function humanizeWorld(product: StorefrontProduct) {
+function humanizeWorld(product: StorefrontProduct, manualFocus: SeoManualFocus = {}) {
+  const title = normalize(productTitle(product));
+  const focus = focusTerms(manualFocus);
   const raw = clean(worldLabel(product), 'Stage look');
+  if (hasTerm(`${title} ${focus.event.join(' ')}`, 'burning man')) return 'Burning Man';
   if (!raw || raw === 'Product') return 'Stage look';
   return raw.replace(/_/g, ' ');
 }
@@ -253,8 +278,9 @@ function humanizeMaterial(product: StorefrontProduct) {
 
 function productProfile(product: StorefrontProduct, manualFocus: SeoManualFocus = {}): ProductKeywordProfile {
   const focus = focusTerms(manualFocus);
+  const titleText = normalize(productTitle(product));
   const focusText = focus.all.join(' ');
-  const text = normalize(`${productTitle(product)} ${humanizeCategory(product)} ${humanizeColor(product)} ${humanizeWorld(product)} ${humanizeMaterial(product)} ${product.material || ''} ${product.color || ''} ${focusText}`);
+  const text = normalize(`${titleText} ${humanizeCategory(product)} ${humanizeColor(product)} ${humanizeWorld(product, manualFocus)} ${humanizeMaterial(product)} ${product.material || ''} ${product.color || ''} ${focusText}`);
   const allowedComponents = new Set<string>();
   const allowedMaterialColorTerms = new Set<string>(MATERIAL_COLOR_TERMS.filter((term) => hasTerm(text, term)));
   const allowedStyleEventTerms = new Set<string>(STYLE_EVENT_TERMS.filter((term) => hasTerm(text, term) || ['festival', 'stage', 'performance', 'outfit', 'costume'].includes(term)));
@@ -274,12 +300,14 @@ function productProfile(product: StorefrontProduct, manualFocus: SeoManualFocus 
       allowedComponents.add('armor');
     }
   });
+
   [...focus.event, ...focus.style, ...focus.persona, ...focus.audience].forEach((term) => {
     allowedStyleEventTerms.add(term);
     if (term === 'post apocalyptic') allowedStyleEventTerms.add('apocalyptic');
     if (term === 'cyberpunk') allowedStyleEventTerms.add('cyber');
     if (term === 'men') allowedStyleEventTerms.add("men's");
   });
+
   focus.material.forEach((term) => {
     allowedMaterialColorTerms.add(term);
     if (term === 'gold') allowedMaterialColorTerms.add('golden');
@@ -294,13 +322,37 @@ function productProfile(product: StorefrontProduct, manualFocus: SeoManualFocus 
     IMPLIED_ARMOR_SURFACE_TERMS.forEach((term) => allowedMaterialColorTerms.add(term));
   }
 
+  const productTruthText = `${titleText} ${focusText}`;
+  const hasShoulderArmor = hasTerm(text, 'shoulder') && hasTerm(text, 'armor');
+  const primaryTruth = PRIMARY_TRUTH_ORDER.filter((phrase) => {
+    if (!hasShoulderArmor) return false;
+    if (phrase.startsWith('post apocalyptic')) return hasTerm(productTruthText, 'post apocalyptic') || hasTerm(productTruthText, 'apocalyptic');
+    if (phrase.startsWith('warrior')) return hasTerm(productTruthText, 'warrior');
+    if (phrase.startsWith('futuristic')) return hasTerm(productTruthText, 'futuristic');
+    return false;
+  });
+  const secondaryTruth = SECONDARY_TRUTH_ORDER.filter((phrase) => {
+    if (!hasShoulderArmor && phrase.includes('shoulder armor')) return false;
+    if (phrase.includes('gold')) return hasTerm(text, 'gold');
+    if (phrase.includes('warrior')) return hasTerm(productTruthText, 'warrior');
+    if (phrase.includes('cyberpunk')) return hasTerm(productTruthText, 'cyberpunk');
+    return true;
+  });
+  const imageTruth = IMAGE_TRUTH_ORDER.filter((phrase) => phrase.includes('gold') ? hasTerm(text, 'gold') : hasTerm(productTruthText, 'warrior'));
+  const cyberpunkMain = hasTerm(titleText, 'cyberpunk') && !primaryTruth.some((phrase) => phrase.startsWith('post apocalyptic') || phrase.startsWith('warrior'));
+
   return {
     text,
+    titleText,
     allowedComponents: Array.from(allowedComponents),
     allowedStyleEventTerms: Array.from(allowedStyleEventTerms),
     allowedMaterialColorTerms: Array.from(allowedMaterialColorTerms),
     manualTerms: focus.all,
     excludedTerms: focus.exclude,
+    primaryTruth,
+    secondaryTruth,
+    imageTruth,
+    cyberpunkMain,
   };
 }
 
@@ -348,6 +400,17 @@ function metricDemandScore(keyword: SeoPilotKeyword) {
   return 0;
 }
 
+function exactPhrasePriority(word: string, profile: ProductKeywordProfile) {
+  const exactPrimaryIndex = profile.primaryTruth.findIndex((phrase) => normalize(phrase) === word);
+  if (exactPrimaryIndex >= 0) return { score: 120 - exactPrimaryIndex * 8, reason: 'product truth priority: title/manual focus beats raw volume' };
+  if (word === 'cyberpunk shoulder armor') return { score: profile.cyberpunkMain ? 70 : 22, reason: profile.cyberpunkMain ? 'cyberpunk is title-level product truth' : 'cyberpunk is adjacent style, kept secondary/support' };
+  const exactSecondaryIndex = profile.secondaryTruth.findIndex((phrase) => normalize(phrase) === word);
+  if (exactSecondaryIndex >= 0) return { score: 46 - exactSecondaryIndex * 4, reason: 'secondary product support / image truth' };
+  const exactCollectionIndex = COLLECTION_TRUTH_ORDER.findIndex((phrase) => normalize(phrase) === word);
+  if (exactCollectionIndex >= 0) return { score: 34 - exactCollectionIndex * 2, reason: 'collection/internal linking intent, not product primary' };
+  return { score: 0, reason: '' };
+}
+
 function scoreKeyword(keyword: SeoPilotKeyword, profile: ProductKeywordProfile): SeoPilotKeyword {
   const word = normalize(keyword.keyword_norm || keyword.keyword);
   const componentTerms = keywordTerms(word, Object.values(COMPONENT_GROUPS).flat());
@@ -358,9 +421,10 @@ function scoreKeyword(keyword: SeoPilotKeyword, profile: ProductKeywordProfile):
   const matchedStyle = styleTerms.filter((term) => profile.allowedStyleEventTerms.includes(term));
   const matchedMaterial = materialTerms.filter((term) => profile.allowedMaterialColorTerms.includes(term));
   const mismatchedMaterial = materialTerms.filter((term) => !matchedMaterial.includes(term));
+  const exact = exactPhrasePriority(word, profile);
 
-  if (FORBIDDEN_PATTERN.test(word)) {
-    return { ...keyword, pilot_relevance_score: -120, pilot_strategy_bucket: 'rejected_mismatch', pilot_relevance_reason: 'отброшено: запрещённый или чужой intent' };
+  if (GLOBAL_FORBIDDEN_PATTERN.test(word) || PRODUCT_FORBIDDEN_PATTERN.test(word)) {
+    return { ...keyword, pilot_relevance_score: -120, pilot_strategy_bucket: 'rejected_mismatch', pilot_relevance_reason: 'отброшено: запрещённый, чужой или product-specific excluded intent' };
   }
 
   if (mismatchedComponents.length) {
@@ -371,14 +435,15 @@ function scoreKeyword(keyword: SeoPilotKeyword, profile: ProductKeywordProfile):
     return { ...keyword, pilot_relevance_score: -90, pilot_strategy_bucket: 'rejected_mismatch', pilot_relevance_reason: `отброшено: в товаре нет цвета/материала ${mismatchedMaterial[0]}` };
   }
 
-  let score = 0;
-  const reasons: string[] = [];
+  let score = exact.score;
+  const reasons: string[] = exact.reason ? [exact.reason] : [];
   if (matchedComponents.length) {
     score += 70 + matchedComponents.length * 5;
     reasons.push(`деталь товара: ${matchedComponents.slice(0, 2).join(', ')}`);
   }
   if (matchedStyle.length) {
-    score += 25 + matchedStyle.length * 3;
+    const cyberpunkSoftener = word === 'cyberpunk shoulder armor' && !profile.cyberpunkMain ? -18 : 0;
+    score += 25 + matchedStyle.length * 3 + cyberpunkSoftener;
     reasons.push(`стиль/событие: ${matchedStyle.slice(0, 2).join(', ')}`);
   }
   if (matchedMaterial.length) {
@@ -390,7 +455,7 @@ function scoreKeyword(keyword: SeoPilotKeyword, profile: ProductKeywordProfile):
     reasons.push(`метрика подтверждена: ${clean(keyword.avg_monthly_searches, '0')} / ${clean(keyword.competition, '—')}`);
   }
 
-  if (!matchedComponents.length && !matchedStyle.length) {
+  if (!matchedComponents.length && !matchedStyle.length && !exact.score) {
     return { ...keyword, pilot_relevance_score: score, pilot_strategy_bucket: 'rejected_mismatch', pilot_relevance_reason: 'отброшено: есть только цвет/общее слово, нет детали или события' };
   }
 
@@ -401,7 +466,7 @@ function scoreKeywords(keywords: SeoPilotKeyword[], product: StorefrontProduct, 
   const profile = productProfile(product, manualFocus);
   return uniqueKeywords(keywords)
     .filter((keyword) => keyword.should_hold !== true)
-    .filter((keyword) => ['tier 1', 'tier1', ''].includes(normalize(keyword.priority_tier)))
+    .filter((keyword) => ['tier 1', 'tier1', 'tier_1', ''].includes(normalize(keyword.priority_tier)))
     .map((keyword) => scoreKeyword(keyword, profile))
     .sort((a, b) => (b.pilot_relevance_score || 0) - (a.pilot_relevance_score || 0));
 }
@@ -409,7 +474,7 @@ function scoreKeywords(keywords: SeoPilotKeyword[], product: StorefrontProduct, 
 function selectCandidateKeywords(keywords: SeoPilotKeyword[], product: StorefrontProduct, manualFocus: SeoManualFocus = {}) {
   return scoreKeywords(keywords, product, manualFocus)
     .filter((keyword) => (keyword.pilot_relevance_score || 0) >= 25 && keyword.pilot_strategy_bucket !== 'rejected_mismatch')
-    .slice(0, 18);
+    .slice(0, 24);
 }
 
 function selectRejectedKeywords(keywords: SeoPilotKeyword[], product: StorefrontProduct, manualFocus: SeoManualFocus = {}) {
@@ -418,7 +483,7 @@ function selectRejectedKeywords(keywords: SeoPilotKeyword[], product: Storefront
     .slice(0, 8);
 }
 
-function roleForKeyword(keyword: SeoPilotKeyword): SeoPilotKeywordRole {
+function roleForKeyword(keyword: SeoPilotKeyword, profile: ProductKeywordProfile): SeoPilotKeywordRole {
   const word = normalize(keyword.keyword_norm || keyword.keyword);
   const bucket = normalize(keyword.bank_bucket || keyword.page_type);
   const validated = hasValidatedMetric(keyword);
@@ -428,22 +493,26 @@ function roleForKeyword(keyword: SeoPilotKeyword): SeoPilotKeywordRole {
   if (!validated) return 'hold';
   if (COMMERCIAL_INTENT_PATTERN.test(word)) return 'faq_commercial';
   if (bucket.includes('collection') || COLLECTION_PATTERN.test(word)) return 'collection';
-  if (/\b(gold shoulders|warrior shoulders|gold shoulder armor)\b/.test(word)) return 'image_alt';
-  if (/\b(post apocalyptic shoulder armor|warrior shoulder armor|futuristic shoulder armor)\b/.test(word)) return 'primary';
-  if (keyword.pilot_strategy_bucket === 'component_exact') return (keyword.pilot_relevance_score || 0) >= 85 ? 'primary' : 'secondary';
+  if (profile.primaryTruth.some((phrase) => normalize(phrase) === word)) return 'primary';
+  if (word === 'cyberpunk shoulder armor') return profile.cyberpunkMain ? 'primary' : 'secondary';
+  if (word === 'gold shoulder armor') return 'secondary';
+  if (profile.imageTruth.some((phrase) => normalize(phrase) === word)) return 'image_alt';
+  if (profile.secondaryTruth.some((phrase) => normalize(phrase) === word)) return 'support';
+  if (keyword.pilot_strategy_bucket === 'component_exact') return 'secondary';
   if (keyword.pilot_strategy_bucket === 'style_event') return 'support';
   return 'support';
 }
 
-function decorateKeywordRoles(keywords: SeoPilotKeyword[]) {
+function decorateKeywordRoles(keywords: SeoPilotKeyword[], product: StorefrontProduct, manualFocus: SeoManualFocus = {}) {
+  const profile = productProfile(product, manualFocus);
   return keywords.map((keyword) => {
-    const role = roleForKeyword(keyword);
+    const role = roleForKeyword(keyword, profile);
     const reason = role === 'primary'
-      ? 'точный компонент + product truth + подтверждённая метрика'
+      ? 'точный product truth keyword: title/manual focus выше raw score/volume'
       : role === 'secondary'
-        ? 'сильный товарный ключ для H2/body/bullets'
+        ? 'сильный товарный ключ для H2/body/bullets; не вытесняет главный product truth'
         : role === 'image_alt'
-          ? 'визуально подтверждаемый цвет/деталь, безопасно для alt и описания фото'
+          ? 'визуально подтверждаемая деталь для alt и описания фото'
           : role === 'collection'
             ? 'широкий event/style intent лучше вести в collection/internal links'
             : role === 'faq_commercial'
@@ -451,7 +520,7 @@ function decorateKeywordRoles(keywords: SeoPilotKeyword[]) {
               : role === 'hold'
                 ? 'нет usable metric или нужен ручной review'
                 : role === 'reject'
-                  ? 'противоречит товару или запрещённый intent'
+                  ? 'противоречит товару, global blacklist или product-specific exclusions'
                   : 'поддерживающий ключ для естественного текста';
     return { ...keyword, pilot_role: role, pilot_role_reason: reason };
   });
@@ -492,14 +561,12 @@ function buildSemanticBuckets(product: StorefrontProduct, candidateKeywords: Seo
   const title = productTitle(product);
   const category = humanizeCategory(product);
   const color = humanizeColor(product);
-  const world = humanizeWorld(product);
+  const world = humanizeWorld(product, manualFocus);
   const material = humanizeMaterial(product);
   const focus = focusTerms(manualFocus);
   const lower = normalize(`${title} ${category} ${color} ${world} ${material} ${focus.all.join(' ')}`);
   const hasArmor = hasTerm(lower, 'armor');
   const hasShoulder = hasTerm(lower, 'shoulder') || hasTerm(lower, 'shoulders');
-  const hasChoker = hasTerm(lower, 'choker') || hasTerm(lower, 'collar');
-  const hasBracers = hasTerm(lower, 'bracer') || hasTerm(lower, 'bracers');
   const hasGold = hasTerm(lower, 'gold') || hasTerm(lower, 'golden');
   const hasFuturistic = hasTerm(lower, 'futuristic');
   const hasPostApocalyptic = hasTerm(lower, 'post apocalyptic') || hasTerm(lower, 'apocalyptic');
@@ -508,63 +575,37 @@ function buildSemanticBuckets(product: StorefrontProduct, candidateKeywords: Seo
   const componentItems = uniqueSuggestions([
     hasArmor ? seed('armor set', 'главная товарная деталь из названия', 'product_fact') : null,
     hasShoulder ? seed('shoulder armor', 'точная часть товара', 'product_fact') : null,
-    hasBracers ? seed('arm bracers', 'точная часть товара', 'product_fact') : null,
-    hasBracers ? seed('arm covers', 'синоним для bracers / arm pieces', 'strategy_seed') : null,
-    hasChoker ? seed('choker collar', 'точная часть товара', 'product_fact') : null,
     hasArmor && hasShoulder ? seed('shoulder armor set', 'комбинация главной детали и комплекта', 'strategy_seed') : null,
     ...queueSeeds,
   ].filter(Boolean) as SeoSemanticSuggestion[]).slice(0, 12);
 
   const styleItems = uniqueSuggestions([
-    hasFuturistic ? seed('futuristic armor', 'стиль прямо указан в названии/фокусе', 'product_fact') : null,
     hasPostApocalyptic && hasShoulder ? seed('post apocalyptic shoulder armor', 'manual focus + точная деталь товара', 'strategy_seed') : null,
-    hasFuturistic && hasArmor ? seed('cyber armor', 'близкий стиль для futuristic armor', 'strategy_seed') : null,
-    hasArmor ? seed('warrior armor', 'персонажная стратегия для armor', 'strategy_seed') : null,
-    hasArmor ? seed('robot armor', 'соседний визуальный мир для futuristic armor', 'strategy_seed') : null,
-    seed('performance outfit', 'назначение для stage/festival контекста', 'product_fact'),
+    hasArmor ? seed('warrior shoulder armor', 'персонажная стратегия для armor + shoulders', 'strategy_seed') : null,
+    hasFuturistic && hasShoulder ? seed('futuristic shoulder armor', 'стиль прямо указан в названии/фокусе', 'product_fact') : null,
+    hasArmor ? seed('cyberpunk shoulder armor', 'secondary adjacent style, не главный angle если product truth сильнее', 'strategy_seed') : null,
     seed('stage outfit', 'сценический контекст товара', 'strategy_seed'),
   ].filter(Boolean) as SeoSemanticSuggestion[]).slice(0, 12);
 
   const eventItems = uniqueSuggestions([
-    seed('stage performance outfit', 'событие / использование: выступление', 'strategy_seed'),
-    seed('festival armor', 'festival/rave стратегия для похожих FEYA товаров', 'strategy_seed'),
-    seed('rave armor', 'низко- и среднечастотная event-гипотеза', 'strategy_seed'),
-    seed('burning man armor', 'ивент-гипотеза для пустынного/futuristic visual world', 'strategy_seed'),
+    seed('burning man festival costume', 'event + product context для internal/collection', 'strategy_seed'),
+    seed('burning man festival outfits', 'широкий collection intent', 'strategy_seed'),
+    seed("men's burning man clothes", 'аудитория + событие, лучше для collection/internal', 'strategy_seed'),
+    seed("men's EDM festival clothing", 'аудитория + rave/EDM intent, не product title', 'strategy_seed'),
     seed('desert festival outfit', 'ивент + визуальный мир', 'strategy_seed'),
   ]).slice(0, 12);
 
-  const personaItems = uniqueSuggestions([
-    hasArmor ? seed('futuristic warrior', 'персонажная стратегия для armor + futuristic', 'strategy_seed') : null,
-    hasArmor ? seed('desert warrior outfit', 'персонаж + Burning Man/desert strategy', 'strategy_seed') : null,
-    hasArmor ? seed('robot warrior costume', 'персонаж + futuristic armor', 'strategy_seed') : null,
-    hasArmor ? seed('sci fi armor outfit', 'sci-fi стратегия без привязки к брендам/франшизам', 'strategy_seed') : null,
-  ].filter(Boolean) as SeoSemanticSuggestion[]).slice(0, 12);
-
   const materialItems = uniqueSuggestions([
-    hasGold && hasArmor ? seed('gold armor', 'цвет + главная деталь товара', 'product_fact') : null,
-    hasGold && hasArmor ? seed('metallic gold armor', 'surface/style термин для золотой брони', 'strategy_seed') : null,
-    hasGold && hasArmor ? seed('reflective gold armor', 'surface/style термин для глянцевой/зеркальной поверхности', 'strategy_seed') : null,
-    hasGold && hasArmor ? seed('glossy gold armor', 'surface/style термин для блеска', 'strategy_seed') : null,
-    hasGold && hasChoker ? seed('gold choker collar', 'цвет + точная часть товара', 'product_fact') : null,
-    hasGold && hasShoulder ? seed('gold shoulder armor', 'цвет + точная часть товара', 'product_fact') : null,
-  ].filter(Boolean) as SeoSemanticSuggestion[]).slice(0, 12);
-
-  const longTailItems = uniqueSuggestions([
-    hasGold && hasFuturistic && hasShoulder ? seed('gold futuristic shoulder armor', 'long-tail из цвета, стиля и детали', 'strategy_seed') : null,
-    hasGold && hasChoker && hasBracers ? seed('gold choker collar and arm bracers', 'long-tail по фактическим компонентам', 'strategy_seed') : null,
-    hasShoulder && hasBracers ? seed('shoulder armor and arm bracers outfit', 'long-tail по комплекту', 'strategy_seed') : null,
-    hasFuturistic && hasArmor ? seed('futuristic performance armor outfit', 'long-tail: стиль + назначение + деталь', 'strategy_seed') : null,
-    hasGold && hasArmor ? seed('gold armor set for stage performance', 'long-tail под коммерческое назначение', 'strategy_seed') : null,
-    hasArmor ? seed('futuristic warrior armor costume', 'long-tail под persona strategy', 'strategy_seed') : null,
+    hasGold && hasArmor ? seed('gold shoulder armor', 'цвет + точная часть товара', 'product_fact') : null,
+    hasGold && hasShoulder ? seed('gold shoulders', 'видимая деталь для image ALT', 'product_fact') : null,
+    hasArmor ? seed('warrior shoulders', 'видимая/персонажная деталь для image ALT/support', 'strategy_seed') : null,
   ].filter(Boolean) as SeoSemanticSuggestion[]).slice(0, 12);
 
   const buckets: SeoSemanticBucket[] = [
     { id: 'components', label: 'Детали товара', purpose: 'То, что реально входит в товар. Самая безопасная база для title/H1/body.', items: componentItems },
-    { id: 'style', label: 'Стиль', purpose: 'Визуальное направление: futuristic, cyber, warrior, stage.', items: styleItems },
-    { id: 'event', label: 'Событие', purpose: 'Где покупатель будет это использовать: stage, festival, rave, Burning Man.', items: eventItems },
-    { id: 'persona', label: 'Персонаж / образ', purpose: 'Образ покупателя или роли: warrior, robot, sci-fi.', items: personaItems },
-    { id: 'material_color', label: 'Материал / цвет', purpose: 'Gold, metallic, reflective, glossy — только если не противоречит товару.', items: materialItems },
-    { id: 'long_tail', label: 'Long-tail', purpose: 'Длинные точные фразы для низкой конкуренции и лучшей релевантности.', items: longTailItems },
+    { id: 'style', label: 'Стиль', purpose: 'Product truth сначала: post-apocalyptic / warrior / futuristic. Cyberpunk — adjacent support.', items: styleItems },
+    { id: 'event', label: 'Событие / collection', purpose: 'Burning Man, EDM, festival — чаще collection/internal, не primary title товара.', items: eventItems },
+    { id: 'material_color', label: 'Материал / цвет / image truth', purpose: 'Gold shoulder armor / gold shoulders — товарная поддержка и ALT, если видно на фото.', items: materialItems },
   ];
 
   return buckets.filter((bucket) => bucket.items.length);
@@ -599,9 +640,9 @@ function buildMetricValidationPackage(buckets: SeoSemanticBucket[]): SeoMetricVa
 
 function buildScoringContract(): SeoScoringContract {
   const factors: SeoScoringFactor[] = [
-    { id: 'product_truth_fit', label: 'Правда товара', maxPoints: 25, purpose: 'Ключ должен совпадать с реальными деталями, цветом, материалом и назначением товара.', requiredInputs: ['product facts', 'component match', 'color/material match'] },
+    { id: 'product_truth_fit', label: 'Правда товара', maxPoints: 30, purpose: 'Product title + facts + manual focus выше raw volume/simple score.', requiredInputs: ['product facts', 'manual focus', 'component/style/material match'] },
     { id: 'buyer_intent_fit', label: 'Намерение покупателя', maxPoints: 15, purpose: 'Понять, ищет ли человек товар, образ, событие, материал или просто вдохновение.', requiredInputs: ['bucket', 'keyword wording', 'commercial intent class'] },
-    { id: 'search_demand', label: 'Спрос', maxPoints: 20, purpose: 'Оценить реальный search volume без выдуманных цифр.', requiredInputs: ['avg_monthly_searches', 'region', 'metric source', 'last_checked'] },
+    { id: 'search_demand', label: 'Спрос', maxPoints: 18, purpose: 'Оценить реальный search volume без выдуманных цифр.', requiredInputs: ['avg_monthly_searches', 'region', 'metric source', 'last_checked'] },
     { id: 'competition_opportunity', label: 'Шанс пройти конкуренцию', maxPoints: 12, purpose: 'Не выбирать автоматически самые жирные слова, если там слишком высокая конкуренция.', requiredInputs: ['competition', 'CPC/bid range', 'SERP or marketplace difficulty'] },
     { id: 'trend_event_fit', label: 'Тренд / сезонность / событие', maxPoints: 10, purpose: 'Учитывать фестивали, Burning Man, сезонные пики, performance season и текущий спрос.', requiredInputs: ['trend', 'seasonality', 'event calendar', 'region'] },
     { id: 'placement_fit', label: 'Место использования', maxPoints: 8, purpose: 'Решить, куда ключ подходит: title, H1, body, FAQ, alt, collection или internal links.', requiredInputs: ['suggested placement', 'page type', 'keyword length'] },
@@ -615,21 +656,22 @@ function buildScoringContract(): SeoScoringContract {
     factors,
     requiredMetricFields: ['avg_monthly_searches', 'competition', 'low_bid/high_bid when currency-aware', 'trend', 'seasonality', 'region', 'metric_source', 'last_checked'],
     hardGates: [
+      'Product title + product facts + manual focus outrank raw volume/simple score.',
+      'Cyberpunk не становится primary, если post-apocalyptic / warrior / futuristic сильнее как product truth.',
       'Если ключ содержит деталь, которой нет в товаре — reject независимо от метрик.',
       'Если цвет/материал противоречит товару — reject независимо от метрик.',
       'Если нет подтверждённого metric_source — ключ не может стать финальным primary/secondary.',
       'Если высокий риск каннибализации — ключ нельзя ставить primary без ручного решения.',
-      'Если ключ слишком общий, он чаще идёт в collection/landing, а не в primary карточки товара.',
       'Commercial intent вроде buy/order/price/shipping не ставится в главный title карточки без отдельного решения.',
     ],
     decisionRules: [
-      { role: 'primary', label: 'Главный ключ', rule: '85–100 баллов, подтверждённые метрики, точный product truth, коммерческое намерение, низкий риск каннибализации.' },
-      { role: 'secondary', label: 'Вторичные ключи', rule: '70–84 балла, хорошо поддерживают primary, подходят для H2/body/bullets без спама.' },
-      { role: 'supporting', label: 'Поддерживающие ключи', rule: '55–69 баллов, используются естественно в описании, FAQ или внутренних ссылках.' },
+      { role: 'primary', label: 'Главный ключ', rule: 'Только точный product truth + подтверждённые метрики + низкий риск каннибализации.' },
+      { role: 'secondary', label: 'Вторичные ключи', rule: 'Сильные товарные ключи для H2/body/bullets; могут иметь хороший score, но не вытесняют product truth.' },
+      { role: 'supporting', label: 'Поддерживающие ключи', rule: 'Используются естественно в описании, FAQ или внутренних ссылках.' },
       { role: 'long_tail', label: 'Long-tail', rule: 'Точные длинные фразы с хорошей релевантностью; могут иметь меньший спрос, но выше conversion intent.' },
       { role: 'image_alt', label: 'Alt-тексты', rule: 'Только визуально подтверждённые детали: цвет, материал, компонент, силуэт, без невидимых claims.' },
       { role: 'faq', label: 'FAQ', rule: 'Вопросные/коммерческие интенты: sizing, styling, price, shipping, custom order, production only when supported.' },
-      { role: 'collection', label: 'Коллекция / перелинковка', rule: 'Широкие слова вроде festival outfit или stage looks чаще ведут в collection, не в primary конкретного товара.' },
+      { role: 'collection', label: 'Коллекция / перелинковка', rule: 'Широкие слова вроде festival outfit или Burning Man clothes чаще ведут в collection, не в primary конкретного товара.' },
       { role: 'hold', label: 'На удержании', rule: 'Релевантно, но нет метрик, есть спорный placement или нужен ручной выбор стратегии.' },
       { role: 'reject', label: 'Исключить', rule: 'Неверный компонент, цвет, материал, событие или misleading buyer intent.' },
     ],
@@ -669,10 +711,10 @@ function buildQaChecks(product: StorefrontProduct, roleKeywords: SeoPilotKeyword
     { id: 'long_dash', label: 'Длинные тире / AI-пунктуация', status: /—|–/.test(draftText) ? 'warning' : 'pass', note: /—|–/.test(draftText) ? 'В исходном title/preview есть длинные тире; финальный humanizer должен заменить лишние.' : 'Нет явного AI-style dash pattern.' },
     { id: 'keyword_stuffing', label: 'Keyword stuffing', status: joinedKeywords.split('shoulder armor').length > 5 ? 'warning' : 'pass', note: 'Primary keywords должны появляться естественно, без списка синонимов в одном абзаце.' },
     { id: 'product_specificity', label: 'Конкретика товара', status: /armor|shoulder|gold|burning man|warrior|futuristic/i.test(`${title} ${joinedKeywords}`) ? 'pass' : 'warning', note: 'Черновик должен отвечать: что это, из чего, для какого образа и где используется.' },
-    { id: 'forbidden_mismatch', label: 'Запрещённые / чужие интенты', status: FORBIDDEN_PATTERN.test(joinedKeywords) ? 'blocker' : 'pass', note: FORBIDDEN_PATTERN.test(joinedKeywords) ? 'Есть чужой intent в выбранных ключах.' : 'Не найдено kids/bridal/lego/safety/diy mismatch.' },
-    { id: 'similarity_cannibalization', label: 'Similarity / cannibalization', status: 'warning', note: 'Placeholder: перед publish нужен check похожих FEYA товаров и primary keyword map.' },
-    { id: 'image_alt_truth', label: 'Image ALT truth', status: product.primary_image_url ? 'pass' : 'blocker', note: product.primary_image_url ? 'ALT можно строить только из видимых деталей: gold, shoulder armor, model/stage/desert context.' : 'Нет изображения для ALT QA.' },
-    { id: 'commercial_placement', label: 'Commercial intent placement', status: 'pass', note: 'Buy/order/price/shipping должны идти в meta/body/FAQ/landing, не в основной title этой карточки.' },
+    { id: 'forbidden_mismatch', label: 'Запрещённые / чужие интенты', status: GLOBAL_FORBIDDEN_PATTERN.test(joinedKeywords) || PRODUCT_FORBIDDEN_PATTERN.test(joinedKeywords) ? 'blocker' : 'pass', note: GLOBAL_FORBIDDEN_PATTERN.test(joinedKeywords) || PRODUCT_FORBIDDEN_PATTERN.test(joinedKeywords) ? 'Есть чужой intent в выбранных ключах.' : `Product-specific exclusions отдельно; global blacklist скрыт из preview: ${GLOBAL_BLOCKLIST_NOTE.join(', ')}.` },
+    { id: 'similarity_cannibalization', label: 'Similarity / cannibalization', status: 'warning', note: 'Final SEO pack requires similarity/cannibalization check before publish: проверить похожие FEYA товары и primary keyword map.' },
+    { id: 'image_alt_truth', label: 'Image ALT truth', status: product.primary_image_url ? 'pass' : 'blocker', note: product.primary_image_url ? 'ALT можно строить только из видимых деталей: gold shoulder armor, gold shoulders, warrior shoulders, model/product context.' : 'Нет изображения для ALT QA.' },
+    { id: 'commercial_placement', label: 'Commercial intent placement', status: 'pass', note: 'Buy/order/price/shipping/custom/delivery должны идти в meta/body/FAQ/landing, не в основной title этой карточки.' },
     { id: 'validated_metrics', label: 'Validated metrics', status: metricsStatus.status === 'validated' ? 'pass' : 'warning', note: metricsStatus.note },
   ];
 }
@@ -685,46 +727,65 @@ function firstByRole(groups: SeoKeywordRoleGroup[], role: SeoPilotKeywordRole) {
   return groups.find((group) => group.role === role)?.items || [];
 }
 
+function titleCaseKeyword(value: string) {
+  return value
+    .split(' ')
+    .map((part) => part.toLowerCase() === 'for' ? 'for' : part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+    .replace(/\bEdm\b/g, 'EDM');
+}
+
+function chooseByTruthOrder(keywords: SeoPilotKeyword[], order: string[]) {
+  const normalized = keywords.map((keyword) => ({ keyword, word: normalize(keyword.keyword_norm || keyword.keyword) }));
+  for (const phrase of order) {
+    const match = normalized.find((item) => item.word === normalize(phrase));
+    if (match) return match.keyword;
+  }
+  return keywords[0];
+}
+
 function buildDraftPreview(product: StorefrontProduct, groups: SeoKeywordRoleGroup[], metricsStatus: SeoMetricsStatus, manualFocus: SeoManualFocus) {
   const title = productTitle(product);
   const category = humanizeCategory(product);
   const color = humanizeColor(product);
-  const world = humanizeWorld(product);
+  const world = humanizeWorld(product, manualFocus);
   const material = humanizeMaterial(product);
   const primary = firstByRole(groups, 'primary');
   const secondary = [...firstByRole(groups, 'secondary'), ...firstByRole(groups, 'support')];
-  const imageAlt = firstByRole(groups, 'image_alt');
+  const imageAlt = [...firstByRole(groups, 'image_alt'), ...firstByRole(groups, 'secondary')];
   const collection = firstByRole(groups, 'collection');
-  const primaryKeyword = textOfKeyword(primary[0]) || textOfKeyword(secondary[0]) || 'gold shoulder armor';
-  const secondaryKeyword = textOfKeyword(primary[1]) || textOfKeyword(secondary[0]) || world;
+  const bestPrimary = chooseByTruthOrder(primary, PRIMARY_TRUTH_ORDER);
+  const primaryKeyword = textOfKeyword(bestPrimary) || textOfKeyword(secondary[0]) || 'post apocalyptic shoulder armor';
+  const secondaryKeyword = textOfKeyword(chooseByTruthOrder(secondary, SECONDARY_TRUTH_ORDER)) || world;
   const focus = focusTerms(manualFocus);
-  const styleLine = [...focus.style, ...focus.persona].filter(Boolean).join(', ') || 'stage/festival styling';
-  const intro = `${title} is a handmade ${color.toLowerCase()} ${category.toLowerCase()} for ${world}, built around ${primaryKeyword || 'a statement armor look'} and styled for ${styleLine}.`;
+  const styleLine = uniqueStrings([...focus.style, ...focus.persona].filter((term) => term !== 'cyberpunk')).join(', ') || 'post-apocalyptic warrior styling';
+  const intro = `${title} is a handmade ${color.toLowerCase()} ${category.toLowerCase()} for ${world}, built around ${primaryKeyword || 'a statement armor look'} and styled for ${styleLine}. Cyberpunk stays as a secondary support angle, not the main product truth.`;
+  const productExcludedWords = uniqueStrings([...PRODUCT_SPECIFIC_EXCLUSIONS, ...focus.exclude]);
   const bullets = [
     `Primary SEO angle: ${primary.map(textOfKeyword).filter(Boolean).slice(0, 3).join(' / ') || primaryKeyword}.`,
-    `Support angle: ${secondary.map(textOfKeyword).filter(Boolean).slice(0, 4).join(' / ') || 'gold, warrior, futuristic styling'}.`,
+    `Support angle: ${secondary.map(textOfKeyword).filter(Boolean).slice(0, 4).join(' / ') || 'cyberpunk shoulder armor / gold shoulder armor / warrior shoulders'}.`,
     `Product fact base: ${category}, ${color}, ${material}.`,
     metricsStatus.status === 'validated' ? `${metricsStatus.validatedCount} selected keywords have usable search metrics.` : 'Some keyword metrics still need review before final publish.',
     'Final generation must stay human, specific, non-repetitive and free from keyword stuffing.',
   ];
 
   return {
-    seoTitle: trimTo(`${primaryKeyword || title} for ${world} | TheFEYA`, 68),
+    seoTitle: trimTo(`${titleCaseKeyword(primaryKeyword || title)} for ${world} | TheFEYA`, 68),
     h1: trimTo(title, 90),
     metaDescription: trimTo(`${title}. Handmade ${color.toLowerCase()} armor styling for ${world}; ${secondaryKeyword} details, festival performance looks and made-to-order studio finish.`, 155),
     intro: trimTo(intro, 320),
     bullets,
     faqCandidates: ['What is included in this costume piece?', 'Can this look be styled for Burning Man or rave festivals?', 'How long does production and shipping take?', 'Can sizing or small details be adjusted?'],
-    imageAltDirection: (imageAlt.length ? imageAlt : [...primary, ...secondary]).slice(0, 4).map((keyword) => `Use only visible truth: ${textOfKeyword(keyword)} on the model/product photo.`),
+    imageAltDirection: (imageAlt.length ? imageAlt : [...primary, ...secondary]).slice(0, 5).map((keyword) => `Use only visible truth: ${textOfKeyword(keyword)} on the model/product photo.`),
     internalLinkingHints: collection.length ? collection.map((keyword) => `Link naturally to a collection/landing around ${textOfKeyword(keyword)}.`) : [`Link to related Burning Man armor, futuristic festival looks and men's costume collections.`],
-    blockedWords: ['kids', 'bridal', 'lego', 'safety harness', 'diy pattern', ...focus.exclude].filter(Boolean),
+    blockedWords: productExcludedWords,
   };
 }
 
 export function buildSeoPilotBrief(product: StorefrontProduct, keywords: SeoPilotKeyword[], manualFocus: SeoManualFocus = {}): SeoPilotBrief {
   const candidateKeywords = selectCandidateKeywords(keywords, product, manualFocus);
   const rejectedKeywords = selectRejectedKeywords(keywords, product, manualFocus);
-  const roleReadyKeywords = decorateKeywordRoles(candidateKeywords);
+  const roleReadyKeywords = decorateKeywordRoles(candidateKeywords, product, manualFocus);
   const keywordRoleGroups = buildKeywordRoleGroups(roleReadyKeywords);
   const semanticBuckets = buildSemanticBuckets(product, roleReadyKeywords, manualFocus);
   const metricValidationPackage = buildMetricValidationPackage(semanticBuckets);
@@ -735,7 +796,7 @@ export function buildSeoPilotBrief(product: StorefrontProduct, keywords: SeoPilo
   const slug = productSlug(product);
   const category = humanizeCategory(product);
   const color = humanizeColor(product);
-  const world = humanizeWorld(product);
+  const world = humanizeWorld(product, manualFocus);
   const material = humanizeMaterial(product);
   const draftPreview = buildDraftPreview(product, keywordRoleGroups, metricsStatus, manualFocus);
   const seoQaChecks = buildQaChecks(product, roleReadyKeywords, `${draftPreview.seoTitle} ${draftPreview.h1} ${draftPreview.metaDescription} ${draftPreview.intro}`, metricsStatus);
@@ -765,7 +826,7 @@ export function buildSeoPilotBrief(product: StorefrontProduct, keywords: SeoPilo
     decision: status === 'blocked'
       ? 'Не готово к SEO-черновику: сначала закрыть блокеры.'
       : metricsStatus.status === 'validated'
-        ? 'Можно готовить SEO-pack draft для ручной проверки: есть сохранённый фокус, выбранные ключи и подтверждённые метрики.'
+        ? 'Можно готовить SEO-pack draft для ручной проверки: есть сохранённый фокус, выбранные ключи и подтверждённые метрики. Перед publish обязателен similarity/cannibalization check.'
         : 'Можно готовить только ограниченный preview: часть метрик или QA ещё требует проверки.',
   };
 }
