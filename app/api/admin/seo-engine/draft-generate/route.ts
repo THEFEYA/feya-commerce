@@ -25,7 +25,7 @@ export async function GET() {
     generation_pipeline: [
       'load SeoAgentInputContract',
       'build seo_agent_prompt_v1',
-      'build optional mock seo_agent_output_v1 during dry-run',
+      'seed optional mock seo_agent_output_v1 from SeoPilotBrief.draftPreview during dry-run',
       'call model only when feature flag and gates pass',
       'validate seo_agent_output_v1',
       'return draft for human review',
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
   }
 
   const promptContract = buildSeoAgentPromptContract(bundle.aiAgentInput);
-  const mockOutput = includeMockOutput ? buildMockSeoAgentOutput(bundle.aiAgentInput) : null;
+  const mockOutput = includeMockOutput ? buildMockSeoAgentOutput(bundle.aiAgentInput, bundle.brief) : null;
   const mockOutputValidation = mockOutput ? validateSeoAgentOutput(mockOutput) : null;
   const outputValidationGate = validateSeoAgentOutput(null);
   const canSaveDraft = canSaveSeoPackDraft(bundle.seoPackDraft);
@@ -108,6 +108,7 @@ export async function POST(request: Request) {
       prompt_contract_ready: true,
       output_validator_ready: true,
       mock_output_ready: Boolean(mockOutput),
+      mock_output_seed: bundle.brief ? 'seo_brief_draft_preview' : 'fallback_mock',
       mock_output_validator_passed: Boolean(mockOutputValidation?.ok),
     },
     prompt_contract_summary: summarizeSeoAgentPromptContract(promptContract),
@@ -173,7 +174,7 @@ function generationGuardrails() {
     'The model must consume SeoAgentInputContract, not raw product rows.',
     'The model must return seo_agent_output_v1 JSON only.',
     'Model output must pass validator before any future save.',
-    'Mock output is only for route/UI validation and must not be published.',
+    'Mock output is seeded from SeoPilotBrief.draftPreview when available and is only for route/UI validation.',
     'Product truth and QA gates must outrank keyword volume.',
   ];
 }
