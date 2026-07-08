@@ -4,6 +4,7 @@ import { ArrowUpRight, CheckCircle2, FileText, ShieldAlert, Sparkles } from 'luc
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
 import { buildMockSeoAgentOutput } from '@/lib/seoAgentMockDraft';
 import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
+import SeoDraftSavePreflightClient from './SeoDraftSavePreflightClient';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -62,16 +63,16 @@ function ReviewList({ items = [] }) {
 
 function FaqList({ items = [] }) {
   return items.length ? <div className="space-y-3">{items.map((item, index) => <div key={`${item.question}-${index}`}>
-    <div className="text-bone text-[12px]">{item.question || 'Question needs review'}</div>
-    <div className="mt-1 text-[12px] leading-relaxed text-[var(--bone-dim)]">{item.answer || 'Answer needs review'}</div>
-    <div className="mt-1"><Pill tone="gold">{item.intent || 'other'}</Pill></div>
+    <div className="text-bone text-[12px]">{item.question || 'Вопрос требует проверки'}</div>
+    <div className="mt-1 text-[12px] leading-relaxed text-[var(--bone-dim)]">{item.answer || 'Ответ требует проверки'}</div>
+    <div className="mt-1"><Pill tone="gold">{item.intent || 'другое'}</Pill></div>
   </div>)}</div> : <span>—</span>;
 }
 
 function Issues({ issues = [] }) {
   return issues.length ? <div className="grid md:grid-cols-2 gap-2">{issues.map((issue, index) => <div key={`${issue.code}-${index}`} className="rounded-xl border border-[rgba(212,178,106,.22)] bg-black/15 p-3">
     <div className="flex flex-wrap gap-2 mb-1.5"><Pill tone={issue.severity === 'blocker' ? 'danger' : 'warning'}>{issue.severity || 'issue'}</Pill><Pill>{issue.code || 'validation'}</Pill></div>
-    <div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">{issue.message || 'Needs review'}</div>
+    <div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">{issue.message || 'Нужна проверка.'}</div>
   </div>)}</div> : <div className="rounded-xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.06)] p-3 text-[12px] text-[#a9dfbd]">Validator не нашёл blocker issues в review output.</div>;
 }
 
@@ -90,25 +91,25 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
     <section className="container-feya pt-7 pb-12">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-5 mb-5">
         <div>
-          <div className="eyebrow-gold mb-2">Админка · SEO · draft review</div>
-          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,64px)' }}>SEO draft review</h1>
+          <div className="eyebrow-gold mb-2">Админка · SEO · проверка черновика</div>
+          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,64px)' }}>Проверка SEO-черновика</h1>
           <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Этот экран показывает человекочитаемый SEO Brief baseline, завёрнутый в seo_agent_output_v1 для проверки validator/storage pipeline. Это не финальный AI-текст и не publish draft.</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          {activeProductId ? <Link href={`/admin/seo-engine/briefs?product_id=${activeProductId}`} className="btn-ghost">Назад к SEO Brief <ArrowUpRight size={13} /></Link> : null}
-          {activeProductId ? <Link href={`/api/admin/seo-engine/brief-contract?product_id=${activeProductId}`} className="btn-ghost" target="_blank">JSON contract <ArrowUpRight size={13} /></Link> : null}
+          {activeProductId ? <Link href={`/admin/seo-engine/briefs?product_id=${activeProductId}`} className="btn-ghost">Назад к SEO-брифу <ArrowUpRight size={13} /></Link> : null}
+          {activeProductId ? <Link href={`/api/admin/seo-engine/brief-contract?product_id=${activeProductId}`} className="btn-ghost" target="_blank">Открыть JSON-контракт <ArrowUpRight size={13} /></Link> : null}
           <Link href="/admin/seo-engine/metric-import" className="btn-ghost">Импорт метрик <ArrowUpRight size={13} /></Link>
         </div>
       </div>
 
       {bundle.error ? <Notice tone="danger">{bundle.error}</Notice> : null}
-      {!product ? <Notice tone="danger">Товар не найден в Product Focus view. Открой SEO Brief с конкретным product_id.</Notice> : null}
-      {product && !bundle.decision ? <Notice>Для этого товара нет сохранённого Listing Master decision. Draft baseline может быть неполным, потому что нет ручного Product DNA и выбранных ключей.</Notice> : null}
+      {!product ? <Notice tone="danger">Товар не найден в Product Focus view. Открой SEO-бриф с конкретным product_id.</Notice> : null}
+      {product && !bundle.decision ? <Notice>Для этого товара нет сохранённого решения Listing Master. Draft baseline может быть неполным, потому что нет ручного Product DNA и выбранных ключей.</Notice> : null}
 
       {product && brief && seoPackDraft && mockDraft ? <>
         <div className="grid lg:grid-cols-[.9fr_1.1fr] gap-5 mb-5">
           <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
-            <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div className="eyebrow-gold">Source product</div><FileText size={17} className="text-[var(--gold-warm)]" /></div>
+            <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div className="eyebrow-gold">Исходный товар</div><FileText size={17} className="text-[var(--gold-warm)]" /></div>
             <div className="p-4">
               <div className="grid sm:grid-cols-[118px_1fr] gap-4">
                 <div className="h-32 rounded-xl overflow-hidden border border-[rgba(216,214,211,.10)] bg-black/30">
@@ -118,10 +119,10 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
                   <div className="text-bone text-[18px] leading-tight">{brief.productTitle}</div>
                   <div className="mt-2 text-[11px] text-[var(--bone-dim)]">ID: {activeProductId} · /{brief.productSlug}</div>
                   <div className="mt-4 grid sm:grid-cols-2 gap-2">
-                    <Fact label="Pack status" value={seoPackDraft.status} />
-                    <Fact label="Brief status" value={brief.status} />
-                    <Fact label="Primary keywords" value={seoPackDraft.keyword_roles.primary.length} />
-                    <Fact label="Secondary keywords" value={seoPackDraft.keyword_roles.secondary.length} />
+                    <Fact label="Статус SEO-pack" value={seoPackDraft.status} />
+                    <Fact label="Статус брифа" value={brief.status} />
+                    <Fact label="Главные ключи" value={seoPackDraft.keyword_roles.primary.length} />
+                    <Fact label="Вторичные ключи" value={seoPackDraft.keyword_roles.secondary.length} />
                   </div>
                 </div>
               </div>
@@ -129,23 +130,23 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
           </div>
 
           <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
-            <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div className="eyebrow-gold">Review gates</div><ShieldAlert size={17} className="text-[var(--gold-warm)]" /></div>
+            <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div className="eyebrow-gold">Контрольные проверки</div><ShieldAlert size={17} className="text-[var(--gold-warm)]" /></div>
             <div className="p-4 space-y-3">
               <div className="grid sm:grid-cols-3 gap-2">
-                <Fact label="Review output" value={mockDraft.status} />
+                <Fact label="Черновик" value={mockDraft.status} />
                 <Fact label="Validator" value={validation?.status || 'unknown'} />
-                <Fact label="Save allowed" value="no" />
+                <Fact label="Сохранение" value="нет" />
               </div>
               <div className="rounded-xl border border-[rgba(212,178,106,.25)] bg-[rgba(212,178,106,.06)] p-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">
-                Главный текст ниже восстановлен из SeoPilotBrief.draftPreview, чтобы не терять качество preview. Supabase save, OpenAI generation и publish остаются заблокированы до storage contract, human review и similarity/cannibalization gate.
+                Главный текст ниже восстановлен из SeoPilotBrief.draftPreview, чтобы не терять качество preview. Сохранение в Supabase, OpenAI generation и publish остаются заблокированы до storage contract, human review и similarity/cannibalization gate.
               </div>
-              <div className="flex flex-wrap gap-2"><Pill tone={statusTone(validation?.status)}>{validation?.status || 'not_checked'}</Pill><Pill tone="success">brief baseline</Pill><Pill tone="warning">no Supabase write</Pill><Pill tone="warning">no publish</Pill><Pill tone="warning">no real OpenAI</Pill></div>
+              <div className="flex flex-wrap gap-2"><Pill tone={statusTone(validation?.status)}>{validation?.status || 'not_checked'}</Pill><Pill tone="success">SEO baseline</Pill><Pill tone="warning">без записи в Supabase</Pill><Pill tone="warning">без публикации</Pill><Pill tone="warning">без реального OpenAI</Pill></div>
             </div>
           </div>
         </div>
 
         <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden mb-5">
-          <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold">SEO Brief baseline / review output</div><div className="mt-1 text-bone text-[18px]">seo_agent_output_v1 seeded from draftPreview</div></div><Sparkles size={17} className="text-[var(--gold-warm)]" /></div>
+          <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold">SEO baseline / review output</div><div className="mt-1 text-bone text-[18px]">seo_agent_output_v1 seeded from draftPreview</div></div><Sparkles size={17} className="text-[var(--gold-warm)]" /></div>
           <div className="p-4 grid lg:grid-cols-[1fr_.85fr] gap-4">
             <div className="space-y-3">
               <Section label="SEO title">{mockDraft.seo_title}</Section>
@@ -154,26 +155,28 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
               <Section label="Intro">{mockDraft.intro}</Section>
             </div>
             <div className="space-y-3">
-              <Section label="Bullets"><ReviewList items={mockDraft.bullet_highlights || []} /></Section>
+              <Section label="Тезисы"><ReviewList items={mockDraft.bullet_highlights || []} /></Section>
               <Section label="FAQ"><FaqList items={mockDraft.faq || []} /></Section>
-              <Section label="Image ALT candidates"><ReviewList items={(mockDraft.image_alt_candidates || []).map((item) => `${item.alt_text || 'ALT review needed'} · ${item.truth_basis || 'unknown'}`)} /></Section>
-              <Section label="Internal links"><ReviewList items={(mockDraft.internal_linking_hints || []).map((item) => `${item.anchor || 'anchor'} → ${item.target_type || 'target'} · ${item.reason || 'needs review'}`)} /></Section>
-              <Section label="Generation notes"><ReviewList items={mockDraft.generation_notes || []} /></Section>
+              <Section label="ALT для изображений"><ReviewList items={(mockDraft.image_alt_candidates || []).map((item) => `${item.alt_text || 'ALT требует проверки'} · ${item.truth_basis || 'unknown'}`)} /></Section>
+              <Section label="Внутренние ссылки"><ReviewList items={(mockDraft.internal_linking_hints || []).map((item) => `${item.anchor || 'anchor'} → ${item.target_type || 'target'} · ${item.reason || 'needs review'}`)} /></Section>
+              <Section label="Служебные заметки"><ReviewList items={mockDraft.generation_notes || []} /></Section>
             </div>
           </div>
         </div>
 
         <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden mb-5">
-          <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold">Validator result</div><div className="mt-1 text-bone text-[18px]">Before any future save</div></div><CheckCircle2 size={17} className="text-[var(--gold-warm)]" /></div>
+          <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold">Результат validator</div><div className="mt-1 text-bone text-[18px]">Перед любым будущим сохранением</div></div><CheckCircle2 size={17} className="text-[var(--gold-warm)]" /></div>
           <div className="p-4"><Issues issues={validation?.issues || []} /></div>
         </div>
 
+        <div className="mb-5"><SeoDraftSavePreflightClient productId={activeProductId} /></div>
+
         <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4">
-          <div className="eyebrow-gold mb-3">Next actions are intentionally disabled</div>
+          <div className="eyebrow-gold mb-3">Следующие действия пока намеренно заблокированы</div>
           <div className="flex flex-wrap gap-3">
-            <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Save draft to Supabase заблокирован</button>
-            <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Approve for publish заблокирован</button>
-            <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Run real OpenAI заблокирован</button>
+            <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Сохранить черновик в Supabase — заблокировано</button>
+            <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Одобрить к публикации — заблокировано</button>
+            <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Запустить реальный OpenAI — заблокировано</button>
           </div>
         </div>
       </> : null}
