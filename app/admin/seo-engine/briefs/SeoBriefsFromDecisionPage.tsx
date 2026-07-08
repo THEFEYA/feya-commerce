@@ -4,6 +4,7 @@ import { ArrowUpRight, CheckCircle2, Code2, FileText, Layers3, ShieldAlert, Spar
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import { buildSeoPilotBrief } from '@/lib/seoPilotDraft';
 import { buildSeoAgentInputFromDraft, buildSeoPackDraftContractFromBrief } from '@/lib/seoPackContractBuilder';
+import SeoGenerationPreflightClient from './SeoGenerationPreflightClient';
 
 const FOCUS_VIEW = 'feya_commerce_v_listing_master_product_focus_v1';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
@@ -143,6 +144,7 @@ export default async function SeoBriefsFromDecisionPage({ searchParams }) {
               <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>OpenAI generation заблокирована</button>
               <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Supabase save заблокирован</button>
             </div>
+            <div className="mb-3"><SeoGenerationPreflightClient productId={data.product?.canonical_product_id || ''} /></div>
             <JsonPreview value={contractPreview} />
           </Panel>
         </div> : null}
