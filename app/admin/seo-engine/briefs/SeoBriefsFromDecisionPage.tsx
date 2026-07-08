@@ -1,8 +1,9 @@
 // @ts-nocheck
 import Link from 'next/link';
-import { ArrowUpRight, CheckCircle2, FileText, Layers3, ShieldAlert, Sparkles } from 'lucide-react';
+import { ArrowUpRight, CheckCircle2, Code2, FileText, Layers3, ShieldAlert, Sparkles } from 'lucide-react';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import { buildSeoPilotBrief } from '@/lib/seoPilotDraft';
+import { buildSeoAgentInputFromDraft, buildSeoPackDraftContractFromBrief } from '@/lib/seoPackContractBuilder';
 
 const FOCUS_VIEW = 'feya_commerce_v_listing_master_product_focus_v1';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
@@ -13,6 +14,9 @@ export default async function SeoBriefsFromDecisionPage({ searchParams }) {
   const productId = param(searchParams?.product_id).trim();
   const data = await loadSeoBriefData(productId);
   const brief = data.product ? buildSeoPilotBrief(data.product, data.keywords, data.manualFocus) : null;
+  const seoPackDraft = brief ? attachProductIdentity(buildSeoPackDraftContractFromBrief(brief), data) : null;
+  const agentInput = seoPackDraft ? buildSeoAgentInputFromDraft(seoPackDraft) : null;
+  const contractPreview = seoPackDraft && agentInput ? { seo_pack_draft: seoPackDraft, ai_agent_input: agentInput } : null;
 
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
     <section className="container-feya pt-7 pb-12">
@@ -121,6 +125,21 @@ export default async function SeoBriefsFromDecisionPage({ searchParams }) {
           </div>
           <div className="mt-4 flex flex-wrap gap-3"><Link className="btn-ghost" href={`/admin/listing-master?product_id=${data.product?.canonical_product_id || ''}`}>Вернуться к ключам</Link><button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Следующий шаг: генерация SEO-пакета</button></div>
         </Panel>
+
+        {contractPreview ? <div className="mt-5">
+          <Panel title="AI-agent dry-run contract" icon={Code2}>
+            <div className="mb-3 rounded-xl border border-[rgba(212,178,106,.25)] bg-[rgba(212,178,106,.06)] p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">
+              <span className="text-bone">Read-only bridge:</span> это будущий вход для AI-agent и draft storage. Сейчас здесь нет OpenAI call, нет Supabase write, нет publish action.
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-3">
+              <Fact label="Pack status" value={seoPackDraft.status} />
+              <Fact label="Agent task" value={agentInput.task} />
+              <Fact label="Primary keywords" value={seoPackDraft.keyword_roles.primary.length} />
+              <Fact label="Secondary keywords" value={seoPackDraft.keyword_roles.secondary.length} />
+            </div>
+            <JsonPreview value={contractPreview} />
+          </Panel>
+        </div> : null}
       </> : null}
     </section>
   </main>;
@@ -152,6 +171,23 @@ async function loadSeoBriefData(productId) {
   return { product, decision, keywords, manualFocus, error: null };
 }
 
+function attachProductIdentity(contract, data) {
+  const canonicalProductId = data.product?.canonical_product_id || data.decision?.canonical_product_id || '';
+  const matchedEtsyListingId = data.product?.matched_etsy_listing_id || data.decision?.matched_etsy_listing_id || null;
+  return {
+    ...contract,
+    canonical_product_id: canonicalProductId,
+    matched_etsy_listing_id: matchedEtsyListingId,
+    product_truth: {
+      ...contract.product_truth,
+      canonical_product_id: canonicalProductId,
+      matched_etsy_listing_id: matchedEtsyListingId,
+      primary_image_url: data.product?.primary_image_url || contract.product_truth.primary_image_url || null,
+      primary_image_alt: data.product?.primary_image_alt || contract.product_truth.primary_image_alt || null,
+    },
+  };
+}
+
 function normalizeDecisionKeywords(value) {
   const rows = Array.isArray(value) ? value : [];
   return rows.map((row) => ({
@@ -181,3 +217,4 @@ function CheckRow({ check }) { return <div className="grid grid-cols-[150px_92px
 function RoleGroup({ group }) { return <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3"><div className="flex items-start justify-between gap-3"><div><div className="text-bone text-[13px]">{group.label}</div><div className="mt-1 text-[10px] leading-relaxed text-[var(--bone-dim)]">{group.purpose}</div></div><Chip tone={roleTone(group.role)}>{group.items.length}</Chip></div><div className="mt-3 grid sm:grid-cols-2 gap-2">{group.items.slice(0, 8).map((kw, i) => <div key={`${kw.keyword_norm || kw.keyword}-${i}`} className="rounded-lg border border-[rgba(216,214,211,.08)] bg-black/20 p-2"><div className="text-[12px] text-bone">{kw.keyword || kw.keyword_norm}</div><div className="mt-1 text-[10px] text-[var(--bone-dim)]">{kw.avg_monthly_searches ?? '—'} / {kw.competition || '—'} · {kw.pilot_role_reason}</div></div>)}</div></div>; }
 function KeywordMiniTable({ title, rows }) { return <div><div className="eyebrow-dim mb-2">{title}</div><div className="max-h-[220px] overflow-auto rounded-xl border border-[rgba(216,214,211,.10)] divide-y divide-[rgba(216,214,211,.08)]">{rows.map((kw, i) => <div key={`${kw.keyword_norm || kw.keyword}-${i}`} className="grid grid-cols-[1fr_90px_90px] gap-2 px-3 py-2 text-[11px]"><div className="text-bone">{kw.keyword || kw.keyword_norm}</div><div className="text-[var(--bone-dim)]">{kw.avg_monthly_searches ?? '—'}</div><div className="text-[var(--gold-warm)]">{kw.competition || '—'}</div></div>)}</div></div>; }
 function TextList({ title, lead, items = [] }) { return <div><div className="text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1.5">{title}</div><div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">{lead ? <p>{lead}</p> : null}{items.length ? <ul className="mt-2 space-y-1.5 list-disc pl-5">{items.map((item) => <li key={item}>{item}</li>)}</ul> : null}</div></div>; }
+function JsonPreview({ value }) { return <pre className="max-h-[520px] overflow-auto rounded-xl border border-[rgba(216,214,211,.10)] bg-black/30 p-3 text-[10px] leading-relaxed text-[var(--bone-dim)] whitespace-pre-wrap">{JSON.stringify(value, null, 2)}</pre>; }
