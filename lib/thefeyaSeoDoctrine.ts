@@ -23,41 +23,41 @@ export const THEFEYA_CANONICAL_RIGHT_PDP_PANEL = [
     block_key: 'sizing_fit',
     heading: 'Sizing & fit',
     body:
-      'Use the size chart in the product photos to choose your size. Most TheFEYA pieces adjust with straps, so the fit can be fine-tuned on the body. For custom measurements or a special fit request, leave a note with your order or contact the manager.',
+      'Use the size chart in the product photos to choose your size. Most TheFEYA pieces adjust with straps, so the fit can be fine-tuned on the body even if your measurement is not exact. For individual measurements or a special fit request, leave a note with your order or contact us before production.',
   },
   {
     block_key: 'production_timing',
     heading: 'Production time',
     body:
-      'Made-to-order production usually takes 3-5 business days. If you need the piece for a specific date or want priority production, contact the manager in advance so timing can be discussed.',
+      'Standard made-to-order production usually takes 3-5 business days. For a specific event date or priority production, contact us in advance so we can discuss the best timing.',
   },
   {
     block_key: 'shipping_delivery',
-    heading: 'Shipping & delivery',
-    body: 'Standard shipping takes about 10-14 business days. Express shipping takes about 6-9 business days.',
+    heading: 'Delivery options',
+    body: 'Standard UPS shipping: 10-14 business days. DHL Express shipping: 6-9 business days.',
+  },
+  {
+    block_key: 'material',
+    heading: 'Material',
+    body:
+      'Material details are shown in the product description and selected options for each design. Glossy leather and mirror-finish pieces are made to hold a sculptural shape while staying comfortable on the body.',
   },
   {
     block_key: 'care',
     heading: 'Care',
     body:
-      'The piece is easy to clean by hand with alcohol wipes or mild cleaning products. Prefer not to machine wash. Store carefully, ideally hanging, and avoid long-term heavy pressure so it keeps its shape for years.',
-  },
-  {
-    block_key: 'customization',
-    heading: 'Customization',
-    body:
-      'Sizing is separate from design customization. Different colors, detail changes, shorter or longer elements, more open or more covered versions, combinations of existing TheFEYA designs, or a custom design within TheFEYA style can be discussed.',
+      'Easy to clean by hand with alcohol wipes or mild cleaning products. Machine washing is not recommended. Store carefully, ideally on a hanger, and avoid tight folded storage or long-term heavy pressure so the piece keeps its shape for years.',
   },
   {
     block_key: 'returns_exchanges',
-    heading: 'Returns & exchanges',
-    body: 'For cancellation, return, and exchange details, use the store policy link.',
+    heading: 'Cancellations, returns & exchanges',
+    body: 'Cancellation, return and exchange details are available in the store policy link. The product page should link to the full policy instead of repeating the whole policy text here.',
   },
   {
     block_key: 'handmade_variation',
     heading: 'Handmade variation',
     body:
-      'Every piece is handmade individually, so small natural differences in finish, shape, or shade can appear within normal handmade tolerance.',
+      'Every TheFEYA piece is made by hand individually. Small natural differences in shape, detail or shade can appear because this is handmade work, not mass production.',
   },
 ] as const;
 
@@ -80,12 +80,12 @@ export const THEFEYA_SEO_DOCTRINE = {
     'The opening must sell the product identity and buyer benefit first: designer studio, authorial look, event impact, visual confidence, and product purpose.',
     'Do not start customer-facing copy as an image audit or inventory note. Avoid openings like: The image shows, The listed materials, The product is listed as, The main focus is, This costume includes.',
     'Never write customer copy as if reporting database fields to an analyst. Avoid phrases like listed as, indicated as, specified as, if available, when available, when supported, confirm before ordering, clarify before ordering, or ask the manager what is included.',
-    'Explain components after the hook, not as the first sentence unless the product itself is only a component and the wording is still attractive.',
+    'Explain included components immediately after the opening hook in the left description. Included components must not live in the static right panel.',
     'Keep copy commercial but calm: attractive, specific, human, not overhyped, not manipulative, not generic AI sales language.',
     'Avoid filler words and weak catalog phrases: Edition, Ultimate, Best, Perfect, Luxury, Premium, Elevate, Crafted to perfection, Perfect for any occasion.',
     'Use clear, short sentences. Avoid keyword stuffing, doorway-page style copy, repeated phrase skeletons, and long chained keyword titles.',
     'Use the product as a designer costume/look, not as a picture being described to another analyst.',
-    'Main PDP description must be substantial enough to review: a short intro alone is not enough. Use structured sections similar to strong Etsy descriptions only where they improve clarity: why you will like it, ideal for, what is included, material/finish, sizing notes when product-specific, and event/styling value.',
+    'Main PDP description must be substantial enough to review: a short intro alone is not enough. Preferred left-description order: About this piece, What’s included, Why you’ll love it, Ideal for, Material & finish.',
   ],
   length_rules: {
     seo_title: '45-68 characters, one owned search angle, no Edition, no keyword dump.',
@@ -101,6 +101,11 @@ export const THEFEYA_SEO_DOCTRINE = {
       intent: 'Opening story under the PDP gallery/buy box. Lead with design value, event impact, use case, and buyer benefit before product facts.',
     },
     {
+      block_key: 'whats_included',
+      placement: 'left_description',
+      intent: 'Included components based on product variations and/or original Etsy source text. This block comes immediately after the opening hook. Do not send the buyer to clarify standard included components with a manager.',
+    },
+    {
       block_key: 'why_youll_love_it',
       placement: 'left_description',
       intent: 'Short scannable buyer-benefit bullets. Example angles: handmade-to-order, light but strong, adjustable straps when visible/known, bold reflective/mirror effect, strong content/event presence. Do not repeat generic hype.',
@@ -109,11 +114,6 @@ export const THEFEYA_SEO_DOCTRINE = {
       block_key: 'ideal_for',
       placement: 'left_description',
       intent: 'Use-case bullets based on approved DNA and visual truth: Burning Man, festival, stage, photoshoot, performer/DJ/dancer/editorial looks when supported. Do not invent unrelated audiences.',
-    },
-    {
-      block_key: 'whats_included',
-      placement: 'left_description',
-      intent: 'Included components based on product variations and/or original Etsy source text. Do not send the buyer to clarify standard included components with a manager. If source data is missing, mark needs_human_review internally but keep the buyer-facing body neutral and non-alarming.',
     },
     {
       block_key: 'material',
@@ -128,6 +128,9 @@ export const THEFEYA_SEO_DOCTRINE = {
   ],
   right_panel_policy: [
     'Right PDP panel is canonical and reused across products. Do not ask OpenAI to generate unique right-panel copy for every product.',
+    'Right panel does not contain What’s included. Product-specific composition belongs in the left_description What’s included block and must come from variations/source text.',
+    'Right panel separates production time from delivery options, and separates material from care.',
+    'Right panel does not contain customization. Custom design/color/length changes are handled in left copy or future store policy only when appropriate.',
     'Right panel may be edited manually as a brand/store policy component, but it is not part of per-product SEO generation.',
     'Product-specific composition, material nuances, visible style, event angle, and benefits belong in left_description blocks.',
   ],
@@ -196,46 +199,42 @@ export function buildThefeyaSeoDoctrineUserLines() {
   return [
     `Doctrine source: ${THEFEYA_SEO_DOCTRINE.version}.`,
     'Use these buyer-facing facts when relevant, without inventing new promises:',
-    ...THEFEYA_SEO_DOCTRINE.buyer_facts.map((item) => `- ${item}`),
-    '',
-    'Use this FAQ strategy:',
-    ...THEFEYA_SEO_DOCTRINE.faq_strategy.map((item) => `- ${item}`),
-    '',
-    'Use this PDP block plan for AI-owned generated content:',
-    ...THEFEYA_SEO_DOCTRINE.pdp_block_plan.map((block) => `- ${block.block_key} → ${block.placement}: ${block.intent}`),
-    '',
-    'Do not generate right_info_panel blocks. The canonical right panel is fixed by the storefront system:',
-    ...THEFEYA_CANONICAL_RIGHT_PDP_PANEL.map((block) => `- ${block.heading}: ${block.body}`),
-    '',
-    `Future checkpoint: ${THEFEYA_RESEARCH_RELOAD_CHECKPOINT.agent_note_en}`,
-    `Future variation/editing checkpoint: ${THEFEYA_VARIATION_EDITING_CHECKPOINT.agent_note_en}`,
-    '',
+    ...THEFEYA_SEO_DOCTRINE.buyer_facts,
+    'Required PDP block plan:',
+    ...THEFEYA_SEO_DOCTRINE.pdp_block_plan.map(
+      (block) => `${block.block_key} (${block.placement}): ${block.intent}`,
+    ),
+    'Right panel policy:',
+    ...THEFEYA_SEO_DOCTRINE.right_panel_policy,
+    `Research checkpoint: ${THEFEYA_RESEARCH_RELOAD_CHECKPOINT.agent_note_en}`,
+    `Variation/data checkpoint: ${THEFEYA_VARIATION_EDITING_CHECKPOINT.agent_note_en}`,
   ];
 }
 
 export function buildThefeyaSeoDoctrineGuardrails() {
   return [
-    `Doctrine ${THEFEYA_SEO_DOCTRINE.version} must be present before OpenAI generation.`,
-    THEFEYA_RESEARCH_RELOAD_CHECKPOINT.agent_note_en,
-    THEFEYA_VARIATION_EDITING_CHECKPOINT.agent_note_en,
-    'Do not implement final apply-to-product, publish-readiness, sitemap mutation, or production indexation automation until the latest research files are reloaded and reconciled.',
-    'Any future apply/publish UI must show this research reload checkpoint as a blocking prerequisite until the owner confirms the latest research has been reviewed.',
-    'Any future catalog-scale editing UI must keep variations, included components, PDP blocks, slug/meta, and sitemap updates in one canonical flow.',
-    'Do not render top-level faq as a product PDP FAQ block by default; product-specific details must live in PDP sections and global FAQ belongs outside the product tile.',
-    'Do not let OpenAI generate unique right_info_panel blocks for each product. The right panel is canonical static PDP content.',
+    `Doctrine version must be visible in readiness/debug output: ${THEFEYA_SEO_DOCTRINE.version}.`,
+    'Do not generate or overwrite final product data until the research reload checkpoint has been cleared by the owner.',
+    'Do not split product facts between disconnected variation, included-components, PDP-copy, slug/meta, and sitemap flows.',
+    'Do not create a unique right PDP panel per product with OpenAI.',
+    'Do not put What’s included in the right PDP panel. Keep it in the left description and source it from variations/original text.',
+    'Do not combine production and delivery into one vague block in the right panel.',
+    'Do not combine material and care into one vague block in the right panel.',
+    'Do not output product FAQ inside PDP by default.',
+    'Do not tell the buyer to clarify included components before ordering when source data has product options or components.',
+    'Do not present visual/image analysis as buyer-facing sales copy.',
+    'Do not use steampunk unless visual and product evidence clearly support it.',
   ];
 }
 
 export function summarizeThefeyaSeoDoctrine() {
   return {
     version: THEFEYA_SEO_DOCTRINE.version,
-    purpose: THEFEYA_SEO_DOCTRINE.purpose,
+    pdp_block_count: THEFEYA_SEO_DOCTRINE.pdp_block_plan.length,
+    right_panel_block_count: THEFEYA_CANONICAL_RIGHT_PDP_PANEL.length,
+    buyer_fact_count: THEFEYA_SEO_DOCTRINE.buyer_facts.length,
+    visual_truth_rule_count: THEFEYA_SEO_DOCTRINE.visual_truth_strategy.length,
     research_reload_checkpoint: THEFEYA_RESEARCH_RELOAD_CHECKPOINT,
     variation_editing_checkpoint: THEFEYA_VARIATION_EDITING_CHECKPOINT,
-    pdp_block_count: THEFEYA_SEO_DOCTRINE.pdp_block_plan.length,
-    canonical_right_panel_count: THEFEYA_CANONICAL_RIGHT_PDP_PANEL.length,
-    buyer_fact_count: THEFEYA_SEO_DOCTRINE.buyer_facts.length,
-    faq_rule_count: THEFEYA_SEO_DOCTRINE.faq_strategy.length,
-    visual_truth_rule_count: THEFEYA_SEO_DOCTRINE.visual_truth_strategy.length,
   };
 }
