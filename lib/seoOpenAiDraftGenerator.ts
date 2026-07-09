@@ -9,6 +9,14 @@ type OpenAiDraftResult = {
   output?: SeoAgentOutputContract | null;
   raw_text?: string | null;
   error?: string | null;
+  vision_input?: {
+    primary_image_sent: boolean;
+    primary_image_url?: string | null;
+  };
+};
+
+type GenerateSeoDraftOptions = {
+  primaryImageUrl?: string | null;
 };
 
 type ResponseContentPart = {
@@ -22,9 +30,14 @@ type ResponseOutputItem = {
 
 const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
 
-export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract): Promise<OpenAiDraftResult> {
+export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract, options: GenerateSeoDraftOptions = {}): Promise<OpenAiDraftResult> {
   const apiKey = process.env.OPENAI_API_KEY;
   const model = process.env.FEYA_SEO_OPENAI_MODEL || 'gpt-5.4-mini';
+  const primaryImageUrl = normalizeImageUrl(options.primaryImageUrl);
+  const visionInput = {
+    primary_image_sent: Boolean(primaryImageUrl),
+    primary_image_url: primaryImageUrl,
+  };
 
   if (!apiKey) {
     return {
@@ -33,7 +46,22 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract)
       model,
       output: null,
       error: 'OPENAI_API_KEY is missing on the server.',
+      vision_input: visionInput,
     };
+  }
+
+  const userContent: Array<Record<string, unknown>> = [
+    {
+      type: 'input_text',
+      text: `${prompt.user_prompt}\n\nReturn exactly one JSON object that conforms to the seo_agent_output_v1 schema supplied in text.format. Do not omit required fields. Use null for unknown nullable text fields and empty arrays when a section has no safe content.`,
+    },
+  ];
+
+  if (primaryImageUrl) {
+    userContent.push({
+      type: 'input_image',
+      image_url: primaryImageUrl,
+    });
   }
 
   const response = await fetch(OPENAI_RESPONSES_URL, {
@@ -56,12 +84,7 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract)
         },
         {
           role: 'user',
-          content: [
-            {
-              type: 'input_text',
-              text: `${prompt.user_prompt}\n\nReturn exactly one JSON object that conforms to the seo_agent_output_v1 schema supplied in text.format. Do not omit required fields. Use null for unknown nullable text fields and empty arrays when a section has no safe content.`,
-            },
-          ],
+          content: userContent,
         },
       ],
       text: {
@@ -72,7 +95,7 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract)
           schema: seoAgentOutputSchema(),
         },
       },
-      temperature: 0.25,
+      temperature: 0.2,
       store: false,
     }),
   });
@@ -87,6 +110,7 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract)
       output: null,
       raw_text: null,
       error: payload?.error?.message || `OpenAI request failed with HTTP ${response.status}.`,
+      vision_input: visionInput,
     };
   }
 
@@ -100,6 +124,7 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract)
       output: null,
       raw_text: null,
       error: 'OpenAI response did not contain output text.',
+      vision_input: visionInput,
     };
   }
 
@@ -113,6 +138,7 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract)
       output: null,
       raw_text: rawText,
       error: parsed.error,
+      vision_input: visionInput,
     };
   }
 
@@ -124,6 +150,7 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract)
     output: parsed.value as SeoAgentOutputContract,
     raw_text: rawText,
     error: null,
+    vision_input: visionInput,
   };
 }
 
@@ -258,15 +285,19 @@ function parseJsonObject(text: string): { ok: true; value: unknown } | { ok: fal
   try {
     const parsed = JSON.parse(text);
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-      return { ok: false, error: 'OpenAI output JSON is not an object.' };
+      return { ok: false, error: 'Parsed output is not a JSON object.' };
     }
     return { ok: true, value: parsed };
-  } catch (error) {
-    return {
-      ok: false,
-      error: error instanceof Error ? error.message : 'Failed to parse OpenAI JSON output.',
-    };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
   }
+}
+
+function normalizeImageUrl(value?: string | null) {
+  const url = typeof value === 'string' ? value.trim() : '';
+  if (!url) return null;
+  if (!/^https?:\/\//i.test(url)) return null;
+  return url;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
