@@ -1,4 +1,4 @@
-export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v1' as const;
+export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v2' as const;
 
 export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
   checkpoint_id: 'reload_latest_research_before_apply_publish_v1',
@@ -7,6 +7,15 @@ export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
     'Перед финальным apply-to-product / publish-readiness нужно попросить у пользователя заново загрузить последние SEO research-файлы и обновить doctrine, если исследования изменили правила.',
   agent_note_en:
     'Before implementing the final apply-to-product or publish-readiness stage, stop and ask the owner to re-upload the latest SEO research files. Do not rely only on summarized memory for the final doctrine.',
+} as const;
+
+export const THEFEYA_VARIATION_EDITING_CHECKPOINT = {
+  checkpoint_id: 'unify_variations_included_components_pdp_sitemap_v1',
+  required_before_stage: 'apply_to_product_or_catalog_scale_editing',
+  admin_note_ru:
+    'Перед массовым применением SEO к товарам нужно спроектировать единый редактор, где вариации, комплектация, PDP-блоки, slug/meta и sitemap не живут в разных мирах.',
+  agent_note_en:
+    'Before catalog-scale apply-to-product editing, design one canonical editing flow for product variations, included components, PDP blocks, slug/meta data, and sitemap updates. Do not split those facts across disconnected systems.',
 } as const;
 
 export const THEFEYA_SEO_DOCTRINE = {
@@ -20,10 +29,12 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Admin UI labels can be Russian, but customer-facing product copy must be natural English en-US until a separate localization workflow exists.',
     'No fake metrics. Search volume, competition, and trend signals must come from validated data sources only.',
     'Before final apply-to-product or publish-readiness automation, reload the latest research files from the owner and update this doctrine if needed.',
+    'Product variations, included components, PDP text blocks, slug/meta data, and future sitemap updates must be handled by one canonical product editing flow, not by disconnected one-off text patches.',
   ],
   customer_copy_principles: [
     'The opening must sell the product identity and buyer benefit first: designer studio, authorial look, event impact, visual confidence, and product purpose.',
     'Do not start customer-facing copy as an image audit or inventory note. Avoid openings like: The image shows, The listed materials, The product is listed as, The main focus is, This costume includes.',
+    'Never write customer copy as if reporting database fields to an analyst. Avoid phrases like listed as, indicated as, specified as, if available, when available, or when supported.',
     'Explain components after the hook, not as the first sentence unless the product itself is only a component and the wording is still attractive.',
     'Keep copy commercial but calm: attractive, specific, human, not overhyped, not manipulative, not generic AI sales language.',
     'Avoid filler words and weak catalog phrases: Edition, Ultimate, Best, Perfect, Luxury, Premium, Elevate, Crafted to perfection, Perfect for any occasion.',
@@ -40,32 +51,37 @@ export const THEFEYA_SEO_DOCTRINE = {
     {
       block_key: 'about_this_piece',
       placement: 'left_description',
-      intent: 'Polished product description under the PDP gallery/buy box. This should be the main buyer-facing story.',
+      intent: 'Polished product description under the PDP gallery/buy box. This should be the main buyer-facing story: design value, event impact, use case, then product facts.',
     },
     {
       block_key: 'whats_included',
-      placement: 'right_info_panel',
-      intent: 'Included components based only on product facts. If unsure, mark human review instead of inventing exclusions.',
+      placement: 'right_info_panel_or_left_description_when_better',
+      intent: 'Included components based only on product facts, Etsy source text, and/or product variations. If unsure, mark human review instead of inventing exclusions. In the final PDP this may be shown in the main description, right panel, or both depending on layout.',
     },
     {
       block_key: 'sizing_fit',
       placement: 'right_info_panel',
-      intent: 'Size chart, adjustable straps, fit flexibility, and optional custom measurements if needed.',
+      intent: 'Size chart, adjustable straps, fit flexibility, and custom measurements. Do not say custom measurements are only possible if available; present them as an available manager-assisted option.',
+    },
+    {
+      block_key: 'production_timing',
+      placement: 'right_info_panel',
+      intent: 'Made-to-order production timing: usually 3-5 business days, with manager contact for a specific event date or priority production request.',
     },
     {
       block_key: 'shipping_delivery',
       placement: 'right_info_panel',
-      intent: 'Production timing, standard shipping, express shipping, and manager contact for a specific date or faster production discussion.',
+      intent: 'Shipping only: standard 10-14 business days and express 6-9 business days. Do not add if available.',
     },
     {
       block_key: 'materials_care',
       placement: 'right_info_panel',
-      intent: 'Materials from product truth first, then care instructions. Avoid overclaiming durability.',
+      intent: 'Present material as a benefit first, then care. For supported products: vegan/faux leather with a glossy mirror or metallic coating, soft against the body, reinforced/doubled for structure and shape retention. Care: wipe clean by hand with alcohol wipes or mild cleaning products, avoid machine washing, avoid long-term heavy pressure or tight storage, hang or store carefully.',
     },
     {
       block_key: 'customization',
       placement: 'right_info_panel',
-      intent: 'Separate from sizing: color/detail, length, coverage, combinations of existing designs, or custom design within TheFEYA style.',
+      intent: 'Separate from sizing: color/detail changes, length changes, more open or more covered version, combining existing TheFEYA designs, or custom design within TheFEYA style. Do not use vague phrase degree of coverage.',
     },
     {
       block_key: 'returns_exchanges',
@@ -85,13 +101,13 @@ export const THEFEYA_SEO_DOCTRINE = {
   ],
   buyer_facts: [
     'Typical made-to-order production: 3-5 business days.',
-    'If the buyer needs an item for a specific date or faster production, they should contact the manager; faster options can be discussed but are not guaranteed automatically.',
-    'Standard shipping: about 10-14 business days. Express shipping: about 6-9 business days when available.',
-    'Sizing: products usually include adjustable straps and fit flexibility. Buyers should still use the size chart. If they have an individual figure or worry about fit, they can send measurements to the manager and the item can be made to their measurements when the design supports it.',
-    'Customization is separate from sizing: length, coverage, color/detail adjustments, combinations of existing TheFEYA designs, or custom design within TheFEYA style can be discussed. Do not promise unrelated styles.',
-    'Materials: use product facts first. When supported, describe vegan leather with a glossy mirror/metallic finish. Do not duplicate leather and faux leather as if they are separate materials unless the source confirms both.',
-    'Care: wipe clean by hand, avoid machine washing, avoid long-term heavy pressure in tight storage, hang or store carefully when possible.',
-    'Color: use colors available in variant options first. Other colors can be discussed individually only if the design supports it.',
+    'If the buyer needs the item for a specific date or wants priority production, they should contact the manager in advance; faster production can be discussed.',
+    'Standard shipping: about 10-14 business days. Express shipping: about 6-9 business days.',
+    'Sizing: products usually include adjustable straps and fit flexibility. Buyers should still use the size chart. Custom measurements are available: the buyer can send measurements to the manager or leave them in the order notes.',
+    'Customization is separate from sizing: length changes, more open or more covered versions, color/detail adjustments, combinations of existing TheFEYA designs, or custom design within TheFEYA style can be discussed. Do not promise unrelated styles.',
+    'Materials: use product facts first. When supported, describe vegan/faux leather with a glossy mirror or metallic coating, a structured reinforced/doubled feel, shape retention, and a soft body-facing side. Do not write listed as or indicated as in customer-facing copy.',
+    'Care: the item can be wiped clean by hand with alcohol wipes or mild cleaning products. Avoid machine washing. Avoid long-term heavy pressure, tight folded storage, or placing heavy objects on it. Hanging or careful storage helps keep its shape for long use.',
+    'Color: use colors available in variant options first. Other colors can be discussed individually when the design can support them.',
     'Returns/exchanges/cancellations: mention that details are available in the store policy link. Do not overload product copy with full policy text.',
     'Gift note/card can be mentioned only as an optional request, not as a main SEO angle.',
   ],
@@ -100,6 +116,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Useful FAQ intents: production timing, shipping timing, sizing/custom measurements, materials/care, color options, customization, what is included, returns/exchanges policy link.',
     'Do not ask: What is the main focus of this image/product? Buyers can see the product.',
     'Keep answers concise and practical. Avoid anxiety, over-warnings, exaggerated durability promises, and legal blocks inside FAQ.',
+    'FAQ should not become a long repetitive second product description. Prefer 5-7 useful questions maximum for the draft unless product complexity requires more.',
   ],
   visual_truth_strategy: [
     'Use the primary image as visual evidence for component, silhouette, visible color, material impression, styling context, and mood.',
@@ -136,6 +153,7 @@ export function buildThefeyaSeoDoctrineSystemLines() {
     'Portfolio differentiation principles:',
     ...THEFEYA_SEO_DOCTRINE.portfolio_strategy,
     `Research reload checkpoint: ${THEFEYA_RESEARCH_RELOAD_CHECKPOINT.agent_note_en}`,
+    `Variation editing checkpoint: ${THEFEYA_VARIATION_EDITING_CHECKPOINT.agent_note_en}`,
   ];
 }
 
@@ -152,6 +170,7 @@ export function buildThefeyaSeoDoctrineUserLines() {
     ...THEFEYA_SEO_DOCTRINE.pdp_block_plan.map((block) => `- ${block.block_key} → ${block.placement}: ${block.intent}`),
     '',
     `Future checkpoint: ${THEFEYA_RESEARCH_RELOAD_CHECKPOINT.agent_note_en}`,
+    `Future variation/editing checkpoint: ${THEFEYA_VARIATION_EDITING_CHECKPOINT.agent_note_en}`,
     '',
   ];
 }
@@ -160,8 +179,10 @@ export function buildThefeyaSeoDoctrineGuardrails() {
   return [
     `Doctrine ${THEFEYA_SEO_DOCTRINE.version} must be present before OpenAI generation.`,
     THEFEYA_RESEARCH_RELOAD_CHECKPOINT.agent_note_en,
+    THEFEYA_VARIATION_EDITING_CHECKPOINT.agent_note_en,
     'Do not implement final apply-to-product, publish-readiness, sitemap mutation, or production indexation automation until the latest research files are reloaded and reconciled.',
     'Any future apply/publish UI must show this research reload checkpoint as a blocking prerequisite until the owner confirms the latest research has been reviewed.',
+    'Any future catalog-scale editing UI must keep variations, included components, PDP blocks, slug/meta, and sitemap updates in one canonical flow.',
   ];
 }
 
@@ -170,6 +191,7 @@ export function summarizeThefeyaSeoDoctrine() {
     version: THEFEYA_SEO_DOCTRINE.version,
     purpose: THEFEYA_SEO_DOCTRINE.purpose,
     research_reload_checkpoint: THEFEYA_RESEARCH_RELOAD_CHECKPOINT,
+    variation_editing_checkpoint: THEFEYA_VARIATION_EDITING_CHECKPOINT,
     pdp_block_count: THEFEYA_SEO_DOCTRINE.pdp_block_plan.length,
     buyer_fact_count: THEFEYA_SEO_DOCTRINE.buyer_facts.length,
     faq_rule_count: THEFEYA_SEO_DOCTRINE.faq_strategy.length,
