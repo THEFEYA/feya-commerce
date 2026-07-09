@@ -16,6 +16,21 @@ type GeneratedDraftOutput = {
   faq?: Array<{ question?: string; answer?: string; intent?: string }>;
   image_alt_candidates?: Array<{ alt_text?: string; truth_basis?: string; image_role?: string }>;
   internal_linking_hints?: Array<{ anchor?: string; target_type?: string; reason?: string }>;
+  visual_truth?: {
+    observed_product_facts?: string[];
+    dna_matches?: string[];
+    open_style_suggestions?: string[];
+    uncertain_or_missing_facts?: string[];
+    forbidden_visual_claims?: string[];
+  } | null;
+  pdp_blocks?: Array<{
+    block_key?: string;
+    placement?: string;
+    heading?: string;
+    body?: string;
+    source_basis?: string;
+    needs_human_review?: boolean;
+  }>;
   qa_self_report?: Record<string, unknown>;
   generation_notes?: string[];
 };
@@ -29,7 +44,15 @@ type AiDraftResult = {
   blockers?: Array<{ code?: string; message?: string }>;
   readiness?: Record<string, unknown>;
   feature_flag?: { name?: string; enabled?: boolean };
-  openai_generation?: { ok?: boolean; status?: string; model?: string; response_id?: string | null; error?: string | null; has_output?: boolean };
+  openai_generation?: {
+    ok?: boolean;
+    status?: string;
+    model?: string;
+    response_id?: string | null;
+    error?: string | null;
+    has_output?: boolean;
+    vision_input?: { primary_image_sent?: boolean; primary_image_url?: string | null } | null;
+  };
   generated_draft_output?: GeneratedDraftOutput | null;
   generated_draft_validation?: { ok?: boolean; status?: string; issues?: ValidationIssue[] };
 };
@@ -113,13 +136,14 @@ export default function SeoAiDraftGenerateClient({ productId }: { productId: str
   const issues = validation?.issues || [];
   const blocked = Boolean(result?.blocked) || !result?.ok;
   const canSaveGeneratedDraft = Boolean(draft && validation?.ok && !saveResult?.ok);
+  const visionSent = result?.openai_generation?.vision_input?.primary_image_sent;
 
   return <div className="rounded-2xl border border-[rgba(212,178,106,.24)] bg-[rgba(212,178,106,.055)] p-4">
     <div className="flex flex-wrap items-start justify-between gap-3">
       <div>
         <div className="eyebrow-gold mb-1">Реальная генерация AI-черновика</div>
         <div className="max-w-3xl text-[12px] leading-relaxed text-[var(--bone-dim)]">
-          Эта кнопка вызывает OpenAI только на сервере и возвращает новый SEO-черновик для проверки. Она не сохраняет текст в Supabase, не публикует товар и не меняет storefront/product tables.
+          Эта кнопка вызывает OpenAI только на сервере и возвращает новый SEO-черновик для проверки. Фото товара используется как visual truth, но публикация и изменение товара не выполняются.
         </div>
       </div>
       <button
@@ -139,11 +163,12 @@ export default function SeoAiDraftGenerateClient({ productId }: { productId: str
     {error ? <Alert tone="danger">{error}</Alert> : null}
 
     {result ? <div className="mt-4 space-y-3">
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-2">
         <MiniFact label="Статус" value={translateStatus(result.status || 'unknown')} tone={blocked ? 'warning' : 'success'} />
         <MiniFact label="HTTP" value={String((result as any).http_status || '—')} />
         <MiniFact label="OpenAI" value={result.openai_generation?.ok ? 'ответ получен' : result.openai_generation?.status || 'не вызван'} tone={result.openai_generation?.ok ? 'success' : 'warning'} />
         <MiniFact label="Модель" value={result.openai_generation?.model || '—'} />
+        <MiniFact label="Фото в OpenAI" value={visionSent ? 'отправлено сервером' : 'нет / не отправлено'} tone={visionSent ? 'success' : 'warning'} />
       </div>
 
       {result.blockers?.length ? <BlockerGrid title="Что сейчас блокирует генерацию" blockers={result.blockers} /> : null}
@@ -167,14 +192,19 @@ export default function SeoAiDraftGenerateClient({ productId }: { productId: str
             <PreviewField label="SEO-заголовок" value={draft.seo_title} />
             <PreviewField label="H1-заголовок" value={draft.h1} />
             <PreviewField label="Описание для Google" value={draft.meta_description} />
-            <PreviewField label="Первый абзац" value={draft.intro} />
+            <PreviewField label="Первый абзац / About" value={draft.intro} />
+            <PreviewPdpBlocks blocks={(draft.pdp_blocks || []).filter((block) => block.placement === 'left_description')} title="Левый текст PDP" />
           </div>
           <div className="space-y-2">
             <PreviewList label="Тезисы" items={draft.bullet_highlights || []} />
+            <PreviewPdpBlocks blocks={(draft.pdp_blocks || []).filter((block) => block.placement === 'right_info_panel')} title="Правый блок PDP" />
             <PreviewFaq items={draft.faq || []} />
             <PreviewList label="ALT для изображений" items={(draft.image_alt_candidates || []).map((item) => `${item.alt_text || 'ALT требует проверки'} · ${translateTruthBasis(item.truth_basis)}`)} />
-            <PreviewList label="Заметки генерации" items={draft.generation_notes || []} />
           </div>
+        </div>
+        <div className="mt-3 grid lg:grid-cols-[1fr_.8fr] gap-3">
+          <PreviewVisualTruth truth={draft.visual_truth || null} />
+          <PreviewList label="Заметки генерации" items={draft.generation_notes || []} />
         </div>
         <div className="mt-3 rounded-lg border border-[rgba(216,214,211,.10)] bg-black/20 p-2 text-[11px] text-[var(--bone-dim)]">
           Сохранение создаёт только review draft и audit event. Публикация, изменение товара и применение к storefront остаются заблокированы.
@@ -271,6 +301,36 @@ function PreviewFaq({ items }: { items: Array<{ question?: string; answer?: stri
   </div>;
 }
 
+function PreviewVisualTruth({ truth }: { truth: GeneratedDraftOutput['visual_truth'] }) {
+  if (!truth) return <PreviewList label="Visual truth" items={[]} />;
+  return <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/20 p-2.5">
+    <div className="mb-1 text-[9px] uppercase tracking-[0.16em] text-[var(--smoke)]">Visual truth / что увидел агент</div>
+    <div className="grid sm:grid-cols-2 gap-2">
+      <TinyList label="Видимые факты" items={truth.observed_product_facts || []} />
+      <TinyList label="Совпадения с DNA" items={truth.dna_matches || []} />
+      <TinyList label="Открытые style идеи" items={truth.open_style_suggestions || []} />
+      <TinyList label="Неясно / запрещено" items={[...(truth.uncertain_or_missing_facts || []), ...(truth.forbidden_visual_claims || [])]} />
+    </div>
+  </div>;
+}
+
+function PreviewPdpBlocks({ blocks, title }: { blocks: NonNullable<GeneratedDraftOutput['pdp_blocks']>; title: string }) {
+  return <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/20 p-2.5">
+    <div className="mb-1 text-[9px] uppercase tracking-[0.16em] text-[var(--smoke)]">{title}</div>
+    {blocks.length ? <div className="space-y-2 text-[12px] leading-relaxed text-[var(--bone-dim)]">{blocks.map((block, index) => <div key={`${block.block_key}-${index}`} className="rounded-lg border border-[rgba(216,214,211,.08)] p-2">
+      <div className="flex flex-wrap items-center gap-2"><span className="text-bone">{block.heading || block.block_key}</span><span className="text-[10px] text-[var(--gold-warm)]">{translatePdpBlockKey(block.block_key || '')}</span>{block.needs_human_review ? <span className="text-[10px] text-[var(--gold-warm)]">нужна проверка</span> : null}</div>
+      <div className="mt-1">{block.body || '—'}</div>
+    </div>)}</div> : <div className="text-[12px] text-[var(--bone-dim)]">—</div>}
+  </div>;
+}
+
+function TinyList({ label, items }: { label: string; items: string[] }) {
+  return <div>
+    <div className="text-[10px] text-[var(--gold-warm)]">{label}</div>
+    {items.length ? <ul className="mt-1 list-disc pl-4 space-y-1 text-[11px] text-[var(--bone-dim)]">{items.map((item, index) => <li key={`${label}-${index}`}>{item}</li>)}</ul> : <div className="text-[11px] text-[var(--bone-dim)]">—</div>}
+  </div>;
+}
+
 function translateStatus(status: string) {
   const map: Record<string, string> = {
     blocked_before_generation: 'генерация заблокирована до запуска',
@@ -344,10 +404,18 @@ function translateIssueCode(code: string) {
     wrong_contract_version: 'неверная версия контракта',
     invalid_status: 'неверный статус черновика',
     missing_qa_self_report: 'нет QA self-report',
+    missing_visual_truth: 'нет visual truth',
+    invalid_pdp_blocks: 'нет PDP blocks',
     invalid_qa_notes: 'неверный формат QA notes',
     seo_title_long: 'SEO-заголовок слишком длинный',
     meta_description_long: 'Описание для Google слишком длинное',
+    seo_title_uses_edition: 'запрещено слово Edition',
+    h1_uses_edition: 'запрещено слово Edition в H1',
+    steampunk_needs_visual_proof: 'steampunk требует доказательства',
   };
+  if (code.startsWith('non_english_')) return `не английский текст: ${code.replace('non_english_', '')}`;
+  if (code.startsWith('missing_pdp_')) return `не хватает PDP-блока: ${code.replace('missing_pdp_', '')}`;
+  if (code.includes('audit_phrase')) return 'текст похож на аудит картинки';
   if (code.startsWith('invalid_')) return `неверное поле: ${code.replace('invalid_', '')}`;
   if (code.startsWith('missing_qa_')) return `нет QA-поля: ${code.replace('missing_qa_', '')}`;
   if (code.startsWith('qa_blocker_')) return `QA blocker: ${code.replace('qa_blocker_', '')}`;
@@ -359,9 +427,14 @@ function translateIssueMessage(message: string) {
     'Agent output contract_version must be seo_agent_output_v1.': 'AI должен вернуть contract_version = seo_agent_output_v1.',
     'Agent output status must be draft, needs_review, or blocked.': 'AI должен вернуть status: draft / needs_review / blocked.',
     'qa_self_report must be present.': 'AI должен вернуть полный qa_self_report.',
+    'visual_truth must be present.': 'AI должен вернуть отдельный visual_truth contract.',
     'seo_title is longer than the preferred review range.': 'SEO-заголовок длиннее безопасного диапазона.',
     'meta_description is longer than the preferred review range.': 'Описание для Google длиннее безопасного диапазона.',
+    'seo_title must not use filler word Edition.': 'SEO-заголовок не должен использовать пустое слово Edition.',
+    'h1 must not use filler word Edition.': 'H1 не должен использовать пустое слово Edition.',
   };
+  if (message.includes('must be English en-US')) return 'Клиентский текст должен быть на английском. Русский разрешён только в админских labels.';
+  if (message.includes('reads like an audit note')) return 'Этот текст звучит как аналитическое описание картинки, а не как продающий текст для клиента.';
   return map[message] || message;
 }
 
@@ -373,4 +446,20 @@ function translateValidation(status: string) {
 function translateTruthBasis(value?: string) {
   const map: Record<string, string> = { visible_product_fact: 'видимый факт товара', needs_image_review: 'нужна проверка фото' };
   return map[value || ''] || value || 'нужна проверка';
+}
+
+function translatePdpBlockKey(value: string) {
+  const map: Record<string, string> = {
+    about_this_piece: 'about',
+    whats_included: 'что входит',
+    sizing_fit: 'размер',
+    shipping_delivery: 'доставка',
+    materials_care: 'материал/уход',
+    customization: 'кастомизация',
+    returns_exchanges: 'возврат/обмен',
+    handmade_variation: 'ручная работа',
+    image_truth_note: 'фото truth',
+    related_collections: 'перелинковка',
+  };
+  return map[value] || value;
 }
