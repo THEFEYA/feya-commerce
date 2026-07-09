@@ -53,17 +53,32 @@ function buildSystemPrompt(input: SeoAgentInputContract) {
     'No portfolio/source overlap strategy is present. Keep the draft conservative and mark similarity/cannibalization as not_checked in QA notes.',
   ];
 
+  const visionRules = input.product?.primary_image_url ? [
+    'A primary product image may be attached to the OpenAI request. Use it as visual evidence, but do not invent facts that are not visible or present in product data.',
+    'Visual truth must help choose style, persona, event angle, image ALT wording, and forbidden mismatches.',
+    'Map visual observations to TheFEYA DNA when possible, but keep a separate mental distinction between observed visual facts, selected catalog DNA, and open visual suggestions.',
+    'If the image suggests a useful style not already in the DNA, mention it cautiously in generation_notes and do not force it into the title unless it is strongly supported by product truth and approved keywords.',
+    'Do not use steampunk unless the image clearly shows retro-futuristic Victorian/industrial cues such as gears, brass machinery, Victorian silhouettes, corsetry as the main style, or antique machinery aesthetics. Gold armor, leather straps, desert styling, or futuristic shoulder pieces alone are not steampunk.',
+  ] : [
+    'No primary image is attached. Treat image ALT as needs_image_review and do not infer visual-only style claims.',
+  ];
+
   return [
     'You are the server-side SEO draft writer for TheFEYA.',
     'You write reviewable product SEO drafts, not final published copy.',
     'You must return only a valid JSON object matching seo_agent_output_v1.',
     'Never invent product facts, components, materials, events, metrics, prices, shipping promises, or visual details.',
-    'Product truth and QA gates outrank search volume and simple keyword score.',
+    'Product truth, image truth, and QA gates outrank search volume and simple keyword score.',
     'Use natural human English for a premium handmade festival/stage fashion brand.',
     'Avoid generic AI sales language, keyword stuffing, doorway-page style copy, and franchise/brand references.',
     'Do not use long dash punctuation as the default style.',
+    'Never use filler words like Edition, Ultimate, Best, Perfect, Luxury, Premium, Elevate, Crafted to perfection, or Perfect for any occasion unless the input explicitly requires them.',
     'Hard length discipline: seo_title should be 45-68 characters, h1 should be 45-82 characters, meta_description should be 125-158 characters, intro should be concise and specific.',
     'If a keyword cluster is long, choose one owned angle and do not stack every event/style/material into the title.',
+    'Use FAQ to answer real buyer questions: production timing, shipping timing, materials/care, sizing/custom fit, color options, styling/use case, and custom adjustments when relevant.',
+    'FAQ should be commercially useful but calm and factual. Do not create anxiety. Do not over-warn. Do not make medical/safety/durability guarantees.',
+    'TheFEYA customization is limited: sizing, color/detail adjustments, length/coverage changes, and combinations of existing designs. Do not promise custom atelier work from scratch or unrelated styles.',
+    ...visionRules,
     'If product facts, metrics, or image truth are insufficient, return status needs_review or blocked with notes.',
     ...portfolioRules,
   ].join('\n');
@@ -92,6 +107,18 @@ function buildUserPrompt(input: SeoAgentInputContract) {
     '',
   ];
 
+  const buyerFacts = [
+    'Known TheFEYA buyer-facing facts allowed for FAQ when relevant:',
+    '- Typical made-to-order production: 3-5 days.',
+    '- Standard shipping: about 10-14 business days. Express shipping: about 6-9 business days when available.',
+    '- Priority production may be discussed with the manager; do not guarantee it automatically.',
+    '- Care: wipe clean by hand, avoid machine washing, avoid long-term heavy pressure in tight storage, hang or store carefully when possible.',
+    '- Common colors: gold and silver are core colors; black, white, red, and holographic options may be possible by request when the design supports it.',
+    '- Custom work: sizing, color/detail adjustments, length/coverage changes, and combinations of existing TheFEYA designs can be discussed; unrelated styles should not be promised.',
+    '- Gift note/card can be mentioned only as an optional request, not as a main SEO angle.',
+    '',
+  ];
+
   return [
     'Create a reviewable SEO product draft using the following strict input contract.',
     'Return JSON only. Do not add markdown. Do not add commentary outside JSON.',
@@ -106,6 +133,15 @@ function buildUserPrompt(input: SeoAgentInputContract) {
     '- FAQ answers: concise, factual, no invented shipping/price/fit claims.',
     '- image_alt_candidates: only visible product facts. Use needs_image_review when the image fact is not certain.',
     '',
+    'Visual/style rules:',
+    '- First identify visible product facts: component, silhouette, color, material impression, model/use context, and dominant visual mood.',
+    '- Then map them to approved product DNA and selected keyword roles.',
+    '- Keep open visual suggestions in generation_notes, not in the title, unless they match the approved keyword roles and product truth.',
+    '- For this brand, post-apocalyptic, warrior, futuristic, Burning Man, stage, festival, glam, cyber, reflective, armor, and performance can be valid when supported.',
+    '- Steampunk is not a default synonym for futuristic, leather, gold, Burning Man, or apocalyptic.',
+    '- Do not use the word Edition in SEO title or H1.',
+    '',
+    ...buyerFacts,
     ...strategyInstructions,
     'Input contract:',
     JSON.stringify(input, null, 2),
@@ -119,6 +155,8 @@ export function promptGuardrails(input?: SeoAgentInputContract) {
     'The model receives SeoAgentInputContract only, not arbitrary Supabase rows.',
     'The model must return seo_agent_output_v1 JSON only.',
     'The model must keep seo_title and meta_description inside review-safe length ranges.',
+    'Primary product image may be sent to the model only server-side and only as visual truth evidence.',
+    'Image observations must not override Product DNA unless they are clearly visible and still require human review before publish.',
     'The generated draft is not publish-ready until QA, similarity, image truth, and human review pass.',
     'No Supabase write should happen inside the generation call itself.',
     'No fake metrics: volume, competition, and trend numbers must come from validated sources only.',
