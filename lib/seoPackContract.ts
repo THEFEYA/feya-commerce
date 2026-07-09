@@ -34,6 +34,19 @@ export type SeoImageRole = 'primary' | 'detail' | 'lifestyle' | 'unknown';
 export type SeoImageAltTruthBasis = 'visible_product_fact' | 'needs_image_review';
 export type SeoInternalLinkTargetType = 'collection' | 'related_product' | 'guide';
 export type SeoFaqIntent = 'commercial' | 'fit' | 'shipping' | 'materials' | 'styling' | 'care' | 'other';
+export type SeoPdpBlockPlacement = 'left_description' | 'right_info_panel' | 'faq_lower' | 'review_only';
+export type SeoPdpBlockKey =
+  | 'about_this_piece'
+  | 'whats_included'
+  | 'sizing_fit'
+  | 'shipping_delivery'
+  | 'materials_care'
+  | 'customization'
+  | 'returns_exchanges'
+  | 'handmade_variation'
+  | 'image_truth_note'
+  | 'related_collections';
+export type SeoPdpBlockSourceBasis = 'product_fact' | 'brand_policy' | 'visual_truth' | 'needs_human_review';
 
 export type SeoKeywordMetricSnapshot = {
   avg_monthly_searches?: number | null;
@@ -148,6 +161,23 @@ export type SeoPortfolioDifferentiationContract = {
   before_generation_checks?: string[];
 };
 
+export type SeoVisualTruthContract = {
+  observed_product_facts: string[];
+  dna_matches: string[];
+  open_style_suggestions: string[];
+  uncertain_or_missing_facts: string[];
+  forbidden_visual_claims: string[];
+};
+
+export type SeoPdpContentBlock = {
+  block_key: SeoPdpBlockKey;
+  placement: SeoPdpBlockPlacement;
+  heading: string;
+  body: string;
+  source_basis: SeoPdpBlockSourceBasis;
+  needs_human_review?: boolean;
+};
+
 export type SeoAgentInputContract = {
   contract_version: SeoAgentInputContractVersion;
   task: 'draft_product_seo_pack';
@@ -176,6 +206,8 @@ export type SeoAgentInputContract = {
     | 'faq'
     | 'image_alt_candidates'
     | 'internal_linking_hints'
+    | 'visual_truth'
+    | 'pdp_blocks'
     | 'qa_self_report'
   >;
 };
@@ -203,6 +235,8 @@ export type SeoAgentOutputContract = {
     target_type: SeoInternalLinkTargetType;
     reason: string;
   }>;
+  visual_truth: SeoVisualTruthContract;
+  pdp_blocks: SeoPdpContentBlock[];
   qa_self_report: SeoQaContract;
   generation_notes: string[];
 };
@@ -240,6 +274,7 @@ export const SEO_PACK_CONTRACT_GUARDRAILS = [
   'No final publish status without similarity/cannibalization check.',
   'No fake keyword metrics or OpenAI-derived volume/competition/trend numbers.',
   'Product truth outranks raw volume and simple keyword score.',
+  'Visual truth must be separated from customer-facing sales copy.',
   'Image alt text must describe visible product facts only.',
   'Commercial intent belongs in FAQ/meta/body/landing unless explicitly approved for title.',
 ] as const;
