@@ -215,6 +215,8 @@ export function buildSeoAgentInputFromDraft(
       'faq',
       'image_alt_candidates',
       'internal_linking_hints',
+      'visual_truth',
+      'pdp_blocks',
       'qa_self_report',
     ],
   };
