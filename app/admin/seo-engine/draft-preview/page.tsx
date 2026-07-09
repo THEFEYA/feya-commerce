@@ -81,6 +81,10 @@ function Issues({ issues = [] }) {
 
 function AgentReadiness({ strategy, promptSummary, promptHasPortfolio }) {
   const strategyLoaded = Boolean(strategy);
+  const doctrine = promptSummary?.doctrine_summary || null;
+  const researchCheckpoint = doctrine?.research_reload_checkpoint || null;
+  const variationCheckpoint = doctrine?.variation_editing_checkpoint || null;
+
   return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden mb-5">
     <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]">
       <div>
@@ -96,8 +100,22 @@ function AgentReadiness({ strategy, promptSummary, promptHasPortfolio }) {
         <Fact label="Классификация" value={translateClassification(strategy?.classification)} tone={strategyLoaded ? 'success' : 'warning'} />
         <Fact label="Риск" value={translateRisk(strategy?.risk_level)} tone={strategy?.risk_level === 'high' ? 'danger' : strategyLoaded ? 'warning' : undefined} />
       </div>
+
+      {doctrine ? <div className="rounded-2xl border border-[rgba(108,183,138,.24)] bg-[rgba(108,183,138,.045)] p-3 space-y-3">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
+          <Fact label="Doctrine" value={doctrine.version} tone="success" />
+          <Fact label="PDP-блоков" value={doctrine.pdp_block_count} tone="success" />
+          <Fact label="Buyer facts" value={doctrine.buyer_fact_count} tone="success" />
+          <Fact label="Visual truth" value={doctrine.visual_truth_rule_count} tone="success" />
+        </div>
+        <div className="grid lg:grid-cols-2 gap-3">
+          <Section label="Финальный research checkpoint">{researchCheckpoint?.admin_note_ru || 'Перед финальным apply/publish нужно заново сверить последние исследования.'}</Section>
+          <Section label="Единый редактор товара">{variationCheckpoint?.admin_note_ru || 'Вариации, комплектация, PDP-тексты, slug/meta и sitemap должны быть в одном потоке редактирования.'}</Section>
+        </div>
+      </div> : <div className="rounded-xl border border-[rgba(212,178,106,.25)] bg-black/15 p-3 text-[12px] text-[var(--gold-warm)]">Doctrine summary ещё не пришёл в prompt summary. Нужно проверить сборку prompt-контракта.</div>}
+
       <div className="rounded-xl border border-[rgba(212,178,106,.25)] bg-[rgba(212,178,106,.06)] p-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">
-        Это не кнопка. Это серверная проверка: страница уже собрала будущий prompt для OpenAI-агента и показывает, дошла ли туда стратегия дифференциации из проверки похожих товаров. Реальный OpenAI и публикация выключены до отдельной безопасной кнопки ниже.
+        Это не кнопка. Это серверная проверка: страница уже собрала будущий prompt для OpenAI-агента и показывает, дошла ли туда стратегия дифференциации, doctrine правил, визуальная логика и checkpoint перед будущим применением к товару. Реальный publish выключен.
       </div>
       {strategyLoaded ? <div className="grid lg:grid-cols-2 gap-3">
         <Section label="Что должен сделать будущий агент">{translateUiText(strategy.agent_instruction_summary || 'Стратегия есть, но короткое описание не найдено.')}</Section>
@@ -255,7 +273,20 @@ function translateIssueCode(value) {
     bullet_count: 'тезисы',
     faq_count: 'FAQ',
     image_alt_count: 'ALT',
+    seo_title_audit_phrase: 'audit-стиль title',
+    h1_audit_phrase: 'audit-стиль H1',
+    meta_description_audit_phrase: 'audit-стиль meta',
+    intro_audit_phrase: 'audit-стиль intro',
+    seo_title_weak_availability: 'слабая формулировка',
+    h1_weak_availability: 'слабая формулировка',
+    meta_description_weak_availability: 'слабая формулировка',
+    intro_weak_availability: 'слабая формулировка',
   };
+  if (String(value || '').startsWith('pdp_block_audit_phrase')) return 'audit-стиль PDP';
+  if (String(value || '').startsWith('pdp_block_weak_availability')) return 'слабая доступность';
+  if (String(value || '').startsWith('pdp_block_materials_care_thin')) return 'тонкий уход/материал';
+  if (String(value || '').startsWith('faq_audit_phrase')) return 'audit-стиль FAQ';
+  if (String(value || '').startsWith('faq_weak_availability')) return 'слабая доступность FAQ';
   return map[value] || value || 'валидация';
 }
 
@@ -296,7 +327,7 @@ function translateBriefStatus(value) {
 }
 
 function translateValidationStatus(value) {
-  const map = { valid: 'валидно', invalid: 'ошибка', not_checked: 'не проверено', unknown: 'неизвестно' };
+  const map = { valid: 'валидно', warning: 'есть предупреждения', blocked: 'заблокировано', invalid: 'ошибка', not_checked: 'не проверено', unknown: 'неизвестно' };
   return map[value] || value || 'неизвестно';
 }
 
@@ -324,6 +355,11 @@ function translateUiText(value) {
     'Human review, similarity check, and image ALT review are still required before publish readiness.': 'До готовности к публикации всё ещё нужны ручная проверка, проверка похожести и проверка ALT.',
     'Needs human answer before publish. Keep the answer specific to product facts, production, sizing, shipping, or styling context.': 'Нужен человеческий ответ перед публикацией. Ответ должен быть конкретным: факты товара, производство, размер, доставка или styling context.',
     'Collection keyword from the selected role map. Needs final URL review.': 'Ключ коллекции из выбранной карты ролей. Финальный URL нужно проверить.',
+    'Customer-facing PDP block reads like visual audit, not buyer copy.': 'PDP-блок звучит как технический осмотр, а не как текст для покупателя.',
+    'Customer-facing PDP block uses weak availability wording instead of clear service wording.': 'PDP-блок использует слабую формулировку доступности вместо уверенного описания сервиса.',
+    'Materials & care block should mention practical cleaning/storage/shape care, not only list materials.': 'Блок материала и ухода должен объяснять чистку, хранение и сохранение формы, а не просто перечислять материал.',
+    'FAQ reads like an audit note instead of answering a buyer concern.': 'FAQ звучит как техническая заметка, а не как ответ на вопрос покупателя.',
+    'FAQ answer uses weak availability wording instead of clear service wording.': 'FAQ использует слабую формулировку доступности вместо нормального ответа покупателю.',
   };
   return map[text] || text;
 }
