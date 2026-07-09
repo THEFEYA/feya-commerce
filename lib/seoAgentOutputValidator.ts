@@ -31,7 +31,6 @@ const REQUIRED_QA_KEYS: Array<keyof SeoQaContract> = [
 const CUSTOMER_COPY_FIELDS = ['seo_title', 'h1', 'meta_description', 'intro'] as const;
 const AUDIT_PHRASE_PATTERN = /\b(the image shows|image shows|shown in the image|shown on the image|the listed materials|listed materials|listed as|is listed as|are listed as|the product is listed|the material is listed|the materials are listed|indicated as|specified as|main focus|central element|at the center|material basis)\b/i;
 const WEAK_AVAILABILITY_PATTERN = /\b(if available|when available|where available|if possible|when possible|if supported|when supported|if the design supports it|confirm before ordering|clarify before ordering|ask the manager what is included|confirm configuration|clarify the contents)\b/i;
-const CARE_PATTERN = /\b(easy to clean|wipe|clean|alcohol|mild|machine wash|machine washing|hang|hanging|store|storage|shape|pressure|lasts for years)\b/i;
 const MATERIAL_PATTERN = /\b(vegan|faux|leather|mirror|metallic|glossy|coating|soft|reinforced|doubled|shape retention)\b/i;
 const CYRILLIC_PATTERN = /[А-Яа-яЁёІіЇїЄєҐґ]/;
 
@@ -146,18 +145,7 @@ function validateVisualTruth(value: unknown, issues: SeoAgentOutputValidationIss
 
 function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue[]) {
   if (!Array.isArray(value)) return;
-  const requiredBlocks = [
-    'about_this_piece',
-    'why_youll_love_it',
-    'ideal_for',
-    'whats_included',
-    'sizing_fit',
-    'production_timing',
-    'shipping_delivery',
-    'material',
-    'care',
-    'customization',
-  ];
+  const requiredBlocks = ['about_this_piece', 'why_youll_love_it', 'ideal_for', 'whats_included', 'material'];
   const keys = new Set<string>();
   let leftDescriptionChars = 0;
   value.forEach((block, index) => {
@@ -174,6 +162,12 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
     if (!['left_description', 'right_info_panel', 'faq_lower', 'review_only'].includes(placement)) {
       issues.push(blocker(`invalid_pdp_block_placement_${index}`, 'pdp_block.placement is invalid.'));
     }
+    if (placement === 'right_info_panel') {
+      issues.push(blocker(`pdp_block_right_panel_generated_${index}`, 'OpenAI must not generate right_info_panel blocks. The right PDP panel is canonical static storefront content.'));
+    }
+    if (['sizing_fit', 'production_timing', 'shipping_delivery', 'care', 'customization', 'returns_exchanges', 'handmade_variation'].includes(key)) {
+      issues.push(blocker(`pdp_block_static_policy_generated_${index}`, `${key} is canonical right-panel policy content and must not be generated per product.`));
+    }
     if (typeof block.heading !== 'string' || !block.heading.trim()) issues.push(blocker(`missing_pdp_block_heading_${index}`, 'pdp_block.heading is required.'));
     if (!body.trim()) issues.push(blocker(`missing_pdp_block_body_${index}`, 'pdp_block.body is required.'));
     checkEnglishString(block.heading, `pdp_blocks.${index}.heading`, issues, 'blocker');
@@ -187,20 +181,14 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
     if (key === 'whats_included' && placement !== 'left_description') {
       issues.push(warning(`pdp_block_included_wrong_placement_${index}`, 'whats_included should be part of the left main description, not a separate right-panel FAQ-style block.'));
     }
-    if (key === 'shipping_delivery' && /if available|when available/i.test(body)) {
-      issues.push(warning(`pdp_block_shipping_if_available_${index}`, 'Shipping block must not say express shipping is only if available.'));
-    }
     if (key === 'material' && !MATERIAL_PATTERN.test(body)) {
       issues.push(warning(`pdp_block_material_thin_${index}`, 'Material block should describe the actual material benefit, not only list a generic material.'));
     }
     if (key === 'material' && /texture|textured|structural texture/i.test(body)) {
       issues.push(warning(`pdp_block_material_texture_claim_${index}`, 'Glossy mirror products should not be described as textured leather unless source data proves it.'));
     }
-    if (key === 'care' && !CARE_PATTERN.test(body)) {
-      issues.push(warning(`pdp_block_care_thin_${index}`, 'Care block should mention easy cleaning, hand care, storage, and shape retention.'));
-    }
     if (key === 'materials_care') {
-      issues.push(warning(`pdp_block_legacy_materials_care_${index}`, 'Material and care should be split into separate material and care blocks.'));
+      issues.push(warning(`pdp_block_legacy_materials_care_${index}`, 'Material should be a product-specific left block; care is canonical right-panel content.'));
     }
   });
   requiredBlocks.forEach((blockKey) => {
