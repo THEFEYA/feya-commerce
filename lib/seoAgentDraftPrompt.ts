@@ -1,4 +1,10 @@
 import type { SeoAgentInputContract, SeoAgentOutputContract } from '@/lib/seoPackContract';
+import {
+  buildThefeyaSeoDoctrineGuardrails,
+  buildThefeyaSeoDoctrineSystemLines,
+  buildThefeyaSeoDoctrineUserLines,
+  summarizeThefeyaSeoDoctrine,
+} from '@/lib/thefeyaSeoDoctrine';
 
 export type SeoAgentPromptContract = {
   contract_version: 'seo_agent_prompt_v1';
@@ -6,6 +12,7 @@ export type SeoAgentPromptContract = {
   output_contract_version: 'seo_agent_output_v1';
   system_prompt: string;
   user_prompt: string;
+  doctrine_summary: ReturnType<typeof summarizeThefeyaSeoDoctrine>;
   response_format: {
     type: 'json_object' | 'json_schema';
     required_top_level_fields: Array<keyof SeoAgentOutputContract>;
@@ -37,6 +44,7 @@ export function buildSeoAgentPromptContract(input: SeoAgentInputContract): SeoAg
     output_contract_version: 'seo_agent_output_v1',
     system_prompt: buildSystemPrompt(input),
     user_prompt: buildUserPrompt(input),
+    doctrine_summary: summarizeThefeyaSeoDoctrine(),
     response_format: {
       type: 'json_schema',
       required_top_level_fields: REQUIRED_OUTPUT_FIELDS,
@@ -71,6 +79,7 @@ function buildSystemPrompt(input: SeoAgentInputContract) {
     'You write reviewable product SEO drafts, not final published copy.',
     'You must return only a valid JSON object matching seo_agent_output_v1.',
     'CRITICAL LANGUAGE RULE: every customer-facing output field must be natural English en-US. The admin UI can translate labels later, but your JSON content must not be Russian or Ukrainian.',
+    ...buildThefeyaSeoDoctrineSystemLines(),
     'Never invent product facts, components, materials, events, metrics, prices, shipping promises, or visual details.',
     'Product truth, image truth, and QA gates outrank search volume and simple keyword score.',
     'Use natural human English for a premium independent designer costume studio in festival, stage, performance and editorial fashion.',
@@ -117,20 +126,7 @@ function buildUserPrompt(input: SeoAgentInputContract) {
     '',
   ];
 
-  const buyerFacts = [
-    'Known TheFEYA buyer-facing facts allowed for PDP blocks and FAQ when relevant:',
-    '- Typical made-to-order production: 3-5 business days.',
-    '- If the buyer needs an item for a specific date or faster production, they should contact the manager; faster options can be discussed but are not guaranteed automatically.',
-    '- Standard shipping: about 10-14 business days. Express shipping: about 6-9 business days when available.',
-    '- Sizing: products usually include adjustable straps and sizing flexibility. Buyers should still use the size chart; if they have an individual figure or are worried about fit, they can send measurements to the manager and the item can be made to their measurements when the design supports it.',
-    '- Materials: use product facts first. When supported, describe vegan leather with a glossy mirror/metallic finish. Do not duplicate leather and faux leather as if they are two separate materials unless the source confirms both.',
-    '- Care: wipe clean by hand, avoid machine washing, avoid long-term heavy pressure in tight storage, hang or store carefully when possible.',
-    '- Color: use colors available in variant options first. Other colors can be discussed individually only if the design supports it.',
-    '- Customization is separate from sizing: length, coverage, color/detail adjustments, combinations of existing TheFEYA designs, or custom design within TheFEYA style can be discussed. Do not promise unrelated styles.',
-    '- Returns/exchanges/cancellations: mention that details are available in the store policy link. Do not overload product copy with full legal policy text.',
-    '- Gift note/card can be mentioned only as an optional request, not as a main SEO angle.',
-    '',
-  ];
+  const doctrineLines = buildThefeyaSeoDoctrineUserLines();
 
   return [
     'Create a reviewable SEO product draft using the following strict input contract.',
@@ -150,16 +146,7 @@ function buildUserPrompt(input: SeoAgentInputContract) {
     '- visual_truth: factual visual analysis only; this is internal evidence, not customer sales copy.',
     '- pdp_blocks: map the generated copy to the actual storefront sections. Keep blocks concise and useful.',
     '',
-    'Required PDP block plan:',
-    '- about_this_piece → placement left_description: polished product description for the left text area under the PDP gallery/buy box.',
-    '- whats_included → placement right_info_panel: components included, based on product facts. If unsure, mark needs_human_review true and avoid saying shoes/glasses/extra pieces are excluded unless source data says it.',
-    '- sizing_fit → placement right_info_panel: size chart, adjustable straps, custom measurements if needed.',
-    '- shipping_delivery → placement right_info_panel: production and standard/express shipping timing.',
-    '- materials_care → placement right_info_panel: material and care instructions.',
-    '- customization → placement right_info_panel: separate from sizing, only within TheFEYA style.',
-    '- returns_exchanges → placement right_info_panel: short link-to-policy style block.',
-    '- handmade_variation → placement right_info_panel or review_only: handmade variation, AI/styled image note only if necessary and phrased calmly without scaring the buyer.',
-    '',
+    ...doctrineLines,
     'Visual/style rules:',
     '- First identify visible product facts: component, silhouette, color, material impression, model/use context, and dominant visual mood.',
     '- Then map them to approved product DNA and selected keyword roles.',
@@ -168,7 +155,6 @@ function buildUserPrompt(input: SeoAgentInputContract) {
     '- Steampunk is not a default synonym for futuristic, leather, gold, Burning Man, or apocalyptic.',
     '- Do not use the word Edition in SEO title or H1.',
     '',
-    ...buyerFacts,
     ...strategyInstructions,
     'Input contract:',
     JSON.stringify(input, null, 2),
@@ -191,6 +177,7 @@ export function promptGuardrails(input?: SeoAgentInputContract) {
     'No Supabase write should happen inside the generation call itself.',
     'No fake metrics: volume, competition, and trend numbers must come from validated sources only.',
     input?.portfolio_strategy ? 'Portfolio/source overlap strategy must be followed during generation.' : 'Portfolio/source overlap strategy is not available; keep similarity as a pending gate.',
+    ...buildThefeyaSeoDoctrineGuardrails(),
   ];
 }
 
@@ -198,6 +185,7 @@ export function summarizeSeoAgentPromptContract(prompt: SeoAgentPromptContract) 
   return {
     contract_version: prompt.contract_version,
     output_contract_version: prompt.output_contract_version,
+    doctrine_summary: prompt.doctrine_summary,
     response_format: prompt.response_format,
     guardrail_count: prompt.guardrails.length,
     system_prompt_chars: prompt.system_prompt.length,
