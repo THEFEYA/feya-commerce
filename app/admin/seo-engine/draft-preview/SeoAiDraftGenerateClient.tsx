@@ -79,7 +79,7 @@ export default function SeoAiDraftGenerateClient({ productId }: { productId: str
     </div>
 
     <div className="mt-3 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">
-      Безопасность: генерация сработает только если в Vercel включён <span className="text-[var(--gold-warm)]">FEYA_SEO_AI_GENERATION_ENABLED=true</span>, есть серверный <span className="text-[var(--gold-warm)]">OPENAI_API_KEY</span>, стратегия портфеля загружена и validator готов. Даже при успехе это только черновик на экране.
+      Безопасность: генерация сработает только если в Vercel Preview включён <span className="text-[var(--gold-warm)]">FEYA_SEO_AI_GENERATION_ENABLED=true</span>, есть серверный <span className="text-[var(--gold-warm)]">OPENAI_API_KEY</span>, стратегия портфеля загружена и validator готов. Даже при успехе это только черновик на экране.
     </div>
 
     {error ? <div className="mt-3 rounded-lg border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-2.5 text-[11px] text-[var(--ruby-soft)]">{error}</div> : null}
@@ -195,7 +195,7 @@ function translateBlocker(code: string) {
 
 function translateMessage(message: string) {
   const map: Record<string, string> = {
-    'FEYA_SEO_AI_GENERATION_ENABLED is not true.': 'В Vercel ещё не включён FEYA_SEO_AI_GENERATION_ENABLED=true.',
+    'FEYA_SEO_AI_GENERATION_ENABLED is not true.': 'В Vercel Preview ещё не включён FEYA_SEO_AI_GENERATION_ENABLED=true для этого deployment.',
     'OPENAI_API_KEY is missing on the server.': 'На сервере не найден OPENAI_API_KEY.',
     'dry_run is enabled, so no model call or save is allowed.': 'Включён dry_run, поэтому модель не вызывается.',
     'Portfolio/source differentiation strategy is required before real AI generation.': 'Перед реальной генерацией нужна стратегия отличия от похожих товаров.',
