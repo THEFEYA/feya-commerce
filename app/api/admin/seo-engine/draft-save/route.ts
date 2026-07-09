@@ -34,6 +34,8 @@ export async function GET() {
     guarded_write_body: {
       product_id: 'canonical_product_id UUID',
       dry_run: false,
+      source_mode: 'openai_draft',
+      agent_output: 'validated seo_agent_output_v1 object',
       note: 'Requires FEYA_SEO_DRAFT_STORAGE_ENABLED=true. Saves review draft only. Does not publish.',
     },
     guardrails: draftSaveGuardrails(),
@@ -44,6 +46,7 @@ export async function POST(request: Request) {
   const body = await safeJson(request);
   const productId = String(body.product_id || body.productId || '').trim();
   const dryRun = body.dry_run !== false;
+  const requestedSourceMode = body.source_mode === 'openai_draft' ? 'openai_draft' : 'brief_baseline';
   const storageEnabled = process.env[STORAGE_FLAG] === 'true';
   const serviceClient = getSupabaseServiceClient();
   const hasServiceClient = Boolean(serviceClient);
@@ -81,15 +84,23 @@ export async function POST(request: Request) {
     }, { status: 404 });
   }
 
-  const agentOutput = buildMockSeoAgentOutput(bundle.aiAgentInput, bundle.brief);
+  const providedAgentOutput = pickProvidedAgentOutput(body);
+  const usesProvidedOpenAiOutput = requestedSourceMode === 'openai_draft' && Boolean(providedAgentOutput);
+  const agentOutput = usesProvidedOpenAiOutput
+    ? providedAgentOutput
+    : buildMockSeoAgentOutput(bundle.aiAgentInput, bundle.brief);
   const validationResult = validateSeoAgentOutput(agentOutput);
   const storagePayload = buildSeoDraftStoragePayload({
     seoPackDraft: bundle.seoPackDraft,
     agentInput: bundle.aiAgentInput,
     agentOutput,
     validationResult,
-    sourceMode: 'brief_baseline',
-    createdBy: dryRun ? 'seo-engine-draft-save-preflight' : 'seo-engine-draft-save-route',
+    sourceMode: usesProvidedOpenAiOutput ? 'openai_draft' : 'brief_baseline',
+    createdBy: dryRun
+      ? 'seo-engine-draft-save-preflight'
+      : usesProvidedOpenAiOutput
+        ? 'seo-engine-openai-draft-save-route'
+        : 'seo-engine-draft-save-route',
   });
 
   const blockers = collectDraftSaveBlockers({
@@ -98,6 +109,8 @@ export async function POST(request: Request) {
     hasServiceClient,
     storageHealth,
     validationResult,
+    requestedSourceMode,
+    providedAgentOutput,
   });
 
   const basePayload = {
@@ -108,6 +121,8 @@ export async function POST(request: Request) {
       enabled: storageEnabled,
     },
     dry_run: dryRun,
+    requested_source_mode: requestedSourceMode,
+    saved_source_mode: storagePayload.source_mode,
     storage_contract: storageContractMeta(),
     storage_health: storageHealth,
     readiness: {
@@ -115,10 +130,12 @@ export async function POST(request: Request) {
       storage_feature_flag_enabled: storageEnabled,
       storage_contract_applied: storageHealth.ok,
       storage_contract_missing: storageHealth.missing_objects,
+      provided_openai_output_received: usesProvidedOpenAiOutput,
       output_validation_status: validationResult.status,
       output_validation_ok: validationResult.ok,
+      output_validation_issue_count: validationResult.issues?.length || 0,
       payload_ready: true,
-      actual_insert_enabled: storageEnabled && !dryRun && hasServiceClient && storageHealth.ok && validationResult.ok,
+      actual_insert_enabled: storageEnabled && !dryRun && hasServiceClient && storageHealth.ok && validationResult.ok && (requestedSourceMode !== 'openai_draft' || usesProvidedOpenAiOutput),
     },
     source: {
       product_id: storagePayload.canonical_product_id,
@@ -156,21 +173,30 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     ok: true,
-    status: 'draft_saved_for_review',
+    status: usesProvidedOpenAiOutput ? 'openai_draft_saved_for_review' : 'draft_saved_for_review',
     blocked: false,
-    message: 'SEO review draft saved. No publish action was performed.',
+    message: usesProvidedOpenAiOutput
+      ? 'OpenAI SEO review draft saved. No publish action was performed.'
+      : 'SEO review draft saved. No publish action was performed.',
     saved_draft: saveResult.draft,
     saved_event: saveResult.event,
     ...basePayload,
   }, { status: 201 });
 }
 
-function collectDraftSaveBlockers({ storageEnabled, dryRun, hasServiceClient, storageHealth, validationResult }) {
+function pickProvidedAgentOutput(body) {
+  if (isRecord(body.agent_output)) return body.agent_output;
+  if (isRecord(body.generated_draft_output)) return body.generated_draft_output;
+  return null;
+}
+
+function collectDraftSaveBlockers({ storageEnabled, dryRun, hasServiceClient, storageHealth, validationResult, requestedSourceMode, providedAgentOutput }) {
   const blockers = [];
   if (!storageEnabled) blockers.push({ code: 'feature_flag_disabled', message: `${STORAGE_FLAG} is not true.` });
   if (dryRun) blockers.push({ code: 'dry_run_only', message: 'dry_run is enabled, so no Supabase insert is allowed.' });
   if (!hasServiceClient) blockers.push({ code: 'missing_service_role_client', message: getMissingSupabaseServiceEnvMessage() });
   if (!storageHealth.ok) blockers.push({ code: 'storage_contract_not_applied', message: `Storage SQL is not fully applied. Missing/problem objects: ${storageHealth.missing_objects.join(', ') || 'unknown'}.` });
+  if (requestedSourceMode === 'openai_draft' && !providedAgentOutput) blockers.push({ code: 'missing_openai_agent_output', message: 'source_mode=openai_draft requires agent_output from the generation response.' });
   if (!validationResult.ok) blockers.push({ code: 'output_validation_not_passing', message: 'SeoAgentOutputContract validation has blocker issues.' });
   return blockers;
 }
@@ -198,11 +224,14 @@ async function insertSeoDraftWithEvent(serviceClient, storagePayload) {
     from_status: null,
     to_status: draft.status,
     actor: storagePayload.created_by || 'seo-engine-draft-save-route',
-    note: 'SEO review draft saved by gated server route. No publish action was performed.',
+    note: storagePayload.source_mode === 'openai_draft'
+      ? 'OpenAI SEO review draft saved by gated server route. No publish action was performed.'
+      : 'SEO review draft saved by gated server route. No publish action was performed.',
     payload: {
       source_mode: storagePayload.source_mode,
       output_contract_version: storagePayload.output_contract_version,
       validation_status: storagePayload.validation_result_snapshot?.status || 'not_checked',
+      validation_issue_count: storagePayload.validation_result_snapshot?.issues?.length || 0,
       review_status: storagePayload.review_status,
     },
   };
@@ -309,12 +338,17 @@ async function safeJson(request: Request) {
   }
 }
 
+function isRecord(value: unknown) {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
 function draftSaveGuardrails() {
   return [
     ...seoDraftStoragePayloadGuardrails(),
     'This route uses Supabase service role only for guarded future writes.',
     'Default UI mode still performs no insert, no update, no publish action.',
     'A write requires FEYA_SEO_DRAFT_STORAGE_ENABLED=true and dry_run=false.',
+    'OpenAI draft save requires a validator-passing seo_agent_output_v1 object from the generation route.',
     'Save review draft is different from approve for publish.',
     'Publish readiness remains blocked until human review, similarity/cannibalization, and image ALT truth gates pass.',
   ];
