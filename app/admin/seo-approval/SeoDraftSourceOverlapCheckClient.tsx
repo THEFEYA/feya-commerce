@@ -3,6 +3,20 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+type SourceCatalogMatch = {
+  product_slug?: string | null;
+  title?: string | null;
+  overlap_pct?: number | null;
+  shared_tokens?: string[];
+  source_axes?: {
+    product_type?: string | null;
+    material?: string | null;
+    color?: string | null;
+    category?: string | null;
+    world?: string | null;
+  };
+};
+
 type SourceOverlapResult = {
   ok?: boolean;
   status?: string;
@@ -15,7 +29,7 @@ type SourceOverlapResult = {
     match_key_used?: string | null;
     source_load_errors?: Array<{ stage?: string; view?: string; message?: string; code?: string | null }>;
     draft_vs_target_source?: { overlap_pct?: number | null } | null;
-    source_catalog?: { max_overlap_pct?: number | null; candidate_count?: number | null };
+    source_catalog?: { max_overlap_pct?: number | null; candidate_count?: number | null; top_matches?: SourceCatalogMatch[] };
     target?: { source_loaded?: boolean; draft_token_count?: number | null; source_token_count?: number | null };
   };
 };
@@ -50,6 +64,8 @@ export default function SeoDraftSourceOverlapCheckClient({ draftId }: { draftId:
   const overlap = result?.source_overlap;
   const sourceLoaded = overlap?.target?.source_loaded;
   const hasResolverErrors = Boolean(overlap?.source_load_errors?.length);
+  const topMatches = overlap?.source_catalog?.top_matches?.slice(0, 3) || [];
+  const resultTone = getResultTone(overlap?.status, result?.ok);
 
   return <div className="mt-4 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3">
     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -68,15 +84,40 @@ export default function SeoDraftSourceOverlapCheckClient({ draftId }: { draftId:
     </div>
 
     {error ? <div className="mt-3 rounded-lg border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-2.5 text-[11px] text-[var(--ruby-soft)]">{error}</div> : null}
-    {result ? <div className={`mt-3 rounded-lg border p-2.5 text-[11px] leading-relaxed ${result.ok ? 'border-[rgba(108,183,138,.35)] bg-[rgba(108,183,138,.08)] text-[#a9dfbd]' : 'border-[rgba(212,178,106,.35)] bg-[rgba(212,178,106,.08)] text-[var(--gold-warm)]'}`}>
+    {result ? <div className={`mt-3 rounded-lg border p-2.5 text-[11px] leading-relaxed ${toneClass(resultTone)}`}>
       <div>{result.message || result.error || translateStatus(result.status || 'unknown')}</div>
-      {overlap ? <div className="mt-2 space-y-1 text-[var(--bone-dim)]">
+      {overlap ? <div className="mt-2 space-y-2 text-[var(--bone-dim)]">
         <div>status: {translateOverlapStatus(overlap.status || 'unknown')} · draft/source: {overlap.draft_vs_target_source?.overlap_pct ?? '—'}% · catalog max: {overlap.source_catalog?.max_overlap_pct ?? '—'}% · checked products: {overlap.source_catalog?.candidate_count ?? 0}</div>
         <div>source: {sourceLoaded ? 'найден' : 'не найден'} · view: {overlap.source_view_used || '—'} · match: {translateMatchKey(overlap.match_key_used || '')} · draft tokens: {overlap.target?.draft_token_count ?? '—'} · source tokens: {overlap.target?.source_token_count ?? '—'}</div>
+        {topMatches.length ? <div className="mt-2 rounded-lg border border-[rgba(216,214,211,.10)] bg-black/20 p-2">
+          <div className="mb-2 text-[10px] uppercase tracking-[0.16em] text-[var(--smoke)]">Самые похожие товары каталога</div>
+          <div className="space-y-2">{topMatches.map((match, index) => <div key={`${match.product_slug || 'match'}-${index}`} className="rounded-md border border-[rgba(216,214,211,.08)] bg-black/20 p-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="text-bone">{index + 1}. {match.title || match.product_slug || 'товар каталога'}</div>
+              <div className="text-[var(--gold-warm)]">{match.overlap_pct ?? 0}%</div>
+            </div>
+            <div className="mt-1 text-[10px] text-[var(--smoke)]">/{match.product_slug || 'no-slug'}</div>
+            {match.shared_tokens?.length ? <div className="mt-1 text-[10px] text-[var(--bone-dim)]">общие слова: {match.shared_tokens.slice(0, 12).join(', ')}</div> : null}
+            {match.source_axes ? <div className="mt-1 text-[10px] text-[var(--smoke)]">оси: {[match.source_axes.product_type, match.source_axes.material, match.source_axes.color, match.source_axes.category, match.source_axes.world].filter(Boolean).join(' · ') || '—'}</div> : null}
+          </div>)}</div>
+        </div> : null}
         {hasResolverErrors ? <div className="text-[var(--gold-warm)]">Есть resolver warnings: {overlap.source_load_errors?.slice(0, 2).map((item) => `${item.view || item.stage}: ${item.message}`).join(' · ')}</div> : null}
       </div> : null}
     </div> : null}
   </div>;
+}
+
+function getResultTone(status?: string, ok?: boolean) {
+  if (!ok) return 'warning';
+  if (status === 'pass') return 'success';
+  if (status === 'blocker') return 'danger';
+  return 'warning';
+}
+
+function toneClass(tone: string) {
+  if (tone === 'success') return 'border-[rgba(108,183,138,.35)] bg-[rgba(108,183,138,.08)] text-[#a9dfbd]';
+  if (tone === 'danger') return 'border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] text-[var(--ruby-soft)]';
+  return 'border-[rgba(212,178,106,.35)] bg-[rgba(212,178,106,.08)] text-[var(--gold-warm)]';
 }
 
 function translateStatus(status: string) {
