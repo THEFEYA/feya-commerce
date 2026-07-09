@@ -31,6 +31,11 @@ export async function GET() {
       product_id: 'canonical_product_id UUID',
       dry_run: true,
     },
+    guarded_write_body: {
+      product_id: 'canonical_product_id UUID',
+      dry_run: false,
+      note: 'Requires FEYA_SEO_DRAFT_STORAGE_ENABLED=true. Saves review draft only. Does not publish.',
+    },
     guardrails: draftSaveGuardrails(),
   });
 }
@@ -84,7 +89,7 @@ export async function POST(request: Request) {
     agentOutput,
     validationResult,
     sourceMode: 'brief_baseline',
-    createdBy: 'seo-engine-draft-save-skeleton',
+    createdBy: dryRun ? 'seo-engine-draft-save-preflight' : 'seo-engine-draft-save-route',
   });
 
   const blockers = collectDraftSaveBlockers({
@@ -97,7 +102,7 @@ export async function POST(request: Request) {
 
   const basePayload = {
     route: '/api/admin/seo-engine/draft-save',
-    mode: 'storage_preflight_only',
+    mode: dryRun ? 'storage_preflight_only' : 'guarded_storage_write',
     feature_flag: {
       name: STORAGE_FLAG,
       enabled: storageEnabled,
@@ -113,7 +118,7 @@ export async function POST(request: Request) {
       output_validation_status: validationResult.status,
       output_validation_ok: validationResult.ok,
       payload_ready: true,
-      actual_insert_enabled: false,
+      actual_insert_enabled: storageEnabled && !dryRun && hasServiceClient && storageHealth.ok && validationResult.ok,
     },
     source: {
       product_id: storagePayload.canonical_product_id,
@@ -136,13 +141,28 @@ export async function POST(request: Request) {
     }, { status: 423 });
   }
 
+  const saveResult = await insertSeoDraftWithEvent(serviceClient, storagePayload);
+  if (!saveResult.ok) {
+    return NextResponse.json({
+      ok: false,
+      status: 'storage_write_failed',
+      blocked: true,
+      error: saveResult.error,
+      saved_draft: saveResult.draft || null,
+      saved_event: saveResult.event || null,
+      ...basePayload,
+    }, { status: 500 });
+  }
+
   return NextResponse.json({
-    ok: false,
-    status: 'storage_write_not_implemented_yet',
-    blocked: true,
-    message: 'Preflight passed, but insert is intentionally not implemented until SQL is applied and verified in Supabase.',
+    ok: true,
+    status: 'draft_saved_for_review',
+    blocked: false,
+    message: 'SEO review draft saved. No publish action was performed.',
+    saved_draft: saveResult.draft,
+    saved_event: saveResult.event,
     ...basePayload,
-  }, { status: 501 });
+  }, { status: 201 });
 }
 
 function collectDraftSaveBlockers({ storageEnabled, dryRun, hasServiceClient, storageHealth, validationResult }) {
@@ -152,8 +172,57 @@ function collectDraftSaveBlockers({ storageEnabled, dryRun, hasServiceClient, st
   if (!hasServiceClient) blockers.push({ code: 'missing_service_role_client', message: getMissingSupabaseServiceEnvMessage() });
   if (!storageHealth.ok) blockers.push({ code: 'storage_contract_not_applied', message: `Storage SQL is not fully applied. Missing/problem objects: ${storageHealth.missing_objects.join(', ') || 'unknown'}.` });
   if (!validationResult.ok) blockers.push({ code: 'output_validation_not_passing', message: 'SeoAgentOutputContract validation has blocker issues.' });
-  blockers.push({ code: 'insert_flow_not_enabled', message: 'Actual Supabase insert is intentionally not implemented in this skeleton route.' });
   return blockers;
+}
+
+async function insertSeoDraftWithEvent(serviceClient, storagePayload) {
+  const { data: draft, error: draftError } = await serviceClient
+    .from(STORAGE_TABLE)
+    .insert(storagePayload)
+    .select('id, canonical_product_id, product_slug, status, review_status, source_mode, created_at')
+    .single();
+
+  if (draftError || !draft?.id) {
+    return {
+      ok: false,
+      error: draftError?.message || 'Draft insert did not return an id.',
+      draft: draft || null,
+      event: null,
+    };
+  }
+
+  const eventPayload = {
+    draft_id: draft.id,
+    canonical_product_id: draft.canonical_product_id,
+    event_type: 'draft_created',
+    from_status: null,
+    to_status: draft.status,
+    actor: storagePayload.created_by || 'seo-engine-draft-save-route',
+    note: 'SEO review draft saved by gated server route. No publish action was performed.',
+    payload: {
+      source_mode: storagePayload.source_mode,
+      output_contract_version: storagePayload.output_contract_version,
+      validation_status: storagePayload.validation_result_snapshot?.status || 'not_checked',
+      review_status: storagePayload.review_status,
+    },
+  };
+
+  const { data: event, error: eventError } = await serviceClient
+    .from(STORAGE_EVENTS_TABLE)
+    .insert(eventPayload)
+    .select('id, draft_id, canonical_product_id, event_type, to_status, created_at')
+    .single();
+
+  if (eventError || !event?.id) {
+    return {
+      ok: false,
+      error: eventError?.message || 'Event insert did not return an id.',
+      draft,
+      event: event || null,
+    };
+  }
+
+  return { ok: true, draft, event };
 }
 
 async function checkStorageContractHealth(serviceClient) {
@@ -243,9 +312,9 @@ async function safeJson(request: Request) {
 function draftSaveGuardrails() {
   return [
     ...seoDraftStoragePayloadGuardrails(),
-    'This route must use Supabase service role only for future writes.',
-    'This route currently performs no insert, no update, no publish action.',
-    'Do not enable storage writes until docs/SEO_DRAFT_STORAGE_CONTRACT_V1.sql is applied and smoke-tested.',
+    'This route uses Supabase service role only for guarded future writes.',
+    'Default UI mode still performs no insert, no update, no publish action.',
+    'A write requires FEYA_SEO_DRAFT_STORAGE_ENABLED=true and dry_run=false.',
     'Save review draft is different from approve for publish.',
     'Publish readiness remains blocked until human review, similarity/cannibalization, and image ALT truth gates pass.',
   ];
