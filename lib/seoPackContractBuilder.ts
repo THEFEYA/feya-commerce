@@ -7,6 +7,7 @@ import {
   type SeoManualFocusContract,
   type SeoMetricsStatusContract,
   type SeoPackDraftContract,
+  type SeoPortfolioDifferentiationContract,
   type SeoQaContract,
 } from '@/lib/seoPackContract';
 
@@ -160,6 +161,7 @@ export function buildSeoPackDraftContractFromBrief(brief: SeoPilotBrief): SeoPac
       risk_reason: qaChecks.similarity_cannibalization === 'warning' ? 'Similarity/cannibalization must be checked before publish.' : null,
       suggested_resolution: null,
     },
+    portfolio_strategy: null,
     agent_input: null,
     agent_output: null,
     human_review: {
@@ -171,7 +173,10 @@ export function buildSeoPackDraftContractFromBrief(brief: SeoPilotBrief): SeoPac
   };
 }
 
-export function buildSeoAgentInputFromDraft(draft: SeoPackDraftContract): SeoAgentInputContract {
+export function buildSeoAgentInputFromDraft(
+  draft: SeoPackDraftContract,
+  options?: { portfolio_strategy?: SeoPortfolioDifferentiationContract | null },
+): SeoAgentInputContract {
   return {
     contract_version: 'seo_agent_input_v1',
     task: 'draft_product_seo_pack',
@@ -183,6 +188,7 @@ export function buildSeoAgentInputFromDraft(draft: SeoPackDraftContract): SeoAge
     manual_focus: draft.manual_focus,
     keyword_roles: draft.keyword_roles,
     metrics_status: draft.metrics_status,
+    portfolio_strategy: options?.portfolio_strategy || draft.portfolio_strategy || null,
     qa_contract: {
       must_check: [
         'cliche_phrase',
