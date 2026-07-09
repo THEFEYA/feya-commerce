@@ -11,6 +11,15 @@ type OpenAiDraftResult = {
   error?: string | null;
 };
 
+type ResponseContentPart = {
+  text?: unknown;
+  content?: unknown;
+};
+
+type ResponseOutputItem = {
+  content?: unknown;
+};
+
 const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
 
 export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract): Promise<OpenAiDraftResult> {
@@ -115,16 +124,16 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract)
   };
 }
 
-function extractOutputText(payload: any): string | null {
-  if (typeof payload?.output_text === 'string' && payload.output_text.trim()) {
+function extractOutputText(payload: unknown): string | null {
+  if (isRecord(payload) && typeof payload.output_text === 'string' && payload.output_text.trim()) {
     return payload.output_text;
   }
 
-  const output = Array.isArray(payload?.output) ? payload.output : [];
+  const output = isRecord(payload) && Array.isArray(payload.output) ? payload.output as ResponseOutputItem[] : [];
   const chunks: string[] = [];
-  output.forEach((item) => {
-    const content = Array.isArray(item?.content) ? item.content : [];
-    content.forEach((part) => {
+  output.forEach((item: ResponseOutputItem) => {
+    const content = Array.isArray(item?.content) ? item.content as ResponseContentPart[] : [];
+    content.forEach((part: ResponseContentPart) => {
       if (typeof part?.text === 'string') chunks.push(part.text);
       if (typeof part?.content === 'string') chunks.push(part.content);
     });
@@ -147,4 +156,8 @@ function parseJsonObject(text: string): { ok: true; value: unknown } | { ok: fal
       error: error instanceof Error ? error.message : 'Failed to parse OpenAI JSON output.',
     };
   }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
