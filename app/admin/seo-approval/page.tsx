@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, Clock3, Database, ShieldAlert } from 'lucide-react';
 import { getSupabaseServiceClient } from '@/lib/supabase';
 import SeoDraftReviewActionsClient from './SeoDraftReviewActionsClient';
+import SeoDraftSimilarityCheckClient from './SeoDraftSimilarityCheckClient';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -143,6 +144,7 @@ function EventTimeline({ events = [] }) {
 function SavedDraftCard({ draft, events }) {
   const title = draft.h1 || draft.seo_title || draft.product_slug || 'SEO-черновик';
   const isFinalReviewState = ['approved', 'changes_requested', 'rejected'].includes(String(draft.review_status || '').toLowerCase());
+  const needsSimilarityGate = String(draft.review_status || '').toLowerCase() === 'approved' && ['warning', 'not_checked', 'missing', 'проверить'].includes(String(draft.similarity_status || '').toLowerCase());
   return <article className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
       <div className="grid sm:grid-cols-[92px_1fr] gap-4 min-w-0">
@@ -174,6 +176,7 @@ function SavedDraftCard({ draft, events }) {
       <MiniFact label="Обновлён" value={dateLabel(draft.updated_at)} />
     </div>
     <EventTimeline events={events || []} />
+    {needsSimilarityGate ? <SeoDraftSimilarityCheckClient draftId={draft.id} /> : null}
     {isFinalReviewState ? <div className="mt-4 rounded-xl border border-[rgba(108,183,138,.22)] bg-[rgba(108,183,138,.06)] p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Review status уже изменён: <span className="text-[#a9dfbd]">{statusLabel(draft.review_status)}</span>. Это не публикация; publish readiness всё ещё требует similarity/cannibalization gate.</div> : <SeoDraftReviewActionsClient draftId={draft.id} />}
   </article>;
 }
