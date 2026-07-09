@@ -1,6 +1,6 @@
 # FEYA Commerce — SEO Draft Storage Handoff v1
 
-Status: contract only, not app write-enabled yet.
+Status: SQL applied; app route is implemented behind a guarded Preview/Production environment flag.
 
 Related SQL:
 
@@ -10,7 +10,7 @@ Related SQL:
 
 ## Why this exists
 
-The SEO engine now has a read-only pipeline:
+The SEO engine now has a guarded pipeline:
 
 ```text
 Listing Master decision
@@ -19,9 +19,11 @@ Listing Master decision
 → SeoAgentOutputContract baseline/mock
 → validator
 → Draft Review UI
+→ guarded draft-save route
+→ SEO draft storage tables
 ```
 
-The next safe layer is storage for reviewable SEO-pack drafts. This document defines that storage without enabling browser writes, OpenAI writes, or publish actions.
+The storage layer is for reviewable SEO-pack drafts. It is not a publish layer and does not change storefront product truth.
 
 ## Design decision
 
@@ -35,7 +37,7 @@ Use existing screens:
 /admin/seo-engine/metric-import
 ```
 
-Storage should serve these screens later through one server-side route/RPC, not become a parallel product.
+Storage should serve these screens through one server-side route/RPC, not become a parallel product.
 
 ## Tables
 
@@ -82,25 +84,9 @@ qa_self_report.image_alt_truth = pass
 
 This keeps storage separate from publishing.
 
-## Why app write is not enabled yet
+## Current app write status
 
-The existing Supabase handoff says: do not add write/edit mutations until read-only preview is stable.
-
-So the current state is intentionally:
-
-```text
-read-only UI: yes
-contract API: yes
-preflight: yes
-validator: yes
-SQL storage contract: yes
-app save route: not yet
-publish: no
-```
-
-## Next implementation step
-
-After SQL is reviewed/applied in Supabase, add a server-only route:
+The app now has a server-only guarded route:
 
 ```text
 POST /api/admin/seo-engine/draft-save
@@ -117,13 +103,26 @@ Rules for that route:
 7. Does not mark ready_for_publish.
 8. Returns saved draft id and status.
 
+The route only writes when all of these are true:
+
+```text
+FEYA_SEO_DRAFT_STORAGE_ENABLED=true
+dry_run=false
+SQL storage contract is visible to the service-role client
+validator passes
+service-role Supabase client exists
+```
+
+The default UI check button still sends `dry_run=true` and performs no write.
+
 ## Future UI behavior
 
 On `/admin/seo-engine/draft-preview`:
 
-- Keep current disabled buttons until storage exists.
-- After route is implemented, enable only `Save review draft`.
-- Keep `Approve for publish` disabled until similarity/image/human gates are real.
+- `Проверить сохранение черновика` runs dry-run preflight.
+- `Сохранить черновик для проверки` sends guarded `dry_run=false`.
+- `Одобрить к публикации` remains disabled until similarity/image/human gates are real.
+- Real publish remains unavailable.
 
 ## Current focus
 
