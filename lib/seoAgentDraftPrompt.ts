@@ -33,17 +33,26 @@ export function buildSeoAgentPromptContract(input: SeoAgentInputContract): SeoAg
     contract_version: 'seo_agent_prompt_v1',
     model_role: 'server_side_seo_draft_writer',
     output_contract_version: 'seo_agent_output_v1',
-    system_prompt: buildSystemPrompt(),
+    system_prompt: buildSystemPrompt(input),
     user_prompt: buildUserPrompt(input),
     response_format: {
       type: 'json_object',
       required_top_level_fields: REQUIRED_OUTPUT_FIELDS,
     },
-    guardrails: promptGuardrails(),
+    guardrails: promptGuardrails(input),
   };
 }
 
-function buildSystemPrompt() {
+function buildSystemPrompt(input: SeoAgentInputContract) {
+  const portfolioRules = input.portfolio_strategy ? [
+    'A portfolio/source overlap strategy is present. You must follow it.',
+    'Shared cluster terms may be preserved when strategically useful, but do not copy the nearest catalog match title skeleton, opening paragraph, or phrase order.',
+    'If the strategy classification indicates duplicate risk or mapping issue, return status needs_review or blocked with clear generation_notes.',
+    'Use the strategy primary_angle_to_own and required_differentiators to make this product visibly distinct inside the same Google cluster.',
+  ] : [
+    'No portfolio/source overlap strategy is present. Keep the draft conservative and mark similarity/cannibalization as not_checked in QA notes.',
+  ];
+
   return [
     'You are the server-side SEO draft writer for TheFEYA.',
     'You write reviewable product SEO drafts, not final published copy.',
@@ -54,22 +63,46 @@ function buildSystemPrompt() {
     'Avoid generic AI sales language, keyword stuffing, doorway-page style copy, and franchise/brand references.',
     'Do not use long dash punctuation as the default style.',
     'If product facts, metrics, or image truth are insufficient, return status needs_review or blocked with notes.',
+    ...portfolioRules,
   ].join('\n');
 }
 
 function buildUserPrompt(input: SeoAgentInputContract) {
+  const strategy = input.portfolio_strategy;
+  const strategyInstructions = strategy ? [
+    'Portfolio differentiation strategy for this generation:',
+    `- Classification: ${strategy.classification || 'unknown'}`,
+    `- Risk level: ${strategy.risk_level || 'unknown'}`,
+    `- Generation mode: ${strategy.recommended_generation_mode || 'normal_generation'}`,
+    `- Angle to own: ${strategy.primary_angle_to_own || 'product-specific visible-detail angle'}`,
+    strategy.agent_instruction_summary ? `- Instruction: ${strategy.agent_instruction_summary}` : null,
+    strategy.title_strategy ? `- Title strategy: ${strategy.title_strategy}` : null,
+    strategy.h1_strategy ? `- H1 strategy: ${strategy.h1_strategy}` : null,
+    strategy.meta_strategy ? `- Meta strategy: ${strategy.meta_strategy}` : null,
+    strategy.body_strategy ? `- Body strategy: ${strategy.body_strategy}` : null,
+    strategy.keep_cluster_terms?.length ? `- Cluster terms to keep naturally: ${strategy.keep_cluster_terms.join(', ')}` : null,
+    strategy.avoid_overusing_terms?.length ? `- Do not overuse: ${strategy.avoid_overusing_terms.join(', ')}` : null,
+    strategy.required_differentiators?.length ? `- Required differentiators: ${strategy.required_differentiators.join(' | ')}` : null,
+    strategy.nearest_catalog_match ? `- Nearest catalog match: ${strategy.nearest_catalog_match.title || strategy.nearest_catalog_match.product_slug || 'unknown'} (${strategy.nearest_catalog_match.overlap_pct ?? 'unknown'}%). Do not copy its phrase order.` : null,
+    '',
+  ].filter(Boolean) : [
+    'Portfolio differentiation strategy: not available. Keep output conservative and explicitly note that similarity must be checked before publish.',
+    '',
+  ];
+
   return [
     'Create a reviewable SEO product draft using the following strict input contract.',
     'Return JSON only. Do not add markdown. Do not add commentary outside JSON.',
     '',
     'Required output contract: seo_agent_output_v1.',
     '',
+    ...strategyInstructions,
     'Input contract:',
     JSON.stringify(input, null, 2),
   ].join('\n');
 }
 
-export function promptGuardrails() {
+export function promptGuardrails(input?: SeoAgentInputContract) {
   return [
     'Server-side only: never build this prompt in browser code.',
     'OpenAI key must never be exposed to the client.',
@@ -78,6 +111,7 @@ export function promptGuardrails() {
     'The generated draft is not publish-ready until QA, similarity, image truth, and human review pass.',
     'No Supabase write should happen inside the generation call itself.',
     'No fake metrics: volume, competition, and trend numbers must come from validated sources only.',
+    input?.portfolio_strategy ? 'Portfolio/source overlap strategy must be followed during generation.' : 'Portfolio/source overlap strategy is not available; keep similarity as a pending gate.',
   ];
 }
 
