@@ -4,6 +4,7 @@ import { ArrowUpRight, CheckCircle2, FileText, ShieldAlert, Sparkles } from 'luc
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
 import { buildMockSeoAgentOutput } from '@/lib/seoAgentMockDraft';
 import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
+import { buildSeoAgentPromptContract, summarizeSeoAgentPromptContract } from '@/lib/seoAgentDraftPrompt';
 import SeoDraftSavePreflightClient from './SeoDraftSavePreflightClient';
 
 export const dynamic = 'force-dynamic';
@@ -45,10 +46,11 @@ function Section({ label, children }) {
   </div>;
 }
 
-function Fact({ label, value }) {
+function Fact({ label, value, tone }) {
+  const cls = tone === 'success' ? 'text-[#a9dfbd]' : tone === 'warning' ? 'text-[var(--gold-warm)]' : tone === 'danger' ? 'text-[var(--ruby-soft)]' : 'text-bone';
   return <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-2.5">
     <div className="text-[9px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1">{label}</div>
-    <div className="text-[12px] text-bone leading-snug">{asText(value)}</div>
+    <div className={`text-[12px] leading-snug ${cls}`}>{asText(value)}</div>
   </div>;
 }
 
@@ -58,22 +60,61 @@ function Notice({ children, tone = 'warning' }) {
 }
 
 function ReviewList({ items = [] }) {
-  return items.length ? <ul className="list-disc pl-5 space-y-1.5">{items.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul> : <span>—</span>;
+  return items.length ? <ul className="list-disc pl-5 space-y-1.5">{items.map((item, index) => <li key={`${item}-${index}`}>{translateUiText(item)}</li>)}</ul> : <span>—</span>;
 }
 
 function FaqList({ items = [] }) {
   return items.length ? <div className="space-y-3">{items.map((item, index) => <div key={`${item.question}-${index}`}>
     <div className="text-bone text-[12px]">{item.question || 'Вопрос требует проверки'}</div>
-    <div className="mt-1 text-[12px] leading-relaxed text-[var(--bone-dim)]">{item.answer || 'Ответ требует проверки'}</div>
-    <div className="mt-1"><Pill tone="gold">{item.intent || 'другое'}</Pill></div>
+    <div className="mt-1 text-[12px] leading-relaxed text-[var(--bone-dim)]">{translateUiText(item.answer || 'Ответ требует проверки')}</div>
+    <div className="mt-1"><Pill tone="gold">{translateIntent(item.intent)}</Pill></div>
   </div>)}</div> : <span>—</span>;
 }
 
 function Issues({ issues = [] }) {
   return issues.length ? <div className="grid md:grid-cols-2 gap-2">{issues.map((issue, index) => <div key={`${issue.code}-${index}`} className="rounded-xl border border-[rgba(212,178,106,.22)] bg-black/15 p-3">
-    <div className="flex flex-wrap gap-2 mb-1.5"><Pill tone={issue.severity === 'blocker' ? 'danger' : 'warning'}>{issue.severity || 'issue'}</Pill><Pill>{issue.code || 'validation'}</Pill></div>
-    <div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">{issue.message || 'Нужна проверка.'}</div>
-  </div>)}</div> : <div className="rounded-xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.06)] p-3 text-[12px] text-[#a9dfbd]">Validator не нашёл blocker issues в review output.</div>;
+    <div className="flex flex-wrap gap-2 mb-1.5"><Pill tone={issue.severity === 'blocker' ? 'danger' : 'warning'}>{translateSeverity(issue.severity)}</Pill><Pill>{translateIssueCode(issue.code)}</Pill></div>
+    <div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">{translateUiText(issue.message || 'Нужна проверка.')}</div>
+  </div>)}</div> : <div className="rounded-xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.06)] p-3 text-[12px] text-[#a9dfbd]">Валидатор не нашёл блокирующих ошибок в черновике.</div>;
+}
+
+function AgentReadiness({ strategy, promptSummary, promptHasPortfolio }) {
+  const strategyLoaded = Boolean(strategy);
+  return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden mb-5">
+    <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]">
+      <div>
+        <div className="eyebrow-gold">Готовность AI-агента</div>
+        <div className="mt-1 text-bone text-[18px]">Проверка без кнопок и без поиска в JSON</div>
+      </div>
+      <Sparkles size={17} className="text-[var(--gold-warm)]" />
+    </div>
+    <div className="p-4 space-y-3">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
+        <Fact label="Стратегия портфеля" value={strategyLoaded ? 'загружена' : 'нет'} tone={strategyLoaded ? 'success' : 'warning'} />
+        <Fact label="Стратегия в prompt" value={promptHasPortfolio ? 'да' : 'нет'} tone={promptHasPortfolio ? 'success' : 'warning'} />
+        <Fact label="Классификация" value={translateClassification(strategy?.classification)} tone={strategyLoaded ? 'success' : 'warning'} />
+        <Fact label="Риск" value={translateRisk(strategy?.risk_level)} tone={strategy?.risk_level === 'high' ? 'danger' : strategyLoaded ? 'warning' : undefined} />
+      </div>
+      <div className="rounded-xl border border-[rgba(212,178,106,.25)] bg-[rgba(212,178,106,.06)] p-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">
+        Это не кнопка. Это серверная проверка: страница уже собрала будущий prompt для OpenAI-агента и показывает, дошла ли туда стратегия дифференциации из проверки похожих товаров. Реальный OpenAI и публикация всё ещё выключены.
+      </div>
+      {strategyLoaded ? <div className="grid lg:grid-cols-2 gap-3">
+        <Section label="Что должен сделать будущий агент">{translateUiText(strategy.agent_instruction_summary || 'Стратегия есть, но короткое описание не найдено.')}</Section>
+        <Section label="Угол товара">{translateUiText(strategy.primary_angle_to_own || 'Нужен отдельный product angle.')}</Section>
+        <Section label="Стратегия title / H1"><ReviewList items={[strategy.title_strategy, strategy.h1_strategy].filter(Boolean)} /></Section>
+        <Section label="Стратегия meta / body"><ReviewList items={[strategy.meta_strategy, strategy.body_strategy].filter(Boolean)} /></Section>
+        <Section label="Оставить кластерные слова"><ReviewList items={strategy.keep_cluster_terms || []} /></Section>
+        <Section label="Не переспамить"><ReviewList items={strategy.avoid_overusing_terms || []} /></Section>
+        <Section label="Обязательные отличия"><ReviewList items={strategy.required_differentiators || []} /></Section>
+        <Section label="Ближайший похожий товар">{strategy.nearest_catalog_match ? `${strategy.nearest_catalog_match.title || strategy.nearest_catalog_match.product_slug || 'товар'} · ${strategy.nearest_catalog_match.overlap_pct ?? '—'}%` : '—'}</Section>
+      </div> : <div className="rounded-xl border border-[rgba(212,178,106,.25)] bg-black/15 p-3 text-[12px] text-[var(--gold-warm)]">Стратегия ещё не загружена. Нужно сначала на странице “Проверка SEO” нажать “Проверить текущий каталог” для сохранённого черновика.</div>}
+      {promptSummary ? <div className="grid sm:grid-cols-3 gap-2">
+        <Fact label="Prompt contract" value="собран" tone="success" />
+        <Fact label="Символов system" value={promptSummary.system_prompt_chars} />
+        <Fact label="Символов user" value={promptSummary.user_prompt_chars} />
+      </div> : null}
+    </div>
+  </div>;
 }
 
 export default async function SeoDraftPreviewPage({ searchParams }) {
@@ -85,6 +126,10 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
   const seoPackDraft = bundle.seoPackDraft || null;
   const mockDraft = bundle.aiAgentInput ? buildMockSeoAgentOutput(bundle.aiAgentInput, brief) : null;
   const validation = mockDraft ? validateSeoAgentOutput(mockDraft) : null;
+  const promptContract = bundle.aiAgentInput ? buildSeoAgentPromptContract(bundle.aiAgentInput) : null;
+  const promptSummary = promptContract ? summarizeSeoAgentPromptContract(promptContract) : null;
+  const portfolioStrategy = bundle.aiAgentInput?.portfolio_strategy || null;
+  const promptHasPortfolio = Boolean(portfolioStrategy && promptContract?.user_prompt?.includes('Portfolio differentiation strategy'));
   const activeProductId = seoPackDraft?.canonical_product_id || product?.canonical_product_id || productId;
 
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
@@ -93,7 +138,7 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
         <div>
           <div className="eyebrow-gold mb-2">Админка · SEO · проверка черновика</div>
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,64px)' }}>Проверка SEO-черновика</h1>
-          <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Этот экран показывает человекочитаемый SEO Brief baseline, завёрнутый в seo_agent_output_v1 для проверки validator/storage pipeline. Это не финальный AI-текст и не publish draft.</p>
+          <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Этот экран показывает черновик для проверки и готовность будущего AI-агента. Здесь нет публикации, нет изменения товара и нет реального OpenAI-вызова.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {activeProductId ? <Link href={`/admin/seo-engine/briefs?product_id=${activeProductId}`} className="btn-ghost">Назад к SEO-брифу <ArrowUpRight size={13} /></Link> : null}
@@ -104,7 +149,7 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
 
       {bundle.error ? <Notice tone="danger">{bundle.error}</Notice> : null}
       {!product ? <Notice tone="danger">Товар не найден в Product Focus view. Открой SEO-бриф с конкретным product_id.</Notice> : null}
-      {product && !bundle.decision ? <Notice>Для этого товара нет сохранённого решения Listing Master. Draft baseline может быть неполным, потому что нет ручного Product DNA и выбранных ключей.</Notice> : null}
+      {product && !bundle.decision ? <Notice>Для этого товара нет сохранённого решения Listing Master. Черновик может быть неполным, потому что нет ручного Product DNA и выбранных ключей.</Notice> : null}
 
       {product && brief && seoPackDraft && mockDraft ? <>
         <div className="grid lg:grid-cols-[.9fr_1.1fr] gap-5 mb-5">
@@ -119,8 +164,8 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
                   <div className="text-bone text-[18px] leading-tight">{brief.productTitle}</div>
                   <div className="mt-2 text-[11px] text-[var(--bone-dim)]">ID: {activeProductId} · /{brief.productSlug}</div>
                   <div className="mt-4 grid sm:grid-cols-2 gap-2">
-                    <Fact label="Статус SEO-pack" value={seoPackDraft.status} />
-                    <Fact label="Статус брифа" value={brief.status} />
+                    <Fact label="Статус SEO-pack" value={translatePackStatus(seoPackDraft.status)} />
+                    <Fact label="Статус брифа" value={translateBriefStatus(brief.status)} />
                     <Fact label="Главные ключи" value={seoPackDraft.keyword_roles.primary.length} />
                     <Fact label="Вторичные ключи" value={seoPackDraft.keyword_roles.secondary.length} />
                   </div>
@@ -133,39 +178,41 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
             <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div className="eyebrow-gold">Контрольные проверки</div><ShieldAlert size={17} className="text-[var(--gold-warm)]" /></div>
             <div className="p-4 space-y-3">
               <div className="grid sm:grid-cols-3 gap-2">
-                <Fact label="Черновик" value={mockDraft.status} />
-                <Fact label="Validator" value={validation?.status || 'unknown'} />
+                <Fact label="Черновик" value={translateDraftStatus(mockDraft.status)} />
+                <Fact label="Валидатор" value={translateValidationStatus(validation?.status)} />
                 <Fact label="Сохранение" value="нет" />
               </div>
               <div className="rounded-xl border border-[rgba(212,178,106,.25)] bg-[rgba(212,178,106,.06)] p-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">
-                Главный текст ниже восстановлен из SeoPilotBrief.draftPreview, чтобы не терять качество preview. Сохранение в Supabase, OpenAI generation и publish остаются заблокированы до storage contract, human review и similarity/cannibalization gate.
+                Главный текст ниже восстановлен из SEO-брифа, чтобы не терять качество preview. Сохранение в Supabase, OpenAI generation и publish остаются заблокированы до review gates.
               </div>
-              <div className="flex flex-wrap gap-2"><Pill tone={statusTone(validation?.status)}>{validation?.status || 'not_checked'}</Pill><Pill tone="success">SEO baseline</Pill><Pill tone="warning">без записи в Supabase</Pill><Pill tone="warning">без публикации</Pill><Pill tone="warning">без реального OpenAI</Pill></div>
+              <div className="flex flex-wrap gap-2"><Pill tone={statusTone(validation?.status)}>{translateValidationStatus(validation?.status)}</Pill><Pill tone="success">SEO baseline</Pill><Pill tone="warning">без записи в Supabase</Pill><Pill tone="warning">без публикации</Pill><Pill tone="warning">без реального OpenAI</Pill></div>
             </div>
           </div>
         </div>
 
+        <AgentReadiness strategy={portfolioStrategy} promptSummary={promptSummary} promptHasPortfolio={promptHasPortfolio} />
+
         <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden mb-5">
-          <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold">SEO baseline / review output</div><div className="mt-1 text-bone text-[18px]">seo_agent_output_v1 seeded from draftPreview</div></div><Sparkles size={17} className="text-[var(--gold-warm)]" /></div>
+          <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold">SEO-база / черновик для проверки</div><div className="mt-1 text-bone text-[18px]">Черновик восстановлен из SEO-брифа</div></div><Sparkles size={17} className="text-[var(--gold-warm)]" /></div>
           <div className="p-4 grid lg:grid-cols-[1fr_.85fr] gap-4">
             <div className="space-y-3">
-              <Section label="SEO title">{mockDraft.seo_title}</Section>
-              <Section label="H1">{mockDraft.h1}</Section>
+              <Section label="SEO-заголовок">{mockDraft.seo_title}</Section>
+              <Section label="H1-заголовок">{mockDraft.h1}</Section>
               <Section label="Meta description">{mockDraft.meta_description}</Section>
-              <Section label="Intro">{mockDraft.intro}</Section>
+              <Section label="Intro / первый абзац">{mockDraft.intro}</Section>
             </div>
             <div className="space-y-3">
               <Section label="Тезисы"><ReviewList items={mockDraft.bullet_highlights || []} /></Section>
               <Section label="FAQ"><FaqList items={mockDraft.faq || []} /></Section>
-              <Section label="ALT для изображений"><ReviewList items={(mockDraft.image_alt_candidates || []).map((item) => `${item.alt_text || 'ALT требует проверки'} · ${item.truth_basis || 'unknown'}`)} /></Section>
-              <Section label="Внутренние ссылки"><ReviewList items={(mockDraft.internal_linking_hints || []).map((item) => `${item.anchor || 'anchor'} → ${item.target_type || 'target'} · ${item.reason || 'needs review'}`)} /></Section>
+              <Section label="ALT для изображений"><ReviewList items={(mockDraft.image_alt_candidates || []).map((item) => `${item.alt_text || 'ALT требует проверки'} · ${translateTruthBasis(item.truth_basis)}`)} /></Section>
+              <Section label="Внутренние ссылки"><ReviewList items={(mockDraft.internal_linking_hints || []).map((item) => `${item.anchor || 'anchor'} → ${translateTargetType(item.target_type)} · ${translateUiText(item.reason || 'нужно проверить')}`)} /></Section>
               <Section label="Служебные заметки"><ReviewList items={mockDraft.generation_notes || []} /></Section>
             </div>
           </div>
         </div>
 
         <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden mb-5">
-          <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold">Результат validator</div><div className="mt-1 text-bone text-[18px]">Перед любым будущим сохранением</div></div><CheckCircle2 size={17} className="text-[var(--gold-warm)]" /></div>
+          <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold">Результат валидатора</div><div className="mt-1 text-bone text-[18px]">Перед любым будущим сохранением</div></div><CheckCircle2 size={17} className="text-[var(--gold-warm)]" /></div>
           <div className="p-4"><Issues issues={validation?.issues || []} /></div>
         </div>
 
@@ -182,4 +229,106 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
       </> : null}
     </section>
   </main>;
+}
+
+function yesNo(value) {
+  return value ? 'да' : 'нет';
+}
+
+function shortId(value) {
+  return value ? String(value).slice(0, 8) : '—';
+}
+
+function translateIntent(value) {
+  const map = { commercial: 'коммерческий', fit: 'размер', shipping: 'доставка', materials: 'материалы', styling: 'стилизация', care: 'уход', other: 'другое' };
+  return map[value] || value || 'другое';
+}
+
+function translateSeverity(value) {
+  const map = { blocker: 'блокер', warning: 'проверить', info: 'инфо' };
+  return map[value] || value || 'проверить';
+}
+
+function translateIssueCode(value) {
+  const map = {
+    missing_output: 'нет output',
+    invalid_contract_version: 'версия контракта',
+    missing_seo_title: 'нет SEO title',
+    missing_h1: 'нет H1',
+    missing_meta_description: 'нет meta',
+    missing_intro: 'нет intro',
+    bullet_count: 'тезисы',
+    faq_count: 'FAQ',
+    image_alt_count: 'ALT',
+  };
+  return map[value] || value || 'валидация';
+}
+
+function translateTruthBasis(value) {
+  const map = { visible_product_fact: 'видимый факт товара', needs_image_review: 'нужна проверка фото' };
+  return map[value] || value || 'нужна проверка';
+}
+
+function translateTargetType(value) {
+  const map = { collection: 'коллекция', related_product: 'похожий товар', guide: 'гайд' };
+  return map[value] || value || 'цель';
+}
+
+function translateDraftStatus(value) {
+  const map = { draft: 'черновик', needs_review: 'нужна проверка', blocked: 'заблокирован' };
+  return map[value] || value || '—';
+}
+
+function translatePackStatus(value) {
+  const map = {
+    brief_ready: 'бриф готов',
+    draft_generated: 'черновик создан',
+    needs_human_review: 'нужна ручная проверка',
+    needs_keyword_review: 'нужна проверка ключей',
+    needs_similarity_check: 'нужна проверка похожести',
+    needs_image_alt_review: 'нужна проверка ALT',
+    approved_draft: 'черновик одобрен',
+    ready_for_publish: 'готов к публикации',
+    published: 'опубликован',
+    archived: 'архив',
+  };
+  return map[value] || value || '—';
+}
+
+function translateBriefStatus(value) {
+  const map = { ready: 'готов', brief_ready: 'бриф готов', needs_metric_validation: 'нужна проверка метрик', blocked: 'заблокирован' };
+  return map[value] || value || '—';
+}
+
+function translateValidationStatus(value) {
+  const map = { valid: 'валидно', invalid: 'ошибка', not_checked: 'не проверено', unknown: 'неизвестно' };
+  return map[value] || value || 'неизвестно';
+}
+
+function translateClassification(value) {
+  const map = {
+    portfolio_clear: 'портфель чистый',
+    strategic_cluster_overlap_needs_differentiation: 'кластер нормальный, нужна дифференциация',
+    possible_duplicate_risk: 'риск дубля',
+    source_mapping_issue: 'проблема source mapping',
+  };
+  return map[value] || value || '—';
+}
+
+function translateRisk(value) {
+  const map = { low: 'низкий', medium: 'средний', high: 'высокий', mapping: 'mapping' };
+  return map[value] || value || '—';
+}
+
+function translateUiText(value) {
+  const text = String(value || '');
+  const map = {
+    'Mock output only. No OpenAI call was made.': 'Это тестовый черновик. Реальный OpenAI-вызов не выполнялся.',
+    'Content fields are seeded from SeoPilotBrief.draftPreview to preserve the human-readable SEO baseline.': 'Текст взят из SEO-брифа, чтобы не потерять качество базового preview.',
+    'Use this object to test validator, UI rendering, and future draft save gates.': 'Этот объект нужен для проверки валидатора, интерфейса и будущего безопасного сохранения.',
+    'Human review, similarity check, and image ALT review are still required before publish readiness.': 'До готовности к публикации всё ещё нужны ручная проверка, проверка похожести и проверка ALT.',
+    'Needs human answer before publish. Keep the answer specific to product facts, production, sizing, shipping, or styling context.': 'Нужен человеческий ответ перед публикацией. Ответ должен быть конкретным: факты товара, производство, размер, доставка или styling context.',
+    'Collection keyword from the selected role map. Needs final URL review.': 'Ключ коллекции из выбранной карты ролей. Финальный URL нужно проверить.',
+  };
+  return map[text] || text;
 }
