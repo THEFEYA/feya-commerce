@@ -137,13 +137,16 @@ export default function SeoAiDraftGenerateClient({ productId }: { productId: str
   const blocked = Boolean(result?.blocked) || !result?.ok;
   const canSaveGeneratedDraft = Boolean(draft && validation?.ok && !saveResult?.ok);
   const visionSent = result?.openai_generation?.vision_input?.primary_image_sent;
+  const leftBlocks = (draft?.pdp_blocks || []).filter((block) => block.placement === 'left_description');
+  const rightBlocks = (draft?.pdp_blocks || []).filter((block) => block.placement === 'right_info_panel');
+  const reviewBlocks = (draft?.pdp_blocks || []).filter((block) => block.placement === 'review_only' || block.placement === 'faq_lower');
 
   return <div className="rounded-2xl border border-[rgba(212,178,106,.24)] bg-[rgba(212,178,106,.055)] p-4">
     <div className="flex flex-wrap items-start justify-between gap-3">
       <div>
         <div className="eyebrow-gold mb-1">Реальная генерация AI-черновика</div>
         <div className="max-w-3xl text-[12px] leading-relaxed text-[var(--bone-dim)]">
-          Эта кнопка вызывает OpenAI только на сервере и возвращает новый SEO-черновик для проверки. Фото товара используется как visual truth, но публикация и изменение товара не выполняются.
+          Эта кнопка вызывает OpenAI только на сервере и возвращает новый SEO-черновик для проверки. Теперь проверяем не только правую колонку, а полный PDP: основной текст слева, комплектацию, правые info-блоки, visual truth и ALT.
         </div>
       </div>
       <button
@@ -177,7 +180,10 @@ export default function SeoAiDraftGenerateClient({ productId }: { productId: str
 
       {draft ? <div className="rounded-xl border border-[rgba(108,183,138,.28)] bg-[rgba(108,183,138,.07)] p-3">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
-          <div className="text-[10px] uppercase tracking-[0.18em] text-[#a9dfbd]">AI-черновик создан, но ещё не сохранён</div>
+          <div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-[#a9dfbd]">AI-черновик создан, но ещё не сохранён</div>
+            <div className="mt-1 text-[11px] text-[var(--bone-dim)]">Сейчас видно: SEO-поля, основной текст слева, правые info-блоки, review-only заметки, visual truth и ALT.</div>
+          </div>
           <button
             type="button"
             onClick={saveGeneratedDraft}
@@ -187,25 +193,31 @@ export default function SeoAiDraftGenerateClient({ productId }: { productId: str
             {saving ? 'Сохраняю AI-черновик…' : saveResult?.ok ? 'AI-черновик уже сохранён' : 'Сохранить AI-черновик в очередь проверки'}
           </button>
         </div>
+
         <div className="grid lg:grid-cols-[1fr_.8fr] gap-3">
           <div className="space-y-2">
             <PreviewField label="SEO-заголовок" value={draft.seo_title} />
             <PreviewField label="H1-заголовок" value={draft.h1} />
             <PreviewField label="Описание для Google" value={draft.meta_description} />
-            <PreviewField label="Первый абзац / About" value={draft.intro} />
-            <PreviewPdpBlocks blocks={(draft.pdp_blocks || []).filter((block) => block.placement === 'left_description')} title="Левый текст PDP" />
+            <PreviewField label="Intro / первый абзац" value={draft.intro} />
+            <PreviewPdpBlocks blocks={leftBlocks} title="Основной текст PDP слева" description="Это тот главный блок, который должен заменить скудное описание под фото/в левой части товара: about, benefits, ideal for, what is included." />
           </div>
           <div className="space-y-2">
-            <PreviewList label="Тезисы" items={draft.bullet_highlights || []} />
-            <PreviewPdpBlocks blocks={(draft.pdp_blocks || []).filter((block) => block.placement === 'right_info_panel')} title="Правый блок PDP" />
-            <PreviewFaq items={draft.faq || []} />
+            <PreviewList label="Тезисы для проверки" items={draft.bullet_highlights || []} />
+            <PreviewPdpBlocks blocks={rightBlocks} title="Правая колонка PDP" description="Короткие info-блоки: размер, производство, доставка, материал, уход, кастомизация, политика, handmade variation. Это не FAQ." />
             <PreviewList label="ALT для изображений" items={(draft.image_alt_candidates || []).map((item) => `${item.alt_text || 'ALT требует проверки'} · ${translateTruthBasis(item.truth_basis)}`)} />
           </div>
         </div>
+
         <div className="mt-3 grid lg:grid-cols-[1fr_.8fr] gap-3">
           <PreviewVisualTruth truth={draft.visual_truth || null} />
-          <PreviewList label="Заметки генерации" items={draft.generation_notes || []} />
+          <div className="space-y-2">
+            <PreviewPdpBlocks blocks={reviewBlocks} title="Review-only / не выводить в товар автоматически" description="Служебные подсказки для будущей перелинковки или глобального FAQ. В product tile это не дублируется." />
+            {draft.faq?.length ? <PreviewReviewFaq items={draft.faq} /> : <PreviewNote title="FAQ в товаре" text="FAQ намеренно пустой: ответы покупателю должны быть в правой колонке или глобальной FAQ-странице, а комплектация — в основном описании товара." />}
+            <PreviewList label="Заметки генерации" items={draft.generation_notes || []} />
+          </div>
         </div>
+
         <div className="mt-3 rounded-lg border border-[rgba(216,214,211,.10)] bg-black/20 p-2 text-[11px] text-[var(--bone-dim)]">
           Сохранение создаёт только review draft и audit event. Публикация, изменение товара и применение к storefront остаются заблокированы.
         </div>
@@ -291,13 +303,20 @@ function PreviewList({ label, items }: { label: string; items: string[] }) {
   </div>;
 }
 
-function PreviewFaq({ items }: { items: Array<{ question?: string; answer?: string; intent?: string }> }) {
-  return <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/20 p-2.5">
-    <div className="mb-1 text-[9px] uppercase tracking-[0.16em] text-[var(--smoke)]">Частые вопросы</div>
-    {items.length ? <div className="space-y-2 text-[12px] leading-relaxed text-[var(--bone-dim)]">{items.map((item, index) => <div key={`${item.question}-${index}`}>
+function PreviewReviewFaq({ items }: { items: Array<{ question?: string; answer?: string; intent?: string }> }) {
+  return <div className="rounded-lg border border-[rgba(212,178,106,.22)] bg-black/20 p-2.5">
+    <div className="mb-1 text-[9px] uppercase tracking-[0.16em] text-[var(--gold-warm)]">FAQ review-only / не выводить в товар</div>
+    <div className="space-y-2 text-[12px] leading-relaxed text-[var(--bone-dim)]">{items.map((item, index) => <div key={`${item.question}-${index}`}>
       <div className="text-bone">{item.question || 'Вопрос требует проверки'}</div>
       <div>{item.answer || 'Ответ требует проверки'}</div>
-    </div>)}</div> : <div className="text-[12px] text-[var(--bone-dim)]">—</div>}
+    </div>)}</div>
+  </div>;
+}
+
+function PreviewNote({ title, text }: { title: string; text: string }) {
+  return <div className="rounded-lg border border-[rgba(108,183,138,.22)] bg-[rgba(108,183,138,.06)] p-2.5">
+    <div className="mb-1 text-[9px] uppercase tracking-[0.16em] text-[#a9dfbd]">{title}</div>
+    <div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">{text}</div>
   </div>;
 }
 
@@ -314,12 +333,13 @@ function PreviewVisualTruth({ truth }: { truth: GeneratedDraftOutput['visual_tru
   </div>;
 }
 
-function PreviewPdpBlocks({ blocks, title }: { blocks: NonNullable<GeneratedDraftOutput['pdp_blocks']>; title: string }) {
+function PreviewPdpBlocks({ blocks, title, description }: { blocks: NonNullable<GeneratedDraftOutput['pdp_blocks']>; title: string; description?: string }) {
   return <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/20 p-2.5">
     <div className="mb-1 text-[9px] uppercase tracking-[0.16em] text-[var(--smoke)]">{title}</div>
+    {description ? <div className="mb-2 text-[11px] leading-relaxed text-[var(--bone-dim)]">{description}</div> : null}
     {blocks.length ? <div className="space-y-2 text-[12px] leading-relaxed text-[var(--bone-dim)]">{blocks.map((block, index) => <div key={`${block.block_key}-${index}`} className="rounded-lg border border-[rgba(216,214,211,.08)] p-2">
-      <div className="flex flex-wrap items-center gap-2"><span className="text-bone">{block.heading || block.block_key}</span><span className="text-[10px] text-[var(--gold-warm)]">{translatePdpBlockKey(block.block_key || '')}</span>{block.needs_human_review ? <span className="text-[10px] text-[var(--gold-warm)]">нужна проверка</span> : null}</div>
-      <div className="mt-1">{block.body || '—'}</div>
+      <div className="flex flex-wrap items-center gap-2"><span className="text-bone">{block.heading || block.block_key}</span><span className="text-[10px] text-[var(--gold-warm)]">{translatePdpBlockKey(block.block_key || '')}</span>{block.needs_human_review ? <span className="text-[10px] text-[var(--gold-warm)]">нужна проверка данных</span> : null}</div>
+      <div className="mt-1 whitespace-pre-wrap">{block.body || '—'}</div>
     </div>)}</div> : <div className="text-[12px] text-[var(--bone-dim)]">—</div>}
   </div>;
 }
@@ -412,10 +432,17 @@ function translateIssueCode(code: string) {
     seo_title_uses_edition: 'запрещено слово Edition',
     h1_uses_edition: 'запрещено слово Edition в H1',
     steampunk_needs_visual_proof: 'steampunk требует доказательства',
+    left_description_too_thin: 'основной текст слишком короткий',
+    product_faq_not_rendered_by_default: 'FAQ не выводим в товар',
   };
   if (code.startsWith('non_english_')) return `не английский текст: ${code.replace('non_english_', '')}`;
   if (code.startsWith('missing_pdp_')) return `не хватает PDP-блока: ${code.replace('missing_pdp_', '')}`;
   if (code.includes('audit_phrase')) return 'текст похож на аудит картинки';
+  if (code.includes('weak_availability')) return 'слабая формулировка / лишнее уточнение';
+  if (code.includes('included_wrong_placement')) return 'комплектация не в левом описании';
+  if (code.includes('material_texture_claim')) return 'ошибка материала: texture';
+  if (code.includes('material_thin')) return 'слабый блок материала';
+  if (code.includes('care_thin')) return 'слабый блок ухода';
   if (code.startsWith('invalid_')) return `неверное поле: ${code.replace('invalid_', '')}`;
   if (code.startsWith('missing_qa_')) return `нет QA-поля: ${code.replace('missing_qa_', '')}`;
   if (code.startsWith('qa_blocker_')) return `QA blocker: ${code.replace('qa_blocker_', '')}`;
@@ -432,9 +459,17 @@ function translateIssueMessage(message: string) {
     'meta_description is longer than the preferred review range.': 'Описание для Google длиннее безопасного диапазона.',
     'seo_title must not use filler word Edition.': 'SEO-заголовок не должен использовать пустое слово Edition.',
     'h1 must not use filler word Edition.': 'H1 не должен использовать пустое слово Edition.',
+    'Customer-facing PDP block reads like visual audit, not buyer copy.': 'PDP-блок звучит как технический осмотр, а не как текст для покупателя.',
+    'Customer-facing PDP block uses weak availability or manager-confirmation wording instead of clear service wording.': 'Текст говорит “уточните/если доступно” там, где должен быть уверенный buyer-copy.',
+    'whats_included should be part of the left main description, not a separate right-panel FAQ-style block.': 'Комплектация должна быть в основном левом описании, не как отдельный правый FAQ-блок.',
+    'Shipping block must not say express shipping is only if available.': 'В доставке не нужно писать “если доступно”: express 6–9 рабочих дней.',
+    'Material block should describe the actual material benefit, not only list a generic material.': 'Материал должен быть описан как преимущество: глянцевое зеркальное покрытие, мягкость к телу, плотность/форма.',
+    'Glossy mirror products should not be described as textured leather unless source data proves it.': 'Для глянцевого зеркального покрытия не писать texture/текстурная кожа без доказательства.',
+    'Care block should mention easy cleaning, hand care, storage, and shape retention.': 'Уход должен говорить: легко чистится вручную, спиртовые салфетки/мягкие средства, лучше не стирать, хранить аккуратно.',
+    'Main left_description PDP copy is too thin; generate a real product description, not only a short intro.': 'Основной левый текст слишком короткий: нужен полноценный product description, а не только intro.',
+    'Top-level faq is review-only and should not be rendered inside product PDP by default.': 'FAQ сейчас не выводим в карточку товара; это максимум review-only для будущей общей FAQ-страницы.',
   };
   if (message.includes('must be English en-US')) return 'Клиентский текст должен быть на английском. Русский разрешён только в админских labels.';
-  if (message.includes('reads like an audit note')) return 'Этот текст звучит как аналитическое описание картинки, а не как продающий текст для клиента.';
   return map[message] || message;
 }
 
@@ -451,10 +486,16 @@ function translateTruthBasis(value?: string) {
 function translatePdpBlockKey(value: string) {
   const map: Record<string, string> = {
     about_this_piece: 'about',
+    main_description: 'основной текст',
+    why_youll_love_it: 'почему понравится',
+    ideal_for: 'кому/куда подходит',
     whats_included: 'что входит',
     sizing_fit: 'размер',
+    production_timing: 'изготовление',
     shipping_delivery: 'доставка',
-    materials_care: 'материал/уход',
+    material: 'материал',
+    care: 'уход',
+    materials_care: 'legacy материал/уход',
     customization: 'кастомизация',
     returns_exchanges: 'возврат/обмен',
     handmade_variation: 'ручная работа',
