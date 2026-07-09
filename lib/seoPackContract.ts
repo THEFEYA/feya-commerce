@@ -118,6 +118,36 @@ export type SeoSimilarityCheckContract = {
   suggested_resolution?: string | null;
 };
 
+export type SeoPortfolioDifferentiationContract = {
+  contract_version: 'seo_differentiation_strategy_v1';
+  source?: 'latest_saved_draft_source_overlap' | 'manual' | 'not_available';
+  source_draft_id?: string | null;
+  source_draft_status?: string | null;
+  source_review_status?: string | null;
+  classification?: string | null;
+  risk_level?: string | null;
+  max_source_catalog_overlap_pct?: number | null;
+  draft_vs_source_overlap_pct?: number | null;
+  human_decision_needed?: boolean;
+  agent_instruction_summary?: string | null;
+  recommended_generation_mode?: string | null;
+  primary_angle_to_own?: string | null;
+  title_strategy?: string | null;
+  h1_strategy?: string | null;
+  meta_strategy?: string | null;
+  body_strategy?: string | null;
+  keep_cluster_terms?: string[];
+  avoid_overusing_terms?: string[];
+  required_differentiators?: string[];
+  nearest_catalog_match?: {
+    title?: string | null;
+    product_slug?: string | null;
+    overlap_pct?: number | null;
+    shared_tokens?: string[];
+  } | null;
+  before_generation_checks?: string[];
+};
+
 export type SeoAgentInputContract = {
   contract_version: SeoAgentInputContractVersion;
   task: 'draft_product_seo_pack';
@@ -129,6 +159,7 @@ export type SeoAgentInputContract = {
   manual_focus: SeoManualFocusContract;
   keyword_roles: SeoKeywordRoleMap;
   metrics_status: SeoMetricsStatusContract;
+  portfolio_strategy?: SeoPortfolioDifferentiationContract | null;
   qa_contract: {
     must_check: Array<keyof SeoQaContract>;
   };
@@ -191,6 +222,7 @@ export type SeoPackDraftContract = {
   global_blacklist_note: string[];
   qa_checks: SeoQaContract;
   similarity_check?: SeoSimilarityCheckContract | null;
+  portfolio_strategy?: SeoPortfolioDifferentiationContract | null;
   agent_input?: SeoAgentInputContract | null;
   agent_output?: SeoAgentOutputContract | null;
   human_review?: {
