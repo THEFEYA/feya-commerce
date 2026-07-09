@@ -29,7 +29,9 @@ const REQUIRED_QA_KEYS: Array<keyof SeoQaContract> = [
 ];
 
 const CUSTOMER_COPY_FIELDS = ['seo_title', 'h1', 'meta_description', 'intro'] as const;
-const AUDIT_PHRASE_PATTERN = /\b(the image shows|image shows|shown in the image|the listed materials|listed materials|the product is listed|main focus|central element|at the center)\b/i;
+const AUDIT_PHRASE_PATTERN = /\b(the image shows|image shows|shown in the image|shown on the image|the listed materials|listed materials|listed as|is listed as|are listed as|the product is listed|the material is listed|the materials are listed|indicated as|specified as|main focus|central element|at the center)\b/i;
+const WEAK_AVAILABILITY_PATTERN = /\b(if available|when available|where available|if possible|when possible|if supported|when supported|if the design supports it)\b/i;
+const SHAPE_CARE_PATTERN = /\b(wipe|clean|alcohol|mild|machine wash|machine washing|hang|hanging|store|storage|shape)\b/i;
 const CYRILLIC_PATTERN = /[А-Яа-яЁёІіЇїЄєҐґ]/;
 
 export function validateSeoAgentOutput(value: unknown): SeoAgentOutputValidationResult {
@@ -163,6 +165,12 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
     if (typeof block.body === 'string' && AUDIT_PHRASE_PATTERN.test(block.body) && block.placement !== 'review_only') {
       issues.push(warning(`pdp_block_audit_phrase_${index}`, 'Customer-facing PDP block reads like visual audit, not buyer copy.'));
     }
+    if (typeof block.body === 'string' && WEAK_AVAILABILITY_PATTERN.test(block.body) && block.placement !== 'review_only') {
+      issues.push(warning(`pdp_block_weak_availability_${index}`, 'Customer-facing PDP block uses weak availability wording instead of clear service wording.'));
+    }
+    if (key === 'materials_care' && typeof block.body === 'string' && !SHAPE_CARE_PATTERN.test(block.body)) {
+      issues.push(warning(`pdp_block_materials_care_thin_${index}`, 'Materials & care block should mention practical cleaning/storage/shape care, not only list materials.'));
+    }
   });
   requiredBlocks.forEach((blockKey) => {
     if (!keys.has(blockKey)) {
@@ -176,6 +184,9 @@ function validateCustomerCopyLanguage(value: Record<string, unknown>, issues: Se
     checkEnglishString(value[field], field, issues, 'blocker');
     if (typeof value[field] === 'string' && AUDIT_PHRASE_PATTERN.test(value[field])) {
       issues.push(warning(`${field}_audit_phrase`, `${field} reads like an audit note instead of buyer-facing copy.`));
+    }
+    if (typeof value[field] === 'string' && WEAK_AVAILABILITY_PATTERN.test(value[field])) {
+      issues.push(warning(`${field}_weak_availability`, `${field} uses weak availability wording instead of clear service wording.`));
     }
   });
   if (Array.isArray(value.bullet_highlights)) {
@@ -202,8 +213,15 @@ function validateFaqQuality(value: unknown, issues: SeoAgentOutputValidationIssu
     checkEnglishString(item.question, `faq.${index}.question`, issues, 'blocker');
     checkEnglishString(item.answer, `faq.${index}.answer`, issues, 'blocker');
     const question = String(item.question || '');
+    const answer = String(item.answer || '');
     if (/main focus|shown|image|central element/i.test(question)) {
       issues.push(warning(`faq_obvious_visual_question_${index}`, 'FAQ question is obvious from the image and should answer a real buyer concern instead.'));
+    }
+    if (AUDIT_PHRASE_PATTERN.test(question) || AUDIT_PHRASE_PATTERN.test(answer)) {
+      issues.push(warning(`faq_audit_phrase_${index}`, 'FAQ reads like an audit note instead of answering a buyer concern.'));
+    }
+    if (WEAK_AVAILABILITY_PATTERN.test(answer)) {
+      issues.push(warning(`faq_weak_availability_${index}`, 'FAQ answer uses weak availability wording instead of clear service wording.'));
     }
   });
   ['shipping', 'fit', 'materials'].forEach((intent) => {
