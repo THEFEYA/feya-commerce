@@ -1,4 +1,4 @@
-export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v2' as const;
+export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v3' as const;
 
 export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
   checkpoint_id: 'reload_latest_research_before_apply_publish_v1',
@@ -30,58 +30,76 @@ export const THEFEYA_SEO_DOCTRINE = {
     'No fake metrics. Search volume, competition, and trend signals must come from validated data sources only.',
     'Before final apply-to-product or publish-readiness automation, reload the latest research files from the owner and update this doctrine if needed.',
     'Product variations, included components, PDP text blocks, slug/meta data, and future sitemap updates must be handled by one canonical product editing flow, not by disconnected one-off text patches.',
+    'Do not tell the buyer to clarify standard included components with the manager when components are present in variations or source description. That destroys trust and conversion.',
   ],
   customer_copy_principles: [
     'The opening must sell the product identity and buyer benefit first: designer studio, authorial look, event impact, visual confidence, and product purpose.',
     'Do not start customer-facing copy as an image audit or inventory note. Avoid openings like: The image shows, The listed materials, The product is listed as, The main focus is, This costume includes.',
-    'Never write customer copy as if reporting database fields to an analyst. Avoid phrases like listed as, indicated as, specified as, if available, when available, or when supported.',
+    'Never write customer copy as if reporting database fields to an analyst. Avoid phrases like listed as, indicated as, specified as, if available, when available, when supported, confirm before ordering, clarify before ordering, or ask the manager what is included.',
     'Explain components after the hook, not as the first sentence unless the product itself is only a component and the wording is still attractive.',
     'Keep copy commercial but calm: attractive, specific, human, not overhyped, not manipulative, not generic AI sales language.',
     'Avoid filler words and weak catalog phrases: Edition, Ultimate, Best, Perfect, Luxury, Premium, Elevate, Crafted to perfection, Perfect for any occasion.',
     'Use clear, short sentences. Avoid keyword stuffing, doorway-page style copy, repeated phrase skeletons, and long chained keyword titles.',
     'Use the product as a designer costume/look, not as a picture being described to another analyst.',
+    'Main PDP description must be substantial enough to review: a short intro alone is not enough. Use structured sections similar to strong Etsy descriptions only where they improve clarity: why you will like it, ideal for, what is included, material, care, sizing, production, shipping, customization.',
   ],
   length_rules: {
     seo_title: '45-68 characters, one owned search angle, no Edition, no keyword dump.',
     h1: '45-82 characters, human-readable product name, close to product identity but not a stuffed title clone.',
     meta_description: '125-158 characters, product identity + differentiator + use case; not a visual inventory sentence.',
     intro: '2-4 concise sentences; hook, authorial design, buyer benefit, event/use case, then product facts.',
+    main_description: '220-420 words across left_description PDP blocks before final trim. It must be readable, scannable, and not overstuffed.',
   },
   pdp_block_plan: [
     {
       block_key: 'about_this_piece',
       placement: 'left_description',
-      intent: 'Polished product description under the PDP gallery/buy box. This should be the main buyer-facing story: design value, event impact, use case, then product facts.',
+      intent: 'Opening story under the PDP gallery/buy box. Lead with design value, event impact, use case, and buyer benefit before product facts.',
+    },
+    {
+      block_key: 'why_youll_love_it',
+      placement: 'left_description',
+      intent: 'Short scannable buyer-benefit bullets. Example angles: handmade-to-order, light but strong, adjustable straps, bold reflective/mirror effect, strong content/event presence. Do not repeat generic hype.',
+    },
+    {
+      block_key: 'ideal_for',
+      placement: 'left_description',
+      intent: 'Use-case bullets based on approved DNA and visual truth: Burning Man, festival, stage, photoshoot, performer/DJ/dancer/editorial looks when supported. Do not invent unrelated audiences.',
     },
     {
       block_key: 'whats_included',
-      placement: 'right_info_panel',
-      intent: 'Included components based only on product facts, Etsy source text, and/or product variations. If unsure, mark human review instead of inventing exclusions. In the final PDP this may also be repeated or moved into the main description by the future product editor, but the output contract placement must remain right_info_panel.',
+      placement: 'left_description',
+      intent: 'Included components based on product variations and/or original Etsy source text. Do not send the buyer to clarify standard included components with a manager. If source data is missing, mark needs_human_review internally but keep the buyer-facing body neutral and non-alarming.',
     },
     {
       block_key: 'sizing_fit',
       placement: 'right_info_panel',
-      intent: 'Size chart, adjustable straps, fit flexibility, and custom measurements. Do not say custom measurements are only possible if available; present them as an available manager-assisted option.',
+      intent: 'Use the product size chart to choose size. Most pieces are adjustable with straps, so exact body measurements do not need to be perfect. Custom measurements are available via order notes or manager contact for unusual body shapes or special fit requests.',
     },
     {
       block_key: 'production_timing',
       placement: 'right_info_panel',
-      intent: 'Made-to-order production timing: usually 3-5 business days, with manager contact for a specific event date or priority production request.',
+      intent: 'Production only: made-to-order production usually takes 3-5 business days. If the buyer needs it faster or for a specific date, they can contact the manager in advance to discuss priority production.',
     },
     {
       block_key: 'shipping_delivery',
       placement: 'right_info_panel',
-      intent: 'Shipping only: standard 10-14 business days and express 6-9 business days. Do not add if available.',
+      intent: 'Shipping only: standard 10-14 business days and express 6-9 business days. Do not add if available or when available.',
     },
     {
-      block_key: 'materials_care',
+      block_key: 'material',
       placement: 'right_info_panel',
-      intent: 'Present material as a benefit first, then care. For supported products: vegan/faux leather with a glossy mirror or metallic coating, soft against the body, reinforced/doubled for structure and shape retention. Care: wipe clean by hand with alcohol wipes or mild cleaning products, avoid machine washing, avoid long-term heavy pressure or tight storage, hang or store carefully.',
+      intent: 'Material only. For supported products: vegan/faux leather with a glossy mirror coating or glossy metallic coating, soft against the body, reinforced/doubled for structure and shape retention. Do not say textured leather or structural texture for glossy mirror products.',
+    },
+    {
+      block_key: 'care',
+      placement: 'right_info_panel',
+      intent: 'Care only. The item is easy to clean by hand with alcohol wipes or mild cleaning products. Prefer not to machine wash. Store carefully, ideally hanging, and avoid long-term heavy pressure or tight folded storage so it keeps its shape and lasts for years.',
     },
     {
       block_key: 'customization',
       placement: 'right_info_panel',
-      intent: 'Separate from sizing: color/detail changes, length changes, more open or more covered version, combining existing TheFEYA designs, or custom design within TheFEYA style. Do not use vague phrase degree of coverage.',
+      intent: 'Separate from sizing: different color, detail changes, shorter/longer elements, more open or more covered version, combinations of existing TheFEYA designs, or custom design within TheFEYA style. Do not use vague phrase degree of coverage.',
     },
     {
       block_key: 'returns_exchanges',
@@ -91,7 +109,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     {
       block_key: 'handmade_variation',
       placement: 'right_info_panel',
-      intent: 'Handmade variation and styled/AI image note only when necessary, phrased calmly and not as a main sales deterrent.',
+      intent: 'Handmade variation should build trust, not fear: because every piece is handmade, small natural differences in finish, shape, or shade can appear within normal handmade tolerance.',
     },
     {
       block_key: 'related_collections',
@@ -103,20 +121,21 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Typical made-to-order production: 3-5 business days.',
     'If the buyer needs the item for a specific date or wants priority production, they should contact the manager in advance; faster production can be discussed.',
     'Standard shipping: about 10-14 business days. Express shipping: about 6-9 business days.',
-    'Sizing: products usually include adjustable straps and fit flexibility. Buyers should still use the size chart. Custom measurements are available: the buyer can send measurements to the manager or leave them in the order notes.',
-    'Customization is separate from sizing: length changes, more open or more covered versions, color/detail adjustments, combinations of existing TheFEYA designs, or custom design within TheFEYA style can be discussed. Do not promise unrelated styles.',
-    'Materials: use product facts first. When supported, describe vegan/faux leather with a glossy mirror or metallic coating, a structured reinforced/doubled feel, shape retention, and a soft body-facing side. Do not write listed as or indicated as in customer-facing copy.',
-    'Care: the item can be wiped clean by hand with alcohol wipes or mild cleaning products. Avoid machine washing. Avoid long-term heavy pressure, tight folded storage, or placing heavy objects on it. Hanging or careful storage helps keep its shape for long use.',
+    'Sizing: each product has a size chart. Buyers should use the size chart to choose a size, but most TheFEYA pieces include adjustable straps, so exact measurements do not need to be perfect. Custom measurements are available via order notes or manager contact for unusual body shapes or special fit requests.',
+    'Customization is separate from sizing: different color, detail changes, shorter/longer elements, more open or more covered versions, combinations of existing TheFEYA designs, or custom design within TheFEYA style can be discussed. Do not promise unrelated styles.',
+    'Materials: use product facts first. When supported, describe vegan/faux leather with a glossy mirror coating or glossy metallic coating, reinforced/doubled for structure and shape retention, and a soft body-facing side. Do not write listed as, indicated as, textured leather, or structural texture in customer-facing copy.',
+    'Care: the item is easy to clean by hand with alcohol wipes or mild cleaning products. Prefer not to machine wash. Avoid long-term heavy pressure, tight folded storage, or placing heavy objects on it. Hanging or careful storage helps keep its shape and serve for years.',
     'Color: use colors available in variant options first. Other colors can be discussed individually when the design can support them.',
     'Returns/exchanges/cancellations: mention that details are available in the store policy link. Do not overload product copy with full policy text.',
     'Gift note/card can be mentioned only as an optional request, not as a main SEO angle.',
+    'Included components should come from variations, product configuration, or original Etsy source text. Do not ask the buyer to clarify normal components before ordering.',
   ],
   faq_strategy: [
-    'FAQ must reduce purchase hesitation, not explain obvious image features.',
-    'Useful FAQ intents: production timing, shipping timing, sizing/custom measurements, materials/care, color options, customization, what is included, returns/exchanges policy link.',
+    'Product PDP should not show a separate FAQ block by default because it duplicates the right information panel and global store FAQ.',
+    'The top-level faq array in seo_agent_output_v1 should normally be empty or review-only suggestions for future global FAQ, not rendered inside the product tile/PDP.',
+    'Useful global FAQ intents later: production timing, shipping timing, sizing/custom measurements, materials/care, color options, customization, returns/exchanges policy link.',
+    'Do not ask: What is included in the order? as a generic FAQ because each product has different included components and this belongs in the product description/variations.',
     'Do not ask: What is the main focus of this image/product? Buyers can see the product.',
-    'Keep answers concise and practical. Avoid anxiety, over-warnings, exaggerated durability promises, and legal blocks inside FAQ.',
-    'FAQ should not become a long repetitive second product description. Prefer 5-7 useful questions maximum for the draft unless product complexity requires more.',
   ],
   visual_truth_strategy: [
     'Use the primary image as visual evidence for component, silhouette, visible color, material impression, styling context, and mood.',
@@ -183,6 +202,7 @@ export function buildThefeyaSeoDoctrineGuardrails() {
     'Do not implement final apply-to-product, publish-readiness, sitemap mutation, or production indexation automation until the latest research files are reloaded and reconciled.',
     'Any future apply/publish UI must show this research reload checkpoint as a blocking prerequisite until the owner confirms the latest research has been reviewed.',
     'Any future catalog-scale editing UI must keep variations, included components, PDP blocks, slug/meta, and sitemap updates in one canonical flow.',
+    'Do not render top-level faq as a product PDP FAQ block by default; product-specific details must live in PDP sections and global FAQ belongs outside the product tile.',
   ];
 }
 
