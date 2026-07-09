@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+type ValidationIssue = { code?: string; severity?: string; message?: string };
+
 type AiDraftResult = {
   ok?: boolean;
   status?: string;
@@ -22,7 +24,7 @@ type AiDraftResult = {
     image_alt_candidates?: Array<{ alt_text?: string; truth_basis?: string; image_role?: string }>;
     generation_notes?: string[];
   } | null;
-  generated_draft_validation?: { ok?: boolean; status?: string; issues?: Array<{ code?: string; severity?: string; message?: string }> };
+  generated_draft_validation?: { ok?: boolean; status?: string; issues?: ValidationIssue[] };
 };
 
 export default function SeoAiDraftGenerateClient({ productId }: { productId: string }) {
@@ -58,6 +60,7 @@ export default function SeoAiDraftGenerateClient({ productId }: { productId: str
 
   const draft = result?.generated_draft_output || null;
   const validation = result?.generated_draft_validation || null;
+  const issues = validation?.issues || [];
   const blocked = Boolean(result?.blocked) || !result?.ok;
 
   return <div className="rounded-2xl border border-[rgba(212,178,106,.24)] bg-[rgba(212,178,106,.055)] p-4">
@@ -100,7 +103,7 @@ export default function SeoAiDraftGenerateClient({ productId }: { productId: str
         </div>)}</div>
       </div> : null}
 
-      {result.openai_generation?.error ? <div className="rounded-xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-3 text-[11px] leading-relaxed text-[var(--ruby-soft)]">{result.openai_generation.error}</div> : null}
+      {result.openai_generation?.error ? <div className="rounded-xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-3 text-[11px] leading-relaxed text-[var(--ruby-soft)]">{translateOpenAiError(result.openai_generation.error)}</div> : null}
 
       {draft ? <div className="rounded-xl border border-[rgba(108,183,138,.28)] bg-[rgba(108,183,138,.07)] p-3">
         <div className="mb-2 text-[10px] uppercase tracking-[0.18em] text-[#a9dfbd]">AI-черновик создан, но не сохранён</div>
@@ -125,7 +128,18 @@ export default function SeoAiDraftGenerateClient({ productId }: { productId: str
 
       {validation ? <div className="grid sm:grid-cols-2 gap-2">
         <MiniFact label="Validator" value={translateValidation(validation.status || 'unknown')} tone={validation.ok ? 'success' : 'warning'} />
-        <MiniFact label="Ошибок" value={String(validation.issues?.length || 0)} />
+        <MiniFact label="Ошибок" value={String(issues.length)} tone={issues.length ? 'warning' : 'success'} />
+      </div> : null}
+
+      {issues.length ? <div className="rounded-xl border border-[rgba(212,178,106,.24)] bg-black/20 p-3">
+        <div className="mb-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">Почему validator остановил AI-ответ</div>
+        <div className="grid md:grid-cols-2 gap-2">
+          {issues.slice(0, 12).map((issue, index) => <div key={`${issue.code}-${index}`} className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/20 p-2.5">
+            <div className="text-[11px] text-[var(--gold-warm)]">{translateIssueCode(issue.code || 'issue')}</div>
+            <div className="mt-1 text-[11px] leading-relaxed text-[var(--bone-dim)]">{translateIssueMessage(issue.message || 'Нужна проверка.')}</div>
+          </div>)}
+        </div>
+        {issues.length > 12 ? <div className="mt-2 text-[11px] text-[var(--bone-dim)]">Показано 12 из {issues.length}. Полный список есть в JSON ниже.</div> : null}
       </div> : null}
 
       <details className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3">
@@ -199,6 +213,37 @@ function translateMessage(message: string) {
     'OPENAI_API_KEY is missing on the server.': 'На сервере не найден OPENAI_API_KEY.',
     'dry_run is enabled, so no model call or save is allowed.': 'Включён dry_run, поэтому модель не вызывается.',
     'Portfolio/source differentiation strategy is required before real AI generation.': 'Перед реальной генерацией нужна стратегия отличия от похожих товаров.',
+  };
+  return map[message] || message;
+}
+
+function translateOpenAiError(message: string) {
+  if (message.includes('Invalid schema')) return `OpenAI не принял JSON Schema: ${message}`;
+  return message;
+}
+
+function translateIssueCode(code: string) {
+  const map: Record<string, string> = {
+    wrong_contract_version: 'неверная версия контракта',
+    invalid_status: 'неверный статус черновика',
+    missing_qa_self_report: 'нет QA self-report',
+    invalid_qa_notes: 'неверный формат QA notes',
+    seo_title_long: 'SEO-заголовок слишком длинный',
+    meta_description_long: 'Meta description слишком длинный',
+  };
+  if (code.startsWith('invalid_')) return `неверное поле: ${code.replace('invalid_', '')}`;
+  if (code.startsWith('missing_qa_')) return `нет QA-поля: ${code.replace('missing_qa_', '')}`;
+  if (code.startsWith('qa_blocker_')) return `QA blocker: ${code.replace('qa_blocker_', '')}`;
+  return map[code] || code;
+}
+
+function translateIssueMessage(message: string) {
+  const map: Record<string, string> = {
+    'Agent output contract_version must be seo_agent_output_v1.': 'AI должен вернуть contract_version = seo_agent_output_v1.',
+    'Agent output status must be draft, needs_review, or blocked.': 'AI должен вернуть status: draft / needs_review / blocked.',
+    'qa_self_report must be present.': 'AI должен вернуть полный qa_self_report.',
+    'seo_title is longer than the preferred review range.': 'SEO-заголовок длиннее безопасного диапазона.',
+    'meta_description is longer than the preferred review range.': 'Meta description длиннее безопасного диапазона.',
   };
   return map[message] || message;
 }
