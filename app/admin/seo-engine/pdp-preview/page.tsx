@@ -1,6 +1,6 @@
 // @ts-nocheck
 import Link from 'next/link';
-import { ArrowUpRight, CheckCircle2, FileText, Ruler, Scissors, Sparkles, Truck, RotateCcw } from 'lucide-react';
+import { ArrowUpRight, CheckCircle2, FileText, Ruler, Sparkles, Truck, RotateCcw } from 'lucide-react';
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
 import { buildMockSeoAgentOutput } from '@/lib/seoAgentMockDraft';
 import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
@@ -37,44 +37,47 @@ function textBlock(blocks, key, fallback = '') {
 function splitBody(value) {
   return String(value || '')
     .split(/\n+/)
-    .map((line) => line.trim())
+    .map((line) => line.replace(/^[-•✓\s]+/, '').trim())
     .filter(Boolean);
 }
 
-function BulletList({ children }) {
-  return <div className="space-y-2 text-[14px] leading-relaxed text-[var(--bone-dim)]">{children}</div>;
+function BodyBullets({ value }) {
+  const lines = splitBody(value);
+  return <div className="space-y-2 text-[14px] leading-relaxed text-[var(--bone-dim)]">
+    {lines.map((line) => <p key={line}>✓ {line}</p>)}
+  </div>;
 }
 
-function PreviewDetail({ icon, title, lines, id }) {
+function PreviewDetail({ icon, title, lines, id, list = false }) {
   return <div id={id} className="border-t border-[rgba(216,214,211,0.12)] py-5">
     <div className="eyebrow-gold mb-3 flex items-center gap-2">{icon}{title}</div>
-    <div className="space-y-1.5 text-[14px] text-[var(--bone-dim)] leading-relaxed">{lines.filter(Boolean).map((line) => <p key={line}>{line}</p>)}</div>
+    {list ? <ul className="space-y-1.5 text-[14px] text-[var(--bone-dim)] leading-relaxed list-disc pl-5">{lines.filter(Boolean).map((line) => <li key={line}>{line}</li>)}</ul> : <div className="space-y-1.5 text-[14px] text-[var(--bone-dim)] leading-relaxed">{lines.filter(Boolean).map((line) => <p key={line}>{line}</p>)}</div>}
   </div>;
 }
 
 function PdpLeftDescription({ draft, leftBlocks }) {
   const about = textBlock(leftBlocks, 'about_this_piece', draft.intro || 'This TheFEYA piece is prepared as a statement look for festival, stage and editorial styling.');
-  const why = textBlock(leftBlocks, 'why_youll_love_it', 'Handmade to order, adjustable for a secure fit, bold in photos and on stage, and designed as a strong TheFEYA statement piece.');
-  const ideal = textBlock(leftBlocks, 'ideal_for', 'Festival looks, stage styling, Burning Man outfits, photoshoots and statement performance wear.');
   const included = textBlock(leftBlocks, 'whats_included', 'Included components are taken from product options and original listing source.');
+  const why = textBlock(leftBlocks, 'why_youll_love_it', 'Handmade to order.\nLight but strong for long wear.\nAdjustable straps help create a secure fit.\nBold metallic finish stands out in photos, on stage and at festivals.');
+  const ideal = textBlock(leftBlocks, 'ideal_for', 'Burning Man and desert festivals.\nFestival and rave looks.\nStage performances, photoshoots and editorial styling.\nStatement warrior or futuristic outfits.');
   const material = textBlock(leftBlocks, 'material', 'Material and finish must be checked against source data before publish.');
 
-  return <div className="space-y-6 text-[15px] text-[var(--bone-dim)] leading-[1.8]">
+  return <div className="space-y-7 text-[15px] text-[var(--bone-dim)] leading-[1.8]">
     <div>
       <div className="eyebrow-gold mb-3">About this piece</div>
       <p>{about}</p>
     </div>
     <div>
+      <h3 className="text-bone text-[16px] mb-2 tracking-[0.08em] uppercase">What’s included</h3>
+      <p>{included}</p>
+    </div>
+    <div>
       <h3 className="text-bone text-[16px] mb-2 tracking-[0.08em] uppercase">Why you’ll love it</h3>
-      <BulletList>{splitBody(why).map((line) => <p key={line}>✓ {line}</p>)}</BulletList>
+      <BodyBullets value={why} />
     </div>
     <div>
       <h3 className="text-bone text-[16px] mb-2 tracking-[0.08em] uppercase">Ideal for</h3>
-      <BulletList>{splitBody(ideal).map((line) => <p key={line}>✓ {line}</p>)}</BulletList>
-    </div>
-    <div>
-      <h3 className="text-bone text-[16px] mb-2 tracking-[0.08em] uppercase">What’s included</h3>
-      <p>{included}</p>
+      <BodyBullets value={ideal} />
     </div>
     <div>
       <h3 className="text-bone text-[16px] mb-2 tracking-[0.08em] uppercase">Material & finish</h3>
@@ -85,13 +88,36 @@ function PdpLeftDescription({ draft, leftBlocks }) {
 
 function CanonicalRightPanel() {
   return <div className="space-y-0">
-    <PreviewDetail icon={<Scissors size={15} />} title="What’s included" lines={['Shown product configuration from product options.', 'TheFEYA dust bag.', 'Care card and replacement hardware kit.']} />
-    <PreviewDetail icon={<Ruler size={15} />} title="Sizing & fit" lines={['Use the size chart on the product photos to choose your size.', 'Most pieces adjust with straps, so the fit can be tuned on the body.', 'Custom sizing by your measurements is available by request.']} />
-    <PreviewDetail icon={<Truck size={15} />} title="Production & delivery" id="shipping" lines={['Standard made-to-order production: 3–5 business days.', 'Standard UPS shipping: 10–14 business days.', 'Express DHL shipping: 6–9 business days.', 'For a specific event date, contact us in advance to discuss priority production.']} />
-    <PreviewDetail icon={<FileText size={15} />} title="Material & care" lines={['Vegan/faux leather with a glossy mirror finish when supported by product data.', 'Easy to clean by hand with alcohol wipes or mild cleaning products.', 'Machine washing is not recommended.', 'Store carefully on a hanger and avoid long-term heavy pressure so the piece keeps its shape for years.']} />
-    <PreviewDetail icon={<Sparkles size={15} />} title="Customization" lines={['Color, length, coverage or combinations with existing TheFEYA designs can be discussed.', 'Individual design work is possible only when the idea stays within TheFEYA style.']} />
-    <PreviewDetail icon={<RotateCcw size={15} />} title="Returns & exchanges" id="returns" lines={['Standard-size pieces follow store policy.', 'Detailed cancellation, exchange and return rules will link to the store policy page.']} />
-    <PreviewDetail icon={<CheckCircle2 size={15} />} title="Handmade variation" id="policies" lines={['Every TheFEYA piece is made by hand.', 'Small natural differences in shape, detail or shade can appear because each piece is made individually.']} />
+    <PreviewDetail icon={<Ruler size={15} />} title="Sizing & fit" lines={[
+      'Use the size chart in the product photos to choose your size.',
+      'Most TheFEYA pieces adjust with straps, so the fit can be tuned on the body even if your measurement is not exact.',
+      'For individual measurements or a special fit request, leave a note with your order or contact us before production.'
+    ]} />
+    <PreviewDetail icon={<Sparkles size={15} />} title="Production time" lines={[
+      'Standard made-to-order production usually takes 3–5 business days.',
+      'For a specific event date or priority production, contact us in advance so we can discuss the best timing.'
+    ]} />
+    <PreviewDetail icon={<Truck size={15} />} title="Delivery options" id="shipping" list lines={[
+      'Standard UPS shipping: 10–14 business days.',
+      'DHL Express shipping: 6–9 business days.'
+    ]} />
+    <PreviewDetail icon={<FileText size={15} />} title="Material" lines={[
+      'Material details are shown in the product description and selected options for each design.',
+      'Glossy leather and mirror-finish pieces are made to hold a sculptural shape while staying comfortable on the body.'
+    ]} />
+    <PreviewDetail icon={<CheckCircle2 size={15} />} title="Care" lines={[
+      'Easy to clean by hand with alcohol wipes or mild cleaning products.',
+      'Machine washing is not recommended.',
+      'Store carefully, ideally on a hanger, and avoid tight folded storage or long-term heavy pressure so the piece keeps its shape for years.'
+    ]} />
+    <PreviewDetail icon={<RotateCcw size={15} />} title="Cancellations, returns & exchanges" id="returns" lines={[
+      'Cancellation, return and exchange details are available in the store policy link.',
+      'The product page should link to the full policy instead of repeating the whole policy text here.'
+    ]} />
+    <PreviewDetail icon={<CheckCircle2 size={15} />} title="Handmade variation" id="policies" lines={[
+      'Every TheFEYA piece is made by hand individually.',
+      'Small natural differences in shape, detail or shade can appear because this is handmade work, not mass production.'
+    ]} />
   </div>;
 }
 
