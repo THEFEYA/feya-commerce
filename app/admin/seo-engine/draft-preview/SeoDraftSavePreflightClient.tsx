@@ -23,61 +23,80 @@ type SavePreflightResult = {
   storage_payload_summary?: Record<string, unknown> | null;
   storage_contract?: Record<string, unknown>;
   storage_health?: StorageHealth;
+  saved_draft?: Record<string, unknown> | null;
+  saved_event?: Record<string, unknown> | null;
   guardrails?: string[];
   message?: string;
 };
 
 export default function SeoDraftSavePreflightClient({ productId }: { productId: string }) {
-  const [loading, setLoading] = useState(false);
+  const [loadingMode, setLoadingMode] = useState<'check' | 'save' | null>(null);
   const [result, setResult] = useState<SavePreflightResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const statusTone = useMemo(() => {
     const status = String(result?.status || '').toLowerCase();
     if (!result) return 'neutral';
+    if (result.ok && status.includes('saved')) return 'success';
     if (status.includes('blocked') || status.includes('missing') || status.includes('not_found')) return 'warning';
     if (result.ok) return 'success';
     return 'warning';
   }, [result]);
 
-  async function runSavePreflight() {
-    if (!productId || loading) return;
-    setLoading(true);
+  async function runSaveRequest(mode: 'check' | 'save') {
+    if (!productId || loadingMode) return;
+    setLoadingMode(mode);
     setError(null);
     setResult(null);
     try {
       const response = await fetch('/api/admin/seo-engine/draft-save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product_id: productId, dry_run: true, include_payload: false }),
+        body: JSON.stringify({ product_id: productId, dry_run: mode === 'check', include_payload: false }),
       });
       const payload = await response.json().catch(() => ({}));
       setResult({ ...payload, http_status: response.status } as SavePreflightResult);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Неизвестная ошибка проверки сохранения');
     } finally {
-      setLoading(false);
+      setLoadingMode(null);
     }
   }
 
   const storageHealth = result?.storage_health || null;
+  const actualInsertEnabled = result?.readiness?.actual_insert_enabled === true;
+  const draftSaved = result?.status === 'draft_saved_for_review' && Boolean(result?.saved_draft);
 
   return <div className="rounded-2xl border border-[rgba(212,178,106,.24)] bg-[rgba(212,178,106,.055)] p-4">
     <div className="flex flex-wrap items-start justify-between gap-3">
       <div>
         <div className="eyebrow-gold mb-1">Проверка сохранения черновика</div>
         <div className="max-w-3xl text-[12px] leading-relaxed text-[var(--bone-dim)]">
-          Проверяет будущую запись SEO-черновика в Supabase: storage flag, service-role доступ, validator, payload summary, наличие таблиц/views и blockers. Сейчас это только проверка — запись в Supabase не выполняется.
+          Проверяет и, когда включён флаг, сохраняет SEO-черновик в Supabase. Сохранение создаёт review draft + event, но не публикует товар и не меняет storefront/product tables.
         </div>
       </div>
-      <button
-        type="button"
-        onClick={runSavePreflight}
-        disabled={!productId || loading}
-        className="btn-ghost disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {loading ? 'Проверяю сохранение…' : 'Проверить сохранение черновика'}
-      </button>
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => runSaveRequest('check')}
+          disabled={!productId || Boolean(loadingMode)}
+          className="btn-ghost disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loadingMode === 'check' ? 'Проверяю сохранение…' : 'Проверить сохранение черновика'}
+        </button>
+        <button
+          type="button"
+          onClick={() => runSaveRequest('save')}
+          disabled={!productId || Boolean(loadingMode)}
+          className="btn-ghost disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loadingMode === 'save' ? 'Пробую сохранить…' : 'Сохранить черновик для проверки'}
+        </button>
+      </div>
+    </div>
+
+    <div className="mt-3 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">
+      <span className="text-bone">Безопасность:</span> кнопка сохранения сработает только если в Vercel включён флаг <span className="text-[var(--gold-warm)]">FEYA_SEO_DRAFT_STORAGE_ENABLED=true</span>, SQL виден приложению, validator пропускает черновик и есть service-role доступ. Иначе она покажет причину блокировки.
     </div>
 
     {error ? <div className="mt-3 rounded-lg border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-2.5 text-[11px] text-[var(--ruby-soft)]">{error}</div> : null}
@@ -89,6 +108,15 @@ export default function SeoDraftSavePreflightClient({ productId }: { productId: 
         <SaveFact label="Режим проверки" value={result.dry_run === false ? 'выключен' : 'включён'} />
         <SaveFact label="Запись включена" value={result.feature_flag?.enabled ? 'да' : 'нет'} />
       </div>
+
+      {draftSaved ? <div className="rounded-xl border border-[rgba(108,183,138,.30)] bg-[rgba(108,183,138,.08)] p-3">
+        <div className="text-[11px] uppercase tracking-[0.16em] text-[#a9dfbd]">Черновик сохранён для проверки</div>
+        <div className="mt-2 grid md:grid-cols-2 gap-2">
+          <SaveFact label="ID черновика" value={String(result.saved_draft?.id || '—')} tone="success" />
+          <SaveFact label="Событие" value={String(result.saved_event?.event_type || '—')} tone="success" />
+        </div>
+        <div className="mt-2 text-[11px] leading-relaxed text-[var(--bone-dim)]">Это только review draft. Публикация и approve for publish не выполнялись.</div>
+      </div> : null}
 
       {storageHealth ? <div>
         <div className="mb-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">Проверка SQL storage contract</div>
@@ -121,7 +149,7 @@ export default function SeoDraftSavePreflightClient({ productId }: { productId: 
       {result.readiness ? <div>
         <div className="mb-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">Готовность слоя сохранения</div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2">
-          {Object.entries(result.readiness).map(([key, value]) => <SaveFact key={key} label={translateReadinessKey(key)} value={translateValue(value)} />)}
+          {Object.entries(result.readiness).map(([key, value]) => <SaveFact key={key} label={translateReadinessKey(key)} value={translateValue(value)} tone={key === 'actual_insert_enabled' && actualInsertEnabled ? 'success' : 'neutral'} />)}
         </div>
       </div> : null}
 
@@ -153,6 +181,8 @@ function SaveFact({ label, value, tone = 'neutral' }: { label: string; value: st
 function translateStatus(status: string) {
   const map: Record<string, string> = {
     blocked_before_storage_write: 'заблокировано до записи',
+    draft_saved_for_review: 'черновик сохранён для проверки',
+    storage_write_failed: 'ошибка записи в Supabase',
     storage_write_not_implemented_yet: 'запись ещё не реализована',
     missing_product_id: 'нет product_id',
     product_not_found: 'товар не найден',
