@@ -7,7 +7,7 @@ export type SeoAgentPromptContract = {
   system_prompt: string;
   user_prompt: string;
   response_format: {
-    type: 'json_object';
+    type: 'json_object' | 'json_schema';
     required_top_level_fields: Array<keyof SeoAgentOutputContract>;
   };
   guardrails: string[];
@@ -36,7 +36,7 @@ export function buildSeoAgentPromptContract(input: SeoAgentInputContract): SeoAg
     system_prompt: buildSystemPrompt(input),
     user_prompt: buildUserPrompt(input),
     response_format: {
-      type: 'json_object',
+      type: 'json_schema',
       required_top_level_fields: REQUIRED_OUTPUT_FIELDS,
     },
     guardrails: promptGuardrails(input),
@@ -62,6 +62,8 @@ function buildSystemPrompt(input: SeoAgentInputContract) {
     'Use natural human English for a premium handmade festival/stage fashion brand.',
     'Avoid generic AI sales language, keyword stuffing, doorway-page style copy, and franchise/brand references.',
     'Do not use long dash punctuation as the default style.',
+    'Hard length discipline: seo_title should be 45-68 characters, h1 should be 45-82 characters, meta_description should be 125-158 characters, intro should be concise and specific.',
+    'If a keyword cluster is long, choose one owned angle and do not stack every event/style/material into the title.',
     'If product facts, metrics, or image truth are insufficient, return status needs_review or blocked with notes.',
     ...portfolioRules,
   ].join('\n');
@@ -96,6 +98,14 @@ function buildUserPrompt(input: SeoAgentInputContract) {
     '',
     'Required output contract: seo_agent_output_v1.',
     '',
+    'Required copy limits:',
+    '- seo_title: 45-68 characters. One clear search angle only. Do not concatenate all keywords.',
+    '- h1: 45-82 characters. Human-readable product name, not a keyword dump.',
+    '- meta_description: 125-158 characters. Explain product + differentiator + use case without repeating the full title.',
+    '- intro: 2-4 sentences. Specific product facts first, no generic luxury/adventure language.',
+    '- FAQ answers: concise, factual, no invented shipping/price/fit claims.',
+    '- image_alt_candidates: only visible product facts. Use needs_image_review when the image fact is not certain.',
+    '',
     ...strategyInstructions,
     'Input contract:',
     JSON.stringify(input, null, 2),
@@ -108,6 +118,7 @@ export function promptGuardrails(input?: SeoAgentInputContract) {
     'OpenAI key must never be exposed to the client.',
     'The model receives SeoAgentInputContract only, not arbitrary Supabase rows.',
     'The model must return seo_agent_output_v1 JSON only.',
+    'The model must keep seo_title and meta_description inside review-safe length ranges.',
     'The generated draft is not publish-ready until QA, similarity, image truth, and human review pass.',
     'No Supabase write should happen inside the generation call itself.',
     'No fake metrics: volume, competition, and trend numbers must come from validated sources only.',
