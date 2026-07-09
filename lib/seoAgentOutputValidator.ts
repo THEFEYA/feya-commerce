@@ -29,9 +29,10 @@ const REQUIRED_QA_KEYS: Array<keyof SeoQaContract> = [
 ];
 
 const CUSTOMER_COPY_FIELDS = ['seo_title', 'h1', 'meta_description', 'intro'] as const;
-const AUDIT_PHRASE_PATTERN = /\b(the image shows|image shows|shown in the image|shown on the image|the listed materials|listed materials|listed as|is listed as|are listed as|the product is listed|the material is listed|the materials are listed|indicated as|specified as|main focus|central element|at the center)\b/i;
-const WEAK_AVAILABILITY_PATTERN = /\b(if available|when available|where available|if possible|when possible|if supported|when supported|if the design supports it)\b/i;
-const SHAPE_CARE_PATTERN = /\b(wipe|clean|alcohol|mild|machine wash|machine washing|hang|hanging|store|storage|shape)\b/i;
+const AUDIT_PHRASE_PATTERN = /\b(the image shows|image shows|shown in the image|shown on the image|the listed materials|listed materials|listed as|is listed as|are listed as|the product is listed|the material is listed|the materials are listed|indicated as|specified as|main focus|central element|at the center|material basis)\b/i;
+const WEAK_AVAILABILITY_PATTERN = /\b(if available|when available|where available|if possible|when possible|if supported|when supported|if the design supports it|confirm before ordering|clarify before ordering|ask the manager what is included|confirm configuration|clarify the contents)\b/i;
+const CARE_PATTERN = /\b(easy to clean|wipe|clean|alcohol|mild|machine wash|machine washing|hang|hanging|store|storage|shape|pressure|lasts for years)\b/i;
+const MATERIAL_PATTERN = /\b(vegan|faux|leather|mirror|metallic|glossy|coating|soft|reinforced|doubled|shape retention)\b/i;
 const CYRILLIC_PATTERN = /[А-Яа-яЁёІіЇїЄєҐґ]/;
 
 export function validateSeoAgentOutput(value: unknown): SeoAgentOutputValidationResult {
@@ -145,31 +146,61 @@ function validateVisualTruth(value: unknown, issues: SeoAgentOutputValidationIss
 
 function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue[]) {
   if (!Array.isArray(value)) return;
-  const requiredBlocks = ['about_this_piece', 'whats_included', 'sizing_fit', 'shipping_delivery', 'materials_care', 'customization'];
+  const requiredBlocks = [
+    'about_this_piece',
+    'why_youll_love_it',
+    'ideal_for',
+    'whats_included',
+    'sizing_fit',
+    'production_timing',
+    'shipping_delivery',
+    'material',
+    'care',
+    'customization',
+  ];
   const keys = new Set<string>();
+  let leftDescriptionChars = 0;
   value.forEach((block, index) => {
     if (!isRecord(block)) {
       issues.push(blocker(`invalid_pdp_block_${index}`, 'Each pdp_block must be an object.'));
       return;
     }
     const key = String(block.block_key || '');
+    const placement = String(block.placement || '');
+    const body = typeof block.body === 'string' ? block.body : '';
     keys.add(key);
+    if (placement === 'left_description') leftDescriptionChars += body.length;
     if (!key) issues.push(blocker(`missing_pdp_block_key_${index}`, 'pdp_block.block_key is required.'));
-    if (!['left_description', 'right_info_panel', 'faq_lower', 'review_only'].includes(String(block.placement || ''))) {
+    if (!['left_description', 'right_info_panel', 'faq_lower', 'review_only'].includes(placement)) {
       issues.push(blocker(`invalid_pdp_block_placement_${index}`, 'pdp_block.placement is invalid.'));
     }
     if (typeof block.heading !== 'string' || !block.heading.trim()) issues.push(blocker(`missing_pdp_block_heading_${index}`, 'pdp_block.heading is required.'));
-    if (typeof block.body !== 'string' || !block.body.trim()) issues.push(blocker(`missing_pdp_block_body_${index}`, 'pdp_block.body is required.'));
+    if (!body.trim()) issues.push(blocker(`missing_pdp_block_body_${index}`, 'pdp_block.body is required.'));
     checkEnglishString(block.heading, `pdp_blocks.${index}.heading`, issues, 'blocker');
-    checkEnglishString(block.body, `pdp_blocks.${index}.body`, issues, 'blocker');
-    if (typeof block.body === 'string' && AUDIT_PHRASE_PATTERN.test(block.body) && block.placement !== 'review_only') {
+    checkEnglishString(body, `pdp_blocks.${index}.body`, issues, 'blocker');
+    if (AUDIT_PHRASE_PATTERN.test(body) && placement !== 'review_only') {
       issues.push(warning(`pdp_block_audit_phrase_${index}`, 'Customer-facing PDP block reads like visual audit, not buyer copy.'));
     }
-    if (typeof block.body === 'string' && WEAK_AVAILABILITY_PATTERN.test(block.body) && block.placement !== 'review_only') {
-      issues.push(warning(`pdp_block_weak_availability_${index}`, 'Customer-facing PDP block uses weak availability wording instead of clear service wording.'));
+    if (WEAK_AVAILABILITY_PATTERN.test(body) && placement !== 'review_only') {
+      issues.push(warning(`pdp_block_weak_availability_${index}`, 'Customer-facing PDP block uses weak availability or manager-confirmation wording instead of clear service wording.'));
     }
-    if (key === 'materials_care' && typeof block.body === 'string' && !SHAPE_CARE_PATTERN.test(block.body)) {
-      issues.push(warning(`pdp_block_materials_care_thin_${index}`, 'Materials & care block should mention practical cleaning/storage/shape care, not only list materials.'));
+    if (key === 'whats_included' && placement !== 'left_description') {
+      issues.push(warning(`pdp_block_included_wrong_placement_${index}`, 'whats_included should be part of the left main description, not a separate right-panel FAQ-style block.'));
+    }
+    if (key === 'shipping_delivery' && /if available|when available/i.test(body)) {
+      issues.push(warning(`pdp_block_shipping_if_available_${index}`, 'Shipping block must not say express shipping is only if available.'));
+    }
+    if (key === 'material' && !MATERIAL_PATTERN.test(body)) {
+      issues.push(warning(`pdp_block_material_thin_${index}`, 'Material block should describe the actual material benefit, not only list a generic material.'));
+    }
+    if (key === 'material' && /texture|textured|structural texture/i.test(body)) {
+      issues.push(warning(`pdp_block_material_texture_claim_${index}`, 'Glossy mirror products should not be described as textured leather unless source data proves it.'));
+    }
+    if (key === 'care' && !CARE_PATTERN.test(body)) {
+      issues.push(warning(`pdp_block_care_thin_${index}`, 'Care block should mention easy cleaning, hand care, storage, and shape retention.'));
+    }
+    if (key === 'materials_care') {
+      issues.push(warning(`pdp_block_legacy_materials_care_${index}`, 'Material and care should be split into separate material and care blocks.'));
     }
   });
   requiredBlocks.forEach((blockKey) => {
@@ -177,6 +208,9 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
       issues.push(warning(`missing_pdp_${blockKey}`, `pdp_blocks should include ${blockKey}.`));
     }
   });
+  if (leftDescriptionChars < 420) {
+    issues.push(warning('left_description_too_thin', 'Main left_description PDP copy is too thin; generate a real product description, not only a short intro.'));
+  }
 }
 
 function validateCustomerCopyLanguage(value: Record<string, unknown>, issues: SeoAgentOutputValidationIssue[]) {
@@ -203,19 +237,17 @@ function validateCustomerCopyLanguage(value: Record<string, unknown>, issues: Se
 
 function validateFaqQuality(value: unknown, issues: SeoAgentOutputValidationIssue[]) {
   if (!Array.isArray(value)) return;
-  const intents = new Set<string>();
   value.forEach((item, index) => {
     if (!isRecord(item)) {
       issues.push(blocker(`invalid_faq_${index}`, 'Each FAQ item must be an object.'));
       return;
     }
-    intents.add(String(item.intent || ''));
     checkEnglishString(item.question, `faq.${index}.question`, issues, 'blocker');
     checkEnglishString(item.answer, `faq.${index}.answer`, issues, 'blocker');
     const question = String(item.question || '');
     const answer = String(item.answer || '');
-    if (/main focus|shown|image|central element/i.test(question)) {
-      issues.push(warning(`faq_obvious_visual_question_${index}`, 'FAQ question is obvious from the image and should answer a real buyer concern instead.'));
+    if (/what is included|included in the order|main focus|shown|image|central element/i.test(question)) {
+      issues.push(warning(`faq_should_not_be_product_pdp_${index}`, 'Product-specific included/components FAQ should not be generated for the product PDP. Put this into whats_included instead.'));
     }
     if (AUDIT_PHRASE_PATTERN.test(question) || AUDIT_PHRASE_PATTERN.test(answer)) {
       issues.push(warning(`faq_audit_phrase_${index}`, 'FAQ reads like an audit note instead of answering a buyer concern.'));
@@ -224,9 +256,9 @@ function validateFaqQuality(value: unknown, issues: SeoAgentOutputValidationIssu
       issues.push(warning(`faq_weak_availability_${index}`, 'FAQ answer uses weak availability wording instead of clear service wording.'));
     }
   });
-  ['shipping', 'fit', 'materials'].forEach((intent) => {
-    if (!intents.has(intent)) issues.push(warning(`missing_faq_${intent}`, `FAQ should include a ${intent} answer for buyer clarity.`));
-  });
+  if (value.length > 0) {
+    issues.push(warning('product_faq_not_rendered_by_default', 'Top-level faq is review-only and should not be rendered inside product PDP by default.'));
+  }
 }
 
 function checkEnglishString(value: unknown, field: string, issues: SeoAgentOutputValidationIssue[], severity: 'warning' | 'blocker') {
