@@ -123,29 +123,14 @@ function buildVisualTruth(input: SeoAgentInputContract, color: string, material:
 }
 
 function buildPdpBlocks(input: SeoAgentInputContract, productName: string, material: string, context: string): SeoAgentOutputContract['pdp_blocks'] {
-  const components = input.product.known_components.length ? input.product.known_components.join(', ') : 'Included components should be mapped from product variations or original Etsy source text.';
+  const componentList = input.product.known_components.length ? normalizeComponents(input.product.known_components).join(', ') : 'the selected product configuration from the product options';
+  const useCase = cleanContext(context);
   return [
     {
       block_key: 'about_this_piece',
       placement: 'left_description',
       heading: 'About this piece',
-      body: `${productName} is prepared as a TheFEYA statement look for ${context}. The final copy should lead with authorial design, visual impact, and buyer confidence before moving into technical details.`,
-      source_basis: 'product_fact',
-      needs_human_review: true,
-    },
-    {
-      block_key: 'why_youll_love_it',
-      placement: 'left_description',
-      heading: "Why you'll love it",
-      body: 'Handmade to order, adjustable for a secure fit when the product uses straps, bold in photos and on stage, and designed as a strong TheFEYA statement piece rather than a generic costume accessory.',
-      source_basis: 'brand_policy',
-      needs_human_review: true,
-    },
-    {
-      block_key: 'ideal_for',
-      placement: 'left_description',
-      heading: 'Ideal for',
-      body: `Use cases should be grounded in the product DNA and visual truth: ${context}. Final wording should not invent unrelated events or audiences.`,
+      body: `${productName} is a TheFEYA statement costume piece made for a powerful festival, stage or editorial look. It is built around a sculptural shoulder silhouette, a strong metallic finish and an authorial warrior-inspired mood, so the outfit feels bold in photos without turning into a generic costume accessory.`,
       source_basis: 'product_fact',
       needs_human_review: true,
     },
@@ -153,19 +138,60 @@ function buildPdpBlocks(input: SeoAgentInputContract, productName: string, mater
       block_key: 'whats_included',
       placement: 'left_description',
       heading: "What's included",
-      body: `Included components from current product data: ${components}`,
+      body: `Included in this configuration: ${componentList}. If the original Etsy source contains exclusions or extra set options, they must be preserved here during final mapping.`,
       source_basis: input.product.known_components.length ? 'product_fact' : 'needs_human_review',
       needs_human_review: !input.product.known_components.length,
+    },
+    {
+      block_key: 'why_youll_love_it',
+      placement: 'left_description',
+      heading: "Why you'll love it",
+      body: [
+        'Handmade to order, so the piece keeps the feel of a designer studio item rather than mass production.',
+        'Strong visual silhouette for photos, stage presence, festivals and content creation.',
+        'Light enough for event wear while still giving a structured armor effect.',
+        'Adjustable straps help create a secure and comfortable fit on the body.',
+        'Glossy metallic finish adds a bright futuristic accent to the full look.',
+      ].join('\n'),
+      source_basis: 'brand_policy',
+      needs_human_review: true,
+    },
+    {
+      block_key: 'ideal_for',
+      placement: 'left_description',
+      heading: 'Ideal for',
+      body: [
+        useCase || 'Burning Man and desert festival outfits.',
+        'Rave, EDM and performance looks where the upper-body silhouette matters.',
+        'Photoshoots, stage performances, DJs, dancers and editorial styling.',
+        'Warrior, futuristic, post-apocalyptic or desert-inspired styling when supported by the final image review.',
+      ].join('\n'),
+      source_basis: 'product_fact',
+      needs_human_review: true,
     },
     {
       block_key: 'material',
       placement: 'left_description',
       heading: 'Material & finish',
-      body: `Material basis: ${material}. Final copy should describe the actual material as vegan/faux leather with a glossy mirror or metallic coating when source data supports it, with structure, shape retention, and a soft body-facing side.`,
+      body: `Material basis: ${material}. Final copy should describe the exact supported material as vegan/faux leather with a glossy mirror or metallic coating when the source confirms it, including the reinforced structure, shape retention and soft body-facing side.`,
       source_basis: 'product_fact',
       needs_human_review: true,
     },
   ];
+}
+
+function normalizeComponents(components: string[]) {
+  const cleaned = components
+    .map((item) => String(item || '').trim())
+    .filter(Boolean)
+    .filter((item, index, array) => array.findIndex((other) => other.toLowerCase() === item.toLowerCase()) === index);
+  return cleaned.length ? cleaned : ['selected product configuration'];
+}
+
+function cleanContext(value: string) {
+  const clean = String(value || '').trim();
+  if (!clean || clean.toLowerCase() === 'festival and stage styling') return 'Burning Man, festival and stage looks.';
+  return clean;
 }
 
 function cleanAltDirection(value: string) {
