@@ -37,9 +37,15 @@ export type SeoFaqIntent = 'commercial' | 'fit' | 'shipping' | 'materials' | 'st
 export type SeoPdpBlockPlacement = 'left_description' | 'right_info_panel' | 'faq_lower' | 'review_only';
 export type SeoPdpBlockKey =
   | 'about_this_piece'
+  | 'main_description'
+  | 'why_youll_love_it'
+  | 'ideal_for'
   | 'whats_included'
   | 'sizing_fit'
+  | 'production_timing'
   | 'shipping_delivery'
+  | 'material'
+  | 'care'
   | 'materials_care'
   | 'customization'
   | 'returns_exchanges'
@@ -259,25 +265,13 @@ export type SeoPackDraftContract = {
   portfolio_strategy?: SeoPortfolioDifferentiationContract | null;
   agent_input?: SeoAgentInputContract | null;
   agent_output?: SeoAgentOutputContract | null;
-  human_review?: {
-    status: 'not_reviewed' | 'approved' | 'changes_requested' | 'rejected';
+  human_review: {
+    status: 'not_reviewed' | 'needs_revision' | 'approved';
     reviewer?: string | null;
     notes: string[];
     reviewed_at?: string | null;
-  } | null;
+  };
 };
-
-export const SEO_PACK_CONTRACT_GUARDRAILS = [
-  'No Supabase writes from the brief screen.',
-  'No OpenAI calls from browser code.',
-  'No final publish status without human review.',
-  'No final publish status without similarity/cannibalization check.',
-  'No fake keyword metrics or OpenAI-derived volume/competition/trend numbers.',
-  'Product truth outranks raw volume and simple keyword score.',
-  'Visual truth must be separated from customer-facing sales copy.',
-  'Image alt text must describe visible product facts only.',
-  'Commercial intent belongs in FAQ/meta/body/landing unless explicitly approved for title.',
-] as const;
 
 export function createEmptyKeywordRoleMap(): SeoKeywordRoleMap {
   return {
@@ -290,24 +284,4 @@ export function createEmptyKeywordRoleMap(): SeoKeywordRoleMap {
     hold: [],
     reject: [],
   };
-}
-
-export function hasBlockingSeoQa(qa: SeoQaContract) {
-  return Object.entries(qa).some(([key, value]) => key !== 'notes' && value === 'blocker');
-}
-
-export function canSaveSeoPackDraft(contract: SeoPackDraftContract) {
-  if (contract.status === 'blocked_by_product_mismatch' || contract.status === 'blocked_by_cannibalization') return false;
-  if (contract.metrics_status.status === 'missing') return false;
-  if (hasBlockingSeoQa(contract.qa_checks)) return false;
-  if (!contract.keyword_roles.primary.length && !contract.keyword_roles.secondary.length) return false;
-  return true;
-}
-
-export function canMarkSeoPackReadyForPublish(contract: SeoPackDraftContract) {
-  if (!canSaveSeoPackDraft(contract)) return false;
-  if (contract.human_review?.status !== 'approved') return false;
-  if (!contract.similarity_check || contract.similarity_check.status === 'not_checked' || contract.similarity_check.status === 'blocker') return false;
-  if (!contract.agent_output || contract.agent_output.status !== 'draft') return false;
-  return true;
 }
