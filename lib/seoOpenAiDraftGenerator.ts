@@ -59,17 +59,20 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract)
           content: [
             {
               type: 'input_text',
-              text: prompt.user_prompt,
+              text: `${prompt.user_prompt}\n\nReturn exactly one JSON object that conforms to the seo_agent_output_v1 schema supplied in text.format. Do not omit required fields. Use null for unknown nullable text fields and empty arrays when a section has no safe content.`,
             },
           ],
         },
       ],
       text: {
         format: {
-          type: 'json_object',
+          type: 'json_schema',
+          name: 'seo_agent_output_v1',
+          strict: true,
+          schema: seoAgentOutputSchema(),
         },
       },
-      temperature: 0.4,
+      temperature: 0.25,
       store: false,
     }),
   });
@@ -121,6 +124,114 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract)
     output: parsed.value as SeoAgentOutputContract,
     raw_text: rawText,
     error: null,
+  };
+}
+
+function seoAgentOutputSchema() {
+  const qaStatus = { type: 'string', enum: ['pass', 'warning', 'blocker', 'not_checked'] };
+  return {
+    type: 'object',
+    additionalProperties: false,
+    required: [
+      'contract_version',
+      'status',
+      'seo_title',
+      'h1',
+      'meta_description',
+      'intro',
+      'bullet_highlights',
+      'faq',
+      'image_alt_candidates',
+      'internal_linking_hints',
+      'qa_self_report',
+      'generation_notes',
+    ],
+    properties: {
+      contract_version: { type: 'string', enum: ['seo_agent_output_v1'] },
+      status: { type: 'string', enum: ['draft', 'needs_review', 'blocked'] },
+      seo_title: { anyOf: [{ type: 'string' }, { type: 'null' }] },
+      h1: { anyOf: [{ type: 'string' }, { type: 'null' }] },
+      meta_description: { anyOf: [{ type: 'string' }, { type: 'null' }] },
+      intro: { anyOf: [{ type: 'string' }, { type: 'null' }] },
+      bullet_highlights: {
+        type: 'array',
+        items: { type: 'string' },
+      },
+      faq: {
+        type: 'array',
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['question', 'answer', 'intent'],
+          properties: {
+            question: { type: 'string' },
+            answer: { type: 'string' },
+            intent: { type: 'string', enum: ['commercial', 'fit', 'shipping', 'materials', 'styling', 'care', 'other'] },
+          },
+        },
+      },
+      image_alt_candidates: {
+        type: 'array',
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['image_role', 'alt_text', 'truth_basis'],
+          properties: {
+            image_role: { type: 'string', enum: ['primary', 'detail', 'lifestyle', 'unknown'] },
+            alt_text: { type: 'string' },
+            truth_basis: { type: 'string', enum: ['visible_product_fact', 'needs_image_review'] },
+          },
+        },
+      },
+      internal_linking_hints: {
+        type: 'array',
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['anchor', 'target_type', 'reason'],
+          properties: {
+            anchor: { type: 'string' },
+            target_type: { type: 'string', enum: ['collection', 'related_product', 'guide'] },
+            reason: { type: 'string' },
+          },
+        },
+      },
+      qa_self_report: {
+        type: 'object',
+        additionalProperties: false,
+        required: [
+          'cliche_phrase',
+          'long_dash',
+          'keyword_stuffing',
+          'product_specificity',
+          'forbidden_mismatch',
+          'similarity_cannibalization',
+          'image_alt_truth',
+          'commercial_placement',
+          'validated_metrics',
+          'notes',
+        ],
+        properties: {
+          cliche_phrase: qaStatus,
+          long_dash: qaStatus,
+          keyword_stuffing: qaStatus,
+          product_specificity: qaStatus,
+          forbidden_mismatch: qaStatus,
+          similarity_cannibalization: qaStatus,
+          image_alt_truth: qaStatus,
+          commercial_placement: qaStatus,
+          validated_metrics: qaStatus,
+          notes: {
+            type: 'array',
+            items: { type: 'string' },
+          },
+        },
+      },
+      generation_notes: {
+        type: 'array',
+        items: { type: 'string' },
+      },
+    },
   };
 }
 
