@@ -1,10 +1,14 @@
 export type StorefrontConfiguration = {
   configuration_id?: string | null;
+  configuration_price_id?: string | null;
+  source_price_row_id?: string | null;
+  sellable_configuration_id?: string | null;
   configuration_label?: string | null;
   configuration_name?: string | null;
   option_name?: string | null;
   option_value?: string | null;
   raw_option_value?: string | null;
+  raw_option_text?: string | null;
   title?: string | null;
   label?: string | null;
   price_amount?: number | null;
@@ -14,8 +18,18 @@ export type StorefrontConfiguration = {
   max_price?: number | null;
   currency?: string | null;
   has_fallback_price?: boolean | null;
+  sort_order?: number | null;
   components?: unknown;
   selected_options?: unknown;
+  [key: string]: unknown;
+};
+
+export type StorefrontMedia = {
+  position?: number | null;
+  media_type?: 'image' | 'video' | string | null;
+  url?: string | null;
+  alt?: string | null;
+  is_primary?: boolean | null;
   [key: string]: unknown;
 };
 
@@ -38,6 +52,12 @@ export type StorefrontProduct = {
   styled_imagery_flag: boolean | null;
   primary_image_url: string | null;
   primary_image_alt: string | null;
+  secondary_image_url?: string | null;
+  hover_image_url?: string | null;
+  video_url?: string | null;
+  media_gallery?: StorefrontMedia[] | unknown;
+  media_count?: number | null;
+  has_video?: boolean | null;
   min_price: number | null;
   max_price: number | null;
   currency: string | null;
@@ -45,7 +65,9 @@ export type StorefrontProduct = {
   has_sampler_excluded_price: boolean | null;
   public_configuration_count: number | null;
   public_price_row_count: number | null;
-  configurations: unknown;
+  pdp_option_count?: number | null;
+  has_multiple_pdp_options?: boolean | null;
+  configurations: StorefrontConfiguration[] | unknown;
   storefront_candidate_flag: boolean | null;
 };
 
