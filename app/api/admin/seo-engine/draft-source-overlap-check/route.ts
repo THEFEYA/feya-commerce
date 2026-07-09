@@ -30,7 +30,6 @@ const SOURCE_SELECT_BASE = [
   'min_price',
   'max_price',
   'currency',
-  'public_configuration_count',
 ].join(',');
 
 const SOURCE_SELECT_V4 = [
@@ -279,8 +278,6 @@ async function loadTargetProduct(serviceClient, source, currentDraft) {
         summary: { stage: 'target_source_product', view: source.view, select_tier: source.tier, match_key: matcher.key, status: 'found' },
       };
     }
-
-    // Keep successful empty attempts visible for debugging, but continue to the next match key.
   }
 
   return {
@@ -379,7 +376,7 @@ function runSourceCatalogOverlapCheck(currentDraft, sourceState) {
 
   return {
     contract_version: 'seo_source_catalog_overlap_v1',
-    method: 'draft_to_current_source_and_source_to_catalog_token_overlap_v2_fallback_views',
+    method: 'draft_to_current_source_and_source_to_catalog_token_overlap_v3_actionable_matches',
     status,
     checked_at: new Date().toISOString(),
     source_view_used: sourceState.source_view_used,
@@ -417,7 +414,7 @@ function runSourceCatalogOverlapCheck(currentDraft, sourceState) {
     decision: status === 'pass'
       ? 'Current/source catalog overlap did not cross the warning threshold. Continue toward image ALT truth review.'
       : sourceLoaded
-        ? 'Review whether overlap is strategic cluster expansion or duplicate/conflict risk before publish readiness.'
+        ? 'Review the top source catalog matches. Decide whether overlap is strategic cluster expansion or duplicate/conflict risk before publish readiness.'
         : 'Source product was not loaded from any known storefront view. Fix source mapping before treating this as a real portfolio result.',
     limitations: [
       'This uses current storefront/source API views with fallback, not the full original Etsy raw import table yet.',
