@@ -72,6 +72,23 @@ function FaqList({ items = [] }) {
   </div>)}</div> : <span>—</span>;
 }
 
+function PdpBlockList({ items = [], emptyText = 'PDP-блоки не найдены.' }) {
+  if (!items.length) {
+    return <div className="rounded-xl border border-[rgba(196,64,88,.22)] bg-[rgba(160,32,56,.07)] p-3 text-[12px] leading-relaxed text-[var(--ruby-soft)]">{emptyText}</div>;
+  }
+  return <div className="space-y-2">
+    {items.map((block, index) => <div key={`${block.block_key || block.heading}-${index}`} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3">
+      <div className="flex flex-wrap items-center gap-2 mb-1.5">
+        <span className="text-bone text-[12px]">{block.heading || block.block_key || 'PDP block'}</span>
+        <Pill tone={block.placement === 'left_description' ? 'success' : block.placement === 'right_info_panel' ? 'danger' : 'gold'}>{translatePdpPlacement(block.placement)}</Pill>
+        <Pill>{translatePdpBlockKey(block.block_key)}</Pill>
+        {block.needs_human_review ? <Pill tone="warning">нужна проверка</Pill> : null}
+      </div>
+      <div className="whitespace-pre-wrap text-[12px] leading-relaxed text-[var(--bone-dim)]">{translateUiText(block.body || '—')}</div>
+    </div>)}
+  </div>;
+}
+
 function Issues({ issues = [] }) {
   return issues.length ? <div className="grid md:grid-cols-2 gap-2">{issues.map((issue, index) => <div key={`${issue.code}-${index}`} className="rounded-xl border border-[rgba(212,178,106,.22)] bg-black/15 p-3">
     <div className="flex flex-wrap gap-2 mb-1.5"><Pill tone={issue.severity === 'blocker' ? 'danger' : 'warning'}>{translateSeverity(issue.severity)}</Pill><Pill>{translateIssueCode(issue.code)}</Pill></div>
@@ -150,6 +167,9 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
   const portfolioStrategy = bundle.aiAgentInput?.portfolio_strategy || null;
   const promptHasPortfolio = Boolean(portfolioStrategy && promptContract?.user_prompt?.includes('Portfolio differentiation strategy'));
   const activeProductId = seoPackDraft?.canonical_product_id || product?.canonical_product_id || productId;
+  const baselineLeftBlocks = (mockDraft?.pdp_blocks || []).filter((block) => block.placement === 'left_description');
+  const baselineReviewOnlyBlocks = (mockDraft?.pdp_blocks || []).filter((block) => block.placement === 'review_only' || block.placement === 'faq_lower');
+  const baselineGeneratedRightBlocks = (mockDraft?.pdp_blocks || []).filter((block) => block.placement === 'right_info_panel');
 
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
     <section className="container-feya pt-7 pb-12">
@@ -202,9 +222,9 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
                 <Fact label="Сохранение" value="нет" />
               </div>
               <div className="rounded-xl border border-[rgba(212,178,106,.25)] bg-[rgba(212,178,106,.06)] p-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">
-                Главный текст ниже восстановлен из SEO-брифа, чтобы не терять качество preview. Сохранение в Supabase, OpenAI generation и publish остаются заблокированы до review gates.
+                Главный левый PDP-текст теперь выведен отдельным блоком ниже: about, why you’ll love it, ideal for, what’s included, material. Блок SEO-базы не является публикацией и не меняет товар.
               </div>
-              <div className="flex flex-wrap gap-2"><Pill tone={statusTone(validation?.status)}>{translateValidationStatus(validation?.status)}</Pill><Pill tone="success">SEO baseline</Pill><Pill tone="warning">без записи в Supabase</Pill><Pill tone="warning">без публикации</Pill><Pill tone="warning">без реального OpenAI</Pill></div>
+              <div className="flex flex-wrap gap-2"><Pill tone={statusTone(validation?.status)}>{translateValidationStatus(validation?.status)}</Pill><Pill tone="success">SEO baseline</Pill><Pill tone="success">левый PDP visible</Pill><Pill tone="warning">без записи в Supabase</Pill><Pill tone="warning">без публикации</Pill><Pill tone="warning">без реального OpenAI</Pill></div>
             </div>
           </div>
         </div>
@@ -213,20 +233,27 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
 
         <div className="mb-5"><SeoAiDraftGenerateClient productId={activeProductId} /></div>
 
-        <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden mb-5">
-          <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold">SEO-база / черновик для проверки</div><div className="mt-1 text-bone text-[18px]">Черновик восстановлен из SEO-брифа</div></div><Sparkles size={17} className="text-[var(--gold-warm)]" /></div>
-          <div className="p-4 grid lg:grid-cols-[1fr_.85fr] gap-4">
-            <div className="space-y-3">
-              <Section label="SEO-заголовок">{mockDraft.seo_title}</Section>
-              <Section label="H1-заголовок">{mockDraft.h1}</Section>
-              <Section label="Meta description">{mockDraft.meta_description}</Section>
-              <Section label="Intro / первый абзац">{mockDraft.intro}</Section>
+        <div className="rounded-2xl border border-[rgba(108,183,138,.22)] bg-[rgba(108,183,138,.035)] overflow-hidden mb-5">
+          <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold">Baseline preview · левый PDP-текст</div><div className="mt-1 text-bone text-[18px]">Основное описание под фото / не публикация</div></div><Sparkles size={17} className="text-[var(--gold-warm)]" /></div>
+          <div className="p-4 space-y-4">
+            <div className="grid lg:grid-cols-[.75fr_1.25fr] gap-4">
+              <div className="space-y-3">
+                <Section label="SEO-заголовок">{mockDraft.seo_title}</Section>
+                <Section label="H1-заголовок">{mockDraft.h1}</Section>
+                <Section label="Meta description">{mockDraft.meta_description}</Section>
+                <Section label="Intro / первый абзац">{mockDraft.intro}</Section>
+              </div>
+              <div className="space-y-3">
+                <Section label="Главный левый PDP-текст"><PdpBlockList items={baselineLeftBlocks} emptyText="Левые PDP-блоки не пришли в baseline. Это ошибка контракта/preview и её нужно чинить до проверки текста." /></Section>
+                {baselineGeneratedRightBlocks.length ? <Section label="Ошибка: AI/baseline сгенерировал правую колонку"><PdpBlockList items={baselineGeneratedRightBlocks} /></Section> : <Section label="Правая колонка"><div className="text-[#a9dfbd]">Не генерируется здесь. Это правильно: правая колонка теперь каноническая и одинаковая для товаров.</div></Section>}
+              </div>
             </div>
-            <div className="space-y-3">
-              <Section label="Тезисы"><ReviewList items={mockDraft.bullet_highlights || []} /></Section>
-              <Section label="FAQ"><FaqList items={mockDraft.faq || []} /></Section>
+            <div className="grid lg:grid-cols-2 gap-4">
+              <Section label="Тезисы для проверки"><ReviewList items={mockDraft.bullet_highlights || []} /></Section>
+              <Section label="FAQ в product PDP"><div className="text-[#a9dfbd]">Не выводится в товаре. FAQ остаётся для будущей общей страницы/служебных идей, чтобы не дублировать правую колонку.</div></Section>
               <Section label="ALT для изображений"><ReviewList items={(mockDraft.image_alt_candidates || []).map((item) => `${item.alt_text || 'ALT требует проверки'} · ${translateTruthBasis(item.truth_basis)}`)} /></Section>
               <Section label="Внутренние ссылки"><ReviewList items={(mockDraft.internal_linking_hints || []).map((item) => `${item.anchor || 'anchor'} → ${translateTargetType(item.target_type)} · ${translateUiText(item.reason || 'нужно проверить')}`)} /></Section>
+              {baselineReviewOnlyBlocks.length ? <Section label="Review-only PDP blocks"><PdpBlockList items={baselineReviewOnlyBlocks} /></Section> : null}
               <Section label="Служебные заметки"><ReviewList items={mockDraft.generation_notes || []} /></Section>
             </div>
           </div>
@@ -281,10 +308,15 @@ function translateIssueCode(value) {
     h1_weak_availability: 'слабая формулировка',
     meta_description_weak_availability: 'слабая формулировка',
     intro_weak_availability: 'слабая формулировка',
+    left_description_too_thin: 'левый PDP короткий',
+    product_faq_not_rendered_by_default: 'FAQ не выводим',
   };
   if (String(value || '').startsWith('pdp_block_audit_phrase')) return 'audit-стиль PDP';
   if (String(value || '').startsWith('pdp_block_weak_availability')) return 'слабая доступность';
-  if (String(value || '').startsWith('pdp_block_materials_care_thin')) return 'тонкий уход/материал';
+  if (String(value || '').startsWith('pdp_block_material')) return 'материал';
+  if (String(value || '').startsWith('pdp_block_right_panel_generated')) return 'AI полез в правую колонку';
+  if (String(value || '').startsWith('pdp_block_static_policy_generated')) return 'AI полез в policy-блок';
+  if (String(value || '').startsWith('missing_pdp_')) return `нет PDP ${String(value).replace('missing_pdp_', '')}`;
   if (String(value || '').startsWith('faq_audit_phrase')) return 'audit-стиль FAQ';
   if (String(value || '').startsWith('faq_weak_availability')) return 'слабая доступность FAQ';
   return map[value] || value || 'валидация';
@@ -298,6 +330,32 @@ function translateTruthBasis(value) {
 function translateTargetType(value) {
   const map = { collection: 'коллекция', related_product: 'похожий товар', guide: 'гайд' };
   return map[value] || value || 'цель';
+}
+
+function translatePdpPlacement(value) {
+  const map = { left_description: 'левый PDP', right_info_panel: 'правая колонка', faq_lower: 'нижний FAQ', review_only: 'review-only' };
+  return map[value] || value || 'placement';
+}
+
+function translatePdpBlockKey(value) {
+  const map = {
+    about_this_piece: 'about',
+    main_description: 'основной текст',
+    why_youll_love_it: 'почему понравится',
+    ideal_for: 'кому подходит',
+    whats_included: 'что входит',
+    material: 'материал',
+    sizing_fit: 'размер',
+    production_timing: 'изготовление',
+    shipping_delivery: 'доставка',
+    care: 'уход',
+    customization: 'кастомизация',
+    returns_exchanges: 'возврат/обмен',
+    handmade_variation: 'ручная работа',
+    image_truth_note: 'image truth',
+    related_collections: 'перелинковка',
+  };
+  return map[value] || value || 'block';
 }
 
 function translateDraftStatus(value) {
