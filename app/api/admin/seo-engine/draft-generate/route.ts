@@ -5,6 +5,7 @@ import { canSaveSeoPackDraft } from '@/lib/seoPackContract';
 import { buildSeoAgentPromptContract, summarizeSeoAgentPromptContract } from '@/lib/seoAgentDraftPrompt';
 import { buildMockSeoAgentOutput } from '@/lib/seoAgentMockDraft';
 import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
+import { generateSeoDraftWithOpenAi } from '@/lib/seoOpenAiDraftGenerator';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +15,7 @@ export async function GET() {
     route: '/api/admin/seo-engine/draft-generate',
     method: 'POST',
     mode: 'protected_generation_entrypoint',
-    status: 'blocked_by_feature_flag',
+    status: 'draft_only_openai_ready_when_enabled',
     feature_flag: 'FEYA_SEO_AI_GENERATION_ENABLED',
     guardrails: generationGuardrails(),
     expected_body: {
@@ -27,12 +28,13 @@ export async function GET() {
       'load latest saved draft portfolio/source differentiation strategy when available',
       'build seo_agent_prompt_v1',
       'seed optional mock seo_agent_output_v1 from SeoPilotBrief.draftPreview during dry-run',
-      'call model only when feature flag and gates pass',
+      'call OpenAI only when feature flag, key, portfolio strategy, and gates pass',
       'validate seo_agent_output_v1',
-      'return draft for human review',
+      'return AI draft for human review',
       'do not save automatically in this route',
+      'do not publish automatically in this route',
     ],
-    note: 'This route is intentionally gated. It does not call OpenAI unless FEYA_SEO_AI_GENERATION_ENABLED=true and all QA gates pass.',
+    note: 'This route is intentionally gated. Real OpenAI generation is draft-only and never publishes or saves automatically.',
   });
 }
 
@@ -42,6 +44,7 @@ export async function POST(request: Request) {
   const dryRun = body.dry_run !== false;
   const includePrompt = body.include_prompt === true;
   const includeMockOutput = body.include_mock_output !== false;
+  const requirePortfolioStrategy = body.require_portfolio_strategy !== false;
   const generationEnabled = process.env.FEYA_SEO_AI_GENERATION_ENABLED === 'true';
   const hasServerKey = Boolean(process.env.OPENAI_API_KEY);
   const hasClientExposedKey = Boolean(process.env.NEXT_PUBLIC_OPENAI_API_KEY);
@@ -89,8 +92,8 @@ export async function POST(request: Request) {
   const mockOutputValidation = mockOutput ? validateSeoAgentOutput(mockOutput) : null;
   const outputValidationGate = validateSeoAgentOutput(null);
   const canSaveDraft = canSaveSeoPackDraft(bundle.seoPackDraft);
-  const blockers = collectGenerationBlockers({ generationEnabled, hasServerKey, dryRun, canSaveDraft, seoPackDraft: bundle.seoPackDraft });
   const portfolioStrategy = bundle.aiAgentInput?.portfolio_strategy || null;
+  const blockers = collectGenerationBlockers({ generationEnabled, hasServerKey, dryRun, canSaveDraft, seoPackDraft: bundle.seoPackDraft, portfolioStrategy, requirePortfolioStrategy });
   const preflightPayload = {
     route: '/api/admin/seo-engine/draft-generate',
     feature_flag: {
@@ -111,12 +114,14 @@ export async function POST(request: Request) {
       can_save_seo_pack_draft: canSaveDraft,
       prompt_contract_ready: true,
       portfolio_strategy_loaded: Boolean(portfolioStrategy),
+      portfolio_strategy_required: requirePortfolioStrategy,
       portfolio_strategy_classification: portfolioStrategy?.classification || null,
       portfolio_strategy_generation_mode: portfolioStrategy?.recommended_generation_mode || null,
       output_validator_ready: true,
       mock_output_ready: Boolean(mockOutput),
       mock_output_seed: bundle.brief ? 'seo_brief_draft_preview' : 'fallback_mock',
       mock_output_validator_passed: Boolean(mockOutputValidation?.ok),
+      real_openai_draft_only_ready: generationEnabled && hasServerKey && !dryRun && !hasClientExposedKey && canSaveDraft && Boolean(portfolioStrategy || !requirePortfolioStrategy),
     },
     prompt_contract_summary: {
       ...summarizeSeoAgentPromptContract(promptContract),
@@ -147,24 +152,55 @@ export async function POST(request: Request) {
     }, { status: 423 });
   }
 
+  const generation = await generateSeoDraftWithOpenAi(promptContract);
+  const generatedValidation = generation.output ? validateSeoAgentOutput(generation.output) : validateSeoAgentOutput(null);
+
+  if (!generation.ok || !generatedValidation.ok) {
+    return NextResponse.json({
+      ok: false,
+      status: generation.ok ? 'generated_output_failed_validation' : generation.status,
+      blocked: true,
+      mode: 'openai_draft_only_not_saved',
+      message: generation.ok ? 'OpenAI returned JSON, but validator blocked it. Nothing was saved or published.' : 'OpenAI draft generation failed. Nothing was saved or published.',
+      openai_generation: sanitizeGeneration(generation),
+      generated_draft_validation: generatedValidation,
+      ...preflightPayload,
+    }, { status: generation.ok ? 422 : 502 });
+  }
+
   return NextResponse.json({
-    ok: false,
-    status: 'generation_not_implemented_yet',
-    blocked: true,
-    mode: 'preflight_passed_no_model_call',
-    message: 'Preflight passed, prompt contract is ready, mock output validation is available, but the OpenAI model call is intentionally not implemented in this step.',
+    ok: true,
+    status: 'ai_draft_generated_not_saved',
+    blocked: false,
+    mode: 'openai_draft_only_not_saved',
+    message: 'OpenAI generated a valid review draft. It was not saved, published, or applied to product/storefront tables.',
+    openai_generation: sanitizeGeneration(generation),
+    generated_draft_output: generation.output,
+    generated_draft_validation: generatedValidation,
     ...preflightPayload,
-  }, { status: 501 });
+  }, { status: 200 });
 }
 
-function collectGenerationBlockers({ generationEnabled, hasServerKey, dryRun, canSaveDraft, seoPackDraft }) {
+function collectGenerationBlockers({ generationEnabled, hasServerKey, dryRun, canSaveDraft, seoPackDraft, portfolioStrategy, requirePortfolioStrategy }) {
   const blockers = [];
   if (!generationEnabled) blockers.push({ code: 'feature_flag_disabled', message: 'FEYA_SEO_AI_GENERATION_ENABLED is not true.' });
   if (!hasServerKey) blockers.push({ code: 'missing_openai_key', message: 'OPENAI_API_KEY is missing on the server.' });
   if (dryRun) blockers.push({ code: 'dry_run_only', message: 'dry_run is enabled, so no model call or save is allowed.' });
   if (!canSaveDraft) blockers.push({ code: 'seo_pack_draft_not_saveable', message: 'SeoPackDraftContract did not pass save gates.' });
   if (seoPackDraft?.similarity_check?.status === 'not_checked') blockers.push({ code: 'similarity_not_checked', message: 'Similarity/cannibalization check is required before publish readiness.' });
+  if (requirePortfolioStrategy && !portfolioStrategy) blockers.push({ code: 'portfolio_strategy_missing', message: 'Portfolio/source differentiation strategy is required before real AI generation.' });
   return blockers;
+}
+
+function sanitizeGeneration(generation) {
+  return {
+    ok: generation.ok,
+    status: generation.status,
+    model: generation.model,
+    response_id: generation.response_id || null,
+    has_output: Boolean(generation.output),
+    error: generation.error || null,
+  };
 }
 
 async function safeJson(request: Request) {
@@ -180,8 +216,9 @@ function generationGuardrails(portfolioStrategy?: unknown) {
     'Generation is disabled unless FEYA_SEO_AI_GENERATION_ENABLED=true.',
     'Default request mode is dry_run=true.',
     'No OpenAI call is made while blockers exist.',
-    'No Supabase write is performed by this route in this step.',
+    'OpenAI generation is draft-only: no automatic Supabase save.',
     'No publish action is performed by this route.',
+    'No product/storefront table mutation is performed by this route.',
     'The model must consume SeoAgentInputContract, not raw product rows.',
     'The model must return seo_agent_output_v1 JSON only.',
     'Model output must pass validator before any future save.',
