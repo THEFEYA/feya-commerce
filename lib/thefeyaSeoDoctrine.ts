@@ -55,8 +55,8 @@ export const THEFEYA_SEO_DOCTRINE = {
     },
     {
       block_key: 'whats_included',
-      placement: 'right_info_panel_or_left_description_when_better',
-      intent: 'Included components based only on product facts, Etsy source text, and/or product variations. If unsure, mark human review instead of inventing exclusions. In the final PDP this may be shown in the main description, right panel, or both depending on layout.',
+      placement: 'right_info_panel',
+      intent: 'Included components based only on product facts, Etsy source text, and/or product variations. If unsure, mark human review instead of inventing exclusions. In the final PDP this may also be repeated or moved into the main description by the future product editor, but the output contract placement must remain right_info_panel.',
     },
     {
       block_key: 'sizing_fit',
