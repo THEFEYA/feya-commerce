@@ -10,8 +10,13 @@ type SourceOverlapResult = {
   error?: string;
   source_overlap?: {
     status?: string;
+    source_view_used?: string | null;
+    source_select_tier?: string | null;
+    match_key_used?: string | null;
+    source_load_errors?: Array<{ stage?: string; view?: string; message?: string; code?: string | null }>;
     draft_vs_target_source?: { overlap_pct?: number | null } | null;
     source_catalog?: { max_overlap_pct?: number | null; candidate_count?: number | null };
+    target?: { source_loaded?: boolean; draft_token_count?: number | null; source_token_count?: number | null };
   };
 };
 
@@ -42,6 +47,10 @@ export default function SeoDraftSourceOverlapCheckClient({ draftId }: { draftId:
     }
   }
 
+  const overlap = result?.source_overlap;
+  const sourceLoaded = overlap?.target?.source_loaded;
+  const hasResolverErrors = Boolean(overlap?.source_load_errors?.length);
+
   return <div className="mt-4 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3">
     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
       <div>
@@ -61,8 +70,10 @@ export default function SeoDraftSourceOverlapCheckClient({ draftId }: { draftId:
     {error ? <div className="mt-3 rounded-lg border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-2.5 text-[11px] text-[var(--ruby-soft)]">{error}</div> : null}
     {result ? <div className={`mt-3 rounded-lg border p-2.5 text-[11px] leading-relaxed ${result.ok ? 'border-[rgba(108,183,138,.35)] bg-[rgba(108,183,138,.08)] text-[#a9dfbd]' : 'border-[rgba(212,178,106,.35)] bg-[rgba(212,178,106,.08)] text-[var(--gold-warm)]'}`}>
       <div>{result.message || result.error || translateStatus(result.status || 'unknown')}</div>
-      {result.source_overlap ? <div className="mt-2 text-[var(--bone-dim)]">
-        status: {translateOverlapStatus(result.source_overlap.status || 'unknown')} · draft/source: {result.source_overlap.draft_vs_target_source?.overlap_pct ?? '—'}% · catalog max: {result.source_overlap.source_catalog?.max_overlap_pct ?? '—'}% · checked products: {result.source_overlap.source_catalog?.candidate_count ?? 0}
+      {overlap ? <div className="mt-2 space-y-1 text-[var(--bone-dim)]">
+        <div>status: {translateOverlapStatus(overlap.status || 'unknown')} · draft/source: {overlap.draft_vs_target_source?.overlap_pct ?? '—'}% · catalog max: {overlap.source_catalog?.max_overlap_pct ?? '—'}% · checked products: {overlap.source_catalog?.candidate_count ?? 0}</div>
+        <div>source: {sourceLoaded ? 'найден' : 'не найден'} · view: {overlap.source_view_used || '—'} · match: {translateMatchKey(overlap.match_key_used || '')} · draft tokens: {overlap.target?.draft_token_count ?? '—'} · source tokens: {overlap.target?.source_token_count ?? '—'}</div>
+        {hasResolverErrors ? <div className="text-[var(--gold-warm)]">Есть resolver warnings: {overlap.source_load_errors?.slice(0, 2).map((item) => `${item.view || item.stage}: ${item.message}`).join(' · ')}</div> : null}
       </div> : null}
     </div> : null}
   </div>;
@@ -87,4 +98,13 @@ function translateOverlapStatus(status: string) {
     blocker: 'блокер',
   };
   return map[status] || status;
+}
+
+function translateMatchKey(value: string) {
+  const map: Record<string, string> = {
+    canonical_product_id: 'product id',
+    product_slug: 'slug',
+    matched_etsy_listing_id: 'etsy id',
+  };
+  return map[value] || value || '—';
 }
