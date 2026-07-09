@@ -37,7 +37,6 @@ const SOURCE_SELECT_V4 = [
   'category_label',
   'world_label',
   'canonical_color_label',
-  'pdp_option_count',
 ].join(',');
 
 const SOURCE_VIEW_CANDIDATES = [
@@ -130,6 +129,7 @@ export async function POST(request: Request) {
     source_catalog_max_overlap_pct: sourceOverlap.source_catalog?.max_overlap_pct ?? null,
     source_catalog_candidates_checked: sourceOverlap.source_catalog?.candidate_count ?? 0,
     source_catalog_view_used: sourceOverlap.source_view_used || null,
+    seo_differentiation_classification: sourceOverlap.differentiation_strategy?.classification || null,
   };
 
   const shouldHoldForReview = sourceOverlap.status === 'blocker' || sourceOverlap.status === 'warning';
@@ -175,6 +175,7 @@ export async function POST(request: Request) {
       draft_vs_source_overlap_pct: sourceOverlap.draft_vs_target_source?.overlap_pct ?? null,
       source_catalog_max_overlap_pct: sourceOverlap.source_catalog?.max_overlap_pct ?? null,
       top_source_matches: sourceOverlap.source_catalog?.top_matches?.slice(0, 5) || [],
+      differentiation_strategy: sourceOverlap.differentiation_strategy || null,
       load_attempts: sourceState.load_attempts || [],
       publish_performed: false,
       ready_for_publish_performed: false,
@@ -373,10 +374,19 @@ function runSourceCatalogOverlapCheck(currentDraft, sourceState) {
       : maxSourceOverlap >= WARNING_THRESHOLD * 100
         ? 'warning'
         : 'pass';
+  const differentiationStrategy = buildDifferentiationStrategy({
+    status,
+    sourceLoaded,
+    maxSourceOverlap,
+    currentDraft,
+    targetSource: sourceState.target_product,
+    draftVsTarget,
+    topMatches: sourceCatalogMatches.slice(0, 5),
+  });
 
   return {
     contract_version: 'seo_source_catalog_overlap_v1',
-    method: 'draft_to_current_source_and_source_to_catalog_token_overlap_v3_actionable_matches',
+    method: 'draft_to_current_source_and_source_to_catalog_token_overlap_v4_differentiation_strategy',
     status,
     checked_at: new Date().toISOString(),
     source_view_used: sourceState.source_view_used,
@@ -411,10 +421,11 @@ function runSourceCatalogOverlapCheck(currentDraft, sourceState) {
       max_overlap_pct: maxSourceOverlap,
       top_matches: sourceCatalogMatches.slice(0, 10),
     },
+    differentiation_strategy: differentiationStrategy,
     decision: status === 'pass'
       ? 'Current/source catalog overlap did not cross the warning threshold. Continue toward image ALT truth review.'
       : sourceLoaded
-        ? 'Review the top source catalog matches. Decide whether overlap is strategic cluster expansion or duplicate/conflict risk before publish readiness.'
+        ? 'Use the differentiation strategy before generation. Decide whether this is strategic cluster expansion or duplicate/conflict risk before publish readiness.'
         : 'Source product was not loaded from any known storefront view. Fix source mapping before treating this as a real portfolio result.',
     limitations: [
       'This uses current storefront/source API views with fallback, not the full original Etsy raw import table yet.',
@@ -422,6 +433,98 @@ function runSourceCatalogOverlapCheck(currentDraft, sourceState) {
       'It does not call OpenAI.',
     ],
   };
+}
+
+function buildDifferentiationStrategy({ status, sourceLoaded, maxSourceOverlap, currentDraft, targetSource, draftVsTarget, topMatches }) {
+  const topMatch = topMatches?.[0] || null;
+  const sharedTokens = topMatch?.shared_tokens || [];
+  const clusterTermsToKeep = pickTerms(sharedTokens, ['burning', 'gold', 'armor', 'steampunk', 'leather', 'shoulders', 'shoulder', 'futuristic', 'dune', 'warrior']).slice(0, 10);
+  const genericTermsToAvoid = pickTerms(sharedTokens, ['costume', 'outfit', 'component', 'faux', 'fabric', 'leather', 'festival']).slice(0, 10);
+  const productSignals = [targetSource?.product_type, targetSource?.material, targetSource?.color, targetSource?.category_label, targetSource?.world_label].filter(Boolean);
+  const classification = !sourceLoaded
+    ? 'source_mapping_issue'
+    : maxSourceOverlap >= BLOCKER_THRESHOLD * 100
+      ? 'possible_duplicate_risk'
+      : maxSourceOverlap >= WARNING_THRESHOLD * 100
+        ? 'strategic_cluster_overlap_needs_differentiation'
+        : 'portfolio_clear';
+  const riskLevel = classification === 'possible_duplicate_risk'
+    ? 'high'
+    : classification === 'strategic_cluster_overlap_needs_differentiation'
+      ? 'medium'
+      : classification === 'source_mapping_issue'
+        ? 'mapping'
+        : 'low';
+  const primaryAngle = inferPrimaryAngle(currentDraft, targetSource, clusterTermsToKeep);
+
+  return {
+    contract_version: 'seo_differentiation_strategy_v1',
+    classification,
+    risk_level: riskLevel,
+    max_source_catalog_overlap_pct: maxSourceOverlap,
+    draft_vs_source_overlap_pct: draftVsTarget?.overlap_pct ?? null,
+    human_decision_needed: classification !== 'portfolio_clear',
+    agent_instruction_summary: classification === 'portfolio_clear'
+      ? 'The SEO draft can preserve its current angle. Avoid generic repetition, but no strong catalog conflict was detected.'
+      : classification === 'source_mapping_issue'
+        ? 'Do not generate final SEO copy until source mapping is fixed. The current product could not be loaded reliably.'
+        : 'Keep the useful cluster intent, but create a visibly different product angle, title structure, first paragraph, and image ALT story from the nearest catalog matches.',
+    recommended_generation_mode: classification === 'portfolio_clear' ? 'normal_generation' : 'differentiated_cluster_generation',
+    primary_angle_to_own: primaryAngle,
+    title_strategy: classification === 'portfolio_clear'
+      ? 'Use the selected primary keyword naturally and keep the title concise.'
+      : 'Do not reuse the same title skeleton as the top catalog matches. Put the unique product angle before the shared cluster terms.',
+    h1_strategy: classification === 'portfolio_clear'
+      ? 'H1 can stay close to product truth.'
+      : 'H1 should make the item identifiable as this specific product, not only another Burning Man gold armor costume.',
+    meta_strategy: classification === 'portfolio_clear'
+      ? 'Meta description should summarize product truth and use one primary intent.'
+      : 'Meta description must explain the differentiator in the first sentence and avoid repeating the full phrase sequence of the top matches.',
+    body_strategy: classification === 'portfolio_clear'
+      ? 'Body can follow normal human SEO pack rules.'
+      : 'First paragraph and bullets must separate this product by silhouette, components, styling use, visible materials, and event/persona angle. Do not rely only on shared keywords.',
+    keep_cluster_terms: clusterTermsToKeep,
+    avoid_overusing_terms: genericTermsToAvoid,
+    required_differentiators: buildRequiredDifferentiators(productSignals, primaryAngle),
+    nearest_catalog_match: topMatch ? {
+      product_slug: topMatch.product_slug,
+      title: topMatch.title,
+      overlap_pct: topMatch.overlap_pct,
+      shared_tokens: topMatch.shared_tokens?.slice(0, 18) || [],
+    } : null,
+    before_generation_checks: [
+      'Verify product facts and visible image truth.',
+      'Use keyword role allocation, not keyword stuffing.',
+      'Do not copy the nearest catalog match title skeleton.',
+      'Keep publish blocked until image ALT truth and final publish gate pass.',
+    ],
+  };
+}
+
+function buildRequiredDifferentiators(productSignals, primaryAngle) {
+  const base = [
+    'specific silhouette / body part / component set',
+    'visible material and color truth',
+    'distinct event or persona angle',
+    'non-duplicate opening paragraph',
+  ];
+  if (primaryAngle) base.unshift(primaryAngle);
+  return [...new Set([...base, ...productSignals.map((item) => `product signal: ${item}`)])].slice(0, 8);
+}
+
+function inferPrimaryAngle(currentDraft, targetSource, clusterTermsToKeep) {
+  const title = [currentDraft?.h1, currentDraft?.seo_title, targetSource?.card_title, targetSource?.seo_title].filter(Boolean).join(' ').toLowerCase();
+  if (title.includes('shoulder')) return 'own the shoulder armor / shoulder piece angle';
+  if (title.includes('harness')) return 'own the harness / body strap angle';
+  if (title.includes('mask')) return 'own the mask / face accessory angle';
+  if (title.includes('corset')) return 'own the corset / torso armor angle';
+  if (clusterTermsToKeep.includes('steampunk')) return 'own the steampunk desert-warrior styling angle';
+  return 'own a product-specific visible-detail angle';
+}
+
+function pickTerms(tokens, preferred) {
+  const tokenSet = new Set(tokens || []);
+  return preferred.filter((term) => tokenSet.has(term));
 }
 
 function compareTokenSets(a, b) {
@@ -526,6 +629,7 @@ function guardrails() {
     'This route checks the saved SEO draft against current source/storefront catalog state.',
     'This route tries storefront view fallback v4 -> v3 -> v2 -> v1 before declaring source unavailable.',
     'This route does not treat overlap as automatically bad.',
+    'This route creates a differentiation strategy for future SEO generation.',
     'This route does not publish storefront pages.',
     'This route does not mark ready_for_publish.',
     'This route does not call OpenAI.',
