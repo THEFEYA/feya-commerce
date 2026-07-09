@@ -5,8 +5,10 @@ import { buildSeoAgentInputFromDraft, buildSeoPackDraftContractFromBrief } from 
 
 const FOCUS_VIEW = 'feya_commerce_v_listing_master_product_focus_v1';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
+const SEO_DRAFT_LATEST_VIEW = 'feya_commerce_v_seo_pack_drafts_latest_v1';
 const PRODUCT_SELECT = 'canonical_product_id,matched_etsy_listing_id,product_slug,card_title,h1,seo_title,meta_description,product_type,material,color,canonical_color_label,category_label,source_category_label,operator_section_label,world_label,primary_image_url,primary_image_alt,parent_components_json,child_components_json,component_groups_json,needs_component_review_count,has_component_review_risk,focus_text';
 const DECISION_SELECT = 'canonical_product_id,product_slug,matched_etsy_listing_id,auto_focus_json,manual_focus_json,selected_strategy,selected_keywords_json,decision_status,updated_at,created_at';
+const LATEST_DRAFT_SELECT = 'id,canonical_product_id,matched_etsy_listing_id,product_slug,status,review_status,similarity_check_snapshot,qa_self_report,updated_at,created_at';
 
 export async function buildSeoBriefContractBundle(productId: string) {
   const source = await loadSeoBriefSource(productId);
@@ -16,18 +18,28 @@ export async function buildSeoBriefContractBundle(productId: string) {
       brief: null,
       seoPackDraft: null,
       aiAgentInput: null,
+      latestSavedDraftContext: null,
+      portfolioStrategy: null,
     };
   }
 
   const brief = buildSeoPilotBrief(source.product, source.keywords, source.manualFocus);
-  const seoPackDraft = attachProductIdentity(buildSeoPackDraftContractFromBrief(brief), source);
-  const aiAgentInput = buildSeoAgentInputFromDraft(seoPackDraft);
+  const identityDraft = attachProductIdentity(buildSeoPackDraftContractFromBrief(brief), source);
+  const latestSavedDraftContext = await loadLatestSavedSeoDraftContext(identityDraft.canonical_product_id);
+  const portfolioStrategy = extractPortfolioStrategy(latestSavedDraftContext);
+  const seoPackDraft = {
+    ...identityDraft,
+    portfolio_strategy: portfolioStrategy,
+  };
+  const aiAgentInput = buildSeoAgentInputFromDraft(seoPackDraft, { portfolio_strategy: portfolioStrategy });
 
   return {
     ...source,
     brief,
     seoPackDraft,
     aiAgentInput,
+    latestSavedDraftContext,
+    portfolioStrategy,
   };
 }
 
@@ -59,6 +71,27 @@ export async function loadSeoBriefSource(productId: string) {
   return { product, decision, keywords, manualFocus, error: null };
 }
 
+export async function loadLatestSavedSeoDraftContext(productId: string) {
+  const serviceClient = getSupabaseServiceClient();
+  const supabase = serviceClient || getSupabaseReadClient();
+  if (!supabase || !productId) return null;
+
+  const result = await supabase
+    .from(SEO_DRAFT_LATEST_VIEW)
+    .select(LATEST_DRAFT_SELECT)
+    .eq('canonical_product_id', productId)
+    .limit(1);
+
+  if (result.error) {
+    return {
+      error: result.error.message,
+      canonical_product_id: productId,
+    };
+  }
+
+  return (result.data || [])[0] || null;
+}
+
 export function buildSeoBriefSourceSummary(bundle, fallbackProductId = '') {
   return {
     product_id: bundle.product?.canonical_product_id || bundle.seoPackDraft?.canonical_product_id || fallbackProductId || null,
@@ -66,6 +99,8 @@ export function buildSeoBriefSourceSummary(bundle, fallbackProductId = '') {
     has_decision: Boolean(bundle.decision),
     selected_keyword_count: bundle.keywords?.length || 0,
     manual_focus_keys: Object.keys(bundle.manualFocus || {}),
+    has_latest_saved_draft: Boolean(bundle.latestSavedDraftContext?.id),
+    has_portfolio_strategy: Boolean(bundle.portfolioStrategy),
   };
 }
 
@@ -76,6 +111,7 @@ export function readOnlyContractGuardrails() {
     'No product mutation in this route.',
     'No publish action in this route.',
     'This endpoint only exposes the normalized contract for review and future protected generation.',
+    'If a latest saved draft has portfolio/source overlap strategy, it is passed into the future SEO agent input.',
   ];
 }
 
@@ -93,6 +129,19 @@ function attachProductIdentity(contract, source) {
       primary_image_url: source.product?.primary_image_url || contract.product_truth.primary_image_url || null,
       primary_image_alt: source.product?.primary_image_alt || contract.product_truth.primary_image_alt || null,
     },
+  };
+}
+
+function extractPortfolioStrategy(latestSavedDraftContext) {
+  const raw = latestSavedDraftContext?.similarity_check_snapshot?.source_catalog_overlap_snapshot?.differentiation_strategy;
+  if (!raw || typeof raw !== 'object') return null;
+  return {
+    ...raw,
+    contract_version: 'seo_differentiation_strategy_v1',
+    source: 'latest_saved_draft_source_overlap',
+    source_draft_id: latestSavedDraftContext?.id || null,
+    source_draft_status: latestSavedDraftContext?.status || null,
+    source_review_status: latestSavedDraftContext?.review_status || null,
   };
 }
 
