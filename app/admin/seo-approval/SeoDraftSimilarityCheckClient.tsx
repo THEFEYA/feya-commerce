@@ -38,7 +38,7 @@ export default function SeoDraftSimilarityCheckClient({ draftId }: { draftId: st
       setResult({ ...payload, http_status: response.status });
       if (payload?.ok) router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Неизвестная ошибка проверки похожести');
+      setError(err instanceof Error ? err.message : 'Неизвестная ошибка проверки пересечения');
     } finally {
       setLoading(false);
     }
@@ -47,8 +47,8 @@ export default function SeoDraftSimilarityCheckClient({ draftId }: { draftId: st
   return <div className="mt-4 rounded-xl border border-[rgba(212,178,106,.22)] bg-[rgba(212,178,106,.055)] p-3">
     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
       <div>
-        <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--gold-warm)]">Проверка похожести / каннибализации</div>
-        <div className="mt-1 text-[11px] leading-relaxed text-[var(--bone-dim)]">Сравнит этот SEO-черновик с другими сохранёнными drafts. Если риск нормальный — переведёт к проверке Image ALT. Publish не выполняется.</div>
+        <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--gold-warm)]">Портфельная проверка пересечения</div>
+        <div className="mt-1 text-[11px] leading-relaxed text-[var(--bone-dim)]">Это не запрет похожих товаров. Проверка ищет риск дублей и слабой дифференциации внутри SEO-портфеля. Если всё нормально — черновик переходит к Image ALT review. Publish не выполняется.</div>
       </div>
       <button
         type="button"
@@ -56,7 +56,7 @@ export default function SeoDraftSimilarityCheckClient({ draftId }: { draftId: st
         disabled={loading}
         className="btn-ghost px-4 py-2 text-[10px] disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {loading ? 'Проверяю похожесть…' : 'Проверить похожесть'}
+        {loading ? 'Проверяю пересечение…' : 'Проверить пересечение'}
       </button>
     </div>
 
@@ -64,7 +64,7 @@ export default function SeoDraftSimilarityCheckClient({ draftId }: { draftId: st
     {result ? <div className={`mt-3 rounded-lg border p-2.5 text-[11px] leading-relaxed ${result.ok ? 'border-[rgba(108,183,138,.35)] bg-[rgba(108,183,138,.08)] text-[#a9dfbd]' : 'border-[rgba(212,178,106,.35)] bg-[rgba(212,178,106,.08)] text-[var(--gold-warm)]'}`}>
       <div>{result.message || result.error || translateStatus(result.status || 'unknown')}</div>
       {result.similarity ? <div className="mt-2 text-[var(--bone-dim)]">
-        status: {translateSimilarityStatus(result.similarity.status || 'unknown')} · max: {result.similarity.max_similarity_pct ?? 0}% · compared: {result.similarity.comparison_count ?? 0}
+        status: {translateSimilarityStatus(result.similarity.status || 'unknown')} · max overlap: {result.similarity.max_similarity_pct ?? 0}% · compared: {result.similarity.comparison_count ?? 0}
       </div> : null}
     </div> : null}
   </div>;
@@ -72,12 +72,14 @@ export default function SeoDraftSimilarityCheckClient({ draftId }: { draftId: st
 
 function translateStatus(status: string) {
   const map: Record<string, string> = {
+    portfolio_overlap_passed: 'Портфельная проверка пересечения пройдена.',
+    portfolio_overlap_needs_review: 'Нужна ручная дифференциация SEO-черновика.',
     similarity_passed: 'Проверка похожести пройдена.',
     similarity_needs_review: 'Нужна ручная проверка похожести.',
     blocked_feature_flag_disabled: 'Флаг storage выключен.',
     draft_not_found: 'Черновик не найден.',
     candidate_load_failed: 'Не удалось загрузить drafts для сравнения.',
-    similarity_update_failed: 'Не удалось сохранить результат проверки похожести.',
+    similarity_update_failed: 'Не удалось сохранить результат проверки пересечения.',
     similarity_event_failed: 'Проверка сохранилась, но event не записался.',
   };
   return map[status] || status;
