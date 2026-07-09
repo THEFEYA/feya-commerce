@@ -26,7 +26,8 @@ export async function GET() {
     generation_pipeline: [
       'load SeoAgentInputContract',
       'load latest saved draft portfolio/source differentiation strategy when available',
-      'build seo_agent_prompt_v1',
+      'attach primary product image to server-side OpenAI request when available',
+      'build seo_agent_prompt_v1 with visual truth rules',
       'seed optional mock seo_agent_output_v1 from SeoPilotBrief.draftPreview during dry-run',
       'call OpenAI only when feature flag, key, portfolio strategy, and gates pass',
       'validate seo_agent_output_v1',
@@ -87,6 +88,7 @@ export async function POST(request: Request) {
     }, { status: 404 });
   }
 
+  const primaryImageUrl = normalizeImageUrl(bundle.aiAgentInput?.product?.primary_image_url || bundle.seoPackDraft?.product_truth?.primary_image_url || null);
   const promptContract = buildSeoAgentPromptContract(bundle.aiAgentInput);
   const mockOutput = includeMockOutput ? buildMockSeoAgentOutput(bundle.aiAgentInput, bundle.brief) : null;
   const mockOutputValidation = mockOutput ? validateSeoAgentOutput(mockOutput) : null;
@@ -107,12 +109,16 @@ export async function POST(request: Request) {
       selected_keyword_count: bundle.keywords.length,
       latest_saved_draft_id: bundle.latestSavedDraftContext?.id || null,
       latest_saved_draft_status: bundle.latestSavedDraftContext?.status || null,
+      primary_image_url: primaryImageUrl,
     },
     readiness: {
       has_server_openai_key: hasServerKey,
       has_client_exposed_openai_key: hasClientExposedKey,
       can_save_seo_pack_draft: canSaveDraft,
       prompt_contract_ready: true,
+      primary_image_available: Boolean(primaryImageUrl),
+      primary_image_sent_to_openai: Boolean(primaryImageUrl) && !dryRun && generationEnabled && hasServerKey,
+      visual_truth_rules_in_prompt: true,
       portfolio_strategy_loaded: Boolean(portfolioStrategy),
       portfolio_strategy_required: requirePortfolioStrategy,
       portfolio_strategy_classification: portfolioStrategy?.classification || null,
@@ -126,6 +132,8 @@ export async function POST(request: Request) {
     prompt_contract_summary: {
       ...summarizeSeoAgentPromptContract(promptContract),
       portfolio_strategy_in_prompt: Boolean(portfolioStrategy),
+      visual_truth_rules_in_prompt: true,
+      primary_image_url_in_prompt_context: Boolean(primaryImageUrl),
     },
     prompt_contract: includePrompt ? promptContract : undefined,
     portfolio_strategy: portfolioStrategy,
@@ -152,7 +160,7 @@ export async function POST(request: Request) {
     }, { status: 423 });
   }
 
-  const generation = await generateSeoDraftWithOpenAi(promptContract);
+  const generation = await generateSeoDraftWithOpenAi(promptContract, { primaryImageUrl });
   const generatedValidation = generation.output ? validateSeoAgentOutput(generation.output) : validateSeoAgentOutput(null);
 
   if (!generation.ok || !generatedValidation.ok) {
@@ -199,6 +207,7 @@ function sanitizeGeneration(generation) {
     model: generation.model,
     response_id: generation.response_id || null,
     has_output: Boolean(generation.output),
+    vision_input: generation.vision_input || null,
     error: generation.error || null,
   };
 }
@@ -211,12 +220,21 @@ async function safeJson(request: Request) {
   }
 }
 
+function normalizeImageUrl(value?: string | null) {
+  const url = typeof value === 'string' ? value.trim() : '';
+  if (!url) return null;
+  if (!/^https?:\/\//i.test(url)) return null;
+  return url;
+}
+
 function generationGuardrails(portfolioStrategy?: unknown) {
   return [
     'Generation is disabled unless FEYA_SEO_AI_GENERATION_ENABLED=true.',
     'Default request mode is dry_run=true.',
     'No OpenAI call is made while blockers exist.',
     'OpenAI generation is draft-only: no automatic Supabase save.',
+    'Primary product image is attached to OpenAI only server-side when a public image URL exists.',
+    'Image analysis is evidence for visual truth and ALT, not a replacement for Product DNA or human review.',
     'No publish action is performed by this route.',
     'No product/storefront table mutation is performed by this route.',
     'The model must consume SeoAgentInputContract, not raw product rows.',
