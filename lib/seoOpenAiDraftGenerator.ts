@@ -156,6 +156,7 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
 
 function seoAgentOutputSchema() {
   const qaStatus = { type: 'string', enum: ['pass', 'warning', 'blocker', 'not_checked'] };
+  const stringArray = { type: 'array', items: { type: 'string' } };
   return {
     type: 'object',
     additionalProperties: false,
@@ -170,6 +171,8 @@ function seoAgentOutputSchema() {
       'faq',
       'image_alt_candidates',
       'internal_linking_hints',
+      'visual_truth',
+      'pdp_blocks',
       'qa_self_report',
       'generation_notes',
     ],
@@ -180,10 +183,7 @@ function seoAgentOutputSchema() {
       h1: { anyOf: [{ type: 'string' }, { type: 'null' }] },
       meta_description: { anyOf: [{ type: 'string' }, { type: 'null' }] },
       intro: { anyOf: [{ type: 'string' }, { type: 'null' }] },
-      bullet_highlights: {
-        type: 'array',
-        items: { type: 'string' },
-      },
+      bullet_highlights: stringArray,
       faq: {
         type: 'array',
         items: {
@@ -223,6 +223,37 @@ function seoAgentOutputSchema() {
           },
         },
       },
+      visual_truth: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['observed_product_facts', 'dna_matches', 'open_style_suggestions', 'uncertain_or_missing_facts', 'forbidden_visual_claims'],
+        properties: {
+          observed_product_facts: stringArray,
+          dna_matches: stringArray,
+          open_style_suggestions: stringArray,
+          uncertain_or_missing_facts: stringArray,
+          forbidden_visual_claims: stringArray,
+        },
+      },
+      pdp_blocks: {
+        type: 'array',
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['block_key', 'placement', 'heading', 'body', 'source_basis', 'needs_human_review'],
+          properties: {
+            block_key: {
+              type: 'string',
+              enum: ['about_this_piece', 'whats_included', 'sizing_fit', 'shipping_delivery', 'materials_care', 'customization', 'returns_exchanges', 'handmade_variation', 'image_truth_note', 'related_collections'],
+            },
+            placement: { type: 'string', enum: ['left_description', 'right_info_panel', 'faq_lower', 'review_only'] },
+            heading: { type: 'string' },
+            body: { type: 'string' },
+            source_basis: { type: 'string', enum: ['product_fact', 'brand_policy', 'visual_truth', 'needs_human_review'] },
+            needs_human_review: { type: 'boolean' },
+          },
+        },
+      },
       qa_self_report: {
         type: 'object',
         additionalProperties: false,
@@ -248,16 +279,10 @@ function seoAgentOutputSchema() {
           image_alt_truth: qaStatus,
           commercial_placement: qaStatus,
           validated_metrics: qaStatus,
-          notes: {
-            type: 'array',
-            items: { type: 'string' },
-          },
+          notes: stringArray,
         },
       },
-      generation_notes: {
-        type: 'array',
-        items: { type: 'string' },
-      },
+      generation_notes: stringArray,
     },
   };
 }
