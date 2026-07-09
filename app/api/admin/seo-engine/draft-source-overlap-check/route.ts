@@ -1,18 +1,18 @@
 // @ts-nocheck
 import { NextResponse } from 'next/server';
 import { getMissingSupabaseServiceEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
-import { STOREFRONT_VIEW_V4 } from '@/lib/storefront';
+import { STOREFRONT_VIEW_V1, STOREFRONT_VIEW_V2, STOREFRONT_VIEW_V3, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 
 export const dynamic = 'force-dynamic';
 
 const STORAGE_TABLE = 'feya_commerce_seo_pack_drafts_v1';
 const STORAGE_EVENTS_TABLE = 'feya_commerce_seo_pack_draft_events_v1';
 const STORAGE_FLAG = 'FEYA_SEO_DRAFT_STORAGE_ENABLED';
-const SOURCE_CANDIDATE_LIMIT = 120;
+const SOURCE_CANDIDATE_LIMIT = 160;
 const WARNING_THRESHOLD = 0.58;
 const BLOCKER_THRESHOLD = 0.78;
 
-const SOURCE_SELECT = [
+const SOURCE_SELECT_BASE = [
   'canonical_product_id',
   'product_slug',
   'matched_etsy_listing_id',
@@ -24,17 +24,29 @@ const SOURCE_SELECT = [
   'product_type',
   'material',
   'color',
-  'category_label',
-  'world_label',
-  'canonical_color_label',
+  'primary_image_url',
   'primary_image_alt',
   'media_count',
   'min_price',
   'max_price',
   'currency',
   'public_configuration_count',
+].join(',');
+
+const SOURCE_SELECT_V4 = [
+  SOURCE_SELECT_BASE,
+  'category_label',
+  'world_label',
+  'canonical_color_label',
   'pdp_option_count',
 ].join(',');
+
+const SOURCE_VIEW_CANDIDATES = [
+  { view: STOREFRONT_VIEW_V4, select: SOURCE_SELECT_V4, tier: 'v4_full' },
+  { view: STOREFRONT_VIEW_V3, select: SOURCE_SELECT_BASE, tier: 'v3_base' },
+  { view: STOREFRONT_VIEW_V2, select: SOURCE_SELECT_BASE, tier: 'v2_base' },
+  { view: STOREFRONT_VIEW_V1, select: SOURCE_SELECT_BASE, tier: 'v1_base' },
+];
 
 const STOPWORDS = new Set([
   'a','an','and','are','as','at','be','by','can','for','from','in','into','is','it','of','on','or','the','this','to','with','your',
@@ -49,7 +61,7 @@ export async function GET() {
     method: 'POST',
     mode: 'guarded_source_catalog_overlap_preflight',
     feature_flag: STORAGE_FLAG,
-    source_view: STOREFRONT_VIEW_V4,
+    source_view_fallback_order: SOURCE_VIEW_CANDIDATES.map((item) => item.view),
     strategy_doc: 'docs/SEO_PORTFOLIO_OVERLAP_STRATEGY_V1.md',
     expected_body: {
       draft_id: 'seo draft uuid',
@@ -91,7 +103,7 @@ export async function POST(request: Request) {
 
   const { data: currentDraft, error: readError } = await serviceClient
     .from(STORAGE_TABLE)
-    .select('id,canonical_product_id,product_slug,status,review_status,seo_title,h1,meta_description,intro,bullet_highlights,faq,internal_linking_hints,keyword_roles_snapshot,qa_self_report,similarity_check_snapshot,product_truth_snapshot,agent_input_snapshot,created_at,updated_at')
+    .select('id,canonical_product_id,matched_etsy_listing_id,product_slug,status,review_status,seo_title,h1,meta_description,intro,bullet_highlights,faq,internal_linking_hints,keyword_roles_snapshot,qa_self_report,similarity_check_snapshot,product_truth_snapshot,agent_input_snapshot,created_at,updated_at')
     .eq('id', draftId)
     .is('archived_at', null)
     .single();
@@ -117,6 +129,8 @@ export async function POST(request: Request) {
     source_portfolio_overlap: sourceOverlap.status,
     source_portfolio_overlap_checked_at: sourceOverlap.checked_at,
     source_catalog_max_overlap_pct: sourceOverlap.source_catalog?.max_overlap_pct ?? null,
+    source_catalog_candidates_checked: sourceOverlap.source_catalog?.candidate_count ?? 0,
+    source_catalog_view_used: sourceOverlap.source_view_used || null,
   };
 
   const shouldHoldForReview = sourceOverlap.status === 'blocker' || sourceOverlap.status === 'warning';
@@ -156,11 +170,13 @@ export async function POST(request: Request) {
     payload: {
       check_type: 'source_catalog_overlap',
       status: sourceOverlap.status,
+      source_view_used: sourceOverlap.source_view_used,
       target_source_loaded: Boolean(sourceState.target_product),
       source_candidate_count: sourceState.candidate_products.length,
       draft_vs_source_overlap_pct: sourceOverlap.draft_vs_target_source?.overlap_pct ?? null,
       source_catalog_max_overlap_pct: sourceOverlap.source_catalog?.max_overlap_pct ?? null,
       top_source_matches: sourceOverlap.source_catalog?.top_matches?.slice(0, 5) || [],
+      load_attempts: sourceState.load_attempts || [],
       publish_performed: false,
       ready_for_publish_performed: false,
     },
@@ -201,27 +217,126 @@ async function loadSourceState(serviceClient, currentDraft) {
   const result = {
     target_product: null,
     candidate_products: [],
+    source_view_used: null,
+    source_select_tier: null,
+    match_key_used: null,
     errors: [],
+    load_attempts: [],
   };
 
-  const targetQuery = serviceClient
-    .from(STOREFRONT_VIEW_V4)
-    .select(SOURCE_SELECT)
-    .eq('canonical_product_id', currentDraft.canonical_product_id)
-    .limit(1);
-  const { data: targetRows, error: targetError } = await targetQuery;
-  if (targetError) result.errors.push({ stage: 'target_source_product', message: targetError.message, code: targetError.code || null });
-  result.target_product = targetRows?.[0] || null;
+  for (const source of SOURCE_VIEW_CANDIDATES) {
+    const targetAttempt = await loadTargetProduct(serviceClient, source, currentDraft);
+    result.load_attempts.push(targetAttempt.summary);
+    if (targetAttempt.error) result.errors.push(targetAttempt.error);
+    if (!targetAttempt.product) continue;
 
-  const { data: candidateRows, error: candidatesError } = await serviceClient
-    .from(STOREFRONT_VIEW_V4)
-    .select(SOURCE_SELECT)
-    .neq('canonical_product_id', currentDraft.canonical_product_id)
-    .limit(SOURCE_CANDIDATE_LIMIT);
-  if (candidatesError) result.errors.push({ stage: 'source_catalog_candidates', message: candidatesError.message, code: candidatesError.code || null });
-  result.candidate_products = candidateRows || [];
+    result.target_product = normalizeSourceProduct(targetAttempt.product);
+    result.source_view_used = source.view;
+    result.source_select_tier = source.tier;
+    result.match_key_used = targetAttempt.match_key_used;
+
+    const candidatesAttempt = await loadCandidateProducts(serviceClient, source, currentDraft);
+    result.load_attempts.push(candidatesAttempt.summary);
+    if (candidatesAttempt.error) result.errors.push(candidatesAttempt.error);
+    result.candidate_products = (candidatesAttempt.products || [])
+      .map(normalizeSourceProduct)
+      .filter((product) => product.canonical_product_id !== result.target_product.canonical_product_id)
+      .slice(0, SOURCE_CANDIDATE_LIMIT);
+    return result;
+  }
 
   return result;
+}
+
+async function loadTargetProduct(serviceClient, source, currentDraft) {
+  const matchers = [
+    { key: 'canonical_product_id', value: currentDraft.canonical_product_id },
+    { key: 'product_slug', value: currentDraft.product_slug },
+    { key: 'matched_etsy_listing_id', value: currentDraft.matched_etsy_listing_id },
+  ].filter((item) => item.value != null && String(item.value).trim());
+
+  for (const matcher of matchers) {
+    const { data, error } = await serviceClient
+      .from(source.view)
+      .select(source.select)
+      .eq(matcher.key, String(matcher.value))
+      .limit(1);
+
+    if (error) {
+      return {
+        product: null,
+        match_key_used: matcher.key,
+        error: { stage: 'target_source_product', view: source.view, select_tier: source.tier, match_key: matcher.key, message: error.message, code: error.code || null },
+        summary: { stage: 'target_source_product', view: source.view, select_tier: source.tier, match_key: matcher.key, status: 'error', message: error.message, code: error.code || null },
+      };
+    }
+
+    if (data?.[0]) {
+      return {
+        product: data[0],
+        match_key_used: matcher.key,
+        error: null,
+        summary: { stage: 'target_source_product', view: source.view, select_tier: source.tier, match_key: matcher.key, status: 'found' },
+      };
+    }
+
+    // Keep successful empty attempts visible for debugging, but continue to the next match key.
+  }
+
+  return {
+    product: null,
+    match_key_used: null,
+    error: null,
+    summary: { stage: 'target_source_product', view: source.view, select_tier: source.tier, match_key: 'all_known_keys', status: 'empty' },
+  };
+}
+
+async function loadCandidateProducts(serviceClient, source, currentDraft) {
+  const { data, error } = await serviceClient
+    .from(source.view)
+    .select(source.select)
+    .limit(SOURCE_CANDIDATE_LIMIT + 1);
+
+  if (error) {
+    return {
+      products: [],
+      error: { stage: 'source_catalog_candidates', view: source.view, select_tier: source.tier, message: error.message, code: error.code || null },
+      summary: { stage: 'source_catalog_candidates', view: source.view, select_tier: source.tier, status: 'error', message: error.message, code: error.code || null },
+    };
+  }
+
+  return {
+    products: (data || []).filter((product) => String(product.canonical_product_id || '') !== String(currentDraft.canonical_product_id || '')),
+    error: null,
+    summary: { stage: 'source_catalog_candidates', view: source.view, select_tier: source.tier, status: 'loaded', count: data?.length || 0 },
+  };
+}
+
+function normalizeSourceProduct(product) {
+  return {
+    canonical_product_id: String(product.canonical_product_id || ''),
+    product_slug: product.product_slug || null,
+    matched_etsy_listing_id: product.matched_etsy_listing_id || null,
+    source_url: product.source_url || null,
+    card_title: product.card_title || null,
+    h1: product.h1 || null,
+    seo_title: product.seo_title || null,
+    meta_description: product.meta_description || null,
+    product_type: product.product_type || null,
+    material: product.material || null,
+    color: product.color || null,
+    category_label: product.category_label || null,
+    world_label: product.world_label || null,
+    canonical_color_label: product.canonical_color_label || null,
+    primary_image_url: product.primary_image_url || null,
+    primary_image_alt: product.primary_image_alt || null,
+    media_count: product.media_count ?? null,
+    min_price: product.min_price ?? null,
+    max_price: product.max_price ?? null,
+    currency: product.currency || null,
+    public_configuration_count: product.public_configuration_count ?? null,
+    pdp_option_count: product.pdp_option_count ?? null,
+  };
 }
 
 function runSourceCatalogOverlapCheck(currentDraft, sourceState) {
@@ -254,7 +369,6 @@ function runSourceCatalogOverlapCheck(currentDraft, sourceState) {
 
   const maxSourceOverlap = sourceCatalogMatches[0]?.overlap_pct || 0;
   const sourceLoaded = Boolean(sourceState.target_product);
-  const hasCatalogError = Boolean(sourceState.errors?.length);
   const status = !sourceLoaded
     ? 'warning'
     : maxSourceOverlap >= BLOCKER_THRESHOLD * 100
@@ -265,10 +379,13 @@ function runSourceCatalogOverlapCheck(currentDraft, sourceState) {
 
   return {
     contract_version: 'seo_source_catalog_overlap_v1',
-    method: 'draft_to_current_source_and_source_to_catalog_token_overlap_v1',
+    method: 'draft_to_current_source_and_source_to_catalog_token_overlap_v2_fallback_views',
     status,
     checked_at: new Date().toISOString(),
-    source_view: STOREFRONT_VIEW_V4,
+    source_view_used: sourceState.source_view_used,
+    source_select_tier: sourceState.source_select_tier,
+    match_key_used: sourceState.match_key_used,
+    source_view_fallback_order: SOURCE_VIEW_CANDIDATES.map((item) => item.view),
     thresholds: {
       warning_pct: roundPct(WARNING_THRESHOLD),
       blocker_pct: roundPct(BLOCKER_THRESHOLD),
@@ -276,10 +393,14 @@ function runSourceCatalogOverlapCheck(currentDraft, sourceState) {
     target: {
       draft_id: currentDraft.id,
       canonical_product_id: currentDraft.canonical_product_id,
+      matched_etsy_listing_id: currentDraft.matched_etsy_listing_id,
       product_slug: currentDraft.product_slug,
       source_loaded: sourceLoaded,
+      draft_token_count: draftTokens.size,
+      source_token_count: targetTokens.size,
     },
     source_load_errors: sourceState.errors || [],
+    load_attempts: sourceState.load_attempts || [],
     target_source_snapshot: sourceState.target_product ? compactSourceProduct(sourceState.target_product) : null,
     draft_vs_target_source: draftVsTarget ? {
       overlap_pct: draftVsTarget.overlap_pct,
@@ -295,9 +416,11 @@ function runSourceCatalogOverlapCheck(currentDraft, sourceState) {
     },
     decision: status === 'pass'
       ? 'Current/source catalog overlap did not cross the warning threshold. Continue toward image ALT truth review.'
-      : 'Review whether overlap is strategic cluster expansion or duplicate/conflict risk before publish readiness.',
+      : sourceLoaded
+        ? 'Review whether overlap is strategic cluster expansion or duplicate/conflict risk before publish readiness.'
+        : 'Source product was not loaded from any known storefront view. Fix source mapping before treating this as a real portfolio result.',
     limitations: [
-      'This uses the current storefront/source API view, not the full original Etsy raw import table yet.',
+      'This uses current storefront/source API views with fallback, not the full original Etsy raw import table yet.',
       'It does not use GA4 or Google Search Console performance feedback yet.',
       'It does not call OpenAI.',
     ],
@@ -334,6 +457,7 @@ function compactSourceProduct(product) {
     category_label: product.category_label,
     world_label: product.world_label,
     canonical_color_label: product.canonical_color_label,
+    primary_image_url: product.primary_image_url,
     primary_image_alt: product.primary_image_alt,
     media_count: product.media_count,
     price_range: {
@@ -403,6 +527,7 @@ async function safeJson(request: Request) {
 function guardrails() {
   return [
     'This route checks the saved SEO draft against current source/storefront catalog state.',
+    'This route tries storefront view fallback v4 -> v3 -> v2 -> v1 before declaring source unavailable.',
     'This route does not treat overlap as automatically bad.',
     'This route does not publish storefront pages.',
     'This route does not mark ready_for_publish.',
