@@ -6,6 +6,7 @@ import { buildMockSeoAgentOutput } from '@/lib/seoAgentMockDraft';
 import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
 import { buildSeoAgentPromptContract, summarizeSeoAgentPromptContract } from '@/lib/seoAgentDraftPrompt';
 import SeoDraftSavePreflightClient from './SeoDraftSavePreflightClient';
+import SeoAiDraftGenerateClient from './SeoAiDraftGenerateClient';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -96,7 +97,7 @@ function AgentReadiness({ strategy, promptSummary, promptHasPortfolio }) {
         <Fact label="Риск" value={translateRisk(strategy?.risk_level)} tone={strategy?.risk_level === 'high' ? 'danger' : strategyLoaded ? 'warning' : undefined} />
       </div>
       <div className="rounded-xl border border-[rgba(212,178,106,.25)] bg-[rgba(212,178,106,.06)] p-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">
-        Это не кнопка. Это серверная проверка: страница уже собрала будущий prompt для OpenAI-агента и показывает, дошла ли туда стратегия дифференциации из проверки похожих товаров. Реальный OpenAI и публикация всё ещё выключены.
+        Это не кнопка. Это серверная проверка: страница уже собрала будущий prompt для OpenAI-агента и показывает, дошла ли туда стратегия дифференциации из проверки похожих товаров. Реальный OpenAI и публикация выключены до отдельной безопасной кнопки ниже.
       </div>
       {strategyLoaded ? <div className="grid lg:grid-cols-2 gap-3">
         <Section label="Что должен сделать будущий агент">{translateUiText(strategy.agent_instruction_summary || 'Стратегия есть, но короткое описание не найдено.')}</Section>
@@ -138,7 +139,7 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
         <div>
           <div className="eyebrow-gold mb-2">Админка · SEO · проверка черновика</div>
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,64px)' }}>Проверка SEO-черновика</h1>
-          <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Этот экран показывает черновик для проверки и готовность будущего AI-агента. Здесь нет публикации, нет изменения товара и нет реального OpenAI-вызова.</p>
+          <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Этот экран показывает черновик для проверки, готовность будущего AI-агента и безопасную draft-only генерацию. Здесь нет публикации и нет изменения товара.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {activeProductId ? <Link href={`/admin/seo-engine/briefs?product_id=${activeProductId}`} className="btn-ghost">Назад к SEO-брифу <ArrowUpRight size={13} /></Link> : null}
@@ -192,6 +193,8 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
 
         <AgentReadiness strategy={portfolioStrategy} promptSummary={promptSummary} promptHasPortfolio={promptHasPortfolio} />
 
+        <div className="mb-5"><SeoAiDraftGenerateClient productId={activeProductId} /></div>
+
         <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden mb-5">
           <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold">SEO-база / черновик для проверки</div><div className="mt-1 text-bone text-[18px]">Черновик восстановлен из SEO-брифа</div></div><Sparkles size={17} className="text-[var(--gold-warm)]" /></div>
           <div className="p-4 grid lg:grid-cols-[1fr_.85fr] gap-4">
@@ -221,22 +224,14 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
         <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4">
           <div className="eyebrow-gold mb-3">Следующие действия пока намеренно заблокированы</div>
           <div className="flex flex-wrap gap-3">
-            <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Сохранить черновик в Supabase — заблокировано</button>
+            <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Автосохранение AI-черновика — заблокировано</button>
             <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Одобрить к публикации — заблокировано</button>
-            <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Запустить реальный OpenAI — заблокировано</button>
+            <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Применить к товару — заблокировано</button>
           </div>
         </div>
       </> : null}
     </section>
   </main>;
-}
-
-function yesNo(value) {
-  return value ? 'да' : 'нет';
-}
-
-function shortId(value) {
-  return value ? String(value).slice(0, 8) : '—';
 }
 
 function translateIntent(value) {
