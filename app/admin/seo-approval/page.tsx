@@ -4,6 +4,7 @@ import { ArrowUpRight, CheckCircle2, Clock3, Database, ShieldAlert } from 'lucid
 import { getSupabaseServiceClient } from '@/lib/supabase';
 import SeoDraftReviewActionsClient from './SeoDraftReviewActionsClient';
 import SeoDraftSimilarityCheckClient from './SeoDraftSimilarityCheckClient';
+import SeoDraftSourceOverlapCheckClient from './SeoDraftSourceOverlapCheckClient';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -58,7 +59,7 @@ function statusLabel(value) {
     changes_requested: 'нужны правки',
     rejected: 'отклонён',
     approved_draft: 'черновик одобрен',
-    needs_similarity_check: 'нужна проверка похожести',
+    needs_similarity_check: 'нужна проверка портфеля',
     needs_image_alt_review: 'нужна проверка ALT',
     ready_for_publish: 'готов к публикации',
     not_reviewed: 'не проверен',
@@ -82,7 +83,7 @@ function eventLabel(value) {
     human_approved: 'черновик одобрен человеком',
     changes_requested: 'запрошены правки',
     rejected: 'черновик отклонён',
-    similarity_checked: 'похожесть проверена',
+    similarity_checked: 'портфель/source проверен',
     image_alt_checked: 'image ALT проверен',
     ready_for_publish_marked: 'отмечен ready for publish',
     archived: 'архивирован',
@@ -145,6 +146,7 @@ function SavedDraftCard({ draft, events }) {
   const title = draft.h1 || draft.seo_title || draft.product_slug || 'SEO-черновик';
   const isFinalReviewState = ['approved', 'changes_requested', 'rejected'].includes(String(draft.review_status || '').toLowerCase());
   const needsSimilarityGate = String(draft.review_status || '').toLowerCase() === 'approved' && ['warning', 'not_checked', 'missing', 'проверить'].includes(String(draft.similarity_status || '').toLowerCase());
+  const canRunSourceCatalogGate = String(draft.review_status || '').toLowerCase() === 'approved' && !needsSimilarityGate;
   return <article className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
       <div className="grid sm:grid-cols-[92px_1fr] gap-4 min-w-0">
@@ -171,13 +173,14 @@ function SavedDraftCard({ draft, events }) {
     <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-5 gap-2">
       <MiniFact label="Validator" value={statusLabel(draft.validation_status)} tone={draftTone(draft.validation_status)} />
       <MiniFact label="Метрики" value={statusLabel(draft.metrics_status)} tone={draftTone(draft.metrics_status)} />
-      <MiniFact label="Похожесть" value={statusLabel(draft.similarity_status)} tone={draftTone(draft.similarity_status)} />
+      <MiniFact label="Портфель" value={statusLabel(draft.similarity_status)} tone={draftTone(draft.similarity_status)} />
       <MiniFact label="Image ALT" value={statusLabel(draft.image_alt_status)} tone={draftTone(draft.image_alt_status)} />
       <MiniFact label="Обновлён" value={dateLabel(draft.updated_at)} />
     </div>
     <EventTimeline events={events || []} />
     {needsSimilarityGate ? <SeoDraftSimilarityCheckClient draftId={draft.id} /> : null}
-    {isFinalReviewState ? <div className="mt-4 rounded-xl border border-[rgba(108,183,138,.22)] bg-[rgba(108,183,138,.06)] p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Review status уже изменён: <span className="text-[#a9dfbd]">{statusLabel(draft.review_status)}</span>. Это не публикация; publish readiness всё ещё требует similarity/cannibalization gate.</div> : <SeoDraftReviewActionsClient draftId={draft.id} />}
+    {canRunSourceCatalogGate ? <SeoDraftSourceOverlapCheckClient draftId={draft.id} /> : null}
+    {isFinalReviewState ? <div className="mt-4 rounded-xl border border-[rgba(108,183,138,.22)] bg-[rgba(108,183,138,.06)] p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Review status уже изменён: <span className="text-[#a9dfbd]">{statusLabel(draft.review_status)}</span>. Это не публикация; publish readiness всё ещё требует portfolio/source overlap, image ALT truth и финальный publish gate.</div> : <SeoDraftReviewActionsClient draftId={draft.id} />}
   </article>;
 }
 
@@ -188,7 +191,6 @@ export default async function SeoApprovalPage() {
   const draftEvents = await loadDraftEvents(draftIds);
   const notReviewed = savedDrafts.filter((draft) => draft.review_status === 'not_reviewed').length;
   const validatorReady = savedDrafts.filter((draft) => draft.validation_status === 'valid').length;
-  const needsSimilarity = savedDrafts.filter((draft) => ['warning', 'not_checked', 'missing'].includes(String(draft.similarity_status || '').toLowerCase())).length;
   const totalEvents = Array.from(draftEvents.eventsByDraft.values()).reduce((sum, events) => sum + events.length, 0);
 
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]"><section className="container-feya pt-10 pb-16">
