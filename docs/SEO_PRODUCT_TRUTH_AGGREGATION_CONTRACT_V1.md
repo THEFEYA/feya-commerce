@@ -47,6 +47,55 @@ Keep these concepts separate:
 4. review blocker
    - remains visible when a raw phrase has no approved mapping or evidence sources disagree.
 
+## Configuration-aware included-components rule
+
+An approved phrase mapping proves what a raw option phrase means. It does not by itself prove that the mapped component is included in every purchase.
+
+Therefore `included_components` must not be the simple union of all approved component mappings for a product.
+
+A component may enter `included_components` only when configuration-aware evidence proves that it is unconditional, for example:
+
+- it is present in every eligible public, non-sampler sellable configuration; or
+- it is an explicitly fixed base component confirmed by the existing mapping/configuration contract without review blockers.
+
+Mutually exclusive buyer choices remain in `optional_configurations`. For example, approved mappings for `Top only`, `Skirt only`, and `Full Set` must not produce `included_components = ["Top", "Skirt"]` merely because both component phrases are understood.
+
+If configuration ownership, component family, review state, or price linkage is unresolved, keep the component out of `included_components` and preserve the blocker.
+
+A `NULL` review status is unresolved. SQL must use null-safe review checks and must not allow `NULL NOT IN (...)` to suppress a blocker or produce `needs_review = null`.
+
+## Variation and price alignment rule
+
+Do not pair source variation values with price rows solely because both happen to have the same ordinal position.
+
+Positional pairing is permitted only as explicitly unapproved evidence when all of the following are confirmed:
+
+- the existing derivation layer identifies the same configuration axis;
+- source counts match;
+- source order is deterministic;
+- the result is labeled `positional_evidence_only_unapproved`;
+- the pairing cannot confirm component truth or clear a blocker.
+
+Otherwise preserve variation values and price rows separately and add an alignment blocker instead of inventing a pair.
+
+## Provenance and structured JSON rule
+
+`mapping_layer_sources` must distinguish sources directly queried by the Product Truth SQL from sources that are only upstream dependencies of an existing view. Do not claim direct provenance for a table or view that the SQL does not consume.
+
+The following Product Truth fields are structured JSON evidence arrays, not flattened string lists:
+
+- `optional_configurations`;
+- `available_variants`;
+- `known_non_components`;
+- `unresolved_component_facts`;
+- `component_review_blockers_json`;
+- `source_variations_json`;
+- `option_price_rows_json`.
+
+The application must preserve their objects and raw labels. It must not run them through a component-string extractor that discards fields such as `raw_value`, `parallel_source_raw_value`, `mapping_status`, `review_reason`, prices, or source identifiers.
+
+All JSON arrays must be deterministic. Every `jsonb_agg`, including deduplicated sellable-configuration aggregates, must have stable ordering.
+
 ## Unmapped phrase rule
 
 When a raw phrase is not resolved by the existing mapping layer:
@@ -167,6 +216,7 @@ The GitHub application must:
 - prefer `feya_commerce_v_seo_product_truth_v1`;
 - treat Listing Master Product Focus only as blocked diagnostic evidence;
 - preserve mapped values without semantic remapping;
+- preserve structured JSON evidence objects without flattening them to component strings;
 - preserve raw variations and price rows;
 - block OpenAI generation while component blockers or unresolved facts exist;
 - never use SEO keywords as component evidence.
