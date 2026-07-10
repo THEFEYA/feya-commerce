@@ -135,8 +135,13 @@ export function buildSeoPackDraftContractFromBrief(brief: SeoPilotBrief): SeoPac
     world: factValue(brief, 'Мир / контекст'),
     primary_image_url: null,
     primary_image_alt: brief.draftPreview.imageAltDirection[0] || null,
-    known_components: keywordRoles.primary.concat(keywordRoles.secondary).map((keyword) => keyword.keyword).slice(0, 12),
-    known_non_components: brief.draftPreview.blockedWords,
+    known_components: [],
+    known_non_components: [],
+    included_components: [],
+    optional_configurations: [],
+    available_variants: [],
+    unresolved_component_facts: ['Component truth has not yet been attached from the Product Focus source.'],
+    component_evidence: null,
   };
 
   return {
