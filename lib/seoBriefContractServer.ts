@@ -10,6 +10,30 @@ const PRODUCT_SELECT = 'canonical_product_id,matched_etsy_listing_id,product_slu
 const DECISION_SELECT = 'canonical_product_id,product_slug,matched_etsy_listing_id,auto_focus_json,manual_focus_json,selected_strategy,selected_keywords_json,decision_status,updated_at,created_at';
 const LATEST_DRAFT_SELECT = 'id,canonical_product_id,matched_etsy_listing_id,product_slug,status,review_status,similarity_check_snapshot,qa_self_report,updated_at,created_at';
 
+const COMPONENT_TEXT_KEYS = [
+  'public_label',
+  'label',
+  'component_label',
+  'component_name',
+  'component_code',
+  'component_family',
+  'canonical_component',
+  'name',
+  'title',
+  'value',
+];
+const COMPONENT_CONTAINER_KEYS = [
+  'components',
+  'items',
+  'children',
+  'options',
+  'configurations',
+  'values',
+  'parts',
+  'members',
+  'groups',
+];
+
 export async function buildSeoBriefContractBundle(productId: string) {
   const source = await loadSeoBriefSource(productId);
   if (source.error || !source.product) {
@@ -112,12 +136,15 @@ export function readOnlyContractGuardrails() {
     'No publish action in this route.',
     'This endpoint only exposes the normalized contract for review and future protected generation.',
     'If a latest saved draft has portfolio/source overlap strategy, it is passed into the future SEO agent input.',
+    'Component truth comes from Product Focus component evidence, never from keyword text.',
   ];
 }
 
 function attachProductIdentity(contract, source) {
   const canonicalProductId = source.product?.canonical_product_id || source.decision?.canonical_product_id || '';
   const matchedEtsyListingId = source.product?.matched_etsy_listing_id || source.decision?.matched_etsy_listing_id || null;
+  const componentTruth = buildComponentTruth(source.product);
+
   return {
     ...contract,
     canonical_product_id: canonicalProductId,
@@ -128,8 +155,85 @@ function attachProductIdentity(contract, source) {
       matched_etsy_listing_id: matchedEtsyListingId,
       primary_image_url: source.product?.primary_image_url || contract.product_truth.primary_image_url || null,
       primary_image_alt: source.product?.primary_image_alt || contract.product_truth.primary_image_alt || null,
+      known_components: componentTruth.included_components,
+      included_components: componentTruth.included_components,
+      optional_configurations: componentTruth.optional_configurations,
+      available_variants: componentTruth.available_variants,
+      unresolved_component_facts: componentTruth.unresolved_component_facts,
+      component_evidence: componentTruth.component_evidence,
     },
   };
+}
+
+function buildComponentTruth(product) {
+  const parentComponents = uniqueComponents(collectComponentStrings(product?.parent_components_json));
+  const childComponents = uniqueComponents(collectComponentStrings(product?.child_components_json));
+  const componentGroups = uniqueComponents(collectComponentStrings(product?.component_groups_json));
+  const includedComponents = uniqueComponents(parentComponents.length ? parentComponents : childComponents);
+  const optionalConfigurations = uniqueComponents(componentGroups.filter((item) => !includedComponents.includes(item)));
+  const reviewCount = Number(product?.needs_component_review_count || 0);
+  const hasReviewRisk = product?.has_component_review_risk === true || reviewCount > 0;
+  const unresolved = [];
+
+  if (!includedComponents.length) {
+    unresolved.push('No confirmed included components were found in parent_components_json or child_components_json.');
+  }
+  if (hasReviewRisk) {
+    unresolved.push(`Component mapping requires human review${reviewCount > 0 ? ` for ${reviewCount} item(s)` : ''}.`);
+  }
+
+  return {
+    included_components: includedComponents,
+    optional_configurations: optionalConfigurations,
+    available_variants: [],
+    unresolved_component_facts: unresolved,
+    component_evidence: {
+      source: 'listing_master_product_focus_v1',
+      parent_components: parentComponents,
+      child_components: childComponents,
+      component_groups: componentGroups,
+    },
+  };
+}
+
+function collectComponentStrings(value, depth = 0) {
+  if (depth > 4 || value == null) return [];
+  if (typeof value === 'string') return [value];
+  if (typeof value === 'number' || typeof value === 'boolean') return [];
+  if (Array.isArray(value)) return value.flatMap((item) => collectComponentStrings(item, depth + 1));
+  if (typeof value !== 'object') return [];
+
+  const direct = COMPONENT_TEXT_KEYS.flatMap((key) => collectComponentStrings(value[key], depth + 1));
+  const nested = COMPONENT_CONTAINER_KEYS.flatMap((key) => collectComponentStrings(value[key], depth + 1));
+  if (direct.length || nested.length) return [...direct, ...nested];
+
+  return Object.entries(value).flatMap(([key, item]) => {
+    if (!/(component|part|piece|label|name)/i.test(key)) return [];
+    return collectComponentStrings(item, depth + 1);
+  });
+}
+
+function uniqueComponents(values) {
+  const seen = new Set();
+  const result = [];
+  values.forEach((value) => {
+    const normalized = normalizeComponent(value);
+    const key = normalized.toLowerCase();
+    if (!normalized || seen.has(key)) return;
+    seen.add(key);
+    result.push(normalized);
+  });
+  return result;
+}
+
+function normalizeComponent(value) {
+  const text = String(value || '')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!text) return '';
+  if (/\bskirt\b/i.test(text)) return 'skirt';
+  return text;
 }
 
 function extractPortfolioStrategy(latestSavedDraftContext) {
