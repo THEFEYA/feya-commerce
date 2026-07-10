@@ -89,6 +89,18 @@ component_review_blockers:
 
 The source description is evidence, but it is not sufficient to silently promote `shoulder` into confirmed `included_components` while selectable configuration mappings remain unresolved.
 
+## Hard contract test
+
+For pilot listing `4348580005`, if `feya_commerce_v_seo_product_truth_v1` returns:
+
+```json
+{"included_components":["shoulder"]}
+```
+
+before approved phrase mappings exist for both `Одно плечо` and `Полные плечи`, the SQL violates this contract and must be redesigned.
+
+A successful query is not enough. The view is valid only when unresolved mapping remains visible as evidence and blockers rather than being hidden by inferred component truth.
+
 ## Application behavior
 
 The GitHub application must:
