@@ -75,11 +75,17 @@ export type SeoKeywordRoleItem = SeoKeywordMetricSnapshot & {
 
 export type SeoKeywordRoleMap = Record<SeoKeywordRole, SeoKeywordRoleItem[]>;
 
+export type SeoProductTruthSource = 'seo_product_truth_v1' | 'listing_master_product_focus_v1';
+export type SeoSourceEvidenceRow = Record<string, unknown>;
+
 export type SeoComponentEvidence = {
-  source: 'listing_master_product_focus_v1';
+  source: SeoProductTruthSource;
   parent_components: string[];
   child_components: string[];
   component_groups: string[];
+  source_variations?: SeoSourceEvidenceRow[];
+  option_price_rows?: SeoSourceEvidenceRow[];
+  source_description_fragment?: string | null;
 };
 
 export type SeoProductTruth = {
@@ -99,6 +105,11 @@ export type SeoProductTruth = {
   optional_configurations?: string[];
   available_variants?: string[];
   unresolved_component_facts?: string[];
+  component_review_blockers?: string[];
+  product_truth_source?: SeoProductTruthSource;
+  source_description_fragment?: string | null;
+  source_variations?: SeoSourceEvidenceRow[];
+  option_price_rows?: SeoSourceEvidenceRow[];
   component_evidence?: SeoComponentEvidence | null;
 };
 
@@ -311,12 +322,18 @@ export function getSeoPackDraftSaveBlockers(draft: SeoPackDraftContract | null |
     ...(draft.keyword_roles?.primary || []),
     ...(draft.keyword_roles?.secondary || []),
   ].filter((item) => Boolean(item?.keyword || item?.keyword_norm));
+  const hasSourceEvidence = Boolean(truth?.source_description_fragment?.trim())
+    || Boolean(truth?.source_variations?.length)
+    || Boolean(truth?.option_price_rows?.length);
 
   if (!draft.canonical_product_id) blockers.push('missing_canonical_product_id');
   if (!truth?.title?.trim()) blockers.push('missing_product_title');
   if (!truth?.slug?.trim()) blockers.push('missing_product_slug');
+  if (truth?.product_truth_source !== 'seo_product_truth_v1') blockers.push('missing_canonical_product_truth_contract');
   if (!componentFacts.length) blockers.push('missing_confirmed_component_truth');
   if ((truth?.unresolved_component_facts || []).length) blockers.push('unresolved_component_truth');
+  if ((truth?.component_review_blockers || []).length) blockers.push('component_review_blockers_present');
+  if (!hasSourceEvidence) blockers.push('missing_source_configuration_evidence');
   if (!usefulKeywords.length) blockers.push('missing_primary_or_secondary_keyword');
   if ((draft.metrics_status?.validated_count || 0) < 1) blockers.push('missing_validated_keyword_metric');
   if (String(draft.status || '').startsWith('blocked_')) blockers.push(`draft_status_${draft.status}`);
