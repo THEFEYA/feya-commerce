@@ -75,6 +75,13 @@ export type SeoKeywordRoleItem = SeoKeywordMetricSnapshot & {
 
 export type SeoKeywordRoleMap = Record<SeoKeywordRole, SeoKeywordRoleItem[]>;
 
+export type SeoComponentEvidence = {
+  source: 'listing_master_product_focus_v1';
+  parent_components: string[];
+  child_components: string[];
+  component_groups: string[];
+};
+
 export type SeoProductTruth = {
   canonical_product_id: string;
   matched_etsy_listing_id?: string | null;
@@ -88,6 +95,11 @@ export type SeoProductTruth = {
   primary_image_alt?: string | null;
   known_components: string[];
   known_non_components: string[];
+  included_components?: string[];
+  optional_configurations?: string[];
+  available_variants?: string[];
+  unresolved_component_facts?: string[];
+  component_evidence?: SeoComponentEvidence | null;
 };
 
 export type SeoManualFocusContract = {
@@ -284,4 +296,53 @@ export function createEmptyKeywordRoleMap(): SeoKeywordRoleMap {
     hold: [],
     reject: [],
   };
+}
+
+export function getSeoPackDraftSaveBlockers(draft: SeoPackDraftContract | null | undefined): string[] {
+  if (!draft) return ['missing_seo_pack_draft'];
+
+  const blockers: string[] = [];
+  const truth = draft.product_truth;
+  const componentFacts = uniqueNonEmpty([
+    ...(truth?.included_components || []),
+    ...(truth?.known_components || []),
+  ]);
+  const usefulKeywords = [
+    ...(draft.keyword_roles?.primary || []),
+    ...(draft.keyword_roles?.secondary || []),
+  ].filter((item) => Boolean(item?.keyword || item?.keyword_norm));
+
+  if (!draft.canonical_product_id) blockers.push('missing_canonical_product_id');
+  if (!truth?.title?.trim()) blockers.push('missing_product_title');
+  if (!truth?.slug?.trim()) blockers.push('missing_product_slug');
+  if (!componentFacts.length) blockers.push('missing_confirmed_component_truth');
+  if ((truth?.unresolved_component_facts || []).length) blockers.push('unresolved_component_truth');
+  if (!usefulKeywords.length) blockers.push('missing_primary_or_secondary_keyword');
+  if ((draft.metrics_status?.validated_count || 0) < 1) blockers.push('missing_validated_keyword_metric');
+  if (String(draft.status || '').startsWith('blocked_')) blockers.push(`draft_status_${draft.status}`);
+
+  Object.entries(draft.qa_checks || {}).forEach(([key, value]) => {
+    if (key !== 'notes' && value === 'blocker') blockers.push(`qa_blocker_${key}`);
+  });
+
+  return uniqueNonEmpty(blockers);
+}
+
+export function canSaveSeoPackDraft(draft: SeoPackDraftContract | null | undefined): boolean {
+  return getSeoPackDraftSaveBlockers(draft).length === 0;
+}
+
+function uniqueNonEmpty(values: unknown[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  values.forEach((value) => {
+    const text = typeof value === 'string' ? value.trim() : '';
+    const key = text.toLowerCase();
+    if (!text || seen.has(key)) return;
+    seen.add(key);
+    result.push(text);
+  });
+
+  return result;
 }
