@@ -55,7 +55,14 @@ function factValue(brief: SeoPilotBrief, label: string) {
 }
 
 function keywordToRoleItem(keyword: SeoPilotKeyword): SeoKeywordRoleItem {
+  const raw = keyword as SeoPilotKeyword & Record<string, unknown>;
   const keywordText = text(keyword.keyword || keyword.keyword_norm);
+  const validated = keyword.validation_status === 'validated';
+  const source = validated
+    ? text(raw.metric_source || raw.source_api || raw.validation_source || raw.source, 'validated_metric_snapshot')
+    : 'unvalidated_or_partial';
+  const checkedAt = text(raw.last_checked || raw.metric_checked_at || raw.updated_at, '').trim() || null;
+
   return {
     keyword: keywordText,
     keyword_norm: text(keyword.keyword_norm || keyword.keyword, keywordText).toLowerCase(),
@@ -63,13 +70,17 @@ function keywordToRoleItem(keyword: SeoPilotKeyword): SeoKeywordRoleItem {
     role_reason: keyword.pilot_role_reason || keyword.pilot_relevance_reason || null,
     placement: keyword.page_type || keyword.bank_bucket || null,
     relevance_score: keyword.pilot_relevance_score ?? null,
-    avg_monthly_searches: typeof keyword.avg_monthly_searches === 'number' ? keyword.avg_monthly_searches : Number(keyword.avg_monthly_searches) || null,
-    competition: keyword.competition || null,
-    competition_index: typeof keyword.competition_index === 'number' ? keyword.competition_index : Number(keyword.competition_index) || null,
-    metric_source: keyword.validation_status === 'validated' ? 'validated_keyword_decision' : 'unvalidated_or_partial',
-    region: null,
-    language: 'en-US',
-    last_checked: null,
+    avg_monthly_searches: validated
+      ? (typeof keyword.avg_monthly_searches === 'number' ? keyword.avg_monthly_searches : Number(keyword.avg_monthly_searches) || null)
+      : null,
+    competition: validated ? keyword.competition || null : null,
+    competition_index: validated
+      ? (typeof keyword.competition_index === 'number' ? keyword.competition_index : Number(keyword.competition_index) || null)
+      : null,
+    metric_source: source,
+    region: text(raw.region || raw.target_region, '').trim() || null,
+    language: text(raw.language, 'en-US'),
+    last_checked: checkedAt,
   };
 }
 
@@ -140,7 +151,12 @@ export function buildSeoPackDraftContractFromBrief(brief: SeoPilotBrief): SeoPac
     included_components: [],
     optional_configurations: [],
     available_variants: [],
-    unresolved_component_facts: ['Component truth has not yet been attached from the Product Focus source.'],
+    unresolved_component_facts: ['Canonical Product Truth evidence has not yet been attached.'],
+    component_review_blockers: ['Canonical Product Truth contract has not yet been attached.'],
+    product_truth_source: 'listing_master_product_focus_v1' as const,
+    source_description_fragment: null,
+    source_variations: [],
+    option_price_rows: [],
     component_evidence: null,
   };
 
