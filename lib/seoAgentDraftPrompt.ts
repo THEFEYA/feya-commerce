@@ -74,6 +74,13 @@ function buildSystemPrompt(input: SeoAgentInputContract) {
     'No primary image is attached. Treat image ALT as needs_image_review and do not infer visual-only style claims.',
   ];
 
+  const componentRules = [
+    'For included contents, product.included_components and product.known_components are the confirmed component facts.',
+    'product.optional_configurations and product.available_variants describe buyer choices. Do not present every option as included in one purchase.',
+    'Keyword roles, manual style focus, image observations, and search demand never prove that a component is included.',
+    'If product.unresolved_component_facts is non-empty, return status needs_review or blocked and explain the uncertainty in generation_notes. Do not invent a buyer-facing What’s included claim.',
+  ];
+
   return [
     'You are the server-side SEO product copywriter and QA agent for TheFEYA.',
     'You write reviewable product SEO drafts, not final published copy.',
@@ -82,6 +89,7 @@ function buildSystemPrompt(input: SeoAgentInputContract) {
     ...buildThefeyaSeoDoctrineSystemLines(),
     'Never invent product facts, components, materials, events, metrics, prices, shipping promises, or visual details.',
     'Product truth, image truth, and QA gates outrank search volume and simple keyword score.',
+    ...componentRules,
     'Use natural human English for a premium independent designer costume studio in festival, stage, performance and editorial fashion.',
     'The copy must attract a buyer first, then explain product facts. Do not write like an analyst describing a picture to another analyst.',
     'Avoid generic AI sales language, keyword stuffing, doorway-page style copy, and franchise/brand references.',
@@ -95,7 +103,7 @@ function buildSystemPrompt(input: SeoAgentInputContract) {
     'Generate the product-specific LEFT PDP description only. The canonical RIGHT PDP panel is fixed by the storefront and must not be generated uniquely by OpenAI.',
     'Required left_description block order: about_this_piece, whats_included, why_youll_love_it, ideal_for, material.',
     'Optional generated review_only blocks: related_collections and other internal notes for future linking/research. Do not output right_info_panel blocks.',
-    'whats_included must use known product components, variations, or Etsy source text. If source data is incomplete, mark needs_human_review internally, but do not make buyer-facing copy say ask the manager what is included.',
+    'whats_included must use confirmed component/configuration evidence only. If source data is incomplete, mark needs_human_review internally, but do not make buyer-facing copy say ask the manager what is included.',
     'Do not render product-level FAQ by default. The top-level faq array should normally be empty or review-only global FAQ suggestions. Product-specific buyer concerns must be handled in left PDP blocks or the static right panel, not duplicated as FAQ inside the product tile.',
     'Do not generate sizing_fit, production_timing, shipping_delivery, care, customization, returns_exchanges, handmade_variation, or any right_info_panel block. Those are canonical static right-panel/store-policy content.',
     'Product-specific material and finish should be generated in the left material block. It can mention vegan/faux leather with glossy mirror or metallic coating only when product facts support it.',
@@ -137,6 +145,12 @@ function buildUserPrompt(input: SeoAgentInputContract) {
     'Required output contract: seo_agent_output_v1.',
     'Every customer-facing string must be English en-US. Do not output Russian text inside seo_title, h1, meta_description, intro, bullet_highlights, faq, image_alt_candidates, internal_linking_hints, or pdp_blocks.',
     '',
+    'Component truth rules:',
+    '- Use product.included_components / product.known_components for confirmed contents.',
+    '- Use product.optional_configurations and product.available_variants only as selectable options, not as items all included together.',
+    '- Never infer included pieces from keyword_roles, image styling, manual_focus, or collection terms.',
+    '- If product.unresolved_component_facts contains any item, do not invent What’s included. Return needs_review or blocked with generation_notes.',
+    '',
     'Required copy limits:',
     '- seo_title: 45-68 characters. One clear search angle only. Do not concatenate all keywords. Do not use Edition.',
     '- h1: 45-82 characters. Human-readable product name, not a keyword dump. Do not use Edition.',
@@ -150,7 +164,7 @@ function buildUserPrompt(input: SeoAgentInputContract) {
     '',
     'Required generated pdp_blocks in this exact display order:',
     '- about_this_piece / left_description: polished opening story and buyer benefit.',
-    '- whats_included / left_description: components from variations/source data. This comes immediately after the opening. Do not tell buyer to clarify standard contents with manager.',
+    '- whats_included / left_description: confirmed components from product truth. This comes immediately after the opening.',
     '- why_youll_love_it / left_description: 3-5 concise bullets with strong product benefits.',
     '- ideal_for / left_description: event/use-case bullets grounded in DNA and visual truth.',
     '- material / left_description: product-specific material/finish/feel/shape-retention details when supported by product facts.',
@@ -184,6 +198,7 @@ export function promptGuardrails(input?: SeoAgentInputContract) {
     'Visual truth must be separated from buyer-facing intro/meta/body copy.',
     'Primary product image may be sent to the model only server-side and only as visual truth evidence.',
     'Image observations must not override Product DNA unless they are clearly visible and still require human review before publish.',
+    'Included components must come from component/configuration evidence, never from keyword text or visual styling.',
     'PDP blocks must map output into the existing storefront layout instead of creating another screen.',
     'Main left_description PDP blocks must be generated; a short intro alone is not enough.',
     'Right_info_panel blocks must not be generated by OpenAI; the right PDP panel is canonical static storefront content.',
