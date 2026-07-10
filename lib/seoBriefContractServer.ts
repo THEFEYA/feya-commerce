@@ -7,30 +7,91 @@ const PRODUCT_TRUTH_VIEW = 'feya_commerce_v_seo_product_truth_v1';
 const FOCUS_VIEW = 'feya_commerce_v_listing_master_product_focus_v1';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
 const SEO_DRAFT_LATEST_VIEW = 'feya_commerce_v_seo_pack_drafts_latest_v1';
-const PRODUCT_TRUTH_SELECT = 'canonical_product_id,matched_etsy_listing_id,product_slug,card_title,h1,seo_title,meta_description,product_type,material,color,canonical_color_label,category_label,source_category_label,operator_section_label,world_label,primary_image_url,primary_image_alt,parent_components_json,child_components_json,component_groups_json,needs_component_review_count,has_component_review_risk,focus_text,included_components,optional_configurations,available_variants,known_non_components,unresolved_component_facts,component_evidence,source_description_fragment,source_variations_json,option_price_rows_json,component_review_blockers_json';
-const FOCUS_SELECT = 'canonical_product_id,matched_etsy_listing_id,product_slug,card_title,h1,seo_title,meta_description,product_type,material,color,canonical_color_label,category_label,source_category_label,operator_section_label,world_label,primary_image_url,primary_image_alt,parent_components_json,child_components_json,component_groups_json,needs_component_review_count,has_component_review_risk,focus_text';
+
+const PRODUCT_TRUTH_SELECT = [
+  'canonical_product_id',
+  'matched_etsy_listing_id',
+  'product_slug',
+  'card_title',
+  'h1',
+  'seo_title',
+  'meta_description',
+  'product_type',
+  'material',
+  'color',
+  'canonical_color_label',
+  'category_label',
+  'source_category_label',
+  'operator_section_label',
+  'world_label',
+  'primary_image_url',
+  'primary_image_alt',
+  'parent_components_json',
+  'child_components_json',
+  'component_groups_json',
+  'needs_component_review_count',
+  'has_component_review_risk',
+  'focus_text',
+  'included_components',
+  'optional_configurations',
+  'available_variants',
+  'known_non_components',
+  'unresolved_component_facts',
+  'component_evidence',
+  'source_description_fragment',
+  'source_variations_json',
+  'option_price_rows_json',
+  'component_review_blockers_json',
+].join(',');
+
+const FOCUS_SELECT = [
+  'canonical_product_id',
+  'matched_etsy_listing_id',
+  'product_slug',
+  'card_title',
+  'h1',
+  'seo_title',
+  'meta_description',
+  'product_type',
+  'material',
+  'color',
+  'canonical_color_label',
+  'category_label',
+  'source_category_label',
+  'operator_section_label',
+  'world_label',
+  'primary_image_url',
+  'primary_image_alt',
+  'parent_components_json',
+  'child_components_json',
+  'component_groups_json',
+  'needs_component_review_count',
+  'has_component_review_risk',
+  'focus_text',
+].join(',');
+
 const DECISION_SELECT = 'canonical_product_id,product_slug,matched_etsy_listing_id,auto_focus_json,manual_focus_json,selected_strategy,selected_keywords_json,decision_status,updated_at,created_at';
 const LATEST_DRAFT_SELECT = 'id,canonical_product_id,matched_etsy_listing_id,product_slug,status,review_status,similarity_check_snapshot,qa_self_report,updated_at,created_at';
 
 const COMPONENT_TEXT_KEYS = [
-  'public_label',
-  'label',
+  'normalized_family',
+  'component_family',
+  'child_component',
+  'parent_component',
+  'component_code',
+  'canonical_component',
   'component_label',
   'component_name',
-  'component_code',
-  'component_family',
-  'canonical_component',
-  'name',
-  'title',
+  'public_label',
+  'label',
   'value',
+  'name',
 ];
+
 const COMPONENT_CONTAINER_KEYS = [
   'components',
   'items',
   'children',
-  'options',
-  'configurations',
-  'values',
   'parts',
   'members',
   'groups',
@@ -86,9 +147,9 @@ export async function loadSeoBriefSource(productId: string) {
 
   let decisionRows = [];
   if (serviceClient) {
-    let q = serviceClient.from(DECISIONS_TABLE).select(DECISION_SELECT).limit(2000);
-    if (productId) q = q.eq('canonical_product_id', productId);
-    const result = await q;
+    let query = serviceClient.from(DECISIONS_TABLE).select(DECISION_SELECT).limit(2000);
+    if (productId) query = query.eq('canonical_product_id', productId);
+    const result = await query;
     decisionRows = result.data || [];
   }
 
@@ -101,7 +162,10 @@ export async function loadSeoBriefSource(productId: string) {
     : { product: null, productTruthSource: null, productTruthWarning: null };
 
   const keywords = normalizeDecisionKeywords(decision?.selected_keywords_json || []);
-  const manualFocus = decision?.manual_focus_json && typeof decision.manual_focus_json === 'object' ? decision.manual_focus_json : {};
+  const manualFocus = decision?.manual_focus_json && typeof decision.manual_focus_json === 'object'
+    ? decision.manual_focus_json
+    : {};
+
   return {
     product: productResult.product,
     decision,
@@ -168,14 +232,19 @@ export async function loadLatestSavedSeoDraftContext(productId: string) {
 }
 
 export function buildSeoBriefSourceSummary(bundle, fallbackProductId = '') {
+  const evidence = bundle.seoPackDraft?.product_truth?.component_evidence || {};
   return {
     product_id: bundle.product?.canonical_product_id || bundle.seoPackDraft?.canonical_product_id || fallbackProductId || null,
     matched_etsy_listing_id: bundle.product?.matched_etsy_listing_id || bundle.decision?.matched_etsy_listing_id || bundle.seoPackDraft?.matched_etsy_listing_id || null,
     has_decision: Boolean(bundle.decision),
     selected_keyword_count: bundle.keywords?.length || 0,
+    selected_keyword_metric_provenance_missing_count: (bundle.keywords || []).filter((item) => item.validation_status !== 'validated').length,
     manual_focus_keys: Object.keys(bundle.manualFocus || {}),
     product_truth_source: bundle.productTruthSource || bundle.seoPackDraft?.product_truth?.product_truth_source || null,
     product_truth_warning: bundle.productTruthWarning || null,
+    mapping_layer_sources: stringArray(evidence.mapping_layer_sources),
+    phrase_mapping_count: recordArray(evidence.phrase_mappings).length,
+    mapping_review_row_count: recordArray(evidence.mapping_review_rows).length,
     has_source_description_fragment: Boolean(bundle.seoPackDraft?.product_truth?.source_description_fragment),
     source_variation_count: bundle.seoPackDraft?.product_truth?.source_variations?.length || 0,
     option_price_row_count: bundle.seoPackDraft?.product_truth?.option_price_rows?.length || 0,
@@ -191,10 +260,13 @@ export function readOnlyContractGuardrails() {
     'No Supabase write in this route.',
     'No product mutation in this route.',
     'No publish action in this route.',
-    'This endpoint only exposes the normalized contract for review and future protected generation.',
+    'This endpoint only exposes an aggregated Product Truth contract for review and protected generation.',
+    'Product Truth must aggregate the existing component phrase-map, component-mapping, configuration-derivation, and review layers.',
+    'Do not add ad-hoc CASE, substring, or regex component classification in the application or Product Truth view.',
+    'An unmapped raw phrase remains a missing_component_phrase_mapping blocker and is never guessed from image, keyword, or title text.',
+    'Raw option labels remain in source evidence; mapped component family and configuration meaning remain separate fields.',
     'If a latest saved draft has portfolio/source overlap strategy, it is passed into the future SEO agent input.',
-    'Component truth comes from the versioned SEO Product Truth contract, never from keyword text.',
-    'Listing Master Product Focus is a blocked fallback until source variations, prices, description evidence, and component review blockers are reconciled.',
+    'Listing Master Product Focus is a blocked diagnostic fallback and cannot prove included components.',
     'A metric value inside selected_keywords_json is not trusted without approved source and freshness evidence.',
   ];
 }
@@ -231,28 +303,30 @@ function attachProductIdentity(contract, source) {
 }
 
 function buildComponentTruth(product, productTruthSource, productTruthWarning) {
-  const parentComponents = uniqueComponents(collectComponentStrings(product?.parent_components_json));
-  const childComponents = uniqueComponents(collectComponentStrings(product?.child_components_json));
-  const componentGroups = uniqueComponents(collectComponentStrings(product?.component_groups_json));
+  const parentComponents = uniqueMappedValues(collectComponentStrings(product?.parent_components_json));
+  const childComponents = uniqueMappedValues(collectComponentStrings(product?.child_components_json));
+  const componentGroups = uniqueMappedValues(collectComponentStrings(product?.component_groups_json));
 
   if (productTruthSource === 'seo_product_truth_v1') {
-    const includedComponents = uniqueComponents(stringArray(product?.included_components));
-    const optionalConfigurations = uniqueComponents(stringArray(product?.optional_configurations));
-    const availableVariants = uniqueComponents(stringArray(product?.available_variants));
-    const knownNonComponents = uniqueComponents(stringArray(product?.known_non_components));
+    const includedComponents = uniqueMappedValues(stringArray(product?.included_components));
+    const optionalConfigurations = uniqueMappedValues(stringArray(product?.optional_configurations));
+    const availableVariants = uniqueMappedValues(stringArray(product?.available_variants));
+    const knownNonComponents = uniqueMappedValues(stringArray(product?.known_non_components));
     const unresolved = uniqueStrings(stringArray(product?.unresolved_component_facts));
-    const reviewBlockers = uniqueStrings(stringArray(product?.component_review_blockers_json));
+    const reviewBlockers = uniqueStrings(blockerStrings(product?.component_review_blockers_json));
     const sourceVariations = recordArray(product?.source_variations_json);
     const optionPriceRows = recordArray(product?.option_price_rows_json);
     const sourceDescriptionFragment = cleanNullableText(product?.source_description_fragment);
 
-    if (!includedComponents.length) unresolved.push('Canonical Product Truth view returned no confirmed included components.');
+    if (!includedComponents.length) {
+      unresolved.push('Canonical Product Truth view returned no confirmed included components.');
+    }
     if (!sourceDescriptionFragment && !sourceVariations.length && !optionPriceRows.length) {
       unresolved.push('Canonical Product Truth view returned no source description, variation, or option-price evidence.');
     }
 
     return {
-      included_components: uniqueComponents(includedComponents),
+      included_components: includedComponents,
       optional_configurations: optionalConfigurations,
       available_variants: availableVariants,
       known_non_components: knownNonComponents,
@@ -264,6 +338,9 @@ function buildComponentTruth(product, productTruthSource, productTruthWarning) {
       option_price_rows: optionPriceRows,
       component_evidence: normalizeComponentEvidence(product?.component_evidence, {
         source: 'seo_product_truth_v1',
+        mapping_layer_sources: [],
+        phrase_mappings: [],
+        mapping_review_rows: [],
         parent_components: parentComponents,
         child_components: childComponents,
         component_groups: componentGroups,
@@ -274,25 +351,24 @@ function buildComponentTruth(product, productTruthSource, productTruthWarning) {
     };
   }
 
-  const includedComponents = uniqueComponents(parentComponents.length ? parentComponents : childComponents);
-  const optionalConfigurations = uniqueComponents(componentGroups.filter((item) => !includedComponents.includes(item)));
   const reviewCount = Number(product?.needs_component_review_count || 0);
-  const hasReviewRisk = product?.has_component_review_risk === true || reviewCount > 0;
-  const unresolved = [];
-  const reviewBlockers = [];
+  const unresolved = [
+    'Canonical SEO Product Truth view is unavailable.',
+    'Listing Master Product Focus is diagnostic evidence only and cannot confirm included components or selectable configurations.',
+  ];
+  const reviewBlockers = [
+    'canonical_product_truth_required',
+    'product_focus_components_untrusted_without_mapping_contract',
+  ];
 
-  if (!includedComponents.length) {
-    unresolved.push('No confirmed included components were found in parent_components_json or child_components_json.');
-  }
-  unresolved.push('Canonical SEO Product Truth view is unavailable; Product Focus alone cannot prove variations, prices, or source-description alignment.');
   if (productTruthWarning) unresolved.push(productTruthWarning);
-  if (hasReviewRisk) {
-    reviewBlockers.push(`Component mapping requires human review${reviewCount > 0 ? ` for ${reviewCount} item(s)` : ''}.`);
+  if (product?.has_component_review_risk === true || reviewCount > 0) {
+    reviewBlockers.push(`component_mapping_review_required${reviewCount > 0 ? `:${reviewCount}` : ''}`);
   }
 
   return {
-    included_components: includedComponents,
-    optional_configurations: optionalConfigurations,
+    included_components: [],
+    optional_configurations: [],
     available_variants: [],
     known_non_components: [],
     unresolved_component_facts: uniqueStrings(unresolved),
@@ -303,6 +379,9 @@ function buildComponentTruth(product, productTruthSource, productTruthWarning) {
     option_price_rows: [],
     component_evidence: {
       source: 'listing_master_product_focus_v1',
+      mapping_layer_sources: [],
+      phrase_mappings: [],
+      mapping_review_rows: [],
       parent_components: parentComponents,
       child_components: childComponents,
       component_groups: componentGroups,
@@ -316,13 +395,17 @@ function buildComponentTruth(product, productTruthSource, productTruthWarning) {
 function normalizeComponentEvidence(value, fallback) {
   const parsed = parseJsonLike(value);
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return fallback;
+
   return {
     ...fallback,
     ...parsed,
     source: 'seo_product_truth_v1',
-    parent_components: uniqueComponents(stringArray(parsed.parent_components || fallback.parent_components)),
-    child_components: uniqueComponents(stringArray(parsed.child_components || fallback.child_components)),
-    component_groups: uniqueComponents(stringArray(parsed.component_groups || fallback.component_groups)),
+    mapping_layer_sources: uniqueStrings(stringArray(parsed.mapping_layer_sources || fallback.mapping_layer_sources)),
+    phrase_mappings: recordArray(parsed.phrase_mappings || fallback.phrase_mappings),
+    mapping_review_rows: recordArray(parsed.mapping_review_rows || fallback.mapping_review_rows),
+    parent_components: uniqueMappedValues(stringArray(parsed.parent_components || fallback.parent_components)),
+    child_components: uniqueMappedValues(stringArray(parsed.child_components || fallback.child_components)),
+    component_groups: uniqueMappedValues(stringArray(parsed.component_groups || fallback.component_groups)),
     source_variations: recordArray(parsed.source_variations || fallback.source_variations),
     option_price_rows: recordArray(parsed.option_price_rows || fallback.option_price_rows),
     source_description_fragment: cleanNullableText(parsed.source_description_fragment || fallback.source_description_fragment),
@@ -332,19 +415,20 @@ function normalizeComponentEvidence(value, fallback) {
 function collectComponentStrings(value, depth = 0) {
   const parsed = parseJsonLike(value);
   if (depth > 4 || parsed == null) return [];
-  if (typeof parsed === 'string') return [parsed];
-  if (typeof parsed === 'number' || typeof parsed === 'boolean') return [];
+  if (typeof parsed === 'string' || typeof parsed === 'number') return [String(parsed)];
+  if (typeof parsed === 'boolean') return [];
   if (Array.isArray(parsed)) return parsed.flatMap((item) => collectComponentStrings(item, depth + 1));
   if (typeof parsed !== 'object') return [];
 
-  const direct = COMPONENT_TEXT_KEYS.flatMap((key) => collectComponentStrings(parsed[key], depth + 1));
-  const nested = COMPONENT_CONTAINER_KEYS.flatMap((key) => collectComponentStrings(parsed[key], depth + 1));
-  if (direct.length || nested.length) return [...direct, ...nested];
+  for (const key of COMPONENT_TEXT_KEYS) {
+    const direct = collectComponentStrings(parsed[key], depth + 1);
+    if (direct.length) return direct;
+  }
 
-  return Object.entries(parsed).flatMap(([key, item]) => {
-    if (!/(component|part|piece|label|name)/i.test(key)) return [];
-    return collectComponentStrings(item, depth + 1);
-  });
+  const nested = COMPONENT_CONTAINER_KEYS.flatMap((key) => collectComponentStrings(parsed[key], depth + 1));
+  if (nested.length) return nested;
+
+  return [];
 }
 
 function stringArray(value) {
@@ -353,13 +437,29 @@ function stringArray(value) {
   if (Array.isArray(parsed)) {
     return parsed.flatMap((item) => {
       if (typeof item === 'string' || typeof item === 'number') return [String(item)];
-      if (!item || typeof item !== 'object') return [];
+      if (!item || typeof item !== 'object' || Array.isArray(item)) return [];
       return collectComponentStrings(item);
     });
   }
   if (typeof parsed === 'string' || typeof parsed === 'number') return [String(parsed)];
   if (typeof parsed === 'object') return collectComponentStrings(parsed);
   return [];
+}
+
+function blockerStrings(value) {
+  const parsed = parseJsonLike(value);
+  const rows = Array.isArray(parsed) ? parsed : parsed == null ? [] : [parsed];
+
+  return rows.flatMap((item) => {
+    if (typeof item === 'string' || typeof item === 'number') return [String(item)];
+    if (!item || typeof item !== 'object' || Array.isArray(item)) return [];
+
+    const code = cleanNullableText(item.code || item.blocker_code || item.type || item.status);
+    const rawPhrase = cleanNullableText(item.raw_phrase || item.raw_label || item.option_value || item.label);
+    const message = cleanNullableText(item.message || item.reason || item.detail);
+    const parts = [code, rawPhrase, message].filter(Boolean);
+    return parts.length ? [parts.join(': ')] : [JSON.stringify(item)];
+  });
 }
 
 function recordArray(value) {
@@ -380,15 +480,15 @@ function parseJsonLike(value) {
   }
 }
 
-function uniqueComponents(values) {
+function uniqueMappedValues(values) {
   const seen = new Set();
   const result = [];
   values.forEach((value) => {
-    const normalized = normalizeComponent(value);
-    const key = normalized.toLowerCase();
-    if (!normalized || seen.has(key)) return;
+    const text = String(value || '').replace(/\s+/g, ' ').trim();
+    const key = text.toLowerCase();
+    if (!text || seen.has(key)) return;
     seen.add(key);
-    result.push(normalized);
+    result.push(text);
   });
   return result;
 }
@@ -406,20 +506,10 @@ function uniqueStrings(values) {
   return result;
 }
 
-function normalizeComponent(value) {
-  const text = String(value || '')
-    .replace(/[_-]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-  if (!text) return '';
-  if (/\bskirt\b/i.test(text)) return 'skirt';
-  if (/\bshoulders?\b/i.test(text)) return 'shoulder';
-  if (/\btops?\b/i.test(text)) return 'top';
-  return text;
-}
-
 function cleanNullableText(value) {
-  const text = typeof value === 'string' ? value.trim() : '';
+  const text = typeof value === 'string' || typeof value === 'number'
+    ? String(value).trim()
+    : '';
   return text || null;
 }
 
