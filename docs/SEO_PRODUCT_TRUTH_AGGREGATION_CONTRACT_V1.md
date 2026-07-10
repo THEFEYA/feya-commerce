@@ -89,17 +89,76 @@ component_review_blockers:
 
 The source description is evidence, but it is not sufficient to silently promote `shoulder` into confirmed `included_components` while selectable configuration mappings remain unresolved.
 
-## Hard contract test
+## HARD CONTRACT CHECK
 
-For pilot listing `4348580005`, if `feya_commerce_v_seo_product_truth_v1` returns:
+```text
+HARD CONTRACT CHECK
 
-```json
-{"included_components":["shoulder"]}
+public.feya_commerce_v_seo_product_truth_v1 is a contract/aggregation layer,
+not a new component normalizer.
+
+It must use existing component mapping/review sources only:
+
+- public.feya_commerce_seo_component_phrase_map_v1
+- public.feya_commerce_seo_component_phrase_components_v1
+- public.feya_commerce_v_seo_product_component_mapping_v1
+- public.feya_commerce_v_seo_component_mapping_review_v1
+- public.feya_commerce_v_seo_component_mapping_coverage_v1
+- public.feya_commerce_v_product_option_text_derivation_v1
+- public.feya_commerce_v_product_component_configuration_derivation_v1
+- public.feya_commerce_component_families
+- public.feya_commerce_component_aliases
+
+It must not infer component truth from:
+- source title;
+- SEO keywords;
+- image interpretation;
+- ad-hoc CASE WHEN;
+- ILIKE/regex component classification;
+- automatic translation of raw phrases.
+
+For pilot:
+
+matched_etsy_listing_id = 4348580005
+canonical_product_id = b6e0171f-4d42-4d71-88b1-ee0d4e0e109e
+
+Current unresolved raw phrases:
+
+- Одно плечо
+- Полные плечи
+
+Until approved mapping exists for these raw phrases, expected Product Truth output is:
+
+included_components = []
+
+optional_configurations must preserve raw evidence:
+- One Shoulder / Одно плечо
+- Full Shoulders / Полные плечи
+
+unresolved_component_facts must be non-empty.
+
+component_review_blockers_json must be non-empty and include:
+- product_focus_components_empty
+- source_description_indicates_shoulder
+- missing_component_phrase_mapping: Одно плечо
+- missing_component_phrase_mapping: Полные плечи
+- option_component_family_null
+
+Source description fragment “KIT INCLUDES: Shoulder” is evidence only.
+It cannot by itself confirm included_components while option mapping remains unresolved.
+
+If the view returns included_components = ["shoulder"] before approved mapping repair for
+“Одно плечо” and “Полные плечи”, the SQL violates the Product Truth contract.
+
+A successful SQL execution is not a PASS if unresolved mapping was hidden or replaced with inferred component truth.
 ```
 
-before approved phrase mappings exist for both `Одно плечо` and `Полные плечи`, the SQL violates this contract and must be redesigned.
+Главная проверка простая:
 
-A successful query is not enough. The view is valid only when unresolved mapping remains visible as evidence and blockers rather than being hidden by inferred component truth.
+```text
+Если SQL красиво работает, но для 4348580005 сам догадался included_components = ["shoulder"],
+значит SQL неправильный.
+```
 
 ## Application behavior
 
