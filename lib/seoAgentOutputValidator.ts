@@ -49,6 +49,8 @@ const GUARANTEED_OUTCOME_PATTERN = /\b(guarantee(?:d|s)?|will get likes?|will re
 const CLICHE_PATTERN = /\b(elevate your look|step into|turn heads|make a statement|perfect for any occasion|crafted to perfection|must have|ultimate|best choice|luxury piece|premium quality)\b/i;
 const COMMERCIAL_ALT_PATTERN = /\b(buy|order|price|shop|for sale|shipping|delivery|discount|sale|online store)\b/i;
 const SELF_EXPRESSION_STUDIO_PATTERN = /\b(TheFEYA|young independent (?:team|studio)|team of designers|designers and makers|our studio|studio team|original in[- ]house ideas?|distinctive visual language|studio style)\b/i;
+const SELF_EXPRESSION_FIRST_PERSON_PATTERN = /\b(we|our|us)\b/i;
+const SELF_EXPRESSION_THIRD_PERSON_PATTERN = /\b(TheFEYA is|their (?:pieces|products|designs|work|store)|they (?:create|make|help|offer|design)|the brand|the company)\b/i;
 const SELF_EXPRESSION_OPERATION_PATTERN = /\b(?:change|changing|adjust|adjusting|adjustment|adjustments|customi[sz]e|customi[sz]ing)\s+(?:the\s+)?(?:color|size|length|fit|coverage|details?)\b|\b(?:color|size|length|fit|coverage)\s+(?:change|changes|adjustment|adjustments|options?)\b/i;
 const SELF_EXPRESSION_PRODUCT_DETAIL_PATTERN = /\b(shoulder(?:s| piece| armor)?|adjustable straps?|comfortable fit|soft against the body|reinforced construction|mirror[- ]like finish|material construction)\b/i;
 const CYRILLIC_PATTERN = /[А-Яа-яЁёІіЇїЄєҐґ]/;
@@ -225,6 +227,12 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
       }
       if (!SELF_EXPRESSION_STUDIO_PATTERN.test(body)) {
         issues.push(blocker('main_description_missing_studio_identity', 'Designed for self-expression must introduce the studio or design team and its distinctive in-house creative language.'));
+      }
+      if (!SELF_EXPRESSION_FIRST_PERSON_PATTERN.test(body)) {
+        issues.push(blocker('main_description_missing_first_person_voice', 'Designed for self-expression must speak directly as the studio using we, our or us.'));
+      }
+      if (SELF_EXPRESSION_THIRD_PERSON_PATTERN.test(body)) {
+        issues.push(blocker('main_description_uses_third_person_voice', 'Designed for self-expression must not describe TheFEYA as they, their, the brand, the company or a third party.'));
       }
       if (SELF_EXPRESSION_OPERATION_PATTERN.test(body)) {
         issues.push(blocker('main_description_contains_operational_customization', 'Designed for self-expression must not repeat color, size, length, fit, coverage, or detail-change instructions from the fixed right panel.'));
