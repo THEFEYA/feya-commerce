@@ -48,6 +48,9 @@ const PSEUDO_BENEFIT_PATTERN = /\b(works? well as a focal piece|works? as a cent
 const GUARANTEED_OUTCOME_PATTERN = /\b(guarantee(?:d|s)?|will get likes?|will receive likes?|will gain followers?|will make you popular|go viral|viral reach|everyone will notice|all eyes will be on you|guaranteed attention|guaranteed reactions?)\b/i;
 const CLICHE_PATTERN = /\b(elevate your look|step into|turn heads|make a statement|perfect for any occasion|crafted to perfection|must have|ultimate|best choice|luxury piece|premium quality)\b/i;
 const COMMERCIAL_ALT_PATTERN = /\b(buy|order|price|shop|for sale|shipping|delivery|discount|sale|online store)\b/i;
+const SELF_EXPRESSION_STUDIO_PATTERN = /\b(TheFEYA|young independent (?:team|studio)|team of designers|designers and makers|our studio|studio team|original in[- ]house ideas?|distinctive visual language|studio style)\b/i;
+const SELF_EXPRESSION_OPERATION_PATTERN = /\b(?:change|changing|adjust|adjusting|adjustment|adjustments|customi[sz]e|customi[sz]ing)\s+(?:the\s+)?(?:color|size|length|fit|coverage|details?)\b|\b(?:color|size|length|fit|coverage)\s+(?:change|changes|adjustment|adjustments|options?)\b/i;
+const SELF_EXPRESSION_PRODUCT_DETAIL_PATTERN = /\b(shoulder(?:s| piece| armor)?|adjustable straps?|comfortable fit|soft against the body|reinforced construction|mirror[- ]like finish|material construction)\b/i;
 const CYRILLIC_PATTERN = /[А-Яа-яЁёІіЇїЄєҐґ]/;
 const LONG_DASH_PATTERN = /[—–]/;
 const BRAND_PATTERN = /\bTheFEYA\b/gi;
@@ -187,7 +190,7 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
     }
 
     if (STATIC_RIGHT_PANEL_KEYS.includes(key as typeof STATIC_RIGHT_PANEL_KEYS[number])) {
-      issues.push(blocker(`pdp_block_static_policy_generated_${index}`, `${key} belongs to the shared right PDP panel and must not be generated per product.`));
+      issues.push(blocker(`pdp_block_static_policy_generated_${index}`, `${key} belongs to the immutable storefront right panel and must not be generated, rewritten, or paraphrased per product.`));
     }
 
     if (!heading.trim()) issues.push(blocker(`missing_pdp_block_heading_${index}`, 'pdp_block.heading is required.'));
@@ -213,8 +216,22 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
       }
     }
 
-    if (key === 'main_description' && wordCount(body) < 35) {
-      issues.push(warning(`pdp_block_self_expression_thin_${index}`, 'The final self-expression paragraph is too thin to provide a useful conversion close.'));
+    if (key === 'main_description') {
+      if (heading.trim().toLowerCase() !== 'designed for self-expression') {
+        issues.push(blocker('main_description_wrong_heading', 'main_description heading must be Designed for self-expression.'));
+      }
+      if (wordCount(body) < 35) {
+        issues.push(warning(`pdp_block_self_expression_thin_${index}`, 'The final self-expression paragraph is too thin to explain the studio and buyer value.'));
+      }
+      if (!SELF_EXPRESSION_STUDIO_PATTERN.test(body)) {
+        issues.push(blocker('main_description_missing_studio_identity', 'Designed for self-expression must introduce the studio or design team and its distinctive in-house creative language.'));
+      }
+      if (SELF_EXPRESSION_OPERATION_PATTERN.test(body)) {
+        issues.push(blocker('main_description_contains_operational_customization', 'Designed for self-expression must not repeat color, size, length, fit, coverage, or detail-change instructions from the fixed right panel.'));
+      }
+      if (SELF_EXPRESSION_PRODUCT_DETAIL_PATTERN.test(body)) {
+        issues.push(blocker('main_description_repeats_product_specs', 'Designed for self-expression must describe the studio and buyer self-expression, not repeat shoulder, strap, fit, material, comfort, or construction details.'));
+      }
     }
   });
 
