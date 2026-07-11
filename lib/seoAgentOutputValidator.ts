@@ -15,8 +15,19 @@ export type SeoAgentOutputValidationResult = {
 const REQUIRED_STRING_OR_NULL_FIELDS = ['seo_title', 'h1', 'meta_description', 'intro'] as const;
 const REQUIRED_ARRAY_FIELDS = ['bullet_highlights', 'faq', 'image_alt_candidates', 'internal_linking_hints', 'pdp_blocks', 'generation_notes'] as const;
 const REQUIRED_VISUAL_TRUTH_ARRAYS = ['observed_product_facts', 'dna_matches', 'open_style_suggestions', 'uncertain_or_missing_facts', 'forbidden_visual_claims'] as const;
-const REQUIRED_LEFT_BLOCK_ORDER = ['about_this_piece', 'whats_included', 'why_youll_love_it', 'ideal_for', 'material'] as const;
-const STATIC_RIGHT_PANEL_KEYS = ['sizing_fit', 'production_timing', 'shipping_delivery', 'care', 'customization', 'returns_exchanges', 'handmade_variation', 'materials_care'] as const;
+const REQUIRED_LEFT_BLOCK_ORDER = ['about_this_piece', 'why_youll_love_it', 'ideal_for', 'main_description'] as const;
+const STATIC_RIGHT_PANEL_KEYS = [
+  'whats_included',
+  'sizing_fit',
+  'production_timing',
+  'shipping_delivery',
+  'material',
+  'care',
+  'customization',
+  'returns_exchanges',
+  'handmade_variation',
+  'materials_care',
+] as const;
 const REQUIRED_QA_KEYS: Array<keyof SeoQaContract> = [
   'cliche_phrase',
   'long_dash',
@@ -31,13 +42,15 @@ const REQUIRED_QA_KEYS: Array<keyof SeoQaContract> = [
 ];
 
 const CUSTOMER_COPY_FIELDS = ['seo_title', 'h1', 'meta_description', 'intro'] as const;
-const AUDIT_PHRASE_PATTERN = /\b(the image shows|image shows|shown in the image|shown on the image|the listed materials|listed materials|listed as|is listed as|are listed as|the product is listed|the material is listed|the materials are listed|indicated as|specified as|main focus|central element|at the center|material basis)\b/i;
+const AUDIT_PHRASE_PATTERN = /\b(the image shows|image shows|shown in the image|shown on the image|the listed materials|listed materials|listed as|is listed as|are listed as|the product is listed|the material is listed|the materials are listed|the product description (?:says|states|lists|mentions|indicates)|the source (?:says|states|lists|mentions|indicates)|product truth|official product data|source data|database fields?|material basis|safe wording|safest wording|final copy should|must be confirmed|should be confirmed|requires? verification|needs? verification|review before publish|before publication|before publish|main focus|central element|at the center)\b/i;
 const WEAK_AVAILABILITY_PATTERN = /\b(if available|when available|where available|if possible|when possible|if supported|when supported|if the design supports it|confirm before ordering|clarify before ordering|ask the manager what is included|confirm configuration|clarify the contents)\b/i;
-const MATERIAL_PATTERN = /\b(vegan|faux|leather|mirror|metallic|glossy|coating|soft|reinforced|doubled|shape retention|acrylic|silicone|chain|plastic)\b/i;
+const PSEUDO_BENEFIT_PATTERN = /\b(works? well as a focal piece|works? as a centerpiece|part of a complete look|over minimal clothing|pairs? with simple clothing|easy to build into (?:a|the) (?:look|outfit)|easy to style|creates? a clear accent|without additional (?:design )?elements|adds? an accent without)\b/i;
+const GUARANTEED_OUTCOME_PATTERN = /\b(guarantee(?:d|s)?|will get likes?|will receive likes?|will gain followers?|will make you popular|go viral|viral reach|everyone will notice|all eyes will be on you|guaranteed attention|guaranteed reactions?)\b/i;
 const CLICHE_PATTERN = /\b(elevate your look|step into|turn heads|make a statement|perfect for any occasion|crafted to perfection|must have|ultimate|best choice|luxury piece|premium quality)\b/i;
 const COMMERCIAL_ALT_PATTERN = /\b(buy|order|price|shop|for sale|shipping|delivery|discount|sale|online store)\b/i;
 const CYRILLIC_PATTERN = /[А-Яа-яЁёІіЇїЄєҐґ]/;
 const LONG_DASH_PATTERN = /[—–]/;
+const BRAND_PATTERN = /\bTheFEYA\b/gi;
 
 export function validateSeoAgentOutput(value: unknown): SeoAgentOutputValidationResult {
   const issues: SeoAgentOutputValidationIssue[] = [];
@@ -72,7 +85,7 @@ export function validateSeoAgentOutput(value: unknown): SeoAgentOutputValidation
     validateRequiredCustomerField(value.seo_title, 'seo_title', 45, 68, issues);
     validateRequiredCustomerField(value.h1, 'h1', 45, 82, issues);
     validateRequiredCustomerField(value.meta_description, 'meta_description', 125, 158, issues);
-    validateRequiredCustomerField(value.intro, 'intro', 1, 1200, issues);
+    validateRequiredCustomerField(value.intro, 'intro', 1, 1000, issues);
   }
 
   if (typeof value.intro === 'string' && value.intro.trim()) {
@@ -85,31 +98,10 @@ export function validateSeoAgentOutput(value: unknown): SeoAgentOutputValidation
   validateVisualTruth(value.visual_truth, issues);
   validatePdpBlocks(value.pdp_blocks, issues, outputStatus);
   validateCustomerCopy(value, issues);
+  validateBrandUse(value, issues);
   validateFaqQuality(value.faq, issues);
   validateImageAltCandidates(value.image_alt_candidates, issues);
-
-  const qaSelfReport = value.qa_self_report;
-  if (!isRecord(qaSelfReport)) {
-    issues.push(blocker('missing_qa_self_report', 'qa_self_report must be present.'));
-  } else {
-    REQUIRED_QA_KEYS.forEach((key) => {
-      if (!(key in qaSelfReport)) {
-        issues.push(blocker(`missing_qa_${String(key)}`, `qa_self_report.${String(key)} is required.`));
-      }
-    });
-    Object.entries(qaSelfReport).forEach(([key, qaValue]) => {
-      if (key === 'notes') {
-        if (!Array.isArray(qaValue)) issues.push(blocker('invalid_qa_notes', 'qa_self_report.notes must be an array.'));
-        return;
-      }
-      if (!['pass', 'warning', 'blocker', 'not_checked'].includes(String(qaValue))) {
-        issues.push(blocker(`invalid_qa_${key}`, `qa_self_report.${key} has invalid status.`));
-      }
-      if (qaValue === 'blocker') {
-        issues.push(blocker(`qa_blocker_${key}`, `qa_self_report.${key} is blocker.`));
-      }
-    });
-  }
+  validateQaSelfReport(value.qa_self_report, issues);
 
   if (typeof value.seo_title === 'string' && /\bedition\b/i.test(value.seo_title)) {
     issues.push(blocker('seo_title_uses_edition', 'seo_title must not use filler word Edition.'));
@@ -195,7 +187,7 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
     }
 
     if (STATIC_RIGHT_PANEL_KEYS.includes(key as typeof STATIC_RIGHT_PANEL_KEYS[number])) {
-      issues.push(blocker(`pdp_block_static_policy_generated_${index}`, `${key} is canonical right-panel content and must not be generated per product.`));
+      issues.push(blocker(`pdp_block_static_policy_generated_${index}`, `${key} belongs to the shared right PDP panel and must not be generated per product.`));
     }
 
     if (!heading.trim()) issues.push(blocker(`missing_pdp_block_heading_${index}`, 'pdp_block.heading is required.'));
@@ -214,17 +206,15 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
       checkCustomerStyle(body, `pdp_blocks.${index}.body`, issues);
     }
 
-    if (key === 'whats_included' && placement !== 'left_description') {
-      issues.push(blocker(`pdp_block_included_wrong_placement_${index}`, 'whats_included must be part of the left main description.'));
+    if (key === 'why_youll_love_it') {
+      const benefitLines = splitDisplayLines(body);
+      if (benefitLines.length < 3 || benefitLines.length > 5) {
+        issues.push(warning(`pdp_block_benefit_count_${index}`, 'why_youll_love_it should contain 3-5 concise purchase reasons.'));
+      }
     }
-    if (key === 'whats_included' && WEAK_AVAILABILITY_PATTERN.test(body)) {
-      issues.push(blocker(`pdp_block_included_uncertain_${index}`, 'whats_included must not ask the buyer to confirm normal contents.'));
-    }
-    if (key === 'material' && !MATERIAL_PATTERN.test(body)) {
-      issues.push(warning(`pdp_block_material_thin_${index}`, 'Material block should describe the actual supported material or finish.'));
-    }
-    if (key === 'material' && /texture|textured|structural texture/i.test(body)) {
-      issues.push(warning(`pdp_block_material_texture_claim_${index}`, 'Glossy mirror products should not be described as textured leather unless source data proves it.'));
+
+    if (key === 'main_description' && wordCount(body) < 35) {
+      issues.push(warning(`pdp_block_self_expression_thin_${index}`, 'The final self-expression paragraph is too thin to provide a useful conversion close.'));
     }
   });
 
@@ -244,13 +234,13 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
       }
     });
 
-    if (leftDescriptionWords < 120) {
+    if (leftDescriptionWords < 130) {
       issues.push(blocker('left_description_too_thin', 'Main left_description PDP copy is too thin for review.'));
-    } else if (leftDescriptionWords < 220) {
-      issues.push(warning('left_description_below_preferred', 'Main left_description is below the preferred 220-word review range.'));
+    } else if (leftDescriptionWords < 180) {
+      issues.push(warning('left_description_below_preferred', 'Main left_description is below the preferred 180-word review range.'));
     }
-    if (leftDescriptionWords > 420) {
-      issues.push(warning('left_description_above_preferred', 'Main left_description is above the preferred 420-word review range.'));
+    if (leftDescriptionWords > 320) {
+      issues.push(warning('left_description_above_preferred', 'Main left_description is above the preferred 320-word review range.'));
     }
   }
 }
@@ -280,16 +270,76 @@ function validateCustomerCopy(value: Record<string, unknown>, issues: SeoAgentOu
   }
 }
 
+function validateBrandUse(value: Record<string, unknown>, issues: SeoAgentOutputValidationIssue[]) {
+  ['seo_title', 'h1', 'meta_description'].forEach((field) => {
+    const text = typeof value[field] === 'string' ? String(value[field]) : '';
+    if (/\bTheFEYA\b/i.test(text)) {
+      issues.push(blocker(`${field}_brand_padding`, `${field} must describe the product and must not use TheFEYA as brand-name padding.`));
+    }
+  });
+
+  const visibleBody: string[] = [];
+  if (typeof value.intro === 'string') visibleBody.push(value.intro);
+  if (Array.isArray(value.bullet_highlights)) {
+    visibleBody.push(...value.bullet_highlights.filter((item): item is string => typeof item === 'string'));
+  }
+  if (Array.isArray(value.pdp_blocks)) {
+    value.pdp_blocks.filter(isRecord).forEach((block) => {
+      if (block.placement === 'left_description') {
+        if (typeof block.heading === 'string') visibleBody.push(block.heading);
+        if (typeof block.body === 'string') visibleBody.push(block.body);
+      }
+    });
+  }
+
+  const mentions = countMatches(visibleBody.join('\n'), BRAND_PATTERN);
+  if (mentions > 1) {
+    issues.push(blocker('brand_name_overused_in_product_copy', `TheFEYA appears ${mentions} times in generated visible copy. Maximum allowed is one.`));
+  }
+}
+
+function validateQaSelfReport(value: unknown, issues: SeoAgentOutputValidationIssue[]) {
+  if (!isRecord(value)) {
+    issues.push(blocker('missing_qa_self_report', 'qa_self_report must be present.'));
+    return;
+  }
+
+  REQUIRED_QA_KEYS.forEach((key) => {
+    if (!(key in value)) {
+      issues.push(blocker(`missing_qa_${String(key)}`, `qa_self_report.${String(key)} is required.`));
+    }
+  });
+
+  Object.entries(value).forEach(([key, qaValue]) => {
+    if (key === 'notes') {
+      if (!Array.isArray(qaValue)) issues.push(blocker('invalid_qa_notes', 'qa_self_report.notes must be an array.'));
+      return;
+    }
+    if (!['pass', 'warning', 'blocker', 'not_checked'].includes(String(qaValue))) {
+      issues.push(blocker(`invalid_qa_${key}`, `qa_self_report.${key} has invalid status.`));
+    }
+    if (qaValue === 'blocker') {
+      issues.push(blocker(`qa_blocker_${key}`, `qa_self_report.${key} is blocker.`));
+    }
+  });
+}
+
 function checkCustomerStyle(value: unknown, field: string, issues: SeoAgentOutputValidationIssue[]) {
   if (typeof value !== 'string' || !value.trim()) return;
   if (AUDIT_PHRASE_PATTERN.test(value)) {
-    issues.push(warning(`${safeCode(field)}_audit_phrase`, `${field} reads like an audit note instead of buyer-facing copy.`));
+    issues.push(blocker(`${safeCode(field)}_audit_phrase`, `${field} contains internal source, verification, Product Truth, database or pre-publication language.`));
   }
   if (WEAK_AVAILABILITY_PATTERN.test(value)) {
-    issues.push(warning(`${safeCode(field)}_weak_availability`, `${field} uses weak availability wording instead of clear product wording.`));
+    issues.push(blocker(`${safeCode(field)}_weak_availability`, `${field} uses internal uncertainty wording instead of final buyer-facing copy.`));
+  }
+  if (PSEUDO_BENEFIT_PATTERN.test(value)) {
+    issues.push(blocker(`${safeCode(field)}_pseudo_benefit`, `${field} contains weak styling filler or an empty pseudo-benefit.`));
+  }
+  if (GUARANTEED_OUTCOME_PATTERN.test(value)) {
+    issues.push(blocker(`${safeCode(field)}_guaranteed_outcome`, `${field} guarantees popularity, likes, followers or audience reactions.`));
   }
   if (CLICHE_PATTERN.test(value)) {
-    issues.push(warning(`${safeCode(field)}_ai_cliche`, `${field} contains a generic or overused AI sales phrase.`));
+    issues.push(warning(`${safeCode(field)}_ai_cliche`, `${field} contains a generic or overused sales phrase.`));
   }
   if (LONG_DASH_PATTERN.test(value)) {
     issues.push(blocker(`${safeCode(field)}_long_dash`, `${field} contains an en dash or em dash; use normal sentence punctuation.`));
@@ -308,17 +358,10 @@ function validateFaqQuality(value: unknown, issues: SeoAgentOutputValidationIssu
     const question = String(item.question || '');
     const answer = String(item.answer || '');
     if (/what is included|included in the order|main focus|shown|image|central element/i.test(question)) {
-      issues.push(warning(`faq_should_not_be_product_pdp_${index}`, 'Product-specific included/components FAQ should be moved into whats_included.'));
+      issues.push(warning(`faq_should_not_be_product_pdp_${index}`, 'Product-specific composition FAQ belongs in the dynamic right PDP panel.'));
     }
-    if (AUDIT_PHRASE_PATTERN.test(question) || AUDIT_PHRASE_PATTERN.test(answer)) {
-      issues.push(warning(`faq_audit_phrase_${index}`, 'FAQ reads like an audit note instead of answering a buyer concern.'));
-    }
-    if (WEAK_AVAILABILITY_PATTERN.test(answer)) {
-      issues.push(warning(`faq_weak_availability_${index}`, 'FAQ answer uses weak availability wording instead of clear service wording.'));
-    }
-    if (LONG_DASH_PATTERN.test(question) || LONG_DASH_PATTERN.test(answer)) {
-      issues.push(blocker(`faq_long_dash_${index}`, 'FAQ customer copy must not use en dash or em dash punctuation.'));
-    }
+    checkCustomerStyle(question, `faq.${index}.question`, issues);
+    checkCustomerStyle(answer, `faq.${index}.answer`, issues);
   });
   if (value.length > 0) {
     issues.push(warning('product_faq_not_rendered_by_default', 'Top-level faq is review-only and should not be rendered inside product PDP by default.'));
@@ -348,7 +391,7 @@ function validateImageAltCandidates(value: unknown, issues: SeoAgentOutputValida
     }
     checkEnglishString(alt, `image_alt_candidates.${index}.alt_text`, issues, 'blocker');
     if (COMMERCIAL_ALT_PATTERN.test(alt)) {
-      issues.push(blocker(`commercial_image_alt_${index}`, 'Image ALT must not contain buy, order, price, shop, shipping, sale, or delivery language.'));
+      issues.push(blocker(`commercial_image_alt_${index}`, 'Image ALT must not contain buy, order, price, shop, shipping, sale or delivery language.'));
     }
     if (LONG_DASH_PATTERN.test(alt)) {
       issues.push(blocker(`image_alt_long_dash_${index}`, 'Image ALT must not use en dash or em dash punctuation.'));
@@ -375,6 +418,18 @@ function sentenceCount(value: string) {
 
 function wordCount(value: string) {
   return value.trim().split(/\s+/).filter(Boolean).length;
+}
+
+function splitDisplayLines(value: string) {
+  return value
+    .split(/\n|•/)
+    .map((item) => item.replace(/^[-*]\s*/, '').trim())
+    .filter(Boolean);
+}
+
+function countMatches(value: string, pattern: RegExp) {
+  const flags = pattern.flags.includes('g') ? pattern.flags : `${pattern.flags}g`;
+  return [...value.matchAll(new RegExp(pattern.source, flags))].length;
 }
 
 function blocked(issues: Array<Omit<SeoAgentOutputValidationIssue, 'severity'>>): SeoAgentOutputValidationResult {
