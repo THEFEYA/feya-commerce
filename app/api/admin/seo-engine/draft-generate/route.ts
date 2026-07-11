@@ -17,26 +17,30 @@ export async function GET() {
     mode: 'protected_generation_entrypoint',
     status: 'draft_only_openai_ready_when_enabled',
     feature_flag: 'FEYA_SEO_AI_GENERATION_ENABLED',
+    readiness_modes: ['READY_FULL', 'READY_PARTIAL', 'BLOCKED'],
     guardrails: generationGuardrails(),
     expected_body: {
       product_id: 'canonical_product_id UUID',
       dry_run: true,
       include_mock_output: true,
+      require_portfolio_strategy: false,
     },
     generation_pipeline: [
-      'load versioned SEO Product Truth contract',
+      'load versioned SEO Product Truth contract when available',
+      'classify READY_FULL, READY_PARTIAL, or BLOCKED',
       'load SeoAgentInputContract',
       'load latest saved draft portfolio/source differentiation strategy when available',
       'attach primary product image to server-side OpenAI request when available',
-      'build seo_agent_prompt_v1 with visual truth and configuration rules',
+      'build seo_agent_prompt_v1 with readiness-specific section permissions',
       'seed optional mock seo_agent_output_v1 from SeoPilotBrief.draftPreview during dry-run',
-      'call OpenAI only when feature flag, key, product truth, metric provenance, portfolio strategy, and gates pass',
+      'call OpenAI only when feature flag, key, identity, keyword metric, and hard gates pass',
       'validate seo_agent_output_v1',
+      'suppress unresolved composition sections from READY_PARTIAL output',
       'return AI draft for human review',
       'do not save automatically in this route',
       'do not publish automatically in this route',
     ],
-    note: 'This route is intentionally gated. Real OpenAI generation is draft-only and never publishes or saves automatically.',
+    note: 'READY_PARTIAL may generate safe SEO and descriptive sections while unresolved composition remains suppressed. The route never saves or publishes automatically.',
   });
 }
 
@@ -46,7 +50,7 @@ export async function POST(request: Request) {
   const dryRun = body.dry_run !== false;
   const includePrompt = body.include_prompt === true;
   const includeMockOutput = body.include_mock_output !== false;
-  const requirePortfolioStrategy = body.require_portfolio_strategy !== false;
+  const requirePortfolioStrategy = body.require_portfolio_strategy === true;
   const generationEnabled = process.env.FEYA_SEO_AI_GENERATION_ENABLED === 'true';
   const hasServerKey = Boolean(process.env.OPENAI_API_KEY);
   const hasClientExposedKey = Boolean(process.env.NEXT_PUBLIC_OPENAI_API_KEY);
@@ -89,8 +93,12 @@ export async function POST(request: Request) {
     }, { status: 404 });
   }
 
+  const generationReadiness = classifyGenerationReadiness(bundle.seoPackDraft);
   const primaryImageUrl = normalizeImageUrl(bundle.aiAgentInput?.product?.primary_image_url || bundle.seoPackDraft?.product_truth?.primary_image_url || null);
-  const promptContract = buildSeoAgentPromptContract(bundle.aiAgentInput);
+  const promptContract = applyReadinessToPromptContract(
+    buildSeoAgentPromptContract(bundle.aiAgentInput),
+    generationReadiness,
+  );
   const mockOutput = includeMockOutput ? buildMockSeoAgentOutput(bundle.aiAgentInput, bundle.brief) : null;
   const mockOutputValidation = mockOutput ? validateSeoAgentOutput(mockOutput) : null;
   const outputValidationGate = validateSeoAgentOutput(null);
@@ -101,10 +109,14 @@ export async function POST(request: Request) {
     generationEnabled,
     hasServerKey,
     dryRun,
-    draftSaveBlockers,
-    seoPackDraft: bundle.seoPackDraft,
+    generationReadiness,
     portfolioStrategy,
     requirePortfolioStrategy,
+  });
+  const warnings = collectGenerationWarnings({
+    generationReadiness,
+    seoPackDraft: bundle.seoPackDraft,
+    portfolioStrategy,
   });
   const preflightPayload = {
     route: '/api/admin/seo-engine/draft-generate',
@@ -132,6 +144,12 @@ export async function POST(request: Request) {
       primary_image_url: primaryImageUrl,
     },
     readiness: {
+      generation_mode: generationReadiness.mode,
+      hard_blockers: generationReadiness.hard_blockers,
+      section_blockers: generationReadiness.section_blockers,
+      allowed_customer_sections: generationReadiness.allowed_customer_sections,
+      suppressed_customer_sections: generationReadiness.suppressed_customer_sections,
+      can_generate_review_draft: generationReadiness.mode !== 'BLOCKED',
       has_server_openai_key: hasServerKey,
       has_client_exposed_openai_key: hasClientExposedKey,
       can_save_seo_pack_draft: canSaveDraft,
@@ -154,11 +172,13 @@ export async function POST(request: Request) {
         && hasServerKey
         && !dryRun
         && !hasClientExposedKey
-        && canSaveDraft
+        && generationReadiness.mode !== 'BLOCKED'
         && Boolean(portfolioStrategy || !requirePortfolioStrategy),
     },
+    generation_warnings: warnings,
     prompt_contract_summary: {
       ...summarizeSeoAgentPromptContract(promptContract),
+      readiness_mode: generationReadiness.mode,
       portfolio_strategy_in_prompt: Boolean(portfolioStrategy),
       visual_truth_rules_in_prompt: true,
       configuration_truth_rules_in_prompt: true,
@@ -169,13 +189,13 @@ export async function POST(request: Request) {
     output_validation_gate: {
       status: 'ready',
       dry_run_null_output_result: outputValidationGate,
-      note: 'The validator is wired. It will validate the real model JSON before any future draft save.',
+      note: 'The validator is wired. READY_PARTIAL uses an internal composition placeholder for schema validation, then suppresses that section from the returned review draft.',
     },
     mock_draft_output: mockOutput,
     mock_draft_validation: mockOutputValidation,
     seo_pack_draft: bundle.seoPackDraft,
     ai_agent_input: bundle.aiAgentInput,
-    guardrails: generationGuardrails(portfolioStrategy),
+    guardrails: generationGuardrails(portfolioStrategy, generationReadiness),
   };
 
   if (blockers.length) {
@@ -205,41 +225,195 @@ export async function POST(request: Request) {
     }, { status: generation.ok ? 422 : 502 });
   }
 
+  const reviewDraftOutput = sanitizeOutputForReadiness(generation.output, generationReadiness);
+  const isPartial = generationReadiness.mode === 'READY_PARTIAL';
+
   return NextResponse.json({
     ok: true,
-    status: 'ai_draft_generated_not_saved',
+    status: isPartial ? 'ai_partial_draft_generated_not_saved' : 'ai_full_draft_generated_not_saved',
     blocked: false,
     mode: 'openai_draft_only_not_saved',
-    message: 'OpenAI generated a valid review draft. It was not saved, published, or applied to product/storefront tables.',
+    message: isPartial
+      ? 'OpenAI generated a valid partial review draft. Unresolved composition sections were suppressed. Nothing was saved, published, or applied.'
+      : 'OpenAI generated a valid full review draft. It was not saved, published, or applied to product/storefront tables.',
     openai_generation: sanitizeGeneration(generation),
-    generated_draft_output: generation.output,
+    generated_draft_output: reviewDraftOutput,
     generated_draft_validation: generatedValidation,
     ...preflightPayload,
   }, { status: 200 });
 }
 
-function collectGenerationBlockers({ generationEnabled, hasServerKey, dryRun, draftSaveBlockers, seoPackDraft, portfolioStrategy, requirePortfolioStrategy }) {
+function classifyGenerationReadiness(draft) {
+  const hardBlockers = [];
+  const sectionBlockers = [];
+  const truth = draft?.product_truth || {};
+  const usefulKeywords = [
+    ...(draft?.keyword_roles?.primary || []),
+    ...(draft?.keyword_roles?.secondary || []),
+  ].filter((item) => Boolean(item?.keyword || item?.keyword_norm));
+  const identityEvidence = [
+    truth.category,
+    truth.material,
+    truth.color,
+    truth.world,
+    truth.primary_image_url,
+    truth.source_description_fragment,
+  ].some((value) => Boolean(String(value || '').trim()))
+    || Boolean(truth.source_variations?.length)
+    || Boolean(truth.option_price_rows?.length);
+
+  if (!draft) hardBlockers.push('missing_seo_pack_draft');
+  if (!draft?.canonical_product_id) hardBlockers.push('missing_canonical_product_id');
+  if (!truth?.title?.trim()) hardBlockers.push('missing_product_title');
+  if (!truth?.slug?.trim()) hardBlockers.push('missing_product_slug');
+  if (!identityEvidence) hardBlockers.push('insufficient_product_identity_evidence');
+  if (!usefulKeywords.length) hardBlockers.push('missing_primary_or_secondary_keyword');
+  if ((draft?.metrics_status?.validated_count || 0) < 1) hardBlockers.push('missing_validated_keyword_metric');
+  if (draft?.status === 'blocked_by_product_mismatch') hardBlockers.push('draft_status_blocked_by_product_mismatch');
+  if (draft?.qa_checks?.forbidden_mismatch === 'blocker') hardBlockers.push('qa_blocker_forbidden_mismatch');
+  if (draft?.qa_checks?.product_specificity === 'blocker') hardBlockers.push('qa_blocker_product_specificity');
+  if (draft?.qa_checks?.validated_metrics === 'blocker') hardBlockers.push('qa_blocker_validated_metrics');
+
+  const hasConfirmedComponents = Boolean((truth.included_components || []).length || (truth.known_components || []).length);
+  const hasUnresolvedComponents = Boolean((truth.unresolved_component_facts || []).length);
+  const hasComponentReviewBlockers = Boolean((truth.component_review_blockers || []).length);
+  const hasCanonicalTruth = truth.product_truth_source === 'seo_product_truth_v1';
+  const compositionReady = hasCanonicalTruth
+    && hasConfirmedComponents
+    && !hasUnresolvedComponents
+    && !hasComponentReviewBlockers;
+
+  if (!hasCanonicalTruth) sectionBlockers.push('composition_missing_canonical_product_truth');
+  if (!hasConfirmedComponents) sectionBlockers.push('composition_missing_confirmed_components');
+  if (hasUnresolvedComponents) sectionBlockers.push('composition_has_unresolved_facts');
+  if (hasComponentReviewBlockers) sectionBlockers.push('composition_has_review_blockers');
+
+  if (hardBlockers.length) {
+    return {
+      mode: 'BLOCKED',
+      hard_blockers: uniqueCodes(hardBlockers),
+      section_blockers: uniqueCodes(sectionBlockers),
+      allowed_customer_sections: [],
+      suppressed_customer_sections: ['seo_title', 'h1', 'meta_description', 'intro', 'about_this_piece', 'whats_included', 'why_youll_love_it', 'ideal_for', 'material', 'image_alt_candidates'],
+    };
+  }
+
+  if (compositionReady) {
+    return {
+      mode: 'READY_FULL',
+      hard_blockers: [],
+      section_blockers: [],
+      allowed_customer_sections: ['seo_title', 'h1', 'meta_description', 'intro', 'about_this_piece', 'whats_included', 'why_youll_love_it', 'ideal_for', 'material', 'image_alt_candidates'],
+      suppressed_customer_sections: [],
+    };
+  }
+
+  return {
+    mode: 'READY_PARTIAL',
+    hard_blockers: [],
+    section_blockers: uniqueCodes(sectionBlockers),
+    allowed_customer_sections: ['seo_title', 'h1', 'meta_description', 'intro', 'about_this_piece', 'why_youll_love_it', 'ideal_for', 'material', 'image_alt_candidates'],
+    suppressed_customer_sections: ['whats_included'],
+  };
+}
+
+function applyReadinessToPromptContract(promptContract, readiness) {
+  const shared = [
+    '',
+    'GENERATION READINESS CONTRACT:',
+    `- generation_mode: ${readiness.mode}`,
+    `- allowed_customer_sections: ${readiness.allowed_customer_sections.join(', ') || 'none'}`,
+    `- suppressed_customer_sections: ${readiness.suppressed_customer_sections.join(', ') || 'none'}`,
+    `- section_blockers: ${readiness.section_blockers.join(', ') || 'none'}`,
+  ];
+
+  const modeRules = readiness.mode === 'READY_PARTIAL'
+    ? [
+      '- Generate a useful review draft for every allowed customer section. Do not return blocked merely because composition is unresolved.',
+      '- Set output status to needs_review.',
+      '- Do not state which pieces are included, do not reinterpret raw option labels, and do not mention prices.',
+      '- For schema validation only, include a whats_included left_description block in the normal required position with this exact body: "Configuration details are withheld from this draft until product composition review is complete."',
+      '- The schema-only whats_included block must use source_basis needs_human_review and needs_human_review true.',
+      '- The server will remove that schema-only block before returning the human review draft.',
+      '- All other customer-facing sections must remain polished, specific, natural English and grounded in confirmed identity, material, visual and keyword evidence.',
+    ]
+    : readiness.mode === 'READY_FULL'
+      ? [
+        '- Generate the complete review draft, including a factual whats_included block based only on confirmed included components and configurations.',
+        '- Do not mention prices in customer-facing copy.',
+      ]
+      : [
+        '- Return status blocked and do not create customer-facing copy.',
+      ];
+
+  const appendix = [...shared, ...modeRules].join('\n');
+  return {
+    ...promptContract,
+    system_prompt: `${promptContract.system_prompt}\n${appendix}`,
+    user_prompt: `${promptContract.user_prompt}\n${appendix}`,
+    guardrails: [...(promptContract.guardrails || []), ...shared.slice(1), ...modeRules],
+  };
+}
+
+function collectGenerationBlockers({ generationEnabled, hasServerKey, dryRun, generationReadiness, portfolioStrategy, requirePortfolioStrategy }) {
   const blockers = [];
   if (!generationEnabled) blockers.push({ code: 'feature_flag_disabled', message: 'FEYA_SEO_AI_GENERATION_ENABLED is not true.' });
   if (!hasServerKey) blockers.push({ code: 'missing_openai_key', message: 'OPENAI_API_KEY is missing on the server.' });
   if (dryRun) blockers.push({ code: 'dry_run_only', message: 'dry_run is enabled, so no model call or save is allowed.' });
-  draftSaveBlockers.forEach((code) => blockers.push({ code, message: blockerMessage(code) }));
-  if (seoPackDraft?.similarity_check?.status === 'not_checked') blockers.push({ code: 'similarity_not_checked', message: 'Similarity/cannibalization check is required before publish readiness.' });
-  if (requirePortfolioStrategy && !portfolioStrategy) blockers.push({ code: 'portfolio_strategy_missing', message: 'Portfolio/source differentiation strategy is required before real AI generation.' });
+  generationReadiness.hard_blockers.forEach((code) => blockers.push({ code, message: blockerMessage(code) }));
+  if (requirePortfolioStrategy && !portfolioStrategy) blockers.push({ code: 'portfolio_strategy_missing', message: 'Portfolio/source differentiation strategy was explicitly required for this request but is missing.' });
   return blockers;
+}
+
+function collectGenerationWarnings({ generationReadiness, seoPackDraft, portfolioStrategy }) {
+  const warnings = generationReadiness.section_blockers.map((code) => ({ code, message: blockerMessage(code) }));
+  if (seoPackDraft?.similarity_check?.status === 'not_checked') {
+    warnings.push({ code: 'similarity_not_checked', message: 'Similarity/cannibalization is not checked. The draft may be reviewed, but it cannot be publish-ready.' });
+  }
+  if (!portfolioStrategy) {
+    warnings.push({ code: 'portfolio_strategy_missing', message: 'No portfolio differentiation strategy is loaded. The draft requires similarity review before publish.' });
+  }
+  return warnings;
 }
 
 function blockerMessage(code) {
   const messages = {
-    missing_canonical_product_truth_contract: 'The versioned feya_commerce_v_seo_product_truth_v1 contract is not available for this product.',
+    missing_canonical_product_truth_contract: 'The versioned Product Truth contract is unavailable.',
     missing_confirmed_component_truth: 'No confirmed included component evidence is available.',
-    unresolved_component_truth: 'Product component/configuration truth still contains unresolved facts.',
-    component_review_blockers_present: 'Product component mappings still have review blockers.',
+    unresolved_component_truth: 'Product component/configuration truth contains unresolved facts.',
+    component_review_blockers_present: 'Product component mappings contain review blockers.',
     missing_source_configuration_evidence: 'Source description, variation, and option-price evidence are missing.',
     missing_primary_or_secondary_keyword: 'No primary or secondary product keyword passed the decision pipeline.',
     missing_validated_keyword_metric: 'No keyword has a trusted metric source and freshness snapshot.',
+    insufficient_product_identity_evidence: 'The product lacks enough identity, material, visual, or source evidence for a safe draft.',
+    composition_missing_canonical_product_truth: 'What’s Included is suppressed because canonical Product Truth is unavailable.',
+    composition_missing_confirmed_components: 'What’s Included is suppressed because no included component is confirmed.',
+    composition_has_unresolved_facts: 'What’s Included is suppressed because component facts remain unresolved.',
+    composition_has_review_blockers: 'What’s Included is suppressed because component mappings require review.',
   };
-  return messages[code] || `SeoPackDraftContract blocker: ${code}.`;
+  return messages[code] || `SEO generation gate: ${code}.`;
+}
+
+function sanitizeOutputForReadiness(output, readiness) {
+  const safeOutput = JSON.parse(JSON.stringify(output || {}));
+  if (readiness.mode !== 'READY_PARTIAL') return safeOutput;
+
+  safeOutput.status = 'needs_review';
+  safeOutput.pdp_blocks = Array.isArray(safeOutput.pdp_blocks)
+    ? safeOutput.pdp_blocks.filter((block) => block?.block_key !== 'whats_included')
+    : [];
+  safeOutput.generation_notes = uniqueCodes([
+    ...(Array.isArray(safeOutput.generation_notes) ? safeOutput.generation_notes : []),
+    'What’s Included was suppressed because product composition is not fully confirmed.',
+    ...readiness.section_blockers,
+  ]);
+  safeOutput.suppressed_sections = readiness.suppressed_customer_sections;
+  safeOutput.generation_readiness = readiness.mode;
+  return safeOutput;
+}
+
+function uniqueCodes(values) {
+  return [...new Set((values || []).map((value) => String(value || '').trim()).filter(Boolean))];
 }
 
 function sanitizeGeneration(generation) {
@@ -269,23 +443,25 @@ function normalizeImageUrl(value?: string | null) {
   return url;
 }
 
-function generationGuardrails(portfolioStrategy?: unknown) {
+function generationGuardrails(portfolioStrategy?: unknown, readiness?: unknown) {
   return [
     'Generation is disabled unless FEYA_SEO_AI_GENERATION_ENABLED=true.',
     'Default request mode is dry_run=true.',
-    'No OpenAI call is made while blockers exist.',
-    'Real generation requires the versioned feya_commerce_v_seo_product_truth_v1 contract.',
-    'Product Focus fallback remains readable for diagnostics but is blocked for real generation.',
+    'No OpenAI call is made while hard blockers exist.',
+    'READY_PARTIAL may generate safe SEO and descriptive sections while What’s Included remains suppressed.',
+    'Component uncertainty is section-scoped unless it makes the product identity itself unreliable.',
+    'Product Focus fallback may support a partial diagnostic review draft but can never support a factual What’s Included claim.',
     'OpenAI generation is draft-only: no automatic Supabase save.',
     'Primary product image is attached to OpenAI only server-side when a public image URL exists.',
-    'Image analysis is evidence for visual truth and ALT, not a replacement for Product DNA or human review.',
+    'Image analysis is evidence for visual truth and ALT, not proof of included components.',
     'No publish action is performed by this route.',
     'No product/storefront table mutation is performed by this route.',
     'The model must consume SeoAgentInputContract, not raw product rows.',
     'The model must return seo_agent_output_v1 JSON only.',
     'Model output must pass validator before any future save.',
-    'Mock output is seeded from SeoPilotBrief.draftPreview when available and is only for route/UI validation.',
-    'Product truth, configuration evidence, metric provenance, and QA gates must outrank keyword volume.',
-    portfolioStrategy ? 'Portfolio/source differentiation strategy is loaded and must guide generation.' : 'Portfolio/source differentiation strategy is not loaded; similarity remains a required downstream gate.',
+    'Unresolved composition sections are removed from READY_PARTIAL output before human review.',
+    'Product truth, metric provenance, and QA gates outrank keyword volume.',
+    readiness ? `Current readiness mode: ${readiness.mode}.` : 'Readiness is calculated per product.',
+    portfolioStrategy ? 'Portfolio/source differentiation strategy is loaded and must guide generation.' : 'Portfolio/source differentiation strategy is optional for draft generation but required before publish readiness.',
   ];
 }
