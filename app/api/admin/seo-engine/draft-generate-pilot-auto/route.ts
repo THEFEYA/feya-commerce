@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { buildPilotKeywordBankFallbackBundle } from '@/lib/seoPilotKeywordBankFallback';
 import { buildSeoAgentPromptContract, summarizeSeoAgentPromptContract } from '@/lib/seoAgentDraftPrompt';
 import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
+import { validateSeoCommercialCopy } from '@/lib/seoCommercialCopyValidator';
 import { generateSeoDraftWithOpenAi } from '@/lib/seoOpenAiDraftGenerator';
 
 export const dynamic = 'force-dynamic';
@@ -29,6 +30,7 @@ export async function GET() {
     product_id: PILOT_PRODUCT_ID,
     writes: false,
     publish: false,
+    humanizer_repair_attempts: 1,
   });
 }
 
@@ -102,37 +104,90 @@ export async function POST(request: Request) {
     readiness,
   );
 
-  const generation = await generateSeoDraftWithOpenAi(promptContract, { primaryImageUrl });
-  const validation = generation.output ? validateSeoAgentOutput(generation.output) : validateSeoAgentOutput(null);
-  const shared = buildSharedPayload(bundle, readiness, promptContract, primaryImageUrl);
+  const firstGeneration = await generateSeoDraftWithOpenAi(promptContract, { primaryImageUrl });
+  const firstStructural = firstGeneration.output ? validateSeoAgentOutput(firstGeneration.output) : validateSeoAgentOutput(null);
+  const firstCommercial = firstGeneration.output ? validateSeoCommercialCopy(firstGeneration.output) : validateSeoCommercialCopy(null);
 
-  if (!generation.ok || !validation.ok) {
-    const reviewDraft = generation.output ? sanitizePartialOutput(generation.output, readiness) : null;
-    return NextResponse.json({
-      ok: false,
-      status: generation.ok ? 'generated_output_failed_validation' : generation.status,
-      blocked: true,
-      mode: 'openai_draft_only_not_saved',
-      message: generation.ok
-        ? 'OpenAI returned JSON and the storefront review draft is shown, but deterministic validation blocked saving or publishing.'
-        : 'OpenAI draft generation failed. Nothing was saved or published.',
-      openai_generation: sanitizeGeneration(generation),
-      generated_draft_output: reviewDraft,
-      generated_draft_validation: validation,
-      ...shared,
-    }, { status: generation.ok ? 422 : 502 });
+  let selectedGeneration = firstGeneration;
+  let selectedStructural = firstStructural;
+  let selectedCommercial = firstCommercial;
+  let repairGeneration = null;
+  let repairStructural = null;
+  let repairCommercial = null;
+  let repairUsed = false;
+
+  if (firstGeneration.ok && firstGeneration.output && (!firstStructural.ok || !firstCommercial.ok)) {
+    const repairPrompt = buildHumanizerRepairPrompt(
+      promptContract,
+      firstGeneration.output,
+      firstStructural.issues || [],
+      firstCommercial.issues || [],
+    );
+    repairGeneration = await generateSeoDraftWithOpenAi(repairPrompt, { primaryImageUrl });
+    repairStructural = repairGeneration.output ? validateSeoAgentOutput(repairGeneration.output) : validateSeoAgentOutput(null);
+    repairCommercial = repairGeneration.output ? validateSeoCommercialCopy(repairGeneration.output) : validateSeoCommercialCopy(null);
+
+    if (repairGeneration.ok && repairGeneration.output && candidateScore(repairStructural, repairCommercial) <= candidateScore(firstStructural, firstCommercial)) {
+      selectedGeneration = repairGeneration;
+      selectedStructural = repairStructural;
+      selectedCommercial = repairCommercial;
+      repairUsed = true;
+    }
   }
 
-  const reviewDraft = sanitizePartialOutput(generation.output, readiness);
+  const shared = buildSharedPayload(bundle, readiness, promptContract, primaryImageUrl);
+  const finalDraft = selectedGeneration.output ? sanitizePartialOutput(selectedGeneration.output, readiness) : null;
+  const finalOk = Boolean(selectedGeneration.ok && selectedStructural.ok && selectedCommercial.ok);
+
+  const attemptSummary = {
+    first_pass: {
+      openai: sanitizeGeneration(firstGeneration),
+      structural_validation: firstStructural,
+      commercial_validation: firstCommercial,
+    },
+    humanizer_repair: repairGeneration ? {
+      attempted: true,
+      selected: repairUsed,
+      openai: sanitizeGeneration(repairGeneration),
+      structural_validation: repairStructural,
+      commercial_validation: repairCommercial,
+    } : {
+      attempted: false,
+      selected: false,
+    },
+  };
+
+  if (!finalOk) {
+    return NextResponse.json({
+      ok: false,
+      status: selectedGeneration.ok ? 'generated_output_failed_validation' : selectedGeneration.status,
+      blocked: true,
+      mode: 'openai_draft_only_not_saved',
+      message: selectedGeneration.ok
+        ? 'OpenAI generated a review draft and one Humanizer repair was attempted when needed, but deterministic QA still blocks saving or publishing. The best draft is shown for review.'
+        : 'OpenAI draft generation failed. Nothing was saved or published.',
+      openai_generation: sanitizeGeneration(selectedGeneration),
+      generated_draft_output: finalDraft,
+      generated_draft_validation: selectedStructural,
+      generated_draft_commercial_validation: selectedCommercial,
+      generation_attempts: attemptSummary,
+      ...shared,
+    }, { status: selectedGeneration.ok ? 422 : 502 });
+  }
+
   return NextResponse.json({
     ok: true,
-    status: 'ai_partial_draft_generated_not_saved',
+    status: repairUsed ? 'ai_partial_draft_repaired_not_saved' : 'ai_partial_draft_generated_not_saved',
     blocked: false,
     mode: 'openai_draft_only_not_saved',
-    message: 'The OpenAI SEO review draft was generated from approved Keyword Bank metrics. The shared What’s Included panel remains hidden until component mapping is confirmed. Nothing was saved or published.',
-    openai_generation: sanitizeGeneration(generation),
-    generated_draft_output: reviewDraft,
-    generated_draft_validation: validation,
+    message: repairUsed
+      ? 'The first draft needed correction. The Humanizer repair pass produced a valid review draft from approved Keyword Bank metrics. Nothing was saved or published.'
+      : 'The OpenAI SEO review draft passed deterministic structure and commercial QA. Nothing was saved or published.',
+    openai_generation: sanitizeGeneration(selectedGeneration),
+    generated_draft_output: finalDraft,
+    generated_draft_validation: selectedStructural,
+    generated_draft_commercial_validation: selectedCommercial,
+    generation_attempts: attemptSummary,
     ...shared,
   }, { status: 200 });
 }
@@ -188,6 +243,7 @@ function applyReadinessToPromptContract(promptContract, readiness) {
     '- Do not state which pieces are included, do not reinterpret raw option labels, and do not mention prices.',
     '- Do not generate a What’s Included placeholder. The shared storefront panel hides that block until composition mapping is confirmed.',
     '- All generated customer-facing sections must be polished, product-first, natural English, and grounded in product identity, image truth, and validated keyword evidence.',
+    '- Give each left-description block a distinct job. Do not repeat the same sentence, benefit, image observation, or studio-authorship idea across several blocks.',
   ].join('\n');
 
   return {
@@ -196,6 +252,46 @@ function applyReadinessToPromptContract(promptContract, readiness) {
     user_prompt: `${promptContract.user_prompt}\n${appendix}`,
     guardrails: [...(promptContract.guardrails || []), appendix],
   };
+}
+
+function buildHumanizerRepairPrompt(promptContract, currentOutput, structuralIssues, commercialIssues) {
+  const issueLines = [
+    ...structuralIssues.map((issue) => `${issue.severity}:${issue.code}: ${issue.message}`),
+    ...commercialIssues.map((issue) => `${issue.severity}:${issue.code}: ${issue.message}`),
+  ];
+  const repairRules = [
+    '',
+    'THEFEYA HUMANIZER REPAIR PASS:',
+    'Return a complete seo_agent_output_v1 JSON object, not a patch and not commentary.',
+    'Repair only the generated customer-facing SEO fields and the four left_description blocks needed to satisfy the exact validator issues below.',
+    'Preserve confirmed product identity, approved keyword roles, visual facts, internal-linking intent, and all forbidden-claim boundaries.',
+    'Do not add, infer, translate, or repair included components, selectable configurations, prices, or raw option meanings.',
+    'Do not generate or paraphrase any fixed right-panel content or What’s Included.',
+    'Use first-person studio voice in Designed for self-expression: we, our, us. Do not begin with “TheFEYA is” and do not describe the studio as they or their.',
+    'Keep each section functionally distinct: About describes this product; Why gives different purchase benefits; Ideal for gives supported use cases; Designed for self-expression describes our studio and the buyer’s visual identity.',
+    'Remove repeated ideas and near-duplicate sentences. A concept such as reflective finish, sculptural silhouette, camera presence, durability, fit, or studio authorship should appear where it is strongest, not in every block.',
+    'Do not weaken factual specificity and do not introduce generic AI sales language.',
+    'Exact validation issues to repair:',
+    ...(issueLines.length ? issueLines.map((line) => `- ${line}`) : ['- Improve human rhythm and remove repetition.']),
+    '',
+    'Current generated JSON to repair:',
+    JSON.stringify(currentOutput, null, 2),
+  ].join('\n');
+
+  return {
+    ...promptContract,
+    system_prompt: `${promptContract.system_prompt}\n${repairRules}`,
+    user_prompt: `${promptContract.user_prompt}\n${repairRules}`,
+    guardrails: [...(promptContract.guardrails || []), repairRules],
+  };
+}
+
+function candidateScore(structural, commercial) {
+  const issues = [
+    ...(structural?.issues || []),
+    ...(commercial?.issues || []),
+  ];
+  return issues.reduce((score, issue) => score + (issue.severity === 'blocker' ? 100 : 1), 0);
 }
 
 function sanitizePartialOutput(output, readiness) {
@@ -229,12 +325,14 @@ function buildSharedPayload(bundle, readiness, promptContract, primaryImageUrl) 
       ...summarizeSeoAgentPromptContract(promptContract),
       readiness_mode: readiness.mode,
       product_truth_mode: 'partial_composition_hidden_in_shared_pdp_panel',
+      humanizer_repair_attempts: 1,
     },
     guardrails: [
       'No Supabase write was performed.',
       'No Listing Master decision was created or updated.',
       'Only approved Keyword Bank rows with real metric provenance were used.',
       'The shared What’s Included panel is hidden because composition remains unresolved.',
+      'One Humanizer repair attempt may rewrite generated left copy but cannot change product facts or the right panel.',
       'No draft save or publish action is performed by this route.',
     ],
   };
