@@ -107,15 +107,17 @@ export async function POST(request: Request) {
   const shared = buildSharedPayload(bundle, readiness, promptContract, primaryImageUrl);
 
   if (!generation.ok || !validation.ok) {
+    const reviewDraft = generation.output ? sanitizePartialOutput(generation.output, readiness) : null;
     return NextResponse.json({
       ok: false,
       status: generation.ok ? 'generated_output_failed_validation' : generation.status,
       blocked: true,
       mode: 'openai_draft_only_not_saved',
       message: generation.ok
-        ? 'OpenAI returned JSON, but deterministic validation blocked it. Nothing was saved or published.'
+        ? 'OpenAI returned JSON and the storefront review draft is shown, but deterministic validation blocked saving or publishing.'
         : 'OpenAI draft generation failed. Nothing was saved or published.',
       openai_generation: sanitizeGeneration(generation),
+      generated_draft_output: reviewDraft,
       generated_draft_validation: validation,
       ...shared,
     }, { status: generation.ok ? 422 : 502 });
