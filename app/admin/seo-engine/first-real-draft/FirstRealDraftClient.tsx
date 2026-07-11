@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { SeoDraftStorefrontPreview } from '@/components/SeoDraftStorefrontPreview';
+import { validateSeoCommercialCopy } from '@/lib/seoCommercialCopyValidator';
 
 const PILOT_PRODUCT_ID = 'b6e0171f-4d42-4d71-88b1-ee0d4e0e109e';
 
@@ -46,10 +47,13 @@ export default function FirstRealDraftClient() {
   }
 
   const draft = result?.generated_draft_output || null;
-  const validation = result?.generated_draft_validation || null;
+  const structuralValidation = result?.generated_draft_validation || null;
+  const commercialValidation = draft ? validateSeoCommercialCopy(draft) : null;
   const diagnostics = result?.keyword_bank_diagnostics || null;
   const alts = Array.isArray(draft?.image_alt_candidates) ? draft.image_alt_candidates : [];
-  const issues = Array.isArray(validation?.issues) ? validation.issues : [];
+  const structuralIssues = Array.isArray(structuralValidation?.issues) ? structuralValidation.issues : [];
+  const commercialIssues = Array.isArray(commercialValidation?.issues) ? commercialValidation.issues : [];
+  const reviewPass = Boolean(structuralValidation?.ok && commercialValidation?.ok);
 
   return <div className="space-y-5">
     <div className="rounded-2xl border border-[rgba(212,178,106,.28)] bg-[rgba(212,178,106,.06)] p-5">
@@ -57,7 +61,7 @@ export default function FirstRealDraftClient() {
         <div>
           <div className="eyebrow-gold">Реальный OpenAI SEO draft</div>
           <p className="mt-2 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">
-            Генерация использует approved ключи с реальными метриками. Результат открывается сначала как настоящая карточка товара, а технические данные остаются ниже для проверки. Никакой записи или публикации нет.
+            Генерация использует approved ключи с реальными метриками. Результат открывается сначала как настоящая карточка товара. Отдельный коммерческий gate проверяет, есть ли реальные причины купить TheFEYA, а не слабые стилистические фразы. Записи и публикации нет.
           </p>
         </div>
         <button type="button" onClick={run} disabled={loading} className="btn-ghost disabled:opacity-50">
@@ -70,17 +74,33 @@ export default function FirstRealDraftClient() {
 
     {draft && storefrontProduct ? <SeoDraftStorefrontPreview product={storefrontProduct} draft={draft} /> : null}
 
+    {draft && commercialValidation ? <section className={`rounded-2xl border p-5 ${reviewPass ? 'border-[rgba(108,183,138,.30)] bg-[rgba(108,183,138,.06)]' : 'border-[rgba(196,64,88,.34)] bg-[rgba(160,32,56,.08)]'}`}>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <div className="eyebrow-gold">Итоговый quality gate</div>
+          <div className={`mt-2 text-[22px] ${reviewPass ? 'text-[#a9dfbd]' : 'text-[var(--ruby-soft)]'}`}>{reviewPass ? 'PASS для ручной проверки' : 'BLOCKED: текст нужно переделать'}</div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {(commercialValidation.benefit_categories_found || []).map((category) => <span key={category} className="rounded-full border border-[rgba(212,178,106,.28)] px-2.5 py-1 text-[9px] uppercase tracking-[.14em] text-[var(--gold-warm)]">{category.replaceAll('_', ' ')}</span>)}
+        </div>
+      </div>
+      {commercialIssues.length ? <div className="mt-4 grid md:grid-cols-2 gap-2">{commercialIssues.map((item, index) => <div key={`${item.code}-${index}`} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3">
+        <div className="text-[11px] text-[var(--gold-warm)]">{item.severity}: {item.code}</div>
+        <div className="mt-1 text-[11px] leading-relaxed text-[var(--bone-dim)]">{item.message}</div>
+      </div>)}</div> : <div className="mt-3 text-[12px] text-[#a9dfbd]">Слабых стилистических аргументов, внутренних audit-фраз и запрещённых обещаний не найдено.</div>}
+    </section> : null}
+
     {result ? <>
       <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
         <Fact label="HTTP" value={String(result.http_status ?? '—')} />
         <Fact label="Статус" value={String(result.status || '—')} tone={result.ok ? 'success' : 'warning'} />
         <Fact label="OpenAI" value={result.openai_generation?.ok ? 'ответ получен' : result.openai_generation?.status || 'не вызван'} tone={result.openai_generation?.ok ? 'success' : 'warning'} />
-        <Fact label="Модель" value={result.openai_generation?.model || '—'} />
-        <Fact label="Фото" value={result.openai_generation?.vision_input?.primary_image_sent ? 'отправлено сервером' : 'не отправлено'} tone={result.openai_generation?.vision_input?.primary_image_sent ? 'success' : 'warning'} />
+        <Fact label="Структура" value={structuralValidation?.ok ? 'PASS' : 'BLOCKED'} tone={structuralValidation?.ok ? 'success' : 'warning'} />
+        <Fact label="Коммерческий текст" value={commercialValidation?.ok ? 'PASS' : 'BLOCKED'} tone={commercialValidation?.ok ? 'success' : 'warning'} />
       </div>
 
       {result.error ? <Notice tone="danger">{result.error}</Notice> : null}
-      {result.message ? <Notice tone={result.ok ? 'success' : 'warning'}>{result.message}</Notice> : null}
+      {result.message ? <Notice tone={reviewPass ? 'success' : 'warning'}>{reviewPass ? 'OpenAI-черновик создан и прошёл оба review-gate. Ничего не сохранено и не опубликовано.' : 'OpenAI-ответ получен, но итоговый quality gate ещё не пройден. Ничего не сохранено и не опубликовано.'}</Notice> : null}
 
       <details className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
         <summary className="cursor-pointer text-[11px] uppercase tracking-[.18em] text-[var(--gold-warm)]">SEO-поля, ключи и техническая проверка</summary>
@@ -114,15 +134,15 @@ export default function FirstRealDraftClient() {
             <ul className="space-y-2">{alts.map((item: any, index: number) => <li key={`${item.alt_text}-${index}`} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3 text-[12px] text-[var(--bone-dim)]">{item.alt_text || '—'} <span className="text-[var(--smoke)]">· {item.truth_basis || '—'}</span></li>)}</ul>
           </Panel> : null}
 
-          {validation ? <Panel title="Детерминированный validator">
+          {structuralValidation ? <Panel title="Структурный validator">
             <div className="grid sm:grid-cols-2 gap-3 mb-3">
-              <Fact label="Результат" value={validation.ok ? 'PASS' : 'BLOCKED'} tone={validation.ok ? 'success' : 'warning'} />
-              <Fact label="Замечаний" value={String(issues.length)} tone={issues.length ? 'warning' : 'success'} />
+              <Fact label="Результат" value={structuralValidation.ok ? 'PASS' : 'BLOCKED'} tone={structuralValidation.ok ? 'success' : 'warning'} />
+              <Fact label="Замечаний" value={String(structuralIssues.length)} tone={structuralIssues.length ? 'warning' : 'success'} />
             </div>
-            {issues.length ? <div className="grid md:grid-cols-2 gap-2">{issues.map((item: any, index: number) => <div key={`${item.code}-${index}`} className="rounded-xl border border-[rgba(212,178,106,.22)] bg-black/20 p-3">
+            {structuralIssues.length ? <div className="grid md:grid-cols-2 gap-2">{structuralIssues.map((item: any, index: number) => <div key={`${item.code}-${index}`} className="rounded-xl border border-[rgba(212,178,106,.22)] bg-black/20 p-3">
               <div className="text-[11px] text-[var(--gold-warm)]">{item.severity}: {item.code}</div>
               <div className="mt-1 text-[11px] text-[var(--bone-dim)]">{item.message}</div>
-            </div>)}</div> : <div className="text-[12px] text-[#a9dfbd]">Блокирующих ошибок не найдено.</div>}
+            </div>)}</div> : <div className="text-[12px] text-[#a9dfbd]">Структурных ошибок не найдено.</div>}
           </Panel> : null}
 
           <details className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-4">
