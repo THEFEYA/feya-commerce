@@ -8,6 +8,17 @@ import { generateSeoDraftWithOpenAi } from '@/lib/seoOpenAiDraftGenerator';
 export const dynamic = 'force-dynamic';
 
 const PILOT_PRODUCT_ID = 'b6e0171f-4d42-4d71-88b1-ee0d4e0e109e';
+const GENERATED_SECTIONS = [
+  'seo_title',
+  'h1',
+  'meta_description',
+  'intro',
+  'about_this_piece',
+  'why_youll_love_it',
+  'ideal_for',
+  'main_description',
+  'image_alt_candidates',
+];
 
 export async function GET() {
   return NextResponse.json({
@@ -93,33 +104,7 @@ export async function POST(request: Request) {
 
   const generation = await generateSeoDraftWithOpenAi(promptContract, { primaryImageUrl });
   const validation = generation.output ? validateSeoAgentOutput(generation.output) : validateSeoAgentOutput(null);
-
-  const shared = {
-    source: {
-      product_id: bundle.seoPackDraft.canonical_product_id,
-      matched_etsy_listing_id: bundle.seoPackDraft.matched_etsy_listing_id,
-      product_title: bundle.seoPackDraft.product_truth?.title || null,
-      product_slug: bundle.seoPackDraft.product_truth?.slug || null,
-      primary_image_url: primaryImageUrl,
-      selected_keyword_count: bundle.keywords.length,
-      keyword_fallback_mode: 'read_only_canonical_keyword_bank_pilot',
-      product_truth_source: bundle.seoPackDraft.product_truth?.product_truth_source || null,
-    },
-    readiness,
-    keyword_bank_diagnostics: bundle.keywordDiagnostics,
-    prompt_contract_summary: {
-      ...summarizeSeoAgentPromptContract(promptContract),
-      readiness_mode: readiness.mode,
-      product_truth_mode: 'partial_composition_suppressed',
-    },
-    guardrails: [
-      'No Supabase write was performed.',
-      'No Listing Master decision was created or updated.',
-      'Only approved Keyword Bank rows with real metric provenance were used.',
-      'What’s Included is suppressed because composition remains unresolved.',
-      'No draft save or publish action is performed by this route.',
-    ],
-  };
+  const shared = buildSharedPayload(bundle, readiness, promptContract, primaryImageUrl);
 
   if (!generation.ok || !validation.ok) {
     return NextResponse.json({
@@ -137,13 +122,12 @@ export async function POST(request: Request) {
   }
 
   const reviewDraft = sanitizePartialOutput(generation.output, readiness);
-
   return NextResponse.json({
     ok: true,
     status: 'ai_partial_draft_generated_not_saved',
     blocked: false,
     mode: 'openai_draft_only_not_saved',
-    message: 'The first real OpenAI SEO review draft was generated from canonical approved Keyword Bank metrics. Nothing was saved or published.',
+    message: 'The OpenAI SEO review draft was generated from approved Keyword Bank metrics. The shared What’s Included panel remains hidden until component mapping is confirmed. Nothing was saved or published.',
     openai_generation: sanitizeGeneration(generation),
     generated_draft_output: reviewDraft,
     generated_draft_validation: validation,
@@ -153,19 +137,13 @@ export async function POST(request: Request) {
 
 function classifyReadiness(draft) {
   const hardBlockers = [];
-  const sectionBlockers = [];
   const truth = draft?.product_truth || {};
   const usefulKeywords = [
     ...(draft?.keyword_roles?.primary || []),
     ...(draft?.keyword_roles?.secondary || []),
   ].filter((item) => Boolean(item?.keyword || item?.keyword_norm));
-  const identityEvidence = [
-    truth.category,
-    truth.material,
-    truth.color,
-    truth.world,
-    truth.primary_image_url,
-  ].some((value) => Boolean(String(value || '').trim()));
+  const identityEvidence = [truth.category, truth.material, truth.color, truth.world, truth.primary_image_url]
+    .some((value) => Boolean(String(value || '').trim()));
 
   if (!draft?.canonical_product_id) hardBlockers.push('missing_canonical_product_id');
   if (!truth?.title?.trim()) hardBlockers.push('missing_product_title');
@@ -177,21 +155,21 @@ function classifyReadiness(draft) {
   if (draft?.qa_checks?.forbidden_mismatch === 'blocker') hardBlockers.push('qa_blocker_forbidden_mismatch');
   if (draft?.qa_checks?.product_specificity === 'blocker') hardBlockers.push('qa_blocker_product_specificity');
 
-  sectionBlockers.push('composition_missing_canonical_product_truth');
-  sectionBlockers.push('composition_missing_confirmed_components');
-  sectionBlockers.push('composition_has_unresolved_facts');
-  sectionBlockers.push('composition_has_review_blockers');
+  const sectionBlockers = [
+    'composition_missing_canonical_product_truth',
+    'composition_missing_confirmed_components',
+    'composition_has_unresolved_facts',
+    'composition_has_review_blockers',
+  ];
 
   return {
     mode: hardBlockers.length ? 'BLOCKED' : 'READY_PARTIAL',
     hard_blockers: unique(hardBlockers),
     section_blockers: unique(sectionBlockers),
-    allowed_customer_sections: hardBlockers.length
-      ? []
-      : ['seo_title', 'h1', 'meta_description', 'intro', 'about_this_piece', 'why_youll_love_it', 'ideal_for', 'material', 'image_alt_candidates'],
+    allowed_customer_sections: hardBlockers.length ? [] : GENERATED_SECTIONS,
     suppressed_customer_sections: hardBlockers.length
-      ? ['seo_title', 'h1', 'meta_description', 'intro', 'about_this_piece', 'whats_included', 'why_youll_love_it', 'ideal_for', 'material', 'image_alt_candidates']
-      : ['whats_included'],
+      ? [...GENERATED_SECTIONS, 'right_panel_whats_included']
+      : ['right_panel_whats_included'],
   };
 }
 
@@ -201,15 +179,13 @@ function applyReadinessToPromptContract(promptContract, readiness) {
     'GENERATION READINESS CONTRACT:',
     '- generation_mode: READY_PARTIAL',
     `- allowed_customer_sections: ${readiness.allowed_customer_sections.join(', ')}`,
-    '- suppressed_customer_sections: whats_included',
+    '- suppressed_customer_sections: right_panel_whats_included',
     `- section_blockers: ${readiness.section_blockers.join(', ')}`,
     '- Generate a useful review draft for every allowed customer section.',
     '- Set output status to needs_review.',
     '- Do not state which pieces are included, do not reinterpret raw option labels, and do not mention prices.',
-    '- For schema validation only, include a whats_included left_description block in the normal required position with this exact body: "Configuration details are withheld from this draft until product composition review is complete."',
-    '- The schema-only whats_included block must use source_basis needs_human_review and needs_human_review true.',
-    '- The server will remove that schema-only block before returning the human review draft.',
-    '- All other customer-facing sections must be polished, specific, natural English and grounded in product identity, image truth and validated keyword evidence.',
+    '- Do not generate a What’s Included placeholder. The shared storefront panel hides that block until composition mapping is confirmed.',
+    '- All generated customer-facing sections must be polished, product-first, natural English, and grounded in product identity, image truth, and validated keyword evidence.',
   ].join('\n');
 
   return {
@@ -223,17 +199,43 @@ function applyReadinessToPromptContract(promptContract, readiness) {
 function sanitizePartialOutput(output, readiness) {
   const safe = JSON.parse(JSON.stringify(output || {}));
   safe.status = 'needs_review';
-  safe.pdp_blocks = Array.isArray(safe.pdp_blocks)
-    ? safe.pdp_blocks.filter((block) => block?.block_key !== 'whats_included')
-    : [];
   safe.generation_notes = unique([
     ...(Array.isArray(safe.generation_notes) ? safe.generation_notes : []),
-    'What’s Included was suppressed because product composition is not fully confirmed.',
+    'The shared What’s Included panel remains hidden because product composition is not fully confirmed.',
     ...readiness.section_blockers,
   ]);
-  safe.suppressed_sections = ['whats_included'];
+  safe.suppressed_sections = ['right_panel_whats_included'];
   safe.generation_readiness = 'READY_PARTIAL';
   return safe;
+}
+
+function buildSharedPayload(bundle, readiness, promptContract, primaryImageUrl) {
+  return {
+    source: {
+      product_id: bundle.seoPackDraft.canonical_product_id,
+      matched_etsy_listing_id: bundle.seoPackDraft.matched_etsy_listing_id,
+      product_title: bundle.seoPackDraft.product_truth?.title || null,
+      product_slug: bundle.seoPackDraft.product_truth?.slug || null,
+      primary_image_url: primaryImageUrl,
+      selected_keyword_count: bundle.keywords.length,
+      keyword_fallback_mode: 'read_only_canonical_keyword_bank_pilot',
+      product_truth_source: bundle.seoPackDraft.product_truth?.product_truth_source || null,
+    },
+    readiness,
+    keyword_bank_diagnostics: bundle.keywordDiagnostics,
+    prompt_contract_summary: {
+      ...summarizeSeoAgentPromptContract(promptContract),
+      readiness_mode: readiness.mode,
+      product_truth_mode: 'partial_composition_hidden_in_shared_pdp_panel',
+    },
+    guardrails: [
+      'No Supabase write was performed.',
+      'No Listing Master decision was created or updated.',
+      'Only approved Keyword Bank rows with real metric provenance were used.',
+      'The shared What’s Included panel is hidden because composition remains unresolved.',
+      'No draft save or publish action is performed by this route.',
+    ],
+  };
 }
 
 function sanitizeGeneration(generation) {
