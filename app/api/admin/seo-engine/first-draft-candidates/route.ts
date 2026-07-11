@@ -2,10 +2,14 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServiceClient } from '@/lib/supabase';
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
+import { buildPilotKeywordBankFallbackBundle } from '@/lib/seoPilotKeywordBankFallback';
 import { STOREFRONT_V4_BASE_CARD_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 
 export const dynamic = 'force-dynamic';
 
+const PILOT_PRODUCT_ID = 'b6e0171f-4d42-4d71-88b1-ee0d4e0e109e';
+const PILOT_GENERATION_ROUTE = '/api/admin/seo-engine/draft-generate-pilot-auto';
+const GENERIC_GENERATION_ROUTE = '/api/admin/seo-engine/catalog-draft-generate';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
 const LATEST_DRAFT_VIEW = 'feya_commerce_v_seo_pack_drafts_latest_v1';
 const DECISION_SELECT = [
@@ -42,10 +46,11 @@ export async function GET(request: Request) {
 
   if (productId) return loadCandidateDetail(productId);
 
-  const [decisionResult, catalogResult, draftResult] = await Promise.all([
+  const [decisionResult, catalogResult, draftResult, pilotBundle] = await Promise.all([
     supabase.from(DECISIONS_TABLE).select(DECISION_SELECT).limit(2000),
     supabase.from(STOREFRONT_VIEW_V4).select(STOREFRONT_V4_BASE_CARD_SELECT).limit(1000),
     supabase.from(LATEST_DRAFT_VIEW).select(LATEST_DRAFT_SELECT).limit(2000),
+    buildPilotKeywordBankFallbackBundle(PILOT_PRODUCT_ID),
   ]);
 
   if (decisionResult.error) {
@@ -77,20 +82,33 @@ export async function GET(request: Request) {
     ...catalogByProduct.keys(),
     ...latestDecisionByProduct.keys(),
     ...latestDraftByProduct.keys(),
+    PILOT_PRODUCT_ID,
   ]);
 
   const candidates = [...allIds]
-    .map((id) => summarizeCatalogCandidate(
-      id,
-      catalogByProduct.get(id) || null,
-      latestDecisionByProduct.get(id) || null,
-      latestDraftByProduct.get(id) || null,
-    ))
+    .map((id) => {
+      if (id === PILOT_PRODUCT_ID) {
+        return summarizePilotCandidate(
+          pilotBundle,
+          catalogByProduct.get(id) || null,
+          latestDecisionByProduct.get(id) || null,
+          latestDraftByProduct.get(id) || null,
+        );
+      }
+      return summarizeCatalogCandidate(
+        id,
+        catalogByProduct.get(id) || null,
+        latestDecisionByProduct.get(id) || null,
+        latestDraftByProduct.get(id) || null,
+      );
+    })
+    .filter(Boolean)
     .sort(compareCandidates);
 
   const ready = candidates.filter((item) => item.ready_for_openai);
   const blocked = candidates.filter((item) => !item.ready_for_openai);
   const withSavedDraft = candidates.filter((item) => item.has_saved_draft);
+  const needsKeywordPreparation = candidates.filter((item) => item.workflow_stage === 'needs_keyword_preparation');
 
   return NextResponse.json({
     ok: true,
@@ -103,25 +121,60 @@ export async function GET(request: Request) {
       candidates: candidates.length,
       ready_for_openai: ready.length,
       blocked: blocked.length,
+      needs_keyword_preparation: needsKeywordPreparation.length,
       with_saved_draft: withSavedDraft.length,
     },
-    best_candidate: ready.find((item) => !item.has_saved_draft) || ready[0] || candidates[0] || null,
+    best_candidate: ready.find((item) => item.is_controlled_pilot && !item.has_saved_draft)
+      || ready.find((item) => !item.has_saved_draft)
+      || ready[0]
+      || candidates.find((item) => item.is_controlled_pilot)
+      || candidates[0]
+      || null,
     candidates,
-    // Backward-compatible fields for older deployed clients during the rollout.
     ready_candidates: ready.slice(0, 40),
     nearest_candidates: blocked.slice(0, 80),
-    warnings: draftResult.error ? [`latest_draft_read_failed: ${draftResult.error.message}`] : [],
+    pilot_preflight: {
+      canonical_product_id: PILOT_PRODUCT_ID,
+      ready: Boolean(candidates.find((item) => item.canonical_product_id === PILOT_PRODUCT_ID)?.ready_for_openai),
+      error: pilotBundle?.error || null,
+      diagnostics: pilotBundle?.keywordDiagnostics || null,
+    },
+    warnings: [
+      ...(draftResult.error ? [`latest_draft_read_failed: ${draftResult.error.message}`] : []),
+      ...(pilotBundle?.keywordDiagnostics?.warnings || []),
+    ],
     guardrails: [
-      'Read-only SELECT operations only.',
-      'No OpenAI call.',
-      'No Supabase write.',
-      'No draft save or publish.',
-      'Trusted keyword metric provenance remains mandatory.',
+      'Catalog loading and pilot preparation are read-only.',
+      'The controlled pilot may auto-rank approved Keyword Bank rows with trusted metrics.',
+      'No OpenAI call occurs while loading this list.',
+      'No Supabase write, draft save, apply or publish.',
+      'Generic products still require an approved keyword decision before generation.',
     ],
   });
 }
 
 async function loadCandidateDetail(productId: string) {
+  if (productId === PILOT_PRODUCT_ID) {
+    const bundle = await buildPilotKeywordBankFallbackBundle(productId);
+    const candidate = summarizePilotCandidate(bundle, bundle?.product || null, null, null);
+    return NextResponse.json({
+      ok: true,
+      status: candidate.ready_for_openai ? 'controlled_pilot_ready' : 'controlled_pilot_not_ready',
+      read_only: true,
+      candidate,
+      pilot_preflight: {
+        error: bundle?.error || null,
+        diagnostics: bundle?.keywordDiagnostics || null,
+        blocker_checks: bundle?.brief?.blockerChecks || [],
+      },
+      guardrails: [
+        'No OpenAI call.',
+        'No Supabase write.',
+        'No draft save or publish.',
+      ],
+    }, { status: 200 });
+  }
+
   const bundle = await buildSeoBriefContractBundle(productId);
   const candidate = summarizeCandidate(bundle, bundle?.decision || null);
 
@@ -146,6 +199,45 @@ async function loadCandidateDetail(productId: string) {
       'No draft save or publish.',
     ],
   });
+}
+
+function summarizePilotCandidate(bundle, catalogProduct, decision, latestDraft) {
+  const product = bundle?.product || catalogProduct || null;
+  const diagnostics = bundle?.keywordDiagnostics || {};
+  let candidate;
+
+  if (bundle?.seoPackDraft) {
+    candidate = summarizeCandidate(bundle, decision);
+  } else {
+    candidate = summarizeCatalogCandidate(PILOT_PRODUCT_ID, product, decision, latestDraft);
+    candidate.hard_blockers = unique([
+      ...(candidate.hard_blockers || []),
+      'pilot_keyword_bank_preparation_not_ready',
+    ]);
+    candidate.ready_for_openai = false;
+    candidate.generation_mode = 'NEEDS_KEYWORD_PREPARATION';
+  }
+
+  return {
+    ...candidate,
+    canonical_product_id: PILOT_PRODUCT_ID,
+    matched_etsy_listing_id: product?.matched_etsy_listing_id || candidate?.matched_etsy_listing_id || '4348580005',
+    product_slug: product?.product_slug || candidate?.product_slug || null,
+    product_title: product?.card_title || product?.h1 || candidate?.product_title || 'Controlled first SEO pilot',
+    primary_image_url: product?.primary_image_url || candidate?.primary_image_url || null,
+    primary_image_alt: product?.primary_image_alt || candidate?.primary_image_alt || product?.card_title || null,
+    product_type: product?.product_type || candidate?.product_type || null,
+    material: product?.material || candidate?.material || null,
+    color: product?.color || candidate?.color || null,
+    selected_keyword_count: Number(diagnostics.useful_candidate_rows ?? candidate?.selected_keyword_count ?? 0),
+    useful_keyword_count: Number(diagnostics.useful_candidate_rows ?? candidate?.useful_keyword_count ?? 0),
+    validated_metric_count: Number(diagnostics.useful_validated_rows ?? candidate?.validated_metric_count ?? 0),
+    workflow_stage: bundle?.seoPackDraft ? 'ready_for_controlled_generation' : 'needs_keyword_preparation',
+    is_controlled_pilot: true,
+    generation_route: PILOT_GENERATION_ROUTE,
+    preparation_error: bundle?.error || null,
+    keyword_bank_diagnostics: diagnostics,
+  };
 }
 
 function summarizeCatalogCandidate(id, product, decision, latestDraft) {
@@ -190,6 +282,11 @@ function summarizeCatalogCandidate(id, product, decision, latestDraft) {
     section_blockers: [],
     generation_mode: hardBlockers.length ? 'BLOCKED' : 'READY_CHECK',
     ready_for_openai: hardBlockers.length === 0,
+    workflow_stage: hardBlockers.some((code) => code.includes('keyword_metric') || code.includes('primary_or_secondary_keyword'))
+      ? 'needs_keyword_preparation'
+      : hardBlockers.length ? 'blocked_by_product_truth' : 'ready_for_generation',
+    is_controlled_pilot: false,
+    generation_route: GENERIC_GENERATION_ROUTE,
     updated_at: decision?.updated_at || decision?.created_at || latestDraft?.updated_at || latestDraft?.created_at || null,
   };
 }
@@ -227,7 +324,9 @@ function summarizeCandidate(bundle, decision) {
 
   const sectionBlockers = [];
   if (truth.product_truth_source !== 'seo_product_truth_v1') sectionBlockers.push('composition_missing_canonical_product_truth');
-  if (!((truth.included_components || []).length || (truth.known_components || []).length)) sectionBlockers.push('composition_missing_confirmed_components');
+  if (!((truth.included_components || []).length || (truth.known_components || []).length || (truth.optional_configurations || []).length)) {
+    sectionBlockers.push('composition_missing_confirmed_components');
+  }
   if ((truth.unresolved_component_facts || []).length) sectionBlockers.push('composition_has_unresolved_facts');
   if ((truth.component_review_blockers || []).length) sectionBlockers.push('composition_has_review_blockers');
 
@@ -242,7 +341,7 @@ function summarizeCandidate(bundle, decision) {
     seo_pack_status: draft?.status || null,
     product_truth_source: truth.product_truth_source || bundle?.productTruthSource || null,
     useful_keyword_count: usefulKeywords.length,
-    selected_keyword_count: Array.isArray(decision?.selected_keywords_json) ? decision.selected_keywords_json.length : usefulKeywords.length,
+    selected_keyword_count: usefulKeywords.length,
     validated_metric_count: validatedCount,
     primary_keywords: primary.slice(0, 5).map(keywordSummary),
     secondary_keywords: secondary.slice(0, 5).map(keywordSummary),
@@ -259,6 +358,9 @@ function summarizeCandidate(bundle, decision) {
         ? 'READY_PARTIAL'
         : 'READY_FULL',
     ready_for_openai: hardBlockers.length === 0,
+    workflow_stage: hardBlockers.length ? 'blocked_by_contract' : 'ready_for_generation',
+    is_controlled_pilot: false,
+    generation_route: GENERIC_GENERATION_ROUTE,
     preview_path: draft?.canonical_product_id
       ? `/admin/seo-engine/draft-preview?product_id=${encodeURIComponent(draft.canonical_product_id)}`
       : null,
@@ -267,6 +369,7 @@ function summarizeCandidate(bundle, decision) {
 
 function compareCandidates(a, b) {
   if (a.ready_for_openai !== b.ready_for_openai) return a.ready_for_openai ? -1 : 1;
+  if (a.is_controlled_pilot !== b.is_controlled_pilot) return a.is_controlled_pilot ? -1 : 1;
   if (a.has_saved_draft !== b.has_saved_draft) return a.has_saved_draft ? 1 : -1;
   if (a.hard_blockers.length !== b.hard_blockers.length) return a.hard_blockers.length - b.hard_blockers.length;
   if (a.validated_metric_count !== b.validated_metric_count) return b.validated_metric_count - a.validated_metric_count;
