@@ -23,7 +23,7 @@ export async function GET() {
       product_id: 'canonical_product_id UUID',
       dry_run: true,
       include_mock_output: true,
-      require_portfolio_strategy: false,
+      enforce_portfolio_strategy: false,
     },
     generation_pipeline: [
       'load versioned SEO Product Truth contract when available',
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
   const dryRun = body.dry_run !== false;
   const includePrompt = body.include_prompt === true;
   const includeMockOutput = body.include_mock_output !== false;
-  const requirePortfolioStrategy = body.require_portfolio_strategy === true;
+  const requirePortfolioStrategy = body.enforce_portfolio_strategy === true;
   const generationEnabled = process.env.FEYA_SEO_AI_GENERATION_ENABLED === 'true';
   const hasServerKey = Boolean(process.env.OPENAI_API_KEY);
   const hasClientExposedKey = Boolean(process.env.NEXT_PUBLIC_OPENAI_API_KEY);
