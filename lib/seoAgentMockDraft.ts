@@ -162,7 +162,7 @@ function buildPdpBlocks(input: SeoAgentInputContract, productName: string, mater
       block_key: 'main_description',
       placement: 'left_description',
       heading: 'Designed for self-expression',
-      body: 'TheFEYA is a young independent team of designers and makers creating bold statement outfits from original in-house ideas and a distinctive visual language. We help performers, creators and festival guests express their individuality through clothing and build a look that feels unmistakably their own. Our work is designed to stand out at festivals, on stage and on camera, inviting attention without copying mass-market trends. We are also open to discussing new ideas that belong naturally within the studio style.',
+      body: 'We are TheFEYA, a young independent team of designers and makers creating bold statement outfits from original in-house ideas and a distinctive visual language. We help performers, creators and festival guests express their individuality and build a recognizable visual identity for stage, camera and social content. A strong, memorable look can make photos and performances more shareable and can support greater organic attention, reactions, saves and comments. Our store offers a broad range of outfits for festivals, performances, photoshoots and other events, so you can choose a design that fits your style or bring us a new idea to explore together.',
       source_basis: 'brand_policy',
       needs_human_review: true,
     },
