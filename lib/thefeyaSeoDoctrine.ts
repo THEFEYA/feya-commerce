@@ -3,19 +3,15 @@ export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v6' as const;
 export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
   checkpoint_id: 'reload_latest_research_before_apply_publish_v1',
   required_before_stage: 'apply_to_product_or_publish_readiness',
-  admin_note_ru:
-    'Перед финальным apply-to-product / publish-readiness нужно попросить у пользователя заново загрузить последние SEO research-файлы и обновить doctrine, если исследования изменили правила.',
-  agent_note_en:
-    'Before implementing the final apply-to-product or publish-readiness stage, stop and ask the owner to re-upload the latest SEO research files. Do not rely only on summarized memory for the final doctrine.',
+  admin_note_ru: 'Перед финальным apply-to-product / publish-readiness нужно попросить у пользователя заново загрузить последние SEO research-файлы и обновить doctrine, если исследования изменили правила.',
+  agent_note_en: 'Before implementing the final apply-to-product or publish-readiness stage, stop and ask the owner to re-upload the latest SEO research files. Do not rely only on summarized memory for the final doctrine.',
 } as const;
 
 export const THEFEYA_VARIATION_EDITING_CHECKPOINT = {
   checkpoint_id: 'unify_variations_included_components_pdp_sitemap_v1',
   required_before_stage: 'apply_to_product_or_catalog_scale_editing',
-  admin_note_ru:
-    'Перед массовым применением SEO к товарам нужно спроектировать единый редактор, где вариации, комплектация, PDP-блоки, slug/meta и sitemap не живут в разных мирах.',
-  agent_note_en:
-    'Before catalog-scale apply-to-product editing, design one canonical editing flow for product variations, included components, PDP blocks, slug/meta data, and sitemap updates. Do not split those facts across disconnected systems.',
+  admin_note_ru: 'Перед массовым применением SEO к товарам нужно спроектировать единый редактор, где вариации, комплектация, PDP-блоки, slug/meta и sitemap не живут в разных мирах.',
+  agent_note_en: 'Before catalog-scale apply-to-product editing, design one canonical editing flow for product variations, included components, PDP blocks, slug/meta data, and sitemap updates. Do not split those facts across disconnected systems.',
 } as const;
 
 export const THEFEYA_BRAND_VALUE_PILLARS = [
@@ -28,69 +24,49 @@ export const THEFEYA_BRAND_VALUE_PILLARS = [
   'Color, length, coverage, fit and selected details may be adapted within the studio visual language when the design supports those changes.',
 ] as const;
 
+function rightPanelBlock(block_key: string, heading: string, lines: readonly string[]) {
+  return {
+    block_key,
+    heading,
+    lines,
+    body: lines.join('\n'),
+  };
+}
+
 export const THEFEYA_CANONICAL_RIGHT_PDP_PANEL = [
-  {
-    block_key: 'sizing_fit',
-    heading: 'Sizing & fit',
-    lines: [
-      'Use the size chart in the product photos to choose your standard size.',
-      'Most pieces adjust with straps. For individual measurements or a special fit request, leave a note with your order or contact us before production.',
-    ],
-  },
-  {
-    block_key: 'production_timing',
-    heading: 'Production time',
-    lines: [
-      'Standard made-to-order production usually takes 3-5 business days.',
-      'For a specific event date or priority production, contact us in advance so we can discuss the best timing.',
-    ],
-  },
-  {
-    block_key: 'shipping_delivery',
-    heading: 'Shipping & delivery',
-    lines: [
-      'Worldwide tracked shipping.',
-      'Standard UPS: 10-14 business days.',
-      'DHL Express: 6-9 business days.',
-    ],
-  },
-  {
-    block_key: 'material',
-    heading: 'Material',
-    lines: [
-      'Product-specific materials and finishes are described in the main product text and selected configuration.',
-      'Glossy leather and mirror-finish pieces are designed to keep a sculptural silhouette while remaining comfortable against the body.',
-    ],
-  },
-  {
-    block_key: 'care',
-    heading: 'Care',
-    lines: [
-      'Clean gently by hand with alcohol wipes or a mild cleaning product. Machine washing is not recommended.',
-      'Store carefully, preferably on a hanger, and avoid tight folding or long-term heavy pressure so the piece keeps its shape.',
-    ],
-  },
-  {
-    block_key: 'returns_exchanges',
-    heading: 'Returns & exchanges',
-    lines: [
-      'Return, exchange and cancellation details are available in the store policy linked from this page.',
-    ],
-  },
-  {
-    block_key: 'customization',
-    heading: 'Made to order & customization',
-    lines: [
-      'Need a different color, length, coverage or fit? Add a note to your order or contact us before production.',
-      'We can adapt selected details or combine elements from existing designs while keeping the result within our studio visual language.',
-    ],
-  },
+  rightPanelBlock('sizing_fit', 'Sizing & fit', [
+    'Use the size chart in the product photos to choose your standard size.',
+    'Most pieces adjust with straps. For individual measurements or a special fit request, leave a note with your order or contact us before production.',
+  ]),
+  rightPanelBlock('production_timing', 'Production time', [
+    'Standard made-to-order production usually takes 3-5 business days.',
+    'For a specific event date or priority production, contact us in advance so we can discuss the best timing.',
+  ]),
+  rightPanelBlock('shipping_delivery', 'Shipping & delivery', [
+    'Worldwide tracked shipping.',
+    'Standard UPS: 10-14 business days.',
+    'DHL Express: 6-9 business days.',
+  ]),
+  rightPanelBlock('material', 'Material', [
+    'Product-specific materials and finishes are described in the main product text and selected configuration.',
+    'Glossy leather and mirror-finish pieces are designed to keep a sculptural silhouette while remaining comfortable against the body.',
+  ]),
+  rightPanelBlock('care', 'Care', [
+    'Clean gently by hand with alcohol wipes or a mild cleaning product. Machine washing is not recommended.',
+    'Store carefully, preferably on a hanger, and avoid tight folding or long-term heavy pressure so the piece keeps its shape.',
+  ]),
+  rightPanelBlock('returns_exchanges', 'Returns & exchanges', [
+    'Return, exchange and cancellation details are available in the store policy linked from this page.',
+  ]),
+  rightPanelBlock('customization', 'Made to order & customization', [
+    'Need a different color, length, coverage or fit? Add a note to your order or contact us before production.',
+    'We can adapt selected details or combine elements from existing designs while keeping the result within our studio visual language.',
+  ]),
 ] as const;
 
 export const THEFEYA_SEO_DOCTRINE = {
   version: THEFEYA_SEO_DOCTRINE_VERSION,
-  purpose:
-    'Evidence-first SEO content intelligence for TheFEYA product pages before first indexation. This is not a simple description generator.',
+  purpose: 'Evidence-first SEO content intelligence for TheFEYA product pages before first indexation. This is not a simple description generator.',
   operating_principles: [
     'Product Truth, visual truth, validated keyword metrics, portfolio differentiation, human review and QA gates outrank fast generation.',
     'Generated copy must map into the existing PDP layout instead of creating a separate content world.',
@@ -109,7 +85,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Do not place TheFEYA in seo_title, H1 or meta_description by default. Across intro and all generated left-description blocks combined, use the brand name no more than once.',
     'The Russian concept авторский дизайн should be expressed in natural English as a studio-created design based on an original in-house concept, a signature studio design or a design created in our studio. Do not rely on the vague phrase original design by itself.',
     'The opening must sell product identity and buyer benefit first: silhouette, use case, visual confidence and supported product properties.',
-    'Do not start customer-facing copy as an image audit, inventory note or source-data disclaimer. Avoid openings like: The image shows, The listed materials, The product description says, The source lists, Product Truth confirms or The safest wording is.',
+    'Do not start customer-facing copy as an image audit, inventory note or source-data disclaimer. Avoid openings like The image shows, The listed materials, The product description says, The source lists, Product Truth confirms or The safest wording is.',
     'Never write customer copy as if reporting database fields to an analyst. Never mention official product data, verification before publication, review status, source rows or internal uncertainty in buyer-facing text.',
     'Keep copy commercial but calm: attractive, specific and human, without generic AI sales language or empty pseudo-benefits.',
     'Avoid filler words and weak catalog phrases: Edition, Ultimate, Best, Perfect, Luxury, Premium, Elevate, Crafted to perfection and Perfect for any occasion.',
@@ -144,9 +120,9 @@ export const THEFEYA_SEO_DOCTRINE = {
       intent: 'Use-case bullets based on approved DNA, validated keywords and visual truth: Burning Man, festival, stage, photoshoot, performer, DJ, dancer or editorial looks when supported. Do not invent unrelated audiences.',
     },
     {
-      block_key: 'designed_for_self_expression',
+      block_key: 'main_description',
       placement: 'left_description',
-      intent: 'Finish with a concise conversion paragraph about self-expression, a memorable visual identity and the studio-created nature of the design. Mention supported customization only briefly because operational customization details live in the canonical right panel. Do not guarantee admiration, popularity or audience reactions.',
+      intent: 'Finish with a concise conversion paragraph headed Designed for self-expression. Connect the product to individuality, a memorable visual identity and the studio-created concept. Mention supported customization only briefly because operational details live in the canonical right panel. Do not guarantee admiration, popularity or audience reactions.',
     },
     {
       block_key: 'related_collections',
@@ -234,9 +210,7 @@ export function buildThefeyaSeoDoctrineUserLines() {
     'Use these buyer-facing facts when relevant, without inventing new promises:',
     ...THEFEYA_SEO_DOCTRINE.buyer_facts,
     'Required generated PDP block plan:',
-    ...THEFEYA_SEO_DOCTRINE.pdp_block_plan.map(
-      (block) => `${block.block_key} (${block.placement}): ${block.intent}`,
-    ),
+    ...THEFEYA_SEO_DOCTRINE.pdp_block_plan.map((block) => `${block.block_key} (${block.placement}): ${block.intent}`),
     'Right panel policy:',
     ...THEFEYA_SEO_DOCTRINE.right_panel_policy,
     `Research checkpoint: ${THEFEYA_RESEARCH_RELOAD_CHECKPOINT.agent_note_en}`,
