@@ -2,10 +2,12 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServiceClient } from '@/lib/supabase';
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
+import { STOREFRONT_V4_BASE_CARD_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 
 export const dynamic = 'force-dynamic';
 
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
+const LATEST_DRAFT_VIEW = 'feya_commerce_v_seo_pack_drafts_latest_v1';
 const DECISION_SELECT = [
   'canonical_product_id',
   'matched_etsy_listing_id',
@@ -15,9 +17,21 @@ const DECISION_SELECT = [
   'updated_at',
   'created_at',
 ].join(',');
+const LATEST_DRAFT_SELECT = [
+  'id',
+  'canonical_product_id',
+  'matched_etsy_listing_id',
+  'product_slug',
+  'status',
+  'review_status',
+  'updated_at',
+  'created_at',
+].join(',');
 
-export async function GET() {
+export async function GET(request: Request) {
+  const productId = new URL(request.url).searchParams.get('product_id')?.trim() || '';
   const supabase = getSupabaseServiceClient();
+
   if (!supabase) {
     return NextResponse.json({
       ok: false,
@@ -26,64 +40,77 @@ export async function GET() {
     }, { status: 503 });
   }
 
-  const result = await supabase
-    .from(DECISIONS_TABLE)
-    .select(DECISION_SELECT)
-    .limit(2000);
+  if (productId) return loadCandidateDetail(productId);
 
-  if (result.error) {
+  const [decisionResult, catalogResult, draftResult] = await Promise.all([
+    supabase.from(DECISIONS_TABLE).select(DECISION_SELECT).limit(2000),
+    supabase.from(STOREFRONT_VIEW_V4).select(STOREFRONT_V4_BASE_CARD_SELECT).limit(1000),
+    supabase.from(LATEST_DRAFT_VIEW).select(LATEST_DRAFT_SELECT).limit(2000),
+  ]);
+
+  if (decisionResult.error) {
     return NextResponse.json({
       ok: false,
       status: 'decision_read_failed',
-      error: result.error.message,
+      error: decisionResult.error.message,
     }, { status: 500 });
   }
 
-  const latestByProduct = new Map();
-  [...(result.data || [])]
-    .sort((a, b) => timestamp(b) - timestamp(a))
-    .forEach((row) => {
-      const id = String(row.canonical_product_id || '').trim();
-      if (id && !latestByProduct.has(id)) latestByProduct.set(id, row);
-    });
-
-  const decisionsWithKeywords = [...latestByProduct.values()]
-    .filter((row) => Array.isArray(row.selected_keywords_json) && row.selected_keywords_json.length > 0)
-    .slice(0, 120);
-
-  const candidates = [];
-  for (const chunk of chunks(decisionsWithKeywords, 8)) {
-    const rows = await Promise.all(chunk.map(async (decision) => {
-      const productId = String(decision.canonical_product_id || '').trim();
-      const bundle = await buildSeoBriefContractBundle(productId);
-      return summarizeCandidate(bundle, decision);
-    }));
-    candidates.push(...rows);
+  if (catalogResult.error) {
+    return NextResponse.json({
+      ok: false,
+      status: 'catalog_read_failed',
+      error: catalogResult.error.message,
+    }, { status: 500 });
   }
 
-  candidates.sort((a, b) => {
-    if (a.ready_for_openai !== b.ready_for_openai) return a.ready_for_openai ? -1 : 1;
-    if (a.hard_blockers.length !== b.hard_blockers.length) return a.hard_blockers.length - b.hard_blockers.length;
-    if (a.validated_metric_count !== b.validated_metric_count) return b.validated_metric_count - a.validated_metric_count;
-    return b.useful_keyword_count - a.useful_keyword_count;
+  const latestDecisionByProduct = latestRowsByProduct(decisionResult.data || []);
+  const latestDraftByProduct = latestRowsByProduct(draftResult.data || []);
+  const catalogByProduct = new Map();
+
+  (catalogResult.data || []).forEach((row) => {
+    const id = clean(row?.canonical_product_id);
+    if (id) catalogByProduct.set(id, row);
   });
 
+  const allIds = new Set([
+    ...catalogByProduct.keys(),
+    ...latestDecisionByProduct.keys(),
+    ...latestDraftByProduct.keys(),
+  ]);
+
+  const candidates = [...allIds]
+    .map((id) => summarizeCatalogCandidate(
+      id,
+      catalogByProduct.get(id) || null,
+      latestDecisionByProduct.get(id) || null,
+      latestDraftByProduct.get(id) || null,
+    ))
+    .sort(compareCandidates);
+
   const ready = candidates.filter((item) => item.ready_for_openai);
+  const blocked = candidates.filter((item) => !item.ready_for_openai);
+  const withSavedDraft = candidates.filter((item) => item.has_saved_draft);
 
   return NextResponse.json({
     ok: true,
-    status: ready.length ? 'ready_candidate_found' : 'no_ready_candidate_found',
+    status: ready.length ? 'catalog_ready' : 'catalog_loaded_without_ready_candidate',
     read_only: true,
     totals: {
-      decision_rows: (result.data || []).length,
-      distinct_products_with_decisions: latestByProduct.size,
-      products_with_selected_keywords: decisionsWithKeywords.length,
-      candidates_checked: candidates.length,
+      catalog_rows: (catalogResult.data || []).length,
+      decision_rows: (decisionResult.data || []).length,
+      distinct_products_with_decisions: latestDecisionByProduct.size,
+      candidates: candidates.length,
       ready_for_openai: ready.length,
+      blocked: blocked.length,
+      with_saved_draft: withSavedDraft.length,
     },
-    best_candidate: ready[0] || candidates[0] || null,
-    ready_candidates: ready.slice(0, 10),
-    nearest_candidates: candidates.slice(0, 20),
+    best_candidate: ready.find((item) => !item.has_saved_draft) || ready[0] || candidates[0] || null,
+    candidates,
+    // Backward-compatible fields for older deployed clients during the rollout.
+    ready_candidates: ready.slice(0, 40),
+    nearest_candidates: blocked.slice(0, 80),
+    warnings: draftResult.error ? [`latest_draft_read_failed: ${draftResult.error.message}`] : [],
     guardrails: [
       'Read-only SELECT operations only.',
       'No OpenAI call.',
@@ -92,6 +119,79 @@ export async function GET() {
       'Trusted keyword metric provenance remains mandatory.',
     ],
   });
+}
+
+async function loadCandidateDetail(productId: string) {
+  const bundle = await buildSeoBriefContractBundle(productId);
+  const candidate = summarizeCandidate(bundle, bundle?.decision || null);
+
+  if (!candidate?.canonical_product_id) {
+    return NextResponse.json({
+      ok: false,
+      status: 'candidate_not_found',
+      error: bundle?.error || 'The selected product could not be resolved.',
+      product_id: productId,
+      read_only: true,
+    }, { status: 404 });
+  }
+
+  return NextResponse.json({
+    ok: true,
+    status: 'candidate_detail_ready',
+    read_only: true,
+    candidate,
+    guardrails: [
+      'No OpenAI call.',
+      'No Supabase write.',
+      'No draft save or publish.',
+    ],
+  });
+}
+
+function summarizeCatalogCandidate(id, product, decision, latestDraft) {
+  const selectedKeywords = Array.isArray(decision?.selected_keywords_json)
+    ? decision.selected_keywords_json.filter((item) => clean(item?.keyword || item?.keyword_norm))
+    : [];
+  const validatedMetricCount = selectedKeywords.filter(hasTrustedMetricSnapshot).length;
+  const hardBlockers = [];
+
+  if (!product) hardBlockers.push('missing_storefront_catalog_product');
+  if (!clean(product?.card_title || product?.h1)) hardBlockers.push('missing_product_title');
+  if (!clean(product?.product_slug || decision?.product_slug || latestDraft?.product_slug)) hardBlockers.push('missing_product_slug');
+  if (!selectedKeywords.length) hardBlockers.push('missing_primary_or_secondary_keyword');
+  if (validatedMetricCount < 1) hardBlockers.push('missing_validated_keyword_metric');
+  if (clean(decision?.decision_status).toLowerCase() === 'blocked_by_product_mismatch') {
+    hardBlockers.push('draft_status_blocked_by_product_mismatch');
+  }
+  if (clean(latestDraft?.status).toLowerCase() === 'blocked_by_product_mismatch') {
+    hardBlockers.push('latest_draft_blocked_by_product_mismatch');
+  }
+
+  return {
+    canonical_product_id: id,
+    matched_etsy_listing_id: product?.matched_etsy_listing_id || decision?.matched_etsy_listing_id || latestDraft?.matched_etsy_listing_id || null,
+    product_slug: product?.product_slug || decision?.product_slug || latestDraft?.product_slug || null,
+    product_title: product?.card_title || product?.h1 || product?.product_slug || id,
+    primary_image_url: product?.primary_image_url || null,
+    primary_image_alt: product?.primary_image_alt || product?.card_title || null,
+    product_type: product?.product_type || null,
+    material: product?.material || null,
+    color: product?.color || null,
+    decision_status: decision?.decision_status || null,
+    selected_keyword_count: selectedKeywords.length,
+    useful_keyword_count: selectedKeywords.length,
+    validated_metric_count: validatedMetricCount,
+    latest_draft_id: latestDraft?.id || null,
+    latest_draft_status: latestDraft?.status || null,
+    latest_review_status: latestDraft?.review_status || null,
+    latest_draft_at: latestDraft?.updated_at || latestDraft?.created_at || null,
+    has_saved_draft: Boolean(latestDraft?.id),
+    hard_blockers: unique(hardBlockers),
+    section_blockers: [],
+    generation_mode: hardBlockers.length ? 'BLOCKED' : 'READY_CHECK',
+    ready_for_openai: hardBlockers.length === 0,
+    updated_at: decision?.updated_at || decision?.created_at || latestDraft?.updated_at || latestDraft?.created_at || null,
+  };
 }
 
 function summarizeCandidate(bundle, decision) {
@@ -136,13 +236,21 @@ function summarizeCandidate(bundle, decision) {
     matched_etsy_listing_id: draft?.matched_etsy_listing_id || decision?.matched_etsy_listing_id || null,
     product_slug: truth.slug || decision?.product_slug || null,
     product_title: truth.title || null,
+    primary_image_url: truth.primary_image_url || null,
+    primary_image_alt: truth.primary_image_alt || truth.title || null,
     decision_status: decision?.decision_status || null,
     seo_pack_status: draft?.status || null,
     product_truth_source: truth.product_truth_source || bundle?.productTruthSource || null,
     useful_keyword_count: usefulKeywords.length,
+    selected_keyword_count: Array.isArray(decision?.selected_keywords_json) ? decision.selected_keywords_json.length : usefulKeywords.length,
     validated_metric_count: validatedCount,
     primary_keywords: primary.slice(0, 5).map(keywordSummary),
     secondary_keywords: secondary.slice(0, 5).map(keywordSummary),
+    latest_draft_id: bundle?.latestSavedDraftContext?.id || null,
+    latest_draft_status: bundle?.latestSavedDraftContext?.status || null,
+    latest_review_status: bundle?.latestSavedDraftContext?.review_status || null,
+    latest_draft_at: bundle?.latestSavedDraftContext?.updated_at || bundle?.latestSavedDraftContext?.created_at || null,
+    has_saved_draft: Boolean(bundle?.latestSavedDraftContext?.id),
     hard_blockers: unique(hardBlockers),
     section_blockers: unique(sectionBlockers),
     generation_mode: hardBlockers.length
@@ -157,6 +265,14 @@ function summarizeCandidate(bundle, decision) {
   };
 }
 
+function compareCandidates(a, b) {
+  if (a.ready_for_openai !== b.ready_for_openai) return a.ready_for_openai ? -1 : 1;
+  if (a.has_saved_draft !== b.has_saved_draft) return a.has_saved_draft ? 1 : -1;
+  if (a.hard_blockers.length !== b.hard_blockers.length) return a.hard_blockers.length - b.hard_blockers.length;
+  if (a.validated_metric_count !== b.validated_metric_count) return b.validated_metric_count - a.validated_metric_count;
+  return String(a.product_title || '').localeCompare(String(b.product_title || ''));
+}
+
 function keywordSummary(item) {
   return {
     keyword: item?.keyword || item?.keyword_norm || null,
@@ -167,14 +283,58 @@ function keywordSummary(item) {
   };
 }
 
+function latestRowsByProduct(rows) {
+  const map = new Map();
+  [...(rows || [])]
+    .sort((a, b) => timestamp(b) - timestamp(a))
+    .forEach((row) => {
+      const id = clean(row?.canonical_product_id);
+      if (id && !map.has(id)) map.set(id, row);
+    });
+  return map;
+}
+
+function hasTrustedMetricSnapshot(row) {
+  const volume = toPositiveNumber(row?.avg_monthly_searches);
+  const competition = normalizeToken(row?.competition);
+  const source = normalizeToken(metricSource(row));
+  const freshness = normalizeToken(metricFreshness(row));
+
+  if (!volume || !competition || competition === 'unknown') return false;
+  if (freshness === 'api not connected' || freshness === 'api_not_connected') return false;
+
+  const freshManualCsv = source === 'google ads csv' && freshness === 'fresh manual import';
+  const freshGoogleAdsApi = ['google ads api', 'google ads keyword planner'].includes(source)
+    && ['fresh api', 'api connected', 'validated'].includes(freshness);
+  const approvedManualImport = ['manual keyword planner import', 'keyword planner csv'].includes(source)
+    && ['fresh manual import', 'validated'].includes(freshness);
+
+  return freshManualCsv || freshGoogleAdsApi || approvedManualImport;
+}
+
+function metricSource(row) {
+  return row?.metric_source || row?.source_api || row?.validation_source || row?.source || '';
+}
+
+function metricFreshness(row) {
+  return row?.data_freshness_status || row?.metric_freshness_status || row?.freshness_status || '';
+}
+
+function normalizeToken(value) {
+  return String(value || '').trim().toLowerCase().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ');
+}
+
+function toPositiveNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : null;
+}
+
 function timestamp(row) {
   return new Date(row?.updated_at || row?.created_at || 0).getTime();
 }
 
-function chunks(values, size) {
-  const result = [];
-  for (let index = 0; index < values.length; index += size) result.push(values.slice(index, index + size));
-  return result;
+function clean(value) {
+  return String(value || '').trim();
 }
 
 function unique(values) {
