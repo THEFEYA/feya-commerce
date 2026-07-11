@@ -116,7 +116,7 @@ export async function POST(request: Request) {
   let repairCommercial = null;
   let repairUsed = false;
 
-  if (firstGeneration.ok && firstGeneration.output && (!firstStructural.ok || !firstCommercial.ok)) {
+  if (firstGeneration.ok && firstGeneration.output && shouldRunHumanizerRepair(firstStructural, firstCommercial)) {
     const repairPrompt = buildHumanizerRepairPrompt(
       promptContract,
       firstGeneration.output,
@@ -136,7 +136,7 @@ export async function POST(request: Request) {
   }
 
   const shared = buildSharedPayload(bundle, readiness, promptContract, primaryImageUrl);
-  const finalDraft = selectedGeneration.output ? sanitizePartialOutput(selectedGeneration.output, readiness) : null;
+  const finalDraft = selectedGeneration.output ? sanitizeOutputForReadiness(selectedGeneration.output, readiness) : null;
   const finalOk = Boolean(selectedGeneration.ok && selectedStructural.ok && selectedCommercial.ok);
 
   const attemptSummary = {
@@ -175,9 +175,13 @@ export async function POST(request: Request) {
     }, { status: selectedGeneration.ok ? 422 : 502 });
   }
 
+  const status = readiness.mode === 'READY_FULL'
+    ? repairUsed ? 'ai_full_draft_repaired_not_saved' : 'ai_full_draft_generated_not_saved'
+    : repairUsed ? 'ai_partial_draft_repaired_not_saved' : 'ai_partial_draft_generated_not_saved';
+
   return NextResponse.json({
     ok: true,
-    status: repairUsed ? 'ai_partial_draft_repaired_not_saved' : 'ai_partial_draft_generated_not_saved',
+    status,
     blocked: false,
     mode: 'openai_draft_only_not_saved',
     message: repairUsed
@@ -194,6 +198,7 @@ export async function POST(request: Request) {
 
 function classifyReadiness(draft) {
   const hardBlockers = [];
+  const sectionBlockers = [];
   const truth = draft?.product_truth || {};
   const usefulKeywords = [
     ...(draft?.keyword_roles?.primary || []),
@@ -212,36 +217,74 @@ function classifyReadiness(draft) {
   if (draft?.qa_checks?.forbidden_mismatch === 'blocker') hardBlockers.push('qa_blocker_forbidden_mismatch');
   if (draft?.qa_checks?.product_specificity === 'blocker') hardBlockers.push('qa_blocker_product_specificity');
 
-  const sectionBlockers = [
-    'composition_missing_canonical_product_truth',
-    'composition_missing_confirmed_components',
-    'composition_has_unresolved_facts',
-    'composition_has_review_blockers',
-  ];
+  const hasCanonicalTruth = truth.product_truth_source === 'seo_product_truth_v1';
+  const hasConfirmedComposition = Boolean(
+    (truth.included_components || []).length
+    || (truth.known_components || []).length
+    || (truth.optional_configurations || []).length,
+  );
+  const hasUnresolvedFacts = Boolean((truth.unresolved_component_facts || []).length);
+  const hasReviewBlockers = Boolean((truth.component_review_blockers || []).length);
+  const hasSourceConfigurationEvidence = Boolean(
+    (truth.source_variations || []).length
+    || (truth.option_price_rows || []).length
+    || String(truth.source_description_fragment || '').trim(),
+  );
+
+  if (!hasCanonicalTruth) sectionBlockers.push('composition_missing_canonical_product_truth');
+  if (!hasConfirmedComposition) sectionBlockers.push('composition_missing_confirmed_components');
+  if (hasUnresolvedFacts) sectionBlockers.push('composition_has_unresolved_facts');
+  if (hasReviewBlockers) sectionBlockers.push('composition_has_review_blockers');
+  if (!hasSourceConfigurationEvidence) sectionBlockers.push('composition_missing_source_configuration_evidence');
+
+  const compositionReady = hasCanonicalTruth
+    && hasConfirmedComposition
+    && !hasUnresolvedFacts
+    && !hasReviewBlockers
+    && hasSourceConfigurationEvidence;
 
   return {
-    mode: hardBlockers.length ? 'BLOCKED' : 'READY_PARTIAL',
+    mode: hardBlockers.length ? 'BLOCKED' : compositionReady ? 'READY_FULL' : 'READY_PARTIAL',
     hard_blockers: unique(hardBlockers),
     section_blockers: unique(sectionBlockers),
     allowed_customer_sections: hardBlockers.length ? [] : GENERATED_SECTIONS,
     suppressed_customer_sections: hardBlockers.length
       ? [...GENERATED_SECTIONS, 'right_panel_whats_included']
-      : ['right_panel_whats_included'],
+      : compositionReady ? [] : ['right_panel_whats_included'],
+    component_truth: {
+      canonical: hasCanonicalTruth,
+      confirmed_composition_count: Number((truth.included_components || []).length) + Number((truth.optional_configurations || []).length),
+      unresolved_fact_count: Number((truth.unresolved_component_facts || []).length),
+      review_blocker_count: Number((truth.component_review_blockers || []).length),
+      source_variation_count: Number((truth.source_variations || []).length),
+      option_price_row_count: Number((truth.option_price_rows || []).length),
+    },
   };
 }
 
 function applyReadinessToPromptContract(promptContract, readiness) {
+  const compositionRules = readiness.mode === 'READY_FULL'
+    ? [
+      '- Canonical Product Truth and selectable composition evidence are available.',
+      '- The storefront renders confirmed selected-configuration contents. Do not generate a separate What’s Included block.',
+      '- You may use confirmed component identity naturally where relevant, but do not merge alternative configurations into one purchase.',
+    ]
+    : [
+      '- Composition remains partial or unresolved.',
+      '- Do not state which pieces are included, do not reinterpret raw option labels, and do not mention prices.',
+      '- Do not generate a What’s Included placeholder. The storefront hides that block until composition mapping is confirmed.',
+      '- Set output status to needs_review.',
+    ];
+
   const appendix = [
     '',
     'GENERATION READINESS CONTRACT:',
-    '- generation_mode: READY_PARTIAL',
-    `- allowed_customer_sections: ${readiness.allowed_customer_sections.join(', ')}`,
-    '- suppressed_customer_sections: right_panel_whats_included',
-    `- section_blockers: ${readiness.section_blockers.join(', ')}`,
+    `- generation_mode: ${readiness.mode}`,
+    `- allowed_customer_sections: ${readiness.allowed_customer_sections.join(', ') || 'none'}`,
+    `- suppressed_customer_sections: ${readiness.suppressed_customer_sections.join(', ') || 'none'}`,
+    `- section_blockers: ${readiness.section_blockers.join(', ') || 'none'}`,
     '- Generate a useful review draft for every allowed customer section.',
-    '- Set output status to needs_review.',
-    '- Do not state which pieces are included, do not reinterpret raw option labels, and do not mention prices.',
-    '- Do not generate a What’s Included placeholder. The shared storefront panel hides that block until composition mapping is confirmed.',
+    ...compositionRules,
     '- All generated customer-facing sections must be polished, product-first, natural English, and grounded in product identity, image truth, and validated keyword evidence.',
     '- Give each left-description block a distinct job. Do not repeat the same sentence, benefit, image observation, or studio-authorship idea across several blocks.',
   ].join('\n');
@@ -286,6 +329,14 @@ function buildHumanizerRepairPrompt(promptContract, currentOutput, structuralIss
   };
 }
 
+function shouldRunHumanizerRepair(structural, commercial) {
+  if (!structural?.ok || !commercial?.ok) return true;
+  return (commercial?.issues || []).some((issue) => (
+    String(issue.code || '').startsWith('repeated_idea_')
+    || ['cross_block_repetition_warning', 'self_expression_close_lacks_clear_buyer_value'].includes(String(issue.code || ''))
+  ));
+}
+
 function candidateScore(structural, commercial) {
   const issues = [
     ...(structural?.issues || []),
@@ -294,20 +345,23 @@ function candidateScore(structural, commercial) {
   return issues.reduce((score, issue) => score + (issue.severity === 'blocker' ? 100 : 1), 0);
 }
 
-function sanitizePartialOutput(output, readiness) {
+function sanitizeOutputForReadiness(output, readiness) {
   const safe = JSON.parse(JSON.stringify(output || {}));
-  safe.status = 'needs_review';
+  if (readiness.mode === 'READY_PARTIAL') safe.status = 'needs_review';
   safe.generation_notes = unique([
     ...(Array.isArray(safe.generation_notes) ? safe.generation_notes : []),
-    'The shared What’s Included panel remains hidden because product composition is not fully confirmed.',
+    ...(readiness.mode === 'READY_PARTIAL'
+      ? ['The storefront What’s Included panel remains hidden because product composition is not fully confirmed.']
+      : ['Canonical Product Truth is available; selected-configuration contents remain storefront-controlled.']),
     ...readiness.section_blockers,
   ]);
-  safe.suppressed_sections = ['right_panel_whats_included'];
-  safe.generation_readiness = 'READY_PARTIAL';
+  safe.suppressed_sections = readiness.suppressed_customer_sections;
+  safe.generation_readiness = readiness.mode;
   return safe;
 }
 
 function buildSharedPayload(bundle, readiness, promptContract, primaryImageUrl) {
+  const compositionReady = readiness.mode === 'READY_FULL';
   return {
     source: {
       product_id: bundle.seoPackDraft.canonical_product_id,
@@ -324,14 +378,18 @@ function buildSharedPayload(bundle, readiness, promptContract, primaryImageUrl) 
     prompt_contract_summary: {
       ...summarizeSeoAgentPromptContract(promptContract),
       readiness_mode: readiness.mode,
-      product_truth_mode: 'partial_composition_hidden_in_shared_pdp_panel',
+      product_truth_mode: compositionReady
+        ? 'canonical_composition_available_storefront_controlled'
+        : 'partial_composition_hidden_in_storefront_panel',
       humanizer_repair_attempts: 1,
     },
     guardrails: [
       'No Supabase write was performed.',
       'No Listing Master decision was created or updated.',
       'Only approved Keyword Bank rows with real metric provenance were used.',
-      'The shared What’s Included panel is hidden because composition remains unresolved.',
+      compositionReady
+        ? 'Canonical Product Truth is connected; the storefront controls selected-configuration contents.'
+        : 'The storefront What’s Included panel is hidden because composition remains unresolved.',
       'One Humanizer repair attempt may rewrite generated left copy but cannot change product facts or the right panel.',
       'No draft save or publish action is performed by this route.',
     ],
