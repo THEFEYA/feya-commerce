@@ -363,20 +363,29 @@ function ReviewAnchor({ average, count }: { average: number; count: number }) {
 }
 
 function ReviewsSection({ summary }: { summary: { average: number; count: number; items: ReviewItem[] } }) {
-  return <section id="reviews" className="container-feya py-10 border-t border-[rgba(216,214,211,0.12)]">
-    <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-      <div>
-        <div className="eyebrow-gold mb-3">Customer reviews</div>
-        <h2 className="display-section text-bone" style={{ fontSize: 'clamp(32px,4vw,54px)' }}>{summary.count ? `${summary.average.toFixed(1)} from ${summary.count} ${summary.count === 1 ? 'review' : 'reviews'}` : 'No reviews yet'}</h2>
+  if (!summary.count) {
+    return <section id="reviews" className="container-feya py-5 border-t border-[rgba(216,214,211,0.12)]">
+      <div className="flex items-center justify-between gap-4">
+        <div className="eyebrow-gold">Customer reviews</div>
+        <div className="text-[13px] text-[var(--bone-dim)]">No reviews yet.</div>
       </div>
-      <div className={`flex gap-1 ${summary.count ? 'text-[var(--gold-warm)]' : 'text-[var(--smoke)]'}`} aria-label={summary.count ? `${summary.average.toFixed(1)} out of 5 stars` : 'No rating yet'}><Stars value={summary.average} size={18} /></div>
+    </section>;
+  }
+
+  return <section id="reviews" className="container-feya py-8 border-t border-[rgba(216,214,211,0.12)]">
+    <div className="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <div className="eyebrow-gold mb-2">Customer reviews</div>
+        <div className="text-[17px] text-bone">{summary.average.toFixed(1)} from {summary.count} {summary.count === 1 ? 'review' : 'reviews'}</div>
+      </div>
+      <div className="flex gap-1 text-[var(--gold-warm)]" aria-label={`${summary.average.toFixed(1)} out of 5 stars`}><Stars value={summary.average} size={16} /></div>
     </div>
 
-    {summary.items.length ? <div className="mt-7 grid gap-4 lg:grid-cols-3">{summary.items.slice(0, 3).map((review) => <article key={review.id} className="rounded-xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.02)] p-5">
+    {summary.items.length ? <div className="mt-5 grid gap-4 lg:grid-cols-3">{summary.items.slice(0, 3).map((review) => <article key={review.id} className="rounded-xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.02)] p-5">
       <div className="flex items-start justify-between gap-4"><div><div className="text-bone text-[13px]">{review.author}</div><div className="mt-1 text-[10px] uppercase tracking-[.14em] text-[var(--smoke)]">{review.date}</div></div><div className="flex gap-0.5 text-[var(--gold-warm)]"><Stars value={review.rating} size={11} /></div></div>
       <p className="mt-4 text-[14px] leading-relaxed text-[var(--bone-dim)]">{review.body}</p>
       {review.images.length ? <div className="mt-4 flex gap-2">{review.images.slice(0, 3).map((image) => <img key={image} src={image} alt="Customer review" className="h-16 w-16 rounded-md object-cover border border-[rgba(216,214,211,.12)]" />)}</div> : null}
-    </article>)}</div> : <div className="mt-6 rounded-xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.018)] px-5 py-6 text-[14px] text-[var(--bone-dim)]">Be the first to share your experience with this piece.</div>}
+    </article>)}</div> : null}
   </section>;
 }
 
@@ -419,14 +428,12 @@ function rightPanelIcon(key: string) {
   if (key === 'shipping_delivery') return <Truck size={15} />;
   if (key === 'material') return <ShieldCheck size={15} />;
   if (key === 'care') return <Sparkles size={15} />;
-  if (key === 'returns_exchanges') return <RotateCcw size={15} />;
   if (key === 'customization') return <Scissors size={15} />;
   return <FileText size={15} />;
 }
 
 function rightPanelId(key: string) {
   if (key === 'shipping_delivery') return 'shipping';
-  if (key === 'returns_exchanges') return 'returns';
   if (key === 'customization') return 'policies';
   return undefined;
 }
