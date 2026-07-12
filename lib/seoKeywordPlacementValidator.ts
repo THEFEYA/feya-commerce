@@ -131,8 +131,14 @@ function placementRow(
 function phraseRepresented(keyword: string, value: string) {
   const tokens = contentTokens(keyword);
   if (!tokens.length) return false;
-  const fieldTokens = new Set(contentTokens(value));
-  return tokens.every((token) => fieldTokens.has(token));
+  const fieldTokens = contentTokens(value);
+  if (fieldTokens.length < tokens.length) return false;
+
+  // Allow normal inflection, but require one contiguous semantic phrase.
+  // Tokens scattered across unrelated PDP blocks are not a placement.
+  return fieldTokens.some((_, start) => (
+    tokens.every((token, offset) => fieldTokens[start + offset] === token)
+  ));
 }
 
 function contentTokens(value: string) {

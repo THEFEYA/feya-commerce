@@ -4,13 +4,12 @@ import type { SeoPilotBrief } from '@/lib/seoPilotDraft';
 export function buildMockSeoAgentOutput(input: SeoAgentInputContract, brief?: SeoPilotBrief | null): SeoAgentOutputContract {
   const primaryKeyword = firstKeyword(input.keyword_roles.primary) || firstKeyword(input.keyword_roles.secondary) || input.product.title;
   const secondaryKeywords = input.keyword_roles.secondary.map((item) => item.keyword).filter(Boolean).slice(0, 3);
-  const imageAltKeywords = input.keyword_roles.image_alt.map((item) => item.keyword).filter(Boolean).slice(0, 3);
   const productName = input.product.title || primaryKeyword;
   const material = input.product.material || focusText(input.manual_focus.material) || 'statement finish';
   const color = input.product.color || 'statement';
   const context = input.product.world || focusText(input.manual_focus.event) || 'festival and stage styling';
   const briefPreview = brief?.draftPreview || null;
-  const altBase = imageAltKeywords[0] || input.product.primary_image_alt || `${color} ${productName}`;
+  const altBase = input.product.primary_image_alt || `Product view of ${productName}`;
 
   return {
     contract_version: 'seo_agent_output_v1',
@@ -20,12 +19,12 @@ export function buildMockSeoAgentOutput(input: SeoAgentInputContract, brief?: Se
     meta_description: briefPreview?.metaDescription || buildMetaDescription(primaryKeyword, secondaryKeywords, color, context),
     intro: `A sculptural ${primaryKeyword} created for festival, stage and editorial styling. Its strong silhouette is designed to stay visually clear in motion, from a distance and on camera.`,
     bullet_highlights: [
-      'Studio-created from an original in-house design concept.',
+      'Layered studio construction gives the silhouette a distinct profile.',
       'A strong silhouette designed to read clearly on stage and on camera.',
       'Adjustable straps support a secure, comfortable fit.',
     ],
     faq: [],
-    image_alt_candidates: buildImageAltCandidates(briefPreview?.imageAltDirection, altBase, Boolean(input.product.primary_image_alt || imageAltKeywords.length)),
+    image_alt_candidates: buildImageAltCandidates(undefined, altBase, Boolean(input.product.primary_image_alt)),
     internal_linking_hints: buildInternalLinks(input, briefPreview?.internalLinkingHints),
     visual_truth: buildVisualTruth(input, color, material, context),
     pdp_blocks: buildPdpBlocks(input, productName, material, context),
@@ -80,8 +79,8 @@ function buildPassingQaReport(input: SeoAgentInputContract): SeoQaContract {
 
 function buildImageAltCandidates(directions: string[] | undefined, fallbackAlt: string, hasVisibleTruth: boolean): SeoAgentOutputContract['image_alt_candidates'] {
   const source = directions?.length ? directions : [sentenceCase(fallbackAlt)];
-  return source.slice(0, 5).map((item, index) => ({
-    image_role: index === 0 ? 'primary' : 'detail',
+  return source.slice(0, 1).map((item) => ({
+    image_role: 'primary',
     alt_text: cleanAltDirection(item),
     truth_basis: hasVisibleTruth ? 'visible_product_fact' : 'needs_image_review',
   }));
@@ -139,7 +138,7 @@ function buildPdpBlocks(input: SeoAgentInputContract, productName: string, mater
       placement: 'left_description',
       heading: "Why you'll love it",
       body: [
-        'Studio-created from an original in-house concept rather than a copied mass-market costume template.',
+        'Layered studio construction gives the silhouette a distinct profile.',
         'A strong sculptural silhouette designed to stay visible on stage and read clearly on camera.',
         'Adjustable straps support a secure and comfortable fit.',
       ].join('\n'),
@@ -162,7 +161,7 @@ function buildPdpBlocks(input: SeoAgentInputContract, productName: string, mater
       block_key: 'main_description',
       placement: 'left_description',
       heading: 'Designed for self-expression',
-      body: 'We are TheFEYA, a young independent team of designers and makers creating bold statement outfits from original in-house ideas and a distinctive visual language. We help performers, creators and festival guests express their individuality and build a recognizable visual identity for stage, camera and social content. A strong, memorable look can make photos and performances more shareable and can support greater organic attention, reactions, saves and comments. Our store offers a broad range of outfits for festivals, performances, photoshoots and other events, so you can choose a design that fits your style or bring us a new idea to explore together.',
+      body: `At TheFEYA, we use deliberate lines and sculptural forms to help you build a personal ${cleanContext(context).replace(/\.$/, '')} look with a recognizable profile. Each design decision is kept focused on the way the piece frames the body and supports your chosen visual direction.`,
       source_basis: 'brand_policy',
       needs_human_review: true,
     },

@@ -1,4 +1,4 @@
-export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v8' as const;
+export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v9' as const;
 
 export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
   checkpoint_id: 'reload_latest_research_before_apply_publish_v1',
@@ -15,9 +15,9 @@ export const THEFEYA_VARIATION_EDITING_CHECKPOINT = {
 } as const;
 
 export const THEFEYA_BRAND_VALUE_PILLARS = [
-  'Studio-created design based on an original in-house concept, not a copied mass-market costume template.',
+  'Studio authorship is useful only when it explains a concrete buyer value such as a distinctive silhouette, deliberate construction or a recognizable design language. Never use bare internal-process wording as a benefit.',
   'A strong stage and camera silhouette that supports a memorable visual identity for performers, creators and public-facing buyers.',
-  'Visual impact may be described as designed to stand out, photograph clearly, become more memorable and support greater shareability or organic attention. Never guarantee likes, followers, popularity, sales, press coverage or audience reactions.',
+  'Describe visual impact through observable product qualities and supported use cases. Do not mention algorithms, organic attention, reactions, saves, comments or social metrics in product copy.',
   'Adjustable straps, standard sizing and custom measurements are canonical studio facts for the fixed right PDP panel.',
   'Comfort, softness against the body, reinforcement, durability and shape retention may be described only when supported by actual material and construction evidence.',
   'Handmade and made-to-order value must explain studio craft, fit or purposeful construction. It must not repeat the same originality argument in different words.',
@@ -83,7 +83,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Describe the product first. The brand name must not become the main repeated keyword of a product page.',
     'Do not place TheFEYA in seo_title, H1 or meta_description. Across intro and all generated left-description blocks combined, use the brand name no more than once.',
     'Prefer the single permitted TheFEYA mention inside the final Designed for self-expression paragraph, where the studio speaks directly as we and our, never as they, their or a third-party narrator.',
-    'The Russian concept авторский дизайн should be expressed in natural English as a studio-created design based on an original in-house concept, a signature studio design or a design created in our studio. Do not rely on the vague phrase original design by itself.',
+    'Translate the idea of авторский дизайн into a concrete customer benefit rather than a literal internal-process phrase. Explain what is distinctive about the supported silhouette, construction or design language; omit the point when no product-specific value can be stated.',
     'The opening must sell product identity and buyer benefit first: silhouette, use case, visual confidence and supported product properties.',
     'Do not start customer-facing copy as an image audit, inventory note or source-data disclaimer. Avoid openings like The image shows, The listed materials, The product description says, The source lists, Product Truth confirms or The safest wording is.',
     'Never write customer copy as if reporting database fields to an analyst. Never mention official product data, verification before publication, review status, source rows or internal uncertainty in buyer-facing text.',
@@ -93,10 +93,10 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Main PDP copy must remain product-specific and concise. Required generated left-description order: About this piece, Why you’ll love it, Ideal for, Designed for self-expression.',
     'Why you’ll love it must contain 3-5 genuinely different purchase reasons. A design-authorship point and a handmade-not-mass-produced point count as the same idea and must not appear as separate duplicate bullets.',
     'Weak styling filler is not a benefit. Do not use works over minimal clothing, easy to build into a look, part of a complete look, creates a clear accent, works as a centerpiece or without additional design elements.',
-    'Material and finish claims must sound final and buyer-facing. When supported, explain vegan or faux leather, softness against the body, reinforcement, shape retention and a glossy mirror-like finish. Never describe the process of deciding which wording is safe.',
-    'Never promise that a buyer will receive likes, followers, popularity, viral reach, sales, press attention or guaranteed reactions. Safe language may say that a recognizable visual identity can make photos, performances and social content more memorable and shareable, supporting organic attention, reactions, saves and comments.',
-    'The final Designed for self-expression block is about our studio, our young independent design team, our original in-house ideas, our distinctive style, self-expression and how we help buyers build a memorable visual identity.',
-    'The same block may mention that our store offers a broad range of outfits for festivals, performances, photoshoots and other events, and that buyers can choose a design matching their style or discuss a new idea with us.',
+    'Material and finish claims must come from product-specific Product Truth or verified image truth. Vegan leather and faux leather are synonyms in customer copy and must never be stacked as two materials. Reflective or retroreflective is not a synonym for glossy, mirror-like, metallic or light-catching.',
+    'Never promise or discuss likes, followers, popularity, viral reach, organic attention, reactions, saves, comments, sales, press attention or other social-performance outcomes.',
+    'The final Designed for self-expression block is a short product-relevant studio close. Use first-person voice and connect one distinctive design choice to the buyer’s intended expression without repeating product facts or inserting a generic company biography.',
+    'Do not pad the close with the breadth of the store, a list of events, an invitation to discuss a new idea or claims about shareability. These are generic across the catalog and dilute product specificity.',
     'Do not place operational customization details such as changing color, size, length, fit or coverage inside Designed for self-expression. Those facts belong only in the fixed right panel.',
   ],
   length_rules: {
@@ -115,17 +115,17 @@ export const THEFEYA_SEO_DOCTRINE = {
     {
       block_key: 'why_youll_love_it',
       placement: 'left_description',
-      intent: 'Write 3-5 concise benefit bullets with genuinely different supported categories: studio-created concept, stage/camera presence, adjustable fit, body comfort, reinforced durability or shape retention, and reflective finish. Use no more than one design-or-handmade uniqueness bullet.',
+      intent: 'Write 3-5 concise benefit bullets with genuinely different, product-supported categories such as silhouette, use-case value, fit, comfort, durability, shape retention or verified finish. Use no more than one design-or-handmade uniqueness bullet. Reflective is allowed only when explicit Product Truth confirms reflective or retroreflective behavior.',
     },
     {
       block_key: 'ideal_for',
       placement: 'left_description',
-      intent: 'Use-case bullets based on approved DNA, validated keywords and visual truth: Burning Man, festival, stage, photoshoot, performer, DJ, dancer or editorial looks when supported. Do not invent unrelated audiences.',
+      intent: 'Use-case bullets based on approved DNA, validated keywords and visual truth. Each bullet must add a distinct use case; do not repeat photoshoot, stage or festival intent in alternate wording, and do not write tautologies such as buyers looking for this product.',
     },
     {
       block_key: 'main_description',
       placement: 'left_description',
-      intent: 'Heading must be Designed for self-expression. Speak directly in first person as TheFEYA: we, our studio, our team and our work. Explain that we are a young independent team of designers and makers creating bold outfits from original in-house ideas and a distinctive visual language. Show how we help buyers express individuality and build a recognizable visual identity for festivals, stage, camera and social content. You may say that a strong look can become more memorable and shareable and can support organic attention, reactions, saves and comments, without guaranteeing outcomes. Mention the breadth of our store across festivals, performances, photoshoots and other events, and invite the buyer to choose a design matching their style or discuss a new idea with us. Do not mention changing color, size, length, fit, coverage or other operational customization details here.',
+      intent: 'Heading must be Designed for self-expression. Use the single permitted TheFEYA mention and concise first-person studio voice. Connect one product-specific design choice to the buyer’s intended expression. Do not add a company biography, store-range paragraph, social-engagement claims, event list or generic invitation to discuss a new idea.',
     },
     {
       block_key: 'related_collections',
@@ -148,8 +148,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Standard shipping: 10-14 business days. Express shipping: 6-9 business days.',
     'Sizing: use the size chart. The studio’s pieces are easy to adjust with straps. Custom measurements or a special fit request can be left with the order or discussed before production.',
     'Customization is separate from generated product copy: color, size, detail, length, coverage and fit changes can be discussed in the fixed right panel while keeping the result within the studio style.',
-    'Material: durable vegan leather with a glossy mirror-like coating, comfortable against the body and supportive of the sculptural shape.',
-    'Care: stains and surface marks are easy to remove with alcohol wipes or mild cleaning products. Wipe by hand, avoid machine washing, tight folded storage and long-term heavy pressure.',
+    'Material, finish, comfort, durability and care are product-specific claims. Generate them only from Product Truth or verified image truth; fixed right-panel wording is not evidence for generated copy.',
     'Returns, exchanges and cancellations are available through the store-policy links under the purchase controls and are not duplicated in the quick right panel.',
     'Gift note or card can be mentioned only as an optional request, not as a main SEO angle.',
     'Included components come from approved configuration mapping and are rendered by the storefront right panel, not invented by the model.',
@@ -234,7 +233,7 @@ export function buildThefeyaSeoDoctrineGuardrails() {
     'Do not use the brand name as a repeated product keyword.',
     'Do not use weak styling filler or duplicate originality arguments as Why you’ll love it benefits.',
     'Designed for self-expression must use first-person studio voice and explain buyer self-expression, not third-person narration or repeated product specifications.',
-    'Do not guarantee popularity, likes, followers, viral reach, sales or audience reactions. Non-guaranteed language about memorability, shareability and organic attention is allowed.',
+    'Do not mention popularity, likes, followers, viral reach, organic attention, reactions, saves, comments, sales or audience outcomes, even as non-guaranteed possibilities.',
     'Do not use steampunk unless visual and product evidence clearly support it.',
   ];
 }

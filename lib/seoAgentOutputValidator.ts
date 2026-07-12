@@ -47,6 +47,9 @@ const WEAK_AVAILABILITY_PATTERN = /\b(if available|when available|where availabl
 const PSEUDO_BENEFIT_PATTERN = /\b(works? well as a focal piece|works? as a centerpiece|part of a complete look|over minimal clothing|pairs? with simple clothing|easy to build into (?:a|the) (?:look|outfit)|easy to style|creates? a clear accent|without additional (?:design )?elements|adds? an accent without)\b/i;
 const GUARANTEED_OUTCOME_PATTERN = /\b(guarantee(?:d|s)?|will get likes?|will receive likes?|will gain followers?|will make you popular|go viral|viral reach|everyone will notice|all eyes will be on you|guaranteed attention|guaranteed reactions?)\b/i;
 const CLICHE_PATTERN = /\b(elevate your look|step into|turn heads|make a statement|perfect for any occasion|crafted to perfection|must have|ultimate|best choice|luxury piece|premium quality)\b/i;
+const ROBOTIC_OR_TAUTOLOGICAL_PATTERN = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling)\b/i;
+const SOCIAL_METRICS_PATTERN = /\b(organic attention|reactions?, saves? (?:and|or) comments?|likes?, followers?|social (?:engagement|metrics?)|viral(?:ity| reach)?)\b/i;
+const REDUNDANT_MATERIAL_PATTERN = /\b(?:vegan leather\s+(?:and|or|\/)\s+faux leather|faux leather\s+(?:and|or|\/)\s+vegan leather)\b/i;
 const COMMERCIAL_ALT_PATTERN = /\b(buy|order|price|shop|for sale|shipping|delivery|discount|sale|online store)\b/i;
 const SELF_EXPRESSION_STUDIO_PATTERN = /\b(TheFEYA|young independent (?:team|studio)|team of designers|designers and makers|our studio|studio team|original in[- ]house ideas?|distinctive visual language|studio style)\b/i;
 const SELF_EXPRESSION_FIRST_PERSON_PATTERN = /\b(we|our|us)\b/i;
@@ -366,6 +369,15 @@ function checkCustomerStyle(value: unknown, field: string, issues: SeoAgentOutpu
   if (CLICHE_PATTERN.test(value)) {
     issues.push(warning(`${safeCode(field)}_ai_cliche`, `${field} contains a generic or overused sales phrase.`));
   }
+  if (ROBOTIC_OR_TAUTOLOGICAL_PATTERN.test(value)) {
+    issues.push(blocker(`${safeCode(field)}_robotic_or_tautological`, `${field} contains internal-process wording, a tautology, or a vague pseudo-benefit.`));
+  }
+  if (SOCIAL_METRICS_PATTERN.test(value)) {
+    issues.push(blocker(`${safeCode(field)}_social_metrics`, `${field} contains social-performance boilerplate instead of product value.`));
+  }
+  if (REDUNDANT_MATERIAL_PATTERN.test(value)) {
+    issues.push(blocker(`${safeCode(field)}_redundant_material`, `${field} presents vegan leather and faux leather as separate materials.`));
+  }
   if (LONG_DASH_PATTERN.test(value)) {
     issues.push(blocker(`${safeCode(field)}_long_dash`, `${field} contains an en dash or em dash; use normal sentence punctuation.`));
   }
@@ -395,6 +407,12 @@ function validateFaqQuality(value: unknown, issues: SeoAgentOutputValidationIssu
 
 function validateImageAltCandidates(value: unknown, issues: SeoAgentOutputValidationIssue[]) {
   if (!Array.isArray(value)) return;
+  if (value.length > 1) {
+    issues.push(blocker(
+      'image_alt_candidates_exceed_supplied_images',
+      'Only one primary image is supplied to this generation contract, so only one image-specific ALT candidate may be returned.',
+    ));
+  }
   const seen = new Set<string>();
 
   value.forEach((candidate, index) => {

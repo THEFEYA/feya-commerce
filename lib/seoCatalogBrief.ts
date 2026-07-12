@@ -1,5 +1,6 @@
 import { mainRegularPrice, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
+import { isImageOnlySeoBucket } from '@/lib/seoKeywordBucket';
 import type {
   SeoKeywordRoleGroup,
   SeoManualFocus,
@@ -14,7 +15,6 @@ import type {
 const COMMERCIAL_INTENT_PATTERN = /\b(buy|shop|shopping|order|online|price|cost|shipping|delivery|custom|made to order|where to buy|for sale|store|website)\b/i;
 const QUESTION_INTENT_PATTERN = /^(how|what|when|where|which|can|does|do|is|are|why)\b/i;
 const COLLECTION_BUCKET_PATTERN = /collection|landing|event|persona|style/i;
-const IMAGE_BUCKET_PATTERN = /image|alt/i;
 
 function normalize(value: unknown) {
   return String(value || '')
@@ -81,7 +81,9 @@ function containsExcludedIntent(keyword: SeoPilotKeyword, exclusions: string[]) 
 
 function initialRole(keyword: SeoPilotKeyword, exclusions: string[]): SeoPilotKeywordRole {
   const value = keywordText(keyword);
-  const bucket = normalize(`${keyword.bank_bucket || ''} ${keyword.page_type || ''}`);
+  const bankBucket = normalize(keyword.bank_bucket);
+  const pageType = normalize(keyword.page_type);
+  const bucket = `${bankBucket} ${pageType}`.trim();
   const rawRole = normalize((keyword as SeoPilotKeyword & Record<string, unknown>).role);
 
   if (containsExcludedIntent(keyword, exclusions)) return 'reject';
@@ -89,14 +91,18 @@ function initialRole(keyword: SeoPilotKeyword, exclusions: string[]): SeoPilotKe
   if (bucket.includes('faq')) return 'faq_commercial';
   if (COMMERCIAL_INTENT_PATTERN.test(value) || QUESTION_INTENT_PATTERN.test(value)) return 'faq_commercial';
   if (COLLECTION_BUCKET_PATTERN.test(bucket)) return 'collection';
-  if (IMAGE_BUCKET_PATTERN.test(bucket)) return 'image_alt';
+  // `product_or_alt` remains a product query. It may later be reused for a
+  // visually matching image, but `alt` in its bucket name must not demote it.
+  if (rawRole === 'primary') return 'primary';
+  if (rawRole === 'secondary') return 'secondary';
   if (rawRole === 'support' || rawRole === 'supporting') return 'support';
   if (rawRole === 'image alt' || rawRole === 'image_alt') return 'image_alt';
   if (rawRole === 'collection') return 'collection';
   if (rawRole === 'faq' || rawRole === 'faq commercial' || rawRole === 'faq_commercial') return 'faq_commercial';
   if (rawRole === 'reject') return 'reject';
   if (rawRole === 'hold') return 'hold';
-  return rawRole === 'primary' ? 'primary' : 'secondary';
+  if (isImageOnlySeoBucket(bankBucket) || isImageOnlySeoBucket(pageType)) return 'image_alt';
+  return 'secondary';
 }
 
 function assignCatalogRoles(keywords: SeoPilotKeyword[], manualFocus: SeoManualFocus) {

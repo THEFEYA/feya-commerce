@@ -58,3 +58,10 @@ test('allows singular and plural grammatical variation', () => {
   const result = validateSeoKeywordPlacement(value, contract('gold shoulder armor'));
   assert.equal(result.issues.some((issue) => issue.code === 'primary_missing_seo_title'), false);
 });
+
+test('does not count keyword tokens scattered across unrelated text as placement', () => {
+  const value = output();
+  value.seo_title = 'Gold Festival Piece with Sculptural Shoulder Details';
+  const result = validateSeoKeywordPlacement(value, contract('gold shoulder armor'));
+  assert.equal(result.issues.some((issue) => issue.code === 'primary_missing_seo_title'), true);
+});

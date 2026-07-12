@@ -15,10 +15,18 @@ export type SeoCommercialCopyValidation = {
   };
 };
 
+export type SeoCommercialCopyContext = {
+  product_truth?: unknown;
+};
+
 const WEAK_STYLING_FILLER = /\b(works? well as a focal piece|works? as a centerpiece|part of a complete look|over minimal clothing|pairs? with simple clothing|easy to build into (?:a|the) (?:look|outfit)|easy to style|can be a focal piece|works? with many looks|completes? the look|creates? a clear accent|without additional (?:design )?elements|adds? an accent without)\b/i;
 const AUDIT_OR_ADMIN_LANGUAGE = /\b(product truth|product truth confirms?|product truth indicates?|the product description (?:says|states|lists|mentions|indicates)|the source (?:says|states|lists|mentions|indicates)|official product data|source data|database fields?|safe wording|safest wording|material basis|final copy should|must be confirmed|should be confirmed|requires? verification|needs? verification|should be reviewed before publish|requires? review before publish|review before publish|before publication|before publish|listed as|is listed as|indicated as|specified as)\b/i;
 const GUARANTEED_POPULARITY = /\b(guarantee(?:d|s)?|will get likes?|will receive likes?|will gain followers?|will make you popular|go viral|viral reach|more followers?|gain followers?|more likes?|become popular|increase your popularity|guaranteed attention|everyone will notice|all eyes will be on you|guaranteed reactions?)\b/i;
 const EMPTY_HYPE = /\b(premium|luxury|ultimate|perfect|best|must[- ]have|crafted to perfection|elevate your look)\b/i;
+const EMPTY_OR_INTERNAL_BUYER_COPY = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling)\b/i;
+const SOCIAL_METRICS_BOILERPLATE = /\b(organic attention|reactions?, saves? (?:and|or) comments?|likes?, followers?|social (?:engagement|metrics?)|viral(?:ity| reach)?)\b/i;
+const REDUNDANT_FAUX_LEATHER = /\b(?:vegan leather\s+(?:and|or|\/)\s+faux leather|faux leather\s+(?:and|or|\/)\s+vegan leather)\b/i;
+const REFLECTIVE_CLAIM = /\b(?:reflective|retroreflective|retro-reflective)\b/i;
 const BRAND_PATTERN = /\bTheFEYA\b/gi;
 const DESIGN_BENEFIT_PATTERN = /\b(studio[- ]created|studio[- ]designed|designed in our studio|original in[- ]house concept|signature studio design|handmade|made[- ]to[- ]order|not mass[- ]produced|mass production|one[- ]of[- ]a[- ]kind|designer studio)\b/i;
 const SELF_EXPRESSION_PATTERN = /\b(self[- ]expression|individuality|visual identity|personal style|your own look|made for your vision|designed for your vision|studio visual language|adapt(?:ed|able)|customi[sz](?:e|ed|ation))\b/i;
@@ -87,7 +95,10 @@ const STOPWORDS = new Set([
   'piece', 'product', 'that', 'the', 'their', 'this', 'to', 'we', 'while', 'with', 'you', 'your', 'look', 'looks',
 ]);
 
-export function validateSeoCommercialCopy(draft: unknown): SeoCommercialCopyValidation {
+export function validateSeoCommercialCopy(
+  draft: unknown,
+  context: SeoCommercialCopyContext = {},
+): SeoCommercialCopyValidation {
   const issues: SeoCommercialCopyIssue[] = [];
   const record = isRecord(draft) ? draft : {};
   const blocks = Array.isArray(record.pdp_blocks) ? record.pdp_blocks.filter(isRecord) : [];
@@ -99,7 +110,13 @@ export function validateSeoCommercialCopy(draft: unknown): SeoCommercialCopyVali
     record.intro,
     ...leftBlocks.map((block) => block.heading),
     ...leftBlocks.map((block) => block.body),
+    ...(Array.isArray(record.bullet_highlights) ? record.bullet_highlights : []),
   ].filter((value): value is string => typeof value === 'string' && Boolean(value.trim())).join('\n');
+  const altText = (Array.isArray(record.image_alt_candidates) ? record.image_alt_candidates : [])
+    .filter(isRecord)
+    .map((candidate) => typeof candidate.alt_text === 'string' ? candidate.alt_text : '')
+    .filter(Boolean)
+    .join('\n');
 
   if (AUDIT_OR_ADMIN_LANGUAGE.test(customerText)) {
     issues.push(blocker(
@@ -112,6 +129,39 @@ export function validateSeoCommercialCopy(draft: unknown): SeoCommercialCopyVali
     issues.push(blocker(
       'customer_copy_guarantees_popularity_or_reactions',
       'Customer-facing copy must not guarantee likes, followers, popularity, viral reach, press, sales, or audience reactions.',
+    ));
+  }
+
+  if (EMPTY_OR_INTERNAL_BUYER_COPY.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_contains_robotic_or_tautological_value',
+      'Customer-facing copy contains an internal-process phrase, tautology, or vague pseudo-benefit that does not help a buyer decide.',
+    ));
+  }
+
+  if (SOCIAL_METRICS_BOILERPLATE.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_contains_social_metrics_boilerplate',
+      'Product copy must not discuss organic attention, reactions, saves, comments, followers, virality, or other social-performance metrics.',
+    ));
+  }
+
+  if (REDUNDANT_FAUX_LEATHER.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_stacks_vegan_and_faux_leather_synonyms',
+      'Vegan leather and faux leather are customer-facing synonyms here and must not be presented as two separate materials.',
+    ));
+  }
+
+  const productTruthText = flattenText(context.product_truth).join(' ');
+  if (
+    context.product_truth != null
+    && REFLECTIVE_CLAIM.test(`${customerText}\n${altText}`)
+    && !REFLECTIVE_CLAIM.test(productTruthText)
+  ) {
+    issues.push(blocker(
+      'unsupported_reflective_finish_claim',
+      'Reflective or retroreflective behavior is not confirmed by Product Truth. Glossy, mirror-like, metallic, and light-catching are different claims.',
     ));
   }
 
@@ -202,7 +252,7 @@ export function validateSeoCommercialCopy(draft: unknown): SeoCommercialCopyVali
         'The final paragraph should connect the product to self-expression, visual identity, studio authorship, or supported customization.',
       ));
     }
-    if (wordCount(closingBody) < 35) {
+    if (wordCount(closingBody) < 20) {
       issues.push(warning(
         'self_expression_close_too_thin',
         'The final conversion paragraph is too short to explain why the studio-created design matters to the buyer.',
@@ -213,7 +263,7 @@ export function validateSeoCommercialCopy(draft: unknown): SeoCommercialCopyVali
   const repetitionReport = buildRepetitionReport(record, leftBlocks);
   repetitionReport.repeated_idea_groups.forEach((item) => {
     if (item.blocks.length >= 3) {
-      issues.push(warning(
+      issues.push(blocker(
         `repeated_idea_${item.idea}`,
         `The idea “${item.idea.replaceAll('_', ' ')}” appears across ${item.blocks.join(', ')}. Keep the strongest version once and use the other blocks for different buyer value.`,
       ));
@@ -347,4 +397,13 @@ function warning(code: string, message: string): SeoCommercialCopyIssue {
 
 function isRecord(value: unknown): value is Record<string, any> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function flattenText(value: unknown): string[] {
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+    return [String(value)];
+  }
+  if (Array.isArray(value)) return value.flatMap(flattenText);
+  if (isRecord(value)) return Object.values(value).flatMap(flattenText);
+  return [];
 }

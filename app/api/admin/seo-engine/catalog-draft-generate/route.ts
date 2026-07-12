@@ -130,8 +130,8 @@ export async function POST(request: Request) {
     ? validateSeoAgentOutput(firstGeneration.output)
     : validateSeoAgentOutput(null);
   const firstCommercial = firstGeneration.output
-    ? validateSeoCommercialCopy(firstGeneration.output)
-    : validateSeoCommercialCopy(null);
+    ? validateSeoCommercialCopy(firstGeneration.output, { product_truth: bundle.seoPackDraft.product_truth })
+    : validateSeoCommercialCopy(null, { product_truth: bundle.seoPackDraft.product_truth });
   const firstKeywordPlacement = validateSeoKeywordPlacement(firstGeneration.output, bundle.seoPackDraft);
 
   let selectedGeneration = firstGeneration;
@@ -157,14 +157,14 @@ export async function POST(request: Request) {
       ? validateSeoAgentOutput(repairGeneration.output)
       : validateSeoAgentOutput(null);
     repairCommercial = repairGeneration.output
-      ? validateSeoCommercialCopy(repairGeneration.output)
-      : validateSeoCommercialCopy(null);
+      ? validateSeoCommercialCopy(repairGeneration.output, { product_truth: bundle.seoPackDraft.product_truth })
+      : validateSeoCommercialCopy(null, { product_truth: bundle.seoPackDraft.product_truth });
     repairKeywordPlacement = validateSeoKeywordPlacement(repairGeneration.output, bundle.seoPackDraft);
 
     if (
       repairGeneration.ok
       && repairGeneration.output
-      && candidateScore(repairStructural, repairCommercial, repairKeywordPlacement) <= candidateScore(firstStructural, firstCommercial, firstKeywordPlacement)
+      && candidateScore(repairStructural, repairCommercial, repairKeywordPlacement) < candidateScore(firstStructural, firstCommercial, firstKeywordPlacement)
     ) {
       selectedGeneration = repairGeneration;
       selectedStructural = repairStructural;

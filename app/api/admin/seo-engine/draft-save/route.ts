@@ -94,7 +94,9 @@ export async function POST(request: Request) {
     ? providedAgentOutput
     : buildMockSeoAgentOutput(bundle.aiAgentInput, bundle.brief);
   const structuralValidation = validateSeoAgentOutput(agentOutput);
-  const commercialValidation = validateSeoCommercialCopy(agentOutput);
+  const commercialValidation = validateSeoCommercialCopy(agentOutput, {
+    product_truth: bundle.seoPackDraft.product_truth,
+  });
   const keywordPlacementValidation = validateSeoKeywordPlacement(agentOutput, bundle.seoPackDraft);
   const approvalBlockers = getSeoPackApprovalBlockers(bundle.seoPackDraft);
   const reviewDraftStorageBlockers = getSeoPackReviewDraftStorageBlockers(bundle.seoPackDraft);
