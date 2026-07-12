@@ -466,7 +466,7 @@ export default function FirstRealDraftClient() {
               </div>
 
               {selectedCandidate.keyword_selection?.mode === 'auto_recommendation' ? <Notice>
-                Approved Keyword Bank автоматически подобрал релевантный набор по Product Focus и метрикам. Review draft можно сохранить со статусом needs_human_review, но Approval и Apply останутся заблокированы, пока вы не подтвердите keyword decision вручную.
+                Approved Keyword Bank подготовил рекомендации, но OpenAI не будет запущен до вашего подтверждения. Откройте Мастер листинга, проверьте авто-фокус, события, стили, персону, аудиторию, стратегии и сохраните keyword decision.
               </Notice> : null}
 
               {(selectedCandidate.primary_keywords?.length || selectedCandidate.secondary_keywords?.length) ? <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3">
@@ -495,20 +495,19 @@ export default function FirstRealDraftClient() {
                 <div className="mt-3 space-y-2">{selectedCandidate.section_blockers.map((code) => <div key={code} className="text-[11px] text-[var(--bone-dim)]">• {blockerLabel(code)}</div>)}</div>
               </details> : null}
 
-              <button
+              {!selectedCandidate.ready_for_openai ? <a
+                href={`/admin/listing-master?product_id=${encodeURIComponent(selectedCandidate.canonical_product_id)}`}
+                className="btn-gold min-h-12 w-full min-w-0 justify-center px-4 text-center"
+              >
+                Выбрать фокус и ключи
+              </a> : <button
                 type="button"
                 onClick={run}
-                disabled={candidateLoading || detailLoading || loading || !selectedCandidate.ready_for_openai}
+                disabled={candidateLoading || detailLoading || loading}
                 className="btn-gold min-h-12 w-full min-w-0 justify-center px-4 text-center disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {loading
-                  ? 'OpenAI генерирует…'
-                  : !selectedCandidate.ready_for_openai
-                    ? 'Сначала устраните блокеры'
-                    : result
-                      ? 'Сгенерировать заново'
-                      : 'Сгенерировать draft'}
-              </button>
+                {loading ? 'OpenAI генерирует…' : result ? 'Сгенерировать заново' : 'Сгенерировать draft'}
+              </button>}
               <div className="text-center text-[10px] leading-relaxed text-[var(--smoke)]">Сначала генерация и визуальная проверка; сохранение доступно только после PASS.</div>
             </div>
           </>}
@@ -677,6 +676,7 @@ function blockerLabel(code) {
   const labels = {
     missing_primary_or_secondary_keyword: 'Не выбран релевантный primary или secondary keyword.',
     missing_validated_keyword_metric: 'Ни у одного выбранного ключа нет доверенного validated metric snapshot.',
+    keyword_selection_not_human_confirmed: 'Нужно проверить авто-фокус и сохранить keyword decision в Мастере листинга.',
     draft_status_blocked_by_product_mismatch: 'SEO draft заблокирован из-за несоответствия данных товара.',
     latest_draft_blocked_by_product_mismatch: 'Последний сохранённый draft заблокирован из-за product mismatch.',
     missing_storefront_catalog_product: 'Товар отсутствует в текущем storefront-каталоге.',

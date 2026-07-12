@@ -41,8 +41,8 @@ test('approval gate blocks an automatic keyword recommendation until human confi
   assert.equal(getSeoPackApprovalBlockers(draft('confirmed')).includes('keyword_selection_not_human_confirmed'), false);
 });
 
-test('review storage preserves an automatic recommendation for human confirmation', () => {
-  assert.deepEqual(getSeoPackReviewDraftStorageBlockers(draft('needs_human_confirmation')), []);
+test('review storage requires the operator to confirm the automatic recommendation', () => {
+  assert.ok(getSeoPackReviewDraftStorageBlockers(draft('needs_human_confirmation')).includes('keyword_selection_not_human_confirmed'));
 });
 
 test('review storage still blocks drafts without validated source evidence', () => {

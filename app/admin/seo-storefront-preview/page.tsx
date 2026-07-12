@@ -59,6 +59,7 @@ export default async function SeoStorefrontPreviewPage() {
           </p>
         </div>
         <div className="flex min-w-0 flex-wrap gap-2">
+          <Link href="/admin/listing-master" className="btn-ghost px-5 py-3 text-[10px]">1. Фокус и ключи</Link>
           <Link href="/admin/seo-approval" className="btn-ghost px-5 py-3 text-[10px]">Проверка SEO</Link>
           <Link href="/admin/seo-applied-values" className="btn-ghost px-5 py-3 text-[10px]">SEO Values</Link>
         </div>

@@ -12,13 +12,13 @@ const KEYWORD_LIMIT = 6000;
 const DISPLAY_LIMIT = 180;
 const KEYWORD_SNAPSHOT_LIMIT = 35;
 
-const FOCUS_VIEW = 'feya_commerce_v_listing_master_product_focus_v1';
+const FAST_PRODUCT_VIEW = 'feya_commerce_v_step7_storefront_products_api';
 const KEYWORD_VIEW = 'vw_seo_keyword_bank_v1_for_listing_master';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
-const FALLBACK_VIEW = 'feya_commerce_v_step7_storefront_products_api_v4';
+const FALLBACK_VIEW = 'feya_commerce_v_step6_product_catalog_overview';
 
-const FOCUS_SELECT = 'canonical_product_id,matched_etsy_listing_id,product_slug,card_title,h1,seo_title,product_type,material,color,canonical_color_label,category_label,source_category_label,operator_section_label,world_label,primary_image_url,primary_image_alt,parent_components_json,child_components_json,component_groups_json,needs_component_review_count,has_component_review_risk,focus_text';
-const FALLBACK_SELECT = 'canonical_product_id,product_slug,card_title,h1,seo_title,product_type,material,color,canonical_color_label,category_label,world_label,primary_image_url,primary_image_alt';
+const FAST_PRODUCT_SELECT = 'canonical_product_id,matched_etsy_listing_id,product_slug,card_title,h1,seo_title,product_type,material,color,primary_image_url,primary_image_alt';
+const FALLBACK_SELECT = 'canonical_product_id,matched_etsy_listing_id,draft_site_title,card_title,product_type';
 const KW_SELECT = 'keyword,keyword_norm,bank_bucket,score,avg_monthly_searches,competition,competition_index,source_clusters,page_type,reason,notes,source_files';
 
 const KEYWORD_TYPES = ['all', 'product', 'product_or_alt', 'collection', 'commercial_collection', 'visual_collection', 'faq'];
@@ -71,8 +71,6 @@ const SYN = {
   men: ['men', 'man', 'male', 'mens', "men's"], women: ['women', 'woman', 'female', 'womens', "women's", 'ladies', 'lady'], couples: ['couple', 'couples', 'matching']
 };
 
-const PREVIEW_PRODUCT_ID = 'b6e0171f-4d42-4d71-88b1-ee0d4e0e109e';
-
 export default async function ListingMasterPage({ searchParams }) {
   const resolvedSearchParams = await Promise.resolve(searchParams || {});
   const filters = readFilters(resolvedSearchParams);
@@ -82,7 +80,7 @@ export default async function ListingMasterPage({ searchParams }) {
   const keywordData = await loadKeywords(active);
   const rows = keywordData.rows.slice(0, DISPLAY_LIMIT);
   const saved = savedMessage(filters.saved);
-  const productStatus = productSeoStatus(selectedProduct, active, keywordData.totalCount ?? keywordData.rows.length, keywordData.source);
+  const productStatus = productSeoStatus(selectedProduct, active, keywordData.totalCount ?? keywordData.rows.length);
   const snapshot = keywordSnapshot(rows);
 
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
@@ -96,7 +94,7 @@ export default async function ListingMasterPage({ searchParams }) {
         <div className="flex flex-wrap gap-3 lg:justify-end">
           <Link href="/admin/products" className="btn-ghost">Товары <ArrowUpRight size={13} /></Link>
           <Link href="/admin/seo-keywords" className="btn-ghost">SEO-ядро <ArrowUpRight size={13} /></Link>
-          <Link href={selectedProduct ? `/admin/seo-engine/briefs?product_id=${selectedProduct.id}` : '/admin/seo-engine/briefs'} className="btn-ghost">SEO-задание <ArrowUpRight size={13} /></Link>
+          <Link href={selectedProduct ? `/admin/seo-storefront-preview?product_id=${selectedProduct.id}` : '/admin/seo-storefront-preview'} className="btn-ghost">Дальше: генерация и preview <ArrowUpRight size={13} /></Link>
         </div>
       </div>
 
@@ -116,14 +114,14 @@ export default async function ListingMasterPage({ searchParams }) {
         <ProductPicker data={productData} filters={filters} selectedProduct={selectedProduct} />
         <div className="space-y-5">
           <FocusSearchForm key={focusFormKey(selectedProduct, active)} product={selectedProduct} filters={active} status={productStatus} />
-          <NextStepPanel product={selectedProduct} keywordCount={keywordData.totalCount ?? keywordData.rows.length} saved={Boolean(selectedProduct?.decision)} source={keywordData.source} />
+          <NextStepPanel product={selectedProduct} keywordCount={keywordData.totalCount ?? keywordData.rows.length} saved={Boolean(selectedProduct?.decision)} />
           <form action={saveDecisionAction} className="rounded-2xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.055)] p-5">
             <div className="eyebrow-gold mb-2">Зафиксировать решение</div>
             <p className="text-[12px] leading-relaxed text-[var(--bone-dim)] mb-4">После проверки слов нажми “Сохранить черновик решения”. Потом переходи в SEO-задание. Текст здесь ещё не генерируется.</p>
             <HiddenDecisionFields product={selectedProduct} filters={active} keywords={snapshot} />
             <div className="flex flex-wrap gap-3">
               <button className="btn-ghost" type="submit" disabled={!selectedProduct || !rows.length}><Save size={13} /> Сохранить черновик решения</button>
-              {selectedProduct ? <Link className="btn-ghost" href={`/admin/seo-engine/briefs?product_id=${selectedProduct.id}`}>Дальше: SEO-задание <ArrowUpRight size={13} /></Link> : null}
+              {selectedProduct ? <Link className="btn-ghost" href={`/admin/seo-storefront-preview?product_id=${selectedProduct.id}`}>Дальше: генерация и preview <ArrowUpRight size={13} /></Link> : null}
             </div>
           </form>
         </div>
@@ -182,15 +180,15 @@ async function saveDecisionAction(formData) {
 async function loadProducts(filters) {
   const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
   if (!supabase) return emptyProducts(getMissingSupabaseEnvMessage());
-  let result = await supabase.from(FOCUS_VIEW).select(FOCUS_SELECT).limit(PRODUCT_LIMIT);
-  let source = 'Product Focus v1';
+  let result = await supabase.from(FAST_PRODUCT_VIEW).select(FAST_PRODUCT_SELECT).limit(PRODUCT_LIMIT);
+  let source = 'fast storefront v1';
   let warning = null;
   if (result.error) {
     warning = result.error.message;
     result = await supabase.from(FALLBACK_VIEW).select(FALLBACK_SELECT).limit(PRODUCT_LIMIT);
-    source = result.error ? 'ошибка Product Focus' : 'fallback storefront v4';
+    source = result.error ? 'ошибка fast storefront v1' : 'fallback step6 catalog';
   }
-  if (result.error) return emptyProducts(`${warning || 'Product Focus'} / ${result.error.message}`);
+  if (result.error) return emptyProducts(`${warning || 'Fast storefront v1'} / ${result.error.message}`);
   const decisions = await loadDecisionMap();
   const allProducts = (result.data || []).map((row) => {
     const product = normalizeProduct(row);
@@ -206,11 +204,11 @@ async function loadProducts(filters) {
     .filter((p) => !activeSection || p.sectionKey === activeSection)
     .filter((p) => activeStatus === 'all' || p.statusKey === activeStatus)
     .filter((p) => !tokens.length || tokens.every((t) => p.text.includes(t)));
-  return { allProducts, products, visibleProducts: products.length, totalProducts: allProducts.length, sections, statusCounts, activeSection, activeStatus, source, error: warning ? `Product Focus v1 недоступен, включён fallback: ${warning}` : null };
+  return { allProducts, products, visibleProducts: products.length, totalProducts: allProducts.length, sections, statusCounts, activeSection, activeStatus, source, error: warning ? `Fast storefront v1 недоступен, включён fallback: ${warning}` : null };
 }
 function emptyProducts(error) { return { allProducts: [], products: [], visibleProducts: 0, totalProducts: 0, sections: [], statusCounts: { all: 0, not_saved: 0, saved: 0 }, activeSection: '', activeStatus: 'all', source: 'none', error }; }
 async function loadDecisionMap() { const supabase = getSupabaseServiceClient(); if (!supabase) return new Map(); const { data } = await supabase.from(DECISIONS_TABLE).select('canonical_product_id,decision_status,selected_strategy,updated_at,created_at').limit(2000); const map = new Map(); (data || []).sort((a, b) => new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime()).forEach((row) => { if (row?.canonical_product_id && !map.has(row.canonical_product_id)) map.set(row.canonical_product_id, row); }); return map; }
-function normalizeProduct(row) { const parent = arr(row.parent_components_json); const child = arr(row.child_components_json); const groups = arr(row.component_groups_json); const title = row.card_title || row.h1 || row.seo_title || row.product_slug || row.canonical_product_id || ''; const sectionLabel = row.operator_section_label || row.category_label || 'Other products'; const sectionKey = keyOf(sectionLabel); const sourceCategory = row.source_category_label || row.category_label || row.product_type || ''; const text = [row.focus_text, title, sectionLabel, sourceCategory, row.world_label, row.material, row.canonical_color_label, row.color, row.primary_image_alt, parent.join(' '), child.join(' '), groups.join(' '), row.canonical_product_id, row.matched_etsy_listing_id].filter(Boolean).join(' ').toLowerCase(); return { id: row.canonical_product_id, title, sectionLabel, sectionKey, sourceCategory, productType: row.product_type || '', worldLabel: row.world_label || '', materialRaw: row.material || '', colorRaw: row.canonical_color_label || row.color || '', imageUrl: row.primary_image_url || '', imageAlt: row.primary_image_alt || '', slug: row.product_slug || row.canonical_product_id, etsyId: row.matched_etsy_listing_id || '', parentComponents: parent, childComponents: child, componentGroups: groups, needsComponentReviewCount: Number(row.needs_component_review_count || 0), hasComponentReviewRisk: Boolean(row.has_component_review_risk), text }; }
+function normalizeProduct(row) { const parent = arr(row.parent_components_json); const child = arr(row.child_components_json); const groups = arr(row.component_groups_json); const title = row.card_title || row.draft_site_title || row.h1 || row.seo_title || row.product_slug || row.canonical_product_id || ''; const sectionLabel = row.operator_section_label || row.category_label || row.product_type || 'Other products'; const sectionKey = keyOf(sectionLabel); const sourceCategory = row.source_category_label || row.category_label || row.product_type || ''; const text = [row.focus_text, title, sectionLabel, sourceCategory, row.world_label, row.material, row.canonical_color_label, row.color, row.primary_image_alt, parent.join(' '), child.join(' '), groups.join(' '), row.canonical_product_id, row.matched_etsy_listing_id].filter(Boolean).join(' ').toLowerCase(); return { id: row.canonical_product_id, title, sectionLabel, sectionKey, sourceCategory, productType: row.product_type || '', worldLabel: row.world_label || '', materialRaw: row.material || '', colorRaw: row.canonical_color_label || row.color || '', imageUrl: row.primary_image_url || '', imageAlt: row.primary_image_alt || '', slug: row.product_slug || row.canonical_product_id, etsyId: row.matched_etsy_listing_id || '', parentComponents: parent, childComponents: child, componentGroups: groups, needsComponentReviewCount: Number(row.needs_component_review_count || 0), hasComponentReviewRisk: Boolean(row.has_component_review_risk), text }; }
 
 async function loadKeywords(filters) {
   const supabase = getSupabaseReadClient();
@@ -253,7 +251,7 @@ function FocusSearchForm({ product, filters, status }) {
 }
 function CheckboxChipGroup({ title, items, field, filters }) { const selected = valuesOf(filters[field]); return <div className="mb-4"><div className="eyebrow-dim mb-2">{title}</div><div className="flex flex-wrap gap-2">{items.map((item) => <label key={`${field}-${item}-${selected.includes(item) ? 'on' : 'off'}`} className="cursor-pointer"><input className="peer sr-only" type="checkbox" name={field} value={item} defaultChecked={selected.includes(item)} /><span className="inline-flex rounded-full border border-[rgba(216,214,211,.13)] bg-black/10 px-3 py-2 text-[10px] uppercase tracking-[0.15em] text-[var(--bone-dim)] peer-checked:border-[rgba(108,183,138,.55)] peer-checked:bg-[rgba(108,183,138,.11)] peer-checked:text-[#a9dfbd]">{labelFor(item)}</span></label>)}</div></div>; }
 function CheckboxCard({ name, value, checked, title, note }) { return <label className="cursor-pointer"><input className="peer sr-only" type="checkbox" name={name} value={value} defaultChecked={checked} /><span className="block rounded-2xl border border-[rgba(216,214,211,.12)] bg-black/15 p-3 peer-checked:border-[rgba(212,178,106,.60)] peer-checked:bg-[rgba(212,178,106,.11)]"><div className="text-bone text-[13px]">{title}</div><div className="mt-1.5 text-[10px] leading-relaxed text-[var(--bone-dim)]">{note}</div></span></label>; }
-function NextStepPanel({ product, keywordCount, saved, source }) { return <div className="rounded-2xl border border-[rgba(212,178,106,.20)] bg-[rgba(212,178,106,.045)] p-4"><div className="eyebrow-gold mb-2">Следующий шаг</div><p className="text-[12px] leading-relaxed text-[var(--bone-dim)]">1) Применить поиск слов и проверить список. 2) Если слова подходят — сохранить черновик решения. 3) После сохранения перейти в SEO-задание.</p><div className="mt-3 flex flex-wrap gap-2"><Chip tone={product ? 'success' : 'warning'}>{product ? 'товар выбран' : 'выбери товар'}</Chip><Chip tone={keywordCount > 0 ? 'success' : 'warning'}>{keywordCount > 0 ? `${fmt(keywordCount)} слов` : 'нет слов'}</Chip><Chip tone={saved ? 'success' : 'warning'}>{saved ? 'черновик уже есть' : 'нужно сохранить'}</Chip><Chip tone="success">{source === 'local_matcher' ? 'matcher включён' : source}</Chip></div></div>; }
+function NextStepPanel({ product, keywordCount, saved }) { return <div className="rounded-2xl border border-[rgba(212,178,106,.20)] bg-[rgba(212,178,106,.045)] p-4"><div className="eyebrow-gold mb-2">Следующий шаг</div><p className="text-[12px] leading-relaxed text-[var(--bone-dim)]">1) Применить поиск слов и проверить список. 2) Если слова подходят — сохранить черновик решения. 3) После сохранения перейти в генерацию и preview.</p><div className="mt-3 flex flex-wrap gap-2"><Chip tone={product ? 'success' : 'warning'}>{product ? 'товар выбран' : 'выбери товар'}</Chip><Chip tone={keywordCount > 0 ? 'success' : 'warning'}>{keywordCount > 0 ? `${fmt(keywordCount)} слов` : 'нет слов'}</Chip><Chip tone={saved ? 'success' : 'warning'}>{saved ? 'решение сохранено' : 'нужно сохранить'}</Chip></div></div>; }
 function HiddenDecisionFields({ product, filters, keywords }) { return <>{['component','material','event','style','persona','audience','q','exclude','type','strategy'].map((name) => <input key={name} type="hidden" name={name} value={filters[name] || ''} />)}<input type="hidden" name="canonical_product_id" value={product?.id || ''} /><input type="hidden" name="product_slug" value={product?.slug || ''} /><input type="hidden" name="matched_etsy_listing_id" value={product?.etsyId || ''} /><input type="hidden" name="auto_focus_json" value={JSON.stringify(autoFocusSnapshot(product, filters.inferred || {}))} /><input type="hidden" name="selected_keywords_json" value={JSON.stringify(keywords)} /></>; }
 function KeywordTable({ rows, error }) { return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden"><div className="grid grid-cols-[1.35fr_.42fr_.42fr_.52fr_.52fr_.70fr_.55fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.20em] text-[var(--smoke)]"><div>Ключ</div><div>Совпадение</div><div>SEO</div><div>Спрос</div><div>Конкуренция</div><div>Сигнал</div><div>Почему</div></div><div className="divide-y divide-[rgba(216,214,211,.08)]">{rows.map((row, i) => { const signal = strategySignal(row); return <div key={`${row.keyword_norm || row.keyword}-${i}`} className="grid grid-cols-[1.35fr_.42fr_.42fr_.52fr_.52fr_.70fr_.55fr] gap-4 px-5 py-3 items-center hover:bg-[rgba(212,178,106,.035)]"><div><div className="text-bone text-[13px] leading-snug">{displayKeyword(row)}</div><div className="mt-1 flex flex-wrap gap-1.5"><Chip tone={toneByType(row.bank_bucket)}>{keywordUse(row)}</Chip>{row.match_label ? <Chip tone={row.match_label === 'точное' ? 'success' : 'gold'}>{row.match_label}</Chip> : null}</div></div><div className="font-price text-[20px] text-[#a9dfbd]">{row.match_score == null ? '—' : row.match_score}</div><div className="font-price text-[20px] text-[var(--gold-warm)]">{asText(row.score)}</div><div className="text-[12px] text-[var(--bone-dim)]">{fmt(row.avg_monthly_searches)}</div><div><Chip tone={String(row.competition || '').toUpperCase() === 'LOW' ? 'success' : String(row.competition || '').toUpperCase() === 'HIGH' ? 'warning' : 'neutral'}>{competitionLabel(row.competition)}</Chip></div><div><Chip tone={signal.tone}>{signal.label}</Chip></div><details className="text-[11px] leading-relaxed text-[var(--bone-dim)]"><summary className="cursor-pointer text-[var(--gold-warm)]">открыть</summary><div className="mt-2 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-2">{asText(row.match_reasons || row.source_clusters || row.source_files)}<br />Google: {fmt(row.avg_monthly_searches)} / {competitionLabel(row.competition)} · {asText(row.reason || row.notes, '')}</div></details></div>; })}{!rows.length && !error ? <div className="px-5 py-6 text-[13px] text-[var(--bone-dim)]">По текущим фильтрам слов не найдено. Сними часть фокуса или минус-слова.</div> : null}</div></div>; }
 function ProductCard({ product, active, filters }) { const focus = inferFocus(product); const hasFocus = Boolean(focus.component || focus.material || focus.event || focus.style || focus.persona || focus.audience); const decision = decisionLabel(product.decision); return <Link href={productHref(product, filters)} className={`grid grid-cols-[44px_1fr] gap-3 rounded-2xl border p-3 ${active ? 'border-[rgba(212,178,106,.55)] bg-[rgba(212,178,106,.10)]' : 'border-[rgba(216,214,211,.10)] bg-black/15 hover:border-[rgba(212,178,106,.35)]'}`}><ProductImage product={product} /><div className="min-w-0"><div className="truncate text-[12px] text-bone">{product.title}</div><div className="mt-1 truncate text-[10px] text-[var(--bone-dim)]">{product.sectionLabel} · {product.worldLabel || product.colorRaw || '—'}</div><div className="mt-2 flex flex-wrap gap-1.5">{active ? <Chip tone="gold">выбран</Chip> : null}<Chip tone={hasFocus ? 'success' : 'warning'}>{hasFocus ? 'авто-фокус' : 'ручной фокус'}</Chip>{decision ? <Chip tone={decision.tone}>{decision.text}</Chip> : <Chip>не сохранено</Chip>}{product.hasComponentReviewRisk ? <Chip tone="warning">ДНК: проверить</Chip> : null}</div></div></Link>; }
@@ -288,7 +286,6 @@ function buildSections(products) { const map = new Map(); products.forEach((p) =
 function buildStatusCounts(products) { const counts = { all: products.length, not_saved: 0, saved: 0 }; products.forEach((p) => { if (p.decision) counts.saved += 1; else counts.not_saved += 1; p.statusKey = p.decision ? 'saved' : 'not_saved'; }); return counts; }
 function keywordCoreText(row) { return `${row.keyword || ''} ${row.keyword_norm || ''}`.toLowerCase(); }
 function keywordMetaText(row) { return `${row.source_clusters || ''} ${row.page_type || ''} ${row.bank_bucket || ''} ${row.reason || ''} ${row.notes || ''} ${row.source_files || ''}`.toLowerCase(); }
-function rowText(row) { return `${keywordCoreText(row)} ${keywordMetaText(row)}`; }
 function hasExcluded(row, exclude) { const core = keywordCoreText(row); const meta = keywordMetaText(row); return excludeTerms(exclude).some((term) => term && (termMatch(core, term) || termMatch(meta, term))); }
 function matchingValues(text, selected) { return valuesOf(selected).filter((value) => termMatch(text, value)); }
 function matchScoreFrom(core, meta, selected, coreWeight, metaWeight, label) { const coreMatches = matchingValues(core, selected); const metaMatches = matchingValues(meta, selected).filter((value) => !coreMatches.includes(value)); const score = coreMatches.length * coreWeight + metaMatches.length * metaWeight; const bits = []; if (coreMatches.length) bits.push(`${label} keyword +${coreMatches.length * coreWeight}: ${coreMatches.map(labelFor).join(', ')}`); if (metaMatches.length) bits.push(`${label} meta +${metaMatches.length * metaWeight}: ${metaMatches.map(labelFor).join(', ')}`); return { coreMatches, metaMatches, score, reason: bits.join(' · ') }; }
@@ -347,7 +344,7 @@ function keywordSnapshot(rows) { return rows.slice(0, KEYWORD_SNAPSHOT_LIMIT).ma
 function autoFocusSnapshot(product, inferred) { return { inferred, product: product ? { canonical_product_id: product.id, slug: product.slug, etsy_id: product.etsyId, title: product.title, operator_section: product.sectionLabel, source_category: product.sourceCategory, world_label: product.worldLabel, parent_components: product.parentComponents, child_components: product.childComponents, needs_component_review_count: product.needsComponentReviewCount } : null }; }
 function savedMessage(value) { if (value === 'ok') return { tone: 'success', text: 'Черновик решения сохранён. Теперь товар помечен и его можно отправлять в SEO-задание.' }; if (value === 'error') return { tone: 'warning', text: 'Черновик не сохранился. Нужно проверить серверный ключ Supabase или доступ к таблице решений.' }; return null; }
 function decisionLabel(decision) { return decision ? { text: 'черновик сохранён', tone: 'warning' } : null; }
-function productSeoStatus(product, filters, count, source) { if (!product) return { label: 'товар не выбран', tone: 'neutral', note: 'выбери товар слева' }; if (!FOCUS_FIELDS.some((field) => valuesOf(filters[field]).length)) return { label: 'нужна ручная ДНК', tone: 'warning', note: 'авто-фокус не распознал ни один фокус' }; if (!count) return { label: 'нет слов', tone: 'warning', note: 'matcher не нашёл слов под текущий фокус' }; return { label: 'готов к черновику', tone: 'success', note: 'слова идут из стабильного product matcher' }; }
+function productSeoStatus(product, filters, count) { if (!product) return { label: 'товар не выбран', tone: 'neutral', note: 'выбери товар слева' }; if (!FOCUS_FIELDS.some((field) => valuesOf(filters[field]).length)) return { label: 'нужна ручная ДНК', tone: 'warning', note: 'авто-фокус не распознал ни один фокус' }; if (!count) return { label: 'нет слов', tone: 'warning', note: 'matcher не нашёл слов под текущий фокус' }; return { label: 'готов к черновику', tone: 'success', note: 'слова идут из стабильного product matcher' }; }
 function buildHref(filters, patch = {}) { const next = { ...filters, ...patch }; const params = new URLSearchParams(); if (next.type && next.type !== 'all') params.set('type', next.type); if (next.strategy && next.strategy !== DEFAULT_STRATEGY) params.set('strategy', next.strategy); FOCUS_FIELDS.forEach((field) => { if (next[field]) params.set(field, next[field]); }); if (next.focusApplied || next.focus_applied) params.set('focus_applied', '1'); if (next.q) params.set('q', next.q); if (next.exclude) params.set('exclude', next.exclude); if (next.productId || next.product_id) params.set('product_id', next.productId || next.product_id); if (next.productQ || next.product_q) params.set('product_q', next.productQ || next.product_q); if (next.productSection || next.product_section) params.set('product_section', next.productSection || next.product_section); if (next.productStatus || next.product_status) params.set('product_status', next.productStatus || next.product_status); const query = params.toString(); return query ? `/admin/listing-master?${query}` : '/admin/listing-master'; }
 function productHref(product, filters = {}) { return buildHref(filters, { productId: product.id, component: '', material: '', event: '', style: '', persona: '', audience: '', q: '', exclude: '', focusApplied: '' }); }
 function countLabel(counts, type) { const value = counts?.[type]?.count; return value == null ? '—' : fmt(value); }

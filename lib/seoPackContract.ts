@@ -362,8 +362,8 @@ export function getSeoPackDraftSaveBlockers(draft: SeoPackDraftContract | null |
 /**
  * Minimum evidence gate for storing a review artifact.
  *
- * A review draft may preserve unresolved composition facts and an automatic
- * keyword recommendation so the operator can inspect and correct it. Those
+ * A review draft may preserve unresolved composition facts after the operator
+ * confirms the keyword decision. Those composition facts
  * facts remain hard blockers in getSeoPackApprovalBlockers and therefore
  * cannot pass Approval or Apply.
  */
@@ -381,6 +381,7 @@ export function getSeoPackReviewDraftStorageBlockers(draft: SeoPackDraftContract
     || Boolean(truth?.option_price_rows?.length);
 
   if (!draft.canonical_product_id) blockers.push('missing_canonical_product_id');
+  if (draft.keyword_selection?.status !== 'confirmed') blockers.push('keyword_selection_not_human_confirmed');
   if (!truth?.title?.trim()) blockers.push('missing_product_title');
   if (!truth?.slug?.trim()) blockers.push('missing_product_slug');
   if (truth?.product_truth_source !== 'seo_product_truth_v1') blockers.push('missing_canonical_product_truth_contract');

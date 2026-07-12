@@ -2,13 +2,11 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServiceClient } from '@/lib/supabase';
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
-import { buildPilotKeywordBankFallbackBundle } from '@/lib/seoPilotKeywordBankFallback';
-import { STOREFRONT_V4_BASE_CARD_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
+import { STOREFRONT_V4_BASE_CARD_SELECT, STOREFRONT_VIEW_V1 } from '@/lib/storefront';
 
 export const dynamic = 'force-dynamic';
 
 const PILOT_PRODUCT_ID = 'b6e0171f-4d42-4d71-88b1-ee0d4e0e109e';
-const PILOT_GENERATION_ROUTE = '/api/admin/seo-engine/draft-generate-pilot-auto';
 const GENERIC_GENERATION_ROUTE = '/api/admin/seo-engine/catalog-draft-generate';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
 const LATEST_DRAFT_VIEW = 'feya_commerce_v_seo_pack_drafts_latest_v1';
@@ -46,11 +44,10 @@ export async function GET(request: Request) {
 
   if (productId) return loadCandidateDetail(productId);
 
-  const [decisionResult, catalogResult, draftResult, pilotBundle] = await Promise.all([
+  const [decisionResult, catalogResult, draftResult] = await Promise.all([
     supabase.from(DECISIONS_TABLE).select(DECISION_SELECT).limit(2000),
-    supabase.from(STOREFRONT_VIEW_V4).select(STOREFRONT_V4_BASE_CARD_SELECT).limit(1000),
+    supabase.from(STOREFRONT_VIEW_V1).select(STOREFRONT_V4_BASE_CARD_SELECT).limit(1000),
     supabase.from(LATEST_DRAFT_VIEW).select(LATEST_DRAFT_SELECT).limit(2000),
-    buildPilotKeywordBankFallbackBundle(PILOT_PRODUCT_ID),
   ]);
 
   if (decisionResult.error) {
@@ -87,20 +84,13 @@ export async function GET(request: Request) {
 
   const candidates = [...allIds]
     .map((id) => {
-      if (id === PILOT_PRODUCT_ID) {
-        return summarizePilotCandidate(
-          pilotBundle,
-          catalogByProduct.get(id) || null,
-          latestDecisionByProduct.get(id) || null,
-          latestDraftByProduct.get(id) || null,
-        );
-      }
-      return summarizeCatalogCandidate(
+      const candidate = summarizeCatalogCandidate(
         id,
         catalogByProduct.get(id) || null,
         latestDecisionByProduct.get(id) || null,
         latestDraftByProduct.get(id) || null,
       );
+      return id === PILOT_PRODUCT_ID ? { ...candidate, is_controlled_pilot: true } : candidate;
     })
     .filter(Boolean)
     .sort(compareCandidates);
@@ -138,48 +128,28 @@ export async function GET(request: Request) {
     pilot_preflight: {
       canonical_product_id: PILOT_PRODUCT_ID,
       ready: Boolean(candidates.find((item) => item.canonical_product_id === PILOT_PRODUCT_ID)?.ready_for_openai),
-      error: pilotBundle?.error || null,
-      diagnostics: pilotBundle?.keywordDiagnostics || null,
+      deferred_to_candidate_detail: true,
+      error: null,
     },
     warnings: [
       ...(draftResult.error ? [`latest_draft_read_failed: ${draftResult.error.message}`] : []),
-      ...(pilotBundle?.keywordDiagnostics?.warnings || []),
     ],
     guardrails: [
       'Catalog loading and pilot preparation are read-only.',
-      'The controlled pilot may auto-rank approved Keyword Bank rows with trusted metrics.',
+      'The list uses the fast storefront v1 summary; Product Truth and Keyword Bank detail load only for the selected product.',
       'No OpenAI call occurs while loading this list.',
       'No Supabase write, draft save, apply or publish.',
-      'Generic products without a saved decision receive a read-only approved Keyword Bank recommendation when opened.',
-      'An automatic recommendation may be used for draft preview, but storage stays blocked until the operator confirms the keyword decision.',
+      'Automatic focus/keyword recommendations must be reviewed and saved in Listing Master before OpenAI generation.',
     ],
   });
 }
 
 async function loadCandidateDetail(productId: string) {
-  if (productId === PILOT_PRODUCT_ID) {
-    const bundle = await buildPilotKeywordBankFallbackBundle(productId);
-    const candidate = summarizePilotCandidate(bundle, bundle?.product || null, null, null);
-    return NextResponse.json({
-      ok: true,
-      status: candidate.ready_for_openai ? 'controlled_pilot_ready' : 'controlled_pilot_not_ready',
-      read_only: true,
-      candidate,
-      pilot_preflight: {
-        error: bundle?.error || null,
-        diagnostics: bundle?.keywordDiagnostics || null,
-        blocker_checks: bundle?.brief?.blockerChecks || [],
-      },
-      guardrails: [
-        'No OpenAI call.',
-        'No Supabase write.',
-        'No draft save or publish.',
-      ],
-    }, { status: 200 });
-  }
-
   const bundle = await buildSeoBriefContractBundle(productId);
-  const candidate = summarizeCandidate(bundle, bundle?.decision || null);
+  const baseCandidate = summarizeCandidate(bundle, bundle?.decision || null);
+  const candidate = productId === PILOT_PRODUCT_ID
+    ? { ...baseCandidate, is_controlled_pilot: true }
+    : baseCandidate;
 
   if (!candidate?.canonical_product_id) {
     return NextResponse.json({
@@ -202,46 +172,6 @@ async function loadCandidateDetail(productId: string) {
       'No draft save or publish.',
     ],
   });
-}
-
-function summarizePilotCandidate(bundle, catalogProduct, decision, latestDraft) {
-  const product = bundle?.product || catalogProduct || null;
-  const diagnostics = bundle?.keywordDiagnostics || {};
-  let candidate;
-
-  if (bundle?.seoPackDraft) {
-    candidate = summarizeCandidate(bundle, decision);
-  } else {
-    candidate = summarizeCatalogCandidate(PILOT_PRODUCT_ID, product, decision, latestDraft);
-    candidate.hard_blockers = unique([
-      ...(candidate.hard_blockers || []),
-      'pilot_keyword_bank_preparation_not_ready',
-    ]);
-    candidate.ready_for_openai = false;
-    candidate.ready_for_full_pack = false;
-    candidate.generation_mode = 'NEEDS_KEYWORD_PREPARATION';
-  }
-
-  return {
-    ...candidate,
-    canonical_product_id: PILOT_PRODUCT_ID,
-    matched_etsy_listing_id: product?.matched_etsy_listing_id || candidate?.matched_etsy_listing_id || '4348580005',
-    product_slug: product?.product_slug || candidate?.product_slug || null,
-    product_title: product?.card_title || product?.h1 || candidate?.product_title || 'Controlled first SEO pilot',
-    primary_image_url: product?.primary_image_url || candidate?.primary_image_url || null,
-    primary_image_alt: product?.primary_image_alt || candidate?.primary_image_alt || product?.card_title || null,
-    product_type: product?.product_type || candidate?.product_type || null,
-    material: product?.material || candidate?.material || null,
-    color: product?.color || candidate?.color || null,
-    selected_keyword_count: Number(diagnostics.useful_candidate_rows ?? candidate?.selected_keyword_count ?? 0),
-    useful_keyword_count: Number(diagnostics.useful_candidate_rows ?? candidate?.useful_keyword_count ?? 0),
-    validated_metric_count: Number(diagnostics.useful_validated_rows ?? candidate?.validated_metric_count ?? 0),
-    workflow_stage: bundle?.seoPackDraft ? 'ready_for_controlled_generation' : 'needs_keyword_preparation',
-    is_controlled_pilot: true,
-    generation_route: PILOT_GENERATION_ROUTE,
-    preparation_error: bundle?.error || null,
-    keyword_bank_diagnostics: diagnostics,
-  };
 }
 
 function summarizeCatalogCandidate(id, product, decision, latestDraft) {
@@ -322,6 +252,7 @@ function summarizeCandidate(bundle, decision) {
   if (!identityEvidence) hardBlockers.push('insufficient_product_identity_evidence');
   if (!usefulKeywords.length) hardBlockers.push('missing_primary_or_secondary_keyword');
   if (validatedCount < 1) hardBlockers.push('missing_validated_keyword_metric');
+  if (draft?.keyword_selection?.status !== 'confirmed') hardBlockers.push('keyword_selection_not_human_confirmed');
   if (draft?.status === 'blocked_by_product_mismatch') hardBlockers.push('draft_status_blocked_by_product_mismatch');
   if (draft?.qa_checks?.forbidden_mismatch === 'blocker') hardBlockers.push('qa_blocker_forbidden_mismatch');
   if (draft?.qa_checks?.product_specificity === 'blocker') hardBlockers.push('qa_blocker_product_specificity');
