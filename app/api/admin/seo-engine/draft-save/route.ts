@@ -7,6 +7,7 @@ import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
 import { validateSeoCommercialCopy } from '@/lib/seoCommercialCopyValidator';
 import { validateSeoKeywordPlacement } from '@/lib/seoKeywordPlacementValidator';
 import { getSeoPackDraftSaveBlockers } from '@/lib/seoPackContract';
+import { assembleSeoProductPack } from '@/lib/seoFullPackAssembler';
 import { buildSeoDraftStoragePayload, seoDraftStoragePayloadGuardrails, summarizeSeoDraftStoragePayload } from '@/lib/seoDraftStoragePayload';
 
 export const dynamic = 'force-dynamic';
@@ -96,6 +97,14 @@ export async function POST(request: Request) {
   const commercialValidation = validateSeoCommercialCopy(agentOutput);
   const keywordPlacementValidation = validateSeoKeywordPlacement(agentOutput, bundle.seoPackDraft);
   const productTruthBlockers = getSeoPackDraftSaveBlockers(bundle.seoPackDraft);
+  const assembledSeoPack = assembleSeoProductPack({
+    draft: bundle.seoPackDraft,
+    output: agentOutput,
+    structuralValidation,
+    commercialValidation,
+    keywordPlacementValidation,
+    productTruthBlockers,
+  });
   const validationIssues = [
     ...(structuralValidation.issues || []),
     ...(commercialValidation.issues || []),
@@ -116,6 +125,7 @@ export async function POST(request: Request) {
     commercial_validation: commercialValidation,
     keyword_placement_validation: keywordPlacementValidation,
     product_truth_blockers: productTruthBlockers,
+    assembled_seo_pack: assembledSeoPack,
   };
   const storagePayload = buildSeoDraftStoragePayload({
     seoPackDraft: bundle.seoPackDraft,
@@ -173,6 +183,7 @@ export async function POST(request: Request) {
     storage_payload_summary: summarizeSeoDraftStoragePayload(storagePayload),
     storage_payload: body.include_payload === true ? storagePayload : undefined,
     validation_result: validationResult,
+    assembled_seo_pack: assembledSeoPack,
     guardrails: draftSaveGuardrails(),
   };
 

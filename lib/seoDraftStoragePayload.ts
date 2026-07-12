@@ -3,12 +3,14 @@ import type { SeoAgentInputContract, SeoAgentOutputContract } from '@/lib/seoPac
 import type { SeoAgentOutputValidationResult } from '@/lib/seoAgentOutputValidator';
 import type { SeoCommercialCopyValidation } from '@/lib/seoCommercialCopyValidator';
 import type { SeoKeywordPlacementValidationResult } from '@/lib/seoKeywordPlacementValidator';
+import type { SeoAssembledProductPack } from '@/lib/seoFullPackAssembler';
 
 export type SeoDraftValidationSnapshot = SeoAgentOutputValidationResult & {
   structural_validation: SeoAgentOutputValidationResult;
   commercial_validation: SeoCommercialCopyValidation;
   keyword_placement_validation: SeoKeywordPlacementValidationResult;
   product_truth_blockers: string[];
+  assembled_seo_pack: SeoAssembledProductPack;
 };
 
 export type SeoDraftStoragePayload = {

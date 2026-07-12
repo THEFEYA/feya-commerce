@@ -268,6 +268,7 @@ export default function FirstRealDraftClient() {
   const commercialValidation = result?.generated_draft_commercial_validation
     || (draft ? validateSeoCommercialCopy(draft) : null);
   const keywordPlacementValidation = result?.generated_draft_keyword_placement_validation || null;
+  const assembledPack = result?.assembled_seo_pack || null;
   const diagnostics = result?.keyword_bank_diagnostics || null;
   const alts = Array.isArray(draft?.image_alt_candidates) ? draft.image_alt_candidates : [];
   const structuralIssues = Array.isArray(structuralValidation?.issues) ? structuralValidation.issues : [];
@@ -448,6 +449,19 @@ export default function FirstRealDraftClient() {
       </section> : null}
 
       {draft && storefrontProduct ? <SeoDraftStorefrontPreview product={storefrontProduct} draft={draft} /> : null}
+
+      {assembledPack ? <section className="mt-5 min-w-0 rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
+        <div className="eyebrow-gold">Собранный SEO Pack</div>
+        <div className="mt-4 grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Fact label="Текущий URL" value={assembledPack.url?.current_path || '—'} />
+          <Fact label="Короткий URL-кандидат" value={assembledPack.url?.proposed_path || '—'} tone="warning" />
+          <Fact label="Schema" value={assembledPack.structured_data?.product?.['@type'] || '—'} tone="success" />
+          <Fact label="Storage gate" value={assembledPack.quality_gate?.ready_for_storage ? 'READY' : 'BLOCKED'} tone={assembledPack.quality_gate?.ready_for_storage ? 'success' : 'warning'} />
+        </div>
+        <div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">
+          URL-кандидат не применяется автоматически: сначала обязательны проверка уникальности по каталогу и human review. Product/FAQ schema, image filename proposals, ALT, linking hints и полный validation snapshot собраны детерминированно и не придумываются OpenAI.
+        </div>
+      </section> : null}
 
       {draft && commercialValidation ? <section className={`mt-5 rounded-2xl border p-5 ${reviewPass ? 'border-[rgba(108,183,138,.30)] bg-[rgba(108,183,138,.06)]' : 'border-[rgba(196,64,88,.34)] bg-[rgba(160,32,56,.08)]'}`}>
         <div className="flex min-w-0 flex-wrap items-start justify-between gap-4">

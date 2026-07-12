@@ -5,6 +5,8 @@ import { buildSeoAgentPromptContract, summarizeSeoAgentPromptContract } from '@/
 import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
 import { validateSeoCommercialCopy } from '@/lib/seoCommercialCopyValidator';
 import { validateSeoKeywordPlacement } from '@/lib/seoKeywordPlacementValidator';
+import { assembleSeoProductPack } from '@/lib/seoFullPackAssembler';
+import { getSeoPackDraftSaveBlockers } from '@/lib/seoPackContract';
 import { generateSeoDraftWithOpenAi } from '@/lib/seoOpenAiDraftGenerator';
 
 export const dynamic = 'force-dynamic';
@@ -144,6 +146,14 @@ export async function POST(request: Request) {
 
   const shared = buildSharedPayload(bundle, readiness, promptContract, primaryImageUrl);
   const finalDraft = selectedGeneration.output ? sanitizeOutputForReadiness(selectedGeneration.output, readiness) : null;
+  const assembledSeoPack = finalDraft ? assembleSeoProductPack({
+    draft: bundle.seoPackDraft,
+    output: finalDraft,
+    structuralValidation: selectedStructural,
+    commercialValidation: selectedCommercial,
+    keywordPlacementValidation: selectedKeywordPlacement,
+    productTruthBlockers: getSeoPackDraftSaveBlockers(bundle.seoPackDraft),
+  }) : null;
   const finalOk = Boolean(selectedGeneration.ok && selectedStructural.ok && selectedCommercial.ok && selectedKeywordPlacement.ok);
 
   const attemptSummary = {
@@ -180,6 +190,7 @@ export async function POST(request: Request) {
       generated_draft_validation: selectedStructural,
       generated_draft_commercial_validation: selectedCommercial,
       generated_draft_keyword_placement_validation: selectedKeywordPlacement,
+      assembled_seo_pack: assembledSeoPack,
       generation_attempts: attemptSummary,
       ...shared,
     }, { status: selectedGeneration.ok ? 422 : 502 });
@@ -202,6 +213,7 @@ export async function POST(request: Request) {
     generated_draft_validation: selectedStructural,
     generated_draft_commercial_validation: selectedCommercial,
     generated_draft_keyword_placement_validation: selectedKeywordPlacement,
+    assembled_seo_pack: assembledSeoPack,
     generation_attempts: attemptSummary,
     ...shared,
   }, { status: 200 });
