@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import { buildSeoCatalogBrief } from '@/lib/seoCatalogBrief';
+import { recommendCatalogKeywords } from '@/lib/seoCatalogKeywordRecommendation';
 import { buildSeoAgentInputFromDraft, buildSeoPackDraftContractFromBrief } from '@/lib/seoPackContractBuilder';
 
 const PRODUCT_TRUTH_VIEW = 'feya_commerce_v_seo_product_truth_v1';
@@ -94,6 +95,9 @@ const APPROVED_KEYWORD_SELECT = [
   'notes',
 ].join(',');
 
+const APPROVED_KEYWORD_CACHE_TTL_MS = 5 * 60 * 1000;
+let approvedKeywordCache = null;
+
 const COMPONENT_TEXT_KEYS = [
   'normalized_family',
   'component_family',
@@ -185,11 +189,44 @@ export async function loadSeoBriefSource(productId: string) {
   const selectedKeywordRows = Array.isArray(decision?.selected_keywords_json)
     ? decision.selected_keywords_json
     : [];
-  const keywordHydration = await hydrateSelectedKeywordsFromApprovedBank(supabase, selectedKeywordRows);
+  const manualFocus = resolveRecommendationFocus(productResult.product, decision);
+  let keywordHydration = { rows: selectedKeywordRows, warning: null };
+  let keywordRecommendationDiagnostics = null;
+  let keywordSelection = {
+    mode: 'operator_decision',
+    status: 'confirmed',
+    evidence_source: APPROVED_KEYWORD_BANK_VIEW,
+    confirmation_required: false,
+  };
+
+  if (selectedKeywordRows.length) {
+    keywordHydration = await hydrateSelectedKeywordsFromApprovedBank(supabase, selectedKeywordRows);
+  } else if (productResult.product) {
+    const approvedBank = await loadApprovedKeywordBank(supabase);
+    const recommendation = recommendCatalogKeywords({
+      product: productResult.product,
+      approvedKeywords: approvedBank.rows,
+      focus: manualFocus,
+      selectedStrategy: decision?.selected_strategy,
+    });
+    keywordHydration = {
+      rows: recommendation.keywords,
+      warning: approvedBank.warning,
+    };
+    keywordRecommendationDiagnostics = {
+      ...recommendation.diagnostics,
+      keyword_bank_view: APPROVED_KEYWORD_BANK_VIEW,
+      product_truth_source: productResult.productTruthSource,
+    };
+    keywordSelection = {
+      mode: 'auto_recommendation',
+      status: 'needs_human_confirmation',
+      evidence_source: APPROVED_KEYWORD_BANK_VIEW,
+      confirmation_required: true,
+    };
+  }
+
   const keywords = normalizeDecisionKeywords(keywordHydration.rows);
-  const manualFocus = decision?.manual_focus_json && typeof decision.manual_focus_json === 'object'
-    ? decision.manual_focus_json
-    : {};
 
   return {
     product: productResult.product,
@@ -199,8 +236,63 @@ export async function loadSeoBriefSource(productId: string) {
     productTruthSource: productResult.productTruthSource,
     productTruthWarning: productResult.productTruthWarning,
     keywordBankWarning: keywordHydration.warning,
+    keywordSelection,
+    keywordRecommendationDiagnostics,
     error: null,
   };
+}
+
+async function loadApprovedKeywordBank(supabase) {
+  const now = Date.now();
+  if (approvedKeywordCache?.rows?.length && now - approvedKeywordCache.loadedAt < APPROVED_KEYWORD_CACHE_TTL_MS) {
+    return { rows: approvedKeywordCache.rows, warning: null };
+  }
+
+  const result = await supabase
+    .from(APPROVED_KEYWORD_BANK_VIEW)
+    .select(APPROVED_KEYWORD_SELECT)
+    .limit(6000);
+
+  if (result.error) {
+    return {
+      rows: [],
+      warning: `Approved Keyword Bank recommendation load failed: ${result.error.message}`,
+    };
+  }
+
+  approvedKeywordCache = {
+    rows: result.data || [],
+    loadedAt: now,
+  };
+  return { rows: approvedKeywordCache.rows, warning: null };
+}
+
+function resolveRecommendationFocus(product, decision) {
+  const manual = isRecord(decision?.manual_focus_json) ? decision.manual_focus_json : {};
+  const automatic = isRecord(decision?.auto_focus_json) ? decision.auto_focus_json : {};
+  const derived = {
+    component: uniqueStrings([
+      ...collectComponentStrings(product?.parent_components_json),
+      ...collectComponentStrings(product?.child_components_json),
+      ...collectComponentStrings(product?.component_groups_json),
+      ...stringArray(product?.included_components),
+    ]),
+    material: uniqueStrings(stringArray(product?.material)),
+    event: uniqueStrings(stringArray(product?.world_label)),
+    style: uniqueStrings(stringArray(product?.operator_section_label)),
+    persona: [],
+    audience: [],
+    exclude: [],
+  };
+  const keys = ['component', 'material', 'event', 'style', 'persona', 'audience', 'exclude'];
+
+  return Object.fromEntries(keys.map((key) => {
+    const manualValue = manual[key];
+    const automaticValue = automatic[key];
+    if (stringArray(manualValue).length) return [key, manualValue];
+    if (stringArray(automaticValue).length) return [key, automaticValue];
+    return [key, derived[key] || []];
+  }));
 }
 
 async function hydrateSelectedKeywordsFromApprovedBank(supabase, selectedRows) {
@@ -314,6 +406,8 @@ export function buildSeoBriefSourceSummary(bundle, fallbackProductId = '') {
     product_truth_source: bundle.productTruthSource || bundle.seoPackDraft?.product_truth?.product_truth_source || null,
     product_truth_warning: bundle.productTruthWarning || null,
     keyword_bank_warning: bundle.keywordBankWarning || null,
+    keyword_selection: bundle.keywordSelection || null,
+    keyword_recommendation_diagnostics: bundle.keywordRecommendationDiagnostics || null,
     mapping_layer_sources: stringArray(evidence.mapping_layer_sources),
     phrase_mapping_count: recordArray(evidence.phrase_mappings).length,
     mapping_review_row_count: recordArray(evidence.mapping_review_rows).length,
@@ -352,6 +446,12 @@ function attachProductIdentity(contract, source) {
     ...contract,
     canonical_product_id: canonicalProductId,
     matched_etsy_listing_id: matchedEtsyListingId,
+    keyword_selection: source.keywordSelection || {
+      mode: 'auto_recommendation',
+      status: 'needs_human_confirmation',
+      evidence_source: APPROVED_KEYWORD_BANK_VIEW,
+      confirmation_required: true,
+    },
     product_truth: {
       ...contract.product_truth,
       canonical_product_id: canonicalProductId,
@@ -685,4 +785,8 @@ function toNullableNumber(value) {
   if (value == null || value === '') return null;
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
+}
+
+function isRecord(value) {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }

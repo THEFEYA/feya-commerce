@@ -86,6 +86,7 @@ function initialRole(keyword: SeoPilotKeyword, exclusions: string[]): SeoPilotKe
 
   if (containsExcludedIntent(keyword, exclusions)) return 'reject';
   if (keyword.should_hold === true || !hasValidatedMetric(keyword)) return 'hold';
+  if (bucket.includes('faq')) return 'faq_commercial';
   if (COMMERCIAL_INTENT_PATTERN.test(value) || QUESTION_INTENT_PATTERN.test(value)) return 'faq_commercial';
   if (COLLECTION_BUCKET_PATTERN.test(bucket)) return 'collection';
   if (IMAGE_BUCKET_PATTERN.test(bucket)) return 'image_alt';

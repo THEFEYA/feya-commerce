@@ -150,7 +150,8 @@ export async function GET(request: Request) {
       'The controlled pilot may auto-rank approved Keyword Bank rows with trusted metrics.',
       'No OpenAI call occurs while loading this list.',
       'No Supabase write, draft save, apply or publish.',
-      'Generic products still require an approved keyword decision before generation.',
+      'Generic products without a saved decision receive a read-only approved Keyword Bank recommendation when opened.',
+      'An automatic recommendation may be used for draft preview, but storage stays blocked until the operator confirms the keyword decision.',
     ],
   });
 }
@@ -342,6 +343,8 @@ function summarizeCandidate(bundle, decision) {
     primary_image_url: truth.primary_image_url || null,
     primary_image_alt: truth.primary_image_alt || truth.title || null,
     decision_status: decision?.decision_status || null,
+    keyword_selection: draft?.keyword_selection || null,
+    keyword_recommendation_diagnostics: bundle?.keywordRecommendationDiagnostics || null,
     seo_pack_status: draft?.status || null,
     product_truth_source: truth.product_truth_source || bundle?.productTruthSource || null,
     useful_keyword_count: usefulKeywords.length,

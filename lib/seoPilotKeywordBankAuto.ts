@@ -239,6 +239,12 @@ export async function buildPilotKeywordBankAutoBundle(productId: string) {
     matched_etsy_listing_id: product.matched_etsy_listing_id || PILOT_LISTING_ID,
     product_slug: product.product_slug || baseDraft.product_slug,
     status: baseDraft.status,
+    keyword_selection: {
+      mode: 'auto_recommendation',
+      status: 'needs_human_confirmation',
+      evidence_source: KEYWORD_VIEW,
+      confirmation_required: true,
+    },
     portfolio_strategy: null,
     product_truth: {
       ...baseDraft.product_truth,

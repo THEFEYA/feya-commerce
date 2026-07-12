@@ -167,6 +167,7 @@ export function buildSeoPackDraftContractFromBrief(brief: SeoPilotBrief): SeoPac
     canonical_product_id: '',
     matched_etsy_listing_id: null,
     source_decision_id: null,
+    keyword_selection: null,
     product_truth: productTruth,
     manual_focus: normalizeManualFocus(brief.manualFocus),
     keyword_roles: keywordRoles,
@@ -208,6 +209,7 @@ export function buildSeoAgentInputFromDraft(
     product: draft.product_truth,
     manual_focus: draft.manual_focus,
     keyword_roles: draft.keyword_roles,
+    keyword_selection: draft.keyword_selection,
     metrics_status: draft.metrics_status,
     portfolio_strategy: options?.portfolio_strategy || draft.portfolio_strategy || null,
     qa_contract: {

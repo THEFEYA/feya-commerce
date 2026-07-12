@@ -218,6 +218,7 @@ export type SeoAgentInputContract = {
   product: SeoProductTruth;
   manual_focus: SeoManualFocusContract;
   keyword_roles: SeoKeywordRoleMap;
+  keyword_selection?: SeoPackDraftContract['keyword_selection'];
   metrics_status: SeoMetricsStatusContract;
   portfolio_strategy?: SeoPortfolioDifferentiationContract | null;
   qa_contract: {
@@ -278,6 +279,12 @@ export type SeoPackDraftContract = {
   canonical_product_id: string;
   matched_etsy_listing_id?: string | null;
   source_decision_id?: string | null;
+  keyword_selection?: {
+    mode: 'operator_decision' | 'auto_recommendation';
+    status: 'confirmed' | 'needs_human_confirmation';
+    evidence_source: string;
+    confirmation_required: boolean;
+  } | null;
   product_truth: SeoProductTruth;
   manual_focus: SeoManualFocusContract;
   keyword_roles: SeoKeywordRoleMap;
@@ -328,6 +335,7 @@ export function getSeoPackDraftSaveBlockers(draft: SeoPackDraftContract | null |
     || Boolean(truth?.option_price_rows?.length);
 
   if (!draft.canonical_product_id) blockers.push('missing_canonical_product_id');
+  if (draft.keyword_selection?.status !== 'confirmed') blockers.push('keyword_selection_not_human_confirmed');
   if (!truth?.title?.trim()) blockers.push('missing_product_title');
   if (!truth?.slug?.trim()) blockers.push('missing_product_slug');
   if (truth?.product_truth_source !== 'seo_product_truth_v1') blockers.push('missing_canonical_product_truth_contract');
