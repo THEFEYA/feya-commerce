@@ -31,6 +31,12 @@ type Candidate = {
   latest_review_status?: string | null;
   latest_draft_at?: string | null;
   decision_status?: string | null;
+  keyword_selection?: {
+    mode?: string | null;
+    status?: string | null;
+    confirmation_required?: boolean;
+  } | null;
+  keyword_recommendation_diagnostics?: Record<string, any> | null;
 };
 
 type Filter = 'all' | 'ready' | 'blocked' | 'saved' | 'untested';
@@ -350,6 +356,7 @@ export default function FirstRealDraftClient() {
                       {candidate.ready_for_openai ? (candidate.ready_for_full_pack ? 'Полный Pack готов' : 'Готов к тексту') : blockerShort(candidate.hard_blockers)}
                     </StatusBadge>
                     {candidate.has_saved_draft ? <StatusBadge>Есть draft</StatusBadge> : null}
+                    {candidate.keyword_selection?.mode === 'auto_recommendation' ? <StatusBadge tone="warning">Ключи рекомендованы</StatusBadge> : null}
                     {tested ? <StatusBadge tone="tested">Проверен здесь</StatusBadge> : null}
                   </div>
                 </div>
@@ -394,6 +401,18 @@ export default function FirstRealDraftClient() {
                 <Fact label="Выбрано ключей" value={String(selectedCandidate.selected_keyword_count ?? selectedCandidate.useful_keyword_count ?? 0)} />
                 <Fact label="Сохранённый draft" value={selectedCandidate.has_saved_draft ? (selectedCandidate.latest_draft_status || 'есть') : 'нет'} />
               </div>
+
+              {selectedCandidate.keyword_selection?.mode === 'auto_recommendation' ? <Notice>
+                Approved Keyword Bank автоматически подобрал релевантный набор по Product Focus и метрикам. Его можно использовать для draft preview, но Storage и Apply останутся заблокированы, пока вы не подтвердите keyword decision вручную.
+              </Notice> : null}
+
+              {(selectedCandidate.primary_keywords?.length || selectedCandidate.secondary_keywords?.length) ? <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3">
+                <div className="text-[10px] uppercase tracking-[.16em] text-[var(--gold-warm)]">Ключи до запуска OpenAI</div>
+                <div className="mt-3 space-y-3">
+                  <KeywordPreview label="Primary" items={selectedCandidate.primary_keywords} />
+                  <KeywordPreview label="Secondary" items={selectedCandidate.secondary_keywords} />
+                </div>
+              </div> : null}
 
               {selectedCandidate.has_saved_draft ? <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">
                 Последний сохранённый draft: <span className="text-bone">{selectedCandidate.latest_draft_status || '—'}</span>
@@ -630,6 +649,22 @@ function StatusBadge({ children, tone = 'neutral' }) {
         ? 'border-[rgba(150,140,210,.25)] bg-[rgba(120,100,190,.08)] text-[#c9c1ef]'
         : 'border-[rgba(216,214,211,.13)] bg-white/[.025] text-[var(--bone-dim)]';
   return <span className={`max-w-full truncate rounded-full border px-2 py-1 text-[8px] uppercase tracking-[.10em] ${cls}`}>{children}</span>;
+}
+
+function KeywordPreview({ label, items = [] }: { label: string; items?: Array<Record<string, any>> }) {
+  if (!items.length) return null;
+  return <div className="min-w-0">
+    <div className="text-[9px] uppercase tracking-[.14em] text-[var(--smoke)]">{label}</div>
+    <div className="mt-1.5 flex min-w-0 flex-wrap gap-1.5">
+      {items.slice(0, 5).map((item, index) => <span
+        key={`${item.keyword || item.keyword_norm}-${index}`}
+        className="max-w-full rounded-full border border-[rgba(216,214,211,.13)] bg-white/[.025] px-2 py-1 text-[9px] leading-snug text-[var(--bone-dim)]"
+        title={`volume ${item.avg_monthly_searches ?? '—'} · competition ${item.competition || '—'}`}
+      >
+        {item.keyword || item.keyword_norm || '—'}
+      </span>)}
+    </div>
+  </div>;
 }
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
