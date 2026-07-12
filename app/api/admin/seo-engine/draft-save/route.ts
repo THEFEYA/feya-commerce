@@ -6,7 +6,7 @@ import { buildMockSeoAgentOutput } from '@/lib/seoAgentMockDraft';
 import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
 import { validateSeoCommercialCopy } from '@/lib/seoCommercialCopyValidator';
 import { validateSeoKeywordPlacement } from '@/lib/seoKeywordPlacementValidator';
-import { getSeoPackDraftSaveBlockers } from '@/lib/seoPackContract';
+import { getSeoPackApprovalBlockers, getSeoPackReviewDraftStorageBlockers } from '@/lib/seoPackContract';
 import { assembleSeoProductPack } from '@/lib/seoFullPackAssembler';
 import { buildSeoDraftStoragePayload, seoDraftStoragePayloadGuardrails, summarizeSeoDraftStoragePayload } from '@/lib/seoDraftStoragePayload';
 
@@ -96,27 +96,33 @@ export async function POST(request: Request) {
   const structuralValidation = validateSeoAgentOutput(agentOutput);
   const commercialValidation = validateSeoCommercialCopy(agentOutput);
   const keywordPlacementValidation = validateSeoKeywordPlacement(agentOutput, bundle.seoPackDraft);
-  const productTruthBlockers = getSeoPackDraftSaveBlockers(bundle.seoPackDraft);
+  const approvalBlockers = getSeoPackApprovalBlockers(bundle.seoPackDraft);
+  const reviewDraftStorageBlockers = getSeoPackReviewDraftStorageBlockers(bundle.seoPackDraft);
   const assembledSeoPack = assembleSeoProductPack({
     draft: bundle.seoPackDraft,
     output: agentOutput,
     structuralValidation,
     commercialValidation,
     keywordPlacementValidation,
-    productTruthBlockers,
+    productTruthBlockers: approvalBlockers,
   });
   const validationIssues = [
     ...(structuralValidation.issues || []),
     ...(commercialValidation.issues || []),
     ...(keywordPlacementValidation.issues || []),
-    ...productTruthBlockers.map((code) => ({
-      code: `product_truth_${code}`,
+    ...reviewDraftStorageBlockers.map((code) => ({
+      code: `review_draft_storage_${code}`,
       severity: 'blocker',
-      message: `SEO Pack save gate failed: ${code}.`,
+      message: `SEO review draft storage gate failed: ${code}.`,
+    })),
+    ...approvalBlockers.map((code) => ({
+      code: `approval_gate_${code}`,
+      severity: 'warning',
+      message: `SEO Pack remains blocked from Approval/Apply: ${code}.`,
     })),
   ];
   const validationResult = {
-    ok: structuralValidation.ok && commercialValidation.ok && keywordPlacementValidation.ok && productTruthBlockers.length === 0,
+    ok: structuralValidation.ok && commercialValidation.ok && keywordPlacementValidation.ok && reviewDraftStorageBlockers.length === 0,
     status: validationIssues.some((issue) => issue.severity === 'blocker')
       ? 'blocked'
       : validationIssues.length ? 'warning' : 'valid',
@@ -124,7 +130,9 @@ export async function POST(request: Request) {
     structural_validation: structuralValidation,
     commercial_validation: commercialValidation,
     keyword_placement_validation: keywordPlacementValidation,
-    product_truth_blockers: productTruthBlockers,
+    review_draft_storage_blockers: reviewDraftStorageBlockers,
+    approval_blockers: approvalBlockers,
+    product_truth_blockers: approvalBlockers,
     assembled_seo_pack: assembledSeoPack,
   };
   const storagePayload = buildSeoDraftStoragePayload({
@@ -171,7 +179,9 @@ export async function POST(request: Request) {
       output_validation_status: validationResult.status,
       output_validation_ok: validationResult.ok,
       output_validation_issue_count: validationResult.issues?.length || 0,
-      product_truth_blocker_count: productTruthBlockers.length,
+      review_draft_storage_blocker_count: reviewDraftStorageBlockers.length,
+      approval_blocker_count: approvalBlockers.length,
+      approval_ready: approvalBlockers.length === 0,
       payload_ready: true,
       actual_insert_enabled: storageEnabled && !dryRun && hasServiceClient && storageHealth.ok && validationResult.ok && (requestedSourceMode !== 'openai_draft' || usesProvidedOpenAiOutput),
     },

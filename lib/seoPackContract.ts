@@ -317,7 +317,7 @@ export function createEmptyKeywordRoleMap(): SeoKeywordRoleMap {
   };
 }
 
-export function getSeoPackDraftSaveBlockers(draft: SeoPackDraftContract | null | undefined): string[] {
+export function getSeoPackApprovalBlockers(draft: SeoPackDraftContract | null | undefined): string[] {
   if (!draft) return ['missing_seo_pack_draft'];
 
   const blockers: string[] = [];
@@ -354,8 +354,50 @@ export function getSeoPackDraftSaveBlockers(draft: SeoPackDraftContract | null |
   return uniqueNonEmpty(blockers);
 }
 
+/** @deprecated Use getSeoPackApprovalBlockers for new code. */
+export function getSeoPackDraftSaveBlockers(draft: SeoPackDraftContract | null | undefined): string[] {
+  return getSeoPackApprovalBlockers(draft);
+}
+
+/**
+ * Minimum evidence gate for storing a review artifact.
+ *
+ * A review draft may preserve unresolved composition facts and an automatic
+ * keyword recommendation so the operator can inspect and correct it. Those
+ * facts remain hard blockers in getSeoPackApprovalBlockers and therefore
+ * cannot pass Approval or Apply.
+ */
+export function getSeoPackReviewDraftStorageBlockers(draft: SeoPackDraftContract | null | undefined): string[] {
+  if (!draft) return ['missing_seo_pack_draft'];
+
+  const blockers: string[] = [];
+  const truth = draft.product_truth;
+  const usefulKeywords = [
+    ...(draft.keyword_roles?.primary || []),
+    ...(draft.keyword_roles?.secondary || []),
+  ].filter((item) => Boolean(item?.keyword || item?.keyword_norm));
+  const hasSourceEvidence = Boolean(truth?.source_description_fragment?.trim())
+    || Boolean(truth?.source_variations?.length)
+    || Boolean(truth?.option_price_rows?.length);
+
+  if (!draft.canonical_product_id) blockers.push('missing_canonical_product_id');
+  if (!truth?.title?.trim()) blockers.push('missing_product_title');
+  if (!truth?.slug?.trim()) blockers.push('missing_product_slug');
+  if (truth?.product_truth_source !== 'seo_product_truth_v1') blockers.push('missing_canonical_product_truth_contract');
+  if (!hasSourceEvidence) blockers.push('missing_source_configuration_evidence');
+  if (!usefulKeywords.length) blockers.push('missing_primary_or_secondary_keyword');
+  if ((draft.metrics_status?.validated_count || 0) < 1) blockers.push('missing_validated_keyword_metric');
+  if (String(draft.status || '').startsWith('blocked_')) blockers.push(`draft_status_${draft.status}`);
+
+  Object.entries(draft.qa_checks || {}).forEach(([key, value]) => {
+    if (key !== 'notes' && value === 'blocker') blockers.push(`qa_blocker_${key}`);
+  });
+
+  return uniqueNonEmpty(blockers);
+}
+
 export function canSaveSeoPackDraft(draft: SeoPackDraftContract | null | undefined): boolean {
-  return getSeoPackDraftSaveBlockers(draft).length === 0;
+  return getSeoPackReviewDraftStorageBlockers(draft).length === 0;
 }
 
 function uniqueNonEmpty(values: unknown[]): string[] {

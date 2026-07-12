@@ -10,6 +10,8 @@ export type SeoDraftValidationSnapshot = SeoAgentOutputValidationResult & {
   commercial_validation: SeoCommercialCopyValidation;
   keyword_placement_validation: SeoKeywordPlacementValidationResult;
   product_truth_blockers: string[];
+  review_draft_storage_blockers?: string[];
+  approval_blockers?: string[];
   assembled_seo_pack: SeoAssembledProductPack;
 };
 
@@ -65,7 +67,9 @@ export function buildSeoDraftStoragePayload({
     pack_version: seoPackDraft.pack_version || 'seo_pack_v1',
     source_brief_version: seoPackDraft.source_brief_version || 'seo_brief_v2_1',
     output_contract_version: agentOutput.contract_version || 'seo_agent_output_v1',
-    status: validationResult.ok ? 'draft_generated' : 'needs_human_review',
+    status: validationResult.ok && !(validationResult.approval_blockers || validationResult.product_truth_blockers || []).length
+      ? 'draft_generated'
+      : 'needs_human_review',
     review_status: 'not_reviewed',
     source_mode: sourceMode,
     seo_title: agentOutput.seo_title || null,

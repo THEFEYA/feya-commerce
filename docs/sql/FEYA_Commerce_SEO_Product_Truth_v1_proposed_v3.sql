@@ -1,7 +1,8 @@
 -- FEYA Commerce / proposed Product Truth v1 / SQL revision v3
 -- OPERATIONAL REVIEW AND ALIGNMENT FIXES INCLUDED.
--- DO NOT EXECUTE UNTIL THE USER SENDS A SEPARATE APPLY COMMAND.
--- No CREATE/GRANT/REVOKE statement in this file has been executed.
+-- Applied to project ysnizcgzhdwdfdkjkhud on 2026-07-12 as
+-- feya_commerce_seo_product_truth_v1_v3_server_only, followed by
+-- feya_commerce_seo_product_truth_v1_v3_select_only_fix.
 
 CREATE OR REPLACE VIEW public.feya_commerce_v_seo_product_truth_v1
 WITH (security_invoker = true)
@@ -1469,4 +1470,5 @@ CROSS JOIN review_status_contract rc;
 REVOKE ALL ON public.feya_commerce_v_seo_product_truth_v1 FROM PUBLIC;
 REVOKE ALL ON public.feya_commerce_v_seo_product_truth_v1 FROM anon;
 REVOKE ALL ON public.feya_commerce_v_seo_product_truth_v1 FROM authenticated;
+REVOKE ALL ON public.feya_commerce_v_seo_product_truth_v1 FROM service_role;
 GRANT SELECT ON public.feya_commerce_v_seo_product_truth_v1 TO service_role;

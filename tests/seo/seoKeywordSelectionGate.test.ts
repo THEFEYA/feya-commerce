@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 // @ts-expect-error Node's strip-types runner requires the explicit TypeScript extension.
-import { getSeoPackDraftSaveBlockers } from '../../lib/seoPackContract.ts';
+import { getSeoPackApprovalBlockers, getSeoPackReviewDraftStorageBlockers } from '../../lib/seoPackContract.ts';
+// @ts-expect-error Node's strip-types runner requires the explicit TypeScript extension.
+import { buildSeoDraftStoragePayload } from '../../lib/seoDraftStoragePayload.ts';
 
 function draft(selectionStatus: 'confirmed' | 'needs_human_confirmation') {
   return {
@@ -34,7 +36,37 @@ function draft(selectionStatus: 'confirmed' | 'needs_human_confirmation') {
   } as never;
 }
 
-test('storage gate blocks an automatic keyword recommendation until human confirmation', () => {
-  assert.ok(getSeoPackDraftSaveBlockers(draft('needs_human_confirmation')).includes('keyword_selection_not_human_confirmed'));
-  assert.equal(getSeoPackDraftSaveBlockers(draft('confirmed')).includes('keyword_selection_not_human_confirmed'), false);
+test('approval gate blocks an automatic keyword recommendation until human confirmation', () => {
+  assert.ok(getSeoPackApprovalBlockers(draft('needs_human_confirmation')).includes('keyword_selection_not_human_confirmed'));
+  assert.equal(getSeoPackApprovalBlockers(draft('confirmed')).includes('keyword_selection_not_human_confirmed'), false);
+});
+
+test('review storage preserves an automatic recommendation for human confirmation', () => {
+  assert.deepEqual(getSeoPackReviewDraftStorageBlockers(draft('needs_human_confirmation')), []);
+});
+
+test('review storage still blocks drafts without validated source evidence', () => {
+  const unsafe = draft('needs_human_confirmation') as any;
+  unsafe.product_truth.source_description_fragment = '';
+  unsafe.product_truth.source_variations = [];
+  unsafe.product_truth.option_price_rows = [];
+  assert.ok(getSeoPackReviewDraftStorageBlockers(unsafe).includes('missing_source_configuration_evidence'));
+});
+
+test('stored partial draft is explicitly marked for human review', () => {
+  const source = draft('needs_human_confirmation') as any;
+  const payload = buildSeoDraftStoragePayload({
+    seoPackDraft: source,
+    agentInput: { product: { slug: source.product_truth.slug }, manual_focus: {}, metrics_status: {} } as any,
+    agentOutput: { contract_version: 'seo_agent_output_v1' } as any,
+    validationResult: {
+      ok: true,
+      issues: [],
+      approval_blockers: ['keyword_selection_not_human_confirmed'],
+      product_truth_blockers: ['keyword_selection_not_human_confirmed'],
+    } as any,
+  });
+
+  assert.equal(payload.status, 'needs_human_review');
+  assert.equal(payload.review_status, 'not_reviewed');
 });
