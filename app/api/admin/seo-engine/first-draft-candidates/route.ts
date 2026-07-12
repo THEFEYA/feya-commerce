@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServiceClient } from '@/lib/supabase';
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
-import { STOREFRONT_V4_BASE_CARD_SELECT, STOREFRONT_VIEW_V1 } from '@/lib/storefront';
+import { STOREFRONT_VIEW_V1 } from '@/lib/storefront';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,6 +10,18 @@ const PILOT_PRODUCT_ID = 'b6e0171f-4d42-4d71-88b1-ee0d4e0e109e';
 const GENERIC_GENERATION_ROUTE = '/api/admin/seo-engine/catalog-draft-generate';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
 const LATEST_DRAFT_VIEW = 'feya_commerce_v_seo_pack_drafts_latest_v1';
+const STOREFRONT_V1_CANDIDATE_SELECT = [
+  'canonical_product_id',
+  'product_slug',
+  'matched_etsy_listing_id',
+  'card_title',
+  'h1',
+  'product_type',
+  'material',
+  'color',
+  'primary_image_url',
+  'primary_image_alt',
+].join(',');
 const DECISION_SELECT = [
   'canonical_product_id',
   'matched_etsy_listing_id',
@@ -46,7 +58,7 @@ export async function GET(request: Request) {
 
   const [decisionResult, catalogResult, draftResult] = await Promise.all([
     supabase.from(DECISIONS_TABLE).select(DECISION_SELECT).limit(2000),
-    supabase.from(STOREFRONT_VIEW_V1).select(STOREFRONT_V4_BASE_CARD_SELECT).limit(1000),
+    supabase.from(STOREFRONT_VIEW_V1).select(STOREFRONT_V1_CANDIDATE_SELECT).limit(1000),
     supabase.from(LATEST_DRAFT_VIEW).select(LATEST_DRAFT_SELECT).limit(2000),
   ]);
 
