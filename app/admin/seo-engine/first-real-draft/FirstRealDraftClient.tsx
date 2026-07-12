@@ -54,6 +54,9 @@ export default function FirstRealDraftClient() {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [testedIds, setTestedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [savedCurrentResult, setSavedCurrentResult] = useState(false);
+  const [workflowNotice, setWorkflowNotice] = useState<string | null>(null);
   const [result, setResult] = useState<Result | null>(null);
   const [storefrontProduct, setStorefrontProduct] = useState<Record<string, any> | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -196,6 +199,7 @@ export default function FirstRealDraftClient() {
   function selectProduct(productId: string) {
     setSelectedProductId(productId);
     setResult(null);
+    setSavedCurrentResult(false);
     setStorefrontProduct(null);
     setError(null);
     setDetailError(null);
@@ -228,6 +232,7 @@ export default function FirstRealDraftClient() {
 
     setLoading(true);
     setResult(null);
+    setSavedCurrentResult(false);
     setStorefrontProduct(null);
     setError(null);
 
@@ -269,6 +274,63 @@ export default function FirstRealDraftClient() {
     }
   }
 
+  async function saveAndOpenNext() {
+    if (saving || !selectedProductId || !draft || !reviewPass || savedCurrentResult) return;
+
+    const savedProductId = selectedProductId;
+    setSaving(true);
+    setError(null);
+    setWorkflowNotice(null);
+
+    try {
+      const response = await fetch('/api/admin/seo-engine/draft-save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_id: savedProductId,
+          dry_run: false,
+          source_mode: 'openai_draft',
+          agent_output: draft,
+          include_payload: false,
+        }),
+      });
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok || !payload?.saved_draft) {
+        const blockerText = Array.isArray(payload?.blockers)
+          ? payload.blockers.map((item: any) => item?.message || item?.code).filter(Boolean).join(' · ')
+          : '';
+        setError(payload?.error || blockerText || 'Не удалось сохранить review draft.');
+        return;
+      }
+
+      const savedDraft = payload.saved_draft;
+      const savedAt = savedDraft.created_at || new Date().toISOString();
+      setCandidates((current) => current.map((item) => item.canonical_product_id === savedProductId
+        ? {
+            ...item,
+            has_saved_draft: true,
+            latest_draft_status: savedDraft.status || 'needs_human_review',
+            latest_review_status: savedDraft.review_status || 'not_reviewed',
+            latest_draft_at: savedAt,
+          }
+        : item));
+      setSavedCurrentResult(true);
+
+      const nextCandidate = candidates.find((item) => (
+        item.canonical_product_id !== savedProductId
+        && item.ready_for_openai
+        && !item.has_saved_draft
+      ));
+      setWorkflowNotice(`Review draft сохранён для ${selectedCandidate?.product_title || selectedCandidate?.product_slug || savedProductId}. Публикация не выполнялась.`);
+      if (nextCandidate) selectProduct(nextCandidate.canonical_product_id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Неизвестная ошибка сохранения review draft.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
   const draft = result?.generated_draft_output || null;
   const structuralValidation = result?.generated_draft_validation || null;
   const commercialValidation = result?.generated_draft_commercial_validation
@@ -302,6 +364,7 @@ export default function FirstRealDraftClient() {
     </section>
 
     {error ? <Notice tone="danger">{error}</Notice> : null}
+    {workflowNotice ? <Notice tone="success">{workflowNotice}</Notice> : null}
 
     <div className="grid min-w-0 gap-5 2xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,.65fr)]">
       <section className="min-w-0 overflow-hidden rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)]">
@@ -403,7 +466,7 @@ export default function FirstRealDraftClient() {
               </div>
 
               {selectedCandidate.keyword_selection?.mode === 'auto_recommendation' ? <Notice>
-                Approved Keyword Bank автоматически подобрал релевантный набор по Product Focus и метрикам. Его можно использовать для draft preview, но Storage и Apply останутся заблокированы, пока вы не подтвердите keyword decision вручную.
+                Approved Keyword Bank автоматически подобрал релевантный набор по Product Focus и метрикам. Review draft можно сохранить со статусом needs_human_review, но Approval и Apply останутся заблокированы, пока вы не подтвердите keyword decision вручную.
               </Notice> : null}
 
               {(selectedCandidate.primary_keywords?.length || selectedCandidate.secondary_keywords?.length) ? <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3">
@@ -446,7 +509,7 @@ export default function FirstRealDraftClient() {
                       ? 'Сгенерировать заново'
                       : 'Сгенерировать draft'}
               </button>
-              <div className="text-center text-[10px] leading-relaxed text-[var(--smoke)]">Без сохранения, применения и публикации.</div>
+              <div className="text-center text-[10px] leading-relaxed text-[var(--smoke)]">Сначала генерация и визуальная проверка; сохранение доступно только после PASS.</div>
             </div>
           </>}
         </section>
@@ -475,7 +538,7 @@ export default function FirstRealDraftClient() {
           <Fact label="Текущий URL" value={assembledPack.url?.current_path || '—'} />
           <Fact label="Короткий URL-кандидат" value={assembledPack.url?.proposed_path || '—'} tone="warning" />
           <Fact label="Schema" value={assembledPack.structured_data?.product?.['@type'] || '—'} tone="success" />
-          <Fact label="Storage gate" value={assembledPack.quality_gate?.ready_for_storage ? 'READY' : 'BLOCKED'} tone={assembledPack.quality_gate?.ready_for_storage ? 'success' : 'warning'} />
+          <Fact label="Approval gate" value={assembledPack.quality_gate?.ready_for_storage ? 'READY' : 'BLOCKED'} tone={assembledPack.quality_gate?.ready_for_storage ? 'success' : 'warning'} />
         </div>
         <div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">
           URL-кандидат не применяется автоматически: сначала обязательны проверка уникальности по каталогу и human review. Product/FAQ schema, image filename proposals, ALT, linking hints и полный validation snapshot собраны детерминированно и не придумываются OpenAI.
@@ -499,6 +562,25 @@ export default function FirstRealDraftClient() {
           <div className="text-[10px] uppercase tracking-[.16em] text-[var(--gold-warm)]">Keyword placement · {keywordPlacementValidation.status}</div>
           {keywordPlacementIssues.length ? <div className="mt-3 grid min-w-0 gap-2 md:grid-cols-2">{keywordPlacementIssues.map((item, index) => <Issue key={`${item.code}-${index}`} item={item} />)}</div> : <div className="mt-2 text-[12px] text-[#a9dfbd]">Primary, commercial intent и ALT размещены в разрешённых полях без точного переспама.</div>}
         </div> : null}
+        <div className="mt-4 border-t border-[rgba(216,214,211,.10)] pt-4">
+          <button
+            type="button"
+            onClick={saveAndOpenNext}
+            disabled={!reviewPass || saving || savedCurrentResult}
+            className="btn-gold min-h-12 w-full justify-center px-4 text-center disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {saving
+              ? 'Сохраняю review draft…'
+              : savedCurrentResult
+                ? 'Этот результат сохранён'
+                : reviewPass
+                  ? 'Сохранить и открыть следующий товар'
+                  : 'Сохранение доступно после PASS'}
+          </button>
+          <div className="mt-2 text-center text-[10px] leading-relaxed text-[var(--smoke)]">
+            Сохраняется только review draft. Approval, Apply и Publish не выполняются.
+          </div>
+        </div>
       </section> : null}
 
       {result ? <div className="mt-5 min-w-0 space-y-5">
