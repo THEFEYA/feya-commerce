@@ -3,7 +3,7 @@
 -- DO NOT EXECUTE UNTIL THE USER SENDS A SEPARATE APPLY COMMAND.
 -- No CREATE/GRANT/REVOKE statement in this file has been executed.
 
-CREATE VIEW public.feya_commerce_v_seo_product_truth_v1
+CREATE OR REPLACE VIEW public.feya_commerce_v_seo_product_truth_v1
 WITH (security_invoker = true)
 AS
 WITH
@@ -1464,8 +1464,9 @@ LEFT JOIN component_coverage_evidence_agg ccea ON ccea.canonical_product_id = pf
 JOIN variation_price_alignment vpa ON vpa.canonical_product_id = pf.canonical_product_id
 CROSS JOIN review_status_contract rc;
 
--- Proposed permissions, also NOT executed:
--- REVOKE ALL ON public.feya_commerce_v_seo_product_truth_v1 FROM PUBLIC;
--- REVOKE ALL ON public.feya_commerce_v_seo_product_truth_v1 FROM anon;
--- REVOKE ALL ON public.feya_commerce_v_seo_product_truth_v1 FROM authenticated;
--- GRANT SELECT ON public.feya_commerce_v_seo_product_truth_v1 TO service_role;
+-- Server-only contract permissions. These statements remain unapplied until a
+-- separate reviewed migration/apply step is explicitly authorized.
+REVOKE ALL ON public.feya_commerce_v_seo_product_truth_v1 FROM PUBLIC;
+REVOKE ALL ON public.feya_commerce_v_seo_product_truth_v1 FROM anon;
+REVOKE ALL ON public.feya_commerce_v_seo_product_truth_v1 FROM authenticated;
+GRANT SELECT ON public.feya_commerce_v_seo_product_truth_v1 TO service_role;
