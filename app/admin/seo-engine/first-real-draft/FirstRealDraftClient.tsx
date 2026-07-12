@@ -18,6 +18,7 @@ type Candidate = {
   color?: string | null;
   generation_mode?: string | null;
   ready_for_openai?: boolean;
+  ready_for_full_pack?: boolean;
   selected_keyword_count?: number;
   validated_metric_count?: number;
   useful_keyword_count?: number;
@@ -266,12 +267,14 @@ export default function FirstRealDraftClient() {
   const structuralValidation = result?.generated_draft_validation || null;
   const commercialValidation = result?.generated_draft_commercial_validation
     || (draft ? validateSeoCommercialCopy(draft) : null);
+  const keywordPlacementValidation = result?.generated_draft_keyword_placement_validation || null;
   const diagnostics = result?.keyword_bank_diagnostics || null;
   const alts = Array.isArray(draft?.image_alt_candidates) ? draft.image_alt_candidates : [];
   const structuralIssues = Array.isArray(structuralValidation?.issues) ? structuralValidation.issues : [];
   const commercialIssues = Array.isArray(commercialValidation?.issues) ? commercialValidation.issues : [];
+  const keywordPlacementIssues = Array.isArray(keywordPlacementValidation?.issues) ? keywordPlacementValidation.issues : [];
   const blockers = Array.isArray(result?.blockers) ? result.blockers : [];
-  const reviewPass = Boolean(structuralValidation?.ok && commercialValidation?.ok);
+  const reviewPass = Boolean(structuralValidation?.ok && commercialValidation?.ok && keywordPlacementValidation?.ok);
 
   return <div className="min-w-0 space-y-6 overflow-x-hidden">
     <section className="min-w-0 rounded-2xl border border-[rgba(212,178,106,.28)] bg-[rgba(212,178,106,.06)] p-4 sm:p-5">
@@ -284,7 +287,7 @@ export default function FirstRealDraftClient() {
         </div>
         <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-4 xl:w-[520px]">
           <Fact label="Товаров" value={String(candidates.length)} />
-          <Fact label="Готовы" value={String(readyCount)} tone={readyCount ? 'success' : 'warning'} />
+          <Fact label="Готовы к тексту" value={String(readyCount)} tone={readyCount ? 'success' : 'warning'} />
           <Fact label="С draft" value={String(savedCount)} />
           <Fact label="Проверено здесь" value={String(testedCount)} />
         </div>
@@ -343,7 +346,7 @@ export default function FirstRealDraftClient() {
                   </div>
                   <div className="mt-2 flex min-w-0 flex-wrap gap-1.5">
                     <StatusBadge tone={candidate.ready_for_openai ? 'success' : 'warning'}>
-                      {candidate.ready_for_openai ? 'Готов к OpenAI' : blockerShort(candidate.hard_blockers)}
+                      {candidate.ready_for_openai ? (candidate.ready_for_full_pack ? 'Полный Pack готов' : 'Готов к тексту') : blockerShort(candidate.hard_blockers)}
                     </StatusBadge>
                     {candidate.has_saved_draft ? <StatusBadge>Есть draft</StatusBadge> : null}
                     {tested ? <StatusBadge tone="tested">Проверен здесь</StatusBadge> : null}
@@ -402,7 +405,7 @@ export default function FirstRealDraftClient() {
                 <div className="mt-3 space-y-2">
                   {selectedCandidate.hard_blockers.map((code) => <div key={code} className="text-[12px] leading-relaxed text-[var(--bone-dim)]">• {blockerLabel(code)}</div>)}
                 </div>
-              </div> : <Notice tone="success">Товар прошёл предварительный gate и может быть отправлен в OpenAI.</Notice>}
+              </div> : <Notice tone="success">Товар прошёл gate для генерации текста{selectedCandidate.ready_for_full_pack ? ' и имеет полный Product Truth' : '; полный SEO Pack останется заблокирован до закрытия Product Truth'}.</Notice>}
 
               {selectedCandidate.section_blockers?.length ? <details className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3">
                 <summary className="cursor-pointer text-[10px] uppercase tracking-[.15em] text-[var(--gold-warm)]">Ограничения Product Truth</summary>
@@ -459,6 +462,10 @@ export default function FirstRealDraftClient() {
           </div>
         </div>
         {commercialIssues.length ? <div className="mt-4 grid min-w-0 gap-2 md:grid-cols-2">{commercialIssues.map((item, index) => <Issue key={`${item.code}-${index}`} item={item} />)}</div> : <div className="mt-3 text-[12px] text-[#a9dfbd]">Коммерческий текст прошёл проверку на полезность, повторы, пустые фразы и запрещённые обещания.</div>}
+        {keywordPlacementValidation ? <div className="mt-4 border-t border-[rgba(216,214,211,.10)] pt-4">
+          <div className="text-[10px] uppercase tracking-[.16em] text-[var(--gold-warm)]">Keyword placement · {keywordPlacementValidation.status}</div>
+          {keywordPlacementIssues.length ? <div className="mt-3 grid min-w-0 gap-2 md:grid-cols-2">{keywordPlacementIssues.map((item, index) => <Issue key={`${item.code}-${index}`} item={item} />)}</div> : <div className="mt-2 text-[12px] text-[#a9dfbd]">Primary, commercial intent и ALT размещены в разрешённых полях без точного переспама.</div>}
+        </div> : null}
       </section> : null}
 
       {result ? <div className="mt-5 min-w-0 space-y-5">

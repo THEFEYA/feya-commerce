@@ -106,6 +106,7 @@ export async function GET(request: Request) {
     .sort(compareCandidates);
 
   const ready = candidates.filter((item) => item.ready_for_openai);
+  const fullPackReady = candidates.filter((item) => item.ready_for_full_pack);
   const blocked = candidates.filter((item) => !item.ready_for_openai);
   const withSavedDraft = candidates.filter((item) => item.has_saved_draft);
   const needsKeywordPreparation = candidates.filter((item) => item.workflow_stage === 'needs_keyword_preparation');
@@ -120,6 +121,7 @@ export async function GET(request: Request) {
       distinct_products_with_decisions: latestDecisionByProduct.size,
       candidates: candidates.length,
       ready_for_openai: ready.length,
+      ready_for_full_pack: fullPackReady.length,
       blocked: blocked.length,
       needs_keyword_preparation: needsKeywordPreparation.length,
       with_saved_draft: withSavedDraft.length,
@@ -215,6 +217,7 @@ function summarizePilotCandidate(bundle, catalogProduct, decision, latestDraft) 
       'pilot_keyword_bank_preparation_not_ready',
     ]);
     candidate.ready_for_openai = false;
+    candidate.ready_for_full_pack = false;
     candidate.generation_mode = 'NEEDS_KEYWORD_PREPARATION';
   }
 
@@ -282,6 +285,7 @@ function summarizeCatalogCandidate(id, product, decision, latestDraft) {
     section_blockers: [],
     generation_mode: hardBlockers.length ? 'BLOCKED' : 'READY_CHECK',
     ready_for_openai: hardBlockers.length === 0,
+    ready_for_full_pack: false,
     workflow_stage: hardBlockers.some((code) => code.includes('keyword_metric') || code.includes('primary_or_secondary_keyword'))
       ? 'needs_keyword_preparation'
       : hardBlockers.length ? 'blocked_by_product_truth' : 'ready_for_generation',
@@ -358,6 +362,7 @@ function summarizeCandidate(bundle, decision) {
         ? 'READY_PARTIAL'
         : 'READY_FULL',
     ready_for_openai: hardBlockers.length === 0,
+    ready_for_full_pack: hardBlockers.length === 0 && sectionBlockers.length === 0,
     workflow_stage: hardBlockers.length ? 'blocked_by_contract' : 'ready_for_generation',
     is_controlled_pilot: false,
     generation_route: GENERIC_GENERATION_ROUTE,

@@ -1,12 +1,13 @@
 // @ts-nocheck
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
-import { buildSeoPilotBrief } from '@/lib/seoPilotDraft';
+import { buildSeoCatalogBrief } from '@/lib/seoCatalogBrief';
 import { buildSeoAgentInputFromDraft, buildSeoPackDraftContractFromBrief } from '@/lib/seoPackContractBuilder';
 
 const PRODUCT_TRUTH_VIEW = 'feya_commerce_v_seo_product_truth_v1';
 const FOCUS_VIEW = 'feya_commerce_v_listing_master_product_focus_v1';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
 const SEO_DRAFT_LATEST_VIEW = 'feya_commerce_v_seo_pack_drafts_latest_v1';
+const APPROVED_KEYWORD_BANK_VIEW = 'vw_seo_keyword_bank_v1_approved';
 
 const PRODUCT_TRUTH_SELECT = [
   'canonical_product_id',
@@ -72,6 +73,26 @@ const FOCUS_SELECT = [
 
 const DECISION_SELECT = 'canonical_product_id,product_slug,matched_etsy_listing_id,auto_focus_json,manual_focus_json,selected_strategy,selected_keywords_json,decision_status,updated_at,created_at';
 const LATEST_DRAFT_SELECT = 'id,canonical_product_id,matched_etsy_listing_id,product_slug,status,review_status,similarity_check_snapshot,qa_self_report,updated_at,created_at';
+const APPROVED_KEYWORD_SELECT = [
+  'id',
+  'keyword',
+  'keyword_norm',
+  'bank_bucket',
+  'review_status',
+  'source_clusters',
+  'score',
+  'avg_monthly_searches',
+  'competition',
+  'competition_index',
+  'region',
+  'language',
+  'metric_source',
+  'page_type',
+  'role',
+  'last_checked',
+  'reason',
+  'notes',
+].join(',');
 
 const COMPONENT_TEXT_KEYS = [
   'normalized_family',
@@ -110,7 +131,7 @@ export async function buildSeoBriefContractBundle(productId: string) {
     };
   }
 
-  const brief = buildSeoPilotBrief(source.product, source.keywords, source.manualFocus);
+  const brief = buildSeoCatalogBrief(source.product, source.keywords, source.manualFocus);
   const identityDraft = attachProductIdentity(buildSeoPackDraftContractFromBrief(brief), source);
   const latestSavedDraftContext = await loadLatestSavedSeoDraftContext(identityDraft.canonical_product_id);
   const portfolioStrategy = extractPortfolioStrategy(latestSavedDraftContext);
@@ -161,7 +182,11 @@ export async function loadSeoBriefSource(productId: string) {
     ? await loadProductTruthRow(supabase, effectiveProductId)
     : { product: null, productTruthSource: null, productTruthWarning: null };
 
-  const keywords = normalizeDecisionKeywords(decision?.selected_keywords_json || []);
+  const selectedKeywordRows = Array.isArray(decision?.selected_keywords_json)
+    ? decision.selected_keywords_json
+    : [];
+  const keywordHydration = await hydrateSelectedKeywordsFromApprovedBank(supabase, selectedKeywordRows);
+  const keywords = normalizeDecisionKeywords(keywordHydration.rows);
   const manualFocus = decision?.manual_focus_json && typeof decision.manual_focus_json === 'object'
     ? decision.manual_focus_json
     : {};
@@ -173,7 +198,53 @@ export async function loadSeoBriefSource(productId: string) {
     manualFocus,
     productTruthSource: productResult.productTruthSource,
     productTruthWarning: productResult.productTruthWarning,
+    keywordBankWarning: keywordHydration.warning,
     error: null,
+  };
+}
+
+async function hydrateSelectedKeywordsFromApprovedBank(supabase, selectedRows) {
+  const selected = Array.isArray(selectedRows) ? selectedRows : [];
+  const norms = uniqueStrings(selected.map((row) => normalizeKeyword(row?.keyword_norm || row?.keyword)));
+  if (!norms.length) return { rows: selected, warning: null };
+
+  const result = await supabase
+    .from(APPROVED_KEYWORD_BANK_VIEW)
+    .select(APPROVED_KEYWORD_SELECT)
+    .in('keyword_norm', norms)
+    .limit(Math.max(100, norms.length * 2));
+
+  if (result.error) {
+    return {
+      rows: selected,
+      warning: `Approved Keyword Bank hydration failed: ${result.error.message}`,
+    };
+  }
+
+  const approvedByNorm = new Map();
+  (result.data || []).forEach((row) => {
+    const norm = normalizeKeyword(row?.keyword_norm || row?.keyword);
+    if (norm && !approvedByNorm.has(norm)) approvedByNorm.set(norm, row);
+  });
+
+  return {
+    rows: selected.map((row) => {
+      const norm = normalizeKeyword(row?.keyword_norm || row?.keyword);
+      const approved = approvedByNorm.get(norm);
+      if (!approved) return row;
+      return {
+        ...row,
+        ...approved,
+        keyword: approved.keyword || row.keyword || row.keyword_norm,
+        keyword_norm: approved.keyword_norm || row.keyword_norm || row.keyword,
+        match_score: row.match_score ?? null,
+        strategy_rank: row.strategy_rank ?? null,
+        approved_keyword_bank: true,
+        approved_keyword_bank_view: APPROVED_KEYWORD_BANK_VIEW,
+        data_freshness_status: approved.last_checked ? 'validated' : 'missing_last_checked',
+      };
+    }),
+    warning: null,
   };
 }
 
@@ -242,6 +313,7 @@ export function buildSeoBriefSourceSummary(bundle, fallbackProductId = '') {
     manual_focus_keys: Object.keys(bundle.manualFocus || {}),
     product_truth_source: bundle.productTruthSource || bundle.seoPackDraft?.product_truth?.product_truth_source || null,
     product_truth_warning: bundle.productTruthWarning || null,
+    keyword_bank_warning: bundle.keywordBankWarning || null,
     mapping_layer_sources: stringArray(evidence.mapping_layer_sources),
     phrase_mapping_count: recordArray(evidence.phrase_mappings).length,
     mapping_review_row_count: recordArray(evidence.mapping_review_rows).length,
@@ -309,11 +381,11 @@ function buildComponentTruth(product, productTruthSource, productTruthWarning) {
 
   if (productTruthSource === 'seo_product_truth_v1') {
     const includedComponents = uniqueMappedValues(stringArray(product?.included_components));
-    const optionalConfigurations = uniqueMappedValues(stringArray(product?.optional_configurations));
-    const availableVariants = uniqueMappedValues(stringArray(product?.available_variants));
-    const knownNonComponents = uniqueMappedValues(stringArray(product?.known_non_components));
-    const unresolved = uniqueStrings(stringArray(product?.unresolved_component_facts));
-    const reviewBlockers = uniqueStrings(blockerStrings(product?.component_review_blockers_json));
+    const optionalConfigurations = evidenceArray(product?.optional_configurations);
+    const availableVariants = evidenceArray(product?.available_variants);
+    const knownNonComponents = evidenceArray(product?.known_non_components);
+    const unresolved = evidenceArray(product?.unresolved_component_facts);
+    const reviewBlockers = evidenceArray(product?.component_review_blockers_json);
     const sourceVariations = recordArray(product?.source_variations_json);
     const optionPriceRows = recordArray(product?.option_price_rows_json);
     const sourceDescriptionFragment = cleanNullableText(product?.source_description_fragment);
@@ -330,8 +402,8 @@ function buildComponentTruth(product, productTruthSource, productTruthWarning) {
       optional_configurations: optionalConfigurations,
       available_variants: availableVariants,
       known_non_components: knownNonComponents,
-      unresolved_component_facts: uniqueStrings(unresolved),
-      component_review_blockers: uniqueStrings(reviewBlockers),
+      unresolved_component_facts: uniqueEvidenceValues(unresolved),
+      component_review_blockers: uniqueEvidenceValues(reviewBlockers),
       product_truth_source: 'seo_product_truth_v1',
       source_description_fragment: sourceDescriptionFragment,
       source_variations: sourceVariations,
@@ -446,20 +518,43 @@ function stringArray(value) {
   return [];
 }
 
-function blockerStrings(value) {
+function evidenceArray(value) {
   const parsed = parseJsonLike(value);
   const rows = Array.isArray(parsed) ? parsed : parsed == null ? [] : [parsed];
-
-  return rows.flatMap((item) => {
-    if (typeof item === 'string' || typeof item === 'number') return [String(item)];
+  return uniqueEvidenceValues(rows.flatMap((item) => {
+    if (typeof item === 'string' || typeof item === 'number') return [String(item).trim()];
     if (!item || typeof item !== 'object' || Array.isArray(item)) return [];
+    return [item];
+  }));
+}
 
-    const code = cleanNullableText(item.code || item.blocker_code || item.type || item.status);
-    const rawPhrase = cleanNullableText(item.raw_phrase || item.raw_label || item.option_value || item.label);
-    const message = cleanNullableText(item.message || item.reason || item.detail);
-    const parts = [code, rawPhrase, message].filter(Boolean);
-    return parts.length ? [parts.join(': ')] : [JSON.stringify(item)];
+function uniqueEvidenceValues(values) {
+  const seen = new Set();
+  const result = [];
+  values.forEach((value) => {
+    if (typeof value === 'string' || typeof value === 'number') {
+      const text = String(value).trim();
+      const key = `text:${text.toLowerCase()}`;
+      if (!text || seen.has(key)) return;
+      seen.add(key);
+      result.push(text);
+      return;
+    }
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return;
+    const key = `object:${stableStringify(value)}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    result.push(value);
   });
+  return result;
+}
+
+function stableStringify(value) {
+  if (Array.isArray(value)) return `[${value.map(stableStringify).join(',')}]`;
+  if (value && typeof value === 'object') {
+    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`).join(',')}}`;
+  }
+  return JSON.stringify(value);
 }
 
 function recordArray(value) {
@@ -557,12 +652,16 @@ function hasTrustedMetricSnapshot(row) {
   if (freshness === 'api not connected' || freshness === 'api_not_connected') return false;
 
   const freshManualCsv = source === 'google ads csv' && freshness === 'fresh manual import';
-  const freshGoogleAdsApi = ['google ads api', 'google ads keyword planner'].includes(source)
+  const freshGoogleAdsApi = ['google ads api', 'google ads keyword planner', 'google keyword planner'].includes(source)
     && ['fresh api', 'api connected', 'validated'].includes(freshness);
   const approvedManualImport = ['manual keyword planner import', 'keyword planner csv'].includes(source)
     && ['fresh manual import', 'validated'].includes(freshness);
 
   return freshManualCsv || freshGoogleAdsApi || approvedManualImport;
+}
+
+function normalizeKeyword(value) {
+  return String(value || '').trim().toLowerCase().replace(/[’']/g, '').replace(/[_-]+/g, ' ').replace(/\s+/g, ' ');
 }
 
 function metricSource(row) {

@@ -4,6 +4,9 @@ import { getMissingSupabaseServiceEnvMessage, getSupabaseServiceClient } from '@
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
 import { buildMockSeoAgentOutput } from '@/lib/seoAgentMockDraft';
 import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
+import { validateSeoCommercialCopy } from '@/lib/seoCommercialCopyValidator';
+import { validateSeoKeywordPlacement } from '@/lib/seoKeywordPlacementValidator';
+import { getSeoPackDraftSaveBlockers } from '@/lib/seoPackContract';
 import { buildSeoDraftStoragePayload, seoDraftStoragePayloadGuardrails, summarizeSeoDraftStoragePayload } from '@/lib/seoDraftStoragePayload';
 
 export const dynamic = 'force-dynamic';
@@ -89,7 +92,31 @@ export async function POST(request: Request) {
   const agentOutput = usesProvidedOpenAiOutput
     ? providedAgentOutput
     : buildMockSeoAgentOutput(bundle.aiAgentInput, bundle.brief);
-  const validationResult = validateSeoAgentOutput(agentOutput);
+  const structuralValidation = validateSeoAgentOutput(agentOutput);
+  const commercialValidation = validateSeoCommercialCopy(agentOutput);
+  const keywordPlacementValidation = validateSeoKeywordPlacement(agentOutput, bundle.seoPackDraft);
+  const productTruthBlockers = getSeoPackDraftSaveBlockers(bundle.seoPackDraft);
+  const validationIssues = [
+    ...(structuralValidation.issues || []),
+    ...(commercialValidation.issues || []),
+    ...(keywordPlacementValidation.issues || []),
+    ...productTruthBlockers.map((code) => ({
+      code: `product_truth_${code}`,
+      severity: 'blocker',
+      message: `SEO Pack save gate failed: ${code}.`,
+    })),
+  ];
+  const validationResult = {
+    ok: structuralValidation.ok && commercialValidation.ok && keywordPlacementValidation.ok && productTruthBlockers.length === 0,
+    status: validationIssues.some((issue) => issue.severity === 'blocker')
+      ? 'blocked'
+      : validationIssues.length ? 'warning' : 'valid',
+    issues: validationIssues,
+    structural_validation: structuralValidation,
+    commercial_validation: commercialValidation,
+    keyword_placement_validation: keywordPlacementValidation,
+    product_truth_blockers: productTruthBlockers,
+  };
   const storagePayload = buildSeoDraftStoragePayload({
     seoPackDraft: bundle.seoPackDraft,
     agentInput: bundle.aiAgentInput,
@@ -134,6 +161,7 @@ export async function POST(request: Request) {
       output_validation_status: validationResult.status,
       output_validation_ok: validationResult.ok,
       output_validation_issue_count: validationResult.issues?.length || 0,
+      product_truth_blocker_count: productTruthBlockers.length,
       payload_ready: true,
       actual_insert_enabled: storageEnabled && !dryRun && hasServiceClient && storageHealth.ok && validationResult.ok && (requestedSourceMode !== 'openai_draft' || usesProvidedOpenAiOutput),
     },

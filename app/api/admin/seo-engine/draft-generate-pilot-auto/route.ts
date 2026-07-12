@@ -4,6 +4,7 @@ import { buildPilotKeywordBankFallbackBundle } from '@/lib/seoPilotKeywordBankFa
 import { buildSeoAgentPromptContract, summarizeSeoAgentPromptContract } from '@/lib/seoAgentDraftPrompt';
 import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
 import { validateSeoCommercialCopy } from '@/lib/seoCommercialCopyValidator';
+import { validateSeoKeywordPlacement } from '@/lib/seoKeywordPlacementValidator';
 import { generateSeoDraftWithOpenAi } from '@/lib/seoOpenAiDraftGenerator';
 
 export const dynamic = 'force-dynamic';
@@ -107,43 +108,50 @@ export async function POST(request: Request) {
   const firstGeneration = await generateSeoDraftWithOpenAi(promptContract, { primaryImageUrl });
   const firstStructural = firstGeneration.output ? validateSeoAgentOutput(firstGeneration.output) : validateSeoAgentOutput(null);
   const firstCommercial = firstGeneration.output ? validateSeoCommercialCopy(firstGeneration.output) : validateSeoCommercialCopy(null);
+  const firstKeywordPlacement = validateSeoKeywordPlacement(firstGeneration.output, bundle.seoPackDraft);
 
   let selectedGeneration = firstGeneration;
   let selectedStructural = firstStructural;
   let selectedCommercial = firstCommercial;
+  let selectedKeywordPlacement = firstKeywordPlacement;
   let repairGeneration = null;
   let repairStructural = null;
   let repairCommercial = null;
+  let repairKeywordPlacement = null;
   let repairUsed = false;
 
-  if (firstGeneration.ok && firstGeneration.output && shouldRunHumanizerRepair(firstStructural, firstCommercial)) {
+  if (firstGeneration.ok && firstGeneration.output && shouldRunHumanizerRepair(firstStructural, firstCommercial, firstKeywordPlacement)) {
     const repairPrompt = buildHumanizerRepairPrompt(
       promptContract,
       firstGeneration.output,
       firstStructural.issues || [],
       firstCommercial.issues || [],
+      firstKeywordPlacement.issues || [],
     );
     repairGeneration = await generateSeoDraftWithOpenAi(repairPrompt, { primaryImageUrl });
     repairStructural = repairGeneration.output ? validateSeoAgentOutput(repairGeneration.output) : validateSeoAgentOutput(null);
     repairCommercial = repairGeneration.output ? validateSeoCommercialCopy(repairGeneration.output) : validateSeoCommercialCopy(null);
+    repairKeywordPlacement = validateSeoKeywordPlacement(repairGeneration.output, bundle.seoPackDraft);
 
-    if (repairGeneration.ok && repairGeneration.output && candidateScore(repairStructural, repairCommercial) <= candidateScore(firstStructural, firstCommercial)) {
+    if (repairGeneration.ok && repairGeneration.output && candidateScore(repairStructural, repairCommercial, repairKeywordPlacement) <= candidateScore(firstStructural, firstCommercial, firstKeywordPlacement)) {
       selectedGeneration = repairGeneration;
       selectedStructural = repairStructural;
       selectedCommercial = repairCommercial;
+      selectedKeywordPlacement = repairKeywordPlacement;
       repairUsed = true;
     }
   }
 
   const shared = buildSharedPayload(bundle, readiness, promptContract, primaryImageUrl);
   const finalDraft = selectedGeneration.output ? sanitizeOutputForReadiness(selectedGeneration.output, readiness) : null;
-  const finalOk = Boolean(selectedGeneration.ok && selectedStructural.ok && selectedCommercial.ok);
+  const finalOk = Boolean(selectedGeneration.ok && selectedStructural.ok && selectedCommercial.ok && selectedKeywordPlacement.ok);
 
   const attemptSummary = {
     first_pass: {
       openai: sanitizeGeneration(firstGeneration),
       structural_validation: firstStructural,
       commercial_validation: firstCommercial,
+      keyword_placement_validation: firstKeywordPlacement,
     },
     humanizer_repair: repairGeneration ? {
       attempted: true,
@@ -151,6 +159,7 @@ export async function POST(request: Request) {
       openai: sanitizeGeneration(repairGeneration),
       structural_validation: repairStructural,
       commercial_validation: repairCommercial,
+      keyword_placement_validation: repairKeywordPlacement,
     } : {
       attempted: false,
       selected: false,
@@ -170,6 +179,7 @@ export async function POST(request: Request) {
       generated_draft_output: finalDraft,
       generated_draft_validation: selectedStructural,
       generated_draft_commercial_validation: selectedCommercial,
+      generated_draft_keyword_placement_validation: selectedKeywordPlacement,
       generation_attempts: attemptSummary,
       ...shared,
     }, { status: selectedGeneration.ok ? 422 : 502 });
@@ -191,6 +201,7 @@ export async function POST(request: Request) {
     generated_draft_output: finalDraft,
     generated_draft_validation: selectedStructural,
     generated_draft_commercial_validation: selectedCommercial,
+    generated_draft_keyword_placement_validation: selectedKeywordPlacement,
     generation_attempts: attemptSummary,
     ...shared,
   }, { status: 200 });
@@ -297,10 +308,11 @@ function applyReadinessToPromptContract(promptContract, readiness) {
   };
 }
 
-function buildHumanizerRepairPrompt(promptContract, currentOutput, structuralIssues, commercialIssues) {
+function buildHumanizerRepairPrompt(promptContract, currentOutput, structuralIssues, commercialIssues, keywordPlacementIssues) {
   const issueLines = [
     ...structuralIssues.map((issue) => `${issue.severity}:${issue.code}: ${issue.message}`),
     ...commercialIssues.map((issue) => `${issue.severity}:${issue.code}: ${issue.message}`),
+    ...keywordPlacementIssues.map((issue) => `${issue.severity}:${issue.code}: ${issue.message}${issue.keyword ? ` [${issue.keyword}]` : ''}`),
   ];
   const repairRules = [
     '',
@@ -329,18 +341,19 @@ function buildHumanizerRepairPrompt(promptContract, currentOutput, structuralIss
   };
 }
 
-function shouldRunHumanizerRepair(structural, commercial) {
-  if (!structural?.ok || !commercial?.ok) return true;
+function shouldRunHumanizerRepair(structural, commercial, keywordPlacement) {
+  if (!structural?.ok || !commercial?.ok || !keywordPlacement?.ok) return true;
   return (commercial?.issues || []).some((issue) => (
     String(issue.code || '').startsWith('repeated_idea_')
     || ['cross_block_repetition_warning', 'self_expression_close_lacks_clear_buyer_value'].includes(String(issue.code || ''))
   ));
 }
 
-function candidateScore(structural, commercial) {
+function candidateScore(structural, commercial, keywordPlacement) {
   const issues = [
     ...(structural?.issues || []),
     ...(commercial?.issues || []),
+    ...(keywordPlacement?.issues || []),
   ];
   return issues.reduce((score, issue) => score + (issue.severity === 'blocker' ? 100 : 1), 0);
 }

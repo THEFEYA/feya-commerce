@@ -144,6 +144,16 @@ create index if not exists feya_commerce_seo_pack_draft_events_v1_draft_idx
 create index if not exists feya_commerce_seo_pack_draft_events_v1_product_idx
   on public.feya_commerce_seo_pack_draft_events_v1 (canonical_product_id, created_at desc);
 
+-- Server-only storage boundary. service_role bypasses RLS; no browser role receives
+-- table access or an application policy from this contract.
+alter table public.feya_commerce_seo_pack_drafts_v1 enable row level security;
+alter table public.feya_commerce_seo_pack_draft_events_v1 enable row level security;
+
+revoke all on table public.feya_commerce_seo_pack_drafts_v1 from anon, authenticated;
+revoke all on table public.feya_commerce_seo_pack_draft_events_v1 from anon, authenticated;
+grant select, insert, update, delete on table public.feya_commerce_seo_pack_drafts_v1 to service_role;
+grant select, insert, update, delete on table public.feya_commerce_seo_pack_draft_events_v1 to service_role;
+
 -- ============================================================================
 -- 3) Updated-at helper
 -- ============================================================================
@@ -195,6 +205,11 @@ from public.feya_commerce_seo_pack_drafts_v1 d
 where d.archived_at is null
   and d.status in ('draft_generated', 'needs_human_review', 'changes_requested', 'approved_draft', 'needs_similarity_check', 'needs_image_alt_review')
 order by d.updated_at desc;
+
+revoke all on table public.feya_commerce_v_seo_pack_drafts_latest_v1 from anon, authenticated;
+revoke all on table public.feya_commerce_v_seo_pack_review_queue_v1 from anon, authenticated;
+grant select on table public.feya_commerce_v_seo_pack_drafts_latest_v1 to service_role;
+grant select on table public.feya_commerce_v_seo_pack_review_queue_v1 to service_role;
 
 -- ============================================================================
 -- 5) Future RPC placeholders

@@ -77,6 +77,7 @@ export type SeoKeywordRoleMap = Record<SeoKeywordRole, SeoKeywordRoleItem[]>;
 
 export type SeoProductTruthSource = 'seo_product_truth_v1' | 'listing_master_product_focus_v1';
 export type SeoSourceEvidenceRow = Record<string, unknown>;
+export type SeoSourceEvidenceValue = string | SeoSourceEvidenceRow;
 
 export type SeoComponentEvidence = {
   source: SeoProductTruthSource;
@@ -100,12 +101,12 @@ export type SeoProductTruth = {
   primary_image_url?: string | null;
   primary_image_alt?: string | null;
   known_components: string[];
-  known_non_components: string[];
+  known_non_components: SeoSourceEvidenceValue[];
   included_components?: string[];
-  optional_configurations?: string[];
-  available_variants?: string[];
-  unresolved_component_facts?: string[];
-  component_review_blockers?: string[];
+  optional_configurations?: SeoSourceEvidenceValue[];
+  available_variants?: SeoSourceEvidenceValue[];
+  unresolved_component_facts?: SeoSourceEvidenceValue[];
+  component_review_blockers?: SeoSourceEvidenceValue[];
   product_truth_source?: SeoProductTruthSource;
   source_description_fragment?: string | null;
   source_variations?: SeoSourceEvidenceRow[];

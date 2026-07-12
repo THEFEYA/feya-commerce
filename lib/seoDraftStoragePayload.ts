@@ -1,6 +1,15 @@
 // @ts-nocheck
 import type { SeoAgentInputContract, SeoAgentOutputContract } from '@/lib/seoPackContract';
 import type { SeoAgentOutputValidationResult } from '@/lib/seoAgentOutputValidator';
+import type { SeoCommercialCopyValidation } from '@/lib/seoCommercialCopyValidator';
+import type { SeoKeywordPlacementValidationResult } from '@/lib/seoKeywordPlacementValidator';
+
+export type SeoDraftValidationSnapshot = SeoAgentOutputValidationResult & {
+  structural_validation: SeoAgentOutputValidationResult;
+  commercial_validation: SeoCommercialCopyValidation;
+  keyword_placement_validation: SeoKeywordPlacementValidationResult;
+  product_truth_blockers: string[];
+};
 
 export type SeoDraftStoragePayload = {
   canonical_product_id: string;
@@ -28,7 +37,7 @@ export type SeoDraftStoragePayload = {
   similarity_check_snapshot: Record<string, unknown> | null;
   agent_input_snapshot: SeoAgentInputContract;
   agent_output_snapshot: SeoAgentOutputContract;
-  validation_result_snapshot: SeoAgentOutputValidationResult;
+  validation_result_snapshot: SeoDraftValidationSnapshot;
   created_by: string;
 };
 
@@ -43,7 +52,7 @@ export function buildSeoDraftStoragePayload({
   seoPackDraft: any;
   agentInput: SeoAgentInputContract;
   agentOutput: SeoAgentOutputContract;
-  validationResult: SeoAgentOutputValidationResult;
+  validationResult: SeoDraftValidationSnapshot;
   sourceMode?: SeoDraftStoragePayload['source_mode'];
   createdBy?: string;
 }): SeoDraftStoragePayload {
