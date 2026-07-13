@@ -149,7 +149,9 @@ async function saveDecisionAction(formData) {
     strategies: strategies.length ? strategies : [...STRATEGIES],
     q: norm(val(formData.get('q'))),
     exclude: excludeTerms(val(formData.get('exclude'))),
-    keyword_type: val(formData.get('type')) || 'all'
+    keyword_type: val(formData.get('type')) || 'all',
+    selection_verified: true,
+    save_request_id: requestId,
   };
   const strategyString = joinValues(manualFocus.strategies);
   const decisionFilters = {
@@ -354,7 +356,7 @@ function applyAutoFocus(filters, product) {
   const hasUrlFocus = FOCUS_FIELDS.some((field) => valuesOf(filters[field]).length) || filters.q || filters.exclude;
   if (filters.focusApplied || hasUrlFocus) return { ...filters, inferred, focusSource: 'url' };
   const savedFocus = recordOf(product?.decision?.manual_focus_json);
-  if (savedFocus && FOCUS_FIELDS.some((field) => Object.prototype.hasOwnProperty.call(savedFocus, field))) {
+  if (savedFocus?.selection_verified === true && FOCUS_FIELDS.some((field) => Object.prototype.hasOwnProperty.call(savedFocus, field))) {
     const savedStrategy = product?.decision?.selected_strategy || savedFocus.strategies || filters.strategy;
     return {
       ...filters,
