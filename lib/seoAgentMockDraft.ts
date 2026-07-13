@@ -119,18 +119,16 @@ function buildVisualTruth(input: SeoAgentInputContract, color: string, material:
   };
 }
 
-function buildPdpBlocks(input: SeoAgentInputContract, productName: string, material: string, context: string): SeoAgentOutputContract['pdp_blocks'] {
+function buildPdpBlocks(input: SeoAgentInputContract, productName: string, _material: string, context: string): SeoAgentOutputContract['pdp_blocks'] {
   const useCase = cleanContext(context);
-  const materialSentence = material && material !== 'statement finish'
-    ? `The ${material} supplies the visible surface while the product shape remains the main design feature.`
-    : 'The product shape remains the main visible design feature.';
+  const useCaseLabel = useCase.replace(/\.$/, '').replace(/\s+looks?$/i, '');
 
   return [
     {
       block_key: 'about_this_piece',
       placement: 'left_description',
       heading: 'About this piece',
-      body: `${productName} is made for a bold festival, stage or editorial look. ${materialSentence} The adjustable fit makes it practical to combine with different base layers.`,
+      body: `Build a bold ${useCaseLabel} look around this ${productName}. Its original design gives the outfit a distinctive armored detail. The adjustable fit makes it practical to wear over different base layers.`,
       source_basis: 'product_fact',
       needs_human_review: true,
     },
@@ -139,7 +137,7 @@ function buildPdpBlocks(input: SeoAgentInputContract, productName: string, mater
       placement: 'left_description',
       heading: "Why you'll love it",
       body: [
-        'Our original studio design gives the outfit a bold, recognizable detail not copied from a standard costume template.',
+        'Our original studio design gives you a distinctive piece for building a festival or stage look that feels personal.',
         'Adjustable straps make the piece quick to put on and easier to fine-tune over different base layers.',
         'A soft body-facing material supports more comfortable wear.',
         'Dense material helps the piece keep its shape between wears so it can be reused for future events.',
@@ -163,7 +161,7 @@ function buildPdpBlocks(input: SeoAgentInputContract, productName: string, mater
       block_key: 'main_description',
       placement: 'left_description',
       heading: 'Designed for self-expression',
-      body: `At TheFEYA, our small independent team creates original pieces for people who use clothing to express something personal. We design bold details that give a festival or stage outfit a recognizable identity. This piece brings that purpose into ${cleanContext(context).replace(/\.$/, '')}. It is made for moments when you want the outfit to stand out before you say a word.`,
+      body: `At TheFEYA, we are an independent team of designers with a fresh point of view on festival and stage fashion. Our original ideas span different styles, helping people choose a design that feels like them. This piece gives you a distinctive starting point for ${cleanContext(context).replace(/\.$/, '')}. You can build the rest of the outfit around your own style.`,
       source_basis: 'brand_policy',
       needs_human_review: true,
     },

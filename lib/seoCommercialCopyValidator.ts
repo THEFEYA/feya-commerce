@@ -20,11 +20,17 @@ export type SeoCommercialCopyContext = {
   manual_focus?: unknown;
 };
 
-const WEAK_STYLING_FILLER = /\b(works? well as a focal piece|works? as a centerpiece|part of a complete look|over minimal clothing|pairs? with simple clothing|easy to build into (?:a|the) (?:look|outfit)|easy to style|can be a focal piece|works? with many looks|completes? the look|creates? a clear accent|without additional (?:design )?elements|adds? an accent without)\b/i;
+const WEAK_STYLING_FILLER = /\b(works? well as a focal piece|works? as a centerpiece|part of a complete look|over minimal clothing|pairs? with simple clothing|easy to build into (?:a|the) (?:look|outfit)|easy to style|can be a focal piece|works? with many looks|completes? the look|creates? a clear accent|without (?:additional|extra) (?:design )?(?:elements|details|pieces|accessories)|adds? an accent without)\b/i;
 const AUDIT_OR_ADMIN_LANGUAGE = /\b(product truth|product truth confirms?|product truth indicates?|the product description (?:says|states|lists|mentions|indicates)|the source (?:says|states|lists|mentions|indicates)|official product data|source data|database fields?|safe wording|safest wording|material basis|final copy should|must be confirmed|should be confirmed|requires? verification|needs? verification|should be reviewed before publish|requires? review before publish|review before publish|before publication|before publish|listed as|is listed as|indicated as|specified as)\b/i;
 const GUARANTEED_POPULARITY = /\b(guarantee(?:d|s)?|will get likes?|will receive likes?|will gain followers?|will make you popular|go viral|viral reach|more followers?|gain followers?|more likes?|become popular|increase your popularity|guaranteed attention|everyone will notice|all eyes will be on you|guaranteed reactions?)\b/i;
 const EMPTY_HYPE = /\b(premium|luxury|ultimate|perfect|best|must[- ]have|crafted to perfection|elevate your look)\b/i;
 const EMPTY_OR_INTERNAL_BUYER_COPY = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|TheFEYA gives us a way|TheFEYA\s+(?:we|our|us)\b|clean armored attitude|desert[- ]ready (?:mood|presence)|shoulder[- ]led|reads? fast|open light|direct choice for buyers?|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity (?:and|or) individuality|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|one[- ]and[- ]only (?:shoulder )?line|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced|(?:original|distinctive) alternative to (?:a )?(?:standard|generic|mass[- ]produced) costume (?:look|piece|design))\b/i;
+const DIRECTIONAL_VISUAL_AUDIT = /\b(?:(?:left|right)[- ](?:shoulder|side|arm|leg)|(?:positioned|placed|located|sits?) (?:high|low|on the (?:left|right))|(?:clearly |well )?visible from (?:the )?(?:front|back|side)|seen from (?:the )?(?:front|back|side))\b/i;
+const ANATOMICAL_DESIGN_AUDIT = /\b(?:sculptural (?:profile|silhouette|line) of (?:the )?(?:left|right|one)?\s*shoulder|expressive upper[- ]body (?:form|line|profile|silhouette)|upper[- ]body (?:form|line|profile|silhouette|frame)|shoulder[- ]line|shoulder silhouette)\b/i;
+const UNNATURAL_EVENT_ATMOSPHERE = /\b(?:desert light|open light|desert[- ]ready|ready for (?:the )?desert)\b/i;
+const BRAND_STATUS_DIMINUTION = /\b(?:small|tiny) independent (?:team|studio|company|brand)\b/i;
+const TEMPLATE_COMPARISON = /\b(?:(?:standard|generic|mass[- ]produced) costume template|standard template costume|copy of (?:a )?(?:standard|generic) (?:costume )?template)\b/i;
+const PRODUCT_COMPONENT_AS_BUYER_GOAL = /\b(?:buyers?|customers?|people) (?:who want|looking for|seeking) (?:to (?:buy|find) )?(?:a|an|this|the)?\s*(?:statement |expressive |gold |futuristic |cyberpunk |warrior )*(?:shoulder (?:piece|armor|armour)|shoulders?|pauldrons?)\b/i;
 const SOCIAL_METRICS_BOILERPLATE = /\b(organic attention|reactions?, saves? (?:and|or) comments?|likes?, followers?|social (?:engagement|metrics?)|viral(?:ity| reach)?)\b/i;
 const REDUNDANT_FAUX_LEATHER = /\b(?:vegan leather\s+(?:and|or|\/)\s+faux leather|faux leather\s+(?:and|or|\/)\s+vegan leather)\b/i;
 const REFLECTIVE_CLAIM = /\b(?:reflective|retroreflective|retro-reflective)\b/i;
@@ -72,7 +78,7 @@ const PRACTICAL_BENEFIT_CATEGORIES = new Set([
   'verified_finish_behavior',
 ]);
 const BENEFIT_OUTCOME_PATTERNS: Record<string, RegExp> = {
-  studio_design_and_craft: /\b(original|distinctive|recognizable|recognisable|not copied from (?:a )?(?:standard|generic) costume template|designed by our (?:small )?(?:team|studio))\b/i,
+  studio_design_and_craft: /\b(original|distinctive|recognizable|recognisable|feels? (?:like you|personal|true to (?:you|your style))|your own (?:style|look)|designed by our (?:team|studio))\b/i,
   easy_dressing_and_adjustment: /\b(quick|easy|easier) to (?:put on|take off|adjust|fine[- ]tune|wear)|\b(stays? in place|sits? securely|more secure|secure fit|room to adjust|fine[- ]tune over)\b/i,
   fit_flexibility: /\b(secure fit|closer fit|fit over|fit around|room to adjust|different base layers?|custom measurements?)\b/i,
   comfort: /\b(comfortable|comfort|soft against the body|soft body[- ]facing|gentle on the body|easier to wear)\b/i,
@@ -158,6 +164,48 @@ export function validateSeoCommercialCopy(
     issues.push(blocker(
       'customer_copy_contains_robotic_or_tautological_value',
       'Customer-facing copy contains an internal-process phrase, tautology, or vague pseudo-benefit that does not help a buyer decide.',
+    ));
+  }
+
+  if (DIRECTIONAL_VISUAL_AUDIT.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_contains_alt_only_directional_detail',
+      'Left/right position, viewing angle and visibility coordinates belong only in image ALT or internal visual truth, not commercial product copy.',
+    ));
+  }
+
+  if (ANATOMICAL_DESIGN_AUDIT.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_uses_anatomical_geometry_as_value',
+      'Anatomical geometry such as a shoulder line or upper-body form is not a buyer benefit. Start from the complete event or style look instead.',
+    ));
+  }
+
+  if (UNNATURAL_EVENT_ATMOSPHERE.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_forces_event_into_unnatural_atmosphere',
+      'Event focus must describe a real use case. Desert light, open light and desert-ready are unnatural keyword-driven atmosphere phrases.',
+    ));
+  }
+
+  if (BRAND_STATUS_DIMINUTION.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_minimizes_brand_status',
+      'Do not describe TheFEYA as small or tiny. Independent design perspective is relevant; company size is not a buyer benefit.',
+    ));
+  }
+
+  if (TEMPLATE_COMPARISON.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_uses_invented_template_comparison',
+      'Do not compare the design with an undefined standard costume template. Explain how original design helps the buyer build a personal look.',
+    ));
+  }
+
+  if (PRODUCT_COMPONENT_AS_BUYER_GOAL.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_reverses_buyer_goal_to_product_component',
+      'Buyers are seeking a complete event, style or performance look. Present the product component as the means, not as the buyer’s final goal.',
     ));
   }
 
@@ -358,7 +406,7 @@ export function validateSeoCommercialCopy(
     if (closingWords < 45) {
       issues.push(blocker(
         'self_expression_close_too_thin',
-        'Designed for self-expression must contain 45-75 useful words: our small design team, original-design purpose, one product-specific choice and an honest buyer outcome.',
+        'Designed for self-expression must contain 45-75 useful words: our independent design perspective, original-design purpose, a complete supported look and an honest buyer outcome.',
       ));
     }
     if (closingWords > 75) {

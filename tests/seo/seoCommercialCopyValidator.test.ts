@@ -6,16 +6,16 @@ import { validateSeoCommercialCopy } from '../../lib/seoCommercialCopyValidator.
 function draft(overrides: Record<string, unknown> = {}) {
   return {
     seo_title: 'Cyberpunk Shoulder Armor for Festival Performance',
-    h1: 'Cyberpunk Shoulder Armor with Sculptural Profile',
-    meta_description: 'Sculptural shoulder armor for festival and stage styling, with a defined profile and adjustable fit for performance looks.',
-    intro: 'This shoulder armor creates a defined upper-body profile. Its layered shape gives performance styling a strong focal line.',
+    h1: 'Cyberpunk Shoulder Armor for Stage Performance',
+    meta_description: 'Cyberpunk shoulder armor for festival and stage looks, with an adjustable fit and layered gold finish.',
+    intro: 'Build a bold festival or stage look around this cyberpunk shoulder armor. Its layered design gives the outfit a distinctive armored detail.',
     bullet_highlights: [],
     image_alt_candidates: [{ image_role: 'primary', alt_text: 'Model wearing layered shoulder armor', truth_basis: 'visible_product_fact' }],
     pdp_blocks: [
-      { block_key: 'about_this_piece', placement: 'left_description', heading: 'About this piece', body: 'Layered panels frame the shoulder and keep the profile visually defined.' },
+      { block_key: 'about_this_piece', placement: 'left_description', heading: 'About this piece', body: 'Build a bold performance look around layered gold armor with an adjustable fit for different base layers.' },
       { block_key: 'why_youll_love_it', placement: 'left_description', heading: 'Why you’ll love it', body: 'Adjustable straps support the fit.\nLayered construction holds a defined shape.\nThe silhouette reads clearly on stage.' },
       { block_key: 'ideal_for', placement: 'left_description', heading: 'Ideal for', body: 'Festival styling\nStage performance\nEditorial wardrobe' },
-      { block_key: 'main_description', placement: 'left_description', heading: 'Designed for self-expression', body: 'At TheFEYA, our small independent team creates original pieces for people who express themselves through clothing. We design bold details that give a festival or stage outfit a recognizable identity. This piece brings that purpose into a product made for performance styling. It is made for moments when you want the outfit to stand out before you say a word.' },
+      { block_key: 'main_description', placement: 'left_description', heading: 'Designed for self-expression', body: 'At TheFEYA, we are an independent team of designers with a fresh point of view on festival and stage fashion. We create original ideas across different styles so people can choose a design that feels like them. This piece gives you a distinctive starting point for a bold performance look. You can build the rest around your own style.' },
     ],
     ...overrides,
   };
@@ -70,6 +70,41 @@ test('blocks the current pilot robotic phrases and broken studio grammar', () =>
   assert.ok(codes.some((code) => (
     code.includes('has_feature_but_no_buyer_outcome') || code.includes('has_no_concrete_buyer_value')
   )));
+});
+
+test('blocks directional image reporting and reversed buyer intent outside ALT', () => {
+  const value = draft({
+    meta_description: 'Gold shoulder armor with a sculptural profile of the left shoulder for Burning Man.',
+    intro: 'The piece is positioned high and clearly visible from the front. It creates a desert-ready look for buyers who want a statement shoulder piece.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => {
+      if (block.block_key === 'about_this_piece') {
+        return { ...block, body: 'A sculptural overlay on the left shoulder creates an expressive upper-body form in desert light.' };
+      }
+      if (block.block_key === 'why_youll_love_it') {
+        return {
+          ...block,
+          body: [
+            'Our original studio design is not a copy of a standard costume template.',
+            'Adjustable straps make the piece quick to put on.',
+            'Structured material helps it keep its shape between wears.',
+          ].join('\n'),
+        };
+      }
+      if (block.block_key === 'main_description') {
+        return { ...block, body: 'At TheFEYA, our small independent team creates original festival pieces. We design for self-expression. This shoulder line gives the upper body a bold shape.' };
+      }
+      return block;
+    }),
+  });
+
+  const result = validateSeoCommercialCopy(value);
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('customer_copy_contains_alt_only_directional_detail'));
+  assert.ok(codes.includes('customer_copy_uses_anatomical_geometry_as_value'));
+  assert.ok(codes.includes('customer_copy_forces_event_into_unnatural_atmosphere'));
+  assert.ok(codes.includes('customer_copy_minimizes_brand_status'));
+  assert.ok(codes.includes('customer_copy_uses_invented_template_comparison'));
+  assert.ok(codes.includes('customer_copy_reverses_buyer_goal_to_product_component'));
 });
 
 test('blocks the regenerated construction-heavy copy and abstract self-expression language', () => {
@@ -165,7 +200,7 @@ test('accepts a concise feature-to-buyer-outcome benefit mix', () => {
       ? {
         ...block,
         body: [
-          'Our original studio design gives the outfit a bold, recognizable detail not copied from a standard costume template.',
+          'Our original studio design gives you a distinctive piece for building a festival look that feels personal.',
           'Adjustable straps make it quick to put on and easy to fine-tune over different base layers.',
           'The soft body-facing material feels comfortable against the body during wear.',
           'Structured material helps the piece hold its shape between wears.',
