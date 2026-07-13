@@ -56,3 +56,43 @@ test('blocks one repeated idea spread across three customer blocks', () => {
   const result = validateSeoCommercialCopy(value);
   assert.ok(result.issues.some((issue) => issue.code === 'repeated_idea_silhouette_shape' && issue.severity === 'blocker'));
 });
+
+test('blocks the visual-audit and use-case bullets from the pilot draft', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Distinct asymmetrical silhouette that gives the look a harder, more dramatic line',
+          'Gold and dark metallic surfaces add contrast and visual depth',
+          'Structured build supports a firm armored presence',
+          'Works for warrior, futuristic, and desert-inspired styling',
+          'Studio-made character gives it a more individual feel than mass-produced costume pieces',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('why_youll_love_it_wrong_benefit_count'));
+  assert.ok(codes.some((code) => code.includes('is_abstract_visual_commentary')));
+  assert.ok(codes.some((code) => code.includes('belongs_in_ideal_for')));
+});
+
+test('accepts a concise feature-to-buyer-outcome benefit mix', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Designed in our studio as a distinctive alternative to a generic mass-produced costume look.',
+          'Adjustable straps make it quick to put on and easy to fine-tune over different base layers.',
+          'The soft body-facing material feels comfortable against the body during wear.',
+          'Structured material helps the piece hold its shape between wears.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
+});

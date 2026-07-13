@@ -47,7 +47,7 @@ const WEAK_AVAILABILITY_PATTERN = /\b(if available|when available|where availabl
 const PSEUDO_BENEFIT_PATTERN = /\b(works? well as a focal piece|works? as a centerpiece|part of a complete look|over minimal clothing|pairs? with simple clothing|easy to build into (?:a|the) (?:look|outfit)|easy to style|creates? a clear accent|without additional (?:design )?elements|adds? an accent without)\b/i;
 const GUARANTEED_OUTCOME_PATTERN = /\b(guarantee(?:d|s)?|will get likes?|will receive likes?|will gain followers?|will make you popular|go viral|viral reach|everyone will notice|all eyes will be on you|guaranteed attention|guaranteed reactions?)\b/i;
 const CLICHE_PATTERN = /\b(elevate your look|step into|turn heads|make a statement|perfect for any occasion|crafted to perfection|must have|ultimate|best choice|luxury piece|premium quality)\b/i;
-const ROBOTIC_OR_TAUTOLOGICAL_PATTERN = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling)\b/i;
+const ROBOTIC_OR_TAUTOLOGICAL_PATTERN = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|TheFEYA gives us a way|clean armored attitude|desert[- ]ready mood|contrast and visual depth|firm armored presence|individual feel)\b/i;
 const SOCIAL_METRICS_PATTERN = /\b(organic attention|reactions?, saves? (?:and|or) comments?|likes?, followers?|social (?:engagement|metrics?)|viral(?:ity| reach)?)\b/i;
 const REDUNDANT_MATERIAL_PATTERN = /\b(?:vegan leather\s+(?:and|or|\/)\s+faux leather|faux leather\s+(?:and|or|\/)\s+vegan leather)\b/i;
 const COMMERCIAL_ALT_PATTERN = /\b(buy|order|price|shop|for sale|shipping|delivery|discount|sale|online store)\b/i;
@@ -216,8 +216,8 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
 
     if (key === 'why_youll_love_it') {
       const benefitLines = splitDisplayLines(body);
-      if (benefitLines.length < 3 || benefitLines.length > 5) {
-        issues.push(warning(`pdp_block_benefit_count_${index}`, 'why_youll_love_it should contain 3-5 concise purchase reasons.'));
+      if (benefitLines.length < 3 || benefitLines.length > 4) {
+        issues.push(blocker(`pdp_block_benefit_count_${index}`, 'why_youll_love_it must contain 3-4 concise purchase reasons. Do not add a filler fifth bullet.'));
       }
     }
 

@@ -138,9 +138,10 @@ function buildPdpBlocks(input: SeoAgentInputContract, productName: string, mater
       placement: 'left_description',
       heading: "Why you'll love it",
       body: [
-        'Layered studio construction gives the silhouette a distinct profile.',
-        'A strong sculptural silhouette designed to stay visible on stage and read clearly on camera.',
-        'Adjustable straps support a secure and comfortable fit.',
+        'Designed in our studio as a distinctive alternative to a generic mass-produced costume look.',
+        'Adjustable straps make the piece quick to put on and easier to fine-tune over different base layers.',
+        'A soft body-facing material supports more comfortable wear.',
+        'Structured construction helps the piece hold its shape between wears.',
       ].join('\n'),
       source_basis: 'brand_policy',
       needs_human_review: true,

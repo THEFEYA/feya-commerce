@@ -1,4 +1,4 @@
-export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v9' as const;
+export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v10' as const;
 
 export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
   checkpoint_id: 'reload_latest_research_before_apply_publish_v1',
@@ -24,6 +24,21 @@ export const THEFEYA_BRAND_VALUE_PILLARS = [
   'The studio can discuss selected changes while preserving its distinctive visual language; operational customization details belong only in the fixed right PDP panel.',
 ] as const;
 
+export const THEFEYA_BENEFIT_GENERATION_POLICY = [
+  'Why you’ll love it is a purchase-decision block, not a second description and not an SEO keyword container.',
+  'Write 3-4 bullets. Never invent a fifth bullet merely to fill space.',
+  'Every bullet must connect one supported feature or studio truth to a useful buyer outcome. Use the mental test: feature or proof -> so what changes for the buyer.',
+  'Use at least three distinct value families when evidence exists: distinctive studio design; easy dressing or adjustment; body comfort; structure, shape retention or durability; verified finish behavior.',
+  'Include exactly one design-authorship benefit. Make it concrete: explain how the studio design gives the buyer a distinctive alternative to a generic mass-produced costume look.',
+  'Prefer practical buyer concerns over abstract art criticism: quick to put on, easier to adjust, comfortable against the body, holds its shape, or gives the outfit a distinctive studio-designed character.',
+  'A style, event, persona or audience is a use case for Ideal for, not a purchase benefit. Do not use works for warrior, futuristic or desert styling as a Why bullet.',
+  'A visual observation is not automatically a benefit. Contrast, visual depth, dramatic line, armored presence, attitude, mood and individual feel are too abstract unless tied to a concrete buyer outcome.',
+  'Do not describe dark clothing, goggles, masks, props, background scenery or other styling as a property or advantage of the sold product.',
+  'The fixed right panel may provide evidence, but do not copy its wording. Translate supported operational facts into a concise outcome, such as quick adjustment, easier dressing or shape retention.',
+  'Do not force primary or secondary keywords into Why you’ll love it. Place product queries naturally in title, H1, meta, intro or About this piece; preserve the benefit block for conversion clarity.',
+  'Comparative price, tax, discount, bulk-order, service-quality, assortment and delivery-superiority claims are store-level promises. Do not generate them in a product benefit block without a separate approved policy and evidence source.',
+] as const;
+
 function rightPanelBlock(block_key: string, heading: string, lines: readonly string[]) {
   return {
     block_key,
@@ -37,11 +52,11 @@ export const THEFEYA_CANONICAL_RIGHT_PDP_PANEL = [
   rightPanelBlock('sizing_fit', 'Sizing & fit', [
     'Use our size chart to choose your standard size.',
     'Our pieces are easy to adjust with straps for a comfortable, secure fit.',
-    'For custom measurements or a special fit request, leave a note with your order or contact us before production.',
+    'For custom measurements or a special fit request, add the details to your order note.',
   ]),
   rightPanelBlock('production_timing', 'Production time', [
     'Standard made-to-order production usually takes 3-5 business days.',
-    'Need it sooner? Contact us before ordering to discuss rush production.',
+    'Need it sooner? Ask about rush production before ordering.',
   ]),
   rightPanelBlock('shipping_delivery', 'Shipping & delivery', [
     'Standard shipping: 10-14 business days.',
@@ -57,7 +72,7 @@ export const THEFEYA_CANONICAL_RIGHT_PDP_PANEL = [
     'Store the piece carefully, preferably on a hanger, and avoid tight folding or long-term heavy pressure so it keeps its shape.',
   ]),
   rightPanelBlock('customization', 'Made to order & customization', [
-    'Need an individual change? Contact us before production.',
+    'For an individual change, contact us before production.',
     'We can discuss adjustments to color, size, length, fit, coverage or selected details while keeping the result within our studio style.',
   ]),
 ] as const;
@@ -91,7 +106,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Avoid filler words and weak catalog phrases: Edition, Ultimate, Best, Perfect, Luxury, Premium, Elevate, Crafted to perfection and Perfect for any occasion.',
     'Use clear, short sentences. Avoid keyword stuffing, doorway-page copy, repeated phrase skeletons and long chained keyword titles.',
     'Main PDP copy must remain product-specific and concise. Required generated left-description order: About this piece, Why you’ll love it, Ideal for, Designed for self-expression.',
-    'Why you’ll love it must contain 3-5 genuinely different purchase reasons. A design-authorship point and a handmade-not-mass-produced point count as the same idea and must not appear as separate duplicate bullets.',
+    'Why you’ll love it must contain 3-4 genuinely different purchase reasons. A design-authorship point and a handmade-not-mass-produced point count as the same idea and must not appear as separate duplicate bullets.',
     'Weak styling filler is not a benefit. Do not use works over minimal clothing, easy to build into a look, part of a complete look, creates a clear accent, works as a centerpiece or without additional design elements.',
     'Material and finish claims must come from product-specific Product Truth or verified image truth. Vegan leather and faux leather are synonyms in customer copy and must never be stacked as two materials. Reflective or retroreflective is not a synonym for glossy, mirror-like, metallic or light-catching.',
     'Never promise or discuss likes, followers, popularity, viral reach, organic attention, reactions, saves, comments, sales, press attention or other social-performance outcomes.',
@@ -115,7 +130,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     {
       block_key: 'why_youll_love_it',
       placement: 'left_description',
-      intent: 'Write 3-5 concise benefit bullets with genuinely different, product-supported categories such as silhouette, use-case value, fit, comfort, durability, shape retention or verified finish. Use no more than one design-or-handmade uniqueness bullet. Reflective is allowed only when explicit Product Truth confirms reflective or retroreflective behavior.',
+      intent: 'Write 3-4 purchase-decision bullets using the benefit generation policy. Include exactly one concrete studio-design differentiation point plus distinct supported practical values such as easy dressing or adjustment, comfort, shape retention, durability or verified finish behavior. Never use style/event lists, visual-audit observations or abstract phrases as benefits.',
     },
     {
       block_key: 'ideal_for',
@@ -192,6 +207,8 @@ export function buildThefeyaSeoDoctrineSystemLines() {
     ...THEFEYA_SEO_DOCTRINE.brand_value_pillars,
     'Customer copy principles:',
     ...THEFEYA_SEO_DOCTRINE.customer_copy_principles,
+    'Why you’ll love it benefit policy:',
+    ...THEFEYA_BENEFIT_GENERATION_POLICY,
     'Right PDP panel policy:',
     ...THEFEYA_SEO_DOCTRINE.right_panel_policy,
     'Visual truth principles:',
@@ -212,6 +229,10 @@ export function buildThefeyaSeoDoctrineUserLines() {
     ...THEFEYA_SEO_DOCTRINE.buyer_facts,
     'Required generated PDP block plan:',
     ...THEFEYA_SEO_DOCTRINE.pdp_block_plan.map((block) => `${block.block_key} (${block.placement}): ${block.intent}`),
+    'Why you’ll love it benefit policy:',
+    ...THEFEYA_BENEFIT_GENERATION_POLICY,
+    'Fixed right-panel copy already visible to the buyer. Treat it as a no-copy reference and do not repeat its sentences:',
+    ...THEFEYA_CANONICAL_RIGHT_PDP_PANEL.map((block) => `${block.heading}: ${block.body.replaceAll('\n', ' ')}`),
     'Right panel policy:',
     ...THEFEYA_SEO_DOCTRINE.right_panel_policy,
     `Research checkpoint: ${THEFEYA_RESEARCH_RELOAD_CHECKPOINT.agent_note_en}`,
@@ -232,6 +253,7 @@ export function buildThefeyaSeoDoctrineGuardrails() {
     'Do not present visual analysis, Product Truth diagnostics, source wording or review instructions as buyer-facing sales copy.',
     'Do not use the brand name as a repeated product keyword.',
     'Do not use weak styling filler or duplicate originality arguments as Why you’ll love it benefits.',
+    'Every Why you’ll love it bullet must state a supported feature or studio truth and a concrete buyer outcome; style lists and abstract visual commentary do not qualify.',
     'Designed for self-expression must use first-person studio voice and explain buyer self-expression, not third-person narration or repeated product specifications.',
     'Do not mention popularity, likes, followers, viral reach, organic attention, reactions, saves, comments, sales or audience outcomes, even as non-guaranteed possibilities.',
     'Do not use steampunk unless visual and product evidence clearly support it.',
@@ -245,6 +267,7 @@ export function summarizeThefeyaSeoDoctrine() {
     right_panel_block_count: THEFEYA_CANONICAL_RIGHT_PDP_PANEL.length,
     buyer_fact_count: THEFEYA_SEO_DOCTRINE.buyer_facts.length,
     brand_value_pillar_count: THEFEYA_BRAND_VALUE_PILLARS.length,
+    benefit_policy_rule_count: THEFEYA_BENEFIT_GENERATION_POLICY.length,
     visual_truth_rule_count: THEFEYA_SEO_DOCTRINE.visual_truth_strategy.length,
     research_reload_checkpoint: THEFEYA_RESEARCH_RELOAD_CHECKPOINT,
     variation_editing_checkpoint: THEFEYA_VARIATION_EDITING_CHECKPOINT,
