@@ -1,4 +1,4 @@
-export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v13' as const;
+export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v14' as const;
 
 export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
   checkpoint_id: 'reload_latest_research_before_apply_publish_v1',
@@ -114,6 +114,8 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Use clear, short sentences. Avoid keyword stuffing, doorway-page copy, repeated phrase skeletons and long chained keyword titles.',
     'Do not expand a clear product name merely to reach a character target. H1 should name the primary product entity once and add only a different, verified attribute or use case.',
     'Close keyword variants belong to one semantic cluster. They do not all need exact-match placement, and two near-synonymous product queries must not be stacked in one sentence or bullet.',
+    'The operator-selected event, style, persona and audience axes control use-case coverage. Ideal for must represent at least one selected value from every non-empty axis, while Product Truth vetoes incompatible or unsupported contexts.',
+    'Do not mix different visual worlds simply to place more terms. Cyberpunk is not steampunk, and a high-volume but incompatible style is not a valid secondary angle.',
     'Every sentence must add a product fact, a supported buyer outcome or a distinct use case. Delete sentences that only describe an abstract mood, presence, focal point or intentional look.',
     'Main PDP copy must remain product-specific and concise. Required generated left-description order: About this piece, Why you’ll love it, Ideal for, Designed for self-expression.',
     'Why you’ll love it must contain 3-4 genuinely different purchase reasons. A design-authorship point and a handmade-not-mass-produced point count as the same idea and must not appear as separate duplicate bullets.',
@@ -146,7 +148,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     {
       block_key: 'ideal_for',
       placement: 'left_description',
-      intent: 'Use-case bullets based on approved DNA, validated keywords and visual truth. Each bullet must add a distinct use case; do not repeat photoshoot, stage or festival intent in alternate wording, and do not write tautologies such as buyers looking for this product.',
+      intent: 'Write 3-5 use-case bullets based on approved DNA, validated keywords and visual truth. Represent at least one operator-selected value from every non-empty event, style, persona and audience axis. Cover more selected values only when compatible and useful; never turn the block into a keyword list. Each bullet must add a distinct use case; do not repeat photoshoot, stage or festival intent in alternate wording, and do not write tautologies such as buyers looking for this product.',
     },
     {
       block_key: 'main_description',
@@ -192,8 +194,8 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Keep visual_truth internal. Do not make intro, meta or body sound like a computer-vision report.',
     'Map visible facts to approved product DNA when possible, but keep observed facts, selected DNA and open style suggestions separate.',
     'Allow open style suggestions if the image genuinely shows something useful that is not in current DNA, but keep it cautious and review-only unless approved keywords and product truth support it.',
-    'ALT text must use visible product facts, not aspirational claims. If a fact is uncertain, mark needs_image_review.',
-    'Styled accessories, face coverings, capes, props, background scenery and model styling must not be described as part of the sold product unless Product Truth confirms they are included.',
+    'ALT text must lead with the visible sold Product DNA component(s), not aspirational claims or a full inventory of the photograph. If a product fact is uncertain, mark needs_image_review.',
+    'Omit styled accessories, face coverings, capes, goggles, shoes, underwear, base clothing, props and scenery from ALT unless Product Truth confirms they are included in the sold configuration. A short setting or pose may follow the sold product only when it helps distinguish the image.',
   ],
   style_boundaries: [
     'Allowed when supported: post-apocalyptic, warrior, futuristic, Burning Man, stage, festival, glam, cyber, reflective, armor, performance, desert-inspired and editorial.',

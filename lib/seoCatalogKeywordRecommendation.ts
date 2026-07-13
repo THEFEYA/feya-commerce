@@ -26,6 +26,14 @@ const STOP_WORDS = new Set([
   'costume', 'costumes', 'outfit', 'outfits', 'set', 'sets', 'fashion', 'unique',
 ]);
 
+// Known irrelevant entities observed in the imported keyword bank. These are
+// rejected before volume/competition scoring, including when an operator has
+// not manually typed minus-words in the current session.
+const EXCLUDED_KEYWORD_TERMS = [
+  'lego', 'pokemon', 'pok mon', 'gatsby', 'saint patrick', 'st patrick', 'santa',
+  'my little pony', 'casual', 'dinosaur',
+];
+
 const COLOR_FAMILIES: Record<string, string[]> = {
   black: ['black'],
   blue: ['blue'],
@@ -69,7 +77,8 @@ const MATERIAL_TERMS = [
 ];
 
 const AUDIENCE_FAMILIES: Record<string, string[]> = {
-  men: ['men', 'mens', "men's", 'male', 'man', 'guys'],
+  // Deliberately omit bare "man": it is part of the event name Burning Man.
+  men: ['men', 'mens', "men's", 'male', 'guys'],
   women: ['women', 'womens', "women's", 'female', 'woman', 'ladies'],
 };
 
@@ -124,7 +133,8 @@ export function recommendCatalogKeywords(input: {
       product_component_families: profile.componentFamilies,
       product_colors: profile.colors,
       product_audiences: profile.audiences,
-      truth_gate: 'component/color/audience mismatch rejects before volume, competition or bank score is considered',
+      excluded_keyword_terms: profile.excludedTerms,
+      truth_gate: 'explicit/global exclusions and component/color/audience mismatch reject before volume, competition or bank score is considered',
       confirmation_required: true,
       writes_performed: 0,
     },
@@ -172,6 +182,15 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
   const identityTokens = tokens(identityText).filter((token) => !STOP_WORDS.has(token) && token.length > 2);
   const styleTokens = tokens(styleText).filter((token) => !STOP_WORDS.has(token) && token.length > 2);
   const materialTerms = MATERIAL_TERMS.filter((term) => containsPhrase(materialText, term));
+  const focusPhrases = unique(Object.entries(explicitFocus)
+    .filter(([key]) => key !== 'exclude')
+    .flatMap(([, value]) => flattenStrings([value]))
+    .map(normalize)
+    .filter(Boolean));
+  const excludedTerms = unique([
+    ...EXCLUDED_KEYWORD_TERMS,
+    ...flattenStrings([explicitFocus.exclude]).map(normalize).filter(Boolean),
+  ]);
 
   return {
     componentFamilies,
@@ -180,7 +199,8 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
     identityTokens: unique(identityTokens),
     styleTokens: unique(styleTokens),
     materialTerms,
-    focusPhrases: unique(flattenStrings(Object.values(explicitFocus)).map(normalize).filter(Boolean)),
+    focusPhrases,
+    excludedTerms,
     focus: explicitFocus,
   };
 }
@@ -202,6 +222,7 @@ function scoreRow(
   const styleOverlap = intersection(tokens(keyword), profile.styleTokens);
   const materialMatch = profile.materialTerms.filter((term) => containsPhrase(keyword, term));
   const exactFocus = profile.focusPhrases.filter((term) => term.length > 2 && containsPhrase(keyword, term));
+  const excludedMatch = profile.excludedTerms.find((term) => containsPhrase(keyword, term));
 
   const componentMismatch = keywordComponents.length > 0 && componentMatch.length === 0;
   const colorMismatch = keywordColors.length > 0 && profile.colors.length > 0 && colorMatch.length === 0;
@@ -216,7 +237,8 @@ function scoreRow(
   const supportIntentGate = productIdentityGate || styleOverlap.length > 0;
 
   let rejectReason: string | null = null;
-  if (!supportedBucket) rejectReason = 'unsupported_page_bucket';
+  if (excludedMatch) rejectReason = 'excluded_keyword_term';
+  else if (!supportedBucket) rejectReason = 'unsupported_page_bucket';
   else if (componentMismatch) rejectReason = 'component_family_mismatch';
   else if (colorMismatch) rejectReason = 'color_mismatch';
   else if (audienceMismatch) rejectReason = 'audience_mismatch';

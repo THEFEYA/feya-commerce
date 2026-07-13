@@ -289,7 +289,9 @@ function resolveRecommendationFocus(product, decision) {
   return Object.fromEntries(keys.map((key) => {
     const manualValue = manual[key];
     const automaticValue = automatic[key];
-    if (stringArray(manualValue).length) return [key, manualValue];
+    // A saved empty array is an explicit operator decision (for example: no persona).
+    // Falling back to auto-focus here silently restores chips the operator removed.
+    if (Object.prototype.hasOwnProperty.call(manual, key)) return [key, stringArray(manualValue)];
     if (stringArray(automaticValue).length) return [key, automaticValue];
     return [key, derived[key] || []];
   }));

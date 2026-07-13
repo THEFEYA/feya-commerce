@@ -31,6 +31,7 @@ test('auto recommendation applies Product Truth mismatch gates before search vol
       { ...baseMetric, keyword: 'futuristic shoulder armor', keyword_norm: 'futuristic shoulder armor', bank_bucket: 'product', avg_monthly_searches: 90 },
       { ...baseMetric, keyword: 'gold bodysuit', keyword_norm: 'gold bodysuit', bank_bucket: 'product_or_alt', avg_monthly_searches: 100000 },
       { ...baseMetric, keyword: 'choke chain gold', keyword_norm: 'choke chain gold', bank_bucket: 'product_or_alt', avg_monthly_searches: 200000 },
+      { ...baseMetric, keyword: 'lego gold shoulder armor', keyword_norm: 'lego gold shoulder armor', bank_bucket: 'product_or_alt', avg_monthly_searches: 300000 },
       { ...baseMetric, keyword: 'silver shoulder armor', keyword_norm: 'silver shoulder armor', bank_bucket: 'product', avg_monthly_searches: 100000 },
       { ...baseMetric, keyword: 'where to buy shoulder armor', keyword_norm: 'where to buy shoulder armor', bank_bucket: 'faq', page_type: 'FAQ', avg_monthly_searches: 50 },
     ],
@@ -39,11 +40,56 @@ test('auto recommendation applies Product Truth mismatch gates before search vol
   const keywords = result.keywords.map((row) => String(row.keyword_norm));
   assert.equal(keywords.includes('gold bodysuit'), false);
   assert.equal(keywords.includes('choke chain gold'), false);
+  assert.equal(keywords.includes('lego gold shoulder armor'), false);
   assert.equal(keywords.includes('silver shoulder armor'), false);
   assert.equal(keywords.includes('gold shoulders'), true);
   assert.equal(keywords.includes('where to buy shoulder armor'), true);
   assert.equal(result.keywords.find((row) => row.role === 'primary')?.keyword_norm, 'futuristic shoulder armor');
   assert.equal(result.diagnostics.confirmation_required, true);
+});
+
+test('Burning Man is an event and does not infer a male audience', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      card_title: 'Best Festival Armor Outfit for Burning Man',
+      canonical_color_label: 'Gold',
+      parent_components_json: ['Shoulders', 'Skirt'],
+    },
+    focus: {
+      component: ['shoulders', 'skirt'],
+      event: ['burning man', 'festival'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'women festival armor', keyword_norm: 'women festival armor', bank_bucket: 'product', avg_monthly_searches: 90 },
+      { ...baseMetric, keyword: 'mens festival armor', keyword_norm: 'mens festival armor', bank_bucket: 'product', avg_monthly_searches: 90000 },
+    ],
+  });
+
+  const keywords = result.keywords.map((row) => String(row.keyword_norm));
+  assert.equal(result.diagnostics.product_audiences.includes('men'), false);
+  assert.equal(result.diagnostics.product_audiences.includes('women'), true);
+  assert.equal(keywords.includes('women festival armor'), true);
+  assert.equal(keywords.includes('mens festival armor'), false);
+});
+
+test('operator minus-words reject a candidate before scoring', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      card_title: 'Gold Shoulder Armor',
+      canonical_color_label: 'Gold',
+      parent_components_json: ['Shoulders'],
+    },
+    focus: { component: ['shoulders'], exclude: ['cyberpunk'] },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'cyberpunk shoulder armor', keyword_norm: 'cyberpunk shoulder armor', bank_bucket: 'product', avg_monthly_searches: 2000 },
+      { ...baseMetric, keyword: 'gold shoulder armor', keyword_norm: 'gold shoulder armor', bank_bucket: 'product', avg_monthly_searches: 200 },
+    ],
+  });
+
+  const keywords = result.keywords.map((row) => String(row.keyword_norm));
+  assert.equal(keywords.includes('cyberpunk shoulder armor'), false);
+  assert.equal(keywords.includes('gold shoulder armor'), true);
 });
 
 test('automatic recommendations remain review candidates and never claim confirmation', () => {

@@ -63,12 +63,12 @@ const SYN = {
   legs: ['legs', 'leg', 'garter', 'garters', 'leg covers', 'leg harness', 'leg armor'],
   mask: ['mask', 'face mask'],
   headpiece: ['headpiece', 'head piece', 'horn', 'crown', 'halo', 'headdress', 'cleopatra'],
-  choker: ['choker', 'collar'], wings: ['wings'], spine: ['spine', 'back piece'], tail: ['tail'],
+  choker: ['choker', 'collar', 'choke chain', 'choke chains'], wings: ['wings'], spine: ['spine', 'back piece'], tail: ['tail'],
   gold: ['gold', 'golden'], silver: ['silver', 'chrome'], black: ['black'], white: ['white'], mirror: ['mirror', 'mirrored', 'reflective'], acrylic: ['acrylic'], leather: ['leather', 'faux leather'], 'vegan leather': ['vegan leather', 'faux leather'], metallic: ['metallic', 'metal'], holographic: ['holographic', 'holo', 'iridescent'], chain: ['chain', 'chains', 'body chain'],
   'burning man': ['burning man', 'burningman'], festival: ['festival', 'coachella', 'tomorrowland', 'electric forest'], rave: ['rave', 'edm'], stage: ['stage', 'performance', 'performer', 'show'], edm: ['edm', 'rave'], edc: ['edc', 'electric daisy carnival'], coachella: ['coachella'], halloween: ['halloween'], cosplay: ['cosplay', 'costume'], pride: ['pride'], drag: ['drag', 'drag queen'], photoshoot: ['photoshoot', 'photo shoot'],
   'post apocalyptic': ['post apocalyptic', 'post-apocalyptic', 'apocalyptic', 'mad max', 'wasteland'], futuristic: ['futuristic', 'future', 'future fashion'], cyberpunk: ['cyberpunk', 'cyber'], desert: ['desert', 'dune', 'burning man'], glam: ['glam', 'glamorous', 'red carpet'], punk: ['punk'], goth: ['goth', 'gothic'], burlesque: ['burlesque'], cosmic: ['cosmic', 'space'], 'sci fi': ['sci fi', 'sci-fi', 'science fiction'], steampunk: ['steampunk'], fantasy: ['fantasy', 'fairy'],
   warrior: ['warrior', 'armor', 'armour', 'armored', 'armoured'], goddess: ['goddess'], queen: ['queen'], cleopatra: ['cleopatra', 'egyptian'], robot: ['robot'], alien: ['alien'], angel: ['angel'], demon: ['demon', 'devil'], 'drag queen': ['drag queen'], dancer: ['dancer', 'dance'], performer: ['performer', 'performance'], dj: ['dj'], showgirl: ['showgirl', 'show girl'], 'go go dancer': ['go go', 'gogo', 'go-go'], 'pole dancer': ['pole dancer', 'pole dance'], maleficent: ['maleficent', 'dark fairy'], cat: ['cat', 'kitty'], bunny: ['bunny', 'rabbit'], couple: ['couple', 'couples', 'matching'],
-  men: ['men', 'man', 'male', 'mens', "men's"], women: ['women', 'woman', 'female', 'womens', "women's", 'ladies', 'lady'], couples: ['couple', 'couples', 'matching']
+  men: ['men', 'male', 'mens', "men's"], women: ['women', 'woman', 'female', 'womens', "women's", 'ladies', 'lady'], couples: ['couple', 'couples', 'matching']
 };
 
 export default async function ListingMasterPage({ searchParams }) {
@@ -81,7 +81,6 @@ export default async function ListingMasterPage({ searchParams }) {
   const rows = keywordData.rows.slice(0, DISPLAY_LIMIT);
   const saved = savedMessage(filters.saved);
   const productStatus = productSeoStatus(selectedProduct, active, keywordData.totalCount ?? keywordData.rows.length);
-  const snapshot = keywordSnapshot(rows);
 
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
     <section className="container-feya pt-7 pb-14">
@@ -115,15 +114,6 @@ export default async function ListingMasterPage({ searchParams }) {
         <div className="space-y-5">
           <FocusSearchForm key={focusFormKey(selectedProduct, active)} product={selectedProduct} filters={active} status={productStatus} />
           <NextStepPanel product={selectedProduct} keywordCount={keywordData.totalCount ?? keywordData.rows.length} saved={Boolean(selectedProduct?.decision)} />
-          <form action={saveDecisionAction} className="rounded-2xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.055)] p-5">
-            <div className="eyebrow-gold mb-2">Зафиксировать решение</div>
-            <p className="text-[12px] leading-relaxed text-[var(--bone-dim)] mb-4">После проверки слов нажми “Сохранить черновик решения”. Потом переходи в SEO-задание. Текст здесь ещё не генерируется.</p>
-            <HiddenDecisionFields product={selectedProduct} filters={active} keywords={snapshot} />
-            <div className="flex flex-wrap gap-3">
-              <button className="btn-ghost" type="submit" disabled={!selectedProduct || !rows.length}><Save size={13} /> Сохранить черновик решения</button>
-              {selectedProduct ? <Link className="btn-ghost" href={`/admin/seo-storefront-preview?product_id=${selectedProduct.id}`}>Дальше: генерация и preview <ArrowUpRight size={13} /></Link> : null}
-            </div>
-          </form>
         </div>
       </div>
 
@@ -159,6 +149,20 @@ async function saveDecisionAction(formData) {
     keyword_type: val(formData.get('type')) || 'all'
   };
   const strategyString = joinValues(strategies);
+  const decisionFilters = {
+    type: manualFocus.keyword_type,
+    strategy: strategyString,
+    component: joinValues(manualFocus.component),
+    material: joinValues(manualFocus.material),
+    event: joinValues(manualFocus.event),
+    style: joinValues(manualFocus.style),
+    persona: joinValues(manualFocus.persona),
+    audience: joinValues(manualFocus.audience),
+    q: manualFocus.q,
+    exclude: joinValues(manualFocus.exclude),
+  };
+  const keywordData = await loadKeywords(decisionFilters);
+  const selectedKeywords = keywordSnapshot(keywordData.rows || []);
   const payload = {
     canonical_product_id: productId,
     product_slug: val(formData.get('product_slug')) || null,
@@ -167,13 +171,13 @@ async function saveDecisionAction(formData) {
     manual_focus_json: manualFocus,
     selected_strategy: strategyString,
     selected_keyword_ids_json: [],
-    selected_keywords_json: parseJson(val(formData.get('selected_keywords_json')), []),
+    selected_keywords_json: selectedKeywords,
     rejected_keywords_json: manualFocus.exclude,
     decision_status: 'draft',
     decision_note: 'Сохранено из Мастера листинга перед генерацией SEO-текста'
   };
   const { error } = await supabase.from(DECISIONS_TABLE).insert(payload);
-  const href = buildHref({ type: manualFocus.keyword_type, strategy: strategyString, component: joinValues(manualFocus.component), material: joinValues(manualFocus.material), event: joinValues(manualFocus.event), style: joinValues(manualFocus.style), persona: joinValues(manualFocus.persona), audience: joinValues(manualFocus.audience), q: manualFocus.q, exclude: joinValues(manualFocus.exclude), productId, focusApplied: '1' });
+  const href = buildHref({ ...decisionFilters, productId, focusApplied: '1' });
   redirect(`${href}${href.includes('?') ? '&' : '?'}saved=${error ? 'error' : 'ok'}`);
 }
 
@@ -207,7 +211,7 @@ async function loadProducts(filters) {
   return { allProducts, products, visibleProducts: products.length, totalProducts: allProducts.length, sections, statusCounts, activeSection, activeStatus, source, error: warning ? `Fast storefront v1 недоступен, включён fallback: ${warning}` : null };
 }
 function emptyProducts(error) { return { allProducts: [], products: [], visibleProducts: 0, totalProducts: 0, sections: [], statusCounts: { all: 0, not_saved: 0, saved: 0 }, activeSection: '', activeStatus: 'all', source: 'none', error }; }
-async function loadDecisionMap() { const supabase = getSupabaseServiceClient(); if (!supabase) return new Map(); const { data } = await supabase.from(DECISIONS_TABLE).select('canonical_product_id,decision_status,selected_strategy,updated_at,created_at').limit(2000); const map = new Map(); (data || []).sort((a, b) => new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime()).forEach((row) => { if (row?.canonical_product_id && !map.has(row.canonical_product_id)) map.set(row.canonical_product_id, row); }); return map; }
+async function loadDecisionMap() { const supabase = getSupabaseServiceClient(); if (!supabase) return new Map(); const { data } = await supabase.from(DECISIONS_TABLE).select('canonical_product_id,decision_status,selected_strategy,manual_focus_json,auto_focus_json,selected_keywords_json,updated_at,created_at').limit(2000); const map = new Map(); (data || []).sort((a, b) => new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime()).forEach((row) => { if (row?.canonical_product_id && !map.has(row.canonical_product_id)) map.set(row.canonical_product_id, row); }); return map; }
 function normalizeProduct(row) { const parent = arr(row.parent_components_json); const child = arr(row.child_components_json); const groups = arr(row.component_groups_json); const title = row.card_title || row.draft_site_title || row.h1 || row.seo_title || row.product_slug || row.canonical_product_id || ''; const sectionLabel = row.operator_section_label || row.category_label || row.product_type || 'Other products'; const sectionKey = keyOf(sectionLabel); const sourceCategory = row.source_category_label || row.category_label || row.product_type || ''; const text = [row.focus_text, title, sectionLabel, sourceCategory, row.world_label, row.material, row.canonical_color_label, row.color, row.primary_image_alt, parent.join(' '), child.join(' '), groups.join(' '), row.canonical_product_id, row.matched_etsy_listing_id].filter(Boolean).join(' ').toLowerCase(); return { id: row.canonical_product_id, title, sectionLabel, sectionKey, sourceCategory, productType: row.product_type || '', worldLabel: row.world_label || '', materialRaw: row.material || '', colorRaw: row.canonical_color_label || row.color || '', imageUrl: row.primary_image_url || '', imageAlt: row.primary_image_alt || '', slug: row.product_slug || row.canonical_product_id, etsyId: row.matched_etsy_listing_id || '', parentComponents: parent, childComponents: child, componentGroups: groups, needsComponentReviewCount: Number(row.needs_component_review_count || 0), hasComponentReviewRisk: Boolean(row.has_component_review_risk), text }; }
 
 async function loadKeywords(filters) {
@@ -236,6 +240,7 @@ function FocusSearchForm({ product, filters, status }) {
   const formKey = focusFormKey(product, filters);
   return <form key={formKey} action="/admin/listing-master" className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
     <input type="hidden" name="product_id" value={product?.id || filters.productId || ''} /><input type="hidden" name="product_q" value={filters.productQ || ''} /><input type="hidden" name="product_section" value={filters.productSection || ''} /><input type="hidden" name="product_status" value={filters.productStatus || 'all'} /><input type="hidden" name="type" value={filters.type || 'all'} /><input type="hidden" name="focus_applied" value="1" />
+    <input type="hidden" name="canonical_product_id" value={product?.id || ''} /><input type="hidden" name="product_slug" value={product?.slug || ''} /><input type="hidden" name="matched_etsy_listing_id" value={product?.etsyId || ''} /><input type="hidden" name="auto_focus_json" value={JSON.stringify(autoFocusSnapshot(product, filters.inferred || {}))} />
     <div className="flex items-center justify-between gap-3 mb-4"><div className="flex items-center gap-2 eyebrow-gold"><SlidersHorizontal size={14} /> Фокус товара</div><Chip tone={status.tone}>{status.label}</Chip></div>
     {product ? <div className="grid sm:grid-cols-[96px_1fr] gap-4 rounded-2xl border border-[rgba(212,178,106,.18)] bg-[rgba(212,178,106,.055)] p-4 mb-4"><ProductImage product={product} size="lg" /><div><div className="text-bone text-[18px] leading-snug">{product.title}</div><div className="mt-1 text-[12px] text-[var(--bone-dim)]">{product.sectionLabel} · {product.worldLabel || '—'} · {product.colorRaw || '—'}</div><div className="mt-3 flex flex-wrap gap-2"><Chip tone="success">состав: {labelForMulti(filters.component)}</Chip><Chip tone="gold">материал/цвет: {labelForMulti(filters.material)}</Chip><Chip tone="warning">сценарий: {labelForMulti(filters.event)}</Chip><Chip tone="gold">стиль: {labelForMulti(filters.style)}</Chip><Chip tone="success">персона: {labelForMulti(filters.persona)}</Chip><Chip>аудитория: {labelForMulti(filters.audience)}</Chip>{decisionLabel(product.decision) ? <Chip tone={decisionLabel(product.decision).tone}>{decisionLabel(product.decision).text}</Chip> : null}{product.hasComponentReviewRisk ? <Chip tone="warning">ДНК требует проверки: {product.needsComponentReviewCount}</Chip> : null}</div><div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Source category: {product.sourceCategory || '—'} · components: {product.parentComponents.join(', ') || '—'} / {product.childComponents.join(', ') || '—'}. {status.note}</div></div></div> : <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mb-4 text-[13px] leading-relaxed text-[var(--bone-dim)]">Товар ещё не выбран. Слева можно фильтровать по разделу и статусу работы.</div>}
     <CheckboxChipGroup key={`component-${formKey}`} title="Состав / часть товара" items={COMPONENTS} field="component" filters={filters} />
@@ -246,13 +251,15 @@ function FocusSearchForm({ product, filters, status }) {
     <CheckboxChipGroup key={`audience-${formKey}`} title="Аудитория / buyer angle" items={AUDIENCES} field="audience" filters={filters} />
     <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-2"><div className="eyebrow-gold mb-3">Режим подбора слов</div><div className="grid gap-3 md:grid-cols-3">{STRATEGIES.map((s) => <CheckboxCard key={`${s}-${formKey}`} name="strategy" value={s} checked={strategyValues(filters.strategy).includes(s)} title={STRATEGY_LABELS[s]} note={STRATEGY_NOTES[s]} />)}</div><div className="mt-3 text-[11px] text-[var(--bone-dim)]">По умолчанию включены все три режима. Повторный клик снимает режим; фильтр применится только после кнопки ниже.</div></div>
     <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-4"><div className="eyebrow-gold mb-3">Поиск и минус-слова внутри SEO-ядра</div><div className="grid gap-3 md:grid-cols-[1fr_1fr]"><label><div className="eyebrow-dim mb-1.5">Доп. поиск</div><input name="q" defaultValue={filters.q} placeholder="например: armor, price, shipping" className="field" /></label><label><div className="eyebrow-dim mb-1.5">Минус-слова</div><input name="exclude" defaultValue={valuesOf(filters.exclude).join(', ')} placeholder="dance, bodysuit, neon" className="field" /></label></div></div>
-    <div className="mt-4 flex flex-wrap gap-3"><button type="submit" className="btn-ghost"><SearchCheck size={13} /> Применить поиск слов</button><Link href={product ? productHref(product, filters) : '/admin/listing-master'} className="btn-ghost">Сбросить товар/ДНК</Link></div>
+    <div className="mt-4 rounded-2xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.055)] p-4">
+      <div className="text-[11px] leading-relaxed text-[var(--bone-dim)] mb-3">«Применить» обновляет выдачу для проверки. «Сохранить» одним действием записывает именно текущие chips и заново собирает под них снимок ключей.</div>
+      <div className="flex flex-wrap gap-3"><button type="submit" className="btn-ghost"><SearchCheck size={13} /> Применить поиск слов</button><button type="submit" formAction={saveDecisionAction} className="btn-ghost" disabled={!product}><Save size={13} /> Сохранить текущий фокус и ключи</button><Link href={product ? productHref(product, filters) : '/admin/listing-master'} className="btn-ghost">Сбросить товар/ДНК</Link>{product ? <Link className="btn-ghost" href={`/admin/seo-storefront-preview?product_id=${product.id}`}>Дальше: генерация и preview <ArrowUpRight size={13} /></Link> : null}</div>
+    </div>
   </form>;
 }
 function CheckboxChipGroup({ title, items, field, filters }) { const selected = valuesOf(filters[field]); return <div className="mb-4"><div className="eyebrow-dim mb-2">{title}</div><div className="flex flex-wrap gap-2">{items.map((item) => <label key={`${field}-${item}-${selected.includes(item) ? 'on' : 'off'}`} className="cursor-pointer"><input className="peer sr-only" type="checkbox" name={field} value={item} defaultChecked={selected.includes(item)} /><span className="inline-flex rounded-full border border-[rgba(216,214,211,.13)] bg-black/10 px-3 py-2 text-[10px] uppercase tracking-[0.15em] text-[var(--bone-dim)] peer-checked:border-[rgba(108,183,138,.55)] peer-checked:bg-[rgba(108,183,138,.11)] peer-checked:text-[#a9dfbd]">{labelFor(item)}</span></label>)}</div></div>; }
 function CheckboxCard({ name, value, checked, title, note }) { return <label className="cursor-pointer"><input className="peer sr-only" type="checkbox" name={name} value={value} defaultChecked={checked} /><span className="block rounded-2xl border border-[rgba(216,214,211,.12)] bg-black/15 p-3 peer-checked:border-[rgba(212,178,106,.60)] peer-checked:bg-[rgba(212,178,106,.11)]"><div className="text-bone text-[13px]">{title}</div><div className="mt-1.5 text-[10px] leading-relaxed text-[var(--bone-dim)]">{note}</div></span></label>; }
 function NextStepPanel({ product, keywordCount, saved }) { return <div className="rounded-2xl border border-[rgba(212,178,106,.20)] bg-[rgba(212,178,106,.045)] p-4"><div className="eyebrow-gold mb-2">Следующий шаг</div><p className="text-[12px] leading-relaxed text-[var(--bone-dim)]">1) Применить поиск слов и проверить список. 2) Если слова подходят — сохранить черновик решения. 3) После сохранения перейти в генерацию и preview.</p><div className="mt-3 flex flex-wrap gap-2"><Chip tone={product ? 'success' : 'warning'}>{product ? 'товар выбран' : 'выбери товар'}</Chip><Chip tone={keywordCount > 0 ? 'success' : 'warning'}>{keywordCount > 0 ? `${fmt(keywordCount)} слов` : 'нет слов'}</Chip><Chip tone={saved ? 'success' : 'warning'}>{saved ? 'решение сохранено' : 'нужно сохранить'}</Chip></div></div>; }
-function HiddenDecisionFields({ product, filters, keywords }) { return <>{['component','material','event','style','persona','audience','q','exclude','type','strategy'].map((name) => <input key={name} type="hidden" name={name} value={filters[name] || ''} />)}<input type="hidden" name="canonical_product_id" value={product?.id || ''} /><input type="hidden" name="product_slug" value={product?.slug || ''} /><input type="hidden" name="matched_etsy_listing_id" value={product?.etsyId || ''} /><input type="hidden" name="auto_focus_json" value={JSON.stringify(autoFocusSnapshot(product, filters.inferred || {}))} /><input type="hidden" name="selected_keywords_json" value={JSON.stringify(keywords)} /></>; }
 function KeywordTable({ rows, error }) { return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden"><div className="grid grid-cols-[1.35fr_.42fr_.42fr_.52fr_.52fr_.70fr_.55fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.20em] text-[var(--smoke)]"><div>Ключ</div><div>Совпадение</div><div>SEO</div><div>Спрос</div><div>Конкуренция</div><div>Сигнал</div><div>Почему</div></div><div className="divide-y divide-[rgba(216,214,211,.08)]">{rows.map((row, i) => { const signal = strategySignal(row); return <div key={`${row.keyword_norm || row.keyword}-${i}`} className="grid grid-cols-[1.35fr_.42fr_.42fr_.52fr_.52fr_.70fr_.55fr] gap-4 px-5 py-3 items-center hover:bg-[rgba(212,178,106,.035)]"><div><div className="text-bone text-[13px] leading-snug">{displayKeyword(row)}</div><div className="mt-1 flex flex-wrap gap-1.5"><Chip tone={toneByType(row.bank_bucket)}>{keywordUse(row)}</Chip>{row.match_label ? <Chip tone={row.match_label === 'точное' ? 'success' : 'gold'}>{row.match_label}</Chip> : null}</div></div><div className="font-price text-[20px] text-[#a9dfbd]">{row.match_score == null ? '—' : row.match_score}</div><div className="font-price text-[20px] text-[var(--gold-warm)]">{asText(row.score)}</div><div className="text-[12px] text-[var(--bone-dim)]">{fmt(row.avg_monthly_searches)}</div><div><Chip tone={String(row.competition || '').toUpperCase() === 'LOW' ? 'success' : String(row.competition || '').toUpperCase() === 'HIGH' ? 'warning' : 'neutral'}>{competitionLabel(row.competition)}</Chip></div><div><Chip tone={signal.tone}>{signal.label}</Chip></div><details className="text-[11px] leading-relaxed text-[var(--bone-dim)]"><summary className="cursor-pointer text-[var(--gold-warm)]">открыть</summary><div className="mt-2 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-2">{asText(row.match_reasons || row.source_clusters || row.source_files)}<br />Google: {fmt(row.avg_monthly_searches)} / {competitionLabel(row.competition)} · {asText(row.reason || row.notes, '')}</div></details></div>; })}{!rows.length && !error ? <div className="px-5 py-6 text-[13px] text-[var(--bone-dim)]">По текущим фильтрам слов не найдено. Сними часть фокуса или минус-слова.</div> : null}</div></div>; }
 function ProductCard({ product, active, filters }) { const focus = inferFocus(product); const hasFocus = Boolean(focus.component || focus.material || focus.event || focus.style || focus.persona || focus.audience); const decision = decisionLabel(product.decision); return <Link href={productHref(product, filters)} className={`grid grid-cols-[44px_1fr] gap-3 rounded-2xl border p-3 ${active ? 'border-[rgba(212,178,106,.55)] bg-[rgba(212,178,106,.10)]' : 'border-[rgba(216,214,211,.10)] bg-black/15 hover:border-[rgba(212,178,106,.35)]'}`}><ProductImage product={product} /><div className="min-w-0"><div className="truncate text-[12px] text-bone">{product.title}</div><div className="mt-1 truncate text-[10px] text-[var(--bone-dim)]">{product.sectionLabel} · {product.worldLabel || product.colorRaw || '—'}</div><div className="mt-2 flex flex-wrap gap-1.5">{active ? <Chip tone="gold">выбран</Chip> : null}<Chip tone={hasFocus ? 'success' : 'warning'}>{hasFocus ? 'авто-фокус' : 'ручной фокус'}</Chip>{decision ? <Chip tone={decision.tone}>{decision.text}</Chip> : <Chip>не сохранено</Chip>}{product.hasComponentReviewRisk ? <Chip tone="warning">ДНК: проверить</Chip> : null}</div></div></Link>; }
 function ProductImage({ product, size = 'sm' }) { const cls = size === 'lg' ? 'h-24 w-24 rounded-2xl' : 'h-11 w-11 rounded-xl'; return <div className={`${cls} overflow-hidden border border-[rgba(216,214,211,.10)] bg-black/25 flex items-center justify-center`}>{product?.imageUrl ? <img src={product.imageUrl} alt={product.imageAlt || product.title} className="h-full w-full object-cover" loading="lazy" /> : <ImageIcon size={16} className="text-[var(--smoke)]" />}</div>; }
@@ -267,6 +274,12 @@ function val(value, fallback = '') { if (typeof value === 'string') return value
 function norm(v) { return String(v || '').trim().toLowerCase(); }
 function arr(v) { if (Array.isArray(v)) return v.map(String).filter(Boolean); if (typeof v === 'string') { try { const p = JSON.parse(v); if (Array.isArray(p)) return p.map(String).filter(Boolean); } catch { return v ? [v] : []; } } return []; }
 function parseJson(v, fallback) { try { return JSON.parse(v); } catch { return fallback; } }
+function recordOf(value) {
+  if (value && typeof value === 'object' && !Array.isArray(value)) return value;
+  if (typeof value !== 'string') return null;
+  const parsed = parseJson(value, null);
+  return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null;
+}
 function keyOf(label) { return norm(label).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
 function tokensOf(q) { return norm(q).split(/\s+/).map((x) => x.trim()).filter((x) => x.length >= 2); }
 function cleanMulti(value) { return joinValues(valuesOf(value)); }
@@ -280,7 +293,26 @@ function escapeRegex(value) { return String(value || '').replace(/[.*+?^${}()|[\
 function termMatch(text, value) { if (!value) return true; const cleanText = norm(text); const terms = SYN[value] || [value]; return terms.some((term) => { const t = norm(term); if (!t) return false; const pattern = `(^|[^a-z0-9])${escapeRegex(t)}([^a-z0-9]|$)`; return new RegExp(pattern, 'i').test(cleanText); }); }
 function firstMatch(text, values) { return values.find((v) => termMatch(text, v)) || ''; }
 function inferFocus(product) { if (!product) return { component: '', material: '', event: '', style: '', persona: '', audience: '' }; return { component: firstMatch(product.text, COMPONENTS), material: firstMatch(product.text, MATERIALS), event: firstMatch(product.text, EVENTS), style: firstMatch(product.text, STYLES), persona: firstMatch(product.text, PERSONAS), audience: firstMatch(product.text, AUDIENCES) }; }
-function applyAutoFocus(filters, product) { const inferred = inferFocus(product); const hasManualFocus = FOCUS_FIELDS.some((field) => valuesOf(filters[field]).length) || filters.q || filters.exclude; if (filters.focusApplied || hasManualFocus) return { ...filters, inferred }; return { ...filters, component: filters.component || inferred.component, material: filters.material || inferred.material, event: filters.event || inferred.event, style: filters.style || inferred.style, persona: filters.persona || inferred.persona, audience: filters.audience || inferred.audience, inferred }; }
+function applyAutoFocus(filters, product) {
+  const inferred = inferFocus(product);
+  const hasUrlFocus = FOCUS_FIELDS.some((field) => valuesOf(filters[field]).length) || filters.q || filters.exclude;
+  if (filters.focusApplied || hasUrlFocus) return { ...filters, inferred, focusSource: 'url' };
+  const savedFocus = recordOf(product?.decision?.manual_focus_json);
+  if (savedFocus && FOCUS_FIELDS.some((field) => Object.prototype.hasOwnProperty.call(savedFocus, field))) {
+    const savedStrategy = product?.decision?.selected_strategy || savedFocus.strategies || filters.strategy;
+    return {
+      ...filters,
+      ...Object.fromEntries(FOCUS_FIELDS.map((field) => [field, joinValues(savedFocus[field])])),
+      strategy: cleanStrategyMulti(savedStrategy),
+      type: KEYWORD_TYPES.includes(val(savedFocus.keyword_type)) ? val(savedFocus.keyword_type) : filters.type,
+      q: norm(savedFocus.q),
+      exclude: joinValues(savedFocus.exclude),
+      inferred,
+      focusSource: 'saved',
+    };
+  }
+  return { ...filters, component: inferred.component, material: inferred.material, event: inferred.event, style: inferred.style, persona: inferred.persona, audience: inferred.audience, inferred, focusSource: 'auto' };
+}
 function focusFormKey(product, filters) { return [product?.id || 'no-product', filters.focusApplied ? 'applied' : 'auto', ...FOCUS_FIELDS.map((field) => valuesOf(filters[field]).join('|')), filters.strategy || '', filters.type || '', filters.q || '', filters.exclude || ''].join('::'); }
 function buildSections(products) { const map = new Map(); products.forEach((p) => { const key = p.sectionKey || 'other-products'; const current = map.get(key) || { key, label: p.sectionLabel || 'Other products', count: 0 }; current.count += 1; map.set(key, current); }); return Array.from(map.values()).sort((a, b) => b.count - a.count || a.label.localeCompare(b.label)); }
 function buildStatusCounts(products) { const counts = { all: products.length, not_saved: 0, saved: 0 }; products.forEach((p) => { if (p.decision) counts.saved += 1; else counts.not_saved += 1; p.statusKey = p.decision ? 'saved' : 'not_saved'; }); return counts; }

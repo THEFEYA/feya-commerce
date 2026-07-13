@@ -608,7 +608,8 @@ export default function FirstRealDraftClient() {
               </div>
             </Panel> : null}
 
-            {diagnostics ? <Panel title="Ключи, реально переданные в генерацию">
+            {diagnostics ? <Panel title="Карта ролей ключевых слов">
+              <p className="mb-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Primary обязан появиться естественно в основных SEO-полях. Secondary — семантические кандидаты, а не список для обязательного exact-match: близкие варианты используются только там, где добавляют смысл без переспама. Выбранные event/style/persona/audience должны быть отражены в блоке Ideal for; hold/reject в генерацию не попадают.</p>
               <div className="mb-3 grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <Fact label="Найдено" value={String(diagnostics.bank_rows_found ?? 0)} />
                 <Fact label="Trusted metrics" value={String(diagnostics.trusted_metric_rows ?? 0)} />

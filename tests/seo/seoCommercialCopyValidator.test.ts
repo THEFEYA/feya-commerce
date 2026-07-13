@@ -159,6 +159,58 @@ test('allows reflective wording only when explicit Product Truth supports it', (
   assert.equal(result.issues.some((issue) => issue.code === 'unsupported_reflective_finish_claim'), false);
 });
 
+test('blocks non-sold model styling in product image ALT', () => {
+  const value = draft({
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'Man in gold shoulder armor with a white cape, face mask and protective goggles in the desert',
+      truth_basis: 'visible_product_fact',
+    }],
+  });
+  const result = validateSeoCommercialCopy(value, {
+    product_truth: { included_components: ['Shoulders'] },
+  });
+  assert.ok(result.issues.some((issue) => issue.code === 'image_alt_mentions_unsold_styling_item'));
+});
+
+test('allows a styled item in ALT when it is part of confirmed Product DNA', () => {
+  const value = draft({
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'Gold shoulder armor and face mask worn for a desert festival look',
+      truth_basis: 'visible_product_fact',
+    }],
+  });
+  const result = validateSeoCommercialCopy(value, {
+    product_truth: { included_components: ['Shoulders', 'Face mask'] },
+  });
+  assert.equal(result.issues.some((issue) => issue.code === 'image_alt_mentions_unsold_styling_item'), false);
+});
+
+test('requires Ideal for to cover every selected focus axis without requiring every keyword variant', () => {
+  const manualFocus = {
+    event: ['Burning Man', 'festival'],
+    style: ['cyberpunk'],
+    persona: ['performer'],
+    audience: ['women'],
+  };
+  const missing = validateSeoCommercialCopy(draft(), { manual_focus: manualFocus });
+  const missingCodes = missing.issues.map((issue) => issue.code);
+  // The default block already covers the selected event axis via "festival"
+  // and the persona axis via "performance"; it must not repeat every synonym.
+  assert.equal(missingCodes.includes('ideal_for_missing_operator_event_focus'), false);
+  assert.ok(missingCodes.includes('ideal_for_missing_operator_style_focus'));
+  assert.ok(missingCodes.includes('ideal_for_missing_operator_audience_focus'));
+
+  const present = validateSeoCommercialCopy(draft({
+    h1: 'Cyberpunk Shoulder Armor for Burning Man',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'
+      ? { ...block, body: 'Women performers building a cyberpunk look for Burning Man\nFestival stage wardrobes' }
+      : block),
+  }), { manual_focus: manualFocus });
+  assert.equal(present.issues.some((issue) => issue.code.startsWith('ideal_for_missing_operator_')), false);
+});
+
 test('blocks one repeated idea spread across three customer blocks', () => {
   const value = draft({
     intro: 'The sculptural silhouette defines the upper body. Its layered shape supports performance styling.',

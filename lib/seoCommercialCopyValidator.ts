@@ -44,6 +44,25 @@ const DESIGN_BENEFIT_PATTERN = /\b(studio[- ]created|studio[- ]designed|studio[-
 const SELF_EXPRESSION_PATTERN = /\b(self[- ]expression|individuality|visual identity|personal style|your own look|made for your vision|designed for your vision|studio visual language|adapt(?:ed|able)|customi[sz](?:e|ed|ation))\b/i;
 const REDUNDANT_SHOULDER_ENTITY_PATTERN = /\bshoulders?\s+(?:armor|armour|piece|pieces|pauldron|pauldrons)\b/gi;
 
+const ALT_STYLING_FAMILIES: Array<{ key: string; aliases: string[] }> = [
+  { key: 'cape_or_cloak', aliases: ['cape', 'cloak'] },
+  { key: 'goggles_or_glasses', aliases: ['goggles', 'safety glasses', 'protective glasses', 'eyewear'] },
+  { key: 'mask_or_face_covering', aliases: ['mask', 'face mask', 'face covering', 'bandana'] },
+  { key: 'footwear', aliases: ['shoes', 'boots', 'heels', 'sneakers', 'footwear'] },
+  { key: 'underwear', aliases: ['underwear', 'briefs', 'boxers'] },
+  { key: 'trousers_or_shorts', aliases: ['trousers', 'pants', 'shorts'] },
+  { key: 'shirt', aliases: ['shirt', 't shirt', 't-shirt'] },
+];
+
+const FOCUS_VALUE_ALIASES: Record<string, string[]> = {
+  men: ['men', 'mens', "men's", 'male'],
+  women: ['women', 'womens', "women's", 'woman', 'female', 'ladies'],
+  performer: ['performer', 'performers', 'performance', 'stage artist'],
+  dancer: ['dancer', 'dancers', 'dance'],
+  dj: ['dj', 'djs'],
+  festival: ['festival', 'festivals'],
+};
+
 const BENEFIT_CATEGORIES: Array<{ key: string; pattern: RegExp }> = [
   {
     key: 'studio_design_and_craft',
@@ -242,6 +261,20 @@ export function validateSeoCommercialCopy(
     ));
   }
 
+  if (context.product_truth != null && altText) {
+    const includedComponentText = includedProductComponentText(context.product_truth);
+    const unsupportedAltItems = ALT_STYLING_FAMILIES
+      .filter((family) => family.aliases.some((alias) => containsPhrase(altText, alias)))
+      .filter((family) => !family.aliases.some((alias) => containsPhrase(includedComponentText, alias)))
+      .map((family) => family.key);
+    if (unsupportedAltItems.length) {
+      issues.push(blocker(
+        'image_alt_mentions_unsold_styling_item',
+        `ALT mentions styling that is not confirmed in the sold Product DNA (${unsupportedAltItems.join(', ')}). Lead with the sold component and omit model accessories, base clothing and props.`,
+      ));
+    }
+  }
+
   ['seo_title', 'h1', 'meta_description'].forEach((field) => {
     const value = typeof record[field] === 'string' ? record[field] : '';
     if (/\bTheFEYA\b/i.test(value)) {
@@ -271,6 +304,18 @@ export function validateSeoCommercialCopy(
       `H1 must use one operator-selected event focus naturally (${selectedEventFocus.join(', ')}). Prefer the product entity for the selected event over a low-intent construction detail.`,
     ));
   }
+
+  const idealForBlock = blocks.find((block) => String(block.block_key || '') === 'ideal_for');
+  const idealForBody = typeof idealForBlock?.body === 'string' ? idealForBlock.body.trim() : '';
+  (['event', 'style', 'persona', 'audience'] as const).forEach((axis) => {
+    const selectedValues = focusValues(context.manual_focus, axis);
+    if (selectedValues.length && !selectedValues.some((value) => focusValueAppears(idealForBody, value))) {
+      issues.push(blocker(
+        `ideal_for_missing_operator_${axis}_focus`,
+        `Ideal for must naturally represent at least one operator-selected ${axis} value (${selectedValues.join(', ')}). Product Truth remains the veto; do not invent an incompatible context.`,
+      ));
+    }
+  });
 
   const brandMentions = countMatches(customerText, BRAND_PATTERN);
   if (brandMentions > 1) {
@@ -571,14 +616,35 @@ function flattenText(value: unknown): string[] {
   return [];
 }
 
-function focusEventValues(value: unknown): string[] {
+function includedProductComponentText(value: unknown): string {
+  if (!isRecord(value)) return '';
+  return flattenText([
+    value.included_components,
+    value.known_components,
+    value.parent_components_json,
+    value.child_components_json,
+    value.component_groups_json,
+  ]).join(' ');
+}
+
+function focusValues(value: unknown, axis: 'event' | 'style' | 'persona' | 'audience'): string[] {
   if (!isRecord(value)) return [];
-  const event = value.event;
-  if (Array.isArray(event)) {
-    return event.map((item) => String(item || '').trim()).filter(Boolean);
+  const selected = value[axis];
+  if (Array.isArray(selected)) {
+    return [...new Set(selected.map((item) => String(item || '').trim()).filter(Boolean))];
   }
-  const single = String(event || '').trim();
+  const single = String(selected || '').trim();
   return single ? [single] : [];
+}
+
+function focusValueAppears(text: string, value: string) {
+  const normalized = String(value || '').trim().toLowerCase();
+  const aliases = FOCUS_VALUE_ALIASES[normalized] || [value];
+  return aliases.some((alias) => containsPhrase(text, alias));
+}
+
+function focusEventValues(value: unknown): string[] {
+  return focusValues(value, 'event');
 }
 
 function containsPhrase(text: string, phrase: string) {
