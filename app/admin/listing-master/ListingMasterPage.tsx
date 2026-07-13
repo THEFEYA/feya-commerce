@@ -1,8 +1,8 @@
 // @ts-nocheck
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import { ArrowUpRight, Database, ImageIcon, Layers3, PackageSearch, Save, Search, SearchCheck, SlidersHorizontal } from 'lucide-react';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
+import VerifiedSaveButton from './VerifiedSaveButton';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -15,6 +15,7 @@ const KEYWORD_SNAPSHOT_LIMIT = 35;
 const FAST_PRODUCT_VIEW = 'feya_commerce_v_step7_storefront_products_api';
 const KEYWORD_VIEW = 'vw_seo_keyword_bank_v1_for_listing_master';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
+const SOURCE_LISTINGS_TABLE = 'feya_commerce_source_listings';
 const FALLBACK_VIEW = 'feya_commerce_v_step6_product_catalog_overview';
 
 const FAST_PRODUCT_SELECT = 'canonical_product_id,matched_etsy_listing_id,product_slug,card_title,h1,seo_title,product_type,material,color,primary_image_url,primary_image_alt';
@@ -134,21 +135,23 @@ async function saveDecisionAction(formData) {
   'use server';
   const productId = val(formData.get('canonical_product_id')).trim();
   const supabase = getSupabaseServiceClient();
-  if (!productId || !supabase) redirect('/admin/listing-master?saved=error');
-  const strategies = strategyValues(formData.getAll('strategy').length ? formData.getAll('strategy') : val(formData.get('strategy')));
+  const requestId = val(formData.get('save_request_id')).trim() || 'server-action';
+  if (!productId) return saveFailure('missing_product', 'Не удалось определить выбранный товар.', requestId);
+  if (!supabase) return saveFailure('missing_supabase', 'Серверное подключение к Supabase недоступно.', requestId);
+  const strategies = allowedFormValues(formData, 'strategy', STRATEGIES);
   const manualFocus = {
-    component: valuesOf(formData.getAll('component').length ? formData.getAll('component') : val(formData.get('component'))),
-    material: valuesOf(formData.getAll('material').length ? formData.getAll('material') : val(formData.get('material'))),
-    event: valuesOf(formData.getAll('event').length ? formData.getAll('event') : val(formData.get('event'))),
-    style: valuesOf(formData.getAll('style').length ? formData.getAll('style') : val(formData.get('style'))),
-    persona: valuesOf(formData.getAll('persona').length ? formData.getAll('persona') : val(formData.get('persona'))),
-    audience: valuesOf(formData.getAll('audience').length ? formData.getAll('audience') : val(formData.get('audience'))),
-    strategies,
+    component: allowedFormValues(formData, 'component', COMPONENTS),
+    material: allowedFormValues(formData, 'material', MATERIALS),
+    event: allowedFormValues(formData, 'event', EVENTS),
+    style: allowedFormValues(formData, 'style', STYLES),
+    persona: allowedFormValues(formData, 'persona', PERSONAS),
+    audience: allowedFormValues(formData, 'audience', AUDIENCES),
+    strategies: strategies.length ? strategies : [...STRATEGIES],
     q: norm(val(formData.get('q'))),
     exclude: excludeTerms(val(formData.get('exclude'))),
     keyword_type: val(formData.get('type')) || 'all'
   };
-  const strategyString = joinValues(strategies);
+  const strategyString = joinValues(manualFocus.strategies);
   const decisionFilters = {
     type: manualFocus.keyword_type,
     strategy: strategyString,
@@ -174,11 +177,37 @@ async function saveDecisionAction(formData) {
     selected_keywords_json: selectedKeywords,
     rejected_keywords_json: manualFocus.exclude,
     decision_status: 'draft',
-    decision_note: 'Сохранено из Мастера листинга перед генерацией SEO-текста'
+    decision_note: `Сохранено из Мастера листинга перед генерацией SEO-текста · request_id=${requestId}`
   };
-  const { error } = await supabase.from(DECISIONS_TABLE).insert(payload);
+  const { data: inserted, error } = await supabase
+    .from(DECISIONS_TABLE)
+    .insert(payload)
+    .select('id,canonical_product_id,manual_focus_json,selected_strategy,created_at')
+    .single();
+  if (error || !inserted) {
+    console.error('[listing-master-save] write_failed', {
+      requestId,
+      productId,
+      code: error?.code || 'missing_inserted_row',
+      message: error?.message || 'Insert returned no row',
+      details: error?.details || null,
+      hint: error?.hint || null,
+    });
+    return saveFailure(error?.code || 'write_failed', 'Supabase не подтвердил запись решения.', requestId);
+  }
+  if (String(inserted.canonical_product_id) !== productId || decisionFocusSignature(inserted.manual_focus_json) !== decisionFocusSignature(manualFocus)) {
+    console.error('[listing-master-save] verification_failed', {
+      requestId,
+      productId,
+      insertedId: inserted.id,
+      submitted: manualFocus,
+      persisted: inserted.manual_focus_json,
+    });
+    return saveFailure('verification_failed', 'Записанный фокус не совпал с выбранными кнопками.', requestId);
+  }
+  console.info('[listing-master-save] verified', { requestId, productId, insertedId: inserted.id, manualFocus });
   const href = buildHref({ ...decisionFilters, productId, focusApplied: '1' });
-  redirect(`${href}${href.includes('?') ? '&' : '?'}saved=${error ? 'error' : 'ok'}`);
+  return { ok: true, href: `${href}${href.includes('?') ? '&' : '?'}saved=ok`, requestId, decisionId: inserted.id };
 }
 
 async function loadProducts(filters) {
@@ -193,9 +222,11 @@ async function loadProducts(filters) {
     source = result.error ? 'ошибка fast storefront v1' : 'fallback step6 catalog';
   }
   if (result.error) return emptyProducts(`${warning || 'Fast storefront v1'} / ${result.error.message}`);
+  const sourceSignals = await loadProductSourceSignalMap(supabase, result.data || []);
+  if (sourceSignals.error) warning = [warning, `Исходные Etsy-сигналы недоступны: ${sourceSignals.error}`].filter(Boolean).join(' / ');
   const decisions = await loadDecisionMap();
   const allProducts = (result.data || []).map((row) => {
-    const product = normalizeProduct(row);
+    const product = normalizeProduct(row, sourceSignals.map.get(String(row.matched_etsy_listing_id || '')));
     product.decision = decisions.get(product.id) || null;
     return product;
   }).sort((a, b) => a.title.localeCompare(b.title));
@@ -211,8 +242,19 @@ async function loadProducts(filters) {
   return { allProducts, products, visibleProducts: products.length, totalProducts: allProducts.length, sections, statusCounts, activeSection, activeStatus, source, error: warning ? `Fast storefront v1 недоступен, включён fallback: ${warning}` : null };
 }
 function emptyProducts(error) { return { allProducts: [], products: [], visibleProducts: 0, totalProducts: 0, sections: [], statusCounts: { all: 0, not_saved: 0, saved: 0 }, activeSection: '', activeStatus: 'all', source: 'none', error }; }
+async function loadProductSourceSignalMap(supabase, products) {
+  const ids = products.map((row) => String(row.matched_etsy_listing_id || '')).filter(Boolean);
+  if (!ids.length) return { map: new Map(), error: null };
+  const { data, error } = await supabase.from(SOURCE_LISTINGS_TABLE).select('etsy_listing_id,raw_tags,raw_materials').in('etsy_listing_id', ids);
+  const map = new Map();
+  (data || []).forEach((row) => {
+    const id = String(row.etsy_listing_id || '');
+    if (id && !map.has(id)) map.set(id, row);
+  });
+  return { map, error: error?.message || null };
+}
 async function loadDecisionMap() { const supabase = getSupabaseServiceClient(); if (!supabase) return new Map(); const { data } = await supabase.from(DECISIONS_TABLE).select('canonical_product_id,decision_status,selected_strategy,manual_focus_json,auto_focus_json,selected_keywords_json,updated_at,created_at').limit(2000); const map = new Map(); (data || []).sort((a, b) => new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime()).forEach((row) => { if (row?.canonical_product_id && !map.has(row.canonical_product_id)) map.set(row.canonical_product_id, row); }); return map; }
-function normalizeProduct(row) { const parent = arr(row.parent_components_json); const child = arr(row.child_components_json); const groups = arr(row.component_groups_json); const title = row.card_title || row.draft_site_title || row.h1 || row.seo_title || row.product_slug || row.canonical_product_id || ''; const sectionLabel = row.operator_section_label || row.category_label || row.product_type || 'Other products'; const sectionKey = keyOf(sectionLabel); const sourceCategory = row.source_category_label || row.category_label || row.product_type || ''; const text = [row.focus_text, title, sectionLabel, sourceCategory, row.world_label, row.material, row.canonical_color_label, row.color, row.primary_image_alt, parent.join(' '), child.join(' '), groups.join(' '), row.canonical_product_id, row.matched_etsy_listing_id].filter(Boolean).join(' ').toLowerCase(); return { id: row.canonical_product_id, title, sectionLabel, sectionKey, sourceCategory, productType: row.product_type || '', worldLabel: row.world_label || '', materialRaw: row.material || '', colorRaw: row.canonical_color_label || row.color || '', imageUrl: row.primary_image_url || '', imageAlt: row.primary_image_alt || '', slug: row.product_slug || row.canonical_product_id, etsyId: row.matched_etsy_listing_id || '', parentComponents: parent, childComponents: child, componentGroups: groups, needsComponentReviewCount: Number(row.needs_component_review_count || 0), hasComponentReviewRisk: Boolean(row.has_component_review_risk), text }; }
+function normalizeProduct(row, sourceSignals = {}) { const parent = arr(row.parent_components_json); const child = arr(row.child_components_json); const groups = arr(row.component_groups_json); const title = row.card_title || row.draft_site_title || row.h1 || row.seo_title || row.product_slug || row.canonical_product_id || ''; const sectionLabel = row.operator_section_label || row.category_label || row.product_type || 'Other products'; const sectionKey = keyOf(sectionLabel); const sourceCategory = row.source_category_label || row.category_label || row.product_type || ''; const text = [row.focus_text, title, sectionLabel, sourceCategory, row.world_label, row.material, row.canonical_color_label, row.color, row.primary_image_alt, parent.join(' '), child.join(' '), groups.join(' '), row.canonical_product_id, row.matched_etsy_listing_id].filter(Boolean).join(' ').toLowerCase(); const sourceTagsText = [...arr(sourceSignals.raw_tags), ...arr(sourceSignals.raw_materials)].join(' ').toLowerCase(); return { id: row.canonical_product_id, title, sectionLabel, sectionKey, sourceCategory, productType: row.product_type || '', worldLabel: row.world_label || '', materialRaw: row.material || '', colorRaw: row.canonical_color_label || row.color || '', imageUrl: row.primary_image_url || '', imageAlt: row.primary_image_alt || '', slug: row.product_slug || row.canonical_product_id, etsyId: row.matched_etsy_listing_id || '', parentComponents: parent, childComponents: child, componentGroups: groups, needsComponentReviewCount: Number(row.needs_component_review_count || 0), hasComponentReviewRisk: Boolean(row.has_component_review_risk), text, sourceTagsText }; }
 
 async function loadKeywords(filters) {
   const supabase = getSupabaseReadClient();
@@ -253,7 +295,7 @@ function FocusSearchForm({ product, filters, status }) {
     <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-4"><div className="eyebrow-gold mb-3">Поиск и минус-слова внутри SEO-ядра</div><div className="grid gap-3 md:grid-cols-[1fr_1fr]"><label><div className="eyebrow-dim mb-1.5">Доп. поиск</div><input name="q" defaultValue={filters.q} placeholder="например: armor, price, shipping" className="field" /></label><label><div className="eyebrow-dim mb-1.5">Минус-слова</div><input name="exclude" defaultValue={valuesOf(filters.exclude).join(', ')} placeholder="dance, bodysuit, neon" className="field" /></label></div></div>
     <div className="mt-4 rounded-2xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.055)] p-4">
       <div className="text-[11px] leading-relaxed text-[var(--bone-dim)] mb-3">«Применить» обновляет выдачу для проверки. «Сохранить» одним действием записывает именно текущие chips и заново собирает под них снимок ключей.</div>
-      <div className="flex flex-wrap gap-3"><button type="submit" className="btn-ghost"><SearchCheck size={13} /> Применить поиск слов</button><button type="submit" formAction={saveDecisionAction} className="btn-ghost" disabled={!product}><Save size={13} /> Сохранить текущий фокус и ключи</button><Link href={product ? productHref(product, filters) : '/admin/listing-master'} className="btn-ghost">Сбросить товар/ДНК</Link>{product ? <Link className="btn-ghost" href={`/admin/seo-storefront-preview?product_id=${product.id}`}>Дальше: генерация и preview <ArrowUpRight size={13} /></Link> : null}</div>
+      <div className="flex flex-wrap gap-3"><button type="submit" className="btn-ghost"><SearchCheck size={13} /> Применить поиск слов</button><VerifiedSaveButton action={saveDecisionAction} disabled={!product} /><Link href={product ? productHref(product, filters) : '/admin/listing-master'} className="btn-ghost">Сбросить товар/ДНК</Link>{product ? <Link className="btn-ghost" href={`/admin/seo-storefront-preview?product_id=${product.id}`}>Дальше: генерация и preview <ArrowUpRight size={13} /></Link> : null}</div>
     </div>
   </form>;
 }
@@ -274,6 +316,18 @@ function val(value, fallback = '') { if (typeof value === 'string') return value
 function norm(v) { return String(v || '').trim().toLowerCase(); }
 function arr(v) { if (Array.isArray(v)) return v.map(String).filter(Boolean); if (typeof v === 'string') { try { const p = JSON.parse(v); if (Array.isArray(p)) return p.map(String).filter(Boolean); } catch { return v ? [v] : []; } } return []; }
 function parseJson(v, fallback) { try { return JSON.parse(v); } catch { return fallback; } }
+function allowedFormValues(formData, field, allowed) { return valuesOf(formData.getAll(field)).filter((value) => allowed.includes(value)); }
+function decisionFocusSignature(value) {
+  const focus = recordOf(value) || {};
+  return JSON.stringify({
+    ...Object.fromEntries(FOCUS_FIELDS.map((field) => [field, valuesOf(focus[field]).sort()])),
+    strategies: strategyValues(focus.strategies).sort(),
+    q: norm(focus.q),
+    exclude: valuesOf(focus.exclude).sort(),
+    keyword_type: KEYWORD_TYPES.includes(val(focus.keyword_type)) ? val(focus.keyword_type) : 'all',
+  });
+}
+function saveFailure(code, message, requestId) { return { ok: false, code: String(code || 'unknown'), message, requestId }; }
 function recordOf(value) {
   if (value && typeof value === 'object' && !Array.isArray(value)) return value;
   if (typeof value !== 'string') return null;
@@ -290,9 +344,11 @@ function cleanStrategyMulti(value) { return joinValues(strategyValues(value)); }
 function strategyLabel(value) { return strategyValues(value).map((v) => STRATEGY_LABELS[v] || v).join(' + '); }
 function excludeTerms(value) { return [...DEFAULT_EXCLUDED_TERMS, ...valuesOf(value)].filter((v, i, a) => a.indexOf(v) === i); }
 function escapeRegex(value) { return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+function literalTermMatch(text, value) { const cleanText = norm(text); const cleanValue = norm(value); if (!cleanValue) return false; return new RegExp(`(^|[^a-z0-9])${escapeRegex(cleanValue)}([^a-z0-9]|$)`, 'i').test(cleanText); }
 function termMatch(text, value) { if (!value) return true; const cleanText = norm(text); const terms = SYN[value] || [value]; return terms.some((term) => { const t = norm(term); if (!t) return false; const pattern = `(^|[^a-z0-9])${escapeRegex(t)}([^a-z0-9]|$)`; return new RegExp(pattern, 'i').test(cleanText); }); }
 function firstMatch(text, values) { return values.find((v) => termMatch(text, v)) || ''; }
-function inferFocus(product) { if (!product) return { component: '', material: '', event: '', style: '', persona: '', audience: '' }; return { component: firstMatch(product.text, COMPONENTS), material: firstMatch(product.text, MATERIALS), event: firstMatch(product.text, EVENTS), style: firstMatch(product.text, STYLES), persona: firstMatch(product.text, PERSONAS), audience: firstMatch(product.text, AUDIENCES) }; }
+function literalMatches(text, values) { return values.filter((value) => literalTermMatch(text, value)); }
+function inferFocus(product) { if (!product) return { component: '', material: '', event: '', style: '', persona: '', audience: '' }; const explicitPersonas = literalMatches(product.text, PERSONAS); return { component: joinValues(literalMatches(product.text, COMPONENTS)), material: firstMatch(product.text, MATERIALS), event: joinValues(literalMatches(product.text, EVENTS)), style: joinValues(literalMatches(product.text, STYLES)), persona: joinValues(explicitPersonas.length ? explicitPersonas : valuesOf(firstMatch(product.text, PERSONAS))), audience: firstMatch(`${product.text} ${product.sourceTagsText || ''}`, AUDIENCES) }; }
 function applyAutoFocus(filters, product) {
   const inferred = inferFocus(product);
   const hasUrlFocus = FOCUS_FIELDS.some((field) => valuesOf(filters[field]).length) || filters.q || filters.exclude;
