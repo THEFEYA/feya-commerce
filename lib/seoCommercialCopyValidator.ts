@@ -17,17 +17,20 @@ export type SeoCommercialCopyValidation = {
 
 export type SeoCommercialCopyContext = {
   product_truth?: unknown;
+  manual_focus?: unknown;
 };
 
 const WEAK_STYLING_FILLER = /\b(works? well as a focal piece|works? as a centerpiece|part of a complete look|over minimal clothing|pairs? with simple clothing|easy to build into (?:a|the) (?:look|outfit)|easy to style|can be a focal piece|works? with many looks|completes? the look|creates? a clear accent|without additional (?:design )?elements|adds? an accent without)\b/i;
 const AUDIT_OR_ADMIN_LANGUAGE = /\b(product truth|product truth confirms?|product truth indicates?|the product description (?:says|states|lists|mentions|indicates)|the source (?:says|states|lists|mentions|indicates)|official product data|source data|database fields?|safe wording|safest wording|material basis|final copy should|must be confirmed|should be confirmed|requires? verification|needs? verification|should be reviewed before publish|requires? review before publish|review before publish|before publication|before publish|listed as|is listed as|indicated as|specified as)\b/i;
 const GUARANTEED_POPULARITY = /\b(guarantee(?:d|s)?|will get likes?|will receive likes?|will gain followers?|will make you popular|go viral|viral reach|more followers?|gain followers?|more likes?|become popular|increase your popularity|guaranteed attention|everyone will notice|all eyes will be on you|guaranteed reactions?)\b/i;
 const EMPTY_HYPE = /\b(premium|luxury|ultimate|perfect|best|must[- ]have|crafted to perfection|elevate your look)\b/i;
-const EMPTY_OR_INTERNAL_BUYER_COPY = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|TheFEYA gives us a way|TheFEYA\s+(?:we|our|us)\b|clean armored attitude|desert[- ]ready (?:mood|presence)|shoulder[- ]led|reads? fast|open light|direct choice for buyers?|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence)\b/i;
+const EMPTY_OR_INTERNAL_BUYER_COPY = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|TheFEYA gives us a way|TheFEYA\s+(?:we|our|us)\b|clean armored attitude|desert[- ]ready (?:mood|presence)|shoulder[- ]led|reads? fast|open light|direct choice for buyers?|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity (?:and|or) individuality|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|one[- ]and[- ]only (?:shoulder )?line|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced|(?:original|distinctive) alternative to (?:a )?(?:standard|generic|mass[- ]produced) costume (?:look|piece|design))\b/i;
 const SOCIAL_METRICS_BOILERPLATE = /\b(organic attention|reactions?, saves? (?:and|or) comments?|likes?, followers?|social (?:engagement|metrics?)|viral(?:ity| reach)?)\b/i;
 const REDUNDANT_FAUX_LEATHER = /\b(?:vegan leather\s+(?:and|or|\/)\s+faux leather|faux leather\s+(?:and|or|\/)\s+vegan leather)\b/i;
 const REFLECTIVE_CLAIM = /\b(?:reflective|retroreflective|retro-reflective)\b/i;
-const ABSTRACT_VISUAL_BENEFIT = /\b(contrast and visual depth|adds? contrast|creates? visual depth|harder,? more dramatic line|firm armored presence|armored presence|individual feel|shape a look that feels deliberate|one bold detail to define|dramatic line|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence)\b/i;
+const ABSTRACT_VISUAL_BENEFIT = /\b(contrast and visual depth|adds? contrast|creates? visual depth|harder,? more dramatic line|firm armored presence|armored presence|individual feel|shape a look that feels deliberate|one bold detail to define|dramatic line|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced)\b/i;
+const SHAPE_DURING_MOVEMENT = /\b(?:holds?|keeps?|maintains?|preserves?) (?:its |the |their )?(?:shape|form) (?:during|while|in) (?:movement|motion|moving)\b/i;
+const CONSTRUCTION_TERM = /\b(construction|structure|structured|build|built)\b/i;
 const USE_CASE_AS_BENEFIT = /\b(?:works?|ideal|made|suited) for\b.*\b(styling|looks?|warrior|futuristic|desert|festival|stage|performance|photoshoot|editorial|cosplay|party)\b/i;
 const UNGROUNDED_STORE_PROMISE = /\b(best prices?|lowest prices?|competitive prices?|special prices?|bulk discounts?|volume discounts?|tax[- ]free|tax refund|excellent service|best service|wide assortment|large assortment|largest selection|fastest delivery)\b/i;
 const BRAND_PATTERN = /\bTheFEYA\b/gi;
@@ -69,7 +72,7 @@ const PRACTICAL_BENEFIT_CATEGORIES = new Set([
   'verified_finish_behavior',
 ]);
 const BENEFIT_OUTCOME_PATTERNS: Record<string, RegExp> = {
-  studio_design_and_craft: /\b(distinctive|recognizable|recognisable|alternative to (?:a )?(?:generic|mass[- ]produced)|different from (?:a )?(?:generic|mass[- ]produced)|not mass[- ]produced|avoids? a generic)\b/i,
+  studio_design_and_craft: /\b(original|distinctive|recognizable|recognisable|not copied from (?:a )?(?:standard|generic) costume template|designed by our (?:small )?(?:team|studio))\b/i,
   easy_dressing_and_adjustment: /\b(quick|easy|easier) to (?:put on|take off|adjust|fine[- ]tune|wear)|\b(stays? in place|sits? securely|more secure|secure fit|room to adjust|fine[- ]tune over)\b/i,
   fit_flexibility: /\b(secure fit|closer fit|fit over|fit around|room to adjust|different base layers?|custom measurements?)\b/i,
   comfort: /\b(comfortable|comfort|soft against the body|soft body[- ]facing|gentle on the body|easier to wear)\b/i,
@@ -212,6 +215,15 @@ export function validateSeoCommercialCopy(
     }
   });
 
+  const selectedEventFocus = focusEventValues(context.manual_focus);
+  const h1 = typeof record.h1 === 'string' ? record.h1 : '';
+  if (selectedEventFocus.length && !selectedEventFocus.some((event) => containsPhrase(h1, event))) {
+    issues.push(blocker(
+      'h1_missing_operator_event_focus',
+      `H1 must use one operator-selected event focus naturally (${selectedEventFocus.join(', ')}). Prefer the product entity for the selected event over a low-intent construction detail.`,
+    ));
+  }
+
   const brandMentions = countMatches(customerText, BRAND_PATTERN);
   if (brandMentions > 1) {
     issues.push(blocker(
@@ -242,6 +254,19 @@ export function validateSeoCommercialCopy(
       issues.push(warning(
         'why_youll_love_it_uses_empty_hype',
         'Why you’ll love it contains an unsupported generic quality claim.',
+      ));
+    }
+    if (SHAPE_DURING_MOVEMENT.test(whyBody)) {
+      issues.push(blocker(
+        'why_youll_love_it_uses_nonsensical_shape_during_movement',
+        'Shape retention must explain keeping shape between wears, resisting creasing, storage or reuse. Keeping shape during movement is not a meaningful buyer benefit.',
+      ));
+    }
+    const constructionBulletCount = benefitLines.filter((line) => CONSTRUCTION_TERM.test(line)).length;
+    if (constructionBulletCount > 1) {
+      issues.push(blocker(
+        'why_youll_love_it_repeats_construction_as_multiple_benefits',
+        'Construction, structure and build are one feature family. Use them in at most one Why bullet and spend the other bullets on different buyer value.',
       ));
     }
     if (benefitLines.length < 3 || benefitLines.length > 4) {
@@ -328,10 +353,24 @@ export function validateSeoCommercialCopy(
         'The final paragraph should connect the product to self-expression, visual identity, studio authorship, or supported customization.',
       ));
     }
-    if (wordCount(closingBody) < 20) {
-      issues.push(warning(
+    const closingWords = wordCount(closingBody);
+    const closingSentences = splitSentences(closingBody).length;
+    if (closingWords < 45) {
+      issues.push(blocker(
         'self_expression_close_too_thin',
-        'The final conversion paragraph is too short to explain why the studio-created design matters to the buyer.',
+        'Designed for self-expression must contain 45-75 useful words: our small design team, original-design purpose, one product-specific choice and an honest buyer outcome.',
+      ));
+    }
+    if (closingWords > 75) {
+      issues.push(warning(
+        'self_expression_close_too_long',
+        'Designed for self-expression is longer than 75 words. Remove generic biography or repeated product facts.',
+      ));
+    }
+    if (closingSentences < 3 || closingSentences > 4) {
+      issues.push(blocker(
+        'self_expression_close_wrong_sentence_count',
+        'Designed for self-expression must use 3-4 natural sentences with one clear job each.',
       ));
     }
   }
@@ -482,4 +521,24 @@ function flattenText(value: unknown): string[] {
   if (Array.isArray(value)) return value.flatMap(flattenText);
   if (isRecord(value)) return Object.values(value).flatMap(flattenText);
   return [];
+}
+
+function focusEventValues(value: unknown): string[] {
+  if (!isRecord(value)) return [];
+  const event = value.event;
+  if (Array.isArray(event)) {
+    return event.map((item) => String(item || '').trim()).filter(Boolean);
+  }
+  const single = String(event || '').trim();
+  return single ? [single] : [];
+}
+
+function containsPhrase(text: string, phrase: string) {
+  const normalize = (value: string) => String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+  const haystack = ` ${normalize(text)} `;
+  const needle = normalize(phrase);
+  return Boolean(needle) && haystack.includes(` ${needle} `);
 }

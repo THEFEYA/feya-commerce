@@ -100,7 +100,8 @@ function buildSystemPrompt(input: SeoAgentInputContract) {
     'The product is the subject of the page. The brand name is not the main keyword.',
     'Do not use TheFEYA in seo_title, H1, or meta_description. Across intro and all generated left_description blocks combined, use TheFEYA no more than once.',
     'Prefer the single allowed TheFEYA mention inside the final Designed for self-expression block. Do not repeat the brand in the opening or benefit bullets.',
-    'Do not translate авторский дизайн into a bare internal-process phrase. Mention studio authorship only when you can state a concrete product-specific buyer value such as a distinctive silhouette, deliberate construction or recognizable design language.',
+    'TheFEYA is a small independent team of designers and makers creating original in-house festival, stage and performance pieces. Use this approved brand truth only in the final self-expression close.',
+    'Do not translate авторский дизайн into a bare internal-process phrase. Explain directly that an original studio design gives the buyer a bold, recognizable detail rather than a standard costume-template result.',
     'The copy must attract a buyer first, then explain supported product facts. Do not write like an analyst describing a picture, database row, or source document.',
     'Never write phrases such as the product description states, the source lists, Product Truth confirms, official product data, safest wording, final copy should, must be confirmed, or review before publication.',
     'Avoid generic AI sales language, keyword stuffing, doorway-page copy, and franchise or protected-brand references.',
@@ -118,8 +119,10 @@ function buildSystemPrompt(input: SeoAgentInputContract) {
     'about_this_piece must sell the product silhouette, use case, and supported material or finish naturally. It must not explain how the wording was selected.',
     'why_youll_love_it must contain 3-4 concise purchase reasons from at least three distinct value families. Never add a filler fifth bullet.',
     'Before writing each benefit, silently identify its evidence, feature or studio truth, and concrete buyer outcome. If you cannot complete feature -> buyer outcome without inventing a claim, omit the bullet.',
-    'Include exactly one concrete studio-design differentiation benefit. Do not use bare studio-made, individual feel, original concept, or mass-produced wording without explaining what the buyer gets.',
-    'Other benefits should address supported practical concerns: easier dressing or adjustment, fit over base layers, body comfort, movement, shape retention, durability, or verified finish behavior.',
+    'Include exactly one concrete studio-design differentiation benefit. Explain directly that the original design gives the outfit a bold recognizable detail not copied from a standard costume template. Do not call it more considered, thoughtful or premium than mass-produced work.',
+    'Other benefits should address supported practical concerns: easier dressing or adjustment, fit over base layers, body comfort, shape retention between wears, durability, reuse at future events, or verified finish behavior.',
+    'Never say that an item keeps its shape during movement. Shape retention means keeping shape between wears, resisting creasing, storing better, or remaining reusable for future events.',
+    'Do not repeat construction, structure or build across several Why bullets. One feature family may support only one bullet.',
     'Do not use style, event, persona, audience, stage, camera or photoshoot lists as Why benefits. Those belong in ideal_for.',
     'Do not use visual-analysis phrases such as contrast and visual depth, dramatic line, armored presence, clean attitude, desert-ready mood, or individual feel as purchase reasons.',
     'Do not describe clothing, accessories, goggles, masks, props or scenery visible around the product as a product benefit.',
@@ -128,8 +131,9 @@ function buildSystemPrompt(input: SeoAgentInputContract) {
     'ideal_for must use approved event, audience, persona, and visual evidence. Do not invent unrelated audiences.',
     'main_description must speak directly in first person as the studio: we, our team, our studio, our designs, our store. Never describe TheFEYA as they, their, the brand, the company, or a third party.',
     'main_description must use the single permitted TheFEYA mention and a concise first-person studio voice.',
-    'main_description must connect one product-specific design choice to the buyer’s intended self-expression. Do not write a generic company biography.',
-    'Do not mention social algorithms or outcomes: organic attention, reactions, saves, comments, likes, followers, virality, popularity, press or sales.',
+    'main_description must contain 45-75 words in 3-4 sentences. Briefly identify our small design team, explain our original-design purpose, connect one product-specific design choice to self-expression, and state an honest buyer outcome in one supported setting.',
+    'Use literal buyer language. Do not write visual noise, clarity of the look, point of view, presence, character, considered appearance or expressive accent.',
+    'You may say a supported piece is designed to stand out, create a recognizable look, or photograph clearly in an approved setting. Do not promise compliments, organic attention, reactions, saves, comments, likes, followers, virality, popularity, press or sales.',
     'Do not pad main_description with the breadth of the store, another event list, or a generic invitation to discuss a new idea.',
     'main_description must not repeat product fit, comfort, shoulder shape, material construction, or operational customization details already handled elsewhere.',
     'Do not mention changing color, size, length, fit, coverage or selected details inside main_description. Those instructions belong only in the fixed right panel.',
@@ -167,6 +171,10 @@ function buildUserPrompt(input: SeoAgentInputContract) {
   ];
 
   const doctrineLines = buildThefeyaSeoDoctrineUserLines();
+  const selectedEvents = focusValues(input.manual_focus?.event);
+  const h1EventRule = selectedEvents.length
+    ? `- Operator-selected event focus: ${selectedEvents.join(', ')}. Prefer the natural H1 pattern [primary product entity] for [highest-priority selected event]. Example: when the primary is gold shoulder armor and Burning Man is selected, write Gold Shoulder Armor for Burning Man instead of adding a construction detail.`
+    : '- No event focus was selected by the operator. Use another verified H1 differentiator only when it adds real buyer meaning.';
 
   return [
     'Create a reviewable SEO product draft using the following strict input contract.',
@@ -185,6 +193,7 @@ function buildUserPrompt(input: SeoAgentInputContract) {
     'Required copy limits and placement:',
     '- seo_title: one concise product search angle within the 68-character review cap. No brand-name padding, Edition, keyword chain, or filler added to reach a minimum.',
     '- h1: concise human-readable product name within 82 characters. Use the primary product entity once and add only a different verified attribute or use case. Do not restate armor as a piece of the same armor. No TheFEYA and no keyword dump.',
+    h1EventRule,
     '- meta_description: concise product identity, differentiator, and use case within the 158-character review cap. No TheFEYA, source-language disclaimer, or padding to reach a minimum.',
     '- intro: 2-4 sentences. Lead with product benefit, silhouette, event or use case, and supported facts. Do not use TheFEYA here.',
     '- The approved primary product keyword must appear naturally in meta_description and in either intro or the About this piece paragraph body. Never force it into Why you’ll love it.',
@@ -199,13 +208,16 @@ function buildUserPrompt(input: SeoAgentInputContract) {
     '- about_this_piece / left_description: product-first opening story. Include exact supported material, finish, feel, structure, or silhouette naturally when useful. Do not use TheFEYA here.',
     '- why_youll_love_it / left_description: 3-4 non-duplicative purchase reasons from at least three distinct value families. Exactly one may express studio design/authorship. Do not use TheFEYA here.',
     '- Every Why bullet must follow supported feature or studio truth -> concrete buyer outcome. It must answer a real concern or explain a meaningful reason to choose the piece.',
-    '- Prefer plain benefits such as quick to put on, easier to adjust over a base layer, more comfortable against the body, helps hold its shape, or a distinctive studio-designed alternative to a generic costume look, but only when the input supports that claim.',
+    '- Prefer plain benefits such as quick to put on, easier to adjust over a base layer, more comfortable against the body, keeps its shape between wears, remains reusable for future events, or catches available light in photographs, but only when the input supports that claim.',
+    '- Never say that an item keeps its shape during movement. Shape retention means keeping shape between wears, resisting creasing, storing better, or remaining reusable for future events.',
+    '- Do not repeat construction, structure or build across several Why bullets. One feature family may support only one bullet.',
     '- Do not place styles, events, personas, audiences, stage/camera use or keyword variants in Why. Those belong in Ideal for or other SEO fields.',
     '- Bad Why patterns: contrast and visual depth; firm armored presence; harder dramatic line; works for warrior/futuristic/desert styling; studio-made character gives an individual feel.',
     '- ideal_for / left_description: grounded event, audience, and use-case bullets. Do not use TheFEYA here.',
     '- main_description / left_description: heading must be Designed for self-expression. Use the single permitted TheFEYA mention here and immediately continue in first-person studio voice: we, our team, our studio, our designs and our store.',
-    '- main_description must be a concise first-person studio close. Connect one product-specific design choice to the buyer’s intended self-expression; do not insert a generic company biography.',
-    '- Do not mention organic attention, reactions, saves, comments, likes, followers, virality, popularity, press or sales.',
+    '- main_description must contain 45-75 words in 3-4 natural sentences. Sentence 1 briefly identifies our small independent team of designers. Sentence 2 explains that we create original pieces for people who use clothing for self-expression. Sentence 3 connects one visible product choice to a bold recognizable look. Sentence 4, when useful, grounds that value in one approved event, stage or photo setting.',
+    '- Use literal buyer language. Do not write visual noise, clarity of the look, point of view, presence, character, considered appearance, expressive accent, intentional image or other abstract design-critique phrases.',
+    '- It is allowed to say designed to stand out, recognizable in photographs, or made for a bold festival look when supported. Do not promise compliments, organic attention, reactions, saves, comments, likes, followers, virality, popularity, press or sales.',
     '- Do not list the breadth of the store, repeat event/use-case lists, or add a generic invitation to discuss a new idea.',
     '- main_description must add a new buyer value rather than repeat the product’s shape, fit, comfort, material or construction.',
     '- main_description must not mention changing color, size, length, fit, coverage or selected details. Operational customization remains in the fixed right panel.',
@@ -219,7 +231,7 @@ function buildUserPrompt(input: SeoAgentInputContract) {
     '- No weak filler such as centerpiece, part of a complete look, clear accent, easy to style, or without additional design elements.',
     '- No guaranteed popularity, likes, followers, viral reach, admiration, press, sales, or audience reactions.',
     '- Do not count studio-created, handmade, made-to-order, unique, and not mass-produced as separate benefits. They are one value idea.',
-    '- Delete abstract filler such as reads fast, open light, shoulder-led, holds its presence, visually strong, deliberate high-impact character, direct choice for buyers, or wear with confidence. Replace it only when a verified feature leads to a concrete buyer outcome.',
+    '- Delete abstract filler such as reads fast, open light, shoulder-led, holds its presence, visually strong, deliberate high-impact character, direct choice for buyers, wear with confidence, visual noise, clarity of the look, expressive accent, or more considered than mass-produced. Replace it only when a verified feature leads to a concrete buyer outcome.',
     '- Do not make price, tax, discount, bulk-order, service-quality, assortment or delivery-superiority claims. These require a separate approved store policy and are not product-specific evidence.',
     '',
     ...doctrineLines,
@@ -236,6 +248,14 @@ function buildUserPrompt(input: SeoAgentInputContract) {
   ].join('\n');
 }
 
+function focusValues(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item || '').trim()).filter(Boolean);
+  }
+  const single = String(value || '').trim();
+  return single ? [single] : [];
+}
+
 export function promptGuardrails(input?: SeoAgentInputContract) {
   return [
     'Server-side only: never build this prompt in browser code.',
@@ -246,6 +266,7 @@ export function promptGuardrails(input?: SeoAgentInputContract) {
     'The product must remain the main subject; TheFEYA is not allowed as repeated keyword padding.',
     'Use the single permitted TheFEYA mention only in Designed for self-expression.',
     'Designed for self-expression must use first-person studio voice and must not describe TheFEYA as they, their, the brand or a third party.',
+    'Designed for self-expression must contain 45-75 words in 3-4 natural sentences and use plain buyer language, not abstract design-review vocabulary.',
     'The model must keep seo_title and meta_description inside review-safe length ranges.',
     'Visual truth must be separated from buyer-facing intro, meta, and body copy.',
     'Primary product image may be sent only server-side and only as visual truth evidence.',
@@ -257,7 +278,7 @@ export function promptGuardrails(input?: SeoAgentInputContract) {
     'The entire right PDP information panel is immutable code-owned copy and must never be generated or paraphrased.',
     'What’s included is storefront-controlled configuration output and must not be generated by OpenAI.',
     'Designed for self-expression must be studio-focused and must not contain operational customization instructions.',
-    'Social-performance language is forbidden even without a guarantee: no organic attention, reactions, saves, comments, likes, followers, virality or popularity.',
+    'A supported design may be described as made to stand out or create a recognizable look. Social-performance promises remain forbidden: no organic attention, reactions, saves, comments, likes, followers, virality or popularity.',
     'Source, Product Truth, verification, review, and pre-publication language is forbidden in customer copy.',
     'FAQ must not be rendered as a product PDP FAQ by default.',
     'The generated draft is not publish-ready until QA, similarity, image truth, and human review pass.',

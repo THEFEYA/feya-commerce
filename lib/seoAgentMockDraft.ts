@@ -8,6 +8,7 @@ export function buildMockSeoAgentOutput(input: SeoAgentInputContract, brief?: Se
   const material = input.product.material || focusText(input.manual_focus.material) || 'statement finish';
   const color = input.product.color || 'statement';
   const context = input.product.world || focusText(input.manual_focus.event) || 'festival and stage styling';
+  const eventFocus = firstFocus(input.manual_focus.event);
   const briefPreview = brief?.draftPreview || null;
   const altBase = input.product.primary_image_alt || `Product view of ${productName}`;
 
@@ -15,13 +16,13 @@ export function buildMockSeoAgentOutput(input: SeoAgentInputContract, brief?: Se
     contract_version: 'seo_agent_output_v1',
     status: input.metrics_status.status === 'missing' ? 'needs_review' : 'draft',
     seo_title: briefPreview?.seoTitle || fitTitle(titleCase(primaryKeyword)),
-    h1: briefPreview?.h1 || fitH1(titleCase(productName)),
+    h1: fitH1(buildEventFirstH1(primaryKeyword || productName, eventFocus) || briefPreview?.h1 || titleCase(productName)),
     meta_description: briefPreview?.metaDescription || buildMetaDescription(primaryKeyword, secondaryKeywords, color, context),
-    intro: `A sculptural ${primaryKeyword} created for festival, stage and editorial styling. Its strong silhouette is designed to stay visually clear in motion, from a distance and on camera.`,
+    intro: `This ${primaryKeyword} is made for ${cleanContext(context).replace(/\.$/, '')}. The bold product shape is paired with an adjustable fit for festival and stage wear.`,
     bullet_highlights: [
-      'Layered studio construction gives the silhouette a distinct profile.',
-      'A strong silhouette designed to read clearly on stage and on camera.',
-      'Adjustable straps support a secure, comfortable fit.',
+      'Original studio design gives the outfit a bold, recognizable detail.',
+      'Adjustable straps make the fit easier to fine-tune over a base layer.',
+      'Soft body-facing material supports more comfortable wear.',
     ],
     faq: [],
     image_alt_candidates: buildImageAltCandidates(undefined, altBase, Boolean(input.product.primary_image_alt)),
@@ -121,15 +122,15 @@ function buildVisualTruth(input: SeoAgentInputContract, color: string, material:
 function buildPdpBlocks(input: SeoAgentInputContract, productName: string, material: string, context: string): SeoAgentOutputContract['pdp_blocks'] {
   const useCase = cleanContext(context);
   const materialSentence = material && material !== 'statement finish'
-    ? `The ${material} adds a distinctive surface and visual depth while the silhouette remains clear in motion and photographs.`
-    : 'The finish adds visual depth while the silhouette remains clear in motion and photographs.';
+    ? `The ${material} supplies the visible surface while the product shape remains the main design feature.`
+    : 'The product shape remains the main visible design feature.';
 
   return [
     {
       block_key: 'about_this_piece',
       placement: 'left_description',
       heading: 'About this piece',
-      body: `${productName} is a sculptural costume piece created for a bold festival, stage or editorial look. ${materialSentence} The form is designed to remain visually strong from a distance and on camera.`,
+      body: `${productName} is made for a bold festival, stage or editorial look. ${materialSentence} The adjustable fit makes it practical to combine with different base layers.`,
       source_basis: 'product_fact',
       needs_human_review: true,
     },
@@ -138,10 +139,10 @@ function buildPdpBlocks(input: SeoAgentInputContract, productName: string, mater
       placement: 'left_description',
       heading: "Why you'll love it",
       body: [
-        'Designed in our studio as a distinctive alternative to a generic mass-produced costume look.',
+        'Our original studio design gives the outfit a bold, recognizable detail not copied from a standard costume template.',
         'Adjustable straps make the piece quick to put on and easier to fine-tune over different base layers.',
         'A soft body-facing material supports more comfortable wear.',
-        'Structured construction helps the piece hold its shape between wears.',
+        'Dense material helps the piece keep its shape between wears so it can be reused for future events.',
       ].join('\n'),
       source_basis: 'brand_policy',
       needs_human_review: true,
@@ -152,7 +153,7 @@ function buildPdpBlocks(input: SeoAgentInputContract, productName: string, mater
       heading: 'Ideal for',
       body: [
         useCase || 'Burning Man and desert festival outfits.',
-        'Stage performances, DJ sets, dance shows and creator content where the silhouette must stay readable.',
+        'Stage performances, DJ sets and dance shows.',
         'Editorial photoshoots and futuristic or warrior-inspired styling supported by the product image.',
       ].join('\n'),
       source_basis: 'product_fact',
@@ -162,7 +163,7 @@ function buildPdpBlocks(input: SeoAgentInputContract, productName: string, mater
       block_key: 'main_description',
       placement: 'left_description',
       heading: 'Designed for self-expression',
-      body: `At TheFEYA, we use deliberate lines and sculptural forms to help you build a personal ${cleanContext(context).replace(/\.$/, '')} look with a recognizable profile. Each design decision is kept focused on the way the piece frames the body and supports your chosen visual direction.`,
+      body: `At TheFEYA, our small independent team creates original pieces for people who use clothing to express something personal. We design bold details that give a festival or stage outfit a recognizable identity. This piece brings that purpose into ${cleanContext(context).replace(/\.$/, '')}. It is made for moments when you want the outfit to stand out before you say a word.`,
       source_basis: 'brand_policy',
       needs_human_review: true,
     },
@@ -194,10 +195,22 @@ function focusText(value: unknown) {
   return value ? String(value) : '';
 }
 
+function firstFocus(value: unknown) {
+  if (Array.isArray(value)) return String(value.find(Boolean) || '').trim();
+  return String(value || '').trim();
+}
+
+function buildEventFirstH1(productEntity: string, eventFocus: string) {
+  const entity = titleCase(productEntity);
+  if (!eventFocus) return entity;
+  if (entity.toLowerCase().includes(eventFocus.toLowerCase())) return entity;
+  return `${entity} for ${titleCase(eventFocus)}`;
+}
+
 function buildMetaDescription(primaryKeyword: string, secondaryKeywords: string[], color: string, context: string) {
   const secondary = secondaryKeywords[0] ? ` with ${secondaryKeywords[0]}` : '';
   const base = `${sentenceCase(color)} ${primaryKeyword}${secondary} for ${cleanContext(context).replace(/\.$/, '')}. Sculptural styling for stage, festival and editorial looks.`;
-  return fitLength(base, 125, 158);
+  return fitMaxLength(base, 158);
 }
 
 function fitTitle(value: string) {
@@ -212,14 +225,6 @@ function fitMaxLength(value: string, max: number) {
   const clean = String(value || '').replace(/\s+/g, ' ').trim();
   if (clean.length <= max) return clean;
   return clean.slice(0, max).replace(/\s+\S*$/, '').trim();
-}
-
-function fitLength(value: string, min: number, max: number) {
-  let clean = String(value || '').replace(/\s+/g, ' ').trim();
-  if (clean.length > max) clean = clean.slice(0, max).replace(/\s+\S*$/, '').trim();
-  if (clean.length < min) clean = `${clean} for Festival and Stage Looks`;
-  if (clean.length > max) clean = clean.slice(0, max).replace(/\s+\S*$/, '').trim();
-  return clean;
 }
 
 function titleCase(value: string) {

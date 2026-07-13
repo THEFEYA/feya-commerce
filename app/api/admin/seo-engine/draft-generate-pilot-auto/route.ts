@@ -110,8 +110,8 @@ export async function POST(request: Request) {
   const firstGeneration = await generateSeoDraftWithOpenAi(promptContract, { primaryImageUrl });
   const firstStructural = firstGeneration.output ? validateSeoAgentOutput(firstGeneration.output) : validateSeoAgentOutput(null);
   const firstCommercial = firstGeneration.output
-    ? validateSeoCommercialCopy(firstGeneration.output, { product_truth: bundle.seoPackDraft.product_truth })
-    : validateSeoCommercialCopy(null, { product_truth: bundle.seoPackDraft.product_truth });
+    ? validateSeoCommercialCopy(firstGeneration.output, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus })
+    : validateSeoCommercialCopy(null, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus });
   const firstKeywordPlacement = validateSeoKeywordPlacement(firstGeneration.output, bundle.seoPackDraft);
 
   let selectedGeneration = firstGeneration;
@@ -135,8 +135,8 @@ export async function POST(request: Request) {
     repairGeneration = await generateSeoDraftWithOpenAi(repairPrompt, { primaryImageUrl });
     repairStructural = repairGeneration.output ? validateSeoAgentOutput(repairGeneration.output) : validateSeoAgentOutput(null);
     repairCommercial = repairGeneration.output
-      ? validateSeoCommercialCopy(repairGeneration.output, { product_truth: bundle.seoPackDraft.product_truth })
-      : validateSeoCommercialCopy(null, { product_truth: bundle.seoPackDraft.product_truth });
+      ? validateSeoCommercialCopy(repairGeneration.output, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus })
+      : validateSeoCommercialCopy(null, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus });
     repairKeywordPlacement = validateSeoKeywordPlacement(repairGeneration.output, bundle.seoPackDraft);
 
     if (repairGeneration.ok && repairGeneration.output && candidateScore(repairStructural, repairCommercial, repairKeywordPlacement) < candidateScore(firstStructural, firstCommercial, firstKeywordPlacement)) {
@@ -343,8 +343,14 @@ function buildHumanizerRepairPrompt(promptContract, currentOutput, structuralIss
     'Remove repeated ideas and near-duplicate sentences. A concept such as reflective finish, sculptural silhouette, camera presence, durability, fit, or studio authorship should appear where it is strongest, not in every block.',
     'Rewrite Why you’ll love it as 3-4 purchase reasons. Every bullet must connect a supported feature or studio truth to a concrete buyer outcome.',
     'Use exactly one concrete studio-design differentiation benefit; use the remaining bullets for supported wearability, adjustment, comfort, shape retention, durability, or verified finish behavior.',
+    'State studio value directly: original design gives the outfit a bold recognizable detail not copied from a standard costume template. Never call it more considered, thoughtful or premium than mass-produced pieces.',
+    'Never say that an item keeps its shape during movement. Explain supported retention as keeping shape between wears, resisting creasing, storing better or remaining reusable for future events.',
+    'Use construction, structure or build in at most one Why bullet.',
     'Move styles, events, personas, audiences, stage/camera use and keyword variants to Ideal for. Delete abstract visual commentary and never invent a filler fifth bullet.',
     'Repair primary keyword placement in meta_description and intro or About this piece body, never by stuffing Why you’ll love it.',
+    'If the operator selected an event focus, prefer the H1 pattern [primary product entity] for [selected event].',
+    'Rewrite Designed for self-expression as 45-75 words in 3-4 natural sentences: our small independent design team, original-design purpose, one product-specific design choice and an honest bold recognizable buyer outcome in one supported setting.',
+    'Delete visual noise, clarity of the look, expressive accent, presence, character, considered appearance and other abstract design-review language.',
     'Do not weaken factual specificity and do not introduce generic AI sales language.',
     'Exact validation issues to repair:',
     ...(issueLines.length ? issueLines.map((line) => `- ${line}`) : ['- Improve human rhythm and remove repetition.']),

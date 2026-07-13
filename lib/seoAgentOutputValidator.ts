@@ -47,7 +47,7 @@ const WEAK_AVAILABILITY_PATTERN = /\b(if available|when available|where availabl
 const PSEUDO_BENEFIT_PATTERN = /\b(works? well as a focal piece|works? as a centerpiece|part of a complete look|over minimal clothing|pairs? with simple clothing|easy to build into (?:a|the) (?:look|outfit)|easy to style|creates? a clear accent|without additional (?:design )?elements|adds? an accent without)\b/i;
 const GUARANTEED_OUTCOME_PATTERN = /\b(guarantee(?:d|s)?|will get likes?|will receive likes?|will gain followers?|will make you popular|go viral|viral reach|everyone will notice|all eyes will be on you|guaranteed attention|guaranteed reactions?)\b/i;
 const CLICHE_PATTERN = /\b(elevate your look|step into|turn heads|make a statement|perfect for any occasion|crafted to perfection|must have|ultimate|best choice|luxury piece|premium quality)\b/i;
-const ROBOTIC_OR_TAUTOLOGICAL_PATTERN = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|TheFEYA gives us a way|TheFEYA\s+(?:we|our|us)\b|clean armored attitude|desert[- ]ready (?:mood|presence)|contrast and visual depth|firm armored presence|individual feel|shoulder[- ]led|reads? fast|open light|direct choice for buyers?|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence)\b/i;
+const ROBOTIC_OR_TAUTOLOGICAL_PATTERN = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|TheFEYA gives us a way|TheFEYA\s+(?:we|our|us)\b|clean armored attitude|desert[- ]ready (?:mood|presence)|contrast and visual depth|firm armored presence|individual feel|shoulder[- ]led|reads? fast|open light|direct choice for buyers?|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity (?:and|or) individuality|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|one[- ]and[- ]only (?:shoulder )?line|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced|(?:original|distinctive) alternative to (?:a )?(?:standard|generic|mass[- ]produced) costume (?:look|piece|design)|(?:holds?|keeps?|maintains?|preserves?) (?:its |the |their )?(?:shape|form) (?:during|while|in) (?:movement|motion|moving))\b/i;
 const REDUNDANT_SHOULDER_ENTITY_PATTERN = /\bshoulders?\s+(?:armor|armour|piece|pieces|pauldron|pauldrons)\b/gi;
 const SOCIAL_METRICS_PATTERN = /\b(organic attention|reactions?, saves? (?:and|or) comments?|likes?, followers?|social (?:engagement|metrics?)|viral(?:ity| reach)?)\b/i;
 const REDUNDANT_MATERIAL_PATTERN = /\b(?:vegan leather\s+(?:and|or|\/)\s+faux leather|faux leather\s+(?:and|or|\/)\s+vegan leather)\b/i;
@@ -56,7 +56,7 @@ const SELF_EXPRESSION_STUDIO_PATTERN = /\b(TheFEYA|young independent (?:team|stu
 const SELF_EXPRESSION_FIRST_PERSON_PATTERN = /\b(we|our|us)\b/i;
 const SELF_EXPRESSION_THIRD_PERSON_PATTERN = /\b(TheFEYA is|their (?:pieces|products|designs|work|store)|they (?:create|make|help|offer|design)|the brand|the company)\b/i;
 const SELF_EXPRESSION_OPERATION_PATTERN = /\b(?:change|changing|adjust|adjusting|adjustment|adjustments|customi[sz]e|customi[sz]ing)\s+(?:the\s+)?(?:color|size|length|fit|coverage|details?)\b|\b(?:color|size|length|fit|coverage)\s+(?:change|changes|adjustment|adjustments|options?)\b/i;
-const SELF_EXPRESSION_PRODUCT_DETAIL_PATTERN = /\b(shoulder(?:s| piece| armor)?|adjustable straps?|comfortable fit|soft against the body|reinforced construction|mirror[- ]like finish|material construction)\b/i;
+const SELF_EXPRESSION_PRODUCT_DETAIL_PATTERN = /\b(adjustable straps?|comfortable fit|soft against the body|reinforced construction|material construction)\b/i;
 const CYRILLIC_PATTERN = /[А-Яа-яЁёІіЇїЄєҐґ]/;
 const LONG_DASH_PATTERN = /[—–]/;
 const BRAND_PATTERN = /\bTheFEYA\b/gi;
@@ -239,8 +239,16 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
       if (heading.trim().toLowerCase() !== 'designed for self-expression') {
         issues.push(blocker('main_description_wrong_heading', 'main_description heading must be Designed for self-expression.'));
       }
-      if (wordCount(body) < 35) {
-        issues.push(warning(`pdp_block_self_expression_thin_${index}`, 'The final self-expression paragraph is too thin to explain the studio and buyer value.'));
+      const selfExpressionWords = wordCount(body);
+      const selfExpressionSentences = sentenceCount(body);
+      if (selfExpressionWords < 45) {
+        issues.push(blocker(`pdp_block_self_expression_thin_${index}`, 'Designed for self-expression must contain 45-75 useful words covering the small design team, original-design purpose, one product-specific choice and an honest buyer outcome.'));
+      }
+      if (selfExpressionWords > 75) {
+        issues.push(warning(`pdp_block_self_expression_long_${index}`, 'Designed for self-expression is longer than 75 words. Remove generic biography or repeated facts.'));
+      }
+      if (selfExpressionSentences < 3 || selfExpressionSentences > 4) {
+        issues.push(blocker(`pdp_block_self_expression_sentence_count_${index}`, 'Designed for self-expression must contain 3-4 natural sentences with one clear job each.'));
       }
       if (!SELF_EXPRESSION_STUDIO_PATTERN.test(body)) {
         issues.push(blocker('main_description_missing_studio_identity', 'Designed for self-expression must introduce the studio or design team and its distinctive in-house creative language.'));
@@ -255,7 +263,7 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
         issues.push(blocker('main_description_contains_operational_customization', 'Designed for self-expression must not repeat color, size, length, fit, coverage, or detail-change instructions from the fixed right panel.'));
       }
       if (SELF_EXPRESSION_PRODUCT_DETAIL_PATTERN.test(body)) {
-        issues.push(blocker('main_description_repeats_product_specs', 'Designed for self-expression must describe the studio and buyer self-expression, not repeat shoulder, strap, fit, material, comfort, or construction details.'));
+        issues.push(blocker('main_description_repeats_fixed_panel_specs', 'Designed for self-expression may use one visible design choice, but must not repeat fit, comfort or construction instructions from the fixed right panel.'));
       }
     }
   });
@@ -276,11 +284,11 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
       }
     });
 
-    if (leftDescriptionWords < 100) {
+    if (leftDescriptionWords < 120) {
       issues.push(blocker('left_description_too_thin', 'Main left_description PDP copy is too thin for review.'));
     }
-    if (leftDescriptionWords > 260) {
-      issues.push(warning('left_description_above_preferred', 'Main left_description is longer than the usual 260-word review range. Keep it only when every sentence adds supported product or buyer value.'));
+    if (leftDescriptionWords > 300) {
+      issues.push(warning('left_description_above_preferred', 'Main left_description is longer than the usual 300-word review range. Keep it only when every sentence adds supported product or buyer value.'));
     }
   }
 }

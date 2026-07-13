@@ -15,7 +15,7 @@ function draft(overrides: Record<string, unknown> = {}) {
       { block_key: 'about_this_piece', placement: 'left_description', heading: 'About this piece', body: 'Layered panels frame the shoulder and keep the profile visually defined.' },
       { block_key: 'why_youll_love_it', placement: 'left_description', heading: 'Why you’ll love it', body: 'Adjustable straps support the fit.\nLayered construction holds a defined shape.\nThe silhouette reads clearly on stage.' },
       { block_key: 'ideal_for', placement: 'left_description', heading: 'Ideal for', body: 'Festival styling\nStage performance\nEditorial wardrobe' },
-      { block_key: 'main_description', placement: 'left_description', heading: 'Designed for self-expression', body: 'At TheFEYA, we use deliberate lines and layered forms to help you build a personal performance look with a recognizable profile.' },
+      { block_key: 'main_description', placement: 'left_description', heading: 'Designed for self-expression', body: 'At TheFEYA, our small independent team creates original pieces for people who express themselves through clothing. We design bold details that give a festival or stage outfit a recognizable identity. This piece brings that purpose into a product made for performance styling. It is made for moments when you want the outfit to stand out before you say a word.' },
     ],
     ...overrides,
   };
@@ -72,6 +72,46 @@ test('blocks the current pilot robotic phrases and broken studio grammar', () =>
   )));
 });
 
+test('blocks the regenerated construction-heavy copy and abstract self-expression language', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => {
+      if (block.block_key === 'why_youll_love_it') {
+        return {
+          ...block,
+          body: [
+            'The layered shoulder construction offers an original alternative to a standard costume look.',
+            'The strap-and-buckle construction makes the piece easier to secure and adjust on the body.',
+            'Thanks to its strong construction, the piece keeps its shape during movement.',
+            'Studio costume making gives it a more considered look than mass-produced pieces.',
+          ].join('\n'),
+        };
+      }
+      if (block.block_key === 'main_description') {
+        return {
+          ...block,
+          body: 'The design of this model from TheFEYA turns the one-and-only shoulder line into an expressive accent. We create models that give your look clarity and individuality without excess visual noise.',
+        };
+      }
+      return block;
+    }),
+  });
+  const result = validateSeoCommercialCopy(value);
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('customer_copy_contains_robotic_or_tautological_value'));
+  assert.ok(codes.includes('why_youll_love_it_uses_nonsensical_shape_during_movement'));
+  assert.ok(codes.includes('why_youll_love_it_repeats_construction_as_multiple_benefits'));
+  assert.ok(codes.includes('self_expression_close_too_thin'));
+  assert.ok(codes.includes('self_expression_close_wrong_sentence_count'));
+});
+
+test('requires an operator-selected event focus in H1', () => {
+  const missing = validateSeoCommercialCopy(draft(), { manual_focus: { event: ['Burning Man'] } });
+  assert.ok(missing.issues.some((issue) => issue.code === 'h1_missing_operator_event_focus'));
+
+  const present = validateSeoCommercialCopy(draft({ h1: 'Gold Shoulder Armor for Burning Man' }), { manual_focus: { event: ['Burning Man'] } });
+  assert.equal(present.issues.some((issue) => issue.code === 'h1_missing_operator_event_focus'), false);
+});
+
 test('blocks reflective claims when Product Truth does not confirm reflection', () => {
   const value = draft({ intro: 'This shoulder armor has a reflective finish that catches stage light. Its layered shape gives the upper body a defined profile.' });
   const result = validateSeoCommercialCopy(value, { product_truth: { material: 'Leather, Faux leather', canonical_color_label: 'Gold' } });
@@ -125,7 +165,7 @@ test('accepts a concise feature-to-buyer-outcome benefit mix', () => {
       ? {
         ...block,
         body: [
-          'Designed in our studio as a distinctive alternative to a generic mass-produced costume look.',
+          'Our original studio design gives the outfit a bold, recognizable detail not copied from a standard costume template.',
           'Adjustable straps make it quick to put on and easy to fine-tune over different base layers.',
           'The soft body-facing material feels comfortable against the body during wear.',
           'Structured material helps the piece hold its shape between wears.',

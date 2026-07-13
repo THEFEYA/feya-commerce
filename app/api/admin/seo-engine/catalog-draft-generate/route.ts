@@ -130,8 +130,8 @@ export async function POST(request: Request) {
     ? validateSeoAgentOutput(firstGeneration.output)
     : validateSeoAgentOutput(null);
   const firstCommercial = firstGeneration.output
-    ? validateSeoCommercialCopy(firstGeneration.output, { product_truth: bundle.seoPackDraft.product_truth })
-    : validateSeoCommercialCopy(null, { product_truth: bundle.seoPackDraft.product_truth });
+    ? validateSeoCommercialCopy(firstGeneration.output, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus })
+    : validateSeoCommercialCopy(null, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus });
   const firstKeywordPlacement = validateSeoKeywordPlacement(firstGeneration.output, bundle.seoPackDraft);
 
   let selectedGeneration = firstGeneration;
@@ -157,8 +157,8 @@ export async function POST(request: Request) {
       ? validateSeoAgentOutput(repairGeneration.output)
       : validateSeoAgentOutput(null);
     repairCommercial = repairGeneration.output
-      ? validateSeoCommercialCopy(repairGeneration.output, { product_truth: bundle.seoPackDraft.product_truth })
-      : validateSeoCommercialCopy(null, { product_truth: bundle.seoPackDraft.product_truth });
+      ? validateSeoCommercialCopy(repairGeneration.output, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus })
+      : validateSeoCommercialCopy(null, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus });
     repairKeywordPlacement = validateSeoKeywordPlacement(repairGeneration.output, bundle.seoPackDraft);
 
     if (
@@ -357,9 +357,15 @@ function buildRepairPrompt(promptContract, currentOutput, structuralIssues, comm
     'Keep About this piece product-specific, Why you’ll love it commercially useful, Ideal for grounded, and Designed for self-expression studio-focused.',
     'Rewrite Why you’ll love it as 3-4 purchase reasons. Each bullet must use supported feature or studio truth -> concrete buyer outcome.',
     'Use exactly one concrete studio-design differentiation benefit. Use the other bullets for supported wearability, adjustment, comfort, shape retention, durability, or verified finish behavior.',
+    'Do not call studio work more considered, thoughtful or premium than mass-produced pieces. State the approved value directly: original design gives the outfit a bold recognizable detail not copied from a standard costume template.',
+    'Never say that the piece keeps its shape during movement. Explain supported shape retention as keeping shape between wears, resisting creasing, storing better or remaining reusable for future events.',
+    'Use construction, structure or build in at most one Why bullet.',
     'Move styles, events, personas, audiences, stage/camera use and keyword variants to Ideal for. Delete abstract visual commentary and do not fill space with a fifth bullet.',
     'Secondary keywords are a semantic option set, not an exact-placement checklist. Never stack two close product-query variants in one sentence or bullet, and leave a weak variant unused when normal language is clearer.',
     'Repair primary keyword placement in meta_description and intro or About this piece body, never by stuffing Why you’ll love it.',
+    'If the operator selected an event focus, prefer the H1 pattern [primary product entity] for [selected event].',
+    'Rewrite Designed for self-expression as 45-75 words in 3-4 natural sentences: our small independent design team, original-design purpose, one product-specific design choice, and an honest bold recognizable buyer outcome in one supported setting.',
+    'Delete visual noise, clarity of the look, expressive accent, presence, character, considered appearance and other abstract design-review language.',
     'Do not turn Shoulder into Shoulders or Shoulders into Shoulder unless the source configuration itself uses that grammar.',
     'Exact validation issues:',
     ...(issueLines.length ? issueLines.map((line) => `- ${line}`) : ['- Improve differentiation, rhythm and commercial clarity.']),
