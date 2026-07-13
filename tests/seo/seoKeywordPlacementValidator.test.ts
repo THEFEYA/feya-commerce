@@ -65,3 +65,28 @@ test('does not count keyword tokens scattered across unrelated text as placement
   const result = validateSeoKeywordPlacement(value, contract('gold shoulder armor'));
   assert.equal(result.issues.some((issue) => issue.code === 'primary_missing_seo_title'), true);
 });
+
+test('blocks near-synonymous secondary phrases stacked in one bullet', () => {
+  const draft = contract();
+  draft.keyword_roles.secondary = [
+    { keyword: 'futuristic shoulder armor', keyword_norm: 'futuristic shoulder armor', role: 'secondary' },
+    { keyword: 'cyberpunk shoulder armor', keyword_norm: 'cyberpunk shoulder armor', role: 'secondary' },
+  ];
+  const value = output();
+  value.pdp_blocks = [{
+    heading: 'Ideal for',
+    body: 'Futuristic shoulder armor and cyberpunk shoulder armor styling.',
+  }];
+  const result = validateSeoKeywordPlacement(value, draft);
+  assert.ok(result.issues.some((issue) => issue.code === 'secondary_keyword_stack' && issue.severity === 'blocker'));
+});
+
+test('does not demand exact placement of every secondary phrase', () => {
+  const draft = contract();
+  draft.keyword_roles.secondary = [
+    { keyword: 'futuristic shoulder armor', keyword_norm: 'futuristic shoulder armor', role: 'secondary' },
+    { keyword: 'cyberpunk shoulder armor', keyword_norm: 'cyberpunk shoulder armor', role: 'secondary' },
+  ];
+  const result = validateSeoKeywordPlacement(output(), draft);
+  assert.equal(result.issues.some((issue) => issue.code === 'secondary_keyword_unplaced'), false);
+});

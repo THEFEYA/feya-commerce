@@ -201,11 +201,17 @@ function buildMetaDescription(primaryKeyword: string, secondaryKeywords: string[
 }
 
 function fitTitle(value: string) {
-  return fitLength(value, 45, 68);
+  return fitMaxLength(value, 68);
 }
 
 function fitH1(value: string) {
-  return fitLength(value, 45, 82);
+  return fitMaxLength(value, 82);
+}
+
+function fitMaxLength(value: string, max: number) {
+  const clean = String(value || '').replace(/\s+/g, ' ').trim();
+  if (clean.length <= max) return clean;
+  return clean.slice(0, max).replace(/\s+\S*$/, '').trim();
 }
 
 function fitLength(value: string, min: number, max: number) {

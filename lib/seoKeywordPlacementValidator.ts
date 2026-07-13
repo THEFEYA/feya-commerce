@@ -83,8 +83,20 @@ export function validateSeoKeywordPlacement(
     issues.push(blockerIssue('commercial_language_in_image_alt', 'Image ALT must describe visible image truth and cannot contain commercial intent.'));
   }
 
-  placements.filter((item) => item.role === 'secondary' && !item.fields.length).forEach((item) => {
-    issues.push(warningIssue('secondary_keyword_unplaced', 'An approved secondary keyword is not represented in the draft.', item.keyword));
+  const secondaryPlacements = placements.filter((item) => item.role === 'secondary');
+  const representedSecondary = secondaryPlacements.filter((item) => item.fields.length);
+  if (secondaryPlacements.length && !representedSecondary.length) {
+    issues.push(warningIssue(
+      'secondary_keyword_cluster_unrepresented',
+      'None of the approved secondary concepts is represented. Review the semantic cluster, but do not force every exact phrase into the copy.',
+    ));
+  }
+
+  findSecondaryKeywordStacks(value, secondaryPlacements).forEach((stack) => {
+    issues.push(blockerIssue(
+      'secondary_keyword_stack',
+      `Near-synonymous secondary phrases are stacked in one ${stack.field} sentence or bullet: ${stack.keywords.join(', ')}. Keep one natural phrase and express the idea normally.`,
+    ));
   });
 
   const hasBlocker = issues.some((issue) => issue.severity === 'blocker');
@@ -96,6 +108,54 @@ export function validateSeoKeywordPlacement(
     used_keywords: placements.filter((item) => item.fields.length).map((item) => item.keyword),
     unplaced_keywords: placements.filter((item) => !item.fields.length).map((item) => item.keyword),
   };
+}
+
+function findSecondaryKeywordStacks(
+  value: Record<string, unknown>,
+  secondary: SeoKeywordPlacementRow[],
+) {
+  if (secondary.length < 2) return [];
+  return collectDisplayUnits(value).flatMap((unit) => {
+    const represented = secondary.filter((item) => phraseRepresented(item.keyword, unit.text));
+    if (represented.length < 2) return [];
+    const nearSynonymPair = represented.some((left, leftIndex) => represented.some((right, rightIndex) => (
+      rightIndex > leftIndex && sharedContentTokenCount(left.keyword, right.keyword) >= 2
+    )));
+    if (!nearSynonymPair && represented.length < 3) return [];
+    return [{
+      field: unit.field,
+      keywords: represented.map((item) => item.keyword),
+    }];
+  });
+}
+
+function collectDisplayUnits(value: Record<string, unknown>) {
+  const units: Array<{ field: string; text: string }> = [];
+  const add = (field: string, raw: unknown) => {
+    if (typeof raw !== 'string' && typeof raw !== 'number') return;
+    String(raw)
+      .split(/\n|•|(?<=[.!?])\s+/)
+      .map((item) => item.replace(/^[-*]\s*/, '').trim())
+      .filter(Boolean)
+      .forEach((item) => units.push({ field, text: item }));
+  };
+
+  ['seo_title', 'h1', 'meta_description', 'intro'].forEach((field) => add(field, value[field]));
+  textList(value.bullet_highlights).forEach((item) => add('bullet_highlights', item));
+  records(value.faq).forEach((row) => {
+    add('faq', row.question);
+    add('faq', row.answer);
+  });
+  records(value.pdp_blocks).forEach((row) => {
+    add('pdp_blocks', row.heading);
+    add('pdp_blocks', row.body);
+  });
+  return units;
+}
+
+function sharedContentTokenCount(left: string, right: string) {
+  const rightTokens = new Set(contentTokens(right));
+  return [...new Set(contentTokens(left))].filter((token) => rightTokens.has(token)).length;
 }
 
 function collectFields(value: Record<string, unknown>): Record<string, string> {

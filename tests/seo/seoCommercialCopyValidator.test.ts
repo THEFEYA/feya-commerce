@@ -32,6 +32,46 @@ test('blocks robotic, social-metric, and redundant material copy', () => {
   assert.ok(codes.includes('customer_copy_stacks_vegan_and_faux_leather_synonyms'));
 });
 
+test('blocks a redundant shoulder entity in H1 and meta description', () => {
+  const value = draft({
+    h1: 'Gold Shoulder Armor with a Sculptural Shoulder Piece',
+    meta_description: 'Gold shoulder armor with a sculptural shoulder piece for Burning Man, desert wear, and warrior styling.',
+  });
+  const result = validateSeoCommercialCopy(value);
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('h1_restates_same_product_entity'));
+  assert.ok(codes.includes('meta_description_restates_same_product_entity'));
+});
+
+test('blocks the current pilot robotic phrases and broken studio grammar', () => {
+  const value = draft({
+    intro: 'It is a strong choice when you want a defined, intentional look that reads fast in open light.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => {
+      if (block.block_key === 'why_youll_love_it') {
+        return {
+          ...block,
+          body: [
+            'The shoulder-led design gives you a distinctive studio-made alternative to a generic costume look.',
+            'The chest strap helps the piece sit more securely, so it is easier to wear with confidence.',
+            'The sculptural build keeps the shape visually strong, which helps the piece hold its presence in photos and movement.',
+            'The gold finish gives the design a deliberate, high-impact character that feels more considered than mass-market costume styling.',
+          ].join('\n'),
+        };
+      }
+      if (block.block_key === 'main_description') {
+        return { ...block, body: 'TheFEYA we design for people who want a bold detail to carry the whole look and express their own visual identity.' };
+      }
+      return block;
+    }),
+  });
+  const result = validateSeoCommercialCopy(value);
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('customer_copy_contains_robotic_or_tautological_value'));
+  assert.ok(codes.some((code) => (
+    code.includes('has_feature_but_no_buyer_outcome') || code.includes('has_no_concrete_buyer_value')
+  )));
+});
+
 test('blocks reflective claims when Product Truth does not confirm reflection', () => {
   const value = draft({ intro: 'This shoulder armor has a reflective finish that catches stage light. Its layered shape gives the upper body a defined profile.' });
   const result = validateSeoCommercialCopy(value, { product_truth: { material: 'Leather, Faux leather', canonical_color_label: 'Gold' } });

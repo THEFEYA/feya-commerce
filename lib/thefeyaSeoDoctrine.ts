@@ -1,4 +1,4 @@
-export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v10' as const;
+export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v11' as const;
 
 export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
   checkpoint_id: 'reload_latest_research_before_apply_publish_v1',
@@ -105,6 +105,9 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Keep copy commercial but calm: attractive, specific and human, without generic AI sales language or empty pseudo-benefits.',
     'Avoid filler words and weak catalog phrases: Edition, Ultimate, Best, Perfect, Luxury, Premium, Elevate, Crafted to perfection and Perfect for any occasion.',
     'Use clear, short sentences. Avoid keyword stuffing, doorway-page copy, repeated phrase skeletons and long chained keyword titles.',
+    'Do not expand a clear product name merely to reach a character target. H1 should name the primary product entity once and add only a different, verified attribute or use case.',
+    'Close keyword variants belong to one semantic cluster. They do not all need exact-match placement, and two near-synonymous product queries must not be stacked in one sentence or bullet.',
+    'Every sentence must add a product fact, a supported buyer outcome or a distinct use case. Delete sentences that only describe an abstract mood, presence, focal point or intentional look.',
     'Main PDP copy must remain product-specific and concise. Required generated left-description order: About this piece, Why you’ll love it, Ideal for, Designed for self-expression.',
     'Why you’ll love it must contain 3-4 genuinely different purchase reasons. A design-authorship point and a handmade-not-mass-produced point count as the same idea and must not appear as separate duplicate bullets.',
     'Weak styling filler is not a benefit. Do not use works over minimal clothing, easy to build into a look, part of a complete look, creates a clear accent, works as a centerpiece or without additional design elements.',
@@ -115,11 +118,11 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Do not place operational customization details such as changing color, size, length, fit or coverage inside Designed for self-expression. Those facts belong only in the fixed right panel.',
   ],
   length_rules: {
-    seo_title: '45-68 characters, one owned search angle, no brand-name padding, no Edition and no keyword dump.',
-    h1: '45-82 characters, human-readable product name, close to product identity but not a stuffed title clone.',
-    meta_description: '125-158 characters, product identity plus differentiator and use case; not a visual inventory sentence or brand repetition.',
+    seo_title: 'Aim for a concise snippet-safe title and keep the internal 68-character review cap. Never pad a short, complete title to hit a minimum.',
+    h1: 'Concise human-readable product name with an 82-character review cap. Name the primary product entity once; add only a non-redundant verified differentiator and never pad to a minimum.',
+    meta_description: 'Aim for concise product identity, differentiator and use case within the 158-character review cap. Completeness and natural language outrank a minimum character target.',
     intro: '2-4 concise sentences; product hook, buyer benefit, event/use case and supported facts.',
-    main_description: '180-320 words across generated left-description blocks before final trim. It must be readable, specific and free of repeated arguments.',
+    main_description: 'Coverage-first product copy, usually 100-260 words across the four generated left-description blocks. Never add filler to reach a word count; required facts and distinct buyer value matter more than length.',
   },
   pdp_block_plan: [
     {

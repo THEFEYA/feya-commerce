@@ -30,6 +30,7 @@ test('auto recommendation applies Product Truth mismatch gates before search vol
       { ...baseMetric, keyword: 'gold shoulders', keyword_norm: 'gold shoulders', bank_bucket: 'product_or_alt', avg_monthly_searches: 110 },
       { ...baseMetric, keyword: 'futuristic shoulder armor', keyword_norm: 'futuristic shoulder armor', bank_bucket: 'product', avg_monthly_searches: 90 },
       { ...baseMetric, keyword: 'gold bodysuit', keyword_norm: 'gold bodysuit', bank_bucket: 'product_or_alt', avg_monthly_searches: 100000 },
+      { ...baseMetric, keyword: 'choke chain gold', keyword_norm: 'choke chain gold', bank_bucket: 'product_or_alt', avg_monthly_searches: 200000 },
       { ...baseMetric, keyword: 'silver shoulder armor', keyword_norm: 'silver shoulder armor', bank_bucket: 'product', avg_monthly_searches: 100000 },
       { ...baseMetric, keyword: 'where to buy shoulder armor', keyword_norm: 'where to buy shoulder armor', bank_bucket: 'faq', page_type: 'FAQ', avg_monthly_searches: 50 },
     ],
@@ -37,6 +38,7 @@ test('auto recommendation applies Product Truth mismatch gates before search vol
 
   const keywords = result.keywords.map((row) => String(row.keyword_norm));
   assert.equal(keywords.includes('gold bodysuit'), false);
+  assert.equal(keywords.includes('choke chain gold'), false);
   assert.equal(keywords.includes('silver shoulder armor'), false);
   assert.equal(keywords.includes('gold shoulders'), true);
   assert.equal(keywords.includes('where to buy shoulder armor'), true);

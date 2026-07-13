@@ -45,7 +45,7 @@ const COMPONENT_FAMILIES: Record<string, string[]> = {
   arms: ['arm cover', 'arm covers', 'arm guard', 'arm guards', 'arm cuff', 'arm cuffs', 'bracer', 'bracers'],
   bodysuit: ['bodysuit', 'body suit', 'leotard'],
   bracelet: ['bracelet', 'bracelets', 'armlet', 'armlets'],
-  choker: ['choker', 'collar'],
+  choker: ['choker', 'collar', 'choke chain', 'choke chains'],
   corset: ['corset', 'bodice'],
   dress: ['dress', 'dresses'],
   garters: ['garter', 'garters', 'leg garter', 'leg garters'],

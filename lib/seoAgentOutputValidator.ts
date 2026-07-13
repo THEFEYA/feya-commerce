@@ -47,7 +47,8 @@ const WEAK_AVAILABILITY_PATTERN = /\b(if available|when available|where availabl
 const PSEUDO_BENEFIT_PATTERN = /\b(works? well as a focal piece|works? as a centerpiece|part of a complete look|over minimal clothing|pairs? with simple clothing|easy to build into (?:a|the) (?:look|outfit)|easy to style|creates? a clear accent|without additional (?:design )?elements|adds? an accent without)\b/i;
 const GUARANTEED_OUTCOME_PATTERN = /\b(guarantee(?:d|s)?|will get likes?|will receive likes?|will gain followers?|will make you popular|go viral|viral reach|everyone will notice|all eyes will be on you|guaranteed attention|guaranteed reactions?)\b/i;
 const CLICHE_PATTERN = /\b(elevate your look|step into|turn heads|make a statement|perfect for any occasion|crafted to perfection|must have|ultimate|best choice|luxury piece|premium quality)\b/i;
-const ROBOTIC_OR_TAUTOLOGICAL_PATTERN = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|TheFEYA gives us a way|clean armored attitude|desert[- ]ready mood|contrast and visual depth|firm armored presence|individual feel)\b/i;
+const ROBOTIC_OR_TAUTOLOGICAL_PATTERN = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|TheFEYA gives us a way|TheFEYA\s+(?:we|our|us)\b|clean armored attitude|desert[- ]ready (?:mood|presence)|contrast and visual depth|firm armored presence|individual feel|shoulder[- ]led|reads? fast|open light|direct choice for buyers?|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence)\b/i;
+const REDUNDANT_SHOULDER_ENTITY_PATTERN = /\bshoulders?\s+(?:armor|armour|piece|pieces|pauldron|pauldrons)\b/gi;
 const SOCIAL_METRICS_PATTERN = /\b(organic attention|reactions?, saves? (?:and|or) comments?|likes?, followers?|social (?:engagement|metrics?)|viral(?:ity| reach)?)\b/i;
 const REDUNDANT_MATERIAL_PATTERN = /\b(?:vegan leather\s+(?:and|or|\/)\s+faux leather|faux leather\s+(?:and|or|\/)\s+vegan leather)\b/i;
 const COMMERCIAL_ALT_PATTERN = /\b(buy|order|price|shop|for sale|shipping|delivery|discount|sale|online store)\b/i;
@@ -90,10 +91,12 @@ export function validateSeoAgentOutput(value: unknown): SeoAgentOutputValidation
   });
 
   if (outputStatus !== 'blocked') {
-    validateRequiredCustomerField(value.seo_title, 'seo_title', 45, 68, issues);
-    validateRequiredCustomerField(value.h1, 'h1', 45, 82, issues);
-    validateRequiredCustomerField(value.meta_description, 'meta_description', 125, 158, issues);
-    validateRequiredCustomerField(value.intro, 'intro', 1, 1000, issues);
+    validateRequiredCustomerField(value.seo_title, 'seo_title', 68, issues);
+    validateRequiredCustomerField(value.h1, 'h1', 82, issues);
+    validateRequiredCustomerField(value.meta_description, 'meta_description', 158, issues);
+    validateRequiredCustomerField(value.intro, 'intro', 1000, issues);
+    advisoryMinimum(value.seo_title, 'seo_title', 30, issues);
+    advisoryMinimum(value.meta_description, 'meta_description', 90, issues);
   }
 
   if (typeof value.intro === 'string' && value.intro.trim()) {
@@ -138,7 +141,6 @@ export function validateSeoAgentOutput(value: unknown): SeoAgentOutputValidation
 function validateRequiredCustomerField(
   value: unknown,
   field: string,
-  min: number,
   max: number,
   issues: SeoAgentOutputValidationIssue[],
 ) {
@@ -147,8 +149,20 @@ function validateRequiredCustomerField(
     return;
   }
   const length = value.trim().length;
-  if (length < min) issues.push(blocker(`${field}_short`, `${field} must be at least ${min} characters.`));
   if (length > max) issues.push(blocker(`${field}_long`, `${field} must be no more than ${max} characters.`));
+}
+
+function advisoryMinimum(
+  value: unknown,
+  field: string,
+  min: number,
+  issues: SeoAgentOutputValidationIssue[],
+) {
+  if (typeof value !== 'string' || !value.trim() || value.trim().length >= min) return;
+  issues.push(warning(
+    `${field}_may_be_too_thin`,
+    `${field} is unusually short. Review whether it identifies the product clearly, but never pad it with redundant wording merely to reach a character target.`,
+  ));
 }
 
 function validateVisualTruth(value: unknown, issues: SeoAgentOutputValidationIssue[]) {
@@ -262,13 +276,11 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
       }
     });
 
-    if (leftDescriptionWords < 130) {
+    if (leftDescriptionWords < 100) {
       issues.push(blocker('left_description_too_thin', 'Main left_description PDP copy is too thin for review.'));
-    } else if (leftDescriptionWords < 180) {
-      issues.push(warning('left_description_below_preferred', 'Main left_description is below the preferred 180-word review range.'));
     }
-    if (leftDescriptionWords > 320) {
-      issues.push(warning('left_description_above_preferred', 'Main left_description is above the preferred 320-word review range.'));
+    if (leftDescriptionWords > 260) {
+      issues.push(warning('left_description_above_preferred', 'Main left_description is longer than the usual 260-word review range. Keep it only when every sentence adds supported product or buyer value.'));
     }
   }
 }
@@ -278,6 +290,16 @@ function validateCustomerCopy(value: Record<string, unknown>, issues: SeoAgentOu
     checkEnglishString(value[field], field, issues, 'blocker');
     checkCustomerStyle(value[field], field, issues);
   });
+
+  if (typeof value.h1 === 'string') {
+    const repeatedShoulderEntities = value.h1.match(REDUNDANT_SHOULDER_ENTITY_PATTERN) || [];
+    if (repeatedShoulderEntities.length > 1) {
+      issues.push(blocker(
+        'h1_restates_same_product_entity',
+        'H1 names the shoulder product twice through equivalent terms. Use the product entity once and spend the remaining words on a different verified attribute or use case.',
+      ));
+    }
+  }
 
   if (Array.isArray(value.bullet_highlights)) {
     value.bullet_highlights.forEach((item, index) => {

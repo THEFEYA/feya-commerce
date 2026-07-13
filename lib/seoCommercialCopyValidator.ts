@@ -23,16 +23,17 @@ const WEAK_STYLING_FILLER = /\b(works? well as a focal piece|works? as a centerp
 const AUDIT_OR_ADMIN_LANGUAGE = /\b(product truth|product truth confirms?|product truth indicates?|the product description (?:says|states|lists|mentions|indicates)|the source (?:says|states|lists|mentions|indicates)|official product data|source data|database fields?|safe wording|safest wording|material basis|final copy should|must be confirmed|should be confirmed|requires? verification|needs? verification|should be reviewed before publish|requires? review before publish|review before publish|before publication|before publish|listed as|is listed as|indicated as|specified as)\b/i;
 const GUARANTEED_POPULARITY = /\b(guarantee(?:d|s)?|will get likes?|will receive likes?|will gain followers?|will make you popular|go viral|viral reach|more followers?|gain followers?|more likes?|become popular|increase your popularity|guaranteed attention|everyone will notice|all eyes will be on you|guaranteed reactions?)\b/i;
 const EMPTY_HYPE = /\b(premium|luxury|ultimate|perfect|best|must[- ]have|crafted to perfection|elevate your look)\b/i;
-const EMPTY_OR_INTERNAL_BUYER_COPY = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|TheFEYA gives us a way|clean armored attitude|desert[- ]ready mood)\b/i;
+const EMPTY_OR_INTERNAL_BUYER_COPY = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|TheFEYA gives us a way|TheFEYA\s+(?:we|our|us)\b|clean armored attitude|desert[- ]ready (?:mood|presence)|shoulder[- ]led|reads? fast|open light|direct choice for buyers?|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence)\b/i;
 const SOCIAL_METRICS_BOILERPLATE = /\b(organic attention|reactions?, saves? (?:and|or) comments?|likes?, followers?|social (?:engagement|metrics?)|viral(?:ity| reach)?)\b/i;
 const REDUNDANT_FAUX_LEATHER = /\b(?:vegan leather\s+(?:and|or|\/)\s+faux leather|faux leather\s+(?:and|or|\/)\s+vegan leather)\b/i;
 const REFLECTIVE_CLAIM = /\b(?:reflective|retroreflective|retro-reflective)\b/i;
-const ABSTRACT_VISUAL_BENEFIT = /\b(contrast and visual depth|adds? contrast|creates? visual depth|harder,? more dramatic line|firm armored presence|armored presence|individual feel|shape a look that feels deliberate|one bold detail to define|dramatic line)\b/i;
+const ABSTRACT_VISUAL_BENEFIT = /\b(contrast and visual depth|adds? contrast|creates? visual depth|harder,? more dramatic line|firm armored presence|armored presence|individual feel|shape a look that feels deliberate|one bold detail to define|dramatic line|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence)\b/i;
 const USE_CASE_AS_BENEFIT = /\b(?:works?|ideal|made|suited) for\b.*\b(styling|looks?|warrior|futuristic|desert|festival|stage|performance|photoshoot|editorial|cosplay|party)\b/i;
 const UNGROUNDED_STORE_PROMISE = /\b(best prices?|lowest prices?|competitive prices?|special prices?|bulk discounts?|volume discounts?|tax[- ]free|tax refund|excellent service|best service|wide assortment|large assortment|largest selection|fastest delivery)\b/i;
 const BRAND_PATTERN = /\bTheFEYA\b/gi;
 const DESIGN_BENEFIT_PATTERN = /\b(studio[- ]created|studio[- ]designed|studio[- ]made|designed in our studio|original studio design|distinctive studio design|signature studio design|handmade|made[- ]to[- ]order|not mass[- ]produced|mass[- ]produced costume|mass production|designer studio)\b/i;
 const SELF_EXPRESSION_PATTERN = /\b(self[- ]expression|individuality|visual identity|personal style|your own look|made for your vision|designed for your vision|studio visual language|adapt(?:ed|able)|customi[sz](?:e|ed|ation))\b/i;
+const REDUNDANT_SHOULDER_ENTITY_PATTERN = /\bshoulders?\s+(?:armor|armour|piece|pieces|pauldron|pauldrons)\b/gi;
 
 const BENEFIT_CATEGORIES: Array<{ key: string; pattern: RegExp }> = [
   {
@@ -67,6 +68,14 @@ const PRACTICAL_BENEFIT_CATEGORIES = new Set([
   'durability_structure',
   'verified_finish_behavior',
 ]);
+const BENEFIT_OUTCOME_PATTERNS: Record<string, RegExp> = {
+  studio_design_and_craft: /\b(distinctive|recognizable|recognisable|alternative to (?:a )?(?:generic|mass[- ]produced)|different from (?:a )?(?:generic|mass[- ]produced)|not mass[- ]produced|avoids? a generic)\b/i,
+  easy_dressing_and_adjustment: /\b(quick|easy|easier) to (?:put on|take off|adjust|fine[- ]tune|wear)|\b(stays? in place|sits? securely|more secure|secure fit|room to adjust|fine[- ]tune over)\b/i,
+  fit_flexibility: /\b(secure fit|closer fit|fit over|fit around|room to adjust|different base layers?|custom measurements?)\b/i,
+  comfort: /\b(comfortable|comfort|soft against the body|soft body[- ]facing|gentle on the body|easier to wear)\b/i,
+  durability_structure: /\b(holds? its (?:shape|form)|keeps? its (?:shape|form)|shape retention|between wears|resists? creasing|long[- ]lasting|less likely to (?:crease|collapse|lose its shape))\b/i,
+  verified_finish_behavior: /\b(catches? (?:ambient |stage )?light|light[- ]catching|shows? clearly in photos?|visible under (?:stage |event )?lighting|keeps? detail visible)\b/i,
+};
 
 const CROSS_BLOCK_IDEAS: Array<{ key: string; pattern: RegExp }> = [
   {
@@ -192,6 +201,17 @@ export function validateSeoCommercialCopy(
     }
   });
 
+  ['h1', 'meta_description'].forEach((field) => {
+    const value = typeof record[field] === 'string' ? record[field] : '';
+    const repeatedShoulderEntities = value.match(REDUNDANT_SHOULDER_ENTITY_PATTERN) || [];
+    if (repeatedShoulderEntities.length > 1) {
+      issues.push(blocker(
+        `${field}_restates_same_product_entity`,
+        `${field} names the shoulder product twice through equivalent terms. Use the product entity once and add only a different verified attribute or use case.`,
+      ));
+    }
+  });
+
   const brandMentions = countMatches(customerText, BRAND_PATTERN);
   if (brandMentions > 1) {
     issues.push(blocker(
@@ -248,6 +268,11 @@ export function validateSeoCommercialCopy(
         issues.push(blocker(
           `why_youll_love_it_benefit_${index + 1}_has_no_concrete_buyer_value`,
           `Benefit ${index + 1} does not connect a supported feature or studio truth to a recognized buyer outcome.`,
+        ));
+      } else if (!item.categories.some((category) => BENEFIT_OUTCOME_PATTERNS[category]?.test(item.line))) {
+        issues.push(blocker(
+          `why_youll_love_it_benefit_${index + 1}_has_feature_but_no_buyer_outcome`,
+          `Benefit ${index + 1} mentions a feature but does not explain a concrete, supported result for the buyer.`,
         ));
       }
       if (ABSTRACT_VISUAL_BENEFIT.test(item.line)) {
