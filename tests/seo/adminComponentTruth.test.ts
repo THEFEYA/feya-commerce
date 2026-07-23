@@ -47,3 +47,36 @@ test('missing canonical Product Truth is never treated as reviewed', () => {
     ['canonical_product_truth_unavailable'],
   );
 });
+
+test('size and color review facts remain visible without blocking composition', () => {
+  const result = getCanonicalComponentTruthDiagnostic({
+    canonical_product_id: 'product-2',
+    included_components: ['Corset'],
+    unresolved_component_facts: [],
+    component_review_blockers_json: [],
+    variant_review_facts: [
+      {
+        source: 'component_review_blockers_json',
+        detected_canonical_axis: 'size',
+        evidence: {
+          option_mapping_id: 'mapping-1',
+          reason: 'option_mapping_requires_review',
+          raw_phrase: 'M US',
+        },
+      },
+      {
+        source: 'unresolved_component_facts',
+        detected_canonical_axis: 'size',
+        evidence: {
+          option_mapping_id: 'mapping-1',
+          reason: 'option_mapping_requires_review',
+          raw_phrase: 'M US',
+        },
+      },
+      { detected_canonical_axis: 'color', evidence: { raw_phrase: 'Gold' } },
+    ],
+  });
+
+  assert.deepEqual(result.blockers, []);
+  assert.equal(result.variantReviewFacts.length, 2);
+});

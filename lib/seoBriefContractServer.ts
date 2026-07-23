@@ -5,7 +5,7 @@ import { recommendCatalogKeywords } from '@/lib/seoCatalogKeywordRecommendation'
 import { getListingMasterKeywordSelection } from '@/lib/seoListingMasterDecision';
 import { buildSeoAgentInputFromDraft, buildSeoPackDraftContractFromBrief } from '@/lib/seoPackContractBuilder';
 
-const PRODUCT_TRUTH_VIEW = 'feya_commerce_v_seo_product_truth_v1';
+const PRODUCT_TRUTH_VIEW = 'feya_commerce_v_seo_product_truth_v3';
 const FOCUS_VIEW = 'feya_commerce_v_listing_master_product_focus_v1';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
 const SEO_DRAFT_LATEST_VIEW = 'feya_commerce_v_seo_pack_drafts_latest_v1';

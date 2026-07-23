@@ -1,4 +1,4 @@
-export const CANONICAL_PRODUCT_TRUTH_VIEW = 'feya_commerce_v_seo_product_truth_v1';
+export const CANONICAL_PRODUCT_TRUTH_VIEW = 'feya_commerce_v_seo_product_truth_v3';
 
 export const ADMIN_COMPONENT_TRUTH_SELECT = [
   'canonical_product_id',
@@ -8,6 +8,7 @@ export const ADMIN_COMPONENT_TRUTH_SELECT = [
   'option_price_rows_json',
   'unresolved_component_facts',
   'component_review_blockers_json',
+  'variant_review_facts',
 ].join(',');
 
 export type CanonicalComponentTruthRow = {
@@ -18,6 +19,7 @@ export type CanonicalComponentTruthRow = {
   option_price_rows_json?: unknown;
   unresolved_component_facts?: unknown;
   component_review_blockers_json?: unknown;
+  variant_review_facts?: unknown;
 };
 
 export type ComponentTruthDiagnostic = {
@@ -29,6 +31,7 @@ export type ComponentTruthDiagnostic = {
   optionalConfigurations: unknown[];
   sourceVariations: unknown[];
   optionPriceRows: unknown[];
+  variantReviewFacts: unknown[];
 };
 
 export function evidenceArray(value: unknown): unknown[] {
@@ -40,6 +43,41 @@ export function evidenceArray(value: unknown): unknown[] {
   } catch {
     return [];
   }
+}
+
+function dedupeVariantReviewFacts(value: unknown[]): unknown[] {
+  const seen = new Set<string>();
+
+  return value.filter((fact) => {
+    if (!fact || typeof fact !== 'object' || Array.isArray(fact)) return true;
+
+    const row = fact as Record<string, unknown>;
+    const evidence =
+      row.evidence && typeof row.evidence === 'object' && !Array.isArray(row.evidence)
+        ? row.evidence as Record<string, unknown>
+        : row;
+    const optionMappingId =
+      typeof evidence.option_mapping_id === 'string' ? evidence.option_mapping_id : '';
+    const issue =
+      typeof evidence.reason === 'string'
+        ? evidence.reason
+        : typeof evidence.fact_type === 'string'
+          ? evidence.fact_type
+          : '';
+    const rawPhrase =
+      typeof evidence.raw_phrase === 'string'
+        ? evidence.raw_phrase
+        : typeof evidence.raw_value === 'string'
+          ? evidence.raw_value
+          : typeof evidence.raw_option_value === 'string'
+            ? evidence.raw_option_value
+            : '';
+    const key = `${optionMappingId}\u0000${issue}\u0000${rawPhrase}`;
+
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 export function componentEvidenceLabel(value: unknown): string {
@@ -83,6 +121,7 @@ export function getCanonicalComponentTruthDiagnostic(
       optionalConfigurations: [],
       sourceVariations: [],
       optionPriceRows: [],
+      variantReviewFacts: [],
     };
   }
 
@@ -104,6 +143,7 @@ export function getCanonicalComponentTruthDiagnostic(
     optionalConfigurations: evidenceArray(row.optional_configurations),
     sourceVariations: evidenceArray(row.source_variations_json),
     optionPriceRows: evidenceArray(row.option_price_rows_json),
+    variantReviewFacts: dedupeVariantReviewFacts(evidenceArray(row.variant_review_facts)),
   };
 }
 
