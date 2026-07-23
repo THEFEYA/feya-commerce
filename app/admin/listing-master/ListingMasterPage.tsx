@@ -1,6 +1,13 @@
 // @ts-nocheck
 import Link from 'next/link';
 import { ArrowUpRight, Database, ImageIcon, Layers3, PackageSearch, Save, Search, SearchCheck, SlidersHorizontal } from 'lucide-react';
+import { recommendCatalogKeywords } from '@/lib/seoCatalogKeywordRecommendation';
+import {
+  buildListingMasterKeywordSnapshot,
+  getListingMasterDecisionStatus,
+  listingMasterKeywordIds,
+} from '@/lib/seoListingMasterDecision';
+import { getSeoProductTruthEvidenceBlockers } from '@/lib/seoPackContract';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import VerifiedSaveButton from './VerifiedSaveButton';
 
@@ -12,15 +19,71 @@ const KEYWORD_LIMIT = 6000;
 const DISPLAY_LIMIT = 180;
 const KEYWORD_SNAPSHOT_LIMIT = 35;
 
-const FAST_PRODUCT_VIEW = 'feya_commerce_v_step7_storefront_products_api';
+const FAST_PRODUCT_VIEW = 'feya_commerce_v_seo_product_truth_v1';
 const KEYWORD_VIEW = 'vw_seo_keyword_bank_v1_for_listing_master';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
 const SOURCE_LISTINGS_TABLE = 'feya_commerce_source_listings';
 const FALLBACK_VIEW = 'feya_commerce_v_step6_product_catalog_overview';
 
-const FAST_PRODUCT_SELECT = 'canonical_product_id,matched_etsy_listing_id,product_slug,card_title,h1,seo_title,product_type,material,color,primary_image_url,primary_image_alt';
+const FAST_PRODUCT_SELECT = [
+  'canonical_product_id',
+  'matched_etsy_listing_id',
+  'product_slug',
+  'card_title',
+  'h1',
+  'seo_title',
+  'meta_description',
+  'product_type',
+  'material',
+  'color',
+  'canonical_color_label',
+  'category_label',
+  'source_category_label',
+  'operator_section_label',
+  'world_label',
+  'primary_image_url',
+  'primary_image_alt',
+  'parent_components_json',
+  'child_components_json',
+  'component_groups_json',
+  'needs_component_review_count',
+  'has_component_review_risk',
+  'focus_text',
+  'included_components',
+  'optional_configurations',
+  'available_variants',
+  'known_non_components',
+  'unresolved_component_facts',
+  'component_evidence',
+  'source_description_fragment',
+  'source_variations_json',
+  'option_price_rows_json',
+  'component_review_blockers_json',
+].join(',');
 const FALLBACK_SELECT = 'canonical_product_id,matched_etsy_listing_id,draft_site_title,card_title,product_type';
-const KW_SELECT = 'keyword,keyword_norm,bank_bucket,score,avg_monthly_searches,competition,competition_index,source_clusters,page_type,reason,notes,source_files';
+const KW_SELECT = [
+  'id',
+  'keyword',
+  'keyword_norm',
+  'bank_bucket',
+  'review_status',
+  'source_clusters',
+  'score',
+  'avg_monthly_searches',
+  'competition',
+  'competition_index',
+  'region',
+  'language',
+  'metric_source',
+  'page_type',
+  'role',
+  'role_label',
+  'last_checked',
+  'duplicate_count',
+  'reason',
+  'notes',
+  'source_files',
+].join(',');
 
 const KEYWORD_TYPES = ['all', 'product', 'product_or_alt', 'collection', 'commercial_collection', 'visual_collection', 'faq'];
 const STRATEGIES = ['demand', 'opportunity', 'niche'];
@@ -78,10 +141,10 @@ export default async function ListingMasterPage({ searchParams }) {
   const productData = await loadProducts(filters);
   const selectedProduct = productData.allProducts.find((p) => p.id === filters.productId) || null;
   const active = applyAutoFocus(filters, selectedProduct);
-  const keywordData = await loadKeywords(active);
+  const keywordData = await loadKeywords(active, selectedProduct);
   const rows = keywordData.rows.slice(0, DISPLAY_LIMIT);
   const saved = savedMessage(filters.saved);
-  const productStatus = productSeoStatus(selectedProduct, active, keywordData.totalCount ?? keywordData.rows.length);
+  const productStatus = productSeoStatus(selectedProduct, active, keywordData);
 
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
     <section className="container-feya pt-7 pb-14">
@@ -114,7 +177,7 @@ export default async function ListingMasterPage({ searchParams }) {
         <ProductPicker data={productData} filters={filters} selectedProduct={selectedProduct} />
         <div className="space-y-5">
           <FocusSearchForm key={focusFormKey(selectedProduct, active)} product={selectedProduct} filters={active} status={productStatus} />
-          <NextStepPanel product={selectedProduct} keywordCount={keywordData.totalCount ?? keywordData.rows.length} saved={Boolean(selectedProduct?.decision)} />
+          <NextStepPanel product={selectedProduct} keywordCount={keywordData.totalCount ?? keywordData.rows.length} saved={Boolean(selectedProduct?.decision)} status={productStatus} />
         </div>
       </div>
 
@@ -122,9 +185,9 @@ export default async function ListingMasterPage({ searchParams }) {
       <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4 mb-5">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div><div className="eyebrow-dim">Активный подбор слов</div><h2 className="mt-1 text-bone text-[22px]">{KW_LABELS[active.type] || active.type}</h2></div>
-          <div className="flex flex-wrap gap-2"><Chip tone="success">Показано {fmt(rows.length)}</Chip><Chip tone="warning">Найдено {fmt(keywordData.totalCount ?? keywordData.rows.length)}</Chip><Chip>Из выборки {fmt(keywordData.rawCount ?? keywordData.rows.length)}</Chip><Chip tone="gold">{strategyLabel(active.strategy)}</Chip><Chip tone="success">быстрый matcher</Chip></div>
+          <div className="flex flex-wrap gap-2"><Chip tone="success">Показано {fmt(rows.length)}</Chip><Chip tone="warning">Найдено {fmt(keywordData.totalCount ?? keywordData.rows.length)}</Chip><Chip>Из выборки {fmt(keywordData.rawCount ?? keywordData.rows.length)}</Chip><Chip tone="gold">{strategyLabel(active.strategy)}</Chip><Chip tone="success">{selectedProduct ? 'Product Truth matcher' : 'обзор ядра'}</Chip></div>
         </div>
-        <p className="mt-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">Фильтры применяются только после кнопки “Применить поиск слов”. Matcher больше не считает metadata главным совпадением: keyword/keyword_norm имеют приоритет, source_clusters/notes дают только слабый сигнал.</p>
+        <p className="mt-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">Фильтры применяются только после кнопки “Применить поиск слов”. Для выбранного товара сначала отсекаются несовместимые компоненты, цвет, аудитория и чужие commerce-домены; спрос и конкуренция влияют на порядок только после Product Truth gate.</p>
       </div>
       <KeywordTable rows={rows} error={keywordData.error} />
     </section>
@@ -138,6 +201,14 @@ async function saveDecisionAction(formData) {
   const requestId = val(formData.get('save_request_id')).trim() || 'server-action';
   if (!productId) return saveFailure('missing_product', 'Не удалось определить выбранный товар.', requestId);
   if (!supabase) return saveFailure('missing_supabase', 'Серверное подключение к Supabase недоступно.', requestId);
+  const canonicalProduct = await loadCanonicalProductTruthProduct(supabase, productId);
+  if (!canonicalProduct) {
+    return saveFailure(
+      'missing_canonical_product_truth',
+      'Сервер не нашёл канонический Product Truth выбранного товара.',
+      requestId,
+    );
+  }
   const strategies = allowedFormValues(formData, 'strategy', STRATEGIES);
   const manualFocus = {
     component: allowedFormValues(formData, 'component', COMPONENTS),
@@ -166,20 +237,34 @@ async function saveDecisionAction(formData) {
     q: manualFocus.q,
     exclude: joinValues(manualFocus.exclude),
   };
-  const keywordData = await loadKeywords(decisionFilters);
-  const selectedKeywords = keywordSnapshot(keywordData.rows || []);
+  const keywordData = await loadKeywords(decisionFilters, canonicalProduct);
+  const selectedKeywords = buildListingMasterKeywordSnapshot(
+    keywordData.rows || [],
+    KEYWORD_SNAPSHOT_LIMIT,
+  );
+  const truthBlockers = canonicalProduct.truthBlockers || [];
+  const decisionStatus = getListingMasterDecisionStatus(truthBlockers, selectedKeywords);
+  manualFocus.product_truth_status = truthBlockers.length ? 'blocked' : 'ready';
+  manualFocus.product_truth_blockers = truthBlockers;
+  manualFocus.keyword_recommendation_source = keywordData.source;
+  manualFocus.keyword_recommendation_diagnostics = keywordData.diagnostics || null;
   const payload = {
     canonical_product_id: productId,
-    product_slug: val(formData.get('product_slug')) || null,
-    matched_etsy_listing_id: val(formData.get('matched_etsy_listing_id')) || null,
-    auto_focus_json: parseJson(val(formData.get('auto_focus_json')), {}),
+    product_slug: canonicalProduct.slug || null,
+    matched_etsy_listing_id: canonicalProduct.etsyId || null,
+    auto_focus_json: autoFocusSnapshot(canonicalProduct, inferFocus(canonicalProduct)),
     manual_focus_json: manualFocus,
     selected_strategy: strategyString,
-    selected_keyword_ids_json: [],
+    selected_keyword_ids_json: listingMasterKeywordIds(selectedKeywords),
     selected_keywords_json: selectedKeywords,
     rejected_keywords_json: manualFocus.exclude,
-    decision_status: 'draft',
-    decision_note: `Сохранено из Мастера листинга перед генерацией SEO-текста · request_id=${requestId}`
+    decision_status: decisionStatus,
+    decision_note: [
+      'Сохранено из Мастера листинга перед генерацией SEO-текста',
+      `status=${decisionStatus}`,
+      `product_truth_blockers=${truthBlockers.join('|') || 'none'}`,
+      `request_id=${requestId}`,
+    ].join(' · '),
   };
   const { data: inserted, error } = await supabase
     .from(DECISIONS_TABLE)
@@ -207,23 +292,58 @@ async function saveDecisionAction(formData) {
     });
     return saveFailure('verification_failed', 'Записанный фокус не совпал с выбранными кнопками.', requestId);
   }
-  console.info('[listing-master-save] verified', { requestId, productId, insertedId: inserted.id, manualFocus });
+  console.info('[listing-master-save] verified', {
+    requestId,
+    productId,
+    insertedId: inserted.id,
+    decisionStatus,
+    truthBlockers,
+    selectedKeywordCount: selectedKeywords.length,
+  });
   const href = buildHref({ ...decisionFilters, productId, focusApplied: '1' });
-  return { ok: true, href: `${href}${href.includes('?') ? '&' : '?'}saved=ok`, requestId, decisionId: inserted.id };
+  const savedState = decisionStatus === 'blocked_product_truth'
+    ? 'blocked'
+    : decisionStatus === 'needs_keyword_review'
+      ? 'review'
+      : 'ok';
+  return {
+    ok: true,
+    href: `${href}${href.includes('?') ? '&' : '?'}saved=${savedState}`,
+    requestId,
+    decisionId: inserted.id,
+  };
+}
+
+async function loadCanonicalProductTruthProduct(supabase, productId) {
+  const { data, error } = await supabase
+    .from(FAST_PRODUCT_VIEW)
+    .select(FAST_PRODUCT_SELECT)
+    .eq('canonical_product_id', productId)
+    .limit(1);
+  if (error) {
+    console.error('[listing-master-save] product_truth_load_failed', {
+      productId,
+      code: error.code || null,
+      message: error.message,
+    });
+    return null;
+  }
+  const row = (data || [])[0] || null;
+  return row ? normalizeProduct(row) : null;
 }
 
 async function loadProducts(filters) {
   const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
   if (!supabase) return emptyProducts(getMissingSupabaseEnvMessage());
   let result = await supabase.from(FAST_PRODUCT_VIEW).select(FAST_PRODUCT_SELECT).limit(PRODUCT_LIMIT);
-  let source = 'fast storefront v1';
+  let source = 'canonical Product Truth v1';
   let warning = null;
   if (result.error) {
     warning = result.error.message;
     result = await supabase.from(FALLBACK_VIEW).select(FALLBACK_SELECT).limit(PRODUCT_LIMIT);
-    source = result.error ? 'ошибка fast storefront v1' : 'fallback step6 catalog';
+    source = result.error ? 'ошибка canonical Product Truth v1' : 'fallback step6 catalog';
   }
-  if (result.error) return emptyProducts(`${warning || 'Fast storefront v1'} / ${result.error.message}`);
+  if (result.error) return emptyProducts(`${warning || 'Canonical Product Truth v1'} / ${result.error.message}`);
   const sourceSignals = await loadProductSourceSignalMap(supabase, result.data || []);
   if (sourceSignals.error) warning = [warning, `Исходные Etsy-сигналы недоступны: ${sourceSignals.error}`].filter(Boolean).join(' / ');
   const decisions = await loadDecisionMap();
@@ -241,7 +361,7 @@ async function loadProducts(filters) {
     .filter((p) => !activeSection || p.sectionKey === activeSection)
     .filter((p) => activeStatus === 'all' || p.statusKey === activeStatus)
     .filter((p) => !tokens.length || tokens.every((t) => p.text.includes(t)));
-  return { allProducts, products, visibleProducts: products.length, totalProducts: allProducts.length, sections, statusCounts, activeSection, activeStatus, source, error: warning ? `Fast storefront v1 недоступен, включён fallback: ${warning}` : null };
+  return { allProducts, products, visibleProducts: products.length, totalProducts: allProducts.length, sections, statusCounts, activeSection, activeStatus, source, error: warning ? `Canonical Product Truth v1 недоступен, включён fallback: ${warning}` : null };
 }
 function emptyProducts(error) { return { allProducts: [], products: [], visibleProducts: 0, totalProducts: 0, sections: [], statusCounts: { all: 0, not_saved: 0, saved: 0 }, activeSection: '', activeStatus: 'all', source: 'none', error }; }
 async function loadProductSourceSignalMap(supabase, products) {
@@ -256,10 +376,106 @@ async function loadProductSourceSignalMap(supabase, products) {
   return { map, error: error?.message || null };
 }
 async function loadDecisionMap() { const supabase = getSupabaseServiceClient(); if (!supabase) return new Map(); const { data } = await supabase.from(DECISIONS_TABLE).select('canonical_product_id,decision_status,selected_strategy,manual_focus_json,auto_focus_json,selected_keywords_json,updated_at,created_at').limit(2000); const map = new Map(); (data || []).sort((a, b) => new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime()).forEach((row) => { if (row?.canonical_product_id && !map.has(row.canonical_product_id)) map.set(row.canonical_product_id, row); }); return map; }
-function normalizeProduct(row, sourceSignals = {}) { const parent = arr(row.parent_components_json); const child = arr(row.child_components_json); const groups = arr(row.component_groups_json); const title = row.card_title || row.draft_site_title || row.h1 || row.seo_title || row.product_slug || row.canonical_product_id || ''; const sectionLabel = row.operator_section_label || row.category_label || row.product_type || 'Other products'; const sectionKey = keyOf(sectionLabel); const sourceCategory = row.source_category_label || row.category_label || row.product_type || ''; const text = [row.focus_text, title, sectionLabel, sourceCategory, row.world_label, row.material, row.canonical_color_label, row.color, row.primary_image_alt, parent.join(' '), child.join(' '), groups.join(' '), row.canonical_product_id, row.matched_etsy_listing_id].filter(Boolean).join(' ').toLowerCase(); const sourceTagsText = [...arr(sourceSignals.raw_tags), ...arr(sourceSignals.raw_materials)].join(' ').toLowerCase(); return { id: row.canonical_product_id, title, sectionLabel, sectionKey, sourceCategory, productType: row.product_type || '', worldLabel: row.world_label || '', materialRaw: row.material || '', colorRaw: row.canonical_color_label || row.color || '', imageUrl: row.primary_image_url || '', imageAlt: row.primary_image_alt || '', slug: row.product_slug || row.canonical_product_id, etsyId: row.matched_etsy_listing_id || '', parentComponents: parent, childComponents: child, componentGroups: groups, needsComponentReviewCount: Number(row.needs_component_review_count || 0), hasComponentReviewRisk: Boolean(row.has_component_review_risk), text, sourceTagsText }; }
+function normalizeProduct(row, sourceSignals = {}) {
+  const parent = arr(row.parent_components_json);
+  const child = arr(row.child_components_json);
+  const groups = arr(row.component_groups_json);
+  const included = jsonArray(row.included_components);
+  const optionalConfigurations = jsonArray(row.optional_configurations);
+  const availableVariants = jsonArray(row.available_variants);
+  const knownNonComponents = jsonArray(row.known_non_components);
+  const unresolvedFacts = jsonArray(row.unresolved_component_facts);
+  const reviewBlockers = jsonArray(row.component_review_blockers_json);
+  const sourceVariations = jsonArray(row.source_variations_json);
+  const optionPriceRows = jsonArray(row.option_price_rows_json);
+  const title = row.card_title || row.draft_site_title || row.h1 || row.seo_title || row.product_slug || row.canonical_product_id || '';
+  const sectionLabel = row.operator_section_label || row.category_label || row.product_type || 'Other products';
+  const sectionKey = keyOf(sectionLabel);
+  const sourceCategory = row.source_category_label || row.category_label || row.product_type || '';
+  const truth = {
+    product_truth_source: row.included_components === undefined
+      ? null
+      : 'seo_product_truth_v1',
+    canonical_product_id: row.canonical_product_id || null,
+    matched_etsy_listing_id: row.matched_etsy_listing_id || null,
+    title,
+    slug: row.product_slug || row.canonical_product_id || '',
+    product_type: row.product_type || '',
+    category_label: row.category_label || '',
+    source_category_label: row.source_category_label || '',
+    operator_section_label: row.operator_section_label || '',
+    world_label: row.world_label || '',
+    material: row.material || '',
+    color: row.color || '',
+    canonical_color_label: row.canonical_color_label || '',
+    card_title: row.card_title || '',
+    h1: row.h1 || '',
+    focus_text: row.focus_text || '',
+    included_components: included,
+    known_components: [],
+    optional_configurations: optionalConfigurations,
+    available_variants: availableVariants,
+    known_non_components: knownNonComponents,
+    unresolved_component_facts: unresolvedFacts,
+    component_review_blockers: reviewBlockers,
+    component_evidence: row.component_evidence || null,
+    source_description_fragment: row.source_description_fragment || '',
+    source_variations: sourceVariations,
+    option_price_rows: optionPriceRows,
+    parent_components_json: parent,
+    child_components_json: child,
+    component_groups_json: groups,
+  };
+  const truthBlockers = getSeoProductTruthEvidenceBlockers(truth);
+  const text = [
+    row.focus_text,
+    title,
+    sectionLabel,
+    sourceCategory,
+    row.world_label,
+    row.material,
+    row.canonical_color_label,
+    row.color,
+    row.primary_image_alt,
+    parent.join(' '),
+    child.join(' '),
+    groups.join(' '),
+    row.canonical_product_id,
+    row.matched_etsy_listing_id,
+  ].filter(Boolean).join(' ').toLowerCase();
+  const sourceTagsText = [...arr(sourceSignals.raw_tags), ...arr(sourceSignals.raw_materials)].join(' ').toLowerCase();
+  return {
+    id: row.canonical_product_id,
+    title,
+    sectionLabel,
+    sectionKey,
+    sourceCategory,
+    productType: row.product_type || '',
+    worldLabel: row.world_label || '',
+    materialRaw: row.material || '',
+    colorRaw: row.canonical_color_label || row.color || '',
+    imageUrl: row.primary_image_url || '',
+    imageAlt: row.primary_image_alt || '',
+    slug: row.product_slug || row.canonical_product_id,
+    etsyId: row.matched_etsy_listing_id || '',
+    parentComponents: parent,
+    childComponents: child,
+    componentGroups: groups,
+    needsComponentReviewCount: Math.max(
+      Number(row.needs_component_review_count || 0),
+      unresolvedFacts.length,
+      reviewBlockers.length,
+    ),
+    hasComponentReviewRisk: truthBlockers.length > 0,
+    truth,
+    truthBlockers,
+    text,
+    sourceTagsText,
+  };
+}
 
-async function loadKeywords(filters) {
-  const supabase = getSupabaseReadClient();
+async function loadKeywords(filters, product = null) {
+  const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
   if (!supabase) return { rows: [], counts: {}, totalCount: null, rawCount: null, error: getMissingSupabaseEnvMessage(), source: 'none' };
   const safeType = KEYWORD_TYPES.includes(filters.type) ? filters.type : 'all';
   const countEntries = await Promise.all(KEYWORD_TYPES.map(async (type) => [type, await countKeywords(supabase, type)]));
@@ -268,8 +484,41 @@ async function loadKeywords(filters) {
   if (safeType !== 'all') query = query.eq('bank_bucket', safeType);
   const { data, error, count } = await query;
   if (error) return { rows: [], counts, totalCount: null, rawCount: count ?? null, error: error.message, source: 'keyword_bank' };
-  const rows = applyLocalMatching(data || [], filters);
-  return { rows, counts, totalCount: rows.length, rawCount: count ?? 0, error: null, source: 'local_matcher' };
+  const sourceRows = filters.q
+    ? (data || []).filter((row) => tokensOf(filters.q).every((token) => termMatch(keywordCoreText(row), token)))
+    : (data || []);
+  if (!product) {
+    const rows = applyLocalMatching(sourceRows, filters);
+    return { rows, counts, totalCount: rows.length, rawCount: count ?? 0, error: null, source: 'keyword_bank_overview', diagnostics: null };
+  }
+  const recommendation = recommendCatalogKeywords({
+    product: product.truth,
+    approvedKeywords: sourceRows,
+    focus: {
+      ...Object.fromEntries(FOCUS_FIELDS.map((field) => [field, valuesOf(filters[field])])),
+      exclude: excludeTerms(filters.exclude),
+    },
+    selectedStrategy: filters.strategy,
+    limit: KEYWORD_SNAPSHOT_LIMIT,
+  });
+  const rows = recommendation.keywords.map((row) => ({
+    ...row,
+    match_label: Number(row.product_truth_fit_score || 0) >= 80
+      ? 'точное'
+      : Number(row.product_truth_fit_score || 0) >= 35
+        ? 'доказанное'
+        : 'поддержка',
+    match_reasons: row.recommendation_reason,
+  }));
+  return {
+    rows,
+    counts,
+    totalCount: rows.length,
+    rawCount: count ?? 0,
+    error: null,
+    source: 'product_truth_recommender_v1',
+    diagnostics: recommendation.diagnostics,
+  };
 }
 async function countKeywords(supabase, type) { let query = supabase.from(KEYWORD_VIEW).select('keyword_norm', { count: 'exact', head: true }); if (type !== 'all') query = query.eq('bank_bucket', type); const { count, error } = await query; return { count: error ? null : count ?? 0, error: error?.message || null }; }
 
@@ -303,7 +552,14 @@ function FocusSearchForm({ product, filters, status }) {
 }
 function CheckboxChipGroup({ title, items, field, filters }) { const selected = valuesOf(filters[field]); return <div className="mb-4"><div className="eyebrow-dim mb-2">{title}</div><div className="flex flex-wrap gap-2">{items.map((item) => <label key={`${field}-${item}-${selected.includes(item) ? 'on' : 'off'}`} className="cursor-pointer"><input className="peer sr-only" type="checkbox" name={field} value={item} defaultChecked={selected.includes(item)} /><span className="inline-flex rounded-full border border-[rgba(216,214,211,.13)] bg-black/10 px-3 py-2 text-[10px] uppercase tracking-[0.15em] text-[var(--bone-dim)] peer-checked:border-[rgba(108,183,138,.55)] peer-checked:bg-[rgba(108,183,138,.11)] peer-checked:text-[#a9dfbd]">{labelFor(item)}</span></label>)}</div></div>; }
 function CheckboxCard({ name, value, checked, title, note }) { return <label className="cursor-pointer"><input className="peer sr-only" type="checkbox" name={name} value={value} defaultChecked={checked} /><span className="block rounded-2xl border border-[rgba(216,214,211,.12)] bg-black/15 p-3 peer-checked:border-[rgba(212,178,106,.60)] peer-checked:bg-[rgba(212,178,106,.11)]"><div className="text-bone text-[13px]">{title}</div><div className="mt-1.5 text-[10px] leading-relaxed text-[var(--bone-dim)]">{note}</div></span></label>; }
-function NextStepPanel({ product, keywordCount, saved }) { return <div className="rounded-2xl border border-[rgba(212,178,106,.20)] bg-[rgba(212,178,106,.045)] p-4"><div className="eyebrow-gold mb-2">Следующий шаг</div><p className="text-[12px] leading-relaxed text-[var(--bone-dim)]">1) Применить поиск слов и проверить список. 2) Если слова подходят — сохранить черновик решения. 3) После сохранения перейти в генерацию и preview.</p><div className="mt-3 flex flex-wrap gap-2"><Chip tone={product ? 'success' : 'warning'}>{product ? 'товар выбран' : 'выбери товар'}</Chip><Chip tone={keywordCount > 0 ? 'success' : 'warning'}>{keywordCount > 0 ? `${fmt(keywordCount)} слов` : 'нет слов'}</Chip><Chip tone={saved ? 'success' : 'warning'}>{saved ? 'решение сохранено' : 'нужно сохранить'}</Chip></div></div>; }
+function NextStepPanel({ product, keywordCount, saved, status }) {
+  const instruction = status?.code === 'blocked_product_truth'
+    ? 'Фокус и кандидаты можно сохранить как рабочее решение. Генерация останется закрыта, пока в Product Truth не подтверждены состав и исходные варианты товара.'
+    : status?.code === 'needs_keyword_review'
+      ? 'Проверь кандидатов и выбери Primary, который описывает весь продаваемый товар. Затем сохрани решение и переходи в генерацию.'
+      : 'Примени поиск слов, проверь Primary и Secondary, сохрани решение и переходи в генерацию и preview.';
+  return <div className="rounded-2xl border border-[rgba(212,178,106,.20)] bg-[rgba(212,178,106,.045)] p-4"><div className="eyebrow-gold mb-2">Следующий шаг</div><p className="text-[12px] leading-relaxed text-[var(--bone-dim)]">{instruction}</p><div className="mt-3 flex flex-wrap gap-2"><Chip tone={product ? 'success' : 'warning'}>{product ? 'товар выбран' : 'выбери товар'}</Chip><Chip tone={keywordCount > 0 ? 'success' : 'warning'}>{keywordCount > 0 ? `${fmt(keywordCount)} слов` : 'нет слов'}</Chip><Chip tone={saved ? 'success' : 'warning'}>{saved ? 'решение сохранено' : 'нужно сохранить'}</Chip><Chip tone={status?.tone || 'neutral'}>{status?.label || 'статус не определён'}</Chip></div></div>;
+}
 function KeywordTable({ rows, error }) { return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden"><div className="grid grid-cols-[1.35fr_.42fr_.42fr_.52fr_.52fr_.70fr_.55fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.20em] text-[var(--smoke)]"><div>Ключ</div><div>Совпадение</div><div>SEO</div><div>Спрос</div><div>Конкуренция</div><div>Сигнал</div><div>Почему</div></div><div className="divide-y divide-[rgba(216,214,211,.08)]">{rows.map((row, i) => { const signal = strategySignal(row); return <div key={`${row.keyword_norm || row.keyword}-${i}`} className="grid grid-cols-[1.35fr_.42fr_.42fr_.52fr_.52fr_.70fr_.55fr] gap-4 px-5 py-3 items-center hover:bg-[rgba(212,178,106,.035)]"><div><div className="text-bone text-[13px] leading-snug">{displayKeyword(row)}</div><div className="mt-1 flex flex-wrap gap-1.5"><Chip tone={toneByType(row.bank_bucket)}>{keywordUse(row)}</Chip>{row.match_label ? <Chip tone={row.match_label === 'точное' ? 'success' : 'gold'}>{row.match_label}</Chip> : null}</div></div><div className="font-price text-[20px] text-[#a9dfbd]">{row.match_score == null ? '—' : row.match_score}</div><div className="font-price text-[20px] text-[var(--gold-warm)]">{asText(row.score)}</div><div className="text-[12px] text-[var(--bone-dim)]">{fmt(row.avg_monthly_searches)}</div><div><Chip tone={String(row.competition || '').toUpperCase() === 'LOW' ? 'success' : String(row.competition || '').toUpperCase() === 'HIGH' ? 'warning' : 'neutral'}>{competitionLabel(row.competition)}</Chip></div><div><Chip tone={signal.tone}>{signal.label}</Chip></div><details className="text-[11px] leading-relaxed text-[var(--bone-dim)]"><summary className="cursor-pointer text-[var(--gold-warm)]">открыть</summary><div className="mt-2 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-2">{asText(row.match_reasons || row.source_clusters || row.source_files)}<br />Google: {fmt(row.avg_monthly_searches)} / {competitionLabel(row.competition)} · {asText(row.reason || row.notes, '')}</div></details></div>; })}{!rows.length && !error ? <div className="px-5 py-6 text-[13px] text-[var(--bone-dim)]">По текущим фильтрам слов не найдено. Сними часть фокуса или минус-слова.</div> : null}</div></div>; }
 function ProductCard({ product, active, filters }) { const focus = inferFocus(product); const hasFocus = Boolean(focus.component || focus.material || focus.event || focus.style || focus.persona || focus.audience); const decision = decisionLabel(product.decision); return <Link href={productHref(product, filters)} className={`grid grid-cols-[44px_1fr] gap-3 rounded-2xl border p-3 ${active ? 'border-[rgba(212,178,106,.55)] bg-[rgba(212,178,106,.10)]' : 'border-[rgba(216,214,211,.10)] bg-black/15 hover:border-[rgba(212,178,106,.35)]'}`}><ProductImage product={product} /><div className="min-w-0"><div className="truncate text-[12px] text-bone">{product.title}</div><div className="mt-1 truncate text-[10px] text-[var(--bone-dim)]">{product.sectionLabel} · {product.worldLabel || product.colorRaw || '—'}</div><div className="mt-2 flex flex-wrap gap-1.5">{active ? <Chip tone="gold">выбран</Chip> : null}<Chip tone={hasFocus ? 'success' : 'warning'}>{hasFocus ? 'авто-фокус' : 'ручной фокус'}</Chip>{decision ? <Chip tone={decision.tone}>{decision.text}</Chip> : <Chip>не сохранено</Chip>}{product.hasComponentReviewRisk ? <Chip tone="warning">ДНК: проверить</Chip> : null}</div></div></Link>; }
 function ProductImage({ product, size = 'sm' }) { const cls = size === 'lg' ? 'h-24 w-24 rounded-2xl' : 'h-11 w-11 rounded-xl'; return <div className={`${cls} overflow-hidden border border-[rgba(216,214,211,.10)] bg-black/25 flex items-center justify-center`}>{product?.imageUrl ? <img src={product.imageUrl} alt={product.imageAlt || product.title} className="h-full w-full object-cover" loading="lazy" /> : <ImageIcon size={16} className="text-[var(--smoke)]" />}</div>; }
@@ -317,6 +573,16 @@ function readFilters(sp) { const type = val(sp?.type || sp?.bucket || 'all'); co
 function val(value, fallback = '') { if (typeof value === 'string') return value; if (Array.isArray(value) && typeof value[0] === 'string') return value[0]; return fallback; }
 function norm(v) { return String(v || '').trim().toLowerCase(); }
 function arr(v) { if (Array.isArray(v)) return v.map(String).filter(Boolean); if (typeof v === 'string') { try { const p = JSON.parse(v); if (Array.isArray(p)) return p.map(String).filter(Boolean); } catch { return v ? [v] : []; } } return []; }
+function jsonArray(v) {
+  if (Array.isArray(v)) return v;
+  if (typeof v !== 'string') return [];
+  try {
+    const parsed = JSON.parse(v);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return v.trim() ? [v.trim()] : [];
+  }
+}
 function parseJson(v, fallback) { try { return JSON.parse(v); } catch { return fallback; } }
 function allowedFormValues(formData, field, allowed) { return valuesOf(formData.getAll(field)).filter((value) => allowed.includes(value)); }
 function decisionFocusSignature(value) {
@@ -430,11 +696,42 @@ function conflictReason(core, meta, selected) {
 function sortRows(a, b) { return Number(b.strategy_rank || 0) - Number(a.strategy_rank || 0) || Number(b.match_score || 0) - Number(a.match_score || 0) || Number(b.score || 0) - Number(a.score || 0) || Number(b.avg_monthly_searches || 0) - Number(a.avg_monthly_searches || 0); }
 function rank(row, strategy) { const values = strategyValues(strategy); const scores = values.map((s) => rankOne(row, s)); return Math.max(...scores) + scores.reduce((sum, item) => sum + item, 0) / Math.max(1, scores.length) * 0.08; }
 function rankOne(row, strategy) { const match = Number(row.match_score || 0); const score = Number(row.score || 0); const volume = Number(row.avg_monthly_searches || 0); const comp = String(row.competition || '').toUpperCase(); const idx = Number(row.competition_index || 0); const keyword = String(row.keyword || '').toLowerCase(); const bucket = String(row.bank_bucket || ''); const volumeBoost = volume >= 3000 ? 45 : volume >= 1000 ? 35 : volume >= 500 ? 26 : volume >= 200 ? 18 : volume >= 50 ? 10 : volume > 0 ? 5 : -25; const compBoost = comp === 'LOW' ? 35 : comp === 'MEDIUM' ? 18 : comp === 'HIGH' ? -18 : 0; const idxBoost = idx > 0 ? Math.max(-20, 24 - Math.round(idx / 4)) : 0; const longTail = keyword.split(/\s+/).length >= 3 ? 22 : 0; const buyer = /buy|price|cost|order|shop|for sale|shipping|delivery|outfit|costume|set|wear|clothing|website|websites/.test(keyword) || bucket.includes('commercial') ? 16 : 0; if (strategy === 'demand') return match * 1.15 + score + volumeBoost * 2 + buyer * 0.35; if (strategy === 'niche') return match * 1.7 + score + longTail + compBoost + buyer * 0.25 - Math.max(0, volumeBoost - 30); return match * 1.35 + score + volumeBoost + compBoost + idxBoost + buyer * 0.4; }
-function keywordSnapshot(rows) { return rows.slice(0, KEYWORD_SNAPSHOT_LIMIT).map((r) => ({ keyword: r.keyword, keyword_norm: r.keyword_norm, bank_bucket: r.bank_bucket, score: r.score, avg_monthly_searches: r.avg_monthly_searches, competition: r.competition, match_score: r.match_score, strategy_rank: r.strategy_rank, reason: r.match_reasons || r.reason || r.notes || '' })); }
 function autoFocusSnapshot(product, inferred) { return { inferred, product: product ? { canonical_product_id: product.id, slug: product.slug, etsy_id: product.etsyId, title: product.title, operator_section: product.sectionLabel, source_category: product.sourceCategory, world_label: product.worldLabel, parent_components: product.parentComponents, child_components: product.childComponents, needs_component_review_count: product.needsComponentReviewCount } : null }; }
-function savedMessage(value) { if (value === 'ok') return { tone: 'success', text: 'Черновик решения сохранён. Теперь товар помечен и его можно отправлять в SEO-задание.' }; if (value === 'error') return { tone: 'warning', text: 'Черновик не сохранился. Нужно проверить серверный ключ Supabase или доступ к таблице решений.' }; return null; }
-function decisionLabel(decision) { return decision ? { text: 'черновик сохранён', tone: 'warning' } : null; }
-function productSeoStatus(product, filters, count) { if (!product) return { label: 'товар не выбран', tone: 'neutral', note: 'выбери товар слева' }; if (!FOCUS_FIELDS.some((field) => valuesOf(filters[field]).length)) return { label: 'нужна ручная ДНК', tone: 'warning', note: 'авто-фокус не распознал ни один фокус' }; if (!count) return { label: 'нет слов', tone: 'warning', note: 'matcher не нашёл слов под текущий фокус' }; return { label: 'готов к черновику', tone: 'success', note: 'слова идут из стабильного product matcher' }; }
+function savedMessage(value) {
+  if (value === 'blocked') return { tone: 'warning', text: 'Фокус и кандидаты сохранены. Генерация намеренно заблокирована: сначала нужно закрыть Product Truth этого товара.' };
+  if (value === 'review') return { tone: 'warning', text: 'Фокус и кандидаты сохранены, но Primary ещё требует проверки перед генерацией.' };
+  if (value === 'ok') return { tone: 'success', text: 'Проверяемое решение сохранено. Product Truth закрыт, Primary найден; можно переходить к генерации и preview.' };
+  if (value === 'error') return { tone: 'warning', text: 'Решение не сохранилось. Нужно проверить серверный доступ к Supabase и журнал записи.' };
+  return null;
+}
+function decisionLabel(decision) {
+  if (!decision) return null;
+  if (decision.decision_status === 'blocked_product_truth') return { text: 'Product Truth blocked', tone: 'warning' };
+  if (decision.decision_status === 'needs_keyword_review') return { text: 'нужна проверка ключей', tone: 'warning' };
+  return { text: 'черновик сохранён', tone: 'success' };
+}
+function productSeoStatus(product, filters, keywordData) {
+  if (!product) return { code: 'no_product', label: 'товар не выбран', tone: 'neutral', note: 'выбери товар слева' };
+  if (product.truthBlockers?.length) {
+    return {
+      code: 'blocked_product_truth',
+      label: 'Product Truth не закрыт',
+      tone: 'warning',
+      note: `${product.truthBlockers.length} блокер(а): фокус сохраняется, OpenAI не запускается`,
+    };
+  }
+  if (!FOCUS_FIELDS.some((field) => valuesOf(filters[field]).length)) {
+    return { code: 'missing_focus', label: 'нужен фокус', tone: 'warning', note: 'авто-фокус не распознал ни одного направления' };
+  }
+  const rows = keywordData?.rows || [];
+  if (!rows.length) return { code: 'no_keywords', label: 'нет слов', tone: 'warning', note: 'Product Truth matcher не нашёл совместимых кандидатов' };
+  const hasPrimary = rows.some((row) => row.role === 'primary');
+  const primaryScopeBlocked = keywordData?.diagnostics?.auto_primary_scope === 'blocked_no_whole_product_candidate';
+  if (!hasPrimary || primaryScopeBlocked) {
+    return { code: 'needs_keyword_review', label: 'нужен Primary', tone: 'warning', note: 'нет доказанного ключа, описывающего весь продаваемый товар' };
+  }
+  return { code: 'ready', label: 'ключи готовы к проверке', tone: 'success', note: 'кандидаты прошли Product Truth matcher; сохранение фиксирует provenance' };
+}
 function buildHref(filters, patch = {}) { const next = { ...filters, ...patch }; const params = new URLSearchParams(); if (next.type && next.type !== 'all') params.set('type', next.type); if (next.strategy && next.strategy !== DEFAULT_STRATEGY) params.set('strategy', next.strategy); FOCUS_FIELDS.forEach((field) => { if (next[field]) params.set(field, next[field]); }); if (next.focusApplied || next.focus_applied) params.set('focus_applied', '1'); if (next.q) params.set('q', next.q); if (next.exclude) params.set('exclude', next.exclude); if (next.productId || next.product_id) params.set('product_id', next.productId || next.product_id); if (next.productQ || next.product_q) params.set('product_q', next.productQ || next.product_q); if (next.productSection || next.product_section) params.set('product_section', next.productSection || next.product_section); if (next.productStatus || next.product_status) params.set('product_status', next.productStatus || next.product_status); const query = params.toString(); return query ? `/admin/listing-master?${query}` : '/admin/listing-master'; }
 function productHref(product, filters = {}) { return buildHref(filters, { productId: product.id, component: '', material: '', event: '', style: '', persona: '', audience: '', q: '', exclude: '', focusApplied: '' }); }
 function countLabel(counts, type) { const value = counts?.[type]?.count; return value == null ? '—' : fmt(value); }

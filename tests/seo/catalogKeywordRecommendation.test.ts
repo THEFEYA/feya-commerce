@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { recommendCatalogKeywords } from '../../lib/seoCatalogKeywordRecommendation.ts';
+import {
+  normalizeStrategy,
+  recommendCatalogKeywords,
+} from '../../lib/seoCatalogKeywordRecommendation.ts';
 
 const baseMetric = {
   review_status: 'approved_draft',
@@ -169,4 +172,59 @@ test('word-order permutations represent one keyword intent', () => {
   assert.equal(keywords.includes('leather harness top'), true);
   assert.equal(keywords.includes('leather top harness'), false);
   assert.equal(result.diagnostics.semantic_duplicates_removed, 2);
+});
+
+test('manual component focus cannot manufacture missing Product Truth', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      card_title: 'Gold Festival Accessory',
+      canonical_color_label: 'Gold',
+      included_components: [],
+      parent_components_json: [],
+      child_components_json: [],
+    },
+    focus: {
+      component: ['harness'],
+      event: ['festival'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'gold harness', keyword_norm: 'gold harness', bank_bucket: 'product', avg_monthly_searches: 5000 },
+      { ...baseMetric, keyword: 'gold festival outfit', keyword_norm: 'gold festival outfit', bank_bucket: 'product', avg_monthly_searches: 120 },
+    ],
+  });
+
+  const keywords = result.keywords.map((row) => String(row.keyword_norm));
+  assert.equal(keywords.includes('gold harness'), false);
+  assert.equal(keywords.includes('gold festival outfit'), true);
+  assert.deepEqual(result.diagnostics.product_component_families, []);
+});
+
+test('non-apparel harness domains are rejected before metrics can rank them', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      card_title: 'Gold Festival Harness Top',
+      canonical_color_label: 'Gold',
+      included_components: ['Harness', 'Top'],
+    },
+    focus: {
+      component: ['harness', 'top'],
+      event: ['festival'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'nelson performance harness', keyword_norm: 'nelson performance harness', bank_bucket: 'product', avg_monthly_searches: 100000 },
+      { ...baseMetric, keyword: 'tweak d performance 2jz harness', keyword_norm: 'tweak d performance 2jz harness', bank_bucket: 'product', avg_monthly_searches: 90000 },
+      { ...baseMetric, keyword: 'flying harness for stage', keyword_norm: 'flying harness for stage', bank_bucket: 'product', avg_monthly_searches: 80000 },
+      { ...baseMetric, keyword: 'rope body harness', keyword_norm: 'rope body harness', bank_bucket: 'product', avg_monthly_searches: 70000 },
+      { ...baseMetric, keyword: 'gold festival harness outfit', keyword_norm: 'gold festival harness outfit', bank_bucket: 'product', avg_monthly_searches: 120 },
+    ],
+  });
+
+  const keywords = result.keywords.map((row) => String(row.keyword_norm));
+  assert.deepEqual(keywords, ['gold festival harness outfit']);
+});
+
+test('multiple selected strategy modes resolve to balanced scoring', () => {
+  assert.equal(normalizeStrategy('demand,opportunity,niche'), 'balanced');
+  assert.equal(normalizeStrategy(['demand', 'niche']), 'balanced');
+  assert.equal(normalizeStrategy('demand'), 'demand');
 });

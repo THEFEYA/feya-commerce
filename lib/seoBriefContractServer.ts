@@ -2,6 +2,7 @@
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import { buildSeoCatalogBrief } from '@/lib/seoCatalogBrief';
 import { recommendCatalogKeywords } from '@/lib/seoCatalogKeywordRecommendation';
+import { getListingMasterKeywordSelection } from '@/lib/seoListingMasterDecision';
 import { buildSeoAgentInputFromDraft, buildSeoPackDraftContractFromBrief } from '@/lib/seoPackContractBuilder';
 
 const PRODUCT_TRUTH_VIEW = 'feya_commerce_v_seo_product_truth_v1';
@@ -193,14 +194,39 @@ export async function loadSeoBriefSource(productId: string) {
   let keywordHydration = { rows: selectedKeywordRows, warning: null };
   let keywordRecommendationDiagnostics = null;
   let keywordSelection = {
-    mode: 'operator_decision',
-    status: 'confirmed',
+    ...getListingMasterKeywordSelection(decision?.decision_status),
     evidence_source: APPROVED_KEYWORD_BANK_VIEW,
-    confirmation_required: false,
   };
 
   if (selectedKeywordRows.length) {
     keywordHydration = await hydrateSelectedKeywordsFromApprovedBank(supabase, selectedKeywordRows);
+    if (productResult.product) {
+      const auditedSelection = recommendCatalogKeywords({
+        product: productResult.product,
+        approvedKeywords: keywordHydration.rows,
+        focus: manualFocus,
+        selectedStrategy: decision?.selected_strategy,
+        limit: selectedKeywordRows.length,
+      });
+      keywordHydration = {
+        ...keywordHydration,
+        rows: auditedSelection.keywords,
+      };
+      keywordRecommendationDiagnostics = {
+        ...auditedSelection.diagnostics,
+        mode: 'saved_operator_selection_reaudit_v1',
+        selected_rows_received: selectedKeywordRows.length,
+        selected_rows_retained: auditedSelection.keywords.length,
+        keyword_bank_view: APPROVED_KEYWORD_BANK_VIEW,
+        product_truth_source: productResult.productTruthSource,
+      };
+      if (!auditedSelection.keywords.some((row) => row.role === 'primary')) {
+        keywordSelection = {
+          ...getListingMasterKeywordSelection('needs_keyword_review'),
+          evidence_source: APPROVED_KEYWORD_BANK_VIEW,
+        };
+      }
+    }
   } else if (productResult.product) {
     const approvedBank = await loadApprovedKeywordBank(supabase);
     const recommendation = recommendCatalogKeywords({

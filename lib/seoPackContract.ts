@@ -283,7 +283,10 @@ export type SeoPackDraftContract = {
   source_decision_id?: string | null;
   keyword_selection?: {
     mode: 'operator_decision' | 'auto_recommendation';
-    status: 'confirmed' | 'needs_human_confirmation';
+    status: 'confirmed'
+      | 'needs_human_confirmation'
+      | 'blocked_product_truth'
+      | 'needs_keyword_review';
     evidence_source: string;
     confirmation_required: boolean;
   } | null;
@@ -418,7 +421,19 @@ export function getSeoGenerationProductTruthBlockers(
 ): string[] {
   if (!draft) return ['missing_seo_pack_draft'];
 
-  const truth = draft.product_truth;
+  return getSeoProductTruthEvidenceBlockers(draft.product_truth);
+}
+
+/**
+ * Shared Product Truth evidence gate used before keyword decisions and before
+ * generation. Keeping one gate prevents the operator UI from declaring a
+ * product ready while the generation route correctly blocks the same record.
+ */
+export function getSeoProductTruthEvidenceBlockers(
+  truth: SeoProductTruth | null | undefined,
+): string[] {
+  if (!truth) return ['composition_missing_canonical_product_truth'];
+
   const confirmedComponents = uniqueNonEmpty([
     ...(truth?.included_components || []),
     ...(truth?.known_components || []),

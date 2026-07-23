@@ -38,6 +38,28 @@ const EXCLUDED_KEYWORD_TERMS = [
   'my little pony', 'casual', 'dinosaur',
 ];
 
+// Product-family words such as "harness" also occur in automotive, industrial,
+// safety and aerial-rigging queries. These phrases are incompatible with
+// apparel Product Truth even when their search volume is high.
+const INCOMPATIBLE_COMMERCE_DOMAINS = [
+  '2jz',
+  'automotive harness',
+  'blackbear performance',
+  'climbing harness',
+  'dog harness',
+  'fall arrest',
+  'fall protection',
+  'fan harness',
+  'flying harness',
+  'horse harness',
+  'nelson performance',
+  'rope body harness',
+  'rope harness',
+  'safety harness',
+  'tweak d performance',
+  'wiring harness',
+];
+
 const COLOR_FAMILIES: Record<string, string[]> = {
   black: ['black'],
   blue: ['blue'],
@@ -156,6 +178,12 @@ export function recommendCatalogKeywords(input: {
 
 export function normalizeStrategy(value: unknown): SeoKeywordRecommendationStrategy {
   const strategy = normalize(typeof value === 'object' && value ? JSON.stringify(value) : value);
+  const selectedModes = [
+    /traffic|volume|demand|high volume/.test(strategy) ? 'demand' : null,
+    /opportun|low competition|undervalued|under valued/.test(strategy) ? 'opportunity' : null,
+    /niche|long tail|specific/.test(strategy) ? 'niche' : null,
+  ].filter(Boolean);
+  if (selectedModes.length > 1) return 'balanced';
   if (/traffic|volume|demand|high volume/.test(strategy)) return 'demand';
   if (/opportun|low competition|undervalued|under valued/.test(strategy)) return 'opportunity';
   if (/niche|long tail|specific/.test(strategy)) return 'niche';
@@ -171,7 +199,6 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
     product.parent_components_json,
     product.child_components_json,
     product.component_groups_json,
-    explicitFocus.component,
   ]).join(' ');
   const identityText = flattenStrings([
     product.product_type,
@@ -180,7 +207,6 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
     product.card_title,
     product.h1,
     product.focus_text,
-    explicitFocus.component,
   ]).join(' ');
   const styleText = flattenStrings([
     product.world_label,
@@ -240,6 +266,7 @@ function scoreRow(
   const materialMatch = profile.materialTerms.filter((term) => containsPhrase(keyword, term));
   const exactFocus = profile.focusPhrases.filter((term) => term.length > 2 && containsPhrase(keyword, term));
   const excludedMatch = profile.excludedTerms.find((term) => containsPhrase(keyword, term));
+  const incompatibleDomain = INCOMPATIBLE_COMMERCE_DOMAINS.find((term) => containsPhrase(keyword, term));
 
   const componentMismatch = keywordComponents.length > 0 && componentMatch.length === 0;
   const colorMismatch = keywordColors.length > 0 && profile.colors.length > 0 && colorMatch.length === 0;
@@ -255,12 +282,12 @@ function scoreRow(
     && !wholeProductIntent;
   const supportedBucket = productBucket || SUPPORT_BUCKETS.has(bucket);
   const productIdentityGate = componentMatch.length > 0
-    || exactFocus.length > 0
     || identityOverlap.length >= (productBucket ? 2 : 1);
   const supportIntentGate = productIdentityGate || styleOverlap.length > 0;
 
   let rejectReason: string | null = null;
-  if (excludedMatch) rejectReason = 'excluded_keyword_term';
+  if (incompatibleDomain) rejectReason = 'incompatible_commerce_domain';
+  else if (excludedMatch) rejectReason = 'excluded_keyword_term';
   else if (!supportedBucket) rejectReason = 'unsupported_page_bucket';
   else if (componentMismatch) rejectReason = 'component_family_mismatch';
   else if (colorMismatch) rejectReason = 'color_mismatch';
