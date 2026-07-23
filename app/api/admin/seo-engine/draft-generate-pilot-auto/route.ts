@@ -6,7 +6,7 @@ import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
 import { validateSeoCommercialCopy } from '@/lib/seoCommercialCopyValidator';
 import { validateSeoKeywordPlacement } from '@/lib/seoKeywordPlacementValidator';
 import { assembleSeoProductPack } from '@/lib/seoFullPackAssembler';
-import { getSeoPackDraftSaveBlockers } from '@/lib/seoPackContract';
+import { getSeoGenerationProductTruthBlockers, getSeoPackDraftSaveBlockers } from '@/lib/seoPackContract';
 import { generateSeoDraftWithOpenAi } from '@/lib/seoOpenAiDraftGenerator';
 
 export const dynamic = 'force-dynamic';
@@ -200,9 +200,7 @@ export async function POST(request: Request) {
     }, { status: selectedGeneration.ok ? 422 : 502 });
   }
 
-  const status = readiness.mode === 'READY_FULL'
-    ? repairUsed ? 'ai_full_draft_repaired_not_saved' : 'ai_full_draft_generated_not_saved'
-    : repairUsed ? 'ai_partial_draft_repaired_not_saved' : 'ai_partial_draft_generated_not_saved';
+  const status = repairUsed ? 'ai_full_draft_repaired_not_saved' : 'ai_full_draft_generated_not_saved';
 
   return NextResponse.json({
     ok: true,
@@ -243,41 +241,20 @@ function classifyReadiness(draft) {
   if (draft?.status === 'blocked_by_product_mismatch') hardBlockers.push('draft_status_blocked_by_product_mismatch');
   if (draft?.qa_checks?.forbidden_mismatch === 'blocker') hardBlockers.push('qa_blocker_forbidden_mismatch');
   if (draft?.qa_checks?.product_specificity === 'blocker') hardBlockers.push('qa_blocker_product_specificity');
+  const compositionBlockers = getSeoGenerationProductTruthBlockers(draft);
+  hardBlockers.push(...compositionBlockers);
 
   const hasCanonicalTruth = truth.product_truth_source === 'seo_product_truth_v1';
-  const hasConfirmedComposition = Boolean(
-    (truth.included_components || []).length
-    || (truth.known_components || []).length
-    || (truth.optional_configurations || []).length,
-  );
-  const hasUnresolvedFacts = Boolean((truth.unresolved_component_facts || []).length);
-  const hasReviewBlockers = Boolean((truth.component_review_blockers || []).length);
-  const hasSourceConfigurationEvidence = Boolean(
-    (truth.source_variations || []).length
-    || (truth.option_price_rows || []).length
-    || String(truth.source_description_fragment || '').trim(),
-  );
-
-  if (!hasCanonicalTruth) sectionBlockers.push('composition_missing_canonical_product_truth');
-  if (!hasConfirmedComposition) sectionBlockers.push('composition_missing_confirmed_components');
-  if (hasUnresolvedFacts) sectionBlockers.push('composition_has_unresolved_facts');
-  if (hasReviewBlockers) sectionBlockers.push('composition_has_review_blockers');
-  if (!hasSourceConfigurationEvidence) sectionBlockers.push('composition_missing_source_configuration_evidence');
-
-  const compositionReady = hasCanonicalTruth
-    && hasConfirmedComposition
-    && !hasUnresolvedFacts
-    && !hasReviewBlockers
-    && hasSourceConfigurationEvidence;
+  sectionBlockers.push(...compositionBlockers);
 
   return {
-    mode: hardBlockers.length ? 'BLOCKED' : compositionReady ? 'READY_FULL' : 'READY_PARTIAL',
+    mode: hardBlockers.length ? 'BLOCKED' : 'READY_FULL',
     hard_blockers: unique(hardBlockers),
     section_blockers: unique(sectionBlockers),
     allowed_customer_sections: hardBlockers.length ? [] : GENERATED_SECTIONS,
     suppressed_customer_sections: hardBlockers.length
       ? [...GENERATED_SECTIONS, 'right_panel_whats_included']
-      : compositionReady ? [] : ['right_panel_whats_included'],
+      : [],
     component_truth: {
       canonical: hasCanonicalTruth,
       confirmed_composition_count: Number((truth.included_components || []).length) + Number((truth.optional_configurations || []).length),
@@ -388,12 +365,9 @@ function candidateScore(structural, commercial, keywordPlacement) {
 
 function sanitizeOutputForReadiness(output, readiness) {
   const safe = JSON.parse(JSON.stringify(output || {}));
-  if (readiness.mode === 'READY_PARTIAL') safe.status = 'needs_review';
   safe.generation_notes = unique([
     ...(Array.isArray(safe.generation_notes) ? safe.generation_notes : []),
-    ...(readiness.mode === 'READY_PARTIAL'
-      ? ['The storefront What’s Included panel remains hidden because product composition is not fully confirmed.']
-      : ['Canonical Product Truth is available; selected-configuration contents remain storefront-controlled.']),
+    'Canonical Product Truth is available; selected-configuration contents remain storefront-controlled.',
     ...readiness.section_blockers,
   ]);
   safe.suppressed_sections = readiness.suppressed_customer_sections;
@@ -421,7 +395,7 @@ function buildSharedPayload(bundle, readiness, promptContract, primaryImageUrl) 
       readiness_mode: readiness.mode,
       product_truth_mode: compositionReady
         ? 'canonical_composition_available_storefront_controlled'
-        : 'partial_composition_hidden_in_storefront_panel',
+        : 'blocked_composition_not_generated',
       humanizer_repair_attempts: 1,
     },
     guardrails: [
@@ -460,6 +434,11 @@ function blockerMessage(code) {
     draft_status_blocked_by_product_mismatch: 'Keyword selection conflicts with the product.',
     qa_blocker_forbidden_mismatch: 'A forbidden or foreign intent reached the selected keyword set.',
     qa_blocker_product_specificity: 'The draft lacks product specificity.',
+    composition_missing_canonical_product_truth: 'Generation is blocked because canonical Product Truth is unavailable.',
+    composition_missing_confirmed_components: 'Generation is blocked because the exact included components are not confirmed.',
+    composition_has_unresolved_facts: 'Generation is blocked because component facts remain unresolved.',
+    composition_has_review_blockers: 'Generation is blocked because component mappings require human review.',
+    composition_missing_source_configuration_evidence: 'Generation is blocked because the source listing does not provide configuration evidence.',
   };
   return messages[code] || `SEO generation gate: ${code}.`;
 }

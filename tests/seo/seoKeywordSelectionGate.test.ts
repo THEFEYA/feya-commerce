@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { getSeoKeywordSelectionBlockers, getSeoPackApprovalBlockers, getSeoPackReviewDraftStorageBlockers } from '../../lib/seoPackContract.ts';
+import {
+  getSeoGenerationProductTruthBlockers,
+  getSeoKeywordSelectionBlockers,
+  getSeoPackApprovalBlockers,
+  getSeoPackReviewDraftStorageBlockers,
+} from '../../lib/seoPackContract.ts';
 import { buildSeoDraftStoragePayload } from '../../lib/seoDraftStoragePayload.ts';
 
 function draft(selectionStatus: 'confirmed' | 'needs_human_confirmation') {
@@ -49,6 +54,36 @@ test('review storage still blocks drafts without validated source evidence', () 
   unsafe.product_truth.source_variations = [];
   unsafe.product_truth.option_price_rows = [];
   assert.ok(getSeoPackReviewDraftStorageBlockers(unsafe).includes('missing_source_configuration_evidence'));
+});
+
+test('real generation blocks unresolved or unproven composition before OpenAI', () => {
+  const unsafe = draft('confirmed') as any;
+  unsafe.product_truth.included_components = [];
+  unsafe.product_truth.known_components = [];
+  unsafe.product_truth.optional_configurations = ['Full Set'];
+  unsafe.product_truth.unresolved_component_facts = ['Full Set has not been mapped to exact pieces.'];
+
+  assert.deepEqual(getSeoGenerationProductTruthBlockers(unsafe), [
+    'composition_missing_confirmed_components',
+    'composition_has_unresolved_facts',
+  ]);
+});
+
+test('real generation requires canonical truth and source configuration evidence', () => {
+  const unsafe = draft('confirmed') as any;
+  unsafe.product_truth.product_truth_source = 'listing_master_product_focus_v1';
+  unsafe.product_truth.source_description_fragment = '';
+  unsafe.product_truth.source_variations = [];
+  unsafe.product_truth.option_price_rows = [];
+
+  assert.deepEqual(getSeoGenerationProductTruthBlockers(unsafe), [
+    'composition_missing_canonical_product_truth',
+    'composition_missing_source_configuration_evidence',
+  ]);
+});
+
+test('real generation opens only for canonical confirmed composition', () => {
+  assert.deepEqual(getSeoGenerationProductTruthBlockers(draft('confirmed')), []);
 });
 
 test('multi-component product cannot be confirmed with a component-only primary', () => {

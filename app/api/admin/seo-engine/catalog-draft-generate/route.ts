@@ -6,7 +6,11 @@ import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
 import { validateSeoCommercialCopy } from '@/lib/seoCommercialCopyValidator';
 import { validateSeoKeywordPlacement } from '@/lib/seoKeywordPlacementValidator';
 import { assembleSeoProductPack } from '@/lib/seoFullPackAssembler';
-import { getSeoKeywordSelectionBlockers, getSeoPackDraftSaveBlockers } from '@/lib/seoPackContract';
+import {
+  getSeoGenerationProductTruthBlockers,
+  getSeoKeywordSelectionBlockers,
+  getSeoPackDraftSaveBlockers,
+} from '@/lib/seoPackContract';
 import { generateSeoDraftWithOpenAi } from '@/lib/seoOpenAiDraftGenerator';
 
 export const dynamic = 'force-dynamic';
@@ -228,9 +232,7 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     ok: true,
-    status: readiness.mode === 'READY_FULL'
-      ? repairUsed ? 'catalog_full_draft_repaired_not_saved' : 'catalog_full_draft_generated_not_saved'
-      : repairUsed ? 'catalog_partial_draft_repaired_not_saved' : 'catalog_partial_draft_generated_not_saved',
+    status: repairUsed ? 'catalog_full_draft_repaired_not_saved' : 'catalog_full_draft_generated_not_saved',
     blocked: false,
     mode: 'openai_review_draft_not_saved',
     message: repairUsed
@@ -278,34 +280,19 @@ function classifyReadiness(draft) {
   if (draft?.qa_checks?.forbidden_mismatch === 'blocker') hardBlockers.push('qa_blocker_forbidden_mismatch');
   if (draft?.qa_checks?.product_specificity === 'blocker') hardBlockers.push('qa_blocker_product_specificity');
   if (draft?.qa_checks?.validated_metrics === 'blocker') hardBlockers.push('qa_blocker_validated_metrics');
+  const compositionBlockers = getSeoGenerationProductTruthBlockers(draft);
+  hardBlockers.push(...compositionBlockers);
 
-  const hasCanonicalTruth = truth.product_truth_source === 'seo_product_truth_v1';
-  const hasConfirmedComposition = Boolean(
-    (truth.included_components || []).length
-      || (truth.known_components || []).length
-      || (truth.optional_configurations || []).length,
-  );
-  const hasUnresolvedFacts = Boolean((truth.unresolved_component_facts || []).length);
-  const hasReviewBlockers = Boolean((truth.component_review_blockers || []).length);
-
-  if (!hasCanonicalTruth) sectionBlockers.push('composition_missing_canonical_product_truth');
-  if (!hasConfirmedComposition) sectionBlockers.push('composition_missing_confirmed_components');
-  if (hasUnresolvedFacts) sectionBlockers.push('composition_has_unresolved_facts');
-  if (hasReviewBlockers) sectionBlockers.push('composition_has_review_blockers');
-
-  const compositionReady = hasCanonicalTruth
-    && hasConfirmedComposition
-    && !hasUnresolvedFacts
-    && !hasReviewBlockers;
+  sectionBlockers.push(...compositionBlockers);
 
   return {
-    mode: hardBlockers.length ? 'BLOCKED' : compositionReady ? 'READY_FULL' : 'READY_PARTIAL',
+    mode: hardBlockers.length ? 'BLOCKED' : 'READY_FULL',
     hard_blockers: unique(hardBlockers),
     section_blockers: unique(sectionBlockers),
     allowed_customer_sections: hardBlockers.length ? [] : GENERATED_SECTIONS,
     suppressed_customer_sections: hardBlockers.length
       ? [...GENERATED_SECTIONS, 'right_panel_whats_included']
-      : compositionReady ? [] : ['right_panel_whats_included'],
+      : [],
   };
 }
 
@@ -327,9 +314,7 @@ function applyReadinessToPromptContract(promptContract, readiness) {
     '- Keep every block functionally distinct and remove repeated thoughts across intro, benefits, use cases and the closing studio paragraph.',
     '- Do not generate, rewrite or paraphrase the fixed right PDP panel.',
     '- Do not mention prices in customer-facing SEO copy.',
-    readiness.mode === 'READY_PARTIAL'
-      ? '- Composition is partial. Set status to needs_review, omit composition claims and still generate the safe product-specific sections.'
-      : '- Composition is ready. Use confirmed identity naturally without merging mutually exclusive configurations.',
+    '- Composition is ready. Use confirmed identity naturally without merging mutually exclusive configurations.',
   ].join('\n');
 
   return {
@@ -403,7 +388,6 @@ function candidateScore(structural, commercial, keywordPlacement) {
 
 function sanitizeOutputForReadiness(output, readiness) {
   const safe = JSON.parse(JSON.stringify(output || {}));
-  if (readiness.mode === 'READY_PARTIAL') safe.status = 'needs_review';
   safe.generation_readiness = readiness.mode;
   safe.suppressed_sections = readiness.suppressed_customer_sections;
   safe.generation_notes = unique([
@@ -477,6 +461,11 @@ function blockerMessage(code) {
     missing_validated_keyword_metric: 'No selected keyword has a trusted validated metric snapshot.',
     portfolio_strategy_missing: 'Portfolio differentiation strategy was required but is missing.',
     primary_keyword_scope_mismatch_for_multi_component_product: 'The confirmed product contains multiple pieces, but Primary names only one component. Return to Listing Master and choose an outfit, set, costume, ensemble or attire query as Primary; keep component queries Secondary.',
+    composition_missing_canonical_product_truth: 'Generation is blocked because canonical Product Truth is unavailable.',
+    composition_missing_confirmed_components: 'Generation is blocked because the exact included components are not confirmed.',
+    composition_has_unresolved_facts: 'Generation is blocked because component facts remain unresolved.',
+    composition_has_review_blockers: 'Generation is blocked because component mappings require human review.',
+    composition_missing_source_configuration_evidence: 'Generation is blocked because the source listing does not provide configuration evidence.',
   };
   return messages[code] || `SEO generation gate: ${code}.`;
 }

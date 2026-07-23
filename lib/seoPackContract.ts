@@ -406,6 +406,48 @@ export function canSaveSeoPackDraft(draft: SeoPackDraftContract | null | undefin
 }
 
 /**
+ * Product Truth evidence required before any real text-generation call.
+ *
+ * A partial composition is useful for operator review, but it is not a safe
+ * writing brief. Letting the model write around unresolved composition turns
+ * a missing fact into a page-entity decision, which can misdirect the Primary
+ * keyword and every downstream SEO field.
+ */
+export function getSeoGenerationProductTruthBlockers(
+  draft: SeoPackDraftContract | null | undefined,
+): string[] {
+  if (!draft) return ['missing_seo_pack_draft'];
+
+  const truth = draft.product_truth;
+  const confirmedComponents = uniqueNonEmpty([
+    ...(truth?.included_components || []),
+    ...(truth?.known_components || []),
+  ]);
+  const hasSourceConfigurationEvidence = Boolean(truth?.source_description_fragment?.trim())
+    || Boolean(truth?.source_variations?.length)
+    || Boolean(truth?.option_price_rows?.length);
+  const blockers: string[] = [];
+
+  if (truth?.product_truth_source !== 'seo_product_truth_v1') {
+    blockers.push('composition_missing_canonical_product_truth');
+  }
+  if (!confirmedComponents.length) {
+    blockers.push('composition_missing_confirmed_components');
+  }
+  if ((truth?.unresolved_component_facts || []).length) {
+    blockers.push('composition_has_unresolved_facts');
+  }
+  if ((truth?.component_review_blockers || []).length) {
+    blockers.push('composition_has_review_blockers');
+  }
+  if (!hasSourceConfigurationEvidence) {
+    blockers.push('composition_missing_source_configuration_evidence');
+  }
+
+  return uniqueNonEmpty(blockers);
+}
+
+/**
  * Rejects an operator decision that narrows a confirmed multi-piece product to
  * one component. Component queries remain useful Secondary evidence, but the
  * Primary must describe the complete product a customer can buy.

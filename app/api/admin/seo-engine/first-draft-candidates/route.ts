@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServiceClient } from '@/lib/supabase';
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
+import { getSeoGenerationProductTruthBlockers } from '@/lib/seoPackContract';
 import { STOREFRONT_VIEW_V1 } from '@/lib/storefront';
 
 export const dynamic = 'force-dynamic';
@@ -270,13 +271,7 @@ function summarizeCandidate(bundle, decision) {
   if (draft?.qa_checks?.product_specificity === 'blocker') hardBlockers.push('qa_blocker_product_specificity');
   if (draft?.qa_checks?.validated_metrics === 'blocker') hardBlockers.push('qa_blocker_validated_metrics');
 
-  const sectionBlockers = [];
-  if (truth.product_truth_source !== 'seo_product_truth_v1') sectionBlockers.push('composition_missing_canonical_product_truth');
-  if (!((truth.included_components || []).length || (truth.known_components || []).length || (truth.optional_configurations || []).length)) {
-    sectionBlockers.push('composition_missing_confirmed_components');
-  }
-  if ((truth.unresolved_component_facts || []).length) sectionBlockers.push('composition_has_unresolved_facts');
-  if ((truth.component_review_blockers || []).length) sectionBlockers.push('composition_has_review_blockers');
+  const sectionBlockers = getSeoGenerationProductTruthBlockers(draft);
 
   return {
     canonical_product_id: draft?.canonical_product_id || decision?.canonical_product_id || null,
@@ -302,14 +297,10 @@ function summarizeCandidate(bundle, decision) {
     has_saved_draft: Boolean(bundle?.latestSavedDraftContext?.id),
     hard_blockers: unique(hardBlockers),
     section_blockers: unique(sectionBlockers),
-    generation_mode: hardBlockers.length
-      ? 'BLOCKED'
-      : sectionBlockers.length
-        ? 'READY_PARTIAL'
-        : 'READY_FULL',
-    ready_for_openai: hardBlockers.length === 0,
+    generation_mode: hardBlockers.length || sectionBlockers.length ? 'BLOCKED' : 'READY_FULL',
+    ready_for_openai: hardBlockers.length === 0 && sectionBlockers.length === 0,
     ready_for_full_pack: hardBlockers.length === 0 && sectionBlockers.length === 0,
-    workflow_stage: hardBlockers.length ? 'blocked_by_contract' : 'ready_for_generation',
+    workflow_stage: hardBlockers.length || sectionBlockers.length ? 'blocked_by_contract' : 'ready_for_generation',
     is_controlled_pilot: false,
     generation_route: GENERIC_GENERATION_ROUTE,
     preview_path: draft?.canonical_product_id

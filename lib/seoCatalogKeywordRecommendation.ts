@@ -95,11 +95,12 @@ export function recommendCatalogKeywords(input: {
 }) {
   const strategy = normalizeStrategy(input.selectedStrategy);
   const profile = buildProductProfile(input.product, input.focus || {});
-  const scored = uniqueRows(input.approvedKeywords)
+  const eligibleRows = uniqueRows(input.approvedKeywords)
     .filter(isTrustedApprovedRow)
     .map((row) => scoreRow(row, profile, strategy))
     .filter((row) => row.recommendation_status === 'eligible')
     .sort(compareRows);
+  const scored = uniqueSemanticRows(eligibleRows);
 
   const productRows = scored.filter((row) => PRODUCT_BUCKETS.has(normalize(row.bank_bucket || row.page_type))).slice(0, 18);
   const faqRows = scored.filter((row) => normalize(row.bank_bucket || row.page_type) === 'faq').slice(0, 6);
@@ -129,6 +130,8 @@ export function recommendCatalogKeywords(input: {
       mode: 'approved_keyword_bank_auto_recommendation_v1',
       strategy,
       approved_rows_received: input.approvedKeywords.length,
+      eligible_rows_before_semantic_dedupe: eligibleRows.length,
+      semantic_duplicates_removed: eligibleRows.length - scored.length,
       trusted_rows_scored: scored.length,
       recommended_rows: selected.length,
       recommended_product_rows: selected.filter((row) => PRODUCT_BUCKETS.has(normalize(row.bank_bucket || row.page_type))).length,
@@ -409,6 +412,33 @@ function uniqueRows<T extends KeywordRow>(rows: T[]): T[] {
     seen.add(key);
     return true;
   });
+}
+
+/**
+ * Keeps one deterministic winner when the Keyword Bank contains the same
+ * query as a word-order permutation, for example "leather harness top" and
+ * "leather top harness". These rows represent one intent and must not consume
+ * multiple keyword roles or create artificial density pressure.
+ */
+function uniqueSemanticRows<T extends KeywordRow>(rows: T[]): T[] {
+  const seen = new Set<string>();
+  return rows.filter((row) => {
+    const bucket = semanticBucket(row.bank_bucket || row.page_type);
+    const signature = tokens(row.keyword_norm || row.keyword).sort().join(' ');
+    const key = `${bucket}:${signature}`;
+    if (!signature || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function semanticBucket(value: unknown) {
+  const bucket = normalize(value);
+  if (PRODUCT_BUCKETS.has(bucket)) return 'product';
+  if (bucket === 'faq') return 'faq';
+  if (['collection', 'commercial collection'].includes(bucket)) return 'collection';
+  if (bucket === 'visual collection') return 'visual';
+  return bucket;
 }
 
 function compareRows(a: KeywordRow, b: KeywordRow) {

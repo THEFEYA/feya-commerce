@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { NextResponse } from 'next/server';
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
-import { getSeoPackDraftSaveBlockers } from '@/lib/seoPackContract';
+import { getSeoGenerationProductTruthBlockers, getSeoPackDraftSaveBlockers } from '@/lib/seoPackContract';
 import { buildSeoAgentPromptContract, summarizeSeoAgentPromptContract } from '@/lib/seoAgentDraftPrompt';
 import { buildMockSeoAgentOutput } from '@/lib/seoAgentMockDraft';
 import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
@@ -29,7 +29,7 @@ export async function GET() {
     mode: 'protected_generation_entrypoint',
     status: 'draft_only_openai_ready_when_enabled',
     feature_flag: 'FEYA_SEO_AI_GENERATION_ENABLED',
-    readiness_modes: ['READY_FULL', 'READY_PARTIAL', 'BLOCKED'],
+    readiness_modes: ['READY_FULL', 'BLOCKED'],
     expected_body: {
       product_id: 'canonical_product_id UUID',
       dry_run: true,
@@ -38,7 +38,7 @@ export async function GET() {
     },
     generation_pipeline: [
       'load versioned SEO Product Truth contract when available',
-      'classify READY_FULL, READY_PARTIAL, or BLOCKED',
+      'classify READY_FULL or BLOCKED',
       'load SeoAgentInputContract',
       'load latest saved draft portfolio/source differentiation strategy when available',
       'attach primary product image server-side when available',
@@ -221,14 +221,10 @@ export async function POST(request: Request) {
   const reviewDraft = sanitizeOutputForReadiness(generation.output, readiness);
   return NextResponse.json({
     ok: true,
-    status: readiness.mode === 'READY_PARTIAL'
-      ? 'ai_partial_draft_generated_not_saved'
-      : 'ai_full_draft_generated_not_saved',
+    status: 'ai_full_draft_generated_not_saved',
     blocked: false,
     mode: 'openai_draft_only_not_saved',
-    message: readiness.mode === 'READY_PARTIAL'
-      ? 'OpenAI generated valid left-side product SEO copy. The storefront-owned What’s Included block remains hidden until component mapping is confirmed. Nothing was saved or published.'
-      : 'OpenAI generated valid left-side product SEO copy. The fixed right PDP panel was not generated or changed. Nothing was saved or published.',
+    message: 'OpenAI generated valid left-side product SEO copy. The fixed right PDP panel was not generated or changed. Nothing was saved or published.',
     openai_generation: sanitizeGeneration(generation),
     generated_draft_output: reviewDraft,
     generated_draft_validation: validation,
@@ -267,20 +263,10 @@ function classifyGenerationReadiness(draft) {
   if (draft?.qa_checks?.forbidden_mismatch === 'blocker') hardBlockers.push('qa_blocker_forbidden_mismatch');
   if (draft?.qa_checks?.product_specificity === 'blocker') hardBlockers.push('qa_blocker_product_specificity');
   if (draft?.qa_checks?.validated_metrics === 'blocker') hardBlockers.push('qa_blocker_validated_metrics');
+  const compositionBlockers = getSeoGenerationProductTruthBlockers(draft);
+  hardBlockers.push(...compositionBlockers);
 
-  const hasConfirmedComponents = Boolean((truth.included_components || []).length || (truth.known_components || []).length);
-  const hasUnresolvedComponents = Boolean((truth.unresolved_component_facts || []).length);
-  const hasComponentReviewBlockers = Boolean((truth.component_review_blockers || []).length);
-  const hasCanonicalTruth = truth.product_truth_source === 'seo_product_truth_v1';
-  const compositionReady = hasCanonicalTruth
-    && hasConfirmedComponents
-    && !hasUnresolvedComponents
-    && !hasComponentReviewBlockers;
-
-  if (!hasCanonicalTruth) sectionBlockers.push('composition_missing_canonical_product_truth');
-  if (!hasConfirmedComponents) sectionBlockers.push('composition_missing_confirmed_components');
-  if (hasUnresolvedComponents) sectionBlockers.push('composition_has_unresolved_facts');
-  if (hasComponentReviewBlockers) sectionBlockers.push('composition_has_review_blockers');
+  sectionBlockers.push(...compositionBlockers);
 
   if (hardBlockers.length) {
     return {
@@ -293,11 +279,11 @@ function classifyGenerationReadiness(draft) {
   }
 
   return {
-    mode: compositionReady ? 'READY_FULL' : 'READY_PARTIAL',
+    mode: 'READY_FULL',
     hard_blockers: [],
-    section_blockers: compositionReady ? [] : unique(sectionBlockers),
+    section_blockers: [],
     allowed_customer_sections: GENERATED_SECTIONS,
-    suppressed_customer_sections: compositionReady ? [] : ['right_panel_whats_included'],
+    suppressed_customer_sections: [],
   };
 }
 
@@ -314,7 +300,7 @@ function applyReadinessToPromptContract(promptContract, readiness) {
     '- Never generate a What’s Included placeholder. The storefront renders or hides that block from confirmed configuration mapping.',
     '- Do not state which pieces are included when composition is unresolved.',
     '- Do not mention prices in customer-facing copy.',
-    readiness.mode === 'READY_PARTIAL' ? '- Set output status to needs_review.' : '- Return draft or needs_review according to remaining QA warnings.',
+    '- Return draft or needs_review according to remaining QA warnings.',
   ].join('\n');
 
   return {
@@ -350,14 +336,10 @@ function collectGenerationWarnings({ readiness, seoPackDraft, portfolioStrategy 
 
 function sanitizeOutputForReadiness(output, readiness) {
   const safe = JSON.parse(JSON.stringify(output || {}));
-  if (readiness.mode === 'READY_PARTIAL') safe.status = 'needs_review';
   safe.suppressed_sections = readiness.suppressed_customer_sections;
   safe.generation_readiness = readiness.mode;
   safe.generation_notes = unique([
     ...(Array.isArray(safe.generation_notes) ? safe.generation_notes : []),
-    ...(readiness.mode === 'READY_PARTIAL'
-      ? ['The storefront-owned What’s Included block remains hidden until composition mapping is confirmed.']
-      : []),
     ...readiness.section_blockers,
   ]);
   return safe;
@@ -371,10 +353,11 @@ function blockerMessage(code) {
     missing_primary_or_secondary_keyword: 'No primary or secondary product keyword passed the decision pipeline.',
     missing_validated_keyword_metric: 'No keyword has a trusted metric source and freshness snapshot.',
     insufficient_product_identity_evidence: 'The product lacks enough identity, material, visual or source evidence for a safe draft.',
-    composition_missing_canonical_product_truth: 'The storefront-owned What’s Included block is hidden because canonical Product Truth is unavailable.',
-    composition_missing_confirmed_components: 'The storefront-owned What’s Included block is hidden because no included component is confirmed.',
-    composition_has_unresolved_facts: 'The storefront-owned What’s Included block is hidden because component facts remain unresolved.',
-    composition_has_review_blockers: 'The storefront-owned What’s Included block is hidden because component mappings require review.',
+    composition_missing_canonical_product_truth: 'Generation is blocked because canonical Product Truth is unavailable.',
+    composition_missing_confirmed_components: 'Generation is blocked because the exact included components are not confirmed.',
+    composition_has_unresolved_facts: 'Generation is blocked because component facts remain unresolved.',
+    composition_has_review_blockers: 'Generation is blocked because component mappings require human review.',
+    composition_missing_source_configuration_evidence: 'Generation is blocked because the source listing does not provide configuration evidence.',
   };
   return messages[code] || `SEO generation gate: ${code}.`;
 }

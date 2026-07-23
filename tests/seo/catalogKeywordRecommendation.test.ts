@@ -142,3 +142,31 @@ test('multi-component Product Truth cannot receive a component-only primary keyw
   assert.equal(result.diagnostics.confirmed_component_count, 3);
   assert.equal(result.diagnostics.auto_primary_scope, 'whole_product_or_single_component');
 });
+
+test('word-order permutations represent one keyword intent', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      card_title: 'Gold Festival Harness Top',
+      canonical_color_label: 'Gold',
+      included_components: ['Top', 'Harness'],
+    },
+    focus: {
+      component: ['top', 'harness'],
+      event: ['festival'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'festival harness outfit', keyword_norm: 'festival harness outfit', bank_bucket: 'product', avg_monthly_searches: 120 },
+      { ...baseMetric, keyword: 'harness outfit festival', keyword_norm: 'harness outfit festival', bank_bucket: 'product_or_alt', avg_monthly_searches: 90 },
+      { ...baseMetric, keyword: 'leather harness top', keyword_norm: 'leather harness top', bank_bucket: 'product', avg_monthly_searches: 260 },
+      { ...baseMetric, keyword: 'leather top harness', keyword_norm: 'leather top harness', bank_bucket: 'product_or_alt', avg_monthly_searches: 210 },
+    ],
+  });
+
+  const keywords = result.keywords.map((row) => String(row.keyword_norm));
+  assert.equal(keywords.includes('festival harness outfit'), true);
+  assert.equal(keywords.includes('harness outfit festival'), false);
+  assert.equal(keywords.includes('leather harness top'), true);
+  assert.equal(keywords.includes('leather top harness'), false);
+  assert.equal(result.diagnostics.semantic_duplicates_removed, 2);
+});
