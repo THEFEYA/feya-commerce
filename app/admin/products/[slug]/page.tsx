@@ -3,7 +3,12 @@ import Link from 'next/link';
 import { AdminProductDetailView } from '@/components/AdminProductDetailView';
 import { ADMIN_PRODUCT_BUILDER_DETAIL_SELECT, ADMIN_PRODUCT_BUILDER_DETAIL_VIEW, toBuilderStorefrontProduct } from '@/lib/admin-product-builder-detail';
 import { ADMIN_PRODUCT_CATALOG_FALLBACK_SELECT, ADMIN_PRODUCT_CATALOG_FALLBACK_VIEW, toCatalogFallbackStorefrontProduct } from '@/lib/admin-product-catalog-fallback';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
+import {
+  ADMIN_COMPONENT_TRUTH_SELECT,
+  CANONICAL_PRODUCT_TRUTH_VIEW,
+  getCanonicalComponentTruthDiagnostic,
+} from '@/lib/adminComponentTruth';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_V4_PDP_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
 
@@ -67,6 +72,19 @@ async function getProduct(slug: string): Promise<{ product: StorefrontProduct | 
   return getBuilderProduct(slug);
 }
 
+async function getComponentTruth(canonicalProductId?: string | null) {
+  if (!canonicalProductId) return getCanonicalComponentTruthDiagnostic(null);
+  const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
+  if (!supabase) return getCanonicalComponentTruthDiagnostic(null);
+  const { data, error } = await supabase
+    .from(CANONICAL_PRODUCT_TRUTH_VIEW)
+    .select(ADMIN_COMPONENT_TRUTH_SELECT)
+    .eq('canonical_product_id', canonicalProductId)
+    .maybeSingle();
+  if (error) return getCanonicalComponentTruthDiagnostic(null);
+  return getCanonicalComponentTruthDiagnostic(data);
+}
+
 export default async function AdminProductDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const { product, error } = await getProduct(slug);
@@ -75,5 +93,6 @@ export default async function AdminProductDetailPage({ params }: PageProps) {
     return <main className="min-h-screen bg-[#07070A]"><section className="container-feya pt-10 pb-16"><div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-6 text-[var(--bone-dim)]">{error || 'Товар не найден.'}</div><Link href="/admin/products" className="btn-ghost mt-5">Назад к товарам</Link></section></main>;
   }
 
-  return <AdminProductDetailView product={product} />;
+  const componentTruth = await getComponentTruth(product.canonical_product_id);
+  return <AdminProductDetailView product={product} componentTruth={componentTruth} />;
 }

@@ -1,4 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import {
+  ADMIN_COMPONENT_TRUTH_SELECT,
+  CANONICAL_PRODUCT_TRUTH_VIEW,
+  getCanonicalComponentTruthDiagnostic,
+  type CanonicalComponentTruthRow,
+} from '@/lib/adminComponentTruth';
 import { getMissingSupabaseServiceEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
 
 export const runtime = 'nodejs';
@@ -114,6 +120,40 @@ export async function POST(request: NextRequest) {
   const normalized = normalizePayload(input);
   if ('error' in normalized) {
     return NextResponse.json({ ok: false, error: normalized.error }, { status: 400 });
+  }
+
+  if (normalized.row.event_type === 'component_mapping_checked') {
+    if (!normalized.row.canonical_product_id) {
+      return NextResponse.json({
+        ok: false,
+        error: 'Компонентную проверку нельзя записать без canonical_product_id.',
+      }, { status: 409 });
+    }
+
+    const { data: truthRow, error: truthError } = await supabase
+      .from(CANONICAL_PRODUCT_TRUTH_VIEW)
+      .select(ADMIN_COMPONENT_TRUTH_SELECT)
+      .eq('canonical_product_id', normalized.row.canonical_product_id)
+      .maybeSingle();
+
+    if (truthError) {
+      return NextResponse.json({
+        ok: false,
+        error: `Не удалось проверить канонический Product Truth: ${truthError.message}`,
+      }, { status: 503 });
+    }
+
+    const diagnostic = getCanonicalComponentTruthDiagnostic(
+      truthRow as CanonicalComponentTruthRow | null,
+    );
+    if (diagnostic.blockers.length) {
+      return NextResponse.json({
+        ok: false,
+        code: 'canonical_product_truth_blocked',
+        error: 'Событие проверки не может закрыть незавершённый Product Truth. Сначала исправьте состав, конфигурации и их связь с ценами.',
+        blockers: diagnostic.blockers,
+      }, { status: 409 });
+    }
   }
 
   const { data, error } = await supabase
