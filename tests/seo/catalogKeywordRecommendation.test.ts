@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-// @ts-expect-error Node's strip-types runner requires the explicit TypeScript extension.
 import { recommendCatalogKeywords } from '../../lib/seoCatalogKeywordRecommendation.ts';
 
 const baseMetric = {
@@ -109,4 +108,37 @@ test('automatic recommendations remain review candidates and never claim confirm
   assert.ok(result.keywords.length >= 3);
   assert.ok(result.keywords.every((row) => row.auto_recommendation_needs_human_confirmation === true));
   assert.equal(result.diagnostics.writes_performed, 0);
+});
+
+test('multi-component Product Truth cannot receive a component-only primary keyword', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      card_title: 'Gold Festival Armor Outfit with Shoulder Armor, Harness and Skirt',
+      canonical_color_label: 'Gold',
+      included_components: ['Shoulders', 'Harness', 'Skirt'],
+    },
+    focus: {
+      component: ['shoulders', 'harness', 'skirt'],
+      event: ['Burning Man', 'festival', 'rave'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'gold shoulder armor', keyword_norm: 'gold shoulder armor', bank_bucket: 'product', avg_monthly_searches: 100000 },
+      { ...baseMetric, keyword: 'gold shoulder armor costume', keyword_norm: 'gold shoulder armor costume', bank_bucket: 'product', avg_monthly_searches: 95000 },
+      { ...baseMetric, keyword: 'gold shoulders', keyword_norm: 'gold shoulders', bank_bucket: 'product_or_alt', avg_monthly_searches: 90000 },
+      { ...baseMetric, keyword: 'gold festival armor outfit', keyword_norm: 'gold festival armor outfit', bank_bucket: 'product', avg_monthly_searches: 120 },
+      { ...baseMetric, keyword: 'harness festival outfit', keyword_norm: 'harness festival outfit', bank_bucket: 'product', avg_monthly_searches: 90 },
+      { ...baseMetric, keyword: 'rave skirt outfits', keyword_norm: 'rave skirt outfits', bank_bucket: 'product', avg_monthly_searches: 70 },
+    ],
+  });
+
+  const primary = result.keywords.find((row) => row.role === 'primary');
+  assert.ok(primary);
+  assert.equal(primary?.whole_product_intent, true);
+  assert.notEqual(primary?.keyword_norm, 'gold shoulder armor');
+  assert.equal(result.keywords.find((row) => row.keyword_norm === 'gold shoulder armor')?.role, 'secondary');
+  assert.equal(result.keywords.find((row) => row.keyword_norm === 'gold shoulder armor costume')?.role, 'secondary');
+  assert.equal(result.diagnostics.product_presentation_mode, 'compact_set');
+  assert.equal(result.diagnostics.confirmed_component_count, 3);
+  assert.equal(result.diagnostics.auto_primary_scope, 'whole_product_or_single_component');
 });

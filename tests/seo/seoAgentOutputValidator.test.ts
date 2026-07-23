@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-// @ts-expect-error Node's strip-types runner requires the explicit TypeScript extension.
 import { validateSeoAgentOutput } from '../../lib/seoAgentOutputValidator.ts';
 
 function output(overrides: Record<string, unknown> = {}) {
@@ -16,7 +15,7 @@ function output(overrides: Record<string, unknown> = {}) {
     image_alt_candidates: [{ image_role: 'primary', alt_text: 'Model wearing layered gold shoulder armor', truth_basis: 'visible_product_fact' }],
     internal_linking_hints: [],
     pdp_blocks: [
-      { block_key: 'about_this_piece', placement: 'left_description', heading: 'About this piece', body: 'Build a bold Burning Man or stage look around this layered gold armor. The adjustable fit makes it practical to wear over different base layers.', source_basis: 'product_fact', needs_human_review: false },
+      { block_key: 'about_this_piece', placement: 'left_description', heading: 'About this piece', body: 'Build a bold Burning Man or stage look around this layered gold armor. Adjustable straps make the fit easier to adapt to different body shapes.', source_basis: 'product_fact', needs_human_review: false },
       { block_key: 'why_youll_love_it', placement: 'left_description', heading: 'Why you’ll love it', body: 'Our original studio design gives the outfit a bold, recognizable detail.\nThe chest strap supports a more secure fit.\nLayered material helps the piece keep its shape between wears.', source_basis: 'product_fact', needs_human_review: false },
       { block_key: 'ideal_for', placement: 'left_description', heading: 'Ideal for', body: 'Burning Man and desert festivals.\nStage costumes and editorial shoots.\nWarrior-inspired styling for men.', source_basis: 'product_fact', needs_human_review: false },
       { block_key: 'main_description', placement: 'left_description', heading: 'Designed for self-expression', body: 'At TheFEYA, we are an independent team of designers with a fresh point of view on festival and stage fashion. We create original ideas across different styles so people can choose a design that feels like them. This piece gives you a distinctive starting point for a bold performance look. You can build the rest around your own style.', source_basis: 'brand_policy', needs_human_review: false },

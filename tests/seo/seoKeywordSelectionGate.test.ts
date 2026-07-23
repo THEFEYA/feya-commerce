@@ -1,8 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-// @ts-expect-error Node's strip-types runner requires the explicit TypeScript extension.
-import { getSeoPackApprovalBlockers, getSeoPackReviewDraftStorageBlockers } from '../../lib/seoPackContract.ts';
-// @ts-expect-error Node's strip-types runner requires the explicit TypeScript extension.
+import { getSeoKeywordSelectionBlockers, getSeoPackApprovalBlockers, getSeoPackReviewDraftStorageBlockers } from '../../lib/seoPackContract.ts';
 import { buildSeoDraftStoragePayload } from '../../lib/seoDraftStoragePayload.ts';
 
 function draft(selectionStatus: 'confirmed' | 'needs_human_confirmation') {
@@ -51,6 +49,31 @@ test('review storage still blocks drafts without validated source evidence', () 
   unsafe.product_truth.source_variations = [];
   unsafe.product_truth.option_price_rows = [];
   assert.ok(getSeoPackReviewDraftStorageBlockers(unsafe).includes('missing_source_configuration_evidence'));
+});
+
+test('multi-component product cannot be confirmed with a component-only primary', () => {
+  const unsafe = draft('confirmed') as any;
+  unsafe.product_truth.title = 'Gold Festival Armor Outfit';
+  unsafe.product_truth.included_components = ['Shoulders', 'Harness', 'Skirt'];
+  unsafe.product_truth.known_components = ['Shoulders', 'Harness', 'Skirt'];
+  unsafe.keyword_roles.primary = [{ keyword: 'gold shoulder armor' }];
+
+  assert.deepEqual(getSeoKeywordSelectionBlockers(unsafe), [
+    'primary_keyword_scope_mismatch_for_multi_component_product',
+  ]);
+  assert.ok(getSeoPackApprovalBlockers(unsafe).includes('primary_keyword_scope_mismatch_for_multi_component_product'));
+  assert.ok(getSeoPackReviewDraftStorageBlockers(unsafe).includes('primary_keyword_scope_mismatch_for_multi_component_product'));
+
+  unsafe.keyword_roles.primary = [{ keyword: 'gold shoulder armor costume' }];
+  assert.deepEqual(getSeoKeywordSelectionBlockers(unsafe), [
+    'primary_keyword_scope_mismatch_for_multi_component_product',
+  ]);
+
+  unsafe.keyword_roles.primary = [{ keyword: 'gold festival armor outfit' }];
+  assert.deepEqual(getSeoKeywordSelectionBlockers(unsafe), []);
+
+  unsafe.keyword_roles.primary = [{ keyword: 'shoulder armor harness and skirt costume' }];
+  assert.deepEqual(getSeoKeywordSelectionBlockers(unsafe), []);
 });
 
 test('stored partial draft is explicitly marked for human review', () => {

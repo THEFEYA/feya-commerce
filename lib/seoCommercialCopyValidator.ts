@@ -1,3 +1,9 @@
+import {
+  classifySeoProductPresentation,
+  hasWholeProductEntity,
+  mentionedConfirmedComponents,
+} from './seoProductPresentation.ts';
+
 export type SeoCommercialCopyIssue = {
   code: string;
   severity: 'warning' | 'blocker';
@@ -24,7 +30,7 @@ const WEAK_STYLING_FILLER = /\b(works? well as a focal piece|works? as a centerp
 const AUDIT_OR_ADMIN_LANGUAGE = /\b(product truth|product truth confirms?|product truth indicates?|the product description (?:says|states|lists|mentions|indicates)|the source (?:says|states|lists|mentions|indicates)|official product data|source data|database fields?|safe wording|safest wording|material basis|final copy should|must be confirmed|should be confirmed|requires? verification|needs? verification|should be reviewed before publish|requires? review before publish|review before publish|before publication|before publish|listed as|is listed as|indicated as|specified as)\b/i;
 const GUARANTEED_POPULARITY = /\b(guarantee(?:d|s)?|will get likes?|will receive likes?|will gain followers?|will make you popular|go viral|viral reach|more followers?|gain followers?|more likes?|become popular|increase your popularity|guaranteed attention|everyone will notice|all eyes will be on you|guaranteed reactions?)\b/i;
 const EMPTY_HYPE = /\b(premium|luxury|ultimate|perfect|best|must[- ]have|crafted to perfection|elevate your look)\b/i;
-const EMPTY_OR_INTERNAL_BUYER_COPY = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|TheFEYA gives us a way|TheFEYA\s+(?:we|our|us)\b|clean armored attitude|desert[- ]ready (?:mood|presence)|shoulder[- ]led|reads? fast|open light|direct choice for buyers?|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity (?:and|or) individuality|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|one[- ]and[- ]only (?:shoulder )?line|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced|(?:original|distinctive) alternative to (?:a )?(?:standard|generic|mass[- ]produced) costume (?:look|piece|design))\b/i;
+const EMPTY_OR_INTERNAL_BUYER_COPY = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|studio fit|base layers?|statement piece|strong festival statement|structured (?:gold |metallic )?accent|bold (?:gold |metallic )?accent|TheFEYA gives us a way|TheFEYA\s+(?:we|our|us)\b|clean armored attitude|desert[- ]ready (?:mood|presence)|shoulder[- ]led|reads? fast|open light|direct choice for buyers?|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity (?:and|or) individuality|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|one[- ]and[- ]only (?:shoulder )?line|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced|(?:original|distinctive) alternative to (?:a )?(?:standard|generic|mass[- ]produced) costume (?:look|piece|design))\b/i;
 const DIRECTIONAL_VISUAL_AUDIT = /\b(?:(?:left|right)[- ](?:shoulder|side|arm|leg)|(?:positioned|placed|located|sits?) (?:high|low|on the (?:left|right))|(?:clearly |well )?visible from (?:the )?(?:front|back|side)|seen from (?:the )?(?:front|back|side))\b/i;
 const ANATOMICAL_DESIGN_AUDIT = /\b(?:sculptural (?:profile|silhouette|line) of (?:the )?(?:left|right|one)?\s*shoulder|expressive upper[- ]body (?:form|line|profile|silhouette)|upper[- ]body (?:form|line|profile|silhouette|frame)|shoulder[- ]line|shoulder silhouette)\b/i;
 const UNNATURAL_EVENT_ATMOSPHERE = /\b(?:desert light|open light|desert[- ]ready|ready for (?:the )?desert)\b/i;
@@ -43,6 +49,10 @@ const BRAND_PATTERN = /\bTheFEYA\b/gi;
 const DESIGN_BENEFIT_PATTERN = /\b(studio[- ]created|studio[- ]designed|studio[- ]made|designed in our studio|original studio design|distinctive studio design|signature studio design|handmade|made[- ]to[- ]order|not mass[- ]produced|mass[- ]produced costume|mass production|designer studio)\b/i;
 const SELF_EXPRESSION_PATTERN = /\b(self[- ]expression|individuality|visual identity|personal style|your own look|made for your vision|designed for your vision|studio visual language|adapt(?:ed|able)|customi[sz](?:e|ed|ation))\b/i;
 const REDUNDANT_SHOULDER_ENTITY_PATTERN = /\bshoulders?\s+(?:armor|armour|piece|pieces|pauldron|pauldrons)\b/gi;
+const AWKWARD_FINISH_AND_SHAPE = /\b(?:glossy|mirror[- ]like|metallic|gold)\b[^.!?]{0,45}\b(?:finish|surface|coating)\s+and\s+(?:a\s+)?(?:silhouette|shape|profile)\b/i;
+const DUPLICATE_STAGE_PERFORMANCE_FASHION = /\b(?:festival,?\s*)?stage,?\s+and\s+performance\s+fashion\b/i;
+const IDEAL_FOR_PRODUCT_DETAIL = /\b(?:accent|silhouette|finish|surface|coating|construction|structured|structure|base layers?|statement piece|shoulder armor|shoulder armour|shoulder piece|harness(?:\s+and|\/|\s+with)?\s+skirt|component combination|built around|calls? for|when you want)\b/i;
+const IDEAL_FOR_CONTEXT = /\b(?:performers?|dancers?|djs?|showgirls?|drag performers?|drag queens?|pole dancers?|go-go dancers?|cosplayers?|actors?|artists?|creators?|bloggers?|show ballets?|dance troupes?|event productions?|costume studios?|festivals?|burning man|raves?|stage shows?|dance performances?|theatrical productions?|theatre|theater|music videos?|video clips?|tv shows?|film costumes?|photoshoots?|editorial|costume parties?|nightclubs?|galas?|events?|performances?|productions?|women|woman|men|people)\b/i;
 
 const ALT_STYLING_FAMILIES: Array<{ key: string; aliases: string[] }> = [
   { key: 'cape_or_cloak', aliases: ['cape', 'cloak'] },
@@ -60,6 +70,13 @@ const FOCUS_VALUE_ALIASES: Record<string, string[]> = {
   performer: ['performer', 'performers', 'performance', 'stage artist'],
   dancer: ['dancer', 'dancers', 'dance'],
   dj: ['dj', 'djs'],
+  showgirl: ['showgirl', 'showgirls', 'show artist'],
+  'drag queen': ['drag queen', 'drag queens', 'drag performer', 'drag performers'],
+  'pole dancer': ['pole dancer', 'pole dancers', 'pole dance'],
+  'go-go dancer': ['go-go dancer', 'go-go dancers', 'gogo dancer', 'gogo dancers'],
+  cosplayer: ['cosplayer', 'cosplayers', 'cosplay'],
+  creator: ['creator', 'creators', 'blogger', 'bloggers'],
+  warrior: ['warrior', 'warrior-inspired'],
   festival: ['festival', 'festivals'],
 };
 
@@ -70,11 +87,11 @@ const BENEFIT_CATEGORIES: Array<{ key: string; pattern: RegExp }> = [
   },
   {
     key: 'easy_dressing_and_adjustment',
-    pattern: /\b(quick|easy|easier) to (?:put on|take off|adjust|fine[- ]tune|wear)|\b(fine[- ]tune|adjustable|adjusts|straps?|over (?:a |different )?base layers?)\b/i,
+    pattern: /\b(quick|easy|easier) to (?:put on|take off|adjust|wear)|\b(adjustable|adjusts|straps?|body shapes?)\b/i,
   },
   {
     key: 'fit_flexibility',
-    pattern: /\b(custom fit|custom sizing|custom measurements?|body shape|body shapes|secure fit|closer fit|fit over|fit around|room to adjust)\b/i,
+    pattern: /\b(custom fit|custom sizing|custom measurements?|body shape|body shapes|secure fit|closer fit|fit around|room to adjust|flexible fit)\b/i,
   },
   {
     key: 'comfort',
@@ -98,8 +115,8 @@ const PRACTICAL_BENEFIT_CATEGORIES = new Set([
 ]);
 const BENEFIT_OUTCOME_PATTERNS: Record<string, RegExp> = {
   studio_design_and_craft: /\b(original|distinctive|recognizable|recognisable|feels? (?:like you|personal|true to (?:you|your style))|your own (?:style|look)|designed by our (?:team|studio))\b/i,
-  easy_dressing_and_adjustment: /\b(quick|easy|easier) to (?:put on|take off|adjust|fine[- ]tune|wear)|\b(stays? in place|sits? securely|more secure|secure fit|room to adjust|fine[- ]tune over)\b/i,
-  fit_flexibility: /\b(secure fit|closer fit|fit over|fit around|room to adjust|different base layers?|custom measurements?)\b/i,
+  easy_dressing_and_adjustment: /\b(quick|easy|easier) to (?:put on|take off|adjust|wear)|\b(stays? in place|sits? securely|more secure|secure fit|room to adjust|different body shapes?)\b/i,
+  fit_flexibility: /\b(secure fit|closer fit|fit around|room to adjust|different body shapes?|custom measurements?|flexible fit)\b/i,
   comfort: /\b(comfortable|comfort|soft against the body|soft body[- ]facing|gentle on the body|easier to wear)\b/i,
   durability_structure: /\b(holds? its (?:shape|form)|keeps? its (?:shape|form)|shape retention|between wears|resists? creasing|long[- ]lasting|less likely to (?:crease|collapse|lose its shape))\b/i,
   verified_finish_behavior: /\b(catches? (?:ambient |stage )?light|light[- ]catching|shows? clearly in photos?|visible under (?:stage |event )?lighting|keeps? detail visible)\b/i,
@@ -296,6 +313,23 @@ export function validateSeoCommercialCopy(
     }
   });
 
+  const metaDescription = typeof record.meta_description === 'string' ? record.meta_description : '';
+  if (AWKWARD_FINISH_AND_SHAPE.test(metaDescription)) {
+    issues.push(blocker(
+      'meta_description_coordinates_finish_with_shape',
+      'Meta description grammatically joins a surface finish with silhouette or shape as if they were one attribute. State the complete product identity and use case, then add one clear differentiator.',
+    ));
+  }
+
+  if (DUPLICATE_STAGE_PERFORMANCE_FASHION.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_duplicates_stage_and_performance_fashion',
+      'Stage fashion and performance fashion are redundant in this brand sentence. Use the approved phrase “festival and stage fashion”.',
+    ));
+  }
+
+  validateWholeProductPresentation(record, context.product_truth, blocks, issues);
+
   const selectedEventFocus = focusEventValues(context.manual_focus);
   const h1 = typeof record.h1 === 'string' ? record.h1 : '';
   if (selectedEventFocus.length && !selectedEventFocus.some((event) => containsPhrase(h1, event))) {
@@ -307,6 +341,27 @@ export function validateSeoCommercialCopy(
 
   const idealForBlock = blocks.find((block) => String(block.block_key || '') === 'ideal_for');
   const idealForBody = typeof idealForBlock?.body === 'string' ? idealForBlock.body.trim() : '';
+  const idealForLines = splitBenefitLines(idealForBody);
+  if (idealForBody && (idealForLines.length < 3 || idealForLines.length > 5)) {
+    issues.push(blocker(
+      'ideal_for_wrong_use_case_count',
+      'Ideal for must contain 3-5 distinct people, professional roles, occasions, productions, or selected style contexts.',
+    ));
+  }
+  idealForLines.forEach((line, index) => {
+    if (IDEAL_FOR_PRODUCT_DETAIL.test(line)) {
+      issues.push(blocker(
+        `ideal_for_${index + 1}_describes_product_detail_instead_of_use_case`,
+        `Ideal for bullet ${index + 1} describes an accent, silhouette, finish, construction, base layer, component combination, or styling mechanism. Name a supported person, occasion, production, or selected style context instead.`,
+      ));
+    }
+    if (!idealForLineHasContext(line, context.manual_focus)) {
+      issues.push(blocker(
+        `ideal_for_${index + 1}_has_no_person_or_use_case`,
+        `Ideal for bullet ${index + 1} does not identify a person, professional role, occasion, production, or selected style context.`,
+      ));
+    }
+  });
   (['event', 'style', 'persona', 'audience'] as const).forEach((axis) => {
     const selectedValues = focusValues(context.manual_focus, axis);
     if (selectedValues.length && !selectedValues.some((value) => focusValueAppears(idealForBody, value))) {
@@ -625,6 +680,61 @@ function includedProductComponentText(value: unknown): string {
     value.child_components_json,
     value.component_groups_json,
   ]).join(' ');
+}
+
+function validateWholeProductPresentation(
+  record: Record<string, any>,
+  productTruth: unknown,
+  blocks: Record<string, any>[],
+  issues: SeoCommercialCopyIssue[],
+) {
+  const presentation = classifySeoProductPresentation(productTruth);
+  if (!presentation.requires_whole_product_entity) return;
+
+  (['seo_title', 'h1', 'meta_description'] as const).forEach((field) => {
+    const value = typeof record[field] === 'string' ? record[field] : '';
+    if (!hasWholeProductEntity(value)) {
+      issues.push(blocker(
+        `${field}_reduces_multi_component_product_to_one_piece`,
+        `${field} must identify the confirmed ${presentation.component_count}-component product as an outfit, set, costume, ensemble, or attire. One included component cannot replace the whole product entity.`,
+      ));
+    }
+  });
+
+  const aboutBlock = blocks.find((block) => String(block.block_key || '') === 'about_this_piece');
+  const aboutBody = typeof aboutBlock?.body === 'string' ? aboutBlock.body : '';
+  if (!hasWholeProductEntity(aboutBody)) {
+    issues.push(blocker(
+      'about_this_piece_missing_whole_product_entity',
+      'About this piece must describe the complete outfit or set before explaining individual components.',
+    ));
+  }
+
+  if (!presentation.requires_compact_composition) return;
+  const meta = typeof record.meta_description === 'string' ? record.meta_description : '';
+  const metaComponents = mentionedConfirmedComponents(meta, presentation.components);
+  if (metaComponents.length < Math.min(2, presentation.component_count)) {
+    issues.push(blocker(
+      'meta_description_missing_compact_set_composition',
+      `Meta description must identify the complete set and name its compact composition naturally. Confirmed components: ${presentation.components.join(', ')}.`,
+    ));
+  }
+
+  const aboutComponents = mentionedConfirmedComponents(aboutBody, presentation.components);
+  if (aboutComponents.length < presentation.component_count) {
+    const missing = presentation.components.filter((component) => !aboutComponents.includes(component));
+    issues.push(blocker(
+      'about_this_piece_missing_confirmed_components',
+      `About this piece must state the full confirmed compact-set composition once. Missing: ${missing.join(', ')}.`,
+    ));
+  }
+}
+
+function idealForLineHasContext(line: string, manualFocus: unknown) {
+  if (IDEAL_FOR_CONTEXT.test(line)) return true;
+  return (['event', 'style', 'persona', 'audience'] as const)
+    .flatMap((axis) => focusValues(manualFocus, axis))
+    .some((value) => focusValueAppears(line, value));
 }
 
 function focusValues(value: unknown, axis: 'event' | 'style' | 'persona' | 'audience'): string[] {

@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-// @ts-expect-error Node's strip-types runner requires the explicit TypeScript extension.
 import { validateSeoKeywordPlacement } from '../../lib/seoKeywordPlacementValidator.ts';
 import type { SeoPackDraftContract } from '../../lib/seoPackContract.ts';
 
@@ -17,6 +16,14 @@ function contract(keyword = 'gold shoulder armor'): SeoPackDraftContract {
       reject: [],
     },
   } as unknown as SeoPackDraftContract;
+}
+
+function multiComponentContract(keyword: string): SeoPackDraftContract {
+  const value = contract(keyword);
+  value.product_truth = {
+    included_components: ['Shoulders', 'Harness', 'Skirt'],
+  } as SeoPackDraftContract['product_truth'];
+  return value;
 }
 
 function output() {
@@ -89,4 +96,26 @@ test('does not demand exact placement of every secondary phrase', () => {
   ];
   const result = validateSeoKeywordPlacement(output(), draft);
   assert.equal(result.issues.some((issue) => issue.code === 'secondary_keyword_unplaced'), false);
+});
+
+test('blocks a component-only primary keyword for a confirmed outfit', () => {
+  const result = validateSeoKeywordPlacement(output(), multiComponentContract('gold shoulder armor'));
+  assert.ok(result.issues.some((issue) => issue.code === 'primary_keyword_scope_mismatch_for_multi_component_product'));
+});
+
+test('does not treat a component query with a generic costume suffix as whole-product intent', () => {
+  const result = validateSeoKeywordPlacement(output(), multiComponentContract('gold shoulder armor costume'));
+  assert.ok(result.issues.some((issue) => issue.code === 'primary_keyword_scope_mismatch_for_multi_component_product'));
+});
+
+test('accepts a whole-product primary scope for a confirmed outfit', () => {
+  const value = {
+    ...output(),
+    seo_title: 'Gold Festival Armor Outfit for Burning Man',
+    h1: 'Gold Festival Armor Outfit for Burning Man',
+    meta_description: 'Gold festival armor outfit with shoulder armor, harness and skirt for Burning Man performances.',
+    intro: 'This gold festival armor outfit combines shoulder armor, a harness and a skirt for Burning Man.',
+  };
+  const result = validateSeoKeywordPlacement(value, multiComponentContract('gold festival armor outfit'));
+  assert.equal(result.issues.some((issue) => issue.code === 'primary_keyword_scope_mismatch_for_multi_component_product'), false);
 });

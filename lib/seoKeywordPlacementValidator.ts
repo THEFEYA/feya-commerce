@@ -1,4 +1,5 @@
 import type { SeoKeywordRoleItem, SeoPackDraftContract } from '@/lib/seoPackContract';
+import { classifySeoProductPresentation, hasWholeProductScope } from './seoProductPresentation.ts';
 
 export type SeoKeywordPlacementIssue = {
   code: string;
@@ -40,9 +41,22 @@ export function validateSeoKeywordPlacement(
   ));
   const placements = roleRows.map(({ role, row }) => placementRow(role, row, fields));
   const primary = placements.filter((item) => item.role === 'primary');
+  const presentation = classifySeoProductPresentation(draft.product_truth);
 
   if (primary.length !== 1) {
     issues.push(blockerIssue('primary_keyword_count', `Exactly one primary keyword is required; received ${primary.length}.`));
+  }
+
+  if (
+    presentation.requires_whole_product_entity
+    && primary.length === 1
+    && !hasWholeProductScope(primary[0].keyword, presentation.components)
+  ) {
+    issues.push(blockerIssue(
+      'primary_keyword_scope_mismatch_for_multi_component_product',
+      `The selected primary keyword names only part of a confirmed ${presentation.component_count}-component product. Choose an outfit, set, costume, ensemble, or attire query as Primary; keep component queries Secondary.`,
+      primary[0].keyword,
+    ));
   }
 
   primary.forEach((item) => {

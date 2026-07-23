@@ -1,4 +1,5 @@
 import type { SeoAgentInputContract, SeoAgentOutputContract } from '@/lib/seoPackContract';
+import { classifySeoProductPresentation } from './seoProductPresentation.ts';
 import {
   buildThefeyaSeoDoctrineGuardrails,
   buildThefeyaSeoDoctrineSystemLines,
@@ -54,6 +55,7 @@ export function buildSeoAgentPromptContract(input: SeoAgentInputContract): SeoAg
 }
 
 function buildSystemPrompt(input: SeoAgentInputContract) {
+  const presentationRules = buildProductPresentationRules(input);
   const portfolioRules = input.portfolio_strategy ? [
     'A portfolio/source overlap strategy is present. You must follow it.',
     'Shared cluster terms may be preserved when strategically useful, but do not copy the nearest catalog match title skeleton, opening paragraph, or phrase order.',
@@ -96,11 +98,12 @@ function buildSystemPrompt(input: SeoAgentInputContract) {
     'Never invent product facts, components, materials, events, metrics, prices, shipping promises, or visual details.',
     'Product truth, image truth, and QA gates outrank search volume and simple keyword score.',
     ...componentRules,
+    ...presentationRules,
     'Write for an independent designer costume studio in festival, stage, performance, creator, and editorial fashion.',
     'The product is the subject of the page. The brand name is not the main keyword.',
     'Do not use TheFEYA in seo_title, H1, or meta_description. Across intro and all generated left_description blocks combined, use TheFEYA no more than once.',
     'Prefer the single allowed TheFEYA mention inside the final Designed for self-expression block. Do not repeat the brand in the opening or benefit bullets.',
-    'TheFEYA is an independent team of designers and makers with a fresh point of view on festival, stage and performance fashion. Never describe the team as small. Use this approved brand truth only in the final self-expression close.',
+    'TheFEYA is an independent team of designers and makers with a fresh point of view on festival and stage fashion. Never describe the team as small. Use this approved brand truth only in the final self-expression close.',
     'Do not translate авторский дизайн into a bare internal-process phrase. Explain that our varied original ideas help a buyer choose a design that feels like them and build a bold, recognizable complete look around it. Never compare it with a standard costume template.',
     'The copy must attract a buyer first, then explain supported product facts. Do not write like an analyst describing a picture, database row, or source document.',
     'Start commercial copy from the buyer job: a complete look for the approved event, style, persona or performance context. The component is the means, not the buyer goal.',
@@ -124,7 +127,7 @@ function buildSystemPrompt(input: SeoAgentInputContract) {
     'why_youll_love_it must contain 3-4 concise purchase reasons from at least three distinct value families. Never add a filler fifth bullet.',
     'Before writing each benefit, silently identify its evidence, feature or studio truth, and concrete buyer outcome. If you cannot complete feature -> buyer outcome without inventing a claim, omit the bullet.',
     'Include exactly one concrete studio-design differentiation benefit. Explain that our original design ideas let the buyer choose a distinctive piece and build a complete look that feels personal. Do not compare it with standard templates, generic costumes or mass-produced work.',
-    'Other benefits should address supported practical concerns: easier dressing or adjustment, fit over base layers, body comfort, shape retention between wears, durability, reuse at future events, or verified finish behavior.',
+    'Other benefits should address supported practical concerns: quick dressing, flexible strap adjustment for different body shapes, body comfort, shape retention between wears, durability, reuse at future events, or verified finish behavior.',
     'Never say that an item keeps its shape during movement. Shape retention means keeping shape between wears, resisting creasing, storing better, or remaining reusable for future events.',
     'Do not repeat construction, structure or build across several Why bullets. One feature family may support only one bullet.',
     'Do not use style, event, persona, audience, stage, camera or photoshoot lists as Why benefits. Those belong in ideal_for.',
@@ -132,8 +135,10 @@ function buildSystemPrompt(input: SeoAgentInputContract) {
     'Do not describe clothing, accessories, goggles, masks, props or scenery visible around the product as a product benefit.',
     'Reflective is allowed only when Product Truth explicitly confirms reflective or retroreflective behavior.',
     'Ban weak pseudo-benefits such as works over minimal clothing, part of a complete look, works as a centerpiece, creates a clear accent, easy to style, or without additional design elements.',
-    'ideal_for must contain 3-5 concise buyer-readable bullets derived from the operator-selected event, style, persona and audience axes plus Product Truth. Product Truth remains the veto.',
+    'ideal_for must contain 3-5 concise buyer-readable bullets that answer who wears the product and for which selected event, production or real style context. Product Truth remains the veto.',
     'Represent at least one selected value from every non-empty event, style, persona and audience axis in ideal_for. Cover additional selected values when they are compatible and useful; do not force near-synonyms or create a keyword list.',
+    'Ideal for may name supported performers, dancers, DJs, show artists, cosplayers, creators, theatrical or dance productions, music videos, film or TV costume work, photoshoots, parties and selected festivals only when the operator focus or Product Truth supports them.',
+    'Ideal for must never explain construction, finish, silhouette, accents, statement pieces, base layers, component combinations or how an outfit is built. Those are product details, not an audience or use case.',
     'Combine only compatible contexts. Never treat cyberpunk and steampunk, glam and post-apocalyptic, or other visibly different worlds as interchangeable merely because both keywords exist in the bank.',
     'main_description must speak directly in first person as the studio: we, our team, our studio, our designs, our store. Never describe TheFEYA as they, their, the brand, the company, or a third party.',
     'main_description must use the single permitted TheFEYA mention and a concise first-person studio voice.',
@@ -177,9 +182,13 @@ function buildUserPrompt(input: SeoAgentInputContract) {
   ];
 
   const doctrineLines = buildThefeyaSeoDoctrineUserLines();
+  const presentation = classifySeoProductPresentation(input.product);
+  const presentationRules = buildProductPresentationRules(input).map((rule) => `- ${rule}`);
   const selectedEvents = focusValues(input.manual_focus?.event);
   const h1EventRule = selectedEvents.length
-    ? `- Operator-selected event focus: ${selectedEvents.join(', ')}. Prefer the natural H1 pattern [primary product entity] for [highest-priority selected event]. Example: when the primary is gold shoulder armor and Burning Man is selected, write Gold Shoulder Armor for Burning Man instead of adding a construction detail.`
+    ? presentation.requires_whole_product_entity
+      ? `- Operator-selected event focus: ${selectedEvents.join(', ')}. Prefer [complete outfit/set entity] for [highest-priority selected event]. Never reduce the H1 to one included component.`
+      : `- Operator-selected event focus: ${selectedEvents.join(', ')}. Prefer the natural H1 pattern [primary product entity] for [highest-priority selected event]. Example: when the primary is gold shoulder armor and Burning Man is selected, write Gold Shoulder Armor for Burning Man instead of adding a construction detail.`
     : '- No event focus was selected by the operator. Use another verified H1 differentiator only when it adds real buyer meaning.';
 
   return [
@@ -195,12 +204,13 @@ function buildUserPrompt(input: SeoAgentInputContract) {
     '- Never infer included pieces from keywords, image styling, manual focus, source title, or collection terms.',
     '- Do not generate What’s included. The storefront renders confirmed selected-configuration contents separately.',
     '- Do not mention prices in SEO copy.',
+    ...presentationRules,
     '',
     'Required copy limits and placement:',
     '- seo_title: one concise product search angle within the 68-character review cap. No brand-name padding, Edition, keyword chain, or filler added to reach a minimum.',
     '- h1: concise human-readable product name within 82 characters. Use the primary product entity once and add only a different verified attribute or use case. Do not restate armor as a piece of the same armor. No TheFEYA and no keyword dump.',
     h1EventRule,
-    '- meta_description: concise product identity, differentiator, and use case within the 158-character review cap. No TheFEYA, source-language disclaimer, or padding to reach a minimum.',
+    '- meta_description: concise whole-product identity, differentiator, and use case within the 158-character review cap. No TheFEYA, source-language disclaimer, or padding to reach a minimum. Do not coordinate a finish with silhouette as if both were the same attribute.',
     '- intro: 2-4 sentences. Lead with product benefit, silhouette, event or use case, and supported facts. Do not use TheFEYA here.',
     '- The approved primary product keyword must appear naturally in meta_description and in either intro or the About this piece paragraph body. Never force it into Why you’ll love it.',
     '- Secondary keywords are semantic options, not a placement checklist. Do not force every selected variant into visible copy. Never place two near-synonymous product phrases in the same sentence or bullet.',
@@ -211,15 +221,15 @@ function buildUserPrompt(input: SeoAgentInputContract) {
     '- pdp_blocks: generate the real main LEFT product description only.',
     '',
     'Required generated pdp_blocks in this exact display order:',
-    '- about_this_piece / left_description: buyer-job-first opening story. Start with the complete approved event or style look, then explain how this product helps create it. Include supported material, finish, feel or structure naturally. Never report left/right position or what is visible from which angle. Do not use TheFEYA here.',
+    '- about_this_piece / left_description: buyer-job-first opening story. Start with the complete approved event or style look, then explain how the complete product helps create it. For a 2-3 component set, state the confirmed composition naturally once. Include supported material, finish, feel or structure naturally. Never report left/right position or what is visible from which angle. Do not use TheFEYA here.',
     '- why_youll_love_it / left_description: 3-4 non-duplicative purchase reasons from at least three distinct value families. Exactly one may express studio design/authorship. Do not use TheFEYA here.',
     '- Every Why bullet must follow supported feature or studio truth -> concrete buyer outcome. It must answer a real concern or explain a meaningful reason to choose the piece.',
-    '- Prefer plain benefits such as quick to put on, easier to adjust over a base layer, more comfortable against the body, keeps its shape between wears, remains reusable for future events, or catches available light in photographs, but only when the input supports that claim.',
+    '- Prefer plain benefits such as quick to put on, straps that make fit flexible for different body shapes, more comfortable against the body, keeps its shape between wears, remains reusable for future events, or catches available light in photographs, but only when the input supports that claim.',
     '- Never say that an item keeps its shape during movement. Shape retention means keeping shape between wears, resisting creasing, storing better, or remaining reusable for future events.',
     '- Do not repeat construction, structure or build across several Why bullets. One feature family may support only one bullet.',
     '- Do not place styles, events, personas, audiences, stage/camera use or keyword variants in Why. Those belong in Ideal for or other SEO fields.',
     '- Bad Why patterns: contrast and visual depth; firm armored presence; harder dramatic line; works for warrior/futuristic/desert styling; studio-made character gives an individual feel.',
-    '- ideal_for / left_description: 3-5 grounded buyer/use-case bullets. Represent at least one value from each non-empty operator-selected event, style, persona and audience axis. Cover more selected values only when compatible and useful; do not turn the block into a keyword list. Do not use TheFEYA here.',
+    '- ideal_for / left_description: 3-5 grounded bullets answering who wears it and for which selected event, production or real style context. Represent at least one value from each non-empty operator-selected event, style, persona and audience axis. Do not describe accents, silhouette, finish, construction, base layers, component combinations, or how an outfit is built. Do not use TheFEYA here.',
     '- main_description / left_description: heading must be Designed for self-expression. Use the single permitted TheFEYA mention here and immediately continue in first-person studio voice: we, our team, our studio, our designs and our store.',
     '- main_description must contain 45-75 words in 3-4 natural sentences. Sentence 1 identifies our independent team and fresh point of view without mentioning team size. Sentence 2 explains how our varied original ideas help people find a design that feels like them. Sentence 3 connects this product to a complete bold look. Sentence 4, when useful, grounds that value in one approved event, stage or performance setting.',
     '- Use literal buyer language. Do not write visual noise, clarity of the look, point of view, presence, character, considered appearance, expressive accent, intentional image or other abstract design-critique phrases.',
@@ -235,6 +245,7 @@ function buildUserPrompt(input: SeoAgentInputContract) {
     'Buyer-copy bans:',
     '- No Product Truth, source, database, official product data, safe wording, confirmation, verification, review, publish, or internal uncertainty language.',
     '- No weak filler such as centerpiece, part of a complete look, clear accent, easy to style, or without additional design elements.',
+    '- No studio fit, base layer, statement piece, structured accent, bold accent, built around a component combination, or when you want an accent.',
     '- No guaranteed popularity, likes, followers, viral reach, admiration, press, sales, or audience reactions.',
     '- Do not count studio-created, handmade, made-to-order, unique, and not mass-produced as separate benefits. They are one value idea.',
     '- Delete abstract filler such as reads fast, open light, shoulder-led, holds its presence, visually strong, deliberate high-impact character, direct choice for buyers, wear with confidence, visual noise, clarity of the look, expressive accent, or more considered than mass-produced. Replace it only when a verified feature leads to a concrete buyer outcome.',
@@ -255,6 +266,30 @@ function buildUserPrompt(input: SeoAgentInputContract) {
     'Input contract:',
     JSON.stringify(input, null, 2),
   ].join('\n');
+}
+
+function buildProductPresentationRules(input: SeoAgentInputContract) {
+  const presentation = classifySeoProductPresentation(input.product);
+  if (presentation.mode === 'compact_set') {
+    return [
+      `Confirmed compact composition: ${presentation.components.join(', ')}. The page entity is the complete outfit or set, not any one component.`,
+      'SEO title and H1 must name the complete outfit, set or costume. A component-only keyword can remain secondary but cannot redefine the product page.',
+      'Meta description must identify the outfit or set and name the confirmed 2-3 component composition concisely. About this piece must state the full confirmed composition naturally once.',
+      'If the selected primary keyword names only one component, do not distort the product to satisfy it. Keep whole-product copy, mark the keyword-scope conflict in generation_notes and allow the deterministic gate to return it for keyword review.',
+    ];
+  }
+  if (presentation.mode === 'large_set') {
+    return [
+      `Confirmed large-set composition contains ${presentation.component_count} components. The page entity is the complete outfit, set or costume.`,
+      'SEO title, H1 and meta description must use the whole-product entity and a useful event or style angle. Do not spend snippet space listing every component.',
+      'Keep the complete inventory in Product Truth and the dynamic What’s included block. About this piece may summarize the set without an exhaustive list.',
+      'A component-only keyword can remain secondary but cannot become the product-page identity.',
+    ];
+  }
+  if (presentation.mode === 'single_component') {
+    return [`Confirmed single product entity: ${presentation.components[0]}. Keep that exact product type as the page subject.`];
+  }
+  return ['Confirmed component composition is unavailable. Do not invent whether the product is a single piece or a set; return needs_review when page identity cannot be stated safely.'];
 }
 
 function focusValues(value: unknown): string[] {

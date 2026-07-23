@@ -1,4 +1,4 @@
-export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v14' as const;
+export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v15' as const;
 
 export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
   checkpoint_id: 'reload_latest_research_before_apply_publish_v1',
@@ -15,7 +15,7 @@ export const THEFEYA_VARIATION_EDITING_CHECKPOINT = {
 } as const;
 
 export const THEFEYA_BRAND_VALUE_PILLARS = [
-  'TheFEYA is an independent team of designers and makers with a fresh point of view on festival, stage and performance fashion. Never describe the team as small or use company size as a selling point.',
+  'TheFEYA is an independent team of designers and makers with a fresh point of view on festival and stage fashion. Never describe the team as small or use company size as a selling point.',
   'Original studio design matters because our different design ideas help buyers find a piece that feels true to their own style and build a bold, recognizable look around it. State that buyer value directly without comparisons to standard templates, generic costumes or mass production.',
   'The studio helps people express individuality through clothing. It is safe to say that a supported design is made to stand out at a festival, on stage or in photographs; never promise compliments, likes, followers, virality or universal attention.',
   'A strong stage and camera silhouette may support a memorable visual identity for performers, creators and public-facing buyers when the product and selected use cases support it.',
@@ -24,6 +24,15 @@ export const THEFEYA_BRAND_VALUE_PILLARS = [
   'Comfort, softness against the body, reinforcement, durability and shape retention may be described only when supported by actual material and construction evidence.',
   'Handmade and made-to-order value must explain studio craft, fit or purposeful construction. It must not repeat the same originality argument in different words.',
   'The studio can discuss selected changes while preserving its distinctive visual language; operational customization details belong only in the fixed right PDP panel.',
+] as const;
+
+export const THEFEYA_CUSTOMER_USE_CASE_MAP = [
+  'Ideal for answers only who the product serves and where or why they would wear it. Product construction, finish, silhouette, accents, layers and component combinations never belong in this block.',
+  'Eligible people and professional roles include performers, dancers, DJs, showgirls, drag performers, pole and exotic dancers, show-ballet artists, cosplayers, actors, creators and bloggers, but only when operator focus or Product Truth supports the role.',
+  'Eligible occasions and productions include festivals, Burning Man, raves, stage shows, dance performances, theatrical productions, music videos, TV or film costume work, editorial photoshoots, costume parties, nightclub shows and other selected events.',
+  'Eligible B2B contexts include show ballets, dance troupes, event productions and costume studios only when the operator selected a compatible professional focus. Do not invent wholesale terms, discounts or service promises.',
+  'Style and persona axes may appear as a real context, such as a warrior-inspired stage look or cyberpunk performance costume, but never as an abstract accent, silhouette or statement-piece sentence.',
+  'Do not add every possible customer or event. Use 3-5 distinct bullets and represent the operator-selected event, style, persona and audience axes while Product Truth remains the veto.',
 ] as const;
 
 export const THEFEYA_BENEFIT_GENERATION_POLICY = [
@@ -115,6 +124,9 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Do not expand a clear product name merely to reach a character target. H1 should name the primary product entity once and add only a different, verified attribute or use case.',
     'Close keyword variants belong to one semantic cluster. They do not all need exact-match placement, and two near-synonymous product queries must not be stacked in one sentence or bullet.',
     'The operator-selected event, style, persona and audience axes control use-case coverage. Ideal for must represent at least one selected value from every non-empty axis, while Product Truth vetoes incompatible or unsupported contexts.',
+    'Ideal for is reserved for people, professional roles, occasions, productions and selected style contexts. It must not describe an accent, silhouette, finish, construction, base layer, component combination or how an outfit is built.',
+    'For a confirmed multi-component product, the whole outfit, set or costume is the page entity. A single component keyword may remain secondary, but it must not redefine the full product in title, H1, meta, intro or About.',
+    'For 2-3 confirmed components, meta and About should identify the outfit or set and name the composition concisely. For 4 or more components, use the whole-product entity in title, H1 and meta and leave the complete inventory to Product Truth and the dynamic What’s included block.',
     'Do not mix different visual worlds simply to place more terms. Cyberpunk is not steampunk, and a high-volume but incompatible style is not a valid secondary angle.',
     'Every sentence must add a product fact, a supported buyer outcome or a distinct use case. Delete sentences that only describe an abstract mood, presence, focal point or intentional look.',
     'Main PDP copy must remain product-specific and concise. Required generated left-description order: About this piece, Why you’ll love it, Ideal for, Designed for self-expression.',
@@ -148,7 +160,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     {
       block_key: 'ideal_for',
       placement: 'left_description',
-      intent: 'Write 3-5 use-case bullets based on approved DNA, validated keywords and visual truth. Represent at least one operator-selected value from every non-empty event, style, persona and audience axis. Cover more selected values only when compatible and useful; never turn the block into a keyword list. Each bullet must add a distinct use case; do not repeat photoshoot, stage or festival intent in alternate wording, and do not write tautologies such as buyers looking for this product.',
+      intent: 'Write 3-5 bullets that answer who wears it and for which selected event, production or real style context. Use the customer use-case map and operator-selected event, style, persona and audience axes while Product Truth remains the veto. Never describe accents, silhouette, finish, construction, base layers, component combinations or how an outfit is built. Each bullet must add a distinct audience or use case.',
     },
     {
       block_key: 'main_description',
@@ -218,6 +230,8 @@ export function buildThefeyaSeoDoctrineSystemLines() {
     ...THEFEYA_SEO_DOCTRINE.operating_principles,
     'Brand value pillars:',
     ...THEFEYA_SEO_DOCTRINE.brand_value_pillars,
+    'Customer and use-case map:',
+    ...THEFEYA_CUSTOMER_USE_CASE_MAP,
     'Customer copy principles:',
     ...THEFEYA_SEO_DOCTRINE.customer_copy_principles,
     'Why you’ll love it benefit policy:',
@@ -240,6 +254,8 @@ export function buildThefeyaSeoDoctrineUserLines() {
     `Doctrine source: ${THEFEYA_SEO_DOCTRINE.version}.`,
     'Use these buyer-facing facts when relevant, without inventing new promises:',
     ...THEFEYA_SEO_DOCTRINE.buyer_facts,
+    'Customer and use-case map:',
+    ...THEFEYA_CUSTOMER_USE_CASE_MAP,
     'Required generated PDP block plan:',
     ...THEFEYA_SEO_DOCTRINE.pdp_block_plan.map((block) => `${block.block_key} (${block.placement}): ${block.intent}`),
     'Why you’ll love it benefit policy:',
@@ -267,6 +283,8 @@ export function buildThefeyaSeoDoctrineGuardrails() {
     'Do not use the brand name as a repeated product keyword.',
     'Do not use weak styling filler or duplicate originality arguments as Why you’ll love it benefits.',
     'Every Why you’ll love it bullet must state a supported feature or studio truth and a concrete buyer outcome; style lists and abstract visual commentary do not qualify.',
+    'Ideal for must contain people, professional roles, occasions, productions or selected style contexts, never product construction or abstract visual features.',
+    'A confirmed multi-component outfit or set must remain the page entity across title, H1, meta, intro and About; one component keyword cannot replace it.',
     'Designed for self-expression must use first-person studio voice and explain buyer self-expression, not third-person narration or repeated product specifications.',
     'Do not mention popularity, likes, followers, viral reach, organic attention, reactions, saves, comments, sales or audience outcomes, even as non-guaranteed possibilities.',
     'Do not use steampunk unless visual and product evidence clearly support it.',
@@ -281,6 +299,7 @@ export function summarizeThefeyaSeoDoctrine() {
     buyer_fact_count: THEFEYA_SEO_DOCTRINE.buyer_facts.length,
     brand_value_pillar_count: THEFEYA_BRAND_VALUE_PILLARS.length,
     benefit_policy_rule_count: THEFEYA_BENEFIT_GENERATION_POLICY.length,
+    customer_use_case_rule_count: THEFEYA_CUSTOMER_USE_CASE_MAP.length,
     visual_truth_rule_count: THEFEYA_SEO_DOCTRINE.visual_truth_strategy.length,
     research_reload_checkpoint: THEFEYA_RESEARCH_RELOAD_CHECKPOINT,
     variation_editing_checkpoint: THEFEYA_VARIATION_EDITING_CHECKPOINT,

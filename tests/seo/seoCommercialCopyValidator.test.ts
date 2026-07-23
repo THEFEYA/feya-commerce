@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-// @ts-expect-error Node's strip-types runner requires the explicit TypeScript extension.
 import { validateSeoCommercialCopy } from '../../lib/seoCommercialCopyValidator.ts';
 
 function draft(overrides: Record<string, unknown> = {}) {
@@ -12,7 +11,7 @@ function draft(overrides: Record<string, unknown> = {}) {
     bullet_highlights: [],
     image_alt_candidates: [{ image_role: 'primary', alt_text: 'Model wearing layered shoulder armor', truth_basis: 'visible_product_fact' }],
     pdp_blocks: [
-      { block_key: 'about_this_piece', placement: 'left_description', heading: 'About this piece', body: 'Build a bold performance look around layered gold armor with an adjustable fit for different base layers.' },
+      { block_key: 'about_this_piece', placement: 'left_description', heading: 'About this piece', body: 'Build a bold performance look around layered gold armor with adjustable straps for different body shapes.' },
       { block_key: 'why_youll_love_it', placement: 'left_description', heading: 'Why you’ll love it', body: 'Adjustable straps support the fit.\nLayered construction holds a defined shape.\nThe silhouette reads clearly on stage.' },
       { block_key: 'ideal_for', placement: 'left_description', heading: 'Ideal for', body: 'Festival styling\nStage performance\nEditorial wardrobe' },
       { block_key: 'main_description', placement: 'left_description', heading: 'Designed for self-expression', body: 'At TheFEYA, we are an independent team of designers with a fresh point of view on festival and stage fashion. We create original ideas across different styles so people can choose a design that feels like them. This piece gives you a distinctive starting point for a bold performance look. You can build the rest around your own style.' },
@@ -253,7 +252,7 @@ test('accepts a concise feature-to-buyer-outcome benefit mix', () => {
         ...block,
         body: [
           'Our original studio design gives you a distinctive piece for building a festival look that feels personal.',
-          'Adjustable straps make it quick to put on and easy to fine-tune over different base layers.',
+          'Adjustable straps make it quick to put on and easy to adapt to different body shapes.',
           'The soft body-facing material feels comfortable against the body during wear.',
           'Structured material helps the piece hold its shape between wears.',
         ].join('\n'),
@@ -262,4 +261,92 @@ test('accepts a concise feature-to-buyer-outcome benefit mix', () => {
   });
   const result = validateSeoCommercialCopy(value);
   assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
+});
+
+test('blocks awkward finish-and-silhouette grammar and duplicate brand positioning', () => {
+  const value = draft({
+    meta_description: 'Gold shoulder armor with a glossy gold finish and silhouette for Burning Man performances.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'main_description'
+      ? {
+        ...block,
+        body: 'At TheFEYA, we are an independent design studio with a fresh point of view on festival, stage, and performance fashion. We create original ideas across different styles so people can choose a design that feels like them. This piece supports a bold look for the stage. It is designed for self-expression.',
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('meta_description_coordinates_finish_with_shape'));
+  assert.ok(codes.includes('customer_copy_duplicates_stage_and_performance_fashion'));
+});
+
+test('blocks product details and robotic mechanisms inside Ideal for', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'
+      ? {
+        ...block,
+        body: [
+          'Burning Man looks that call for gold shoulder armor and a bold silhouette',
+          'Festival outfits built around a metallic harness and skirt combination',
+          'Rave styling when you want a structured gold statement piece',
+          'Women looking for performance fashion with a stage-ready finish',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.ok(result.issues.some((issue) => issue.code.endsWith('_describes_product_detail_instead_of_use_case')));
+});
+
+test('allows Ideal for to name real people, productions and occasions', () => {
+  const manualFocus = {
+    event: ['Burning Man', 'festival', 'rave'],
+    persona: ['warrior', 'performer'],
+    audience: ['women'],
+  };
+  const value = draft({
+    h1: 'Gold Shoulder Armor for Burning Man',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'
+      ? {
+        ...block,
+        body: [
+          'Women performers creating a warrior-inspired look for Burning Man',
+          'DJs and dancers appearing on festival and rave stages',
+          'Editorial photoshoots and music-video costume work',
+          'Event productions and dance troupes planning coordinated stage wardrobes',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value, { manual_focus: manualFocus });
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('ideal_for_')), false);
+});
+
+test('requires a compact set to remain the page entity across SEO fields', () => {
+  const productTruth = { included_components: ['Shoulders', 'Harness', 'Skirt'] };
+  const reduced = validateSeoCommercialCopy(draft(), { product_truth: productTruth });
+  const reducedCodes = reduced.issues.map((issue) => issue.code);
+  assert.ok(reducedCodes.includes('seo_title_reduces_multi_component_product_to_one_piece'));
+  assert.ok(reducedCodes.includes('h1_reduces_multi_component_product_to_one_piece'));
+  assert.ok(reducedCodes.includes('meta_description_reduces_multi_component_product_to_one_piece'));
+  assert.ok(reducedCodes.includes('about_this_piece_missing_whole_product_entity'));
+  assert.ok(reducedCodes.includes('meta_description_missing_compact_set_composition'));
+  assert.ok(reducedCodes.includes('about_this_piece_missing_confirmed_components'));
+
+  const complete = draft({
+    seo_title: 'Gold Festival Armor Outfit for Burning Man',
+    h1: 'Gold Festival Armor Outfit for Burning Man',
+    meta_description: 'Gold festival armor outfit with shoulder armor, harness and skirt for Burning Man stage performances.',
+    intro: 'Create a Burning Man look with this complete gold festival outfit.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'
+      ? {
+        ...block,
+        body: 'This complete festival outfit combines gold shoulder armor, an adjustable harness and a matching skirt for Burning Man performances.',
+      }
+      : block),
+  });
+  const completeResult = validateSeoCommercialCopy(complete, { product_truth: productTruth });
+  const presentationCodes = completeResult.issues
+    .map((issue) => issue.code)
+    .filter((code) => code.includes('multi_component') || code.includes('whole_product') || code.includes('compact_set') || code.includes('confirmed_components'));
+  assert.deepEqual(presentationCodes, []);
 });

@@ -21,7 +21,7 @@ export function buildMockSeoAgentOutput(input: SeoAgentInputContract, brief?: Se
     intro: `This ${primaryKeyword} is made for ${cleanContext(context).replace(/\.$/, '')}. The bold product shape is paired with an adjustable fit for festival and stage wear.`,
     bullet_highlights: [
       'Original studio design gives the outfit a bold, recognizable detail.',
-      'Adjustable straps make the fit easier to fine-tune over a base layer.',
+      'Adjustable straps make the fit easier to adapt to different body shapes.',
       'Soft body-facing material supports more comfortable wear.',
     ],
     faq: [],
@@ -128,7 +128,7 @@ function buildPdpBlocks(input: SeoAgentInputContract, productName: string, _mate
       block_key: 'about_this_piece',
       placement: 'left_description',
       heading: 'About this piece',
-      body: `Build a bold ${useCaseLabel} look around this ${productName}. Its original design gives the outfit a distinctive armored detail. The adjustable fit makes it practical to wear over different base layers.`,
+      body: `Build a bold ${useCaseLabel} look around this ${productName}. Its original design gives the outfit a distinctive armored detail. Adjustable straps make the fit easier to adapt to different body shapes.`,
       source_basis: 'product_fact',
       needs_human_review: true,
     },
@@ -138,7 +138,7 @@ function buildPdpBlocks(input: SeoAgentInputContract, productName: string, _mate
       heading: "Why you'll love it",
       body: [
         'Our original studio design gives you a distinctive piece for building a festival or stage look that feels personal.',
-        'Adjustable straps make the piece quick to put on and easier to fine-tune over different base layers.',
+        'Adjustable straps make the piece quick to put on and easier to adapt to different body shapes.',
         'A soft body-facing material supports more comfortable wear.',
         'Dense material helps the piece keep its shape between wears so it can be reused for future events.',
       ].join('\n'),

@@ -6,7 +6,7 @@ import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
 import { validateSeoCommercialCopy } from '@/lib/seoCommercialCopyValidator';
 import { validateSeoKeywordPlacement } from '@/lib/seoKeywordPlacementValidator';
 import { assembleSeoProductPack } from '@/lib/seoFullPackAssembler';
-import { getSeoPackDraftSaveBlockers } from '@/lib/seoPackContract';
+import { getSeoKeywordSelectionBlockers, getSeoPackDraftSaveBlockers } from '@/lib/seoPackContract';
 import { generateSeoDraftWithOpenAi } from '@/lib/seoOpenAiDraftGenerator';
 
 export const dynamic = 'force-dynamic';
@@ -273,6 +273,7 @@ function classifyReadiness(draft) {
   if (!usefulKeywords.length) hardBlockers.push('missing_primary_or_secondary_keyword');
   if ((draft?.metrics_status?.validated_count || 0) < 1) hardBlockers.push('missing_validated_keyword_metric');
   if (draft?.keyword_selection?.status !== 'confirmed') hardBlockers.push('keyword_selection_not_human_confirmed');
+  hardBlockers.push(...getSeoKeywordSelectionBlockers(draft));
   if (draft?.status === 'blocked_by_product_mismatch') hardBlockers.push('draft_status_blocked_by_product_mismatch');
   if (draft?.qa_checks?.forbidden_mismatch === 'blocker') hardBlockers.push('qa_blocker_forbidden_mismatch');
   if (draft?.qa_checks?.product_specificity === 'blocker') hardBlockers.push('qa_blocker_product_specificity');
@@ -475,6 +476,7 @@ function blockerMessage(code) {
     missing_primary_or_secondary_keyword: 'No relevant primary or secondary keyword passed the decision pipeline.',
     missing_validated_keyword_metric: 'No selected keyword has a trusted validated metric snapshot.',
     portfolio_strategy_missing: 'Portfolio differentiation strategy was required but is missing.',
+    primary_keyword_scope_mismatch_for_multi_component_product: 'The confirmed product contains multiple pieces, but Primary names only one component. Return to Listing Master and choose an outfit, set, costume, ensemble or attire query as Primary; keep component queries Secondary.',
   };
   return messages[code] || `SEO generation gate: ${code}.`;
 }

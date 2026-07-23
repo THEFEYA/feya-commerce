@@ -1,3 +1,5 @@
+import { classifySeoProductPresentation, hasWholeProductScope } from './seoProductPresentation.ts';
+
 export type SeoPackContractVersion = 'seo_pack_v1';
 export type SeoAgentInputContractVersion = 'seo_agent_input_v1';
 export type SeoAgentOutputContractVersion = 'seo_agent_output_v1';
@@ -344,6 +346,7 @@ export function getSeoPackApprovalBlockers(draft: SeoPackDraftContract | null | 
   if ((truth?.component_review_blockers || []).length) blockers.push('component_review_blockers_present');
   if (!hasSourceEvidence) blockers.push('missing_source_configuration_evidence');
   if (!usefulKeywords.length) blockers.push('missing_primary_or_secondary_keyword');
+  blockers.push(...getSeoKeywordSelectionBlockers(draft));
   if ((draft.metrics_status?.validated_count || 0) < 1) blockers.push('missing_validated_keyword_metric');
   if (String(draft.status || '').startsWith('blocked_')) blockers.push(`draft_status_${draft.status}`);
 
@@ -387,6 +390,7 @@ export function getSeoPackReviewDraftStorageBlockers(draft: SeoPackDraftContract
   if (truth?.product_truth_source !== 'seo_product_truth_v1') blockers.push('missing_canonical_product_truth_contract');
   if (!hasSourceEvidence) blockers.push('missing_source_configuration_evidence');
   if (!usefulKeywords.length) blockers.push('missing_primary_or_secondary_keyword');
+  blockers.push(...getSeoKeywordSelectionBlockers(draft));
   if ((draft.metrics_status?.validated_count || 0) < 1) blockers.push('missing_validated_keyword_metric');
   if (String(draft.status || '').startsWith('blocked_')) blockers.push(`draft_status_${draft.status}`);
 
@@ -399,6 +403,28 @@ export function getSeoPackReviewDraftStorageBlockers(draft: SeoPackDraftContract
 
 export function canSaveSeoPackDraft(draft: SeoPackDraftContract | null | undefined): boolean {
   return getSeoPackReviewDraftStorageBlockers(draft).length === 0;
+}
+
+/**
+ * Rejects an operator decision that narrows a confirmed multi-piece product to
+ * one component. Component queries remain useful Secondary evidence, but the
+ * Primary must describe the complete product a customer can buy.
+ */
+export function getSeoKeywordSelectionBlockers(
+  draft: SeoPackDraftContract | null | undefined,
+): string[] {
+  if (!draft) return [];
+  const presentation = classifySeoProductPresentation(draft.product_truth);
+  if (!presentation.requires_whole_product_entity) return [];
+
+  const primaryRows = Array.isArray(draft.keyword_roles?.primary)
+    ? draft.keyword_roles.primary
+    : [];
+  if (primaryRows.length !== 1) return [];
+  const primary = primaryRows[0]?.keyword || primaryRows[0]?.keyword_norm || '';
+  return hasWholeProductScope(primary, presentation.components)
+    ? []
+    : ['primary_keyword_scope_mismatch_for_multi_component_product'];
 }
 
 function uniqueNonEmpty(values: unknown[]): string[] {

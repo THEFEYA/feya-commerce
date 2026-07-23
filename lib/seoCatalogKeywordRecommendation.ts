@@ -1,3 +1,5 @@
+import { classifySeoProductPresentation, hasWholeProductScope } from './seoProductPresentation.ts';
+
 export type SeoKeywordRecommendationStrategy = 'balanced' | 'demand' | 'opportunity' | 'niche';
 
 type KeywordRow = Record<string, unknown>;
@@ -8,6 +10,8 @@ type ScoredKeywordRow = KeywordRow & {
   recommendation_reject_reason: string | null;
   recommendation_score: number;
   product_truth_fit_score: number;
+  whole_product_intent: boolean;
+  partial_component_scope: boolean;
   recommendation_reason: string;
 };
 type RecommendedKeywordRow = ScoredKeywordRow & {
@@ -103,9 +107,9 @@ export function recommendCatalogKeywords(input: {
   const imageRows = scored.filter((row) => normalize(row.bank_bucket || row.page_type) === 'visual collection').slice(0, 4);
   const selected: RecommendedKeywordRow[] = uniqueRows([...productRows, ...faqRows, ...collectionRows, ...imageRows])
     .slice(0, Math.max(3, input.limit || 30))
-    .map((row, index) => ({
+    .map((row) => ({
       ...row,
-      role: recommendedRole(row, index, productRows),
+      role: recommendedRole(row, productRows, profile.presentation.requires_whole_product_entity),
       strategy_rank: row.recommendation_score,
       match_score: row.product_truth_fit_score,
       priority_tier: 'tier_1',
@@ -131,6 +135,12 @@ export function recommendCatalogKeywords(input: {
       recommended_faq_rows: selected.filter((row) => normalize(row.bank_bucket || row.page_type) === 'faq').length,
       recommended_collection_rows: selected.filter((row) => ['collection', 'commercial collection'].includes(normalize(row.bank_bucket || row.page_type))).length,
       product_component_families: profile.componentFamilies,
+      product_presentation_mode: profile.presentation.mode,
+      confirmed_component_count: profile.presentation.component_count,
+      auto_primary_scope: selected.find((row) => row.role === 'primary')?.whole_product_intent === true
+        || !profile.presentation.requires_whole_product_entity
+        ? 'whole_product_or_single_component'
+        : 'blocked_no_whole_product_candidate',
       product_colors: profile.colors,
       product_audiences: profile.audiences,
       excluded_keyword_terms: profile.excludedTerms,
@@ -151,7 +161,10 @@ export function normalizeStrategy(value: unknown): SeoKeywordRecommendationStrat
 
 function buildProductProfile(product: ProductRow, focus: FocusRecord) {
   const explicitFocus = normalizeFocus(focus);
+  const presentation = classifySeoProductPresentation(product);
   const componentEvidence = flattenStrings([
+    product.included_components,
+    product.known_components,
     product.parent_components_json,
     product.child_components_json,
     product.component_groups_json,
@@ -193,6 +206,7 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
   ]);
 
   return {
+    presentation,
     componentFamilies,
     colors,
     audiences,
@@ -230,6 +244,12 @@ function scoreRow(
     && profile.audiences.length === 1
     && audienceMatch.length === 0;
   const productBucket = PRODUCT_BUCKETS.has(bucket);
+  const wholeProductIntent = productBucket
+    && hasWholeProductScope(keyword, profile.presentation.components);
+  const partialComponentScope = productBucket
+    && profile.presentation.requires_whole_product_entity
+    && keywordComponents.length > 0
+    && !wholeProductIntent;
   const supportedBucket = productBucket || SUPPORT_BUCKETS.has(bucket);
   const productIdentityGate = componentMatch.length > 0
     || exactFocus.length > 0
@@ -245,13 +265,17 @@ function scoreRow(
   else if (productBucket && !productIdentityGate) rejectReason = 'insufficient_product_truth_overlap';
   else if (!productBucket && !supportIntentGate) rejectReason = 'insufficient_focus_overlap';
 
+  const productScopeScore = profile.presentation.requires_whole_product_entity
+    ? wholeProductIntent ? 80 : partialComponentScope ? -35 : 0
+    : 0;
   const truthScore = componentMatch.length * 46
     + exactFocus.length * 20
     + Math.min(identityOverlap.length, 5) * 7
     + Math.min(styleOverlap.length, 4) * 4
     + colorMatch.length * 10
     + materialMatch.length * 7
-    + audienceMatch.length * 5;
+    + audienceMatch.length * 5
+    + productScopeScore;
   const volume = positiveNumber(row.avg_monthly_searches);
   const competitionIndex = boundedNumber(row.competition_index, 0, 100);
   const bankScore = boundedNumber(row.score, 0, 100);
@@ -275,7 +299,10 @@ function scoreRow(
     recommendation_reject_reason: rejectReason,
     recommendation_score: Math.round(recommendationScore * 100) / 100,
     product_truth_fit_score: truthScore,
+    whole_product_intent: wholeProductIntent,
+    partial_component_scope: partialComponentScope,
     recommendation_reason: [
+      wholeProductIntent ? 'scope:whole_product' : partialComponentScope ? 'scope:partial_component_only' : null,
       componentMatch.length ? `component:${componentMatch.join('|')}` : null,
       colorMatch.length ? `color:${colorMatch.join('|')}` : null,
       materialMatch.length ? `material:${materialMatch.join('|')}` : null,
@@ -287,11 +314,14 @@ function scoreRow(
   };
 }
 
-function recommendedRole(row: KeywordRow, index: number, productRows: KeywordRow[]) {
+function recommendedRole(row: KeywordRow, productRows: KeywordRow[], requireWholeProduct: boolean) {
   const bucket = normalize(row.bank_bucket || row.page_type);
   if (bucket === 'faq') return 'supporting';
   if (['collection', 'commercial collection', 'visual collection'].includes(bucket)) return 'supporting';
-  if (PRODUCT_BUCKETS.has(bucket) && row === productRows[0] && index === 0) return 'primary';
+  const primaryRow = requireWholeProduct
+    ? productRows.find((candidate) => candidate.whole_product_intent === true)
+    : productRows[0];
+  if (PRODUCT_BUCKETS.has(bucket) && row === primaryRow) return 'primary';
   return normalize(row.role) === 'supporting' ? 'supporting' : 'secondary';
 }
 

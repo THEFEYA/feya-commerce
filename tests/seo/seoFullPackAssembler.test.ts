@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-// @ts-expect-error Node's strip-types runner requires the explicit TypeScript extension.
 import { assembleSeoProductPack } from '../../lib/seoFullPackAssembler.ts';
 
 test('assembles non-model SEO fields and keeps publish blocked', () => {
