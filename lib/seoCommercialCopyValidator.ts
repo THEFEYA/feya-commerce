@@ -46,6 +46,7 @@ const CONSTRUCTION_TERM = /\b(construction|structure|structured|build|built)\b/i
 const USE_CASE_AS_BENEFIT = /\b(?:works?|ideal|made|suited) for\b.*\b(styling|looks?|warrior|futuristic|desert|festival|stage|performance|photoshoot|editorial|cosplay|party)\b/i;
 const UNGROUNDED_STORE_PROMISE = /\b(best prices?|lowest prices?|competitive prices?|special prices?|bulk discounts?|volume discounts?|tax[- ]free|tax refund|excellent service|best service|wide assortment|large assortment|largest selection|fastest delivery)\b/i;
 const BRAND_PATTERN = /\bTheFEYA\b/gi;
+const GENERIC_EVENT_PATTERN = /\bevents?\b/gi;
 const DESIGN_BENEFIT_PATTERN = /\b(studio[- ]created|studio[- ]designed|studio[- ]made|designed in our studio|original studio design|distinctive studio design|signature studio design|handmade|made[- ]to[- ]order|not mass[- ]produced|mass[- ]produced costume|mass production|designer studio)\b/i;
 const SELF_EXPRESSION_PATTERN = /\b(self[- ]expression|individuality|visual identity|personal style|your own look|made for your vision|designed for your vision|studio visual language|adapt(?:ed|able)|customi[sz](?:e|ed|ation))\b/i;
 const REDUNDANT_SHOULDER_ENTITY_PATTERN = /\bshoulders?\s+(?:armor|armour|piece|pieces|pauldron|pauldrons)\b/gi;
@@ -377,6 +378,14 @@ export function validateSeoCommercialCopy(
     issues.push(blocker(
       'brand_name_overused_in_customer_copy',
       `TheFEYA appears ${brandMentions} times in visible generated copy. Maximum allowed is one.`,
+    ));
+  }
+
+  const genericEventMentions = countMatches(customerText, GENERIC_EVENT_PATTERN);
+  if (genericEventMentions > 2) {
+    issues.push(blocker(
+      'generic_event_term_overused',
+      `The generic word event/events appears ${genericEventMentions} times in visible generated copy. Maximum allowed is two; keep the product entity primary and use one specific approved occasion only where it helps the buyer.`,
     ));
   }
 
