@@ -43,7 +43,10 @@ function Pair({ label, current, approved }) {
   </div>;
 }
 
-export default async function SeoStorefrontPreviewPage() {
+export default async function SeoStorefrontPreviewPage({ searchParams }) {
+  const params = await Promise.resolve(searchParams || {});
+  const initialProductId = typeof params.product_id === 'string' ? params.product_id.trim() : '';
+  const autoGenerate = params.generate === '1' && Boolean(initialProductId);
   const { rows, error } = await loadRows();
   const withTitle = rows.filter((row) => row.applied_seo_title).length;
   const withMeta = rows.filter((row) => row.applied_meta_description).length;
@@ -59,13 +62,13 @@ export default async function SeoStorefrontPreviewPage() {
           </p>
         </div>
         <div className="flex min-w-0 flex-wrap gap-2">
-          <Link href="/admin/listing-master" className="btn-ghost px-5 py-3 text-[10px]">1. Фокус и ключи</Link>
+          <Link href={initialProductId ? `/admin/listing-master?product_id=${encodeURIComponent(initialProductId)}` : '/admin/listing-master'} className="btn-ghost px-5 py-3 text-[10px]">1. Фокус и ключи</Link>
           <Link href="/admin/seo-approval" className="btn-ghost px-5 py-3 text-[10px]">Проверка SEO</Link>
           <Link href="/admin/seo-applied-values" className="btn-ghost px-5 py-3 text-[10px]">SEO Values</Link>
         </div>
       </div>
 
-      <FirstRealDraftClient />
+      <FirstRealDraftClient initialProductId={initialProductId} autoGenerate={autoGenerate} />
 
       <details className="mt-8 min-w-0 rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4 sm:p-5">
         <summary className="cursor-pointer text-[11px] uppercase tracking-[.18em] text-[var(--gold-warm)]">Каталожное сравнение current / approved</summary>
