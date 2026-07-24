@@ -27,11 +27,18 @@ export async function GET(request: Request) {
     }, { status: 503 });
   }
 
-  const { data, error } = await supabase
-    .from(STOREFRONT_VIEW_V4)
-    .select(STOREFRONT_V4_PDP_SELECT)
-    .eq('canonical_product_id', productId)
-    .maybeSingle();
+  const [{ data, error }, { data: truthRows, error: truthError }] = await Promise.all([
+    supabase
+      .from(STOREFRONT_VIEW_V4)
+      .select(STOREFRONT_V4_PDP_SELECT)
+      .eq('canonical_product_id', productId)
+      .maybeSingle(),
+    supabase
+      .from('feya_commerce_v_seo_product_truth_v4')
+      .select('included_components')
+      .eq('canonical_product_id', productId)
+      .limit(1),
+  ]);
 
   if (error) {
     return NextResponse.json({
@@ -53,12 +60,26 @@ export async function GET(request: Request) {
     }, { status: 404 });
   }
 
+  if (truthError) {
+    console.warn('[storefront-product] canonical_composition_unavailable', {
+      productId,
+      message: truthError.message,
+    });
+  }
+
+  const canonicalIncludedComponents = Array.isArray(truthRows?.[0]?.included_components)
+    ? truthRows[0].included_components
+    : [];
+
   return NextResponse.json({
     ok: true,
     status: 'storefront_product_ready',
     read_only: true,
     product_id: productId,
-    product: data,
+    product: {
+      ...data,
+      canonical_included_components: canonicalIncludedComponents,
+    },
     guardrails: [
       'No Supabase write.',
       'No product mutation.',
