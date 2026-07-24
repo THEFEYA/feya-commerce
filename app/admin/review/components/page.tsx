@@ -12,6 +12,16 @@ import {
   componentEvidenceLabel,
   getCanonicalComponentTruthDiagnostic,
 } from '@/lib/adminComponentTruth';
+import {
+  ADMIN_PRODUCT_BUILDER_DETAIL_SELECT,
+  ADMIN_PRODUCT_BUILDER_DETAIL_VIEW,
+  toBuilderStorefrontProduct,
+} from '@/lib/admin-product-builder-detail';
+import {
+  ADMIN_PRODUCT_CATALOG_FALLBACK_SELECT,
+  ADMIN_PRODUCT_CATALOG_FALLBACK_VIEW,
+  toCatalogFallbackStorefrontProduct,
+} from '@/lib/admin-product-catalog-fallback';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
@@ -42,9 +52,44 @@ function labelText(config: StorefrontConfiguration) {
 async function loadProducts(canonicalProductId?: string): Promise<{ rows: StorefrontProduct[]; error?: string }> {
   const supabase = getSupabaseReadClient();
   if (!supabase) return { rows: [], error: getMissingSupabaseEnvMessage() };
-  let query = supabase.from(STOREFRONT_VIEW_V4).select(STOREFRONT_V4_CARD_SELECT);
-  if (canonicalProductId) query = query.eq('canonical_product_id', canonicalProductId);
-  const { data, error } = await query.limit(canonicalProductId ? 1 : ROW_LIMIT);
+
+  if (canonicalProductId) {
+    const builderResult = await supabase
+      .from(ADMIN_PRODUCT_BUILDER_DETAIL_VIEW)
+      .select(ADMIN_PRODUCT_BUILDER_DETAIL_SELECT)
+      .eq('canonical_product_id', canonicalProductId)
+      .maybeSingle();
+
+    if (builderResult.data && !builderResult.error) {
+      return { rows: [toBuilderStorefrontProduct(builderResult.data)] };
+    }
+
+    const fallbackResult = await supabase
+      .from(ADMIN_PRODUCT_CATALOG_FALLBACK_VIEW)
+      .select(ADMIN_PRODUCT_CATALOG_FALLBACK_SELECT)
+      .eq('canonical_product_id', canonicalProductId)
+      .maybeSingle();
+
+    if (fallbackResult.error) {
+      return {
+        rows: [],
+        error: [
+          builderResult.error?.message,
+          fallbackResult.error.message,
+        ].filter(Boolean).join(' · '),
+      };
+    }
+
+    return {
+      rows: fallbackResult.data
+        ? [toCatalogFallbackStorefrontProduct(fallbackResult.data)]
+        : [],
+      error: builderResult.error?.message,
+    };
+  }
+
+  const query = supabase.from(STOREFRONT_VIEW_V4).select(STOREFRONT_V4_CARD_SELECT);
+  const { data, error } = await query.limit(ROW_LIMIT);
   if (error) return { rows: [], error: error.message };
   return { rows: (data || []) as StorefrontProduct[] };
 }
