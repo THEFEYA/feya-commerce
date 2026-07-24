@@ -162,7 +162,7 @@ export default async function ListingMasterPage({ searchParams }) {
         <div className="flex flex-wrap gap-3 lg:justify-end">
           <Link href="/admin/products" className="btn-ghost">Товары <ArrowUpRight size={13} /></Link>
           <Link href="/admin/seo-keywords" className="btn-ghost">SEO-ядро <ArrowUpRight size={13} /></Link>
-          <Link href={selectedProduct ? `/admin/seo-storefront-preview?product_id=${selectedProduct.id}` : '/admin/seo-storefront-preview'} className="btn-ghost">Дальше: генерация и preview <ArrowUpRight size={13} /></Link>
+          <Link href={selectedProduct ? `/admin/seo-storefront-preview?product_id=${selectedProduct.id}&generate=1` : '/admin/seo-storefront-preview'} className="btn-ghost">Дальше: генерация и preview <ArrowUpRight size={13} /></Link>
         </div>
       </div>
 
@@ -505,10 +505,15 @@ async function loadProducts(filters) {
     if (media.error) {
       warning = [warning, `Фотографии резервного каталога недоступны: ${media.error}`].filter(Boolean).join(' / ');
     } else {
-      result.data = (result.data || []).map((row) => ({
-        ...row,
-        ...(media.map.get(String(row.canonical_product_id || '')) || {}),
-      }));
+      // The overview contains historical rows that are not storefront products.
+      // Never replace the canonical 243-product catalog with those extra rows:
+      // they have no public media and caused unstable counts and blank thumbnails.
+      result.data = (result.data || [])
+        .filter((row) => media.map.has(String(row.canonical_product_id || '')))
+        .map((row) => ({
+          ...row,
+          ...media.map.get(String(row.canonical_product_id || '')),
+        }));
     }
   }
   const sourceSignals = await loadProductSourceSignalMap(supabase, result.data || []);
@@ -746,7 +751,7 @@ function FocusSearchForm({ product, filters, status }) {
     <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-4"><div className="eyebrow-gold mb-3">Поиск и минус-слова внутри SEO-ядра</div><div className="grid gap-3 md:grid-cols-[1fr_1fr]"><label><div className="eyebrow-dim mb-1.5">Доп. поиск</div><input name="q" defaultValue={filters.q} placeholder="например: armor, price, shipping" className="field" /></label><label><div className="eyebrow-dim mb-1.5">Минус-слова</div><input name="exclude" defaultValue={valuesOf(filters.exclude).join(', ')} placeholder="dance, bodysuit, neon" className="field" /></label></div></div>
     <div className="mt-4 rounded-2xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.055)] p-4">
       <div className="text-[11px] leading-relaxed text-[var(--bone-dim)] mb-3">«Применить» только обновляет список для проверки. «Сохранить» одним действием подтверждает состав, записывает текущий фокус и собирает под него проверяемый набор ключевых слов.</div>
-      <div className="flex flex-wrap gap-3"><button type="submit" className="btn-ghost"><SearchCheck size={13} /> Применить поиск слов</button><VerifiedSaveButton action={saveDecisionAction} disabled={!product} /><Link href={product ? productHref(product, filters) : '/admin/listing-master'} className="btn-ghost">Сбросить товар/ДНК</Link>{product ? <Link className="btn-ghost" href={`/admin/seo-storefront-preview?product_id=${product.id}`}>Дальше: генерация и preview <ArrowUpRight size={13} /></Link> : null}</div>
+      <div className="flex flex-wrap gap-3"><button type="submit" className="btn-ghost"><SearchCheck size={13} /> Применить поиск слов</button><VerifiedSaveButton action={saveDecisionAction} disabled={!product} /><Link href={product ? productHref(product, filters) : '/admin/listing-master'} className="btn-ghost">Сбросить товар/ДНК</Link>{product ? <Link className="btn-ghost" href={`/admin/seo-storefront-preview?product_id=${product.id}&generate=1`}>Дальше: сгенерировать и показать preview <ArrowUpRight size={13} /></Link> : null}</div>
     </div>
   </form>;
 }
