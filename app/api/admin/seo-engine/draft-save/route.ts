@@ -4,6 +4,10 @@ import { getMissingSupabaseServiceEnvMessage, getSupabaseServiceClient } from '@
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
 import { buildMockSeoAgentOutput } from '@/lib/seoAgentMockDraft';
 import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
+import { validateSeoCommercialCopy } from '@/lib/seoCommercialCopyValidator';
+import { validateSeoKeywordPlacement } from '@/lib/seoKeywordPlacementValidator';
+import { getSeoPackApprovalBlockers, getSeoPackReviewDraftStorageBlockers } from '@/lib/seoPackContract';
+import { assembleSeoProductPack } from '@/lib/seoFullPackAssembler';
 import { buildSeoDraftStoragePayload, seoDraftStoragePayloadGuardrails, summarizeSeoDraftStoragePayload } from '@/lib/seoDraftStoragePayload';
 
 export const dynamic = 'force-dynamic';
@@ -89,7 +93,51 @@ export async function POST(request: Request) {
   const agentOutput = usesProvidedOpenAiOutput
     ? providedAgentOutput
     : buildMockSeoAgentOutput(bundle.aiAgentInput, bundle.brief);
-  const validationResult = validateSeoAgentOutput(agentOutput);
+  const structuralValidation = validateSeoAgentOutput(agentOutput);
+  const commercialValidation = validateSeoCommercialCopy(agentOutput, {
+    product_truth: bundle.seoPackDraft.product_truth,
+    manual_focus: bundle.seoPackDraft.manual_focus,
+  });
+  const keywordPlacementValidation = validateSeoKeywordPlacement(agentOutput, bundle.seoPackDraft);
+  const approvalBlockers = getSeoPackApprovalBlockers(bundle.seoPackDraft);
+  const reviewDraftStorageBlockers = getSeoPackReviewDraftStorageBlockers(bundle.seoPackDraft);
+  const assembledSeoPack = assembleSeoProductPack({
+    draft: bundle.seoPackDraft,
+    output: agentOutput,
+    structuralValidation,
+    commercialValidation,
+    keywordPlacementValidation,
+    productTruthBlockers: approvalBlockers,
+  });
+  const validationIssues = [
+    ...(structuralValidation.issues || []),
+    ...(commercialValidation.issues || []),
+    ...(keywordPlacementValidation.issues || []),
+    ...reviewDraftStorageBlockers.map((code) => ({
+      code: `review_draft_storage_${code}`,
+      severity: 'blocker',
+      message: `SEO review draft storage gate failed: ${code}.`,
+    })),
+    ...approvalBlockers.map((code) => ({
+      code: `approval_gate_${code}`,
+      severity: 'warning',
+      message: `SEO Pack remains blocked from Approval/Apply: ${code}.`,
+    })),
+  ];
+  const validationResult = {
+    ok: structuralValidation.ok && commercialValidation.ok && keywordPlacementValidation.ok && reviewDraftStorageBlockers.length === 0,
+    status: validationIssues.some((issue) => issue.severity === 'blocker')
+      ? 'blocked'
+      : validationIssues.length ? 'warning' : 'valid',
+    issues: validationIssues,
+    structural_validation: structuralValidation,
+    commercial_validation: commercialValidation,
+    keyword_placement_validation: keywordPlacementValidation,
+    review_draft_storage_blockers: reviewDraftStorageBlockers,
+    approval_blockers: approvalBlockers,
+    product_truth_blockers: approvalBlockers,
+    assembled_seo_pack: assembledSeoPack,
+  };
   const storagePayload = buildSeoDraftStoragePayload({
     seoPackDraft: bundle.seoPackDraft,
     agentInput: bundle.aiAgentInput,
@@ -134,6 +182,9 @@ export async function POST(request: Request) {
       output_validation_status: validationResult.status,
       output_validation_ok: validationResult.ok,
       output_validation_issue_count: validationResult.issues?.length || 0,
+      review_draft_storage_blocker_count: reviewDraftStorageBlockers.length,
+      approval_blocker_count: approvalBlockers.length,
+      approval_ready: approvalBlockers.length === 0,
       payload_ready: true,
       actual_insert_enabled: storageEnabled && !dryRun && hasServiceClient && storageHealth.ok && validationResult.ok && (requestedSourceMode !== 'openai_draft' || usesProvidedOpenAiOutput),
     },
@@ -145,6 +196,7 @@ export async function POST(request: Request) {
     storage_payload_summary: summarizeSeoDraftStoragePayload(storagePayload),
     storage_payload: body.include_payload === true ? storagePayload : undefined,
     validation_result: validationResult,
+    assembled_seo_pack: assembledSeoPack,
     guardrails: draftSaveGuardrails(),
   };
 

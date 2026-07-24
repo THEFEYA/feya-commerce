@@ -1,6 +1,6 @@
 # FEYA SEO Pack Generation Guardrails v1
 
-Date: 2026-07-04
+Date: 2026-07-23
 
 Purpose: prevent SEO package generation from becoming free-form AI text. The generator must use product facts, saved Listing Master decision, validated keyword data, and QA rules.
 
@@ -54,7 +54,7 @@ Generate and store/review these blocks:
 - short product intro
 - full product description
 - bullets / why it works
-- what is included
+- confirmed What’s Included data from storefront Product Truth (never AI-generated)
 - materials and care block
 - sizing/fit/comfort notes
 - shipping/production/returns snippets
@@ -124,6 +124,10 @@ SEO pack layer owns:
 
 Never silently overwrite old decisions or old generated packs. New versions should supersede older versions so future analytics can compare which focus/text worked better.
 
-## Current implementation note
+## Current enforcement
 
-The current `/admin/seo-engine/briefs` screen is only a bridge from Listing Master decision to SEO brief preview. It is not final content generation yet. The next implementation should create a dedicated SEO pack draft table or reuse an existing safe table if it already exists in Supabase.
+- Real OpenAI generation is two-state: `READY_FULL` or `BLOCKED`. A partial composition may be reviewed by an operator, but it is not a safe writing brief.
+- Generation is blocked before the model call unless canonical Product Truth contains exact confirmed components, source configuration evidence, and no unresolved component facts or review blockers.
+- A multi-piece product must stay a multi-piece page entity. Manual focus can guide event, persona, audience, style and supporting terms, but it cannot turn a set into a single-component product.
+- Word-order permutations in the same page bucket represent one search intent and consume only one keyword role.
+- The storefront-owned right PDP panel and What’s Included rendering are never written or paraphrased by OpenAI.

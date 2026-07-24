@@ -3,16 +3,83 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowUpRight, Check, ChevronDown, ChevronLeft, ChevronRight, FileText, Heart, RotateCcw, Ruler, Scissors, Share2, ShoppingBag, Truck } from 'lucide-react';
+import {
+  ArrowUpRight,
+  Check,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Clock3,
+  FileText,
+  Heart,
+  RotateCcw,
+  Ruler,
+  Scissors,
+  Share2,
+  ShieldCheck,
+  ShoppingBag,
+  Sparkles,
+  Star,
+  Truck,
+} from 'lucide-react';
 import { colorStyle } from '@/components/colors';
 import { ProductCard } from '@/components/ProductCard';
 import { SalePrice } from '@/components/SalePrice';
+import { THEFEYA_CANONICAL_RIGHT_PDP_PANEL } from '@/lib/thefeyaSeoDoctrine';
 import type { StorefrontProduct } from '@/lib/types';
-import { categoryLabel, colorOptions, componentCode, formatPrice, getMedia, isFullSetOption, optionCompareAtPrice, optionDiscountPercent, optionKey, optionLabel, optionPrice, productSlug, productTitle, sortedOptions, splitTitle } from '@/lib/storefront';
+import {
+  categoryLabel,
+  colorOptions,
+  componentCode,
+  formatPrice,
+  getMedia,
+  isFullSetOption,
+  optionCompareAtPrice,
+  optionDiscountPercent,
+  optionKey,
+  optionLabel,
+  optionPrice,
+  productSlug,
+  productTitle,
+  sortedOptions,
+  splitTitle,
+} from '@/lib/storefront';
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Custom'];
 const CART_KEY = 'feya_visual_cart_v1';
 const COUNT_KEY = 'feya_visual_bag';
+const CYRILLIC = /[А-Яа-яЁёІіЇїЄєҐґ]/;
+
+type DraftBlock = {
+  block_key?: string;
+  placement?: string;
+  heading?: string;
+  body?: string;
+};
+
+type SeoDraftPreview = {
+  h1?: string | null;
+  intro?: string | null;
+  meta_description?: string | null;
+  pdp_blocks?: DraftBlock[] | null;
+};
+
+type ReviewItem = {
+  id: string;
+  author: string;
+  date: string;
+  rating: number;
+  body: string;
+  images: string[];
+};
+
+type ProductDetailProps = {
+  product: StorefrontProduct;
+  related: StorefrontProduct[];
+  draft?: SeoDraftPreview | null;
+  previewMode?: boolean;
+  embedded?: boolean;
+};
 
 function compactHead(raw: string) {
   return raw
@@ -32,7 +99,13 @@ function readCart() {
   }
 }
 
-export function ProductDetailClient({ product: p, related }: { product: StorefrontProduct; related: StorefrontProduct[] }) {
+export function ProductDetailClient({
+  product: p,
+  related,
+  draft = null,
+  previewMode = false,
+  embedded = false,
+}: ProductDetailProps) {
   const gallery = useMemo(() => getMedia(p), [p]);
   const options = useMemo(() => sortedOptions(p), [p]);
   const full = options.find((o, i) => isFullSetOption(o, i));
@@ -61,11 +134,19 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
   const colors = colorOptions(p);
   const selectedColor = colors[colorIdx] || colors[0] || 'Mirror';
   const slug = productSlug(p);
-  const { head, tail } = splitTitle(productTitle(p));
+  const originalTitle = splitTitle(productTitle(p));
+  const draftTitle = String(draft?.h1 || '').trim();
+  const head = draftTitle || originalTitle.head;
+  const tail = draftTitle ? '' : originalTitle.tail;
   const shortHead = compactHead(head);
   const activeImage = gallery[idx];
   const main = activeImage?.url || p.primary_image_url || '';
   const complete = related.filter((x) => x.canonical_product_id !== p.canonical_product_id).slice(0, 4);
+  const draftBlocks = Array.isArray(draft?.pdp_blocks)
+    ? draft.pdp_blocks.filter((block) => block?.placement === 'left_description' && block?.body)
+    : [];
+  const reviewSummary = useMemo(() => readReviewSummary(p), [p]);
+  const includedLines = confirmedIncludedLines(p, activeConfig, activeConfigLabel);
 
   const fullRegularPrice = full ? optionPrice(full) : null;
   const separateRegularTotal = options
@@ -89,6 +170,7 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
   };
 
   const addToBag = (goToCart = false) => {
+    if (previewMode) return;
     const current = readCart();
     const id = `${p.canonical_product_id || slug}-${configKey}-${size}-${selectedColor}`;
     const existingIndex = current.findIndex((item: { id: string }) => item.id === id);
@@ -129,15 +211,15 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
     setTimeout(() => setAdded(false), 1300);
   };
 
-  return <div data-testid="product-page" className="relative pt-[104px] lg:pt-[104px]">
-    <div className="container-feya py-3">
+  return <div data-testid="product-page" className={`relative ${embedded ? 'pt-0' : 'pt-[104px] lg:pt-[104px]'}`}>
+    {!embedded ? <div className="container-feya py-3">
       <div className="flex items-center gap-2 text-[10px] tracking-[0.22em] uppercase text-[var(--smoke)]">
         <Link href="/" className="hover:text-white">Home</Link><ChevronRight size={10} />
         <Link href="/shop" className="hover:text-white">Shop</Link><ChevronRight size={10} />
         <span className="text-[var(--bone-dim)] truncate max-w-[160px]">{categoryLabel(p)}</span><ChevronRight size={10} />
         <span className="text-white truncate max-w-[280px]">{shortHead}</span>
       </div>
-    </div>
+    </div> : null}
 
     <section className="container-feya pb-4 grid grid-cols-12 gap-5 lg:gap-7">
       <div className="col-span-12 lg:col-span-7 grid grid-cols-12 gap-3 lg:gap-4">
@@ -158,9 +240,10 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
         </div>
       </div>
 
-      <aside className="col-span-12 lg:col-span-5 lg:sticky lg:top-[104px] self-start">
+      <aside className={`col-span-12 lg:col-span-5 self-start ${embedded ? 'lg:sticky lg:top-6' : 'lg:sticky lg:top-[104px]'}`}>
         <h1 className="font-tall text-bone leading-[0.98] tracking-[0.01em] line-clamp-2" style={{ fontSize: 'clamp(28px, 2.8vw, 38px)' }}>{shortHead}</h1>
         {tail ? <p className="editorial-italic text-[var(--bone-dim)] text-[12px] mt-1 leading-relaxed line-clamp-1">{tail}</p> : null}
+        {reviewSummary.count > 0 ? <ReviewAnchor average={reviewSummary.average} count={reviewSummary.count} /> : null}
 
         <div className="mt-2"><SalePrice regular={regular} sale={sale} currency={currency} variant="pdp" testidPrefix="pdp-price" discountPercent={optionDiscountPercent(activeConfig)} /></div>
 
@@ -195,16 +278,35 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
         </div>
 
         <div className="mt-3 border-t border-[rgba(216,214,211,0.12)] pt-3 flex items-end justify-between"><div className="eyebrow text-[10px]">Total · {qty} × {formatPrice(sale, currency)}</div><div className="font-price text-gold-grad text-[29px] leading-none">{formatPrice(total, currency)}</div></div>
-        <div className="mt-2 grid grid-cols-[112px_1fr] gap-2.5"><div className="h-10 rounded-md border border-[rgba(216,214,211,0.18)] grid grid-cols-3 items-center"><button onClick={() => setQty(Math.max(1, qty - 1))}>−</button><span className="text-center">{qty}</span><button onClick={() => setQty(qty + 1)}>+</button></div><button className="btn-chrome justify-center rounded-md h-10" onClick={() => addToBag(false)}>{added ? <Check size={14} /> : <ShoppingBag size={14} />} Add to bag</button></div>
-        <button className="btn-gold justify-center rounded-md h-10 w-full mt-2" onClick={() => addToBag(true)}>Buy it now <ArrowUpRight size={13} /></button>
+        {previewMode
+          ? <button type="button" disabled className="btn-chrome justify-center rounded-md h-10 w-full mt-2 opacity-45"><ShieldCheck size={14} /> Preview only</button>
+          : <>
+            <div className="mt-2 grid grid-cols-[112px_1fr] gap-2.5"><div className="h-10 rounded-md border border-[rgba(216,214,211,0.18)] grid grid-cols-3 items-center"><button onClick={() => setQty(Math.max(1, qty - 1))}>−</button><span className="text-center">{qty}</span><button onClick={() => setQty(qty + 1)}>+</button></div><button className="btn-chrome justify-center rounded-md h-10" onClick={() => addToBag(false)}>{added ? <Check size={14} /> : <ShoppingBag size={14} />} Add to bag</button></div>
+            <button className="btn-gold justify-center rounded-md h-10 w-full mt-2" onClick={() => addToBag(true)}>Buy it now <ArrowUpRight size={13} /></button>
+          </>}
         <div className="recovered-policy-row mt-2.5 flex flex-wrap justify-center gap-4 text-[9px] tracking-[0.22em] uppercase"><a href="#save"><Heart size={11} className="inline mr-1" />Save</a><a href="#share"><Share2 size={11} className="inline mr-1" />Share</a><a href="#shipping"><Truck size={11} className="inline mr-1" />Shipping</a><a href="#returns"><RotateCcw size={11} className="inline mr-1" />Returns</a><a href="#policies"><FileText size={11} className="inline mr-1" />Store policies</a></div>
       </aside>
     </section>
 
     <section id="description" className="container-feya py-7 border-t border-[rgba(216,214,211,0.12)] grid grid-cols-12 gap-7">
-      <div className="col-span-12 lg:col-span-7"><div className="eyebrow-gold mb-3">About this piece</div><h2 className="display-section text-bone mb-4" style={{ fontSize: 'clamp(24px, 2.3vw, 34px)' }}>{shortHead}</h2><div className="space-y-4 text-[15px] text-[var(--bone-dim)] leading-[1.8]"><p>{p.meta_description || `${shortHead} is an original TheFEYA statement piece for festivals, stage performance and editorial looks.`}</p><p>Made for performers, dancers, DJs, drag queens, stylists and festival guests who want a reflective look with strong presence. Each piece is prepared by hand and styled to work as a centerpiece or part of a complete look.</p><p>Production is made to order for existing TheFEYA designs. We ship worldwide, tracked and insured, with standard and express delivery options shown in the cart.</p><p>Available in standard sizes or custom sizing. Each piece arrives with TheFEYA packaging and care guidance.</p></div></div>
-      <div className="col-span-12 lg:col-span-5 space-y-0"><Detail icon={<Scissors size={15} />} title="What's included" lines={[optionLabel(activeConfig || {}, 0), 'TheFEYA dust bag', 'Care card and replacement hardware kit']} /><Detail icon={<Ruler size={15} />} title="Sizing & fit" lines={['Available in XS–XXXL standard sizing.', 'Custom sizing is available for made-to-order pieces.']} /><Detail icon={<Truck size={15} />} title="Shipping & delivery" id="shipping" lines={['Worldwide tracked and insured shipping.', 'Standard UPS 14–21 business days.', 'Express DHL 7–10 business days.']} /><Detail icon={<RotateCcw size={15} />} title="Returns & exchanges" id="returns" lines={['Standard-size pieces follow store policy.', 'Custom-sized pieces are final sale once production begins.']} /><Detail icon={<FileText size={15} />} title="Handmade variation" id="policies" lines={['Each TheFEYA piece is one-of-a-kind.', 'Mirror panels and handmade details may vary slightly.']} /></div>
+      <div className="col-span-12 lg:col-span-7">
+        {draftBlocks.length
+          ? <GeneratedDescription title={shortHead} blocks={draftBlocks} />
+          : <DefaultDescription product={p} title={shortHead} />}
+      </div>
+      <div className="col-span-12 lg:col-span-5 space-y-0">
+        {includedLines.length ? <Detail icon={<Scissors size={15} />} title="What's included" lines={includedLines} /> : null}
+        {THEFEYA_CANONICAL_RIGHT_PDP_PANEL.map((block) => <Detail
+          key={block.block_key}
+          icon={rightPanelIcon(block.block_key)}
+          title={block.heading}
+          id={rightPanelId(block.block_key)}
+          lines={[...block.lines]}
+        />)}
+      </div>
     </section>
+
+    <ReviewsSection summary={reviewSummary} />
 
     {complete.length ? <section className="container-feya py-12"><div className="flex items-end justify-between mb-6"><div><div className="eyebrow-gold mb-3">Complete the look</div><h2 className="display-section text-bone" style={{ fontSize: 'clamp(36px,5vw,64px)' }}>Same world.</h2></div><Link href="/shop" className="btn-ghost">View all <ArrowUpRight size={13} /></Link></div><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">{complete.map((item, i) => <ProductCard key={item.canonical_product_id || i} product={item} index={i} />)}</div></section> : null}
 
@@ -215,6 +317,200 @@ export function ProductDetailClient({ product: p, related }: { product: Storefro
   </div>;
 }
 
+function GeneratedDescription({ title, blocks }: { title: string; blocks: DraftBlock[] }) {
+  return <div>
+    <div className="eyebrow-gold mb-3">{blocks[0]?.heading || 'About this piece'}</div>
+    <h2 className="display-section text-bone mb-4" style={{ fontSize: 'clamp(24px, 2.3vw, 34px)' }}>{title}</h2>
+    <div className="space-y-6 text-[15px] text-[var(--bone-dim)] leading-[1.8]">
+      {blocks.map((block, index) => <article key={`${block.block_key || 'block'}-${index}`}>
+        {index > 0 ? <h3 className="text-bone text-[22px] leading-tight mb-2">{block.heading || humanize(block.block_key)}</h3> : null}
+        <DisplayBody body={String(block.body || '')} />
+      </article>)}
+    </div>
+  </div>;
+}
+
+function DefaultDescription({ product, title }: { product: StorefrontProduct; title: string }) {
+  return <div>
+    <div className="eyebrow-gold mb-3">About this piece</div>
+    <h2 className="display-section text-bone mb-4" style={{ fontSize: 'clamp(24px, 2.3vw, 34px)' }}>{title}</h2>
+    <div className="space-y-4 text-[15px] text-[var(--bone-dim)] leading-[1.8]">
+      <p>{product.meta_description || `${title} is a studio-created statement piece for festival, stage, and editorial looks.`}</p>
+      <p>Its silhouette is designed to stay visually clear in motion, from a distance, and on camera. Product-specific material, finish, and fit details are shown in the selected configuration and information panel.</p>
+      <p>Made to order in standard or custom sizing, with worldwide tracked delivery options selected in the cart.</p>
+    </div>
+  </div>;
+}
+
+function DisplayBody({ body }: { body: string }) {
+  const lines = body.split(/\n/).map((line) => line.replace(/^[-*]\s*/, '').trim()).filter(Boolean);
+  const looksLikeList = lines.length > 1;
+  if (!looksLikeList) return <p>{body}</p>;
+  return <ul className="space-y-2">{lines.map((line, index) => <li key={`${line}-${index}`} className="flex gap-2"><span className="mt-[.7em] h-1 w-1 shrink-0 rounded-full bg-[var(--gold-warm)]" /><span>{line}</span></li>)}</ul>;
+}
+
 function Detail({ icon, title, lines, id }: { icon: ReactNode; title: string; lines: string[]; id?: string }) {
   return <div id={id} className="border-t border-[rgba(216,214,211,0.12)] py-5"><div className="eyebrow-gold mb-3 flex items-center gap-2">{icon}{title}</div><div className="space-y-1.5 text-[14px] text-[var(--bone-dim)] leading-relaxed">{lines.filter(Boolean).map((line) => <p key={line}>{line}</p>)}</div></div>;
+}
+
+function ReviewAnchor({ average, count }: { average: number; count: number }) {
+  return <a href="#reviews" className="mt-2 inline-flex items-center gap-2 text-[11px] text-[var(--bone-dim)] hover:text-white">
+    <span className="flex gap-0.5" aria-hidden="true"><Stars value={average} size={11} /></span>
+    <span>{average.toFixed(1)}</span>
+    <span className="text-[var(--smoke)]">·</span>
+    <span>{count} {count === 1 ? 'review' : 'reviews'}</span>
+  </a>;
+}
+
+function ReviewsSection({ summary }: { summary: { average: number; count: number; items: ReviewItem[] } }) {
+  if (!summary.count) {
+    return <section id="reviews" className="container-feya py-5 border-t border-[rgba(216,214,211,0.12)]">
+      <div className="flex items-center justify-between gap-4">
+        <div className="eyebrow-gold">Customer reviews</div>
+        <div className="text-[13px] text-[var(--bone-dim)]">No reviews yet.</div>
+      </div>
+    </section>;
+  }
+
+  return <section id="reviews" className="container-feya py-8 border-t border-[rgba(216,214,211,0.12)]">
+    <div className="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <div className="eyebrow-gold mb-2">Customer reviews</div>
+        <div className="text-[17px] text-bone">{summary.average.toFixed(1)} from {summary.count} {summary.count === 1 ? 'review' : 'reviews'}</div>
+      </div>
+      <div className="flex gap-1 text-[var(--gold-warm)]" aria-label={`${summary.average.toFixed(1)} out of 5 stars`}><Stars value={summary.average} size={16} /></div>
+    </div>
+
+    {summary.items.length ? <div className="mt-5 grid gap-4 lg:grid-cols-3">{summary.items.slice(0, 3).map((review) => <article key={review.id} className="rounded-xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.02)] p-5">
+      <div className="flex items-start justify-between gap-4"><div><div className="text-bone text-[13px]">{review.author}</div><div className="mt-1 text-[10px] uppercase tracking-[.14em] text-[var(--smoke)]">{review.date}</div></div><div className="flex gap-0.5 text-[var(--gold-warm)]"><Stars value={review.rating} size={11} /></div></div>
+      <p className="mt-4 text-[14px] leading-relaxed text-[var(--bone-dim)]">{review.body}</p>
+      {review.images.length ? <div className="mt-4 flex gap-2">{review.images.slice(0, 3).map((image) => <img key={image} src={image} alt="Customer review" className="h-16 w-16 rounded-md object-cover border border-[rgba(216,214,211,.12)]" />)}</div> : null}
+    </article>)}</div> : null}
+  </section>;
+}
+
+function Stars({ value, size }: { value: number; size: number }) {
+  const filled = Math.max(0, Math.min(5, Math.round(value)));
+  return <>{[0, 1, 2, 3, 4].map((index) => <Star key={index} size={size} strokeWidth={1.5} fill={index < filled ? 'currentColor' : 'none'} />)}</>;
+}
+
+function confirmedIncludedLines(product: StorefrontProduct, configuration: any, label: string) {
+  if (!configuration || hasCompositionRisk(product, configuration)) return [];
+  const bundleCodes = Array.isArray(configuration.bundle_component_codes)
+    ? configuration.bundle_component_codes.map(humanize).filter(Boolean)
+    : [];
+  if (bundleCodes.length) return uniqueStrings(bundleCodes);
+
+  const code = String(configuration.component_code || configuration.component_family || '').trim();
+  if (code && !CYRILLIC.test(code)) return [humanize(code)];
+
+  const publicLabel = String(configuration.public_label || label || '').trim();
+  if (!publicLabel || CYRILLIC.test(publicLabel) || /^full\s*set$/i.test(publicLabel)) return [];
+  return [publicLabel];
+}
+
+function hasCompositionRisk(product: StorefrontProduct, configuration: any) {
+  const productRecord = product as Record<string, any>;
+  return Boolean(
+    productRecord.has_component_review_risk
+    || Number(productRecord.needs_component_review_count || 0) > 0
+    || productRecord.needs_label_review
+    || productRecord.has_russian_public_label
+    || configuration?.needs_label_review
+    || configuration?.has_russian_raw_label
+    || CYRILLIC.test(String(configuration?.public_label || '')),
+  );
+}
+
+function rightPanelIcon(key: string) {
+  if (key === 'sizing_fit') return <Ruler size={15} />;
+  if (key === 'production_timing') return <Clock3 size={15} />;
+  if (key === 'shipping_delivery') return <Truck size={15} />;
+  if (key === 'material') return <ShieldCheck size={15} />;
+  if (key === 'care') return <Sparkles size={15} />;
+  if (key === 'customization') return <Scissors size={15} />;
+  return <FileText size={15} />;
+}
+
+function rightPanelId(key: string) {
+  if (key === 'shipping_delivery') return 'shipping';
+  if (key === 'customization') return 'policies';
+  return undefined;
+}
+
+function readReviewSummary(product: StorefrontProduct) {
+  const record = product as Record<string, any>;
+  const rawItems = firstDefined(record, ['reviews', 'review_items', 'reviews_json']);
+  const sourceItems = parseArray(rawItems);
+  const items = sourceItems.map(normalizeReview).filter((item): item is ReviewItem => Boolean(item));
+  const explicitCount = numberValue(firstDefined(record, ['review_count', 'reviews_count', 'rating_count']));
+  const explicitAverage = numberValue(firstDefined(record, ['average_rating', 'rating_average', 'review_rating']));
+  const count = Math.max(explicitCount, items.length);
+  const calculatedAverage = items.length ? items.reduce((sum, item) => sum + item.rating, 0) / items.length : 0;
+  const average = clampRating(explicitAverage || calculatedAverage);
+  return { count, average, items };
+}
+
+function normalizeReview(value: any, index: number): ReviewItem | null {
+  if (!value || typeof value !== 'object') return null;
+  const body = String(value.body || value.text || value.comment || value.review || '').trim();
+  if (!body) return null;
+  const images = parseArray(value.images || value.photos || value.media)
+    .map((item) => typeof item === 'string' ? item : item?.url)
+    .filter((item): item is string => typeof item === 'string' && /^https?:\/\//i.test(item));
+  return {
+    id: String(value.id || value.review_id || index),
+    author: maskAuthor(String(value.author || value.name || value.customer_name || 'Verified customer')),
+    date: formatReviewDate(value.date || value.created_at || value.reviewed_at),
+    rating: clampRating(numberValue(value.rating || value.stars) || 5),
+    body,
+    images,
+  };
+}
+
+function firstDefined(record: Record<string, any>, keys: string[]) {
+  for (const key of keys) if (record[key] != null) return record[key];
+  return null;
+}
+
+function parseArray(value: any): any[] {
+  if (Array.isArray(value)) return value;
+  if (typeof value !== 'string' || !value.trim()) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function numberValue(value: any) {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : 0;
+}
+
+function clampRating(value: number) {
+  return Math.max(0, Math.min(5, value || 0));
+}
+
+function maskAuthor(value: string) {
+  const clean = value.trim();
+  if (!clean || clean.toLowerCase() === 'verified customer') return 'Verified customer';
+  if (clean.length <= 2) return `${clean.charAt(0) || 'C'}***`;
+  return `${clean.charAt(0)}***${clean.charAt(clean.length - 1)}`;
+}
+
+function formatReviewDate(value: any) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return new Intl.DateTimeFormat('en', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
+}
+
+function uniqueStrings(values: string[]) {
+  return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
+}
+
+function humanize(value: any) {
+  return String(value || '').replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim().replace(/\b\w/g, (letter) => letter.toUpperCase());
 }

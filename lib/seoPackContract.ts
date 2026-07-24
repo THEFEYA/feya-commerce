@@ -1,3 +1,5 @@
+import { classifySeoProductPresentation, hasWholeProductScope } from './seoProductPresentation.ts';
+
 export type SeoPackContractVersion = 'seo_pack_v1';
 export type SeoAgentInputContractVersion = 'seo_agent_input_v1';
 export type SeoAgentOutputContractVersion = 'seo_agent_output_v1';
@@ -75,6 +77,20 @@ export type SeoKeywordRoleItem = SeoKeywordMetricSnapshot & {
 
 export type SeoKeywordRoleMap = Record<SeoKeywordRole, SeoKeywordRoleItem[]>;
 
+export type SeoProductTruthSource = 'seo_product_truth_v1' | 'listing_master_product_focus_v1';
+export type SeoSourceEvidenceRow = Record<string, unknown>;
+export type SeoSourceEvidenceValue = string | SeoSourceEvidenceRow;
+
+export type SeoComponentEvidence = {
+  source: SeoProductTruthSource;
+  parent_components: string[];
+  child_components: string[];
+  component_groups: string[];
+  source_variations?: SeoSourceEvidenceRow[];
+  option_price_rows?: SeoSourceEvidenceRow[];
+  source_description_fragment?: string | null;
+};
+
 export type SeoProductTruth = {
   canonical_product_id: string;
   matched_etsy_listing_id?: string | null;
@@ -87,7 +103,17 @@ export type SeoProductTruth = {
   primary_image_url?: string | null;
   primary_image_alt?: string | null;
   known_components: string[];
-  known_non_components: string[];
+  known_non_components: SeoSourceEvidenceValue[];
+  included_components?: string[];
+  optional_configurations?: SeoSourceEvidenceValue[];
+  available_variants?: SeoSourceEvidenceValue[];
+  unresolved_component_facts?: SeoSourceEvidenceValue[];
+  component_review_blockers?: SeoSourceEvidenceValue[];
+  product_truth_source?: SeoProductTruthSource;
+  source_description_fragment?: string | null;
+  source_variations?: SeoSourceEvidenceRow[];
+  option_price_rows?: SeoSourceEvidenceRow[];
+  component_evidence?: SeoComponentEvidence | null;
 };
 
 export type SeoManualFocusContract = {
@@ -194,6 +220,7 @@ export type SeoAgentInputContract = {
   product: SeoProductTruth;
   manual_focus: SeoManualFocusContract;
   keyword_roles: SeoKeywordRoleMap;
+  keyword_selection?: SeoPackDraftContract['keyword_selection'];
   metrics_status: SeoMetricsStatusContract;
   portfolio_strategy?: SeoPortfolioDifferentiationContract | null;
   qa_contract: {
@@ -254,6 +281,15 @@ export type SeoPackDraftContract = {
   canonical_product_id: string;
   matched_etsy_listing_id?: string | null;
   source_decision_id?: string | null;
+  keyword_selection?: {
+    mode: 'operator_decision' | 'auto_recommendation';
+    status: 'confirmed'
+      | 'needs_human_confirmation'
+      | 'blocked_product_truth'
+      | 'needs_keyword_review';
+    evidence_source: string;
+    confirmation_required: boolean;
+  } | null;
   product_truth: SeoProductTruth;
   manual_focus: SeoManualFocusContract;
   keyword_roles: SeoKeywordRoleMap;
@@ -284,4 +320,181 @@ export function createEmptyKeywordRoleMap(): SeoKeywordRoleMap {
     hold: [],
     reject: [],
   };
+}
+
+export function getSeoPackApprovalBlockers(draft: SeoPackDraftContract | null | undefined): string[] {
+  if (!draft) return ['missing_seo_pack_draft'];
+
+  const blockers: string[] = [];
+  const truth = draft.product_truth;
+  const componentFacts = uniqueNonEmpty([
+    ...(truth?.included_components || []),
+    ...(truth?.known_components || []),
+  ]);
+  const usefulKeywords = [
+    ...(draft.keyword_roles?.primary || []),
+    ...(draft.keyword_roles?.secondary || []),
+  ].filter((item) => Boolean(item?.keyword || item?.keyword_norm));
+  const hasSourceEvidence = Boolean(truth?.source_description_fragment?.trim())
+    || Boolean(truth?.source_variations?.length)
+    || Boolean(truth?.option_price_rows?.length);
+
+  if (!draft.canonical_product_id) blockers.push('missing_canonical_product_id');
+  if (draft.keyword_selection?.status !== 'confirmed') blockers.push('keyword_selection_not_human_confirmed');
+  if (!truth?.title?.trim()) blockers.push('missing_product_title');
+  if (!truth?.slug?.trim()) blockers.push('missing_product_slug');
+  if (truth?.product_truth_source !== 'seo_product_truth_v1') blockers.push('missing_canonical_product_truth_contract');
+  if (!componentFacts.length) blockers.push('missing_confirmed_component_truth');
+  if ((truth?.unresolved_component_facts || []).length) blockers.push('unresolved_component_truth');
+  if ((truth?.component_review_blockers || []).length) blockers.push('component_review_blockers_present');
+  if (!hasSourceEvidence) blockers.push('missing_source_configuration_evidence');
+  if (!usefulKeywords.length) blockers.push('missing_primary_or_secondary_keyword');
+  blockers.push(...getSeoKeywordSelectionBlockers(draft));
+  if ((draft.metrics_status?.validated_count || 0) < 1) blockers.push('missing_validated_keyword_metric');
+  if (String(draft.status || '').startsWith('blocked_')) blockers.push(`draft_status_${draft.status}`);
+
+  Object.entries(draft.qa_checks || {}).forEach(([key, value]) => {
+    if (key !== 'notes' && value === 'blocker') blockers.push(`qa_blocker_${key}`);
+  });
+
+  return uniqueNonEmpty(blockers);
+}
+
+/** @deprecated Use getSeoPackApprovalBlockers for new code. */
+export function getSeoPackDraftSaveBlockers(draft: SeoPackDraftContract | null | undefined): string[] {
+  return getSeoPackApprovalBlockers(draft);
+}
+
+/**
+ * Minimum evidence gate for storing a review artifact.
+ *
+ * A review draft may preserve unresolved composition facts after the operator
+ * confirms the keyword decision. Those composition facts
+ * facts remain hard blockers in getSeoPackApprovalBlockers and therefore
+ * cannot pass Approval or Apply.
+ */
+export function getSeoPackReviewDraftStorageBlockers(draft: SeoPackDraftContract | null | undefined): string[] {
+  if (!draft) return ['missing_seo_pack_draft'];
+
+  const blockers: string[] = [];
+  const truth = draft.product_truth;
+  const usefulKeywords = [
+    ...(draft.keyword_roles?.primary || []),
+    ...(draft.keyword_roles?.secondary || []),
+  ].filter((item) => Boolean(item?.keyword || item?.keyword_norm));
+  const hasSourceEvidence = Boolean(truth?.source_description_fragment?.trim())
+    || Boolean(truth?.source_variations?.length)
+    || Boolean(truth?.option_price_rows?.length);
+
+  if (!draft.canonical_product_id) blockers.push('missing_canonical_product_id');
+  if (draft.keyword_selection?.status !== 'confirmed') blockers.push('keyword_selection_not_human_confirmed');
+  if (!truth?.title?.trim()) blockers.push('missing_product_title');
+  if (!truth?.slug?.trim()) blockers.push('missing_product_slug');
+  if (truth?.product_truth_source !== 'seo_product_truth_v1') blockers.push('missing_canonical_product_truth_contract');
+  if (!hasSourceEvidence) blockers.push('missing_source_configuration_evidence');
+  if (!usefulKeywords.length) blockers.push('missing_primary_or_secondary_keyword');
+  blockers.push(...getSeoKeywordSelectionBlockers(draft));
+  if ((draft.metrics_status?.validated_count || 0) < 1) blockers.push('missing_validated_keyword_metric');
+  if (String(draft.status || '').startsWith('blocked_')) blockers.push(`draft_status_${draft.status}`);
+
+  Object.entries(draft.qa_checks || {}).forEach(([key, value]) => {
+    if (key !== 'notes' && value === 'blocker') blockers.push(`qa_blocker_${key}`);
+  });
+
+  return uniqueNonEmpty(blockers);
+}
+
+export function canSaveSeoPackDraft(draft: SeoPackDraftContract | null | undefined): boolean {
+  return getSeoPackReviewDraftStorageBlockers(draft).length === 0;
+}
+
+/**
+ * Product Truth evidence required before any real text-generation call.
+ *
+ * A partial composition is useful for operator review, but it is not a safe
+ * writing brief. Letting the model write around unresolved composition turns
+ * a missing fact into a page-entity decision, which can misdirect the Primary
+ * keyword and every downstream SEO field.
+ */
+export function getSeoGenerationProductTruthBlockers(
+  draft: SeoPackDraftContract | null | undefined,
+): string[] {
+  if (!draft) return ['missing_seo_pack_draft'];
+
+  return getSeoProductTruthEvidenceBlockers(draft.product_truth);
+}
+
+/**
+ * Shared Product Truth evidence gate used before keyword decisions and before
+ * generation. Keeping one gate prevents the operator UI from declaring a
+ * product ready while the generation route correctly blocks the same record.
+ */
+export function getSeoProductTruthEvidenceBlockers(
+  truth: SeoProductTruth | null | undefined,
+): string[] {
+  if (!truth) return ['composition_missing_canonical_product_truth'];
+
+  const confirmedComponents = uniqueNonEmpty([
+    ...(truth?.included_components || []),
+    ...(truth?.known_components || []),
+  ]);
+  const hasSourceConfigurationEvidence = Boolean(truth?.source_description_fragment?.trim())
+    || Boolean(truth?.source_variations?.length)
+    || Boolean(truth?.option_price_rows?.length);
+  const blockers: string[] = [];
+
+  if (truth?.product_truth_source !== 'seo_product_truth_v1') {
+    blockers.push('composition_missing_canonical_product_truth');
+  }
+  if (!confirmedComponents.length) {
+    blockers.push('composition_missing_confirmed_components');
+  }
+  if ((truth?.unresolved_component_facts || []).length) {
+    blockers.push('composition_has_unresolved_facts');
+  }
+  if ((truth?.component_review_blockers || []).length) {
+    blockers.push('composition_has_review_blockers');
+  }
+  if (!hasSourceConfigurationEvidence) {
+    blockers.push('composition_missing_source_configuration_evidence');
+  }
+
+  return uniqueNonEmpty(blockers);
+}
+
+/**
+ * Rejects an operator decision that narrows a confirmed multi-piece product to
+ * one component. Component queries remain useful Secondary evidence, but the
+ * Primary must describe the complete product a customer can buy.
+ */
+export function getSeoKeywordSelectionBlockers(
+  draft: SeoPackDraftContract | null | undefined,
+): string[] {
+  if (!draft) return [];
+  const presentation = classifySeoProductPresentation(draft.product_truth);
+  if (!presentation.requires_whole_product_entity) return [];
+
+  const primaryRows = Array.isArray(draft.keyword_roles?.primary)
+    ? draft.keyword_roles.primary
+    : [];
+  if (primaryRows.length !== 1) return [];
+  const primary = primaryRows[0]?.keyword || primaryRows[0]?.keyword_norm || '';
+  return hasWholeProductScope(primary, presentation.components)
+    ? []
+    : ['primary_keyword_scope_mismatch_for_multi_component_product'];
+}
+
+function uniqueNonEmpty(values: unknown[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  values.forEach((value) => {
+    const text = typeof value === 'string' ? value.trim() : '';
+    const key = text.toLowerCase();
+    if (!text || seen.has(key)) return;
+    seen.add(key);
+    result.push(text);
+  });
+
+  return result;
 }
