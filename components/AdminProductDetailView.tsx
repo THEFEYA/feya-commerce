@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { ArrowUpRight, Boxes, ImageIcon, ShieldAlert, Tags, WalletCards } from 'lucide-react';
 import { AdminReviewActionsClient } from '@/components/AdminReviewActionsClient';
+import { componentEvidenceLabel, type ComponentTruthDiagnostic } from '@/lib/adminComponentTruth';
 import { getProductFlags } from '@/lib/admin-readiness';
 import { asMediaGallery, categoryLabel, colorLabel, formatPrice, optionLabel, optionPrice, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
@@ -34,7 +35,7 @@ function Blocker({ label, active, detail }: { label: string; active: boolean; de
   return <div className={`rounded-xl border p-4 ${active ? 'border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.06)]' : 'border-[rgba(216,214,211,.10)] bg-black/15'}`}><div className="eyebrow-dim mb-2">{label}</div><div className={active ? 'text-[var(--gold-warm)]' : 'text-[var(--bone-dim)]'}>{active ? `Требует работы${detail ? ` · ${detail}` : ''}` : 'ОК'}</div></div>;
 }
 
-export function AdminProductDetailView({ product }: { product: StorefrontProduct }) {
+export function AdminProductDetailView({ product, componentTruth }: { product: StorefrontProduct; componentTruth: ComponentTruthDiagnostic }) {
   const flags = getProductFlags(product);
   const configs = flags.configs;
   const media = asMediaGallery(product);
@@ -42,6 +43,8 @@ export function AdminProductDetailView({ product }: { product: StorefrontProduct
   const labelReview = flags.labelReview;
   const priceReview = flags.priceReview;
   const mediaReview = flags.mediaReview;
+  const componentBlocked = missingComponents > 0 || !componentTruth.available || componentTruth.blockers.length > 0;
+  const componentEvidence = [...componentTruth.reviewBlockers, ...componentTruth.unresolvedFacts].slice(0, 8);
   const slugValue = productSlug(product);
   const storefrontAvailable = product.storefront_candidate_flag !== false && slugValue !== product.canonical_product_id;
   const storefrontHref = `/shop/${slugValue}`;
@@ -61,7 +64,8 @@ export function AdminProductDetailView({ product }: { product: StorefrontProduct
             {!storefrontAvailable ? <Chip tone="warning">Catalog fallback</Chip> : null}
             {labelReview ? <Chip tone="warning">Проверить название</Chip> : null}
             {priceReview ? <Chip tone="warning">Проверить цену</Chip> : null}
-            {missingComponents ? <Chip tone="danger">Нет компонентов: {missingComponents}</Chip> : null}
+            {componentTruth.blockers.map((blocker) => <Chip key={blocker} tone="danger">{blocker}</Chip>)}
+            {missingComponents ? <Chip tone="danger">Нет storefront-компонентов: {missingComponents}</Chip> : null}
             {mediaReview ? <Chip tone="danger">Проверить медиа</Chip> : null}
           </div>
         </div>
@@ -99,12 +103,17 @@ export function AdminProductDetailView({ product }: { product: StorefrontProduct
             <div className="grid sm:grid-cols-2 gap-3">
               <Blocker label="Название" active={labelReview} />
               <Blocker label="Цена" active={priceReview} />
-              <Blocker label="Компоненты" active={missingComponents > 0} detail={String(missingComponents)} />
+              <Blocker label="Компоненты" active={componentBlocked} detail={`${componentTruth.includedComponents.length} confirmed · ${componentTruth.sourceVariations.length} source variations · ${componentTruth.optionPriceRows.length} price rows`} />
               <Blocker label="Медиа" active={mediaReview} />
             </div>
+            {componentEvidence.length ? <div className="mt-4 rounded-xl border border-[rgba(196,64,88,.25)] bg-[rgba(160,32,56,.07)] p-4">
+              <div className="eyebrow-dim mb-3">Канонические факты, требующие исправления</div>
+              <div className="flex flex-wrap gap-1.5">{componentEvidence.map((item, index) => <Chip key={`${componentEvidenceLabel(item)}-${index}`} tone="danger">{componentEvidenceLabel(item)}</Chip>)}</div>
+              {product.canonical_product_id ? <Link href={`/admin/review/components?product_id=${encodeURIComponent(product.canonical_product_id)}`} className="btn-ghost mt-4 px-4 py-2 text-[10px]">Открыть очередь Product Truth</Link> : null}
+            </div> : null}
           </Panel>
 
-          <AdminReviewActionsClient productSlug={slugValue} canonicalProductId={product.canonical_product_id} sourceRoute={adminHref} initialBlockers={{ label: labelReview, price: priceReview, component: missingComponents > 0, media: mediaReview }} />
+          <AdminReviewActionsClient productSlug={slugValue} canonicalProductId={product.canonical_product_id} sourceRoute={adminHref} initialBlockers={{ label: labelReview, price: priceReview, component: componentBlocked, media: mediaReview }} />
 
           <Panel title="Цены" icon={WalletCards}>
             <div className="grid sm:grid-cols-3 gap-3">

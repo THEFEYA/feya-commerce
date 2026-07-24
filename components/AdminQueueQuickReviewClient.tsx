@@ -10,11 +10,13 @@ type Props = {
   approvedEventType: string;
   subjectType: 'label' | 'price' | 'component' | 'media' | 'seo' | 'product';
   approvedLabel?: string;
+  approvalDisabled?: boolean;
+  approvalDisabledReason?: string;
 };
 
 type ReviewResponse = { ok?: boolean; error?: string };
 
-export function AdminQueueQuickReviewClient({ productSlug, canonicalProductId, sourceRoute, approvedEventType, subjectType, approvedLabel = 'Mark reviewed' }: Props) {
+export function AdminQueueQuickReviewClient({ productSlug, canonicalProductId, sourceRoute, approvedEventType, subjectType, approvedLabel = 'Mark reviewed', approvalDisabled = false, approvalDisabledReason = '' }: Props) {
   const [saving, setSaving] = useState<string | null>(null);
   const [status, setStatus] = useState('');
 
@@ -46,8 +48,9 @@ export function AdminQueueQuickReviewClient({ productSlug, canonicalProductId, s
   }
 
   return <div className="mt-4 flex flex-wrap items-center gap-2">
-    <button type="button" onClick={() => record(approvedEventType, 'approved')} disabled={Boolean(saving)} className="btn-ghost px-4 py-2 text-[10px] disabled:opacity-60"><CheckCircle2 size={13} /> {saving === approvedEventType ? 'Saving...' : approvedLabel}</button>
+    <button type="button" onClick={() => record(approvedEventType, 'approved')} disabled={Boolean(saving) || approvalDisabled} title={approvalDisabled ? approvalDisabledReason : undefined} className="btn-ghost px-4 py-2 text-[10px] disabled:opacity-60"><CheckCircle2 size={13} /> {saving === approvedEventType ? 'Saving...' : approvalDisabled ? 'Canonical data required' : approvedLabel}</button>
     <button type="button" onClick={() => record('needs_fix', 'needs_fix')} disabled={Boolean(saving)} className="btn-ghost px-4 py-2 text-[10px] disabled:opacity-60"><ShieldAlert size={13} /> {saving === 'needs_fix' ? 'Saving...' : 'Needs fix'}</button>
+    {approvalDisabled && approvalDisabledReason ? <span className="text-[11px] leading-relaxed text-[var(--ruby-soft)]">{approvalDisabledReason}</span> : null}
     {status ? <span className="text-[11px] leading-relaxed text-[var(--gold-warm)]">{status}</span> : null}
   </div>;
 }

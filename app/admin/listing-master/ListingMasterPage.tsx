@@ -7,6 +7,10 @@ import {
   getListingMasterDecisionStatus,
   listingMasterKeywordIds,
 } from '@/lib/seoListingMasterDecision';
+import {
+  productComponentAssertionScope,
+  resolveSelectedComponentFamilies,
+} from '@/lib/listingMasterComponentTruth';
 import { getSeoProductTruthEvidenceBlockers } from '@/lib/seoPackContract';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import VerifiedSaveButton from './VerifiedSaveButton';
@@ -19,11 +23,12 @@ const KEYWORD_LIMIT = 6000;
 const DISPLAY_LIMIT = 180;
 const KEYWORD_SNAPSHOT_LIMIT = 35;
 
-const FAST_PRODUCT_VIEW = 'feya_commerce_v_seo_product_truth_v1';
+const FAST_PRODUCT_VIEW = 'feya_commerce_v_seo_product_truth_v4';
 const KEYWORD_VIEW = 'vw_seo_keyword_bank_v1_for_listing_master';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
 const SOURCE_LISTINGS_TABLE = 'feya_commerce_source_listings';
 const FALLBACK_VIEW = 'feya_commerce_v_step6_product_catalog_overview';
+const MEDIA_DRAFTS_TABLE = 'feya_commerce_media_drafts';
 
 const FAST_PRODUCT_SELECT = [
   'canonical_product_id',
@@ -152,7 +157,7 @@ export default async function ListingMasterPage({ searchParams }) {
         <div>
           <div className="eyebrow-gold mb-2">Админка · Мастер листинга</div>
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(42px,6vw,72px)' }}>Подбор SEO-слов</h1>
-          <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--bone-dim)]">Выбери товар, проверь авто-фокус, настрой фокус и нажми “Применить поиск слов”. Клики по chips теперь меняют только форму — выдача обновляется только после Apply.</p>
+          <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--bone-dim)]">Выбери товар, проверь авто-фокус, настрой направление кнопками и нажми «Применить поиск слов». Выдача обновится только после нажатия этой кнопки.</p>
         </div>
         <div className="flex flex-wrap gap-3 lg:justify-end">
           <Link href="/admin/products" className="btn-ghost">Товары <ArrowUpRight size={13} /></Link>
@@ -201,6 +206,14 @@ async function saveDecisionAction(formData) {
   const requestId = val(formData.get('save_request_id')).trim() || 'server-action';
   if (!productId) return saveFailure('missing_product', 'Не удалось определить выбранный товар.', requestId);
   if (!supabase) return saveFailure('missing_supabase', 'Серверное подключение к Supabase недоступно.', requestId);
+  const compositionResult = await confirmCompositionAction(formData);
+  if (!compositionResult.ok) {
+    return saveFailure(
+      compositionResult.code || 'composition_confirmation_failed',
+      compositionResult.message || 'Не удалось подтвердить состав товара.',
+      requestId,
+    );
+  }
   const canonicalProduct = await loadCanonicalProductTruthProduct(supabase, productId);
   if (!canonicalProduct) {
     return saveFailure(
@@ -314,6 +327,149 @@ async function saveDecisionAction(formData) {
   };
 }
 
+async function confirmCompositionAction(formData) {
+  'use server';
+  const productId = val(formData.get('canonical_product_id')).trim();
+  const requestId = val(formData.get('composition_request_id')).trim() || 'server-action';
+  const selectedComponents = allowedFormValues(formData, 'component', COMPONENTS);
+  const supabase = getSupabaseServiceClient();
+
+  if (!productId) return compositionFailure('missing_product', 'Не удалось определить выбранный товар.');
+  if (!selectedComponents.length) {
+    return compositionFailure('missing_components', 'Сначала выберите фактический состав товара.');
+  }
+  if (!supabase) {
+    return compositionFailure('missing_supabase', 'Серверное подключение к Supabase недоступно.');
+  }
+
+  const canonicalProduct = await loadCanonicalProductTruthProduct(supabase, productId);
+  if (!canonicalProduct) {
+    return compositionFailure(
+      'missing_canonical_product_truth',
+      'Сервер не нашёл канонический Product Truth выбранного товара.',
+    );
+  }
+
+  const { data: families, error: familyError } = await supabase
+    .from('feya_commerce_component_families')
+    .select('component_family_id,canonical_name,normalized_name')
+    .eq('active_flag', true);
+  if (familyError) {
+    return compositionFailure('component_family_load_failed', familyError.message);
+  }
+
+  const evidenceFamilyNames = [
+    ...(canonicalProduct.parentComponents || []),
+    ...jsonArray(canonicalProduct.truth?.included_components),
+  ];
+  const resolutions = resolveSelectedComponentFamilies(
+    selectedComponents,
+    families || [],
+    evidenceFamilyNames,
+  );
+  const resolutionErrors = resolutions
+    .map((item) => item.error)
+    .filter(Boolean);
+  if (resolutionErrors.length) {
+    return compositionFailure('ambiguous_component_family', resolutionErrors.join(' '));
+  }
+
+  const resolvedFamilies = resolutions.map((item) => item.family).filter(Boolean);
+  const resolvedIds = resolvedFamilies.map((family) => family.component_family_id);
+  const scope = productComponentAssertionScope(
+    canonicalProduct.truth?.optional_configurations,
+    canonicalProduct.truth?.source_variations,
+  );
+  const evidenceJson = {
+    evidence_contract: scope === 'fixed_base'
+      ? 'manual_fixed_base_v1'
+      : 'manual_canonical_listing_v1',
+    reviewer_action: scope === 'fixed_base'
+      ? 'confirmed_always_included'
+      : 'confirmed_advertised_listing_composition',
+    source_route: '/admin/listing-master',
+    request_id: requestId,
+    selected_focus_components: selectedComponents,
+    product_truth_component_evidence: evidenceFamilyNames,
+    reviewed_product: {
+      canonical_product_id: canonicalProduct.id,
+      matched_etsy_listing_id: canonicalProduct.etsyId,
+      product_slug: canonicalProduct.slug,
+      card_title: canonicalProduct.title,
+    },
+    confirmed_components: resolvedFamilies.map((family) => ({
+      component_family_id: family.component_family_id,
+      canonical_name: family.canonical_name,
+      normalized_name: family.normalized_name,
+    })),
+  };
+
+  const reviewNote = scope === 'fixed_base'
+    ? 'Confirmed from Listing Master as always included.'
+    : 'Confirmed from Listing Master as part of the advertised page entity.';
+  const { error: replaceError } = await supabase.rpc(
+    'feya_commerce_replace_product_component_assertions_v1',
+    {
+      p_canonical_product_id: productId,
+      p_presence_scope: scope,
+      p_component_family_ids: resolvedIds,
+      p_evidence_json: evidenceJson,
+      p_reviewed_by: 'admin',
+      p_review_note: reviewNote,
+    },
+  );
+  if (replaceError) {
+    return compositionFailure('composition_write_failed', replaceError.message);
+  }
+
+  const { data: verified, error: verifyError } = await supabase
+    .from('feya_commerce_product_component_assertions_v1')
+    .select('component_family_id')
+    .eq('canonical_product_id', productId)
+    .eq('presence_scope', scope)
+    .eq('review_status', 'approved')
+    .eq('active_flag', true);
+  const verifiedIds = (verified || []).map((item) => item.component_family_id).sort();
+  if (verifyError || JSON.stringify(verifiedIds) !== JSON.stringify([...resolvedIds].sort())) {
+    return compositionFailure(
+      'composition_verification_failed',
+      verifyError?.message || 'Записанный состав не совпал с выбранными кнопками состава.',
+    );
+  }
+
+  const strategies = allowedFormValues(formData, 'strategy', STRATEGIES);
+  const href = buildHref({
+    type: val(formData.get('type')) || 'all',
+    strategy: joinValues(strategies.length ? strategies : STRATEGIES),
+    component: joinValues(selectedComponents),
+    material: joinValues(allowedFormValues(formData, 'material', MATERIALS)),
+    event: joinValues(allowedFormValues(formData, 'event', EVENTS)),
+    style: joinValues(allowedFormValues(formData, 'style', STYLES)),
+    persona: joinValues(allowedFormValues(formData, 'persona', PERSONAS)),
+    audience: joinValues(allowedFormValues(formData, 'audience', AUDIENCES)),
+    q: norm(val(formData.get('q'))),
+    exclude: joinValues(excludeTerms(val(formData.get('exclude')))),
+    productId,
+    productQ: norm(val(formData.get('product_q'))),
+    productSection: norm(val(formData.get('product_section'))),
+    productStatus: norm(val(formData.get('product_status'))),
+    focusApplied: '1',
+  });
+  const savedState = scope === 'fixed_base' ? 'truth_fixed' : 'truth_listing';
+
+  console.info('[listing-master-composition] verified', {
+    requestId,
+    productId,
+    scope,
+    selectedComponents,
+    resolvedIds,
+  });
+  return {
+    ok: true,
+    href: `${href}${href.includes('?') ? '&' : '?'}saved=${savedState}`,
+  };
+}
+
 async function loadCanonicalProductTruthProduct(supabase, productId) {
   const { data, error } = await supabase
     .from(FAST_PRODUCT_VIEW)
@@ -336,14 +492,25 @@ async function loadProducts(filters) {
   const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
   if (!supabase) return emptyProducts(getMissingSupabaseEnvMessage());
   let result = await supabase.from(FAST_PRODUCT_VIEW).select(FAST_PRODUCT_SELECT).limit(PRODUCT_LIMIT);
-  let source = 'canonical Product Truth v1';
+  let source = 'Product Truth';
   let warning = null;
   if (result.error) {
     warning = result.error.message;
     result = await supabase.from(FALLBACK_VIEW).select(FALLBACK_SELECT).limit(PRODUCT_LIMIT);
-    source = result.error ? 'ошибка canonical Product Truth v1' : 'fallback step6 catalog';
+    source = result.error ? 'ошибка Product Truth' : 'резервный каталог с фотографиями';
   }
-  if (result.error) return emptyProducts(`${warning || 'Canonical Product Truth v1'} / ${result.error.message}`);
+  if (result.error) return emptyProducts(`${warning || 'Product Truth недоступен'} / ${result.error.message}`);
+  if (source === 'резервный каталог с фотографиями') {
+    const media = await loadFallbackPrimaryMedia(supabase);
+    if (media.error) {
+      warning = [warning, `Фотографии резервного каталога недоступны: ${media.error}`].filter(Boolean).join(' / ');
+    } else {
+      result.data = (result.data || []).map((row) => ({
+        ...row,
+        ...(media.map.get(String(row.canonical_product_id || '')) || {}),
+      }));
+    }
+  }
   const sourceSignals = await loadProductSourceSignalMap(supabase, result.data || []);
   if (sourceSignals.error) warning = [warning, `Исходные Etsy-сигналы недоступны: ${sourceSignals.error}`].filter(Boolean).join(' / ');
   const decisions = await loadDecisionMap();
@@ -361,9 +528,36 @@ async function loadProducts(filters) {
     .filter((p) => !activeSection || p.sectionKey === activeSection)
     .filter((p) => activeStatus === 'all' || p.statusKey === activeStatus)
     .filter((p) => !tokens.length || tokens.every((t) => p.text.includes(t)));
-  return { allProducts, products, visibleProducts: products.length, totalProducts: allProducts.length, sections, statusCounts, activeSection, activeStatus, source, error: warning ? `Canonical Product Truth v1 недоступен, включён fallback: ${warning}` : null };
+  return { allProducts, products, visibleProducts: products.length, totalProducts: allProducts.length, sections, statusCounts, activeSection, activeStatus, source, error: warning ? `Product Truth недоступен, включён резервный каталог: ${warning}` : null };
 }
 function emptyProducts(error) { return { allProducts: [], products: [], visibleProducts: 0, totalProducts: 0, sections: [], statusCounts: { all: 0, not_saved: 0, saved: 0 }, activeSection: '', activeStatus: 'all', source: 'none', error }; }
+async function loadFallbackPrimaryMedia(supabase) {
+  const { data, error } = await supabase
+    .from(MEDIA_DRAFTS_TABLE)
+    .select('canonical_product_id,source_image_url,source_image_order,assigned_role,alt_text_draft,use_publicly_flag')
+    .not('source_image_url', 'is', null)
+    .limit(2000);
+  if (error) return { map: new Map(), error: error.message };
+
+  const ranked = (data || [])
+    .filter((row) => row.use_publicly_flag !== false && row.canonical_product_id && row.source_image_url)
+    .sort((a, b) => {
+      const primaryA = a.assigned_role === 'product_card_primary' || a.assigned_role === 'primary' ? 0 : 1;
+      const primaryB = b.assigned_role === 'product_card_primary' || b.assigned_role === 'primary' ? 0 : 1;
+      return primaryA - primaryB || Number(a.source_image_order || 9999) - Number(b.source_image_order || 9999);
+    });
+  const map = new Map();
+  ranked.forEach((row) => {
+    const id = String(row.canonical_product_id);
+    if (!map.has(id)) {
+      map.set(id, {
+        primary_image_url: row.source_image_url,
+        primary_image_alt: row.alt_text_draft || null,
+      });
+    }
+  });
+  return { map, error: null };
+}
 async function loadProductSourceSignalMap(supabase, products) {
   const ids = products.map((row) => String(row.matched_etsy_listing_id || '')).filter(Boolean);
   if (!ids.length) return { map: new Map(), error: null };
@@ -537,6 +731,12 @@ function FocusSearchForm({ product, filters, status }) {
     <div className="flex items-center justify-between gap-3 mb-4"><div className="flex items-center gap-2 eyebrow-gold"><SlidersHorizontal size={14} /> Фокус товара</div><Chip tone={status.tone}>{status.label}</Chip></div>
     {product ? <div className="grid sm:grid-cols-[96px_1fr] gap-4 rounded-2xl border border-[rgba(212,178,106,.18)] bg-[rgba(212,178,106,.055)] p-4 mb-4"><ProductImage product={product} size="lg" /><div><div className="text-bone text-[18px] leading-snug">{product.title}</div><div className="mt-1 text-[12px] text-[var(--bone-dim)]">{product.sectionLabel} · {product.worldLabel || '—'} · {product.colorRaw || '—'}</div><div className="mt-3 flex flex-wrap gap-2"><Chip tone="success">состав: {labelForMulti(filters.component)}</Chip><Chip tone="gold">материал/цвет: {labelForMulti(filters.material)}</Chip><Chip tone="warning">сценарий: {labelForMulti(filters.event)}</Chip><Chip tone="gold">стиль: {labelForMulti(filters.style)}</Chip><Chip tone="success">персона: {labelForMulti(filters.persona)}</Chip><Chip>аудитория: {labelForMulti(filters.audience)}</Chip>{decisionLabel(product.decision) ? <Chip tone={decisionLabel(product.decision).tone}>{decisionLabel(product.decision).text}</Chip> : null}{product.hasComponentReviewRisk ? <Chip tone="warning">ДНК требует проверки: {product.needsComponentReviewCount}</Chip> : null}</div><div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Source category: {product.sourceCategory || '—'} · components: {product.parentComponents.join(', ') || '—'} / {product.childComponents.join(', ') || '—'}. {status.note}</div></div></div> : <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mb-4 text-[13px] leading-relaxed text-[var(--bone-dim)]">Товар ещё не выбран. Слева можно фильтровать по разделу и статусу работы.</div>}
     <CheckboxChipGroup key={`component-${formKey}`} title="Состав / часть товара" items={COMPONENTS} field="component" filters={filters} />
+    {product ? <div className="mb-4 rounded-2xl border border-[rgba(212,178,106,.24)] bg-[rgba(212,178,106,.05)] p-4">
+      <div className="eyebrow-gold mb-2">Состав товара</div>
+      <p className="text-[11px] leading-relaxed text-[var(--bone-dim)]">
+        Проверьте выбранные выше части товара. Кнопка сохранения одним действием подтвердит состав, сохранит SEO-фокус и подготовит проверяемый набор ключевых слов. Техническая проверка вариантов выполняется отдельно и не требует дополнительного действия здесь.
+      </p>
+    </div> : null}
     <CheckboxChipGroup key={`material-${formKey}`} title="Материал / цвет / деталь" items={MATERIALS} field="material" filters={filters} />
     <CheckboxChipGroup key={`event-${formKey}`} title="Сценарий / событие" items={EVENTS} field="event" filters={filters} />
     <CheckboxChipGroup key={`style-${formKey}`} title="Стиль / визуальный мир" items={STYLES} field="style" filters={filters} />
@@ -545,7 +745,7 @@ function FocusSearchForm({ product, filters, status }) {
     <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-2"><div className="eyebrow-gold mb-3">Режим подбора слов</div><div className="grid gap-3 md:grid-cols-3">{STRATEGIES.map((s) => <CheckboxCard key={`${s}-${formKey}`} name="strategy" value={s} checked={strategyValues(filters.strategy).includes(s)} title={STRATEGY_LABELS[s]} note={STRATEGY_NOTES[s]} />)}</div><div className="mt-3 text-[11px] text-[var(--bone-dim)]">По умолчанию включены все три режима. Повторный клик снимает режим; фильтр применится только после кнопки ниже.</div></div>
     <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-4"><div className="eyebrow-gold mb-3">Поиск и минус-слова внутри SEO-ядра</div><div className="grid gap-3 md:grid-cols-[1fr_1fr]"><label><div className="eyebrow-dim mb-1.5">Доп. поиск</div><input name="q" defaultValue={filters.q} placeholder="например: armor, price, shipping" className="field" /></label><label><div className="eyebrow-dim mb-1.5">Минус-слова</div><input name="exclude" defaultValue={valuesOf(filters.exclude).join(', ')} placeholder="dance, bodysuit, neon" className="field" /></label></div></div>
     <div className="mt-4 rounded-2xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.055)] p-4">
-      <div className="text-[11px] leading-relaxed text-[var(--bone-dim)] mb-3">«Применить» обновляет выдачу для проверки. «Сохранить» одним действием записывает именно текущие chips и заново собирает под них снимок ключей.</div>
+      <div className="text-[11px] leading-relaxed text-[var(--bone-dim)] mb-3">«Применить» только обновляет список для проверки. «Сохранить» одним действием подтверждает состав, записывает текущий фокус и собирает под него проверяемый набор ключевых слов.</div>
       <div className="flex flex-wrap gap-3"><button type="submit" className="btn-ghost"><SearchCheck size={13} /> Применить поиск слов</button><VerifiedSaveButton action={saveDecisionAction} disabled={!product} /><Link href={product ? productHref(product, filters) : '/admin/listing-master'} className="btn-ghost">Сбросить товар/ДНК</Link>{product ? <Link className="btn-ghost" href={`/admin/seo-storefront-preview?product_id=${product.id}`}>Дальше: генерация и preview <ArrowUpRight size={13} /></Link> : null}</div>
     </div>
   </form>;
@@ -596,6 +796,7 @@ function decisionFocusSignature(value) {
   });
 }
 function saveFailure(code, message, requestId) { return { ok: false, code: String(code || 'unknown'), message, requestId }; }
+function compositionFailure(code, message) { return { ok: false, code: String(code || 'unknown'), message }; }
 function recordOf(value) {
   if (value && typeof value === 'object' && !Array.isArray(value)) return value;
   if (typeof value !== 'string') return null;
@@ -698,6 +899,8 @@ function rank(row, strategy) { const values = strategyValues(strategy); const sc
 function rankOne(row, strategy) { const match = Number(row.match_score || 0); const score = Number(row.score || 0); const volume = Number(row.avg_monthly_searches || 0); const comp = String(row.competition || '').toUpperCase(); const idx = Number(row.competition_index || 0); const keyword = String(row.keyword || '').toLowerCase(); const bucket = String(row.bank_bucket || ''); const volumeBoost = volume >= 3000 ? 45 : volume >= 1000 ? 35 : volume >= 500 ? 26 : volume >= 200 ? 18 : volume >= 50 ? 10 : volume > 0 ? 5 : -25; const compBoost = comp === 'LOW' ? 35 : comp === 'MEDIUM' ? 18 : comp === 'HIGH' ? -18 : 0; const idxBoost = idx > 0 ? Math.max(-20, 24 - Math.round(idx / 4)) : 0; const longTail = keyword.split(/\s+/).length >= 3 ? 22 : 0; const buyer = /buy|price|cost|order|shop|for sale|shipping|delivery|outfit|costume|set|wear|clothing|website|websites/.test(keyword) || bucket.includes('commercial') ? 16 : 0; if (strategy === 'demand') return match * 1.15 + score + volumeBoost * 2 + buyer * 0.35; if (strategy === 'niche') return match * 1.7 + score + longTail + compBoost + buyer * 0.25 - Math.max(0, volumeBoost - 30); return match * 1.35 + score + volumeBoost + compBoost + idxBoost + buyer * 0.4; }
 function autoFocusSnapshot(product, inferred) { return { inferred, product: product ? { canonical_product_id: product.id, slug: product.slug, etsy_id: product.etsyId, title: product.title, operator_section: product.sectionLabel, source_category: product.sourceCategory, world_label: product.worldLabel, parent_components: product.parentComponents, child_components: product.childComponents, needs_component_review_count: product.needsComponentReviewCount } : null }; }
 function savedMessage(value) {
+  if (value === 'truth_listing') return { tone: 'success', text: 'Состав продаваемого листинга подтверждён в Product Truth. Кандидаты обновлены; варианты комплектации остаются отдельной проверкой.' };
+  if (value === 'truth_fixed') return { tone: 'success', text: 'Неизменный состав товара подтверждён в Product Truth. Кандидаты обновлены на основе подтверждённого состава.' };
   if (value === 'blocked') return { tone: 'warning', text: 'Фокус и кандидаты сохранены. Генерация намеренно заблокирована: сначала нужно закрыть Product Truth этого товара.' };
   if (value === 'review') return { tone: 'warning', text: 'Фокус и кандидаты сохранены, но Primary ещё требует проверки перед генерацией.' };
   if (value === 'ok') return { tone: 'success', text: 'Проверяемое решение сохранено. Product Truth закрыт, Primary найден; можно переходить к генерации и preview.' };

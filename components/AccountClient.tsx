@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { ArrowUpRight, BadgeCheck, Bell, CalendarDays, FileText, Heart, MapPin, MessageCircle, PackageCheck, Ruler, ShieldCheck, ShoppingBag, Sparkles, UserRound, WandSparkles } from 'lucide-react';
+import { ArrowUpRight, BadgeCheck, Bell, CalendarDays, FileText, Heart, MapPin, MessageCircle, PackageCheck, Ruler, ShieldCheck, ShoppingBag, UserRound, WandSparkles } from 'lucide-react';
 import { formatPrice } from '@/lib/storefront';
 
 const DRAFT_KEY = 'feya_checkout_draft_v1';

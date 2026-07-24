@@ -375,7 +375,6 @@ function runSourceCatalogOverlapCheck(currentDraft, sourceState) {
         ? 'warning'
         : 'pass';
   const differentiationStrategy = buildDifferentiationStrategy({
-    status,
     sourceLoaded,
     maxSourceOverlap,
     currentDraft,
@@ -435,7 +434,7 @@ function runSourceCatalogOverlapCheck(currentDraft, sourceState) {
   };
 }
 
-function buildDifferentiationStrategy({ status, sourceLoaded, maxSourceOverlap, currentDraft, targetSource, draftVsTarget, topMatches }) {
+function buildDifferentiationStrategy({ sourceLoaded, maxSourceOverlap, currentDraft, targetSource, draftVsTarget, topMatches }) {
   const topMatch = topMatches?.[0] || null;
   const sharedTokens = topMatch?.shared_tokens || [];
   const clusterTermsToKeep = pickTerms(sharedTokens, ['burning', 'gold', 'armor', 'steampunk', 'leather', 'shoulders', 'shoulder', 'futuristic', 'dune', 'warrior']).slice(0, 10);
