@@ -29,6 +29,7 @@ const KEYWORD_VIEW = 'vw_seo_keyword_bank_v1_for_listing_master';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
 const SOURCE_LISTINGS_TABLE = 'feya_commerce_source_listings';
 const FALLBACK_VIEW = 'feya_commerce_v_step6_product_catalog_overview';
+const MEDIA_DRAFTS_TABLE = 'feya_commerce_media_drafts';
 
 const FAST_PRODUCT_SELECT = [
   'canonical_product_id',
@@ -157,7 +158,7 @@ export default async function ListingMasterPage({ searchParams }) {
         <div>
           <div className="eyebrow-gold mb-2">Админка · Мастер листинга</div>
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(42px,6vw,72px)' }}>Подбор SEO-слов</h1>
-          <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--bone-dim)]">Выбери товар, проверь авто-фокус, настрой фокус и нажми “Применить поиск слов”. Клики по chips теперь меняют только форму — выдача обновляется только после Apply.</p>
+          <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--bone-dim)]">Выбери товар, проверь авто-фокус, настрой направление кнопками и нажми «Применить поиск слов». Выдача обновится только после нажатия этой кнопки.</p>
         </div>
         <div className="flex flex-wrap gap-3 lg:justify-end">
           <Link href="/admin/products" className="btn-ghost">Товары <ArrowUpRight size={13} /></Link>
@@ -425,7 +426,7 @@ async function confirmCompositionAction(formData) {
   if (verifyError || JSON.stringify(verifiedIds) !== JSON.stringify([...resolvedIds].sort())) {
     return compositionFailure(
       'composition_verification_failed',
-      verifyError?.message || 'Записанный состав не совпал с выбранными chips.',
+      verifyError?.message || 'Записанный состав не совпал с выбранными кнопками состава.',
     );
   }
 
@@ -489,9 +490,20 @@ async function loadProducts(filters) {
   if (result.error) {
     warning = result.error.message;
     result = await supabase.from(FALLBACK_VIEW).select(FALLBACK_SELECT).limit(PRODUCT_LIMIT);
-    source = result.error ? 'ошибка canonical Product Truth v3' : 'fallback step6 catalog';
+    source = result.error ? 'ошибка Product Truth' : 'резервный каталог с фотографиями';
   }
   if (result.error) return emptyProducts(`${warning || 'Canonical Product Truth v3'} / ${result.error.message}`);
+  if (source === 'резервный каталог с фотографиями') {
+    const media = await loadFallbackPrimaryMedia(supabase);
+    if (media.error) {
+      warning = [warning, `Фотографии резервного каталога недоступны: ${media.error}`].filter(Boolean).join(' / ');
+    } else {
+      result.data = (result.data || []).map((row) => ({
+        ...row,
+        ...(media.map.get(String(row.canonical_product_id || '')) || {}),
+      }));
+    }
+  }
   const sourceSignals = await loadProductSourceSignalMap(supabase, result.data || []);
   if (sourceSignals.error) warning = [warning, `Исходные Etsy-сигналы недоступны: ${sourceSignals.error}`].filter(Boolean).join(' / ');
   const decisions = await loadDecisionMap();
@@ -512,6 +524,33 @@ async function loadProducts(filters) {
   return { allProducts, products, visibleProducts: products.length, totalProducts: allProducts.length, sections, statusCounts, activeSection, activeStatus, source, error: warning ? `Canonical Product Truth v3 недоступен, включён fallback: ${warning}` : null };
 }
 function emptyProducts(error) { return { allProducts: [], products: [], visibleProducts: 0, totalProducts: 0, sections: [], statusCounts: { all: 0, not_saved: 0, saved: 0 }, activeSection: '', activeStatus: 'all', source: 'none', error }; }
+async function loadFallbackPrimaryMedia(supabase) {
+  const { data, error } = await supabase
+    .from(MEDIA_DRAFTS_TABLE)
+    .select('canonical_product_id,source_image_url,source_image_order,assigned_role,alt_text_draft,use_publicly_flag')
+    .not('source_image_url', 'is', null)
+    .limit(2000);
+  if (error) return { map: new Map(), error: error.message };
+
+  const ranked = (data || [])
+    .filter((row) => row.use_publicly_flag !== false && row.canonical_product_id && row.source_image_url)
+    .sort((a, b) => {
+      const primaryA = a.assigned_role === 'product_card_primary' || a.assigned_role === 'primary' ? 0 : 1;
+      const primaryB = b.assigned_role === 'product_card_primary' || b.assigned_role === 'primary' ? 0 : 1;
+      return primaryA - primaryB || Number(a.source_image_order || 9999) - Number(b.source_image_order || 9999);
+    });
+  const map = new Map();
+  ranked.forEach((row) => {
+    const id = String(row.canonical_product_id);
+    if (!map.has(id)) {
+      map.set(id, {
+        primary_image_url: row.source_image_url,
+        primary_image_alt: row.alt_text_draft || null,
+      });
+    }
+  });
+  return { map, error: null };
+}
 async function loadProductSourceSignalMap(supabase, products) {
   const ids = products.map((row) => String(row.matched_etsy_listing_id || '')).filter(Boolean);
   if (!ids.length) return { map: new Map(), error: null };
@@ -692,7 +731,7 @@ function FocusSearchForm({ product, filters, status }) {
     {product ? <div className="mb-4 rounded-2xl border border-[rgba(212,178,106,.24)] bg-[rgba(212,178,106,.05)] p-4">
       <div className="eyebrow-gold mb-2">Подтверждение Product Truth</div>
       <p className="text-[11px] leading-relaxed text-[var(--bone-dim)]">
-        Chips управляют поиском, но сами по себе не меняют правду товара. Подтвердите выбранный состав явно.
+        Эти кнопки управляют подбором слов, но сами по себе не меняют фактический состав товара. Подтвердите выбранный состав отдельно.
         {compositionScope === 'canonical_listing'
           ? ' У товара есть варианты комплектации: состав будет записан для продаваемого листинга, а конкретные варианты останутся отдельной проверкой.'
           : ' У товара нет вариантов комплектации: выбранные части будут записаны как неизменный состав.'}
@@ -710,7 +749,7 @@ function FocusSearchForm({ product, filters, status }) {
     <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-2"><div className="eyebrow-gold mb-3">Режим подбора слов</div><div className="grid gap-3 md:grid-cols-3">{STRATEGIES.map((s) => <CheckboxCard key={`${s}-${formKey}`} name="strategy" value={s} checked={strategyValues(filters.strategy).includes(s)} title={STRATEGY_LABELS[s]} note={STRATEGY_NOTES[s]} />)}</div><div className="mt-3 text-[11px] text-[var(--bone-dim)]">По умолчанию включены все три режима. Повторный клик снимает режим; фильтр применится только после кнопки ниже.</div></div>
     <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-4"><div className="eyebrow-gold mb-3">Поиск и минус-слова внутри SEO-ядра</div><div className="grid gap-3 md:grid-cols-[1fr_1fr]"><label><div className="eyebrow-dim mb-1.5">Доп. поиск</div><input name="q" defaultValue={filters.q} placeholder="например: armor, price, shipping" className="field" /></label><label><div className="eyebrow-dim mb-1.5">Минус-слова</div><input name="exclude" defaultValue={valuesOf(filters.exclude).join(', ')} placeholder="dance, bodysuit, neon" className="field" /></label></div></div>
     <div className="mt-4 rounded-2xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.055)] p-4">
-      <div className="text-[11px] leading-relaxed text-[var(--bone-dim)] mb-3">«Применить» обновляет выдачу для проверки. «Сохранить» одним действием записывает именно текущие chips и заново собирает под них снимок ключей.</div>
+      <div className="text-[11px] leading-relaxed text-[var(--bone-dim)] mb-3">«Применить» обновляет выдачу для проверки. «Сохранить» записывает текущий выбор кнопок и заново собирает под него набор ключевых слов.</div>
       <div className="flex flex-wrap gap-3"><button type="submit" className="btn-ghost"><SearchCheck size={13} /> Применить поиск слов</button><VerifiedSaveButton action={saveDecisionAction} disabled={!product} /><Link href={product ? productHref(product, filters) : '/admin/listing-master'} className="btn-ghost">Сбросить товар/ДНК</Link>{product ? <Link className="btn-ghost" href={`/admin/seo-storefront-preview?product_id=${product.id}`}>Дальше: генерация и preview <ArrowUpRight size={13} /></Link> : null}</div>
     </div>
   </form>;
