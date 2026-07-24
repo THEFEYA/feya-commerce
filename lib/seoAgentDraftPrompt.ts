@@ -214,6 +214,7 @@ function buildUserPrompt(input: SeoAgentInputContract) {
     '- intro: 2-4 sentences. Lead with product benefit, silhouette, event or use case, and supported facts. Do not use TheFEYA here.',
     '- The approved primary product keyword must appear naturally in meta_description and in either intro or the About this piece paragraph body. Never force it into Why you’ll love it.',
     '- Secondary keywords are semantic options, not a placement checklist. Do not force every selected variant into visible copy. Never place two near-synonymous product phrases in the same sentence or bullet.',
+    '- Generic context words such as event/events are not product keywords. Use event/events no more than twice across all visible generated copy; prefer one specific approved occasion where it adds meaning, and do not replace repetition with a synonym list.',
     '- bullet_highlights: concise product decision points, not duplicate audit notes.',
     '- faq: normally return an empty array.',
     '- image_alt_candidates: return exactly one candidate for the supplied primary image. Lead with the sold Product DNA component(s), then add only a short relevant pose or setting detail when useful. Do not list a model’s cape, mask, goggles, shoes, underwear, base clothing, props or other styling unless Product Truth explicitly confirms that item is included in the sold configuration. Do not copy catalog color or finish into ALT unless it is visibly confirmed. Use needs_image_review when uncertain.',
