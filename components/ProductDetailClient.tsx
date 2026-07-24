@@ -147,6 +147,7 @@ export function ProductDetailClient({
     : [];
   const reviewSummary = useMemo(() => readReviewSummary(p), [p]);
   const includedLines = confirmedIncludedLines(p, activeConfig, activeConfigLabel);
+  const canChoosePiecesSeparately = options.length > 1 && Boolean(full);
 
   const fullRegularPrice = full ? optionPrice(full) : null;
   const separateRegularTotal = options
@@ -295,7 +296,7 @@ export function ProductDetailClient({
           : <DefaultDescription product={p} title={shortHead} />}
       </div>
       <div className="col-span-12 lg:col-span-5 space-y-0">
-        {includedLines.length ? <Detail icon={<Scissors size={15} />} title="What's included" lines={includedLines} /> : null}
+        {includedLines.length ? <IncludedDetail lines={includedLines} canChooseSeparately={canChoosePiecesSeparately} /> : null}
         {THEFEYA_CANONICAL_RIGHT_PDP_PANEL.map((block) => <Detail
           key={block.block_key}
           icon={rightPanelIcon(block.block_key)}
@@ -353,6 +354,21 @@ function Detail({ icon, title, lines, id }: { icon: ReactNode; title: string; li
   return <div id={id} className="border-t border-[rgba(216,214,211,0.12)] py-5"><div className="eyebrow-gold mb-3 flex items-center gap-2">{icon}{title}</div><div className="space-y-1.5 text-[14px] text-[var(--bone-dim)] leading-relaxed">{lines.filter(Boolean).map((line) => <p key={line}>{line}</p>)}</div></div>;
 }
 
+function IncludedDetail({ lines, canChooseSeparately }: { lines: string[]; canChooseSeparately: boolean }) {
+  return <div className="border-t border-[rgba(216,214,211,0.12)] py-5">
+    <div className="eyebrow-gold mb-3 flex items-center gap-2"><Scissors size={15} />What&apos;s included</div>
+    <ul className="space-y-2 text-[14px] text-[var(--bone-dim)]">
+      {lines.map((line) => <li key={line} className="flex items-start gap-2">
+        <Check size={14} className="mt-0.5 shrink-0 text-[var(--gold-warm)]" />
+        <span>{line}</span>
+      </li>)}
+    </ul>
+    {canChooseSeparately ? <p className="mt-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">
+      Choose the complete set or select available pieces separately.
+    </p> : null}
+  </div>;
+}
+
 function ReviewAnchor({ average, count }: { average: number; count: number }) {
   return <a href="#reviews" className="mt-2 inline-flex items-center gap-2 text-[11px] text-[var(--bone-dim)] hover:text-white">
     <span className="flex gap-0.5" aria-hidden="true"><Stars value={average} size={11} /></span>
@@ -395,11 +411,24 @@ function Stars({ value, size }: { value: number; size: number }) {
 }
 
 function confirmedIncludedLines(product: StorefrontProduct, configuration: any, label: string) {
-  if (!configuration || hasCompositionRisk(product, configuration)) return [];
+  if (!configuration) return [];
   const bundleCodes = Array.isArray(configuration.bundle_component_codes)
     ? configuration.bundle_component_codes.map(humanize).filter(Boolean)
     : [];
   if (bundleCodes.length) return uniqueStrings(bundleCodes);
+
+  const canonicalComponents = Array.isArray((product as Record<string, any>).canonical_included_components)
+    ? (product as Record<string, any>).canonical_included_components
+      .map((item: any) => humanize(String(
+        item?.canonical_name || item?.normalized_name || item?.component_code || item?.name || item || '',
+      )))
+      .filter(Boolean)
+    : [];
+  if (isFullSetOption(configuration) && canonicalComponents.length) {
+    return uniqueStrings(canonicalComponents);
+  }
+
+  if (hasCompositionRisk(product, configuration)) return [];
 
   const code = String(configuration.component_code || configuration.component_family || '').trim();
   if (code && !CYRILLIC.test(code)) return [humanize(code)];
