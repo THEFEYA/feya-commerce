@@ -39,21 +39,24 @@ function labelText(config: StorefrontConfiguration) {
   return config.public_label || config.configuration_label || config.configuration_name || config.option_value || config.title || config.label || 'Option';
 }
 
-async function loadProducts(): Promise<{ rows: StorefrontProduct[]; error?: string }> {
+async function loadProducts(canonicalProductId?: string): Promise<{ rows: StorefrontProduct[]; error?: string }> {
   const supabase = getSupabaseReadClient();
   if (!supabase) return { rows: [], error: getMissingSupabaseEnvMessage() };
-  const { data, error } = await supabase.from(STOREFRONT_VIEW_V4).select(STOREFRONT_V4_CARD_SELECT).limit(ROW_LIMIT);
+  let query = supabase.from(STOREFRONT_VIEW_V4).select(STOREFRONT_V4_CARD_SELECT);
+  if (canonicalProductId) query = query.eq('canonical_product_id', canonicalProductId);
+  const { data, error } = await query.limit(canonicalProductId ? 1 : ROW_LIMIT);
   if (error) return { rows: [], error: error.message };
   return { rows: (data || []) as StorefrontProduct[] };
 }
 
-async function loadComponentTruth() {
+async function loadComponentTruth(canonicalProductId?: string) {
   const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
   if (!supabase) return { rows: [], error: getMissingSupabaseEnvMessage() };
-  const { data, error } = await supabase
+  let query = supabase
     .from(CANONICAL_PRODUCT_TRUTH_VIEW)
-    .select(ADMIN_COMPONENT_TRUTH_SELECT)
-    .limit(ROW_LIMIT);
+    .select(ADMIN_COMPONENT_TRUTH_SELECT);
+  if (canonicalProductId) query = query.eq('canonical_product_id', canonicalProductId);
+  const { data, error } = await query.limit(canonicalProductId ? 1 : ROW_LIMIT);
   if (error) return { rows: [], error: error.message };
   return { rows: data || [] };
 }
@@ -116,8 +119,8 @@ export default async function AdminComponentReviewPage({ searchParams }: PagePro
   const query = await searchParams;
   const focusedProductId = Array.isArray(query.product_id) ? query.product_id[0] : query.product_id;
   const [productResult, truthResult, assertionEditor] = await Promise.all([
-    loadProducts(),
-    loadComponentTruth(),
+    loadProducts(focusedProductId),
+    loadComponentTruth(focusedProductId),
     loadAssertionEditor(focusedProductId),
   ]);
   const { rows, error } = productResult;
