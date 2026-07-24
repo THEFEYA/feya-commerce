@@ -44,11 +44,17 @@ type Filter = 'all' | 'ready' | 'blocked' | 'saved' | 'untested';
 const TESTED_STORAGE_KEY = 'feya:seo-first-draft-tested-products:v1';
 const PAGE_SIZE = 36;
 
-export default function FirstRealDraftClient() {
+export default function FirstRealDraftClient({
+  initialProductId = '',
+  autoGenerate = false,
+}: {
+  initialProductId?: string;
+  autoGenerate?: boolean;
+}) {
   const [candidateLoading, setCandidateLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [selectedProductId, setSelectedProductId] = useState('');
+  const [selectedProductId, setSelectedProductId] = useState(initialProductId);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -62,6 +68,7 @@ export default function FirstRealDraftClient() {
   const [error, setError] = useState<string | null>(null);
   const [detailError, setDetailError] = useState<string | null>(null);
   const resultRef = useRef<HTMLDivElement | null>(null);
+  const autoGenerationStarted = useRef('');
 
   useEffect(() => {
     try {
@@ -98,7 +105,7 @@ export default function FirstRealDraftClient() {
         );
         setCandidates(combined);
 
-        const requestedId = new URL(window.location.href).searchParams.get('product_id') || '';
+        const requestedId = initialProductId || new URL(window.location.href).searchParams.get('product_id') || '';
         const requestedExists = combined.some((item) => item.canonical_product_id === requestedId);
         const defaultId = requestedExists
           ? requestedId
@@ -107,7 +114,7 @@ export default function FirstRealDraftClient() {
             || combined.find((item) => item.ready_for_openai)?.canonical_product_id
             || combined[0]?.canonical_product_id
             || '';
-        setSelectedProductId(defaultId);
+        setSelectedProductId((current) => current || defaultId);
       } catch (err) {
         if (active) setError(err instanceof Error ? err.message : 'Неизвестная ошибка загрузки товаров.');
       } finally {
@@ -117,7 +124,7 @@ export default function FirstRealDraftClient() {
 
     loadCandidates();
     return () => { active = false; };
-  }, []);
+  }, [initialProductId]);
 
   useEffect(() => {
     if (!selectedProductId) return;
@@ -207,6 +214,7 @@ export default function FirstRealDraftClient() {
     const url = new URL(window.location.href);
     if (productId) url.searchParams.set('product_id', productId);
     else url.searchParams.delete('product_id');
+    url.searchParams.delete('generate');
     window.history.replaceState({}, '', url.toString());
   }
 
@@ -273,6 +281,23 @@ export default function FirstRealDraftClient() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (
+      !autoGenerate
+      || !selectedCandidate
+      || detailLoading
+      || loading
+      || result
+      || !selectedCandidate.ready_for_openai
+      || autoGenerationStarted.current === selectedProductId
+    ) return;
+    autoGenerationStarted.current = selectedProductId;
+    void run();
+    // `run` intentionally reads the latest selected candidate; adding the
+    // render-scoped function here would retrigger automatic generation.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoGenerate, selectedCandidate, detailLoading, loading, result, selectedProductId]);
 
   async function saveAndOpenNext() {
     if (saving || !selectedProductId || !draft || !reviewPass || savedCurrentResult) return;
