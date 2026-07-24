@@ -65,6 +65,23 @@ const FAST_PRODUCT_SELECT = [
   'option_price_rows_json',
   'component_review_blockers_json',
 ].join(',');
+const CATALOG_PRODUCT_SELECT = [
+  'canonical_product_id',
+  'matched_etsy_listing_id',
+  'product_slug',
+  'card_title',
+  'product_type',
+  'material',
+  'color',
+  'canonical_color_label',
+  'category_label',
+  'source_category_label',
+  'operator_section_label',
+  'world_label',
+  'primary_image_url',
+  'primary_image_alt',
+  'focus_text',
+].join(',');
 const FALLBACK_SELECT = 'canonical_product_id,matched_etsy_listing_id,draft_site_title,card_title,product_type';
 const KW_SELECT = [
   'id',
@@ -491,7 +508,10 @@ async function loadCanonicalProductTruthProduct(supabase, productId) {
 async function loadProducts(filters) {
   const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
   if (!supabase) return emptyProducts(getMissingSupabaseEnvMessage());
-  let result = await supabase.from(FAST_PRODUCT_VIEW).select(FAST_PRODUCT_SELECT).limit(PRODUCT_LIMIT);
+  // The catalog only needs lightweight searchable/card fields. Loading every
+  // composition/evidence JSON column for all products made the Product Truth
+  // view exceed the statement timeout and incorrectly activated the fallback.
+  let result = await supabase.from(FAST_PRODUCT_VIEW).select(CATALOG_PRODUCT_SELECT).limit(PRODUCT_LIMIT);
   let source = 'Product Truth';
   let warning = null;
   if (result.error) {
@@ -505,25 +525,35 @@ async function loadProducts(filters) {
     if (media.error) {
       warning = [warning, `Фотографии резервного каталога недоступны: ${media.error}`].filter(Boolean).join(' / ');
     } else {
-      // The overview contains historical rows that are not storefront products.
-      // Never replace the canonical 243-product catalog with those extra rows:
-      // they have no public media and caused unstable counts and blank thumbnails.
       result.data = (result.data || [])
-        .filter((row) => media.map.has(String(row.canonical_product_id || '')))
         .map((row) => ({
           ...row,
-          ...media.map.get(String(row.canonical_product_id || '')),
+          ...(media.map.get(String(row.canonical_product_id || '')) || {}),
         }));
     }
   }
-  const sourceSignals = await loadProductSourceSignalMap(supabase, result.data || []);
+  // Source listing metadata is only needed for the selected product. Querying
+  // it for the whole catalog creates a large IN request on every page load.
+  const selectedRows = filters.productId
+    ? (result.data || []).filter((row) => String(row.canonical_product_id || '') === String(filters.productId))
+    : [];
+  const sourceSignals = await loadProductSourceSignalMap(supabase, selectedRows);
   if (sourceSignals.error) warning = [warning, `Исходные Etsy-сигналы недоступны: ${sourceSignals.error}`].filter(Boolean).join(' / ');
   const decisions = await loadDecisionMap();
-  const allProducts = (result.data || []).map((row) => {
+  let allProducts = (result.data || []).map((row) => {
     const product = normalizeProduct(row, sourceSignals.map.get(String(row.matched_etsy_listing_id || '')));
     product.decision = decisions.get(product.id) || null;
     return product;
   }).sort((a, b) => a.title.localeCompare(b.title));
+  // Keep the list lightweight, but hydrate the selected item with the complete
+  // canonical composition contract required by keyword selection and saving.
+  if (filters.productId && source === 'Product Truth') {
+    const selectedTruth = await loadCanonicalProductTruthProduct(supabase, filters.productId);
+    if (selectedTruth) {
+      selectedTruth.decision = decisions.get(selectedTruth.id) || null;
+      allProducts = allProducts.map((product) => product.id === selectedTruth.id ? selectedTruth : product);
+    }
+  }
   const sections = buildSections(allProducts);
   const statusCounts = buildStatusCounts(allProducts);
   const activeSection = filters.productSection && sections.some((x) => x.key === filters.productSection) ? filters.productSection : '';
@@ -532,7 +562,7 @@ async function loadProducts(filters) {
   const products = allProducts
     .filter((p) => !activeSection || p.sectionKey === activeSection)
     .filter((p) => activeStatus === 'all' || p.statusKey === activeStatus)
-    .filter((p) => !tokens.length || tokens.every((t) => p.text.includes(t)));
+    .filter((p) => !tokens.length || tokens.every((t) => productSearchTokenMatch(p, t)));
   return { allProducts, products, visibleProducts: products.length, totalProducts: allProducts.length, sections, statusCounts, activeSection, activeStatus, source, error: warning ? `Product Truth недоступен, включён резервный каталог: ${warning}` : null };
 }
 function emptyProducts(error) { return { allProducts: [], products: [], visibleProducts: 0, totalProducts: 0, sections: [], statusCounts: { all: 0, not_saved: 0, saved: 0 }, activeSection: '', activeStatus: 'all', source: 'none', error }; }
@@ -626,6 +656,7 @@ function normalizeProduct(row, sourceSignals = {}) {
     component_groups_json: groups,
   };
   const truthBlockers = getSeoProductTruthEvidenceBlockers(truth);
+  const sourceTagsText = [...arr(sourceSignals.raw_tags), ...arr(sourceSignals.raw_materials)].join(' ').toLowerCase();
   const text = [
     row.focus_text,
     title,
@@ -641,8 +672,8 @@ function normalizeProduct(row, sourceSignals = {}) {
     groups.join(' '),
     row.canonical_product_id,
     row.matched_etsy_listing_id,
+    sourceTagsText,
   ].filter(Boolean).join(' ').toLowerCase();
-  const sourceTagsText = [...arr(sourceSignals.raw_tags), ...arr(sourceSignals.raw_materials)].join(' ').toLowerCase();
   return {
     id: row.canonical_product_id,
     title,
@@ -671,6 +702,24 @@ function normalizeProduct(row, sourceSignals = {}) {
     text,
     sourceTagsText,
   };
+}
+
+function productSearchTokenMatch(product, token) {
+  const haystack = norm(`${product?.text || ''} ${product?.slug || ''} ${product?.etsyId || ''}`)
+    .replace(/[^a-z0-9]+/g, ' ');
+  const needle = norm(token).replace(/[^a-z0-9]+/g, ' ');
+  if (!needle) return true;
+  if (haystack.includes(needle)) return true;
+  // A user searching “shoulders” must also find “shoulder armor”, and vice
+  // versa. Keep this deliberately small instead of introducing fuzzy matches.
+  const variants = needle.endsWith('ies')
+    ? [needle.slice(0, -3) + 'y']
+    : needle.endsWith('es')
+      ? [needle.slice(0, -2), needle.slice(0, -1)]
+      : needle.endsWith('s')
+        ? [needle.slice(0, -1)]
+        : [`${needle}s`, `${needle}es`];
+  return variants.some((variant) => variant.length >= 2 && haystack.includes(variant));
 }
 
 async function loadKeywords(filters, product = null) {
