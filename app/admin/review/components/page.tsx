@@ -13,11 +13,6 @@ import {
   getCanonicalComponentTruthDiagnostic,
 } from '@/lib/adminComponentTruth';
 import {
-  ADMIN_PRODUCT_BUILDER_DETAIL_SELECT,
-  ADMIN_PRODUCT_BUILDER_DETAIL_VIEW,
-  toBuilderStorefrontProduct,
-} from '@/lib/admin-product-builder-detail';
-import {
   ADMIN_PRODUCT_CATALOG_FALLBACK_SELECT,
   ADMIN_PRODUCT_CATALOG_FALLBACK_VIEW,
   toCatalogFallbackStorefrontProduct,
@@ -54,16 +49,6 @@ async function loadProducts(canonicalProductId?: string): Promise<{ rows: Storef
   if (!supabase) return { rows: [], error: getMissingSupabaseEnvMessage() };
 
   if (canonicalProductId) {
-    const builderResult = await supabase
-      .from(ADMIN_PRODUCT_BUILDER_DETAIL_VIEW)
-      .select(ADMIN_PRODUCT_BUILDER_DETAIL_SELECT)
-      .eq('canonical_product_id', canonicalProductId)
-      .maybeSingle();
-
-    if (builderResult.data && !builderResult.error) {
-      return { rows: [toBuilderStorefrontProduct(builderResult.data)] };
-    }
-
     const fallbackResult = await supabase
       .from(ADMIN_PRODUCT_CATALOG_FALLBACK_VIEW)
       .select(ADMIN_PRODUCT_CATALOG_FALLBACK_SELECT)
@@ -73,10 +58,7 @@ async function loadProducts(canonicalProductId?: string): Promise<{ rows: Storef
     if (fallbackResult.error) {
       return {
         rows: [],
-        error: [
-          builderResult.error?.message,
-          fallbackResult.error.message,
-        ].filter(Boolean).join(' · '),
+        error: fallbackResult.error.message,
       };
     }
 
@@ -84,7 +66,6 @@ async function loadProducts(canonicalProductId?: string): Promise<{ rows: Storef
       rows: fallbackResult.data
         ? [toCatalogFallbackStorefrontProduct(fallbackResult.data)]
         : [],
-      error: builderResult.error?.message,
     };
   }
 
@@ -173,10 +154,13 @@ export default async function AdminComponentReviewPage({ searchParams }: PagePro
     truthResult.rows.map((row) => [String(row.canonical_product_id || ''), row]),
   );
   const reviewRows = rows.map((product) => {
-    const configs = parseConfigurations(product.configurations);
     const truthDiagnostic = getCanonicalComponentTruthDiagnostic(
       truthByProductId.get(String(product.canonical_product_id || '')),
     );
+    const storefrontConfigs = parseConfigurations(product.configurations);
+    const configs = storefrontConfigs.length
+      ? storefrontConfigs
+      : parseConfigurations(truthDiagnostic.optionalConfigurations);
     return { product, configs, truthDiagnostic };
   }).filter((row) => {
     if (focusedProductId) return row.product.canonical_product_id === focusedProductId;
