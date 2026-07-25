@@ -53,6 +53,7 @@ export default function FirstRealDraftClient({
 }) {
   const [candidateLoading, setCandidateLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [detailVerifiedProductId, setDetailVerifiedProductId] = useState('');
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [selectedProductId, setSelectedProductId] = useState(initialProductId);
   const [search, setSearch] = useState('');
@@ -132,6 +133,7 @@ export default function FirstRealDraftClient({
     let active = true;
 
     async function loadDetail() {
+      setDetailVerifiedProductId('');
       setDetailLoading(true);
       setDetailError(null);
       try {
@@ -153,6 +155,7 @@ export default function FirstRealDraftClient({
             ? { ...item, ...payload.candidate }
             : item);
         });
+        setDetailVerifiedProductId(payload.candidate.canonical_product_id);
       } catch (err) {
         if (active && err?.name !== 'AbortError') {
           setDetailError(err instanceof Error ? err.message : 'Неизвестная ошибка точной проверки.');
@@ -233,6 +236,10 @@ export default function FirstRealDraftClient({
 
   async function run() {
     if (loading || detailLoading || !selectedProductId || !selectedCandidate) return;
+    if (detailVerifiedProductId !== selectedProductId) {
+      setError('Подождите: точная проверка Product Truth для выбранного товара ещё не завершена.');
+      return;
+    }
     if (!selectedCandidate.ready_for_openai) {
       setError('Этот товар заблокирован. Сначала устраните указанные ниже блокеры. OpenAI не вызван.');
       return;
@@ -287,6 +294,7 @@ export default function FirstRealDraftClient({
       !autoGenerate
       || !selectedCandidate
       || detailLoading
+      || detailVerifiedProductId !== selectedProductId
       || loading
       || result
       || !selectedCandidate.ready_for_openai
@@ -297,7 +305,7 @@ export default function FirstRealDraftClient({
     // `run` intentionally reads the latest selected candidate; adding the
     // render-scoped function here would retrigger automatic generation.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoGenerate, selectedCandidate, detailLoading, loading, result, selectedProductId]);
+  }, [autoGenerate, selectedCandidate, detailLoading, detailVerifiedProductId, loading, result, selectedProductId]);
 
   async function saveAndOpenNext() {
     if (saving || !selectedProductId || !draft || !reviewPass || savedCurrentResult) return;
@@ -528,10 +536,16 @@ export default function FirstRealDraftClient({
               </a> : <button
                 type="button"
                 onClick={run}
-                disabled={candidateLoading || detailLoading || loading}
+                disabled={candidateLoading || detailLoading || detailVerifiedProductId !== selectedProductId || loading}
                 className="btn-gold min-h-12 w-full min-w-0 justify-center px-4 text-center disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {loading ? 'OpenAI генерирует…' : result ? 'Сгенерировать заново' : 'Сгенерировать draft'}
+                {detailVerifiedProductId !== selectedProductId
+                  ? 'Проверяю Product Truth…'
+                  : loading
+                    ? 'OpenAI генерирует и собирает preview…'
+                    : result
+                      ? 'Сгенерировать заново'
+                      : 'Сгенерировать и показать полный preview'}
               </button>}
               <div className="text-center text-[10px] leading-relaxed text-[var(--smoke)]">Сначала генерация и визуальная проверка; сохранение доступно только после PASS.</div>
             </div>
