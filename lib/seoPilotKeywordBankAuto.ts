@@ -5,7 +5,7 @@ import { buildSeoAgentInputFromDraft, buildSeoPackDraftContractFromBrief } from 
 
 const PILOT_PRODUCT_ID = 'b6e0171f-4d42-4d71-88b1-ee0d4e0e109e';
 const PILOT_LISTING_ID = '4348580005';
-const PRODUCT_TRUTH_VIEW = 'feya_commerce_v_seo_product_truth_v1';
+const PRODUCT_TRUTH_VIEW = 'feya_commerce_v_seo_product_truth_v4';
 const FOCUS_VIEW = 'feya_commerce_v_listing_master_product_focus_v1';
 const KEYWORD_VIEW = 'vw_seo_keyword_bank_v1_for_listing_master';
 

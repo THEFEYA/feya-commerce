@@ -52,7 +52,7 @@ function FilterBox({ checked }: { checked: boolean }) {
   </span>;
 }
 
-export function ShopClient({ products, error, collections = [] }: { products: StorefrontProduct[]; error?: string; collections?: ShopCollectionLink[] }) {
+export function ShopClient({ products, error }: { products: StorefrontProduct[]; error?: string; collections?: ShopCollectionLink[] }) {
   const [category, setCategory] = useState('All');
   const [priceMin, setPriceMin] = useState(0);
   const [priceMax, setPriceMax] = useState(1000);

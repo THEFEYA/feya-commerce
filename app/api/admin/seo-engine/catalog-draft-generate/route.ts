@@ -148,7 +148,7 @@ export async function POST(request: Request) {
   let repairKeywordPlacement = null;
   let repairUsed = false;
 
-  if (firstGeneration.ok && firstGeneration.output && shouldRepair(firstStructural, firstCommercial, firstKeywordPlacement)) {
+  if (firstGeneration.ok && firstGeneration.output) {
     const repairPrompt = buildRepairPrompt(
       promptContract,
       firstGeneration.output,
@@ -156,7 +156,9 @@ export async function POST(request: Request) {
       firstCommercial.issues || [],
       firstKeywordPlacement.issues || [],
     );
-    repairGeneration = await generateSeoDraftWithOpenAi(repairPrompt, { primaryImageUrl });
+    // The second pass is an editorial pass over verified text. Excluding the image
+    // prevents the editor from drifting back into computer-vision narration.
+    repairGeneration = await generateSeoDraftWithOpenAi(repairPrompt);
     repairStructural = repairGeneration.output
       ? validateSeoAgentOutput(repairGeneration.output)
       : validateSeoAgentOutput(null);
@@ -168,7 +170,10 @@ export async function POST(request: Request) {
     if (
       repairGeneration.ok
       && repairGeneration.output
-      && candidateScore(repairStructural, repairCommercial, repairKeywordPlacement) < candidateScore(firstStructural, firstCommercial, firstKeywordPlacement)
+      && isCandidateAtLeastAsGood(
+        [repairStructural, repairCommercial, repairKeywordPlacement],
+        [firstStructural, firstCommercial, firstKeywordPlacement],
+      )
     ) {
       selectedGeneration = repairGeneration;
       selectedStructural = repairStructural;
@@ -326,35 +331,47 @@ function applyReadinessToPromptContract(promptContract, readiness) {
 }
 
 function buildRepairPrompt(promptContract, currentOutput, structuralIssues, commercialIssues, keywordPlacementIssues) {
+  const prioritizedKeywordIssues = keywordPlacementIssues.filter((issue) => (
+    issue.severity === 'blocker'
+    || issue.code === 'primary_missing_meta_description'
+    || issue.code === 'primary_missing_body'
+  ));
+  const commercialWarnings = keywordPlacementIssues
+    .filter((issue) => issue.severity !== 'blocker' && issue.code === 'commercial_keyword_unplaced')
+    .filter((issue, index, issues) => (
+      issues.findIndex((candidate) => candidate.keyword === issue.keyword) === index
+    ))
+    .slice(0, 2);
+  prioritizedKeywordIssues.push(...commercialWarnings);
+
   const issueLines = [
     ...structuralIssues.map((issue) => `${issue.severity}:${issue.code}: ${issue.message}`),
     ...commercialIssues.map((issue) => `${issue.severity}:${issue.code}: ${issue.message}`),
-    ...keywordPlacementIssues.map((issue) => `${issue.severity}:${issue.code}: ${issue.message}${issue.keyword ? ` [${issue.keyword}]` : ''}`),
+    ...prioritizedKeywordIssues.map((issue) => `${issue.severity}:${issue.code}: ${issue.message}${issue.keyword ? ` [${issue.keyword}]` : ''}`),
   ];
-  const repairRules = [
+  const editorPolicy = [
     '',
-    'THEFEYA CATALOG HUMANIZER REPAIR PASS:',
+    'THEFEYA FINAL BUYER-COPY EDITOR:',
     'Return a complete seo_agent_output_v1 JSON object, not a patch or commentary.',
-    'Repair generated customer-facing fields only. Preserve product truth, selected keywords, visual facts and forbidden-claim boundaries.',
+    'Edit the draft as a senior ecommerce editor. Product Truth is authoritative.',
+    'Every sentence must answer a normal buyer question or add a concrete purchase benefit. Delete sentences that do neither.',
+    'Treat search queries as evidence, not finished customer copy. SEO title, H1, metadata and body copy must use idiomatic English; reorder query tokens and inflect words when grammar requires it.',
+    'Preserve the Primary product meaning and search intent naturally. Exact query word order is not required when it would produce awkward English. Secondary keywords are optional semantic evidence, never an exact-placement checklist.',
+    'Prefer clear product, event and buyer language. Do not write fashion-analysis, computer-vision or internal SEO language.',
+    'Keep About this piece product-specific; Why you’ll love it benefit-led; Ideal for use-case-led; Designed for self-expression studio-led.',
+    'Why you’ll love it: 3-4 different supported reasons, each expressed as fact -> concrete buyer outcome. Include one concrete original-design benefit.',
+    'Ideal for: supported events, personas, productions or styles only; never product anatomy or finish details.',
+    'Designed for self-expression: 45-75 words about our independent design team, original ideas, and helping people build a look that feels personal. Never mention team size.',
+    'Do not repeat a benefit, finish claim, event use or product-query variant across blocks.',
+    'Do not repeat the product entity through a near-synonym in H1 or meta.',
+    'Do not use abstract filler such as bold color, bold gold finish, coordinated look, coordinated costume, stage-ready shape, visual noise, presence, character, body line, reads clearly or sculptural silhouette.',
+    'If supported commercial-intent keywords are listed, use at most one natural purchase sentence about ordering online, made-to-order availability or delivery. Never stack buy/order/shop/delivery phrases and never invent an offer.',
+    'Do not report left/right orientation, placement, visibility from the front or other computer-vision coordinates in commercial copy.',
     'Do not alter raw variations, component mappings, configuration meaning, prices or the fixed right PDP panel.',
-    'Use natural human rhythm and remove repeated thoughts, near-duplicate sentences and repeated benefit categories.',
-    'Do not lengthen SEO title, H1, meta or body merely to hit a minimum. Keep a concise complete phrase when it already names the product clearly.',
-    'Name the primary product entity once in H1 and meta. Never restate shoulder armor as a shoulder piece or repeat the same product through a near-synonym.',
-    'Keep About this piece product-specific, Why you’ll love it commercially useful, Ideal for grounded, and Designed for self-expression studio-focused.',
-    'Rewrite Why you’ll love it as 3-4 purchase reasons. Each bullet must use supported feature or studio truth -> concrete buyer outcome.',
-    'Use exactly one concrete studio-design differentiation benefit. Use the other bullets for supported wearability, adjustment, comfort, shape retention, durability, or verified finish behavior.',
-    'State studio value as buyer value: our varied original ideas help the buyer choose a distinctive design and build a complete look that feels personal. Do not compare it with standard templates, generic costumes or mass production.',
-    'Never say that the piece keeps its shape during movement. Explain supported shape retention as keeping shape between wears, resisting creasing, storing better or remaining reusable for future events.',
-    'Use construction, structure or build in at most one Why bullet.',
-    'Move styles, events, personas, audiences, stage/camera use and keyword variants to Ideal for. Delete abstract visual commentary and do not fill space with a fifth bullet.',
-    'Secondary keywords are a semantic option set, not an exact-placement checklist. Never stack two close product-query variants in one sentence or bullet, and leave a weak variant unused when normal language is clearer.',
-    'Repair primary keyword placement in meta_description and intro or About this piece body, never by stuffing Why you’ll love it.',
-    'If the operator selected an event focus, prefer the H1 pattern [primary product entity] for [selected event].',
-    'Rewrite Designed for self-expression as 45-75 words in 3-4 natural sentences: our independent design team and fresh point of view, how varied original ideas help people find a design that feels like them, and how this product supports a complete look in one supported setting. Never mention team size.',
-    'Delete visual noise, clarity of the look, expressive accent, presence, character, considered appearance and other abstract design-review language.',
-    'Delete all computer-vision reporting from commercial copy: left/right orientation, positioned high, visible from the front, clearly visible, anatomical upper-body geometry and shoulder coordinates belong only in ALT or visual_truth.',
-    'Delete desert light, desert-ready, standard costume template and buyers who want or are looking for a product component. Start from the buyer’s event/style/performance look.',
     'Do not turn Shoulder into Shoulders or Shoulders into Shoulder unless the source configuration itself uses that grammar.',
+  ].join('\n');
+  const repairRequest = [
+    'Repair the current draft against these prioritized validation issues:',
     'Exact validation issues:',
     ...(issueLines.length ? issueLines.map((line) => `- ${line}`) : ['- Improve differentiation, rhythm and commercial clarity.']),
     '',
@@ -364,26 +381,32 @@ function buildRepairPrompt(promptContract, currentOutput, structuralIssues, comm
 
   return {
     ...promptContract,
-    system_prompt: `${promptContract.system_prompt}\n${repairRules}`,
-    user_prompt: `${promptContract.user_prompt}\n${repairRules}`,
-    guardrails: [...(promptContract.guardrails || []), repairRules],
+    system_prompt: `${promptContract.system_prompt}\n${editorPolicy}`,
+    user_prompt: repairRequest,
+    guardrails: [...(promptContract.guardrails || []), editorPolicy],
   };
 }
 
-function shouldRepair(structural, commercial, keywordPlacement) {
-  if (!structural?.ok || !commercial?.ok || !keywordPlacement?.ok) return true;
-  return (commercial?.issues || []).some((issue) => (
-    String(issue.code || '').startsWith('repeated_idea_')
-      || ['cross_block_repetition_warning', 'self_expression_close_lacks_clear_buyer_value'].includes(String(issue.code || ''))
-  ));
-}
-
 function candidateScore(structural, commercial, keywordPlacement) {
-  return [
+  const issues = [
     ...(structural?.issues || []),
     ...(commercial?.issues || []),
     ...(keywordPlacement?.issues || []),
-  ].reduce((score, issue) => score + (issue.severity === 'blocker' ? 100 : 1), 0);
+  ];
+  return {
+    blockers: issues.filter((issue) => issue.severity === 'blocker').length,
+    warnings: issues.filter((issue) => issue.severity !== 'blocker').length,
+  };
+}
+
+function isCandidateAtLeastAsGood(candidate, baseline) {
+  const candidateScoreValue = candidateScore(...candidate);
+  const baselineScoreValue = candidateScore(...baseline);
+  return candidateScoreValue.blockers < baselineScoreValue.blockers
+    || (
+      candidateScoreValue.blockers === baselineScoreValue.blockers
+      && candidateScoreValue.warnings <= baselineScoreValue.warnings
+    );
 }
 
 function sanitizeOutputForReadiness(output, readiness) {

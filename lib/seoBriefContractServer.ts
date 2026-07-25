@@ -5,7 +5,8 @@ import { recommendCatalogKeywords } from '@/lib/seoCatalogKeywordRecommendation'
 import { getListingMasterKeywordSelection } from '@/lib/seoListingMasterDecision';
 import { buildSeoAgentInputFromDraft, buildSeoPackDraftContractFromBrief } from '@/lib/seoPackContractBuilder';
 
-const PRODUCT_TRUTH_VIEW = 'feya_commerce_v_seo_product_truth_v1';
+const PRODUCT_TRUTH_VIEW = 'feya_commerce_v_seo_product_truth_v4';
+const PRODUCT_TRUTH_EXACT_RPC = 'feya_commerce_get_seo_product_truth_v4';
 const FOCUS_VIEW = 'feya_commerce_v_listing_master_product_focus_v1';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
 const SEO_DRAFT_LATEST_VIEW = 'feya_commerce_v_seo_pack_drafts_latest_v1';
@@ -264,7 +265,7 @@ export async function loadSeoBriefSource(productId: string) {
     keywordBankWarning: keywordHydration.warning,
     keywordSelection,
     keywordRecommendationDiagnostics,
-    error: null,
+    error: productResult.loadError || null,
   };
 }
 
@@ -370,17 +371,20 @@ async function hydrateSelectedKeywordsFromApprovedBank(supabase, selectedRows) {
 
 async function loadProductTruthRow(supabase, productId) {
   const canonicalResult = await supabase
-    .from(PRODUCT_TRUTH_VIEW)
+    .rpc(PRODUCT_TRUTH_EXACT_RPC, { p_canonical_product_id: productId })
     .select(PRODUCT_TRUTH_SELECT)
-    .eq('canonical_product_id', productId)
     .limit(1);
+
   const canonicalProduct = (canonicalResult.data || [])[0] || null;
 
   if (!canonicalResult.error && canonicalProduct) {
     return {
       product: canonicalProduct,
+      // Preserve the established canonical-source contract consumed by the
+      // component truth builder; only the database access path changed.
       productTruthSource: 'seo_product_truth_v1',
       productTruthWarning: null,
+      loadError: null,
     };
   }
 
@@ -398,6 +402,13 @@ async function loadProductTruthRow(supabase, productId) {
     product: fallbackProduct,
     productTruthSource: fallbackProduct ? 'listing_master_product_focus_v1' : null,
     productTruthWarning: canonicalReason,
+    // A failed canonical read is an infrastructure failure, not evidence that
+    // this product lacks confirmed composition. Keep the diagnostic fallback
+    // available to callers, but never convert a transient database error into
+    // Product Truth blockers.
+    loadError: canonicalResult.error
+      ? `Canonical Product Truth read failed: ${canonicalResult.error.message}`
+      : null,
   };
 }
 

@@ -223,6 +223,30 @@ test('blocks one repeated idea spread across three customer blocks', () => {
   assert.ok(result.issues.some((issue) => issue.code === 'repeated_idea_silhouette_shape' && issue.severity === 'blocker'));
 });
 
+test('does not treat distinct event and production use cases as one repeated visibility claim', () => {
+  const value = draft({
+    intro: 'Build a complete gold festival outfit for Burning Man performances.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => {
+      if (block.block_key === 'about_this_piece') {
+        return { ...block, body: 'The set combines shoulder armor, a harness top and a skirt for stage wear.' };
+      }
+      if (block.block_key === 'ideal_for') {
+        return {
+          ...block,
+          body: [
+            'Festival performers and dancers',
+            'Editorial photoshoots and music-video costume work',
+            'Burning Man and themed events',
+          ].join('\n'),
+        };
+      }
+      return block;
+    }),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code === 'repeated_idea_stage_camera_visibility'), false);
+});
+
 test('blocks the visual-audit and use-case bullets from the pilot draft', () => {
   const value = draft({
     pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'

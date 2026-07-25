@@ -43,8 +43,18 @@ function Pair({ label, current, approved }) {
   </div>;
 }
 
-export default async function SeoStorefrontPreviewPage() {
-  const { rows, error } = await loadRows();
+export default async function SeoStorefrontPreviewPage({ searchParams }) {
+  const params = await Promise.resolve(searchParams || {});
+  const initialProductId = typeof params.product_id === 'string' ? params.product_id.trim() : '';
+  const autoGenerate = params.generate === '1' && Boolean(initialProductId);
+  // The catalog-wide current/applied audit is optional. It must not run on the
+  // critical single-product generation path: the underlying view scans the
+  // whole catalog and can exceed Postgres statement_timeout even while this
+  // section is collapsed.
+  const showCatalogComparison = params.comparison === '1';
+  const { rows, error } = showCatalogComparison
+    ? await loadRows()
+    : { rows: [] as Row[], error: null };
   const withTitle = rows.filter((row) => row.applied_seo_title).length;
   const withMeta = rows.filter((row) => row.applied_meta_description).length;
 
@@ -59,19 +69,33 @@ export default async function SeoStorefrontPreviewPage() {
           </p>
         </div>
         <div className="flex min-w-0 flex-wrap gap-2">
-          <Link href="/admin/listing-master" className="btn-ghost px-5 py-3 text-[10px]">1. Фокус и ключи</Link>
+          <Link href={initialProductId ? `/admin/listing-master?product_id=${encodeURIComponent(initialProductId)}` : '/admin/listing-master'} className="btn-ghost px-5 py-3 text-[10px]">1. Фокус и ключи</Link>
           <Link href="/admin/seo-approval" className="btn-ghost px-5 py-3 text-[10px]">Проверка SEO</Link>
           <Link href="/admin/seo-applied-values" className="btn-ghost px-5 py-3 text-[10px]">SEO Values</Link>
         </div>
       </div>
 
-      <FirstRealDraftClient />
+      <FirstRealDraftClient initialProductId={initialProductId} autoGenerate={autoGenerate} />
 
       <details className="mt-8 min-w-0 rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4 sm:p-5">
         <summary className="cursor-pointer text-[11px] uppercase tracking-[.18em] text-[var(--gold-warm)]">Каталожное сравнение current / approved</summary>
         <div className="mt-5 min-w-0">
+          {!showCatalogComparison ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-black/20 p-5">
+            <p className="text-[12px] leading-relaxed text-[var(--bone-dim)]">
+              Сравнение всех товаров не загружается во время генерации одного SEO Pack. Это отдельная диагностическая проверка каталога.
+            </p>
+            <Link
+              href={`/admin/seo-storefront-preview?${new URLSearchParams({
+                ...(initialProductId ? { product_id: initialProductId } : {}),
+                comparison: '1',
+              }).toString()}`}
+              className="btn-ghost mt-4 inline-flex px-4 py-2 text-[10px]"
+            >
+              Загрузить сравнение отдельно
+            </Link>
+          </div> : null}
           {error ? <div className="mb-6 min-w-0 break-words rounded-2xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.06)] p-5 text-[var(--bone-dim)]">{error}</div> : null}
-          <div className="mb-6 grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-3">
+          {showCatalogComparison ? <><div className="mb-6 grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-black/20 p-4"><div className="eyebrow-dim mb-2">Rows</div><div className="text-[28px] text-bone">{rows.length}</div></div>
             <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-black/20 p-4"><div className="eyebrow-dim mb-2">Titles</div><div className="text-[28px] text-bone">{withTitle}</div></div>
             <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-black/20 p-4"><div className="eyebrow-dim mb-2">Meta</div><div className="text-[28px] text-bone">{withMeta}</div></div>
@@ -92,7 +116,7 @@ export default async function SeoStorefrontPreviewPage() {
                 <Pair label="Primary image alt" current={row.current_primary_image_alt} approved={row.applied_primary_image_alt} />
               </div>
             </article>) : <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-black/20 p-6 text-[13px] text-[var(--bone-dim)]">No preview rows yet.</div>}
-          </div>
+          </div></> : null}
         </div>
       </details>
     </section>

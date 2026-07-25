@@ -77,7 +77,10 @@ export function AtelierOrdersClient() {
     setDraft(readDraft());
   }, []);
 
-  const items = Array.isArray(draft?.items) ? draft?.items || [] : [];
+  const items = useMemo(
+    () => Array.isArray(draft?.items) ? draft.items || [] : [],
+    [draft?.items],
+  );
   const currency = draft?.currency || items[0]?.currency || 'EUR';
   const warnings = useMemo(() => {
     const list = ['Локальный резервный черновик: основная очередь Supabase проверяется выше'];

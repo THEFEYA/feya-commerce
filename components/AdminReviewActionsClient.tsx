@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { CheckCircle2, ClipboardCheck, MessageSquarePlus, RefreshCw, ShieldAlert } from 'lucide-react';
+import { isReviewFieldResolved } from '@/lib/adminComponentTruth';
 
 type ReviewEvent = {
   review_event_id: string;
@@ -90,10 +91,10 @@ function computeReadiness(initialBlockers: InitialBlockers, latestByType: Map<st
     return { status: 'Draft', tone: 'neutral', note: 'Проверочные события по этому товару ещё не записаны.' };
   }
 
-  const labelOk = !initialBlockers.label || latestByType.has('label_review_approved');
-  const priceOk = !initialBlockers.price || latestByType.has('price_review_approved');
-  const componentOk = !initialBlockers.component || latestByType.has('component_mapping_checked');
-  const mediaOk = !initialBlockers.media || latestByType.has('media_checked');
+  const labelOk = isReviewFieldResolved('label', initialBlockers.label, latestByType.has('label_review_approved'));
+  const priceOk = isReviewFieldResolved('price', initialBlockers.price, latestByType.has('price_review_approved'));
+  const componentOk = isReviewFieldResolved('component', initialBlockers.component, latestByType.has('component_mapping_checked'));
+  const mediaOk = isReviewFieldResolved('media', initialBlockers.media, latestByType.has('media_checked'));
   const seoOk = latestByType.has('seo_ready_checked');
 
   if (!labelOk) return { status: 'Needs Label Review', tone: 'warning', note: 'Название ещё требует проверки.' };
@@ -119,7 +120,7 @@ export function AdminReviewActionsClient({ productSlug, canonicalProductId, sour
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
 
-  async function loadEvents() {
+  const loadEvents = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch(`/api/admin/review-events?product_slug=${encodeURIComponent(productSlug)}`, { cache: 'no-store' });
@@ -134,9 +135,9 @@ export function AdminReviewActionsClient({ productSlug, canonicalProductId, sour
     } finally {
       setLoading(false);
     }
-  }
+  }, [canonicalProductId, productSlug]);
 
-  useEffect(() => { loadEvents(); }, [productSlug, canonicalProductId]);
+  useEffect(() => { loadEvents(); }, [loadEvents]);
 
   const latestByType = useMemo(() => {
     const map = new Map<string, ReviewEvent>();
@@ -147,10 +148,10 @@ export function AdminReviewActionsClient({ productSlug, canonicalProductId, sour
   }, [events]);
 
   const readiness = useMemo(() => computeReadiness(initialBlockers, latestByType, events.length), [initialBlockers, latestByType, events.length]);
-  const labelOk = !initialBlockers.label || latestByType.has('label_review_approved');
-  const priceOk = !initialBlockers.price || latestByType.has('price_review_approved');
-  const componentOk = !initialBlockers.component || latestByType.has('component_mapping_checked');
-  const mediaOk = !initialBlockers.media || latestByType.has('media_checked');
+  const labelOk = isReviewFieldResolved('label', initialBlockers.label, latestByType.has('label_review_approved'));
+  const priceOk = isReviewFieldResolved('price', initialBlockers.price, latestByType.has('price_review_approved'));
+  const componentOk = isReviewFieldResolved('component', initialBlockers.component, latestByType.has('component_mapping_checked'));
+  const mediaOk = isReviewFieldResolved('media', initialBlockers.media, latestByType.has('media_checked'));
   const seoOk = latestByType.has('seo_ready_checked');
 
   async function recordAction(action: typeof actions[number]) {
@@ -209,12 +210,13 @@ export function AdminReviewActionsClient({ productSlug, canonicalProductId, sour
     <div className="mt-5 grid sm:grid-cols-2 xl:grid-cols-3 gap-2">
       {actions.map((action) => {
         const saved = latestByType.get(action.event_type);
-        return <button key={action.event_type} type="button" onClick={() => recordAction(action)} disabled={Boolean(saving)} className="rounded-xl border border-[rgba(216,214,211,.12)] bg-black/15 px-4 py-3 text-left hover:border-[rgba(212,178,106,.40)] transition disabled:opacity-60">
+        const blockedByCanonicalTruth = action.event_type === 'component_mapping_checked' && initialBlockers.component;
+        return <button key={action.event_type} type="button" onClick={() => recordAction(action)} disabled={Boolean(saving) || blockedByCanonicalTruth} title={blockedByCanonicalTruth ? 'Сначала исправьте канонические данные Product Truth.' : undefined} className="rounded-xl border border-[rgba(216,214,211,.12)] bg-black/15 px-4 py-3 text-left hover:border-[rgba(212,178,106,.40)] transition disabled:opacity-60">
           <div className="flex items-center justify-between gap-3">
-            <span className="text-bone text-[13px]">{action.label}</span>
+            <span className="text-bone text-[13px]">{blockedByCanonicalTruth ? 'Сначала исправить Product Truth' : action.label}</span>
             {saved ? <CheckCircle2 size={15} className="text-[var(--gold-warm)]" /> : null}
           </div>
-          <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{saved?.created_at ? new Date(saved.created_at).toLocaleDateString() : 'События ещё нет'}</div>
+          <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{blockedByCanonicalTruth ? 'Событие не может закрыть блокер данных' : saved?.created_at ? new Date(saved.created_at).toLocaleDateString() : 'События ещё нет'}</div>
         </button>;
       })}
     </div>

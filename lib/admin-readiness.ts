@@ -1,5 +1,6 @@
 import { formatPrice, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
+import { isReviewFieldResolved } from '@/lib/adminComponentTruth';
 
 export type AdminReviewEvent = {
   review_event_id?: string | null;
@@ -101,10 +102,10 @@ export function getProductReadiness(product: StorefrontProduct, events: AdminRev
   if (latest.has('needs_fix')) return { label: 'Blocked', tone: 'danger' };
   if (!events.length) return { label: 'Draft', tone: 'neutral' };
 
-  const labelOk = !flags.labelReview || latest.has('label_review_approved');
-  const priceOk = !flags.priceReview || latest.has('price_review_approved');
-  const componentOk = !flags.missingComponent || latest.has('component_mapping_checked');
-  const mediaOk = !flags.mediaReview || latest.has('media_checked');
+  const labelOk = isReviewFieldResolved('label', flags.labelReview, latest.has('label_review_approved'));
+  const priceOk = isReviewFieldResolved('price', flags.priceReview, latest.has('price_review_approved'));
+  const componentOk = isReviewFieldResolved('component', Boolean(flags.missingComponent), latest.has('component_mapping_checked'));
+  const mediaOk = isReviewFieldResolved('media', flags.mediaReview, latest.has('media_checked'));
   const seoOk = latest.has('seo_ready_checked');
 
   if (!labelOk) return { label: 'Needs Label Review', tone: 'warning' };

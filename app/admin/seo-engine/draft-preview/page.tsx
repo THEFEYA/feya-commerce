@@ -64,14 +64,6 @@ function ReviewList({ items = [] }) {
   return items.length ? <ul className="list-disc pl-5 space-y-1.5">{items.map((item, index) => <li key={`${item}-${index}`}>{translateUiText(item)}</li>)}</ul> : <span>—</span>;
 }
 
-function FaqList({ items = [] }) {
-  return items.length ? <div className="space-y-3">{items.map((item, index) => <div key={`${item.question}-${index}`}>
-    <div className="text-bone text-[12px]">{item.question || 'Вопрос требует проверки'}</div>
-    <div className="mt-1 text-[12px] leading-relaxed text-[var(--bone-dim)]">{translateUiText(item.answer || 'Ответ требует проверки')}</div>
-    <div className="mt-1"><Pill tone="gold">{translateIntent(item.intent)}</Pill></div>
-  </div>)}</div> : <span>—</span>;
-}
-
 function PdpBlockList({ items = [], emptyText = 'PDP-блоки не найдены.' }) {
   if (!items.length) {
     return <div className="rounded-xl border border-[rgba(196,64,88,.22)] bg-[rgba(160,32,56,.07)] p-3 text-[12px] leading-relaxed text-[var(--ruby-soft)]">{emptyText}</div>;
@@ -277,11 +269,6 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
       </> : null}
     </section>
   </main>;
-}
-
-function translateIntent(value) {
-  const map = { commercial: 'коммерческий', fit: 'размер', shipping: 'доставка', materials: 'материалы', styling: 'стилизация', care: 'уход', other: 'другое' };
-  return map[value] || value || 'другое';
 }
 
 function translateSeverity(value) {

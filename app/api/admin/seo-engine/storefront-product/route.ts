@@ -1,9 +1,10 @@
 // @ts-nocheck
 import { NextResponse } from 'next/server';
 import { getSupabaseServiceClient } from '@/lib/supabase';
-import { STOREFRONT_V4_PDP_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 
 export const dynamic = 'force-dynamic';
+const STOREFRONT_PRODUCT_EXACT_RPC = 'feya_commerce_get_step7_storefront_products_api_v4';
+const PRODUCT_TRUTH_EXACT_RPC = 'feya_commerce_get_seo_product_truth_v4';
 
 export async function GET(request: Request) {
   const productId = new URL(request.url).searchParams.get('product_id')?.trim() || '';
@@ -27,11 +28,15 @@ export async function GET(request: Request) {
     }, { status: 503 });
   }
 
-  const { data, error } = await supabase
-    .from(STOREFRONT_VIEW_V4)
-    .select(STOREFRONT_V4_PDP_SELECT)
-    .eq('canonical_product_id', productId)
-    .maybeSingle();
+  const [{ data, error }, { data: truthRows, error: truthError }] = await Promise.all([
+    supabase.rpc(STOREFRONT_PRODUCT_EXACT_RPC, {
+      p_canonical_product_id: productId,
+    })
+      .maybeSingle(),
+    supabase.rpc(PRODUCT_TRUTH_EXACT_RPC, {
+      p_canonical_product_id: productId,
+    }),
+  ]);
 
   if (error) {
     return NextResponse.json({
@@ -53,12 +58,26 @@ export async function GET(request: Request) {
     }, { status: 404 });
   }
 
+  if (truthError) {
+    console.warn('[storefront-product] canonical_composition_unavailable', {
+      productId,
+      message: truthError.message,
+    });
+  }
+
+  const canonicalIncludedComponents = Array.isArray(truthRows?.[0]?.included_components)
+    ? truthRows[0].included_components
+    : [];
+
   return NextResponse.json({
     ok: true,
     status: 'storefront_product_ready',
     read_only: true,
     product_id: productId,
-    product: data,
+    product: {
+      ...data,
+      canonical_included_components: canonicalIncludedComponents,
+    },
     guardrails: [
       'No Supabase write.',
       'No product mutation.',
