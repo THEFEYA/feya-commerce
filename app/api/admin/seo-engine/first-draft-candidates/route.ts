@@ -159,6 +159,17 @@ export async function GET(request: Request) {
 
 async function loadCandidateDetail(productId: string) {
   const bundle = await buildSeoBriefContractBundle(productId);
+
+  if (bundle?.error) {
+    return NextResponse.json({
+      ok: false,
+      status: 'canonical_product_truth_read_failed',
+      error: bundle.error,
+      product_id: productId,
+      read_only: true,
+    }, { status: 503 });
+  }
+
   const baseCandidate = summarizeCandidate(bundle, bundle?.decision || null);
   const candidate = productId === PILOT_PRODUCT_ID
     ? { ...baseCandidate, is_controlled_pilot: true }
