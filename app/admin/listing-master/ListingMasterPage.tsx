@@ -657,22 +657,11 @@ function normalizeProduct(row, sourceSignals = {}) {
   };
   const truthBlockers = getSeoProductTruthEvidenceBlockers(truth);
   const sourceTagsText = [...arr(sourceSignals.raw_tags), ...arr(sourceSignals.raw_materials)].join(' ').toLowerCase();
-  const text = [
-    row.focus_text,
+  const searchText = [
     title,
-    sectionLabel,
-    sourceCategory,
-    row.world_label,
-    row.material,
-    row.canonical_color_label,
-    row.color,
-    row.primary_image_alt,
-    parent.join(' '),
-    child.join(' '),
-    groups.join(' '),
+    row.product_slug,
     row.canonical_product_id,
     row.matched_etsy_listing_id,
-    sourceTagsText,
   ].filter(Boolean).join(' ').toLowerCase();
   return {
     id: row.canonical_product_id,
@@ -699,13 +688,16 @@ function normalizeProduct(row, sourceSignals = {}) {
     hasComponentReviewRisk: truthBlockers.length > 0,
     truth,
     truthBlockers,
-    text,
+    searchText,
     sourceTagsText,
   };
 }
 
 function productSearchTokenMatch(product, token) {
-  const haystack = norm(`${product?.text || ''} ${product?.slug || ''} ${product?.etsyId || ''}`)
+  // Catalog search is an identity lookup, not a semantic Product Truth filter.
+  // Hidden tags, ALT, components and focus metadata made a title query such as
+  // "shoulders" return products whose visible name did not contain the term.
+  const haystack = norm(product?.searchText || '')
     .replace(/[^a-z0-9]+/g, ' ');
   const needle = norm(token).replace(/[^a-z0-9]+/g, ' ');
   if (!needle) return true;
