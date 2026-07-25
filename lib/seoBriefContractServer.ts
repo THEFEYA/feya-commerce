@@ -97,6 +97,8 @@ const APPROVED_KEYWORD_SELECT = [
 ].join(',');
 
 const APPROVED_KEYWORD_CACHE_TTL_MS = 5 * 60 * 1000;
+const PRODUCT_TRUTH_READ_ATTEMPTS = 3;
+const PRODUCT_TRUTH_RETRY_DELAYS_MS = [150, 400];
 let approvedKeywordCache = null;
 
 const COMPONENT_TEXT_KEYS = [
@@ -264,7 +266,7 @@ export async function loadSeoBriefSource(productId: string) {
     keywordBankWarning: keywordHydration.warning,
     keywordSelection,
     keywordRecommendationDiagnostics,
-    error: null,
+    error: productResult.loadError || null,
   };
 }
 
@@ -369,11 +371,20 @@ async function hydrateSelectedKeywordsFromApprovedBank(supabase, selectedRows) {
 }
 
 async function loadProductTruthRow(supabase, productId) {
-  const canonicalResult = await supabase
-    .from(PRODUCT_TRUTH_VIEW)
-    .select(PRODUCT_TRUTH_SELECT)
-    .eq('canonical_product_id', productId)
-    .limit(1);
+  let canonicalResult = null;
+  for (let attempt = 0; attempt < PRODUCT_TRUTH_READ_ATTEMPTS; attempt += 1) {
+    canonicalResult = await supabase
+      .from(PRODUCT_TRUTH_VIEW)
+      .select(PRODUCT_TRUTH_SELECT)
+      .eq('canonical_product_id', productId)
+      .limit(1);
+
+    if (!canonicalResult.error) break;
+    if (attempt < PRODUCT_TRUTH_RETRY_DELAYS_MS.length) {
+      await delay(PRODUCT_TRUTH_RETRY_DELAYS_MS[attempt]);
+    }
+  }
+
   const canonicalProduct = (canonicalResult.data || [])[0] || null;
 
   if (!canonicalResult.error && canonicalProduct) {
@@ -381,6 +392,7 @@ async function loadProductTruthRow(supabase, productId) {
       product: canonicalProduct,
       productTruthSource: 'seo_product_truth_v1',
       productTruthWarning: null,
+      loadError: null,
     };
   }
 
@@ -398,7 +410,18 @@ async function loadProductTruthRow(supabase, productId) {
     product: fallbackProduct,
     productTruthSource: fallbackProduct ? 'listing_master_product_focus_v1' : null,
     productTruthWarning: canonicalReason,
+    // A failed canonical read is an infrastructure failure, not evidence that
+    // this product lacks confirmed composition. Keep the diagnostic fallback
+    // available to callers, but never convert a transient database error into
+    // Product Truth blockers.
+    loadError: canonicalResult.error
+      ? `Canonical Product Truth read failed after ${PRODUCT_TRUTH_READ_ATTEMPTS} attempts: ${canonicalResult.error.message}`
+      : null,
   };
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export async function loadLatestSavedSeoDraftContext(productId: string) {
