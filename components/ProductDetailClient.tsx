@@ -292,11 +292,20 @@ export function ProductDetailClient({
     <section id="description" className="container-feya py-7 border-t border-[rgba(216,214,211,0.12)] grid grid-cols-12 gap-7">
       <div className="col-span-12 lg:col-span-7">
         {draftBlocks.length
-          ? <GeneratedDescription title={shortHead} blocks={draftBlocks} />
-          : <DefaultDescription product={p} title={shortHead} />}
+          ? <GeneratedDescription
+              title={shortHead}
+              blocks={draftBlocks}
+              includedLines={includedLines}
+              canChooseSeparately={canChoosePiecesSeparately}
+            />
+          : <DefaultDescription
+              product={p}
+              title={shortHead}
+              includedLines={includedLines}
+              canChooseSeparately={canChoosePiecesSeparately}
+            />}
       </div>
       <div className="col-span-12 lg:col-span-5 space-y-0">
-        {includedLines.length ? <IncludedDetail lines={includedLines} canChooseSeparately={canChoosePiecesSeparately} /> : null}
         {THEFEYA_CANONICAL_RIGHT_PDP_PANEL.map((block) => <Detail
           key={block.block_key}
           icon={rightPanelIcon(block.block_key)}
@@ -318,25 +327,51 @@ export function ProductDetailClient({
   </div>;
 }
 
-function GeneratedDescription({ title, blocks }: { title: string; blocks: DraftBlock[] }) {
+function GeneratedDescription({
+  title,
+  blocks,
+  includedLines,
+  canChooseSeparately,
+}: {
+  title: string;
+  blocks: DraftBlock[];
+  includedLines: string[];
+  canChooseSeparately: boolean;
+}) {
   return <div>
     <div className="eyebrow-gold mb-3">{blocks[0]?.heading || 'About this piece'}</div>
     <h2 className="display-section text-bone mb-4" style={{ fontSize: 'clamp(24px, 2.3vw, 34px)' }}>{title}</h2>
     <div className="space-y-6 text-[15px] text-[var(--bone-dim)] leading-[1.8]">
-      {blocks.map((block, index) => <article key={`${block.block_key || 'block'}-${index}`}>
-        {index > 0 ? <h3 className="text-bone text-[22px] leading-tight mb-2">{block.heading || humanize(block.block_key)}</h3> : null}
-        <DisplayBody body={String(block.body || '')} />
-      </article>)}
+      {blocks.map((block, index) => <div key={`${block.block_key || 'block'}-${index}`}>
+        <article>
+          {index > 0 ? <h3 className="text-bone text-[22px] leading-tight mb-2">{block.heading || humanize(block.block_key)}</h3> : null}
+          <DisplayBody body={String(block.body || '')} />
+        </article>
+        {index === 0 && includedLines.length
+          ? <IncludedDetail lines={includedLines} canChooseSeparately={canChooseSeparately} />
+          : null}
+      </div>)}
     </div>
   </div>;
 }
 
-function DefaultDescription({ product, title }: { product: StorefrontProduct; title: string }) {
+function DefaultDescription({
+  product,
+  title,
+  includedLines,
+  canChooseSeparately,
+}: {
+  product: StorefrontProduct;
+  title: string;
+  includedLines: string[];
+  canChooseSeparately: boolean;
+}) {
   return <div>
     <div className="eyebrow-gold mb-3">About this piece</div>
     <h2 className="display-section text-bone mb-4" style={{ fontSize: 'clamp(24px, 2.3vw, 34px)' }}>{title}</h2>
     <div className="space-y-4 text-[15px] text-[var(--bone-dim)] leading-[1.8]">
       <p>{product.meta_description || `${title} is a studio-created statement piece for festival, stage, and editorial looks.`}</p>
+      {includedLines.length ? <IncludedDetail lines={includedLines} canChooseSeparately={canChooseSeparately} /> : null}
       <p>Its silhouette is designed to stay visually clear in motion, from a distance, and on camera. Product-specific material, finish, and fit details are shown in the selected configuration and information panel.</p>
       <p>Made to order in standard or custom sizing, with worldwide tracked delivery options selected in the cart.</p>
     </div>
@@ -344,7 +379,10 @@ function DefaultDescription({ product, title }: { product: StorefrontProduct; ti
 }
 
 function DisplayBody({ body }: { body: string }) {
-  const lines = body.split(/\n/).map((line) => line.replace(/^[-*]\s*/, '').trim()).filter(Boolean);
+  const lines = body
+    .split(/\n/)
+    .map((line) => line.replace(/^\s*(?:[-*•●▪◦]+|\d+[.)])\s*/, '').trim())
+    .filter(Boolean);
   const looksLikeList = lines.length > 1;
   if (!looksLikeList) return <p>{body}</p>;
   return <ul className="space-y-2">{lines.map((line, index) => <li key={`${line}-${index}`} className="flex gap-2"><span className="mt-[.7em] h-1 w-1 shrink-0 rounded-full bg-[var(--gold-warm)]" /><span>{line}</span></li>)}</ul>;
@@ -355,7 +393,7 @@ function Detail({ icon, title, lines, id }: { icon: ReactNode; title: string; li
 }
 
 function IncludedDetail({ lines, canChooseSeparately }: { lines: string[]; canChooseSeparately: boolean }) {
-  return <div className="border-t border-[rgba(216,214,211,0.12)] py-5">
+  return <section className="border-t border-[rgba(216,214,211,0.12)] mt-6 pt-5">
     <div className="eyebrow-gold mb-3 flex items-center gap-2"><Scissors size={15} />What&apos;s included</div>
     <ul className="space-y-2 text-[14px] text-[var(--bone-dim)]">
       {lines.map((line) => <li key={line} className="flex items-start gap-2">
@@ -364,9 +402,9 @@ function IncludedDetail({ lines, canChooseSeparately }: { lines: string[]; canCh
       </li>)}
     </ul>
     {canChooseSeparately ? <p className="mt-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">
-      Choose the complete set or select available pieces separately.
+      Choose the Full Set or order available pieces separately.
     </p> : null}
-  </div>;
+  </section>;
 }
 
 function ReviewAnchor({ average, count }: { average: number; count: number }) {
