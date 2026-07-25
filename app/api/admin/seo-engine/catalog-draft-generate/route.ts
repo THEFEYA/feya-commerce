@@ -148,7 +148,7 @@ export async function POST(request: Request) {
   let repairKeywordPlacement = null;
   let repairUsed = false;
 
-  if (firstGeneration.ok && firstGeneration.output && shouldRepair(firstStructural, firstCommercial, firstKeywordPlacement)) {
+  if (firstGeneration.ok && firstGeneration.output) {
     const repairPrompt = buildRepairPrompt(
       promptContract,
       firstGeneration.output,
@@ -156,7 +156,9 @@ export async function POST(request: Request) {
       firstCommercial.issues || [],
       firstKeywordPlacement.issues || [],
     );
-    repairGeneration = await generateSeoDraftWithOpenAi(repairPrompt, { primaryImageUrl });
+    // The second pass is an editorial pass over verified text. Excluding the image
+    // prevents the editor from drifting back into computer-vision narration.
+    repairGeneration = await generateSeoDraftWithOpenAi(repairPrompt);
     repairStructural = repairGeneration.output
       ? validateSeoAgentOutput(repairGeneration.output)
       : validateSeoAgentOutput(null);
@@ -168,7 +170,7 @@ export async function POST(request: Request) {
     if (
       repairGeneration.ok
       && repairGeneration.output
-      && candidateScore(repairStructural, repairCommercial, repairKeywordPlacement) < candidateScore(firstStructural, firstCommercial, firstKeywordPlacement)
+      && candidateScore(repairStructural, repairCommercial, repairKeywordPlacement) <= candidateScore(firstStructural, firstCommercial, firstKeywordPlacement)
     ) {
       selectedGeneration = repairGeneration;
       selectedStructural = repairStructural;
@@ -333,10 +335,16 @@ function buildRepairPrompt(promptContract, currentOutput, structuralIssues, comm
   ];
   const repairRules = [
     '',
-    'THEFEYA CATALOG HUMANIZER REPAIR PASS:',
+    'THEFEYA MANDATORY BUYER-COPY EDITOR PASS:',
     'Return a complete seo_agent_output_v1 JSON object, not a patch or commentary.',
-    'Repair generated customer-facing fields only. Preserve product truth, selected keywords, visual facts and forbidden-claim boundaries.',
+    'Act as the final senior ecommerce editor after the SEO writer. Rewrite generated customer-facing fields even when formal validators found no error.',
+    'Preserve Product Truth, the approved Primary meaning and useful Secondary semantics, visual facts and forbidden-claim boundaries.',
     'Do not alter raw variations, component mappings, configuration meaning, prices or the fixed right PDP panel.',
+    'Silently test every sentence before returning it: which normal buyer question does it answer, and what concrete fact or benefit does it add? Delete or rewrite any sentence that has no clear answer.',
+    'Write as a designer explaining a real product to a customer. Prefer ordinary words and complete thoughts over fashion-analysis language.',
+    'The buyer is choosing a complete look for an event, performance or personal style. Do not describe the buyer as searching for a silhouette, coordinated look, stage-ready shape, body line or anatomical feature.',
+    'Do not use bold, strong, striking, sculptural, distinctive or expressive as automatic intensifiers. Keep one only when it communicates a specific supported fact that cannot be said more plainly.',
+    'Natural commercial wording outranks exact repetition of every Secondary keyword. Preserve the Primary naturally; omit a Secondary variant when it would make the sentence unnatural or redundant.',
     'Use natural human rhythm and remove repeated thoughts, near-duplicate sentences and repeated benefit categories.',
     'Do not lengthen SEO title, H1, meta or body merely to hit a minimum. Keep a concise complete phrase when it already names the product clearly.',
     'Name the primary product entity once in H1 and meta. Never restate shoulder armor as a shoulder piece or repeat the same product through a near-synonym.',
@@ -368,14 +376,6 @@ function buildRepairPrompt(promptContract, currentOutput, structuralIssues, comm
     user_prompt: `${promptContract.user_prompt}\n${repairRules}`,
     guardrails: [...(promptContract.guardrails || []), repairRules],
   };
-}
-
-function shouldRepair(structural, commercial, keywordPlacement) {
-  if (!structural?.ok || !commercial?.ok || !keywordPlacement?.ok) return true;
-  return (commercial?.issues || []).some((issue) => (
-    String(issue.code || '').startsWith('repeated_idea_')
-      || ['cross_block_repetition_warning', 'self_expression_close_lacks_clear_buyer_value'].includes(String(issue.code || ''))
-  ));
 }
 
 function candidateScore(structural, commercial, keywordPlacement) {
