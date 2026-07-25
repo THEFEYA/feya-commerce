@@ -6,6 +6,7 @@ import { getListingMasterKeywordSelection } from '@/lib/seoListingMasterDecision
 import { buildSeoAgentInputFromDraft, buildSeoPackDraftContractFromBrief } from '@/lib/seoPackContractBuilder';
 
 const PRODUCT_TRUTH_VIEW = 'feya_commerce_v_seo_product_truth_v4';
+const PRODUCT_TRUTH_EXACT_RPC = 'feya_commerce_get_seo_product_truth_v4';
 const FOCUS_VIEW = 'feya_commerce_v_listing_master_product_focus_v1';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
 const SEO_DRAFT_LATEST_VIEW = 'feya_commerce_v_seo_pack_drafts_latest_v1';
@@ -374,9 +375,8 @@ async function loadProductTruthRow(supabase, productId) {
   let canonicalResult = null;
   for (let attempt = 0; attempt < PRODUCT_TRUTH_READ_ATTEMPTS; attempt += 1) {
     canonicalResult = await supabase
-      .from(PRODUCT_TRUTH_VIEW)
+      .rpc(PRODUCT_TRUTH_EXACT_RPC, { p_canonical_product_id: productId })
       .select(PRODUCT_TRUTH_SELECT)
-      .eq('canonical_product_id', productId)
       .limit(1);
 
     if (!canonicalResult.error) break;
@@ -390,6 +390,8 @@ async function loadProductTruthRow(supabase, productId) {
   if (!canonicalResult.error && canonicalProduct) {
     return {
       product: canonicalProduct,
+      // Preserve the established canonical-source contract consumed by the
+      // component truth builder; only the database access path changed.
       productTruthSource: 'seo_product_truth_v1',
       productTruthWarning: null,
       loadError: null,
