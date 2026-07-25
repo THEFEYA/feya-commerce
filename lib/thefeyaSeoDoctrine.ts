@@ -1,4 +1,4 @@
-export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v15' as const;
+export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v16' as const;
 
 export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
   checkpoint_id: 'reload_latest_research_before_apply_publish_v1',
@@ -103,7 +103,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Product variations, included components, PDP text blocks, slug/meta data and future sitemap updates must be handled by one canonical product editing flow, not by disconnected one-off text patches.',
     'The existing storefront PDP is the visual source of truth. Admin previews must reuse its structure, spacing, order, icons and interaction patterns rather than imitate it in a parallel component.',
     'The complete right PDP information panel is immutable canonical storefront copy. OpenAI must never generate, rewrite, paraphrase or reorder it.',
-    'What’s included is a separate dynamic storefront block rendered only from confirmed configuration mapping. It is not part of the fixed copy and is never written by OpenAI.',
+    'What’s included is a separate dynamic left-description block rendered after About this piece only from confirmed configuration mapping. It is not written by OpenAI.',
     'The canonical admin review destination is the existing SEO storefront preview. Temporary generation routes must redirect into that workspace instead of creating parallel screens.',
   ],
   brand_value_pillars: THEFEYA_BRAND_VALUE_PILLARS,
@@ -176,8 +176,8 @@ export const THEFEYA_SEO_DOCTRINE = {
   right_panel_policy: [
     'THEFEYA_CANONICAL_RIGHT_PDP_PANEL is one fixed immutable source for both live PDP and admin preview.',
     'OpenAI must never generate, rewrite, paraphrase, translate, reorder or append any right-panel block.',
-    'What’s included is the first dynamic right-panel block only when confirmed configuration data exists. Hide it when component or public-label truth is unresolved; never invent filler contents.',
-    'What’s included comes from approved configuration and component mapping data for the currently selected option.',
+    'What’s included appears after About this piece only when confirmed configuration data exists. Render each component on its own check-marked line and hide the block when truth is unresolved.',
+    'What’s included comes from approved configuration and component mapping data for the currently selected option. When separate configurations exist, state that the Full Set or available pieces can be ordered separately.',
     'Sizing & fit, Production time, Shipping & delivery, Material, Care and Made to order & customization are fixed canonical blocks and identical for all products.',
     'Returns, exchanges and cancellation copy is not repeated in the quick right panel because policy links already exist under the purchase controls.',
     'Product-specific material nuances, visible style, event angle and benefits belong in the generated left description.',
@@ -191,14 +191,14 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Material, finish, comfort, durability and care are product-specific claims. Generate them only from Product Truth or verified image truth; fixed right-panel wording is not evidence for generated copy.',
     'Returns, exchanges and cancellations are available through the store-policy links under the purchase controls and are not duplicated in the quick right panel.',
     'Gift note or card can be mentioned only as an optional request, not as a main SEO angle.',
-    'Included components come from approved configuration mapping and are rendered by the storefront right panel, not invented by the model.',
+    'Included components come from approved configuration mapping and are rendered deterministically in the left description, not invented by the model.',
     ...THEFEYA_BRAND_VALUE_PILLARS,
   ],
   faq_strategy: [
     'Product PDP should not show a separate FAQ block by default because it duplicates the right information panel and global store FAQ.',
     'The top-level faq array in seo_agent_output_v1 should normally be empty or contain review-only suggestions for future global FAQ, not rendered inside the PDP.',
     'Useful global FAQ intents later: production timing, shipping timing, sizing and custom measurements, materials and care, color options, customization and the returns policy link.',
-    'Do not ask What is included in the order as a generic FAQ because each configuration has different included components and this belongs in the dynamic right panel.',
+    'Do not ask What is included in the order as a generic FAQ because each configuration has different included components and this belongs in the dynamic Product Truth block.',
     'Do not ask What is the main focus of this image or product. Buyers can see the product.',
   ],
   visual_truth_strategy: [
@@ -277,7 +277,7 @@ export function buildThefeyaSeoDoctrineGuardrails() {
     'Use the live storefront PDP component as the visual source of truth for admin preview.',
     'Treat the complete right PDP panel as immutable code-owned storefront content.',
     'Do not generate, paraphrase, reorder or append any right-panel block.',
-    'Render What’s included only from confirmed configuration mapping, and hide it when unresolved.',
+    'Render What’s included after About this piece only from confirmed configuration mapping, using one check-marked line per component; hide it when unresolved.',
     'Do not output product FAQ inside PDP by default.',
     'Do not present visual analysis, Product Truth diagnostics, source wording or review instructions as buyer-facing sales copy.',
     'Do not use the brand name as a repeated product keyword.',
