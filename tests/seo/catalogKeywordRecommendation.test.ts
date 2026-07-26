@@ -129,7 +129,7 @@ test('multi-component Product Truth cannot receive a component-only primary keyw
       { ...baseMetric, keyword: 'gold shoulder armor', keyword_norm: 'gold shoulder armor', bank_bucket: 'product', avg_monthly_searches: 100000 },
       { ...baseMetric, keyword: 'gold shoulder armor costume', keyword_norm: 'gold shoulder armor costume', bank_bucket: 'product', avg_monthly_searches: 95000 },
       { ...baseMetric, keyword: 'gold shoulders', keyword_norm: 'gold shoulders', bank_bucket: 'product_or_alt', avg_monthly_searches: 90000 },
-      { ...baseMetric, keyword: 'gold festival armor outfit', keyword_norm: 'gold festival armor outfit', bank_bucket: 'product', avg_monthly_searches: 120 },
+      { ...baseMetric, keyword: 'gold festival outfit', keyword_norm: 'gold festival outfit', bank_bucket: 'product', avg_monthly_searches: 120 },
       { ...baseMetric, keyword: 'harness festival outfit', keyword_norm: 'harness festival outfit', bank_bucket: 'product', avg_monthly_searches: 90 },
       { ...baseMetric, keyword: 'rave skirt outfits', keyword_norm: 'rave skirt outfits', bank_bucket: 'product', avg_monthly_searches: 70 },
     ],
@@ -143,6 +143,146 @@ test('multi-component Product Truth cannot receive a component-only primary keyw
   assert.equal(result.keywords.find((row) => row.keyword_norm === 'gold shoulder armor costume')?.role, 'secondary');
   assert.equal(result.diagnostics.product_presentation_mode, 'compact_set');
   assert.equal(result.diagnostics.confirmed_component_count, 3);
+  assert.equal(result.diagnostics.auto_primary_scope, 'whole_product_or_single_component');
+});
+
+test('compound Product Truth labels cannot hide a component-led whole-product query', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      card_title: 'Gold Festival Armor Outfit',
+      canonical_color_label: 'Gold',
+      included_components: ['Harness Top', 'Shoulders', 'Skirt', 'Top'],
+    },
+    focus: {
+      component: ['harness', 'shoulders', 'skirt', 'top'],
+      event: ['festival'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'harness outfit festival', keyword_norm: 'harness outfit festival', bank_bucket: 'product', avg_monthly_searches: 10000 },
+      { ...baseMetric, keyword: 'gold festival armor outfit', keyword_norm: 'gold festival armor outfit', bank_bucket: 'product', avg_monthly_searches: 120 },
+    ],
+  });
+
+  assert.equal(
+    result.keywords.find((row) => row.keyword_norm === 'harness outfit festival')?.whole_product_intent,
+    false,
+  );
+  assert.equal(
+    result.keywords.find((row) => row.keyword_norm === 'harness outfit festival')?.role,
+    'secondary',
+  );
+  assert.equal(
+    result.keywords.find((row) => row.role === 'primary')?.keyword_norm,
+    'gold festival armor outfit',
+  );
+});
+
+test('an anatomical harness query requires matching Product Truth anatomy', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      card_title: 'Gold Festival Harness Outfit',
+      canonical_color_label: 'Gold',
+      included_components: ['Harness Top', 'Shoulders', 'Skirt', 'Top'],
+    },
+    focus: {
+      component: ['harness', 'shoulders', 'skirt', 'top'],
+      event: ['festival'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'festival leg harness', keyword_norm: 'festival leg harness', bank_bucket: 'product', avg_monthly_searches: 50000 },
+      { ...baseMetric, keyword: 'leg harness rave', keyword_norm: 'leg harness rave', bank_bucket: 'product', avg_monthly_searches: 40000 },
+      { ...baseMetric, keyword: 'gold festival outfit', keyword_norm: 'gold festival outfit', bank_bucket: 'product', avg_monthly_searches: 120 },
+    ],
+  });
+
+  const keywords = result.keywords.map((row) => String(row.keyword_norm));
+  assert.equal(keywords.includes('festival leg harness'), false);
+  assert.equal(keywords.includes('leg harness rave'), false);
+  assert.equal(keywords.includes('gold festival outfit'), true);
+});
+
+test('plus-size positioning is held unless Product Truth names it explicitly', () => {
+  const unsupported = recommendCatalogKeywords({
+    product: {
+      card_title: 'Gold Festival Outfit',
+      canonical_color_label: 'Gold',
+      included_components: ['Harness Top', 'Skirt'],
+      source_variations_json: [{ raw_variation_name: 'Size', values: ['2X', '3X', '4X'] }],
+    },
+    focus: { event: ['festival'] },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'plus size gold festival outfits', keyword_norm: 'plus size gold festival outfits', bank_bucket: 'product', avg_monthly_searches: 5000 },
+      { ...baseMetric, keyword: 'gold festival armor outfit', keyword_norm: 'gold festival armor outfit', bank_bucket: 'product', avg_monthly_searches: 120 },
+    ],
+  });
+  assert.equal(
+    unsupported.keywords.some((row) => row.keyword_norm === 'plus size gold festival outfits'),
+    false,
+  );
+
+  const supported = recommendCatalogKeywords({
+    product: {
+      card_title: 'Gold Festival Outfit',
+      canonical_color_label: 'Gold',
+      included_components: ['Harness Top', 'Skirt'],
+      confirmed_size_range: 'Plus size',
+    },
+    focus: { event: ['festival'] },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'plus size gold festival outfits', keyword_norm: 'plus size gold festival outfits', bank_bucket: 'product', avg_monthly_searches: 5000 },
+      { ...baseMetric, keyword: 'gold festival armor outfit', keyword_norm: 'gold festival armor outfit', bank_bucket: 'product', avg_monthly_searches: 120 },
+    ],
+  });
+  assert.equal(
+    supported.keywords.some((row) => row.keyword_norm === 'plus size gold festival outfits'),
+    true,
+  );
+});
+
+test('the current Etsy 4340584466 truth selects a set query and rejects saved scope leaks', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      card_title: 'Best Festival Armor Outfit - Leather Shoulders & Skirt, Gold Metallic Harness',
+      product_type: 'costume_component_or_set',
+      canonical_color_label: 'Gold',
+      material: 'Vegan leather',
+      included_components: ['Harness Top', 'Shoulders', 'Skirt', 'Top'],
+      source_variations_json: [{
+        raw_variation_name: 'Choose Your Set',
+        values: ['Shoulders', 'Skirt', 'Bracelets', 'Shoulders & Skirt', 'Full Set'],
+      }, {
+        raw_variation_name: 'Size',
+        values: ['XXS', 'XS', 'S', 'M', 'L', 'XL', '2X', '3X', '4X'],
+      }],
+    },
+    focus: {
+      component: ['shoulders', 'top', 'harness', 'skirt'],
+      material: ['gold'],
+      event: ['burning man', 'festival'],
+      persona: ['warrior'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'harness outfit festival', keyword_norm: 'harness outfit festival', bank_bucket: 'product', avg_monthly_searches: 10 },
+      { ...baseMetric, keyword: 'festival leg harness', keyword_norm: 'festival leg harness', bank_bucket: 'product', avg_monthly_searches: 10 },
+      { ...baseMetric, keyword: 'plus size rave attire', keyword_norm: 'plus size rave attire', bank_bucket: 'faq', avg_monthly_searches: 4400 },
+      { ...baseMetric, keyword: 'gold shoulder armor', keyword_norm: 'gold shoulder armor', bank_bucket: 'product_or_alt', avg_monthly_searches: 210 },
+      { ...baseMetric, keyword: 'metallic top and skirt set', keyword_norm: 'metallic top and skirt set', bank_bucket: 'product_or_alt', avg_monthly_searches: 10 },
+      { ...baseMetric, keyword: 'skirt and top set festival', keyword_norm: 'skirt and top set festival', bank_bucket: 'product', avg_monthly_searches: 10 },
+    ],
+  });
+
+  const keywords = result.keywords.map((row) => String(row.keyword_norm));
+  assert.equal(keywords.includes('festival leg harness'), false);
+  assert.equal(keywords.includes('plus size rave attire'), false);
+  assert.equal(
+    result.keywords.find((row) => row.keyword_norm === 'harness outfit festival')?.role,
+    'secondary',
+  );
+  assert.equal(
+    result.keywords.find((row) => row.role === 'primary')?.keyword_norm,
+    'skirt and top set festival',
+  );
   assert.equal(result.diagnostics.auto_primary_scope, 'whole_product_or_single_component');
 });
 

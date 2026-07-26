@@ -22,7 +22,7 @@ export const revalidate = 0;
 const PRODUCT_LIMIT = 500;
 const KEYWORD_LIMIT = 6000;
 const DISPLAY_LIMIT = 180;
-const KEYWORD_SNAPSHOT_LIMIT = 35;
+const KEYWORD_SNAPSHOT_LIMIT = 18;
 
 const PRODUCT_TRUTH_EXACT_RPC = 'feya_commerce_get_seo_product_truth_v4';
 const KEYWORD_VIEW = 'vw_seo_keyword_bank_v1_for_listing_master';

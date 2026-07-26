@@ -374,3 +374,54 @@ test('requires a compact set to remain the page entity across SEO fields', () =>
     .filter((code) => code.includes('multi_component') || code.includes('whole_product') || code.includes('compact_set') || code.includes('confirmed_components'));
   assert.deepEqual(presentationCodes, []);
 });
+
+test('blocks robotic editorial shorthand and search-query audience copy', () => {
+  const value = draft({
+    intro: 'The glossy metallic coating gives the outfit a clear finish for photographs.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'
+      ? {
+        ...block,
+        body: [
+          'Women looking for a gold festival outfit',
+          'Festival performers appearing at Burning Man',
+          'Editorial costume productions',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('customer_copy_contains_robotic_editorial_jargon'));
+  assert.ok(codes.includes('customer_copy_reads_like_search_query'));
+});
+
+test('blocks plus-size positioning unless Product Truth explicitly confirms it', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'
+      ? {
+        ...block,
+        body: [
+          'Plus-size festival performers preparing for Burning Man',
+          'DJs and dancers appearing on festival stages',
+          'Editorial photoshoots and music-video costume work',
+        ].join('\n'),
+      }
+      : block),
+  });
+
+  const unsupported = validateSeoCommercialCopy(value, {
+    product_truth: { included_components: ['Shoulders'] },
+  });
+  assert.ok(unsupported.issues.some((issue) => issue.code === 'unsupported_plus_size_claim'));
+
+  const supported = validateSeoCommercialCopy(value, {
+    product_truth: {
+      included_components: ['Shoulders'],
+      confirmed_size_range: 'Plus size',
+    },
+  });
+  assert.equal(
+    supported.issues.some((issue) => issue.code === 'unsupported_plus_size_claim'),
+    false,
+  );
+});

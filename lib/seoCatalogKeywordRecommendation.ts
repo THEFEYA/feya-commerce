@@ -1,4 +1,4 @@
-import { classifySeoProductPresentation, hasWholeProductScope } from './seoProductPresentation.ts';
+import { classifySeoProductPresentation, hasWholeProductEntity } from './seoProductPresentation.ts';
 
 export type SeoKeywordRecommendationStrategy = 'balanced' | 'demand' | 'opportunity' | 'niche';
 
@@ -102,6 +102,23 @@ const MATERIAL_TERMS = [
   'silicone', 'vegan leather', 'vinyl',
 ];
 
+// "Armor" can describe the complete visual product even when the sold
+// configuration is expressed through concrete Product Truth components such
+// as Shoulders, Harness Top and Skirt. It remains an identity descriptor, not
+// proof that a separate Armor component is included.
+const UMBRELLA_COMPONENT_FAMILIES = new Set(['armor']);
+
+// A generic family match is not enough for anatomical compound queries.
+// "Leg harness" must never match a chest/torso harness merely because both
+// contain "harness".
+const ANATOMICAL_COMPONENT_REQUIREMENTS = [
+  { pattern: /\bleg harness(?:es)?\b/i, requiredAny: ['legs', 'garters'] },
+  { pattern: /\barm harness(?:es)?\b/i, requiredAny: ['arms'] },
+  { pattern: /\bshoulder harness(?:es)?\b/i, requiredAny: ['shoulders'] },
+];
+
+const SIZE_POSITIONING_TERMS = ['plus size'];
+
 const AUDIENCE_FAMILIES: Record<string, string[]> = {
   // Deliberately omit bare "man": it is part of the event name Burning Man.
   men: ['men', 'mens', "men's", 'male', 'guys'],
@@ -124,12 +141,16 @@ export function recommendCatalogKeywords(input: {
     .sort(compareRows);
   const scored = uniqueSemanticRows(eligibleRows);
 
-  const productRows = scored.filter((row) => PRODUCT_BUCKETS.has(normalize(row.bank_bucket || row.page_type))).slice(0, 18);
-  const faqRows = scored.filter((row) => normalize(row.bank_bucket || row.page_type) === 'faq').slice(0, 6);
-  const collectionRows = scored.filter((row) => ['collection', 'commercial collection'].includes(normalize(row.bank_bucket || row.page_type))).slice(0, 6);
-  const imageRows = scored.filter((row) => normalize(row.bank_bucket || row.page_type) === 'visual collection').slice(0, 4);
+  // Listing Master saves the displayed recommendation as one operator-reviewed
+  // decision. Keep that default decision intentionally small enough for a
+  // human to inspect and for the writer to use as semantic evidence rather
+  // than as a stuffing checklist.
+  const productRows = scored.filter((row) => PRODUCT_BUCKETS.has(normalize(row.bank_bucket || row.page_type))).slice(0, 10);
+  const faqRows = scored.filter((row) => normalize(row.bank_bucket || row.page_type) === 'faq').slice(0, 3);
+  const collectionRows = scored.filter((row) => ['collection', 'commercial collection'].includes(normalize(row.bank_bucket || row.page_type))).slice(0, 3);
+  const imageRows = scored.filter((row) => normalize(row.bank_bucket || row.page_type) === 'visual collection').slice(0, 2);
   const selected: RecommendedKeywordRow[] = uniqueRows([...productRows, ...faqRows, ...collectionRows, ...imageRows])
-    .slice(0, Math.max(3, input.limit || 30))
+    .slice(0, Math.max(3, input.limit || 18))
     .map((row) => ({
       ...row,
       role: recommendedRole(row, productRows, profile.presentation.requires_whole_product_entity),
@@ -160,6 +181,7 @@ export function recommendCatalogKeywords(input: {
       recommended_faq_rows: selected.filter((row) => normalize(row.bank_bucket || row.page_type) === 'faq').length,
       recommended_collection_rows: selected.filter((row) => ['collection', 'commercial collection'].includes(normalize(row.bank_bucket || row.page_type))).length,
       product_component_families: profile.componentFamilies,
+      product_identity_descriptor_families: profile.descriptorFamilies,
       product_presentation_mode: profile.presentation.mode,
       confirmed_component_count: profile.presentation.component_count,
       auto_primary_scope: selected.find((row) => row.role === 'primary')?.whole_product_intent === true
@@ -218,12 +240,26 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
   ]).join(' ');
   const materialText = flattenStrings([product.material, explicitFocus.material]).join(' ');
   const colorText = flattenStrings([product.canonical_color_label, product.color]).join(' ');
-  const componentFamilies = detectedFamilies(`${componentEvidence} ${identityText}`, COMPONENT_FAMILIES);
+  // Product components are derived only from canonical Product Truth evidence.
+  // A source title may describe styling or an umbrella identity, but it cannot
+  // manufacture a sold component.
+  const componentFamilies = detectedFamilies(componentEvidence, COMPONENT_FAMILIES);
+  const descriptorFamilies = detectedFamilies(identityText, COMPONENT_FAMILIES)
+    .filter((family) => UMBRELLA_COMPONENT_FAMILIES.has(family));
   const colors = detectedFamilies(colorText, COLOR_FAMILIES);
   const audiences = detectedFamilies(`${styleText} ${flattenStrings([explicitFocus.audience]).join(' ')}`, AUDIENCE_FAMILIES);
   const identityTokens = tokens(identityText).filter((token) => !STOP_WORDS.has(token) && token.length > 2);
   const styleTokens = tokens(styleText).filter((token) => !STOP_WORDS.has(token) && token.length > 2);
   const materialTerms = MATERIAL_TERMS.filter((term) => containsPhrase(materialText, term));
+  const sizingEvidence = flattenStrings([
+    product.confirmed_size_range,
+    product.size_range,
+    product.source_variations_json,
+    product.source_variations,
+    product.available_variants,
+  ]).join(' ');
+  const supportedSizePositioning = SIZE_POSITIONING_TERMS
+    .filter((term) => containsPhrase(sizingEvidence, term));
   const focusPhrases = unique(Object.entries(explicitFocus)
     .filter(([key]) => key !== 'exclude')
     .flatMap(([, value]) => flattenStrings([value]))
@@ -237,11 +273,13 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
   return {
     presentation,
     componentFamilies,
+    descriptorFamilies,
     colors,
     audiences,
     identityTokens: unique(identityTokens),
     styleTokens: unique(styleTokens),
     materialTerms,
+    supportedSizePositioning,
     focusPhrases,
     excludedTerms,
     focus: explicitFocus,
@@ -258,7 +296,15 @@ function scoreRow(
   const keywordComponents = detectedFamilies(keyword, COMPONENT_FAMILIES);
   const keywordColors = detectedFamilies(keyword, COLOR_FAMILIES);
   const keywordAudiences = detectedFamilies(keyword, AUDIENCE_FAMILIES);
-  const componentMatch = intersection(keywordComponents, profile.componentFamilies);
+  const supportedComponentFamilies = unique([
+    ...profile.componentFamilies,
+    ...profile.descriptorFamilies,
+  ]);
+  const componentMatch = intersection(keywordComponents, supportedComponentFamilies);
+  const narrowComponentMatch = intersection(
+    keywordComponents.filter((family) => !UMBRELLA_COMPONENT_FAMILIES.has(family)),
+    profile.componentFamilies,
+  );
   const colorMatch = intersection(keywordColors, profile.colors);
   const audienceMatch = intersection(keywordAudiences, profile.audiences);
   const identityOverlap = intersection(tokens(keyword), profile.identityTokens);
@@ -267,18 +313,31 @@ function scoreRow(
   const exactFocus = profile.focusPhrases.filter((term) => term.length > 2 && containsPhrase(keyword, term));
   const excludedMatch = profile.excludedTerms.find((term) => containsPhrase(keyword, term));
   const incompatibleDomain = INCOMPATIBLE_COMMERCE_DOMAINS.find((term) => containsPhrase(keyword, term));
+  const anatomicalComponentMismatch = ANATOMICAL_COMPONENT_REQUIREMENTS.find((requirement) => (
+    requirement.pattern.test(keyword)
+    && !requirement.requiredAny.some((family) => profile.componentFamilies.includes(family))
+  ));
+  const unsupportedSizePositioning = SIZE_POSITIONING_TERMS.find((term) => (
+    containsPhrase(keyword, term)
+    && !profile.supportedSizePositioning.includes(term)
+  ));
 
-  const componentMismatch = keywordComponents.length > 0 && componentMatch.length === 0;
+  const componentMismatch = keywordComponents.some((family) => !supportedComponentFamilies.includes(family));
   const colorMismatch = keywordColors.length > 0 && profile.colors.length > 0 && colorMatch.length === 0;
   const audienceMismatch = keywordAudiences.length > 0
     && profile.audiences.length === 1
     && audienceMatch.length === 0;
   const productBucket = PRODUCT_BUCKETS.has(bucket);
   const wholeProductIntent = productBucket
-    && hasWholeProductScope(keyword, profile.presentation.components);
+    && hasWholeProductEntity(keyword)
+    && (
+      !profile.presentation.requires_whole_product_entity
+      || narrowComponentMatch.length === 0
+      || narrowComponentMatch.length >= 2
+    );
   const partialComponentScope = productBucket
     && profile.presentation.requires_whole_product_entity
-    && keywordComponents.length > 0
+    && narrowComponentMatch.length > 0
     && !wholeProductIntent;
   const supportedBucket = productBucket || SUPPORT_BUCKETS.has(bucket);
   const productIdentityGate = componentMatch.length > 0
@@ -289,6 +348,8 @@ function scoreRow(
   if (incompatibleDomain) rejectReason = 'incompatible_commerce_domain';
   else if (excludedMatch) rejectReason = 'excluded_keyword_term';
   else if (!supportedBucket) rejectReason = 'unsupported_page_bucket';
+  else if (anatomicalComponentMismatch) rejectReason = 'anatomical_component_mismatch';
+  else if (unsupportedSizePositioning) rejectReason = 'unsupported_size_positioning';
   else if (componentMismatch) rejectReason = 'component_family_mismatch';
   else if (colorMismatch) rejectReason = 'color_mismatch';
   else if (audienceMismatch) rejectReason = 'audience_mismatch';

@@ -27,6 +27,7 @@ import { ProductCard } from '@/components/ProductCard';
 import { SalePrice } from '@/components/SalePrice';
 import { THEFEYA_CANONICAL_RIGHT_PDP_PANEL } from '@/lib/thefeyaSeoDoctrine';
 import type { StorefrontProduct } from '@/lib/types';
+import { storefrontIncludedOptions } from '@/lib/storefrontIncludedOptions';
 import {
   categoryLabel,
   colorOptions,
@@ -48,7 +49,6 @@ import {
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Custom'];
 const CART_KEY = 'feya_visual_cart_v1';
 const COUNT_KEY = 'feya_visual_bag';
-const CYRILLIC = /[А-Яа-яЁёІіЇїЄєҐґ]/;
 
 type DraftBlock = {
   block_key?: string;
@@ -146,7 +146,7 @@ export function ProductDetailClient({
     ? draft.pdp_blocks.filter((block) => block?.placement === 'left_description' && block?.body)
     : [];
   const reviewSummary = useMemo(() => readReviewSummary(p), [p]);
-  const includedLines = confirmedIncludedLines(p, activeConfig, activeConfigLabel);
+  const includedLines = storefrontIncludedOptions(p, activeConfig);
   const canChoosePiecesSeparately = options.length > 1 && Boolean(full);
 
   const fullRegularPrice = full ? optionPrice(full) : null;
@@ -448,47 +448,6 @@ function Stars({ value, size }: { value: number; size: number }) {
   return <>{[0, 1, 2, 3, 4].map((index) => <Star key={index} size={size} strokeWidth={1.5} fill={index < filled ? 'currentColor' : 'none'} />)}</>;
 }
 
-function confirmedIncludedLines(product: StorefrontProduct, configuration: any, label: string) {
-  if (!configuration) return [];
-  const bundleCodes = Array.isArray(configuration.bundle_component_codes)
-    ? configuration.bundle_component_codes.map(humanize).filter(Boolean)
-    : [];
-  if (bundleCodes.length) return uniqueStrings(bundleCodes);
-
-  const canonicalComponents = Array.isArray((product as Record<string, any>).canonical_included_components)
-    ? (product as Record<string, any>).canonical_included_components
-      .map((item: any) => humanize(String(
-        item?.canonical_name || item?.normalized_name || item?.component_code || item?.name || item || '',
-      )))
-      .filter(Boolean)
-    : [];
-  if (isFullSetOption(configuration) && canonicalComponents.length) {
-    return uniqueStrings(canonicalComponents);
-  }
-
-  if (hasCompositionRisk(product, configuration)) return [];
-
-  const code = String(configuration.component_code || configuration.component_family || '').trim();
-  if (code && !CYRILLIC.test(code)) return [humanize(code)];
-
-  const publicLabel = String(configuration.public_label || label || '').trim();
-  if (!publicLabel || CYRILLIC.test(publicLabel) || /^full\s*set$/i.test(publicLabel)) return [];
-  return [publicLabel];
-}
-
-function hasCompositionRisk(product: StorefrontProduct, configuration: any) {
-  const productRecord = product as Record<string, any>;
-  return Boolean(
-    productRecord.has_component_review_risk
-    || Number(productRecord.needs_component_review_count || 0) > 0
-    || productRecord.needs_label_review
-    || productRecord.has_russian_public_label
-    || configuration?.needs_label_review
-    || configuration?.has_russian_raw_label
-    || CYRILLIC.test(String(configuration?.public_label || '')),
-  );
-}
-
 function rightPanelIcon(key: string) {
   if (key === 'sizing_fit') return <Ruler size={15} />;
   if (key === 'production_timing') return <Clock3 size={15} />;
@@ -572,10 +531,6 @@ function formatReviewDate(value: any) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return String(value);
   return new Intl.DateTimeFormat('en', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
-}
-
-function uniqueStrings(values: string[]) {
-  return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
 }
 
 function humanize(value: any) {

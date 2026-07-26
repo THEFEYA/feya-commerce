@@ -31,6 +31,12 @@ const AUDIT_OR_ADMIN_LANGUAGE = /\b(product truth|product truth confirms?|produc
 const GUARANTEED_POPULARITY = /\b(guarantee(?:d|s)?|will get likes?|will receive likes?|will gain followers?|will make you popular|go viral|viral reach|more followers?|gain followers?|more likes?|become popular|increase your popularity|guaranteed attention|everyone will notice|all eyes will be on you|guaranteed reactions?)\b/i;
 const EMPTY_HYPE = /\b(premium|luxury|ultimate|perfect|best|must[- ]have|crafted to perfection|elevate your look)\b/i;
 const EMPTY_OR_INTERNAL_BUYER_COPY = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|studio fit|base layers?|statement piece|strong festival statement|structured (?:gold |metallic )?accent|bold (?:gold |metallic )?accent|TheFEYA gives us a way|TheFEYA\s+(?:we|our|us)\b|clean armored attitude|desert[- ]ready (?:mood|presence)|shoulder[- ]led|reads? fast|open light|direct choice for buyers?|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity (?:and|or) individuality|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|one[- ]and[- ]only (?:shoulder )?line|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced|(?:original|distinctive) alternative to (?:a )?(?:standard|generic|mass[- ]produced) costume (?:look|piece|design))\b/i;
+const AWKWARD_EDITORIAL_SHORTHAND = /\b(?:clear finish|strong visual finish)\b/i;
+const SEARCH_QUERY_AUDIENCE_PHRASING = /\b(?:women|men|buyers|shoppers|customers)\s+(?:looking|searching)\s+for\b/i;
+const COORDINATED_OUTFIT_JARGON = /\bcoordinated\b[^.!?\n]{0,35}\b(?:look|costume|outfit|set|base)\b/i;
+const EMPTY_BOLD_FINISH = /\bbold(?:\s+\w+){0,2}\s+(?:color|colour|finish|event look)\b/i;
+const STAGE_READY_GEOMETRY = /\bstage[- ]ready\s+(?:shape|silhouette)\b/i;
+const PLUS_SIZE_CLAIM = /\bplus[- ]size\b/i;
 const DIRECTIONAL_VISUAL_AUDIT = /\b(?:(?:left|right)[- ](?:shoulder|side|arm|leg)|(?:positioned|placed|located|sits?) (?:high|low|on the (?:left|right))|(?:clearly |well )?visible from (?:the )?(?:front|back|side)|seen from (?:the )?(?:front|back|side))\b/i;
 const ANATOMICAL_DESIGN_AUDIT = /\b(?:sculptural (?:profile|silhouette|line) of (?:the )?(?:left|right|one)?\s*shoulder|expressive upper[- ]body (?:form|line|profile|silhouette)|upper[- ]body (?:form|line|profile|silhouette|frame)|shoulder[- ]line|shoulder silhouette)\b/i;
 const UNNATURAL_EVENT_ATMOSPHERE = /\b(?:desert light|open light|desert[- ]ready|ready for (?:the )?desert)\b/i;
@@ -204,6 +210,25 @@ export function validateSeoCommercialCopy(
     ));
   }
 
+  if (
+    AWKWARD_EDITORIAL_SHORTHAND.test(customerText)
+    || COORDINATED_OUTFIT_JARGON.test(customerText)
+    || EMPTY_BOLD_FINISH.test(customerText)
+    || STAGE_READY_GEOMETRY.test(customerText)
+  ) {
+    issues.push(blocker(
+      'customer_copy_contains_robotic_editorial_jargon',
+      'Customer-facing copy contains abstract fashion shorthand without a concrete buyer benefit. Describe the real product, use case, fit, comfort, material, or design value instead.',
+    ));
+  }
+
+  if (SEARCH_QUERY_AUDIENCE_PHRASING.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_reads_like_search_query',
+      'Audience copy reads like a pasted search query. Address a real use case or buyer need in natural editorial language.',
+    ));
+  }
+
   if (DIRECTIONAL_VISUAL_AUDIT.test(customerText)) {
     issues.push(blocker(
       'customer_copy_contains_alt_only_directional_detail',
@@ -268,6 +293,16 @@ export function validateSeoCommercialCopy(
   }
 
   const productTruthText = flattenText(context.product_truth).join(' ');
+  if (
+    context.product_truth != null
+    && PLUS_SIZE_CLAIM.test(customerText)
+    && !PLUS_SIZE_CLAIM.test(productTruthText)
+  ) {
+    issues.push(blocker(
+      'unsupported_plus_size_claim',
+      'Plus-size positioning must be explicitly confirmed as such by Product Truth. A selected keyword or an inferred interpretation of size codes is not product evidence.',
+    ));
+  }
   if (
     context.product_truth != null
     && REFLECTIVE_CLAIM.test(`${customerText}\n${altText}`)

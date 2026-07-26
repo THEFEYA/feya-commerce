@@ -79,14 +79,17 @@ function buildSystemPrompt(input: SeoAgentInputContract) {
   const componentRules = [
     'product.product_truth_source must be seo_product_truth_v1 before any factual composition claim. A Listing Master Product Focus fallback is not sufficient evidence.',
     'The Product Truth contract is an aggregator over the approved Supabase phrase-map, component-mapping, configuration-derivation, and mapping-review layers. It is not a new normalizer.',
-    'product.included_components and product.known_components are confirmed component facts from that mapping layer.',
+    'product.included_components and product.known_components are normalized semantic component facts from Product Truth. Use them to understand the product entity and validate prose, not to reconstruct the storefront checklist.',
     'product.optional_configurations and product.available_variants describe buyer choices. Do not present every option as included in one purchase.',
-    'product.source_variations and product.option_price_rows preserve raw labels and are evidence about selectable configurations and prices, not permission to infer a component or mention a price in SEO copy.',
+    'product.source_variations and product.option_price_rows preserve original Etsy/storefront option labels. Those raw labels are the only authority for the customer-facing What’s Included checklist.',
+    'Preserve each raw selectable-piece label verbatim as one atomic item. Never split, merge, normalize, translate, singularize, or rewrite a compound label such as "Top and Shoulders".',
+    '"Full Set" is a purchase configuration, not a checklist component. For Full Set, the checklist contains the other confirmed raw selectable-piece labels; a redundant bundle choice such as "Shoulders & Skirt" is omitted when both exact individual labels already exist.',
+    'If raw selectable-piece labels are unavailable, the checklist remains hidden/fail closed. Never reconstruct it from Product DNA, keywords, title text, images, or normalized components.',
     'Never derive or repair a component family from substrings, translation guesses, title text, keywords, or image styling. Unmapped raw phrases remain blockers.',
     'product.source_description_fragment may clarify composition, but it must not override configuration rows, phrase-mapping status, or component review blockers.',
     'Raw variation labels may be multilingual. Preserve their evidence meaning, but write natural English en-US customer copy.',
     'Keyword roles, manual style focus, image observations, and search demand never prove that a component is included.',
-    'Do not generate a What’s included block. The storefront renders confirmed contents as a check-marked Product Truth block after About this piece and hides it when mapping remains unresolved.',
+    'Do not generate a What’s Included block. The storefront renders it deterministically from exact raw Etsy/storefront option labels after About this piece. Generated prose must not contradict those labels.',
   ];
 
   return [
@@ -199,10 +202,10 @@ function buildUserPrompt(input: SeoAgentInputContract) {
     'Every customer-facing string must be English en-US.',
     '',
     'Product and component truth rules:',
-    '- Treat the existing Supabase phrase and component mapping result inside Product Truth as authoritative.',
-    '- Keep raw option labels as evidence. Never reinterpret an unmapped raw phrase by substring or translation guess.',
+    '- Treat normalized Product Truth as authoritative for semantic product identity and factual prose.',
+    '- Treat raw Etsy/storefront option labels as authoritative for the exact What’s Included checklist. Preserve compound labels verbatim; never derive that checklist from normalized Product DNA.',
     '- Never infer included pieces from keywords, image styling, manual focus, source title, or collection terms.',
-    '- Do not generate What’s included. The storefront renders confirmed selected-configuration contents as a check-marked Product Truth block after About this piece.',
+    '- Do not generate What’s Included. The storefront renders exact selected-configuration contents from raw source option labels; Full Set is excluded as a checklist item.',
     '- Do not mention prices in SEO copy.',
     ...presentationRules,
     '',
@@ -283,7 +286,7 @@ function buildProductPresentationRules(input: SeoAgentInputContract) {
     return [
       `Confirmed large-set composition contains ${presentation.component_count} components. The page entity is the complete outfit, set or costume.`,
       'SEO title, H1 and meta description must use the whole-product entity and a useful event or style angle. Do not spend snippet space listing every component.',
-      'Keep the complete inventory in Product Truth and the dynamic What’s included block. About this piece may summarize the set without an exhaustive list.',
+      'Keep the exact inventory in the deterministic What’s Included block sourced from raw Etsy/storefront option labels. About this piece may summarize the set without contradicting or exhaustively repeating it.',
       'A component-only keyword can remain secondary but cannot become the product-page identity.',
     ];
   }
@@ -316,12 +319,12 @@ export function promptGuardrails(input?: SeoAgentInputContract) {
     'Visual truth must be separated from buyer-facing intro, meta, and body copy.',
     'Primary product image may be sent only server-side and only as visual truth evidence.',
     'Image observations must not override Product DNA and never prove included components.',
-    'Included components come from the existing phrase and component mapping layer through Product Truth, never from keyword text, substring rules, translation guesses, or visual styling.',
+    'Normalized components come from Product Truth for semantic validation. Exact What’s Included labels come only from original Etsy/storefront source options, never from keyword text, substring rules, translation guesses, visual styling, or normalized Product DNA.',
     'Raw option labels remain evidence and unmapped phrases remain blockers.',
     'The live storefront PDP component is the visual source of truth for admin preview.',
     'Main left_description PDP blocks must be generated; a short intro alone is not enough.',
     'The entire right PDP information panel is immutable code-owned copy and must never be generated or paraphrased.',
-    'What’s included is storefront-controlled configuration output rendered after About this piece and must not be generated by OpenAI.',
+    'What’s Included is storefront-controlled configuration output rendered after About this piece from verbatim raw source option labels and must not be generated by OpenAI.',
     'Designed for self-expression must be studio-focused and must not contain operational customization instructions.',
     'A supported design may be described as made to stand out or create a recognizable look. Social-performance promises remain forbidden: no organic attention, reactions, saves, comments, likes, followers, virality or popularity.',
     'Source, Product Truth, verification, review, and pre-publication language is forbidden in customer copy.',

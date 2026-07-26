@@ -68,6 +68,12 @@ export async function GET(request: Request) {
   const canonicalIncludedComponents = Array.isArray(truthRows?.[0]?.included_components)
     ? truthRows[0].included_components
     : [];
+  const canonicalSourceVariations = Array.isArray(truthRows?.[0]?.source_variations_json)
+    ? truthRows[0].source_variations_json
+    : [];
+  const canonicalOptionPriceRows = Array.isArray(truthRows?.[0]?.option_price_rows_json)
+    ? truthRows[0].option_price_rows_json
+    : [];
 
   return NextResponse.json({
     ok: true,
@@ -77,6 +83,8 @@ export async function GET(request: Request) {
     product: {
       ...data,
       canonical_included_components: canonicalIncludedComponents,
+      canonical_source_variations: canonicalSourceVariations,
+      canonical_option_price_rows: canonicalOptionPriceRows,
     },
     guardrails: [
       'No Supabase write.',
