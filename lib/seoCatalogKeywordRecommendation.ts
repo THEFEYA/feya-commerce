@@ -63,12 +63,15 @@ const INCOMPATIBLE_COMMERCE_DOMAINS = [
 const COLOR_FAMILIES: Record<string, string[]> = {
   black: ['black'],
   blue: ['blue'],
+  bronze: ['bronze'],
+  copper: ['copper'],
   gold: ['gold', 'golden'],
   green: ['green'],
   holographic: ['holographic', 'hologram', 'iridescent'],
   pink: ['pink'],
   purple: ['purple', 'violet'],
   red: ['red'],
+  'rose gold': ['rose gold', 'rose golden'],
   silver: ['silver', 'chrome'],
   white: ['white'],
 };
@@ -78,6 +81,7 @@ const COMPONENT_FAMILIES: Record<string, string[]> = {
   armor: ['armor', 'armour'],
   arms: ['arm cover', 'arm covers', 'arm guard', 'arm guards', 'arm cuff', 'arm cuffs', 'bracer', 'bracers'],
   bodysuit: ['bodysuit', 'body suit', 'leotard'],
+  boots: ['boot', 'boots'],
   bracelet: ['bracelet', 'bracelets', 'armlet', 'armlets'],
   choker: ['choker', 'collar', 'choke chain', 'choke chains'],
   corset: ['corset', 'bodice'],
@@ -89,7 +93,9 @@ const COMPONENT_FAMILIES: Record<string, string[]> = {
   legs: ['leg cover', 'leg covers', 'leg armor', 'leg armour'],
   mask: ['mask', 'masks', 'face mask'],
   panties: ['panties', 'underwear', 'briefs'],
+  pants: ['pants', 'trousers', 'leggings'],
   shoulders: ['shoulder', 'shoulders', 'shoulder piece', 'shoulder pieces', 'shoulder armor', 'shoulder armour', 'pauldron', 'pauldrons'],
+  shorts: ['shorts', 'hot pants'],
   skirt: ['skirt', 'skirts', 'open skirt', 'ring skirt'],
   spine: ['spine', 'spines'],
   tail: ['tail', 'tails'],
@@ -117,12 +123,70 @@ const ANATOMICAL_COMPONENT_REQUIREMENTS = [
   { pattern: /\bshoulder harness(?:es)?\b/i, requiredAny: ['shoulders'] },
 ];
 
-const SIZE_POSITIONING_TERMS = ['plus size'];
+const SIZE_POSITIONING_TERMS = ['plus size', 'mid size', 'midsize'];
 
 const AUDIENCE_FAMILIES: Record<string, string[]> = {
   // Deliberately omit bare "man": it is part of the event name Burning Man.
   men: ['men', 'mens', "men's", 'male', 'guys'],
   women: ['women', 'womens', "women's", 'female', 'woman', 'ladies'],
+};
+
+const EVENT_FAMILIES: Record<string, string[]> = {
+  'burning man': ['burning man', 'burningman'],
+  coachella: ['coachella'],
+  cosplay: ['cosplay'],
+  edc: ['edc', 'electric daisy carnival'],
+  festival: ['festival', 'festivals'],
+  halloween: ['halloween'],
+  photoshoot: ['photoshoot', 'photo shoot'],
+  pride: ['pride'],
+  rave: ['rave', 'raves'],
+  stage: ['stage', 'performance', 'performances'],
+};
+
+const STYLE_FAMILIES: Record<string, string[]> = {
+  burlesque: ['burlesque'],
+  cosmic: ['cosmic'],
+  cyberpunk: ['cyberpunk'],
+  desert: ['desert', 'dune'],
+  fantasy: ['fantasy'],
+  futuristic: ['futuristic'],
+  glam: ['glam'],
+  goth: ['goth', 'gothic'],
+  'post apocalyptic': ['post apocalyptic', 'apocalyptic', 'wasteland'],
+  punk: ['punk'],
+  'sci fi': ['sci fi', 'science fiction'],
+  steampunk: ['steampunk'],
+};
+
+const PERSONA_FAMILIES: Record<string, string[]> = {
+  alien: ['alien'],
+  angel: ['angel'],
+  bunny: ['bunny', 'rabbit'],
+  cat: ['cat', 'kitty'],
+  cleopatra: ['cleopatra'],
+  couple: ['couple', 'couples'],
+  dancer: ['dancer'],
+  demon: ['demon', 'devil'],
+  dj: ['dj'],
+  'drag queen': ['drag queen'],
+  goddess: ['goddess'],
+  'go go dancer': ['go go dancer', 'gogo dancer'],
+  maleficent: ['maleficent'],
+  'pole dancer': ['pole dancer'],
+  queen: ['queen'],
+  robot: ['robot'],
+  showgirl: ['showgirl', 'show girl'],
+  warrior: ['warrior'],
+};
+
+const VISUAL_ATTRIBUTE_FAMILIES: Record<string, string[]> = {
+  glossy: ['glossy', 'gloss'],
+  holographic: ['holographic', 'hologram', 'iridescent'],
+  metallic: ['metallic'],
+  mirror: ['mirror', 'mirrored'],
+  reflective: ['reflective', 'light reflective'],
+  sparkly: ['sparkly', 'glitter', 'glittery', 'sequin', 'sequins', 'rhinestone', 'rhinestones', 'crystal', 'crystals'],
 };
 
 export function recommendCatalogKeywords(input: {
@@ -190,8 +254,12 @@ export function recommendCatalogKeywords(input: {
         : 'blocked_no_whole_product_candidate',
       product_colors: profile.colors,
       product_audiences: profile.audiences,
+      product_events: profile.events,
+      product_styles: profile.styles,
+      product_personas: profile.personas,
+      product_visual_attributes: profile.visualAttributes,
       excluded_keyword_terms: profile.excludedTerms,
-      truth_gate: 'explicit/global exclusions and component/color/audience mismatch reject before volume, competition or bank score is considered',
+      truth_gate: 'explicit/global exclusions and component/color/audience/event/style/persona/visual mismatch reject before volume, competition or bank score is considered',
       confirmation_required: true,
       writes_performed: 0,
     },
@@ -237,17 +305,46 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
     explicitFocus.persona,
     explicitFocus.audience,
     product.card_title,
+    product.h1,
+    product.focus_text,
+    product.source_description_fragment,
   ]).join(' ');
   const materialText = flattenStrings([product.material, explicitFocus.material]).join(' ');
   const colorText = flattenStrings([product.canonical_color_label, product.color]).join(' ');
+  const eventText = flattenStrings([
+    explicitFocus.event,
+    product.card_title,
+    product.h1,
+    product.focus_text,
+    product.source_description_fragment,
+  ]).join(' ');
+  const personaText = flattenStrings([
+    explicitFocus.persona,
+    product.card_title,
+    product.h1,
+    product.focus_text,
+    product.source_description_fragment,
+  ]).join(' ');
+  const visualText = flattenStrings([
+    explicitFocus.material,
+    product.material,
+    product.card_title,
+    product.h1,
+    product.focus_text,
+    product.source_description_fragment,
+  ]).join(' ');
   // Product components are derived only from canonical Product Truth evidence.
   // A source title may describe styling or an umbrella identity, but it cannot
   // manufacture a sold component.
   const componentFamilies = detectedFamilies(componentEvidence, COMPONENT_FAMILIES);
   const descriptorFamilies = detectedFamilies(identityText, COMPONENT_FAMILIES)
     .filter((family) => UMBRELLA_COMPONENT_FAMILIES.has(family));
-  const colors = detectedFamilies(colorText, COLOR_FAMILIES);
+  const colors = detectedColorFamilies(colorText);
   const audiences = detectedFamilies(`${styleText} ${flattenStrings([explicitFocus.audience]).join(' ')}`, AUDIENCE_FAMILIES);
+  const events = detectedFamilies(eventText, EVENT_FAMILIES);
+  const styles = detectedFamilies(styleText, STYLE_FAMILIES);
+  const personas = detectedFamilies(personaText, PERSONA_FAMILIES);
+  const visualAttributes = detectedFamilies(visualText, VISUAL_ATTRIBUTE_FAMILIES);
   const identityTokens = tokens(identityText).filter((token) => !STOP_WORDS.has(token) && token.length > 2);
   const styleTokens = tokens(styleText).filter((token) => !STOP_WORDS.has(token) && token.length > 2);
   const materialTerms = MATERIAL_TERMS.filter((term) => containsPhrase(materialText, term));
@@ -276,6 +373,10 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
     descriptorFamilies,
     colors,
     audiences,
+    events,
+    styles,
+    personas,
+    visualAttributes,
     identityTokens: unique(identityTokens),
     styleTokens: unique(styleTokens),
     materialTerms,
@@ -294,8 +395,12 @@ function scoreRow(
   const keyword = normalize(row.keyword_norm || row.keyword);
   const bucket = normalize(row.bank_bucket || row.page_type);
   const keywordComponents = detectedFamilies(keyword, COMPONENT_FAMILIES);
-  const keywordColors = detectedFamilies(keyword, COLOR_FAMILIES);
+  const keywordColors = detectedColorFamilies(keyword);
   const keywordAudiences = detectedFamilies(keyword, AUDIENCE_FAMILIES);
+  const keywordEvents = detectedFamilies(keyword, EVENT_FAMILIES);
+  const keywordStyles = detectedFamilies(keyword, STYLE_FAMILIES);
+  const keywordPersonas = detectedFamilies(keyword, PERSONA_FAMILIES);
+  const keywordVisualAttributes = detectedFamilies(keyword, VISUAL_ATTRIBUTE_FAMILIES);
   const supportedComponentFamilies = unique([
     ...profile.componentFamilies,
     ...profile.descriptorFamilies,
@@ -307,6 +412,10 @@ function scoreRow(
   );
   const colorMatch = intersection(keywordColors, profile.colors);
   const audienceMatch = intersection(keywordAudiences, profile.audiences);
+  const eventMatch = intersection(keywordEvents, profile.events);
+  const styleMatch = intersection(keywordStyles, profile.styles);
+  const personaMatch = intersection(keywordPersonas, profile.personas);
+  const visualAttributeMatch = intersection(keywordVisualAttributes, profile.visualAttributes);
   const identityOverlap = intersection(tokens(keyword), profile.identityTokens);
   const styleOverlap = intersection(tokens(keyword), profile.styleTokens);
   const materialMatch = profile.materialTerms.filter((term) => containsPhrase(keyword, term));
@@ -327,6 +436,11 @@ function scoreRow(
   const audienceMismatch = keywordAudiences.length > 0
     && profile.audiences.length === 1
     && audienceMatch.length === 0;
+  const eventMismatch = keywordEvents.some((family) => !profile.events.includes(family));
+  const styleMismatch = keywordStyles.some((family) => !profile.styles.includes(family));
+  const personaMismatch = keywordPersonas.some((family) => !profile.personas.includes(family));
+  const visualAttributeMismatch = keywordVisualAttributes
+    .some((family) => !profile.visualAttributes.includes(family));
   const productBucket = PRODUCT_BUCKETS.has(bucket);
   const wholeProductIntent = productBucket
     && hasWholeProductEntity(keyword)
@@ -353,6 +467,10 @@ function scoreRow(
   else if (componentMismatch) rejectReason = 'component_family_mismatch';
   else if (colorMismatch) rejectReason = 'color_mismatch';
   else if (audienceMismatch) rejectReason = 'audience_mismatch';
+  else if (eventMismatch) rejectReason = 'event_mismatch';
+  else if (styleMismatch) rejectReason = 'style_mismatch';
+  else if (personaMismatch) rejectReason = 'persona_mismatch';
+  else if (visualAttributeMismatch) rejectReason = 'visual_attribute_mismatch';
   else if (productBucket && !productIdentityGate) rejectReason = 'insufficient_product_truth_overlap';
   else if (!productBucket && !supportIntentGate) rejectReason = 'insufficient_focus_overlap';
 
@@ -366,6 +484,10 @@ function scoreRow(
     + colorMatch.length * 10
     + materialMatch.length * 7
     + audienceMatch.length * 5
+    + eventMatch.length * 6
+    + styleMatch.length * 6
+    + personaMatch.length * 6
+    + visualAttributeMatch.length * 5
     + productScopeScore;
   const volume = positiveNumber(row.avg_monthly_searches);
   const competitionIndex = boundedNumber(row.competition_index, 0, 100);
@@ -398,6 +520,10 @@ function scoreRow(
       colorMatch.length ? `color:${colorMatch.join('|')}` : null,
       materialMatch.length ? `material:${materialMatch.join('|')}` : null,
       exactFocus.length ? `focus:${exactFocus.slice(0, 2).join('|')}` : null,
+      eventMatch.length ? `event:${eventMatch.join('|')}` : null,
+      styleMatch.length ? `style:${styleMatch.join('|')}` : null,
+      personaMatch.length ? `persona:${personaMatch.join('|')}` : null,
+      visualAttributeMatch.length ? `visual:${visualAttributeMatch.join('|')}` : null,
       identityOverlap.length ? `identity:${identityOverlap.slice(0, 4).join('|')}` : null,
       styleOverlap.length ? `context:${styleOverlap.slice(0, 3).join('|')}` : null,
       `strategy:${strategy}`,
@@ -439,6 +565,13 @@ function detectedFamilies(value: unknown, families: Record<string, string[]>) {
   return Object.entries(families)
     .filter(([, aliases]) => aliases.some((alias) => containsPhrase(text, alias)))
     .map(([family]) => family);
+}
+
+function detectedColorFamilies(value: unknown) {
+  const families = detectedFamilies(value, COLOR_FAMILIES);
+  return families.includes('rose gold')
+    ? families.filter((family) => family !== 'gold')
+    : families;
 }
 
 function containsPhrase(value: unknown, phrase: unknown) {

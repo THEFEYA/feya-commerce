@@ -49,6 +49,21 @@ export function listingMasterKeywordIds(rows: KeywordRow[]) {
   return rows.map((row) => String(row.id || '').trim()).filter(Boolean);
 }
 
+/**
+ * A saved Listing Master decision is current only while the exact
+ * operator-facing keyword selection and its roles are unchanged. This keeps
+ * an older reviewed decision from silently authorizing generation after the
+ * recommendation logic or Keyword Bank has produced a different shortlist.
+ */
+export function listingMasterKeywordSelectionSignature(rows: KeywordRow[]) {
+  const entries = rows.map((row) => [
+    String(row.id || '').trim(),
+    normalizeKeyword(row.keyword_norm || row.keyword),
+    String(row.role || '').trim().toLowerCase(),
+  ].join(':'));
+  return `listing-master-selection-v1|${entries.join('|')}`;
+}
+
 export function getListingMasterDecisionStatus(
   productTruthBlockers: string[],
   rows: KeywordRow[],
@@ -89,4 +104,15 @@ function nullableNumber(value: unknown) {
   if (value == null || value === '') return null;
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
+}
+
+function normalizeKeyword(value: unknown) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[’']/g, '')
+    .replace(/[_-]+/g, ' ')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }

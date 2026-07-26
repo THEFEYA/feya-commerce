@@ -6,6 +6,7 @@ import {
   buildListingMasterKeywordSnapshot,
   getListingMasterDecisionStatus,
   listingMasterKeywordIds,
+  listingMasterKeywordSelectionSignature,
 } from '@/lib/seoListingMasterDecision';
 import {
   productComponentAssertionScope,
@@ -165,7 +166,7 @@ export default async function ListingMasterPage({ searchParams }) {
   const rows = keywordData.rows.slice(0, DISPLAY_LIMIT);
   const saved = savedMessage(filters.saved);
   const productStatus = productSeoStatus(selectedProduct, active, keywordData);
-  const decisionIsCurrent = decisionMatchesActiveFocus(selectedProduct, active);
+  const decisionIsCurrent = decisionMatchesActiveFocus(selectedProduct, active, rows);
 
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
     <section className="container-feya pt-7 pb-14">
@@ -272,6 +273,7 @@ async function saveDecisionAction(formData) {
   );
   const truthBlockers = canonicalProduct.truthBlockers || [];
   const decisionStatus = getListingMasterDecisionStatus(truthBlockers, selectedKeywords);
+  manualFocus.keyword_selection_signature = listingMasterKeywordSelectionSignature(selectedKeywords);
   manualFocus.product_truth_status = truthBlockers.length ? 'blocked' : 'ready';
   manualFocus.product_truth_blockers = truthBlockers;
   manualFocus.keyword_recommendation_source = keywordData.source;
@@ -930,9 +932,17 @@ function decisionFocusSignature(value) {
     keyword_type: KEYWORD_TYPES.includes(val(focus.keyword_type)) ? val(focus.keyword_type) : 'all',
   });
 }
-function decisionMatchesActiveFocus(product, filters) {
+function decisionMatchesActiveFocus(product, filters, keywordRows) {
   const savedFocus = recordOf(product?.decision?.manual_focus_json);
   if (!savedFocus || savedFocus.selection_verified !== true || product?.decision?.decision_status !== 'draft') return false;
+  const currentKeywords = buildListingMasterKeywordSnapshot(
+    Array.isArray(keywordRows) ? keywordRows : [],
+    KEYWORD_SNAPSHOT_LIMIT,
+  );
+  if (
+    val(savedFocus.keyword_selection_signature)
+    !== listingMasterKeywordSelectionSignature(currentKeywords)
+  ) return false;
   const activeFocus = {
     ...Object.fromEntries(FOCUS_FIELDS.map((field) => [field, valuesOf(filters[field])])),
     strategies: strategyValues(filters.strategy),

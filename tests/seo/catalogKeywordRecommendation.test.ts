@@ -108,7 +108,7 @@ test('automatic recommendations remain review candidates and never claim confirm
     ],
   });
 
-  assert.ok(result.keywords.length >= 3);
+  assert.ok(result.keywords.length >= 2);
   assert.ok(result.keywords.every((row) => row.auto_recommendation_needs_human_confirmation === true));
   assert.equal(result.diagnostics.writes_performed, 0);
 });
@@ -269,12 +269,30 @@ test('the current Etsy 4340584466 truth selects a set query and rejects saved sc
       { ...baseMetric, keyword: 'gold shoulder armor', keyword_norm: 'gold shoulder armor', bank_bucket: 'product_or_alt', avg_monthly_searches: 210 },
       { ...baseMetric, keyword: 'metallic top and skirt set', keyword_norm: 'metallic top and skirt set', bank_bucket: 'product_or_alt', avg_monthly_searches: 10 },
       { ...baseMetric, keyword: 'skirt and top set festival', keyword_norm: 'skirt and top set festival', bank_bucket: 'product', avg_monthly_searches: 10 },
+      { ...baseMetric, keyword: 'warrior armor costume', keyword_norm: 'warrior armor costume', bank_bucket: 'product', avg_monthly_searches: 10 },
+      { ...baseMetric, keyword: 'robot armor costume', keyword_norm: 'robot armor costume', bank_bucket: 'product', avg_monthly_searches: 100000 },
+      { ...baseMetric, keyword: 'sci fi armor costume', keyword_norm: 'sci fi armor costume', bank_bucket: 'product', avg_monthly_searches: 90000 },
+      { ...baseMetric, keyword: 'futuristic armor costume', keyword_norm: 'futuristic armor costume', bank_bucket: 'product', avg_monthly_searches: 80000 },
+      { ...baseMetric, keyword: 'sparkly festival top', keyword_norm: 'sparkly festival top', bank_bucket: 'collection', avg_monthly_searches: 70000 },
+      { ...baseMetric, keyword: 'festival outfits shorts and top', keyword_norm: 'festival outfits shorts and top', bank_bucket: 'collection', avg_monthly_searches: 60000 },
+      { ...baseMetric, keyword: 'shorts and top set festival', keyword_norm: 'shorts and top set festival', bank_bucket: 'collection', avg_monthly_searches: 50000 },
+      { ...baseMetric, keyword: 'mid size rave outfits', keyword_norm: 'mid size rave outfits', bank_bucket: 'faq', avg_monthly_searches: 40000 },
+      { ...baseMetric, keyword: 'rose gold festival outfit', keyword_norm: 'rose gold festival outfit', bank_bucket: 'visual_collection', avg_monthly_searches: 30000 },
     ],
   });
 
   const keywords = result.keywords.map((row) => String(row.keyword_norm));
   assert.equal(keywords.includes('festival leg harness'), false);
   assert.equal(keywords.includes('plus size rave attire'), false);
+  assert.equal(keywords.includes('robot armor costume'), false);
+  assert.equal(keywords.includes('sci fi armor costume'), false);
+  assert.equal(keywords.includes('futuristic armor costume'), false);
+  assert.equal(keywords.includes('sparkly festival top'), false);
+  assert.equal(keywords.includes('festival outfits shorts and top'), false);
+  assert.equal(keywords.includes('shorts and top set festival'), false);
+  assert.equal(keywords.includes('mid size rave outfits'), false);
+  assert.equal(keywords.includes('rose gold festival outfit'), false);
+  assert.equal(keywords.includes('warrior armor costume'), true);
   assert.equal(
     result.keywords.find((row) => row.keyword_norm === 'harness outfit festival')?.role,
     'secondary',

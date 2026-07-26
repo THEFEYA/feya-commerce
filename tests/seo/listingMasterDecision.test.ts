@@ -5,6 +5,7 @@ import {
   getListingMasterDecisionStatus,
   getListingMasterKeywordSelection,
   listingMasterKeywordIds,
+  listingMasterKeywordSelectionSignature,
 } from '../../lib/seoListingMasterDecision.ts';
 
 test('Listing Master snapshot preserves metric and recommendation provenance', () => {
@@ -47,6 +48,38 @@ test('decision status prioritizes Product Truth and Primary review gates', () =>
   );
   assert.equal(getListingMasterDecisionStatus([], [{ role: 'secondary' }]), 'needs_keyword_review');
   assert.equal(getListingMasterDecisionStatus([], [{ role: 'primary' }]), 'draft');
+});
+
+test('keyword selection signature changes when the reviewed shortlist or roles change', () => {
+  const reviewed = [
+    { id: 'kw-1', keyword_norm: 'Gold Festival Outfit', role: 'primary' },
+    { id: 'kw-2', keyword_norm: 'warrior armor costume', role: 'secondary' },
+  ];
+  const sameSelection = [
+    { id: 'kw-1', keyword: 'gold-festival-outfit', role: 'PRIMARY' },
+    { id: 'kw-2', keyword: 'warrior armor costume', role: 'secondary' },
+  ];
+  const changedRole = [
+    { id: 'kw-1', keyword_norm: 'gold festival outfit', role: 'secondary' },
+    { id: 'kw-2', keyword_norm: 'warrior armor costume', role: 'primary' },
+  ];
+  const changedKeyword = [
+    { id: 'kw-1', keyword_norm: 'gold festival outfit', role: 'primary' },
+    { id: 'kw-3', keyword_norm: 'skirt and top set festival', role: 'secondary' },
+  ];
+
+  assert.equal(
+    listingMasterKeywordSelectionSignature(reviewed),
+    listingMasterKeywordSelectionSignature(sameSelection),
+  );
+  assert.notEqual(
+    listingMasterKeywordSelectionSignature(reviewed),
+    listingMasterKeywordSelectionSignature(changedRole),
+  );
+  assert.notEqual(
+    listingMasterKeywordSelectionSignature(reviewed),
+    listingMasterKeywordSelectionSignature(changedKeyword),
+  );
 });
 
 test('only a reviewed draft becomes a confirmed operator selection', () => {
