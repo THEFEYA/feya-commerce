@@ -523,6 +523,16 @@ async function loadCanonicalProductTruthProduct(supabase, productId) {
 async function loadProducts(filters) {
   const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
   if (!supabase) return emptyProducts(getMissingSupabaseEnvMessage());
+  const decisionsPromise = loadDecisionMap();
+  const selectedTruthPromise = filters.productId
+    ? loadCanonicalProductTruthProduct(supabase, filters.productId).catch((error) => {
+      console.error('[listing-master-load] selected_product_truth_failed', {
+        productId: filters.productId,
+        message: error instanceof Error ? error.message : String(error),
+      });
+      return null;
+    })
+    : Promise.resolve(null);
   // The catalog only needs lightweight searchable/card fields. Loading every
   // composition/evidence JSON column for all products made the Product Truth
   // view exceed the statement timeout and incorrectly activated the fallback.
@@ -552,13 +562,12 @@ async function loadProducts(filters) {
   const selectedRows = filters.productId
     ? (result.data || []).filter((row) => String(row.canonical_product_id || '') === String(filters.productId))
     : [];
-  const selectedTruthPromise = filters.productId && source === 'быстрый каталог + точечный Product Truth'
-    ? loadCanonicalProductTruthProduct(supabase, filters.productId)
-    : Promise.resolve(null);
   const [sourceSignals, decisions, selectedTruth] = await Promise.all([
     loadProductSourceSignalMap(supabase, selectedRows),
-    loadDecisionMap(),
-    selectedTruthPromise,
+    decisionsPromise,
+    source === 'быстрый каталог + точечный Product Truth'
+      ? selectedTruthPromise
+      : Promise.resolve(null),
   ]);
   if (sourceSignals.error) warning = [warning, `Исходные Etsy-сигналы недоступны: ${sourceSignals.error}`].filter(Boolean).join(' / ');
   let allProducts = (result.data || []).map((row) => {
