@@ -11,6 +11,7 @@ import {
   productComponentAssertionScope,
   resolveSelectedComponentFamilies,
 } from '@/lib/listingMasterComponentTruth';
+import { planKeywordPageRanges } from '@/lib/seoKeywordBankPagination';
 import { getSeoProductTruthEvidenceBlockers } from '@/lib/seoPackContract';
 import { STOREFRONT_VIEW_V1 } from '@/lib/storefront';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
@@ -21,6 +22,7 @@ export const revalidate = 0;
 
 const PRODUCT_LIMIT = 500;
 const KEYWORD_LIMIT = 6000;
+const KEYWORD_PAGE_SIZE = 1000;
 const DISPLAY_LIMIT = 180;
 const KEYWORD_SNAPSHOT_LIMIT = 18;
 
@@ -713,18 +715,27 @@ async function loadKeywords(filters, product = null) {
   const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
   if (!supabase) return { rows: [], counts: {}, totalCount: null, rawCount: null, error: getMissingSupabaseEnvMessage(), source: 'none' };
   const safeType = KEYWORD_TYPES.includes(filters.type) ? filters.type : 'all';
-  const countEntries = await Promise.all(KEYWORD_TYPES.map(async (type) => [type, await countKeywords(supabase, type)]));
-  const counts = Object.fromEntries(countEntries);
-  let query = supabase.from(KEYWORD_VIEW).select(KW_SELECT, { count: 'exact' }).limit(KEYWORD_LIMIT);
-  if (safeType !== 'all') query = query.eq('bank_bucket', safeType);
-  const { data, error, count } = await query;
-  if (error) return { rows: [], counts, totalCount: null, rawCount: count ?? null, error: error.message, source: 'keyword_bank' };
+  const keywordBank = await loadCompleteKeywordBank(supabase);
+  const counts = keywordCounts(keywordBank.data, keywordBank.count);
+  if (keywordBank.error) {
+    return {
+      rows: [],
+      counts,
+      totalCount: null,
+      rawCount: keywordBank.count,
+      error: keywordBank.error,
+      source: 'keyword_bank',
+    };
+  }
+  const typedRows = safeType === 'all'
+    ? keywordBank.data
+    : keywordBank.data.filter((row) => norm(row.bank_bucket) === safeType);
   const sourceRows = filters.q
-    ? (data || []).filter((row) => tokensOf(filters.q).every((token) => termMatch(keywordCoreText(row), token)))
-    : (data || []);
+    ? typedRows.filter((row) => tokensOf(filters.q).every((token) => termMatch(keywordCoreText(row), token)))
+    : typedRows;
   if (!product) {
     const rows = applyLocalMatching(sourceRows, filters);
-    return { rows, counts, totalCount: rows.length, rawCount: count ?? 0, error: null, source: 'keyword_bank_overview', diagnostics: null };
+    return { rows, counts, totalCount: rows.length, rawCount: typedRows.length, error: null, source: 'keyword_bank_overview', diagnostics: null };
   }
   const recommendation = recommendCatalogKeywords({
     product: product.truth,
@@ -749,13 +760,95 @@ async function loadKeywords(filters, product = null) {
     rows,
     counts,
     totalCount: rows.length,
-    rawCount: count ?? 0,
+    rawCount: typedRows.length,
     error: null,
     source: 'product_truth_recommender_v1',
-    diagnostics: recommendation.diagnostics,
+    diagnostics: {
+      ...recommendation.diagnostics,
+      keyword_bank_rows_loaded: keywordBank.data.length,
+      keyword_bank_pages_loaded: keywordBank.pages,
+    },
   };
 }
-async function countKeywords(supabase, type) { let query = supabase.from(KEYWORD_VIEW).select('keyword_norm', { count: 'exact', head: true }); if (type !== 'all') query = query.eq('bank_bucket', type); const { count, error } = await query; return { count: error ? null : count ?? 0, error: error?.message || null }; }
+
+async function loadCompleteKeywordBank(supabase) {
+  const first = await keywordBankPage(supabase, 0, KEYWORD_PAGE_SIZE - 1, true);
+  if (first.error) {
+    return {
+      data: [],
+      count: first.count ?? null,
+      pages: 0,
+      error: first.error.message,
+    };
+  }
+
+  const totalCount = Number.isFinite(Number(first.count))
+    ? Number(first.count)
+    : (first.data || []).length;
+  const plan = planKeywordPageRanges(totalCount, KEYWORD_LIMIT, KEYWORD_PAGE_SIZE);
+  if (plan.truncated) {
+    return {
+      data: first.data || [],
+      count: totalCount,
+      pages: 1,
+      error: `SEO-ядро содержит ${totalCount} строк и превышает безопасный предел ${KEYWORD_LIMIT}. Подбор остановлен, чтобы не использовать неполные данные.`,
+    };
+  }
+
+  const remainingPages = await Promise.all(
+    plan.ranges.slice(1).map((range) => keywordBankPage(supabase, range.from, range.to, false)),
+  );
+  const failedPage = remainingPages.find((page) => page.error);
+  if (failedPage?.error) {
+    return {
+      data: [],
+      count: totalCount,
+      pages: 1 + remainingPages.filter((page) => !page.error).length,
+      error: `Не удалось полностью загрузить SEO-ядро: ${failedPage.error.message}`,
+    };
+  }
+
+  const data = [
+    ...(first.data || []),
+    ...remainingPages.flatMap((page) => page.data || []),
+  ];
+  if (data.length !== plan.requested_rows) {
+    return {
+      data: [],
+      count: totalCount,
+      pages: plan.ranges.length,
+      error: `SEO-ядро загружено не полностью: получено ${data.length} из ${plan.requested_rows} строк.`,
+    };
+  }
+  return {
+    data,
+    count: totalCount,
+    pages: plan.ranges.length,
+    error: null,
+  };
+}
+
+function keywordBankPage(supabase, from, to, withCount) {
+  const query = withCount
+    ? supabase.from(KEYWORD_VIEW).select(KW_SELECT, { count: 'exact' })
+    : supabase.from(KEYWORD_VIEW).select(KW_SELECT);
+  return query
+    .order('keyword_norm', { ascending: true })
+    .order('id', { ascending: true })
+    .range(from, to);
+}
+
+function keywordCounts(rows, totalCount) {
+  return Object.fromEntries(KEYWORD_TYPES.map((type) => [
+    type,
+    {
+      count: type === 'all'
+        ? totalCount
+        : rows.filter((row) => norm(row.bank_bucket) === type).length,
+      error: null,
+    },
+  ]));
+}
 
 function ProductPicker({ data, filters, selectedProduct }) {
   return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5 xl:sticky xl:top-6 self-start">
