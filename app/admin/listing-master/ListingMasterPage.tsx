@@ -159,14 +159,30 @@ const SYN = {
 export default async function ListingMasterPage({ searchParams }) {
   const resolvedSearchParams = await Promise.resolve(searchParams || {});
   const filters = readFilters(resolvedSearchParams);
-  const productData = await loadProducts(filters);
+  const loadStartedAt = Date.now();
+  const productStartedAt = Date.now();
+  const productPromise = loadProducts(filters)
+    .then((value) => ({ value, durationMs: Date.now() - productStartedAt }));
+  const keywordBankStartedAt = Date.now();
+  const keywordBankPromise = loadKeywordBank()
+    .then((value) => ({ value, durationMs: Date.now() - keywordBankStartedAt }));
+  const [productLoad, keywordBankLoad] = await Promise.all([productPromise, keywordBankPromise]);
+  const productData = productLoad.value;
   const selectedProduct = productData.allProducts.find((p) => p.id === filters.productId) || null;
   const active = applyAutoFocus(filters, selectedProduct);
-  const keywordData = await loadKeywords(active, selectedProduct);
+  const keywordData = await loadKeywords(active, selectedProduct, keywordBankLoad.value);
   const rows = keywordData.rows.slice(0, DISPLAY_LIMIT);
   const saved = savedMessage(filters.saved);
   const productStatus = productSeoStatus(selectedProduct, active, keywordData);
   const decisionIsCurrent = decisionMatchesActiveFocus(selectedProduct, active, rows);
+  console.info('[listing-master-load]', {
+    product_ms: productLoad.durationMs,
+    keyword_bank_ms: keywordBankLoad.durationMs,
+    total_ms: Date.now() - loadStartedAt,
+    products: productData.totalProducts,
+    keyword_bank_rows: keywordBankLoad.value.data?.length || 0,
+    keyword_bank_pages: keywordBankLoad.value.pages || 0,
+  });
 
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
     <section className="container-feya pt-7 pb-14">
@@ -536,9 +552,15 @@ async function loadProducts(filters) {
   const selectedRows = filters.productId
     ? (result.data || []).filter((row) => String(row.canonical_product_id || '') === String(filters.productId))
     : [];
-  const sourceSignals = await loadProductSourceSignalMap(supabase, selectedRows);
+  const selectedTruthPromise = filters.productId && source === 'быстрый каталог + точечный Product Truth'
+    ? loadCanonicalProductTruthProduct(supabase, filters.productId)
+    : Promise.resolve(null);
+  const [sourceSignals, decisions, selectedTruth] = await Promise.all([
+    loadProductSourceSignalMap(supabase, selectedRows),
+    loadDecisionMap(),
+    selectedTruthPromise,
+  ]);
   if (sourceSignals.error) warning = [warning, `Исходные Etsy-сигналы недоступны: ${sourceSignals.error}`].filter(Boolean).join(' / ');
-  const decisions = await loadDecisionMap();
   let allProducts = (result.data || []).map((row) => {
     const product = normalizeProduct(row, sourceSignals.map.get(String(row.matched_etsy_listing_id || '')));
     product.decision = decisions.get(product.id) || null;
@@ -546,12 +568,9 @@ async function loadProducts(filters) {
   }).sort((a, b) => a.title.localeCompare(b.title));
   // Keep the list lightweight, but hydrate the selected item with the complete
   // canonical composition contract required by keyword selection and saving.
-  if (filters.productId && source === 'быстрый каталог + точечный Product Truth') {
-    const selectedTruth = await loadCanonicalProductTruthProduct(supabase, filters.productId);
-    if (selectedTruth) {
-      selectedTruth.decision = decisions.get(selectedTruth.id) || null;
-      allProducts = allProducts.map((product) => product.id === selectedTruth.id ? selectedTruth : product);
-    }
+  if (selectedTruth) {
+    selectedTruth.decision = decisions.get(selectedTruth.id) || null;
+    allProducts = allProducts.map((product) => product.id === selectedTruth.id ? selectedTruth : product);
   }
   const sections = buildSections(allProducts);
   const statusCounts = buildStatusCounts(allProducts);
@@ -713,11 +732,9 @@ function productSearchTokenMatch(product, token) {
   return variants.some((variant) => variant.length >= 2 && haystack.includes(variant));
 }
 
-async function loadKeywords(filters, product = null) {
-  const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
-  if (!supabase) return { rows: [], counts: {}, totalCount: null, rawCount: null, error: getMissingSupabaseEnvMessage(), source: 'none' };
+async function loadKeywords(filters, product = null, preloadedKeywordBank = null) {
+  const keywordBank = preloadedKeywordBank || await loadKeywordBank();
   const safeType = KEYWORD_TYPES.includes(filters.type) ? filters.type : 'all';
-  const keywordBank = await loadCompleteKeywordBank(supabase);
   const counts = keywordCounts(keywordBank.data, keywordBank.count);
   if (keywordBank.error) {
     return {
@@ -771,6 +788,19 @@ async function loadKeywords(filters, product = null) {
       keyword_bank_pages_loaded: keywordBank.pages,
     },
   };
+}
+
+async function loadKeywordBank() {
+  const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
+  if (!supabase) {
+    return {
+      data: [],
+      count: null,
+      pages: 0,
+      error: getMissingSupabaseEnvMessage(),
+    };
+  }
+  return loadCompleteKeywordBank(supabase);
 }
 
 async function loadCompleteKeywordBank(supabase) {
