@@ -3,7 +3,8 @@
 Date: 2026-07-27
 Status: current execution entrypoint
 Repository: `THEFEYA/feya-commerce`
-Integration branch: `work/product-truth-variant-separation-20260723`
+Active branch: `fix/sellable-offer-truth-20260727`
+Draft PR: `#18`
 
 ## Read first
 
@@ -107,3 +108,116 @@ component and not a Primary keyword entity.
 - No product Apply or Publish without explicit human approval.
 - No fixed keyword-density target. Natural buyer language and verified intent
   outrank mechanical repetition.
+
+## Active validation checkpoint
+
+Published code checkpoint:
+
+```text
+commit: 34da7aa162c90e06f97a72b1d9b84b582c30a90e
+deployment: dpl_2K25V6c8eWzkuLrNZEHbtgFSo3nQ
+deployment state: READY
+stable branch alias:
+https://feya-commerce-git-fix-sellable-o-c638d0-alexs-projects-5419f9ec.vercel.app
+```
+
+Verification at this checkpoint:
+
+```text
+SEO regression tests: 141/141 passing
+TypeScript: passing
+ESLint: passing with zero warnings
+```
+
+The writer remains a two-pass pipeline: one evidence-bound writer followed by
+one final human-copy editor. The final editor now receives deterministic
+section jobs. Intro may be one factual sentence; About may be one factual
+sentence containing the Primary. Neither section must invent an extra benefit
+to meet a word or sentence quota.
+
+The final editor and deterministic validator now reject the observed failure
+class:
+
+```text
+building from separate finds
+makes it easier to choose accessories
+focal point
+photographs well / wide shots
+visible waist detail as a styling mechanism
+natural break for changing tops
+```
+
+For a confirmed modular offer, the supported Why plan is:
+
+```text
+1. original studio design → personal interpretation of the selected persona
+2. separately selectable parts → order, replace, or restyle one part without
+   reordering the full set
+```
+
+## Exact reviewed focus for the regression product
+
+```text
+event: Burning Man, festival
+persona: warrior
+unselected and forbidden as generated focus: rave, cosplay, fantasy,
+historical, medieval, costume party
+Primary: warrior armor costume
+```
+
+The exact Primary is intentionally limited to four placements:
+
+```text
+SEO title
+H1
+meta description
+one About this piece sentence
+```
+
+Four exact placements are not a density target. Secondary phrases are semantic
+candidates, not a checklist; an approved Secondary is used only where it adds
+natural meaning. For the current product, `gold shoulder armor` is a natural
+ALT candidate. Do not force every skirt/shoulder variant into visible copy.
+
+## Last live result and storage state
+
+The last live generation before commit `34da7aa...` correctly placed the
+Primary four times and excluded rave/cosplay, but it was rejected because
+Intro and About invented convenience and photography mechanisms. It was not
+saved.
+
+After commit `34da7aa...`, the deployment reached READY, but the cloud browser
+security policy denied opening the new protected deployment URL. No bypass was
+attempted. Therefore the post-fix live generation still requires one browser
+run before storage.
+
+Supabase verification for product
+`d42b9d73-1327-49fa-bfab-9a732b133772` returned zero rows in
+`feya_commerce_seo_pack_drafts_v1`. No rejected draft, approval, Apply, or
+Publish action was written.
+
+## Exact continuation step
+
+Open:
+
+```text
+https://feya-commerce-git-fix-sellable-o-c638d0-alexs-projects-5419f9ec.vercel.app/admin/seo-storefront-preview?product_id=d42b9d73-1327-49fa-bfab-9a732b133772
+```
+
+Run one generation with the already reviewed focus. Accept it only if all of
+the following are true:
+
+```text
+Primary exact count = 4 in the four owned fields
+no unselected event/style/persona leakage
+no repeated component inventory outside deterministic What’s Included
+no unsupported photo, fit, coverage, convenience, or styling mechanism
+ALT names only visible sold product
+Why contains two distinct, evidenced buyer reasons
+Intro and About sound natural when read aloud
+fixed right panel is unchanged
+structural, commercial, and keyword placement validators pass
+```
+
+Only then use `Сохранить и открыть следующий товар`. This stores a human-review
+draft only. Do not approve, apply, or publish during this checkpoint.
