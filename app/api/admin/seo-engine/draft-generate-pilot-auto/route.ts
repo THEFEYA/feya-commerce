@@ -254,10 +254,10 @@ export async function POST(request: Request) {
         || null,
       buildFinalEditorContext(bundle.seoPackDraft),
     );
-    residualReviewGeneration = await generateSeoDraftWithOpenAi(residualReviewPrompt, {
-      model: process.env.FEYA_SEO_OPENAI_EDITOR_MODEL || 'gpt-5.4',
-      reasoningEffort: 'high',
-    });
+    // The strong editor already did the substantive rewrite. This bounded pass
+    // only repairs its remaining deterministic issue codes and must stay inside
+    // the synchronous Vercel request budget.
+    residualReviewGeneration = await generateSeoDraftWithOpenAi(residualReviewPrompt);
     if (residualReviewGeneration.output) {
       residualReviewGeneration = {
         ...residualReviewGeneration,
