@@ -31,7 +31,7 @@ const AUDIT_OR_ADMIN_LANGUAGE = /\b(product truth|product truth confirms?|produc
 const GUARANTEED_POPULARITY = /\b(guarantee(?:d|s)?|will get likes|will receive likes|will gain followers?|will make you popular|go viral|viral reach|more followers?|gain followers?|more likes|become popular|increase your popularity|guaranteed attention|everyone will notice|all eyes will be on you|guaranteed reactions?)\b/i;
 const EMPTY_HYPE = /\b(premium|luxury|ultimate|perfect|best|must[- ]have|crafted to perfection|elevate your look)\b/i;
 const EMPTY_OR_INTERNAL_BUYER_COPY = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|studio fit|statement piece|strong festival statement|structured (?:gold |metallic )?accent|bold (?:gold |metallic )?accent|TheFEYA gives us a way|TheFEYA\s+(?:we|our|us)\b|clean armored attitude|desert[- ]ready (?:mood|presence)|shoulder[- ]led|reads? fast|open light|direct choice for buyers?|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity (?:and|or) individuality|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|one[- ]and[- ]only (?:shoulder )?line|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced|(?:original|distinctive) alternative to (?:a )?(?:standard|generic|mass[- ]produced) costume (?:look|piece|design))\b/i;
-const AWKWARD_EDITORIAL_SHORTHAND = /\b(?:clear finish|strong visual finish|shows? up (?:cleanly|clearly)|photos? (?:pick|picks) up more depth)\b/i;
+const AWKWARD_EDITORIAL_SHORTHAND = /\b(?:clear finish|strong visual finish|shows? up (?:cleanly|clearly)|photos? (?:pick|picks) up more depth|for (?:burning man|festival|rave) styling)\b/i;
 const SEARCH_QUERY_AUDIENCE_PHRASING = /\b(?:(?:women|men|buyers|shoppers|customers)\s+(?:looking|searching)\s+for|buyers?\s+who\s+want)\b/i;
 const COORDINATED_OUTFIT_JARGON = /\bcoordinated\b[^.!?\n]{0,35}\b(?:look|costume|outfit|set|base)\b/i;
 const EMPTY_BOLD_FINISH = /\bbold(?:\s+\w+){0,2}\s+(?:color|colour|finish|event look)\b/i;
@@ -41,7 +41,7 @@ const DIRECTIONAL_VISUAL_AUDIT = /\b(?:(?:left|right)[- ](?:shoulder|side|arm|le
 const ANATOMICAL_DESIGN_AUDIT = /\b(?:sculptural (?:profile|silhouette|line) of (?:the )?(?:left|right|one)?\s*shoulder|expressive upper[- ]body (?:form|line|profile|silhouette)|upper[- ]body (?:form|line|profile|silhouette|frame)|shoulder[- ]line|shoulder silhouette)\b/i;
 const UNNATURAL_EVENT_ATMOSPHERE = /\b(?:desert light|open light|desert[- ]ready|ready for (?:the )?desert)\b/i;
 const BRAND_STATUS_DIMINUTION = /\b(?:small|tiny) independent (?:team|studio|company|brand)\b/i;
-const TEMPLATE_COMPARISON = /\b(?:(?:standard|generic|mass[- ]produced) costume template|standard template costume|copy of (?:a )?(?:standard|generic) (?:costume )?template)\b/i;
+const TEMPLATE_COMPARISON = /\b(?:(?:standard|generic|mass[- ]produced) costume template|standard template costume|copy of (?:a )?(?:standard|generic) (?:costume )?template|stands? apart from (?:a )?(?:basic|generic) (?:metallic )?(?:look|costume|outfit|design))\b/i;
 const PRODUCT_COMPONENT_AS_BUYER_GOAL = /\b(?:buyers?|customers?|people) (?:who want|looking for|seeking) (?:to (?:buy|find) )?(?:a|an|this|the)?\s*(?:statement |expressive |gold |futuristic |cyberpunk |warrior )*(?:shoulder (?:piece|armor|armour)|shoulders?|pauldrons?)\b/i;
 const SOCIAL_METRICS_BOILERPLATE = /\b(organic attention|reactions?, saves? (?:and|or) comments?|likes?, followers?|social (?:engagement|metrics?)|viral(?:ity| reach)?)\b/i;
 const REDUNDANT_FAUX_LEATHER = /\b(?:vegan leather\s+(?:and|or|\/)\s+faux leather|faux leather\s+(?:and|or|\/)\s+vegan leather)\b/i;
@@ -148,7 +148,7 @@ const BENEFIT_CATEGORIES: Array<{ key: string; pattern: RegExp }> = [
   },
   {
     key: 'styling_flexibility',
-    pattern: /\b(?:choose|add|change|pair|wear|style)\s+(?:it\s+)?with\s+your\s+own\s+(?:makeup|jewelry|jewellery|accessories|bodysuit|footwear|headpiece)|\b(?:change|swap|switch)\s+(?:your\s+|the\s+)?base layers?\b|\b(?:separate|individual)\s+(?:pieces?|components?)\b[^.!?\n]{0,90}\b(?:change|swap|switch|restyle|wear)\b|\bleaves?\s+(?:the\s+)?(?:face|neckline|rest of the outfit)\s+open\s+for\b/i,
+    pattern: /\b(?:choose|add|change|pair|wear|style)\s+(?:it\s+)?with\s+your\s+own\s+(?:makeup|jewelry|jewellery|accessories|bodysuit|footwear|headpiece)|\b(?:change|swap|switch)\s+(?:your\s+|the\s+)?base layers?\b|\b(?:separate|individual)\s+(?:pieces?|components?)\b[^.!?\n]{0,90}\b(?:change|swap|switch|restyle|wear)\b|\b(?:pieces?|components?)\s+(?:are|remain)\s+separate\b[^.!?\n]{0,90}\b(?:change|swap|switch|restyle|wear)\b|\bleaves?\s+(?:the\s+)?(?:face|neckline|rest of the outfit)\s+open\s+for\b/i,
   },
   {
     key: 'movement_in_wear',
@@ -176,7 +176,7 @@ const BENEFIT_OUTCOME_PATTERNS: Record<string, RegExp> = {
   comfort: /\b(comfortable|comfort|soft against the body|soft body[- ]facing|gentle on the body|easier to wear)\b/i,
   durability_structure: /\b(holds? its (?:shape|form)|keeps? its (?:shape|form)|shape retention|between wears|resists? creasing|long[- ]lasting|less likely to (?:crease|collapse|lose its shape))\b/i,
   verified_finish_behavior: /\b(catches? (?:available |ambient |stage )?light|light[- ]catching|shows? clearly in photos?|visible under (?:stage |event )?lighting|keeps? details? visible|helps? (?:product )?details? (?:stay|remain) visible|details? (?:stay|remain) visible)\b/i,
-  styling_flexibility: /\b(?:choose|add|change|pair|wear|style)\s+(?:it\s+)?with\s+your\s+own\s+(?:makeup|jewelry|jewellery|accessories|bodysuit|footwear|headpiece)|\b(?:change|swap|switch)\s+(?:your\s+|the\s+)?base layers?\b|\b(?:separate|individual)\s+(?:pieces?|components?)\b[^.!?\n]{0,90}\b(?:change|swap|switch|restyle|wear)\b|\bleaves?\s+(?:the\s+)?(?:face|neckline|rest of the outfit)\s+open\s+for\b/i,
+  styling_flexibility: /\b(?:choose|add|change|pair|wear|style)\s+(?:it\s+)?with\s+your\s+own\s+(?:makeup|jewelry|jewellery|accessories|bodysuit|footwear|headpiece)|\b(?:change|swap|switch)\s+(?:your\s+|the\s+)?base layers?\b|\b(?:separate|individual)\s+(?:pieces?|components?)\b[^.!?\n]{0,90}\b(?:change|swap|switch|restyle|wear)\b|\b(?:pieces?|components?)\s+(?:are|remain)\s+separate\b[^.!?\n]{0,90}\b(?:change|swap|switch|restyle|wear)\b|\bleaves?\s+(?:the\s+)?(?:face|neckline|rest of the outfit)\s+open\s+for\b/i,
   movement_in_wear: /\b(?:moves?|swings?|flows?)\b[^.!?\n]{0,90}\b(?:walk|dance|turn|motion|photographs?|photos?|stage)\b/i,
   wearer_framing: /\b(?:frames?|draws? attention to)\b[^.!?\n]{0,70}\b(?:face|neckline|shoulders?|upper body)\b/i,
 };

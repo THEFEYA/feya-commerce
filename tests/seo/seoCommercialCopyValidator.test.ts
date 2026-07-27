@@ -324,6 +324,24 @@ test('recognizes changing base layers between separately selectable pieces as st
   assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
 });
 
+test('recognizes styling flexibility when separate-piece wording comes before the wear outcome', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Our original studio design gives you a distinctive starting point for a personal look.',
+          'Because the pieces are separate, you can wear one with other layers.',
+          'The glossy gold finish catches available light in photographs.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
+  assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
+});
+
 test('does not confuse building a personal look with product construction', () => {
   const value = draft({
     pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
@@ -521,9 +539,11 @@ test('blocks repeating the same selected focus inside Ideal for', () => {
 
 test('blocks design-review shorthand that sounds unnatural to shoppers', () => {
   const result = validateSeoCommercialCopy(draft({
-    intro: 'This design shows up cleanly in crowd photos, while the photos pick up more depth.',
+    intro: 'This design shows up cleanly in crowd photos, while the photos pick up more depth. It stands apart from a basic metallic look.',
+    h1: 'Warrior Armor Costume for Burning Man Styling',
   }));
   assert.ok(result.issues.some((issue) => issue.code === 'customer_copy_contains_robotic_editorial_jargon'));
+  assert.ok(result.issues.some((issue) => issue.code === 'customer_copy_uses_invented_template_comparison'));
 });
 
 test('requires a compact set to remain the page entity across SEO fields', () => {
