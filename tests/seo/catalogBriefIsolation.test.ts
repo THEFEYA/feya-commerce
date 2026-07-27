@@ -18,11 +18,11 @@ test('catalog and pilot routes use one writer plus one strong final editor', () 
 
   routes.forEach((route) => {
     assert.ok(route.includes('Within each About sentence, use each meaningful content noun only once'));
-    assert.ok(route.includes('Two honest reasons are correct when the evidence does not support a third'));
+    assert.ok(route.includes('three or four distinct fact-to-outcome bullets'));
     assert.ok(route.includes('visual_truth_evidence'));
     assert.ok(route.includes('required_why_plan'));
     assert.ok(route.includes('required_section_plan'));
-    assert.ok(route.includes('One short factual sentence is sufficient'));
+    assert.ok(route.includes('A title restatement or one-line SEO sentence is not a useful About section'));
     assert.ok(route.includes('Never infer photography performance'));
     assert.ok(route.includes('firstGeneration.output'));
     assert.match(

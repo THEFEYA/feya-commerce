@@ -482,7 +482,7 @@ test('recognizes wearing one component with different tops as a concrete restyli
   assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
 });
 
-test('accepts two honest benefit families when a third is not evidenced', () => {
+test('blocks a Why section collapsed to two benefit families', () => {
   const value = draft({
     pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
       ? {
@@ -495,7 +495,7 @@ test('accepts two honest benefit families when a third is not evidenced', () => 
       : block),
   });
   const result = validateSeoCommercialCopy(value);
-  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
+  assert.equal(result.issues.some((issue) => issue.code === 'why_youll_love_it_wrong_benefit_count'), true);
   assert.ok(result.benefit_categories_found.includes('studio_design_and_craft'));
   assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
 });
@@ -508,6 +508,7 @@ test('recognizes separately selectable parts with buy, replace and reorder outco
         body: [
           'This original studio design lets you make the warrior persona your own instead of copying a named character.',
           'Each part is separately selectable, so you can buy one piece for a restyle or replace what you own without reordering the full set.',
+          'Adjustable straps leave room to fine-tune a secure fit for different body shapes.',
         ].join('\n'),
       }
       : block),
@@ -744,7 +745,7 @@ test('allows Ideal for to name real people, productions and occasions', () => {
   assert.equal(result.issues.some((issue) => issue.code.startsWith('ideal_for_')), false);
 });
 
-test('blocks repeating the same selected focus inside Ideal for', () => {
+test('blocks repeating the same selected focus twice inside one Ideal for bullet', () => {
   const value = draft({
     h1: 'Gold Shoulder Armor for Burning Man',
     pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'
@@ -761,7 +762,7 @@ test('blocks repeating the same selected focus inside Ideal for', () => {
   const result = validateSeoCommercialCopy(value, {
     manual_focus: { event: ['Burning Man', 'festival'], persona: ['warrior'] },
   });
-  assert.ok(result.issues.some((issue) => issue.code === 'ideal_for_repeats_operator_focus'));
+  assert.ok(result.issues.some((issue) => issue.code === 'ideal_for_1_repeats_same_term'));
 });
 
 test('blocks a repeated meaningful word inside one Ideal for bullet', () => {

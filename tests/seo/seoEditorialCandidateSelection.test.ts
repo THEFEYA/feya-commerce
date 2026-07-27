@@ -132,6 +132,22 @@ test('rejects an editorial improvement that breaks primary placement', () => {
   assert.equal(isStrictlyBetterSeoEditorialCandidate(candidate, baseline), false);
 });
 
+test('rejects an editorial rewrite that removes blockers by collapsing About or benefits', () => {
+  const baseline = [
+    validation([
+      { code: 'customer_copy_contains_robotic_editorial_jargon', severity: 'blocker' },
+      { code: 'repeated_idea_fit_and_adjustability', severity: 'blocker' },
+      { code: 'repeated_idea_reflective_finish', severity: 'blocker' },
+    ]),
+  ];
+  const candidate = [
+    validation([
+      { code: 'pdp_block_about_this_piece_too_thin_0', severity: 'blocker' },
+    ]),
+  ];
+  assert.equal(isStrictlyBetterSeoEditorialCandidate(candidate, baseline), false);
+});
+
 test('keeps an auditable issue snapshot with keyword identity', () => {
   assert.deepEqual(
     seoEditorialIssueSnapshot(validation([

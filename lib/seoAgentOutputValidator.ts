@@ -234,10 +234,33 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
       checkCustomerStyle(body, `pdp_blocks.${index}.body`, issues);
     }
 
+    if (key === 'about_this_piece') {
+      const aboutWords = wordCount(body);
+      const aboutSentences = sentenceCount(body);
+      if (aboutWords < 40) {
+        issues.push(blocker(
+          `pdp_block_about_this_piece_too_thin_${index}`,
+          'About this piece must contain at least 40 useful words. It must explain the buyer job, the complete product identity, and one or more supported design, wear, material, or finish values without repeating What’s Included.',
+        ));
+      }
+      if (aboutWords > 95) {
+        issues.push(warning(
+          `pdp_block_about_this_piece_long_${index}`,
+          'About this piece is longer than 95 words. Keep it only when every sentence adds a distinct supported product or buyer value.',
+        ));
+      }
+      if (aboutSentences < 2 || aboutSentences > 4) {
+        issues.push(blocker(
+          `pdp_block_about_this_piece_sentence_count_${index}`,
+          'About this piece must contain 2-4 natural sentences. A title restatement or one-line SEO sentence is not a useful product description.',
+        ));
+      }
+    }
+
     if (key === 'why_youll_love_it') {
       const benefitLines = splitDisplayLines(body);
-      if (benefitLines.length < 2 || benefitLines.length > 4) {
-        issues.push(blocker(`pdp_block_benefit_count_${index}`, 'why_youll_love_it must contain 2-4 concise, evidenced purchase reasons. Never invent a third or fourth merely to fill space.'));
+      if (benefitLines.length < 3 || benefitLines.length > 4) {
+        issues.push(blocker(`pdp_block_benefit_count_${index}`, 'why_youll_love_it must contain 3-4 distinct, evidenced purchase reasons. Translate supported facts into buyer value instead of collapsing the section or adding filler.'));
       }
     }
 

@@ -370,12 +370,15 @@ function buildFinalReviewPrompt(
     'Return only one complete JSON object matching seo_agent_output_v1. Do not return commentary.',
     'The current JSON is a rejected editorial draft, not a wording template. Preserve its supported facts, contract keys, visual_truth items, internal-linking hints and forbidden-claim boundaries, but replace its customer-facing wording where needed.',
     'Rewrite only customer-facing SEO fields, image ALT wording, and the four left_description bodies needed to remove the listed QA issues.',
-    'Do not invent a component, material property, event, audience, fit promise, price, delivery promise or right-panel wording.',
+    'Do not invent a component, material property, event, high-intent style or persona, product-incompatible audience, fit promise, price, delivery promise or right-panel wording.',
     'Use natural en-US ecommerce prose. Every sentence must identify the product or its selected use, or add a concrete supported outcome. Never invent an outcome merely to fill a section.',
+    'Write like a skilled editor for an independent fashion studio: concrete, warm and persuasive, with varied sentence rhythm. Beauty must come from truthful product detail and buyer relevance, not hype, dry database prose or abstract design jargon.',
+    'Repair weak wording in place. Do not solve repetition or robotic phrasing by deleting the product story, reducing benefit count, replacing buyer profiles with keyword fragments or turning a paragraph into a title restatement.',
     'Do not use coordinated, stage-ready presence, strong finish, clear performance feel, bold complete outfit, reads clearly, buyers who want, people looking for, harder look, stronger costume look, more finished costume, looks intentional, or turn a vision into a look.',
   ].join('\n');
   const finalUser = [
     'Repair every listed issue. Silently validate the finished JSON before returning it.',
+    'SUBSTANCE PRESERVATION: the finished About, Why, Ideal for and studio close must remain a complete commercial description. A shorter draft is not better unless every required section still performs its full buyer-facing job.',
     'Deterministic issues:',
     ...(issueLines.length ? issueLines.map((line) => `- ${line}`) : ['- Remove repetition and robotic phrasing.']),
     '',
@@ -392,16 +395,16 @@ function buildFinalReviewPrompt(
     'SEO title and H1 contain the exact Primary and one already-selected event. Use the natural construction “[Primary] for [selected event]”; when Burning Man is selected as the priority, use “[Primary] for Burning Man”. End after the product-and-occasion meaning; do not append material or a fixed-right-panel fact unless that term is present in the approved keyword roles. Never write “for Burning Man styling”, “for festival styling”, or fuse two selected values into “Burning Man Festival”. Because this is a compact set, title and H1 do not inventory its components.',
     'Meta, intro and About do not list or paraphrase the component inventory.',
     'If left_copy_evidence_policy.required_section_plan exists, follow it. Do not replace a short factual section with invented convenience, effort saved, photography behavior, accessory coordination, or a visual mechanism.',
-    'CONCEPT OWNERSHIP: Intro owns the selected occasion and the whole-product identity. About owns the exact Primary in one selected setting; one factual sentence completes this job. Why owns original studio design plus one or two product-specific buyer outcomes supported by explicit visual or product facts. Ideal for owns people and selected uses. The close owns studio identity and self-expression. Do not move the same idea into two visible on-page owners.',
+    'CONCEPT OWNERSHIP: Intro owns the concise search-to-product bridge. About owns the substantial buyer-job-first product story. Why owns three or four distinct reasons to choose the product. Ideal for owns people and real uses. The close owns studio identity and self-expression. Keep the jobs different, but never collapse a section merely to avoid a small amount of natural semantic overlap.',
     'Intro contains one or two concrete sentences. State the whole-product use in one selected occasion. A second sentence is optional only when it adds a non-duplicated fact or buyer action explicitly supported by authoritative context. Leave fit/adjustment, finish/light behavior, material and component inventory to their owned sections. Across intro, About and Ideal for combined, base layer, top or bodysuit styling may appear in at most one sentence.',
     'Intro does not say part of a complete look, centerpiece, focal piece, focal point, easy to style, creates an accent, clear costume shape, distinct outline, character-driven feel, make the idea land, anchor an outfit, build from separate finds, make accessories make sense, or contrast with darker pieces the buyer may own.',
-    'About contains the exact Primary once and explains the whole product in one selected setting. One short factual sentence is sufficient; add a second only when visual_truth_evidence explicitly supports a concrete buyer outcome. Never infer photography performance, coverage, freer movement, a styling break, or how much clothing or body stays visible from a component shape or placement. Do not compare the product with a full uniform or head-to-toe costume, and do not say the buyer can skip one or still feel dressed. Because separately selectable components form this set, never describe them as one piece, one continuous or unbroken line, a line from one body area to another, or a single design running between components. Do not write shows up cleanly, shows up clearly, focal point, photographs well, wide shots, natural break, changing tops or similar design-review shorthand. Do not repeat the intro, and do not repeat straps, adjustment, fit or comfort from the fixed panel.',
+    'About contains the exact Primary once inside a useful 2-4 sentence product story, normally 45-90 words. A title restatement or one-line SEO sentence is not a useful About section. Start from the buyer’s desired selected occasion and explain the complete product through concrete, supported design, wear, material or finish value. Do not list, pair or re-narrate the components because What’s Included already owns inventory. Never infer photography performance, coverage, freer movement, a styling break, or how much clothing or body stays visible from a component shape or placement. Do not compare the product with a full uniform or head-to-toe costume. Because separately selectable components form this set, never describe them as one piece, one continuous or unbroken line, a line from one body area to another, or a single design running between components. Do not write shows up cleanly, shows up clearly, focal point, photographs well, wide shots, natural break, changing tops or similar design-review shorthand. Do not repeat the intro verbatim.',
     'Within each About sentence, use each meaningful content noun only once, treating singular and plural as the same term. Rewrite the sentence instead of mechanically swapping in a near-synonym. Never write constructions such as “shoulder pieces ... base pieces” inside one sentence.',
     'ALT starts with one natural approved component-level Secondary when it accurately describes the visible sold product, then may name another confirmed sold component and a brief setting. Natural word order and inflection are allowed. Omit base clothing, footwear, accessories and props that are visible but not confirmed as sold.',
     'Keep each repeated idea in one strongest block only. Before returning, silently assign every non-Primary buyer benefit to exactly one owner: meta, intro, About, Why, Ideal for or studio close. If the same idea appears in two owners through different wording, keep the stronger version and replace the other with a genuinely different supported value. Finish or light behavior belongs in at most one Why bullet, not intro, About, Ideal for or the studio close.',
-    'Why contains exactly two or three distinct fact-to-outcome bullets. Two honest reasons are correct when the evidence does not support a third; never invent a filler bullet to reach three. Bullet 1 names one original-design benefit tied to a concrete buyer choice. Bullet 2 gives one different practical or visual outcome supported by sellable-offer truth or explicit visual_truth_evidence. Add bullet 3 only when another independent outcome is explicitly evidenced. The design bullet must name studio authorship plainly with “original studio design”, “studio-designed”, or an equally explicit studio-design phrase; do not replace authorship with an inventory recap. Every bullet contains one supported feature and one buyer result, not two benefits joined with “and”. Separately selectable components may support choosing, ordering, replacing or restyling one part, but do not list the full inventory. Use wearer-framing only when visual evidence explicitly describes the relevant shape or placement. Use light behavior only when visual evidence explicitly confirms glossy or light-catching behavior; metallic-looking alone and every uncertainty are insufficient. Never infer freer dancing, coverage, weather performance or comfort from component shape. The fixed right panel already explains standard sizing, adjustable straps, comfort, material, shape retention, production, shipping, care and customization; do not reuse those as left-block topics. “Build a look” is not product construction. Never use strong look, statement piece, presence, character, more individual look or looks intentional as an outcome.',
+    'Why contains exactly three or four distinct fact-to-outcome bullets. Bullet 1 names one original-design benefit tied to a concrete buyer choice. The remaining bullets use different supported value families from Product Truth, sellable-offer truth, canonical right-panel facts or explicit visual_truth_evidence. A fixed-panel fact such as adjustable straps, comfortable body contact or shape retention may be translated once into a buyer consequence, but never copy the operational sentence. Every bullet contains one supported feature and one buyer result, not two vague benefits joined with “and”. Separately selectable components may support choosing, ordering, replacing or restyling one part, but do not list the full inventory. Use wearer-framing only when visual evidence explicitly describes the relevant shape or placement. Use light behavior only when visual evidence explicitly confirms glossy or light-catching behavior; metallic-looking alone and every uncertainty are insufficient. Never infer freer dancing, coverage or weather performance from component shape. “Build a look” is not product construction. Never use strong look, statement piece, presence, character, more individual look or looks intentional as an outcome.',
     'If left_copy_evidence_policy.required_why_plan is non-null, follow its value families exactly and return exactly that many Why bullets. The standalone meta snippet may repeat the separately-selectable purchase fact; the visible Why bullet must explain its concrete buyer consequence. Never replace the plan with matching-color composition, above-and-below-waist balance, photographs-as-one-outfit, or a comparison with separate add-ons.',
-    'Ideal for contains exactly three short, natural use cases. A bullet may be a concise phrase or a sentence; never force a person + action + occasion template. Cover the authoritative event and persona focus naturally across the block, using each selected focus value at most once. Do not invent a profession, time of day, weather condition, location or extra audience merely to fill a bullet. Do not describe gold, metallic finish, silhouette, structure, construction, components or another product detail here.',
+    'Ideal for contains four or five short, natural buyer profiles or use cases when approved_general_buyer_roles are available; otherwise use three to five. A bullet may be a concise phrase or a sentence; never force a person + action + occasion template. Cover every non-empty manual focus axis naturally. The same selected focus may appear in at most two different bullets when it genuinely distinguishes two audiences. Roles from approved_general_buyer_roles may broaden conversion coverage, but they do not authorize a new event, style, persona, subculture or search keyword. Do not invent a time of day, weather condition or location. Do not describe gold, metallic finish, silhouette, structure, construction, components or another product detail here.',
     'Ideal for contains no finish, anatomy, product inventory, fantasy, historical framing, “statement piece”, “calls for”, “when needed”, buyers-who-want or people-looking-for language. Do not repeat a meaningful word inside one bullet, such as “warrior-inspired performers wearing a warrior look”.',
     'Designed for self-expression contains exactly three natural sentences and 50-65 words. Begin “At TheFEYA, we…” and identify us as an independent design studio or independent design team. Connect our original ideas to personal style or a design that feels like the wearer. Write like a founder speaking plainly, not a brand manifesto. Do not use expressive dressing, a clearer sense of visual identity, not just something to wear once, from the first photo to the last, or turn a vision into a look.',
     'Use TheFEYA exactly once in all customer-facing generated copy, only in Designed for self-expression. Never put the brand in SEO title, H1, meta description, intro, ALT, Why or Ideal for.',
@@ -438,20 +441,46 @@ function buildFinalEditorContext(seoPackDraft, firstPassOutput) {
   const separatelySelectableLabels = (sellableOffer?.atomic_options || [])
     .map((item) => item?.label)
     .filter(Boolean);
-  const requiredWhyPlan = separatelySelectableLabels.length >= 2
+  const productContextText = [
+    truth?.product_type,
+    truth?.category,
+    truth?.world,
+    ...selectedEvents,
+  ].filter(Boolean).join(' ').toLowerCase();
+  const approvedGeneralBuyerRoles = /\b(costume|outfit|armor|festival|burning man|performance)\b/.test(productContextText)
     ? [
-      {
-        value_family: 'studio_design_and_craft',
-        supported_fact: 'original studio design',
-        allowed_buyer_outcome: 'the buyer can interpret the selected persona through their own styling rather than copy a named character',
-      },
-      {
-        value_family: 'purchase_flexibility',
-        supported_fact: `these components are separately selectable: ${separatelySelectableLabels.join(', ')}`,
-        allowed_buyer_outcome: 'the buyer can order only the part they need, or replace or restyle one part without buying the full set',
-      },
+      'festival-goers',
+      'Burning Man attendees',
+      'performers',
+      'dancers',
+      'DJs',
+      'show artists',
+      'content creators',
+      'costume stylists',
     ]
-    : null;
+    : [];
+  const requiredWhyPlan = [
+    {
+      value_family: 'studio_design_and_craft',
+      supported_fact: 'original studio design',
+      allowed_buyer_outcome: 'the buyer can interpret the selected persona through their own styling rather than copy a named character',
+    },
+    {
+      value_family: 'fit_flexibility',
+      supported_fact: 'the canonical right panel confirms adjustable straps',
+      allowed_buyer_outcome: 'the buyer can fine-tune a secure fit for their body shape',
+    },
+    {
+      value_family: 'comfort',
+      supported_fact: 'the canonical right panel confirms comfortable body-facing material',
+      allowed_buyer_outcome: 'the body-facing areas feel more comfortable during wear',
+    },
+    {
+      value_family: 'durability_structure',
+      supported_fact: 'the canonical right panel confirms that the structured material helps the piece retain its shape',
+      allowed_buyer_outcome: 'the product stays ready for repeat use between occasions',
+    },
+  ];
   const compactRole = (item) => ({
     keyword: item?.keyword || item?.keyword_norm || null,
     role: item?.role || null,
@@ -462,6 +491,7 @@ function buildFinalEditorContext(seoPackDraft, firstPassOutput) {
     manual_focus: manualFocus,
     product_truth: {
       product_truth_source: truth?.product_truth_source || null,
+      product_type: truth?.product_type || null,
       category: truth?.category || null,
       material: truth?.material || null,
       color: truth?.color || null,
@@ -491,6 +521,7 @@ function buildFinalEditorContext(seoPackDraft, firstPassOutput) {
     left_copy_evidence_policy: {
       original_studio_design: 'supported by brand policy',
       separately_selectable_purchase_format: separatelySelectableLabels,
+      approved_general_buyer_roles: approvedGeneralBuyerRoles,
       required_why_plan: requiredWhyPlan,
       required_section_plan: {
         intro: {
@@ -506,21 +537,34 @@ function buildFinalEditorContext(seoPackDraft, firstPassOutput) {
         about_this_piece: {
           exact_primary_required: true,
           selected_events: selectedEvents,
-          job: 'One plain factual sentence containing the exact Primary and one selected occasion is complete. Add a second sentence only for a concrete outcome explicitly supported by observed_product_facts. Never infer photo performance or a styling mechanism from a visible detail.',
+          minimum_sentences: 2,
+          maximum_sentences: 4,
+          target_word_range: '45-90',
+          job: 'Write a substantial buyer-job-first product story. Place the exact Primary once inside natural prose, not as an H1 restatement. Explain supported design, wear, material or finish value without listing the components. Never infer photo performance or a styling mechanism from a visible detail.',
+        },
+        why_youll_love_it: {
+          item_count: 4,
+          job: 'Write the four required value families as distinct feature-to-buyer-outcome bullets. Canonical right-panel facts may support the benefit, but their operational sentences must not be copied.',
+        },
+        ideal_for: {
+          item_count: approvedGeneralBuyerRoles.length ? '4-5' : '3-5',
+          required_selected_axes: {
+            events: selectedEvents,
+            styles: selectedStyles,
+            personas: selectedPersonas,
+            audiences: selectedAudiences,
+          },
+          approved_general_buyer_roles: approvedGeneralBuyerRoles,
+          job: 'Name distinct people or use cases in natural buyer language. General roles do not authorize any unselected event, style, persona or subculture.',
         },
       },
-      fixed_right_panel_topics_to_avoid_repeating: [
-        'standard sizing',
-        'adjustable straps',
-        'comfort',
-        'material',
-        'shape retention',
-        'production',
-        'shipping',
-        'care',
-        'customization',
-      ],
-      rule: 'Use only supported facts. Two strong Why bullets are sufficient when a third independent value is not explicitly evidenced.',
+      canonical_right_panel_facts_for_benefit_translation: {
+        fit: 'adjustable straps support a comfortable, secure fit',
+        comfort: 'the material feels comfortable against the body',
+        repeat_use: 'the material helps the piece keep its sculptural shape',
+      },
+      fixed_right_panel_sentences_must_not_be_copied: true,
+      rule: 'Use only supported facts. Preserve a rich product story, four useful purchase reasons and distinct buyer profiles; removing copy is not a valid repair for robotic wording.',
     },
   };
 }

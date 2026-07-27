@@ -534,11 +534,11 @@ export function validateSeoCommercialCopy(
   const repeatedIdealFocus = [...new Set(
     (['event', 'style', 'persona', 'audience'] as const)
       .flatMap((axis) => focusValues(context.manual_focus, axis)),
-  )].filter((value) => countFocusValueAppearances(idealForBody, value) > 1);
+  )].filter((value) => countFocusValueAppearances(idealForBody, value) > 2);
   if (repeatedIdealFocus.length) {
     issues.push(blocker(
       'ideal_for_repeats_operator_focus',
-      `Ideal for repeats the same selected context instead of adding distinct use cases (${repeatedIdealFocus.join(', ')}). Mention each selected focus once in this block and do not repeat it inside a bullet.`,
+      `Ideal for repeats the same selected context more than twice instead of adding distinct buyer roles or use cases (${repeatedIdealFocus.join(', ')}). Keep every bullet different and never repeat the same focus twice inside one bullet.`,
     ));
   }
   (['event', 'style', 'persona', 'audience'] as const).forEach((axis) => {
@@ -604,13 +604,13 @@ export function validateSeoCommercialCopy(
         'Construction, structure and build are one feature family. Use them in at most one Why bullet and spend the other bullets on different buyer value.',
       ));
     }
-    if (benefitLines.length < 2 || benefitLines.length > 4) {
+    if (benefitLines.length < 3 || benefitLines.length > 4) {
       issues.push(blocker(
         'why_youll_love_it_wrong_benefit_count',
-        'Why you’ll love it must present 2-4 concise, non-duplicative purchase reasons. Two honest reasons are better than an invented filler benefit.',
+        'Why you’ll love it must present 3-4 concise, non-duplicative purchase reasons. Use supported studio, purchase, fit, comfort, durability, or finish facts; never add filler.',
       ));
     }
-    const requiredBenefitFamilies = benefitLines.length >= 3 ? 3 : 2;
+    const requiredBenefitFamilies = 3;
     if (benefitCategories.length < requiredBenefitFamilies) {
       issues.push(blocker(
         'why_youll_love_it_lacks_benefit_diversity',

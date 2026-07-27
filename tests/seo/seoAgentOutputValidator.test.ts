@@ -58,7 +58,7 @@ test('allows a single factual intro sentence without forcing filler', () => {
   assert.equal(result.issues.some((issue) => issue.code === 'intro_sentence_count'), false);
 });
 
-test('allows two evidenced Why benefits without demanding filler', () => {
+test('blocks a collapsed two-benefit Why section', () => {
   const value = output({
     pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
       ? {
@@ -68,7 +68,22 @@ test('allows two evidenced Why benefits without demanding filler', () => {
       : block),
   });
   const result = validateSeoAgentOutput(value);
-  assert.equal(result.issues.some((issue) => issue.code.startsWith('pdp_block_benefit_count_')), false);
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('pdp_block_benefit_count_')), true);
+});
+
+test('blocks an About section that only restates the product in one sentence', () => {
+  const value = output({
+    pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'
+      ? {
+        ...block,
+        body: 'This warrior armor costume is for festivals.',
+      }
+      : block),
+  });
+  const result = validateSeoAgentOutput(value);
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.some((code) => code.startsWith('pdp_block_about_this_piece_too_thin_')));
+  assert.ok(codes.some((code) => code.startsWith('pdp_block_about_this_piece_sentence_count_')));
 });
 
 test('blocks a padded H1 that restates the same shoulder product', () => {
