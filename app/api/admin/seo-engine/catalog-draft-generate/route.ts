@@ -414,15 +414,16 @@ function buildFinalReviewPrompt(
     'Meta, intro and About do not list or paraphrase the component inventory.',
     'CONCEPT OWNERSHIP: Intro owns the selected occasion and the whole-product buyer job. About owns the exact Primary plus one different supported product or design outcome. Why owns original studio design plus one or two product-specific buyer outcomes supported by explicit visual or product facts. Ideal for owns people and selected uses. The close owns studio identity and self-expression. Do not move the same idea into two visible on-page owners.',
     'Intro contains exactly two concrete sentences. It states the selected buyer use and one supported design value. Leave fit/adjustment, finish/light behavior, material and component inventory to their owned sections so Intro cannot duplicate Why or the right panel. Across intro, About and Ideal for combined, base layer, top or bodysuit styling may appear in at most one sentence.',
-    'Intro does not say part of a complete look, centerpiece, focal piece, easy to style, creates an accent, clear costume shape, distinct outline, character-driven feel, or make the idea land.',
-    'About contains the exact Primary once, explains the whole product in one selected setting, and adds a different buyer value. Use one or two short sentences. Name one observed component only when visual_truth_evidence explicitly supports the concrete buyer outcome. Never infer coverage, freer movement, or how much clothing or body stays visible from a component shape. Because separately selectable components form this set, never describe them as one piece, one continuous or unbroken line, a line from one body area to another, or a single design running between components. Do not write shows up cleanly, shows up clearly or similar design-review shorthand. Do not repeat the intro, and do not repeat straps, adjustment, fit or comfort from the fixed panel.',
+    'Intro does not say part of a complete look, centerpiece, focal piece, easy to style, creates an accent, clear costume shape, distinct outline, character-driven feel, make the idea land, anchor an outfit, or contrast with darker pieces the buyer may own.',
+    'About contains the exact Primary once, explains the whole product in one selected setting, and adds a different buyer value. Use one or two short sentences. Name one observed component only when visual_truth_evidence explicitly supports the concrete buyer outcome. Never infer coverage, freer movement, or how much clothing or body stays visible from a component shape. Do not compare the product with a full uniform or head-to-toe costume, and do not say the buyer can skip one or still feel dressed. Because separately selectable components form this set, never describe them as one piece, one continuous or unbroken line, a line from one body area to another, or a single design running between components. Do not write shows up cleanly, shows up clearly or similar design-review shorthand. Do not repeat the intro, and do not repeat straps, adjustment, fit or comfort from the fixed panel.',
     'Within each About sentence, use each meaningful content noun only once, treating singular and plural as the same term. Rewrite the sentence instead of mechanically swapping in a near-synonym. Never write constructions such as “shoulder pieces ... base pieces” inside one sentence.',
     'ALT starts with one natural approved component-level Secondary when it accurately describes the visible sold product, then may name another confirmed sold component and a brief setting. Natural word order and inflection are allowed. Omit base clothing, footwear, accessories and props that are visible but not confirmed as sold.',
     'Keep each repeated idea in one strongest block only. Before returning, silently assign every non-Primary buyer benefit to exactly one owner: meta, intro, About, Why, Ideal for or studio close. If the same idea appears in two owners through different wording, keep the stronger version and replace the other with a genuinely different supported value. Finish or light behavior belongs in at most one Why bullet, not intro, About, Ideal for or the studio close.',
     'Why contains exactly two or three distinct fact-to-outcome bullets. Two honest reasons are correct when the evidence does not support a third; never invent a filler bullet to reach three. Bullet 1 names one original-design benefit tied to a concrete buyer choice. Bullet 2 gives one different practical or visual outcome supported by sellable-offer truth or explicit visual_truth_evidence. Add bullet 3 only when another independent outcome is explicitly evidenced. The design bullet must name studio authorship plainly with “original studio design”, “studio-designed”, or an equally explicit studio-design phrase; do not replace authorship with an inventory recap. Every bullet contains one supported feature and one buyer result, not two benefits joined with “and”. Separately selectable components may support choosing, ordering, replacing or restyling one part, but do not list the full inventory. Use wearer-framing only when visual evidence explicitly describes the relevant shape or placement. Use light behavior only when visual evidence explicitly confirms glossy or light-catching behavior; metallic-looking alone and every uncertainty are insufficient. Never infer freer dancing, coverage, weather performance or comfort from component shape. The fixed right panel already explains standard sizing, adjustable straps, comfort, material, shape retention, production, shipping, care and customization; do not reuse those as left-block topics. “Build a look” is not product construction. Never use strong look, statement piece, presence, character, more individual look or looks intentional as an outcome.',
+    'If left_copy_evidence_policy.required_why_plan is non-null, follow its value families exactly and return exactly that many Why bullets. The standalone meta snippet may repeat the separately-selectable purchase fact; the visible Why bullet must explain its concrete buyer consequence. Never replace the plan with matching-color composition, above-and-below-waist balance, photographs-as-one-outfit, or a comparison with separate add-ons.',
     'Ideal for contains exactly three short, natural use cases. A bullet may be a concise phrase or a sentence; never force a person + action + occasion template. Cover the authoritative event and persona focus naturally across the block, using each selected focus value at most once. Do not invent a profession, time of day, weather condition, location or extra audience merely to fill a bullet. Do not describe gold, metallic finish, silhouette, structure, construction, components or another product detail here.',
     'Ideal for contains no finish, anatomy, product inventory, fantasy, historical framing, “statement piece”, “calls for”, “when needed”, buyers-who-want or people-looking-for language. Do not repeat a meaningful word inside one bullet, such as “warrior-inspired performers wearing a warrior look”.',
-    'Designed for self-expression contains exactly three natural sentences and 50-65 words. Begin “At TheFEYA, we…” and identify us as an independent design studio or independent design team. Connect our original ideas to the buyer’s visual identity, personal style, a design that feels like them, or their own look without comparing the buyer with a generic or standard costume.',
+    'Designed for self-expression contains exactly three natural sentences and 50-65 words. Begin “At TheFEYA, we…” and identify us as an independent design studio or independent design team. Connect our original ideas to personal style or a design that feels like the wearer. Write like a founder speaking plainly, not a brand manifesto. Do not use expressive dressing, a clearer sense of visual identity, not just something to wear once, from the first photo to the last, or turn a vision into a look.',
     'Use TheFEYA exactly once in all customer-facing generated copy, only in Designed for self-expression. Never put the brand in SEO title, H1, meta description, intro, ALT, Why or Ideal for.',
     'HUMAN VOICE CHECK: read every customer-facing sentence aloud as a shopper or salesperson. Rewrite anything that sounds like a search query, design critique, image-analysis note or sentence written only to satisfy a template. A grammatically valid sentence still fails if a normal person would not say it. Prefer a concrete product action or buyer result over abstract nouns such as layout, structure, balance, direction or presence. Do not add after sunset, outdoors or another filler circumstance unless it is both supported and useful to the purchase decision.',
     'Outside the studio close, prefer concrete verbs such as frame, move, pair, wear and photograph. Do not describe an “idea”, “theme”, “direction” or “identity” when a concrete product action or buyer result can say the same thing.',
@@ -444,6 +445,23 @@ function buildFinalEditorContext(seoPackDraft, firstPassOutput) {
   const truth = seoPackDraft?.product_truth || {};
   const sellableOffer = truth?.sellable_offer || {};
   const visualTruth = firstPassOutput?.visual_truth || {};
+  const separatelySelectableLabels = (sellableOffer?.atomic_options || [])
+    .map((item) => item?.label)
+    .filter(Boolean);
+  const requiredWhyPlan = separatelySelectableLabels.length >= 2
+    ? [
+      {
+        value_family: 'studio_design_and_craft',
+        supported_fact: 'original studio design',
+        allowed_buyer_outcome: 'the buyer can interpret the selected persona through their own styling rather than copy a named character',
+      },
+      {
+        value_family: 'purchase_flexibility',
+        supported_fact: `these components are separately selectable: ${separatelySelectableLabels.join(', ')}`,
+        allowed_buyer_outcome: 'the buyer can order only the part they need, or replace or restyle one part without buying the full set',
+      },
+    ]
+    : null;
   const compactRole = (item) => ({
     keyword: item?.keyword || item?.keyword_norm || null,
     role: item?.role || null,
@@ -463,9 +481,7 @@ function buildFinalEditorContext(seoPackDraft, firstPassOutput) {
         status: sellableOffer?.status || null,
         component_labels: sellableOffer?.component_labels || [],
         default_included_components: sellableOffer?.default_included_components || [],
-        separately_selectable_components: (sellableOffer?.atomic_options || [])
-          .map((item) => item?.label)
-          .filter(Boolean),
+        separately_selectable_components: separatelySelectableLabels,
         aggregate_options: (sellableOffer?.aggregate_options || []).map((item) => ({
           label: item?.label || null,
           member_labels: item?.member_labels || [],
@@ -484,9 +500,8 @@ function buildFinalEditorContext(seoPackDraft, firstPassOutput) {
     },
     left_copy_evidence_policy: {
       original_studio_design: 'supported by brand policy',
-      separately_selectable_purchase_format: (sellableOffer?.atomic_options || [])
-        .map((item) => item?.label)
-        .filter(Boolean),
+      separately_selectable_purchase_format: separatelySelectableLabels,
+      required_why_plan: requiredWhyPlan,
       fixed_right_panel_topics_to_avoid_repeating: [
         'standard sizing',
         'adjustable straps',

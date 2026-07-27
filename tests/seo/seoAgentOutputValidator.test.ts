@@ -51,6 +51,19 @@ test('allows a concise complete H1 without character padding', () => {
   assert.equal(codes.includes('h1_restates_same_product_entity'), false);
 });
 
+test('allows two evidenced Why benefits without demanding filler', () => {
+  const value = output({
+    pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: 'Our original studio design is not tied to a named character.\nEach component can be ordered separately when you only need one part.',
+      }
+      : block),
+  });
+  const result = validateSeoAgentOutput(value);
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('pdp_block_benefit_count_')), false);
+});
+
 test('blocks a padded H1 that restates the same shoulder product', () => {
   const result = validateSeoAgentOutput(output({ h1: 'Gold Shoulder Armor with a Sculptural Shoulder Piece' }));
   assert.ok(result.issues.some((issue) => issue.code === 'h1_restates_same_product_entity'));

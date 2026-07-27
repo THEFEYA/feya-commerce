@@ -236,8 +236,8 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
 
     if (key === 'why_youll_love_it') {
       const benefitLines = splitDisplayLines(body);
-      if (benefitLines.length < 3 || benefitLines.length > 4) {
-        issues.push(blocker(`pdp_block_benefit_count_${index}`, 'why_youll_love_it must contain 3-4 concise purchase reasons. Do not add a filler fifth bullet.'));
+      if (benefitLines.length < 2 || benefitLines.length > 4) {
+        issues.push(blocker(`pdp_block_benefit_count_${index}`, 'why_youll_love_it must contain 2-4 concise, evidenced purchase reasons. Never invent a third or fourth merely to fill space.'));
       }
     }
 

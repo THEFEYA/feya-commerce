@@ -44,6 +44,31 @@ test('blocks abstract visual pseudo-benefits and inferred component coverage', (
   assert.ok(codes.includes('customer_copy_infers_unsupported_component_coverage'));
 });
 
+test('blocks modular-set composition commentary from the live final editor', () => {
+  const value = draft({
+    intro: 'Wear this set to Burning Man when you want to anchor an armored outfit around gold detail.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => {
+      if (block.block_key === 'about_this_piece') {
+        return { ...block, body: 'For a festival, this warrior armor costume lets you skip a full uniform and still feel dressed for the occasion.' };
+      }
+      if (block.block_key === 'why_youll_love_it') {
+        return {
+          ...block,
+          body: [
+            'Original studio design gives you an option that feels more specific than standard festival basics.',
+            'Matching gold pieces repeat the same color above and below the waist, so the outfit photographs as one outfit instead of separate add-ons.',
+          ].join('\n'),
+        };
+      }
+      return block;
+    }),
+  });
+  const result = validateSeoCommercialCopy(value);
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('customer_copy_contains_abstract_visual_pseudobenefit'));
+  assert.ok(codes.includes('customer_copy_uses_invented_template_comparison'));
+});
+
 test('blocks a redundant shoulder entity in H1 and meta description', () => {
   const value = draft({
     h1: 'Gold Shoulder Armor with a Sculptural Shoulder Piece',
