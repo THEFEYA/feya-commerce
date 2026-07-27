@@ -200,8 +200,6 @@ function normalizeConfiguration(
   index: number,
   blockers: string[],
 ): NormalizedConfiguration | null {
-  const isFullSet = row.is_full_set === true || normalizeCode(row.component_code) === FULL_SET_CODE;
-  const isAggregate = isFullSet || row.is_bundle === true;
   const label = firstString(
     row.public_label,
     row.configuration_label,
@@ -209,8 +207,14 @@ function normalizeConfiguration(
     row.option_value,
     row.label,
   );
+  const labelCode = normalizeCode(label);
+  const isFullSet = row.is_full_set === true
+    || normalizeCode(row.component_code) === FULL_SET_CODE
+    || labelCode === FULL_SET_CODE;
+  const isAggregate = isFullSet || row.is_bundle === true;
   let code = normalizeCode(row.component_code);
   if (!code && isFullSet) code = FULL_SET_CODE;
+  if (!code) code = labelCode;
 
   if (!label) blockers.push(`sellable_option_missing_public_label:${index}`);
   if (label && CYRILLIC.test(label)) blockers.push(`sellable_option_non_english_public_label:${index}`);

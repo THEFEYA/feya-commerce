@@ -129,6 +129,50 @@ test('current v4 selector overrides stale Etsy variations for the current 434058
   );
 });
 
+test('uses the reduced public v4 PDP selector without legacy Etsy fallback', () => {
+  const product = {
+    canonical_source_variations: [{
+      raw_variation_name: 'Choose Your Set',
+      values: ['Shoulders', 'Skirt', 'Bracelets', 'Shoulders & Skirt', 'Full Set'],
+    }],
+    configurations: [
+      {
+        configuration_id: 'skirt',
+        sort_order: 1,
+        option_value: 'Skirt',
+        configuration_name: 'Skirt',
+        configuration_label: 'Skirt',
+      },
+      {
+        configuration_id: 'shoulders',
+        sort_order: 2,
+        option_value: 'Shoulders',
+        configuration_name: 'Shoulders',
+        configuration_label: 'Shoulders',
+      },
+      {
+        configuration_id: 'full-set',
+        sort_order: 3,
+        option_value: 'Full Set',
+        configuration_name: 'Full Set',
+        configuration_label: 'Full Set',
+      },
+    ],
+  } as any;
+
+  const offer = resolveStorefrontSellableOffer(product);
+
+  assert.equal(offer.status, 'ready');
+  assert.deepEqual(offer.component_codes, ['shoulders', 'skirt']);
+  assert.deepEqual(storefrontIncludedOptions(product, {
+    configuration_id: 'full-set',
+  }), ['Shoulders', 'Skirt']);
+  assert.equal(
+    sellableOfferAvailabilitySentence(offer),
+    'The shoulders and skirt are available separately or together.',
+  );
+});
+
 test('fails closed when an aggregate option has no deterministic current members', () => {
   const product = {
     canonical_source_variations: [{
