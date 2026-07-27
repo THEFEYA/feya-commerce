@@ -44,7 +44,7 @@ export async function GET() {
     writes: false,
     publish: false,
     apply: false,
-    humanizer_repair_attempts: 1,
+    humanizer_repair_attempts: 2,
   });
 }
 
@@ -151,6 +151,11 @@ export async function POST(request: Request) {
   let repairCommercial = null;
   let repairKeywordPlacement = null;
   let repairUsed = false;
+  let finalReviewGeneration = null;
+  let finalReviewStructural = null;
+  let finalReviewCommercial = null;
+  let finalReviewKeywordPlacement = null;
+  let finalReviewUsed = false;
 
   const shouldRepair = shouldRunSeoEditorialRepair(
     firstStructural,
@@ -192,6 +197,46 @@ export async function POST(request: Request) {
     }
   }
 
+  const shouldRunFinalReview = selectedGeneration.ok
+    && selectedGeneration.output
+    && shouldRunSeoEditorialRepair(
+      selectedStructural,
+      selectedCommercial,
+      selectedKeywordPlacement,
+    );
+  if (shouldRunFinalReview) {
+    const finalReviewPrompt = buildRepairPrompt(
+      promptContract,
+      selectedGeneration.output,
+      selectedStructural.issues || [],
+      selectedCommercial.issues || [],
+      selectedKeywordPlacement.issues || [],
+    );
+    finalReviewGeneration = await generateSeoDraftWithOpenAi(finalReviewPrompt);
+    finalReviewStructural = finalReviewGeneration.output
+      ? validateSeoAgentOutput(finalReviewGeneration.output)
+      : validateSeoAgentOutput(null);
+    finalReviewCommercial = finalReviewGeneration.output
+      ? validateSeoCommercialCopy(finalReviewGeneration.output, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus })
+      : validateSeoCommercialCopy(null, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus });
+    finalReviewKeywordPlacement = validateSeoKeywordPlacement(finalReviewGeneration.output, bundle.seoPackDraft);
+
+    if (
+      finalReviewGeneration.ok
+      && finalReviewGeneration.output
+      && isStrictlyBetterSeoEditorialCandidate(
+        [finalReviewStructural, finalReviewCommercial, finalReviewKeywordPlacement],
+        [selectedStructural, selectedCommercial, selectedKeywordPlacement],
+      )
+    ) {
+      selectedGeneration = finalReviewGeneration;
+      selectedStructural = finalReviewStructural;
+      selectedCommercial = finalReviewCommercial;
+      selectedKeywordPlacement = finalReviewKeywordPlacement;
+      finalReviewUsed = true;
+    }
+  }
+
   const finalDraft = selectedGeneration.output
     ? sanitizeOutputForReadiness(selectedGeneration.output, readiness)
     : null;
@@ -213,7 +258,7 @@ export async function POST(request: Request) {
     },
     humanizer_repair: repairGeneration ? {
       attempted: true,
-      selected: repairUsed,
+      selected: repairUsed && !finalReviewUsed,
       openai: sanitizeGeneration(repairGeneration),
       structural_validation: repairStructural,
       commercial_validation: repairCommercial,
@@ -222,6 +267,18 @@ export async function POST(request: Request) {
       attempted: false,
       selected: false,
       reason: shouldRepair ? 'first_generation_unavailable' : 'deterministic_qa_clean',
+    },
+    final_editorial_review: finalReviewGeneration ? {
+      attempted: true,
+      selected: finalReviewUsed,
+      openai: sanitizeGeneration(finalReviewGeneration),
+      structural_validation: finalReviewStructural,
+      commercial_validation: finalReviewCommercial,
+      keyword_placement_validation: finalReviewKeywordPlacement,
+    } : {
+      attempted: false,
+      selected: false,
+      reason: shouldRunFinalReview ? 'selected_generation_unavailable' : 'best_candidate_qa_clean',
     },
   };
 
@@ -247,11 +304,11 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     ok: true,
-    status: repairUsed ? 'catalog_full_draft_repaired_not_saved' : 'catalog_full_draft_generated_not_saved',
+    status: repairUsed || finalReviewUsed ? 'catalog_full_draft_repaired_not_saved' : 'catalog_full_draft_generated_not_saved',
     blocked: false,
     mode: 'openai_review_draft_not_saved',
-    message: repairUsed
-      ? 'The first pass needed correction. The Humanizer produced a valid catalog review draft. Nothing was saved or published.'
+    message: repairUsed || finalReviewUsed
+      ? 'The first pass needed correction. The bounded editorial review produced a valid catalog review draft. Nothing was saved or published.'
       : 'The catalog review draft passed structural and commercial QA. Nothing was saved or published.',
     openai_generation: sanitizeGeneration(selectedGeneration),
     generated_draft_output: finalDraft,
@@ -367,14 +424,18 @@ function buildRepairPrompt(promptContract, currentOutput, structuralIssues, comm
     'Every sentence must answer a normal buyer question or add a concrete purchase benefit. Delete sentences that do neither.',
     'Treat search queries as evidence, not finished customer copy. SEO title, H1, metadata and body copy must use idiomatic English; reorder query tokens and inflect words when grammar requires it.',
     'Preserve the Primary product meaning and search intent naturally. Exact query word order is not required when it would produce awkward English. Secondary keywords are optional semantic evidence, never an exact-placement checklist.',
-    'Keep the Primary whole-product concept as the clearest recurring subject without chasing a density percentage. Use natural inflection and close grammatical variation; do not repeat the exact phrase merely to increase a count.',
+    'Use the exact Primary phrase no more than four times across the complete pack. Reserve those placements for seo_title, H1, meta_description and exactly one useful body passage, preferably About this piece. Do not repeat it in ALT, Why, Ideal for, Designed for self-expression, or in both intro and About.',
+    'Keep the Primary whole-product concept as the clearest recurring subject without chasing a density percentage. Use idiomatic inflection and restrained semantic variation; do not build synonym chains.',
     'The operator-selected event, style, persona and audience values are a hard focus boundary. Never import rave, cosplay or another unselected high-intent context from the legacy title, image, current draft or Keyword Bank.',
     'Prefer clear product, event and buyer language. Do not write fashion-analysis, computer-vision or internal SEO language.',
     'Keep About this piece product-specific; Why you’ll love it benefit-led; Ideal for use-case-led; Designed for self-expression studio-led.',
+    'H1 must contain the whole-product Primary meaning and one operator-selected event in natural English. Do not use its limited space to inventory the components.',
+    'Intro and About this piece must do different jobs and must not repeat the same event sentence, finish, fit claim or benefit.',
     'Do not recap the deterministic component inventory in intro, meta or About this piece. Delete “combines”, “pairs”, “brings together” or equivalent sentences that merely restate What’s Included. A component word may remain only when it supports a different concrete buyer benefit.',
     'Why you’ll love it: 3-4 different supported reasons, each expressed as fact -> concrete buyer outcome. Include one concrete original-design benefit.',
+    'The fixed right panel already owns raw fit, material, production, shipping and care facts. Never copy or lightly paraphrase a right-panel sentence into the left description. Use a supported fact once only when it produces a different concrete buyer outcome.',
     'Ideal for: supported events, personas, productions or styles only; never product anatomy or finish details.',
-    'Designed for self-expression: 45-75 words about our independent design team, original ideas, and helping people build a look that feels personal. Never mention team size.',
+    'Designed for self-expression: 45-75 words about our independent design team, original ideas, and helping people build a look that feels personal. Begin naturally with “At TheFEYA, we” or an equivalent first-person construction. Never begin with “TheFEYA is” and never mention team size.',
     'Do not repeat a benefit, finish claim, event use or product-query variant across blocks.',
     'Do not repeat the product entity through a near-synonym in H1 or meta.',
     'Do not use abstract filler such as bold color, bold gold finish, coordinated look, coordinated costume, stage-ready shape, visual noise, presence, character, body line, reads clearly or sculptural silhouette.',
@@ -428,7 +489,7 @@ function buildSharedPayload(bundle, readiness, promptContract, primaryImageUrl, 
       ...summarizeSeoAgentPromptContract(promptContract),
       readiness_mode: readiness.mode,
       right_panel_mode: 'immutable_storefront_owned',
-      humanizer_repair_attempts: 1,
+      humanizer_repair_attempts: 2,
       portfolio_strategy_loaded: Boolean(portfolioStrategy),
     },
     seo_pack_draft: bundle.seoPackDraft,

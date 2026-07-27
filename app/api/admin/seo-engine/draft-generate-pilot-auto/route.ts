@@ -37,7 +37,7 @@ export async function GET() {
     product_id: PILOT_PRODUCT_ID,
     writes: false,
     publish: false,
-    humanizer_repair_attempts: 1,
+    humanizer_repair_attempts: 2,
   });
 }
 
@@ -127,6 +127,11 @@ export async function POST(request: Request) {
   let repairCommercial = null;
   let repairKeywordPlacement = null;
   let repairUsed = false;
+  let finalReviewGeneration = null;
+  let finalReviewStructural = null;
+  let finalReviewCommercial = null;
+  let finalReviewKeywordPlacement = null;
+  let finalReviewUsed = false;
 
   const shouldRepair = shouldRunSeoEditorialRepair(
     firstStructural,
@@ -166,6 +171,44 @@ export async function POST(request: Request) {
     }
   }
 
+  const shouldRunFinalReview = selectedGeneration.ok
+    && selectedGeneration.output
+    && shouldRunSeoEditorialRepair(
+      selectedStructural,
+      selectedCommercial,
+      selectedKeywordPlacement,
+    );
+  if (shouldRunFinalReview) {
+    const finalReviewPrompt = buildHumanizerRepairPrompt(
+      promptContract,
+      selectedGeneration.output,
+      selectedStructural.issues || [],
+      selectedCommercial.issues || [],
+      selectedKeywordPlacement.issues || [],
+    );
+    finalReviewGeneration = await generateSeoDraftWithOpenAi(finalReviewPrompt);
+    finalReviewStructural = finalReviewGeneration.output ? validateSeoAgentOutput(finalReviewGeneration.output) : validateSeoAgentOutput(null);
+    finalReviewCommercial = finalReviewGeneration.output
+      ? validateSeoCommercialCopy(finalReviewGeneration.output, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus })
+      : validateSeoCommercialCopy(null, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus });
+    finalReviewKeywordPlacement = validateSeoKeywordPlacement(finalReviewGeneration.output, bundle.seoPackDraft);
+
+    if (
+      finalReviewGeneration.ok
+      && finalReviewGeneration.output
+      && isStrictlyBetterSeoEditorialCandidate(
+        [finalReviewStructural, finalReviewCommercial, finalReviewKeywordPlacement],
+        [selectedStructural, selectedCommercial, selectedKeywordPlacement],
+      )
+    ) {
+      selectedGeneration = finalReviewGeneration;
+      selectedStructural = finalReviewStructural;
+      selectedCommercial = finalReviewCommercial;
+      selectedKeywordPlacement = finalReviewKeywordPlacement;
+      finalReviewUsed = true;
+    }
+  }
+
   const shared = buildSharedPayload(bundle, readiness, promptContract, primaryImageUrl);
   const finalDraft = selectedGeneration.output ? sanitizeOutputForReadiness(selectedGeneration.output, readiness) : null;
   const assembledSeoPack = finalDraft ? assembleSeoProductPack({
@@ -187,7 +230,7 @@ export async function POST(request: Request) {
     },
     humanizer_repair: repairGeneration ? {
       attempted: true,
-      selected: repairUsed,
+      selected: repairUsed && !finalReviewUsed,
       openai: sanitizeGeneration(repairGeneration),
       structural_validation: repairStructural,
       commercial_validation: repairCommercial,
@@ -196,6 +239,18 @@ export async function POST(request: Request) {
       attempted: false,
       selected: false,
       reason: shouldRepair ? 'first_generation_unavailable' : 'deterministic_qa_clean',
+    },
+    final_editorial_review: finalReviewGeneration ? {
+      attempted: true,
+      selected: finalReviewUsed,
+      openai: sanitizeGeneration(finalReviewGeneration),
+      structural_validation: finalReviewStructural,
+      commercial_validation: finalReviewCommercial,
+      keyword_placement_validation: finalReviewKeywordPlacement,
+    } : {
+      attempted: false,
+      selected: false,
+      reason: shouldRunFinalReview ? 'selected_generation_unavailable' : 'best_candidate_qa_clean',
     },
   };
 
@@ -206,7 +261,7 @@ export async function POST(request: Request) {
       blocked: true,
       mode: 'openai_draft_only_not_saved',
       message: selectedGeneration.ok
-        ? 'OpenAI generated a review draft and one Humanizer repair was attempted when needed, but deterministic QA still blocks saving or publishing. The best draft is shown for review.'
+        ? 'OpenAI generated a review draft and the bounded editorial review ran when needed, but deterministic QA still blocks saving or publishing. The best draft is shown for review.'
         : 'OpenAI draft generation failed. Nothing was saved or published.',
       openai_generation: sanitizeGeneration(selectedGeneration),
       generated_draft_output: finalDraft,
@@ -219,15 +274,15 @@ export async function POST(request: Request) {
     }, { status: selectedGeneration.ok ? 422 : 502 });
   }
 
-  const status = repairUsed ? 'ai_full_draft_repaired_not_saved' : 'ai_full_draft_generated_not_saved';
+  const status = repairUsed || finalReviewUsed ? 'ai_full_draft_repaired_not_saved' : 'ai_full_draft_generated_not_saved';
 
   return NextResponse.json({
     ok: true,
     status,
     blocked: false,
     mode: 'openai_draft_only_not_saved',
-    message: repairUsed
-      ? 'The first draft needed correction. The Humanizer repair pass produced a valid review draft from approved Keyword Bank metrics. Nothing was saved or published.'
+    message: repairUsed || finalReviewUsed
+      ? 'The first draft needed correction. The bounded editorial review produced a valid review draft from approved Keyword Bank metrics. Nothing was saved or published.'
       : 'The OpenAI SEO review draft passed deterministic structure and commercial QA. Nothing was saved or published.',
     openai_generation: sanitizeGeneration(selectedGeneration),
     generated_draft_output: finalDraft,
@@ -343,12 +398,14 @@ function buildHumanizerRepairPrompt(promptContract, currentOutput, structuralIss
     'Never say that an item keeps its shape during movement. Explain supported retention as keeping shape between wears, resisting creasing, storing better or remaining reusable for future events.',
     'Use construction, structure or build in at most one Why bullet.',
     'Move styles, events, personas, audiences, stage/camera use and keyword variants to Ideal for. Delete abstract visual commentary and never invent a filler fifth bullet.',
-    'Repair primary keyword placement in meta_description and intro or About this piece body, never by stuffing Why you’ll love it.',
-    'Keep the Primary whole-product concept as the clearest recurring subject without chasing a density percentage. Use natural inflection and never repeat an exact phrase merely to increase a count.',
+    'Use the exact Primary phrase no more than four times across the complete pack. Reserve those placements for seo_title, H1, meta_description and exactly one useful body passage, preferably About this piece. Do not repeat it in ALT, Why, Ideal for, Designed for self-expression, or in both intro and About.',
+    'Keep the Primary whole-product concept as the clearest recurring subject without chasing a density percentage. Use idiomatic inflection and restrained semantic variation; do not build synonym chains.',
     'Treat operator-selected event, style, persona and audience values as a hard focus boundary. Never import rave, cosplay or another unselected high-intent context from the legacy title, image, current draft or Keyword Bank.',
-    'If the operator selected an event focus, prefer the H1 pattern [primary product entity] for [selected event].',
+    'If the operator selected an event focus, H1 must contain the whole-product Primary meaning and one selected event in the natural pattern [primary product entity] for [selected event]. Do not inventory the components there.',
+    'Intro and About this piece must do different jobs and must not repeat the same event sentence, finish, fit claim or benefit.',
     'Do not recap the deterministic component inventory in intro, meta or About this piece. Delete “combines”, “pairs”, “brings together” or equivalent sentences that merely restate What’s Included. A component term may remain only when it supports a different concrete buyer benefit.',
-    'Rewrite Designed for self-expression as 45-75 words in 3-4 natural sentences: our independent design team and fresh point of view, how varied original ideas help people find a design that feels like them, and how this product supports a complete look in one supported setting. Never mention team size.',
+    'The fixed right panel already owns raw fit, material, production, shipping and care facts. Never copy or lightly paraphrase a right-panel sentence into the left description. Use a supported fact once only when it produces a different concrete buyer outcome.',
+    'Rewrite Designed for self-expression as 45-75 words in 3-4 natural sentences: our independent design team and fresh point of view, how varied original ideas help people find a design that feels like them, and how this product supports a complete look in one supported setting. Begin naturally with “At TheFEYA, we” or an equivalent first-person construction. Never begin with “TheFEYA is” and never mention team size.',
     'Delete visual noise, clarity of the look, expressive accent, presence, character, considered appearance and other abstract design-review language.',
     'Delete all computer-vision reporting from commercial copy: left/right orientation, positioned high, visible from the front, clearly visible, anatomical upper-body geometry and shoulder coordinates belong only in ALT or visual_truth.',
     'Delete desert light, desert-ready, standard costume template and buyers who want or are looking for a product component. Start from the buyer’s event/style/performance look.',
@@ -401,7 +458,7 @@ function buildSharedPayload(bundle, readiness, promptContract, primaryImageUrl) 
       product_truth_mode: compositionReady
         ? 'canonical_composition_available_storefront_controlled'
         : 'blocked_composition_not_generated',
-      humanizer_repair_attempts: 1,
+      humanizer_repair_attempts: 2,
     },
     guardrails: [
       'No Supabase write was performed.',
@@ -410,7 +467,7 @@ function buildSharedPayload(bundle, readiness, promptContract, primaryImageUrl) 
       compositionReady
         ? 'Canonical Product Truth is connected; the storefront controls selected-configuration contents.'
         : 'The storefront What’s Included panel is hidden because composition remains unresolved.',
-      'One Humanizer repair attempt may rewrite generated left copy but cannot change product facts or the right panel.',
+      'At most two bounded editorial passes may rewrite generated left copy. Each pass must reduce deterministic QA issues and cannot change product facts, saved focus, keyword roles, or the right panel.',
       'No draft save or publish action is performed by this route.',
     ],
   };

@@ -60,6 +60,36 @@ test('rejects a repair that trades an old blocker for a new blocker', () => {
   assert.equal(isStrictlyBetterSeoEditorialCandidate(candidate, baseline), false);
 });
 
+test('accepts a net reduction when only editorial blocker classes change', () => {
+  const baseline = [
+    validation([
+      { code: 'robotic_copy', severity: 'blocker' },
+      { code: 'repeated_idea', severity: 'blocker' },
+    ]),
+  ];
+  const candidate = [
+    validation([
+      { code: 'primary_missing_body', severity: 'blocker' },
+    ]),
+  ];
+  assert.equal(isStrictlyBetterSeoEditorialCandidate(candidate, baseline), true);
+});
+
+test('rejects a net reduction that introduces an unselected event', () => {
+  const baseline = [
+    validation([
+      { code: 'robotic_copy', severity: 'blocker' },
+      { code: 'repeated_idea', severity: 'blocker' },
+    ]),
+  ];
+  const candidate = [
+    validation([
+      { code: 'customer_copy_uses_unselected_event_focus', severity: 'blocker' },
+    ]),
+  ];
+  assert.equal(isStrictlyBetterSeoEditorialCandidate(candidate, baseline), false);
+});
+
 test('keeps an auditable issue snapshot with keyword identity', () => {
   assert.deepEqual(
     seoEditorialIssueSnapshot(validation([

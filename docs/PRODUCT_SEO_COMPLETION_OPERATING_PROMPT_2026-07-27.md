@@ -105,8 +105,10 @@ Run this loop for one product or a controlled batch:
     description blocks.
 11. Run deterministic structural, commercial, keyword-placement,
     product-specificity, similarity and factual QA.
-12. Permit at most one constrained editorial repair; it may rewrite language
-    but cannot change facts, roles, options or fixed storefront copy.
+12. Permit at most two constrained editorial passes after the writer. Each may
+    rewrite language but cannot change facts, roles, options, saved focus or
+    fixed storefront copy. Select a rewrite only when deterministic QA proves
+    a strict improvement and no new Product Truth blocker appears.
 13. Show an exact storefront preview.
 14. Save a new versioned review artifact; never overwrite history silently.
 15. Keep Apply and Publish disabled until explicit human approval.
@@ -176,8 +178,10 @@ If the aggregate cannot be mapped from current data, hide the block and return
 - Inflect and reorder keyword words for idiomatic English. Do not preserve an
   unnatural query fragment merely for exact matching.
 - Do not optimize to a fixed keyword percentage or “water” score.
-- Place the chosen Primary naturally in the meta description and in either the
-  intro or About this piece. Avoid synonym chains and repeated intent.
+- Keep the exact Primary phrase to no more than four uses across the generated
+  pack: SEO title, H1, meta description and one useful body passage. Keep the
+  concept dominant through idiomatic inflection and natural whole-product
+  references, not a keyword-density target, synonym chains or repeated intent.
 - Collection-level intents belong to future landing pages and should not be
   stuffed into a PDP.
 
@@ -287,4 +291,3 @@ current options
 
 without invented components, stale decisions, robotic text, keyword-scope
 errors, or parallel data worlds.
-
