@@ -351,10 +351,25 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
   const descriptorFamilies = detectedFamilies(identityText, COMPONENT_FAMILIES)
     .filter((family) => UMBRELLA_COMPONENT_FAMILIES.has(family));
   const colors = detectedColorFamilies(colorText);
-  const audiences = detectedFamilies(`${styleText} ${flattenStrings([explicitFocus.audience]).join(' ')}`, AUDIENCE_FAMILIES);
-  const events = detectedFamilies(eventText, EVENT_FAMILIES);
-  const styles = detectedFamilies(styleText, STYLE_FAMILIES);
-  const personas = detectedFamilies(personaText, PERSONA_FAMILIES);
+  const selectedAudiences = detectedFamilies(explicitFocus.audience, AUDIENCE_FAMILIES);
+  const selectedEvents = detectedFamilies(explicitFocus.event, EVENT_FAMILIES);
+  const selectedStyles = detectedFamilies(explicitFocus.style, STYLE_FAMILIES);
+  const selectedPersonas = detectedFamilies(explicitFocus.persona, PERSONA_FAMILIES);
+  // A non-empty operator axis is a boundary, not a scoring hint. Legacy
+  // titles, source descriptions and images may suggest additional contexts,
+  // but they cannot silently expand a saved manual focus.
+  const audiences = explicitFocus.audience.length
+    ? selectedAudiences
+    : detectedFamilies(styleText, AUDIENCE_FAMILIES);
+  const events = explicitFocus.event.length
+    ? selectedEvents
+    : detectedFamilies(eventText, EVENT_FAMILIES);
+  const styles = explicitFocus.style.length
+    ? selectedStyles
+    : detectedFamilies(styleText, STYLE_FAMILIES);
+  const personas = explicitFocus.persona.length
+    ? selectedPersonas
+    : detectedFamilies(personaText, PERSONA_FAMILIES);
   const visualAttributes = detectedFamilies(visualText, VISUAL_ATTRIBUTE_FAMILIES);
   const identityTokens = tokens(identityText).filter((token) => !STOP_WORDS.has(token) && token.length > 2);
   const styleTokens = tokens(styleText).filter((token) => !STOP_WORDS.has(token) && token.length > 2);

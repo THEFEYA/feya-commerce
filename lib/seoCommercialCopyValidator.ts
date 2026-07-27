@@ -53,13 +53,26 @@ const USE_CASE_AS_BENEFIT = /\b(?:works?|ideal|made|suited) for\b.*\b(styling|lo
 const UNGROUNDED_STORE_PROMISE = /\b(best prices?|lowest prices?|competitive prices?|special prices?|bulk discounts?|volume discounts?|tax[- ]free|tax refund|excellent service|best service|wide assortment|large assortment|largest selection|fastest delivery)\b/i;
 const BRAND_PATTERN = /\bTheFEYA\b/gi;
 const GENERIC_EVENT_PATTERN = /\bevents?\b/gi;
-const DESIGN_BENEFIT_PATTERN = /\b(studio[- ]created|studio[- ]designed|studio[- ]made|designed in our studio|original studio design|distinctive studio design|signature studio design|handmade|made[- ]to[- ]order|not mass[- ]produced|mass[- ]produced costume|mass production|designer studio)\b/i;
+const DESIGN_BENEFIT_PATTERN = /\b(studio[- ]created|studio[- ]designed|studio[- ]made|designed in our studio|designed by our (?:team|studio)|our original design ideas?|original design ideas?|original studio design|distinctive studio design|signature studio design|handmade|made[- ]to[- ]order|not mass[- ]produced|mass[- ]produced costume|mass production|designer studio)\b/i;
 const SELF_EXPRESSION_PATTERN = /\b(self[- ]expression|individuality|visual identity|personal style|your own look|made for your vision|designed for your vision|studio visual language|adapt(?:ed|able)|customi[sz](?:e|ed|ation))\b/i;
 const REDUNDANT_SHOULDER_ENTITY_PATTERN = /\bshoulders?\s+(?:armor|armour|piece|pieces|pauldron|pauldrons)\b/gi;
 const AWKWARD_FINISH_AND_SHAPE = /\b(?:glossy|mirror[- ]like|metallic|gold)\b[^.!?]{0,45}\b(?:finish|surface|coating)\s+and\s+(?:a\s+)?(?:silhouette|shape|profile)\b/i;
 const DUPLICATE_STAGE_PERFORMANCE_FASHION = /\b(?:festival,?\s*)?stage,?\s+and\s+performance\s+fashion\b/i;
 const IDEAL_FOR_PRODUCT_DETAIL = /\b(?:accent|silhouette|finish|surface|coating|construction|structured|structure|base layers?|statement piece|shoulder armor|shoulder armour|shoulder piece|harness(?:\s+and|\/|\s+with)?\s+skirt|component combination|built around|calls? for|when you want)\b/i;
 const IDEAL_FOR_CONTEXT = /\b(?:performers?|dancers?|djs?|showgirls?|drag performers?|drag queens?|pole dancers?|go-go dancers?|cosplayers?|actors?|artists?|creators?|bloggers?|show ballets?|dance troupes?|event productions?|costume studios?|festivals?|burning man|raves?|stage shows?|dance performances?|theatrical productions?|theatre|theater|music videos?|video clips?|tv shows?|film costumes?|photoshoots?|editorial|costume parties?|nightclubs?|galas?|events?|performances?|productions?|women|woman|men|people)\b/i;
+const COMPOSITION_RECAP_VERB = /\b(?:combines?|pairs?|brings?\s+together|includes?|contains?|consists?\s+of|comes?\s+with|made\s+up\s+of)\b/i;
+const GENERIC_WHOLE_PRODUCT_COMPOSITION_RECAP = /\b(?:complete\s+)?(?:outfit|set|costume|ensemble)\b[^.!?\n]{0,90}\b(?:combines?|pairs?|brings?\s+together|includes?|contains?|consists?\s+of|comes?\s+with)\b/i;
+
+const CONTROLLED_EVENT_FOCUS_FAMILIES: Array<{ key: string; aliases: string[] }> = [
+  { key: 'rave', aliases: ['rave', 'raves'] },
+  { key: 'edm', aliases: ['edm'] },
+  { key: 'edc', aliases: ['edc', 'electric daisy carnival'] },
+  { key: 'coachella', aliases: ['coachella'] },
+  { key: 'halloween', aliases: ['halloween'] },
+  { key: 'cosplay', aliases: ['cosplay', 'cosplayer', 'cosplayers'] },
+  { key: 'pride', aliases: ['pride'] },
+  { key: 'drag', aliases: ['drag queen', 'drag queens', 'drag performer', 'drag performers'] },
+];
 
 const ALT_STYLING_FAMILIES: Array<{ key: string; aliases: string[] }> = [
   { key: 'cape_or_cloak', aliases: ['cape', 'cloak'] },
@@ -84,7 +97,17 @@ const FOCUS_VALUE_ALIASES: Record<string, string[]> = {
   cosplayer: ['cosplayer', 'cosplayers', 'cosplay'],
   creator: ['creator', 'creators', 'blogger', 'bloggers'],
   warrior: ['warrior', 'warrior-inspired'],
+  'burning man': ['burning man'],
   festival: ['festival', 'festivals'],
+  rave: ['rave', 'raves'],
+  stage: ['stage', 'stage show', 'stage shows'],
+  edm: ['edm'],
+  edc: ['edc', 'electric daisy carnival'],
+  coachella: ['coachella'],
+  halloween: ['halloween'],
+  cosplay: ['cosplay', 'cosplayer', 'cosplayers'],
+  pride: ['pride'],
+  photoshoot: ['photoshoot', 'photoshoots', 'photo shoot', 'photo shoots'],
 };
 
 const BENEFIT_CATEGORIES: Array<{ key: string; pattern: RegExp }> = [
@@ -373,6 +396,19 @@ export function validateSeoCommercialCopy(
       'h1_missing_operator_event_focus',
       `H1 must use one operator-selected event focus naturally (${selectedEventFocus.join(', ')}). Prefer the product entity for the selected event over a low-intent construction detail.`,
     ));
+  }
+  if (selectedEventFocus.length) {
+    const selected = new Set(selectedEventFocus.map((value) => value.toLowerCase()));
+    const leaked = CONTROLLED_EVENT_FOCUS_FAMILIES
+      .filter((family) => !selected.has(family.key))
+      .filter((family) => family.aliases.some((alias) => containsPhrase(customerText, alias)))
+      .map((family) => family.key);
+    if (leaked.length) {
+      issues.push(blocker(
+        'customer_copy_uses_unselected_event_focus',
+        `Customer copy introduces an unselected high-intent event or subculture (${[...new Set(leaked)].join(', ')}). Use only the operator-selected event focus (${selectedEventFocus.join(', ')}) unless Product Truth is deliberately re-reviewed.`,
+      ));
+    }
   }
 
   const idealForBlock = blocks.find((block) => String(block.block_key || '') === 'ideal_for');
@@ -755,23 +791,24 @@ function validateWholeProductPresentation(
   }
 
   if (!presentation.requires_compact_composition) return;
-  const meta = typeof record.meta_description === 'string' ? record.meta_description : '';
-  const metaComponents = mentionedConfirmedComponents(meta, presentation.components);
-  if (metaComponents.length < Math.min(2, presentation.component_count)) {
-    issues.push(blocker(
-      'meta_description_missing_compact_set_composition',
-      `Meta description must identify the complete set and name its compact composition naturally. Confirmed components: ${presentation.components.join(', ')}.`,
-    ));
-  }
-
-  const aboutComponents = mentionedConfirmedComponents(aboutBody, presentation.components);
-  if (aboutComponents.length < presentation.component_count) {
-    const missing = presentation.components.filter((component) => !aboutComponents.includes(component));
-    issues.push(blocker(
-      'about_this_piece_missing_confirmed_components',
-      `About this piece must state the full confirmed compact-set composition once. Missing: ${missing.join(', ')}.`,
-    ));
-  }
+  const intro = typeof record.intro === 'string' ? record.intro : '';
+  [
+    { key: 'intro', text: intro },
+    { key: 'about_this_piece', text: aboutBody },
+  ].forEach(({ key, text }) => {
+    const mentioned = mentionedConfirmedComponents(text, presentation.components);
+    const recapsComposition = COMPOSITION_RECAP_VERB.test(text)
+      && (
+        mentioned.length >= Math.min(2, presentation.component_count)
+        || GENERIC_WHOLE_PRODUCT_COMPOSITION_RECAP.test(text)
+      );
+    if (recapsComposition) {
+      issues.push(blocker(
+        `${key}_repeats_deterministic_composition`,
+        `${key} re-narrates the component inventory already shown by configuration and What’s Included. Use this space for a distinct buyer job, supported product value, wearability, finish behavior, or design reason.`,
+      ));
+    }
+  });
 }
 
 function idealForLineHasContext(line: string, manualFocus: unknown) {

@@ -12,6 +12,10 @@ import {
   getSeoPackDraftSaveBlockers,
 } from '@/lib/seoPackContract';
 import { generateSeoDraftWithOpenAi } from '@/lib/seoOpenAiDraftGenerator';
+import {
+  isStrictlyBetterSeoEditorialCandidate,
+  shouldRunSeoEditorialRepair,
+} from '@/lib/seoEditorialCandidateSelection';
 
 export const dynamic = 'force-dynamic';
 
@@ -148,7 +152,12 @@ export async function POST(request: Request) {
   let repairKeywordPlacement = null;
   let repairUsed = false;
 
-  if (firstGeneration.ok && firstGeneration.output) {
+  const shouldRepair = shouldRunSeoEditorialRepair(
+    firstStructural,
+    firstCommercial,
+    firstKeywordPlacement,
+  );
+  if (firstGeneration.ok && firstGeneration.output && shouldRepair) {
     const repairPrompt = buildRepairPrompt(
       promptContract,
       firstGeneration.output,
@@ -170,7 +179,7 @@ export async function POST(request: Request) {
     if (
       repairGeneration.ok
       && repairGeneration.output
-      && isCandidateAtLeastAsGood(
+      && isStrictlyBetterSeoEditorialCandidate(
         [repairStructural, repairCommercial, repairKeywordPlacement],
         [firstStructural, firstCommercial, firstKeywordPlacement],
       )
@@ -212,6 +221,7 @@ export async function POST(request: Request) {
     } : {
       attempted: false,
       selected: false,
+      reason: shouldRepair ? 'first_generation_unavailable' : 'deterministic_qa_clean',
     },
   };
 
@@ -353,12 +363,15 @@ function buildRepairPrompt(promptContract, currentOutput, structuralIssues, comm
     '',
     'THEFEYA FINAL BUYER-COPY EDITOR:',
     'Return a complete seo_agent_output_v1 JSON object, not a patch or commentary.',
-    'Edit the draft as a senior ecommerce editor. Product Truth is authoritative.',
+    'Rewrite the customer-facing draft from a clean editorial sheet as a senior ecommerce editor. Product Truth, saved manual focus and approved keyword roles are authoritative; the current wording is not.',
     'Every sentence must answer a normal buyer question or add a concrete purchase benefit. Delete sentences that do neither.',
     'Treat search queries as evidence, not finished customer copy. SEO title, H1, metadata and body copy must use idiomatic English; reorder query tokens and inflect words when grammar requires it.',
     'Preserve the Primary product meaning and search intent naturally. Exact query word order is not required when it would produce awkward English. Secondary keywords are optional semantic evidence, never an exact-placement checklist.',
+    'Keep the Primary whole-product concept as the clearest recurring subject without chasing a density percentage. Use natural inflection and close grammatical variation; do not repeat the exact phrase merely to increase a count.',
+    'The operator-selected event, style, persona and audience values are a hard focus boundary. Never import rave, cosplay or another unselected high-intent context from the legacy title, image, current draft or Keyword Bank.',
     'Prefer clear product, event and buyer language. Do not write fashion-analysis, computer-vision or internal SEO language.',
     'Keep About this piece product-specific; Why you’ll love it benefit-led; Ideal for use-case-led; Designed for self-expression studio-led.',
+    'Do not recap the deterministic component inventory in intro, meta or About this piece. Delete “combines”, “pairs”, “brings together” or equivalent sentences that merely restate What’s Included. A component word may remain only when it supports a different concrete buyer benefit.',
     'Why you’ll love it: 3-4 different supported reasons, each expressed as fact -> concrete buyer outcome. Include one concrete original-design benefit.',
     'Ideal for: supported events, personas, productions or styles only; never product anatomy or finish details.',
     'Designed for self-expression: 45-75 words about our independent design team, original ideas, and helping people build a look that feels personal. Never mention team size.',
@@ -385,28 +398,6 @@ function buildRepairPrompt(promptContract, currentOutput, structuralIssues, comm
     user_prompt: repairRequest,
     guardrails: [...(promptContract.guardrails || []), editorPolicy],
   };
-}
-
-function candidateScore(structural, commercial, keywordPlacement) {
-  const issues = [
-    ...(structural?.issues || []),
-    ...(commercial?.issues || []),
-    ...(keywordPlacement?.issues || []),
-  ];
-  return {
-    blockers: issues.filter((issue) => issue.severity === 'blocker').length,
-    warnings: issues.filter((issue) => issue.severity !== 'blocker').length,
-  };
-}
-
-function isCandidateAtLeastAsGood(candidate, baseline) {
-  const candidateScoreValue = candidateScore(...candidate);
-  const baselineScoreValue = candidateScore(...baseline);
-  return candidateScoreValue.blockers < baselineScoreValue.blockers
-    || (
-      candidateScoreValue.blockers === baselineScoreValue.blockers
-      && candidateScoreValue.warnings <= baselineScoreValue.warnings
-    );
 }
 
 function sanitizeOutputForReadiness(output, readiness) {

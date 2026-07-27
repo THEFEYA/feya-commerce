@@ -68,8 +68,12 @@ export function validateSeoKeywordPlacement(
     if (!item.fields.some((field) => ['intro', 'bullet_highlights', 'pdp_blocks', 'faq'].includes(field))) {
       issues.push(blockerIssue('primary_missing_body', 'Primary keyword must be represented naturally in useful visible product copy.', item.keyword));
     }
-    if (item.exact_occurrences > 5) {
-      issues.push(blockerIssue('primary_exact_phrase_overused', 'The exact primary phrase is repeated more than five times across the pack; use natural grammatical variation.', item.keyword));
+    if (item.exact_occurrences > 4) {
+      issues.push(blockerIssue(
+        'primary_exact_phrase_overused',
+        'The exact primary phrase is repeated more than four times across the pack. Keep the Primary concept dominant through clear whole-product meaning and normal grammatical variation, not density chasing.',
+        item.keyword,
+      ));
     }
   });
 

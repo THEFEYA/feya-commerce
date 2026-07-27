@@ -75,6 +75,35 @@ test('Burning Man is an event and does not infer a male audience', () => {
   assert.equal(keywords.includes('mens festival armor'), false);
 });
 
+test('operator event focus rejects a legacy-title rave keyword before scoring', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      card_title: 'Gold Rave Festival Armor Outfit for Burning Man',
+      canonical_color_label: 'Gold',
+      included_components: ['Shoulders', 'Skirt'],
+    },
+    focus: {
+      component: ['shoulders', 'skirt'],
+      material: ['gold'],
+      event: ['burning man', 'festival'],
+      persona: ['warrior'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'warrior armor costume', keyword_norm: 'warrior armor costume', bank_bucket: 'product', avg_monthly_searches: 10 },
+      { ...baseMetric, keyword: 'festival skirt set', keyword_norm: 'festival skirt set', bank_bucket: 'product', avg_monthly_searches: 110 },
+      { ...baseMetric, keyword: 'gold rave skirt', keyword_norm: 'gold rave skirt', bank_bucket: 'product_or_alt', avg_monthly_searches: 100000 },
+      { ...baseMetric, keyword: 'gold rave outfit', keyword_norm: 'gold rave outfit', bank_bucket: 'visual_collection', avg_monthly_searches: 100000 },
+    ],
+  });
+
+  const keywords = result.keywords.map((row) => String(row.keyword_norm));
+  assert.equal(keywords.includes('warrior armor costume'), true);
+  assert.equal(keywords.includes('festival skirt set'), true);
+  assert.equal(keywords.includes('gold rave skirt'), false);
+  assert.equal(keywords.includes('gold rave outfit'), false);
+  assert.deepEqual(result.diagnostics.product_events, ['burning man', 'festival']);
+});
+
 test('operator minus-words reject a candidate before scoring', () => {
   const result = recommendCatalogKeywords({
     product: {

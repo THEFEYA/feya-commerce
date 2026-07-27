@@ -353,26 +353,58 @@ test('requires a compact set to remain the page entity across SEO fields', () =>
   assert.ok(reducedCodes.includes('h1_reduces_multi_component_product_to_one_piece'));
   assert.ok(reducedCodes.includes('meta_description_reduces_multi_component_product_to_one_piece'));
   assert.ok(reducedCodes.includes('about_this_piece_missing_whole_product_entity'));
-  assert.ok(reducedCodes.includes('meta_description_missing_compact_set_composition'));
-  assert.ok(reducedCodes.includes('about_this_piece_missing_confirmed_components'));
 
   const complete = draft({
     seo_title: 'Gold Festival Armor Outfit for Burning Man',
     h1: 'Gold Festival Armor Outfit for Burning Man',
-    meta_description: 'Gold festival armor outfit with shoulder armor, harness and skirt for Burning Man stage performances.',
+    meta_description: 'Gold festival armor outfit for Burning Man with an adjustable fit and a light-catching metallic finish.',
     intro: 'Create a Burning Man look with this complete gold festival outfit.',
     pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'
       ? {
         ...block,
-        body: 'This complete festival outfit combines gold shoulder armor, an adjustable harness and a matching skirt for Burning Man performances.',
+        body: 'This complete festival outfit adds a strong gold finish to a Burning Man look while adjustable straps make the fit easier to fine-tune.',
       }
       : block),
   });
   const completeResult = validateSeoCommercialCopy(complete, { product_truth: productTruth });
   const presentationCodes = completeResult.issues
     .map((issue) => issue.code)
-    .filter((code) => code.includes('multi_component') || code.includes('whole_product') || code.includes('compact_set') || code.includes('confirmed_components'));
+    .filter((code) => code.includes('multi_component') || code.includes('whole_product') || code.includes('deterministic_composition'));
   assert.deepEqual(presentationCodes, []);
+});
+
+test('blocks repeating deterministic compact-set composition in intro or About', () => {
+  const productTruth = { included_components: ['Shoulders', 'Skirt'] };
+  const value = draft({
+    seo_title: 'Gold Warrior Costume for Burning Man',
+    h1: 'Gold Warrior Costume for Burning Man',
+    meta_description: 'Gold warrior costume for Burning Man and festival performances, with adjustable straps and a metallic finish.',
+    intro: 'The complete outfit pairs a structured upper piece with a skirt for a bold festival silhouette.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'
+      ? {
+        ...block,
+        body: 'This warrior costume brings together gold shoulders and a skirt in one coordinated outfit.',
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value, { product_truth: productTruth });
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('intro_repeats_deterministic_composition'));
+  assert.ok(codes.includes('about_this_piece_repeats_deterministic_composition'));
+});
+
+test('blocks an unselected rave or cosplay focus when the operator chose Burning Man and festival', () => {
+  const value = draft({
+    h1: 'Gold Festival Armor for Burning Man',
+    intro: 'Wear this gold armor costume at a rave or use it for a cosplay event.',
+  });
+  const result = validateSeoCommercialCopy(value, {
+    manual_focus: { event: ['burning man', 'festival'] },
+  });
+  const issue = result.issues.find((item) => item.code === 'customer_copy_uses_unselected_event_focus');
+  assert.ok(issue);
+  assert.match(issue?.message || '', /rave/);
+  assert.match(issue?.message || '', /cosplay/);
 });
 
 test('blocks robotic editorial shorthand and search-query audience copy', () => {

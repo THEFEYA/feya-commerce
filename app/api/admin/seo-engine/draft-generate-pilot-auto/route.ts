@@ -8,6 +8,10 @@ import { validateSeoKeywordPlacement } from '@/lib/seoKeywordPlacementValidator'
 import { assembleSeoProductPack } from '@/lib/seoFullPackAssembler';
 import { getSeoGenerationProductTruthBlockers, getSeoPackDraftSaveBlockers } from '@/lib/seoPackContract';
 import { generateSeoDraftWithOpenAi } from '@/lib/seoOpenAiDraftGenerator';
+import {
+  isStrictlyBetterSeoEditorialCandidate,
+  shouldRunSeoEditorialRepair,
+} from '@/lib/seoEditorialCandidateSelection';
 
 export const dynamic = 'force-dynamic';
 
@@ -124,7 +128,12 @@ export async function POST(request: Request) {
   let repairKeywordPlacement = null;
   let repairUsed = false;
 
-  if (firstGeneration.ok && firstGeneration.output && shouldRunHumanizerRepair(firstStructural, firstCommercial, firstKeywordPlacement)) {
+  const shouldRepair = shouldRunSeoEditorialRepair(
+    firstStructural,
+    firstCommercial,
+    firstKeywordPlacement,
+  );
+  if (firstGeneration.ok && firstGeneration.output && shouldRepair) {
     const repairPrompt = buildHumanizerRepairPrompt(
       promptContract,
       firstGeneration.output,
@@ -132,14 +141,23 @@ export async function POST(request: Request) {
       firstCommercial.issues || [],
       firstKeywordPlacement.issues || [],
     );
-    repairGeneration = await generateSeoDraftWithOpenAi(repairPrompt, { primaryImageUrl });
+    // Editing uses verified text and contracts only. Re-sending the image can
+    // pull the rewrite back toward visual-audit language.
+    repairGeneration = await generateSeoDraftWithOpenAi(repairPrompt);
     repairStructural = repairGeneration.output ? validateSeoAgentOutput(repairGeneration.output) : validateSeoAgentOutput(null);
     repairCommercial = repairGeneration.output
       ? validateSeoCommercialCopy(repairGeneration.output, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus })
       : validateSeoCommercialCopy(null, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus });
     repairKeywordPlacement = validateSeoKeywordPlacement(repairGeneration.output, bundle.seoPackDraft);
 
-    if (repairGeneration.ok && repairGeneration.output && candidateScore(repairStructural, repairCommercial, repairKeywordPlacement) < candidateScore(firstStructural, firstCommercial, firstKeywordPlacement)) {
+    if (
+      repairGeneration.ok
+      && repairGeneration.output
+      && isStrictlyBetterSeoEditorialCandidate(
+        [repairStructural, repairCommercial, repairKeywordPlacement],
+        [firstStructural, firstCommercial, firstKeywordPlacement],
+      )
+    ) {
       selectedGeneration = repairGeneration;
       selectedStructural = repairStructural;
       selectedCommercial = repairCommercial;
@@ -177,6 +195,7 @@ export async function POST(request: Request) {
     } : {
       attempted: false,
       selected: false,
+      reason: shouldRepair ? 'first_generation_unavailable' : 'deterministic_qa_clean',
     },
   };
 
@@ -311,7 +330,7 @@ function buildHumanizerRepairPrompt(promptContract, currentOutput, structuralIss
     '',
     'THEFEYA HUMANIZER REPAIR PASS:',
     'Return a complete seo_agent_output_v1 JSON object, not a patch and not commentary.',
-    'Repair only the generated customer-facing SEO fields and the four left_description blocks needed to satisfy the exact validator issues below.',
+    'Rewrite the generated customer-facing SEO fields and four left_description blocks from a clean editorial sheet to satisfy the exact validator issues below. The current wording is not a template.',
     'Preserve confirmed product identity, approved keyword roles, visual facts, internal-linking intent, and all forbidden-claim boundaries.',
     'Do not add, infer, translate, or repair included components, selectable configurations, prices, or raw option meanings.',
     'Do not generate or paraphrase any fixed right-panel content or What’s Included.',
@@ -325,7 +344,10 @@ function buildHumanizerRepairPrompt(promptContract, currentOutput, structuralIss
     'Use construction, structure or build in at most one Why bullet.',
     'Move styles, events, personas, audiences, stage/camera use and keyword variants to Ideal for. Delete abstract visual commentary and never invent a filler fifth bullet.',
     'Repair primary keyword placement in meta_description and intro or About this piece body, never by stuffing Why you’ll love it.',
+    'Keep the Primary whole-product concept as the clearest recurring subject without chasing a density percentage. Use natural inflection and never repeat an exact phrase merely to increase a count.',
+    'Treat operator-selected event, style, persona and audience values as a hard focus boundary. Never import rave, cosplay or another unselected high-intent context from the legacy title, image, current draft or Keyword Bank.',
     'If the operator selected an event focus, prefer the H1 pattern [primary product entity] for [selected event].',
+    'Do not recap the deterministic component inventory in intro, meta or About this piece. Delete “combines”, “pairs”, “brings together” or equivalent sentences that merely restate What’s Included. A component term may remain only when it supports a different concrete buyer benefit.',
     'Rewrite Designed for self-expression as 45-75 words in 3-4 natural sentences: our independent design team and fresh point of view, how varied original ideas help people find a design that feels like them, and how this product supports a complete look in one supported setting. Never mention team size.',
     'Delete visual noise, clarity of the look, expressive accent, presence, character, considered appearance and other abstract design-review language.',
     'Delete all computer-vision reporting from commercial copy: left/right orientation, positioned high, visible from the front, clearly visible, anatomical upper-body geometry and shoulder coordinates belong only in ALT or visual_truth.',
@@ -344,23 +366,6 @@ function buildHumanizerRepairPrompt(promptContract, currentOutput, structuralIss
     user_prompt: `${promptContract.user_prompt}\n${repairRules}`,
     guardrails: [...(promptContract.guardrails || []), repairRules],
   };
-}
-
-function shouldRunHumanizerRepair(structural, commercial, keywordPlacement) {
-  if (!structural?.ok || !commercial?.ok || !keywordPlacement?.ok) return true;
-  return (commercial?.issues || []).some((issue) => (
-    String(issue.code || '').startsWith('repeated_idea_')
-    || ['cross_block_repetition_warning', 'self_expression_close_lacks_clear_buyer_value'].includes(String(issue.code || ''))
-  ));
-}
-
-function candidateScore(structural, commercial, keywordPlacement) {
-  const issues = [
-    ...(structural?.issues || []),
-    ...(commercial?.issues || []),
-    ...(keywordPlacement?.issues || []),
-  ];
-  return issues.reduce((score, issue) => score + (issue.severity === 'blocker' ? 100 : 1), 0);
 }
 
 function sanitizeOutputForReadiness(output, readiness) {

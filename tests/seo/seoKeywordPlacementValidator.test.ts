@@ -66,6 +66,21 @@ test('allows singular and plural grammatical variation', () => {
   assert.equal(result.issues.some((issue) => issue.code === 'primary_missing_seo_title'), false);
 });
 
+test('uses exact primary repetition as a stuffing guard rather than a density target', () => {
+  const value = output();
+  value.pdp_blocks = [{
+    heading: 'About this piece',
+    body: 'Gold shoulder armor gives this festival look its main product identity.',
+  }, {
+    heading: 'Ideal for',
+    body: 'Gold shoulder armor for stage performers.',
+  }];
+  const result = validateSeoKeywordPlacement(value, contract('gold shoulder armor'));
+  const issue = result.issues.find((item) => item.code === 'primary_exact_phrase_overused');
+  assert.ok(issue);
+  assert.match(issue?.message || '', /normal grammatical variation/);
+});
+
 test('does not count keyword tokens scattered across unrelated text as placement', () => {
   const value = output();
   value.seo_title = 'Gold Festival Piece with Sculptural Shoulder Details';

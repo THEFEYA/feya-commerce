@@ -156,9 +156,9 @@ const SYN = {
   headpiece: ['headpiece', 'head piece', 'horn', 'crown', 'halo', 'headdress', 'cleopatra'],
   choker: ['choker', 'collar', 'choke chain', 'choke chains'], wings: ['wings'], spine: ['spine', 'back piece'], tail: ['tail'],
   gold: ['gold', 'golden'], silver: ['silver', 'chrome'], black: ['black'], white: ['white'], mirror: ['mirror', 'mirrored', 'reflective'], acrylic: ['acrylic'], leather: ['leather', 'faux leather'], 'vegan leather': ['vegan leather', 'faux leather'], metallic: ['metallic', 'metal'], holographic: ['holographic', 'holo', 'iridescent'], chain: ['chain', 'chains', 'body chain'],
-  'burning man': ['burning man', 'burningman'], festival: ['festival', 'coachella', 'tomorrowland', 'electric forest'], rave: ['rave', 'edm'], stage: ['stage', 'performance', 'performer', 'show'], edm: ['edm', 'rave'], edc: ['edc', 'electric daisy carnival'], coachella: ['coachella'], halloween: ['halloween'], cosplay: ['cosplay', 'costume'], pride: ['pride'], drag: ['drag', 'drag queen'], photoshoot: ['photoshoot', 'photo shoot'],
-  'post apocalyptic': ['post apocalyptic', 'post-apocalyptic', 'apocalyptic', 'mad max', 'wasteland'], futuristic: ['futuristic', 'future', 'future fashion'], cyberpunk: ['cyberpunk', 'cyber'], desert: ['desert', 'dune', 'burning man'], glam: ['glam', 'glamorous', 'red carpet'], punk: ['punk'], goth: ['goth', 'gothic'], burlesque: ['burlesque'], cosmic: ['cosmic', 'space'], 'sci fi': ['sci fi', 'sci-fi', 'science fiction'], steampunk: ['steampunk'], fantasy: ['fantasy', 'fairy'],
-  warrior: ['warrior', 'armor', 'armour', 'armored', 'armoured'], goddess: ['goddess'], queen: ['queen'], cleopatra: ['cleopatra', 'egyptian'], robot: ['robot'], alien: ['alien'], angel: ['angel'], demon: ['demon', 'devil'], 'drag queen': ['drag queen'], dancer: ['dancer', 'dance'], performer: ['performer', 'performance'], dj: ['dj'], showgirl: ['showgirl', 'show girl'], 'go go dancer': ['go go', 'gogo', 'go-go'], 'pole dancer': ['pole dancer', 'pole dance'], maleficent: ['maleficent', 'dark fairy'], cat: ['cat', 'kitty'], bunny: ['bunny', 'rabbit'], couple: ['couple', 'couples', 'matching'],
+  'burning man': ['burning man', 'burningman'], festival: ['festival', 'festivals'], rave: ['rave', 'raves'], stage: ['stage', 'stages'], edm: ['edm'], edc: ['edc', 'electric daisy carnival'], coachella: ['coachella'], halloween: ['halloween'], cosplay: ['cosplay', 'cosplayer', 'cosplayers'], pride: ['pride'], drag: ['drag'], photoshoot: ['photoshoot', 'photo shoot'],
+  'post apocalyptic': ['post apocalyptic', 'post-apocalyptic', 'apocalyptic', 'mad max', 'wasteland'], futuristic: ['futuristic', 'future', 'future fashion'], cyberpunk: ['cyberpunk', 'cyber'], desert: ['desert', 'dune'], glam: ['glam', 'glamorous', 'red carpet'], punk: ['punk'], goth: ['goth', 'gothic'], burlesque: ['burlesque'], cosmic: ['cosmic', 'space'], 'sci fi': ['sci fi', 'sci-fi', 'science fiction'], steampunk: ['steampunk'], fantasy: ['fantasy', 'fairy'],
+  warrior: ['warrior', 'warriors', 'warrior-inspired'], goddess: ['goddess'], queen: ['queen'], cleopatra: ['cleopatra', 'egyptian'], robot: ['robot'], alien: ['alien'], angel: ['angel'], demon: ['demon', 'devil'], 'drag queen': ['drag queen'], dancer: ['dancer', 'dance'], performer: ['performer', 'performance'], dj: ['dj'], showgirl: ['showgirl', 'show girl'], 'go go dancer': ['go go', 'gogo', 'go-go'], 'pole dancer': ['pole dancer', 'pole dance'], maleficent: ['maleficent', 'dark fairy'], cat: ['cat', 'kitty'], bunny: ['bunny', 'rabbit'], couple: ['couple', 'couples', 'matching'],
   men: ['men', 'male', 'mens', "men's"], women: ['women', 'woman', 'female', 'womens', "women's", 'ladies', 'lady'], couples: ['couple', 'couples', 'matching']
 };
 
@@ -275,6 +275,8 @@ async function saveDecisionAction(formData) {
     exclude: excludeTerms(val(formData.get('exclude'))),
     keyword_type: val(formData.get('type')) || 'all',
     selection_verified: true,
+    selection_origin: 'operator_form_submission_v2',
+    selected_at: new Date().toISOString(),
     save_request_id: requestId,
   };
   const strategyString = joinValues(manualFocus.strategies);
@@ -979,6 +981,9 @@ function FocusSearchForm({ product, filters, status, decisionReview }) {
     <CheckboxChipGroup key={`style-${formKey}`} title="Стиль / визуальный мир" items={STYLES} field="style" filters={filters} />
     <CheckboxChipGroup key={`persona-${formKey}`} title="Персона / образ" items={PERSONAS} field="persona" filters={filters} />
     <CheckboxChipGroup key={`audience-${formKey}`} title="Аудитория / buyer angle" items={AUDIENCES} field="audience" filters={filters} />
+    {filters.focusSource === 'truth_auto' ? <div className="mb-4 rounded-2xl border border-[rgba(212,178,106,.24)] bg-[rgba(212,178,106,.05)] p-4 text-[11px] leading-relaxed text-[var(--bone-dim)]">
+      Состав и подтверждённый цвет подставлены из Product Truth. Сценарий, стиль, персона и аудитория намеренно не выбираются по старому title автоматически. Возможные подсказки из исходных данных: {softFocusSuggestionLabel(filters.inferred)}. Они попадут в SEO только после вашего выбора и сохранения.
+    </div> : null}
     <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-2"><div className="eyebrow-gold mb-3">Режим подбора слов</div><div className="grid gap-3 md:grid-cols-3">{STRATEGIES.map((s) => <CheckboxCard key={`${s}-${formKey}`} name="strategy" value={s} checked={strategyValues(filters.strategy).includes(s)} title={STRATEGY_LABELS[s]} note={STRATEGY_NOTES[s]} />)}</div><div className="mt-3 text-[11px] text-[var(--bone-dim)]">По умолчанию включены все три режима. Повторный клик снимает режим; фильтр применится только после кнопки ниже.</div></div>
     <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-4"><div className="eyebrow-gold mb-3">Поиск и минус-слова внутри SEO-ядра</div><div className="grid gap-3 md:grid-cols-[1fr_1fr]"><label><div className="eyebrow-dim mb-1.5">Доп. поиск</div><input name="q" defaultValue={filters.q} placeholder="например: armor, price, shipping" className="field" /></label><label><div className="eyebrow-dim mb-1.5">Минус-слова</div><input name="exclude" defaultValue={valuesOf(filters.exclude).join(', ')} placeholder="dance, bodysuit, neon" className="field" /></label></div></div>
     <div className="mt-4 rounded-2xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.055)] p-4">
@@ -1133,22 +1138,41 @@ function applyAutoFocus(filters, product) {
   );
   if (
     savedFocus?.selection_verified === true
-    && savedOfferIsCurrent
     && FOCUS_FIELDS.some((field) => Object.prototype.hasOwnProperty.call(savedFocus, field))
   ) {
     const savedStrategy = product?.decision?.selected_strategy || savedFocus.strategies || filters.strategy;
+    const savedComponents = valuesOf(savedFocus.component);
+    const safeComponents = product?.sellableOffer?.status === 'ready'
+      ? savedComponents.filter((component) => sellableOfferAllowsComponentFocus(product.sellableOffer, component))
+      : savedComponents;
     return {
       ...filters,
       ...Object.fromEntries(FOCUS_FIELDS.map((field) => [field, joinValues(savedFocus[field])])),
+      component: joinValues(savedOfferIsCurrent && safeComponents.length ? safeComponents : inferred.component),
       strategy: cleanStrategyMulti(savedStrategy),
       type: KEYWORD_TYPES.includes(val(savedFocus.keyword_type)) ? val(savedFocus.keyword_type) : filters.type,
       q: norm(savedFocus.q),
       exclude: joinValues(savedFocus.exclude),
       inferred,
-      focusSource: 'saved',
+      focusSource: savedOfferIsCurrent ? 'saved' : 'saved_needs_review',
     };
   }
-  return { ...filters, component: inferred.component, material: inferred.material, event: inferred.event, style: inferred.style, persona: inferred.persona, audience: inferred.audience, inferred, focusSource: 'auto' };
+  return {
+    ...filters,
+    component: inferred.component,
+    material: inferred.material,
+    event: '',
+    style: '',
+    persona: '',
+    audience: '',
+    inferred,
+    focusSource: 'truth_auto',
+  };
+}
+function softFocusSuggestionLabel(inferred) {
+  const suggestions = ['event', 'style', 'persona', 'audience']
+    .flatMap((field) => valuesOf(inferred?.[field]).map((value) => labelFor(value)));
+  return suggestions.length ? suggestions.join(', ') : 'нет надёжных подсказок';
 }
 function focusFormKey(product, filters) { return [product?.id || 'no-product', filters.focusApplied ? 'applied' : 'auto', ...FOCUS_FIELDS.map((field) => valuesOf(filters[field]).join('|')), filters.strategy || '', filters.type || '', filters.q || '', filters.exclude || ''].join('::'); }
 function buildSections(products) { const map = new Map(); products.forEach((p) => { const key = p.sectionKey || 'other-products'; const current = map.get(key) || { key, label: p.sectionLabel || 'Other products', count: 0 }; current.count += 1; map.set(key, current); }); return Array.from(map.values()).sort((a, b) => b.count - a.count || a.label.localeCompare(b.label)); }
@@ -1197,6 +1221,18 @@ function conflictReason(core, meta, selected) {
   if (selectedColors.length && COLOR_VALUES.some((c) => !selectedColors.includes(c) && termMatch(core, c))) return 'wrong color';
   if (!selected.material.includes('holographic') && termMatch(core, 'neon')) return 'neon mismatch';
   if (termMatch(core, 'snake')) return 'snake mismatch';
+  const keywordEvents = EVENTS.filter((event) => termMatch(core, event));
+  if (selected.event.length && keywordEvents.some((event) => !selected.event.includes(event))) {
+    return `wrong event: ${keywordEvents.filter((event) => !selected.event.includes(event)).join(', ')}`;
+  }
+  const keywordStyles = STYLES.filter((style) => termMatch(core, style));
+  if (selected.style.length && keywordStyles.some((style) => !selected.style.includes(style))) {
+    return `wrong style: ${keywordStyles.filter((style) => !selected.style.includes(style)).join(', ')}`;
+  }
+  const keywordPersonas = PERSONAS.filter((persona) => termMatch(core, persona));
+  if (selected.persona.length && keywordPersonas.some((persona) => !selected.persona.includes(persona))) {
+    return `wrong persona: ${keywordPersonas.filter((persona) => !selected.persona.includes(persona)).join(', ')}`;
+  }
   if (selected.component.length) {
     const keywordComponents = COMPONENTS.filter((c) => termMatch(core, c));
     if (keywordComponents.some((c) => !selected.component.includes(c) && HARD_COMPONENT_CONFLICTS.includes(c))) return `wrong component: ${keywordComponents.filter((c) => !selected.component.includes(c)).join(', ')}`;
