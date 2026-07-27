@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  buildSeoEditorialRewriteSkeleton,
   isStrictlyBetterSeoEditorialCandidate,
   mergeBoundedSeoEditorialRepair,
+  normalizeDeterministicSeoIdentity,
   normalizeFinalSeoEditorialOutput,
   seoEditorialIssueSnapshot,
   shouldSelectFinalSeoEditorialCandidate,
@@ -12,6 +14,116 @@ import {
 const validation = (issues: Array<Record<string, unknown>>) => ({
   ok: !issues.some((issue) => issue.severity === 'blocker'),
   issues,
+});
+
+test('removes rejected buyer copy before the final clean-sheet editor', () => {
+  const output = {
+    contract_version: 'seo_agent_output_v1',
+    status: 'draft',
+    seo_title: 'Rejected title',
+    h1: 'Rejected H1',
+    meta_description: 'Rejected meta.',
+    intro: 'Rejected intro.',
+    bullet_highlights: ['Rejected highlight.'],
+    faq: [{ question: 'Rejected?', answer: 'Yes.', intent: 'other' }],
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'Rejected ALT',
+      truth_basis: 'visible_product_fact',
+    }],
+    internal_linking_hints: [{ anchor: 'Festival looks', target_type: 'collection', reason: 'Relevant' }],
+    visual_truth: {
+      observed_product_facts: ['Gold shoulders are visible'],
+      dna_matches: ['Shoulders'],
+      open_style_suggestions: [],
+      uncertain_or_missing_facts: [],
+      forbidden_visual_claims: [],
+    },
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        body: 'Rejected About.',
+        source_basis: 'product_fact',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'related_collections',
+        placement: 'review_only',
+        heading: 'Related collections',
+        body: 'Preserved internal note.',
+        source_basis: 'product_fact',
+        needs_human_review: true,
+      },
+    ],
+    qa_self_report: {
+      cliche_phrase: 'pass',
+      notes: ['Rejected self-assessment.'],
+    },
+    generation_notes: ['Rejected generation note.'],
+  };
+
+  assert.deepEqual(buildSeoEditorialRewriteSkeleton(output), {
+    ...output,
+    status: 'needs_review',
+    seo_title: '',
+    h1: '',
+    meta_description: '',
+    intro: '',
+    bullet_highlights: [],
+    faq: [],
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: '',
+      truth_basis: 'visible_product_fact',
+    }],
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        body: '',
+        source_basis: 'product_fact',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'related_collections',
+        placement: 'review_only',
+        heading: 'Related collections',
+        body: 'Preserved internal note.',
+        source_basis: 'product_fact',
+        needs_human_review: true,
+      },
+    ],
+    qa_self_report: {
+      cliche_phrase: 'not_checked',
+      notes: [],
+    },
+    generation_notes: [],
+  });
+});
+
+test('keeps SEO title and H1 on the reviewed Primary and selected event', () => {
+  const output = {
+    seo_title: 'Warrior Armor Costume Set with Gold Shoulders and Skirt',
+    h1: 'Warrior Armor Costume Set with Gold Shoulders and Skirt',
+    generation_notes: [],
+  };
+
+  assert.deepEqual(
+    normalizeDeterministicSeoIdentity(output, {
+      primary_keyword: 'warrior armor costume',
+      selected_events: ['festival', 'Burning Man'],
+    }),
+    {
+      seo_title: 'Warrior Armor Costume for Burning Man',
+      h1: 'Warrior Armor Costume for Burning Man',
+      generation_notes: [
+        'Deterministic identity normalization used the reviewed Primary and operator-selected event for SEO title and H1.',
+      ],
+    },
+  );
 });
 
 test('skips the editorial rewrite when deterministic QA is clean', () => {

@@ -194,6 +194,36 @@ function buildUserPrompt(input: SeoAgentInputContract) {
   const presentation = classifySeoProductPresentation(input.product);
   const presentationRules = buildProductPresentationRules(input).map((rule) => `- ${rule}`);
   const selectedEvents = focusValues(input.manual_focus?.event);
+  const selectedStyles = focusValues(input.manual_focus?.style);
+  const selectedPersonas = focusValues(input.manual_focus?.persona);
+  const selectedAudiences = focusValues(input.manual_focus?.audience);
+  const primaryKeyword = input.keyword_roles?.primary?.[0]?.keyword
+    || input.keyword_roles?.primary?.[0]?.keyword_norm
+    || '';
+  const preferredEvent = selectedEvents.find((value) => /^burning man$/i.test(value))
+    || selectedEvents[0]
+    || '';
+  const deterministicIdentity = primaryKeyword && preferredEvent
+    ? `${toTitleCase(primaryKeyword)} for ${formatSelectedEvent(preferredEvent)}`
+    : '';
+  const buyerRoleContext = [
+    input.product?.category,
+    input.product?.world,
+    primaryKeyword,
+    ...selectedEvents,
+  ].filter(Boolean).join(' ').toLowerCase();
+  const approvedGeneralBuyerRoles = /\b(costume|outfit|armor|festival|burning man|performance)\b/.test(buyerRoleContext)
+    ? [
+      'festival-goers',
+      'Burning Man attendees',
+      'performers',
+      'dancers',
+      'DJs',
+      'show artists',
+      'content creators',
+      'costume stylists',
+    ]
+    : [];
   const h1EventRule = selectedEvents.length
     ? presentation.requires_whole_product_entity
       ? `- Operator-selected event focus: ${selectedEvents.join(', ')}. Prefer [complete outfit/set entity] for [highest-priority selected event]. Never reduce the H1 to one included component.`
@@ -279,6 +309,21 @@ function buildUserPrompt(input: SeoAgentInputContract) {
     ...strategyInstructions,
     'Input contract:',
     JSON.stringify(input, null, 2),
+    '',
+    'FINAL ACCEPTANCE CARD — this is the last and highest-priority instruction:',
+    deterministicIdentity
+      ? `- seo_title and h1 must both be exactly: ${deterministicIdentity}`
+      : '- Keep SEO title and H1 inside the reviewed Primary and selected-focus boundary.',
+    `- Allowed high-intent events: ${selectedEvents.join(', ') || 'none selected'}.`,
+    `- Allowed high-intent styles: ${selectedStyles.join(', ') || 'none selected'}.`,
+    `- Allowed high-intent personas: ${selectedPersonas.join(', ') || 'none selected'}.`,
+    `- Allowed high-intent audiences: ${selectedAudiences.join(', ') || 'none selected'}.`,
+    `- Allowed general buyer roles for Ideal for: ${approvedGeneralBuyerRoles.join(', ') || 'none beyond explicitly selected focus'}.`,
+    '- Do not introduce any other buyer role that implies an unselected event, style, persona or subculture. Drag performers and cosplayers are forbidden unless explicitly selected.',
+    `- Confirmed components belong to deterministic What’s Included: ${presentation.components.join(', ') || 'not resolved'}. Outside that block, never put two different confirmed component names in the same field or sentence.`,
+    '- Meta, intro and About must identify the whole product without listing, pairing or re-explaining its components.',
+    `- About must contain 2-4 meaningful sentences and 45-90 words; Why must contain 4 distinct feature-to-outcome bullets when four evidence families are supplied; Ideal for must contain ${approvedGeneralBuyerRoles.length >= 5 ? '5 useful customer portraits' : '4-5 useful customer portraits'} without inventing a role.`,
+    '- Before returning JSON, remove every term inherited only from the legacy title, image setting or rejected draft that is outside this acceptance card.',
   ].join('\n');
 }
 
@@ -312,6 +357,15 @@ function focusValues(value: unknown): string[] {
   }
   const single = String(value || '').trim();
   return single ? [single] : [];
+}
+
+function toTitleCase(value: string) {
+  return String(value || '').replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
+}
+
+function formatSelectedEvent(value: string) {
+  if (/^burning man$/i.test(value)) return 'Burning Man';
+  return toTitleCase(value);
 }
 
 export function promptGuardrails(input?: SeoAgentInputContract) {

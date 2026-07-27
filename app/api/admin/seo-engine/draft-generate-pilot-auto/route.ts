@@ -9,6 +9,8 @@ import { assembleSeoProductPack } from '@/lib/seoFullPackAssembler';
 import { getSeoGenerationProductTruthBlockers, getSeoPackDraftSaveBlockers } from '@/lib/seoPackContract';
 import { generateSeoDraftWithOpenAi } from '@/lib/seoOpenAiDraftGenerator';
 import {
+  buildSeoEditorialRewriteSkeleton,
+  normalizeDeterministicSeoIdentity,
   normalizeFinalSeoEditorialOutput,
   shouldSelectFinalSeoEditorialCandidate,
 } from '@/lib/seoEditorialCandidateSelection';
@@ -119,7 +121,24 @@ export async function POST(request: Request) {
     keyword_roles: bundle.seoPackDraft.keyword_roles,
   };
 
-  const firstGeneration = await generateSeoDraftWithOpenAi(promptContract, { primaryImageUrl });
+  const primaryKeyword = bundle.seoPackDraft?.keyword_roles?.primary?.[0]?.keyword
+    || bundle.seoPackDraft?.keyword_roles?.primary?.[0]?.keyword_norm
+    || null;
+  const selectedEvents = normalizeFocusValues(bundle.seoPackDraft?.manual_focus?.event);
+  const identityNormalizationContext = {
+    primary_keyword: primaryKeyword,
+    selected_events: selectedEvents,
+  };
+  let firstGeneration = await generateSeoDraftWithOpenAi(promptContract, { primaryImageUrl });
+  if (firstGeneration.output) {
+    firstGeneration = {
+      ...firstGeneration,
+      output: normalizeDeterministicSeoIdentity(
+        firstGeneration.output,
+        identityNormalizationContext,
+      ),
+    };
+  }
   const firstStructural = firstGeneration.output ? validateSeoAgentOutput(firstGeneration.output) : validateSeoAgentOutput(null);
   const firstCommercial = firstGeneration.output
     ? validateSeoCommercialCopy(firstGeneration.output, commercialContext)
@@ -147,9 +166,7 @@ export async function POST(request: Request) {
       firstStructural.issues || [],
       firstCommercial.issues || [],
       firstKeywordPlacement.issues || [],
-      bundle.seoPackDraft?.keyword_roles?.primary?.[0]?.keyword
-        || bundle.seoPackDraft?.keyword_roles?.primary?.[0]?.keyword_norm
-        || null,
+      primaryKeyword,
       buildFinalEditorContext(bundle.seoPackDraft, firstGeneration.output),
     );
     finalReviewGeneration = await generateSeoDraftWithOpenAi(finalReviewPrompt, {
@@ -159,7 +176,10 @@ export async function POST(request: Request) {
     if (finalReviewGeneration.output) {
       finalReviewGeneration = {
         ...finalReviewGeneration,
-        output: normalizeFinalSeoEditorialOutput(finalReviewGeneration.output),
+        output: normalizeDeterministicSeoIdentity(
+          normalizeFinalSeoEditorialOutput(finalReviewGeneration.output),
+          identityNormalizationContext,
+        ),
       };
     }
     finalReviewStructural = finalReviewGeneration.output ? validateSeoAgentOutput(finalReviewGeneration.output) : validateSeoAgentOutput(null);
@@ -360,6 +380,24 @@ function buildFinalReviewPrompt(
   const primaryKeyword = authoritativePrimaryKeyword || keywordPlacementIssues.find((issue) => (
     issue.keyword && String(issue.code || '').startsWith('primary_')
   ))?.keyword || null;
+  const manualFocus = authoritativeContext?.manual_focus || {};
+  const selectedEvents = normalizeFocusValues(manualFocus?.event);
+  const selectedStyles = normalizeFocusValues(manualFocus?.style);
+  const selectedPersonas = normalizeFocusValues(manualFocus?.persona);
+  const selectedAudiences = normalizeFocusValues(manualFocus?.audience);
+  const approvedBuyerRoles = normalizeFocusValues(
+    authoritativeContext?.left_copy_evidence_policy?.approved_general_buyer_roles,
+  );
+  const confirmedComponents = normalizeFocusValues(
+    authoritativeContext?.product_truth?.sellable_offer?.component_labels
+      || authoritativeContext?.product_truth?.included_components,
+  );
+  const preferredEvent = selectedEvents.find((value) => /^burning man$/i.test(value))
+    || selectedEvents[0]
+    || '';
+  const deterministicIdentity = primaryKeyword && preferredEvent
+    ? `${toTitleCase(primaryKeyword)} for ${formatSelectedEvent(preferredEvent)}`
+    : '';
   const issueLines = [
     ...structuralIssues.map((issue) => `${issue.severity}:${issue.code}: ${issue.message}`),
     ...commercialIssues.map((issue) => `${issue.severity}:${issue.code}: ${issue.message}`),
@@ -413,8 +451,24 @@ function buildFinalReviewPrompt(
     'Read About, Why and Ideal aloud once. Replace “warrior line”, “armored effect”, “visually open”, “continuous line”, “cohesive styling”, “shows up cleanly”, “photos pick up more depth” and similar design-review shorthand with a plain, supported product fact or buyer action.',
     'Do not repeat raw fit, material, production, shipping or care sentences from the fixed right panel.',
     '',
-    'Current JSON:',
-    JSON.stringify(currentOutput, null, 2),
+    'REWRITE SKELETON — buyer-facing wording was deliberately removed so the rejected draft cannot become a prose template:',
+    JSON.stringify(buildSeoEditorialRewriteSkeleton(currentOutput), null, 2),
+    '',
+    'FINAL ACCEPTANCE CARD — apply this after reading the rejected JSON; it overrides every conflicting word in that draft:',
+    deterministicIdentity
+      ? `- seo_title and h1 must both be exactly: ${deterministicIdentity}`
+      : '- Keep SEO title and H1 inside the reviewed Primary and selected-focus boundary.',
+    `- Allowed high-intent events: ${selectedEvents.join(', ') || 'none selected'}.`,
+    `- Allowed high-intent styles: ${selectedStyles.join(', ') || 'none selected'}.`,
+    `- Allowed high-intent personas: ${selectedPersonas.join(', ') || 'none selected'}.`,
+    `- Allowed high-intent audiences: ${selectedAudiences.join(', ') || 'none selected'}.`,
+    `- Use only these general buyer roles in Ideal for: ${approvedBuyerRoles.join(', ') || 'none beyond explicitly selected focus'}.`,
+    '- Never retain a buyer role, occasion, production or subculture from the rejected JSON unless it appears in the allowed lists above. Drag, cosplay, fantasy, rave, historical and costume-party contexts are forbidden unless explicitly selected.',
+    `- Confirmed component inventory is owned only by What’s Included: ${confirmedComponents.join(', ') || 'not resolved'}. Never put two different confirmed component names in SEO title, H1, meta, intro or About. A single component may appear only when it proves a new concrete design or buyer value.`,
+    '- Meta, intro and About identify the whole product without listing, pairing, combining or re-explaining its components.',
+    '- Return a complete human product story: About 2-4 sentences and 45-90 words; Why exactly 4 distinct fact-to-outcome bullets; Ideal for exactly 5 useful 7-22 word customer portraits when five or more approved roles are listed; studio close exactly 3 natural sentences.',
+    '- Remove abstract phrases such as strong sculpted feel, complete look with confidence, reads clearly in photographs, photo moments, bold appearance or themed nights. Replace them with a supported product detail, a plain buyer result or a specific approved use.',
+    '- Perform one final literal scan before returning JSON: no forbidden context, no component inventory recap, no exact Primary in body copy, no thin section and no sentence that only restates its heading.',
   ].join('\n');
   return {
     ...promptContract,
@@ -661,6 +715,20 @@ function normalizeImageUrl(value) {
   } catch {
     return null;
   }
+}
+
+function normalizeFocusValues(value) {
+  const values = Array.isArray(value) ? value : value ? [value] : [];
+  return unique(values);
+}
+
+function toTitleCase(value) {
+  return String(value || '').replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
+}
+
+function formatSelectedEvent(value) {
+  if (/^burning man$/i.test(value)) return 'Burning Man';
+  return toTitleCase(value);
 }
 
 function unique(values) {

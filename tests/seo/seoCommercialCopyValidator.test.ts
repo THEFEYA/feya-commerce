@@ -157,6 +157,23 @@ test('blocks the current pilot robotic phrases and broken studio grammar', () =>
   )));
 });
 
+test('blocks abstract shorthand copied by the latest live final editor', () => {
+  const value = draft({
+    intro: 'The set has a strong, sculpted feel for photo moments and themed nights.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'main_description'
+      ? {
+        ...block,
+        body: 'At TheFEYA, we create original festival designs for personal style. Our ideas help each wearer find something that feels like them. This set completes the look with confidence and reads clearly in photographs.',
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.ok(result.issues.some((issue) => (
+    issue.code === 'customer_copy_contains_robotic_editorial_jargon'
+    && issue.severity === 'blocker'
+  )));
+});
+
 test('blocks repeated product, persona, or component terms inside one About sentence', () => {
   const value = draft({
     pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'

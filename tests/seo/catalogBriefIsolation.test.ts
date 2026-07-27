@@ -24,6 +24,9 @@ test('catalog and pilot routes use one writer plus one strong final editor', () 
     assert.ok(route.includes('required_section_plan'));
     assert.ok(route.includes('A title restatement or one-line SEO sentence is not a useful About section'));
     assert.ok(route.includes('Never infer photography performance'));
+    assert.ok(route.includes('FINAL ACCEPTANCE CARD'));
+    assert.ok(route.includes('Use only these general buyer roles in Ideal for'));
+    assert.ok(route.includes('normalizeDeterministicSeoIdentity'));
     assert.ok(route.includes('firstGeneration.output'));
     assert.match(
       route,

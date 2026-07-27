@@ -16,6 +16,96 @@ export type SeoEditorialIssueSnapshot = {
   warning_keys: string[];
 };
 
+type SeoIdentityNormalizationContext = {
+  primary_keyword?: unknown;
+  selected_events?: unknown;
+};
+
+/**
+ * The final editor needs the first pass for schema shape and internal evidence,
+ * not as a prose template. Passing rejected customer copy at the end of a long
+ * prompt makes even a strong model echo the very phrases QA asked it to remove.
+ * Preserve visual truth, link hints, source-basis flags and block structure,
+ * while clearing every buyer-facing field before the clean-sheet rewrite.
+ */
+export function buildSeoEditorialRewriteSkeleton<T>(output: T): T {
+  if (!isRecord(output)) return output;
+
+  const pdpBlocks = Array.isArray(output.pdp_blocks)
+    ? output.pdp_blocks.map((block) => {
+      if (!isRecord(block)) return block;
+      return block.placement === 'left_description'
+        ? { ...block, body: '' }
+        : block;
+    })
+    : output.pdp_blocks;
+  const imageAltCandidates = Array.isArray(output.image_alt_candidates)
+    ? output.image_alt_candidates.map((candidate) => (
+      isRecord(candidate) ? { ...candidate, alt_text: '' } : candidate
+    ))
+    : output.image_alt_candidates;
+  const qaSelfReport = isRecord(output.qa_self_report)
+    ? Object.fromEntries(
+      Object.keys(output.qa_self_report).map((key) => [
+        key,
+        key === 'notes' ? [] : 'not_checked',
+      ]),
+    )
+    : output.qa_self_report;
+
+  return {
+    ...output,
+    status: 'needs_review',
+    seo_title: '',
+    h1: '',
+    meta_description: '',
+    intro: '',
+    bullet_highlights: [],
+    faq: [],
+    image_alt_candidates: imageAltCandidates,
+    pdp_blocks: pdpBlocks,
+    qa_self_report: qaSelfReport,
+    generation_notes: [],
+  } as T;
+}
+
+/**
+ * The reviewed Primary and operator-selected occasion already determine the
+ * product-page identity. Keeping those two short fields deterministic prevents
+ * a prose editor from replacing the approved search intent with component
+ * inventory or a legacy-title phrase. The untouched model response remains
+ * represented by the generation audit; this normalization is recorded in the
+ * output notes and applies only when the complete identity fits both caps.
+ */
+export function normalizeDeterministicSeoIdentity<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output)) return output;
+  const primary = normalizeIdentityValue(context.primary_keyword);
+  const selectedEvents = normalizeIdentityValues(context.selected_events);
+  const selectedEvent = selectedEvents.find((value) => /^burning man$/i.test(value))
+    || selectedEvents[0]
+    || '';
+  if (!primary || !selectedEvent) return output;
+
+  const identity = `${toTitleCase(primary)} for ${formatSelectedEvent(selectedEvent)}`;
+  if (identity.length > 68) return output;
+
+  const changed = output.seo_title !== identity || output.h1 !== identity;
+  if (!changed) return output;
+
+  return {
+    ...output,
+    seo_title: identity,
+    h1: identity,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic identity normalization used the reviewed Primary and operator-selected event for SEO title and H1.',
+    ],
+  } as T;
+}
+
 /**
  * Brand padding in a generated SEO title is a deterministic formatting defect,
  * not a reason to spend another model call or discard otherwise useful copy.
@@ -220,6 +310,24 @@ function isProtectedBlocker(key: string) {
 
 function unique(values: string[]) {
   return [...new Set(values)];
+}
+
+function normalizeIdentityValue(value: unknown) {
+  return String(value || '').replace(/\s+/g, ' ').trim();
+}
+
+function normalizeIdentityValues(value: unknown): string[] {
+  const values = Array.isArray(value) ? value : value ? [value] : [];
+  return unique(values.map(normalizeIdentityValue).filter(Boolean));
+}
+
+function toTitleCase(value: string) {
+  return value.replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
+}
+
+function formatSelectedEvent(value: string) {
+  if (/^burning man$/i.test(value)) return 'Burning Man';
+  return toTitleCase(value);
 }
 
 function isRecord(value: unknown): value is Record<string, any> {

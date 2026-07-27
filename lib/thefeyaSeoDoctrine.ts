@@ -1,4 +1,4 @@
-export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v18' as const;
+export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v19' as const;
 
 export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
   checkpoint_id: 'reload_latest_research_before_apply_publish_v1',
@@ -28,7 +28,8 @@ export const THEFEYA_BRAND_VALUE_PILLARS = [
 
 export const THEFEYA_CUSTOMER_USE_CASE_MAP = [
   'Ideal for answers only who the product serves and where or why they would wear it. Product construction, finish, silhouette, accents, layers and component combinations never belong in this block.',
-  'Eligible people and professional roles include performers, dancers, DJs, showgirls, drag performers, pole and exotic dancers, show-ballet artists, cosplayers, actors, creators, stylists and bloggers. A role may be used when the operator selected it or when the confirmed product type and approved event make it a natural buyer group; this compatibility never authorizes a new event, style or persona keyword.',
+  'Product-compatible general roles may include festival-goers, Burning Man attendees, performers, dancers, DJs, show artists, creators and stylists when the current generation context explicitly supplies them.',
+  'High-intent or subculture-specific roles such as drag performers, cosplayers, showgirls, pole or exotic dancers and named character actors require an explicit operator-selected focus. Never infer them from a costume product type, legacy title, image setting or broad festival context.',
   'Eligible occasions and productions include festivals, Burning Man, raves, stage shows, dance performances, theatrical productions, music videos, TV or film costume work, editorial photoshoots, costume parties, nightclub shows and other selected events.',
   'Eligible B2B contexts include show ballets, dance troupes, event productions and costume studios only when the operator selected a compatible professional focus. Do not invent wholesale terms, discounts or service promises.',
   'Style and persona axes may shape a natural context, such as a warrior-inspired stage look or cyberpunk performance costume, but the internal words persona and direction never appear in customer copy.',
