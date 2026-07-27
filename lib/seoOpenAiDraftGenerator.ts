@@ -102,7 +102,7 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
           schema: seoAgentOutputSchema(),
         },
       },
-      temperature: 0.2,
+      ...(options.reasoningEffort ? {} : { temperature: 0.2 }),
       store: false,
     }),
   });
