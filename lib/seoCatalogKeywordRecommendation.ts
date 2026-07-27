@@ -57,6 +57,7 @@ const INCOMPATIBLE_COMMERCE_DOMAINS = [
   'rope harness',
   'safety harness',
   'tweak d performance',
+  'tennis skirt',
   'wiring harness',
 ];
 

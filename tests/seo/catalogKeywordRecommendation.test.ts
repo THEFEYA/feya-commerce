@@ -91,6 +91,7 @@ test('operator event focus rejects a legacy-title rave keyword before scoring', 
     approvedKeywords: [
       { ...baseMetric, keyword: 'warrior armor costume', keyword_norm: 'warrior armor costume', bank_bucket: 'product', avg_monthly_searches: 10 },
       { ...baseMetric, keyword: 'festival skirt set', keyword_norm: 'festival skirt set', bank_bucket: 'product', avg_monthly_searches: 110 },
+      { ...baseMetric, keyword: 'tennis skirt festival outfit', keyword_norm: 'tennis skirt festival outfit', bank_bucket: 'product', avg_monthly_searches: 100000 },
       { ...baseMetric, keyword: 'gold rave skirt', keyword_norm: 'gold rave skirt', bank_bucket: 'product_or_alt', avg_monthly_searches: 100000 },
       { ...baseMetric, keyword: 'gold rave outfit', keyword_norm: 'gold rave outfit', bank_bucket: 'visual_collection', avg_monthly_searches: 100000 },
     ],
@@ -99,6 +100,7 @@ test('operator event focus rejects a legacy-title rave keyword before scoring', 
   const keywords = result.keywords.map((row) => String(row.keyword_norm));
   assert.equal(keywords.includes('warrior armor costume'), true);
   assert.equal(keywords.includes('festival skirt set'), true);
+  assert.equal(keywords.includes('tennis skirt festival outfit'), false);
   assert.equal(keywords.includes('gold rave skirt'), false);
   assert.equal(keywords.includes('gold rave outfit'), false);
   assert.deepEqual(result.diagnostics.product_events, ['burning man', 'festival']);
