@@ -4,6 +4,7 @@ import { ArrowUpRight, Database, ImageIcon, Layers3, PackageSearch, Save, Search
 import { recommendCatalogKeywords } from '@/lib/seoCatalogKeywordRecommendation';
 import {
   buildListingMasterKeywordSnapshot,
+  getListingMasterDecisionInvalidationBlockers,
   getListingMasterDecisionStatus,
   listingMasterKeywordIds,
   listingMasterKeywordSelectionSignature,
@@ -15,6 +16,10 @@ import {
 import { planKeywordPageRanges } from '@/lib/seoKeywordBankPagination';
 import { getSeoProductTruthEvidenceBlockers } from '@/lib/seoPackContract';
 import { STOREFRONT_VIEW_V1 } from '@/lib/storefront';
+import {
+  resolveStorefrontSellableOffer,
+  sellableOfferAllowsComponentFocus,
+} from '@/lib/storefrontSellableOffer';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import VerifiedSaveButton from './VerifiedSaveButton';
 
@@ -28,6 +33,7 @@ const DISPLAY_LIMIT = 180;
 const KEYWORD_SNAPSHOT_LIMIT = 18;
 
 const PRODUCT_TRUTH_EXACT_RPC = 'feya_commerce_get_seo_product_truth_v4';
+const STOREFRONT_PRODUCT_EXACT_RPC = 'feya_commerce_get_step7_storefront_products_api_v4';
 const KEYWORD_VIEW = 'vw_seo_keyword_bank_v1_for_listing_master';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
 const SOURCE_LISTINGS_TABLE = 'feya_commerce_source_listings';
@@ -290,6 +296,7 @@ async function saveDecisionAction(formData) {
   const truthBlockers = canonicalProduct.truthBlockers || [];
   const decisionStatus = getListingMasterDecisionStatus(truthBlockers, selectedKeywords);
   manualFocus.keyword_selection_signature = listingMasterKeywordSelectionSignature(selectedKeywords);
+  manualFocus.sellable_offer_signature = canonicalProduct.sellableOffer?.signature || null;
   manualFocus.product_truth_status = truthBlockers.length ? 'blocked' : 'ready';
   manualFocus.product_truth_blockers = truthBlockers;
   manualFocus.keyword_recommendation_source = keywordData.source;
@@ -380,6 +387,22 @@ async function confirmCompositionAction(formData) {
     return compositionFailure(
       'missing_canonical_product_truth',
       'Сервер не нашёл канонический Product Truth выбранного товара.',
+    );
+  }
+  const sellableOffer = canonicalProduct.sellableOffer;
+  if (!sellableOffer || sellableOffer.status !== 'ready') {
+    return compositionFailure(
+      'option_truth_mismatch',
+      'Текущие продаваемые опции не дают однозначно подтвердить состав. Запись остановлена.',
+    );
+  }
+  const unsupportedComponents = selectedComponents.filter((component) => (
+    !sellableOfferAllowsComponentFocus(sellableOffer, component)
+  ));
+  if (unsupportedComponents.length) {
+    return compositionFailure(
+      'included_item_not_found_in_current_options',
+      `Компоненты ${unsupportedComponents.join(', ')} отсутствуют в текущем selector товара. Запись остановлена.`,
     );
   }
 
@@ -504,20 +527,31 @@ async function confirmCompositionAction(formData) {
 }
 
 async function loadCanonicalProductTruthProduct(supabase, productId) {
-  const { data, error } = await supabase
-    .rpc(PRODUCT_TRUTH_EXACT_RPC, { p_canonical_product_id: productId })
-    .select(FAST_PRODUCT_SELECT)
-    .limit(1);
-  if (error) {
+  const [truthResult, storefrontResult] = await Promise.all([
+    supabase
+      .rpc(PRODUCT_TRUTH_EXACT_RPC, { p_canonical_product_id: productId })
+      .select(FAST_PRODUCT_SELECT)
+      .limit(1),
+    supabase
+      .rpc(STOREFRONT_PRODUCT_EXACT_RPC, { p_canonical_product_id: productId })
+      .select('canonical_product_id,configurations')
+      .limit(1),
+  ]);
+  if (truthResult.error || storefrontResult.error) {
     console.error('[listing-master-save] product_truth_load_failed', {
       productId,
-      code: error.code || null,
-      message: error.message,
+      code: truthResult.error?.code || storefrontResult.error?.code || null,
+      message: truthResult.error?.message || storefrontResult.error?.message,
     });
     return null;
   }
-  const row = (data || [])[0] || null;
-  return row ? normalizeProduct(row) : null;
+  const row = (truthResult.data || [])[0] || null;
+  const storefrontRow = (storefrontResult.data || [])[0] || null;
+  if (!row || !storefrontRow) return null;
+  return normalizeProduct({
+    ...row,
+    current_sellable_configurations: jsonArray(storefrontRow.configurations),
+  });
 }
 
 async function loadProducts(filters) {
@@ -636,7 +670,13 @@ function normalizeProduct(row, sourceSignals = {}) {
   const parent = arr(row.parent_components_json);
   const child = arr(row.child_components_json);
   const groups = arr(row.component_groups_json);
-  const included = jsonArray(row.included_components);
+  const legacyIncluded = jsonArray(row.included_components);
+  const sellableOffer = resolveStorefrontSellableOffer({
+    configurations: row.current_sellable_configurations || row.configurations,
+  });
+  const included = sellableOffer.status === 'ready'
+    ? sellableOffer.component_labels
+    : legacyIncluded;
   const optionalConfigurations = jsonArray(row.optional_configurations);
   const availableVariants = jsonArray(row.available_variants);
   const knownNonComponents = jsonArray(row.known_non_components);
@@ -669,6 +709,12 @@ function normalizeProduct(row, sourceSignals = {}) {
     focus_text: row.focus_text || '',
     included_components: included,
     known_components: [],
+    sellable_offer_components: sellableOffer.status === 'ready'
+      ? sellableOffer.component_labels
+      : [],
+    sellable_offer: sellableOffer,
+    sellable_offer_signature: sellableOffer.signature,
+    legacy_product_truth_included_components: legacyIncluded,
     optional_configurations: optionalConfigurations,
     available_variants: availableVariants,
     known_non_components: knownNonComponents,
@@ -689,6 +735,17 @@ function normalizeProduct(row, sourceSignals = {}) {
     row.product_slug,
     row.canonical_product_id,
     row.matched_etsy_listing_id,
+  ].filter(Boolean).join(' ').toLowerCase();
+  const focusText = [
+    title,
+    row.focus_text,
+    row.product_type,
+    row.category_label,
+    row.operator_section_label,
+    row.world_label,
+    row.material,
+    row.canonical_color_label,
+    row.color,
   ].filter(Boolean).join(' ').toLowerCase();
   return {
     id: row.canonical_product_id,
@@ -715,6 +772,8 @@ function normalizeProduct(row, sourceSignals = {}) {
     hasComponentReviewRisk: truthBlockers.length > 0,
     truth,
     truthBlockers,
+    sellableOffer,
+    text: focusText,
     searchText,
     sourceTagsText,
   };
@@ -978,10 +1037,15 @@ function decisionMatchesActiveFocus(product, filters, keywordRows) {
     Array.isArray(keywordRows) ? keywordRows : [],
     KEYWORD_SNAPSHOT_LIMIT,
   );
-  if (
-    val(savedFocus.keyword_selection_signature)
-    !== listingMasterKeywordSelectionSignature(currentKeywords)
-  ) return false;
+  if (product?.sellableOffer?.status !== 'ready' || !product.sellableOffer.signature) return false;
+  const invalidationBlockers = getListingMasterDecisionInvalidationBlockers({
+    hasPrimary: currentKeywords.some((row) => row.role === 'primary'),
+    savedKeywordSelectionSignature: savedFocus.keyword_selection_signature,
+    currentKeywordSelectionSignature: listingMasterKeywordSelectionSignature(currentKeywords),
+    savedSellableOfferSignature: savedFocus.sellable_offer_signature,
+    currentSellableOfferSignature: product.sellableOffer.signature,
+  });
+  if (invalidationBlockers.length) return false;
   const activeFocus = {
     ...Object.fromEntries(FOCUS_FIELDS.map((field) => [field, valuesOf(filters[field])])),
     strategies: strategyValues(filters.strategy),
@@ -1013,13 +1077,40 @@ function literalTermMatch(text, value) { const cleanText = norm(text); const cle
 function termMatch(text, value) { if (!value) return true; const cleanText = norm(text); const terms = SYN[value] || [value]; return terms.some((term) => { const t = norm(term); if (!t) return false; const pattern = `(^|[^a-z0-9])${escapeRegex(t)}([^a-z0-9]|$)`; return new RegExp(pattern, 'i').test(cleanText); }); }
 function firstMatch(text, values) { return values.find((v) => termMatch(text, v)) || ''; }
 function literalMatches(text, values) { return values.filter((value) => literalTermMatch(text, value)); }
-function inferFocus(product) { if (!product) return { component: '', material: '', event: '', style: '', persona: '', audience: '' }; const explicitPersonas = literalMatches(product.text, PERSONAS); return { component: joinValues(literalMatches(product.text, COMPONENTS)), material: firstMatch(product.text, MATERIALS), event: joinValues(literalMatches(product.text, EVENTS)), style: joinValues(literalMatches(product.text, STYLES)), persona: joinValues(explicitPersonas.length ? explicitPersonas : valuesOf(firstMatch(product.text, PERSONAS))), audience: firstMatch(`${product.text} ${product.sourceTagsText || ''}`, AUDIENCES) }; }
+function inferFocus(product) {
+  if (!product) return { component: '', material: '', event: '', style: '', persona: '', audience: '' };
+  const text = product.text || '';
+  const explicitPersonas = literalMatches(text, PERSONAS);
+  const currentOffer = product.sellableOffer;
+  const inferredComponents = currentOffer?.source_available
+    ? currentOffer.status === 'ready'
+      ? COMPONENTS.filter((component) => sellableOfferAllowsComponentFocus(currentOffer, component))
+      : []
+    : literalMatches(text, COMPONENTS);
+  return {
+    component: joinValues(inferredComponents),
+    material: firstMatch(text, MATERIALS),
+    event: joinValues(literalMatches(text, EVENTS)),
+    style: joinValues(literalMatches(text, STYLES)),
+    persona: joinValues(explicitPersonas.length ? explicitPersonas : valuesOf(firstMatch(text, PERSONAS))),
+    audience: firstMatch(`${text} ${product.sourceTagsText || ''}`, AUDIENCES),
+  };
+}
 function applyAutoFocus(filters, product) {
   const inferred = inferFocus(product);
   const hasUrlFocus = FOCUS_FIELDS.some((field) => valuesOf(filters[field]).length) || filters.q || filters.exclude;
   if (filters.focusApplied || hasUrlFocus) return { ...filters, inferred, focusSource: 'url' };
   const savedFocus = recordOf(product?.decision?.manual_focus_json);
-  if (savedFocus?.selection_verified === true && FOCUS_FIELDS.some((field) => Object.prototype.hasOwnProperty.call(savedFocus, field))) {
+  const savedOfferIsCurrent = Boolean(
+    product?.sellableOffer?.status === 'ready'
+    && product.sellableOffer.signature
+    && val(savedFocus?.sellable_offer_signature) === val(product.sellableOffer.signature),
+  );
+  if (
+    savedFocus?.selection_verified === true
+    && savedOfferIsCurrent
+    && FOCUS_FIELDS.some((field) => Object.prototype.hasOwnProperty.call(savedFocus, field))
+  ) {
     const savedStrategy = product?.decision?.selected_strategy || savedFocus.strategies || filters.strategy;
     return {
       ...filters,

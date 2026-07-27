@@ -2,11 +2,20 @@
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import { buildSeoCatalogBrief } from '@/lib/seoCatalogBrief';
 import { recommendCatalogKeywords } from '@/lib/seoCatalogKeywordRecommendation';
-import { getListingMasterKeywordSelection } from '@/lib/seoListingMasterDecision';
+import {
+  getListingMasterDecisionInvalidationBlockers,
+  getListingMasterKeywordSelection,
+  listingMasterKeywordSelectionSignature,
+} from '@/lib/seoListingMasterDecision';
 import { buildSeoAgentInputFromDraft, buildSeoPackDraftContractFromBrief } from '@/lib/seoPackContractBuilder';
+import {
+  resolveStorefrontSellableOffer,
+  sellableOfferAllowsComponentFocus,
+} from '@/lib/storefrontSellableOffer';
 
 const PRODUCT_TRUTH_VIEW = 'feya_commerce_v_seo_product_truth_v4';
 const PRODUCT_TRUTH_EXACT_RPC = 'feya_commerce_get_seo_product_truth_v4';
+const STOREFRONT_PRODUCT_EXACT_RPC = 'feya_commerce_get_step7_storefront_products_api_v4';
 const FOCUS_VIEW = 'feya_commerce_v_listing_master_product_focus_v1';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
 const SEO_DRAFT_LATEST_VIEW = 'feya_commerce_v_seo_pack_drafts_latest_v1';
@@ -72,6 +81,11 @@ const FOCUS_SELECT = [
   'needs_component_review_count',
   'has_component_review_risk',
   'focus_text',
+].join(',');
+
+const STOREFRONT_OFFER_SELECT = [
+  'canonical_product_id',
+  'configurations',
 ].join(',');
 
 const DECISION_SELECT = 'canonical_product_id,product_slug,matched_etsy_listing_id,auto_focus_json,manual_focus_json,selected_strategy,selected_keywords_json,decision_status,updated_at,created_at';
@@ -191,7 +205,12 @@ export async function loadSeoBriefSource(productId: string) {
   const selectedKeywordRows = Array.isArray(decision?.selected_keywords_json)
     ? decision.selected_keywords_json
     : [];
-  const manualFocus = resolveRecommendationFocus(productResult.product, decision);
+  const resolvedFocus = resolveRecommendationFocus(productResult.product, decision);
+  const focusReconciliation = reconcileFocusWithSellableOffer(
+    productResult.product,
+    resolvedFocus,
+  );
+  const manualFocus = focusReconciliation.focus;
   let keywordHydration = { rows: selectedKeywordRows, warning: null };
   let keywordRecommendationDiagnostics = null;
   let keywordSelection = {
@@ -220,11 +239,41 @@ export async function loadSeoBriefSource(productId: string) {
         selected_rows_retained: auditedSelection.keywords.length,
         keyword_bank_view: APPROVED_KEYWORD_BANK_VIEW,
         product_truth_source: productResult.productTruthSource,
+        removed_unsupported_focus_components: focusReconciliation.removedComponents,
       };
-      if (!auditedSelection.keywords.some((row) => row.role === 'primary')) {
+      const savedSelectionSignature = decision?.manual_focus_json?.keyword_selection_signature
+        || listingMasterKeywordSelectionSignature(selectedKeywordRows);
+      const auditedSelectionSignature = listingMasterKeywordSelectionSignature(
+        auditedSelection.keywords,
+      );
+      const currentOfferSignature = productResult.product?.sellable_offer?.signature || null;
+      const savedOfferSignature = decision?.manual_focus_json?.sellable_offer_signature || null;
+      const decisionInvalidationBlockers = getListingMasterDecisionInvalidationBlockers({
+        hasPrimary: auditedSelection.keywords.some((row) => row.role === 'primary'),
+        savedKeywordSelectionSignature: savedSelectionSignature,
+        currentKeywordSelectionSignature: auditedSelectionSignature,
+        savedSellableOfferSignature: savedOfferSignature,
+        currentSellableOfferSignature: currentOfferSignature,
+        removedUnsupportedFocusComponents: focusReconciliation.removedComponents,
+      });
+      const staleOfferSnapshot = decisionInvalidationBlockers.includes('stale_option_snapshot');
+      const selectionChanged = decisionInvalidationBlockers.includes('keyword_roles_changed_after_reaudit');
+      const focusChanged = decisionInvalidationBlockers.includes('manual_focus_contains_unsupported_component');
+      keywordRecommendationDiagnostics = {
+        ...keywordRecommendationDiagnostics,
+        saved_selection_signature: savedSelectionSignature,
+        audited_selection_signature: auditedSelectionSignature,
+        selection_changed_after_reaudit: selectionChanged,
+        saved_sellable_offer_signature: savedOfferSignature,
+        current_sellable_offer_signature: currentOfferSignature,
+        stale_option_snapshot: staleOfferSnapshot,
+        focus_changed_after_sellable_offer_reconciliation: focusChanged,
+      };
+      if (decisionInvalidationBlockers.length) {
         keywordSelection = {
           ...getListingMasterKeywordSelection('needs_keyword_review'),
           evidence_source: APPROVED_KEYWORD_BANK_VIEW,
+          blockers: decisionInvalidationBlockers,
         };
       }
     }
@@ -244,6 +293,7 @@ export async function loadSeoBriefSource(productId: string) {
       ...recommendation.diagnostics,
       keyword_bank_view: APPROVED_KEYWORD_BANK_VIEW,
       product_truth_source: productResult.productTruthSource,
+      removed_unsupported_focus_components: focusReconciliation.removedComponents,
     };
     keywordSelection = {
       mode: 'auto_recommendation',
@@ -324,6 +374,29 @@ function resolveRecommendationFocus(product, decision) {
   }));
 }
 
+function reconcileFocusWithSellableOffer(product, focus) {
+  const offer = product?.sellable_offer;
+  if (!offer || offer.status !== 'ready') {
+    return { focus, removedComponents: [] };
+  }
+
+  const selectedComponents = stringArray(focus?.component);
+  const allowedComponents = selectedComponents.filter((component) => (
+    sellableOfferAllowsComponentFocus(offer, component)
+  ));
+  const removedComponents = selectedComponents.filter((component) => (
+    !sellableOfferAllowsComponentFocus(offer, component)
+  ));
+
+  return {
+    focus: {
+      ...focus,
+      component: allowedComponents,
+    },
+    removedComponents,
+  };
+}
+
 async function hydrateSelectedKeywordsFromApprovedBank(supabase, selectedRows) {
   const selected = Array.isArray(selectedRows) ? selectedRows : [];
   const norms = uniqueStrings(selected.map((row) => normalizeKeyword(row?.keyword_norm || row?.keyword)));
@@ -370,21 +443,34 @@ async function hydrateSelectedKeywordsFromApprovedBank(supabase, selectedRows) {
 }
 
 async function loadProductTruthRow(supabase, productId) {
-  const canonicalResult = await supabase
-    .rpc(PRODUCT_TRUTH_EXACT_RPC, { p_canonical_product_id: productId })
-    .select(PRODUCT_TRUTH_SELECT)
-    .limit(1);
+  const [canonicalResult, storefrontResult] = await Promise.all([
+    supabase
+      .rpc(PRODUCT_TRUTH_EXACT_RPC, { p_canonical_product_id: productId })
+      .select(PRODUCT_TRUTH_SELECT)
+      .limit(1),
+    supabase
+      .rpc(STOREFRONT_PRODUCT_EXACT_RPC, { p_canonical_product_id: productId })
+      .select(STOREFRONT_OFFER_SELECT)
+      .limit(1),
+  ]);
 
   const canonicalProduct = (canonicalResult.data || [])[0] || null;
+  const storefrontProduct = (storefrontResult.data || [])[0] || null;
+  const sellableOfferLoadError = storefrontResult.error?.message
+    || (!storefrontProduct ? 'No current storefront v4 product row was found.' : null);
 
   if (!canonicalResult.error && canonicalProduct) {
     return {
-      product: canonicalProduct,
+      product: attachStorefrontSellableOffer(canonicalProduct, storefrontProduct),
       // Preserve the established canonical-source contract consumed by the
       // component truth builder; only the database access path changed.
       productTruthSource: 'seo_product_truth_v1',
-      productTruthWarning: null,
-      loadError: null,
+      productTruthWarning: sellableOfferLoadError
+        ? `Current sellable offer unavailable: ${sellableOfferLoadError}`
+        : null,
+      loadError: sellableOfferLoadError
+        ? `Current storefront sellable offer read failed: ${sellableOfferLoadError}`
+        : null,
     };
   }
 
@@ -399,16 +485,40 @@ async function loadProductTruthRow(supabase, productId) {
     || `Canonical Product Truth view ${PRODUCT_TRUTH_VIEW} is unavailable.`;
 
   return {
-    product: fallbackProduct,
+    product: fallbackProduct
+      ? attachStorefrontSellableOffer(fallbackProduct, storefrontProduct)
+      : null,
     productTruthSource: fallbackProduct ? 'listing_master_product_focus_v1' : null,
-    productTruthWarning: canonicalReason,
+    productTruthWarning: [
+      canonicalReason,
+      sellableOfferLoadError
+        ? `Current sellable offer unavailable: ${sellableOfferLoadError}`
+        : null,
+    ].filter(Boolean).join(' · '),
     // A failed canonical read is an infrastructure failure, not evidence that
     // this product lacks confirmed composition. Keep the diagnostic fallback
     // available to callers, but never convert a transient database error into
     // Product Truth blockers.
     loadError: canonicalResult.error
       ? `Canonical Product Truth read failed: ${canonicalResult.error.message}`
-      : null,
+      : sellableOfferLoadError
+        ? `Current storefront sellable offer read failed: ${sellableOfferLoadError}`
+        : null,
+  };
+}
+
+function attachStorefrontSellableOffer(product, storefrontProduct) {
+  const configurations = recordArray(storefrontProduct?.configurations);
+  const offer = resolveStorefrontSellableOffer({ configurations });
+  return {
+    ...product,
+    configurations,
+    current_sellable_configurations: configurations,
+    sellable_offer: offer,
+    sellable_offer_components: offer.status === 'ready'
+      ? offer.component_labels
+      : [],
+    legacy_product_truth_included_components: evidenceArray(product?.included_components),
   };
 }
 
@@ -500,6 +610,11 @@ function attachProductIdentity(contract, source) {
       known_components: componentTruth.included_components,
       known_non_components: componentTruth.known_non_components,
       included_components: componentTruth.included_components,
+      sellable_offer_components: componentTruth.sellable_offer_components,
+      sellable_offer: componentTruth.sellable_offer,
+      sellable_offer_signature: componentTruth.sellable_offer_signature,
+      legacy_product_truth_included_components:
+        componentTruth.legacy_product_truth_included_components,
       optional_configurations: componentTruth.optional_configurations,
       available_variants: componentTruth.available_variants,
       unresolved_component_facts: componentTruth.unresolved_component_facts,
@@ -519,8 +634,29 @@ function buildComponentTruth(product, productTruthSource, productTruthWarning) {
   const componentGroups = uniqueMappedValues(collectComponentStrings(product?.component_groups_json));
 
   if (productTruthSource === 'seo_product_truth_v1') {
-    const includedComponents = uniqueMappedValues(stringArray(product?.included_components));
-    const optionalConfigurations = evidenceArray(product?.optional_configurations);
+    const sellableOffer = isRecord(product?.sellable_offer)
+      ? product.sellable_offer
+      : resolveStorefrontSellableOffer({
+          configurations: product?.current_sellable_configurations || product?.configurations,
+        });
+    const sellableOfferComponents = sellableOffer.status === 'ready'
+      ? uniqueMappedValues(stringArray(sellableOffer.component_labels))
+      : [];
+    const legacyIncludedComponents = uniqueMappedValues(
+      stringArray(
+        product?.legacy_product_truth_included_components
+          || product?.included_components,
+      ),
+    );
+    const includedComponents = sellableOfferComponents.length
+      ? sellableOfferComponents
+      : legacyIncludedComponents;
+    const currentConfigurations = recordArray(
+      product?.current_sellable_configurations || product?.configurations,
+    );
+    const optionalConfigurations = currentConfigurations.length
+      ? currentConfigurations
+      : evidenceArray(product?.optional_configurations);
     const availableVariants = evidenceArray(product?.available_variants);
     const knownNonComponents = evidenceArray(product?.known_non_components);
     const unresolved = evidenceArray(product?.unresolved_component_facts);
@@ -532,12 +668,49 @@ function buildComponentTruth(product, productTruthSource, productTruthWarning) {
     if (!includedComponents.length) {
       unresolved.push('Canonical Product Truth view returned no confirmed included components.');
     }
+    if (sellableOffer.source_available && sellableOffer.status !== 'ready') {
+      reviewBlockers.push(
+        ...stringArray(sellableOffer.blockers).map((blocker) => ({
+          reason: blocker,
+          source: 'storefront_sellable_offer_v1',
+        })),
+      );
+    }
     if (!sourceDescriptionFragment && !sourceVariations.length && !optionPriceRows.length) {
       unresolved.push('Canonical Product Truth view returned no source description, variation, or option-price evidence.');
     }
 
+    const unsupportedLegacyComponents = sellableOfferComponents.length
+      ? legacyIncludedComponents.filter((component) => (
+          !sellableOfferComponents.some((current) => normalizeKeyword(current) === normalizeKeyword(component))
+        ))
+      : [];
+    const componentEvidence = normalizeComponentEvidence(product?.component_evidence, {
+      source: 'seo_product_truth_v1',
+      mapping_layer_sources: [],
+      phrase_mappings: [],
+      mapping_review_rows: [],
+      parent_components: parentComponents,
+      child_components: childComponents,
+      component_groups: componentGroups,
+      source_variations: sourceVariations,
+      option_price_rows: optionPriceRows,
+      source_description_fragment: sourceDescriptionFragment,
+      sellable_offer: sellableOffer,
+      sellable_offer_source: 'storefront_v4_configurations',
+      legacy_product_truth_included_components: legacyIncludedComponents,
+      unsupported_legacy_components: unsupportedLegacyComponents,
+      reconciliation_status: unsupportedLegacyComponents.length
+        ? 'current_storefront_overrides_legacy_product_truth'
+        : 'aligned',
+    });
+
     return {
       included_components: includedComponents,
+      sellable_offer_components: sellableOfferComponents,
+      sellable_offer: sellableOffer,
+      sellable_offer_signature: sellableOffer.signature || null,
+      legacy_product_truth_included_components: legacyIncludedComponents,
       optional_configurations: optionalConfigurations,
       available_variants: availableVariants,
       known_non_components: knownNonComponents,
@@ -547,18 +720,7 @@ function buildComponentTruth(product, productTruthSource, productTruthWarning) {
       source_description_fragment: sourceDescriptionFragment,
       source_variations: sourceVariations,
       option_price_rows: optionPriceRows,
-      component_evidence: normalizeComponentEvidence(product?.component_evidence, {
-        source: 'seo_product_truth_v1',
-        mapping_layer_sources: [],
-        phrase_mappings: [],
-        mapping_review_rows: [],
-        parent_components: parentComponents,
-        child_components: childComponents,
-        component_groups: componentGroups,
-        source_variations: sourceVariations,
-        option_price_rows: optionPriceRows,
-        source_description_fragment: sourceDescriptionFragment,
-      }),
+      component_evidence: componentEvidence,
     };
   }
 
@@ -579,6 +741,10 @@ function buildComponentTruth(product, productTruthSource, productTruthWarning) {
 
   return {
     included_components: [],
+    sellable_offer_components: [],
+    sellable_offer: product?.sellable_offer || null,
+    sellable_offer_signature: product?.sellable_offer?.signature || null,
+    legacy_product_truth_included_components: [],
     optional_configurations: [],
     available_variants: [],
     known_non_components: [],

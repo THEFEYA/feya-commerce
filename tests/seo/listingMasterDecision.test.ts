@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   buildListingMasterKeywordSnapshot,
+  getListingMasterDecisionInvalidationBlockers,
   getListingMasterDecisionStatus,
   getListingMasterKeywordSelection,
   listingMasterKeywordIds,
@@ -87,4 +88,35 @@ test('only a reviewed draft becomes a confirmed operator selection', () => {
   assert.equal(getListingMasterKeywordSelection('needs_keyword_review').status, 'needs_keyword_review');
   assert.equal(getListingMasterKeywordSelection('draft').status, 'confirmed');
   assert.equal(getListingMasterKeywordSelection(null).confirmation_required, true);
+});
+
+test('a changed storefront option snapshot invalidates an otherwise reviewed draft', () => {
+  assert.deepEqual(
+    getListingMasterDecisionInvalidationBlockers({
+      hasPrimary: true,
+      savedKeywordSelectionSignature: 'selection-a',
+      currentKeywordSelectionSignature: 'selection-a',
+      savedSellableOfferSignature: 'offer:shoulders|skirt|top',
+      currentSellableOfferSignature: 'offer:shoulders|skirt',
+    }),
+    ['stale_option_snapshot'],
+  );
+});
+
+test('keyword role changes and unsupported focus require a fresh human review', () => {
+  assert.deepEqual(
+    getListingMasterDecisionInvalidationBlockers({
+      hasPrimary: false,
+      savedKeywordSelectionSignature: 'selection-a',
+      currentKeywordSelectionSignature: 'selection-b',
+      savedSellableOfferSignature: 'offer-a',
+      currentSellableOfferSignature: 'offer-a',
+      removedUnsupportedFocusComponents: ['top', 'harness'],
+    }),
+    [
+      'no_valid_pdp_primary',
+      'keyword_roles_changed_after_reaudit',
+      'manual_focus_contains_unsupported_component',
+    ],
+  );
 });

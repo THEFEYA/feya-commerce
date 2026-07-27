@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { NextResponse } from 'next/server';
+import { resolveStorefrontSellableOffer } from '@/lib/storefrontSellableOffer';
 import { getSupabaseServiceClient } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
@@ -74,14 +75,22 @@ export async function GET(request: Request) {
   const canonicalOptionPriceRows = Array.isArray(truthRows?.[0]?.option_price_rows_json)
     ? truthRows[0].option_price_rows_json
     : [];
+  const sellableOffer = resolveStorefrontSellableOffer(data);
 
   return NextResponse.json({
     ok: true,
-    status: 'storefront_product_ready',
+    status: sellableOffer.status === 'ready'
+      ? 'storefront_product_ready'
+      : 'storefront_product_hold',
     read_only: true,
     product_id: productId,
     product: {
       ...data,
+      sellable_offer: sellableOffer,
+      sellable_offer_components: sellableOffer.status === 'ready'
+        ? sellableOffer.component_labels
+        : [],
+      sellable_offer_signature: sellableOffer.signature,
       canonical_included_components: canonicalIncludedComponents,
       canonical_source_variations: canonicalSourceVariations,
       canonical_option_price_rows: canonicalOptionPriceRows,

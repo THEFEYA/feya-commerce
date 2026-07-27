@@ -177,7 +177,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     'THEFEYA_CANONICAL_RIGHT_PDP_PANEL is one fixed immutable source for both live PDP and admin preview.',
     'OpenAI must never generate, rewrite, paraphrase, translate, reorder or append any right-panel block.',
     'What’s included appears after About this piece only when confirmed configuration data exists. Render each component on its own check-marked line and hide the block when truth is unresolved.',
-    'What’s included comes from approved configuration and component mapping data for the currently selected option. When separate configurations exist, state that the Full Set or available pieces can be ordered separately.',
+    'What’s included comes only from the resolved current storefront v4 sellable offer for the selected option. Legacy Etsy variations remain provenance and cannot add a component. When separate current configurations exist, state that the Full Set or available pieces can be ordered separately.',
     'Sizing & fit, Production time, Shipping & delivery, Material, Care and Made to order & customization are fixed canonical blocks and identical for all products.',
     'Returns, exchanges and cancellation copy is not repeated in the quick right panel because policy links already exist under the purchase controls.',
     'Product-specific material nuances, visible style, event angle and benefits belong in the generated left description.',

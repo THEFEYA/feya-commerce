@@ -239,13 +239,20 @@ test('plus-size positioning is held unless Product Truth names it explicitly', (
   );
 });
 
-test('the current Etsy 4340584466 truth selects a set query and rejects saved scope leaks', () => {
+test('the current Etsy 4340584466 selector overrides stale Product Truth and rejects false component queries', () => {
   const result = recommendCatalogKeywords({
     product: {
       card_title: 'Best Festival Armor Outfit - Leather Shoulders & Skirt, Gold Metallic Harness',
       product_type: 'costume_component_or_set',
       canonical_color_label: 'Gold',
       material: 'Vegan leather',
+      sellable_offer_components: ['Shoulders', 'Skirt'],
+      sellable_offer: {
+        status: 'ready',
+        component_labels: ['Shoulders', 'Skirt'],
+      },
+      // Preserved only to prove that stale canonical evidence cannot override
+      // the current v4 selector.
       included_components: ['Harness Top', 'Shoulders', 'Skirt', 'Top'],
       source_variations_json: [{
         raw_variation_name: 'Choose Your Set',
@@ -292,15 +299,16 @@ test('the current Etsy 4340584466 truth selects a set query and rejects saved sc
   assert.equal(keywords.includes('shorts and top set festival'), false);
   assert.equal(keywords.includes('mid size rave outfits'), false);
   assert.equal(keywords.includes('rose gold festival outfit'), false);
+  assert.equal(keywords.includes('skirt and top set festival'), false);
+  assert.equal(keywords.includes('metallic top and skirt set'), false);
+  assert.equal(keywords.includes('harness outfit festival'), false);
   assert.equal(keywords.includes('warrior armor costume'), true);
   assert.equal(
-    result.keywords.find((row) => row.keyword_norm === 'harness outfit festival')?.role,
-    'secondary',
-  );
-  assert.equal(
     result.keywords.find((row) => row.role === 'primary')?.keyword_norm,
-    'skirt and top set festival',
+    'warrior armor costume',
   );
+  assert.deepEqual(result.diagnostics.product_component_families, ['shoulders', 'skirt']);
+  assert.equal(result.diagnostics.confirmed_component_count, 2);
   assert.equal(result.diagnostics.auto_primary_scope, 'whole_product_or_single_component');
 });
 
