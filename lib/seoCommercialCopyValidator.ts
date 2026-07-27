@@ -32,7 +32,7 @@ const GUARANTEED_POPULARITY = /\b(guarantee(?:d|s)?|will get likes?|will receive
 const EMPTY_HYPE = /\b(premium|luxury|ultimate|perfect|best|must[- ]have|crafted to perfection|elevate your look)\b/i;
 const EMPTY_OR_INTERNAL_BUYER_COPY = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|studio fit|base layers?|statement piece|strong festival statement|structured (?:gold |metallic )?accent|bold (?:gold |metallic )?accent|TheFEYA gives us a way|TheFEYA\s+(?:we|our|us)\b|clean armored attitude|desert[- ]ready (?:mood|presence)|shoulder[- ]led|reads? fast|open light|direct choice for buyers?|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity (?:and|or) individuality|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|one[- ]and[- ]only (?:shoulder )?line|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced|(?:original|distinctive) alternative to (?:a )?(?:standard|generic|mass[- ]produced) costume (?:look|piece|design))\b/i;
 const AWKWARD_EDITORIAL_SHORTHAND = /\b(?:clear finish|strong visual finish)\b/i;
-const SEARCH_QUERY_AUDIENCE_PHRASING = /\b(?:women|men|buyers|shoppers|customers)\s+(?:looking|searching)\s+for\b/i;
+const SEARCH_QUERY_AUDIENCE_PHRASING = /\b(?:(?:women|men|buyers|shoppers|customers)\s+(?:looking|searching)\s+for|buyers?\s+who\s+want)\b/i;
 const COORDINATED_OUTFIT_JARGON = /\bcoordinated\b[^.!?\n]{0,35}\b(?:look|costume|outfit|set|base)\b/i;
 const EMPTY_BOLD_FINISH = /\bbold(?:\s+\w+){0,2}\s+(?:color|colour|finish|event look)\b/i;
 const STAGE_READY_GEOMETRY = /\bstage[- ]ready\s+(?:shape|silhouette)\b/i;
@@ -48,7 +48,7 @@ const REDUNDANT_FAUX_LEATHER = /\b(?:vegan leather\s+(?:and|or|\/)\s+faux leathe
 const REFLECTIVE_CLAIM = /\b(?:reflective|retroreflective|retro-reflective)\b/i;
 const ABSTRACT_VISUAL_BENEFIT = /\b(contrast and visual depth|adds? contrast|creates? visual depth|harder,? more dramatic line|firm armored presence|armored presence|individual feel|shape a look that feels deliberate|one bold detail to define|dramatic line|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced)\b/i;
 const SHAPE_DURING_MOVEMENT = /\b(?:holds?|keeps?|maintains?|preserves?) (?:its |the |their )?(?:shape|form) (?:during|while|in) (?:movement|motion|moving)\b/i;
-const CONSTRUCTION_TERM = /\b(construction|structure|structured|build|built)\b/i;
+const CONSTRUCTION_TERM = /\b(?:construction|structure|structured|build quality|reinforced build|built to last)\b/i;
 const USE_CASE_AS_BENEFIT = /\b(?:works?|ideal|made|suited) for\b.*\b(styling|looks?|warrior|futuristic|desert|festival|stage|performance|photoshoot|editorial|cosplay|party)\b/i;
 const UNGROUNDED_STORE_PROMISE = /\b(best prices?|lowest prices?|competitive prices?|special prices?|bulk discounts?|volume discounts?|tax[- ]free|tax refund|excellent service|best service|wide assortment|large assortment|largest selection|fastest delivery)\b/i;
 const BRAND_PATTERN = /\bTheFEYA\b/gi;
@@ -797,11 +797,13 @@ function validateWholeProductPresentation(
     { key: 'about_this_piece', text: aboutBody },
   ].forEach(({ key, text }) => {
     const mentioned = mentionedConfirmedComponents(text, presentation.components);
-    const recapsComposition = COMPOSITION_RECAP_VERB.test(text)
-      && (
-        mentioned.length >= Math.min(2, presentation.component_count)
-        || GENERIC_WHOLE_PRODUCT_COMPOSITION_RECAP.test(text)
-      );
+    const recapsComposition = (
+      mentioned.length >= Math.min(2, presentation.component_count)
+      || (
+        COMPOSITION_RECAP_VERB.test(text)
+        && GENERIC_WHOLE_PRODUCT_COMPOSITION_RECAP.test(text)
+      )
+    );
     if (recapsComposition) {
       issues.push(blocker(
         `${key}_repeats_deterministic_composition`,

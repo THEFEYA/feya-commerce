@@ -398,6 +398,9 @@ function applyReadinessToPromptContract(promptContract, readiness) {
 }
 
 function buildRepairPrompt(promptContract, currentOutput, structuralIssues, commercialIssues, keywordPlacementIssues) {
+  const primaryKeyword = keywordPlacementIssues.find((issue) => (
+    issue.keyword && String(issue.code || '').startsWith('primary_')
+  ))?.keyword || null;
   const prioritizedKeywordIssues = keywordPlacementIssues.filter((issue) => (
     issue.severity === 'blocker'
     || issue.code === 'primary_missing_meta_description'
@@ -451,6 +454,18 @@ function buildRepairPrompt(promptContract, currentOutput, structuralIssues, comm
     '',
     'Current JSON to repair:',
     JSON.stringify(currentOutput, null, 2),
+    '',
+    'FINAL SILENT CHECK BEFORE RETURNING JSON:',
+    primaryKeyword
+      ? `- Count the phrase “${primaryKeyword}” across every customer-facing field. It may appear no more than four times total: SEO title, H1, meta description and one About sentence only. Remove it from intro, ALT, Why, Ideal for and the studio close.`
+      : '- Keep the approved whole-product Primary in the required fields without exact-match repetition.',
+    '- H1 contains one selected event. Intro does not repeat About. Neither intro nor About names the complete component inventory.',
+    '- Image ALT starts from the visible sold component names and may use one natural approved component-level Secondary phrase; it does not repeat the exact whole-product Primary.',
+    '- Why has 3-4 different bullets. Use “build a look” only as studio-design buyer value; use construction/structure in no more than one other bullet.',
+    '- A finish bullet must state a concrete supported result such as catching available light or keeping detail visible in photographs, never “a strong look”.',
+    '- Ideal for uses people, roles, occasions or productions directly. Never write “buyers who want” or “people looking for”.',
+    '- Designed for self-expression explicitly connects the design to the buyer’s visual identity, personal style or own look.',
+    '- Delete coordinated, stage-ready presence, strong finish, clear performance feel, bold complete outfit and every sentence that merely sounds promotional.',
   ].join('\n');
 
   return {

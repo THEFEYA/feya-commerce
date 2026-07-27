@@ -287,6 +287,26 @@ test('accepts a concise feature-to-buyer-outcome benefit mix', () => {
   assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
 });
 
+test('does not confuse building a personal look with product construction', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Our original design ideas give you a distinctive piece you can use to build a festival look that feels personal.',
+          'Adjustable straps make it quick to put on and easy to adapt to different body shapes.',
+          'Structured material helps the piece hold its shape between wears.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(
+    result.issues.some((issue) => issue.code === 'why_youll_love_it_repeats_construction_as_multiple_benefits'),
+    false,
+  );
+});
+
 test('blocks awkward finish-and-silhouette grammar and duplicate brand positioning', () => {
   const value = draft({
     meta_description: 'Gold shoulder armor with a glossy gold finish and silhouette for Burning Man performances.',
@@ -393,6 +413,24 @@ test('blocks repeating deterministic compact-set composition in intro or About',
   assert.ok(codes.includes('about_this_piece_repeats_deterministic_composition'));
 });
 
+test('blocks a vague component recap even without an inventory verb', () => {
+  const productTruth = { included_components: ['Shoulders', 'Skirt'] };
+  const value = draft({
+    seo_title: 'Gold Warrior Costume for Burning Man',
+    h1: 'Gold Warrior Costume for Burning Man',
+    meta_description: 'Gold warrior costume for Burning Man and festival performances, with adjustable straps and a metallic finish.',
+    intro: 'Create a Burning Man look with this complete gold warrior costume.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'
+      ? {
+        ...block,
+        body: 'This warrior costume is made for Burning Man. The shoulder pieces and skirt create a distinctive look for stage and photos.',
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value, { product_truth: productTruth });
+  assert.ok(result.issues.some((issue) => issue.code === 'about_this_piece_repeats_deterministic_composition'));
+});
+
 test('blocks an unselected rave or cosplay focus when the operator chose Burning Man and festival', () => {
   const value = draft({
     h1: 'Gold Festival Armor for Burning Man',
@@ -425,6 +463,23 @@ test('blocks robotic editorial shorthand and search-query audience copy', () => 
   const codes = result.issues.map((issue) => issue.code);
   assert.ok(codes.includes('customer_copy_contains_robotic_editorial_jargon'));
   assert.ok(codes.includes('customer_copy_reads_like_search_query'));
+});
+
+test('blocks buyer-segment filler written as buyers who want', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'
+      ? {
+        ...block,
+        body: [
+          'Burning Man buyers who want a gold warrior look',
+          'Festival performers and dancers',
+          'Editorial costume productions',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.ok(result.issues.some((issue) => issue.code === 'customer_copy_reads_like_search_query'));
 });
 
 test('blocks plus-size positioning unless Product Truth explicitly confirms it', () => {
