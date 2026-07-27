@@ -4,34 +4,37 @@ Source: owner's live review of the first v2 pilot draft (product 4340584466, War
 These rules are OWNER LAW for all future generation and few-shot examples. They extend, and where they conflict override, prompt doctrine.
 
 ## R1. No invented needs
-Never imply the buyer must add, style, or complete anything ("before you add any styling", "works over minimal clothing"). The product is complete as sold. Framing completeness as "no styling needed" is itself a robotic invented need.
+Never imply the buyer must add, style, or complete anything. The product is complete as sold.
 
 ## R2. Silhouette/shape jargon is banned in buyer copy
-"Silhouette", "finished silhouette", "structured shape(s)", "sculptural" and the whole shape-critique family are robotic. Describe what the buyer sees or gets in plain words instead.
+"Silhouette", "structured shape(s)", "sculptural" and the shape-critique family are robotic. Plain words only.
 
 ## R3. Selected keywords are the vocabulary
-Body copy must be written WITH the approved keyword set for the product (secondary/support phrases, naturally inflected and distributed per block roles), not with abstract substitutes like "piece", "item", "изделие". If a sentence can use an approved product phrase naturally, it should. Exact Primary stays limited to seo_title/h1/meta per doctrine.
+Body copy is written WITH the approved keyword set (naturally inflected, distributed per block roles), not with abstract substitutes ("piece", "item"). Exact Primary stays in seo_title/h1/meta only.
 
 ## R4. Never restate purchase options in prose
-"Available separately or together", set/piece purchase combinations, and "Full Set" must NOT appear in intro/About/Why/Ideal for/self-expression. That information lives only in product options and in the deterministic What's Included block with its auto sentence.
+"Available separately or together", set combinations and "Full Set" appear ONLY in product options and the deterministic What's Included block.
 
 ## R5. What's Included is a mandatory visible checklist block
-Left description always shows the deterministic check-marked component list derived from current product options right after About this piece, followed by the code-owned availability sentence. Pilot demos must render it too.
+Deterministic check-marked component list from current options, right after About, plus the code-owned availability sentence. Pilot demos must render it too.
 
 ## R6. Facts must be valid for the CURRENT shop, not legacy Etsy
-Etsy raw_description is provenance only. Service claims (custom measurements production, engraving, personalization, gift boxes, rush terms) may be asserted ONLY when confirmed by current shop policy/right-panel canon. Sizing truth today: buyer picks a standard size from the size chart.
+Etsy text is provenance only. Service claims are asserted only when confirmed by current shop policy/right-panel canon. Sizing truth: buyer picks a standard size from the size chart.
 
 ## R7. One right-panel fact → one translated buyer outcome, max
-Allowed translations: adjustable straps → secure fit for different body shapes; glossy mirror-like vegan leather → reads clearly in photos/daylight; material keeps shape → costume stays ready for the next event. One feature family appears in ONE block only.
+straps → secure fit for different body shapes; glossy vegan leather → reads clearly in photos/daylight; keeps shape → ready for the next event. One feature family = one block.
 
 ## R8. Ideal for = relevant client avatars
-Build Ideal for from the client portraits most relevant to this exact costume, each with a concrete occasion or production need.
+Client portraits most relevant to this exact costume, each with a concrete occasion or production need.
 
 ## R9. Logic beats keyword
-A keyword may be placed ONLY where the sentence would sound natural even if it were not a keyword. If inserting the approved phrase narrows or breaks the logic (e.g. "stylists sourcing a gold skirt set" when stylists source whole outfits), the general human word wins and the keyword moves elsewhere or is dropped. Never bend an avatar, benefit or fact to fit a phrase.
+A keyword goes ONLY where the sentence sounds natural even if it were not a keyword. If a phrase narrows or breaks the logic, the general human word wins.
 
 ## R10. Avatar-context coherence
-Every Ideal-for bullet must pair the avatar with an environment that is physically true for that avatar. Burning Man attendees are in open desert daylight/night — never under "stage lights". Stage wording belongs only to performer avatars (show ballet, dancers, DJs at their sets). No tautologies ("a costume that moves with them" — every costume does). Prefer "who want / who need" relative clauses so bullets read as portraits, not third-person statements.
+Environment must be physically true for the avatar: Burning Man attendees are in open desert — never under "stage lights"; stage wording belongs to performer avatars only. No tautologies. Prefer "who want / who need" portrait phrasing.
+
+## R11. Motivation beats attribute
+Sell the buyer's real desire behind the occasion, not a product attribute. A Burning Man buyer wants a bold, one-of-a-kind, authorial look that expresses individuality and is made to be seen and photographed — not "a gold outfit". Color, material and finish are supporting details, never the motivation. The media-era desire (great photos, standing out) is addressed through qualities of the LOOK ("made to be seen and photographed", "one-of-a-kind", "recognizable"); promised social outcomes (likes, comments, followers, popularity) remain forbidden per doctrine.
 
 ## Process rule
-Every future owner review is captured the same way: complaint → named rule → committed to this file → reflected in prompts/validators. Rules here are cumulative and versioned.
+Every owner review is captured the same way: complaint → named rule → committed here → reflected in prompts/validators. Cumulative and versioned.
