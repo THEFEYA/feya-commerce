@@ -263,21 +263,20 @@ export async function POST(request: Request) {
     }
   }
 
-  const shouldRunResidualReview = finalReviewUsed
-    && selectedGeneration.ok
-    && selectedGeneration.output
+  const shouldRunResidualReview = finalReviewGeneration?.ok
+    && finalReviewGeneration.output
     && shouldRunSeoEditorialRepair(
-      selectedStructural,
-      selectedCommercial,
-      selectedKeywordPlacement,
+      finalReviewStructural,
+      finalReviewCommercial,
+      finalReviewKeywordPlacement,
     );
   if (shouldRunResidualReview) {
     const residualReviewPrompt = buildFinalReviewPrompt(
       promptContract,
-      selectedGeneration.output,
-      selectedStructural.issues || [],
-      selectedCommercial.issues || [],
-      selectedKeywordPlacement.issues || [],
+      finalReviewGeneration.output,
+      finalReviewStructural.issues || [],
+      finalReviewCommercial.issues || [],
+      finalReviewKeywordPlacement.issues || [],
       bundle.seoPackDraft?.keyword_roles?.primary?.[0]?.keyword
         || bundle.seoPackDraft?.keyword_roles?.primary?.[0]?.keyword_norm
         || null,
