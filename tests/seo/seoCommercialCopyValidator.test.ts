@@ -428,6 +428,26 @@ test('recognizes natural pick-up-light wording as verified finish behavior', () 
   assert.ok(result.benefit_categories_found.includes('verified_finish_behavior'));
 });
 
+test('recognizes natural restyling and daylight photo benefits from the live pilot', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Original studio design gives you a gold look you can wear with your own layers.',
+          'The skirt can be restyled with different base layers from one wear to the next.',
+          'The glossy gold surface catches daylight, so it photographs brighter outdoors.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
+  assert.ok(result.benefit_categories_found.includes('studio_design_and_craft'));
+  assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
+  assert.ok(result.benefit_categories_found.includes('verified_finish_behavior'));
+});
+
 test('recognizes a supported gold-finish photo outcome without requiring stock phrasing', () => {
   const value = draft({
     pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'

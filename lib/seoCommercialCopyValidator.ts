@@ -146,11 +146,11 @@ const BENEFIT_CATEGORIES: Array<{ key: string; pattern: RegExp }> = [
   },
   {
     key: 'verified_finish_behavior',
-    pattern: /\b(reflective|mirror[- ]like finish|mirror finish|metallic finish|glossy finish|gold finish|silver finish|catches? (?:available |ambient |stage )?light|picks? up (?:available |ambient |stage )?light|light[- ]catching|metal[- ]like appearance)\b/i,
+    pattern: /\b(reflective|mirror[- ]like finish|mirror finish|metallic finish|glossy finish|gold finish|silver finish|catches? (?:(?:available|ambient|stage) )?(?:day)?light|picks? up (?:available |ambient |stage )?light|light[- ]catching|metal[- ]like appearance)\b/i,
   },
   {
     key: 'styling_flexibility',
-    pattern: /\b(?:choose|add|change|pair|wear|style)\s+(?:it\s+)?with\s+your\s+own\s+(?:makeup|jewelry|jewellery|accessories|bodysuit|footwear|headpiece)|\b(?:change|swap|switch)\s+(?:your\s+|the\s+)?base layers?\b|\b(?:separate|individual)\s+(?:pieces?|components?)\b[^.!?\n]{0,90}\b(?:change|swap|switch|restyle|wear)\b|\b(?:pieces?|components?)\s+(?:are|remain)\s+separate\b[^.!?\n]{0,90}\b(?:change|swap|switch|restyle|wear)\b|\bleaves?\s+(?:the\s+)?(?:face|neckline|rest of the outfit)\s+open\s+for\b/i,
+    pattern: /\b(?:choose|add|change|pair|wear|style)\s+(?:it\s+)?with\s+your\s+own\s+(?:makeup|jewelry|jewellery|accessories|bodysuit|footwear|headpiece)|\b(?:change|swap|switch)\s+(?:your\s+|the\s+)?base layers?\b|\b(?:restyle|restyled|restyling)\b[^.!?\n]{0,70}\b(?:different|another|your own)\s+base layers?\b|\b(?:separate|individual)\s+(?:pieces?|components?)\b[^.!?\n]{0,90}\b(?:change|swap|switch|restyle|wear)\b|\b(?:pieces?|components?)\s+(?:are|remain)\s+separate\b[^.!?\n]{0,90}\b(?:change|swap|switch|restyle|wear)\b|\bleaves?\s+(?:the\s+)?(?:face|neckline|rest of the outfit)\s+open\s+for\b/i,
   },
   {
     key: 'movement_in_wear',
@@ -177,8 +177,8 @@ const BENEFIT_OUTCOME_PATTERNS: Record<string, RegExp> = {
   fit_flexibility: /\b(secure fit|closer fit|fit around|room to adjust|different body shapes?|custom measurements?|flexible fit)\b/i,
   comfort: /\b(comfortable|comfort|soft against the body|soft body[- ]facing|gentle on the body|easier to wear)\b/i,
   durability_structure: /\b(holds? its (?:shape|form)|keeps? its (?:shape|form)|shape retention|between wears|resists? creasing|long[- ]lasting|less likely to (?:crease|collapse|lose its shape))\b/i,
-  verified_finish_behavior: /\b(catches? (?:available |ambient |stage )?light|picks? up (?:available |ambient |stage )?light|light[- ]catching|shows? clearly in photos?|looks? brighter in photos?|visible under (?:stage |event )?lighting|keeps? details? visible|helps? (?:product )?details? (?:stay|remain) visible|details? (?:stay|remain) visible)\b/i,
-  styling_flexibility: /\b(?:choose|add|change|pair|wear|style)\s+(?:it\s+)?with\s+your\s+own\s+(?:makeup|jewelry|jewellery|accessories|bodysuit|footwear|headpiece)|\b(?:change|swap|switch)\s+(?:your\s+|the\s+)?base layers?\b|\b(?:separate|individual)\s+(?:pieces?|components?)\b[^.!?\n]{0,90}\b(?:change|swap|switch|restyle|wear)\b|\b(?:pieces?|components?)\s+(?:are|remain)\s+separate\b[^.!?\n]{0,90}\b(?:change|swap|switch|restyle|wear)\b|\bleaves?\s+(?:the\s+)?(?:face|neckline|rest of the outfit)\s+open\s+for\b/i,
+  verified_finish_behavior: /\b(catches? (?:(?:available|ambient|stage) )?(?:day)?light|picks? up (?:available |ambient |stage )?light|light[- ]catching|shows? clearly in photos?|looks? brighter in photos?|photographs? brighter(?: outdoors| in daylight)?|visible under (?:stage |event )?lighting|keeps? details? visible|helps? (?:product )?details? (?:stay|remain) visible|details? (?:stay|remain) visible)\b/i,
+  styling_flexibility: /\b(?:choose|add|change|pair|wear|style)\s+(?:it\s+)?with\s+your\s+own\s+(?:makeup|jewelry|jewellery|accessories|bodysuit|footwear|headpiece)|\b(?:change|swap|switch)\s+(?:your\s+|the\s+)?base layers?\b|\b(?:restyle|restyled|restyling)\b[^.!?\n]{0,70}\b(?:different|another|your own)\s+base layers?\b|\b(?:separate|individual)\s+(?:pieces?|components?)\b[^.!?\n]{0,90}\b(?:change|swap|switch|restyle|wear)\b|\b(?:pieces?|components?)\s+(?:are|remain)\s+separate\b[^.!?\n]{0,90}\b(?:change|swap|switch|restyle|wear)\b|\bleaves?\s+(?:the\s+)?(?:face|neckline|rest of the outfit)\s+open\s+for\b/i,
   movement_in_wear: /\b(?:moves?|swings?|flows?)\b[^.!?\n]{0,90}\b(?:walk|dance|turn|motion|photographs?|photos?|stage)\b/i,
   wearer_framing: /\b(?:frames?|draws? attention to)\b[^.!?\n]{0,70}\b(?:face|neckline|shoulders?|upper body)\b/i,
 };
