@@ -5,6 +5,7 @@ import {
   mergeBoundedSeoEditorialRepair,
   normalizeFinalSeoEditorialOutput,
   seoEditorialIssueSnapshot,
+  shouldSelectFinalSeoEditorialCandidate,
   shouldRunSeoEditorialRepair,
 } from '../../lib/seoEditorialCandidateSelection.ts';
 
@@ -44,6 +45,30 @@ test('accepts only a strict issue reduction', () => {
       baseline,
     ),
     false,
+  );
+});
+
+test('prefers a QA-clean strong final editor when it does not add warnings', () => {
+  assert.equal(
+    shouldSelectFinalSeoEditorialCandidate(
+      [validation([])],
+      [validation([])],
+    ),
+    true,
+  );
+  assert.equal(
+    shouldSelectFinalSeoEditorialCandidate(
+      [validation([{ code: 'new_warning', severity: 'warning' }])],
+      [validation([])],
+    ),
+    false,
+  );
+  assert.equal(
+    shouldSelectFinalSeoEditorialCandidate(
+      [validation([])],
+      [validation([{ code: 'robotic_copy', severity: 'blocker' }])],
+    ),
+    true,
   );
 });
 

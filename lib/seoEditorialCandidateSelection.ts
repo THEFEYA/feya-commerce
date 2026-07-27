@@ -167,6 +167,24 @@ export function isStrictlyBetterSeoEditorialCandidate(
     && next.warning_count < before.warning_count;
 }
 
+/**
+ * The production path uses one fast writer and one strong final editor. When
+ * both candidates are deterministic-QA clean, prefer the strong editor if it
+ * did not add warnings. When the writer is blocked, the normal strict-
+ * improvement rule still allows the best inspectable failure to be returned.
+ */
+export function shouldSelectFinalSeoEditorialCandidate(
+  candidate: ValidationResult[],
+  baseline: ValidationResult[],
+) {
+  if (isStrictlyBetterSeoEditorialCandidate(candidate, baseline)) return true;
+  const next = seoEditorialIssueSnapshot(...candidate);
+  const before = seoEditorialIssueSnapshot(...baseline);
+  if (next.blocker_count > 0) return false;
+  if (before.blocker_count > 0) return true;
+  return next.warning_count <= before.warning_count;
+}
+
 export function seoEditorialIssueSnapshot(
   ...validations: ValidationResult[]
 ): SeoEditorialIssueSnapshot {

@@ -10,7 +10,7 @@ test('catalog contract is isolated from the hardcoded pilot brief', () => {
   assert.equal(catalog.includes("PILOT_PRODUCT_ID"), false);
 });
 
-test('catalog and pilot routes give the bounded residual review the same line-editing contract', () => {
+test('catalog and pilot routes use one writer plus one strong final editor', () => {
   const routes = [
     readFileSync(new URL('../../app/api/admin/seo-engine/catalog-draft-generate/route.ts', import.meta.url), 'utf8'),
     readFileSync(new URL('../../app/api/admin/seo-engine/draft-generate-pilot-auto/route.ts', import.meta.url), 'utf8'),
@@ -20,7 +20,10 @@ test('catalog and pilot routes give the bounded residual review the same line-ed
     assert.ok(route.includes('Within each About sentence, use each meaningful content noun only once'));
     assert.match(
       route,
-      /generateSeoDraftWithOpenAi\(residualReviewPrompt,\s*\{[\s\S]*?FEYA_SEO_OPENAI_EDITOR_MODEL[\s\S]*?reasoningEffort: 'medium'/,
+      /generateSeoDraftWithOpenAi\(finalReviewPrompt,\s*\{[\s\S]*?FEYA_SEO_OPENAI_EDITOR_MODEL[\s\S]*?reasoningEffort: 'high'/,
     );
+    assert.ok(route.includes('generation_passes: 2'));
+    assert.equal(/generateSeoDraftWithOpenAi\(residualReviewPrompt/.test(route), false);
+    assert.equal(/generateSeoDraftWithOpenAi\(repairPrompt/.test(route), false);
   });
 });
