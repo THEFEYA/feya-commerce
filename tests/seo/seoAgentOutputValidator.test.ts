@@ -51,6 +51,13 @@ test('allows a concise complete H1 without character padding', () => {
   assert.equal(codes.includes('h1_restates_same_product_entity'), false);
 });
 
+test('allows a single factual intro sentence without forcing filler', () => {
+  const result = validateSeoAgentOutput(output({
+    intro: 'A gold warrior set made for Burning Man.',
+  }));
+  assert.equal(result.issues.some((issue) => issue.code === 'intro_sentence_count'), false);
+});
+
 test('allows two evidenced Why benefits without demanding filler', () => {
   const value = output({
     pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'

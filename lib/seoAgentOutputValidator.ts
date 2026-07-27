@@ -107,8 +107,8 @@ export function validateSeoAgentOutput(value: unknown): SeoAgentOutputValidation
 
   if (typeof value.intro === 'string' && value.intro.trim()) {
     const sentences = sentenceCount(value.intro);
-    if (sentences < 2 || sentences > 4) {
-      issues.push(warning('intro_sentence_count', 'intro should contain 2-4 concise sentences.'));
+    if (sentences > 3) {
+      issues.push(warning('intro_sentence_count', 'intro should contain 1-3 concise sentences. One factual sentence is better than unsupported filler.'));
     }
   }
 

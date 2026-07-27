@@ -69,6 +69,23 @@ test('blocks modular-set composition commentary from the live final editor', () 
   assert.ok(codes.includes('customer_copy_uses_invented_template_comparison'));
 });
 
+test('blocks invented convenience and photo mechanisms from the latest live editor', () => {
+  const value = draft({
+    intro: 'Wear this gold set to Burning Man without building one from separate finds. The studio-designed styling makes it easier to choose boots and jewelry that make sense with the outfit.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'
+      ? {
+        ...block,
+        body: 'At Burning Man, this warrior armor costume gives your outfit a gold focal point that photographs well in wide shots. The visible waist detail gives you a natural break for changing tops.',
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.ok(result.issues.some((issue) => (
+    issue.code === 'customer_copy_contains_abstract_visual_pseudobenefit'
+    && issue.severity === 'blocker'
+  )));
+});
+
 test('blocks a redundant shoulder entity in H1 and meta description', () => {
   const value = draft({
     h1: 'Gold Shoulder Armor with a Sculptural Shoulder Piece',
@@ -473,6 +490,24 @@ test('accepts two honest benefit families when a third is not evidenced', () => 
         body: [
           'Our original studio design is not tied to a named character, so you can make the warrior persona your own.',
           'The skirt is separately selectable, so you can order only that part when you do not need the full set.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
+  assert.ok(result.benefit_categories_found.includes('studio_design_and_craft'));
+  assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
+});
+
+test('recognizes separately selectable parts with buy, replace and reorder outcomes', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'This original studio design lets you make the warrior persona your own instead of copying a named character.',
+          'Each part is separately selectable, so you can buy one piece for a restyle or replace what you own without reordering the full set.',
         ].join('\n'),
       }
       : block),

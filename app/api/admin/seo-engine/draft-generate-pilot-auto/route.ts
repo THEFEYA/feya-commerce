@@ -371,7 +371,7 @@ function buildFinalReviewPrompt(
     'The current JSON is a rejected editorial draft, not a wording template. Preserve its supported facts, contract keys, visual_truth items, internal-linking hints and forbidden-claim boundaries, but replace its customer-facing wording where needed.',
     'Rewrite only customer-facing SEO fields, image ALT wording, and the four left_description bodies needed to remove the listed QA issues.',
     'Do not invent a component, material property, event, audience, fit promise, price, delivery promise or right-panel wording.',
-    'Use natural en-US ecommerce prose. Every sentence must answer a buyer question or add a concrete supported outcome.',
+    'Use natural en-US ecommerce prose. Every sentence must identify the product or its selected use, or add a concrete supported outcome. Never invent an outcome merely to fill a section.',
     'Do not use coordinated, stage-ready presence, strong finish, clear performance feel, bold complete outfit, reads clearly, buyers who want, people looking for, harder look, stronger costume look, more finished costume, looks intentional, or turn a vision into a look.',
   ].join('\n');
   const finalUser = [
@@ -388,13 +388,14 @@ function buildFinalReviewPrompt(
     primaryKeyword
       ? `PRIMARY PLACEMENT: “${primaryKeyword}” must appear in SEO title, H1, meta description and exactly one About this piece sentence. Maximum four total. It must not appear in intro, ALT, highlights, Why, Ideal for or the studio close.`
       : 'Keep the approved whole-product Primary in required fields without repetition.',
-    'SEO title is at most 68 characters and H1 at most 82 characters. Meta description is 110-150 characters and must identify the whole product and Burning Man, then add only a supported differentiator or purchase choice. Because a search snippet must stand alone, it may briefly repeat one core differentiator used on-page, but it must not repeat the component inventory. Never write pairs with your own layers, stronger costume look, sculpted look or another abstract padding phrase. Count before returning JSON.',
-    'SEO title and H1 contain the exact Primary and one already-selected event. Use the natural construction “[Primary] for Burning Man” when Burning Man is the priority. End after the product-and-occasion meaning; do not append material or a fixed-right-panel fact unless that term is present in the approved keyword roles. Never write “for Burning Man styling”, “for festival styling”, or fuse two selected values into “Burning Man Festival”. Because this is a compact set, title and H1 do not inventory its components.',
+    'SEO title is at most 68 characters and H1 at most 82 characters. Meta description is 110-150 characters and must identify the whole product and one highest-priority selected occasion, then add only a supported differentiator or purchase choice. Because a search snippet must stand alone, it may briefly repeat one core differentiator used on-page, but it must not repeat the component inventory. Never write pairs with your own layers, stronger costume look, sculpted look or another abstract padding phrase. Count before returning JSON.',
+    'SEO title and H1 contain the exact Primary and one already-selected event. Use the natural construction “[Primary] for [selected event]”; when Burning Man is selected as the priority, use “[Primary] for Burning Man”. End after the product-and-occasion meaning; do not append material or a fixed-right-panel fact unless that term is present in the approved keyword roles. Never write “for Burning Man styling”, “for festival styling”, or fuse two selected values into “Burning Man Festival”. Because this is a compact set, title and H1 do not inventory its components.',
     'Meta, intro and About do not list or paraphrase the component inventory.',
-    'CONCEPT OWNERSHIP: Intro owns the selected occasion and the whole-product buyer job. About owns the exact Primary plus one different supported product or design outcome. Why owns original studio design plus one or two product-specific buyer outcomes supported by explicit visual or product facts. Ideal for owns people and selected uses. The close owns studio identity and self-expression. Do not move the same idea into two visible on-page owners.',
-    'Intro contains exactly two concrete sentences. It states the selected buyer use and one supported design value. Leave fit/adjustment, finish/light behavior, material and component inventory to their owned sections so Intro cannot duplicate Why or the right panel. Across intro, About and Ideal for combined, base layer, top or bodysuit styling may appear in at most one sentence.',
-    'Intro does not say part of a complete look, centerpiece, focal piece, easy to style, creates an accent, clear costume shape, distinct outline, character-driven feel, make the idea land, anchor an outfit, or contrast with darker pieces the buyer may own.',
-    'About contains the exact Primary once, explains the whole product in one selected setting, and adds a different buyer value. Use one or two short sentences. Name one observed component only when visual_truth_evidence explicitly supports the concrete buyer outcome. Never infer coverage, freer movement, or how much clothing or body stays visible from a component shape. Do not compare the product with a full uniform or head-to-toe costume, and do not say the buyer can skip one or still feel dressed. Because separately selectable components form this set, never describe them as one piece, one continuous or unbroken line, a line from one body area to another, or a single design running between components. Do not write shows up cleanly, shows up clearly or similar design-review shorthand. Do not repeat the intro, and do not repeat straps, adjustment, fit or comfort from the fixed panel.',
+    'If left_copy_evidence_policy.required_section_plan exists, follow it. Do not replace a short factual section with invented convenience, effort saved, photography behavior, accessory coordination, or a visual mechanism.',
+    'CONCEPT OWNERSHIP: Intro owns the selected occasion and the whole-product identity. About owns the exact Primary in one selected setting; one factual sentence completes this job. Why owns original studio design plus one or two product-specific buyer outcomes supported by explicit visual or product facts. Ideal for owns people and selected uses. The close owns studio identity and self-expression. Do not move the same idea into two visible on-page owners.',
+    'Intro contains one or two concrete sentences. State the whole-product use in one selected occasion. A second sentence is optional only when it adds a non-duplicated fact or buyer action explicitly supported by authoritative context. Leave fit/adjustment, finish/light behavior, material and component inventory to their owned sections. Across intro, About and Ideal for combined, base layer, top or bodysuit styling may appear in at most one sentence.',
+    'Intro does not say part of a complete look, centerpiece, focal piece, focal point, easy to style, creates an accent, clear costume shape, distinct outline, character-driven feel, make the idea land, anchor an outfit, build from separate finds, make accessories make sense, or contrast with darker pieces the buyer may own.',
+    'About contains the exact Primary once and explains the whole product in one selected setting. One short factual sentence is sufficient; add a second only when visual_truth_evidence explicitly supports a concrete buyer outcome. Never infer photography performance, coverage, freer movement, a styling break, or how much clothing or body stays visible from a component shape or placement. Do not compare the product with a full uniform or head-to-toe costume, and do not say the buyer can skip one or still feel dressed. Because separately selectable components form this set, never describe them as one piece, one continuous or unbroken line, a line from one body area to another, or a single design running between components. Do not write shows up cleanly, shows up clearly, focal point, photographs well, wide shots, natural break, changing tops or similar design-review shorthand. Do not repeat the intro, and do not repeat straps, adjustment, fit or comfort from the fixed panel.',
     'Within each About sentence, use each meaningful content noun only once, treating singular and plural as the same term. Rewrite the sentence instead of mechanically swapping in a near-synonym. Never write constructions such as “shoulder pieces ... base pieces” inside one sentence.',
     'ALT starts with one natural approved component-level Secondary when it accurately describes the visible sold product, then may name another confirmed sold component and a brief setting. Natural word order and inflection are allowed. Omit base clothing, footwear, accessories and props that are visible but not confirmed as sold.',
     'Keep each repeated idea in one strongest block only. Before returning, silently assign every non-Primary buyer benefit to exactly one owner: meta, intro, About, Why, Ideal for or studio close. If the same idea appears in two owners through different wording, keep the stronger version and replace the other with a genuinely different supported value. Finish or light behavior belongs in at most one Why bullet, not intro, About, Ideal for or the studio close.',
@@ -405,8 +406,8 @@ function buildFinalReviewPrompt(
     'Designed for self-expression contains exactly three natural sentences and 50-65 words. Begin “At TheFEYA, we…” and identify us as an independent design studio or independent design team. Connect our original ideas to personal style or a design that feels like the wearer. Write like a founder speaking plainly, not a brand manifesto. Do not use expressive dressing, a clearer sense of visual identity, not just something to wear once, from the first photo to the last, or turn a vision into a look.',
     'Use TheFEYA exactly once in all customer-facing generated copy, only in Designed for self-expression. Never put the brand in SEO title, H1, meta description, intro, ALT, Why or Ideal for.',
     'HUMAN VOICE CHECK: read every customer-facing sentence aloud as a shopper or salesperson. Rewrite anything that sounds like a search query, design critique, image-analysis note or sentence written only to satisfy a template. A grammatically valid sentence still fails if a normal person would not say it. Prefer a concrete product action or buyer result over abstract nouns such as layout, structure, balance, direction or presence. Do not add after sunset, outdoors or another filler circumstance unless it is both supported and useful to the purchase decision.',
-    'Outside the studio close, prefer concrete verbs such as frame, move, pair, wear and photograph. Do not describe an “idea”, “theme”, “direction” or “identity” when a concrete product action or buyer result can say the same thing.',
-    'Read About, Why and Ideal aloud once. Replace “warrior line”, “armored effect”, “visually open”, “continuous line”, “cohesive styling”, “shows up cleanly”, “photos pick up more depth” and similar design-review shorthand with a plain statement of what the wearer can combine, do, change or photograph.',
+    'Outside the studio close, prefer concrete verbs such as wear, choose, order, replace and restyle, but only when authoritative facts support that action. Do not describe an “idea”, “theme”, “direction” or “identity” when a concrete product fact or buyer result can say the same thing.',
+    'Read About, Why and Ideal aloud once. Replace “warrior line”, “armored effect”, “visually open”, “continuous line”, “cohesive styling”, “shows up cleanly”, “photos pick up more depth” and similar design-review shorthand with a plain, supported product fact or buyer action.',
     'Do not repeat raw fit, material, production, shipping or care sentences from the fixed right panel.',
     '',
     'Current JSON:',
@@ -424,6 +425,16 @@ function buildFinalEditorContext(seoPackDraft, firstPassOutput) {
   const truth = seoPackDraft?.product_truth || {};
   const sellableOffer = truth?.sellable_offer || {};
   const visualTruth = firstPassOutput?.visual_truth || {};
+  const manualFocus = seoPackDraft?.manual_focus || {};
+  const focusValues = (axis) => {
+    const raw = manualFocus?.[axis];
+    const values = Array.isArray(raw) ? raw : raw ? [raw] : [];
+    return values.map((value) => String(value).trim()).filter(Boolean);
+  };
+  const selectedEvents = focusValues('event');
+  const selectedStyles = focusValues('style');
+  const selectedPersonas = focusValues('persona');
+  const selectedAudiences = focusValues('audience');
   const separatelySelectableLabels = (sellableOffer?.atomic_options || [])
     .map((item) => item?.label)
     .filter(Boolean);
@@ -448,7 +459,7 @@ function buildFinalEditorContext(seoPackDraft, firstPassOutput) {
     competition: item?.competition || null,
   });
   return {
-    manual_focus: seoPackDraft?.manual_focus || null,
+    manual_focus: manualFocus,
     product_truth: {
       product_truth_source: truth?.product_truth_source || null,
       category: truth?.category || null,
@@ -481,6 +492,23 @@ function buildFinalEditorContext(seoPackDraft, firstPassOutput) {
       original_studio_design: 'supported by brand policy',
       separately_selectable_purchase_format: separatelySelectableLabels,
       required_why_plan: requiredWhyPlan,
+      required_section_plan: {
+        intro: {
+          verified_inputs: {
+            events: selectedEvents,
+            styles: selectedStyles,
+            personas: selectedPersonas,
+            audiences: selectedAudiences,
+            color: truth?.color || null,
+          },
+          job: 'Write one or two plain sentences that identify the whole product in one selected occasion. A second sentence is optional only for a non-duplicated fact or buyer action explicitly present in this context. Do not list components or accessories, and do not invent convenience, coordination, effort saved, photography behavior or a styling mechanism.',
+        },
+        about_this_piece: {
+          exact_primary_required: true,
+          selected_events: selectedEvents,
+          job: 'One plain factual sentence containing the exact Primary and one selected occasion is complete. Add a second sentence only for a concrete outcome explicitly supported by observed_product_facts. Never infer photo performance or a styling mechanism from a visible detail.',
+        },
+      },
       fixed_right_panel_topics_to_avoid_repeating: [
         'standard sizing',
         'adjustable straps',

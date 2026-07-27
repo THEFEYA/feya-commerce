@@ -143,7 +143,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     seo_title: 'Aim for a concise snippet-safe title and keep the internal 68-character review cap. Never pad a short, complete title to hit a minimum.',
     h1: 'Concise human-readable product name with an 82-character review cap. Name the primary product entity once; add only a non-redundant verified differentiator and never pad to a minimum.',
     meta_description: 'Aim for concise product identity, differentiator and use case within the 158-character review cap. Completeness and natural language outrank a minimum character target.',
-    intro: '2-4 concise sentences; product hook, buyer benefit, event/use case and supported facts.',
+    intro: '1-3 concise sentences; the whole product, a selected event/use case and only supported facts. One factual sentence is preferable to inferred filler.',
     main_description: 'Coverage-first product copy, usually 120-300 words across the four generated left-description blocks. The final Designed for self-expression block should contain 45-75 words in 3-4 useful sentences. Never add filler merely to reach a word count.',
   },
   pdp_block_plan: [
