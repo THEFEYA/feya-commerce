@@ -215,6 +215,11 @@ export async function POST(request: Request) {
       bundle.seoPackDraft?.keyword_roles?.primary?.[0]?.keyword
         || bundle.seoPackDraft?.keyword_roles?.primary?.[0]?.keyword_norm
         || null,
+      {
+        manual_focus: bundle.seoPackDraft?.manual_focus || null,
+        product_truth: bundle.seoPackDraft?.product_truth || null,
+        keyword_roles: bundle.seoPackDraft?.keyword_roles || null,
+      },
     );
     finalReviewGeneration = await generateSeoDraftWithOpenAi(finalReviewPrompt, {
       model: process.env.FEYA_SEO_OPENAI_EDITOR_MODEL || 'gpt-5.4',
@@ -482,7 +487,15 @@ function buildRepairPrompt(promptContract, currentOutput, structuralIssues, comm
   };
 }
 
-function buildFinalReviewPrompt(promptContract, currentOutput, structuralIssues, commercialIssues, keywordPlacementIssues, authoritativePrimaryKeyword) {
+function buildFinalReviewPrompt(
+  promptContract,
+  currentOutput,
+  structuralIssues,
+  commercialIssues,
+  keywordPlacementIssues,
+  authoritativePrimaryKeyword,
+  authoritativeContext,
+) {
   const primaryKeyword = authoritativePrimaryKeyword || keywordPlacementIssues.find((issue) => (
     issue.keyword && String(issue.code || '').startsWith('primary_')
   ))?.keyword || null;
@@ -505,17 +518,24 @@ function buildFinalReviewPrompt(promptContract, currentOutput, structuralIssues,
     'Deterministic issues:',
     ...(issueLines.length ? issueLines.map((line) => `- ${line}`) : ['- Remove repetition and robotic phrasing.']),
     '',
+    'AUTHORITATIVE CONTEXT — preserve it exactly and never expand it from the legacy title, current draft, image, Keyword Bank, or imagination:',
+    JSON.stringify(authoritativeContext || {}, null, 2),
+    'Only non-empty manual_focus event, style, persona and audience values may become high-intent customer contexts. A null or empty axis means do not invent a value for that axis.',
+    'Never add rave, cosplay, fantasy, historical, medieval, costume-party or another subculture/style/event unless that exact value is present in manual_focus.',
+    '',
     primaryKeyword
       ? `PRIMARY PLACEMENT: “${primaryKeyword}” must appear in SEO title, H1, meta description and exactly one About this piece sentence. Maximum four total. It must not appear in intro, ALT, highlights, Why, Ideal for or the studio close.`
       : 'Keep the approved whole-product Primary in required fields without repetition.',
     'H1 uses one already-selected event. Meta, intro and About do not list or paraphrase the component inventory.',
-    'Intro contains exactly two concrete sentences. It states the selected buyer use and one supported product value; it does not say part of a complete look, centerpiece, focal piece, easy to style, creates an accent, clear costume shape or distinct outline.',
-    'About contains the exact Primary once, explains the product in one selected setting, and adds a different buyer value. It names no more than one component and does not repeat the intro.',
-    'ALT starts with the visibly sold component names, not the exact whole-product Primary.',
+    'Intro contains exactly two concrete sentences. It states the selected buyer use and one supported design value. Leave fit/adjustment, finish/light behavior, material and component inventory to their owned sections so Intro cannot duplicate Why or the right panel.',
+    'Intro does not say part of a complete look, centerpiece, focal piece, easy to style, creates an accent, clear costume shape, distinct outline, character-driven feel, or make the idea land.',
+    'About contains the exact Primary once, explains the whole product in one selected setting, and adds a different buyer value. It names no more than one component, does not repeat the intro, and does not compare the product with a standard or generic alternative.',
+    'ALT starts with the visibly sold component names in plain idiomatic English, not the exact whole-product Primary. Prefer one natural approved component-level Secondary only when it accurately describes what is visible.',
     'Keep each repeated idea in one strongest block only. Finish or light behavior belongs in at most one Why bullet, not intro, About, Ideal for or the studio close.',
-    'Why contains exactly three distinct fact-to-outcome bullets: (1) one original-design benefit tied to a personal look, (2) one supported fit/wear benefit, and (3) one different supported practical outcome such as available light keeping detail visible in photographs or shape retention between wears. “Build a look” is not product construction. Never use strong look/presence as an outcome.',
-    'Ideal for contains 3-4 bullets. Each begins with a person, professional role, selected occasion or production. It contains no finish, anatomy, product inventory, “calls for”, “when needed”, buyers-who-want or people-looking-for language.',
-    'Designed for self-expression contains exactly three natural sentences and 50-65 words. It begins in first-person studio voice and explicitly connects our original ideas to the buyer’s visual identity, personal style, a design that feels like them, or their own look.',
+    'Why contains exactly three distinct fact-to-outcome bullets: (1) one original-design benefit tied to a personal look, (2) one supported fit/wear benefit, and (3) one different supported practical outcome. For verified finish behavior use literal wording such as “catches available light, helping product details remain visible in photographs”; for shape retention, explain reuse between wears. “Build a look” is not product construction. Never use strong look, statement piece, presence or character as an outcome.',
+    'Ideal for contains exactly three bullets. Each begins with a person, professional role, selected occasion or supported production, and naturally reuses the authoritative focus instead of inventing an extra context merely to fill a bullet.',
+    'Ideal for contains no finish, anatomy, product inventory, fantasy, historical framing, “statement piece”, “calls for”, “when needed”, buyers-who-want or people-looking-for language.',
+    'Designed for self-expression contains exactly three natural sentences and 50-65 words. It explicitly identifies TheFEYA as our independent design studio or independent design team, uses first-person voice, and connects our original ideas to the buyer’s visual identity, personal style, a design that feels like them, or their own look.',
     'Do not repeat raw fit, material, production, shipping or care sentences from the fixed right panel.',
     '',
     'Current JSON:',

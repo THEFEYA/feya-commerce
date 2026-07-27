@@ -72,6 +72,17 @@ const CONTROLLED_EVENT_FOCUS_FAMILIES: Array<{ key: string; aliases: string[] }>
   { key: 'cosplay', aliases: ['cosplay', 'cosplayer', 'cosplayers'] },
   { key: 'pride', aliases: ['pride'] },
   { key: 'drag', aliases: ['drag queen', 'drag queens', 'drag performer', 'drag performers'] },
+  { key: 'costume party', aliases: ['costume party', 'costume parties'] },
+];
+
+const CONTROLLED_STYLE_FOCUS_FAMILIES: Array<{ key: string; aliases: string[] }> = [
+  { key: 'fantasy', aliases: ['fantasy'] },
+  { key: 'historical', aliases: ['historical', 'medieval', 'renaissance'] },
+  { key: 'steampunk', aliases: ['steampunk'] },
+  { key: 'cyberpunk', aliases: ['cyberpunk', 'cyber punk'] },
+  { key: 'futuristic', aliases: ['futuristic'] },
+  { key: 'post-apocalyptic', aliases: ['post-apocalyptic', 'post apocalyptic', 'apocalyptic'] },
+  { key: 'goth', aliases: ['goth', 'gothic'] },
 ];
 
 const ALT_STYLING_FAMILIES: Array<{ key: string; aliases: string[] }> = [
@@ -133,7 +144,7 @@ const BENEFIT_CATEGORIES: Array<{ key: string; pattern: RegExp }> = [
   },
   {
     key: 'verified_finish_behavior',
-    pattern: /\b(reflective|mirror[- ]like finish|mirror finish|metallic finish|glossy finish|catches? (?:available |ambient |stage )?light|light[- ]catching|metal[- ]like appearance)\b/i,
+    pattern: /\b(reflective|mirror[- ]like finish|mirror finish|metallic finish|glossy finish|gold finish|silver finish|catches? (?:available |ambient |stage )?light|light[- ]catching|metal[- ]like appearance)\b/i,
   },
 ];
 const PRACTICAL_BENEFIT_CATEGORIES = new Set([
@@ -149,7 +160,7 @@ const BENEFIT_OUTCOME_PATTERNS: Record<string, RegExp> = {
   fit_flexibility: /\b(secure fit|closer fit|fit around|room to adjust|different body shapes?|custom measurements?|flexible fit)\b/i,
   comfort: /\b(comfortable|comfort|soft against the body|soft body[- ]facing|gentle on the body|easier to wear)\b/i,
   durability_structure: /\b(holds? its (?:shape|form)|keeps? its (?:shape|form)|shape retention|between wears|resists? creasing|long[- ]lasting|less likely to (?:crease|collapse|lose its shape))\b/i,
-  verified_finish_behavior: /\b(catches? (?:available |ambient |stage )?light|light[- ]catching|shows? clearly in photos?|visible under (?:stage |event )?lighting|keeps? detail visible)\b/i,
+  verified_finish_behavior: /\b(catches? (?:available |ambient |stage )?light|light[- ]catching|shows? clearly in photos?|visible under (?:stage |event )?lighting|keeps? details? visible|helps? (?:product )?details? (?:stay|remain) visible|details? (?:stay|remain) visible)\b/i,
 };
 
 const CROSS_BLOCK_IDEAS: Array<{ key: string; pattern: RegExp }> = [
@@ -409,6 +420,21 @@ export function validateSeoCommercialCopy(
         `Customer copy introduces an unselected high-intent event or subculture (${[...new Set(leaked)].join(', ')}). Use only the operator-selected event focus (${selectedEventFocus.join(', ')}) unless Product Truth is deliberately re-reviewed.`,
       ));
     }
+  }
+  const selectedStyleFocus = focusValues(context.manual_focus, 'style');
+  const selectedStyles = new Set(selectedStyleFocus.map((value) => value.toLowerCase()));
+  const leakedStyles = CONTROLLED_STYLE_FOCUS_FAMILIES
+    .filter((family) => (
+      !selectedStyles.has(family.key)
+      && !selectedStyleFocus.some((value) => family.aliases.some((alias) => containsPhrase(value, alias)))
+    ))
+    .filter((family) => family.aliases.some((alias) => containsPhrase(customerText, alias)))
+    .map((family) => family.key);
+  if (leakedStyles.length) {
+    issues.push(blocker(
+      'customer_copy_uses_unselected_style_focus',
+      `Customer copy introduces an unselected high-intent style (${[...new Set(leakedStyles)].join(', ')}). Use only the operator-selected style focus (${selectedStyleFocus.join(', ') || 'none selected'}) unless Product Truth is deliberately re-reviewed.`,
+    ));
   }
 
   const idealForBlock = blocks.find((block) => String(block.block_key || '') === 'ideal_for');

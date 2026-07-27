@@ -340,6 +340,54 @@ test('recognizes available-light finish behavior and feels-like-them self-expres
   );
 });
 
+test('recognizes a supported gold-finish photo outcome without requiring stock phrasing', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Our original studio design gives your outfit a personal identity.',
+          'Adjustable straps help you fine-tune the fit for more comfortable wear.',
+          'The gold finish helps details stay visible in photographs as available light changes.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(
+    result.issues.some((issue) => issue.code === 'why_youll_love_it_benefit_3_has_no_concrete_buyer_value'),
+    false,
+  );
+  assert.equal(
+    result.issues.some((issue) => issue.code === 'why_youll_love_it_benefit_3_has_feature_but_no_buyer_outcome'),
+    false,
+  );
+});
+
+test('blocks an unselected high-intent style added by generated copy', () => {
+  const value = draft({
+    h1: 'Gold Shoulder Armor for Burning Man',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'
+      ? {
+        ...block,
+        body: [
+          'Burning Man attendees building a warrior-inspired look',
+          'Festival performers preparing for live shows',
+          'Costume designers planning a fantasy production',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value, {
+    manual_focus: {
+      event: ['Burning Man', 'festival'],
+      persona: ['warrior'],
+      style: null,
+    },
+  });
+  assert.ok(result.issues.some((issue) => issue.code === 'customer_copy_uses_unselected_style_focus'));
+});
+
 test('blocks awkward finish-and-silhouette grammar and duplicate brand positioning', () => {
   const value = draft({
     meta_description: 'Gold shoulder armor with a glossy gold finish and silhouette for Burning Man performances.',
