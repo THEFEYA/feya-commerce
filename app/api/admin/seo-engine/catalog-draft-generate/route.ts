@@ -215,11 +215,7 @@ export async function POST(request: Request) {
       bundle.seoPackDraft?.keyword_roles?.primary?.[0]?.keyword
         || bundle.seoPackDraft?.keyword_roles?.primary?.[0]?.keyword_norm
         || null,
-      {
-        manual_focus: bundle.seoPackDraft?.manual_focus || null,
-        product_truth: bundle.seoPackDraft?.product_truth || null,
-        keyword_roles: bundle.seoPackDraft?.keyword_roles || null,
-      },
+      buildFinalEditorContext(bundle.seoPackDraft),
     );
     finalReviewGeneration = await generateSeoDraftWithOpenAi(finalReviewPrompt, {
       model: process.env.FEYA_SEO_OPENAI_EDITOR_MODEL || 'gpt-5.4',
@@ -507,7 +503,7 @@ function buildFinalReviewPrompt(
   const finalSystem = [
     'You are the final human-copy line editor for TheFEYA product pages.',
     'Return only one complete JSON object matching seo_agent_output_v1. Do not return commentary.',
-    'The current JSON has already passed Product Truth and structure checks. Preserve every fact, selected event/persona boundary, contract key, visual_truth item, internal-linking hint and forbidden-claim boundary.',
+    'The current JSON is a rejected editorial draft, not a wording template. Preserve its supported facts, contract keys, visual_truth items, internal-linking hints and forbidden-claim boundaries, but replace its customer-facing wording where needed.',
     'Rewrite only customer-facing SEO fields, image ALT wording, and the four left_description bodies needed to remove the listed QA issues.',
     'Do not invent a component, material property, event, audience, fit promise, price, delivery promise or right-panel wording.',
     'Use natural en-US ecommerce prose. Every sentence must answer a buyer question or add a concrete supported outcome.',
@@ -522,11 +518,15 @@ function buildFinalReviewPrompt(
     JSON.stringify(authoritativeContext || {}, null, 2),
     'Only non-empty manual_focus event, style, persona and audience values may become high-intent customer contexts. A null or empty axis means do not invent a value for that axis.',
     'Never add rave, cosplay, fantasy, historical, medieval, costume-party or another subculture/style/event unless that exact value is present in manual_focus.',
+    'Do not use the generic word event or events anywhere in customer-facing copy. Name a selected occasion instead.',
     '',
     primaryKeyword
       ? `PRIMARY PLACEMENT: “${primaryKeyword}” must appear in SEO title, H1, meta description and exactly one About this piece sentence. Maximum four total. It must not appear in intro, ALT, highlights, Why, Ideal for or the studio close.`
       : 'Keep the approved whole-product Primary in required fields without repetition.',
-    'H1 uses one already-selected event. Meta, intro and About do not list or paraphrase the component inventory.',
+    'SEO title is at most 68 characters, H1 at most 82 characters, and meta description at most 150 characters. Count before returning JSON.',
+    'SEO title and H1 contain the exact Primary and one already-selected event. Because this is a compact set, they do not inventory its components.',
+    'Meta, intro and About do not list or paraphrase the component inventory.',
+    'CONCEPT OWNERSHIP: Intro owns the selected occasion and the whole-product buyer job. About owns the exact Primary plus one different supported product/design outcome. Why owns studio design, fit/wear and one practical result. Ideal for owns people and selected uses. The close owns studio identity and self-expression. Do not move the same idea into two owners.',
     'Intro contains exactly two concrete sentences. It states the selected buyer use and one supported design value. Leave fit/adjustment, finish/light behavior, material and component inventory to their owned sections so Intro cannot duplicate Why or the right panel.',
     'Intro does not say part of a complete look, centerpiece, focal piece, easy to style, creates an accent, clear costume shape, distinct outline, character-driven feel, or make the idea land.',
     'About contains the exact Primary once, explains the whole product in one selected setting, and adds a different buyer value. It names no more than one component, does not repeat the intro, and does not compare the product with a standard or generic alternative.',
@@ -546,6 +546,38 @@ function buildFinalReviewPrompt(
     system_prompt: finalSystem,
     user_prompt: finalUser,
     guardrails: [...(promptContract.guardrails || []), finalSystem],
+  };
+}
+
+function buildFinalEditorContext(seoPackDraft) {
+  const truth = seoPackDraft?.product_truth || {};
+  const sellableOffer = truth?.sellable_offer || {};
+  const compactRole = (item) => ({
+    keyword: item?.keyword || item?.keyword_norm || null,
+    role: item?.role || null,
+    search_volume: item?.search_volume ?? item?.volume ?? null,
+    competition: item?.competition || null,
+  });
+  return {
+    manual_focus: seoPackDraft?.manual_focus || null,
+    product_truth: {
+      product_truth_source: truth?.product_truth_source || null,
+      category: truth?.category || null,
+      material: truth?.material || null,
+      color: truth?.color || null,
+      world: truth?.world || null,
+      included_components: truth?.included_components || [],
+      sellable_offer: {
+        status: sellableOffer?.status || null,
+        component_labels: sellableOffer?.component_labels || [],
+        default_included_components: sellableOffer?.default_included_components || [],
+      },
+    },
+    keyword_roles: {
+      primary: (seoPackDraft?.keyword_roles?.primary || []).map(compactRole),
+      secondary: (seoPackDraft?.keyword_roles?.secondary || []).map(compactRole),
+      supporting: (seoPackDraft?.keyword_roles?.supporting || []).map(compactRole),
+    },
   };
 }
 
