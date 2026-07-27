@@ -97,6 +97,7 @@ export async function POST(request: Request) {
   const commercialValidation = validateSeoCommercialCopy(agentOutput, {
     product_truth: bundle.seoPackDraft.product_truth,
     manual_focus: bundle.seoPackDraft.manual_focus,
+    keyword_roles: bundle.seoPackDraft.keyword_roles,
   });
   const keywordPlacementValidation = validateSeoKeywordPlacement(agentOutput, bundle.seoPackDraft);
   const approvalBlockers = getSeoPackApprovalBlockers(bundle.seoPackDraft);

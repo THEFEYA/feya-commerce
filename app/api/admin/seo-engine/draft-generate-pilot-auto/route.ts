@@ -113,12 +113,17 @@ export async function POST(request: Request) {
     buildSeoAgentPromptContract(bundle.aiAgentInput),
     readiness,
   );
+  const commercialContext = {
+    product_truth: bundle.seoPackDraft.product_truth,
+    manual_focus: bundle.seoPackDraft.manual_focus,
+    keyword_roles: bundle.seoPackDraft.keyword_roles,
+  };
 
   const firstGeneration = await generateSeoDraftWithOpenAi(promptContract, { primaryImageUrl });
   const firstStructural = firstGeneration.output ? validateSeoAgentOutput(firstGeneration.output) : validateSeoAgentOutput(null);
   const firstCommercial = firstGeneration.output
-    ? validateSeoCommercialCopy(firstGeneration.output, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus })
-    : validateSeoCommercialCopy(null, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus });
+    ? validateSeoCommercialCopy(firstGeneration.output, commercialContext)
+    : validateSeoCommercialCopy(null, commercialContext);
   const firstKeywordPlacement = validateSeoKeywordPlacement(firstGeneration.output, bundle.seoPackDraft);
 
   let selectedGeneration = firstGeneration;
@@ -135,6 +140,11 @@ export async function POST(request: Request) {
   let finalReviewCommercial = null;
   let finalReviewKeywordPlacement = null;
   let finalReviewUsed = false;
+  let residualReviewGeneration = null;
+  let residualReviewStructural = null;
+  let residualReviewCommercial = null;
+  let residualReviewKeywordPlacement = null;
+  let residualReviewUsed = false;
 
   const shouldRepair = shouldRunSeoEditorialRepair(
     firstStructural,
@@ -154,8 +164,8 @@ export async function POST(request: Request) {
     repairGeneration = await generateSeoDraftWithOpenAi(repairPrompt);
     repairStructural = repairGeneration.output ? validateSeoAgentOutput(repairGeneration.output) : validateSeoAgentOutput(null);
     repairCommercial = repairGeneration.output
-      ? validateSeoCommercialCopy(repairGeneration.output, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus })
-      : validateSeoCommercialCopy(null, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus });
+      ? validateSeoCommercialCopy(repairGeneration.output, commercialContext)
+      : validateSeoCommercialCopy(null, commercialContext);
     repairKeywordPlacement = validateSeoKeywordPlacement(repairGeneration.output, bundle.seoPackDraft);
 
     if (
@@ -205,8 +215,8 @@ export async function POST(request: Request) {
     }
     finalReviewStructural = finalReviewGeneration.output ? validateSeoAgentOutput(finalReviewGeneration.output) : validateSeoAgentOutput(null);
     finalReviewCommercial = finalReviewGeneration.output
-      ? validateSeoCommercialCopy(finalReviewGeneration.output, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus })
-      : validateSeoCommercialCopy(null, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus });
+      ? validateSeoCommercialCopy(finalReviewGeneration.output, commercialContext)
+      : validateSeoCommercialCopy(null, commercialContext);
     finalReviewKeywordPlacement = validateSeoKeywordPlacement(finalReviewGeneration.output, bundle.seoPackDraft);
 
     if (
@@ -222,6 +232,63 @@ export async function POST(request: Request) {
       selectedCommercial = finalReviewCommercial;
       selectedKeywordPlacement = finalReviewKeywordPlacement;
       finalReviewUsed = true;
+    }
+  }
+
+  const shouldRunResidualReview = finalReviewUsed
+    && selectedGeneration.ok
+    && selectedGeneration.output
+    && shouldRunSeoEditorialRepair(
+      selectedStructural,
+      selectedCommercial,
+      selectedKeywordPlacement,
+    );
+  if (shouldRunResidualReview) {
+    const residualReviewPrompt = buildFinalReviewPrompt(
+      promptContract,
+      selectedGeneration.output,
+      selectedStructural.issues || [],
+      selectedCommercial.issues || [],
+      selectedKeywordPlacement.issues || [],
+      bundle.seoPackDraft?.keyword_roles?.primary?.[0]?.keyword
+        || bundle.seoPackDraft?.keyword_roles?.primary?.[0]?.keyword_norm
+        || null,
+      buildFinalEditorContext(bundle.seoPackDraft),
+    );
+    residualReviewGeneration = await generateSeoDraftWithOpenAi(residualReviewPrompt, {
+      model: process.env.FEYA_SEO_OPENAI_EDITOR_MODEL || 'gpt-5.4',
+      reasoningEffort: 'high',
+    });
+    if (residualReviewGeneration.output) {
+      residualReviewGeneration = {
+        ...residualReviewGeneration,
+        output: normalizeFinalSeoEditorialOutput(residualReviewGeneration.output),
+      };
+    }
+    residualReviewStructural = residualReviewGeneration.output
+      ? validateSeoAgentOutput(residualReviewGeneration.output)
+      : validateSeoAgentOutput(null);
+    residualReviewCommercial = residualReviewGeneration.output
+      ? validateSeoCommercialCopy(residualReviewGeneration.output, commercialContext)
+      : validateSeoCommercialCopy(null, commercialContext);
+    residualReviewKeywordPlacement = validateSeoKeywordPlacement(
+      residualReviewGeneration.output,
+      bundle.seoPackDraft,
+    );
+
+    if (
+      residualReviewGeneration.ok
+      && residualReviewGeneration.output
+      && isStrictlyBetterSeoEditorialCandidate(
+        [residualReviewStructural, residualReviewCommercial, residualReviewKeywordPlacement],
+        [selectedStructural, selectedCommercial, selectedKeywordPlacement],
+      )
+    ) {
+      selectedGeneration = residualReviewGeneration;
+      selectedStructural = residualReviewStructural;
+      selectedCommercial = residualReviewCommercial;
+      selectedKeywordPlacement = residualReviewKeywordPlacement;
+      residualReviewUsed = true;
     }
   }
 
@@ -246,7 +313,7 @@ export async function POST(request: Request) {
     },
     humanizer_repair: repairGeneration ? {
       attempted: true,
-      selected: repairUsed && !finalReviewUsed,
+      selected: repairUsed && !finalReviewUsed && !residualReviewUsed,
       openai: sanitizeGeneration(repairGeneration),
       structural_validation: repairStructural,
       commercial_validation: repairCommercial,
@@ -258,7 +325,7 @@ export async function POST(request: Request) {
     },
     final_editorial_review: finalReviewGeneration ? {
       attempted: true,
-      selected: finalReviewUsed,
+      selected: finalReviewUsed && !residualReviewUsed,
       openai: sanitizeGeneration(finalReviewGeneration),
       structural_validation: finalReviewStructural,
       commercial_validation: finalReviewCommercial,
@@ -267,6 +334,18 @@ export async function POST(request: Request) {
       attempted: false,
       selected: false,
       reason: shouldRunFinalReview ? 'selected_generation_unavailable' : 'best_candidate_qa_clean',
+    },
+    residual_editorial_review: residualReviewGeneration ? {
+      attempted: true,
+      selected: residualReviewUsed,
+      openai: sanitizeGeneration(residualReviewGeneration),
+      structural_validation: residualReviewStructural,
+      commercial_validation: residualReviewCommercial,
+      keyword_placement_validation: residualReviewKeywordPlacement,
+    } : {
+      attempted: false,
+      selected: false,
+      reason: shouldRunResidualReview ? 'residual_generation_unavailable' : 'final_editorial_candidate_qa_clean_or_not_selected',
     },
   };
 
@@ -290,14 +369,14 @@ export async function POST(request: Request) {
     }, { status: selectedGeneration.ok ? 422 : 502 });
   }
 
-  const status = repairUsed || finalReviewUsed ? 'ai_full_draft_repaired_not_saved' : 'ai_full_draft_generated_not_saved';
+  const status = repairUsed || finalReviewUsed || residualReviewUsed ? 'ai_full_draft_repaired_not_saved' : 'ai_full_draft_generated_not_saved';
 
   return NextResponse.json({
     ok: true,
     status,
     blocked: false,
     mode: 'openai_draft_only_not_saved',
-    message: repairUsed || finalReviewUsed
+    message: repairUsed || finalReviewUsed || residualReviewUsed
       ? 'The first draft needed correction. The bounded editorial review produced a valid review draft from approved Keyword Bank metrics. Nothing was saved or published.'
       : 'The OpenAI SEO review draft passed deterministic structure and commercial QA. Nothing was saved or published.',
     openai_generation: sanitizeGeneration(selectedGeneration),
@@ -497,7 +576,7 @@ function buildFinalReviewPrompt(
       ? `PRIMARY PLACEMENT: “${primaryKeyword}” must appear in SEO title, H1, meta description and exactly one About this piece sentence. Maximum four total. It must not appear in intro, ALT, highlights, Why, Ideal for or the studio close.`
       : 'Keep the approved whole-product Primary in required fields without repetition.',
     'SEO title is at most 68 characters, H1 at most 82 characters, and meta description at most 150 characters. Count before returning JSON.',
-    'SEO title and H1 contain the exact Primary and one already-selected event. Use the natural construction “[Primary] for Burning Man” when Burning Man is the priority. Never write “for Burning Man styling”, “for festival styling”, or fuse two selected values into “Burning Man Festival”. Because this is a compact set, title and H1 do not inventory its components.',
+    'SEO title and H1 contain the exact Primary and one already-selected event. Use the natural construction “[Primary] for Burning Man” when Burning Man is the priority. End after the product-and-occasion meaning; do not append material or a fixed-right-panel fact unless that term is present in the approved keyword roles. Never write “for Burning Man styling”, “for festival styling”, or fuse two selected values into “Burning Man Festival”. Because this is a compact set, title and H1 do not inventory its components.',
     'Meta, intro and About do not list or paraphrase the component inventory.',
     'CONCEPT OWNERSHIP: Intro owns the selected occasion and the whole-product buyer job. About owns the exact Primary plus one different supported product/design outcome. Why owns original studio design plus two product-specific buyer outcomes supported by visual or product facts. Ideal for owns people and selected uses. The close owns studio identity and self-expression. Do not move the same idea into two owners.',
     'Intro contains exactly two concrete sentences. It states the selected buyer use and one supported design value. Leave fit/adjustment, finish/light behavior, material and component inventory to their owned sections so Intro cannot duplicate Why or the right panel.',
@@ -507,7 +586,7 @@ function buildFinalReviewPrompt(
     'Keep each repeated idea in one strongest block only. Finish or light behavior belongs in at most one Why bullet, not intro, About, Ideal for or the studio close.',
     'Why contains exactly three distinct fact-to-outcome bullets: (1) one original-design benefit tied to personal styling, (2) one product-specific framing or styling-flexibility outcome, and (3) one different product-specific movement, photography, wear or practical outcome. The first bullet must name studio authorship plainly with “original studio design”, “studio-designed”, or an equally explicit studio-design phrase; do not replace authorship with a shoulder-and-skirt pairing or another inventory recap. Every bullet contains one supported feature and one buyer result, not two benefits joined with “and”. When Product Truth confirms separately selectable pieces, changing a base layer or restyling one piece is a valid styling-flexibility outcome; say change, swap, wear or restyle plainly, never rebuild the outfit. Do not name both confirmed components in the same Why bullet. The fixed right panel already explains standard sizing, adjustable straps, comfort, material, shape retention, production, shipping, care and customization; do not reuse those as left-block topics unless product-specific evidence cannot support two honest outcomes, and then use at most one with a genuinely different buyer result. “Build a look” is not product construction. Never use strong look, statement piece, presence or character as an outcome.',
     'Ideal for contains exactly three short bullets. Use the grammar “[real person or professional role] + [active use] + [selected occasion or supported production]” and stop after the use case. Cover the authoritative event and persona focus naturally across the three bullets. Mention each selected focus value at most once in the entire Ideal for block: if “Burning Man attendees” is the subject, do not repeat “Burning Man” later in that bullet; if “festival dancers” is the subject, do not end with “for a festival”. Do not make an occasion itself the grammatical subject, do not describe gold, metallic finish, silhouette, structure, construction, components or any other product detail here, and do not invent an extra context merely to fill a bullet.',
-    'Ideal for contains no finish, anatomy, product inventory, fantasy, historical framing, “statement piece”, “calls for”, “when needed”, buyers-who-want or people-looking-for language.',
+    'Ideal for contains no finish, anatomy, product inventory, fantasy, historical framing, “statement piece”, “calls for”, “when needed”, buyers-who-want or people-looking-for language. Do not repeat a meaningful word inside one bullet, such as “warrior-inspired performers wearing a warrior look”.',
     'Designed for self-expression contains exactly three natural sentences and 50-65 words. Begin “At TheFEYA, we…” and identify us as an independent design studio or independent design team. Connect our original ideas to the buyer’s visual identity, personal style, a design that feels like them, or their own look without comparing the buyer with a generic or standard costume.',
     'Use TheFEYA exactly once in all customer-facing generated copy, only in Designed for self-expression. Never put the brand in SEO title, H1, meta description, intro, ALT, Why or Ideal for.',
     'HUMAN VOICE CHECK: read every customer-facing sentence as a shopper. Rewrite any sentence whose value depends on vague approval words or an undefined comparison rather than a concrete meaning. In particular, do not write defined direction, visually defined, feels intentional, overall styling, memorable look, individual direction, blending into standard styling, final result, made for the moment, strong starting point, practical choice, or stands apart from a basic or generic look. Do not replace them with another abstract fashion-analysis phrase.',

@@ -24,6 +24,7 @@ export type SeoCommercialCopyValidation = {
 export type SeoCommercialCopyContext = {
   product_truth?: unknown;
   manual_focus?: unknown;
+  keyword_roles?: unknown;
 };
 
 const WEAK_STYLING_FILLER = /\b(works? well as a focal piece|works? as a centerpiece|part of a complete look|over minimal clothing|pairs? with simple clothing|easy to build into (?:a|the) (?:look|outfit)|easy to style|can be a focal piece|works? with many looks|completes? the look|creates? a clear accent|without (?:additional|extra) (?:design )?(?:elements|details|pieces|accessories)|adds? an accent without)\b/i;
@@ -45,6 +46,7 @@ const TEMPLATE_COMPARISON = /\b(?:(?:standard|generic|mass[- ]produced) costume 
 const PRODUCT_COMPONENT_AS_BUYER_GOAL = /\b(?:buyers?|customers?|people) (?:who want|looking for|seeking) (?:to (?:buy|find) )?(?:a|an|this|the)?\s*(?:statement |expressive |gold |futuristic |cyberpunk |warrior )*(?:shoulder (?:piece|armor|armour)|shoulders?|pauldrons?)\b/i;
 const SOCIAL_METRICS_BOILERPLATE = /\b(organic attention|reactions?, saves? (?:and|or) comments?|likes?, followers?|social (?:engagement|metrics?)|viral(?:ity| reach)?)\b/i;
 const REDUNDANT_FAUX_LEATHER = /\b(?:vegan leather\s+(?:and|or|\/)\s+faux leather|faux leather\s+(?:and|or|\/)\s+vegan leather)\b/i;
+const CUSTOMER_MATERIAL_TERM = /\b(?:vegan leather|faux leather)\b/i;
 const REFLECTIVE_CLAIM = /\b(?:reflective|retroreflective|retro-reflective)\b/i;
 const ABSTRACT_VISUAL_BENEFIT = /\b(contrast and visual depth|adds? contrast|creates? visual depth|harder,? more dramatic line|firm armored presence|armored presence|individual feel|shape a look that feels deliberate|one bold detail to define|dramatic line|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced)\b/i;
 const SHAPE_DURING_MOVEMENT = /\b(?:holds?|keeps?|maintains?|preserves?) (?:its |the |their )?(?:shape|form) (?:during|while|in) (?:movement|motion|moving)\b/i;
@@ -144,7 +146,7 @@ const BENEFIT_CATEGORIES: Array<{ key: string; pattern: RegExp }> = [
   },
   {
     key: 'verified_finish_behavior',
-    pattern: /\b(reflective|mirror[- ]like finish|mirror finish|metallic finish|glossy finish|gold finish|silver finish|catches? (?:available |ambient |stage )?light|light[- ]catching|metal[- ]like appearance)\b/i,
+    pattern: /\b(reflective|mirror[- ]like finish|mirror finish|metallic finish|glossy finish|gold finish|silver finish|catches? (?:available |ambient |stage )?light|picks? up (?:available |ambient |stage )?light|light[- ]catching|metal[- ]like appearance)\b/i,
   },
   {
     key: 'styling_flexibility',
@@ -175,7 +177,7 @@ const BENEFIT_OUTCOME_PATTERNS: Record<string, RegExp> = {
   fit_flexibility: /\b(secure fit|closer fit|fit around|room to adjust|different body shapes?|custom measurements?|flexible fit)\b/i,
   comfort: /\b(comfortable|comfort|soft against the body|soft body[- ]facing|gentle on the body|easier to wear)\b/i,
   durability_structure: /\b(holds? its (?:shape|form)|keeps? its (?:shape|form)|shape retention|between wears|resists? creasing|long[- ]lasting|less likely to (?:crease|collapse|lose its shape))\b/i,
-  verified_finish_behavior: /\b(catches? (?:available |ambient |stage )?light|light[- ]catching|shows? clearly in photos?|visible under (?:stage |event )?lighting|keeps? details? visible|helps? (?:product )?details? (?:stay|remain) visible|details? (?:stay|remain) visible)\b/i,
+  verified_finish_behavior: /\b(catches? (?:available |ambient |stage )?light|picks? up (?:available |ambient |stage )?light|light[- ]catching|shows? clearly in photos?|looks? brighter in photos?|visible under (?:stage |event )?lighting|keeps? details? visible|helps? (?:product )?details? (?:stay|remain) visible|details? (?:stay|remain) visible)\b/i,
   styling_flexibility: /\b(?:choose|add|change|pair|wear|style)\s+(?:it\s+)?with\s+your\s+own\s+(?:makeup|jewelry|jewellery|accessories|bodysuit|footwear|headpiece)|\b(?:change|swap|switch)\s+(?:your\s+|the\s+)?base layers?\b|\b(?:separate|individual)\s+(?:pieces?|components?)\b[^.!?\n]{0,90}\b(?:change|swap|switch|restyle|wear)\b|\b(?:pieces?|components?)\s+(?:are|remain)\s+separate\b[^.!?\n]{0,90}\b(?:change|swap|switch|restyle|wear)\b|\bleaves?\s+(?:the\s+)?(?:face|neckline|rest of the outfit)\s+open\s+for\b/i,
   movement_in_wear: /\b(?:moves?|swings?|flows?)\b[^.!?\n]{0,90}\b(?:walk|dance|turn|motion|photographs?|photos?|stage)\b/i,
   wearer_framing: /\b(?:frames?|draws? attention to)\b[^.!?\n]{0,70}\b(?:face|neckline|shoulders?|upper body)\b/i,
@@ -389,6 +391,18 @@ export function validateSeoCommercialCopy(
       ));
     }
   });
+  const approvedKeywordText = flattenText(context.keyword_roles).join(' ');
+  if (!CUSTOMER_MATERIAL_TERM.test(approvedKeywordText)) {
+    (['seo_title', 'h1'] as const).forEach((field) => {
+      const value = typeof record[field] === 'string' ? record[field] : '';
+      if (CUSTOMER_MATERIAL_TERM.test(value)) {
+        issues.push(blocker(
+          `${field}_uses_unselected_material_padding`,
+          `${field} adds a material qualifier that is not present in the approved keyword roles. Keep the customer’s selected product and occasion intent primary; the fixed material panel already carries this fact.`,
+        ));
+      }
+    });
+  }
 
   ['h1', 'meta_description'].forEach((field) => {
     const value = typeof record[field] === 'string' ? record[field] : '';
@@ -475,6 +489,13 @@ export function validateSeoCommercialCopy(
       issues.push(blocker(
         `ideal_for_${index + 1}_has_no_person_or_use_case`,
         `Ideal for bullet ${index + 1} does not identify a person, professional role, occasion, production, or selected style context.`,
+      ));
+    }
+    const repeatedTerms = repeatedMeaningfulWords(line);
+    if (repeatedTerms.length) {
+      issues.push(blocker(
+        `ideal_for_${index + 1}_repeats_same_term`,
+        `Ideal for bullet ${index + 1} repeats the same content term (${repeatedTerms.join(', ')}). State the person and use once in natural language.`,
       ));
     }
   });
@@ -759,6 +780,21 @@ function meaningfulTokens(value: string) {
       .map((token) => token.replace(/^-+|-+$/g, ''))
       .filter((token) => token.length >= 4 && !STOPWORDS.has(token)),
   );
+}
+
+function repeatedMeaningfulWords(value: string) {
+  const counts = new Map<string, number>();
+  String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, ' ')
+    .replace(/-/g, ' ')
+    .split(/\s+/)
+    .map((token) => token.replace(/^-+|-+$/g, ''))
+    .filter((token) => token.length >= 5 && !STOPWORDS.has(token))
+    .forEach((token) => counts.set(token, (counts.get(token) || 0) + 1));
+  return [...counts.entries()]
+    .filter(([, count]) => count > 1)
+    .map(([token]) => token);
 }
 
 function splitSentences(value: string) {

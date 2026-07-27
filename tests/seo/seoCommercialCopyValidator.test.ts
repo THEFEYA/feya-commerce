@@ -395,6 +395,24 @@ test('recognizes available-light finish behavior and feels-like-them self-expres
   );
 });
 
+test('recognizes natural pick-up-light wording as verified finish behavior', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Our original studio design gives you a distinctive starting point for a personal look.',
+          'The gold shoulder armor frames your face and upper body in photographs.',
+          'The glossy surface picks up available light, so the gold looks brighter in photos.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
+  assert.ok(result.benefit_categories_found.includes('verified_finish_behavior'));
+});
+
 test('recognizes a supported gold-finish photo outcome without requiring stock phrasing', () => {
   const value = draft({
     pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
@@ -535,6 +553,40 @@ test('blocks repeating the same selected focus inside Ideal for', () => {
     manual_focus: { event: ['Burning Man', 'festival'], persona: ['warrior'] },
   });
   assert.ok(result.issues.some((issue) => issue.code === 'ideal_for_repeats_operator_focus'));
+});
+
+test('blocks a repeated meaningful word inside one Ideal for bullet', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'
+      ? {
+        ...block,
+        body: [
+          'Burning Man attendees preparing outdoor photos',
+          'Festival dancers performing through long sets',
+          'Warrior-inspired performers wearing a warrior look on stage',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.ok(result.issues.some((issue) => issue.code === 'ideal_for_3_repeats_same_term'));
+});
+
+test('blocks unselected material padding in SEO title and H1', () => {
+  const value = draft({
+    seo_title: 'Warrior Armor Costume for Burning Man | Gold Vegan Leather',
+    h1: 'Warrior Armor Costume for Burning Man in Gold Vegan Leather',
+  });
+  const blocked = validateSeoCommercialCopy(value, {
+    keyword_roles: { primary: [{ keyword: 'warrior armor costume' }] },
+  });
+  assert.ok(blocked.issues.some((issue) => issue.code === 'seo_title_uses_unselected_material_padding'));
+  assert.ok(blocked.issues.some((issue) => issue.code === 'h1_uses_unselected_material_padding'));
+
+  const allowed = validateSeoCommercialCopy(value, {
+    keyword_roles: { primary: [{ keyword: 'vegan leather warrior armor costume' }] },
+  });
+  assert.equal(allowed.issues.some((issue) => issue.code.endsWith('_uses_unselected_material_padding')), false);
 });
 
 test('blocks design-review shorthand that sounds unnatural to shoppers', () => {
