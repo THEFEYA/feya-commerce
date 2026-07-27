@@ -183,3 +183,66 @@ test('bounded residual repair changes only fields named by remaining issue codes
     },
   );
 });
+
+test('a whole-copy editorial issue can repair all customer-copy owners but not title or ALT', () => {
+  const baseline = {
+    seo_title: 'Warrior Armor Costume for Burning Man',
+    meta_description: 'Rejected meta.',
+    intro: 'Rejected intro.',
+    image_alt_candidates: [{ alt_text: 'Accepted ALT' }],
+    pdp_blocks: [
+      { block_key: 'about_this_piece', body: 'Rejected About.' },
+      { block_key: 'why_youll_love_it', body: 'Rejected benefits.' },
+      { block_key: 'ideal_for', body: 'Rejected use cases.' },
+      { block_key: 'main_description', body: 'Rejected studio close.' },
+    ],
+  };
+  const candidate = {
+    seo_title: 'Regressed title',
+    meta_description: 'Repaired meta.',
+    intro: 'Repaired intro.',
+    image_alt_candidates: [{ alt_text: 'Regressed ALT' }],
+    pdp_blocks: [
+      { block_key: 'about_this_piece', body: 'Repaired About.' },
+      { block_key: 'why_youll_love_it', body: 'Repaired benefits.' },
+      { block_key: 'ideal_for', body: 'Repaired use cases.' },
+      { block_key: 'main_description', body: 'Repaired studio close.' },
+    ],
+  };
+
+  assert.deepEqual(
+    mergeBoundedSeoEditorialRepair(
+      baseline,
+      candidate,
+      validation([{ code: 'repeated_idea_base_layer_styling', severity: 'blocker' }]),
+    ),
+    {
+      ...candidate,
+      seo_title: baseline.seo_title,
+      image_alt_candidates: baseline.image_alt_candidates,
+    },
+  );
+});
+
+test('secondary semantic warning permits an ALT-only residual repair', () => {
+  const baseline = {
+    intro: 'Accepted intro.',
+    image_alt_candidates: [{ alt_text: 'Shoulders and skirt outdoors' }],
+  };
+  const candidate = {
+    intro: 'Regressed intro.',
+    image_alt_candidates: [{ alt_text: 'Gold shoulder armor and skirt outdoors' }],
+  };
+
+  assert.deepEqual(
+    mergeBoundedSeoEditorialRepair(
+      baseline,
+      candidate,
+      validation([{ code: 'secondary_keyword_cluster_unrepresented', severity: 'warning' }]),
+    ),
+    {
+      ...baseline,
+      image_alt_candidates: candidate.image_alt_candidates,
+    },
+  );
+});

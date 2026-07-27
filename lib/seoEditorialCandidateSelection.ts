@@ -67,6 +67,22 @@ export function mergeBoundedSeoEditorialRepair<T>(
   const topLevelFields = new Set<string>();
   const blockKeys = new Set<string>();
   issueCodes.forEach((code) => {
+    const isWholeCopyEditorialIssue = (
+      code.startsWith('customer_copy_')
+      || code.startsWith('repeated_idea_')
+      || code.startsWith('cross_block_')
+    );
+    if (isWholeCopyEditorialIssue) {
+      topLevelFields.add('meta_description');
+      topLevelFields.add('intro');
+      blockKeys.add('about_this_piece');
+      blockKeys.add('why_youll_love_it');
+      blockKeys.add('ideal_for');
+      blockKeys.add('main_description');
+    }
+    if (code === 'secondary_keyword_cluster_unrepresented') {
+      topLevelFields.add('image_alt_candidates');
+    }
     if (code.includes('seo_title')) topLevelFields.add('seo_title');
     if (/(?:^|_)h1(?:_|$)/.test(code)) topLevelFields.add('h1');
     if (code.includes('meta_description')) topLevelFields.add('meta_description');

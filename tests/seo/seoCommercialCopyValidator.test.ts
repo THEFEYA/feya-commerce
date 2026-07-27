@@ -201,6 +201,58 @@ test('allows a styled item in ALT when it is part of confirmed Product DNA', () 
   assert.equal(result.issues.some((issue) => issue.code === 'image_alt_mentions_unsold_styling_item'), false);
 });
 
+test('blocks an unsold base layer in ALT even when it is visible in the image', () => {
+  const value = draft({
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'Gold shoulder armor and skirt worn over a dark base layer outdoors',
+      truth_basis: 'visible_product_fact',
+    }],
+  });
+  const result = validateSeoCommercialCopy(value, {
+    product_truth: { included_components: ['Shoulders', 'Skirt'] },
+  });
+  assert.ok(result.issues.some((issue) => issue.code === 'image_alt_mentions_unsold_styling_item'));
+});
+
+test('blocks one base-layer styling idea repeated across metadata and left-copy owners', () => {
+  const base = draft();
+  const value = draft({
+    meta_description: 'Warrior armor costume that leaves simple layers visible.',
+    intro: 'Wear it over a simple layer without covering everything underneath.',
+    pdp_blocks: base.pdp_blocks.map((block: any) => {
+      if (block.block_key === 'about_this_piece') {
+        return {
+          ...block,
+          body: 'This warrior armor costume adds shape to basic layers. Wear the skirt over leggings to change the balance between skin and fabric.',
+        };
+      }
+      if (block.block_key === 'why_youll_love_it') {
+        return {
+          ...block,
+          body: [
+            'Original studio design leaves room for your own jewelry.',
+            'A visible base layer lets you swap sleeves between wears.',
+            'The skirt moves as you walk.',
+          ].join('\n'),
+        };
+      }
+      if (block.block_key === 'main_description') {
+        return {
+          ...block,
+          body: 'At TheFEYA, we are an independent design studio. We create original costume pieces for personal styling. Our work lets you keep your own base layers and jewelry in the outfit.',
+        };
+      }
+      return block;
+    }),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.ok(result.issues.some((issue) => issue.code === 'repeated_idea_base_layer_styling'));
+  assert.ok(result.repetition_report?.repeated_idea_groups.some((item) => (
+    item.idea === 'base_layer_styling' && item.blocks.length >= 3
+  )));
+});
+
 test('requires Ideal for to cover every selected focus axis without requiring every keyword variant', () => {
   const manualFocus = {
     event: ['Burning Man', 'festival'],

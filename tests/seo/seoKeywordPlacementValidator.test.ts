@@ -113,6 +113,54 @@ test('does not demand exact placement of every secondary phrase', () => {
   assert.equal(result.issues.some((issue) => issue.code === 'secondary_keyword_unplaced'), false);
 });
 
+test('recognizes natural secondary word order and inflection inside one ALT', () => {
+  const draft = contract('warrior armor costume');
+  draft.keyword_roles.secondary = [
+    { keyword: 'gold shoulders', keyword_norm: 'gold shoulders', role: 'secondary' },
+  ];
+  const value = {
+    ...output(),
+    seo_title: 'Warrior Armor Costume for Burning Man',
+    h1: 'Warrior Armor Costume for Burning Man',
+    meta_description: 'Warrior armor costume for Burning Man with an original studio design.',
+    intro: 'Made for festival styling with a clear whole-product identity.',
+    image_alt_candidates: [{ alt_text: 'Shoulder pieces and skirt in gold worn outdoors' }],
+    pdp_blocks: [{
+      heading: 'About this piece',
+      body: 'This warrior armor costume is designed for Burning Man.',
+    }],
+  };
+  const result = validateSeoKeywordPlacement(value, draft);
+  const secondary = result.placements.find((item) => item.keyword === 'gold shoulders');
+  assert.deepEqual(secondary?.fields, ['image_alt_candidates']);
+  assert.equal(result.issues.some((issue) => issue.code === 'secondary_keyword_cluster_unrepresented'), false);
+});
+
+test('does not count secondary tokens split across separate display units', () => {
+  const draft = contract('warrior armor costume');
+  draft.keyword_roles.secondary = [
+    { keyword: 'gold shoulders', keyword_norm: 'gold shoulders', role: 'secondary' },
+  ];
+  const value = {
+    ...output(),
+    seo_title: 'Warrior Armor Costume for Burning Man',
+    h1: 'Warrior Armor Costume for Burning Man',
+    meta_description: 'Warrior armor costume for Burning Man with an original studio design.',
+    intro: 'A gold finish supports the selected festival palette.',
+    image_alt_candidates: [{ alt_text: 'Shoulder pieces worn outdoors' }],
+    pdp_blocks: [{
+      heading: 'About this piece',
+      body: 'This warrior armor costume is designed for Burning Man.',
+    }],
+  };
+  const result = validateSeoKeywordPlacement(value, draft);
+  assert.equal(
+    result.placements.find((item) => item.keyword === 'gold shoulders')?.fields.length,
+    0,
+  );
+  assert.ok(result.issues.some((issue) => issue.code === 'secondary_keyword_cluster_unrepresented'));
+});
+
 test('blocks a component-only primary keyword for a confirmed outfit', () => {
   const result = validateSeoKeywordPlacement(output(), multiComponentContract('gold shoulder armor'));
   assert.ok(result.issues.some((issue) => issue.code === 'primary_keyword_scope_mismatch_for_multi_component_product'));

@@ -95,6 +95,7 @@ const ALT_STYLING_FAMILIES: Array<{ key: string; aliases: string[] }> = [
   { key: 'underwear', aliases: ['underwear', 'briefs', 'boxers'] },
   { key: 'trousers_or_shorts', aliases: ['trousers', 'pants', 'shorts'] },
   { key: 'shirt', aliases: ['shirt', 't shirt', 't-shirt'] },
+  { key: 'unsold_base_layer', aliases: ['base layer', 'base garment', 'bodysuit', 'leotard'] },
 ];
 
 const FOCUS_VALUE_ALIASES: Record<string, string[]> = {
@@ -211,6 +212,10 @@ const CROSS_BLOCK_IDEAS: Array<{ key: string; pattern: RegExp }> = [
   {
     key: 'self_expression',
     pattern: /\b(self[- ]expression|individuality|visual identity|personal style|your own look|distinctive studio style)\b/i,
+  },
+  {
+    key: 'base_layer_styling',
+    pattern: /\b(?:base|basic|simple|underlying)\s+layers?\b|\bwhat (?:you|the wearer) wear(?:s)? underneath\b|\blayer underneath\b|\b(?:swap|change|keep|show|leave)[^.!?\n]{0,80}\b(?:sleeves?|bodysuit|boots?|briefs?|leggings?|jewelry|jewellery|footwear)\b|\b(?:boots?|briefs?|leggings?)\b[^.!?\n]{0,55}\b(?:layer|underneath|skin|fabric)\b/i,
   },
 ];
 
@@ -724,7 +729,16 @@ export function validateSeoCommercialCopy(
 
 function buildRepetitionReport(record: Record<string, any>, leftBlocks: Record<string, any>[]) {
   const blockTexts = [
+    typeof record.meta_description === 'string' && record.meta_description.trim()
+      ? { key: 'meta_description', text: record.meta_description.trim() }
+      : null,
     typeof record.intro === 'string' && record.intro.trim() ? { key: 'intro', text: record.intro.trim() } : null,
+    Array.isArray(record.bullet_highlights) && record.bullet_highlights.length
+      ? {
+        key: 'bullet_highlights',
+        text: record.bullet_highlights.filter((item: unknown) => typeof item === 'string').join(' '),
+      }
+      : null,
     ...leftBlocks.map((block) => ({
       key: String(block.block_key || 'left_block'),
       text: typeof block.body === 'string' ? block.body.trim() : '',

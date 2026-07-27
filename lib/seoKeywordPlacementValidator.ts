@@ -36,10 +36,11 @@ export function validateSeoKeywordPlacement(
   if (!draft) return blocked('keyword_contract_missing', 'Keyword placement cannot be checked because the SEO Pack contract is missing.');
 
   const fields = collectFields(value);
+  const displayUnits = collectDisplayUnits(value);
   const roleRows = Object.entries(draft.keyword_roles || {}).flatMap(([role, rows]) => (
     (Array.isArray(rows) ? rows : []).map((row) => ({ role, row }))
   ));
-  const placements = roleRows.map(({ role, row }) => placementRow(role, row, fields));
+  const placements = roleRows.map(({ role, row }) => placementRow(role, row, fields, displayUnits));
   const primary = placements.filter((item) => item.role === 'primary');
   const presentation = classifySeoProductPresentation(draft.product_truth);
 
@@ -168,6 +169,7 @@ function collectDisplayUnits(value: Record<string, unknown>) {
     add('pdp_blocks', row.heading);
     add('pdp_blocks', row.body);
   });
+  records(value.image_alt_candidates).forEach((row) => add('image_alt_candidates', row.alt_text));
   return units;
 }
 
@@ -193,11 +195,19 @@ function placementRow(
   role: string,
   row: SeoKeywordRoleItem,
   fields: Record<string, string>,
+  displayUnits: Array<{ field: string; text: string }>,
 ): SeoKeywordPlacementRow {
   const keyword = text(row?.keyword || row?.keyword_norm);
-  const matchedFields = Object.entries(fields)
-    .filter(([, fieldText]) => phraseRepresented(keyword, fieldText))
-    .map(([field]) => field);
+  const semanticRole = ['secondary', 'support', 'image_alt'].includes(role);
+  const matchedFields = semanticRole
+    ? [...new Set(
+      displayUnits
+        .filter((unit) => semanticPhraseRepresented(keyword, unit.text))
+        .map((unit) => unit.field),
+    )]
+    : Object.entries(fields)
+      .filter(([, fieldText]) => phraseRepresented(keyword, fieldText))
+      .map(([field]) => field);
   return {
     keyword,
     role,
@@ -217,6 +227,23 @@ function phraseRepresented(keyword: string, value: string) {
   return fieldTokens.some((_, start) => (
     tokens.every((token, offset) => fieldTokens[start + offset] === token)
   ));
+}
+
+function semanticPhraseRepresented(keyword: string, value: string) {
+  const tokens = [...new Set(contentTokens(keyword))];
+  if (!tokens.length) return false;
+  const fieldTokens = contentTokens(value);
+  if (fieldTokens.length < tokens.length) return false;
+
+  // Secondary phrases are semantic evidence rather than exact-match targets.
+  // Accept natural word order and inflection only when all content tokens stay
+  // inside one short buyer-readable sentence, bullet or ALT. This prevents
+  // tokens scattered across unrelated blocks from masquerading as placement.
+  const maxWindow = Math.min(8, tokens.length + 4);
+  return fieldTokens.some((_, start) => {
+    const window = new Set(fieldTokens.slice(start, start + maxWindow));
+    return tokens.every((token) => window.has(token));
+  });
 }
 
 function contentTokens(value: string) {
