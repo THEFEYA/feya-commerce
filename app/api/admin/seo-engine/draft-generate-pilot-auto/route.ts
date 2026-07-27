@@ -179,12 +179,15 @@ export async function POST(request: Request) {
       selectedKeywordPlacement,
     );
   if (shouldRunFinalReview) {
-    const finalReviewPrompt = buildHumanizerRepairPrompt(
+    const finalReviewPrompt = buildFinalReviewPrompt(
       promptContract,
       selectedGeneration.output,
       selectedStructural.issues || [],
       selectedCommercial.issues || [],
       selectedKeywordPlacement.issues || [],
+      bundle.seoPackDraft?.keyword_roles?.primary?.[0]?.keyword
+        || bundle.seoPackDraft?.keyword_roles?.primary?.[0]?.keyword_norm
+        || null,
     );
     finalReviewGeneration = await generateSeoDraftWithOpenAi(finalReviewPrompt);
     finalReviewStructural = finalReviewGeneration.output ? validateSeoAgentOutput(finalReviewGeneration.output) : validateSeoAgentOutput(null);
@@ -437,6 +440,52 @@ function buildHumanizerRepairPrompt(promptContract, currentOutput, structuralIss
     system_prompt: `${promptContract.system_prompt}\n${repairRules}`,
     user_prompt: `${promptContract.user_prompt}\n${repairRules}`,
     guardrails: [...(promptContract.guardrails || []), repairRules],
+  };
+}
+
+function buildFinalReviewPrompt(promptContract, currentOutput, structuralIssues, commercialIssues, keywordPlacementIssues, authoritativePrimaryKeyword) {
+  const primaryKeyword = authoritativePrimaryKeyword || keywordPlacementIssues.find((issue) => (
+    issue.keyword && String(issue.code || '').startsWith('primary_')
+  ))?.keyword || null;
+  const issueLines = [
+    ...structuralIssues.map((issue) => `${issue.severity}:${issue.code}: ${issue.message}`),
+    ...commercialIssues.map((issue) => `${issue.severity}:${issue.code}: ${issue.message}`),
+    ...keywordPlacementIssues.map((issue) => `${issue.severity}:${issue.code}: ${issue.message}${issue.keyword ? ` [${issue.keyword}]` : ''}`),
+  ];
+  const finalSystem = [
+    'You are the final human-copy line editor for TheFEYA product pages.',
+    'Return only one complete JSON object matching seo_agent_output_v1. Do not return commentary.',
+    'The current JSON has already passed Product Truth and structure checks. Preserve every fact, selected event/persona boundary, contract key, visual_truth item, internal-linking hint and forbidden-claim boundary.',
+    'Rewrite only customer-facing SEO fields, image ALT wording, and the four left_description bodies needed to remove the listed QA issues.',
+    'Do not invent a component, material property, event, audience, fit promise, price, delivery promise or right-panel wording.',
+    'Use natural en-US ecommerce prose. Every sentence must answer a buyer question or add a concrete supported outcome.',
+    'Do not use coordinated, stage-ready presence, strong finish, clear performance feel, bold complete outfit, reads clearly, buyers who want, or people looking for.',
+  ].join('\n');
+  const finalUser = [
+    'Repair every listed issue. Silently validate the finished JSON before returning it.',
+    'Deterministic issues:',
+    ...(issueLines.length ? issueLines.map((line) => `- ${line}`) : ['- Remove repetition and robotic phrasing.']),
+    '',
+    primaryKeyword
+      ? `PRIMARY PLACEMENT: “${primaryKeyword}” must appear in SEO title, H1, meta description and exactly one About this piece sentence. Maximum four total. It must not appear in intro, ALT, highlights, Why, Ideal for or the studio close.`
+      : 'Keep the approved whole-product Primary in required fields without repetition.',
+    'H1 uses one already-selected event. Meta, intro and About do not list or paraphrase the component inventory.',
+    'Intro and About have different jobs and do not repeat the same finish, fit, event sentence or benefit.',
+    'ALT starts with the visibly sold component names, not the exact whole-product Primary.',
+    'Keep each repeated idea in one strongest block only. Finish or light behavior belongs in at most one Why bullet, not intro, About, Ideal for or the studio close.',
+    'Why contains 3-4 distinct fact-to-outcome bullets: one original-design buyer value and supported practical values. “Build a look” is not product construction. Never use strong look/presence as an outcome.',
+    'Ideal for names people, professional roles, selected occasions or productions directly; it contains no finish, anatomy or buyers-who-want language.',
+    'Designed for self-expression uses first-person studio voice and explicitly connects our original ideas to visual identity, personal style, a design that feels like the buyer, or their own look.',
+    'Do not repeat raw fit, material, production, shipping or care sentences from the fixed right panel.',
+    '',
+    'Current JSON:',
+    JSON.stringify(currentOutput, null, 2),
+  ].join('\n');
+  return {
+    ...promptContract,
+    system_prompt: finalSystem,
+    user_prompt: finalUser,
+    guardrails: [...(promptContract.guardrails || []), finalSystem],
   };
 }
 

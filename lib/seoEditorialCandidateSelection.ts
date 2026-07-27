@@ -82,7 +82,7 @@ function issueKey(issue: ValidationIssue) {
 }
 
 function isProtectedBlocker(key: string) {
-  return /(?:unsupported|mismatch|forbidden|product_truth|component|composition|sellable|static_right|price|image_alt|unselected_event|wrong_contract|invalid_|missing_pdp_block|not_object)/.test(key);
+  return /(?:unsupported|mismatch|forbidden|product_truth|component|composition|sellable|static_right|price|image_alt|unselected_event|wrong_contract|invalid_|missing_pdp_block|not_object|primary_|keyword_|commercial_language|secondary_keyword_stack)/.test(key);
 }
 
 function unique(values: string[]) {

@@ -307,6 +307,39 @@ test('does not confuse building a personal look with product construction', () =
   );
 });
 
+test('recognizes available-light finish behavior and feels-like-them self-expression', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => {
+      if (block.block_key === 'why_youll_love_it') {
+        return {
+          ...block,
+          body: [
+            'Our original studio design gives you a distinctive piece for building a festival look that feels personal.',
+            'Adjustable straps make it quick to put on and easy to adapt to different body shapes.',
+            'The glossy finish catches available light, which keeps the product detail visible in photographs.',
+          ].join('\n'),
+        };
+      }
+      if (block.block_key === 'main_description') {
+        return {
+          ...block,
+          body: 'At TheFEYA, we are an independent design team with a fresh point of view on festival and stage fashion. Our varied original ideas help people find a design that feels like them. We make pieces that support a personal visual identity. This one is suited to an approved festival setting.',
+        };
+      }
+      return block;
+    }),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(
+    result.issues.some((issue) => issue.code === 'why_youll_love_it_benefit_3_has_feature_but_no_buyer_outcome'),
+    false,
+  );
+  assert.equal(
+    result.issues.some((issue) => issue.code === 'self_expression_close_lacks_clear_buyer_value'),
+    false,
+  );
+});
+
 test('blocks awkward finish-and-silhouette grammar and duplicate brand positioning', () => {
   const value = draft({
     meta_description: 'Gold shoulder armor with a glossy gold finish and silhouette for Burning Man performances.',
@@ -429,6 +462,23 @@ test('blocks a vague component recap even without an inventory verb', () => {
   });
   const result = validateSeoCommercialCopy(value, { product_truth: productTruth });
   assert.ok(result.issues.some((issue) => issue.code === 'about_this_piece_repeats_deterministic_composition'));
+});
+
+test('blocks compact-set inventory in meta and generic pairing in intro', () => {
+  const productTruth = { included_components: ['Shoulders', 'Skirt'] };
+  const value = draft({
+    seo_title: 'Gold Warrior Costume for Burning Man',
+    h1: 'Gold Warrior Costume for Burning Man',
+    meta_description: 'Gold warrior costume with shoulders and skirt for Burning Man and festival performances.',
+    intro: 'This costume pairs a structured upper piece with a skirt for a festival look.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'
+      ? { ...block, body: 'This complete warrior costume is designed for festival performance.' }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value, { product_truth: productTruth });
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('meta_description_repeats_deterministic_composition'));
+  assert.ok(codes.includes('intro_repeats_deterministic_composition'));
 });
 
 test('blocks an unselected rave or cosplay focus when the operator chose Burning Man and festival', () => {

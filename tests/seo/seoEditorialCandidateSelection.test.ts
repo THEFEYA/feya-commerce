@@ -69,7 +69,7 @@ test('accepts a net reduction when only editorial blocker classes change', () =>
   ];
   const candidate = [
     validation([
-      { code: 'primary_missing_body', severity: 'blocker' },
+      { code: 'copy_rhythm_issue', severity: 'blocker' },
     ]),
   ];
   assert.equal(isStrictlyBetterSeoEditorialCandidate(candidate, baseline), true);
@@ -85,6 +85,21 @@ test('rejects a net reduction that introduces an unselected event', () => {
   const candidate = [
     validation([
       { code: 'customer_copy_uses_unselected_event_focus', severity: 'blocker' },
+    ]),
+  ];
+  assert.equal(isStrictlyBetterSeoEditorialCandidate(candidate, baseline), false);
+});
+
+test('rejects an editorial improvement that breaks primary placement', () => {
+  const baseline = [
+    validation([
+      { code: 'robotic_copy', severity: 'blocker' },
+      { code: 'repeated_idea', severity: 'blocker' },
+    ]),
+  ];
+  const candidate = [
+    validation([
+      { code: 'primary_missing_body', severity: 'blocker', keyword: 'warrior armor costume' },
     ]),
   ];
   assert.equal(isStrictlyBetterSeoEditorialCandidate(candidate, baseline), false);
