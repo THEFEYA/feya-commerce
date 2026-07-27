@@ -306,6 +306,24 @@ test('accepts product-specific styling, framing and movement instead of repeatin
   assert.ok(result.benefit_categories_found.includes('movement_in_wear'));
 });
 
+test('recognizes changing base layers between separately selectable pieces as styling flexibility', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Our original studio design gives you a distinctive starting point for a personal look.',
+          'Separate pieces let you change the base layer without replacing the rest of the outfit.',
+          'The glossy gold finish catches available light in photographs.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
+  assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
+});
+
 test('does not confuse building a personal look with product construction', () => {
   const value = draft({
     pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
@@ -479,6 +497,33 @@ test('allows Ideal for to name real people, productions and occasions', () => {
   });
   const result = validateSeoCommercialCopy(value, { manual_focus: manualFocus });
   assert.equal(result.issues.some((issue) => issue.code.startsWith('ideal_for_')), false);
+});
+
+test('blocks repeating the same selected focus inside Ideal for', () => {
+  const value = draft({
+    h1: 'Gold Shoulder Armor for Burning Man',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'
+      ? {
+        ...block,
+        body: [
+          'Burning Man attendees styling a warrior look for Burning Man',
+          'Festival dancers preparing for outdoor performances',
+          'Content creators photographing costumes for editorial shoots',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value, {
+    manual_focus: { event: ['Burning Man', 'festival'], persona: ['warrior'] },
+  });
+  assert.ok(result.issues.some((issue) => issue.code === 'ideal_for_repeats_operator_focus'));
+});
+
+test('blocks design-review shorthand that sounds unnatural to shoppers', () => {
+  const result = validateSeoCommercialCopy(draft({
+    intro: 'This design shows up cleanly in crowd photos, while the photos pick up more depth.',
+  }));
+  assert.ok(result.issues.some((issue) => issue.code === 'customer_copy_contains_robotic_editorial_jargon'));
 });
 
 test('requires a compact set to remain the page entity across SEO fields', () => {

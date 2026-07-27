@@ -31,7 +31,7 @@ const AUDIT_OR_ADMIN_LANGUAGE = /\b(product truth|product truth confirms?|produc
 const GUARANTEED_POPULARITY = /\b(guarantee(?:d|s)?|will get likes|will receive likes|will gain followers?|will make you popular|go viral|viral reach|more followers?|gain followers?|more likes|become popular|increase your popularity|guaranteed attention|everyone will notice|all eyes will be on you|guaranteed reactions?)\b/i;
 const EMPTY_HYPE = /\b(premium|luxury|ultimate|perfect|best|must[- ]have|crafted to perfection|elevate your look)\b/i;
 const EMPTY_OR_INTERNAL_BUYER_COPY = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|studio fit|statement piece|strong festival statement|structured (?:gold |metallic )?accent|bold (?:gold |metallic )?accent|TheFEYA gives us a way|TheFEYA\s+(?:we|our|us)\b|clean armored attitude|desert[- ]ready (?:mood|presence)|shoulder[- ]led|reads? fast|open light|direct choice for buyers?|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity (?:and|or) individuality|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|one[- ]and[- ]only (?:shoulder )?line|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced|(?:original|distinctive) alternative to (?:a )?(?:standard|generic|mass[- ]produced) costume (?:look|piece|design))\b/i;
-const AWKWARD_EDITORIAL_SHORTHAND = /\b(?:clear finish|strong visual finish)\b/i;
+const AWKWARD_EDITORIAL_SHORTHAND = /\b(?:clear finish|strong visual finish|shows? up (?:cleanly|clearly)|photos? (?:pick|picks) up more depth)\b/i;
 const SEARCH_QUERY_AUDIENCE_PHRASING = /\b(?:(?:women|men|buyers|shoppers|customers)\s+(?:looking|searching)\s+for|buyers?\s+who\s+want)\b/i;
 const COORDINATED_OUTFIT_JARGON = /\bcoordinated\b[^.!?\n]{0,35}\b(?:look|costume|outfit|set|base)\b/i;
 const EMPTY_BOLD_FINISH = /\bbold(?:\s+\w+){0,2}\s+(?:color|colour|finish|event look)\b/i;
@@ -148,7 +148,7 @@ const BENEFIT_CATEGORIES: Array<{ key: string; pattern: RegExp }> = [
   },
   {
     key: 'styling_flexibility',
-    pattern: /\b(?:choose|add|change|pair|wear|style)\s+(?:it\s+)?with\s+your\s+own\s+(?:makeup|jewelry|jewellery|accessories|bodysuit|footwear|headpiece)|\bleaves?\s+(?:the\s+)?(?:face|neckline|rest of the outfit)\s+open\s+for\b/i,
+    pattern: /\b(?:choose|add|change|pair|wear|style)\s+(?:it\s+)?with\s+your\s+own\s+(?:makeup|jewelry|jewellery|accessories|bodysuit|footwear|headpiece)|\b(?:change|swap|switch)\s+(?:your\s+|the\s+)?base layers?\b|\b(?:separate|individual)\s+(?:pieces?|components?)\b[^.!?\n]{0,90}\b(?:change|swap|switch|restyle|wear)\b|\bleaves?\s+(?:the\s+)?(?:face|neckline|rest of the outfit)\s+open\s+for\b/i,
   },
   {
     key: 'movement_in_wear',
@@ -176,7 +176,7 @@ const BENEFIT_OUTCOME_PATTERNS: Record<string, RegExp> = {
   comfort: /\b(comfortable|comfort|soft against the body|soft body[- ]facing|gentle on the body|easier to wear)\b/i,
   durability_structure: /\b(holds? its (?:shape|form)|keeps? its (?:shape|form)|shape retention|between wears|resists? creasing|long[- ]lasting|less likely to (?:crease|collapse|lose its shape))\b/i,
   verified_finish_behavior: /\b(catches? (?:available |ambient |stage )?light|light[- ]catching|shows? clearly in photos?|visible under (?:stage |event )?lighting|keeps? details? visible|helps? (?:product )?details? (?:stay|remain) visible|details? (?:stay|remain) visible)\b/i,
-  styling_flexibility: /\b(?:choose|add|change|pair|wear|style)\s+(?:it\s+)?with\s+your\s+own\s+(?:makeup|jewelry|jewellery|accessories|bodysuit|footwear|headpiece)|\bleaves?\s+(?:the\s+)?(?:face|neckline|rest of the outfit)\s+open\s+for\b/i,
+  styling_flexibility: /\b(?:choose|add|change|pair|wear|style)\s+(?:it\s+)?with\s+your\s+own\s+(?:makeup|jewelry|jewellery|accessories|bodysuit|footwear|headpiece)|\b(?:change|swap|switch)\s+(?:your\s+|the\s+)?base layers?\b|\b(?:separate|individual)\s+(?:pieces?|components?)\b[^.!?\n]{0,90}\b(?:change|swap|switch|restyle|wear)\b|\bleaves?\s+(?:the\s+)?(?:face|neckline|rest of the outfit)\s+open\s+for\b/i,
   movement_in_wear: /\b(?:moves?|swings?|flows?)\b[^.!?\n]{0,90}\b(?:walk|dance|turn|motion|photographs?|photos?|stage)\b/i,
   wearer_framing: /\b(?:frames?|draws? attention to)\b[^.!?\n]{0,70}\b(?:face|neckline|shoulders?|upper body)\b/i,
 };
@@ -478,6 +478,16 @@ export function validateSeoCommercialCopy(
       ));
     }
   });
+  const repeatedIdealFocus = [...new Set(
+    (['event', 'style', 'persona', 'audience'] as const)
+      .flatMap((axis) => focusValues(context.manual_focus, axis)),
+  )].filter((value) => countFocusValueAppearances(idealForBody, value) > 1);
+  if (repeatedIdealFocus.length) {
+    issues.push(blocker(
+      'ideal_for_repeats_operator_focus',
+      `Ideal for repeats the same selected context instead of adding distinct use cases (${repeatedIdealFocus.join(', ')}). Mention each selected focus once in this block and do not repeat it inside a bullet.`,
+    ));
+  }
   (['event', 'style', 'persona', 'audience'] as const).forEach((axis) => {
     const selectedValues = focusValues(context.manual_focus, axis);
     if (selectedValues.length && !selectedValues.some((value) => focusValueAppears(idealForBody, value))) {
@@ -882,6 +892,29 @@ function focusValueAppears(text: string, value: string) {
   const normalized = String(value || '').trim().toLowerCase();
   const aliases = FOCUS_VALUE_ALIASES[normalized] || [value];
   return aliases.some((alias) => containsPhrase(text, alias));
+}
+
+function countFocusValueAppearances(text: string, value: string) {
+  const normalized = String(value || '').trim().toLowerCase();
+  const aliases = FOCUS_VALUE_ALIASES[normalized] || [value];
+  return Math.max(0, ...aliases.map((alias) => countNormalizedPhrase(text, alias)));
+}
+
+function countNormalizedPhrase(text: string, phrase: string) {
+  const normalizeWords = (value: string) => String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  const haystack = normalizeWords(text);
+  const needle = normalizeWords(phrase);
+  if (!needle.length || needle.length > haystack.length) return 0;
+  let count = 0;
+  for (let index = 0; index <= haystack.length - needle.length; index += 1) {
+    if (needle.every((word, offset) => haystack[index + offset] === word)) count += 1;
+  }
+  return count;
 }
 
 function focusEventValues(value: unknown): string[] {
