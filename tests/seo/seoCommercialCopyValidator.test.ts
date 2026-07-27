@@ -31,6 +31,19 @@ test('blocks robotic, social-metric, and redundant material copy', () => {
   assert.ok(codes.includes('customer_copy_stacks_vegan_and_faux_leather_synonyms'));
 });
 
+test('blocks abstract visual pseudo-benefits and inferred component coverage', () => {
+  const value = draft({
+    intro: 'It turns a simple base look into a more finished costume with a stronger costume look.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'
+      ? { ...block, body: 'The shoulders keep more of your outfit visible underneath.' }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('customer_copy_contains_abstract_visual_pseudobenefit'));
+  assert.ok(codes.includes('customer_copy_infers_unsupported_component_coverage'));
+});
+
 test('blocks a redundant shoulder entity in H1 and meta description', () => {
   const value = draft({
     h1: 'Gold Shoulder Armor with a Sculptural Shoulder Piece',
@@ -427,6 +440,37 @@ test('recognizes wearing one component with different tops as a concrete restyli
   assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
 });
 
+test('accepts two honest benefit families when a third is not evidenced', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Our original studio design is not tied to a named character, so you can make the warrior persona your own.',
+          'The skirt is separately selectable, so you can order only that part when you do not need the full set.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
+  assert.ok(result.benefit_categories_found.includes('studio_design_and_craft'));
+  assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
+});
+
+test('still blocks a single Why benefit instead of accepting an underfilled block', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: 'Our original studio design is not tied to a named character, so you can make the warrior persona your own.',
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.ok(result.issues.some((issue) => issue.code === 'why_youll_love_it_wrong_benefit_count'));
+});
+
 test('does not confuse building a personal look with product construction', () => {
   const value = draft({
     pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
@@ -784,6 +828,20 @@ test('blocks compact-set inventory in meta and generic pairing in intro', () => 
   const codes = result.issues.map((issue) => issue.code);
   assert.ok(codes.includes('meta_description_repeats_deterministic_composition'));
   assert.ok(codes.includes('intro_repeats_deterministic_composition'));
+});
+
+test('does not confuse pairing with personal styling for a component-inventory recap', () => {
+  const productTruth = { included_components: ['Shoulders', 'Skirt'] };
+  const value = draft({
+    seo_title: 'Warrior Armor Costume for Burning Man',
+    h1: 'Warrior Armor Costume for Burning Man',
+    meta_description: 'Warrior armor costume for Burning Man that pairs with your own accessories and supports personal styling.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'
+      ? { ...block, body: 'This warrior armor costume is designed for Burning Man and personal festival styling.' }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value, { product_truth: productTruth });
+  assert.equal(result.issues.some((issue) => issue.code === 'meta_description_repeats_deterministic_composition'), false);
 });
 
 test('blocks an unselected rave or cosplay focus when the operator chose Burning Man and festival', () => {

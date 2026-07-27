@@ -18,6 +18,9 @@ test('catalog and pilot routes use one writer plus one strong final editor', () 
 
   routes.forEach((route) => {
     assert.ok(route.includes('Within each About sentence, use each meaningful content noun only once'));
+    assert.ok(route.includes('Two honest reasons are correct when the evidence does not support a third'));
+    assert.ok(route.includes('visual_truth_evidence'));
+    assert.ok(route.includes('firstGeneration.output'));
     assert.match(
       route,
       /generateSeoDraftWithOpenAi\(finalReviewPrompt,\s*\{[\s\S]*?FEYA_SEO_OPENAI_EDITOR_MODEL[\s\S]*?reasoningEffort: 'high'/,

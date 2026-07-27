@@ -37,7 +37,7 @@ export const THEFEYA_CUSTOMER_USE_CASE_MAP = [
 
 export const THEFEYA_BENEFIT_GENERATION_POLICY = [
   'Why you’ll love it is a purchase-decision block, not a second description and not an SEO keyword container.',
-  'Write 3-4 bullets. Never invent a fifth bullet merely to fill space.',
+  'Write 2-4 bullets according to the available product-specific evidence. Two honest reasons are better than an invented third or fourth.',
   'Every bullet must connect one supported feature or studio truth to a useful buyer outcome. Use the mental test: feature or proof -> so what changes for the buyer.',
   'Use at least three distinct value families when evidence exists: distinctive studio design; easy dressing or adjustment; body comfort; structure, shape retention or durability; verified finish behavior.',
   'Include exactly one design-authorship benefit. State the real buyer value directly: our original design ideas give the buyer a distinctive piece they can use to build a festival or stage look that feels personal. Do not compare it with a standard template, generic costume or mass production.',
@@ -130,7 +130,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Do not mix different visual worlds simply to place more terms. Cyberpunk is not steampunk, and a high-volume but incompatible style is not a valid secondary angle.',
     'Every sentence must add a product fact, a supported buyer outcome or a distinct use case. Delete sentences that only describe an abstract mood, presence, focal point or intentional look.',
     'Main PDP copy must remain product-specific and concise. Required generated left-description order: About this piece, Why you’ll love it, Ideal for, Designed for self-expression.',
-    'Why you’ll love it must contain 3-4 genuinely different purchase reasons. A design-authorship point and a handmade-not-mass-produced point count as the same idea and must not appear as separate duplicate bullets.',
+    'Why you’ll love it must contain 2-4 genuinely different purchase reasons supported by Product Truth or explicit visual evidence. A design-authorship point and a handmade-not-mass-produced point count as the same idea and must not appear as separate duplicate bullets. Never invent a third reason when only two are evidenced.',
     'Weak styling filler is not a benefit. Do not use works over minimal clothing, easy to build into a look, part of a complete look, creates a clear accent, works as a centerpiece or without additional design elements.',
     'Material and finish claims must come from product-specific Product Truth or verified image truth. Vegan leather and faux leather are synonyms in customer copy and must never be stacked as two materials. Reflective or retroreflective is not a synonym for glossy, mirror-like, metallic or light-catching.',
     'Never promise or discuss likes, followers, popularity, viral reach, organic attention, reactions, saves, comments, sales, press attention or other social-performance outcomes.',
@@ -155,7 +155,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     {
       block_key: 'why_youll_love_it',
       placement: 'left_description',
-      intent: 'Write 3-4 purchase-decision bullets using the benefit generation policy. Include exactly one concrete studio-design differentiation point plus distinct supported practical values such as easy dressing or adjustment, comfort, shape retention, durability or verified finish behavior. Never use style/event lists, visual-audit observations or abstract phrases as benefits.',
+      intent: 'Write 2-4 purchase-decision bullets using the benefit generation policy. Include exactly one concrete studio-design differentiation point plus one or more distinct supported practical or visual outcomes. Use a third or fourth only when Product Truth or explicit visual evidence supports it. Never use style/event lists, visual-audit observations or abstract phrases as benefits.',
     },
     {
       block_key: 'ideal_for',
