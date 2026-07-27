@@ -469,6 +469,18 @@ export function validateSeoCommercialCopy(
     ));
   }
 
+  const aboutBlock = blocks.find((block) => String(block.block_key || '') === 'about_this_piece');
+  const aboutBody = typeof aboutBlock?.body === 'string' ? aboutBlock.body.trim() : '';
+  splitSentences(aboutBody).forEach((sentence, index) => {
+    const repeatedTerms = repeatedMeaningfulWords(sentence);
+    if (repeatedTerms.length) {
+      issues.push(blocker(
+        `about_this_piece_sentence_${index + 1}_repeats_same_term`,
+        `About this piece sentence ${index + 1} repeats the same content term (${repeatedTerms.join(', ')}). Rewrite the sentence once in plain buyer language instead of restating the product, persona, or component.`,
+      ));
+    }
+  });
+
   const idealForBlock = blocks.find((block) => String(block.block_key || '') === 'ideal_for');
   const idealForBody = typeof idealForBlock?.body === 'string' ? idealForBlock.body.trim() : '';
   const idealForLines = splitBenefitLines(idealForBody);

@@ -71,6 +71,21 @@ test('blocks the current pilot robotic phrases and broken studio grammar', () =>
   )));
 });
 
+test('blocks repeated product, persona, or component terms inside one About sentence', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'
+      ? {
+        ...block,
+        body: 'This warrior armor costume is made for a warrior persona. The skirt can be worn over boots under the same skirt.',
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('about_this_piece_sentence_1_repeats_same_term'));
+  assert.ok(codes.includes('about_this_piece_sentence_2_repeats_same_term'));
+});
+
 test('blocks directional image reporting and reversed buyer intent outside ALT', () => {
   const value = draft({
     meta_description: 'Gold shoulder armor with a sculptural profile of the left shoulder for Burning Man.',

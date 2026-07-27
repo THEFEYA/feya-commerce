@@ -46,6 +46,76 @@ export function normalizeFinalSeoEditorialOutput<T>(output: T): T {
 }
 
 /**
+ * A bounded residual pass is allowed to repair only the fields named by the
+ * remaining deterministic issue codes. The model must still return the full
+ * schema, but unrelated accepted copy is kept byte-for-byte so a small repair
+ * cannot regress the title, focus, ALT, or another left-description block.
+ */
+export function mergeBoundedSeoEditorialRepair<T>(
+  baseline: T,
+  candidate: T,
+  ...validations: ValidationResult[]
+): T {
+  if (!isRecord(baseline) || !isRecord(candidate)) return baseline;
+
+  const issueCodes = validations
+    .flatMap((validation) => validation?.issues || [])
+    .map((issue) => String(issue.code || '').trim().toLowerCase())
+    .filter(Boolean);
+  if (!issueCodes.length) return baseline;
+
+  const topLevelFields = new Set<string>();
+  const blockKeys = new Set<string>();
+  issueCodes.forEach((code) => {
+    if (code.includes('seo_title')) topLevelFields.add('seo_title');
+    if (/(?:^|_)h1(?:_|$)/.test(code)) topLevelFields.add('h1');
+    if (code.includes('meta_description')) topLevelFields.add('meta_description');
+    if (/(?:^|_)intro(?:_|$)/.test(code)) topLevelFields.add('intro');
+    if (code.includes('image_alt') || /(?:^|_)alt(?:_|$)/.test(code)) {
+      topLevelFields.add('image_alt_candidates');
+    }
+    if (code.includes('internal_link')) topLevelFields.add('internal_linking_hints');
+
+    if (code.includes('about_this_piece')) blockKeys.add('about_this_piece');
+    if (code.includes('why_youll_love_it') || code.includes('benefit_')) {
+      blockKeys.add('why_youll_love_it');
+    }
+    if (code.includes('ideal_for')) blockKeys.add('ideal_for');
+    if (
+      code.includes('main_description')
+      || code.includes('self_expression')
+      || code.includes('pdp_block_self_expression')
+    ) {
+      blockKeys.add('main_description');
+    }
+  });
+
+  const merged: Record<string, unknown> = { ...baseline };
+  topLevelFields.forEach((field) => {
+    if (Object.prototype.hasOwnProperty.call(candidate, field)) {
+      merged[field] = candidate[field];
+    }
+  });
+
+  if (blockKeys.size && Array.isArray(baseline.pdp_blocks) && Array.isArray(candidate.pdp_blocks)) {
+    const candidateBlocks = new Map(
+      candidate.pdp_blocks
+        .filter(isRecord)
+        .map((block) => [String(block.block_key || ''), block]),
+    );
+    merged.pdp_blocks = baseline.pdp_blocks.map((block) => {
+      if (!isRecord(block)) return block;
+      const key = String(block.block_key || '');
+      return blockKeys.has(key) && candidateBlocks.has(key)
+        ? candidateBlocks.get(key)
+        : block;
+    });
+  }
+
+  return merged as T;
+}
+
+/**
  * A repair pass is useful only when deterministic QA has something concrete
  * to repair. Calling an editor over an already valid draft adds cost and can
  * silently replace good prose with a merely different version.
@@ -116,4 +186,8 @@ function isProtectedBlocker(key: string) {
 
 function unique(values: string[]) {
   return [...new Set(values)];
+}
+
+function isRecord(value: unknown): value is Record<string, any> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }

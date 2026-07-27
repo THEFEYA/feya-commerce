@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   isStrictlyBetterSeoEditorialCandidate,
+  mergeBoundedSeoEditorialRepair,
   normalizeFinalSeoEditorialOutput,
   seoEditorialIssueSnapshot,
   shouldRunSeoEditorialRepair,
@@ -136,4 +137,49 @@ test('removes deterministic brand padding from the final SEO title only', () => 
     ],
   });
   assert.equal(output.seo_title, 'Gold Warrior Armor Costume for Burning Man | TheFEYA');
+});
+
+test('bounded residual repair changes only fields named by remaining issue codes', () => {
+  const baseline = {
+    seo_title: 'Warrior Armor Costume for Burning Man',
+    intro: 'Accepted intro.',
+    image_alt_candidates: [{ alt_text: 'Accepted ALT' }],
+    pdp_blocks: [
+      { block_key: 'about_this_piece', body: 'Accepted About.' },
+      { block_key: 'why_youll_love_it', body: 'Rejected benefits.' },
+      { block_key: 'ideal_for', body: 'Accepted Ideal for.' },
+      { block_key: 'main_description', body: 'Accepted studio close.' },
+    ],
+  };
+  const candidate = {
+    seo_title: 'Regressed title',
+    intro: 'Regressed intro.',
+    image_alt_candidates: [{ alt_text: 'Regressed ALT' }],
+    pdp_blocks: [
+      { block_key: 'about_this_piece', body: 'Regressed About.' },
+      { block_key: 'why_youll_love_it', body: 'Repaired benefits.' },
+      { block_key: 'ideal_for', body: 'Regressed Ideal for.' },
+      { block_key: 'main_description', body: 'Regressed studio close.' },
+    ],
+  };
+
+  assert.deepEqual(
+    mergeBoundedSeoEditorialRepair(
+      baseline,
+      candidate,
+      validation([
+        { code: 'why_youll_love_it_lacks_benefit_diversity', severity: 'blocker' },
+        { code: 'why_youll_love_it_benefit_2_has_no_concrete_buyer_value', severity: 'blocker' },
+      ]),
+    ),
+    {
+      ...baseline,
+      pdp_blocks: [
+        { block_key: 'about_this_piece', body: 'Accepted About.' },
+        { block_key: 'why_youll_love_it', body: 'Repaired benefits.' },
+        { block_key: 'ideal_for', body: 'Accepted Ideal for.' },
+        { block_key: 'main_description', body: 'Accepted studio close.' },
+      ],
+    },
+  );
 });

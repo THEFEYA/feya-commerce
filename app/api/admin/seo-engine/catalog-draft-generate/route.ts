@@ -14,6 +14,7 @@ import {
 import { generateSeoDraftWithOpenAi } from '@/lib/seoOpenAiDraftGenerator';
 import {
   isStrictlyBetterSeoEditorialCandidate,
+  mergeBoundedSeoEditorialRepair,
   normalizeFinalSeoEditorialOutput,
   shouldRunSeoEditorialRepair,
 } from '@/lib/seoEditorialCandidateSelection';
@@ -287,9 +288,16 @@ export async function POST(request: Request) {
     // the synchronous Vercel request budget.
     residualReviewGeneration = await generateSeoDraftWithOpenAi(residualReviewPrompt);
     if (residualReviewGeneration.output) {
+      const normalizedResidualOutput = normalizeFinalSeoEditorialOutput(residualReviewGeneration.output);
       residualReviewGeneration = {
         ...residualReviewGeneration,
-        output: normalizeFinalSeoEditorialOutput(residualReviewGeneration.output),
+        output: mergeBoundedSeoEditorialRepair(
+          finalReviewGeneration.output,
+          normalizedResidualOutput,
+          finalReviewStructural,
+          finalReviewCommercial,
+          finalReviewKeywordPlacement,
+        ),
       };
     }
     residualReviewStructural = residualReviewGeneration.output
