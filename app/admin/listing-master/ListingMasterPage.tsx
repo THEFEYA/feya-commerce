@@ -120,7 +120,7 @@ const DEFAULT_EXCLUDED_TERMS = ['lego', 'pokemon', 'pokémon', 'gatsby', 'saint 
 const KW_LABELS = { all: 'Все типы использования', product: 'Товарные слова', product_or_alt: 'Товар / ALT', collection: 'Категории', commercial_collection: 'Коммерческие посадочные', visual_collection: 'Визуальный поиск', faq: 'FAQ / вопросы' };
 const STRATEGY_LABELS = { demand: 'Больше спроса', opportunity: 'Перспективные', niche: 'Нишевые' };
 const STRATEGY_NOTES = { demand: 'Сначала слова с большим средним спросом.', opportunity: 'Ненулевой спрос + ниже конкуренция.', niche: 'Узкие long-tail слова под конкретный товар.' };
-const STATUS_LABELS = { all: 'Все товары', not_saved: 'Не сохранено', saved: 'Черновик сохранён' };
+const STATUS_LABELS = { all: 'Все товары', not_saved: 'Не сохранено', saved: 'Решение сохранено' };
 
 const COMPONENTS = ['shoulders', 'corset', 'bra', 'top', 'harness', 'bodysuit', 'skirt', 'panties', 'arms', 'legs', 'mask', 'headpiece', 'choker', 'wings', 'spine', 'tail'];
 const MATERIALS = ['gold', 'silver', 'black', 'white', 'mirror', 'acrylic', 'leather', 'vegan leather', 'metallic', 'holographic', 'chain'];
@@ -180,7 +180,9 @@ export default async function ListingMasterPage({ searchParams }) {
   const rows = keywordData.rows.slice(0, DISPLAY_LIMIT);
   const saved = savedMessage(filters.saved);
   const productStatus = productSeoStatus(selectedProduct, active, keywordData);
-  const decisionIsCurrent = decisionMatchesActiveFocus(selectedProduct, active, rows);
+  const decisionReview = listingMasterDecisionReview(selectedProduct, active, rows);
+  const decisionIsCurrent = decisionReview.isCurrent;
+  const primaryKeyword = rows.find((row) => row.role === 'primary') || null;
   console.info('[listing-master-load]', {
     product_ms: productLoad.durationMs,
     keyword_bank_ms: keywordBankLoad.durationMs,
@@ -211,15 +213,15 @@ export default async function ListingMasterPage({ searchParams }) {
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-5">
         <Metric icon={Database} label="Одобренных слов" value={countLabel(keywordData.counts, 'all')} note="Источник: SEO-ядро." tone="success" />
         <Metric icon={PackageSearch} label="Товары" value={fmt(productData.visibleProducts)} note={`Из ${fmt(productData.totalProducts)}. ${productData.source}.`} tone="success" />
-        <Metric icon={Save} label="Черновиков" value={fmt(productData.statusCounts.saved)} note={`Не сохранено: ${fmt(productData.statusCounts.not_saved)}.`} tone="warning" />
+        <Metric icon={Save} label="Сохранённых решений" value={fmt(productData.statusCounts.saved)} note={`Это SEO-фокус, не текстовый draft. Не сохранено: ${fmt(productData.statusCounts.not_saved)}.`} tone="warning" />
         <Metric icon={Layers3} label="Товар / ALT" value={countLabel(keywordData.counts, 'product_or_alt')} note="Для карточки и картинок." tone="success" />
-        <Metric icon={SearchCheck} label="Слов сейчас" value={fmt(keywordData.totalCount ?? keywordData.rows.length)} note="После последнего Apply." tone="warning" />
+        <Metric icon={SearchCheck} label="Слов сейчас" value={fmt(keywordData.totalCount ?? keywordData.rows.length)} note="После текущего подбора." tone="warning" />
       </div>
 
       <div className="grid xl:grid-cols-[470px_1fr] gap-6 mb-6">
-        <ProductPicker data={productData} filters={filters} selectedProduct={selectedProduct} />
+        <ProductPicker data={productData} filters={filters} selectedProduct={selectedProduct} selectedDecisionIsCurrent={decisionIsCurrent} />
         <div className="space-y-5">
-          <FocusSearchForm key={focusFormKey(selectedProduct, active)} product={selectedProduct} filters={active} status={productStatus} decisionIsCurrent={decisionIsCurrent} />
+          <FocusSearchForm key={focusFormKey(selectedProduct, active)} product={selectedProduct} filters={active} status={productStatus} decisionReview={decisionReview} />
           <NextStepPanel product={selectedProduct} keywordCount={keywordData.totalCount ?? keywordData.rows.length} saved={decisionIsCurrent} status={productStatus} />
         </div>
       </div>
@@ -228,9 +230,9 @@ export default async function ListingMasterPage({ searchParams }) {
       <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4 mb-5">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div><div className="eyebrow-dim">Активный подбор слов</div><h2 className="mt-1 text-bone text-[22px]">{KW_LABELS[active.type] || active.type}</h2></div>
-          <div className="flex flex-wrap gap-2"><Chip tone="success">Показано {fmt(rows.length)}</Chip><Chip tone="warning">Найдено {fmt(keywordData.totalCount ?? keywordData.rows.length)}</Chip><Chip>Из выборки {fmt(keywordData.rawCount ?? keywordData.rows.length)}</Chip><Chip tone="gold">{strategyLabel(active.strategy)}</Chip><Chip tone="success">{selectedProduct ? 'Product Truth matcher' : 'обзор ядра'}</Chip></div>
+          <div className="flex flex-wrap gap-2"><Chip tone="success">Показано {fmt(rows.length)}</Chip><Chip tone="warning">Найдено {fmt(keywordData.totalCount ?? keywordData.rows.length)}</Chip><Chip>Из выборки {fmt(keywordData.rawCount ?? keywordData.rows.length)}</Chip><Chip tone="gold">{strategyLabel(active.strategy)}</Chip><Chip tone="success">{selectedProduct ? 'Product Truth matcher' : 'обзор ядра'}</Chip>{selectedProduct ? <Chip tone={primaryKeyword ? 'success' : 'warning'}>{primaryKeyword ? `Primary · ${displayKeyword(primaryKeyword)}` : 'Primary не найден'}</Chip> : null}</div>
         </div>
-        <p className="mt-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">Фильтры применяются только после кнопки “Применить поиск слов”. Для выбранного товара сначала отсекаются несовместимые компоненты, цвет, аудитория и чужие commerce-домены; спрос и конкуренция влияют на порядок только после Product Truth gate.</p>
+        <p className="mt-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">Фильтры применяются только после кнопки “Применить поиск слов”. Для выбранного товара сначала отсекаются несовместимые компоненты, цвет, аудитория и чужие commerce-домены; спрос и конкуренция влияют на порядок только после Product Truth gate. Роль каждого слова видна в таблице до сохранения решения и до запуска OpenAI.</p>
       </div>
       <KeywordTable rows={rows} error={keywordData.error} />
     </section>
@@ -950,20 +952,21 @@ function keywordCounts(rows, totalCount) {
   ]));
 }
 
-function ProductPicker({ data, filters, selectedProduct }) {
+function ProductPicker({ data, filters, selectedProduct, selectedDecisionIsCurrent }) {
   return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5 xl:sticky xl:top-6 self-start">
     <div className="flex items-center gap-2 eyebrow-gold mb-4"><PackageSearch size={14} /> Выбрать товар</div>
     <form action="/admin/listing-master" className="mb-4 rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4"><div className="grid gap-3"><input name="product_q" defaultValue={filters.productQ} placeholder="Поиск: gold, harness, Etsy ID, первые слова" className="field" /><div className="grid grid-cols-2 gap-3"><SelectBox name="product_section" label="Раздел товара" value={data.activeSection || ''}><option value="">All products · {data.totalProducts}</option>{data.sections.map((item) => <option key={item.key} value={item.key}>{item.label} · {item.count}</option>)}</SelectBox><SelectBox name="product_status" label="Статус работы" value={data.activeStatus || 'all'}>{Object.keys(STATUS_LABELS).map((key) => <option key={key} value={key}>{STATUS_LABELS[key]} · {fmt(data.statusCounts?.[key] || 0)}</option>)}</SelectBox></div><button type="submit" className="btn-ghost"><Search size={13} /> Найти / применить</button><div className="flex flex-wrap gap-2"><Link href="/admin/listing-master" className="text-[11px] text-[var(--gold-warm)] hover:underline">Сбросить всё</Link><span className="text-[11px] text-[var(--bone-dim)]">Найдено: {fmt(data.visibleProducts)}</span></div></div></form>
-    <div className="max-h-[calc(100vh-330px)] min-h-[360px] space-y-2 overflow-auto pr-1">{data.products.map((product) => <ProductCard key={product.id} product={product} active={selectedProduct?.id === product.id} filters={filters} />)}{!data.products.length && !data.error ? <div className="text-[12px] text-[var(--bone-dim)]">По этим фильтрам товаров не найдено.</div> : null}</div>
+    <div className="max-h-[calc(100vh-330px)] min-h-[360px] space-y-2 overflow-auto pr-1">{data.products.map((product) => <ProductCard key={product.id} product={product} active={selectedProduct?.id === product.id} filters={filters} decisionIsCurrent={selectedProduct?.id === product.id ? selectedDecisionIsCurrent : undefined} />)}{!data.products.length && !data.error ? <div className="text-[12px] text-[var(--bone-dim)]">По этим фильтрам товаров не найдено.</div> : null}</div>
   </div>;
 }
-function FocusSearchForm({ product, filters, status, decisionIsCurrent }) {
+function FocusSearchForm({ product, filters, status, decisionReview }) {
   const formKey = focusFormKey(product, filters);
+  const decisionIsCurrent = decisionReview?.isCurrent === true;
   return <form key={formKey} action="/admin/listing-master" className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
     <input type="hidden" name="product_id" value={product?.id || filters.productId || ''} /><input type="hidden" name="product_q" value={filters.productQ || ''} /><input type="hidden" name="product_section" value={filters.productSection || ''} /><input type="hidden" name="product_status" value={filters.productStatus || 'all'} /><input type="hidden" name="type" value={filters.type || 'all'} /><input type="hidden" name="focus_applied" value="1" />
     <input type="hidden" name="canonical_product_id" value={product?.id || ''} /><input type="hidden" name="product_slug" value={product?.slug || ''} /><input type="hidden" name="matched_etsy_listing_id" value={product?.etsyId || ''} /><input type="hidden" name="auto_focus_json" value={JSON.stringify(autoFocusSnapshot(product, filters.inferred || {}))} />
     <div className="flex items-center justify-between gap-3 mb-4"><div className="flex items-center gap-2 eyebrow-gold"><SlidersHorizontal size={14} /> Фокус товара</div><Chip tone={status.tone}>{status.label}</Chip></div>
-    {product ? <div className="grid sm:grid-cols-[96px_1fr] gap-4 rounded-2xl border border-[rgba(212,178,106,.18)] bg-[rgba(212,178,106,.055)] p-4 mb-4"><ProductImage product={product} size="lg" /><div><div className="text-bone text-[18px] leading-snug">{product.title}</div><div className="mt-1 text-[12px] text-[var(--bone-dim)]">{product.sectionLabel} · {product.worldLabel || '—'} · {product.colorRaw || '—'}</div><div className="mt-3 flex flex-wrap gap-2"><Chip tone="success">состав: {labelForMulti(filters.component)}</Chip><Chip tone="gold">материал/цвет: {labelForMulti(filters.material)}</Chip><Chip tone="warning">сценарий: {labelForMulti(filters.event)}</Chip><Chip tone="gold">стиль: {labelForMulti(filters.style)}</Chip><Chip tone="success">персона: {labelForMulti(filters.persona)}</Chip><Chip>аудитория: {labelForMulti(filters.audience)}</Chip>{decisionLabel(product.decision) ? <Chip tone={decisionLabel(product.decision).tone}>{decisionLabel(product.decision).text}</Chip> : null}{product.hasComponentReviewRisk ? <Chip tone="warning">ДНК требует проверки: {product.needsComponentReviewCount}</Chip> : null}</div><div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Source category: {product.sourceCategory || '—'} · components: {product.parentComponents.join(', ') || '—'} / {product.childComponents.join(', ') || '—'}. {status.note}</div></div></div> : <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mb-4 text-[13px] leading-relaxed text-[var(--bone-dim)]">Товар ещё не выбран. Слева можно фильтровать по разделу и статусу работы.</div>}
+    {product ? <div className="grid sm:grid-cols-[96px_1fr] gap-4 rounded-2xl border border-[rgba(212,178,106,.18)] bg-[rgba(212,178,106,.055)] p-4 mb-4"><ProductImage product={product} size="lg" /><div><div className="text-bone text-[18px] leading-snug">{product.title}</div><div className="mt-1 text-[12px] text-[var(--bone-dim)]">{product.sectionLabel} · {product.worldLabel || '—'} · {product.colorRaw || '—'}</div><div className="mt-3 flex flex-wrap gap-2"><Chip tone="success">состав: {labelForMulti(filters.component)}</Chip><Chip tone="gold">материал/цвет: {labelForMulti(filters.material)}</Chip><Chip tone="warning">сценарий: {labelForMulti(filters.event)}</Chip><Chip tone="gold">стиль: {labelForMulti(filters.style)}</Chip><Chip tone="success">персона: {labelForMulti(filters.persona)}</Chip><Chip>аудитория: {labelForMulti(filters.audience)}</Chip>{decisionLabel(product.decision, decisionReview?.isCurrent) ? <Chip tone={decisionLabel(product.decision, decisionReview?.isCurrent).tone}>{decisionLabel(product.decision, decisionReview?.isCurrent).text}</Chip> : null}{product.hasComponentReviewRisk ? <Chip tone="warning">ДНК требует проверки: {product.needsComponentReviewCount}</Chip> : null}</div><div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Source category: {product.sourceCategory || '—'} · components: {product.parentComponents.join(', ') || '—'} / {product.childComponents.join(', ') || '—'}. {status.note}</div></div></div> : <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mb-4 text-[13px] leading-relaxed text-[var(--bone-dim)]">Товар ещё не выбран. Слева можно фильтровать по разделу и статусу работы.</div>}
     <CheckboxChipGroup key={`component-${formKey}`} title="Состав / часть товара" items={COMPONENTS} field="component" filters={filters} />
     {product ? <div className="mb-4 rounded-2xl border border-[rgba(212,178,106,.24)] bg-[rgba(212,178,106,.05)] p-4">
       <div className="eyebrow-gold mb-2">Состав товара</div>
@@ -981,7 +984,10 @@ function FocusSearchForm({ product, filters, status, decisionIsCurrent }) {
     <div className="mt-4 rounded-2xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.055)] p-4">
       <div className="text-[11px] leading-relaxed text-[var(--bone-dim)] mb-3">«Применить» только обновляет список для проверки. «Сохранить» одним действием подтверждает состав, записывает текущий фокус и собирает под него проверяемый набор ключевых слов.</div>
       <div className="flex flex-wrap gap-3"><button type="submit" className="btn-ghost"><SearchCheck size={13} /> Применить поиск слов</button><VerifiedSaveButton action={saveDecisionAction} disabled={!product} /><Link href={product ? productHref(product, filters) : '/admin/listing-master'} className="btn-ghost">Сбросить товар/ДНК</Link>{product && status.code === 'ready' && decisionIsCurrent ? <Link className="btn-ghost" href={`/admin/seo-storefront-preview?product_id=${product.id}&generate=1`}>Дальше: сгенерировать и показать preview <ArrowUpRight size={13} /></Link> : null}</div>
-      {product?.decision && !decisionIsCurrent ? <div className="mt-3 text-[11px] leading-relaxed text-[var(--gold-warm)]">Фокус изменён после последнего сохранения. Сначала подтвердите состав и сохраните текущее решение.</div> : null}
+      {product?.decision && !decisionIsCurrent ? <div className="mt-3 rounded-xl border border-[rgba(212,178,106,.26)] bg-black/15 p-3 text-[11px] leading-relaxed text-[var(--gold-warm)]">
+        <div>Старое keyword-решение не разрешает генерацию и не является SEO draft. Подтвердите текущий состав и сохраните пересчитанные роли.</div>
+        {decisionReview?.blockers?.length ? <ul className="mt-2 space-y-1 text-[var(--bone-dim)]">{decisionReview.blockers.map((code) => <li key={code}>• {decisionInvalidationLabel(code)}</li>)}</ul> : null}
+      </div> : null}
     </div>
   </form>;
 }
@@ -995,8 +1001,8 @@ function NextStepPanel({ product, keywordCount, saved, status }) {
       : 'Примени поиск слов, проверь Primary и Secondary, сохрани решение и переходи в генерацию и preview.';
   return <div className="rounded-2xl border border-[rgba(212,178,106,.20)] bg-[rgba(212,178,106,.045)] p-4"><div className="eyebrow-gold mb-2">Следующий шаг</div><p className="text-[12px] leading-relaxed text-[var(--bone-dim)]">{instruction}</p><div className="mt-3 flex flex-wrap gap-2"><Chip tone={product ? 'success' : 'warning'}>{product ? 'товар выбран' : 'выбери товар'}</Chip><Chip tone={keywordCount > 0 ? 'success' : 'warning'}>{keywordCount > 0 ? `${fmt(keywordCount)} слов` : 'нет слов'}</Chip><Chip tone={saved ? 'success' : 'warning'}>{saved ? 'решение сохранено' : 'нужно сохранить'}</Chip><Chip tone={status?.tone || 'neutral'}>{status?.label || 'статус не определён'}</Chip></div></div>;
 }
-function KeywordTable({ rows, error }) { return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden"><div className="grid grid-cols-[1.35fr_.42fr_.42fr_.52fr_.52fr_.70fr_.55fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.20em] text-[var(--smoke)]"><div>Ключ</div><div>Совпадение</div><div>SEO</div><div>Спрос</div><div>Конкуренция</div><div>Сигнал</div><div>Почему</div></div><div className="divide-y divide-[rgba(216,214,211,.08)]">{rows.map((row, i) => { const signal = strategySignal(row); return <div key={`${row.keyword_norm || row.keyword}-${i}`} className="grid grid-cols-[1.35fr_.42fr_.42fr_.52fr_.52fr_.70fr_.55fr] gap-4 px-5 py-3 items-center hover:bg-[rgba(212,178,106,.035)]"><div><div className="text-bone text-[13px] leading-snug">{displayKeyword(row)}</div><div className="mt-1 flex flex-wrap gap-1.5"><Chip tone={toneByType(row.bank_bucket)}>{keywordUse(row)}</Chip>{row.match_label ? <Chip tone={row.match_label === 'точное' ? 'success' : 'gold'}>{row.match_label}</Chip> : null}</div></div><div className="font-price text-[20px] text-[#a9dfbd]">{row.match_score == null ? '—' : row.match_score}</div><div className="font-price text-[20px] text-[var(--gold-warm)]">{asText(row.score)}</div><div className="text-[12px] text-[var(--bone-dim)]">{fmt(row.avg_monthly_searches)}</div><div><Chip tone={String(row.competition || '').toUpperCase() === 'LOW' ? 'success' : String(row.competition || '').toUpperCase() === 'HIGH' ? 'warning' : 'neutral'}>{competitionLabel(row.competition)}</Chip></div><div><Chip tone={signal.tone}>{signal.label}</Chip></div><details className="text-[11px] leading-relaxed text-[var(--bone-dim)]"><summary className="cursor-pointer text-[var(--gold-warm)]">открыть</summary><div className="mt-2 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-2">{asText(row.match_reasons || row.source_clusters || row.source_files)}<br />Google: {fmt(row.avg_monthly_searches)} / {competitionLabel(row.competition)} · {asText(row.reason || row.notes, '')}</div></details></div>; })}{!rows.length && !error ? <div className="px-5 py-6 text-[13px] text-[var(--bone-dim)]">По текущим фильтрам слов не найдено. Сними часть фокуса или минус-слова.</div> : null}</div></div>; }
-function ProductCard({ product, active, filters }) { const focus = inferFocus(product); const hasFocus = Boolean(focus.component || focus.material || focus.event || focus.style || focus.persona || focus.audience); const decision = decisionLabel(product.decision); return <Link href={productHref(product, filters)} className={`grid grid-cols-[44px_1fr] gap-3 rounded-2xl border p-3 ${active ? 'border-[rgba(212,178,106,.55)] bg-[rgba(212,178,106,.10)]' : 'border-[rgba(216,214,211,.10)] bg-black/15 hover:border-[rgba(212,178,106,.35)]'}`}><ProductImage product={product} /><div className="min-w-0"><div className="truncate text-[12px] text-bone">{product.title}</div><div className="mt-1 truncate text-[10px] text-[var(--bone-dim)]">{product.sectionLabel} · {product.worldLabel || product.colorRaw || '—'}</div><div className="mt-2 flex flex-wrap gap-1.5">{active ? <Chip tone="gold">выбран</Chip> : null}<Chip tone={hasFocus ? 'success' : 'warning'}>{hasFocus ? 'авто-фокус' : 'ручной фокус'}</Chip>{decision ? <Chip tone={decision.tone}>{decision.text}</Chip> : <Chip>не сохранено</Chip>}{product.hasComponentReviewRisk ? <Chip tone="warning">ДНК: проверить</Chip> : null}</div></div></Link>; }
+function KeywordTable({ rows, error }) { return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden"><div className="grid grid-cols-[1.35fr_.42fr_.42fr_.52fr_.52fr_.70fr_.55fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.20em] text-[var(--smoke)]"><div>Ключ / роль</div><div>Совпадение</div><div>SEO</div><div>Спрос</div><div>Конкуренция</div><div>Сигнал</div><div>Почему</div></div><div className="divide-y divide-[rgba(216,214,211,.08)]">{rows.map((row, i) => { const signal = strategySignal(row); return <div key={`${row.keyword_norm || row.keyword}-${i}`} className="grid grid-cols-[1.35fr_.42fr_.42fr_.52fr_.52fr_.70fr_.55fr] gap-4 px-5 py-3 items-center hover:bg-[rgba(212,178,106,.035)]"><div><div className="text-bone text-[13px] leading-snug">{displayKeyword(row)}</div><div className="mt-1 flex flex-wrap gap-1.5"><Chip tone={keywordRoleTone(row.role)}>{keywordRoleLabel(row.role)}</Chip><Chip tone={toneByType(row.bank_bucket)}>{keywordUse(row)}</Chip>{row.match_label ? <Chip tone={row.match_label === 'точное' ? 'success' : 'gold'}>{row.match_label}</Chip> : null}</div></div><div className="font-price text-[20px] text-[#a9dfbd]">{row.match_score == null ? '—' : row.match_score}</div><div className="font-price text-[20px] text-[var(--gold-warm)]">{asText(row.score)}</div><div className="text-[12px] text-[var(--bone-dim)]">{fmt(row.avg_monthly_searches)}</div><div><Chip tone={String(row.competition || '').toUpperCase() === 'LOW' ? 'success' : String(row.competition || '').toUpperCase() === 'HIGH' ? 'warning' : 'neutral'}>{competitionLabel(row.competition)}</Chip></div><div><Chip tone={signal.tone}>{signal.label}</Chip></div><details className="text-[11px] leading-relaxed text-[var(--bone-dim)]"><summary className="cursor-pointer text-[var(--gold-warm)]">открыть</summary><div className="mt-2 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-2">{asText(row.match_reasons || row.source_clusters || row.source_files)}<br />Google: {fmt(row.avg_monthly_searches)} / {competitionLabel(row.competition)} · {asText(row.reason || row.notes, '')}</div></details></div>; })}{!rows.length && !error ? <div className="px-5 py-6 text-[13px] text-[var(--bone-dim)]">По текущим фильтрам слов не найдено. Сними часть фокуса или минус-слова.</div> : null}</div></div>; }
+function ProductCard({ product, active, filters, decisionIsCurrent }) { const focus = inferFocus(product); const hasFocus = Boolean(focus.component || focus.material || focus.event || focus.style || focus.persona || focus.audience); const decision = decisionLabel(product.decision, decisionIsCurrent); return <Link href={productHref(product, filters)} className={`grid grid-cols-[44px_1fr] gap-3 rounded-2xl border p-3 ${active ? 'border-[rgba(212,178,106,.55)] bg-[rgba(212,178,106,.10)]' : 'border-[rgba(216,214,211,.10)] bg-black/15 hover:border-[rgba(212,178,106,.35)]'}`}><ProductImage product={product} /><div className="min-w-0"><div className="truncate text-[12px] text-bone">{product.title}</div><div className="mt-1 truncate text-[10px] text-[var(--bone-dim)]">{product.sectionLabel} · {product.worldLabel || product.colorRaw || '—'}</div><div className="mt-2 flex flex-wrap gap-1.5">{active ? <Chip tone="gold">выбран</Chip> : null}<Chip tone={hasFocus ? 'success' : 'warning'}>{hasFocus ? 'авто-фокус' : 'ручной фокус'}</Chip>{decision ? <Chip tone={decision.tone}>{decision.text}</Chip> : <Chip>не сохранено</Chip>}{product.hasComponentReviewRisk ? <Chip tone="warning">ДНК: проверить</Chip> : null}</div></div></Link>; }
 function ProductImage({ product, size = 'sm' }) { const cls = size === 'lg' ? 'h-24 w-24 rounded-2xl' : 'h-11 w-11 rounded-xl'; return <div className={`${cls} overflow-hidden border border-[rgba(216,214,211,.10)] bg-black/25 flex items-center justify-center`}>{product?.imageUrl ? <img src={product.imageUrl} alt={product.imageAlt || product.title} className="h-full w-full object-cover" loading="lazy" /> : <ImageIcon size={16} className="text-[var(--smoke)]" />}</div>; }
 function SelectBox({ name, label, value, children }) { return <label className="block"><div className="eyebrow-dim mb-1.5">{label}</div><select name={name} defaultValue={value || ''} className="field">{children}</select></label>; }
 function Metric({ label, value, note, icon: Icon, tone = 'neutral' }) { const border = tone === 'success' ? 'border-[rgba(108,183,138,.35)] bg-[rgba(108,183,138,.08)]' : tone === 'warning' ? 'border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.06)]' : 'border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)]'; return <div className={`rounded-2xl border ${border} p-4 min-h-[112px]`}><div className="flex items-center justify-between gap-4 mb-3"><div className="eyebrow-dim">{label}</div><Icon size={15} className="text-[var(--gold-warm)]" /></div><div className="font-price text-gold-grad text-[32px] leading-none">{value}</div><div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">{note}</div></div>; }
@@ -1030,22 +1036,35 @@ function decisionFocusSignature(value) {
     keyword_type: KEYWORD_TYPES.includes(val(focus.keyword_type)) ? val(focus.keyword_type) : 'all',
   });
 }
-function decisionMatchesActiveFocus(product, filters, keywordRows) {
+function listingMasterDecisionReview(product, filters, keywordRows) {
   const savedFocus = recordOf(product?.decision?.manual_focus_json);
-  if (!savedFocus || savedFocus.selection_verified !== true || product?.decision?.decision_status !== 'draft') return false;
+  if (!product?.decision) return { isCurrent: false, blockers: [] };
+  const blockers = [];
+  if (!savedFocus || savedFocus.selection_verified !== true) {
+    blockers.push('decision_not_human_confirmed');
+  }
+  if (product?.decision?.decision_status !== 'draft') {
+    blockers.push('decision_status_not_ready');
+  }
   const currentKeywords = buildListingMasterKeywordSnapshot(
     Array.isArray(keywordRows) ? keywordRows : [],
     KEYWORD_SNAPSHOT_LIMIT,
   );
-  if (product?.sellableOffer?.status !== 'ready' || !product.sellableOffer.signature) return false;
+  if (product?.sellableOffer?.status !== 'ready' || !product.sellableOffer.signature) {
+    blockers.push('sellable_offer_not_ready');
+    return { isCurrent: false, blockers: [...new Set(blockers)] };
+  }
+  const removedUnsupportedFocusComponents = valuesOf(savedFocus?.component)
+    .filter((component) => !sellableOfferAllowsComponentFocus(product.sellableOffer, component));
   const invalidationBlockers = getListingMasterDecisionInvalidationBlockers({
     hasPrimary: currentKeywords.some((row) => row.role === 'primary'),
-    savedKeywordSelectionSignature: savedFocus.keyword_selection_signature,
+    savedKeywordSelectionSignature: savedFocus?.keyword_selection_signature,
     currentKeywordSelectionSignature: listingMasterKeywordSelectionSignature(currentKeywords),
-    savedSellableOfferSignature: savedFocus.sellable_offer_signature,
+    savedSellableOfferSignature: savedFocus?.sellable_offer_signature,
     currentSellableOfferSignature: product.sellableOffer.signature,
+    removedUnsupportedFocusComponents,
   });
-  if (invalidationBlockers.length) return false;
+  blockers.push(...invalidationBlockers);
   const activeFocus = {
     ...Object.fromEntries(FOCUS_FIELDS.map((field) => [field, valuesOf(filters[field])])),
     strategies: strategyValues(filters.strategy),
@@ -1053,7 +1072,13 @@ function decisionMatchesActiveFocus(product, filters, keywordRows) {
     exclude: excludeTerms(filters.exclude),
     keyword_type: filters.type || 'all',
   };
-  return decisionFocusSignature(savedFocus) === decisionFocusSignature(activeFocus);
+  if (decisionFocusSignature(savedFocus) !== decisionFocusSignature(activeFocus)) {
+    blockers.push('manual_focus_changed_after_save');
+  }
+  return {
+    isCurrent: blockers.length === 0,
+    blockers: [...new Set(blockers)],
+  };
 }
 function saveFailure(code, message, requestId) { return { ok: false, code: String(code || 'unknown'), message, requestId }; }
 function compositionFailure(code, message) { return { ok: false, code: String(code || 'unknown'), message }; }
@@ -1194,11 +1219,12 @@ function savedMessage(value) {
   if (value === 'error') return { tone: 'warning', text: 'Решение не сохранилось. Нужно проверить серверный доступ к Supabase и журнал записи.' };
   return null;
 }
-function decisionLabel(decision) {
+function decisionLabel(decision, isCurrent) {
   if (!decision) return null;
   if (decision.decision_status === 'blocked_product_truth') return { text: 'Product Truth blocked', tone: 'warning' };
   if (decision.decision_status === 'needs_keyword_review') return { text: 'нужна проверка ключей', tone: 'warning' };
-  return { text: 'черновик сохранён', tone: 'success' };
+  if (isCurrent === false) return { text: 'решение устарело', tone: 'warning' };
+  return { text: 'решение сохранено', tone: 'success' };
 }
 function productSeoStatus(product, filters, keywordData) {
   if (!product) return { code: 'no_product', label: 'товар не выбран', tone: 'neutral', note: 'выбери товар слева' };
@@ -1232,5 +1258,20 @@ function displayKeyword(row) { return asText(row.keyword, asText(row.keyword_nor
 function asText(value, fallback = '—') { if (value == null || value === '') return fallback; if (Array.isArray(value)) return value.length ? value.join(', ') : fallback; return String(value); }
 function competitionLabel(value) { const text = String(value || '').toUpperCase(); if (text === 'LOW') return 'Низкая'; if (text === 'MEDIUM') return 'Средняя'; if (text === 'HIGH') return 'Высокая'; if (text === 'UNKNOWN') return 'Нет данных'; return asText(value); }
 function toneByType(value) { const text = asText(value, '').toLowerCase(); if (text.includes('product')) return 'success'; if (text.includes('commercial') || text.includes('visual') || text.includes('collection')) return 'gold'; if (text.includes('faq')) return 'warning'; return 'neutral'; }
+function keywordRoleLabel(value) { const role = norm(value); if (role === 'primary') return 'Primary · весь товар'; if (role === 'secondary') return 'Secondary'; if (role === 'supporting') return 'Supporting'; return 'роль не назначена'; }
+function keywordRoleTone(value) { const role = norm(value); if (role === 'primary') return 'success'; if (role === 'secondary') return 'gold'; if (role === 'supporting') return 'neutral'; return 'warning'; }
+function decisionInvalidationLabel(code) {
+  const labels = {
+    decision_not_human_confirmed: 'предыдущее решение не имеет подтверждённого human-review snapshot',
+    decision_status_not_ready: 'предыдущее решение не находится в статусе, разрешающем генерацию',
+    sellable_offer_not_ready: 'текущий продаваемый состав ещё не закрыт',
+    no_valid_pdp_primary: 'после повторной проверки нет Primary, описывающего весь продаваемый товар',
+    keyword_roles_changed_after_reaudit: 'список или роли ключевых слов изменились после повторной проверки',
+    stale_option_snapshot: 'решение сохранено до фиксации текущего состава вариантов товара',
+    manual_focus_contains_unsupported_component: 'старый фокус содержал части, которых нет в текущем селекторе товара',
+    manual_focus_changed_after_save: 'текущий Product DNA / фокус отличается от сохранённого решения',
+  };
+  return labels[code] || String(code || 'неизвестная причина').replaceAll('_', ' ');
+}
 function keywordUse(row) { const type = row.bank_bucket; if (type === 'product_or_alt') return 'Товар / ALT'; if (type === 'product') return 'Title / описание'; if (type === 'commercial_collection') return 'Посадочная / meta'; if (type === 'visual_collection') return 'ALT / картинки'; if (type === 'collection') return 'Категория'; if (type === 'faq') return 'FAQ'; return 'Проверить'; }
 function strategySignal(row) { const volume = Number(row.avg_monthly_searches || 0); const comp = String(row.competition || '').toUpperCase(); const type = String(row.bank_bucket || ''); const keyword = String(row.keyword || '').toLowerCase(); if (/buy|price|cost|order|shop|for sale|shipping|delivery|website|websites/.test(keyword) || type.includes('commercial')) return { label: 'покупательский запрос', tone: 'gold' }; if (volume > 0 && comp === 'LOW') return { label: 'низкая конкуренция', tone: 'success' }; if (type.includes('product') && volume <= 500 && volume > 0 && comp !== 'HIGH') return { label: 'нишевая точка', tone: 'success' }; if (volume >= 1000 && comp === 'HIGH') return { label: 'большой спрос', tone: 'warning' }; if (type.includes('visual')) return { label: 'для картинок', tone: 'gold' }; if (type.includes('collection')) return { label: 'для посадочной', tone: 'gold' }; return { label: 'поддержка', tone: 'neutral' }; }
