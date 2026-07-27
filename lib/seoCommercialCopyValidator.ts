@@ -30,7 +30,7 @@ const WEAK_STYLING_FILLER = /\b(works? well as a focal piece|works? as a centerp
 const AUDIT_OR_ADMIN_LANGUAGE = /\b(product truth|product truth confirms?|product truth indicates?|the product description (?:says|states|lists|mentions|indicates)|the source (?:says|states|lists|mentions|indicates)|official product data|source data|database fields?|safe wording|safest wording|material basis|final copy should|must be confirmed|should be confirmed|requires? verification|needs? verification|should be reviewed before publish|requires? review before publish|review before publish|before publication|before publish|listed as|is listed as|indicated as|specified as)\b/i;
 const GUARANTEED_POPULARITY = /\b(guarantee(?:d|s)?|will get likes|will receive likes|will gain followers?|will make you popular|go viral|viral reach|more followers?|gain followers?|more likes|become popular|increase your popularity|guaranteed attention|everyone will notice|all eyes will be on you|guaranteed reactions?)\b/i;
 const EMPTY_HYPE = /\b(premium|luxury|ultimate|perfect|best|must[- ]have|crafted to perfection|elevate your look)\b/i;
-const EMPTY_OR_INTERNAL_BUYER_COPY = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|studio fit|base layers?|statement piece|strong festival statement|structured (?:gold |metallic )?accent|bold (?:gold |metallic )?accent|TheFEYA gives us a way|TheFEYA\s+(?:we|our|us)\b|clean armored attitude|desert[- ]ready (?:mood|presence)|shoulder[- ]led|reads? fast|open light|direct choice for buyers?|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity (?:and|or) individuality|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|one[- ]and[- ]only (?:shoulder )?line|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced|(?:original|distinctive) alternative to (?:a )?(?:standard|generic|mass[- ]produced) costume (?:look|piece|design))\b/i;
+const EMPTY_OR_INTERNAL_BUYER_COPY = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|studio fit|statement piece|strong festival statement|structured (?:gold |metallic )?accent|bold (?:gold |metallic )?accent|TheFEYA gives us a way|TheFEYA\s+(?:we|our|us)\b|clean armored attitude|desert[- ]ready (?:mood|presence)|shoulder[- ]led|reads? fast|open light|direct choice for buyers?|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity (?:and|or) individuality|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|one[- ]and[- ]only (?:shoulder )?line|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced|(?:original|distinctive) alternative to (?:a )?(?:standard|generic|mass[- ]produced) costume (?:look|piece|design))\b/i;
 const AWKWARD_EDITORIAL_SHORTHAND = /\b(?:clear finish|strong visual finish)\b/i;
 const SEARCH_QUERY_AUDIENCE_PHRASING = /\b(?:(?:women|men|buyers|shoppers|customers)\s+(?:looking|searching)\s+for|buyers?\s+who\s+want)\b/i;
 const COORDINATED_OUTFIT_JARGON = /\bcoordinated\b[^.!?\n]{0,35}\b(?:look|costume|outfit|set|base)\b/i;
@@ -146,6 +146,18 @@ const BENEFIT_CATEGORIES: Array<{ key: string; pattern: RegExp }> = [
     key: 'verified_finish_behavior',
     pattern: /\b(reflective|mirror[- ]like finish|mirror finish|metallic finish|glossy finish|gold finish|silver finish|catches? (?:available |ambient |stage )?light|light[- ]catching|metal[- ]like appearance)\b/i,
   },
+  {
+    key: 'styling_flexibility',
+    pattern: /\b(?:choose|add|change|pair|wear|style)\s+(?:it\s+)?with\s+your\s+own\s+(?:makeup|jewelry|jewellery|accessories|bodysuit|footwear|headpiece)|\bleaves?\s+(?:the\s+)?(?:face|neckline|rest of the outfit)\s+open\s+for\b/i,
+  },
+  {
+    key: 'movement_in_wear',
+    pattern: /\b(?:skirt|panels?|fringe|draping|fabric)\b[^.!?\n]{0,90}\b(?:moves?|swings?|flows?)\b|\b(?:moves?|swings?|flows?)\b[^.!?\n]{0,90}\b(?:walk|dance|turn|motion|photographs?|photos?|stage)\b/i,
+  },
+  {
+    key: 'wearer_framing',
+    pattern: /\b(?:frames?|draws? attention to)\b[^.!?\n]{0,70}\b(?:face|neckline|shoulders?|upper body)\b/i,
+  },
 ];
 const PRACTICAL_BENEFIT_CATEGORIES = new Set([
   'easy_dressing_and_adjustment',
@@ -153,6 +165,9 @@ const PRACTICAL_BENEFIT_CATEGORIES = new Set([
   'comfort',
   'durability_structure',
   'verified_finish_behavior',
+  'styling_flexibility',
+  'movement_in_wear',
+  'wearer_framing',
 ]);
 const BENEFIT_OUTCOME_PATTERNS: Record<string, RegExp> = {
   studio_design_and_craft: /\b(original|distinctive|recognizable|recognisable|feels? (?:like you|personal|true to (?:you|your style))|your own (?:style|look)|designed by our (?:team|studio))\b/i,
@@ -161,6 +176,9 @@ const BENEFIT_OUTCOME_PATTERNS: Record<string, RegExp> = {
   comfort: /\b(comfortable|comfort|soft against the body|soft body[- ]facing|gentle on the body|easier to wear)\b/i,
   durability_structure: /\b(holds? its (?:shape|form)|keeps? its (?:shape|form)|shape retention|between wears|resists? creasing|long[- ]lasting|less likely to (?:crease|collapse|lose its shape))\b/i,
   verified_finish_behavior: /\b(catches? (?:available |ambient |stage )?light|light[- ]catching|shows? clearly in photos?|visible under (?:stage |event )?lighting|keeps? details? visible|helps? (?:product )?details? (?:stay|remain) visible|details? (?:stay|remain) visible)\b/i,
+  styling_flexibility: /\b(?:choose|add|change|pair|wear|style)\s+(?:it\s+)?with\s+your\s+own\s+(?:makeup|jewelry|jewellery|accessories|bodysuit|footwear|headpiece)|\bleaves?\s+(?:the\s+)?(?:face|neckline|rest of the outfit)\s+open\s+for\b/i,
+  movement_in_wear: /\b(?:moves?|swings?|flows?)\b[^.!?\n]{0,90}\b(?:walk|dance|turn|motion|photographs?|photos?|stage)\b/i,
+  wearer_framing: /\b(?:frames?|draws? attention to)\b[^.!?\n]{0,70}\b(?:face|neckline|shoulders?|upper body)\b/i,
 };
 
 const CROSS_BLOCK_IDEAS: Array<{ key: string; pattern: RegExp }> = [

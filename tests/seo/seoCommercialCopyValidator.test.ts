@@ -287,6 +287,25 @@ test('accepts a concise feature-to-buyer-outcome benefit mix', () => {
   assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
 });
 
+test('accepts product-specific styling, framing and movement instead of repeating the fixed panel', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Our original studio design gives you a distinctive starting point for a personal look.',
+          'The gold shoulder armor frames your face and upper body in photographs.',
+          'The skirt panels move as you walk or dance, adding motion to photographs and stage work.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
+  assert.ok(result.benefit_categories_found.includes('wearer_framing'));
+  assert.ok(result.benefit_categories_found.includes('movement_in_wear'));
+});
+
 test('does not confuse building a personal look with product construction', () => {
   const value = draft({
     pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
