@@ -86,6 +86,37 @@ test('blocks invented convenience and photo mechanisms from the latest live edit
   )));
 });
 
+test('blocks generic-clothing comparisons and internal persona or direction labels from live copy', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => {
+      if (block.block_key === 'about_this_piece') {
+        return {
+          ...block,
+          body: 'For Burning Man, this gold armor set offers a shaped option when generic festival dressing can feel too plain on its own.',
+        };
+      }
+      if (block.block_key === 'ideal_for') {
+        return {
+          ...block,
+          body: [
+            'Burning Man attendees dressing in a warrior direction',
+            'Festival-goers leaning into a warrior persona',
+            'Performers preparing a costume for a live show',
+            'Content creators planning an editorial wardrobe shoot',
+          ].join('\n'),
+        };
+      }
+      return block;
+    }),
+  });
+  const result = validateSeoCommercialCopy(value, {
+    manual_focus: { event: ['Burning Man', 'festival'], persona: ['warrior'] },
+  });
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('customer_copy_uses_invented_template_comparison'));
+  assert.ok(codes.includes('customer_copy_uses_internal_targeting_language'));
+});
+
 test('blocks a redundant shoulder entity in H1 and meta description', () => {
   const value = draft({
     h1: 'Gold Shoulder Armor with a Sculptural Shoulder Piece',
@@ -409,6 +440,24 @@ test('accepts a concise feature-to-buyer-outcome benefit mix', () => {
   assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
 });
 
+test('recognizes ready for repeat wear as a concrete shape-retention outcome', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Our original studio design gives you a distinctive piece for a personal festival look.',
+          'Adjustable straps let you fine-tune a secure fit for your body shape.',
+          'The body-facing material feels more comfortable during wear.',
+          'Structured material helps the design keep its shape, so it stays ready for repeat wear.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
+});
+
 test('accepts product-specific styling, framing and movement instead of repeating the fixed panel', () => {
   const value = draft({
     pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
@@ -721,6 +770,27 @@ test('blocks product details and robotic mechanisms inside Ideal for', () => {
   assert.ok(result.issues.some((issue) => issue.code.endsWith('_describes_product_detail_instead_of_use_case')));
 });
 
+test('blocks thin Ideal for keyword fragments and stacked audience roles', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'
+      ? {
+        ...block,
+        body: [
+          'Burning Man costumes',
+          'Festival wear',
+          'Performers, dancers, DJs, and show artists preparing festival outfits',
+          'Content creators and costume stylists planning an editorial shoot',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value, {
+    manual_focus: { event: ['Burning Man', 'festival'], persona: ['warrior'] },
+  });
+  assert.ok(result.issues.some((issue) => issue.code === 'ideal_for_1_too_thin'));
+  assert.ok(result.issues.some((issue) => issue.code === 'ideal_for_3_stacks_buyer_roles'));
+});
+
 test('allows Ideal for to name real people, productions and occasions', () => {
   const manualFocus = {
     event: ['Burning Man', 'festival', 'rave'],
@@ -735,7 +805,7 @@ test('allows Ideal for to name real people, productions and occasions', () => {
         body: [
           'Women performers creating a warrior-inspired look for Burning Man',
           'DJs and dancers appearing on festival and rave stages',
-          'Editorial photoshoots and music-video costume work',
+          'Editorial teams preparing costume work for photoshoots and music videos',
           'Event productions and dance troupes planning coordinated stage wardrobes',
         ].join('\n'),
       }

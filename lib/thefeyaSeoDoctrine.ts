@@ -1,4 +1,4 @@
-export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v17' as const;
+export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v18' as const;
 
 export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
   checkpoint_id: 'reload_latest_research_before_apply_publish_v1',
@@ -31,8 +31,8 @@ export const THEFEYA_CUSTOMER_USE_CASE_MAP = [
   'Eligible people and professional roles include performers, dancers, DJs, showgirls, drag performers, pole and exotic dancers, show-ballet artists, cosplayers, actors, creators, stylists and bloggers. A role may be used when the operator selected it or when the confirmed product type and approved event make it a natural buyer group; this compatibility never authorizes a new event, style or persona keyword.',
   'Eligible occasions and productions include festivals, Burning Man, raves, stage shows, dance performances, theatrical productions, music videos, TV or film costume work, editorial photoshoots, costume parties, nightclub shows and other selected events.',
   'Eligible B2B contexts include show ballets, dance troupes, event productions and costume studios only when the operator selected a compatible professional focus. Do not invent wholesale terms, discounts or service promises.',
-  'Style and persona axes may appear as a real context, such as a warrior-inspired stage look or cyberpunk performance costume, but never as an abstract accent, silhouette or statement-piece sentence.',
-  'Do not add every possible customer or event. Use 3-5 distinct bullets and represent the operator-selected event, style, persona and audience axes while Product Truth remains the veto.',
+  'Style and persona axes may shape a natural context, such as a warrior-inspired stage look or cyberpunk performance costume, but the internal words persona and direction never appear in customer copy.',
+  'Do not add every possible customer or event. Use 4-5 distinct customer portraits, each with a person or at most two related roles and a concrete approved occasion, production or buying need. Product Truth remains the veto.',
 ] as const;
 
 export const THEFEYA_BENEFIT_GENERATION_POLICY = [
@@ -124,8 +124,9 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Use clear, short sentences. Avoid keyword stuffing, doorway-page copy, repeated phrase skeletons and long chained keyword titles.',
     'Do not expand a clear product name merely to reach a character target. H1 should name the primary product entity once and add only a different, verified attribute or use case.',
     'Close keyword variants belong to one semantic cluster. They do not all need exact-match placement, and two near-synonymous product queries must not be stacked in one sentence or bullet.',
+    'The exact Primary may appear in SEO title, H1 and meta description, but visible body copy must use a close natural whole-product variation instead of repeating the H1 verbatim. Semantic dominance matters; density chasing does not.',
     'The operator-selected event, style, persona and audience axes control high-intent search-focus coverage. Ideal for must represent at least one selected value from every non-empty axis. It may add only Product-Truth-compatible general buyer roles such as performers, dancers, creators or stylists; those roles do not authorize a new event, style or persona keyword.',
-    'Ideal for is reserved for people, professional roles, occasions, productions and selected style contexts. It must not describe an accent, silhouette, finish, construction, base layer, component combination or how an outfit is built.',
+    'Ideal for is reserved for 4-5 useful customer portraits: one person or at most two related professional roles plus a concrete approved occasion, production or buying need. Bare keyword fragments, role stacks, persona/direction labels, accents, silhouette, finish, construction, base layers and component combinations do not belong there.',
     'For a confirmed multi-component product, the whole outfit, set or costume is the page entity. A single component keyword may remain secondary, but it must not redefine the full product in title, H1, meta, intro or About.',
     'For every multi-component product, meta and About identify the whole outfit, set or costume without re-narrating its inventory. The dynamic What’s included block owns the confirmed component list. A component term may appear elsewhere only when it supports a different concrete buyer value.',
     'Do not mix different visual worlds simply to place more terms. Cyberpunk is not steampunk, and a high-volume but incompatible style is not a valid secondary angle.',
@@ -151,7 +152,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     {
       block_key: 'about_this_piece',
       placement: 'left_description',
-      intent: 'Opening product story under the gallery and buy box. Write 2-4 natural sentences and usually 45-90 words. Lead with the buyer job and complete product identity, then explain supported design, wear, material or finish value. Do not restate the H1, narrate the What’s included inventory, report image coordinates or pad the block with SEO tautology.',
+      intent: 'Opening product story under the gallery and buy box. Write 2-4 natural sentences and usually 45-90 words. Lead with the buyer job and a close whole-product semantic variation, never the exact H1 phrase. Then explain how one distinctive visible design choice affects the finished look and add supported wear, material or finish value. Do not compare the product with generic/basic/plain clothing, narrate the What’s included inventory, report image coordinates or pad the block with SEO tautology.',
     },
     {
       block_key: 'why_youll_love_it',
@@ -161,7 +162,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     {
       block_key: 'ideal_for',
       placement: 'left_description',
-      intent: 'Write 3-5 bullets, aiming for 4-5 when the product supports them, that answer who wears it and for which selected event, production or real context. Use the customer use-case map and operator-selected axes while Product Truth remains the veto. Product-compatible general roles may broaden conversion coverage, but they must not introduce an unselected event, style or persona. Never describe accents, silhouette, finish, construction, base layers, component combinations or how an outfit is built.',
+      intent: 'Write 4-5 useful 7-22 word customer portraits. Each bullet names one person or at most two related roles plus a concrete selected occasion, production or buying need. Use the customer use-case map and operator-selected axes while Product Truth remains the veto. Product-compatible general roles may broaden conversion coverage, but they must not introduce an unselected event, style or persona. Never expose persona/direction labels or describe accents, silhouette, finish, construction, base layers, component combinations or how an outfit is built.',
     },
     {
       block_key: 'main_description',

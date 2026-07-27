@@ -264,6 +264,21 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
       }
     }
 
+    if (key === 'ideal_for') {
+      const useCaseLines = splitDisplayLines(body);
+      if (useCaseLines.length < 4 || useCaseLines.length > 5) {
+        issues.push(blocker(`pdp_block_use_case_count_${index}`, 'ideal_for must contain 4-5 distinct buyer profiles or use cases. Do not collapse this section into a short keyword list.'));
+      }
+      useCaseLines.forEach((line, lineIndex) => {
+        if (wordCount(line) < 7) {
+          issues.push(blocker(
+            `pdp_block_ideal_for_too_thin_${index}_${lineIndex}`,
+            `Ideal for item ${lineIndex + 1} must name a real audience and a concrete approved situation or buying need in natural language.`,
+          ));
+        }
+      });
+    }
+
     if (key === 'main_description') {
       if (heading.trim().toLowerCase() !== 'designed for self-expression') {
         issues.push(blocker('main_description_wrong_heading', 'main_description heading must be Designed for self-expression.'));

@@ -203,15 +203,22 @@ function placementRow(
 ): SeoKeywordPlacementRow {
   const keyword = text(row?.keyword || row?.keyword_norm);
   const semanticRole = ['secondary', 'support', 'image_alt'].includes(role);
+  const exactMatchedFields = Object.entries(fields)
+    .filter(([, fieldText]) => phraseRepresented(keyword, fieldText))
+    .map(([field]) => field);
+  const semanticPrimaryBodyFields = role === 'primary'
+    ? displayUnits
+      .filter((unit) => ['intro', 'bullet_highlights', 'pdp_blocks', 'faq'].includes(unit.field))
+      .filter((unit) => semanticPhraseRepresented(keyword, unit.text))
+      .map((unit) => unit.field)
+    : [];
   const matchedFields = semanticRole
     ? [...new Set(
       displayUnits
         .filter((unit) => semanticPhraseRepresented(keyword, unit.text))
         .map((unit) => unit.field),
     )]
-    : Object.entries(fields)
-      .filter(([, fieldText]) => phraseRepresented(keyword, fieldText))
-      .map(([field]) => field);
+    : [...new Set([...exactMatchedFields, ...semanticPrimaryBodyFields])];
   return {
     keyword,
     role,

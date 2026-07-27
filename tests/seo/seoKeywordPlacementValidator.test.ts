@@ -45,6 +45,25 @@ test('passes a naturally distributed primary keyword', () => {
   assert.deepEqual(result.placements[0].fields.slice(0, 4), ['seo_title', 'h1', 'meta_description', 'intro']);
 });
 
+test('accepts a close whole-product semantic variation in body copy without repeating the exact H1 phrase', () => {
+  const value = {
+    ...output(),
+    seo_title: 'Warrior Armor Costume for Burning Man',
+    h1: 'Warrior Armor Costume for Burning Man',
+    meta_description: 'Warrior armor costume for Burning Man with an original studio design.',
+    intro: 'Made for the selected festival occasion.',
+    pdp_blocks: [{
+      heading: 'About this piece',
+      body: 'This gold warrior-inspired costume uses sculptural armor to give the full outfit a distinctive shape.',
+    }],
+  };
+  const result = validateSeoKeywordPlacement(value, contract('warrior armor costume'));
+  const primary = result.placements.find((item) => item.role === 'primary');
+  assert.equal(result.issues.some((issue) => issue.code === 'primary_missing_body'), false);
+  assert.ok(primary?.fields.includes('pdp_blocks'));
+  assert.equal(primary?.exact_occurrences, 3);
+});
+
 test('blocks missing primary placement and commercial ALT language', () => {
   const draft = contract();
   draft.keyword_roles.faq_commercial = [{ keyword: 'buy armor online', keyword_norm: 'buy armor online', role: 'faq_commercial' }];
