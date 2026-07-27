@@ -135,7 +135,11 @@ function findSecondaryKeywordStacks(
 ) {
   if (secondary.length < 2) return [];
   return collectDisplayUnits(value).flatMap((unit) => {
-    const represented = secondary.filter((item) => phraseRepresented(item.keyword, unit.text));
+    // Semantic matching may legitimately map one natural phrase to several
+    // near-synonymous Keyword Bank rows. That is evidence coverage, not
+    // stuffing. A stack requires two phrases to be written explicitly in the
+    // same display unit.
+    const represented = secondary.filter((item) => exactPhraseCount(item.keyword, unit.text) > 0);
     if (represented.length < 2) return [];
     const nearSynonymPair = represented.some((left, leftIndex) => represented.some((right, rightIndex) => (
       rightIndex > leftIndex && sharedContentTokenCount(left.keyword, right.keyword) >= 2

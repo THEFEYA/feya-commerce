@@ -409,6 +409,24 @@ test('recognizes styling flexibility when separate-piece wording comes before th
   assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
 });
 
+test('recognizes wearing one component with different tops as a concrete restyling outcome', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Our original studio design gives you a distinctive starting point for a personal look.',
+          'Wear the shoulders over different tops to restyle the set without starting over.',
+          'The glossy gold finish catches available light in photographs.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
+  assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
+});
+
 test('does not confuse building a personal look with product construction', () => {
   const value = draft({
     pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'

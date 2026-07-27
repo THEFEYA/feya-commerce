@@ -103,6 +103,32 @@ test('blocks near-synonymous secondary phrases stacked in one bullet', () => {
   assert.ok(result.issues.some((issue) => issue.code === 'secondary_keyword_stack' && issue.severity === 'blocker'));
 });
 
+test('one natural secondary phrase can cover a close variant without becoming a stack', () => {
+  const draft = contract('warrior armor costume');
+  draft.keyword_roles.secondary = [
+    { keyword: 'gold shoulder armor', keyword_norm: 'gold shoulder armor', role: 'secondary' },
+    { keyword: 'gold shoulders', keyword_norm: 'gold shoulders', role: 'secondary' },
+  ];
+  const value = {
+    ...output(),
+    seo_title: 'Warrior Armor Costume for Burning Man',
+    h1: 'Warrior Armor Costume for Burning Man',
+    meta_description: 'Warrior armor costume for Burning Man with an original studio design.',
+    intro: 'A complete outfit for the selected festival setting.',
+    image_alt_candidates: [{ alt_text: 'Gold shoulder armor with matching skirt at a festival' }],
+    pdp_blocks: [{
+      heading: 'About this piece',
+      body: 'This warrior armor costume is designed for Burning Man.',
+    }],
+  };
+  const result = validateSeoKeywordPlacement(value, draft);
+  assert.equal(result.issues.some((issue) => issue.code === 'secondary_keyword_stack'), false);
+  assert.deepEqual(
+    result.placements.filter((item) => item.role === 'secondary').map((item) => item.fields),
+    [['image_alt_candidates'], ['image_alt_candidates']],
+  );
+});
+
 test('does not demand exact placement of every secondary phrase', () => {
   const draft = contract();
   draft.keyword_roles.secondary = [
