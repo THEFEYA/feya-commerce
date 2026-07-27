@@ -17,6 +17,7 @@ type OpenAiDraftResult = {
 
 type GenerateSeoDraftOptions = {
   primaryImageUrl?: string | null;
+  model?: string | null;
 };
 
 type ResponseContentPart = {
@@ -32,7 +33,9 @@ const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
 
 export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract, options: GenerateSeoDraftOptions = {}): Promise<OpenAiDraftResult> {
   const apiKey = process.env.OPENAI_API_KEY;
-  const model = process.env.FEYA_SEO_OPENAI_MODEL || 'gpt-5.4-mini';
+  const model = String(options.model || '').trim()
+    || process.env.FEYA_SEO_OPENAI_MODEL
+    || 'gpt-5.4-mini';
   const primaryImageUrl = normalizeImageUrl(options.primaryImageUrl);
   const visionInput = {
     primary_image_sent: Boolean(primaryImageUrl),

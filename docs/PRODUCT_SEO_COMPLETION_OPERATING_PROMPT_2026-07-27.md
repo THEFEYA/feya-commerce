@@ -109,6 +109,8 @@ Run this loop for one product or a controlled batch:
     rewrite language but cannot change facts, roles, options, saved focus or
     fixed storefront copy. Select a rewrite only when deterministic QA proves
     a strict improvement and no new Product Truth blocker appears.
+    Keep the routine writer cost-controlled; reserve the stronger editor model
+    for the final pass only when deterministic QA still finds errors.
 13. Show an exact storefront preview.
 14. Save a new versioned review artifact; never overwrite history silently.
 15. Keep Apply and Publish disabled until explicit human approval.

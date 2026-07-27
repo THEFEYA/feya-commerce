@@ -45,6 +45,7 @@ export async function GET() {
     publish: false,
     apply: false,
     humanizer_repair_attempts: 2,
+    final_editor_model: process.env.FEYA_SEO_OPENAI_EDITOR_MODEL || 'gpt-5.4',
   });
 }
 
@@ -215,7 +216,9 @@ export async function POST(request: Request) {
         || bundle.seoPackDraft?.keyword_roles?.primary?.[0]?.keyword_norm
         || null,
     );
-    finalReviewGeneration = await generateSeoDraftWithOpenAi(finalReviewPrompt);
+    finalReviewGeneration = await generateSeoDraftWithOpenAi(finalReviewPrompt, {
+      model: process.env.FEYA_SEO_OPENAI_EDITOR_MODEL || 'gpt-5.4',
+    });
     finalReviewStructural = finalReviewGeneration.output
       ? validateSeoAgentOutput(finalReviewGeneration.output)
       : validateSeoAgentOutput(null);
