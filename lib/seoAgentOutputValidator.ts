@@ -107,8 +107,8 @@ export function validateSeoAgentOutput(value: unknown): SeoAgentOutputValidation
 
   if (typeof value.intro === 'string' && value.intro.trim()) {
     const sentences = sentenceCount(value.intro);
-    if (sentences < 2 || sentences > 4) {
-      issues.push(warning('intro_sentence_count', 'intro should contain 2-4 concise sentences.'));
+    if (sentences > 3) {
+      issues.push(warning('intro_sentence_count', 'intro should contain 1-3 concise sentences. One factual sentence is better than unsupported filler.'));
     }
   }
 
@@ -234,11 +234,49 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
       checkCustomerStyle(body, `pdp_blocks.${index}.body`, issues);
     }
 
+    if (key === 'about_this_piece') {
+      const aboutWords = wordCount(body);
+      const aboutSentences = sentenceCount(body);
+      if (aboutWords < 40) {
+        issues.push(blocker(
+          `pdp_block_about_this_piece_too_thin_${index}`,
+          'About this piece must contain at least 40 useful words. It must explain the buyer job, the complete product identity, and one or more supported design, wear, material, or finish values without repeating What’s Included.',
+        ));
+      }
+      if (aboutWords > 95) {
+        issues.push(warning(
+          `pdp_block_about_this_piece_long_${index}`,
+          'About this piece is longer than 95 words. Keep it only when every sentence adds a distinct supported product or buyer value.',
+        ));
+      }
+      if (aboutSentences < 2 || aboutSentences > 4) {
+        issues.push(blocker(
+          `pdp_block_about_this_piece_sentence_count_${index}`,
+          'About this piece must contain 2-4 natural sentences. A title restatement or one-line SEO sentence is not a useful product description.',
+        ));
+      }
+    }
+
     if (key === 'why_youll_love_it') {
       const benefitLines = splitDisplayLines(body);
       if (benefitLines.length < 3 || benefitLines.length > 4) {
-        issues.push(blocker(`pdp_block_benefit_count_${index}`, 'why_youll_love_it must contain 3-4 concise purchase reasons. Do not add a filler fifth bullet.'));
+        issues.push(blocker(`pdp_block_benefit_count_${index}`, 'why_youll_love_it must contain 3-4 distinct, evidenced purchase reasons. Translate supported facts into buyer value instead of collapsing the section or adding filler.'));
       }
+    }
+
+    if (key === 'ideal_for') {
+      const useCaseLines = splitDisplayLines(body);
+      if (useCaseLines.length < 4 || useCaseLines.length > 5) {
+        issues.push(blocker(`pdp_block_use_case_count_${index}`, 'ideal_for must contain 4-5 distinct buyer profiles or use cases. Do not collapse this section into a short keyword list.'));
+      }
+      useCaseLines.forEach((line, lineIndex) => {
+        if (wordCount(line) < 7) {
+          issues.push(blocker(
+            `pdp_block_ideal_for_too_thin_${index}_${lineIndex}`,
+            `Ideal for item ${lineIndex + 1} must name a real audience and a concrete approved situation or buying need in natural language.`,
+          ));
+        }
+      });
     }
 
     if (key === 'main_description') {

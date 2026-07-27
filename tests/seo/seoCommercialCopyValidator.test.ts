@@ -31,6 +31,92 @@ test('blocks robotic, social-metric, and redundant material copy', () => {
   assert.ok(codes.includes('customer_copy_stacks_vegan_and_faux_leather_synonyms'));
 });
 
+test('blocks abstract visual pseudo-benefits and inferred component coverage', () => {
+  const value = draft({
+    intro: 'It turns a simple base look into a more finished costume with a stronger costume look.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'
+      ? { ...block, body: 'The shoulders keep more of your outfit visible underneath.' }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('customer_copy_contains_abstract_visual_pseudobenefit'));
+  assert.ok(codes.includes('customer_copy_infers_unsupported_component_coverage'));
+});
+
+test('blocks modular-set composition commentary from the live final editor', () => {
+  const value = draft({
+    intro: 'Wear this set to Burning Man when you want to anchor an armored outfit around gold detail.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => {
+      if (block.block_key === 'about_this_piece') {
+        return { ...block, body: 'For a festival, this warrior armor costume lets you skip a full uniform and still feel dressed for the occasion.' };
+      }
+      if (block.block_key === 'why_youll_love_it') {
+        return {
+          ...block,
+          body: [
+            'Original studio design gives you an option that feels more specific than standard festival basics.',
+            'Matching gold pieces repeat the same color above and below the waist, so the outfit photographs as one outfit instead of separate add-ons.',
+          ].join('\n'),
+        };
+      }
+      return block;
+    }),
+  });
+  const result = validateSeoCommercialCopy(value);
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('customer_copy_contains_abstract_visual_pseudobenefit'));
+  assert.ok(codes.includes('customer_copy_uses_invented_template_comparison'));
+});
+
+test('blocks invented convenience and photo mechanisms from the latest live editor', () => {
+  const value = draft({
+    intro: 'Wear this gold set to Burning Man without building one from separate finds. The studio-designed styling makes it easier to choose boots and jewelry that make sense with the outfit.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'
+      ? {
+        ...block,
+        body: 'At Burning Man, this warrior armor costume gives your outfit a gold focal point that photographs well in wide shots. The visible waist detail gives you a natural break for changing tops.',
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.ok(result.issues.some((issue) => (
+    issue.code === 'customer_copy_contains_abstract_visual_pseudobenefit'
+    && issue.severity === 'blocker'
+  )));
+});
+
+test('blocks generic-clothing comparisons and internal persona or direction labels from live copy', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => {
+      if (block.block_key === 'about_this_piece') {
+        return {
+          ...block,
+          body: 'For Burning Man, this gold armor set offers a shaped option when generic festival dressing can feel too plain on its own.',
+        };
+      }
+      if (block.block_key === 'ideal_for') {
+        return {
+          ...block,
+          body: [
+            'Burning Man attendees dressing in a warrior direction',
+            'Festival-goers leaning into a warrior persona',
+            'Performers preparing a costume for a live show',
+            'Content creators planning an editorial wardrobe shoot',
+          ].join('\n'),
+        };
+      }
+      return block;
+    }),
+  });
+  const result = validateSeoCommercialCopy(value, {
+    manual_focus: { event: ['Burning Man', 'festival'], persona: ['warrior'] },
+  });
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('customer_copy_uses_invented_template_comparison'));
+  assert.ok(codes.includes('customer_copy_uses_internal_targeting_language'));
+});
+
 test('blocks a redundant shoulder entity in H1 and meta description', () => {
   const value = draft({
     h1: 'Gold Shoulder Armor with a Sculptural Shoulder Piece',
@@ -69,6 +155,38 @@ test('blocks the current pilot robotic phrases and broken studio grammar', () =>
   assert.ok(codes.some((code) => (
     code.includes('has_feature_but_no_buyer_outcome') || code.includes('has_no_concrete_buyer_value')
   )));
+});
+
+test('blocks abstract shorthand copied by the latest live final editor', () => {
+  const value = draft({
+    intro: 'The set has a strong, sculpted feel for photo moments and themed nights.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'main_description'
+      ? {
+        ...block,
+        body: 'At TheFEYA, we create original festival designs for personal style. Our ideas help each wearer find something that feels like them. This set completes the look with confidence and reads clearly in photographs.',
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.ok(result.issues.some((issue) => (
+    issue.code === 'customer_copy_contains_robotic_editorial_jargon'
+    && issue.severity === 'blocker'
+  )));
+});
+
+test('blocks repeated product, persona, or component terms inside one About sentence', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'
+      ? {
+        ...block,
+        body: 'This warrior armor costume is made for a warrior persona. The skirt can be worn over boots under the same skirt.',
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('about_this_piece_sentence_1_repeats_same_term'));
+  assert.ok(codes.includes('about_this_piece_sentence_2_repeats_same_term'));
 });
 
 test('blocks directional image reporting and reversed buyer intent outside ALT', () => {
@@ -186,6 +304,58 @@ test('allows a styled item in ALT when it is part of confirmed Product DNA', () 
   assert.equal(result.issues.some((issue) => issue.code === 'image_alt_mentions_unsold_styling_item'), false);
 });
 
+test('blocks an unsold base layer in ALT even when it is visible in the image', () => {
+  const value = draft({
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'Gold shoulder armor and skirt worn over a dark base layer outdoors',
+      truth_basis: 'visible_product_fact',
+    }],
+  });
+  const result = validateSeoCommercialCopy(value, {
+    product_truth: { included_components: ['Shoulders', 'Skirt'] },
+  });
+  assert.ok(result.issues.some((issue) => issue.code === 'image_alt_mentions_unsold_styling_item'));
+});
+
+test('blocks one base-layer styling idea repeated across metadata and left-copy owners', () => {
+  const base = draft();
+  const value = draft({
+    meta_description: 'Warrior armor costume that leaves simple layers visible.',
+    intro: 'Wear it over a simple layer without covering everything underneath.',
+    pdp_blocks: base.pdp_blocks.map((block: any) => {
+      if (block.block_key === 'about_this_piece') {
+        return {
+          ...block,
+          body: 'This warrior armor costume adds shape to basic layers. Wear the skirt over leggings to change the balance between skin and fabric.',
+        };
+      }
+      if (block.block_key === 'why_youll_love_it') {
+        return {
+          ...block,
+          body: [
+            'Original studio design leaves room for your own jewelry.',
+            'A visible base layer lets you swap sleeves between wears.',
+            'The skirt moves as you walk.',
+          ].join('\n'),
+        };
+      }
+      if (block.block_key === 'main_description') {
+        return {
+          ...block,
+          body: 'At TheFEYA, we are an independent design studio. We create original costume pieces for personal styling. Our work lets you keep your own base layers and jewelry in the outfit.',
+        };
+      }
+      return block;
+    }),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.ok(result.issues.some((issue) => issue.code === 'repeated_idea_base_layer_styling'));
+  assert.ok(result.repetition_report?.repeated_idea_groups.some((item) => (
+    item.idea === 'base_layer_styling' && item.blocks.length >= 3
+  )));
+});
+
 test('requires Ideal for to cover every selected focus axis without requiring every keyword variant', () => {
   const manualFocus = {
     event: ['Burning Man', 'festival'],
@@ -287,6 +457,302 @@ test('accepts a concise feature-to-buyer-outcome benefit mix', () => {
   assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
 });
 
+test('recognizes ready for repeat wear as a concrete shape-retention outcome', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Our original studio design gives you a distinctive piece for a personal festival look.',
+          'Adjustable straps let you fine-tune a secure fit for your body shape.',
+          'The body-facing material feels more comfortable during wear.',
+          'Structured material helps the design keep its shape, so it stays ready for repeat wear.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
+});
+
+test('accepts product-specific styling, framing and movement instead of repeating the fixed panel', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Our original studio design gives you a distinctive starting point for a personal look.',
+          'The gold shoulder armor frames your face and upper body in photographs.',
+          'The skirt panels move as you walk or dance, adding motion to photographs and stage work.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
+  assert.ok(result.benefit_categories_found.includes('wearer_framing'));
+  assert.ok(result.benefit_categories_found.includes('movement_in_wear'));
+});
+
+test('recognizes changing base layers between separately selectable pieces as styling flexibility', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Our original studio design gives you a distinctive starting point for a personal look.',
+          'Separate pieces let you change the base layer without replacing the rest of the outfit.',
+          'The glossy gold finish catches available light in photographs.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
+  assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
+});
+
+test('recognizes styling flexibility when separate-piece wording comes before the wear outcome', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Our original studio design gives you a distinctive starting point for a personal look.',
+          'Because the pieces are separate, you can wear one with other layers.',
+          'The glossy gold finish catches available light in photographs.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
+  assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
+});
+
+test('recognizes wearing one component with different tops as a concrete restyling outcome', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Our original studio design gives you a distinctive starting point for a personal look.',
+          'Wear the shoulders over different tops to restyle the set without starting over.',
+          'The glossy gold finish catches available light in photographs.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
+  assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
+});
+
+test('blocks a Why section collapsed to two benefit families', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Our original studio design is not tied to a named character, so you can make the warrior persona your own.',
+          'The skirt is separately selectable, so you can order only that part when you do not need the full set.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code === 'why_youll_love_it_wrong_benefit_count'), true);
+  assert.ok(result.benefit_categories_found.includes('studio_design_and_craft'));
+  assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
+});
+
+test('recognizes separately selectable parts with buy, replace and reorder outcomes', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'This original studio design lets you make the warrior persona your own instead of copying a named character.',
+          'Each part is separately selectable, so you can buy one piece for a restyle or replace what you own without reordering the full set.',
+          'Adjustable straps leave room to fine-tune a secure fit for different body shapes.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
+  assert.ok(result.benefit_categories_found.includes('studio_design_and_craft'));
+  assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
+});
+
+test('still blocks a single Why benefit instead of accepting an underfilled block', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: 'Our original studio design is not tied to a named character, so you can make the warrior persona your own.',
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.ok(result.issues.some((issue) => issue.code === 'why_youll_love_it_wrong_benefit_count'));
+});
+
+test('does not confuse building a personal look with product construction', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Our original design ideas give you a distinctive piece you can use to build a festival look that feels personal.',
+          'Adjustable straps make it quick to put on and easy to adapt to different body shapes.',
+          'Structured material helps the piece hold its shape between wears.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(
+    result.issues.some((issue) => issue.code === 'why_youll_love_it_repeats_construction_as_multiple_benefits'),
+    false,
+  );
+});
+
+test('recognizes available-light finish behavior and feels-like-them self-expression', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => {
+      if (block.block_key === 'why_youll_love_it') {
+        return {
+          ...block,
+          body: [
+            'Our original studio design gives you a distinctive piece for building a festival look that feels personal.',
+            'Adjustable straps make it quick to put on and easy to adapt to different body shapes.',
+            'The glossy finish catches available light, which keeps the product detail visible in photographs.',
+          ].join('\n'),
+        };
+      }
+      if (block.block_key === 'main_description') {
+        return {
+          ...block,
+          body: 'At TheFEYA, we are an independent design team with a fresh point of view on festival and stage fashion. Our varied original ideas help people find a design that feels like them. We make pieces that support a personal visual identity. This one is suited to an approved festival setting.',
+        };
+      }
+      return block;
+    }),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(
+    result.issues.some((issue) => issue.code === 'why_youll_love_it_benefit_3_has_feature_but_no_buyer_outcome'),
+    false,
+  );
+  assert.equal(
+    result.issues.some((issue) => issue.code === 'self_expression_close_lacks_clear_buyer_value'),
+    false,
+  );
+});
+
+test('recognizes natural pick-up-light wording as verified finish behavior', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Our original studio design gives you a distinctive starting point for a personal look.',
+          'The gold shoulder armor frames your face and upper body in photographs.',
+          'The glossy surface picks up available light, so the gold looks brighter in photos.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
+  assert.ok(result.benefit_categories_found.includes('verified_finish_behavior'));
+});
+
+test('recognizes natural restyling and daylight photo benefits from the live pilot', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Original studio design gives you a gold look you can wear with your own layers.',
+          'The skirt can be restyled with different base layers from one wear to the next.',
+          'The glossy gold surface catches daylight, so it photographs brighter outdoors.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
+  assert.ok(result.benefit_categories_found.includes('studio_design_and_craft'));
+  assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
+  assert.ok(result.benefit_categories_found.includes('verified_finish_behavior'));
+});
+
+test('recognizes a supported gold-finish photo outcome without requiring stock phrasing', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Our original studio design gives your outfit a personal identity.',
+          'Adjustable straps help you fine-tune the fit for more comfortable wear.',
+          'The gold finish helps details stay visible in photographs as available light changes.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(
+    result.issues.some((issue) => issue.code === 'why_youll_love_it_benefit_3_has_no_concrete_buyer_value'),
+    false,
+  );
+  assert.equal(
+    result.issues.some((issue) => issue.code === 'why_youll_love_it_benefit_3_has_feature_but_no_buyer_outcome'),
+    false,
+  );
+});
+
+test('does not mistake “more like your own style” for a promise of social likes', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'main_description'
+      ? {
+        ...block,
+        body: 'At TheFEYA, we are an independent design studio with original ideas for festival fashion. We help people choose a design that feels personal. The finished outfit can feel more like your own style while keeping the selected warrior direction clear.',
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(
+    result.issues.some((issue) => issue.code === 'customer_copy_guarantees_popularity_or_reactions'),
+    false,
+  );
+});
+
+test('blocks an unselected high-intent style added by generated copy', () => {
+  const value = draft({
+    h1: 'Gold Shoulder Armor for Burning Man',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'
+      ? {
+        ...block,
+        body: [
+          'Burning Man attendees building a warrior-inspired look',
+          'Festival performers preparing for live shows',
+          'Costume designers planning a fantasy production',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value, {
+    manual_focus: {
+      event: ['Burning Man', 'festival'],
+      persona: ['warrior'],
+      style: null,
+    },
+  });
+  assert.ok(result.issues.some((issue) => issue.code === 'customer_copy_uses_unselected_style_focus'));
+});
+
 test('blocks awkward finish-and-silhouette grammar and duplicate brand positioning', () => {
   const value = draft({
     meta_description: 'Gold shoulder armor with a glossy gold finish and silhouette for Burning Man performances.',
@@ -321,6 +787,27 @@ test('blocks product details and robotic mechanisms inside Ideal for', () => {
   assert.ok(result.issues.some((issue) => issue.code.endsWith('_describes_product_detail_instead_of_use_case')));
 });
 
+test('blocks thin Ideal for keyword fragments and stacked audience roles', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'
+      ? {
+        ...block,
+        body: [
+          'Burning Man costumes',
+          'Festival wear',
+          'Performers, dancers, DJs, and show artists preparing festival outfits',
+          'Content creators and costume stylists planning an editorial shoot',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value, {
+    manual_focus: { event: ['Burning Man', 'festival'], persona: ['warrior'] },
+  });
+  assert.ok(result.issues.some((issue) => issue.code === 'ideal_for_1_too_thin'));
+  assert.ok(result.issues.some((issue) => issue.code === 'ideal_for_3_stacks_buyer_roles'));
+});
+
 test('allows Ideal for to name real people, productions and occasions', () => {
   const manualFocus = {
     event: ['Burning Man', 'festival', 'rave'],
@@ -335,7 +822,7 @@ test('allows Ideal for to name real people, productions and occasions', () => {
         body: [
           'Women performers creating a warrior-inspired look for Burning Man',
           'DJs and dancers appearing on festival and rave stages',
-          'Editorial photoshoots and music-video costume work',
+          'Editorial teams preparing costume work for photoshoots and music videos',
           'Event productions and dance troupes planning coordinated stage wardrobes',
         ].join('\n'),
       }
@@ -343,6 +830,69 @@ test('allows Ideal for to name real people, productions and occasions', () => {
   });
   const result = validateSeoCommercialCopy(value, { manual_focus: manualFocus });
   assert.equal(result.issues.some((issue) => issue.code.startsWith('ideal_for_')), false);
+});
+
+test('blocks repeating the same selected focus twice inside one Ideal for bullet', () => {
+  const value = draft({
+    h1: 'Gold Shoulder Armor for Burning Man',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'
+      ? {
+        ...block,
+        body: [
+          'Burning Man attendees styling a warrior look for Burning Man',
+          'Festival dancers preparing for outdoor performances',
+          'Content creators photographing costumes for editorial shoots',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value, {
+    manual_focus: { event: ['Burning Man', 'festival'], persona: ['warrior'] },
+  });
+  assert.ok(result.issues.some((issue) => issue.code === 'ideal_for_1_repeats_same_term'));
+});
+
+test('blocks a repeated meaningful word inside one Ideal for bullet', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'
+      ? {
+        ...block,
+        body: [
+          'Burning Man attendees preparing outdoor photos',
+          'Festival dancers performing through long sets',
+          'Warrior-inspired performers wearing a warrior look on stage',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.ok(result.issues.some((issue) => issue.code === 'ideal_for_3_repeats_same_term'));
+});
+
+test('blocks unselected material padding in SEO title and H1', () => {
+  const value = draft({
+    seo_title: 'Warrior Armor Costume for Burning Man | Gold Vegan Leather',
+    h1: 'Warrior Armor Costume for Burning Man in Gold Vegan Leather',
+  });
+  const blocked = validateSeoCommercialCopy(value, {
+    keyword_roles: { primary: [{ keyword: 'warrior armor costume' }] },
+  });
+  assert.ok(blocked.issues.some((issue) => issue.code === 'seo_title_uses_unselected_material_padding'));
+  assert.ok(blocked.issues.some((issue) => issue.code === 'h1_uses_unselected_material_padding'));
+
+  const allowed = validateSeoCommercialCopy(value, {
+    keyword_roles: { primary: [{ keyword: 'vegan leather warrior armor costume' }] },
+  });
+  assert.equal(allowed.issues.some((issue) => issue.code.endsWith('_uses_unselected_material_padding')), false);
+});
+
+test('blocks design-review shorthand that sounds unnatural to shoppers', () => {
+  const result = validateSeoCommercialCopy(draft({
+    intro: 'This design shows up cleanly in crowd photos, while the photos pick up more depth. It stands apart from a basic metallic look.',
+    h1: 'Warrior Armor Costume for Burning Man Styling',
+  }));
+  assert.ok(result.issues.some((issue) => issue.code === 'customer_copy_contains_robotic_editorial_jargon'));
+  assert.ok(result.issues.some((issue) => issue.code === 'customer_copy_uses_invented_template_comparison'));
 });
 
 test('requires a compact set to remain the page entity across SEO fields', () => {
@@ -353,26 +903,107 @@ test('requires a compact set to remain the page entity across SEO fields', () =>
   assert.ok(reducedCodes.includes('h1_reduces_multi_component_product_to_one_piece'));
   assert.ok(reducedCodes.includes('meta_description_reduces_multi_component_product_to_one_piece'));
   assert.ok(reducedCodes.includes('about_this_piece_missing_whole_product_entity'));
-  assert.ok(reducedCodes.includes('meta_description_missing_compact_set_composition'));
-  assert.ok(reducedCodes.includes('about_this_piece_missing_confirmed_components'));
 
   const complete = draft({
     seo_title: 'Gold Festival Armor Outfit for Burning Man',
     h1: 'Gold Festival Armor Outfit for Burning Man',
-    meta_description: 'Gold festival armor outfit with shoulder armor, harness and skirt for Burning Man stage performances.',
+    meta_description: 'Gold festival armor outfit for Burning Man with an adjustable fit and a light-catching metallic finish.',
     intro: 'Create a Burning Man look with this complete gold festival outfit.',
     pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'
       ? {
         ...block,
-        body: 'This complete festival outfit combines gold shoulder armor, an adjustable harness and a matching skirt for Burning Man performances.',
+        body: 'This complete festival outfit adds a strong gold finish to a Burning Man look while adjustable straps make the fit easier to fine-tune.',
       }
       : block),
   });
   const completeResult = validateSeoCommercialCopy(complete, { product_truth: productTruth });
   const presentationCodes = completeResult.issues
     .map((issue) => issue.code)
-    .filter((code) => code.includes('multi_component') || code.includes('whole_product') || code.includes('compact_set') || code.includes('confirmed_components'));
+    .filter((code) => code.includes('multi_component') || code.includes('whole_product') || code.includes('deterministic_composition'));
   assert.deepEqual(presentationCodes, []);
+});
+
+test('blocks repeating deterministic compact-set composition in intro or About', () => {
+  const productTruth = { included_components: ['Shoulders', 'Skirt'] };
+  const value = draft({
+    seo_title: 'Gold Warrior Costume for Burning Man',
+    h1: 'Gold Warrior Costume for Burning Man',
+    meta_description: 'Gold warrior costume for Burning Man and festival performances, with adjustable straps and a metallic finish.',
+    intro: 'The complete outfit pairs a structured upper piece with a skirt for a bold festival silhouette.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'
+      ? {
+        ...block,
+        body: 'This warrior costume brings together gold shoulders and a skirt in one coordinated outfit.',
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value, { product_truth: productTruth });
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('intro_repeats_deterministic_composition'));
+  assert.ok(codes.includes('about_this_piece_repeats_deterministic_composition'));
+});
+
+test('blocks a vague component recap even without an inventory verb', () => {
+  const productTruth = { included_components: ['Shoulders', 'Skirt'] };
+  const value = draft({
+    seo_title: 'Gold Warrior Costume for Burning Man',
+    h1: 'Gold Warrior Costume for Burning Man',
+    meta_description: 'Gold warrior costume for Burning Man and festival performances, with adjustable straps and a metallic finish.',
+    intro: 'Create a Burning Man look with this complete gold warrior costume.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'
+      ? {
+        ...block,
+        body: 'This warrior costume is made for Burning Man. The shoulder pieces and skirt create a distinctive look for stage and photos.',
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value, { product_truth: productTruth });
+  assert.ok(result.issues.some((issue) => issue.code === 'about_this_piece_repeats_deterministic_composition'));
+});
+
+test('blocks compact-set inventory in meta and generic pairing in intro', () => {
+  const productTruth = { included_components: ['Shoulders', 'Skirt'] };
+  const value = draft({
+    seo_title: 'Gold Warrior Costume for Burning Man',
+    h1: 'Gold Warrior Costume for Burning Man',
+    meta_description: 'Gold warrior costume with shoulders and skirt for Burning Man and festival performances.',
+    intro: 'This costume pairs a structured upper piece with a skirt for a festival look.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'
+      ? { ...block, body: 'This complete warrior costume is designed for festival performance.' }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value, { product_truth: productTruth });
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('meta_description_repeats_deterministic_composition'));
+  assert.ok(codes.includes('intro_repeats_deterministic_composition'));
+});
+
+test('does not confuse pairing with personal styling for a component-inventory recap', () => {
+  const productTruth = { included_components: ['Shoulders', 'Skirt'] };
+  const value = draft({
+    seo_title: 'Warrior Armor Costume for Burning Man',
+    h1: 'Warrior Armor Costume for Burning Man',
+    meta_description: 'Warrior armor costume for Burning Man that pairs with your own accessories and supports personal styling.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'
+      ? { ...block, body: 'This warrior armor costume is designed for Burning Man and personal festival styling.' }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value, { product_truth: productTruth });
+  assert.equal(result.issues.some((issue) => issue.code === 'meta_description_repeats_deterministic_composition'), false);
+});
+
+test('blocks an unselected rave or cosplay focus when the operator chose Burning Man and festival', () => {
+  const value = draft({
+    h1: 'Gold Festival Armor for Burning Man',
+    intro: 'Wear this gold armor costume at a rave or use it for a cosplay event.',
+  });
+  const result = validateSeoCommercialCopy(value, {
+    manual_focus: { event: ['burning man', 'festival'] },
+  });
+  const issue = result.issues.find((item) => item.code === 'customer_copy_uses_unselected_event_focus');
+  assert.ok(issue);
+  assert.match(issue?.message || '', /rave/);
+  assert.match(issue?.message || '', /cosplay/);
 });
 
 test('blocks robotic editorial shorthand and search-query audience copy', () => {
@@ -393,6 +1024,23 @@ test('blocks robotic editorial shorthand and search-query audience copy', () => 
   const codes = result.issues.map((issue) => issue.code);
   assert.ok(codes.includes('customer_copy_contains_robotic_editorial_jargon'));
   assert.ok(codes.includes('customer_copy_reads_like_search_query'));
+});
+
+test('blocks buyer-segment filler written as buyers who want', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'
+      ? {
+        ...block,
+        body: [
+          'Burning Man buyers who want a gold warrior look',
+          'Festival performers and dancers',
+          'Editorial costume productions',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.ok(result.issues.some((issue) => issue.code === 'customer_copy_reads_like_search_query'));
 });
 
 test('blocks plus-size positioning unless Product Truth explicitly confirms it', () => {

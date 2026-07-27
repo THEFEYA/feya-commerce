@@ -57,6 +57,7 @@ const INCOMPATIBLE_COMMERCE_DOMAINS = [
   'rope harness',
   'safety harness',
   'tweak d performance',
+  'tennis skirt',
   'wiring harness',
 ];
 
@@ -248,6 +249,9 @@ export function recommendCatalogKeywords(input: {
       product_identity_descriptor_families: profile.descriptorFamilies,
       product_presentation_mode: profile.presentation.mode,
       confirmed_component_count: profile.presentation.component_count,
+      keyword_selection_status: selected.some((row) => row.role === 'primary')
+        ? 'needs_human_confirmation'
+        : 'needs_primary_review',
       auto_primary_scope: selected.find((row) => row.role === 'primary')?.whole_product_intent === true
         || !profile.presentation.requires_whole_product_entity
         ? 'whole_product_or_single_component'
@@ -283,13 +287,21 @@ export function normalizeStrategy(value: unknown): SeoKeywordRecommendationStrat
 function buildProductProfile(product: ProductRow, focus: FocusRecord) {
   const explicitFocus = normalizeFocus(focus);
   const presentation = classifySeoProductPresentation(product);
-  const componentEvidence = flattenStrings([
-    product.included_components,
-    product.known_components,
-    product.parent_components_json,
-    product.child_components_json,
-    product.component_groups_json,
-  ]).join(' ');
+  const currentSellableComponentEvidence = flattenStrings([
+    product.sellable_offer_components,
+    isRecord(product.sellable_offer) ? product.sellable_offer.component_labels : null,
+  ]);
+  const componentEvidence = (
+    currentSellableComponentEvidence.length
+      ? currentSellableComponentEvidence
+      : flattenStrings([
+          product.included_components,
+          product.known_components,
+          product.parent_components_json,
+          product.child_components_json,
+          product.component_groups_json,
+        ])
+  ).join(' ');
   const identityText = flattenStrings([
     product.product_type,
     product.category_label,
@@ -340,10 +352,25 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
   const descriptorFamilies = detectedFamilies(identityText, COMPONENT_FAMILIES)
     .filter((family) => UMBRELLA_COMPONENT_FAMILIES.has(family));
   const colors = detectedColorFamilies(colorText);
-  const audiences = detectedFamilies(`${styleText} ${flattenStrings([explicitFocus.audience]).join(' ')}`, AUDIENCE_FAMILIES);
-  const events = detectedFamilies(eventText, EVENT_FAMILIES);
-  const styles = detectedFamilies(styleText, STYLE_FAMILIES);
-  const personas = detectedFamilies(personaText, PERSONA_FAMILIES);
+  const selectedAudiences = detectedFamilies(explicitFocus.audience, AUDIENCE_FAMILIES);
+  const selectedEvents = detectedFamilies(explicitFocus.event, EVENT_FAMILIES);
+  const selectedStyles = detectedFamilies(explicitFocus.style, STYLE_FAMILIES);
+  const selectedPersonas = detectedFamilies(explicitFocus.persona, PERSONA_FAMILIES);
+  // A non-empty operator axis is a boundary, not a scoring hint. Legacy
+  // titles, source descriptions and images may suggest additional contexts,
+  // but they cannot silently expand a saved manual focus.
+  const audiences = explicitFocus.audience.length
+    ? selectedAudiences
+    : detectedFamilies(styleText, AUDIENCE_FAMILIES);
+  const events = explicitFocus.event.length
+    ? selectedEvents
+    : detectedFamilies(eventText, EVENT_FAMILIES);
+  const styles = explicitFocus.style.length
+    ? selectedStyles
+    : detectedFamilies(styleText, STYLE_FAMILIES);
+  const personas = explicitFocus.persona.length
+    ? selectedPersonas
+    : detectedFamilies(personaText, PERSONA_FAMILIES);
   const visualAttributes = detectedFamilies(visualText, VISUAL_ATTRIBUTE_FAMILIES);
   const identityTokens = tokens(identityText).filter((token) => !STOP_WORDS.has(token) && token.length > 2);
   const styleTokens = tokens(styleText).filter((token) => !STOP_WORDS.has(token) && token.length > 2);
@@ -589,6 +616,10 @@ function flattenStrings(values: unknown[], depth = 0): string[] {
     if (typeof value === 'object') return flattenStrings(Object.values(value as Record<string, unknown>), depth + 1);
     return [];
   });
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === 'object' && !Array.isArray(value));
 }
 
 function tokens(value: unknown) {

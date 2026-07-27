@@ -36,10 +36,11 @@ export function validateSeoKeywordPlacement(
   if (!draft) return blocked('keyword_contract_missing', 'Keyword placement cannot be checked because the SEO Pack contract is missing.');
 
   const fields = collectFields(value);
+  const displayUnits = collectDisplayUnits(value);
   const roleRows = Object.entries(draft.keyword_roles || {}).flatMap(([role, rows]) => (
     (Array.isArray(rows) ? rows : []).map((row) => ({ role, row }))
   ));
-  const placements = roleRows.map(({ role, row }) => placementRow(role, row, fields));
+  const placements = roleRows.map(({ role, row }) => placementRow(role, row, fields, displayUnits));
   const primary = placements.filter((item) => item.role === 'primary');
   const presentation = classifySeoProductPresentation(draft.product_truth);
 
@@ -68,8 +69,12 @@ export function validateSeoKeywordPlacement(
     if (!item.fields.some((field) => ['intro', 'bullet_highlights', 'pdp_blocks', 'faq'].includes(field))) {
       issues.push(blockerIssue('primary_missing_body', 'Primary keyword must be represented naturally in useful visible product copy.', item.keyword));
     }
-    if (item.exact_occurrences > 5) {
-      issues.push(blockerIssue('primary_exact_phrase_overused', 'The exact primary phrase is repeated more than five times across the pack; use natural grammatical variation.', item.keyword));
+    if (item.exact_occurrences > 4) {
+      issues.push(blockerIssue(
+        'primary_exact_phrase_overused',
+        'The exact primary phrase is repeated more than four times across the pack. Keep the Primary concept dominant through clear whole-product meaning and normal grammatical variation, not density chasing.',
+        item.keyword,
+      ));
     }
   });
 
@@ -130,7 +135,11 @@ function findSecondaryKeywordStacks(
 ) {
   if (secondary.length < 2) return [];
   return collectDisplayUnits(value).flatMap((unit) => {
-    const represented = secondary.filter((item) => phraseRepresented(item.keyword, unit.text));
+    // Semantic matching may legitimately map one natural phrase to several
+    // near-synonymous Keyword Bank rows. That is evidence coverage, not
+    // stuffing. A stack requires two phrases to be written explicitly in the
+    // same display unit.
+    const represented = secondary.filter((item) => exactPhraseCount(item.keyword, unit.text) > 0);
     if (represented.length < 2) return [];
     const nearSynonymPair = represented.some((left, leftIndex) => represented.some((right, rightIndex) => (
       rightIndex > leftIndex && sharedContentTokenCount(left.keyword, right.keyword) >= 2
@@ -164,6 +173,7 @@ function collectDisplayUnits(value: Record<string, unknown>) {
     add('pdp_blocks', row.heading);
     add('pdp_blocks', row.body);
   });
+  records(value.image_alt_candidates).forEach((row) => add('image_alt_candidates', row.alt_text));
   return units;
 }
 
@@ -189,11 +199,26 @@ function placementRow(
   role: string,
   row: SeoKeywordRoleItem,
   fields: Record<string, string>,
+  displayUnits: Array<{ field: string; text: string }>,
 ): SeoKeywordPlacementRow {
   const keyword = text(row?.keyword || row?.keyword_norm);
-  const matchedFields = Object.entries(fields)
+  const semanticRole = ['secondary', 'support', 'image_alt'].includes(role);
+  const exactMatchedFields = Object.entries(fields)
     .filter(([, fieldText]) => phraseRepresented(keyword, fieldText))
     .map(([field]) => field);
+  const semanticPrimaryBodyFields = role === 'primary'
+    ? displayUnits
+      .filter((unit) => ['intro', 'bullet_highlights', 'pdp_blocks', 'faq'].includes(unit.field))
+      .filter((unit) => semanticPhraseRepresented(keyword, unit.text))
+      .map((unit) => unit.field)
+    : [];
+  const matchedFields = semanticRole
+    ? [...new Set(
+      displayUnits
+        .filter((unit) => semanticPhraseRepresented(keyword, unit.text))
+        .map((unit) => unit.field),
+    )]
+    : [...new Set([...exactMatchedFields, ...semanticPrimaryBodyFields])];
   return {
     keyword,
     role,
@@ -213,6 +238,23 @@ function phraseRepresented(keyword: string, value: string) {
   return fieldTokens.some((_, start) => (
     tokens.every((token, offset) => fieldTokens[start + offset] === token)
   ));
+}
+
+function semanticPhraseRepresented(keyword: string, value: string) {
+  const tokens = [...new Set(contentTokens(keyword))];
+  if (!tokens.length) return false;
+  const fieldTokens = contentTokens(value);
+  if (fieldTokens.length < tokens.length) return false;
+
+  // Secondary phrases are semantic evidence rather than exact-match targets.
+  // Accept natural word order and inflection only when all content tokens stay
+  // inside one short buyer-readable sentence, bullet or ALT. This prevents
+  // tokens scattered across unrelated blocks from masquerading as placement.
+  const maxWindow = Math.min(8, tokens.length + 4);
+  return fieldTokens.some((_, start) => {
+    const window = new Set(fieldTokens.slice(start, start + maxWindow));
+    return tokens.every((token) => window.has(token));
+  });
 }
 
 function contentTokens(value: string) {

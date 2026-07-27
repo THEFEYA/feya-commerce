@@ -1,4 +1,4 @@
-export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v16' as const;
+export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v19' as const;
 
 export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
   checkpoint_id: 'reload_latest_research_before_apply_publish_v1',
@@ -28,16 +28,17 @@ export const THEFEYA_BRAND_VALUE_PILLARS = [
 
 export const THEFEYA_CUSTOMER_USE_CASE_MAP = [
   'Ideal for answers only who the product serves and where or why they would wear it. Product construction, finish, silhouette, accents, layers and component combinations never belong in this block.',
-  'Eligible people and professional roles include performers, dancers, DJs, showgirls, drag performers, pole and exotic dancers, show-ballet artists, cosplayers, actors, creators and bloggers, but only when operator focus or Product Truth supports the role.',
+  'Product-compatible general roles may include festival-goers, Burning Man attendees, performers, dancers, DJs, show artists, creators and stylists when the current generation context explicitly supplies them.',
+  'High-intent or subculture-specific roles such as drag performers, cosplayers, showgirls, pole or exotic dancers and named character actors require an explicit operator-selected focus. Never infer them from a costume product type, legacy title, image setting or broad festival context.',
   'Eligible occasions and productions include festivals, Burning Man, raves, stage shows, dance performances, theatrical productions, music videos, TV or film costume work, editorial photoshoots, costume parties, nightclub shows and other selected events.',
   'Eligible B2B contexts include show ballets, dance troupes, event productions and costume studios only when the operator selected a compatible professional focus. Do not invent wholesale terms, discounts or service promises.',
-  'Style and persona axes may appear as a real context, such as a warrior-inspired stage look or cyberpunk performance costume, but never as an abstract accent, silhouette or statement-piece sentence.',
-  'Do not add every possible customer or event. Use 3-5 distinct bullets and represent the operator-selected event, style, persona and audience axes while Product Truth remains the veto.',
+  'Style and persona axes may shape a natural context, such as a warrior-inspired stage look or cyberpunk performance costume, but the internal words persona and direction never appear in customer copy.',
+  'Do not add every possible customer or event. Use 4-5 distinct customer portraits, each with a person or at most two related roles and a concrete approved occasion, production or buying need. Product Truth remains the veto.',
 ] as const;
 
 export const THEFEYA_BENEFIT_GENERATION_POLICY = [
   'Why you’ll love it is a purchase-decision block, not a second description and not an SEO keyword container.',
-  'Write 3-4 bullets. Never invent a fifth bullet merely to fill space.',
+  'Write 3-4 genuinely different bullets from available product-specific or canonical storefront evidence. If three honest buyer outcomes cannot be supported, block the draft for missing truth instead of publishing a thin benefit section or inventing filler.',
   'Every bullet must connect one supported feature or studio truth to a useful buyer outcome. Use the mental test: feature or proof -> so what changes for the buyer.',
   'Use at least three distinct value families when evidence exists: distinctive studio design; easy dressing or adjustment; body comfort; structure, shape retention or durability; verified finish behavior.',
   'Include exactly one design-authorship benefit. State the real buyer value directly: our original design ideas give the buyer a distinctive piece they can use to build a festival or stage look that feels personal. Do not compare it with a standard template, generic costume or mass production.',
@@ -119,18 +120,20 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Do not start customer-facing copy as an image audit, inventory note or source-data disclaimer. Avoid openings like The image shows, The listed materials, The product description says, The source lists, Product Truth confirms or The safest wording is.',
     'Never write customer copy as if reporting database fields to an analyst. Never mention official product data, verification before publication, review status, source rows or internal uncertainty in buyer-facing text.',
     'Keep copy commercial but calm: attractive, specific and human, without generic AI sales language or empty pseudo-benefits.',
+    'Use an independent fashion-studio editorial voice: warm, concrete and persuasive, with varied sentence rhythm. A complete, useful product story is required; a title restatement or keyword-perfect one-liner is not acceptable PDP copy.',
     'Avoid filler words and weak catalog phrases: Edition, Ultimate, Best, Perfect, Luxury, Premium, Elevate, Crafted to perfection and Perfect for any occasion.',
     'Use clear, short sentences. Avoid keyword stuffing, doorway-page copy, repeated phrase skeletons and long chained keyword titles.',
     'Do not expand a clear product name merely to reach a character target. H1 should name the primary product entity once and add only a different, verified attribute or use case.',
     'Close keyword variants belong to one semantic cluster. They do not all need exact-match placement, and two near-synonymous product queries must not be stacked in one sentence or bullet.',
-    'The operator-selected event, style, persona and audience axes control use-case coverage. Ideal for must represent at least one selected value from every non-empty axis, while Product Truth vetoes incompatible or unsupported contexts.',
-    'Ideal for is reserved for people, professional roles, occasions, productions and selected style contexts. It must not describe an accent, silhouette, finish, construction, base layer, component combination or how an outfit is built.',
+    'The exact Primary may appear in SEO title, H1 and meta description, but visible body copy must use a close natural whole-product variation instead of repeating the H1 verbatim. Semantic dominance matters; density chasing does not.',
+    'The operator-selected event, style, persona and audience axes control high-intent search-focus coverage. Ideal for must represent at least one selected value from every non-empty axis. It may add only Product-Truth-compatible general buyer roles such as performers, dancers, creators or stylists; those roles do not authorize a new event, style or persona keyword.',
+    'Ideal for is reserved for 4-5 useful customer portraits: one person or at most two related professional roles plus a concrete approved occasion, production or buying need. Bare keyword fragments, role stacks, persona/direction labels, accents, silhouette, finish, construction, base layers and component combinations do not belong there.',
     'For a confirmed multi-component product, the whole outfit, set or costume is the page entity. A single component keyword may remain secondary, but it must not redefine the full product in title, H1, meta, intro or About.',
-    'For 2-3 confirmed components, meta and About should identify the outfit or set and name the composition concisely. For 4 or more components, use the whole-product entity in title, H1 and meta and leave the complete inventory to Product Truth and the dynamic What’s included block.',
+    'For every multi-component product, meta and About identify the whole outfit, set or costume without re-narrating its inventory. The dynamic What’s included block owns the confirmed component list. A component term may appear elsewhere only when it supports a different concrete buyer value.',
     'Do not mix different visual worlds simply to place more terms. Cyberpunk is not steampunk, and a high-volume but incompatible style is not a valid secondary angle.',
     'Every sentence must add a product fact, a supported buyer outcome or a distinct use case. Delete sentences that only describe an abstract mood, presence, focal point or intentional look.',
     'Main PDP copy must remain product-specific and concise. Required generated left-description order: About this piece, Why you’ll love it, Ideal for, Designed for self-expression.',
-    'Why you’ll love it must contain 3-4 genuinely different purchase reasons. A design-authorship point and a handmade-not-mass-produced point count as the same idea and must not appear as separate duplicate bullets.',
+    'Why you’ll love it must contain 3-4 genuinely different purchase reasons supported by Product Truth, canonical storefront facts or explicit visual evidence. A design-authorship point and a handmade-not-mass-produced point count as the same idea and must not appear as separate duplicate bullets. Translate evidence into buyer value; never add filler.',
     'Weak styling filler is not a benefit. Do not use works over minimal clothing, easy to build into a look, part of a complete look, creates a clear accent, works as a centerpiece or without additional design elements.',
     'Material and finish claims must come from product-specific Product Truth or verified image truth. Vegan leather and faux leather are synonyms in customer copy and must never be stacked as two materials. Reflective or retroreflective is not a synonym for glossy, mirror-like, metallic or light-catching.',
     'Never promise or discuss likes, followers, popularity, viral reach, organic attention, reactions, saves, comments, sales, press attention or other social-performance outcomes.',
@@ -143,24 +146,24 @@ export const THEFEYA_SEO_DOCTRINE = {
     seo_title: 'Aim for a concise snippet-safe title and keep the internal 68-character review cap. Never pad a short, complete title to hit a minimum.',
     h1: 'Concise human-readable product name with an 82-character review cap. Name the primary product entity once; add only a non-redundant verified differentiator and never pad to a minimum.',
     meta_description: 'Aim for concise product identity, differentiator and use case within the 158-character review cap. Completeness and natural language outrank a minimum character target.',
-    intro: '2-4 concise sentences; product hook, buyer benefit, event/use case and supported facts.',
+    intro: '1-3 concise sentences; the whole product, a selected event/use case and only supported facts. One factual sentence is preferable to inferred filler.',
     main_description: 'Coverage-first product copy, usually 120-300 words across the four generated left-description blocks. The final Designed for self-expression block should contain 45-75 words in 3-4 useful sentences. Never add filler merely to reach a word count.',
   },
   pdp_block_plan: [
     {
       block_key: 'about_this_piece',
       placement: 'left_description',
-      intent: 'Opening product story under the gallery and buy box. Lead with the complete event or style look the buyer wants, then explain how the product supports it. Weave supported material and finish facts naturally; never report left/right coordinates, visibility or image geometry.',
+      intent: 'Opening product story under the gallery and buy box. Write 2-4 natural sentences and usually 45-90 words. Lead with the buyer job and a close whole-product semantic variation, never the exact H1 phrase. Then explain how one distinctive visible design choice affects the finished look and add supported wear, material or finish value. Do not compare the product with generic/basic/plain clothing, narrate the What’s included inventory, report image coordinates or pad the block with SEO tautology.',
     },
     {
       block_key: 'why_youll_love_it',
       placement: 'left_description',
-      intent: 'Write 3-4 purchase-decision bullets using the benefit generation policy. Include exactly one concrete studio-design differentiation point plus distinct supported practical values such as easy dressing or adjustment, comfort, shape retention, durability or verified finish behavior. Never use style/event lists, visual-audit observations or abstract phrases as benefits.',
+      intent: 'Write 3-4 purchase-decision bullets using the benefit generation policy. Include exactly one concrete studio-design differentiation point plus distinct supported purchase, fit, comfort, repeat-use or visual outcomes. A canonical right-panel fact may be translated once into a new buyer consequence, but its operational sentence must not be copied. Never use style/event lists, visual-audit observations or abstract phrases as benefits.',
     },
     {
       block_key: 'ideal_for',
       placement: 'left_description',
-      intent: 'Write 3-5 bullets that answer who wears it and for which selected event, production or real style context. Use the customer use-case map and operator-selected event, style, persona and audience axes while Product Truth remains the veto. Never describe accents, silhouette, finish, construction, base layers, component combinations or how an outfit is built. Each bullet must add a distinct audience or use case.',
+      intent: 'Write 4-5 useful 7-22 word customer portraits. Each bullet names one person or at most two related roles plus a concrete selected occasion, production or buying need. Use the customer use-case map and operator-selected axes while Product Truth remains the veto. Product-compatible general roles may broaden conversion coverage, but they must not introduce an unselected event, style or persona. Never expose persona/direction labels or describe accents, silhouette, finish, construction, base layers, component combinations or how an outfit is built.',
     },
     {
       block_key: 'main_description',
@@ -177,7 +180,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     'THEFEYA_CANONICAL_RIGHT_PDP_PANEL is one fixed immutable source for both live PDP and admin preview.',
     'OpenAI must never generate, rewrite, paraphrase, translate, reorder or append any right-panel block.',
     'What’s included appears after About this piece only when confirmed configuration data exists. Render each component on its own check-marked line and hide the block when truth is unresolved.',
-    'What’s included comes from approved configuration and component mapping data for the currently selected option. When separate configurations exist, state that the Full Set or available pieces can be ordered separately.',
+    'What’s included comes only from the resolved current storefront v4 sellable offer for the selected option. Legacy Etsy variations remain provenance and cannot add a component. When separate current configurations exist, state that the Full Set or available pieces can be ordered separately.',
     'Sizing & fit, Production time, Shipping & delivery, Material, Care and Made to order & customization are fixed canonical blocks and identical for all products.',
     'Returns, exchanges and cancellation copy is not repeated in the quick right panel because policy links already exist under the purchase controls.',
     'Product-specific material nuances, visible style, event angle and benefits belong in the generated left description.',
@@ -188,7 +191,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Standard shipping: 10-14 business days. Express shipping: 6-9 business days.',
     'Sizing: use the size chart. The studio’s pieces are easy to adjust with straps. Custom measurements or a special fit request can be left with the order or discussed before production.',
     'Customization is separate from generated product copy: color, size, detail, length, coverage and fit changes can be discussed in the fixed right panel while keeping the result within the studio style.',
-    'Material, finish, comfort, durability and care are product-specific claims. Generate them only from Product Truth or verified image truth; fixed right-panel wording is not evidence for generated copy.',
+    'Material and finish claims require product-specific Product Truth or verified image truth. Approved canonical right-panel facts about adjustment, comfort or care may support one freshly written buyer consequence when they apply to the product, but their operational wording must not be copied.',
     'Returns, exchanges and cancellations are available through the store-policy links under the purchase controls and are not duplicated in the quick right panel.',
     'Gift note or card can be mentioned only as an optional request, not as a main SEO angle.',
     'Included components come from approved configuration mapping and are rendered deterministically in the left description, not invented by the model.',

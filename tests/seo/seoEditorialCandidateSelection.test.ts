@@ -1,0 +1,401 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import {
+  buildSeoEditorialRewriteSkeleton,
+  isStrictlyBetterSeoEditorialCandidate,
+  mergeBoundedSeoEditorialRepair,
+  normalizeDeterministicSeoIdentity,
+  normalizeFinalSeoEditorialOutput,
+  seoEditorialIssueSnapshot,
+  shouldSelectFinalSeoEditorialCandidate,
+  shouldRunSeoEditorialRepair,
+} from '../../lib/seoEditorialCandidateSelection.ts';
+
+const validation = (issues: Array<Record<string, unknown>>) => ({
+  ok: !issues.some((issue) => issue.severity === 'blocker'),
+  issues,
+});
+
+test('removes rejected buyer copy before the final clean-sheet editor', () => {
+  const output = {
+    contract_version: 'seo_agent_output_v1',
+    status: 'draft',
+    seo_title: 'Rejected title',
+    h1: 'Rejected H1',
+    meta_description: 'Rejected meta.',
+    intro: 'Rejected intro.',
+    bullet_highlights: ['Rejected highlight.'],
+    faq: [{ question: 'Rejected?', answer: 'Yes.', intent: 'other' }],
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'Rejected ALT',
+      truth_basis: 'visible_product_fact',
+    }],
+    internal_linking_hints: [{ anchor: 'Festival looks', target_type: 'collection', reason: 'Relevant' }],
+    visual_truth: {
+      observed_product_facts: ['Gold shoulders are visible'],
+      dna_matches: ['Shoulders'],
+      open_style_suggestions: [],
+      uncertain_or_missing_facts: [],
+      forbidden_visual_claims: [],
+    },
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        body: 'Rejected About.',
+        source_basis: 'product_fact',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'related_collections',
+        placement: 'review_only',
+        heading: 'Related collections',
+        body: 'Preserved internal note.',
+        source_basis: 'product_fact',
+        needs_human_review: true,
+      },
+    ],
+    qa_self_report: {
+      cliche_phrase: 'pass',
+      notes: ['Rejected self-assessment.'],
+    },
+    generation_notes: ['Rejected generation note.'],
+  };
+
+  assert.deepEqual(buildSeoEditorialRewriteSkeleton(output), {
+    ...output,
+    status: 'needs_review',
+    seo_title: '',
+    h1: '',
+    meta_description: '',
+    intro: '',
+    bullet_highlights: [],
+    faq: [],
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: '',
+      truth_basis: 'visible_product_fact',
+    }],
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        body: '',
+        source_basis: 'product_fact',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'related_collections',
+        placement: 'review_only',
+        heading: 'Related collections',
+        body: 'Preserved internal note.',
+        source_basis: 'product_fact',
+        needs_human_review: true,
+      },
+    ],
+    qa_self_report: {
+      cliche_phrase: 'not_checked',
+      notes: [],
+    },
+    generation_notes: [],
+  });
+});
+
+test('keeps SEO title and H1 on the reviewed Primary and selected event', () => {
+  const output = {
+    seo_title: 'Warrior Armor Costume Set with Gold Shoulders and Skirt',
+    h1: 'Warrior Armor Costume Set with Gold Shoulders and Skirt',
+    generation_notes: [],
+  };
+
+  assert.deepEqual(
+    normalizeDeterministicSeoIdentity(output, {
+      primary_keyword: 'warrior armor costume',
+      selected_events: ['festival', 'Burning Man'],
+    }),
+    {
+      seo_title: 'Warrior Armor Costume for Burning Man',
+      h1: 'Warrior Armor Costume for Burning Man',
+      generation_notes: [
+        'Deterministic identity normalization used the reviewed Primary and operator-selected event for SEO title and H1.',
+      ],
+    },
+  );
+});
+
+test('skips the editorial rewrite when deterministic QA is clean', () => {
+  assert.equal(shouldRunSeoEditorialRepair(validation([]), validation([])), false);
+  assert.equal(
+    shouldRunSeoEditorialRepair(validation([{ code: 'thin_copy', severity: 'warning' }])),
+    true,
+  );
+});
+
+test('accepts only a strict issue reduction', () => {
+  const baseline = [
+    validation([
+      { code: 'robotic_copy', severity: 'blocker' },
+      { code: 'repetition', severity: 'warning' },
+    ]),
+  ];
+  assert.equal(
+    isStrictlyBetterSeoEditorialCandidate(
+      [validation([{ code: 'repetition', severity: 'warning' }])],
+      baseline,
+    ),
+    true,
+  );
+  assert.equal(
+    isStrictlyBetterSeoEditorialCandidate(
+      [validation([
+        { code: 'robotic_copy', severity: 'blocker' },
+        { code: 'different_warning', severity: 'warning' },
+      ])],
+      baseline,
+    ),
+    false,
+  );
+});
+
+test('prefers a QA-clean strong final editor when it does not add warnings', () => {
+  assert.equal(
+    shouldSelectFinalSeoEditorialCandidate(
+      [validation([])],
+      [validation([])],
+    ),
+    true,
+  );
+  assert.equal(
+    shouldSelectFinalSeoEditorialCandidate(
+      [validation([{ code: 'new_warning', severity: 'warning' }])],
+      [validation([])],
+    ),
+    false,
+  );
+  assert.equal(
+    shouldSelectFinalSeoEditorialCandidate(
+      [validation([])],
+      [validation([{ code: 'robotic_copy', severity: 'blocker' }])],
+    ),
+    true,
+  );
+});
+
+test('rejects a repair that trades an old blocker for a new blocker', () => {
+  const baseline = [
+    validation([
+      { code: 'robotic_copy', severity: 'blocker' },
+      { code: 'composition_repeat', severity: 'blocker' },
+    ]),
+  ];
+  const candidate = [
+    validation([
+      { code: 'unsupported_claim', severity: 'blocker' },
+    ]),
+  ];
+  assert.equal(isStrictlyBetterSeoEditorialCandidate(candidate, baseline), false);
+});
+
+test('accepts a net reduction when only editorial blocker classes change', () => {
+  const baseline = [
+    validation([
+      { code: 'robotic_copy', severity: 'blocker' },
+      { code: 'repeated_idea', severity: 'blocker' },
+    ]),
+  ];
+  const candidate = [
+    validation([
+      { code: 'copy_rhythm_issue', severity: 'blocker' },
+    ]),
+  ];
+  assert.equal(isStrictlyBetterSeoEditorialCandidate(candidate, baseline), true);
+});
+
+test('rejects a net reduction that introduces an unselected event', () => {
+  const baseline = [
+    validation([
+      { code: 'robotic_copy', severity: 'blocker' },
+      { code: 'repeated_idea', severity: 'blocker' },
+    ]),
+  ];
+  const candidate = [
+    validation([
+      { code: 'customer_copy_uses_unselected_event_focus', severity: 'blocker' },
+    ]),
+  ];
+  assert.equal(isStrictlyBetterSeoEditorialCandidate(candidate, baseline), false);
+});
+
+test('rejects an editorial improvement that breaks primary placement', () => {
+  const baseline = [
+    validation([
+      { code: 'robotic_copy', severity: 'blocker' },
+      { code: 'repeated_idea', severity: 'blocker' },
+    ]),
+  ];
+  const candidate = [
+    validation([
+      { code: 'primary_missing_body', severity: 'blocker', keyword: 'warrior armor costume' },
+    ]),
+  ];
+  assert.equal(isStrictlyBetterSeoEditorialCandidate(candidate, baseline), false);
+});
+
+test('rejects an editorial rewrite that removes blockers by collapsing About or benefits', () => {
+  const baseline = [
+    validation([
+      { code: 'customer_copy_contains_robotic_editorial_jargon', severity: 'blocker' },
+      { code: 'repeated_idea_fit_and_adjustability', severity: 'blocker' },
+      { code: 'repeated_idea_reflective_finish', severity: 'blocker' },
+    ]),
+  ];
+  const candidate = [
+    validation([
+      { code: 'pdp_block_about_this_piece_too_thin_0', severity: 'blocker' },
+    ]),
+  ];
+  assert.equal(isStrictlyBetterSeoEditorialCandidate(candidate, baseline), false);
+});
+
+test('keeps an auditable issue snapshot with keyword identity', () => {
+  assert.deepEqual(
+    seoEditorialIssueSnapshot(validation([
+      { code: 'primary_missing_body', severity: 'blocker', keyword: 'Warrior Armor Costume' },
+      { code: 'commercial_unplaced', severity: 'warning', keyword: 'buy costume online' },
+    ])),
+    {
+      blocker_count: 1,
+      warning_count: 1,
+      blocker_keys: ['primary_missing_body:warrior armor costume'],
+      warning_keys: ['commercial_unplaced:buy costume online'],
+    },
+  );
+});
+
+test('removes deterministic brand padding from the final SEO title only', () => {
+  const output = {
+    seo_title: 'Gold Warrior Armor Costume for Burning Man | TheFEYA',
+    h1: 'Gold Warrior Armor Costume for Burning Man',
+    generation_notes: ['Model draft retained for audit.'],
+  };
+  assert.deepEqual(normalizeFinalSeoEditorialOutput(output), {
+    seo_title: 'Gold Warrior Armor Costume for Burning Man',
+    h1: 'Gold Warrior Armor Costume for Burning Man',
+    generation_notes: [
+      'Model draft retained for audit.',
+      'Deterministic review normalization removed brand padding from the SEO title.',
+    ],
+  });
+  assert.equal(output.seo_title, 'Gold Warrior Armor Costume for Burning Man | TheFEYA');
+});
+
+test('bounded residual repair changes only fields named by remaining issue codes', () => {
+  const baseline = {
+    seo_title: 'Warrior Armor Costume for Burning Man',
+    intro: 'Accepted intro.',
+    image_alt_candidates: [{ alt_text: 'Accepted ALT' }],
+    pdp_blocks: [
+      { block_key: 'about_this_piece', body: 'Accepted About.' },
+      { block_key: 'why_youll_love_it', body: 'Rejected benefits.' },
+      { block_key: 'ideal_for', body: 'Accepted Ideal for.' },
+      { block_key: 'main_description', body: 'Accepted studio close.' },
+    ],
+  };
+  const candidate = {
+    seo_title: 'Regressed title',
+    intro: 'Regressed intro.',
+    image_alt_candidates: [{ alt_text: 'Regressed ALT' }],
+    pdp_blocks: [
+      { block_key: 'about_this_piece', body: 'Regressed About.' },
+      { block_key: 'why_youll_love_it', body: 'Repaired benefits.' },
+      { block_key: 'ideal_for', body: 'Regressed Ideal for.' },
+      { block_key: 'main_description', body: 'Regressed studio close.' },
+    ],
+  };
+
+  assert.deepEqual(
+    mergeBoundedSeoEditorialRepair(
+      baseline,
+      candidate,
+      validation([
+        { code: 'why_youll_love_it_lacks_benefit_diversity', severity: 'blocker' },
+        { code: 'why_youll_love_it_benefit_2_has_no_concrete_buyer_value', severity: 'blocker' },
+      ]),
+    ),
+    {
+      ...baseline,
+      pdp_blocks: [
+        { block_key: 'about_this_piece', body: 'Accepted About.' },
+        { block_key: 'why_youll_love_it', body: 'Repaired benefits.' },
+        { block_key: 'ideal_for', body: 'Accepted Ideal for.' },
+        { block_key: 'main_description', body: 'Accepted studio close.' },
+      ],
+    },
+  );
+});
+
+test('a whole-copy editorial issue can repair all customer-copy owners but not title or ALT', () => {
+  const baseline = {
+    seo_title: 'Warrior Armor Costume for Burning Man',
+    meta_description: 'Rejected meta.',
+    intro: 'Rejected intro.',
+    image_alt_candidates: [{ alt_text: 'Accepted ALT' }],
+    pdp_blocks: [
+      { block_key: 'about_this_piece', body: 'Rejected About.' },
+      { block_key: 'why_youll_love_it', body: 'Rejected benefits.' },
+      { block_key: 'ideal_for', body: 'Rejected use cases.' },
+      { block_key: 'main_description', body: 'Rejected studio close.' },
+    ],
+  };
+  const candidate = {
+    seo_title: 'Regressed title',
+    meta_description: 'Repaired meta.',
+    intro: 'Repaired intro.',
+    image_alt_candidates: [{ alt_text: 'Regressed ALT' }],
+    pdp_blocks: [
+      { block_key: 'about_this_piece', body: 'Repaired About.' },
+      { block_key: 'why_youll_love_it', body: 'Repaired benefits.' },
+      { block_key: 'ideal_for', body: 'Repaired use cases.' },
+      { block_key: 'main_description', body: 'Repaired studio close.' },
+    ],
+  };
+
+  assert.deepEqual(
+    mergeBoundedSeoEditorialRepair(
+      baseline,
+      candidate,
+      validation([{ code: 'repeated_idea_base_layer_styling', severity: 'blocker' }]),
+    ),
+    {
+      ...candidate,
+      seo_title: baseline.seo_title,
+      image_alt_candidates: baseline.image_alt_candidates,
+    },
+  );
+});
+
+test('secondary semantic warning permits an ALT-only residual repair', () => {
+  const baseline = {
+    intro: 'Accepted intro.',
+    image_alt_candidates: [{ alt_text: 'Shoulders and skirt outdoors' }],
+  };
+  const candidate = {
+    intro: 'Regressed intro.',
+    image_alt_candidates: [{ alt_text: 'Gold shoulder armor and skirt outdoors' }],
+  };
+
+  assert.deepEqual(
+    mergeBoundedSeoEditorialRepair(
+      baseline,
+      candidate,
+      validation([{ code: 'secondary_keyword_cluster_unrepresented', severity: 'warning' }]),
+    ),
+    {
+      ...baseline,
+      image_alt_candidates: candidate.image_alt_candidates,
+    },
+  );
+});

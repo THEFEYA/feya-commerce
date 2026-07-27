@@ -1,4 +1,5 @@
 import { classifySeoProductPresentation, hasWholeProductScope } from './seoProductPresentation.ts';
+import type { StorefrontSellableOfferTruth } from './storefrontSellableOffer.ts';
 
 export type SeoPackContractVersion = 'seo_pack_v1';
 export type SeoAgentInputContractVersion = 'seo_agent_input_v1';
@@ -89,6 +90,11 @@ export type SeoComponentEvidence = {
   source_variations?: SeoSourceEvidenceRow[];
   option_price_rows?: SeoSourceEvidenceRow[];
   source_description_fragment?: string | null;
+  sellable_offer?: StorefrontSellableOfferTruth | null;
+  sellable_offer_source?: 'storefront_v4_configurations' | null;
+  legacy_product_truth_included_components?: string[];
+  unsupported_legacy_components?: string[];
+  reconciliation_status?: string | null;
 };
 
 export type SeoProductTruth = {
@@ -105,6 +111,10 @@ export type SeoProductTruth = {
   known_components: string[];
   known_non_components: SeoSourceEvidenceValue[];
   included_components?: string[];
+  sellable_offer_components?: string[];
+  sellable_offer?: StorefrontSellableOfferTruth | null;
+  sellable_offer_signature?: string | null;
+  legacy_product_truth_included_components?: string[];
   optional_configurations?: SeoSourceEvidenceValue[];
   available_variants?: SeoSourceEvidenceValue[];
   unresolved_component_facts?: SeoSourceEvidenceValue[];
@@ -289,6 +299,7 @@ export type SeoPackDraftContract = {
       | 'needs_keyword_review';
     evidence_source: string;
     confirmation_required: boolean;
+    blockers?: string[];
   } | null;
   product_truth: SeoProductTruth;
   manual_focus: SeoManualFocusContract;
@@ -328,8 +339,12 @@ export function getSeoPackApprovalBlockers(draft: SeoPackDraftContract | null | 
   const blockers: string[] = [];
   const truth = draft.product_truth;
   const componentFacts = uniqueNonEmpty([
-    ...(truth?.included_components || []),
-    ...(truth?.known_components || []),
+    ...(truth?.sellable_offer_components?.length
+      ? truth.sellable_offer_components
+      : [
+          ...(truth?.included_components || []),
+          ...(truth?.known_components || []),
+        ]),
   ]);
   const usefulKeywords = [
     ...(draft.keyword_roles?.primary || []),
@@ -337,7 +352,8 @@ export function getSeoPackApprovalBlockers(draft: SeoPackDraftContract | null | 
   ].filter((item) => Boolean(item?.keyword || item?.keyword_norm));
   const hasSourceEvidence = Boolean(truth?.source_description_fragment?.trim())
     || Boolean(truth?.source_variations?.length)
-    || Boolean(truth?.option_price_rows?.length);
+    || Boolean(truth?.option_price_rows?.length)
+    || truth?.sellable_offer?.source_available === true;
 
   if (!draft.canonical_product_id) blockers.push('missing_canonical_product_id');
   if (draft.keyword_selection?.status !== 'confirmed') blockers.push('keyword_selection_not_human_confirmed');
@@ -349,6 +365,7 @@ export function getSeoPackApprovalBlockers(draft: SeoPackDraftContract | null | 
   if ((truth?.component_review_blockers || []).length) blockers.push('component_review_blockers_present');
   if (!hasSourceEvidence) blockers.push('missing_source_configuration_evidence');
   if (!usefulKeywords.length) blockers.push('missing_primary_or_secondary_keyword');
+  blockers.push(...getSeoProductTruthEvidenceBlockers(truth));
   blockers.push(...getSeoKeywordSelectionBlockers(draft));
   if ((draft.metrics_status?.validated_count || 0) < 1) blockers.push('missing_validated_keyword_metric');
   if (String(draft.status || '').startsWith('blocked_')) blockers.push(`draft_status_${draft.status}`);
@@ -384,7 +401,8 @@ export function getSeoPackReviewDraftStorageBlockers(draft: SeoPackDraftContract
   ].filter((item) => Boolean(item?.keyword || item?.keyword_norm));
   const hasSourceEvidence = Boolean(truth?.source_description_fragment?.trim())
     || Boolean(truth?.source_variations?.length)
-    || Boolean(truth?.option_price_rows?.length);
+    || Boolean(truth?.option_price_rows?.length)
+    || truth?.sellable_offer?.source_available === true;
 
   if (!draft.canonical_product_id) blockers.push('missing_canonical_product_id');
   if (draft.keyword_selection?.status !== 'confirmed') blockers.push('keyword_selection_not_human_confirmed');
@@ -434,17 +452,27 @@ export function getSeoProductTruthEvidenceBlockers(
 ): string[] {
   if (!truth) return ['composition_missing_canonical_product_truth'];
 
-  const confirmedComponents = uniqueNonEmpty([
-    ...(truth?.included_components || []),
-    ...(truth?.known_components || []),
-  ]);
+  const hasSellableOfferContract = Boolean(truth?.sellable_offer);
+  const confirmedComponents = uniqueNonEmpty(
+    truth?.sellable_offer_components?.length
+      ? truth.sellable_offer_components
+      : [
+          ...(truth?.included_components || []),
+          ...(truth?.known_components || []),
+        ],
+  );
   const hasSourceConfigurationEvidence = Boolean(truth?.source_description_fragment?.trim())
     || Boolean(truth?.source_variations?.length)
-    || Boolean(truth?.option_price_rows?.length);
+    || Boolean(truth?.option_price_rows?.length)
+    || truth?.sellable_offer?.source_available === true;
   const blockers: string[] = [];
 
   if (truth?.product_truth_source !== 'seo_product_truth_v1') {
     blockers.push('composition_missing_canonical_product_truth');
+  }
+  if (hasSellableOfferContract && truth?.sellable_offer?.status !== 'ready') {
+    blockers.push('option_truth_mismatch');
+    blockers.push(...(truth.sellable_offer?.blockers || []));
   }
   if (!confirmedComponents.length) {
     blockers.push('composition_missing_confirmed_components');

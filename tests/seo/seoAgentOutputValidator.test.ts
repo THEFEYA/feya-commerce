@@ -17,7 +17,7 @@ function output(overrides: Record<string, unknown> = {}) {
     pdp_blocks: [
       { block_key: 'about_this_piece', placement: 'left_description', heading: 'About this piece', body: 'Build a bold Burning Man or stage look around this layered gold armor. Adjustable straps make the fit easier to adapt to different body shapes.', source_basis: 'product_fact', needs_human_review: false },
       { block_key: 'why_youll_love_it', placement: 'left_description', heading: 'Why you’ll love it', body: 'Our original studio design gives the outfit a bold, recognizable detail.\nThe chest strap supports a more secure fit.\nLayered material helps the piece keep its shape between wears.', source_basis: 'product_fact', needs_human_review: false },
-      { block_key: 'ideal_for', placement: 'left_description', heading: 'Ideal for', body: 'Burning Man and desert festivals.\nStage costumes and editorial shoots.\nWarrior-inspired styling for men.', source_basis: 'product_fact', needs_human_review: false },
+      { block_key: 'ideal_for', placement: 'left_description', heading: 'Ideal for', body: 'Burning Man attendees planning a warrior-inspired festival look.\nStage performers preparing an original costume for a live show.\nEditorial teams styling wardrobe for a fashion photoshoot.\nFestival-goers choosing a distinctive outfit for a major weekend.', source_basis: 'product_fact', needs_human_review: false },
       { block_key: 'main_description', placement: 'left_description', heading: 'Designed for self-expression', body: 'At TheFEYA, we are an independent team of designers with a fresh point of view on festival and stage fashion. We create original ideas across different styles so people can choose a design that feels like them. This piece gives you a distinctive starting point for a bold performance look. You can build the rest around your own style.', source_basis: 'brand_policy', needs_human_review: false },
     ],
     visual_truth: {
@@ -49,6 +49,56 @@ test('allows a concise complete H1 without character padding', () => {
   const codes = result.issues.map((issue) => issue.code);
   assert.equal(codes.includes('h1_short'), false);
   assert.equal(codes.includes('h1_restates_same_product_entity'), false);
+});
+
+test('allows a single factual intro sentence without forcing filler', () => {
+  const result = validateSeoAgentOutput(output({
+    intro: 'A gold warrior set made for Burning Man.',
+  }));
+  assert.equal(result.issues.some((issue) => issue.code === 'intro_sentence_count'), false);
+});
+
+test('blocks a collapsed two-benefit Why section', () => {
+  const value = output({
+    pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: 'Our original studio design is not tied to a named character.\nEach component can be ordered separately when you only need one part.',
+      }
+      : block),
+  });
+  const result = validateSeoAgentOutput(value);
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('pdp_block_benefit_count_')), true);
+});
+
+test('blocks an About section that only restates the product in one sentence', () => {
+  const value = output({
+    pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'
+      ? {
+        ...block,
+        body: 'This warrior armor costume is for festivals.',
+      }
+      : block),
+  });
+  const result = validateSeoAgentOutput(value);
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.some((code) => code.startsWith('pdp_block_about_this_piece_too_thin_')));
+  assert.ok(codes.some((code) => code.startsWith('pdp_block_about_this_piece_sentence_count_')));
+});
+
+test('blocks an Ideal for section collapsed into keyword fragments', () => {
+  const value = output({
+    pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'
+      ? {
+        ...block,
+        body: 'Burning Man costumes.\nFestival wear.\nWarrior-inspired style.',
+      }
+      : block),
+  });
+  const result = validateSeoAgentOutput(value);
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.some((code) => code.startsWith('pdp_block_use_case_count_')));
+  assert.ok(codes.some((code) => code.startsWith('pdp_block_ideal_for_too_thin_')));
 });
 
 test('blocks a padded H1 that restates the same shoulder product', () => {

@@ -86,6 +86,44 @@ test('real generation opens only for canonical confirmed composition', () => {
   assert.deepEqual(getSeoGenerationProductTruthBlockers(draft('confirmed')), []);
 });
 
+test('current sellable offer is sufficient source evidence without legacy Etsy rows', () => {
+  const current = draft('confirmed') as any;
+  current.product_truth.source_description_fragment = '';
+  current.product_truth.source_variations = [];
+  current.product_truth.option_price_rows = [];
+  current.product_truth.included_components = ['stale top'];
+  current.product_truth.known_components = ['stale top'];
+  current.product_truth.sellable_offer_components = ['Shoulders', 'Skirt'];
+  current.product_truth.sellable_offer = {
+    status: 'ready',
+    source_available: true,
+    component_labels: ['Shoulders', 'Skirt'],
+    blockers: [],
+  };
+  current.keyword_roles.primary = [{ keyword: 'warrior armor costume' }];
+
+  assert.equal(
+    getSeoPackApprovalBlockers(current).includes('missing_source_configuration_evidence'),
+    false,
+  );
+  assert.deepEqual(getSeoGenerationProductTruthBlockers(current), []);
+});
+
+test('approval fails closed when the current sellable offer is unresolved', () => {
+  const unsafe = draft('confirmed') as any;
+  unsafe.product_truth.sellable_offer_components = [];
+  unsafe.product_truth.sellable_offer = {
+    status: 'hold',
+    source_available: true,
+    component_labels: [],
+    blockers: ['aggregate_members_unknown:full_set'],
+  };
+
+  const blockers = getSeoPackApprovalBlockers(unsafe);
+  assert.ok(blockers.includes('option_truth_mismatch'));
+  assert.ok(blockers.includes('aggregate_members_unknown:full_set'));
+});
+
 test('multi-component product cannot be confirmed with a component-only primary', () => {
   const unsafe = draft('confirmed') as any;
   unsafe.product_truth.title = 'Gold Festival Armor Outfit';

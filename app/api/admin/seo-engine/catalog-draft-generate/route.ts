@@ -12,6 +12,12 @@ import {
   getSeoPackDraftSaveBlockers,
 } from '@/lib/seoPackContract';
 import { generateSeoDraftWithOpenAi } from '@/lib/seoOpenAiDraftGenerator';
+import {
+  buildSeoEditorialRewriteSkeleton,
+  normalizeDeterministicSeoIdentity,
+  normalizeFinalSeoEditorialOutput,
+  shouldSelectFinalSeoEditorialCandidate,
+} from '@/lib/seoEditorialCandidateSelection';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,7 +46,10 @@ export async function GET() {
     writes: false,
     publish: false,
     apply: false,
-    humanizer_repair_attempts: 1,
+    generation_passes: 2,
+    final_editorial_rewrite_passes: 1,
+    final_editor_model: process.env.FEYA_SEO_OPENAI_EDITOR_MODEL || 'gpt-5.4',
+    final_editor_reasoning_effort: 'high',
   });
 }
 
@@ -117,6 +126,11 @@ export async function POST(request: Request) {
     buildSeoAgentPromptContract(bundle.aiAgentInput),
     readiness,
   );
+  const commercialContext = {
+    product_truth: bundle.seoPackDraft.product_truth,
+    manual_focus: bundle.seoPackDraft.manual_focus,
+    keyword_roles: bundle.seoPackDraft.keyword_roles,
+  };
   const shared = buildSharedPayload(bundle, readiness, promptContract, primaryImageUrl, portfolioStrategy);
 
   if (hardBlockers.length) {
@@ -129,57 +143,91 @@ export async function POST(request: Request) {
     }, { status: 423 });
   }
 
-  const firstGeneration = await generateSeoDraftWithOpenAi(promptContract, { primaryImageUrl });
+  const primaryKeyword = bundle.seoPackDraft?.keyword_roles?.primary?.[0]?.keyword
+    || bundle.seoPackDraft?.keyword_roles?.primary?.[0]?.keyword_norm
+    || null;
+  const selectedEvents = normalizeFocusValues(bundle.seoPackDraft?.manual_focus?.event);
+  const identityNormalizationContext = {
+    primary_keyword: primaryKeyword,
+    selected_events: selectedEvents,
+  };
+  let firstGeneration = await generateSeoDraftWithOpenAi(promptContract, { primaryImageUrl });
+  if (firstGeneration.output) {
+    firstGeneration = {
+      ...firstGeneration,
+      output: normalizeDeterministicSeoIdentity(
+        firstGeneration.output,
+        identityNormalizationContext,
+      ),
+    };
+  }
   const firstStructural = firstGeneration.output
     ? validateSeoAgentOutput(firstGeneration.output)
     : validateSeoAgentOutput(null);
   const firstCommercial = firstGeneration.output
-    ? validateSeoCommercialCopy(firstGeneration.output, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus })
-    : validateSeoCommercialCopy(null, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus });
+    ? validateSeoCommercialCopy(firstGeneration.output, commercialContext)
+    : validateSeoCommercialCopy(null, commercialContext);
   const firstKeywordPlacement = validateSeoKeywordPlacement(firstGeneration.output, bundle.seoPackDraft);
 
   let selectedGeneration = firstGeneration;
   let selectedStructural = firstStructural;
   let selectedCommercial = firstCommercial;
   let selectedKeywordPlacement = firstKeywordPlacement;
-  let repairGeneration = null;
-  let repairStructural = null;
-  let repairCommercial = null;
-  let repairKeywordPlacement = null;
-  let repairUsed = false;
+  let finalReviewGeneration = null;
+  let finalReviewStructural = null;
+  let finalReviewCommercial = null;
+  let finalReviewKeywordPlacement = null;
+  let finalReviewUsed = false;
 
-  if (firstGeneration.ok && firstGeneration.output) {
-    const repairPrompt = buildRepairPrompt(
+  // One fast writer plus one strong clean-sheet editor is the complete
+  // synchronous pipeline. The former mini-editor and residual fourth call made
+  // the route exceed Vercel's five-minute ceiling without adding an independent
+  // quality signal.
+  const shouldRunFinalReview = Boolean(firstGeneration.ok && firstGeneration.output);
+  if (shouldRunFinalReview) {
+    const finalReviewPrompt = buildFinalReviewPrompt(
       promptContract,
       firstGeneration.output,
       firstStructural.issues || [],
       firstCommercial.issues || [],
       firstKeywordPlacement.issues || [],
+      primaryKeyword,
+      buildFinalEditorContext(bundle.seoPackDraft, firstGeneration.output),
     );
-    // The second pass is an editorial pass over verified text. Excluding the image
-    // prevents the editor from drifting back into computer-vision narration.
-    repairGeneration = await generateSeoDraftWithOpenAi(repairPrompt);
-    repairStructural = repairGeneration.output
-      ? validateSeoAgentOutput(repairGeneration.output)
+    finalReviewGeneration = await generateSeoDraftWithOpenAi(finalReviewPrompt, {
+      model: process.env.FEYA_SEO_OPENAI_EDITOR_MODEL || 'gpt-5.4',
+      reasoningEffort: 'high',
+    });
+    if (finalReviewGeneration.output) {
+      finalReviewGeneration = {
+        ...finalReviewGeneration,
+        output: normalizeDeterministicSeoIdentity(
+          normalizeFinalSeoEditorialOutput(finalReviewGeneration.output),
+          identityNormalizationContext,
+        ),
+      };
+    }
+    finalReviewStructural = finalReviewGeneration.output
+      ? validateSeoAgentOutput(finalReviewGeneration.output)
       : validateSeoAgentOutput(null);
-    repairCommercial = repairGeneration.output
-      ? validateSeoCommercialCopy(repairGeneration.output, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus })
-      : validateSeoCommercialCopy(null, { product_truth: bundle.seoPackDraft.product_truth, manual_focus: bundle.seoPackDraft.manual_focus });
-    repairKeywordPlacement = validateSeoKeywordPlacement(repairGeneration.output, bundle.seoPackDraft);
+    finalReviewCommercial = finalReviewGeneration.output
+      ? validateSeoCommercialCopy(finalReviewGeneration.output, commercialContext)
+      : validateSeoCommercialCopy(null, commercialContext);
+    finalReviewKeywordPlacement = validateSeoKeywordPlacement(finalReviewGeneration.output, bundle.seoPackDraft);
 
     if (
-      repairGeneration.ok
-      && repairGeneration.output
-      && isCandidateAtLeastAsGood(
-        [repairStructural, repairCommercial, repairKeywordPlacement],
+      finalReviewGeneration.ok
+      && finalReviewGeneration.output
+      && shouldSelectFinalSeoEditorialCandidate(
+        [finalReviewStructural, finalReviewCommercial, finalReviewKeywordPlacement],
         [firstStructural, firstCommercial, firstKeywordPlacement],
       )
     ) {
-      selectedGeneration = repairGeneration;
-      selectedStructural = repairStructural;
-      selectedCommercial = repairCommercial;
-      selectedKeywordPlacement = repairKeywordPlacement;
-      repairUsed = true;
+      selectedGeneration = finalReviewGeneration;
+      selectedStructural = finalReviewStructural;
+      selectedCommercial = finalReviewCommercial;
+      selectedKeywordPlacement = finalReviewKeywordPlacement;
+      finalReviewUsed = true;
     }
   }
 
@@ -202,16 +250,27 @@ export async function POST(request: Request) {
       commercial_validation: firstCommercial,
       keyword_placement_validation: firstKeywordPlacement,
     },
-    humanizer_repair: repairGeneration ? {
+    humanizer_repair: {
+      attempted: false,
+      selected: false,
+      reason: 'removed_from_synchronous_two_pass_pipeline',
+    },
+    final_editorial_review: finalReviewGeneration ? {
       attempted: true,
-      selected: repairUsed,
-      openai: sanitizeGeneration(repairGeneration),
-      structural_validation: repairStructural,
-      commercial_validation: repairCommercial,
-      keyword_placement_validation: repairKeywordPlacement,
+      selected: finalReviewUsed,
+      openai: sanitizeGeneration(finalReviewGeneration),
+      structural_validation: finalReviewStructural,
+      commercial_validation: finalReviewCommercial,
+      keyword_placement_validation: finalReviewKeywordPlacement,
     } : {
       attempted: false,
       selected: false,
+      reason: shouldRunFinalReview ? 'final_editor_generation_unavailable' : 'first_generation_unavailable',
+    },
+    residual_editorial_review: {
+      attempted: false,
+      selected: false,
+      reason: 'removed_from_synchronous_two_pass_pipeline',
     },
   };
 
@@ -237,11 +296,11 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     ok: true,
-    status: repairUsed ? 'catalog_full_draft_repaired_not_saved' : 'catalog_full_draft_generated_not_saved',
+    status: finalReviewUsed ? 'catalog_full_draft_repaired_not_saved' : 'catalog_full_draft_generated_not_saved',
     blocked: false,
     mode: 'openai_review_draft_not_saved',
-    message: repairUsed
-      ? 'The first pass needed correction. The Humanizer produced a valid catalog review draft. Nothing was saved or published.'
+    message: finalReviewUsed
+      ? 'The fast writer and independent strong editorial pass produced a valid catalog review draft. Nothing was saved or published.'
       : 'The catalog review draft passed structural and commercial QA. Nothing was saved or published.',
     openai_generation: sanitizeGeneration(selectedGeneration),
     generated_draft_output: finalDraft,
@@ -330,83 +389,260 @@ function applyReadinessToPromptContract(promptContract, readiness) {
   };
 }
 
-function buildRepairPrompt(promptContract, currentOutput, structuralIssues, commercialIssues, keywordPlacementIssues) {
-  const prioritizedKeywordIssues = keywordPlacementIssues.filter((issue) => (
-    issue.severity === 'blocker'
-    || issue.code === 'primary_missing_meta_description'
-    || issue.code === 'primary_missing_body'
-  ));
-  const commercialWarnings = keywordPlacementIssues
-    .filter((issue) => issue.severity !== 'blocker' && issue.code === 'commercial_keyword_unplaced')
-    .filter((issue, index, issues) => (
-      issues.findIndex((candidate) => candidate.keyword === issue.keyword) === index
-    ))
-    .slice(0, 2);
-  prioritizedKeywordIssues.push(...commercialWarnings);
-
+function buildFinalReviewPrompt(
+  promptContract,
+  currentOutput,
+  structuralIssues,
+  commercialIssues,
+  keywordPlacementIssues,
+  authoritativePrimaryKeyword,
+  authoritativeContext,
+) {
+  const primaryKeyword = authoritativePrimaryKeyword || keywordPlacementIssues.find((issue) => (
+    issue.keyword && String(issue.code || '').startsWith('primary_')
+  ))?.keyword || null;
+  const manualFocus = authoritativeContext?.manual_focus || {};
+  const selectedEvents = normalizeFocusValues(manualFocus?.event);
+  const selectedStyles = normalizeFocusValues(manualFocus?.style);
+  const selectedPersonas = normalizeFocusValues(manualFocus?.persona);
+  const selectedAudiences = normalizeFocusValues(manualFocus?.audience);
+  const approvedBuyerRoles = normalizeFocusValues(
+    authoritativeContext?.left_copy_evidence_policy?.approved_general_buyer_roles,
+  );
+  const confirmedComponents = normalizeFocusValues(
+    authoritativeContext?.product_truth?.sellable_offer?.component_labels
+      || authoritativeContext?.product_truth?.included_components,
+  );
+  const preferredEvent = selectedEvents.find((value) => /^burning man$/i.test(value))
+    || selectedEvents[0]
+    || '';
+  const deterministicIdentity = primaryKeyword && preferredEvent
+    ? `${toTitleCase(primaryKeyword)} for ${formatSelectedEvent(preferredEvent)}`
+    : '';
   const issueLines = [
     ...structuralIssues.map((issue) => `${issue.severity}:${issue.code}: ${issue.message}`),
     ...commercialIssues.map((issue) => `${issue.severity}:${issue.code}: ${issue.message}`),
-    ...prioritizedKeywordIssues.map((issue) => `${issue.severity}:${issue.code}: ${issue.message}${issue.keyword ? ` [${issue.keyword}]` : ''}`),
+    ...keywordPlacementIssues.map((issue) => `${issue.severity}:${issue.code}: ${issue.message}${issue.keyword ? ` [${issue.keyword}]` : ''}`),
   ];
-  const editorPolicy = [
-    '',
-    'THEFEYA FINAL BUYER-COPY EDITOR:',
-    'Return a complete seo_agent_output_v1 JSON object, not a patch or commentary.',
-    'Edit the draft as a senior ecommerce editor. Product Truth is authoritative.',
-    'Every sentence must answer a normal buyer question or add a concrete purchase benefit. Delete sentences that do neither.',
-    'Treat search queries as evidence, not finished customer copy. SEO title, H1, metadata and body copy must use idiomatic English; reorder query tokens and inflect words when grammar requires it.',
-    'Preserve the Primary product meaning and search intent naturally. Exact query word order is not required when it would produce awkward English. Secondary keywords are optional semantic evidence, never an exact-placement checklist.',
-    'Prefer clear product, event and buyer language. Do not write fashion-analysis, computer-vision or internal SEO language.',
-    'Keep About this piece product-specific; Why you’ll love it benefit-led; Ideal for use-case-led; Designed for self-expression studio-led.',
-    'Why you’ll love it: 3-4 different supported reasons, each expressed as fact -> concrete buyer outcome. Include one concrete original-design benefit.',
-    'Ideal for: supported events, personas, productions or styles only; never product anatomy or finish details.',
-    'Designed for self-expression: 45-75 words about our independent design team, original ideas, and helping people build a look that feels personal. Never mention team size.',
-    'Do not repeat a benefit, finish claim, event use or product-query variant across blocks.',
-    'Do not repeat the product entity through a near-synonym in H1 or meta.',
-    'Do not use abstract filler such as bold color, bold gold finish, coordinated look, coordinated costume, stage-ready shape, visual noise, presence, character, body line, reads clearly or sculptural silhouette.',
-    'If supported commercial-intent keywords are listed, use at most one natural purchase sentence about ordering online, made-to-order availability or delivery. Never stack buy/order/shop/delivery phrases and never invent an offer.',
-    'Do not report left/right orientation, placement, visibility from the front or other computer-vision coordinates in commercial copy.',
-    'Do not alter raw variations, component mappings, configuration meaning, prices or the fixed right PDP panel.',
-    'Do not turn Shoulder into Shoulders or Shoulders into Shoulder unless the source configuration itself uses that grammar.',
+  const finalSystem = [
+    'You are the final human-copy line editor for TheFEYA product pages.',
+    'Return only one complete JSON object matching seo_agent_output_v1. Do not return commentary.',
+    'The current JSON is a rejected editorial draft, not a wording template. Preserve its supported facts, contract keys, visual_truth items, internal-linking hints and forbidden-claim boundaries, but replace its customer-facing wording where needed.',
+    'Rewrite only customer-facing SEO fields, image ALT wording, and the four left_description bodies needed to remove the listed QA issues.',
+    'Do not invent a component, material property, event, high-intent style or persona, product-incompatible audience, fit promise, price, delivery promise or right-panel wording.',
+    'Use natural en-US ecommerce prose. Every sentence must identify the product or its selected use, or add a concrete supported outcome. Never invent an outcome merely to fill a section.',
+    'Write like a skilled editor for an independent fashion studio: concrete, warm and persuasive, with varied sentence rhythm. Beauty must come from truthful product detail and buyer relevance, not hype, dry database prose or abstract design jargon.',
+    'Repair weak wording in place. Do not solve repetition or robotic phrasing by deleting the product story, reducing benefit count, replacing buyer profiles with keyword fragments or turning a paragraph into a title restatement.',
+    'Do not use coordinated, stage-ready presence, strong finish, clear performance feel, bold complete outfit, reads clearly, buyers who want, people looking for, persona, direction, harder look, stronger costume look, more finished costume, looks intentional, or turn a vision into a look.',
   ].join('\n');
-  const repairRequest = [
-    'Repair the current draft against these prioritized validation issues:',
-    'Exact validation issues:',
-    ...(issueLines.length ? issueLines.map((line) => `- ${line}`) : ['- Improve differentiation, rhythm and commercial clarity.']),
+  const finalUser = [
+    'Repair every listed issue. Silently validate the finished JSON before returning it.',
+    'SUBSTANCE PRESERVATION: the finished About, Why, Ideal for and studio close must remain a complete commercial description. A shorter draft is not better unless every required section still performs its full buyer-facing job.',
+    'Deterministic issues:',
+    ...(issueLines.length ? issueLines.map((line) => `- ${line}`) : ['- Remove repetition and robotic phrasing.']),
     '',
-    'Current JSON to repair:',
-    JSON.stringify(currentOutput, null, 2),
+    'AUTHORITATIVE CONTEXT — preserve it exactly and never expand it from the legacy title, current draft, image, Keyword Bank, or imagination:',
+    JSON.stringify(authoritativeContext || {}, null, 2),
+    'Only non-empty manual_focus event, style, persona and audience values may become high-intent customer contexts. A null or empty axis means do not invent a value for that axis.',
+    'Never add rave, cosplay, fantasy, historical, medieval, costume-party or another subculture/style/event unless that exact value is present in manual_focus.',
+    'Do not use the generic word event or events anywhere in customer-facing copy. Name a selected occasion instead.',
+    '',
+    primaryKeyword
+      ? `PRIMARY PLACEMENT: “${primaryKeyword}” must appear in SEO title, H1 and meta description. Maximum three exact occurrences total. Visible body copy must preserve the whole-product concept through one natural semantic variation, not repeat the H1 phrase. The exact phrase must not appear in intro, About, ALT, highlights, Why, Ideal for or the studio close.`
+      : 'Keep the approved whole-product Primary in required fields without repetition.',
+    'SEO title is at most 68 characters and H1 at most 82 characters. Meta description is 110-150 characters and must identify the whole product and one highest-priority selected occasion, then add only a supported differentiator or purchase choice. Because a search snippet must stand alone, it may briefly repeat one core differentiator used on-page, but it must not repeat the component inventory. Never write pairs with your own layers, stronger costume look, sculpted look or another abstract padding phrase. Count before returning JSON.',
+    'SEO title and H1 contain the exact Primary and one already-selected event. Use the natural construction “[Primary] for [selected event]”; when Burning Man is selected as the priority, use “[Primary] for Burning Man”. End after the product-and-occasion meaning; do not append material or a fixed-right-panel fact unless that term is present in the approved keyword roles. Never write “for Burning Man styling”, “for festival styling”, or fuse two selected values into “Burning Man Festival”. Because this is a compact set, title and H1 do not inventory its components.',
+    'Meta, intro and About do not list or paraphrase the component inventory.',
+    'If left_copy_evidence_policy.required_section_plan exists, follow it. Do not replace a short factual section with invented convenience, effort saved, photography behavior, accessory coordination, or a visual mechanism.',
+    'CONCEPT OWNERSHIP: Intro owns the concise search-to-product bridge. About owns the substantial buyer-job-first product story. Why owns three or four distinct reasons to choose the product. Ideal for owns people and real uses. The close owns studio identity and self-expression. Keep the jobs different, but never collapse a section merely to avoid a small amount of natural semantic overlap.',
+    'Intro contains one or two concrete sentences. State the whole-product use in one selected occasion. A second sentence is optional only when it adds a non-duplicated fact or buyer action explicitly supported by authoritative context. Leave fit/adjustment, finish/light behavior, material and component inventory to their owned sections. Across intro, About and Ideal for combined, base layer, top or bodysuit styling may appear in at most one sentence.',
+    'Intro does not say part of a complete look, centerpiece, focal piece, focal point, easy to style, creates an accent, clear costume shape, distinct outline, character-driven feel, make the idea land, anchor an outfit, build from separate finds, make accessories make sense, or contrast with darker pieces the buyer may own.',
+    'About is a useful 2-4 sentence product story, normally 45-90 words. A title restatement or one-line SEO sentence is not a useful About section. Start from the buyer’s desired selected occasion and name the complete product with one natural semantic variation of the Primary, never the exact H1 phrase. Then explain how one distinctive visible design choice affects the finished look and add one supported wear, material or finish value. Do not list, pair or re-narrate the components because What’s Included already owns inventory. Never infer photography performance, coverage, freer movement, a styling break, or how much clothing or body stays visible from a component shape or placement. Never compare the product with generic, basic, plain or ordinary clothing, a full uniform or a head-to-toe costume. Because separately selectable components form this set, never describe them as one piece, one continuous or unbroken line, a line from one body area to another, or a single design running between components. Do not write shows up cleanly, shows up clearly, focal point, photographs well, wide shots, natural break, changing tops or similar design-review shorthand. Do not repeat the intro verbatim.',
+    'Within each About sentence, use each meaningful content noun only once, treating singular and plural as the same term. Rewrite the sentence instead of mechanically swapping in a near-synonym. Never write constructions such as “shoulder pieces ... base pieces” inside one sentence.',
+    'ALT starts with one natural approved component-level Secondary when it accurately describes the visible sold product, then may name another confirmed sold component and a brief setting. Natural word order and inflection are allowed. Omit base clothing, footwear, accessories and props that are visible but not confirmed as sold.',
+    'Keep each repeated idea in one strongest block only. Before returning, silently assign every non-Primary buyer benefit to exactly one owner: meta, intro, About, Why, Ideal for or studio close. If the same idea appears in two owners through different wording, keep the stronger version and replace the other with a genuinely different supported value. Finish or light behavior belongs in at most one Why bullet, not intro, About, Ideal for or the studio close.',
+    'Why contains exactly three or four distinct fact-to-outcome bullets. Bullet 1 names one original-design benefit tied to a concrete buyer choice. The remaining bullets use different supported value families from Product Truth, sellable-offer truth, canonical right-panel facts or explicit visual_truth_evidence. A fixed-panel fact such as adjustable straps, comfortable body contact or shape retention may be translated once into a buyer consequence, but never copy the operational sentence. Every bullet contains one supported feature and one buyer result, not two vague benefits joined with “and”. Separately selectable components may support choosing, ordering, replacing or restyling one part, but do not list the full inventory. Use wearer-framing only when visual evidence explicitly describes the relevant shape or placement. Use light behavior only when visual evidence explicitly confirms glossy or light-catching behavior; metallic-looking alone and every uncertainty are insufficient. Never infer freer dancing, coverage or weather performance from component shape. “Build a look” is not product construction. Never use strong look, statement piece, presence, character, more individual look or looks intentional as an outcome.',
+    'If left_copy_evidence_policy.required_why_plan is non-null, follow its value families exactly and return exactly that many Why bullets. The standalone meta snippet may repeat the separately-selectable purchase fact; the visible Why bullet must explain its concrete buyer consequence. Never replace the plan with matching-color composition, above-and-below-waist balance, photographs-as-one-outfit, or a comparison with separate add-ons.',
+    'Ideal for contains four or five useful customer portraits; when five or more approved_general_buyer_roles are available, return five. Every bullet is a natural 7-22 word clause naming one person or at most two closely related professional roles plus a concrete approved occasion, production or buying need. Distribute roles across separate bullets instead of stacking several audiences into one line. Cover every non-empty manual focus axis naturally. The same selected focus may appear in at most two different bullets when it genuinely distinguishes two audiences. Roles from approved_general_buyer_roles may broaden conversion coverage, but they do not authorize a new event, style, persona, subculture or search keyword. Do not invent a time of day, weather condition or location. Do not describe gold, metallic finish, silhouette, structure, construction, components or another product detail here.',
+    'Ideal for contains no finish, anatomy, product inventory, fantasy, historical framing, “statement piece”, “calls for”, “when needed”, buyers-who-want or people-looking-for language. Never expose internal labels such as persona or direction. Do not repeat a meaningful word inside one bullet, such as “warrior-inspired performers wearing a warrior look”.',
+    'Designed for self-expression contains exactly three natural sentences and 50-65 words. Begin “At TheFEYA, we…” and identify us as an independent design studio or independent design team. Connect our original ideas to personal style or a design that feels like the wearer. Write like a founder speaking plainly, not a brand manifesto. Do not use expressive dressing, a clearer sense of visual identity, not just something to wear once, from the first photo to the last, or turn a vision into a look.',
+    'Use TheFEYA exactly once in all customer-facing generated copy, only in Designed for self-expression. Never put the brand in SEO title, H1, meta description, intro, ALT, Why or Ideal for.',
+    'HUMAN VOICE CHECK: read every customer-facing sentence aloud as a shopper or salesperson. Rewrite anything that sounds like a search query, design critique, image-analysis note or sentence written only to satisfy a template. A grammatically valid sentence still fails if a normal person would not say it. Prefer a concrete product action or buyer result over abstract nouns such as layout, structure, balance, direction or presence. Do not add after sunset, outdoors or another filler circumstance unless it is both supported and useful to the purchase decision.',
+    'Outside the studio close, prefer concrete verbs such as wear, choose, order, replace and restyle, but only when authoritative facts support that action. Do not describe an “idea”, “theme”, “direction” or “identity” when a concrete product fact or buyer result can say the same thing.',
+    'Read About, Why and Ideal aloud once. Replace “warrior line”, “armored effect”, “visually open”, “continuous line”, “cohesive styling”, “shows up cleanly”, “photos pick up more depth” and similar design-review shorthand with a plain, supported product fact or buyer action.',
+    'Do not repeat raw fit, material, production, shipping or care sentences from the fixed right panel.',
+    '',
+    'REWRITE SKELETON — buyer-facing wording was deliberately removed so the rejected draft cannot become a prose template:',
+    JSON.stringify(buildSeoEditorialRewriteSkeleton(currentOutput), null, 2),
+    '',
+    'FINAL ACCEPTANCE CARD — apply this after reading the rejected JSON; it overrides every conflicting word in that draft:',
+    deterministicIdentity
+      ? `- seo_title and h1 must both be exactly: ${deterministicIdentity}`
+      : '- Keep SEO title and H1 inside the reviewed Primary and selected-focus boundary.',
+    `- Allowed high-intent events: ${selectedEvents.join(', ') || 'none selected'}.`,
+    `- Allowed high-intent styles: ${selectedStyles.join(', ') || 'none selected'}.`,
+    `- Allowed high-intent personas: ${selectedPersonas.join(', ') || 'none selected'}.`,
+    `- Allowed high-intent audiences: ${selectedAudiences.join(', ') || 'none selected'}.`,
+    `- Use only these general buyer roles in Ideal for: ${approvedBuyerRoles.join(', ') || 'none beyond explicitly selected focus'}.`,
+    '- Never retain a buyer role, occasion, production or subculture from the rejected JSON unless it appears in the allowed lists above. Drag, cosplay, fantasy, rave, historical and costume-party contexts are forbidden unless explicitly selected.',
+    `- Confirmed component inventory is owned only by What’s Included: ${confirmedComponents.join(', ') || 'not resolved'}. Never put two different confirmed component names in SEO title, H1, meta, intro or About. A single component may appear only when it proves a new concrete design or buyer value.`,
+    '- Meta, intro and About identify the whole product without listing, pairing, combining or re-explaining its components.',
+    '- Return a complete human product story: About 2-4 sentences and 45-90 words; Why exactly 4 distinct fact-to-outcome bullets; Ideal for exactly 5 useful 7-22 word customer portraits when five or more approved roles are listed; studio close exactly 3 natural sentences.',
+    '- Remove abstract phrases such as strong sculpted feel, complete look with confidence, reads clearly in photographs, photo moments, bold appearance or themed nights. Replace them with a supported product detail, a plain buyer result or a specific approved use.',
+    '- Perform one final literal scan before returning JSON: no forbidden context, no component inventory recap, no exact Primary in body copy, no thin section and no sentence that only restates its heading.',
   ].join('\n');
-
   return {
     ...promptContract,
-    system_prompt: `${promptContract.system_prompt}\n${editorPolicy}`,
-    user_prompt: repairRequest,
-    guardrails: [...(promptContract.guardrails || []), editorPolicy],
+    system_prompt: finalSystem,
+    user_prompt: finalUser,
+    guardrails: [...(promptContract.guardrails || []), finalSystem],
   };
 }
 
-function candidateScore(structural, commercial, keywordPlacement) {
-  const issues = [
-    ...(structural?.issues || []),
-    ...(commercial?.issues || []),
-    ...(keywordPlacement?.issues || []),
+function buildFinalEditorContext(seoPackDraft, firstPassOutput) {
+  const truth = seoPackDraft?.product_truth || {};
+  const sellableOffer = truth?.sellable_offer || {};
+  const visualTruth = firstPassOutput?.visual_truth || {};
+  const manualFocus = seoPackDraft?.manual_focus || {};
+  const focusValues = (axis) => {
+    const raw = manualFocus?.[axis];
+    const values = Array.isArray(raw) ? raw : raw ? [raw] : [];
+    return values.map((value) => String(value).trim()).filter(Boolean);
+  };
+  const selectedEvents = focusValues('event');
+  const selectedStyles = focusValues('style');
+  const selectedPersonas = focusValues('persona');
+  const selectedAudiences = focusValues('audience');
+  const separatelySelectableLabels = (sellableOffer?.atomic_options || [])
+    .map((item) => item?.label)
+    .filter(Boolean);
+  const productContextText = [
+    truth?.product_type,
+    truth?.category,
+    truth?.world,
+    ...selectedEvents,
+  ].filter(Boolean).join(' ').toLowerCase();
+  const approvedGeneralBuyerRoles = /\b(costume|outfit|armor|festival|burning man|performance)\b/.test(productContextText)
+    ? [
+      'festival-goers',
+      'Burning Man attendees',
+      'performers',
+      'dancers',
+      'DJs',
+      'show artists',
+      'content creators',
+      'costume stylists',
+    ]
+    : [];
+  const requiredWhyPlan = [
+    {
+      value_family: 'studio_design_and_craft',
+      supported_fact: 'original studio design',
+      allowed_buyer_outcome: 'the buyer can interpret the selected persona through their own styling rather than copy a named character',
+    },
+    {
+      value_family: 'fit_flexibility',
+      supported_fact: 'the canonical right panel confirms adjustable straps',
+      allowed_buyer_outcome: 'the buyer can fine-tune a secure fit for their body shape',
+    },
+    {
+      value_family: 'comfort',
+      supported_fact: 'the canonical right panel confirms comfortable body-facing material',
+      allowed_buyer_outcome: 'the body-facing areas feel more comfortable during wear',
+    },
+    {
+      value_family: 'durability_structure',
+      supported_fact: 'the canonical right panel confirms that the structured material helps the piece retain its shape',
+      allowed_buyer_outcome: 'the product stays ready for repeat use between occasions',
+    },
   ];
+  const compactRole = (item) => ({
+    keyword: item?.keyword || item?.keyword_norm || null,
+    role: item?.role || null,
+    search_volume: item?.search_volume ?? item?.volume ?? null,
+    competition: item?.competition || null,
+  });
   return {
-    blockers: issues.filter((issue) => issue.severity === 'blocker').length,
-    warnings: issues.filter((issue) => issue.severity !== 'blocker').length,
+    manual_focus: manualFocus,
+    product_truth: {
+      product_truth_source: truth?.product_truth_source || null,
+      product_type: truth?.product_type || null,
+      category: truth?.category || null,
+      material: truth?.material || null,
+      color: truth?.color || null,
+      world: truth?.world || null,
+      included_components: truth?.included_components || [],
+      sellable_offer: {
+        status: sellableOffer?.status || null,
+        component_labels: sellableOffer?.component_labels || [],
+        default_included_components: sellableOffer?.default_included_components || [],
+        separately_selectable_components: separatelySelectableLabels,
+        aggregate_options: (sellableOffer?.aggregate_options || []).map((item) => ({
+          label: item?.label || null,
+          member_labels: item?.member_labels || [],
+        })),
+      },
+    },
+    keyword_roles: {
+      primary: (seoPackDraft?.keyword_roles?.primary || []).map(compactRole),
+      secondary: (seoPackDraft?.keyword_roles?.secondary || []).map(compactRole),
+      supporting: (seoPackDraft?.keyword_roles?.supporting || []).map(compactRole),
+    },
+    visual_truth_evidence: {
+      observed_product_facts: visualTruth?.observed_product_facts || [],
+      uncertain_or_missing_facts: visualTruth?.uncertain_or_missing_facts || [],
+      forbidden_visual_claims: visualTruth?.forbidden_visual_claims || [],
+    },
+    left_copy_evidence_policy: {
+      original_studio_design: 'supported by brand policy',
+      separately_selectable_purchase_format: separatelySelectableLabels,
+      approved_general_buyer_roles: approvedGeneralBuyerRoles,
+      required_why_plan: requiredWhyPlan,
+      required_section_plan: {
+        intro: {
+          verified_inputs: {
+            events: selectedEvents,
+            styles: selectedStyles,
+            personas: selectedPersonas,
+            audiences: selectedAudiences,
+            color: truth?.color || null,
+          },
+          job: 'Write one or two plain sentences that identify the whole product in one selected occasion. A second sentence is optional only for a non-duplicated fact or buyer action explicitly present in this context. Do not list components or accessories, and do not invent convenience, coordination, effort saved, photography behavior or a styling mechanism.',
+        },
+        about_this_piece: {
+          exact_primary_required: false,
+          semantic_primary_required: true,
+          selected_events: selectedEvents,
+          minimum_sentences: 2,
+          maximum_sentences: 4,
+          target_word_range: '45-90',
+          job: 'Write a substantial buyer-job-first product story. Use one natural whole-product semantic variation of the Primary, never repeat the exact H1 phrase. Explain how a distinctive visible design choice affects the finished look, then add supported wear, material or finish value without listing the components or comparing them with generic clothing. Never infer photo performance or a styling mechanism from a visible detail.',
+        },
+        why_youll_love_it: {
+          item_count: 4,
+          job: 'Write the four required value families as distinct feature-to-buyer-outcome bullets. Canonical right-panel facts may support the benefit, but their operational sentences must not be copied.',
+        },
+        ideal_for: {
+          item_count: approvedGeneralBuyerRoles.length >= 5 ? 5 : '4-5',
+          required_selected_axes: {
+            events: selectedEvents,
+            styles: selectedStyles,
+            personas: selectedPersonas,
+            audiences: selectedAudiences,
+          },
+          approved_general_buyer_roles: approvedGeneralBuyerRoles,
+          job: 'Write useful 7-22 word customer portraits, each with one person or at most two related roles plus a concrete approved occasion, production or buying need. Distribute roles across bullets. General roles do not authorize any unselected event, style, persona or subculture, and the words persona and direction never appear in customer copy.',
+        },
+      },
+      canonical_right_panel_facts_for_benefit_translation: {
+        fit: 'adjustable straps support a comfortable, secure fit',
+        comfort: 'the material feels comfortable against the body',
+        repeat_use: 'the material helps the piece keep its sculptural shape',
+      },
+      fixed_right_panel_sentences_must_not_be_copied: true,
+      rule: 'Use only supported facts. Preserve a rich product story, four useful purchase reasons and distinct buyer profiles; removing copy is not a valid repair for robotic wording.',
+    },
   };
-}
-
-function isCandidateAtLeastAsGood(candidate, baseline) {
-  const candidateScoreValue = candidateScore(...candidate);
-  const baselineScoreValue = candidateScore(...baseline);
-  return candidateScoreValue.blockers < baselineScoreValue.blockers
-    || (
-      candidateScoreValue.blockers === baselineScoreValue.blockers
-      && candidateScoreValue.warnings <= baselineScoreValue.warnings
-    );
 }
 
 function sanitizeOutputForReadiness(output, readiness) {
@@ -437,7 +673,8 @@ function buildSharedPayload(bundle, readiness, promptContract, primaryImageUrl, 
       ...summarizeSeoAgentPromptContract(promptContract),
       readiness_mode: readiness.mode,
       right_panel_mode: 'immutable_storefront_owned',
-      humanizer_repair_attempts: 1,
+      generation_passes: 2,
+      final_editorial_rewrite_passes: 1,
       portfolio_strategy_loaded: Boolean(portfolioStrategy),
     },
     seo_pack_draft: bundle.seoPackDraft,
@@ -509,6 +746,20 @@ function normalizeImageUrl(value) {
   const text = String(value || '').trim();
   if (!text || !/^https?:\/\//i.test(text)) return null;
   return text;
+}
+
+function normalizeFocusValues(value) {
+  const values = Array.isArray(value) ? value : value ? [value] : [];
+  return unique(values);
+}
+
+function toTitleCase(value) {
+  return String(value || '').replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
+}
+
+function formatSelectedEvent(value) {
+  if (/^burning man$/i.test(value)) return 'Burning Man';
+  return toTitleCase(value);
 }
 
 function unique(values) {

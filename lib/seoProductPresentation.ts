@@ -32,9 +32,21 @@ export function classifySeoProductPresentation(value: unknown): SeoProductPresen
 
 export function confirmedProductComponents(value: unknown): string[] {
   if (!isRecord(value)) return [];
+  const sellableOffer = isRecord(value.sellable_offer)
+    ? componentLabels(value.sellable_offer.component_labels)
+    : [];
+  const sellable = componentLabels(value.sellable_offer_components);
   const included = componentLabels(value.included_components);
   const known = componentLabels(value.known_components);
-  return uniqueLabels(included.length ? included : known);
+  return uniqueLabels(
+    sellableOffer.length
+      ? sellableOffer
+      : sellable.length
+        ? sellable
+        : included.length
+          ? included
+          : known,
+  );
 }
 
 export function hasWholeProductEntity(value: unknown) {

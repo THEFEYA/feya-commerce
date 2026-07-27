@@ -64,6 +64,35 @@ export function listingMasterKeywordSelectionSignature(rows: KeywordRow[]) {
   return `listing-master-selection-v1|${entries.join('|')}`;
 }
 
+export function getListingMasterDecisionInvalidationBlockers(input: {
+  hasPrimary: boolean;
+  savedKeywordSelectionSignature: unknown;
+  currentKeywordSelectionSignature: unknown;
+  savedSellableOfferSignature: unknown;
+  currentSellableOfferSignature: unknown;
+  removedUnsupportedFocusComponents?: unknown[];
+}) {
+  const blockers: string[] = [];
+  if (!input.hasPrimary) blockers.push('no_valid_pdp_primary');
+  if (
+    String(input.savedKeywordSelectionSignature || '')
+    !== String(input.currentKeywordSelectionSignature || '')
+  ) {
+    blockers.push('keyword_roles_changed_after_reaudit');
+  }
+  if (
+    String(input.currentSellableOfferSignature || '')
+    && String(input.savedSellableOfferSignature || '')
+      !== String(input.currentSellableOfferSignature || '')
+  ) {
+    blockers.push('stale_option_snapshot');
+  }
+  if (input.removedUnsupportedFocusComponents?.length) {
+    blockers.push('manual_focus_contains_unsupported_component');
+  }
+  return blockers;
+}
+
 export function getListingMasterDecisionStatus(
   productTruthBlockers: string[],
   rows: KeywordRow[],

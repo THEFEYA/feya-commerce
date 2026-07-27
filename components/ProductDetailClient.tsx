@@ -29,6 +29,10 @@ import { THEFEYA_CANONICAL_RIGHT_PDP_PANEL } from '@/lib/thefeyaSeoDoctrine';
 import type { StorefrontProduct } from '@/lib/types';
 import { storefrontIncludedOptions } from '@/lib/storefrontIncludedOptions';
 import {
+  resolveStorefrontSellableOffer,
+  sellableOfferAvailabilitySentence,
+} from '@/lib/storefrontSellableOffer';
+import {
   categoryLabel,
   colorOptions,
   componentCode,
@@ -147,6 +151,8 @@ export function ProductDetailClient({
     : [];
   const reviewSummary = useMemo(() => readReviewSummary(p), [p]);
   const includedLines = storefrontIncludedOptions(p, activeConfig);
+  const sellableOffer = useMemo(() => resolveStorefrontSellableOffer(p), [p]);
+  const availabilitySentence = sellableOfferAvailabilitySentence(sellableOffer);
   const canChoosePiecesSeparately = options.length > 1 && Boolean(full);
 
   const fullRegularPrice = full ? optionPrice(full) : null;
@@ -297,12 +303,14 @@ export function ProductDetailClient({
               blocks={draftBlocks}
               includedLines={includedLines}
               canChooseSeparately={canChoosePiecesSeparately}
+              availabilitySentence={availabilitySentence}
             />
           : <DefaultDescription
               product={p}
               title={shortHead}
               includedLines={includedLines}
               canChooseSeparately={canChoosePiecesSeparately}
+              availabilitySentence={availabilitySentence}
             />}
       </div>
       <div className="col-span-12 lg:col-span-5 space-y-0">
@@ -332,11 +340,13 @@ function GeneratedDescription({
   blocks,
   includedLines,
   canChooseSeparately,
+  availabilitySentence,
 }: {
   title: string;
   blocks: DraftBlock[];
   includedLines: string[];
   canChooseSeparately: boolean;
+  availabilitySentence: string;
 }) {
   return <div>
     <div className="eyebrow-gold mb-3">{blocks[0]?.heading || 'About this piece'}</div>
@@ -348,7 +358,7 @@ function GeneratedDescription({
           <DisplayBody body={String(block.body || '')} />
         </article>
         {index === 0 && includedLines.length
-          ? <IncludedDetail lines={includedLines} canChooseSeparately={canChooseSeparately} />
+          ? <IncludedDetail lines={includedLines} canChooseSeparately={canChooseSeparately} availabilitySentence={availabilitySentence} />
           : null}
       </div>)}
     </div>
@@ -360,18 +370,20 @@ function DefaultDescription({
   title,
   includedLines,
   canChooseSeparately,
+  availabilitySentence,
 }: {
   product: StorefrontProduct;
   title: string;
   includedLines: string[];
   canChooseSeparately: boolean;
+  availabilitySentence: string;
 }) {
   return <div>
     <div className="eyebrow-gold mb-3">About this piece</div>
     <h2 className="display-section text-bone mb-4" style={{ fontSize: 'clamp(24px, 2.3vw, 34px)' }}>{title}</h2>
     <div className="space-y-4 text-[15px] text-[var(--bone-dim)] leading-[1.8]">
       <p>{product.meta_description || `${title} is a studio-created statement piece for festival, stage, and editorial looks.`}</p>
-      {includedLines.length ? <IncludedDetail lines={includedLines} canChooseSeparately={canChooseSeparately} /> : null}
+      {includedLines.length ? <IncludedDetail lines={includedLines} canChooseSeparately={canChooseSeparately} availabilitySentence={availabilitySentence} /> : null}
       <p>Its silhouette is designed to stay visually clear in motion, from a distance, and on camera. Product-specific material, finish, and fit details are shown in the selected configuration and information panel.</p>
       <p>Made to order in standard or custom sizing, with worldwide tracked delivery options selected in the cart.</p>
     </div>
@@ -392,7 +404,15 @@ function Detail({ icon, title, lines, id }: { icon: ReactNode; title: string; li
   return <div id={id} className="border-t border-[rgba(216,214,211,0.12)] py-5"><div className="eyebrow-gold mb-3 flex items-center gap-2">{icon}{title}</div><div className="space-y-1.5 text-[14px] text-[var(--bone-dim)] leading-relaxed">{lines.filter(Boolean).map((line) => <p key={line}>{line}</p>)}</div></div>;
 }
 
-function IncludedDetail({ lines, canChooseSeparately }: { lines: string[]; canChooseSeparately: boolean }) {
+function IncludedDetail({
+  lines,
+  canChooseSeparately,
+  availabilitySentence,
+}: {
+  lines: string[];
+  canChooseSeparately: boolean;
+  availabilitySentence: string;
+}) {
   return <section className="border-t border-[rgba(216,214,211,0.12)] mt-6 pt-5">
     <div className="eyebrow-gold mb-3 flex items-center gap-2"><Scissors size={15} />What&apos;s included</div>
     <ul className="m-0 list-none space-y-2 p-0 text-[14px] text-[var(--bone-dim)]">
@@ -402,7 +422,7 @@ function IncludedDetail({ lines, canChooseSeparately }: { lines: string[]; canCh
       </li>)}
     </ul>
     {canChooseSeparately ? <p className="mt-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">
-      Choose the Full Set or order available pieces separately.
+      {availabilitySentence || 'Choose the Full Set or order available pieces separately.'}
     </p> : null}
   </section>;
 }
