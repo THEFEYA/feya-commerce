@@ -17,6 +17,35 @@ export type SeoEditorialIssueSnapshot = {
 };
 
 /**
+ * Brand padding in a generated SEO title is a deterministic formatting defect,
+ * not a reason to spend another model call or discard otherwise useful copy.
+ * Keep the untouched model response in the OpenAI audit trail, while the
+ * review candidate uses the same product title without a leading/trailing
+ * TheFEYA separator.
+ */
+export function normalizeFinalSeoEditorialOutput<T>(output: T): T {
+  if (!output || typeof output !== 'object' || Array.isArray(output)) return output;
+  const record = output as Record<string, unknown>;
+  if (typeof record.seo_title !== 'string' || !/\bTheFEYA\b/i.test(record.seo_title)) return output;
+
+  const seoTitle = record.seo_title
+    .replace(/^\s*TheFEYA\s*(?:[|·–—-]\s*)?/i, '')
+    .replace(/\s*(?:[|·–—-]\s*)?TheFEYA\s*$/i, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+  if (!seoTitle || seoTitle === record.seo_title) return output;
+
+  return {
+    ...record,
+    seo_title: seoTitle,
+    generation_notes: [
+      ...(Array.isArray(record.generation_notes) ? record.generation_notes : []),
+      'Deterministic review normalization removed brand padding from the SEO title.',
+    ],
+  } as T;
+}
+
+/**
  * A repair pass is useful only when deterministic QA has something concrete
  * to repair. Calling an editor over an already valid draft adds cost and can
  * silently replace good prose with a merely different version.

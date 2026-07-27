@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   isStrictlyBetterSeoEditorialCandidate,
+  normalizeFinalSeoEditorialOutput,
   seoEditorialIssueSnapshot,
   shouldRunSeoEditorialRepair,
 } from '../../lib/seoEditorialCandidateSelection.ts';
@@ -118,4 +119,21 @@ test('keeps an auditable issue snapshot with keyword identity', () => {
       warning_keys: ['commercial_unplaced:buy costume online'],
     },
   );
+});
+
+test('removes deterministic brand padding from the final SEO title only', () => {
+  const output = {
+    seo_title: 'Gold Warrior Armor Costume for Burning Man | TheFEYA',
+    h1: 'Gold Warrior Armor Costume for Burning Man',
+    generation_notes: ['Model draft retained for audit.'],
+  };
+  assert.deepEqual(normalizeFinalSeoEditorialOutput(output), {
+    seo_title: 'Gold Warrior Armor Costume for Burning Man',
+    h1: 'Gold Warrior Armor Costume for Burning Man',
+    generation_notes: [
+      'Model draft retained for audit.',
+      'Deterministic review normalization removed brand padding from the SEO title.',
+    ],
+  });
+  assert.equal(output.seo_title, 'Gold Warrior Armor Costume for Burning Man | TheFEYA');
 });
