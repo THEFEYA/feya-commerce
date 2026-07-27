@@ -364,6 +364,22 @@ test('recognizes a supported gold-finish photo outcome without requiring stock p
   );
 });
 
+test('does not mistake “more like your own style” for a promise of social likes', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'main_description'
+      ? {
+        ...block,
+        body: 'At TheFEYA, we are an independent design studio with original ideas for festival fashion. We help people choose a design that feels personal. The finished outfit can feel more like your own style while keeping the selected warrior direction clear.',
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(
+    result.issues.some((issue) => issue.code === 'customer_copy_guarantees_popularity_or_reactions'),
+    false,
+  );
+});
+
 test('blocks an unselected high-intent style added by generated copy', () => {
   const value = draft({
     h1: 'Gold Shoulder Armor for Burning Man',

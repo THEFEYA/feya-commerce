@@ -46,6 +46,7 @@ export async function GET() {
     apply: false,
     humanizer_repair_attempts: 2,
     final_editor_model: process.env.FEYA_SEO_OPENAI_EDITOR_MODEL || 'gpt-5.4',
+    final_editor_reasoning_effort: 'high',
   });
 }
 
@@ -219,6 +220,7 @@ export async function POST(request: Request) {
     );
     finalReviewGeneration = await generateSeoDraftWithOpenAi(finalReviewPrompt, {
       model: process.env.FEYA_SEO_OPENAI_EDITOR_MODEL || 'gpt-5.4',
+      reasoningEffort: 'high',
     });
     finalReviewStructural = finalReviewGeneration.output
       ? validateSeoAgentOutput(finalReviewGeneration.output)
@@ -524,18 +526,19 @@ function buildFinalReviewPrompt(
       ? `PRIMARY PLACEMENT: “${primaryKeyword}” must appear in SEO title, H1, meta description and exactly one About this piece sentence. Maximum four total. It must not appear in intro, ALT, highlights, Why, Ideal for or the studio close.`
       : 'Keep the approved whole-product Primary in required fields without repetition.',
     'SEO title is at most 68 characters, H1 at most 82 characters, and meta description at most 150 characters. Count before returning JSON.',
-    'SEO title and H1 contain the exact Primary and one already-selected event. Because this is a compact set, they do not inventory its components.',
+    'SEO title and H1 contain the exact Primary and one already-selected event. Use Burning Man by itself when it is the clearest priority; do not fuse two selected values into the unnatural phrase “Burning Man Festival”. Because this is a compact set, title and H1 do not inventory its components.',
     'Meta, intro and About do not list or paraphrase the component inventory.',
     'CONCEPT OWNERSHIP: Intro owns the selected occasion and the whole-product buyer job. About owns the exact Primary plus one different supported product/design outcome. Why owns studio design, fit/wear and one practical result. Ideal for owns people and selected uses. The close owns studio identity and self-expression. Do not move the same idea into two owners.',
     'Intro contains exactly two concrete sentences. It states the selected buyer use and one supported design value. Leave fit/adjustment, finish/light behavior, material and component inventory to their owned sections so Intro cannot duplicate Why or the right panel.',
     'Intro does not say part of a complete look, centerpiece, focal piece, easy to style, creates an accent, clear costume shape, distinct outline, character-driven feel, or make the idea land.',
-    'About contains the exact Primary once, explains the whole product in one selected setting, and adds a different buyer value. It names no more than one component, does not repeat the intro, and does not compare the product with a standard or generic alternative.',
+    'About contains the exact Primary once, explains the whole product in one selected setting, and adds a different buyer value. It names no more than one component, does not repeat the intro, does not compare the product with a standard or generic alternative, and does not repeat straps, adjustment, fit or comfort owned by Why and the fixed panel.',
     'ALT starts with the visibly sold component names in plain idiomatic English, not the exact whole-product Primary. Prefer one natural approved component-level Secondary only when it accurately describes what is visible.',
     'Keep each repeated idea in one strongest block only. Finish or light behavior belongs in at most one Why bullet, not intro, About, Ideal for or the studio close.',
     'Why contains exactly three distinct fact-to-outcome bullets: (1) one original-design benefit tied to a personal look, (2) one supported fit/wear benefit, and (3) one different supported practical outcome. For verified finish behavior use literal wording such as “catches available light, helping product details remain visible in photographs”; for shape retention, explain reuse between wears. “Build a look” is not product construction. Never use strong look, statement piece, presence or character as an outcome.',
     'Ideal for contains exactly three bullets. Each begins with a person, professional role, selected occasion or supported production, and naturally reuses the authoritative focus instead of inventing an extra context merely to fill a bullet.',
     'Ideal for contains no finish, anatomy, product inventory, fantasy, historical framing, “statement piece”, “calls for”, “when needed”, buyers-who-want or people-looking-for language.',
-    'Designed for self-expression contains exactly three natural sentences and 50-65 words. It explicitly identifies TheFEYA as our independent design studio or independent design team, uses first-person voice, and connects our original ideas to the buyer’s visual identity, personal style, a design that feels like them, or their own look.',
+    'Designed for self-expression contains exactly three natural sentences and 50-65 words. Begin “At TheFEYA, we…” and identify us as an independent design studio or independent design team. Connect our original ideas to the buyer’s visual identity, personal style, a design that feels like them, or their own look without comparing the buyer with a generic or standard costume.',
+    'HUMAN VOICE CHECK: read every customer-facing sentence as a shopper. Rewrite any sentence whose value depends on vague approval words rather than a concrete meaning. In particular, do not write defined direction, visually defined, feels intentional, overall styling, memorable look, individual direction, blending into standard styling, final result, made for the moment, strong starting point, or practical choice. Do not replace them with another abstract fashion-analysis phrase.',
     'Do not repeat raw fit, material, production, shipping or care sentences from the fixed right panel.',
     '',
     'Current JSON:',

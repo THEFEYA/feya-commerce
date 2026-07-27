@@ -18,6 +18,7 @@ type OpenAiDraftResult = {
 type GenerateSeoDraftOptions = {
   primaryImageUrl?: string | null;
   model?: string | null;
+  reasoningEffort?: 'low' | 'medium' | 'high' | null;
 };
 
 type ResponseContentPart = {
@@ -75,6 +76,9 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
     },
     body: JSON.stringify({
       model,
+      ...(options.reasoningEffort
+        ? { reasoning: { effort: options.reasoningEffort } }
+        : {}),
       input: [
         {
           role: 'system',
