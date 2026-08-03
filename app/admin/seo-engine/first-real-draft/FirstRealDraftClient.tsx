@@ -61,6 +61,8 @@ export default function FirstRealDraftClient({
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [testedIds, setTestedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
+  const [repairing, setRepairing] = useState(false);
+  const [repairUsed, setRepairUsed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savedCurrentResult, setSavedCurrentResult] = useState(false);
   const [workflowNotice, setWorkflowNotice] = useState<string | null>(null);
@@ -209,6 +211,7 @@ export default function FirstRealDraftClient({
   function selectProduct(productId: string) {
     setSelectedProductId(productId);
     setResult(null);
+    setRepairUsed(false);
     setSavedCurrentResult(false);
     setStorefrontProduct(null);
     setError(null);
@@ -247,15 +250,19 @@ export default function FirstRealDraftClient({
 
     setLoading(true);
     setResult(null);
+    setRepairUsed(false);
     setSavedCurrentResult(false);
     setStorefrontProduct(null);
     setError(null);
+    const generationController = new AbortController();
+    const generationTimer = window.setTimeout(() => generationController.abort(), 130_000);
 
     try {
       const [generationResponse, productResponse] = await Promise.all([
         fetch('/api/admin/seo-engine/catalog-draft-generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          signal: generationController.signal,
           body: JSON.stringify({
             product_id: selectedProductId,
             enforce_portfolio_strategy: false,
@@ -266,10 +273,18 @@ export default function FirstRealDraftClient({
         }),
       ]);
 
-      const [generationPayload, productPayload] = await Promise.all([
-        generationResponse.json().catch(() => ({})),
-        productResponse.json().catch(() => ({})),
+      const [generationText, productText] = await Promise.all([
+        generationResponse.text(),
+        productResponse.text(),
       ]);
+      const generationPayload = parseResponsePayload(
+        generationText,
+        `Generation returned HTTP ${generationResponse.status} without a valid JSON response.`,
+      );
+      const productPayload = parseResponsePayload(
+        productText,
+        `Product preview returned HTTP ${productResponse.status} without a valid JSON response.`,
+      );
 
       setResult({ ...generationPayload, http_status: generationResponse.status });
       if (productPayload?.product) setStorefrontProduct(productPayload.product);
@@ -277,15 +292,61 @@ export default function FirstRealDraftClient({
 
       const errors = [
         !productResponse.ok ? productPayload?.error : null,
-        !generationResponse.ok && !generationPayload?.generated_draft_output ? generationPayload?.error : null,
+        !generationResponse.ok && !generationPayload?.generated_draft_output
+          ? generationPayload?.error || generationPayload?.message || generationPayload?.status
+          : null,
       ].filter(Boolean);
       if (errors.length) setError(errors.join(' · '));
 
       window.setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Неизвестная ошибка запуска.');
+      setError(err?.name === 'AbortError'
+        ? 'OpenAI не ответил за 120 секунд. Запрос остановлен без повторной попытки; ничего не сохранено и не опубликовано.'
+        : err instanceof Error ? err.message : 'Неизвестная ошибка запуска.');
     } finally {
+      window.clearTimeout(generationTimer);
       setLoading(false);
+    }
+  }
+
+  async function runTargetedRepair() {
+    if (repairing || repairUsed || !selectedProductId || !draft || reviewPass) return;
+    setRepairing(true);
+    setRepairUsed(true);
+    setError(null);
+    setWorkflowNotice(null);
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), 130_000);
+
+    try {
+      const response = await fetch('/api/admin/seo-engine/catalog-draft-repair', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          product_id: selectedProductId,
+          repair_attempt: 1,
+          current_output: draft,
+        }),
+      });
+      const payload = parseResponsePayload(
+        await response.text(),
+        `Targeted repair returned HTTP ${response.status} without a valid JSON response.`,
+      );
+      setResult((current) => ({ ...current, ...payload, http_status: response.status }));
+      if (!response.ok && !payload?.generated_draft_output) {
+        setError(payload?.error || payload?.message || 'Точечное исправление не выполнено. Повтор автоматически не запускается.');
+      } else if (payload?.generated_draft_output) {
+        setWorkflowNotice('Выполнена одна ручная точечная доработка. Результат не сохранён и не опубликован.');
+      }
+      window.setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    } catch (err) {
+      setError(err?.name === 'AbortError'
+        ? 'Точечное исправление остановлено через 120 секунд. Повтор не выполнялся.'
+        : err instanceof Error ? err.message : 'Неизвестная ошибка точечного исправления.');
+    } finally {
+      window.clearTimeout(timer);
+      setRepairing(false);
     }
   }
 
@@ -566,6 +627,9 @@ export default function FirstRealDraftClient({
           HTTP {result.http_status ?? '—'} · {result.status || '—'}
           {result.message ? <> · {result.message}</> : null}
         </div>
+        {result.openai_generation?.error ? <div className="mt-3 break-words rounded-xl border border-[rgba(196,64,88,.28)] bg-[rgba(160,32,56,.08)] p-3 text-[12px] leading-relaxed text-[var(--ruby-soft)]">
+          {result.openai_generation.error}
+        </div> : null}
       </section> : null}
 
       {draft && storefrontProduct ? <SeoDraftStorefrontPreview product={storefrontProduct} draft={draft} /> : null}
@@ -601,6 +665,23 @@ export default function FirstRealDraftClient({
           {keywordPlacementIssues.length ? <div className="mt-3 grid min-w-0 gap-2 md:grid-cols-2">{keywordPlacementIssues.map((item, index) => <Issue key={`${item.code}-${index}`} item={item} />)}</div> : <div className="mt-2 text-[12px] text-[#a9dfbd]">Primary, commercial intent и ALT размещены в разрешённых полях без точного переспама.</div>}
         </div> : null}
         <div className="mt-4 border-t border-[rgba(216,214,211,.10)] pt-4">
+          {!reviewPass ? <div className="mb-4 rounded-xl border border-[rgba(212,178,106,.24)] bg-black/20 p-3">
+            <button
+              type="button"
+              onClick={runTargetedRepair}
+              disabled={repairing || repairUsed}
+              className="btn-ghost min-h-11 w-full justify-center px-4 text-center disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {repairing
+                ? 'Исправляю один раз…'
+                : repairUsed
+                  ? 'Лимит точечной доработки использован'
+                  : 'Исправить только замечания — один раз'}
+            </button>
+            <div className="mt-2 text-center text-[10px] leading-relaxed text-[var(--smoke)]">
+              Запускается только по нажатию, одним bounded-вызовом, без автоматического повтора и без сохранения.
+            </div>
+          </div> : null}
           <button
             type="button"
             onClick={saveAndOpenNext}
@@ -695,6 +776,15 @@ function uniqueCandidates(values: Candidate[]) {
     seen.add(id);
     return true;
   });
+}
+
+function parseResponsePayload(text: string, fallbackError: string) {
+  try {
+    const parsed = JSON.parse(text || '{}');
+    return parsed && typeof parsed === 'object' ? parsed : { error: fallbackError };
+  } catch {
+    return { error: fallbackError };
+  }
 }
 
 function normalizeSearch(value) {

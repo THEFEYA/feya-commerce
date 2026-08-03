@@ -1,9 +1,30 @@
-import type { SeoAgentOutputContract } from '@/lib/seoPackContract';
-import type { SeoAgentPromptContract } from '@/lib/seoAgentDraftPrompt';
+import { createHash } from 'node:crypto';
+import type { SeoAgentOutputContract } from './seoPackContract.ts';
+import type { SeoAgentPromptContract } from './seoAgentDraftPrompt.ts';
 
-type OpenAiDraftResult = {
+export type OpenAiTokenUsage = {
+  input_tokens: number | null;
+  output_tokens: number | null;
+  total_tokens: number | null;
+  cached_input_tokens: number | null;
+  reasoning_tokens: number | null;
+};
+
+export type OpenAiDraftTelemetry = {
+  contract_version: string;
+  prompt_hash: string;
+  system_prompt_chars: number;
+  user_prompt_chars: number;
+  timeout_ms: number;
+  max_output_tokens: number;
+  duration_ms: number;
+  http_status: number | null;
+  usage: OpenAiTokenUsage | null;
+};
+
+export type OpenAiDraftResult = {
   ok: boolean;
-  status: 'generated' | 'blocked' | 'openai_error' | 'parse_error';
+  status: 'generated' | 'blocked' | 'openai_error' | 'parse_error' | 'upstream_timeout';
   model: string;
   response_id?: string | null;
   output?: SeoAgentOutputContract | null;
@@ -13,12 +34,16 @@ type OpenAiDraftResult = {
     primary_image_sent: boolean;
     primary_image_url?: string | null;
   };
+  telemetry: OpenAiDraftTelemetry;
 };
 
-type GenerateSeoDraftOptions = {
+export type GenerateSeoDraftOptions = {
   primaryImageUrl?: string | null;
   model?: string | null;
   reasoningEffort?: 'low' | 'medium' | 'high' | null;
+  timeoutMs?: number | null;
+  maxOutputTokens?: number | null;
+  fetchImpl?: typeof fetch;
 };
 
 type ResponseContentPart = {
@@ -42,6 +67,34 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
     primary_image_sent: Boolean(primaryImageUrl),
     primary_image_url: primaryImageUrl,
   };
+  const timeoutMs = positiveInteger(
+    options.timeoutMs,
+    positiveInteger(process.env.FEYA_SEO_OPENAI_TIMEOUT_MS, 120_000),
+  );
+  const maxOutputTokens = positiveInteger(
+    options.maxOutputTokens,
+    positiveInteger(process.env.FEYA_SEO_OPENAI_MAX_OUTPUT_TOKENS, 2_500),
+  );
+  const userInstruction = `${prompt.user_prompt}\n\nReturn exactly one JSON object that conforms to the seo_agent_output_v1 schema supplied in text.format. Do not omit required fields. Use null for unknown nullable text fields and empty arrays when a section has no safe content.`;
+  const promptHash = createHash('sha256')
+    .update(prompt.contract_version)
+    .update('\0')
+    .update(prompt.system_prompt)
+    .update('\0')
+    .update(userInstruction)
+    .digest('hex');
+  const startedAt = Date.now();
+  const telemetry = (httpStatus: number | null, usage: unknown = null): OpenAiDraftTelemetry => ({
+    contract_version: prompt.contract_version,
+    prompt_hash: promptHash,
+    system_prompt_chars: prompt.system_prompt.length,
+    user_prompt_chars: userInstruction.length,
+    timeout_ms: timeoutMs,
+    max_output_tokens: maxOutputTokens,
+    duration_ms: Date.now() - startedAt,
+    http_status: httpStatus,
+    usage: normalizeUsage(usage),
+  });
 
   if (!apiKey) {
     return {
@@ -51,13 +104,14 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
       output: null,
       error: 'OPENAI_API_KEY is missing on the server.',
       vision_input: visionInput,
+      telemetry: telemetry(null),
     };
   }
 
   const userContent: Array<Record<string, unknown>> = [
     {
       type: 'input_text',
-      text: `${prompt.user_prompt}\n\nReturn exactly one JSON object that conforms to the seo_agent_output_v1 schema supplied in text.format. Do not omit required fields. Use null for unknown nullable text fields and empty arrays when a section has no safe content.`,
+      text: userInstruction,
     },
   ];
 
@@ -68,46 +122,76 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
     });
   }
 
-  const response = await fetch(OPENAI_RESPONSES_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model,
-      ...(options.reasoningEffort
-        ? { reasoning: { effort: options.reasoningEffort } }
-        : {}),
-      input: [
-        {
-          role: 'system',
-          content: [
-            {
-              type: 'input_text',
-              text: prompt.system_prompt,
-            },
-          ],
-        },
-        {
-          role: 'user',
-          content: userContent,
-        },
-      ],
-      text: {
-        format: {
-          type: 'json_schema',
-          name: 'seo_agent_output_v1',
-          strict: true,
-          schema: seoAgentOutputSchema(),
-        },
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let response: Response | null = null;
+  let payload: any = null;
+  try {
+    response = await (options.fetchImpl || fetch)(OPENAI_RESPONSES_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
       },
-      ...(options.reasoningEffort ? {} : { temperature: 0.2 }),
-      store: false,
-    }),
-  });
+      signal: controller.signal,
+      body: JSON.stringify({
+        model,
+        ...(options.reasoningEffort
+          ? { reasoning: { effort: options.reasoningEffort } }
+          : {}),
+        input: [
+          {
+            role: 'system',
+            content: [
+              {
+                type: 'input_text',
+                text: prompt.system_prompt,
+              },
+            ],
+          },
+          {
+            role: 'user',
+            content: userContent,
+          },
+        ],
+        text: {
+          format: {
+            type: 'json_schema',
+            name: 'seo_agent_output_v1',
+            strict: true,
+            schema: seoAgentOutputSchema(),
+          },
+        },
+        max_output_tokens: maxOutputTokens,
+        ...(options.reasoningEffort ? {} : { temperature: 0.2 }),
+        store: false,
+      }),
+    });
+    try {
+      payload = await response.json();
+    } catch (err) {
+      if (controller.signal.aborted || (err instanceof Error && err.name === 'AbortError')) throw err;
+      payload = null;
+    }
+  } catch (err) {
+    const timedOut = controller.signal.aborted || (err instanceof Error && err.name === 'AbortError');
+    return {
+      ok: false,
+      status: timedOut ? 'upstream_timeout' : 'openai_error',
+      model,
+      response_id: null,
+      output: null,
+      raw_text: null,
+      error: timedOut
+        ? `OpenAI writer exceeded the ${timeoutMs}ms upstream timeout. No automatic retry was attempted.`
+        : err instanceof Error ? err.message : String(err),
+      vision_input: visionInput,
+      telemetry: telemetry(response?.status || null),
+    };
+  } finally {
+    clearTimeout(timer);
+  }
 
-  const payload = await response.json().catch(() => null);
   if (!response.ok) {
     return {
       ok: false,
@@ -118,6 +202,7 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
       raw_text: null,
       error: payload?.error?.message || `OpenAI request failed with HTTP ${response.status}.`,
       vision_input: visionInput,
+      telemetry: telemetry(response.status, payload?.usage),
     };
   }
 
@@ -132,6 +217,7 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
       raw_text: null,
       error: 'OpenAI response did not contain output text.',
       vision_input: visionInput,
+      telemetry: telemetry(response.status, payload?.usage),
     };
   }
 
@@ -146,6 +232,7 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
       raw_text: rawText,
       error: parsed.error,
       vision_input: visionInput,
+      telemetry: telemetry(response.status, payload?.usage),
     };
   }
 
@@ -158,6 +245,7 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
     raw_text: rawText,
     error: null,
     vision_input: visionInput,
+    telemetry: telemetry(response.status, payload?.usage),
   };
 }
 
@@ -343,4 +431,28 @@ function normalizeImageUrl(value?: string | null) {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function positiveInteger(value: unknown, fallback: number) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : fallback;
+}
+
+function normalizeUsage(value: unknown): OpenAiTokenUsage | null {
+  if (!isRecord(value)) return null;
+  const inputDetails = isRecord(value.input_tokens_details) ? value.input_tokens_details : {};
+  const outputDetails = isRecord(value.output_tokens_details) ? value.output_tokens_details : {};
+  return {
+    input_tokens: nullableNumber(value.input_tokens),
+    output_tokens: nullableNumber(value.output_tokens),
+    total_tokens: nullableNumber(value.total_tokens),
+    cached_input_tokens: nullableNumber(inputDetails.cached_tokens),
+    reasoning_tokens: nullableNumber(outputDetails.reasoning_tokens),
+  };
+}
+
+function nullableNumber(value: unknown) {
+  if (value === null || value === undefined || value === '') return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
 }
