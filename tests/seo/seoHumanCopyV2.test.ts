@@ -4,9 +4,15 @@ import {
   buildCurrentSeoProductEvidence,
   mapFactSheetRow,
 } from '../../lib/seoProductFactSheet.ts';
-import { buildCompactSeoWriterPrompt } from '../../lib/seoClaimPlanV2.ts';
+import {
+  buildCompactSeoWriterPrompt,
+  validateSeoWriterBriefPreflight,
+} from '../../lib/seoClaimPlanV2.ts';
 import { generateSeoDraftWithOpenAi } from '../../lib/seoOpenAiDraftGenerator.ts';
-import { normalizeCodeOwnedSeoCollections } from '../../lib/seoEditorialCandidateSelection.ts';
+import {
+  normalizeCodeOwnedPdpBlockOrder,
+  normalizeCodeOwnedSeoCollections,
+} from '../../lib/seoEditorialCandidateSelection.ts';
 import { validateSeoAgentOutput } from '../../lib/seoAgentOutputValidator.ts';
 import { validateSeoCommercialCopy } from '../../lib/seoCommercialCopyValidator.ts';
 import { validateSeoKeywordPlacement } from '../../lib/seoKeywordPlacementValidator.ts';
@@ -160,12 +166,16 @@ test('writer brief uses current offer and excludes raw legacy wording', () => {
   assert.equal(/unsupported|invented/i.test(brief.claim_plan.buyer_job_en), false);
   assert.ok(brief.ideal_for_portraits.some((portrait) => /Burning Man attendees|festival-goers/i.test(portrait.person)));
   assert.ok(brief.ideal_for_portraits.some((portrait) => /live performers/i.test(portrait.person)));
-  assert.equal(brief.editorial_memory.contract_version, 'seo_editorial_memory_v1');
-  assert.match(brief.editorial_memory.positive_block_templates.about_this_piece, /you can actually live in/);
+  assert.equal(brief.contract_version, 'seo_writer_brief_v4');
+  assert.equal(brief.editorial_reference, 'seo_editorial_memory_v2');
+  assert.match(prompt.system_prompt, /POSITIVE ABOUT EXAMPLE/);
+  assert.match(prompt.system_prompt, /At TheFEYA, we create original festival and stage fashion/);
+  assert.equal(/owner[- ]approved|story confirms?|\bconfirmed\b/i.test(prompt.user_prompt), false);
+  assert.equal(/independent (?:design )?(?:team|studio)/i.test(prompt.system_prompt), false);
   assert.ok(brief.code_owned_sections.includes('whats_included'));
   assert.ok(brief.code_owned_sections.includes('right_panel'));
   assert.match(prompt.system_prompt, /About this piece is 40-70 words in 2-4/);
-  assert.match(prompt.system_prompt, /Designed for self-expression is 45-75 words in 3-4/);
+  assert.match(prompt.system_prompt, /Designed for self-expression is the final block\. Write 45-75 words in 3-4/);
   assert.match(prompt.system_prompt, /Return bullet_highlights, faq and internal_linking_hints as empty arrays/);
 });
 
@@ -222,7 +232,7 @@ test('cosplay focus is framed as an original studio character, not a replica pro
   assert.match(brief.cosplay_positioning || '', /character of their own/i);
   assert.ok(brief.ideal_for_portraits.some((portrait) => (
     portrait.person === 'cosplayers'
-    && /character of their own/i.test(portrait.approved_need)
+    && /character of their own/i.test(portrait.situation)
   )));
   const portraitBrief = JSON.stringify(brief.ideal_for_portraits).toLowerCase();
   assert.equal((portraitBrief.match(/futuristic/g) || []).length <= 2, true);
@@ -305,7 +315,7 @@ test('positive one-pass field pattern passes the same deterministic gates as the
         block_key: 'main_description',
         placement: 'left_description',
         heading: 'Designed for self-expression',
-        body: 'At TheFEYA, we bring an independent point of view to festival and stage fashion. Our original ideas help you choose a design that feels personal. This gold armor outfit supports a complete warrior character with a futuristic or fantasy edge. It gives you a clear foundation for self-expression at festivals and in cosplay.',
+        body: 'At TheFEYA, we create original festival and stage fashion for people who want their look to feel personal. Every idea begins in our studio with a clear creative point of view. This gold armor outfit brings that approach to a futuristic or fantasy warrior character. The result gives you room for self-expression at festivals and in cosplay.',
         source_basis: 'brand_policy',
         needs_human_review: false,
       },
@@ -339,6 +349,36 @@ test('positive one-pass field pattern passes the same deterministic gates as the
   assert.equal(structural.ok, true, JSON.stringify(structural.issues));
   assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
   assert.equal(keyword.ok, true, JSON.stringify(keyword.issues));
+});
+
+test('writer brief preflight blocks internal provenance before any paid call', () => {
+  const { brief } = buildCompactSeoWriterPrompt(inputContract());
+  const polluted = structuredClone(brief);
+  polluted.claim_plan.claims[0].fact_statement_en = 'The owner-approved material story confirms a glossy finish.';
+
+  const result = validateSeoWriterBriefPreflight(polluted);
+  assert.equal(result.ok, false);
+  assert.ok(result.issues.some((issue) => issue.code.startsWith('writer_brief_internal_provenance_')));
+});
+
+test('PDP block order is restored by code without rewriting customer copy', () => {
+  const input = {
+    pdp_blocks: [
+      { block_key: 'main_description', placement: 'left_description', body: 'Final.' },
+      { block_key: 'about_this_piece', placement: 'left_description', body: 'About.' },
+      { block_key: 'ideal_for', placement: 'left_description', body: 'Ideal.' },
+      { block_key: 'why_youll_love_it', placement: 'left_description', body: 'Why.' },
+    ],
+    generation_notes: [],
+  };
+
+  const normalized = normalizeCodeOwnedPdpBlockOrder(input);
+  assert.deepEqual(
+    normalized.pdp_blocks.map((block) => block.block_key),
+    ['about_this_piece', 'why_youll_love_it', 'ideal_for', 'main_description'],
+  );
+  assert.equal(normalized.pdp_blocks[0].body, 'About.');
+  assert.match(normalized.generation_notes[0], /layout normalization/);
 });
 
 test('OpenAI writer performs one bounded request and reports token usage', async () => {

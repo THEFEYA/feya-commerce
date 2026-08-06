@@ -18,6 +18,7 @@ import {
 import { generateSeoDraftWithOpenAi } from '@/lib/seoOpenAiDraftGenerator';
 import {
   normalizeCodeOwnedSeoCollections,
+  normalizeCodeOwnedPdpBlockOrder,
   normalizeDeterministicSeoIdentity,
 } from '@/lib/seoEditorialCandidateSelection';
 
@@ -136,6 +137,13 @@ export async function POST(request: Request) {
     readiness,
     primaryImageUrl,
   });
+  if (!compactWriter.preflight.ok) {
+    hardBlockers.push(...compactWriter.preflight.issues.map((issue) => issue.code));
+    readiness.mode = 'BLOCKED';
+    readiness.hard_blockers = unique(hardBlockers);
+    readiness.allowed_customer_sections = [];
+    readiness.suppressed_customer_sections = [...GENERATED_SECTIONS, 'right_panel_whats_included'];
+  }
   const promptContract = compactWriter.prompt;
   const promptBuildMs = Date.now() - promptStartedAt;
   const commercialContext = {
@@ -157,7 +165,11 @@ export async function POST(request: Request) {
       ok: false,
       status: 'blocked_before_generation',
       blocked: true,
-      blockers: unique(hardBlockers).map((code) => ({ code, message: blockerMessage(code) })),
+      blockers: unique(hardBlockers).map((code) => ({
+        code,
+        message: compactWriter.preflight.issues.find((issue) => issue.code === code)?.message
+          || blockerMessage(code),
+      })),
       ...shared,
     }, { status: 423 });
   }
@@ -181,9 +193,8 @@ export async function POST(request: Request) {
   if (firstGeneration.output) {
     firstGeneration = {
       ...firstGeneration,
-      output: normalizeCodeOwnedSeoCollections(normalizeDeterministicSeoIdentity(
-        firstGeneration.output,
-        identityNormalizationContext,
+      output: normalizeCodeOwnedPdpBlockOrder(normalizeCodeOwnedSeoCollections(
+        normalizeDeterministicSeoIdentity(firstGeneration.output, identityNormalizationContext),
       )),
     };
   }
@@ -387,7 +398,8 @@ function buildSharedPayload(
       excluded_legacy_fact_codes: compactWriter.evidence.legacy_candidate_facts.map((item) => item.fact_code),
       deterministic_claim_count: compactWriter.brief.claim_plan.claims.length,
       claim_plan_blockers: compactWriter.brief.claim_plan.blockers,
-      editorial_memory_version: compactWriter.brief.editorial_memory.contract_version,
+      editorial_memory_version: compactWriter.brief.editorial_reference,
+      writer_brief_preflight_ok: compactWriter.preflight.ok,
       ideal_for_portrait_count: compactWriter.brief.ideal_for_portraits.length,
       code_owned_sections: compactWriter.brief.code_owned_sections,
     },

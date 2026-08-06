@@ -125,7 +125,7 @@ test('current v4 selector overrides stale Etsy variations for the current 434058
   ]);
   assert.equal(
     sellableOfferAvailabilitySentence(resolveStorefrontSellableOffer(product)),
-    'The shoulders and skirt are available separately or together.',
+    'Each piece can be ordered separately or as a full set.',
   );
 });
 
@@ -169,7 +169,7 @@ test('uses the reduced public v4 PDP selector without legacy Etsy fallback', () 
   }), ['Shoulders', 'Skirt']);
   assert.equal(
     sellableOfferAvailabilitySentence(offer),
-    'The shoulders and skirt are available separately or together.',
+    'Each piece can be ordered separately or as a full set.',
   );
 });
 

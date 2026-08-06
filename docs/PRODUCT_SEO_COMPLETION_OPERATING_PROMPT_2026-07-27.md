@@ -159,7 +159,7 @@ Full Set option   → Shoulders + Skirt
 The accompanying sentence is:
 
 ```text
-The shoulders and skirt are available separately or together.
+Each piece can be ordered separately or as a full set.
 ```
 
 If the aggregate cannot be mapped from current data, hide the block and return

@@ -17,6 +17,7 @@ import {
 } from '@/lib/seoPackContract';
 import {
   normalizeCodeOwnedSeoCollections,
+  normalizeCodeOwnedPdpBlockOrder,
   normalizeDeterministicSeoIdentity,
 } from '@/lib/seoEditorialCandidateSelection';
 
@@ -133,6 +134,14 @@ export async function POST(request: Request) {
     { readiness, primaryImageUrl },
   );
   const promptBuildMs = Date.now() - promptStartedAt;
+  if (!compactRepair.preflight.ok) {
+    return NextResponse.json({
+      ok: false,
+      status: 'blocked_before_repair',
+      blockers: compactRepair.preflight.issues,
+      message: 'The repair brief contains internal or non-customer language. No AI call was made.',
+    }, { status: 423 });
+  }
 
   const writerStartedAt = Date.now();
   let generation = await generateSeoDraftWithOpenAi(compactRepair.prompt, {
@@ -148,10 +157,12 @@ export async function POST(request: Request) {
   if (generation.output) {
     generation = {
       ...generation,
-      output: normalizeCodeOwnedSeoCollections(normalizeDeterministicSeoIdentity(generation.output, {
-        primary_keyword: primaryKeyword,
-        selected_events: focusValues(bundle.seoPackDraft.manual_focus?.event),
-      })),
+      output: normalizeCodeOwnedPdpBlockOrder(normalizeCodeOwnedSeoCollections(
+        normalizeDeterministicSeoIdentity(generation.output, {
+          primary_keyword: primaryKeyword,
+          selected_events: focusValues(bundle.seoPackDraft.manual_focus?.event),
+        }),
+      )),
     };
   }
 

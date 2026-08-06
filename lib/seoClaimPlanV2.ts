@@ -4,7 +4,7 @@ import type {
   SeoKeywordRoleItem,
 } from './seoPackContract.ts';
 import type { SeoAgentPromptContract } from './seoAgentDraftPrompt.ts';
-import { SEO_EDITORIAL_MEMORY_V1, type SeoEditorialMemoryV1 } from './seoEditorialMemory.ts';
+import { SEO_EDITORIAL_MEMORY_V2 } from './seoEditorialMemory.ts';
 import { summarizeThefeyaSeoDoctrine } from './thefeyaSeoDoctrine.ts';
 import {
   buildCurrentSeoProductEvidence,
@@ -44,16 +44,14 @@ type SeoWriterKeyword = {
 
 type SeoIdealForPortrait = {
   person: string;
-  approved_need: string;
+  situation: string;
 };
 
-export type SeoWriterBriefV3 = {
-  contract_version: 'seo_writer_brief_v3';
+export type SeoWriterBriefV4 = {
+  contract_version: 'seo_writer_brief_v4';
   page_type: 'product_detail_page';
   product_context: {
     title: string;
-    material: string | null;
-    color: string | null;
     family_profile: SeoDeterministicClaimPlan['family_profile'];
     confirmed_component_labels: string[];
   };
@@ -73,7 +71,7 @@ export type SeoWriterBriefV3 = {
     image_alt: SeoWriterKeyword[];
   };
   claim_plan: SeoDeterministicClaimPlan;
-  editorial_memory: SeoEditorialMemoryV1;
+  editorial_reference: 'seo_editorial_memory_v2';
   ideal_for_portraits: SeoIdealForPortrait[];
   cosplay_positioning: string | null;
   code_owned_sections: string[];
@@ -83,6 +81,11 @@ export type SeoWriterBriefV3 = {
     allowed_customer_sections: string[];
     suppressed_customer_sections: string[];
   };
+};
+
+export type SeoWriterBriefPreflight = {
+  ok: boolean;
+  issues: Array<{ code: string; message: string }>;
 };
 
 const REQUIRED_OUTPUT_FIELDS: Array<keyof SeoAgentOutputContract> = [
@@ -127,7 +130,7 @@ export function buildDeterministicSeoClaimPlan(
   const idealForPortraits = buildIdealForPortraits(compactFocus);
   const primary = firstKeyword(input.keyword_roles.primary);
   const productIdentity = primary || input.product.title || 'TheFEYA product';
-  const selectedContext = selectedEvents[0] || selectedStyles[0] || selectedPersonas[0] || 'its approved use';
+  const selectedContext = selectedEvents[0] || selectedStyles[0] || selectedPersonas[0] || 'its intended use';
   const writerFacts = evidence.current_confirmed_facts.filter((fact) => (
     fact.publishable
     && fact.placement === 'writer'
@@ -193,7 +196,12 @@ export function buildCompactSeoWriterPrompt(
     };
     primaryImageUrl?: string | null;
   } = {},
-): { prompt: SeoAgentPromptContract; evidence: SeoProductFactSheet; brief: SeoWriterBriefV3 } {
+): {
+  prompt: SeoAgentPromptContract;
+  evidence: SeoProductFactSheet;
+  brief: SeoWriterBriefV4;
+  preflight: SeoWriterBriefPreflight;
+} {
   const evidence = buildCurrentSeoProductEvidence(input);
   const claimPlan = buildDeterministicSeoClaimPlan(input, evidence);
   const readiness = {
@@ -203,13 +211,11 @@ export function buildCompactSeoWriterPrompt(
   };
   const compactFocus = compactManualFocus(input.manual_focus);
   const idealForPortraits = buildIdealForPortraits(compactFocus);
-  const brief: SeoWriterBriefV3 = {
-    contract_version: 'seo_writer_brief_v3',
+  const brief: SeoWriterBriefV4 = {
+    contract_version: 'seo_writer_brief_v4',
     page_type: 'product_detail_page',
     product_context: {
       title: input.product.title,
-      material: input.product.material || null,
-      color: input.product.color || null,
       family_profile: claimPlan.family_profile,
       confirmed_component_labels: input.product.sellable_offer?.status === 'ready'
         ? input.product.sellable_offer.component_labels
@@ -223,7 +229,7 @@ export function buildCompactSeoWriterPrompt(
       image_alt: compactKeywords(input.keyword_roles.image_alt, 4),
     },
     claim_plan: claimPlan,
-    editorial_memory: SEO_EDITORIAL_MEMORY_V1,
+    editorial_reference: SEO_EDITORIAL_MEMORY_V2.contract_version,
     ideal_for_portraits: idealForPortraits,
     cosplay_positioning: hasFocus(compactFocus.event, 'cosplay')
       ? "Frame cosplay as an original studio interpretation that helps the buyer create a character of their own."
@@ -258,7 +264,8 @@ export function buildCompactSeoWriterPrompt(
     guardrails,
   };
 
-  return { prompt, evidence, brief };
+  const preflight = validateSeoWriterBriefPreflight(brief);
+  return { prompt, evidence, brief, preflight };
 }
 
 export function buildCompactSeoRepairPrompt(
@@ -313,34 +320,74 @@ export function buildCompactSeoRepairPrompt(
   return { ...base, prompt, failedScopes };
 }
 
+const WRITER_VISIBLE_PROVENANCE_PATTERN = /\b(?:owner[- ]approved|approved|confirmed|confirmation|story confirms?|product truth|current selector|source data|database|evidence|pre[- ]publication|internal review)\b/i;
+const DISALLOWED_BRAND_STATUS_PATTERN = /\bindependent\s+(?:design\s+)?(?:team|studio|brand|company)\b/i;
+
+/**
+ * Zero-cost gate for the exact failure seen in the August pilot: internal
+ * provenance sentences were copied as customer prose. Only string values are
+ * inspected, so neutral JSON field names cannot create a false blocker.
+ */
+export function validateSeoWriterBriefPreflight(
+  brief: SeoWriterBriefV4,
+): SeoWriterBriefPreflight {
+  const issues: SeoWriterBriefPreflight['issues'] = [];
+  const values = collectStringValues({
+    brief,
+    positive_editorial_memory: SEO_EDITORIAL_MEMORY_V2,
+  });
+
+  values.forEach((value, index) => {
+    if (WRITER_VISIBLE_PROVENANCE_PATTERN.test(value)) {
+      issues.push({
+        code: `writer_brief_internal_provenance_${index + 1}`,
+        message: `Writer brief contains internal provenance language: ${value}`,
+      });
+    }
+    if (DISALLOWED_BRAND_STATUS_PATTERN.test(value)) {
+      issues.push({
+        code: `writer_brief_independence_padding_${index + 1}`,
+        message: `Writer brief uses independence as customer-facing brand padding: ${value}`,
+      });
+    }
+  });
+
+  return { ok: issues.length === 0, issues };
+}
+
 function compactWriterSystemPrompt() {
+  const examples = SEO_EDITORIAL_MEMORY_V2.positive_block_examples;
   return [
-    'You are the single product-copy writer for TheFEYA. Return one seo_agent_output_v1 JSON object and no commentary.',
-    'Write warm, specific en-US ecommerce copy. Follow editorial_memory for rhythm and block logic; its placeholders are a writing pattern, while this brief supplies every product fact and focus.',
-    'Use claim_plan as the complete fact-to-block map. Each claim appears once in its assigned block as a supported feature followed by one concrete buyer outcome.',
-    'Present one whole product. Use the approved Primary naturally in SEO title, H1 and meta; use a normal whole-product variation in body copy. Secondary vocabulary is optional when it makes the sentence more useful.',
+    'You are the single product-copy writer for TheFEYA, a creative studio making original festival, stage, performance and costume fashion. Return one seo_agent_output_v1 JSON object and no commentary.',
+    'Write warm, vivid, specific en-US ecommerce copy for real shoppers. The current brief supplies every product fact, keyword and selected audience. Never import a fact, event or audience from the examples.',
+    'Use claim_plan as the complete feature-to-value map. Each claim appears once in its assigned block. Turn the short feature and value into natural prose; never mention approval, confirmation, evidence, sources, stories, databases or internal review.',
+    'Present one whole product. The reviewed Primary must read naturally in SEO title, H1 and meta. In body copy use a normal whole-product variation instead of repeating the exact phrase for density.',
     'SEO title is at most 68 characters. H1 is at most 82. Meta is 110-158 characters. Intro is 20-45 words and says what the product is, where it belongs and why that matters to the buyer.',
     'About this piece is 40-70 words in 2-4 concrete sentences: begin with the buyer job and whole-product identity, then use the assigned about claim once.',
     'Why you’ll love it is 3-4 concise bullets, one for each assigned why claim. Purchase configuration is code-owned and stays in What’s Included, not in generated benefits.',
-    'Ideal for is 4-5 distinct bullets written from ideal_for_portraits. Each bullet names one person or professional role and one approved occasion or need. If cosplay_positioning is present, use that positive original-studio framing.',
-    'Designed for self-expression is 45-75 words in 3-4 natural sentences. Use first-person studio voice, exactly one TheFEYA mention, the independent point of view, original-design purpose and an honest self-expression outcome.',
+    'Ideal for is 4-5 distinct bullets written from ideal_for_portraits. Vary sentence rhythm; do not repeat “who need” or another identical frame. If cosplay_positioning is present, present an original studio character without promising a replica.',
+    'Designed for self-expression is the final block. Write 45-75 words in 3-4 natural sentences, first-person studio voice, exactly one TheFEYA mention, original-design purpose and an honest self-expression outcome. Do not sell independence as a benefit.',
     'Code owns What’s Included, the right panel, bullet_highlights, FAQ and internal links. Return bullet_highlights, faq and internal_linking_hints as empty arrays and generate no What’s Included PDP block.',
     'Keep confirmed_component_labels in visual_truth and factual ALT only. An image may describe visible color, form and scene, but the claim plan remains the authority for customer promises.',
+    `POSITIVE ABOUT EXAMPLE, RHYTHM ONLY: ${examples.about_this_piece}`,
+    `POSITIVE WHY EXAMPLE, RHYTHM ONLY: ${examples.why_youll_love_it.join(' | ')}`,
+    `POSITIVE IDEAL EXAMPLE, RHYTHM ONLY: ${examples.ideal_for.join(' | ')}`,
+    `POSITIVE FINAL STUDIO EXAMPLE, RHYTHM ONLY: ${examples.studio_close}`,
     'When the claim plan cannot support a useful section, return needs_review instead of adding filler.',
   ].join('\n');
 }
 
 function buyerOutcomeForFact(factCode: string, selectedContext: string) {
   const outcomes: Record<string, string> = {
-    original_authorial_design: `This is an original studio design, giving the buyer a distinctive ${selectedContext} look that feels like their own.`,
-    material_glossy_mirror_coating: 'The glossy, mirror-like coating gives the product its confirmed metal-like surface.',
-    material_thermoformed_liquid_metal: 'The smooth, liquid-metal effect gives the product its confirmed metal-like surface.',
-    material_body_comfort: 'The material feels comfortable against the body, making longer wear easier.',
-    material_shape_retention: 'It keeps its shape between wears, so it comes out of storage ready for the next occasion.',
-    material_event_light_camera: 'The finish catches available light, so its color and details come through in photos and under stage lighting.',
-    current_color: 'Use the confirmed color once to make the description concrete.',
+    original_authorial_design: `A distinctive ${selectedContext} character that feels personal.`,
+    material_glossy_mirror_coating: 'A polished metal-like finish with clear visual depth.',
+    material_thermoformed_liquid_metal: 'A smooth liquid-metal effect that gives the design a polished finish.',
+    material_body_comfort: 'More comfortable wear through longer events or performances.',
+    material_shape_retention: 'Ready to wear again after careful storage between occasions.',
+    material_event_light_camera: 'Color and details remain clear in photos and under stage lighting.',
+    current_color: 'One concrete visual detail that helps the shopper picture the piece.',
   };
-  return outcomes[factCode] || 'Translate this confirmed fact into one plain, non-repeated buyer outcome.';
+  return outcomes[factCode] || 'One plain, useful result for the wearer.';
 }
 
 function compactKeywords(values: SeoKeywordRoleItem[], limit: number): SeoWriterKeyword[] {
@@ -374,7 +421,7 @@ function compactManualFocus(focus: SeoAgentInputContract['manual_focus']) {
 }
 
 function buildIdealForPortraits(
-  focus: SeoWriterBriefV3['operator_confirmed_focus'],
+  focus: SeoWriterBriefV4['operator_confirmed_focus'],
 ): SeoIdealForPortrait[] {
   const hasCommercialFocus = [focus.event, focus.style, focus.persona, focus.audience]
     .some((values) => values.length > 0);
@@ -392,7 +439,7 @@ function buildIdealForPortraits(
     const isBurningMan = /burning man/i.test(festivalEvent);
     portraits.push({
       person: isBurningMan ? 'Burning Man attendees' : 'festival-goers',
-      approved_need: `choosing an original ${festivalDescriptor} look for ${isBurningMan ? 'long days and night sets' : 'a long day of music and movement'}`,
+      situation: `choosing an original ${festivalDescriptor} look for ${isBurningMan ? 'long days and night sets' : 'a long day of music and movement'}`,
     });
   }
 
@@ -400,14 +447,14 @@ function buildIdealForPortraits(
     const inspiration = [primaryStyle, secondaryStyle].filter(Boolean).join(' or ') || persona || 'character-led ideas';
     portraits.push({
       person: 'cosplayers',
-      approved_need: `creating a character of their own through an original studio interpretation inspired by ${inspiration}`,
+      situation: `creating a character of their own through an original studio interpretation inspired by ${inspiration}`,
     });
   }
 
   if (hasFocus([...focus.persona, ...focus.audience], 'performer')) {
     portraits.push({
       person: 'live performers',
-      approved_need: `preparing an original ${persona || primaryStyle || 'studio-designed'} costume for a stage set or character-led production`,
+      situation: `preparing an original ${persona || primaryStyle || 'studio-designed'} costume for a stage set or character-led production`,
     });
   }
 
@@ -415,25 +462,25 @@ function buildIdealForPortraits(
   if (selectedProfessionalRole) {
     portraits.push({
       person: pluralRole(selectedProfessionalRole),
-      approved_need: `building a recognizable ${primaryStyle || persona || 'studio-designed'} look for the selected performance or production`,
+      situation: `building a recognizable ${primaryStyle || persona || 'studio-designed'} look for the selected performance or production`,
     });
   }
 
   portraits.push(
     {
       person: 'content creators',
-      approved_need: `planning ${creatorContext} visuals around an original ${secondaryStyle || persona || primaryStyle || 'character'} look`,
+      situation: `planning ${creatorContext} visuals around an original ${secondaryStyle || persona || primaryStyle || 'character'} look`,
     },
     {
       person: 'costume stylists',
-      approved_need: `sourcing an original ${primaryStyle || persona || 'character'} design from an independent studio for themed shows or shoots`,
+      situation: `sourcing an original ${primaryStyle || persona || 'character'} design for themed shows or shoots`,
     },
   );
 
   if (portraits.length < 4) {
     portraits.push({
       person: 'show artists',
-      approved_need: `developing a personal ${secondaryStyle || persona || primaryStyle || 'studio-designed'} look for a live production`,
+      situation: `developing a personal ${secondaryStyle || persona || primaryStyle || 'studio-designed'} look for a live production`,
     });
   }
 
@@ -455,6 +502,13 @@ function buyerJobForFocus(
     return `Help the buyer create a ${character} character of their own with an original ${productIdentity}.`;
   }
   return `Help the buyer choose an original ${productIdentity} for ${selectedContext} that feels personal and works for the real occasion.`;
+}
+
+function collectStringValues(value: unknown): string[] {
+  if (typeof value === 'string') return value.trim() ? [value.trim()] : [];
+  if (Array.isArray(value)) return value.flatMap(collectStringValues);
+  if (!value || typeof value !== 'object') return [];
+  return Object.values(value as Record<string, unknown>).flatMap(collectStringValues);
 }
 
 function pluralRole(value: string) {

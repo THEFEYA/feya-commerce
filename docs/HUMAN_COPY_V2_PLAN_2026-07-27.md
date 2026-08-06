@@ -22,7 +22,7 @@ Evidence base: Supabase (saved draft `agent_input_snapshot`, `feya_commerce_sour
 1. Extend the agent input with `product_fact_sheet` sourced from `feya_v_product_fact_sheet_v1` (`confirmed_facts[]` with provenance, kit section, variation labels). Facts still pass the existing guardrail rules.
 2. Two-stage generation: (a) **claim plan** — a small call that maps 3–4 facts to buyer outcomes and target blocks as strict JSON; (b) **writer** — prose strictly from the approved plan; the writer may not add claims.
 3. Shrink the writer prompt ~4×: keep only rules the validator cannot check in code (tone, rhythm, first-person close). All mechanical bans live in `seoCommercialCopyValidator`; add the missing patterns there ("from top to bottom" family, "structured shape" family, …).
-4. Few-shot: 3 owner-approved reference blocks (About / Why / Ideal for) inside the writer prompt instead of a hundred bans. Reference blocks are produced during a 5-product pilot.
+4. Few-shot: 3 owner-reviewed reference blocks (About / Why / Ideal for) inside the writer prompt instead of a hundred bans. Reference blocks are produced during a 5-product pilot.
 5. Pilot: 20 products, blind old-vs-v2 comparison in the existing admin; gates from the Research dossier (0 truth blockers, ≥70% first-candidate approval, median edit < 3 min).
 6. Do **not** buy external copy services (Jasper/Copy.ai/Writesonic/Surfer); Describely at most as a later blind benchmark.
 

@@ -42,7 +42,7 @@ const REQUIRED_QA_KEYS: Array<keyof SeoQaContract> = [
 ];
 
 const CUSTOMER_COPY_FIELDS = ['seo_title', 'h1', 'meta_description', 'intro'] as const;
-const AUDIT_PHRASE_PATTERN = /\b(the image shows|image shows|shown in the image|shown on the image|the listed materials|listed materials|listed as|is listed as|are listed as|the product is listed|the material is listed|the materials are listed|the product description (?:says|states|lists|mentions|indicates)|the source (?:says|states|lists|mentions|indicates)|product truth|official product data|source data|database fields?|material basis|safe wording|safest wording|final copy should|must be confirmed|should be confirmed|requires? verification|needs? verification|review before publish|before publication|before publish|main focus|central element|at the center)\b/i;
+const AUDIT_PHRASE_PATTERN = /\b(the image shows|image shows|shown in the image|shown on the image|the listed materials|listed materials|listed as|is listed as|are listed as|the product is listed|the material is listed|the materials are listed|owner[- ]approved|story confirms?|confirmed|the product description (?:says|states|lists|mentions|indicates)|the source (?:says|states|lists|mentions|indicates)|product truth|official product data|source data|database fields?|material basis|safe wording|safest wording|final copy should|must be confirmed|should be confirmed|requires? verification|needs? verification|review before publish|before publication|before publish|main focus|central element|at the center)\b/i;
 const WEAK_AVAILABILITY_PATTERN = /\b(if available|when available|where available|if possible|when possible|if supported|when supported|if the design supports it|confirm before ordering|clarify before ordering|ask the manager what is included|confirm configuration|clarify the contents)\b/i;
 const PSEUDO_BENEFIT_PATTERN = /\b(works? well as a focal piece|works? as a centerpiece|part of a complete look|over minimal clothing|pairs? with simple clothing|easy to build into (?:a|the) (?:look|outfit)|easy to style|creates? a clear accent|without (?:additional|extra) (?:design )?(?:elements|details|pieces|accessories)|adds? an accent without)\b/i;
 const GUARANTEED_OUTCOME_PATTERN = /\b(guarantee(?:d|s)?|will get likes?|will receive likes?|will gain followers?|will make you popular|go viral|viral reach|everyone will notice|all eyes will be on you|guaranteed attention|guaranteed reactions?)\b/i;
@@ -52,6 +52,7 @@ const DIRECTIONAL_VISUAL_AUDIT_PATTERN = /\b(?:(?:left|right)[- ](?:shoulder|sid
 const ANATOMICAL_DESIGN_AUDIT_PATTERN = /\b(?:sculptural (?:profile|silhouette|line) of (?:the )?(?:left|right|one)?\s*shoulder|expressive upper[- ]body (?:form|line|profile|silhouette)|upper[- ]body (?:form|line|profile|silhouette|frame)|shoulder[- ]line|shoulder silhouette)\b/i;
 const UNNATURAL_EVENT_ATMOSPHERE_PATTERN = /\b(?:desert light|open light|desert[- ]ready|ready for (?:the )?desert)\b/i;
 const BRAND_STATUS_DIMINUTION_PATTERN = /\b(?:small|tiny) independent (?:team|studio|company|brand)\b/i;
+const BRAND_INDEPENDENCE_PADDING_PATTERN = /\bindependent (?:design )?(?:team|studio|company|brand)\b/i;
 const TEMPLATE_COMPARISON_PATTERN = /\b(?:(?:standard|generic|mass[- ]produced) costume template|standard template costume|copy of (?:a )?(?:standard|generic) (?:costume )?template)\b/i;
 const PRODUCT_COMPONENT_AS_BUYER_GOAL_PATTERN = /\b(?:buyers?|customers?|people) (?:who want|looking for|seeking) (?:to (?:buy|find) )?(?:a|an|this|the)?\s*(?:statement |expressive |gold |futuristic |cyberpunk |warrior )*(?:shoulder (?:piece|armor|armour)|shoulders?|pauldrons?)\b/i;
 const REDUNDANT_SHOULDER_ENTITY_PATTERN = /\bshoulders?\s+(?:armor|armour|piece|pieces|pauldron|pauldrons)\b/gi;
@@ -286,7 +287,7 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
       const selfExpressionWords = wordCount(body);
       const selfExpressionSentences = sentenceCount(body);
       if (selfExpressionWords < 45) {
-        issues.push(blocker(`pdp_block_self_expression_thin_${index}`, 'Designed for self-expression must contain 45-75 useful words covering our independent design perspective, original-design purpose, a complete supported look and an honest buyer outcome.'));
+        issues.push(blocker(`pdp_block_self_expression_thin_${index}`, 'Designed for self-expression must contain 45-75 useful words covering our original studio perspective, design purpose, a supported product connection and an honest buyer outcome.'));
       }
       if (selfExpressionWords > 75) {
         issues.push(warning(`pdp_block_self_expression_long_${index}`, 'Designed for self-expression is longer than 75 words. Remove generic biography or repeated facts.'));
@@ -457,6 +458,9 @@ function checkCustomerStyle(value: unknown, field: string, issues: SeoAgentOutpu
   }
   if (BRAND_STATUS_DIMINUTION_PATTERN.test(value)) {
     issues.push(blocker(`${safeCode(field)}_brand_status_diminution`, `${field} describes TheFEYA as small or tiny. Team size is not an approved buyer benefit.`));
+  }
+  if (BRAND_INDEPENDENCE_PADDING_PATTERN.test(value)) {
+    issues.push(blocker(`${safeCode(field)}_brand_independence_padding`, `${field} uses independence as generic brand padding instead of explaining original design and buyer value.`));
   }
   if (TEMPLATE_COMPARISON_PATTERN.test(value)) {
     issues.push(blocker(`${safeCode(field)}_invented_template_comparison`, `${field} compares the design with an undefined standard costume template instead of explaining buyer value.`));

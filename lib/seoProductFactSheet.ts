@@ -136,7 +136,7 @@ export function buildCurrentSeoProductEvidence(input: SeoAgentInputContract): Se
   const currentConfirmedFacts: SeoProductEvidenceFact[] = [
     currentFact(
       'original_authorial_design',
-      'TheFEYA is an independent design studio creating original festival and stage fashion.',
+      'Original in-studio design for festival and stage fashion.',
       'owner_approved_brand_truth',
       'writer',
     ),
@@ -154,7 +154,7 @@ export function buildCurrentSeoProductEvidence(input: SeoAgentInputContract): Se
   if (product.material?.trim()) {
     currentConfirmedFacts.push(currentFact(
       'current_material',
-      `Confirmed material: ${product.material.trim()}.`,
+      `Material: ${product.material.trim()}.`,
       'current_product_truth',
       'deterministic_only',
     ));
@@ -163,7 +163,7 @@ export function buildCurrentSeoProductEvidence(input: SeoAgentInputContract): Se
   if (product.color?.trim()) {
     currentConfirmedFacts.push(currentFact(
       'current_color',
-      `Confirmed color: ${product.color.trim()}.`,
+      `Color: ${product.color.trim()}.`,
       'current_product_truth',
       'writer',
     ));
@@ -234,19 +234,19 @@ function materialStoryFacts(material: string): SeoProductEvidenceFact[] {
     facts.push(
       currentFact(
         'material_glossy_mirror_coating',
-        'The owner-approved vegan-leather story confirms a durable, glossy mirror-like coating.',
+        'Durable, glossy mirror-like coating.',
         'owner_approved_material_story',
         'writer',
       ),
       currentFact(
         'material_body_comfort',
-        'The owner-approved vegan-leather story confirms that the material is comfortable against the body.',
+        'Comfortable against the body.',
         'owner_approved_material_story',
         'writer',
       ),
       currentFact(
         'material_shape_retention',
-        'The owner-approved vegan-leather story confirms that the pieces keep their shape between wears.',
+        'Keeps its shape between wears.',
         'owner_approved_material_story',
         'writer',
       ),
@@ -257,13 +257,13 @@ function materialStoryFacts(material: string): SeoProductEvidenceFact[] {
     facts.push(
       currentFact(
         'material_thermoformed_liquid_metal',
-        'The owner-approved acrylic story confirms a thermoformed smooth surface with a liquid-metal effect.',
+        'Thermoformed smooth surface with a liquid-metal effect.',
         'owner_approved_material_story',
         'writer',
       ),
       currentFact(
         'material_event_light_camera',
-        'The owner-approved acrylic story confirms that the surface reads strongly under event lighting and on camera.',
+        'Surface stays visually clear under event lighting and on camera.',
         'owner_approved_material_story',
         'writer',
       ),

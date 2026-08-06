@@ -14,7 +14,7 @@ function draft(overrides: Record<string, unknown> = {}) {
       { block_key: 'about_this_piece', placement: 'left_description', heading: 'About this piece', body: 'Build a bold performance look around layered gold armor with adjustable straps for different body shapes.' },
       { block_key: 'why_youll_love_it', placement: 'left_description', heading: 'Why you’ll love it', body: 'Adjustable straps support the fit.\nLayered construction holds a defined shape.\nThe silhouette reads clearly on stage.' },
       { block_key: 'ideal_for', placement: 'left_description', heading: 'Ideal for', body: 'Festival styling\nStage performance\nEditorial wardrobe' },
-      { block_key: 'main_description', placement: 'left_description', heading: 'Designed for self-expression', body: 'At TheFEYA, we are an independent team of designers with a fresh point of view on festival and stage fashion. We create original ideas across different styles so people can choose a design that feels like them. This piece gives you a distinctive starting point for a bold performance look. You can build the rest around your own style.' },
+      { block_key: 'main_description', placement: 'left_description', heading: 'Designed for self-expression', body: 'At TheFEYA, we create original festival and stage fashion for people who want their look to feel personal. Every idea begins in our studio with a clear creative point of view. This piece brings that approach to a bold performance character. The finished look gives you room to express your own style.' },
     ],
     ...overrides,
   };
@@ -185,6 +185,42 @@ test('blocks the current pilot robotic phrases and broken studio grammar', () =>
   assert.ok(codes.some((code) => (
     code.includes('has_feature_but_no_buyer_outcome') || code.includes('has_no_concrete_buyer_value')
   )));
+});
+
+test('blocks the 2026-08-06 preview provenance leak and repeated Ideal-for frame', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => {
+      if (block.block_key === 'about_this_piece') {
+        return {
+          ...block,
+          body: 'The owner-approved vegan-leather story confirms a glossy coating and its confirmed metal-like finish for this warrior costume.',
+        };
+      }
+      if (block.block_key === 'ideal_for') {
+        return {
+          ...block,
+          body: [
+            'Festival-goers who need a warrior costume for a long day of music.',
+            'Cosplayers who need an original interpretation for a fantasy character.',
+            'Live performers who need a warrior costume for a stage production.',
+            'Content creators who need a fantasy costume for themed shoots.',
+          ].join('\n'),
+        };
+      }
+      if (block.block_key === 'main_description') {
+        return {
+          ...block,
+          body: 'At TheFEYA, we are an independent design team making festival and stage fashion. Our studio develops original ideas for people who want a personal character. This costume carries that approach into a futuristic warrior look. It supports self-expression through a design that feels like your own.',
+        };
+      }
+      return block;
+    }),
+  });
+
+  const codes = validateSeoCommercialCopy(value).issues.map((issue) => issue.code);
+  assert.ok(codes.includes('customer_copy_contains_internal_audit_language'));
+  assert.ok(codes.includes('customer_copy_uses_independence_as_padding'));
+  assert.ok(codes.includes('ideal_for_repeats_who_need_template'));
 });
 
 test('blocks abstract shorthand copied by the latest live final editor', () => {

@@ -18,6 +18,8 @@ test('catalog route uses one bounded writer with no automatic editor or retry', 
 
   assert.ok(route.includes('buildCompactSeoWriterPrompt'));
   assert.ok(route.includes('normalizeDeterministicSeoIdentity'));
+  assert.ok(route.includes('normalizeCodeOwnedPdpBlockOrder'));
+  assert.ok(route.indexOf('compactWriter.preflight.ok') < route.indexOf('await generateSeoDraftWithOpenAi('));
   assert.equal((route.match(/await generateSeoDraftWithOpenAi\(/g) || []).length, 1);
   assert.ok(route.includes('generation_passes: 1'));
   assert.ok(route.includes('automatic_retries: 0'));

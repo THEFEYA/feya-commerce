@@ -28,7 +28,7 @@ export type SeoCommercialCopyContext = {
 };
 
 const WEAK_STYLING_FILLER = /\b(works? well as a focal (?:piece|point)|works? as a centerpiece|part of a complete look|over minimal clothing|pairs? with simple clothing|easy to build into (?:a|the) (?:look|outfit)|easy to style|can be a focal (?:piece|point)|works? with many looks|completes? the look|creates? a clear accent|without (?:additional|extra) (?:design )?(?:elements|details|pieces|accessories)|adds? an accent without)\b/i;
-const AUDIT_OR_ADMIN_LANGUAGE = /\b(product truth|product truth confirms?|product truth indicates?|the product description (?:says|states|lists|mentions|indicates)|the source (?:says|states|lists|mentions|indicates)|official product data|source data|database fields?|safe wording|safest wording|material basis|final copy should|must be confirmed|should be confirmed|requires? verification|needs? verification|should be reviewed before publish|requires? review before publish|review before publish|before publication|before publish|listed as|is listed as|indicated as|specified as)\b/i;
+const AUDIT_OR_ADMIN_LANGUAGE = /\b(product truth|product truth confirms?|product truth indicates?|owner[- ]approved|story confirms?|confirmed|the product description (?:says|states|lists|mentions|indicates)|the source (?:says|states|lists|mentions|indicates)|official product data|source data|database fields?|safe wording|safest wording|material basis|final copy should|must be confirmed|should be confirmed|requires? verification|needs? verification|should be reviewed before publish|requires? review before publish|review before publish|before publication|before publish|listed as|is listed as|indicated as|specified as)\b/i;
 const GUARANTEED_POPULARITY = /\b(guarantee(?:d|s)?|will get likes|will receive likes|will gain followers?|will make you popular|go viral|viral reach|more followers?|gain followers?|more likes|become popular|increase your popularity|guaranteed attention|everyone will notice|all eyes will be on you|guaranteed reactions?)\b/i;
 const EMPTY_HYPE = /\b(premium|luxury|ultimate|perfect|best|must[- ]have|crafted to perfection|elevate your look)\b/i;
 const EMPTY_OR_INTERNAL_BUYER_COPY = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|studio fit|statement piece|strong festival statement|structured (?:gold |metallic )?accent|bold (?:gold |metallic )?accent|TheFEYA gives us a way|TheFEYA\s+(?:we|our|us)\b|clean armored attitude|desert[- ]ready (?:mood|presence)|shoulder[- ]led|reads? fast|open light|direct choice for buyers?|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity (?:and|or) individuality|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|one[- ]and[- ]only (?:shoulder )?line|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced|(?:original|distinctive) alternative to (?:a )?(?:standard|generic|mass[- ]produced) costume (?:look|piece|design))\b/i;
@@ -44,6 +44,7 @@ const DIRECTIONAL_VISUAL_AUDIT = /\b(?:(?:left|right)[- ](?:shoulder|side|arm|le
 const ANATOMICAL_DESIGN_AUDIT = /\b(?:sculptural (?:profile|silhouette|line) of (?:the )?(?:left|right|one)?\s*shoulder|expressive upper[- ]body (?:form|line|profile|silhouette)|upper[- ]body (?:form|line|profile|silhouette|frame)|shoulder[- ]line|shoulder silhouette)\b/i;
 const UNNATURAL_EVENT_ATMOSPHERE = /\b(?:desert light|open light|desert[- ]ready|ready for (?:the )?desert)\b/i;
 const BRAND_STATUS_DIMINUTION = /\b(?:small|tiny) independent (?:team|studio|company|brand)\b/i;
+const BRAND_INDEPENDENCE_PADDING = /\bindependent (?:design )?(?:team|studio|company|brand)\b/i;
 const TEMPLATE_COMPARISON = /\b(?:(?:standard|generic|mass[- ]produced) costume template|(?:standard|generic) festival basics|generic festival dressing|standard template costume|copy of (?:a )?(?:standard|generic) (?:costume )?template|stands? apart from (?:a )?(?:basic|generic) (?:metallic )?(?:look|costume|outfit|design)|(?:generic|basic|ordinary|plain) (?:festival |costume |party )?(?:dressing|clothes?|outfits?|looks?)\b[^.!?\n]{0,55}\b(?:plain|basic|generic|ordinary|unfinished|on its own))\b/i;
 const PRODUCT_COMPONENT_AS_BUYER_GOAL = /\b(?:buyers?|customers?|people) (?:who want|looking for|seeking) (?:to (?:buy|find) )?(?:a|an|this|the)?\s*(?:statement |expressive |gold |futuristic |cyberpunk |warrior )*(?:shoulder (?:piece|armor|armour)|shoulders?|pauldrons?)\b/i;
 const SOCIAL_METRICS_BOILERPLATE = /\b(organic attention|reactions?, saves? (?:and|or) comments?|likes?, followers?|social (?:engagement|metrics?)|viral(?:ity| reach)?)\b/i;
@@ -358,7 +359,14 @@ export function validateSeoCommercialCopy(
   if (BRAND_STATUS_DIMINUTION.test(customerText)) {
     issues.push(blocker(
       'customer_copy_minimizes_brand_status',
-      'Do not describe TheFEYA as small or tiny. Independent design perspective is relevant; company size is not a buyer benefit.',
+      'Do not describe TheFEYA as small or tiny. Company size is not a buyer benefit.',
+    ));
+  }
+
+  if (BRAND_INDEPENDENCE_PADDING.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_uses_independence_as_padding',
+      'Independent is generic brand padding here. Explain original studio design and what it gives the wearer instead.',
     ));
   }
 
@@ -581,6 +589,13 @@ export function validateSeoCommercialCopy(
       ));
     }
   });
+  const repeatedWhoNeedFrame = idealForLines.filter((line) => /\bwho need\b/i.test(line)).length;
+  if (repeatedWhoNeedFrame >= 3) {
+    issues.push(blocker(
+      'ideal_for_repeats_who_need_template',
+      'Ideal for repeats the same “who need” template. Vary the sentence rhythm while keeping each approved person and situation.',
+    ));
+  }
   const repeatedIdealFocus = [...new Set(
     (['event', 'style', 'persona', 'audience'] as const)
       .flatMap((axis) => focusValues(context.manual_focus, axis)),
@@ -744,7 +759,7 @@ export function validateSeoCommercialCopy(
     if (closingWords < 45) {
       issues.push(blocker(
         'self_expression_close_too_thin',
-        'Designed for self-expression must contain 45-75 useful words: our independent design perspective, original-design purpose, a complete supported look and an honest buyer outcome.',
+        'Designed for self-expression must contain 45-75 useful words: our original studio perspective, design purpose, a supported product connection and an honest buyer outcome.',
       ));
     }
     if (closingWords > 75) {

@@ -3,7 +3,7 @@
 Product: 4340584466 — Warrior Armor Costume Set (Shoulders + Skirt, gold, vegan leather).
 Axes (latest saved Listing Master decision): event = burning man, festival; persona = warrior; material = gold; components = shoulders, skirt.
 Keywords: primary "warrior armor costume" (title/H1/meta only); secondary/supporting woven per map below.
-Status: FROZEN as few-shot reference #1 after four owner review rounds. Rules R1–R11 applied.
+Status: FROZEN as few-shot reference #1, amended after the owner review on 2026-08-06. Rules R1–R18 applied.
 
 ---
 
@@ -20,22 +20,22 @@ When your Burning Man look has to hold up from sunrise sets to night burns, this
 **What's included** *(deterministic block from product options — not generated)*
 ✔ Shoulders
 ✔ Skirt
-The shoulders and skirt are available separately or together. *(auto sentence; never repeated in prose)*
+Each piece can be ordered separately or as a full set. *(auto sentence; never repeated in prose)*
 
 **Why you'll love it**
-- This is our own design — warrior shoulders you won't meet on ten other people at the same festival.
+- Our original studio design gives the costume a recognizable warrior character that still feels personal.
 - Adjustable straps set a secure fit in seconds, so the set sits right on different body shapes.
 - The armor holds its shape between wears: your festival skirt set comes out of storage ready for the next event.
 
 **Ideal for**
-- Burning Man festival-goers who want a bold, one-of-a-kind look — made to be seen and photographed.
-- Show ballet dancers and performers who need a costume that reads clearly from the stage.
-- DJs who want to create a recognizable look for their sets.
-- Content creators shooting bold festival or editorial visuals.
+- Burning Man festival-goers planning a warrior look for long days of music and movement.
+- Show ballet dancers and performers looking for a costume that reads clearly from the stage.
+- DJs creating a recognizable look for their sets.
+- Content creators shooting festival or editorial visuals.
 - Costume stylists sourcing gold festival outfits for themed shows and shoots.
 
 **Designed for self-expression**
-At TheFEYA, we're an independent design team with our own take on festival and stage fashion. We make originals so you can find a design that feels like you — and turn it into a gold Burning Man outfit people recognize as yours. Wear it your way.
+At TheFEYA, we create original festival and stage fashion for people who want their look to feel personal. Our work moves between futuristic, fantasy and performance worlds, with every idea developed in our studio. This warrior costume brings that creative point of view to a character that feels distinctly your own.
 
 ---
 

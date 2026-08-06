@@ -132,6 +132,48 @@ export function normalizeCodeOwnedSeoCollections<T>(output: T): T {
   } as T;
 }
 
+const CANONICAL_LEFT_PDP_ORDER = [
+  'about_this_piece',
+  'why_youll_love_it',
+  'ideal_for',
+  'main_description',
+] as const;
+
+/**
+ * Layout order is a storefront contract, not a creative decision. Reorder only
+ * a complete, unique four-block set; malformed or duplicate blocks remain
+ * untouched so structural QA can still fail them explicitly.
+ */
+export function normalizeCodeOwnedPdpBlockOrder<T>(output: T): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const leftBlocks = output.pdp_blocks.filter((block) => (
+    isRecord(block) && block.placement === 'left_description'
+  ));
+  const byKey = new Map(leftBlocks.map((block) => [String(block.block_key || ''), block]));
+  const isCompleteUniqueSet = (
+    leftBlocks.length === CANONICAL_LEFT_PDP_ORDER.length
+    && byKey.size === CANONICAL_LEFT_PDP_ORDER.length
+    && CANONICAL_LEFT_PDP_ORDER.every((key) => byKey.has(key))
+  );
+  if (!isCompleteUniqueSet) return output;
+
+  const orderedLeft = CANONICAL_LEFT_PDP_ORDER.map((key) => byKey.get(key));
+  const nonLeft = output.pdp_blocks.filter((block) => (
+    !isRecord(block) || block.placement !== 'left_description'
+  ));
+  const alreadyOrdered = leftBlocks.every((block, index) => block === orderedLeft[index]);
+  if (alreadyOrdered && nonLeft.length === output.pdp_blocks.length - leftBlocks.length) return output;
+
+  return {
+    ...output,
+    pdp_blocks: [...orderedLeft, ...nonLeft],
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic PDP layout normalization restored the canonical left-block order.',
+    ],
+  } as T;
+}
+
 /**
  * Brand padding in a generated SEO title is a deterministic formatting defect,
  * not a reason to spend another model call or discard otherwise useful copy.

@@ -40,10 +40,22 @@ Sell the buyer's real desire behind the occasion (bold, one-of-a-kind, photograp
 Generation (including pilot drafts) happens ONLY from owner-confirmed axes and keywords saved in Listing Master. Machine-proposed axes are questions for the owner, never copy. Reason proven in pilot: an acrylic corset was auto-associated with "rave", while the owner's truth is red carpet / stage / editorial — only the owner knows the product's real world. Unconfirmed focus in old data is treated as noise.
 
 ## R13. Positive editorial memory before prompt prohibitions
-The normal writer receives a compact owner-approved block pattern and a deterministic claim plan. New wording failures become code-level validators and reviewed examples, not an ever-growing blacklist paid for on every generation.
+The normal writer receives a compact owner-reviewed positive example and a deterministic claim plan. New wording failures become code-level validators and reviewed examples, not an ever-growing blacklist paid for on every generation.
 
 ## R14. Cosplay is an original authorial interpretation
 When cosplay is an owner-confirmed focus, present the product as an original studio interpretation that helps the buyer create a character of their own. Customer copy does not promise an exact franchise or screen replica and does not waste space denying that comparison.
+
+## R15. Internal provenance never becomes customer copy
+Words such as "owner-approved", "confirmed", "story confirms", Product Truth, evidence, source and review belong to the audit layer only. Writer-visible facts are short neutral features and buyer outcomes. A deterministic preflight blocks the call before tokens are spent if provenance language leaks into the brief.
+
+## R16. Layout is code-owned
+The visible left-column order is always About this piece, deterministic What's included, Why you'll love it, Ideal for, then Designed for self-expression. A language model never chooses or changes that order.
+
+## R17. Brand close is final and singular
+TheFEYA appears once, in the final Designed for self-expression block. "Independent" is not a buyer benefit. Other blocks explain the original studio design or the product, without repeating a company biography.
+
+## R18. Vary editorial rhythm
+Ideal for and benefit bullets may share a structural job but not an identical sentence frame. Three or more repeated "who need" openings, repeated evidence prefixes, or near-identical benefit leads are rejected as template copy.
 
 ## Process rule
 Every owner review is captured the same way: complaint → named rule → committed here → reflected in prompts/validators. Cumulative and versioned.
