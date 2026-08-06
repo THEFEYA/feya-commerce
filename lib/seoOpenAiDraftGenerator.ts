@@ -344,8 +344,6 @@ function seoAgentOutputSchema() {
                 'main_description',
                 'why_youll_love_it',
                 'ideal_for',
-                'whats_included',
-                'material',
                 'image_truth_note',
                 'related_collections',
               ],

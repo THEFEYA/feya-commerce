@@ -26,6 +26,7 @@ export type SeoKeywordPlacementValidationResult = {
 
 const COMMERCIAL_PHRASE = /\b(buy|shop|order(?:ed|ing)?|for sale|online store|price|shipping|delivery|where to buy)\b/i;
 const STOP_WORDS = new Set(['a', 'an', 'and', 'at', 'by', 'for', 'from', 'in', 'of', 'on', 'or', 'the', 'to', 'with']);
+const WHOLE_PRODUCT_TOKENS = new Set(['costume', 'outfit', 'set', 'ensemble', 'attire']);
 
 export function validateSeoKeywordPlacement(
   value: unknown,
@@ -241,9 +242,9 @@ function phraseRepresented(keyword: string, value: string) {
 }
 
 function semanticPhraseRepresented(keyword: string, value: string) {
-  const tokens = [...new Set(contentTokens(keyword))];
+  const tokens = [...new Set(semanticContentTokens(keyword))];
   if (!tokens.length) return false;
-  const fieldTokens = contentTokens(value);
+  const fieldTokens = semanticContentTokens(value);
   if (fieldTokens.length < tokens.length) return false;
 
   // Secondary phrases are semantic evidence rather than exact-match targets.
@@ -255,6 +256,12 @@ function semanticPhraseRepresented(keyword: string, value: string) {
     const window = new Set(fieldTokens.slice(start, start + maxWindow));
     return tokens.every((token) => window.has(token));
   });
+}
+
+function semanticContentTokens(value: string) {
+  return contentTokens(value).map((token) => (
+    WHOLE_PRODUCT_TOKENS.has(token) ? '__whole_product__' : token
+  ));
 }
 
 function contentTokens(value: string) {

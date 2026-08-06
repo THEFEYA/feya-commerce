@@ -1,7 +1,10 @@
 // @ts-nocheck
 import { NextResponse } from 'next/server';
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
-import { buildCompactSeoRepairPrompt } from '@/lib/seoClaimPlanV2';
+import {
+  buildCompactSeoRepairPrompt,
+  buildDeterministicSeoClaimPlan,
+} from '@/lib/seoClaimPlanV2';
 import { generateSeoDraftWithOpenAi } from '@/lib/seoOpenAiDraftGenerator';
 import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
 import { validateSeoCommercialCopy } from '@/lib/seoCommercialCopyValidator';
@@ -12,7 +15,10 @@ import {
   getSeoKeywordSelectionBlockers,
   getSeoPackDraftSaveBlockers,
 } from '@/lib/seoPackContract';
-import { normalizeDeterministicSeoIdentity } from '@/lib/seoEditorialCandidateSelection';
+import {
+  normalizeCodeOwnedSeoCollections,
+  normalizeDeterministicSeoIdentity,
+} from '@/lib/seoEditorialCandidateSelection';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -76,6 +82,7 @@ export async function POST(request: Request) {
     ...getSeoKeywordSelectionBlockers(bundle.seoPackDraft),
     ...(bundle.seoPackDraft.keyword_selection?.status === 'confirmed' ? [] : ['keyword_selection_not_human_confirmed']),
     ...((bundle.seoPackDraft.metrics_status?.validated_count || 0) > 0 ? [] : ['missing_validated_keyword_metric']),
+    ...buildDeterministicSeoClaimPlan(bundle.aiAgentInput).blockers,
   ]);
   if (hardBlockers.length) {
     return NextResponse.json({
@@ -141,10 +148,10 @@ export async function POST(request: Request) {
   if (generation.output) {
     generation = {
       ...generation,
-      output: normalizeDeterministicSeoIdentity(generation.output, {
+      output: normalizeCodeOwnedSeoCollections(normalizeDeterministicSeoIdentity(generation.output, {
         primary_keyword: primaryKeyword,
         selected_events: focusValues(bundle.seoPackDraft.manual_focus?.event),
-      }),
+      })),
     };
   }
 

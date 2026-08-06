@@ -54,7 +54,7 @@ test('accepts a close whole-product semantic variation in body copy without repe
     intro: 'Made for the selected festival occasion.',
     pdp_blocks: [{
       heading: 'About this piece',
-      body: 'This gold warrior-inspired costume uses sculptural armor to give the full outfit a distinctive shape.',
+      body: 'This gold warrior-inspired armor outfit is designed for the approved festival setting.',
     }],
   };
   const result = validateSeoKeywordPlacement(value, contract('warrior armor costume'));

@@ -107,6 +107,32 @@ export function normalizeDeterministicSeoIdentity<T>(
 }
 
 /**
+ * These collections are disabled for the current PDP phase because the fixed
+ * right panel and the four left-description blocks already own their jobs.
+ * Clearing them deterministically prevents a second generated benefit list,
+ * product-level FAQ, or invented links from duplicating otherwise useful copy.
+ */
+export function normalizeCodeOwnedSeoCollections<T>(output: T): T {
+  if (!isRecord(output)) return output;
+  const fields = ['bullet_highlights', 'faq', 'internal_linking_hints'] as const;
+  const changed = fields.some((field) => (
+    !Array.isArray(output[field]) || output[field].length > 0
+  ));
+  if (!changed) return output;
+
+  return {
+    ...output,
+    bullet_highlights: [],
+    faq: [],
+    internal_linking_hints: [],
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic PDP normalization kept duplicate highlights, product FAQ and unapproved internal links empty.',
+    ],
+  } as T;
+}
+
+/**
  * Brand padding in a generated SEO title is a deterministic formatting defect,
  * not a reason to spend another model call or discard otherwise useful copy.
  * Keep the untouched model response in the OpenAI audit trail, while the

@@ -32,7 +32,35 @@ export type SeoDeterministicClaimPlan = {
   buyer_job_en: string;
   family_profile: 'multi_component_outfit' | 'single_component' | 'whole_product';
   claims: SeoClaimPlanItem[];
+  blockers: string[];
 };
+
+type SeoWriterKeyword = {
+  keyword: string;
+  role: SeoKeywordRoleItem['role'];
+  placement: string | null;
+};
+
+type SeoWriterSellableOffer = {
+  contract_version: string;
+  status: string;
+  source: string | null;
+  atomic_options: Array<{
+    code: string;
+    family: string | null;
+    label: string;
+  }>;
+  aggregate_options: Array<{
+    code: string;
+    label: string;
+    member_codes: string[];
+    member_labels: string[];
+  }>;
+  component_labels: string[];
+  default_configuration_code: string | null;
+  default_included_components: string[];
+  blockers: string[];
+} | null;
 
 export type SeoWriterBriefV2 = {
   contract_version: 'seo_writer_brief_v2';
@@ -44,7 +72,7 @@ export type SeoWriterBriefV2 = {
     material: string | null;
     color: string | null;
   };
-  current_sellable_offer: SeoAgentInputContract['product']['sellable_offer'];
+  current_sellable_offer: SeoWriterSellableOffer;
   operator_confirmed_focus: {
     component: string[];
     material: string[];
@@ -55,12 +83,12 @@ export type SeoWriterBriefV2 = {
     exclude: string[];
   };
   approved_keywords: {
-    primary: SeoKeywordRoleItem[];
-    secondary: SeoKeywordRoleItem[];
-    support: SeoKeywordRoleItem[];
-    image_alt: SeoKeywordRoleItem[];
+    primary: SeoWriterKeyword[];
+    secondary: SeoWriterKeyword[];
+    support: SeoWriterKeyword[];
+    image_alt: SeoWriterKeyword[];
   };
-  current_confirmed_writer_facts: SeoProductEvidenceFact[];
+  current_confirmed_writer_facts: Array<Pick<SeoProductEvidenceFact, 'fact_code' | 'statement_en' | 'source'>>;
   excluded_legacy_evidence: Array<Pick<SeoProductEvidenceFact, 'fact_code' | 'source' | 'publishable'>>;
   claim_plan: SeoDeterministicClaimPlan;
   family_style_profile: {
@@ -68,6 +96,7 @@ export type SeoWriterBriefV2 = {
     positive_pattern: string;
   };
   already_covered_topics: string[];
+  ideal_for_allowed_labels: string[];
   forbidden_claims: string[];
   vision_input_present: boolean;
   readiness: {
@@ -120,7 +149,9 @@ export function buildDeterministicSeoClaimPlan(
   const productIdentity = primary || input.product.title || 'TheFEYA product';
   const selectedContext = selectedEvents[0] || selectedStyles[0] || selectedPersonas[0] || 'its approved use';
   const writerFacts = evidence.current_confirmed_facts.filter((fact) => (
-    fact.publishable && fact.placement === 'writer'
+    fact.publishable
+    && fact.placement === 'writer'
+    && fact.fact_code !== 'current_product_identity'
   ));
   const preferredCodes = [
     'original_authorial_design',
@@ -129,28 +160,47 @@ export function buildDeterministicSeoClaimPlan(
     'material_body_comfort',
     'material_shape_retention',
     'material_event_light_camera',
+    'current_purchase_flexibility',
     'current_color',
   ];
   const ordered = [...writerFacts].sort((left, right) => (
     rank(preferredCodes, left.fact_code) - rank(preferredCodes, right.fact_code)
   ));
-  const selectedFacts = uniqueFactFamilies(ordered).slice(0, 4);
-  const claims = selectedFacts.map((fact, index): SeoClaimPlanItem => ({
+  const aboutFact = ordered.find((fact) => [
+    'material_glossy_mirror_coating',
+    'material_thermoformed_liquid_metal',
+    'current_color',
+  ].includes(fact.fact_code)) || null;
+  const whyFacts = uniqueFactFamilies(ordered.filter((fact) => [
+    'original_authorial_design',
+    'material_body_comfort',
+    'material_shape_retention',
+    'material_event_light_camera',
+    'current_purchase_flexibility',
+  ].includes(fact.fact_code))).slice(0, 4);
+  const selectedClaims = [
+    ...(aboutFact ? [{ fact: aboutFact, target_block: 'about_this_piece' as const }] : []),
+    ...whyFacts.map((fact) => ({ fact, target_block: 'why_youll_love_it' as const })),
+  ];
+  const claims = selectedClaims.map(({ fact, target_block }, index): SeoClaimPlanItem => ({
     claim_id: `claim_${index + 1}`,
     fact_code: fact.fact_code,
     fact_statement_en: fact.statement_en,
     buyer_outcome_en: buyerOutcomeForFact(fact.fact_code, selectedContext),
-    target_block: selectedFacts.length >= 4 && index === 1
-      ? 'about_this_piece'
-      : 'why_youll_love_it',
+    target_block,
   }));
+  const blockers = [
+    ...(!aboutFact ? ['claim_plan_missing_about_fact'] : []),
+    ...(whyFacts.length < 3 ? ['claim_plan_insufficient_distinct_why_claims'] : []),
+  ];
 
   return {
     contract_version: 'seo_claim_plan_v2',
     product_identity_en: productIdentity,
-    buyer_job_en: `Choose a distinctive ${productIdentity} for ${selectedContext} without unsupported promises or invented components.`,
+    buyer_job_en: `Choose a distinctive ${productIdentity} for ${selectedContext} and build a look that feels personal.`,
     family_profile: familyProfile,
     claims,
+    blockers,
   };
 }
 
@@ -172,6 +222,7 @@ export function buildCompactSeoWriterPrompt(
     allowed_customer_sections: options.readiness?.allowed_customer_sections || [],
     suppressed_customer_sections: options.readiness?.suppressed_customer_sections || [],
   };
+  const compactFocus = compactManualFocus(input.manual_focus);
   const brief: SeoWriterBriefV2 = {
     contract_version: 'seo_writer_brief_v2',
     page_type: 'product_detail_page',
@@ -182,17 +233,25 @@ export function buildCompactSeoWriterPrompt(
       material: input.product.material || null,
       color: input.product.color || null,
     },
-    current_sellable_offer: input.product.sellable_offer || null,
-    operator_confirmed_focus: compactManualFocus(input.manual_focus),
+    current_sellable_offer: compactSellableOffer(input.product.sellable_offer),
+    operator_confirmed_focus: compactFocus,
     approved_keywords: {
       primary: compactKeywords(input.keyword_roles.primary),
       secondary: compactKeywords(input.keyword_roles.secondary),
       support: compactKeywords(input.keyword_roles.support),
       image_alt: compactKeywords(input.keyword_roles.image_alt),
     },
-    current_confirmed_writer_facts: evidence.current_confirmed_facts.filter((fact) => (
-      fact.publishable && fact.placement === 'writer'
-    )),
+    current_confirmed_writer_facts: evidence.current_confirmed_facts
+      .filter((fact) => (
+        fact.publishable
+        && fact.placement === 'writer'
+        && fact.fact_code !== 'current_product_identity'
+      ))
+      .map((fact) => ({
+        fact_code: fact.fact_code,
+        statement_en: fact.statement_en,
+        source: fact.source,
+      })),
     excluded_legacy_evidence: evidence.legacy_candidate_facts.map((fact) => ({
       fact_code: fact.fact_code,
       source: fact.source,
@@ -204,9 +263,16 @@ export function buildCompactSeoWriterPrompt(
       positive_pattern: positiveFamilyPattern(claimPlan.family_profile),
     },
     already_covered_topics: ALREADY_COVERED_TOPICS,
+    ideal_for_allowed_labels: unique([
+      ...compactFocus.event,
+      ...compactFocus.style,
+      ...compactFocus.persona,
+      ...compactFocus.audience,
+      'costume buyer',
+      'customer',
+    ]),
     forbidden_claims: unique([
       ...input.blocked_words.product_specific_exclusions.slice(0, 12),
-      'The global language blacklist is enforced by deterministic QA and is not repeated in this prompt.',
       'unsupported component or purchase configuration',
       'legacy customization, sizing, engraving, rush-order or gift-packaging promise',
       'guaranteed attention, compliments, likes, followers or sales',
@@ -304,17 +370,21 @@ function compactWriterSystemPrompt() {
     'Use only current_confirmed_writer_facts and claim_plan for customer claims. excluded_legacy_evidence is never publishable.',
     'The current_sellable_offer is the only composition authority. Full Set is an aggregate purchase option, not a physical item or keyword entity.',
     'Vision may populate visual_truth and factual ALT observations only. It never proves a sellable component, material, fit, service or commercial promise.',
-    'Keep the page entity whole-product-first. Use the exact approved Primary naturally in SEO title, H1 and meta only, with no more than three exact occurrences total.',
+    'Keep the page entity whole-product-first. Use the exact approved Primary naturally in SEO title, H1 and meta, with no more than three exact occurrences there.',
+    'In intro or About, represent the Primary concept once through a natural semantic variation that preserves every meaningful descriptor and may swap only the whole-product noun, for example costume to outfit, set, ensemble or attire. Do not repeat the exact H1 phrase in body copy.',
     'Use Secondary/supporting vocabulary only where it improves a natural sentence. Logic beats keyword placement; never target density.',
-    'SEO title: at most 68 characters. H1: at most 82. Meta: 110-158 characters. Intro: one or two useful sentences answering what it is, its approved use and buyer result.',
-    'Do not inventory components in intro, About, Why, Ideal for or the studio close. The deterministic What’s Included block owns composition and purchase-option wording.',
-    'About this piece: 2-4 concrete sentences. Start from the buyer job, then use at most one supported product/material value not owned by another block.',
-    'Why you’ll love it: use every why_youll_love_it claim exactly once, normally 3-4 bullets. Each bullet is one supported feature followed by one clear buyer outcome.',
-    'Ideal for: 3-5 distinct client portraits drawn only from operator-confirmed event/style/persona/audience axes and approved general roles. Name a real person/role plus a coherent occasion or need.',
-    'Designed for self-expression: first-person studio voice, one TheFEYA mention, original design and self-expression. Never call the studio small.',
+    'SEO title: at most 68 characters. H1: at most 82. Meta: 110-158 characters. Intro: 20-45 words in one or two useful sentences answering what it is, its approved use and buyer result.',
+    'Do not inventory component labels in intro, About, Why, Ideal for or the studio close. The deterministic What’s Included block owns exact composition. Only a current_purchase_flexibility claim may say once in Why that the confirmed pieces are available separately or together.',
+    'Return bullet_highlights as []. Why you’ll love it is the only generated benefit list, so a second highlight list would duplicate claims.',
+    'About this piece: 40-70 words in 2-4 concrete sentences. Start from the buyer job and whole-product identity, then use each about_this_piece claim exactly once. Do not use a why_youll_love_it claim here.',
+    'Why you’ll love it: use every why_youll_love_it claim exactly once in 3-4 bullets. Each bullet is one supported feature followed by one clear buyer outcome. The design bullet should use the positive pattern “Our original studio design gives you a distinctive piece for a look that feels personal.”',
+    'Only main_description may contain the word TheFEYA. Never use the brand name in intro, bullet_highlights, About, Why or Ideal for.',
+    'Ideal for: 4-5 distinct client portraits. Use only ideal_for_allowed_labels and grammatical variants of those labels; do not invent another named role, event or subculture. Represent at least one value from every non-empty event, style, persona and audience axis. Each bullet names one person or role plus one approved occasion or need.',
+    'Designed for self-expression: 45-75 words in 3-4 natural sentences. Use first-person studio voice, exactly one TheFEYA mention, an independent point of view, original design purpose, a complete supported look and one honest self-expression outcome. Never call the studio small.',
     'Return no generated What’s Included block and no fixed right-panel sizing, production, shipping, material-specification, care or customization instructions.',
-    'FAQ is empty unless the brief provides a current confirmed fact that answers it without repeating the right panel. Do not invent internal links.',
-    'Avoid robotic design-analysis language: silhouette, sculptural, structured shape, visual depth, upper-body line, reads clearly, creates presence, focal point, strong look, complete look, intentional look.',
+    'Return faq and internal_linking_hints as empty arrays in this PDP phase.',
+    'Use each claim_plan fact in only its assigned block. Do not repeat the same finish, comfort, shape-retention, design or purchase-flexibility idea in meta, intro or another block.',
+    'Avoid robotic design-analysis language: silhouette, sculptural, structured shape, visual depth, upper-body line, reads clearly, creates presence, focal point, strong look, intentional look.',
     'Avoid hype and social promises: perfect, ultimate, premium, guaranteed attention, compliments, likes, followers, viral reach or sales.',
     'Do not use long dashes as a house style. Do not repeat the same idea across blocks.',
     'If evidence is insufficient, return status needs_review with fewer truthful claims; never fill space by invention.',
@@ -334,29 +404,50 @@ function positiveFamilyPattern(profile: SeoDeterministicClaimPlan['family_profil
 
 function buyerOutcomeForFact(factCode: string, selectedContext: string) {
   const outcomes: Record<string, string> = {
-    original_authorial_design: `Give the buyer an original, recognizable option for ${selectedContext} without promising social reactions.`,
-    material_glossy_mirror_coating: `Give the product a distinctive glossy finish for ${selectedContext}.`,
-    material_thermoformed_liquid_metal: `Give the product a smooth liquid-metal effect suited to the approved context.`,
-    material_body_comfort: `Support more comfortable extended wear during ${selectedContext}.`,
-    material_shape_retention: 'Help the buyer keep the piece ready between wears.',
-    material_event_light_camera: 'Support a strong visual result under event lighting and on camera without guaranteeing attention.',
-    current_color: 'Help the buyer choose the confirmed color for the approved look.',
+    original_authorial_design: `Use one concrete design benefit: our original studio design gives the buyer a distinctive option for a ${selectedContext} look that feels personal.`,
+    material_glossy_mirror_coating: 'Explain the confirmed glossy mirror-like coating as one concrete surface value in About this piece.',
+    material_thermoformed_liquid_metal: 'Explain the confirmed smooth liquid-metal effect as one concrete surface value in About this piece.',
+    material_body_comfort: 'Use one practical benefit: the confirmed material feels comfortable against the body, making longer wear easier.',
+    material_shape_retention: 'Use one repeat-wear benefit: the material keeps its shape between wears, so the piece stays ready for future use.',
+    material_event_light_camera: 'Use one verified finish benefit: the surface works under event lighting and on camera without promising attention or reactions.',
+    current_purchase_flexibility: 'Use one purchase-flexibility benefit: the confirmed pieces are available separately or together, so the buyer can restyle the outfit for future use.',
+    current_color: 'Ground About this piece in the confirmed color without turning color alone into a purchase benefit.',
   };
   return outcomes[factCode] || 'Translate this confirmed fact into one plain, non-repeated buyer outcome.';
 }
 
-function compactKeywords(values: SeoKeywordRoleItem[]) {
+function compactKeywords(values: SeoKeywordRoleItem[]): SeoWriterKeyword[] {
   return (values || []).slice(0, 8).map((item) => ({
-    keyword: item.keyword,
-    keyword_norm: item.keyword_norm,
+    keyword: String(item.keyword || item.keyword_norm || '').trim(),
     role: item.role,
     placement: item.placement || null,
-    role_reason: item.role_reason || null,
-    avg_monthly_searches: item.avg_monthly_searches ?? null,
-    competition: item.competition ?? null,
-    metric_source: item.metric_source ?? null,
-    last_checked: item.last_checked ?? null,
-  })) as SeoKeywordRoleItem[];
+  })).filter((item) => item.keyword);
+}
+
+function compactSellableOffer(
+  offer: SeoAgentInputContract['product']['sellable_offer'],
+): SeoWriterSellableOffer {
+  if (!offer) return null;
+  return {
+    contract_version: offer.contract_version,
+    status: offer.status,
+    source: offer.source || null,
+    atomic_options: offer.atomic_options.map((option) => ({
+      code: option.code,
+      family: option.family || null,
+      label: option.label,
+    })),
+    aggregate_options: offer.aggregate_options.map((option) => ({
+      code: option.code,
+      label: option.label,
+      member_codes: option.member_codes,
+      member_labels: option.member_labels,
+    })),
+    component_labels: offer.component_labels,
+    default_configuration_code: offer.default_configuration_code || null,
+    default_included_components: offer.default_included_components,
+    blockers: offer.blockers,
+  };
 }
 
 function firstKeyword(values: SeoKeywordRoleItem[]) {

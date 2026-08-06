@@ -6,6 +6,10 @@ import {
 } from '../../lib/seoProductFactSheet.ts';
 import { buildCompactSeoWriterPrompt } from '../../lib/seoClaimPlanV2.ts';
 import { generateSeoDraftWithOpenAi } from '../../lib/seoOpenAiDraftGenerator.ts';
+import { normalizeCodeOwnedSeoCollections } from '../../lib/seoEditorialCandidateSelection.ts';
+import { validateSeoAgentOutput } from '../../lib/seoAgentOutputValidator.ts';
+import { validateSeoCommercialCopy } from '../../lib/seoCommercialCopyValidator.ts';
+import { validateSeoKeywordPlacement } from '../../lib/seoKeywordPlacementValidator.ts';
 
 function roleMap() {
   return {
@@ -137,13 +141,25 @@ test('writer brief uses current offer and excludes raw legacy wording', () => {
   assert.equal(prompt.user_prompt.includes('Model wearing Bracelets'), false);
   assert.equal(prompt.user_prompt.includes('internal-signature-not-for-writer'), false);
   assert.equal(prompt.user_prompt.includes('NEVER EVER HUGE LEGACY BAN'), false);
+  assert.equal(prompt.user_prompt.includes('offer-signature'), false);
+  assert.equal(prompt.user_prompt.includes('configuration_id'), false);
+  assert.equal(prompt.user_prompt.includes('avg_monthly_searches'), false);
+  assert.equal(prompt.user_prompt.includes('metric_source'), false);
   assert.ok(prompt.user_prompt.includes('Shoulders'));
   assert.ok(prompt.user_prompt.includes('Skirt'));
-  assert.ok(prompt.system_prompt.length + prompt.user_prompt.length < 18_000);
+  assert.ok(prompt.system_prompt.length + prompt.user_prompt.length < 12_000);
   assert.equal(brief.claim_plan.family_profile, 'multi_component_outfit');
-  assert.ok(brief.claim_plan.claims.length >= 3);
+  assert.deepEqual(brief.claim_plan.blockers, []);
+  assert.equal(brief.claim_plan.claims.filter((claim) => claim.target_block === 'about_this_piece').length, 1);
+  assert.ok(brief.claim_plan.claims.filter((claim) => claim.target_block === 'why_youll_love_it').length >= 3);
+  assert.equal(/unsupported|invented/i.test(brief.claim_plan.buyer_job_en), false);
+  assert.ok(brief.ideal_for_allowed_labels.includes('festival'));
+  assert.ok(brief.ideal_for_allowed_labels.includes('performer'));
   assert.ok(brief.already_covered_topics.includes('shipping and delivery'));
   assert.ok(brief.already_covered_topics.includes('care instructions'));
+  assert.match(prompt.system_prompt, /About this piece: 40-70 words in 2-4/);
+  assert.match(prompt.system_prompt, /Designed for self-expression: 45-75 words in 3-4/);
+  assert.match(prompt.system_prompt, /Return bullet_highlights as \[\]/);
 });
 
 test('compact writer contract stays product-specific for a single dress', () => {
@@ -177,11 +193,121 @@ test('compact writer contract stays product-specific for a single dress', () => 
 
   const { prompt, brief } = buildCompactSeoWriterPrompt(input);
   assert.equal(brief.claim_plan.family_profile, 'single_component');
+  assert.ok(brief.claim_plan.blockers.includes('claim_plan_insufficient_distinct_why_claims'));
   assert.deepEqual(brief.current_sellable_offer?.component_labels, ['Dress']);
   assert.equal(prompt.user_prompt.includes('Shoulders'), false);
   assert.equal(prompt.user_prompt.includes('Skirt'), false);
   assert.equal(prompt.user_prompt.includes('warrior armor costume'), false);
   assert.ok(prompt.user_prompt.includes('black festival dress'));
+});
+
+test('code-owned PDP collections stay empty before deterministic validation', () => {
+  const normalized = normalizeCodeOwnedSeoCollections({
+    bullet_highlights: ['Duplicate finish benefit'],
+    faq: [{ question: 'Duplicate right-panel question' }],
+    internal_linking_hints: [{ anchor: 'Invented link' }],
+    generation_notes: [],
+  });
+
+  assert.deepEqual(normalized.bullet_highlights, []);
+  assert.deepEqual(normalized.faq, []);
+  assert.deepEqual(normalized.internal_linking_hints, []);
+  assert.match(normalized.generation_notes[0], /Deterministic PDP normalization/);
+});
+
+test('positive one-pass field pattern passes the same deterministic gates as the runtime', () => {
+  const input = inputContract();
+  input.manual_focus = {
+    ...input.manual_focus,
+    event: ['festival', 'cosplay'],
+    style: ['futuristic', 'fantasy'],
+    persona: ['warrior', 'performer'],
+  };
+  const candidate = {
+    contract_version: 'seo_agent_output_v1',
+    status: 'draft',
+    seo_title: 'Warrior Armor Costume for Festival',
+    h1: 'Warrior Armor Costume for Festival',
+    meta_description: 'Warrior armor costume for festival and cosplay styling, with a gold finish for futuristic and fantasy character looks.',
+    intro: 'This gold warrior armor outfit is designed for festival and cosplay styling, giving you a clear base for a futuristic or fantasy character.',
+    bullet_highlights: [],
+    faq: [],
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'Gold warrior outfit with shoulder armor and skirt worn outdoors',
+      truth_basis: 'visible_product_fact',
+    }],
+    internal_linking_hints: [],
+    visual_truth: {
+      observed_product_facts: ['Gold shoulder pieces and a skirt are visible.'],
+      dna_matches: ['Gold festival styling'],
+      open_style_suggestions: [],
+      uncertain_or_missing_facts: [],
+      forbidden_visual_claims: [],
+    },
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        body: 'Choose this gold armor outfit when you need a complete warrior character for festival or cosplay use. Its glossy mirror-like coating creates a polished metallic surface, giving the costume a distinctive finish that works naturally with futuristic and fantasy styling.',
+        source_basis: 'product_fact',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'why_youll_love_it',
+        placement: 'left_description',
+        heading: 'Why you’ll love it',
+        body: '- Our original studio design gives you a distinctive costume for a look that feels personal.\n- The material feels comfortable against the body, making longer wear easier.\n- The material keeps its shape between wears, so the outfit stays ready for future use.\n- The pieces are available separately or together, so you can restyle the outfit for future use.',
+        source_basis: 'product_fact',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'ideal_for',
+        placement: 'left_description',
+        heading: 'Ideal for',
+        body: '- Festival performers choosing a gold warrior costume for a live set.\n- Cosplayers developing a futuristic or fantasy warrior character.\n- Costume buyers planning a fantasy look for an upcoming festival.\n- Performers preparing a distinctive cosplay outfit for character-led productions.',
+        source_basis: 'product_fact',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'main_description',
+        placement: 'left_description',
+        heading: 'Designed for self-expression',
+        body: 'At TheFEYA, we bring an independent point of view to festival and stage fashion. Our original ideas help you choose a design that feels personal. This gold armor outfit supports a complete warrior character with a futuristic or fantasy edge. It gives you a clear foundation for self-expression at festivals and in cosplay.',
+        source_basis: 'brand_policy',
+        needs_human_review: false,
+      },
+    ],
+    qa_self_report: {
+      cliche_phrase: 'pass',
+      long_dash: 'pass',
+      keyword_stuffing: 'pass',
+      product_specificity: 'pass',
+      forbidden_mismatch: 'pass',
+      similarity_cannibalization: 'not_checked',
+      image_alt_truth: 'pass',
+      commercial_placement: 'pass',
+      validated_metrics: 'pass',
+      notes: [],
+    },
+    generation_notes: [],
+  } as any;
+  const context = {
+    product_truth: input.product,
+    manual_focus: input.manual_focus,
+    keyword_roles: input.keyword_roles,
+  };
+
+  const structural = validateSeoAgentOutput(candidate);
+  const commercial = validateSeoCommercialCopy(candidate, context);
+  const keyword = validateSeoKeywordPlacement(candidate, {
+    product_truth: input.product,
+    keyword_roles: input.keyword_roles,
+  } as any);
+  assert.equal(structural.ok, true, JSON.stringify(structural.issues));
+  assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
+  assert.equal(keyword.ok, true, JSON.stringify(keyword.issues));
 });
 
 test('OpenAI writer performs one bounded request and reports token usage', async () => {
@@ -224,6 +350,10 @@ test('OpenAI writer performs one bounded request and reports token usage', async
     assert.equal(result.ok, true);
     assert.equal(requestBody.max_output_tokens, 321);
     assert.equal(requestBody.reasoning.effort, 'low');
+    const generatedBlockKeys = requestBody.text.format.schema.properties.pdp_blocks
+      .items.properties.block_key.enum;
+    assert.equal(generatedBlockKeys.includes('whats_included'), false);
+    assert.equal(generatedBlockKeys.includes('material'), false);
     assert.equal(result.telemetry.usage?.total_tokens, 160);
     assert.equal(result.telemetry.usage?.cached_input_tokens, 20);
     assert.equal(result.telemetry.prompt_hash.length, 64);

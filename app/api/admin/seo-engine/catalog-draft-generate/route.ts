@@ -2,7 +2,10 @@
 import { NextResponse } from 'next/server';
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
 import { summarizeSeoAgentPromptContract } from '@/lib/seoAgentDraftPrompt';
-import { buildCompactSeoWriterPrompt } from '@/lib/seoClaimPlanV2';
+import {
+  buildCompactSeoWriterPrompt,
+  buildDeterministicSeoClaimPlan,
+} from '@/lib/seoClaimPlanV2';
 import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
 import { validateSeoCommercialCopy } from '@/lib/seoCommercialCopyValidator';
 import { validateSeoKeywordPlacement } from '@/lib/seoKeywordPlacementValidator';
@@ -13,7 +16,10 @@ import {
   getSeoPackDraftSaveBlockers,
 } from '@/lib/seoPackContract';
 import { generateSeoDraftWithOpenAi } from '@/lib/seoOpenAiDraftGenerator';
-import { normalizeDeterministicSeoIdentity } from '@/lib/seoEditorialCandidateSelection';
+import {
+  normalizeCodeOwnedSeoCollections,
+  normalizeDeterministicSeoIdentity,
+} from '@/lib/seoEditorialCandidateSelection';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -114,7 +120,8 @@ export async function POST(request: Request) {
     }, { status: 404 });
   }
 
-  const readiness = classifyReadiness(bundle.seoPackDraft);
+  const preflightClaimPlan = buildDeterministicSeoClaimPlan(bundle.aiAgentInput);
+  const readiness = classifyReadiness(bundle.seoPackDraft, preflightClaimPlan.blockers);
   const portfolioStrategy = bundle.aiAgentInput?.portfolio_strategy || null;
   const hardBlockers = [...readiness.hard_blockers];
   if (requirePortfolioStrategy && !portfolioStrategy) hardBlockers.push('portfolio_strategy_missing');
@@ -174,10 +181,10 @@ export async function POST(request: Request) {
   if (firstGeneration.output) {
     firstGeneration = {
       ...firstGeneration,
-      output: normalizeDeterministicSeoIdentity(
+      output: normalizeCodeOwnedSeoCollections(normalizeDeterministicSeoIdentity(
         firstGeneration.output,
         identityNormalizationContext,
-      ),
+      )),
     };
   }
   const validationStartedAt = Date.now();
@@ -285,7 +292,7 @@ export async function POST(request: Request) {
   });
 }
 
-function classifyReadiness(draft) {
+function classifyReadiness(draft, additionalBlockers = []) {
   const hardBlockers = [];
   const sectionBlockers = [];
   const truth = draft?.product_truth || {};
@@ -317,6 +324,7 @@ function classifyReadiness(draft) {
   if (draft?.qa_checks?.validated_metrics === 'blocker') hardBlockers.push('qa_blocker_validated_metrics');
   const compositionBlockers = getSeoGenerationProductTruthBlockers(draft);
   hardBlockers.push(...compositionBlockers);
+  hardBlockers.push(...additionalBlockers);
 
   sectionBlockers.push(...compositionBlockers);
 
@@ -377,6 +385,7 @@ function buildSharedPayload(
       current_confirmed_writer_fact_count: compactWriter.brief.current_confirmed_writer_facts.length,
       excluded_legacy_fact_codes: compactWriter.brief.excluded_legacy_evidence.map((item) => item.fact_code),
       deterministic_claim_count: compactWriter.brief.claim_plan.claims.length,
+      claim_plan_blockers: compactWriter.brief.claim_plan.blockers,
       already_covered_topics: compactWriter.brief.already_covered_topics,
     },
     seo_pack_draft: bundle.seoPackDraft,
@@ -419,6 +428,8 @@ function blockerMessage(code) {
     missing_product_title: 'Product title is missing.',
     missing_product_slug: 'Product slug is missing.',
     insufficient_product_identity_evidence: 'Product identity evidence is insufficient.',
+    claim_plan_missing_about_fact: 'Generation is blocked because About this piece has no distinct confirmed design, material, finish or color fact.',
+    claim_plan_insufficient_distinct_why_claims: 'Generation is blocked because fewer than three distinct confirmed feature-to-outcome benefits are available for Why you’ll love it.',
     missing_primary_or_secondary_keyword: 'No relevant primary or secondary keyword passed the decision pipeline.',
     missing_validated_keyword_metric: 'No selected keyword has a trusted validated metric snapshot.',
     portfolio_strategy_missing: 'Portfolio differentiation strategy was required but is missing.',
