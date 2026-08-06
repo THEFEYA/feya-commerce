@@ -32,13 +32,14 @@ const AUDIT_OR_ADMIN_LANGUAGE = /\b(product truth|product truth confirms?|produc
 const GUARANTEED_POPULARITY = /\b(guarantee(?:d|s)?|will get likes|will receive likes|will gain followers?|will make you popular|go viral|viral reach|more followers?|gain followers?|more likes|become popular|increase your popularity|guaranteed attention|everyone will notice|all eyes will be on you|guaranteed reactions?)\b/i;
 const EMPTY_HYPE = /\b(premium|luxury|ultimate|perfect|best|must[- ]have|crafted to perfection|elevate your look)\b/i;
 const EMPTY_OR_INTERNAL_BUYER_COPY = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|studio fit|statement piece|strong festival statement|structured (?:gold |metallic )?accent|bold (?:gold |metallic )?accent|TheFEYA gives us a way|TheFEYA\s+(?:we|our|us)\b|clean armored attitude|desert[- ]ready (?:mood|presence)|shoulder[- ]led|reads? fast|open light|direct choice for buyers?|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity (?:and|or) individuality|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|one[- ]and[- ]only (?:shoulder )?line|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced|(?:original|distinctive) alternative to (?:a )?(?:standard|generic|mass[- ]produced) costume (?:look|piece|design))\b/i;
-const AWKWARD_EDITORIAL_SHORTHAND = /\b(?:clear finish|strong visual finish|strong,?\s+sculpted feel|complete look with confidence|reads? clearly in photographs?|photos? (?:pick|picks) up more depth|photo moments?|bold appearance|themed nights?|shows? up (?:cleanly|clearly)|for (?:burning man|festival|rave) styling)\b/i;
+const AWKWARD_EDITORIAL_SHORTHAND = /\b(?:clear finish|strong visual finish|strong,?\s+sculpted feel|complete look with confidence|reads? clearly in photographs?|photos? (?:pick|picks) up more depth|photo moments?|bold appearance|themed nights?|shows? up (?:cleanly|clearly)|for (?:burning man|festival|rave) styling|visual expressiveness)\b|\bwithout (?:losing|sacrificing) (?:its |the |your )?(?:visual )?(?:impact|expressiveness|presence)\b/i;
 const INTERNAL_TARGETING_LANGUAGE = /\b(?:persona|lean(?:s|ing)? into|dress(?:es|ing)? in (?:a |an )?[\w-]+ direction|(?:style|styling|creative|costume|warrior|festival) direction)\b/i;
 const SEARCH_QUERY_AUDIENCE_PHRASING = /\b(?:(?:women|men|buyers|shoppers|customers)\s+(?:looking|searching)\s+for|buyers?\s+who\s+want)\b/i;
 const COORDINATED_OUTFIT_JARGON = /\bcoordinated\b[^.!?\n]{0,35}\b(?:look|costume|outfit|set|base)\b/i;
 const EMPTY_BOLD_FINISH = /\bbold(?:\s+\w+){0,2}\s+(?:color|colour|finish|event look)\b/i;
 const STAGE_READY_GEOMETRY = /\bstage[- ]ready\s+(?:shape|silhouette)\b/i;
 const PLUS_SIZE_CLAIM = /\bplus[- ]size\b/i;
+const CODE_OWNED_PURCHASE_OPTION_COPY = /\b(?:available|sold|ordered|purchased|buy|bought)\b[^.!?\n]{0,55}\b(?:separately|together|individually|full set)\b|\b(?:separately|individually)\s+or\s+together\b|\bfull set\b|\b(?:separate|individual|separately selectable)\s+(?:pieces?|parts?|components?)\b|\b(?:pieces?|parts?|components?)\s+(?:are|remain|is)\s+(?:separate|available separately|separately selectable)\b|\b(?:pieces?|parts?|components?)\b[^.!?\n]{0,55}\b(?:wear|worn|style|styled|order|ordered|buy|bought)\b[^.!?\n]{0,35}\b(?:separately|together|individually)\b|\b(?:wear|style|order|buy)\b[^.!?\n]{0,55}\b(?:pieces?|parts?|components?)\b[^.!?\n]{0,35}\b(?:separately|together|individually)\b|\b(?:shoulders?|skirt|top|headpiece|leg covers?)\b[^.!?\n]{0,90}\b(?:restyle|separately|on its own)\b/i;
 const DIRECTIONAL_VISUAL_AUDIT = /\b(?:(?:left|right)[- ](?:shoulder|side|arm|leg)|(?:positioned|placed|located|sits?) (?:high|low|on the (?:left|right))|(?:clearly |well )?visible from (?:the )?(?:front|back|side)|seen from (?:the )?(?:front|back|side))\b/i;
 const ANATOMICAL_DESIGN_AUDIT = /\b(?:sculptural (?:profile|silhouette|line) of (?:the )?(?:left|right|one)?\s*shoulder|expressive upper[- ]body (?:form|line|profile|silhouette)|upper[- ]body (?:form|line|profile|silhouette|frame)|shoulder[- ]line|shoulder silhouette)\b/i;
 const UNNATURAL_EVENT_ATMOSPHERE = /\b(?:desert light|open light|desert[- ]ready|ready for (?:the )?desert)\b/i;
@@ -290,6 +291,13 @@ export function validateSeoCommercialCopy(
     issues.push(blocker(
       'customer_copy_contains_abstract_visual_pseudobenefit',
       'Customer-facing copy uses a comparative visual adjective or an idea-to-look transformation without a concrete, supported buyer result.',
+    ));
+  }
+
+  if (CODE_OWNED_PURCHASE_OPTION_COPY.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_repeats_code_owned_purchase_options',
+      'Purchase combinations belong only to the selector and deterministic What’s Included block. Generated copy must use this space for a different buyer value.',
     ));
   }
 

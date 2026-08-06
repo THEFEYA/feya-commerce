@@ -39,5 +39,11 @@ Sell the buyer's real desire behind the occasion (bold, one-of-a-kind, photograp
 ## R12. Axes before drafts — always
 Generation (including pilot drafts) happens ONLY from owner-confirmed axes and keywords saved in Listing Master. Machine-proposed axes are questions for the owner, never copy. Reason proven in pilot: an acrylic corset was auto-associated with "rave", while the owner's truth is red carpet / stage / editorial — only the owner knows the product's real world. Unconfirmed focus in old data is treated as noise.
 
+## R13. Positive editorial memory before prompt prohibitions
+The normal writer receives a compact owner-approved block pattern and a deterministic claim plan. New wording failures become code-level validators and reviewed examples, not an ever-growing blacklist paid for on every generation.
+
+## R14. Cosplay is an original authorial interpretation
+When cosplay is an owner-confirmed focus, present the product as an original studio interpretation that helps the buyer create a character of their own. Customer copy does not promise an exact franchise or screen replica and does not waste space denying that comparison.
+
 ## Process rule
 Every owner review is captured the same way: complaint → named rule → committed here → reflected in prompts/validators. Cumulative and versioned.

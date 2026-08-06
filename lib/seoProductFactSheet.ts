@@ -184,19 +184,6 @@ export function buildCurrentSeoProductEvidence(input: SeoAgentInputContract): Se
       ));
     });
 
-    const atomicCodes = new Set(offer.atomic_options.map((option) => option.code));
-    const hasCompleteAggregate = offer.atomic_options.length > 1 && offer.aggregate_options.some((option) => (
-      option.member_codes.length === atomicCodes.size
-      && option.member_codes.every((code) => atomicCodes.has(code))
-    ));
-    if (hasCompleteAggregate) {
-      currentConfirmedFacts.push(currentFact(
-        'current_purchase_flexibility',
-        'The current selector offers the confirmed pieces separately or together.',
-        'current_storefront_offer',
-        'writer',
-      ));
-    }
   }
 
   if (product.source_description_fragment) {

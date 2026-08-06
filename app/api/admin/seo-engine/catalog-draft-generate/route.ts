@@ -382,11 +382,14 @@ function buildSharedPayload(
     writer_brief_summary: {
       contract_version: compactWriter.brief.contract_version,
       family_profile: compactWriter.brief.claim_plan.family_profile,
-      current_confirmed_writer_fact_count: compactWriter.brief.current_confirmed_writer_facts.length,
-      excluded_legacy_fact_codes: compactWriter.brief.excluded_legacy_evidence.map((item) => item.fact_code),
+      current_confirmed_writer_fact_count: compactWriter.evidence.current_confirmed_facts
+        .filter((item) => item.publishable && item.placement === 'writer').length,
+      excluded_legacy_fact_codes: compactWriter.evidence.legacy_candidate_facts.map((item) => item.fact_code),
       deterministic_claim_count: compactWriter.brief.claim_plan.claims.length,
       claim_plan_blockers: compactWriter.brief.claim_plan.blockers,
-      already_covered_topics: compactWriter.brief.already_covered_topics,
+      editorial_memory_version: compactWriter.brief.editorial_memory.contract_version,
+      ideal_for_portrait_count: compactWriter.brief.ideal_for_portraits.length,
+      code_owned_sections: compactWriter.brief.code_owned_sections,
     },
     seo_pack_draft: bundle.seoPackDraft,
     guardrails: [

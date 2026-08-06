@@ -44,6 +44,36 @@ test('blocks abstract visual pseudo-benefits and inferred component coverage', (
   assert.ok(codes.includes('customer_copy_infers_unsupported_component_coverage'));
 });
 
+test('blocks purchase options repeated inside generated customer copy', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
+      ? {
+        ...block,
+        body: [
+          'Our original studio design gives you a costume that feels personal.',
+          'Adjustable straps make the fit easier to set.',
+          'The pieces are available separately or together, so you can restyle the outfit.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.ok(result.issues.some((issue) => (
+    issue.code === 'customer_copy_repeats_code_owned_purchase_options'
+    && issue.severity === 'blocker'
+  )));
+});
+
+test('blocks abstract claims about keeping visual expressiveness', () => {
+  const result = validateSeoCommercialCopy(draft({
+    intro: 'The outfit stays easy to wear without losing visual expressiveness.',
+  }));
+  assert.ok(result.issues.some((issue) => (
+    issue.code === 'customer_copy_contains_robotic_editorial_jargon'
+    && issue.severity === 'blocker'
+  )));
+});
+
 test('blocks modular-set composition commentary from the live final editor', () => {
   const value = draft({
     intro: 'Wear this set to Burning Man when you want to anchor an armored outfit around gold detail.',
@@ -494,7 +524,7 @@ test('accepts product-specific styling, framing and movement instead of repeatin
   assert.ok(result.benefit_categories_found.includes('movement_in_wear'));
 });
 
-test('recognizes changing base layers between separately selectable pieces as styling flexibility', () => {
+test('blocks inferred styling flexibility built from separate pieces', () => {
   const value = draft({
     pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
       ? {
@@ -508,11 +538,10 @@ test('recognizes changing base layers between separately selectable pieces as st
       : block),
   });
   const result = validateSeoCommercialCopy(value);
-  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
-  assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
+  assert.ok(result.issues.some((issue) => issue.code === 'customer_copy_repeats_code_owned_purchase_options'));
 });
 
-test('recognizes styling flexibility when separate-piece wording comes before the wear outcome', () => {
+test('blocks separate-piece wording even when it comes before the wear outcome', () => {
   const value = draft({
     pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
       ? {
@@ -526,11 +555,10 @@ test('recognizes styling flexibility when separate-piece wording comes before th
       : block),
   });
   const result = validateSeoCommercialCopy(value);
-  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
-  assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
+  assert.ok(result.issues.some((issue) => issue.code === 'customer_copy_repeats_code_owned_purchase_options'));
 });
 
-test('recognizes wearing one component with different tops as a concrete restyling outcome', () => {
+test('blocks component restyling that re-narrates how the set is split', () => {
   const value = draft({
     pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
       ? {
@@ -544,8 +572,7 @@ test('recognizes wearing one component with different tops as a concrete restyli
       : block),
   });
   const result = validateSeoCommercialCopy(value);
-  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
-  assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
+  assert.ok(result.issues.some((issue) => issue.code === 'customer_copy_repeats_code_owned_purchase_options'));
 });
 
 test('blocks a Why section collapsed to two benefit families', () => {
@@ -562,11 +589,12 @@ test('blocks a Why section collapsed to two benefit families', () => {
   });
   const result = validateSeoCommercialCopy(value);
   assert.equal(result.issues.some((issue) => issue.code === 'why_youll_love_it_wrong_benefit_count'), true);
+  assert.ok(result.issues.some((issue) => issue.code === 'customer_copy_repeats_code_owned_purchase_options'));
   assert.ok(result.benefit_categories_found.includes('studio_design_and_craft'));
   assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
 });
 
-test('recognizes separately selectable parts with buy, replace and reorder outcomes', () => {
+test('blocks separately selectable parts with buy, replace and reorder outcomes', () => {
   const value = draft({
     pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
       ? {
@@ -580,9 +608,7 @@ test('recognizes separately selectable parts with buy, replace and reorder outco
       : block),
   });
   const result = validateSeoCommercialCopy(value);
-  assert.equal(result.issues.some((issue) => issue.code.startsWith('why_youll_love_it_')), false);
-  assert.ok(result.benefit_categories_found.includes('studio_design_and_craft'));
-  assert.ok(result.benefit_categories_found.includes('styling_flexibility'));
+  assert.ok(result.issues.some((issue) => issue.code === 'customer_copy_repeats_code_owned_purchase_options'));
 });
 
 test('still blocks a single Why benefit instead of accepting an underfilled block', () => {

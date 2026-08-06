@@ -29,6 +29,19 @@ test('catalog route uses one bounded writer with no automatic editor or retry', 
   assert.equal(route.includes('shouldRunFinalReview'), false);
 });
 
+test('legacy two-pass pilot route is disabled before any OpenAI call', () => {
+  const route = readFileSync(
+    new URL('../../app/api/admin/seo-engine/draft-generate-pilot-auto/route.ts', import.meta.url),
+    'utf8',
+  );
+
+  assert.equal(route.includes('generateSeoDraftWithOpenAi'), false);
+  assert.equal(route.includes('OPENAI_API_KEY'), false);
+  assert.ok(route.includes('deprecated_multi_pass_route_disabled'));
+  assert.ok(route.includes('openai_calls: 0'));
+  assert.ok(route.includes('{ status: 410 }'));
+});
+
 test('targeted repair is a separate one-call route behind an explicit attempt gate', () => {
   const repairRoute = readFileSync(
     new URL('../../app/api/admin/seo-engine/catalog-draft-repair/route.ts', import.meta.url),

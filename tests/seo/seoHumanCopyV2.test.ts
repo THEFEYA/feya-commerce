@@ -132,8 +132,7 @@ test('writer brief uses current offer and excludes raw legacy wording', () => {
     primaryImageUrl: 'https://example.com/product.jpg',
   });
 
-  assert.deepEqual(brief.current_sellable_offer?.component_labels, ['Shoulders', 'Skirt']);
-  assert.equal(brief.current_sellable_offer?.aggregate_options[0]?.label, 'Full Set');
+  assert.deepEqual(brief.product_context.confirmed_component_labels, ['Shoulders', 'Skirt']);
   assert.ok(evidence.legacy_candidate_facts.length >= 3);
   assert.equal(prompt.user_prompt.includes('Legacy copy says Bracelets'), false);
   assert.equal(prompt.user_prompt.includes('Harness Top'), false);
@@ -145,21 +144,29 @@ test('writer brief uses current offer and excludes raw legacy wording', () => {
   assert.equal(prompt.user_prompt.includes('configuration_id'), false);
   assert.equal(prompt.user_prompt.includes('avg_monthly_searches'), false);
   assert.equal(prompt.user_prompt.includes('metric_source'), false);
+  assert.equal(prompt.user_prompt.includes('current_confirmed_writer_facts'), false);
+  assert.equal(prompt.user_prompt.includes('excluded_legacy_evidence'), false);
+  assert.equal(prompt.user_prompt.includes('forbidden_claims'), false);
+  assert.equal(prompt.user_prompt.includes('Full Set'), false);
+  assert.equal(prompt.user_prompt.includes('available separately or together'), false);
+  assert.equal(prompt.user_prompt.includes('current_purchase_flexibility'), false);
   assert.ok(prompt.user_prompt.includes('Shoulders'));
   assert.ok(prompt.user_prompt.includes('Skirt'));
-  assert.ok(prompt.system_prompt.length + prompt.user_prompt.length < 12_000);
+  assert.ok(prompt.system_prompt.length + prompt.user_prompt.length < 9_000);
   assert.equal(brief.claim_plan.family_profile, 'multi_component_outfit');
   assert.deepEqual(brief.claim_plan.blockers, []);
   assert.equal(brief.claim_plan.claims.filter((claim) => claim.target_block === 'about_this_piece').length, 1);
   assert.ok(brief.claim_plan.claims.filter((claim) => claim.target_block === 'why_youll_love_it').length >= 3);
   assert.equal(/unsupported|invented/i.test(brief.claim_plan.buyer_job_en), false);
-  assert.ok(brief.ideal_for_allowed_labels.includes('festival'));
-  assert.ok(brief.ideal_for_allowed_labels.includes('performer'));
-  assert.ok(brief.already_covered_topics.includes('shipping and delivery'));
-  assert.ok(brief.already_covered_topics.includes('care instructions'));
-  assert.match(prompt.system_prompt, /About this piece: 40-70 words in 2-4/);
-  assert.match(prompt.system_prompt, /Designed for self-expression: 45-75 words in 3-4/);
-  assert.match(prompt.system_prompt, /Return bullet_highlights as \[\]/);
+  assert.ok(brief.ideal_for_portraits.some((portrait) => /Burning Man attendees|festival-goers/i.test(portrait.person)));
+  assert.ok(brief.ideal_for_portraits.some((portrait) => /live performers/i.test(portrait.person)));
+  assert.equal(brief.editorial_memory.contract_version, 'seo_editorial_memory_v1');
+  assert.match(brief.editorial_memory.positive_block_templates.about_this_piece, /you can actually live in/);
+  assert.ok(brief.code_owned_sections.includes('whats_included'));
+  assert.ok(brief.code_owned_sections.includes('right_panel'));
+  assert.match(prompt.system_prompt, /About this piece is 40-70 words in 2-4/);
+  assert.match(prompt.system_prompt, /Designed for self-expression is 45-75 words in 3-4/);
+  assert.match(prompt.system_prompt, /Return bullet_highlights, faq and internal_linking_hints as empty arrays/);
 });
 
 test('compact writer contract stays product-specific for a single dress', () => {
@@ -194,11 +201,35 @@ test('compact writer contract stays product-specific for a single dress', () => 
   const { prompt, brief } = buildCompactSeoWriterPrompt(input);
   assert.equal(brief.claim_plan.family_profile, 'single_component');
   assert.ok(brief.claim_plan.blockers.includes('claim_plan_insufficient_distinct_why_claims'));
-  assert.deepEqual(brief.current_sellable_offer?.component_labels, ['Dress']);
+  assert.deepEqual(brief.product_context.confirmed_component_labels, ['Dress']);
   assert.equal(prompt.user_prompt.includes('Shoulders'), false);
   assert.equal(prompt.user_prompt.includes('Skirt'), false);
   assert.equal(prompt.user_prompt.includes('warrior armor costume'), false);
   assert.ok(prompt.user_prompt.includes('black festival dress'));
+});
+
+test('cosplay focus is framed as an original studio character, not a replica promise', () => {
+  const input = inputContract();
+  input.manual_focus = {
+    ...input.manual_focus,
+    event: ['festival', 'cosplay'],
+    style: ['futuristic', 'fantasy'],
+    persona: ['warrior', 'performer'],
+  };
+
+  const { brief, prompt } = buildCompactSeoWriterPrompt(input);
+  assert.match(brief.cosplay_positioning || '', /original studio interpretation/i);
+  assert.match(brief.cosplay_positioning || '', /character of their own/i);
+  assert.ok(brief.ideal_for_portraits.some((portrait) => (
+    portrait.person === 'cosplayers'
+    && /character of their own/i.test(portrait.approved_need)
+  )));
+  const portraitBrief = JSON.stringify(brief.ideal_for_portraits).toLowerCase();
+  assert.equal((portraitBrief.match(/futuristic/g) || []).length <= 2, true);
+  assert.equal((portraitBrief.match(/fantasy/g) || []).length <= 2, true);
+  assert.equal((portraitBrief.match(/warrior/g) || []).length <= 2, true);
+  assert.equal(/costume buyer|customer/.test(portraitBrief), false);
+  assert.equal(/exact replica|screen[- ]accurate|franchise replica/i.test(prompt.user_prompt), false);
 });
 
 test('code-owned PDP collections stay empty before deterministic validation', () => {
@@ -228,8 +259,8 @@ test('positive one-pass field pattern passes the same deterministic gates as the
     status: 'draft',
     seo_title: 'Warrior Armor Costume for Festival',
     h1: 'Warrior Armor Costume for Festival',
-    meta_description: 'Warrior armor costume for festival and cosplay styling, with a gold finish for futuristic and fantasy character looks.',
-    intro: 'This gold warrior armor outfit is designed for festival and cosplay styling, giving you a clear base for a futuristic or fantasy character.',
+    meta_description: 'Warrior armor costume for festival wear and original cosplay characters, with a gold finish for futuristic and fantasy looks.',
+    intro: 'This gold warrior armor outfit belongs at festivals and in original cosplay characters, giving you a distinctive base for a futuristic or fantasy warrior look.',
     bullet_highlights: [],
     faq: [],
     image_alt_candidates: [{
@@ -250,7 +281,7 @@ test('positive one-pass field pattern passes the same deterministic gates as the
         block_key: 'about_this_piece',
         placement: 'left_description',
         heading: 'About this piece',
-        body: 'Choose this gold armor outfit when you need a complete warrior character for festival or cosplay use. Its glossy mirror-like coating creates a polished metallic surface, giving the costume a distinctive finish that works naturally with futuristic and fantasy styling.',
+        body: 'Choose this complete gold armor outfit for a festival or an original cosplay character. Its glossy mirror-like coating gives the costume a polished metallic surface that suits futuristic and fantasy worlds. It carries the same gold finish through live sets, festival days, and costume shoots.',
         source_basis: 'product_fact',
         needs_human_review: false,
       },
@@ -258,7 +289,7 @@ test('positive one-pass field pattern passes the same deterministic gates as the
         block_key: 'why_youll_love_it',
         placement: 'left_description',
         heading: 'Why you’ll love it',
-        body: '- Our original studio design gives you a distinctive costume for a look that feels personal.\n- The material feels comfortable against the body, making longer wear easier.\n- The material keeps its shape between wears, so the outfit stays ready for future use.\n- The pieces are available separately or together, so you can restyle the outfit for future use.',
+        body: '- Our original studio design gives you a distinctive costume for a look that feels personal.\n- The material feels comfortable against the body, making longer wear easier.\n- The material keeps its shape between wears, so the outfit stays ready for future use.',
         source_basis: 'product_fact',
         needs_human_review: false,
       },
@@ -266,7 +297,7 @@ test('positive one-pass field pattern passes the same deterministic gates as the
         block_key: 'ideal_for',
         placement: 'left_description',
         heading: 'Ideal for',
-        body: '- Festival performers choosing a gold warrior costume for a live set.\n- Cosplayers developing a futuristic or fantasy warrior character.\n- Costume buyers planning a fantasy look for an upcoming festival.\n- Performers preparing a distinctive cosplay outfit for character-led productions.',
+        body: '- Festival-goers preparing a gold warrior costume for an outdoor live set.\n- Cosplayers creating a futuristic or fantasy character of their own through an original studio interpretation.\n- Live performers preparing a distinctive warrior costume for character-led productions.\n- Content creators planning festival visuals around an original fantasy character.',
         source_basis: 'product_fact',
         needs_human_review: false,
       },
