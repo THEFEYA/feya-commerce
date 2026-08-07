@@ -147,3 +147,11 @@ test('blocks negative copy or replica comparisons', () => {
   const result = validateSeoAgentOutput(value);
   assert.ok(result.issues.some((issue) => issue.code === 'intro_invented_template_comparison'));
 });
+
+test('blocks borrowing comparisons as negative cosplay positioning', () => {
+  const value = output({
+    intro: 'This original warrior outfit helps create a personal character without borrowing from anyone else’s character.',
+  });
+  const result = validateSeoAgentOutput(value);
+  assert.ok(result.issues.some((issue) => issue.code === 'intro_invented_template_comparison'));
+});

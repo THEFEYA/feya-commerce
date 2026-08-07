@@ -19,6 +19,7 @@ import {
   normalizeCodeOwnedSeoCollections,
   normalizeCodeOwnedPdpBlockOrder,
   normalizeDeterministicSeoIdentity,
+  normalizeSingleSuppliedImageAltCandidate,
 } from '@/lib/seoEditorialCandidateSelection';
 
 export const dynamic = 'force-dynamic';
@@ -157,11 +158,13 @@ export async function POST(request: Request) {
   if (generation.output) {
     generation = {
       ...generation,
-      output: normalizeCodeOwnedPdpBlockOrder(normalizeCodeOwnedSeoCollections(
-        normalizeDeterministicSeoIdentity(generation.output, {
-          primary_keyword: primaryKeyword,
-          selected_events: focusValues(bundle.seoPackDraft.manual_focus?.event),
-        }),
+      output: normalizeCodeOwnedPdpBlockOrder(normalizeSingleSuppliedImageAltCandidate(
+        normalizeCodeOwnedSeoCollections(
+          normalizeDeterministicSeoIdentity(generation.output, {
+            primary_keyword: primaryKeyword,
+            selected_events: focusValues(bundle.seoPackDraft.manual_focus?.event),
+          }),
+        ),
       )),
     };
   }

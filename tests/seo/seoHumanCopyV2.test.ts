@@ -160,6 +160,9 @@ test('writer brief uses current offer and excludes raw legacy wording', () => {
   assert.ok(prompt.user_prompt.includes('Skirt'));
   assert.ok(prompt.system_prompt.length + prompt.user_prompt.length < 9_000);
   assert.equal(brief.claim_plan.family_profile, 'multi_component_outfit');
+  assert.equal(brief.claim_plan.body_identity_variant_en, 'warrior armor outfit');
+  assert.match(brief.claim_plan.buyer_job_en, /^A warrior armor outfit for /);
+  assert.equal(brief.claim_plan.buyer_job_en.startsWith('Help '), false);
   assert.deepEqual(brief.claim_plan.blockers, []);
   assert.equal(brief.claim_plan.claims.filter((claim) => claim.target_block === 'about_this_piece').length, 1);
   assert.ok(brief.claim_plan.claims.filter((claim) => claim.target_block === 'why_youll_love_it').length >= 3);
@@ -169,14 +172,16 @@ test('writer brief uses current offer and excludes raw legacy wording', () => {
   assert.equal(brief.contract_version, 'seo_writer_brief_v4');
   assert.equal(preflight.ok, true, JSON.stringify(preflight.issues));
   assert.equal(brief.editorial_reference, 'seo_editorial_memory_v3');
+  assert.match(prompt.system_prompt, /POSITIVE INTRO FRAME/);
   assert.match(prompt.system_prompt, /POSITIVE ABOUT FRAME/);
-  assert.match(prompt.system_prompt, /What’s Included owns them/);
+  assert.match(prompt.system_prompt, /exactly one image_alt_candidate/);
+  assert.match(prompt.system_prompt, /What’s Included owns (?:that inventory|the product-parts list)/);
   assert.equal(prompt.system_prompt.includes('Made for festivals, cosplay and live performance, this warrior costume'), false);
   assert.equal(/owner[- ]approved|story confirms?|\bconfirmed\b/i.test(prompt.user_prompt), false);
   assert.equal(/independent (?:design )?(?:team|studio)/i.test(prompt.system_prompt), false);
   assert.ok(brief.code_owned_sections.includes('whats_included'));
   assert.ok(brief.code_owned_sections.includes('right_panel'));
-  assert.match(prompt.system_prompt, /About this piece is 40-70 words in 2-4/);
+  assert.match(prompt.system_prompt, /About this piece is 45-60 words in exactly 3/);
   assert.match(prompt.system_prompt, /Designed for self-expression is the final block\. Write 45-75 words in 3-4/);
   assert.match(prompt.system_prompt, /Return bullet_highlights, faq and internal_linking_hints as empty arrays/);
 });
@@ -212,6 +217,8 @@ test('compact writer contract stays product-specific for a single dress', () => 
 
   const { prompt, brief } = buildCompactSeoWriterPrompt(input);
   assert.equal(brief.claim_plan.family_profile, 'single_component');
+  assert.equal(brief.claim_plan.body_identity_variant_en, 'festival dress in black');
+  assert.equal(brief.claim_plan.body_identity_variant_en.includes('black festival dress'), false);
   assert.ok(brief.claim_plan.blockers.includes('claim_plan_insufficient_distinct_why_claims'));
   assert.deepEqual(brief.product_context.confirmed_component_labels, ['Dress']);
   assert.equal(prompt.user_prompt.includes('Shoulders'), false);
@@ -235,6 +242,7 @@ test('cosplay focus is framed as an original studio character, not a replica pro
   assert.ok(brief.ideal_for_portraits.some((portrait) => (
     portrait.person === 'cosplayers'
     && /character of their own/i.test(portrait.situation)
+    && /inspired by a futuristic or fantasy style$/i.test(portrait.situation)
   )));
   const portraitBrief = JSON.stringify(brief.ideal_for_portraits).toLowerCase();
   assert.equal((portraitBrief.match(/futuristic/g) || []).length <= 2, true);

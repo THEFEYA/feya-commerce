@@ -9,6 +9,7 @@ export type SeoEditorialMemoryV3 = {
     'main_description',
   ];
   positive_block_frames: {
+    intro: string;
     about_this_piece: string;
     why_youll_love_it: string[];
     ideal_for: string[];
@@ -39,7 +40,8 @@ export const SEO_EDITORIAL_MEMORY_V3: SeoEditorialMemoryV3 = {
     'main_description',
   ],
   positive_block_frames: {
-    about_this_piece: 'Open with “Made for [selected occasion], this [whole-product noun] ...” Then connect one assigned fact to one plain wearer result. Never list the product parts; What’s Included owns them.',
+    intro: '“This [body identity variant] belongs at [selected occasion], where one [literal visual or material detail] gives the wearer [one supported result].”',
+    about_this_piece: 'Write 45-60 words in 3 sentences. Sentence 1 names the body identity variant and real buyer job. Sentence 2 turns the assigned fact into a literal product detail. Sentence 3 explains what that detail gives the wearer in the selected occasion. What’s Included owns the product-parts list.',
     why_youll_love_it: [
       'Our original studio design helps you create a character that feels personal.',
       'The supported wear fact makes the costume easier or more comfortable to wear in the named situation.',
@@ -52,7 +54,7 @@ export const SEO_EDITORIAL_MEMORY_V3: SeoEditorialMemoryV3 = {
       'Creators styling a costume for photography, video or a live set.',
       'Stylists sourcing a design for a show or editorial.',
     ],
-    studio_close: 'Start with: “At TheFEYA, we create original festival and stage fashion for people who want a design that feels personal.” Add one product-specific bridge to a selected setting, then close on the wearer making the look their own.',
+    studio_close: 'Start with: “At TheFEYA, we create original festival and stage fashion for people who want a design that feels personal.” Connect this piece to one concrete wearer action, such as creating a character, preparing for a stage show or dressing for a festival. Close on the wearer making the look their own.',
   },
   writing_moves: {
     about_this_piece: 'Real occasion, whole-product identity, one vivid supported detail, then why it matters in wear.',

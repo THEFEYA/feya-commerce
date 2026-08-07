@@ -132,6 +132,26 @@ export function normalizeCodeOwnedSeoCollections<T>(output: T): T {
   } as T;
 }
 
+/**
+ * The current generation route supplies at most one product image. Extra ALT
+ * rows cannot be attached to a real image and have repeatedly introduced
+ * unsupported visual claims. Keep the first candidate and let normal ALT
+ * validation judge its wording; this changes cardinality only, never prose.
+ */
+export function normalizeSingleSuppliedImageAltCandidate<T>(output: T): T {
+  if (!isRecord(output) || !Array.isArray(output.image_alt_candidates)) return output;
+  if (output.image_alt_candidates.length <= 1) return output;
+
+  return {
+    ...output,
+    image_alt_candidates: output.image_alt_candidates.slice(0, 1),
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic image normalization kept one ALT candidate for the single supplied primary image.',
+    ],
+  } as T;
+}
+
 const CANONICAL_LEFT_PDP_ORDER = [
   'about_this_piece',
   'why_youll_love_it',
@@ -395,6 +415,7 @@ function toTitleCase(value: string) {
 
 function formatSelectedEvent(value: string) {
   if (/^burning man$/i.test(value)) return 'Burning Man';
+  if (/^festival$/i.test(value)) return 'Festivals';
   return toTitleCase(value);
 }
 

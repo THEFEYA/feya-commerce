@@ -6,6 +6,7 @@ import {
   mergeBoundedSeoEditorialRepair,
   normalizeDeterministicSeoIdentity,
   normalizeFinalSeoEditorialOutput,
+  normalizeSingleSuppliedImageAltCandidate,
   seoEditorialIssueSnapshot,
   shouldSelectFinalSeoEditorialCandidate,
   shouldRunSeoEditorialRepair,
@@ -124,6 +125,35 @@ test('keeps SEO title and H1 on the reviewed Primary and selected event', () => 
       ],
     },
   );
+});
+
+test('inflects a generic festival focus into an idiomatic plural identity', () => {
+  const normalized = normalizeDeterministicSeoIdentity({
+    seo_title: 'Draft title',
+    h1: 'Draft H1',
+    generation_notes: [],
+  }, {
+    primary_keyword: 'warrior armor costume',
+    selected_events: ['festival'],
+  });
+
+  assert.equal(normalized.seo_title, 'Warrior Armor Costume for Festivals');
+  assert.equal(normalized.h1, 'Warrior Armor Costume for Festivals');
+});
+
+test('keeps one ALT candidate when the runtime supplies one primary image', () => {
+  const normalized = normalizeSingleSuppliedImageAltCandidate({
+    image_alt_candidates: [
+      { image_role: 'primary', alt_text: 'Gold warrior outfit worn outdoors' },
+      { image_role: 'detail', alt_text: 'Invented reflective shoulder detail' },
+    ],
+    generation_notes: [],
+  });
+
+  assert.deepEqual(normalized.image_alt_candidates, [
+    { image_role: 'primary', alt_text: 'Gold warrior outfit worn outdoors' },
+  ]);
+  assert.match(normalized.generation_notes[0], /one ALT candidate/);
 });
 
 test('skips the editorial rewrite when deterministic QA is clean', () => {

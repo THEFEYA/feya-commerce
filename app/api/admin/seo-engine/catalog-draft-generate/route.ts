@@ -20,6 +20,7 @@ import {
   normalizeCodeOwnedSeoCollections,
   normalizeCodeOwnedPdpBlockOrder,
   normalizeDeterministicSeoIdentity,
+  normalizeSingleSuppliedImageAltCandidate,
 } from '@/lib/seoEditorialCandidateSelection';
 
 export const dynamic = 'force-dynamic';
@@ -193,8 +194,10 @@ export async function POST(request: Request) {
   if (firstGeneration.output) {
     firstGeneration = {
       ...firstGeneration,
-      output: normalizeCodeOwnedPdpBlockOrder(normalizeCodeOwnedSeoCollections(
-        normalizeDeterministicSeoIdentity(firstGeneration.output, identityNormalizationContext),
+      output: normalizeCodeOwnedPdpBlockOrder(normalizeSingleSuppliedImageAltCandidate(
+        normalizeCodeOwnedSeoCollections(
+          normalizeDeterministicSeoIdentity(firstGeneration.output, identityNormalizationContext),
+        ),
       )),
     };
   }

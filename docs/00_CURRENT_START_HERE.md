@@ -187,22 +187,39 @@ percentage.
 
 ## Last observed live result
 
-The 2026-08-07 preview used one bounded writer call with no retry or editor, so
-the cost architecture worked. The copy remained blocked and was not suitable
-for approval. It repeated the four-part inventory in About, used the exact
-Primary in body copy, and produced phrases such as `for buyers building`,
-`clear visual depth`, `body-facing feel`, `clear point of view` and
-`warrior presence`. The final paragraph also slipped into singular `I` voice.
+The latest 2026-08-07 preview used one bounded writer call with no retry or
+editor, so the cost architecture worked. It returned a review-only draft and
+did not save, approve, Apply or Publish anything. The result improved Why and
+Ideal for, but correctly remained blocked.
 
-These are now named regression classes. No rejected draft, approval, Apply or
-Publish action should be written during the corrective pilot.
+The exact observed causes were:
+
+```text
+deterministic title normalization produced “for Festival”
+the imperative buyer job “Help the wearer…” leaked into About
+About contained fewer than 40 useful words
+four ALT rows were returned for one supplied image
+the extra detail ALT changed glossy/mirror-like into unsupported “reflective”
+the body omitted a close semantic variation of “warrior armor costume”
+the close used the negative comparison “without borrowing … character”
+the self-expression validator missed the valid phrase “make the look their own”
+```
+
+The corrective contract now inflects generic `festival` as `Festivals`,
+supplies `warrior armor outfit` as the body identity variant, expresses the
+buyer job as customer-facing context rather than an instruction, keeps one ALT
+for the single supplied image, uses a positive 45-60 word About frame, blocks
+negative borrowing comparisons, and recognizes `make the look their own`.
+These cases are covered by the current 179-test SEO suite.
 
 ## Exact continuation step
 
-Deploy the corrective branch to a Vercel Preview, verify the real preview route
-for product `a94b5c1b-3346-4868-b0f6-7a60d954530e`, then run exactly one
-generation with its already saved focus. Accept it only if all of the following
-are true:
+Deploy the corrective branch to a Vercel Preview and verify the real preview
+route for product `a94b5c1b-3346-4868-b0f6-7a60d954530e` without pressing any
+generation, repair, save, Apply or Publish control. A later controlled pilot
+may run exactly one generation with its already saved focus only after an
+explicit operator authorization. Accept it only if all of the following are
+true:
 
 ```text
 Primary is represented naturally in title/H1/meta and exact count is at most 3

@@ -30,6 +30,7 @@ export type SeoClaimPlanItem = {
 export type SeoDeterministicClaimPlan = {
   contract_version: 'seo_claim_plan_v2';
   product_identity_en: string;
+  body_identity_variant_en: string;
   buyer_job_en: string;
   family_profile: 'multi_component_outfit' | 'single_component' | 'whole_product';
   claims: SeoClaimPlanItem[];
@@ -179,7 +180,15 @@ export function buildDeterministicSeoClaimPlan(
   return {
     contract_version: 'seo_claim_plan_v2',
     product_identity_en: productIdentity,
-    buyer_job_en: buyerJobForFocus(familyProfile, selectedContext, selectedEvents, selectedStyles, selectedPersonas),
+    body_identity_variant_en: bodyIdentityVariant(productIdentity, familyProfile),
+    buyer_job_en: buyerJobForFocus(
+      productIdentity,
+      familyProfile,
+      selectedContext,
+      selectedEvents,
+      selectedStyles,
+      selectedPersonas,
+    ),
     family_profile: familyProfile,
     claims,
     blockers,
@@ -361,17 +370,18 @@ function compactWriterSystemPrompt() {
     'You are the single product-copy writer for TheFEYA, a creative studio making original festival, stage, performance and costume fashion. Return one seo_agent_output_v1 JSON object and no commentary.',
     'Write warm, vivid, specific en-US ecommerce copy for real shoppers. The current brief supplies every product fact, keyword and selected audience. Never import a fact, event or audience from the examples.',
     'Use claim_plan as the complete feature-to-value map. Each claim appears once in its assigned block. Turn the short feature and value into natural prose; never mention approval, confirmation, evidence, sources, stories, databases or internal review.',
-    'Present one whole product. Use the exact reviewed Primary once in SEO title, once in H1 and once in meta, and nowhere else. Intro, PDP blocks and ALT use normal whole-product wording instead of repeating the exact phrase.',
+    'Present one whole product. Use the exact reviewed Primary once in SEO title, once in H1 and once in meta. Use claim_plan.body_identity_variant_en once in Intro or About so the same product remains clear without repeating the exact phrase.',
     'Treat focus labels as concepts and inflect them into idiomatic English. For a generic festival use, write “for festivals” or a natural festival modifier, never the bare suffix “for Festival”.',
     'SEO title is at most 68 characters. H1 is at most 82. Meta is 110-158 characters. Intro is 20-45 words and says what the product is, where it belongs and why that matters to the buyer.',
-    'About this piece is 40-70 words in 2-4 concrete sentences: begin with the buyer job and whole-product identity, then use the assigned about claim once. Never name or list confirmed_component_labels here; What’s Included already owns that inventory.',
+    'About this piece is 45-60 words in exactly 3 concrete sentences following the positive frame: buyer job and whole-product variant, literal assigned fact, then its plain wearer result. Never name or list confirmed_component_labels here; What’s Included already owns that inventory.',
     'Why you’ll love it is 3-4 concise bullets, one for each assigned why claim. Purchase configuration is code-owned and stays in What’s Included, not in generated benefits.',
     'Ideal for is 4-5 distinct bullets written from ideal_for_portraits. Vary sentence rhythm; do not repeat “who need” or another identical frame. If cosplay_positioning is present, present an original studio character without promising a replica.',
     'Designed for self-expression is the final block. Write 45-75 words in 3-4 natural sentences, use we/our studio voice rather than I/me, include exactly one TheFEYA mention, explain original-design purpose and close on an honest self-expression outcome. Do not sell independence as a benefit.',
     'Code owns What’s Included, the right panel, bullet_highlights, FAQ and internal links. Return bullet_highlights, faq and internal_linking_hints as empty arrays and generate no What’s Included PDP block.',
-    'Keep confirmed_component_labels in visual_truth and factual ALT only. An image may describe visible color, form and scene, but the claim plan remains the authority for customer promises.',
+    'Return exactly one image_alt_candidate for the supplied primary image. Lead with the visible sold product, then add one short pose or setting detail. The claim plan remains the authority for finish wording and customer promises.',
     'Use finish adjectives literally from claim_plan. Glossy, mirror-like or metal-like language never becomes reflective or retroreflective unless the claim itself says so.',
-    'When cosplay_positioning is present, describe the authorial character positively. Do not frame it through copy or replica comparisons.',
+    'When cosplay_positioning is present, describe the authorial character positively: an original studio interpretation that helps the wearer create a character of their own.',
+    `POSITIVE INTRO FRAME: ${frames.intro}`,
     `POSITIVE ABOUT FRAME: ${frames.about_this_piece}`,
     `POSITIVE WHY FRAMES: ${frames.why_youll_love_it.join(' | ')}`,
     `POSITIVE IDEAL FRAMES: ${frames.ideal_for.join(' | ')}`,
@@ -447,7 +457,12 @@ function buildIdealForPortraits(
   }
 
   if (hasFocus(focus.event, 'cosplay')) {
-    const inspiration = [primaryStyle, secondaryStyle].filter(Boolean).join(' or ') || persona || 'character-led ideas';
+    const selectedStyleIdeas = [primaryStyle, secondaryStyle].filter(Boolean).join(' or ');
+    const inspiration = selectedStyleIdeas
+      ? `a ${selectedStyleIdeas} style`
+      : persona
+        ? `${/^[aeiou]/i.test(persona) ? 'an' : 'a'} ${persona} concept`
+        : 'an original idea';
     portraits.push({
       person: 'cosplayers',
       situation: `creating a character of their own through a studio interpretation inspired by ${inspiration}`,
@@ -491,25 +506,67 @@ function buildIdealForPortraits(
 }
 
 function buyerJobForFocus(
+  productIdentity: string,
   familyProfile: SeoDeterministicClaimPlan['family_profile'],
   selectedContext: string,
   selectedEvents: string[],
   selectedStyles: string[],
   selectedPersonas: string[],
 ) {
-  const wholeProduct = familyProfile === 'multi_component_outfit'
-    ? 'complete costume'
-    : familyProfile === 'single_component'
-      ? 'distinctive piece'
-      : 'complete look';
+  const wholeProduct = bodyIdentityVariant(productIdentity, familyProfile);
   if (hasFocus(selectedEvents, 'cosplay')) {
-    const character = [selectedStyles.slice(0, 2).join(' or '), selectedPersonas.find((value) => !/performer/i.test(value))]
+    const character = [
+      selectedStyles.slice(0, 2).join(' or '),
+      selectedPersonas.find((value) => (
+        !/performer/i.test(value)
+        && !includesIdentityToken(productIdentity, value)
+      )),
+    ]
       .filter(Boolean)
       .join(' ')
       .trim() || 'original';
-    return `Help the wearer build a ${character} character of their own with a ${wholeProduct}.`;
+    const article = /^[aeiou]/i.test(character) ? 'an' : 'a';
+    return `A ${wholeProduct} for creating ${article} ${character} character that feels personal to the wearer.`;
   }
-  return `Help the wearer choose a ${wholeProduct} for ${selectedContext} that feels personal and works for the real occasion.`;
+  return `A ${wholeProduct} for ${selectedContext}, designed to feel personal and work for the real occasion.`;
+}
+
+function bodyIdentityVariant(
+  productIdentity: string,
+  familyProfile: SeoDeterministicClaimPlan['family_profile'],
+) {
+  const normalized = String(productIdentity || '').replace(/\s+/g, ' ').trim();
+  if (!normalized) {
+    return familyProfile === 'single_component' ? 'distinctive piece' : 'complete outfit';
+  }
+  if (/\bcostume\b/i.test(normalized)) return normalized.replace(/\bcostume\b/i, 'outfit');
+  if (/\boutfit\b/i.test(normalized)) return normalized.replace(/\boutfit\b/i, 'costume');
+  if (/\b(?:set|ensemble|attire)\b/i.test(normalized)) {
+    return normalized.replace(/\b(?:set|ensemble|attire)\b/i, 'outfit');
+  }
+  if (familyProfile === 'single_component') return reorderSingleComponentIdentity(normalized);
+  return `complete ${normalized}`;
+}
+
+function reorderSingleComponentIdentity(value: string) {
+  const words = value.split(/\s+/).filter(Boolean);
+  if (words.length < 2) return value;
+  const [modifier, ...productWords] = words;
+  const product = productWords.join(' ');
+  if (/^festival$/i.test(modifier)) return `${product} for festivals`;
+  if (/^(?:black|white|gold|silver|red|blue|green|pink|purple|brown|metallic)$/i.test(modifier)) {
+    return `${product} in ${modifier}`;
+  }
+  if (/^(?:shoulder|arm|leg|head|waist|neck|chest)$/i.test(modifier)) {
+    return `${product} for the ${modifier}`;
+  }
+  return `${product} for a ${modifier} look`;
+}
+
+function includesIdentityToken(identity: string, value: string) {
+  const identityTokens = new Set(String(identity || '').toLowerCase().match(/[a-z0-9]+/g) || []);
+  const valueTokens = String(value || '').toLowerCase().match(/[a-z0-9]+/g) || [];
+  return valueTokens.some((token) => identityTokens.has(token));
 }
 
 function collectStringValues(value: unknown): string[] {

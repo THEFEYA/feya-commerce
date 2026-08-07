@@ -1200,3 +1200,29 @@ test('blocks repetitive original modifiers and negative replica framing', () => 
   assert.ok(codes.includes('customer_copy_uses_invented_template_comparison'));
   assert.ok(codes.includes('ideal_for_overuses_original_modifier'));
 });
+
+test('blocks negative cosplay positioning through borrowing comparisons', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'main_description'
+      ? {
+        ...block,
+        body: 'At TheFEYA, we create original festival and stage fashion for people who want a design that feels personal. This gold look supports a futuristic character without borrowing from anyone else’s character. Our studio gives the wearer a clear starting point. It helps them make the look their own.',
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.ok(result.issues.some((issue) => issue.code === 'customer_copy_uses_invented_template_comparison'));
+});
+
+test('recognizes make the look their own as a clear self-expression outcome', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'main_description'
+      ? {
+        ...block,
+        body: 'At TheFEYA, we create original festival and stage fashion for people who want a design that feels personal. Our studio develops each piece around an original character idea. This gold look brings that approach to a live performance. It gives the wearer room to make the look their own.',
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code === 'self_expression_close_lacks_clear_buyer_value'), false);
+});

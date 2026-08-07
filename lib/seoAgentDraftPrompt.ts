@@ -365,6 +365,7 @@ function toTitleCase(value: string) {
 
 function formatSelectedEvent(value: string) {
   if (/^burning man$/i.test(value)) return 'Burning Man';
+  if (/^festival$/i.test(value)) return 'Festivals';
   return toTitleCase(value);
 }
 
