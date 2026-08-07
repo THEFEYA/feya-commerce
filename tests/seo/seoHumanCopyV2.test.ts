@@ -167,9 +167,10 @@ test('writer brief uses current offer and excludes raw legacy wording', () => {
   assert.ok(brief.ideal_for_portraits.some((portrait) => /Burning Man attendees|festival-goers/i.test(portrait.person)));
   assert.ok(brief.ideal_for_portraits.some((portrait) => /live performers/i.test(portrait.person)));
   assert.equal(brief.contract_version, 'seo_writer_brief_v4');
-  assert.equal(brief.editorial_reference, 'seo_editorial_memory_v2');
-  assert.match(prompt.system_prompt, /POSITIVE ABOUT EXAMPLE/);
-  assert.match(prompt.system_prompt, /At TheFEYA, we create original festival and stage fashion/);
+  assert.equal(brief.editorial_reference, 'seo_editorial_memory_v3');
+  assert.match(prompt.system_prompt, /POSITIVE ABOUT FRAME/);
+  assert.match(prompt.system_prompt, /What’s Included owns them/);
+  assert.equal(prompt.system_prompt.includes('Made for festivals, cosplay and live performance, this warrior costume'), false);
   assert.equal(/owner[- ]approved|story confirms?|\bconfirmed\b/i.test(prompt.user_prompt), false);
   assert.equal(/independent (?:design )?(?:team|studio)/i.test(prompt.system_prompt), false);
   assert.ok(brief.code_owned_sections.includes('whats_included'));
@@ -267,10 +268,10 @@ test('positive one-pass field pattern passes the same deterministic gates as the
   const candidate = {
     contract_version: 'seo_agent_output_v1',
     status: 'draft',
-    seo_title: 'Warrior Armor Costume for Festival',
-    h1: 'Warrior Armor Costume for Festival',
-    meta_description: 'Warrior armor costume for festival wear and original cosplay characters, with a gold finish for futuristic and fantasy looks.',
-    intro: 'This gold warrior armor outfit belongs at festivals and in original cosplay characters, giving you a distinctive base for a futuristic or fantasy warrior look.',
+    seo_title: 'Gold Festival Warrior Armor Costume for Cosplay',
+    h1: 'Gold Festival Warrior Armor Costume for Cosplay',
+    meta_description: 'Warrior armor costume for festival wear, stage performance and original cosplay, with a glossy gold finish and a futuristic character.',
+    intro: 'This gold warrior armor outfit is made for festivals, live performance and original cosplay, giving you a complete futuristic character that feels personal.',
     bullet_highlights: [],
     faq: [],
     image_alt_candidates: [{
@@ -291,7 +292,7 @@ test('positive one-pass field pattern passes the same deterministic gates as the
         block_key: 'about_this_piece',
         placement: 'left_description',
         heading: 'About this piece',
-        body: 'Choose this complete gold armor outfit for a festival or an original cosplay character. Its glossy mirror-like coating gives the costume a polished metallic surface that suits futuristic and fantasy worlds. It carries the same gold finish through live sets, festival days, and costume shoots.',
+        body: 'Made for festivals, original cosplay and live performance, this gold warrior armor outfit creates a complete futuristic character. Its glossy, mirror-like coating gives the costume the shine of polished metal and carries a consistent finish across the design. It works especially well for fantasy and science-fiction roles developed around the wearer’s own idea.',
         source_basis: 'product_fact',
         needs_human_review: false,
       },
@@ -299,7 +300,7 @@ test('positive one-pass field pattern passes the same deterministic gates as the
         block_key: 'why_youll_love_it',
         placement: 'left_description',
         heading: 'Why you’ll love it',
-        body: '- Our original studio design gives you a distinctive costume for a look that feels personal.\n- The material feels comfortable against the body, making longer wear easier.\n- The material keeps its shape between wears, so the outfit stays ready for future use.',
+        body: '- Our original studio design gives you a warrior character that feels personal.\n- The material feels comfortable against the body, making the costume easier to wear through a long festival day.\n- It keeps its shape between wears, so the costume is ready for the next performance after careful storage.',
         source_basis: 'product_fact',
         needs_human_review: false,
       },
@@ -307,7 +308,7 @@ test('positive one-pass field pattern passes the same deterministic gates as the
         block_key: 'ideal_for',
         placement: 'left_description',
         heading: 'Ideal for',
-        body: '- Festival-goers preparing a gold warrior costume for an outdoor live set.\n- Cosplayers creating a futuristic or fantasy character of their own through an original studio interpretation.\n- Live performers preparing a distinctive warrior costume for character-led productions.\n- Content creators planning festival visuals around an original fantasy character.',
+        body: '- Festival-goers planning a gold warrior look for a full day of music and movement.\n- Cosplayers creating a futuristic or fantasy character of their own through a studio interpretation.\n- Live performers preparing a warrior costume for a stage show or theatrical role.\n- Content creators styling a distinctive festival costume for shoots and music videos.',
         source_basis: 'product_fact',
         needs_human_review: false,
       },
@@ -315,7 +316,7 @@ test('positive one-pass field pattern passes the same deterministic gates as the
         block_key: 'main_description',
         placement: 'left_description',
         heading: 'Designed for self-expression',
-        body: 'At TheFEYA, we create original festival and stage fashion for people who want their look to feel personal. Every idea begins in our studio with a clear creative point of view. This gold armor outfit brings that approach to a futuristic or fantasy warrior character. The result gives you room for self-expression at festivals and in cosplay.',
+        body: 'At TheFEYA, we create original festival and stage fashion for people who want a design that feels personal. We develop every costume in our studio, giving each idea its own recognizable character. This gold armor outfit brings that approach to futuristic warrior styling for festivals, performances and original cosplay. You can make the finished look your own.',
         source_basis: 'brand_policy',
         needs_human_review: false,
       },

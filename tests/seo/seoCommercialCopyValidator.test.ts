@@ -1135,3 +1135,68 @@ test('blocks plus-size positioning unless Product Truth explicitly confirms it',
     false,
   );
 });
+
+test('blocks the exact robotic language seen in the 2026-08-07 pilot', () => {
+  const value = draft({
+    intro: 'For buyers building a stage look, the finish creates clear visual depth.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => {
+      if (block.block_key === 'why_youll_love_it') {
+        return { ...block, body: 'The body-facing feel supports comfort.\nThe finish gives you a warrior presence.\nOur studio design feels personal.' };
+      }
+      if (block.block_key === 'main_description') {
+        return { ...block, body: 'At TheFEYA, we make stage fashion. That is where TheFEYA lives, with a clear point of view and original ideas for your own style.' };
+      }
+      return block;
+    }),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.ok(result.issues.some((issue) => issue.code === 'customer_copy_contains_pilot_robotic_language'));
+});
+
+test('blocks bare singular Festival grammar in SEO title and H1', () => {
+  const result = validateSeoCommercialCopy(draft({
+    seo_title: 'Warrior Armor Costume for Festival',
+    h1: 'Warrior Armor Costume for Festival',
+  }));
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('seo_title_uses_bare_festival_suffix'));
+  assert.ok(codes.includes('h1_uses_bare_festival_suffix'));
+});
+
+test('keeps large-set inventory out of generated Meta, Intro and About', () => {
+  const productTruth = { included_components: ['Headpiece', 'Leg Covers', 'Shoulders', 'Top'] };
+  const value = draft({
+    seo_title: 'Gold Warrior Costume for Festival Performance',
+    h1: 'Gold Warrior Costume for Festival Performance',
+    meta_description: 'Gold warrior costume with a headpiece, leg covers, shoulders and top for festival performance.',
+    intro: 'This complete costume combines a headpiece, leg covers, shoulders and top for the stage.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'
+      ? { ...block, body: 'This warrior costume includes a headpiece, leg covers, shoulders and top for festival shows.' }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value, { product_truth: productTruth });
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('meta_description_repeats_deterministic_composition'));
+  assert.ok(codes.includes('intro_repeats_deterministic_composition'));
+  assert.ok(codes.includes('about_this_piece_repeats_deterministic_composition'));
+});
+
+test('blocks repetitive original modifiers and negative replica framing', () => {
+  const value = draft({
+    intro: 'This studio costume is not a copy or replica.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'
+      ? {
+        ...block,
+        body: [
+          'Festival-goers planning an original warrior look for a full day of music.',
+          'Cosplayers creating an original fantasy character for a themed production.',
+          'Live performers preparing an original costume for a stage show.',
+          'Content creators styling an original look for music videos and shoots.',
+        ].join('\n'),
+      }
+      : block),
+  });
+  const codes = validateSeoCommercialCopy(value).issues.map((issue) => issue.code);
+  assert.ok(codes.includes('customer_copy_uses_invented_template_comparison'));
+  assert.ok(codes.includes('ideal_for_overuses_original_modifier'));
+});

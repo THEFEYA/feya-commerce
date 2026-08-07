@@ -125,3 +125,25 @@ test('blocks computer-vision audit language everywhere except ALT', () => {
   assert.ok(codes.some((code) => code.endsWith('_product_component_as_buyer_goal')));
   assert.equal(codes.some((code) => code.includes('image_alt_candidates_0_alt_text_alt_only_directional_detail')), false);
 });
+
+test('blocks failed-pilot phrasing and singular founder voice', () => {
+  const value = output({
+    intro: 'For buyers building a costume, the coating creates clear visual depth.',
+    pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'main_description'
+      ? {
+        ...block,
+        body: 'At TheFEYA, I design original festival and stage fashion with a clear point of view. I create each costume for people who want a personal character. This piece brings a futuristic idea to live performance. You can make the finished look your own.',
+      }
+      : block),
+  });
+  const codes = validateSeoAgentOutput(value).issues.map((issue) => issue.code);
+  assert.ok(codes.includes('intro_robotic_or_tautological'));
+  assert.ok(codes.includes('main_description_uses_singular_founder_voice'));
+  assert.ok(codes.includes('main_description_missing_first_person_voice'));
+});
+
+test('blocks negative copy or replica comparisons', () => {
+  const value = output({ intro: 'This is an original costume, not a copy or replica.' });
+  const result = validateSeoAgentOutput(value);
+  assert.ok(result.issues.some((issue) => issue.code === 'intro_invented_template_comparison'));
+});

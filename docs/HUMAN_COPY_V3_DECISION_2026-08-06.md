@@ -12,7 +12,7 @@ This was a contract failure, not proof that the catalog needs a second automatic
 2. The language model writes one draft only: intro, About, three or four distinct benefits, four or five audience portraits, final studio close, meta and factual ALT.
 3. Writer-visible facts are short neutral `feature -> wearer value` pairs. Provenance remains in the audit layer and cannot enter the prompt as prose.
 4. A zero-cost preflight blocks the request when internal provenance or generic independence padding leaks into the brief.
-5. One compact positive reference teaches rhythm. Mechanical failure classes stay in deterministic tests and validators instead of being paid prompt text.
+5. Compact positive block frames teach rhythm and section jobs without supplying a finished product paragraph to copy. Mechanical failure classes stay in deterministic tests and validators instead of being paid prompt text.
 6. A failed draft is shown as blocked. There is no automatic retry or editor. One targeted repair remains an explicit human action.
 7. Human approval is required before save, apply or publish.
 
@@ -52,3 +52,20 @@ This was a contract failure, not proof that the catalog needs a second automatic
 - Primary passes scope and stuffing checks.
 - Structural, commercial and keyword validators contain no blockers.
 - Owner reviews the visible preview before any persistence or publication.
+
+## 2026-08-07 pilot amendment
+
+The next one-pass preview proved that cost control worked: one bounded OpenAI request, no retry and no editor. Editorial quality still failed because the prompt contained a full warrior example and the validators left three loopholes:
+
+- four-component sets could repeat their inventory in Meta, Intro and About;
+- the exact Primary was allowed a fourth body occurrence;
+- robotic phrases such as `clear visual depth`, `body-facing feel`, `for buyers building`, `clear point of view` and `warrior presence` were not named regression classes.
+
+The production contract is therefore:
+
+- exact Primary is owned by SEO title, H1 and meta only; body copy carries a natural whole-product semantic variation;
+- component inventory is code-owned for every multi-component product, including large sets;
+- the writer receives positive block frames, not the previous complete warrior paragraph;
+- cosplay is described positively as an authorial character of the buyer's own, without `copy` or `replica` comparisons;
+- the final brand block uses `we/our`, one TheFEYA mention and no generic independence or abstract point-of-view language;
+- failed drafts remain visible and blocked; they do not trigger an automatic rewrite.

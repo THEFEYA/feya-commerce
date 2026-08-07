@@ -78,7 +78,7 @@ export const THEFEYA_CANONICAL_RIGHT_PDP_PANEL = [
   ]),
   rightPanelBlock('material', 'Material', [
     'We use durable vegan leather with a glossy mirror-like coating.',
-    'The material feels comfortable against the body and helps the piece keep its sculptural shape.',
+    'The material feels comfortable against the body and helps the piece keep its shape between wears.',
   ]),
   rightPanelBlock('care', 'Care', [
     'Stains and surface marks are easy to remove with alcohol wipes or a mild cleaning product. Wipe the piece carefully by hand.',
@@ -86,7 +86,7 @@ export const THEFEYA_CANONICAL_RIGHT_PDP_PANEL = [
     'Store the piece carefully, preferably on a hanger, and avoid tight folding or long-term heavy pressure so it keeps its shape.',
   ]),
   rightPanelBlock('customization', 'Made to order & customization', [
-    'For an individual change, contact us before production.',
+    'For a custom change, contact us before production.',
     'We can discuss adjustments to color, size, length, fit, coverage or selected details while keeping the result within our studio style.',
   ]),
 ] as const;

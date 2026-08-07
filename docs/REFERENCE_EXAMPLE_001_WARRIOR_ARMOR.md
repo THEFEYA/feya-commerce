@@ -3,39 +3,39 @@
 Product: 4340584466 — Warrior Armor Costume Set (Shoulders + Skirt, gold, vegan leather).
 Axes (latest saved Listing Master decision): event = burning man, festival; persona = warrior; material = gold; components = shoulders, skirt.
 Keywords: primary "warrior armor costume" (title/H1/meta only); secondary/supporting woven per map below.
-Status: FROZEN as few-shot reference #1, amended after the owner review on 2026-08-06. Rules R1–R18 applied.
+Status: owner-reviewed editorial etalon, amended after the 2026-08-07 pilot. It is not injected verbatim into the writer prompt; only compact block frames are used. Rules R1–R18 applied.
 
 ---
 
 **SEO title / H1:** Warrior Armor Costume for Burning Man
 
-**Meta:** Gold warrior armor costume for Burning Man: mirror-finish shoulder armor and a pleated metallic skirt, made to order for festival season.
+**Meta:** Warrior armor costume for Burning Man, made in glossy gold vegan leather for festival performance, original styling and long days of movement.
 
 **Intro**
-A gold Burning Man outfit with a warrior edge: mirror-finish shoulders and a pleated metallic skirt, made to order for festival season.
+A gold warrior armor outfit designed for Burning Man and festival performance, with a glossy finish that gives the costume the look of polished metal.
 
 **About this piece**
-When your Burning Man look has to hold up from sunrise sets to night burns, this is festival armor you can actually live in. The gold shoulder armor throws light with a glossy, mirror-like finish, while the pleated metallic skirt carries the same gold through the whole outfit. Durable vegan leather sits comfortably on bare skin — which matters over a long festival day.
+Made for long festival days and live performance, this gold armor outfit creates a complete futuristic warrior character. Its glossy, mirror-like coating has the shine of polished metal, while the body-facing material stays comfortable through hours of wear. The design leaves room to shape an original character of your own.
 
 **What's included** *(deterministic block from product options — not generated)*
 ✔ Shoulders
 ✔ Skirt
-Each piece can be ordered separately or as a full set. *(auto sentence; never repeated in prose)*
+The shoulders and skirt are available separately or together. *(code-owned sentence; never repeated in generated prose)*
 
 **Why you'll love it**
-- Our original studio design gives the costume a recognizable warrior character that still feels personal.
-- Adjustable straps set a secure fit in seconds, so the set sits right on different body shapes.
-- The armor holds its shape between wears: your festival skirt set comes out of storage ready for the next event.
+- Our original studio design helps you create a warrior character that feels personal.
+- The material feels comfortable against the body, making the costume easier to wear through a long festival day.
+- It keeps its shape between wears, so the costume is ready for the next performance after careful storage.
 
 **Ideal for**
-- Burning Man festival-goers planning a warrior look for long days of music and movement.
-- Show ballet dancers and performers looking for a costume that reads clearly from the stage.
-- DJs creating a recognizable look for their sets.
-- Content creators shooting festival or editorial visuals.
-- Costume stylists sourcing gold festival outfits for themed shows and shoots.
+- Burning Man visitors planning a gold warrior look for long days of music and movement.
+- Festival-goers choosing a distinctive character for a major weekend.
+- Live performers preparing a warrior costume for a stage show or theatrical role.
+- DJs and content creators styling a recognizable look for sets, shoots or music videos.
+- Costume stylists sourcing an authorial design for themed shows and editorials.
 
 **Designed for self-expression**
-At TheFEYA, we create original festival and stage fashion for people who want their look to feel personal. Our work moves between futuristic, fantasy and performance worlds, with every idea developed in our studio. This warrior costume brings that creative point of view to a character that feels distinctly your own.
+At TheFEYA, we create original festival and stage fashion for people who want a design that feels personal. We develop every costume in our studio, giving each idea its own recognizable character. This gold armor outfit brings that approach to a futuristic warrior look for Burning Man and live performance. You can make the finished character your own.
 
 ---
 
@@ -44,12 +44,12 @@ At TheFEYA, we create original festival and stage fashion for people who want th
 | Keyword | Role | Block | Form |
 |---|---|---|---|
 | warrior armor costume | primary | title, H1, meta | exact |
-| gold shoulder armor | secondary | meta (shoulder armor), About | natural |
-| metallic pleated skirt | secondary | meta, intro, About | inflected |
-| warrior shoulders | secondary | Why 1 | natural |
-| festival skirt set | secondary | Why 3 | inflected |
-| gold burning man outfit | supporting | intro (gold Burning Man outfit), close | inflected |
+| gold shoulder armor | secondary | factual image ALT when visible | natural |
+| metallic pleated skirt | secondary | factual image ALT when visible | inflected |
+| warrior shoulders | secondary | — dropped from prose because composition is code-owned | — |
+| festival skirt set | secondary | — dropped because it narrows the whole product | — |
+| gold burning man outfit | supporting | intro, About | semantic variation |
 | burning man festival wear | supporting | — dropped where it broke logic (R9) | — |
-| festival outfits gold | supporting | Ideal for (gold festival outfits) | inflected |
+| festival outfits gold | supporting | — represented as natural festival-look language | semantic |
 
 Rule of thumb demonstrated: one keyword per sentence, no synonym pairs in one sentence, keyword dropped whenever logic would bend (R9).

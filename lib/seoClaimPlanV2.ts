@@ -4,7 +4,7 @@ import type {
   SeoKeywordRoleItem,
 } from './seoPackContract.ts';
 import type { SeoAgentPromptContract } from './seoAgentDraftPrompt.ts';
-import { SEO_EDITORIAL_MEMORY_V2 } from './seoEditorialMemory.ts';
+import { SEO_EDITORIAL_MEMORY_V3 } from './seoEditorialMemory.ts';
 import { summarizeThefeyaSeoDoctrine } from './thefeyaSeoDoctrine.ts';
 import {
   buildCurrentSeoProductEvidence,
@@ -71,7 +71,7 @@ export type SeoWriterBriefV4 = {
     image_alt: SeoWriterKeyword[];
   };
   claim_plan: SeoDeterministicClaimPlan;
-  editorial_reference: 'seo_editorial_memory_v2';
+  editorial_reference: 'seo_editorial_memory_v3';
   ideal_for_portraits: SeoIdealForPortrait[];
   cosplay_positioning: string | null;
   code_owned_sections: string[];
@@ -167,7 +167,7 @@ export function buildDeterministicSeoClaimPlan(
     claim_id: `claim_${index + 1}`,
     fact_code: fact.fact_code,
     fact_statement_en: fact.statement_en,
-    buyer_outcome_en: buyerOutcomeForFact(fact.fact_code, selectedContext),
+    buyer_outcome_en: buyerOutcomeForFact(fact.fact_code),
     target_block,
   }));
   const blockers = [
@@ -179,7 +179,7 @@ export function buildDeterministicSeoClaimPlan(
   return {
     contract_version: 'seo_claim_plan_v2',
     product_identity_en: productIdentity,
-    buyer_job_en: buyerJobForFocus(productIdentity, selectedContext, selectedEvents, selectedStyles, selectedPersonas),
+    buyer_job_en: buyerJobForFocus(familyProfile, selectedContext, selectedEvents, selectedStyles, selectedPersonas),
     family_profile: familyProfile,
     claims,
     blockers,
@@ -229,7 +229,7 @@ export function buildCompactSeoWriterPrompt(
       image_alt: compactKeywords(input.keyword_roles.image_alt, 4),
     },
     claim_plan: claimPlan,
-    editorial_reference: SEO_EDITORIAL_MEMORY_V2.contract_version,
+    editorial_reference: SEO_EDITORIAL_MEMORY_V3.contract_version,
     ideal_for_portraits: idealForPortraits,
     cosplay_positioning: hasFocus(compactFocus.event, 'cosplay')
       ? "Frame cosplay as an original studio interpretation that helps the buyer create a character of their own."
@@ -334,7 +334,7 @@ export function validateSeoWriterBriefPreflight(
   const issues: SeoWriterBriefPreflight['issues'] = [];
   const values = collectStringValues({
     brief,
-    positive_editorial_memory: SEO_EDITORIAL_MEMORY_V2,
+    positive_editorial_memory: SEO_EDITORIAL_MEMORY_V3,
   });
 
   values.forEach((value, index) => {
@@ -356,34 +356,37 @@ export function validateSeoWriterBriefPreflight(
 }
 
 function compactWriterSystemPrompt() {
-  const examples = SEO_EDITORIAL_MEMORY_V2.positive_block_examples;
+  const frames = SEO_EDITORIAL_MEMORY_V3.positive_block_frames;
   return [
     'You are the single product-copy writer for TheFEYA, a creative studio making original festival, stage, performance and costume fashion. Return one seo_agent_output_v1 JSON object and no commentary.',
     'Write warm, vivid, specific en-US ecommerce copy for real shoppers. The current brief supplies every product fact, keyword and selected audience. Never import a fact, event or audience from the examples.',
     'Use claim_plan as the complete feature-to-value map. Each claim appears once in its assigned block. Turn the short feature and value into natural prose; never mention approval, confirmation, evidence, sources, stories, databases or internal review.',
-    'Present one whole product. The reviewed Primary must read naturally in SEO title, H1 and meta. In body copy use a normal whole-product variation instead of repeating the exact phrase for density.',
+    'Present one whole product. Use the exact reviewed Primary once in SEO title, once in H1 and once in meta, and nowhere else. Intro, PDP blocks and ALT use normal whole-product wording instead of repeating the exact phrase.',
+    'Treat focus labels as concepts and inflect them into idiomatic English. For a generic festival use, write “for festivals” or a natural festival modifier, never the bare suffix “for Festival”.',
     'SEO title is at most 68 characters. H1 is at most 82. Meta is 110-158 characters. Intro is 20-45 words and says what the product is, where it belongs and why that matters to the buyer.',
-    'About this piece is 40-70 words in 2-4 concrete sentences: begin with the buyer job and whole-product identity, then use the assigned about claim once.',
+    'About this piece is 40-70 words in 2-4 concrete sentences: begin with the buyer job and whole-product identity, then use the assigned about claim once. Never name or list confirmed_component_labels here; What’s Included already owns that inventory.',
     'Why you’ll love it is 3-4 concise bullets, one for each assigned why claim. Purchase configuration is code-owned and stays in What’s Included, not in generated benefits.',
     'Ideal for is 4-5 distinct bullets written from ideal_for_portraits. Vary sentence rhythm; do not repeat “who need” or another identical frame. If cosplay_positioning is present, present an original studio character without promising a replica.',
-    'Designed for self-expression is the final block. Write 45-75 words in 3-4 natural sentences, first-person studio voice, exactly one TheFEYA mention, original-design purpose and an honest self-expression outcome. Do not sell independence as a benefit.',
+    'Designed for self-expression is the final block. Write 45-75 words in 3-4 natural sentences, use we/our studio voice rather than I/me, include exactly one TheFEYA mention, explain original-design purpose and close on an honest self-expression outcome. Do not sell independence as a benefit.',
     'Code owns What’s Included, the right panel, bullet_highlights, FAQ and internal links. Return bullet_highlights, faq and internal_linking_hints as empty arrays and generate no What’s Included PDP block.',
     'Keep confirmed_component_labels in visual_truth and factual ALT only. An image may describe visible color, form and scene, but the claim plan remains the authority for customer promises.',
-    `POSITIVE ABOUT EXAMPLE, RHYTHM ONLY: ${examples.about_this_piece}`,
-    `POSITIVE WHY EXAMPLE, RHYTHM ONLY: ${examples.why_youll_love_it.join(' | ')}`,
-    `POSITIVE IDEAL EXAMPLE, RHYTHM ONLY: ${examples.ideal_for.join(' | ')}`,
-    `POSITIVE FINAL STUDIO EXAMPLE, RHYTHM ONLY: ${examples.studio_close}`,
+    'Use finish adjectives literally from claim_plan. Glossy, mirror-like or metal-like language never becomes reflective or retroreflective unless the claim itself says so.',
+    'When cosplay_positioning is present, describe the authorial character positively. Do not frame it through copy or replica comparisons.',
+    `POSITIVE ABOUT FRAME: ${frames.about_this_piece}`,
+    `POSITIVE WHY FRAMES: ${frames.why_youll_love_it.join(' | ')}`,
+    `POSITIVE IDEAL FRAMES: ${frames.ideal_for.join(' | ')}`,
+    `POSITIVE FINAL STUDIO FRAME: ${frames.studio_close}`,
     'When the claim plan cannot support a useful section, return needs_review instead of adding filler.',
   ].join('\n');
 }
 
-function buyerOutcomeForFact(factCode: string, selectedContext: string) {
+function buyerOutcomeForFact(factCode: string) {
   const outcomes: Record<string, string> = {
-    original_authorial_design: `A distinctive ${selectedContext} character that feels personal.`,
-    material_glossy_mirror_coating: 'A polished metal-like finish with clear visual depth.',
+    original_authorial_design: 'An original studio design that helps the wearer create a character of their own.',
+    material_glossy_mirror_coating: 'A glossy, mirror-like surface that gives the costume a polished metal finish.',
     material_thermoformed_liquid_metal: 'A smooth liquid-metal effect that gives the design a polished finish.',
-    material_body_comfort: 'More comfortable wear through longer events or performances.',
-    material_shape_retention: 'Ready to wear again after careful storage between occasions.',
+    material_body_comfort: 'Comfort against the body through longer events or performances.',
+    material_shape_retention: 'Keeps its shape between wears so it is ready for the next occasion.',
     material_event_light_camera: 'Color and details remain clear in photos and under stage lighting.',
     current_color: 'One concrete visual detail that helps the shopper picture the piece.',
   };
@@ -439,7 +442,7 @@ function buildIdealForPortraits(
     const isBurningMan = /burning man/i.test(festivalEvent);
     portraits.push({
       person: isBurningMan ? 'Burning Man attendees' : 'festival-goers',
-      situation: `choosing an original ${festivalDescriptor} look for ${isBurningMan ? 'long days and night sets' : 'a long day of music and movement'}`,
+      situation: `planning a ${festivalDescriptor} look for ${isBurningMan ? 'long days and night sets' : 'a long day of music and movement'}`,
     });
   }
 
@@ -447,14 +450,14 @@ function buildIdealForPortraits(
     const inspiration = [primaryStyle, secondaryStyle].filter(Boolean).join(' or ') || persona || 'character-led ideas';
     portraits.push({
       person: 'cosplayers',
-      situation: `creating a character of their own through an original studio interpretation inspired by ${inspiration}`,
+      situation: `creating a character of their own through a studio interpretation inspired by ${inspiration}`,
     });
   }
 
   if (hasFocus([...focus.persona, ...focus.audience], 'performer')) {
     portraits.push({
       person: 'live performers',
-      situation: `preparing an original ${persona || primaryStyle || 'studio-designed'} costume for a stage set or character-led production`,
+      situation: `preparing a ${persona || primaryStyle || 'studio-designed'} costume for a stage show or theatrical role`,
     });
   }
 
@@ -462,18 +465,18 @@ function buildIdealForPortraits(
   if (selectedProfessionalRole) {
     portraits.push({
       person: pluralRole(selectedProfessionalRole),
-      situation: `building a recognizable ${primaryStyle || persona || 'studio-designed'} look for the selected performance or production`,
+      situation: `planning a recognizable ${primaryStyle || persona || 'studio-designed'} look for a live performance or production`,
     });
   }
 
   portraits.push(
     {
       person: 'content creators',
-      situation: `planning ${creatorContext} visuals around an original ${secondaryStyle || persona || primaryStyle || 'character'} look`,
+      situation: `styling a ${secondaryStyle || persona || primaryStyle || 'distinctive'} costume for ${creatorContext} photography or music videos`,
     },
     {
       person: 'costume stylists',
-      situation: `sourcing an original ${primaryStyle || persona || 'character'} design for themed shows or shoots`,
+      situation: `sourcing a ${primaryStyle || persona || 'distinctive'} design for themed shows or editorials`,
     },
   );
 
@@ -488,20 +491,25 @@ function buildIdealForPortraits(
 }
 
 function buyerJobForFocus(
-  productIdentity: string,
+  familyProfile: SeoDeterministicClaimPlan['family_profile'],
   selectedContext: string,
   selectedEvents: string[],
   selectedStyles: string[],
   selectedPersonas: string[],
 ) {
+  const wholeProduct = familyProfile === 'multi_component_outfit'
+    ? 'complete costume'
+    : familyProfile === 'single_component'
+      ? 'distinctive piece'
+      : 'complete look';
   if (hasFocus(selectedEvents, 'cosplay')) {
     const character = [selectedStyles.slice(0, 2).join(' or '), selectedPersonas.find((value) => !/performer/i.test(value))]
       .filter(Boolean)
       .join(' ')
       .trim() || 'original';
-    return `Help the buyer create a ${character} character of their own with an original ${productIdentity}.`;
+    return `Help the wearer build a ${character} character of their own with a ${wholeProduct}.`;
   }
-  return `Help the buyer choose an original ${productIdentity} for ${selectedContext} that feels personal and works for the real occasion.`;
+  return `Help the wearer choose a ${wholeProduct} for ${selectedContext} that feels personal and works for the real occasion.`;
 }
 
 function collectStringValues(value: unknown): string[] {

@@ -1,10 +1,10 @@
 # FEYA Commerce — Current Start Here
 
-Date: 2026-07-27
+Date: 2026-08-07
 Status: current execution entrypoint
 Repository: `THEFEYA/feya-commerce`
-Active branch: `fix/sellable-offer-truth-20260727`
-Draft PR: `#18`
+Active branch: `claude/human-copy-v2-20260727`
+Draft PR: `#19`
 
 ## Read first
 
@@ -72,7 +72,7 @@ HOLD
 
 A changed option snapshot invalidates the earlier reviewed decision.
 
-## Current regression product
+## Product Truth regression product
 
 ```text
 canonical_product_id: d42b9d73-1327-49fa-bfab-9a732b133772
@@ -99,6 +99,27 @@ What’s Included, component focus, product keywords, generated prose, ALT, or
 structured product claims. `Full Set` is an aggregate selector choice, not a
 component and not a Primary keyword entity.
 
+## Current live editorial pilot
+
+```text
+canonical_product_id: a94b5c1b-3346-4868-b0f6-7a60d954530e
+matched_etsy_listing_id: 1885178663
+```
+
+The last preview showed a four-part deterministic checklist:
+
+```text
+Headpiece
+Leg Covers
+Shoulders
+Top
+```
+
+The runtime contract must reverify these options before every paid call. The
+generator must still describe one whole costume; Meta, Intro and About do not
+repeat this checklist. A large set follows the same composition rule as a
+two-part set.
+
 ## Non-negotiable boundaries
 
 - Existing payment remains intentionally inactive until its own readiness work.
@@ -109,50 +130,34 @@ component and not a Primary keyword entity.
 - No fixed keyword-density target. Natural buyer language and verified intent
   outrank mechanical repetition.
 
-## Active validation checkpoint
+## Active generation contract
 
-Published code checkpoint:
+The production path is one bounded writer call:
 
 ```text
-commit: 34da7aa162c90e06f97a72b1d9b84b582c30a90e
-deployment: dpl_2K25V6c8eWzkuLrNZEHbtgFSo3nQ
-deployment state: READY
-stable branch alias:
-https://feya-commerce-git-fix-sellable-o-c638d0-alexs-projects-5419f9ec.vercel.app
+deterministic Product Truth + saved focus + reviewed keyword roles
+→ zero-cost preflight
+→ one OpenAI writer request
+→ deterministic structural, commercial and keyword validators
+→ blocked preview or human review
 ```
 
-Verification at this checkpoint:
+There is no automatic retry, second editor or generic humanizer. A failed
+draft is shown with evidence. A targeted repair is a separate explicit human
+action, never a hidden second charge.
+
+The writer receives compact positive block frames plus short
+`feature → wearer value` claims. It does not receive a full warrior paragraph
+to copy or a growing paid blacklist. Layout, What's Included, right-panel
+facts, purchase configuration, FAQ and internal links remain code-owned.
+
+For a supported multi-component offer, the generated section jobs are:
 
 ```text
-SEO regression tests: 141/141 passing
-TypeScript: passing
-ESLint: passing with zero warnings
-```
-
-The writer remains a two-pass pipeline: one evidence-bound writer followed by
-one final human-copy editor. The final editor now receives deterministic
-section jobs. Intro may be one factual sentence; About may be one factual
-sentence containing the Primary. Neither section must invent an extra benefit
-to meet a word or sentence quota.
-
-The final editor and deterministic validator now reject the observed failure
-class:
-
-```text
-building from separate finds
-makes it easier to choose accessories
-focal point
-photographs well / wide shots
-visible waist detail as a styling mechanism
-natural break for changing tops
-```
-
-For a confirmed modular offer, the supported Why plan is:
-
-```text
-1. original studio design → personal interpretation of the selected persona
-2. separately selectable parts → order, replace, or restyle one part without
-   reordering the full set
+About: whole-product buyer job + one supported differentiator; no inventory
+Why: 3-4 different feature → buyer-value families; no purchase configuration
+Ideal for: 4-5 distinct people and concrete situations; varied rhythm
+Close: we/our studio voice, one TheFEYA mention, honest self-expression value
 ```
 
 ## Exact reviewed focus for the regression product
@@ -160,64 +165,59 @@ For a confirmed modular offer, the supported Why plan is:
 ```text
 event: Burning Man, festival
 persona: warrior
-unselected and forbidden as generated focus: rave, cosplay, fantasy,
-historical, medieval, costume party
 Primary: warrior armor costume
 ```
 
-The exact Primary is intentionally limited to four placements:
+Only the saved focus for the product may enter generated copy. Unselected
+event, style or persona suggestions remain internal questions, not prose.
+
+The exact Primary is intentionally owned by three fields:
 
 ```text
 SEO title
 H1
 meta description
-one About this piece sentence
 ```
 
-Four exact placements are not a density target. Secondary phrases are semantic
-candidates, not a checklist; an approved Secondary is used only where it adds
-natural meaning. For the current product, `gold shoulder armor` is a natural
-ALT candidate. Do not force every skirt/shoulder variant into visible copy.
+Body copy must preserve the whole-product concept through natural grammatical
+variation, not repeat the exact phrase for density. Secondary phrases are
+semantic vocabulary, not a checklist. Component terms are used in factual ALT
+only when the sold part is visibly present. There is no target keyword
+percentage.
 
-## Last live result and storage state
+## Last observed live result
 
-The last live generation before commit `34da7aa...` correctly placed the
-Primary four times and excluded rave/cosplay, but it was rejected because
-Intro and About invented convenience and photography mechanisms. It was not
-saved.
+The 2026-08-07 preview used one bounded writer call with no retry or editor, so
+the cost architecture worked. The copy remained blocked and was not suitable
+for approval. It repeated the four-part inventory in About, used the exact
+Primary in body copy, and produced phrases such as `for buyers building`,
+`clear visual depth`, `body-facing feel`, `clear point of view` and
+`warrior presence`. The final paragraph also slipped into singular `I` voice.
 
-After commit `34da7aa...`, the deployment reached READY, but the cloud browser
-security policy denied opening the new protected deployment URL. No bypass was
-attempted. Therefore the post-fix live generation still requires one browser
-run before storage.
-
-Supabase verification for product
-`d42b9d73-1327-49fa-bfab-9a732b133772` returned zero rows in
-`feya_commerce_seo_pack_drafts_v1`. No rejected draft, approval, Apply, or
-Publish action was written.
+These are now named regression classes. No rejected draft, approval, Apply or
+Publish action should be written during the corrective pilot.
 
 ## Exact continuation step
 
-Open:
+Deploy the corrective branch to a Vercel Preview, verify the real preview route
+for product `a94b5c1b-3346-4868-b0f6-7a60d954530e`, then run exactly one
+generation with its already saved focus. Accept it only if all of the following
+are true:
 
 ```text
-https://feya-commerce-git-fix-sellable-o-c638d0-alexs-projects-5419f9ec.vercel.app/admin/seo-storefront-preview?product_id=d42b9d73-1327-49fa-bfab-9a732b133772
-```
-
-Run one generation with the already reviewed focus. Accept it only if all of
-the following are true:
-
-```text
-Primary exact count = 4 in the four owned fields
+Primary is represented naturally in title/H1/meta and exact count is at most 3
+body copy uses a natural whole-product semantic variation
 no unselected event/style/persona leakage
 no repeated component inventory outside deterministic What’s Included
 no unsupported photo, fit, coverage, convenience, or styling mechanism
 ALT names only visible sold product
-Why contains two distinct, evidenced buyer reasons
+Why contains 3-4 distinct, evidenced buyer reasons
+Ideal for contains 4-5 different people and situations without template rhythm
+final close uses we/our and one TheFEYA mention
 Intro and About sound natural when read aloud
 fixed right panel is unchanged
 structural, commercial, and keyword placement validators pass
 ```
 
-Only then use `Сохранить и открыть следующий товар`. This stores a human-review
-draft only. Do not approve, apply, or publish during this checkpoint.
+Do not save, approve, apply or publish during this corrective checkpoint. The
+owner first reviews the visible result and explicitly authorizes persistence.

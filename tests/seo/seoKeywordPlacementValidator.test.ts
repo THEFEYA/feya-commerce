@@ -31,7 +31,7 @@ function output() {
     seo_title: 'Gold Shoulder Armor for Futuristic Festival Styling',
     h1: 'Gold Shoulder Armor with a Sculptural Silhouette',
     meta_description: 'Gold shoulder armor made for performance styling, editorial shoots and futuristic festival outfits.',
-    intro: 'This gold shoulder armor frames the upper body with a sharp metallic profile. Its visual shape reads clearly on stage and in photos.',
+    intro: 'This metallic gold armor frames the shoulders with a sharp profile. Its shape reads clearly on stage and in photos.',
     bullet_highlights: [],
     faq: [],
     image_alt_candidates: [{ alt_text: 'Model wearing reflective gold shoulder pieces' }],
@@ -98,6 +98,20 @@ test('uses exact primary repetition as a stuffing guard rather than a density ta
   const issue = result.issues.find((item) => item.code === 'primary_exact_phrase_overused');
   assert.ok(issue);
   assert.match(issue?.message || '', /normal grammatical variation/);
+  assert.ok(result.issues.some((item) => item.code === 'primary_exact_phrase_outside_owned_fields'));
+});
+
+test('blocks exact Primary repetition in body and ALT while allowing semantic body coverage', () => {
+  const value = output();
+  value.pdp_blocks = [{
+    heading: 'About this piece',
+    body: 'This metallic gold armor outfit frames the shoulders for performance styling.',
+  }];
+  value.image_alt_candidates = [{ alt_text: 'Model wearing gold shoulder armor outdoors' }];
+  const result = validateSeoKeywordPlacement(value, contract());
+  const issue = result.issues.find((item) => item.code === 'primary_exact_phrase_outside_owned_fields');
+  assert.ok(issue);
+  assert.match(issue?.message || '', /image_alt_candidates/);
 });
 
 test('does not count keyword tokens scattered across unrelated text as placement', () => {

@@ -63,17 +63,35 @@ export function validateSeoKeywordPlacement(
 
   primary.forEach((item) => {
     requirePlacement(item, 'seo_title', issues, 'Primary keyword must be represented naturally in the SEO title.');
+    requirePlacement(item, 'h1', issues, 'Primary keyword must be represented naturally in the H1.');
     requirePlacement(item, 'meta_description', issues, 'Primary keyword must be represented naturally in the meta description.');
-    if (!item.fields.includes('h1') && !item.fields.includes('intro')) {
-      issues.push(blockerIssue('primary_missing_h1_or_intro', 'Primary keyword must be represented naturally in the H1 or intro.', item.keyword));
-    }
     if (!item.fields.some((field) => ['intro', 'bullet_highlights', 'pdp_blocks', 'faq'].includes(field))) {
-      issues.push(blockerIssue('primary_missing_body', 'Primary keyword must be represented naturally in useful visible product copy.', item.keyword));
+      issues.push(blockerIssue('primary_missing_body', 'The Primary concept must be represented through a natural whole-product variation in useful visible body copy.', item.keyword));
     }
-    if (item.exact_occurrences > 4) {
+    const exactOutsideOwnedFields = Object.entries(fields)
+      .filter(([field]) => !['seo_title', 'h1', 'meta_description'].includes(field))
+      .filter(([, fieldText]) => exactPhraseCount(item.keyword, fieldText) > 0)
+      .map(([field]) => field);
+    if (exactOutsideOwnedFields.length) {
+      issues.push(blockerIssue(
+        'primary_exact_phrase_outside_owned_fields',
+        `The exact Primary phrase is reserved for SEO title, H1 and meta description. Use a normal whole-product variation in ${exactOutsideOwnedFields.join(', ')} instead of repeating it for density.`,
+        item.keyword,
+      ));
+    }
+    const duplicatedOwnedFields = ['seo_title', 'h1', 'meta_description']
+      .filter((field) => exactPhraseCount(item.keyword, fields[field] || '') > 1);
+    if (duplicatedOwnedFields.length) {
+      issues.push(blockerIssue(
+        'primary_exact_phrase_repeated_within_owned_field',
+        `The exact Primary phrase appears more than once inside ${duplicatedOwnedFields.join(', ')}. One natural representation per field is enough.`,
+        item.keyword,
+      ));
+    }
+    if (item.exact_occurrences > 3) {
       issues.push(blockerIssue(
         'primary_exact_phrase_overused',
-        'The exact primary phrase is repeated more than four times across the pack. Keep the Primary concept dominant through clear whole-product meaning and normal grammatical variation, not density chasing.',
+        'The exact Primary phrase is repeated more than three times across the pack. Keep it in SEO title, H1 and meta only; express the same whole-product concept with normal grammatical variation in body copy.',
         item.keyword,
       ));
     }

@@ -45,7 +45,7 @@ const ANATOMICAL_DESIGN_AUDIT = /\b(?:sculptural (?:profile|silhouette|line) of 
 const UNNATURAL_EVENT_ATMOSPHERE = /\b(?:desert light|open light|desert[- ]ready|ready for (?:the )?desert)\b/i;
 const BRAND_STATUS_DIMINUTION = /\b(?:small|tiny) independent (?:team|studio|company|brand)\b/i;
 const BRAND_INDEPENDENCE_PADDING = /\bindependent (?:design )?(?:team|studio|company|brand)\b/i;
-const TEMPLATE_COMPARISON = /\b(?:(?:standard|generic|mass[- ]produced) costume template|(?:standard|generic) festival basics|generic festival dressing|standard template costume|copy of (?:a )?(?:standard|generic) (?:costume )?template|stands? apart from (?:a )?(?:basic|generic) (?:metallic )?(?:look|costume|outfit|design)|(?:generic|basic|ordinary|plain) (?:festival |costume |party )?(?:dressing|clothes?|outfits?|looks?)\b[^.!?\n]{0,55}\b(?:plain|basic|generic|ordinary|unfinished|on its own))\b/i;
+const TEMPLATE_COMPARISON = /\b(?:(?:standard|generic|mass[- ]produced) costume template|(?:standard|generic) festival basics|generic festival dressing|standard template costume|(?:not\s+)?(?:a\s+)?(?:copy|replica)(?:\s+of\s+(?:a\s+)?(?:standard|generic|named|existing)?\s*(?:costume|character|template|look))?|stands? apart from (?:a )?(?:basic|generic) (?:metallic )?(?:look|costume|outfit|design)|(?:generic|basic|ordinary|plain) (?:festival |costume |party )?(?:dressing|clothes?|outfits?|looks?)\b[^.!?\n]{0,55}\b(?:plain|basic|generic|ordinary|unfinished|on its own))\b/i;
 const PRODUCT_COMPONENT_AS_BUYER_GOAL = /\b(?:buyers?|customers?|people) (?:who want|looking for|seeking) (?:to (?:buy|find) )?(?:a|an|this|the)?\s*(?:statement |expressive |gold |futuristic |cyberpunk |warrior )*(?:shoulder (?:piece|armor|armour)|shoulders?|pauldrons?)\b/i;
 const SOCIAL_METRICS_BOILERPLATE = /\b(organic attention|reactions?, saves? (?:and|or) comments?|likes?, followers?|social (?:engagement|metrics?)|viral(?:ity| reach)?)\b/i;
 const REDUNDANT_FAUX_LEATHER = /\b(?:vegan leather\s+(?:and|or|\/)\s+faux leather|faux leather\s+(?:and|or|\/)\s+vegan leather)\b/i;
@@ -54,6 +54,8 @@ const REFLECTIVE_CLAIM = /\b(?:reflective|retroreflective|retro-reflective)\b/i;
 const ABSTRACT_VISUAL_PSEUDO_BENEFIT = /\b(?:harder|stronger|more\s+(?:finished|intentional|individual)|intentional)\s+(?:warrior\s+|costume\s+)?(?:look|outfit|costume|appearance)\b|\b(?:turns?|helps?\s+turn)\b[^.!?\n]{0,70}\b(?:vision|idea|theme|direction|base look)\b[^.!?\n]{0,55}\b(?:look|outfit|costume)\b|\banchors?\b[^.!?\n]{0,65}\b(?:look|outfit|costume)\b|\b(?:skip|without building)\b[^.!?\n]{0,60}\b(?:full uniform|head[- ]to[- ]toe costume)\b|\bwithout building\b[^.!?\n]{0,70}\b(?:from separate finds|from scratch)\b|\bfeel(?:s|ing)? dressed for the occasion\b|\b(?:design|styling|shape)\b[^.!?\n]{0,45}\bmakes? it easier to choose\b|\bmakes? sense with (?:the )?outfit\b|\b(?:focal piece|focal point|photographs? well|wide shots?)\b|\bmatching\b[^.!?\n]{0,45}\b(?:pieces?|components?)\b[^.!?\n]{0,80}\b(?:same|repeat)\b[^.!?\n]{0,45}\b(?:color|colour|finish)\b|\bphotographs? as one outfit instead of separate (?:pieces?|add[- ]ons?)\b|\b(?:visible\s+)?(?:waist|belt|shoulder|skirt)\s+(?:detail|shape|line)\b[^.!?\n]{0,75}\b(?:natural break|changing tops?|restyle)\b/i;
 const UNSUPPORTED_COMPONENT_COVERAGE = /\b(?:shoulders?|skirt|components?|pieces?)\b[^.!?\n]{0,65}\b(?:keep|keeps|leave|leaves)\s+(?:more\s+of\s+)?(?:your|the)\s+(?:clothing|outfit|body)\s+visible\b/i;
 const ABSTRACT_VISUAL_BENEFIT = /\b(contrast and visual depth|adds? contrast|creates? visual depth|harder,? more dramatic line|firm armored presence|armored presence|individual feel|shape a look that feels deliberate|one bold detail to define|dramatic line|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced)\b/i;
+const PILOT_ROBOTIC_LANGUAGE = /\b(?:clear visual depth|body[- ]facing feel|that is where TheFEYA lives|clear point of view|warrior presence|for buyers? (?:building|creating|planning))\b/i;
+const BARE_FESTIVAL_SUFFIX = /\bfor festival\s*$/i;
 const SHAPE_DURING_MOVEMENT = /\b(?:holds?|keeps?|maintains?|preserves?) (?:its |the |their )?(?:shape|form) (?:during|while|in) (?:movement|motion|moving)\b/i;
 const CONSTRUCTION_TERM = /\b(?:construction|structure|structured|build quality|reinforced build|built to last)\b/i;
 const USE_CASE_AS_BENEFIT = /\b(?:works?|ideal|made|suited) for\b.*\b(styling|looks?|warrior|futuristic|desert|festival|stage|performance|photoshoot|editorial|cosplay|party)\b/i;
@@ -295,6 +297,13 @@ export function validateSeoCommercialCopy(
     ));
   }
 
+  if (PILOT_ROBOTIC_LANGUAGE.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_contains_pilot_robotic_language',
+      'Customer-facing copy repeats abstract wording found in the failed pilot. State the product fact or buyer result in plain, idiomatic English.',
+    ));
+  }
+
   if (CODE_OWNED_PURCHASE_OPTION_COPY.test(customerText)) {
     issues.push(blocker(
       'customer_copy_repeats_code_owned_purchase_options',
@@ -482,6 +491,16 @@ export function validateSeoCommercialCopy(
     ));
   }
 
+  (['seo_title', 'h1'] as const).forEach((field) => {
+    const value = typeof record[field] === 'string' ? record[field].trim() : '';
+    if (BARE_FESTIVAL_SUFFIX.test(value)) {
+      issues.push(blocker(
+        `${field}_uses_bare_festival_suffix`,
+        `${field} ends with the unnatural phrase “for Festival”. Use an idiomatic plural or modifier such as “for festivals” or “festival costume”.`,
+      ));
+    }
+  });
+
   if (DUPLICATE_STAGE_PERFORMANCE_FASHION.test(customerText)) {
     issues.push(blocker(
       'customer_copy_duplicates_stage_and_performance_fashion',
@@ -594,6 +613,13 @@ export function validateSeoCommercialCopy(
     issues.push(blocker(
       'ideal_for_repeats_who_need_template',
       'Ideal for repeats the same “who need” template. Vary the sentence rhythm while keeping each approved person and situation.',
+    ));
+  }
+  const repeatedOriginalModifier = countMatches(idealForBody, /\boriginal\b/gi);
+  if (repeatedOriginalModifier > 2) {
+    issues.push(blocker(
+      'ideal_for_overuses_original_modifier',
+      `Ideal for repeats “original” ${repeatedOriginalModifier} times. Keep the authorial-design idea where it matters most and let the other portraits describe distinct people and situations.`,
     ));
   }
   const repeatedIdealFocus = [...new Set(
@@ -987,7 +1013,6 @@ function validateWholeProductPresentation(
     ));
   }
 
-  if (!presentation.requires_compact_composition) return;
   const intro = typeof record.intro === 'string' ? record.intro : '';
   const metaDescription = typeof record.meta_description === 'string' ? record.meta_description : '';
   [
