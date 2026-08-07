@@ -133,7 +133,7 @@ test('legacy view flags remain non-publishable candidates', () => {
 test('writer brief uses current offer and excludes raw legacy wording', () => {
   const input = inputContract();
   const evidence = buildCurrentSeoProductEvidence(input);
-  const { prompt, brief } = buildCompactSeoWriterPrompt(input, {
+  const { prompt, brief, preflight } = buildCompactSeoWriterPrompt(input, {
     readiness: { mode: 'READY_FULL', allowed_customer_sections: ['intro'], suppressed_customer_sections: [] },
     primaryImageUrl: 'https://example.com/product.jpg',
   });
@@ -167,6 +167,7 @@ test('writer brief uses current offer and excludes raw legacy wording', () => {
   assert.ok(brief.ideal_for_portraits.some((portrait) => /Burning Man attendees|festival-goers/i.test(portrait.person)));
   assert.ok(brief.ideal_for_portraits.some((portrait) => /live performers/i.test(portrait.person)));
   assert.equal(brief.contract_version, 'seo_writer_brief_v4');
+  assert.equal(preflight.ok, true, JSON.stringify(preflight.issues));
   assert.equal(brief.editorial_reference, 'seo_editorial_memory_v3');
   assert.match(prompt.system_prompt, /POSITIVE ABOUT FRAME/);
   assert.match(prompt.system_prompt, /What’s Included owns them/);

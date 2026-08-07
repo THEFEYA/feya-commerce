@@ -39,14 +39,14 @@ export const SEO_EDITORIAL_MEMORY_V3: SeoEditorialMemoryV3 = {
     'main_description',
   ],
   positive_block_frames: {
-    about_this_piece: 'Open with “Made for [approved occasion], this [whole-product noun] ...” Then connect one assigned fact to one plain wearer result. Never list the product parts; What’s Included owns them.',
+    about_this_piece: 'Open with “Made for [selected occasion], this [whole-product noun] ...” Then connect one assigned fact to one plain wearer result. Never list the product parts; What’s Included owns them.',
     why_youll_love_it: [
       'Our original studio design helps you create a character that feels personal.',
       'The supported wear fact makes the costume easier or more comfortable to wear in the named situation.',
       'The supported repeat-use fact leaves the piece ready for its next wear.',
     ],
     ideal_for: [
-      '[Person] planning [approved look] for [specific event or movement need].',
+      '[Person] planning [selected look] for [specific event or movement need].',
       'Cosplayers creating a character of their own through a studio interpretation.',
       'Performers preparing a costume for a specific stage or production use.',
       'Creators styling a costume for photography, video or a live set.',
