@@ -159,7 +159,8 @@ test('writer brief uses current offer and excludes raw legacy wording', () => {
   assert.equal(prompt.user_prompt.includes('current_purchase_flexibility'), false);
   assert.ok(prompt.user_prompt.includes('Shoulders'));
   assert.ok(prompt.user_prompt.includes('Skirt'));
-  assert.ok(prompt.system_prompt.length + prompt.user_prompt.length < 9_000);
+  const compactPromptChars = prompt.system_prompt.length + prompt.user_prompt.length;
+  assert.ok(compactPromptChars < 9_000, `compact prompt is ${compactPromptChars} characters`);
   assert.equal(brief.claim_plan.family_profile, 'multi_component_outfit');
   assert.equal(brief.claim_plan.body_identity_variant_en, 'warrior armor outfit');
   assert.match(brief.claim_plan.buyer_job_en, /^This warrior armor outfit is made for /);

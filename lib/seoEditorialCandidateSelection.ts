@@ -194,6 +194,142 @@ export function normalizeImageAltPrimaryVariation<T>(
   } as T;
 }
 
+/**
+ * The exact Primary is owned by SEO title, H1 and meta description. Models can
+ * still echo it in Intro or a PDP paragraph even when the prompt explicitly
+ * assigns a reviewed whole-product variation to body copy. Replace only those
+ * customer-facing body occurrences; technical fields and the three owned SEO
+ * fields remain untouched.
+ */
+export function normalizeBodyPrimaryVariation<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output)) return output;
+  const primary = normalizeIdentityValue(context.primary_keyword);
+  const variation = normalizeIdentityValue(context.body_identity_variant);
+  if (!primary || !variation || primary.toLowerCase() === variation.toLowerCase()) return output;
+
+  let changed = false;
+  const replacePrimary = (value: unknown) => {
+    if (typeof value !== 'string') return value;
+    const next = replacePhrasePreservingCase(value, primary, variation);
+    if (next !== value) changed = true;
+    return next;
+  };
+  const intro = replacePrimary(output.intro);
+  const bulletHighlights = Array.isArray(output.bullet_highlights)
+    ? output.bullet_highlights.map(replacePrimary)
+    : output.bullet_highlights;
+  const faq = Array.isArray(output.faq)
+    ? output.faq.map((row) => (
+      isRecord(row)
+        ? { ...row, question: replacePrimary(row.question), answer: replacePrimary(row.answer) }
+        : row
+    ))
+    : output.faq;
+  const pdpBlocks = Array.isArray(output.pdp_blocks)
+    ? output.pdp_blocks.map((block) => (
+      isRecord(block)
+        ? { ...block, heading: replacePrimary(block.heading), body: replacePrimary(block.body) }
+        : block
+    ))
+    : output.pdp_blocks;
+  if (!changed) return output;
+
+  return {
+    ...output,
+    intro,
+    bullet_highlights: bulletHighlights,
+    faq,
+    pdp_blocks: pdpBlocks,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic body normalization used the reviewed whole-product variation instead of repeating the exact Primary outside its owned SEO fields.',
+    ],
+  } as T;
+}
+
+/**
+ * A recurring one-pass failure joins two descriptions of the same finish in a
+ * single About sentence (for example, “glossy, mirror-like” before and after
+ * “and the”). When that exact bounded shape appears, keep the buyer-facing
+ * result clause and remove the duplicated material preamble. Other material
+ * prose is left unchanged for normal QA.
+ */
+export function normalizeRepeatedAboutFinishClause<T>(output: T): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  let changed = false;
+  const pdpBlocks = output.pdp_blocks.map((block) => {
+    if (
+      !isRecord(block)
+      || block.block_key !== 'about_this_piece'
+      || typeof block.body !== 'string'
+    ) return block;
+    const body = block.body
+      .match(/[^.!?]+[.!?]?/g)
+      ?.map((rawSentence) => {
+        const sentence = rawSentence.trim();
+        const repeatedFinish = ['glossy', 'mirror-like', 'mirror like', 'metallic']
+          .some((term) => countLiteralPhrase(sentence, term) > 1);
+        if (!repeatedFinish || !/^the material has\b/i.test(sentence)) return sentence;
+        const parts = sentence.split(/,\s*and\s+the\s+/i);
+        if (parts.length !== 2 || !/\b(?:surface|finish|coating)\b/i.test(parts[1])) return sentence;
+        changed = true;
+        return `The ${parts[1].trimStart()}`;
+      })
+      .join(' ')
+      .trim() || block.body;
+    return body === block.body ? block : { ...block, body };
+  });
+  if (!changed) return output;
+
+  return {
+    ...output,
+    pdp_blocks: pdpBlocks,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic About normalization removed a duplicated finish clause while preserving its buyer-facing visual result.',
+    ],
+  } as T;
+}
+
+/**
+ * Repair punctuation-only defects in the final self-expression paragraph.
+ * This does not invent or rewrite claims: it capitalizes a sentence fragment
+ * after terminal punctuation and adds missing terminal punctuation.
+ */
+export function normalizeMainDescriptionSentenceBoundaries<T>(output: T): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  let changed = false;
+  const pdpBlocks = output.pdp_blocks.map((block) => {
+    if (
+      !isRecord(block)
+      || block.block_key !== 'main_description'
+      || typeof block.body !== 'string'
+    ) return block;
+    let body = block.body
+      .trim()
+      .replace(/([.!?]\s+)([a-z])/g, (_match, boundary: string, letter: string) => (
+        `${boundary}${letter.toUpperCase()}`
+      ));
+    if (body && !/[.!?]$/.test(body)) body = `${body}.`;
+    if (body === block.body) return block;
+    changed = true;
+    return { ...block, body };
+  });
+  if (!changed) return output;
+
+  return {
+    ...output,
+    pdp_blocks: pdpBlocks,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic PDP punctuation normalization repaired sentence boundaries in the self-expression close.',
+    ],
+  } as T;
+}
+
 const CANONICAL_LEFT_PDP_ORDER = [
   'about_this_piece',
   'why_youll_love_it',
@@ -489,6 +625,19 @@ function formatSelectedEvent(value: string) {
 
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function replacePhrasePreservingCase(value: string, phrase: string, replacement: string) {
+  const exactPhrase = new RegExp(`\\b${escapeRegExp(phrase)}\\b`, 'gi');
+  return value.replace(exactPhrase, (match) => {
+    if (match === match.toUpperCase()) return replacement.toUpperCase();
+    if (/^[A-Z]/.test(match)) return `${replacement.charAt(0).toUpperCase()}${replacement.slice(1)}`;
+    return replacement;
+  });
+}
+
+function countLiteralPhrase(value: string, phrase: string) {
+  return [...value.matchAll(new RegExp(`\\b${escapeRegExp(phrase)}\\b`, 'gi'))].length;
 }
 
 function isRecord(value: unknown): value is Record<string, any> {

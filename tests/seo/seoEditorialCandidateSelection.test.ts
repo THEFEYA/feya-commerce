@@ -4,9 +4,12 @@ import {
   buildSeoEditorialRewriteSkeleton,
   isStrictlyBetterSeoEditorialCandidate,
   mergeBoundedSeoEditorialRepair,
+  normalizeBodyPrimaryVariation,
   normalizeDeterministicSeoIdentity,
   normalizeFinalSeoEditorialOutput,
   normalizeImageAltPrimaryVariation,
+  normalizeMainDescriptionSentenceBoundaries,
+  normalizeRepeatedAboutFinishClause,
   normalizeSingleSuppliedImageAltCandidate,
   seoEditorialIssueSnapshot,
   shouldSelectFinalSeoEditorialCandidate,
@@ -174,6 +177,75 @@ test('uses the reviewed whole-product variation when ALT repeats the exact Prima
     'Gold warrior armor outfit worn by a performer against dark rocks',
   );
   assert.match(normalized.generation_notes[0], /whole-product variation in ALT/);
+});
+
+test('keeps exact Primary in owned SEO fields and replaces it only in body copy', () => {
+  const normalized = normalizeBodyPrimaryVariation({
+    seo_title: 'Warrior Armor Costume for Festivals',
+    h1: 'Warrior Armor Costume for Festivals',
+    meta_description: 'Choose a warrior armor costume with a glossy gold finish for festivals.',
+    intro: 'This warrior armor costume is made for festival styling.',
+    pdp_blocks: [{
+      block_key: 'about_this_piece',
+      placement: 'left_description',
+      heading: 'About this piece',
+      body: 'The warrior armor costume gives you a clear base for an original character.',
+    }],
+    image_alt_candidates: [{ alt_text: 'Gold warrior armor costume worn outdoors' }],
+    generation_notes: [],
+  }, {
+    primary_keyword: 'warrior armor costume',
+    body_identity_variant: 'warrior armor outfit',
+  });
+
+  assert.equal(normalized.seo_title, 'Warrior Armor Costume for Festivals');
+  assert.match(normalized.meta_description, /warrior armor costume/);
+  assert.equal(normalized.intro, 'This warrior armor outfit is made for festival styling.');
+  assert.match(normalized.pdp_blocks[0].body, /warrior armor outfit/);
+  assert.match(normalized.image_alt_candidates[0].alt_text, /warrior armor costume/);
+  assert.match(normalized.generation_notes[0], /outside its owned SEO fields/);
+});
+
+test('removes a duplicated finish preamble from About without rewriting other sentences', () => {
+  const normalized = normalizeRepeatedAboutFinishClause({
+    pdp_blocks: [{
+      block_key: 'about_this_piece',
+      placement: 'left_description',
+      body: 'For festivals and cosplay, this warrior armor outfit gives you a bold starting point. The material has a durable, glossy, mirror-like coating, and the glossy, mirror-like surface gives the costume a polished metal finish.',
+    }],
+    generation_notes: [],
+  });
+
+  assert.equal(
+    normalized.pdp_blocks[0].body,
+    'For festivals and cosplay, this warrior armor outfit gives you a bold starting point. The glossy, mirror-like surface gives the costume a polished metal finish.',
+  );
+  assert.match(normalized.generation_notes[0], /duplicated finish clause/);
+});
+
+test('repairs lowercase and missing punctuation only in the self-expression close', () => {
+  const normalized = normalizeMainDescriptionSentenceBoundaries({
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        body: 'keep this untouched',
+      },
+      {
+        block_key: 'main_description',
+        placement: 'left_description',
+        body: 'Our studio keeps the design ready for your next scene. make the look your own',
+      },
+    ],
+    generation_notes: [],
+  });
+
+  assert.equal(normalized.pdp_blocks[0].body, 'keep this untouched');
+  assert.equal(
+    normalized.pdp_blocks[1].body,
+    'Our studio keeps the design ready for your next scene. Make the look your own.',
+  );
+  assert.match(normalized.generation_notes[0], /sentence boundaries/);
 });
 
 test('skips the editorial rewrite when deterministic QA is clean', () => {

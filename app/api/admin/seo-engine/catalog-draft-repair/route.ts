@@ -18,8 +18,11 @@ import {
 import {
   normalizeCodeOwnedSeoCollections,
   normalizeCodeOwnedPdpBlockOrder,
+  normalizeBodyPrimaryVariation,
   normalizeDeterministicSeoIdentity,
   normalizeImageAltPrimaryVariation,
+  normalizeMainDescriptionSentenceBoundaries,
+  normalizeRepeatedAboutFinishClause,
   normalizeSingleSuppliedImageAltCandidate,
 } from '@/lib/seoEditorialCandidateSelection';
 
@@ -167,8 +170,15 @@ export async function POST(request: Request) {
       ...generation,
       output: normalizeCodeOwnedPdpBlockOrder(normalizeSingleSuppliedImageAltCandidate(
         normalizeImageAltPrimaryVariation(
-          normalizeCodeOwnedSeoCollections(
-            normalizeDeterministicSeoIdentity(generation.output, identityNormalizationContext),
+          normalizeMainDescriptionSentenceBoundaries(
+            normalizeRepeatedAboutFinishClause(
+              normalizeBodyPrimaryVariation(
+                normalizeCodeOwnedSeoCollections(
+                  normalizeDeterministicSeoIdentity(generation.output, identityNormalizationContext),
+                ),
+                identityNormalizationContext,
+              ),
+            ),
           ),
           identityNormalizationContext,
         ),

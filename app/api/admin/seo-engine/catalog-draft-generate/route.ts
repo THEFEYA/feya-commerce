@@ -19,8 +19,11 @@ import { generateSeoDraftWithOpenAi } from '@/lib/seoOpenAiDraftGenerator';
 import {
   normalizeCodeOwnedSeoCollections,
   normalizeCodeOwnedPdpBlockOrder,
+  normalizeBodyPrimaryVariation,
   normalizeDeterministicSeoIdentity,
   normalizeImageAltPrimaryVariation,
+  normalizeMainDescriptionSentenceBoundaries,
+  normalizeRepeatedAboutFinishClause,
   normalizeSingleSuppliedImageAltCandidate,
 } from '@/lib/seoEditorialCandidateSelection';
 
@@ -198,8 +201,15 @@ export async function POST(request: Request) {
       ...firstGeneration,
       output: normalizeCodeOwnedPdpBlockOrder(normalizeSingleSuppliedImageAltCandidate(
         normalizeImageAltPrimaryVariation(
-          normalizeCodeOwnedSeoCollections(
-            normalizeDeterministicSeoIdentity(firstGeneration.output, identityNormalizationContext),
+          normalizeMainDescriptionSentenceBoundaries(
+            normalizeRepeatedAboutFinishClause(
+              normalizeBodyPrimaryVariation(
+                normalizeCodeOwnedSeoCollections(
+                  normalizeDeterministicSeoIdentity(firstGeneration.output, identityNormalizationContext),
+                ),
+                identityNormalizationContext,
+              ),
+            ),
           ),
           identityNormalizationContext,
         ),
