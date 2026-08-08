@@ -19,6 +19,7 @@ import {
   normalizeCodeOwnedSeoCollections,
   normalizeCodeOwnedPdpBlockOrder,
   normalizeDeterministicSeoIdentity,
+  normalizeImageAltPrimaryVariation,
   normalizeSingleSuppliedImageAltCandidate,
 } from '@/lib/seoEditorialCandidateSelection';
 
@@ -79,12 +80,13 @@ export async function POST(request: Request) {
     }, { status: bundle.error ? 503 : 404 });
   }
 
+  const claimPlan = buildDeterministicSeoClaimPlan(bundle.aiAgentInput);
   const hardBlockers = unique([
     ...getSeoGenerationProductTruthBlockers(bundle.seoPackDraft),
     ...getSeoKeywordSelectionBlockers(bundle.seoPackDraft),
     ...(bundle.seoPackDraft.keyword_selection?.status === 'confirmed' ? [] : ['keyword_selection_not_human_confirmed']),
     ...((bundle.seoPackDraft.metrics_status?.validated_count || 0) > 0 ? [] : ['missing_validated_keyword_metric']),
-    ...buildDeterministicSeoClaimPlan(bundle.aiAgentInput).blockers,
+    ...claimPlan.blockers,
   ]);
   if (hardBlockers.length) {
     return NextResponse.json({
@@ -156,14 +158,19 @@ export async function POST(request: Request) {
     || bundle.seoPackDraft.keyword_roles?.primary?.[0]?.keyword_norm
     || null;
   if (generation.output) {
+    const identityNormalizationContext = {
+      primary_keyword: primaryKeyword,
+      selected_events: focusValues(bundle.seoPackDraft.manual_focus?.event),
+      body_identity_variant: claimPlan.body_identity_variant_en,
+    };
     generation = {
       ...generation,
       output: normalizeCodeOwnedPdpBlockOrder(normalizeSingleSuppliedImageAltCandidate(
-        normalizeCodeOwnedSeoCollections(
-          normalizeDeterministicSeoIdentity(generation.output, {
-            primary_keyword: primaryKeyword,
-            selected_events: focusValues(bundle.seoPackDraft.manual_focus?.event),
-          }),
+        normalizeImageAltPrimaryVariation(
+          normalizeCodeOwnedSeoCollections(
+            normalizeDeterministicSeoIdentity(generation.output, identityNormalizationContext),
+          ),
+          identityNormalizationContext,
         ),
       )),
     };

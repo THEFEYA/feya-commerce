@@ -19,6 +19,7 @@ export type SeoEditorialIssueSnapshot = {
 type SeoIdentityNormalizationContext = {
   primary_keyword?: unknown;
   selected_events?: unknown;
+  body_identity_variant?: unknown;
 };
 
 /**
@@ -148,6 +149,47 @@ export function normalizeSingleSuppliedImageAltCandidate<T>(output: T): T {
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
       'Deterministic image normalization kept one ALT candidate for the single supplied primary image.',
+    ],
+  } as T;
+}
+
+/**
+ * The exact Primary belongs to SEO title, H1 and meta. ALT still needs a clear
+ * whole-product phrase, but repeating the Primary there creates a fourth exact
+ * occurrence and wastes a repair call. Replacing only that exact phrase with
+ * the deterministic body identity is safe because both identities come from
+ * the same reviewed Primary; pose, setting and visible-product detail remain
+ * untouched for normal image-truth validation.
+ */
+export function normalizeImageAltPrimaryVariation<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.image_alt_candidates)) return output;
+  const primary = normalizeIdentityValue(context.primary_keyword);
+  const variation = normalizeIdentityValue(context.body_identity_variant);
+  if (!primary || !variation || primary.toLowerCase() === variation.toLowerCase()) return output;
+
+  const exactPrimary = new RegExp(`\\b${escapeRegExp(primary)}\\b`, 'gi');
+  let changed = false;
+  const imageAltCandidates = output.image_alt_candidates.map((candidate) => {
+    if (!isRecord(candidate) || typeof candidate.alt_text !== 'string') return candidate;
+    const altText = candidate.alt_text.replace(exactPrimary, (match) => {
+      changed = true;
+      if (match === match.toUpperCase()) return variation.toUpperCase();
+      if (/^[A-Z]/.test(match)) return `${variation.charAt(0).toUpperCase()}${variation.slice(1)}`;
+      return variation;
+    });
+    return altText === candidate.alt_text ? candidate : { ...candidate, alt_text: altText };
+  });
+  if (!changed) return output;
+
+  return {
+    ...output,
+    image_alt_candidates: imageAltCandidates,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic image normalization used the reviewed whole-product variation in ALT instead of repeating the exact Primary.',
     ],
   } as T;
 }
@@ -417,6 +459,10 @@ function formatSelectedEvent(value: string) {
   if (/^burning man$/i.test(value)) return 'Burning Man';
   if (/^festival$/i.test(value)) return 'Festivals';
   return toTitleCase(value);
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function isRecord(value: unknown): value is Record<string, any> {

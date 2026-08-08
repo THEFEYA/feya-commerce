@@ -40,21 +40,21 @@ export const SEO_EDITORIAL_MEMORY_V3: SeoEditorialMemoryV3 = {
     'main_description',
   ],
   positive_block_frames: {
-    intro: '“This [body identity variant] belongs at [selected occasion], where one [literal visual or material detail] gives the wearer [one supported result].”',
-    about_this_piece: 'Write 45-60 words in 3 sentences. Sentence 1 names the body identity variant and real buyer job. Sentence 2 turns the assigned fact into a literal product detail. Sentence 3 explains what that detail gives the wearer in the selected occasion. What’s Included owns the product-parts list.',
+    intro: '“This [body identity variant] is made for [selected occasion], giving you a starting point for [an original selected character or use].”',
+    about_this_piece: 'Write 45-60 words in 3 sentences. Address the shopper as you. Sentence 1 names the body identity variant and the assigned design or material fact. Sentence 2 states its buyer outcome in plain English. Sentence 3 connects that outcome to the selected occasion without repeating the Intro. What’s Included owns the product-parts list.',
     why_youll_love_it: [
       'Our original studio design helps you create a character that feels personal.',
-      'The supported wear fact makes the costume easier or more comfortable to wear in the named situation.',
-      'The supported repeat-use fact leaves the piece ready for its next wear.',
+      'The material feels comfortable against the body, making the costume easier to wear through longer events or performances.',
+      'The material helps the costume keep its shape between wears, so it is ready for the next occasion.',
     ],
     ideal_for: [
       '[Person] planning [selected look] for [specific event or movement need].',
-      'Cosplayers creating a character of their own through a studio interpretation.',
+      'Cosplayers building an original character around a studio-designed costume.',
       'Performers preparing a costume for a specific stage or production use.',
       'Creators styling a costume for photography, video or a live set.',
       'Stylists sourcing a design for a show or editorial.',
     ],
-    studio_close: 'Start with: “At TheFEYA, we create original festival and stage fashion for people who want a design that feels personal.” Connect this piece to one concrete wearer action, such as creating a character, preparing for a stage show or dressing for a festival. Close on the wearer making the look their own.',
+    studio_close: 'Start with: “At TheFEYA, we create original festival and stage fashion for people who want a design that feels personal.” Explain how our original ideas help people express their own character. Connect this product to one selected setting and close with the plain outcome “make the look your own.”',
   },
   writing_moves: {
     about_this_piece: 'Real occasion, whole-product identity, one vivid supported detail, then why it matters in wear.',

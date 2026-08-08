@@ -20,6 +20,7 @@ import {
   normalizeCodeOwnedSeoCollections,
   normalizeCodeOwnedPdpBlockOrder,
   normalizeDeterministicSeoIdentity,
+  normalizeImageAltPrimaryVariation,
   normalizeSingleSuppliedImageAltCandidate,
 } from '@/lib/seoEditorialCandidateSelection';
 
@@ -182,6 +183,7 @@ export async function POST(request: Request) {
   const identityNormalizationContext = {
     primary_keyword: primaryKeyword,
     selected_events: selectedEvents,
+    body_identity_variant: preflightClaimPlan.body_identity_variant_en,
   };
   const writerStartedAt = Date.now();
   let firstGeneration = await generateSeoDraftWithOpenAi(promptContract, {
@@ -195,8 +197,11 @@ export async function POST(request: Request) {
     firstGeneration = {
       ...firstGeneration,
       output: normalizeCodeOwnedPdpBlockOrder(normalizeSingleSuppliedImageAltCandidate(
-        normalizeCodeOwnedSeoCollections(
-          normalizeDeterministicSeoIdentity(firstGeneration.output, identityNormalizationContext),
+        normalizeImageAltPrimaryVariation(
+          normalizeCodeOwnedSeoCollections(
+            normalizeDeterministicSeoIdentity(firstGeneration.output, identityNormalizationContext),
+          ),
+          identityNormalizationContext,
         ),
       )),
     };

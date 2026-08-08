@@ -136,7 +136,7 @@ export function buildCurrentSeoProductEvidence(input: SeoAgentInputContract): Se
   const currentConfirmedFacts: SeoProductEvidenceFact[] = [
     currentFact(
       'original_authorial_design',
-      'Original in-studio design for festival and stage fashion.',
+      'Original studio design developed for festival and stage fashion.',
       'owner_approved_brand_truth',
       'writer',
     ),
@@ -234,19 +234,19 @@ function materialStoryFacts(material: string): SeoProductEvidenceFact[] {
     facts.push(
       currentFact(
         'material_glossy_mirror_coating',
-        'Durable, glossy mirror-like coating.',
+        'The material has a durable, glossy, mirror-like coating.',
         'owner_approved_material_story',
         'writer',
       ),
       currentFact(
         'material_body_comfort',
-        'Comfortable against the body.',
+        'The material feels comfortable against the body.',
         'owner_approved_material_story',
         'writer',
       ),
       currentFact(
         'material_shape_retention',
-        'Keeps its shape between wears.',
+        'The material helps the piece keep its shape between wears.',
         'owner_approved_material_story',
         'writer',
       ),

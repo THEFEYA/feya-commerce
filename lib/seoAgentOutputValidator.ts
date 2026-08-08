@@ -446,7 +446,7 @@ function checkCustomerStyle(value: unknown, field: string, issues: SeoAgentOutpu
     issues.push(blocker(`${safeCode(field)}_guaranteed_outcome`, `${field} guarantees popularity, likes, followers or audience reactions.`));
   }
   if (CLICHE_PATTERN.test(value)) {
-    issues.push(warning(`${safeCode(field)}_ai_cliche`, `${field} contains a generic or overused sales phrase.`));
+    issues.push(blocker(`${safeCode(field)}_ai_cliche`, `${field} contains a generic or overused sales phrase.`));
   }
   if (ROBOTIC_OR_TAUTOLOGICAL_PATTERN.test(value)) {
     issues.push(blocker(`${safeCode(field)}_robotic_or_tautological`, `${field} contains internal-process wording, a tautology, or a vague pseudo-benefit.`));

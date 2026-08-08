@@ -330,6 +330,14 @@ test('requires an operator-selected event focus in H1', () => {
   assert.equal(present.issues.some((issue) => issue.code === 'h1_missing_operator_event_focus'), false);
 });
 
+test('recognizes the idiomatic plural Festivals as the selected festival focus', () => {
+  const result = validateSeoCommercialCopy(
+    draft({ h1: 'Warrior Armor Costume for Festivals' }),
+    { manual_focus: { event: ['festival'] } },
+  );
+  assert.equal(result.issues.some((issue) => issue.code === 'h1_missing_operator_event_focus'), false);
+});
+
 test('blocks reflective claims when Product Truth does not confirm reflection', () => {
   const value = draft({ intro: 'This shoulder armor has a reflective finish that catches stage light. Its layered shape gives the upper body a defined profile.' });
   const result = validateSeoCommercialCopy(value, { product_truth: { material: 'Leather, Faux leather', canonical_color_label: 'Gold' } });
@@ -1220,6 +1228,19 @@ test('recognizes make the look their own as a clear self-expression outcome', ()
       ? {
         ...block,
         body: 'At TheFEYA, we create original festival and stage fashion for people who want a design that feels personal. Our studio develops each piece around an original character idea. This gold look brings that approach to a live performance. It gives the wearer room to make the look their own.',
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.equal(result.issues.some((issue) => issue.code === 'self_expression_close_lacks_clear_buyer_value'), false);
+});
+
+test('recognizes a design that feels personal as a self-expression outcome', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'main_description'
+      ? {
+        ...block,
+        body: 'At TheFEYA, we create original festival and stage fashion for people who want a design that feels personal. Our studio develops each piece around an original character idea. This gold look brings that approach to a live performance. You can make the final styling your own.',
       }
       : block),
   });

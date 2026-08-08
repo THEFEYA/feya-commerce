@@ -6,6 +6,7 @@ import {
   mergeBoundedSeoEditorialRepair,
   normalizeDeterministicSeoIdentity,
   normalizeFinalSeoEditorialOutput,
+  normalizeImageAltPrimaryVariation,
   normalizeSingleSuppliedImageAltCandidate,
   seoEditorialIssueSnapshot,
   shouldSelectFinalSeoEditorialCandidate,
@@ -154,6 +155,25 @@ test('keeps one ALT candidate when the runtime supplies one primary image', () =
     { image_role: 'primary', alt_text: 'Gold warrior outfit worn outdoors' },
   ]);
   assert.match(normalized.generation_notes[0], /one ALT candidate/);
+});
+
+test('uses the reviewed whole-product variation when ALT repeats the exact Primary', () => {
+  const normalized = normalizeImageAltPrimaryVariation({
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'Gold warrior armor costume worn by a performer against dark rocks',
+    }],
+    generation_notes: [],
+  }, {
+    primary_keyword: 'warrior armor costume',
+    body_identity_variant: 'warrior armor outfit',
+  });
+
+  assert.equal(
+    normalized.image_alt_candidates[0].alt_text,
+    'Gold warrior armor outfit worn by a performer against dark rocks',
+  );
+  assert.match(normalized.generation_notes[0], /whole-product variation in ALT/);
 });
 
 test('skips the editorial rewrite when deterministic QA is clean', () => {

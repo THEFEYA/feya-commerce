@@ -10,6 +10,7 @@ import {
 } from '../../lib/seoClaimPlanV2.ts';
 import { generateSeoDraftWithOpenAi } from '../../lib/seoOpenAiDraftGenerator.ts';
 import {
+  normalizeImageAltPrimaryVariation,
   normalizeCodeOwnedPdpBlockOrder,
   normalizeCodeOwnedSeoCollections,
 } from '../../lib/seoEditorialCandidateSelection.ts';
@@ -161,7 +162,7 @@ test('writer brief uses current offer and excludes raw legacy wording', () => {
   assert.ok(prompt.system_prompt.length + prompt.user_prompt.length < 9_000);
   assert.equal(brief.claim_plan.family_profile, 'multi_component_outfit');
   assert.equal(brief.claim_plan.body_identity_variant_en, 'warrior armor outfit');
-  assert.match(brief.claim_plan.buyer_job_en, /^A warrior armor outfit for /);
+  assert.match(brief.claim_plan.buyer_job_en, /^This warrior armor outfit is made for /);
   assert.equal(brief.claim_plan.buyer_job_en.startsWith('Help '), false);
   assert.deepEqual(brief.claim_plan.blockers, []);
   assert.equal(brief.claim_plan.claims.filter((claim) => claim.target_block === 'about_this_piece').length, 1);
@@ -184,6 +185,8 @@ test('writer brief uses current offer and excludes raw legacy wording', () => {
   assert.match(prompt.system_prompt, /About this piece is 45-60 words in exactly 3/);
   assert.match(prompt.system_prompt, /Designed for self-expression is the final block\. Write 45-75 words in 3-4/);
   assert.match(prompt.system_prompt, /Return bullet_highlights, faq and internal_linking_hints as empty arrays/);
+  assert.match(prompt.system_prompt, /buyer_outcome_en is a ready-to-use customer-facing sentence/);
+  assert.match(prompt.system_prompt, /body_identity_variant_en, never product_identity_en/);
 });
 
 test('compact writer contract stays product-specific for a single dress', () => {
@@ -241,8 +244,8 @@ test('cosplay focus is framed as an original studio character, not a replica pro
   assert.match(brief.cosplay_positioning || '', /character of their own/i);
   assert.ok(brief.ideal_for_portraits.some((portrait) => (
     portrait.person === 'cosplayers'
-    && /character of their own/i.test(portrait.situation)
-    && /inspired by a futuristic or fantasy style$/i.test(portrait.situation)
+    && /building an original futuristic or fantasy character/i.test(portrait.situation)
+    && /studio-designed costume$/i.test(portrait.situation)
   )));
   const portraitBrief = JSON.stringify(brief.ideal_for_portraits).toLowerCase();
   assert.equal((portraitBrief.match(/futuristic/g) || []).length <= 2, true);
@@ -359,6 +362,107 @@ test('positive one-pass field pattern passes the same deterministic gates as the
   assert.equal(structural.ok, true, JSON.stringify(structural.issues));
   assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
   assert.equal(keyword.ok, true, JSON.stringify(keyword.issues));
+});
+
+test('the August live pilot stays blocked for human-copy defects while ALT normalization removes the false fourth Primary', () => {
+  const input = inputContract();
+  input.manual_focus = {
+    ...input.manual_focus,
+    event: ['festival', 'cosplay'],
+    style: ['futuristic', 'fantasy'],
+    persona: ['warrior', 'performer'],
+  };
+  const pilot = {
+    contract_version: 'seo_agent_output_v1',
+    status: 'draft',
+    seo_title: 'Warrior Armor Costume for Festivals',
+    h1: 'Warrior Armor Costume for Festivals',
+    meta_description: 'Step into a warrior armor costume with gold, futuristic styling, made for festivals and cosplay with a polished metal finish.',
+    intro: 'This warrior armor outfit belongs at festivals and cosplay, where gold mirror-like finish gives the wearer a bold, character-driven look.',
+    bullet_highlights: [],
+    faq: [],
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'Gold warrior armor costume with shoulder armor and skirt on a performer posing against dark rocks',
+      truth_basis: 'visible_product_fact',
+    }],
+    internal_linking_hints: [],
+    visual_truth: {
+      observed_product_facts: ['Gold armor is visible.'],
+      dna_matches: ['Warrior styling'],
+      open_style_suggestions: [],
+      uncertain_or_missing_facts: [],
+      forbidden_visual_claims: [],
+    },
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        body: 'This warrior armor outfit gives a festival or cosplay wearer a character-first look that feels ready for movement. The durable, glossy mirror-like coating creates a polished metal finish across the gold surfaces. That finish helps the wearer stand out with a bold presence in the spotlight.',
+        source_basis: 'product_fact',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'why_youll_love_it',
+        placement: 'left_description',
+        heading: 'Why you’ll love it',
+        body: '• Our original studio design helps you create a character that feels personal.\n• The comfortable against the body feel makes it easier to wear through longer events or performances.\n• Keeps its shape between wears so it is ready for the next occasion.',
+        source_basis: 'product_fact',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'ideal_for',
+        placement: 'left_description',
+        heading: 'Ideal for',
+        body: '• Festival-goers planning a warrior look for a long day of music and movement.\n• Cosplayers creating a character of their own through a studio interpretation inspired by a futuristic or fantasy style.\n• Live performers preparing a warrior costume for a stage show or theatrical role.\n• Content creators styling a fantasy costume for festival photography or music videos.\n• Costume stylists sourcing a futuristic design for themed shows or editorials.',
+        source_basis: 'product_fact',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'main_description',
+        placement: 'left_description',
+        heading: 'Designed for self-expression',
+        body: 'At TheFEYA, we create original festival and stage fashion for people who want a design that feels personal. This piece supports a bold warrior character in a futuristic or fantasy setting, whether you are heading to a festival or shaping a look for the camera. The result is a costume that feels like your own story on arrival.',
+        source_basis: 'brand_policy',
+        needs_human_review: false,
+      },
+    ],
+    qa_self_report: {
+      cliche_phrase: 'pass',
+      long_dash: 'pass',
+      keyword_stuffing: 'pass',
+      product_specificity: 'pass',
+      forbidden_mismatch: 'pass',
+      similarity_cannibalization: 'not_checked',
+      image_alt_truth: 'pass',
+      commercial_placement: 'pass',
+      validated_metrics: 'pass',
+      notes: [],
+    },
+    generation_notes: [],
+  } as any;
+  const normalized = normalizeImageAltPrimaryVariation(pilot, {
+    primary_keyword: 'warrior armor costume',
+    body_identity_variant: 'warrior armor outfit',
+  });
+  const context = {
+    product_truth: input.product,
+    manual_focus: input.manual_focus,
+    keyword_roles: input.keyword_roles,
+  };
+
+  const structural = validateSeoAgentOutput(normalized);
+  const commercial = validateSeoCommercialCopy(normalized, context);
+  const keyword = validateSeoKeywordPlacement(normalized, {
+    product_truth: input.product,
+    keyword_roles: input.keyword_roles,
+  } as any);
+
+  assert.ok(structural.issues.some((issue) => issue.code === 'meta_description_ai_cliche' && issue.severity === 'blocker'));
+  assert.ok(commercial.issues.some((issue) => issue.code === 'customer_copy_contains_pilot_robotic_language'));
+  assert.equal(keyword.issues.some((issue) => issue.code === 'primary_exact_phrase_outside_owned_fields'), false);
+  assert.equal(keyword.issues.some((issue) => issue.code === 'primary_exact_phrase_overused'), false);
 });
 
 test('writer brief preflight blocks internal provenance before any paid call', () => {

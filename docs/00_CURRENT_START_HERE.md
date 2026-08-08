@@ -187,39 +187,43 @@ percentage.
 
 ## Last observed live result
 
-The latest 2026-08-07 preview used one bounded writer call with no retry or
-editor, so the cost architecture worked. It returned a review-only draft and
-did not save, approve, Apply or Publish anything. The result improved Why and
-Ideal for, but correctly remained blocked.
+The 2026-08-08 preview ran exactly one bounded `gpt-5.4-mini` writer request.
+It completed in about 6.9 seconds with 3,774 input and 900 output tokens. No
+retry, editor, repair, save, approval, Apply or Publish action followed. The
+review draft correctly returned HTTP 422 rather than presenting weak copy as
+ready.
 
-The exact observed causes were:
+Product Truth and section order were correct. The remaining failures were
+editorial and two deterministic false negatives:
 
 ```text
-deterministic title normalization produced “for Festival”
-the imperative buyer job “Help the wearer…” leaked into About
-About contained fewer than 40 useful words
-four ALT rows were returned for one supplied image
-the extra detail ALT changed glossy/mirror-like into unsupported “reflective”
-the body omitted a close semantic variation of “warrior armor costume”
-the close used the negative comparison “without borrowing … character”
-the self-expression validator missed the valid phrase “make the look their own”
+“Step into…” was a generic Meta cliche
+“belongs at festivals and cosplay” was not idiomatic English
+“festival or cosplay wearer” and “character-first look” were robotic shorthand
+“The comfortable against the body feel” was grammatically broken
+“own story on arrival” was empty closing language
+H1 “…for Festivals” was not recognized as saved focus `festival`
+ALT repeated exact Primary a fourth time
 ```
 
-The corrective contract now inflects generic `festival` as `Festivals`,
-supplies `warrior armor outfit` as the body identity variant, expresses the
-buyer job as customer-facing context rather than an instruction, keeps one ALT
-for the single supplied image, uses a positive 45-60 word About frame, blocks
-negative borrowing comparisons, and recognizes `make the look their own`.
-These cases are covered by the current 179-test SEO suite.
+The new corrective contract keeps the compact one-call architecture but makes
+the positive memory more concrete. `fact_statement_en` and
+`buyer_outcome_en` are now complete grammatical customer sentences that the
+writer may reuse directly. Intro, Meta, About, Why, Ideal for and ALT each have
+one positive job. `Festivals` is matched through the same inflection aliases as
+manual focus, and exact Primary in ALT is replaced deterministically with the
+reviewed `warrior armor outfit` variation without touching pose or setting
+facts. Generic sales cliches and the exact live-pilot robotic phrases are
+zero-cost blockers, not extra prompt tokens. These cases are covered by the
+current 183-test SEO suite.
 
 ## Exact continuation step
 
-Deploy the corrective branch to a Vercel Preview and verify the real preview
+Deploy this corrective branch to a Vercel Preview and verify the real preview
 route for product `a94b5c1b-3346-4868-b0f6-7a60d954530e` without pressing any
-generation, repair, save, Apply or Publish control. A later controlled pilot
-may run exactly one generation with its already saved focus only after an
-explicit operator authorization. Accept it only if all of the following are
-true:
+generation, repair, save, Apply or Publish control. The next paid checkpoint is
+one fresh generation from the new deployment, never the Repair button. Accept
+it only if all of the following are true:
 
 ```text
 Primary is represented naturally in title/H1/meta and exact count is at most 3

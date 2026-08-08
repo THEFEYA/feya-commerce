@@ -54,7 +54,7 @@ const REFLECTIVE_CLAIM = /\b(?:reflective|retroreflective|retro-reflective)\b/i;
 const ABSTRACT_VISUAL_PSEUDO_BENEFIT = /\b(?:harder|stronger|more\s+(?:finished|intentional|individual)|intentional)\s+(?:warrior\s+|costume\s+)?(?:look|outfit|costume|appearance)\b|\b(?:turns?|helps?\s+turn)\b[^.!?\n]{0,70}\b(?:vision|idea|theme|direction|base look)\b[^.!?\n]{0,55}\b(?:look|outfit|costume)\b|\banchors?\b[^.!?\n]{0,65}\b(?:look|outfit|costume)\b|\b(?:skip|without building)\b[^.!?\n]{0,60}\b(?:full uniform|head[- ]to[- ]toe costume)\b|\bwithout building\b[^.!?\n]{0,70}\b(?:from separate finds|from scratch)\b|\bfeel(?:s|ing)? dressed for the occasion\b|\b(?:design|styling|shape)\b[^.!?\n]{0,45}\bmakes? it easier to choose\b|\bmakes? sense with (?:the )?outfit\b|\b(?:focal piece|focal point|photographs? well|wide shots?)\b|\bmatching\b[^.!?\n]{0,45}\b(?:pieces?|components?)\b[^.!?\n]{0,80}\b(?:same|repeat)\b[^.!?\n]{0,45}\b(?:color|colour|finish)\b|\bphotographs? as one outfit instead of separate (?:pieces?|add[- ]ons?)\b|\b(?:visible\s+)?(?:waist|belt|shoulder|skirt)\s+(?:detail|shape|line)\b[^.!?\n]{0,75}\b(?:natural break|changing tops?|restyle)\b/i;
 const UNSUPPORTED_COMPONENT_COVERAGE = /\b(?:shoulders?|skirt|components?|pieces?)\b[^.!?\n]{0,65}\b(?:keep|keeps|leave|leaves)\s+(?:more\s+of\s+)?(?:your|the)\s+(?:clothing|outfit|body)\s+visible\b/i;
 const ABSTRACT_VISUAL_BENEFIT = /\b(contrast and visual depth|adds? contrast|creates? visual depth|harder,? more dramatic line|firm armored presence|armored presence|individual feel|shape a look that feels deliberate|one bold detail to define|dramatic line|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced)\b/i;
-const PILOT_ROBOTIC_LANGUAGE = /\b(?:clear visual depth|body[- ]facing feel|that is where TheFEYA lives|clear point of view|warrior presence|multi[- ]component (?:outfit|costume|product|set)|for buyers? (?:building|creating|planning))\b/i;
+const PILOT_ROBOTIC_LANGUAGE = /\b(?:clear visual depth|body[- ]facing feel|that is where TheFEYA lives|clear point of view|warrior presence|character[- ]first look|festival or cosplay wearer|the comfortable against the body feel|own story on arrival|multi[- ]component (?:outfit|costume|product|set)|for buyers? (?:building|creating|planning)|belongs at [^.!?\n]{0,60}\bcosplay)\b/i;
 const BARE_FESTIVAL_SUFFIX = /\bfor festival\s*$/i;
 const SHAPE_DURING_MOVEMENT = /\b(?:holds?|keeps?|maintains?|preserves?) (?:its |the |their )?(?:shape|form) (?:during|while|in) (?:movement|motion|moving)\b/i;
 const CONSTRUCTION_TERM = /\b(?:construction|structure|structured|build quality|reinforced build|built to last)\b/i;
@@ -63,7 +63,7 @@ const UNGROUNDED_STORE_PROMISE = /\b(best prices?|lowest prices?|competitive pri
 const BRAND_PATTERN = /\bTheFEYA\b/gi;
 const GENERIC_EVENT_PATTERN = /\bevents?\b/gi;
 const DESIGN_BENEFIT_PATTERN = /\b(studio[- ]created|studio[- ]designed|studio[- ]made|designed in our studio|designed by our (?:team|studio)|our original design ideas?|original design ideas?|original studio design|distinctive studio design|signature studio design|handmade|made[- ]to[- ]order|not mass[- ]produced|mass[- ]produced costume|mass production|designer studio)\b/i;
-const SELF_EXPRESSION_PATTERN = /\b(self[- ]expression|individuality|visual identity|personal style|your own look|make (?:it|this|the (?:piece|set|outfit|design|look|character)) (?:your|their) own|feels? like (?:you|them)|made for your vision|designed for your vision|studio visual language|adapt(?:ed|able)|customi[sz](?:e|ed|ation))\b/i;
+const SELF_EXPRESSION_PATTERN = /\b(self[- ]expression|individuality|visual identity|personal style|your own look|make (?:it|this|the (?:piece|set|outfit|design|look|character)) (?:your|their) own|feels? personal|feels? like (?:you|them)|made for your vision|designed for your vision|studio visual language|adapt(?:ed|able)|customi[sz](?:e|ed|ation))\b/i;
 const REDUNDANT_SHOULDER_ENTITY_PATTERN = /\bshoulders?\s+(?:armor|armour|piece|pieces|pauldron|pauldrons)\b/gi;
 const AWKWARD_FINISH_AND_SHAPE = /\b(?:glossy|mirror[- ]like|metallic|gold)\b[^.!?]{0,45}\b(?:finish|surface|coating)\s+and\s+(?:a\s+)?(?:silhouette|shape|profile)\b/i;
 const DUPLICATE_STAGE_PERFORMANCE_FASHION = /\b(?:festival,?\s*)?stage,?\s+and\s+performance\s+fashion\b/i;
@@ -512,7 +512,7 @@ export function validateSeoCommercialCopy(
 
   const selectedEventFocus = focusEventValues(context.manual_focus);
   const h1 = typeof record.h1 === 'string' ? record.h1 : '';
-  if (selectedEventFocus.length && !selectedEventFocus.some((event) => containsPhrase(h1, event))) {
+  if (selectedEventFocus.length && !selectedEventFocus.some((event) => focusValueAppears(h1, event))) {
     issues.push(blocker(
       'h1_missing_operator_event_focus',
       `H1 must use one operator-selected event focus naturally (${selectedEventFocus.join(', ')}). Prefer the product entity for the selected event over a low-intent construction detail.`,
