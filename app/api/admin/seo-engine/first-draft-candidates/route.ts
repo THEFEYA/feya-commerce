@@ -4,6 +4,7 @@ import { getSupabaseServiceClient } from '@/lib/supabase';
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
 import { getSeoGenerationProductTruthBlockers } from '@/lib/seoPackContract';
 import { STOREFRONT_VIEW_V1 } from '@/lib/storefront';
+import { hasTrustedSeoMetricSnapshot } from '@/lib/seoTrustedMetricSnapshot';
 
 export const dynamic = 'force-dynamic';
 
@@ -202,7 +203,7 @@ function summarizeCatalogCandidate(id, product, decision, latestDraft) {
   const selectedKeywords = Array.isArray(decision?.selected_keywords_json)
     ? decision.selected_keywords_json.filter((item) => clean(item?.keyword || item?.keyword_norm))
     : [];
-  const validatedMetricCount = selectedKeywords.filter(hasTrustedMetricSnapshot).length;
+  const validatedMetricCount = selectedKeywords.filter(hasTrustedSeoMetricSnapshot).length;
   const hardBlockers = [];
 
   if (!product) hardBlockers.push('missing_storefront_catalog_product');
@@ -348,41 +349,6 @@ function latestRowsByProduct(rows) {
       if (id && !map.has(id)) map.set(id, row);
     });
   return map;
-}
-
-function hasTrustedMetricSnapshot(row) {
-  const volume = toPositiveNumber(row?.avg_monthly_searches);
-  const competition = normalizeToken(row?.competition);
-  const source = normalizeToken(metricSource(row));
-  const freshness = normalizeToken(metricFreshness(row));
-
-  if (!volume || !competition || competition === 'unknown') return false;
-  if (freshness === 'api not connected' || freshness === 'api_not_connected') return false;
-
-  const freshManualCsv = source === 'google ads csv' && freshness === 'fresh manual import';
-  const freshGoogleAdsApi = ['google ads api', 'google ads keyword planner'].includes(source)
-    && ['fresh api', 'api connected', 'validated'].includes(freshness);
-  const approvedManualImport = ['manual keyword planner import', 'keyword planner csv'].includes(source)
-    && ['fresh manual import', 'validated'].includes(freshness);
-
-  return freshManualCsv || freshGoogleAdsApi || approvedManualImport;
-}
-
-function metricSource(row) {
-  return row?.metric_source || row?.source_api || row?.validation_source || row?.source || '';
-}
-
-function metricFreshness(row) {
-  return row?.data_freshness_status || row?.metric_freshness_status || row?.freshness_status || '';
-}
-
-function normalizeToken(value) {
-  return String(value || '').trim().toLowerCase().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ');
-}
-
-function toPositiveNumber(value) {
-  const number = Number(value);
-  return Number.isFinite(number) && number > 0 ? number : null;
 }
 
 function timestamp(row) {

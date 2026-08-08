@@ -12,6 +12,7 @@ import {
   resolveStorefrontSellableOffer,
   sellableOfferAllowsComponentFocus,
 } from '@/lib/storefrontSellableOffer';
+import { hasTrustedSeoMetricSnapshot } from '@/lib/seoTrustedMetricSnapshot';
 
 const PRODUCT_TRUTH_VIEW = 'feya_commerce_v_seo_product_truth_v4';
 const PRODUCT_TRUTH_EXACT_RPC = 'feya_commerce_get_seo_product_truth_v4';
@@ -929,7 +930,7 @@ function extractPortfolioStrategy(latestSavedDraftContext) {
 function normalizeDecisionKeywords(value) {
   const rows = Array.isArray(value) ? value : [];
   return rows.map((row) => {
-    const trustedMetric = hasTrustedMetricSnapshot(row);
+    const trustedMetric = hasTrustedSeoMetricSnapshot(row);
     return {
       ...row,
       keyword: row.keyword || row.keyword_norm,
@@ -947,24 +948,6 @@ function normalizeDecisionKeywords(value) {
   });
 }
 
-function hasTrustedMetricSnapshot(row) {
-  const volume = toPositiveNumber(row?.avg_monthly_searches);
-  const competition = normalizeToken(row?.competition);
-  const source = normalizeToken(metricSource(row));
-  const freshness = normalizeToken(metricFreshness(row));
-
-  if (!volume || !competition || competition === 'unknown') return false;
-  if (freshness === 'api not connected' || freshness === 'api_not_connected') return false;
-
-  const freshManualCsv = source === 'google ads csv' && freshness === 'fresh manual import';
-  const freshGoogleAdsApi = ['google ads api', 'google ads keyword planner', 'google keyword planner'].includes(source)
-    && ['fresh api', 'api connected', 'validated'].includes(freshness);
-  const approvedManualImport = ['manual keyword planner import', 'keyword planner csv'].includes(source)
-    && ['fresh manual import', 'validated'].includes(freshness);
-
-  return freshManualCsv || freshGoogleAdsApi || approvedManualImport;
-}
-
 function normalizeKeyword(value) {
   return String(value || '').trim().toLowerCase().replace(/[’']/g, '').replace(/[_-]+/g, ' ').replace(/\s+/g, ' ');
 }
@@ -975,10 +958,6 @@ function metricSource(row) {
 
 function metricFreshness(row) {
   return row?.data_freshness_status || row?.metric_freshness_status || row?.freshness_status || '';
-}
-
-function normalizeToken(value) {
-  return String(value || '').trim().toLowerCase().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ');
 }
 
 function toPositiveNumber(value) {

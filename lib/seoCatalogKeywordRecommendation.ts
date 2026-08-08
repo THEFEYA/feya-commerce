@@ -112,7 +112,7 @@ const MATERIAL_TERMS = [
 // These details change what the buyer expects to receive. They are allowed
 // only when current Product Truth or the operator-confirmed material axis names
 // them explicitly; a matching color/component is not enough evidence.
-const EXPLICIT_PRODUCT_DETAIL_TERMS = ['chain'];
+const EXPLICIT_PRODUCT_DETAIL_TERMS = ['chain', 'coin', 'feather'];
 
 // "Armor" can describe the complete visual product even when the sold
 // configuration is expressed through concrete Product Truth components such
@@ -381,6 +381,8 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
   const identityTokens = tokens(identityText).filter((token) => !STOP_WORDS.has(token) && token.length > 2);
   const styleTokens = tokens(styleText).filter((token) => !STOP_WORDS.has(token) && token.length > 2);
   const materialTerms = MATERIAL_TERMS.filter((term) => containsPhrase(materialText, term));
+  const explicitProductDetails = EXPLICIT_PRODUCT_DETAIL_TERMS
+    .filter((term) => containsPhrase(materialText, term));
   const sizingEvidence = flattenStrings([
     product.confirmed_size_range,
     product.size_range,
@@ -413,6 +415,7 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
     identityTokens: unique(identityTokens),
     styleTokens: unique(styleTokens),
     materialTerms,
+    explicitProductDetails,
     supportedSizePositioning,
     focusPhrases,
     excludedTerms,
@@ -453,7 +456,7 @@ function scoreRow(
   const styleOverlap = intersection(tokens(keyword), profile.styleTokens);
   const materialMatch = profile.materialTerms.filter((term) => containsPhrase(keyword, term));
   const unsupportedExplicitDetail = EXPLICIT_PRODUCT_DETAIL_TERMS.find((term) => (
-    containsPhrase(keyword, term) && !profile.materialTerms.includes(term)
+    containsPhrase(keyword, term) && !profile.explicitProductDetails.includes(term)
   ));
   const exactFocus = profile.focusPhrases.filter((term) => term.length > 2 && containsPhrase(keyword, term));
   const excludedMatch = profile.excludedTerms.find((term) => containsPhrase(keyword, term));
@@ -468,7 +471,9 @@ function scoreRow(
   ));
 
   const componentMismatch = keywordComponents.some((family) => !supportedComponentFamilies.includes(family));
-  const colorMismatch = keywordColors.length > 0 && profile.colors.length > 0 && colorMatch.length === 0;
+  const colorMismatch = keywordColors.length > 0
+    && profile.colors.length > 0
+    && keywordColors.some((family) => !profile.colors.includes(family));
   const audienceMismatch = keywordAudiences.length > 0
     && profile.audiences.length === 1
     && audienceMatch.length === 0;
