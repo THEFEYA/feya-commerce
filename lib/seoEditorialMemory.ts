@@ -41,7 +41,7 @@ export const SEO_EDITORIAL_MEMORY_V3: SeoEditorialMemoryV3 = {
   ],
   positive_block_frames: {
     intro: '“This [body identity variant] is made for [selected occasion], giving you a starting point for [an original selected character or use].”',
-    about_this_piece: 'Write 45-60 words in 3 sentences. Address the shopper as you. Sentence 1 names the body identity variant and the assigned design or material fact. Sentence 2 states its buyer outcome in plain English. Sentence 3 connects that outcome to the selected occasion without repeating the Intro. What’s Included owns the product-parts list.',
+    about_this_piece: 'Write 40-60 words in 2-3 sentences. Address the shopper as you. Start from the selected occasion and body identity variant. Use the assigned fact and buyer outcome once in one natural thought; never restate the same finish in another sentence. What’s Included owns the product-parts list.',
     why_youll_love_it: [
       'Our original studio design helps you create a character that feels personal.',
       'The material feels comfortable against the body, making the costume easier to wear through longer events or performances.',

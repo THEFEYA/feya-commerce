@@ -1161,6 +1161,33 @@ test('blocks the exact robotic language seen in the 2026-08-07 pilot', () => {
   assert.ok(result.issues.some((issue) => issue.code === 'customer_copy_contains_pilot_robotic_language'));
 });
 
+test('blocks the grammar and repeated finish language from the 2026-08-08 paid pilot', () => {
+  const value = draft({
+    meta_description: 'Warrior armor costume with a glossy, mirror-like coating, made for festivals and cosplay and an original futuristic or fantasy character.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => {
+      if (block.block_key === 'about_this_piece') {
+        return {
+          ...block,
+          body: 'This warrior armor outfit pairs a glossy gold finish with a multi-component silhouette. The material has a durable, glossy, mirror-like coating. The glossy, mirror-like surface gives the costume a polished metal finish for bold styling at festivals.',
+        };
+      }
+      if (block.block_key === 'main_description') {
+        return {
+          ...block,
+          body: 'At TheFEYA, we create original festival and stage fashion for people who want a design that feels personal. This warrior armor outfit supports a futuristic festival look. We design for distinctive presence, so you can make the look your own.',
+        };
+      }
+      return block;
+    }),
+  });
+  const result = validateSeoCommercialCopy(value);
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('meta_description_has_broken_context_coordination'));
+  assert.ok(codes.includes('customer_copy_contains_pilot_robotic_language'));
+  assert.ok(codes.includes('customer_copy_contains_robotic_editorial_jargon'));
+  assert.ok(codes.includes('about_this_piece_repeats_finish_across_sentences'));
+});
+
 test('blocks bare singular Festival grammar in SEO title and H1', () => {
   const result = validateSeoCommercialCopy(draft({
     seo_title: 'Warrior Armor Costume for Festival',

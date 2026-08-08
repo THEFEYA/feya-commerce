@@ -32,7 +32,7 @@ const AUDIT_OR_ADMIN_LANGUAGE = /\b(product truth|product truth confirms?|produc
 const GUARANTEED_POPULARITY = /\b(guarantee(?:d|s)?|will get likes|will receive likes|will gain followers?|will make you popular|go viral|viral reach|more followers?|gain followers?|more likes|become popular|increase your popularity|guaranteed attention|everyone will notice|all eyes will be on you|guaranteed reactions?)\b/i;
 const EMPTY_HYPE = /\b(premium|luxury|ultimate|perfect|best|must[- ]have|crafted to perfection|elevate your look)\b/i;
 const EMPTY_OR_INTERNAL_BUYER_COPY = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|studio fit|statement piece|strong festival statement|structured (?:gold |metallic )?accent|bold (?:gold |metallic )?accent|TheFEYA gives us a way|TheFEYA\s+(?:we|our|us)\b|clean armored attitude|desert[- ]ready (?:mood|presence)|shoulder[- ]led|reads? fast|open light|direct choice for buyers?|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity (?:and|or) individuality|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|one[- ]and[- ]only (?:shoulder )?line|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced|(?:original|distinctive) alternative to (?:a )?(?:standard|generic|mass[- ]produced) costume (?:look|piece|design))\b/i;
-const AWKWARD_EDITORIAL_SHORTHAND = /\b(?:clear finish|strong visual finish|strong,?\s+sculpted feel|complete look with confidence|reads? clearly in photographs?|photos? (?:pick|picks) up more depth|photo moments?|bold appearance|themed nights?|shows? up (?:cleanly|clearly)|for (?:burning man|festival|rave) styling|visual expressiveness)\b|\bwithout (?:losing|sacrificing) (?:its |the |your )?(?:visual )?(?:impact|expressiveness|presence)\b/i;
+const AWKWARD_EDITORIAL_SHORTHAND = /\b(?:clear finish|strong visual finish|strong,?\s+sculpted feel|complete look with confidence|reads? clearly in photographs?|photos? (?:pick|picks) up more depth|photo moments?|bold appearance|bold styling|themed nights?|shows? up (?:cleanly|clearly)|for (?:burning man|festival|rave) styling|visual expressiveness)\b|\bwithout (?:losing|sacrificing) (?:its |the |your )?(?:visual )?(?:impact|expressiveness|presence)\b/i;
 const INTERNAL_TARGETING_LANGUAGE = /\b(?:persona|lean(?:s|ing)? into|dress(?:es|ing)? in (?:a |an )?[\w-]+ direction|(?:style|styling|creative|costume|warrior|festival) direction)\b/i;
 const SEARCH_QUERY_AUDIENCE_PHRASING = /\b(?:(?:women|men|buyers|shoppers|customers)\s+(?:looking|searching)\s+for|buyers?\s+who\s+want)\b/i;
 const COORDINATED_OUTFIT_JARGON = /\bcoordinated\b[^.!?\n]{0,35}\b(?:look|costume|outfit|set|base)\b/i;
@@ -54,8 +54,9 @@ const REFLECTIVE_CLAIM = /\b(?:reflective|retroreflective|retro-reflective)\b/i;
 const ABSTRACT_VISUAL_PSEUDO_BENEFIT = /\b(?:harder|stronger|more\s+(?:finished|intentional|individual)|intentional)\s+(?:warrior\s+|costume\s+)?(?:look|outfit|costume|appearance)\b|\b(?:turns?|helps?\s+turn)\b[^.!?\n]{0,70}\b(?:vision|idea|theme|direction|base look)\b[^.!?\n]{0,55}\b(?:look|outfit|costume)\b|\banchors?\b[^.!?\n]{0,65}\b(?:look|outfit|costume)\b|\b(?:skip|without building)\b[^.!?\n]{0,60}\b(?:full uniform|head[- ]to[- ]toe costume)\b|\bwithout building\b[^.!?\n]{0,70}\b(?:from separate finds|from scratch)\b|\bfeel(?:s|ing)? dressed for the occasion\b|\b(?:design|styling|shape)\b[^.!?\n]{0,45}\bmakes? it easier to choose\b|\bmakes? sense with (?:the )?outfit\b|\b(?:focal piece|focal point|photographs? well|wide shots?)\b|\bmatching\b[^.!?\n]{0,45}\b(?:pieces?|components?)\b[^.!?\n]{0,80}\b(?:same|repeat)\b[^.!?\n]{0,45}\b(?:color|colour|finish)\b|\bphotographs? as one outfit instead of separate (?:pieces?|add[- ]ons?)\b|\b(?:visible\s+)?(?:waist|belt|shoulder|skirt)\s+(?:detail|shape|line)\b[^.!?\n]{0,75}\b(?:natural break|changing tops?|restyle)\b/i;
 const UNSUPPORTED_COMPONENT_COVERAGE = /\b(?:shoulders?|skirt|components?|pieces?)\b[^.!?\n]{0,65}\b(?:keep|keeps|leave|leaves)\s+(?:more\s+of\s+)?(?:your|the)\s+(?:clothing|outfit|body)\s+visible\b/i;
 const ABSTRACT_VISUAL_BENEFIT = /\b(contrast and visual depth|adds? contrast|creates? visual depth|harder,? more dramatic line|firm armored presence|armored presence|individual feel|shape a look that feels deliberate|one bold detail to define|dramatic line|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced)\b/i;
-const PILOT_ROBOTIC_LANGUAGE = /\b(?:clear visual depth|body[- ]facing feel|that is where TheFEYA lives|clear point of view|warrior presence|character[- ]first look|festival or cosplay wearer|the comfortable against the body feel|own story on arrival|multi[- ]component (?:outfit|costume|product|set)|for buyers? (?:building|creating|planning)|belongs at [^.!?\n]{0,60}\bcosplay)\b/i;
+const PILOT_ROBOTIC_LANGUAGE = /\b(?:clear visual depth|body[- ]facing feel|that is where TheFEYA lives|clear point of view|warrior presence|distinctive presence|character[- ]first look|festival or cosplay wearer|the comfortable against the body feel|own story on arrival|multi[- ]component (?:outfit|costume|product|set|silhouette)|for buyers? (?:building|creating|planning)|belongs at [^.!?\n]{0,60}\bcosplay)\b/i;
 const BARE_FESTIVAL_SUFFIX = /\bfor festival\s*$/i;
+const META_COORDINATION_ERROR = /\b(?:festivals?|cosplay|stage)\s+and\s+(?:an?|the)\s+(?:original\s+)?(?:futuristic|fantasy|warrior|character|look)\b/i;
 const SHAPE_DURING_MOVEMENT = /\b(?:holds?|keeps?|maintains?|preserves?) (?:its |the |their )?(?:shape|form) (?:during|while|in) (?:movement|motion|moving)\b/i;
 const CONSTRUCTION_TERM = /\b(?:construction|structure|structured|build quality|reinforced build|built to last)\b/i;
 const USE_CASE_AS_BENEFIT = /\b(?:works?|ideal|made|suited) for\b.*\b(styling|looks?|warrior|futuristic|desert|festival|stage|performance|photoshoot|editorial|cosplay|party)\b/i;
@@ -205,6 +206,8 @@ const BENEFIT_OUTCOME_PATTERNS: Record<string, RegExp> = {
   wearer_framing: /\b(?:frames?|draws? attention to)\b[^.!?\n]{0,70}\b(?:face|neckline|shoulders?|upper body)\b/i,
 };
 
+const FINISH_IDEA = /\b(reflective|mirror[- ]like|glossy|metallic|polished metal|catches? light|reads? clearly in photos?|camera[- ]friendly)\b/i;
+
 const CROSS_BLOCK_IDEAS: Array<{ key: string; pattern: RegExp }> = [
   {
     key: 'studio_authorship',
@@ -212,7 +215,7 @@ const CROSS_BLOCK_IDEAS: Array<{ key: string; pattern: RegExp }> = [
   },
   {
     key: 'reflective_finish',
-    pattern: /\b(reflective|mirror[- ]like|glossy|metallic|catches? light|reads? clearly in photos?|camera[- ]friendly)\b/i,
+    pattern: FINISH_IDEA,
   },
   {
     key: 'silhouette_shape',
@@ -490,6 +493,12 @@ export function validateSeoCommercialCopy(
       'Meta description grammatically joins a surface finish with silhouette or shape as if they were one attribute. State the complete product identity and use case, then add one clear differentiator.',
     ));
   }
+  if (META_COORDINATION_ERROR.test(metaDescription)) {
+    issues.push(blocker(
+      'meta_description_has_broken_context_coordination',
+      'Meta description joins an approved occasion list to a second “and a/an ...” phrase. End with one natural use context instead of stacking mismatched clauses.',
+    ));
+  }
 
   (['seo_title', 'h1'] as const).forEach((field) => {
     const value = typeof record[field] === 'string' ? record[field].trim() : '';
@@ -549,7 +558,8 @@ export function validateSeoCommercialCopy(
 
   const aboutBlock = blocks.find((block) => String(block.block_key || '') === 'about_this_piece');
   const aboutBody = typeof aboutBlock?.body === 'string' ? aboutBlock.body.trim() : '';
-  splitSentences(aboutBody).forEach((sentence, index) => {
+  const aboutSentences = splitSentences(aboutBody);
+  aboutSentences.forEach((sentence, index) => {
     const repeatedTerms = repeatedMeaningfulWords(sentence);
     if (repeatedTerms.length) {
       issues.push(blocker(
@@ -558,6 +568,13 @@ export function validateSeoCommercialCopy(
       ));
     }
   });
+  const aboutFinishSentenceCount = aboutSentences.filter((sentence) => FINISH_IDEA.test(sentence)).length;
+  if (aboutFinishSentenceCount > 1) {
+    issues.push(blocker(
+      'about_this_piece_repeats_finish_across_sentences',
+      'About this piece describes the same glossy, mirror-like or metallic finish in more than one sentence. Keep one concrete finish sentence and use the remaining space for a different supported buyer value.',
+    ));
+  }
 
   const idealForBlock = blocks.find((block) => String(block.block_key || '') === 'ideal_for');
   const idealForBody = typeof idealForBlock?.body === 'string' ? idealForBlock.body.trim() : '';

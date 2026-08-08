@@ -202,13 +202,36 @@ const CANONICAL_LEFT_PDP_ORDER = [
 ] as const;
 
 /**
- * Layout order is a storefront contract, not a creative decision. Reorder only
- * a complete, unique four-block set; malformed or duplicate blocks remain
- * untouched so structural QA can still fail them explicitly.
+ * Block identity and layout order are storefront contracts, not creative
+ * decisions. A model occasionally returns the required self-expression close
+ * with the exact heading and body, but labels it as the optional
+ * related_collections/review_only block. Recover only that unambiguous metadata
+ * error; malformed, duplicate or ambiguous blocks remain untouched so
+ * structural QA can still fail them explicitly.
  */
 export function normalizeCodeOwnedPdpBlockOrder<T>(output: T): T {
   if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
-  const leftBlocks = output.pdp_blocks.filter((block) => (
+  const hasMainDescription = output.pdp_blocks.some((block) => (
+    isRecord(block) && block.block_key === 'main_description'
+  ));
+  const mislabeledSelfExpressionBlocks = hasMainDescription
+    ? []
+    : output.pdp_blocks.filter((block) => (
+      isRecord(block)
+      && block.block_key === 'related_collections'
+      && block.placement === 'review_only'
+      && /^designed for self-expression$/i.test(String(block.heading || '').trim())
+      && Boolean(String(block.body || '').trim())
+    ));
+  const recoveredSelfExpression = mislabeledSelfExpressionBlocks.length === 1;
+  const normalizedBlocks = recoveredSelfExpression
+    ? output.pdp_blocks.map((block) => (
+      block === mislabeledSelfExpressionBlocks[0]
+        ? { ...block, block_key: 'main_description', placement: 'left_description' }
+        : block
+    ))
+    : output.pdp_blocks;
+  const leftBlocks = normalizedBlocks.filter((block) => (
     isRecord(block) && block.placement === 'left_description'
   ));
   const byKey = new Map(leftBlocks.map((block) => [String(block.block_key || ''), block]));
@@ -220,17 +243,20 @@ export function normalizeCodeOwnedPdpBlockOrder<T>(output: T): T {
   if (!isCompleteUniqueSet) return output;
 
   const orderedLeft = CANONICAL_LEFT_PDP_ORDER.map((key) => byKey.get(key));
-  const nonLeft = output.pdp_blocks.filter((block) => (
+  const nonLeft = normalizedBlocks.filter((block) => (
     !isRecord(block) || block.placement !== 'left_description'
   ));
   const alreadyOrdered = leftBlocks.every((block, index) => block === orderedLeft[index]);
-  if (alreadyOrdered && nonLeft.length === output.pdp_blocks.length - leftBlocks.length) return output;
+  if (alreadyOrdered && !recoveredSelfExpression) return output;
 
   return {
     ...output,
     pdp_blocks: [...orderedLeft, ...nonLeft],
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      ...(recoveredSelfExpression ? [
+        'Deterministic PDP contract normalization restored the exact Designed for self-expression close to main_description/left_description.',
+      ] : []),
       'Deterministic PDP layout normalization restored the canonical left-block order.',
     ],
   } as T;

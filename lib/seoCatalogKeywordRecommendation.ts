@@ -106,8 +106,13 @@ const COMPONENT_FAMILIES: Record<string, string[]> = {
 
 const MATERIAL_TERMS = [
   'acrylic', 'chrome', 'fabric', 'faux leather', 'latex', 'leather', 'metallic', 'mirror', 'plastic',
-  'silicone', 'vegan leather', 'vinyl',
+  'silicone', 'vegan leather', 'vinyl', 'chain',
 ];
+
+// These details change what the buyer expects to receive. They are allowed
+// only when current Product Truth or the operator-confirmed material axis names
+// them explicitly; a matching color/component is not enough evidence.
+const EXPLICIT_PRODUCT_DETAIL_TERMS = ['chain'];
 
 // "Armor" can describe the complete visual product even when the sold
 // configuration is expressed through concrete Product Truth components such
@@ -154,6 +159,7 @@ const STYLE_FAMILIES: Record<string, string[]> = {
   futuristic: ['futuristic'],
   glam: ['glam'],
   goth: ['goth', 'gothic'],
+  historical: ['historical', 'medieval', 'renaissance', 'roman', 'greek', 'egyptian'],
   'post apocalyptic': ['post apocalyptic', 'apocalyptic', 'wasteland'],
   punk: ['punk'],
   'sci fi': ['sci fi', 'science fiction'],
@@ -446,6 +452,9 @@ function scoreRow(
   const identityOverlap = intersection(tokens(keyword), profile.identityTokens);
   const styleOverlap = intersection(tokens(keyword), profile.styleTokens);
   const materialMatch = profile.materialTerms.filter((term) => containsPhrase(keyword, term));
+  const unsupportedExplicitDetail = EXPLICIT_PRODUCT_DETAIL_TERMS.find((term) => (
+    containsPhrase(keyword, term) && !profile.materialTerms.includes(term)
+  ));
   const exactFocus = profile.focusPhrases.filter((term) => term.length > 2 && containsPhrase(keyword, term));
   const excludedMatch = profile.excludedTerms.find((term) => containsPhrase(keyword, term));
   const incompatibleDomain = INCOMPATIBLE_COMMERCE_DOMAINS.find((term) => containsPhrase(keyword, term));
@@ -491,6 +500,7 @@ function scoreRow(
   else if (!supportedBucket) rejectReason = 'unsupported_page_bucket';
   else if (anatomicalComponentMismatch) rejectReason = 'anatomical_component_mismatch';
   else if (unsupportedSizePositioning) rejectReason = 'unsupported_size_positioning';
+  else if (unsupportedExplicitDetail) rejectReason = 'unsupported_product_detail';
   else if (componentMismatch) rejectReason = 'component_family_mismatch';
   else if (colorMismatch) rejectReason = 'color_mismatch';
   else if (audienceMismatch) rejectReason = 'audience_mismatch';

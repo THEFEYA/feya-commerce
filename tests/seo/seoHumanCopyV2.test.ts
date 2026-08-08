@@ -170,6 +170,11 @@ test('writer brief uses current offer and excludes raw legacy wording', () => {
   assert.equal(/unsupported|invented/i.test(brief.claim_plan.buyer_job_en), false);
   assert.ok(brief.ideal_for_portraits.some((portrait) => /Burning Man attendees|festival-goers/i.test(portrait.person)));
   assert.ok(brief.ideal_for_portraits.some((portrait) => /live performers/i.test(portrait.person)));
+  assert.ok(brief.ideal_for_portraits.some((portrait) => portrait.person === 'costume stylists'));
+  assert.equal(
+    brief.ideal_for_portraits.some((portrait) => portrait.person === 'costume stylists' && /\bcostume\b/i.test(portrait.situation)),
+    false,
+  );
   assert.equal(brief.contract_version, 'seo_writer_brief_v4');
   assert.equal(preflight.ok, true, JSON.stringify(preflight.issues));
   assert.equal(brief.editorial_reference, 'seo_editorial_memory_v3');
@@ -182,8 +187,11 @@ test('writer brief uses current offer and excludes raw legacy wording', () => {
   assert.equal(/independent (?:design )?(?:team|studio)/i.test(prompt.system_prompt), false);
   assert.ok(brief.code_owned_sections.includes('whats_included'));
   assert.ok(brief.code_owned_sections.includes('right_panel'));
-  assert.match(prompt.system_prompt, /About this piece is 45-60 words in exactly 3/);
-  assert.match(prompt.system_prompt, /Designed for self-expression is the final block\. Write 45-75 words in 3-4/);
+  assert.match(prompt.system_prompt, /About this piece is 40-60 words in 2-3/);
+  assert.match(prompt.system_prompt, /block_key is exactly main_description/);
+  assert.match(prompt.system_prompt, /multi-component silhouette/);
+  assert.match(prompt.system_prompt, /never append “and an original \.\.\. character”/);
+  assert.match(prompt.system_prompt, /Designed for self-expression is the final block\.[^\n]+Write 45-75 words in 3-4/);
   assert.match(prompt.system_prompt, /Return bullet_highlights, faq and internal_linking_hints as empty arrays/);
   assert.match(prompt.system_prompt, /buyer_outcome_en is a ready-to-use customer-facing sentence/);
   assert.match(prompt.system_prompt, /body_identity_variant_en, never product_identity_en/);
@@ -493,6 +501,50 @@ test('PDP block order is restored by code without rewriting customer copy', () =
   );
   assert.equal(normalized.pdp_blocks[0].body, 'About.');
   assert.match(normalized.generation_notes[0], /layout normalization/);
+});
+
+test('exact self-expression close is recovered from unambiguous model metadata error', () => {
+  const input = {
+    pdp_blocks: [
+      { block_key: 'about_this_piece', placement: 'left_description', heading: 'About this piece', body: 'About.' },
+      { block_key: 'why_youll_love_it', placement: 'left_description', heading: 'Why you’ll love it', body: 'Why.' },
+      { block_key: 'ideal_for', placement: 'left_description', heading: 'Ideal for', body: 'Ideal.' },
+      {
+        block_key: 'related_collections',
+        placement: 'review_only',
+        heading: 'Designed for Self-Expression',
+        body: 'At TheFEYA, we create original festival and stage fashion for people who want a design that feels personal.',
+      },
+    ],
+    generation_notes: [],
+  };
+
+  const normalized = normalizeCodeOwnedPdpBlockOrder(input);
+  assert.deepEqual(
+    normalized.pdp_blocks.map((block) => [block.block_key, block.placement]),
+    [
+      ['about_this_piece', 'left_description'],
+      ['why_youll_love_it', 'left_description'],
+      ['ideal_for', 'left_description'],
+      ['main_description', 'left_description'],
+    ],
+  );
+  assert.match(normalized.generation_notes.join(' '), /restored the exact Designed for self-expression close/);
+});
+
+test('ambiguous self-expression metadata remains blocked for structural QA', () => {
+  const input = {
+    pdp_blocks: [
+      { block_key: 'about_this_piece', placement: 'left_description', heading: 'About this piece', body: 'About.' },
+      { block_key: 'why_youll_love_it', placement: 'left_description', heading: 'Why you’ll love it', body: 'Why.' },
+      { block_key: 'ideal_for', placement: 'left_description', heading: 'Ideal for', body: 'Ideal.' },
+      { block_key: 'related_collections', placement: 'review_only', heading: 'Designed for self-expression', body: 'First.' },
+      { block_key: 'related_collections', placement: 'review_only', heading: 'Designed for self-expression', body: 'Second.' },
+    ],
+    generation_notes: [],
+  };
+
+  assert.equal(normalizeCodeOwnedPdpBlockOrder(input), input);
 });
 
 test('OpenAI writer performs one bounded request and reports token usage', async () => {

@@ -41,7 +41,44 @@ test('assembles non-model SEO fields and keeps publish blocked', () => {
   assert.equal(pack.url.proposed_slug, 'gold-armor-set');
   assert.equal(pack.image_seo[0].proposed_filename, 'gold-armor-set-primary-01.webp');
   assert.equal(pack.structured_data.product['@type'], 'Product');
+  assert.equal(pack.structured_data.product.material, 'EVA foam');
   assert.equal(pack.quality_gate.ready_for_storage, true);
   assert.equal(pack.quality_gate.ready_for_publish, false);
   assert.equal(pack.apply.status, 'blocked_until_approval');
+});
+
+test('omits ambiguous marketplace material lists from Product schema', () => {
+  const validation = { ok: true, status: 'valid', issues: [] };
+  const placement = { ...validation, placements: [], used_keywords: [], unplaced_keywords: [] };
+  const pack = assembleSeoProductPack({
+    draft: {
+      canonical_product_id: 'pilot-product',
+      product_truth: {
+        canonical_product_id: 'pilot-product',
+        title: 'Gold Warrior Armor Set',
+        slug: 'gold-warrior-armor-set',
+        material: 'Plastic, Faux leather, Fabric, Leather, Latex',
+        color: 'Gold',
+        known_components: ['Headpiece', 'Leg Covers', 'Shoulders', 'Top'],
+        known_non_components: [],
+      },
+      keyword_roles: {
+        primary: [{ keyword: 'warrior armor costume', keyword_norm: 'warrior armor costume', role: 'primary' }],
+        secondary: [], support: [], image_alt: [], collection: [], faq_commercial: [], hold: [], reject: [],
+      },
+    } as never,
+    output: {
+      seo_title: 'Warrior Armor Costume for Festivals',
+      h1: 'Warrior Armor Costume for Festivals',
+      meta_description: 'Warrior armor costume with a glossy finish for festivals and cosplay.',
+      intro: 'A warrior armor outfit for festivals and cosplay.',
+      pdp_blocks: [{ block_key: 'main_description', placement: 'left_description', heading: 'Designed for self-expression', body: 'Studio close.', source_basis: 'brand_policy' }],
+      faq: [], image_alt_candidates: [], internal_linking_hints: [],
+    } as never,
+    structuralValidation: validation,
+    commercialValidation: validation,
+    keywordPlacementValidation: placement as never,
+  });
+
+  assert.equal('material' in pack.structured_data.product, false);
 });

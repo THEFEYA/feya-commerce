@@ -125,6 +125,33 @@ test('operator minus-words reject a candidate before scoring', () => {
   assert.equal(keywords.includes('gold shoulder armor'), true);
 });
 
+test('unsupported chain and historical-style details cannot ride on a matching gold headpiece', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      card_title: 'Gold Futuristic Warrior Headpiece',
+      canonical_color_label: 'Gold',
+      included_components: ['Headpiece'],
+      material: 'Vegan leather',
+    },
+    focus: {
+      component: ['headpiece'],
+      event: ['festival'],
+      style: ['futuristic', 'fantasy'],
+      persona: ['warrior'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'gold festival headpiece', keyword_norm: 'gold festival headpiece', bank_bucket: 'product', avg_monthly_searches: 100 },
+      { ...baseMetric, keyword: 'gold headpiece chain', keyword_norm: 'gold headpiece chain', bank_bucket: 'product', avg_monthly_searches: 100000 },
+      { ...baseMetric, keyword: 'gold roman headpiece', keyword_norm: 'gold roman headpiece', bank_bucket: 'product', avg_monthly_searches: 90000 },
+    ],
+  });
+
+  const keywords = result.keywords.map((row) => String(row.keyword_norm));
+  assert.equal(keywords.includes('gold festival headpiece'), true);
+  assert.equal(keywords.includes('gold headpiece chain'), false);
+  assert.equal(keywords.includes('gold roman headpiece'), false);
+});
+
 test('automatic recommendations remain review candidates and never claim confirmation', () => {
   const result = recommendCatalogKeywords({
     product: {
