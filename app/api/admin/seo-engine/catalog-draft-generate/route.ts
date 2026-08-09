@@ -28,6 +28,7 @@ import {
   normalizeRepeatedAboutFinishClause,
   normalizeSingleSuppliedImageAltCandidate,
 } from '@/lib/seoEditorialCandidateSelection';
+import { getSeoPortfolioGenerationBlockers } from '@/lib/seoPrimaryKeywordOwnership';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -133,6 +134,7 @@ export async function POST(request: Request) {
   const portfolioStrategy = bundle.aiAgentInput?.portfolio_strategy || null;
   const hardBlockers = [...readiness.hard_blockers];
   if (requirePortfolioStrategy && !portfolioStrategy) hardBlockers.push('portfolio_strategy_missing');
+  hardBlockers.push(...getSeoPortfolioGenerationBlockers(portfolioStrategy));
 
   const primaryImageUrl = normalizeImageUrl(
     bundle.aiAgentInput?.product?.primary_image_url
@@ -476,6 +478,8 @@ function blockerMessage(code) {
     missing_primary_or_secondary_keyword: 'No relevant primary or secondary keyword passed the decision pipeline.',
     missing_validated_keyword_metric: 'No selected keyword has a trusted validated metric snapshot.',
     portfolio_strategy_missing: 'Portfolio differentiation strategy was required but is missing.',
+    primary_keyword_portfolio_conflict: 'The exact Primary keyword is already selected for another product. Reassign one product before OpenAI generation.',
+    primary_keyword_portfolio_map_unavailable: 'The current Primary keyword ownership map could not be verified. OpenAI generation is blocked to prevent cannibalization.',
     primary_keyword_scope_mismatch_for_multi_component_product: 'The confirmed product contains multiple pieces, but Primary names only one component. Return to Listing Master and choose an outfit, set, costume, ensemble or attire query as Primary; keep component queries Secondary.',
     composition_missing_canonical_product_truth: 'Generation is blocked because canonical Product Truth is unavailable.',
     composition_missing_confirmed_components: 'Generation is blocked because the exact included components are not confirmed.',

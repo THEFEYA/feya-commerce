@@ -5,6 +5,7 @@ import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
 import { getSeoGenerationProductTruthBlockers } from '@/lib/seoPackContract';
 import { STOREFRONT_VIEW_V1 } from '@/lib/storefront';
 import { hasTrustedSeoMetricSnapshot } from '@/lib/seoTrustedMetricSnapshot';
+import { getSeoPortfolioGenerationBlockers } from '@/lib/seoPrimaryKeywordOwnership';
 
 export const dynamic = 'force-dynamic';
 
@@ -282,6 +283,7 @@ function summarizeCandidate(bundle, decision) {
   if (draft?.qa_checks?.forbidden_mismatch === 'blocker') hardBlockers.push('qa_blocker_forbidden_mismatch');
   if (draft?.qa_checks?.product_specificity === 'blocker') hardBlockers.push('qa_blocker_product_specificity');
   if (draft?.qa_checks?.validated_metrics === 'blocker') hardBlockers.push('qa_blocker_validated_metrics');
+  hardBlockers.push(...getSeoPortfolioGenerationBlockers(bundle?.portfolioStrategy));
 
   const sectionBlockers = getSeoGenerationProductTruthBlockers(draft);
 
@@ -295,6 +297,7 @@ function summarizeCandidate(bundle, decision) {
     decision_status: decision?.decision_status || null,
     keyword_selection: draft?.keyword_selection || null,
     keyword_recommendation_diagnostics: bundle?.keywordRecommendationDiagnostics || null,
+    portfolio_strategy: bundle?.portfolioStrategy || null,
     seo_pack_status: draft?.status || null,
     product_truth_source: truth.product_truth_source || bundle?.productTruthSource || null,
     useful_keyword_count: usefulKeywords.length,

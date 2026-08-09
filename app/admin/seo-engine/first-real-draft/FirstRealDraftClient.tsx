@@ -37,6 +37,7 @@ type Candidate = {
     confirmation_required?: boolean;
   } | null;
   keyword_recommendation_diagnostics?: Record<string, any> | null;
+  portfolio_strategy?: Record<string, any> | null;
 };
 
 type Filter = 'all' | 'ready' | 'blocked' | 'saved' | 'untested';
@@ -265,7 +266,7 @@ export default function FirstRealDraftClient({
           signal: generationController.signal,
           body: JSON.stringify({
             product_id: selectedProductId,
-            enforce_portfolio_strategy: false,
+            enforce_portfolio_strategy: true,
           }),
         }),
         fetch(`/api/admin/seo-engine/storefront-product?product_id=${encodeURIComponent(selectedProductId)}`, {
@@ -573,6 +574,10 @@ export default function FirstRealDraftClient({
                 </div>
               </div> : null}
 
+              {selectedCandidate.portfolio_strategy?.keyword_ownership ? <PortfolioOwnershipNotice
+                ownership={selectedCandidate.portfolio_strategy.keyword_ownership}
+              /> : null}
+
               {selectedCandidate.has_saved_draft ? <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">
                 Последний сохранённый draft: <span className="text-bone">{selectedCandidate.latest_draft_status || '—'}</span>
                 {selectedCandidate.latest_review_status ? <> · review: <span className="text-bone">{selectedCandidate.latest_review_status}</span></> : null}
@@ -796,6 +801,7 @@ function normalizeSearch(value) {
 function blockerShort(values?: string[]) {
   const first = values?.[0];
   if (!first) return 'Требует проверки';
+  if (first.includes('portfolio')) return 'Конфликт Primary';
   if (first.includes('keyword_metric')) return 'Нет валидной метрики';
   if (first.includes('keyword')) return 'Нет выбранных ключей';
   if (first.includes('mismatch')) return 'Конфликт товара';
@@ -822,6 +828,9 @@ function blockerLabel(code) {
     qa_blocker_forbidden_mismatch: 'QA обнаружил запрещённое несоответствие товара.',
     qa_blocker_product_specificity: 'QA не подтвердил достаточную специфичность текста.',
     qa_blocker_validated_metrics: 'QA не подтвердил валидированные метрики.',
+    portfolio_strategy_missing: 'Не удалось загрузить обязательную стратегию портфеля до запуска OpenAI.',
+    primary_keyword_portfolio_conflict: 'Этот же Primary уже выбран для другого товара. Один главный поисковый интент должен принадлежать одной странице.',
+    primary_keyword_portfolio_map_unavailable: 'Не удалось проверить текущих владельцев Primary. OpenAI не вызван, чтобы не создать каннибализацию.',
   };
   return labels[code] || String(code || 'Неизвестный блокер').replaceAll('_', ' ');
 }
@@ -878,6 +887,54 @@ function KeywordPreview({ label, items = [] }: { label: string; items?: Array<Re
         {item.keyword || item.keyword_norm || '—'}
       </span>)}
     </div>
+  </div>;
+}
+
+function PortfolioOwnershipNotice({ ownership }: { ownership: Record<string, any> }) {
+  const conflicts = Array.isArray(ownership?.conflicts) ? ownership.conflicts : [];
+  const alternatives = Array.isArray(ownership?.suggested_primary_alternatives)
+    ? ownership.suggested_primary_alternatives
+    : [];
+  const primary = ownership?.primary_keyword || ownership?.primary_keyword_norm || '—';
+
+  if (ownership?.status === 'pass') {
+    return <Notice tone="success">
+      Primary <span className="text-bone">“{primary}”</span> свободен среди {ownership.compared_product_count || 0} других текущих решений Listing Master. Это разрешает генерацию, но не заменяет последующую проверку похожести готовых текстов.
+    </Notice>;
+  }
+
+  if (ownership?.status === 'not_checked') {
+    return <Notice tone="danger">
+      Карта владельцев Primary сейчас недоступна. OpenAI не будет вызван, пока read-only проверка не вернёт достоверный результат.
+    </Notice>;
+  }
+
+  return <div className="rounded-xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-4">
+    <div className="text-[10px] uppercase tracking-[.16em] text-[var(--ruby-soft)]">Конфликт владельца Primary</div>
+    <p className="mt-2 text-[12px] leading-relaxed text-[var(--bone-dim)]">
+      Фраза <span className="text-bone">“{primary}”</span> уже выбрана главным ключом другой карточки. До решения конфликта OpenAI не вызывается и токены не расходуются.
+    </p>
+    <div className="mt-3 space-y-2">
+      {conflicts.map((item: Record<string, any>) => <a
+        key={`${item.canonical_product_id}-${item.keyword_norm}`}
+        href={`/admin/listing-master?product_id=${encodeURIComponent(item.canonical_product_id)}`}
+        className="block rounded-lg border border-[rgba(216,214,211,.10)] bg-black/20 px-3 py-2 text-[11px] leading-relaxed text-[var(--bone-dim)] hover:border-[rgba(212,178,106,.35)] hover:text-bone"
+      >
+        Конфликтующий товар: Etsy {item.matched_etsy_listing_id || '—'} · {item.product_slug || item.canonical_product_id}
+      </a>)}
+    </div>
+    {alternatives.length ? <div className="mt-4">
+      <div className="text-[9px] uppercase tracking-[.14em] text-[var(--smoke)]">Безопасные кандидаты для ручного выбора у этого товара</div>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {alternatives.map((item: Record<string, any>) => <span
+          key={item.keyword_norm || item.keyword}
+          className="rounded-full border border-[rgba(212,178,106,.25)] bg-black/20 px-2.5 py-1 text-[9px] text-[var(--gold-warm)]"
+          title={`volume ${item.avg_monthly_searches ?? '—'} · competition ${item.competition || '—'} · ${item.metric_source || '—'}`}
+        >
+          {item.keyword} · {item.avg_monthly_searches ?? '—'}/мес
+        </span>)}
+      </div>
+    </div> : null}
   </div>;
 }
 

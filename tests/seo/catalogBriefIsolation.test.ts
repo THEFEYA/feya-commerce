@@ -31,6 +31,27 @@ test('catalog route uses one bounded writer with no automatic editor or retry', 
   assert.equal(route.includes('shouldRunFinalReview'), false);
 });
 
+test('exact Primary ownership is checked before the only paid writer call', () => {
+  const route = readFileSync(
+    new URL('../../app/api/admin/seo-engine/catalog-draft-generate/route.ts', import.meta.url),
+    'utf8',
+  );
+  const candidateRoute = readFileSync(
+    new URL('../../app/api/admin/seo-engine/first-draft-candidates/route.ts', import.meta.url),
+    'utf8',
+  );
+  const client = readFileSync(
+    new URL('../../app/admin/seo-engine/first-real-draft/FirstRealDraftClient.tsx', import.meta.url),
+    'utf8',
+  );
+
+  assert.ok(route.includes('getSeoPortfolioGenerationBlockers(portfolioStrategy)'));
+  assert.ok(route.indexOf('getSeoPortfolioGenerationBlockers(portfolioStrategy)') < route.indexOf('await generateSeoDraftWithOpenAi('));
+  assert.ok(candidateRoute.includes('getSeoPortfolioGenerationBlockers(bundle?.portfolioStrategy)'));
+  assert.ok(client.includes('enforce_portfolio_strategy: true'));
+  assert.equal(client.includes('enforce_portfolio_strategy: false'), false);
+});
+
 test('legacy two-pass pilot route is disabled before any OpenAI call', () => {
   const route = readFileSync(
     new URL('../../app/api/admin/seo-engine/draft-generate-pilot-auto/route.ts', import.meta.url),

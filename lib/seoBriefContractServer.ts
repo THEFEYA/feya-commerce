@@ -13,6 +13,7 @@ import {
   sellableOfferAllowsComponentFocus,
 } from '@/lib/storefrontSellableOffer';
 import { hasTrustedSeoMetricSnapshot } from '@/lib/seoTrustedMetricSnapshot';
+import { buildSeoPrimaryKeywordOwnershipStrategy } from '@/lib/seoPrimaryKeywordOwnership';
 
 const PRODUCT_TRUTH_VIEW = 'feya_commerce_v_seo_product_truth_v4';
 const PRODUCT_TRUTH_EXACT_RPC = 'feya_commerce_get_seo_product_truth_v4';
@@ -155,7 +156,12 @@ export async function buildSeoBriefContractBundle(productId: string) {
   const brief = buildSeoCatalogBrief(source.product, source.keywords, source.manualFocus);
   const identityDraft = attachProductIdentity(buildSeoPackDraftContractFromBrief(brief), source);
   const latestSavedDraftContext = await loadLatestSavedSeoDraftContext(identityDraft.canonical_product_id);
-  const portfolioStrategy = extractPortfolioStrategy(latestSavedDraftContext);
+  const savedSourceOverlapStrategy = extractPortfolioStrategy(latestSavedDraftContext);
+  const livePrimaryOwnershipStrategy = await loadLivePrimaryOwnershipStrategy(identityDraft);
+  const portfolioStrategy = mergePortfolioStrategies(
+    savedSourceOverlapStrategy,
+    livePrimaryOwnershipStrategy,
+  );
   const seoPackDraft = {
     ...identityDraft,
     portfolio_strategy: portfolioStrategy,
@@ -924,6 +930,92 @@ function extractPortfolioStrategy(latestSavedDraftContext) {
     source_draft_id: latestSavedDraftContext?.id || null,
     source_draft_status: latestSavedDraftContext?.status || null,
     source_review_status: latestSavedDraftContext?.review_status || null,
+  };
+}
+
+async function loadLivePrimaryOwnershipStrategy(identityDraft) {
+  const serviceClient = getSupabaseServiceClient();
+  const supabase = serviceClient || getSupabaseReadClient();
+  const primaryKeyword = identityDraft?.keyword_roles?.primary?.[0] || null;
+  if (!primaryKeyword) return null;
+
+  if (!supabase) {
+    return buildSeoPrimaryKeywordOwnershipStrategy({
+      targetProductId: identityDraft?.canonical_product_id,
+      targetProductTitle: identityDraft?.product_truth?.title,
+      primaryKeyword,
+      secondaryKeywords: identityDraft?.keyword_roles?.secondary || [],
+      productTruth: identityDraft?.product_truth,
+      decisionRows: [],
+      sourceError: getMissingSupabaseEnvMessage(),
+    });
+  }
+
+  const result = await supabase
+    .from(DECISIONS_TABLE)
+    .select(DECISION_SELECT)
+    .limit(2000);
+
+  return buildSeoPrimaryKeywordOwnershipStrategy({
+    targetProductId: identityDraft?.canonical_product_id,
+    targetProductTitle: identityDraft?.product_truth?.title,
+    primaryKeyword,
+    secondaryKeywords: identityDraft?.keyword_roles?.secondary || [],
+    productTruth: identityDraft?.product_truth,
+    decisionRows: result.data || [],
+    sourceError: result.error?.message || null,
+  });
+}
+
+function mergePortfolioStrategies(savedSourceOverlapStrategy, livePrimaryOwnershipStrategy) {
+  if (!savedSourceOverlapStrategy) return livePrimaryOwnershipStrategy;
+  if (!livePrimaryOwnershipStrategy) return savedSourceOverlapStrategy;
+
+  const liveGenerationBlockers = stringArray(livePrimaryOwnershipStrategy.generation_blockers);
+  const livePublishBlockers = stringArray(livePrimaryOwnershipStrategy.publish_blockers);
+  const savedGenerationBlockers = stringArray(savedSourceOverlapStrategy.generation_blockers);
+  const savedPublishBlockers = stringArray(savedSourceOverlapStrategy.publish_blockers);
+  const ownershipBlocks = liveGenerationBlockers.length > 0;
+
+  return {
+    ...livePrimaryOwnershipStrategy,
+    ...savedSourceOverlapStrategy,
+    contract_version: 'seo_differentiation_strategy_v1',
+    source: 'combined_live_primary_ownership_and_saved_source_overlap',
+    classification: ownershipBlocks
+      ? livePrimaryOwnershipStrategy.classification
+      : savedSourceOverlapStrategy.classification || livePrimaryOwnershipStrategy.classification,
+    risk_level: ownershipBlocks
+      ? livePrimaryOwnershipStrategy.risk_level
+      : savedSourceOverlapStrategy.risk_level || livePrimaryOwnershipStrategy.risk_level,
+    human_decision_needed: Boolean(
+      livePrimaryOwnershipStrategy.human_decision_needed
+      || savedSourceOverlapStrategy.human_decision_needed,
+    ),
+    recommended_generation_mode: ownershipBlocks
+      ? livePrimaryOwnershipStrategy.recommended_generation_mode
+      : savedSourceOverlapStrategy.recommended_generation_mode
+        || livePrimaryOwnershipStrategy.recommended_generation_mode,
+    primary_angle_to_own: savedSourceOverlapStrategy.primary_angle_to_own
+      || livePrimaryOwnershipStrategy.primary_angle_to_own,
+    required_differentiators: uniqueStrings([
+      ...stringArray(savedSourceOverlapStrategy.required_differentiators),
+      ...stringArray(livePrimaryOwnershipStrategy.required_differentiators),
+    ]),
+    before_generation_checks: uniqueStrings([
+      ...stringArray(savedSourceOverlapStrategy.before_generation_checks),
+      ...stringArray(livePrimaryOwnershipStrategy.before_generation_checks),
+    ]),
+    generation_blockers: uniqueStrings([
+      ...savedGenerationBlockers,
+      ...liveGenerationBlockers,
+    ]),
+    publish_blockers: uniqueStrings([
+      ...savedPublishBlockers,
+      ...livePublishBlockers,
+    ]),
+    keyword_ownership: livePrimaryOwnershipStrategy.keyword_ownership,
+    source_overlap_strategy: savedSourceOverlapStrategy,
   };
 }
 
