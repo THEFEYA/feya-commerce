@@ -65,6 +65,7 @@ const SELF_EXPRESSION_SINGULAR_VOICE_PATTERN = /\b(I|me|my|mine)\b/;
 const SELF_EXPRESSION_THIRD_PERSON_PATTERN = /\b(TheFEYA is|their (?:pieces|products|designs|work|store)|they (?:create|make|help|offer|design)|the brand|the company)\b/i;
 const SELF_EXPRESSION_OPERATION_PATTERN = /\b(?:change|changing|adjust|adjusting|adjustment|adjustments|customi[sz]e|customi[sz]ing)\s+(?:the\s+)?(?:color|size|length|fit|coverage|details?)\b|\b(?:color|size|length|fit|coverage)\s+(?:change|changes|adjustment|adjustments|options?)\b/i;
 const SELF_EXPRESSION_PRODUCT_DETAIL_PATTERN = /\b(adjustable straps?|comfortable fit|soft against the body|reinforced construction|material construction)\b/i;
+const SELF_EXPRESSION_EXTERNAL_STYLING_ADVICE_PATTERN = /\b(?:pair|style|wear|combine)\s+(?:it|this|the (?:piece|outfit|costume|look))\s+with\b|\b(?:hair|hairstyle|makeup|make-up)\b/i;
 const CYRILLIC_PATTERN = /[А-Яа-яЁёІіЇїЄєҐґ]/;
 const LONG_DASH_PATTERN = /[—–]/;
 const BRAND_PATTERN = /\bTheFEYA\b/gi;
@@ -318,6 +319,12 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
       }
       if (SELF_EXPRESSION_PRODUCT_DETAIL_PATTERN.test(body)) {
         issues.push(blocker('main_description_repeats_fixed_panel_specs', 'Designed for self-expression may use one visible design choice, but must not repeat fit, comfort or construction instructions from the fixed right panel.'));
+      }
+      if (SELF_EXPRESSION_EXTERNAL_STYLING_ADVICE_PATTERN.test(body)) {
+        issues.push(blocker(
+          'main_description_contains_external_styling_advice',
+          'Designed for self-expression must explain studio authorship and buyer value, not prescribe unsold hair, makeup, accessories, footwear or other external styling.',
+        ));
       }
     }
   });

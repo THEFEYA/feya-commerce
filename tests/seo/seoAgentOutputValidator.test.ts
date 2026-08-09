@@ -125,6 +125,22 @@ test('blocks the abstract studio prose found in the real control run', () => {
   )));
 });
 
+test('blocks the external hair and makeup advice from the incomplete live draft', () => {
+  const value = output({
+    pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'main_description'
+      ? {
+        ...block,
+        body: 'At TheFEYA, we develop festival and stage pieces from our own ideas, and this warrior armor outfit turns gold armor styling into a strong starting point for original characters. The futuristic shape works beautifully for cosplay, performance, or editorial looks. Pair it with sleek hair and bold makeup for a sharp finish.',
+      }
+      : block),
+  });
+
+  const result = validateSeoAgentOutput(value);
+  assert.ok(result.issues.some((issue) => (
+    issue.code === 'main_description_contains_external_styling_advice'
+  )));
+});
+
 test('blocks internal identity jargon and stacked sales-close language', () => {
   const value = output({
     pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'main_description'

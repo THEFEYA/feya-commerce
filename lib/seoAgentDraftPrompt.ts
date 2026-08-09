@@ -284,6 +284,7 @@ function buildUserPrompt(input: SeoAgentInputContract) {
     '- Do not list the breadth of the store, repeat event/use-case lists, or add a generic invitation to discuss a new idea.',
     '- main_description must add a new buyer value rather than repeat the product’s shape, fit, comfort, material or construction.',
     '- main_description must not mention changing color, size, length, fit, coverage or selected details. Operational customization remains in the fixed right panel.',
+    '- main_description is not a styling guide. Do not tell the buyer to pair the product with hair, makeup, jewelry, footwear, props or other unsold styling.',
     '',
     'Forbidden generated pdp_blocks:',
     '- Do not output whats_included, sizing_fit, production_timing, shipping_delivery, material, care, customization, returns_exchanges, handmade_variation, materials_care, or any right_info_panel block.',
