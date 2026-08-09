@@ -239,10 +239,15 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
     if (key === 'about_this_piece') {
       const aboutWords = wordCount(body);
       const aboutSentences = sentenceCount(body);
-      if (aboutWords < 40) {
+      if (aboutWords < 35) {
         issues.push(blocker(
           `pdp_block_about_this_piece_too_thin_${index}`,
-          'About this piece must contain at least 40 useful words. It must explain the buyer job, the complete product identity, and one or more supported design, wear, material, or finish values without repeating What’s Included.',
+          'About this piece must contain at least 35 useful words. It must explain the buyer job, the complete product identity, and one or more supported design, wear, material, or finish values without repeating What’s Included.',
+        ));
+      } else if (aboutWords < 40) {
+        issues.push(warning(
+          `pdp_block_about_this_piece_near_minimum_${index}`,
+          'About this piece contains 35-39 words. Keep it when the commercial validator confirms a complete buyer job, product identity and supported value; never add filler only to cross a mechanical word boundary.',
         ));
       }
       if (aboutWords > 95) {

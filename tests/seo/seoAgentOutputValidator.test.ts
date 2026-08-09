@@ -86,6 +86,29 @@ test('blocks an About section that only restates the product in one sentence', (
   assert.ok(codes.some((code) => code.startsWith('pdp_block_about_this_piece_sentence_count_')));
 });
 
+test('warns instead of blocking a semantically complete 39-word About section', () => {
+  const body = 'Built for festivals and cosplay, this warrior armor outfit brings a gold, glossy, mirror-like coating that gives the costume a polished metal finish. You get a dramatic look that reads strong on camera and carries a sharp, fantasy-forward feel.';
+  assert.equal(body.trim().split(/\s+/).length, 39);
+  const value = output({
+    pdp_blocks: output().pdp_blocks.map((block: any) => {
+      if (block.block_key === 'about_this_piece') return { ...block, body };
+      if (block.block_key === 'main_description') {
+        return {
+          ...block,
+          body: 'At TheFEYA, we create original festival and stage fashion for people who want a design that feels personal. This warrior armor outfit gives you a strong base for a festival or cosplay character with a futuristic fantasy mood. Designed for stage-ready styling, it helps you make the look your own.',
+        };
+      }
+      return block;
+    }),
+  });
+  const result = validateSeoAgentOutput(value);
+  const nearMinimum = result.issues.find((issue) => issue.code.startsWith('pdp_block_about_this_piece_near_minimum_'));
+
+  assert.equal(result.ok, true);
+  assert.equal(nearMinimum?.severity, 'warning');
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('pdp_block_about_this_piece_too_thin_')), false);
+});
+
 test('blocks an Ideal for section collapsed into keyword fragments', () => {
   const value = output({
     pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'

@@ -21,6 +21,7 @@ import {
   normalizeBodyPrimaryVariation,
   normalizeDeterministicSeoIdentity,
   normalizeImageAltPrimaryVariation,
+  normalizeMainDescriptionCliches,
   normalizeMainDescriptionSentenceBoundaries,
   normalizeRepeatedAboutFinishClause,
   normalizeSingleSuppliedImageAltCandidate,
@@ -171,12 +172,14 @@ export async function POST(request: Request) {
       output: normalizeCodeOwnedPdpBlockOrder(normalizeSingleSuppliedImageAltCandidate(
         normalizeImageAltPrimaryVariation(
           normalizeMainDescriptionSentenceBoundaries(
-            normalizeRepeatedAboutFinishClause(
-              normalizeBodyPrimaryVariation(
-                normalizeCodeOwnedSeoCollections(
-                  normalizeDeterministicSeoIdentity(generation.output, identityNormalizationContext),
+            normalizeMainDescriptionCliches(
+              normalizeRepeatedAboutFinishClause(
+                normalizeBodyPrimaryVariation(
+                  normalizeCodeOwnedSeoCollections(
+                    normalizeDeterministicSeoIdentity(generation.output, identityNormalizationContext),
+                  ),
+                  identityNormalizationContext,
                 ),
-                identityNormalizationContext,
               ),
             ),
           ),

@@ -8,6 +8,7 @@ import {
   normalizeDeterministicSeoIdentity,
   normalizeFinalSeoEditorialOutput,
   normalizeImageAltPrimaryVariation,
+  normalizeMainDescriptionCliches,
   normalizeMainDescriptionSentenceBoundaries,
   normalizeRepeatedAboutFinishClause,
   normalizeSingleSuppliedImageAltCandidate,
@@ -246,6 +247,31 @@ test('repairs lowercase and missing punctuation only in the self-expression clos
     'Our studio keeps the design ready for your next scene. Make the look your own.',
   );
   assert.match(normalized.generation_notes[0], /sentence boundaries/);
+});
+
+test('removes the bounded step-into cliché without inventing a replacement claim', () => {
+  const normalized = normalizeMainDescriptionCliches({
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        body: 'keep this untouched',
+      },
+      {
+        block_key: 'main_description',
+        placement: 'left_description',
+        body: 'Designed for stage-ready styling, it helps you step into the scene and make the look your own.',
+      },
+    ],
+    generation_notes: [],
+  });
+
+  assert.equal(normalized.pdp_blocks[0].body, 'keep this untouched');
+  assert.equal(
+    normalized.pdp_blocks[1].body,
+    'Designed for stage-ready styling, it helps you make the look your own.',
+  );
+  assert.match(normalized.generation_notes[0], /sales cliché/);
 });
 
 test('skips the editorial rewrite when deterministic QA is clean', () => {

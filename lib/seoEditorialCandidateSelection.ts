@@ -295,6 +295,39 @@ export function normalizeRepeatedAboutFinishClause<T>(output: T): T {
 }
 
 /**
+ * Remove the bounded sales cliché observed in the one-pass pilot without
+ * inventing a replacement claim. The remaining sentence keeps the approved
+ * plain-language buyer outcome: "it helps you make the look your own."
+ * Other uses of "step into" remain visible to normal QA rather than being
+ * rewritten without enough semantic context.
+ */
+export function normalizeMainDescriptionCliches<T>(output: T): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  let changed = false;
+  const pdpBlocks = output.pdp_blocks.map((block) => {
+    if (
+      !isRecord(block)
+      || block.block_key !== 'main_description'
+      || typeof block.body !== 'string'
+    ) return block;
+    const body = block.body.replace(/\bstep into the scene and\s+/gi, '');
+    if (body === block.body) return block;
+    changed = true;
+    return { ...block, body };
+  });
+  if (!changed) return output;
+
+  return {
+    ...output,
+    pdp_blocks: pdpBlocks,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic self-expression normalization removed the bounded “step into the scene” sales cliché without adding a new product claim.',
+    ],
+  } as T;
+}
+
+/**
  * Repair punctuation-only defects in the final self-expression paragraph.
  * This does not invent or rewrite claims: it capitalizes a sentence fragment
  * after terminal punctuation and adds missing terminal punctuation.
