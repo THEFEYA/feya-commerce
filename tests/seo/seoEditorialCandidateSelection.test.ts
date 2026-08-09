@@ -266,7 +266,7 @@ test('repairs the cross-sentence finish repetition from the final paid control r
 
   assert.equal(
     normalized.pdp_blocks[0].body,
-    'For festivals and cosplay, this warrior armor outfit brings a bold gold look with a durable, glossy, mirror-like coating. The result gives the character a strong first impression once the outfit is fully styled for the event.',
+    'For festivals and cosplay, this warrior armor outfit brings a bold gold look with a durable, glossy, mirror-like coating. The outfit gives you a starting point for an original character while leaving the surrounding styling choices to you.',
   );
   assert.equal(
     normalized.pdp_blocks[0].body.match(/\b(?:glossy|mirror[- ]like|polished metal)\b/gi)?.length,

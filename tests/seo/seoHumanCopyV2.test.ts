@@ -460,13 +460,26 @@ test('zero-cost normalization recovers the exact final control-run copy without 
   } as any;
   const normalized = normalizeMainDescriptionCliches(
     normalizeRepeatedAboutFinishClause(candidate),
-    { selected_events: context.manual_focus.event, selected_styles: context.manual_focus.style },
+    {
+      selected_events: context.manual_focus.event,
+      selected_styles: context.manual_focus.style,
+      body_identity_variant: 'warrior armor outfit',
+      product_color: 'Gold',
+    },
   );
   const structural = validateSeoAgentOutput(normalized);
   const commercial = validateSeoCommercialCopy(normalized, context);
 
   assert.equal(structural.ok, true, JSON.stringify(structural.issues));
   assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
+  assert.equal(
+    normalized.pdp_blocks[0].body,
+    'For festivals and cosplay, this warrior armor outfit brings a bold gold look with a durable, glossy, mirror-like coating. The outfit gives you a starting point for an original character while leaving the surrounding styling choices to you.',
+  );
+  assert.equal(
+    normalized.pdp_blocks[3].body,
+    'At TheFEYA, we develop original festival and stage pieces in our studio. We designed this warrior armor outfit as a starting point for a futuristic or fantasy character, pairing a clear gold direction with room for your own styling choices. You decide how to complete the character and make its visual identity your own for the festival or cosplay setting you have in mind.',
+  );
   assert.doesNotMatch(JSON.stringify(normalized.pdp_blocks), /body identity|finish it your way/i);
 });
 

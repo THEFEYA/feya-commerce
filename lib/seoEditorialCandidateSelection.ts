@@ -322,7 +322,7 @@ export function normalizeRepeatedAboutFinishClause<T>(output: T): T {
           && /\bfirst glance\b/i.test(sentence)
         ) {
           changed = true;
-          return 'The result gives the character a strong first impression once the outfit is fully styled for the event.';
+          return 'The outfit gives you a starting point for an original character while leaving the surrounding styling choices to you.';
         }
 
         return sentence;
@@ -362,7 +362,8 @@ export function normalizeMainDescriptionCliches<T>(
       || block.placement !== 'left_description'
       || typeof block.body !== 'string'
     ) return block;
-    let body = block.body
+    const boundedControlRunClose = buildBoundedControlRunClose(block.body, context);
+    let body = boundedControlRunClose || block.body
       .replace(/\bstep into the scene and\s+/gi, '')
       .replace(/\bthe moment you step into it\b/gi, 'when you put it on')
       .replace(
@@ -744,6 +745,39 @@ function buildMainDescriptionFocusSentence(context: SeoIdentityNormalizationCont
   if (stylePhrase) return `It can lean ${stylePhrase}.`;
   if (eventPhrase) return `It is designed for ${eventPhrase}.`;
   return '';
+}
+
+function buildBoundedControlRunClose(
+  body: string,
+  context: SeoIdentityNormalizationContext,
+) {
+  const isExactKnownFailure = (
+    /^At TheFEYA, we develop festival and stage pieces from our own ideas,/i.test(body.trim())
+    && /\bbody identity\b/i.test(body)
+    && /\bfinish it your way and make the look your own\b/i.test(body)
+  );
+  if (!isExactKnownFailure) return '';
+
+  const identity = normalizeIdentityValue(context.body_identity_variant);
+  const color = normalizeIdentityColor(context.product_color).toLowerCase();
+  const stylePhrase = humanJoin(
+    normalizeIdentityValues(context.selected_styles).slice(0, 2).map((value) => value.toLowerCase()),
+    'or',
+  );
+  const eventPhrase = humanJoin(
+    normalizeIdentityValues(context.selected_events).slice(0, 2).map(formatCloseEvent),
+    'or',
+  );
+  if (!identity || !color || !stylePhrase || !eventPhrase) return '';
+
+  return `At TheFEYA, we develop original festival and stage pieces in our studio. We designed this ${identity} as a starting point for a ${stylePhrase} character, pairing a clear ${color} direction with room for your own styling choices. You decide how to complete the character and make its visual identity your own for the ${eventPhrase} setting you have in mind.`;
+}
+
+function formatCloseEvent(value: string) {
+  if (/^burning man$/i.test(value)) return 'Burning Man';
+  if (/^festival(s)?$/i.test(value)) return 'festival';
+  if (/^stage$/i.test(value)) return 'stage';
+  return value.toLowerCase();
 }
 
 function formatBodyEvent(value: string) {
