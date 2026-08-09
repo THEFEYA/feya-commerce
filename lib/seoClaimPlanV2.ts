@@ -53,6 +53,7 @@ export type SeoWriterBriefV4 = {
   page_type: 'product_detail_page';
   product_context: {
     title: string;
+    color: string | null;
     family_profile: SeoDeterministicClaimPlan['family_profile'];
     confirmed_component_labels: string[];
   };
@@ -225,6 +226,7 @@ export function buildCompactSeoWriterPrompt(
     page_type: 'product_detail_page',
     product_context: {
       title: input.product.title,
+      color: input.product.color || null,
       family_profile: claimPlan.family_profile,
       confirmed_component_labels: input.product.sellable_offer?.status === 'ready'
         ? input.product.sellable_offer.component_labels
@@ -374,12 +376,12 @@ function compactWriterSystemPrompt() {
     'Use one safe whole-product Secondary once in Intro or About when available. Never force component queries or stack synonyms.',
     'product_context.family_profile is internal. Never expose “multi-component silhouette” or other family labels.',
     'Treat focus labels as concepts and inflect them into idiomatic English. For a generic festival use, write “for festivals” or a natural festival modifier, never the bare suffix “for Festival”.',
-    'SEO title is at most 68 characters. H1 is at most 82. Meta is one direct grammatical sentence: exact Primary, one differentiator from claim_plan, then one natural occasion phrase from operator_confirmed_focus.event. When that phrase is “festivals and cosplay”, end the context there; never append “and an original ... character”. Keep Meta useful and at most 158 characters; do not pad it to a minimum.',
+    'SEO title <=68 characters; H1 <=82. If product_context.color is confirmed, place it naturally before the exact Primary in title, H1 and Meta. Meta starts uppercase and is one grammatical sentence: Primary, one claim-plan differentiator and one selected event phrase, <=158 characters. If the context is “festivals and cosplay”, stop there; never append “and an original ... character” or padding.',
     'Intro is one natural 20-45 word sentence built from claim_plan.buyer_job_en and body_identity_variant_en. Keep assigned design and material claims for their target blocks so Intro and About do different jobs.',
     'About this piece is 40-60 words in 2-3 concrete sentences following the positive frame. Use the assigned About claim once: combine its fact and buyer result naturally instead of repeating glossy, mirror-like, metallic or polished-finish language across sentences. Never name or list confirmed_component_labels here; What’s Included already owns that inventory.',
     'Why you’ll love it is 3-4 concise bullets, one for each assigned why claim. Reuse a buyer_outcome_en sentence when it already reads naturally. Purchase configuration is code-owned and stays in What’s Included.',
     'Ideal for is 4-5 distinct bullets written from ideal_for_portraits. Vary sentence rhythm; do not repeat “who need” or another identical frame. If cosplay_positioning is present, present an original studio character without promising a replica.',
-    'Designed for self-expression is the final block. Its block_key is exactly main_description and placement is exactly left_description; related_collections/review_only is not a substitute. Write 45-75 words in 3-4 natural sentences, use we/our studio voice rather than I/me, include exactly one TheFEYA mention, explain original-design purpose and close with the plain outcome “make the look your own”. Do not sell independence as a benefit or use abstract phrases such as distinctive presence or point of view.',
+    'Designed for self-expression is the final block. Its block_key is exactly main_description and placement is exactly left_description, never related_collections/review_only. Write 45-75 words in 3-4 natural we/our sentences, mention TheFEYA once, explain original-design purpose and close with “make the look your own”. Never sell independence or use abstract presence, point of view, drama and intention, centered-on-your-story, or feels-personal wording.',
     'Code owns What’s Included, the right panel, bullet_highlights, FAQ and internal links. Return bullet_highlights, faq and internal_linking_hints as empty arrays, generate no What’s Included PDP block, and add no optional related_collections/review_only block.',
     'Return exactly one image_alt_candidate for the supplied primary image. Lead with a visible color plus claim_plan.body_identity_variant_en, never product_identity_en, then add one short pose or setting detail. The claim plan remains the authority for finish wording and customer promises.',
     'Use finish adjectives literally from claim_plan. Glossy, mirror-like or metal-like language never becomes reflective or retroreflective unless the claim itself says so.',
@@ -395,7 +397,7 @@ function compactWriterSystemPrompt() {
 
 function buyerOutcomeForFact(factCode: string) {
   const outcomes: Record<string, string> = {
-    original_authorial_design: 'Our original studio design helps you create a character that feels personal.',
+    original_authorial_design: 'Our original studio design lets you shape the finished character through your own styling choices.',
     material_glossy_mirror_coating: 'The glossy, mirror-like surface gives the costume a polished metal finish.',
     material_thermoformed_liquid_metal: 'The smooth liquid-metal effect gives the design a polished finish.',
     material_body_comfort: 'The material feels comfortable against the body, making the costume easier to wear through longer events or performances.',

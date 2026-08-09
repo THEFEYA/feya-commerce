@@ -109,6 +109,22 @@ test('warns instead of blocking a semantically complete 39-word About section', 
   assert.equal(result.issues.some((issue) => issue.code.startsWith('pdp_block_about_this_piece_too_thin_')), false);
 });
 
+test('blocks the abstract studio prose found in the real control run', () => {
+  const value = output({
+    pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'main_description'
+      ? {
+        ...block,
+        body: 'At TheFEYA, we create original festival and stage fashion for people who want a design that feels personal. This warrior armor outfit is built to support an original futuristic character for festivals and cosplay, with a shape that photographs with drama and intention. Our studio approach keeps the look centered on your own story, so you can make the look your own.',
+      }
+      : block),
+  });
+
+  const result = validateSeoAgentOutput(value);
+  assert.ok(result.issues.some((issue) => (
+    issue.code === 'pdp_blocks_3_body_robotic_or_tautological'
+  )));
+});
+
 test('blocks an Ideal for section collapsed into keyword fragments', () => {
   const value = output({
     pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'

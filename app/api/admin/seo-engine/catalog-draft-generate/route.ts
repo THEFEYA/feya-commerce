@@ -24,6 +24,7 @@ import {
   normalizeImageAltPrimaryVariation,
   normalizeMainDescriptionCliches,
   normalizeMainDescriptionSentenceBoundaries,
+  normalizeMetaDescriptionSentenceCase,
   normalizeRepeatedAboutFinishClause,
   normalizeSingleSuppliedImageAltCandidate,
 } from '@/lib/seoEditorialCandidateSelection';
@@ -188,6 +189,7 @@ export async function POST(request: Request) {
     primary_keyword: primaryKeyword,
     selected_events: selectedEvents,
     body_identity_variant: preflightClaimPlan.body_identity_variant_en,
+    product_color: bundle.seoPackDraft?.product_truth?.color,
   };
   const writerStartedAt = Date.now();
   let firstGeneration = await generateSeoDraftWithOpenAi(promptContract, {
@@ -207,7 +209,9 @@ export async function POST(request: Request) {
               normalizeRepeatedAboutFinishClause(
                 normalizeBodyPrimaryVariation(
                   normalizeCodeOwnedSeoCollections(
-                    normalizeDeterministicSeoIdentity(firstGeneration.output, identityNormalizationContext),
+                    normalizeMetaDescriptionSentenceCase(
+                      normalizeDeterministicSeoIdentity(firstGeneration.output, identityNormalizationContext),
+                    ),
                   ),
                   identityNormalizationContext,
                 ),

@@ -43,7 +43,7 @@ export const SEO_EDITORIAL_MEMORY_V3: SeoEditorialMemoryV3 = {
     intro: '“This [body identity variant] is made for [selected occasion], giving you a starting point for [an original selected character or use].”',
     about_this_piece: 'Write 45-60 useful words in 2-3 sentences. Address the shopper as you. Start from the selected occasion and body identity variant. Use the assigned fact and buyer outcome once in one natural thought; never restate the same finish in another sentence and never add filler only to reach the range. What’s Included owns the product-parts list.',
     why_youll_love_it: [
-      'Our original studio design helps you create a character that feels personal.',
+      'Our original studio design lets you shape the finished character through your own styling choices.',
       'The material feels comfortable against the body, making the costume easier to wear through longer events or performances.',
       'The material helps the costume keep its shape between wears, so it is ready for the next occasion.',
     ],
@@ -54,7 +54,7 @@ export const SEO_EDITORIAL_MEMORY_V3: SeoEditorialMemoryV3 = {
       'Creators styling a costume for photography, video or a live set.',
       'Stylists sourcing a design for a show or editorial.',
     ],
-    studio_close: 'Start with: “At TheFEYA, we create original festival and stage fashion for people who want a design that feels personal.” Explain how our original ideas help people express their own character. Connect this product to one selected setting and close with the plain outcome “make the look your own.”',
+    studio_close: 'Say once that at TheFEYA we develop festival and stage pieces from our own ideas. Connect the body identity to one selected setting and say plainly that the wearer chooses the surrounding styling. Close with “make the look your own.” Never use feels personal, own story, drama and intention, centered on, or repeated original character.',
   },
   writing_moves: {
     about_this_piece: 'Real occasion, whole-product identity, one vivid supported detail, then why it matters in wear.',

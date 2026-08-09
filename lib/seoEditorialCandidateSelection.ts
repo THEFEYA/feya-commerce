@@ -20,6 +20,7 @@ type SeoIdentityNormalizationContext = {
   primary_keyword?: unknown;
   selected_events?: unknown;
   body_identity_variant?: unknown;
+  product_color?: unknown;
 };
 
 /**
@@ -90,7 +91,11 @@ export function normalizeDeterministicSeoIdentity<T>(
     || '';
   if (!primary || !selectedEvent) return output;
 
-  const identity = `${toTitleCase(primary)} for ${formatSelectedEvent(selectedEvent)}`;
+  const supportedColor = normalizeIdentityColor(context.product_color);
+  const primaryWithColor = supportedColor && !containsWholePhrase(primary, supportedColor)
+    ? `${toTitleCase(supportedColor)} ${toTitleCase(primary)}`
+    : toTitleCase(primary);
+  const identity = `${primaryWithColor} for ${formatSelectedEvent(selectedEvent)}`;
   if (identity.length > 68) return output;
 
   const changed = output.seo_title !== identity || output.h1 !== identity;
@@ -102,7 +107,33 @@ export function normalizeDeterministicSeoIdentity<T>(
     h1: identity,
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
-      'Deterministic identity normalization used the reviewed Primary and operator-selected event for SEO title and H1.',
+      supportedColor
+        ? 'Deterministic identity normalization used the reviewed Primary, supported product color and operator-selected event for SEO title and H1.'
+        : 'Deterministic identity normalization used the reviewed Primary and operator-selected event for SEO title and H1.',
+    ],
+  } as T;
+}
+
+/**
+ * Sentence case is formatting, not creative copy. The API receives lowercase
+ * keyword phrases, so a model can preserve that casing at the start of Meta.
+ * Capitalize only the first Latin letter and leave every claim untouched.
+ */
+export function normalizeMetaDescriptionSentenceCase<T>(output: T): T {
+  if (!isRecord(output) || typeof output.meta_description !== 'string') return output;
+  const metaDescription = output.meta_description
+    .trim()
+    .replace(/^(\s*["']?)([a-z])/, (_match, prefix: string, letter: string) => (
+      `${prefix}${letter.toUpperCase()}`
+    ));
+  if (!metaDescription || metaDescription === output.meta_description) return output;
+
+  return {
+    ...output,
+    meta_description: metaDescription,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic Meta normalization repaired sentence-case formatting without changing the claim.',
     ],
   } as T;
 }
@@ -295,11 +326,10 @@ export function normalizeRepeatedAboutFinishClause<T>(output: T): T {
 }
 
 /**
- * Remove the bounded sales cliché observed in the one-pass pilot without
- * inventing a replacement claim. The remaining sentence keeps the approved
- * plain-language buyer outcome: "it helps you make the look your own."
- * Other uses of "step into" remain visible to normal QA rather than being
- * rewritten without enough semantic context.
+ * Repair only the bounded "step into" forms observed in controlled runs.
+ * One form can be deleted without changing the remaining claim; the other is
+ * changed to the literal dressing action "put it on". Unknown variants remain
+ * visible to normal QA instead of being rewritten without semantic context.
  */
 export function normalizeMainDescriptionCliches<T>(output: T): T {
   if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
@@ -307,10 +337,12 @@ export function normalizeMainDescriptionCliches<T>(output: T): T {
   const pdpBlocks = output.pdp_blocks.map((block) => {
     if (
       !isRecord(block)
-      || block.block_key !== 'main_description'
+      || block.placement !== 'left_description'
       || typeof block.body !== 'string'
     ) return block;
-    const body = block.body.replace(/\bstep into the scene and\s+/gi, '');
+    const body = block.body
+      .replace(/\bstep into the scene and\s+/gi, '')
+      .replace(/\bthe moment you step into it\b/gi, 'when you put it on');
     if (body === block.body) return block;
     changed = true;
     return { ...block, body };
@@ -322,7 +354,7 @@ export function normalizeMainDescriptionCliches<T>(output: T): T {
     pdp_blocks: pdpBlocks,
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
-      'Deterministic self-expression normalization removed the bounded “step into the scene” sales cliché without adding a new product claim.',
+      'Deterministic customer-copy normalization repaired a bounded “step into” sales cliché without adding a new product claim.',
     ],
   } as T;
 }
@@ -644,6 +676,17 @@ function normalizeIdentityValue(value: unknown) {
 function normalizeIdentityValues(value: unknown): string[] {
   const values = Array.isArray(value) ? value : value ? [value] : [];
   return unique(values.map(normalizeIdentityValue).filter(Boolean));
+}
+
+function normalizeIdentityColor(value: unknown) {
+  const color = normalizeIdentityValue(value);
+  if (!color || color.length > 20 || !/^[a-z]+(?:[ -][a-z]+)?$/i.test(color)) return '';
+  if (/^(?:unknown|other|multicolor|multi color|not specified)$/i.test(color)) return '';
+  return color;
+}
+
+function containsWholePhrase(value: string, phrase: string) {
+  return new RegExp(`\\b${escapeRegExp(phrase)}\\b`, 'i').test(value);
 }
 
 function toTitleCase(value: string) {

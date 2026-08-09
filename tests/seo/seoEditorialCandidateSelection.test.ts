@@ -10,6 +10,7 @@ import {
   normalizeImageAltPrimaryVariation,
   normalizeMainDescriptionCliches,
   normalizeMainDescriptionSentenceBoundaries,
+  normalizeMetaDescriptionSentenceCase,
   normalizeRepeatedAboutFinishClause,
   normalizeSingleSuppliedImageAltCandidate,
   seoEditorialIssueSnapshot,
@@ -146,6 +147,35 @@ test('inflects a generic festival focus into an idiomatic plural identity', () =
   assert.equal(normalized.h1, 'Warrior Armor Costume for Festivals');
 });
 
+test('adds a supported product color to the deterministic SEO identity', () => {
+  const normalized = normalizeDeterministicSeoIdentity({
+    seo_title: 'Draft title',
+    h1: 'Draft H1',
+    generation_notes: [],
+  }, {
+    primary_keyword: 'warrior armor costume',
+    selected_events: ['festival'],
+    product_color: 'Gold',
+  });
+
+  assert.equal(normalized.seo_title, 'Gold Warrior Armor Costume for Festivals');
+  assert.equal(normalized.h1, 'Gold Warrior Armor Costume for Festivals');
+  assert.match(normalized.generation_notes[0], /supported product color/);
+});
+
+test('repairs lowercase Meta sentence case without changing its claim', () => {
+  const normalized = normalizeMetaDescriptionSentenceCase({
+    meta_description: 'warrior armor costume with a glossy finish for festivals and cosplay.',
+    generation_notes: [],
+  });
+
+  assert.equal(
+    normalized.meta_description,
+    'Warrior armor costume with a glossy finish for festivals and cosplay.',
+  );
+  assert.match(normalized.generation_notes[0], /Meta normalization/);
+});
+
 test('keeps one ALT candidate when the runtime supplies one primary image', () => {
   const normalized = normalizeSingleSuppliedImageAltCandidate({
     image_alt_candidates: [
@@ -272,6 +302,23 @@ test('removes the bounded step-into cliché without inventing a replacement clai
     'Designed for stage-ready styling, it helps you make the look your own.',
   );
   assert.match(normalized.generation_notes[0], /sales cliché/);
+});
+
+test('repairs the bounded step-into wording found in the real About control run', () => {
+  const normalized = normalizeMainDescriptionCliches({
+    pdp_blocks: [{
+      block_key: 'about_this_piece',
+      placement: 'left_description',
+      body: 'Built for festivals and cosplay, this warrior armor outfit brings a glossy, mirror-like coating that reads like polished metal on stage and in photos. The finish adds a bold gold effect, so your look feels striking the moment you step into it.',
+    }],
+    generation_notes: [],
+  });
+
+  assert.equal(
+    normalized.pdp_blocks[0].body,
+    'Built for festivals and cosplay, this warrior armor outfit brings a glossy, mirror-like coating that reads like polished metal on stage and in photos. The finish adds a bold gold effect, so your look feels striking when you put it on.',
+  );
+  assert.doesNotMatch(normalized.pdp_blocks[0].body, /step into/i);
 });
 
 test('skips the editorial rewrite when deterministic QA is clean', () => {

@@ -23,6 +23,7 @@ import {
   normalizeImageAltPrimaryVariation,
   normalizeMainDescriptionCliches,
   normalizeMainDescriptionSentenceBoundaries,
+  normalizeMetaDescriptionSentenceCase,
   normalizeRepeatedAboutFinishClause,
   normalizeSingleSuppliedImageAltCandidate,
 } from '@/lib/seoEditorialCandidateSelection';
@@ -166,6 +167,7 @@ export async function POST(request: Request) {
       primary_keyword: primaryKeyword,
       selected_events: focusValues(bundle.seoPackDraft.manual_focus?.event),
       body_identity_variant: claimPlan.body_identity_variant_en,
+      product_color: bundle.seoPackDraft?.product_truth?.color,
     };
     generation = {
       ...generation,
@@ -176,7 +178,9 @@ export async function POST(request: Request) {
               normalizeRepeatedAboutFinishClause(
                 normalizeBodyPrimaryVariation(
                   normalizeCodeOwnedSeoCollections(
-                    normalizeDeterministicSeoIdentity(generation.output, identityNormalizationContext),
+                    normalizeMetaDescriptionSentenceCase(
+                      normalizeDeterministicSeoIdentity(generation.output, identityNormalizationContext),
+                    ),
                   ),
                   identityNormalizationContext,
                 ),
