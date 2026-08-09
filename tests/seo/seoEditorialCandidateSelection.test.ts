@@ -254,6 +254,26 @@ test('removes a duplicated finish preamble from About without rewriting other se
   assert.match(normalized.generation_notes[0], /duplicated finish clause/);
 });
 
+test('repairs the cross-sentence finish repetition from the final paid control run', () => {
+  const normalized = normalizeRepeatedAboutFinishClause({
+    pdp_blocks: [{
+      block_key: 'about_this_piece',
+      placement: 'left_description',
+      body: 'For festivals and cosplay, this warrior armor outfit brings a bold gold look with a durable, glossy, mirror-like coating. The glossy, mirror-like surface gives the costume a polished metal finish, so your character reads as striking from the first glance.',
+    }],
+    generation_notes: [],
+  });
+
+  assert.equal(
+    normalized.pdp_blocks[0].body,
+    'For festivals and cosplay, this warrior armor outfit brings a bold gold look with a durable, glossy, mirror-like coating. The result gives the character a strong first impression once the outfit is fully styled for the event.',
+  );
+  assert.equal(
+    normalized.pdp_blocks[0].body.match(/\b(?:glossy|mirror[- ]like|polished metal)\b/gi)?.length,
+    2,
+  );
+});
+
 test('repairs lowercase and missing punctuation only in the self-expression close', () => {
   const normalized = normalizeMainDescriptionSentenceBoundaries({
     pdp_blocks: [
@@ -319,6 +339,26 @@ test('repairs the bounded step-into wording found in the real About control run'
     'Built for festivals and cosplay, this warrior armor outfit brings a glossy, mirror-like coating that reads like polished metal on stage and in photos. The finish adds a bold gold effect, so your look feels striking when you put it on.',
   );
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /step into/i);
+});
+
+test('replaces internal body-identity jargon and the stacked closing slogans from the final run', () => {
+  const normalized = normalizeMainDescriptionCliches({
+    pdp_blocks: [{
+      block_key: 'main_description',
+      placement: 'left_description',
+      body: 'At TheFEYA, we develop festival and stage pieces from our own ideas, and this warrior armor outfit is built to support an original futuristic or fantasy character. The gold body identity works beautifully for festival scenes, while you choose the surrounding styling. Finish it your way and make the look your own.',
+    }],
+    generation_notes: [],
+  }, {
+    selected_events: ['festival', 'cosplay'],
+    selected_styles: ['futuristic', 'fantasy'],
+  });
+
+  assert.equal(
+    normalized.pdp_blocks[0].body,
+    'At TheFEYA, we develop festival and stage pieces from our own ideas, and this warrior armor outfit is built to support an original futuristic or fantasy character. It can lean futuristic or fantasy for festivals and cosplay. You choose the surrounding styling that completes the final look for the setting you have in mind.',
+  );
+  assert.doesNotMatch(normalized.pdp_blocks[0].body, /body identity|finish it your way/i);
 });
 
 test('skips the editorial rewrite when deterministic QA is clean', () => {

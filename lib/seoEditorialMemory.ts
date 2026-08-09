@@ -41,7 +41,7 @@ export const SEO_EDITORIAL_MEMORY_V3: SeoEditorialMemoryV3 = {
   ],
   positive_block_frames: {
     intro: '“This [body identity variant] is made for [selected occasion], giving you a starting point for [an original selected character or use].”',
-    about_this_piece: 'Write 45-60 useful words in 2-3 sentences. Address the shopper as you. Start from the selected occasion and body identity variant. Use the assigned fact and buyer outcome once in one natural thought; never restate the same finish in another sentence and never add filler only to reach the range. What’s Included owns the product-parts list.',
+    about_this_piece: 'Write 45-60 useful words in 2-3 sentences. Start from the occasion and actual body_identity_variant_en value. Use one combined finish sentence, for example: “Its glossy, mirror-like coating creates a polished metal look.” Every other sentence adds a different value and contains no finish synonym. What’s Included owns the parts list.',
     why_youll_love_it: [
       'Our original studio design lets you shape the finished character through your own styling choices.',
       'The material feels comfortable against the body, making the costume easier to wear through longer events or performances.',
@@ -54,7 +54,7 @@ export const SEO_EDITORIAL_MEMORY_V3: SeoEditorialMemoryV3 = {
       'Creators styling a costume for photography, video or a live set.',
       'Stylists sourcing a design for a show or editorial.',
     ],
-    studio_close: 'Say once that at TheFEYA we develop festival and stage pieces from our own ideas. Connect the body identity to one selected setting and say plainly that the wearer chooses the surrounding styling. Close with “make the look your own.” Never use feels personal, own story, drama and intention, centered on, or repeated original character.',
+    studio_close: 'Say once that at TheFEYA we develop festival and stage pieces from our own ideas. Use the actual body_identity_variant_en value, never “body identity”. Connect one selected style or setting, then end with one plain styling sentence. Never stack slogans or use feels personal, own story, drama and intention, or centered-on wording.',
   },
   writing_moves: {
     about_this_piece: 'Real occasion, whole-product identity, one vivid supported detail, then why it matters in wear.',

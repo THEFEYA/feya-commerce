@@ -125,6 +125,21 @@ test('blocks the abstract studio prose found in the real control run', () => {
   )));
 });
 
+test('blocks internal identity jargon and stacked sales-close language', () => {
+  const value = output({
+    pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'main_description'
+      ? {
+        ...block,
+        body: 'At TheFEYA, we create original festival and stage designs in our studio. The gold body identity supports a futuristic festival direction. Finish it your way and make the look your own.',
+      }
+      : block),
+  });
+  const result = validateSeoAgentOutput(value);
+  assert.ok(result.issues.some((issue) => (
+    issue.code === 'pdp_blocks_3_body_robotic_or_tautological'
+  )));
+});
+
 test('blocks an Ideal for section collapsed into keyword fragments', () => {
   const value = output({
     pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'

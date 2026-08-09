@@ -185,9 +185,11 @@ export async function POST(request: Request) {
     || bundle.seoPackDraft?.keyword_roles?.primary?.[0]?.keyword_norm
     || null;
   const selectedEvents = normalizeFocusValues(bundle.seoPackDraft?.manual_focus?.event);
+  const selectedStyles = normalizeFocusValues(bundle.seoPackDraft?.manual_focus?.style);
   const identityNormalizationContext = {
     primary_keyword: primaryKeyword,
     selected_events: selectedEvents,
+    selected_styles: selectedStyles,
     body_identity_variant: preflightClaimPlan.body_identity_variant_en,
     product_color: bundle.seoPackDraft?.product_truth?.color,
   };
@@ -216,6 +218,7 @@ export async function POST(request: Request) {
                   identityNormalizationContext,
                 ),
               ),
+              identityNormalizationContext,
             ),
           ),
           identityNormalizationContext,

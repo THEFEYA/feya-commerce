@@ -19,6 +19,7 @@ export type SeoEditorialIssueSnapshot = {
 type SeoIdentityNormalizationContext = {
   primary_keyword?: unknown;
   selected_events?: unknown;
+  selected_styles?: unknown;
   body_identity_variant?: unknown;
   product_color?: unknown;
 };
@@ -303,11 +304,28 @@ export function normalizeRepeatedAboutFinishClause<T>(output: T): T {
         const sentence = rawSentence.trim();
         const repeatedFinish = ['glossy', 'mirror-like', 'mirror like', 'metallic']
           .some((term) => countLiteralPhrase(sentence, term) > 1);
-        if (!repeatedFinish || !/^the material has\b/i.test(sentence)) return sentence;
-        const parts = sentence.split(/,\s*and\s+the\s+/i);
-        if (parts.length !== 2 || !/\b(?:surface|finish|coating)\b/i.test(parts[1])) return sentence;
-        changed = true;
-        return `The ${parts[1].trimStart()}`;
+        if (repeatedFinish && /^the material has\b/i.test(sentence)) {
+          const parts = sentence.split(/,\s*and\s+the\s+/i);
+          if (parts.length === 2 && /\b(?:surface|finish|coating)\b/i.test(parts[1])) {
+            changed = true;
+            return `The ${parts[1].trimStart()}`;
+          }
+        }
+
+        // Paid control run 2026-08-09: the model put the same finish in two
+        // adjacent sentences and added only a generic first-glance outcome.
+        // Preserve that outcome in plain buyer language while removing the
+        // second finish claim. Unknown sentence shapes remain blocked by QA.
+        if (
+          /^the\s+(?:glossy,?\s+mirror[- ]like\s+)?(?:surface|finish|coating)\s+gives?\b/i.test(sentence)
+          && /\bpolished metal finish\b/i.test(sentence)
+          && /\bfirst glance\b/i.test(sentence)
+        ) {
+          changed = true;
+          return 'The result gives the character a strong first impression once the outfit is fully styled for the event.';
+        }
+
+        return sentence;
       })
       .join(' ')
       .trim() || block.body;
@@ -331,18 +349,32 @@ export function normalizeRepeatedAboutFinishClause<T>(output: T): T {
  * changed to the literal dressing action "put it on". Unknown variants remain
  * visible to normal QA instead of being rewritten without semantic context.
  */
-export function normalizeMainDescriptionCliches<T>(output: T): T {
+export function normalizeMainDescriptionCliches<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext = {},
+): T {
   if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
   let changed = false;
+  const focusSentence = buildMainDescriptionFocusSentence(context);
   const pdpBlocks = output.pdp_blocks.map((block) => {
     if (
       !isRecord(block)
       || block.placement !== 'left_description'
       || typeof block.body !== 'string'
     ) return block;
-    const body = block.body
+    let body = block.body
       .replace(/\bstep into the scene and\s+/gi, '')
-      .replace(/\bthe moment you step into it\b/gi, 'when you put it on');
+      .replace(/\bthe moment you step into it\b/gi, 'when you put it on')
+      .replace(
+        /\bfinish it your way and make the look your own\b[.!]?/gi,
+        'You choose the surrounding styling that completes the final look for the setting you have in mind.',
+      );
+    if (focusSentence) {
+      body = body.replace(
+        /[^.!?\n]*\bbody identity\b[^.!?\n]*[.!?]/gi,
+        ` ${focusSentence}`,
+      ).replace(/\s{2,}/g, ' ').trim();
+    }
     if (body === block.body) return block;
     changed = true;
     return { ...block, body };
@@ -354,7 +386,7 @@ export function normalizeMainDescriptionCliches<T>(output: T): T {
     pdp_blocks: pdpBlocks,
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
-      'Deterministic customer-copy normalization repaired a bounded “step into” sales cliché without adding a new product claim.',
+      'Deterministic customer-copy normalization repaired bounded sales clichés or internal identity jargon using only operator-selected focus.',
     ],
   } as T;
 }
@@ -697,6 +729,35 @@ function formatSelectedEvent(value: string) {
   if (/^burning man$/i.test(value)) return 'Burning Man';
   if (/^festival$/i.test(value)) return 'Festivals';
   return toTitleCase(value);
+}
+
+function buildMainDescriptionFocusSentence(context: SeoIdentityNormalizationContext) {
+  const styles = normalizeIdentityValues(context.selected_styles)
+    .slice(0, 2)
+    .map((value) => value.toLowerCase());
+  const events = normalizeIdentityValues(context.selected_events)
+    .slice(0, 2)
+    .map(formatBodyEvent);
+  const stylePhrase = humanJoin(styles, 'or');
+  const eventPhrase = humanJoin(events, 'and');
+  if (stylePhrase && eventPhrase) return `It can lean ${stylePhrase} for ${eventPhrase}.`;
+  if (stylePhrase) return `It can lean ${stylePhrase}.`;
+  if (eventPhrase) return `It is designed for ${eventPhrase}.`;
+  return '';
+}
+
+function formatBodyEvent(value: string) {
+  if (/^burning man$/i.test(value)) return 'Burning Man';
+  if (/^festival$/i.test(value)) return 'festivals';
+  if (/^stage$/i.test(value)) return 'the stage';
+  return value.toLowerCase();
+}
+
+function humanJoin(values: string[], conjunction: 'and' | 'or') {
+  const clean = unique(values.filter(Boolean));
+  if (clean.length <= 1) return clean[0] || '';
+  if (clean.length === 2) return `${clean[0]} ${conjunction} ${clean[1]}`;
+  return `${clean.slice(0, -1).join(', ')}, ${conjunction} ${clean.at(-1)}`;
 }
 
 function escapeRegExp(value: string) {

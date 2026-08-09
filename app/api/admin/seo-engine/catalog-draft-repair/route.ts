@@ -122,6 +122,91 @@ export async function POST(request: Request) {
     }, { status: 409 });
   }
 
+  const primaryKeyword = bundle.seoPackDraft.keyword_roles?.primary?.[0]?.keyword
+    || bundle.seoPackDraft.keyword_roles?.primary?.[0]?.keyword_norm
+    || null;
+  const identityNormalizationContext = {
+    primary_keyword: primaryKeyword,
+    selected_events: focusValues(bundle.seoPackDraft.manual_focus?.event),
+    selected_styles: focusValues(bundle.seoPackDraft.manual_focus?.style),
+    body_identity_variant: claimPlan.body_identity_variant_en,
+    product_color: bundle.seoPackDraft?.product_truth?.color,
+  };
+  const deterministicOutput = normalizeRepairCandidate(currentOutput, identityNormalizationContext);
+  const deterministicStructural = validateSeoAgentOutput(deterministicOutput);
+  const deterministicCommercial = validateSeoCommercialCopy(deterministicOutput, commercialContext);
+  const deterministicKeywordPlacement = validateSeoKeywordPlacement(
+    deterministicOutput,
+    bundle.seoPackDraft,
+  );
+  const deterministicIssues = [
+    ...(deterministicStructural.issues || []),
+    ...(deterministicCommercial.issues || []),
+    ...(deterministicKeywordPlacement.issues || []),
+  ];
+  const deterministicOk = Boolean(
+    deterministicStructural.ok
+      && deterministicCommercial.ok
+      && deterministicKeywordPlacement.ok,
+  );
+  if (deterministicOk) {
+    const assembledSeoPack = assembleSeoProductPack({
+      draft: bundle.seoPackDraft,
+      output: deterministicOutput,
+      structuralValidation: deterministicStructural,
+      commercialValidation: deterministicCommercial,
+      keywordPlacementValidation: deterministicKeywordPlacement,
+      productTruthBlockers: getSeoPackDraftSaveBlockers(bundle.seoPackDraft),
+    });
+    const pipelineTelemetry = {
+      contract_version: 'seo_targeted_repair_pipeline_v1',
+      product_id: productId,
+      repair_attempt: 1,
+      repair_mode: 'deterministic_only',
+      db_brief_ms: dbBriefMs,
+      total_ms: Date.now() - startedAt,
+      writer_calls: 0,
+      automatic_retry_calls: 0,
+      token_usage: {
+        input_tokens: 0,
+        output_tokens: 0,
+        total_tokens: 0,
+      },
+    };
+    console.info('[feya-seo-targeted-repair]', JSON.stringify(pipelineTelemetry));
+    return NextResponse.json({
+      ok: true,
+      status: 'deterministic_repair_passed_not_saved',
+      blocked: false,
+      message: 'The displayed draft passed deterministic zero-cost repair. OpenAI was not called. Nothing was saved or published.',
+      openai_generation: {
+        ok: false,
+        status: 'not_called_deterministic_repair',
+        model: null,
+        response_id: null,
+        error: null,
+        has_output: false,
+        vision_input: null,
+        telemetry: null,
+      },
+      generated_draft_output: deterministicOutput,
+      generated_draft_validation: deterministicStructural,
+      generated_draft_commercial_validation: deterministicCommercial,
+      generated_draft_keyword_placement_validation: deterministicKeywordPlacement,
+      assembled_seo_pack: assembledSeoPack,
+      pipeline_telemetry: pipelineTelemetry,
+      repair: {
+        explicit: true,
+        attempt: 1,
+        deterministic_only: true,
+        additional_attempt_allowed: false,
+        source_issue_count: issues.length,
+        remaining_issue_count: 0,
+        failed_scopes: unique(issues.map((issue) => String(issue.code || 'validation_issue'))),
+      },
+    });
+  }
+
   const primaryImageUrl = normalizeImageUrl(
     bundle.aiAgentInput.product?.primary_image_url
       || bundle.seoPackDraft.product_truth?.primary_image_url,
@@ -137,8 +222,8 @@ export async function POST(request: Request) {
   const promptStartedAt = Date.now();
   const compactRepair = buildCompactSeoRepairPrompt(
     bundle.aiAgentInput,
-    currentOutput,
-    issues,
+    deterministicOutput,
+    deterministicIssues,
     { readiness, primaryImageUrl },
   );
   const promptBuildMs = Date.now() - promptStartedAt;
@@ -159,37 +244,10 @@ export async function POST(request: Request) {
     maxOutputTokens: 2_500,
   });
   const writerMs = Date.now() - writerStartedAt;
-  const primaryKeyword = bundle.seoPackDraft.keyword_roles?.primary?.[0]?.keyword
-    || bundle.seoPackDraft.keyword_roles?.primary?.[0]?.keyword_norm
-    || null;
   if (generation.output) {
-    const identityNormalizationContext = {
-      primary_keyword: primaryKeyword,
-      selected_events: focusValues(bundle.seoPackDraft.manual_focus?.event),
-      body_identity_variant: claimPlan.body_identity_variant_en,
-      product_color: bundle.seoPackDraft?.product_truth?.color,
-    };
     generation = {
       ...generation,
-      output: normalizeCodeOwnedPdpBlockOrder(normalizeSingleSuppliedImageAltCandidate(
-        normalizeImageAltPrimaryVariation(
-          normalizeMainDescriptionSentenceBoundaries(
-            normalizeMainDescriptionCliches(
-              normalizeRepeatedAboutFinishClause(
-                normalizeBodyPrimaryVariation(
-                  normalizeCodeOwnedSeoCollections(
-                    normalizeMetaDescriptionSentenceCase(
-                      normalizeDeterministicSeoIdentity(generation.output, identityNormalizationContext),
-                    ),
-                  ),
-                  identityNormalizationContext,
-                ),
-              ),
-            ),
-          ),
-          identityNormalizationContext,
-        ),
-      )),
+      output: normalizeRepairCandidate(generation.output, identityNormalizationContext),
     };
   }
 
@@ -266,6 +324,29 @@ function sanitizeGeneration(generation) {
     vision_input: generation.vision_input || null,
     telemetry: generation.telemetry || null,
   };
+}
+
+function normalizeRepairCandidate(output, identityNormalizationContext) {
+  return normalizeCodeOwnedPdpBlockOrder(normalizeSingleSuppliedImageAltCandidate(
+    normalizeImageAltPrimaryVariation(
+      normalizeMainDescriptionSentenceBoundaries(
+        normalizeMainDescriptionCliches(
+          normalizeRepeatedAboutFinishClause(
+            normalizeBodyPrimaryVariation(
+              normalizeCodeOwnedSeoCollections(
+                normalizeMetaDescriptionSentenceCase(
+                  normalizeDeterministicSeoIdentity(output, identityNormalizationContext),
+                ),
+              ),
+              identityNormalizationContext,
+            ),
+          ),
+          identityNormalizationContext,
+        ),
+      ),
+      identityNormalizationContext,
+    ),
+  ));
 }
 
 function focusValues(value) {

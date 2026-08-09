@@ -337,7 +337,9 @@ export default function FirstRealDraftClient({
       if (!response.ok && !payload?.generated_draft_output) {
         setError(payload?.error || payload?.message || 'Точечное исправление не выполнено. Повтор автоматически не запускается.');
       } else if (payload?.generated_draft_output) {
-        setWorkflowNotice('Выполнена одна ручная точечная доработка. Результат не сохранён и не опубликован.');
+        setWorkflowNotice(payload?.repair?.deterministic_only
+          ? 'Замечания исправлены бесплатными детерминированными правилами. OpenAI не вызывался; результат не сохранён и не опубликован.'
+          : 'Выполнена одна ручная точечная доработка через OpenAI. Результат не сохранён и не опубликован.');
       }
       window.setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
     } catch (err) {
@@ -673,13 +675,13 @@ export default function FirstRealDraftClient({
               className="btn-ghost min-h-11 w-full justify-center px-4 text-center disabled:cursor-not-allowed disabled:opacity-40"
             >
               {repairing
-                ? 'Исправляю один раз…'
+                ? 'Проверяю и исправляю…'
                 : repairUsed
                   ? 'Лимит точечной доработки использован'
-                  : 'Исправить замечания — 1 дополнительный AI-вызов'}
+                  : 'Исправить замечания — сначала бесплатно'}
             </button>
             <div className="mt-2 text-center text-[10px] leading-relaxed text-[var(--smoke)]">
-              Обычная перепроверка уже выполнена бесплатно валидаторами. Эта кнопка нужна только для изменения текста: один OpenAI-вызов, без автоматического повтора и сохранения.
+              Сначала применяются ограниченные детерминированные исправления с 0 токенов. Только если blocker остаётся, выполняется один OpenAI-вызов — без автоматического повтора и сохранения.
             </div>
           </div> : null}
           <button

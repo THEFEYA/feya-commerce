@@ -13,6 +13,8 @@ import {
   normalizeImageAltPrimaryVariation,
   normalizeCodeOwnedPdpBlockOrder,
   normalizeCodeOwnedSeoCollections,
+  normalizeMainDescriptionCliches,
+  normalizeRepeatedAboutFinishClause,
 } from '../../lib/seoEditorialCandidateSelection.ts';
 import { validateSeoAgentOutput } from '../../lib/seoAgentOutputValidator.ts';
 import { validateSeoCommercialCopy } from '../../lib/seoCommercialCopyValidator.ts';
@@ -371,6 +373,101 @@ test('positive one-pass field pattern passes the same deterministic gates as the
   assert.equal(structural.ok, true, JSON.stringify(structural.issues));
   assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
   assert.equal(keyword.ok, true, JSON.stringify(keyword.issues));
+});
+
+test('zero-cost normalization recovers the exact final control-run copy without hiding a QA issue', () => {
+  const candidate = {
+    contract_version: 'seo_agent_output_v1',
+    status: 'draft',
+    seo_title: 'Gold Warrior Armor Costume for Festivals',
+    h1: 'Gold Warrior Armor Costume for Festivals',
+    meta_description: 'Gold warrior armor costume with a glossy, mirror-like coating for festivals and cosplay.',
+    intro: 'This warrior armor outfit is made for festivals and cosplay, giving you a starting point for an original futuristic or fantasy character.',
+    bullet_highlights: [],
+    faq: [],
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'Gold warrior armor outfit with a headpiece, shoulder armor and leg covers posed on dark rocks',
+      truth_basis: 'visible_product_fact',
+    }],
+    internal_linking_hints: [],
+    visual_truth: {
+      observed_product_facts: ['Gold headpiece', 'Gold shoulder armor', 'Gold leg covers'],
+      dna_matches: ['Futuristic gold armor styling', 'Fantasy warrior look'],
+      open_style_suggestions: [],
+      uncertain_or_missing_facts: [],
+      forbidden_visual_claims: [],
+    },
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        body: 'For festivals and cosplay, this warrior armor outfit brings a bold gold look with a durable, glossy, mirror-like coating. The glossy, mirror-like surface gives the costume a polished metal finish, so your character reads as striking from the first glance.',
+        source_basis: 'product_fact',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'why_youll_love_it',
+        placement: 'left_description',
+        heading: 'Why you’ll love it',
+        body: '- Our original studio design lets you shape the finished character through your own styling choices.\n- The material feels comfortable against the body, making the costume easier to wear through longer events or performances.\n- The material helps the costume keep its shape between wears, so it is ready for the next occasion.',
+        source_basis: 'product_fact',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'ideal_for',
+        placement: 'left_description',
+        heading: 'Ideal for',
+        body: '- Festival-goers planning a warrior look for a long day of music and movement.\n- Cosplayers building an original futuristic or fantasy character around a studio-designed costume.\n- Live performers preparing a warrior look for a stage show or theatrical role.\n- Content creators planning fantasy visuals for festival shoots or music videos.\n- Costume stylists sourcing an original futuristic piece for themed shows or editorials.',
+        source_basis: 'product_fact',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'main_description',
+        placement: 'left_description',
+        heading: 'Designed for self-expression',
+        body: 'At TheFEYA, we develop festival and stage pieces from our own ideas, and this warrior armor outfit is built to support an original futuristic or fantasy character. The gold body identity works beautifully for festival scenes, while you choose the surrounding styling. Finish it your way and make the look your own.',
+        source_basis: 'brand_policy',
+        needs_human_review: false,
+      },
+    ],
+    qa_self_report: {
+      cliche_phrase: 'pass',
+      long_dash: 'pass',
+      keyword_stuffing: 'pass',
+      product_specificity: 'pass',
+      forbidden_mismatch: 'pass',
+      similarity_cannibalization: 'not_checked',
+      image_alt_truth: 'pass',
+      commercial_placement: 'pass',
+      validated_metrics: 'not_checked',
+      notes: [],
+    },
+    generation_notes: [],
+  } as any;
+  const context = {
+    product_truth: {
+      color: 'Gold',
+      included_components: ['Headpiece', 'Leg Covers', 'Shoulders', 'Top'],
+    },
+    manual_focus: {
+      event: ['festival', 'cosplay'],
+      style: ['futuristic', 'fantasy'],
+      persona: ['warrior', 'performer'],
+    },
+    keyword_roles: roleMap(),
+  } as any;
+  const normalized = normalizeMainDescriptionCliches(
+    normalizeRepeatedAboutFinishClause(candidate),
+    { selected_events: context.manual_focus.event, selected_styles: context.manual_focus.style },
+  );
+  const structural = validateSeoAgentOutput(normalized);
+  const commercial = validateSeoCommercialCopy(normalized, context);
+
+  assert.equal(structural.ok, true, JSON.stringify(structural.issues));
+  assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
+  assert.doesNotMatch(JSON.stringify(normalized.pdp_blocks), /body identity|finish it your way/i);
 });
 
 test('the August live pilot stays blocked for human-copy defects while ALT normalization removes the false fourth Primary', () => {
