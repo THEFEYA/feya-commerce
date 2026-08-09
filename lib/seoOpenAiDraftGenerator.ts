@@ -20,6 +20,8 @@ export type OpenAiDraftTelemetry = {
   duration_ms: number;
   http_status: number | null;
   usage: OpenAiTokenUsage | null;
+  writer_output_block_keys: string[] | null;
+  writer_output_block_count: number | null;
 };
 
 export type OpenAiDraftResult = {
@@ -57,6 +59,40 @@ type ResponseOutputItem = {
 
 const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
 
+const WRITER_PDP_BLOCK_SLOTS = [
+  'about_this_piece',
+  'why_youll_love_it',
+  'ideal_for',
+  'main_description',
+] as const;
+
+const CODE_OWNED_PDP_BLOCKS = [
+  {
+    block_key: 'about_this_piece',
+    placement: 'left_description',
+    heading: 'About this piece',
+    source_basis: 'product_fact',
+  },
+  {
+    block_key: 'why_youll_love_it',
+    placement: 'left_description',
+    heading: 'Why you’ll love it',
+    source_basis: 'product_fact',
+  },
+  {
+    block_key: 'ideal_for',
+    placement: 'left_description',
+    heading: 'Ideal for',
+    source_basis: 'product_fact',
+  },
+  {
+    block_key: 'main_description',
+    placement: 'left_description',
+    heading: 'Designed for self-expression',
+    source_basis: 'brand_policy',
+  },
+] as const;
+
 export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract, options: GenerateSeoDraftOptions = {}): Promise<OpenAiDraftResult> {
   const apiKey = process.env.OPENAI_API_KEY;
   const model = String(options.model || '').trim()
@@ -75,7 +111,7 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
     options.maxOutputTokens,
     positiveInteger(process.env.FEYA_SEO_OPENAI_MAX_OUTPUT_TOKENS, 2_500),
   );
-  const userInstruction = `${prompt.user_prompt}\n\nReturn exactly one JSON object that conforms to the seo_agent_output_v1 schema supplied in text.format. Do not omit required fields. Use null for unknown nullable text fields and empty arrays when a section has no safe content.`;
+  const userInstruction = `${prompt.user_prompt}\n\nReturn exactly one JSON object that conforms to the seo_agent_writer_output_v2 wire schema supplied in text.format. Fill all four required named pdp_blocks text slots. Do not omit required fields. Use null for unknown nullable text fields and empty arrays when a section has no safe content.`;
   const promptHash = createHash('sha256')
     .update(prompt.contract_version)
     .update('\0')
@@ -84,17 +120,26 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
     .update(userInstruction)
     .digest('hex');
   const startedAt = Date.now();
-  const telemetry = (httpStatus: number | null, usage: unknown = null): OpenAiDraftTelemetry => ({
-    contract_version: prompt.contract_version,
-    prompt_hash: promptHash,
-    system_prompt_chars: prompt.system_prompt.length,
-    user_prompt_chars: userInstruction.length,
-    timeout_ms: timeoutMs,
-    max_output_tokens: maxOutputTokens,
-    duration_ms: Date.now() - startedAt,
-    http_status: httpStatus,
-    usage: normalizeUsage(usage),
-  });
+  const telemetry = (
+    httpStatus: number | null,
+    usage: unknown = null,
+    writerOutput: unknown = undefined,
+  ): OpenAiDraftTelemetry => {
+    const blockKeys = inspectWriterPdpBlockKeys(writerOutput);
+    return {
+      contract_version: prompt.contract_version,
+      prompt_hash: promptHash,
+      system_prompt_chars: prompt.system_prompt.length,
+      user_prompt_chars: userInstruction.length,
+      timeout_ms: timeoutMs,
+      max_output_tokens: maxOutputTokens,
+      duration_ms: Date.now() - startedAt,
+      http_status: httpStatus,
+      usage: normalizeUsage(usage),
+      writer_output_block_keys: blockKeys,
+      writer_output_block_count: blockKeys?.length ?? null,
+    };
+  };
 
   if (!apiKey) {
     return {
@@ -157,7 +202,7 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
         text: {
           format: {
             type: 'json_schema',
-            name: 'seo_agent_output_v1',
+            name: 'seo_agent_writer_output_v2',
             strict: true,
             schema: seoAgentOutputSchema(),
           },
@@ -236,16 +281,31 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
     };
   }
 
+  const normalized = normalizeWriterOutput(parsed.value);
+  if (!normalized.ok) {
+    return {
+      ok: false,
+      status: 'parse_error',
+      model,
+      response_id: payload?.id || null,
+      output: null,
+      raw_text: rawText,
+      error: normalized.error,
+      vision_input: visionInput,
+      telemetry: telemetry(response.status, payload?.usage, parsed.value),
+    };
+  }
+
   return {
     ok: true,
     status: 'generated',
     model,
     response_id: payload?.id || null,
-    output: parsed.value as SeoAgentOutputContract,
+    output: normalized.value,
     raw_text: rawText,
     error: null,
     vision_input: visionInput,
-    telemetry: telemetry(response.status, payload?.usage),
+    telemetry: telemetry(response.status, payload?.usage, parsed.value),
   };
 }
 
@@ -331,29 +391,14 @@ function seoAgentOutputSchema() {
         },
       },
       pdp_blocks: {
-        type: 'array',
-        items: {
-          type: 'object',
-          additionalProperties: false,
-          required: ['block_key', 'placement', 'heading', 'body', 'source_basis', 'needs_human_review'],
-          properties: {
-            block_key: {
-              type: 'string',
-              enum: [
-                'about_this_piece',
-                'main_description',
-                'why_youll_love_it',
-                'ideal_for',
-                'image_truth_note',
-                'related_collections',
-              ],
-            },
-            placement: { type: 'string', enum: ['left_description', 'review_only'] },
-            heading: { type: 'string' },
-            body: { type: 'string' },
-            source_basis: { type: 'string', enum: ['product_fact', 'brand_policy', 'visual_truth', 'needs_human_review'] },
-            needs_human_review: { type: 'boolean' },
-          },
+        type: 'object',
+        additionalProperties: false,
+        required: [...WRITER_PDP_BLOCK_SLOTS],
+        properties: {
+          about_this_piece: { type: 'string' },
+          why_youll_love_it: { type: 'string' },
+          ideal_for: { type: 'string' },
+          main_description: { type: 'string' },
         },
       },
       qa_self_report: {
@@ -387,6 +432,75 @@ function seoAgentOutputSchema() {
       generation_notes: stringArray,
     },
   };
+}
+
+function normalizeWriterOutput(value: unknown): {
+  ok: true;
+  value: SeoAgentOutputContract;
+} | {
+  ok: false;
+  error: string;
+} {
+  if (!isRecord(value)) {
+    return { ok: false, error: 'Writer output is not a JSON object.' };
+  }
+
+  const slots = value.pdp_blocks;
+  if (!isRecord(slots)) {
+    return {
+      ok: false,
+      error: 'Writer pdp_blocks must use the required named-slot object contract.',
+    };
+  }
+
+  const suppliedKeys = Object.keys(slots);
+  const missingKeys = WRITER_PDP_BLOCK_SLOTS.filter((key) => !suppliedKeys.includes(key));
+  const unexpectedKeys = suppliedKeys.filter((key) => !WRITER_PDP_BLOCK_SLOTS.includes(
+    key as typeof WRITER_PDP_BLOCK_SLOTS[number],
+  ));
+  if (missingKeys.length || unexpectedKeys.length) {
+    return {
+      ok: false,
+      error: [
+        missingKeys.length ? `missing PDP slots: ${missingKeys.join(', ')}` : '',
+        unexpectedKeys.length ? `unexpected PDP slots: ${unexpectedKeys.join(', ')}` : '',
+      ].filter(Boolean).join('; '),
+    };
+  }
+
+  const nonTextKeys = WRITER_PDP_BLOCK_SLOTS.filter((key) => typeof slots[key] !== 'string');
+  if (nonTextKeys.length) {
+    return {
+      ok: false,
+      error: `Writer PDP slots must be strings: ${nonTextKeys.join(', ')}.`,
+    };
+  }
+
+  return {
+    ok: true,
+    value: {
+      ...value,
+      pdp_blocks: CODE_OWNED_PDP_BLOCKS.map((block) => ({
+        ...block,
+        body: slots[block.block_key] as string,
+        // Every generated pack remains a review draft at the workflow level;
+        // this flag is reserved for a fact-specific uncertainty in one block.
+        needs_human_review: false,
+      })),
+    } as SeoAgentOutputContract,
+  };
+}
+
+function inspectWriterPdpBlockKeys(value: unknown): string[] | null {
+  if (!isRecord(value)) return null;
+  if (isRecord(value.pdp_blocks)) return Object.keys(value.pdp_blocks);
+  if (Array.isArray(value.pdp_blocks)) {
+    return value.pdp_blocks
+      .filter(isRecord)
+      .map((block) => String(block.block_key || '').trim())
+      .filter(Boolean);
+  }
+  return null;
 }
 
 function extractOutputText(payload: unknown): string | null {

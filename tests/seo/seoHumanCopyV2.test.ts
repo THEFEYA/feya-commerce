@@ -44,6 +44,47 @@ function roleMap() {
   } as any;
 }
 
+function writerWireOutput(pdpBlocks: unknown = {
+  about_this_piece: 'About.',
+  why_youll_love_it: 'Why.',
+  ideal_for: 'Ideal.',
+  main_description: 'Final.',
+}) {
+  return {
+    contract_version: 'seo_agent_output_v1',
+    status: 'draft',
+    seo_title: null,
+    h1: null,
+    meta_description: null,
+    intro: null,
+    bullet_highlights: [],
+    faq: [],
+    image_alt_candidates: [],
+    internal_linking_hints: [],
+    visual_truth: {
+      observed_product_facts: [],
+      dna_matches: [],
+      open_style_suggestions: [],
+      uncertain_or_missing_facts: [],
+      forbidden_visual_claims: [],
+    },
+    pdp_blocks: pdpBlocks,
+    qa_self_report: {
+      cliche_phrase: 'not_checked',
+      long_dash: 'not_checked',
+      keyword_stuffing: 'not_checked',
+      product_specificity: 'not_checked',
+      forbidden_mismatch: 'not_checked',
+      similarity_cannibalization: 'not_checked',
+      image_alt_truth: 'not_checked',
+      commercial_placement: 'not_checked',
+      validated_metrics: 'not_checked',
+      notes: [],
+    },
+    generation_notes: [],
+  };
+}
+
 function inputContract() {
   return {
     contract_version: 'seo_agent_input_v1',
@@ -682,7 +723,7 @@ test('OpenAI writer performs one bounded request and reports token usage', async
         requestBody = JSON.parse(String(init?.body || '{}'));
         return new Response(JSON.stringify({
           id: 'resp_test',
-          output_text: '{}',
+          output_text: JSON.stringify(writerWireOutput()),
           usage: {
             input_tokens: 120,
             output_tokens: 40,
@@ -698,14 +739,91 @@ test('OpenAI writer performs one bounded request and reports token usage', async
     assert.equal(result.ok, true);
     assert.equal(requestBody.max_output_tokens, 321);
     assert.equal(requestBody.reasoning.effort, 'low');
-    const generatedBlockKeys = requestBody.text.format.schema.properties.pdp_blocks
-      .items.properties.block_key.enum;
-    assert.equal(generatedBlockKeys.includes('whats_included'), false);
-    assert.equal(generatedBlockKeys.includes('material'), false);
+    assert.equal(requestBody.text.format.name, 'seo_agent_writer_output_v2');
+    const pdpSchema = requestBody.text.format.schema.properties.pdp_blocks;
+    assert.equal(pdpSchema.type, 'object');
+    assert.equal(pdpSchema.additionalProperties, false);
+    assert.deepEqual(pdpSchema.required, [
+      'about_this_piece',
+      'why_youll_love_it',
+      'ideal_for',
+      'main_description',
+    ]);
+    assert.deepEqual(Object.keys(pdpSchema.properties), pdpSchema.required);
+    assert.equal('whats_included' in pdpSchema.properties, false);
+    assert.equal('material' in pdpSchema.properties, false);
+    assert.deepEqual(result.output?.pdp_blocks.map((block) => ({
+      key: block.block_key,
+      heading: block.heading,
+      placement: block.placement,
+      source: block.source_basis,
+      body: block.body,
+    })), [
+      { key: 'about_this_piece', heading: 'About this piece', placement: 'left_description', source: 'product_fact', body: 'About.' },
+      { key: 'why_youll_love_it', heading: 'Why you’ll love it', placement: 'left_description', source: 'product_fact', body: 'Why.' },
+      { key: 'ideal_for', heading: 'Ideal for', placement: 'left_description', source: 'product_fact', body: 'Ideal.' },
+      { key: 'main_description', heading: 'Designed for self-expression', placement: 'left_description', source: 'brand_policy', body: 'Final.' },
+    ]);
     assert.equal(result.telemetry.usage?.total_tokens, 160);
     assert.equal(result.telemetry.usage?.cached_input_tokens, 20);
+    assert.deepEqual(result.telemetry.writer_output_block_keys, [
+      'about_this_piece',
+      'why_youll_love_it',
+      'ideal_for',
+      'main_description',
+    ]);
+    assert.equal(result.telemetry.writer_output_block_count, 4);
     assert.equal(result.telemetry.prompt_hash.length, 64);
     assert.equal('system_prompt' in result.telemetry, false);
+  } finally {
+    if (previousKey === undefined) delete process.env.OPENAI_API_KEY;
+    else process.env.OPENAI_API_KEY = previousKey;
+  }
+});
+
+test('OpenAI writer rejects the legacy one-block array response before route validation', async () => {
+  const previousKey = process.env.OPENAI_API_KEY;
+  process.env.OPENAI_API_KEY = 'test-only-not-a-real-key';
+  let calls = 0;
+  try {
+    const result = await generateSeoDraftWithOpenAi({
+      contract_version: 'seo_agent_prompt_v1',
+      model_role: 'server_side_seo_draft_writer',
+      output_contract_version: 'seo_agent_output_v1',
+      system_prompt: 'System contract',
+      user_prompt: 'Writer brief',
+      doctrine_summary: {} as any,
+      response_format: { type: 'json_schema', required_top_level_fields: [] },
+      guardrails: [],
+    }, {
+      reasoningEffort: 'low',
+      fetchImpl: async () => {
+        calls += 1;
+        return new Response(JSON.stringify({
+          id: 'resp_incomplete_pdp',
+          output_text: JSON.stringify(writerWireOutput([{
+            block_key: 'main_description',
+            placement: 'left_description',
+            heading: 'Designed for self-expression',
+            body: 'Only the final block was returned.',
+            source_basis: 'brand_policy',
+            needs_human_review: false,
+          }])),
+          usage: {
+            input_tokens: 100,
+            output_tokens: 20,
+            total_tokens: 120,
+          },
+        }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+      },
+    });
+
+    assert.equal(calls, 1);
+    assert.equal(result.ok, false);
+    assert.equal(result.status, 'parse_error');
+    assert.match(result.error || '', /required named-slot object contract/);
+    assert.deepEqual(result.telemetry.writer_output_block_keys, ['main_description']);
+    assert.equal(result.telemetry.writer_output_block_count, 1);
   } finally {
     if (previousKey === undefined) delete process.env.OPENAI_API_KEY;
     else process.env.OPENAI_API_KEY = previousKey;
