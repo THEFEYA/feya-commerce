@@ -1,9 +1,16 @@
 # FEYA Reference Example 001 — owner-refined etalon (2026-07-27)
 
+> **Portfolio status update (2026-08-10):** this file is an editorial-style
+> regression example, not a live keyword-allocation source. Its historical
+> Primary assignment is superseded. Gold Warrior product `1885178663`
+> provisionally owns `warrior armor costume`; product `4340584466` is blocked
+> pending a different validated whole-product Primary. Do not use this prose to
+> authorize generation, saving, or publication for `4340584466`.
+
 Product: 4340584466 — Warrior Armor Costume Set (Shoulders + Skirt, gold, vegan leather).
 Axes (latest saved Listing Master decision): event = burning man, festival; persona = warrior; material = gold; components = shoulders, skirt.
-Keywords: primary "warrior armor costume" (title/H1/meta only); secondary/supporting woven per map below.
-Status: owner-reviewed editorial etalon, amended after the 2026-08-07 pilot. It is not injected verbatim into the writer prompt; only compact block frames are used. Rules R1–R18 applied.
+Historical keywords in this example: primary "warrior armor costume" (title/H1/meta only); secondary/supporting woven per map below.
+Status: owner-reviewed editorial-style etalon, amended after the 2026-08-07 pilot. It is not injected verbatim into the writer prompt; only compact block frames are used. Its keyword allocation is no longer current. Rules R1–R18 applied.
 
 ---
 

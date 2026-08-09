@@ -1,6 +1,6 @@
 # FEYA Commerce — Current Start Here
 
-Date: 2026-08-07
+Date: 2026-08-10
 Status: current execution entrypoint
 Repository: `THEFEYA/feya-commerce`
 Active branch: `claude/human-copy-v2-20260727`
@@ -17,6 +17,46 @@ docs/PRODUCT_SEO_COMPLETION_OPERATING_PROMPT_2026-07-27.md
 Historical reports and research remain useful evidence, but they do not
 override this file, the current storefront v4 selector, current Supabase
 contracts, or verified application behavior.
+
+## Current verified checkpoint (2026-08-10)
+
+The deployed preview at commit
+`91acda248f10b53eb1222ec03e32669c6edd2188` reserves exact product-page
+Primary ownership before any OpenAI request.
+
+For the current Gold Warrior editorial pilot:
+
+```text
+canonical_product_id: a94b5c1b-3346-4868-b0f6-7a60d954530e
+matched_etsy_listing_id: 1885178663
+keyword selection: confirmed
+Primary owner: warrior armor costume
+generation preflight: pass
+publish status: blocked pending peer reassignment and later publish gates
+```
+
+The exact matching peer is:
+
+```text
+canonical_product_id: d42b9d73-1327-49fa-bfab-9a732b133772
+matched_etsy_listing_id: 4340584466
+current included components: Shoulders, Skirt
+keyword selection: needs_keyword_review
+generation status: blocked_pending_keyword_reassignment
+```
+
+That peer must receive a different validated **whole-product** Primary before
+generation or publication. Current phrases such as `gold skirt set`,
+`festival skirt set`, and `metallic skirt outfit` describe only part of the
+sellable two-piece offer and must not be promoted to Primary just because they
+have volume.
+
+The last paid Gold Warrior control output returned HTTP 422 and was not saved,
+applied, approved, or published. The exact failed copy now passes structural
+and commercial regression QA after bounded zero-token normalization, but that
+regression result is not a human editorial approval and is not an index-ready
+SEO Pack. No paid generation is authorized merely by loading the current
+preview.
 
 ## Current phase
 
@@ -160,7 +200,12 @@ Ideal for: 4-5 distinct people and concrete situations; varied rhythm
 Close: we/our studio voice, one TheFEYA mention, honest self-expression value
 ```
 
-## Exact reviewed focus for the regression product
+## Historical reviewed focus for the regression product
+
+The allocation below records the earlier editorial pilot and is superseded for
+live keyword ownership by the 2026-08-10 checkpoint above. It remains useful
+for copy-regression tests only; it must not authorize generation or publish for
+product `4340584466`.
 
 ```text
 event: Burning Man, festival
@@ -215,9 +260,13 @@ manual focus, and exact Primary in ALT is replaced deterministically with the
 reviewed `warrior armor outfit` variation without touching pose or setting
 facts. Generic sales cliches and the exact live-pilot robotic phrases are
 zero-cost blockers, not extra prompt tokens. These cases are covered by the
-current 183-test SEO suite.
+current 212-test SEO suite.
 
-## Exact continuation step
+## Superseded 2026-08-08 continuation step
+
+The deployment checkpoint described below has been completed. Continue from
+the 2026-08-10 checkpoint at the top of this file, not from this historical
+instruction.
 
 Deploy this corrective branch to a Vercel Preview and verify the real preview
 route for product `a94b5c1b-3346-4868-b0f6-7a60d954530e` without pressing any
