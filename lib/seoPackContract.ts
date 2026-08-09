@@ -210,7 +210,7 @@ export type SeoPortfolioDifferentiationContract = {
   publish_blockers?: string[];
   keyword_ownership?: {
     contract_version: 'seo_primary_keyword_ownership_v1';
-    status: 'pass' | 'conflict' | 'not_checked';
+    status: 'pass' | 'pass_with_pending_reassignment' | 'conflict' | 'not_checked';
     target_product_id: string;
     target_product_title?: string | null;
     primary_keyword: string | null;
@@ -223,6 +223,10 @@ export type SeoPortfolioDifferentiationContract = {
       decision_status?: string | null;
       keyword: string;
       keyword_norm: string;
+      current_selection_status?: string | null;
+      current_primary_keyword?: string | null;
+      current_primary_keyword_norm?: string | null;
+      current_selection_error?: string | null;
     }>;
     suggested_primary_alternatives: Array<{
       keyword: string;
@@ -239,6 +243,7 @@ export type SeoPortfolioDifferentiationContract = {
     source_error?: string | null;
     checked_at: string;
     limitations: string[];
+    reserved_owner_product_id?: string | null;
   };
   source_overlap_strategy?: SeoPortfolioDifferentiationContract | null;
 };

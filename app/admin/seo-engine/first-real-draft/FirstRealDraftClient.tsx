@@ -831,6 +831,7 @@ function blockerLabel(code) {
     portfolio_strategy_missing: 'Не удалось загрузить обязательную стратегию портфеля до запуска OpenAI.',
     primary_keyword_portfolio_conflict: 'Этот же Primary уже выбран для другого товара. Один главный поисковый интент должен принадлежать одной странице.',
     primary_keyword_portfolio_map_unavailable: 'Не удалось проверить текущих владельцев Primary. OpenAI не вызван, чтобы не создать каннибализацию.',
+    primary_keyword_peer_reassignment_pending: 'Этот товар сохраняет Primary, но конфликтующему товару нужен новый whole-product Primary до публикации.',
   };
   return labels[code] || String(code || 'Неизвестный блокер').replaceAll('_', ' ');
 }
@@ -901,6 +902,24 @@ function PortfolioOwnershipNotice({ ownership }: { ownership: Record<string, any
     return <Notice tone="success">
       Primary <span className="text-bone">“{primary}”</span> свободен среди {ownership.compared_product_count || 0} других текущих решений Listing Master. Это разрешает генерацию, но не заменяет последующую проверку похожести готовых текстов.
     </Notice>;
+  }
+
+  if (ownership?.status === 'pass_with_pending_reassignment') {
+    return <div className="rounded-xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.06)] p-4">
+      <div className="text-[10px] uppercase tracking-[.16em] text-[var(--gold-warm)]">Primary закреплён за этим товаром</div>
+      <p className="mt-2 text-[12px] leading-relaxed text-[var(--bone-dim)]">
+        Текущее подтверждённое решение сохраняет <span className="text-bone">“{primary}”</span> за выбранной карточкой. Генерация разрешена; публикация останется закрыта, пока устаревшее решение другой карточки не получит новый whole-product Primary.
+      </p>
+      <div className="mt-3 space-y-2">
+        {conflicts.map((item: Record<string, any>) => <a
+          key={`${item.canonical_product_id}-${item.keyword_norm}`}
+          href={`/admin/listing-master?product_id=${encodeURIComponent(item.canonical_product_id)}`}
+          className="block rounded-lg border border-[rgba(216,214,211,.10)] bg-black/20 px-3 py-2 text-[11px] leading-relaxed text-[var(--bone-dim)] hover:border-[rgba(212,178,106,.35)] hover:text-bone"
+        >
+          Требует нового Primary до публикации: Etsy {item.matched_etsy_listing_id || '—'} · статус текущей проверки {item.current_selection_status || 'не проверен'}
+        </a>)}
+      </div>
+    </div>;
   }
 
   if (ownership?.status === 'not_checked') {

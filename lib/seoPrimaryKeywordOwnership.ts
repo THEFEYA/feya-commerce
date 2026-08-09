@@ -8,6 +8,7 @@ type DecisionRow = Record<string, unknown>;
 
 export const PRIMARY_KEYWORD_CONFLICT_BLOCKER = 'primary_keyword_portfolio_conflict';
 export const PRIMARY_KEYWORD_MAP_UNAVAILABLE_BLOCKER = 'primary_keyword_portfolio_map_unavailable';
+export const PRIMARY_KEYWORD_PEER_REASSIGNMENT_PENDING = 'primary_keyword_peer_reassignment_pending';
 
 export type SeoPrimaryKeywordAlternative = {
   keyword: string;
@@ -26,11 +27,15 @@ export type SeoPrimaryKeywordConflict = {
   decision_status: string | null;
   keyword: string;
   keyword_norm: string;
+  current_selection_status?: string | null;
+  current_primary_keyword?: string | null;
+  current_primary_keyword_norm?: string | null;
+  current_selection_error?: string | null;
 };
 
 export type SeoPrimaryKeywordOwnershipContract = {
   contract_version: 'seo_primary_keyword_ownership_v1';
-  status: 'pass' | 'conflict' | 'not_checked';
+  status: 'pass' | 'pass_with_pending_reassignment' | 'conflict' | 'not_checked';
   target_product_id: string;
   target_product_title: string | null;
   primary_keyword: string | null;
@@ -44,15 +49,16 @@ export type SeoPrimaryKeywordOwnershipContract = {
   source_error: string | null;
   checked_at: string;
   limitations: string[];
+  reserved_owner_product_id?: string | null;
 };
 
 export type SeoPrimaryOwnershipStrategy = Record<string, unknown> & {
   contract_version: 'seo_differentiation_strategy_v1';
   source: 'live_listing_master_primary_ownership';
-  classification: 'PORTFOLIO_EXPANSION_OK' | 'NEEDS_KEYWORD_REASSIGNMENT' | 'NEEDS_SOURCE_DATA_CLEANUP';
-  risk_level: 'low' | 'high' | 'mapping';
+  classification: 'PORTFOLIO_EXPANSION_OK' | 'DIFFERENTIATE_BEFORE_PUBLISH' | 'NEEDS_KEYWORD_REASSIGNMENT' | 'NEEDS_SOURCE_DATA_CLEANUP';
+  risk_level: 'low' | 'medium' | 'high' | 'mapping';
   human_decision_needed: boolean;
-  recommended_generation_mode: 'normal_generation' | 'blocked_pending_keyword_reassignment' | 'blocked_pending_portfolio_map';
+  recommended_generation_mode: 'normal_generation' | 'normal_generation_primary_reserved' | 'blocked_pending_keyword_reassignment' | 'blocked_pending_portfolio_map';
   primary_angle_to_own: string | null;
   generation_blockers: string[];
   publish_blockers: string[];
@@ -181,6 +187,95 @@ export function buildSeoPrimaryKeywordOwnershipStrategy(input: {
     generation_blockers: generationBlockers,
     publish_blockers: generationBlockers,
     keyword_ownership: ownership,
+  };
+}
+
+export type SeoPeerKeywordSelectionState = {
+  canonical_product_id: string;
+  selection_status: string | null;
+  primary_keyword: string | null;
+  error?: string | null;
+};
+
+/**
+ * A current, confirmed target decision may reserve the Primary for generation
+ * when every matching peer has already been invalidated by its own Product
+ * Truth/keyword re-audit. The peer still has to be reassigned before publish.
+ * A second confirmed owner, or an unreadable peer state, remains a hard stop.
+ */
+export function resolveSeoPrimaryOwnershipWithCurrentSelections(
+  strategy: SeoPrimaryOwnershipStrategy | null,
+  input: {
+    targetSelectionStatus?: unknown;
+    peerSelections?: SeoPeerKeywordSelectionState[];
+  },
+): SeoPrimaryOwnershipStrategy | null {
+  if (!strategy || strategy.keyword_ownership.status !== 'conflict') return strategy;
+  const targetSelectionStatus = clean(input.targetSelectionStatus).toLowerCase();
+  const peerById = new Map(
+    (input.peerSelections || []).map((item) => [clean(item.canonical_product_id), item]),
+  );
+  const primaryNorm = strategy.keyword_ownership.primary_keyword_norm || '';
+  let peerStateUnavailable = false;
+  let confirmedPeerOwner = false;
+  const conflicts = strategy.keyword_ownership.conflicts.map((conflict) => {
+    const current = peerById.get(conflict.canonical_product_id);
+    const currentStatus = clean(current?.selection_status).toLowerCase() || null;
+    const currentPrimary = clean(current?.primary_keyword) || null;
+    const currentPrimaryNorm = normalizeKeyword(currentPrimary);
+    const currentError = clean(current?.error) || null;
+    if (!current || currentError) peerStateUnavailable = true;
+    if (currentStatus === 'confirmed' && currentPrimaryNorm === primaryNorm) {
+      confirmedPeerOwner = true;
+    }
+    return {
+      ...conflict,
+      current_selection_status: currentStatus,
+      current_primary_keyword: currentPrimary,
+      current_primary_keyword_norm: currentPrimaryNorm || null,
+      current_selection_error: currentError,
+    };
+  });
+
+  const targetCanReserve = targetSelectionStatus === 'confirmed'
+    && !peerStateUnavailable
+    && !confirmedPeerOwner;
+  if (!targetCanReserve) {
+    const generationBlockers = unique([
+      PRIMARY_KEYWORD_CONFLICT_BLOCKER,
+      peerStateUnavailable ? PRIMARY_KEYWORD_MAP_UNAVAILABLE_BLOCKER : null,
+    ]);
+    return {
+      ...strategy,
+      generation_blockers: generationBlockers,
+      publish_blockers: generationBlockers,
+      keyword_ownership: {
+        ...strategy.keyword_ownership,
+        conflicts,
+        generation_blockers: generationBlockers,
+        publish_blockers: generationBlockers,
+      },
+    };
+  }
+
+  return {
+    ...strategy,
+    classification: 'DIFFERENTIATE_BEFORE_PUBLISH',
+    risk_level: 'medium',
+    human_decision_needed: true,
+    recommended_generation_mode: 'normal_generation_primary_reserved',
+    generation_blockers: [],
+    publish_blockers: [PRIMARY_KEYWORD_PEER_REASSIGNMENT_PENDING],
+    agent_instruction_summary: `This confirmed product provisionally owns the exact Primary intent “${strategy.keyword_ownership.primary_keyword}”. Matching peer decisions are not current and must receive a different whole-product Primary before publish.`,
+    keyword_ownership: {
+      ...strategy.keyword_ownership,
+      status: 'pass_with_pending_reassignment',
+      conflicts,
+      suggested_primary_alternatives: [],
+      generation_blockers: [],
+      publish_blockers: [PRIMARY_KEYWORD_PEER_REASSIGNMENT_PENDING],
+      reserved_owner_product_id: strategy.keyword_ownership.target_product_id,
+    },
   };
 }
 

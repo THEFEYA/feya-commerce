@@ -13,7 +13,10 @@ import {
   sellableOfferAllowsComponentFocus,
 } from '@/lib/storefrontSellableOffer';
 import { hasTrustedSeoMetricSnapshot } from '@/lib/seoTrustedMetricSnapshot';
-import { buildSeoPrimaryKeywordOwnershipStrategy } from '@/lib/seoPrimaryKeywordOwnership';
+import {
+  buildSeoPrimaryKeywordOwnershipStrategy,
+  resolveSeoPrimaryOwnershipWithCurrentSelections,
+} from '@/lib/seoPrimaryKeywordOwnership';
 
 const PRODUCT_TRUTH_VIEW = 'feya_commerce_v_seo_product_truth_v4';
 const PRODUCT_TRUTH_EXACT_RPC = 'feya_commerce_get_seo_product_truth_v4';
@@ -157,7 +160,10 @@ export async function buildSeoBriefContractBundle(productId: string) {
   const identityDraft = attachProductIdentity(buildSeoPackDraftContractFromBrief(brief), source);
   const latestSavedDraftContext = await loadLatestSavedSeoDraftContext(identityDraft.canonical_product_id);
   const savedSourceOverlapStrategy = extractPortfolioStrategy(latestSavedDraftContext);
-  const livePrimaryOwnershipStrategy = await loadLivePrimaryOwnershipStrategy(identityDraft);
+  const livePrimaryOwnershipStrategy = await loadLivePrimaryOwnershipStrategy(
+    identityDraft,
+    source.keywordSelection,
+  );
   const portfolioStrategy = mergePortfolioStrategies(
     savedSourceOverlapStrategy,
     livePrimaryOwnershipStrategy,
@@ -933,7 +939,7 @@ function extractPortfolioStrategy(latestSavedDraftContext) {
   };
 }
 
-async function loadLivePrimaryOwnershipStrategy(identityDraft) {
+async function loadLivePrimaryOwnershipStrategy(identityDraft, targetKeywordSelection) {
   const serviceClient = getSupabaseServiceClient();
   const supabase = serviceClient || getSupabaseReadClient();
   const primaryKeyword = identityDraft?.keyword_roles?.primary?.[0] || null;
@@ -956,7 +962,7 @@ async function loadLivePrimaryOwnershipStrategy(identityDraft) {
     .select(DECISION_SELECT)
     .limit(2000);
 
-  return buildSeoPrimaryKeywordOwnershipStrategy({
+  const initialStrategy = buildSeoPrimaryKeywordOwnershipStrategy({
     targetProductId: identityDraft?.canonical_product_id,
     targetProductTitle: identityDraft?.product_truth?.title,
     primaryKeyword,
@@ -964,6 +970,33 @@ async function loadLivePrimaryOwnershipStrategy(identityDraft) {
     productTruth: identityDraft?.product_truth,
     decisionRows: result.data || [],
     sourceError: result.error?.message || null,
+  });
+  const conflicts = initialStrategy?.keyword_ownership?.conflicts || [];
+  if (!conflicts.length || result.error) return initialStrategy;
+
+  const peerSelections = await Promise.all(conflicts.slice(0, 12).map(async (conflict) => {
+    try {
+      const peerSource = await loadSeoBriefSource(conflict.canonical_product_id);
+      const currentPrimary = (peerSource.keywords || []).find((row) => row?.pilot_role === 'primary');
+      return {
+        canonical_product_id: conflict.canonical_product_id,
+        selection_status: peerSource.keywordSelection?.status || null,
+        primary_keyword: currentPrimary?.keyword || currentPrimary?.keyword_norm || null,
+        error: peerSource.error || null,
+      };
+    } catch (error) {
+      return {
+        canonical_product_id: conflict.canonical_product_id,
+        selection_status: null,
+        primary_keyword: null,
+        error: error instanceof Error ? error.message : 'Peer keyword selection re-audit failed.',
+      };
+    }
+  }));
+
+  return resolveSeoPrimaryOwnershipWithCurrentSelections(initialStrategy, {
+    targetSelectionStatus: targetKeywordSelection?.status,
+    peerSelections,
   });
 }
 
