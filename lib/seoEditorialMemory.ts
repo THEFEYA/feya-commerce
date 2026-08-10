@@ -1,6 +1,6 @@
-export type SeoEditorialMemoryV4 = {
-  contract_version: 'seo_editorial_memory_v4';
-  source: 'owner_reference_001_plus_2026_08_10_control_feedback';
+export type SeoEditorialMemoryV5 = {
+  contract_version: 'seo_editorial_memory_v5';
+  source: 'owner_reference_001_plus_2026_08_10_final_pilot_feedback';
   use: 'positive_block_frames_only';
   canonical_left_order: [
     'about_this_piece',
@@ -29,9 +29,9 @@ export type SeoEditorialMemoryV4 = {
  * copied across the catalog. The current claim plan remains the only source
  * of publishable product facts.
  */
-export const SEO_EDITORIAL_MEMORY_V4: SeoEditorialMemoryV4 = {
-  contract_version: 'seo_editorial_memory_v4',
-  source: 'owner_reference_001_plus_2026_08_10_control_feedback',
+export const SEO_EDITORIAL_MEMORY_V5: SeoEditorialMemoryV5 = {
+  contract_version: 'seo_editorial_memory_v5',
+  source: 'owner_reference_001_plus_2026_08_10_final_pilot_feedback',
   use: 'positive_block_frames_only',
   canonical_left_order: [
     'about_this_piece',
@@ -54,7 +54,7 @@ export const SEO_EDITORIAL_MEMORY_V4: SeoEditorialMemoryV4 = {
       'Creators styling a costume for photography, video or a live set.',
       'Stylists sourcing a design for a show or editorial.',
     ],
-    studio_close: 'Say once that at TheFEYA we develop festival and stage pieces from our own ideas. Use the actual body_identity_variant_en value, never “body identity”. Connect one selected style or setting, then close with one plain buyer-value sentence about a visual identity that feels personal. Never prescribe hair, makeup, accessories, footwear, props or other unsold garments.',
+    studio_close: 'Say once that at TheFEYA we develop festival and stage pieces from our own ideas. Use the actual body_identity_variant_en value, never “body identity”. Name the selected style pair once, then close with one plain buyer-value sentence about a visual identity that feels personal. Do not repeat “feels” in that sentence. Never prescribe hair, makeup, accessories, footwear, props or other unsold garments.',
   },
   writing_moves: {
     about_this_piece: 'Real occasion, whole-product identity, one vivid supported detail, then why it matters in wear.',

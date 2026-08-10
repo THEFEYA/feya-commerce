@@ -338,6 +338,18 @@ function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue
           'Designed for self-expression must explain studio authorship and buyer value, not prescribe unsold hair, makeup, accessories, footwear or other external styling.',
         ));
       }
+      if (countPhrase(body, 'futuristic or fantasy') > 1) {
+        issues.push(blocker(
+          'main_description_repeats_selected_style_pair',
+          'Designed for self-expression repeats the same selected style pair. Name it once and use the remaining sentence for distinct buyer value.',
+        ));
+      }
+      if (countPhrase(body, 'feels') > 1) {
+        issues.push(blocker(
+          'main_description_repeats_feels',
+          'Designed for self-expression repeats “feels” and reads mechanically. Use one direct buyer-value close.',
+        ));
+      }
     }
   });
 
@@ -371,6 +383,13 @@ function validateCustomerCopy(value: Record<string, unknown>, issues: SeoAgentOu
     checkEnglishString(value[field], field, issues, 'blocker');
     checkCustomerStyle(value[field], field, issues);
   });
+
+  if (typeof value.meta_description === 'string' && isShoutingCase(value.meta_description)) {
+    issues.push(blocker(
+      'meta_description_all_caps',
+      'meta_description must use normal sentence case. All-caps copy is not acceptable customer-facing metadata.',
+    ));
+  }
 
   if (typeof value.h1 === 'string') {
     const repeatedShoulderEntities = value.h1.match(REDUNDANT_SHOULDER_ENTITY_PATTERN) || [];
@@ -597,6 +616,17 @@ function splitDisplayLines(value: string) {
 function countMatches(value: string, pattern: RegExp) {
   const flags = pattern.flags.includes('g') ? pattern.flags : `${pattern.flags}g`;
   return [...value.matchAll(new RegExp(pattern.source, flags))].length;
+}
+
+function isShoutingCase(value: string) {
+  const letters = value.match(/[A-Za-z]/g) || [];
+  if (letters.length < 20) return false;
+  const uppercaseLetters = letters.filter((letter) => letter === letter.toUpperCase()).length;
+  return uppercaseLetters / letters.length >= 0.9;
+}
+
+function countPhrase(value: string, phrase: string) {
+  return value.toLowerCase().split(phrase.toLowerCase()).length - 1;
 }
 
 function blocked(issues: Array<Omit<SeoAgentOutputValidationIssue, 'severity'>>): SeoAgentOutputValidationResult {

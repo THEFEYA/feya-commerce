@@ -51,6 +51,31 @@ test('allows a concise complete H1 without character padding', () => {
   assert.equal(codes.includes('h1_restates_same_product_entity'), false);
 });
 
+test('blocks an all-caps meta description even when its claims are otherwise valid', () => {
+  const result = validateSeoAgentOutput(output({
+    meta_description: 'GOLD SHOULDER ARMOR WITH LAYERED PANELS FOR BURNING MAN AND STAGE COSTUMES.',
+  }));
+
+  assert.ok(result.issues.some((issue) => issue.code === 'meta_description_all_caps'));
+  assert.equal(result.ok, false);
+});
+
+test('blocks repeated style-pair and repeated-feels wording in the studio close', () => {
+  const result = validateSeoAgentOutput(output({
+    pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'main_description'
+      ? {
+        ...block,
+        body: 'At TheFEYA, we develop festival and stage pieces from our own ideas, and this warrior armor outfit supports a futuristic or fantasy look. It can lean futuristic or fantasy for festivals and cosplay. It feels designed for a visual identity that feels personal.',
+      }
+      : block),
+  }));
+
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('main_description_repeats_selected_style_pair'));
+  assert.ok(codes.includes('main_description_repeats_feels'));
+  assert.equal(result.ok, false);
+});
+
 test('allows a single factual intro sentence without forcing filler', () => {
   const result = validateSeoAgentOutput(output({
     intro: 'A gold warrior set made for Burning Man.',
