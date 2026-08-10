@@ -48,9 +48,11 @@ const PAGE_SIZE = 36;
 export default function FirstRealDraftClient({
   initialProductId = '',
   autoGenerate = false,
+  loadSavedDraft = false,
 }: {
   initialProductId?: string;
   autoGenerate?: boolean;
+  loadSavedDraft?: boolean;
 }) {
   const [candidateLoading, setCandidateLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -62,6 +64,7 @@ export default function FirstRealDraftClient({
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [testedIds, setTestedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
+  const [savedDraftLoading, setSavedDraftLoading] = useState(false);
   const [repairing, setRepairing] = useState(false);
   const [repairUsed, setRepairUsed] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -73,6 +76,7 @@ export default function FirstRealDraftClient({
   const [detailError, setDetailError] = useState<string | null>(null);
   const resultRef = useRef<HTMLDivElement | null>(null);
   const autoGenerationStarted = useRef('');
+  const savedDraftLoadStarted = useRef('');
 
   useEffect(() => {
     try {
@@ -222,6 +226,7 @@ export default function FirstRealDraftClient({
     if (productId) url.searchParams.set('product_id', productId);
     else url.searchParams.delete('product_id');
     url.searchParams.delete('generate');
+    url.searchParams.delete('saved');
     window.history.replaceState({}, '', url.toString());
   }
 
@@ -310,6 +315,53 @@ export default function FirstRealDraftClient({
     }
   }
 
+  async function loadStoredDraft() {
+    if (savedDraftLoading || !selectedProductId) return;
+    setSavedDraftLoading(true);
+    setResult(null);
+    setRepairUsed(false);
+    setSavedCurrentResult(false);
+    setStorefrontProduct(null);
+    setError(null);
+    setWorkflowNotice(null);
+
+    try {
+      const [draftResponse, productResponse] = await Promise.all([
+        fetch(`/api/admin/seo-engine/saved-draft-preview?product_id=${encodeURIComponent(selectedProductId)}`, {
+          cache: 'no-store',
+        }),
+        fetch(`/api/admin/seo-engine/storefront-product?product_id=${encodeURIComponent(selectedProductId)}`, {
+          cache: 'no-store',
+        }),
+      ]);
+      const [draftPayload, productPayload] = await Promise.all([
+        draftResponse.json().catch(() => ({})),
+        productResponse.json().catch(() => ({})),
+      ]);
+
+      if (!draftResponse.ok || !draftPayload?.generated_draft_output) {
+        setError(draftPayload?.error || 'Не удалось загрузить сохранённый SEO-черновик. OpenAI не вызывался.');
+        return;
+      }
+      if (!productResponse.ok || !productPayload?.product) {
+        setError(productPayload?.error || 'Сохранённый текст найден, но карточка товара не загрузилась. OpenAI не вызывался.');
+        return;
+      }
+
+      setResult({ ...draftPayload, http_status: draftResponse.status });
+      setStorefrontProduct(productPayload.product);
+      setSavedCurrentResult(true);
+      setWorkflowNotice('Загружен последний сохранённый SEO-черновик. Это read-only preview: OpenAI не вызывался, токены не потрачены, ничего не изменено и не опубликовано.');
+      window.setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    } catch (err) {
+      setError(err instanceof Error
+        ? err.message
+        : 'Неизвестная ошибка загрузки сохранённого SEO-черновика. OpenAI не вызывался.');
+    } finally {
+      setSavedDraftLoading(false);
+    }
+  }
+
   async function runTargetedRepair() {
     if (repairing || repairUsed || !selectedProductId || !draft || reviewPass) return;
     setRepairing(true);
@@ -370,6 +422,24 @@ export default function FirstRealDraftClient({
     // render-scoped function here would retrigger automatic generation.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoGenerate, selectedCandidate, detailLoading, detailVerifiedProductId, loading, result, selectedProductId]);
+
+  useEffect(() => {
+    if (
+      !loadSavedDraft
+      || !selectedCandidate
+      || detailLoading
+      || detailVerifiedProductId !== selectedProductId
+      || savedDraftLoading
+      || result
+      || !selectedCandidate.has_saved_draft
+      || savedDraftLoadStarted.current === selectedProductId
+    ) return;
+    savedDraftLoadStarted.current = selectedProductId;
+    void loadStoredDraft();
+    // The read-only loader intentionally follows the same bounded one-shot
+    // pattern as auto generation. It never calls OpenAI or writes storage.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadSavedDraft, selectedCandidate, detailLoading, detailVerifiedProductId, savedDraftLoading, result, selectedProductId]);
 
   async function saveAndOpenNext() {
     if (saving || !selectedProductId || !draft || !reviewPass || savedCurrentResult) return;
@@ -435,6 +505,7 @@ export default function FirstRealDraftClient({
   const keywordPlacementValidation = result?.generated_draft_keyword_placement_validation || null;
   const assembledPack = result?.assembled_seo_pack || null;
   const diagnostics = result?.keyword_bank_diagnostics || null;
+  const savedSnapshotLoaded = result?.status === 'saved_draft_loaded';
   const alts = Array.isArray(draft?.image_alt_candidates) ? draft.image_alt_candidates : [];
   const structuralIssues = Array.isArray(structuralValidation?.issues) ? structuralValidation.issues : [];
   const commercialIssues = Array.isArray(commercialValidation?.issues) ? commercialValidation.issues : [];
@@ -553,6 +624,7 @@ export default function FirstRealDraftClient({
 
             <div className="min-w-0 space-y-4 p-4 sm:p-5">
               {detailLoading ? <Notice>Проверяю точные Product Truth, ключи и метрики…</Notice> : null}
+              {savedDraftLoading ? <Notice>Загружаю сохранённый SEO-черновик без OpenAI…</Notice> : null}
               {detailError ? <Notice tone="danger">{detailError}</Notice> : null}
 
               <div className="grid grid-cols-2 gap-2">
@@ -604,10 +676,12 @@ export default function FirstRealDraftClient({
               </a> : <button
                 type="button"
                 onClick={run}
-                disabled={candidateLoading || detailLoading || detailVerifiedProductId !== selectedProductId || loading}
+                disabled={candidateLoading || detailLoading || detailVerifiedProductId !== selectedProductId || loading || savedDraftLoading || savedSnapshotLoaded}
                 className="btn-gold min-h-12 w-full min-w-0 justify-center px-4 text-center disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {detailVerifiedProductId !== selectedProductId
+                {savedSnapshotLoaded
+                  ? 'Сохранённый черновик загружен — новая генерация не нужна'
+                  : detailVerifiedProductId !== selectedProductId
                   ? 'Проверяю Product Truth…'
                   : loading
                     ? 'OpenAI генерирует и собирает preview…'
@@ -628,7 +702,11 @@ export default function FirstRealDraftClient({
         : 'border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.06)]'}`}>
         <div className="eyebrow-gold">Результат запуска</div>
         <div className={`mt-2 break-words text-[22px] ${draft ? 'text-[#a9dfbd]' : 'text-[var(--gold-warm)]'}`}>
-          {draft ? 'Draft получен — начинайте визуальную проверку' : 'OpenAI не вернул draft'}
+          {draft
+            ? savedSnapshotLoaded
+              ? 'Сохранённый черновик загружен — начинайте визуальную проверку'
+              : 'Draft получен — начинайте визуальную проверку'
+            : 'OpenAI не вернул draft'}
         </div>
         <div className="mt-2 text-[12px] leading-relaxed text-[var(--bone-dim)]">
           HTTP {result.http_status ?? '—'} · {result.status || '—'}
