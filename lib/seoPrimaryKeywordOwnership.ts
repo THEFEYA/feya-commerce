@@ -31,6 +31,11 @@ export type SeoPrimaryKeywordConflict = {
   current_primary_keyword?: string | null;
   current_primary_keyword_norm?: string | null;
   current_selection_error?: string | null;
+  approved_draft_id?: string | null;
+  approved_draft_status?: string | null;
+  approved_primary_keyword?: string | null;
+  approved_primary_keyword_norm?: string | null;
+  approved_draft_error?: string | null;
 };
 
 export type SeoPrimaryKeywordOwnershipContract = {
@@ -45,11 +50,12 @@ export type SeoPrimaryKeywordOwnershipContract = {
   suggested_primary_alternatives: SeoPrimaryKeywordAlternative[];
   generation_blockers: string[];
   publish_blockers: string[];
-  source: 'listing_master_latest_decisions';
+  source: 'listing_master_latest_decisions' | 'listing_master_latest_decisions_and_approved_drafts';
   source_error: string | null;
   checked_at: string;
   limitations: string[];
   reserved_owner_product_id?: string | null;
+  approved_owner_product_id?: string | null;
 };
 
 export type SeoPrimaryOwnershipStrategy = Record<string, unknown> & {
@@ -194,19 +200,25 @@ export type SeoPeerKeywordSelectionState = {
   canonical_product_id: string;
   selection_status: string | null;
   primary_keyword: string | null;
+  approved_draft_id?: string | null;
+  approved_draft_status?: string | null;
+  approved_primary_keyword?: string | null;
+  approved_draft_error?: string | null;
   error?: string | null;
 };
 
 /**
- * A current, confirmed target decision may reserve the Primary for generation
- * when every matching peer has already been invalidated by its own Product
- * Truth/keyword re-audit. The peer still has to be reassigned before publish.
- * A second confirmed owner, or an unreadable peer state, remains a hard stop.
+ * Human-approved drafts are the durable ownership layer. A later Listing
+ * Master save must never steal an exact Primary from an approved indexable
+ * page. Without an approved owner, a current confirmed decision may reserve
+ * the Primary when every matching peer has been invalidated by re-audit.
  */
 export function resolveSeoPrimaryOwnershipWithCurrentSelections(
   strategy: SeoPrimaryOwnershipStrategy | null,
   input: {
     targetSelectionStatus?: unknown;
+    targetApprovedDraftId?: unknown;
+    targetApprovedPrimaryKeyword?: unknown;
     peerSelections?: SeoPeerKeywordSelectionState[];
   },
 ): SeoPrimaryOwnershipStrategy | null {
@@ -216,17 +228,34 @@ export function resolveSeoPrimaryOwnershipWithCurrentSelections(
     (input.peerSelections || []).map((item) => [clean(item.canonical_product_id), item]),
   );
   const primaryNorm = strategy.keyword_ownership.primary_keyword_norm || '';
+  const targetApprovedDraftId = clean(input.targetApprovedDraftId) || null;
+  const targetApprovedPrimaryKeyword = clean(input.targetApprovedPrimaryKeyword) || null;
+  const targetApprovedOwnsPrimary = Boolean(
+    targetApprovedDraftId
+    && normalizeKeyword(targetApprovedPrimaryKeyword) === primaryNorm,
+  );
   let peerStateUnavailable = false;
   let confirmedPeerOwner = false;
+  let approvedPeerOwner = false;
+  let approvedPeerOwnerProductId: string | null = null;
   const conflicts = strategy.keyword_ownership.conflicts.map((conflict) => {
     const current = peerById.get(conflict.canonical_product_id);
     const currentStatus = clean(current?.selection_status).toLowerCase() || null;
     const currentPrimary = clean(current?.primary_keyword) || null;
     const currentPrimaryNorm = normalizeKeyword(currentPrimary);
     const currentError = clean(current?.error) || null;
-    if (!current || currentError) peerStateUnavailable = true;
+    const approvedDraftId = clean(current?.approved_draft_id) || null;
+    const approvedDraftStatus = clean(current?.approved_draft_status) || null;
+    const approvedPrimaryKeyword = clean(current?.approved_primary_keyword) || null;
+    const approvedPrimaryKeywordNorm = normalizeKeyword(approvedPrimaryKeyword);
+    const approvedDraftError = clean(current?.approved_draft_error) || null;
+    if (!current || currentError || approvedDraftError) peerStateUnavailable = true;
     if (currentStatus === 'confirmed' && currentPrimaryNorm === primaryNorm) {
       confirmedPeerOwner = true;
+    }
+    if (approvedDraftId && approvedPrimaryKeywordNorm === primaryNorm) {
+      approvedPeerOwner = true;
+      approvedPeerOwnerProductId ||= conflict.canonical_product_id;
     }
     return {
       ...conflict,
@@ -234,12 +263,20 @@ export function resolveSeoPrimaryOwnershipWithCurrentSelections(
       current_primary_keyword: currentPrimary,
       current_primary_keyword_norm: currentPrimaryNorm || null,
       current_selection_error: currentError,
+      approved_draft_id: approvedDraftId,
+      approved_draft_status: approvedDraftStatus,
+      approved_primary_keyword: approvedPrimaryKeyword,
+      approved_primary_keyword_norm: approvedPrimaryKeywordNorm || null,
+      approved_draft_error: approvedDraftError,
     };
   });
 
-  const targetCanReserve = targetSelectionStatus === 'confirmed'
-    && !peerStateUnavailable
-    && !confirmedPeerOwner;
+  const targetCanReserve = !peerStateUnavailable
+    && !approvedPeerOwner
+    && (
+      targetApprovedOwnsPrimary
+      || (targetSelectionStatus === 'confirmed' && !confirmedPeerOwner)
+    );
   if (!targetCanReserve) {
     const generationBlockers = unique([
       PRIMARY_KEYWORD_CONFLICT_BLOCKER,
@@ -251,7 +288,9 @@ export function resolveSeoPrimaryOwnershipWithCurrentSelections(
       publish_blockers: generationBlockers,
       keyword_ownership: {
         ...strategy.keyword_ownership,
+        source: 'listing_master_latest_decisions_and_approved_drafts',
         conflicts,
+        approved_owner_product_id: approvedPeerOwnerProductId,
         generation_blockers: generationBlockers,
         publish_blockers: generationBlockers,
       },
@@ -269,12 +308,16 @@ export function resolveSeoPrimaryOwnershipWithCurrentSelections(
     agent_instruction_summary: `This confirmed product provisionally owns the exact Primary intent “${strategy.keyword_ownership.primary_keyword}”. Matching peer decisions are not current and must receive a different whole-product Primary before publish.`,
     keyword_ownership: {
       ...strategy.keyword_ownership,
+      source: 'listing_master_latest_decisions_and_approved_drafts',
       status: 'pass_with_pending_reassignment',
       conflicts,
       suggested_primary_alternatives: [],
       generation_blockers: [],
       publish_blockers: [PRIMARY_KEYWORD_PEER_REASSIGNMENT_PENDING],
       reserved_owner_product_id: strategy.keyword_ownership.target_product_id,
+      approved_owner_product_id: targetApprovedOwnsPrimary
+        ? strategy.keyword_ownership.target_product_id
+        : null,
     },
   };
 }

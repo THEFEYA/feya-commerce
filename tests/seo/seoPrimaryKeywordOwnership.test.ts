@@ -194,3 +194,92 @@ test('keeps the paid writer blocked when a peer still has a confirmed exact Prim
   assert.equal(resolved.keyword_ownership.status, 'conflict');
   assert.deepEqual(getSeoPortfolioGenerationBlockers(resolved), [PRIMARY_KEYWORD_CONFLICT_BLOCKER]);
 });
+
+test('does not let a later save steal Primary from a human-approved peer draft', () => {
+  const initial = buildSeoPrimaryKeywordOwnershipStrategy({
+    targetProductId: 'new-product',
+    primaryKeyword: { keyword: 'warrior armor costume' },
+    secondaryKeywords,
+    productTruth,
+    checkedAt: '2026-08-10T00:00:00.000Z',
+    decisionRows: [{
+      canonical_product_id: 'approved-product',
+      selected_keywords_json: [{ keyword: 'warrior armor costume', role: 'primary' }],
+    }],
+  });
+  const resolved = resolveSeoPrimaryOwnershipWithCurrentSelections(initial, {
+    targetSelectionStatus: 'confirmed',
+    peerSelections: [{
+      canonical_product_id: 'approved-product',
+      selection_status: 'needs_keyword_review',
+      primary_keyword: null,
+      approved_draft_id: 'approved-draft-id',
+      approved_draft_status: 'approved_draft',
+      approved_primary_keyword: 'Warrior Armor Costume',
+    }],
+  });
+
+  assert.ok(resolved);
+  assert.equal(resolved.keyword_ownership.status, 'conflict');
+  assert.equal(resolved.keyword_ownership.approved_owner_product_id, 'approved-product');
+  assert.deepEqual(getSeoPortfolioGenerationBlockers(resolved), [PRIMARY_KEYWORD_CONFLICT_BLOCKER]);
+  assert.equal(resolved.keyword_ownership.conflicts[0].approved_draft_id, 'approved-draft-id');
+});
+
+test('keeps an approved target as owner when an unapproved peer later confirms the same Primary', () => {
+  const initial = buildSeoPrimaryKeywordOwnershipStrategy({
+    targetProductId: 'approved-product',
+    primaryKeyword: { keyword: 'warrior armor costume' },
+    secondaryKeywords,
+    productTruth,
+    checkedAt: '2026-08-10T00:00:00.000Z',
+    decisionRows: [{
+      canonical_product_id: 'new-peer',
+      selected_keywords_json: [{ keyword: 'warrior armor costume', role: 'primary' }],
+    }],
+  });
+  const resolved = resolveSeoPrimaryOwnershipWithCurrentSelections(initial, {
+    targetSelectionStatus: 'confirmed',
+    targetApprovedDraftId: 'approved-draft-id',
+    targetApprovedPrimaryKeyword: 'warrior armor costume',
+    peerSelections: [{
+      canonical_product_id: 'new-peer',
+      selection_status: 'confirmed',
+      primary_keyword: 'warrior armor costume',
+    }],
+  });
+
+  assert.ok(resolved);
+  assert.equal(resolved.keyword_ownership.status, 'pass_with_pending_reassignment');
+  assert.equal(resolved.keyword_ownership.approved_owner_product_id, 'approved-product');
+  assert.equal(resolved.keyword_ownership.reserved_owner_product_id, 'approved-product');
+  assert.deepEqual(getSeoPortfolioGenerationBlockers(resolved), []);
+});
+
+test('fails closed when approved-draft ownership cannot be read', () => {
+  const initial = buildSeoPrimaryKeywordOwnershipStrategy({
+    targetProductId: 'target-product',
+    primaryKeyword: { keyword: 'warrior armor costume' },
+    secondaryKeywords,
+    productTruth,
+    decisionRows: [{
+      canonical_product_id: 'peer-product',
+      selected_keywords_json: [{ keyword: 'warrior armor costume', role: 'primary' }],
+    }],
+  });
+  const resolved = resolveSeoPrimaryOwnershipWithCurrentSelections(initial, {
+    targetSelectionStatus: 'confirmed',
+    peerSelections: [{
+      canonical_product_id: 'peer-product',
+      selection_status: 'needs_keyword_review',
+      primary_keyword: null,
+      approved_draft_error: 'draft ownership read failed',
+    }],
+  });
+
+  assert.ok(resolved);
+  assert.deepEqual(getSeoPortfolioGenerationBlockers(resolved), [
+    PRIMARY_KEYWORD_CONFLICT_BLOCKER,
+    PRIMARY_KEYWORD_MAP_UNAVAILABLE_BLOCKER,
+  ]);
+});

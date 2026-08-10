@@ -23,6 +23,7 @@ const PRODUCT_TRUTH_EXACT_RPC = 'feya_commerce_get_seo_product_truth_v4';
 const STOREFRONT_PRODUCT_EXACT_RPC = 'feya_commerce_get_step7_storefront_products_api_v4';
 const FOCUS_VIEW = 'feya_commerce_v_listing_master_product_focus_v1';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
+const SEO_DRAFTS_TABLE = 'feya_commerce_seo_pack_drafts_v1';
 const SEO_DRAFT_LATEST_VIEW = 'feya_commerce_v_seo_pack_drafts_latest_v1';
 const APPROVED_KEYWORD_BANK_VIEW = 'vw_seo_keyword_bank_v1_approved';
 
@@ -974,7 +975,25 @@ async function loadLivePrimaryOwnershipStrategy(identityDraft, targetKeywordSele
   const conflicts = initialStrategy?.keyword_ownership?.conflicts || [];
   if (!conflicts.length || result.error) return initialStrategy;
 
+  const ownershipProductIds = uniqueStrings([
+    identityDraft?.canonical_product_id,
+    ...conflicts.slice(0, 12).map((conflict) => conflict.canonical_product_id),
+  ]);
+  const approvedDraftResult = serviceClient
+    ? await serviceClient
+      .from(SEO_DRAFTS_TABLE)
+      .select('id,canonical_product_id,status,review_status,keyword_roles_snapshot,reviewed_at,created_at')
+      .in('canonical_product_id', ownershipProductIds)
+      .eq('review_status', 'approved')
+      .is('archived_at', null)
+      .order('reviewed_at', { ascending: false, nullsFirst: false })
+      .order('created_at', { ascending: false })
+    : { data: [], error: null };
+  const approvedDraftByProductId = latestApprovedDraftByProductId(approvedDraftResult.data || []);
+  const targetApprovedDraft = approvedDraftByProductId.get(identityDraft?.canonical_product_id) || null;
+
   const peerSelections = await Promise.all(conflicts.slice(0, 12).map(async (conflict) => {
+    const approvedDraft = approvedDraftByProductId.get(conflict.canonical_product_id) || null;
     try {
       const peerSource = await loadSeoBriefSource(conflict.canonical_product_id);
       const currentPrimary = (peerSource.keywords || []).find((row) => row?.pilot_role === 'primary');
@@ -982,6 +1001,10 @@ async function loadLivePrimaryOwnershipStrategy(identityDraft, targetKeywordSele
         canonical_product_id: conflict.canonical_product_id,
         selection_status: peerSource.keywordSelection?.status || null,
         primary_keyword: currentPrimary?.keyword || currentPrimary?.keyword_norm || null,
+        approved_draft_id: approvedDraft?.id || null,
+        approved_draft_status: approvedDraft?.status || null,
+        approved_primary_keyword: primaryKeywordFromSnapshot(approvedDraft?.keyword_roles_snapshot),
+        approved_draft_error: approvedDraftResult.error?.message || null,
         error: peerSource.error || null,
       };
     } catch (error) {
@@ -989,6 +1012,10 @@ async function loadLivePrimaryOwnershipStrategy(identityDraft, targetKeywordSele
         canonical_product_id: conflict.canonical_product_id,
         selection_status: null,
         primary_keyword: null,
+        approved_draft_id: approvedDraft?.id || null,
+        approved_draft_status: approvedDraft?.status || null,
+        approved_primary_keyword: primaryKeywordFromSnapshot(approvedDraft?.keyword_roles_snapshot),
+        approved_draft_error: approvedDraftResult.error?.message || null,
         error: error instanceof Error ? error.message : 'Peer keyword selection re-audit failed.',
       };
     }
@@ -996,8 +1023,25 @@ async function loadLivePrimaryOwnershipStrategy(identityDraft, targetKeywordSele
 
   return resolveSeoPrimaryOwnershipWithCurrentSelections(initialStrategy, {
     targetSelectionStatus: targetKeywordSelection?.status,
+    targetApprovedDraftId: targetApprovedDraft?.id || null,
+    targetApprovedPrimaryKeyword: primaryKeywordFromSnapshot(targetApprovedDraft?.keyword_roles_snapshot),
     peerSelections,
   });
+}
+
+function latestApprovedDraftByProductId(rows) {
+  const byProductId = new Map();
+  rows.forEach((row) => {
+    const productId = cleanNullableText(row?.canonical_product_id);
+    if (productId && !byProductId.has(productId)) byProductId.set(productId, row);
+  });
+  return byProductId;
+}
+
+function primaryKeywordFromSnapshot(snapshot) {
+  const primary = Array.isArray(snapshot?.primary) ? snapshot.primary[0] : null;
+  if (typeof primary === 'string') return cleanNullableText(primary);
+  return cleanNullableText(primary?.keyword || primary?.keyword_norm);
 }
 
 function mergePortfolioStrategies(savedSourceOverlapStrategy, livePrimaryOwnershipStrategy) {
