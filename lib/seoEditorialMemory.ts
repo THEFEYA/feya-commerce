@@ -54,7 +54,7 @@ export const SEO_EDITORIAL_MEMORY_V5: SeoEditorialMemoryV5 = {
       'Creators styling a costume for photography, video or a live set.',
       'Stylists sourcing a design for a show or editorial.',
     ],
-    studio_close: 'Say once that at TheFEYA we develop festival and stage pieces from our own ideas. Use the actual body_identity_variant_en value, never “body identity”. Name the selected style pair once, then close with one plain buyer-value sentence about a visual identity that feels personal. Do not repeat “feels” in that sentence. Never prescribe hair, makeup, accessories, footwear, props or other unsold garments.',
+    studio_close: 'Say once that at TheFEYA we develop pieces from our own ideas. Use body_identity_variant_en, never “body identity”. Translate one or two selected styles into natural shopper language once; never say “style pair” or list taxonomy. Close with a visual identity that feels personal. Never prescribe hair, makeup, accessories, footwear, props or other unsold garments.',
   },
   writing_moves: {
     about_this_piece: 'Real occasion, whole-product identity, one vivid supported detail, then why it matters in wear.',
