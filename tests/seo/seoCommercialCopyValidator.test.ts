@@ -1188,6 +1188,34 @@ test('blocks the grammar and repeated finish language from the 2026-08-08 paid p
   assert.ok(codes.includes('about_this_piece_repeats_finish_across_sentences'));
 });
 
+test('blocks an operator-selected style pair repeated across three customer-copy sections', () => {
+  const value = draft({
+    intro: 'This armor supports an original futuristic or fantasy character for festivals and cosplay.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => {
+      if (block.block_key === 'about_this_piece') {
+        return {
+          ...block,
+          body: 'A glossy finish gives the armor a polished look. Its structured form supports a futuristic or fantasy character for the occasion.',
+        };
+      }
+      if (block.block_key === 'main_description') {
+        return {
+          ...block,
+          body: 'At TheFEYA, we develop festival and stage pieces from our own ideas. This armor reflects our studio approach to a futuristic or fantasy character. The design gives you a starting point for the occasion. You keep room for your own visual identity and style.',
+        };
+      }
+      return block;
+    }),
+  });
+  const result = validateSeoCommercialCopy(value, {
+    manual_focus: { style: ['futuristic', 'fantasy'] },
+  });
+  assert.ok(result.issues.some((issue) => (
+    issue.code === 'repeated_idea_selected_style_pair_futuristic_fantasy'
+    && issue.severity === 'blocker'
+  )));
+});
+
 test('blocks bare singular Festival grammar in SEO title and H1', () => {
   const result = validateSeoCommercialCopy(draft({
     seo_title: 'Warrior Armor Costume for Festival',

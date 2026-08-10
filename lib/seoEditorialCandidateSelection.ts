@@ -28,9 +28,9 @@ const UNSOLD_EXTERNAL_STYLING_PATTERN = /\b(?:hair|hairstyle|makeup|make-up|jewe
 const DURABLE_MODIFIER_PATTERN = /\bdurable\s*,\s*|\bdurable\s+and\s+/i;
 const CONCRETE_SHAPE_RETENTION_PATTERN = /\b(?:keeps?|holds?|retain(?:s|ed|ing)?|shape retention)\b[^.!?\n]{0,55}\b(?:shape|form|between wears|next occasion)\b|\bbetween wears\b/i;
 const LIVE_CONTROL_ABOUT_AFTER_DURABILITY_NORMALIZATION = 'For festivals and cosplay, this warrior armor outfit brings a glossy, mirror-like coating that creates a polished metal look. The gold finish gives the set a bold stage presence while the fitted shape keeps the look streamlined.';
-const LIVE_CONTROL_ABOUT_REVIEW_COPY = 'For festivals and cosplay, this warrior armor outfit uses a glossy, mirror-like coating to create a polished metal look. Its streamlined silhouette gives you a distinct starting point for an original futuristic or fantasy character with a gold armor look.';
+const LIVE_CONTROL_ABOUT_REVIEW_COPY = 'For festivals and cosplay, this warrior armor outfit uses a glossy, mirror-like coating to create a polished metal look. Its streamlined silhouette gives you a distinct starting point for an original character with a gold armor look.';
 const LIVE_CONTROL_EXTERNAL_STYLING_CLOSE = 'At TheFEYA, we develop festival and stage pieces from our own ideas, and this warrior armor outfit is built as an original studio interpretation. The gold shape and futuristic lines help you create a character that feels bold on stage or at a festival. Style it with clean hair and strong makeup for a sharp look.';
-const LIVE_CONTROL_STUDIO_REVIEW_COPY = 'At TheFEYA, we develop festival and stage pieces from our own ideas. This warrior armor outfit is our studio interpretation of a futuristic or fantasy character for festivals and performance. It gives you a clear design starting point while leaving room for a visual identity that feels personal.';
+const LIVE_CONTROL_STUDIO_REVIEW_COPY = 'At TheFEYA, we develop festival and stage pieces from our own ideas. This warrior armor outfit is our studio interpretation of a futuristic character for festivals and performance. It gives you a clear design starting point while leaving room for a visual identity that feels personal.';
 const FINAL_PILOT_META = 'GOLD WARRIOR ARMOR COSTUME WITH A POLISHED METAL LOOK FOR FESTIVALS AND COSPLAY.';
 const FINAL_PILOT_ABOUT = 'For festivals and cosplay, this warrior armor outfit brings a striking futuristic edge to your look. Its glossy, mirror-like coating creates a polished metal look. The sculpted gold finish adds strong visual presence while keeping the overall silhouette sleek and wearable.';
 const FINAL_PILOT_WHY = 'Our original studio design lets you shape the finished character through your own styling choices.\nThe material feels comfortable against the body, making the costume easier to wear through longer events or performances.\nThe material helps the costume keep its shape between wears, so it is ready for the next occasion.';
@@ -38,10 +38,11 @@ const FINAL_PILOT_IDEAL = 'Festival-goers planning a warrior look for a long day
 const FINAL_PILOT_MAIN = 'At TheFEYA, we develop festival and stage pieces from our own ideas, and this warrior armor outfit was created to support a bold futuristic or fantasy look. It can lean futuristic or fantasy for festivals and cosplay. It feels designed for a visual identity that feels personal.';
 const FINAL_PILOT_ALT = 'Gold warrior armor outfit with a raised pose on dark rocks';
 const FINAL_PILOT_REVIEW_META = 'Gold warrior armor costume with a glossy, polished-metal look for festivals, cosplay and stage performance.';
-const FINAL_PILOT_REVIEW_ABOUT = 'For festivals and cosplay, this gold warrior armor outfit uses a glossy, mirror-like coating to create a polished-metal look. Its streamlined silhouette gives you a distinctive starting point for an original futuristic or fantasy character you can shape for the occasion.';
+const FINAL_PILOT_REVIEW_INTRO = 'This gold warrior armor outfit brings a polished, futuristic silhouette to festivals, cosplay and stage performance, with room to shape the character in your own way.';
+const FINAL_PILOT_REVIEW_ABOUT = 'A glossy, mirror-like coating gives this gold warrior armor outfit its polished-metal finish. Streamlined forms create a distinctive armor silhouette, giving you a clear visual foundation for an original character that works naturally across festival, cosplay, stage and editorial settings.';
 const FINAL_PILOT_REVIEW_WHY = 'Our original studio design lets you shape the finished character through your own styling choices.\nA comfortable feel against the body makes the costume easier to wear through longer events or performances.\nThe material helps the costume keep its shape between wears, so it is ready for the next occasion.';
-const FINAL_PILOT_REVIEW_IDEAL = 'Festival-goers planning a warrior look for a long day of music and movement.\nCosplayers building an original futuristic or fantasy character around a studio-designed costume.\nLive performers preparing a warrior look for a stage show or theatrical role.\nContent creators planning a gold costume photoshoot for festival imagery.\nCostume stylists sourcing an original fantasy armor look for themed shows or editorials.';
-const FINAL_PILOT_REVIEW_MAIN = 'At TheFEYA, we develop festival and stage pieces from our own ideas. This warrior armor outfit is our studio interpretation of a futuristic or fantasy character for festivals and performance. It gives you a clear design starting point while leaving room for a visual identity that feels personal.';
+const FINAL_PILOT_REVIEW_IDEAL = 'Festival-goers planning a warrior look for a full day of music and movement.\nCosplayers developing an original fantasy character around a studio-designed costume.\nLive performers preparing a futuristic warrior costume for a stage show or theatrical role.\nContent creators planning a gold costume photoshoot for festival imagery.\nCostume stylists sourcing armor-inspired fashion for editorials or themed productions.';
+const FINAL_PILOT_REVIEW_MAIN = "At TheFEYA, we develop festival and stage pieces from our own ideas. This gold armor look reflects our studio's take on futuristic warrior design. Those choices give you a clear starting point while leaving the final character open to your own visual identity and style.";
 const FINAL_PILOT_REVIEW_ALT = 'Gold warrior armor outfit with headpiece, shoulder armor and leg covers posed on dark rocks';
 const FINAL_PILOT_STALE_META_QA_NOTE = 'Meta description kept uppercase and within length guidance.';
 const FINAL_PILOT_REVIEW_META_QA_NOTE = 'Meta description uses natural sentence case and stays within length guidance.';
@@ -352,6 +353,7 @@ export function normalizeFinalPilotDraftCopy<T>(
   return {
     ...output,
     meta_description: FINAL_PILOT_REVIEW_META,
+    intro: FINAL_PILOT_REVIEW_INTRO,
     qa_self_report: qaSelfReport,
     image_alt_candidates: [{
       ...output.image_alt_candidates[0],
@@ -364,7 +366,7 @@ export function normalizeFinalPilotDraftCopy<T>(
     )),
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
-      'Deterministic final-pilot normalization applied the exact human-reviewed Meta, four-block copy and primary-image ALT without adding a product fact.',
+      'Deterministic final-pilot normalization applied the exact human-reviewed Meta, Intro, four-block copy and primary-image ALT without adding a product fact.',
     ],
   } as T;
 }
@@ -1044,10 +1046,7 @@ function buildBoundedControlRunClose(
 
   const identity = normalizeIdentityValue(context.body_identity_variant);
   const color = normalizeIdentityColor(context.product_color).toLowerCase();
-  const stylePhrase = humanJoin(
-    normalizeIdentityValues(context.selected_styles).slice(0, 2).map((value) => value.toLowerCase()),
-    'or',
-  );
+  const stylePhrase = normalizeIdentityValues(context.selected_styles)[0]?.toLowerCase() || '';
   const eventPhrase = humanJoin(
     normalizeIdentityValues(context.selected_events).slice(0, 2).map(formatCloseEvent),
     'or',

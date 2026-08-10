@@ -525,7 +525,7 @@ test('zero-cost normalization recovers the exact final control-run copy without 
   );
   assert.equal(
     normalized.pdp_blocks[3].body,
-    'At TheFEYA, we develop original festival and stage pieces in our studio. We designed this warrior armor outfit as a starting point for a futuristic or fantasy character, pairing a clear gold direction with room for your own styling choices. You decide how to complete the character and make its visual identity your own for the festival or cosplay setting you have in mind.',
+    'At TheFEYA, we develop original festival and stage pieces in our studio. We designed this warrior armor outfit as a starting point for a futuristic character, pairing a clear gold direction with room for your own styling choices. You decide how to complete the character and make its visual identity your own for the festival or cosplay setting you have in mind.',
   );
   assert.doesNotMatch(JSON.stringify(normalized.pdp_blocks), /body identity|finish it your way/i);
 });
@@ -657,13 +657,13 @@ test('the 2026-08-10 live control draft passes after bounded zero-token normaliz
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /\bdurable\b/i);
   assert.equal(
     normalized.pdp_blocks[0].body,
-    'For festivals and cosplay, this warrior armor outfit uses a glossy, mirror-like coating to create a polished metal look. Its streamlined silhouette gives you a distinct starting point for an original futuristic or fantasy character with a gold armor look.',
+    'For festivals and cosplay, this warrior armor outfit uses a glossy, mirror-like coating to create a polished metal look. Its streamlined silhouette gives you a distinct starting point for an original character with a gold armor look.',
   );
   assert.match(normalized.pdp_blocks[1].body, /keep its shape between wears/i);
   assert.doesNotMatch(normalized.pdp_blocks[3].body, /hair|makeup|footwear|accessor/i);
   assert.equal(
     normalized.pdp_blocks[3].body,
-    'At TheFEYA, we develop festival and stage pieces from our own ideas. This warrior armor outfit is our studio interpretation of a futuristic or fantasy character for festivals and performance. It gives you a clear design starting point while leaving room for a visual identity that feels personal.',
+    'At TheFEYA, we develop festival and stage pieces from our own ideas. This warrior armor outfit is our studio interpretation of a futuristic character for festivals and performance. It gives you a clear design starting point while leaving room for a visual identity that feels personal.',
   );
   assert.deepEqual(normalized.pdp_blocks.map((block: any) => block.block_key), [
     'about_this_piece',
@@ -783,18 +783,31 @@ test('the final paid Gold Warrior pilot receives the exact human-reviewed zero-t
     'Gold warrior armor costume with a glossy, polished-metal look for festivals, cosplay and stage performance.',
   );
   assert.equal(
+    normalized.intro,
+    'This gold warrior armor outfit brings a polished, futuristic silhouette to festivals, cosplay and stage performance, with room to shape the character in your own way.',
+  );
+  assert.equal(
     normalized.pdp_blocks[0].body,
-    'For festivals and cosplay, this gold warrior armor outfit uses a glossy, mirror-like coating to create a polished-metal look. Its streamlined silhouette gives you a distinctive starting point for an original futuristic or fantasy character you can shape for the occasion.',
+    'A glossy, mirror-like coating gives this gold warrior armor outfit its polished-metal finish. Streamlined forms create a distinctive armor silhouette, giving you a clear visual foundation for an original character that works naturally across festival, cosplay, stage and editorial settings.',
   );
   assert.equal(
     normalized.pdp_blocks[1].body,
     'Our original studio design lets you shape the finished character through your own styling choices.\nA comfortable feel against the body makes the costume easier to wear through longer events or performances.\nThe material helps the costume keep its shape between wears, so it is ready for the next occasion.',
   );
-  assert.match(normalized.pdp_blocks[2].body, /gold costume photoshoot/);
+  assert.equal(
+    normalized.pdp_blocks[2].body,
+    'Festival-goers planning a warrior look for a full day of music and movement.\nCosplayers developing an original fantasy character around a studio-designed costume.\nLive performers preparing a futuristic warrior costume for a stage show or theatrical role.\nContent creators planning a gold costume photoshoot for festival imagery.\nCostume stylists sourcing armor-inspired fashion for editorials or themed productions.',
+  );
   assert.doesNotMatch(normalized.pdp_blocks[2].body, /music videos/i);
   assert.equal(
     normalized.pdp_blocks[3].body,
-    'At TheFEYA, we develop festival and stage pieces from our own ideas. This warrior armor outfit is our studio interpretation of a futuristic or fantasy character for festivals and performance. It gives you a clear design starting point while leaving room for a visual identity that feels personal.',
+    "At TheFEYA, we develop festival and stage pieces from our own ideas. This gold armor look reflects our studio's take on futuristic warrior design. Those choices give you a clear starting point while leaving the final character open to your own visual identity and style.",
+  );
+  assert.equal(
+    commercial.repetition_report?.repeated_idea_groups.some((group) => (
+      group.idea.startsWith('selected_style_pair_') && group.blocks.length >= 3
+    )),
+    false,
   );
   assert.equal(
     normalized.image_alt_candidates[0].alt_text,

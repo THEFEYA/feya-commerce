@@ -819,7 +819,7 @@ export function validateSeoCommercialCopy(
     }
   }
 
-  const repetitionReport = buildRepetitionReport(record, leftBlocks);
+  const repetitionReport = buildRepetitionReport(record, leftBlocks, context.manual_focus);
   repetitionReport.repeated_idea_groups.forEach((item) => {
     if (item.blocks.length >= 3) {
       issues.push(blocker(
@@ -851,7 +851,11 @@ export function validateSeoCommercialCopy(
   };
 }
 
-function buildRepetitionReport(record: Record<string, any>, leftBlocks: Record<string, any>[]) {
+function buildRepetitionReport(
+  record: Record<string, any>,
+  leftBlocks: Record<string, any>[],
+  manualFocus: unknown = {},
+) {
   const blockTexts = [
     typeof record.meta_description === 'string' && record.meta_description.trim()
       ? { key: 'meta_description', text: record.meta_description.trim() }
@@ -869,7 +873,10 @@ function buildRepetitionReport(record: Record<string, any>, leftBlocks: Record<s
     })),
   ].filter((item): item is { key: string; text: string } => Boolean(item?.text));
 
-  const repeatedIdeaGroups = CROSS_BLOCK_IDEAS.map((idea) => ({
+  const repeatedIdeaGroups = [
+    ...CROSS_BLOCK_IDEAS,
+    ...selectedStylePairIdeas(manualFocus),
+  ].map((idea) => ({
     idea: idea.key,
     blocks: blockTexts.filter((block) => idea.pattern.test(block.text)).map((block) => block.key),
   })).filter((item) => item.blocks.length >= 2);
@@ -899,6 +906,36 @@ function buildRepetitionReport(record: Record<string, any>, leftBlocks: Record<s
     repeated_idea_groups: repeatedIdeaGroups,
     near_duplicate_sentence_pairs: nearDuplicateSentencePairs.sort((a, b) => b.similarity - a.similarity).slice(0, 12),
   };
+}
+
+function selectedStylePairIdeas(manualFocus: unknown) {
+  const styles = focusValues(manualFocus, 'style')
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean);
+  const ideas: Array<{ key: string; pattern: RegExp }> = [];
+  for (let leftIndex = 0; leftIndex < styles.length; leftIndex += 1) {
+    for (let rightIndex = leftIndex + 1; rightIndex < styles.length; rightIndex += 1) {
+      const left = escapeRegExp(styles[leftIndex]);
+      const right = escapeRegExp(styles[rightIndex]);
+      const separator = String.raw`\s*(?:or|and|/|&|,)\s*`;
+      ideas.push({
+        key: `selected_style_pair_${safeIdeaKey(styles[leftIndex])}_${safeIdeaKey(styles[rightIndex])}`,
+        pattern: new RegExp(
+          String.raw`(?:\b${left}\b${separator}\b${right}\b|\b${right}\b${separator}\b${left}\b)`,
+          'i',
+        ),
+      });
+    }
+  }
+  return ideas;
+}
+
+function safeIdeaKey(value: string) {
+  return value.replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'style';
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function findNearDuplicatePairs(items: Array<{ label: string; text: string }>, threshold: number) {
