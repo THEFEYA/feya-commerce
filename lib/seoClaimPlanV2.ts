@@ -378,10 +378,10 @@ function compactWriterSystemPrompt() {
     'Treat focus labels as concepts and inflect them into idiomatic English. For a generic festival use, write “for festivals” or a natural festival modifier, never the bare suffix “for Festival”.',
     'SEO title <=68 characters; H1 <=82. Put confirmed color before the exact Primary in title, H1 and Meta. Meta is one natural sentence in normal sentence case, never ALL CAPS or Title Case. Include Primary, one About finish and one selected event, <=158 characters. Keep durability and shape-retention language in Why, never Meta. For “festivals and cosplay”, stop there and add no character padding.',
     'Intro is one natural 20-45 word sentence built from claim_plan.buyer_job_en and body_identity_variant_en. Keep assigned design and material claims for their target blocks so Intro and About do different jobs.',
-    'About this piece is 45-60 words in 2-3 concrete sentences. For a finish claim, use buyer_outcome_en once and never separately paraphrase fact_statement_en. Only one sentence may describe finish. Never list confirmed_component_labels; What’s Included owns the product-parts list.',
+    'About this piece is 45-60 words in 2-3 concrete sentences. Use one finish buyer_outcome_en, not its fact_statement_en. For multi-piece products, sentence one uses outfit, set, costume, ensemble or attire. Never mention two confirmed components in About or recap inventory; What’s Included owns the product-parts list.',
     'Why you’ll love it is 3-4 concise bullets, one for each assigned why claim. Reuse a buyer_outcome_en sentence when it already reads naturally. Purchase configuration is code-owned and stays in What’s Included.',
-    'Ideal for is 4-5 distinct bullets written from ideal_for_portraits. Vary sentence rhythm; do not repeat “who need” or another identical frame. If cosplay_positioning is present, present an original studio character without promising a replica.',
-    'Designed for self-expression is the final main_description/left_description block: 45-75 words, 3-4 natural we/our sentences, TheFEYA once, original-design purpose and body_identity_variant_en. Use a selected style pair once. Close on a visual identity that feels personal without repeating “feels”. Never advise unsold hair, makeup, accessories, footwear, props, base layers or garments. Ban independence padding, “finish it your way”, abstract presence, point of view, drama and intention, own-story and centered-on wording.',
+    'Ideal for is 4-5 distinct ideal_for_portraits with varied rhythm. Each non-empty event, style, persona and audience axis appears naturally; no focus value may appear more than twice. Cosplay means an original character, never a replica.',
+    'Designed for self-expression is the final main_description/left_description block: 45-75 words, 3-4 we/our sentences, TheFEYA once, original-design purpose and body_identity_variant_en. Translate selected styles naturally; never call them a “style pair” or taxonomy. Close on a visual identity that feels personal. Never advise unsold hair, makeup, accessories, footwear, props, base layers or garments. Ban independence padding and abstract brand jargon.',
     'Code owns What’s Included, the right panel, bullet_highlights, FAQ and internal links. Return bullet_highlights, faq and internal_linking_hints as empty arrays, generate no What’s Included PDP block, and add no optional related_collections/review_only block.',
     'Return exactly one image_alt_candidate for the supplied primary image. Lead with a visible color plus claim_plan.body_identity_variant_en, never product_identity_en, then add one short pose or setting detail. The claim plan remains the authority for finish wording and customer promises.',
     'Return visual_truth.open_style_suggestions as []; operator focus already owns style selection.',
@@ -453,6 +453,16 @@ function buildIdealForPortraits(
   const persona = focus.persona.find((value) => !/performer/i.test(value)) || '';
   const festivalDescriptor = persona || primaryStyle || 'studio-designed';
   const creatorContext = festivalEvent || focus.event[0] || primaryStyle || persona || 'live production';
+
+  const generalAudience = focus.audience.find((value) => (
+    /^(?:women|woman|men|man|couples?|female|male)$/i.test(value.trim())
+  ));
+  if (generalAudience) {
+    portraits.push({
+      person: audiencePerson(generalAudience),
+      situation: 'preparing an expressive costume for a live music production',
+    });
+  }
 
   if (festivalEvent) {
     const isBurningMan = /burning man/i.test(festivalEvent);
@@ -615,6 +625,14 @@ function pluralRole(value: string) {
   if (/s$/i.test(role)) return role;
   if (/\bdj\b/i.test(role)) return 'DJs';
   return `${role}s`;
+}
+
+function audiencePerson(value: string) {
+  const audience = value.trim();
+  if (/^(?:women|woman|female)$/i.test(audience)) return 'women';
+  if (/^(?:men|man|male)$/i.test(audience)) return 'men';
+  if (/^couple$/i.test(audience)) return 'couples';
+  return audience;
 }
 
 function hasFocus(values: string[], expected: string) {
