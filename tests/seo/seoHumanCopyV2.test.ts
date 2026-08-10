@@ -740,7 +740,10 @@ test('the final paid Gold Warrior pilot receives the exact human-reviewed zero-t
       image_alt_truth: 'pass',
       commercial_placement: 'pass',
       validated_metrics: 'not_checked',
-      notes: [],
+      notes: [
+        'Primary keyword used once each in SEO title, H1, and meta description.',
+        'Meta description kept uppercase and within length guidance.',
+      ],
     },
     generation_notes: [],
   } as any;
@@ -797,6 +800,10 @@ test('the final paid Gold Warrior pilot receives the exact human-reviewed zero-t
     normalized.image_alt_candidates[0].alt_text,
     'Gold warrior armor outfit with headpiece, shoulder armor and leg covers posed on dark rocks',
   );
+  assert.deepEqual(normalized.qa_self_report.notes, [
+    'Primary keyword used once each in SEO title, H1, and meta description.',
+    'Meta description uses natural sentence case and stays within length guidance.',
+  ]);
   assert.deepEqual(normalized.pdp_blocks.map((block: any) => block.block_key), [
     'about_this_piece',
     'why_youll_love_it',

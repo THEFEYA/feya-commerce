@@ -43,6 +43,8 @@ const FINAL_PILOT_REVIEW_WHY = 'Our original studio design lets you shape the fi
 const FINAL_PILOT_REVIEW_IDEAL = 'Festival-goers planning a warrior look for a long day of music and movement.\nCosplayers building an original futuristic or fantasy character around a studio-designed costume.\nLive performers preparing a warrior look for a stage show or theatrical role.\nContent creators planning a gold costume photoshoot for festival imagery.\nCostume stylists sourcing an original fantasy armor look for themed shows or editorials.';
 const FINAL_PILOT_REVIEW_MAIN = 'At TheFEYA, we develop festival and stage pieces from our own ideas. This warrior armor outfit is our studio interpretation of a futuristic or fantasy character for festivals and performance. It gives you a clear design starting point while leaving room for a visual identity that feels personal.';
 const FINAL_PILOT_REVIEW_ALT = 'Gold warrior armor outfit with headpiece, shoulder armor and leg covers posed on dark rocks';
+const FINAL_PILOT_STALE_META_QA_NOTE = 'Meta description kept uppercase and within length guidance.';
+const FINAL_PILOT_REVIEW_META_QA_NOTE = 'Meta description uses natural sentence case and stays within length guidance.';
 
 /**
  * The final editor needs the first pass for schema shape and internal evidence,
@@ -334,10 +336,23 @@ export function normalizeFinalPilotDraftCopy<T>(
     ['ideal_for', FINAL_PILOT_REVIEW_IDEAL],
     ['main_description', FINAL_PILOT_REVIEW_MAIN],
   ]);
+  const qaSelfReport = isRecord(output.qa_self_report)
+    ? {
+      ...output.qa_self_report,
+      notes: Array.isArray(output.qa_self_report.notes)
+        ? output.qa_self_report.notes.map((note) => (
+          note === FINAL_PILOT_STALE_META_QA_NOTE
+            ? FINAL_PILOT_REVIEW_META_QA_NOTE
+            : note
+        ))
+        : output.qa_self_report.notes,
+    }
+    : output.qa_self_report;
 
   return {
     ...output,
     meta_description: FINAL_PILOT_REVIEW_META,
+    qa_self_report: qaSelfReport,
     image_alt_candidates: [{
       ...output.image_alt_candidates[0],
       alt_text: FINAL_PILOT_REVIEW_ALT,
