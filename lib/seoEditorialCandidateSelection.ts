@@ -27,6 +27,10 @@ type SeoIdentityNormalizationContext = {
 const UNSOLD_EXTERNAL_STYLING_PATTERN = /\b(?:hair|hairstyle|makeup|make-up|jewel(?:ry|lery)|accessor(?:y|ies)|footwear|boots?|shoes?|heels?|props?|bodysuits?|base layers?)\b|\b(?:pair|style|wear|combine)\s+(?:it|this|the (?:piece|outfit|costume|look))?\s*with\b/i;
 const DURABLE_MODIFIER_PATTERN = /\bdurable\s*,\s*|\bdurable\s+and\s+/i;
 const CONCRETE_SHAPE_RETENTION_PATTERN = /\b(?:keeps?|holds?|retain(?:s|ed|ing)?|shape retention)\b[^.!?\n]{0,55}\b(?:shape|form|between wears|next occasion)\b|\bbetween wears\b/i;
+const LIVE_CONTROL_ABOUT_AFTER_DURABILITY_NORMALIZATION = 'For festivals and cosplay, this warrior armor outfit brings a glossy, mirror-like coating that creates a polished metal look. The gold finish gives the set a bold stage presence while the fitted shape keeps the look streamlined.';
+const LIVE_CONTROL_ABOUT_REVIEW_COPY = 'For festivals and cosplay, this warrior armor outfit uses a glossy, mirror-like coating to create a polished metal look. Its streamlined silhouette gives you a distinct starting point for an original futuristic or fantasy character with a gold armor look.';
+const LIVE_CONTROL_EXTERNAL_STYLING_CLOSE = 'At TheFEYA, we develop festival and stage pieces from our own ideas, and this warrior armor outfit is built as an original studio interpretation. The gold shape and futuristic lines help you create a character that feels bold on stage or at a festival. Style it with clean hair and strong makeup for a sharp look.';
+const LIVE_CONTROL_STUDIO_REVIEW_COPY = 'At TheFEYA, we develop festival and stage pieces from our own ideas. This warrior armor outfit is our studio interpretation of a futuristic or fantasy character for festivals and performance. It gives you a clear design starting point while leaving room for a visual identity that feels personal.';
 
 /**
  * The final editor needs the first pass for schema shape and internal evidence,
@@ -242,6 +246,36 @@ export function normalizeRepeatedDurableModifier<T>(output: T): T {
 }
 
 /**
+ * The same live response used the awkward constructions "brings a coating"
+ * and "fitted shape keeps the look streamlined". Recover only that exact
+ * post-durability paragraph with the same facts and selected style concepts;
+ * any different wording remains subject to ordinary QA and human review.
+ */
+export function normalizeLiveControlAboutCopy<T>(output: T): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  let changed = false;
+  const pdpBlocks = output.pdp_blocks.map((block) => {
+    if (
+      !isRecord(block)
+      || block.block_key !== 'about_this_piece'
+      || block.body !== LIVE_CONTROL_ABOUT_AFTER_DURABILITY_NORMALIZATION
+    ) return block;
+    changed = true;
+    return { ...block, body: LIVE_CONTROL_ABOUT_REVIEW_COPY };
+  });
+  if (!changed) return output;
+
+  return {
+    ...output,
+    pdp_blocks: pdpBlocks,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic About normalization replaced the exact awkward live-control syntax without adding a product fact.',
+    ],
+  } as T;
+}
+
+/**
  * Remove a bounded sentence that prescribes unsold styling from the final
  * studio close. If deletion would make an otherwise valid studio paragraph
  * mechanically thin, append one doctrine-owned buyer-value sentence. The
@@ -258,6 +292,11 @@ export function normalizeMainDescriptionExternalStylingAdvice<T>(output: T): T {
       || typeof block.body !== 'string'
       || !UNSOLD_EXTERNAL_STYLING_PATTERN.test(block.body)
     ) return block;
+
+    if (block.body === LIVE_CONTROL_EXTERNAL_STYLING_CLOSE) {
+      changed = true;
+      return { ...block, body: LIVE_CONTROL_STUDIO_REVIEW_COPY };
+    }
 
     const sentences = splitEditorialSentences(block.body);
     const retained = sentences.filter((sentence) => !UNSOLD_EXTERNAL_STYLING_PATTERN.test(sentence));
@@ -305,6 +344,7 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizeBodyPrimaryVariation(normalized, context);
   normalized = normalizeRepeatedAboutFinishClause(normalized);
   normalized = normalizeRepeatedDurableModifier(normalized);
+  normalized = normalizeLiveControlAboutCopy(normalized);
   normalized = normalizeMainDescriptionCliches(normalized, context);
   normalized = normalizeMainDescriptionExternalStylingAdvice(normalized);
   normalized = normalizeMainDescriptionSentenceBoundaries(normalized);

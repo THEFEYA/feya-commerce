@@ -653,9 +653,16 @@ test('the 2026-08-10 live control draft passes after bounded zero-token normaliz
   assert.equal(normalized.visual_truth.open_style_suggestions.length, 0);
   assert.doesNotMatch(normalized.meta_description, /\bdurable\b/i);
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /\bdurable\b/i);
+  assert.equal(
+    normalized.pdp_blocks[0].body,
+    'For festivals and cosplay, this warrior armor outfit uses a glossy, mirror-like coating to create a polished metal look. Its streamlined silhouette gives you a distinct starting point for an original futuristic or fantasy character with a gold armor look.',
+  );
   assert.match(normalized.pdp_blocks[1].body, /keep its shape between wears/i);
   assert.doesNotMatch(normalized.pdp_blocks[3].body, /hair|makeup|footwear|accessor/i);
-  assert.match(normalized.pdp_blocks[3].body, /visual identity that feels personal/i);
+  assert.equal(
+    normalized.pdp_blocks[3].body,
+    'At TheFEYA, we develop festival and stage pieces from our own ideas. This warrior armor outfit is our studio interpretation of a futuristic or fantasy character for festivals and performance. It gives you a clear design starting point while leaving room for a visual identity that feels personal.',
+  );
   assert.deepEqual(normalized.pdp_blocks.map((block: any) => block.block_key), [
     'about_this_piece',
     'why_youll_love_it',
