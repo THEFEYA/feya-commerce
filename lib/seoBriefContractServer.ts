@@ -988,7 +988,10 @@ async function loadLivePrimaryOwnershipStrategy(identityDraft, targetKeywordSele
       .is('archived_at', null)
       .order('reviewed_at', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false })
-    : { data: [], error: null };
+    : {
+      data: [],
+      error: { message: 'Server-only approved SEO draft ownership is unavailable.' },
+    };
   const approvedDraftByProductId = latestApprovedDraftByProductId(approvedDraftResult.data || []);
   const targetApprovedDraft = approvedDraftByProductId.get(identityDraft?.canonical_product_id) || null;
 
