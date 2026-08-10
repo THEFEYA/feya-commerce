@@ -247,6 +247,26 @@ test('writer brief uses current offer and excludes raw legacy wording', () => {
   assert.match(prompt.system_prompt, /body_identity_variant_en, never product_identity_en/);
 });
 
+test('compact writer brief carries a general audience into Ideal for and forbids taxonomy prose', () => {
+  const input = inputContract();
+  input.manual_focus = {
+    event: ['festival'],
+    style: ['glam', 'futuristic'],
+    persona: ['warrior'],
+    audience: ['women'],
+    material: ['gold'],
+  };
+
+  const { brief, prompt } = buildCompactSeoWriterPrompt(input);
+  assert.ok(brief.ideal_for_portraits.some((portrait) => (
+    portrait.person === 'women'
+    && /live music production/i.test(portrait.situation)
+  )));
+  assert.match(prompt.system_prompt, /no focus value may appear more than twice/i);
+  assert.match(prompt.system_prompt, /never call them a [“\"]style pair[”\"]/i);
+  assert.match(prompt.system_prompt, /never mention two confirmed components in About/i);
+});
+
 test('compact writer contract stays product-specific for a single dress', () => {
   const input = structuredClone(inputContract());
   input.product.title = 'Black Festival Dress';
