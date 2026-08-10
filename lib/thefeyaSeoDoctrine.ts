@@ -1,4 +1,4 @@
-export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v19' as const;
+export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v20' as const;
 
 export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
   checkpoint_id: 'reload_latest_research_before_apply_publish_v1',
@@ -15,7 +15,7 @@ export const THEFEYA_VARIATION_EDITING_CHECKPOINT = {
 } as const;
 
 export const THEFEYA_BRAND_VALUE_PILLARS = [
-  'TheFEYA is an independent team of designers and makers with a fresh point of view on festival and stage fashion. Never describe the team as small or use company size as a selling point.',
+  'TheFEYA is a creative studio developing original festival and stage fashion. Explain what the original design gives the wearer; do not use independence or company size as a selling point.',
   'Original studio design matters because our different design ideas help buyers find a piece that feels true to their own style and build a bold, recognizable look around it. State that buyer value directly without comparisons to standard templates, generic costumes or mass production.',
   'The studio helps people express individuality through clothing. It is safe to say that a supported design is made to stand out at a festival, on stage or in photographs; never promise compliments, likes, followers, virality or universal attention.',
   'A strong stage and camera silhouette may support a memorable visual identity for performers, creators and public-facing buyers when the product and selected use cases support it.',
@@ -78,7 +78,7 @@ export const THEFEYA_CANONICAL_RIGHT_PDP_PANEL = [
   ]),
   rightPanelBlock('material', 'Material', [
     'We use durable vegan leather with a glossy mirror-like coating.',
-    'The material feels comfortable against the body and helps the piece keep its sculptural shape.',
+    'The material feels comfortable against the body and helps the piece keep its shape between wears.',
   ]),
   rightPanelBlock('care', 'Care', [
     'Stains and surface marks are easy to remove with alcohol wipes or a mild cleaning product. Wipe the piece carefully by hand.',
@@ -86,7 +86,7 @@ export const THEFEYA_CANONICAL_RIGHT_PDP_PANEL = [
     'Store the piece carefully, preferably on a hanger, and avoid tight folding or long-term heavy pressure so it keeps its shape.',
   ]),
   rightPanelBlock('customization', 'Made to order & customization', [
-    'For an individual change, contact us before production.',
+    'For a custom change, contact us before production.',
     'We can discuss adjustments to color, size, length, fit, coverage or selected details while keeping the result within our studio style.',
   ]),
 ] as const;
@@ -120,7 +120,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Do not start customer-facing copy as an image audit, inventory note or source-data disclaimer. Avoid openings like The image shows, The listed materials, The product description says, The source lists, Product Truth confirms or The safest wording is.',
     'Never write customer copy as if reporting database fields to an analyst. Never mention official product data, verification before publication, review status, source rows or internal uncertainty in buyer-facing text.',
     'Keep copy commercial but calm: attractive, specific and human, without generic AI sales language or empty pseudo-benefits.',
-    'Use an independent fashion-studio editorial voice: warm, concrete and persuasive, with varied sentence rhythm. A complete, useful product story is required; a title restatement or keyword-perfect one-liner is not acceptable PDP copy.',
+    'Use a warm, concrete and persuasive fashion-editorial voice with varied sentence rhythm. A complete, useful product story is required; a title restatement or keyword-perfect one-liner is not acceptable PDP copy.',
     'Avoid filler words and weak catalog phrases: Edition, Ultimate, Best, Perfect, Luxury, Premium, Elevate, Crafted to perfection and Perfect for any occasion.',
     'Use clear, short sentences. Avoid keyword stuffing, doorway-page copy, repeated phrase skeletons and long chained keyword titles.',
     'Do not expand a clear product name merely to reach a character target. H1 should name the primary product entity once and add only a different, verified attribute or use case.',
@@ -137,7 +137,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Weak styling filler is not a benefit. Do not use works over minimal clothing, easy to build into a look, part of a complete look, creates a clear accent, works as a centerpiece or without additional design elements.',
     'Material and finish claims must come from product-specific Product Truth or verified image truth. Vegan leather and faux leather are synonyms in customer copy and must never be stacked as two materials. Reflective or retroreflective is not a synonym for glossy, mirror-like, metallic or light-catching.',
     'Never promise or discuss likes, followers, popularity, viral reach, organic attention, reactions, saves, comments, sales, press attention or other social-performance outcomes.',
-    'The final Designed for self-expression block is a 45-75 word, 3-4 sentence product-relevant studio close. Identify our independent design team and fresh point of view, explain that our varied original ideas help people find a design that feels like them, and connect this product to a complete supported festival, stage or performance look.',
+    'The final Designed for self-expression block is a 45-75 word, 3-4 sentence product-relevant studio close. Identify TheFEYA once, explain our original in-studio point of view and how it helps people choose a design that feels personal, then connect the product to one supported festival, stage or performance setting.',
     'Use plain literal language. Ban visual noise, clarity of the look, point of view, presence, character, considered appearance, expressive accent and similar abstract design-review wording that a buyer cannot translate into a real benefit.',
     'Do not pad the close with the breadth of the store, a list of events, an invitation to discuss a new idea or claims about shareability. These are generic across the catalog and dilute product specificity.',
     'Do not place operational customization details such as changing color, size, length, fit or coverage inside Designed for self-expression. Those facts belong only in the fixed right panel.',
@@ -168,7 +168,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     {
       block_key: 'main_description',
       placement: 'left_description',
-      intent: 'Heading must be Designed for self-expression. Write 45-75 words in 3-4 sentences: our independent design team and fresh point of view, how varied original ideas help people find a design that feels like them, and how this product supports a complete look in one approved setting. Do not mention team size, anatomical geometry, abstract design-review language or social metrics.',
+      intent: 'Heading must be Designed for self-expression. Write 45-75 words in 3-4 sentences: name TheFEYA once, explain our original in-studio point of view, how it helps people find a design that feels personal, and how this product supports one selected setting. Do not mention independence, team size, anatomical geometry, abstract design-review language or social metrics.',
     },
     {
       block_key: 'related_collections',

@@ -77,6 +77,7 @@ export function assembleSeoProductPack({
   const proposedSlug = slugify(primaryKeyword).slice(0, 72).replace(/-+$/g, '') || currentSlug;
   const mainDescription = output.pdp_blocks?.find((block) => block.block_key === 'main_description')?.body || null;
   const primaryImageUrl = draft.product_truth?.primary_image_url || null;
+  const structuredDataMaterial = canonicalStructuredDataMaterial(draft.product_truth?.material);
   const imageSeo = (output.image_alt_candidates || []).map((candidate, index) => ({
     image_role: candidate.image_role,
     source_image_url: index === 0 && candidate.image_role === 'primary' ? primaryImageUrl : null,
@@ -115,7 +116,7 @@ export function assembleSeoProductPack({
         description: output.intro || output.meta_description,
         image: primaryImageUrl ? [primaryImageUrl] : undefined,
         sku: draft.canonical_product_id,
-        material: draft.product_truth?.material || undefined,
+        material: structuredDataMaterial || undefined,
         color: draft.product_truth?.color || undefined,
       }),
       faq_page: faq.length ? {
@@ -155,6 +156,25 @@ function slugify(value: unknown) {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .replace(/-+/g, '-');
+}
+
+/**
+ * Material in imported catalog rows can be a comma-separated marketplace tag
+ * list rather than one reviewed product fact. Schema.org does not require the
+ * field, so omit ambiguous multi-material strings instead of publishing a
+ * contradictory list. A single explicit material remains available and the
+ * vegan/faux-leather synonym is rendered in the storefront's approved terms.
+ */
+function canonicalStructuredDataMaterial(value: unknown) {
+  const raw = String(value || '').replace(/\s+/g, ' ').trim();
+  if (!raw) return null;
+  const parts = raw
+    .split(/[,;|]+/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => /^(?:faux|vegan) leather$/i.test(part) ? 'Vegan leather' : part);
+  const uniqueParts = [...new Map(parts.map((part) => [part.toLowerCase(), part])).values()];
+  return uniqueParts.length === 1 ? uniqueParts[0] : null;
 }
 
 function compactRecord(value: Record<string, unknown>) {

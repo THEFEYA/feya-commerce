@@ -1,9 +1,32 @@
-import type { SeoAgentOutputContract } from '@/lib/seoPackContract';
-import type { SeoAgentPromptContract } from '@/lib/seoAgentDraftPrompt';
+import { createHash } from 'node:crypto';
+import type { SeoAgentOutputContract } from './seoPackContract.ts';
+import type { SeoAgentPromptContract } from './seoAgentDraftPrompt.ts';
 
-type OpenAiDraftResult = {
+export type OpenAiTokenUsage = {
+  input_tokens: number | null;
+  output_tokens: number | null;
+  total_tokens: number | null;
+  cached_input_tokens: number | null;
+  reasoning_tokens: number | null;
+};
+
+export type OpenAiDraftTelemetry = {
+  contract_version: string;
+  prompt_hash: string;
+  system_prompt_chars: number;
+  user_prompt_chars: number;
+  timeout_ms: number;
+  max_output_tokens: number;
+  duration_ms: number;
+  http_status: number | null;
+  usage: OpenAiTokenUsage | null;
+  writer_output_block_keys: string[] | null;
+  writer_output_block_count: number | null;
+};
+
+export type OpenAiDraftResult = {
   ok: boolean;
-  status: 'generated' | 'blocked' | 'openai_error' | 'parse_error';
+  status: 'generated' | 'blocked' | 'openai_error' | 'parse_error' | 'upstream_timeout';
   model: string;
   response_id?: string | null;
   output?: SeoAgentOutputContract | null;
@@ -13,12 +36,16 @@ type OpenAiDraftResult = {
     primary_image_sent: boolean;
     primary_image_url?: string | null;
   };
+  telemetry: OpenAiDraftTelemetry;
 };
 
-type GenerateSeoDraftOptions = {
+export type GenerateSeoDraftOptions = {
   primaryImageUrl?: string | null;
   model?: string | null;
   reasoningEffort?: 'low' | 'medium' | 'high' | null;
+  timeoutMs?: number | null;
+  maxOutputTokens?: number | null;
+  fetchImpl?: typeof fetch;
 };
 
 type ResponseContentPart = {
@@ -32,6 +59,40 @@ type ResponseOutputItem = {
 
 const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
 
+const WRITER_PDP_BLOCK_SLOTS = [
+  'about_this_piece',
+  'why_youll_love_it',
+  'ideal_for',
+  'main_description',
+] as const;
+
+const CODE_OWNED_PDP_BLOCKS = [
+  {
+    block_key: 'about_this_piece',
+    placement: 'left_description',
+    heading: 'About this piece',
+    source_basis: 'product_fact',
+  },
+  {
+    block_key: 'why_youll_love_it',
+    placement: 'left_description',
+    heading: 'Why you’ll love it',
+    source_basis: 'product_fact',
+  },
+  {
+    block_key: 'ideal_for',
+    placement: 'left_description',
+    heading: 'Ideal for',
+    source_basis: 'product_fact',
+  },
+  {
+    block_key: 'main_description',
+    placement: 'left_description',
+    heading: 'Designed for self-expression',
+    source_basis: 'brand_policy',
+  },
+] as const;
+
 export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract, options: GenerateSeoDraftOptions = {}): Promise<OpenAiDraftResult> {
   const apiKey = process.env.OPENAI_API_KEY;
   const model = String(options.model || '').trim()
@@ -42,6 +103,43 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
     primary_image_sent: Boolean(primaryImageUrl),
     primary_image_url: primaryImageUrl,
   };
+  const timeoutMs = positiveInteger(
+    options.timeoutMs,
+    positiveInteger(process.env.FEYA_SEO_OPENAI_TIMEOUT_MS, 120_000),
+  );
+  const maxOutputTokens = positiveInteger(
+    options.maxOutputTokens,
+    positiveInteger(process.env.FEYA_SEO_OPENAI_MAX_OUTPUT_TOKENS, 2_500),
+  );
+  const userInstruction = `${prompt.user_prompt}\n\nReturn exactly one JSON object that conforms to the seo_agent_writer_output_v3 wire schema supplied in text.format. Fill all four required named pdp_blocks text slots. Do not omit required fields. Use null for unknown nullable text fields and empty arrays when a section has no safe content. visual_truth.open_style_suggestions must be [].`;
+  const promptHash = createHash('sha256')
+    .update(prompt.contract_version)
+    .update('\0')
+    .update(prompt.system_prompt)
+    .update('\0')
+    .update(userInstruction)
+    .digest('hex');
+  const startedAt = Date.now();
+  const telemetry = (
+    httpStatus: number | null,
+    usage: unknown = null,
+    writerOutput: unknown = undefined,
+  ): OpenAiDraftTelemetry => {
+    const blockKeys = inspectWriterPdpBlockKeys(writerOutput);
+    return {
+      contract_version: prompt.contract_version,
+      prompt_hash: promptHash,
+      system_prompt_chars: prompt.system_prompt.length,
+      user_prompt_chars: userInstruction.length,
+      timeout_ms: timeoutMs,
+      max_output_tokens: maxOutputTokens,
+      duration_ms: Date.now() - startedAt,
+      http_status: httpStatus,
+      usage: normalizeUsage(usage),
+      writer_output_block_keys: blockKeys,
+      writer_output_block_count: blockKeys?.length ?? null,
+    };
+  };
 
   if (!apiKey) {
     return {
@@ -51,13 +149,14 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
       output: null,
       error: 'OPENAI_API_KEY is missing on the server.',
       vision_input: visionInput,
+      telemetry: telemetry(null),
     };
   }
 
   const userContent: Array<Record<string, unknown>> = [
     {
       type: 'input_text',
-      text: `${prompt.user_prompt}\n\nReturn exactly one JSON object that conforms to the seo_agent_output_v1 schema supplied in text.format. Do not omit required fields. Use null for unknown nullable text fields and empty arrays when a section has no safe content.`,
+      text: userInstruction,
     },
   ];
 
@@ -68,46 +167,76 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
     });
   }
 
-  const response = await fetch(OPENAI_RESPONSES_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model,
-      ...(options.reasoningEffort
-        ? { reasoning: { effort: options.reasoningEffort } }
-        : {}),
-      input: [
-        {
-          role: 'system',
-          content: [
-            {
-              type: 'input_text',
-              text: prompt.system_prompt,
-            },
-          ],
-        },
-        {
-          role: 'user',
-          content: userContent,
-        },
-      ],
-      text: {
-        format: {
-          type: 'json_schema',
-          name: 'seo_agent_output_v1',
-          strict: true,
-          schema: seoAgentOutputSchema(),
-        },
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let response: Response | null = null;
+  let payload: any = null;
+  try {
+    response = await (options.fetchImpl || fetch)(OPENAI_RESPONSES_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
       },
-      ...(options.reasoningEffort ? {} : { temperature: 0.2 }),
-      store: false,
-    }),
-  });
+      signal: controller.signal,
+      body: JSON.stringify({
+        model,
+        ...(options.reasoningEffort
+          ? { reasoning: { effort: options.reasoningEffort } }
+          : {}),
+        input: [
+          {
+            role: 'system',
+            content: [
+              {
+                type: 'input_text',
+                text: prompt.system_prompt,
+              },
+            ],
+          },
+          {
+            role: 'user',
+            content: userContent,
+          },
+        ],
+        text: {
+          format: {
+            type: 'json_schema',
+            name: 'seo_agent_writer_output_v3',
+            strict: true,
+            schema: seoAgentOutputSchema(),
+          },
+        },
+        max_output_tokens: maxOutputTokens,
+        ...(options.reasoningEffort ? {} : { temperature: 0.2 }),
+        store: false,
+      }),
+    });
+    try {
+      payload = await response.json();
+    } catch (err) {
+      if (controller.signal.aborted || (err instanceof Error && err.name === 'AbortError')) throw err;
+      payload = null;
+    }
+  } catch (err) {
+    const timedOut = controller.signal.aborted || (err instanceof Error && err.name === 'AbortError');
+    return {
+      ok: false,
+      status: timedOut ? 'upstream_timeout' : 'openai_error',
+      model,
+      response_id: null,
+      output: null,
+      raw_text: null,
+      error: timedOut
+        ? `OpenAI writer exceeded the ${timeoutMs}ms upstream timeout. No automatic retry was attempted.`
+        : err instanceof Error ? err.message : String(err),
+      vision_input: visionInput,
+      telemetry: telemetry(response?.status || null),
+    };
+  } finally {
+    clearTimeout(timer);
+  }
 
-  const payload = await response.json().catch(() => null);
   if (!response.ok) {
     return {
       ok: false,
@@ -118,6 +247,7 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
       raw_text: null,
       error: payload?.error?.message || `OpenAI request failed with HTTP ${response.status}.`,
       vision_input: visionInput,
+      telemetry: telemetry(response.status, payload?.usage),
     };
   }
 
@@ -132,6 +262,7 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
       raw_text: null,
       error: 'OpenAI response did not contain output text.',
       vision_input: visionInput,
+      telemetry: telemetry(response.status, payload?.usage),
     };
   }
 
@@ -146,6 +277,22 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
       raw_text: rawText,
       error: parsed.error,
       vision_input: visionInput,
+      telemetry: telemetry(response.status, payload?.usage),
+    };
+  }
+
+  const normalized = normalizeWriterOutput(parsed.value);
+  if (!normalized.ok) {
+    return {
+      ok: false,
+      status: 'parse_error',
+      model,
+      response_id: payload?.id || null,
+      output: null,
+      raw_text: rawText,
+      error: normalized.error,
+      vision_input: visionInput,
+      telemetry: telemetry(response.status, payload?.usage, parsed.value),
     };
   }
 
@@ -154,16 +301,18 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
     status: 'generated',
     model,
     response_id: payload?.id || null,
-    output: parsed.value as SeoAgentOutputContract,
+    output: normalized.value,
     raw_text: rawText,
     error: null,
     vision_input: visionInput,
+    telemetry: telemetry(response.status, payload?.usage, parsed.value),
   };
 }
 
 function seoAgentOutputSchema() {
   const qaStatus = { type: 'string', enum: ['pass', 'warning', 'blocker', 'not_checked'] };
   const stringArray = { type: 'array', items: { type: 'string' } };
+  const emptyStringArray = { type: 'array', items: { type: 'string' }, maxItems: 0 };
   return {
     type: 'object',
     additionalProperties: false,
@@ -237,37 +386,20 @@ function seoAgentOutputSchema() {
         properties: {
           observed_product_facts: stringArray,
           dna_matches: stringArray,
-          open_style_suggestions: stringArray,
+          open_style_suggestions: emptyStringArray,
           uncertain_or_missing_facts: stringArray,
           forbidden_visual_claims: stringArray,
         },
       },
       pdp_blocks: {
-        type: 'array',
-        items: {
-          type: 'object',
-          additionalProperties: false,
-          required: ['block_key', 'placement', 'heading', 'body', 'source_basis', 'needs_human_review'],
-          properties: {
-            block_key: {
-              type: 'string',
-              enum: [
-                'about_this_piece',
-                'main_description',
-                'why_youll_love_it',
-                'ideal_for',
-                'whats_included',
-                'material',
-                'image_truth_note',
-                'related_collections',
-              ],
-            },
-            placement: { type: 'string', enum: ['left_description', 'review_only'] },
-            heading: { type: 'string' },
-            body: { type: 'string' },
-            source_basis: { type: 'string', enum: ['product_fact', 'brand_policy', 'visual_truth', 'needs_human_review'] },
-            needs_human_review: { type: 'boolean' },
-          },
+        type: 'object',
+        additionalProperties: false,
+        required: [...WRITER_PDP_BLOCK_SLOTS],
+        properties: {
+          about_this_piece: { type: 'string' },
+          why_youll_love_it: { type: 'string' },
+          ideal_for: { type: 'string' },
+          main_description: { type: 'string' },
         },
       },
       qa_self_report: {
@@ -301,6 +433,75 @@ function seoAgentOutputSchema() {
       generation_notes: stringArray,
     },
   };
+}
+
+function normalizeWriterOutput(value: unknown): {
+  ok: true;
+  value: SeoAgentOutputContract;
+} | {
+  ok: false;
+  error: string;
+} {
+  if (!isRecord(value)) {
+    return { ok: false, error: 'Writer output is not a JSON object.' };
+  }
+
+  const slots = value.pdp_blocks;
+  if (!isRecord(slots)) {
+    return {
+      ok: false,
+      error: 'Writer pdp_blocks must use the required named-slot object contract.',
+    };
+  }
+
+  const suppliedKeys = Object.keys(slots);
+  const missingKeys = WRITER_PDP_BLOCK_SLOTS.filter((key) => !suppliedKeys.includes(key));
+  const unexpectedKeys = suppliedKeys.filter((key) => !WRITER_PDP_BLOCK_SLOTS.includes(
+    key as typeof WRITER_PDP_BLOCK_SLOTS[number],
+  ));
+  if (missingKeys.length || unexpectedKeys.length) {
+    return {
+      ok: false,
+      error: [
+        missingKeys.length ? `missing PDP slots: ${missingKeys.join(', ')}` : '',
+        unexpectedKeys.length ? `unexpected PDP slots: ${unexpectedKeys.join(', ')}` : '',
+      ].filter(Boolean).join('; '),
+    };
+  }
+
+  const nonTextKeys = WRITER_PDP_BLOCK_SLOTS.filter((key) => typeof slots[key] !== 'string');
+  if (nonTextKeys.length) {
+    return {
+      ok: false,
+      error: `Writer PDP slots must be strings: ${nonTextKeys.join(', ')}.`,
+    };
+  }
+
+  return {
+    ok: true,
+    value: {
+      ...value,
+      pdp_blocks: CODE_OWNED_PDP_BLOCKS.map((block) => ({
+        ...block,
+        body: slots[block.block_key] as string,
+        // Every generated pack remains a review draft at the workflow level;
+        // this flag is reserved for a fact-specific uncertainty in one block.
+        needs_human_review: false,
+      })),
+    } as SeoAgentOutputContract,
+  };
+}
+
+function inspectWriterPdpBlockKeys(value: unknown): string[] | null {
+  if (!isRecord(value)) return null;
+  if (isRecord(value.pdp_blocks)) return Object.keys(value.pdp_blocks);
+  if (Array.isArray(value.pdp_blocks)) {
+    return value.pdp_blocks
+      .filter(isRecord)
+      .map((block) => String(block.block_key || '').trim())
+      .filter(Boolean);
+  }
+  return null;
 }
 
 function extractOutputText(payload: unknown): string | null {
@@ -343,4 +544,28 @@ function normalizeImageUrl(value?: string | null) {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function positiveInteger(value: unknown, fallback: number) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : fallback;
+}
+
+function normalizeUsage(value: unknown): OpenAiTokenUsage | null {
+  if (!isRecord(value)) return null;
+  const inputDetails = isRecord(value.input_tokens_details) ? value.input_tokens_details : {};
+  const outputDetails = isRecord(value.output_tokens_details) ? value.output_tokens_details : {};
+  return {
+    input_tokens: nullableNumber(value.input_tokens),
+    output_tokens: nullableNumber(value.output_tokens),
+    total_tokens: nullableNumber(value.total_tokens),
+    cached_input_tokens: nullableNumber(inputDetails.cached_tokens),
+    reasoning_tokens: nullableNumber(outputDetails.reasoning_tokens),
+  };
+}
+
+function nullableNumber(value: unknown) {
+  if (value === null || value === undefined || value === '') return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
 }

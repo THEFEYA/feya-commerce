@@ -175,7 +175,12 @@ export type SeoSimilarityCheckContract = {
 
 export type SeoPortfolioDifferentiationContract = {
   contract_version: 'seo_differentiation_strategy_v1';
-  source?: 'latest_saved_draft_source_overlap' | 'manual' | 'not_available';
+  source?:
+    | 'latest_saved_draft_source_overlap'
+    | 'live_listing_master_primary_ownership'
+    | 'combined_live_primary_ownership_and_saved_source_overlap'
+    | 'manual'
+    | 'not_available';
   source_draft_id?: string | null;
   source_draft_status?: string | null;
   source_review_status?: string | null;
@@ -201,6 +206,46 @@ export type SeoPortfolioDifferentiationContract = {
     shared_tokens?: string[];
   } | null;
   before_generation_checks?: string[];
+  generation_blockers?: string[];
+  publish_blockers?: string[];
+  keyword_ownership?: {
+    contract_version: 'seo_primary_keyword_ownership_v1';
+    status: 'pass' | 'pass_with_pending_reassignment' | 'conflict' | 'not_checked';
+    target_product_id: string;
+    target_product_title?: string | null;
+    primary_keyword: string | null;
+    primary_keyword_norm: string | null;
+    compared_product_count: number;
+    conflicts: Array<{
+      canonical_product_id: string;
+      matched_etsy_listing_id?: string | null;
+      product_slug?: string | null;
+      decision_status?: string | null;
+      keyword: string;
+      keyword_norm: string;
+      current_selection_status?: string | null;
+      current_primary_keyword?: string | null;
+      current_primary_keyword_norm?: string | null;
+      current_selection_error?: string | null;
+    }>;
+    suggested_primary_alternatives: Array<{
+      keyword: string;
+      keyword_norm: string;
+      avg_monthly_searches?: number | null;
+      competition?: string | null;
+      metric_source?: string | null;
+      last_checked?: string | null;
+      reason?: string;
+    }>;
+    generation_blockers: string[];
+    publish_blockers: string[];
+    source: 'listing_master_latest_decisions';
+    source_error?: string | null;
+    checked_at: string;
+    limitations: string[];
+    reserved_owner_product_id?: string | null;
+  };
+  source_overlap_strategy?: SeoPortfolioDifferentiationContract | null;
 };
 
 export type SeoVisualTruthContract = {

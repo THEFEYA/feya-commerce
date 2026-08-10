@@ -37,6 +37,7 @@ type Candidate = {
     confirmation_required?: boolean;
   } | null;
   keyword_recommendation_diagnostics?: Record<string, any> | null;
+  portfolio_strategy?: Record<string, any> | null;
 };
 
 type Filter = 'all' | 'ready' | 'blocked' | 'saved' | 'untested';
@@ -47,9 +48,11 @@ const PAGE_SIZE = 36;
 export default function FirstRealDraftClient({
   initialProductId = '',
   autoGenerate = false,
+  loadSavedDraft = false,
 }: {
   initialProductId?: string;
   autoGenerate?: boolean;
+  loadSavedDraft?: boolean;
 }) {
   const [candidateLoading, setCandidateLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -61,6 +64,9 @@ export default function FirstRealDraftClient({
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [testedIds, setTestedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
+  const [savedDraftLoading, setSavedDraftLoading] = useState(false);
+  const [repairing, setRepairing] = useState(false);
+  const [repairUsed, setRepairUsed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savedCurrentResult, setSavedCurrentResult] = useState(false);
   const [workflowNotice, setWorkflowNotice] = useState<string | null>(null);
@@ -70,6 +76,7 @@ export default function FirstRealDraftClient({
   const [detailError, setDetailError] = useState<string | null>(null);
   const resultRef = useRef<HTMLDivElement | null>(null);
   const autoGenerationStarted = useRef('');
+  const savedDraftLoadStarted = useRef('');
 
   useEffect(() => {
     try {
@@ -209,6 +216,7 @@ export default function FirstRealDraftClient({
   function selectProduct(productId: string) {
     setSelectedProductId(productId);
     setResult(null);
+    setRepairUsed(false);
     setSavedCurrentResult(false);
     setStorefrontProduct(null);
     setError(null);
@@ -218,6 +226,7 @@ export default function FirstRealDraftClient({
     if (productId) url.searchParams.set('product_id', productId);
     else url.searchParams.delete('product_id');
     url.searchParams.delete('generate');
+    url.searchParams.delete('saved');
     window.history.replaceState({}, '', url.toString());
   }
 
@@ -247,18 +256,22 @@ export default function FirstRealDraftClient({
 
     setLoading(true);
     setResult(null);
+    setRepairUsed(false);
     setSavedCurrentResult(false);
     setStorefrontProduct(null);
     setError(null);
+    const generationController = new AbortController();
+    const generationTimer = window.setTimeout(() => generationController.abort(), 130_000);
 
     try {
       const [generationResponse, productResponse] = await Promise.all([
         fetch('/api/admin/seo-engine/catalog-draft-generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          signal: generationController.signal,
           body: JSON.stringify({
             product_id: selectedProductId,
-            enforce_portfolio_strategy: false,
+            enforce_portfolio_strategy: true,
           }),
         }),
         fetch(`/api/admin/seo-engine/storefront-product?product_id=${encodeURIComponent(selectedProductId)}`, {
@@ -266,10 +279,18 @@ export default function FirstRealDraftClient({
         }),
       ]);
 
-      const [generationPayload, productPayload] = await Promise.all([
-        generationResponse.json().catch(() => ({})),
-        productResponse.json().catch(() => ({})),
+      const [generationText, productText] = await Promise.all([
+        generationResponse.text(),
+        productResponse.text(),
       ]);
+      const generationPayload = parseResponsePayload(
+        generationText,
+        `Generation returned HTTP ${generationResponse.status} without a valid JSON response.`,
+      );
+      const productPayload = parseResponsePayload(
+        productText,
+        `Product preview returned HTTP ${productResponse.status} without a valid JSON response.`,
+      );
 
       setResult({ ...generationPayload, http_status: generationResponse.status });
       if (productPayload?.product) setStorefrontProduct(productPayload.product);
@@ -277,15 +298,110 @@ export default function FirstRealDraftClient({
 
       const errors = [
         !productResponse.ok ? productPayload?.error : null,
-        !generationResponse.ok && !generationPayload?.generated_draft_output ? generationPayload?.error : null,
+        !generationResponse.ok && !generationPayload?.generated_draft_output
+          ? generationPayload?.error || generationPayload?.message || generationPayload?.status
+          : null,
       ].filter(Boolean);
       if (errors.length) setError(errors.join(' · '));
 
       window.setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Неизвестная ошибка запуска.');
+      setError(err?.name === 'AbortError'
+        ? 'OpenAI не ответил за 120 секунд. Запрос остановлен без повторной попытки; ничего не сохранено и не опубликовано.'
+        : err instanceof Error ? err.message : 'Неизвестная ошибка запуска.');
     } finally {
+      window.clearTimeout(generationTimer);
       setLoading(false);
+    }
+  }
+
+  async function loadStoredDraft() {
+    if (savedDraftLoading || !selectedProductId) return;
+    setSavedDraftLoading(true);
+    setResult(null);
+    setRepairUsed(false);
+    setSavedCurrentResult(false);
+    setStorefrontProduct(null);
+    setError(null);
+    setWorkflowNotice(null);
+
+    try {
+      const [draftResponse, productResponse] = await Promise.all([
+        fetch(`/api/admin/seo-engine/saved-draft-preview?product_id=${encodeURIComponent(selectedProductId)}`, {
+          cache: 'no-store',
+        }),
+        fetch(`/api/admin/seo-engine/storefront-product?product_id=${encodeURIComponent(selectedProductId)}`, {
+          cache: 'no-store',
+        }),
+      ]);
+      const [draftPayload, productPayload] = await Promise.all([
+        draftResponse.json().catch(() => ({})),
+        productResponse.json().catch(() => ({})),
+      ]);
+
+      if (!draftResponse.ok || !draftPayload?.generated_draft_output) {
+        setError(draftPayload?.error || 'Не удалось загрузить сохранённый SEO-черновик. OpenAI не вызывался.');
+        return;
+      }
+      if (!productResponse.ok || !productPayload?.product) {
+        setError(productPayload?.error || 'Сохранённый текст найден, но карточка товара не загрузилась. OpenAI не вызывался.');
+        return;
+      }
+
+      setResult({ ...draftPayload, http_status: draftResponse.status });
+      setStorefrontProduct(productPayload.product);
+      setSavedCurrentResult(true);
+      setWorkflowNotice('Загружен последний сохранённый SEO-черновик. Это read-only preview: OpenAI не вызывался, токены не потрачены, ничего не изменено и не опубликовано.');
+      window.setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    } catch (err) {
+      setError(err instanceof Error
+        ? err.message
+        : 'Неизвестная ошибка загрузки сохранённого SEO-черновика. OpenAI не вызывался.');
+    } finally {
+      setSavedDraftLoading(false);
+    }
+  }
+
+  async function runTargetedRepair() {
+    if (repairing || repairUsed || !selectedProductId || !draft || reviewPass) return;
+    setRepairing(true);
+    setRepairUsed(true);
+    setError(null);
+    setWorkflowNotice(null);
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), 130_000);
+
+    try {
+      const response = await fetch('/api/admin/seo-engine/catalog-draft-repair', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          product_id: selectedProductId,
+          repair_attempt: 1,
+          current_output: draft,
+        }),
+      });
+      const payload = parseResponsePayload(
+        await response.text(),
+        `Targeted repair returned HTTP ${response.status} without a valid JSON response.`,
+      );
+      setResult((current) => ({ ...current, ...payload, http_status: response.status }));
+      if (!response.ok && !payload?.generated_draft_output) {
+        setError(payload?.error || payload?.message || 'Точечное исправление не выполнено. Повтор автоматически не запускается.');
+      } else if (payload?.generated_draft_output) {
+        setWorkflowNotice(payload?.repair?.deterministic_only
+          ? 'Замечания исправлены бесплатными детерминированными правилами. OpenAI не вызывался; результат не сохранён и не опубликован.'
+          : 'Выполнена одна ручная точечная доработка через OpenAI. Результат не сохранён и не опубликован.');
+      }
+      window.setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    } catch (err) {
+      setError(err?.name === 'AbortError'
+        ? 'Точечное исправление остановлено через 120 секунд. Повтор не выполнялся.'
+        : err instanceof Error ? err.message : 'Неизвестная ошибка точечного исправления.');
+    } finally {
+      window.clearTimeout(timer);
+      setRepairing(false);
     }
   }
 
@@ -306,6 +422,24 @@ export default function FirstRealDraftClient({
     // render-scoped function here would retrigger automatic generation.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoGenerate, selectedCandidate, detailLoading, detailVerifiedProductId, loading, result, selectedProductId]);
+
+  useEffect(() => {
+    if (
+      !loadSavedDraft
+      || !selectedCandidate
+      || detailLoading
+      || detailVerifiedProductId !== selectedProductId
+      || savedDraftLoading
+      || result
+      || !selectedCandidate.has_saved_draft
+      || savedDraftLoadStarted.current === selectedProductId
+    ) return;
+    savedDraftLoadStarted.current = selectedProductId;
+    void loadStoredDraft();
+    // The read-only loader intentionally follows the same bounded one-shot
+    // pattern as auto generation. It never calls OpenAI or writes storage.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadSavedDraft, selectedCandidate, detailLoading, detailVerifiedProductId, savedDraftLoading, result, selectedProductId]);
 
   async function saveAndOpenNext() {
     if (saving || !selectedProductId || !draft || !reviewPass || savedCurrentResult) return;
@@ -371,6 +505,7 @@ export default function FirstRealDraftClient({
   const keywordPlacementValidation = result?.generated_draft_keyword_placement_validation || null;
   const assembledPack = result?.assembled_seo_pack || null;
   const diagnostics = result?.keyword_bank_diagnostics || null;
+  const savedSnapshotLoaded = result?.status === 'saved_draft_loaded';
   const alts = Array.isArray(draft?.image_alt_candidates) ? draft.image_alt_candidates : [];
   const structuralIssues = Array.isArray(structuralValidation?.issues) ? structuralValidation.issues : [];
   const commercialIssues = Array.isArray(commercialValidation?.issues) ? commercialValidation.issues : [];
@@ -489,6 +624,7 @@ export default function FirstRealDraftClient({
 
             <div className="min-w-0 space-y-4 p-4 sm:p-5">
               {detailLoading ? <Notice>Проверяю точные Product Truth, ключи и метрики…</Notice> : null}
+              {savedDraftLoading ? <Notice>Загружаю сохранённый SEO-черновик без OpenAI…</Notice> : null}
               {detailError ? <Notice tone="danger">{detailError}</Notice> : null}
 
               <div className="grid grid-cols-2 gap-2">
@@ -509,6 +645,10 @@ export default function FirstRealDraftClient({
                   <KeywordPreview label="Secondary" items={selectedCandidate.secondary_keywords} />
                 </div>
               </div> : null}
+
+              {selectedCandidate.portfolio_strategy?.keyword_ownership ? <PortfolioOwnershipNotice
+                ownership={selectedCandidate.portfolio_strategy.keyword_ownership}
+              /> : null}
 
               {selectedCandidate.has_saved_draft ? <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">
                 Последний сохранённый draft: <span className="text-bone">{selectedCandidate.latest_draft_status || '—'}</span>
@@ -536,10 +676,12 @@ export default function FirstRealDraftClient({
               </a> : <button
                 type="button"
                 onClick={run}
-                disabled={candidateLoading || detailLoading || detailVerifiedProductId !== selectedProductId || loading}
+                disabled={candidateLoading || detailLoading || detailVerifiedProductId !== selectedProductId || loading || savedDraftLoading || savedSnapshotLoaded}
                 className="btn-gold min-h-12 w-full min-w-0 justify-center px-4 text-center disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {detailVerifiedProductId !== selectedProductId
+                {savedSnapshotLoaded
+                  ? 'Сохранённый черновик загружен — новая генерация не нужна'
+                  : detailVerifiedProductId !== selectedProductId
                   ? 'Проверяю Product Truth…'
                   : loading
                     ? 'OpenAI генерирует и собирает preview…'
@@ -560,12 +702,19 @@ export default function FirstRealDraftClient({
         : 'border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.06)]'}`}>
         <div className="eyebrow-gold">Результат запуска</div>
         <div className={`mt-2 break-words text-[22px] ${draft ? 'text-[#a9dfbd]' : 'text-[var(--gold-warm)]'}`}>
-          {draft ? 'Draft получен — начинайте визуальную проверку' : 'OpenAI не вернул draft'}
+          {draft
+            ? savedSnapshotLoaded
+              ? 'Сохранённый черновик загружен — начинайте визуальную проверку'
+              : 'Draft получен — начинайте визуальную проверку'
+            : 'OpenAI не вернул draft'}
         </div>
         <div className="mt-2 text-[12px] leading-relaxed text-[var(--bone-dim)]">
           HTTP {result.http_status ?? '—'} · {result.status || '—'}
           {result.message ? <> · {result.message}</> : null}
         </div>
+        {result.openai_generation?.error ? <div className="mt-3 break-words rounded-xl border border-[rgba(196,64,88,.28)] bg-[rgba(160,32,56,.08)] p-3 text-[12px] leading-relaxed text-[var(--ruby-soft)]">
+          {result.openai_generation.error}
+        </div> : null}
       </section> : null}
 
       {draft && storefrontProduct ? <SeoDraftStorefrontPreview product={storefrontProduct} draft={draft} /> : null}
@@ -601,6 +750,23 @@ export default function FirstRealDraftClient({
           {keywordPlacementIssues.length ? <div className="mt-3 grid min-w-0 gap-2 md:grid-cols-2">{keywordPlacementIssues.map((item, index) => <Issue key={`${item.code}-${index}`} item={item} />)}</div> : <div className="mt-2 text-[12px] text-[#a9dfbd]">Primary, commercial intent и ALT размещены в разрешённых полях без точного переспама.</div>}
         </div> : null}
         <div className="mt-4 border-t border-[rgba(216,214,211,.10)] pt-4">
+          {!reviewPass ? <div className="mb-4 rounded-xl border border-[rgba(212,178,106,.24)] bg-black/20 p-3">
+            <button
+              type="button"
+              onClick={runTargetedRepair}
+              disabled={repairing || repairUsed}
+              className="btn-ghost min-h-11 w-full justify-center px-4 text-center disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {repairing
+                ? 'Проверяю и исправляю…'
+                : repairUsed
+                  ? 'Лимит точечной доработки использован'
+                  : 'Исправить замечания — сначала бесплатно'}
+            </button>
+            <div className="mt-2 text-center text-[10px] leading-relaxed text-[var(--smoke)]">
+              Сначала применяются ограниченные детерминированные исправления с 0 токенов. Только если blocker остаётся, выполняется один OpenAI-вызов — без автоматического повтора и сохранения.
+            </div>
+          </div> : null}
           <button
             type="button"
             onClick={saveAndOpenNext}
@@ -697,6 +863,15 @@ function uniqueCandidates(values: Candidate[]) {
   });
 }
 
+function parseResponsePayload(text: string, fallbackError: string) {
+  try {
+    const parsed = JSON.parse(text || '{}');
+    return parsed && typeof parsed === 'object' ? parsed : { error: fallbackError };
+  } catch {
+    return { error: fallbackError };
+  }
+}
+
 function normalizeSearch(value) {
   return String(value || '').toLowerCase().replace(/\s+/g, ' ').trim();
 }
@@ -704,6 +879,7 @@ function normalizeSearch(value) {
 function blockerShort(values?: string[]) {
   const first = values?.[0];
   if (!first) return 'Требует проверки';
+  if (first.includes('portfolio')) return 'Конфликт Primary';
   if (first.includes('keyword_metric')) return 'Нет валидной метрики';
   if (first.includes('keyword')) return 'Нет выбранных ключей';
   if (first.includes('mismatch')) return 'Конфликт товара';
@@ -730,6 +906,10 @@ function blockerLabel(code) {
     qa_blocker_forbidden_mismatch: 'QA обнаружил запрещённое несоответствие товара.',
     qa_blocker_product_specificity: 'QA не подтвердил достаточную специфичность текста.',
     qa_blocker_validated_metrics: 'QA не подтвердил валидированные метрики.',
+    portfolio_strategy_missing: 'Не удалось загрузить обязательную стратегию портфеля до запуска OpenAI.',
+    primary_keyword_portfolio_conflict: 'Этот же Primary уже выбран для другого товара. Один главный поисковый интент должен принадлежать одной странице.',
+    primary_keyword_portfolio_map_unavailable: 'Не удалось проверить текущих владельцев Primary. OpenAI не вызван, чтобы не создать каннибализацию.',
+    primary_keyword_peer_reassignment_pending: 'Этот товар сохраняет Primary, но конфликтующему товару нужен новый whole-product Primary до публикации.',
   };
   return labels[code] || String(code || 'Неизвестный блокер').replaceAll('_', ' ');
 }
@@ -786,6 +966,72 @@ function KeywordPreview({ label, items = [] }: { label: string; items?: Array<Re
         {item.keyword || item.keyword_norm || '—'}
       </span>)}
     </div>
+  </div>;
+}
+
+function PortfolioOwnershipNotice({ ownership }: { ownership: Record<string, any> }) {
+  const conflicts = Array.isArray(ownership?.conflicts) ? ownership.conflicts : [];
+  const alternatives = Array.isArray(ownership?.suggested_primary_alternatives)
+    ? ownership.suggested_primary_alternatives
+    : [];
+  const primary = ownership?.primary_keyword || ownership?.primary_keyword_norm || '—';
+
+  if (ownership?.status === 'pass') {
+    return <Notice tone="success">
+      Primary <span className="text-bone">“{primary}”</span> свободен среди {ownership.compared_product_count || 0} других текущих решений Listing Master. Это разрешает генерацию, но не заменяет последующую проверку похожести готовых текстов.
+    </Notice>;
+  }
+
+  if (ownership?.status === 'pass_with_pending_reassignment') {
+    return <div className="rounded-xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.06)] p-4">
+      <div className="text-[10px] uppercase tracking-[.16em] text-[var(--gold-warm)]">Primary закреплён за этим товаром</div>
+      <p className="mt-2 text-[12px] leading-relaxed text-[var(--bone-dim)]">
+        Текущее подтверждённое решение сохраняет <span className="text-bone">“{primary}”</span> за выбранной карточкой. Генерация разрешена; публикация останется закрыта, пока устаревшее решение другой карточки не получит новый whole-product Primary.
+      </p>
+      <div className="mt-3 space-y-2">
+        {conflicts.map((item: Record<string, any>) => <a
+          key={`${item.canonical_product_id}-${item.keyword_norm}`}
+          href={`/admin/listing-master?product_id=${encodeURIComponent(item.canonical_product_id)}`}
+          className="block rounded-lg border border-[rgba(216,214,211,.10)] bg-black/20 px-3 py-2 text-[11px] leading-relaxed text-[var(--bone-dim)] hover:border-[rgba(212,178,106,.35)] hover:text-bone"
+        >
+          Требует нового Primary до публикации: Etsy {item.matched_etsy_listing_id || '—'} · статус текущей проверки {item.current_selection_status || 'не проверен'}
+        </a>)}
+      </div>
+    </div>;
+  }
+
+  if (ownership?.status === 'not_checked') {
+    return <Notice tone="danger">
+      Карта владельцев Primary сейчас недоступна. OpenAI не будет вызван, пока read-only проверка не вернёт достоверный результат.
+    </Notice>;
+  }
+
+  return <div className="rounded-xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-4">
+    <div className="text-[10px] uppercase tracking-[.16em] text-[var(--ruby-soft)]">Конфликт владельца Primary</div>
+    <p className="mt-2 text-[12px] leading-relaxed text-[var(--bone-dim)]">
+      Фраза <span className="text-bone">“{primary}”</span> уже выбрана главным ключом другой карточки. До решения конфликта OpenAI не вызывается и токены не расходуются.
+    </p>
+    <div className="mt-3 space-y-2">
+      {conflicts.map((item: Record<string, any>) => <a
+        key={`${item.canonical_product_id}-${item.keyword_norm}`}
+        href={`/admin/listing-master?product_id=${encodeURIComponent(item.canonical_product_id)}`}
+        className="block rounded-lg border border-[rgba(216,214,211,.10)] bg-black/20 px-3 py-2 text-[11px] leading-relaxed text-[var(--bone-dim)] hover:border-[rgba(212,178,106,.35)] hover:text-bone"
+      >
+        Конфликтующий товар: Etsy {item.matched_etsy_listing_id || '—'} · {item.product_slug || item.canonical_product_id}
+      </a>)}
+    </div>
+    {alternatives.length ? <div className="mt-4">
+      <div className="text-[9px] uppercase tracking-[.14em] text-[var(--smoke)]">Безопасные кандидаты для ручного выбора у этого товара</div>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {alternatives.map((item: Record<string, any>) => <span
+          key={item.keyword_norm || item.keyword}
+          className="rounded-full border border-[rgba(212,178,106,.25)] bg-black/20 px-2.5 py-1 text-[9px] text-[var(--gold-warm)]"
+          title={`volume ${item.avg_monthly_searches ?? '—'} · competition ${item.competition || '—'} · ${item.metric_source || '—'}`}
+        >
+          {item.keyword} · {item.avg_monthly_searches ?? '—'}/мес
+        </span>)}
+      </div>
+    </div> : null}
   </div>;
 }
 

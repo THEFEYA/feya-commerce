@@ -1,0 +1,62 @@
+# FEYA Editorial Feedback Rules v1 — owner review session 2026-07-27
+
+Source: owner's live review of the first v2 pilot drafts.
+These rules are OWNER LAW for all future generation and few-shot examples. They extend, and where they conflict override, prompt doctrine.
+
+## R1. No invented needs
+Never imply the buyer must add, style, or complete anything. The product is complete as sold.
+
+## R2. Silhouette/shape jargon is banned in buyer copy
+"Silhouette", "structured shape(s)", "sculptural" and the shape-critique family are robotic. Plain words only.
+
+## R3. Selected keywords are the vocabulary
+Body copy is written WITH the approved keyword set (naturally inflected, distributed per block roles), not with abstract substitutes. Exact Primary stays in seo_title/h1/meta only.
+
+## R4. Never restate purchase options in prose
+"Available separately or together", set combinations and "Full Set" appear ONLY in product options and the deterministic What's Included block.
+
+## R5. What's Included is a mandatory visible checklist block
+Deterministic check-marked component list from current options, right after About, plus the code-owned availability sentence.
+Generated Meta, Intro and About never recap that checklist, regardless of whether the product contains two parts or a larger set. ALT may name only parts that are actually visible and confirmed as sold.
+
+## R6. Facts must be valid for the CURRENT shop, not legacy Etsy
+Etsy text is provenance only. Service claims only when confirmed by current shop policy/right-panel canon. Sizing truth: buyer picks a standard size from the size chart.
+
+## R7. One right-panel fact → one translated buyer outcome, max
+One feature family = one block.
+
+## R8. Ideal for = relevant client avatars
+Client portraits most relevant to this exact costume, each with a concrete occasion or production need.
+
+## R9. Logic beats keyword
+A keyword goes ONLY where the sentence sounds natural even if it were not a keyword. If a phrase narrows or breaks the logic, the general human word wins.
+
+## R10. Avatar-context coherence
+Environment must be physically true for the avatar. No tautologies. Use a natural person-plus-situation portrait and vary the sentence frame; repeated "who want / who need" wording is template copy.
+
+## R11. Motivation beats attribute
+Sell the buyer's real desire behind the occasion (an authorial character, a personal look, comfort through the event, self-expression), not a product attribute like color. Photo behavior requires explicit evidence. Promised social outcomes (likes, followers) remain forbidden.
+
+## R12. Axes before drafts — always
+Generation (including pilot drafts) happens ONLY from owner-confirmed axes and keywords saved in Listing Master. Machine-proposed axes are questions for the owner, never copy. Reason proven in pilot: an acrylic corset was auto-associated with "rave", while the owner's truth is red carpet / stage / editorial — only the owner knows the product's real world. Unconfirmed focus in old data is treated as noise.
+
+## R13. Positive editorial memory before prompt prohibitions
+The normal writer receives compact positive block frames and a deterministic claim plan, not a finished product paragraph that can be copied. New wording failures become code-level validators and reviewed frames, not an ever-growing blacklist paid for on every generation.
+
+## R14. Cosplay is an original authorial interpretation
+When cosplay is an owner-confirmed focus, present the product as an original studio interpretation that helps the buyer create a character of their own. Customer copy does not promise an exact franchise or screen replica and does not waste space denying that comparison.
+
+## R15. Internal provenance never becomes customer copy
+Words such as "owner-approved", "confirmed", "story confirms", Product Truth, evidence, source and review belong to the audit layer only. Writer-visible facts are short neutral features and buyer outcomes. A deterministic preflight blocks the call before tokens are spent if provenance language leaks into the brief.
+
+## R16. Layout is code-owned
+The visible left-column order is always About this piece, deterministic What's included, Why you'll love it, Ideal for, then Designed for self-expression. A language model never chooses or changes that order.
+
+## R17. Brand close is final and singular
+TheFEYA appears once, in the final Designed for self-expression block. "Independent" is not a buyer benefit. Other blocks explain the original studio design or the product, without repeating a company biography.
+
+## R18. Vary editorial rhythm
+Ideal for and benefit bullets may share a structural job but not an identical sentence frame. Three or more repeated "who need" openings, repeated evidence prefixes, or near-identical benefit leads are rejected as template copy.
+
+## Process rule
+Every owner review is captured the same way: complaint → named rule → committed here → reflected in prompts/validators. Cumulative and versioned.

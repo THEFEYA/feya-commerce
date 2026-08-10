@@ -161,7 +161,7 @@ function buildPdpBlocks(input: SeoAgentInputContract, productName: string, _mate
       block_key: 'main_description',
       placement: 'left_description',
       heading: 'Designed for self-expression',
-      body: `At TheFEYA, we are an independent team of designers with a fresh point of view on festival and stage fashion. Our original ideas span different styles, helping people choose a design that feels like them. This piece gives you a distinctive starting point for ${cleanContext(context).replace(/\.$/, '')}. You can build the rest of the outfit around your own style.`,
+      body: `At TheFEYA, we create original festival and stage fashion for people who want their look to feel personal. Every idea begins in our studio with a clear creative direction. This piece brings that approach to ${cleanContext(context).replace(/\.$/, '')}. The finished look leaves room for your own style.`,
       source_basis: 'brand_policy',
       needs_human_review: true,
     },

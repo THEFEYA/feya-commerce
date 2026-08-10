@@ -28,22 +28,24 @@ export type SeoCommercialCopyContext = {
 };
 
 const WEAK_STYLING_FILLER = /\b(works? well as a focal (?:piece|point)|works? as a centerpiece|part of a complete look|over minimal clothing|pairs? with simple clothing|easy to build into (?:a|the) (?:look|outfit)|easy to style|can be a focal (?:piece|point)|works? with many looks|completes? the look|creates? a clear accent|without (?:additional|extra) (?:design )?(?:elements|details|pieces|accessories)|adds? an accent without)\b/i;
-const AUDIT_OR_ADMIN_LANGUAGE = /\b(product truth|product truth confirms?|product truth indicates?|the product description (?:says|states|lists|mentions|indicates)|the source (?:says|states|lists|mentions|indicates)|official product data|source data|database fields?|safe wording|safest wording|material basis|final copy should|must be confirmed|should be confirmed|requires? verification|needs? verification|should be reviewed before publish|requires? review before publish|review before publish|before publication|before publish|listed as|is listed as|indicated as|specified as)\b/i;
+const AUDIT_OR_ADMIN_LANGUAGE = /\b(product truth|product truth confirms?|product truth indicates?|owner[- ]approved|story confirms?|confirmed|the product description (?:says|states|lists|mentions|indicates)|the source (?:says|states|lists|mentions|indicates)|official product data|source data|database fields?|safe wording|safest wording|material basis|final copy should|must be confirmed|should be confirmed|requires? verification|needs? verification|should be reviewed before publish|requires? review before publish|review before publish|before publication|before publish|listed as|is listed as|indicated as|specified as)\b/i;
 const GUARANTEED_POPULARITY = /\b(guarantee(?:d|s)?|will get likes|will receive likes|will gain followers?|will make you popular|go viral|viral reach|more followers?|gain followers?|more likes|become popular|increase your popularity|guaranteed attention|everyone will notice|all eyes will be on you|guaranteed reactions?)\b/i;
 const EMPTY_HYPE = /\b(premium|luxury|ultimate|perfect|best|must[- ]have|crafted to perfection|elevate your look)\b/i;
 const EMPTY_OR_INTERNAL_BUYER_COPY = /\b(studio[- ]created from an original in[- ]house concept|studio[- ]created design based on an original in[- ]house concept|based on an original concept (?:created|developed) in[- ]house|buyers? looking for (?:a|an|this|the)|body[- ]friendly feel|studio styling|studio fit|statement piece|strong festival statement|structured (?:gold |metallic )?accent|bold (?:gold |metallic )?accent|TheFEYA gives us a way|TheFEYA\s+(?:we|our|us)\b|clean armored attitude|desert[- ]ready (?:mood|presence)|shoulder[- ]led|reads? fast|open light|direct choice for buyers?|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity (?:and|or) individuality|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|one[- ]and[- ]only (?:shoulder )?line|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced|(?:original|distinctive) alternative to (?:a )?(?:standard|generic|mass[- ]produced) costume (?:look|piece|design))\b/i;
-const AWKWARD_EDITORIAL_SHORTHAND = /\b(?:clear finish|strong visual finish|strong,?\s+sculpted feel|complete look with confidence|reads? clearly in photographs?|photos? (?:pick|picks) up more depth|photo moments?|bold appearance|themed nights?|shows? up (?:cleanly|clearly)|for (?:burning man|festival|rave) styling)\b/i;
+const AWKWARD_EDITORIAL_SHORTHAND = /\b(?:clear finish|strong visual finish|strong,?\s+sculpted feel|complete look with confidence|reads? clearly in photographs?|photos? (?:pick|picks) up more depth|photo moments?|bold appearance|bold styling|themed nights?|shows? up (?:cleanly|clearly)|for (?:burning man|festival|rave) styling|visual expressiveness)\b|\bwithout (?:losing|sacrificing) (?:its |the |your )?(?:visual )?(?:impact|expressiveness|presence)\b/i;
 const INTERNAL_TARGETING_LANGUAGE = /\b(?:persona|lean(?:s|ing)? into|dress(?:es|ing)? in (?:a |an )?[\w-]+ direction|(?:style|styling|creative|costume|warrior|festival) direction)\b/i;
 const SEARCH_QUERY_AUDIENCE_PHRASING = /\b(?:(?:women|men|buyers|shoppers|customers)\s+(?:looking|searching)\s+for|buyers?\s+who\s+want)\b/i;
 const COORDINATED_OUTFIT_JARGON = /\bcoordinated\b[^.!?\n]{0,35}\b(?:look|costume|outfit|set|base)\b/i;
 const EMPTY_BOLD_FINISH = /\bbold(?:\s+\w+){0,2}\s+(?:color|colour|finish|event look)\b/i;
 const STAGE_READY_GEOMETRY = /\bstage[- ]ready\s+(?:shape|silhouette)\b/i;
 const PLUS_SIZE_CLAIM = /\bplus[- ]size\b/i;
+const CODE_OWNED_PURCHASE_OPTION_COPY = /\b(?:available|sold|ordered|purchased|buy|bought)\b[^.!?\n]{0,55}\b(?:separately|together|individually|full set)\b|\b(?:separately|individually)\s+or\s+together\b|\bfull set\b|\b(?:separate|individual|separately selectable)\s+(?:pieces?|parts?|components?)\b|\b(?:pieces?|parts?|components?)\s+(?:are|remain|is)\s+(?:separate|available separately|separately selectable)\b|\b(?:pieces?|parts?|components?)\b[^.!?\n]{0,55}\b(?:wear|worn|style|styled|order|ordered|buy|bought)\b[^.!?\n]{0,35}\b(?:separately|together|individually)\b|\b(?:wear|style|order|buy)\b[^.!?\n]{0,55}\b(?:pieces?|parts?|components?)\b[^.!?\n]{0,35}\b(?:separately|together|individually)\b|\b(?:shoulders?|skirt|top|headpiece|leg covers?)\b[^.!?\n]{0,90}\b(?:restyle|separately|on its own)\b/i;
 const DIRECTIONAL_VISUAL_AUDIT = /\b(?:(?:left|right)[- ](?:shoulder|side|arm|leg)|(?:positioned|placed|located|sits?) (?:high|low|on the (?:left|right))|(?:clearly |well )?visible from (?:the )?(?:front|back|side)|seen from (?:the )?(?:front|back|side))\b/i;
 const ANATOMICAL_DESIGN_AUDIT = /\b(?:sculptural (?:profile|silhouette|line) of (?:the )?(?:left|right|one)?\s*shoulder|expressive upper[- ]body (?:form|line|profile|silhouette)|upper[- ]body (?:form|line|profile|silhouette|frame)|shoulder[- ]line|shoulder silhouette)\b/i;
 const UNNATURAL_EVENT_ATMOSPHERE = /\b(?:desert light|open light|desert[- ]ready|ready for (?:the )?desert)\b/i;
 const BRAND_STATUS_DIMINUTION = /\b(?:small|tiny) independent (?:team|studio|company|brand)\b/i;
-const TEMPLATE_COMPARISON = /\b(?:(?:standard|generic|mass[- ]produced) costume template|(?:standard|generic) festival basics|generic festival dressing|standard template costume|copy of (?:a )?(?:standard|generic) (?:costume )?template|stands? apart from (?:a )?(?:basic|generic) (?:metallic )?(?:look|costume|outfit|design)|(?:generic|basic|ordinary|plain) (?:festival |costume |party )?(?:dressing|clothes?|outfits?|looks?)\b[^.!?\n]{0,55}\b(?:plain|basic|generic|ordinary|unfinished|on its own))\b/i;
+const BRAND_INDEPENDENCE_PADDING = /\bindependent (?:design )?(?:team|studio|company|brand)\b/i;
+const TEMPLATE_COMPARISON = /\b(?:(?:standard|generic|mass[- ]produced) costume template|(?:standard|generic) festival basics|generic festival dressing|standard template costume|(?:not\s+)?(?:a\s+)?(?:copy|replica)(?:\s+of\s+(?:a\s+)?(?:standard|generic|named|existing)?\s*(?:costume|character|template|look))?|without\s+(?:borrowing|copying)\b[^.!?\n]{0,65}\b(?:character|look|design|costume)\b|stands? apart from (?:a )?(?:basic|generic) (?:metallic )?(?:look|costume|outfit|design)|(?:generic|basic|ordinary|plain) (?:festival |costume |party )?(?:dressing|clothes?|outfits?|looks?)\b[^.!?\n]{0,55}\b(?:plain|basic|generic|ordinary|unfinished|on its own))\b/i;
 const PRODUCT_COMPONENT_AS_BUYER_GOAL = /\b(?:buyers?|customers?|people) (?:who want|looking for|seeking) (?:to (?:buy|find) )?(?:a|an|this|the)?\s*(?:statement |expressive |gold |futuristic |cyberpunk |warrior )*(?:shoulder (?:piece|armor|armour)|shoulders?|pauldrons?)\b/i;
 const SOCIAL_METRICS_BOILERPLATE = /\b(organic attention|reactions?, saves? (?:and|or) comments?|likes?, followers?|social (?:engagement|metrics?)|viral(?:ity| reach)?)\b/i;
 const REDUNDANT_FAUX_LEATHER = /\b(?:vegan leather\s+(?:and|or|\/)\s+faux leather|faux leather\s+(?:and|or|\/)\s+vegan leather)\b/i;
@@ -52,6 +54,9 @@ const REFLECTIVE_CLAIM = /\b(?:reflective|retroreflective|retro-reflective)\b/i;
 const ABSTRACT_VISUAL_PSEUDO_BENEFIT = /\b(?:harder|stronger|more\s+(?:finished|intentional|individual)|intentional)\s+(?:warrior\s+|costume\s+)?(?:look|outfit|costume|appearance)\b|\b(?:turns?|helps?\s+turn)\b[^.!?\n]{0,70}\b(?:vision|idea|theme|direction|base look)\b[^.!?\n]{0,55}\b(?:look|outfit|costume)\b|\banchors?\b[^.!?\n]{0,65}\b(?:look|outfit|costume)\b|\b(?:skip|without building)\b[^.!?\n]{0,60}\b(?:full uniform|head[- ]to[- ]toe costume)\b|\bwithout building\b[^.!?\n]{0,70}\b(?:from separate finds|from scratch)\b|\bfeel(?:s|ing)? dressed for the occasion\b|\b(?:design|styling|shape)\b[^.!?\n]{0,45}\bmakes? it easier to choose\b|\bmakes? sense with (?:the )?outfit\b|\b(?:focal piece|focal point|photographs? well|wide shots?)\b|\bmatching\b[^.!?\n]{0,45}\b(?:pieces?|components?)\b[^.!?\n]{0,80}\b(?:same|repeat)\b[^.!?\n]{0,45}\b(?:color|colour|finish)\b|\bphotographs? as one outfit instead of separate (?:pieces?|add[- ]ons?)\b|\b(?:visible\s+)?(?:waist|belt|shoulder|skirt)\s+(?:detail|shape|line)\b[^.!?\n]{0,75}\b(?:natural break|changing tops?|restyle)\b/i;
 const UNSUPPORTED_COMPONENT_COVERAGE = /\b(?:shoulders?|skirt|components?|pieces?)\b[^.!?\n]{0,65}\b(?:keep|keeps|leave|leaves)\s+(?:more\s+of\s+)?(?:your|the)\s+(?:clothing|outfit|body)\s+visible\b/i;
 const ABSTRACT_VISUAL_BENEFIT = /\b(contrast and visual depth|adds? contrast|creates? visual depth|harder,? more dramatic line|firm armored presence|armored presence|individual feel|shape a look that feels deliberate|one bold detail to define|dramatic line|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced)\b/i;
+const PILOT_ROBOTIC_LANGUAGE = /\b(?:clear visual depth|body[- ]facing feel|that is where TheFEYA lives|clear point of view|warrior presence|distinctive presence|character[- ]first look|festival or cosplay wearer|the comfortable against the body feel|own story on arrival|multi[- ]component (?:outfit|costume|product|set|silhouette)|for buyers? (?:building|creating|planning)|belongs at [^.!?\n]{0,60}\bcosplay)\b/i;
+const BARE_FESTIVAL_SUFFIX = /\bfor festival\s*$/i;
+const META_COORDINATION_ERROR = /\b(?:festivals?|cosplay|stage)\s+and\s+(?:an?|the)\s+(?:original\s+)?(?:futuristic|fantasy|warrior|character|look)\b/i;
 const SHAPE_DURING_MOVEMENT = /\b(?:holds?|keeps?|maintains?|preserves?) (?:its |the |their )?(?:shape|form) (?:during|while|in) (?:movement|motion|moving)\b/i;
 const CONSTRUCTION_TERM = /\b(?:construction|structure|structured|build quality|reinforced build|built to last)\b/i;
 const USE_CASE_AS_BENEFIT = /\b(?:works?|ideal|made|suited) for\b.*\b(styling|looks?|warrior|futuristic|desert|festival|stage|performance|photoshoot|editorial|cosplay|party)\b/i;
@@ -59,7 +64,7 @@ const UNGROUNDED_STORE_PROMISE = /\b(best prices?|lowest prices?|competitive pri
 const BRAND_PATTERN = /\bTheFEYA\b/gi;
 const GENERIC_EVENT_PATTERN = /\bevents?\b/gi;
 const DESIGN_BENEFIT_PATTERN = /\b(studio[- ]created|studio[- ]designed|studio[- ]made|designed in our studio|designed by our (?:team|studio)|our original design ideas?|original design ideas?|original studio design|distinctive studio design|signature studio design|handmade|made[- ]to[- ]order|not mass[- ]produced|mass[- ]produced costume|mass production|designer studio)\b/i;
-const SELF_EXPRESSION_PATTERN = /\b(self[- ]expression|individuality|visual identity|personal style|your own look|make (?:it|this|the (?:piece|set|outfit|design)) your own|feels? like (?:you|them)|made for your vision|designed for your vision|studio visual language|adapt(?:ed|able)|customi[sz](?:e|ed|ation))\b/i;
+const SELF_EXPRESSION_PATTERN = /\b(self[- ]expression|individuality|visual identity|personal style|your own look|make (?:it|this|the (?:piece|set|outfit|design|look|character)) (?:your|their) own|feels? personal|feels? like (?:you|them)|made for your vision|designed for your vision|studio visual language|adapt(?:ed|able)|customi[sz](?:e|ed|ation))\b/i;
 const REDUNDANT_SHOULDER_ENTITY_PATTERN = /\bshoulders?\s+(?:armor|armour|piece|pieces|pauldron|pauldrons)\b/gi;
 const AWKWARD_FINISH_AND_SHAPE = /\b(?:glossy|mirror[- ]like|metallic|gold)\b[^.!?]{0,45}\b(?:finish|surface|coating)\s+and\s+(?:a\s+)?(?:silhouette|shape|profile)\b/i;
 const DUPLICATE_STAGE_PERFORMANCE_FASHION = /\b(?:festival,?\s*)?stage,?\s+and\s+performance\s+fashion\b/i;
@@ -201,6 +206,8 @@ const BENEFIT_OUTCOME_PATTERNS: Record<string, RegExp> = {
   wearer_framing: /\b(?:frames?|draws? attention to)\b[^.!?\n]{0,70}\b(?:face|neckline|shoulders?|upper body)\b/i,
 };
 
+const FINISH_IDEA = /\b(reflective|mirror[- ]like|glossy|metallic|polished metal|catches? light|reads? clearly in photos?|camera[- ]friendly)\b/i;
+
 const CROSS_BLOCK_IDEAS: Array<{ key: string; pattern: RegExp }> = [
   {
     key: 'studio_authorship',
@@ -208,7 +215,7 @@ const CROSS_BLOCK_IDEAS: Array<{ key: string; pattern: RegExp }> = [
   },
   {
     key: 'reflective_finish',
-    pattern: /\b(reflective|mirror[- ]like|glossy|metallic|catches? light|reads? clearly in photos?|camera[- ]friendly)\b/i,
+    pattern: FINISH_IDEA,
   },
   {
     key: 'silhouette_shape',
@@ -293,6 +300,20 @@ export function validateSeoCommercialCopy(
     ));
   }
 
+  if (PILOT_ROBOTIC_LANGUAGE.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_contains_pilot_robotic_language',
+      'Customer-facing copy repeats abstract wording found in the failed pilot. State the product fact or buyer result in plain, idiomatic English.',
+    ));
+  }
+
+  if (CODE_OWNED_PURCHASE_OPTION_COPY.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_repeats_code_owned_purchase_options',
+      'Purchase combinations belong only to the selector and deterministic What’s Included block. Generated copy must use this space for a different buyer value.',
+    ));
+  }
+
   if (UNSUPPORTED_COMPONENT_COVERAGE.test(customerText)) {
     issues.push(blocker(
       'customer_copy_infers_unsupported_component_coverage',
@@ -350,7 +371,14 @@ export function validateSeoCommercialCopy(
   if (BRAND_STATUS_DIMINUTION.test(customerText)) {
     issues.push(blocker(
       'customer_copy_minimizes_brand_status',
-      'Do not describe TheFEYA as small or tiny. Independent design perspective is relevant; company size is not a buyer benefit.',
+      'Do not describe TheFEYA as small or tiny. Company size is not a buyer benefit.',
+    ));
+  }
+
+  if (BRAND_INDEPENDENCE_PADDING.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_uses_independence_as_padding',
+      'Independent is generic brand padding here. Explain original studio design and what it gives the wearer instead.',
     ));
   }
 
@@ -465,6 +493,22 @@ export function validateSeoCommercialCopy(
       'Meta description grammatically joins a surface finish with silhouette or shape as if they were one attribute. State the complete product identity and use case, then add one clear differentiator.',
     ));
   }
+  if (META_COORDINATION_ERROR.test(metaDescription)) {
+    issues.push(blocker(
+      'meta_description_has_broken_context_coordination',
+      'Meta description joins an approved occasion list to a second “and a/an ...” phrase. End with one natural use context instead of stacking mismatched clauses.',
+    ));
+  }
+
+  (['seo_title', 'h1'] as const).forEach((field) => {
+    const value = typeof record[field] === 'string' ? record[field].trim() : '';
+    if (BARE_FESTIVAL_SUFFIX.test(value)) {
+      issues.push(blocker(
+        `${field}_uses_bare_festival_suffix`,
+        `${field} ends with the unnatural phrase “for Festival”. Use an idiomatic plural or modifier such as “for festivals” or “festival costume”.`,
+      ));
+    }
+  });
 
   if (DUPLICATE_STAGE_PERFORMANCE_FASHION.test(customerText)) {
     issues.push(blocker(
@@ -477,7 +521,7 @@ export function validateSeoCommercialCopy(
 
   const selectedEventFocus = focusEventValues(context.manual_focus);
   const h1 = typeof record.h1 === 'string' ? record.h1 : '';
-  if (selectedEventFocus.length && !selectedEventFocus.some((event) => containsPhrase(h1, event))) {
+  if (selectedEventFocus.length && !selectedEventFocus.some((event) => focusValueAppears(h1, event))) {
     issues.push(blocker(
       'h1_missing_operator_event_focus',
       `H1 must use one operator-selected event focus naturally (${selectedEventFocus.join(', ')}). Prefer the product entity for the selected event over a low-intent construction detail.`,
@@ -514,7 +558,8 @@ export function validateSeoCommercialCopy(
 
   const aboutBlock = blocks.find((block) => String(block.block_key || '') === 'about_this_piece');
   const aboutBody = typeof aboutBlock?.body === 'string' ? aboutBlock.body.trim() : '';
-  splitSentences(aboutBody).forEach((sentence, index) => {
+  const aboutSentences = splitSentences(aboutBody);
+  aboutSentences.forEach((sentence, index) => {
     const repeatedTerms = repeatedMeaningfulWords(sentence);
     if (repeatedTerms.length) {
       issues.push(blocker(
@@ -523,6 +568,13 @@ export function validateSeoCommercialCopy(
       ));
     }
   });
+  const aboutFinishSentenceCount = aboutSentences.filter((sentence) => FINISH_IDEA.test(sentence)).length;
+  if (aboutFinishSentenceCount > 1) {
+    issues.push(blocker(
+      'about_this_piece_repeats_finish_across_sentences',
+      'About this piece describes the same glossy, mirror-like or metallic finish in more than one sentence. Keep one concrete finish sentence and use the remaining space for a different supported buyer value.',
+    ));
+  }
 
   const idealForBlock = blocks.find((block) => String(block.block_key || '') === 'ideal_for');
   const idealForBody = typeof idealForBlock?.body === 'string' ? idealForBlock.body.trim() : '';
@@ -573,6 +625,20 @@ export function validateSeoCommercialCopy(
       ));
     }
   });
+  const repeatedWhoNeedFrame = idealForLines.filter((line) => /\bwho need\b/i.test(line)).length;
+  if (repeatedWhoNeedFrame >= 3) {
+    issues.push(blocker(
+      'ideal_for_repeats_who_need_template',
+      'Ideal for repeats the same “who need” template. Vary the sentence rhythm while keeping each approved person and situation.',
+    ));
+  }
+  const repeatedOriginalModifier = countMatches(idealForBody, /\boriginal\b/gi);
+  if (repeatedOriginalModifier > 2) {
+    issues.push(blocker(
+      'ideal_for_overuses_original_modifier',
+      `Ideal for repeats “original” ${repeatedOriginalModifier} times. Keep the authorial-design idea where it matters most and let the other portraits describe distinct people and situations.`,
+    ));
+  }
   const repeatedIdealFocus = [...new Set(
     (['event', 'style', 'persona', 'audience'] as const)
       .flatMap((axis) => focusValues(context.manual_focus, axis)),
@@ -736,7 +802,7 @@ export function validateSeoCommercialCopy(
     if (closingWords < 45) {
       issues.push(blocker(
         'self_expression_close_too_thin',
-        'Designed for self-expression must contain 45-75 useful words: our independent design perspective, original-design purpose, a complete supported look and an honest buyer outcome.',
+        'Designed for self-expression must contain 45-75 useful words: our original studio perspective, design purpose, a supported product connection and an honest buyer outcome.',
       ));
     }
     if (closingWords > 75) {
@@ -753,7 +819,7 @@ export function validateSeoCommercialCopy(
     }
   }
 
-  const repetitionReport = buildRepetitionReport(record, leftBlocks);
+  const repetitionReport = buildRepetitionReport(record, leftBlocks, context.manual_focus);
   repetitionReport.repeated_idea_groups.forEach((item) => {
     if (item.blocks.length >= 3) {
       issues.push(blocker(
@@ -785,7 +851,11 @@ export function validateSeoCommercialCopy(
   };
 }
 
-function buildRepetitionReport(record: Record<string, any>, leftBlocks: Record<string, any>[]) {
+function buildRepetitionReport(
+  record: Record<string, any>,
+  leftBlocks: Record<string, any>[],
+  manualFocus: unknown = {},
+) {
   const blockTexts = [
     typeof record.meta_description === 'string' && record.meta_description.trim()
       ? { key: 'meta_description', text: record.meta_description.trim() }
@@ -803,7 +873,10 @@ function buildRepetitionReport(record: Record<string, any>, leftBlocks: Record<s
     })),
   ].filter((item): item is { key: string; text: string } => Boolean(item?.text));
 
-  const repeatedIdeaGroups = CROSS_BLOCK_IDEAS.map((idea) => ({
+  const repeatedIdeaGroups = [
+    ...CROSS_BLOCK_IDEAS,
+    ...selectedStylePairIdeas(manualFocus),
+  ].map((idea) => ({
     idea: idea.key,
     blocks: blockTexts.filter((block) => idea.pattern.test(block.text)).map((block) => block.key),
   })).filter((item) => item.blocks.length >= 2);
@@ -833,6 +906,36 @@ function buildRepetitionReport(record: Record<string, any>, leftBlocks: Record<s
     repeated_idea_groups: repeatedIdeaGroups,
     near_duplicate_sentence_pairs: nearDuplicateSentencePairs.sort((a, b) => b.similarity - a.similarity).slice(0, 12),
   };
+}
+
+function selectedStylePairIdeas(manualFocus: unknown) {
+  const styles = focusValues(manualFocus, 'style')
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean);
+  const ideas: Array<{ key: string; pattern: RegExp }> = [];
+  for (let leftIndex = 0; leftIndex < styles.length; leftIndex += 1) {
+    for (let rightIndex = leftIndex + 1; rightIndex < styles.length; rightIndex += 1) {
+      const left = escapeRegExp(styles[leftIndex]);
+      const right = escapeRegExp(styles[rightIndex]);
+      const separator = String.raw`\s*(?:or|and|/|&|,)\s*`;
+      ideas.push({
+        key: `selected_style_pair_${safeIdeaKey(styles[leftIndex])}_${safeIdeaKey(styles[rightIndex])}`,
+        pattern: new RegExp(
+          String.raw`(?:\b${left}\b${separator}\b${right}\b|\b${right}\b${separator}\b${left}\b)`,
+          'i',
+        ),
+      });
+    }
+  }
+  return ideas;
+}
+
+function safeIdeaKey(value: string) {
+  return value.replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'style';
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function findNearDuplicatePairs(items: Array<{ label: string; text: string }>, threshold: number) {
@@ -964,7 +1067,6 @@ function validateWholeProductPresentation(
     ));
   }
 
-  if (!presentation.requires_compact_composition) return;
   const intro = typeof record.intro === 'string' ? record.intro : '';
   const metaDescription = typeof record.meta_description === 'string' ? record.meta_description : '';
   [

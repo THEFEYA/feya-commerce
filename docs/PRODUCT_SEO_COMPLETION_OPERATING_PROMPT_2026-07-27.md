@@ -105,12 +105,10 @@ Run this loop for one product or a controlled batch:
     description blocks.
 11. Run deterministic structural, commercial, keyword-placement,
     product-specificity, similarity and factual QA.
-12. Permit at most two constrained editorial passes after the writer. Each may
-    rewrite language but cannot change facts, roles, options, saved focus or
-    fixed storefront copy. Select a rewrite only when deterministic QA proves
-    a strict improvement and no new Product Truth blocker appears.
-    Keep the routine writer cost-controlled; reserve the stronger editor model
-    for the final pass only when deterministic QA still finds errors.
+12. Do not run an automatic editor, humanizer or retry. Show a failed draft as
+    blocked with deterministic evidence. One targeted repair may be offered as
+    a separate explicit human action; it cannot change facts, roles, options,
+    saved focus or fixed storefront copy.
 13. Show an exact storefront preview.
 14. Save a new versioned review artifact; never overwrite history silently.
 15. Keep Apply and Publish disabled until explicit human approval.
@@ -180,10 +178,11 @@ If the aggregate cannot be mapped from current data, hide the block and return
 - Inflect and reorder keyword words for idiomatic English. Do not preserve an
   unnatural query fragment merely for exact matching.
 - Do not optimize to a fixed keyword percentage or “water” score.
-- Keep the exact Primary phrase to no more than four uses across the generated
-  pack: SEO title, H1, meta description and one useful body passage. Keep the
-  concept dominant through idiomatic inflection and natural whole-product
-  references, not a keyword-density target, synonym chains or repeated intent.
+- Represent the reviewed Primary naturally in SEO title, H1 and meta
+  description. The literal exact phrase is owned by those three fields and is
+  not repeated in body copy or ALT. Keep the concept dominant in useful body
+  copy through idiomatic inflection and natural whole-product references, not
+  a keyword-density target, synonym chains or repeated intent.
 - Collection-level intents belong to future landing pages and should not be
   stuffed into a PDP.
 

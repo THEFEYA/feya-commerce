@@ -125,6 +125,79 @@ test('operator minus-words reject a candidate before scoring', () => {
   assert.equal(keywords.includes('gold shoulder armor'), true);
 });
 
+test('unsupported chain and historical-style details cannot ride on a matching gold headpiece', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      card_title: 'Gold Futuristic Warrior Headpiece',
+      canonical_color_label: 'Gold',
+      included_components: ['Headpiece'],
+      material: 'Vegan leather',
+    },
+    focus: {
+      component: ['headpiece'],
+      event: ['festival'],
+      style: ['futuristic', 'fantasy'],
+      persona: ['warrior'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'gold festival headpiece', keyword_norm: 'gold festival headpiece', bank_bucket: 'product', avg_monthly_searches: 100 },
+      { ...baseMetric, keyword: 'gold headpiece chain', keyword_norm: 'gold headpiece chain', bank_bucket: 'product', avg_monthly_searches: 100000 },
+      { ...baseMetric, keyword: 'gold roman headpiece', keyword_norm: 'gold roman headpiece', bank_bucket: 'product', avg_monthly_searches: 90000 },
+    ],
+  });
+
+  const keywords = result.keywords.map((row) => String(row.keyword_norm));
+  assert.equal(keywords.includes('gold festival headpiece'), true);
+  assert.equal(keywords.includes('gold headpiece chain'), false);
+  assert.equal(keywords.includes('gold roman headpiece'), false);
+});
+
+test('mixed false colors, feather and coin details cannot ride on a matching gold headpiece', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      card_title: 'Gold Futuristic Warrior Headpiece',
+      canonical_color_label: 'Gold',
+      included_components: ['Headpiece'],
+      material: 'Vegan leather',
+    },
+    focus: {
+      component: ['headpiece'],
+      material: ['gold'],
+      event: ['festival'],
+      style: ['futuristic', 'fantasy'],
+      persona: ['warrior'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'gold festival headpiece', keyword_norm: 'gold festival headpiece', bank_bucket: 'product', avg_monthly_searches: 100 },
+      { ...baseMetric, keyword: 'black and gold feather headpiece', keyword_norm: 'black and gold feather headpiece', bank_bucket: 'product', avg_monthly_searches: 100000 },
+      { ...baseMetric, keyword: 'gold coin headpiece', keyword_norm: 'gold coin headpiece', bank_bucket: 'product', avg_monthly_searches: 90000 },
+      { ...baseMetric, keyword: 'gold medusa headpiece', keyword_norm: 'gold medusa headpiece', bank_bucket: 'product', avg_monthly_searches: 80000 },
+      { ...baseMetric, keyword: 'gold crown headpiece', keyword_norm: 'gold crown headpiece', bank_bucket: 'product', avg_monthly_searches: 70000 },
+      { ...baseMetric, keyword: 'gold butterfly headpiece', keyword_norm: 'gold butterfly headpiece', bank_bucket: 'product', avg_monthly_searches: 60000 },
+      { ...baseMetric, keyword: 'beyonce gold headpiece', keyword_norm: 'beyonce gold headpiece', bank_bucket: 'product', avg_monthly_searches: 50000 },
+      { ...baseMetric, keyword: 'ahsoka headpiece for sale', keyword_norm: 'ahsoka headpiece for sale', bank_bucket: 'commercial_collection', avg_monthly_searches: 40000 },
+      { ...baseMetric, keyword: 'womens festival tops', keyword_norm: 'womens festival tops', bank_bucket: 'collection', avg_monthly_searches: 30000 },
+      { ...baseMetric, keyword: 'long sleeve festival tops', keyword_norm: 'long sleeve festival tops', bank_bucket: 'collection', avg_monthly_searches: 20000 },
+      { ...baseMetric, keyword: 'neon festival tops', keyword_norm: 'neon festival tops', bank_bucket: 'collection', avg_monthly_searches: 10000 },
+      { ...baseMetric, keyword: 'festival head piece', keyword_norm: 'festival head piece', bank_bucket: 'collection', avg_monthly_searches: 10 },
+    ],
+  });
+
+  const keywords = result.keywords.map((row) => String(row.keyword_norm));
+  assert.equal(keywords.includes('gold festival headpiece'), true);
+  assert.equal(keywords.includes('black and gold feather headpiece'), false);
+  assert.equal(keywords.includes('gold coin headpiece'), false);
+  assert.equal(keywords.includes('gold medusa headpiece'), false);
+  assert.equal(keywords.includes('gold crown headpiece'), false);
+  assert.equal(keywords.includes('gold butterfly headpiece'), false);
+  assert.equal(keywords.includes('beyonce gold headpiece'), false);
+  assert.equal(keywords.includes('ahsoka headpiece for sale'), false);
+  assert.equal(keywords.includes('womens festival tops'), false);
+  assert.equal(keywords.includes('long sleeve festival tops'), false);
+  assert.equal(keywords.includes('neon festival tops'), false);
+  assert.equal(keywords.includes('festival head piece'), true);
+});
+
 test('automatic recommendations remain review candidates and never claim confirmation', () => {
   const result = recommendCatalogKeywords({
     product: {
@@ -349,6 +422,7 @@ test('word-order permutations represent one keyword intent', () => {
       card_title: 'Gold Festival Harness Top',
       canonical_color_label: 'Gold',
       included_components: ['Top', 'Harness'],
+      material: 'Vegan leather',
     },
     focus: {
       component: ['top', 'harness'],

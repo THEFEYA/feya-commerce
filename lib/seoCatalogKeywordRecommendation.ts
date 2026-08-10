@@ -30,12 +30,18 @@ const STOP_WORDS = new Set([
   'costume', 'costumes', 'outfit', 'outfits', 'set', 'sets', 'fashion', 'unique',
 ]);
 
+const GENERIC_QUERY_TOKENS = new Set([
+  'apparel', 'buy', 'gear', 'guide', 'how', 'idea', 'ideas', 'look', 'looks', 'online', 'sale', 'shop',
+  'what', 'where',
+]);
+
 // Known irrelevant entities observed in the imported keyword bank. These are
 // rejected before volume/competition scoring, including when an operator has
 // not manually typed minus-words in the current session.
 const EXCLUDED_KEYWORD_TERMS = [
   'lego', 'pokemon', 'pok mon', 'gatsby', 'saint patrick', 'st patrick', 'santa',
-  'my little pony', 'casual', 'dinosaur',
+  'my little pony', 'casual', 'dinosaur', 'air max', 'ahsoka', 'ahsoka tano', 'beyonce', 'disney',
+  'jordan', 'marvel', 'nike', 'star wars',
 ];
 
 // Product-family words such as "harness" also occur in automotive, industrial,
@@ -81,16 +87,21 @@ const COLOR_FAMILIES: Record<string, string[]> = {
 const COMPONENT_FAMILIES: Record<string, string[]> = {
   armor: ['armor', 'armour'],
   arms: ['arm cover', 'arm covers', 'arm guard', 'arm guards', 'arm cuff', 'arm cuffs', 'bracer', 'bracers'],
+  bra: ['bra', 'bras', 'bralette', 'bustier'],
   bodysuit: ['bodysuit', 'body suit', 'leotard'],
   boots: ['boot', 'boots'],
   bracelet: ['bracelet', 'bracelets', 'armlet', 'armlets'],
   choker: ['choker', 'collar', 'choke chain', 'choke chains'],
   corset: ['corset', 'bodice'],
+  crown: ['crown', 'crowns'],
+  'crop top': ['crop top', 'crop tops'],
   dress: ['dress', 'dresses'],
   garters: ['garter', 'garters', 'leg garter', 'leg garters'],
   harness: ['harness', 'body harness', 'chest harness'],
-  headpiece: ['headpiece', 'head piece', 'headdress', 'crown', 'halo', 'horns'],
+  halo: ['halo', 'halos'],
+  headpiece: ['headpiece', 'head piece', 'headdress'],
   helmet: ['helmet', 'helmets'],
+  horns: ['horn', 'horns'],
   legs: ['leg cover', 'leg covers', 'leg armor', 'leg armour'],
   mask: ['mask', 'masks', 'face mask'],
   panties: ['panties', 'underwear', 'briefs'],
@@ -100,14 +111,19 @@ const COMPONENT_FAMILIES: Record<string, string[]> = {
   skirt: ['skirt', 'skirts', 'open skirt', 'ring skirt'],
   spine: ['spine', 'spines'],
   tail: ['tail', 'tails'],
-  top: ['top', 'tops', 'crop top', 'bra top'],
+  top: ['top', 'tops'],
   wings: ['wing', 'wings'],
 };
 
 const MATERIAL_TERMS = [
   'acrylic', 'chrome', 'fabric', 'faux leather', 'latex', 'leather', 'metallic', 'mirror', 'plastic',
-  'silicone', 'vegan leather', 'vinyl',
+  'silicone', 'vegan leather', 'vinyl', 'chain',
 ];
+
+// These details change what the buyer expects to receive. They are allowed
+// only when current Product Truth or the operator-confirmed material axis names
+// them explicitly; a matching color/component is not enough evidence.
+const EXPLICIT_PRODUCT_DETAIL_TERMS = ['chain', 'coin', 'feather'];
 
 // "Armor" can describe the complete visual product even when the sold
 // configuration is expressed through concrete Product Truth components such
@@ -154,6 +170,7 @@ const STYLE_FAMILIES: Record<string, string[]> = {
   futuristic: ['futuristic'],
   glam: ['glam'],
   goth: ['goth', 'gothic'],
+  historical: ['historical', 'medieval', 'renaissance', 'roman', 'greek', 'egyptian'],
   'post apocalyptic': ['post apocalyptic', 'apocalyptic', 'wasteland'],
   punk: ['punk'],
   'sci fi': ['sci fi', 'science fiction'],
@@ -175,6 +192,7 @@ const PERSONA_FAMILIES: Record<string, string[]> = {
   'go go dancer': ['go go dancer', 'gogo dancer'],
   maleficent: ['maleficent'],
   'pole dancer': ['pole dancer'],
+  performer: ['performer', 'performers'],
   queen: ['queen'],
   robot: ['robot'],
   showgirl: ['showgirl', 'show girl'],
@@ -186,6 +204,7 @@ const VISUAL_ATTRIBUTE_FAMILIES: Record<string, string[]> = {
   holographic: ['holographic', 'hologram', 'iridescent'],
   metallic: ['metallic'],
   mirror: ['mirror', 'mirrored'],
+  neon: ['neon'],
   reflective: ['reflective', 'light reflective'],
   sparkly: ['sparkly', 'glitter', 'glittery', 'sequin', 'sequins', 'rhinestone', 'rhinestones', 'crystal', 'crystals'],
 };
@@ -375,6 +394,8 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
   const identityTokens = tokens(identityText).filter((token) => !STOP_WORDS.has(token) && token.length > 2);
   const styleTokens = tokens(styleText).filter((token) => !STOP_WORDS.has(token) && token.length > 2);
   const materialTerms = MATERIAL_TERMS.filter((term) => containsPhrase(materialText, term));
+  const explicitProductDetails = EXPLICIT_PRODUCT_DETAIL_TERMS
+    .filter((term) => containsPhrase(materialText, term));
   const sizingEvidence = flattenStrings([
     product.confirmed_size_range,
     product.size_range,
@@ -393,6 +414,20 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
     ...EXCLUDED_KEYWORD_TERMS,
     ...flattenStrings([explicitFocus.exclude]).map(normalize).filter(Boolean),
   ]);
+  const supportedKeywordTokens = new Set([
+    ...STOP_WORDS,
+    ...GENERIC_QUERY_TOKENS,
+    ...familyAliasTokens(unique([...componentFamilies, ...descriptorFamilies]), COMPONENT_FAMILIES),
+    ...familyAliasTokens(colors, COLOR_FAMILIES),
+    ...familyAliasTokens(audiences, AUDIENCE_FAMILIES),
+    ...familyAliasTokens(events, EVENT_FAMILIES),
+    ...familyAliasTokens(styles, STYLE_FAMILIES),
+    ...familyAliasTokens(personas, PERSONA_FAMILIES),
+    ...familyAliasTokens(visualAttributes, VISUAL_ATTRIBUTE_FAMILIES),
+    ...materialTerms.flatMap(tokens),
+    ...explicitProductDetails.flatMap(tokens),
+    ...supportedSizePositioning.flatMap(tokens),
+  ]);
 
   return {
     presentation,
@@ -407,9 +442,11 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
     identityTokens: unique(identityTokens),
     styleTokens: unique(styleTokens),
     materialTerms,
+    explicitProductDetails,
     supportedSizePositioning,
     focusPhrases,
     excludedTerms,
+    supportedKeywordTokens,
     focus: explicitFocus,
   };
 }
@@ -446,6 +483,9 @@ function scoreRow(
   const identityOverlap = intersection(tokens(keyword), profile.identityTokens);
   const styleOverlap = intersection(tokens(keyword), profile.styleTokens);
   const materialMatch = profile.materialTerms.filter((term) => containsPhrase(keyword, term));
+  const unsupportedExplicitDetail = EXPLICIT_PRODUCT_DETAIL_TERMS.find((term) => (
+    containsPhrase(keyword, term) && !profile.explicitProductDetails.includes(term)
+  ));
   const exactFocus = profile.focusPhrases.filter((term) => term.length > 2 && containsPhrase(keyword, term));
   const excludedMatch = profile.excludedTerms.find((term) => containsPhrase(keyword, term));
   const incompatibleDomain = INCOMPATIBLE_COMMERCE_DOMAINS.find((term) => containsPhrase(keyword, term));
@@ -457,9 +497,13 @@ function scoreRow(
     containsPhrase(keyword, term)
     && !profile.supportedSizePositioning.includes(term)
   ));
+  const unsupportedTruthToken = tokens(keyword)
+    .find((token) => !profile.supportedKeywordTokens.has(token));
 
   const componentMismatch = keywordComponents.some((family) => !supportedComponentFamilies.includes(family));
-  const colorMismatch = keywordColors.length > 0 && profile.colors.length > 0 && colorMatch.length === 0;
+  const colorMismatch = keywordColors.length > 0
+    && profile.colors.length > 0
+    && keywordColors.some((family) => !profile.colors.includes(family));
   const audienceMismatch = keywordAudiences.length > 0
     && profile.audiences.length === 1
     && audienceMatch.length === 0;
@@ -491,6 +535,8 @@ function scoreRow(
   else if (!supportedBucket) rejectReason = 'unsupported_page_bucket';
   else if (anatomicalComponentMismatch) rejectReason = 'anatomical_component_mismatch';
   else if (unsupportedSizePositioning) rejectReason = 'unsupported_size_positioning';
+  else if (unsupportedExplicitDetail) rejectReason = 'unsupported_product_detail';
+  else if (unsupportedTruthToken) rejectReason = 'unsupported_product_truth_token';
   else if (componentMismatch) rejectReason = 'component_family_mismatch';
   else if (colorMismatch) rejectReason = 'color_mismatch';
   else if (audienceMismatch) rejectReason = 'audience_mismatch';
@@ -599,6 +645,15 @@ function detectedColorFamilies(value: unknown) {
   return families.includes('rose gold')
     ? families.filter((family) => family !== 'gold')
     : families;
+}
+
+function familyAliasTokens(
+  selectedFamilies: string[],
+  families: Record<string, string[]>,
+) {
+  return unique(selectedFamilies.flatMap((family) => (
+    [family, ...(families[family] || [])].flatMap(tokens)
+  )));
 }
 
 function containsPhrase(value: unknown, phrase: unknown) {

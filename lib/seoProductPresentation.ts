@@ -26,7 +26,9 @@ export function classifySeoProductPresentation(value: unknown): SeoProductPresen
     components,
     component_count: componentCount,
     requires_whole_product_entity: componentCount >= 2,
-    requires_compact_composition: componentCount >= 2 && componentCount <= 3,
+    // Every multi-component product keeps its inventory in the deterministic
+    // selector/What's Included UI. A large set is not an exception.
+    requires_compact_composition: componentCount >= 2,
   };
 }
 

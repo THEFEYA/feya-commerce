@@ -51,6 +51,31 @@ test('allows a concise complete H1 without character padding', () => {
   assert.equal(codes.includes('h1_restates_same_product_entity'), false);
 });
 
+test('blocks an all-caps meta description even when its claims are otherwise valid', () => {
+  const result = validateSeoAgentOutput(output({
+    meta_description: 'GOLD SHOULDER ARMOR WITH LAYERED PANELS FOR BURNING MAN AND STAGE COSTUMES.',
+  }));
+
+  assert.ok(result.issues.some((issue) => issue.code === 'meta_description_all_caps'));
+  assert.equal(result.ok, false);
+});
+
+test('blocks repeated style-pair and repeated-feels wording in the studio close', () => {
+  const result = validateSeoAgentOutput(output({
+    pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'main_description'
+      ? {
+        ...block,
+        body: 'At TheFEYA, we develop festival and stage pieces from our own ideas, and this warrior armor outfit supports a futuristic or fantasy look. It can lean futuristic or fantasy for festivals and cosplay. It feels designed for a visual identity that feels personal.',
+      }
+      : block),
+  }));
+
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('main_description_repeats_selected_style_pair'));
+  assert.ok(codes.includes('main_description_repeats_feels'));
+  assert.equal(result.ok, false);
+});
+
 test('allows a single factual intro sentence without forcing filler', () => {
   const result = validateSeoAgentOutput(output({
     intro: 'A gold warrior set made for Burning Man.',
@@ -84,6 +109,76 @@ test('blocks an About section that only restates the product in one sentence', (
   const codes = result.issues.map((issue) => issue.code);
   assert.ok(codes.some((code) => code.startsWith('pdp_block_about_this_piece_too_thin_')));
   assert.ok(codes.some((code) => code.startsWith('pdp_block_about_this_piece_sentence_count_')));
+});
+
+test('warns instead of blocking a semantically complete 39-word About section', () => {
+  const body = 'Built for festivals and cosplay, this warrior armor outfit brings a gold, glossy, mirror-like coating that gives the costume a polished metal finish. You get a dramatic look that reads strong on camera and carries a sharp, fantasy-forward feel.';
+  assert.equal(body.trim().split(/\s+/).length, 39);
+  const value = output({
+    pdp_blocks: output().pdp_blocks.map((block: any) => {
+      if (block.block_key === 'about_this_piece') return { ...block, body };
+      if (block.block_key === 'main_description') {
+        return {
+          ...block,
+          body: 'At TheFEYA, we create original festival and stage fashion for people who want a design that feels personal. This warrior armor outfit gives you a strong base for a festival or cosplay character with a futuristic fantasy mood. Designed for stage-ready styling, it helps you make the look your own.',
+        };
+      }
+      return block;
+    }),
+  });
+  const result = validateSeoAgentOutput(value);
+  const nearMinimum = result.issues.find((issue) => issue.code.startsWith('pdp_block_about_this_piece_near_minimum_'));
+
+  assert.equal(result.ok, true);
+  assert.equal(nearMinimum?.severity, 'warning');
+  assert.equal(result.issues.some((issue) => issue.code.startsWith('pdp_block_about_this_piece_too_thin_')), false);
+});
+
+test('blocks the abstract studio prose found in the real control run', () => {
+  const value = output({
+    pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'main_description'
+      ? {
+        ...block,
+        body: 'At TheFEYA, we create original festival and stage fashion for people who want a design that feels personal. This warrior armor outfit is built to support an original futuristic character for festivals and cosplay, with a shape that photographs with drama and intention. Our studio approach keeps the look centered on your own story, so you can make the look your own.',
+      }
+      : block),
+  });
+
+  const result = validateSeoAgentOutput(value);
+  assert.ok(result.issues.some((issue) => (
+    issue.code === 'pdp_blocks_3_body_robotic_or_tautological'
+  )));
+});
+
+test('blocks the external hair and makeup advice from the incomplete live draft', () => {
+  const value = output({
+    pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'main_description'
+      ? {
+        ...block,
+        body: 'At TheFEYA, we develop festival and stage pieces from our own ideas, and this warrior armor outfit turns gold armor styling into a strong starting point for original characters. The futuristic shape works beautifully for cosplay, performance, or editorial looks. Pair it with sleek hair and bold makeup for a sharp finish.',
+      }
+      : block),
+  });
+
+  const result = validateSeoAgentOutput(value);
+  assert.ok(result.issues.some((issue) => (
+    issue.code === 'main_description_contains_external_styling_advice'
+  )));
+});
+
+test('blocks internal identity jargon and stacked sales-close language', () => {
+  const value = output({
+    pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'main_description'
+      ? {
+        ...block,
+        body: 'At TheFEYA, we create original festival and stage designs in our studio. The gold body identity supports a futuristic festival direction. Finish it your way and make the look your own.',
+      }
+      : block),
+  });
+  const result = validateSeoAgentOutput(value);
+  assert.ok(result.issues.some((issue) => (
+    issue.code === 'pdp_blocks_3_body_robotic_or_tautological'
+  )));
 });
 
 test('blocks an Ideal for section collapsed into keyword fragments', () => {
@@ -124,4 +219,34 @@ test('blocks computer-vision audit language everywhere except ALT', () => {
   assert.ok(codes.some((code) => code.endsWith('_brand_status_diminution')));
   assert.ok(codes.some((code) => code.endsWith('_product_component_as_buyer_goal')));
   assert.equal(codes.some((code) => code.includes('image_alt_candidates_0_alt_text_alt_only_directional_detail')), false);
+});
+
+test('blocks failed-pilot phrasing and singular founder voice', () => {
+  const value = output({
+    intro: 'For buyers building a costume, the coating creates clear visual depth.',
+    pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'main_description'
+      ? {
+        ...block,
+        body: 'At TheFEYA, I design original festival and stage fashion with a clear point of view. I create each costume for people who want a personal character. This piece brings a futuristic idea to live performance. You can make the finished look your own.',
+      }
+      : block),
+  });
+  const codes = validateSeoAgentOutput(value).issues.map((issue) => issue.code);
+  assert.ok(codes.includes('intro_robotic_or_tautological'));
+  assert.ok(codes.includes('main_description_uses_singular_founder_voice'));
+  assert.ok(codes.includes('main_description_missing_first_person_voice'));
+});
+
+test('blocks negative copy or replica comparisons', () => {
+  const value = output({ intro: 'This is an original costume, not a copy or replica.' });
+  const result = validateSeoAgentOutput(value);
+  assert.ok(result.issues.some((issue) => issue.code === 'intro_invented_template_comparison'));
+});
+
+test('blocks borrowing comparisons as negative cosplay positioning', () => {
+  const value = output({
+    intro: 'This original warrior outfit helps create a personal character without borrowing from anyone else’s character.',
+  });
+  const result = validateSeoAgentOutput(value);
+  assert.ok(result.issues.some((issue) => issue.code === 'intro_invented_template_comparison'));
 });

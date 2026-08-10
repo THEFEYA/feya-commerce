@@ -103,7 +103,7 @@ function CanonicalRightPanel() {
     ]} />
     <PreviewDetail icon={<FileText size={15} />} title="Material" lines={[
       'Material details are shown in the product description and selected options for each design.',
-      'Glossy leather and mirror-finish pieces are made to hold a sculptural shape while staying comfortable on the body.'
+      'Glossy leather and mirror-finish pieces are made to keep their shape while staying comfortable on the body.'
     ]} />
     <PreviewDetail icon={<CheckCircle2 size={15} />} title="Care" lines={[
       'Easy to clean by hand with alcohol wipes or mild cleaning products.',

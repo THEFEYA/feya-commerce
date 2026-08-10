@@ -12,6 +12,11 @@ import {
   resolveStorefrontSellableOffer,
   sellableOfferAllowsComponentFocus,
 } from '@/lib/storefrontSellableOffer';
+import { hasTrustedSeoMetricSnapshot } from '@/lib/seoTrustedMetricSnapshot';
+import {
+  buildSeoPrimaryKeywordOwnershipStrategy,
+  resolveSeoPrimaryOwnershipWithCurrentSelections,
+} from '@/lib/seoPrimaryKeywordOwnership';
 
 const PRODUCT_TRUTH_VIEW = 'feya_commerce_v_seo_product_truth_v4';
 const PRODUCT_TRUTH_EXACT_RPC = 'feya_commerce_get_seo_product_truth_v4';
@@ -154,7 +159,15 @@ export async function buildSeoBriefContractBundle(productId: string) {
   const brief = buildSeoCatalogBrief(source.product, source.keywords, source.manualFocus);
   const identityDraft = attachProductIdentity(buildSeoPackDraftContractFromBrief(brief), source);
   const latestSavedDraftContext = await loadLatestSavedSeoDraftContext(identityDraft.canonical_product_id);
-  const portfolioStrategy = extractPortfolioStrategy(latestSavedDraftContext);
+  const savedSourceOverlapStrategy = extractPortfolioStrategy(latestSavedDraftContext);
+  const livePrimaryOwnershipStrategy = await loadLivePrimaryOwnershipStrategy(
+    identityDraft,
+    source.keywordSelection,
+  );
+  const portfolioStrategy = mergePortfolioStrategies(
+    savedSourceOverlapStrategy,
+    livePrimaryOwnershipStrategy,
+  );
   const seoPackDraft = {
     ...identityDraft,
     portfolio_strategy: portfolioStrategy,
@@ -926,10 +939,123 @@ function extractPortfolioStrategy(latestSavedDraftContext) {
   };
 }
 
+async function loadLivePrimaryOwnershipStrategy(identityDraft, targetKeywordSelection) {
+  const serviceClient = getSupabaseServiceClient();
+  const supabase = serviceClient || getSupabaseReadClient();
+  const primaryKeyword = identityDraft?.keyword_roles?.primary?.[0] || null;
+  if (!primaryKeyword) return null;
+
+  if (!supabase) {
+    return buildSeoPrimaryKeywordOwnershipStrategy({
+      targetProductId: identityDraft?.canonical_product_id,
+      targetProductTitle: identityDraft?.product_truth?.title,
+      primaryKeyword,
+      secondaryKeywords: identityDraft?.keyword_roles?.secondary || [],
+      productTruth: identityDraft?.product_truth,
+      decisionRows: [],
+      sourceError: getMissingSupabaseEnvMessage(),
+    });
+  }
+
+  const result = await supabase
+    .from(DECISIONS_TABLE)
+    .select(DECISION_SELECT)
+    .limit(2000);
+
+  const initialStrategy = buildSeoPrimaryKeywordOwnershipStrategy({
+    targetProductId: identityDraft?.canonical_product_id,
+    targetProductTitle: identityDraft?.product_truth?.title,
+    primaryKeyword,
+    secondaryKeywords: identityDraft?.keyword_roles?.secondary || [],
+    productTruth: identityDraft?.product_truth,
+    decisionRows: result.data || [],
+    sourceError: result.error?.message || null,
+  });
+  const conflicts = initialStrategy?.keyword_ownership?.conflicts || [];
+  if (!conflicts.length || result.error) return initialStrategy;
+
+  const peerSelections = await Promise.all(conflicts.slice(0, 12).map(async (conflict) => {
+    try {
+      const peerSource = await loadSeoBriefSource(conflict.canonical_product_id);
+      const currentPrimary = (peerSource.keywords || []).find((row) => row?.pilot_role === 'primary');
+      return {
+        canonical_product_id: conflict.canonical_product_id,
+        selection_status: peerSource.keywordSelection?.status || null,
+        primary_keyword: currentPrimary?.keyword || currentPrimary?.keyword_norm || null,
+        error: peerSource.error || null,
+      };
+    } catch (error) {
+      return {
+        canonical_product_id: conflict.canonical_product_id,
+        selection_status: null,
+        primary_keyword: null,
+        error: error instanceof Error ? error.message : 'Peer keyword selection re-audit failed.',
+      };
+    }
+  }));
+
+  return resolveSeoPrimaryOwnershipWithCurrentSelections(initialStrategy, {
+    targetSelectionStatus: targetKeywordSelection?.status,
+    peerSelections,
+  });
+}
+
+function mergePortfolioStrategies(savedSourceOverlapStrategy, livePrimaryOwnershipStrategy) {
+  if (!savedSourceOverlapStrategy) return livePrimaryOwnershipStrategy;
+  if (!livePrimaryOwnershipStrategy) return savedSourceOverlapStrategy;
+
+  const liveGenerationBlockers = stringArray(livePrimaryOwnershipStrategy.generation_blockers);
+  const livePublishBlockers = stringArray(livePrimaryOwnershipStrategy.publish_blockers);
+  const savedGenerationBlockers = stringArray(savedSourceOverlapStrategy.generation_blockers);
+  const savedPublishBlockers = stringArray(savedSourceOverlapStrategy.publish_blockers);
+  const ownershipBlocks = liveGenerationBlockers.length > 0;
+
+  return {
+    ...livePrimaryOwnershipStrategy,
+    ...savedSourceOverlapStrategy,
+    contract_version: 'seo_differentiation_strategy_v1',
+    source: 'combined_live_primary_ownership_and_saved_source_overlap',
+    classification: ownershipBlocks
+      ? livePrimaryOwnershipStrategy.classification
+      : savedSourceOverlapStrategy.classification || livePrimaryOwnershipStrategy.classification,
+    risk_level: ownershipBlocks
+      ? livePrimaryOwnershipStrategy.risk_level
+      : savedSourceOverlapStrategy.risk_level || livePrimaryOwnershipStrategy.risk_level,
+    human_decision_needed: Boolean(
+      livePrimaryOwnershipStrategy.human_decision_needed
+      || savedSourceOverlapStrategy.human_decision_needed,
+    ),
+    recommended_generation_mode: ownershipBlocks
+      ? livePrimaryOwnershipStrategy.recommended_generation_mode
+      : savedSourceOverlapStrategy.recommended_generation_mode
+        || livePrimaryOwnershipStrategy.recommended_generation_mode,
+    primary_angle_to_own: savedSourceOverlapStrategy.primary_angle_to_own
+      || livePrimaryOwnershipStrategy.primary_angle_to_own,
+    required_differentiators: uniqueStrings([
+      ...stringArray(savedSourceOverlapStrategy.required_differentiators),
+      ...stringArray(livePrimaryOwnershipStrategy.required_differentiators),
+    ]),
+    before_generation_checks: uniqueStrings([
+      ...stringArray(savedSourceOverlapStrategy.before_generation_checks),
+      ...stringArray(livePrimaryOwnershipStrategy.before_generation_checks),
+    ]),
+    generation_blockers: uniqueStrings([
+      ...savedGenerationBlockers,
+      ...liveGenerationBlockers,
+    ]),
+    publish_blockers: uniqueStrings([
+      ...savedPublishBlockers,
+      ...livePublishBlockers,
+    ]),
+    keyword_ownership: livePrimaryOwnershipStrategy.keyword_ownership,
+    source_overlap_strategy: savedSourceOverlapStrategy,
+  };
+}
+
 function normalizeDecisionKeywords(value) {
   const rows = Array.isArray(value) ? value : [];
   return rows.map((row) => {
-    const trustedMetric = hasTrustedMetricSnapshot(row);
+    const trustedMetric = hasTrustedSeoMetricSnapshot(row);
     return {
       ...row,
       keyword: row.keyword || row.keyword_norm,
@@ -947,24 +1073,6 @@ function normalizeDecisionKeywords(value) {
   });
 }
 
-function hasTrustedMetricSnapshot(row) {
-  const volume = toPositiveNumber(row?.avg_monthly_searches);
-  const competition = normalizeToken(row?.competition);
-  const source = normalizeToken(metricSource(row));
-  const freshness = normalizeToken(metricFreshness(row));
-
-  if (!volume || !competition || competition === 'unknown') return false;
-  if (freshness === 'api not connected' || freshness === 'api_not_connected') return false;
-
-  const freshManualCsv = source === 'google ads csv' && freshness === 'fresh manual import';
-  const freshGoogleAdsApi = ['google ads api', 'google ads keyword planner', 'google keyword planner'].includes(source)
-    && ['fresh api', 'api connected', 'validated'].includes(freshness);
-  const approvedManualImport = ['manual keyword planner import', 'keyword planner csv'].includes(source)
-    && ['fresh manual import', 'validated'].includes(freshness);
-
-  return freshManualCsv || freshGoogleAdsApi || approvedManualImport;
-}
-
 function normalizeKeyword(value) {
   return String(value || '').trim().toLowerCase().replace(/[’']/g, '').replace(/[_-]+/g, ' ').replace(/\s+/g, ' ');
 }
@@ -975,10 +1083,6 @@ function metricSource(row) {
 
 function metricFreshness(row) {
   return row?.data_freshness_status || row?.metric_freshness_status || row?.freshness_status || '';
-}
-
-function normalizeToken(value) {
-  return String(value || '').trim().toLowerCase().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ');
 }
 
 function toPositiveNumber(value) {

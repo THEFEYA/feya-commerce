@@ -159,7 +159,7 @@ export function sellableOfferAvailabilitySentence(
   if (offer.status !== 'ready' || !offer.aggregate_options.length || offer.component_labels.length < 2) {
     return '';
   }
-  return `The ${naturalList(offer.component_labels.map(lowerInitial))} are available separately or together.`;
+  return 'Each piece can be ordered separately or as a full set.';
 }
 
 export function sellableOfferAllowsComponentFocus(
@@ -392,16 +392,6 @@ function singularize(value: string) {
 function containsPhrase(value: string, phrase: string) {
   if (!phrase) return false;
   return ` ${value} `.includes(` ${phrase} `);
-}
-
-function lowerInitial(value: string) {
-  return value ? `${value[0].toLocaleLowerCase()}${value.slice(1)}` : value;
-}
-
-function naturalList(values: string[]) {
-  if (values.length <= 1) return values[0] || '';
-  if (values.length === 2) return `${values[0]} and ${values[1]}`;
-  return `${values.slice(0, -1).join(', ')}, and ${values.at(-1)}`;
 }
 
 function unique<T>(values: T[]) {

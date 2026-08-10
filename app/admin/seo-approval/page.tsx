@@ -11,16 +11,44 @@ export const revalidate = 0;
 
 const SAVED_DRAFT_QUEUE_LIMIT = 100;
 const DRAFT_EVENTS_LIMIT = 300;
+const DRAFT_DETAILS_TABLE = 'feya_commerce_seo_pack_drafts_v1';
+const DRAFT_DETAILS_SELECT = [
+  'id',
+  'intro',
+  'image_alt_candidates',
+  'product_truth_snapshot',
+  'qa_self_report',
+  'agent_output_snapshot',
+  'validation_result_snapshot',
+].join(',');
 
 async function loadSavedDraftQueue() {
   const supabase = getSupabaseServiceClient();
-  if (!supabase) return { drafts: [], error: 'Нет service-role доступа для чтения очереди SEO-черновиков.' };
+  if (!supabase) return { drafts: [], error: 'Нет service-role доступа для чтения очереди SEO-черновиков.', detailError: null };
   const { data, error } = await supabase
     .from('feya_commerce_v_seo_pack_review_queue_v1')
     .select('id,canonical_product_id,matched_etsy_listing_id,product_slug,status,review_status,source_mode,seo_title,h1,meta_description,metrics_status,validation_status,similarity_status,image_alt_status,created_at,updated_at,reviewed_at')
     .limit(SAVED_DRAFT_QUEUE_LIMIT);
-  if (error) return { drafts: [], error: error.message };
-  return { drafts: data || [], error: null };
+  if (error) return { drafts: [], error: error.message, detailError: null };
+
+  const queueDrafts = data || [];
+  const draftIds = queueDrafts.map((draft) => draft.id).filter(Boolean);
+  if (!draftIds.length) return { drafts: queueDrafts, error: null, detailError: null };
+
+  const detailResult = await supabase
+    .from(DRAFT_DETAILS_TABLE)
+    .select(DRAFT_DETAILS_SELECT)
+    .in('id', draftIds);
+  if (detailResult.error) {
+    return { drafts: queueDrafts, error: null, detailError: detailResult.error.message };
+  }
+
+  const detailsById = new Map((detailResult.data || []).map((detail) => [detail.id, detail]));
+  return {
+    drafts: queueDrafts.map((draft) => ({ ...draft, ...(detailsById.get(draft.id) || {}) })),
+    error: null,
+    detailError: null,
+  };
 }
 
 async function loadDraftEvents(draftIds) {
@@ -125,6 +153,64 @@ function MiniFact({ label, value, tone = 'neutral' }) {
   </div>;
 }
 
+function StoredPackDetails({ draft }) {
+  const agentOutput = draft.agent_output_snapshot && typeof draft.agent_output_snapshot === 'object'
+    ? draft.agent_output_snapshot
+    : {};
+  const productTruth = draft.product_truth_snapshot && typeof draft.product_truth_snapshot === 'object'
+    ? draft.product_truth_snapshot
+    : {};
+  const validation = draft.validation_result_snapshot && typeof draft.validation_result_snapshot === 'object'
+    ? draft.validation_result_snapshot
+    : {};
+  const pdpBlocks = Array.isArray(agentOutput.pdp_blocks) ? agentOutput.pdp_blocks : [];
+  const imageAlts = Array.isArray(agentOutput.image_alt_candidates)
+    ? agentOutput.image_alt_candidates
+    : Array.isArray(draft.image_alt_candidates) ? draft.image_alt_candidates : [];
+  const includedComponents = Array.isArray(productTruth.included_components)
+    ? productTruth.included_components
+    : [];
+  const intro = agentOutput.intro || draft.intro || '';
+  const structuralStatus = validation.structural_validation?.status || validation.status || 'not_checked';
+  const commercialStatus = validation.commercial_validation?.status || 'not_checked';
+  const keywordStatus = validation.keyword_placement_validation?.status || 'not_checked';
+
+  return <details open={draft.review_status === 'not_reviewed'} className="mt-4 rounded-xl border border-[rgba(108,183,138,.24)] bg-[rgba(108,183,138,.045)] p-3">
+    <summary className="cursor-pointer text-[11px] uppercase tracking-[0.16em] text-[#a9dfbd]">
+      Полный сохранённый SEO Pack · {pdpBlocks.length} PDP-блока
+    </summary>
+    <div className="mt-4 space-y-4">
+      <div className="grid gap-2 sm:grid-cols-3">
+        <MiniFact label="Структура" value={statusLabel(structuralStatus)} tone={draftTone(structuralStatus)} />
+        <MiniFact label="Коммерческий текст" value={statusLabel(commercialStatus)} tone={draftTone(commercialStatus)} />
+        <MiniFact label="Ключи" value={statusLabel(keywordStatus)} tone={draftTone(keywordStatus)} />
+      </div>
+      <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3">
+        <div className="eyebrow-dim mb-2">Intro</div>
+        <div className="whitespace-pre-wrap text-[12px] leading-relaxed text-bone">{intro || '—'}</div>
+      </div>
+      <div>
+        <div className="eyebrow-dim mb-2">Левый PDP-текст</div>
+        {pdpBlocks.length ? <div className="space-y-2">{pdpBlocks.map((block, index) => <div key={`${block.block_key || block.heading || 'block'}-${index}`} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3">
+          <div className="mb-1.5 text-[12px] text-[var(--gold-warm)]">{block.heading || block.block_key || 'PDP block'}</div>
+          <div className="whitespace-pre-wrap text-[12px] leading-relaxed text-bone">{block.body || '—'}</div>
+        </div>)}</div> : <div className="rounded-xl border border-[rgba(196,64,88,.28)] bg-[rgba(160,32,56,.08)] p-3 text-[12px] text-[var(--ruby-soft)]">В сохранённом snapshot нет PDP-блоков. Такой черновик нельзя считать полным.</div>}
+      </div>
+      <div className="grid gap-3 lg:grid-cols-2">
+        <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3">
+          <div className="eyebrow-dim mb-2">What’s Included · из Product Truth</div>
+          {includedComponents.length ? <ul className="space-y-1.5 text-[12px] text-bone">{includedComponents.map((component) => <li key={String(component)}>✓ {String(component)}</li>)}</ul> : <div className="text-[12px] text-[var(--ruby-soft)]">Состав не найден в сохранённом Product Truth.</div>}
+        </div>
+        <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3">
+          <div className="eyebrow-dim mb-2">ALT для изображений</div>
+          {imageAlts.length ? <ul className="space-y-2 text-[12px] text-bone">{imageAlts.map((item, index) => <li key={`${item.image_role || 'image'}-${index}`}>{item.alt_text || 'ALT не найден'}</li>)}</ul> : <div className="text-[12px] text-[var(--ruby-soft)]">ALT-кандидаты не найдены.</div>}
+        </div>
+      </div>
+      <div className="text-[10px] leading-relaxed text-[var(--smoke)]">Это read-only snapshot draft {draft.id}. Раскрытие блока не выполняет OpenAI-вызов, не меняет товар и не публикует текст.</div>
+    </div>
+  </details>;
+}
+
 function EventTimeline({ events = [] }) {
   return <div className="mt-4 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3">
     <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -177,6 +263,7 @@ function SavedDraftCard({ draft, events }) {
       <MiniFact label="Image ALT" value={statusLabel(draft.image_alt_status)} tone={draftTone(draft.image_alt_status)} />
       <MiniFact label="Обновлён" value={dateLabel(draft.updated_at)} />
     </div>
+    <StoredPackDetails draft={draft} />
     <EventTimeline events={events || []} />
     {needsSimilarityGate ? <SeoDraftSimilarityCheckClient draftId={draft.id} /> : null}
     {canRunSourceCatalogGate ? <SeoDraftSourceOverlapCheckClient draftId={draft.id} /> : null}
@@ -196,6 +283,7 @@ export default async function SeoApprovalPage() {
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]"><section className="container-feya pt-10 pb-16">
     <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7"><div><div className="eyebrow-gold mb-3">Админка · проверка SEO</div><h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Проверка SEO</h1><p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Быстрая очередь сохранённых SEO-черновиков из storage layer. Здесь мы проверяем drafts, но не публикуем и не меняем storefront/product tables.</p></div><div className="flex flex-wrap gap-3"><Link href="/admin/seo-engine/briefs" className="btn-ghost">SEO-бриф <ArrowUpRight size={13} /></Link><Link href="/admin/indexation" className="btn-ghost">Индексация <ArrowUpRight size={13} /></Link></div></div>
     {savedDraftQueue.error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{savedDraftQueue.error}</div> : null}
+    {savedDraftQueue.detailError ? <div className="rounded-2xl border border-[rgba(212,178,106,.35)] bg-[rgba(212,178,106,.08)] p-5 text-[var(--bone-dim)] mb-7">Очередь загружена, но полный snapshot черновика недоступен: {savedDraftQueue.detailError}</div> : null}
     {draftEvents.error ? <div className="rounded-2xl border border-[rgba(212,178,106,.35)] bg-[rgba(212,178,106,.08)] p-5 text-[var(--bone-dim)] mb-7">История событий не загрузилась: {draftEvents.error}. Очередь черновиков продолжает работать.</div> : null}
 
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8"><Metric icon={Database} label="Сохранённые" value={savedDrafts.length} note="Новые SEO-pack drafts из storage layer." tone="success" /><Metric icon={ShieldAlert} label="На проверке" value={notReviewed} note="Ждут human review." tone="danger" /><Metric icon={CheckCircle2} label="Validator OK" value={validatorReady} note="Черновики проходят output validator." tone="success" /><Metric icon={Clock3} label="События" value={totalEvents} note="Audit trail по сохранённым черновикам." /></div>

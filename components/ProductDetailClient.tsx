@@ -53,6 +53,12 @@ import {
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Custom'];
 const CART_KEY = 'feya_visual_cart_v1';
 const COUNT_KEY = 'feya_visual_bag';
+const GENERATED_DESCRIPTION_BLOCK_ORDER: Record<string, number> = {
+  about_this_piece: 0,
+  why_youll_love_it: 1,
+  ideal_for: 2,
+  main_description: 3,
+};
 
 type DraftBlock = {
   block_key?: string;
@@ -147,7 +153,12 @@ export function ProductDetailClient({
   const main = activeImage?.url || p.primary_image_url || '';
   const complete = related.filter((x) => x.canonical_product_id !== p.canonical_product_id).slice(0, 4);
   const draftBlocks = Array.isArray(draft?.pdp_blocks)
-    ? draft.pdp_blocks.filter((block) => block?.placement === 'left_description' && block?.body)
+    ? draft.pdp_blocks
+      .filter((block) => block?.placement === 'left_description' && block?.body)
+      .sort((left, right) => (
+        (GENERATED_DESCRIPTION_BLOCK_ORDER[String(left.block_key || '')] ?? 99)
+        - (GENERATED_DESCRIPTION_BLOCK_ORDER[String(right.block_key || '')] ?? 99)
+      ))
     : [];
   const reviewSummary = useMemo(() => readReviewSummary(p), [p]);
   const includedLines = storefrontIncludedOptions(p, activeConfig);

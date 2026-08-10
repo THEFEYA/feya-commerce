@@ -47,6 +47,7 @@ export default async function SeoStorefrontPreviewPage({ searchParams }) {
   const params = await Promise.resolve(searchParams || {});
   const initialProductId = typeof params.product_id === 'string' ? params.product_id.trim() : '';
   const autoGenerate = params.generate === '1' && Boolean(initialProductId);
+  const loadSavedDraft = params.saved === '1' && Boolean(initialProductId);
   // The catalog-wide current/applied audit is optional. It must not run on the
   // critical single-product generation path: the underlying view scans the
   // whole catalog and can exceed Postgres statement_timeout even while this
@@ -75,7 +76,11 @@ export default async function SeoStorefrontPreviewPage({ searchParams }) {
         </div>
       </div>
 
-      <FirstRealDraftClient initialProductId={initialProductId} autoGenerate={autoGenerate} />
+      <FirstRealDraftClient
+        initialProductId={initialProductId}
+        autoGenerate={autoGenerate}
+        loadSavedDraft={loadSavedDraft}
+      />
 
       <details className="mt-8 min-w-0 rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4 sm:p-5">
         <summary className="cursor-pointer text-[11px] uppercase tracking-[.18em] text-[var(--gold-warm)]">Каталожное сравнение current / approved</summary>
