@@ -70,7 +70,7 @@ function buildSystemPrompt(input: SeoAgentInputContract) {
     'Visual truth must help choose style, persona, event angle, image ALT wording, and forbidden mismatches.',
     'Put visual observations only into visual_truth, image_alt_candidates, and generation_notes. Do not make customer-facing intro, meta, or body sound like an image audit.',
     'Map visual observations to product DNA when possible, but keep observed visual facts, selected catalog DNA, and open visual suggestions separate.',
-    'If the image suggests a useful style not already in DNA, mention it cautiously in visual_truth.open_style_suggestions and generation_notes. Do not force it into title unless product truth and approved keywords strongly support it.',
+    'Do not reopen style selection during product-copy generation. Keep visual_truth.open_style_suggestions empty; operator-confirmed focus already owns style, event and persona choices. Never suggest hair, makeup, jewelry, accessories, footwear, props, base layers or other unsold garments.',
     'Do not use steampunk unless the image clearly shows retro-futuristic Victorian or industrial cues such as gears, brass machinery, Victorian silhouettes, corsetry as the main style, or antique machinery aesthetics.',
   ] : [
     'No primary image is attached. Treat image ALT as needs_image_review and do not infer visual-only style claims.',

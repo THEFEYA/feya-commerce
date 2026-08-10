@@ -24,6 +24,10 @@ type SeoIdentityNormalizationContext = {
   product_color?: unknown;
 };
 
+const UNSOLD_EXTERNAL_STYLING_PATTERN = /\b(?:hair|hairstyle|makeup|make-up|jewel(?:ry|lery)|accessor(?:y|ies)|footwear|boots?|shoes?|heels?|props?|bodysuits?|base layers?)\b|\b(?:pair|style|wear|combine)\s+(?:it|this|the (?:piece|outfit|costume|look))?\s*with\b/i;
+const DURABLE_MODIFIER_PATTERN = /\bdurable\s*,\s*|\bdurable\s+and\s+/i;
+const CONCRETE_SHAPE_RETENTION_PATTERN = /\b(?:keeps?|holds?|retain(?:s|ed|ing)?|shape retention)\b[^.!?\n]{0,55}\b(?:shape|form|between wears|next occasion)\b|\bbetween wears\b/i;
+
 /**
  * The final editor needs the first pass for schema shape and internal evidence,
  * not as a prose template. Passing rejected customer copy at the end of a long
@@ -163,6 +167,151 @@ export function normalizeCodeOwnedSeoCollections<T>(output: T): T {
       'Deterministic PDP normalization kept duplicate highlights, product FAQ and unapproved internal links empty.',
     ],
   } as T;
+}
+
+/**
+ * Product-copy generation runs after the operator has selected style, event
+ * and persona focus. Free-form pairings with unsold garments or grooming are
+ * therefore both out of scope and a leakage risk for customer copy. Delete
+ * only those unsafe internal suggestions; ordinary visual observations remain
+ * available for ALT and human image review.
+ */
+export function normalizeUnsafeVisualStyleSuggestions<T>(output: T): T {
+  if (!isRecord(output) || !isRecord(output.visual_truth)) return output;
+  const suggestions = output.visual_truth.open_style_suggestions;
+  if (!Array.isArray(suggestions)) return output;
+  const safeSuggestions = suggestions.filter((value) => (
+    typeof value !== 'string' || !UNSOLD_EXTERNAL_STYLING_PATTERN.test(value)
+  ));
+  if (safeSuggestions.length === suggestions.length) return output;
+
+  return {
+    ...output,
+    visual_truth: {
+      ...output.visual_truth,
+      open_style_suggestions: safeSuggestions,
+    },
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic visual-truth normalization removed unsold external styling suggestions from the product-copy pass.',
+    ],
+  } as T;
+}
+
+/**
+ * The 2026-08-10 control response repeated the same durability family in Meta,
+ * About and Why. When Why already contains the stronger, concrete shape-
+ * retention outcome, remove only the redundant "durable" modifiers from Meta
+ * and About. No product claim is added or reworded.
+ */
+export function normalizeRepeatedDurableModifier<T>(output: T): T {
+  if (!isRecord(output) || typeof output.meta_description !== 'string' || !Array.isArray(output.pdp_blocks)) {
+    return output;
+  }
+  const about = output.pdp_blocks.find((block) => (
+    isRecord(block) && block.block_key === 'about_this_piece' && typeof block.body === 'string'
+  ));
+  const why = output.pdp_blocks.find((block) => (
+    isRecord(block) && block.block_key === 'why_youll_love_it' && typeof block.body === 'string'
+  ));
+  if (
+    !about
+    || !why
+    || !DURABLE_MODIFIER_PATTERN.test(output.meta_description)
+    || !DURABLE_MODIFIER_PATTERN.test(about.body)
+    || !CONCRETE_SHAPE_RETENTION_PATTERN.test(why.body)
+  ) return output;
+
+  const metaDescription = output.meta_description.replace(DURABLE_MODIFIER_PATTERN, '');
+  const pdpBlocks = output.pdp_blocks.map((block) => (
+    block === about ? { ...block, body: about.body.replace(DURABLE_MODIFIER_PATTERN, '') } : block
+  ));
+  if (metaDescription === output.meta_description && pdpBlocks.every((block, index) => block === output.pdp_blocks[index])) {
+    return output;
+  }
+
+  return {
+    ...output,
+    meta_description: metaDescription,
+    pdp_blocks: pdpBlocks,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic repetition normalization kept the concrete shape-retention benefit and removed redundant durable modifiers from Meta and About.',
+    ],
+  } as T;
+}
+
+/**
+ * Remove a bounded sentence that prescribes unsold styling from the final
+ * studio close. If deletion would make an otherwise valid studio paragraph
+ * mechanically thin, append one doctrine-owned buyer-value sentence. The
+ * fallback is allowed only when the surviving copy already proves first-person
+ * studio authorship, original design and direct buyer address.
+ */
+export function normalizeMainDescriptionExternalStylingAdvice<T>(output: T): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  let changed = false;
+  const pdpBlocks = output.pdp_blocks.map((block) => {
+    if (
+      !isRecord(block)
+      || block.block_key !== 'main_description'
+      || typeof block.body !== 'string'
+      || !UNSOLD_EXTERNAL_STYLING_PATTERN.test(block.body)
+    ) return block;
+
+    const sentences = splitEditorialSentences(block.body);
+    const retained = sentences.filter((sentence) => !UNSOLD_EXTERNAL_STYLING_PATTERN.test(sentence));
+    if (retained.length === sentences.length || retained.length === 0) return block;
+    let body = retained.join(' ').trim();
+    const hasSafeStudioBasis = (
+      /\b(?:TheFEYA|we|our studio)\b/i.test(body)
+      && /\b(?:original|design|ideas?|studio)\b/i.test(body)
+      && /\b(?:you|your)\b/i.test(body)
+    );
+    if (
+      hasSafeStudioBasis
+      && (editorialWordCount(body) < 45 || splitEditorialSentences(body).length < 3)
+    ) {
+      body = `${body} That gives you room to shape a visual identity that feels personal to you.`;
+    }
+    if (body === block.body) return block;
+    changed = true;
+    return { ...block, body };
+  });
+  if (!changed) return output;
+
+  return {
+    ...output,
+    pdp_blocks: pdpBlocks,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic studio-close normalization removed advice about unsold external styling and restored a supported self-expression outcome when required.',
+    ],
+  } as T;
+}
+
+/**
+ * One shared zero-cost normalization pipeline is used by both the normal
+ * writer route and the explicit repair route. Keeping the order here prevents
+ * the two paths from silently diverging as new bounded regressions are added.
+ */
+export function normalizeSeoEditorialCandidate<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  let normalized = normalizeDeterministicSeoIdentity(output, context);
+  normalized = normalizeMetaDescriptionSentenceCase(normalized);
+  normalized = normalizeCodeOwnedSeoCollections(normalized);
+  normalized = normalizeBodyPrimaryVariation(normalized, context);
+  normalized = normalizeRepeatedAboutFinishClause(normalized);
+  normalized = normalizeRepeatedDurableModifier(normalized);
+  normalized = normalizeMainDescriptionCliches(normalized, context);
+  normalized = normalizeMainDescriptionExternalStylingAdvice(normalized);
+  normalized = normalizeMainDescriptionSentenceBoundaries(normalized);
+  normalized = normalizeUnsafeVisualStyleSuggestions(normalized);
+  normalized = normalizeImageAltPrimaryVariation(normalized, context);
+  normalized = normalizeSingleSuppliedImageAltCandidate(normalized);
+  return normalizeCodeOwnedPdpBlockOrder(normalized);
 }
 
 /**
@@ -792,6 +941,16 @@ function humanJoin(values: string[], conjunction: 'and' | 'or') {
   if (clean.length <= 1) return clean[0] || '';
   if (clean.length === 2) return `${clean[0]} ${conjunction} ${clean[1]}`;
   return `${clean.slice(0, -1).join(', ')}, ${conjunction} ${clean.at(-1)}`;
+}
+
+function splitEditorialSentences(value: string) {
+  return (value.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [])
+    .map((sentence) => sentence.trim())
+    .filter(Boolean);
+}
+
+function editorialWordCount(value: string) {
+  return value.trim().split(/\s+/).filter(Boolean).length;
 }
 
 function escapeRegExp(value: string) {

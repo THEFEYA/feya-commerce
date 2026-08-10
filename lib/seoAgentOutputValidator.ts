@@ -66,6 +66,7 @@ const SELF_EXPRESSION_THIRD_PERSON_PATTERN = /\b(TheFEYA is|their (?:pieces|prod
 const SELF_EXPRESSION_OPERATION_PATTERN = /\b(?:change|changing|adjust|adjusting|adjustment|adjustments|customi[sz]e|customi[sz]ing)\s+(?:the\s+)?(?:color|size|length|fit|coverage|details?)\b|\b(?:color|size|length|fit|coverage)\s+(?:change|changes|adjustment|adjustments|options?)\b/i;
 const SELF_EXPRESSION_PRODUCT_DETAIL_PATTERN = /\b(adjustable straps?|comfortable fit|soft against the body|reinforced construction|material construction)\b/i;
 const SELF_EXPRESSION_EXTERNAL_STYLING_ADVICE_PATTERN = /\b(?:pair|style|wear|combine)\s+(?:it|this|the (?:piece|outfit|costume|look))\s+with\b|\b(?:hair|hairstyle|makeup|make-up)\b/i;
+const UNSOLD_VISUAL_STYLE_SUGGESTION_PATTERN = /\b(?:hair|hairstyle|makeup|make-up|jewel(?:ry|lery)|accessor(?:y|ies)|footwear|boots?|shoes?|heels?|props?|bodysuits?|base layers?)\b|\b(?:pair|style|wear|combine)\s+(?:it|this|the (?:piece|outfit|costume|look))?\s*with\b/i;
 const CYRILLIC_PATTERN = /[А-Яа-яЁёІіЇїЄєҐґ]/;
 const LONG_DASH_PATTERN = /[—–]/;
 const BRAND_PATTERN = /\bTheFEYA\b/gi;
@@ -184,6 +185,17 @@ function validateVisualTruth(value: unknown, issues: SeoAgentOutputValidationIss
       issues.push(blocker(`invalid_visual_truth_${field}`, `visual_truth.${field} must be an array.`));
     }
   });
+  if (
+    Array.isArray(value.open_style_suggestions)
+    && value.open_style_suggestions.some((item) => (
+      typeof item === 'string' && UNSOLD_VISUAL_STYLE_SUGGESTION_PATTERN.test(item)
+    ))
+  ) {
+    issues.push(blocker(
+      'visual_truth_contains_unsold_external_styling',
+      'Product-copy visual truth must not suggest unsold hair, makeup, accessories, footwear, props, base layers or other garments.',
+    ));
+  }
 }
 
 function validatePdpBlocks(value: unknown, issues: SeoAgentOutputValidationIssue[], outputStatus: string) {

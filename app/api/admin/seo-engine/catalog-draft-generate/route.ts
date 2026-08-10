@@ -16,18 +16,7 @@ import {
   getSeoPackDraftSaveBlockers,
 } from '@/lib/seoPackContract';
 import { generateSeoDraftWithOpenAi } from '@/lib/seoOpenAiDraftGenerator';
-import {
-  normalizeCodeOwnedSeoCollections,
-  normalizeCodeOwnedPdpBlockOrder,
-  normalizeBodyPrimaryVariation,
-  normalizeDeterministicSeoIdentity,
-  normalizeImageAltPrimaryVariation,
-  normalizeMainDescriptionCliches,
-  normalizeMainDescriptionSentenceBoundaries,
-  normalizeMetaDescriptionSentenceCase,
-  normalizeRepeatedAboutFinishClause,
-  normalizeSingleSuppliedImageAltCandidate,
-} from '@/lib/seoEditorialCandidateSelection';
+import { normalizeSeoEditorialCandidate } from '@/lib/seoEditorialCandidateSelection';
 import { getSeoPortfolioGenerationBlockers } from '@/lib/seoPrimaryKeywordOwnership';
 
 export const dynamic = 'force-dynamic';
@@ -206,26 +195,7 @@ export async function POST(request: Request) {
   if (firstGeneration.output) {
     firstGeneration = {
       ...firstGeneration,
-      output: normalizeCodeOwnedPdpBlockOrder(normalizeSingleSuppliedImageAltCandidate(
-        normalizeImageAltPrimaryVariation(
-          normalizeMainDescriptionSentenceBoundaries(
-            normalizeMainDescriptionCliches(
-              normalizeRepeatedAboutFinishClause(
-                normalizeBodyPrimaryVariation(
-                  normalizeCodeOwnedSeoCollections(
-                    normalizeMetaDescriptionSentenceCase(
-                      normalizeDeterministicSeoIdentity(firstGeneration.output, identityNormalizationContext),
-                    ),
-                  ),
-                  identityNormalizationContext,
-                ),
-              ),
-              identityNormalizationContext,
-            ),
-          ),
-          identityNormalizationContext,
-        ),
-      )),
+      output: normalizeSeoEditorialCandidate(firstGeneration.output, identityNormalizationContext),
     };
   }
   const validationStartedAt = Date.now();

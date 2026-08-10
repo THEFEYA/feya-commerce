@@ -15,18 +15,7 @@ import {
   getSeoKeywordSelectionBlockers,
   getSeoPackDraftSaveBlockers,
 } from '@/lib/seoPackContract';
-import {
-  normalizeCodeOwnedSeoCollections,
-  normalizeCodeOwnedPdpBlockOrder,
-  normalizeBodyPrimaryVariation,
-  normalizeDeterministicSeoIdentity,
-  normalizeImageAltPrimaryVariation,
-  normalizeMainDescriptionCliches,
-  normalizeMainDescriptionSentenceBoundaries,
-  normalizeMetaDescriptionSentenceCase,
-  normalizeRepeatedAboutFinishClause,
-  normalizeSingleSuppliedImageAltCandidate,
-} from '@/lib/seoEditorialCandidateSelection';
+import { normalizeSeoEditorialCandidate } from '@/lib/seoEditorialCandidateSelection';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -327,26 +316,7 @@ function sanitizeGeneration(generation) {
 }
 
 function normalizeRepairCandidate(output, identityNormalizationContext) {
-  return normalizeCodeOwnedPdpBlockOrder(normalizeSingleSuppliedImageAltCandidate(
-    normalizeImageAltPrimaryVariation(
-      normalizeMainDescriptionSentenceBoundaries(
-        normalizeMainDescriptionCliches(
-          normalizeRepeatedAboutFinishClause(
-            normalizeBodyPrimaryVariation(
-              normalizeCodeOwnedSeoCollections(
-                normalizeMetaDescriptionSentenceCase(
-                  normalizeDeterministicSeoIdentity(output, identityNormalizationContext),
-                ),
-              ),
-              identityNormalizationContext,
-            ),
-          ),
-          identityNormalizationContext,
-        ),
-      ),
-      identityNormalizationContext,
-    ),
-  ));
+  return normalizeSeoEditorialCandidate(output, identityNormalizationContext);
 }
 
 function focusValues(value) {

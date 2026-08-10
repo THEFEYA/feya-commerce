@@ -15,6 +15,7 @@ import {
   normalizeCodeOwnedSeoCollections,
   normalizeMainDescriptionCliches,
   normalizeRepeatedAboutFinishClause,
+  normalizeSeoEditorialCandidate,
 } from '../../lib/seoEditorialCandidateSelection.ts';
 import { validateSeoAgentOutput } from '../../lib/seoAgentOutputValidator.ts';
 import { validateSeoCommercialCopy } from '../../lib/seoCommercialCopyValidator.ts';
@@ -221,7 +222,7 @@ test('writer brief uses current offer and excludes raw legacy wording', () => {
   );
   assert.equal(brief.contract_version, 'seo_writer_brief_v4');
   assert.equal(preflight.ok, true, JSON.stringify(preflight.issues));
-  assert.equal(brief.editorial_reference, 'seo_editorial_memory_v3');
+  assert.equal(brief.editorial_reference, 'seo_editorial_memory_v4');
   assert.match(prompt.system_prompt, /POSITIVE INTRO FRAME/);
   assert.match(prompt.system_prompt, /POSITIVE ABOUT FRAME/);
   assert.match(prompt.system_prompt, /exactly one image_alt_candidate/);
@@ -231,11 +232,14 @@ test('writer brief uses current offer and excludes raw legacy wording', () => {
   assert.equal(/independent (?:design )?(?:team|studio)/i.test(prompt.system_prompt), false);
   assert.ok(brief.code_owned_sections.includes('whats_included'));
   assert.ok(brief.code_owned_sections.includes('right_panel'));
-  assert.match(prompt.system_prompt, /About this piece is 40-60 words in 2-3/);
-  assert.match(prompt.system_prompt, /block_key is exactly main_description/);
+  assert.match(prompt.system_prompt, /About this piece is 45-60 words in 2-3/);
+  assert.match(prompt.system_prompt, /final main_description\/left_description block/);
   assert.match(prompt.system_prompt, /multi-component silhouette/);
-  assert.match(prompt.system_prompt, /never append “and an original \.\.\. character”/);
-  assert.match(prompt.system_prompt, /Designed for self-expression is the final block\.[^\n]+Write 45-75 words in 3-4/);
+  assert.match(prompt.system_prompt, /For “festivals and cosplay”, stop there and add no character padding/);
+  assert.match(prompt.system_prompt, /Designed for self-expression is the final main_description\/left_description block: 45-75 words, 3-4/);
+  assert.match(prompt.system_prompt, /visual identity that feels personal/);
+  assert.match(prompt.system_prompt, /Return visual_truth\.open_style_suggestions as \[\]/);
+  assert.doesNotMatch(prompt.system_prompt, /End with one plain styling sentence/);
   assert.match(prompt.system_prompt, /Return bullet_highlights, faq and internal_linking_hints as empty arrays/);
   assert.match(prompt.system_prompt, /buyer_outcome_en is a ready-to-use customer-facing sentence/);
   assert.match(prompt.system_prompt, /body_identity_variant_en, never product_identity_en/);
@@ -524,6 +528,142 @@ test('zero-cost normalization recovers the exact final control-run copy without 
   assert.doesNotMatch(JSON.stringify(normalized.pdp_blocks), /body identity|finish it your way/i);
 });
 
+test('the 2026-08-10 live control draft passes after bounded zero-token normalization', () => {
+  const candidate = {
+    contract_version: 'seo_agent_output_v1',
+    status: 'draft',
+    seo_title: 'Gold Warrior Armor Costume for Festivals',
+    h1: 'Gold Warrior Armor Costume for Festivals',
+    meta_description: 'Gold warrior armor costume with a durable, glossy, mirror-like coating and original studio design for festivals and cosplay.',
+    intro: 'This warrior armor outfit is made for festivals and cosplay, giving you a starting point for an original futuristic or fantasy character.',
+    bullet_highlights: [],
+    faq: [],
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'Gold warrior armor outfit posed against dark rocks',
+      truth_basis: 'visible_product_fact',
+    }],
+    internal_linking_hints: [],
+    visual_truth: {
+      observed_product_facts: [
+        'Gold metallic-look armor pieces',
+        'Headpiece with tall pointed shapes',
+        'Shoulder armor',
+        'Armored leg covers',
+        'Black bodysuit base',
+        'Model posed in a dramatic action stance',
+        'Dark rocky background',
+      ],
+      dna_matches: [
+        'Warrior-inspired silhouette',
+        'Futuristic fantasy styling',
+        'Festival and cosplay ready look',
+      ],
+      open_style_suggestions: [
+        'Pair with sleek boots or minimal accessories to keep the armor focus',
+        'Style with bold makeup or a strong hairstyle for a festival or stage look',
+      ],
+      uncertain_or_missing_facts: [
+        'Exact material composition is not visible from the image alone',
+        'Whether all listed components are included cannot be confirmed from the image',
+      ],
+      forbidden_visual_claims: [
+        'Do not claim reflective or retroreflective performance unless explicitly stated',
+        'Do not claim armor-grade protection',
+        'Do not claim the image shows every included component with certainty',
+      ],
+    },
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        source_basis: 'product_fact',
+        body: 'For festivals and cosplay, this warrior armor outfit brings a durable, glossy, mirror-like coating that creates a polished metal look. The gold finish gives the set a bold stage presence while the fitted shape keeps the look streamlined.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'why_youll_love_it',
+        placement: 'left_description',
+        heading: 'Why you’ll love it',
+        source_basis: 'product_fact',
+        body: '- Our original studio design lets you shape the finished character through your own styling choices.\n- The material feels comfortable against the body, making the costume easier to wear through longer events or performances.\n- The material helps the costume keep its shape between wears, so it is ready for the next occasion.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'ideal_for',
+        placement: 'left_description',
+        heading: 'Ideal for',
+        source_basis: 'product_fact',
+        body: '- Festival-goers planning a warrior look for a long day of music and movement.\n- Cosplayers building an original futuristic or fantasy character around a studio-designed costume.\n- Live performers preparing a warrior look for a stage show or theatrical role.\n- Content creators planning fantasy visuals for festival shoots or music videos.\n- Costume stylists sourcing an original futuristic piece for themed shows or editorials.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'main_description',
+        placement: 'left_description',
+        heading: 'Designed for self-expression',
+        source_basis: 'brand_policy',
+        body: 'At TheFEYA, we develop festival and stage pieces from our own ideas, and this warrior armor outfit is built as an original studio interpretation. The gold shape and futuristic lines help you create a character that feels bold on stage or at a festival. Style it with clean hair and strong makeup for a sharp look.',
+        needs_human_review: false,
+      },
+    ],
+    qa_self_report: {
+      cliche_phrase: 'pass',
+      long_dash: 'pass',
+      keyword_stuffing: 'pass',
+      product_specificity: 'pass',
+      forbidden_mismatch: 'pass',
+      similarity_cannibalization: 'pass',
+      image_alt_truth: 'pass',
+      commercial_placement: 'pass',
+      validated_metrics: 'not_checked',
+      notes: [],
+    },
+    generation_notes: [],
+  } as any;
+  const context = {
+    product_truth: {
+      color: 'Gold',
+      included_components: ['Headpiece', 'Leg Covers', 'Shoulders', 'Top'],
+    },
+    manual_focus: {
+      event: ['festival', 'cosplay'],
+      style: ['futuristic', 'fantasy'],
+      persona: ['warrior', 'performer'],
+    },
+    keyword_roles: roleMap(),
+  } as any;
+
+  const rawStructural = validateSeoAgentOutput(candidate);
+  assert.ok(rawStructural.issues.some((issue) => issue.code === 'main_description_contains_external_styling_advice'));
+  assert.ok(rawStructural.issues.some((issue) => issue.code === 'visual_truth_contains_unsold_external_styling'));
+
+  const normalized = normalizeSeoEditorialCandidate(candidate, {
+    primary_keyword: 'warrior armor costume',
+    selected_events: context.manual_focus.event,
+    selected_styles: context.manual_focus.style,
+    body_identity_variant: 'warrior armor outfit',
+    product_color: 'Gold',
+  });
+  const structural = validateSeoAgentOutput(normalized);
+  const commercial = validateSeoCommercialCopy(normalized, context);
+
+  assert.equal(structural.ok, true, JSON.stringify(structural.issues));
+  assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
+  assert.equal(normalized.visual_truth.open_style_suggestions.length, 0);
+  assert.doesNotMatch(normalized.meta_description, /\bdurable\b/i);
+  assert.doesNotMatch(normalized.pdp_blocks[0].body, /\bdurable\b/i);
+  assert.match(normalized.pdp_blocks[1].body, /keep its shape between wears/i);
+  assert.doesNotMatch(normalized.pdp_blocks[3].body, /hair|makeup|footwear|accessor/i);
+  assert.match(normalized.pdp_blocks[3].body, /visual identity that feels personal/i);
+  assert.deepEqual(normalized.pdp_blocks.map((block: any) => block.block_key), [
+    'about_this_piece',
+    'why_youll_love_it',
+    'ideal_for',
+    'main_description',
+  ]);
+});
+
 test('the August live pilot stays blocked for human-copy defects while ALT normalization removes the false fourth Primary', () => {
   const input = inputContract();
   input.manual_focus = {
@@ -739,7 +879,7 @@ test('OpenAI writer performs one bounded request and reports token usage', async
     assert.equal(result.ok, true);
     assert.equal(requestBody.max_output_tokens, 321);
     assert.equal(requestBody.reasoning.effort, 'low');
-    assert.equal(requestBody.text.format.name, 'seo_agent_writer_output_v2');
+    assert.equal(requestBody.text.format.name, 'seo_agent_writer_output_v3');
     const pdpSchema = requestBody.text.format.schema.properties.pdp_blocks;
     assert.equal(pdpSchema.type, 'object');
     assert.equal(pdpSchema.additionalProperties, false);
@@ -752,6 +892,10 @@ test('OpenAI writer performs one bounded request and reports token usage', async
     assert.deepEqual(Object.keys(pdpSchema.properties), pdpSchema.required);
     assert.equal('whats_included' in pdpSchema.properties, false);
     assert.equal('material' in pdpSchema.properties, false);
+    assert.equal(
+      requestBody.text.format.schema.properties.visual_truth.properties.open_style_suggestions.maxItems,
+      0,
+    );
     assert.deepEqual(result.output?.pdp_blocks.map((block) => ({
       key: block.block_key,
       heading: block.heading,

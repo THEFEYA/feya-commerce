@@ -111,7 +111,7 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
     options.maxOutputTokens,
     positiveInteger(process.env.FEYA_SEO_OPENAI_MAX_OUTPUT_TOKENS, 2_500),
   );
-  const userInstruction = `${prompt.user_prompt}\n\nReturn exactly one JSON object that conforms to the seo_agent_writer_output_v2 wire schema supplied in text.format. Fill all four required named pdp_blocks text slots. Do not omit required fields. Use null for unknown nullable text fields and empty arrays when a section has no safe content.`;
+  const userInstruction = `${prompt.user_prompt}\n\nReturn exactly one JSON object that conforms to the seo_agent_writer_output_v3 wire schema supplied in text.format. Fill all four required named pdp_blocks text slots. Do not omit required fields. Use null for unknown nullable text fields and empty arrays when a section has no safe content. visual_truth.open_style_suggestions must be [].`;
   const promptHash = createHash('sha256')
     .update(prompt.contract_version)
     .update('\0')
@@ -202,7 +202,7 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
         text: {
           format: {
             type: 'json_schema',
-            name: 'seo_agent_writer_output_v2',
+            name: 'seo_agent_writer_output_v3',
             strict: true,
             schema: seoAgentOutputSchema(),
           },
@@ -312,6 +312,7 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
 function seoAgentOutputSchema() {
   const qaStatus = { type: 'string', enum: ['pass', 'warning', 'blocker', 'not_checked'] };
   const stringArray = { type: 'array', items: { type: 'string' } };
+  const emptyStringArray = { type: 'array', items: { type: 'string' }, maxItems: 0 };
   return {
     type: 'object',
     additionalProperties: false,
@@ -385,7 +386,7 @@ function seoAgentOutputSchema() {
         properties: {
           observed_product_facts: stringArray,
           dna_matches: stringArray,
-          open_style_suggestions: stringArray,
+          open_style_suggestions: emptyStringArray,
           uncertain_or_missing_facts: stringArray,
           forbidden_visual_claims: stringArray,
         },
