@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { getMissingSupabaseServiceEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_VIEW_V1, STOREFRONT_VIEW_V2, STOREFRONT_VIEW_V3, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
+import { tokenizeSeoPortfolioDraft } from '@/lib/seoPortfolioOverlap';
 
 export const dynamic = 'force-dynamic';
 
@@ -101,7 +102,7 @@ export async function POST(request: Request) {
 
   const { data: currentDraft, error: readError } = await serviceClient
     .from(STORAGE_TABLE)
-    .select('id,canonical_product_id,matched_etsy_listing_id,product_slug,status,review_status,seo_title,h1,meta_description,intro,bullet_highlights,faq,internal_linking_hints,keyword_roles_snapshot,qa_self_report,similarity_check_snapshot,product_truth_snapshot,agent_input_snapshot,created_at,updated_at')
+    .select('id,canonical_product_id,matched_etsy_listing_id,product_slug,status,review_status,seo_title,h1,meta_description,intro,bullet_highlights,faq,image_alt_candidates,internal_linking_hints,keyword_roles_snapshot,agent_output_snapshot,qa_self_report,similarity_check_snapshot,product_truth_snapshot,agent_input_snapshot,created_at,updated_at')
     .eq('id', draftId)
     .is('archived_at', null)
     .single();
@@ -568,19 +569,7 @@ function compactSourceProduct(product) {
   };
 }
 
-function tokenizeDraft(draft) {
-  const raw = [
-    draft.seo_title,
-    draft.h1,
-    draft.meta_description,
-    draft.intro,
-    JSON.stringify(draft.bullet_highlights || []),
-    JSON.stringify(draft.faq || []),
-    JSON.stringify(draft.internal_linking_hints || []),
-    JSON.stringify(draft.keyword_roles_snapshot || {}),
-  ].filter(Boolean).join(' ');
-  return tokenize(raw);
-}
+const tokenizeDraft = tokenizeSeoPortfolioDraft;
 
 function tokenizeSourceProduct(product) {
   const raw = [
