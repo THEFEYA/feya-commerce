@@ -1342,6 +1342,7 @@ test('the 2026-08-11 silver rave control draft reaches review with zero-token bo
     primary_keyword: 'rave outfit with skirt',
     selected_events: context.manual_focus.event,
     selected_styles: context.manual_focus.style,
+    included_components: context.product_truth.included_components,
     body_identity_variant: 'rave costume with skirt',
     product_color: 'Silver',
   });
@@ -1357,17 +1358,25 @@ test('the 2026-08-11 silver rave control draft reaches review with zero-token bo
   assert.equal(keyword.ok, true, JSON.stringify(keyword.issues));
   assert.equal(
     normalized.intro,
-    'This rave costume with skirt is made for festivals and raves, giving you an original studio look you can make your own.',
+    'This silver rave costume with skirt is made for festivals, raves and live music shows, with a comfortable fit for long days, dancing and late-night performances.',
   );
-  assert.equal(normalized.pdp_blocks[2].body.split('\n').length, 4);
+  assert.equal(
+    normalized.meta_description,
+    'Silver rave outfit with skirt in vegan leather for festivals, raves and live music shows.',
+  );
+  assert.equal(normalized.pdp_blocks[2].body.split('\n').length, 5);
   assert.equal(
     normalized.pdp_blocks[1].body,
-    'The original studio-designed silver silhouette gives you a clear starting point while leaving the final festival look open to your own choices.\nA comfortable feel against the body helps through longer festival days and live performances.\nWith careful storage, the structured material keeps its form ready for the next event.',
+    'Our studio-designed layered shoulder pieces give the set a distinctive look that stands out in photos and across a crowded festival.\nAdjustable straps make the pieces quick to put on and easy to fine-tune for a secure, comfortable fit.\nThe vegan leather keeps its shape between wears, so the pieces stay ready for repeat use when stored with care.',
   );
   assert.equal(
     normalized.pdp_blocks[0].body,
-    'For festivals and raves, this rave costume with skirt brings a strong visual presence. Its glossy, mirror-like coating creates a polished metal look. The result feels bold, clean, and ready for a night of movement and lights.',
+    'Made for festivals and raves, this silver outfit uses layered details around the shoulders and a glossy, mirror-like finish that catches available light from different angles. It stands out in a crowd and looks striking in photos and video.',
   );
   assert.doesNotMatch(normalized.pdp_blocks[3].body, /finish feels original/i);
-  assert.equal((normalized.pdp_blocks[3].body.match(/\bfeels\b/gi) || []).length, 1);
+  assert.doesNotMatch(normalized.pdp_blocks[3].body, /silver direction|visual identity/i);
+  assert.equal(
+    normalized.image_alt_candidates[0].alt_text,
+    'Silver layered shoulder pieces and matching skirt worn at an outdoor music festival',
+  );
 });
