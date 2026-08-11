@@ -420,6 +420,7 @@ async function confirmCompositionAction(formData) {
 
   const evidenceFamilyNames = [
     ...(canonicalProduct.parentComponents || []),
+    ...(canonicalProduct.childComponents || []),
     ...jsonArray(canonicalProduct.truth?.included_components),
   ];
   const resolutions = resolveSelectedComponentFamilies(
