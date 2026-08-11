@@ -51,6 +51,7 @@ test('portfolio tokenization ignores metric and review provenance but includes P
   assert.equal(tokens.has('reject'), false);
   assert.equal(tokens.has('layered'), true);
   assert.equal(tokens.has('shoulder'), true);
+  assert.equal(tokens.has('about'), false);
 });
 
 test('portfolio comparison uses one approved representative per other product', () => {
