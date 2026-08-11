@@ -65,8 +65,9 @@ Current route:
 
 Current scope:
 
-- compares saved SEO drafts only;
-- uses token overlap across title/H1/meta/intro/FAQ/internal links/keyword roles;
+- compares one representative saved SEO draft per canonical product;
+- uses buyer-visible title/H1/meta/intro/PDP blocks/ALT plus product-level keyword phrases;
+- ignores metric provenance, competition, dates, review labels, hold/reject metadata and duplicate retries of the same product;
 - writes `similarity_checked` event;
 - updates `similarity_check_snapshot`;
 - moves passing drafts to `needs_image_alt_review`;
