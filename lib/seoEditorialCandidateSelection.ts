@@ -547,19 +547,135 @@ export function normalizeSeoEditorialCandidate<T>(
   let normalized = normalizeDeterministicSeoIdentity(output, context);
   normalized = normalizeMetaDescriptionSentenceCase(normalized);
   normalized = normalizeSelectedEventEditorialCasing(normalized, context);
+  normalized = normalizeSelectedEventEditorialGrammar(normalized, context);
   normalized = normalizeCodeOwnedSeoCollections(normalized);
   normalized = normalizeBodyPrimaryVariation(normalized, context);
+  normalized = normalizeVagueIntroFinish(normalized);
   normalized = normalizeRepeatedAboutFinishClause(normalized);
   normalized = normalizeRepeatedDurableModifier(normalized);
   normalized = normalizeLiveControlAboutCopy(normalized);
   normalized = normalizeFinalPilotDraftCopy(normalized, context);
+  normalized = normalizeIdealForSentenceList(normalized);
   normalized = normalizeMainDescriptionCliches(normalized, context);
   normalized = normalizeMainDescriptionExternalStylingAdvice(normalized);
+  normalized = normalizeMainDescriptionRepeatedFeels(normalized);
   normalized = normalizeMainDescriptionSentenceBoundaries(normalized);
   normalized = normalizeUnsafeVisualStyleSuggestions(normalized);
   normalized = normalizeImageAltPrimaryVariation(normalized, context);
   normalized = normalizeSingleSuppliedImageAltCandidate(normalized);
   return normalizeCodeOwnedPdpBlockOrder(normalized);
+}
+
+/**
+ * Generic event labels are valid keyword forms but can be ungrammatical in
+ * customer prose. When rave is an operator-selected event, repair only the
+ * exact observed plural construction. This does not add an event or alter an
+ * owned keyword occurrence; it changes the common noun to its natural plural.
+ */
+export function normalizeSelectedEventEditorialGrammar<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output)) return output;
+  const hasRave = normalizeIdentityValues(context.selected_events)
+    .some((value) => value.toLowerCase() === 'rave');
+  if (!hasRave) return output;
+
+  let changed = false;
+  const normalizeText = (value: unknown) => {
+    if (typeof value !== 'string') return value;
+    const next = value.replace(/\bfestivals and rave\b/gi, (match) => (
+      /^[A-Z]/.test(match) ? 'Festivals and raves' : 'festivals and raves'
+    ));
+    if (next !== value) changed = true;
+    return next;
+  };
+  const normalized: Record<string, unknown> = {
+    ...output,
+    meta_description: normalizeText(output.meta_description),
+    intro: normalizeText(output.intro),
+    bullet_highlights: Array.isArray(output.bullet_highlights)
+      ? output.bullet_highlights.map(normalizeText)
+      : output.bullet_highlights,
+    faq: Array.isArray(output.faq)
+      ? output.faq.map((row) => (
+          isRecord(row)
+            ? { ...row, question: normalizeText(row.question), answer: normalizeText(row.answer) }
+            : row
+        ))
+      : output.faq,
+    pdp_blocks: Array.isArray(output.pdp_blocks)
+      ? output.pdp_blocks.map((block) => (
+          isRecord(block) ? { ...block, body: normalizeText(block.body) } : block
+        ))
+      : output.pdp_blocks,
+  };
+  if (!changed) return output;
+
+  return {
+    ...normalized,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic event grammar normalization pluralized the selected generic rave event in buyer-facing prose.',
+    ],
+  } as T;
+}
+
+/**
+ * Delete only the bounded filler ending observed in a controlled run. The
+ * surviving Intro already contains the product identity, selected event and
+ * studio buyer value, so removing this vague keyword-shaped "feel" clause
+ * improves readability without inventing or changing a product fact.
+ */
+export function normalizeVagueIntroFinish<T>(output: T): T {
+  if (!isRecord(output) || typeof output.intro !== 'string') return output;
+  const intro = output.intro.replace(
+    /,\s*with\s+(?:an?|the)\s+[^,.!?]{3,70}\s+feel\s+that\s+stands\s+out\s+beautifully\s*\.\s*$/i,
+    '.',
+  );
+  if (intro === output.intro) return output;
+
+  return {
+    ...output,
+    intro,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic Intro normalization removed a vague keyword-shaped finish without changing the supported product claim.',
+    ],
+  } as T;
+}
+
+/**
+ * A model can return four complete buyer portraits separated by sentence
+ * spaces even though the contract requires one portrait per line. Split only
+ * when there are exactly 4-5 complete sentences and no existing line breaks;
+ * every word is preserved and normal QA still judges the resulting bullets.
+ */
+export function normalizeIdealForSentenceList<T>(output: T): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  let changed = false;
+  const pdpBlocks = output.pdp_blocks.map((block) => {
+    if (
+      !isRecord(block)
+      || block.block_key !== 'ideal_for'
+      || typeof block.body !== 'string'
+      || /\r|\n/.test(block.body)
+    ) return block;
+    const sentences = splitEditorialSentences(block.body);
+    if (sentences.length < 4 || sentences.length > 5) return block;
+    changed = true;
+    return { ...block, body: sentences.join('\n') };
+  });
+  if (!changed) return output;
+
+  return {
+    ...output,
+    pdp_blocks: pdpBlocks,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic Ideal-for normalization separated complete buyer portraits into the required one-per-line structure.',
+    ],
+  } as T;
 }
 
 /**
@@ -695,10 +811,21 @@ export function normalizeRepeatedAboutFinishClause<T>(output: T): T {
       || block.block_key !== 'about_this_piece'
       || typeof block.body !== 'string'
     ) return block;
+    const repeatsPolishedMetalLook = countLiteralPhrase(block.body, 'polished metal look') > 1;
     const body = block.body
       .match(/[^.!?]+[.!?]?/g)
       ?.map((rawSentence) => {
         const sentence = rawSentence.trim();
+        if (
+          repeatsPolishedMetalLook
+          && /\bbrings a polished metal look with striking presence\b/i.test(sentence)
+        ) {
+          changed = true;
+          return sentence.replace(
+            /\bbrings a polished metal look with striking presence\b/i,
+            'brings a strong visual presence',
+          );
+        }
         const repeatedFinish = ['glossy', 'mirror-like', 'mirror like', 'metallic']
           .some((term) => countLiteralPhrase(sentence, term) > 1);
         if (repeatedFinish && /^the material has\b/i.test(sentence)) {
@@ -736,6 +863,42 @@ export function normalizeRepeatedAboutFinishClause<T>(output: T): T {
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
       'Deterministic About normalization removed a duplicated finish clause while preserving its buyer-facing visual result.',
+    ],
+  } as T;
+}
+
+/**
+ * Repair one bounded repeated-feels construction from the studio close. The
+ * transformation is grammatical only: the same authorship, originality and
+ * finish claims remain, while the second "feels" continues to carry the buyer
+ * outcome that QA expects.
+ */
+export function normalizeMainDescriptionRepeatedFeels<T>(output: T): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  let changed = false;
+  const pdpBlocks = output.pdp_blocks.map((block) => {
+    if (
+      !isRecord(block)
+      || block.block_key !== 'main_description'
+      || typeof block.body !== 'string'
+      || countLiteralPhrase(block.body, 'feels') < 2
+    ) return block;
+    const body = block.body.replace(
+      /\bwe develop pieces from our own ideas, so the finish feels original and expressive\b/i,
+      'we develop pieces from our own ideas to create an original, expressive finish',
+    );
+    if (body === block.body) return block;
+    changed = true;
+    return { ...block, body };
+  });
+  if (!changed) return output;
+
+  return {
+    ...output,
+    pdp_blocks: pdpBlocks,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic studio-close normalization removed a repeated “feels” construction without changing its claim.',
     ],
   } as T;
 }
