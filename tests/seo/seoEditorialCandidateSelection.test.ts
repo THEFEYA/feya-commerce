@@ -12,6 +12,7 @@ import {
   normalizeMainDescriptionSentenceBoundaries,
   normalizeMetaDescriptionSentenceCase,
   normalizeRepeatedAboutFinishClause,
+  normalizeSelectedEventEditorialCasing,
   normalizeSingleSuppliedImageAltCandidate,
   seoEditorialIssueSnapshot,
   shouldSelectFinalSeoEditorialCandidate,
@@ -197,6 +198,31 @@ test('repairs lowercase Meta sentence case without changing its claim', () => {
     'Warrior armor costume with a glossy finish for festivals and cosplay.',
   );
   assert.match(normalized.generation_notes[0], /Meta normalization/);
+});
+
+test('restores selected named-event casing across customer-visible copy', () => {
+  const normalized = normalizeSelectedEventEditorialCasing({
+    seo_title: 'Sci Fi Armor Costume for burning man',
+    h1: 'Sci Fi Armor Costume for Burning Man',
+    meta_description: 'Gold armor for burning man and festival styling.',
+    intro: 'This outfit is made for burning man.',
+    pdp_blocks: [{
+      block_key: 'about_this_piece',
+      heading: 'About this piece',
+      body: 'For burning man, the outfit creates a polished desert look.',
+    }],
+    image_alt_candidates: [{ alt_text: 'Gold outfit worn at burning man' }],
+    generation_notes: [],
+  }, {
+    selected_events: ['burning man', 'festival'],
+  });
+
+  assert.equal(normalized.seo_title, 'Sci Fi Armor Costume for Burning Man');
+  assert.equal(normalized.meta_description, 'Gold armor for Burning Man and festival styling.');
+  assert.equal(normalized.intro, 'This outfit is made for Burning Man.');
+  assert.match(normalized.pdp_blocks[0].body, /^For Burning Man,/);
+  assert.equal(normalized.image_alt_candidates[0].alt_text, 'Gold outfit worn at Burning Man');
+  assert.match(normalized.generation_notes[0], /public casing/);
 });
 
 test('keeps one ALT candidate when the runtime supplies one primary image', () => {
