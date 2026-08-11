@@ -156,7 +156,12 @@ export function normalizeDeterministicSeoIdentity<T>(
     seo_title: identity,
     h1: identity,
     generation_notes: [
-      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      ...(Array.isArray(output.generation_notes)
+        ? output.generation_notes.filter((note) => (
+            typeof note !== 'string'
+            || !/^Deterministic identity normalization used\b/.test(note)
+          ))
+        : []),
       productColor
         ? 'Deterministic identity normalization used the reviewed Primary, supported product color and operator-selected event for SEO title and H1.'
         : selectedColor

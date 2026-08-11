@@ -167,7 +167,10 @@ test('uses an operator-confirmed color focus when canonical color is still under
   const normalized = normalizeDeterministicSeoIdentity({
     seo_title: 'Needs Review Sci Fi Armor Costume for Burning Man',
     h1: 'Needs Review Sci Fi Armor Costume for Burning Man',
-    generation_notes: [],
+    generation_notes: [
+      'Targeted repair kept for audit.',
+      'Deterministic identity normalization used the reviewed Primary, supported product color and operator-selected event for SEO title and H1.',
+    ],
   }, {
     primary_keyword: 'sci fi armor costume',
     selected_events: ['burning man'],
@@ -177,7 +180,10 @@ test('uses an operator-confirmed color focus when canonical color is still under
 
   assert.equal(normalized.seo_title, 'Gold Sci Fi Armor Costume for Burning Man');
   assert.equal(normalized.h1, 'Gold Sci Fi Armor Costume for Burning Man');
-  assert.match(normalized.generation_notes[0], /operator-selected color focus/);
+  assert.deepEqual(normalized.generation_notes, [
+    'Targeted repair kept for audit.',
+    'Deterministic identity normalization used the reviewed Primary, operator-selected color focus and event for SEO title and H1.',
+  ]);
 });
 
 test('repairs lowercase Meta sentence case without changing its claim', () => {
