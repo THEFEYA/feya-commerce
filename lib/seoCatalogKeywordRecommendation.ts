@@ -519,6 +519,7 @@ function scoreRow(
       !profile.presentation.requires_whole_product_entity
       || narrowComponentMatch.length === 0
       || narrowComponentMatch.length >= 2
+      || hasWholeEntityConfirmedComponentClause(keyword, narrowComponentMatch)
     );
   const partialComponentScope = productBucket
     && profile.presentation.requires_whole_product_entity
@@ -613,6 +614,15 @@ function recommendedRole(row: KeywordRow, productRows: KeywordRow[], requireWhol
     : productRows[0];
   if (PRODUCT_BUCKETS.has(bucket) && row === primaryRow) return 'primary';
   return normalize(row.role) === 'supporting' ? 'supporting' : 'secondary';
+}
+
+function hasWholeEntityConfirmedComponentClause(keyword: string, matchedFamilies: string[]) {
+  const match = /\b(?:outfits?|sets?|costumes?|ensembles?|attire)\s+(?:with|including|featuring)\b/.exec(keyword);
+  if (!match || match.index == null) return false;
+  const componentClause = keyword.slice(match.index + match[0].length);
+  return matchedFamilies.some((family) => (
+    (COMPONENT_FAMILIES[family] || [family]).some((alias) => containsPhrase(componentClause, alias))
+  ));
 }
 
 function isTrustedApprovedRow(row: KeywordRow) {
