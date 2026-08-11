@@ -118,7 +118,7 @@ export function tokenizeSeoPortfolioDraft(draft: SeoDraftRecord) {
     : {};
   const pdpBlocks = Array.isArray(output.pdp_blocks)
     ? output.pdp_blocks.flatMap((block: unknown) => (
-        isRecord(block) ? [block.heading, block.body] : []
+        isRecord(block) ? [block.body] : []
       ))
     : [];
   const imageAlts = Array.isArray(output.image_alt_candidates)
