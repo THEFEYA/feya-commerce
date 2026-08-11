@@ -1231,3 +1231,139 @@ test('OpenAI writer timeout also bounds response body parsing', async () => {
     else process.env.OPENAI_API_KEY = previousKey;
   }
 });
+
+test('the 2026-08-11 silver rave control draft reaches review with zero-token bounded repairs', () => {
+  const candidate = {
+    contract_version: 'seo_agent_output_v1',
+    status: 'draft',
+    seo_title: 'Silver Rave Outfit With Skirt for Festivals',
+    h1: 'Silver Rave Outfit With Skirt for Festivals',
+    meta_description: 'Silver rave outfit with skirt brings a polished metal look to festivals and rave.',
+    intro: 'This rave costume with skirt is made for festivals and rave, giving you an original studio look you can make your own, with a silver rave skirt feel that stands out beautifully.',
+    bullet_highlights: [],
+    faq: [],
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'Silver rave costume with skirt worn at a festival stage',
+      truth_basis: 'visible_product_fact',
+    }],
+    internal_linking_hints: [],
+    visual_truth: {
+      observed_product_facts: ['Silver shoulder pieces and a matching skirt are visible.'],
+      dna_matches: ['Silver festival styling'],
+      open_style_suggestions: [],
+      uncertain_or_missing_facts: [],
+      forbidden_visual_claims: [],
+    },
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        source_basis: 'product_fact',
+        body: 'For festivals and rave, this rave costume with skirt brings a polished metal look with striking presence. Its glossy, mirror-like coating creates a polished metal look. The result feels bold, clean, and ready for a night of movement and lights.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'why_youll_love_it',
+        placement: 'left_description',
+        heading: 'Why you’ll love it',
+        source_basis: 'product_fact',
+        body: 'Our original studio design lets you shape the finished character through your own styling choices.\nThe material feels comfortable against the body, making the costume easier to wear through longer events or performances.\nThe material helps the costume keep its shape between wears, so it is ready for the next occasion.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'ideal_for',
+        placement: 'left_description',
+        heading: 'Ideal for',
+        source_basis: 'product_fact',
+        body: 'Women planning an expressive costume for a live music production. Festival-goers planning a studio-designed look for a long day of music and movement. Content creators planning distinctive visuals for festival shoots or music videos. Costume stylists sourcing an original distinctive piece for themed shows or editorials.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'main_description',
+        placement: 'left_description',
+        heading: 'Designed for self-expression',
+        source_basis: 'brand_policy',
+        body: 'We design this rave costume with skirt to bring a strong festival presence into your look. At TheFEYA, we develop pieces from our own ideas, so the finish feels original and expressive. We keep the silver direction bold and polished, helping you create a visual identity that feels personal.',
+        needs_human_review: false,
+      },
+    ],
+    qa_self_report: {
+      cliche_phrase: 'pass',
+      long_dash: 'pass',
+      keyword_stuffing: 'pass',
+      product_specificity: 'pass',
+      forbidden_mismatch: 'pass',
+      similarity_cannibalization: 'pass',
+      image_alt_truth: 'pass',
+      commercial_placement: 'pass',
+      validated_metrics: 'not_checked',
+      notes: [],
+    },
+    generation_notes: [],
+  } as any;
+  const context = {
+    product_truth: {
+      color: 'Silver',
+      included_components: ['Shoulders', 'Skirt'],
+    },
+    manual_focus: {
+      event: ['festival', 'rave'],
+      style: [],
+      persona: [],
+      audience: ['women'],
+    },
+    keyword_roles: {
+      primary: [{
+        keyword: 'rave outfit with skirt',
+        keyword_norm: 'rave outfit with skirt',
+        role: 'primary',
+        avg_monthly_searches: 30,
+        competition: 'HIGH',
+        metric_source: 'google_keyword_planner',
+      }],
+      secondary: [{ keyword: 'silver rave skirt', keyword_norm: 'silver rave skirt', role: 'secondary' }],
+      support: [],
+      image_alt: [],
+      collection: [],
+      faq_commercial: [],
+      hold: [],
+      reject: [],
+    },
+  } as any;
+
+  const rawStructural = validateSeoAgentOutput(candidate);
+  const rawCommercial = validateSeoCommercialCopy(candidate, context);
+  assert.equal(rawStructural.ok, false);
+  assert.equal(rawCommercial.ok, false);
+
+  const normalized = normalizeSeoEditorialCandidate(candidate, {
+    primary_keyword: 'rave outfit with skirt',
+    selected_events: context.manual_focus.event,
+    selected_styles: context.manual_focus.style,
+    body_identity_variant: 'rave costume with skirt',
+    product_color: 'Silver',
+  });
+  const structural = validateSeoAgentOutput(normalized);
+  const commercial = validateSeoCommercialCopy(normalized, context);
+  const keyword = validateSeoKeywordPlacement(normalized, {
+    product_truth: context.product_truth,
+    keyword_roles: context.keyword_roles,
+  } as any);
+
+  assert.equal(structural.ok, true, JSON.stringify(structural.issues));
+  assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
+  assert.equal(keyword.ok, true, JSON.stringify(keyword.issues));
+  assert.equal(
+    normalized.intro,
+    'This rave costume with skirt is made for festivals and raves, giving you an original studio look you can make your own.',
+  );
+  assert.equal(normalized.pdp_blocks[2].body.split('\n').length, 4);
+  assert.equal(
+    normalized.pdp_blocks[0].body,
+    'For festivals and raves, this rave costume with skirt brings a strong visual presence. Its glossy, mirror-like coating creates a polished metal look. The result feels bold, clean, and ready for a night of movement and lights.',
+  );
+  assert.doesNotMatch(normalized.pdp_blocks[3].body, /finish feels original/i);
+  assert.equal((normalized.pdp_blocks[3].body.match(/\bfeels\b/gi) || []).length, 1);
+});
