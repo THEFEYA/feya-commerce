@@ -30,6 +30,14 @@ const COMPONENT_FAMILY_CANDIDATES: Record<string, string[]> = {
   tail: ['tail'],
 };
 
+// These aliases are not a title/tag normalizer. They only let an already
+// mapped Product Truth leaf disambiguate its active canonical family. Matching
+// stays exact and fail-closed: generic `Arms` evidence must never manufacture
+// an Arm Set, Bracelet / Cuff, or Glove assertion.
+const COMPONENT_FAMILY_EVIDENCE_ALIASES: Record<string, string[]> = {
+  'bracelet / cuff': ['bracelet', 'bracelets', 'cuff', 'cuffs', 'arm cuff', 'arm cuffs'],
+};
+
 function normalize(value: unknown) {
   return String(value || '').trim().toLowerCase();
 }
@@ -100,10 +108,16 @@ export function resolveSelectedComponentFamilies(
       return { selectedComponent, family: candidates[0], error: null };
     }
 
-    const evidenced = candidates.filter((family) => (
-      evidenceNames.has(normalize(family.canonical_name))
-      || evidenceNames.has(normalize(family.normalized_name))
-    ));
+    const evidenced = candidates.filter((family) => {
+      const canonicalName = normalize(family.canonical_name);
+      const normalizedName = normalize(family.normalized_name);
+      const approvedLeafAliases = COMPONENT_FAMILY_EVIDENCE_ALIASES[normalizedName]
+        || COMPONENT_FAMILY_EVIDENCE_ALIASES[canonicalName]
+        || [];
+      return evidenceNames.has(canonicalName)
+        || evidenceNames.has(normalizedName)
+        || approvedLeafAliases.some((alias) => evidenceNames.has(alias));
+    });
     if (evidenced.length === 1) {
       return { selectedComponent, family: evidenced[0], error: null };
     }
