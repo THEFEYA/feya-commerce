@@ -281,6 +281,44 @@ test('compound Product Truth labels cannot hide a component-led whole-product qu
   );
 });
 
+test('whole-product-first syntax may name one confirmed component without becoming component-only', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      card_title: 'Silver Rave Outfit with Shoulder Pieces and Skirt',
+      canonical_color_label: 'Silver',
+      included_components: ['Shoulders', 'Skirt'],
+    },
+    focus: {
+      component: ['shoulders', 'skirt'],
+      material: ['silver'],
+      event: ['festival', 'rave'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'silver skirt outfit', keyword_norm: 'silver skirt outfit', bank_bucket: 'product_or_alt', avg_monthly_searches: 140 },
+      { ...baseMetric, keyword: 'rave outfit with skirt', keyword_norm: 'rave outfit with skirt', bank_bucket: 'product', avg_monthly_searches: 30 },
+      { ...baseMetric, keyword: 'rave skirt outfits', keyword_norm: 'rave skirt outfits', bank_bucket: 'product', avg_monthly_searches: 70 },
+    ],
+  });
+
+  assert.equal(
+    result.keywords.find((row) => row.role === 'primary')?.keyword_norm,
+    'rave outfit with skirt',
+  );
+  assert.equal(
+    result.keywords.find((row) => row.keyword_norm === 'rave outfit with skirt')?.whole_product_intent,
+    true,
+  );
+  assert.equal(
+    result.keywords.find((row) => row.keyword_norm === 'silver skirt outfit')?.role,
+    'secondary',
+  );
+  assert.equal(
+    result.keywords.find((row) => row.keyword_norm === 'rave skirt outfits')?.whole_product_intent,
+    false,
+  );
+});
+
 test('an anatomical harness query requires matching Product Truth anatomy', () => {
   const result = recommendCatalogKeywords({
     product: {
