@@ -45,6 +45,15 @@ const OPERATOR_COLOR_FOCUS_VALUES = new Set([
   'yellow',
 ]);
 
+const SELECTED_EVENT_EDITORIAL_FORMS = new Map([
+  ['burning man', 'Burning Man'],
+  ['coachella', 'Coachella'],
+  ['edc', 'EDC'],
+  ['edm', 'EDM'],
+  ['halloween', 'Halloween'],
+  ['pride', 'Pride'],
+]);
+
 const UNSOLD_EXTERNAL_STYLING_PATTERN = /\b(?:hair|hairstyle|makeup|make-up|jewel(?:ry|lery)|accessor(?:y|ies)|footwear|boots?|shoes?|heels?|props?|bodysuits?|base layers?)\b|\b(?:pair|style|wear|combine)\s+(?:it|this|the (?:piece|outfit|costume|look))?\s*with\b/i;
 const DURABLE_MODIFIER_PATTERN = /\bdurable\s*,\s*|\bdurable\s+and\s+/i;
 const CONCRETE_SHAPE_RETENTION_PATTERN = /\b(?:keeps?|holds?|retain(?:s|ed|ing)?|shape retention)\b[^.!?\n]{0,55}\b(?:shape|form|between wears|next occasion)\b|\bbetween wears\b/i;
@@ -191,6 +200,74 @@ export function normalizeMetaDescriptionSentenceCase<T>(output: T): T {
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
       'Deterministic Meta normalization repaired sentence-case formatting without changing the claim.',
+    ],
+  } as T;
+}
+
+/**
+ * Keyword and focus values are stored in normalized lowercase form, but named
+ * events and acronyms must keep their public editorial casing. Repair only
+ * operator-selected proper names across buyer-visible fields; generic event
+ * words such as festival and stage are deliberately left untouched.
+ */
+export function normalizeSelectedEventEditorialCasing<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output)) return output;
+  const replacements = normalizeIdentityValues(context.selected_events)
+    .map((value) => [value.toLowerCase(), SELECTED_EVENT_EDITORIAL_FORMS.get(value.toLowerCase())] as const)
+    .filter((entry): entry is readonly [string, string] => Boolean(entry[1]));
+  if (!replacements.length) return output;
+
+  let changed = false;
+  const normalizeText = (value: unknown) => {
+    if (typeof value !== 'string') return value;
+    const next = replacements.reduce((text, [source, canonical]) => (
+      text.replace(new RegExp(`\\b${escapeRegExp(source)}\\b`, 'gi'), canonical)
+    ), value);
+    if (next !== value) changed = true;
+    return next;
+  };
+
+  const normalized: Record<string, unknown> = {
+    ...output,
+    seo_title: normalizeText(output.seo_title),
+    h1: normalizeText(output.h1),
+    meta_description: normalizeText(output.meta_description),
+    intro: normalizeText(output.intro),
+    bullet_highlights: Array.isArray(output.bullet_highlights)
+      ? output.bullet_highlights.map(normalizeText)
+      : output.bullet_highlights,
+    faq: Array.isArray(output.faq)
+      ? output.faq.map((row) => (
+          isRecord(row)
+            ? { ...row, question: normalizeText(row.question), answer: normalizeText(row.answer) }
+            : row
+        ))
+      : output.faq,
+    pdp_blocks: Array.isArray(output.pdp_blocks)
+      ? output.pdp_blocks.map((block) => (
+          isRecord(block)
+            ? { ...block, heading: normalizeText(block.heading), body: normalizeText(block.body) }
+            : block
+        ))
+      : output.pdp_blocks,
+    image_alt_candidates: Array.isArray(output.image_alt_candidates)
+      ? output.image_alt_candidates.map((candidate) => (
+          isRecord(candidate)
+            ? { ...candidate, alt_text: normalizeText(candidate.alt_text) }
+            : candidate
+        ))
+      : output.image_alt_candidates,
+  };
+  if (!changed) return output;
+
+  return {
+    ...normalized,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic editorial formatting restored the public casing of operator-selected named events and acronyms.',
     ],
   } as T;
 }
@@ -469,6 +546,7 @@ export function normalizeSeoEditorialCandidate<T>(
 ): T {
   let normalized = normalizeDeterministicSeoIdentity(output, context);
   normalized = normalizeMetaDescriptionSentenceCase(normalized);
+  normalized = normalizeSelectedEventEditorialCasing(normalized, context);
   normalized = normalizeCodeOwnedSeoCollections(normalized);
   normalized = normalizeBodyPrimaryVariation(normalized, context);
   normalized = normalizeRepeatedAboutFinishClause(normalized);
