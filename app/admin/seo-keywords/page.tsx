@@ -40,11 +40,27 @@ async function countView(supabase, view) {
   return { count: count ?? 0, error: null };
 }
 
-async function loadRowsFromView(supabase, view, limit = KEYWORD_LIMIT) {
-  const { data, error, count } = await supabase
+function searchTerms(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s'-]+/g, ' ')
+    .split(/\s+/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, 6);
+}
+
+async function loadRowsFromView(supabase, view, limit = KEYWORD_LIMIT, query = '') {
+  let request = supabase
     .from(view)
     .select(KEYWORD_COLUMNS, { count: 'exact' })
     .limit(limit);
+
+  searchTerms(query).forEach((term) => {
+    request = request.ilike('keyword_norm', `%${term}%`);
+  });
+
+  const { data, error, count } = await request;
 
   if (error) return { rows: [], count: null, error: error.message };
   return { rows: data || [], count: count ?? 0, error: null };
@@ -74,7 +90,7 @@ function sortKeywordRows(rows) {
   });
 }
 
-async function loadKeywords(tabKey) {
+async function loadKeywords(tabKey, query = '') {
   const supabase = getSupabaseReadClient();
   if (!supabase) {
     return {
@@ -106,9 +122,9 @@ async function loadKeywords(tabKey) {
 
   if (activeTab.key === 'all') {
     const [approvedRows, holdRows, rejectRows] = await Promise.all([
-      loadRowsFromView(supabase, 'vw_seo_keyword_bank_v1_approved', KEYWORD_LIMIT),
-      loadRowsFromView(supabase, 'vw_seo_keyword_bank_v1_hold', KEYWORD_LIMIT),
-      loadRowsFromView(supabase, 'vw_seo_keyword_bank_v1_reject', KEYWORD_LIMIT),
+      loadRowsFromView(supabase, 'vw_seo_keyword_bank_v1_approved', KEYWORD_LIMIT, query),
+      loadRowsFromView(supabase, 'vw_seo_keyword_bank_v1_hold', KEYWORD_LIMIT, query),
+      loadRowsFromView(supabase, 'vw_seo_keyword_bank_v1_reject', KEYWORD_LIMIT, query),
     ]);
     const rowError = approvedRows.error || holdRows.error || rejectRows.error;
     if (rowError) {
@@ -117,7 +133,9 @@ async function loadKeywords(tabKey) {
 
     return {
       rows: sortKeywordRows([...approvedRows.rows, ...holdRows.rows, ...rejectRows.rows]).slice(0, KEYWORD_LIMIT),
-      totalCount: derivedAll.count,
+      totalCount: query
+        ? Number(approvedRows.count || 0) + Number(holdRows.count || 0) + Number(rejectRows.count || 0)
+        : derivedAll.count,
       counts,
       bucketRows: buckets.rows,
       error: null,
@@ -125,7 +143,7 @@ async function loadKeywords(tabKey) {
     };
   }
 
-  const result = await loadRowsFromView(supabase, activeTab.view, KEYWORD_LIMIT);
+  const result = await loadRowsFromView(supabase, activeTab.view, KEYWORD_LIMIT, query);
   if (result.error) {
     return {
       rows: [],
@@ -163,6 +181,12 @@ function formatNumber(value) {
 function currentTab(searchParams) {
   const tab = typeof searchParams?.tab === 'string' ? searchParams.tab : 'approved';
   return TABS.some((item) => item.key === tab) ? tab : 'approved';
+}
+
+function currentQuery(searchParams) {
+  return typeof searchParams?.q === 'string'
+    ? searchTerms(searchParams.q).join(' ')
+    : '';
 }
 
 function getCount(counts, key) {
@@ -227,17 +251,19 @@ function Metric({ label, value, note, icon: Icon, tone = 'neutral' }) {
   </div>;
 }
 
-function TabLink({ tab, active }) {
+function TabLink({ tab, active, query }) {
   const isActive = active === tab.key;
-  return <Link href={`/admin/seo-keywords?tab=${tab.key}`} className={`rounded-full border px-4 py-2 text-[11px] uppercase tracking-[0.16em] transition-colors ${isActive ? 'border-[rgba(212,178,106,.65)] bg-[rgba(212,178,106,.12)] text-[var(--gold-warm)]' : 'border-[rgba(216,214,211,.14)] bg-black/10 text-[var(--bone-dim)] hover:border-[rgba(212,178,106,.35)]'}`}>
+  const href = `/admin/seo-keywords?tab=${tab.key}${query ? `&q=${encodeURIComponent(query)}` : ''}`;
+  return <Link href={href} className={`rounded-full border px-4 py-2 text-[11px] uppercase tracking-[0.16em] transition-colors ${isActive ? 'border-[rgba(212,178,106,.65)] bg-[rgba(212,178,106,.12)] text-[var(--gold-warm)]' : 'border-[rgba(216,214,211,.14)] bg-black/10 text-[var(--bone-dim)] hover:border-[rgba(212,178,106,.35)]'}`}>
     {tab.label}
   </Link>;
 }
 
 export default async function AdminSeoKeywordsPage({ searchParams }) {
   const active = currentTab(searchParams);
+  const query = currentQuery(searchParams);
   const activeTab = TABS.find((tab) => tab.key === active) || TABS[0];
-  const { rows, totalCount, counts, bucketRows, error, bucketError } = await loadKeywords(active);
+  const { rows, totalCount, counts, bucketRows, error, bucketError } = await loadKeywords(active, query);
   const firstRows = rows.slice(0, 180);
   const countLoadError = countError(counts);
 
@@ -269,13 +295,26 @@ export default async function AdminSeoKeywordsPage({ searchParams }) {
       </div>
 
       <div className="flex flex-wrap gap-2 mb-6">
-        {TABS.map((tab) => <TabLink key={tab.key} tab={tab} active={active} />)}
+        {TABS.map((tab) => <TabLink key={tab.key} tab={tab} active={active} query={query} />)}
       </div>
+
+      <form action="/admin/seo-keywords" method="get" className="grid gap-3 rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4 mb-6 sm:grid-cols-[1fr_auto_auto]">
+        <input type="hidden" name="tab" value={active} />
+        <input
+          className="field"
+          name="q"
+          defaultValue={query}
+          placeholder="Поиск по всему Keyword Bank: armor outfit, bracelet, post apocalyptic"
+          aria-label="Поиск по всему Keyword Bank"
+        />
+        <button type="submit" className="btn-ghost justify-center">Найти в bank</button>
+        {query ? <Link href={`/admin/seo-keywords?tab=${active}`} className="btn-ghost justify-center">Сбросить</Link> : <span />}
+      </form>
 
       <div className="grid lg:grid-cols-[1fr_360px] gap-6 mb-8">
         <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
           <div className="flex items-center justify-between gap-4 mb-4"><div><div className="eyebrow-dim">Текущая вкладка</div><h2 className="mt-2 text-bone text-[24px]">{activeTab.label}</h2></div><Chip tone={active === 'reject' ? 'danger' : active === 'hold' ? 'warning' : 'success'}>{activeTab.note}</Chip></div>
-          <p className="text-[13px] leading-relaxed text-[var(--bone-dim)]">Загружено на экран: {formatNumber(rows.length)} из {formatNumber(totalCount ?? rows.length)}. Таблица ограничена первыми {formatNumber(KEYWORD_LIMIT)} строками, чтобы не перегружать админку.</p>
+          <p className="text-[13px] leading-relaxed text-[var(--bone-dim)]">{query ? <>По запросу <span className="text-bone">“{query}”</span> найдено: {formatNumber(totalCount ?? rows.length)}.</> : <>Загружено на экран: {formatNumber(rows.length)} из {formatNumber(totalCount ?? rows.length)}.</>} Таблица ограничена первыми {formatNumber(KEYWORD_LIMIT)} строками, чтобы не перегружать админку.</p>
         </div>
 
         <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
