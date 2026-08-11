@@ -65,7 +65,24 @@ export function hasWholeProductScope(value: unknown, components: string[]) {
   if (!hasWholeProductEntity(value)) return false;
   if (components.length < 2) return true;
   const mentioned = mentionedConfirmedComponents(value, components);
-  return mentioned.length === 0 || mentioned.length >= 2;
+  return mentioned.length === 0
+    || mentioned.length >= 2
+    || hasWholeEntityWithConfirmedComponent(value, components);
+}
+
+/**
+ * A whole-product noun can safely lead into one confirmed component when the
+ * syntax keeps the whole product as the query head: "rave outfit with skirt".
+ * This is intentionally narrower than accepting every phrase that happens to
+ * contain both words; component-led phrases such as "skirt outfit" or
+ * "shoulder armor costume" remain partial-scope queries for multi-piece PDPs.
+ */
+function hasWholeEntityWithConfirmedComponent(value: unknown, components: string[]) {
+  const normalized = normalize(value);
+  const match = /\b(?:outfits?|sets?|costumes?|ensembles?|attire)\s+(?:with|including|featuring)\b/.exec(normalized);
+  if (!match || match.index == null) return false;
+  const componentClause = normalized.slice(match.index + match[0].length);
+  return mentionedConfirmedComponents(componentClause, components).length > 0;
 }
 
 export function mentionedConfirmedComponents(text: unknown, components: string[]) {
