@@ -1367,11 +1367,11 @@ test('the 2026-08-11 silver rave control draft reaches review with zero-token bo
   assert.equal(normalized.pdp_blocks[2].body.split('\n').length, 5);
   assert.equal(
     normalized.pdp_blocks[1].body,
-    'Our studio-designed layered shoulder pieces give the set a distinctive look that stands out in photos and across a crowded festival.\nAdjustable straps make the pieces quick to put on and easy to fine-tune for a secure, comfortable fit.\nThe vegan leather keeps its shape between wears, so the pieces stay ready for repeat use when stored with care.',
+    'Our studio-designed layered shoulders give the outfit a distinctive shape that stands out in a festival crowd and in photos.\nAdjustable straps make each piece easy to put on and fine-tune for a secure, comfortable fit.\nVegan leather helps the shoulder pieces and skirt hold their shape between wears when stored with care.',
   );
   assert.equal(
     normalized.pdp_blocks[0].body,
-    'Made for festivals and raves, this silver outfit uses layered details around the shoulders and a glossy, mirror-like finish that catches available light from different angles. It stands out in a crowd and looks striking in photos and video.',
+    'Designed for festivals, raves and live music shows, this silver outfit adds layered detail around the shoulders and a glossy, mirror-like finish. It catches the light as you move, helping the look stand out in the crowd and in photos or video.',
   );
   assert.doesNotMatch(normalized.pdp_blocks[3].body, /finish feels original/i);
   assert.doesNotMatch(normalized.pdp_blocks[3].body, /silver direction|visual identity/i);
