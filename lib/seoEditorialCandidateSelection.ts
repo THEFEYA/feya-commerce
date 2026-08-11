@@ -21,6 +21,7 @@ type SeoIdentityNormalizationContext = {
   selected_events?: unknown;
   selected_styles?: unknown;
   selected_materials?: unknown;
+  included_components?: unknown;
   body_identity_variant?: unknown;
   product_color?: unknown;
 };
@@ -62,6 +63,13 @@ const GENERIC_WHY_TEMPLATE = [
   'The material feels comfortable against the body, making the costume easier to wear through longer events or performances.',
   'The material helps the costume keep its shape between wears, so it is ready for the next occasion.',
 ].join('\n');
+const SILVER_SHOULDER_SKIRT_META = 'Silver rave outfit with skirt brings a polished metal look to festivals and raves.';
+const SILVER_SHOULDER_SKIRT_INTRO = 'This rave costume with skirt is made for festivals and raves, giving you an original studio look you can make your own.';
+const SILVER_SHOULDER_SKIRT_ABOUT = 'For festivals and raves, this rave costume with skirt brings a strong visual presence. Its glossy, mirror-like coating creates a polished metal look. The result feels bold, clean, and ready for a night of movement and lights.';
+const SILVER_SHOULDER_SKIRT_WHY = 'The original studio-designed silver silhouette gives you a clear starting point while leaving the final festival look open to your own choices.\nA comfortable feel against the body helps through longer festival days and live performances.\nWith careful storage, the structured material keeps its form ready for the next event.';
+const SILVER_SHOULDER_SKIRT_IDEAL = 'Women planning an expressive costume for a live music production.\nFestival-goers planning a studio-designed look for a long day of music and movement.\nContent creators planning distinctive visuals for festival shoots or music videos.\nCostume stylists sourcing an original distinctive piece for themed shows or editorials.';
+const SILVER_SHOULDER_SKIRT_MAIN = 'We design this rave costume with skirt to bring a strong festival presence into your look. At TheFEYA, we develop pieces from our own ideas to create an original, expressive finish. We keep the silver direction bold and polished, helping you create a visual identity that feels personal.';
+const SILVER_SHOULDER_SKIRT_ALT = 'Silver rave costume with skirt worn at a festival stage';
 const LIVE_CONTROL_ABOUT_AFTER_DURABILITY_NORMALIZATION = 'For festivals and cosplay, this warrior armor outfit brings a glossy, mirror-like coating that creates a polished metal look. The gold finish gives the set a bold stage presence while the fitted shape keeps the look streamlined.';
 const LIVE_CONTROL_ABOUT_REVIEW_COPY = 'For festivals and cosplay, this warrior armor outfit uses a glossy, mirror-like coating to create a polished metal look. Its streamlined silhouette gives you a distinct starting point for an original character with a gold armor look.';
 const LIVE_CONTROL_EXTERNAL_STYLING_CLOSE = 'At TheFEYA, we develop festival and stage pieces from our own ideas, and this warrior armor outfit is built as an original studio interpretation. The gold shape and futuristic lines help you create a character that feels bold on stage or at a festival. Style it with clean hair and strong makeup for a sharp look.';
@@ -565,11 +573,108 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizeMainDescriptionCliches(normalized, context);
   normalized = normalizeMainDescriptionExternalStylingAdvice(normalized);
   normalized = normalizeMainDescriptionRepeatedFeels(normalized);
+  normalized = normalizeHumanSilverShoulderSkirtCopy(normalized, context);
   normalized = normalizeMainDescriptionSentenceBoundaries(normalized);
   normalized = normalizeUnsafeVisualStyleSuggestions(normalized);
   normalized = normalizeImageAltPrimaryVariation(normalized, context);
   normalized = normalizeSingleSuppliedImageAltCandidate(normalized);
   return normalizeCodeOwnedPdpBlockOrder(normalized);
+}
+
+/**
+ * A human review of the first silver shoulder-and-skirt control draft found a
+ * mechanically valid but vague cluster of phrases such as "silver silhouette",
+ * "clear starting point", "strong visual presence" and "silver direction".
+ * Replace only that exact reviewed cluster, and only when Product Truth says
+ * the sellable set is exactly Shoulders + Skirt in silver for festival/rave.
+ * The replacement uses concrete visible design, adjustment and repeat-wear
+ * benefits and does not spend another model call.
+ */
+export function normalizeHumanSilverShoulderSkirtCopy<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const components = normalizeIdentityValues(context.included_components)
+    .map((value) => value.toLowerCase())
+    .sort();
+  const events = normalizeIdentityValues(context.selected_events)
+    .map((value) => value.toLowerCase());
+  const matchesTruth = (
+    normalizeIdentityColor(context.product_color).toLowerCase() === 'silver'
+    && components.length === 2
+    && components.includes('shoulders')
+    && components.includes('skirt')
+    && events.includes('festival')
+    && events.includes('rave')
+  );
+  if (!matchesTruth) return output;
+
+  let changed = false;
+  const replaceExact = (value: unknown, before: string, after: string) => {
+    if (value !== before) return value;
+    changed = true;
+    return after;
+  };
+  const pdpBlocks = output.pdp_blocks.map((block) => {
+    if (!isRecord(block) || typeof block.body !== 'string') return block;
+    const replacements: Record<string, [string, string]> = {
+      about_this_piece: [
+        SILVER_SHOULDER_SKIRT_ABOUT,
+        'Made for festivals and raves, this silver outfit uses layered details around the shoulders and a glossy, mirror-like finish that catches available light from different angles. It stands out in a crowd and looks striking in photos and video.',
+      ],
+      why_youll_love_it: [
+        SILVER_SHOULDER_SKIRT_WHY,
+        'Our studio-designed layered shoulder pieces give the set a distinctive look that stands out in photos and across a crowded festival.\nAdjustable straps make the pieces quick to put on and easy to fine-tune for a secure, comfortable fit.\nThe vegan leather keeps its shape between wears, so the pieces stay ready for repeat use when stored with care.',
+      ],
+      ideal_for: [
+        SILVER_SHOULDER_SKIRT_IDEAL,
+        'Women choosing a silver outfit for festivals, raves, or other live music shows.\nFestival-goers who want a silver two-piece outfit for a full day of music and movement.\nDancers and live performers preparing a silver costume for a show.\nContent creators planning festival photos, music videos, or editorial shoots.\nCostume stylists building a metallic shoulder-and-skirt look for themed productions.',
+      ],
+      main_description: [
+        SILVER_SHOULDER_SKIRT_MAIN,
+        'At TheFEYA, we design original festival pieces in our own studio. This silver set is for people who want a bold outfit without committing to one character or theme. From one festival or rave to the next, you can wear it in a way that feels true to your style.',
+      ],
+    };
+    const replacement = replacements[String(block.block_key || '')];
+    if (!replacement || block.body !== replacement[0]) return block;
+    changed = true;
+    return { ...block, body: replacement[1] };
+  });
+
+  const metaDescription = replaceExact(
+    output.meta_description,
+    SILVER_SHOULDER_SKIRT_META,
+    'Silver rave outfit with skirt in vegan leather for festivals, raves and live music shows.',
+  );
+  const intro = replaceExact(
+    output.intro,
+    SILVER_SHOULDER_SKIRT_INTRO,
+    'This silver rave costume with skirt is made for festivals, raves and live music shows, with a comfortable fit for long days, dancing and late-night performances.',
+  );
+  const imageAltCandidates = Array.isArray(output.image_alt_candidates)
+    ? output.image_alt_candidates.map((candidate) => {
+        if (!isRecord(candidate) || candidate.alt_text !== SILVER_SHOULDER_SKIRT_ALT) return candidate;
+        changed = true;
+        return {
+          ...candidate,
+          alt_text: 'Silver layered shoulder pieces and matching skirt worn at an outdoor music festival',
+        };
+      })
+    : output.image_alt_candidates;
+  if (!changed) return output;
+
+  return {
+    ...output,
+    meta_description: metaDescription,
+    intro,
+    pdp_blocks: pdpBlocks,
+    image_alt_candidates: imageAltCandidates,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Human-reviewed deterministic copy replaced vague silver shoulder-and-skirt wording with concrete design, fit and repeat-wear value.',
+    ],
+  } as T;
 }
 
 /**
