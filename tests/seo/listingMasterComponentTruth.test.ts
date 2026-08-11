@@ -10,6 +10,9 @@ const families = [
   { component_family_id: '2', canonical_name: 'Shoulders', normalized_name: 'shoulders' },
   { component_family_id: '3', canonical_name: 'Harness Top', normalized_name: 'harness top' },
   { component_family_id: '4', canonical_name: 'Skirt', normalized_name: 'skirt' },
+  { component_family_id: '5', canonical_name: 'Arm Set', normalized_name: 'arm set' },
+  { component_family_id: '6', canonical_name: 'Bracelet / Cuff', normalized_name: 'bracelet / cuff' },
+  { component_family_id: '7', canonical_name: 'Glove', normalized_name: 'glove' },
 ];
 
 test('configuration products store selected chips as canonical listing composition', () => {
@@ -56,6 +59,24 @@ test('component family resolution follows existing Product Truth grammar', () =>
 
 test('ambiguous shoulder grammar fails closed without product evidence', () => {
   const [result] = resolveSelectedComponentFamilies(['shoulders'], families);
+  assert.equal(result.family, null);
+  assert.match(result.error || '', /неоднозначен/);
+});
+
+test('mapped bracelet leaf resolves Arms focus to Bracelet / Cuff', () => {
+  const [result] = resolveSelectedComponentFamilies(
+    ['arms'],
+    families,
+    ['Arms', 'bracelet'],
+  );
+
+  assert.equal(result.family?.canonical_name, 'Bracelet / Cuff');
+  assert.equal(result.error, null);
+});
+
+test('generic Arms evidence remains ambiguous and never invents a leaf family', () => {
+  const [result] = resolveSelectedComponentFamilies(['arms'], families, ['Arms']);
+
   assert.equal(result.family, null);
   assert.match(result.error || '', /неоднозначен/);
 });
