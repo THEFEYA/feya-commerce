@@ -182,6 +182,7 @@ export async function POST(request: Request) {
     selected_events: selectedEvents,
     selected_styles: selectedStyles,
     selected_materials: normalizeFocusValues(bundle.seoPackDraft?.manual_focus?.material),
+    included_components: bundle.seoPackDraft?.product_truth?.included_components,
     body_identity_variant: preflightClaimPlan.body_identity_variant_en,
     product_color: bundle.seoPackDraft?.product_truth?.color,
   };
