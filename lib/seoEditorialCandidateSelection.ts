@@ -57,6 +57,11 @@ const SELECTED_EVENT_EDITORIAL_FORMS = new Map([
 const UNSOLD_EXTERNAL_STYLING_PATTERN = /\b(?:hair|hairstyle|makeup|make-up|jewel(?:ry|lery)|accessor(?:y|ies)|footwear|boots?|shoes?|heels?|props?|bodysuits?|base layers?)\b|\b(?:pair|style|wear|combine)\s+(?:it|this|the (?:piece|outfit|costume|look))?\s*with\b/i;
 const DURABLE_MODIFIER_PATTERN = /\bdurable\s*,\s*|\bdurable\s+and\s+/i;
 const CONCRETE_SHAPE_RETENTION_PATTERN = /\b(?:keeps?|holds?|retain(?:s|ed|ing)?|shape retention)\b[^.!?\n]{0,55}\b(?:shape|form|between wears|next occasion)\b|\bbetween wears\b/i;
+const GENERIC_WHY_TEMPLATE = [
+  'Our original studio design lets you shape the finished character through your own styling choices.',
+  'The material feels comfortable against the body, making the costume easier to wear through longer events or performances.',
+  'The material helps the costume keep its shape between wears, so it is ready for the next occasion.',
+].join('\n');
 const LIVE_CONTROL_ABOUT_AFTER_DURABILITY_NORMALIZATION = 'For festivals and cosplay, this warrior armor outfit brings a glossy, mirror-like coating that creates a polished metal look. The gold finish gives the set a bold stage presence while the fitted shape keeps the look streamlined.';
 const LIVE_CONTROL_ABOUT_REVIEW_COPY = 'For festivals and cosplay, this warrior armor outfit uses a glossy, mirror-like coating to create a polished metal look. Its streamlined silhouette gives you a distinct starting point for an original character with a gold armor look.';
 const LIVE_CONTROL_EXTERNAL_STYLING_CLOSE = 'At TheFEYA, we develop festival and stage pieces from our own ideas, and this warrior armor outfit is built as an original studio interpretation. The gold shape and futuristic lines help you create a character that feels bold on stage or at a festival. Style it with clean hair and strong makeup for a sharp look.';
@@ -555,6 +560,7 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizeRepeatedDurableModifier(normalized);
   normalized = normalizeLiveControlAboutCopy(normalized);
   normalized = normalizeFinalPilotDraftCopy(normalized, context);
+  normalized = normalizeGenericWhyTemplate(normalized, context);
   normalized = normalizeIdealForSentenceList(normalized);
   normalized = normalizeMainDescriptionCliches(normalized, context);
   normalized = normalizeMainDescriptionExternalStylingAdvice(normalized);
@@ -564,6 +570,84 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizeImageAltPrimaryVariation(normalized, context);
   normalized = normalizeSingleSuppliedImageAltCandidate(normalized);
   return normalizeCodeOwnedPdpBlockOrder(normalized);
+}
+
+/**
+ * The original claim-plan outcome sentences are safe but deliberately stable,
+ * which made related products share an entire Why block. When and only when
+ * that exact three-claim template returns, keep the same design, comfort and
+ * shape-retention claims while selecting a bounded product-context wording.
+ * This prevents template duplication without spending another model call.
+ */
+export function normalizeGenericWhyTemplate<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const color = normalizeIdentityColor(context.product_color).toLowerCase();
+  const events = normalizeIdentityValues(context.selected_events);
+  const event = events[0] || 'event';
+  const eventLook = /^festival$/i.test(event)
+    ? 'festival look'
+    : /^burning man$/i.test(event)
+      ? 'Burning Man look'
+      : `${event.toLowerCase()} look`;
+  const eventTime = /^festival$/i.test(event)
+    ? 'festival days'
+    : /^burning man$/i.test(event)
+      ? 'event days'
+      : `${event.toLowerCase()} events`;
+  const colorPrefix = color ? `${color} ` : '';
+  const signature = [
+    normalizeIdentityValue(context.body_identity_variant),
+    color,
+    ...events,
+  ].join('|').toLowerCase();
+  const variant = stableEditorialVariant(signature, 3);
+  const variants = [
+    [
+      `The original studio-designed ${colorPrefix}silhouette gives you a clear starting point while leaving the final ${eventLook} open to your own choices.`,
+      `A comfortable feel against the body helps through longer ${eventTime} and live performances.`,
+      'With careful storage, the structured material keeps its form ready for the next event.',
+    ],
+    [
+      `An original studio-made ${colorPrefix}shape gives you room to define the finished ${eventLook} in your own way.`,
+      'The comfortable material helps the piece stay wearable through longer events or performances.',
+      'Its structure holds its form between wears when stored with care.',
+    ],
+    [
+      `The ${colorPrefix}design begins with an original studio-designed silhouette, leaving you free to shape the finished ${eventLook}.`,
+      `A comfortable feel helps during longer ${eventTime} and live performances.`,
+      'Careful storage helps the material keep its shape for repeat wear.',
+    ],
+  ];
+
+  let changed = false;
+  const pdpBlocks = output.pdp_blocks.map((block) => {
+    if (
+      !isRecord(block)
+      || block.block_key !== 'why_youll_love_it'
+      || typeof block.body !== 'string'
+    ) return block;
+    const normalizedBody = block.body
+      .split(/\r?\n/)
+      .map((line) => line.trim().replace(/^[-•]\s*/, ''))
+      .filter(Boolean)
+      .join('\n');
+    if (normalizedBody !== GENERIC_WHY_TEMPLATE) return block;
+    changed = true;
+    return { ...block, body: variants[variant].join('\n') };
+  });
+  if (!changed) return output;
+
+  return {
+    ...output,
+    pdp_blocks: pdpBlocks,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic Why normalization preserved the reviewed design, comfort and shape-retention claims while removing a repeated cross-product template.',
+    ],
+  } as T;
 }
 
 /**
@@ -1284,6 +1368,14 @@ function containsWholePhrase(value: string, phrase: string) {
 
 function toTitleCase(value: string) {
   return value.replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
+}
+
+function stableEditorialVariant(value: string, count: number) {
+  let hash = 0;
+  for (const character of value) {
+    hash = ((hash * 31) + character.charCodeAt(0)) >>> 0;
+  }
+  return count > 0 ? hash % count : 0;
 }
 
 function formatSelectedEvent(value: string) {
