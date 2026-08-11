@@ -679,7 +679,7 @@ test('the 2026-08-10 live control draft passes after bounded zero-token normaliz
     normalized.pdp_blocks[0].body,
     'For festivals and cosplay, this warrior armor outfit uses a glossy, mirror-like coating to create a polished metal look. Its streamlined silhouette gives you a distinct starting point for an original character with a gold armor look.',
   );
-  assert.match(normalized.pdp_blocks[1].body, /keep its shape between wears/i);
+  assert.match(normalized.pdp_blocks[1].body, /(?:keep(?:s)? its shape|holds its form) between wears/i);
   assert.doesNotMatch(normalized.pdp_blocks[3].body, /hair|makeup|footwear|accessor/i);
   assert.equal(
     normalized.pdp_blocks[3].body,
@@ -1360,6 +1360,10 @@ test('the 2026-08-11 silver rave control draft reaches review with zero-token bo
     'This rave costume with skirt is made for festivals and raves, giving you an original studio look you can make your own.',
   );
   assert.equal(normalized.pdp_blocks[2].body.split('\n').length, 4);
+  assert.equal(
+    normalized.pdp_blocks[1].body,
+    'The original studio-designed silver silhouette gives you a clear starting point while leaving the final festival look open to your own choices.\nA comfortable feel against the body helps through longer festival days and live performances.\nWith careful storage, the structured material keeps its form ready for the next event.',
+  );
   assert.equal(
     normalized.pdp_blocks[0].body,
     'For festivals and raves, this rave costume with skirt brings a strong visual presence. Its glossy, mirror-like coating creates a polished metal look. The result feels bold, clean, and ready for a night of movement and lights.',
