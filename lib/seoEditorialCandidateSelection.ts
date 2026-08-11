@@ -20,9 +20,30 @@ type SeoIdentityNormalizationContext = {
   primary_keyword?: unknown;
   selected_events?: unknown;
   selected_styles?: unknown;
+  selected_materials?: unknown;
   body_identity_variant?: unknown;
   product_color?: unknown;
 };
+
+const OPERATOR_COLOR_FOCUS_VALUES = new Set([
+  'black',
+  'blue',
+  'bronze',
+  'brown',
+  'copper',
+  'gold',
+  'green',
+  'grey',
+  'gray',
+  'orange',
+  'pink',
+  'purple',
+  'red',
+  'rose gold',
+  'silver',
+  'white',
+  'yellow',
+]);
 
 const UNSOLD_EXTERNAL_STYLING_PATTERN = /\b(?:hair|hairstyle|makeup|make-up|jewel(?:ry|lery)|accessor(?:y|ies)|footwear|boots?|shoes?|heels?|props?|bodysuits?|base layers?)\b|\b(?:pair|style|wear|combine)\s+(?:it|this|the (?:piece|outfit|costume|look))?\s*with\b/i;
 const DURABLE_MODIFIER_PATTERN = /\bdurable\s*,\s*|\bdurable\s+and\s+/i;
@@ -115,7 +136,12 @@ export function normalizeDeterministicSeoIdentity<T>(
     || '';
   if (!primary || !selectedEvent) return output;
 
-  const supportedColor = normalizeIdentityColor(context.product_color);
+  const productColor = normalizeIdentityColor(context.product_color);
+  const selectedColor = normalizeIdentityValues(context.selected_materials)
+    .map(normalizeIdentityColor)
+    .find((value) => OPERATOR_COLOR_FOCUS_VALUES.has(value.toLowerCase()))
+    || '';
+  const supportedColor = productColor || selectedColor;
   const primaryWithColor = supportedColor && !containsWholePhrase(primary, supportedColor)
     ? `${toTitleCase(supportedColor)} ${toTitleCase(primary)}`
     : toTitleCase(primary);
@@ -131,8 +157,10 @@ export function normalizeDeterministicSeoIdentity<T>(
     h1: identity,
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
-      supportedColor
+      productColor
         ? 'Deterministic identity normalization used the reviewed Primary, supported product color and operator-selected event for SEO title and H1.'
+        : selectedColor
+          ? 'Deterministic identity normalization used the reviewed Primary, operator-selected color focus and event for SEO title and H1.'
         : 'Deterministic identity normalization used the reviewed Primary and operator-selected event for SEO title and H1.',
     ],
   } as T;
@@ -1000,7 +1028,7 @@ function normalizeIdentityValues(value: unknown): string[] {
 function normalizeIdentityColor(value: unknown) {
   const color = normalizeIdentityValue(value);
   if (!color || color.length > 20 || !/^[a-z]+(?:[ -][a-z]+)?$/i.test(color)) return '';
-  if (/^(?:unknown|other|multicolor|multi color|not specified)$/i.test(color)) return '';
+  if (/^(?:unknown|other|multicolor|multi color|not specified|needs? review|not reviewed|pending review)$/i.test(color)) return '';
   return color;
 }
 

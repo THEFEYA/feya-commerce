@@ -60,6 +60,17 @@ test('blocks an all-caps meta description even when its claims are otherwise val
   assert.equal(result.ok, false);
 });
 
+test('blocks internal review status leaking into customer-facing identity fields', () => {
+  const result = validateSeoAgentOutput(output({
+    seo_title: 'Needs Review Sci Fi Armor Costume for Burning Man',
+    h1: 'Needs Review Sci Fi Armor Costume for Burning Man',
+  }));
+
+  assert.ok(result.issues.some((issue) => issue.code === 'seo_title_audit_phrase'));
+  assert.ok(result.issues.some((issue) => issue.code === 'h1_audit_phrase'));
+  assert.equal(result.ok, false);
+});
+
 test('blocks repeated style-pair and repeated-feels wording in the studio close', () => {
   const result = validateSeoAgentOutput(output({
     pdp_blocks: output().pdp_blocks.map((block: any) => block.block_key === 'main_description'

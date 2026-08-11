@@ -206,7 +206,11 @@ const BENEFIT_OUTCOME_PATTERNS: Record<string, RegExp> = {
   wearer_framing: /\b(?:frames?|draws? attention to)\b[^.!?\n]{0,70}\b(?:face|neckline|shoulders?|upper body)\b/i,
 };
 
-const FINISH_IDEA = /\b(reflective|mirror[- ]like|glossy|metallic|polished metal|catches? light|reads? clearly in photos?|camera[- ]friendly)\b/i;
+// Camera visibility is a separate buyer outcome. Treating “reads clearly in
+// photos” as a finish claim made a Meta + About finish summary look repeated
+// across three sections whenever the studio close discussed the silhouette in
+// photographs. Keep finish language and camera/stage visibility independent.
+const FINISH_IDEA = /\b(reflective|mirror[- ]like|glossy|metallic|polished metal|catches? light)\b/i;
 
 const CROSS_BLOCK_IDEAS: Array<{ key: string; pattern: RegExp }> = [
   {

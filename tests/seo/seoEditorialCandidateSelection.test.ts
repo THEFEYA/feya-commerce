@@ -163,6 +163,23 @@ test('adds a supported product color to the deterministic SEO identity', () => {
   assert.match(normalized.generation_notes[0], /supported product color/);
 });
 
+test('uses an operator-confirmed color focus when canonical color is still under review', () => {
+  const normalized = normalizeDeterministicSeoIdentity({
+    seo_title: 'Needs Review Sci Fi Armor Costume for Burning Man',
+    h1: 'Needs Review Sci Fi Armor Costume for Burning Man',
+    generation_notes: [],
+  }, {
+    primary_keyword: 'sci fi armor costume',
+    selected_events: ['burning man'],
+    selected_materials: ['gold'],
+    product_color: 'Needs review',
+  });
+
+  assert.equal(normalized.seo_title, 'Gold Sci Fi Armor Costume for Burning Man');
+  assert.equal(normalized.h1, 'Gold Sci Fi Armor Costume for Burning Man');
+  assert.match(normalized.generation_notes[0], /operator-selected color focus/);
+});
+
 test('repairs lowercase Meta sentence case without changing its claim', () => {
   const normalized = normalizeMetaDescriptionSentenceCase({
     meta_description: 'warrior armor costume with a glossy finish for festivals and cosplay.',

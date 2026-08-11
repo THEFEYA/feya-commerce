@@ -491,6 +491,30 @@ test('does not treat distinct event and production use cases as one repeated vis
   assert.equal(result.issues.some((issue) => issue.code === 'repeated_idea_stage_camera_visibility'), false);
 });
 
+test('does not misclassify a silhouette photo outcome as a third finish claim', () => {
+  const value = draft({
+    meta_description: 'Gold sci fi armor costume for Burning Man with a polished metal look and a sharp futuristic edge.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => {
+      if (block.block_key === 'about_this_piece') {
+        return {
+          ...block,
+          body: 'For Burning Man, this sci fi armor outfit uses a durable, glossy, mirror-like coating for a polished finish. Its sculptural form gives the complete costume a clear futuristic direction for festival styling.',
+        };
+      }
+      if (block.block_key === 'main_description') {
+        return {
+          ...block,
+          body: 'At TheFEYA, we create original festival pieces from our own ideas. This sci fi armor outfit reflects our studio approach to futuristic design. We keep the silhouette clear so the character reads clearly in photos, performance, and motion. The finished result leaves room for your own visual identity.',
+        };
+      }
+      return block;
+    }),
+  });
+  const result = validateSeoCommercialCopy(value);
+
+  assert.equal(result.issues.some((issue) => issue.code === 'repeated_idea_reflective_finish'), false);
+});
+
 test('blocks the visual-audit and use-case bullets from the pilot draft', () => {
   const value = draft({
     pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'why_youll_love_it'
