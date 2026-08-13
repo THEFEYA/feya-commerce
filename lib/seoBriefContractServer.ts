@@ -20,7 +20,7 @@ import {
 
 const PRODUCT_TRUTH_VIEW = 'feya_commerce_v_seo_product_truth_v4';
 const PRODUCT_TRUTH_EXACT_RPC = 'feya_commerce_get_seo_product_truth_v4';
-const STOREFRONT_PRODUCT_EXACT_RPC = 'feya_commerce_get_step7_storefront_products_api_v6';
+const STOREFRONT_PRODUCT_EXACT_RPC = 'feya_commerce_get_step7_storefront_products_api_v7';
 const FOCUS_VIEW = 'feya_commerce_v_listing_master_product_focus_v1';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
 const SEO_DRAFTS_TABLE = 'feya_commerce_seo_pack_drafts_v1';

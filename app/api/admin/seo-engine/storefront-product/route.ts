@@ -4,7 +4,7 @@ import { resolveStorefrontSellableOffer } from '@/lib/storefrontSellableOffer';
 import { getSupabaseServiceClient } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
-const STOREFRONT_PRODUCT_EXACT_RPC = 'feya_commerce_get_step7_storefront_products_api_v6';
+const STOREFRONT_PRODUCT_EXACT_RPC = 'feya_commerce_get_step7_storefront_products_api_v7';
 const PRODUCT_TRUTH_EXACT_RPC = 'feya_commerce_get_seo_product_truth_v4';
 
 export async function GET(request: Request) {
