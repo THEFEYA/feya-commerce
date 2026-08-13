@@ -109,6 +109,32 @@ test('current sellable offer is sufficient source evidence without legacy Etsy r
   assert.deepEqual(getSeoGenerationProductTruthBlockers(current), []);
 });
 
+test('ready current sellable offer supersedes stale legacy component warnings', () => {
+  const current = draft('confirmed') as any;
+  current.product_truth.included_components = ['Bodysuit', 'Tail'];
+  current.product_truth.unresolved_component_facts = [
+    { raw_option_value: 'Чехлы для передних конечностей', reason: 'legacy mapper did not recognize arm wording' },
+  ];
+  current.product_truth.component_review_blockers = [
+    { blocker_code: 'legacy_configuration_component_family_null' },
+  ];
+  current.product_truth.sellable_offer_components = ['Forearm Covers', 'Tail', 'Bodysuit'];
+  current.product_truth.sellable_offer = {
+    status: 'ready',
+    source_available: true,
+    component_labels: ['Forearm Covers', 'Tail', 'Bodysuit'],
+    blockers: [],
+  };
+  current.keyword_roles.primary = [{ keyword: 'halloween costumes with red bodysuit' }];
+
+  assert.deepEqual(getSeoGenerationProductTruthBlockers(current), []);
+  const approvalBlockers = getSeoPackApprovalBlockers(current);
+  assert.equal(approvalBlockers.includes('unresolved_component_truth'), false);
+  assert.equal(approvalBlockers.includes('component_review_blockers_present'), false);
+  assert.equal(approvalBlockers.includes('composition_has_unresolved_facts'), false);
+  assert.equal(approvalBlockers.includes('composition_has_review_blockers'), false);
+});
+
 test('approval fails closed when the current sellable offer is unresolved', () => {
   const unsafe = draft('confirmed') as any;
   unsafe.product_truth.sellable_offer_components = [];

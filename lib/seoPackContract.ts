@@ -399,6 +399,7 @@ export function getSeoPackApprovalBlockers(draft: SeoPackDraftContract | null | 
     || Boolean(truth?.source_variations?.length)
     || Boolean(truth?.option_price_rows?.length)
     || truth?.sellable_offer?.source_available === true;
+  const currentSellableOfferIsAuthoritative = hasAuthoritativeCurrentSellableOffer(truth);
 
   if (!draft.canonical_product_id) blockers.push('missing_canonical_product_id');
   if (draft.keyword_selection?.status !== 'confirmed') blockers.push('keyword_selection_not_human_confirmed');
@@ -406,8 +407,12 @@ export function getSeoPackApprovalBlockers(draft: SeoPackDraftContract | null | 
   if (!truth?.slug?.trim()) blockers.push('missing_product_slug');
   if (truth?.product_truth_source !== 'seo_product_truth_v1') blockers.push('missing_canonical_product_truth_contract');
   if (!componentFacts.length) blockers.push('missing_confirmed_component_truth');
-  if ((truth?.unresolved_component_facts || []).length) blockers.push('unresolved_component_truth');
-  if ((truth?.component_review_blockers || []).length) blockers.push('component_review_blockers_present');
+  if (!currentSellableOfferIsAuthoritative && (truth?.unresolved_component_facts || []).length) {
+    blockers.push('unresolved_component_truth');
+  }
+  if (!currentSellableOfferIsAuthoritative && (truth?.component_review_blockers || []).length) {
+    blockers.push('component_review_blockers_present');
+  }
   if (!hasSourceEvidence) blockers.push('missing_source_configuration_evidence');
   if (!usefulKeywords.length) blockers.push('missing_primary_or_secondary_keyword');
   blockers.push(...getSeoProductTruthEvidenceBlockers(truth));
@@ -510,6 +515,7 @@ export function getSeoProductTruthEvidenceBlockers(
     || Boolean(truth?.source_variations?.length)
     || Boolean(truth?.option_price_rows?.length)
     || truth?.sellable_offer?.source_available === true;
+  const currentSellableOfferIsAuthoritative = hasAuthoritativeCurrentSellableOffer(truth);
   const blockers: string[] = [];
 
   if (truth?.product_truth_source !== 'seo_product_truth_v1') {
@@ -522,10 +528,13 @@ export function getSeoProductTruthEvidenceBlockers(
   if (!confirmedComponents.length) {
     blockers.push('composition_missing_confirmed_components');
   }
-  if ((truth?.unresolved_component_facts || []).length) {
+  // The exact current storefront selector is the purchase contract. Once it
+  // resolves to a ready offer with source-backed component labels, stale
+  // legacy Etsy mapping warnings must not re-block that newer evidence.
+  if (!currentSellableOfferIsAuthoritative && (truth?.unresolved_component_facts || []).length) {
     blockers.push('composition_has_unresolved_facts');
   }
-  if ((truth?.component_review_blockers || []).length) {
+  if (!currentSellableOfferIsAuthoritative && (truth?.component_review_blockers || []).length) {
     blockers.push('composition_has_review_blockers');
   }
   if (!hasSourceConfigurationEvidence) {
@@ -533,6 +542,16 @@ export function getSeoProductTruthEvidenceBlockers(
   }
 
   return uniqueNonEmpty(blockers);
+}
+
+function hasAuthoritativeCurrentSellableOffer(
+  truth: SeoProductTruth | null | undefined,
+): boolean {
+  return Boolean(
+    truth?.sellable_offer?.status === 'ready'
+    && truth.sellable_offer.source_available === true
+    && uniqueNonEmpty(truth.sellable_offer_components || []).length > 0,
+  );
 }
 
 /**
