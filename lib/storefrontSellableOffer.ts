@@ -341,7 +341,10 @@ function buildSignature(
     label: row.label,
     aggregate: row.is_aggregate,
     full_set: row.is_full_set,
-    members: membersByCode.get(row.code) || [],
+    // Aggregate membership is a set. SQL plans and source imports may return
+    // the same exact components in a different order; that must not
+    // invalidate an otherwise identical human-confirmed keyword decision.
+    members: [...(membersByCode.get(row.code) || [])].sort(),
   }));
   return `storefront-sellable-offer-v1:${JSON.stringify(snapshot)}`;
 }

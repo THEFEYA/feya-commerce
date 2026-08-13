@@ -269,6 +269,31 @@ test('keeps one-leg and two-leg selector choices distinct on one legs axis', () 
   );
 });
 
+test('sellable offer signature treats full-set members as an unordered set', () => {
+  const configurations = [
+    { configuration_id: 'top', public_label: 'Top', component_code: 'top' },
+    { configuration_id: 'skirt', public_label: 'Skirt', component_code: 'skirt' },
+    {
+      configuration_id: 'full-set',
+      public_label: 'Full Set',
+      component_code: 'full_set',
+      is_full_set: true,
+      bundle_component_codes: ['top', 'skirt'],
+    },
+  ];
+  const reversed = configurations.map((row) => (
+    row.configuration_id === 'full-set'
+      ? { ...row, bundle_component_codes: ['skirt', 'top'] }
+      : row
+  ));
+
+  const left = resolveStorefrontSellableOffer({ configurations });
+  const right = resolveStorefrontSellableOffer({ configurations: reversed });
+  assert.equal(left.status, 'ready');
+  assert.equal(right.status, 'ready');
+  assert.equal(left.signature, right.signature);
+});
+
 test('fails closed instead of leaking translated fallback labels into the English storefront', () => {
   const product = {
     canonical_option_price_rows: [
