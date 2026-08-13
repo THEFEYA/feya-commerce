@@ -33,7 +33,7 @@ const DISPLAY_LIMIT = 180;
 const KEYWORD_SNAPSHOT_LIMIT = 18;
 
 const PRODUCT_TRUTH_EXACT_RPC = 'feya_commerce_get_seo_product_truth_v4';
-const STOREFRONT_PRODUCT_EXACT_RPC = 'feya_commerce_get_step7_storefront_products_api_v4';
+const STOREFRONT_PRODUCT_EXACT_RPC = 'feya_commerce_get_step7_storefront_products_api_v6';
 const KEYWORD_VIEW = 'vw_seo_keyword_bank_v1_for_listing_master';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';
 const SOURCE_LISTINGS_TABLE = 'feya_commerce_source_listings';

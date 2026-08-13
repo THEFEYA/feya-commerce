@@ -13,6 +13,8 @@ const families = [
   { component_family_id: '5', canonical_name: 'Arm Set', normalized_name: 'arm set' },
   { component_family_id: '6', canonical_name: 'Bracelet / Cuff', normalized_name: 'bracelet / cuff' },
   { component_family_id: '7', canonical_name: 'Glove', normalized_name: 'glove' },
+  { component_family_id: '8', canonical_name: 'Arms', normalized_name: 'arms' },
+  { component_family_id: '9', canonical_name: 'Legs', normalized_name: 'legs' },
 ];
 
 test('configuration products store selected chips as canonical listing composition', () => {
@@ -63,22 +65,33 @@ test('ambiguous shoulder grammar fails closed without product evidence', () => {
   assert.match(result.error || '', /неоднозначен/);
 });
 
-test('mapped bracelet leaf resolves Arms focus to Bracelet / Cuff', () => {
+test('all arm leaf evidence resolves to the canonical Arms axis family', () => {
   const [result] = resolveSelectedComponentFamilies(
     ['arms'],
     families,
-    ['Arms', 'bracelet'],
+    ['forearm', 'bracelet', 'cuff', 'glove', 'bracer', 'bicep'],
   );
 
-  assert.equal(result.family?.canonical_name, 'Bracelet / Cuff');
+  assert.equal(result.family?.canonical_name, 'Arms');
   assert.equal(result.error, null);
 });
 
-test('generic Arms evidence remains ambiguous and never invents a leaf family', () => {
+test('generic Arms evidence resolves directly without leaf ambiguity', () => {
   const [result] = resolveSelectedComponentFamilies(['arms'], families, ['Arms']);
 
-  assert.equal(result.family, null);
-  assert.match(result.error || '', /неоднозначен/);
+  assert.equal(result.family?.canonical_name, 'Arms');
+  assert.equal(result.error, null);
+});
+
+test('all leg quantities resolve to the canonical Legs axis family', () => {
+  const [result] = resolveSelectedComponentFamilies(
+    ['legs'],
+    families,
+    ['Single Leg Cover', 'Pair of Leg Covers'],
+  );
+
+  assert.equal(result.family?.canonical_name, 'Legs');
+  assert.equal(result.error, null);
 });
 
 test('unsupported focus chips never invent a component family', () => {

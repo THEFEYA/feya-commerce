@@ -67,8 +67,13 @@ export function resolveStorefrontSellableOffer(
       atomicByCode.set(row.code, row);
       return;
     }
-    if (normalize(existing.label) !== normalize(row.label)) {
-      blockers.push(`sellable_component_label_conflict:${row.code}`);
+    // Multiple purchasable variants may share one SEO axis. For example,
+    // "Single Leg Cover" and "Pair of Leg Covers" are distinct selector
+    // choices, but both are the canonical `legs` component. Their exact
+    // labels stay on atomic_options and in the signature; a label difference
+    // must not split or block the axis.
+    if (normalize(existing.family) !== normalize(row.family)) {
+      blockers.push(`sellable_component_family_conflict:${row.code}`);
     }
   });
 
@@ -83,6 +88,9 @@ export function resolveStorefrontSellableOffer(
   const atomicOptions = atomicRows.map((row) => asOfferOption(row, [], [], 'atomic'));
   const aggregateOptions = aggregateRows.map((row) => {
     let memberCodes = unique(row.bundle_component_codes.map(normalizeCode).filter(Boolean));
+    const explicitMemberLabels = row.bundle_component_labels
+      .map((label) => firstString(label))
+      .filter(Boolean);
     let mappingSource: StorefrontSellableOfferOption['mapping_source'] = 'explicit_bundle_codes';
 
     // A single explicit Full Set alongside a complete atomic selector has one
@@ -107,9 +115,15 @@ export function resolveStorefrontSellableOffer(
       blockers.push(`aggregate_member_not_found_in_current_options:${code}`);
     });
 
-    const memberLabels = memberCodes
-      .map((code) => atomicByCode.get(code)?.label || '')
-      .filter(Boolean);
+    if (explicitMemberLabels.length && explicitMemberLabels.length !== memberCodes.length) {
+      blockers.push(`aggregate_member_label_count_mismatch:${row.code || FULL_SET_CODE}`);
+    }
+
+    const memberLabels = explicitMemberLabels.length === memberCodes.length
+      ? explicitMemberLabels
+      : memberCodes
+        .map((code) => atomicByCode.get(code)?.label || '')
+        .filter(Boolean);
 
     return asOfferOption(row, memberCodes, memberLabels, mappingSource);
   });
@@ -169,6 +183,7 @@ export function sellableOfferAllowsComponentFocus(
   if (offer.status !== 'ready') return false;
   const candidate = normalize(value);
   if (!candidate) return false;
+  const candidateAxis = canonicalLimbAxis(candidate);
 
   return [
     ...offer.component_codes,
@@ -177,7 +192,9 @@ export function sellableOfferAllowsComponentFocus(
   ].some((item) => {
     const component = normalize(item);
     const singular = singularize(component);
-    return candidate === component
+    const componentAxis = canonicalLimbAxis(component);
+    return (candidateAxis && candidateAxis === componentAxis)
+      || candidate === component
       || candidate === singular
       || containsPhrase(candidate, component)
       || containsPhrase(candidate, singular);
@@ -193,6 +210,7 @@ type NormalizedConfiguration = {
   is_aggregate: boolean;
   is_full_set: boolean;
   bundle_component_codes: string[];
+  bundle_component_labels: string[];
 };
 
 function normalizeConfiguration(
@@ -238,6 +256,9 @@ function normalizeConfiguration(
     is_full_set: isFullSet,
     bundle_component_codes: Array.isArray(row.bundle_component_codes)
       ? row.bundle_component_codes.map(String)
+      : [],
+    bundle_component_labels: Array.isArray(row.bundle_component_labels)
+      ? row.bundle_component_labels.map(String)
       : [],
   };
 }
@@ -387,6 +408,28 @@ function singularize(value: string) {
   if (value.endsWith('es') && value.length > 4) return value.slice(0, -2);
   if (value.endsWith('s') && !value.endsWith('ss') && value.length > 3) return value.slice(0, -1);
   return value;
+}
+
+function canonicalLimbAxis(value: string): 'arms' | 'legs' | null {
+  const normalized = normalize(value);
+  if (!normalized) return null;
+
+  const armTerms = [
+    'arm', 'arms', 'arm set', 'arm piece', 'arm pieces', 'arm cover', 'arm covers',
+    'arm armor', 'arm armour', 'arm cuff', 'arm cuffs', 'armlet', 'armlets',
+    'bicep', 'biceps', 'bracelet', 'bracelets', 'bracer', 'bracers', 'cuff', 'cuffs',
+    'forearm', 'forearms', 'forearm cover', 'forearm covers', 'glove', 'gloves',
+  ];
+  if (armTerms.some((term) => containsPhrase(normalized, term))) return 'arms';
+
+  const legTerms = [
+    'leg', 'legs', 'leg cover', 'leg covers', 'leg armor', 'leg armour',
+    'leg harness', 'leg harnesses', 'garter', 'garters', 'shin', 'shins',
+    'thigh', 'thighs', 'thigh cover', 'thigh covers',
+  ];
+  if (legTerms.some((term) => containsPhrase(normalized, term))) return 'legs';
+
+  return null;
 }
 
 function containsPhrase(value: string, phrase: string) {

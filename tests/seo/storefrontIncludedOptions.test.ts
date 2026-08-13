@@ -205,6 +205,70 @@ test('allows a focus alias only when it is a current v4 component family', () =>
   assert.equal(sellableOfferAllowsComponentFocus(offer, 'top'), false);
 });
 
+test('canonicalizes every arm leaf to the arms SEO axis', () => {
+  for (const [code, label] of [
+    ['bracelet', 'Arm Bracelet'],
+    ['gloves', 'Gloves'],
+    ['forearm_bracers', 'Forearm Bracers'],
+    ['bicep_cuffs', 'Bicep Cuffs'],
+  ]) {
+    const offer = resolveStorefrontSellableOffer({
+      configurations: [{
+        configuration_id: code,
+        public_label: label,
+        component_code: code,
+      }],
+    });
+    assert.equal(offer.status, 'ready');
+    assert.equal(sellableOfferAllowsComponentFocus(offer, 'arm'), true);
+    assert.equal(sellableOfferAllowsComponentFocus(offer, 'arms'), true);
+  }
+});
+
+test('keeps one-leg and two-leg selector choices distinct on one legs axis', () => {
+  const product = {
+    configurations: [
+      { configuration_id: 'single-leg', sort_order: 1, public_label: 'Single Leg Cover', component_code: 'legs', component_family: 'Legs' },
+      { configuration_id: 'pair-legs', sort_order: 2, public_label: 'Pair of Leg Covers', component_code: 'legs', component_family: 'Legs' },
+      { configuration_id: 'bodysuit', sort_order: 3, public_label: 'Bodysuit', component_code: 'bodysuit', component_family: 'Bodysuit' },
+      {
+        configuration_id: 'full-single',
+        sort_order: 4,
+        public_label: 'Full Set — 1 Leg Cover',
+        component_code: 'full_set',
+        component_family: 'Bundle',
+        is_full_set: true,
+        bundle_component_codes: ['legs', 'bodysuit'],
+        bundle_component_labels: ['Single Leg Cover', 'Bodysuit'],
+      },
+      {
+        configuration_id: 'full-pair',
+        sort_order: 5,
+        public_label: 'Full Set — 2 Leg Covers',
+        component_code: 'full_set',
+        component_family: 'Bundle',
+        is_full_set: true,
+        bundle_component_codes: ['legs', 'bodysuit'],
+        bundle_component_labels: ['Pair of Leg Covers', 'Bodysuit'],
+      },
+    ],
+  } as any;
+
+  const offer = resolveStorefrontSellableOffer(product);
+  assert.equal(offer.status, 'ready');
+  assert.deepEqual(offer.component_codes, ['bodysuit', 'legs']);
+  assert.equal(sellableOfferAllowsComponentFocus(offer, 'leg'), true);
+  assert.equal(sellableOfferAllowsComponentFocus(offer, 'legs'), true);
+  assert.deepEqual(
+    storefrontIncludedOptions(product, { configuration_id: 'full-single' }),
+    ['Single Leg Cover', 'Bodysuit'],
+  );
+  assert.deepEqual(
+    storefrontIncludedOptions(product, { configuration_id: 'full-pair' }),
+    ['Pair of Leg Covers', 'Bodysuit'],
+  );
+});
+
 test('fails closed instead of leaking translated fallback labels into the English storefront', () => {
   const product = {
     canonical_option_price_rows: [
