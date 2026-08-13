@@ -1128,7 +1128,7 @@ export function normalizeFestivalSetAboutFinish<T>(
   if (!exactContext) return output;
 
   const sourceSentence = 'Its polished metal look gives your outfit a striking finish that feels ready for standout moments.';
-  const replacementSentence = 'The gold design gives your outfit a clear focal point that stands out across crowded festival settings and long days of music.';
+  const replacementSentence = 'The gold design is easy to recognize in crowded festival settings and full-length photos taken throughout a long day of music.';
   let changed = false;
   const pdpBlocks = output.pdp_blocks.map((block) => {
     if (
