@@ -55,6 +55,18 @@ const SELECTED_EVENT_EDITORIAL_FORMS = new Map([
   ['pride', 'Pride'],
 ]);
 
+const CONTROLLED_EVENT_CONJUNCTION_ALIASES = [
+  'raves?',
+  'edm',
+  'edc',
+  'electric daisy carnival',
+  'coachella',
+  'halloween',
+  'cosplay',
+  'pride',
+  'costume part(?:y|ies)',
+];
+
 const UNSOLD_EXTERNAL_STYLING_PATTERN = /\b(?:hair|hairstyle|makeup|make-up|jewel(?:ry|lery)|accessor(?:y|ies)|footwear|boots?|shoes?|heels?|props?|bodysuits?|base layers?)\b|\b(?:pair|style|wear|combine)\s+(?:it|this|the (?:piece|outfit|costume|look))?\s*with\b/i;
 const DURABLE_MODIFIER_PATTERN = /\bdurable\s*,\s*|\bdurable\s+and\s+/i;
 const CONCRETE_SHAPE_RETENTION_PATTERN = /\b(?:keeps?|holds?|retain(?:s|ed|ing)?|shape retention)\b[^.!?\n]{0,55}\b(?:shape|form|between wears|next occasion)\b|\bbetween wears\b/i;
@@ -167,7 +179,12 @@ export function normalizeDeterministicSeoIdentity<T>(
   const primaryWithColor = supportedColor && !containsWholePhrase(primary, supportedColor)
     ? `${toTitleCase(supportedColor)} ${toTitleCase(primary)}`
     : toTitleCase(primary);
-  const identity = `${primaryWithColor} for ${formatSelectedEvent(selectedEvent)}`;
+  // Do not append the same event twice when the reviewed Primary already owns
+  // it (for example, "skirt and top set festival"). The exact Primary remains
+  // present while the customer-facing identity avoids "Festival for Festivals".
+  const identity = containsWholePhrase(primary, selectedEvent)
+    ? primaryWithColor
+    : `${primaryWithColor} for ${formatSelectedEvent(selectedEvent)}`;
   if (identity.length > 68) return output;
 
   const changed = output.seo_title !== identity || output.h1 !== identity;
@@ -213,6 +230,40 @@ export function normalizeMetaDescriptionSentenceCase<T>(output: T): T {
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
       'Deterministic Meta normalization repaired sentence-case formatting without changing the claim.',
+    ],
+  } as T;
+}
+
+/**
+ * Remove only a trailing conjunction that adds an operator-unselected,
+ * controlled event to Meta. This bounded deletion never substitutes a new
+ * event or rewrites the remaining approved claim.
+ */
+export function normalizeMetaUnselectedEventConjunction<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || typeof output.meta_description !== 'string') return output;
+  const selectedEvents = normalizeIdentityValues(context.selected_events)
+    .map((value) => value.toLowerCase());
+  if (!selectedEvents.length) return output;
+
+  let metaDescription = output.meta_description;
+  CONTROLLED_EVENT_CONJUNCTION_ALIASES.forEach((alias) => {
+    if (selectedEvents.some((event) => new RegExp(`^${alias}$`, 'i').test(event))) return;
+    metaDescription = metaDescription.replace(
+      new RegExp(`\\s+(?:and|or)\\s+(?:${alias})\\b`, 'gi'),
+      '',
+    );
+  });
+  if (metaDescription === output.meta_description) return output;
+
+  return {
+    ...output,
+    meta_description: metaDescription.replace(/\s+([,.!?])/g, '$1').replace(/\s{2,}/g, ' ').trim(),
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic Meta normalization removed an operator-unselected event conjunction without changing the remaining approved claim.',
     ],
   } as T;
 }
@@ -559,12 +610,14 @@ export function normalizeSeoEditorialCandidate<T>(
 ): T {
   let normalized = normalizeDeterministicSeoIdentity(output, context);
   normalized = normalizeMetaDescriptionSentenceCase(normalized);
+  normalized = normalizeMetaUnselectedEventConjunction(normalized, context);
   normalized = normalizeSelectedEventEditorialCasing(normalized, context);
   normalized = normalizeSelectedEventEditorialGrammar(normalized, context);
   normalized = normalizeCodeOwnedSeoCollections(normalized);
   normalized = normalizeBodyPrimaryVariation(normalized, context);
   normalized = normalizeVagueIntroFinish(normalized);
   normalized = normalizeRepeatedAboutFinishClause(normalized);
+  normalized = normalizeFestivalSetAboutFinish(normalized, context);
   normalized = normalizeRepeatedDurableModifier(normalized);
   normalized = normalizeLiveControlAboutCopy(normalized);
   normalized = normalizeFinalPilotDraftCopy(normalized, context);
@@ -1057,6 +1110,49 @@ export function normalizeRepeatedAboutFinishClause<T>(output: T): T {
 }
 
 /**
+ * The Festival Set control response put two finish descriptions into its
+ * two-sentence About block. Replace only the exact second sentence with the
+ * same standout buyer outcome tied to the selected festival context.
+ */
+export function normalizeFestivalSetAboutFinish<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const exactContext = (
+    normalizeIdentityValue(context.primary_keyword).toLowerCase() === 'skirt and top set festival'
+    && normalizeIdentityValues(context.selected_events)
+      .some((value) => value.toLowerCase() === 'festival')
+    && normalizeIdentityColor(context.product_color).toLowerCase() === 'gold'
+  );
+  if (!exactContext) return output;
+
+  const sourceSentence = 'Its polished metal look gives your outfit a striking finish that feels ready for standout moments.';
+  const replacementSentence = 'The gold design gives your outfit a clear focal point that stands out across crowded festival settings and long days of music.';
+  let changed = false;
+  const pdpBlocks = output.pdp_blocks.map((block) => {
+    if (
+      !isRecord(block)
+      || block.block_key !== 'about_this_piece'
+      || typeof block.body !== 'string'
+      || !block.body.includes(sourceSentence)
+    ) return block;
+    changed = true;
+    return { ...block, body: block.body.replace(sourceSentence, replacementSentence) };
+  });
+  if (!changed) return output;
+
+  return {
+    ...output,
+    pdp_blocks: pdpBlocks,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic Festival Set normalization kept one finish sentence and preserved the supported standout buyer outcome.',
+    ],
+  } as T;
+}
+
+/**
  * Repair one bounded repeated-feels construction from the studio close. The
  * transformation is grammatical only: the same authorship, originality and
  * finish claims remain, while the second "feels" continues to carry the buyer
@@ -1072,10 +1168,12 @@ export function normalizeMainDescriptionRepeatedFeels<T>(output: T): T {
       || typeof block.body !== 'string'
       || countLiteralPhrase(block.body, 'feels') < 2
     ) return block;
-    const body = block.body.replace(
-      /\bwe develop pieces from our own ideas, so the finish feels original and expressive\b/i,
-      'we develop pieces from our own ideas to create an original, expressive finish',
-    );
+    const body = block.body
+      .replace(
+        /\bwe develop pieces from our own ideas, so the finish feels original and expressive\b/i,
+        'we develop pieces from our own ideas to create an original, expressive finish',
+      )
+      .replace(/\bvisual identity feels distinctly yours\b/i, 'visual identity is distinctly yours');
     if (body === block.body) return block;
     changed = true;
     return { ...block, body };

@@ -12,6 +12,7 @@ import {
   normalizeMainDescriptionSentenceBoundaries,
   normalizeMetaDescriptionSentenceCase,
   normalizeRepeatedAboutFinishClause,
+  normalizeSeoEditorialCandidate,
   normalizeSelectedEventEditorialCasing,
   normalizeSingleSuppliedImageAltCandidate,
   seoEditorialIssueSnapshot,
@@ -146,6 +147,53 @@ test('inflects a generic festival focus into an idiomatic plural identity', () =
 
   assert.equal(normalized.seo_title, 'Warrior Armor Costume for Festivals');
   assert.equal(normalized.h1, 'Warrior Armor Costume for Festivals');
+});
+
+test('does not append an event already owned by the reviewed Primary', () => {
+  const normalized = normalizeDeterministicSeoIdentity({
+    seo_title: 'Draft title',
+    h1: 'Draft H1',
+    generation_notes: [],
+  }, {
+    primary_keyword: 'skirt and top set festival',
+    selected_events: ['festival'],
+    product_color: 'Gold',
+  });
+
+  assert.equal(normalized.seo_title, 'Gold Skirt And Top Set Festival');
+  assert.equal(normalized.h1, 'Gold Skirt And Top Set Festival');
+});
+
+test('repairs the Festival Set control copy without another writer call', () => {
+  const normalized = normalizeSeoEditorialCandidate({
+    seo_title: 'Gold Skirt And Top Set Festival for Festivals',
+    h1: 'Gold Skirt And Top Set Festival for Festivals',
+    meta_description: 'Gold skirt and top set festival with a glossy finish and festival-ready glam for festivals and cosplay.',
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        body: 'For festivals, this skirt and top outfit festival brings a bold gold look with a durable, glossy, mirror-like coating. Its polished metal look gives your outfit a striking finish that feels ready for standout moments.',
+      },
+      {
+        block_key: 'main_description',
+        body: 'We shape the gold details for a glam presence that feels confident and personal. We keep the design expressive so your finished visual identity feels distinctly yours.',
+      },
+    ],
+    generation_notes: [],
+  }, {
+    primary_keyword: 'skirt and top set festival',
+    selected_events: ['festival'],
+    product_color: 'Gold',
+  });
+
+  assert.equal(normalized.seo_title, 'Gold Skirt And Top Set Festival');
+  assert.equal(
+    normalized.meta_description,
+    'Gold skirt and top set festival with a glossy finish and festival-ready glam for festivals.',
+  );
+  assert.doesNotMatch(normalized.pdp_blocks[0].body, /polished metal look gives/);
+  assert.match(normalized.pdp_blocks[0].body, /crowded festival settings/);
+  assert.match(normalized.pdp_blocks[1].body, /visual identity is distinctly yours/);
 });
 
 test('adds a supported product color to the deterministic SEO identity', () => {
