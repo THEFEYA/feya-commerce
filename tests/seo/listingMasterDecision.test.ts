@@ -120,3 +120,25 @@ test('keyword role changes and unsupported focus require a fresh human review', 
     ],
   );
 });
+
+test('keyword-bank row UUID or display order does not invalidate the same reviewed shortlist', () => {
+  const saved = listingMasterKeywordSelectionSignature([
+    { id: 'listing-view-id', keyword: "metallic bodysuit women's", role: 'secondary' },
+    { id: 'primary-id', keyword: 'robot armor costume', role: 'primary' },
+  ]);
+  const reaudit = listingMasterKeywordSelectionSignature([
+    { id: 'primary-id', keyword: 'robot armor costume', role: 'primary' },
+    { id: 'approved-view-id', keyword_norm: 'metallic bodysuit womens', role: 'secondary' },
+  ]);
+
+  assert.deepEqual(
+    getListingMasterDecisionInvalidationBlockers({
+      hasPrimary: true,
+      savedKeywordSelectionSignature: saved,
+      currentKeywordSelectionSignature: reaudit,
+      savedSellableOfferSignature: 'offer-a',
+      currentSellableOfferSignature: 'offer-a',
+    }),
+    [],
+  );
+});

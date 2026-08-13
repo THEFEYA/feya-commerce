@@ -75,8 +75,10 @@ export function getListingMasterDecisionInvalidationBlockers(input: {
   const blockers: string[] = [];
   if (!input.hasPrimary) blockers.push('no_valid_pdp_primary');
   if (
-    String(input.savedKeywordSelectionSignature || '')
-    !== String(input.currentKeywordSelectionSignature || '')
+    !sameOperatorKeywordSelection(
+      input.savedKeywordSelectionSignature,
+      input.currentKeywordSelectionSignature,
+    )
   ) {
     blockers.push('keyword_roles_changed_after_reaudit');
   }
@@ -91,6 +93,45 @@ export function getListingMasterDecisionInvalidationBlockers(input: {
     blockers.push('manual_focus_contains_unsupported_component');
   }
   return blockers;
+}
+
+/**
+ * Keyword-bank views may expose different row UUIDs for the same approved,
+ * operator-visible query. The human decision owns the shortlist and roles,
+ * not an internal storage identifier or display order. Compare that semantic
+ * selection while still failing closed for malformed/unknown signatures.
+ */
+function sameOperatorKeywordSelection(saved: unknown, current: unknown) {
+  const savedSignature = String(saved || '');
+  const currentSignature = String(current || '');
+  if (savedSignature === currentSignature) return true;
+
+  const savedSelection = semanticSelectionFromSignature(savedSignature);
+  const currentSelection = semanticSelectionFromSignature(currentSignature);
+  return Boolean(
+    savedSelection
+    && currentSelection
+    && savedSelection.length === currentSelection.length
+    && savedSelection.every((entry, index) => entry === currentSelection[index]),
+  );
+}
+
+function semanticSelectionFromSignature(signature: string) {
+  const prefix = 'listing-master-selection-v1|';
+  if (!signature.startsWith(prefix)) return null;
+  const entries = signature.slice(prefix.length).split('|').filter(Boolean);
+  if (!entries.length) return null;
+
+  const semanticEntries = entries.map((entry) => {
+    const parts = entry.split(':');
+    if (parts.length < 3) return null;
+    const role = parts.pop()?.trim().toLowerCase();
+    parts.shift(); // Internal Keyword Bank row ID is not operator-visible.
+    const keyword = normalizeKeyword(parts.join(':'));
+    return keyword && role ? `${keyword}:${role}` : null;
+  });
+  if (semanticEntries.some((entry) => !entry)) return null;
+  return (semanticEntries as string[]).sort();
 }
 
 export function getListingMasterDecisionStatus(
