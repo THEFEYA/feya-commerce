@@ -38,12 +38,12 @@ export function validateSeoKeywordPlacement(
 
   const fields = collectFields(value);
   const displayUnits = collectDisplayUnits(value);
+  const presentation = classifySeoProductPresentation(draft.product_truth);
   const roleRows = Object.entries(draft.keyword_roles || {}).flatMap(([role, rows]) => (
     (Array.isArray(rows) ? rows : []).map((row) => ({ role, row }))
   ));
-  const placements = roleRows.map(({ role, row }) => placementRow(role, row, fields, displayUnits));
+  const placements = roleRows.map(({ role, row }) => placementRow(role, row, fields, displayUnits, presentation));
   const primary = placements.filter((item) => item.role === 'primary');
-  const presentation = classifySeoProductPresentation(draft.product_truth);
 
   if (primary.length !== 1) {
     issues.push(blockerIssue('primary_keyword_count', `Exactly one primary keyword is required; received ${primary.length}.`));
@@ -219,6 +219,7 @@ function placementRow(
   row: SeoKeywordRoleItem,
   fields: Record<string, string>,
   displayUnits: Array<{ field: string; text: string }>,
+  presentation: ReturnType<typeof classifySeoProductPresentation>,
 ): SeoKeywordPlacementRow {
   const keyword = text(row?.keyword || row?.keyword_norm);
   const semanticRole = ['secondary', 'support', 'image_alt'].includes(role);
@@ -228,7 +229,10 @@ function placementRow(
   const semanticPrimaryBodyFields = role === 'primary'
     ? displayUnits
       .filter((unit) => ['intro', 'bullet_highlights', 'pdp_blocks', 'faq'].includes(unit.field))
-      .filter((unit) => semanticPhraseRepresented(keyword, unit.text))
+      .filter((unit) => (
+        semanticPhraseRepresented(keyword, unit.text)
+        || semanticMultiComponentPrimaryVariationRepresented(keyword, unit.text, presentation)
+      ))
       .map((unit) => unit.field)
     : [];
   const matchedFields = semanticRole
@@ -273,6 +277,33 @@ function semanticPhraseRepresented(keyword: string, value: string) {
   return fieldTokens.some((_, start) => {
     const window = new Set(fieldTokens.slice(start, start + maxWindow));
     return tokens.every((token) => window.has(token));
+  });
+}
+
+function semanticMultiComponentPrimaryVariationRepresented(
+  keyword: string,
+  value: string,
+  presentation: ReturnType<typeof classifySeoProductPresentation>,
+) {
+  if (!presentation.requires_compact_composition) return false;
+
+  // The selector and What's Included own the component inventory. In visible
+  // body copy, a reviewed multi-piece Primary such as "skirt and top set
+  // festival" may therefore become "festival outfit" instead of repeating
+  // both component names. Keep every non-component identity token (event,
+  // color, style, etc.) and a whole-product noun inside one short sentence.
+  const componentTokens = new Set(presentation.components.flatMap((component) => contentTokens(component)));
+  const requiredTokens = [...new Set(
+    semanticContentTokens(keyword)
+      .filter((token) => token === '__whole_product__' || !componentTokens.has(token)),
+  )];
+  if (!requiredTokens.includes('__whole_product__') || requiredTokens.length < 2) return false;
+
+  const fieldTokens = semanticContentTokens(value);
+  const maxWindow = Math.min(8, requiredTokens.length + 4);
+  return fieldTokens.some((_, start) => {
+    const window = new Set(fieldTokens.slice(start, start + maxWindow));
+    return requiredTokens.every((token) => window.has(token));
   });
 }
 

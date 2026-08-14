@@ -419,7 +419,7 @@ test('repairs the Silver Bodysuit Legs Set control copy without another writer c
     product_color: 'Silver',
   });
 
-  assert.match(normalized.pdp_blocks[0].body, /silver metallic bodysuit look/);
+  assert.match(normalized.pdp_blocks[0].body, /silver bodysuit with a fashion-led metallic edge/);
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /futuristic/i);
   assert.match(normalized.pdp_blocks[1].body, /glossy, metal-inspired finish/);
   assert.match(normalized.pdp_blocks[1].body, /distinctive, glamorous character/);
@@ -525,7 +525,7 @@ test('polishes the live silver review response before storage without another wr
     product_color: 'Silver',
   });
 
-  assert.match(normalized.pdp_blocks[0].body, /silver metallic bodysuit look/);
+  assert.match(normalized.pdp_blocks[0].body, /silver bodysuit with a fashion-led metallic edge/);
   assert.match(normalized.pdp_blocks[0].body, /metal-inspired character/);
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /layered leg coverage|body-skimming shape/);
   assert.match(normalized.pdp_blocks[1].body, /supports confident self-expression/);
@@ -614,7 +614,7 @@ test('renormalizes the saved black, red, and silver review drafts without anothe
       },
       expectedMeta: 'Silver robot armor costume with a metal-inspired finish for stage and cosplay, made for striking cyberpunk moments.',
       expectedIntro: 'This robot armor outfit is designed for the stage and cosplay, where its original studio design creates a bold, distinctive look.',
-      expectedAbout: /silver metallic bodysuit look/,
+      expectedAbout: /silver bodysuit with a fashion-led metallic edge/,
       expectedIdeal: /Women planning an expressive costume/,
       expectedMain: /supports confident self-expression/,
       expectedAlt: /pink and blue lighting/,

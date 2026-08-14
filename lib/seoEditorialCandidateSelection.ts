@@ -1300,7 +1300,7 @@ export function normalizeMirrorBodysuitLegsSetCopy<T>(
       ],
       [
         'For stage and cosplay, this robot armor outfit brings a silver-toned, fashion-led presence with a sleek, polished look. Its smooth, high-gloss surface creates a beautifully polished, metal-inspired finish. The layered leg coverage and body-skimming shape make it feel striking in motion.',
-        'For stage and cosplay, this robot armor costume creates a sleek silver metallic bodysuit look with a fashion-led edge. Its smooth, high-gloss surface gives the finish a polished, metal-inspired character. The bold sci-fi styling looks striking in motion and under performance lighting.',
+        'For stage and cosplay, this robot-inspired armor outfit creates a sleek silver bodysuit with a fashion-led metallic edge. Its smooth, high-gloss surface gives the finish a polished, metal-inspired character. The bold sci-fi styling looks striking in motion and under performance lighting.',
       ],
     ],
     main_description: [
@@ -1310,7 +1310,7 @@ export function normalizeMirrorBodysuitLegsSetCopy<T>(
       ],
       [
         'We designed this robot armor outfit to feel bold on stage and memorable in cosplay, with a fashion-led approach to post apocalyptic and cyberpunk energy. At TheFEYA, we develop original pieces from our own ideas, so the result carries a distinctive, personal edge. The silver tones and layered coverage give it a confident robot presence that reads clearly under performance lighting.',
-        'At TheFEYA, we designed this silver robot armor costume from our own ideas. Its high-gloss metal-inspired finish and bold sci-fi styling give the original studio design a distinctive, glamorous character. The memorable result supports confident self-expression on stage, in original cosplay, and across creative photo or video shoots.',
+        'At TheFEYA, we designed this silver robot armor outfit from our own ideas. Its high-gloss metal-inspired finish and bold sci-fi styling give the original studio design a distinctive, glamorous character. The memorable result supports confident self-expression on stage, in original cosplay, and across creative photo or video shoots.',
       ],
     ],
   };
@@ -1583,7 +1583,7 @@ export function normalizeBatchFiveEditorialBlacklistCopy<T>(
       ],
       [
         'For stage and cosplay, this sci-fi armor costume brings a bold robotic edge to your look. Its glossy, mirror-like coating creates a polished metal look. The finish helps the piece stand out under bright lights, making it ready for performances, photos, and high-impact moments.',
-        'For stage and cosplay, this robot armor costume creates a sleek silver metallic bodysuit look with a fashion-led edge. Its smooth, high-gloss surface gives the finish a polished, metal-inspired character. The bold sci-fi styling looks striking in motion and under performance lighting.',
+        'For stage and cosplay, this robot-inspired armor outfit creates a sleek silver bodysuit with a fashion-led metallic edge. Its smooth, high-gloss surface gives the finish a polished, metal-inspired character. The bold sci-fi styling looks striking in motion and under performance lighting.',
       ],
       [
         [
@@ -1615,7 +1615,7 @@ export function normalizeBatchFiveEditorialBlacklistCopy<T>(
       ],
       [
         'We design at TheFEYA from our own ideas, creating a robot armor outfit for women who want a stronger presence on stage. The silver shape gives you a strong character base while leaving the final interpretation open. You can make the look your own for a performance or cosplay role.',
-        'At TheFEYA, we designed this silver robot armor costume from our own ideas. Its high-gloss metal-inspired finish and bold sci-fi styling give the original studio design a distinctive, glamorous character. The memorable result supports confident self-expression on stage, in original cosplay, and across creative photo or video shoots.',
+        'At TheFEYA, we designed this silver robot armor outfit from our own ideas. Its high-gloss metal-inspired finish and bold sci-fi styling give the original studio design a distinctive, glamorous character. The memorable result supports confident self-expression on stage, in original cosplay, and across creative photo or video shoots.',
       ],
       [
         'This robot armor outfit is made for the stage and cosplay, giving you a starting point for an original post apocalyptic or cyberpunk showgirl character in a robot armor outfit.',

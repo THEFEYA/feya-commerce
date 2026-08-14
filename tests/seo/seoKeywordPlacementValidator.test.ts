@@ -99,6 +99,67 @@ test('matches plural costumes to singular costume in natural primary body copy',
   assert.ok(primary?.fields.includes('intro'));
 });
 
+test('allows a multi-component Primary to use a whole-product body variation without repeating inventory', () => {
+  const draft = contract('skirt and top set festival');
+  draft.product_truth = {
+    included_components: ['Skirt Only', 'Top Only'],
+  } as SeoPackDraftContract['product_truth'];
+  const value = {
+    ...output(),
+    seo_title: 'Gold Skirt and Top Set Festival',
+    h1: 'Gold Skirt and Top Set Festival',
+    meta_description: 'Gold skirt and top set festival with a glossy finish for long festival days.',
+    intro: 'This gold festival outfit brings an original studio design to long days of music.',
+  };
+  const result = validateSeoKeywordPlacement(value, draft);
+  const primary = result.placements.find((item) => item.role === 'primary');
+  assert.equal(result.issues.some((issue) => issue.code === 'primary_missing_body'), false);
+  assert.ok(primary?.fields.includes('intro'));
+});
+
+test('keeps non-component Primary identity tokens mandatory in a multi-piece body variation', () => {
+  const draft = contract('halloween costumes with red bodysuit');
+  draft.product_truth = {
+    included_components: ['Bodysuit', 'Forearm Covers', 'Tail'],
+  } as SeoPackDraftContract['product_truth'];
+  const value = {
+    ...output(),
+    seo_title: 'Halloween Costumes with Red Bodysuit',
+    h1: 'Halloween Costumes with Red Bodysuit',
+    meta_description: 'Halloween costumes with red bodysuit styling for an original studio character.',
+    intro: 'This Halloween costume is designed for cosplay and stage appearances.',
+    pdp_blocks: [],
+  };
+  const result = validateSeoKeywordPlacement(value, draft);
+  assert.equal(result.issues.some((issue) => issue.code === 'primary_missing_body'), true);
+});
+
+test('keeps the silver armor body natural without exact Primary repetition or nested secondary stacking', () => {
+  const draft = contract('robot armor costume');
+  draft.product_truth = {
+    included_components: ['Bodysuit', 'Single Leg Cover'],
+  } as SeoPackDraftContract['product_truth'];
+  draft.keyword_roles.secondary = [
+    { keyword: 'silver metallic bodysuit', keyword_norm: 'silver metallic bodysuit', role: 'secondary' },
+    { keyword: 'metallic bodysuit', keyword_norm: 'metallic bodysuit', role: 'secondary' },
+  ];
+  const value = {
+    ...output(),
+    seo_title: 'Silver Robot Armor Costume for Stage',
+    h1: 'Silver Robot Armor Costume for Stage',
+    meta_description: 'Silver robot armor costume with a metal-inspired finish for stage and cosplay.',
+    intro: 'This robot armor outfit is designed for the stage and cosplay.',
+    pdp_blocks: [{
+      heading: 'About this piece',
+      body: 'This robot-inspired armor outfit creates a sleek silver bodysuit with a fashion-led metallic edge.',
+    }],
+  };
+  const result = validateSeoKeywordPlacement(value, draft);
+  assert.equal(result.issues.some((issue) => issue.code === 'primary_exact_phrase_outside_owned_fields'), false);
+  assert.equal(result.issues.some((issue) => issue.code === 'primary_exact_phrase_overused'), false);
+  assert.equal(result.issues.some((issue) => issue.code === 'secondary_keyword_stack'), false);
+});
+
 test('uses exact primary repetition as a stuffing guard rather than a density target', () => {
   const value = output();
   value.pdp_blocks = [{
