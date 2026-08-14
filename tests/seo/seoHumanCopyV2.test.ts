@@ -89,7 +89,10 @@ function writerWireOutput(pdpBlocks: unknown = {
 
 test('brown photoshoot harness ALT keeps the model shirt outside sold Product DNA', () => {
   const output = {
-    ...writerWireOutput(),
+    ...writerWireOutput([
+      { block_key: 'about_this_piece', body: 'Thin about copy.' },
+      { block_key: 'main_description', body: 'The piece feels bold and feels personal.' },
+    ]),
     image_alt_candidates: [{
       image_role: 'primary',
       alt_text: 'Brown leather harness worn over a white shirt by a male model',
@@ -108,6 +111,8 @@ test('brown photoshoot harness ALT keeps the model shirt outside sold Product DN
     'Brown leather chest harness worn by a male model',
   );
   assert.doesNotMatch(normalized.image_alt_candidates[0].alt_text, /shirt/i);
+  assert.match(normalized.pdp_blocks[0].body, /portrait and editorial photoshoots/i);
+  assert.doesNotMatch(normalized.pdp_blocks[1].body, /\bfeels\b/i);
 });
 
 function inputContract() {

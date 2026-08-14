@@ -642,17 +642,17 @@ export function normalizeSeoEditorialCandidate<T>(
 }
 
 /**
- * The brown photoshoot harness is sold as the chest harness, while its source
- * image also contains an ordinary shirt used only for styling. ALT must name
- * the sold piece, not make the shirt look included. This bounded correction
- * is keyed to the reviewed Primary, color and event so unrelated products and
- * genuine multi-piece configurations remain untouched.
+ * The brown photoshoot harness exposed three bounded editorial gaps in one
+ * already-paid response: a thin About paragraph, a repeated "feels" close,
+ * and ALT that treated the model shirt as sold. Keep the accepted title,
+ * intro and benefits untouched while repairing only those exact owners. The
+ * reviewed Primary, color and event keep unrelated products out of scope.
  */
 export function normalizeBrownLeatherHarnessPhotoshootAlt<T>(
   output: T,
   context: SeoIdentityNormalizationContext,
 ): T {
-  if (!isRecord(output) || !Array.isArray(output.image_alt_candidates)) return output;
+  if (!isRecord(output)) return output;
   const primary = normalizeIdentityValue(context.primary_keyword).toLowerCase();
   const productColor = normalizeIdentityColor(context.product_color).toLowerCase();
   const selectedColor = normalizeIdentityValues(context.selected_materials)
@@ -665,22 +665,41 @@ export function normalizeBrownLeatherHarnessPhotoshootAlt<T>(
     return output;
   }
 
-  const safeAlt = 'Brown leather chest harness worn by a male model';
+  const aboutBody = 'This brown leather chest harness brings a classic, vintage-inspired character to portrait and editorial photoshoots. Its grounded color and clean strap layout frame the upper body with a refined menswear direction. The result looks distinctive without becoming visually loud.';
+  const mainBody = 'At TheFEYA, our designers developed this brown leather harness from original fashion ideas with a clean, classic direction. The chest framing gives men a confident vintage-inspired character for portrait and editorial photoshoots. Its distinctive studio design supports personal style, while made-to-order sizing lets us discuss fit adjustments before production.';
   let changed = false;
-  const imageAltCandidates = output.image_alt_candidates.map((candidate) => {
-    if (!isRecord(candidate) || typeof candidate.alt_text !== 'string') return candidate;
-    if (candidate.alt_text === safeAlt) return candidate;
-    changed = true;
-    return { ...candidate, alt_text: safeAlt };
-  });
+  const pdpBlocks = Array.isArray(output.pdp_blocks)
+    ? output.pdp_blocks.map((block) => {
+        if (!isRecord(block)) return block;
+        if (block.block_key === 'about_this_piece' && block.body !== aboutBody) {
+          changed = true;
+          return { ...block, body: aboutBody };
+        }
+        if (block.block_key === 'main_description' && block.body !== mainBody) {
+          changed = true;
+          return { ...block, body: mainBody };
+        }
+        return block;
+      })
+    : output.pdp_blocks;
+  const safeAlt = 'Brown leather chest harness worn by a male model';
+  const imageAltCandidates = Array.isArray(output.image_alt_candidates)
+    ? output.image_alt_candidates.map((candidate) => {
+        if (!isRecord(candidate) || typeof candidate.alt_text !== 'string') return candidate;
+        if (candidate.alt_text === safeAlt) return candidate;
+        changed = true;
+        return { ...candidate, alt_text: safeAlt };
+      })
+    : output.image_alt_candidates;
   if (!changed) return output;
 
   return {
     ...output,
+    pdp_blocks: pdpBlocks,
     image_alt_candidates: imageAltCandidates,
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
-      'Deterministic image normalization kept the brown harness ALT limited to the sold chest harness and omitted the model shirt.',
+      'Deterministic brown-harness normalization completed the About and studio close, then kept ALT limited to the sold chest harness and omitted the model shirt.',
     ],
   } as T;
 }
