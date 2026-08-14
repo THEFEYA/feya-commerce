@@ -11,6 +11,7 @@ import {
 import { generateSeoDraftWithOpenAi } from '../../lib/seoOpenAiDraftGenerator.ts';
 import {
   normalizeBrownLeatherHarnessPhotoshootAlt,
+  normalizePaidRedSpineTailCopy,
   normalizeImageAltPrimaryVariation,
   normalizeCodeOwnedPdpBlockOrder,
   normalizeCodeOwnedSeoCollections,
@@ -113,6 +114,45 @@ test('brown photoshoot harness ALT keeps the model shirt outside sold Product DN
   assert.doesNotMatch(normalized.image_alt_candidates[0].alt_text, /shirt/i);
   assert.match(normalized.pdp_blocks[0].body, /portrait and editorial photoshoots/i);
   assert.doesNotMatch(normalized.pdp_blocks[1].body, /\bfeels\b/i);
+});
+
+test('paid red spine-tail draft is repaired without changing its accepted identity or Ideal for block', () => {
+  const originalIdealFor = '- Drag performers seeking a red burlesque look for the stage.\n- Showgirls drawn to glamorous red styling for live performance.\n- Women choosing a bold theatrical outfit for productions.\n- Content creators producing striking red visuals for drag and stage sets.\n- Costume stylists selecting an original red design for editorials and shows.';
+  const output = {
+    ...writerWireOutput([
+      {
+        block_key: 'about_this_piece',
+        body: 'Built for stage and drag, this red stage costume centers a sculptural spine-tail that reads clearly in motion and from behind. The smooth red surface has a high-gloss finish that keeps the sculptural details visible under stage lighting. With careful storage, the backpiece keeps its shape between wears and stays ready for repeat use.',
+      },
+      {
+        block_key: 'why_youll_love_it',
+        body: '- Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\n- The smooth high-gloss red finish keeps the sculptural details visible under stage lighting.\n- With careful storage, the sculptural backpiece keeps its shape between wears and stays ready for repeat use.',
+      },
+      { block_key: 'ideal_for', body: originalIdealFor },
+      {
+        block_key: 'main_description',
+        body: 'We designed this piece for performers who want red that commands attention from the first glance. At TheFEYA, our fashion studio shaped the red stage costume to feel bold, distinctive, and memorable in drag and stage settings. We kept the line dramatic and the presence unmistakably personal, so the finish reads with confidence under lights. We wanted it to feel like a statement that stays with the audience long after the music stops.',
+      },
+    ]),
+    seo_title: 'Red Stage Outfit',
+    intro: 'Designed for the stage and drag, this red stage costume brings an original studio edge to performers who want a bold, distinctive presence.',
+  } as any;
+
+  const normalized = normalizePaidRedSpineTailCopy(output, {
+    primary_keyword: 'red stage outfit',
+    selected_events: ['stage', 'drag'],
+    selected_materials: ['red'],
+    product_color: 'Red',
+  });
+
+  assert.equal(normalized.seo_title, 'Red Stage Outfit');
+  assert.doesNotMatch(normalized.intro, /distinctive presence/i);
+  assert.match(normalized.pdp_blocks[0].body, /upper spine into the tail/i);
+  assert.doesNotMatch(normalized.pdp_blocks[0].body, /glossy|between wears/i);
+  assert.match(normalized.pdp_blocks[1].body, /glossy red finish/i);
+  assert.match(normalized.pdp_blocks[1].body, /between wears/i);
+  assert.equal(normalized.pdp_blocks[2].body, originalIdealFor);
+  assert.match(normalized.pdp_blocks[3].body, /personal expression/i);
 });
 
 function inputContract() {

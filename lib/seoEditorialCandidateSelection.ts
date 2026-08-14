@@ -635,10 +635,86 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizeUnsafeVisualStyleSuggestions(normalized);
   normalized = normalizeBatchFiveEditorialBlacklistCopy(normalized, context);
   normalized = normalizePaidHarnessAndMetallicSetCopy(normalized, context);
+  normalized = normalizePaidRedSpineTailCopy(normalized, context);
   normalized = normalizeBrownLeatherHarnessPhotoshootAlt(normalized, context);
   normalized = normalizeImageAltPrimaryVariation(normalized, context);
   normalized = normalizeSingleSuppliedImageAltCandidate(normalized);
   return normalizeCodeOwnedPdpBlockOrder(normalized);
+}
+
+/**
+ * Human review of the already-paid red spine-tail draft found one tightly
+ * bounded cluster: the intro used the failed-pilot phrase "distinctive
+ * presence", About repeated "stage" inside one sentence, and the finish and
+ * storage benefits were duplicated across blocks. Keep the accepted identity,
+ * keyword and Ideal-for copy, but give each left block one separate buyer job.
+ * Exact response matching prevents this recovery rule from touching later
+ * red products or otherwise accepted drafts.
+ */
+export function normalizePaidRedSpineTailCopy<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const primary = normalizeIdentityValue(context.primary_keyword).toLowerCase();
+  const productColor = normalizeIdentityColor(context.product_color).toLowerCase();
+  const selectedColor = normalizeIdentityValues(context.selected_materials)
+    .map(normalizeIdentityColor)
+    .find((value) => OPERATOR_COLOR_FOCUS_VALUES.has(value.toLowerCase()))
+    ?.toLowerCase() || '';
+  const color = productColor || selectedColor;
+  const events = normalizeIdentityValues(context.selected_events).map((value) => value.toLowerCase());
+  if (
+    primary !== 'red stage outfit'
+    || color !== 'red'
+    || !events.includes('stage')
+    || !events.includes('drag')
+  ) return output;
+
+  const exactFieldReplacements: Record<string, [string, string]> = {
+    intro: [
+      'Designed for the stage and drag, this red stage costume brings an original studio edge to performers who want a bold, distinctive presence.',
+      'Designed for drag shows and theatrical performances, this red costume brings an original studio edge and a dramatic continuous spine-tail detail.',
+    ],
+  };
+  const blockReplacements: Record<string, [string, string]> = {
+    about_this_piece: [
+      'Built for stage and drag, this red stage costume centers a sculptural spine-tail that reads clearly in motion and from behind. The smooth red surface has a high-gloss finish that keeps the sculptural details visible under stage lighting. With careful storage, the backpiece keeps its shape between wears and stays ready for repeat use.',
+      'Created for drag shows and theatrical performances, this red costume combines a fitted top, skirt and continuous spine-tail backpiece in one dramatic design. The back detail extends from the upper spine into the tail, so the two forms read as one deliberate element. Its proportions bring a bold burlesque character to live appearances and editorial images.',
+    ],
+    why_youll_love_it: [
+      '- Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\n- The smooth high-gloss red finish keeps the sculptural details visible under stage lighting.\n- With careful storage, the sculptural backpiece keeps its shape between wears and stays ready for repeat use.',
+      '- Created by our designers, the original spine-tail concept gives the costume a distinctive character that feels personal.\n- The glossy red finish helps the backpiece details remain visible under stage lighting.\n- With careful storage, the backpiece keeps its form between wears and stays ready for repeat use.',
+    ],
+    main_description: [
+      'We designed this piece for performers who want red that commands attention from the first glance. At TheFEYA, our fashion studio shaped the red stage costume to feel bold, distinctive, and memorable in drag and stage settings. We kept the line dramatic and the presence unmistakably personal, so the finish reads with confidence under lights. We wanted it to feel like a statement that stays with the audience long after the music stops.',
+      'At TheFEYA, our designers developed this red costume from original ideas for performers who value expressive, theatrical fashion. The continuous spine-tail gives the design a recognizable signature and dramatic character. Its glamorous burlesque attitude supports personal expression across drag shows, stage productions and creative shoots. The costume feels bold, confident and unmistakably individual.',
+    ],
+  };
+
+  let changed = false;
+  const normalized: Record<string, unknown> = { ...output };
+  Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
+    if (normalized[field] !== before) return;
+    normalized[field] = after;
+    changed = true;
+  });
+  normalized.pdp_blocks = output.pdp_blocks.map((block) => {
+    if (!isRecord(block) || typeof block.body !== 'string') return block;
+    const replacement = blockReplacements[String(block.block_key || '')];
+    if (!replacement || block.body !== replacement[0]) return block;
+    changed = true;
+    return { ...block, body: replacement[1] };
+  });
+  if (!changed) return output;
+
+  return {
+    ...normalized,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Human-reviewed deterministic repair separated the paid red spine-tail draft into product, finish, repeat-wear and self-expression jobs without another writer call.',
+    ],
+  } as T;
 }
 
 /**
