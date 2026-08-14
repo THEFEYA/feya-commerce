@@ -94,3 +94,19 @@ test('draft storage reapplies zero-token editorial normalization before validati
   assert.ok(saveRoute.indexOf('normalizeReviewDraftBeforeStorage(providedAgentOutput, bundle.seoPackDraft)') < saveRoute.indexOf('validateSeoAgentOutput(agentOutput)'));
   assert.equal(saveRoute.includes('generateSeoDraftWithOpenAi'), false);
 });
+
+test('saved-draft renormalization requires an explicit resave flag and stays token-free', () => {
+  const page = readFileSync(
+    new URL('../../app/admin/seo-storefront-preview/page.tsx', import.meta.url),
+    'utf8',
+  );
+  const client = readFileSync(
+    new URL('../../app/admin/seo-engine/first-real-draft/FirstRealDraftClient.tsx', import.meta.url),
+    'utf8',
+  );
+
+  assert.ok(page.includes("params.resave === '1' && loadSavedDraft"));
+  assert.ok(client.includes('setSavedCurrentResult(!resaveSavedDraft)'));
+  assert.ok(client.includes('Сохранить новую нормализованную версию'));
+  assert.equal(client.includes('generateSeoDraftWithOpenAi'), false);
+});

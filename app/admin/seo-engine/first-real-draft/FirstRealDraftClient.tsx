@@ -49,10 +49,12 @@ export default function FirstRealDraftClient({
   initialProductId = '',
   autoGenerate = false,
   loadSavedDraft = false,
+  resaveSavedDraft = false,
 }: {
   initialProductId?: string;
   autoGenerate?: boolean;
   loadSavedDraft?: boolean;
+  resaveSavedDraft?: boolean;
 }) {
   const [candidateLoading, setCandidateLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -350,8 +352,10 @@ export default function FirstRealDraftClient({
 
       setResult({ ...draftPayload, http_status: draftResponse.status });
       setStorefrontProduct(productPayload.product);
-      setSavedCurrentResult(true);
-      setWorkflowNotice('Загружен последний сохранённый SEO-черновик. Это read-only preview: OpenAI не вызывался, токены не потрачены, ничего не изменено и не опубликовано.');
+      setSavedCurrentResult(!resaveSavedDraft);
+      setWorkflowNotice(resaveSavedDraft
+        ? 'Загружен последний сохранённый SEO-черновик. Разрешено создать только новую нормализованную review-версию: OpenAI не вызывается, Apply и Publish не выполняются.'
+        : 'Загружен последний сохранённый SEO-черновик. Это read-only preview: OpenAI не вызывался, токены не потрачены, ничего не изменено и не опубликовано.');
       window.setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
     } catch (err) {
       setError(err instanceof Error
@@ -778,6 +782,8 @@ export default function FirstRealDraftClient({
               ? 'Сохраняю review draft…'
               : savedCurrentResult
                 ? 'Этот результат сохранён'
+                : savedSnapshotLoaded
+                  ? 'Сохранить новую нормализованную версию'
                 : reviewPass
                   ? 'Сохранить и открыть следующий товар'
                   : 'Сохранение доступно после PASS'}
