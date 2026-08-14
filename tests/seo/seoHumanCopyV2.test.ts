@@ -147,9 +147,10 @@ test('paid red spine-tail draft is repaired without changing its accepted identi
 
   assert.equal(normalized.seo_title, 'Red Stage Outfit');
   assert.doesNotMatch(normalized.intro, /distinctive presence/i);
-  assert.match(normalized.pdp_blocks[0].body, /upper spine into the tail/i);
+  assert.match(normalized.pdp_blocks[0].body, /spine and flows into a tail below the waist/i);
+  assert.doesNotMatch(normalized.pdp_blocks[0].body, /\btop\b|\bskirt\b/i);
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /glossy|between wears/i);
-  assert.match(normalized.pdp_blocks[1].body, /glossy red finish/i);
+  assert.match(normalized.pdp_blocks[1].body, /glossy finish/i);
   assert.match(normalized.pdp_blocks[1].body, /between wears/i);
   assert.equal(normalized.pdp_blocks[2].body, originalIdealFor);
   assert.match(normalized.pdp_blocks[3].body, /personal expression/i);

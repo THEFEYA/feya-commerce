@@ -680,11 +680,11 @@ export function normalizePaidRedSpineTailCopy<T>(
   const blockReplacements: Record<string, [string, string]> = {
     about_this_piece: [
       'Built for stage and drag, this red stage costume centers a sculptural spine-tail that reads clearly in motion and from behind. The smooth red surface has a high-gloss finish that keeps the sculptural details visible under stage lighting. With careful storage, the backpiece keeps its shape between wears and stays ready for repeat use.',
-      'Created for drag shows and theatrical performances, this red costume combines a fitted top, skirt and continuous spine-tail backpiece in one dramatic design. The back detail extends from the upper spine into the tail, so the two forms read as one deliberate element. Its proportions bring a bold burlesque character to live appearances and editorial images.',
+      'Created for drag shows and theatrical performances, this red costume features a continuous back detail that begins along the spine and flows into a tail below the waist. The connected form gives the design a dramatic burlesque character from the rear. Its proportions suit live appearances, editorial images and movement-focused video.',
     ],
     why_youll_love_it: [
       '- Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\n- The smooth high-gloss red finish keeps the sculptural details visible under stage lighting.\n- With careful storage, the sculptural backpiece keeps its shape between wears and stays ready for repeat use.',
-      '- Created by our designers, the original spine-tail concept gives the costume a distinctive character that feels personal.\n- The glossy red finish helps the backpiece details remain visible under stage lighting.\n- With careful storage, the backpiece keeps its form between wears and stays ready for repeat use.',
+      '- Created by our designers, the original spine-tail concept gives the costume a distinctive character that feels personal.\n- The glossy finish helps the red backpiece details remain visible under stage lighting.\n- With careful storage, the backpiece keeps its form between wears and stays ready for repeat use.',
     ],
     main_description: [
       'We designed this piece for performers who want red that commands attention from the first glance. At TheFEYA, our fashion studio shaped the red stage costume to feel bold, distinctive, and memorable in drag and stage settings. We kept the line dramatic and the presence unmistakably personal, so the finish reads with confidence under lights. We wanted it to feel like a statement that stays with the audience long after the music stops.',
