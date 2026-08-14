@@ -757,17 +757,17 @@ export function normalizePaidDanceCostumeCopy<T>(
     ],
     intro: [
       'For stage work, this dance outfit for ladies brings a bold, original studio design that feels made for movement and command.',
-      'Created for live performance, this dance costume for ladies combines flexible fabric with black-and-gold detail in an original studio design.',
+      'Created for live performance, this black-and-gold dance outfit combines flexible fabric with mirror-finish details in an original studio design.',
     ],
   };
   const blockReplacements: Record<string, [string, string]> = {
     about_this_piece: [
       'Built for stage presence, this dance outfit for ladies pairs a stretch-fabric base with selected patterns and details in gold mirror-finish vegan leather. The black-and-gold finish creates a striking, polished contrast that reads clearly under performance lighting.',
-      'This dance costume for ladies combines a stretch-fabric base with selected patterns and details made from gold mirror-finish vegan leather. The black-and-gold contrast gives the design a polished graphic character that remains clear under performance lighting during live shows, group formations and video shoots.',
+      'This black-and-gold dance costume uses a stretch-fabric base with selected patterns and details made from gold mirror-finish vegan leather. The color contrast gives the design a polished graphic character that remains clear under performance lighting during live shows, group formations and video shoots.',
     ],
     why_youll_love_it: [
       '- Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\n- The stretch-fabric base moves comfortably through dance turns and stage choreography.\n- Gold mirror-finish details catch available stage light, helping the decorative pattern stay visible during performance.\n- Careful storage helps the costume keep its shape between wears for repeat stage use.',
-      '- Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\n- The stretch-fabric base moves comfortably through dance turns and stage choreography.\n- The gold finish catches available stage light, helping the decorative pattern remain visible during performances.\n- Careful storage helps the costume keep its shape between wears for repeat stage use.',
+      '- Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\n- The stretch-fabric base moves comfortably through dance turns and stage choreography.\n- The gold finish catches stage light, helping the decorative details remain visible during performances.\n- Careful storage helps the costume keep its shape between wears for repeat stage use.',
     ],
     ideal_for: [
       '- Dancers performing in a stretch-fabric costume for live stage choreography.\n- Dance schools outfitting groups in a recognizable black-and-gold design.\n- Show ballets selecting black-and-gold costumes for ensemble stage productions.\n- Go-go dancers choosing a flexible costume for energetic stage performance.\n- Event organizers sourcing distinctive dance costumes for professional show teams.',
