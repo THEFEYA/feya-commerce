@@ -26,6 +26,7 @@ export async function POST(request: Request) {
   const productId = String(body.product_id || '').trim();
   const repairAttempt = Number(body.repair_attempt || 0);
   const currentOutput = isRecord(body.current_output) ? body.current_output : null;
+  const allowOpenAiRepair = body.allow_openai_repair === true;
 
   if (!productId || !currentOutput) {
     return NextResponse.json({
@@ -196,6 +197,55 @@ export async function POST(request: Request) {
         failed_scopes: unique(issues.map((issue) => String(issue.code || 'validation_issue'))),
       },
     });
+  }
+
+  if (!allowOpenAiRepair) {
+    const pipelineTelemetry = {
+      contract_version: 'seo_targeted_repair_pipeline_v1',
+      product_id: productId,
+      repair_attempt: 1,
+      repair_mode: 'deterministic_only_blocked',
+      db_brief_ms: dbBriefMs,
+      total_ms: Date.now() - startedAt,
+      writer_calls: 0,
+      automatic_retry_calls: 0,
+      token_usage: {
+        input_tokens: 0,
+        output_tokens: 0,
+        total_tokens: 0,
+      },
+    };
+    console.info('[feya-seo-targeted-repair]', JSON.stringify(pipelineTelemetry));
+    return NextResponse.json({
+      ok: false,
+      status: 'deterministic_repair_failed_validation',
+      blocked: true,
+      message: 'Deterministic zero-cost repair still has QA issues. OpenAI repair was not allowed, so no model call, retry, save or publish action was attempted.',
+      openai_generation: {
+        ok: false,
+        status: 'not_called_deterministic_only',
+        model: null,
+        response_id: null,
+        error: null,
+        has_output: false,
+        vision_input: null,
+        telemetry: null,
+      },
+      generated_draft_output: deterministicOutput,
+      generated_draft_validation: deterministicStructural,
+      generated_draft_commercial_validation: deterministicCommercial,
+      generated_draft_keyword_placement_validation: deterministicKeywordPlacement,
+      pipeline_telemetry: pipelineTelemetry,
+      repair: {
+        explicit: true,
+        attempt: 1,
+        deterministic_only: true,
+        additional_attempt_allowed: false,
+        source_issue_count: issues.length,
+        remaining_issue_count: deterministicIssues.length,
+        failed_scopes: unique(deterministicIssues.map((issue) => String(issue.code || 'validation_issue'))),
+      },
+    }, { status: 422 });
   }
 
   const primaryImageUrl = normalizeImageUrl(

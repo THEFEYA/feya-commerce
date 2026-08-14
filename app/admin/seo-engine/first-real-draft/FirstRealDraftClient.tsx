@@ -380,6 +380,7 @@ export default function FirstRealDraftClient({
           product_id: selectedProductId,
           repair_attempt: 1,
           current_output: draft,
+          allow_openai_repair: false,
         }),
       });
       const payload = parseResponsePayload(
