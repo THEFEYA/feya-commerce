@@ -666,7 +666,7 @@ export function normalizeBrownLeatherHarnessPhotoshootAlt<T>(
   }
 
   const aboutBody = 'This brown leather chest harness brings a classic, vintage-inspired character to portrait and editorial photoshoots. Its grounded color and clean strap layout frame the upper body with a refined menswear direction. The result looks distinctive without becoming visually loud.';
-  const mainBody = 'At TheFEYA, our designers developed this brown leather harness from original fashion ideas with a clean, classic direction. The chest framing gives men a confident vintage-inspired character for portrait and editorial photoshoots. Its distinctive studio design supports personal style, while made-to-order sizing lets us discuss fit adjustments before production.';
+  const mainBody = 'At TheFEYA, our designers developed this brown leather harness from original fashion ideas with a clean, classic direction. The chest framing gives men a confident vintage-inspired character for portrait and editorial photoshoots. Its distinctive studio design supports personal style and gives the finished look a memorable identity.';
   let changed = false;
   const pdpBlocks = Array.isArray(output.pdp_blocks)
     ? output.pdp_blocks.map((block) => {
