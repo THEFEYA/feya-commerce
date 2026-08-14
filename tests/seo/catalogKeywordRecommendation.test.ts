@@ -558,6 +558,8 @@ test('a sellable body-placement axis cannot narrow a harness Primary to one area
     product: {
       card_title: "Brutal Leather Harness Set Choker Top Harness Leg Garter, Men's Chest Harness",
       source_category_label: 'Harness / Accessory',
+      category_label: 'Fashion tops & corsets',
+      product_type: 'top',
       canonical_color_label: 'Black',
       material: 'Leather',
       sellable_offer_components: ['Top', 'Leg Covers', 'Choker'],
@@ -586,6 +588,7 @@ test('a sellable body-placement axis cannot narrow a harness Primary to one area
     result.keywords.find((row) => row.keyword_norm === 'leather harness top')?.role,
     'secondary',
   );
+  assert.deepEqual(result.diagnostics.product_primary_entity_families, ['harness']);
 });
 
 test('a visual shoulder search axis cannot replace a crown as the Primary entity', () => {

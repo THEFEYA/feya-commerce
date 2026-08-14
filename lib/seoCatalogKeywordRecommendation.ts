@@ -343,11 +343,14 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
     product.focus_text,
   ]).join(' ');
   const leadIdentityText = leadingProductIdentity(product.card_title || product.h1 || '');
-  const sourceEntityText = flattenStrings([
+  const canonicalSourceEntityFamilies = detectedFamilies(
     product.source_category_label,
-    product.category_label,
-    product.product_type,
-  ]).join(' ');
+    COMPONENT_FAMILIES,
+  );
+  const fallbackSourceEntityFamilies = detectedFamilies(
+    flattenStrings([product.category_label, product.product_type]).join(' '),
+    COMPONENT_FAMILIES,
+  );
   const styleText = flattenStrings([
     product.world_label,
     explicitFocus.event,
@@ -412,7 +415,13 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
   const searchAxisFamilies = usesSearchAxisContract
     ? detectedFamilies(explicitFocus.component, COMPONENT_FAMILIES)
     : [];
-  const sourceEntityFamilies = detectedFamilies(sourceEntityText, COMPONENT_FAMILIES);
+  // The imported source category names the page entity more precisely than a
+  // broad storefront department such as "Fashion tops & corsets". Only fall
+  // back to department/product-type labels when the source category carries
+  // no recognized entity at all.
+  const sourceEntityFamilies = canonicalSourceEntityFamilies.length
+    ? canonicalSourceEntityFamilies
+    : fallbackSourceEntityFamilies;
   const leadEntityFamilies = detectedFamilies(leadIdentityText, COMPONENT_FAMILIES);
   const anchoredLeadEntityFamilies = leadEntityFamilies.filter((family) => (
     sourceEntityFamilies.includes(family)
