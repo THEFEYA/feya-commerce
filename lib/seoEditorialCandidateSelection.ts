@@ -1218,6 +1218,24 @@ export function normalizeBatchFiveEditorialBlacklistCopy<T>(
   const fieldReplacements: Record<string, Array<[string, string]>> = {
     'skirt and top set festival::gold': [
       [
+        [
+          'Women planning an expressive costume for a live music production.',
+          'Festival-goers planning a glam look for a long day of music and movement.',
+          'Content creators planning glam visuals for festival shoots or music videos.',
+          'Costume stylists sourcing an original glam piece for themed shows or editorials.',
+        ].join('\n'),
+        [
+          'Women planning an expressive costume for a live music production.',
+          'Festival-goers planning a glam gold look for a long day of music and movement.',
+          'Content creators planning polished visuals for festival shoots or music videos.',
+          'Costume stylists sourcing an original gold set for themed shows or editorials.',
+        ].join('\n'),
+      ],
+      [
+        'We designed this skirt and top outfit festival to feel bold, distinctive and easy to recognize in a crowd. TheFEYA develops original pieces from our own ideas, so the result carries a memorable, personal character. For festivals, it brings a golden presence that feels made for motion, light and the energy of the moment.',
+        'At TheFEYA, we develop this gold festival set from our own ideas. Its polished, fashion-led character gives the outfit a distinctive presence that is easy to recognize in festival crowds and full-length photos. The original studio design supports a confident personal style across long festival days, live performances, and future events.',
+      ],
+      [
         'The gold design begins with an original studio-designed silhouette, leaving you free to shape the finished festival look.',
         'The original studio-designed gold outfit has a distinctive, glamorous character that stays memorable in festival settings.',
       ],

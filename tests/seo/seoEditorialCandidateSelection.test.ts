@@ -178,6 +178,19 @@ test('repairs the Festival Set control copy without another writer call', () => 
         block_key: 'main_description',
         body: 'We shape the gold details for a glam presence that feels confident and personal. We keep the design expressive so your finished visual identity feels distinctly yours.',
       },
+      {
+        block_key: 'ideal_for',
+        body: [
+          'Women planning an expressive costume for a live music production.',
+          'Festival-goers planning a glam look for a long day of music and movement.',
+          'Content creators planning glam visuals for festival shoots or music videos.',
+          'Costume stylists sourcing an original glam piece for themed shows or editorials.',
+        ].join('\n'),
+      },
+      {
+        block_key: 'main_description_reviewed',
+        body: 'We designed this skirt and top outfit festival to feel bold, distinctive and easy to recognize in a crowd. TheFEYA develops original pieces from our own ideas, so the result carries a memorable, personal character. For festivals, it brings a golden presence that feels made for motion, light and the energy of the moment.',
+      },
     ],
     generation_notes: [],
   }, {
@@ -195,6 +208,10 @@ test('repairs the Festival Set control copy without another writer call', () => 
   assert.match(normalized.pdp_blocks[0].body, /crowded festival settings/);
   assert.match(normalized.pdp_blocks[1].body, /glamorous, recognizable character/);
   assert.doesNotMatch(normalized.pdp_blocks[1].body, /visual identity|silhouette|starting point|final look/i);
+  assert.equal(normalized.pdp_blocks[2].body.match(/\bglam\b/gi)?.length, 1);
+  assert.match(normalized.pdp_blocks[2].body, /polished visuals/);
+  assert.match(normalized.pdp_blocks[3].body, /confident personal style/);
+  assert.doesNotMatch(normalized.pdp_blocks[3].body, /visual identity|silhouette|starting point|final look/i);
 });
 
 test('repairs the Holographic Set control copy without another writer call', () => {
