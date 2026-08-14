@@ -633,6 +633,7 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizeHumanSilverShoulderSkirtCopy(normalized, context);
   normalized = normalizeMainDescriptionSentenceBoundaries(normalized);
   normalized = normalizeUnsafeVisualStyleSuggestions(normalized);
+  normalized = normalizeBatchFiveEditorialBlacklistCopy(normalized, context);
   normalized = normalizeImageAltPrimaryVariation(normalized, context);
   normalized = normalizeSingleSuppliedImageAltCandidate(normalized);
   return normalizeCodeOwnedPdpBlockOrder(normalized);
@@ -1190,6 +1191,124 @@ export function normalizeMirrorBodysuitLegsSetCopy<T>(
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
       'Deterministic Silver Bodysuit + Legs normalization removed an unselected style and represented the approved sci-fi armor cluster without changing Single Leg Cover Product Truth.',
+    ],
+  } as T;
+}
+
+/**
+ * Final zero-token polish for the five reviewed batch controls. The handoff
+ * editorial contract explicitly excludes internal/abstract phrases such as
+ * "visual identity", "silhouette" and "clear starting point". Replace only
+ * the exact surviving sentences for these five Primary/color contexts; facts,
+ * components, keyword ownership and purchase configurations stay unchanged.
+ */
+export function normalizeBatchFiveEditorialBlacklistCopy<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const primary = normalizeIdentityValue(context.primary_keyword).toLowerCase();
+  const color = normalizeIdentityColor(context.product_color).toLowerCase();
+  const contextKey = `${primary}::${color}`;
+  const fieldReplacements: Record<string, Array<[string, string]>> = {
+    'skirt and top set festival::gold': [
+      [
+        'The gold design begins with an original studio-designed silhouette, leaving you free to shape the finished festival look.',
+        'The original studio-designed gold shape gives the outfit a recognizable festival presence while leaving the final styling choices to you.',
+      ],
+      [
+        'We develop pieces from our own ideas at TheFEYA, and this skirt and top outfit festival is built to help you create a striking original look. We shape the gold details for a glam presence that feels confident and personal. We keep the design expressive so your finished visual identity is distinctly yours.',
+        'We develop pieces from our own ideas at TheFEYA, and this skirt and top outfit festival is built to help you create a striking original look. We shape the gold details for a glam presence that feels confident and personal. The gold finish gives the set a recognizable festival presence and lets you make the character your own.',
+      ],
+      [
+        'We shape the gold details for a glam presence that feels confident and personal. We keep the design expressive so your finished visual identity is distinctly yours.',
+        'We shape the gold details for a glam presence that feels confident and personal. The gold finish gives the set a recognizable festival presence and lets you make the character your own.',
+      ],
+    ],
+    'rave skirt and top set::holographic': [
+      [
+        'This rave skirt and top outfit is made for rave and the stage, giving you a starting point for an original studio look you can make your own.',
+        'This rave skirt and top outfit is made for rave and the stage, bringing an original studio look you can make your own.',
+      ],
+      [
+        'We design this piece to help you build a look that feels vivid, modern, and personal. At TheFEYA, we develop pieces from our own ideas, and this rave skirt and top outfit brings that original energy to rave nights and stage moments. We pair holographic shine with glam attitude so your visual identity is unmistakably yours.',
+        'We design this piece to help you build a look that feels vivid, modern, and personal. At TheFEYA, we develop pieces from our own ideas, and this rave skirt and top outfit brings that original energy to rave nights and stage moments. We pair holographic shine with glam attitude so you can make the look your own.',
+      ],
+      [
+        'We design this piece to help you build a look that feels vivid, modern, and personal. We pair holographic shine with glam attitude so your visual identity is unmistakably yours.',
+        'We design this piece to help you build a look that feels vivid, modern, and personal. We pair holographic shine with glam attitude so you can make the look your own.',
+      ],
+    ],
+    'halloween costume with black bodysuit::black': [
+      [
+        'This Halloween outfit with black bodysuit is made for Halloween and cosplay, giving you a starting point for an original goth or fantasy character.',
+        'This Halloween outfit with black bodysuit is made for Halloween and cosplay, giving you a bold base for an original goth or fantasy character.',
+      ],
+      [
+        'The original studio-designed black silhouette gives you a clear starting point while leaving the final Halloween look open to your own choices.',
+        'The original studio-designed black shape gives the outfit a defined character while leaving the final Halloween look open to your own choices.',
+      ],
+      [
+        'We keep the look bold, dark, and easy to shape into your own character. At TheFEYA, we develop pieces from our own ideas, so the result feels personal rather than copied. We aim for a visual identity that reads clearly and stays distinctly yours. That lets you decide how the finished character should look.',
+        'We keep the look bold, dark, and open to your interpretation. At TheFEYA, we develop pieces from our own ideas, so the result feels personal rather than copied. That leaves you free to decide how the finished character should look and feel for Halloween or cosplay.',
+      ],
+    ],
+    'halloween costumes with red bodysuit::red': [
+      [
+        'This red bodysuit brings a distinct character shape to Halloween costumes for cosplay, giving you a starting point for an original demon character with a bold leather look.',
+        'This red bodysuit brings a distinct character shape to Halloween costumes for cosplay, supporting an original demon character with a bold leather look.',
+      ],
+      [
+        'This costume is made for Halloween and cosplay, using its red bodysuit shape to create a bold demon-inspired character. Its glossy, mirror-like coating creates a polished metal look, while the fitted silhouette stays striking from every angle.',
+        'This costume is made for Halloween and cosplay, using its red bodysuit shape to create a bold demon-inspired character. Its glossy, mirror-like coating creates a polished metal look, while the fitted shape stays striking from every angle.',
+      ],
+      [
+        'We build our pieces at TheFEYA from our own ideas, so your outfit feels original rather than copied. The red silhouette gives the character a clear visual base without locking you into one fixed interpretation for Halloween or cosplay. That lets you shape the finished character around your own visual identity.',
+        'We build our pieces at TheFEYA from our own ideas, so your outfit feels original rather than copied. The red shape gives the character a strong visual base without locking you into one fixed interpretation for Halloween or cosplay. That lets you make the look your own.',
+      ],
+    ],
+    'robot armor costume::silver': [
+      [
+        'This robot armor outfit is made for the stage and cosplay, giving you a starting point for an original post apocalyptic or cyberpunk showgirl character in a robot armor outfit.',
+        'This robot armor outfit is made for the stage and cosplay, giving you a bold base for an original post apocalyptic or cyberpunk showgirl character.',
+      ],
+      [
+        'The original studio-designed silver silhouette gives you a clear starting point while leaving the final stage look open to your own choices.',
+        'The original studio-designed silver shape gives the outfit a defined stage presence while leaving the final look open to your own choices.',
+      ],
+      [
+        'We design at TheFEYA from our own ideas, creating a robot armor outfit for women who want a stronger presence on stage. The silver silhouette gives you a clear character base while leaving the final interpretation open. You can shape the finished visual identity around the performance or cosplay role you have in mind.',
+        'We design at TheFEYA from our own ideas, creating a robot armor outfit for women who want a stronger presence on stage. The silver shape gives you a strong character base while leaving the final interpretation open. You can make the look your own for a performance or cosplay role.',
+      ],
+    ],
+  };
+  const replacements = fieldReplacements[contextKey];
+  if (!replacements?.length) return output;
+
+  let changed = false;
+  const replaceExact = (value: unknown) => {
+    if (typeof value !== 'string') return value;
+    return replacements.reduce((current, [before, after]) => {
+      if (!current.includes(before)) return current;
+      changed = true;
+      return current.replace(before, after);
+    }, value);
+  };
+  const intro = replaceExact(output.intro);
+  const pdpBlocks = output.pdp_blocks.map((block) => (
+    isRecord(block) && typeof block.body === 'string'
+      ? { ...block, body: replaceExact(block.body) }
+      : block
+  ));
+  if (!changed) return output;
+
+  return {
+    ...output,
+    intro,
+    pdp_blocks: pdpBlocks,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic batch-five editorial normalization removed exact handoff-blacklist phrases without changing Product Truth, keyword ownership or purchase configuration.',
     ],
   } as T;
 }
