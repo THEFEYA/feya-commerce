@@ -196,6 +196,37 @@ test('repairs the Festival Set control copy without another writer call', () => 
   assert.match(normalized.pdp_blocks[1].body, /visual identity is distinctly yours/);
 });
 
+test('repairs the Holographic Set control copy without another writer call', () => {
+  const normalized = normalizeSeoEditorialCandidate({
+    pdp_blocks: [
+      {
+        block_key: 'ideal_for',
+        body: [
+          'Women planning an expressive costume for a live music production.',
+          'Festival-goers planning a dancer look for a long day of music and movement.',
+          'Live performers preparing a dancer look for a stage show or theatrical role.',
+          'Content creators planning dancer visuals for rave shoots or music videos.',
+          'Costume stylists sourcing an original glam piece for themed shows or editorials.',
+        ].join('\n'),
+      },
+      {
+        block_key: 'main_description',
+        body: 'We design this piece to help you build a look that feels vivid, modern, and personal. We pair holographic shine with glam attitude so your visual identity feels unmistakably yours.',
+      },
+    ],
+    generation_notes: [],
+  }, {
+    primary_keyword: 'rave skirt and top set',
+    selected_events: ['rave', 'stage'],
+    product_color: 'Holographic',
+  });
+
+  assert.match(normalized.pdp_blocks[0].body, /Rave-goers planning a holographic look/);
+  assert.match(normalized.pdp_blocks[0].body, /iridescent visuals/);
+  assert.equal(normalized.pdp_blocks[0].body.match(/\bdancer\b/gi)?.length, 1);
+  assert.match(normalized.pdp_blocks[1].body, /visual identity is unmistakably yours/);
+});
+
 test('adds a supported product color to the deterministic SEO identity', () => {
   const normalized = normalizeDeterministicSeoIdentity({
     seo_title: 'Draft title',
