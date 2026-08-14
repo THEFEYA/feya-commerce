@@ -263,6 +263,50 @@ test('repairs the Black Bodysuit Set control copy without another writer call', 
   assert.match(normalized.pdp_blocks[2].body, /decide how the finished character should look/);
 });
 
+test('repairs the Red Bodysuit Arms Set control copy without another writer call', () => {
+  const normalized = normalizeSeoEditorialCandidate({
+    meta_description: 'Red Halloween costumes with red bodysuit for festivals and cosplay, with a polished metal look and a goth-inspired finish.',
+    intro: 'This complete Complete halloween costumes with red bodysuit is made for Halloween and cosplay, giving you a starting point for an original goth or fantasy demon character with a leather bodysuit costume edge.',
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'Red complete Complete halloween costumes with red bodysuit in a side pose with raised leg',
+    }],
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        body: 'This costume is made for Halloween and cosplay, bringing your look into a bold goth or fantasy direction. Its glossy, mirror-like coating creates a polished metal look, while the red shape keeps the finish striking from every angle.',
+      },
+      {
+        block_key: 'ideal_for',
+        body: [
+          'Women preparing an expressive costume for a live music production.',
+          'Festival-goers planning a demon look for a long day of music and movement.',
+          'Cosplayers building an original goth or fantasy character around a studio-designed costume.',
+          'Content creators planning fantasy visuals for Halloween shoots or music videos.',
+          'Costume stylists sourcing an original goth piece for themed shows or editorials.',
+        ].join('\n'),
+      },
+      {
+        block_key: 'main_description',
+        body: 'We build our pieces at TheFEYA from our own ideas, so your outfit feels original rather than copied. We lean into goth and fantasy cues to help you create a visual identity that feels personal. That lets you decide how the finished character should look.',
+      },
+    ],
+    generation_notes: [],
+  }, {
+    primary_keyword: 'halloween costumes with red bodysuit',
+    selected_events: ['halloween', 'cosplay'],
+    product_color: 'Red',
+  });
+
+  assert.match(normalized.meta_description, /demon-inspired finish for cosplay/);
+  assert.equal(normalized.intro, 'This red bodysuit brings a distinct character shape to Halloween costumes for cosplay, giving you a starting point for an original demon character with a bold leather look.');
+  assert.match(normalized.image_alt_candidates[0].alt_text, /forearm covers and tail/);
+  assert.doesNotMatch(normalized.image_alt_candidates[0].alt_text, /halloween costumes with red bodysuit/i);
+  assert.doesNotMatch(normalized.pdp_blocks[0].body, /direction/i);
+  assert.equal(normalized.pdp_blocks[1].body.match(/\bgoth\b/gi)?.length, 1);
+  assert.doesNotMatch(normalized.pdp_blocks[2].body, /goth|fantasy/i);
+});
+
 test('adds a supported product color to the deterministic SEO identity', () => {
   const normalized = normalizeDeterministicSeoIdentity({
     seo_title: 'Draft title',
