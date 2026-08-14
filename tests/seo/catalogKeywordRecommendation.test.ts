@@ -524,6 +524,8 @@ test('versioned SEO axes retrieve a harness page entity without rewriting sellab
     focus: {
       component_focus_contract: 'seo_search_axes_v1',
       component: ['top', 'harness', 'legs', 'choker'],
+      sellable_component_axes: ['legs', 'choker'],
+      search_only_component_axes: ['top', 'harness'],
       material: ['black', 'leather'],
       event: ['festival', 'pride'],
       style: ['punk'],
@@ -548,6 +550,7 @@ test('versioned SEO axes retrieve a harness page entity without rewriting sellab
   assert.deepEqual(result.diagnostics.product_component_families, ['choker', 'legs']);
   assert.deepEqual(result.diagnostics.product_primary_entity_families, ['harness']);
   assert.deepEqual(result.diagnostics.operator_search_axis_families, ['choker', 'harness', 'legs', 'top']);
+  assert.deepEqual(result.diagnostics.operator_search_only_axis_families, ['harness', 'top']);
 });
 
 test('a visual shoulder search axis cannot replace a crown as the Primary entity', () => {
@@ -566,6 +569,8 @@ test('a visual shoulder search axis cannot replace a crown as the Primary entity
     focus: {
       component_focus_contract: 'seo_search_axes_v1',
       component: ['shoulders', 'bodysuit', 'legs', 'headpiece'],
+      sellable_component_axes: ['bodysuit', 'legs', 'headpiece'],
+      search_only_component_axes: ['shoulders'],
       material: ['black', 'leather'],
       event: ['halloween', 'cosplay'],
       style: ['goth', 'fantasy'],
@@ -601,6 +606,8 @@ test('a dress-like top and skirt can use dress only as an indirect discovery ali
     focus: {
       component_focus_contract: 'seo_search_axes_v1',
       component: ['top', 'skirt', 'headpiece'],
+      sellable_component_axes: ['top', 'skirt', 'headpiece'],
+      search_only_component_axes: [],
       style: ['glam', 'burlesque'],
       persona: ['performer', 'showgirl'],
       audience: ['women'],
@@ -635,6 +642,8 @@ test('an operator-confirmed red color retrieves red keywords when imported color
     focus: {
       component_focus_contract: 'seo_search_axes_v1',
       component: ['top', 'skirt', 'headpiece'],
+      sellable_component_axes: ['top', 'skirt', 'headpiece'],
+      search_only_component_axes: [],
       material: ['red', 'leather'],
       persona: ['showgirl'],
       audience: ['women'],

@@ -677,6 +677,10 @@ async function loadKeywords(filters, product = null, preloadedKeywordBank = null
     const rows = applyLocalMatching(sourceRows, filters);
     return { rows, counts, totalCount: rows.length, rawCount: typedRows.length, error: null, source: 'keyword_bank_overview', diagnostics: null };
   }
+  const componentAxisPartition = partitionListingMasterComponentAxes(
+    valuesOf(filters.component),
+    product.sellableOffer,
+  );
   const recommendation = recommendCatalogKeywords({
     product: product.truth,
     approvedKeywords: sourceRows,
@@ -684,6 +688,8 @@ async function loadKeywords(filters, product = null, preloadedKeywordBank = null
       ...Object.fromEntries(FOCUS_FIELDS.map((field) => [field, valuesOf(filters[field])])),
       exclude: excludeTerms(filters.exclude),
       component_focus_contract: LISTING_MASTER_SEARCH_AXIS_CONTRACT,
+      sellable_component_axes: componentAxisPartition.sellableComponentAxes,
+      search_only_component_axes: componentAxisPartition.searchOnlyComponentAxes,
     },
     selectedStrategy: filters.strategy,
     limit: KEYWORD_SNAPSHOT_LIMIT,

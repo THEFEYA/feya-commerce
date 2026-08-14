@@ -276,6 +276,7 @@ export function recommendCatalogKeywords(input: {
       product_identity_descriptor_families: profile.descriptorFamilies,
       product_primary_entity_families: profile.primaryEntityFamilies,
       operator_search_axis_families: profile.searchAxisFamilies,
+      operator_search_only_axis_families: profile.searchOnlyAxisFamilies,
       indirect_discovery_alias_families: profile.discoveryAliasFamilies,
       product_presentation_mode: profile.presentation.mode,
       confirmed_component_count: profile.presentation.component_count,
@@ -393,7 +394,19 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
   // Product components are derived only from canonical Product Truth evidence.
   // A source title may describe styling or an umbrella identity, but it cannot
   // manufacture a sold component.
-  const componentFamilies = detectedFamilies(componentEvidence, COMPONENT_FAMILIES);
+  const detectedComponentFamilies = detectedFamilies(componentEvidence, COMPONENT_FAMILIES);
+  const declaredSellableAxisFamilies = usesSearchAxisContract
+    ? detectedFamilies(explicitFocus.sellable_component_axes, COMPONENT_FAMILIES)
+    : [];
+  const declaredSearchOnlyAxisFamilies = usesSearchAxisContract
+    ? detectedFamilies(explicitFocus.search_only_component_axes, COMPONENT_FAMILIES)
+    : [];
+  const componentFamilies = unique([
+    ...detectedComponentFamilies.filter((family) => (
+      !declaredSearchOnlyAxisFamilies.includes(family)
+    )),
+    ...declaredSellableAxisFamilies,
+  ]);
   const descriptorFamilies = detectedFamilies(identityText, COMPONENT_FAMILIES)
     .filter((family) => UMBRELLA_COMPONENT_FAMILIES.has(family));
   const searchAxisFamilies = usesSearchAxisContract
@@ -491,6 +504,7 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
     componentFamilies,
     descriptorFamilies,
     searchAxisFamilies,
+    searchOnlyAxisFamilies: declaredSearchOnlyAxisFamilies,
     primaryEntityFamilies,
     discoveryAliasFamilies,
     usesSearchAxisContract,
@@ -543,7 +557,11 @@ function scoreRow(
   const primaryEntityMatch = intersection(keywordComponents, profile.primaryEntityFamilies);
   const searchOnlyComponentMatch = intersection(
     keywordComponents,
-    profile.searchAxisFamilies.filter((family) => !truthComponentFamilies.includes(family)),
+    profile.searchOnlyAxisFamilies.length
+      ? profile.searchOnlyAxisFamilies.filter((family) => (
+          !profile.primaryEntityFamilies.includes(family)
+        ))
+      : profile.searchAxisFamilies.filter((family) => !truthComponentFamilies.includes(family)),
   );
   const discoveryAliasMatch = intersection(keywordComponents, profile.discoveryAliasFamilies);
   const narrowComponentMatch = intersection(
@@ -742,6 +760,8 @@ function normalizeFocus(value: FocusRecord) {
     persona: axis('persona'),
     audience: axis('audience'),
     exclude: axis('exclude'),
+    sellable_component_axes: axis('sellable_component_axes'),
+    search_only_component_axes: axis('search_only_component_axes'),
     component_focus_contract: String(value?.component_focus_contract || '').trim().toLowerCase(),
   };
 }
