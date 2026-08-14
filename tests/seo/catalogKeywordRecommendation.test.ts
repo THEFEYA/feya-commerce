@@ -553,6 +553,41 @@ test('versioned SEO axes retrieve a harness page entity without rewriting sellab
   assert.deepEqual(result.diagnostics.operator_search_only_axis_families, ['harness', 'top']);
 });
 
+test('a sellable body-placement axis cannot narrow a harness Primary to one area', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      card_title: "Brutal Leather Harness Set Choker Top Harness Leg Garter, Men's Chest Harness",
+      source_category_label: 'Harness / Accessory',
+      canonical_color_label: 'Black',
+      material: 'Leather',
+      sellable_offer_components: ['Top', 'Leg Covers', 'Choker'],
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['top', 'harness', 'legs', 'choker'],
+      sellable_component_axes: ['top', 'legs', 'choker'],
+      search_only_component_axes: ['harness'],
+      material: ['black', 'leather'],
+      event: ['festival', 'pride'],
+      style: ['punk'],
+      audience: ['men'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'leather harness top', keyword_norm: 'leather harness top', bank_bucket: 'product_or_alt', avg_monthly_searches: 260 },
+      { ...baseMetric, keyword: 'black leather harness fashion', keyword_norm: 'black leather harness fashion', bank_bucket: 'product_or_alt', avg_monthly_searches: 10 },
+    ],
+  });
+
+  assert.equal(
+    result.keywords.find((row) => row.role === 'primary')?.keyword_norm,
+    'black leather harness fashion',
+  );
+  assert.equal(
+    result.keywords.find((row) => row.keyword_norm === 'leather harness top')?.role,
+    'secondary',
+  );
+});
+
 test('a visual shoulder search axis cannot replace a crown as the Primary entity', () => {
   const result = recommendCatalogKeywords({
     product: {

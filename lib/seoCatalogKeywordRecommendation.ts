@@ -568,6 +568,10 @@ function scoreRow(
     keywordComponents.filter((family) => !UMBRELLA_COMPONENT_FAMILIES.has(family)),
     profile.componentFamilies,
   );
+  const nonEntityNarrowComponentMatch = keywordComponents.filter((family) => (
+    !UMBRELLA_COMPONENT_FAMILIES.has(family)
+    && !profile.primaryEntityFamilies.includes(family)
+  ));
   const colorMatch = intersection(keywordColors, profile.colors);
   const audienceMatch = intersection(keywordAudiences, profile.audiences);
   const eventMatch = intersection(keywordEvents, profile.events);
@@ -608,6 +612,7 @@ function scoreRow(
     .some((family) => !profile.visualAttributes.includes(family));
   const productBucket = PRODUCT_BUCKETS.has(bucket);
   const mainEntityWholeProductIntent = primaryEntityMatch.length > 0
+    && nonEntityNarrowComponentMatch.length === 0
     && searchOnlyComponentMatch.length === 0
     && discoveryAliasMatch.length === 0;
   const genericWholeProductIntent = searchOnlyComponentMatch.length === 0
