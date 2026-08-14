@@ -10,6 +10,7 @@ import {
 } from '../../lib/seoClaimPlanV2.ts';
 import { generateSeoDraftWithOpenAi } from '../../lib/seoOpenAiDraftGenerator.ts';
 import {
+  normalizeBrownLeatherHarnessPhotoshootAlt,
   normalizeImageAltPrimaryVariation,
   normalizeCodeOwnedPdpBlockOrder,
   normalizeCodeOwnedSeoCollections,
@@ -85,6 +86,29 @@ function writerWireOutput(pdpBlocks: unknown = {
     generation_notes: [],
   };
 }
+
+test('brown photoshoot harness ALT keeps the model shirt outside sold Product DNA', () => {
+  const output = {
+    ...writerWireOutput(),
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'Brown leather harness worn over a white shirt by a male model',
+      truth_basis: 'visible_product_fact',
+    }],
+  } as any;
+  const normalized = normalizeBrownLeatherHarnessPhotoshootAlt(output, {
+    primary_keyword: 'leather harness top',
+    selected_events: ['photoshoot'],
+    selected_materials: ['brown', 'leather'],
+    product_color: 'Brown',
+  });
+
+  assert.equal(
+    normalized.image_alt_candidates[0].alt_text,
+    'Brown leather chest harness worn by a male model',
+  );
+  assert.doesNotMatch(normalized.image_alt_candidates[0].alt_text, /shirt/i);
+});
 
 function inputContract() {
   return {

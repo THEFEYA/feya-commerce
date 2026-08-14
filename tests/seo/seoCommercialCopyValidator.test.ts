@@ -456,6 +456,32 @@ test('requires Ideal for to cover every selected focus axis without requiring ev
   assert.equal(present.issues.some((issue) => issue.code.startsWith('ideal_for_missing_operator_')), false);
 });
 
+test('treats photographers and studio portraits as a real photoshoot buyer context', () => {
+  const result = validateSeoCommercialCopy(draft({
+    h1: 'Brown Leather Harness Top for Photoshoot',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'ideal_for'
+      ? {
+          ...block,
+          body: [
+            'Men seeking a classic brown leather harness for portrait or editorial shoots.',
+            'Models drawn to vintage-inspired chest styling for refined menswear photography.',
+            'Photographers developing brown-leather looks for studio portraits.',
+            'Costume stylists selecting a distinctive chest harness for editorial productions.',
+          ].join('\n'),
+        }
+      : block),
+  }), {
+    manual_focus: {
+      event: ['photoshoot'],
+      style: ['classic'],
+      audience: ['men'],
+    },
+  });
+
+  assert.equal(result.issues.some((issue) => issue.code === 'ideal_for_3_has_no_person_or_use_case'), false);
+  assert.equal(result.issues.some((issue) => issue.code === 'ideal_for_missing_operator_event_focus'), false);
+});
+
 test('blocks one repeated idea spread across three customer blocks', () => {
   const value = draft({
     intro: 'The sculptural silhouette defines the upper body. Its layered shape supports performance styling.',
