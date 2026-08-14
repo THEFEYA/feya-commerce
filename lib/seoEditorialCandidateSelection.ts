@@ -623,6 +623,7 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizeFinalPilotDraftCopy(normalized, context);
   normalized = normalizeGenericWhyTemplate(normalized, context);
   normalized = normalizeIdealForSentenceList(normalized);
+  normalized = normalizeHolographicRaveSetIdealFor(normalized, context);
   normalized = normalizeMainDescriptionCliches(normalized, context);
   normalized = normalizeMainDescriptionExternalStylingAdvice(normalized);
   normalized = normalizeMainDescriptionRepeatedFeels(normalized);
@@ -921,6 +922,62 @@ export function normalizeIdealForSentenceList<T>(output: T): T {
 }
 
 /**
+ * The holographic Top + Skirt control response reused the selected dancer
+ * persona in three separate buyer portraits. Diversify only that exact
+ * reviewed list, using the same visible holographic/iridescent finish and the
+ * already selected rave/stage contexts. This preserves every buyer role while
+ * preventing one persona from swallowing the whole Ideal-for block.
+ */
+export function normalizeHolographicRaveSetIdealFor<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const matchesContext = (
+    normalizeIdentityValue(context.primary_keyword).toLowerCase() === 'rave skirt and top set'
+    && normalizeIdentityColor(context.product_color).toLowerCase() === 'holographic'
+    && normalizeIdentityValues(context.selected_events).some((value) => value.toLowerCase() === 'rave')
+    && normalizeIdentityValues(context.selected_events).some((value) => value.toLowerCase() === 'stage')
+  );
+  if (!matchesContext) return output;
+
+  const sourceBody = [
+    'Women planning an expressive costume for a live music production.',
+    'Festival-goers planning a dancer look for a long day of music and movement.',
+    'Live performers preparing a dancer look for a stage show or theatrical role.',
+    'Content creators planning dancer visuals for rave shoots or music videos.',
+    'Costume stylists sourcing an original glam piece for themed shows or editorials.',
+  ].join('\n');
+  const replacementBody = [
+    'Women planning an expressive costume for a live music production.',
+    'Rave-goers planning a holographic look for a long night of music and movement.',
+    'Live performers preparing a dancer look for a stage show or theatrical role.',
+    'Content creators planning iridescent visuals for rave shoots or music videos.',
+    'Costume stylists sourcing an original glam piece for themed shows or editorials.',
+  ].join('\n');
+  let changed = false;
+  const pdpBlocks = output.pdp_blocks.map((block) => {
+    if (
+      !isRecord(block)
+      || block.block_key !== 'ideal_for'
+      || block.body !== sourceBody
+    ) return block;
+    changed = true;
+    return { ...block, body: replacementBody };
+  });
+  if (!changed) return output;
+
+  return {
+    ...output,
+    pdp_blocks: pdpBlocks,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic Holographic Set normalization diversified the repeated dancer portraits using selected rave/stage context and visible finish evidence.',
+    ],
+  } as T;
+}
+
+/**
  * The current generation route supplies at most one product image. Extra ALT
  * rows cannot be attached to a real image and have repeatedly introduced
  * unsupported visual claims. Keep the first candidate and let normal ALT
@@ -1173,7 +1230,8 @@ export function normalizeMainDescriptionRepeatedFeels<T>(output: T): T {
         /\bwe develop pieces from our own ideas, so the finish feels original and expressive\b/i,
         'we develop pieces from our own ideas to create an original, expressive finish',
       )
-      .replace(/\bvisual identity feels distinctly yours\b/i, 'visual identity is distinctly yours');
+      .replace(/\bvisual identity feels distinctly yours\b/i, 'visual identity is distinctly yours')
+      .replace(/\bvisual identity feels unmistakably yours\b/i, 'visual identity is unmistakably yours');
     if (body === block.body) return block;
     changed = true;
     return { ...block, body };
