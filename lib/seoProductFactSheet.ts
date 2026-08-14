@@ -158,7 +158,7 @@ export function buildCurrentSeoProductEvidence(input: SeoAgentInputContract): Se
       'current_product_truth',
       'deterministic_only',
     ));
-    currentConfirmedFacts.push(...materialStoryFacts(product.material));
+    currentConfirmedFacts.push(...materialStoryFacts(product.material, product.color));
   }
   if (product.color?.trim()) {
     currentConfirmedFacts.push(currentFact(
@@ -226,18 +226,14 @@ export function buildCurrentSeoProductEvidence(input: SeoAgentInputContract): Se
   };
 }
 
-function materialStoryFacts(material: string): SeoProductEvidenceFact[] {
+function materialStoryFacts(material: string, color: string | null | undefined): SeoProductEvidenceFact[] {
   const normalized = material.toLowerCase();
   const facts: SeoProductEvidenceFact[] = [];
+  const finishFact = colorAwareFinishFact(color);
 
   if (/vegan leather|faux leather/.test(normalized)) {
     facts.push(
-      currentFact(
-        'material_glossy_mirror_coating',
-        'The material has a durable, glossy, mirror-like coating.',
-        'owner_approved_material_story',
-        'writer',
-      ),
+      finishFact,
       currentFact(
         'material_body_comfort',
         'The material feels comfortable against the body.',
@@ -255,12 +251,7 @@ function materialStoryFacts(material: string): SeoProductEvidenceFact[] {
 
   if (/mirror acrylic|acrylic mirror|mirror plastic/.test(normalized)) {
     facts.push(
-      currentFact(
-        'material_thermoformed_liquid_metal',
-        'Thermoformed smooth surface with a liquid-metal effect.',
-        'owner_approved_material_story',
-        'writer',
-      ),
+      finishFact,
       currentFact(
         'material_event_light_camera',
         'Surface stays visually clear under event lighting and on camera.',
@@ -271,6 +262,51 @@ function materialStoryFacts(material: string): SeoProductEvidenceFact[] {
   }
 
   return facts;
+}
+
+/**
+ * "Mirror" describes the studio's smooth glossy surface family, not one
+ * universal optical behavior. The customer-facing finish must follow the
+ * confirmed color instead of turning every shade into metal, reflection,
+ * glitter or iridescence.
+ */
+function colorAwareFinishFact(color: string | null | undefined): SeoProductEvidenceFact {
+  const normalized = String(color || '').trim().toLowerCase();
+
+  if (/\b(?:holographic|hologram|iridescent)\b/.test(normalized)) {
+    return currentFact(
+      'material_glossy_holographic_shift',
+      'The smooth, shiny holographic surface shows subtle color shifts in changing light and movement.',
+      'owner_approved_material_story',
+      'writer',
+    );
+  }
+
+  if (/\b(?:gold|silver)\b/.test(normalized)) {
+    return currentFact(
+      'material_glossy_metal_inspired_finish',
+      `The smooth, high-gloss ${normalized.includes('gold') ? 'gold' : 'silver'} surface has a polished, metal-inspired appearance.`,
+      'owner_approved_material_story',
+      'writer',
+    );
+  }
+
+  if (/\b(?:black|red|white)\b/.test(normalized)) {
+    const shade = normalized.match(/\b(?:black|red|white)\b/)?.[0] || 'colored';
+    return currentFact(
+      'material_glossy_latex_like_finish',
+      `The smooth, high-gloss ${shade} surface creates a sleek, latex-like appearance.`,
+      'owner_approved_material_story',
+      'writer',
+    );
+  }
+
+  return currentFact(
+    'material_smooth_glossy_finish',
+    'The smooth, high-gloss surface gives the piece a clean, polished finish.',
+    'owner_approved_material_story',
+    'writer',
+  );
 }
 
 function currentFact(

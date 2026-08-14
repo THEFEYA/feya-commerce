@@ -83,9 +83,9 @@ const SILVER_SHOULDER_SKIRT_IDEAL = 'Women planning an expressive costume for a 
 const SILVER_SHOULDER_SKIRT_MAIN = 'We design this rave costume with skirt to bring a strong festival presence into your look. At TheFEYA, we develop pieces from our own ideas to create an original, expressive finish. We keep the silver direction bold and polished, helping you create a visual identity that feels personal.';
 const SILVER_SHOULDER_SKIRT_ALT = 'Silver rave costume with skirt worn at a festival stage';
 const LIVE_CONTROL_ABOUT_AFTER_DURABILITY_NORMALIZATION = 'For festivals and cosplay, this warrior armor outfit brings a glossy, mirror-like coating that creates a polished metal look. The gold finish gives the set a bold stage presence while the fitted shape keeps the look streamlined.';
-const LIVE_CONTROL_ABOUT_REVIEW_COPY = 'For festivals and cosplay, this warrior armor outfit uses a glossy, mirror-like coating to create a polished metal look. Its streamlined silhouette gives you a distinct starting point for an original character with a gold armor look.';
+const LIVE_CONTROL_ABOUT_REVIEW_COPY = 'For festivals and cosplay, this warrior armor outfit uses a glossy, mirror-like coating to create a polished metal-inspired finish. The streamlined armor forms give the gold design a distinctive, recognizable character for festival days, stage performances, photos, and original cosplay styling.';
 const LIVE_CONTROL_EXTERNAL_STYLING_CLOSE = 'At TheFEYA, we develop festival and stage pieces from our own ideas, and this warrior armor outfit is built as an original studio interpretation. The gold shape and futuristic lines help you create a character that feels bold on stage or at a festival. Style it with clean hair and strong makeup for a sharp look.';
-const LIVE_CONTROL_STUDIO_REVIEW_COPY = 'At TheFEYA, we develop festival and stage pieces from our own ideas. This warrior armor outfit is our studio interpretation of a futuristic character for festivals and performance. It gives you a clear design starting point while leaving room for a visual identity that feels personal.';
+const LIVE_CONTROL_STUDIO_REVIEW_COPY = 'At TheFEYA, we develop festival and stage pieces from our own ideas. This warrior armor outfit is our original, fashion-led interpretation of a futuristic character for festivals and performance. Its expressive gold details give the design a distinctive, confident presence that feels personal and memorable while staying true to our studio style.';
 const FINAL_PILOT_META = 'GOLD WARRIOR ARMOR COSTUME WITH A POLISHED METAL LOOK FOR FESTIVALS AND COSPLAY.';
 const FINAL_PILOT_ABOUT = 'For festivals and cosplay, this warrior armor outfit brings a striking futuristic edge to your look. Its glossy, mirror-like coating creates a polished metal look. The sculpted gold finish adds strong visual presence while keeping the overall silhouette sleek and wearable.';
 const FINAL_PILOT_WHY = 'Our original studio design lets you shape the finished character through your own styling choices.\nThe material feels comfortable against the body, making the costume easier to wear through longer events or performances.\nThe material helps the costume keep its shape between wears, so it is ready for the next occasion.';
@@ -93,11 +93,11 @@ const FINAL_PILOT_IDEAL = 'Festival-goers planning a warrior look for a long day
 const FINAL_PILOT_MAIN = 'At TheFEYA, we develop festival and stage pieces from our own ideas, and this warrior armor outfit was created to support a bold futuristic or fantasy look. It can lean futuristic or fantasy for festivals and cosplay. It feels designed for a visual identity that feels personal.';
 const FINAL_PILOT_ALT = 'Gold warrior armor outfit with a raised pose on dark rocks';
 const FINAL_PILOT_REVIEW_META = 'Gold warrior armor costume with a glossy, polished-metal look for festivals, cosplay and stage performance.';
-const FINAL_PILOT_REVIEW_INTRO = 'This gold warrior armor outfit brings a polished, futuristic silhouette to festivals, cosplay and stage performance, with room to shape the character in your own way.';
-const FINAL_PILOT_REVIEW_ABOUT = 'A glossy, mirror-like coating gives this gold warrior armor outfit its polished-metal finish. Streamlined forms create a distinctive armor silhouette, giving you a clear visual foundation for an original character that works naturally across festival, cosplay, stage and editorial settings.';
-const FINAL_PILOT_REVIEW_WHY = 'Our original studio design lets you shape the finished character through your own styling choices.\nA comfortable feel against the body makes the costume easier to wear through longer events or performances.\nThe material helps the costume keep its shape between wears, so it is ready for the next occasion.';
+const FINAL_PILOT_REVIEW_INTRO = 'This gold warrior armor outfit brings a polished, futuristic studio character to festivals, cosplay, and stage performance.';
+const FINAL_PILOT_REVIEW_ABOUT = 'A glossy, mirror-like coating gives this gold warrior armor outfit its polished, metal-inspired finish. Streamlined armor forms and expressive details give the design a distinctive, recognizable character for festival days, original cosplay, stage performance, and editorial settings.';
+const FINAL_PILOT_REVIEW_WHY = 'Our original studio design gives the gold outfit a distinctive, memorable character.\nA comfortable feel against the body makes the costume easier to wear through longer events or performances.\nWith careful storage, the piece keeps its shape beautifully between wears and stays ready for future occasions.';
 const FINAL_PILOT_REVIEW_IDEAL = 'Festival-goers planning a warrior look for a full day of music and movement.\nCosplayers developing an original fantasy character around a studio-designed costume.\nLive performers preparing a futuristic warrior costume for a stage show or theatrical role.\nContent creators planning a gold costume photoshoot for festival imagery.\nCostume stylists sourcing armor-inspired fashion for editorials or themed productions.';
-const FINAL_PILOT_REVIEW_MAIN = "At TheFEYA, we develop festival and stage pieces from our own ideas. This gold armor look reflects our studio's take on futuristic warrior design. Those choices give you a clear starting point while leaving the final character open to your own visual identity and style.";
+const FINAL_PILOT_REVIEW_MAIN = "At TheFEYA, we develop festival and stage pieces from our own ideas. This gold armor outfit reflects our fashion-led take on futuristic warrior design. Its expressive forms give the original character a confident, memorable presence that feels personal while preserving the distinctive style of our studio.";
 const FINAL_PILOT_REVIEW_ALT = 'Gold warrior armor outfit with headpiece, shoulder armor and leg covers posed on dark rocks';
 const FINAL_PILOT_STALE_META_QA_NOTE = 'Meta description kept uppercase and within length guidance.';
 const FINAL_PILOT_REVIEW_META_QA_NOTE = 'Meta description uses natural sentence case and stays within length guidance.';
@@ -581,7 +581,7 @@ export function normalizeMainDescriptionExternalStylingAdvice<T>(output: T): T {
       hasSafeStudioBasis
       && (editorialWordCount(body) < 45 || splitEditorialSentences(body).length < 3)
     ) {
-      body = `${body} That gives you room to shape a visual identity that feels personal to you.`;
+      body = `${body} Our original studio design gives the outfit a distinctive, memorable character that feels personal.`;
     }
     if (body === block.body) return block;
     changed = true;
@@ -669,6 +669,7 @@ export function normalizeHumanSilverShoulderSkirtCopy<T>(
   if (!matchesTruth) return output;
 
   let changed = false;
+  const normalizedGenericWhy = 'Our original studio-designed silver outfit has a distinctive, memorable character for festivals.\nA comfortable feel against the body helps through longer festival days and live performances.\nWith careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.';
   const replaceExact = (value: unknown, before: string, after: string) => {
     if (value !== before) return value;
     changed = true;
@@ -695,7 +696,11 @@ export function normalizeHumanSilverShoulderSkirtCopy<T>(
       ],
     };
     const replacement = replacements[String(block.block_key || '')];
-    if (!replacement || block.body !== replacement[0]) return block;
+    const matchesReviewedSource = Boolean(replacement) && (
+      block.body === replacement[0]
+      || (block.block_key === 'why_youll_love_it' && block.body === normalizedGenericWhy)
+    );
+    if (!replacement || !matchesReviewedSource) return block;
     changed = true;
     return { ...block, body: replacement[1] };
   });
@@ -751,10 +756,10 @@ export function normalizeGenericWhyTemplate<T>(
   const events = normalizeIdentityValues(context.selected_events);
   const event = events[0] || 'event';
   const eventLook = /^festival$/i.test(event)
-    ? 'festival look'
+    ? 'festivals'
     : /^burning man$/i.test(event)
-      ? 'Burning Man look'
-      : `${event.toLowerCase()} look`;
+      ? 'Burning Man'
+      : event.toLowerCase();
   const eventTime = /^festival$/i.test(event)
     ? 'festival days'
     : /^burning man$/i.test(event)
@@ -769,19 +774,19 @@ export function normalizeGenericWhyTemplate<T>(
   const variant = stableEditorialVariant(signature, 3);
   const variants = [
     [
-      `The original studio-designed ${colorPrefix}silhouette gives you a clear starting point while leaving the final ${eventLook} open to your own choices.`,
+      `Our original studio-designed ${colorPrefix}outfit has a distinctive, memorable character for ${eventLook}.`,
       `A comfortable feel against the body helps through longer ${eventTime} and live performances.`,
-      'With careful storage, the structured material keeps its form ready for the next event.',
+      'With careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
     ],
     [
-      `An original studio-made ${colorPrefix}shape gives you room to define the finished ${eventLook} in your own way.`,
+      `The original studio-made ${colorPrefix}design gives the outfit a striking, recognizable character for ${eventLook}.`,
       'The comfortable material helps the piece stay wearable through longer events or performances.',
-      'Its structure holds its form between wears when stored with care.',
+      'Stored with care, the piece retains its shape exceptionally well between wears.',
     ],
     [
-      `The ${colorPrefix}design begins with an original studio-designed silhouette, leaving you free to shape the finished ${eventLook}.`,
+      `Original studio details give this ${colorPrefix}outfit a confident, memorable character for ${eventLook}.`,
       `A comfortable feel helps during longer ${eventTime} and live performances.`,
-      'Careful storage helps the material keep its shape for repeat wear.',
+      'Careful storage helps the piece keep its shape beautifully for repeat wear.',
     ],
   ];
 
@@ -1004,7 +1009,7 @@ export function normalizeBlackBodysuitSetCopy<T>(
   const replacements: Record<string, [string, string]> = {
     about_this_piece: [
       'Made for Halloween and cosplay, this outfit centers a black bodysuit with a dramatic glossy finish. Its glossy, mirror-like coating creates a polished metal look. The shape reads bold and clean, with a goth-fantasy mood that feels ready for an original character.',
-      'Made for Halloween and cosplay, this outfit centers a black bodysuit that creates a continuous dark base for the costume. Its glossy, mirror-like coating creates a polished metal look. The shape reads bold and clean, with a goth-fantasy mood that feels ready for an original character.',
+      'Made for Halloween and cosplay, this outfit centers a black bodysuit that creates a continuous dark base for the costume. Its smooth, high-gloss surface gives the black finish a sleek, latex-like character. The original fashion-led design feels bold, dark, and memorable.',
     ],
     ideal_for: [
       [
@@ -1073,7 +1078,7 @@ export function normalizeRedBodysuitSetCopy<T>(
   const replacements: Record<string, [string, string]> = {
     about_this_piece: [
       'This costume is made for Halloween and cosplay, bringing your look into a bold goth or fantasy direction. Its glossy, mirror-like coating creates a polished metal look, while the red shape keeps the finish striking from every angle.',
-      'This costume is made for Halloween and cosplay, using its red bodysuit shape to create a bold demon-inspired character. Its glossy, mirror-like coating creates a polished metal look, while the fitted silhouette stays striking from every angle.',
+      'This costume is made for Halloween and cosplay, using its red bodysuit to create a bold demon-inspired character. Its smooth, high-gloss surface gives the red finish a sleek, latex-like look, while the fitted design stays striking from every angle.',
     ],
     ideal_for: [
       [
@@ -1093,7 +1098,7 @@ export function normalizeRedBodysuitSetCopy<T>(
     ],
     main_description: [
       'We build our pieces at TheFEYA from our own ideas, so your outfit feels original rather than copied. We lean into goth and fantasy cues to help you create a visual identity that feels personal. That lets you decide how the finished character should look.',
-      'We build our pieces at TheFEYA from our own ideas, so your outfit feels original rather than copied. The red silhouette gives the character a clear visual base without locking you into one fixed interpretation for Halloween or cosplay. That lets you shape the finished character around your own visual identity.',
+      'At TheFEYA, we develop this red costume from our own ideas. Its original, fashion-led design gives the demon-inspired character a glamorous, distinctive presence that feels personal and memorable. The confident studio style suits Halloween nights, cosplay appearances, stage performance, and creative photo or video shoots.',
     ],
   };
   const pdpBlocks = output.pdp_blocks.map((block) => {
@@ -1117,12 +1122,12 @@ export function normalizeRedBodysuitSetCopy<T>(
   const metaDescription = replaceExact(
     output.meta_description,
     'Red Halloween costumes with red bodysuit for festivals and cosplay, with a polished metal look and a goth-inspired finish.',
-    'Red Halloween costumes with red bodysuit, a polished metal look, and a bold demon-inspired finish for cosplay.',
+    'Red Halloween costume with a glossy bodysuit and a bold demon-inspired character for Halloween and cosplay.',
   );
   const intro = replaceExact(
     output.intro,
     'This complete Complete Halloween costumes with red bodysuit is made for Halloween and cosplay, giving you a starting point for an original goth or fantasy demon character with a leather bodysuit costume edge.',
-    'This red bodysuit brings a distinct character shape to Halloween costumes for cosplay, giving you a starting point for an original demon character with a bold leather look.',
+    'This red bodysuit costume creates a bold demon-inspired character for Halloween and cosplay with a glossy leather look.',
   );
   if (!changed) return output;
 
@@ -1172,7 +1177,7 @@ export function normalizeMirrorBodysuitLegsSetCopy<T>(
     ],
     main_description: [
       'We design at TheFEYA from our own ideas, creating a robot armor outfit for women who want a stronger presence on stage. We keep the look original so you can build a character of your own through personal styling choices. We want the final impression to feel futuristic, bold, and unmistakably yours.',
-      'We design at TheFEYA from our own ideas, creating a robot armor outfit for women who want a stronger presence on stage. The silver silhouette gives you a clear character base while leaving the final interpretation open. You can shape the finished visual identity around the performance or cosplay role you have in mind.',
+      'At TheFEYA, we designed this silver robot armor outfit from our own ideas. Its glossy, metal-inspired finish and bold sci-fi styling give it a distinctive, glamorous character that feels personal and memorable. The confident studio design suits stage performance, original cosplay, and creative photo or video shoots.',
     ],
   };
   let changed = false;
@@ -1214,71 +1219,71 @@ export function normalizeBatchFiveEditorialBlacklistCopy<T>(
     'skirt and top set festival::gold': [
       [
         'The gold design begins with an original studio-designed silhouette, leaving you free to shape the finished festival look.',
-        'The original studio-designed gold shape gives the outfit a recognizable festival presence while leaving the final styling choices to you.',
+        'The original studio-designed gold outfit has a distinctive, glamorous character that stays memorable in festival settings.',
       ],
       [
         'We develop pieces from our own ideas at TheFEYA, and this skirt and top outfit festival is built to help you create a striking original look. We shape the gold details for a glam presence that feels confident and personal. We keep the design expressive so your finished visual identity is distinctly yours.',
-        'We develop pieces from our own ideas at TheFEYA, and this skirt and top outfit festival is built to help you create a striking original look. We shape the gold details for a glam presence that feels confident and personal. The gold finish gives the set a recognizable festival presence and lets you make the character your own.',
+        'At TheFEYA, we develop this gold festival outfit from our own ideas. Its expressive details and glossy, metal-inspired finish give the set a glamorous, recognizable character that feels confident and personal.',
       ],
       [
         'We shape the gold details for a glam presence that feels confident and personal. We keep the design expressive so your finished visual identity is distinctly yours.',
-        'We shape the gold details for a glam presence that feels confident and personal. The gold finish gives the set a recognizable festival presence and lets you make the character your own.',
+        'Our expressive gold details and glossy, metal-inspired finish give the set a glamorous, recognizable character that feels confident and personal.',
       ],
     ],
     'rave skirt and top set::holographic': [
       [
         'This rave skirt and top outfit is made for rave and the stage, giving you a starting point for an original studio look you can make your own.',
-        'This rave skirt and top outfit is made for rave and the stage, bringing an original studio look you can make your own.',
+        'This rave skirt and top outfit brings an original, fashion-led studio design to rave nights and the stage.',
       ],
       [
         'We design this piece to help you build a look that feels vivid, modern, and personal. At TheFEYA, we develop pieces from our own ideas, and this rave skirt and top outfit brings that original energy to rave nights and stage moments. We pair holographic shine with glam attitude so your visual identity is unmistakably yours.',
-        'We design this piece to help you build a look that feels vivid, modern, and personal. At TheFEYA, we develop pieces from our own ideas, and this rave skirt and top outfit brings that original energy to rave nights and stage moments. We pair holographic shine with glam attitude so you can make the look your own.',
+        'At TheFEYA, we develop this rave skirt and top outfit from our own ideas. Its shiny holographic surface and subtle color shifts give the design a vivid, glamorous character for rave nights and stage moments.',
       ],
       [
         'We design this piece to help you build a look that feels vivid, modern, and personal. We pair holographic shine with glam attitude so your visual identity is unmistakably yours.',
-        'We design this piece to help you build a look that feels vivid, modern, and personal. We pair holographic shine with glam attitude so you can make the look your own.',
+        'The shiny holographic surface and subtle color shifts give this original studio design a vivid, glamorous character.',
       ],
     ],
     'halloween costume with black bodysuit::black': [
       [
         'This Halloween outfit with black bodysuit is made for Halloween and cosplay, giving you a starting point for an original goth or fantasy character.',
-        'This Halloween outfit with black bodysuit is made for Halloween and cosplay, giving you a bold base for an original goth or fantasy character.',
+        'This Halloween outfit with black bodysuit presents an original goth- or fantasy-inspired character in TheFEYA’s bold, fashion-led style.',
       ],
       [
         'The original studio-designed black silhouette gives you a clear starting point while leaving the final Halloween look open to your own choices.',
-        'The original studio-designed black shape gives the outfit a defined character while leaving the final Halloween look open to your own choices.',
+        'The original studio-designed black outfit has a bold, distinctive character with a dark fashion-led edge.',
       ],
       [
         'We keep the look bold, dark, and easy to shape into your own character. At TheFEYA, we develop pieces from our own ideas, so the result feels personal rather than copied. We aim for a visual identity that reads clearly and stays distinctly yours. That lets you decide how the finished character should look.',
-        'We keep the look bold, dark, and open to your interpretation. At TheFEYA, we develop pieces from our own ideas, so the result feels personal rather than copied. That leaves you free to decide how the finished character should look and feel for Halloween or cosplay.',
+        'At TheFEYA, we develop this bold, dark outfit from our own ideas. Its original, fashion-led goth-fantasy character feels distinctive, confident, and personal. The memorable studio design suits Halloween nights, cosplay appearances, stage performance, and creative photo or video shoots.',
       ],
     ],
     'halloween costumes with red bodysuit::red': [
       [
         'This red bodysuit brings a distinct character shape to Halloween costumes for cosplay, giving you a starting point for an original demon character with a bold leather look.',
-        'This red bodysuit brings a distinct character shape to Halloween costumes for cosplay, supporting an original demon character with a bold leather look.',
+        'This red bodysuit costume creates a bold demon-inspired character for Halloween and cosplay with a glossy leather look.',
       ],
       [
         'This costume is made for Halloween and cosplay, using its red bodysuit shape to create a bold demon-inspired character. Its glossy, mirror-like coating creates a polished metal look, while the fitted silhouette stays striking from every angle.',
-        'This costume is made for Halloween and cosplay, using its red bodysuit shape to create a bold demon-inspired character. Its glossy, mirror-like coating creates a polished metal look, while the fitted shape stays striking from every angle.',
+        'This costume is made for Halloween and cosplay, using its red bodysuit to create a bold demon-inspired character. Its smooth, high-gloss surface gives the red finish a sleek, latex-like look, while the fitted design stays striking from every angle.',
       ],
       [
         'We build our pieces at TheFEYA from our own ideas, so your outfit feels original rather than copied. The red silhouette gives the character a clear visual base without locking you into one fixed interpretation for Halloween or cosplay. That lets you shape the finished character around your own visual identity.',
-        'We build our pieces at TheFEYA from our own ideas, so your outfit feels original rather than copied. The red shape gives the character a strong visual base without locking you into one fixed interpretation for Halloween or cosplay. That lets you make the look your own.',
+        'At TheFEYA, we develop this red costume from our own ideas. Its original, fashion-led design gives the demon-inspired character a glamorous, distinctive presence that feels personal and memorable. The confident studio style suits Halloween nights, cosplay appearances, stage performance, and creative photo or video shoots.',
       ],
     ],
     'robot armor costume::silver': [
       [
         'This robot armor outfit is made for the stage and cosplay, giving you a starting point for an original post apocalyptic or cyberpunk showgirl character in a robot armor outfit.',
-        'This robot armor outfit is made for the stage and cosplay, giving you a bold base for an original post apocalyptic or cyberpunk showgirl character.',
+        'This robot armor outfit brings an original post-apocalyptic or cyberpunk showgirl character to the stage and cosplay.',
       ],
       [
         'The original studio-designed silver silhouette gives you a clear starting point while leaving the final stage look open to your own choices.',
-        'The original studio-designed silver shape gives the outfit a defined stage presence while leaving the final look open to your own choices.',
+        'The original studio-designed silver outfit has a striking, memorable robot-armor character for stage and cosplay.',
       ],
       [
         'We design at TheFEYA from our own ideas, creating a robot armor outfit for women who want a stronger presence on stage. The silver silhouette gives you a clear character base while leaving the final interpretation open. You can shape the finished visual identity around the performance or cosplay role you have in mind.',
-        'We design at TheFEYA from our own ideas, creating a robot armor outfit for women who want a stronger presence on stage. The silver shape gives you a strong character base while leaving the final interpretation open. You can make the look your own for a performance or cosplay role.',
+        'At TheFEYA, we designed this silver robot armor outfit from our own ideas. Its glossy, metal-inspired finish and bold sci-fi styling give it a distinctive, glamorous character that feels personal and memorable. The confident studio design suits stage performance, original cosplay, and creative photo or video shoots.',
       ],
     ],
   };
@@ -1481,7 +1486,7 @@ export function normalizeRepeatedAboutFinishClause<T>(output: T): T {
           && /\bfirst glance\b/i.test(sentence)
         ) {
           changed = true;
-          return 'The outfit gives you a starting point for an original character while leaving the surrounding styling choices to you.';
+          return 'Its original studio design gives the gold outfit a distinctive, memorable character that feels confident at festivals, performances, and cosplay events.';
         }
 
         return sentence;
@@ -1561,16 +1566,23 @@ export function normalizeMainDescriptionRepeatedFeels<T>(output: T): T {
       || typeof block.body !== 'string'
       || countLiteralPhrase(block.body, 'feels') < 2
     ) return block;
-    const body = block.body
+    let body = block.body;
+    if (body === 'We shape the gold details for a glam presence that feels confident and personal. We keep the design expressive so your finished visual identity feels distinctly yours.') {
+      body = 'At TheFEYA, we develop this gold festival outfit from our own ideas. Expressive details and a glossy, metal-inspired finish give the set a glamorous, recognizable character. The fashion-led design feels confident and memorable for long festival days, live performances, and creative photo or video shoots while staying true to our distinctive studio style.';
+    } else if (body === 'We design this piece to help you build a look that feels vivid, modern, and personal. We pair holographic shine with glam attitude so your visual identity feels unmistakably yours.') {
+      body = 'At TheFEYA, we develop this holographic rave outfit from our own ideas. Its shiny surface and subtle color shifts give the studio design a vivid, glamorous character. The fashion-led result feels distinctive and memorable for rave nights, stage performances, and creative photo or video shoots while staying true to our original style.';
+    } else if (body === 'At TheFEYA, we develop pieces from our own ideas, so the result feels personal rather than copied. That gives you room to shape a visual identity that feels personal to you.') {
+      body = 'At TheFEYA, we develop this black Halloween costume from our own ideas. Its original, fashion-led goth-fantasy character feels bold, distinctive, and personal. The memorable studio design suits Halloween nights, cosplay appearances, stage performance, and creative photo or video shoots while preserving our confident point of view.';
+    } else body = body
       .replace(
         /\bwe develop pieces from our own ideas, so the finish feels original and expressive\b/i,
         'we develop pieces from our own ideas to create an original, expressive finish',
       )
-      .replace(/\bvisual identity feels distinctly yours\b/i, 'visual identity is distinctly yours')
-      .replace(/\bvisual identity feels unmistakably yours\b/i, 'visual identity is unmistakably yours')
+      .replace(/\byour finished visual identity feels distinctly yours\b/i, 'the gold details feel distinctive and personal')
+      .replace(/\byour visual identity feels unmistakably yours\b/i, 'the holographic finish feels vivid and distinctive')
       .replace(
         /\bthat gives you room to shape a visual identity that feels personal to you\b/i,
-        'That lets you decide how the finished character should look',
+        'Our original studio design gives the outfit a distinctive, memorable character',
       );
     if (body === block.body) return block;
     changed = true;
@@ -1600,6 +1612,13 @@ export function normalizeMainDescriptionCliches<T>(
 ): T {
   if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
   let changed = false;
+  let intro = output.intro;
+  if (
+    intro === 'This warrior armor outfit is made for festivals and cosplay, giving you a starting point for an original futuristic or fantasy character.'
+  ) {
+    intro = 'This gold warrior armor outfit presents an original futuristic or fantasy character for festivals and cosplay.';
+    changed = true;
+  }
   const focusSentence = buildMainDescriptionFocusSentence(context);
   const pdpBlocks = output.pdp_blocks.map((block) => {
     if (
@@ -1612,8 +1631,12 @@ export function normalizeMainDescriptionCliches<T>(
       .replace(/\bstep into the scene and\s+/gi, '')
       .replace(/\bthe moment you step into it\b/gi, 'when you put it on')
       .replace(
+        /\bour original studio design lets you shape the finished character through your own styling choices\b/gi,
+        'Our original studio design gives the outfit a distinctive, memorable character that feels personal',
+      )
+      .replace(
         /\bfinish it your way and make the look your own\b[.!]?/gi,
-        'You choose the surrounding styling that completes the final look for the setting you have in mind.',
+        'The original studio design gives the outfit a distinctive, memorable character that feels personal.',
       );
     if (focusSentence) {
       body = body.replace(
@@ -1629,6 +1652,7 @@ export function normalizeMainDescriptionCliches<T>(
 
   return {
     ...output,
+    intro,
     pdp_blocks: pdpBlocks,
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
@@ -2020,7 +2044,7 @@ function buildBoundedControlRunClose(
   );
   if (!identity || !color || !stylePhrase || !eventPhrase) return '';
 
-  return `At TheFEYA, we develop original festival and stage pieces in our studio. We designed this ${identity} as a starting point for a ${stylePhrase} character, pairing a clear ${color} direction with room for your own styling choices. You decide how to complete the character and make its visual identity your own for the ${eventPhrase} setting you have in mind.`;
+  return `At TheFEYA, we develop original festival and stage pieces in our studio. We designed this ${identity} with expressive ${color} details and a distinctive ${stylePhrase} character. The confident, memorable result feels personal, suits ${eventPhrase}, and preserves our original, fashion-led studio point of view.`;
 }
 
 function formatCloseEvent(value: string) {

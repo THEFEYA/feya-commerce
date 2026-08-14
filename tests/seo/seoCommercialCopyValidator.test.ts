@@ -1326,3 +1326,72 @@ test('recognizes a design that feels personal as a self-expression outcome', () 
   const result = validateSeoCommercialCopy(value);
   assert.equal(result.issues.some((issue) => issue.code === 'self_expression_close_lacks_clear_buyer_value'), false);
 });
+
+test('blocks structured material and unfinished design-review language', () => {
+  const value = draft({
+    intro: 'The original black silhouette is a starting point while the structured material holds its form for your final look choices.',
+  });
+  const codes = validateSeoCommercialCopy(value).issues.map((issue) => issue.code);
+  assert.ok(codes.includes('customer_copy_calls_material_structured'));
+  assert.ok(codes.includes('customer_copy_uses_design_review_or_unfinished_language'));
+});
+
+test('enforces the confirmed color-to-finish matrix', () => {
+  const blackCodes = validateSeoCommercialCopy(
+    draft({ intro: 'This black outfit has a polished metal finish for Halloween.' }),
+    { product_truth: { color: 'Black' } },
+  ).issues.map((issue) => issue.code);
+  assert.ok(blackCodes.includes('color_finish_mismatch_metal_language'));
+
+  const goldCodes = validateSeoCommercialCopy(
+    draft({ intro: 'This gold outfit has an iridescent color-shifting finish for festivals.' }),
+    { product_truth: { color: 'Gold' } },
+  ).issues.map((issue) => issue.code);
+  assert.ok(goldCodes.includes('color_finish_mismatch_color_shift_language'));
+});
+
+test('allows shiny holographic truth but blocks direct metal, mirrored, reflective, or sparkling claims', () => {
+  const allowed = validateSeoCommercialCopy(
+    draft({ intro: 'This shiny holographic outfit shows subtle color shifts in changing light and movement.' }),
+    { product_truth: { color: 'Holographic' } },
+  );
+  assert.equal(allowed.issues.some((issue) => /color_finish_mismatch|holographic_finish_overstates|unsupported_reflective/.test(issue.code)), false);
+
+  const blocked = validateSeoCommercialCopy(
+    draft({ intro: 'The holographic material is metallic, mirrored, reflective, and sparkling.' }),
+    { product_truth: { color: 'Holographic' } },
+  );
+  const codes = blocked.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('color_finish_mismatch_metal_language'));
+  assert.ok(codes.includes('holographic_finish_overstates_mirrored_or_sparkling_behavior'));
+  assert.ok(codes.includes('unsupported_reflective_finish_claim'));
+});
+
+test('permits an approved indirect optical aesthetic without turning it into a material claim', () => {
+  const context = {
+    product_truth: { color: 'Holographic' },
+    keyword_roles: {
+      secondary: [{ keyword: 'reflective rave outfit' }],
+      support: [],
+    },
+  };
+  const allowed = validateSeoCommercialCopy(
+    draft({ meta_description: 'Reflective-inspired rave styling with a shiny holographic look for stage performance.' }),
+    context,
+  );
+  assert.equal(allowed.issues.some((issue) => issue.code === 'unsupported_reflective_finish_claim'), false);
+  assert.equal(allowed.issues.some((issue) => issue.code === 'customer_copy_uses_unselected_indirect_optical_keyword'), false);
+  assert.equal(allowed.issues.some((issue) => issue.code === 'customer_copy_turns_indirect_optical_keyword_into_material_claim'), false);
+
+  const materialClaim = validateSeoCommercialCopy(
+    draft({ intro: 'The material has a reflective-inspired finish for rave nights.' }),
+    context,
+  );
+  assert.ok(materialClaim.issues.some((issue) => issue.code === 'customer_copy_turns_indirect_optical_keyword_into_material_claim'));
+
+  const unselected = validateSeoCommercialCopy(
+    draft({ meta_description: 'Sparkling-inspired rave styling with a shiny holographic look for stage performance.' }),
+    context,
+  );
+  assert.ok(unselected.issues.some((issue) => issue.code === 'customer_copy_uses_unselected_indirect_optical_keyword'));
+});

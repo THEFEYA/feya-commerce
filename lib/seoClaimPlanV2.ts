@@ -4,7 +4,7 @@ import type {
   SeoKeywordRoleItem,
 } from './seoPackContract.ts';
 import type { SeoAgentPromptContract } from './seoAgentDraftPrompt.ts';
-import { SEO_EDITORIAL_MEMORY_V5 } from './seoEditorialMemory.ts';
+import { SEO_EDITORIAL_MEMORY_V6 } from './seoEditorialMemory.ts';
 import { summarizeThefeyaSeoDoctrine } from './thefeyaSeoDoctrine.ts';
 import {
   buildCurrentSeoProductEvidence,
@@ -73,7 +73,7 @@ export type SeoWriterBriefV4 = {
     image_alt: SeoWriterKeyword[];
   };
   claim_plan: SeoDeterministicClaimPlan;
-  editorial_reference: 'seo_editorial_memory_v5';
+  editorial_reference: 'seo_editorial_memory_v6';
   ideal_for_portraits: SeoIdealForPortrait[];
   cosplay_positioning: string | null;
   code_owned_sections: string[];
@@ -140,8 +140,10 @@ export function buildDeterministicSeoClaimPlan(
   ));
   const preferredCodes = [
     'original_authorial_design',
-    'material_glossy_mirror_coating',
-    'material_thermoformed_liquid_metal',
+    'material_glossy_holographic_shift',
+    'material_glossy_metal_inspired_finish',
+    'material_glossy_latex_like_finish',
+    'material_smooth_glossy_finish',
     'material_body_comfort',
     'material_shape_retention',
     'material_event_light_camera',
@@ -151,8 +153,10 @@ export function buildDeterministicSeoClaimPlan(
     rank(preferredCodes, left.fact_code) - rank(preferredCodes, right.fact_code)
   ));
   const aboutFact = ordered.find((fact) => [
-    'material_glossy_mirror_coating',
-    'material_thermoformed_liquid_metal',
+    'material_glossy_holographic_shift',
+    'material_glossy_metal_inspired_finish',
+    'material_glossy_latex_like_finish',
+    'material_smooth_glossy_finish',
     'current_color',
   ].includes(fact.fact_code)) || null;
   const whyFacts = uniqueFactFamilies(ordered.filter((fact) => [
@@ -240,10 +244,10 @@ export function buildCompactSeoWriterPrompt(
       image_alt: compactKeywords(input.keyword_roles.image_alt, 4),
     },
     claim_plan: claimPlan,
-    editorial_reference: SEO_EDITORIAL_MEMORY_V5.contract_version,
+    editorial_reference: SEO_EDITORIAL_MEMORY_V6.contract_version,
     ideal_for_portraits: idealForPortraits,
     cosplay_positioning: hasFocus(compactFocus.event, 'cosplay')
-      ? "Frame cosplay as an original studio interpretation that helps the buyer create a character of their own."
+      ? 'Frame cosplay as an original studio interpretation with a fashion-led treatment of the selected mood or persona, creating a distinctive character of their own. Never promise an exact character match or explain replica comparisons to the shopper.'
       : null,
     code_owned_sections: CODE_OWNED_SECTIONS,
     vision_input_present: Boolean(options.primaryImageUrl),
@@ -345,7 +349,7 @@ export function validateSeoWriterBriefPreflight(
   const issues: SeoWriterBriefPreflight['issues'] = [];
   const values = collectStringValues({
     brief,
-    positive_editorial_memory: SEO_EDITORIAL_MEMORY_V5,
+    positive_editorial_memory: SEO_EDITORIAL_MEMORY_V6,
   });
 
   values.forEach((value, index) => {
@@ -367,26 +371,26 @@ export function validateSeoWriterBriefPreflight(
 }
 
 function compactWriterSystemPrompt() {
-  const frames = SEO_EDITORIAL_MEMORY_V5.positive_block_frames;
+  const frames = SEO_EDITORIAL_MEMORY_V6.positive_block_frames;
   return [
-    'You are the single product-copy writer for TheFEYA, a creative studio making original festival, stage, performance and costume fashion. Return one seo_agent_output_v1 JSON object and no commentary.',
-    'Write warm, vivid, specific en-US ecommerce copy for real shoppers. Address the shopper as you outside Ideal for. The brief supplies every product fact, keyword and selected audience; never import another one from the examples.',
-    'Use claim_plan only, each claim once in its assigned block. buyer_outcome_en is a ready-to-use customer-facing sentence; use it as written or with light grammar. If fact_statement_en repeats its idea, keep one. Never expose approval, evidence, sources, databases or review.',
-    'Present one whole product. Put the exact Primary once in SEO title, H1 and meta only; use body_identity_variant_en in Intro and ALT.',
-    'Use one safe whole-product Secondary once in Intro or About when available. Never force component queries or stack synonyms.',
-    'product_context.family_profile is internal. Never expose “multi-component silhouette” or other family labels.',
-    'Treat focus labels as concepts and inflect them into idiomatic English. For a generic festival use, write “for festivals” or a natural festival modifier, never the bare suffix “for Festival”.',
-    'SEO title <=68 characters; H1 <=82. Put confirmed color before the exact Primary in title, H1 and Meta. Meta is one natural sentence in normal sentence case, never ALL CAPS or Title Case. Include Primary, one About finish and one selected event, <=158 characters. Keep durability and shape-retention language in Why, never Meta. For “festivals and cosplay”, stop there and add no character padding.',
-    'Intro is one natural 20-45 word sentence built from claim_plan.buyer_job_en and body_identity_variant_en. Keep assigned design and material claims for their target blocks so Intro and About do different jobs.',
-    'About this piece is 45-60 words in 2-3 concrete sentences. Use one finish buyer_outcome_en, not its fact_statement_en. For multi-piece products, sentence one uses outfit, set, costume, ensemble or attire. Never mention two confirmed components in About or recap inventory; What’s Included owns the product-parts list.',
-    'Why you’ll love it is 3-4 concise bullets, one for each assigned why claim. Reuse a buyer_outcome_en sentence when it already reads naturally. Purchase configuration is code-owned and stays in What’s Included.',
-    'Ideal for is 4-5 distinct ideal_for_portraits with varied rhythm. Each non-empty event, style, persona and audience axis appears naturally; no focus value may appear more than twice. Cosplay means an original character, never a replica.',
-    'Designed for self-expression is the final main_description/left_description block: 45-75 words, 3-4 we/our sentences, TheFEYA once, original-design purpose and body_identity_variant_en. Translate selected styles naturally; never call them a “style pair” or taxonomy. Close on a visual identity that feels personal. Never advise unsold hair, makeup, accessories, footwear, props, base layers or garments. Ban independence padding and abstract brand jargon.',
-    'Code owns What’s Included, the right panel, bullet_highlights, FAQ and internal links. Return bullet_highlights, faq and internal_linking_hints as empty arrays, generate no What’s Included PDP block, and add no optional related_collections/review_only block.',
-    'Return exactly one image_alt_candidate for the supplied primary image. Lead with a visible color plus claim_plan.body_identity_variant_en, never product_identity_en, then add one short pose or setting detail. The claim plan remains the authority for finish wording and customer promises.',
-    'Return visual_truth.open_style_suggestions as []; operator focus already owns style selection.',
-    'Use finish adjectives literally from claim_plan. Glossy, mirror-like or metal-like language never becomes reflective or retroreflective unless the claim itself says so.',
-    'When cosplay_positioning is present, describe the authorial character positively: an original studio interpretation that helps the wearer create a character of their own.',
+    'You are TheFEYA’s single product-copy writer. Return one seo_agent_output_v1 JSON object, no commentary.',
+    'Write warm, vivid, specific en-US ecommerce copy. Use only the brief, claim_plan, approved keywords and selected focus; never expose evidence, approval, databases or review.',
+    'Use each claim once in its assigned block. buyer_outcome_en is ready for customer copy; lightly inflect it, but do not repeat its fact_statement_en.',
+    'Present one whole product. Exact Primary appears once in SEO title, H1 and Meta only. Intro and ALT use body_identity_variant_en. One safe whole-product Secondary may appear once in Intro or About.',
+    'family_profile is internal. Inflect focus labels naturally: use “for festivals”, never the bare suffix “for Festival”.',
+    'SEO title <=68; H1 <=82. Put confirmed color before Primary. Meta: one normal sentence, never ALL CAPS or Title Case, with Primary, one finish and one selected event, <=158 characters. Keep durability in Why. For “festivals and cosplay”, add no character padding.',
+    'Intro: one 20-45 word sentence from buyer_job_en and body_identity_variant_en; save assigned design and finish claims for their blocks.',
+    'About this piece: 45-60 words in 2-3 concrete sentences. Use one finish buyer_outcome_en. A multi-piece product remains an outfit/set/costume, but never recap two components; What’s Included owns inventory.',
+    'Why you’ll love it: 3-4 concise bullets, one per assigned Why claim. Do not repeat purchase configuration.',
+    'Ideal for: 4-5 varied ideal_for_portraits covering each selected axis naturally; any focus value appears at most twice.',
+    'Designed for self-expression is the final main_description/left_description block: 45-75 words, 3-4 we/our sentences, TheFEYA once, original design purpose and body_identity_variant_en. Close on a distinctive, memorable character that feels personal. Never prescribe unsold styling.',
+    'Code owns What’s Included, right panel, bullets, FAQ and links. Return bullet_highlights, faq, internal_linking_hints and visual_truth.open_style_suggestions as empty arrays. Generate no What’s Included block.',
+    'Return exactly one image_alt_candidate: visible color + body_identity_variant_en + one short visible pose/setting detail; never product_identity_en.',
+    'Follow claim_plan finish exactly: gold/silver may be metal-inspired; black/red/white may be sleek and latex-like; holographic is smooth, shiny and subtly color-shifting, never metallic.',
+    'For holographic products, an approved Secondary/support term may appear once as an indirect aesthetic such as mirror-look, reflective-inspired or sparkling-inspired. Only use a term present in approved_keywords; never call the material reflective, retroreflective, mirrored or sparkling.',
+    'Use evidence-linked positive modifiers sparingly: striking, distinctive, glamorous, memorable, beautifully polished or excellent shape retention. Avoid empty superlatives.',
+    'Never write “structured material”, “visual identity”, “silhouette”, “starting point”, “final look open to your choices”, or imply that the sold garment is unfinished, transformable or awaiting a final version.',
+    'For cosplay, use an original fashion-led studio interpretation. Never promise an exact character match or discuss replica comparisons.',
     `POSITIVE INTRO FRAME: ${frames.intro}`,
     `POSITIVE ABOUT FRAME: ${frames.about_this_piece}`,
     `POSITIVE WHY FRAMES: ${frames.why_youll_love_it.join(' | ')}`,
@@ -398,11 +402,13 @@ function compactWriterSystemPrompt() {
 
 function buyerOutcomeForFact(factCode: string) {
   const outcomes: Record<string, string> = {
-    original_authorial_design: 'Our original studio design lets you shape the finished character through your own styling choices.',
-    material_glossy_mirror_coating: 'Its glossy, mirror-like coating creates a polished metal look.',
-    material_thermoformed_liquid_metal: 'The smooth liquid-metal effect gives the design a polished finish.',
+    original_authorial_design: 'Our original studio design gives the outfit a distinctive, memorable character that feels genuinely personal.',
+    material_glossy_holographic_shift: 'Its smooth, shiny holographic surface shows subtle color shifts in changing light and movement.',
+    material_glossy_metal_inspired_finish: 'Its smooth, high-gloss surface creates a beautifully polished, metal-inspired finish.',
+    material_glossy_latex_like_finish: 'Its smooth, high-gloss surface creates a sleek, latex-like appearance.',
+    material_smooth_glossy_finish: 'Its smooth, high-gloss surface gives the piece a clean, polished finish.',
     material_body_comfort: 'The material feels comfortable against the body, making the costume easier to wear through longer events or performances.',
-    material_shape_retention: 'The material helps the costume keep its shape between wears, so it is ready for the next occasion.',
+    material_shape_retention: 'With careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
     material_event_light_camera: 'The color and details stay clear in photos and under stage lighting.',
     current_color: 'One concrete visual detail that helps the shopper picture the piece.',
   };
@@ -541,9 +547,9 @@ function buyerJobForFocus(
       .filter(Boolean)
       .join(' ')
       .trim() || 'distinctive';
-    return `This ${wholeProduct} is made for ${buyerContextPhrase(selectedEvents, selectedStyles, selectedPersonas, selectedContext)}, giving you a starting point for an original ${character} character.`;
+    return `This ${wholeProduct} is designed for ${buyerContextPhrase(selectedEvents, selectedStyles, selectedPersonas, selectedContext)}, with an original, fashion-led interpretation of ${character} style.`;
   }
-  return `This ${wholeProduct} is made for ${buyerContextPhrase(selectedEvents, selectedStyles, selectedPersonas, selectedContext)}, giving you an original studio look you can make your own.`;
+  return `This ${wholeProduct} is designed for ${buyerContextPhrase(selectedEvents, selectedStyles, selectedPersonas, selectedContext)}, where its original studio design creates a bold, distinctive look.`;
 }
 
 function buyerContextPhrase(
@@ -656,7 +662,7 @@ function uniqueFactFamilies(facts: SeoProductEvidenceFact[]) {
     if (factCode.includes('body_comfort')) return 'wear_comfort';
     if (factCode.includes('shape_retention')) return 'shape_retention';
     if (factCode.includes('event_light_camera')) return 'camera_light';
-    if (factCode.includes('liquid_metal') || factCode.includes('glossy_mirror')) return 'surface_finish';
+    if (factCode.includes('material_glossy') || factCode.includes('smooth_glossy')) return 'surface_finish';
     return factCode;
   };
   const seen = new Set<string>();

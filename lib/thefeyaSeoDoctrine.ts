@@ -1,4 +1,4 @@
-export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v20' as const;
+export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v21' as const;
 
 export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
   checkpoint_id: 'reload_latest_research_before_apply_publish_v1',
@@ -18,7 +18,7 @@ export const THEFEYA_BRAND_VALUE_PILLARS = [
   'TheFEYA is a creative studio developing original festival and stage fashion. Explain what the original design gives the wearer; do not use independence or company size as a selling point.',
   'Original studio design matters because our different design ideas help buyers find a piece that feels true to their own style and build a bold, recognizable look around it. State that buyer value directly without comparisons to standard templates, generic costumes or mass production.',
   'The studio helps people express individuality through clothing. It is safe to say that a supported design is made to stand out at a festival, on stage or in photographs; never promise compliments, likes, followers, virality or universal attention.',
-  'A strong stage and camera silhouette may support a memorable visual identity for performers, creators and public-facing buyers when the product and selected use cases support it.',
+  'A distinctive stage and camera design may support a memorable, recognizable look for performers, creators and public-facing buyers when the product and selected use cases support it.',
   'Describe visual impact through observable product qualities and supported use cases. Do not mention algorithms, organic attention, reactions, saves, comments or social metrics in product copy.',
   'Adjustable straps, standard sizing and custom measurements are canonical studio facts for the fixed right PDP panel.',
   'Comfort, softness against the body, reinforcement, durability and shape retention may be described only when supported by actual material and construction evidence.',
@@ -41,12 +41,13 @@ export const THEFEYA_BENEFIT_GENERATION_POLICY = [
   'Write 3-4 genuinely different bullets from available product-specific or canonical storefront evidence. If three honest buyer outcomes cannot be supported, block the draft for missing truth instead of publishing a thin benefit section or inventing filler.',
   'Every bullet must connect one supported feature or studio truth to a useful buyer outcome. Use the mental test: feature or proof -> so what changes for the buyer.',
   'Use at least three distinct value families when evidence exists: distinctive studio design; easy dressing or adjustment; body comfort; structure, shape retention or durability; verified finish behavior.',
-  'Include exactly one design-authorship benefit. State the real buyer value directly: our original design ideas give the buyer a distinctive piece they can use to build a festival or stage look that feels personal. Do not compare it with a standard template, generic costume or mass production.',
+  'Include exactly one design-authorship benefit. State the real buyer value directly: our original design ideas give the buyer a distinctive, memorable piece that already feels bold and personal. Do not compare it with a standard template, generic costume or mass production.',
   'Prefer practical buyer concerns over abstract art criticism: quick to put on, easier to adjust, comfortable against the body, keeps its shape between wears, remains useful for future events, or has a verified light-catching finish.',
   'A style, event, persona or audience is a use case for Ideal for, not a purchase benefit. Do not use works for warrior, futuristic or desert styling as a Why bullet.',
   'A visual observation is not automatically a benefit. Contrast, visual depth, dramatic line, armored presence, attitude, mood and individual feel are too abstract unless tied to a concrete buyer outcome.',
   'Never describe shape retention as keeping its form during movement. Explain the useful result literally: the supported material or layered construction helps the piece keep its shape between wears, resist creasing or remain reusable for future events.',
   'If construction, structure or build appears in more than one Why bullet, rewrite the block. Different wording for the same construction idea is not benefit diversity.',
+  'Never call the material itself structured. When supported, say that careful storage helps the piece keep its shape beautifully between wears and remain ready for future events.',
   'Do not describe dark clothing, goggles, masks, props, background scenery or other styling as a property or advantage of the sold product.',
   'The fixed right panel may provide evidence, but do not copy its wording. Translate supported operational facts into a concise outcome, such as quick adjustment, easier dressing or shape retention.',
   'Do not force primary or secondary keywords into Why you’ll love it. Place product queries naturally in title, H1, meta, intro or About this piece; preserve the benefit block for conversion clarity.',
@@ -112,7 +113,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Describe the product first. The brand name must not become the main repeated keyword of a product page.',
     'Do not place TheFEYA in seo_title, H1 or meta_description. Across intro and all generated left-description blocks combined, use the brand name no more than once.',
     'Prefer the single permitted TheFEYA mention inside the final Designed for self-expression paragraph, where the studio speaks directly as we and our, never as they, their or a third-party narrator.',
-    'Translate the idea of авторский дизайн into a concrete customer benefit rather than a literal internal-process phrase. Explain what is distinctive about the supported silhouette, construction or design language; omit the point when no product-specific value can be stated.',
+    'Translate the idea of авторский дизайн into a concrete customer benefit rather than a literal internal-process phrase. Explain how the original design gives the finished product a distinctive, memorable character; omit the point when no product-specific value can be stated.',
     'The opening must begin with the buyer job: the event, style or complete look the person is trying to create. Then explain how this product helps achieve it using supported product facts.',
     'Directional image-audit details such as left, right, positioned high, visible from the front or clearly visible belong only in image ALT or internal visual truth. Do not use them in SEO title, H1, meta description, intro, About, Why, Ideal for or Designed for self-expression.',
     'Do not turn anatomical geometry into a customer benefit. Phrases such as sculptural profile of the left shoulder, expressive upper-body form, upper-body line and shoulder silhouette describe coordinates, not a reason to buy.',
@@ -136,9 +137,13 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Why you’ll love it must contain 3-4 genuinely different purchase reasons supported by Product Truth, canonical storefront facts or explicit visual evidence. A design-authorship point and a handmade-not-mass-produced point count as the same idea and must not appear as separate duplicate bullets. Translate evidence into buyer value; never add filler.',
     'Weak styling filler is not a benefit. Do not use works over minimal clothing, easy to build into a look, part of a complete look, creates a clear accent, works as a centerpiece or without additional design elements.',
     'Material and finish claims must come from product-specific Product Truth or verified image truth. Vegan leather and faux leather are synonyms in customer copy and must never be stacked as two materials. Reflective or retroreflective is not a synonym for glossy, mirror-like, metallic or light-catching.',
+    'Finish wording follows confirmed color: gold/silver may be polished and metal-inspired; black/red/white may be smooth, high-gloss and latex-like; holographic may be smooth, shiny and subtly color-shifting, but not metallic.',
+    'For a holographic product, an approved Secondary/support term may appear once as an indirect aesthetic phrase such as mirror-look, reflective-inspired or sparkling-inspired fashion. The same words must never be presented as the material’s physical reflective, mirrored or sparkling behavior.',
     'Never promise or discuss likes, followers, popularity, viral reach, organic attention, reactions, saves, comments, sales, press attention or other social-performance outcomes.',
-    'The final Designed for self-expression block is a 45-75 word, 3-4 sentence product-relevant studio close. Identify TheFEYA once, explain our original in-studio point of view and how it helps people choose a design that feels personal, then connect the product to one supported festival, stage or performance setting.',
-    'Use plain literal language. Ban visual noise, clarity of the look, point of view, presence, character, considered appearance, expressive accent and similar abstract design-review wording that a buyer cannot translate into a real benefit.',
+    'The final Designed for self-expression block is a 45-75 word, 3-4 sentence product-relevant studio close. Identify TheFEYA once, explain our original in-studio design and the distinctive finished product it creates, then connect the product to one supported festival, stage or performance setting.',
+    'Use plain literal language. Ban visual identity, silhouette, structured material, starting point, final-version choices, visual noise, clarity of the look, point of view, considered appearance, expressive accent and similar abstract design-review wording that a buyer cannot translate into a real benefit.',
+    'The sold product is already a finished choice. Never imply that it transforms, remains unfinished, leaves a final interpretation open or requires the buyer to decide how the completed character should look.',
+    'Use persuasive modifiers only with evidence. Striking, distinctive, glamorous, memorable, beautifully polished and excellent shape retention are useful when tied to a confirmed design, finish or care fact; empty superlatives remain filler.',
     'Do not pad the close with the breadth of the store, a list of events, an invitation to discuss a new idea or claims about shareability. These are generic across the catalog and dilute product specificity.',
     'Do not place operational customization details such as changing color, size, length, fit or coverage inside Designed for self-expression. Those facts belong only in the fixed right panel.',
   ],
@@ -153,7 +158,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     {
       block_key: 'about_this_piece',
       placement: 'left_description',
-      intent: 'Opening product story under the gallery and buy box. Write 2-4 natural sentences and usually 45-90 words. Lead with the buyer job and a close whole-product semantic variation, never the exact H1 phrase. Then explain how one distinctive visible design choice affects the finished look and add supported wear, material or finish value. Do not compare the product with generic/basic/plain clothing, narrate the What’s included inventory, report image coordinates or pad the block with SEO tautology.',
+      intent: 'Opening product story under the gallery and buy box. Write 2-4 natural sentences and usually 45-90 words. Lead with the buyer job and a close whole-product semantic variation, never the exact H1 phrase. Then explain one distinctive design or color-aware finish and its concrete value. Do not compare the product with generic/basic/plain clothing, narrate the What’s included inventory, report image coordinates or pad the block with SEO tautology.',
     },
     {
       block_key: 'why_youll_love_it',

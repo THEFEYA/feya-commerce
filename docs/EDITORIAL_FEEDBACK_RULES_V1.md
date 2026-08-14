@@ -58,5 +58,16 @@ TheFEYA appears once, in the final Designed for self-expression block. "Independ
 ## R18. Vary editorial rhythm
 Ideal for and benefit bullets may share a structural job but not an identical sentence frame. Three or more repeated "who need" openings, repeated evidence prefixes, or near-identical benefit leads are rejected as template copy.
 
+## R19. Finish language follows confirmed color
+`Mirror` is the studio's smooth glossy surface family, not one universal optical behavior. Gold and silver may be described as polished or metal-inspired. Black, red and white may be described as smooth, high-gloss and latex-like. Holographic may be smooth, shiny and subtly color-shifting in changing light or movement; it is not described as metallic. `Reflective` and `retroreflective` remain physical claims and require explicit Product Truth.
+
+Approved holographic Secondary/support vocabulary may retain `mirror-look`, `reflective-inspired` or `sparkling-inspired` only as an indirect aesthetic/search family, never as the material's behavior. The relevant word must already exist in the saved keyword decision. `Shiny` may describe the confirmed glossy surface directly. Do not delete useful related-intent keywords merely because they cannot become literal product claims.
+
+## R20. The sold product is already the finished choice
+Buyer copy never calls the product a `starting point`, leaves the `final look` or `final interpretation` open, asks the buyer to decide how the finished character should look, or implies that the garment transforms after purchase. `Visual identity`, `silhouette`, `structured material` and similar design-review shorthand are not customer benefits. State the product's inherent advantage instead: original studio design, memorable character, smooth finish, comfortable wear, excellent shape retention or a concrete selected use.
+
+## R21. Persuasive modifiers need evidence
+The tone may be warm, glamorous and confidently promotional. Use specific positive modifiers such as `striking`, `distinctive`, `memorable`, `beautifully polished` or `keeps its shape beautifully` only when attached to a supported fact. Empty superlatives such as `best`, `perfect`, `ultimate` and unsupported `luxury/premium` claims remain banned. Stronger language must improve the buyer's understanding, not merely increase hype.
+
 ## Process rule
 Every owner review is captured the same way: complaint → named rule → committed here → reflected in prompts/validators. Cumulative and versioned.

@@ -193,8 +193,8 @@ test('repairs the Festival Set control copy without another writer call', () => 
   );
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /polished metal look gives/);
   assert.match(normalized.pdp_blocks[0].body, /crowded festival settings/);
-  assert.match(normalized.pdp_blocks[1].body, /make the character your own/);
-  assert.doesNotMatch(normalized.pdp_blocks[1].body, /visual identity|silhouette/i);
+  assert.match(normalized.pdp_blocks[1].body, /glamorous, recognizable character/);
+  assert.doesNotMatch(normalized.pdp_blocks[1].body, /visual identity|silhouette|starting point|final look/i);
 });
 
 test('repairs the Holographic Set control copy without another writer call', () => {
@@ -225,8 +225,8 @@ test('repairs the Holographic Set control copy without another writer call', () 
   assert.match(normalized.pdp_blocks[0].body, /Rave-goers planning a holographic look/);
   assert.match(normalized.pdp_blocks[0].body, /iridescent visuals/);
   assert.equal(normalized.pdp_blocks[0].body.match(/\bdancer\b/gi)?.length, 1);
-  assert.match(normalized.pdp_blocks[1].body, /make the look your own/);
-  assert.doesNotMatch(normalized.pdp_blocks[1].body, /visual identity/i);
+  assert.match(normalized.pdp_blocks[1].body, /shiny surface and subtle color shifts/);
+  assert.doesNotMatch(normalized.pdp_blocks[1].body, /visual identity|metallic|reflective|mirrored|sparkling/i);
 });
 
 test('repairs the Black Bodysuit Set control copy without another writer call', () => {
@@ -259,10 +259,13 @@ test('repairs the Black Bodysuit Set control copy without another writer call', 
   });
 
   assert.match(normalized.pdp_blocks[0].body, /continuous dark base for the costume/);
-  assert.equal(normalized.pdp_blocks[0].body.match(/\bglossy\b/gi)?.length, 1);
+  assert.match(normalized.pdp_blocks[0].body, /smooth, high-gloss surface/);
+  assert.match(normalized.pdp_blocks[0].body, /latex-like character/);
+  assert.doesNotMatch(normalized.pdp_blocks[0].body, /metal/i);
   assert.match(normalized.pdp_blocks[1].body, /Party-goers planning a dark look/);
   assert.equal(normalized.pdp_blocks[1].body.match(/\bgoth\b/gi)?.length, 1);
-  assert.match(normalized.pdp_blocks[2].body, /decide how the finished character should look/);
+  assert.match(normalized.pdp_blocks[2].body, /bold, distinctive, and personal/);
+  assert.doesNotMatch(normalized.pdp_blocks[2].body, /copied|visual identity|finished character|starting point/i);
 });
 
 test('repairs the Red Bodysuit Arms Set control copy without another writer call', () => {
@@ -300,11 +303,13 @@ test('repairs the Red Bodysuit Arms Set control copy without another writer call
     product_color: 'Red',
   });
 
-  assert.match(normalized.meta_description, /demon-inspired finish for cosplay/);
-  assert.equal(normalized.intro, 'This red bodysuit brings a distinct character shape to Halloween costumes for cosplay, supporting an original demon character with a bold leather look.');
+  assert.match(normalized.meta_description, /glossy bodysuit and a bold demon-inspired character/);
+  assert.equal(normalized.intro, 'This red bodysuit costume creates a bold demon-inspired character for Halloween and cosplay with a glossy leather look.');
   assert.match(normalized.image_alt_candidates[0].alt_text, /forearm covers and tail/);
   assert.doesNotMatch(normalized.image_alt_candidates[0].alt_text, /halloween costumes with red bodysuit/i);
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /direction/i);
+  assert.match(normalized.pdp_blocks[0].body, /latex-like look/);
+  assert.doesNotMatch(normalized.pdp_blocks[0].body, /metal/i);
   assert.equal(normalized.pdp_blocks[1].body.match(/\bgoth\b/gi)?.length, 1);
   assert.doesNotMatch(normalized.pdp_blocks[2].body, /goth|fantasy/i);
 });
@@ -332,8 +337,9 @@ test('repairs the Silver Bodysuit Legs Set control copy without another writer c
 
   assert.match(normalized.pdp_blocks[0].body, /sci-fi armor costume/);
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /futuristic/i);
-  assert.match(normalized.pdp_blocks[1].body, /make the look your own/);
-  assert.doesNotMatch(normalized.pdp_blocks[1].body, /futuristic|personal styling choices|visual identity|silhouette/i);
+  assert.match(normalized.pdp_blocks[1].body, /glossy, metal-inspired finish/);
+  assert.match(normalized.pdp_blocks[1].body, /distinctive, glamorous character/);
+  assert.doesNotMatch(normalized.pdp_blocks[1].body, /futuristic|personal styling choices|visual identity|silhouette|starting point|final interpretation/i);
 });
 
 test('adds a supported product color to the deterministic SEO identity', () => {
@@ -503,7 +509,7 @@ test('repairs the cross-sentence finish repetition from the final paid control r
 
   assert.equal(
     normalized.pdp_blocks[0].body,
-    'For festivals and cosplay, this warrior armor outfit brings a bold gold look with a durable, glossy, mirror-like coating. The outfit gives you a starting point for an original character while leaving the surrounding styling choices to you.',
+    'For festivals and cosplay, this warrior armor outfit brings a bold gold look with a durable, glossy, mirror-like coating. Its original studio design gives the gold outfit a distinctive, memorable character that feels confident at festivals, performances, and cosplay events.',
   );
   assert.equal(
     normalized.pdp_blocks[0].body.match(/\b(?:glossy|mirror[- ]like|polished metal)\b/gi)?.length,
@@ -593,9 +599,9 @@ test('replaces internal body-identity jargon and the stacked closing slogans fro
 
   assert.equal(
     normalized.pdp_blocks[0].body,
-    'At TheFEYA, we develop festival and stage pieces from our own ideas, and this warrior armor outfit is built to support an original futuristic or fantasy character. It can lean futuristic or fantasy for festivals and cosplay. You choose the surrounding styling that completes the final look for the setting you have in mind.',
+    'At TheFEYA, we develop festival and stage pieces from our own ideas, and this warrior armor outfit is built to support an original futuristic or fantasy character. It can lean futuristic or fantasy for festivals and cosplay. The original studio design gives the outfit a distinctive, memorable character that feels personal.',
   );
-  assert.doesNotMatch(normalized.pdp_blocks[0].body, /body identity|finish it your way/i);
+  assert.doesNotMatch(normalized.pdp_blocks[0].body, /body identity|finish it your way|final look|visual identity|starting point/i);
 });
 
 test('skips the editorial rewrite when deterministic QA is clean', () => {

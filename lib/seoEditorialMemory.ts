@@ -1,6 +1,6 @@
-export type SeoEditorialMemoryV5 = {
-  contract_version: 'seo_editorial_memory_v5';
-  source: 'owner_reference_001_plus_2026_08_10_final_pilot_feedback';
+export type SeoEditorialMemoryV6 = {
+  contract_version: 'seo_editorial_memory_v6';
+  source: 'owner_reference_001_plus_2026_08_14_finish_and_buyer_value_feedback';
   use: 'positive_block_frames_only';
   canonical_left_order: [
     'about_this_piece',
@@ -29,9 +29,9 @@ export type SeoEditorialMemoryV5 = {
  * copied across the catalog. The current claim plan remains the only source
  * of publishable product facts.
  */
-export const SEO_EDITORIAL_MEMORY_V5: SeoEditorialMemoryV5 = {
-  contract_version: 'seo_editorial_memory_v5',
-  source: 'owner_reference_001_plus_2026_08_10_final_pilot_feedback',
+export const SEO_EDITORIAL_MEMORY_V6: SeoEditorialMemoryV6 = {
+  contract_version: 'seo_editorial_memory_v6',
+  source: 'owner_reference_001_plus_2026_08_14_finish_and_buyer_value_feedback',
   use: 'positive_block_frames_only',
   canonical_left_order: [
     'about_this_piece',
@@ -40,12 +40,12 @@ export const SEO_EDITORIAL_MEMORY_V5: SeoEditorialMemoryV5 = {
     'main_description',
   ],
   positive_block_frames: {
-    intro: '“This [body identity variant] is made for [selected occasion], giving you a starting point for [an original selected character or use].”',
-    about_this_piece: 'Write 45-60 useful words in 2-3 sentences. Start from the occasion and actual body_identity_variant_en value. Use one combined finish sentence, for example: “Its glossy, mirror-like coating creates a polished metal look.” Every other sentence adds a different value and contains no finish synonym. What’s Included owns the parts list.',
+    intro: '“This [body identity variant] is designed for [selected occasion], where its original studio design creates a bold, distinctive look.”',
+    about_this_piece: 'Write 45-60 useful words in 2-3 sentences. Start from the occasion and actual body_identity_variant_en value. Use exactly the color-aware finish sentence supplied by claim_plan: gold/silver may look metal-inspired; black/red/white may look sleek and latex-like; holographic may show subtle color shifts. Never generalize one finish profile to another. Every other sentence adds a different value. What’s Included owns the parts list.',
     why_youll_love_it: [
-      'Our original studio design lets you shape the finished character through your own styling choices.',
+      'Our original studio design gives the outfit a distinctive, memorable character that feels genuinely personal.',
       'The material feels comfortable against the body, making the costume easier to wear through longer events or performances.',
-      'The material helps the costume keep its shape between wears, so it is ready for the next occasion.',
+      'With careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
     ],
     ideal_for: [
       '[Person] planning [selected look] for [specific event or movement need].',
@@ -54,7 +54,7 @@ export const SEO_EDITORIAL_MEMORY_V5: SeoEditorialMemoryV5 = {
       'Creators styling a costume for photography, video or a live set.',
       'Stylists sourcing a design for a show or editorial.',
     ],
-    studio_close: 'Say once that at TheFEYA we develop pieces from our own ideas. Use body_identity_variant_en, never “body identity”. Translate one or two selected styles into natural shopper language once; never say “style pair” or list taxonomy. Close with a visual identity that feels personal. Never prescribe hair, makeup, accessories, footwear, props or other unsold garments.',
+    studio_close: 'Say once that at TheFEYA we develop original pieces from our own ideas. Use body_identity_variant_en, never “body identity”. Translate one or two selected styles into natural shopper language once; never say “style pair” or list taxonomy. Present the finished product as bold, distinctive and memorable in its selected setting. Do not imply that the garment transforms, remains unfinished or requires the buyer to choose a final version. Never prescribe hair, makeup, accessories, footwear, props or other unsold garments.',
   },
   writing_moves: {
     about_this_piece: 'Real occasion, whole-product identity, one vivid supported detail, then why it matters in wear.',

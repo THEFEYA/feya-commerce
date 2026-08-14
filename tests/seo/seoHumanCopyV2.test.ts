@@ -207,7 +207,7 @@ test('writer brief uses current offer and excludes raw legacy wording', () => {
   assert.ok(compactPromptChars < 9_000, `compact prompt is ${compactPromptChars} characters`);
   assert.equal(brief.claim_plan.family_profile, 'multi_component_outfit');
   assert.equal(brief.claim_plan.body_identity_variant_en, 'warrior armor outfit');
-  assert.match(brief.claim_plan.buyer_job_en, /^This warrior armor outfit is made for /);
+  assert.match(brief.claim_plan.buyer_job_en, /^This warrior armor outfit is (?:made|designed) for /);
   assert.equal(brief.claim_plan.buyer_job_en.startsWith('Help '), false);
   assert.deepEqual(brief.claim_plan.blockers, []);
   assert.equal(brief.claim_plan.claims.filter((claim) => claim.target_block === 'about_this_piece').length, 1);
@@ -222,29 +222,31 @@ test('writer brief uses current offer and excludes raw legacy wording', () => {
   );
   assert.equal(brief.contract_version, 'seo_writer_brief_v4');
   assert.equal(preflight.ok, true, JSON.stringify(preflight.issues));
-  assert.equal(brief.editorial_reference, 'seo_editorial_memory_v5');
-  assert.match(prompt.system_prompt, /normal sentence case, never ALL CAPS or Title Case/);
+  assert.equal(brief.editorial_reference, 'seo_editorial_memory_v6');
+  assert.match(prompt.system_prompt, /Meta: one normal sentence, never ALL CAPS or Title Case/);
   assert.doesNotMatch(prompt.system_prompt, /Meta is one uppercase sentence/);
   assert.match(prompt.system_prompt, /POSITIVE INTRO FRAME/);
   assert.match(prompt.system_prompt, /POSITIVE ABOUT FRAME/);
   assert.match(prompt.system_prompt, /exactly one image_alt_candidate/);
-  assert.match(prompt.system_prompt, /What’s Included owns (?:that inventory|the product-parts list)/);
+  assert.match(prompt.system_prompt, /What’s Included owns (?:inventory|that inventory|the product-parts list)/);
   assert.equal(prompt.system_prompt.includes('Made for festivals, cosplay and live performance, this warrior costume'), false);
   assert.equal(/owner[- ]approved|story confirms?|\bconfirmed\b/i.test(prompt.user_prompt), false);
   assert.equal(/independent (?:design )?(?:team|studio)/i.test(prompt.system_prompt), false);
   assert.ok(brief.code_owned_sections.includes('whats_included'));
   assert.ok(brief.code_owned_sections.includes('right_panel'));
-  assert.match(prompt.system_prompt, /About this piece is 45-60 words in 2-3/);
+  assert.match(prompt.system_prompt, /About this piece: 45-60 words in 2-3/);
   assert.match(prompt.system_prompt, /final main_description\/left_description block/);
-  assert.match(prompt.system_prompt, /multi-component silhouette/);
-  assert.match(prompt.system_prompt, /For “festivals and cosplay”, stop there and add no character padding/);
+  assert.match(prompt.system_prompt, /family_profile is internal/);
+  assert.match(prompt.system_prompt, /For “festivals and cosplay”, add no character padding/);
   assert.match(prompt.system_prompt, /Designed for self-expression is the final main_description\/left_description block: 45-75 words, 3-4/);
-  assert.match(prompt.system_prompt, /visual identity that feels personal/);
-  assert.match(prompt.system_prompt, /Return visual_truth\.open_style_suggestions as \[\]/);
+  assert.match(prompt.system_prompt, /distinctive, memorable character that feels personal/);
+  assert.match(prompt.system_prompt, /reflective-inspired or sparkling-inspired/);
+  assert.match(prompt.system_prompt, /never call the material reflective/);
+  assert.match(prompt.system_prompt, /visual_truth\.open_style_suggestions as empty arrays/);
   assert.doesNotMatch(prompt.system_prompt, /End with one plain styling sentence/);
-  assert.match(prompt.system_prompt, /Return bullet_highlights, faq and internal_linking_hints as empty arrays/);
-  assert.match(prompt.system_prompt, /buyer_outcome_en is a ready-to-use customer-facing sentence/);
-  assert.match(prompt.system_prompt, /body_identity_variant_en, never product_identity_en/);
+  assert.match(prompt.system_prompt, /Return bullet_highlights, faq, internal_linking_hints and visual_truth\.open_style_suggestions as empty arrays/);
+  assert.match(prompt.system_prompt, /buyer_outcome_en is ready for customer copy/);
+  assert.match(prompt.system_prompt, /body_identity_variant_en.*never product_identity_en/);
 });
 
 test('compact writer brief carries a general audience into Ideal for and forbids taxonomy prose', () => {
@@ -262,9 +264,9 @@ test('compact writer brief carries a general audience into Ideal for and forbids
     portrait.person === 'women'
     && /live music production/i.test(portrait.situation)
   )));
-  assert.match(prompt.system_prompt, /no focus value may appear more than twice/i);
-  assert.match(prompt.system_prompt, /never call them a [“\"]style pair[”\"]/i);
-  assert.match(prompt.system_prompt, /never mention two confirmed components in About/i);
+  assert.match(prompt.system_prompt, /any focus value appears at most twice/i);
+  assert.match(prompt.system_prompt, /never say [“\"]style pair[”\"]/i);
+  assert.match(prompt.system_prompt, /never recap two components/i);
 });
 
 test('compact writer contract stays product-specific for a single dress', () => {
@@ -541,13 +543,13 @@ test('zero-cost normalization recovers the exact final control-run copy without 
   assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
   assert.equal(
     normalized.pdp_blocks[0].body,
-    'For festivals and cosplay, this warrior armor outfit brings a bold gold look with a durable, glossy, mirror-like coating. The outfit gives you a starting point for an original character while leaving the surrounding styling choices to you.',
+    'For festivals and cosplay, this warrior armor outfit brings a bold gold look with a durable, glossy, mirror-like coating. Its original studio design gives the gold outfit a distinctive, memorable character that feels confident at festivals, performances, and cosplay events.',
   );
   assert.equal(
     normalized.pdp_blocks[3].body,
-    'At TheFEYA, we develop original festival and stage pieces in our studio. We designed this warrior armor outfit as a starting point for a futuristic character, pairing a clear gold direction with room for your own styling choices. You decide how to complete the character and make its visual identity your own for the festival or cosplay setting you have in mind.',
+    'At TheFEYA, we develop original festival and stage pieces in our studio. We designed this warrior armor outfit with expressive gold details and a distinctive futuristic character. The confident, memorable result feels personal, suits festival or cosplay, and preserves our original, fashion-led studio point of view.',
   );
-  assert.doesNotMatch(JSON.stringify(normalized.pdp_blocks), /body identity|finish it your way/i);
+  assert.doesNotMatch(JSON.stringify(normalized.pdp_blocks), /body identity|finish it your way|visual identity|silhouette|starting point|final look/i);
 });
 
 test('the 2026-08-10 live control draft passes after bounded zero-token normalization', () => {
@@ -677,13 +679,13 @@ test('the 2026-08-10 live control draft passes after bounded zero-token normaliz
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /\bdurable\b/i);
   assert.equal(
     normalized.pdp_blocks[0].body,
-    'For festivals and cosplay, this warrior armor outfit uses a glossy, mirror-like coating to create a polished metal look. Its streamlined silhouette gives you a distinct starting point for an original character with a gold armor look.',
+    'For festivals and cosplay, this warrior armor outfit uses a glossy, mirror-like coating to create a polished metal-inspired finish. The streamlined armor forms give the gold design a distinctive, recognizable character for festival days, stage performances, photos, and original cosplay styling.',
   );
-  assert.match(normalized.pdp_blocks[1].body, /(?:keep(?:s)? its shape|holds its form) between wears/i);
+  assert.match(normalized.pdp_blocks[1].body, /(?:keep(?:s)? its shape|holds its form|retains its shape exceptionally well) between wears/i);
   assert.doesNotMatch(normalized.pdp_blocks[3].body, /hair|makeup|footwear|accessor/i);
   assert.equal(
     normalized.pdp_blocks[3].body,
-    'At TheFEYA, we develop festival and stage pieces from our own ideas. This warrior armor outfit is our studio interpretation of a futuristic character for festivals and performance. It gives you a clear design starting point while leaving room for a visual identity that feels personal.',
+    'At TheFEYA, we develop festival and stage pieces from our own ideas. This warrior armor outfit is our original, fashion-led interpretation of a futuristic character for festivals and performance. Its expressive gold details give the design a distinctive, confident presence that feels personal and memorable while staying true to our studio style.',
   );
   assert.deepEqual(normalized.pdp_blocks.map((block: any) => block.block_key), [
     'about_this_piece',
@@ -804,15 +806,15 @@ test('the final paid Gold Warrior pilot receives the exact human-reviewed zero-t
   );
   assert.equal(
     normalized.intro,
-    'This gold warrior armor outfit brings a polished, futuristic silhouette to festivals, cosplay and stage performance, with room to shape the character in your own way.',
+    'This gold warrior armor outfit brings a polished, futuristic studio character to festivals, cosplay, and stage performance.',
   );
   assert.equal(
     normalized.pdp_blocks[0].body,
-    'A glossy, mirror-like coating gives this gold warrior armor outfit its polished-metal finish. Streamlined forms create a distinctive armor silhouette, giving you a clear visual foundation for an original character that works naturally across festival, cosplay, stage and editorial settings.',
+    'A glossy, mirror-like coating gives this gold warrior armor outfit its polished, metal-inspired finish. Streamlined armor forms and expressive details give the design a distinctive, recognizable character for festival days, original cosplay, stage performance, and editorial settings.',
   );
   assert.equal(
     normalized.pdp_blocks[1].body,
-    'Our original studio design lets you shape the finished character through your own styling choices.\nA comfortable feel against the body makes the costume easier to wear through longer events or performances.\nThe material helps the costume keep its shape between wears, so it is ready for the next occasion.',
+    'Our original studio design gives the gold outfit a distinctive, memorable character.\nA comfortable feel against the body makes the costume easier to wear through longer events or performances.\nWith careful storage, the piece keeps its shape beautifully between wears and stays ready for future occasions.',
   );
   assert.equal(
     normalized.pdp_blocks[2].body,
@@ -821,7 +823,7 @@ test('the final paid Gold Warrior pilot receives the exact human-reviewed zero-t
   assert.doesNotMatch(normalized.pdp_blocks[2].body, /music videos/i);
   assert.equal(
     normalized.pdp_blocks[3].body,
-    "At TheFEYA, we develop festival and stage pieces from our own ideas. This gold armor look reflects our studio's take on futuristic warrior design. Those choices give you a clear starting point while leaving the final character open to your own visual identity and style.",
+    "At TheFEYA, we develop festival and stage pieces from our own ideas. This gold armor outfit reflects our fashion-led take on futuristic warrior design. Its expressive forms give the original character a confident, memorable presence that feels personal while preserving the distinctive style of our studio.",
   );
   assert.equal(
     commercial.repetition_report?.repeated_idea_groups.some((group) => (

@@ -51,6 +51,14 @@ const SOCIAL_METRICS_BOILERPLATE = /\b(organic attention|reactions?, saves? (?:a
 const REDUNDANT_FAUX_LEATHER = /\b(?:vegan leather\s+(?:and|or|\/)\s+faux leather|faux leather\s+(?:and|or|\/)\s+vegan leather)\b/i;
 const CUSTOMER_MATERIAL_TERM = /\b(?:vegan leather|faux leather)\b/i;
 const REFLECTIVE_CLAIM = /\b(?:reflective|retroreflective|retro-reflective)\b/i;
+const STRUCTURED_MATERIAL = /\bstructured\s+(?:material|fabric|vegan leather|faux leather)\b/i;
+const ROBOTIC_DESIGN_REVIEW_LANGUAGE = /\b(?:visual identity|silhouette|(?:clear\s+)?starting point|final interpretation|final version|finished version)\b|\b(?:final|finished)\s+(?:halloween\s+|festival\s+|stage\s+|cosplay\s+|performance\s+)?(?:look|character|outfit)\b[^.!?\n]{0,80}\b(?:open|choices?|choose|decide|interpretation)\b|\b(?:choose|decide|shape)\b[^.!?\n]{0,45}\b(?:final|finished)\s+(?:look|character|version)\b/i;
+const METAL_FINISH_LANGUAGE = /\b(?:metallic|metal[- ]like|metal[- ]inspired|polished[- ]?metal|liquid[- ]metal|chrome[- ]like)\b/i;
+const COLOR_SHIFT_LANGUAGE = /\b(?:holographic|hologram|iridescent|color[- ]shift(?:ing)?|colour[- ]shift(?:ing)?|shifts? (?:between |through )?(?:colors?|colours?|tones?))\b/i;
+const LATEX_LIKE_LANGUAGE = /\blatex[- ]like\b/i;
+const MIRRORED_OR_SPARKLING_LANGUAGE = /\b(?:mirrored|mirror[- ]like|sparkling|sparkles?|glitter(?:ing|y)?)\b/i;
+const INDIRECT_OPTICAL_AESTHETIC = /\b(?:mirror[- ]look|mirrored[- ](?:inspired|style|aesthetic)|reflective[- ](?:inspired|style|aesthetic)|sparkling[- ](?:inspired|style|aesthetic))\b/gi;
+const INDIRECT_OPTICAL_MATERIAL_CLAIM = /\b(?:surface|material|fabric|coating|finish)\b[^.!?\n]{0,45}\b(?:mirror[- ]look|mirrored[- ](?:inspired|style|aesthetic)|reflective[- ](?:inspired|style|aesthetic)|sparkling[- ](?:inspired|style|aesthetic))\b|\b(?:mirror[- ]look|mirrored[- ](?:inspired|style|aesthetic)|reflective[- ](?:inspired|style|aesthetic)|sparkling[- ](?:inspired|style|aesthetic))\b[^.!?\n]{0,45}\b(?:surface|material|fabric|coating|finish)\b/i;
 const ABSTRACT_VISUAL_PSEUDO_BENEFIT = /\b(?:harder|stronger|more\s+(?:finished|intentional|individual)|intentional)\s+(?:warrior\s+|costume\s+)?(?:look|outfit|costume|appearance)\b|\b(?:turns?|helps?\s+turn)\b[^.!?\n]{0,70}\b(?:vision|idea|theme|direction|base look)\b[^.!?\n]{0,55}\b(?:look|outfit|costume)\b|\banchors?\b[^.!?\n]{0,65}\b(?:look|outfit|costume)\b|\b(?:skip|without building)\b[^.!?\n]{0,60}\b(?:full uniform|head[- ]to[- ]toe costume)\b|\bwithout building\b[^.!?\n]{0,70}\b(?:from separate finds|from scratch)\b|\bfeel(?:s|ing)? dressed for the occasion\b|\b(?:design|styling|shape)\b[^.!?\n]{0,45}\bmakes? it easier to choose\b|\bmakes? sense with (?:the )?outfit\b|\b(?:focal piece|focal point|photographs? well|wide shots?)\b|\bmatching\b[^.!?\n]{0,45}\b(?:pieces?|components?)\b[^.!?\n]{0,80}\b(?:same|repeat)\b[^.!?\n]{0,45}\b(?:color|colour|finish)\b|\bphotographs? as one outfit instead of separate (?:pieces?|add[- ]ons?)\b|\b(?:visible\s+)?(?:waist|belt|shoulder|skirt)\s+(?:detail|shape|line)\b[^.!?\n]{0,75}\b(?:natural break|changing tops?|restyle)\b/i;
 const UNSUPPORTED_COMPONENT_COVERAGE = /\b(?:shoulders?|skirt|components?|pieces?)\b[^.!?\n]{0,65}\b(?:keep|keeps|leave|leaves)\s+(?:more\s+of\s+)?(?:your|the)\s+(?:clothing|outfit|body)\s+visible\b/i;
 const ABSTRACT_VISUAL_BENEFIT = /\b(contrast and visual depth|adds? contrast|creates? visual depth|harder,? more dramatic line|firm armored presence|armored presence|individual feel|shape a look that feels deliberate|one bold detail to define|dramatic line|holds? its presence|visually strong|deliberate high[- ]impact character|more considered than mass[- ]market|wear with confidence|visual noise|clarity of (?:the |your )?(?:look|outfit|image|style)|expressive accent|more (?:considered|thoughtful) (?:look|appearance) than mass[- ]produced)\b/i;
@@ -414,6 +422,20 @@ export function validateSeoCommercialCopy(
     ));
   }
 
+  if (STRUCTURED_MATERIAL.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_calls_material_structured',
+      '“Structured” may describe a garment or construction, but it must not be used as a vague material property. State the confirmed surface, comfort, or shape-retention benefit instead.',
+    ));
+  }
+
+  if (ROBOTIC_DESIGN_REVIEW_LANGUAGE.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_uses_design_review_or_unfinished_language',
+      'Customer copy must sell the finished studio design, not discuss a silhouette, visual identity, starting point, final version, or an imaginary later choice that changes the product.',
+    ));
+  }
+
   if (UNGROUNDED_STORE_PROMISE.test(customerText)) {
     issues.push(blocker(
       'customer_copy_contains_ungrounded_store_promise',
@@ -422,6 +444,27 @@ export function validateSeoCommercialCopy(
   }
 
   const productTruthText = flattenText(context.product_truth).join(' ');
+  const approvedKeywordText = flattenText(context.keyword_roles).join(' ');
+  const approvedOpticalKeywordText = approvedSecondarySupportKeywordText(context.keyword_roles);
+  const opticalText = `${customerText}\n${altText}`;
+  const unsupportedIndirectOpticalPhrases = indirectOpticalPhrases(opticalText)
+    .filter((phrase) => !supportsIndirectOpticalPhrase(phrase, approvedOpticalKeywordText));
+  if (unsupportedIndirectOpticalPhrases.length) {
+    issues.push(blocker(
+      'customer_copy_uses_unselected_indirect_optical_keyword',
+      `Indirect optical aesthetics (${[...new Set(unsupportedIndirectOpticalPhrases)].join(', ')}) may appear only when the same search intent is present in approved Secondary or Support keywords.`,
+    ));
+  }
+  if (INDIRECT_OPTICAL_MATERIAL_CLAIM.test(opticalText)) {
+    issues.push(blocker(
+      'customer_copy_turns_indirect_optical_keyword_into_material_claim',
+      'Mirror-look, reflective-inspired, or sparkling-inspired may describe an approved aesthetic family, but never the material, surface, coating, or finish itself.',
+    ));
+  }
+  const directOpticalClaimsText = stripApprovedIndirectOpticalPhrases(
+    opticalText,
+    approvedOpticalKeywordText,
+  );
   if (
     context.product_truth != null
     && PLUS_SIZE_CLAIM.test(customerText)
@@ -434,13 +477,55 @@ export function validateSeoCommercialCopy(
   }
   if (
     context.product_truth != null
-    && REFLECTIVE_CLAIM.test(`${customerText}\n${altText}`)
+    && REFLECTIVE_CLAIM.test(directOpticalClaimsText)
     && !REFLECTIVE_CLAIM.test(productTruthText)
   ) {
     issues.push(blocker(
       'unsupported_reflective_finish_claim',
       'Reflective or retroreflective behavior is not confirmed by Product Truth. Glossy, mirror-like, metallic, and light-catching are different claims.',
     ));
+  }
+
+  const productColor = productTruthColor(context.product_truth);
+  if (/^(?:black|red|white)$/i.test(productColor)) {
+    if (METAL_FINISH_LANGUAGE.test(customerText)) {
+      issues.push(blocker(
+        'color_finish_mismatch_metal_language',
+        `${productColor} glossy vegan leather may be described as smooth, high-gloss, or latex-like, but not as metallic or metal-like.`,
+      ));
+    }
+    if (COLOR_SHIFT_LANGUAGE.test(customerText)) {
+      issues.push(blocker(
+        'color_finish_mismatch_color_shift_language',
+        `${productColor} is not confirmed as holographic, iridescent, or color-shifting.`,
+      ));
+    }
+  } else if (/holographic|hologram/i.test(productColor)) {
+    if (METAL_FINISH_LANGUAGE.test(customerText)) {
+      issues.push(blocker(
+        'color_finish_mismatch_metal_language',
+        'The holographic finish is glossy and may show subtle color shifts; it must not be presented as metal, metallic, chrome, or polished metal.',
+      ));
+    }
+    if (MIRRORED_OR_SPARKLING_LANGUAGE.test(directOpticalClaimsText)) {
+      issues.push(blocker(
+        'holographic_finish_overstates_mirrored_or_sparkling_behavior',
+        'A holographic product may be shiny and color-shifting, but must not be stated to have a mirrored, sparkling, glittering, or sparkle-producing material surface.',
+      ));
+    }
+  } else if (/^(?:gold|silver)$/i.test(productColor)) {
+    if (COLOR_SHIFT_LANGUAGE.test(customerText)) {
+      issues.push(blocker(
+        'color_finish_mismatch_color_shift_language',
+        `${productColor} may support a metal-inspired glossy finish, but is not confirmed as holographic, iridescent, or color-shifting.`,
+      ));
+    }
+    if (LATEX_LIKE_LANGUAGE.test(customerText)) {
+      issues.push(blocker(
+        'color_finish_mismatch_latex_language',
+        `${productColor} should use the confirmed glossy, mirror-like, or metal-inspired finish language rather than a latex comparison.`,
+      ));
+    }
   }
 
   if (context.product_truth != null && altText) {
@@ -466,7 +551,6 @@ export function validateSeoCommercialCopy(
       ));
     }
   });
-  const approvedKeywordText = flattenText(context.keyword_roles).join(' ');
   if (!CUSTOMER_MATERIAL_TERM.test(approvedKeywordText)) {
     (['seo_title', 'h1'] as const).forEach((field) => {
       const value = typeof record[field] === 'string' ? record[field] : '';
@@ -1030,6 +1114,43 @@ function flattenText(value: unknown): string[] {
   if (Array.isArray(value)) return value.flatMap(flattenText);
   if (isRecord(value)) return Object.values(value).flatMap(flattenText);
   return [];
+}
+
+function productTruthColor(value: unknown): string {
+  if (!isRecord(value)) return '';
+  for (const key of ['color', 'canonical_color_label', 'canonical_color', 'product_color']) {
+    const candidate = value[key];
+    if (typeof candidate === 'string' && candidate.trim()) return candidate.trim().toLowerCase();
+  }
+  for (const nested of Object.values(value)) {
+    if (!isRecord(nested)) continue;
+    const candidate = productTruthColor(nested);
+    if (candidate) return candidate;
+  }
+  return '';
+}
+
+function approvedSecondarySupportKeywordText(value: unknown): string {
+  if (!isRecord(value)) return '';
+  return flattenText([value.secondary, value.support]).join(' ').toLowerCase();
+}
+
+function indirectOpticalPhrases(value: string): string[] {
+  return [...value.matchAll(new RegExp(INDIRECT_OPTICAL_AESTHETIC.source, 'gi'))]
+    .map((match) => String(match[0] || '').toLowerCase());
+}
+
+function supportsIndirectOpticalPhrase(phrase: string, approvedKeywordText: string) {
+  if (/^reflective/i.test(phrase)) return /\breflective\b/i.test(approvedKeywordText);
+  if (/^sparkling/i.test(phrase)) return /\b(?:sparkling|sparkle|sparkles)\b/i.test(approvedKeywordText);
+  return /\b(?:mirror|mirrored)\b/i.test(approvedKeywordText);
+}
+
+function stripApprovedIndirectOpticalPhrases(value: string, approvedKeywordText: string) {
+  return value.replace(
+    new RegExp(INDIRECT_OPTICAL_AESTHETIC.source, 'gi'),
+    (phrase) => supportsIndirectOpticalPhrase(phrase, approvedKeywordText) ? '' : phrase,
+  );
 }
 
 function includedProductComponentText(value: unknown): string {
