@@ -1425,6 +1425,49 @@ export function normalizeBatchFiveEditorialBlacklistCopy<T>(
         'We shape the gold details for a glam presence that feels confident and personal. We keep the design expressive so your finished visual identity is distinctly yours.',
         'Our expressive gold details and glossy, metal-inspired finish give the set a glamorous, recognizable character that feels confident and personal.',
       ],
+      [
+        'Made for festivals and live performance, this gold outfit has a smooth, glossy, mirror-like finish with a bold fashion-led character. The design looks striking in motion, crowded settings, and full-length photos throughout a long day of music.',
+        'Made for festivals and live performance, this gold outfit has a smooth, glossy, mirror-like finish with a bold fashion-led character. Its bold design comes through in motion, close-up details, wider festival scenes, video, and live performance.',
+      ],
+      [
+        [
+          'The original studio-designed gold set has a distinctive, glamorous character that looks striking in festival crowds and full-length photos.',
+          'A comfortable feel supports longer festival days and live performances.',
+          'With careful storage, the piece keeps its shape beautifully and stays ready for repeat wear.',
+        ].join('\n'),
+        [
+          'Designed in our fashion studio, the gold set has a distinctive, glamorous character that feels personal and memorable.',
+          'The smooth vegan leather feels comfortable against the body, making the outfit easier to wear for extended periods.',
+          'Careful storage helps the gold outfit keep its shape beautifully between wears and remain ready for repeat wear.',
+        ].join('\n'),
+      ],
+      [
+        [
+          'Women planning an expressive costume for a live music production.',
+          'Festival-goers planning a glam gold look for a long day of music and movement.',
+          'Content creators planning polished visuals for festival shoots or music videos.',
+          'Costume stylists sourcing an original gold set for themed shows or editorials.',
+        ].join('\n'),
+        [
+          'Women seeking an expressive gold outfit for live music productions.',
+          'Festival-goers drawn to glam gold styling for long days of music and movement.',
+          'Performers and dancers choosing a striking outfit for live stage appearances.',
+          'Content creators producing polished festival shoots, music videos, or digital campaigns.',
+          'Costume stylists selecting a distinctive gold outfit for themed shows or editorials.',
+        ].join('\n'),
+      ],
+      [
+        'At TheFEYA, we develop this gold festival set from our own ideas. Its polished, fashion-led character makes the outfit easy to recognize in festival crowds and full-length photos. The original studio design supports a confident personal style across long festival days, live performances, and future events.',
+        'At TheFEYA, our designers develop this gold festival set from original ideas. Its polished, fashion-led character gives the outfit a recognizable presence in crowds, on stage, and across photos and video. The studio-created design supports confident personal style through festival days, live performances, and future events.',
+      ],
+      [
+        'At TheFEYA, we develop this gold festival outfit from our own ideas. Expressive details and a glossy, metal-inspired finish give the set a glamorous, recognizable character. The fashion-led design feels confident and memorable for long festival days, live performances, and creative photo or video shoots while staying true to our distinctive studio style.',
+        'At TheFEYA, our designers develop this gold festival set from original ideas. Its polished, fashion-led character gives the outfit a recognizable presence in crowds, on stage, and across photos and video. The studio-created design supports confident personal style through festival days, live performances, and future events.',
+      ],
+      [
+        'At TheFEYA, we develop this gold festival outfit from our own ideas. Its expressive details and glossy, metal-inspired finish give the set a glamorous, recognizable character that feels confident and personal.',
+        'At TheFEYA, our designers develop this gold festival set from original ideas. Its polished, fashion-led character gives the outfit a recognizable presence in crowds, on stage, and across photos and video. The studio-created design supports confident personal style through festival days, live performances, and future events.',
+      ],
     ],
     'rave skirt and top set::holographic': [
       [
@@ -1446,6 +1489,42 @@ export function normalizeBatchFiveEditorialBlacklistCopy<T>(
       [
         'We design this piece to help you build a look that feels vivid, modern, and personal. We pair holographic shine with glam attitude so your visual identity is unmistakably yours.',
         'The shiny holographic surface and subtle color shifts give this original studio design a vivid, glamorous character.',
+      ],
+      [
+        [
+          'Our original studio design gives the outfit a distinctive, memorable character that feels genuinely personal.',
+          'The material feels comfortable against the body, making the costume easier to wear through longer events or performances.',
+          'With careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
+        ].join('\n'),
+        [
+          'Created by our designers, the holographic outfit has a vivid, glamorous character that feels distinctive and memorable.',
+          'The holographic vegan leather feels comfortable against the body, helping the set remain wearable for extended periods.',
+          'Careful storage helps the outfit keep its shape beautifully and stay ready for future wears.',
+        ].join('\n'),
+      ],
+      [
+        [
+          'Women planning an expressive costume for a live music production.',
+          'Rave-goers planning a holographic look for a long night of music and movement.',
+          'Live performers preparing a dancer look for a stage show or theatrical role.',
+          'Content creators planning iridescent visuals for rave shoots or music videos.',
+          'Costume stylists sourcing an original glam piece for themed shows or editorials.',
+        ].join('\n'),
+        [
+          'Women choosing an expressive holographic outfit for live music productions.',
+          'Rave-goers seeking iridescent styling for long nights of music and movement.',
+          'Dancers and live performers drawn to a vivid costume for stage shows or theatrical roles.',
+          'Content creators producing rave shoots, music videos, or digital campaigns.',
+          'Costume stylists selecting a glam piece for themed shows or editorials.',
+        ].join('\n'),
+      ],
+      [
+        'At TheFEYA, we develop this holographic rave outfit from our own ideas. Its shiny surface and subtle color shifts give the original studio design a vivid, glamorous character that is easy to recognize on stage and in photos. The fashion-led result supports a confident personal style through rave nights, live performances, and creative shoots.',
+        'At TheFEYA, we shape this holographic rave outfit around vivid color shifts and a sleek, glossy finish. The glamorous result stands out in movement, on stage, and across photos or video. Its fashion-led styling supports confident personal expression through rave nights, live performances, and creative shoots.',
+      ],
+      [
+        'At TheFEYA, we develop this holographic rave outfit from our own ideas. Its shiny surface and subtle color shifts give the studio design a vivid, glamorous character. The fashion-led result feels distinctive and memorable for rave nights, stage performances, and creative photo or video shoots while staying true to our original style.',
+        'At TheFEYA, we shape this holographic rave outfit around vivid color shifts and a sleek, glossy finish. The glamorous result stands out in movement, on stage, and across photos or video. Its fashion-led styling supports confident personal expression through rave nights, live performances, and creative shoots.',
       ],
     ],
     'halloween costume with black bodysuit::black': [
@@ -1509,6 +1588,42 @@ export function normalizeBatchFiveEditorialBlacklistCopy<T>(
         'We keep the look bold, dark, and easy to shape into your own character. At TheFEYA, we develop pieces from our own ideas, so the result feels personal rather than copied. We aim for a visual identity that reads clearly and stays distinctly yours. That lets you decide how the finished character should look.',
         'At TheFEYA, we develop this bold, dark outfit from our own ideas. Its original, fashion-led goth-fantasy character feels distinctive, confident, and personal. The memorable studio design suits Halloween nights, cosplay appearances, stage performance, and creative photo or video shoots.',
       ],
+      [
+        [
+          'Our original studio design gives the outfit a distinctive, memorable character that feels genuinely personal.',
+          'The material feels comfortable against the body, making the costume easier to wear through longer events or performances.',
+          'With careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
+        ].join('\n'),
+        [
+          'Designed in our fashion studio, the black costume has a bold goth-fantasy character that feels distinctive and memorable.',
+          'The black vegan leather rests comfortably against the body, making the costume easier to wear for extended periods.',
+          'With careful storage, the black pieces keep their shape beautifully between wears and stay ready for future wear.',
+        ].join('\n'),
+      ],
+      [
+        [
+          'Women planning an expressive costume for a live music production.',
+          'Party-goers planning a dark look for a full Halloween night.',
+          'Cosplayers building an original goth or fantasy character around a studio-designed costume.',
+          'Content creators planning dramatic visuals for Halloween shoots or music videos.',
+          'Costume stylists sourcing an original black piece for themed shows or editorials.',
+        ].join('\n'),
+        [
+          'Women drawn to an expressive black costume for live music productions.',
+          'Party-goers seeking a dark, polished look for Halloween nights.',
+          'Cosplayers developing an original goth or fantasy character for cosplay appearances.',
+          'Live performers choosing a dramatic outfit for stage shows or theatrical roles.',
+          'Content creators producing Halloween shoots, music videos, or digital campaigns.',
+        ].join('\n'),
+      ],
+      [
+        'At TheFEYA, we develop this black Halloween costume from our own ideas. Its high-gloss, latex-like finish and fashion-led goth-fantasy character give the original studio design a bold, memorable presence. The confident look supports personal style across Halloween nights, cosplay appearances, stage performance, and creative photo or video shoots.',
+        'At TheFEYA, we develop this black Halloween costume in our fashion studio, giving it a bold goth-fantasy character. Its high-gloss, latex-like finish creates a memorable look for Halloween nights, cosplay appearances, and creative photo or video shoots. The studio-created design supports confident personal style across future performances and themed events.',
+      ],
+      [
+        'At TheFEYA, we develop this black Halloween costume from our own ideas. Its original, fashion-led goth-fantasy character feels bold, distinctive, and personal. The memorable studio design suits Halloween nights, cosplay appearances, stage performance, and creative photo or video shoots while preserving our confident point of view.',
+        'At TheFEYA, we develop this black Halloween costume in our fashion studio, giving it a bold goth-fantasy character. Its high-gloss, latex-like finish creates a memorable look for Halloween nights, cosplay appearances, and creative photo or video shoots. The studio-created design supports confident personal style across future performances and themed events.',
+      ],
     ],
     'halloween costumes with red bodysuit::red': [
       [
@@ -1571,6 +1686,42 @@ export function normalizeBatchFiveEditorialBlacklistCopy<T>(
         'We build our pieces at TheFEYA from our own ideas, so your outfit feels original rather than copied. The red silhouette gives the character a clear visual base without locking you into one fixed interpretation for Halloween or cosplay. That lets you shape the finished character around your own visual identity.',
         'At TheFEYA, we develop this red costume from our own ideas. Its original, fashion-led design gives the demon-inspired character a glamorous, distinctive presence that feels personal and memorable. The confident studio style suits Halloween nights, cosplay appearances, stage performance, and creative photo or video shoots.',
       ],
+      [
+        [
+          'Our original studio design gives the outfit a distinctive, memorable character that feels genuinely personal.',
+          'The material feels comfortable against the body, making the costume easier to wear through longer events or performances.',
+          'With careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
+        ].join('\n'),
+        [
+          'Created by our designers, the red costume combines a dramatic demon-inspired character with a distinctive fashion-led edge.',
+          'The fitted vegan-leather outfit feels comfortable against the body, helping it remain wearable for extended periods.',
+          'Careful storage helps the costume keep its shape beautifully between wears and remain ready for future shows.',
+        ].join('\n'),
+      ],
+      [
+        [
+          'Women planning an expressive costume for a live music production.',
+          'Party-goers preparing a vivid demon look for a full Halloween night.',
+          'Cosplayers building an original goth or fantasy character around a studio-designed costume.',
+          'Drag performers preparing a dramatic red look for a live show.',
+          'Content creators planning bold visuals for themed shoots or music videos.',
+        ].join('\n'),
+        [
+          'Women choosing a vivid red outfit for live music productions.',
+          'Party-goers drawn to a demon-inspired look for Halloween nights.',
+          'Cosplayers developing an original goth or fantasy character for cosplay appearances.',
+          'Drag performers seeking a glamorous red costume for live shows.',
+          'Content creators producing themed shoots, music videos, or digital campaigns.',
+        ].join('\n'),
+      ],
+      [
+        'At TheFEYA, we develop this red demon-inspired costume from our own ideas. Its smooth high-gloss finish and fashion-led goth-fantasy styling give the original studio design a bold, glamorous character. The memorable look supports confident self-expression across Halloween nights, original cosplay, drag performance, and creative photo or video shoots.',
+        'At TheFEYA, we create this red demon-inspired costume with a bold, glamorous fashion-led character. Its smooth high-gloss finish gives the outfit a memorable look for Halloween nights, original cosplay, drag performances, and creative photo or video shoots. The studio-created design supports confident personal expression across future shows and themed events.',
+      ],
+      [
+        'At TheFEYA, we develop this red costume from our own ideas. Its original, fashion-led design gives the demon-inspired character a glamorous, distinctive presence that feels personal and memorable. The confident studio style suits Halloween nights, cosplay appearances, stage performance, and creative photo or video shoots.',
+        'At TheFEYA, we create this red demon-inspired costume with a bold, glamorous fashion-led character. Its smooth high-gloss finish gives the outfit a memorable look for Halloween nights, original cosplay, drag performances, and creative photo or video shoots. The studio-created design supports confident personal expression across future shows and themed events.',
+      ],
     ],
     'robot armor costume::silver': [
       [
@@ -1628,6 +1779,42 @@ export function normalizeBatchFiveEditorialBlacklistCopy<T>(
       [
         'We design at TheFEYA from our own ideas, creating a robot armor outfit for women who want a stronger presence on stage. The silver silhouette gives you a clear character base while leaving the final interpretation open. You can shape the finished visual identity around the performance or cosplay role you have in mind.',
         'At TheFEYA, we designed this silver robot armor outfit from our own ideas. Its glossy, metal-inspired finish and bold sci-fi styling give it a distinctive, glamorous character that feels personal and memorable. The confident studio design suits stage performance, original cosplay, and creative photo or video shoots.',
+      ],
+      [
+        [
+          'Our original studio design gives the outfit a distinctive, memorable character that feels genuinely personal.',
+          'The material feels comfortable against the body, making the costume easier to wear through longer events or performances.',
+          'With careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
+        ].join('\n'),
+        [
+          'Developed in our fashion studio, the silver armor outfit has a distinctive sci-fi character with a polished, metal-inspired edge.',
+          'Vegan leather sits comfortably against the body, helping the armor outfit remain wearable for extended periods.',
+          'Careful storage helps the armor outfit keep its shape beautifully between wears and stay ready for repeat wear.',
+        ].join('\n'),
+      ],
+      [
+        [
+          'Women planning an expressive costume for a live music production.',
+          'Festival-goers planning a robot look for a long day of music and movement.',
+          'Cosplayers building an original post apocalyptic or cyberpunk character around a studio-designed costume.',
+          'Live performers preparing a robot look for a stage show or theatrical role.',
+          'Content creators planning cyberpunk visuals for stage shoots or music videos.',
+        ].join('\n'),
+        [
+          'Women seeking an expressive sci-fi outfit for live music productions.',
+          'Festival-goers choosing distinctive robot styling for long days of music and movement.',
+          'Cosplayers developing an original post-apocalyptic or cyberpunk character for cosplay appearances.',
+          'Live performers drawn to a striking armor outfit for stage shows or theatrical roles.',
+          'Content creators producing cyberpunk shoots, music videos, or digital campaigns.',
+        ].join('\n'),
+      ],
+      [
+        'At TheFEYA, we designed this silver robot armor outfit from our own ideas. Its high-gloss metal-inspired finish and bold sci-fi styling give the original studio design a distinctive, glamorous character. The memorable result supports confident self-expression on stage, in original cosplay, and across creative photo or video shoots.',
+        'At TheFEYA, our designers give this silver robot armor outfit bold sci-fi styling and a high-gloss, metal-inspired finish. The distinctive, glamorous character creates a memorable look on stage, in original cosplay, and across creative photo or video shoots. Our studio design supports confident self-expression through future performances and themed productions.',
+      ],
+      [
+        'At TheFEYA, we designed this silver robot armor outfit from our own ideas. Its glossy, metal-inspired finish and bold sci-fi styling give it a distinctive, glamorous character that feels personal and memorable. The confident studio design suits stage performance, original cosplay, and creative photo or video shoots.',
+        'At TheFEYA, our designers give this silver robot armor outfit bold sci-fi styling and a high-gloss, metal-inspired finish. The distinctive, glamorous character creates a memorable look on stage, in original cosplay, and across creative photo or video shoots. Our studio design supports confident self-expression through future performances and themed productions.',
       ],
     ],
   };
@@ -1880,7 +2067,7 @@ export function normalizeFestivalSetAboutFinish<T>(
   if (!exactContext) return output;
 
   const sourceSentence = 'Its polished metal look gives your outfit a striking finish that feels ready for standout moments.';
-  const replacementSentence = 'The gold design is easy to recognize in crowded festival settings and full-length photos taken throughout a long day of music.';
+  const replacementSentence = 'Its bold design comes through in motion, close-up details, wider festival scenes, video, and live performance.';
   let changed = false;
   const pdpBlocks = output.pdp_blocks.map((block) => {
     if (

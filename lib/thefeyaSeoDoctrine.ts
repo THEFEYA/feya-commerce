@@ -1,4 +1,4 @@
-export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v21' as const;
+export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v22' as const;
 
 export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
   checkpoint_id: 'reload_latest_research_before_apply_publish_v1',
@@ -34,6 +34,7 @@ export const THEFEYA_CUSTOMER_USE_CASE_MAP = [
   'Eligible B2B contexts include show ballets, dance troupes, event productions and costume studios only when the operator selected a compatible professional focus. Do not invent wholesale terms, discounts or service promises.',
   'Style and persona axes may shape a natural context, such as a warrior-inspired stage look or cyberpunk performance costume, but the internal words persona and direction never appear in customer copy.',
   'Do not add every possible customer or event. Use 4-5 distinct customer portraits, each with a person or at most two related roles and a concrete approved occasion, production or buying need. Product Truth remains the veto.',
+  'Under the Ideal for heading, each bullet must read as a direct answer to “for whom?” Start with the person or role, then vary the action naturally: seeking, choosing, creating, producing, selecting or another context-specific verb. Never repeat planning, preparing or any other sentence frame across three or more bullets.',
 ] as const;
 
 export const THEFEYA_BENEFIT_GENERATION_POLICY = [
@@ -43,6 +44,8 @@ export const THEFEYA_BENEFIT_GENERATION_POLICY = [
   'Use at least three distinct value families when evidence exists: distinctive studio design; easy dressing or adjustment; body comfort; structure, shape retention or durability; verified finish behavior.',
   'Include exactly one design-authorship benefit. State the real buyer value directly: our original design ideas give the buyer a distinctive, memorable piece that already feels bold and personal. Do not compare it with a standard template, generic costume or mass production.',
   'Prefer practical buyer concerns over abstract art criticism: quick to put on, easier to adjust, comfortable against the body, keeps its shape between wears, remains useful for future events, or has a verified light-catching finish.',
+  'Make the product or confirmed material the grammatical subject of comfort copy. Never write vague mechanisms such as a comfortable feel supports an event, and never let translation imply that the store sells a comfortable atmosphere.',
+  'A particular photo crop is not a product advantage. Never use full-length photos, full-body shots or another framing format as proof that the garment looks good. When camera value is supported, use inclusive language covering photographs, video, detail views or performance lighting without implying that other crops are inferior.',
   'A style, event, persona or audience is a use case for Ideal for, not a purchase benefit. Do not use works for warrior, futuristic or desert styling as a Why bullet.',
   'A visual observation is not automatically a benefit. Contrast, visual depth, dramatic line, armored presence, attitude, mood and individual feel are too abstract unless tied to a concrete buyer outcome.',
   'Never describe shape retention as keeping its form during movement. Explain the useful result literally: the supported material or layered construction helps the piece keep its shape between wears, resist creasing or remain reusable for future events.',
@@ -124,11 +127,13 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Use a warm, concrete and persuasive fashion-editorial voice with varied sentence rhythm. A complete, useful product story is required; a title restatement or keyword-perfect one-liner is not acceptable PDP copy.',
     'Avoid filler words and weak catalog phrases: Edition, Ultimate, Best, Perfect, Luxury, Premium, Elevate, Crafted to perfection and Perfect for any occasion.',
     'Use clear, short sentences. Avoid keyword stuffing, doorway-page copy, repeated phrase skeletons and long chained keyword titles.',
+    'Keep recurring section logic but vary the actual customer language by product. Do not reuse one complete Why you’ll love it block, Ideal for sentence pattern or studio-close paragraph across several products.',
     'Do not expand a clear product name merely to reach a character target. H1 should name the primary product entity once and add only a different, verified attribute or use case.',
     'Close keyword variants belong to one semantic cluster. They do not all need exact-match placement, and two near-synonymous product queries must not be stacked in one sentence or bullet.',
     'The exact Primary may appear in SEO title, H1 and meta description, but visible body copy must use a close natural whole-product variation instead of repeating the H1 verbatim. Semantic dominance matters; density chasing does not.',
     'The operator-selected event, style, persona and audience axes control high-intent search-focus coverage. Ideal for must represent at least one selected value from every non-empty axis. It may add only Product-Truth-compatible general buyer roles such as performers, dancers, creators or stylists; those roles do not authorize a new event, style or persona keyword.',
     'Ideal for is reserved for 4-5 useful customer portraits: one person or at most two related professional roles plus a concrete approved occasion, production or buying need. Bare keyword fragments, role stacks, persona/direction labels, accents, silhouette, finish, construction, base layers and component combinations do not belong there.',
+    'Ideal for must answer its heading directly. Lead each bullet with the customer or professional role and vary the action; three or more bullets built around planning, preparing, choosing or another repeated verb frame are template copy and must be rewritten.',
     'For a confirmed multi-component product, the whole outfit, set or costume is the page entity. A single component keyword may remain secondary, but it must not redefine the full product in title, H1, meta, intro or About.',
     'For every multi-component product, meta and About identify the whole outfit, set or costume without re-narrating its inventory. The dynamic What’s included block owns the confirmed component list. A component term may appear elsewhere only when it supports a different concrete buyer value.',
     'Do not mix different visual worlds simply to place more terms. Cyberpunk is not steampunk, and a high-volume but incompatible style is not a valid secondary angle.',
@@ -141,6 +146,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     'For a holographic product, an approved Secondary/support term may appear once as an indirect aesthetic phrase such as mirror-look, reflective-inspired or sparkling-inspired fashion. The same words must never be presented as the material’s physical reflective, mirrored or sparkling behavior.',
     'Never promise or discuss likes, followers, popularity, viral reach, organic attention, reactions, saves, comments, sales, press attention or other social-performance outcomes.',
     'The final Designed for self-expression block is a 45-75 word, 3-4 sentence product-relevant studio close. Identify TheFEYA once, explain our original in-studio design and the distinctive finished product it creates, then connect the product to one supported festival, stage or performance setting.',
+    'Use credible authorship language such as our designers, our fashion studio or original studio design, chosen to fit the sentence. Avoid repeating the bare adjective studio-designed across sections. Do not call the designers talented or use unsupported self-congratulation; demonstrate their value through the distinctive finished product.',
     'Use plain literal language. Ban visual identity, silhouette, structured material, starting point, final-version choices, visual noise, clarity of the look, point of view, considered appearance, expressive accent and similar abstract design-review wording that a buyer cannot translate into a real benefit.',
     'The sold product is already a finished choice. Never imply that it transforms, remains unfinished, leaves a final interpretation open or requires the buyer to decide how the completed character should look.',
     'Use persuasive modifiers only with evidence. Striking, distinctive, glamorous, memorable, beautifully polished and excellent shape retention are useful when tied to a confirmed design, finish or care fact; empty superlatives remain filler.',

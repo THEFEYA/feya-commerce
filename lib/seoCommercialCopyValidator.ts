@@ -53,6 +53,8 @@ const CUSTOMER_MATERIAL_TERM = /\b(?:vegan leather|faux leather)\b/i;
 const REFLECTIVE_CLAIM = /\b(?:reflective|retroreflective|retro-reflective)\b/i;
 const STRUCTURED_MATERIAL = /\bstructured\s+(?:material|fabric|vegan leather|faux leather)\b/i;
 const ROBOTIC_DESIGN_REVIEW_LANGUAGE = /\b(?:visual identity|silhouette|(?:clear\s+)?starting point|final interpretation|final version|finished version)\b|\b(?:final|finished)\s+(?:halloween\s+|festival\s+|stage\s+|cosplay\s+|performance\s+)?(?:look|character|outfit)\b[^.!?\n]{0,80}\b(?:open|choices?|choose|decide|interpretation)\b|\b(?:choose|decide|shape)\b[^.!?\n]{0,45}\b(?:final|finished)\s+(?:look|character|version)\b/i;
+const NARROW_PHOTO_CROP_PSEUDO_BENEFIT = /\b(?:full[- ]length|full[- ]body)\s+(?:photos?|photographs?|shots?|images?)\b/i;
+const VAGUE_COMFORT_MECHANISM = /\b(?:a\s+)?comfortable\s+(?:feel|feeling|atmosphere)\b[^.!?\n]{0,55}\b(?:supports?|helps?|encourages?|promotes?|contributes?\s+to)\b/i;
 const METAL_FINISH_LANGUAGE = /\b(?:metallic|metal[- ]like|metal[- ]inspired|polished[- ]?metal|liquid[- ]metal|chrome[- ]like)\b/i;
 const COLOR_SHIFT_LANGUAGE = /\b(?:holographic|hologram|iridescent|color[- ]shift(?:ing)?|colour[- ]shift(?:ing)?|shifts? (?:between |through )?(?:colors?|colours?|tones?))\b/i;
 const LATEX_LIKE_LANGUAGE = /\blatex[- ]like\b/i;
@@ -71,8 +73,8 @@ const USE_CASE_AS_BENEFIT = /\b(?:works?|ideal|made|suited) for\b.*\b(styling|lo
 const UNGROUNDED_STORE_PROMISE = /\b(best prices?|lowest prices?|competitive prices?|special prices?|bulk discounts?|volume discounts?|tax[- ]free|tax refund|excellent service|best service|wide assortment|large assortment|largest selection|fastest delivery)\b/i;
 const BRAND_PATTERN = /\bTheFEYA\b/gi;
 const GENERIC_EVENT_PATTERN = /\bevents?\b/gi;
-const DESIGN_BENEFIT_PATTERN = /\b(studio[- ]created|studio[- ]designed|studio[- ]made|designed in our studio|designed by our (?:team|studio)|our original design ideas?|original design ideas?|original studio design|distinctive studio design|signature studio design|handmade|made[- ]to[- ]order|not mass[- ]produced|mass[- ]produced costume|mass production|designer studio)\b/i;
-const SELF_EXPRESSION_PATTERN = /\b(self[- ]expression|individuality|visual identity|personal style|your own look|make (?:it|this|the (?:piece|set|outfit|design|look|character)) (?:your|their) own|feels? personal|feels? like (?:you|them)|made for your vision|designed for your vision|studio visual language|adapt(?:ed|able)|customi[sz](?:e|ed|ation))\b/i;
+const DESIGN_BENEFIT_PATTERN = /\b(studio[- ]created|studio[- ]designed|studio[- ]made|created by our designers?|developed in our (?:fashion )?studio|designed in our (?:fashion )?studio|designed by our (?:fashion )?(?:team|studio)|our designers?[’'] original ideas?|our original design ideas?|original design ideas?|original studio design|distinctive studio design|signature studio design|handmade|made[- ]to[- ]order|not mass[- ]produced|mass[- ]produced costume|mass production|designer studio)\b/i;
+const SELF_EXPRESSION_PATTERN = /\b(self[- ]expression|personal expression|individuality|visual identity|personal style|your own look|make (?:it|this|the (?:piece|set|outfit|design|look|character)) (?:your|their) own|feels? personal|feels? like (?:you|them)|made for your vision|designed for your vision|studio visual language|adapt(?:ed|able)|customi[sz](?:e|ed|ation))\b/i;
 const REDUNDANT_SHOULDER_ENTITY_PATTERN = /\bshoulders?\s+(?:armor|armour|piece|pieces|pauldron|pauldrons)\b/gi;
 const AWKWARD_FINISH_AND_SHAPE = /\b(?:glossy|mirror[- ]like|metallic|gold)\b[^.!?]{0,45}\b(?:finish|surface|coating)\s+and\s+(?:a\s+)?(?:silhouette|shape|profile)\b/i;
 const DUPLICATE_STAGE_PERFORMANCE_FASHION = /\b(?:festival,?\s*)?stage,?\s+and\s+performance\s+fashion\b/i;
@@ -169,7 +171,7 @@ const BENEFIT_CATEGORIES: Array<{ key: string; pattern: RegExp }> = [
   },
   {
     key: 'comfort',
-    pattern: /\b(soft against the body|soft body[- ]facing|comfortable|comfort|body[- ]facing|gentle on the body|easy to wear)\b/i,
+    pattern: /\b(soft against the body|soft body[- ]facing|comfortable|comfortably against the body|comfort|body[- ]facing|gentle on the body|easy to wear)\b/i,
   },
   {
     key: 'durability_structure',
@@ -203,10 +205,10 @@ const PRACTICAL_BENEFIT_CATEGORIES = new Set([
   'wearer_framing',
 ]);
 const BENEFIT_OUTCOME_PATTERNS: Record<string, RegExp> = {
-  studio_design_and_craft: /\b(original|distinctive|recognizable|recognisable|feels? (?:like you|personal|true to (?:you|your style))|your own (?:style|look)|designed by our (?:team|studio))\b/i,
+  studio_design_and_craft: /\b(original|distinctive|recognizable|recognisable|memorable|feels? (?:like you|personal|true to (?:you|your style))|your own (?:style|look)|created by our designers?|developed in our (?:fashion )?studio|designed in our (?:fashion )?studio|designed by our (?:fashion )?(?:team|studio))\b/i,
   easy_dressing_and_adjustment: /\b(quick|easy|easier) to (?:put on|take off|adjust|wear)|\b(stays? in place|sits? securely|more secure|secure fit|room to adjust|different body shapes?)\b/i,
   fit_flexibility: /\b(secure fit|closer fit|fit around|room to adjust|different body shapes?|custom measurements?|flexible fit)\b/i,
-  comfort: /\b(comfortable|comfort|soft against the body|soft body[- ]facing|gentle on the body|easier to wear)\b/i,
+  comfort: /\b(comfortable|comfortably against the body|comfort|soft against the body|soft body[- ]facing|gentle on the body|easier to wear|remain wearable)\b/i,
   durability_structure: /\b(holds? its (?:shape|form)|keeps? its (?:shape|form)|shape retention|between wears|resists? creasing|long[- ]lasting|less likely to (?:crease|collapse|lose its shape)|ready for repeat (?:wear|use)|repeat (?:wear|use)|future wears?)\b/i,
   verified_finish_behavior: /\b(catches? (?:(?:available|ambient|stage) )?(?:day)?light|picks? up (?:available |ambient |stage )?light|light[- ]catching|shows? clearly in photos?|looks? brighter in photos?|photographs? brighter(?: outdoors| in daylight)?|visible under (?:stage |event )?lighting|keeps? details? visible|helps? (?:product )?details? (?:stay|remain) visible|details? (?:stay|remain) visible)\b/i,
   styling_flexibility: STYLING_FLEXIBILITY_PATTERN,
@@ -433,6 +435,20 @@ export function validateSeoCommercialCopy(
     issues.push(blocker(
       'customer_copy_uses_design_review_or_unfinished_language',
       'Customer copy must sell the finished studio design, not discuss a silhouette, visual identity, starting point, final version, or an imaginary later choice that changes the product.',
+    ));
+  }
+
+  if (NARROW_PHOTO_CROP_PSEUDO_BENEFIT.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_uses_photo_crop_as_product_benefit',
+      'Full-length or full-body framing is not a product advantage. Describe supported value across photographs, video, detail views or performance lighting without implying that other crops are inferior.',
+    ));
+  }
+
+  if (VAGUE_COMFORT_MECHANISM.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_uses_vague_comfort_mechanism',
+      'Comfort copy must name the confirmed material or garment and a literal wearability outcome. A comfortable feel or atmosphere cannot support an event or performance.',
     ));
   }
 
@@ -728,6 +744,20 @@ export function validateSeoCommercialCopy(
     issues.push(blocker(
       'ideal_for_repeats_who_need_template',
       'Ideal for repeats the same “who need” template. Vary the sentence rhythm while keeping each approved person and situation.',
+    ));
+  }
+  const idealActionFrameCounts = new Map<string, number>();
+  idealForLines.forEach((line) => {
+    const frame = line.match(/\b(planning|preparing|choosing|seeking|creating|building|producing|selecting|sourcing|developing)\b/i)?.[1]?.toLowerCase();
+    if (frame) idealActionFrameCounts.set(frame, (idealActionFrameCounts.get(frame) || 0) + 1);
+  });
+  const repeatedIdealActionFrames = [...idealActionFrameCounts.entries()]
+    .filter(([, count]) => count >= 3)
+    .map(([frame]) => frame);
+  if (repeatedIdealActionFrames.length) {
+    issues.push(blocker(
+      'ideal_for_repeats_action_template',
+      `Ideal for repeats the same action frame across three or more bullets (${repeatedIdealActionFrames.join(', ')}). Lead with the customer or role and vary the sentence rhythm naturally.`,
     ));
   }
   const repeatedOriginalModifier = countMatches(idealForBody, /\boriginal\b/gi);

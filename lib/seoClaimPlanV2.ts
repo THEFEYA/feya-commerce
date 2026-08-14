@@ -402,12 +402,12 @@ function compactWriterSystemPrompt() {
 
 function buyerOutcomeForFact(factCode: string) {
   const outcomes: Record<string, string> = {
-    original_authorial_design: 'Our original studio design gives the outfit a distinctive, memorable character that feels genuinely personal.',
+    original_authorial_design: 'Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.',
     material_glossy_holographic_shift: 'Its smooth, shiny holographic surface shows subtle color shifts in changing light and movement.',
     material_glossy_metal_inspired_finish: 'Its smooth, high-gloss surface creates a beautifully polished, metal-inspired finish.',
     material_glossy_latex_like_finish: 'Its smooth, high-gloss surface creates a sleek, latex-like appearance.',
     material_smooth_glossy_finish: 'Its smooth, high-gloss surface gives the piece a clean, polished finish.',
-    material_body_comfort: 'The material feels comfortable against the body, making the costume easier to wear through longer events or performances.',
+    material_body_comfort: 'The material feels comfortable against the body, making the garment easier to wear for extended periods.',
     material_shape_retention: 'With careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
     material_event_light_camera: 'The color and details stay clear in photos and under stage lighting.',
     current_color: 'One concrete visual detail that helps the shopper picture the piece.',
@@ -457,7 +457,7 @@ function buildIdealForPortraits(
   const primaryStyle = focus.style[0] || '';
   const secondaryStyle = focus.style[1] || '';
   const persona = focus.persona.find((value) => !/performer/i.test(value)) || '';
-  const festivalDescriptor = persona || primaryStyle || 'studio-designed';
+  const festivalDescriptor = persona || primaryStyle || 'designer-made';
   const creatorContext = festivalEvent || focus.event[0] || primaryStyle || persona || 'live production';
 
   const generalAudience = focus.audience.find((value) => (
@@ -466,7 +466,7 @@ function buildIdealForPortraits(
   if (generalAudience) {
     portraits.push({
       person: audiencePerson(generalAudience),
-      situation: 'preparing an expressive costume for a live music production',
+      situation: 'seeking an expressive outfit for a live music production',
     });
   }
 
@@ -474,7 +474,7 @@ function buildIdealForPortraits(
     const isBurningMan = /burning man/i.test(festivalEvent);
     portraits.push({
       person: isBurningMan ? 'Burning Man attendees' : 'festival-goers',
-      situation: `planning a ${festivalDescriptor} look for ${isBurningMan ? 'long days and night sets' : 'a long day of music and movement'}`,
+      situation: `drawn to a ${festivalDescriptor} look for ${isBurningMan ? 'long days and night sets' : 'a long day of music and movement'}`,
     });
   }
 
@@ -484,17 +484,17 @@ function buildIdealForPortraits(
       ? selectedStyleIdeas
       : persona
         ? persona
-        : 'studio-designed';
+        : 'designer-made';
     portraits.push({
       person: 'cosplayers',
-      situation: `building an original ${characterIdea} character around a studio-designed costume`,
+      situation: `creating an original ${characterIdea} character for cosplay appearances or themed productions`,
     });
   }
 
   if (hasFocus([...focus.persona, ...focus.audience], 'performer')) {
     portraits.push({
       person: 'live performers',
-      situation: `preparing a ${persona || primaryStyle || 'studio-designed'} look for a stage show or theatrical role`,
+      situation: `choosing a ${persona || primaryStyle || 'designer-made'} look for a stage show or theatrical role`,
     });
   }
 
@@ -502,25 +502,25 @@ function buildIdealForPortraits(
   if (selectedProfessionalRole) {
     portraits.push({
       person: pluralRole(selectedProfessionalRole),
-      situation: `planning a recognizable ${primaryStyle || persona || 'studio-designed'} look for a live performance or production`,
+      situation: `seeking a recognizable ${primaryStyle || persona || 'designer-made'} look for a live performance or production`,
     });
   }
 
   portraits.push(
     {
       person: 'content creators',
-      situation: `planning ${secondaryStyle || persona || primaryStyle || 'distinctive'} visuals for ${creatorContext} shoots or music videos`,
+      situation: `producing ${secondaryStyle || persona || primaryStyle || 'distinctive'} visuals for ${creatorContext} shoots or music videos`,
     },
     {
       person: 'costume stylists',
-      situation: `sourcing an original ${primaryStyle || persona || 'distinctive'} piece for themed shows or editorials`,
+      situation: `selecting an original ${primaryStyle || persona || 'distinctive'} design for themed shows or editorials`,
     },
   );
 
   if (portraits.length < 4) {
     portraits.push({
       person: 'show artists',
-      situation: `developing a personal ${secondaryStyle || persona || primaryStyle || 'studio-designed'} look for a live production`,
+      situation: `developing a personal ${secondaryStyle || persona || primaryStyle || 'designer-made'} look for a live production`,
     });
   }
 

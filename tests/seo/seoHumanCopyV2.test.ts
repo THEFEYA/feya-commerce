@@ -324,14 +324,16 @@ test('cosplay focus is framed as an original studio character, not a replica pro
   assert.match(brief.cosplay_positioning || '', /character of their own/i);
   assert.ok(brief.ideal_for_portraits.some((portrait) => (
     portrait.person === 'cosplayers'
-    && /building an original futuristic or fantasy character/i.test(portrait.situation)
-    && /studio-designed costume$/i.test(portrait.situation)
+    && /creating an original futuristic or fantasy character/i.test(portrait.situation)
+    && /cosplay appearances or themed productions$/i.test(portrait.situation)
   )));
   const portraitBrief = JSON.stringify(brief.ideal_for_portraits).toLowerCase();
   assert.equal((portraitBrief.match(/futuristic/g) || []).length <= 2, true);
   assert.equal((portraitBrief.match(/fantasy/g) || []).length <= 2, true);
   assert.equal((portraitBrief.match(/warrior/g) || []).length <= 2, true);
   assert.equal(/costume buyer|customer/.test(portraitBrief), false);
+  assert.equal((portraitBrief.match(/\bplanning\b/g) || []).length, 0);
+  assert.equal(/studio-designed costume/.test(portraitBrief), false);
   assert.equal(/exact replica|screen[- ]accurate|franchise replica/i.test(prompt.user_prompt), false);
 });
 

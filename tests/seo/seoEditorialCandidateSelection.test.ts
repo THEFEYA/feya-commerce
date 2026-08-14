@@ -205,11 +205,11 @@ test('repairs the Festival Set control copy without another writer call', () => 
     'Gold skirt and top set festival with a glossy mirror-like finish for long festival days, live performances, and creative shoots.',
   );
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /polished metal look gives/);
-  assert.match(normalized.pdp_blocks[0].body, /crowded settings/);
-  assert.match(normalized.pdp_blocks[1].body, /glamorous, recognizable character/);
+  assert.match(normalized.pdp_blocks[0].body, /close-up details, wider festival scenes, video/);
+  assert.match(normalized.pdp_blocks[1].body, /recognizable presence in crowds, on stage/);
   assert.doesNotMatch(normalized.pdp_blocks[1].body, /visual identity|silhouette|starting point|final look/i);
-  assert.equal(normalized.pdp_blocks[2].body.match(/\bglam\b/gi)?.length, 1);
-  assert.match(normalized.pdp_blocks[2].body, /polished visuals/);
+  assert.match(normalized.pdp_blocks[2].body, /Festival-goers drawn to glam gold styling/);
+  assert.match(normalized.pdp_blocks[2].body, /digital campaigns/);
   assert.match(normalized.pdp_blocks[3].body, /confident personal style/);
   assert.doesNotMatch(normalized.pdp_blocks[3].body, /visual identity|silhouette|starting point|final look/i);
 });
@@ -265,12 +265,12 @@ test('renormalizes the saved Festival review draft without another writer call',
     'This gold festival outfit brings an original, fashion-led studio design to long festival days, live performances, and creative shoots.',
   );
   assert.match(normalized.pdp_blocks[0].body, /smooth, glossy, mirror-like finish/);
-  assert.match(normalized.pdp_blocks[1].body, /keeps its shape beautifully/);
-  assert.match(normalized.pdp_blocks[2].body, /glam gold look/);
-  assert.match(normalized.pdp_blocks[3].body, /supports a confident personal style/);
+  assert.match(normalized.pdp_blocks[1].body, /keep its shape beautifully/);
+  assert.match(normalized.pdp_blocks[2].body, /glam gold styling/);
+  assert.match(normalized.pdp_blocks[3].body, /supports confident personal style/);
   assert.doesNotMatch(
     JSON.stringify(normalized),
-    /final styling choices|make the character your own|structured material|visual identity|silhouette|starting point/i,
+    /final styling choices|make the character your own|structured material|visual identity|silhouette|starting point|full-length photos|\bplanning\b|comfortable feel supports/i,
   );
 });
 
@@ -305,11 +305,11 @@ test('repairs the Holographic Set control copy without another writer call', () 
 
   assert.match(normalized.pdp_blocks[0].body, /smooth, shiny surface/);
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /pairs a striking top with a flared skirt|metallic|reflective|mirrored|sparkling/i);
-  assert.match(normalized.pdp_blocks[1].body, /Rave-goers planning a holographic look/);
-  assert.match(normalized.pdp_blocks[1].body, /iridescent visuals/);
-  assert.equal(normalized.pdp_blocks[1].body.match(/\bdancer\b/gi)?.length, 1);
-  assert.match(normalized.pdp_blocks[2].body, /shiny surface and subtle color shifts/);
-  assert.match(normalized.pdp_blocks[2].body, /confident personal style/);
+  assert.match(normalized.pdp_blocks[1].body, /Rave-goers seeking iridescent styling/);
+  assert.match(normalized.pdp_blocks[1].body, /digital campaigns/);
+  assert.equal(normalized.pdp_blocks[1].body.match(/\bdancers?\b/gi)?.length, 1);
+  assert.match(normalized.pdp_blocks[2].body, /around vivid color shifts and a sleek, glossy finish/);
+  assert.match(normalized.pdp_blocks[2].body, /confident personal expression/);
   assert.doesNotMatch(normalized.pdp_blocks[2].body, /distinctive presence|visual identity|metallic|reflective|mirrored|sparkling|\bevents?\b/i);
 });
 
@@ -346,9 +346,10 @@ test('repairs the Black Bodysuit Set control copy without another writer call', 
   assert.match(normalized.pdp_blocks[0].body, /smooth, high-gloss surface/);
   assert.match(normalized.pdp_blocks[0].body, /latex-like character/);
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /metal/i);
-  assert.match(normalized.pdp_blocks[1].body, /Party-goers planning a dark look/);
+  assert.match(normalized.pdp_blocks[1].body, /Party-goers seeking a dark, polished look/);
   assert.equal(normalized.pdp_blocks[1].body.match(/\bgoth\b/gi)?.length, 1);
-  assert.match(normalized.pdp_blocks[2].body, /bold, distinctive, and personal/);
+  assert.match(normalized.pdp_blocks[2].body, /we develop this black Halloween costume in our fashion studio/);
+  assert.match(normalized.pdp_blocks[2].body, /confident personal style/);
   assert.doesNotMatch(normalized.pdp_blocks[2].body, /copied|visual identity|finished character|starting point/i);
 });
 
@@ -421,7 +422,7 @@ test('repairs the Silver Bodysuit Legs Set control copy without another writer c
 
   assert.match(normalized.pdp_blocks[0].body, /silver bodysuit with a fashion-led metallic edge/);
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /futuristic/i);
-  assert.match(normalized.pdp_blocks[1].body, /glossy, metal-inspired finish/);
+  assert.match(normalized.pdp_blocks[1].body, /high-gloss, metal-inspired finish/);
   assert.match(normalized.pdp_blocks[1].body, /distinctive, glamorous character/);
   assert.doesNotMatch(normalized.pdp_blocks[1].body, /futuristic|personal styling choices|visual identity|silhouette|starting point|final interpretation/i);
 });
@@ -460,7 +461,7 @@ test('repairs the live black review response from 2026-08-14 without another wri
   assert.match(normalized.pdp_blocks[0].body, /sleek, latex-like character/);
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /metal|reads/i);
   assert.equal(normalized.pdp_blocks[1].body.match(/\bgoth\b/gi)?.length, 1);
-  assert.match(normalized.pdp_blocks[2].body, /supports personal style/);
+  assert.match(normalized.pdp_blocks[2].body, /supports confident personal style/);
   assert.doesNotMatch(normalized.pdp_blocks[2].body, /lands clearly|step in|reads clearly/i);
   assert.match(normalized.image_alt_candidates[0].alt_text, /leg covers and tail/);
 });
@@ -499,8 +500,8 @@ test('repairs the live red review response from 2026-08-14 without another write
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /metal|reads/i);
   assert.match(normalized.pdp_blocks[1].body, /Drag performers/);
   assert.equal(normalized.pdp_blocks[1].body.match(/\bgoth\b/gi)?.length, 1);
-  assert.match(normalized.pdp_blocks[2].body, /supports confident self-expression/);
-  assert.doesNotMatch(normalized.pdp_blocks[2].body, /lands with confidence|read like|themed events/i);
+  assert.match(normalized.pdp_blocks[2].body, /supports confident personal expression/);
+  assert.doesNotMatch(normalized.pdp_blocks[2].body, /lands with confidence|read like/i);
   assert.doesNotMatch(normalized.image_alt_candidates[0].alt_text, /complete Complete|halloween costumes with red bodysuit/i);
 });
 
@@ -533,7 +534,6 @@ test('polishes the live silver review response before storage without another wr
 });
 
 test('renormalizes the saved black, red, and silver review drafts without another writer call', () => {
-  const commonWhy = 'Our original studio design gives the outfit a distinctive, memorable character that feels genuinely personal.\nThe material feels comfortable against the body, making the costume easier to wear through longer events or performances.\nWith careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.';
   const cases = [
     {
       name: 'black',
@@ -559,8 +559,9 @@ test('renormalizes the saved black, red, and silver review drafts without anothe
       expectedMeta: 'Black Halloween costume with black bodysuit, featuring a smooth high-gloss finish for cosplay nights and creative photo or video shoots.',
       expectedIntro: 'This black bodysuit costume is designed for Halloween and cosplay, where its original studio design creates a bold, distinctive goth-fantasy look.',
       expectedAbout: /sleek, latex-like character/,
-      expectedIdeal: /dramatic visuals/,
-      expectedMain: /supports personal style/,
+      expectedWhy: /Designed in our fashion studio/,
+      expectedIdeal: /Party-goers seeking a dark, polished look/,
+      expectedMain: /supports confident personal style/,
       expectedAlt: /leg covers and tail/,
     },
     {
@@ -587,8 +588,9 @@ test('renormalizes the saved black, red, and silver review drafts without anothe
       expectedMeta: 'Halloween costumes with red bodysuit styling, a smooth high-gloss finish, and a bold demon-inspired character for Halloween and cosplay.',
       expectedIntro: 'This red bodysuit costume is designed for Halloween and cosplay, where its original studio design creates a bold, distinctive demon-inspired look.',
       expectedAbout: /sleek, latex-like character/,
-      expectedIdeal: /Drag performers/,
-      expectedMain: /supports confident self-expression/,
+      expectedWhy: /Created by our designers/,
+      expectedIdeal: /Drag performers seeking a glamorous red costume/,
+      expectedMain: /supports confident personal expression/,
       expectedAlt: /demon-inspired bodysuit costume/,
     },
     {
@@ -615,18 +617,21 @@ test('renormalizes the saved black, red, and silver review drafts without anothe
       expectedMeta: 'Silver robot armor costume with a metal-inspired finish for stage and cosplay, made for striking cyberpunk moments.',
       expectedIntro: 'This robot armor outfit is designed for the stage and cosplay, where its original studio design creates a bold, distinctive look.',
       expectedAbout: /silver bodysuit with a fashion-led metallic edge/,
-      expectedIdeal: /Women planning an expressive costume/,
-      expectedMain: /supports confident self-expression/,
+      expectedWhy: /Developed in our fashion studio/,
+      expectedIdeal: /Women seeking an expressive sci-fi outfit/,
+      expectedMain: /Our studio design supports confident self-expression/,
       expectedAlt: /pink and blue lighting/,
     },
   ];
 
+  const whyBodies: string[] = [];
   for (const control of cases) {
     const normalized = normalizeSeoEditorialCandidate(control.input, control.context);
     const block = (key: string) => normalized.pdp_blocks.find((row: any) => row.block_key === key)?.body || '';
     assert.equal(normalized.meta_description, control.expectedMeta, control.name);
     assert.equal(normalized.intro, control.expectedIntro, control.name);
-    assert.equal(block('why_youll_love_it'), commonWhy, control.name);
+    whyBodies.push(block('why_youll_love_it'));
+    assert.match(block('why_youll_love_it'), control.expectedWhy, control.name);
     assert.match(block('about_this_piece'), control.expectedAbout, control.name);
     assert.match(block('ideal_for'), control.expectedIdeal, control.name);
     assert.match(block('main_description'), control.expectedMain, control.name);
@@ -637,6 +642,7 @@ test('renormalizes the saved black, red, and silver review drafts without anothe
       control.name,
     );
   }
+  assert.equal(new Set(whyBodies).size, cases.length);
 });
 
 test('adds a supported product color to the deterministic SEO identity', () => {
