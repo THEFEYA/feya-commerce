@@ -69,5 +69,12 @@ Buyer copy never calls the product a `starting point`, leaves the `final look` o
 ## R21. Persuasive modifiers need evidence
 The tone may be warm, glamorous and confidently promotional. Use specific positive modifiers such as `striking`, `distinctive`, `memorable`, `beautifully polished` or `keeps its shape beautifully` only when attached to a supported fact. Empty superlatives such as `best`, `perfect`, `ultimate` and unsupported `luxury/premium` claims remain banned. Stronger language must improve the buyer's understanding, not merely increase hype.
 
+## R22. Listing Master component chips are SEO search axes, not composition writes
+An owner-selected component chip may describe the product type, a sold part or its body placement. For example, a men's harness can legitimately use `harness + top + legs`, and a crown-led costume may retain `shoulders` as a supporting visual search axis. Saving these axes must never add them to canonical Product Truth, the current selector or What's Included.
+
+The saved decision records selector-backed component axes separately from search-only axes. Current storefront options remain the sole composition authority. A search-only axis may retrieve Secondary/supporting candidates, but it cannot become the Primary page entity or a factual included-item claim by itself. Primary remains anchored to the current product identity and sellable offer. Legacy decisions keep the older fail-closed reconciliation until the owner explicitly re-saves them under the versioned search-axis contract.
+
+For a visually coherent `top + skirt` ensemble, an evidence-backed phrase such as `carnival dress` may be retained only as indirect discovery vocabulary when the source identity uses that wording. Customer copy must still call the sold product a top-and-skirt set/outfit and must never claim a one-piece dress or place `Dress` in What's Included.
+
 ## Process rule
 Every owner review is captured the same way: complaint → named rule → committed here → reflected in prompts/validators. Cumulative and versioned.

@@ -30,6 +30,7 @@ test('Listing Master snapshot preserves metric and recommendation provenance', (
     validation_status: 'validated',
     data_freshness_status: 'validated',
     whole_product_intent: true,
+    discovery_alias_only: true,
     auto_recommendation: true,
     auto_recommendation_needs_human_confirmation: true,
   }]);
@@ -39,6 +40,7 @@ test('Listing Master snapshot preserves metric and recommendation provenance', (
   assert.equal(snapshot[0].last_checked, '2026-07-08');
   assert.equal(snapshot[0].role, 'primary');
   assert.equal(snapshot[0].whole_product_intent, true);
+  assert.equal(snapshot[0].discovery_alias_only, true);
   assert.deepEqual(listingMasterKeywordIds(snapshot), ['kw-1']);
 });
 

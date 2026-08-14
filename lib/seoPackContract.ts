@@ -74,6 +74,7 @@ export type SeoKeywordRoleItem = SeoKeywordMetricSnapshot & {
   role_reason?: string | null;
   placement?: string | null;
   relevance_score?: number | null;
+  usage_constraint?: 'indirect_discovery_alias' | null;
 };
 
 export type SeoKeywordRoleMap = Record<SeoKeywordRole, SeoKeywordRoleItem[]>;

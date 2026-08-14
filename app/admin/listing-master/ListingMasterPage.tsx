@@ -10,9 +10,10 @@ import {
   listingMasterKeywordSelectionSignature,
 } from '@/lib/seoListingMasterDecision';
 import {
-  productComponentAssertionScope,
-  resolveSelectedComponentFamilies,
-} from '@/lib/listingMasterComponentTruth';
+  LISTING_MASTER_SEARCH_AXIS_CONTRACT,
+  partitionListingMasterComponentAxes,
+  reconcileListingMasterComponentFocus,
+} from '@/lib/listingMasterSearchAxisContract';
 import { planKeywordPageRanges } from '@/lib/seoKeywordBankPagination';
 import { getSeoProductTruthEvidenceBlockers } from '@/lib/seoPackContract';
 import { STOREFRONT_VIEW_V1 } from '@/lib/storefront';
@@ -123,18 +124,18 @@ const STRATEGY_NOTES = { demand: 'Сначала слова с большим с
 const STATUS_LABELS = { all: 'Все товары', not_saved: 'Не сохранено', saved: 'Решение сохранено' };
 
 const COMPONENTS = ['shoulders', 'corset', 'bra', 'top', 'harness', 'bodysuit', 'skirt', 'panties', 'arms', 'legs', 'mask', 'headpiece', 'choker', 'wings', 'spine', 'tail'];
-const MATERIALS = ['gold', 'silver', 'black', 'white', 'mirror', 'acrylic', 'leather', 'vegan leather', 'metallic', 'holographic', 'chain'];
+const MATERIALS = ['gold', 'silver', 'black', 'white', 'red', 'mirror', 'acrylic', 'leather', 'vegan leather', 'metallic', 'holographic', 'chain'];
 const EVENTS = ['burning man', 'festival', 'rave', 'stage', 'edm', 'edc', 'coachella', 'halloween', 'cosplay', 'pride', 'drag', 'photoshoot'];
 const STYLES = ['post apocalyptic', 'futuristic', 'cyberpunk', 'desert', 'glam', 'punk', 'goth', 'burlesque', 'cosmic', 'sci fi', 'steampunk', 'fantasy'];
 const PERSONAS = ['warrior', 'goddess', 'queen', 'cleopatra', 'robot', 'alien', 'angel', 'demon', 'drag queen', 'dancer', 'performer', 'dj', 'showgirl', 'go go dancer', 'pole dancer', 'maleficent', 'cat', 'bunny', 'couple'];
 const AUDIENCES = ['men', 'women', 'couples', 'drag'];
 const FOCUS_FIELDS = ['component', 'material', 'event', 'style', 'persona', 'audience'];
-const COLOR_VALUES = ['gold', 'silver', 'black', 'white', 'holographic'];
+const COLOR_VALUES = ['gold', 'silver', 'black', 'white', 'red', 'holographic'];
 const HARD_COMPONENT_CONFLICTS = ['bodysuit', 'corset', 'bra', 'top', 'harness', 'skirt', 'panties', 'arms', 'legs', 'mask', 'headpiece', 'choker', 'wings', 'spine', 'tail'];
 
 const LABELS = {
   corset: 'corset', bra: 'bra', top: 'top', harness: 'harness', bodysuit: 'bodysuit', skirt: 'skirt', panties: 'panties', shoulders: 'shoulders', arms: 'arms', legs: 'legs', mask: 'mask', headpiece: 'headpiece', choker: 'choker', wings: 'wings', spine: 'spine', tail: 'tail',
-  gold: 'gold', silver: 'silver', black: 'black', white: 'white', mirror: 'mirror', acrylic: 'acrylic', leather: 'leather', 'vegan leather': 'vegan leather', metallic: 'metallic', holographic: 'holographic', chain: 'chain detail',
+  gold: 'gold', silver: 'silver', black: 'black', white: 'white', red: 'red', mirror: 'mirror', acrylic: 'acrylic', leather: 'leather', 'vegan leather': 'vegan leather', metallic: 'metallic', holographic: 'holographic', chain: 'chain detail',
   rave: 'rave', festival: 'festival', 'burning man': 'Burning Man', stage: 'stage', edm: 'EDM', edc: 'EDC', coachella: 'Coachella', halloween: 'Halloween', cosplay: 'cosplay', pride: 'Pride', drag: 'drag', photoshoot: 'photoshoot',
   futuristic: 'futuristic', cyberpunk: 'cyberpunk', desert: 'desert', 'post apocalyptic': 'post-apocalyptic', glam: 'glam', punk: 'punk', goth: 'goth', burlesque: 'burlesque', cosmic: 'cosmic', 'sci fi': 'sci-fi', steampunk: 'steampunk', fantasy: 'fantasy',
   warrior: 'warrior', goddess: 'goddess', queen: 'queen', cleopatra: 'Cleopatra', robot: 'robot', alien: 'alien', angel: 'angel', demon: 'demon', 'drag queen': 'drag queen', dancer: 'dancer', performer: 'performer', dj: 'DJ', showgirl: 'showgirl', 'go go dancer': 'go-go dancer', 'pole dancer': 'pole dancer', maleficent: 'Maleficent', cat: 'cat', bunny: 'bunny', couple: 'couple',
@@ -155,7 +156,7 @@ const SYN = {
   mask: ['mask', 'face mask'],
   headpiece: ['headpiece', 'head piece', 'horn', 'crown', 'halo', 'headdress', 'cleopatra'],
   choker: ['choker', 'collar', 'choke chain', 'choke chains'], wings: ['wings'], spine: ['spine', 'back piece'], tail: ['tail'],
-  gold: ['gold', 'golden'], silver: ['silver', 'chrome'], black: ['black'], white: ['white'], mirror: ['mirror', 'mirrored', 'reflective'], acrylic: ['acrylic'], leather: ['leather', 'faux leather'], 'vegan leather': ['vegan leather', 'faux leather'], metallic: ['metallic', 'metal'], holographic: ['holographic', 'holo', 'iridescent'], chain: ['chain', 'chains', 'body chain'],
+  gold: ['gold', 'golden'], silver: ['silver', 'chrome'], black: ['black'], white: ['white'], red: ['red'], mirror: ['mirror', 'mirrored', 'reflective'], acrylic: ['acrylic'], leather: ['leather', 'faux leather'], 'vegan leather': ['vegan leather', 'faux leather'], metallic: ['metallic', 'metal'], holographic: ['holographic', 'holo', 'iridescent'], chain: ['chain', 'chains', 'body chain'],
   'burning man': ['burning man', 'burningman'], festival: ['festival', 'festivals'], rave: ['rave', 'raves'], stage: ['stage', 'stages'], edm: ['edm'], edc: ['edc', 'electric daisy carnival'], coachella: ['coachella'], halloween: ['halloween'], cosplay: ['cosplay', 'cosplayer', 'cosplayers'], pride: ['pride'], drag: ['drag'], photoshoot: ['photoshoot', 'photo shoot'],
   'post apocalyptic': ['post apocalyptic', 'post-apocalyptic', 'apocalyptic', 'mad max', 'wasteland'], futuristic: ['futuristic', 'future', 'future fashion'], cyberpunk: ['cyberpunk', 'cyber'], desert: ['desert', 'dune'], glam: ['glam', 'glamorous', 'red carpet'], punk: ['punk'], goth: ['goth', 'gothic'], burlesque: ['burlesque'], cosmic: ['cosmic', 'space'], 'sci fi': ['sci fi', 'sci-fi', 'science fiction'], steampunk: ['steampunk'], fantasy: ['fantasy', 'fairy'],
   warrior: ['warrior', 'warriors', 'warrior-inspired'], goddess: ['goddess'], queen: ['queen'], cleopatra: ['cleopatra', 'egyptian'], robot: ['robot'], alien: ['alien'], angel: ['angel'], demon: ['demon', 'devil'], 'drag queen': ['drag queen'], dancer: ['dancer', 'dance'], performer: ['performer', 'performance'], dj: ['dj'], showgirl: ['showgirl', 'show girl'], 'go go dancer': ['go go', 'gogo', 'go-go'], 'pole dancer': ['pole dancer', 'pole dance'], maleficent: ['maleficent', 'dark fairy'], cat: ['cat', 'kitty'], bunny: ['bunny', 'rabbit'], couple: ['couple', 'couples', 'matching'],
@@ -246,14 +247,6 @@ async function saveDecisionAction(formData) {
   const requestId = val(formData.get('save_request_id')).trim() || 'server-action';
   if (!productId) return saveFailure('missing_product', 'Не удалось определить выбранный товар.', requestId);
   if (!supabase) return saveFailure('missing_supabase', 'Серверное подключение к Supabase недоступно.', requestId);
-  const compositionResult = await confirmCompositionAction(formData);
-  if (!compositionResult.ok) {
-    return saveFailure(
-      compositionResult.code || 'composition_confirmation_failed',
-      compositionResult.message || 'Не удалось подтвердить состав товара.',
-      requestId,
-    );
-  }
   const canonicalProduct = await loadCanonicalProductTruthProduct(supabase, productId);
   if (!canonicalProduct) {
     return saveFailure(
@@ -262,9 +255,21 @@ async function saveDecisionAction(formData) {
       requestId,
     );
   }
+  if (!canonicalProduct.sellableOffer || canonicalProduct.sellableOffer.status !== 'ready') {
+    return saveFailure(
+      'option_truth_mismatch',
+      'Текущий selector товара не даёт однозначно подтвердить продаваемые опции. SEO-решение не записано.',
+      requestId,
+    );
+  }
   const strategies = allowedFormValues(formData, 'strategy', STRATEGIES);
+  const selectedComponentAxes = allowedFormValues(formData, 'component', COMPONENTS);
+  const componentAxisPartition = partitionListingMasterComponentAxes(
+    selectedComponentAxes,
+    canonicalProduct.sellableOffer,
+  );
   const manualFocus = {
-    component: allowedFormValues(formData, 'component', COMPONENTS),
+    component: selectedComponentAxes,
     material: allowedFormValues(formData, 'material', MATERIALS),
     event: allowedFormValues(formData, 'event', EVENTS),
     style: allowedFormValues(formData, 'style', STYLES),
@@ -275,7 +280,10 @@ async function saveDecisionAction(formData) {
     exclude: excludeTerms(val(formData.get('exclude'))),
     keyword_type: val(formData.get('type')) || 'all',
     selection_verified: true,
-    selection_origin: 'operator_form_submission_v2',
+    selection_origin: 'operator_form_submission_v3',
+    component_focus_contract: LISTING_MASTER_SEARCH_AXIS_CONTRACT,
+    sellable_component_axes: componentAxisPartition.sellableComponentAxes,
+    search_only_component_axes: componentAxisPartition.searchOnlyComponentAxes,
     selected_at: new Date().toISOString(),
     save_request_id: requestId,
   };
@@ -368,166 +376,6 @@ async function saveDecisionAction(formData) {
     href: `${href}${href.includes('?') ? '&' : '?'}saved=${savedState}`,
     requestId,
     decisionId: inserted.id,
-  };
-}
-
-async function confirmCompositionAction(formData) {
-  'use server';
-  const productId = val(formData.get('canonical_product_id')).trim();
-  const requestId = val(formData.get('composition_request_id')).trim() || 'server-action';
-  const selectedComponents = allowedFormValues(formData, 'component', COMPONENTS);
-  const supabase = getSupabaseServiceClient();
-
-  if (!productId) return compositionFailure('missing_product', 'Не удалось определить выбранный товар.');
-  if (!selectedComponents.length) {
-    return compositionFailure('missing_components', 'Сначала выберите фактический состав товара.');
-  }
-  if (!supabase) {
-    return compositionFailure('missing_supabase', 'Серверное подключение к Supabase недоступно.');
-  }
-
-  const canonicalProduct = await loadCanonicalProductTruthProduct(supabase, productId);
-  if (!canonicalProduct) {
-    return compositionFailure(
-      'missing_canonical_product_truth',
-      'Сервер не нашёл канонический Product Truth выбранного товара.',
-    );
-  }
-  const sellableOffer = canonicalProduct.sellableOffer;
-  if (!sellableOffer || sellableOffer.status !== 'ready') {
-    return compositionFailure(
-      'option_truth_mismatch',
-      'Текущие продаваемые опции не дают однозначно подтвердить состав. Запись остановлена.',
-    );
-  }
-  const unsupportedComponents = selectedComponents.filter((component) => (
-    !sellableOfferAllowsComponentFocus(sellableOffer, component)
-  ));
-  if (unsupportedComponents.length) {
-    return compositionFailure(
-      'included_item_not_found_in_current_options',
-      `Компоненты ${unsupportedComponents.join(', ')} отсутствуют в текущем selector товара. Запись остановлена.`,
-    );
-  }
-
-  const { data: families, error: familyError } = await supabase
-    .from('feya_commerce_component_families')
-    .select('component_family_id,canonical_name,normalized_name')
-    .eq('active_flag', true);
-  if (familyError) {
-    return compositionFailure('component_family_load_failed', familyError.message);
-  }
-
-  const evidenceFamilyNames = [
-    ...(canonicalProduct.parentComponents || []),
-    ...(canonicalProduct.childComponents || []),
-    ...jsonArray(canonicalProduct.truth?.included_components),
-  ];
-  const resolutions = resolveSelectedComponentFamilies(
-    selectedComponents,
-    families || [],
-    evidenceFamilyNames,
-  );
-  const resolutionErrors = resolutions
-    .map((item) => item.error)
-    .filter(Boolean);
-  if (resolutionErrors.length) {
-    return compositionFailure('ambiguous_component_family', resolutionErrors.join(' '));
-  }
-
-  const resolvedFamilies = resolutions.map((item) => item.family).filter(Boolean);
-  const resolvedIds = resolvedFamilies.map((family) => family.component_family_id);
-  const scope = productComponentAssertionScope(
-    canonicalProduct.truth?.optional_configurations,
-    canonicalProduct.truth?.source_variations,
-  );
-  const evidenceJson = {
-    evidence_contract: scope === 'fixed_base'
-      ? 'manual_fixed_base_v1'
-      : 'manual_canonical_listing_v1',
-    reviewer_action: scope === 'fixed_base'
-      ? 'confirmed_always_included'
-      : 'confirmed_advertised_listing_composition',
-    source_route: '/admin/listing-master',
-    request_id: requestId,
-    selected_focus_components: selectedComponents,
-    product_truth_component_evidence: evidenceFamilyNames,
-    reviewed_product: {
-      canonical_product_id: canonicalProduct.id,
-      matched_etsy_listing_id: canonicalProduct.etsyId,
-      product_slug: canonicalProduct.slug,
-      card_title: canonicalProduct.title,
-    },
-    confirmed_components: resolvedFamilies.map((family) => ({
-      component_family_id: family.component_family_id,
-      canonical_name: family.canonical_name,
-      normalized_name: family.normalized_name,
-    })),
-  };
-
-  const reviewNote = scope === 'fixed_base'
-    ? 'Confirmed from Listing Master as always included.'
-    : 'Confirmed from Listing Master as part of the advertised page entity.';
-  const { error: replaceError } = await supabase.rpc(
-    'feya_commerce_replace_product_component_assertions_v1',
-    {
-      p_canonical_product_id: productId,
-      p_presence_scope: scope,
-      p_component_family_ids: resolvedIds,
-      p_evidence_json: evidenceJson,
-      p_reviewed_by: 'admin',
-      p_review_note: reviewNote,
-    },
-  );
-  if (replaceError) {
-    return compositionFailure('composition_write_failed', replaceError.message);
-  }
-
-  const { data: verified, error: verifyError } = await supabase
-    .from('feya_commerce_product_component_assertions_v1')
-    .select('component_family_id')
-    .eq('canonical_product_id', productId)
-    .eq('presence_scope', scope)
-    .eq('review_status', 'approved')
-    .eq('active_flag', true);
-  const verifiedIds = (verified || []).map((item) => item.component_family_id).sort();
-  if (verifyError || JSON.stringify(verifiedIds) !== JSON.stringify([...resolvedIds].sort())) {
-    return compositionFailure(
-      'composition_verification_failed',
-      verifyError?.message || 'Записанный состав не совпал с выбранными кнопками состава.',
-    );
-  }
-
-  const strategies = allowedFormValues(formData, 'strategy', STRATEGIES);
-  const href = buildHref({
-    type: val(formData.get('type')) || 'all',
-    strategy: joinValues(strategies.length ? strategies : STRATEGIES),
-    component: joinValues(selectedComponents),
-    material: joinValues(allowedFormValues(formData, 'material', MATERIALS)),
-    event: joinValues(allowedFormValues(formData, 'event', EVENTS)),
-    style: joinValues(allowedFormValues(formData, 'style', STYLES)),
-    persona: joinValues(allowedFormValues(formData, 'persona', PERSONAS)),
-    audience: joinValues(allowedFormValues(formData, 'audience', AUDIENCES)),
-    q: norm(val(formData.get('q'))),
-    exclude: joinValues(excludeTerms(val(formData.get('exclude')))),
-    productId,
-    productQ: norm(val(formData.get('product_q'))),
-    productSection: norm(val(formData.get('product_section'))),
-    productStatus: norm(val(formData.get('product_status'))),
-    focusApplied: '1',
-  });
-  const savedState = scope === 'fixed_base' ? 'truth_fixed' : 'truth_listing';
-
-  console.info('[listing-master-composition] verified', {
-    requestId,
-    productId,
-    scope,
-    selectedComponents,
-    resolvedIds,
-  });
-  return {
-    ok: true,
-    href: `${href}${href.includes('?') ? '&' : '?'}saved=${savedState}`,
   };
 }
 
@@ -835,6 +683,7 @@ async function loadKeywords(filters, product = null, preloadedKeywordBank = null
     focus: {
       ...Object.fromEntries(FOCUS_FIELDS.map((field) => [field, valuesOf(filters[field])])),
       exclude: excludeTerms(filters.exclude),
+      component_focus_contract: LISTING_MASTER_SEARCH_AXIS_CONTRACT,
     },
     selectedStrategy: filters.strategy,
     limit: KEYWORD_SNAPSHOT_LIMIT,
@@ -969,12 +818,12 @@ function FocusSearchForm({ product, filters, status, decisionReview }) {
     <input type="hidden" name="product_id" value={product?.id || filters.productId || ''} /><input type="hidden" name="product_q" value={filters.productQ || ''} /><input type="hidden" name="product_section" value={filters.productSection || ''} /><input type="hidden" name="product_status" value={filters.productStatus || 'all'} /><input type="hidden" name="type" value={filters.type || 'all'} /><input type="hidden" name="focus_applied" value="1" />
     <input type="hidden" name="canonical_product_id" value={product?.id || ''} /><input type="hidden" name="product_slug" value={product?.slug || ''} /><input type="hidden" name="matched_etsy_listing_id" value={product?.etsyId || ''} /><input type="hidden" name="auto_focus_json" value={JSON.stringify(autoFocusSnapshot(product, filters.inferred || {}))} />
     <div className="flex items-center justify-between gap-3 mb-4"><div className="flex items-center gap-2 eyebrow-gold"><SlidersHorizontal size={14} /> Фокус товара</div><Chip tone={status.tone}>{status.label}</Chip></div>
-    {product ? <div className="grid sm:grid-cols-[96px_1fr] gap-4 rounded-2xl border border-[rgba(212,178,106,.18)] bg-[rgba(212,178,106,.055)] p-4 mb-4"><ProductImage product={product} size="lg" /><div><div className="text-bone text-[18px] leading-snug">{product.title}</div><div className="mt-1 text-[12px] text-[var(--bone-dim)]">{product.sectionLabel} · {product.worldLabel || '—'} · {product.colorRaw || '—'}</div><div className="mt-3 flex flex-wrap gap-2"><Chip tone="success">состав: {labelForMulti(filters.component)}</Chip><Chip tone="gold">материал/цвет: {labelForMulti(filters.material)}</Chip><Chip tone="warning">сценарий: {labelForMulti(filters.event)}</Chip><Chip tone="gold">стиль: {labelForMulti(filters.style)}</Chip><Chip tone="success">персона: {labelForMulti(filters.persona)}</Chip><Chip>аудитория: {labelForMulti(filters.audience)}</Chip>{decisionLabel(product.decision, decisionReview?.isCurrent) ? <Chip tone={decisionLabel(product.decision, decisionReview?.isCurrent).tone}>{decisionLabel(product.decision, decisionReview?.isCurrent).text}</Chip> : null}{product.hasComponentReviewRisk ? <Chip tone="warning">ДНК требует проверки: {product.needsComponentReviewCount}</Chip> : null}</div><div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Source category: {product.sourceCategory || '—'} · components: {product.parentComponents.join(', ') || '—'} / {product.childComponents.join(', ') || '—'}. {status.note}</div></div></div> : <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mb-4 text-[13px] leading-relaxed text-[var(--bone-dim)]">Товар ещё не выбран. Слева можно фильтровать по разделу и статусу работы.</div>}
-    <CheckboxChipGroup key={`component-${formKey}`} title="Состав / часть товара" items={COMPONENTS} field="component" filters={filters} />
+    {product ? <div className="grid sm:grid-cols-[96px_1fr] gap-4 rounded-2xl border border-[rgba(212,178,106,.18)] bg-[rgba(212,178,106,.055)] p-4 mb-4"><ProductImage product={product} size="lg" /><div><div className="text-bone text-[18px] leading-snug">{product.title}</div><div className="mt-1 text-[12px] text-[var(--bone-dim)]">{product.sectionLabel} · {product.worldLabel || '—'} · {product.colorRaw || '—'}</div><div className="mt-3 flex flex-wrap gap-2"><Chip tone="success">SEO-оси: {labelForMulti(filters.component)}</Chip><Chip tone="gold">материал/цвет: {labelForMulti(filters.material)}</Chip><Chip tone="warning">сценарий: {labelForMulti(filters.event)}</Chip><Chip tone="gold">стиль: {labelForMulti(filters.style)}</Chip><Chip tone="success">персона: {labelForMulti(filters.persona)}</Chip><Chip>аудитория: {labelForMulti(filters.audience)}</Chip>{decisionLabel(product.decision, decisionReview?.isCurrent) ? <Chip tone={decisionLabel(product.decision, decisionReview?.isCurrent).tone}>{decisionLabel(product.decision, decisionReview?.isCurrent).text}</Chip> : null}{product.hasComponentReviewRisk ? <Chip tone="warning">ДНК требует проверки: {product.needsComponentReviewCount}</Chip> : null}</div><div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Source category: {product.sourceCategory || '—'} · components: {product.parentComponents.join(', ') || '—'} / {product.childComponents.join(', ') || '—'}. {status.note}</div></div></div> : <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mb-4 text-[13px] leading-relaxed text-[var(--bone-dim)]">Товар ещё не выбран. Слева можно фильтровать по разделу и статусу работы.</div>}
+    <CheckboxChipGroup key={`component-${formKey}`} title="SEO-оси товара / расположение" items={COMPONENTS} field="component" filters={filters} />
     {product ? <div className="mb-4 rounded-2xl border border-[rgba(212,178,106,.24)] bg-[rgba(212,178,106,.05)] p-4">
-      <div className="eyebrow-gold mb-2">Состав товара</div>
+      <div className="eyebrow-gold mb-2">Как работают эти оси</div>
       <p className="text-[11px] leading-relaxed text-[var(--bone-dim)]">
-        Проверьте выбранные выше части товара. Кнопка сохранения одним действием подтвердит состав, сохранит SEO-фокус и подготовит проверяемый набор ключевых слов. Техническая проверка вариантов выполняется отдельно и не требует дополнительного действия здесь.
+        Оси выше расширяют поиск релевантных слов: это может быть тип товара, его часть или место на теле. Они не меняют продаваемые опции и блок «Что входит» — для них источником остаётся текущий selector товара.
       </p>
     </div> : null}
     <CheckboxChipGroup key={`material-${formKey}`} title="Материал / цвет / деталь" items={MATERIALS} field="material" filters={filters} />
@@ -988,10 +837,10 @@ function FocusSearchForm({ product, filters, status, decisionReview }) {
     <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-2"><div className="eyebrow-gold mb-3">Режим подбора слов</div><div className="grid gap-3 md:grid-cols-3">{STRATEGIES.map((s) => <CheckboxCard key={`${s}-${formKey}`} name="strategy" value={s} checked={strategyValues(filters.strategy).includes(s)} title={STRATEGY_LABELS[s]} note={STRATEGY_NOTES[s]} />)}</div><div className="mt-3 text-[11px] text-[var(--bone-dim)]">По умолчанию включены все три режима. Повторный клик снимает режим; фильтр применится только после кнопки ниже.</div></div>
     <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-4"><div className="eyebrow-gold mb-3">Поиск и минус-слова внутри SEO-ядра</div><div className="grid gap-3 md:grid-cols-[1fr_1fr]"><label><div className="eyebrow-dim mb-1.5">Доп. поиск</div><input name="q" defaultValue={filters.q} placeholder="например: armor, price, shipping" className="field" /></label><label><div className="eyebrow-dim mb-1.5">Минус-слова</div><input name="exclude" defaultValue={valuesOf(filters.exclude).join(', ')} placeholder="dance, bodysuit, neon" className="field" /></label></div></div>
     <div className="mt-4 rounded-2xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.055)] p-4">
-      <div className="text-[11px] leading-relaxed text-[var(--bone-dim)] mb-3">«Применить» только обновляет список для проверки. «Сохранить» одним действием подтверждает состав, записывает текущий фокус и собирает под него проверяемый набор ключевых слов.</div>
+      <div className="text-[11px] leading-relaxed text-[var(--bone-dim)] mb-3">«Применить» только обновляет список для проверки. «Сохранить» записывает SEO-оси и проверяемый набор ключевых слов; состав товара при этом не изменяется.</div>
       <div className="flex flex-wrap gap-3"><button type="submit" className="btn-ghost"><SearchCheck size={13} /> Применить поиск слов</button><VerifiedSaveButton action={saveDecisionAction} disabled={!product} /><Link href={product ? productHref(product, filters) : '/admin/listing-master'} className="btn-ghost">Сбросить товар/ДНК</Link>{product && status.code === 'ready' && decisionIsCurrent ? <Link className="btn-ghost" href={`/admin/seo-storefront-preview?product_id=${product.id}&generate=1`}>Дальше: сгенерировать и показать preview <ArrowUpRight size={13} /></Link> : null}</div>
       {product?.decision && !decisionIsCurrent ? <div className="mt-3 rounded-xl border border-[rgba(212,178,106,.26)] bg-black/15 p-3 text-[11px] leading-relaxed text-[var(--gold-warm)]">
-        <div>Старое keyword-решение не разрешает генерацию и не является SEO draft. Подтвердите текущий состав и сохраните пересчитанные роли.</div>
+        <div>Старое keyword-решение не разрешает генерацию и не является SEO draft. Проверьте текущие SEO-оси и сохраните пересчитанные роли.</div>
         {decisionReview?.blockers?.length ? <ul className="mt-2 space-y-1 text-[var(--bone-dim)]">{decisionReview.blockers.map((code) => <li key={code}>• {decisionInvalidationLabel(code)}</li>)}</ul> : null}
       </div> : null}
     </div>
@@ -1036,6 +885,9 @@ function decisionFocusSignature(value) {
   const focus = recordOf(value) || {};
   return JSON.stringify({
     ...Object.fromEntries(FOCUS_FIELDS.map((field) => [field, valuesOf(focus[field]).sort()])),
+    component_focus_contract: val(focus.component_focus_contract),
+    sellable_component_axes: valuesOf(focus.sellable_component_axes).sort(),
+    search_only_component_axes: valuesOf(focus.search_only_component_axes).sort(),
     strategies: strategyValues(focus.strategies).sort(),
     q: norm(focus.q),
     exclude: valuesOf(focus.exclude).sort(),
@@ -1060,19 +912,30 @@ function listingMasterDecisionReview(product, filters, keywordRows) {
     blockers.push('sellable_offer_not_ready');
     return { isCurrent: false, blockers: [...new Set(blockers)] };
   }
-  const removedUnsupportedFocusComponents = valuesOf(savedFocus?.component)
-    .filter((component) => !sellableOfferAllowsComponentFocus(product.sellableOffer, component));
+  const focusReconciliation = reconcileListingMasterComponentFocus(
+    savedFocus || {},
+    product.sellableOffer,
+  );
   const invalidationBlockers = getListingMasterDecisionInvalidationBlockers({
     hasPrimary: currentKeywords.some((row) => row.role === 'primary'),
     savedKeywordSelectionSignature: savedFocus?.keyword_selection_signature,
     currentKeywordSelectionSignature: listingMasterKeywordSelectionSignature(currentKeywords),
     savedSellableOfferSignature: savedFocus?.sellable_offer_signature,
     currentSellableOfferSignature: product.sellableOffer.signature,
-    removedUnsupportedFocusComponents,
+    removedUnsupportedFocusComponents: focusReconciliation.removedComponents,
   });
   blockers.push(...invalidationBlockers);
   const activeFocus = {
     ...Object.fromEntries(FOCUS_FIELDS.map((field) => [field, valuesOf(filters[field])])),
+    component_focus_contract: focusReconciliation.usesSearchAxisContract
+      ? LISTING_MASTER_SEARCH_AXIS_CONTRACT
+      : '',
+    sellable_component_axes: focusReconciliation.usesSearchAxisContract
+      ? focusReconciliation.sellableComponentAxes
+      : [],
+    search_only_component_axes: focusReconciliation.usesSearchAxisContract
+      ? focusReconciliation.searchOnlyComponentAxes
+      : [],
     strategies: strategyValues(filters.strategy),
     q: norm(filters.q),
     exclude: excludeTerms(filters.exclude),
@@ -1087,7 +950,6 @@ function listingMasterDecisionReview(product, filters, keywordRows) {
   };
 }
 function saveFailure(code, message, requestId) { return { ok: false, code: String(code || 'unknown'), message, requestId }; }
-function compositionFailure(code, message) { return { ok: false, code: String(code || 'unknown'), message }; }
 function recordOf(value) {
   if (value && typeof value === 'object' && !Array.isArray(value)) return value;
   if (typeof value !== 'string') return null;
@@ -1142,14 +1004,21 @@ function applyAutoFocus(filters, product) {
     && FOCUS_FIELDS.some((field) => Object.prototype.hasOwnProperty.call(savedFocus, field))
   ) {
     const savedStrategy = product?.decision?.selected_strategy || savedFocus.strategies || filters.strategy;
-    const savedComponents = valuesOf(savedFocus.component);
-    const safeComponents = product?.sellableOffer?.status === 'ready'
-      ? savedComponents.filter((component) => sellableOfferAllowsComponentFocus(product.sellableOffer, component))
-      : savedComponents;
+    const focusReconciliation = reconcileListingMasterComponentFocus(
+      savedFocus,
+      product?.sellableOffer,
+    );
+    const restoredComponents = savedOfferIsCurrent
+      ? focusReconciliation.usesSearchAxisContract
+        ? focusReconciliation.selected
+        : focusReconciliation.sellableComponentAxes.length
+          ? focusReconciliation.sellableComponentAxes
+          : valuesOf(inferred.component)
+      : valuesOf(inferred.component);
     return {
       ...filters,
       ...Object.fromEntries(FOCUS_FIELDS.map((field) => [field, joinValues(savedFocus[field])])),
-      component: joinValues(savedOfferIsCurrent && safeComponents.length ? safeComponents : inferred.component),
+      component: joinValues(restoredComponents),
       strategy: cleanStrategyMulti(savedStrategy),
       type: KEYWORD_TYPES.includes(val(savedFocus.keyword_type)) ? val(savedFocus.keyword_type) : filters.type,
       q: norm(savedFocus.q),
@@ -1248,8 +1117,6 @@ function rank(row, strategy) { const values = strategyValues(strategy); const sc
 function rankOne(row, strategy) { const match = Number(row.match_score || 0); const score = Number(row.score || 0); const volume = Number(row.avg_monthly_searches || 0); const comp = String(row.competition || '').toUpperCase(); const idx = Number(row.competition_index || 0); const keyword = String(row.keyword || '').toLowerCase(); const bucket = String(row.bank_bucket || ''); const volumeBoost = volume >= 3000 ? 45 : volume >= 1000 ? 35 : volume >= 500 ? 26 : volume >= 200 ? 18 : volume >= 50 ? 10 : volume > 0 ? 5 : -25; const compBoost = comp === 'LOW' ? 35 : comp === 'MEDIUM' ? 18 : comp === 'HIGH' ? -18 : 0; const idxBoost = idx > 0 ? Math.max(-20, 24 - Math.round(idx / 4)) : 0; const longTail = keyword.split(/\s+/).length >= 3 ? 22 : 0; const buyer = /buy|price|cost|order|shop|for sale|shipping|delivery|outfit|costume|set|wear|clothing|website|websites/.test(keyword) || bucket.includes('commercial') ? 16 : 0; if (strategy === 'demand') return match * 1.15 + score + volumeBoost * 2 + buyer * 0.35; if (strategy === 'niche') return match * 1.7 + score + longTail + compBoost + buyer * 0.25 - Math.max(0, volumeBoost - 30); return match * 1.35 + score + volumeBoost + compBoost + idxBoost + buyer * 0.4; }
 function autoFocusSnapshot(product, inferred) { return { inferred, product: product ? { canonical_product_id: product.id, slug: product.slug, etsy_id: product.etsyId, title: product.title, operator_section: product.sectionLabel, source_category: product.sourceCategory, world_label: product.worldLabel, parent_components: product.parentComponents, child_components: product.childComponents, needs_component_review_count: product.needsComponentReviewCount } : null }; }
 function savedMessage(value) {
-  if (value === 'truth_listing') return { tone: 'success', text: 'Состав продаваемого листинга подтверждён в Product Truth. Кандидаты обновлены; варианты комплектации остаются отдельной проверкой.' };
-  if (value === 'truth_fixed') return { tone: 'success', text: 'Неизменный состав товара подтверждён в Product Truth. Кандидаты обновлены на основе подтверждённого состава.' };
   if (value === 'blocked') return { tone: 'warning', text: 'Фокус и кандидаты сохранены. Генерация намеренно заблокирована: сначала нужно закрыть Product Truth этого товара.' };
   if (value === 'review') return { tone: 'warning', text: 'Фокус и кандидаты сохранены, но Primary ещё требует проверки перед генерацией.' };
   if (value === 'ok') return { tone: 'success', text: 'Проверяемое решение сохранено. Product Truth закрыт, Primary найден; можно переходить к генерации и preview.' };
@@ -1305,7 +1172,7 @@ function decisionInvalidationLabel(code) {
     no_valid_pdp_primary: 'после повторной проверки нет Primary, описывающего весь продаваемый товар',
     keyword_roles_changed_after_reaudit: 'список или роли ключевых слов изменились после повторной проверки',
     stale_option_snapshot: 'решение сохранено до фиксации текущего состава вариантов товара',
-    manual_focus_contains_unsupported_component: 'старый фокус содержал части, которых нет в текущем селекторе товара',
+    manual_focus_contains_unsupported_component: 'старое решение трактовало SEO-оси как состав; его нужно один раз сохранить по новому контракту',
     manual_focus_changed_after_save: 'текущий Product DNA / фокус отличается от сохранённого решения',
   };
   return labels[code] || String(code || 'неизвестная причина').replaceAll('_', ' ');

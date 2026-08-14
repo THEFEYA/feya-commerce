@@ -508,6 +508,143 @@ test('manual component focus cannot manufacture missing Product Truth', () => {
   assert.deepEqual(result.diagnostics.product_component_families, []);
 });
 
+test('versioned SEO axes retrieve a harness page entity without rewriting sellable components', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      card_title: "Brutal Leather Harness Set Choker Top Harness Leg Garter, Men's Chest Harness",
+      source_category_label: 'Harness / Accessory',
+      canonical_color_label: 'Black',
+      material: 'Leather',
+      sellable_offer_components: ['Leg Covers', 'Choker'],
+      sellable_offer: {
+        status: 'ready',
+        component_labels: ['Leg Covers', 'Choker'],
+      },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['top', 'harness', 'legs', 'choker'],
+      material: ['black', 'leather'],
+      event: ['festival', 'pride'],
+      style: ['punk'],
+      audience: ['men'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: "men's chest harness", keyword_norm: "men's chest harness", bank_bucket: 'product', avg_monthly_searches: 90 },
+      { ...baseMetric, keyword: 'leather harness top', keyword_norm: 'leather harness top', bank_bucket: 'product_or_alt', avg_monthly_searches: 70 },
+      { ...baseMetric, keyword: 'black festival top', keyword_norm: 'black festival top', bank_bucket: 'product', avg_monthly_searches: 100000 },
+    ],
+  });
+
+  assert.equal(
+    result.keywords.find((row) => row.role === 'primary')?.keyword_norm,
+    "men's chest harness",
+  );
+  assert.equal(result.keywords.some((row) => row.keyword_norm === 'leather harness top'), true);
+  assert.equal(result.keywords.some((row) => row.keyword_norm === 'black festival top'), false);
+  assert.deepEqual(result.diagnostics.product_component_families, ['choker', 'legs']);
+  assert.deepEqual(result.diagnostics.product_primary_entity_families, ['harness']);
+  assert.deepEqual(result.diagnostics.operator_search_axis_families, ['choker', 'harness', 'legs', 'top']);
+});
+
+test('a visual shoulder search axis cannot replace a crown as the Primary entity', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      card_title: 'Black Leather Crown Headpiece, Dark Witch Halloween Halo',
+      source_category_label: 'Headpiece / Accessory',
+      canonical_color_label: 'Black',
+      material: 'Leather',
+      sellable_offer_components: ['Bodysuit', 'Leg Covers', 'Headpiece'],
+      sellable_offer: {
+        status: 'ready',
+        component_labels: ['Bodysuit', 'Leg Covers', 'Headpiece'],
+      },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['shoulders', 'bodysuit', 'legs', 'headpiece'],
+      material: ['black', 'leather'],
+      event: ['halloween', 'cosplay'],
+      style: ['goth', 'fantasy'],
+      persona: ['queen'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'black leather crown', keyword_norm: 'black leather crown', bank_bucket: 'product', avg_monthly_searches: 70 },
+      { ...baseMetric, keyword: 'black shoulder costume', keyword_norm: 'black shoulder costume', bank_bucket: 'product', avg_monthly_searches: 100000 },
+    ],
+  });
+
+  assert.equal(
+    result.keywords.find((row) => row.role === 'primary')?.keyword_norm,
+    'black leather crown',
+  );
+  assert.equal(result.keywords.some((row) => row.keyword_norm === 'black shoulder costume'), false);
+  assert.ok(result.diagnostics.product_primary_entity_families.includes('crown'));
+});
+
+test('a dress-like top and skirt can use dress only as an indirect discovery alias', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      card_title: 'Carnival Dress with Leather Feathers – Crown Headpiece, Top & Skirt, Showgirl Outfit',
+      source_category_label: 'Headpiece / Accessory',
+      material: 'Leather',
+      sellable_offer_components: ['Top', 'Skirt', 'Headpiece'],
+      sellable_offer: {
+        status: 'ready',
+        component_labels: ['Top', 'Skirt', 'Headpiece'],
+      },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['top', 'skirt', 'headpiece'],
+      style: ['glam', 'burlesque'],
+      persona: ['performer', 'showgirl'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'carnival dress', keyword_norm: 'carnival dress', bank_bucket: 'product', avg_monthly_searches: 5000 },
+      { ...baseMetric, keyword: 'carnival showgirl outfit', keyword_norm: 'carnival showgirl outfit', bank_bucket: 'product', avg_monthly_searches: 70 },
+    ],
+  });
+
+  assert.equal(
+    result.keywords.find((row) => row.role === 'primary')?.keyword_norm,
+    'carnival showgirl outfit',
+  );
+  const dressAlias = result.keywords.find((row) => row.keyword_norm === 'carnival dress');
+  assert.equal(dressAlias?.role, 'supporting');
+  assert.equal(dressAlias?.discovery_alias_only, true);
+  assert.deepEqual(result.diagnostics.indirect_discovery_alias_families, ['dress']);
+});
+
+test('an operator-confirmed red color retrieves red keywords when imported color is empty', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      card_title: 'Carnival Showgirl Outfit with Crown Headpiece, Top and Skirt',
+      source_category_label: 'Headpiece / Accessory',
+      sellable_offer_components: ['Top', 'Skirt', 'Headpiece'],
+      sellable_offer: {
+        status: 'ready',
+        component_labels: ['Top', 'Skirt', 'Headpiece'],
+      },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['top', 'skirt', 'headpiece'],
+      material: ['red', 'leather'],
+      persona: ['showgirl'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'red carnival showgirl outfit', keyword_norm: 'red carnival showgirl outfit', bank_bucket: 'product', avg_monthly_searches: 90 },
+    ],
+  });
+
+  assert.equal(result.keywords[0]?.keyword_norm, 'red carnival showgirl outfit');
+  assert.deepEqual(result.diagnostics.product_colors, ['red']);
+});
+
 test('non-apparel harness domains are rejected before metrics can rank them', () => {
   const result = recommendCatalogKeywords({
     product: {

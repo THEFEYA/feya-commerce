@@ -1,4 +1,5 @@
 import type { SeoPilotBrief, SeoPilotKeyword } from '@/lib/seoPilotDraft';
+import { writerComponentAxesFromListingMasterFocus } from '@/lib/listingMasterSearchAxisContract';
 import {
   createEmptyKeywordRoleMap,
   type SeoAgentInputContract,
@@ -39,14 +40,29 @@ function normalizeFocusValue(value: unknown): string | string[] | null {
 }
 
 function normalizeManualFocus(value: SeoPilotBrief['manualFocus']): SeoManualFocusContract {
+  const usesSearchAxisContract = text(value.component_focus_contract).trim()
+    === 'seo_search_axes_v1';
+  const selectedSearchAxes = normalizeFocusValue(value.component);
+  const sellableComponentAxes = normalizeFocusValue(
+    writerComponentAxesFromListingMasterFocus(value),
+  );
+  const searchOnlyComponentAxes = normalizeFocusValue(value.search_only_component_axes);
   return {
-    component: normalizeFocusValue(value.component),
+    // The writer receives only selector-backed components as factual focus.
+    // Search-only body-placement axes remain auditable below and influence the
+    // reviewed keyword shortlist, but cannot become What's Included or prose
+    // claims by themselves.
+    component: usesSearchAxisContract ? sellableComponentAxes : selectedSearchAxes,
     material: normalizeFocusValue(value.material),
     event: normalizeFocusValue(value.event),
     style: normalizeFocusValue(value.style),
     persona: normalizeFocusValue(value.persona),
     audience: normalizeFocusValue(value.audience),
     exclude: normalizeFocusValue(value.exclude),
+    component_focus_contract: usesSearchAxisContract ? 'seo_search_axes_v1' : null,
+    seo_search_component_axes: usesSearchAxisContract ? selectedSearchAxes : null,
+    sellable_component_axes: usesSearchAxisContract ? sellableComponentAxes : null,
+    search_only_component_axes: usesSearchAxisContract ? searchOnlyComponentAxes : null,
   };
 }
 
@@ -70,6 +86,9 @@ function keywordToRoleItem(keyword: SeoPilotKeyword): SeoKeywordRoleItem {
     role_reason: keyword.pilot_role_reason || keyword.pilot_relevance_reason || null,
     placement: keyword.page_type || keyword.bank_bucket || null,
     relevance_score: keyword.pilot_relevance_score ?? null,
+    usage_constraint: raw.discovery_alias_only === true
+      ? 'indirect_discovery_alias'
+      : null,
     avg_monthly_searches: validated
       ? (typeof keyword.avg_monthly_searches === 'number' ? keyword.avg_monthly_searches : Number(keyword.avg_monthly_searches) || null)
       : null,

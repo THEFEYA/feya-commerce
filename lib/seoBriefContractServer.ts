@@ -10,8 +10,8 @@ import {
 import { buildSeoAgentInputFromDraft, buildSeoPackDraftContractFromBrief } from '@/lib/seoPackContractBuilder';
 import {
   resolveStorefrontSellableOffer,
-  sellableOfferAllowsComponentFocus,
 } from '@/lib/storefrontSellableOffer';
+import { reconcileListingMasterComponentFocus } from '@/lib/listingMasterSearchAxisContract';
 import { hasTrustedSeoMetricSnapshot } from '@/lib/seoTrustedMetricSnapshot';
 import {
   buildSeoPrimaryKeywordOwnershipStrategy,
@@ -254,6 +254,8 @@ export async function loadSeoBriefSource(productId: string) {
         keyword_bank_view: APPROVED_KEYWORD_BANK_VIEW,
         product_truth_source: productResult.productTruthSource,
         removed_unsupported_focus_components: focusReconciliation.removedComponents,
+        sellable_component_axes: focusReconciliation.sellableComponentAxes,
+        search_only_component_axes: focusReconciliation.searchOnlyComponentAxes,
       };
       const savedSelectionSignature = decision?.manual_focus_json?.keyword_selection_signature
         || listingMasterKeywordSelectionSignature(selectedKeywordRows);
@@ -377,7 +379,7 @@ function resolveRecommendationFocus(product, decision) {
   };
   const keys = ['component', 'material', 'event', 'style', 'persona', 'audience', 'exclude'];
 
-  return Object.fromEntries(keys.map((key) => {
+  const resolved = Object.fromEntries(keys.map((key) => {
     const manualValue = manual[key];
     const automaticValue = automatic[key];
     // A saved empty array is an explicit operator decision (for example: no persona).
@@ -386,29 +388,17 @@ function resolveRecommendationFocus(product, decision) {
     if (stringArray(automaticValue).length) return [key, automaticValue];
     return [key, derived[key] || []];
   }));
+  return {
+    ...resolved,
+    component_focus_contract: manual.component_focus_contract || null,
+    sellable_component_axes: stringArray(manual.sellable_component_axes),
+    search_only_component_axes: stringArray(manual.search_only_component_axes),
+  };
 }
 
 function reconcileFocusWithSellableOffer(product, focus) {
   const offer = product?.sellable_offer;
-  if (!offer || offer.status !== 'ready') {
-    return { focus, removedComponents: [] };
-  }
-
-  const selectedComponents = stringArray(focus?.component);
-  const allowedComponents = selectedComponents.filter((component) => (
-    sellableOfferAllowsComponentFocus(offer, component)
-  ));
-  const removedComponents = selectedComponents.filter((component) => (
-    !sellableOfferAllowsComponentFocus(offer, component)
-  ));
-
-  return {
-    focus: {
-      ...focus,
-      component: allowedComponents,
-    },
-    removedComponents,
-  };
+  return reconcileListingMasterComponentFocus(focus, offer);
 }
 
 async function hydrateSelectedKeywordsFromApprovedBank(supabase, selectedRows) {

@@ -12,6 +12,7 @@ type ScoredKeywordRow = KeywordRow & {
   product_truth_fit_score: number;
   whole_product_intent: boolean;
   partial_component_scope: boolean;
+  discovery_alias_only: boolean;
   recommendation_reason: string;
 };
 type RecommendedKeywordRow = ScoredKeywordRow & {
@@ -86,7 +87,7 @@ const COLOR_FAMILIES: Record<string, string[]> = {
 // These are matching aliases for the existing Product DNA families, not product claims.
 const COMPONENT_FAMILIES: Record<string, string[]> = {
   armor: ['armor', 'armour'],
-  arms: ['arm cover', 'arm covers', 'arm guard', 'arm guards', 'arm cuff', 'arm cuffs', 'bracer', 'bracers'],
+  arms: ['arm', 'arms', 'arm cover', 'arm covers', 'arm guard', 'arm guards', 'arm cuff', 'arm cuffs', 'bracer', 'bracers'],
   bra: ['bra', 'bras', 'bralette', 'bustier'],
   bodysuit: ['bodysuit', 'body suit', 'leotard'],
   boots: ['boot', 'boots'],
@@ -102,7 +103,7 @@ const COMPONENT_FAMILIES: Record<string, string[]> = {
   headpiece: ['headpiece', 'head piece', 'headdress'],
   helmet: ['helmet', 'helmets'],
   horns: ['horn', 'horns'],
-  legs: ['leg cover', 'leg covers', 'leg armor', 'leg armour'],
+  legs: ['leg', 'legs', 'leg cover', 'leg covers', 'leg armor', 'leg armour'],
   mask: ['mask', 'masks', 'face mask'],
   panties: ['panties', 'underwear', 'briefs'],
   pants: ['pants', 'trousers', 'leggings'],
@@ -130,6 +131,13 @@ const EXPLICIT_PRODUCT_DETAIL_TERMS = ['chain', 'coin', 'feather'];
 // as Shoulders, Harness Top and Skirt. It remains an identity descriptor, not
 // proof that a separate Armor component is included.
 const UMBRELLA_COMPONENT_FAMILIES = new Set(['armor']);
+
+// A source-category entity can have a more specific public subtype in the
+// leading product identity. These relations describe naming scope only; they
+// never add a component to the current sellable offer.
+const COMPONENT_ENTITY_RELATIONS: Record<string, string[]> = {
+  headpiece: ['crown', 'halo', 'horns'],
+};
 
 // A generic family match is not enough for anatomical compound queries.
 // "Leg harness" must never match a chest/torso harness merely because both
@@ -266,6 +274,9 @@ export function recommendCatalogKeywords(input: {
       recommended_collection_rows: selected.filter((row) => ['collection', 'commercial collection'].includes(normalize(row.bank_bucket || row.page_type))).length,
       product_component_families: profile.componentFamilies,
       product_identity_descriptor_families: profile.descriptorFamilies,
+      product_primary_entity_families: profile.primaryEntityFamilies,
+      operator_search_axis_families: profile.searchAxisFamilies,
+      indirect_discovery_alias_families: profile.discoveryAliasFamilies,
       product_presentation_mode: profile.presentation.mode,
       confirmed_component_count: profile.presentation.component_count,
       keyword_selection_status: selected.some((row) => row.role === 'primary')
@@ -305,6 +316,7 @@ export function normalizeStrategy(value: unknown): SeoKeywordRecommendationStrat
 
 function buildProductProfile(product: ProductRow, focus: FocusRecord) {
   const explicitFocus = normalizeFocus(focus);
+  const usesSearchAxisContract = explicitFocus.component_focus_contract === 'seo_search_axes_v1';
   const presentation = classifySeoProductPresentation(product);
   const currentSellableComponentEvidence = flattenStrings([
     product.sellable_offer_components,
@@ -329,6 +341,12 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
     product.h1,
     product.focus_text,
   ]).join(' ');
+  const leadIdentityText = leadingProductIdentity(product.card_title || product.h1 || '');
+  const sourceEntityText = flattenStrings([
+    product.source_category_label,
+    product.category_label,
+    product.product_type,
+  ]).join(' ');
   const styleText = flattenStrings([
     product.world_label,
     explicitFocus.event,
@@ -341,7 +359,15 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
     product.source_description_fragment,
   ]).join(' ');
   const materialText = flattenStrings([product.material, explicitFocus.material]).join(' ');
-  const colorText = flattenStrings([product.canonical_color_label, product.color]).join(' ');
+  // The Listing Master material/color axis is an explicit operator-reviewed
+  // visual fact. Include it alongside canonical color data so a confirmed
+  // color such as red can retrieve matching keywords even when the imported
+  // source color field is empty.
+  const colorText = flattenStrings([
+    product.canonical_color_label,
+    product.color,
+    explicitFocus.material,
+  ]).join(' ');
   const eventText = flattenStrings([
     explicitFocus.event,
     product.card_title,
@@ -370,6 +396,28 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
   const componentFamilies = detectedFamilies(componentEvidence, COMPONENT_FAMILIES);
   const descriptorFamilies = detectedFamilies(identityText, COMPONENT_FAMILIES)
     .filter((family) => UMBRELLA_COMPONENT_FAMILIES.has(family));
+  const searchAxisFamilies = usesSearchAxisContract
+    ? detectedFamilies(explicitFocus.component, COMPONENT_FAMILIES)
+    : [];
+  const sourceEntityFamilies = detectedFamilies(sourceEntityText, COMPONENT_FAMILIES);
+  const leadEntityFamilies = detectedFamilies(leadIdentityText, COMPONENT_FAMILIES);
+  const anchoredLeadEntityFamilies = leadEntityFamilies.filter((family) => (
+    sourceEntityFamilies.includes(family)
+    || sourceEntityFamilies.some((sourceFamily) => (
+      (COMPONENT_ENTITY_RELATIONS[sourceFamily] || []).includes(family)
+    ))
+  ));
+  const primaryEntityFamilies = unique([
+    ...(componentFamilies.length === 1 ? componentFamilies : []),
+    ...sourceEntityFamilies.filter((family) => leadEntityFamilies.includes(family)),
+    ...anchoredLeadEntityFamilies,
+  ]);
+  const dressDiscoveryEligible = usesSearchAxisContract
+    && presentation.requires_whole_product_entity
+    && componentFamilies.includes('top')
+    && componentFamilies.includes('skirt')
+    && leadEntityFamilies.includes('dress');
+  const discoveryAliasFamilies = dressDiscoveryEligible ? ['dress'] : [];
   const colors = detectedColorFamilies(colorText);
   const selectedAudiences = detectedFamilies(explicitFocus.audience, AUDIENCE_FAMILIES);
   const selectedEvents = detectedFamilies(explicitFocus.event, EVENT_FAMILIES);
@@ -392,6 +440,8 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
     : detectedFamilies(personaText, PERSONA_FAMILIES);
   const visualAttributes = detectedFamilies(visualText, VISUAL_ATTRIBUTE_FAMILIES);
   const identityTokens = tokens(identityText).filter((token) => !STOP_WORDS.has(token) && token.length > 2);
+  const leadIdentityTokens = tokens(leadIdentityText)
+    .filter((token) => !STOP_WORDS.has(token) && token.length > 2);
   const styleTokens = tokens(styleText).filter((token) => !STOP_WORDS.has(token) && token.length > 2);
   const materialTerms = MATERIAL_TERMS.filter((term) => containsPhrase(materialText, term));
   const explicitProductDetails = EXPLICIT_PRODUCT_DETAIL_TERMS
@@ -406,7 +456,7 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
   const supportedSizePositioning = SIZE_POSITIONING_TERMS
     .filter((term) => containsPhrase(sizingEvidence, term));
   const focusPhrases = unique(Object.entries(explicitFocus)
-    .filter(([key]) => key !== 'exclude')
+    .filter(([key]) => ['component', 'material', 'event', 'style', 'persona', 'audience'].includes(key))
     .flatMap(([, value]) => flattenStrings([value]))
     .map(normalize)
     .filter(Boolean));
@@ -417,7 +467,13 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
   const supportedKeywordTokens = new Set([
     ...STOP_WORDS,
     ...GENERIC_QUERY_TOKENS,
-    ...familyAliasTokens(unique([...componentFamilies, ...descriptorFamilies]), COMPONENT_FAMILIES),
+    ...familyAliasTokens(unique([
+      ...componentFamilies,
+      ...descriptorFamilies,
+      ...primaryEntityFamilies,
+      ...searchAxisFamilies,
+      ...discoveryAliasFamilies,
+    ]), COMPONENT_FAMILIES),
     ...familyAliasTokens(colors, COLOR_FAMILIES),
     ...familyAliasTokens(audiences, AUDIENCE_FAMILIES),
     ...familyAliasTokens(events, EVENT_FAMILIES),
@@ -427,12 +483,17 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
     ...materialTerms.flatMap(tokens),
     ...explicitProductDetails.flatMap(tokens),
     ...supportedSizePositioning.flatMap(tokens),
+    ...(usesSearchAxisContract ? leadIdentityTokens : []),
   ]);
 
   return {
     presentation,
     componentFamilies,
     descriptorFamilies,
+    searchAxisFamilies,
+    primaryEntityFamilies,
+    discoveryAliasFamilies,
+    usesSearchAxisContract,
     colors,
     audiences,
     events,
@@ -468,8 +529,23 @@ function scoreRow(
   const supportedComponentFamilies = unique([
     ...profile.componentFamilies,
     ...profile.descriptorFamilies,
+    ...profile.primaryEntityFamilies,
+    ...profile.searchAxisFamilies,
+    ...profile.discoveryAliasFamilies,
   ]);
   const componentMatch = intersection(keywordComponents, supportedComponentFamilies);
+  const truthComponentFamilies = unique([
+    ...profile.componentFamilies,
+    ...profile.descriptorFamilies,
+    ...profile.primaryEntityFamilies,
+  ]);
+  const truthComponentMatch = intersection(keywordComponents, truthComponentFamilies);
+  const primaryEntityMatch = intersection(keywordComponents, profile.primaryEntityFamilies);
+  const searchOnlyComponentMatch = intersection(
+    keywordComponents,
+    profile.searchAxisFamilies.filter((family) => !truthComponentFamilies.includes(family)),
+  );
+  const discoveryAliasMatch = intersection(keywordComponents, profile.discoveryAliasFamilies);
   const narrowComponentMatch = intersection(
     keywordComponents.filter((family) => !UMBRELLA_COMPONENT_FAMILIES.has(family)),
     profile.componentFamilies,
@@ -513,20 +589,28 @@ function scoreRow(
   const visualAttributeMismatch = keywordVisualAttributes
     .some((family) => !profile.visualAttributes.includes(family));
   const productBucket = PRODUCT_BUCKETS.has(bucket);
-  const wholeProductIntent = productBucket
-    && hasWholeProductEntity(keyword)
+  const mainEntityWholeProductIntent = primaryEntityMatch.length > 0
+    && searchOnlyComponentMatch.length === 0
+    && discoveryAliasMatch.length === 0;
+  const genericWholeProductIntent = hasWholeProductEntity(keyword)
     && (
       !profile.presentation.requires_whole_product_entity
       || narrowComponentMatch.length === 0
       || narrowComponentMatch.length >= 2
       || hasWholeEntityConfirmedComponentClause(keyword, narrowComponentMatch)
     );
+  const wholeProductIntent = productBucket
+    && (mainEntityWholeProductIntent || genericWholeProductIntent);
   const partialComponentScope = productBucket
     && profile.presentation.requires_whole_product_entity
-    && narrowComponentMatch.length > 0
+    && (
+      narrowComponentMatch.length > 0
+      || searchOnlyComponentMatch.length > 0
+      || discoveryAliasMatch.length > 0
+    )
     && !wholeProductIntent;
   const supportedBucket = productBucket || SUPPORT_BUCKETS.has(bucket);
-  const productIdentityGate = componentMatch.length > 0
+  const productIdentityGate = truthComponentMatch.length > 0
     || identityOverlap.length >= (productBucket ? 2 : 1);
   const supportIntentGate = productIdentityGate || styleOverlap.length > 0;
 
@@ -551,7 +635,9 @@ function scoreRow(
   const productScopeScore = profile.presentation.requires_whole_product_entity
     ? wholeProductIntent ? 80 : partialComponentScope ? -35 : 0
     : 0;
-  const truthScore = componentMatch.length * 46
+  const truthScore = truthComponentMatch.length * 46
+    + searchOnlyComponentMatch.length * 12
+    + discoveryAliasMatch.length * 5
     + exactFocus.length * 20
     + Math.min(identityOverlap.length, 5) * 7
     + Math.min(styleOverlap.length, 4) * 4
@@ -588,9 +674,12 @@ function scoreRow(
     product_truth_fit_score: truthScore,
     whole_product_intent: wholeProductIntent,
     partial_component_scope: partialComponentScope,
+    discovery_alias_only: discoveryAliasMatch.length > 0,
     recommendation_reason: [
       wholeProductIntent ? 'scope:whole_product' : partialComponentScope ? 'scope:partial_component_only' : null,
       componentMatch.length ? `component:${componentMatch.join('|')}` : null,
+      searchOnlyComponentMatch.length ? `search_axis_only:${searchOnlyComponentMatch.join('|')}` : null,
+      discoveryAliasMatch.length ? `indirect_discovery_alias:${discoveryAliasMatch.join('|')}` : null,
       colorMatch.length ? `color:${colorMatch.join('|')}` : null,
       materialMatch.length ? `material:${materialMatch.join('|')}` : null,
       exactFocus.length ? `focus:${exactFocus.slice(0, 2).join('|')}` : null,
@@ -609,6 +698,7 @@ function recommendedRole(row: KeywordRow, productRows: KeywordRow[], requireWhol
   const bucket = normalize(row.bank_bucket || row.page_type);
   if (bucket === 'faq') return 'supporting';
   if (['collection', 'commercial collection', 'visual collection'].includes(bucket)) return 'supporting';
+  if (row.discovery_alias_only === true) return 'supporting';
   const primaryRow = requireWholeProduct
     ? productRows.find((candidate) => candidate.whole_product_intent === true)
     : productRows[0];
@@ -639,8 +729,23 @@ function isTrustedApprovedRow(row: KeywordRow) {
 }
 
 function normalizeFocus(value: FocusRecord) {
-  const keys = ['component', 'material', 'event', 'style', 'persona', 'audience', 'exclude'];
-  return Object.fromEntries(keys.map((key) => [key, unique(flattenStrings([value?.[key]]).map(normalize).filter(Boolean))]));
+  const axis = (key: string) => unique(
+    flattenStrings([value?.[key]]).map(normalize).filter(Boolean),
+  );
+  return {
+    component: axis('component'),
+    material: axis('material'),
+    event: axis('event'),
+    style: axis('style'),
+    persona: axis('persona'),
+    audience: axis('audience'),
+    exclude: axis('exclude'),
+    component_focus_contract: String(value?.component_focus_contract || '').trim().toLowerCase(),
+  };
+}
+
+function leadingProductIdentity(value: unknown) {
+  return String(value || '').split(/,|\s+[–—-]\s+/)[0] || '';
 }
 
 function detectedFamilies(value: unknown, families: Record<string, string[]>) {

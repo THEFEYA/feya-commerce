@@ -41,6 +41,7 @@ type SeoWriterKeyword = {
   keyword: string;
   role: SeoKeywordRoleItem['role'];
   placement: string | null;
+  usage_constraint: SeoKeywordRoleItem['usage_constraint'];
 };
 
 type SeoIdealForPortrait = {
@@ -388,6 +389,7 @@ function compactWriterSystemPrompt() {
     'Return exactly one image_alt_candidate: visible color + body_identity_variant_en + one short visible pose/setting detail; never product_identity_en.',
     'Follow claim_plan finish exactly: gold/silver may be metal-inspired; black/red/white may be sleek and latex-like; holographic is smooth, shiny and subtly color-shifting, never metallic.',
     'For holographic products, an approved Secondary/support term may appear once as an indirect aesthetic such as mirror-look, reflective-inspired or sparkling-inspired. Only use a term present in approved_keywords; never call the material reflective, retroreflective, mirrored or sparkling.',
+    'A keyword marked indirect_discovery_alias is adjacent search vocabulary only. If used, frame it indirectly for shoppers browsing that category while naming the actual product truthfully; never turn the alias into the product entity or an included-item claim.',
     'Use evidence-linked positive modifiers sparingly: striking, distinctive, glamorous, memorable, beautifully polished or excellent shape retention. Avoid empty superlatives.',
     'Never write “structured material”, “visual identity”, “silhouette”, “starting point”, “final look open to your choices”, or imply that the sold garment is unfinished, transformable or awaiting a final version.',
     'For cosplay, use an original fashion-led studio interpretation. Never promise an exact character match or discuss replica comparisons.',
@@ -420,6 +422,7 @@ function compactKeywords(values: SeoKeywordRoleItem[], limit: number): SeoWriter
     keyword: String(item.keyword || item.keyword_norm || '').trim(),
     role: item.role,
     placement: item.placement || null,
+    usage_constraint: item.usage_constraint || null,
   })).filter((item) => item.keyword);
 }
 
