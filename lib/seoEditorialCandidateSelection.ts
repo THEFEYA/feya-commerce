@@ -636,6 +636,7 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizeBatchFiveEditorialBlacklistCopy(normalized, context);
   normalized = normalizePaidHarnessAndMetallicSetCopy(normalized, context);
   normalized = normalizePaidRedSpineTailCopy(normalized, context);
+  normalized = normalizePaidDanceCostumeCopy(normalized, context);
   normalized = normalizeBrownLeatherHarnessPhotoshootAlt(normalized, context);
   normalized = normalizeImageAltPrimaryVariation(normalized, context);
   normalized = normalizeSingleSuppliedImageAltCandidate(normalized);
@@ -713,6 +714,92 @@ export function normalizePaidRedSpineTailCopy<T>(
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
       'Human-reviewed deterministic repair separated the paid red spine-tail draft into product, finish, repeat-wear and self-expression jobs without another writer call.',
+    ],
+  } as T;
+}
+
+/**
+ * Keep the one paid black-and-gold dance response, but repair the exact
+ * editorial gaps found by deterministic review: an awkward double "for" in
+ * the title, a thin Meta/About, repeated stage framing in Ideal for, and one
+ * finish benefit whose wording did not express the verified buyer outcome.
+ * The stretch-fabric base and gold mirror-finish vegan-leather details remain
+ * separate facts so the text never implies that the whole costume is leather.
+ */
+export function normalizePaidDanceCostumeCopy<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const primary = normalizeIdentityValue(context.primary_keyword).toLowerCase();
+  const events = normalizeIdentityValues(context.selected_events).map((value) => value.toLowerCase());
+  const materials = normalizeIdentityValues(context.selected_materials).map((value) => value.toLowerCase());
+  if (
+    primary !== 'dance costume for ladies'
+    || !events.includes('stage')
+    || !materials.includes('fabric')
+    || !materials.includes('gold')
+    || !materials.includes('black')
+  ) return output;
+
+  const exactFieldReplacements: Record<string, [string, string]> = {
+    seo_title: [
+      'Gold Dance Costume For Ladies for Stage',
+      'Gold Dance Costume for Ladies: Stage Performance Set',
+    ],
+    h1: [
+      'Gold Dance Costume For Ladies for Stage',
+      'Gold Dance Costume for Ladies: Stage Performance Set',
+    ],
+    meta_description: [
+      'Black dance costume for ladies with a gold finish and stage-ready glam for stage shows.',
+      'Black-and-gold dance costume for ladies with a stretch-fabric base and mirror-finish vegan leather details for stage shows and group performances.',
+    ],
+    intro: [
+      'For stage work, this dance outfit for ladies brings a bold, original studio design that feels made for movement and command.',
+      'Created for live performance, this dance costume for ladies combines flexible fabric with black-and-gold detail in an original studio design.',
+    ],
+  };
+  const blockReplacements: Record<string, [string, string]> = {
+    about_this_piece: [
+      'Built for stage presence, this dance outfit for ladies pairs a stretch-fabric base with selected patterns and details in gold mirror-finish vegan leather. The black-and-gold finish creates a striking, polished contrast that reads clearly under performance lighting.',
+      'This dance costume for ladies combines a stretch-fabric base with selected patterns and details made from gold mirror-finish vegan leather. The black-and-gold contrast gives the design a polished graphic character that remains clear under performance lighting during live shows, group formations and video shoots.',
+    ],
+    why_youll_love_it: [
+      '- Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\n- The stretch-fabric base moves comfortably through dance turns and stage choreography.\n- Gold mirror-finish details catch available stage light, helping the decorative pattern stay visible during performance.\n- Careful storage helps the costume keep its shape between wears for repeat stage use.',
+      '- Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\n- The stretch-fabric base moves comfortably through dance turns and stage choreography.\n- The gold finish catches available stage light, helping the decorative pattern remain visible during performances.\n- Careful storage helps the costume keep its shape between wears for repeat stage use.',
+    ],
+    ideal_for: [
+      '- Dancers performing in a stretch-fabric costume for live stage choreography.\n- Dance schools outfitting groups in a recognizable black-and-gold design.\n- Show ballets selecting black-and-gold costumes for ensemble stage productions.\n- Go-go dancers choosing a flexible costume for energetic stage performance.\n- Event organizers sourcing distinctive dance costumes for professional show teams.',
+      '- Women choosing a flexible black-and-gold costume for live performance.\n- Dance schools outfitting groups in a recognizable design for showcases and competitions.\n- Show ballets selecting expressive costumes for theatrical productions and touring programs.\n- Go-go artists preparing energetic nightclub sets with futuristic styling.\n- Showgirls seeking glamorous black-and-gold fashion for stage appearances.',
+    ],
+    main_description: [
+      'We designed this piece for performers who want a bold stage impression with clean, futuristic glam energy. TheFEYA brings our original design ideas to a dance outfit for ladies that feels powerful, graphic, and memorable. We shaped it for women who want their performance wear to stand out with black-and-gold intensity. We made it to read like a character of its own: sharp, confident, and unforgettable.',
+      'At TheFEYA, our designers developed this black-and-gold costume from original ideas for women who value expressive performance fashion. The stretch-fabric base supports energetic choreography, while the gold details give the design a recognizable graphic rhythm. Its futuristic glam character supports personal expression on stage, in music videos and across group productions. The result feels sharp, confident and distinctly individual.',
+    ],
+  };
+
+  let changed = false;
+  const normalized: Record<string, unknown> = { ...output };
+  Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
+    if (normalized[field] !== before) return;
+    normalized[field] = after;
+    changed = true;
+  });
+  normalized.pdp_blocks = output.pdp_blocks.map((block) => {
+    if (!isRecord(block) || typeof block.body !== 'string') return block;
+    const replacement = blockReplacements[String(block.block_key || '')];
+    if (!replacement || block.body !== replacement[0]) return block;
+    changed = true;
+    return { ...block, body: replacement[1] };
+  });
+  if (!changed) return output;
+
+  return {
+    ...normalized,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Human-reviewed deterministic repair preserved the paid dance draft while separating stretch fabric, gold detail, audience and style jobs without another writer call.',
     ],
   } as T;
 }

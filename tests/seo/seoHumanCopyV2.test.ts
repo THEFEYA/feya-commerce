@@ -11,6 +11,7 @@ import {
 import { generateSeoDraftWithOpenAi } from '../../lib/seoOpenAiDraftGenerator.ts';
 import {
   normalizeBrownLeatherHarnessPhotoshootAlt,
+  normalizePaidDanceCostumeCopy,
   normalizePaidRedSpineTailCopy,
   normalizeImageAltPrimaryVariation,
   normalizeCodeOwnedPdpBlockOrder,
@@ -153,6 +154,49 @@ test('paid red spine-tail draft is repaired without changing its accepted identi
   assert.match(normalized.pdp_blocks[1].body, /glossy finish/i);
   assert.match(normalized.pdp_blocks[1].body, /between wears/i);
   assert.equal(normalized.pdp_blocks[2].body, originalIdealFor);
+  assert.match(normalized.pdp_blocks[3].body, /personal expression/i);
+});
+
+test('paid dance draft keeps fabric as the base and leather only in selected gold details', () => {
+  const output = {
+    ...writerWireOutput([
+      {
+        block_key: 'about_this_piece',
+        body: 'Built for stage presence, this dance outfit for ladies pairs a stretch-fabric base with selected patterns and details in gold mirror-finish vegan leather. The black-and-gold finish creates a striking, polished contrast that reads clearly under performance lighting.',
+      },
+      {
+        block_key: 'why_youll_love_it',
+        body: '- Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\n- The stretch-fabric base moves comfortably through dance turns and stage choreography.\n- Gold mirror-finish details catch available stage light, helping the decorative pattern stay visible during performance.\n- Careful storage helps the costume keep its shape between wears for repeat stage use.',
+      },
+      {
+        block_key: 'ideal_for',
+        body: '- Dancers performing in a stretch-fabric costume for live stage choreography.\n- Dance schools outfitting groups in a recognizable black-and-gold design.\n- Show ballets selecting black-and-gold costumes for ensemble stage productions.\n- Go-go dancers choosing a flexible costume for energetic stage performance.\n- Event organizers sourcing distinctive dance costumes for professional show teams.',
+      },
+      {
+        block_key: 'main_description',
+        body: 'We designed this piece for performers who want a bold stage impression with clean, futuristic glam energy. TheFEYA brings our original design ideas to a dance outfit for ladies that feels powerful, graphic, and memorable. We shaped it for women who want their performance wear to stand out with black-and-gold intensity. We made it to read like a character of its own: sharp, confident, and unforgettable.',
+      },
+    ]),
+    seo_title: 'Gold Dance Costume For Ladies for Stage',
+    h1: 'Gold Dance Costume For Ladies for Stage',
+    meta_description: 'Black dance costume for ladies with a gold finish and stage-ready glam for stage shows.',
+    intro: 'For stage work, this dance outfit for ladies brings a bold, original studio design that feels made for movement and command.',
+  } as any;
+
+  const normalized = normalizePaidDanceCostumeCopy(output, {
+    primary_keyword: 'dance costume for ladies',
+    selected_events: ['stage'],
+    selected_materials: ['gold', 'black', 'fabric'],
+  });
+
+  assert.match(normalized.seo_title, /Stage Performance Set/);
+  assert.doesNotMatch(normalized.seo_title, /for ladies for stage/i);
+  assert.match(normalized.pdp_blocks[0].body, /stretch-fabric base/i);
+  assert.match(normalized.pdp_blocks[0].body, /details made from gold mirror-finish vegan leather/i);
+  assert.match(normalized.pdp_blocks[1].body, /gold finish catches available stage light/i);
+  assert.match(normalized.pdp_blocks[2].body, /Women choosing/i);
+  assert.equal((normalized.pdp_blocks[2].body.match(/\bstage\b/gi) || []).length, 1);
+  assert.match(normalized.pdp_blocks[2].body, /futuristic styling/i);
   assert.match(normalized.pdp_blocks[3].body, /personal expression/i);
 });
 
