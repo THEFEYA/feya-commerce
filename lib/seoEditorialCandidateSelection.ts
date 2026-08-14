@@ -1354,6 +1354,48 @@ export function normalizeBatchFiveEditorialBlacklistCopy<T>(
   const fieldReplacements: Record<string, Array<[string, string]>> = {
     'skirt and top set festival::gold': [
       [
+        'Gold skirt and top set festival with a glossy finish and festival-ready glam for festivals.',
+        'Gold skirt and top set festival with a glossy mirror-like finish for long festival days, live performances, and creative shoots.',
+      ],
+      [
+        'This skirt and top outfit festival is made for festivals, giving you an original studio look you can make your own.',
+        'This gold festival outfit brings an original, fashion-led studio design to long festival days, live performances, and creative shoots.',
+      ],
+      [
+        'For festivals, this skirt and top outfit festival brings a bold gold look with a durable, glossy, mirror-like coating. The gold design is easy to recognize in crowded festival settings and full-length photos taken throughout a long day of music.',
+        'Made for festivals and live performance, this gold outfit has a smooth, glossy, mirror-like finish with a bold fashion-led character. The design looks striking in motion, crowded settings, and full-length photos throughout a long day of music.',
+      ],
+      [
+        [
+          'The original studio-designed gold shape gives the outfit a recognizable festival presence while leaving the final styling choices to you.',
+          'A comfortable feel helps during longer festival days and live performances.',
+          'Careful storage helps the material keep its shape for repeat wear.',
+        ].join('\n'),
+        [
+          'The original studio-designed gold set has a distinctive, glamorous character that looks striking in festival crowds and full-length photos.',
+          'A comfortable feel supports longer festival days and live performances.',
+          'With careful storage, the piece keeps its shape beautifully and stays ready for repeat wear.',
+        ].join('\n'),
+      ],
+      [
+        [
+          'Women planning a glam look for a long day of music and movement.',
+          'Festival-goers getting ready for an expressive night set or daytime crowd scene.',
+          'Content creators planning polished visuals for festival shoots or music videos.',
+          'Costume stylists sourcing an original glam piece for themed shows or editorials.',
+        ].join('\n'),
+        [
+          'Women planning an expressive costume for a live music production.',
+          'Festival-goers planning a glam gold look for a long day of music and movement.',
+          'Content creators planning polished visuals for festival shoots or music videos.',
+          'Costume stylists sourcing an original gold set for themed shows or editorials.',
+        ].join('\n'),
+      ],
+      [
+        'We develop pieces from our own ideas at TheFEYA, and this skirt and top outfit festival is built to help you create a striking original look. We shape the gold details for a glam presence that feels confident and personal. The gold finish gives the set a recognizable festival presence and lets you make the character your own.',
+        'At TheFEYA, we develop this gold festival set from our own ideas. Its polished, fashion-led character makes the outfit easy to recognize in festival crowds and full-length photos. The original studio design supports a confident personal style across long festival days, live performances, and future events.',
+      ],
+      [
         [
           'Women planning an expressive costume for a live music production.',
           'Festival-goers planning a glam look for a long day of music and movement.',
@@ -1369,7 +1411,7 @@ export function normalizeBatchFiveEditorialBlacklistCopy<T>(
       ],
       [
         'We designed this skirt and top outfit festival to feel bold, distinctive and easy to recognize in a crowd. TheFEYA develops original pieces from our own ideas, so the result carries a memorable, personal character. For festivals, it brings a golden presence that feels made for motion, light and the energy of the moment.',
-        'At TheFEYA, we develop this gold festival set from our own ideas. Its polished, fashion-led character gives the outfit a distinctive presence that is easy to recognize in festival crowds and full-length photos. The original studio design supports a confident personal style across long festival days, live performances, and future events.',
+        'At TheFEYA, we develop this gold festival set from our own ideas. Its polished, fashion-led character makes the outfit easy to recognize in festival crowds and full-length photos. The original studio design supports a confident personal style across long festival days, live performances, and future events.',
       ],
       [
         'The gold design begins with an original studio-designed silhouette, leaving you free to shape the finished festival look.',
@@ -1461,6 +1503,7 @@ export function normalizeBatchFiveEditorialBlacklistCopy<T>(
       return current.replace(before, after);
     }, value);
   };
+  const metaDescription = replaceExact(output.meta_description);
   const intro = replaceExact(output.intro);
   const pdpBlocks = output.pdp_blocks.map((block) => (
     isRecord(block) && typeof block.body === 'string'
@@ -1471,6 +1514,7 @@ export function normalizeBatchFiveEditorialBlacklistCopy<T>(
 
   return {
     ...output,
+    meta_description: metaDescription,
     intro,
     pdp_blocks: pdpBlocks,
     generation_notes: [

@@ -202,16 +202,76 @@ test('repairs the Festival Set control copy without another writer call', () => 
   assert.equal(normalized.seo_title, 'Gold Skirt And Top Set Festival');
   assert.equal(
     normalized.meta_description,
-    'Gold skirt and top set festival with a glossy finish and festival-ready glam for festivals.',
+    'Gold skirt and top set festival with a glossy mirror-like finish for long festival days, live performances, and creative shoots.',
   );
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /polished metal look gives/);
-  assert.match(normalized.pdp_blocks[0].body, /crowded festival settings/);
+  assert.match(normalized.pdp_blocks[0].body, /crowded settings/);
   assert.match(normalized.pdp_blocks[1].body, /glamorous, recognizable character/);
   assert.doesNotMatch(normalized.pdp_blocks[1].body, /visual identity|silhouette|starting point|final look/i);
   assert.equal(normalized.pdp_blocks[2].body.match(/\bglam\b/gi)?.length, 1);
   assert.match(normalized.pdp_blocks[2].body, /polished visuals/);
   assert.match(normalized.pdp_blocks[3].body, /confident personal style/);
   assert.doesNotMatch(normalized.pdp_blocks[3].body, /visual identity|silhouette|starting point|final look/i);
+});
+
+test('renormalizes the saved Festival review draft without another writer call', () => {
+  const normalized = normalizeSeoEditorialCandidate({
+    seo_title: 'Gold Skirt And Top Set Festival',
+    h1: 'Gold Skirt And Top Set Festival',
+    meta_description: 'Gold skirt and top set festival with a glossy finish and festival-ready glam for festivals.',
+    intro: 'This skirt and top outfit festival is made for festivals, giving you an original studio look you can make your own.',
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        body: 'For festivals, this skirt and top outfit festival brings a bold gold look with a durable, glossy, mirror-like coating. The gold design is easy to recognize in crowded festival settings and full-length photos taken throughout a long day of music.',
+      },
+      {
+        block_key: 'why_youll_love_it',
+        body: [
+          'The original studio-designed gold shape gives the outfit a recognizable festival presence while leaving the final styling choices to you.',
+          'A comfortable feel helps during longer festival days and live performances.',
+          'Careful storage helps the material keep its shape for repeat wear.',
+        ].join('\n'),
+      },
+      {
+        block_key: 'ideal_for',
+        body: [
+          'Women planning a glam look for a long day of music and movement.',
+          'Festival-goers getting ready for an expressive night set or daytime crowd scene.',
+          'Content creators planning polished visuals for festival shoots or music videos.',
+          'Costume stylists sourcing an original glam piece for themed shows or editorials.',
+        ].join('\n'),
+      },
+      {
+        block_key: 'main_description',
+        body: 'We develop pieces from our own ideas at TheFEYA, and this skirt and top outfit festival is built to help you create a striking original look. We shape the gold details for a glam presence that feels confident and personal. The gold finish gives the set a recognizable festival presence and lets you make the character your own.',
+      },
+    ],
+    generation_notes: [],
+  }, {
+    primary_keyword: 'skirt and top set festival',
+    selected_events: ['festival'],
+    selected_styles: ['glam'],
+    included_components: ['Top', 'Skirt'],
+    product_color: 'Gold',
+  });
+
+  assert.equal(
+    normalized.meta_description,
+    'Gold skirt and top set festival with a glossy mirror-like finish for long festival days, live performances, and creative shoots.',
+  );
+  assert.equal(
+    normalized.intro,
+    'This gold festival outfit brings an original, fashion-led studio design to long festival days, live performances, and creative shoots.',
+  );
+  assert.match(normalized.pdp_blocks[0].body, /smooth, glossy, mirror-like finish/);
+  assert.match(normalized.pdp_blocks[1].body, /keeps its shape beautifully/);
+  assert.match(normalized.pdp_blocks[2].body, /glam gold look/);
+  assert.match(normalized.pdp_blocks[3].body, /supports a confident personal style/);
+  assert.doesNotMatch(
+    JSON.stringify(normalized),
+    /final styling choices|make the character your own|structured material|visual identity|silhouette|starting point/i,
+  );
 });
 
 test('repairs the Holographic Set control copy without another writer call', () => {

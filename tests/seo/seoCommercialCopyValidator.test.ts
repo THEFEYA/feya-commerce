@@ -1397,6 +1397,58 @@ test('permits an approved indirect optical aesthetic without turning it into a m
   assert.ok(unselected.issues.some((issue) => issue.code === 'customer_copy_uses_unselected_indirect_optical_keyword'));
 });
 
+test('keeps the renormalized saved Festival draft commercially clean', () => {
+  const value = {
+    seo_title: 'Gold Skirt And Top Set Festival',
+    h1: 'Gold Skirt And Top Set Festival',
+    meta_description: 'Gold skirt and top set festival with a glossy mirror-like finish for long festival days, live performances, and creative shoots.',
+    intro: 'This gold festival outfit brings an original, fashion-led studio design to long festival days, live performances, and creative shoots.',
+    bullet_highlights: [],
+    image_alt_candidates: [{ image_role: 'primary', alt_text: 'Gold skirt and top outfit festival worn on a city walkway', truth_basis: 'visible_product_fact' }],
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        body: 'Made for festivals and live performance, this gold outfit has a smooth, glossy, mirror-like finish with a bold fashion-led character. The design looks striking in motion, crowded settings, and full-length photos throughout a long day of music.',
+      },
+      {
+        block_key: 'why_youll_love_it',
+        placement: 'left_description',
+        heading: 'Why you’ll love it',
+        body: 'The original studio-designed gold set has a distinctive, glamorous character that looks striking in festival crowds and full-length photos.\nA comfortable feel supports longer festival days and live performances.\nWith careful storage, the piece keeps its shape beautifully and stays ready for repeat wear.',
+      },
+      {
+        block_key: 'ideal_for',
+        placement: 'left_description',
+        heading: 'Ideal for',
+        body: 'Women planning an expressive costume for a live music production.\nFestival-goers planning a glam gold look for a long day of music and movement.\nContent creators planning polished visuals for festival shoots or music videos.\nCostume stylists sourcing an original gold set for themed shows or editorials.',
+      },
+      {
+        block_key: 'main_description',
+        placement: 'left_description',
+        heading: 'Designed for self-expression',
+        body: 'At TheFEYA, we develop this gold festival set from our own ideas. Its polished, fashion-led character makes the outfit easy to recognize in festival crowds and full-length photos. The original studio design supports a confident personal style across long festival days, live performances, and future events.',
+      },
+    ],
+  };
+  const result = validateSeoCommercialCopy(value, {
+    product_truth: { color: 'Gold', included_components: ['Top Only', 'Skirt Only'] },
+    manual_focus: { event: ['festival'], style: ['glam'], audience: ['women'] },
+    keyword_roles: {
+      primary: [{ keyword: 'skirt and top set festival' }],
+      secondary: [{ keyword: 'gold skirt set' }, { keyword: 'festival skirt set' }],
+      support: [{ keyword: 'festival skirt and top' }],
+    },
+  });
+
+  assert.deepEqual(
+    result.issues.filter((issue) => issue.severity === 'blocker').map((issue) => issue.code),
+    [],
+  );
+  assert.equal(result.issues.some((issue) => issue.code === 'self_expression_close_lacks_clear_buyer_value'), false);
+});
+
 test('repairs the paid holographic review control to a zero-token commercial PASS', () => {
   const context = {
     product_truth: {
