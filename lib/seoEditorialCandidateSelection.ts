@@ -626,6 +626,7 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizeHolographicRaveSetIdealFor(normalized, context);
   normalized = normalizeBlackBodysuitSetCopy(normalized, context);
   normalized = normalizeRedBodysuitSetCopy(normalized, context);
+  normalized = normalizeMirrorBodysuitLegsSetCopy(normalized, context);
   normalized = normalizeMainDescriptionCliches(normalized, context);
   normalized = normalizeMainDescriptionExternalStylingAdvice(normalized);
   normalized = normalizeMainDescriptionRepeatedFeels(normalized);
@@ -1133,6 +1134,62 @@ export function normalizeRedBodysuitSetCopy<T>(
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
       'Deterministic Red Bodysuit Set normalization kept forearm covers on the canonical arms axis and repaired exact buyer-copy/Primary-placement regressions.',
+    ],
+  } as T;
+}
+
+/**
+ * The Silver Bodysuit + Legs control response used an unselected futuristic
+ * style in About and Main while leaving the approved sci-fi secondary cluster
+ * unrepresented. Replace only those two exact reviewed paragraphs. Product
+ * quantity remains Product Truth (Single Leg Cover); the SEO component axis
+ * remains the canonical plural `legs` supplied by the saved decision.
+ */
+export function normalizeMirrorBodysuitLegsSetCopy<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const events = normalizeIdentityValues(context.selected_events).map((value) => value.toLowerCase());
+  const styles = normalizeIdentityValues(context.selected_styles).map((value) => value.toLowerCase());
+  const components = normalizeIdentityValues(context.included_components).map((value) => value.toLowerCase());
+  const matchesContext = (
+    normalizeIdentityValue(context.primary_keyword).toLowerCase() === 'robot armor costume'
+    && normalizeIdentityColor(context.product_color).toLowerCase() === 'silver'
+    && events.includes('stage')
+    && events.includes('cosplay')
+    && styles.includes('sci fi')
+    && components.includes('bodysuit')
+    && components.some((value) => /\bleg cover\b/.test(value))
+  );
+  if (!matchesContext) return output;
+
+  const replacements: Record<string, [string, string]> = {
+    about_this_piece: [
+      'For stage and cosplay, this robot armor outfit brings a bold futuristic edge to your look. Its glossy, mirror-like coating creates a polished metal look. The finish helps the piece stand out under bright lights, making it feel ready for performances, photos, and high-impact moments.',
+      'For stage and cosplay, this sci-fi armor costume brings a bold robotic edge to your look. Its glossy, mirror-like coating creates a polished metal look. The finish helps the piece stand out under bright lights, making it ready for performances, photos, and high-impact moments.',
+    ],
+    main_description: [
+      'We design at TheFEYA from our own ideas, creating a robot armor outfit for women who want a stronger presence on stage. We keep the look original so you can build a character of your own through personal styling choices. We want the final impression to feel futuristic, bold, and unmistakably yours.',
+      'We design at TheFEYA from our own ideas, creating a robot armor outfit for women who want a stronger presence on stage. The silver silhouette gives you a clear character base while leaving the final interpretation open. You can shape the finished visual identity around the performance or cosplay role you have in mind.',
+    ],
+  };
+  let changed = false;
+  const pdpBlocks = output.pdp_blocks.map((block) => {
+    if (!isRecord(block) || typeof block.body !== 'string') return block;
+    const replacement = replacements[String(block.block_key || '')];
+    if (!replacement || block.body !== replacement[0]) return block;
+    changed = true;
+    return { ...block, body: replacement[1] };
+  });
+  if (!changed) return output;
+
+  return {
+    ...output,
+    pdp_blocks: pdpBlocks,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic Silver Bodysuit + Legs normalization removed an unselected style and represented the approved sci-fi armor cluster without changing Single Leg Cover Product Truth.',
     ],
   } as T;
 }
