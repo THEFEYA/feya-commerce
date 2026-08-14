@@ -617,6 +617,7 @@ test('a visual shoulder search axis cannot replace a crown as the Primary entity
     },
     approvedKeywords: [
       { ...baseMetric, keyword: 'black leather crown', keyword_norm: 'black leather crown', bank_bucket: 'product', avg_monthly_searches: 70 },
+      { ...baseMetric, keyword: 'halloween costume with black bodysuit', keyword_norm: 'halloween costume with black bodysuit', bank_bucket: 'product_or_alt', avg_monthly_searches: 100000 },
       { ...baseMetric, keyword: 'black shoulder costume', keyword_norm: 'black shoulder costume', bank_bucket: 'product', avg_monthly_searches: 100000 },
     ],
   });
@@ -624,6 +625,10 @@ test('a visual shoulder search axis cannot replace a crown as the Primary entity
   assert.equal(
     result.keywords.find((row) => row.role === 'primary')?.keyword_norm,
     'black leather crown',
+  );
+  assert.notEqual(
+    result.keywords.find((row) => row.role === 'primary')?.keyword_norm,
+    'halloween costume with black bodysuit',
   );
   assert.equal(result.keywords.some((row) => row.keyword_norm === 'black shoulder costume'), false);
   assert.ok(result.diagnostics.product_primary_entity_families.includes('crown'));

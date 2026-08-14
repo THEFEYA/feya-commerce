@@ -624,7 +624,8 @@ function scoreRow(
     && nonEntityNarrowComponentMatch.length === 0
     && searchOnlyComponentMatch.length === 0
     && discoveryAliasMatch.length === 0;
-  const genericWholeProductIntent = searchOnlyComponentMatch.length === 0
+  const genericWholeProductIntent = profile.primaryEntityFamilies.length === 0
+    && searchOnlyComponentMatch.length === 0
     && discoveryAliasMatch.length === 0
     && hasWholeProductEntity(keyword)
     && (
