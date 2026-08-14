@@ -617,8 +617,18 @@ export function validateSeoCommercialCopy(
   }
   if (selectedEventFocus.length) {
     const selected = new Set(selectedEventFocus.map((value) => value.toLowerCase()));
+    const selectedPeopleFocus = [
+      ...focusValues(context.manual_focus, 'persona'),
+      ...focusValues(context.manual_focus, 'audience'),
+    ].map((value) => value.toLowerCase());
     const leaked = CONTROLLED_EVENT_FOCUS_FAMILIES
-      .filter((family) => !selected.has(family.key))
+      .filter((family) => (
+        !selected.has(family.key)
+        && !selectedPeopleFocus.some((value) => (
+          value === family.key
+          || family.aliases.some((alias) => containsPhrase(value, alias))
+        ))
+      ))
       .filter((family) => family.aliases.some((alias) => containsPhrase(customerText, alias)))
       .map((family) => family.key);
     if (leaked.length) {

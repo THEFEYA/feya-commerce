@@ -6,6 +6,7 @@ import { buildMockSeoAgentOutput } from '@/lib/seoAgentMockDraft';
 import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
 import { validateSeoCommercialCopy } from '@/lib/seoCommercialCopyValidator';
 import { validateSeoKeywordPlacement } from '@/lib/seoKeywordPlacementValidator';
+import { normalizeSeoEditorialCandidate } from '@/lib/seoEditorialCandidateSelection';
 import { getSeoPackApprovalBlockers, getSeoPackReviewDraftStorageBlockers } from '@/lib/seoPackContract';
 import { assembleSeoProductPack } from '@/lib/seoFullPackAssembler';
 import { buildSeoDraftStoragePayload, seoDraftStoragePayloadGuardrails, summarizeSeoDraftStoragePayload } from '@/lib/seoDraftStoragePayload';
@@ -91,7 +92,7 @@ export async function POST(request: Request) {
   const providedAgentOutput = pickProvidedAgentOutput(body);
   const usesProvidedOpenAiOutput = requestedSourceMode === 'openai_draft' && Boolean(providedAgentOutput);
   const agentOutput = usesProvidedOpenAiOutput
-    ? providedAgentOutput
+    ? normalizeReviewDraftBeforeStorage(providedAgentOutput, bundle.seoPackDraft)
     : buildMockSeoAgentOutput(bundle.aiAgentInput, bundle.brief);
   const structuralValidation = validateSeoAgentOutput(agentOutput);
   const commercialValidation = validateSeoCommercialCopy(agentOutput, {
@@ -241,6 +242,23 @@ function pickProvidedAgentOutput(body) {
   if (isRecord(body.agent_output)) return body.agent_output;
   if (isRecord(body.generated_draft_output)) return body.generated_draft_output;
   return null;
+}
+
+function normalizeReviewDraftBeforeStorage(output, seoPackDraft) {
+  const primary = seoPackDraft?.keyword_roles?.primary?.[0]?.keyword
+    || seoPackDraft?.keyword_roles?.primary?.[0]?.keyword_norm
+    || null;
+  const focusValues = (value) => (Array.isArray(value) ? value : value ? [value] : [])
+    .map((item) => String(item || '').trim())
+    .filter(Boolean);
+  return normalizeSeoEditorialCandidate(output, {
+    primary_keyword: primary,
+    selected_events: focusValues(seoPackDraft?.manual_focus?.event),
+    selected_styles: focusValues(seoPackDraft?.manual_focus?.style),
+    selected_materials: focusValues(seoPackDraft?.manual_focus?.material),
+    included_components: seoPackDraft?.product_truth?.included_components,
+    product_color: seoPackDraft?.product_truth?.color,
+  });
 }
 
 function collectDraftSaveBlockers({ storageEnabled, dryRun, hasServiceClient, storageHealth, validationResult, requestedSourceMode, providedAgentOutput }) {

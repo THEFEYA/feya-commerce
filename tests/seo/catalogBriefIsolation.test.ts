@@ -83,3 +83,14 @@ test('targeted repair is a separate one-call route behind an explicit attempt ga
   assert.ok(client.includes('repair_attempt: 1'));
   assert.equal(client.includes('void runTargetedRepair()'), false);
 });
+
+test('draft storage reapplies zero-token editorial normalization before validation', () => {
+  const saveRoute = readFileSync(
+    new URL('../../app/api/admin/seo-engine/draft-save/route.ts', import.meta.url),
+    'utf8',
+  );
+
+  assert.ok(saveRoute.includes('normalizeReviewDraftBeforeStorage(providedAgentOutput, bundle.seoPackDraft)'));
+  assert.ok(saveRoute.indexOf('normalizeReviewDraftBeforeStorage(providedAgentOutput, bundle.seoPackDraft)') < saveRoute.indexOf('validateSeoAgentOutput(agentOutput)'));
+  assert.equal(saveRoute.includes('generateSeoDraftWithOpenAi'), false);
+});

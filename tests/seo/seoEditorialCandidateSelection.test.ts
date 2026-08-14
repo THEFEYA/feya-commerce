@@ -366,6 +366,112 @@ test('repairs the Silver Bodysuit Legs Set control copy without another writer c
   assert.doesNotMatch(normalized.pdp_blocks[1].body, /futuristic|personal styling choices|visual identity|silhouette|starting point|final interpretation/i);
 });
 
+test('repairs the live black review response from 2026-08-14 without another writer call', () => {
+  const normalized = normalizeSeoEditorialCandidate({
+    meta_description: 'Black Halloween costume with black bodysuit for Halloween and cosplay, finished in sleek black vegan leather for festivals and stage moments.',
+    intro: 'This Halloween outfit with black bodysuit is designed for Halloween and cosplay, where its original studio design creates a bold, distinctive look.',
+    image_alt_candidates: [{ alt_text: 'black Halloween outfit with black bodysuit on a studio backdrop with one leg lifted' }],
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        body: 'Built for Halloween and cosplay, this Halloween outfit with black bodysuit brings a fashion-led goth mood to the moment. Its smooth, high-gloss surface creates a sleek, latex-like appearance. The layered black finish reads striking and polished without losing the outfit’s dark edge.',
+      },
+      {
+        block_key: 'ideal_for',
+        body: 'Women planning an expressive costume for a live music production.\nFestival-goers planning a goth look for a long day of music and movement.\nCosplayers building an original goth or fantasy character around a studio-designed costume.\nContent creators planning fantasy visuals for Halloween shoots or music videos.\nCostume stylists sourcing an original goth piece for themed shows or editorials.',
+      },
+      {
+        block_key: 'main_description',
+        body: 'We keep the mood distinctive so it lands clearly for Halloween and cosplay. It feels like a personal statement the moment you step in.',
+      },
+    ],
+    generation_notes: [],
+  }, {
+    primary_keyword: 'halloween costume with black bodysuit',
+    selected_events: ['halloween', 'cosplay'],
+    selected_styles: ['goth', 'fantasy'],
+    included_components: ['Bodysuit', 'Leg Covers', 'Tail'],
+    product_color: 'Black',
+  });
+
+  assert.match(normalized.meta_description, /smooth high-gloss finish/);
+  assert.doesNotMatch(normalized.meta_description, /festivals/i);
+  assert.match(normalized.intro, /bold, distinctive goth-fantasy look/);
+  assert.match(normalized.pdp_blocks[0].body, /sleek, latex-like character/);
+  assert.doesNotMatch(normalized.pdp_blocks[0].body, /metal|reads/i);
+  assert.equal(normalized.pdp_blocks[1].body.match(/\bgoth\b/gi)?.length, 1);
+  assert.match(normalized.pdp_blocks[2].body, /supports personal style/);
+  assert.doesNotMatch(normalized.pdp_blocks[2].body, /lands clearly|step in|reads clearly/i);
+  assert.match(normalized.image_alt_candidates[0].alt_text, /leg covers and tail/);
+});
+
+test('repairs the live red review response from 2026-08-14 without another writer call', () => {
+  const normalized = normalizeSeoEditorialCandidate({
+    meta_description: 'Red Halloween costumes with red bodysuit in a sleek finish for Halloween and cosplay, with a bold goth-fantasy edge.',
+    intro: 'This complete Complete halloween costumes with red bodysuit is designed for Halloween and cosplay, where its original studio design creates a bold, distinctive look.',
+    image_alt_candidates: [{ alt_text: 'red complete Complete halloween costumes with red bodysuit posed in profile on a studio backdrop' }],
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        body: 'For Halloween and cosplay, this complete Complete halloween costumes with red bodysuit brings a strong goth-fantasy mood to the moment. Its smooth, high-gloss surface creates a sleek, latex-like appearance. The fit reads striking and polished, with a bold finish that helps the outfit stand out in photos and on stage.',
+      },
+      {
+        block_key: 'ideal_for',
+        body: 'Women planning an expressive costume for a live music production.\nFestival-goers planning a demon look for a long day of music and movement.\nCosplayers building an original goth or fantasy character around a studio-designed costume.\nContent creators planning fantasy visuals for Halloween shoots or music videos.\nCostume stylists sourcing an original goth piece for themed shows or editorials.',
+      },
+      {
+        block_key: 'main_description',
+        body: 'We shaped the look for a demon mood with a fashion-led edge that feels personal rather than generic. We also kept the presence strong and the finish visually striking, so it lands with confidence in performance, photo work and themed events. We wanted it to read like its own character: fierce, memorable, and unmistakably dramatic.',
+      },
+    ],
+    generation_notes: [],
+  }, {
+    primary_keyword: 'halloween costumes with red bodysuit',
+    selected_events: ['halloween', 'cosplay'],
+    selected_styles: ['goth', 'fantasy'],
+    included_components: ['Forearm Covers', 'Bodysuit', 'Tail'],
+    product_color: 'Red',
+  });
+
+  assert.match(normalized.meta_description, /^Halloween costumes with red bodysuit styling/);
+  assert.doesNotMatch(normalized.intro, /complete Complete|halloween costumes with red bodysuit/i);
+  assert.match(normalized.pdp_blocks[0].body, /sleek, latex-like character/);
+  assert.doesNotMatch(normalized.pdp_blocks[0].body, /metal|reads/i);
+  assert.match(normalized.pdp_blocks[1].body, /Drag performers/);
+  assert.equal(normalized.pdp_blocks[1].body.match(/\bgoth\b/gi)?.length, 1);
+  assert.match(normalized.pdp_blocks[2].body, /supports confident self-expression/);
+  assert.doesNotMatch(normalized.pdp_blocks[2].body, /lands with confidence|read like|themed events/i);
+  assert.doesNotMatch(normalized.image_alt_candidates[0].alt_text, /complete Complete|halloween costumes with red bodysuit/i);
+});
+
+test('polishes the live silver review response before storage without another writer call', () => {
+  const normalized = normalizeSeoEditorialCandidate({
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        body: 'For stage and cosplay, this robot armor outfit brings a silver-toned, fashion-led presence with a sleek, polished look. Its smooth, high-gloss surface creates a beautifully polished, metal-inspired finish. The layered leg coverage and body-skimming shape make it feel striking in motion.',
+      },
+      {
+        block_key: 'main_description',
+        body: 'We designed this robot armor outfit to feel bold on stage and memorable in cosplay, with a fashion-led approach to post apocalyptic and cyberpunk energy. At TheFEYA, we develop original pieces from our own ideas, so the result carries a distinctive, personal edge. The silver tones and layered coverage give it a confident robot presence that reads clearly under performance lighting.',
+      },
+    ],
+    generation_notes: [],
+  }, {
+    primary_keyword: 'robot armor costume',
+    selected_events: ['stage', 'cosplay'],
+    selected_styles: ['post apocalyptic', 'cyberpunk', 'sci fi'],
+    included_components: ['Bodysuit', 'Single Leg Cover'],
+    product_color: 'Silver',
+  });
+
+  assert.match(normalized.pdp_blocks[0].body, /silver metallic bodysuit look/);
+  assert.match(normalized.pdp_blocks[0].body, /metal-inspired character/);
+  assert.doesNotMatch(normalized.pdp_blocks[0].body, /layered leg coverage|body-skimming shape/);
+  assert.match(normalized.pdp_blocks[1].body, /supports confident self-expression/);
+  assert.doesNotMatch(normalized.pdp_blocks[1].body, /reads clearly|robot presence|layered coverage/);
+});
+
 test('adds a supported product color to the deterministic SEO identity', () => {
   const normalized = normalizeDeterministicSeoIdentity({
     seo_title: 'Draft title',
