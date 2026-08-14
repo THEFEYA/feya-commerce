@@ -210,13 +210,14 @@ const PERSONA_FAMILIES: Record<string, string[]> = {
   witch: ['witch', 'dark witch'],
 };
 
-// These two products have no Product-bucket phrase that describes the whole
+// These owner-reviewed products have no unambiguous Product-bucket phrase that describes the whole
 // sellable item. The owner reviewed the products and authorized a tightly
 // scoped PDP Primary from the validated bank instead of inventing a metric or
 // weakening the whole-product gate for the rest of the catalog.
 const OWNER_REVIEWED_PDP_PRIMARY: Record<string, string> = {
   'f473fb62-0440-473c-a7fb-a52dccafebc6': 'red stage outfit',
   'ffa74da5-c2e1-4c3a-b460-50d1aae09f56': 'dance costume for ladies',
+  '2a39f8ec-b5c3-403c-8f1a-7e10bb0ab829': 'black bodysuit halloween costume',
 };
 
 const VISUAL_ATTRIBUTE_FAMILIES: Record<string, string[]> = {

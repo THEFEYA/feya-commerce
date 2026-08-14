@@ -823,3 +823,35 @@ test('owner-reviewed dance fallback keeps the complete costume as Primary', () =
   assert.equal(primary?.owner_reviewed_pdp_primary, true);
   assert.equal(result.keywords.find((row) => row.keyword_norm === 'bodysuit dance costume')?.role, 'secondary');
 });
+
+test('owner-reviewed witch fallback avoids the occupied Halloween Primary', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: '2a39f8ec-b5c3-403c-8f1a-7e10bb0ab829',
+      card_title: 'Dark Witch Exclusive Halloween Costume',
+      source_category_label: 'Headpiece / Accessory',
+      sellable_offer_components: ['Bodysuit', 'Leg Covers', 'Headpiece'],
+      sellable_offer: { status: 'ready', component_labels: ['Bodysuit', 'Leg Covers', 'Headpiece'] },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['bodysuit', 'legs', 'headpiece'],
+      sellable_component_axes: ['bodysuit', 'legs', 'headpiece'],
+      search_only_component_axes: [],
+      material: ['black', 'vegan leather'],
+      event: ['halloween', 'cosplay'],
+      style: ['glam', 'fantasy'],
+      persona: ['queen', 'witch'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'halloween costume with black bodysuit', keyword_norm: 'halloween costume with black bodysuit', bank_bucket: 'product', avg_monthly_searches: 210 },
+      { ...baseMetric, keyword: 'black bodysuit halloween costume', keyword_norm: 'black bodysuit halloween costume', bank_bucket: 'product', avg_monthly_searches: 210 },
+    ],
+  });
+
+  const primary = result.keywords.find((row) => row.role === 'primary');
+  assert.equal(primary?.keyword_norm, 'black bodysuit halloween costume');
+  assert.equal(primary?.owner_reviewed_pdp_primary, true);
+  assert.equal(result.keywords.find((row) => row.keyword_norm === 'halloween costume with black bodysuit')?.role, 'secondary');
+});
