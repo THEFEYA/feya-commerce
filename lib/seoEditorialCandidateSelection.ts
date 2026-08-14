@@ -957,6 +957,13 @@ export function normalizeHolographicRaveSetIdealFor<T>(
     'Content creators planning dancer visuals for rave shoots or music videos.',
     'Costume stylists sourcing an original glam piece for themed shows or editorials.',
   ].join('\n');
+  const currentSourceBody = [
+    'Women preparing an expressive costume for a live music production.',
+    'Festival-goers planning a dancer look for a long day of music and movement.',
+    'Live performers preparing a dancer look for a stage show or theatrical role.',
+    'Content creators planning dancer visuals for rave shoots or music videos.',
+    'Costume stylists sourcing an original glam piece for themed shows or editorials.',
+  ].join('\n');
   const replacementBody = [
     'Women planning an expressive costume for a live music production.',
     'Rave-goers planning a holographic look for a long night of music and movement.',
@@ -969,7 +976,7 @@ export function normalizeHolographicRaveSetIdealFor<T>(
     if (
       !isRecord(block)
       || block.block_key !== 'ideal_for'
-      || block.body !== sourceBody
+      || ![sourceBody, currentSourceBody].includes(String(block.body || ''))
     ) return block;
     changed = true;
     return { ...block, body: replacementBody };
@@ -1249,6 +1256,14 @@ export function normalizeBatchFiveEditorialBlacklistCopy<T>(
       ],
     ],
     'rave skirt and top set::holographic': [
+      [
+        'Built for rave and stage moments, this rave skirt and top outfit pairs a striking top with a flared skirt that moves beautifully in the light. Its smooth, shiny holographic surface shows subtle color shifts in changing light and movement. The finish feels sleek and eye-catching without losing its polished edge.',
+        'Made for rave nights and stage performance, this holographic outfit uses a smooth, shiny surface to create vivid color shifts as the light or viewing angle changes. The glossy finish looks sleek in motion and gives photos and video a bold iridescent character.',
+      ],
+      [
+        'We designed this rave skirt and top outfit for women who want a bold, distinctive presence at rave and stage events. We at TheFEYA develop original pieces from our own ideas, and this one brings a bright, iridescent energy that feels memorable from the first glance. We shaped it to read as glamorous, performance-ready, and unmistakably alive in motion.',
+        'At TheFEYA, we develop this holographic rave outfit from our own ideas. Its shiny surface and subtle color shifts give the original studio design a vivid, glamorous character that is easy to recognize on stage and in photos. The fashion-led result supports a confident personal style through rave nights, live performances, and creative shoots.',
+      ],
       [
         'This rave skirt and top outfit is made for rave and the stage, giving you a starting point for an original studio look you can make your own.',
         'This rave skirt and top outfit brings an original, fashion-led studio design to rave nights and the stage.',

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { validateSeoCommercialCopy } from '../../lib/seoCommercialCopyValidator.ts';
+import { normalizeSeoEditorialCandidate } from '../../lib/seoEditorialCandidateSelection.ts';
 
 function draft(overrides: Record<string, unknown> = {}) {
   return {
@@ -1394,4 +1395,72 @@ test('permits an approved indirect optical aesthetic without turning it into a m
     context,
   );
   assert.ok(unselected.issues.some((issue) => issue.code === 'customer_copy_uses_unselected_indirect_optical_keyword'));
+});
+
+test('repairs the paid holographic review control to a zero-token commercial PASS', () => {
+  const context = {
+    product_truth: {
+      color: 'Holographic',
+      included_components: ['Skirt Only', 'Top Only'],
+    },
+    manual_focus: {
+      event: ['rave', 'stage'],
+      style: ['glam'],
+      persona: ['dancer'],
+      audience: ['women'],
+    },
+    keyword_roles: {
+      primary: [{ keyword: 'rave skirt and top set' }],
+      secondary: [{ keyword: 'rave outfit with skirt' }],
+      support: [{ keyword: 'holographic rave skirt' }],
+    },
+  };
+  const value = {
+    seo_title: 'Holographic Rave Skirt And Top Set',
+    h1: 'Holographic Rave Skirt And Top Set',
+    meta_description: 'Holographic rave skirt and top set with an iridescent finish for rave nights and stage moments.',
+    intro: 'This rave skirt and top outfit is designed for rave and the stage, where its original studio design creates a bold, distinctive look.',
+    bullet_highlights: [],
+    image_alt_candidates: [{ image_role: 'primary', alt_text: 'holographic rave skirt and top outfit worn standing in a studio setting', truth_basis: 'visible_product_fact' }],
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        body: 'Built for rave and stage moments, this rave skirt and top outfit pairs a striking top with a flared skirt that moves beautifully in the light. Its smooth, shiny holographic surface shows subtle color shifts in changing light and movement. The finish feels sleek and eye-catching without losing its polished edge.',
+      },
+      {
+        block_key: 'why_youll_love_it',
+        placement: 'left_description',
+        heading: 'Why you’ll love it',
+        body: 'Our original studio design gives the outfit a distinctive, memorable character that feels genuinely personal.\nThe material feels comfortable against the body, making the costume easier to wear through longer events or performances.\nWith careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
+      },
+      {
+        block_key: 'ideal_for',
+        placement: 'left_description',
+        heading: 'Ideal for',
+        body: 'Women preparing an expressive costume for a live music production.\nFestival-goers planning a dancer look for a long day of music and movement.\nLive performers preparing a dancer look for a stage show or theatrical role.\nContent creators planning dancer visuals for rave shoots or music videos.\nCostume stylists sourcing an original glam piece for themed shows or editorials.',
+      },
+      {
+        block_key: 'main_description',
+        placement: 'left_description',
+        heading: 'Designed for self-expression',
+        body: 'We designed this rave skirt and top outfit for women who want a bold, distinctive presence at rave and stage events. We at TheFEYA develop original pieces from our own ideas, and this one brings a bright, iridescent energy that feels memorable from the first glance. We shaped it to read as glamorous, performance-ready, and unmistakably alive in motion.',
+      },
+    ],
+    generation_notes: [],
+  };
+  const normalized = normalizeSeoEditorialCandidate(value, {
+    primary_keyword: 'rave skirt and top set',
+    selected_events: ['rave', 'stage'],
+    selected_styles: ['glam'],
+    included_components: ['Top', 'Skirt'],
+    product_color: 'Holographic',
+  });
+  const result = validateSeoCommercialCopy(normalized, context);
+  assert.deepEqual(
+    result.issues.filter((issue) => issue.severity === 'blocker').map((issue) => issue.code),
+    [],
+  );
+  assert.equal(result.issues.some((issue) => issue.code === 'self_expression_close_lacks_clear_buyer_value'), false);
 });

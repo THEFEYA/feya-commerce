@@ -218,9 +218,13 @@ test('repairs the Holographic Set control copy without another writer call', () 
   const normalized = normalizeSeoEditorialCandidate({
     pdp_blocks: [
       {
+        block_key: 'about_this_piece',
+        body: 'Built for rave and stage moments, this rave skirt and top outfit pairs a striking top with a flared skirt that moves beautifully in the light. Its smooth, shiny holographic surface shows subtle color shifts in changing light and movement. The finish feels sleek and eye-catching without losing its polished edge.',
+      },
+      {
         block_key: 'ideal_for',
         body: [
-          'Women planning an expressive costume for a live music production.',
+          'Women preparing an expressive costume for a live music production.',
           'Festival-goers planning a dancer look for a long day of music and movement.',
           'Live performers preparing a dancer look for a stage show or theatrical role.',
           'Content creators planning dancer visuals for rave shoots or music videos.',
@@ -229,7 +233,7 @@ test('repairs the Holographic Set control copy without another writer call', () 
       },
       {
         block_key: 'main_description',
-        body: 'We design this piece to help you build a look that feels vivid, modern, and personal. We pair holographic shine with glam attitude so your visual identity feels unmistakably yours.',
+        body: 'We designed this rave skirt and top outfit for women who want a bold, distinctive presence at rave and stage events. We at TheFEYA develop original pieces from our own ideas, and this one brings a bright, iridescent energy that feels memorable from the first glance. We shaped it to read as glamorous, performance-ready, and unmistakably alive in motion.',
       },
     ],
     generation_notes: [],
@@ -239,11 +243,14 @@ test('repairs the Holographic Set control copy without another writer call', () 
     product_color: 'Holographic',
   });
 
-  assert.match(normalized.pdp_blocks[0].body, /Rave-goers planning a holographic look/);
-  assert.match(normalized.pdp_blocks[0].body, /iridescent visuals/);
-  assert.equal(normalized.pdp_blocks[0].body.match(/\bdancer\b/gi)?.length, 1);
-  assert.match(normalized.pdp_blocks[1].body, /shiny surface and subtle color shifts/);
-  assert.doesNotMatch(normalized.pdp_blocks[1].body, /visual identity|metallic|reflective|mirrored|sparkling/i);
+  assert.match(normalized.pdp_blocks[0].body, /smooth, shiny surface/);
+  assert.doesNotMatch(normalized.pdp_blocks[0].body, /pairs a striking top with a flared skirt|metallic|reflective|mirrored|sparkling/i);
+  assert.match(normalized.pdp_blocks[1].body, /Rave-goers planning a holographic look/);
+  assert.match(normalized.pdp_blocks[1].body, /iridescent visuals/);
+  assert.equal(normalized.pdp_blocks[1].body.match(/\bdancer\b/gi)?.length, 1);
+  assert.match(normalized.pdp_blocks[2].body, /shiny surface and subtle color shifts/);
+  assert.match(normalized.pdp_blocks[2].body, /confident personal style/);
+  assert.doesNotMatch(normalized.pdp_blocks[2].body, /distinctive presence|visual identity|metallic|reflective|mirrored|sparkling|\bevents?\b/i);
 });
 
 test('repairs the Black Bodysuit Set control copy without another writer call', () => {
