@@ -637,6 +637,7 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizePaidHarnessAndMetallicSetCopy(normalized, context);
   normalized = normalizePaidRedSpineTailCopy(normalized, context);
   normalized = normalizePaidDanceCostumeCopy(normalized, context);
+  normalized = normalizePaidWitchCostumeCopy(normalized, context);
   normalized = normalizeBrownLeatherHarnessPhotoshootAlt(normalized, context);
   normalized = normalizeImageAltPrimaryVariation(normalized, context);
   normalized = normalizeSingleSuppliedImageAltCandidate(normalized);
@@ -800,6 +801,75 @@ export function normalizePaidDanceCostumeCopy<T>(
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
       'Human-reviewed deterministic repair preserved the paid dance draft while separating stretch fabric, gold detail, audience and style jobs without another writer call.',
+    ],
+  } as T;
+}
+
+/**
+ * The paid witch-costume response used the right product identity but repeated
+ * Halloween/witch/fantasy as list filler and returned a one-sentence studio
+ * close. Repair only that exact response. The body keeps "witch" as natural
+ * customer language while the validated Primary remains the broader complete
+ * costume query selected in Listing Master.
+ */
+export function normalizePaidWitchCostumeCopy<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const primary = normalizeIdentityValue(context.primary_keyword).toLowerCase();
+  const events = normalizeIdentityValues(context.selected_events).map((value) => value.toLowerCase());
+  const styles = normalizeIdentityValues(context.selected_styles).map((value) => value.toLowerCase());
+  if (
+    primary !== 'black bodysuit halloween costume'
+    || !events.includes('halloween')
+    || !events.includes('cosplay')
+    || !styles.includes('glam')
+    || !styles.includes('fantasy')
+  ) return output;
+
+  const exactFieldReplacements: Record<string, [string, string]> = {
+    intro: [
+      'For Halloween, this black bodysuit Halloween outfit gives women a bold fashion-led take on a witch queen look with glossy drama and easy stage presence.',
+      'For Halloween and cosplay, this black bodysuit outfit gives women a fashion-led witch-queen character with a sleek high-gloss finish and glamorous fantasy drama.',
+    ],
+  };
+  const blockReplacements: Record<string, [string, string]> = {
+    about_this_piece: [
+      'For Halloween and cosplay, this black bodysuit Halloween outfit brings a sleek, latex-like appearance to a black bodysuit Halloween outfit made for dramatic entrances. The smooth, high-gloss black surface gives the look a polished edge that reads bold, dark, and unmistakably stylish.',
+      'Created for Halloween nights and cosplay appearances, this black costume has a smooth, high-gloss finish with a sleek latex-like look. Its fashion-led design gives the outfit a confident witch-queen character with glamorous fantasy drama. The polished surface keeps the black details clear in studio photos and under venue lighting.',
+    ],
+    ideal_for: [
+      'Women seeking a dark witch costume for Halloween appearances.\nCosplayers developing an original witch character with glamorous fantasy styling.\nLive performers wearing a bold dark-fantasy costume for themed productions.\nContent creators producing witch-inspired Halloween photos and videos.\nCostume stylists selecting an original black design for fantasy editorials.',
+      'Women choosing a dark witch costume for Halloween parties and seasonal appearances.\nCosplayers building an original queen-inspired character for conventions and creative shoots.\nLive performers seeking glam black fashion for theatrical productions.\nContent creators producing striking photos and videos for costume campaigns.\nCostume stylists selecting a bold fantasy design for editorials and music videos.',
+    ],
+    main_description: [
+      'Our original design ideas lean into glam fantasy energy, creating a dark-fantasy look that owns the room with confidence.',
+      'At TheFEYA, our designers developed this black costume from original ideas for women who value expressive Halloween fashion. The sleek finish and crown-led character give the design glamorous fantasy drama with an unmistakable studio signature. Its confident dark styling supports personal expression across cosplay appearances, theatrical shows and creative shoots. The result feels distinctive, bold and unmistakably individual.',
+    ],
+  };
+
+  let changed = false;
+  const normalized: Record<string, unknown> = { ...output };
+  Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
+    if (normalized[field] !== before) return;
+    normalized[field] = after;
+    changed = true;
+  });
+  normalized.pdp_blocks = output.pdp_blocks.map((block) => {
+    if (!isRecord(block) || typeof block.body !== 'string') return block;
+    const replacement = blockReplacements[String(block.block_key || '')];
+    if (!replacement || block.body !== replacement[0]) return block;
+    changed = true;
+    return { ...block, body: replacement[1] };
+  });
+  if (!changed) return output;
+
+  return {
+    ...normalized,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Human-reviewed deterministic repair kept witch language natural, diversified customer portraits and completed the paid studio close without another writer call.',
     ],
   } as T;
 }

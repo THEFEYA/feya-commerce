@@ -13,6 +13,7 @@ import {
   normalizeBrownLeatherHarnessPhotoshootAlt,
   normalizePaidDanceCostumeCopy,
   normalizePaidRedSpineTailCopy,
+  normalizePaidWitchCostumeCopy,
   normalizeImageAltPrimaryVariation,
   normalizeCodeOwnedPdpBlockOrder,
   normalizeCodeOwnedSeoCollections,
@@ -203,6 +204,45 @@ test('paid dance draft keeps fabric as the base and leather only in selected gol
   assert.equal((normalized.pdp_blocks[2].body.match(/\bstage\b/gi) || []).length, 1);
   assert.match(normalized.pdp_blocks[2].body, /futuristic styling/i);
   assert.match(normalized.pdp_blocks[3].body, /personal expression/i);
+});
+
+test('paid witch draft keeps witch as natural copy and completes the studio close', () => {
+  const output = {
+    ...writerWireOutput([
+      {
+        block_key: 'about_this_piece',
+        body: 'For Halloween and cosplay, this black bodysuit Halloween outfit brings a sleek, latex-like appearance to a black bodysuit Halloween outfit made for dramatic entrances. The smooth, high-gloss black surface gives the look a polished edge that reads bold, dark, and unmistakably stylish.',
+      },
+      {
+        block_key: 'why_youll_love_it',
+        body: 'Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\nThe material feels comfortable against the body, making the garment easier to wear for extended periods.\nWith careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
+      },
+      {
+        block_key: 'ideal_for',
+        body: 'Women seeking a dark witch costume for Halloween appearances.\nCosplayers developing an original witch character with glamorous fantasy styling.\nLive performers wearing a bold dark-fantasy costume for themed productions.\nContent creators producing witch-inspired Halloween photos and videos.\nCostume stylists selecting an original black design for fantasy editorials.',
+      },
+      {
+        block_key: 'main_description',
+        body: 'Our original design ideas lean into glam fantasy energy, creating a dark-fantasy look that owns the room with confidence.',
+      },
+    ]),
+    intro: 'For Halloween, this black bodysuit Halloween outfit gives women a bold fashion-led take on a witch queen look with glossy drama and easy stage presence.',
+  } as any;
+
+  const normalized = normalizePaidWitchCostumeCopy(output, {
+    primary_keyword: 'black bodysuit halloween costume',
+    selected_events: ['halloween', 'cosplay'],
+    selected_styles: ['glam', 'fantasy'],
+  });
+
+  assert.match(normalized.intro, /black bodysuit outfit/i);
+  assert.match(normalized.pdp_blocks[0].body, /witch-queen character/i);
+  assert.equal((normalized.pdp_blocks[2].body.match(/\bwitch\b/gi) || []).length, 1);
+  assert.equal((normalized.pdp_blocks[2].body.match(/\bfantasy\b/gi) || []).length, 1);
+  assert.match(normalized.pdp_blocks[2].body, /Women choosing/i);
+  assert.match(normalized.pdp_blocks[3].body, /At TheFEYA, our designers developed/i);
+  assert.match(normalized.pdp_blocks[3].body, /personal expression/i);
+  assert.ok(normalized.pdp_blocks[3].body.trim().split(/\s+/).length >= 45);
 });
 
 function inputContract() {
