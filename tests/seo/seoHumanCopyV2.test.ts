@@ -175,6 +175,80 @@ test('legacy view flags remain non-publishable candidates', () => {
   assert.ok(mapped.legacy_candidate_facts.every((fact) => !fact.publishable));
 });
 
+test('owner-reviewed batch products receive complete, product-specific writer claims', () => {
+  const cases = [
+    {
+      id: 'de38a842-37c4-40a7-86b4-393341c4c9aa',
+      title: 'Deluxe Brown Leather Harness for Men',
+      material: 'Leather',
+      color: 'Brown',
+      components: ['Harness Top'],
+      primary: 'leather harness top',
+      focus: { material: ['brown', 'leather'], event: ['photoshoot'], style: ['classic'], audience: ['men'] },
+      about: 'brown_leather_harness_identity',
+      why: ['original_authorial_design', 'leather_harness_repeat_wear', 'leather_harness_upper_body_framing'],
+      portrait: 'photographers',
+    },
+    {
+      id: 'f473fb62-0440-473c-a7fb-a52dccafebc6',
+      title: 'Red Burlesque Dress with Spine-Tail',
+      material: null,
+      color: 'Red',
+      components: ['Top', 'Skirt'],
+      primary: 'red stage outfit',
+      focus: { material: ['red'], event: ['stage', 'drag'], style: ['glam', 'burlesque'], persona: ['drag queen', 'performer'], audience: ['women'] },
+      about: 'spine_tail_continuous_backpiece',
+      why: ['original_authorial_design', 'red_gloss_stage_visibility', 'spine_tail_shape_retention'],
+      portrait: 'drag performers',
+    },
+    {
+      id: 'ffa74da5-c2e1-4c3a-b460-50d1aae09f56',
+      title: 'Exclusive Dance Costume Set',
+      material: 'Fabric',
+      color: 'Black and Gold',
+      components: ['Bodysuit', 'Leg Covers'],
+      primary: 'dance costume for ladies',
+      focus: { material: ['black', 'gold', 'fabric'], event: ['stage'], style: ['futuristic', 'glam'], persona: ['dancer', 'performer', 'showgirl', 'go go dancer'], audience: ['women'] },
+      about: 'stretch_fabric_gold_detail_construction',
+      why: ['original_authorial_design', 'stretch_fabric_dance_movement', 'gold_detail_stage_visibility'],
+      portrait: 'dance schools',
+    },
+  ];
+
+  cases.forEach((current) => {
+    const input = inputContract();
+    input.canonical_product_id = current.id;
+    input.product = {
+      ...input.product,
+      title: current.title,
+      material: current.material,
+      color: current.color,
+      sellable_offer: {
+        ...input.product.sellable_offer,
+        status: 'ready',
+        component_labels: current.components,
+      },
+    };
+    input.manual_focus = { ...input.manual_focus, ...current.focus };
+    input.keyword_roles.primary = [{
+      ...input.keyword_roles.primary[0],
+      keyword: current.primary,
+      keyword_norm: current.primary,
+    }];
+
+    const { evidence, brief, preflight } = buildCompactSeoWriterPrompt(input);
+    const aboutClaims = brief.claim_plan.claims.filter((claim) => claim.target_block === 'about_this_piece');
+    const whyClaims = brief.claim_plan.claims.filter((claim) => claim.target_block === 'why_youll_love_it');
+
+    assert.deepEqual(brief.claim_plan.blockers, [], current.id);
+    assert.equal(aboutClaims[0]?.fact_code, current.about, current.id);
+    assert.deepEqual(whyClaims.map((claim) => claim.fact_code), current.why, current.id);
+    assert.ok(brief.ideal_for_portraits.some((portrait) => portrait.person === current.portrait), current.id);
+    assert.ok(evidence.current_confirmed_facts.some((fact) => fact.fact_code === current.about), current.id);
+    assert.equal(preflight.ok, true, JSON.stringify(preflight.issues));
+  });
+});
+
 test('writer brief uses current offer and excludes raw legacy wording', () => {
   const input = inputContract();
   const evidence = buildCurrentSeoProductEvidence(input);

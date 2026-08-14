@@ -84,12 +84,16 @@ function initialRole(keyword: SeoPilotKeyword, exclusions: string[]): SeoPilotKe
   const bankBucket = normalize(keyword.bank_bucket);
   const pageType = normalize(keyword.page_type);
   const bucket = `${bankBucket} ${pageType}`.trim();
-  const rawRole = normalize((keyword as SeoPilotKeyword & Record<string, unknown>).role);
+  const raw = keyword as SeoPilotKeyword & Record<string, unknown>;
+  const rawRole = normalize(raw.role);
+  const ownerReviewedPdpPrimary = rawRole === 'primary'
+    && raw.owner_reviewed_pdp_primary === true;
 
   if (containsExcludedIntent(keyword, exclusions)) return 'reject';
   if (keyword.should_hold === true || !hasValidatedMetric(keyword)) return 'hold';
   if (bucket.includes('faq')) return 'faq_commercial';
   if (COMMERCIAL_INTENT_PATTERN.test(value) || QUESTION_INTENT_PATTERN.test(value)) return 'faq_commercial';
+  if (ownerReviewedPdpPrimary) return 'primary';
   if (COLLECTION_BUCKET_PATTERN.test(bucket)) return 'collection';
   // `product_or_alt` remains a product query. It may later be reused for a
   // visually matching image, but `alt` in its bucket name must not demote it.

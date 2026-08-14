@@ -72,6 +72,7 @@ const COLOR_FAMILIES: Record<string, string[]> = {
   black: ['black'],
   blue: ['blue'],
   bronze: ['bronze'],
+  brown: ['brown', 'tan', 'cognac'],
   copper: ['copper'],
   gold: ['gold', 'golden'],
   green: ['green'],
@@ -171,6 +172,7 @@ const EVENT_FAMILIES: Record<string, string[]> = {
 
 const STYLE_FAMILIES: Record<string, string[]> = {
   burlesque: ['burlesque'],
+  classic: ['classic', 'traditional', 'timeless', 'vintage'],
   cosmic: ['cosmic'],
   cyberpunk: ['cyberpunk'],
   desert: ['desert', 'dune'],
@@ -205,6 +207,16 @@ const PERSONA_FAMILIES: Record<string, string[]> = {
   robot: ['robot'],
   showgirl: ['showgirl', 'show girl'],
   warrior: ['warrior'],
+  witch: ['witch', 'dark witch'],
+};
+
+// These two products have no Product-bucket phrase that describes the whole
+// sellable item. The owner reviewed the products and authorized a tightly
+// scoped PDP Primary from the validated bank instead of inventing a metric or
+// weakening the whole-product gate for the rest of the catalog.
+const OWNER_REVIEWED_PDP_PRIMARY: Record<string, string> = {
+  'f473fb62-0440-473c-a7fb-a52dccafebc6': 'red stage outfit',
+  'ffa74da5-c2e1-4c3a-b460-50d1aae09f56': 'dance costume for ladies',
 };
 
 const VISUAL_ATTRIBUTE_FAMILIES: Record<string, string[]> = {
@@ -241,7 +253,7 @@ export function recommendCatalogKeywords(input: {
   const faqRows = scored.filter((row) => normalize(row.bank_bucket || row.page_type) === 'faq').slice(0, 3);
   const collectionRows = scored.filter((row) => ['collection', 'commercial collection'].includes(normalize(row.bank_bucket || row.page_type))).slice(0, 3);
   const imageRows = scored.filter((row) => normalize(row.bank_bucket || row.page_type) === 'visual collection').slice(0, 2);
-  const selected: RecommendedKeywordRow[] = uniqueRows([...productRows, ...faqRows, ...collectionRows, ...imageRows])
+  const selectedBase: RecommendedKeywordRow[] = uniqueRows([...productRows, ...faqRows, ...collectionRows, ...imageRows])
     .slice(0, Math.max(3, input.limit || 18))
     .map((row) => ({
       ...row,
@@ -257,6 +269,7 @@ export function recommendCatalogKeywords(input: {
       auto_recommendation: true,
       auto_recommendation_needs_human_confirmation: true,
     }) as RecommendedKeywordRow);
+  const selected = applyOwnerReviewedPdpPrimary(selectedBase, input.product);
 
   return {
     keywords: selected,
@@ -296,9 +309,37 @@ export function recommendCatalogKeywords(input: {
       excluded_keyword_terms: profile.excludedTerms,
       truth_gate: 'explicit/global exclusions and component/color/audience/event/style/persona/visual mismatch reject before volume, competition or bank score is considered',
       confirmation_required: true,
+      owner_reviewed_pdp_primary: selected.find((row) => row.owner_reviewed_pdp_primary === true)?.keyword_norm || null,
       writes_performed: 0,
     },
   };
+}
+
+function applyOwnerReviewedPdpPrimary(
+  rows: RecommendedKeywordRow[],
+  product: ProductRow,
+): RecommendedKeywordRow[] {
+  const productId = String(product.canonical_product_id || '').trim();
+  const keyword = OWNER_REVIEWED_PDP_PRIMARY[productId];
+  if (!keyword) return rows;
+
+  const target = rows.find((row) => normalize(row.keyword_norm || row.keyword) === keyword);
+  if (!target || !hasWholeProductEntity(keyword)) return rows;
+
+  return rows.map((row) => {
+    if (row === target) {
+      return {
+        ...row,
+        role: 'primary',
+        whole_product_intent: true,
+        partial_component_scope: false,
+        owner_reviewed_pdp_primary: true,
+        recommendation_reason: `${row.recommendation_reason} · owner_reviewed_pdp_primary`,
+      } as RecommendedKeywordRow;
+    }
+    if (row.role !== 'primary') return row;
+    return { ...row, role: 'secondary' } as RecommendedKeywordRow;
+  });
 }
 
 export function normalizeStrategy(value: unknown): SeoKeywordRecommendationStrategy {

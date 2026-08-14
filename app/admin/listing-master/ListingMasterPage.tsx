@@ -124,21 +124,21 @@ const STRATEGY_NOTES = { demand: 'Сначала слова с большим с
 const STATUS_LABELS = { all: 'Все товары', not_saved: 'Не сохранено', saved: 'Решение сохранено' };
 
 const COMPONENTS = ['shoulders', 'corset', 'bra', 'top', 'harness', 'bodysuit', 'skirt', 'panties', 'arms', 'legs', 'mask', 'headpiece', 'choker', 'wings', 'spine', 'tail'];
-const MATERIALS = ['gold', 'silver', 'black', 'white', 'red', 'mirror', 'acrylic', 'leather', 'vegan leather', 'metallic', 'holographic', 'chain'];
+const MATERIALS = ['gold', 'silver', 'black', 'white', 'red', 'brown', 'mirror', 'acrylic', 'fabric', 'leather', 'vegan leather', 'metallic', 'holographic', 'chain'];
 const EVENTS = ['burning man', 'festival', 'rave', 'stage', 'edm', 'edc', 'coachella', 'halloween', 'cosplay', 'pride', 'drag', 'photoshoot'];
-const STYLES = ['post apocalyptic', 'futuristic', 'cyberpunk', 'desert', 'glam', 'punk', 'goth', 'burlesque', 'cosmic', 'sci fi', 'steampunk', 'fantasy'];
-const PERSONAS = ['warrior', 'goddess', 'queen', 'cleopatra', 'robot', 'alien', 'angel', 'demon', 'drag queen', 'dancer', 'performer', 'dj', 'showgirl', 'go go dancer', 'pole dancer', 'maleficent', 'cat', 'bunny', 'couple'];
+const STYLES = ['post apocalyptic', 'futuristic', 'cyberpunk', 'desert', 'glam', 'punk', 'goth', 'burlesque', 'cosmic', 'sci fi', 'steampunk', 'fantasy', 'classic'];
+const PERSONAS = ['warrior', 'goddess', 'queen', 'cleopatra', 'robot', 'alien', 'angel', 'demon', 'drag queen', 'dancer', 'performer', 'dj', 'showgirl', 'go go dancer', 'pole dancer', 'maleficent', 'witch', 'cat', 'bunny', 'couple'];
 const AUDIENCES = ['men', 'women', 'couples', 'drag'];
 const FOCUS_FIELDS = ['component', 'material', 'event', 'style', 'persona', 'audience'];
-const COLOR_VALUES = ['gold', 'silver', 'black', 'white', 'red', 'holographic'];
+const COLOR_VALUES = ['gold', 'silver', 'black', 'white', 'red', 'brown', 'holographic'];
 const HARD_COMPONENT_CONFLICTS = ['bodysuit', 'corset', 'bra', 'top', 'harness', 'skirt', 'panties', 'arms', 'legs', 'mask', 'headpiece', 'choker', 'wings', 'spine', 'tail'];
 
 const LABELS = {
   corset: 'corset', bra: 'bra', top: 'top', harness: 'harness', bodysuit: 'bodysuit', skirt: 'skirt', panties: 'panties', shoulders: 'shoulders', arms: 'arms', legs: 'legs', mask: 'mask', headpiece: 'headpiece', choker: 'choker', wings: 'wings', spine: 'spine', tail: 'tail',
-  gold: 'gold', silver: 'silver', black: 'black', white: 'white', red: 'red', mirror: 'mirror', acrylic: 'acrylic', leather: 'leather', 'vegan leather': 'vegan leather', metallic: 'metallic', holographic: 'holographic', chain: 'chain detail',
+  gold: 'gold', silver: 'silver', black: 'black', white: 'white', red: 'red', brown: 'brown', mirror: 'mirror', acrylic: 'acrylic', fabric: 'fabric', leather: 'leather', 'vegan leather': 'vegan leather', metallic: 'metallic', holographic: 'holographic', chain: 'chain detail',
   rave: 'rave', festival: 'festival', 'burning man': 'Burning Man', stage: 'stage', edm: 'EDM', edc: 'EDC', coachella: 'Coachella', halloween: 'Halloween', cosplay: 'cosplay', pride: 'Pride', drag: 'drag', photoshoot: 'photoshoot',
-  futuristic: 'futuristic', cyberpunk: 'cyberpunk', desert: 'desert', 'post apocalyptic': 'post-apocalyptic', glam: 'glam', punk: 'punk', goth: 'goth', burlesque: 'burlesque', cosmic: 'cosmic', 'sci fi': 'sci-fi', steampunk: 'steampunk', fantasy: 'fantasy',
-  warrior: 'warrior', goddess: 'goddess', queen: 'queen', cleopatra: 'Cleopatra', robot: 'robot', alien: 'alien', angel: 'angel', demon: 'demon', 'drag queen': 'drag queen', dancer: 'dancer', performer: 'performer', dj: 'DJ', showgirl: 'showgirl', 'go go dancer': 'go-go dancer', 'pole dancer': 'pole dancer', maleficent: 'Maleficent', cat: 'cat', bunny: 'bunny', couple: 'couple',
+  futuristic: 'futuristic', cyberpunk: 'cyberpunk', desert: 'desert', 'post apocalyptic': 'post-apocalyptic', glam: 'glam', punk: 'punk', goth: 'goth', burlesque: 'burlesque', cosmic: 'cosmic', 'sci fi': 'sci-fi', steampunk: 'steampunk', fantasy: 'fantasy', classic: 'classic',
+  warrior: 'warrior', goddess: 'goddess', queen: 'queen', cleopatra: 'Cleopatra', robot: 'robot', alien: 'alien', angel: 'angel', demon: 'demon', 'drag queen': 'drag queen', dancer: 'dancer', performer: 'performer', dj: 'DJ', showgirl: 'showgirl', 'go go dancer': 'go-go dancer', 'pole dancer': 'pole dancer', maleficent: 'Maleficent', witch: 'witch', cat: 'cat', bunny: 'bunny', couple: 'couple',
   women: 'women', men: 'men', couples: 'couples'
 };
 
@@ -156,10 +156,10 @@ const SYN = {
   mask: ['mask', 'face mask'],
   headpiece: ['headpiece', 'head piece', 'horn', 'crown', 'halo', 'headdress', 'cleopatra'],
   choker: ['choker', 'collar', 'choke chain', 'choke chains'], wings: ['wings'], spine: ['spine', 'back piece'], tail: ['tail'],
-  gold: ['gold', 'golden'], silver: ['silver', 'chrome'], black: ['black'], white: ['white'], red: ['red'], mirror: ['mirror', 'mirrored', 'reflective'], acrylic: ['acrylic'], leather: ['leather', 'faux leather'], 'vegan leather': ['vegan leather', 'faux leather'], metallic: ['metallic', 'metal'], holographic: ['holographic', 'holo', 'iridescent'], chain: ['chain', 'chains', 'body chain'],
+  gold: ['gold', 'golden'], silver: ['silver', 'chrome'], black: ['black'], white: ['white'], red: ['red'], brown: ['brown', 'tan', 'cognac'], mirror: ['mirror', 'mirrored', 'reflective'], acrylic: ['acrylic'], fabric: ['fabric', 'textile', 'stretch fabric'], leather: ['leather', 'faux leather'], 'vegan leather': ['vegan leather', 'faux leather'], metallic: ['metallic', 'metal'], holographic: ['holographic', 'holo', 'iridescent'], chain: ['chain', 'chains', 'body chain'],
   'burning man': ['burning man', 'burningman'], festival: ['festival', 'festivals'], rave: ['rave', 'raves'], stage: ['stage', 'stages'], edm: ['edm'], edc: ['edc', 'electric daisy carnival'], coachella: ['coachella'], halloween: ['halloween'], cosplay: ['cosplay', 'cosplayer', 'cosplayers'], pride: ['pride'], drag: ['drag'], photoshoot: ['photoshoot', 'photo shoot'],
-  'post apocalyptic': ['post apocalyptic', 'post-apocalyptic', 'apocalyptic', 'mad max', 'wasteland'], futuristic: ['futuristic', 'future', 'future fashion'], cyberpunk: ['cyberpunk', 'cyber'], desert: ['desert', 'dune'], glam: ['glam', 'glamorous', 'red carpet'], punk: ['punk'], goth: ['goth', 'gothic'], burlesque: ['burlesque'], cosmic: ['cosmic', 'space'], 'sci fi': ['sci fi', 'sci-fi', 'science fiction'], steampunk: ['steampunk'], fantasy: ['fantasy', 'fairy'],
-  warrior: ['warrior', 'warriors', 'warrior-inspired'], goddess: ['goddess'], queen: ['queen'], cleopatra: ['cleopatra', 'egyptian'], robot: ['robot'], alien: ['alien'], angel: ['angel'], demon: ['demon', 'devil'], 'drag queen': ['drag queen'], dancer: ['dancer', 'dance'], performer: ['performer', 'performance'], dj: ['dj'], showgirl: ['showgirl', 'show girl'], 'go go dancer': ['go go', 'gogo', 'go-go'], 'pole dancer': ['pole dancer', 'pole dance'], maleficent: ['maleficent', 'dark fairy'], cat: ['cat', 'kitty'], bunny: ['bunny', 'rabbit'], couple: ['couple', 'couples', 'matching'],
+  'post apocalyptic': ['post apocalyptic', 'post-apocalyptic', 'apocalyptic', 'mad max', 'wasteland'], futuristic: ['futuristic', 'future', 'future fashion'], cyberpunk: ['cyberpunk', 'cyber'], desert: ['desert', 'dune'], glam: ['glam', 'glamorous', 'red carpet'], punk: ['punk'], goth: ['goth', 'gothic'], burlesque: ['burlesque'], cosmic: ['cosmic', 'space'], 'sci fi': ['sci fi', 'sci-fi', 'science fiction'], steampunk: ['steampunk'], fantasy: ['fantasy', 'fairy'], classic: ['classic', 'traditional', 'timeless', 'vintage'],
+  warrior: ['warrior', 'warriors', 'warrior-inspired'], goddess: ['goddess'], queen: ['queen'], cleopatra: ['cleopatra', 'egyptian'], robot: ['robot'], alien: ['alien'], angel: ['angel'], demon: ['demon', 'devil'], 'drag queen': ['drag queen'], dancer: ['dancer', 'dance'], performer: ['performer', 'performance'], dj: ['dj'], showgirl: ['showgirl', 'show girl'], 'go go dancer': ['go go', 'gogo', 'go-go'], 'pole dancer': ['pole dancer', 'pole dance'], maleficent: ['maleficent', 'dark fairy'], witch: ['witch', 'dark witch'], cat: ['cat', 'kitty'], bunny: ['bunny', 'rabbit'], couple: ['couple', 'couples', 'matching'],
   men: ['men', 'male', 'mens', "men's"], women: ['women', 'woman', 'female', 'womens', "women's", 'ladies', 'lady'], couples: ['couple', 'couples', 'matching']
 };
 
@@ -252,13 +252,6 @@ async function saveDecisionAction(formData) {
     return saveFailure(
       'missing_canonical_product_truth',
       'Сервер не нашёл канонический Product Truth выбранного товара.',
-      requestId,
-    );
-  }
-  if (!canonicalProduct.sellableOffer || canonicalProduct.sellableOffer.status !== 'ready') {
-    return saveFailure(
-      'option_truth_mismatch',
-      'Текущий selector товара не даёт однозначно подтвердить продаваемые опции. SEO-решение не записано.',
       requestId,
     );
   }

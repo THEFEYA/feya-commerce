@@ -729,3 +729,97 @@ test('multiple selected strategy modes resolve to balanced scoring', () => {
   assert.equal(normalizeStrategy(['demand', 'niche']), 'balanced');
   assert.equal(normalizeStrategy('demand'), 'demand');
 });
+
+test('rare brown and classic axes remain optional but retrieve a matching harness query', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: 'de38a842-37c4-40a7-86b4-393341c4c9aa',
+      card_title: 'Deluxe Leather Harness for Men',
+      source_category_label: 'Harnesses',
+      sellable_offer_components: ['Harness Top'],
+      sellable_offer: { status: 'ready', component_labels: ['Harness Top'] },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['top', 'harness'],
+      sellable_component_axes: ['harness'],
+      search_only_component_axes: ['top'],
+      material: ['brown', 'leather'],
+      event: ['photoshoot'],
+      style: ['classic'],
+      audience: ['men'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'classic brown leather harness', keyword_norm: 'classic brown leather harness', bank_bucket: 'product', avg_monthly_searches: 40 },
+    ],
+  });
+
+  assert.equal(result.keywords[0]?.keyword_norm, 'classic brown leather harness');
+  assert.deepEqual(result.diagnostics.product_colors, ['brown']);
+  assert.deepEqual(result.diagnostics.product_styles, ['classic']);
+});
+
+test('owner-reviewed red outfit fallback promotes only the exact validated whole-product query', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: 'f473fb62-0440-473c-a7fb-a52dccafebc6',
+      card_title: 'Red Burlesque Dress with Spine-Tail',
+      source_category_label: 'Costume Set',
+      sellable_offer_components: ['Top', 'Skirt'],
+      sellable_offer: { status: 'ready', component_labels: ['Top', 'Skirt'] },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['top', 'skirt', 'spine', 'tail'],
+      sellable_component_axes: ['top', 'skirt'],
+      search_only_component_axes: ['spine', 'tail'],
+      material: ['red'],
+      event: ['stage', 'drag'],
+      style: ['glam', 'burlesque'],
+      persona: ['drag queen', 'performer'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'red stage outfit', keyword_norm: 'red stage outfit', bank_bucket: 'collection', avg_monthly_searches: 40 },
+      { ...baseMetric, keyword: 'stage performance outfit', keyword_norm: 'stage performance outfit', bank_bucket: 'collection', avg_monthly_searches: 70 },
+    ],
+  });
+
+  const primary = result.keywords.find((row) => row.role === 'primary');
+  assert.equal(primary?.keyword_norm, 'red stage outfit');
+  assert.equal(primary?.whole_product_intent, true);
+  assert.equal(primary?.owner_reviewed_pdp_primary, true);
+  assert.equal(result.keywords.find((row) => row.keyword_norm === 'stage performance outfit')?.role, 'supporting');
+});
+
+test('owner-reviewed dance fallback keeps the complete costume as Primary', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: 'ffa74da5-c2e1-4c3a-b460-50d1aae09f56',
+      card_title: 'Exclusive Dance Costume Set with Bodysuit and Leg Covers',
+      source_category_label: 'Bodysuit',
+      sellable_offer_components: ['Bodysuit', 'Leg Covers'],
+      sellable_offer: { status: 'ready', component_labels: ['Bodysuit', 'Leg Covers'] },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['bodysuit', 'legs'],
+      sellable_component_axes: ['bodysuit', 'legs'],
+      search_only_component_axes: [],
+      material: ['black', 'gold', 'fabric'],
+      event: ['stage'],
+      style: ['futuristic', 'glam'],
+      persona: ['dancer', 'performer', 'showgirl', 'go go dancer'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'bodysuit dance costume', keyword_norm: 'bodysuit dance costume', bank_bucket: 'product', avg_monthly_searches: 110 },
+      { ...baseMetric, keyword: 'dance costume for ladies', keyword_norm: 'dance costume for ladies', bank_bucket: 'collection', avg_monthly_searches: 590 },
+    ],
+  });
+
+  const primary = result.keywords.find((row) => row.role === 'primary');
+  assert.equal(primary?.keyword_norm, 'dance costume for ladies');
+  assert.equal(primary?.owner_reviewed_pdp_primary, true);
+  assert.equal(result.keywords.find((row) => row.keyword_norm === 'bodysuit dance costume')?.role, 'secondary');
+});

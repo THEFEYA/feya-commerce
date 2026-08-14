@@ -143,6 +143,8 @@ const FOCUS_VALUE_ALIASES: Record<string, string[]> = {
   cosplayer: ['cosplayer', 'cosplayers', 'cosplay'],
   creator: ['creator', 'creators', 'blogger', 'bloggers'],
   warrior: ['warrior', 'warrior-inspired'],
+  witch: ['witch', 'witch-inspired', 'dark witch'],
+  classic: ['classic', 'vintage-inspired', 'vintage inspired', 'timeless'],
   'burning man': ['burning man'],
   festival: ['festival', 'festivals'],
   rave: ['rave', 'raves'],

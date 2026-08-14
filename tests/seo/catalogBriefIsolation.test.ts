@@ -10,6 +10,26 @@ test('catalog contract is isolated from the hardcoded pilot brief', () => {
   assert.equal(catalog.includes("PILOT_PRODUCT_ID"), false);
 });
 
+test('the exact owner-reviewed PDP override is applied before collection demotion', () => {
+  const catalog = readFileSync(new URL('../../lib/seoCatalogBrief.ts', import.meta.url), 'utf8');
+  const override = catalog.indexOf("if (ownerReviewedPdpPrimary) return 'primary'");
+  const collection = catalog.indexOf("if (COLLECTION_BUCKET_PATTERN.test(bucket)) return 'collection'");
+
+  assert.ok(override > -1);
+  assert.ok(override < collection);
+});
+
+test('Listing Master persists unresolved Product Truth focus without opening generation', () => {
+  const listingMaster = readFileSync(
+    new URL('../../app/admin/listing-master/ListingMasterPage.tsx', import.meta.url),
+    'utf8',
+  );
+
+  assert.equal(listingMaster.includes("return saveFailure(\n      'option_truth_mismatch'"), false);
+  assert.ok(listingMaster.includes("decisionStatus === 'blocked_product_truth'"));
+  assert.ok(listingMaster.includes("status.code === 'ready' && decisionIsCurrent"));
+});
+
 test('catalog route uses one bounded writer with no automatic editor or retry', () => {
   const route = readFileSync(
     new URL('../../app/api/admin/seo-engine/catalog-draft-generate/route.ts', import.meta.url),
