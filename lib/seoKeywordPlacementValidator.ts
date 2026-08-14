@@ -291,7 +291,7 @@ function contentTokens(value: string) {
 
 function stemToken(token: string) {
   if (token.endsWith('ies') && token.length > 4) return `${token.slice(0, -3)}y`;
-  if (token.endsWith('es') && token.length > 4) return token.slice(0, -2);
+  if (/(?:sses|xes|zes|ches|shes)$/.test(token) && token.length > 4) return token.slice(0, -2);
   if (token.endsWith('s') && !token.endsWith('ss') && token.length > 3) return token.slice(0, -1);
   return token;
 }

@@ -85,6 +85,20 @@ test('allows singular and plural grammatical variation', () => {
   assert.equal(result.issues.some((issue) => issue.code === 'primary_missing_seo_title'), false);
 });
 
+test('matches plural costumes to singular costume in natural primary body copy', () => {
+  const value = {
+    ...output(),
+    seo_title: 'Halloween Costumes with Red Bodysuit',
+    h1: 'Halloween Costumes with Red Bodysuit',
+    meta_description: 'Halloween costumes with red bodysuit styling for a bold demon-inspired character.',
+    intro: 'This red bodysuit costume is designed for Halloween and cosplay.',
+  };
+  const result = validateSeoKeywordPlacement(value, contract('halloween costumes with red bodysuit'));
+  const primary = result.placements.find((item) => item.role === 'primary');
+  assert.equal(result.issues.some((issue) => issue.code === 'primary_missing_body'), false);
+  assert.ok(primary?.fields.includes('intro'));
+});
+
 test('uses exact primary repetition as a stuffing guard rather than a density target', () => {
   const value = output();
   value.pdp_blocks = [{
