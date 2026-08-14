@@ -307,6 +307,33 @@ test('repairs the Red Bodysuit Arms Set control copy without another writer call
   assert.doesNotMatch(normalized.pdp_blocks[2].body, /goth|fantasy/i);
 });
 
+test('repairs the Silver Bodysuit Legs Set control copy without another writer call', () => {
+  const normalized = normalizeSeoEditorialCandidate({
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        body: 'For stage and cosplay, this robot armor outfit brings a bold futuristic edge to your look. Its glossy, mirror-like coating creates a polished metal look. The finish helps the piece stand out under bright lights, making it feel ready for performances, photos, and high-impact moments.',
+      },
+      {
+        block_key: 'main_description',
+        body: 'We design at TheFEYA from our own ideas, creating a robot armor outfit for women who want a stronger presence on stage. We keep the look original so you can build a character of your own through personal styling choices. We want the final impression to feel futuristic, bold, and unmistakably yours.',
+      },
+    ],
+    generation_notes: [],
+  }, {
+    primary_keyword: 'robot armor costume',
+    selected_events: ['stage', 'cosplay'],
+    selected_styles: ['post apocalyptic', 'cyberpunk', 'sci fi'],
+    included_components: ['Bodysuit', 'Single Leg Cover'],
+    product_color: 'Silver',
+  });
+
+  assert.match(normalized.pdp_blocks[0].body, /sci-fi armor costume/);
+  assert.doesNotMatch(normalized.pdp_blocks[0].body, /futuristic/i);
+  assert.match(normalized.pdp_blocks[1].body, /finished visual identity/);
+  assert.doesNotMatch(normalized.pdp_blocks[1].body, /futuristic|personal styling choices/i);
+});
+
 test('adds a supported product color to the deterministic SEO identity', () => {
   const normalized = normalizeDeterministicSeoIdentity({
     seo_title: 'Draft title',
