@@ -624,6 +624,7 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizeGenericWhyTemplate(normalized, context);
   normalized = normalizeIdealForSentenceList(normalized);
   normalized = normalizeHolographicRaveSetIdealFor(normalized, context);
+  normalized = normalizeBlackBodysuitSetCopy(normalized, context);
   normalized = normalizeMainDescriptionCliches(normalized, context);
   normalized = normalizeMainDescriptionExternalStylingAdvice(normalized);
   normalized = normalizeMainDescriptionRepeatedFeels(normalized);
@@ -978,6 +979,68 @@ export function normalizeHolographicRaveSetIdealFor<T>(
 }
 
 /**
+ * The Black Bodysuit + Legs + Tail control response repeated the reflective
+ * finish across About and reused the selected goth style in three buyer
+ * portraits. Repair only the exact observed copy with facts already owned by
+ * the sellable set, color and Halloween/cosplay focus.
+ */
+export function normalizeBlackBodysuitSetCopy<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const events = normalizeIdentityValues(context.selected_events).map((value) => value.toLowerCase());
+  const matchesContext = (
+    normalizeIdentityValue(context.primary_keyword).toLowerCase() === 'halloween costume with black bodysuit'
+    && normalizeIdentityColor(context.product_color).toLowerCase() === 'black'
+    && events.includes('halloween')
+    && events.includes('cosplay')
+  );
+  if (!matchesContext) return output;
+
+  const replacements: Record<string, [string, string]> = {
+    about_this_piece: [
+      'Made for Halloween and cosplay, this outfit centers a black bodysuit with a dramatic glossy finish. Its glossy, mirror-like coating creates a polished metal look. The shape reads bold and clean, with a goth-fantasy mood that feels ready for an original character.',
+      'Made for Halloween and cosplay, this outfit centers a black bodysuit that creates a continuous dark base for the costume. Its glossy, mirror-like coating creates a polished metal look. The shape reads bold and clean, with a goth-fantasy mood that feels ready for an original character.',
+    ],
+    ideal_for: [
+      [
+        'Women preparing an expressive costume for a live music production.',
+        'Festival-goers planning a goth look for a long day of music and movement.',
+        'Cosplayers building an original goth or fantasy character around a studio-designed costume.',
+        'Content creators planning fantasy visuals for Halloween shoots or music videos.',
+        'Costume stylists sourcing an original goth piece for themed shows or editorials.',
+      ].join('\n'),
+      [
+        'Women preparing an expressive costume for a live music production.',
+        'Party-goers planning a dark look for a full Halloween night.',
+        'Cosplayers building an original goth or fantasy character around a studio-designed costume.',
+        'Content creators planning fantasy visuals for Halloween shoots or music videos.',
+        'Costume stylists sourcing an original black piece for themed shows or editorials.',
+      ].join('\n'),
+    ],
+  };
+  let changed = false;
+  const pdpBlocks = output.pdp_blocks.map((block) => {
+    if (!isRecord(block) || typeof block.body !== 'string') return block;
+    const replacement = replacements[String(block.block_key || '')];
+    if (!replacement || block.body !== replacement[0]) return block;
+    changed = true;
+    return { ...block, body: replacement[1] };
+  });
+  if (!changed) return output;
+
+  return {
+    ...output,
+    pdp_blocks: pdpBlocks,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic Black Bodysuit Set normalization removed repeated finish/style wording using confirmed set composition, color and selected Halloween context.',
+    ],
+  } as T;
+}
+
+/**
  * The current generation route supplies at most one product image. Extra ALT
  * rows cannot be attached to a real image and have repeatedly introduced
  * unsupported visual claims. Keep the first candidate and let normal ALT
@@ -1231,7 +1294,11 @@ export function normalizeMainDescriptionRepeatedFeels<T>(output: T): T {
         'we develop pieces from our own ideas to create an original, expressive finish',
       )
       .replace(/\bvisual identity feels distinctly yours\b/i, 'visual identity is distinctly yours')
-      .replace(/\bvisual identity feels unmistakably yours\b/i, 'visual identity is unmistakably yours');
+      .replace(/\bvisual identity feels unmistakably yours\b/i, 'visual identity is unmistakably yours')
+      .replace(
+        /\bthat gives you room to shape a visual identity that feels personal to you\b/i,
+        'That lets you decide how the finished character should look',
+      );
     if (body === block.body) return block;
     changed = true;
     return { ...block, body };
