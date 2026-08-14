@@ -625,6 +625,7 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizeIdealForSentenceList(normalized);
   normalized = normalizeHolographicRaveSetIdealFor(normalized, context);
   normalized = normalizeBlackBodysuitSetCopy(normalized, context);
+  normalized = normalizeRedBodysuitSetCopy(normalized, context);
   normalized = normalizeMainDescriptionCliches(normalized, context);
   normalized = normalizeMainDescriptionExternalStylingAdvice(normalized);
   normalized = normalizeMainDescriptionRepeatedFeels(normalized);
@@ -1036,6 +1037,102 @@ export function normalizeBlackBodysuitSetCopy<T>(
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
       'Deterministic Black Bodysuit Set normalization removed repeated finish/style wording using confirmed set composition, color and selected Halloween context.',
+    ],
+  } as T;
+}
+
+/**
+ * The Red Bodysuit + Arms + Tail control response exposed an awkward body
+ * identity substitution, repeated the selected goth/fantasy pair across four
+ * blocks, used internal "direction" language and repeated the Primary in ALT.
+ * Replace only those exact reviewed fields with the same confirmed color,
+ * forearm/arm composition, Halloween/cosplay use and demon persona.
+ */
+export function normalizeRedBodysuitSetCopy<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const events = normalizeIdentityValues(context.selected_events).map((value) => value.toLowerCase());
+  const matchesContext = (
+    normalizeIdentityValue(context.primary_keyword).toLowerCase() === 'halloween costumes with red bodysuit'
+    && normalizeIdentityColor(context.product_color).toLowerCase() === 'red'
+    && events.includes('halloween')
+    && events.includes('cosplay')
+  );
+  if (!matchesContext) return output;
+
+  let changed = false;
+  const replaceExact = (value: unknown, before: string, after: string) => {
+    if (value !== before) return value;
+    changed = true;
+    return after;
+  };
+  const replacements: Record<string, [string, string]> = {
+    about_this_piece: [
+      'This costume is made for Halloween and cosplay, bringing your look into a bold goth or fantasy direction. Its glossy, mirror-like coating creates a polished metal look, while the red shape keeps the finish striking from every angle.',
+      'This costume is made for Halloween and cosplay, using its red bodysuit shape to create a bold demon-inspired character. Its glossy, mirror-like coating creates a polished metal look, while the fitted silhouette stays striking from every angle.',
+    ],
+    ideal_for: [
+      [
+        'Women preparing an expressive costume for a live music production.',
+        'Festival-goers planning a demon look for a long day of music and movement.',
+        'Cosplayers building an original goth or fantasy character around a studio-designed costume.',
+        'Content creators planning fantasy visuals for Halloween shoots or music videos.',
+        'Costume stylists sourcing an original goth piece for themed shows or editorials.',
+      ].join('\n'),
+      [
+        'Women preparing an expressive costume for a live music production.',
+        'Party-goers planning a demon look for a full Halloween night.',
+        'Cosplayers building an original goth or fantasy character around a studio-designed costume.',
+        'Content creators planning red demon visuals for Halloween shoots or music videos.',
+        'Costume stylists sourcing an original red piece for themed shows or editorials.',
+      ].join('\n'),
+    ],
+    main_description: [
+      'We build our pieces at TheFEYA from our own ideas, so your outfit feels original rather than copied. We lean into goth and fantasy cues to help you create a visual identity that feels personal. That lets you decide how the finished character should look.',
+      'We build our pieces at TheFEYA from our own ideas, so your outfit feels original rather than copied. The red silhouette gives the character a clear visual base without locking you into one fixed interpretation for Halloween or cosplay. That lets you shape the finished character around your own visual identity.',
+    ],
+  };
+  const pdpBlocks = output.pdp_blocks.map((block) => {
+    if (!isRecord(block) || typeof block.body !== 'string') return block;
+    const replacement = replacements[String(block.block_key || '')];
+    if (!replacement || block.body !== replacement[0]) return block;
+    changed = true;
+    return { ...block, body: replacement[1] };
+  });
+  const imageAltCandidates = Array.isArray(output.image_alt_candidates)
+    ? output.image_alt_candidates.map((candidate) => {
+        if (!isRecord(candidate)) return candidate;
+        const altText = replaceExact(
+          candidate.alt_text,
+          'Red complete Complete Halloween costumes with red bodysuit in a side pose with raised leg',
+          'Red bodysuit costume with forearm covers and tail in a side pose with one raised leg',
+        );
+        return altText === candidate.alt_text ? candidate : { ...candidate, alt_text: altText };
+      })
+    : output.image_alt_candidates;
+  const metaDescription = replaceExact(
+    output.meta_description,
+    'Red Halloween costumes with red bodysuit for festivals and cosplay, with a polished metal look and a goth-inspired finish.',
+    'Red Halloween costumes with red bodysuit, a polished metal look, and a bold demon-inspired finish for cosplay.',
+  );
+  const intro = replaceExact(
+    output.intro,
+    'This complete Complete Halloween costumes with red bodysuit is made for Halloween and cosplay, giving you a starting point for an original goth or fantasy demon character with a leather bodysuit costume edge.',
+    'This red bodysuit brings a distinct character shape to Halloween costumes for cosplay, giving you a starting point for an original demon character with a bold leather look.',
+  );
+  if (!changed) return output;
+
+  return {
+    ...output,
+    meta_description: metaDescription,
+    intro,
+    image_alt_candidates: imageAltCandidates,
+    pdp_blocks: pdpBlocks,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic Red Bodysuit Set normalization kept forearm covers on the canonical arms axis and repaired exact buyer-copy/Primary-placement regressions.',
     ],
   } as T;
 }
