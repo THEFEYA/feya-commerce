@@ -50,7 +50,7 @@ export default function VerifiedSaveButton({ action, disabled = false }: Props) 
 
   return <>
     <button type="button" onClick={save} className="btn-ghost" disabled={disabled || isPending}>
-      <Save size={13} /> {isPending ? 'Подтверждаю и сохраняю…' : 'Подтвердить состав и сохранить решение'}
+      <Save size={13} /> {isPending ? 'Сохраняю SEO-решение…' : 'Сохранить SEO-решение'}
     </button>
     {error ? <span role="alert" className="self-center text-[11px] text-[var(--ruby-soft)]">{error}</span> : null}
   </>;
