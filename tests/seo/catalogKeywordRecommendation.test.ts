@@ -540,7 +540,10 @@ test('versioned SEO axes retrieve a harness page entity without rewriting sellab
     result.keywords.find((row) => row.role === 'primary')?.keyword_norm,
     "men's chest harness",
   );
-  assert.equal(result.keywords.some((row) => row.keyword_norm === 'leather harness top'), true);
+  assert.equal(
+    result.keywords.find((row) => row.keyword_norm === 'leather harness top')?.role,
+    'secondary',
+  );
   assert.equal(result.keywords.some((row) => row.keyword_norm === 'black festival top'), false);
   assert.deepEqual(result.diagnostics.product_component_families, ['choker', 'legs']);
   assert.deepEqual(result.diagnostics.product_primary_entity_families, ['harness']);

@@ -592,7 +592,9 @@ function scoreRow(
   const mainEntityWholeProductIntent = primaryEntityMatch.length > 0
     && searchOnlyComponentMatch.length === 0
     && discoveryAliasMatch.length === 0;
-  const genericWholeProductIntent = hasWholeProductEntity(keyword)
+  const genericWholeProductIntent = searchOnlyComponentMatch.length === 0
+    && discoveryAliasMatch.length === 0
+    && hasWholeProductEntity(keyword)
     && (
       !profile.presentation.requires_whole_product_entity
       || narrowComponentMatch.length === 0
