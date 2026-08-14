@@ -1450,6 +1450,54 @@ export function normalizeBatchFiveEditorialBlacklistCopy<T>(
     ],
     'halloween costume with black bodysuit::black': [
       [
+        'Black Halloween costume with black bodysuit, glossy finish, and a goth-fantasy edge for Halloween and cosplay.',
+        'Black Halloween costume with black bodysuit, featuring a smooth high-gloss finish for cosplay nights and creative photo or video shoots.',
+      ],
+      [
+        'This Halloween outfit with black bodysuit is made for Halloween and cosplay, giving you a bold base for an original goth or fantasy character.',
+        'This black bodysuit costume is designed for Halloween and cosplay, where its original studio design creates a bold, distinctive goth-fantasy look.',
+      ],
+      [
+        'Made for Halloween and cosplay, this outfit centers a black bodysuit that creates a continuous dark base for the costume. Its glossy, mirror-like coating creates a polished metal look. The shape reads bold and clean, with a goth-fantasy mood that feels ready for an original character.',
+        'Made for Halloween and cosplay, this black costume uses a smooth, high-gloss surface to create a sleek, latex-like character. The polished finish gives the original goth-fantasy design a bold, dark presence in motion, photos, and stage lighting.',
+      ],
+      [
+        [
+          'The original studio-designed black shape gives the outfit a defined character while leaving the final Halloween look open to your own choices.',
+          'A comfortable feel against the body helps through longer Halloween events and live performances.',
+          'With careful storage, the structured material keeps its form ready for the next event.',
+        ].join('\n'),
+        [
+          'Our original studio design gives the outfit a distinctive, memorable character that feels genuinely personal.',
+          'The material feels comfortable against the body, making the costume easier to wear through longer events or performances.',
+          'With careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
+        ].join('\n'),
+      ],
+      [
+        [
+          'Women preparing an expressive costume for a live music production.',
+          'Party-goers planning a dark look for a full Halloween night.',
+          'Cosplayers building an original goth or fantasy character around a studio-designed costume.',
+          'Content creators planning fantasy visuals for Halloween shoots or music videos.',
+          'Costume stylists sourcing an original black piece for themed shows or editorials.',
+        ].join('\n'),
+        [
+          'Women planning an expressive costume for a live music production.',
+          'Party-goers planning a dark look for a full Halloween night.',
+          'Cosplayers building an original goth or fantasy character around a studio-designed costume.',
+          'Content creators planning dramatic visuals for Halloween shoots or music videos.',
+          'Costume stylists sourcing an original black piece for themed shows or editorials.',
+        ].join('\n'),
+      ],
+      [
+        'We keep the look bold, dark, and open to your interpretation. At TheFEYA, we develop pieces from our own ideas, so the result feels personal rather than copied. That leaves you free to decide how the finished character should look and feel for Halloween or cosplay.',
+        'At TheFEYA, we develop this black Halloween costume from our own ideas. Its high-gloss, latex-like finish and fashion-led goth-fantasy character give the original studio design a bold, memorable presence. The confident look supports personal style across Halloween nights, cosplay appearances, stage performance, and creative photo or video shoots.',
+      ],
+      [
+        'Black Halloween outfit with black bodysuit in a studio pose with one leg cover and tail detail',
+        'woman wearing a black bodysuit costume with leg covers and tail on a studio backdrop',
+      ],
+      [
         'This Halloween outfit with black bodysuit is made for Halloween and cosplay, giving you a starting point for an original goth or fantasy character.',
         'This Halloween outfit with black bodysuit presents an original goth- or fantasy-inspired character in TheFEYA’s bold, fashion-led style.',
       ],
@@ -1464,6 +1512,54 @@ export function normalizeBatchFiveEditorialBlacklistCopy<T>(
     ],
     'halloween costumes with red bodysuit::red': [
       [
+        'Red Halloween costumes with red bodysuit, a polished metal look, and a bold demon-inspired finish for cosplay.',
+        'Halloween costumes with red bodysuit styling, a smooth high-gloss finish, and a bold demon-inspired character for Halloween and cosplay.',
+      ],
+      [
+        'This red bodysuit brings a distinct character shape to Halloween costumes for cosplay, supporting an original demon character with a bold leather look.',
+        'This red bodysuit costume is designed for Halloween and cosplay, where its original studio design creates a bold, distinctive demon-inspired look.',
+      ],
+      [
+        'This costume is made for Halloween and cosplay, using its red bodysuit shape to create a bold demon-inspired character. Its glossy, mirror-like coating creates a polished metal look, while the fitted shape stays striking from every angle.',
+        'Made for Halloween and cosplay, this red bodysuit costume combines a smooth, high-gloss surface with a sleek, latex-like character. The bold fitted design looks polished in motion, while the vivid red finish gives photos and live performances a striking demon-inspired edge.',
+      ],
+      [
+        [
+          'An original studio-made red shape gives you room to define the finished Halloween look in your own way.',
+          'The comfortable material helps the piece stay wearable through longer events or performances.',
+          'Its structure holds its form between wears when stored with care.',
+        ].join('\n'),
+        [
+          'Our original studio design gives the outfit a distinctive, memorable character that feels genuinely personal.',
+          'The material feels comfortable against the body, making the costume easier to wear through longer events or performances.',
+          'With careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
+        ].join('\n'),
+      ],
+      [
+        [
+          'Women preparing an expressive costume for a live music production.',
+          'Party-goers planning a demon look for a full Halloween night.',
+          'Cosplayers building an original goth or fantasy character around a studio-designed costume.',
+          'Content creators planning red demon visuals for Halloween shoots or music videos.',
+          'Costume stylists sourcing an original red piece for themed shows or editorials.',
+        ].join('\n'),
+        [
+          'Women planning an expressive costume for a live music production.',
+          'Party-goers preparing a vivid demon look for a full Halloween night.',
+          'Cosplayers building an original goth or fantasy character around a studio-designed costume.',
+          'Drag performers preparing a dramatic red look for a live show.',
+          'Content creators planning bold visuals for themed shoots or music videos.',
+        ].join('\n'),
+      ],
+      [
+        'We build our pieces at TheFEYA from our own ideas, so your outfit feels original rather than copied. The red shape gives the character a strong visual base without locking you into one fixed interpretation for Halloween or cosplay. That lets you make the look your own.',
+        'At TheFEYA, we develop this red demon-inspired costume from our own ideas. Its smooth high-gloss finish and fashion-led goth-fantasy styling give the original studio design a bold, glamorous character. The memorable look supports confident self-expression across Halloween nights, original cosplay, drag performance, and creative photo or video shoots.',
+      ],
+      [
+        'Red bodysuit costume with forearm covers and tail in a side pose with one raised leg',
+        'red demon-inspired bodysuit costume posed in profile against a studio backdrop',
+      ],
+      [
         'This red bodysuit brings a distinct character shape to Halloween costumes for cosplay, giving you a starting point for an original demon character with a bold leather look.',
         'This red bodysuit costume creates a bold demon-inspired character for Halloween and cosplay with a glossy leather look.',
       ],
@@ -1477,6 +1573,50 @@ export function normalizeBatchFiveEditorialBlacklistCopy<T>(
       ],
     ],
     'robot armor costume::silver': [
+      [
+        'Silver robot armor costume with a glossy, mirror-like coating for stage performances.',
+        'Silver robot armor costume with a metal-inspired finish for stage and cosplay, made for striking cyberpunk moments.',
+      ],
+      [
+        'This robot armor outfit is made for the stage and cosplay, giving you a bold base for an original post apocalyptic or cyberpunk showgirl character.',
+        'This robot armor outfit is designed for the stage and cosplay, where its original studio design creates a bold, distinctive look.',
+      ],
+      [
+        'For stage and cosplay, this sci-fi armor costume brings a bold robotic edge to your look. Its glossy, mirror-like coating creates a polished metal look. The finish helps the piece stand out under bright lights, making it ready for performances, photos, and high-impact moments.',
+        'For stage and cosplay, this robot armor costume creates a sleek silver metallic bodysuit look with a fashion-led edge. Its smooth, high-gloss surface gives the finish a polished, metal-inspired character. The bold sci-fi styling looks striking in motion and under performance lighting.',
+      ],
+      [
+        [
+          'The original studio-designed silver shape gives the outfit a defined stage presence while leaving the final look open to your own choices.',
+          'A comfortable feel against the body helps through longer stage events and live performances.',
+          'With careful storage, the structured material keeps its form ready for the next event.',
+        ].join('\n'),
+        [
+          'Our original studio design gives the outfit a distinctive, memorable character that feels genuinely personal.',
+          'The material feels comfortable against the body, making the costume easier to wear through longer events or performances.',
+          'With careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
+        ].join('\n'),
+      ],
+      [
+        [
+          'Women preparing an expressive costume for a live music production.',
+          'Festival-goers planning a robot look for a long day of music and movement.',
+          'Cosplayers building an original post apocalyptic or cyberpunk character around a studio-designed costume.',
+          'Live performers preparing a robot look for a stage show or theatrical role.',
+          'Content creators planning cyberpunk visuals for stage shoots or music videos.',
+        ].join('\n'),
+        [
+          'Women planning an expressive costume for a live music production.',
+          'Festival-goers planning a robot look for a long day of music and movement.',
+          'Cosplayers building an original post apocalyptic or cyberpunk character around a studio-designed costume.',
+          'Live performers preparing a robot look for a stage show or theatrical role.',
+          'Content creators planning cyberpunk visuals for stage shoots or music videos.',
+        ].join('\n'),
+      ],
+      [
+        'We design at TheFEYA from our own ideas, creating a robot armor outfit for women who want a stronger presence on stage. The silver shape gives you a strong character base while leaving the final interpretation open. You can make the look your own for a performance or cosplay role.',
+        'At TheFEYA, we designed this silver robot armor costume from our own ideas. Its high-gloss metal-inspired finish and bold sci-fi styling give the original studio design a distinctive, glamorous character. The memorable result supports confident self-expression on stage, in original cosplay, and across creative photo or video shoots.',
+      ],
       [
         'This robot armor outfit is made for the stage and cosplay, giving you a starting point for an original post apocalyptic or cyberpunk showgirl character in a robot armor outfit.',
         'This robot armor outfit brings an original post-apocalyptic or cyberpunk showgirl character to the stage and cosplay.',
@@ -1510,6 +1650,13 @@ export function normalizeBatchFiveEditorialBlacklistCopy<T>(
       ? { ...block, body: replaceExact(block.body) }
       : block
   ));
+  const imageAltCandidates = Array.isArray(output.image_alt_candidates)
+    ? output.image_alt_candidates.map((candidate) => (
+        isRecord(candidate) && typeof candidate.alt_text === 'string'
+          ? { ...candidate, alt_text: replaceExact(candidate.alt_text) }
+          : candidate
+      ))
+    : output.image_alt_candidates;
   if (!changed) return output;
 
   return {
@@ -1517,6 +1664,7 @@ export function normalizeBatchFiveEditorialBlacklistCopy<T>(
     meta_description: metaDescription,
     intro,
     pdp_blocks: pdpBlocks,
+    image_alt_candidates: imageAltCandidates,
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
       'Deterministic batch-five editorial normalization removed exact handoff-blacklist phrases without changing Product Truth, keyword ownership or purchase configuration.',

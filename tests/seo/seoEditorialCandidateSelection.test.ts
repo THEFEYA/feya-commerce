@@ -389,7 +389,7 @@ test('repairs the Red Bodysuit Arms Set control copy without another writer call
 
   assert.match(normalized.meta_description, /glossy bodysuit and a bold demon-inspired character/);
   assert.equal(normalized.intro, 'This red bodysuit costume creates a bold demon-inspired character for Halloween and cosplay with a glossy leather look.');
-  assert.match(normalized.image_alt_candidates[0].alt_text, /forearm covers and tail/);
+  assert.match(normalized.image_alt_candidates[0].alt_text, /demon-inspired bodysuit costume/);
   assert.doesNotMatch(normalized.image_alt_candidates[0].alt_text, /halloween costumes with red bodysuit/i);
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /direction/i);
   assert.match(normalized.pdp_blocks[0].body, /latex-like look/);
@@ -419,7 +419,7 @@ test('repairs the Silver Bodysuit Legs Set control copy without another writer c
     product_color: 'Silver',
   });
 
-  assert.match(normalized.pdp_blocks[0].body, /sci-fi armor costume/);
+  assert.match(normalized.pdp_blocks[0].body, /silver metallic bodysuit look/);
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /futuristic/i);
   assert.match(normalized.pdp_blocks[1].body, /glossy, metal-inspired finish/);
   assert.match(normalized.pdp_blocks[1].body, /distinctive, glamorous character/);
@@ -530,6 +530,113 @@ test('polishes the live silver review response before storage without another wr
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /layered leg coverage|body-skimming shape/);
   assert.match(normalized.pdp_blocks[1].body, /supports confident self-expression/);
   assert.doesNotMatch(normalized.pdp_blocks[1].body, /reads clearly|robot presence|layered coverage/);
+});
+
+test('renormalizes the saved black, red, and silver review drafts without another writer call', () => {
+  const commonWhy = 'Our original studio design gives the outfit a distinctive, memorable character that feels genuinely personal.\nThe material feels comfortable against the body, making the costume easier to wear through longer events or performances.\nWith careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.';
+  const cases = [
+    {
+      name: 'black',
+      context: {
+        primary_keyword: 'halloween costume with black bodysuit',
+        selected_events: ['halloween', 'cosplay'],
+        selected_styles: ['goth', 'fantasy'],
+        included_components: ['Bodysuit', 'Leg Covers', 'Tail'],
+        product_color: 'Black',
+      },
+      input: {
+        meta_description: 'Black Halloween costume with black bodysuit, glossy finish, and a goth-fantasy edge for Halloween and cosplay.',
+        intro: 'This Halloween outfit with black bodysuit is made for Halloween and cosplay, giving you a bold base for an original goth or fantasy character.',
+        image_alt_candidates: [{ alt_text: 'Black Halloween outfit with black bodysuit in a studio pose with one leg cover and tail detail' }],
+        pdp_blocks: [
+          { block_key: 'about_this_piece', body: 'Made for Halloween and cosplay, this outfit centers a black bodysuit that creates a continuous dark base for the costume. Its glossy, mirror-like coating creates a polished metal look. The shape reads bold and clean, with a goth-fantasy mood that feels ready for an original character.' },
+          { block_key: 'why_youll_love_it', body: 'The original studio-designed black shape gives the outfit a defined character while leaving the final Halloween look open to your own choices.\nA comfortable feel against the body helps through longer Halloween events and live performances.\nWith careful storage, the structured material keeps its form ready for the next event.' },
+          { block_key: 'ideal_for', body: 'Women preparing an expressive costume for a live music production.\nParty-goers planning a dark look for a full Halloween night.\nCosplayers building an original goth or fantasy character around a studio-designed costume.\nContent creators planning fantasy visuals for Halloween shoots or music videos.\nCostume stylists sourcing an original black piece for themed shows or editorials.' },
+          { block_key: 'main_description', body: 'We keep the look bold, dark, and open to your interpretation. At TheFEYA, we develop pieces from our own ideas, so the result feels personal rather than copied. That leaves you free to decide how the finished character should look and feel for Halloween or cosplay.' },
+        ],
+        generation_notes: [],
+      },
+      expectedMeta: 'Black Halloween costume with black bodysuit, featuring a smooth high-gloss finish for cosplay nights and creative photo or video shoots.',
+      expectedIntro: 'This black bodysuit costume is designed for Halloween and cosplay, where its original studio design creates a bold, distinctive goth-fantasy look.',
+      expectedAbout: /sleek, latex-like character/,
+      expectedIdeal: /dramatic visuals/,
+      expectedMain: /supports personal style/,
+      expectedAlt: /leg covers and tail/,
+    },
+    {
+      name: 'red',
+      context: {
+        primary_keyword: 'halloween costumes with red bodysuit',
+        selected_events: ['halloween', 'cosplay'],
+        selected_styles: ['goth', 'fantasy'],
+        included_components: ['Forearm Covers', 'Bodysuit', 'Tail'],
+        product_color: 'Red',
+      },
+      input: {
+        meta_description: 'Red Halloween costumes with red bodysuit, a polished metal look, and a bold demon-inspired finish for cosplay.',
+        intro: 'This red bodysuit brings a distinct character shape to Halloween costumes for cosplay, supporting an original demon character with a bold leather look.',
+        image_alt_candidates: [{ alt_text: 'Red bodysuit costume with forearm covers and tail in a side pose with one raised leg' }],
+        pdp_blocks: [
+          { block_key: 'about_this_piece', body: 'This costume is made for Halloween and cosplay, using its red bodysuit shape to create a bold demon-inspired character. Its glossy, mirror-like coating creates a polished metal look, while the fitted shape stays striking from every angle.' },
+          { block_key: 'why_youll_love_it', body: 'An original studio-made red shape gives you room to define the finished Halloween look in your own way.\nThe comfortable material helps the piece stay wearable through longer events or performances.\nIts structure holds its form between wears when stored with care.' },
+          { block_key: 'ideal_for', body: 'Women preparing an expressive costume for a live music production.\nParty-goers planning a demon look for a full Halloween night.\nCosplayers building an original goth or fantasy character around a studio-designed costume.\nContent creators planning red demon visuals for Halloween shoots or music videos.\nCostume stylists sourcing an original red piece for themed shows or editorials.' },
+          { block_key: 'main_description', body: 'We build our pieces at TheFEYA from our own ideas, so your outfit feels original rather than copied. The red shape gives the character a strong visual base without locking you into one fixed interpretation for Halloween or cosplay. That lets you make the look your own.' },
+        ],
+        generation_notes: [],
+      },
+      expectedMeta: 'Halloween costumes with red bodysuit styling, a smooth high-gloss finish, and a bold demon-inspired character for Halloween and cosplay.',
+      expectedIntro: 'This red bodysuit costume is designed for Halloween and cosplay, where its original studio design creates a bold, distinctive demon-inspired look.',
+      expectedAbout: /sleek, latex-like character/,
+      expectedIdeal: /Drag performers/,
+      expectedMain: /supports confident self-expression/,
+      expectedAlt: /demon-inspired bodysuit costume/,
+    },
+    {
+      name: 'silver',
+      context: {
+        primary_keyword: 'robot armor costume',
+        selected_events: ['stage', 'cosplay'],
+        selected_styles: ['post apocalyptic', 'cyberpunk', 'sci fi'],
+        included_components: ['Bodysuit', 'Single Leg Cover'],
+        product_color: 'Silver',
+      },
+      input: {
+        meta_description: 'Silver robot armor costume with a glossy, mirror-like coating for stage performances.',
+        intro: 'This robot armor outfit is made for the stage and cosplay, giving you a bold base for an original post apocalyptic or cyberpunk showgirl character.',
+        image_alt_candidates: [{ alt_text: 'Silver robot armor outfit posed in a studio with pink and blue lighting.' }],
+        pdp_blocks: [
+          { block_key: 'about_this_piece', body: 'For stage and cosplay, this sci-fi armor costume brings a bold robotic edge to your look. Its glossy, mirror-like coating creates a polished metal look. The finish helps the piece stand out under bright lights, making it ready for performances, photos, and high-impact moments.' },
+          { block_key: 'why_youll_love_it', body: 'The original studio-designed silver shape gives the outfit a defined stage presence while leaving the final look open to your own choices.\nA comfortable feel against the body helps through longer stage events and live performances.\nWith careful storage, the structured material keeps its form ready for the next event.' },
+          { block_key: 'ideal_for', body: 'Women preparing an expressive costume for a live music production.\nFestival-goers planning a robot look for a long day of music and movement.\nCosplayers building an original post apocalyptic or cyberpunk character around a studio-designed costume.\nLive performers preparing a robot look for a stage show or theatrical role.\nContent creators planning cyberpunk visuals for stage shoots or music videos.' },
+          { block_key: 'main_description', body: 'We design at TheFEYA from our own ideas, creating a robot armor outfit for women who want a stronger presence on stage. The silver shape gives you a strong character base while leaving the final interpretation open. You can make the look your own for a performance or cosplay role.' },
+        ],
+        generation_notes: [],
+      },
+      expectedMeta: 'Silver robot armor costume with a metal-inspired finish for stage and cosplay, made for striking cyberpunk moments.',
+      expectedIntro: 'This robot armor outfit is designed for the stage and cosplay, where its original studio design creates a bold, distinctive look.',
+      expectedAbout: /silver metallic bodysuit look/,
+      expectedIdeal: /Women planning an expressive costume/,
+      expectedMain: /supports confident self-expression/,
+      expectedAlt: /pink and blue lighting/,
+    },
+  ];
+
+  for (const control of cases) {
+    const normalized = normalizeSeoEditorialCandidate(control.input, control.context);
+    const block = (key: string) => normalized.pdp_blocks.find((row: any) => row.block_key === key)?.body || '';
+    assert.equal(normalized.meta_description, control.expectedMeta, control.name);
+    assert.equal(normalized.intro, control.expectedIntro, control.name);
+    assert.equal(block('why_youll_love_it'), commonWhy, control.name);
+    assert.match(block('about_this_piece'), control.expectedAbout, control.name);
+    assert.match(block('ideal_for'), control.expectedIdeal, control.name);
+    assert.match(block('main_description'), control.expectedMain, control.name);
+    assert.match(normalized.image_alt_candidates[0].alt_text, control.expectedAlt, control.name);
+    assert.doesNotMatch(
+      JSON.stringify(normalized),
+      /structured material|final interpretation|final Halloween look|polished metal look[^\n]{0,120}(?:black|red)|leaving the final/i,
+      control.name,
+    );
+  }
 });
 
 test('adds a supported product color to the deterministic SEO identity', () => {
