@@ -757,7 +757,7 @@ export function normalizePaidDanceCostumeCopy<T>(
     ],
     intro: [
       'For stage work, this dance outfit for ladies brings a bold, original studio design that feels made for movement and command.',
-      'Created for live performance, this black-and-gold dance outfit combines flexible fabric with mirror-finish details in an original studio design.',
+      'Created for live performance, this black-and-gold dance outfit for ladies combines flexible fabric with mirror-finish details in an original studio design.',
     ],
   };
   const blockReplacements: Record<string, [string, string]> = {

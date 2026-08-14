@@ -195,6 +195,7 @@ test('paid dance draft keeps fabric as the base and leather only in selected gol
   assert.match(normalized.pdp_blocks[0].body, /stretch-fabric base/i);
   assert.match(normalized.pdp_blocks[0].body, /details made from gold mirror-finish vegan leather/i);
   assert.doesNotMatch(normalized.intro, /dance costume for ladies/i);
+  assert.match(normalized.intro, /dance outfit for ladies/i);
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /dance costume for ladies/i);
   assert.match(normalized.pdp_blocks[1].body, /gold finish catches stage light/i);
   assert.match(normalized.pdp_blocks[1].body, /details remain visible/i);
