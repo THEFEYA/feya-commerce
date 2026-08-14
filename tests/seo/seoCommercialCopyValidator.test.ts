@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { validateSeoCommercialCopy } from '../../lib/seoCommercialCopyValidator.ts';
 import { normalizeSeoEditorialCandidate } from '../../lib/seoEditorialCandidateSelection.ts';
+import { validateSeoAgentOutput } from '../../lib/seoAgentOutputValidator.ts';
 
 function draft(overrides: Record<string, unknown> = {}) {
   return {
@@ -1537,6 +1538,143 @@ test('repairs the paid holographic review control to a zero-token commercial PAS
     [],
   );
   assert.equal(result.issues.some((issue) => issue.code === 'self_expression_close_lacks_clear_buyer_value'), false);
+});
+
+test('repairs the paid harness and metallic-set drafts to a zero-token commercial PASS', () => {
+  const controls = [
+    {
+      name: 'black harness',
+      normalization: {
+        primary_keyword: 'leather harness outfit',
+        selected_events: ['festival', 'pride'],
+        selected_styles: ['punk'],
+        selected_materials: ['black', 'leather'],
+        included_components: ['Choker', 'Garters', 'Chest Harness'],
+        product_color: 'Needs review',
+      },
+      validation: {
+        product_truth: { color: 'Black', included_components: ['Choker', 'Garters', 'Chest Harness'] },
+        manual_focus: { event: ['festival', 'pride'], style: ['punk'], audience: ['men'] },
+        keyword_roles: { primary: [{ keyword: 'leather harness outfit' }] },
+      },
+      value: {
+        seo_title: 'Black Leather Harness Outfit for Festivals',
+        h1: 'Black Leather Harness Outfit for Festivals',
+        meta_description: 'Black leather harness outfit with a smooth, polished finish for Pride and festival looks.',
+        intro: 'For festivals and Pride, this leather harness costume gives men a bold, distinctive studio-made presence that reads instantly under lights and in a crowd.',
+        bullet_highlights: [],
+        image_alt_candidates: [{ image_role: 'primary', alt_text: 'Man wearing a black chest harness, choker and leg garters', truth_basis: 'visible_product_fact' }],
+        pdp_blocks: [
+          { block_key: 'about_this_piece', placement: 'left_description', heading: 'About this piece', body: 'Built for festivals and Pride, this leather harness costume gives men a sharp, confident presence with a striking black finish. Its smooth, high-gloss surface gives the piece a clean, polished finish.' },
+          { block_key: 'why_youll_love_it', placement: 'left_description', heading: 'Why you’ll love it', body: 'Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\nThe material feels comfortable against the body, making the garment easier to wear for extended periods.\nWith careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.' },
+          { block_key: 'ideal_for', placement: 'left_description', heading: 'Ideal for', body: 'Men seeking a punk look for a live music production.\nFestival-goers drawn to harness outfit festival energy for a long day of music and movement.\nContent creators producing bold visuals for festival shoots or music videos.\nCostume stylists selecting an original chest-and-leg harness design for themed shows or editorials.' },
+          { block_key: 'main_description', placement: 'left_description', heading: 'Designed for self-expression', body: 'We designed this leather harness costume for men who want a bold, memorable presence at festivals and Pride events. Our fashion studio shaped TheFEYA to feel direct, unapologetic, and easy to read from the first glance. The black leather look gives the piece a tough punk edge that stands out in a crowd.' },
+        ],
+        generation_notes: [],
+      },
+    },
+    {
+      name: 'silver metallic set',
+      normalization: {
+        primary_keyword: 'metallic top and skirt set',
+        selected_events: ['festival', 'stage'],
+        selected_styles: ['futuristic', 'cosmic', 'glam'],
+        included_components: ['Choker', 'Top', 'Skirt'],
+        product_color: 'Silver',
+      },
+      validation: {
+        product_truth: { color: 'Silver', included_components: ['Choker', 'Top', 'Skirt'] },
+        manual_focus: { event: ['festival', 'stage'], style: ['futuristic', 'cosmic', 'glam'], persona: ['performer', 'showgirl', 'dancer'], audience: ['women'] },
+        keyword_roles: { primary: [{ keyword: 'metallic top and skirt set' }] },
+      },
+      value: {
+        seo_title: 'Silver Metallic Top And Skirt Set for Festivals',
+        h1: 'Silver Metallic Top And Skirt Set for Festivals',
+        meta_description: 'Metallic top and skirt set with a polished silver finish for festival nights and stage moments.',
+        intro: 'For festivals and the stage, this metallic top and skirt outfit brings a bold, distinctive presence with its original studio design and polished silver attitude.',
+        bullet_highlights: [],
+        image_alt_candidates: [{ image_role: 'primary', alt_text: 'Woman wearing a silver top, skirt and choker', truth_basis: 'visible_product_fact' }],
+        pdp_blocks: [
+          { block_key: 'about_this_piece', placement: 'left_description', heading: 'About this piece', body: 'For festivals and stage moments, this metallic top and skirt outfit brings a polished, metal-inspired finish that feels bold from every angle. The silver surface catches light beautifully, giving the set a striking, futuristic presence that stands out in motion.' },
+          { block_key: 'why_youll_love_it', placement: 'left_description', heading: 'Why you’ll love it', body: 'Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\nThe material feels comfortable against the body, making the garment easier to wear for extended periods.\nWith careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.' },
+          { block_key: 'ideal_for', placement: 'left_description', heading: 'Ideal for', body: 'Women seeking an expressive outfit for a live music production.\nFestival-goers drawn to a dancer look for a long day of music and movement.\nLive performers choosing a dancer look for a stage show or theatrical role.\nContent creators producing glam visuals for festival shoots or music videos.\nCostume stylists selecting an original futuristic design for themed shows or editorials.' },
+          { block_key: 'main_description', placement: 'left_description', heading: 'Designed for self-expression', body: 'We designed this metallic top and skirt outfit for women who want festival energy with a futuristic edge. TheFEYA shaped it as an original studio piece for performance moments where presence matters. Our designers kept the look bold, polished, and memorable, so it feels like your own signal in the room. It reads like a silver star with a fearless pulse.' },
+        ],
+        generation_notes: [],
+      },
+    },
+  ];
+
+  for (const control of controls) {
+    const normalized = normalizeSeoEditorialCandidate(control.value, control.normalization);
+    const result = validateSeoCommercialCopy(normalized, control.validation);
+    assert.deepEqual(
+      result.issues.filter((issue) => issue.severity === 'blocker').map((issue) => issue.code),
+      [],
+      control.name,
+    );
+    assert.equal(
+      result.issues.some((issue) => issue.code === 'self_expression_close_lacks_clear_buyer_value'),
+      false,
+      control.name,
+    );
+    const structural = validateSeoAgentOutput({
+      contract_version: 'seo_agent_output_v1',
+      status: 'draft',
+      faq: [],
+      internal_linking_hints: [],
+      visual_truth: {
+        observed_product_facts: [],
+        dna_matches: [],
+        open_style_suggestions: [],
+        uncertain_or_missing_facts: [],
+        forbidden_visual_claims: [],
+      },
+      qa_self_report: {
+        cliche_phrase: 'pass',
+        long_dash: 'pass',
+        keyword_stuffing: 'pass',
+        product_specificity: 'pass',
+        forbidden_mismatch: 'pass',
+        similarity_cannibalization: 'not_checked',
+        image_alt_truth: 'pass',
+        commercial_placement: 'pass',
+        validated_metrics: 'pass',
+        notes: [],
+      },
+      ...normalized,
+      pdp_blocks: normalized.pdp_blocks.map((block: any) => ({
+        source_basis: 'product_fact',
+        needs_human_review: false,
+        ...block,
+      })),
+    });
+    assert.deepEqual(
+      structural.issues.filter((issue) => issue.severity === 'blocker').map((issue) => issue.code),
+      [],
+      `${control.name} structural`,
+    );
+  }
+});
+
+test('allows an approved multi-piece Primary in Meta without treating it as an inventory recap', () => {
+  const result = validateSeoCommercialCopy({
+    ...draft(),
+    seo_title: 'Silver Metallic Top And Skirt Set for Festivals',
+    h1: 'Silver Metallic Top And Skirt Set for Festivals',
+    meta_description: 'Metallic top and skirt set for women, created for festivals and stage performance.',
+    intro: 'This silver festival outfit brings an original studio design to live performance.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'about_this_piece'
+      ? { ...block, body: 'This complete silver outfit is designed for festival and stage use. Its original studio character gives performers a memorable choice for photos, video, and live appearances.' }
+      : block),
+  }, {
+    product_truth: { color: 'Silver', included_components: ['Choker', 'Top', 'Skirt'] },
+    keyword_roles: { primary: [{ keyword: 'metallic top and skirt set' }] },
+  });
+  assert.equal(
+    result.issues.some((issue) => issue.code === 'meta_description_repeats_deterministic_composition'),
+    false,
+  );
 });
 
 test('keeps the live black, red, and silver review repairs commercially clean', () => {

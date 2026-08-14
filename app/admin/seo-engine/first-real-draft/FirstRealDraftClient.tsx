@@ -50,11 +50,13 @@ export default function FirstRealDraftClient({
   autoGenerate = false,
   loadSavedDraft = false,
   resaveSavedDraft = false,
+  recoverFailedDraft = false,
 }: {
   initialProductId?: string;
   autoGenerate?: boolean;
   loadSavedDraft?: boolean;
   resaveSavedDraft?: boolean;
+  recoverFailedDraft?: boolean;
 }) {
   const [candidateLoading, setCandidateLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -71,6 +73,8 @@ export default function FirstRealDraftClient({
   const [repairUsed, setRepairUsed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savedCurrentResult, setSavedCurrentResult] = useState(false);
+  const [recoveryText, setRecoveryText] = useState('');
+  const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [workflowNotice, setWorkflowNotice] = useState<string | null>(null);
   const [result, setResult] = useState<Result | null>(null);
   const [storefrontProduct, setStorefrontProduct] = useState<Record<string, any> | null>(null);
@@ -410,6 +414,46 @@ export default function FirstRealDraftClient({
     }
   }
 
+  async function importFailedDraftForRecovery() {
+    if (recoveryLoading || !selectedProductId || !recoveryText.trim()) return;
+    setRecoveryLoading(true);
+    setError(null);
+    setWorkflowNotice(null);
+    try {
+      const payload = JSON.parse(recoveryText);
+      const payloadProductId = String(
+        payload?.source?.product_id
+          || payload?.pipeline_telemetry?.product_id
+          || payload?.seo_pack_draft?.product_truth?.canonical_product_id
+          || '',
+      ).trim();
+      if (payloadProductId !== selectedProductId) {
+        throw new Error('Этот результат относится к другому товару. Восстановление остановлено.');
+      }
+      if (!payload?.generated_draft_output || typeof payload.generated_draft_output !== 'object') {
+        throw new Error('В JSON нет generated_draft_output. OpenAI повторно не запускался.');
+      }
+      const productResponse = await fetch(
+        `/api/admin/seo-engine/storefront-product?product_id=${encodeURIComponent(selectedProductId)}`,
+        { cache: 'no-store' },
+      );
+      const productPayload = await productResponse.json().catch(() => ({}));
+      if (!productResponse.ok || !productPayload?.product) {
+        throw new Error(productPayload?.error || 'Карточка товара не загрузилась.');
+      }
+      setResult({ ...payload, http_status: payload.http_status ?? 422 });
+      setStorefrontProduct(productPayload.product);
+      setRepairUsed(false);
+      setSavedCurrentResult(false);
+      setWorkflowNotice('Несохранённый результат восстановлен локально. OpenAI не вызывался; теперь доступно одно бесплатное детерминированное исправление.');
+      window.setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Не удалось восстановить несохранённый результат.');
+    } finally {
+      setRecoveryLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (
       !autoGenerate
@@ -538,6 +582,27 @@ export default function FirstRealDraftClient({
 
     {error ? <Notice tone="danger">{error}</Notice> : null}
     {workflowNotice ? <Notice tone="success">{workflowNotice}</Notice> : null}
+
+    {recoverFailedDraft ? <section className="min-w-0 rounded-2xl border border-[rgba(212,178,106,.28)] bg-black/25 p-4 sm:p-5">
+      <div className="eyebrow-gold">Восстановление несохранённого результата</div>
+      <p className="mt-2 max-w-3xl text-[12px] leading-relaxed text-[var(--bone-dim)]">
+        Вставьте JSON уже выполненной генерации. Это не вызывает OpenAI, ничего не сохраняет и не публикует; товар и product ID проверяются до загрузки preview.
+      </p>
+      <textarea
+        value={recoveryText}
+        onChange={(event) => setRecoveryText(event.target.value)}
+        placeholder="JSON результата генерации"
+        className="mt-3 min-h-32 w-full rounded-xl border border-[rgba(216,214,211,.16)] bg-black/40 p-3 font-mono text-[11px] text-bone outline-none focus:border-[rgba(212,178,106,.55)]"
+      />
+      <button
+        type="button"
+        onClick={importFailedDraftForRecovery}
+        disabled={recoveryLoading || !recoveryText.trim()}
+        className="btn-ghost mt-3 min-h-11 w-full justify-center px-4 text-center disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        {recoveryLoading ? 'Восстанавливаю…' : 'Восстановить без OpenAI'}
+      </button>
+    </section> : null}
 
     <div className="grid min-w-0 gap-5 2xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,.65fr)]">
       <section className="min-w-0 overflow-hidden rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)]">

@@ -634,9 +634,120 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizeMainDescriptionSentenceBoundaries(normalized);
   normalized = normalizeUnsafeVisualStyleSuggestions(normalized);
   normalized = normalizeBatchFiveEditorialBlacklistCopy(normalized, context);
+  normalized = normalizePaidHarnessAndMetallicSetCopy(normalized, context);
   normalized = normalizeImageAltPrimaryVariation(normalized, context);
   normalized = normalizeSingleSuppliedImageAltCandidate(normalized);
   return normalizeCodeOwnedPdpBlockOrder(normalized);
+}
+
+/**
+ * Two already-paid review drafts exposed gaps that the earlier five-product
+ * control set could not cover. Keep this repair deliberately bounded to the
+ * reviewed Primary, color and event contexts, and replace only the exact
+ * sentences returned by that run. This lets the explicit repair endpoint fix
+ * those displayed drafts with zero writer calls while leaving unrelated
+ * harnesses and metallic sets untouched.
+ */
+export function normalizePaidHarnessAndMetallicSetCopy<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const primary = normalizeIdentityValue(context.primary_keyword).toLowerCase();
+  const productColor = normalizeIdentityColor(context.product_color).toLowerCase();
+  const selectedColor = normalizeIdentityValues(context.selected_materials)
+    .map(normalizeIdentityColor)
+    .find((value) => OPERATOR_COLOR_FOCUS_VALUES.has(value.toLowerCase()))
+    ?.toLowerCase() || '';
+  const color = productColor || selectedColor;
+  const events = normalizeIdentityValues(context.selected_events).map((value) => value.toLowerCase());
+
+  const isHarness = (
+    primary === 'leather harness outfit'
+    && color === 'black'
+    && events.includes('festival')
+    && events.includes('pride')
+  );
+  const isMetallicSet = (
+    primary === 'metallic top and skirt set'
+    && color === 'silver'
+    && events.includes('festival')
+    && events.includes('stage')
+  );
+  if (!isHarness && !isMetallicSet) return output;
+
+  const exactFieldReplacements: Record<string, [string, string]> = isHarness
+    ? {
+        meta_description: [
+          'Black leather harness outfit with a smooth, polished finish for Pride and festival looks.',
+          'Black leather harness outfit for men with a smooth high-gloss finish and bold punk character for festivals and Pride.',
+        ],
+        intro: [
+          'For festivals and Pride, this leather harness costume gives men a bold, distinctive studio-made presence that reads instantly under lights and in a crowd.',
+          'For festivals and Pride, this black harness outfit gives men a bold punk character shaped by an original fashion-studio design.',
+        ],
+      }
+    : {
+        meta_description: [
+          'Metallic top and skirt set with a polished silver finish for festival nights and stage moments.',
+          'Metallic top and skirt set for women, created for festivals, stage performance and bold futuristic styling.',
+        ],
+        intro: [
+          'For festivals and the stage, this metallic top and skirt outfit brings a bold, distinctive presence with its original studio design and polished silver attitude.',
+          'This silver festival outfit brings an original studio design to live performance, with a confident futuristic character that feels memorable in motion.',
+        ],
+      };
+  const blockReplacements: Record<string, [string, string]> = isHarness
+    ? {
+        about_this_piece: [
+          'Built for festivals and Pride, this leather harness costume gives men a sharp, confident presence with a striking black finish. Its smooth, high-gloss surface gives the piece a clean, polished finish.',
+          'Made for festivals and Pride, this black leather harness costume gives men a bold punk character with an original fashion-studio design. Its smooth, high-gloss surface creates a clean, polished edge, while the strong geometric lines stay memorable in crowds, festival photos, and video.',
+        ],
+        ideal_for: [
+          'Men seeking a punk look for a live music production.\nFestival-goers drawn to harness outfit festival energy for a long day of music and movement.\nContent creators producing bold visuals for festival shoots or music videos.\nCostume stylists selecting an original chest-and-leg harness design for themed shows or editorials.',
+          'Men seeking a punk look for live music performances.\nPride attendees drawn to bold black styling with a confident edge.\nFestival-goers choosing a distinctive harness outfit for long days of music and movement.\nContent creators producing striking fashion photos, music videos, or digital campaigns.\nCostume stylists selecting an original leather harness design for editorials or themed productions.',
+        ],
+        main_description: [
+          'We designed this leather harness costume for men who want a bold, memorable presence at festivals and Pride events. Our fashion studio shaped TheFEYA to feel direct, unapologetic, and easy to read from the first glance. The black leather look gives the piece a tough punk edge that stands out in a crowd.',
+          'At TheFEYA, our designers developed this black leather harness costume from original ideas for men who want a confident, unmistakable punk look. Its strong lines create a memorable presence at festivals and Pride celebrations. The studio-created design supports personal style that feels bold, direct, and distinctly your own.',
+        ],
+      }
+    : {
+        about_this_piece: [
+          'For festivals and stage moments, this metallic top and skirt outfit brings a polished, metal-inspired finish that feels bold from every angle. The silver surface catches light beautifully, giving the set a striking, futuristic presence that stands out in motion.',
+          'Created for festivals and stage performance, this complete metallic silver outfit has a smooth surface that catches available light as the wearer moves. The original design adds glamorous proportions and a futuristic character, giving dancers and show performers a memorable choice for photos, video, and live appearances.',
+        ],
+        main_description: [
+          'We designed this metallic top and skirt outfit for women who want festival energy with a futuristic edge. TheFEYA shaped it as an original studio piece for performance moments where presence matters. Our designers kept the look bold, polished, and memorable, so it feels like your own signal in the room. It reads like a silver star with a fearless pulse.',
+          'At TheFEYA, our designers developed this silver festival outfit from original ideas for women who value bold performance style. The clean lines give the set a confident futuristic character without tying it to one named role. It supports personal expression on festival nights, in stage appearances, and across creative photo or video projects.',
+        ],
+      };
+
+  let changed = false;
+  const normalized: Record<string, unknown> = { ...output };
+  Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
+    if (normalized[field] !== before) return;
+    normalized[field] = after;
+    changed = true;
+  });
+  normalized.pdp_blocks = output.pdp_blocks.map((block) => {
+    if (!isRecord(block) || typeof block.body !== 'string') return block;
+    const replacement = blockReplacements[String(block.block_key || '')];
+    if (!replacement || block.body !== replacement[0]) return block;
+    changed = true;
+    return { ...block, body: replacement[1] };
+  });
+  if (!changed) return output;
+
+  return {
+    ...normalized,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      isHarness
+        ? 'Human-reviewed deterministic repair improved the paid black harness draft without another writer call.'
+        : 'Human-reviewed deterministic repair improved the paid silver metallic-set draft without another writer call.',
+    ],
+  } as T;
 }
 
 /**

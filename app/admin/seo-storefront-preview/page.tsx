@@ -49,6 +49,7 @@ export default async function SeoStorefrontPreviewPage({ searchParams }) {
   const autoGenerate = params.generate === '1' && Boolean(initialProductId);
   const loadSavedDraft = params.saved === '1' && Boolean(initialProductId);
   const resaveSavedDraft = params.resave === '1' && loadSavedDraft;
+  const recoverFailedDraft = params.recover === '1' && Boolean(initialProductId);
   // The catalog-wide current/applied audit is optional. It must not run on the
   // critical single-product generation path: the underlying view scans the
   // whole catalog and can exceed Postgres statement_timeout even while this
@@ -82,6 +83,7 @@ export default async function SeoStorefrontPreviewPage({ searchParams }) {
         autoGenerate={autoGenerate}
         loadSavedDraft={loadSavedDraft}
         resaveSavedDraft={resaveSavedDraft}
+        recoverFailedDraft={recoverFailedDraft}
       />
 
       <details className="mt-8 min-w-0 rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4 sm:p-5">

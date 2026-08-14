@@ -117,6 +117,47 @@ test('allows a multi-component Primary to use a whole-product body variation wit
   assert.ok(primary?.fields.includes('intro'));
 });
 
+test('keeps paid harness and metallic-set Primaries in owned fields with natural body variations', () => {
+  const cases = [
+    {
+      keyword: 'leather harness outfit',
+      components: ['Choker', 'Garters', 'Chest Harness'],
+      value: {
+        ...output(),
+        seo_title: 'Black Leather Harness Outfit for Festivals',
+        h1: 'Black Leather Harness Outfit for Festivals',
+        meta_description: 'Black leather harness outfit for men with a smooth high-gloss finish and bold punk character for festivals and Pride.',
+        intro: 'For festivals and Pride, this black harness outfit gives men a bold punk character shaped by an original fashion-studio design.',
+        pdp_blocks: [{ heading: 'About this piece', body: 'Made for festivals and Pride, this black leather harness costume gives men a bold punk character with an original fashion-studio design.' }],
+      },
+    },
+    {
+      keyword: 'metallic top and skirt set',
+      components: ['Choker', 'Top', 'Skirt'],
+      value: {
+        ...output(),
+        seo_title: 'Silver Metallic Top And Skirt Set for Festivals',
+        h1: 'Silver Metallic Top And Skirt Set for Festivals',
+        meta_description: 'Metallic top and skirt set for women, created for festivals, stage performance and bold futuristic styling.',
+        intro: 'This silver festival outfit brings an original studio design to live performance.',
+        pdp_blocks: [{ heading: 'About this piece', body: 'Created for festivals and stage performance, this complete metallic silver outfit gives dancers a memorable choice for live appearances.' }],
+      },
+    },
+  ];
+
+  for (const item of cases) {
+    const draft = contract(item.keyword);
+    draft.product_truth = { included_components: item.components } as SeoPackDraftContract['product_truth'];
+    const result = validateSeoKeywordPlacement(item.value, draft);
+    assert.deepEqual(
+      result.issues.filter((issue) => issue.severity === 'blocker').map((issue) => issue.code),
+      [],
+      item.keyword,
+    );
+    assert.equal(result.placements[0].exact_occurrences, 3, item.keyword);
+  }
+});
+
 test('keeps non-component Primary identity tokens mandatory in a multi-piece body variation', () => {
   const draft = contract('halloween costumes with red bodysuit');
   draft.product_truth = {

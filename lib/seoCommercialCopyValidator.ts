@@ -621,7 +621,13 @@ export function validateSeoCommercialCopy(
     ));
   }
 
-  validateWholeProductPresentation(record, context.product_truth, blocks, issues);
+  validateWholeProductPresentation(
+    record,
+    context.product_truth,
+    context.keyword_roles,
+    blocks,
+    issues,
+  );
 
   const selectedEventFocus = focusEventValues(context.manual_focus);
   const h1 = typeof record.h1 === 'string' ? record.h1 : '';
@@ -1207,6 +1213,7 @@ function includedProductComponentText(value: unknown): string {
 function validateWholeProductPresentation(
   record: Record<string, any>,
   productTruth: unknown,
+  keywordRoles: unknown,
   blocks: Record<string, any>[],
   issues: SeoCommercialCopyIssue[],
 ) {
@@ -1234,11 +1241,22 @@ function validateWholeProductPresentation(
 
   const intro = typeof record.intro === 'string' ? record.intro : '';
   const metaDescription = typeof record.meta_description === 'string' ? record.meta_description : '';
+  const approvedPrimary = isRecord(keywordRoles) && Array.isArray(keywordRoles.primary)
+    ? keywordRoles.primary
+      .filter(isRecord)
+      .map((row) => String(row.keyword || row.keyword_norm || '').trim())
+      .find(Boolean) || ''
+    : '';
   [
     { key: 'meta_description', text: metaDescription },
     { key: 'intro', text: intro },
     { key: 'about_this_piece', text: aboutBody },
   ].forEach(({ key, text }) => {
+    // The placement contract owns the exact Primary in Meta. When a reviewed
+    // multi-piece Primary itself names the compact composition, that one
+    // occurrence is search identity rather than a redundant inventory recap.
+    // Intro and About still must use a natural whole-product variation.
+    if (key === 'meta_description' && approvedPrimary && containsPhrase(text, approvedPrimary)) return;
     const mentioned = mentionedConfirmedComponents(text, presentation.components);
     const genericRecap = /\b(?:design|product|costume|outfit|set|ensemble)\b[^.!?\n]{0,45}\b(?:combines?|pairs?|brings?\s+together|includes?|contains?|consists?\s+of|comes?\s+with)\b[^.!?\n]{0,90}\b(?:shoulders?|skirt|tops?|bottoms?|upper\s+pieces?|lower\s+pieces?|components?)\b[^.!?\n]{0,50}\b(?:and|with)\b[^.!?\n]{0,50}\b(?:shoulders?|skirt|tops?|bottoms?|upper\s+pieces?|lower\s+pieces?|components?)\b/i.test(text);
     const recapsComposition = (
