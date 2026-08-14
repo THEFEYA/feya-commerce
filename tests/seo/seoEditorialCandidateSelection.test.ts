@@ -193,7 +193,8 @@ test('repairs the Festival Set control copy without another writer call', () => 
   );
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /polished metal look gives/);
   assert.match(normalized.pdp_blocks[0].body, /crowded festival settings/);
-  assert.match(normalized.pdp_blocks[1].body, /visual identity is distinctly yours/);
+  assert.match(normalized.pdp_blocks[1].body, /make the character your own/);
+  assert.doesNotMatch(normalized.pdp_blocks[1].body, /visual identity|silhouette/i);
 });
 
 test('repairs the Holographic Set control copy without another writer call', () => {
@@ -224,7 +225,8 @@ test('repairs the Holographic Set control copy without another writer call', () 
   assert.match(normalized.pdp_blocks[0].body, /Rave-goers planning a holographic look/);
   assert.match(normalized.pdp_blocks[0].body, /iridescent visuals/);
   assert.equal(normalized.pdp_blocks[0].body.match(/\bdancer\b/gi)?.length, 1);
-  assert.match(normalized.pdp_blocks[1].body, /visual identity is unmistakably yours/);
+  assert.match(normalized.pdp_blocks[1].body, /make the look your own/);
+  assert.doesNotMatch(normalized.pdp_blocks[1].body, /visual identity/i);
 });
 
 test('repairs the Black Bodysuit Set control copy without another writer call', () => {
@@ -299,7 +301,7 @@ test('repairs the Red Bodysuit Arms Set control copy without another writer call
   });
 
   assert.match(normalized.meta_description, /demon-inspired finish for cosplay/);
-  assert.equal(normalized.intro, 'This red bodysuit brings a distinct character shape to Halloween costumes for cosplay, giving you a starting point for an original demon character with a bold leather look.');
+  assert.equal(normalized.intro, 'This red bodysuit brings a distinct character shape to Halloween costumes for cosplay, supporting an original demon character with a bold leather look.');
   assert.match(normalized.image_alt_candidates[0].alt_text, /forearm covers and tail/);
   assert.doesNotMatch(normalized.image_alt_candidates[0].alt_text, /halloween costumes with red bodysuit/i);
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /direction/i);
@@ -330,8 +332,8 @@ test('repairs the Silver Bodysuit Legs Set control copy without another writer c
 
   assert.match(normalized.pdp_blocks[0].body, /sci-fi armor costume/);
   assert.doesNotMatch(normalized.pdp_blocks[0].body, /futuristic/i);
-  assert.match(normalized.pdp_blocks[1].body, /finished visual identity/);
-  assert.doesNotMatch(normalized.pdp_blocks[1].body, /futuristic|personal styling choices/i);
+  assert.match(normalized.pdp_blocks[1].body, /make the look your own/);
+  assert.doesNotMatch(normalized.pdp_blocks[1].body, /futuristic|personal styling choices|visual identity|silhouette/i);
 });
 
 test('adds a supported product color to the deterministic SEO identity', () => {
