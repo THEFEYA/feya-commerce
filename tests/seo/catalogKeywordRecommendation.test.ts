@@ -856,6 +856,38 @@ test('owner-reviewed witch fallback avoids the occupied Halloween Primary', () =
   assert.equal(result.keywords.find((row) => row.keyword_norm === 'halloween costume with black bodysuit')?.role, 'secondary');
 });
 
+test('owner-reviewed configurable witch set promotes the measured costume query above its legacy headpiece category', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: '50c370fb-3f41-4e49-8e3b-cbc5e1dd478b',
+      card_title: 'Black Leather Crown Headpiece, Dark Witch Halloween Halo',
+      source_category_label: 'Headpiece / Accessory',
+      sellable_offer_components: ['Bodysuit', 'Fabric Cape', 'Headpiece', 'Garters'],
+      sellable_offer: { status: 'ready', component_labels: ['Bodysuit', 'Fabric Cape', 'Headpiece', 'Garters'] },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['shoulders', 'bodysuit', 'legs', 'headpiece'],
+      sellable_component_axes: ['bodysuit', 'legs', 'headpiece'],
+      search_only_component_axes: ['shoulders'],
+      material: ['black', 'leather'],
+      event: ['halloween', 'cosplay'],
+      style: ['glam', 'goth', 'fantasy'],
+      persona: ['queen', 'witch'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'halloween headpiece', keyword_norm: 'halloween headpiece', bank_bucket: 'product', avg_monthly_searches: 170 },
+      { ...baseMetric, keyword: 'bodysuit halloween costume', keyword_norm: 'bodysuit halloween costume', bank_bucket: 'product', avg_monthly_searches: 480 },
+    ],
+  });
+
+  const primary = result.keywords.find((row) => row.role === 'primary');
+  assert.equal(primary?.keyword_norm, 'bodysuit halloween costume');
+  assert.equal(primary?.owner_reviewed_pdp_primary, true);
+  assert.equal(result.keywords.find((row) => row.keyword_norm === 'halloween headpiece')?.role, 'secondary');
+});
+
 test('owner-reviewed black rave products can own validated whole-product visual phrases', () => {
   const approvedKeywords = [
     { ...baseMetric, keyword: 'rave outfit with skirt', keyword_norm: 'rave outfit with skirt', bank_bucket: 'product', avg_monthly_searches: 30 },
