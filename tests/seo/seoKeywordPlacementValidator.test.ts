@@ -278,6 +278,30 @@ test('one natural secondary phrase can cover a close variant without becoming a 
   );
 });
 
+test('one literal phrase may contain a shorter measured secondary variation without becoming a stack', () => {
+  const draft = contract('bodysuit halloween costume');
+  draft.product_truth = {
+    included_components: ['Bodysuit', 'Fabric Cape', 'Headpiece', 'Garters'],
+  } as SeoPackDraftContract['product_truth'];
+  draft.keyword_roles.secondary = [
+    { keyword: 'black bodysuit halloween costume', keyword_norm: 'black bodysuit halloween costume', role: 'secondary' },
+    { keyword: 'black bodysuit halloween', keyword_norm: 'black bodysuit halloween', role: 'secondary' },
+  ];
+  const value = {
+    ...output(),
+    seo_title: 'Black Bodysuit Halloween Costume',
+    h1: 'Black Bodysuit Halloween Costume',
+    meta_description: 'Black bodysuit Halloween costume for women with a sleek finish.',
+    intro: 'This Halloween outfit gives women a dark-fantasy character for cosplay.',
+    pdp_blocks: [{
+      heading: 'About this piece',
+      body: 'This Halloween costume has a sculptural silhouette for original cosplay styling.',
+    }],
+  };
+  const result = validateSeoKeywordPlacement(value, draft);
+  assert.equal(result.issues.some((issue) => issue.code === 'secondary_keyword_stack'), false);
+});
+
 test('does not demand exact placement of every secondary phrase', () => {
   const draft = contract();
   draft.keyword_roles.secondary = [
