@@ -1146,11 +1146,22 @@ test('owner-reviewed cosmic products keep distinct measured PDP intents', () => 
       audience: ['women'],
     },
     approvedKeywords: [
+      {
+        ...baseMetric,
+        keyword: 'rave harness outfit',
+        keyword_norm: 'rave harness outfit',
+        bank_bucket: 'product',
+        avg_monthly_searches: 30,
+        competition: 'MEDIUM',
+        competition_index: 38,
+      },
       { ...baseMetric, keyword: 'rave outfit with skirt', keyword_norm: 'rave outfit with skirt', bank_bucket: 'product', avg_monthly_searches: 30 },
       { ...baseMetric, keyword: 'metallic silver skirt outfit', keyword_norm: 'metallic silver skirt outfit', bank_bucket: 'product_or_alt', avg_monthly_searches: 70 },
     ],
   });
-  assert.equal(harnessAndSkirt.keywords.find((row) => row.role === 'primary')?.keyword_norm, 'metallic silver skirt outfit');
+  assert.equal(harnessAndSkirt.keywords.find((row) => row.role === 'primary')?.keyword_norm, 'rave harness outfit');
+  assert.equal(harnessAndSkirt.keywords.find((row) => row.keyword_norm === 'rave harness outfit')?.whole_product_intent, true);
+  assert.equal(harnessAndSkirt.keywords.find((row) => row.keyword_norm === 'metallic silver skirt outfit')?.role, 'secondary');
 
   const cryptoWarrior = recommendCatalogKeywords({
     product: {
