@@ -269,6 +269,70 @@ test('keeps one-leg and two-leg selector choices distinct on one legs axis', () 
   );
 });
 
+test('expands one Full Set through a current grouped option without inventing atomic choices', () => {
+  const product = {
+    canonical_product_id: '7e743440-3e9f-490c-b306-5c8c87969973',
+    configurations: [
+      {
+        configuration_id: 'bracelet',
+        sort_order: 1,
+        public_label: 'Bracelet',
+        component_code: 'arms',
+        component_family: 'Arms',
+      },
+      {
+        configuration_id: 'skirt',
+        sort_order: 2,
+        public_label: 'Skirt',
+        component_code: 'skirt',
+        component_family: 'Bottom',
+      },
+      {
+        configuration_id: 'top-shoulders',
+        sort_order: 3,
+        public_label: 'Top + Shoulders',
+        component_code: 'bundle',
+        component_family: 'Bundle',
+        is_bundle: true,
+        bundle_component_codes: ['shoulders', 'top'],
+      },
+      {
+        configuration_id: 'full-set',
+        sort_order: 4,
+        public_label: 'Full Set',
+        component_code: 'full_set',
+        component_family: 'Bundle',
+        is_bundle: false,
+        is_full_set: true,
+        bundle_component_codes: ['arms', 'skirt'],
+        bundle_component_labels: ['Bracelet', 'Skirt'],
+      },
+    ],
+  } as any;
+
+  const offer = resolveStorefrontSellableOffer(product);
+
+  assert.equal(offer.status, 'ready');
+  assert.deepEqual(offer.blockers, []);
+  assert.deepEqual(offer.component_codes, ['arms', 'shoulders', 'skirt', 'top']);
+  assert.deepEqual(offer.default_included_components, [
+    'Bracelet',
+    'Skirt',
+    'Shoulders',
+    'Top',
+  ]);
+  assert.deepEqual(
+    storefrontIncludedOptions(product, { configuration_id: 'top-shoulders' }),
+    ['Shoulders', 'Top'],
+  );
+  assert.equal(sellableOfferAllowsComponentFocus(offer, 'shoulders'), true);
+  assert.equal(sellableOfferAllowsComponentFocus(offer, 'top'), true);
+  assert.equal(
+    sellableOfferAvailabilitySentence(offer),
+    'Choose from individual pieces, grouped options, or the full set.',
+  );
+});
+
 test('sellable offer signature treats full-set members as an unordered set', () => {
   const configurations = [
     { configuration_id: 'top', public_label: 'Top', component_code: 'top' },
