@@ -635,9 +635,306 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizeUnsafeVisualStyleSuggestions(normalized);
   normalized = normalizeBatchFiveEditorialBlacklistCopy(normalized, context);
   normalized = normalizePaidHarnessAndMetallicSetCopy(normalized, context);
+  normalized = normalizePaidRedSpineTailCopy(normalized, context);
+  normalized = normalizePaidDanceCostumeCopy(normalized, context);
+  normalized = normalizePaidWitchCostumeCopy(normalized, context);
+  normalized = normalizeBrownLeatherHarnessPhotoshootAlt(normalized, context);
   normalized = normalizeImageAltPrimaryVariation(normalized, context);
   normalized = normalizeSingleSuppliedImageAltCandidate(normalized);
   return normalizeCodeOwnedPdpBlockOrder(normalized);
+}
+
+/**
+ * Human review of the already-paid red spine-tail draft found one tightly
+ * bounded cluster: the intro used the failed-pilot phrase "distinctive
+ * presence", About repeated "stage" inside one sentence, and the finish and
+ * storage benefits were duplicated across blocks. Keep the accepted identity,
+ * keyword and Ideal-for copy, but give each left block one separate buyer job.
+ * Exact response matching prevents this recovery rule from touching later
+ * red products or otherwise accepted drafts.
+ */
+export function normalizePaidRedSpineTailCopy<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const primary = normalizeIdentityValue(context.primary_keyword).toLowerCase();
+  const productColor = normalizeIdentityColor(context.product_color).toLowerCase();
+  const selectedColor = normalizeIdentityValues(context.selected_materials)
+    .map(normalizeIdentityColor)
+    .find((value) => OPERATOR_COLOR_FOCUS_VALUES.has(value.toLowerCase()))
+    ?.toLowerCase() || '';
+  const color = productColor || selectedColor;
+  const events = normalizeIdentityValues(context.selected_events).map((value) => value.toLowerCase());
+  if (
+    primary !== 'red stage outfit'
+    || color !== 'red'
+    || !events.includes('stage')
+    || !events.includes('drag')
+  ) return output;
+
+  const exactFieldReplacements: Record<string, [string, string]> = {
+    intro: [
+      'Designed for the stage and drag, this red stage costume brings an original studio edge to performers who want a bold, distinctive presence.',
+      'Designed for drag shows and theatrical performances, this red costume brings an original studio edge and a dramatic continuous spine-tail detail.',
+    ],
+  };
+  const blockReplacements: Record<string, [string, string]> = {
+    about_this_piece: [
+      'Built for stage and drag, this red stage costume centers a sculptural spine-tail that reads clearly in motion and from behind. The smooth red surface has a high-gloss finish that keeps the sculptural details visible under stage lighting. With careful storage, the backpiece keeps its shape between wears and stays ready for repeat use.',
+      'Created for drag shows and theatrical performances, this red costume features a continuous back detail that begins along the spine and flows into a tail below the waist. The connected form gives the design a dramatic burlesque character from the rear. Its proportions suit live appearances, editorial images and movement-focused video.',
+    ],
+    why_youll_love_it: [
+      '- Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\n- The smooth high-gloss red finish keeps the sculptural details visible under stage lighting.\n- With careful storage, the sculptural backpiece keeps its shape between wears and stays ready for repeat use.',
+      '- Created by our designers, the original spine-tail concept gives the costume a distinctive character that feels personal.\n- The glossy finish helps the red backpiece details remain visible under stage lighting.\n- With careful storage, the backpiece keeps its form between wears and stays ready for repeat use.',
+    ],
+    main_description: [
+      'We designed this piece for performers who want red that commands attention from the first glance. At TheFEYA, our fashion studio shaped the red stage costume to feel bold, distinctive, and memorable in drag and stage settings. We kept the line dramatic and the presence unmistakably personal, so the finish reads with confidence under lights. We wanted it to feel like a statement that stays with the audience long after the music stops.',
+      'At TheFEYA, our designers developed this red costume from original ideas for performers who value expressive, theatrical fashion. The continuous spine-tail gives the design a recognizable signature and dramatic character. Its glamorous burlesque attitude supports personal expression across drag shows, stage productions and creative shoots. The costume feels bold, confident and unmistakably individual.',
+    ],
+  };
+
+  let changed = false;
+  const normalized: Record<string, unknown> = { ...output };
+  Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
+    if (normalized[field] !== before) return;
+    normalized[field] = after;
+    changed = true;
+  });
+  normalized.pdp_blocks = output.pdp_blocks.map((block) => {
+    if (!isRecord(block) || typeof block.body !== 'string') return block;
+    const replacement = blockReplacements[String(block.block_key || '')];
+    if (!replacement || block.body !== replacement[0]) return block;
+    changed = true;
+    return { ...block, body: replacement[1] };
+  });
+  if (!changed) return output;
+
+  return {
+    ...normalized,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Human-reviewed deterministic repair separated the paid red spine-tail draft into product, finish, repeat-wear and self-expression jobs without another writer call.',
+    ],
+  } as T;
+}
+
+/**
+ * Keep the one paid black-and-gold dance response, but repair the exact
+ * editorial gaps found by deterministic review: an awkward double "for" in
+ * the title, a thin Meta/About, repeated stage framing in Ideal for, and one
+ * finish benefit whose wording did not express the verified buyer outcome.
+ * The stretch-fabric base and gold mirror-finish vegan-leather details remain
+ * separate facts so the text never implies that the whole costume is leather.
+ */
+export function normalizePaidDanceCostumeCopy<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const primary = normalizeIdentityValue(context.primary_keyword).toLowerCase();
+  const events = normalizeIdentityValues(context.selected_events).map((value) => value.toLowerCase());
+  const materials = normalizeIdentityValues(context.selected_materials).map((value) => value.toLowerCase());
+  if (
+    primary !== 'dance costume for ladies'
+    || !events.includes('stage')
+    || !materials.includes('fabric')
+    || !materials.includes('gold')
+    || !materials.includes('black')
+  ) return output;
+
+  const exactFieldReplacements: Record<string, [string, string]> = {
+    seo_title: [
+      'Gold Dance Costume For Ladies for Stage',
+      'Gold Dance Costume for Ladies: Stage Performance Set',
+    ],
+    h1: [
+      'Gold Dance Costume For Ladies for Stage',
+      'Gold Dance Costume for Ladies: Stage Performance Set',
+    ],
+    meta_description: [
+      'Black dance costume for ladies with a gold finish and stage-ready glam for stage shows.',
+      'Black-and-gold dance costume for ladies with a stretch-fabric base and mirror-finish vegan leather details for stage shows and group performances.',
+    ],
+    intro: [
+      'For stage work, this dance outfit for ladies brings a bold, original studio design that feels made for movement and command.',
+      'Created for live performance, this black-and-gold dance outfit for ladies combines flexible fabric with mirror-finish details in an original studio design.',
+    ],
+  };
+  const blockReplacements: Record<string, [string, string]> = {
+    about_this_piece: [
+      'Built for stage presence, this dance outfit for ladies pairs a stretch-fabric base with selected patterns and details in gold mirror-finish vegan leather. The black-and-gold finish creates a striking, polished contrast that reads clearly under performance lighting.',
+      'This black-and-gold dance costume uses a stretch-fabric base with selected patterns and details made from gold mirror-finish vegan leather. The color contrast gives the design a polished graphic character that remains clear under performance lighting during live shows, group formations and video shoots.',
+    ],
+    why_youll_love_it: [
+      '- Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\n- The stretch-fabric base moves comfortably through dance turns and stage choreography.\n- Gold mirror-finish details catch available stage light, helping the decorative pattern stay visible during performance.\n- Careful storage helps the costume keep its shape between wears for repeat stage use.',
+      '- Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\n- The stretch-fabric base moves comfortably through dance turns and stage choreography.\n- The gold finish catches stage light, helping the decorative details remain visible during performances.\n- Careful storage helps the costume keep its shape between wears for repeat stage use.',
+    ],
+    ideal_for: [
+      '- Dancers performing in a stretch-fabric costume for live stage choreography.\n- Dance schools outfitting groups in a recognizable black-and-gold design.\n- Show ballets selecting black-and-gold costumes for ensemble stage productions.\n- Go-go dancers choosing a flexible costume for energetic stage performance.\n- Event organizers sourcing distinctive dance costumes for professional show teams.',
+      '- Women choosing a flexible black-and-gold costume for live performance.\n- Dance schools outfitting groups in a recognizable design for showcases and competitions.\n- Show ballets selecting expressive costumes for theatrical productions and touring programs.\n- Go-go artists preparing energetic nightclub sets with futuristic styling.\n- Showgirls seeking glamorous black-and-gold fashion for stage appearances.',
+    ],
+    main_description: [
+      'We designed this piece for performers who want a bold stage impression with clean, futuristic glam energy. TheFEYA brings our original design ideas to a dance outfit for ladies that feels powerful, graphic, and memorable. We shaped it for women who want their performance wear to stand out with black-and-gold intensity. We made it to read like a character of its own: sharp, confident, and unforgettable.',
+      'At TheFEYA, our designers developed this black-and-gold costume from original ideas for women who value expressive performance fashion. The stretch-fabric base supports energetic choreography, while the gold details give the design a recognizable graphic rhythm. Its futuristic glam character supports personal expression on stage, in music videos and across group productions. The result feels sharp, confident and distinctly individual.',
+    ],
+  };
+
+  let changed = false;
+  const normalized: Record<string, unknown> = { ...output };
+  Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
+    if (normalized[field] !== before) return;
+    normalized[field] = after;
+    changed = true;
+  });
+  normalized.pdp_blocks = output.pdp_blocks.map((block) => {
+    if (!isRecord(block) || typeof block.body !== 'string') return block;
+    const replacement = blockReplacements[String(block.block_key || '')];
+    if (!replacement || block.body !== replacement[0]) return block;
+    changed = true;
+    return { ...block, body: replacement[1] };
+  });
+  if (!changed) return output;
+
+  return {
+    ...normalized,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Human-reviewed deterministic repair preserved the paid dance draft while separating stretch fabric, gold detail, audience and style jobs without another writer call.',
+    ],
+  } as T;
+}
+
+/**
+ * The paid witch-costume response used the right product identity but repeated
+ * Halloween/witch/fantasy as list filler and returned a one-sentence studio
+ * close. Repair only that exact response. The body keeps "witch" as natural
+ * customer language while the validated Primary remains the broader complete
+ * costume query selected in Listing Master.
+ */
+export function normalizePaidWitchCostumeCopy<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const primary = normalizeIdentityValue(context.primary_keyword).toLowerCase();
+  const events = normalizeIdentityValues(context.selected_events).map((value) => value.toLowerCase());
+  const styles = normalizeIdentityValues(context.selected_styles).map((value) => value.toLowerCase());
+  if (
+    primary !== 'black bodysuit halloween costume'
+    || !events.includes('halloween')
+    || !events.includes('cosplay')
+    || !styles.includes('glam')
+    || !styles.includes('fantasy')
+  ) return output;
+
+  const exactFieldReplacements: Record<string, [string, string]> = {
+    intro: [
+      'For Halloween, this black bodysuit Halloween outfit gives women a bold fashion-led take on a witch queen look with glossy drama and easy stage presence.',
+      'For Halloween and cosplay, this black bodysuit outfit gives women a fashion-led witch-queen character with a sleek high-gloss finish and glamorous fantasy drama.',
+    ],
+  };
+  const blockReplacements: Record<string, [string, string]> = {
+    about_this_piece: [
+      'For Halloween and cosplay, this black bodysuit Halloween outfit brings a sleek, latex-like appearance to a black bodysuit Halloween outfit made for dramatic entrances. The smooth, high-gloss black surface gives the look a polished edge that reads bold, dark, and unmistakably stylish.',
+      'Created for Halloween nights and cosplay appearances, this black costume has a smooth, high-gloss finish with a sleek latex-like look. Its fashion-led design gives the outfit a confident witch-queen character with glamorous fantasy drama. The polished surface keeps the black details clear in studio photos and under venue lighting.',
+    ],
+    ideal_for: [
+      'Women seeking a dark witch costume for Halloween appearances.\nCosplayers developing an original witch character with glamorous fantasy styling.\nLive performers wearing a bold dark-fantasy costume for themed productions.\nContent creators producing witch-inspired Halloween photos and videos.\nCostume stylists selecting an original black design for fantasy editorials.',
+      'Women choosing a dark witch costume for Halloween parties and seasonal appearances.\nCosplayers building an original queen-inspired character for conventions and creative shoots.\nLive performers seeking glam black fashion for theatrical productions.\nContent creators producing striking photos and videos for costume campaigns.\nCostume stylists selecting a bold fantasy design for editorials and music videos.',
+    ],
+    main_description: [
+      'Our original design ideas lean into glam fantasy energy, creating a dark-fantasy look that owns the room with confidence.',
+      'At TheFEYA, our designers developed this black costume from original ideas for women who value expressive Halloween fashion. The sleek finish and crown-led character give the design glamorous fantasy drama with an unmistakable studio signature. Its confident dark styling supports personal expression across cosplay appearances, theatrical shows and creative shoots. The result feels distinctive, bold and unmistakably individual.',
+    ],
+  };
+
+  let changed = false;
+  const normalized: Record<string, unknown> = { ...output };
+  Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
+    if (normalized[field] !== before) return;
+    normalized[field] = after;
+    changed = true;
+  });
+  normalized.pdp_blocks = output.pdp_blocks.map((block) => {
+    if (!isRecord(block) || typeof block.body !== 'string') return block;
+    const replacement = blockReplacements[String(block.block_key || '')];
+    if (!replacement || block.body !== replacement[0]) return block;
+    changed = true;
+    return { ...block, body: replacement[1] };
+  });
+  if (!changed) return output;
+
+  return {
+    ...normalized,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Human-reviewed deterministic repair kept witch language natural, diversified customer portraits and completed the paid studio close without another writer call.',
+    ],
+  } as T;
+}
+
+/**
+ * The brown photoshoot harness exposed three bounded editorial gaps in one
+ * already-paid response: a thin About paragraph, a repeated "feels" close,
+ * and ALT that treated the model shirt as sold. Keep the accepted title,
+ * intro and benefits untouched while repairing only those exact owners. The
+ * reviewed Primary, color and event keep unrelated products out of scope.
+ */
+export function normalizeBrownLeatherHarnessPhotoshootAlt<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output)) return output;
+  const primary = normalizeIdentityValue(context.primary_keyword).toLowerCase();
+  const productColor = normalizeIdentityColor(context.product_color).toLowerCase();
+  const selectedColor = normalizeIdentityValues(context.selected_materials)
+    .map(normalizeIdentityColor)
+    .find((value) => OPERATOR_COLOR_FOCUS_VALUES.has(value.toLowerCase()))
+    ?.toLowerCase() || '';
+  const color = productColor || selectedColor;
+  const events = normalizeIdentityValues(context.selected_events).map((value) => value.toLowerCase());
+  if (primary !== 'leather harness top' || color !== 'brown' || !events.includes('photoshoot')) {
+    return output;
+  }
+
+  const aboutBody = 'This brown leather chest harness brings a classic, vintage-inspired character to portrait and editorial photoshoots. Its grounded color and clean strap layout frame the upper body with a refined menswear direction. The result looks distinctive without becoming visually loud.';
+  const mainBody = 'At TheFEYA, our designers developed this brown leather harness from original fashion ideas with a clean, classic direction. The chest framing gives men a confident vintage-inspired character for portrait and editorial photoshoots. Its distinctive studio design supports personal style and gives the finished look a memorable identity.';
+  let changed = false;
+  const pdpBlocks = Array.isArray(output.pdp_blocks)
+    ? output.pdp_blocks.map((block) => {
+        if (!isRecord(block)) return block;
+        if (block.block_key === 'about_this_piece' && block.body !== aboutBody) {
+          changed = true;
+          return { ...block, body: aboutBody };
+        }
+        if (block.block_key === 'main_description' && block.body !== mainBody) {
+          changed = true;
+          return { ...block, body: mainBody };
+        }
+        return block;
+      })
+    : output.pdp_blocks;
+  const safeAlt = 'Brown leather chest harness worn by a male model';
+  const imageAltCandidates = Array.isArray(output.image_alt_candidates)
+    ? output.image_alt_candidates.map((candidate) => {
+        if (!isRecord(candidate) || typeof candidate.alt_text !== 'string') return candidate;
+        if (candidate.alt_text === safeAlt) return candidate;
+        changed = true;
+        return { ...candidate, alt_text: safeAlt };
+      })
+    : output.image_alt_candidates;
+  if (!changed) return output;
+
+  return {
+    ...output,
+    pdp_blocks: pdpBlocks,
+    image_alt_candidates: imageAltCandidates,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic brown-harness normalization completed the About and studio close, then kept ALT limited to the sold chest harness and omitted the model shirt.',
+    ],
+  } as T;
 }
 
 /**
