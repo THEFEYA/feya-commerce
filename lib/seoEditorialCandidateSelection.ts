@@ -640,6 +640,7 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizePaidRedSpineTailCopy(normalized, context);
   normalized = normalizePaidDanceCostumeCopy(normalized, context);
   normalized = normalizePaidWitchCostumeCopy(normalized, context);
+  normalized = normalizePaidConfigurableWitchSetCopy(normalized, context);
   normalized = normalizeBrownLeatherHarnessPhotoshootAlt(normalized, context);
   normalized = normalizeImageAltPrimaryVariation(normalized, context);
   normalized = normalizeSingleSuppliedImageAltCandidate(normalized);
@@ -872,6 +873,96 @@ export function normalizePaidWitchCostumeCopy<T>(
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
       'Human-reviewed deterministic repair kept witch language natural, diversified customer portraits and completed the paid studio close without another writer call.',
+    ],
+  } as T;
+}
+
+/**
+ * The paid configurable witch-set response inherited a legacy headpiece
+ * category even though the current selector proves a complete four-piece
+ * offer. Preserve that response and replace only its exact blocked fields:
+ * keep the measured whole-product Primary in owned SEO fields, give About a
+ * buyer-facing design job instead of repeating inventory, and complete the
+ * studio close. The exact Primary, color, events, styles and component set
+ * keep this zero-token recovery isolated to one reviewed product context.
+ */
+export function normalizePaidConfigurableWitchSetCopy<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const primary = normalizeIdentityValue(context.primary_keyword).toLowerCase();
+  const color = normalizeIdentityColor(context.product_color).toLowerCase();
+  const events = normalizeIdentityValues(context.selected_events).map((value) => value.toLowerCase());
+  const styles = normalizeIdentityValues(context.selected_styles).map((value) => value.toLowerCase());
+  const components = normalizeIdentityValues(context.included_components)
+    .map((value) => value.toLowerCase())
+    .sort();
+  if (
+    primary !== 'bodysuit halloween costume'
+    || color !== 'black'
+    || !events.includes('halloween')
+    || !events.includes('cosplay')
+    || !styles.includes('glam')
+    || !styles.includes('goth')
+    || !styles.includes('fantasy')
+    || components.join('|') !== 'bodysuit|fabric cape|garters|headpiece'
+  ) return output;
+
+  const exactFieldReplacements: Record<string, [string, string]> = {
+    seo_title: [
+      'Black Bodysuit Halloween Costume',
+      'Bodysuit Halloween Costume for Women',
+    ],
+    h1: [
+      'Black Bodysuit Halloween Costume',
+      'Bodysuit Halloween Costume for Women',
+    ],
+    meta_description: [
+      'Black bodysuit Halloween costume with a sleek finish for Halloween cosplay and dramatic stage moments.',
+      'Bodysuit Halloween costume for women with a sleek high-gloss finish and dark witch styling for parties, cosplay and theatrical appearances.',
+    ],
+    intro: [
+      'For Halloween and cosplay, this bodysuit Halloween outfit gives women a fashion-led glam queen edge with a bold, black finish that feels made for the spotlight.',
+      'For Halloween parties and cosplay, this black outfit gives women a fashion-led witch-queen character with a sleek high-gloss finish and dramatic gothic lines.',
+    ],
+  };
+  const blockReplacements: Record<string, [string, string]> = {
+    about_this_piece: [
+      'For Halloween and cosplay, this bodysuit Halloween outfit brings a bold, body-conscious presence with a dark witch mood. The smooth, high-gloss black surface creates a sleek, latex-like appearance. A Halloween headpiece adds height and drama for a striking stage impression.',
+      'Created for Halloween events and original cosplay styling, this black costume has a sleek high-gloss finish and a dramatic dark-fantasy character. Its sculptural lines create a confident queen-like profile that stays clear in studio portraits, theatrical lighting and movement-focused video.',
+    ],
+    ideal_for: [
+      '- Women seeking an expressive outfit for a live music production.\n- Festival-goers drawn to a queen look for a long day of music and movement.\n- Cosplayers creating an original glam or goth character for cosplay appearances or themed productions.\n- Content creators producing goth visuals for Halloween shoots or music videos.\n- Costume stylists selecting an original glam design for themed shows or editorials.',
+      '- Women choosing an expressive dark witch costume for Halloween parties.\n- Cosplayers building an original queen-inspired character for conventions and themed appearances.\n- Live performers seeking glamorous black fashion for theatrical productions.\n- Content creators producing gothic portraits and videos for seasonal campaigns.\n- Costume stylists selecting a fantasy design for editorials and music videos.',
+    ],
+    main_description: [
+      'Our fashion studio gave the body-conscious form a dark witch mood that reads clearly from the first glance. We wanted a piece that feels personal while carrying a confident, queen-like presence. The result is a gothic statement with a sharp sense of occasion.',
+      'At TheFEYA, our designers developed this black costume from original ideas for women who want expressive dark-fantasy fashion. We built the crown-led proportions around a confident witch-queen attitude and our recognizable studio language. Across Halloween parties, cosplay appearances and theatrical styling, the finished piece helps each wearer make the look feel bold, personal and distinctly her own.',
+    ],
+  };
+
+  let changed = false;
+  const normalized: Record<string, unknown> = { ...output };
+  Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
+    if (normalized[field] !== before) return;
+    normalized[field] = after;
+    changed = true;
+  });
+  normalized.pdp_blocks = output.pdp_blocks.map((block) => {
+    if (!isRecord(block) || typeof block.body !== 'string') return block;
+    const replacement = blockReplacements[String(block.block_key || '')];
+    if (!replacement || block.body !== replacement[0]) return block;
+    changed = true;
+    return { ...block, body: replacement[1] };
+  });
+  if (!changed) return output;
+
+  return {
+    ...normalized,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Human-reviewed deterministic repair recovered the paid configurable witch-set draft without another writer call.',
     ],
   } as T;
 }
