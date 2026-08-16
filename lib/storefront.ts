@@ -1,4 +1,5 @@
 import type { StorefrontConfiguration, StorefrontMedia, StorefrontProduct } from '@/lib/types';
+import { applyOwnerReviewedStorefrontCorrections } from './storefrontOwnerReviewedCorrections.ts';
 
 export const STOREFRONT_VIEW_V4 = 'feya_commerce_v_step7_storefront_products_api_v4';
 export const STOREFRONT_VIEW_V3 = 'feya_commerce_v_step7_storefront_products_api_v3';
@@ -103,7 +104,8 @@ export function formatPrice(amount: number | null | undefined, currency = 'EUR')
   return new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(Number(amount));
 }
 export function asConfigurations(product: StorefrontProduct): StorefrontConfiguration[] {
-  return Array.isArray(product.configurations) ? product.configurations as StorefrontConfiguration[] : [];
+  const corrected = applyOwnerReviewedStorefrontCorrections(product as Record<string, any>);
+  return Array.isArray(corrected.configurations) ? corrected.configurations as StorefrontConfiguration[] : [];
 }
 export function asMediaGallery(product: StorefrontProduct): StorefrontMedia[] {
   return Array.isArray(product.media_gallery) ? product.media_gallery as StorefrontMedia[] : [];
