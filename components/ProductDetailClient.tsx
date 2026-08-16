@@ -25,7 +25,7 @@ import {
 import { colorStyle } from '@/components/colors';
 import { ProductCard } from '@/components/ProductCard';
 import { SalePrice } from '@/components/SalePrice';
-import { THEFEYA_CANONICAL_RIGHT_PDP_PANEL } from '@/lib/thefeyaSeoDoctrine';
+import { resolveThefeyaRightPdpPanel } from '@/lib/thefeyaSeoDoctrine';
 import type { StorefrontProduct } from '@/lib/types';
 import { storefrontIncludedOptions } from '@/lib/storefrontIncludedOptions';
 import {
@@ -165,6 +165,9 @@ export function ProductDetailClient({
   const sellableOffer = useMemo(() => resolveStorefrontSellableOffer(p), [p]);
   const availabilitySentence = sellableOfferAvailabilitySentence(sellableOffer);
   const canChoosePiecesSeparately = options.length > 1 && Boolean(full);
+  const rightPdpPanel = useMemo(() => resolveThefeyaRightPdpPanel({
+    canonical_product_id: p.canonical_product_id,
+  }), [p.canonical_product_id]);
 
   const fullRegularPrice = full ? optionPrice(full) : null;
   const separateRegularTotal = options
@@ -325,7 +328,7 @@ export function ProductDetailClient({
             />}
       </div>
       <div className="col-span-12 lg:col-span-5 space-y-0">
-        {THEFEYA_CANONICAL_RIGHT_PDP_PANEL.map((block) => <Detail
+        {rightPdpPanel.map((block) => <Detail
           key={block.block_key}
           icon={rightPanelIcon(block.block_key)}
           title={block.heading}
