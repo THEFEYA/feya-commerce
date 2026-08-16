@@ -263,7 +263,17 @@ export function recommendCatalogKeywords(input: {
     .map((row) => scoreRow(row, profile, strategy))
     .filter((row) => row.recommendation_status === 'eligible')
     .sort(compareRows);
-  const scored = uniqueSemanticRows(eligibleRows);
+  const ownerReviewedKeyword = OWNER_REVIEWED_PDP_PRIMARY[profile.canonicalProductId];
+  const ownerReviewedEligibleRow = ownerReviewedKeyword
+    ? eligibleRows.find((row) => normalize(row.keyword_norm || row.keyword) === ownerReviewedKeyword)
+    : null;
+  // Reserve the exact reviewed query before collapsing word-order variants.
+  // Otherwise a marginally higher opportunity score can keep an awkward
+  // permutation and silently discard the operator-approved natural phrase.
+  const scored = uniqueSemanticRows([
+    ...(ownerReviewedEligibleRow ? [ownerReviewedEligibleRow] : []),
+    ...eligibleRows,
+  ]);
 
   // Listing Master saves the displayed recommendation as one operator-reviewed
   // decision. Keep that default decision intentionally small enough for a
@@ -272,7 +282,6 @@ export function recommendCatalogKeywords(input: {
   const allProductRows = scored.filter((row) => (
     PRODUCT_BUCKETS.has(normalize(row.bank_bucket || row.page_type))
   ));
-  const ownerReviewedKeyword = OWNER_REVIEWED_PDP_PRIMARY[profile.canonicalProductId];
   const ownerReviewedRow = ownerReviewedKeyword
     ? allProductRows.find((row) => normalize(row.keyword_norm || row.keyword) === ownerReviewedKeyword)
     : null;
