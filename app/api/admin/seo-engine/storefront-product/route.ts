@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { NextResponse } from 'next/server';
 import { resolveStorefrontSellableOffer } from '@/lib/storefrontSellableOffer';
+import { applyOwnerReviewedStorefrontCorrections } from '@/lib/storefrontOwnerReviewedCorrections';
 import { getSupabaseServiceClient } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
@@ -75,7 +76,8 @@ export async function GET(request: Request) {
   const canonicalOptionPriceRows = Array.isArray(truthRows?.[0]?.option_price_rows_json)
     ? truthRows[0].option_price_rows_json
     : [];
-  const sellableOffer = resolveStorefrontSellableOffer(data);
+  const correctedProduct = applyOwnerReviewedStorefrontCorrections(data);
+  const sellableOffer = resolveStorefrontSellableOffer(correctedProduct);
 
   return NextResponse.json({
     ok: true,
@@ -85,7 +87,7 @@ export async function GET(request: Request) {
     read_only: true,
     product_id: productId,
     product: {
-      ...data,
+      ...correctedProduct,
       sellable_offer: sellableOffer,
       sellable_offer_components: sellableOffer.status === 'ready'
         ? sellableOffer.component_labels
