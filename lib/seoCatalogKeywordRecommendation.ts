@@ -1,4 +1,8 @@
-import { classifySeoProductPresentation, hasWholeProductEntity } from './seoProductPresentation.ts';
+import {
+  classifySeoProductPresentation,
+  hasWholeProductEntity,
+  hasWholeProductScope,
+} from './seoProductPresentation.ts';
 
 export type SeoKeywordRecommendationStrategy = 'balanced' | 'demand' | 'opportunity' | 'niche';
 
@@ -352,7 +356,8 @@ function applyOwnerReviewedPdpPrimary(
   if (!keyword) return rows;
 
   const target = rows.find((row) => normalize(row.keyword_norm || row.keyword) === keyword);
-  if (!target || !hasWholeProductEntity(keyword)) return rows;
+  const presentation = classifySeoProductPresentation(product);
+  if (!target || !hasWholeProductScope(keyword, presentation.components)) return rows;
 
   return rows.map((row) => {
     if (row === target) {
@@ -499,7 +504,17 @@ function buildProductProfile(product: ProductRow, focus: FocusRecord) {
     ))
   ));
   const primaryEntityFamilies = unique([
-    ...(componentFamilies.length === 1 ? componentFamilies : []),
+    // A lone recognized family is the page entity only for a genuinely
+    // single-component offer. A multi-piece selector may also contain an
+    // unresolved label such as "Option"; promoting the one recognized piece
+    // in that case made "gold skirt set" look like the whole top + skirt
+    // product even though the final generation gate correctly rejected it.
+    ...(
+      componentFamilies.length === 1
+      && !presentation.requires_whole_product_entity
+        ? componentFamilies
+        : []
+    ),
     ...sourceEntityFamilies.filter((family) => leadEntityFamilies.includes(family)),
     ...anchoredLeadEntityFamilies,
   ]);
@@ -677,7 +692,7 @@ function scoreRow(
   const unsupportedTruthToken = tokens(keyword)
     .find((token) => !profile.supportedKeywordTokens.has(token));
   const exactOwnerReviewedPrimary = OWNER_REVIEWED_PDP_PRIMARY[profile.canonicalProductId] === keyword
-    && hasWholeProductEntity(keyword);
+    && hasWholeProductScope(keyword, profile.presentation.components);
 
   const componentMismatch = keywordComponents.some((family) => !supportedComponentFamilies.includes(family));
   const colorMismatch = keywordColors.length > 0
