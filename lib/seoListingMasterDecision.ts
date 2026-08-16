@@ -40,6 +40,7 @@ export function buildListingMasterKeywordSnapshot(
     data_freshness_status: row.data_freshness_status || null,
     whole_product_intent: row.whole_product_intent === true,
     discovery_alias_only: row.discovery_alias_only === true,
+    owner_reviewed_pdp_primary: row.owner_reviewed_pdp_primary === true,
     auto_recommendation: row.auto_recommendation === true,
     auto_recommendation_needs_human_confirmation:
       row.auto_recommendation_needs_human_confirmation === true,
