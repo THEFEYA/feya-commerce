@@ -1126,6 +1126,28 @@ test('owner-reviewed stage armor set keeps the full costume above one shoulder c
 });
 
 test('owner-reviewed cosmic products keep distinct measured PDP intents', () => {
+  const crowdedWholeProductRows = [
+    'silver metallic shoulder skirt outfit',
+    'silver rave shoulder skirt outfit',
+    'silver festival shoulder skirt outfit',
+    'metallic rave shoulder skirt costume',
+    'metallic festival shoulder skirt costume',
+    'futuristic rave shoulder skirt outfit',
+    'futuristic festival shoulder skirt costume',
+    'cyberpunk rave shoulder skirt outfit',
+    'cyberpunk festival shoulder skirt costume',
+    'cosmic rave shoulder skirt outfit',
+    'cosmic festival shoulder skirt costume',
+  ].map((keyword, index) => ({
+    ...baseMetric,
+    keyword,
+    keyword_norm: keyword,
+    bank_bucket: 'product',
+    score: 100 - index,
+    avg_monthly_searches: 100_000 - index * 1_000,
+    competition: 'LOW',
+    competition_index: 0,
+  }));
   const harnessAndSkirt = recommendCatalogKeywords({
     product: {
       canonical_product_id: '657bd6d8-fbe1-4441-abad-f574e3380897',
@@ -1146,6 +1168,7 @@ test('owner-reviewed cosmic products keep distinct measured PDP intents', () => 
       audience: ['women'],
     },
     approvedKeywords: [
+      ...crowdedWholeProductRows,
       {
         ...baseMetric,
         keyword: 'rave harness outfit',
@@ -1161,7 +1184,8 @@ test('owner-reviewed cosmic products keep distinct measured PDP intents', () => 
   });
   assert.equal(harnessAndSkirt.keywords.find((row) => row.role === 'primary')?.keyword_norm, 'rave harness outfit');
   assert.equal(harnessAndSkirt.keywords.find((row) => row.keyword_norm === 'rave harness outfit')?.whole_product_intent, true);
-  assert.equal(harnessAndSkirt.keywords.find((row) => row.keyword_norm === 'metallic silver skirt outfit')?.role, 'secondary');
+  assert.equal(harnessAndSkirt.keywords.find((row) => row.keyword_norm === 'rave harness outfit')?.owner_reviewed_pdp_primary, true);
+  assert.notEqual(harnessAndSkirt.keywords.find((row) => row.keyword_norm === 'metallic silver skirt outfit')?.role, 'primary');
 
   const cryptoWarrior = recommendCatalogKeywords({
     product: {
