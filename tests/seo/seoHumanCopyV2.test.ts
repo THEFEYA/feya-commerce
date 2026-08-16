@@ -2550,7 +2550,7 @@ test('paid Cosmic silver set reaches PASS through exact zero-token recovery', ()
     selected_events: context.manual_focus.event,
     selected_styles: context.manual_focus.style,
     selected_materials: ['silver', 'mirror', 'vegan leather', 'metallic'],
-    included_components: ['Legs', 'Panties', 'Skirt', 'Top'],
+    included_components: ['Garters', 'Panties', 'Skirt', 'Top'],
     body_identity_variant: 'silver metallic costume',
     product_color: 'Silver',
   });
