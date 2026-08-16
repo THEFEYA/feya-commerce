@@ -201,7 +201,9 @@ function buildUserPrompt(input: SeoAgentInputContract) {
     '',
   ];
 
-  const doctrineLines = buildThefeyaSeoDoctrineUserLines();
+  const doctrineLines = buildThefeyaSeoDoctrineUserLines({
+    canonical_product_id: input.product?.canonical_product_id,
+  });
   const presentation = classifySeoProductPresentation(input.product);
   const presentationRules = buildProductPresentationRules(input).map((rule) => `- ${rule}`);
   const selectedEvents = focusValues(input.manual_focus?.event);
@@ -302,7 +304,7 @@ function buildUserPrompt(input: SeoAgentInputContract) {
     '',
     'Forbidden generated pdp_blocks:',
     '- Do not output whats_included, sizing_fit, production_timing, shipping_delivery, material, care, customization, returns_exchanges, handmade_variation, materials_care, or any right_info_panel block.',
-    '- The right panel is immutable and identical for every product. Do not propose alternative wording for it in generation_notes.',
+    '- The right panel is code-owned. Its order is fixed and a small set of verified products may receive code-owned factual material, care or fit overrides. Do not propose alternative wording for it in generation_notes.',
     '',
     'Buyer-copy bans:',
     '- No Product Truth, source, database, official product data, safe wording, confirmation, verification, review, publish, or internal uncertainty language.',
