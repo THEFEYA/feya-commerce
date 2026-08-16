@@ -181,6 +181,11 @@ test('multi-component product cannot be confirmed with a component-only primary'
 
   unsafe.keyword_roles.primary = [{ keyword: 'shoulder armor harness and skirt costume' }];
   assert.deepEqual(getSeoKeywordSelectionBlockers(unsafe), []);
+
+  unsafe.product_truth.included_components = ['Shoulders', 'Skirt'];
+  unsafe.product_truth.known_components = ['Shoulders', 'Skirt'];
+  unsafe.keyword_roles.primary = [{ keyword: 'rave harness outfit' }];
+  assert.deepEqual(getSeoKeywordSelectionBlockers(unsafe), []);
 });
 
 test('stored partial draft is explicitly marked for human review', () => {
