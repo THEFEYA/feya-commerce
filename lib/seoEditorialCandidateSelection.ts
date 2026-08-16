@@ -640,6 +640,7 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizePaidSilverBurningManHarnessSetCopy(normalized, context);
   normalized = normalizePaidSilverMensWarriorSetCopy(normalized, context);
   normalized = normalizePaidGoldBurningManFringeSetCopy(normalized, context);
+  normalized = normalizePaidCosmicTopSkirtSetCopy(normalized, context);
   normalized = normalizePaidRedSpineTailCopy(normalized, context);
   normalized = normalizePaidDanceCostumeCopy(normalized, context);
   normalized = normalizePaidWitchCostumeCopy(normalized, context);
@@ -1522,6 +1523,89 @@ export function normalizePaidGoldBurningManFringeSetCopy<T>(
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
       'Human-reviewed deterministic repair recovered the paid gold top-and-fringe-skirt draft without another writer call.',
+    ],
+  } as T;
+}
+
+/**
+ * Recover the single paid Cosmic silver-set response without another writer
+ * call. Human review found that the response repeated the configurable
+ * component inventory in Intro and About, then reused the same reflective
+ * finish benefit across four blocks. The saved focus, exact four-component
+ * offer and exact returned sentences keep this zero-token correction local to
+ * the reviewed product rather than turning one unusual response into a broad
+ * catalog rule.
+ */
+export function normalizePaidCosmicTopSkirtSetCopy<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const primary = normalizeIdentityValue(context.primary_keyword).toLowerCase();
+  const color = normalizeIdentityColor(context.product_color).toLowerCase();
+  const events = normalizeIdentityValues(context.selected_events).map((value) => value.toLowerCase());
+  const styles = normalizeIdentityValues(context.selected_styles).map((value) => value.toLowerCase());
+  const materials = normalizeIdentityValues(context.selected_materials).map((value) => value.toLowerCase());
+  const components = normalizeIdentityValues(context.included_components)
+    .map((value) => value.toLowerCase())
+    .sort();
+  if (
+    primary !== 'metallic top and skirt set'
+    || color !== 'silver'
+    || !events.includes('festival')
+    || !events.includes('rave')
+    || !events.includes('photoshoot')
+    || !styles.includes('futuristic')
+    || !styles.includes('cyberpunk')
+    || !styles.includes('cosmic')
+    || !materials.includes('mirror')
+    || !materials.includes('vegan leather')
+    || !materials.includes('metallic')
+    || components.join('|') !== 'legs|panties|skirt|top'
+  ) return output;
+
+  const exactFieldReplacements: Record<string, [string, string]> = {
+    meta_description: [
+      'Silver metallic top and skirt set for rave nights, festival moments, and photoshoots with a polished finish.',
+      'Silver metallic top and skirt set for rave nights, festivals, cyberpunk styling and futuristic photoshoots.',
+    ],
+    intro: [
+      'For festivals, rave, and photoshoots, this metallic top and skirt outfit brings a bold, distinctive edge that feels made for striking moments.',
+      'Created for festival and rave settings, this silver metallic costume gives women a sharp futuristic character for movement, performance and creative shoots.',
+    ],
+  };
+  const blockReplacements: Record<string, [string, string]> = {
+    about_this_piece: [
+      'Designed for festivals, rave nights, and photoshoots, this metallic top and skirt outfit brings a polished, metal-inspired finish with a bold studio feel. The smooth, high-gloss silver surface creates a beautifully polished, metal-inspired finish. It adds a striking edge that reads futuristic without losing its wearable shape.',
+      'This complete silver festival outfit uses angular harness-style lines to frame the body and layered panels to build a clean cosmic character. The geometry gives performers, festival-goers and content creators a clear futuristic direction for live appearances, photographs and video without tying the wearer to one named role.',
+    ],
+    main_description: [
+      'At TheFEYA, our fashion studio designed this metallic top and skirt outfit for women who want a bold, memorable presence in festivals, rave scenes, and photoshoots. Our designers shaped the silver finish to feel futuristic and edgy while keeping the look visually clean and distinctive. We made it for a confident wearer who likes cosmic energy with a cyberpunk twist. The result feels personal, vivid, and ready to stand out.',
+      'At TheFEYA, our designers developed this silver festival costume as an original studio interpretation of cosmic and cyberpunk fashion. Its geometric lines give women a confident character for live music, creative productions and editorial shoots without locking the wearer into one named role. The design leaves room for personal style while preserving the clear futuristic direction of our studio.',
+    ],
+  };
+
+  let changed = false;
+  const normalized: Record<string, unknown> = { ...output };
+  Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
+    if (normalized[field] !== before) return;
+    normalized[field] = after;
+    changed = true;
+  });
+  normalized.pdp_blocks = output.pdp_blocks.map((block) => {
+    if (!isRecord(block) || typeof block.body !== 'string') return block;
+    const replacement = blockReplacements[String(block.block_key || '')];
+    if (!replacement || block.body !== replacement[0]) return block;
+    changed = true;
+    return { ...block, body: replacement[1] };
+  });
+  if (!changed) return output;
+
+  return {
+    ...normalized,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Human-reviewed deterministic repair recovered the paid Cosmic silver-set draft without another writer call.',
     ],
   } as T;
 }
