@@ -2426,3 +2426,154 @@ test('paid gold Burning Man fringe set reaches PASS through exact zero-token rec
   assert.doesNotMatch(normalized.pdp_blocks[3].body, /desert light|reads instantly/i);
   assert.doesNotMatch(normalized.image_alt_candidates[0].alt_text, /bodysuit|base garment/i);
 });
+
+test('paid Cosmic silver set reaches PASS through exact zero-token recovery', () => {
+  const candidate = {
+    contract_version: 'seo_agent_output_v1',
+    status: 'draft',
+    seo_title: 'Silver Metallic Top And Skirt Set for Festivals',
+    h1: 'Silver Metallic Top And Skirt Set for Festivals',
+    meta_description: 'Silver metallic top and skirt set for rave nights, festival moments, and photoshoots with a polished finish.',
+    intro: 'For festivals, rave, and photoshoots, this metallic top and skirt outfit brings a bold, distinctive edge that feels made for striking moments.',
+    bullet_highlights: [],
+    faq: [],
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'silver metallic top and skirt outfit in a desert setting',
+      truth_basis: 'visible_product_fact',
+    }],
+    internal_linking_hints: [],
+    visual_truth: {
+      observed_product_facts: [
+        'silver-toned metallic-looking panels',
+        'black long-sleeve base layer visible',
+        'strappy harness-style details',
+        'skirted lower piece with mirrored shine',
+        'desert outdoor setting',
+      ],
+      dna_matches: ['futuristic', 'cyberpunk', 'cosmic', 'festival-ready'],
+      open_style_suggestions: [],
+      uncertain_or_missing_facts: [
+        'exact fabric composition',
+        'whether the full photographed styling matches the sold set exactly',
+        'whether all visible accessories are included',
+      ],
+      forbidden_visual_claims: [
+        'exact character replica claims',
+        'unfinished or transformable garment claims',
+        'metallic material certainty beyond appearance',
+      ],
+    },
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        source_basis: 'product_fact',
+        body: 'Designed for festivals, rave nights, and photoshoots, this metallic top and skirt outfit brings a polished, metal-inspired finish with a bold studio feel. The smooth, high-gloss silver surface creates a beautifully polished, metal-inspired finish. It adds a striking edge that reads futuristic without losing its wearable shape.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'why_youll_love_it',
+        placement: 'left_description',
+        heading: 'Why you’ll love it',
+        source_basis: 'product_fact',
+        body: 'Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\nThe material feels comfortable against the body, making the garment easier to wear for extended periods.\nWith careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'ideal_for',
+        placement: 'left_description',
+        heading: 'Ideal for',
+        source_basis: 'product_fact',
+        body: 'Women seeking a futuristic look for a live music production.\nFestival-goers drawn to a robot look for a long day of music and movement.\nContent creators producing cyberpunk visuals for festival shoots or music videos.\nCostume stylists selecting an original futuristic design for themed shows or editorials.\nPerformers choosing a cosmic outfit for stage energy and visual impact.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'main_description',
+        placement: 'left_description',
+        heading: 'Designed for self-expression',
+        source_basis: 'brand_policy',
+        body: 'At TheFEYA, our fashion studio designed this metallic top and skirt outfit for women who want a bold, memorable presence in festivals, rave scenes, and photoshoots. Our designers shaped the silver finish to feel futuristic and edgy while keeping the look visually clean and distinctive. We made it for a confident wearer who likes cosmic energy with a cyberpunk twist. The result feels personal, vivid, and ready to stand out.',
+        needs_human_review: false,
+      },
+    ],
+    qa_self_report: {
+      cliche_phrase: 'pass',
+      long_dash: 'pass',
+      keyword_stuffing: 'pass',
+      product_specificity: 'pass',
+      forbidden_mismatch: 'warning',
+      similarity_cannibalization: 'pass',
+      image_alt_truth: 'pass',
+      commercial_placement: 'pass',
+      validated_metrics: 'not_checked',
+      notes: [],
+    },
+    generation_notes: [],
+  } as any;
+  const context = {
+    product_truth: {
+      color: 'Silver',
+      included_components: ['Garters', 'Panties', 'Skirt', 'Top'],
+      sellable_offer: {
+        status: 'ready',
+        component_labels: ['Garters', 'Panties', 'Skirt', 'Top'],
+      },
+    },
+    manual_focus: {
+      event: ['festival', 'rave', 'photoshoot'],
+      style: ['futuristic', 'cyberpunk', 'desert', 'cosmic', 'sci fi'],
+      persona: ['robot', 'alien'],
+      audience: ['women'],
+    },
+    keyword_roles: {
+      primary: [{ keyword: 'metallic top and skirt set', keyword_norm: 'metallic top and skirt set', role: 'primary' }],
+      secondary: [
+        { keyword: 'rave outfit with skirt', keyword_norm: 'rave outfit with skirt', role: 'secondary' },
+        { keyword: 'metallic silver skirt outfit', keyword_norm: 'metallic silver skirt outfit', role: 'secondary' },
+        { keyword: 'silver rave skirt', keyword_norm: 'silver rave skirt', role: 'secondary' },
+        { keyword: 'metallic skirt outfit', keyword_norm: 'metallic skirt outfit', role: 'secondary' },
+        { keyword: 'silver skirt outfit', keyword_norm: 'silver skirt outfit', role: 'secondary' },
+      ],
+      support: [],
+      image_alt: [],
+      collection: [],
+      faq_commercial: [{ keyword: 'rave what to wear', keyword_norm: 'rave what to wear', role: 'faq_commercial' }],
+      hold: [],
+      reject: [],
+    },
+  } as any;
+
+  const normalized = normalizeSeoEditorialCandidate(candidate, {
+    primary_keyword: 'metallic top and skirt set',
+    selected_events: context.manual_focus.event,
+    selected_styles: context.manual_focus.style,
+    selected_materials: ['silver', 'mirror', 'vegan leather', 'metallic'],
+    included_components: ['Legs', 'Panties', 'Skirt', 'Top'],
+    body_identity_variant: 'silver metallic costume',
+    product_color: 'Silver',
+  });
+  const structural = validateSeoAgentOutput(normalized);
+  const commercial = validateSeoCommercialCopy(normalized, context);
+  const keyword = validateSeoKeywordPlacement(normalized, {
+    product_truth: context.product_truth,
+    keyword_roles: context.keyword_roles,
+  } as any);
+
+  assert.equal(structural.ok, true, JSON.stringify(structural.issues));
+  assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
+  assert.equal(keyword.ok, true, JSON.stringify(keyword.issues));
+  assert.equal(
+    normalized.meta_description,
+    'Silver metallic top and skirt set for rave nights, festivals, cyberpunk styling and futuristic photoshoots.',
+  );
+  assert.match(normalized.pdp_blocks[0].body, /angular harness-style lines/i);
+  assert.match(normalized.pdp_blocks[3].body, /personal style/i);
+  assert.doesNotMatch(normalized.intro, /top and skirt|polished finish/i);
+  assert.doesNotMatch(normalized.pdp_blocks[3].body, /silver finish|stand out/i);
+  assert.equal(
+    normalized.image_alt_candidates[0].alt_text,
+    'silver metallic top and skirt outfit in a desert setting',
+  );
+});
