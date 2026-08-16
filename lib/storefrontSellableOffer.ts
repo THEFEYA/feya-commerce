@@ -1,3 +1,5 @@
+import { applyOwnerReviewedStorefrontCorrections } from './storefrontOwnerReviewedCorrections.ts';
+
 type RecordValue = Record<string, unknown>;
 
 export type StorefrontSellableOfferOption = {
@@ -42,7 +44,7 @@ const FULL_SET_CODE = 'full_set';
 export function resolveStorefrontSellableOffer(
   value: unknown,
 ): StorefrontSellableOfferTruth {
-  const product = isRecord(value) ? value : {};
+  const product = applyOwnerReviewedStorefrontCorrections(isRecord(value) ? value : {});
   const configurations = recordArray(product.configurations);
   if (!configurations.length) return unavailableOffer();
 
