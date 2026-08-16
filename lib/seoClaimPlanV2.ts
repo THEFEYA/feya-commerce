@@ -130,7 +130,7 @@ export function buildDeterministicSeoClaimPlan(
   const selectedStyles = focusValues(input.manual_focus.style);
   const selectedPersonas = focusValues(input.manual_focus.persona);
   const compactFocus = compactManualFocus(input.manual_focus);
-  const idealForPortraits = buildIdealForPortraits(compactFocus);
+  const idealForPortraits = buildIdealForPortraits(compactFocus, input.canonical_product_id);
   const primary = firstKeyword(input.keyword_roles.primary);
   const productIdentity = primary || input.product.title || 'TheFEYA product';
   const selectedContext = selectedEvents[0] || selectedStyles[0] || selectedPersonas[0] || 'its intended use';
@@ -140,7 +140,16 @@ export function buildDeterministicSeoClaimPlan(
     && fact.fact_code !== 'current_product_identity'
   ));
   const preferredCodes = [
+    'brown_leather_harness_identity',
+    'spine_tail_continuous_backpiece',
+    'stretch_fabric_gold_detail_construction',
     'original_authorial_design',
+    'leather_harness_repeat_wear',
+    'leather_harness_upper_body_framing',
+    'red_gloss_stage_visibility',
+    'spine_tail_shape_retention',
+    'stretch_fabric_dance_movement',
+    'gold_detail_stage_visibility',
     'material_glossy_holographic_shift',
     'material_glossy_metal_inspired_finish',
     'material_glossy_latex_like_finish',
@@ -154,6 +163,9 @@ export function buildDeterministicSeoClaimPlan(
     rank(preferredCodes, left.fact_code) - rank(preferredCodes, right.fact_code)
   ));
   const aboutFact = ordered.find((fact) => [
+    'brown_leather_harness_identity',
+    'spine_tail_continuous_backpiece',
+    'stretch_fabric_gold_detail_construction',
     'material_glossy_holographic_shift',
     'material_glossy_metal_inspired_finish',
     'material_glossy_latex_like_finish',
@@ -162,6 +174,12 @@ export function buildDeterministicSeoClaimPlan(
   ].includes(fact.fact_code)) || null;
   const whyFacts = uniqueFactFamilies(ordered.filter((fact) => [
     'original_authorial_design',
+    'leather_harness_repeat_wear',
+    'leather_harness_upper_body_framing',
+    'red_gloss_stage_visibility',
+    'spine_tail_shape_retention',
+    'stretch_fabric_dance_movement',
+    'gold_detail_stage_visibility',
     'material_body_comfort',
     'material_shape_retention',
     'material_event_light_camera',
@@ -225,7 +243,7 @@ export function buildCompactSeoWriterPrompt(
     suppressed_customer_sections: options.readiness?.suppressed_customer_sections || [],
   };
   const compactFocus = compactManualFocus(input.manual_focus);
-  const idealForPortraits = buildIdealForPortraits(compactFocus);
+  const idealForPortraits = buildIdealForPortraits(compactFocus, input.canonical_product_id);
   const brief: SeoWriterBriefV4 = {
     contract_version: 'seo_writer_brief_v4',
     page_type: 'product_detail_page',
@@ -413,6 +431,15 @@ function buyerOutcomeForFact(factCode: string) {
     material_shape_retention: 'With careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
     material_event_light_camera: 'The color and details stay clear in photos and under stage lighting.',
     current_color: 'One concrete visual detail that helps the shopper picture the piece.',
+    brown_leather_harness_identity: 'This brown leather chest harness has a classic, vintage-inspired character with a refined menswear feel.',
+    leather_harness_repeat_wear: 'With appropriate care, the durable leather stays ready for repeat wear.',
+    leather_harness_upper_body_framing: 'The chest-harness strap layout frames the upper body, keeping the accessory’s shape clear and refined.',
+    spine_tail_continuous_backpiece: 'A sculptural extension follows the back as a spine and continues below the waist as one tail detail.',
+    red_gloss_stage_visibility: 'The smooth high-gloss red finish keeps the sculptural details visible under stage lighting.',
+    spine_tail_shape_retention: 'With careful storage, the sculptural backpiece keeps its shape between wears and stays ready for repeat use.',
+    stretch_fabric_gold_detail_construction: 'The stretch-fabric base carries selected patterns and details in gold mirror-finish vegan leather.',
+    stretch_fabric_dance_movement: 'The stretch-fabric base moves comfortably through dance turns and stage choreography.',
+    gold_detail_stage_visibility: 'Gold mirror-finish details catch available stage light, helping the decorative pattern stay visible during performance.',
   };
   return outcomes[factCode] || 'One plain, useful result for the wearer.';
 }
@@ -450,7 +477,10 @@ function compactManualFocus(focus: SeoAgentInputContract['manual_focus']) {
 
 function buildIdealForPortraits(
   focus: SeoWriterBriefV4['operator_confirmed_focus'],
+  canonicalProductId = '',
 ): SeoIdealForPortrait[] {
+  const reviewedPortraits = PRODUCT_SPECIFIC_IDEAL_FOR_PORTRAITS[canonicalProductId];
+  if (reviewedPortraits) return reviewedPortraits;
   const hasCommercialFocus = [focus.event, focus.style, focus.persona, focus.audience]
     .some((values) => values.length > 0);
   if (!hasCommercialFocus) return [];
@@ -529,6 +559,36 @@ function buildIdealForPortraits(
 
   return uniqueBy(portraits, (portrait) => portrait.person.toLowerCase()).slice(0, 5);
 }
+
+const PRODUCT_SPECIFIC_IDEAL_FOR_PORTRAITS: Record<string, SeoIdealForPortrait[]> = {
+  'de38a842-37c4-40a7-86b4-393341c4c9aa': [
+    { person: 'men', situation: 'choosing a classic brown leather harness for portrait or editorial shoots' },
+    { person: 'models', situation: 'wearing a vintage-inspired chest accessory for menswear photography' },
+    { person: 'photographers', situation: 'developing refined brown-leather styling for studio portraits' },
+    { person: 'costume stylists', situation: 'selecting a distinctive chest harness for editorial productions' },
+  ],
+  'f473fb62-0440-473c-a7fb-a52dccafebc6': [
+    { person: 'drag performers', situation: 'choosing a red burlesque outfit with a sculptural spine-tail detail for the stage' },
+    { person: 'showgirls', situation: 'wearing a glamorous red costume for live performance' },
+    { person: 'women', situation: 'seeking a bold burlesque look for theatrical productions' },
+    { person: 'content creators', situation: 'filming bold red visuals for stage and drag productions' },
+    { person: 'costume stylists', situation: 'selecting an original red design for drag shows and editorials' },
+  ],
+  'ffa74da5-c2e1-4c3a-b460-50d1aae09f56': [
+    { person: 'dancers', situation: 'performing in a stretch-fabric costume for live stage choreography' },
+    { person: 'dance schools', situation: 'outfitting groups in a recognizable black-and-gold design' },
+    { person: 'show ballets', situation: 'selecting black-and-gold costumes for ensemble stage productions' },
+    { person: 'go-go dancers', situation: 'choosing a flexible costume for energetic stage performance' },
+    { person: 'event organizers', situation: 'sourcing distinctive dance costumes for professional show teams' },
+  ],
+  '2a39f8ec-b5c3-403c-8f1a-7e10bb0ab829': [
+    { person: 'women', situation: 'choosing a dark witch costume for Halloween appearances' },
+    { person: 'cosplayers', situation: 'developing an original witch character with glamorous fantasy styling' },
+    { person: 'live performers', situation: 'wearing a bold dark-fantasy costume for themed productions' },
+    { person: 'content creators', situation: 'producing witch-inspired Halloween photos and videos' },
+    { person: 'costume stylists', situation: 'selecting an original black design for fantasy editorials' },
+  ],
+};
 
 function buyerJobForFocus(
   productIdentity: string,
