@@ -1617,3 +1617,129 @@ test('the 2026-08-11 silver rave control draft reaches review with zero-token bo
     'Silver layered shoulder pieces and matching skirt worn at an outdoor music festival',
   );
 });
+
+test('paid chrome showgirl draft reaches PASS through exact zero-token recovery', () => {
+  const candidate = {
+    contract_version: 'seo_agent_output_v1',
+    status: 'draft',
+    seo_title: 'Silver Metallic Dress Costume for Festivals',
+    h1: 'Silver Metallic Dress Costume for Festivals',
+    meta_description: 'Silver metallic dress costume with a polished silver finish for festivals and raves nights.',
+    intro: 'For festivals, rave, the stage, and photoshoots, this silver metallic dress outfit brings a bold, futuristic edge that reads clearly in motion and under bright lights.',
+    bullet_highlights: [],
+    faq: [],
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'silver metallic dress outfit with a choker and arm cuffs in a forest setting',
+      truth_basis: 'visible_product_fact',
+    }],
+    internal_linking_hints: [],
+    visual_truth: {
+      observed_product_facts: ['Silver metallic finish', 'Matching choker collar', 'Arm cuffs'],
+      dna_matches: ['Futuristic glam'],
+      open_style_suggestions: [],
+      uncertain_or_missing_facts: ['Exact fabric composition is not visible'],
+      forbidden_visual_claims: ['Do not claim exact fabric content'],
+    },
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        source_basis: 'product_fact',
+        body: 'Built for festivals and raves nights, this silver metallic dress outfit frames the body with a polished, metal-inspired appearance. The smooth, high-gloss silver surface creates a beautifully polished, metal-inspired finish that catches light with a crisp, futuristic edge.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'why_youll_love_it',
+        placement: 'left_description',
+        heading: 'Why you’ll love it',
+        source_basis: 'product_fact',
+        body: 'Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\nThe material feels comfortable against the body, making the garment easier to wear for extended periods.\nWith careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'ideal_for',
+        placement: 'left_description',
+        heading: 'Ideal for',
+        source_basis: 'product_fact',
+        body: 'Women seeking a futuristic glam outfit for a live music production.\nFestival-goers drawn to a dancer look for a long day of music and movement.\nLive performers choosing a showgirl-inspired outfit for a stage show or theatrical role.\nContent creators producing glam visuals for festival shoots or music videos.\nCostume stylists selecting a distinctive cosmic design for themed shows or editorials.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'main_description',
+        placement: 'left_description',
+        heading: 'Designed for self-expression',
+        source_basis: 'brand_policy',
+        body: 'We designed this silver metallic dress outfit to make a festival, rave, or stage moment feel bold and unmistakable. Our fashion studio used a futuristic shape and a silver metallic dress outfit finish to create a look that feels vivid under lights. At TheFEYA, our designers shaped it for a wearer who wants to look memorable, polished, and unapologetically bright.',
+        needs_human_review: false,
+      },
+    ],
+    qa_self_report: {
+      cliche_phrase: 'pass',
+      long_dash: 'pass',
+      keyword_stuffing: 'warning',
+      product_specificity: 'pass',
+      forbidden_mismatch: 'pass',
+      similarity_cannibalization: 'pass',
+      image_alt_truth: 'pass',
+      commercial_placement: 'pass',
+      validated_metrics: 'not_checked',
+      notes: [],
+    },
+    generation_notes: [],
+  } as any;
+  const context = {
+    product_truth: {
+      color: 'Silver',
+      included_components: ['Bracelet', 'Choker', 'Dress Only', 'Panties'],
+    },
+    manual_focus: {
+      event: ['festival', 'rave', 'stage', 'photoshoot'],
+      style: ['futuristic', 'glam', 'cosmic'],
+      persona: ['dancer', 'performer', 'showgirl'],
+      audience: ['women'],
+    },
+    keyword_roles: {
+      primary: [{ keyword: 'silver metallic dress costume', keyword_norm: 'silver metallic dress costume', role: 'primary' }],
+      secondary: [{ keyword: 'silver collar choker', keyword_norm: 'silver collar choker', role: 'secondary' }],
+      support: [],
+      image_alt: [],
+      collection: [],
+      faq_commercial: [],
+      hold: [],
+      reject: [],
+    },
+  } as any;
+
+  const normalized = normalizeSeoEditorialCandidate(candidate, {
+    primary_keyword: 'silver metallic dress costume',
+    selected_events: context.manual_focus.event,
+    selected_styles: context.manual_focus.style,
+    selected_materials: ['silver', 'mirror', 'vegan leather', 'metallic'],
+    included_components: context.product_truth.included_components,
+    body_identity_variant: 'silver metallic dress outfit',
+    product_color: 'Silver',
+  });
+  const structural = validateSeoAgentOutput(normalized);
+  const commercial = validateSeoCommercialCopy(normalized, context);
+  const keyword = validateSeoKeywordPlacement(normalized, {
+    product_truth: context.product_truth,
+    keyword_roles: context.keyword_roles,
+  } as any);
+
+  assert.equal(structural.ok, true, JSON.stringify(structural.issues));
+  assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
+  assert.equal(keyword.ok, true, JSON.stringify({
+    issues: keyword.issues,
+    intro: normalized.intro,
+    about: normalized.pdp_blocks[0]?.body,
+    main: normalized.pdp_blocks[3]?.body,
+  }));
+  assert.equal(
+    normalized.meta_description,
+    'Silver metallic dress costume for women, created for festivals, stage shows and futuristic performance styling.',
+  );
+  assert.match(normalized.pdp_blocks[0].body, /available light during photos, video and live appearances/i);
+  assert.doesNotMatch(normalized.pdp_blocks[3].body, /finish|under lights/i);
+});
