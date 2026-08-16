@@ -110,8 +110,8 @@ test('draft storage reapplies zero-token editorial normalization before validati
     'utf8',
   );
 
-  assert.ok(saveRoute.includes('normalizeReviewDraftBeforeStorage(providedAgentOutput, bundle.seoPackDraft)'));
-  assert.ok(saveRoute.indexOf('normalizeReviewDraftBeforeStorage(providedAgentOutput, bundle.seoPackDraft)') < saveRoute.indexOf('validateSeoAgentOutput(agentOutput)'));
+  assert.ok(saveRoute.includes('normalizeReviewDraftForSeoPack(providedAgentOutput, bundle.seoPackDraft)'));
+  assert.ok(saveRoute.indexOf('normalizeReviewDraftForSeoPack(providedAgentOutput, bundle.seoPackDraft)') < saveRoute.indexOf('validateSeoAgentOutput(agentOutput)'));
   assert.equal(saveRoute.includes('generateSeoDraftWithOpenAi'), false);
 });
 
@@ -124,9 +124,18 @@ test('saved-draft renormalization requires an explicit resave flag and stays tok
     new URL('../../app/admin/seo-engine/first-real-draft/FirstRealDraftClient.tsx', import.meta.url),
     'utf8',
   );
+  const previewRoute = readFileSync(
+    new URL('../../app/api/admin/seo-engine/saved-draft-preview/route.ts', import.meta.url),
+    'utf8',
+  );
 
   assert.ok(page.includes("params.resave === '1' && loadSavedDraft"));
   assert.ok(client.includes('setSavedCurrentResult(!resaveSavedDraft)'));
+  assert.ok(client.includes("&renormalize=${resaveSavedDraft ? '1' : '0'}"));
   assert.ok(client.includes('Сохранить новую нормализованную версию'));
+  assert.ok(previewRoute.includes("searchParams.get('renormalize') === '1'"));
+  assert.ok(previewRoute.includes('normalizeReviewDraftForSeoPack(data.agent_output_snapshot || {}, bundle.seoPackDraft)'));
+  assert.ok(previewRoute.indexOf('normalizeReviewDraftForSeoPack(data.agent_output_snapshot || {}, bundle.seoPackDraft)') < previewRoute.indexOf('validateSeoAgentOutput(output)'));
   assert.equal(client.includes('generateSeoDraftWithOpenAi'), false);
+  assert.equal(previewRoute.includes('generateSeoDraftWithOpenAi'), false);
 });
