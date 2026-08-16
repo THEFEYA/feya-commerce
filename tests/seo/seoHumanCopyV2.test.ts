@@ -245,6 +245,127 @@ test('paid witch draft keeps witch as natural copy and completes the studio clos
   assert.ok(normalized.pdp_blocks[3].body.trim().split(/\s+/).length >= 45);
 });
 
+test('paid configurable witch set reaches PASS through exact zero-token recovery', () => {
+  const candidate = {
+    ...writerWireOutput([
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        source_basis: 'product_fact',
+        body: 'For Halloween and cosplay, this bodysuit Halloween outfit brings a bold, body-conscious presence with a dark witch mood. The smooth, high-gloss black surface creates a sleek, latex-like appearance. A Halloween headpiece adds height and drama for a striking stage impression.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'why_youll_love_it',
+        placement: 'left_description',
+        heading: 'Why you’ll love it',
+        source_basis: 'product_fact',
+        body: '- Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\n- The material feels comfortable against the body, making the garment easier to wear for extended periods.\n- With careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'ideal_for',
+        placement: 'left_description',
+        heading: 'Ideal for',
+        source_basis: 'product_fact',
+        body: '- Women seeking an expressive outfit for a live music production.\n- Festival-goers drawn to a queen look for a long day of music and movement.\n- Cosplayers creating an original glam or goth character for cosplay appearances or themed productions.\n- Content creators producing goth visuals for Halloween shoots or music videos.\n- Costume stylists selecting an original glam design for themed shows or editorials.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'main_description',
+        placement: 'left_description',
+        heading: 'Designed for self-expression',
+        source_basis: 'brand_policy',
+        body: 'Our fashion studio gave the body-conscious form a dark witch mood that reads clearly from the first glance. We wanted a piece that feels personal while carrying a confident, queen-like presence. The result is a gothic statement with a sharp sense of occasion.',
+        needs_human_review: false,
+      },
+    ]),
+    seo_title: 'Black Bodysuit Halloween Costume',
+    h1: 'Black Bodysuit Halloween Costume',
+    meta_description: 'Black bodysuit Halloween costume with a sleek finish for Halloween cosplay and dramatic stage moments.',
+    intro: 'For Halloween and cosplay, this bodysuit Halloween outfit gives women a fashion-led glam queen edge with a bold, black finish that feels made for the spotlight.',
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'Black bodysuit Halloween outfit with a glossy crown headpiece posed against a purple studio backdrop',
+      truth_basis: 'visible_product_fact',
+    }],
+    visual_truth: {
+      observed_product_facts: [
+        'Black glossy crown-style headpiece with pointed spikes',
+        'Black bodysuit with sculpted fitted panels',
+        'Dark cape-like shoulder pieces',
+      ],
+      dna_matches: ['glam gothic mood', 'fantasy queen presence'],
+      open_style_suggestions: [],
+      uncertain_or_missing_facts: ['Exact material composition cannot be confirmed from the image alone'],
+      forbidden_visual_claims: ['Do not claim a named character replica'],
+    },
+  } as any;
+  const context = {
+    product_truth: {
+      color: 'Black',
+      material: 'Fabric, Leather, Faux leather, Latex',
+      known_components: ['Bodysuit', 'Fabric Cape', 'Headpiece', 'Garters'],
+      included_components: ['Bodysuit', 'Fabric Cape', 'Headpiece', 'Garters'],
+      sellable_offer_components: ['Bodysuit', 'Fabric Cape', 'Headpiece', 'Garters'],
+      sellable_offer: {
+        status: 'ready',
+        source_available: true,
+        component_labels: ['Bodysuit', 'Fabric Cape', 'Headpiece', 'Garters'],
+      },
+    },
+    manual_focus: {
+      material: ['black', 'leather'],
+      event: ['halloween', 'cosplay'],
+      style: ['glam', 'goth', 'fantasy'],
+      persona: ['queen', 'witch'],
+      audience: ['women'],
+    },
+    keyword_roles: {
+      primary: [{ keyword: 'bodysuit halloween costume', keyword_norm: 'bodysuit halloween costume', role: 'primary' }],
+      secondary: [
+        { keyword: 'halloween headpiece', keyword_norm: 'halloween headpiece', role: 'secondary' },
+        { keyword: 'witch headpiece', keyword_norm: 'witch headpiece', role: 'secondary' },
+        { keyword: 'halloween costume with black bodysuit', keyword_norm: 'halloween costume with black bodysuit', role: 'secondary' },
+        { keyword: 'black bodysuit halloween costume', keyword_norm: 'black bodysuit halloween costume', role: 'secondary' },
+        { keyword: 'black bodysuit halloween', keyword_norm: 'black bodysuit halloween', role: 'secondary' },
+        { keyword: 'black bodysuit cosplay', keyword_norm: 'black bodysuit cosplay', role: 'secondary' },
+        { keyword: 'black bodysuit costume women', keyword_norm: 'black bodysuit costume women', role: 'secondary' },
+      ],
+      support: [],
+      image_alt: [],
+      collection: [],
+      faq_commercial: [],
+      hold: [],
+      reject: [],
+    },
+  } as any;
+
+  const normalized = normalizeSeoEditorialCandidate(candidate, {
+    primary_keyword: 'bodysuit halloween costume',
+    selected_events: context.manual_focus.event,
+    selected_styles: context.manual_focus.style,
+    selected_materials: context.manual_focus.material,
+    included_components: context.product_truth.included_components,
+    body_identity_variant: 'bodysuit Halloween outfit',
+    product_color: 'Black',
+  });
+  const structural = validateSeoAgentOutput(normalized);
+  const commercial = validateSeoCommercialCopy(normalized, context);
+  const keyword = validateSeoKeywordPlacement(normalized, {
+    product_truth: context.product_truth,
+    keyword_roles: context.keyword_roles,
+  } as any);
+
+  assert.equal(structural.ok, true, JSON.stringify(structural.issues));
+  assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
+  assert.equal(keyword.ok, true, JSON.stringify(keyword.issues));
+  assert.equal(normalized.seo_title, 'Bodysuit Halloween Costume for Women');
+  assert.match(normalized.pdp_blocks[0].body, /queen-like profile/i);
+  assert.match(normalized.pdp_blocks[3].body, /At TheFEYA, our designers developed/i);
+});
+
 function inputContract() {
   return {
     contract_version: 'seo_agent_input_v1',
