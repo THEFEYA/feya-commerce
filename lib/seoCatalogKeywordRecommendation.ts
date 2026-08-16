@@ -210,13 +210,13 @@ const PERSONA_FAMILIES: Record<string, string[]> = {
   witch: ['witch', 'dark witch'],
 };
 
-// These owner-reviewed products have no unambiguous Product-bucket phrase that describes the whole
-// sellable item. The owner reviewed the products and authorized a tightly
-// scoped PDP Primary from the validated bank instead of inventing a metric or
-// weakening the whole-product gate for the rest of the catalog.
+// These owner-reviewed products need one exact measured PDP intent reserved
+// before the general scorer can prefer a partial component or broad collection
+// phrase. The exception remains exact product + exact validated keyword; it
+// never invents metrics or weakens the whole-product gate for other products.
 const OWNER_REVIEWED_PDP_PRIMARY: Record<string, string> = {
   '103ff46a-892a-4961-80b1-e6996727c395': 'silver metallic dress costume',
-  '657bd6d8-fbe1-4441-abad-f574e3380897': 'metallic silver skirt outfit',
+  '657bd6d8-fbe1-4441-abad-f574e3380897': 'rave harness outfit',
   '6739b15c-f2f3-4a26-9e2a-3a0b5a3e2d2f': 'sci fi armor costume',
   'f3d4bdd8-9ba0-400b-9cfc-e4a8097707fc': 'futuristic armor costume',
   'f473fb62-0440-473c-a7fb-a52dccafebc6': 'red stage outfit',
