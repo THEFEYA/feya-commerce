@@ -1090,6 +1090,7 @@ test('owner-reviewed silver Burning Man set uses a measured whole-outfit Primary
     approvedKeywords: [
       { ...baseMetric, keyword: 'silver body harness', keyword_norm: 'silver body harness', bank_bucket: 'product', avg_monthly_searches: 20 },
       { ...baseMetric, keyword: 'harness festival outfit', keyword_norm: 'harness festival outfit', bank_bucket: 'product', avg_monthly_searches: 20, competition: 'LOW', competition_index: 19 },
+      { ...baseMetric, keyword: 'harness outfit festival', keyword_norm: 'harness outfit festival', bank_bucket: 'product', avg_monthly_searches: 10, competition: 'LOW', competition_index: 0 },
       { ...baseMetric, keyword: 'burning man harness', keyword_norm: 'burning man harness', bank_bucket: 'product', avg_monthly_searches: 40 },
     ],
   });
@@ -1099,6 +1100,7 @@ test('owner-reviewed silver Burning Man set uses a measured whole-outfit Primary
   assert.equal(primary?.owner_reviewed_pdp_primary, true);
   assert.equal(primary?.avg_monthly_searches, 20);
   assert.equal(result.keywords.find((row) => row.keyword_norm === 'silver body harness')?.role, 'secondary');
+  assert.equal(result.keywords.some((row) => row.keyword_norm === 'harness outfit festival'), false);
 });
 
 test('owner-reviewed carnival set uses a validated whole-stage phrase instead of a headpiece-only Primary', () => {
