@@ -1561,7 +1561,7 @@ export function normalizePaidCosmicTopSkirtSetCopy<T>(
     || !materials.includes('mirror')
     || !materials.includes('vegan leather')
     || !materials.includes('metallic')
-    || components.join('|') !== 'legs|panties|skirt|top'
+    || components.join('|') !== 'garters|panties|skirt|top'
   ) return output;
 
   const exactFieldReplacements: Record<string, [string, string]> = {
