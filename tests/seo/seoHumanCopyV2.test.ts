@@ -2135,3 +2135,148 @@ test('paid silver Burning Man harness set reaches PASS through exact zero-token 
   assert.match(normalized.pdp_blocks[3].body, /personal style/i);
   assert.doesNotMatch(normalized.pdp_blocks[3].body, /statement piece|unmistakable edge/i);
 });
+
+test('paid silver mens warrior set reaches PASS through exact zero-token recovery', () => {
+  const candidate = {
+    contract_version: 'seo_agent_output_v1',
+    status: 'draft',
+    seo_title: 'Silver Metallic Outfit for Burning Man',
+    h1: 'Silver Metallic Outfit for Burning Man',
+    meta_description: 'Silver silver metallic outfit with a polished finish for Burning Man and rave nights.',
+    intro: 'For Burning Man, this silver metallic costume brings a bold, distinctive look that suits long days in the dust and after-dark energy.',
+    bullet_highlights: [],
+    faq: [],
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'silver metallic costume worn by a man walking across a dusty desert festival ground',
+      truth_basis: 'visible_product_fact',
+    }],
+    internal_linking_hints: [],
+    visual_truth: {
+      observed_product_facts: [
+        'Silver metallic-looking shoulder and upper-body pieces',
+        'Layered silver skirt panels',
+        'Matching wrist and forearm pieces',
+        'Male model photographed on a dusty desert festival ground',
+      ],
+      dna_matches: [
+        'Futuristic silver finish',
+        'Cyberpunk-inspired warrior styling',
+        'Desert festival presentation',
+      ],
+      open_style_suggestions: [],
+      uncertain_or_missing_facts: [
+        'Exact closure method is not fully visible',
+        'Base layers and footwear are not confirmed as included',
+      ],
+      forbidden_visual_claims: [
+        'Do not claim base layers or footwear are included',
+        'Do not claim exact replica styling',
+      ],
+    },
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        source_basis: 'product_fact',
+        body: 'For Burning Man and rave nights, this silver metallic costume gives men a bold, festival-ready presence with a polished, metal-inspired finish. The clean shine and layered detailing help the look feel striking while staying visually cohesive in bright daylight and at night sets.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'why_youll_love_it',
+        placement: 'left_description',
+        heading: 'Why you’ll love it',
+        source_basis: 'product_fact',
+        body: 'Created by our designers, the layered shoulder lines and warrior-inspired shape give the outfit a distinctive, memorable character that feels personal.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'ideal_for',
+        placement: 'left_description',
+        heading: 'Ideal for',
+        source_basis: 'product_fact',
+        body: 'Men seeking an expressive outfit for a live music production.\nBurning Man attendees drawn to a warrior look for long days and night sets.\nContent creators producing cyberpunk visuals for Burning Man shoots or music videos.\nCostume stylists selecting an original futuristic design for themed shows or editorials.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'main_description',
+        placement: 'left_description',
+        heading: 'Designed for self-expression',
+        source_basis: 'brand_policy',
+        body: 'We designed this piece for people who want a silver metallic costume with presence, clarity, and movement-ready energy. At TheFEYA, our fashion studio shaped the look for Burning Man and festival scenes where bold dressing reads from a distance. Our original design ideas turn the silver metallic costume into something memorable, personal, and ready to stand out in the dust.',
+        needs_human_review: false,
+      },
+    ],
+    qa_self_report: {
+      cliche_phrase: 'pass',
+      long_dash: 'pass',
+      keyword_stuffing: 'pass',
+      product_specificity: 'pass',
+      forbidden_mismatch: 'pass',
+      similarity_cannibalization: 'pass',
+      image_alt_truth: 'pass',
+      commercial_placement: 'pass',
+      validated_metrics: 'not_checked',
+      notes: [],
+    },
+    generation_notes: [],
+  } as any;
+  const context = {
+    product_truth: {
+      color: 'Silver',
+      included_components: ['Bracelet', 'Shoulders', 'Skirt', 'Top'],
+      sellable_offer: {
+        status: 'ready',
+        component_labels: ['Bracelet', 'Shoulders', 'Skirt', 'Top'],
+      },
+    },
+    manual_focus: {
+      event: ['burning man', 'festival', 'rave'],
+      style: ['futuristic', 'cyberpunk', 'desert'],
+      persona: ['warrior'],
+      audience: ['men'],
+    },
+    keyword_roles: {
+      primary: [{ keyword: 'silver metallic outfit', keyword_norm: 'silver metallic outfit', role: 'primary' }],
+      secondary: [
+        { keyword: 'rave what to wear', keyword_norm: 'rave what to wear', role: 'secondary' },
+        { keyword: 'burning man men outfit', keyword_norm: 'burning man men outfit', role: 'secondary' },
+      ],
+      support: [],
+      image_alt: [],
+      collection: [],
+      faq_commercial: [],
+      hold: [],
+      reject: [],
+    },
+  } as any;
+
+  const normalized = normalizeSeoEditorialCandidate(candidate, {
+    primary_keyword: 'silver metallic outfit',
+    selected_events: context.manual_focus.event,
+    selected_styles: context.manual_focus.style,
+    selected_materials: ['silver', 'mirror', 'vegan leather', 'metallic'],
+    included_components: context.product_truth.included_components,
+    body_identity_variant: 'silver metallic costume',
+    product_color: 'Silver',
+  });
+  const structural = validateSeoAgentOutput(normalized);
+  const commercial = validateSeoCommercialCopy(normalized, context);
+  const keyword = validateSeoKeywordPlacement(normalized, {
+    product_truth: context.product_truth,
+    keyword_roles: context.keyword_roles,
+  } as any);
+
+  assert.equal(structural.ok, true, JSON.stringify(structural.issues));
+  assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
+  assert.equal(keyword.ok, true, JSON.stringify(keyword.issues));
+  assert.equal(
+    normalized.meta_description,
+    'Silver metallic outfit for men, created for Burning Man, rave nights and futuristic desert styling.',
+  );
+  assert.match(normalized.pdp_blocks[0].body, /layered skirt panels/i);
+  assert.match(normalized.pdp_blocks[1].body, /between wears/i);
+  assert.match(normalized.pdp_blocks[3].body, /personal style/i);
+  assert.doesNotMatch(normalized.pdp_blocks[3].body, /reads from a distance|stand out in the dust/i);
+});
