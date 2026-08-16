@@ -11,6 +11,7 @@ import { buildSeoAgentInputFromDraft, buildSeoPackDraftContractFromBrief } from 
 import {
   resolveStorefrontSellableOffer,
 } from '@/lib/storefrontSellableOffer';
+import { applyOwnerReviewedStorefrontCorrections } from '@/lib/storefrontOwnerReviewedCorrections';
 import { reconcileListingMasterComponentFocus } from '@/lib/listingMasterSearchAxisContract';
 import { hasTrustedSeoMetricSnapshot } from '@/lib/seoTrustedMetricSnapshot';
 import {
@@ -512,8 +513,9 @@ async function loadProductTruthRow(supabase, productId) {
 }
 
 function attachStorefrontSellableOffer(product, storefrontProduct) {
-  const configurations = recordArray(storefrontProduct?.configurations);
-  const offer = resolveStorefrontSellableOffer({ configurations });
+  const correctedStorefrontProduct = applyOwnerReviewedStorefrontCorrections(storefrontProduct || {});
+  const configurations = recordArray(correctedStorefrontProduct.configurations);
+  const offer = resolveStorefrontSellableOffer(correctedStorefrontProduct);
   return {
     ...product,
     configurations,
