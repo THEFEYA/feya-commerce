@@ -1064,6 +1064,43 @@ test('owner-reviewed silver cyber set uses its free whole-outfit intent instead 
   assert.equal(result.keywords.find((row) => row.keyword_norm === 'rave skirt and top set')?.role, 'secondary');
 });
 
+test('owner-reviewed silver Burning Man set uses a measured whole-outfit Primary instead of a harness component phrase', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: 'ce899f23-b983-4ede-ae81-3348757b1c15',
+      card_title: 'Burning Man Costume Set with Shoulder, Top Harness, Bracelet and Garters',
+      source_category_label: 'Costume Set',
+      sellable_offer_components: ['Shoulders', 'Top Harness', 'Bracelet', 'Garters'],
+      sellable_offer: {
+        status: 'ready',
+        component_labels: ['Shoulders', 'Top Harness', 'Bracelet', 'Garters'],
+      },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['shoulders', 'harness', 'arms', 'legs'],
+      sellable_component_axes: ['shoulders', 'harness', 'arms', 'legs'],
+      search_only_component_axes: [],
+      material: ['silver', 'mirror', 'vegan leather', 'metallic'],
+      event: ['burning man', 'festival', 'rave'],
+      style: ['futuristic', 'cyberpunk', 'desert'],
+      persona: ['warrior'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'silver body harness', keyword_norm: 'silver body harness', bank_bucket: 'product', avg_monthly_searches: 20 },
+      { ...baseMetric, keyword: 'harness festival outfit', keyword_norm: 'harness festival outfit', bank_bucket: 'product', avg_monthly_searches: 20, competition: 'LOW', competition_index: 19 },
+      { ...baseMetric, keyword: 'burning man harness', keyword_norm: 'burning man harness', bank_bucket: 'product', avg_monthly_searches: 40 },
+    ],
+  });
+
+  const primary = result.keywords.find((row) => row.role === 'primary');
+  assert.equal(primary?.keyword_norm, 'harness festival outfit');
+  assert.equal(primary?.owner_reviewed_pdp_primary, true);
+  assert.equal(primary?.avg_monthly_searches, 20);
+  assert.equal(result.keywords.find((row) => row.keyword_norm === 'silver body harness')?.role, 'secondary');
+});
+
 test('owner-reviewed carnival set uses a validated whole-stage phrase instead of a headpiece-only Primary', () => {
   const result = recommendCatalogKeywords({
     product: {
