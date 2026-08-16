@@ -638,6 +638,7 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizePaidChromeShowgirlCopy(normalized, context);
   normalized = normalizePaidCosmicHarnessOutfitCopy(normalized, context);
   normalized = normalizePaidSilverBurningManHarnessSetCopy(normalized, context);
+  normalized = normalizePaidSilverMensWarriorSetCopy(normalized, context);
   normalized = normalizePaidRedSpineTailCopy(normalized, context);
   normalized = normalizePaidDanceCostumeCopy(normalized, context);
   normalized = normalizePaidWitchCostumeCopy(normalized, context);
@@ -1345,6 +1346,90 @@ export function normalizePaidSilverBurningManHarnessSetCopy<T>(
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
       'Human-reviewed deterministic repair completed the paid silver Burning Man harness draft without another writer call.',
+    ],
+  } as T;
+}
+
+/**
+ * Recover the single paid silver men's warrior-set response without another
+ * writer call. The Primary, complete saved focus, material family and exact
+ * owner-reviewed Full Set composition jointly identify this product. Every
+ * replacement is also exact-response bounded, so the rule cannot rewrite a
+ * later silver product that happens to share one or two axes.
+ */
+export function normalizePaidSilverMensWarriorSetCopy<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const primary = normalizeIdentityValue(context.primary_keyword).toLowerCase();
+  const color = normalizeIdentityColor(context.product_color).toLowerCase();
+  const events = normalizeIdentityValues(context.selected_events).map((value) => value.toLowerCase());
+  const styles = normalizeIdentityValues(context.selected_styles).map((value) => value.toLowerCase());
+  const materials = normalizeIdentityValues(context.selected_materials).map((value) => value.toLowerCase());
+  const components = normalizeIdentityValues(context.included_components)
+    .map((value) => value.toLowerCase())
+    .sort();
+  if (
+    primary !== 'silver metallic outfit'
+    || color !== 'silver'
+    || !events.includes('burning man')
+    || !events.includes('festival')
+    || !events.includes('rave')
+    || !styles.includes('futuristic')
+    || !styles.includes('cyberpunk')
+    || !styles.includes('desert')
+    || !materials.includes('mirror')
+    || !materials.includes('vegan leather')
+    || components.join('|') !== 'bracelet|shoulders|skirt|top'
+  ) return output;
+
+  const exactFieldReplacements: Record<string, [string, string]> = {
+    meta_description: [
+      'Silver silver metallic outfit with a polished finish for Burning Man and rave nights.',
+      'Silver metallic outfit for men, created for Burning Man, rave nights and futuristic desert styling.',
+    ],
+    intro: [
+      'For Burning Man, this silver metallic costume brings a bold, distinctive look that suits long days in the dust and after-dark energy.',
+      'Created for Burning Man and rave nights, this men’s silver metallic costume brings a futuristic warrior character to desert gatherings, live music and creative productions.',
+    ],
+  };
+  const blockReplacements: Record<string, [string, string]> = {
+    about_this_piece: [
+      'For Burning Man and rave nights, this silver metallic costume gives men a bold, festival-ready presence with a polished, metal-inspired finish. The clean shine and layered detailing help the look feel striking while staying visually cohesive in bright daylight and at night sets.',
+      'This silver festival costume uses structured upper-body lines and layered skirt panels to create a futuristic warrior look. Its balanced proportions remain clear from the front and in motion, making the design well suited to desert gatherings, live shows, photographs and movement-focused video.',
+    ],
+    why_youll_love_it: [
+      'Created by our designers, the layered shoulder lines and warrior-inspired shape give the outfit a distinctive, memorable character that feels personal.',
+      '- Created by our designers, the original warrior shape gives the outfit a distinctive character that feels personal.\n- The material feels comfortable against the body, making the costume easier to wear through longer festival days and performances.\n- With careful storage, the structured pieces keep their shape between wears and stay ready for future events.',
+    ],
+    main_description: [
+      'We designed this piece for people who want a silver metallic costume with presence, clarity, and movement-ready energy. At TheFEYA, our fashion studio shaped the look for Burning Man and festival scenes where bold dressing reads from a distance. Our original design ideas turn the silver metallic costume into something memorable, personal, and ready to stand out in the dust.',
+      'At TheFEYA, our designers developed this silver costume from original ideas for men who value expressive futuristic fashion. Its warrior-inspired proportions give the piece a recognizable studio character while leaving room for personal style. Across festivals, live productions and creative shoots, the design helps each wearer create a confident look that feels personal and distinctly their own.',
+    ],
+  };
+
+  let changed = false;
+  const normalized: Record<string, unknown> = { ...output };
+  Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
+    if (normalized[field] !== before) return;
+    normalized[field] = after;
+    changed = true;
+  });
+  normalized.pdp_blocks = output.pdp_blocks.map((block) => {
+    if (!isRecord(block) || typeof block.body !== 'string') return block;
+    const replacement = blockReplacements[String(block.block_key || '')];
+    if (!replacement || block.body !== replacement[0]) return block;
+    changed = true;
+    return { ...block, body: replacement[1] };
+  });
+  if (!changed) return output;
+
+  return {
+    ...normalized,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Human-reviewed deterministic repair recovered the paid silver men’s warrior-set draft without another writer call.',
     ],
   } as T;
 }
