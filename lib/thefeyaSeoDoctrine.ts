@@ -57,7 +57,14 @@ export const THEFEYA_BENEFIT_GENERATION_POLICY = [
   'Comparative price, tax, discount, bulk-order, service-quality, assortment and delivery-superiority claims are store-level promises. Do not generate them in a product benefit block without a separate approved policy and evidence source.',
 ] as const;
 
-function rightPanelBlock(block_key: string, heading: string, lines: readonly string[]) {
+export type ThefeyaRightPdpBlock = {
+  block_key: string;
+  heading: string;
+  lines: readonly string[];
+  body: string;
+};
+
+function rightPanelBlock(block_key: string, heading: string, lines: readonly string[]): ThefeyaRightPdpBlock {
   return {
     block_key,
     heading,
@@ -69,7 +76,7 @@ function rightPanelBlock(block_key: string, heading: string, lines: readonly str
 export const THEFEYA_CANONICAL_RIGHT_PDP_PANEL = [
   rightPanelBlock('sizing_fit', 'Sizing & fit', [
     'Use our size chart to choose your standard size.',
-    'Our pieces are easy to adjust with straps for a comfortable, secure fit.',
+    'Where the design uses straps, adjust them for a comfortable, secure fit.',
     'For custom measurements or a special fit request, add the details to your order note.',
   ]),
   rightPanelBlock('production_timing', 'Production time', [
@@ -95,6 +102,71 @@ export const THEFEYA_CANONICAL_RIGHT_PDP_PANEL = [
   ]),
 ] as const;
 
+type ThefeyaRightPdpContext = {
+  canonical_product_id?: unknown;
+};
+
+type RightPanelOverride = Partial<Record<string, readonly string[]>>;
+
+/**
+ * The right-panel structure and ownership stay fixed in code. A very small
+ * owner-reviewed exception map changes only factual fit/material/care lines
+ * for products whose construction is known not to match the catalog default.
+ * This avoids both a new database subsystem for two or three rare products
+ * and the more dangerous alternative of showing false universal material copy.
+ */
+const THEFEYA_PRODUCT_RIGHT_PDP_OVERRIDES: Record<string, RightPanelOverride> = {
+  'de38a842-37c4-40a7-86b4-393341c4c9aa': {
+    material: [
+      'This chest harness is made from brown leather.',
+    ],
+    care: [
+      'Wipe the brown leather gently with a soft, slightly damp cloth.',
+      'Do not use alcohol wipes, machine washing or prolonged soaking on this piece.',
+      'Store the harness without tight folding or long-term heavy pressure.',
+    ],
+  },
+  'ffa74da5-c2e1-4c3a-b460-50d1aae09f56': {
+    sizing_fit: [
+      'Use our size chart to choose your standard size.',
+      'The stretch-fabric base follows the selected size and is designed to move with the wearer.',
+      'For custom measurements or a special fit request, add the details to your order note.',
+    ],
+    material: [
+      'This costume combines a stretch-fabric base with selected gold mirror-finish vegan leather details.',
+      'The fabric provides flexibility, while the coated details create the graphic gold finish.',
+    ],
+    care: [
+      'Clean the costume gently by hand, paying separate attention to the stretch fabric and coated gold details.',
+      'Avoid machine washing, strong rubbing and alcohol-based products on the fabric.',
+      'Store the costume on a hanger without tight folding or long-term heavy pressure.',
+    ],
+  },
+  '2a39f8ec-b5c3-403c-8f1a-7e10bb0ab829': {
+    material: [
+      'This costume combines glossy mirror-finish vegan leather pieces with a fabric cape.',
+    ],
+    care: [
+      'Wipe the coated vegan leather pieces gently by hand with a mild cleaner.',
+      'Clean the fabric cape separately with gentle hand care; do not use alcohol wipes on the fabric.',
+      'Avoid machine washing and store the pieces without tight folding or long-term heavy pressure.',
+    ],
+  },
+};
+
+export function resolveThefeyaRightPdpPanel(
+  context: ThefeyaRightPdpContext = {},
+): ThefeyaRightPdpBlock[] {
+  const productId = String(context.canonical_product_id || '').trim();
+  const overrides = THEFEYA_PRODUCT_RIGHT_PDP_OVERRIDES[productId];
+  if (!overrides) return THEFEYA_CANONICAL_RIGHT_PDP_PANEL.map((block) => ({ ...block }));
+
+  return THEFEYA_CANONICAL_RIGHT_PDP_PANEL.map((block) => {
+    const lines = overrides[block.block_key];
+    return lines ? rightPanelBlock(block.block_key, block.heading, lines) : { ...block };
+  });
+}
+
 export const THEFEYA_SEO_DOCTRINE = {
   version: THEFEYA_SEO_DOCTRINE_VERSION,
   purpose: 'Evidence-first SEO content intelligence for TheFEYA product pages before first indexation. This is not a simple description generator.',
@@ -107,7 +179,7 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Before final apply-to-product or publish-readiness automation, reload the latest research files from the owner and update this doctrine if needed.',
     'Product variations, included components, PDP text blocks, slug/meta data and future sitemap updates must be handled by one canonical product editing flow, not by disconnected one-off text patches.',
     'The existing storefront PDP is the visual source of truth. Admin previews must reuse its structure, spacing, order, icons and interaction patterns rather than imitate it in a parallel component.',
-    'The complete right PDP information panel is immutable canonical storefront copy. OpenAI must never generate, rewrite, paraphrase or reorder it.',
+    'The complete right PDP information panel is code-owned canonical storefront copy. Its structure is immutable; narrow owner-reviewed product overrides may replace factual fit, material or care lines. OpenAI must never generate, rewrite, paraphrase or reorder it.',
     'What’s included is a separate dynamic left-description block rendered after About this piece only from confirmed configuration mapping. It is not written by OpenAI.',
     'The canonical admin review destination is the existing SEO storefront preview. Temporary generation routes must redirect into that workspace instead of creating parallel screens.',
   ],
@@ -188,19 +260,19 @@ export const THEFEYA_SEO_DOCTRINE = {
     },
   ],
   right_panel_policy: [
-    'THEFEYA_CANONICAL_RIGHT_PDP_PANEL is one fixed immutable source for both live PDP and admin preview.',
+    'THEFEYA_CANONICAL_RIGHT_PDP_PANEL plus resolveThefeyaRightPdpPanel is the one code-owned source for both live PDP and admin preview.',
     'OpenAI must never generate, rewrite, paraphrase, translate, reorder or append any right-panel block.',
     'What’s included appears after About this piece only when confirmed configuration data exists. Render each component on its own check-marked line and hide the block when truth is unresolved.',
     'What’s included comes only from the resolved current storefront v4 sellable offer for the selected option. Legacy Etsy variations remain provenance and cannot add a component. When separate current configurations exist, state that the Full Set or available pieces can be ordered separately.',
-    'Sizing & fit, Production time, Shipping & delivery, Material, Care and Made to order & customization are fixed canonical blocks and identical for all products.',
+    'Sizing & fit, Production time, Shipping & delivery, Material, Care and Made to order & customization keep one canonical order. Only owner-reviewed factual fit, material and care lines may vary for a named product.',
     'Returns, exchanges and cancellation copy is not repeated in the quick right panel because policy links already exist under the purchase controls.',
-    'Product-specific material nuances, visible style, event angle and benefits belong in the generated left description.',
+    'Product-specific material nuances may appear in both the code-owned factual right panel and the generated left description, but OpenAI never controls the right-panel wording.',
   ],
   buyer_facts: [
     'Typical made-to-order production: 3-5 business days.',
     'For rush production or an earlier dispatch date, the buyer should contact the studio before ordering.',
     'Standard shipping: 10-14 business days. Express shipping: 6-9 business days.',
-    'Sizing: use the size chart. The studio’s pieces are easy to adjust with straps. Custom measurements or a special fit request can be left with the order or discussed before production.',
+    'Sizing: use the size chart. Where a design uses straps, they can be adjusted for fit. Custom measurements or a special fit request can be left with the order or discussed before production.',
     'Customization is separate from generated product copy: color, size, detail, length, coverage and fit changes can be discussed in the fixed right panel while keeping the result within the studio style.',
     'Material and finish claims require product-specific Product Truth or verified image truth. Approved canonical right-panel facts about adjustment, comfort or care may support one freshly written buyer consequence when they apply to the product, but their operational wording must not be copied.',
     'Returns, exchanges and cancellations are available through the store-policy links under the purchase controls and are not duplicated in the quick right panel.',
@@ -263,7 +335,8 @@ export function buildThefeyaSeoDoctrineSystemLines() {
   ];
 }
 
-export function buildThefeyaSeoDoctrineUserLines() {
+export function buildThefeyaSeoDoctrineUserLines(context: ThefeyaRightPdpContext = {}) {
+  const rightPanel = resolveThefeyaRightPdpPanel(context);
   return [
     `Doctrine source: ${THEFEYA_SEO_DOCTRINE.version}.`,
     'Use these buyer-facing facts when relevant, without inventing new promises:',
@@ -275,7 +348,7 @@ export function buildThefeyaSeoDoctrineUserLines() {
     'Why you’ll love it benefit policy:',
     ...THEFEYA_BENEFIT_GENERATION_POLICY,
     'Fixed right-panel copy already visible to the buyer. Treat it as a no-copy reference and do not repeat its sentences:',
-    ...THEFEYA_CANONICAL_RIGHT_PDP_PANEL.map((block) => `${block.heading}: ${block.body.replaceAll('\n', ' ')}`),
+    ...rightPanel.map((block) => `${block.heading}: ${block.body.replaceAll('\n', ' ')}`),
     'Right panel policy:',
     ...THEFEYA_SEO_DOCTRINE.right_panel_policy,
     `Research checkpoint: ${THEFEYA_RESEARCH_RELOAD_CHECKPOINT.agent_note_en}`,
