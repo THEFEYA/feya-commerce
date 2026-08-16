@@ -938,7 +938,7 @@ export function normalizePaidConfigurableWitchSetCopy<T>(
     ],
     main_description: [
       'Our fashion studio gave the body-conscious form a dark witch mood that reads clearly from the first glance. We wanted a piece that feels personal while carrying a confident, queen-like presence. The result is a gothic statement with a sharp sense of occasion.',
-      'At TheFEYA, our designers developed this black costume from original ideas for women who want expressive dark-fantasy fashion. We built the crown-led proportions around a confident witch-queen attitude and our recognizable studio language. Across Halloween parties, cosplay appearances and theatrical styling, the finished piece helps each wearer make the look feel bold, personal and distinctly her own.',
+      'At TheFEYA, our designers developed this black costume from original ideas for women who want expressive dark-fantasy fashion. We built the crown-led proportions around a confident witch-queen attitude and our recognizable studio language. Across Halloween parties, cosplay appearances and theatrical styling, the finished piece gives women room to express their individuality while keeping the character bold, personal and distinctly their own.',
     ],
   };
 
