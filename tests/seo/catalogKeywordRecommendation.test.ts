@@ -729,3 +729,452 @@ test('multiple selected strategy modes resolve to balanced scoring', () => {
   assert.equal(normalizeStrategy(['demand', 'niche']), 'balanced');
   assert.equal(normalizeStrategy('demand'), 'demand');
 });
+
+test('rare brown and classic axes remain optional but retrieve a matching harness query', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: 'de38a842-37c4-40a7-86b4-393341c4c9aa',
+      card_title: 'Deluxe Leather Harness for Men',
+      source_category_label: 'Harnesses',
+      sellable_offer_components: ['Harness Top'],
+      sellable_offer: { status: 'ready', component_labels: ['Harness Top'] },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['top', 'harness'],
+      sellable_component_axes: ['harness'],
+      search_only_component_axes: ['top'],
+      material: ['brown', 'leather'],
+      event: ['photoshoot'],
+      style: ['classic'],
+      audience: ['men'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'classic brown leather harness', keyword_norm: 'classic brown leather harness', bank_bucket: 'product', avg_monthly_searches: 40 },
+    ],
+  });
+
+  assert.equal(result.keywords[0]?.keyword_norm, 'classic brown leather harness');
+  assert.deepEqual(result.diagnostics.product_colors, ['brown']);
+  assert.deepEqual(result.diagnostics.product_styles, ['classic']);
+});
+
+test('owner-reviewed red outfit fallback promotes only the exact validated whole-product query', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: 'f473fb62-0440-473c-a7fb-a52dccafebc6',
+      card_title: 'Red Burlesque Dress with Spine-Tail',
+      source_category_label: 'Costume Set',
+      sellable_offer_components: ['Top', 'Skirt'],
+      sellable_offer: { status: 'ready', component_labels: ['Top', 'Skirt'] },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['top', 'skirt', 'spine', 'tail'],
+      sellable_component_axes: ['top', 'skirt'],
+      search_only_component_axes: ['spine', 'tail'],
+      material: ['red'],
+      event: ['stage', 'drag'],
+      style: ['glam', 'burlesque'],
+      persona: ['drag queen', 'performer'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'red stage outfit', keyword_norm: 'red stage outfit', bank_bucket: 'collection', avg_monthly_searches: 40 },
+      { ...baseMetric, keyword: 'stage performance outfit', keyword_norm: 'stage performance outfit', bank_bucket: 'collection', avg_monthly_searches: 70 },
+    ],
+  });
+
+  const primary = result.keywords.find((row) => row.role === 'primary');
+  assert.equal(primary?.keyword_norm, 'red stage outfit');
+  assert.equal(primary?.whole_product_intent, true);
+  assert.equal(primary?.owner_reviewed_pdp_primary, true);
+  assert.equal(result.keywords.find((row) => row.keyword_norm === 'stage performance outfit')?.role, 'supporting');
+});
+
+test('owner-reviewed dance fallback keeps the complete costume as Primary', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: 'ffa74da5-c2e1-4c3a-b460-50d1aae09f56',
+      card_title: 'Exclusive Dance Costume Set with Bodysuit and Leg Covers',
+      source_category_label: 'Bodysuit',
+      sellable_offer_components: ['Bodysuit', 'Leg Covers'],
+      sellable_offer: { status: 'ready', component_labels: ['Bodysuit', 'Leg Covers'] },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['bodysuit', 'legs'],
+      sellable_component_axes: ['bodysuit', 'legs'],
+      search_only_component_axes: [],
+      material: ['black', 'gold', 'fabric'],
+      event: ['stage'],
+      style: ['futuristic', 'glam'],
+      persona: ['dancer', 'performer', 'showgirl', 'go go dancer'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'bodysuit dance costume', keyword_norm: 'bodysuit dance costume', bank_bucket: 'product', avg_monthly_searches: 110 },
+      { ...baseMetric, keyword: 'dance costume for ladies', keyword_norm: 'dance costume for ladies', bank_bucket: 'collection', avg_monthly_searches: 590 },
+    ],
+  });
+
+  const primary = result.keywords.find((row) => row.role === 'primary');
+  assert.equal(primary?.keyword_norm, 'dance costume for ladies');
+  assert.equal(primary?.owner_reviewed_pdp_primary, true);
+  assert.equal(result.keywords.find((row) => row.keyword_norm === 'bodysuit dance costume')?.role, 'secondary');
+});
+
+test('owner-reviewed witch fallback avoids the occupied Halloween Primary', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: '2a39f8ec-b5c3-403c-8f1a-7e10bb0ab829',
+      card_title: 'Dark Witch Exclusive Halloween Costume',
+      source_category_label: 'Headpiece / Accessory',
+      sellable_offer_components: ['Bodysuit', 'Leg Covers', 'Headpiece'],
+      sellable_offer: { status: 'ready', component_labels: ['Bodysuit', 'Leg Covers', 'Headpiece'] },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['bodysuit', 'legs', 'headpiece'],
+      sellable_component_axes: ['bodysuit', 'legs', 'headpiece'],
+      search_only_component_axes: [],
+      material: ['black', 'vegan leather'],
+      event: ['halloween', 'cosplay'],
+      style: ['glam', 'fantasy'],
+      persona: ['queen', 'witch'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'halloween costume with black bodysuit', keyword_norm: 'halloween costume with black bodysuit', bank_bucket: 'product', avg_monthly_searches: 210 },
+      { ...baseMetric, keyword: 'black bodysuit halloween costume', keyword_norm: 'black bodysuit halloween costume', bank_bucket: 'product', avg_monthly_searches: 210 },
+    ],
+  });
+
+  const primary = result.keywords.find((row) => row.role === 'primary');
+  assert.equal(primary?.keyword_norm, 'black bodysuit halloween costume');
+  assert.equal(primary?.owner_reviewed_pdp_primary, true);
+  assert.equal(result.keywords.find((row) => row.keyword_norm === 'halloween costume with black bodysuit')?.role, 'secondary');
+});
+
+test('owner-reviewed black rave products can own validated whole-product visual phrases', () => {
+  const approvedKeywords = [
+    { ...baseMetric, keyword: 'rave outfit with skirt', keyword_norm: 'rave outfit with skirt', bank_bucket: 'product', avg_monthly_searches: 30 },
+    { ...baseMetric, keyword: 'black leather rave outfit', keyword_norm: 'black leather rave outfit', bank_bucket: 'visual_collection', avg_monthly_searches: 30 },
+    { ...baseMetric, keyword: 'black rave costume', keyword_norm: 'black rave costume', bank_bucket: 'visual_collection', avg_monthly_searches: 1600 },
+  ];
+  const focus = {
+    component_focus_contract: 'seo_search_axes_v1',
+    component: ['skirt', 'arms'],
+    sellable_component_axes: ['skirt', 'arms'],
+    search_only_component_axes: [],
+    material: ['black', 'vegan leather'],
+    event: ['rave', 'festival'],
+    style: ['punk'],
+    audience: ['women'],
+  };
+
+  const shoulderSet = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: '5044435f-d093-4437-9945-ff822b2df2d9',
+      card_title: 'Black Rave Outfit, Festival Leather Shoulders',
+      source_category_label: 'Costume Set',
+      sellable_offer_components: ['Arms', 'Panties', 'Skirt'],
+      sellable_offer: { status: 'ready', component_labels: ['Arms', 'Panties', 'Skirt'] },
+    },
+    focus,
+    approvedKeywords,
+  });
+  assert.equal(shoulderSet.keywords.find((row) => row.role === 'primary')?.keyword_norm, 'black leather rave outfit');
+  assert.equal(shoulderSet.keywords.find((row) => row.role === 'primary')?.owner_reviewed_pdp_primary, true);
+
+  const chainSet = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: 'b6fe4fd9-400d-4fc4-a6e1-2e1dee936371',
+      card_title: 'Black Rave Wear Set: Collar Skirt Top, Punk Chain',
+      source_category_label: 'Harness / Accessory',
+      sellable_offer_components: ['Skirt', 'Top', 'Choker'],
+      sellable_offer: { status: 'ready', component_labels: ['Skirt', 'Top', 'Choker'] },
+    },
+    focus,
+    approvedKeywords,
+  });
+  assert.equal(chainSet.keywords.find((row) => row.role === 'primary')?.keyword_norm, 'black rave costume');
+  assert.equal(chainSet.keywords.find((row) => row.role === 'primary')?.owner_reviewed_pdp_primary, true);
+});
+
+test('owner-reviewed silver multi-piece outfit keeps its color intent without reusing a skirt Primary', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: '4b0c8180-774d-4d5c-a12c-0864f305d1cb',
+      card_title: "Burning Man Silver Outfit – Cyber Warrior Men's Costume",
+      source_category_label: 'Costume Set',
+      sellable_offer_components: ['Arms', 'Shoulders', 'Skirt', 'Top'],
+      sellable_offer: { status: 'ready', component_labels: ['Arms', 'Shoulders', 'Skirt', 'Top'] },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['arms', 'shoulders', 'skirt', 'top'],
+      sellable_component_axes: ['arms', 'shoulders', 'skirt', 'top'],
+      search_only_component_axes: [],
+      material: ['silver', 'metallic'],
+      event: ['burning man', 'rave'],
+      style: ['futuristic', 'cyberpunk'],
+      persona: ['warrior'],
+      audience: ['men'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'rave outfit with skirt', keyword_norm: 'rave outfit with skirt', bank_bucket: 'product', avg_monthly_searches: 30 },
+      { ...baseMetric, keyword: 'silver metallic outfit', keyword_norm: 'silver metallic outfit', bank_bucket: 'visual_collection', avg_monthly_searches: 140 },
+    ],
+  });
+
+  const primary = result.keywords.find((row) => row.role === 'primary');
+  assert.equal(primary?.keyword_norm, 'silver metallic outfit');
+  assert.equal(primary?.owner_reviewed_pdp_primary, true);
+  assert.equal(result.keywords.find((row) => row.keyword_norm === 'rave outfit with skirt')?.role, 'secondary');
+});
+
+test('owner-reviewed carnival set uses a validated whole-stage phrase instead of a headpiece-only Primary', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: '7bc4e89c-155d-45b8-982f-46253b7ed18d',
+      card_title: 'Carnival Dress with Leather Feathers - Crown Headpiece, Top & Skirt',
+      source_category_label: 'Headpiece / Accessory',
+      sellable_offer_components: ['Headpiece', 'Skirt', 'Top'],
+      sellable_offer: { status: 'ready', component_labels: ['Headpiece', 'Skirt', 'Top'] },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['headpiece', 'skirt', 'top'],
+      sellable_component_axes: ['headpiece', 'skirt', 'top'],
+      search_only_component_axes: [],
+      material: ['fabric', 'vegan leather'],
+      event: ['stage', 'photoshoot'],
+      style: ['glam', 'burlesque'],
+      persona: ['showgirl', 'performer'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'showgirl feather headpiece', keyword_norm: 'showgirl feather headpiece', bank_bucket: 'product', avg_monthly_searches: 210 },
+      { ...baseMetric, keyword: 'stage performance outfit', keyword_norm: 'stage performance outfit', bank_bucket: 'collection', avg_monthly_searches: 70 },
+    ],
+  });
+
+  const primary = result.keywords.find((row) => row.role === 'primary');
+  assert.equal(primary?.keyword_norm, 'stage performance outfit');
+  assert.equal(primary?.owner_reviewed_pdp_primary, true);
+  assert.notEqual(primary?.keyword_norm, 'showgirl feather headpiece');
+});
+
+test('owner-reviewed silver carnival set owns its validated dress-costume variation', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: 'd0625355-308f-4edd-9c28-e358491c12a3',
+      card_title: "Carnival Dress with Mask Top Skirt Bracelets, Women's Costume for Show",
+      source_category_label: 'Headpiece / Accessory',
+      sellable_offer_components: ['Arms', 'Skirt', 'Top'],
+      sellable_offer: { status: 'ready', component_labels: ['Arms', 'Skirt', 'Top'] },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['arms', 'skirt', 'top', 'mask', 'headpiece'],
+      sellable_component_axes: ['arms', 'skirt', 'top'],
+      search_only_component_axes: ['mask', 'headpiece'],
+      material: ['silver', 'mirror', 'metallic'],
+      event: ['festival', 'stage', 'photoshoot'],
+      style: ['futuristic', 'glam', 'burlesque'],
+      persona: ['showgirl', 'dancer'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'metallic top and skirt set', keyword_norm: 'metallic top and skirt set', bank_bucket: 'product_or_alt', avg_monthly_searches: 10 },
+      { ...baseMetric, keyword: 'skirt and top set festival', keyword_norm: 'skirt and top set festival', bank_bucket: 'product', avg_monthly_searches: 10 },
+    ],
+  });
+
+  const primary = result.keywords.find((row) => row.role === 'primary');
+  assert.equal(primary?.keyword_norm, 'skirt and top set festival');
+  assert.equal(primary?.owner_reviewed_pdp_primary, true);
+  assert.equal(result.keywords.find((row) => row.keyword_norm === 'metallic top and skirt set')?.role, 'secondary');
+});
+
+test('owner-reviewed gold fringe set owns Burning Man color intent instead of a reused rave set Primary', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: '60ee8feb-32d3-4a8c-b64b-38d33433e2f2',
+      card_title: 'Chic Festival Costume Set for Burning Man - Golden Harness Top & Fringe Skirt',
+      source_category_label: 'Harness / Accessory',
+      sellable_offer_components: ['Skirt', 'Top'],
+      sellable_offer: { status: 'ready', component_labels: ['Skirt', 'Top'] },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['harness', 'skirt', 'top'],
+      sellable_component_axes: ['skirt', 'top'],
+      search_only_component_axes: ['harness'],
+      material: ['gold', 'mirror', 'metallic'],
+      event: ['burning man', 'festival', 'rave'],
+      style: ['futuristic', 'desert'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'rave skirt and top set', keyword_norm: 'rave skirt and top set', bank_bucket: 'product', avg_monthly_searches: 10 },
+      { ...baseMetric, keyword: 'gold burning man outfit', keyword_norm: 'gold burning man outfit', bank_bucket: 'visual_collection', avg_monthly_searches: 10 },
+    ],
+  });
+
+  const primary = result.keywords.find((row) => row.role === 'primary');
+  assert.equal(primary?.keyword_norm, 'gold burning man outfit');
+  assert.equal(primary?.owner_reviewed_pdp_primary, true);
+  assert.equal(result.keywords.find((row) => row.keyword_norm === 'rave skirt and top set')?.role, 'secondary');
+});
+
+test('owner-reviewed chrome festival set uses its validated full-outfit phrase', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: 'f86a13ec-184e-4764-9813-33b18db7dbb3',
+      card_title: 'Chrome Festival Outfit: Metallic Top & Skirt, Silver Armor Set',
+      source_category_label: 'Costume Set',
+      sellable_offer_components: ['Choker', 'Shoulders', 'Top', 'Skirt'],
+      sellable_offer: { status: 'ready', component_labels: ['Choker', 'Shoulders', 'Top', 'Skirt'] },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['bra', 'choker', 'shoulders', 'top', 'skirt', 'legs'],
+      sellable_component_axes: ['choker', 'shoulders', 'top', 'skirt'],
+      search_only_component_axes: ['bra', 'legs'],
+      material: ['silver', 'mirror', 'metallic'],
+      event: ['festival', 'rave', 'burning man'],
+      style: ['futuristic', 'cyberpunk', 'cosmic'],
+      persona: ['alien'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'silver collar choker', keyword_norm: 'silver collar choker', bank_bucket: 'product_or_alt', avg_monthly_searches: 90 },
+      { ...baseMetric, keyword: 'silver festival outfit', keyword_norm: 'silver festival outfit', bank_bucket: 'visual_collection', avg_monthly_searches: 70 },
+    ],
+  });
+
+  const primary = result.keywords.find((row) => row.role === 'primary');
+  assert.equal(primary?.keyword_norm, 'silver festival outfit');
+  assert.equal(primary?.owner_reviewed_pdp_primary, true);
+  assert.equal(result.keywords.find((row) => row.keyword_norm === 'silver collar choker')?.role, 'secondary');
+});
+
+test('owner-reviewed chrome showgirl set promotes its validated full dress-costume phrase', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: '103ff46a-892a-4961-80b1-e6996727c395',
+      card_title: 'Chrome Futuristic Clothing Set - Silver Festival Dress, Showgirl Wear',
+      source_category_label: 'Costume Set',
+      source_description_fragment: 'Silver festival dress set with choker, bracelets and panties.',
+      sellable_offer_components: ['Arms', 'Choker', 'Panties', 'Skirt', 'Top'],
+      sellable_offer: { status: 'ready', component_labels: ['Arms', 'Choker', 'Panties', 'Skirt', 'Top'] },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['arms', 'choker', 'panties', 'skirt', 'top'],
+      sellable_component_axes: ['arms', 'choker', 'panties', 'skirt', 'top'],
+      search_only_component_axes: [],
+      material: ['silver', 'mirror', 'metallic'],
+      event: ['festival', 'rave', 'stage'],
+      style: ['futuristic', 'cosmic', 'glam'],
+      persona: ['showgirl', 'dancer'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'silver collar choker', keyword_norm: 'silver collar choker', bank_bucket: 'product_or_alt', avg_monthly_searches: 90 },
+      { ...baseMetric, keyword: 'silver metallic dress costume', keyword_norm: 'silver metallic dress costume', bank_bucket: 'visual_collection', avg_monthly_searches: 20 },
+    ],
+  });
+
+  const primary = result.keywords.find((row) => row.role === 'primary');
+  assert.equal(primary?.keyword_norm, 'silver metallic dress costume');
+  assert.equal(primary?.owner_reviewed_pdp_primary, true);
+});
+
+test('owner-reviewed stage armor set keeps the full costume above one shoulder component', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: 'f3d4bdd8-9ba0-400b-9cfc-e4a8097707fc',
+      card_title: 'Chrome Stage Armor Lingerie Set - Burlesque Performance Outfit',
+      source_category_label: 'Costume Set',
+      sellable_offer_components: ['Shoulders', 'Top', 'Choker'],
+      sellable_offer: { status: 'blocked', component_labels: ['Shoulders', 'Top', 'Choker'] },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['shoulders', 'bra', 'top', 'choker'],
+      sellable_component_axes: ['shoulders', 'top', 'choker'],
+      search_only_component_axes: ['bra'],
+      material: ['silver', 'mirror', 'acrylic', 'metallic'],
+      event: ['stage', 'drag', 'photoshoot'],
+      style: ['futuristic', 'glam', 'burlesque'],
+      persona: ['drag queen', 'performer', 'showgirl'],
+      audience: ['women', 'drag'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'futuristic shoulder armor', keyword_norm: 'futuristic shoulder armor', bank_bucket: 'product', avg_monthly_searches: 50 },
+      { ...baseMetric, keyword: 'futuristic armor costume', keyword_norm: 'futuristic armor costume', bank_bucket: 'product', avg_monthly_searches: 10 },
+    ],
+  });
+
+  const primary = result.keywords.find((row) => row.role === 'primary');
+  assert.equal(primary?.keyword_norm, 'futuristic armor costume');
+  assert.equal(primary?.owner_reviewed_pdp_primary, true);
+  assert.equal(result.keywords.find((row) => row.keyword_norm === 'futuristic shoulder armor')?.role, 'secondary');
+});
+
+test('owner-reviewed cosmic products keep distinct measured PDP intents', () => {
+  const harnessAndSkirt = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: '657bd6d8-fbe1-4441-abad-f574e3380897',
+      card_title: 'Cosmic Festival Outfit with Top & Skirt, Metallic Harness Set, Rave Wear',
+      source_category_label: 'Harness / Accessory',
+      sellable_offer_components: ['Shoulders', 'Skirt'],
+      sellable_offer: { status: 'ready', component_labels: ['Shoulders', 'Skirt'] },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['shoulders', 'top', 'harness', 'skirt'],
+      sellable_component_axes: ['shoulders', 'skirt'],
+      search_only_component_axes: ['top', 'harness'],
+      material: ['silver', 'mirror', 'vegan leather', 'metallic'],
+      event: ['festival', 'rave', 'photoshoot'],
+      style: ['futuristic', 'cyberpunk', 'cosmic'],
+      persona: ['alien'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'rave outfit with skirt', keyword_norm: 'rave outfit with skirt', bank_bucket: 'product', avg_monthly_searches: 30 },
+      { ...baseMetric, keyword: 'metallic silver skirt outfit', keyword_norm: 'metallic silver skirt outfit', bank_bucket: 'product_or_alt', avg_monthly_searches: 70 },
+    ],
+  });
+  assert.equal(harnessAndSkirt.keywords.find((row) => row.role === 'primary')?.keyword_norm, 'metallic silver skirt outfit');
+
+  const cryptoWarrior = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: '6739b15c-f2f3-4a26-9e2a-3a0b5a3e2d2f',
+      card_title: 'Crypto Warrior Cosplay Costume Set - Headpiece Wings Bodysuit Bracelets Leg Covers, Futuristic Armor Outfit',
+      source_category_label: 'Headpiece / Accessory',
+      sellable_offer_components: ['Bodysuit', 'Arms', 'Legs', 'Headpiece', 'Wings'],
+      sellable_offer: { status: 'ready', component_labels: ['Bodysuit', 'Arms', 'Legs', 'Headpiece', 'Wings'] },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['bodysuit', 'arms', 'legs', 'headpiece', 'wings'],
+      sellable_component_axes: ['bodysuit', 'arms', 'legs', 'headpiece', 'wings'],
+      search_only_component_axes: [],
+      material: ['gold', 'black', 'fabric', 'vegan leather', 'metallic'],
+      event: ['stage', 'halloween', 'cosplay', 'photoshoot'],
+      style: ['futuristic', 'cyberpunk', 'sci fi', 'fantasy'],
+      persona: ['warrior', 'performer'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'halloween costume with black bodysuit', keyword_norm: 'halloween costume with black bodysuit', bank_bucket: 'product_or_alt', avg_monthly_searches: 210 },
+      { ...baseMetric, keyword: 'sci fi armor costume', keyword_norm: 'sci fi armor costume', bank_bucket: 'product', avg_monthly_searches: 10 },
+    ],
+  });
+  assert.equal(cryptoWarrior.keywords.find((row) => row.role === 'primary')?.keyword_norm, 'sci fi armor costume');
+});
