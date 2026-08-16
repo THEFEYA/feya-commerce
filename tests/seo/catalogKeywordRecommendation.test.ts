@@ -1030,6 +1030,40 @@ test('owner-reviewed silver multi-piece outfit keeps its color intent without re
   assert.equal(result.keywords.find((row) => row.keyword_norm === 'rave outfit with skirt')?.role, 'secondary');
 });
 
+test('owner-reviewed silver cyber set uses its free whole-outfit intent instead of occupied armor or skirt Primaries', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: '3c08ea9c-76a9-4079-bc08-58fa8a831019',
+      card_title: 'Best Futuristic Costume Set - Metallic Rave Wear, Silver Cyber Armor',
+      source_category_label: 'Costume Set',
+      sellable_offer_components: ['Arms', 'Choker', 'Skirt', 'Top'],
+      sellable_offer: { status: 'ready', component_labels: ['Arms', 'Choker', 'Skirt', 'Top'] },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['arms', 'choker', 'skirt', 'top'],
+      sellable_component_axes: ['arms', 'choker', 'skirt', 'top'],
+      search_only_component_axes: [],
+      material: ['silver', 'mirror'],
+      event: ['rave', 'edm'],
+      style: ['futuristic', 'cyberpunk'],
+      persona: ['robot'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'rave skirt and top set', keyword_norm: 'rave skirt and top set', bank_bucket: 'product', avg_monthly_searches: 10 },
+      { ...baseMetric, keyword: 'futuristic armor costume', keyword_norm: 'futuristic armor costume', bank_bucket: 'product', avg_monthly_searches: 10 },
+      { ...baseMetric, keyword: 'robot armor costume', keyword_norm: 'robot armor costume', bank_bucket: 'product', avg_monthly_searches: 20 },
+      { ...baseMetric, keyword: 'silver rave outfit', keyword_norm: 'silver rave outfit', bank_bucket: 'visual_collection', avg_monthly_searches: 260 },
+    ],
+  });
+
+  const primary = result.keywords.find((row) => row.role === 'primary');
+  assert.equal(primary?.keyword_norm, 'silver rave outfit');
+  assert.equal(primary?.owner_reviewed_pdp_primary, true);
+  assert.equal(result.keywords.find((row) => row.keyword_norm === 'rave skirt and top set')?.role, 'secondary');
+});
+
 test('owner-reviewed carnival set uses a validated whole-stage phrase instead of a headpiece-only Primary', () => {
   const result = recommendCatalogKeywords({
     product: {
