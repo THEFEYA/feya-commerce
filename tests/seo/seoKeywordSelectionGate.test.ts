@@ -168,6 +168,14 @@ test('multi-component product cannot be confirmed with a component-only primary'
     'primary_keyword_scope_mismatch_for_multi_component_product',
   ]);
 
+  unsafe.product_truth.included_components = ['Bodysuit', 'Leg Covers', 'Headpiece'];
+  unsafe.product_truth.known_components = ['Bodysuit', 'Leg Covers', 'Headpiece'];
+  unsafe.keyword_roles.primary = [{ keyword: 'black bodysuit halloween costume' }];
+  assert.deepEqual(getSeoKeywordSelectionBlockers(unsafe), []);
+
+  unsafe.product_truth.included_components = ['Shoulders', 'Harness', 'Skirt'];
+  unsafe.product_truth.known_components = ['Shoulders', 'Harness', 'Skirt'];
+
   unsafe.keyword_roles.primary = [{ keyword: 'gold festival armor outfit' }];
   assert.deepEqual(getSeoKeywordSelectionBlockers(unsafe), []);
 
