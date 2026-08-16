@@ -4,7 +4,8 @@ export type SeoCurrentFactSource =
   | 'current_product_truth'
   | 'current_storefront_offer'
   | 'owner_approved_brand_truth'
-  | 'owner_approved_material_story';
+  | 'owner_approved_material_story'
+  | 'owner_approved_product_fact';
 
 export type SeoLegacyFactSource =
   | 'legacy_etsy_listing_text'
@@ -53,6 +54,59 @@ export type FactSheetViewRow = {
 };
 
 export const SEO_PRODUCT_FACT_SHEET_VIEW = 'feya_v_product_fact_sheet_v1';
+
+const PRODUCT_SPECIFIC_WRITER_FACTS: Record<string, Array<{
+  fact_code: string;
+  statement_en: string;
+}>> = {
+  'de38a842-37c4-40a7-86b4-393341c4c9aa': [
+    {
+      fact_code: 'brown_leather_harness_identity',
+      statement_en: 'This product is a brown leather chest harness with a classic, vintage-inspired character.',
+    },
+    {
+      fact_code: 'leather_harness_repeat_wear',
+      statement_en: 'With appropriate care, the leather harness is suited to repeat wear.',
+    },
+    {
+      fact_code: 'leather_harness_upper_body_framing',
+      statement_en: 'The chest-harness strap layout frames the upper body.',
+    },
+  ],
+  'f473fb62-0440-473c-a7fb-a52dccafebc6': [
+    {
+      fact_code: 'spine_tail_continuous_backpiece',
+      statement_en: 'The sculptural extension follows the back as a spine and continues below the waist as a tail; it is one continuous design detail.',
+    },
+    {
+      fact_code: 'red_gloss_stage_visibility',
+      statement_en: 'The smooth red surface has a high-gloss finish that keeps the sculptural detail clear under stage lighting.',
+    },
+    {
+      fact_code: 'spine_tail_shape_retention',
+      statement_en: 'With careful storage, the sculptural backpiece keeps its shape between wears.',
+    },
+  ],
+  'ffa74da5-c2e1-4c3a-b460-50d1aae09f56': [
+    {
+      fact_code: 'stretch_fabric_gold_detail_construction',
+      statement_en: 'The costume has a stretch-fabric base with selected patterns and details made from gold mirror-finish vegan leather.',
+    },
+    {
+      fact_code: 'stretch_fabric_dance_movement',
+      statement_en: 'The stretch-fabric base moves with the wearer through dance and stage choreography.',
+    },
+    {
+      fact_code: 'gold_detail_stage_visibility',
+      statement_en: 'The gold mirror-finish details catch available stage light and keep the decorative pattern visible during performance.',
+    },
+  ],
+};
+
+const PRODUCT_SPECIFIC_MATERIAL_STORY = new Set([
+  'f473fb62-0440-473c-a7fb-a52dccafebc6',
+  'ffa74da5-c2e1-4c3a-b460-50d1aae09f56',
+]);
 
 const LEGACY_FLAG_LABELS: ReadonlyArray<{
   column: keyof FactSheetViewRow;
@@ -133,6 +187,7 @@ export function mapFactSheetRow(row: FactSheetViewRow): SeoProductFactSheet {
 export function buildCurrentSeoProductEvidence(input: SeoAgentInputContract): SeoProductFactSheet {
   const product = input.product;
   const offer = product.sellable_offer;
+  const productId = input.canonical_product_id;
   const currentConfirmedFacts: SeoProductEvidenceFact[] = [
     currentFact(
       'original_authorial_design',
@@ -158,7 +213,9 @@ export function buildCurrentSeoProductEvidence(input: SeoAgentInputContract): Se
       'current_product_truth',
       'deterministic_only',
     ));
-    currentConfirmedFacts.push(...materialStoryFacts(product.material, product.color));
+    if (!PRODUCT_SPECIFIC_MATERIAL_STORY.has(productId)) {
+      currentConfirmedFacts.push(...materialStoryFacts(product.material, product.color));
+    }
   }
   if (product.color?.trim()) {
     currentConfirmedFacts.push(currentFact(
@@ -168,6 +225,14 @@ export function buildCurrentSeoProductEvidence(input: SeoAgentInputContract): Se
       'writer',
     ));
   }
+  (PRODUCT_SPECIFIC_WRITER_FACTS[productId] || []).forEach((fact) => {
+    currentConfirmedFacts.push(currentFact(
+      fact.fact_code,
+      fact.statement_en,
+      'owner_approved_product_fact',
+      'writer',
+    ));
+  });
   if (offer?.status === 'ready') {
     currentConfirmedFacts.push(currentFact(
       'current_sellable_components',
