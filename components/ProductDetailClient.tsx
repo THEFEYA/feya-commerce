@@ -26,6 +26,7 @@ import { colorStyle } from '@/components/colors';
 import { ProductCard } from '@/components/ProductCard';
 import { SalePrice } from '@/components/SalePrice';
 import { resolveThefeyaRightPdpPanel } from '@/lib/thefeyaSeoDoctrine';
+import { resolveFullSetPriceComparison } from '@/lib/storefrontPriceComparison';
 import type { StorefrontProduct } from '@/lib/types';
 import { storefrontIncludedOptions } from '@/lib/storefrontIncludedOptions';
 import {
@@ -170,12 +171,19 @@ export function ProductDetailClient({
   }), [p.canonical_product_id]);
 
   const fullRegularPrice = full ? optionPrice(full) : null;
-  const separateRegularTotal = options
+  const fallbackSeparateRegularTotal = options
     .filter((o, i) => !isFullSetOption(o, i))
     .reduce((sum, option) => sum + (optionPrice(option) || 0), 0);
+  const v4ComponentSum = typeof p.component_sum_display_price_amount === 'number'
+    ? p.component_sum_display_price_amount
+    : null;
   const v4Savings = typeof p.full_set_savings_amount === 'number' ? p.full_set_savings_amount : null;
-  const computedSavings = fullRegularPrice && separateRegularTotal > fullRegularPrice ? separateRegularTotal - fullRegularPrice : 0;
-  const fullSetSavings = v4Savings ?? computedSavings;
+  const { separateRegularTotal, fullSetSavings } = resolveFullSetPriceComparison({
+    fullSetPrice: fullRegularPrice,
+    storedComponentSum: v4ComponentSum,
+    storedSavings: v4Savings,
+    fallbackSeparateTotal: fallbackSeparateRegularTotal,
+  });
   const selectedIsFullSet = activeConfig ? isFullSetOption(activeConfig, activeConfigIndex) : false;
   const savingsText = selectedIsFullSet && fullSetSavings > 0
     ? `Best value: save ${formatPrice(fullSetSavings, currency)} vs ordering pieces separately${separateRegularTotal > 0 ? ` (${formatPrice(separateRegularTotal, currency)})` : ''}.`
