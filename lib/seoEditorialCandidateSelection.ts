@@ -641,6 +641,7 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizePaidDanceCostumeCopy(normalized, context);
   normalized = normalizePaidWitchCostumeCopy(normalized, context);
   normalized = normalizePaidConfigurableWitchSetCopy(normalized, context);
+  normalized = normalizeSilverRaveOutfitAboutCopy(normalized, context);
   normalized = normalizeRepeatedIdealForStyleFocus(normalized, context);
   normalized = normalizeBrownLeatherHarnessPhotoshootAlt(normalized, context);
   normalized = normalizeImageAltPrimaryVariation(normalized, context);
@@ -1634,6 +1635,50 @@ export function normalizeRepeatedIdealForStyleFocus<T>(
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
       'Deterministic Ideal-for normalization removed third-and-later repeated selected-style modifiers while preserving the first two operator signals.',
+    ],
+  } as T;
+}
+
+/**
+ * The first Silver Rave Outfit response passed the hard gates but repeated the
+ * same polished metal-inspired finish in two adjacent About sentences. This
+ * exact, product-scoped deletion keeps the supported high-gloss silver fact
+ * and futuristic buyer result without spending a second writer call.
+ */
+export function normalizeSilverRaveOutfitAboutCopy<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const events = normalizeIdentityValues(context.selected_events).map((value) => value.toLowerCase());
+  const matchesContext = (
+    normalizeIdentityValue(context.primary_keyword).toLowerCase() === 'silver rave outfit'
+    && normalizeIdentityColor(context.product_color).toLowerCase() === 'silver'
+    && events.includes('rave')
+    && events.includes('edm')
+  );
+  if (!matchesContext) return output;
+
+  const sourceBody = 'For rave and EDM nights, this silver rave costume delivers a polished, metal-inspired finish that reads bold under lights. The smooth, high-gloss silver surface creates a beautifully polished, metal-inspired finish, giving the set a sharp futuristic edge. It feels striking without losing its clean, wearable presence.';
+  const replacementBody = 'For rave and EDM nights, this silver rave costume delivers a polished, metal-inspired finish that reads bold under lights. The smooth, high-gloss silver surface gives the set a sharp futuristic edge. It feels striking without losing its clean, wearable presence.';
+  let changed = false;
+  const pdpBlocks = output.pdp_blocks.map((block) => {
+    if (
+      !isRecord(block)
+      || block.block_key !== 'about_this_piece'
+      || block.body !== sourceBody
+    ) return block;
+    changed = true;
+    return { ...block, body: replacementBody };
+  });
+  if (!changed) return output;
+
+  return {
+    ...output,
+    pdp_blocks: pdpBlocks,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic Silver Rave Outfit normalization removed one duplicated finish clause without changing the supported product facts.',
     ],
   } as T;
 }
