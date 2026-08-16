@@ -635,6 +635,7 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizeUnsafeVisualStyleSuggestions(normalized);
   normalized = normalizeBatchFiveEditorialBlacklistCopy(normalized, context);
   normalized = normalizePaidHarnessAndMetallicSetCopy(normalized, context);
+  normalized = normalizePaidChromeShowgirlCopy(normalized, context);
   normalized = normalizePaidRedSpineTailCopy(normalized, context);
   normalized = normalizePaidDanceCostumeCopy(normalized, context);
   normalized = normalizePaidWitchCostumeCopy(normalized, context);
@@ -1043,6 +1044,74 @@ export function normalizePaidHarnessAndMetallicSetCopy<T>(
       isHarness
         ? 'Human-reviewed deterministic repair improved the paid black harness draft without another writer call.'
         : 'Human-reviewed deterministic repair improved the paid silver metallic-set draft without another writer call.',
+    ],
+  } as T;
+}
+
+/**
+ * Preserve the already-paid chrome showgirl draft while separating four
+ * customer jobs that the first response collapsed into one repeated finish
+ * claim. The rule is deliberately exact-response and exact-Primary scoped so
+ * it cannot rewrite other silver products or a later accepted draft.
+ */
+export function normalizePaidChromeShowgirlCopy<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const primary = normalizeIdentityValue(context.primary_keyword).toLowerCase();
+  const color = normalizeIdentityColor(context.product_color).toLowerCase();
+  const events = normalizeIdentityValues(context.selected_events).map((value) => value.toLowerCase());
+  if (
+    primary !== 'silver metallic dress costume'
+    || color !== 'silver'
+    || !events.includes('festival')
+    || !events.includes('rave')
+    || !events.includes('stage')
+  ) return output;
+
+  const exactFieldReplacements: Record<string, [string, string]> = {
+    meta_description: [
+      'Silver metallic dress costume with a polished silver finish for festivals and raves nights.',
+      'Silver metallic dress costume for women, created for festivals, stage shows and futuristic performance styling.',
+    ],
+    intro: [
+      'For festivals, rave, the stage, and photoshoots, this silver metallic dress outfit brings a bold, futuristic edge that reads clearly in motion and under bright lights.',
+      'For festivals, raves, stage performances and photoshoots, this complete silver dress outfit gives women a bold futuristic character that reads clearly in motion, video and live appearances.',
+    ],
+  };
+  const blockReplacements: Record<string, [string, string]> = {
+    about_this_piece: [
+      'Built for festivals and raves nights, this silver metallic dress outfit frames the body with a polished, metal-inspired appearance. The smooth, high-gloss silver surface creates a beautifully polished, metal-inspired finish that catches light with a crisp, futuristic edge.',
+      'Created for festivals, raves and stage performance, this complete outfit gives dancers and showgirls a clear, memorable character in motion. The metallic silver costume has a smooth, high-gloss surface that catches available light during photos, video and live appearances without limiting the styling to one role.',
+    ],
+    main_description: [
+      'We designed this silver metallic dress outfit to make a festival, rave, or stage moment feel bold and unmistakable. Our fashion studio used a futuristic shape and a silver metallic dress outfit finish to create a look that feels vivid under lights. At TheFEYA, our designers shaped it for a wearer who wants to look memorable, polished, and unapologetically bright.',
+      'At TheFEYA, our designers developed this original costume for women who want a bold futuristic presence at festivals, raves and stage performances. The coordinated proportions support expressive styling for dancers, showgirls and creative productions. It gives the wearer a recognizable character while leaving room for personal styling.',
+    ],
+  };
+
+  let changed = false;
+  const normalized: Record<string, unknown> = { ...output };
+  Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
+    if (normalized[field] !== before) return;
+    normalized[field] = after;
+    changed = true;
+  });
+  normalized.pdp_blocks = output.pdp_blocks.map((block) => {
+    if (!isRecord(block) || typeof block.body !== 'string') return block;
+    const replacement = blockReplacements[String(block.block_key || '')];
+    if (!replacement || block.body !== replacement[0]) return block;
+    changed = true;
+    return { ...block, body: replacement[1] };
+  });
+  if (!changed) return output;
+
+  return {
+    ...normalized,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Human-reviewed deterministic repair separated the paid chrome showgirl draft into search identity, use case, visible finish and personal styling without another writer call.',
     ],
   } as T;
 }
