@@ -10,6 +10,10 @@ import {
 } from '../../lib/seoClaimPlanV2.ts';
 import { generateSeoDraftWithOpenAi } from '../../lib/seoOpenAiDraftGenerator.ts';
 import {
+  normalizeBrownLeatherHarnessPhotoshootAlt,
+  normalizePaidDanceCostumeCopy,
+  normalizePaidRedSpineTailCopy,
+  normalizePaidWitchCostumeCopy,
   normalizeImageAltPrimaryVariation,
   normalizeCodeOwnedPdpBlockOrder,
   normalizeCodeOwnedSeoCollections,
@@ -85,6 +89,161 @@ function writerWireOutput(pdpBlocks: unknown = {
     generation_notes: [],
   };
 }
+
+test('brown photoshoot harness ALT keeps the model shirt outside sold Product DNA', () => {
+  const output = {
+    ...writerWireOutput([
+      { block_key: 'about_this_piece', body: 'Thin about copy.' },
+      { block_key: 'main_description', body: 'The piece feels bold and feels personal.' },
+    ]),
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'Brown leather harness worn over a white shirt by a male model',
+      truth_basis: 'visible_product_fact',
+    }],
+  } as any;
+  const normalized = normalizeBrownLeatherHarnessPhotoshootAlt(output, {
+    primary_keyword: 'leather harness top',
+    selected_events: ['photoshoot'],
+    selected_materials: ['brown', 'leather'],
+    product_color: 'Brown',
+  });
+
+  assert.equal(
+    normalized.image_alt_candidates[0].alt_text,
+    'Brown leather chest harness worn by a male model',
+  );
+  assert.doesNotMatch(normalized.image_alt_candidates[0].alt_text, /shirt/i);
+  assert.match(normalized.pdp_blocks[0].body, /portrait and editorial photoshoots/i);
+  assert.doesNotMatch(normalized.pdp_blocks[1].body, /\bfeels\b/i);
+});
+
+test('paid red spine-tail draft is repaired without changing its accepted identity or Ideal for block', () => {
+  const originalIdealFor = '- Drag performers seeking a red burlesque look for the stage.\n- Showgirls drawn to glamorous red styling for live performance.\n- Women choosing a bold theatrical outfit for productions.\n- Content creators producing striking red visuals for drag and stage sets.\n- Costume stylists selecting an original red design for editorials and shows.';
+  const output = {
+    ...writerWireOutput([
+      {
+        block_key: 'about_this_piece',
+        body: 'Built for stage and drag, this red stage costume centers a sculptural spine-tail that reads clearly in motion and from behind. The smooth red surface has a high-gloss finish that keeps the sculptural details visible under stage lighting. With careful storage, the backpiece keeps its shape between wears and stays ready for repeat use.',
+      },
+      {
+        block_key: 'why_youll_love_it',
+        body: '- Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\n- The smooth high-gloss red finish keeps the sculptural details visible under stage lighting.\n- With careful storage, the sculptural backpiece keeps its shape between wears and stays ready for repeat use.',
+      },
+      { block_key: 'ideal_for', body: originalIdealFor },
+      {
+        block_key: 'main_description',
+        body: 'We designed this piece for performers who want red that commands attention from the first glance. At TheFEYA, our fashion studio shaped the red stage costume to feel bold, distinctive, and memorable in drag and stage settings. We kept the line dramatic and the presence unmistakably personal, so the finish reads with confidence under lights. We wanted it to feel like a statement that stays with the audience long after the music stops.',
+      },
+    ]),
+    seo_title: 'Red Stage Outfit',
+    intro: 'Designed for the stage and drag, this red stage costume brings an original studio edge to performers who want a bold, distinctive presence.',
+  } as any;
+
+  const normalized = normalizePaidRedSpineTailCopy(output, {
+    primary_keyword: 'red stage outfit',
+    selected_events: ['stage', 'drag'],
+    selected_materials: ['red'],
+    product_color: 'Red',
+  });
+
+  assert.equal(normalized.seo_title, 'Red Stage Outfit');
+  assert.doesNotMatch(normalized.intro, /distinctive presence/i);
+  assert.match(normalized.pdp_blocks[0].body, /spine and flows into a tail below the waist/i);
+  assert.doesNotMatch(normalized.pdp_blocks[0].body, /\btop\b|\bskirt\b/i);
+  assert.doesNotMatch(normalized.pdp_blocks[0].body, /glossy|between wears/i);
+  assert.match(normalized.pdp_blocks[1].body, /glossy finish/i);
+  assert.match(normalized.pdp_blocks[1].body, /between wears/i);
+  assert.equal(normalized.pdp_blocks[2].body, originalIdealFor);
+  assert.match(normalized.pdp_blocks[3].body, /personal expression/i);
+});
+
+test('paid dance draft keeps fabric as the base and leather only in selected gold details', () => {
+  const output = {
+    ...writerWireOutput([
+      {
+        block_key: 'about_this_piece',
+        body: 'Built for stage presence, this dance outfit for ladies pairs a stretch-fabric base with selected patterns and details in gold mirror-finish vegan leather. The black-and-gold finish creates a striking, polished contrast that reads clearly under performance lighting.',
+      },
+      {
+        block_key: 'why_youll_love_it',
+        body: '- Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\n- The stretch-fabric base moves comfortably through dance turns and stage choreography.\n- Gold mirror-finish details catch available stage light, helping the decorative pattern stay visible during performance.\n- Careful storage helps the costume keep its shape between wears for repeat stage use.',
+      },
+      {
+        block_key: 'ideal_for',
+        body: '- Dancers performing in a stretch-fabric costume for live stage choreography.\n- Dance schools outfitting groups in a recognizable black-and-gold design.\n- Show ballets selecting black-and-gold costumes for ensemble stage productions.\n- Go-go dancers choosing a flexible costume for energetic stage performance.\n- Event organizers sourcing distinctive dance costumes for professional show teams.',
+      },
+      {
+        block_key: 'main_description',
+        body: 'We designed this piece for performers who want a bold stage impression with clean, futuristic glam energy. TheFEYA brings our original design ideas to a dance outfit for ladies that feels powerful, graphic, and memorable. We shaped it for women who want their performance wear to stand out with black-and-gold intensity. We made it to read like a character of its own: sharp, confident, and unforgettable.',
+      },
+    ]),
+    seo_title: 'Gold Dance Costume For Ladies for Stage',
+    h1: 'Gold Dance Costume For Ladies for Stage',
+    meta_description: 'Black dance costume for ladies with a gold finish and stage-ready glam for stage shows.',
+    intro: 'For stage work, this dance outfit for ladies brings a bold, original studio design that feels made for movement and command.',
+  } as any;
+
+  const normalized = normalizePaidDanceCostumeCopy(output, {
+    primary_keyword: 'dance costume for ladies',
+    selected_events: ['stage'],
+    selected_materials: ['gold', 'black', 'fabric'],
+  });
+
+  assert.match(normalized.seo_title, /Stage Performance Set/);
+  assert.doesNotMatch(normalized.seo_title, /for ladies for stage/i);
+  assert.match(normalized.pdp_blocks[0].body, /black-and-gold dance costume/i);
+  assert.match(normalized.pdp_blocks[0].body, /stretch-fabric base/i);
+  assert.match(normalized.pdp_blocks[0].body, /details made from gold mirror-finish vegan leather/i);
+  assert.doesNotMatch(normalized.intro, /dance costume for ladies/i);
+  assert.match(normalized.intro, /dance outfit for ladies/i);
+  assert.doesNotMatch(normalized.pdp_blocks[0].body, /dance costume for ladies/i);
+  assert.match(normalized.pdp_blocks[1].body, /gold finish catches stage light/i);
+  assert.match(normalized.pdp_blocks[1].body, /details remain visible/i);
+  assert.match(normalized.pdp_blocks[2].body, /Women choosing/i);
+  assert.equal((normalized.pdp_blocks[2].body.match(/\bstage\b/gi) || []).length, 1);
+  assert.match(normalized.pdp_blocks[2].body, /futuristic styling/i);
+  assert.match(normalized.pdp_blocks[3].body, /personal expression/i);
+});
+
+test('paid witch draft keeps witch as natural copy and completes the studio close', () => {
+  const output = {
+    ...writerWireOutput([
+      {
+        block_key: 'about_this_piece',
+        body: 'For Halloween and cosplay, this black bodysuit Halloween outfit brings a sleek, latex-like appearance to a black bodysuit Halloween outfit made for dramatic entrances. The smooth, high-gloss black surface gives the look a polished edge that reads bold, dark, and unmistakably stylish.',
+      },
+      {
+        block_key: 'why_youll_love_it',
+        body: 'Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\nThe material feels comfortable against the body, making the garment easier to wear for extended periods.\nWith careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
+      },
+      {
+        block_key: 'ideal_for',
+        body: 'Women seeking a dark witch costume for Halloween appearances.\nCosplayers developing an original witch character with glamorous fantasy styling.\nLive performers wearing a bold dark-fantasy costume for themed productions.\nContent creators producing witch-inspired Halloween photos and videos.\nCostume stylists selecting an original black design for fantasy editorials.',
+      },
+      {
+        block_key: 'main_description',
+        body: 'Our original design ideas lean into glam fantasy energy, creating a dark-fantasy look that owns the room with confidence.',
+      },
+    ]),
+    intro: 'For Halloween, this black bodysuit Halloween outfit gives women a bold fashion-led take on a witch queen look with glossy drama and easy stage presence.',
+  } as any;
+
+  const normalized = normalizePaidWitchCostumeCopy(output, {
+    primary_keyword: 'black bodysuit halloween costume',
+    selected_events: ['halloween', 'cosplay'],
+    selected_styles: ['glam', 'fantasy'],
+  });
+
+  assert.match(normalized.intro, /black bodysuit outfit/i);
+  assert.match(normalized.pdp_blocks[0].body, /witch-queen character/i);
+  assert.equal((normalized.pdp_blocks[2].body.match(/\bwitch\b/gi) || []).length, 1);
+  assert.equal((normalized.pdp_blocks[2].body.match(/\bfantasy\b/gi) || []).length, 1);
+  assert.match(normalized.pdp_blocks[2].body, /Women choosing/i);
+  assert.match(normalized.pdp_blocks[3].body, /At TheFEYA, our designers developed/i);
+  assert.match(normalized.pdp_blocks[3].body, /personal expression/i);
+  assert.ok(normalized.pdp_blocks[3].body.trim().split(/\s+/).length >= 45);
+});
 
 function inputContract() {
   return {
@@ -173,6 +332,80 @@ test('legacy view flags remain non-publishable candidates', () => {
   assert.ok(mapped.legacy_candidate_facts.some((fact) => fact.fact_code === 'rush_orders'));
   assert.ok(mapped.legacy_candidate_facts.some((fact) => fact.fact_code === 'gift_packaging'));
   assert.ok(mapped.legacy_candidate_facts.every((fact) => !fact.publishable));
+});
+
+test('owner-reviewed batch products receive complete, product-specific writer claims', () => {
+  const cases = [
+    {
+      id: 'de38a842-37c4-40a7-86b4-393341c4c9aa',
+      title: 'Deluxe Brown Leather Harness for Men',
+      material: 'Leather',
+      color: 'Brown',
+      components: ['Harness Top'],
+      primary: 'leather harness top',
+      focus: { material: ['brown', 'leather'], event: ['photoshoot'], style: ['classic'], audience: ['men'] },
+      about: 'brown_leather_harness_identity',
+      why: ['original_authorial_design', 'leather_harness_repeat_wear', 'leather_harness_upper_body_framing'],
+      portrait: 'photographers',
+    },
+    {
+      id: 'f473fb62-0440-473c-a7fb-a52dccafebc6',
+      title: 'Red Burlesque Dress with Spine-Tail',
+      material: null,
+      color: 'Red',
+      components: ['Top', 'Skirt'],
+      primary: 'red stage outfit',
+      focus: { material: ['red'], event: ['stage', 'drag'], style: ['glam', 'burlesque'], persona: ['drag queen', 'performer'], audience: ['women'] },
+      about: 'spine_tail_continuous_backpiece',
+      why: ['original_authorial_design', 'red_gloss_stage_visibility', 'spine_tail_shape_retention'],
+      portrait: 'drag performers',
+    },
+    {
+      id: 'ffa74da5-c2e1-4c3a-b460-50d1aae09f56',
+      title: 'Exclusive Dance Costume Set',
+      material: 'Fabric',
+      color: 'Black and Gold',
+      components: ['Bodysuit', 'Leg Covers'],
+      primary: 'dance costume for ladies',
+      focus: { material: ['black', 'gold', 'fabric'], event: ['stage'], style: ['futuristic', 'glam'], persona: ['dancer', 'performer', 'showgirl', 'go go dancer'], audience: ['women'] },
+      about: 'stretch_fabric_gold_detail_construction',
+      why: ['original_authorial_design', 'stretch_fabric_dance_movement', 'gold_detail_stage_visibility'],
+      portrait: 'dance schools',
+    },
+  ];
+
+  cases.forEach((current) => {
+    const input = inputContract();
+    input.canonical_product_id = current.id;
+    input.product = {
+      ...input.product,
+      title: current.title,
+      material: current.material,
+      color: current.color,
+      sellable_offer: {
+        ...input.product.sellable_offer,
+        status: 'ready',
+        component_labels: current.components,
+      },
+    };
+    input.manual_focus = { ...input.manual_focus, ...current.focus };
+    input.keyword_roles.primary = [{
+      ...input.keyword_roles.primary[0],
+      keyword: current.primary,
+      keyword_norm: current.primary,
+    }];
+
+    const { evidence, brief, preflight } = buildCompactSeoWriterPrompt(input);
+    const aboutClaims = brief.claim_plan.claims.filter((claim) => claim.target_block === 'about_this_piece');
+    const whyClaims = brief.claim_plan.claims.filter((claim) => claim.target_block === 'why_youll_love_it');
+
+    assert.deepEqual(brief.claim_plan.blockers, [], current.id);
+    assert.equal(aboutClaims[0]?.fact_code, current.about, current.id);
+    assert.deepEqual(whyClaims.map((claim) => claim.fact_code), current.why, current.id);
+    assert.ok(brief.ideal_for_portraits.some((portrait) => portrait.person === current.portrait), current.id);
+    assert.ok(evidence.current_confirmed_facts.some((fact) => fact.fact_code === current.about), current.id);
+    assert.equal(preflight.ok, true, JSON.stringify(preflight.issues));
+  });
 });
 
 test('writer brief uses current offer and excludes raw legacy wording', () => {
