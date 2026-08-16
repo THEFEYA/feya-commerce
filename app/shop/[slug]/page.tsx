@@ -19,6 +19,7 @@ import {
   mainRegularPrice,
   productTitle,
 } from '@/lib/storefront';
+import { applyOwnerReviewedStorefrontCorrections } from '@/lib/storefrontOwnerReviewedCorrections';
 import type { StorefrontProduct } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -91,8 +92,10 @@ async function attachMedia(supabase: SupabaseReader, product: StorefrontProduct,
     .eq('product_slug', slug)
     .maybeSingle();
 
-  if (media.error || !media.data) return product;
-  return {
+  if (media.error || !media.data) {
+    return applyOwnerReviewedStorefrontCorrections(product as Record<string, any>) as StorefrontProduct;
+  }
+  return applyOwnerReviewedStorefrontCorrections({
     ...product,
     primary_image_url: media.data.primary_image_url || product.primary_image_url,
     primary_image_alt: media.data.primary_image_alt || product.primary_image_alt,
@@ -102,7 +105,7 @@ async function attachMedia(supabase: SupabaseReader, product: StorefrontProduct,
     has_video: media.data.has_video ?? product.has_video,
     media_count: media.data.media_count ?? product.media_count,
     media_gallery: media.data.media_gallery || product.media_gallery,
-  };
+  }) as StorefrontProduct;
 }
 
 async function getProduct(slug: string) {
