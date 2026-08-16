@@ -77,15 +77,50 @@ export function resolveStorefrontSellableOffer(
     }
   });
 
-  const componentCodes = [...atomicByCode.keys()].sort();
+  const nestedComponentLabels = new Map<string, string>();
+  aggregateRows
+    .filter((row) => !row.is_full_set)
+    .forEach((row) => {
+      const memberCodes = unique(row.bundle_component_codes.map(normalizeCode).filter(Boolean));
+      const explicitMemberLabels = row.bundle_component_labels
+        .map((label) => firstString(label))
+        .filter(Boolean);
+      if (explicitMemberLabels.length && explicitMemberLabels.length !== memberCodes.length) {
+        blockers.push(`aggregate_member_label_count_mismatch:${row.code}`);
+      }
+      memberCodes.forEach((code, index) => {
+        const label = explicitMemberLabels.length === memberCodes.length
+          ? explicitMemberLabels[index]
+          : humanizeComponentCode(code);
+        const existing = nestedComponentLabels.get(code);
+        if (existing && normalize(existing) !== normalize(label)) {
+          blockers.push(`sellable_component_label_conflict:${code}`);
+          return;
+        }
+        nestedComponentLabels.set(code, label);
+      });
+    });
+
+  // A grouped selector choice such as "Top + Shoulders" proves those current
+  // components even when neither part is sold as its own atomic option. Keep
+  // the grouped choice intact while exposing its declared members to Product
+  // Truth, keyword focus and a deterministic Full Set expansion.
+  const componentCodes = unique([
+    ...atomicByCode.keys(),
+    ...nestedComponentLabels.keys(),
+  ]).sort();
   const componentFamilies = unique(
-    atomicRows.map((row) => row.family).filter((value): value is string => Boolean(value)),
+    [
+      ...atomicRows.map((row) => row.family).filter((value): value is string => Boolean(value)),
+      ...nestedComponentLabels.keys(),
+    ],
   ).sort();
   const componentLabels = componentCodes
-    .map((code) => atomicByCode.get(code)?.label || '')
+    .map((code) => atomicByCode.get(code)?.label || nestedComponentLabels.get(code) || '')
     .filter(Boolean);
 
   const atomicOptions = atomicRows.map((row) => asOfferOption(row, [], [], 'atomic'));
+  const fullSetRows = aggregateRows.filter((row) => row.is_full_set);
   const aggregateOptions = aggregateRows.map((row) => {
     let memberCodes = unique(row.bundle_component_codes.map(normalizeCode).filter(Boolean));
     const explicitMemberLabels = row.bundle_component_labels
@@ -93,36 +128,44 @@ export function resolveStorefrontSellableOffer(
       .filter(Boolean);
     let mappingSource: StorefrontSellableOfferOption['mapping_source'] = 'explicit_bundle_codes';
 
-    // A single explicit Full Set alongside a complete atomic selector has one
-    // deterministic meaning: all current atomic options. This is not an Etsy
-    // variation inference; it is a closed mapping over the live selector.
-    if (
-      !memberCodes.length
-      && row.is_full_set
-      && aggregateRows.length === 1
-      && componentCodes.length >= 2
-    ) {
-      memberCodes = [...componentCodes];
-      mappingSource = 'complete_current_selector';
+    // A single explicit Full Set has one deterministic meaning: every current
+    // atomic option plus the declared members of current grouped options. This
+    // is not an Etsy variation inference; it is a closed mapping over the live
+    // selector and it does not manufacture extra purchasable choices.
+    if (row.is_full_set && fullSetRows.length === 1 && componentCodes.length >= 2) {
+      const hasOnlyCurrentMembers = memberCodes.every((code) => componentCodes.includes(code));
+      if (!memberCodes.length || (hasOnlyCurrentMembers && memberCodes.length < componentCodes.length)) {
+        memberCodes = unique([...memberCodes, ...componentCodes]);
+        mappingSource = 'complete_current_selector';
+      }
     }
 
     if (!memberCodes.length) {
       blockers.push(`aggregate_members_unknown:${row.code || FULL_SET_CODE}`);
     }
 
-    const unknownMembers = memberCodes.filter((code) => !atomicByCode.has(code));
+    const unknownMembers = memberCodes.filter((code) => !componentCodes.includes(code));
     unknownMembers.forEach((code) => {
       blockers.push(`aggregate_member_not_found_in_current_options:${code}`);
     });
 
-    if (explicitMemberLabels.length && explicitMemberLabels.length !== memberCodes.length) {
+    if (
+      mappingSource !== 'complete_current_selector'
+      && explicitMemberLabels.length
+      && explicitMemberLabels.length !== memberCodes.length
+    ) {
       blockers.push(`aggregate_member_label_count_mismatch:${row.code || FULL_SET_CODE}`);
     }
 
-    const memberLabels = explicitMemberLabels.length === memberCodes.length
+    const memberLabels = mappingSource !== 'complete_current_selector'
+      && explicitMemberLabels.length === memberCodes.length
       ? explicitMemberLabels
       : memberCodes
-        .map((code) => atomicByCode.get(code)?.label || '')
+        .map((code) => (
+          atomicByCode.get(code)?.label
+          || nestedComponentLabels.get(code)
+          || humanizeComponentCode(code)
+        ))
         .filter(Boolean);
 
     return asOfferOption(row, memberCodes, memberLabels, mappingSource);
@@ -170,9 +213,13 @@ export function sellableOfferIncludedLabels(
 export function sellableOfferAvailabilitySentence(
   offer: StorefrontSellableOfferTruth,
 ) {
-  if (offer.status !== 'ready' || !offer.aggregate_options.length || offer.component_labels.length < 2) {
+  if (offer.status !== 'ready' || offer.component_labels.length < 2) {
     return '';
   }
+  const hasFullSet = offer.aggregate_options.some((option) => option.code === FULL_SET_CODE);
+  if (!hasFullSet) return '';
+  const hasGroupedOption = offer.aggregate_options.some((option) => option.code !== FULL_SET_CODE);
+  if (hasGroupedOption) return 'Choose from individual pieces, grouped options, or the full set.';
   return 'Each piece can be ordered separately or as a full set.';
 }
 
@@ -393,6 +440,14 @@ function finiteNumber(value: unknown) {
 
 function normalizeCode(value: unknown) {
   return normalize(value).replace(/\s+/g, '_');
+}
+
+function humanizeComponentCode(value: unknown) {
+  return normalizeCode(value)
+    .split('_')
+    .filter(Boolean)
+    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
+    .join(' ');
 }
 
 function normalize(value: unknown) {
