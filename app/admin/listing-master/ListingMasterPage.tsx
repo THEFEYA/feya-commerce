@@ -21,6 +21,7 @@ import {
   resolveStorefrontSellableOffer,
   sellableOfferAllowsComponentFocus,
 } from '@/lib/storefrontSellableOffer';
+import { applyOwnerReviewedStorefrontCorrections } from '@/lib/storefrontOwnerReviewedCorrections';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import VerifiedSaveButton from './VerifiedSaveButton';
 
@@ -392,8 +393,9 @@ async function loadCanonicalProductTruthProduct(supabase, productId) {
     return null;
   }
   const row = (truthResult.data || [])[0] || null;
-  const storefrontRow = (storefrontResult.data || [])[0] || null;
-  if (!row || !storefrontRow) return null;
+  const rawStorefrontRow = (storefrontResult.data || [])[0] || null;
+  if (!row || !rawStorefrontRow) return null;
+  const storefrontRow = applyOwnerReviewedStorefrontCorrections(rawStorefrontRow);
   return normalizeProduct({
     ...row,
     current_sellable_configurations: jsonArray(storefrontRow.configurations),
