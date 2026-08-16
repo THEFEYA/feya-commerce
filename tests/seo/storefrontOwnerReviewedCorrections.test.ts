@@ -42,3 +42,31 @@ test('does not touch another product with an anonymous option', () => {
   };
   assert.equal(applyOwnerReviewedStorefrontCorrections(unrelated), unrelated);
 });
+
+test('silver mens warrior Full Set includes its grouped option and compares all separate choices', () => {
+  const mensSet = {
+    canonical_product_id: '4b0c8180-774d-4d5c-a12c-0864f305d1cb',
+    configurations: [
+      { configuration_id: 'bb5ae6b4-824d-45cf-a1ac-8e2a26111242', public_label: 'Bracelet', component_code: 'arms', display_price_amount: 96.5 },
+      { configuration_id: '22aacfc5-7ffa-4a7e-800e-448ba0ec88dc', public_label: 'Skirt', component_code: 'skirt', display_price_amount: 144.76 },
+      { configuration_id: 'e0b68b79-a4a1-4b9e-a33e-8240777a52bc', public_label: 'Top + Shoulders', component_code: 'bundle', is_bundle: true, bundle_component_codes: ['shoulders', 'top'], display_price_amount: 144.76 },
+      { configuration_id: 'aa40d23b-7bcf-4a59-ab91-7e1fca94fab8', public_label: 'Full Set', component_code: 'full_set', is_full_set: true, bundle_component_codes: ['arms', 'skirt'], bundle_component_labels: ['Bracelet', 'Skirt'], display_price_amount: 282.77 },
+    ],
+    component_sum_display_price_amount: 241.26,
+    full_set_savings_amount: null,
+    full_set_savings_percent: null,
+  } as any;
+
+  const corrected = applyOwnerReviewedStorefrontCorrections(mensSet);
+  const fullSet = corrected.configurations.find((row) => row.is_full_set);
+
+  assert.deepEqual(fullSet.bundle_component_codes, ['arms', 'shoulders', 'skirt', 'top']);
+  assert.deepEqual(fullSet.bundle_component_labels, ['Bracelet', 'Shoulders', 'Skirt', 'Top']);
+  assert.equal(corrected.component_sum_display_price_amount, 386.02);
+  assert.equal(corrected.full_set_savings_amount, 103.25);
+  assert.equal(corrected.full_set_savings_percent, 26.75);
+
+  const offer = resolveStorefrontSellableOffer(corrected);
+  assert.equal(offer.status, 'ready');
+  assert.deepEqual(offer.default_included_components, ['Bracelet', 'Shoulders', 'Skirt', 'Top']);
+});
