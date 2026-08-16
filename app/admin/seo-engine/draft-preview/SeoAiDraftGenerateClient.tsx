@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { THEFEYA_CANONICAL_RIGHT_PDP_PANEL } from '@/lib/thefeyaSeoDoctrine';
+import { resolveThefeyaRightPdpPanel } from '@/lib/thefeyaSeoDoctrine';
 
 type ValidationIssue = { code?: string; severity?: string; message?: string };
 
@@ -72,16 +72,17 @@ type SaveResult = {
   validation_result?: { ok?: boolean; status?: string; issues?: ValidationIssue[] };
 };
 
-const CANONICAL_RIGHT_BLOCKS: PdpPreviewBlock[] = THEFEYA_CANONICAL_RIGHT_PDP_PANEL.map((block) => ({
-  block_key: block.block_key,
-  placement: 'right_info_panel',
-  heading: block.heading,
-  body: block.body,
-  source_basis: 'brand_policy',
-  needs_human_review: false,
-}));
-
 export default function SeoAiDraftGenerateClient({ productId }: { productId: string }) {
+  const canonicalRightBlocks: PdpPreviewBlock[] = resolveThefeyaRightPdpPanel({
+    canonical_product_id: productId,
+  }).map((block) => ({
+    block_key: block.block_key,
+    placement: 'right_info_panel',
+    heading: block.heading,
+    body: block.body,
+    source_basis: 'brand_policy',
+    needs_human_review: false,
+  }));
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState<AiDraftResult | null>(null);
@@ -217,7 +218,7 @@ export default function SeoAiDraftGenerateClient({ productId }: { productId: str
           </div>
           <div className="space-y-2">
             <PreviewList label="Тезисы для проверки" items={draft.bullet_highlights || []} />
-            <PreviewPdpBlocks blocks={CANONICAL_RIGHT_BLOCKS} title="Правая колонка PDP — каноническая, не генерируется AI" description="Этот блок одинаковый для товаров и живёт как storefront/store-policy content. AI не должен делать его уникальным каждый раз." />
+            <PreviewPdpBlocks blocks={canonicalRightBlocks} title="Правая колонка PDP — каноническая, не генерируется AI" description="Порядок и текст принадлежат storefront-коду; редкие подтверждённые материалы могут иметь точечный factual override. AI этот блок не пишет." />
             <PreviewList label="ALT для изображений" items={(draft.image_alt_candidates || []).map((item) => `${item.alt_text || 'ALT требует проверки'} · ${translateTruthBasis(item.truth_basis)}`)} />
           </div>
         </div>
