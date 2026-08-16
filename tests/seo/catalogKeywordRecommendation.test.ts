@@ -855,6 +855,39 @@ test('owner-reviewed dance fallback keeps the complete costume as Primary', () =
   assert.equal(result.keywords.find((row) => row.keyword_norm === 'bodysuit dance costume')?.role, 'secondary');
 });
 
+test('owner-reviewed white rave fallback uses the measured whole-costume query for the configurable set', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: '7e743440-3e9f-490c-b306-5c8c87969973',
+      card_title: "Women's White Festival Outfit for Rave Party",
+      source_category_label: 'Costume Set',
+      sellable_offer_components: ['Arms', 'Shoulders', 'Skirt', 'Top'],
+      sellable_offer: { status: 'ready', component_labels: ['Arms', 'Shoulders', 'Skirt', 'Top'] },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['shoulders', 'skirt', 'arms'],
+      sellable_component_axes: ['shoulders', 'skirt', 'arms'],
+      search_only_component_axes: [],
+      material: ['white', 'vegan leather'],
+      event: ['festival', 'rave'],
+      style: ['futuristic'],
+      persona: [],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'rave outfit with skirt', keyword_norm: 'rave outfit with skirt', bank_bucket: 'product', avg_monthly_searches: 30 },
+      { ...baseMetric, keyword: 'white rave costume', keyword_norm: 'white rave costume', bank_bucket: 'visual_collection', avg_monthly_searches: 1000 },
+    ],
+  });
+
+  const primary = result.keywords.find((row) => row.role === 'primary');
+  assert.equal(primary?.keyword_norm, 'white rave costume');
+  assert.equal(primary?.whole_product_intent, true);
+  assert.equal(primary?.owner_reviewed_pdp_primary, true);
+  assert.equal(result.keywords.find((row) => row.keyword_norm === 'rave outfit with skirt')?.role, 'secondary');
+});
+
 test('owner-reviewed witch fallback avoids the occupied Halloween Primary', () => {
   const result = recommendCatalogKeywords({
     product: {
