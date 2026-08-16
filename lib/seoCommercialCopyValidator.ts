@@ -79,7 +79,7 @@ const REDUNDANT_SHOULDER_ENTITY_PATTERN = /\bshoulders?\s+(?:armor|armour|piece|
 const AWKWARD_FINISH_AND_SHAPE = /\b(?:glossy|mirror[- ]like|metallic|gold)\b[^.!?]{0,45}\b(?:finish|surface|coating)\s+and\s+(?:a\s+)?(?:silhouette|shape|profile)\b/i;
 const DUPLICATE_STAGE_PERFORMANCE_FASHION = /\b(?:festival,?\s*)?stage,?\s+and\s+performance\s+fashion\b/i;
 const IDEAL_FOR_PRODUCT_DETAIL = /\b(?:accent|silhouette|finish|surface|coating|construction|structured|structure|base layers?|statement piece|shoulder armor|shoulder armour|shoulder piece|harness(?:\s+and|\/|\s+with)?\s+skirt|component combination|built around|calls? for|when you want)\b/i;
-const IDEAL_FOR_CONTEXT = /\b(?:performers?|dancers?|djs?|showgirls?|drag performers?|drag queens?|pole dancers?|go-go dancers?|cosplayers?|actors?|artists?|creators?|bloggers?|costume stylists?|stylists?|show ballets?|dance troupes?|event productions?|costume studios?|festivals?|burning man|raves?|stage shows?|dance performances?|theatrical productions?|theatre|theater|music videos?|video clips?|tv shows?|film costumes?|photoshoots?|editorial|costume parties?|nightclubs?|galas?|events?|performances?|productions?|women|woman|men|people)\b/i;
+const IDEAL_FOR_CONTEXT = /\b(?:performers?|dancers?|djs?|showgirls?|drag performers?|drag queens?|pole dancers?|go-go dancers?|cosplayers?|actors?|artists?|creators?|bloggers?|photographers?|costume stylists?|stylists?|show ballets?|dance troupes?|event productions?|costume studios?|festivals?|burning man|raves?|stage shows?|dance performances?|theatrical productions?|theatre|theater|music videos?|video clips?|tv shows?|film costumes?|photoshoots?|editorial|costume parties?|nightclubs?|galas?|events?|performances?|productions?|women|woman|men|people)\b/i;
 const CONTROLLED_EVENT_FOCUS_FAMILIES: Array<{ key: string; aliases: string[] }> = [
   { key: 'rave', aliases: ['rave', 'raves'] },
   { key: 'edm', aliases: ['edm'] },
@@ -121,6 +121,7 @@ const IDEAL_BUYER_ROLE_FAMILIES: string[][] = [
   ['dj', 'djs'],
   ['show artist', 'show artists'],
   ['content creator', 'content creators', 'creator', 'creators'],
+  ['photographer', 'photographers'],
   ['costume stylist', 'costume stylists', 'stylist', 'stylists'],
   ['actor', 'actors'],
   ['cosplayer', 'cosplayers'],
@@ -143,6 +144,8 @@ const FOCUS_VALUE_ALIASES: Record<string, string[]> = {
   cosplayer: ['cosplayer', 'cosplayers', 'cosplay'],
   creator: ['creator', 'creators', 'blogger', 'bloggers'],
   warrior: ['warrior', 'warrior-inspired'],
+  witch: ['witch', 'witch-inspired', 'dark witch'],
+  classic: ['classic', 'vintage-inspired', 'vintage inspired', 'timeless'],
   'burning man': ['burning man'],
   festival: ['festival', 'festivals'],
   rave: ['rave', 'raves'],
@@ -153,7 +156,18 @@ const FOCUS_VALUE_ALIASES: Record<string, string[]> = {
   halloween: ['halloween'],
   cosplay: ['cosplay', 'cosplayer', 'cosplayers'],
   pride: ['pride'],
-  photoshoot: ['photoshoot', 'photoshoots', 'photo shoot', 'photo shoots'],
+  photoshoot: [
+    'photoshoot',
+    'photoshoots',
+    'photo shoot',
+    'photo shoots',
+    'portrait shoot',
+    'portrait shoots',
+    'studio portrait',
+    'studio portraits',
+    'editorial shoot',
+    'editorial shoots',
+  ],
 };
 
 const BENEFIT_CATEGORIES: Array<{ key: string; pattern: RegExp }> = [
