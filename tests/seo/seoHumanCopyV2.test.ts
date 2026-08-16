@@ -2280,3 +2280,149 @@ test('paid silver mens warrior set reaches PASS through exact zero-token recover
   assert.match(normalized.pdp_blocks[3].body, /personal style/i);
   assert.doesNotMatch(normalized.pdp_blocks[3].body, /reads from a distance|stand out in the dust/i);
 });
+
+test('paid gold Burning Man fringe set reaches PASS through exact zero-token recovery', () => {
+  const candidate = {
+    contract_version: 'seo_agent_output_v1',
+    status: 'draft',
+    seo_title: 'Gold Burning Man Outfit',
+    h1: 'Gold Burning Man Outfit',
+    meta_description: 'Gold Burning Man outfit with a polished gold finish for festivals and raves nights.',
+    intro: 'For Burning Man, festivals, and rave, this gold Burning Man costume brings a bold studio-made presence to the gold Burning Man costume wearer.',
+    bullet_highlights: [],
+    faq: [],
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'gold Burning Man costume with a black bodysuit and gold fringe skirt standing in a desert setting',
+      truth_basis: 'visible_product_fact',
+    }],
+    internal_linking_hints: [],
+    visual_truth: {
+      observed_product_facts: [
+        'Gold and black color palette',
+        'Long-sleeve black base garment visible on the model',
+        'Gold shoulder accents and chest harness details',
+        'Gold fringe skirt panels at the waist',
+        'Worn in a desert setting',
+      ],
+      dna_matches: ['futuristic festival costume', 'glam desert look'],
+      open_style_suggestions: [],
+      uncertain_or_missing_facts: [
+        'Exact fabric composition',
+        'Back closure details',
+      ],
+      forbidden_visual_claims: [
+        'Do not claim the black base garment is included',
+        'Do not claim metal construction',
+      ],
+    },
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        source_basis: 'product_fact',
+        body: 'Designed for Burning Man, festivals, and rave, this gold Burning Man costume brings a confident stage-ready energy to long event days. Its smooth, high-gloss surface creates a beautifully polished, metal-inspired finish.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'why_youll_love_it',
+        placement: 'left_description',
+        heading: 'Why you’ll love it',
+        source_basis: 'product_fact',
+        body: 'Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\nThe material feels comfortable against the body, making the garment easier to wear for extended periods.\nWith careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'ideal_for',
+        placement: 'left_description',
+        heading: 'Ideal for',
+        source_basis: 'product_fact',
+        body: 'Women seeking an expressive outfit for a live music production.\nBurning Man attendees drawn to a futuristic look for long days and night sets.\nContent creators producing desert visuals for Burning Man shoots or music videos.\nCostume stylists selecting an original futuristic design for themed shows or editorials.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'main_description',
+        placement: 'left_description',
+        heading: 'Designed for self-expression',
+        source_basis: 'brand_policy',
+        body: 'We designed this piece for women who want a gold Burning Man costume with a strong, modern presence. At TheFEYA, our fashion studio shaped it to feel bold in desert light and memorable on stage. Our original design idea turns festival energy into a striking look that feels personal and unmistakable. It carries a confident, futuristic character that reads instantly in motion.',
+        needs_human_review: false,
+      },
+    ],
+    qa_self_report: {
+      cliche_phrase: 'pass',
+      long_dash: 'pass',
+      keyword_stuffing: 'pass',
+      product_specificity: 'pass',
+      forbidden_mismatch: 'pass',
+      similarity_cannibalization: 'pass',
+      image_alt_truth: 'warning',
+      commercial_placement: 'pass',
+      validated_metrics: 'not_checked',
+      notes: [],
+    },
+    generation_notes: [],
+  } as any;
+  const context = {
+    product_truth: {
+      color: 'Gold',
+      included_components: ['Skirt', 'Top'],
+      sellable_offer: {
+        status: 'ready',
+        component_labels: ['Skirt', 'Top'],
+      },
+    },
+    manual_focus: {
+      event: ['burning man', 'festival', 'rave'],
+      style: ['futuristic', 'desert', 'glam'],
+      persona: [],
+      audience: ['women'],
+    },
+    keyword_roles: {
+      primary: [{ keyword: 'gold burning man outfit', keyword_norm: 'gold burning man outfit', role: 'primary' }],
+      secondary: [
+        { keyword: 'gold rave skirt', keyword_norm: 'gold rave skirt', role: 'secondary' },
+        { keyword: 'rave harness top', keyword_norm: 'rave harness top', role: 'secondary' },
+      ],
+      support: [],
+      image_alt: [],
+      collection: [],
+      faq_commercial: [{ keyword: 'rave what to wear', keyword_norm: 'rave what to wear', role: 'faq_commercial' }],
+      hold: [],
+      reject: [],
+    },
+  } as any;
+
+  const normalized = normalizeSeoEditorialCandidate(candidate, {
+    primary_keyword: 'gold burning man outfit',
+    selected_events: context.manual_focus.event,
+    selected_styles: context.manual_focus.style,
+    selected_materials: ['gold', 'mirror', 'vegan leather', 'metallic'],
+    included_components: context.product_truth.included_components,
+    body_identity_variant: 'gold Burning Man costume',
+    product_color: 'Gold',
+  });
+  const structural = validateSeoAgentOutput(normalized);
+  const commercial = validateSeoCommercialCopy(normalized, context);
+  const keyword = validateSeoKeywordPlacement(normalized, {
+    product_truth: context.product_truth,
+    keyword_roles: context.keyword_roles,
+  } as any);
+
+  assert.equal(structural.ok, true, JSON.stringify(structural.issues));
+  assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
+  assert.equal(keyword.ok, true, JSON.stringify(keyword.issues));
+  assert.equal(
+    normalized.meta_description,
+    'Gold Burning Man outfit for women, created for festivals, rave nights and futuristic desert styling.',
+  );
+  assert.match(normalized.pdp_blocks[0].body, /flowing fringe panels/i);
+  assert.match(normalized.pdp_blocks[3].body, /personal style/i);
+  assert.equal(
+    normalized.image_alt_candidates[0].alt_text,
+    'gold festival costume with angular shoulder details and fringe skirt panels in a desert setting',
+  );
+  assert.doesNotMatch(normalized.pdp_blocks[3].body, /desert light|reads instantly/i);
+  assert.doesNotMatch(normalized.image_alt_candidates[0].alt_text, /bodysuit|base garment/i);
+});
