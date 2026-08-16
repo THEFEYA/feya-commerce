@@ -67,7 +67,8 @@ export function hasWholeProductScope(value: unknown, components: string[]) {
   const mentioned = mentionedConfirmedComponents(value, components);
   return mentioned.length === 0
     || mentioned.length >= 2
-    || hasWholeEntityWithConfirmedComponent(value, components);
+    || hasWholeEntityWithConfirmedComponent(value, components)
+    || hasOccasionQualifiedWholeProductHead(value);
 }
 
 /**
@@ -83,6 +84,18 @@ function hasWholeEntityWithConfirmedComponent(value: unknown, components: string
   if (!match || match.index == null) return false;
   const componentClause = normalized.slice(match.index + match[0].length);
   return mentionedConfirmedComponents(componentClause, components).length > 0;
+}
+
+/**
+ * Search demand sometimes places one major garment before an occasion-headed
+ * whole-product noun, for example "black bodysuit Halloween costume". The
+ * final "Halloween costume" remains the grammatical query head, unlike a
+ * partial phrase such as "shoulder armor costume". Accept only a short,
+ * controlled occasion + whole-product head at the end of the phrase; the
+ * existing gate continues to reject a bare component followed by costume.
+ */
+function hasOccasionQualifiedWholeProductHead(value: unknown) {
+  return /\b(?:halloween|festival|rave|stage|cosplay|dance|burlesque|performance|party)\s+(?:outfits?|sets?|costumes?|ensembles?|attire)\s*$/.test(normalize(value));
 }
 
 export function mentionedConfirmedComponents(text: unknown, components: string[]) {
