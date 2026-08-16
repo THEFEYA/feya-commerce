@@ -333,7 +333,7 @@ export default function FirstRealDraftClient({
 
     try {
       const [draftResponse, productResponse] = await Promise.all([
-        fetch(`/api/admin/seo-engine/saved-draft-preview?product_id=${encodeURIComponent(selectedProductId)}`, {
+        fetch(`/api/admin/seo-engine/saved-draft-preview?product_id=${encodeURIComponent(selectedProductId)}&renormalize=${resaveSavedDraft ? '1' : '0'}`, {
           cache: 'no-store',
         }),
         fetch(`/api/admin/seo-engine/storefront-product?product_id=${encodeURIComponent(selectedProductId)}`, {
