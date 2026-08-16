@@ -160,8 +160,19 @@ function findSecondaryKeywordStacks(
     // same display unit.
     const represented = secondary.filter((item) => exactPhraseCount(item.keyword, unit.text) > 0);
     if (represented.length < 2) return [];
+    const distinctOccurrencePair = represented.some((left, leftIndex) => represented.some((right, rightIndex) => (
+      rightIndex > leftIndex
+      && hasDisjointExactPhraseOccurrences(left.keyword, right.keyword, unit.text)
+    )));
+    // One written phrase can legitimately contain a shorter Keyword Bank
+    // variation, for example "black bodysuit Halloween costume" and
+    // "black bodysuit Halloween". Nested matches share one literal span and
+    // are semantic coverage, not two phrases stacked for density.
+    if (!distinctOccurrencePair) return [];
     const nearSynonymPair = represented.some((left, leftIndex) => represented.some((right, rightIndex) => (
-      rightIndex > leftIndex && sharedContentTokenCount(left.keyword, right.keyword) >= 2
+      rightIndex > leftIndex
+      && sharedContentTokenCount(left.keyword, right.keyword) >= 2
+      && hasDisjointExactPhraseOccurrences(left.keyword, right.keyword, unit.text)
     )));
     if (!nearSynonymPair && represented.length < 3) return [];
     return [{
@@ -169,6 +180,27 @@ function findSecondaryKeywordStacks(
       keywords: represented.map((item) => item.keyword),
     }];
   });
+}
+
+function hasDisjointExactPhraseOccurrences(left: string, right: string, value: string) {
+  const leftSpans = exactPhraseSpans(left, value);
+  const rightSpans = exactPhraseSpans(right, value);
+  return leftSpans.some((leftSpan) => rightSpans.some((rightSpan) => (
+    leftSpan.end <= rightSpan.start || rightSpan.end <= leftSpan.start
+  )));
+}
+
+function exactPhraseSpans(keyword: string, value: string) {
+  const phrase = normalize(keyword);
+  const haystack = normalize(value);
+  if (!phrase || !haystack) return [];
+  const spans: Array<{ start: number; end: number }> = [];
+  let offset = 0;
+  while ((offset = haystack.indexOf(phrase, offset)) !== -1) {
+    spans.push({ start: offset, end: offset + phrase.length });
+    offset += phrase.length;
+  }
+  return spans;
 }
 
 function collectDisplayUnits(value: Record<string, unknown>) {
