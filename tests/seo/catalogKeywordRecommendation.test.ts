@@ -250,6 +250,37 @@ test('multi-component Product Truth cannot receive a component-only primary keyw
   assert.equal(result.diagnostics.auto_primary_scope, 'whole_product_or_single_component');
 });
 
+test('a component-led set query cannot pass Listing Master when another sellable piece is unresolved', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      card_title: 'Golden Festival Outfit with Bra & Skirt, Gold Harness Set',
+      source_category_label: 'Harness / Accessory',
+      sellable_offer_components: ['Option', 'Skirt'],
+      sellable_offer: { status: 'ready', component_labels: ['Option', 'Skirt'] },
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['bra', 'top', 'harness', 'skirt'],
+      sellable_component_axes: ['skirt'],
+      search_only_component_axes: ['bra', 'top', 'harness'],
+      material: ['gold', 'leather'],
+      event: ['festival'],
+      style: ['glam'],
+      audience: ['women'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'gold skirt set', keyword_norm: 'gold skirt set', bank_bucket: 'product_or_alt', avg_monthly_searches: 320 },
+      { ...baseMetric, keyword: 'festival skirt set', keyword_norm: 'festival skirt set', bank_bucket: 'product', avg_monthly_searches: 110 },
+    ],
+  });
+
+  assert.equal(result.keywords.find((row) => row.role === 'primary'), undefined);
+  assert.equal(result.keywords.find((row) => row.keyword_norm === 'gold skirt set')?.whole_product_intent, false);
+  assert.equal(result.keywords.find((row) => row.keyword_norm === 'festival skirt set')?.whole_product_intent, false);
+  assert.equal(result.diagnostics.keyword_selection_status, 'needs_primary_review');
+  assert.equal(result.diagnostics.auto_primary_scope, 'blocked_no_whole_product_candidate');
+});
+
 test('compound Product Truth labels cannot hide a component-led whole-product query', () => {
   const result = recommendCatalogKeywords({
     product: {
