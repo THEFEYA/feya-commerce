@@ -195,6 +195,26 @@ test('keeps Ideal-for selected-style copy unchanged at the two-mention limit', (
   );
 });
 
+test('removes the duplicated Silver Rave Outfit finish without another writer call', () => {
+  const normalized = normalizeSeoEditorialCandidate({
+    pdp_blocks: [{
+      block_key: 'about_this_piece',
+      body: 'For rave and EDM nights, this silver rave costume delivers a polished, metal-inspired finish that reads bold under lights. The smooth, high-gloss silver surface creates a beautifully polished, metal-inspired finish, giving the set a sharp futuristic edge. It feels striking without losing its clean, wearable presence.',
+    }],
+    generation_notes: [],
+  }, {
+    primary_keyword: 'silver rave outfit',
+    product_color: 'Silver',
+    selected_events: ['rave', 'EDM'],
+  });
+
+  assert.equal(
+    normalized.pdp_blocks[0].body,
+    'For rave and EDM nights, this silver rave costume delivers a polished, metal-inspired finish that reads bold under lights. The smooth, high-gloss silver surface gives the set a sharp futuristic edge. It feels striking without losing its clean, wearable presence.',
+  );
+  assert.equal(normalized.pdp_blocks[0].body.match(/metal-inspired finish/gi)?.length, 1);
+});
+
 test('does not append an event already owned by the reviewed Primary', () => {
   const normalized = normalizeDeterministicSeoIdentity({
     seo_title: 'Draft title',
