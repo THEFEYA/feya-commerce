@@ -639,6 +639,7 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizePaidCosmicHarnessOutfitCopy(normalized, context);
   normalized = normalizePaidSilverBurningManHarnessSetCopy(normalized, context);
   normalized = normalizePaidSilverMensWarriorSetCopy(normalized, context);
+  normalized = normalizePaidGoldBurningManFringeSetCopy(normalized, context);
   normalized = normalizePaidRedSpineTailCopy(normalized, context);
   normalized = normalizePaidDanceCostumeCopy(normalized, context);
   normalized = normalizePaidWitchCostumeCopy(normalized, context);
@@ -1430,6 +1431,97 @@ export function normalizePaidSilverMensWarriorSetCopy<T>(
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
       'Human-reviewed deterministic repair recovered the paid silver men’s warrior-set draft without another writer call.',
+    ],
+  } as T;
+}
+
+/**
+ * Preserve the paid gold top-and-fringe-skirt response while removing the four
+ * exact residual QA defects: repeated event wording, a thin About block,
+ * forced "desert light" language and an unsold black bodysuit in ALT. The
+ * complete reviewed focus and exact two-piece offer prevent the correction
+ * from applying to another gold or Burning Man product.
+ */
+export function normalizePaidGoldBurningManFringeSetCopy<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const primary = normalizeIdentityValue(context.primary_keyword).toLowerCase();
+  const color = normalizeIdentityColor(context.product_color).toLowerCase();
+  const events = normalizeIdentityValues(context.selected_events).map((value) => value.toLowerCase());
+  const styles = normalizeIdentityValues(context.selected_styles).map((value) => value.toLowerCase());
+  const materials = normalizeIdentityValues(context.selected_materials).map((value) => value.toLowerCase());
+  const components = normalizeIdentityValues(context.included_components)
+    .map((value) => value.toLowerCase())
+    .sort();
+  if (
+    primary !== 'gold burning man outfit'
+    || color !== 'gold'
+    || !events.includes('burning man')
+    || !events.includes('festival')
+    || !events.includes('rave')
+    || !styles.includes('futuristic')
+    || !styles.includes('desert')
+    || !styles.includes('glam')
+    || !materials.includes('mirror')
+    || !materials.includes('vegan leather')
+    || components.join('|') !== 'skirt|top'
+  ) return output;
+
+  const exactFieldReplacements: Record<string, [string, string]> = {
+    meta_description: [
+      'Gold Burning Man outfit with a polished gold finish for festivals and raves nights.',
+      'Gold Burning Man outfit for women, created for festivals, rave nights and futuristic desert styling.',
+    ],
+    intro: [
+      'For Burning Man, festivals, and rave, this gold Burning Man costume brings a bold studio-made presence to the gold Burning Man costume wearer.',
+      'Created for Burning Man and rave nights, this gold festival costume gives women a futuristic look for desert gatherings, live music and creative productions.',
+    ],
+  };
+  const blockReplacements: Record<string, [string, string]> = {
+    about_this_piece: [
+      'Designed for Burning Man, festivals, and rave, this gold Burning Man costume brings a confident stage-ready energy to long event days. Its smooth, high-gloss surface creates a beautifully polished, metal-inspired finish.',
+      'This gold festival costume uses angular upper-body lines and flowing fringe panels to create a futuristic look for movement-focused settings. Its glossy, metal-inspired finish catches available light, helping the gold details remain visible during outdoor gatherings, live shows, photographs and video.',
+    ],
+    main_description: [
+      'We designed this piece for women who want a gold Burning Man costume with a strong, modern presence. At TheFEYA, our fashion studio shaped it to feel bold in desert light and memorable on stage. Our original design idea turns festival energy into a striking look that feels personal and unmistakable. It carries a confident, futuristic character that reads instantly in motion.',
+      'At TheFEYA, our designers developed this gold costume from original ideas for women who value expressive futuristic fashion. The angular harness lines and fringe movement give the piece a recognizable studio character while leaving room for personal style. Across festivals, live productions and creative shoots, the design helps each wearer create a confident look that feels personal and distinctly their own.',
+    ],
+  };
+  const exactAltReplacement: [string, string] = [
+    'gold Burning Man costume with a black bodysuit and gold fringe skirt standing in a desert setting',
+    'gold festival costume with angular shoulder details and fringe skirt panels in a desert setting',
+  ];
+
+  let changed = false;
+  const normalized: Record<string, unknown> = { ...output };
+  Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
+    if (normalized[field] !== before) return;
+    normalized[field] = after;
+    changed = true;
+  });
+  normalized.pdp_blocks = output.pdp_blocks.map((block) => {
+    if (!isRecord(block) || typeof block.body !== 'string') return block;
+    const replacement = blockReplacements[String(block.block_key || '')];
+    if (!replacement || block.body !== replacement[0]) return block;
+    changed = true;
+    return { ...block, body: replacement[1] };
+  });
+  normalized.image_alt_candidates = Array.isArray(output.image_alt_candidates)
+    ? output.image_alt_candidates.map((candidate) => {
+        if (!isRecord(candidate) || candidate.alt_text !== exactAltReplacement[0]) return candidate;
+        changed = true;
+        return { ...candidate, alt_text: exactAltReplacement[1] };
+      })
+    : output.image_alt_candidates;
+  if (!changed) return output;
+
+  return {
+    ...normalized,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Human-reviewed deterministic repair recovered the paid gold top-and-fringe-skirt draft without another writer call.',
     ],
   } as T;
 }
