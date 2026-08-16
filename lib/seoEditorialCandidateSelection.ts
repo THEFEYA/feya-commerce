@@ -641,6 +641,7 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizePaidDanceCostumeCopy(normalized, context);
   normalized = normalizePaidWitchCostumeCopy(normalized, context);
   normalized = normalizePaidConfigurableWitchSetCopy(normalized, context);
+  normalized = normalizeRepeatedIdealForStyleFocus(normalized, context);
   normalized = normalizeBrownLeatherHarnessPhotoshootAlt(normalized, context);
   normalized = normalizeImageAltPrimaryVariation(normalized, context);
   normalized = normalizeSingleSuppliedImageAltCandidate(normalized);
@@ -1563,6 +1564,76 @@ export function normalizeIdealForSentenceList<T>(output: T): T {
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
       'Deterministic Ideal-for normalization separated complete buyer portraits into the required one-per-line structure.',
+    ],
+  } as T;
+}
+
+const SAFE_IDEAL_STYLE_MODIFIER_TARGET = /^(?:aesthetic|character|concept|costume|design|direction|fashion|imagery|look|mood|outfit|piece|styling|visuals?)\b/i;
+
+/**
+ * Ideal-for portraits may naturally use an operator-selected style twice, but
+ * a third identical modifier makes the block read like keyword padding and is
+ * rejected by deterministic QA. Remove only third-and-later exact selected
+ * style phrases when they are acting as a modifier before a bounded editorial
+ * noun (for example, "futuristic design" -> "design"). This cannot add a
+ * product claim, keeps the first two style signals, and leaves ambiguous or
+ * short lines untouched for normal QA instead of trying to rewrite them.
+ */
+export function normalizeRepeatedIdealForStyleFocus<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const selectedStyles = normalizeIdentityValues(context.selected_styles)
+    .map((value) => value.toLowerCase())
+    .filter((value) => /^[a-z0-9]+(?:[ -][a-z0-9]+)*$/i.test(value));
+  if (!selectedStyles.length) return output;
+
+  let changed = false;
+  const pdpBlocks = output.pdp_blocks.map((block) => {
+    if (
+      !isRecord(block)
+      || block.block_key !== 'ideal_for'
+      || typeof block.body !== 'string'
+    ) return block;
+
+    let body = block.body;
+    selectedStyles.forEach((style) => {
+      const styleExpression = style.split(/\s+/).map(escapeRegExp).join('[ -]+');
+      const stylePattern = new RegExp(`\\b${styleExpression}\\b`, 'gi');
+      const totalAppearances = [...body.matchAll(stylePattern)].length;
+      if (totalAppearances <= 2) return;
+
+      let seen = 0;
+      const lines = body.split(/\r?\n/).map((line) => {
+        const candidate = line.replace(stylePattern, (match, offset: number, source: string) => {
+          seen += 1;
+          if (seen <= 2) return match;
+          const following = source.slice(offset + match.length).trimStart();
+          return SAFE_IDEAL_STYLE_MODIFIER_TARGET.test(following) ? '' : match;
+        })
+          .replace(/\s+([,.;:!?])/g, '$1')
+          .replace(/\s{2,}/g, ' ')
+          .trim();
+        return editorialWordCount(candidate) >= 7 ? candidate : line;
+      });
+      const nextBody = lines.join('\n');
+      if (nextBody !== body) {
+        body = nextBody;
+        changed = true;
+      }
+    });
+
+    return body === block.body ? block : { ...block, body };
+  });
+  if (!changed) return output;
+
+  return {
+    ...output,
+    pdp_blocks: pdpBlocks,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Deterministic Ideal-for normalization removed third-and-later repeated selected-style modifiers while preserving the first two operator signals.',
     ],
   } as T;
 }
