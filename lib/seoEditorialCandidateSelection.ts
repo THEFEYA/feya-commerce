@@ -636,6 +636,7 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizeBatchFiveEditorialBlacklistCopy(normalized, context);
   normalized = normalizePaidHarnessAndMetallicSetCopy(normalized, context);
   normalized = normalizePaidChromeShowgirlCopy(normalized, context);
+  normalized = normalizePaidCosmicHarnessOutfitCopy(normalized, context);
   normalized = normalizePaidRedSpineTailCopy(normalized, context);
   normalized = normalizePaidDanceCostumeCopy(normalized, context);
   normalized = normalizePaidWitchCostumeCopy(normalized, context);
@@ -1112,6 +1113,74 @@ export function normalizePaidChromeShowgirlCopy<T>(
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
       'Human-reviewed deterministic repair separated the paid chrome showgirl draft into search identity, use case, visible finish and personal styling without another writer call.',
+    ],
+  } as T;
+}
+
+/**
+ * Preserve the one paid cosmic harness response while replacing only the four
+ * exact sentences that remained abstract after the generic zero-token pass.
+ * Product id is represented by its reserved Primary plus the complete saved
+ * focus context, so unrelated silver and harness products cannot enter.
+ */
+export function normalizePaidCosmicHarnessOutfitCopy<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const primary = normalizeIdentityValue(context.primary_keyword).toLowerCase();
+  const color = normalizeIdentityColor(context.product_color).toLowerCase();
+  const events = normalizeIdentityValues(context.selected_events).map((value) => value.toLowerCase());
+  if (
+    primary !== 'rave harness outfit'
+    || color !== 'silver'
+    || !events.includes('festival')
+    || !events.includes('rave')
+    || !events.includes('photoshoot')
+  ) return output;
+
+  const exactFieldReplacements: Record<string, [string, string]> = {
+    meta_description: [
+      'Silver rave harness outfit with a polished finish for festivals and raves nights.',
+      'Silver rave harness outfit for women, created for festivals, rave nights and futuristic photoshoots.',
+    ],
+    intro: [
+      'For festivals, this rave harness costume brings a bold, distinctive edge to your look with an original studio design made for music, movement, and photoshoots.',
+      'For festivals, rave nights and photoshoots, this silver harness costume gives women a distinctive futuristic look made for music, movement and bold visual styling.',
+    ],
+  };
+  const blockReplacements: Record<string, [string, string]> = {
+    about_this_piece: [
+      'This rave harness costume is made for festivals, rave nights, and photoshoots, where the body-skimming shape and bold silver finish stand out fast. Its smooth, high-gloss surface creates a beautifully polished, metal-inspired finish that feels striking in motion.',
+      'Designed for festivals, rave nights and photoshoots, this complete silver outfit gives women a bold futuristic character without limiting the look to one role. Its smooth, high-gloss surface catches available light as the wearer moves, bringing extra shine to festival crowds, photographs, video and creative styling from different angles.',
+    ],
+    main_description: [
+      'We designed this piece through TheFEYA to give rave harness costume energy a bold, wearable presence that feels memorable on arrival. Our fashion studio shaped the silver finish and harness lines for women who want a futuristic, cosmic mood without losing polish. We love how it reads as sharp, distinctive, and personal in festival and photo settings. It carries the kind of presence that makes a room look twice.',
+      'At TheFEYA, our designers developed this original silver outfit for women who want a confident futuristic presence at festivals, raves and creative shoots. The harness-inspired lines create a recognizable cosmic character while leaving room for individual styling. It is made for people who want their event look to feel expressive, personal and distinctly their own.',
+    ],
+  };
+
+  let changed = false;
+  const normalized: Record<string, unknown> = { ...output };
+  Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
+    if (normalized[field] !== before) return;
+    normalized[field] = after;
+    changed = true;
+  });
+  normalized.pdp_blocks = output.pdp_blocks.map((block) => {
+    if (!isRecord(block) || typeof block.body !== 'string') return block;
+    const replacement = blockReplacements[String(block.block_key || '')];
+    if (!replacement || block.body !== replacement[0]) return block;
+    changed = true;
+    return { ...block, body: replacement[1] };
+  });
+  if (!changed) return output;
+
+  return {
+    ...normalized,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Human-reviewed deterministic repair replaced abstract editorial shorthand in the paid cosmic harness draft without another writer call.',
     ],
   } as T;
 }
