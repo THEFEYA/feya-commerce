@@ -1990,3 +1990,148 @@ test('paid cosmic harness draft reaches PASS through exact zero-token recovery',
   assert.match(normalized.pdp_blocks[0].body, /complete silver outfit/i);
   assert.doesNotMatch(normalized.pdp_blocks[3].body, /reads as|room look twice|costume energy/i);
 });
+
+test('paid silver Burning Man harness set reaches PASS through exact zero-token recovery', () => {
+  const candidate = {
+    contract_version: 'seo_agent_output_v1',
+    status: 'draft',
+    seo_title: 'Silver Harness Festival Outfit for Burning Man',
+    h1: 'Silver Harness Festival Outfit for Burning Man',
+    meta_description: 'Silver harness festival outfit with a polished finish for Burning Man and rave nights.',
+    intro: 'For Burning Man, festivals, and rave, this harness festival costume brings a bold, distinctive edge with its original studio design and silver statement presence.',
+    bullet_highlights: [],
+    faq: [],
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'silver harness festival costume posed in a studio corridor',
+      truth_basis: 'visible_product_fact',
+    }],
+    internal_linking_hints: [],
+    visual_truth: {
+      observed_product_facts: [
+        'Silver metallic-looking harness pieces with a high-gloss finish',
+        'Visible shoulder coverage with armor-like shaping',
+        'Strap details across the arms and thighs',
+        'Studio pose in a neutral indoor setting',
+      ],
+      dna_matches: [
+        'Futuristic silver finish',
+        'Cyberpunk-inspired harness styling',
+        'Warrior-like statement profile',
+      ],
+      open_style_suggestions: [],
+      uncertain_or_missing_facts: [
+        'Exact material composition cannot be confirmed from the image alone',
+        'Closure method and adjustability are not fully visible',
+      ],
+      forbidden_visual_claims: [
+        'Do not claim exact replica styling',
+        'Do not claim included items not visible in the image',
+      ],
+    },
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        source_basis: 'product_fact',
+        body: 'Built for Burning Man, festival nights, and rave settings, this harness festival costume frames the shoulders, arms, and legs with a striking silver presence. Its smooth, high-gloss surface creates a beautifully polished, metal-inspired finish.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'why_youll_love_it',
+        placement: 'left_description',
+        heading: 'Why you’ll love it',
+        source_basis: 'product_fact',
+        body: '- Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\n- The material feels comfortable against the body, making the garment easier to wear for extended periods.\n- With careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'ideal_for',
+        placement: 'left_description',
+        heading: 'Ideal for',
+        source_basis: 'product_fact',
+        body: 'Women seeking a futuristic, cyberpunk look for a live music production.\nBurning Man attendees drawn to a warrior feel for long days and night sets.\nContent creators producing bold visuals for Burning Man shoots or music videos.\nCostume stylists selecting an original design for themed shows or editorials.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'main_description',
+        placement: 'left_description',
+        heading: 'Designed for self-expression',
+        source_basis: 'brand_policy',
+        body: 'We designed this piece for women who want a fearless, fashion-led presence at festivals and desert gatherings. TheFEYA brings our original design ideas to a harness festival costume that feels bold, distinctive, and memorable. Our fashion studio shaped it for a futuristic warrior mood that stands out in motion. The result is a silver statement piece with an unmistakable edge.',
+        needs_human_review: false,
+      },
+    ],
+    qa_self_report: {
+      cliche_phrase: 'pass',
+      long_dash: 'pass',
+      keyword_stuffing: 'pass',
+      product_specificity: 'pass',
+      forbidden_mismatch: 'pass',
+      similarity_cannibalization: 'pass',
+      image_alt_truth: 'pass',
+      commercial_placement: 'pass',
+      validated_metrics: 'not_checked',
+      notes: [],
+    },
+    generation_notes: [],
+  } as any;
+  const context = {
+    product_truth: {
+      color: 'Silver',
+      included_components: ['Shoulders', 'Top Harness', 'Bracelet', 'Garters'],
+      sellable_offer: {
+        status: 'ready',
+        component_labels: ['Shoulders', 'Top Harness', 'Bracelet', 'Garters'],
+      },
+    },
+    manual_focus: {
+      event: ['burning man', 'festival', 'rave'],
+      style: ['futuristic', 'cyberpunk', 'desert'],
+      persona: ['warrior'],
+      audience: ['women'],
+    },
+    keyword_roles: {
+      primary: [{ keyword: 'harness festival outfit', keyword_norm: 'harness festival outfit', role: 'primary' }],
+      secondary: [
+        { keyword: 'silver body harness', keyword_norm: 'silver body harness', role: 'secondary' },
+        { keyword: 'burning man harness', keyword_norm: 'burning man harness', role: 'secondary' },
+        { keyword: 'rave harness outfit', keyword_norm: 'rave harness outfit', role: 'secondary' },
+      ],
+      support: [],
+      image_alt: [],
+      collection: [],
+      faq_commercial: [],
+      hold: [],
+      reject: [],
+    },
+  } as any;
+
+  const normalized = normalizeSeoEditorialCandidate(candidate, {
+    primary_keyword: 'harness festival outfit',
+    selected_events: context.manual_focus.event,
+    selected_styles: context.manual_focus.style,
+    selected_materials: ['silver', 'mirror', 'vegan leather', 'metallic'],
+    included_components: context.product_truth.included_components,
+    body_identity_variant: 'harness festival costume',
+    product_color: 'Silver',
+  });
+  const structural = validateSeoAgentOutput(normalized);
+  const commercial = validateSeoCommercialCopy(normalized, context);
+  const keyword = validateSeoKeywordPlacement(normalized, {
+    product_truth: context.product_truth,
+    keyword_roles: context.keyword_roles,
+  } as any);
+
+  assert.equal(structural.ok, true, JSON.stringify(structural.issues));
+  assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
+  assert.equal(keyword.ok, true, JSON.stringify(keyword.issues));
+  assert.equal(
+    normalized.meta_description,
+    'Silver harness festival outfit for women, created for Burning Man, rave nights and futuristic cyberpunk styling.',
+  );
+  assert.match(normalized.pdp_blocks[0].body, /high-gloss vegan leather surface/i);
+  assert.match(normalized.pdp_blocks[3].body, /personal style/i);
+  assert.doesNotMatch(normalized.pdp_blocks[3].body, /statement piece|unmistakable edge/i);
+});
