@@ -1743,3 +1743,128 @@ test('paid chrome showgirl draft reaches PASS through exact zero-token recovery'
   assert.match(normalized.pdp_blocks[0].body, /available light during photos, video and live appearances/i);
   assert.doesNotMatch(normalized.pdp_blocks[3].body, /finish|under lights/i);
 });
+
+test('paid cosmic harness draft reaches PASS through exact zero-token recovery', () => {
+  const candidate = {
+    contract_version: 'seo_agent_output_v1',
+    status: 'draft',
+    seo_title: 'Silver Rave Harness Outfit for Festivals',
+    h1: 'Silver Rave Harness Outfit for Festivals',
+    meta_description: 'Silver rave harness outfit with a polished finish for festivals and raves nights.',
+    intro: 'For festivals, this rave harness costume brings a bold, distinctive edge to your look with an original studio design made for music, movement, and photoshoots.',
+    bullet_highlights: [],
+    faq: [],
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'silver rave harness costume worn on a beach at sunset',
+      truth_basis: 'visible_product_fact',
+    }],
+    internal_linking_hints: [],
+    visual_truth: {
+      observed_product_facts: ['Silver high-gloss bodywear', 'Structured harness straps', 'Metallic skirt'],
+      dna_matches: ['Futuristic festival styling'],
+      open_style_suggestions: [],
+      uncertain_or_missing_facts: ['Exact fabric composition cannot be confirmed from the image alone'],
+      forbidden_visual_claims: ['Do not claim mirrored material as a fact'],
+    },
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        source_basis: 'product_fact',
+        body: 'This rave harness costume is made for festivals, rave nights, and photoshoots, where the body-skimming shape and bold silver finish stand out fast. Its smooth, high-gloss surface creates a beautifully polished, metal-inspired finish that feels striking in motion.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'why_youll_love_it',
+        placement: 'left_description',
+        heading: 'Why you’ll love it',
+        source_basis: 'product_fact',
+        body: 'Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\nThe material feels comfortable against the body, making the garment easier to wear for extended periods.\nWith careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'ideal_for',
+        placement: 'left_description',
+        heading: 'Ideal for',
+        source_basis: 'product_fact',
+        body: 'Women seeking an expressive outfit for a live music production.\nFestival-goers drawn to an alien look for a long day of music and movement.\nContent creators producing cyberpunk visuals for festival shoots or music videos.\nCostume stylists selecting an original futuristic design for themed shows or editorials.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'main_description',
+        placement: 'left_description',
+        heading: 'Designed for self-expression',
+        source_basis: 'brand_policy',
+        body: 'We designed this piece through TheFEYA to give rave harness costume energy a bold, wearable presence that feels memorable on arrival. Our fashion studio shaped the silver finish and harness lines for women who want a futuristic, cosmic mood without losing polish. We love how it reads as sharp, distinctive, and personal in festival and photo settings. It carries the kind of presence that makes a room look twice.',
+        needs_human_review: false,
+      },
+    ],
+    qa_self_report: {
+      cliche_phrase: 'pass',
+      long_dash: 'pass',
+      keyword_stuffing: 'pass',
+      product_specificity: 'pass',
+      forbidden_mismatch: 'pass',
+      similarity_cannibalization: 'pass',
+      image_alt_truth: 'pass',
+      commercial_placement: 'pass',
+      validated_metrics: 'not_checked',
+      notes: [],
+    },
+    generation_notes: [],
+  } as any;
+  const context = {
+    product_truth: {
+      color: 'Silver',
+      included_components: ['Shoulders', 'Skirt'],
+      sellable_offer: { status: 'ready', component_labels: ['Shoulders', 'Skirt'] },
+    },
+    manual_focus: {
+      event: ['festival', 'rave', 'photoshoot'],
+      style: ['futuristic', 'cyberpunk', 'cosmic'],
+      persona: ['alien'],
+      audience: ['women'],
+    },
+    keyword_roles: {
+      primary: [{ keyword: 'rave harness outfit', keyword_norm: 'rave harness outfit', role: 'primary' }],
+      secondary: [
+        { keyword: 'rave outfit with skirt', keyword_norm: 'rave outfit with skirt', role: 'secondary' },
+        { keyword: 'metallic silver skirt outfit', keyword_norm: 'metallic silver skirt outfit', role: 'secondary' },
+      ],
+      support: [],
+      image_alt: [],
+      collection: [],
+      faq_commercial: [],
+      hold: [],
+      reject: [],
+    },
+  } as any;
+
+  const normalized = normalizeSeoEditorialCandidate(candidate, {
+    primary_keyword: 'rave harness outfit',
+    selected_events: context.manual_focus.event,
+    selected_styles: context.manual_focus.style,
+    selected_materials: ['silver', 'mirror', 'vegan leather', 'metallic'],
+    included_components: context.product_truth.included_components,
+    body_identity_variant: 'rave harness costume',
+    product_color: 'Silver',
+  });
+  const structural = validateSeoAgentOutput(normalized);
+  const commercial = validateSeoCommercialCopy(normalized, context);
+  const keyword = validateSeoKeywordPlacement(normalized, {
+    product_truth: context.product_truth,
+    keyword_roles: context.keyword_roles,
+  } as any);
+
+  assert.equal(structural.ok, true, JSON.stringify(structural.issues));
+  assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
+  assert.equal(keyword.ok, true, JSON.stringify(keyword.issues));
+  assert.equal(
+    normalized.meta_description,
+    'Silver rave harness outfit for women, created for festivals, rave nights and futuristic photoshoots.',
+  );
+  assert.match(normalized.pdp_blocks[0].body, /complete silver outfit/i);
+  assert.doesNotMatch(normalized.pdp_blocks[3].body, /reads as|room look twice|costume energy/i);
+});
