@@ -222,6 +222,7 @@ const OWNER_REVIEWED_PDP_PRIMARY: Record<string, string> = {
   'f473fb62-0440-473c-a7fb-a52dccafebc6': 'red stage outfit',
   'ffa74da5-c2e1-4c3a-b460-50d1aae09f56': 'dance costume for ladies',
   '2a39f8ec-b5c3-403c-8f1a-7e10bb0ab829': 'black bodysuit halloween costume',
+  '50c370fb-3f41-4e49-8e3b-cbc5e1dd478b': 'bodysuit halloween costume',
   '4b0c8180-774d-4d5c-a12c-0864f305d1cb': 'silver metallic outfit',
   '5044435f-d093-4437-9945-ff822b2df2d9': 'black leather rave outfit',
   '60ee8feb-32d3-4a8c-b64b-38d33433e2f2': 'gold burning man outfit',
