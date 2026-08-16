@@ -149,6 +149,52 @@ test('inflects a generic festival focus into an idiomatic plural identity', () =
   assert.equal(normalized.h1, 'Warrior Armor Costume for Festivals');
 });
 
+test('removes only a safe third selected-style modifier from Ideal for', () => {
+  const idealFor = [
+    'Women seeking an expressive outfit for a live music production.',
+    'Festival-goers drawn to a futuristic look for a long day of music and movement.',
+    'Content creators producing futuristic visuals for festival shoots or music videos.',
+    'Costume stylists selecting an original futuristic design for themed shows or editorials.',
+  ].join('\n');
+  const normalized = normalizeSeoEditorialCandidate({
+    pdp_blocks: [{ block_key: 'ideal_for', body: idealFor }],
+    generation_notes: [],
+  }, {
+    selected_events: ['festival', 'rave'],
+    selected_styles: ['futuristic'],
+  });
+
+  assert.equal(normalized.pdp_blocks[0].body, [
+    'Women seeking an expressive outfit for a live music production.',
+    'Festival-goers drawn to a futuristic look for a long day of music and movement.',
+    'Content creators producing futuristic visuals for festival shoots or music videos.',
+    'Costume stylists selecting an original design for themed shows or editorials.',
+  ].join('\n'));
+  assert.equal(normalized.pdp_blocks[0].body.match(/\bfuturistic\b/gi)?.length, 2);
+});
+
+test('keeps Ideal-for selected-style copy unchanged at the two-mention limit', () => {
+  const idealFor = [
+    'Festival-goers drawn to a futuristic look for a long day of music and movement.',
+    'Content creators producing futuristic visuals for festival shoots or music videos.',
+    'Costume stylists selecting an original design for themed shows or editorials.',
+    'Women seeking an expressive outfit for a live music production.',
+  ].join('\n');
+  const input = {
+    pdp_blocks: [{ block_key: 'ideal_for', body: idealFor }],
+    generation_notes: [],
+  };
+
+  const normalized = normalizeSeoEditorialCandidate(input, {
+    selected_styles: ['futuristic'],
+  });
+  assert.equal(normalized.pdp_blocks[0].body, idealFor);
+  assert.doesNotMatch(
+    normalized.generation_notes.join(' '),
+    /third-and-later repeated selected-style modifiers/i,
+  );
+});
+
 test('does not append an event already owned by the reviewed Primary', () => {
   const normalized = normalizeDeterministicSeoIdentity({
     seo_title: 'Draft title',
