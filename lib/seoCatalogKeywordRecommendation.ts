@@ -261,7 +261,22 @@ export function recommendCatalogKeywords(input: {
   // decision. Keep that default decision intentionally small enough for a
   // human to inspect and for the writer to use as semantic evidence rather
   // than as a stuffing checklist.
-  const productRows = scored.filter((row) => PRODUCT_BUCKETS.has(normalize(row.bank_bucket || row.page_type))).slice(0, 10);
+  const allProductRows = scored.filter((row) => (
+    PRODUCT_BUCKETS.has(normalize(row.bank_bucket || row.page_type))
+  ));
+  const ownerReviewedKeyword = OWNER_REVIEWED_PDP_PRIMARY[profile.canonicalProductId];
+  const ownerReviewedRow = ownerReviewedKeyword
+    ? allProductRows.find((row) => normalize(row.keyword_norm || row.keyword) === ownerReviewedKeyword)
+    : null;
+  // An exact owner-reviewed Primary is already bounded by product id, trusted
+  // bank evidence and every mismatch gate above. Reserve its one slot before
+  // applying the compact top-ten display limit; otherwise a valid lower-volume
+  // niche angle can disappear behind component terms and the UI silently falls
+  // back to a conflicting catalog Primary.
+  const productRows = uniqueRows([
+    ...(ownerReviewedRow ? [ownerReviewedRow] : []),
+    ...allProductRows,
+  ]).slice(0, 10);
   const faqRows = scored.filter((row) => normalize(row.bank_bucket || row.page_type) === 'faq').slice(0, 3);
   const collectionRows = scored.filter((row) => ['collection', 'commercial collection'].includes(normalize(row.bank_bucket || row.page_type))).slice(0, 3);
   const imageRows = scored.filter((row) => normalize(row.bank_bucket || row.page_type) === 'visual collection').slice(0, 2);
