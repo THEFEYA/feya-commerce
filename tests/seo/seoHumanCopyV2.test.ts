@@ -360,6 +360,7 @@ test('paid configurable witch set reaches PASS through exact zero-token recovery
 
   assert.equal(structural.ok, true, JSON.stringify(structural.issues));
   assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
+  assert.equal(commercial.issues.length, 0, JSON.stringify(commercial.issues));
   assert.equal(keyword.ok, true, JSON.stringify(keyword.issues));
   assert.equal(normalized.seo_title, 'Bodysuit Halloween Costume for Women');
   assert.match(normalized.pdp_blocks[0].body, /queen-like profile/i);
