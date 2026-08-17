@@ -126,6 +126,16 @@ const THEFEYA_PRODUCT_RIGHT_PDP_OVERRIDES: Record<string, RightPanelOverride> = 
       'Store the harness without tight folding or long-term heavy pressure.',
     ],
   },
+  'ce0a2c0a-5a95-4876-a198-70be635ca053': {
+    material: [
+      'This handmade chest harness is made from green leather.',
+    ],
+    care: [
+      'Wipe the green leather gently with a soft, slightly damp cloth.',
+      'Do not use alcohol wipes, machine washing or prolonged soaking on this piece.',
+      'Store the harness without tight folding or long-term heavy pressure.',
+    ],
+  },
   'ffa74da5-c2e1-4c3a-b460-50d1aae09f56': {
     sizing_fit: [
       'Use our size chart to choose your standard size.',

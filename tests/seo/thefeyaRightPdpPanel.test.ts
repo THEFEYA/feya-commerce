@@ -31,6 +31,14 @@ test('brown leather harness never receives mirror vegan-leather care copy', () =
   assert.match(blockBody(id, 'care'), /Do not use alcohol wipes/i);
 });
 
+test('green leather suspenders keep real-leather material and care copy', () => {
+  const id = 'ce0a2c0a-5a95-4876-a198-70be635ca053';
+  assert.match(blockBody(id, 'material'), /made from green leather/i);
+  assert.match(blockBody(id, 'material'), /handmade/i);
+  assert.doesNotMatch(blockBody(id, 'material'), /vegan|mirror/i);
+  assert.match(blockBody(id, 'care'), /Do not use alcohol wipes/i);
+});
+
 test('dance costume keeps fabric base and coated details separate in the fixed panel', () => {
   const id = 'ffa74da5-c2e1-4c3a-b460-50d1aae09f56';
   const material = blockBody(id, 'material');

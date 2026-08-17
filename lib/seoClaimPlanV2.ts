@@ -141,6 +141,7 @@ export function buildDeterministicSeoClaimPlan(
   ));
   const preferredCodes = [
     'brown_leather_harness_identity',
+    'green_leather_harness_identity',
     'spine_tail_continuous_backpiece',
     'stretch_fabric_gold_detail_construction',
     'original_authorial_design',
@@ -164,6 +165,7 @@ export function buildDeterministicSeoClaimPlan(
   ));
   const aboutFact = ordered.find((fact) => [
     'brown_leather_harness_identity',
+    'green_leather_harness_identity',
     'spine_tail_continuous_backpiece',
     'stretch_fabric_gold_detail_construction',
     'material_glossy_holographic_shift',
@@ -432,6 +434,7 @@ function buyerOutcomeForFact(factCode: string) {
     material_event_light_camera: 'The color and details stay clear in photos and under stage lighting.',
     current_color: 'One concrete visual detail that helps the shopper picture the piece.',
     brown_leather_harness_identity: 'This brown leather chest harness has a classic, vintage-inspired character with a refined menswear feel.',
+    green_leather_harness_identity: 'This handmade green leather chest harness has a classic, vintage-inspired character with a refined menswear feel.',
     leather_harness_repeat_wear: 'With appropriate care, the durable leather stays ready for repeat wear.',
     leather_harness_upper_body_framing: 'The chest-harness strap layout frames the upper body, keeping the accessory’s shape clear and refined.',
     spine_tail_continuous_backpiece: 'A sculptural extension follows the back as a spine and continues below the waist as one tail detail.',
@@ -565,6 +568,13 @@ const PRODUCT_SPECIFIC_IDEAL_FOR_PORTRAITS: Record<string, SeoIdealForPortrait[]
     { person: 'men', situation: 'choosing a classic brown leather harness for portrait or editorial shoots' },
     { person: 'models', situation: 'wearing a vintage-inspired chest accessory for menswear photography' },
     { person: 'photographers', situation: 'developing refined brown-leather styling for studio portraits' },
+    { person: 'costume stylists', situation: 'selecting a distinctive chest harness for editorial productions' },
+  ],
+  'ce0a2c0a-5a95-4876-a198-70be635ca053': [
+    { person: 'groomsmen', situation: 'wearing handmade green leather suspenders for a wedding celebration' },
+    { person: 'men', situation: 'choosing a classic chest harness with a vintage-inspired character' },
+    { person: 'gift buyers', situation: 'selecting a distinctive leather accessory for a groomsman' },
+    { person: 'photographers', situation: 'developing refined green-leather styling for menswear portraits' },
     { person: 'costume stylists', situation: 'selecting a distinctive chest harness for editorial productions' },
   ],
   'f473fb62-0440-473c-a7fb-a52dccafebc6': [

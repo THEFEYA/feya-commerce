@@ -73,6 +73,20 @@ const PRODUCT_SPECIFIC_WRITER_FACTS: Record<string, Array<{
       statement_en: 'The chest-harness strap layout frames the upper body.',
     },
   ],
+  'ce0a2c0a-5a95-4876-a198-70be635ca053': [
+    {
+      fact_code: 'green_leather_harness_identity',
+      statement_en: 'This product is a handmade green leather chest harness with a classic, vintage-inspired menswear character.',
+    },
+    {
+      fact_code: 'leather_harness_repeat_wear',
+      statement_en: 'With appropriate care, the leather harness is suited to repeat wear.',
+    },
+    {
+      fact_code: 'leather_harness_upper_body_framing',
+      statement_en: 'The chest-harness strap layout frames the upper body.',
+    },
+  ],
   'f473fb62-0440-473c-a7fb-a52dccafebc6': [
     {
       fact_code: 'spine_tail_continuous_backpiece',
