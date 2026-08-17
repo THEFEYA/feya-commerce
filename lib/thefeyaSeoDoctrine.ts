@@ -152,6 +152,22 @@ const THEFEYA_PRODUCT_RIGHT_PDP_OVERRIDES: Record<string, RightPanelOverride> = 
       'Avoid machine washing and store the pieces without tight folding or long-term heavy pressure.',
     ],
   },
+  '7bc4e89c-155d-45b8-982f-46253b7ed18d': {
+    sizing_fit: [
+      'Use our size chart to choose your standard size.',
+      'The stretch-fabric base follows the selected size and is designed to move with the wearer.',
+      'For custom measurements or a special fit request, add the details to your order note.',
+    ],
+    material: [
+      'This costume combines a stretch-fabric base with selected feather-shaped vegan-leather details.',
+      'The fabric provides flexibility, while the coated details create the sculptural feather effect.',
+    ],
+    care: [
+      'Clean the costume gently by hand, paying separate attention to the stretch fabric and coated vegan-leather details.',
+      'Avoid machine washing, strong rubbing and alcohol-based products on the fabric.',
+      'Store the costume on a hanger without tight folding or long-term heavy pressure.',
+    ],
+  },
 };
 
 export function resolveThefeyaRightPdpPanel(

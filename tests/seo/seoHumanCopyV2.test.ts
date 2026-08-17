@@ -499,6 +499,113 @@ test('owner-reviewed black rave costume recovery passes all deterministic gates'
   assert.equal(keywordPlacement.ok, true, JSON.stringify(keywordPlacement.issues));
 });
 
+test('owner-reviewed feathered stage outfit recovery keeps mixed materials and omits an unconfirmed color', () => {
+  const candidate = {
+    contract_version: 'seo_agent_output_v1',
+    status: 'draft',
+    seo_title: 'Stage Performance Outfit for Showgirls',
+    h1: 'Stage Performance Outfit for Showgirls',
+    meta_description: 'Stage performance outfit for women, created for live shows, burlesque productions and expressive photoshoots.',
+    intro: 'Designed for live shows and creative shoots, this theatrical costume combines a fabric base with feather-shaped vegan-leather details and a distinctive burlesque character.',
+    bullet_highlights: [],
+    faq: [],
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'Showgirl feather headpiece worn with a theatrical top and skirt',
+      truth_basis: 'visible_product_fact',
+    }],
+    internal_linking_hints: [],
+    visual_truth: {
+      observed_product_facts: ['Crown-shaped headpiece', 'Coordinated top and skirt', 'Feather-shaped decorative details'],
+      dna_matches: ['Glam styling', 'Burlesque character'],
+      open_style_suggestions: [],
+      uncertain_or_missing_facts: ['Exact color is not confirmed'],
+      forbidden_visual_claims: ['Do not describe the complete costume as vegan leather', 'Do not invent a color'],
+    },
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        source_basis: 'product_fact',
+        body: 'Made for live shows and creative shoots, this performance costume for the stage uses fabric as its base and selected vegan-leather details to form its feather-inspired character. The crown-shaped headpiece draws attention upward, while the decorative pattern creates movement and a clear showgirl presence under production lighting.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'why_youll_love_it',
+        placement: 'left_description',
+        heading: 'Why you’ll love it',
+        source_basis: 'product_fact',
+        body: 'Created by our designers, the original studio design gives the costume a recognizable character that feels personal.\nThe crown-shaped headpiece frames the face and adds height, helping the look stay recognizable in portraits and full-stage views.\nAdjustable straps provide room to fine-tune the fit and help the selected configuration sit securely during movement.\nWith careful storage, the feather-shaped vegan-leather details keep their shape between wears and stay ready for repeat productions.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'ideal_for',
+        placement: 'left_description',
+        heading: 'Ideal for',
+        source_basis: 'product_fact',
+        body: 'Women developing a glam character for a live production.\nShowgirls choosing a burlesque costume for a theatrical appearance.\nPerformers planning expressive choreography for the stage.\nContent creators producing portraits and video during a photoshoot.\nCostume stylists sourcing an original studio design for editorials and themed shows.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'main_description',
+        placement: 'left_description',
+        heading: 'Designed for self-expression',
+        source_basis: 'brand_policy',
+        body: 'At TheFEYA, our designers created this original costume for women who want their theatrical styling to feel unmistakably personal. Glam and burlesque influences give the piece an expressive attitude, while each wearer brings her own personality to it. The design supports self-expression by connecting our studio authorship with the performer’s individual presence in live productions and images.',
+        needs_human_review: false,
+      },
+    ],
+    qa_self_report: {
+      cliche_phrase: 'pass',
+      long_dash: 'pass',
+      keyword_stuffing: 'pass',
+      product_specificity: 'pass',
+      forbidden_mismatch: 'pass',
+      similarity_cannibalization: 'pass',
+      image_alt_truth: 'pass',
+      commercial_placement: 'pass',
+      validated_metrics: 'pass',
+      notes: ['Owner-reviewed zero-token recovery after the paid draft invented a color and overstated the material finish.'],
+    },
+    generation_notes: ['Owner-reviewed manual recovery preserved the confirmed mixed-material construction without another writer call.'],
+  } as any;
+  const context = {
+    product_truth: {
+      color: null,
+      included_components: ['Headpiece', 'Top Only', 'Skirt Only'],
+    },
+    manual_focus: {
+      material: ['fabric', 'vegan leather'],
+      event: ['stage', 'photoshoot'],
+      style: ['glam', 'burlesque'],
+      persona: ['performer', 'showgirl'],
+      audience: ['women'],
+    },
+    keyword_roles: {
+      primary: [{ keyword: 'stage performance outfit', keyword_norm: 'stage performance outfit', role: 'primary' }],
+      secondary: [
+        { keyword: 'showgirl feather headpiece', keyword_norm: 'showgirl feather headpiece', role: 'secondary' },
+        { keyword: 'carnival headpiece', keyword_norm: 'carnival headpiece', role: 'secondary' },
+      ],
+      support: [],
+      image_alt: [],
+      collection: [],
+      faq_commercial: [],
+      hold: [],
+      reject: [],
+    },
+  } as any;
+
+  const structural = validateSeoAgentOutput(candidate);
+  const commercial = validateSeoCommercialCopy(candidate, context);
+  const keywordPlacement = validateSeoKeywordPlacement(candidate, context);
+
+  assert.equal(structural.ok, true, JSON.stringify(structural.issues));
+  assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
+  assert.equal(keywordPlacement.ok, true, JSON.stringify(keywordPlacement.issues));
+});
+
 test('paid red spine-tail draft is repaired without changing its accepted identity or Ideal for block', () => {
   const originalIdealFor = '- Drag performers seeking a red burlesque look for the stage.\n- Showgirls drawn to glamorous red styling for live performance.\n- Women choosing a bold theatrical outfit for productions.\n- Content creators producing striking red visuals for drag and stage sets.\n- Costume stylists selecting an original red design for editorials and shows.';
   const output = {

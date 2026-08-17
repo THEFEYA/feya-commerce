@@ -46,6 +46,16 @@ test('witch costume names the fabric cape instead of calling every piece vegan l
   assert.match(blockBody(id, 'care'), /Clean the fabric cape separately/i);
 });
 
+test('feathered carnival costume keeps its stretch-fabric base separate from vegan-leather details', () => {
+  const id = '7bc4e89c-155d-45b8-982f-46253b7ed18d';
+  const material = blockBody(id, 'material');
+  assert.match(material, /stretch-fabric base/i);
+  assert.match(material, /feather-shaped vegan-leather details/i);
+  assert.doesNotMatch(material, /We use durable vegan leather/i);
+  assert.match(blockBody(id, 'care'), /paying separate attention to the stretch fabric/i);
+  assert.doesNotMatch(blockBody(id, 'care'), /alcohol wipes or a mild cleaning product/i);
+});
+
 test('writer no-copy reference receives the same resolved product panel as storefront preview', () => {
   const id = 'ffa74da5-c2e1-4c3a-b460-50d1aae09f56';
   const prompt = buildThefeyaSeoDoctrineUserLines({ canonical_product_id: id }).join('\n');
