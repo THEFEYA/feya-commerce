@@ -330,6 +330,32 @@ export function getSeoPortfolioGenerationBlockers(strategy: unknown): string[] {
   return unique(values);
 }
 
+/**
+ * Fast catalog-list preflight. The full selected-product check later resolves
+ * current confirmation and approved-draft ownership, but the initial queue
+ * must not advertise two latest decisions with the same Primary as ready for
+ * a paid writer call. This helper intentionally does only that exact duplicate
+ * check and performs no Product Truth or copy inference.
+ */
+export function getSeoPrimaryConflictBlockersForDecision(
+  decision: DecisionRow | null | undefined,
+  decisionRows: DecisionRow[],
+) {
+  const targetProductId = clean(decision?.canonical_product_id);
+  const selectedKeywords = Array.isArray(decision?.selected_keywords_json)
+    ? decision.selected_keywords_json.filter(isRecord)
+    : [];
+  const primaryKeyword = selectedKeywords.find((item) => keywordRole(item) === 'primary') || null;
+  if (!targetProductId || !primaryKeyword) return [];
+
+  const strategy = buildSeoPrimaryKeywordOwnershipStrategy({
+    targetProductId,
+    primaryKeyword,
+    decisionRows,
+  });
+  return getSeoPortfolioGenerationBlockers(strategy);
+}
+
 function latestDecisionRows(rows: DecisionRow[]) {
   const byProduct = new Map<string, DecisionRow>();
   [...rows]

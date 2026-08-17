@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
   buildSeoPrimaryKeywordOwnershipStrategy,
+  getSeoPrimaryConflictBlockersForDecision,
   getSeoPortfolioGenerationBlockers,
   PRIMARY_KEYWORD_CONFLICT_BLOCKER,
   PRIMARY_KEYWORD_MAP_UNAVAILABLE_BLOCKER,
@@ -136,6 +137,47 @@ test('uses only the latest decision per product when checking Primary ownership'
   assert.ok(strategy);
   assert.equal(strategy.keyword_ownership.status, 'pass');
   assert.deepEqual(getSeoPortfolioGenerationBlockers(strategy), []);
+});
+
+test('fast queue preflight blocks duplicate latest Primaries before product detail loads', () => {
+  const target = {
+    canonical_product_id: 'target-product',
+    updated_at: '2026-08-09T00:00:00.000Z',
+    selected_keywords_json: [{ keyword: 'futuristic armor costume', role: 'primary' }],
+  };
+  const peer = {
+    canonical_product_id: 'peer-product',
+    updated_at: '2026-08-08T00:00:00.000Z',
+    selected_keywords_json: [{ keyword: 'Futuristic Armor Costume', role: 'primary' }],
+  };
+
+  assert.deepEqual(
+    getSeoPrimaryConflictBlockersForDecision(target, [target, peer]),
+    [PRIMARY_KEYWORD_CONFLICT_BLOCKER],
+  );
+});
+
+test('fast queue preflight ignores a stale duplicate superseded by a newer peer decision', () => {
+  const target = {
+    canonical_product_id: 'target-product',
+    updated_at: '2026-08-09T00:00:00.000Z',
+    selected_keywords_json: [{ keyword: 'futuristic armor costume', role: 'primary' }],
+  };
+  const stalePeer = {
+    canonical_product_id: 'peer-product',
+    updated_at: '2026-08-01T00:00:00.000Z',
+    selected_keywords_json: [{ keyword: 'futuristic armor costume', role: 'primary' }],
+  };
+  const currentPeer = {
+    canonical_product_id: 'peer-product',
+    updated_at: '2026-08-08T00:00:00.000Z',
+    selected_keywords_json: [{ keyword: 'silver rave outfit', role: 'primary' }],
+  };
+
+  assert.deepEqual(
+    getSeoPrimaryConflictBlockersForDecision(target, [target, stalePeer, currentPeer]),
+    [],
+  );
 });
 
 test('lets the current confirmed product reserve Primary when every peer selection is invalidated', () => {

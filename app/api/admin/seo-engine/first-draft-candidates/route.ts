@@ -8,7 +8,10 @@ import {
 } from '@/lib/seoPackContract';
 import { STOREFRONT_VIEW_V1 } from '@/lib/storefront';
 import { hasTrustedSeoMetricSnapshot } from '@/lib/seoTrustedMetricSnapshot';
-import { getSeoPortfolioGenerationBlockers } from '@/lib/seoPrimaryKeywordOwnership';
+import {
+  getSeoPortfolioGenerationBlockers,
+  getSeoPrimaryConflictBlockersForDecision,
+} from '@/lib/seoPrimaryKeywordOwnership';
 
 export const dynamic = 'force-dynamic';
 
@@ -107,6 +110,10 @@ export async function GET(request: Request) {
         catalogByProduct.get(id) || null,
         latestDecisionByProduct.get(id) || null,
         latestDraftByProduct.get(id) || null,
+        getSeoPrimaryConflictBlockersForDecision(
+          latestDecisionByProduct.get(id) || null,
+          decisionResult.data || [],
+        ),
       );
       return id === PILOT_PRODUCT_ID ? { ...candidate, is_controlled_pilot: true } : candidate;
     })
@@ -203,7 +210,7 @@ async function loadCandidateDetail(productId: string) {
   });
 }
 
-function summarizeCatalogCandidate(id, product, decision, latestDraft) {
+function summarizeCatalogCandidate(id, product, decision, latestDraft, primaryConflictBlockers = []) {
   const selectedKeywords = Array.isArray(decision?.selected_keywords_json)
     ? decision.selected_keywords_json.filter((item) => clean(item?.keyword || item?.keyword_norm))
     : [];
@@ -221,6 +228,7 @@ function summarizeCatalogCandidate(id, product, decision, latestDraft) {
   if (clean(latestDraft?.status).toLowerCase() === 'blocked_by_product_mismatch') {
     hardBlockers.push('latest_draft_blocked_by_product_mismatch');
   }
+  hardBlockers.push(...primaryConflictBlockers);
 
   return {
     canonical_product_id: id,
