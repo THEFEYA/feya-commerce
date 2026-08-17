@@ -146,10 +146,12 @@ export default function FirstRealDraftClient({
         for (let index = 0; index < unsavedProvisional.length; index += 3) {
           const batch = unsavedProvisional.slice(index, index + 3);
           const verified = await Promise.all(batch.map(async (item) => {
+            const exactController = new AbortController();
+            const exactTimer = window.setTimeout(() => exactController.abort(), 25_000);
             try {
               const detailResponse = await fetch(
                 `/api/admin/seo-engine/first-draft-candidates?product_id=${encodeURIComponent(item.canonical_product_id)}`,
-                { cache: 'no-store' },
+                { cache: 'no-store', signal: exactController.signal },
               );
               const detailPayload = await detailResponse.json().catch(() => ({}));
               return detailResponse.ok && detailPayload?.candidate
@@ -173,8 +175,10 @@ export default function FirstRealDraftClient({
                 hard_blockers: [
                   ...(item.hard_blockers || []),
                   'exact_queue_preflight_failed',
-                ],
-              };
+                  ],
+                };
+            } finally {
+              window.clearTimeout(exactTimer);
             }
           }));
           if (!active) return;
@@ -201,6 +205,7 @@ export default function FirstRealDraftClient({
   useEffect(() => {
     if (!selectedProductId) return;
     const controller = new AbortController();
+    const detailTimer = window.setTimeout(() => controller.abort(), 25_000);
     let active = true;
 
     async function loadDetail() {
@@ -228,10 +233,13 @@ export default function FirstRealDraftClient({
         });
         setDetailVerifiedProductId(payload.candidate.canonical_product_id);
       } catch (err) {
-        if (active && err?.name !== 'AbortError') {
-          setDetailError(err instanceof Error ? err.message : 'Неизвестная ошибка точной проверки.');
+        if (active) {
+          setDetailError(err?.name === 'AbortError'
+            ? 'Точная проверка превысила 25 секунд. Товар безопасно исключён из генерации; OpenAI не вызван.'
+            : err instanceof Error ? err.message : 'Неизвестная ошибка точной проверки.');
         }
       } finally {
+        window.clearTimeout(detailTimer);
         if (active) setDetailLoading(false);
       }
     }
@@ -239,6 +247,7 @@ export default function FirstRealDraftClient({
     loadDetail();
     return () => {
       active = false;
+      window.clearTimeout(detailTimer);
       controller.abort();
     };
   }, [selectedProductId]);

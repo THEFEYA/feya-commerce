@@ -87,6 +87,8 @@ test('unsaved queue candidates receive an exact read-only preflight before gener
   assert.ok(client.includes('!item.has_saved_draft'));
   assert.ok(client.includes('item.verification_level !== \'exact\''));
   assert.ok(client.includes('index += 3'));
+  assert.ok(client.includes('exactController.abort(), 25_000'));
+  assert.ok(client.includes('signal: exactController.signal'));
   assert.ok(client.includes('/api/admin/seo-engine/first-draft-candidates?product_id='));
   assert.ok(client.includes("'exact_queue_preflight_failed'"));
   assert.ok(client.includes("verification_level === 'exact'"));
