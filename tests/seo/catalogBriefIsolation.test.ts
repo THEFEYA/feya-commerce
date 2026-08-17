@@ -77,9 +77,14 @@ test('legacy null keyword placeholders cannot break exact Product Truth prefligh
     new URL('../../lib/seoBriefContractServer.ts', import.meta.url),
     'utf8',
   );
+  const catalog = readFileSync(
+    new URL('../../lib/seoCatalogBrief.ts', import.meta.url),
+    'utf8',
+  );
 
   assert.ok(server.includes('selectedRows.filter(isRecord)'));
   assert.ok(server.includes('value.filter(isRecord)'));
+  assert.ok(catalog.includes('keyword?.keyword || keyword?.keyword_norm'));
 });
 
 test('legacy two-pass pilot route is disabled before any OpenAI call', () => {

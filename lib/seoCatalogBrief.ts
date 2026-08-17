@@ -53,8 +53,8 @@ function unique<T>(items: T[], keyOf: (item: T) => string = (item) => normalize(
   });
 }
 
-function keywordText(keyword: SeoPilotKeyword) {
-  return text(keyword.keyword || keyword.keyword_norm);
+function keywordText(keyword: SeoPilotKeyword | null | undefined) {
+  return text(keyword?.keyword || keyword?.keyword_norm);
 }
 
 function hasValidatedMetric(keyword: SeoPilotKeyword) {
