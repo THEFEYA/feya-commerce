@@ -38,6 +38,7 @@ const KEYWORD_LIMIT = 6000;
 const KEYWORD_PAGE_SIZE = 1000;
 const DISPLAY_LIMIT = 180;
 const KEYWORD_SNAPSHOT_LIMIT = 18;
+const SUPABASE_READ_RETRY_DELAY_MS = 450;
 
 const PRODUCT_TRUTH_EXACT_RPC = 'feya_commerce_get_seo_product_truth_v4';
 const STOREFRONT_PRODUCT_EXACT_RPC = 'feya_commerce_get_step7_storefront_products_api_v7';
@@ -535,14 +536,14 @@ async function confirmProductCompositionAction(formData) {
 
 async function loadCanonicalProductTruthProduct(supabase, productId) {
   const [truthResult, storefrontResult] = await Promise.all([
-    supabase
+    retryTransientSupabaseRead(() => supabase
       .rpc(PRODUCT_TRUTH_EXACT_RPC, { p_canonical_product_id: productId })
       .select(FAST_PRODUCT_SELECT)
-      .limit(1),
-    supabase
+      .limit(1)),
+    retryTransientSupabaseRead(() => supabase
       .rpc(STOREFRONT_PRODUCT_EXACT_RPC, { p_canonical_product_id: productId })
       .select('canonical_product_id,configurations')
-      .limit(1),
+      .limit(1)),
   ]);
   if (truthResult.error || storefrontResult.error) {
     console.error('[listing-master-save] product_truth_load_failed', {
@@ -578,15 +579,21 @@ async function loadProducts(filters) {
   // The catalog only needs lightweight searchable/card fields. Loading every
   // composition/evidence JSON column for all products made the Product Truth
   // view exceed the statement timeout and incorrectly activated the fallback.
-  let result = await supabase.from(STOREFRONT_VIEW_V1).select(CATALOG_PRODUCT_SELECT).limit(PRODUCT_LIMIT);
+  let result = await retryTransientSupabaseRead(() => supabase
+    .from(STOREFRONT_VIEW_V1)
+    .select(CATALOG_PRODUCT_SELECT)
+    .limit(PRODUCT_LIMIT));
   let source = 'быстрый каталог + точечный Product Truth';
   let warning = null;
   if (result.error) {
-    warning = result.error.message;
-    result = await supabase.from(FALLBACK_VIEW).select(FALLBACK_SELECT).limit(PRODUCT_LIMIT);
+    warning = friendlySupabaseError(result.error);
+    result = await retryTransientSupabaseRead(() => supabase
+      .from(FALLBACK_VIEW)
+      .select(FALLBACK_SELECT)
+      .limit(PRODUCT_LIMIT));
     source = result.error ? 'ошибка Product Truth' : 'резервный каталог с фотографиями';
   }
-  if (result.error) return emptyProducts(`${warning || 'Product Truth недоступен'} / ${result.error.message}`);
+  if (result.error) return emptyProducts(`${warning || 'Product Truth недоступен'} / ${friendlySupabaseError(result.error)}`);
   if (source === 'резервный каталог с фотографиями') {
     const media = await loadFallbackPrimaryMedia(supabase);
     if (media.error) {
@@ -641,7 +648,7 @@ async function loadFallbackPrimaryMedia(supabase) {
     .select('canonical_product_id,source_image_url,source_image_order,assigned_role,alt_text_draft,use_publicly_flag')
     .not('source_image_url', 'is', null)
     .limit(2000);
-  if (error) return { map: new Map(), error: error.message };
+  if (error) return { map: new Map(), error: friendlySupabaseError(error) };
 
   const ranked = (data || [])
     .filter((row) => row.use_publicly_flag !== false && row.canonical_product_id && row.source_image_url)
@@ -893,7 +900,7 @@ async function loadCompleteKeywordBank(supabase) {
       data: [],
       count: first.count ?? null,
       pages: 0,
-      error: first.error.message,
+      error: friendlySupabaseError(first.error),
     };
   }
 
@@ -919,7 +926,7 @@ async function loadCompleteKeywordBank(supabase) {
       data: [],
       count: totalCount,
       pages: 1 + remainingPages.filter((page) => !page.error).length,
-      error: `Не удалось полностью загрузить SEO-ядро: ${failedPage.error.message}`,
+      error: `Не удалось полностью загрузить SEO-ядро: ${friendlySupabaseError(failedPage.error)}`,
     };
   }
 
@@ -944,13 +951,46 @@ async function loadCompleteKeywordBank(supabase) {
 }
 
 function keywordBankPage(supabase, from, to, withCount) {
-  const query = withCount
-    ? supabase.from(KEYWORD_VIEW).select(KW_SELECT, { count: 'exact' })
-    : supabase.from(KEYWORD_VIEW).select(KW_SELECT);
-  return query
-    .order('keyword_norm', { ascending: true })
-    .order('id', { ascending: true })
-    .range(from, to);
+  return retryTransientSupabaseRead(() => {
+    const query = withCount
+      ? supabase.from(KEYWORD_VIEW).select(KW_SELECT, { count: 'exact' })
+      : supabase.from(KEYWORD_VIEW).select(KW_SELECT);
+    return query
+      .order('keyword_norm', { ascending: true })
+      .order('id', { ascending: true })
+      .range(from, to);
+  });
+}
+
+async function retryTransientSupabaseRead(queryFactory) {
+  const first = await queryFactory();
+  if (!isTransientSupabaseReadError(first?.error)) return first;
+  await new Promise((resolve) => setTimeout(resolve, SUPABASE_READ_RETRY_DELAY_MS));
+  return queryFactory();
+}
+
+function isTransientSupabaseReadError(error) {
+  const raw = `${error?.code || ''} ${error?.message || error || ''}`.toLowerCase();
+  return raw.includes('522')
+    || raw.includes('connection timed out')
+    || raw.includes('gateway timeout')
+    || raw.includes('bad gateway')
+    || raw.includes('temporarily unavailable')
+    || raw.includes('fetch failed');
+}
+
+function friendlySupabaseError(error) {
+  const raw = String(error?.message || error || 'Supabase недоступен.');
+  if (isTransientSupabaseReadError(error)) {
+    return 'Supabase временно не отвечает (транзиентная ошибка сети/HTTP 522). Чтение уже было безопасно повторено один раз; обновите страницу позже.';
+  }
+  return raw
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 420);
 }
 
 function keywordCounts(rows, totalCount) {

@@ -115,3 +115,15 @@ test('Listing Master exposes the atomic Product Truth confirmation path', () => 
   assert.ok(page.includes("evidence_contract: 'listing_master_composition_confirmation_v1'"));
   assert.ok(page.includes('Записанный состав не появился в каноническом Product Truth.'));
 });
+
+test('Listing Master retries only transient Supabase reads and hides upstream HTML', () => {
+  const page = readFileSync(
+    new URL('../../app/admin/listing-master/ListingMasterPage.tsx', import.meta.url),
+    'utf8',
+  );
+
+  assert.ok(page.includes('retryTransientSupabaseRead'));
+  assert.ok(page.includes("raw.includes('522')"));
+  assert.ok(page.includes('Чтение уже было безопасно повторено один раз'));
+  assert.ok(page.includes(".replace(/<[^>]+>/g, ' ')"));
+});
