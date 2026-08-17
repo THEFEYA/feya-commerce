@@ -606,6 +606,116 @@ test('owner-reviewed feathered stage outfit recovery keeps mixed materials and o
   assert.equal(keywordPlacement.ok, true, JSON.stringify(keywordPlacement.issues));
 });
 
+test('owner-reviewed silver cosmic set recovery keeps composition in the selector and removes desert atmosphere', () => {
+  const candidate = {
+    contract_version: 'seo_agent_output_v1',
+    status: 'draft',
+    seo_title: 'Silver Metallic Top and Skirt Set for Burning Man',
+    h1: 'Silver Metallic Top and Skirt Set for Burning Man',
+    meta_description: 'Metallic top and skirt set in silver for women, designed for Burning Man, festivals and rave styling with a cosmic character.',
+    intro: 'For Burning Man, festivals and rave nights, this metallic silver outfit gives women a bold cosmic look shaped by an original studio design.',
+    bullet_highlights: [],
+    faq: [],
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'Woman wearing a silver cosmic outfit with shoulder pieces and skirt',
+      truth_basis: 'visible_product_fact',
+    }],
+    internal_linking_hints: [],
+    visual_truth: {
+      observed_product_facts: ['Silver color', 'Coordinated multi-piece set', 'Sculptural shoulder pieces'],
+      dna_matches: ['Metallic finish', 'Cosmic styling'],
+      open_style_suggestions: [],
+      uncertain_or_missing_facts: [],
+      forbidden_visual_claims: ['Do not describe desert light', 'Do not claim that the material is reflective'],
+    },
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        source_basis: 'product_fact',
+        body: 'Designed for Burning Man, festivals and rave settings, this silver costume frames the upper body with pronounced shoulder pieces and a clear cosmic character. The raised details keep the full look recognizable in photographs and motion.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'why_youll_love_it',
+        placement: 'left_description',
+        heading: 'Why you’ll love it',
+        source_basis: 'product_fact',
+        body: 'Created by our designers, the original design gives the outfit a distinctive, memorable character that feels personal.\nAdjustable straps make the selected configuration easier to adjust for a secure fit.\nThe material feels comfortable against the body for extended festival wear.\nCareful storage helps the costume keep its shape between wears and remain ready for repeat use.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'ideal_for',
+        placement: 'left_description',
+        heading: 'Ideal for',
+        source_basis: 'product_fact',
+        body: 'Women creating a cosmic look for Burning Man.\nFestival-goers choosing an original outfit for multi-day music gatherings.\nRave attendees seeking a distinctive costume for movement and night sets.\nContent creators producing cosmic portraits and short-form video.\nCostume stylists sourcing an original look for outdoor productions.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'main_description',
+        placement: 'left_description',
+        heading: 'Designed for self-expression',
+        source_basis: 'brand_policy',
+        body: 'At TheFEYA, our designers developed this silver cosmic costume from original studio ideas for women who want festival styling to feel personal. Its sculptural character creates a distinctive look for Burning Man and rave events. Each wearer can bring her own attitude to the finished outfit, keeping it bold, recognizable and true to her individual style.',
+        needs_human_review: false,
+      },
+    ],
+    qa_self_report: {
+      cliche_phrase: 'pass',
+      long_dash: 'pass',
+      keyword_stuffing: 'pass',
+      product_specificity: 'pass',
+      forbidden_mismatch: 'pass',
+      similarity_cannibalization: 'pass',
+      image_alt_truth: 'pass',
+      commercial_placement: 'pass',
+      validated_metrics: 'pass',
+      notes: ['Owner-reviewed zero-token recovery removed repeated composition, repeated finish language and desert atmosphere.'],
+    },
+    generation_notes: ['Owner-reviewed manual recovery after one paid draft; no second writer call.'],
+  } as any;
+  const context = {
+    product_truth: {
+      color: 'Silver',
+      included_components: ['Panties', 'Skirt', 'Shoulders', 'Top'],
+    },
+    manual_focus: {
+      material: ['silver', 'metallic'],
+      event: ['burning man', 'festival', 'rave'],
+      style: ['cosmic'],
+      persona: [],
+      audience: ['women'],
+    },
+    keyword_roles: {
+      primary: [{ keyword: 'metallic top and skirt set', keyword_norm: 'metallic top and skirt set', role: 'primary' }],
+      secondary: [
+        { keyword: 'rave outfit with skirt', keyword_norm: 'rave outfit with skirt', role: 'secondary' },
+        { keyword: 'metallic silver skirt outfit', keyword_norm: 'metallic silver skirt outfit', role: 'secondary' },
+        { keyword: 'silver rave skirt', keyword_norm: 'silver rave skirt', role: 'secondary' },
+        { keyword: 'metallic skirt outfit', keyword_norm: 'metallic skirt outfit', role: 'secondary' },
+        { keyword: 'silver skirt outfit', keyword_norm: 'silver skirt outfit', role: 'secondary' },
+      ],
+      support: [],
+      image_alt: [],
+      collection: [],
+      faq_commercial: [],
+      hold: [],
+      reject: [],
+    },
+  } as any;
+
+  const structural = validateSeoAgentOutput(candidate);
+  const commercial = validateSeoCommercialCopy(candidate, context);
+  const keywordPlacement = validateSeoKeywordPlacement(candidate, context);
+
+  assert.equal(structural.ok, true, JSON.stringify(structural.issues));
+  assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
+  assert.equal(keywordPlacement.ok, true, JSON.stringify(keywordPlacement.issues));
+});
+
 test('paid red spine-tail draft is repaired without changing its accepted identity or Ideal for block', () => {
   const originalIdealFor = '- Drag performers seeking a red burlesque look for the stage.\n- Showgirls drawn to glamorous red styling for live performance.\n- Women choosing a bold theatrical outfit for productions.\n- Content creators producing striking red visuals for drag and stage sets.\n- Costume stylists selecting an original red design for editorials and shows.';
   const output = {
