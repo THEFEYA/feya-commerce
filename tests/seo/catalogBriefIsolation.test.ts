@@ -72,6 +72,16 @@ test('exact Primary ownership is checked before the only paid writer call', () =
   assert.equal(client.includes('enforce_portfolio_strategy: false'), false);
 });
 
+test('legacy null keyword placeholders cannot break exact Product Truth preflight', () => {
+  const server = readFileSync(
+    new URL('../../lib/seoBriefContractServer.ts', import.meta.url),
+    'utf8',
+  );
+
+  assert.ok(server.includes('selectedRows.filter(isRecord)'));
+  assert.ok(server.includes('value.filter(isRecord)'));
+});
+
 test('legacy two-pass pilot route is disabled before any OpenAI call', () => {
   const route = readFileSync(
     new URL('../../app/api/admin/seo-engine/draft-generate-pilot-auto/route.ts', import.meta.url),

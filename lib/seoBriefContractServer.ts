@@ -403,7 +403,10 @@ function reconcileFocusWithSellableOffer(product, focus) {
 }
 
 async function hydrateSelectedKeywordsFromApprovedBank(supabase, selectedRows) {
-  const selected = Array.isArray(selectedRows) ? selectedRows : [];
+  // Legacy decision rows can contain a null placeholder. Ignore malformed
+  // entries before hydration so one stale value cannot break Product Truth
+  // preflight for the entire product.
+  const selected = Array.isArray(selectedRows) ? selectedRows.filter(isRecord) : [];
   const norms = uniqueStrings(selected.map((row) => normalizeKeyword(row?.keyword_norm || row?.keyword)));
   if (!norms.length) return { rows: selected, warning: null };
 
@@ -1092,7 +1095,7 @@ function mergePortfolioStrategies(savedSourceOverlapStrategy, livePrimaryOwnersh
 }
 
 function normalizeDecisionKeywords(value) {
-  const rows = Array.isArray(value) ? value : [];
+  const rows = Array.isArray(value) ? value.filter(isRecord) : [];
   return rows.map((row) => {
     const trustedMetric = hasTrustedSeoMetricSnapshot(row);
     return {

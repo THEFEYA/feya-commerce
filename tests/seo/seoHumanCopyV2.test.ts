@@ -389,6 +389,116 @@ test('owner-reviewed gold metallic set recovery passes all deterministic gates',
   assert.equal(keywordPlacement.ok, true, JSON.stringify(keywordPlacement.issues));
 });
 
+test('owner-reviewed black rave costume recovery passes all deterministic gates', () => {
+  const candidate = {
+    contract_version: 'seo_agent_output_v1',
+    status: 'draft',
+    seo_title: 'Black Rave Costume for Festivals',
+    h1: 'Black Rave Costume for Festivals',
+    meta_description: 'Shop a black rave costume with a glossy finish, designed for festivals, dance floors, stage appearances, photography and video.',
+    intro: 'Designed for festivals and rave nights, this black outfit combines a smooth high-gloss surface with a sharp futuristic character that stays distinctive in motion.',
+    bullet_highlights: [],
+    faq: [],
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'Black futuristic rave costume with collar, top, shorts, sleeves and skirt',
+      truth_basis: 'visible_product_fact',
+    }],
+    internal_linking_hints: [],
+    visual_truth: {
+      observed_product_facts: ['Black high-gloss surface', 'Clean fitted lines', 'Collar, top, shorts, sleeves and skirt'],
+      dna_matches: ['Futuristic styling', 'Punk character', 'Chain details'],
+      open_style_suggestions: [],
+      uncertain_or_missing_facts: [],
+      forbidden_visual_claims: ['Do not describe vegan leather as latex'],
+    },
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        source_basis: 'product_fact',
+        body: 'Created for festivals and rave nights, this black costume uses clean geometric lines and a smooth high-gloss surface to build a strong futuristic character. The fitted shapes stay clear in motion and in photographs, while the chain details add a controlled punk accent.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'why_youll_love_it',
+        placement: 'left_description',
+        heading: 'Why you’ll love it',
+        source_basis: 'product_fact',
+        body: 'Created by our designers, the original studio design gives the costume a recognizable character that feels personal.\nThe fitted collar frames the neckline and draws attention to the upper body.\nAdjustable straps provide room to adjust the fit for different body shapes and help the selected configuration sit securely.\nWith careful storage, the costume keeps its shape between wears and stays ready for repeat use.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'ideal_for',
+        placement: 'left_description',
+        heading: 'Ideal for',
+        source_basis: 'product_fact',
+        body: 'Women developing an original futuristic character for festival appearances.\nRave-goers choosing a black outfit for dance floors and night sets.\nPerformers selecting punk-inspired styling for live music or stage productions.\nContent creators planning high-contrast photography and video in club or festival settings.\nCostume stylists sourcing an original studio design for editorials and themed productions.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'main_description',
+        placement: 'left_description',
+        heading: 'Designed for self-expression',
+        source_basis: 'brand_policy',
+        body: 'At TheFEYA, our designers developed this original black outfit for women who prefer a sharp, individual look. The clean geometry and punk-influenced details create a recognizable character for festivals, performances and creative shoots. It supports personal expression by keeping the final look connected to the wearer and our studio perspective.',
+        needs_human_review: false,
+      },
+    ],
+    qa_self_report: {
+      cliche_phrase: 'pass',
+      long_dash: 'pass',
+      keyword_stuffing: 'pass',
+      product_specificity: 'pass',
+      forbidden_mismatch: 'pass',
+      similarity_cannibalization: 'pass',
+      image_alt_truth: 'pass',
+      commercial_placement: 'pass',
+      validated_metrics: 'pass',
+      notes: ['Owner-reviewed zero-token recovery after the paid draft passed deterministic QA with an awkward sentence.'],
+    },
+    generation_notes: ['Owner-reviewed manual recovery preserved the confirmed configuration and saved keyword decision without another writer call.'],
+  } as any;
+  const context = {
+    product_truth: {
+      color: 'Black',
+      included_components: ['Collar', 'Skirt', 'Shorts', 'Sleeves', 'Top'],
+    },
+    manual_focus: {
+      material: ['black', 'chain detail'],
+      event: ['festival', 'rave'],
+      style: ['futuristic', 'punk'],
+      persona: [],
+      audience: ['women'],
+    },
+    keyword_roles: {
+      primary: [{ keyword: 'black rave costume', keyword_norm: 'black rave costume', role: 'primary' }],
+      secondary: [
+        { keyword: 'rave skirt and top set', keyword_norm: 'rave skirt and top set', role: 'secondary' },
+        { keyword: 'rave outfit with skirt', keyword_norm: 'rave outfit with skirt', role: 'secondary' },
+        { keyword: 'black rave skirt', keyword_norm: 'black rave skirt', role: 'secondary' },
+        { keyword: 'rave skirt set', keyword_norm: 'rave skirt set', role: 'secondary' },
+        { keyword: 'festival skirt set', keyword_norm: 'festival skirt set', role: 'secondary' },
+      ],
+      support: [],
+      image_alt: [],
+      collection: [],
+      faq_commercial: [],
+      hold: [],
+      reject: [],
+    },
+  } as any;
+
+  const structural = validateSeoAgentOutput(candidate);
+  const commercial = validateSeoCommercialCopy(candidate, context);
+  const keywordPlacement = validateSeoKeywordPlacement(candidate, context);
+
+  assert.equal(structural.ok, true, JSON.stringify(structural.issues));
+  assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
+  assert.equal(keywordPlacement.ok, true, JSON.stringify(keywordPlacement.issues));
+});
+
 test('paid red spine-tail draft is repaired without changing its accepted identity or Ideal for block', () => {
   const originalIdealFor = '- Drag performers seeking a red burlesque look for the stage.\n- Showgirls drawn to glamorous red styling for live performance.\n- Women choosing a bold theatrical outfit for productions.\n- Content creators producing striking red visuals for drag and stage sets.\n- Costume stylists selecting an original red design for editorials and shows.';
   const output = {
