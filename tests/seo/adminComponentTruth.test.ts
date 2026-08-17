@@ -15,10 +15,11 @@ test('component review queue uses a fast catalog and bounded Product Truth pages
 
   assert.ok(page.includes('STOREFRONT_VIEW_V1'));
   assert.ok(page.includes('const PAGE_SIZE = 6'));
-  assert.ok(page.includes('const TRUTH_READ_CONCURRENCY = 3'));
-  assert.ok(page.includes(".eq('canonical_product_id', id)"));
+  assert.ok(page.includes(".eq('canonical_product_id', canonicalProductId)"));
   assert.ok(page.includes('.maybeSingle()'));
   assert.ok(page.includes('allRows.slice(pageStart, pageStart + PAGE_SIZE)'));
+  assert.ok(page.includes('focusedProductId\n    ? await loadComponentTruth(focusedProductId)'));
+  assert.ok(page.includes('Точная проверка при открытии'));
   assert.equal(page.includes("query.in('canonical_product_id', canonicalProductIds)"), false);
   assert.equal(page.includes('STOREFRONT_VIEW_V4'), false);
 });
