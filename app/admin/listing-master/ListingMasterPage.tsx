@@ -14,6 +14,10 @@ import {
   partitionListingMasterComponentAxes,
   reconcileListingMasterComponentFocus,
 } from '@/lib/listingMasterSearchAxisContract';
+import {
+  productComponentAssertionScope,
+  resolveSelectedComponentFamilies,
+} from '@/lib/listingMasterComponentTruth';
 import { planKeywordPageRanges } from '@/lib/seoKeywordBankPagination';
 import { getSeoProductTruthEvidenceBlockers } from '@/lib/seoPackContract';
 import { STOREFRONT_VIEW_V1 } from '@/lib/storefront';
@@ -23,6 +27,7 @@ import {
 } from '@/lib/storefrontSellableOffer';
 import { applyOwnerReviewedStorefrontCorrections } from '@/lib/storefrontOwnerReviewedCorrections';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
+import ConfirmCompositionButton from './ConfirmCompositionButton';
 import VerifiedSaveButton from './VerifiedSaveButton';
 
 export const dynamic = 'force-dynamic';
@@ -370,6 +375,161 @@ async function saveDecisionAction(formData) {
     href: `${href}${href.includes('?') ? '&' : '?'}saved=${savedState}`,
     requestId,
     decisionId: inserted.id,
+  };
+}
+
+async function confirmProductCompositionAction(formData) {
+  'use server';
+  const productId = val(formData.get('canonical_product_id')).trim();
+  const requestId = val(formData.get('composition_request_id')).trim() || 'server-action';
+  const supabase = getSupabaseServiceClient();
+  if (!productId) return saveFailure('missing_product', 'Не удалось определить выбранный товар.', requestId);
+  if (!supabase) return saveFailure('missing_supabase', 'Серверное подключение к Supabase недоступно.', requestId);
+
+  const selectedComponents = allowedFormValues(formData, 'component', COMPONENTS);
+  if (!selectedComponents.length) {
+    return saveFailure(
+      'missing_component_selection',
+      'Выберите хотя бы один компонент товара перед подтверждением состава.',
+      requestId,
+    );
+  }
+
+  const canonicalProduct = await loadCanonicalProductTruthProduct(supabase, productId);
+  if (!canonicalProduct) {
+    return saveFailure(
+      'missing_canonical_product_truth',
+      'Сервер не нашёл канонический Product Truth выбранного товара.',
+      requestId,
+    );
+  }
+
+  const { data: componentFamilies, error: familyError } = await supabase
+    .from('feya_commerce_component_families')
+    .select('component_family_id,canonical_name,normalized_name')
+    .eq('active_flag', true)
+    .order('canonical_name');
+  if (familyError) {
+    return saveFailure(
+      'component_family_read_failed',
+      'Не удалось проверить словарь компонентов Product Truth.',
+      requestId,
+    );
+  }
+
+  const resolutions = resolveSelectedComponentFamilies(
+    selectedComponents,
+    componentFamilies || [],
+    componentFamilyEvidenceNames(canonicalProduct.truth),
+  );
+  const resolutionErrors = resolutions.map((item) => item.error).filter(Boolean);
+  if (resolutionErrors.length || resolutions.some((item) => !item.family)) {
+    return saveFailure(
+      'component_family_resolution_failed',
+      resolutionErrors.join(' ') || 'Не удалось однозначно сопоставить выбранные компоненты.',
+      requestId,
+    );
+  }
+
+  const scope = productComponentAssertionScope(
+    canonicalProduct.truth?.optional_configurations,
+    canonicalProduct.truth?.source_variations,
+  );
+  const selectedFamilies = resolutions.map((item) => item.family).filter(Boolean);
+  const evidenceJson = {
+    evidence_contract: 'listing_master_composition_confirmation_v1',
+    reviewer_action: scope === 'canonical_listing'
+      ? 'confirmed_advertised_listing_composition'
+      : 'confirmed_always_included_composition',
+    source_route: '/admin/listing-master',
+    composition_request_id: requestId,
+    selected_search_axes: selectedComponents,
+    selected_component_families: selectedFamilies.map((family) => ({
+      component_family_id: family.component_family_id,
+      canonical_name: family.canonical_name,
+      normalized_name: family.normalized_name || null,
+    })),
+    reviewed_product: {
+      canonical_product_id: canonicalProduct.id,
+      matched_etsy_listing_id: canonicalProduct.etsyId || null,
+      product_slug: canonicalProduct.slug || null,
+      title: canonicalProduct.title || null,
+    },
+  };
+  const { error: replaceError } = await supabase.rpc(
+    'feya_commerce_replace_product_component_assertions_v1',
+    {
+      p_canonical_product_id: productId,
+      p_presence_scope: scope,
+      p_component_family_ids: selectedFamilies.map((family) => family.component_family_id),
+      p_evidence_json: evidenceJson,
+      p_reviewed_by: 'admin_listing_master',
+      p_review_note: scope === 'canonical_listing'
+        ? 'Confirmed as the advertised listing composition; sellable configurations remain separate.'
+        : 'Confirmed as always included in every sellable configuration.',
+    },
+  );
+  if (replaceError) {
+    console.error('[listing-master-composition] write_failed', {
+      requestId,
+      productId,
+      scope,
+      code: replaceError.code || null,
+      message: replaceError.message,
+    });
+    return saveFailure(
+      replaceError.code || 'composition_write_failed',
+      'Supabase не подтвердил состав Product Truth.',
+      requestId,
+    );
+  }
+
+  const verifiedProduct = await loadCanonicalProductTruthProduct(supabase, productId);
+  const verifiedNames = new Set(
+    jsonArray(verifiedProduct?.truth?.included_components).map((value) => norm(value)),
+  );
+  const missingFamilies = selectedFamilies.filter((family) => (
+    !verifiedNames.has(norm(family.canonical_name))
+    && !verifiedNames.has(norm(family.normalized_name))
+  ));
+  if (!verifiedProduct || missingFamilies.length) {
+    console.error('[listing-master-composition] verification_failed', {
+      requestId,
+      productId,
+      scope,
+      expectedFamilies: selectedFamilies.map((family) => family.canonical_name),
+      verifiedComponents: [...verifiedNames],
+    });
+    return saveFailure(
+      'composition_verification_failed',
+      'Записанный состав не появился в каноническом Product Truth.',
+      requestId,
+    );
+  }
+
+  const filters = {
+    type: val(formData.get('type')) || 'all',
+    strategy: joinValues(allowedFormValues(formData, 'strategy', STRATEGIES)),
+    component: joinValues(selectedComponents),
+    material: joinValues(allowedFormValues(formData, 'material', MATERIALS)),
+    event: joinValues(allowedFormValues(formData, 'event', EVENTS)),
+    style: joinValues(allowedFormValues(formData, 'style', STYLES)),
+    persona: joinValues(allowedFormValues(formData, 'persona', PERSONAS)),
+    audience: joinValues(allowedFormValues(formData, 'audience', AUDIENCES)),
+    q: norm(val(formData.get('q'))),
+    exclude: joinValues(excludeTerms(val(formData.get('exclude')))),
+    productId,
+    productQ: val(formData.get('product_q')),
+    productSection: val(formData.get('product_section')),
+    productStatus: val(formData.get('product_status')) || 'all',
+    focusApplied: '1',
+  };
+  return {
+    ok: true,
+    href: buildHref(filters),
+    requestId,
+    scope,
+    remainingProductTruthBlockers: verifiedProduct.truthBlockers || [],
   };
 }
 
@@ -815,6 +975,10 @@ function ProductPicker({ data, filters, selectedProduct, selectedDecisionIsCurre
 function FocusSearchForm({ product, filters, status, decisionReview }) {
   const formKey = focusFormKey(product, filters);
   const decisionIsCurrent = decisionReview?.isCurrent === true;
+  const compositionScope = productComponentAssertionScope(
+    product?.truth?.optional_configurations,
+    product?.truth?.source_variations,
+  );
   return <form key={formKey} action="/admin/listing-master" className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
     <input type="hidden" name="product_id" value={product?.id || filters.productId || ''} /><input type="hidden" name="product_q" value={filters.productQ || ''} /><input type="hidden" name="product_section" value={filters.productSection || ''} /><input type="hidden" name="product_status" value={filters.productStatus || 'all'} /><input type="hidden" name="type" value={filters.type || 'all'} /><input type="hidden" name="focus_applied" value="1" />
     <input type="hidden" name="canonical_product_id" value={product?.id || ''} /><input type="hidden" name="product_slug" value={product?.slug || ''} /><input type="hidden" name="matched_etsy_listing_id" value={product?.etsyId || ''} /><input type="hidden" name="auto_focus_json" value={JSON.stringify(autoFocusSnapshot(product, filters.inferred || {}))} />
@@ -839,7 +1003,12 @@ function FocusSearchForm({ product, filters, status, decisionReview }) {
     <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-4"><div className="eyebrow-gold mb-3">Поиск и минус-слова внутри SEO-ядра</div><div className="grid gap-3 md:grid-cols-[1fr_1fr]"><label><div className="eyebrow-dim mb-1.5">Доп. поиск</div><input name="q" defaultValue={filters.q} placeholder="например: armor, price, shipping" className="field" /></label><label><div className="eyebrow-dim mb-1.5">Минус-слова</div><input name="exclude" defaultValue={valuesOf(filters.exclude).join(', ')} placeholder="dance, bodysuit, neon" className="field" /></label></div></div>
     <div className="mt-4 rounded-2xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.055)] p-4">
       <div className="text-[11px] leading-relaxed text-[var(--bone-dim)] mb-3">«Применить» только обновляет список для проверки. «Сохранить» записывает SEO-оси и проверяемый набор ключевых слов; состав товара при этом не изменяется.</div>
-      <div className="flex flex-wrap gap-3"><button type="submit" className="btn-ghost"><SearchCheck size={13} /> Применить поиск слов</button><VerifiedSaveButton action={saveDecisionAction} disabled={!product} /><Link href={product ? productHref(product, filters) : '/admin/listing-master'} className="btn-ghost">Сбросить товар/ДНК</Link>{product && status.code === 'ready' && decisionIsCurrent ? <Link className="btn-ghost" href={`/admin/seo-storefront-preview?product_id=${product.id}&generate=1`}>Дальше: сгенерировать и показать preview <ArrowUpRight size={13} /></Link> : null}</div>
+      {product?.truthBlockers?.length ? <div className="mb-3 rounded-xl border border-[rgba(212,178,106,.26)] bg-black/15 p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">
+        Выбранные SEO-оси можно отдельно подтвердить как Product Truth. {compositionScope === 'canonical_listing'
+          ? 'Для товара с вариантами они будут записаны как состав листинга; отдельные варианты и цены останутся в аудите.'
+          : 'Для товара без выбора комплектации они будут записаны как неизменный состав.'}
+      </div> : null}
+      <div className="flex flex-wrap gap-3"><button type="submit" className="btn-ghost"><SearchCheck size={13} /> Применить поиск слов</button>{product?.truthBlockers?.length ? <ConfirmCompositionButton action={confirmProductCompositionAction} disabled={!product} scope={compositionScope} /> : null}<VerifiedSaveButton action={saveDecisionAction} disabled={!product} /><Link href={product ? productHref(product, filters) : '/admin/listing-master'} className="btn-ghost">Сбросить товар/ДНК</Link>{product && status.code === 'ready' && decisionIsCurrent ? <Link className="btn-ghost" href={`/admin/seo-storefront-preview?product_id=${product.id}&generate=1`}>Дальше: сгенерировать и показать preview <ArrowUpRight size={13} /></Link> : null}</div>
       {product?.decision && !decisionIsCurrent ? <div className="mt-3 rounded-xl border border-[rgba(212,178,106,.26)] bg-black/15 p-3 text-[11px] leading-relaxed text-[var(--gold-warm)]">
         <div>Старое keyword-решение не разрешает генерацию и не является SEO draft. Проверьте текущие SEO-оси и сохраните пересчитанные роли.</div>
         {decisionReview?.blockers?.length ? <ul className="mt-2 space-y-1 text-[var(--bone-dim)]">{decisionReview.blockers.map((code) => <li key={code}>• {decisionInvalidationLabel(code)}</li>)}</ul> : null}
@@ -881,6 +1050,28 @@ function jsonArray(v) {
   }
 }
 function parseJson(v, fallback) { try { return JSON.parse(v); } catch { return fallback; } }
+function componentFamilyEvidenceNames(truth) {
+  const names = [];
+  const visit = (value, depth = 0) => {
+    if (value == null || depth > 5) return;
+    if (Array.isArray(value)) {
+      value.forEach((item) => visit(item, depth + 1));
+      return;
+    }
+    if (typeof value !== 'object') return;
+    const row = value;
+    ['component_family', 'component_family_name', 'canonical_name', 'normalized_component_family', 'mapped_component_family']
+      .forEach((key) => {
+        const name = val(row[key]).trim();
+        if (name) names.push(name);
+      });
+    Object.values(row).forEach((item) => visit(item, depth + 1));
+  };
+  visit(truth?.included_components);
+  visit(truth?.optional_configurations);
+  visit(truth?.component_evidence);
+  return [...new Set(names.map((name) => name.trim()).filter(Boolean))];
+}
 function allowedFormValues(formData, field, allowed) { return valuesOf(formData.getAll(field)).filter((value) => allowed.includes(value)); }
 function decisionFocusSignature(value) {
   const focus = recordOf(value) || {};

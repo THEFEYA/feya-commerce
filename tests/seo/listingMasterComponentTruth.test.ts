@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import {
   productComponentAssertionScope,
@@ -98,4 +99,19 @@ test('unsupported focus chips never invent a component family', () => {
   const [result] = resolveSelectedComponentFamilies(['bra'], families);
   assert.equal(result.family, null);
   assert.match(result.error || '', /нет однозначного/);
+});
+
+test('Listing Master exposes the atomic Product Truth confirmation path', () => {
+  const page = readFileSync(
+    new URL('../../app/admin/listing-master/ListingMasterPage.tsx', import.meta.url),
+    'utf8',
+  );
+
+  assert.ok(page.includes('confirmProductCompositionAction'));
+  assert.ok(page.includes('feya_commerce_replace_product_component_assertions_v1'));
+  assert.ok(page.includes('productComponentAssertionScope('));
+  assert.ok(page.includes('resolveSelectedComponentFamilies('));
+  assert.ok(page.includes('<ConfirmCompositionButton'));
+  assert.ok(page.includes("evidence_contract: 'listing_master_composition_confirmation_v1'"));
+  assert.ok(page.includes('Записанный состав не появился в каноническом Product Truth.'));
 });
