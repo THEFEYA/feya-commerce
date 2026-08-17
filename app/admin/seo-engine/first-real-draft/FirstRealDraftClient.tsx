@@ -38,6 +38,7 @@ type Candidate = {
   } | null;
   keyword_recommendation_diagnostics?: Record<string, any> | null;
   portfolio_strategy?: Record<string, any> | null;
+  verification_level?: 'catalog' | 'exact' | string | null;
 };
 
 type Filter = 'all' | 'ready' | 'blocked' | 'saved' | 'untested';
@@ -59,6 +60,7 @@ export default function FirstRealDraftClient({
   recoverFailedDraft?: boolean;
 }) {
   const [candidateLoading, setCandidateLoading] = useState(true);
+  const [queueAudit, setQueueAudit] = useState({ pending: 0, total: 0 });
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailVerifiedProductId, setDetailVerifiedProductId] = useState('');
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -119,6 +121,13 @@ export default function FirstRealDraftClient({
         );
         setCandidates(combined);
 
+        const unsavedProvisional = combined.filter((item) => (
+          item.ready_for_openai
+          && !item.has_saved_draft
+          && item.verification_level !== 'exact'
+        ));
+        setQueueAudit({ pending: unsavedProvisional.length, total: unsavedProvisional.length });
+
         const requestedId = initialProductId || new URL(window.location.href).searchParams.get('product_id') || '';
         const requestedExists = combined.some((item) => item.canonical_product_id === requestedId);
         const defaultId = requestedExists
@@ -129,6 +138,55 @@ export default function FirstRealDraftClient({
             || combined[0]?.canonical_product_id
             || '';
         setSelectedProductId((current) => current || defaultId);
+
+        // The catalog response intentionally stays fast. Before presenting an
+        // unsaved product as a real generation candidate, replace its summary
+        // with the same exact Product Truth/keyword contract used by OpenAI.
+        // This is read-only and bounded to three concurrent checks.
+        for (let index = 0; index < unsavedProvisional.length; index += 3) {
+          const batch = unsavedProvisional.slice(index, index + 3);
+          const verified = await Promise.all(batch.map(async (item) => {
+            try {
+              const detailResponse = await fetch(
+                `/api/admin/seo-engine/first-draft-candidates?product_id=${encodeURIComponent(item.canonical_product_id)}`,
+                { cache: 'no-store' },
+              );
+              const detailPayload = await detailResponse.json().catch(() => ({}));
+              return detailResponse.ok && detailPayload?.candidate
+                ? detailPayload.candidate as Candidate
+                : {
+                    ...item,
+                    ready_for_openai: false,
+                    ready_for_full_pack: false,
+                    verification_level: 'exact',
+                    hard_blockers: [
+                      ...(item.hard_blockers || []),
+                      'exact_queue_preflight_failed',
+                    ],
+                  };
+            } catch {
+              return {
+                ...item,
+                ready_for_openai: false,
+                ready_for_full_pack: false,
+                verification_level: 'exact',
+                hard_blockers: [
+                  ...(item.hard_blockers || []),
+                  'exact_queue_preflight_failed',
+                ],
+              };
+            }
+          }));
+          if (!active) return;
+          const byId = new Map(verified.map((item) => [item.canonical_product_id, item]));
+          setCandidates((current) => current.map((item) => byId.has(item.canonical_product_id)
+            ? { ...item, ...byId.get(item.canonical_product_id) }
+            : item));
+          setQueueAudit((current) => ({
+            ...current,
+            pending: Math.max(0, current.pending - verified.length),
+          }));
+        }
       } catch (err) {
         if (active) setError(err instanceof Error ? err.message : 'Неизвестная ошибка загрузки товаров.');
       } finally {
@@ -215,7 +273,16 @@ export default function FirstRealDraftClient({
   }, [candidates, search, filter, testedIds]);
 
   const visibleCandidates = filteredCandidates.slice(0, visibleCount);
-  const readyCount = candidates.filter((item) => item.ready_for_openai).length;
+  const readyCount = candidates.filter((item) => (
+    item.ready_for_openai
+    && !item.has_saved_draft
+    && item.verification_level === 'exact'
+  )).length;
+  const provisionalCount = candidates.filter((item) => (
+    item.ready_for_openai
+    && !item.has_saved_draft
+    && item.verification_level !== 'exact'
+  )).length;
   const savedCount = candidates.filter((item) => item.has_saved_draft).length;
   const testedCount = candidates.filter((item) => testedIds.has(item.canonical_product_id)).length;
 
@@ -571,9 +638,14 @@ export default function FirstRealDraftClient({
             Найдите товар по названию, Etsy listing ID или slug. Фотография, готовность, сохранённый draft и история проверки видны до запуска OpenAI.
           </p>
         </div>
-        <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-4 xl:w-[520px]">
+        <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-5 xl:w-[650px]">
           <Fact label="Товаров" value={String(candidates.length)} />
-          <Fact label="Готовы к тексту" value={String(readyCount)} tone={readyCount ? 'success' : 'warning'} />
+          <Fact label="К новой генерации" value={String(readyCount)} tone={readyCount ? 'success' : 'warning'} />
+          <Fact
+            label="Точная проверка"
+            value={queueAudit.pending ? `${queueAudit.total - queueAudit.pending}/${queueAudit.total}` : (provisionalCount ? `0/${provisionalCount}` : 'готово')}
+            tone={queueAudit.pending || provisionalCount ? 'warning' : 'success'}
+          />
           <Fact label="С draft" value={String(savedCount)} />
           <Fact label="Проверено здесь" value={String(testedCount)} />
         </div>
@@ -654,7 +726,11 @@ export default function FirstRealDraftClient({
                   </div>
                   <div className="mt-2 flex min-w-0 flex-wrap gap-1.5">
                     <StatusBadge tone={candidate.ready_for_openai ? 'success' : 'warning'}>
-                      {candidate.ready_for_openai ? (candidate.ready_for_full_pack ? 'Полный Pack готов' : 'Готов к тексту') : blockerShort(candidate.hard_blockers)}
+                      {candidate.ready_for_openai
+                        ? candidate.verification_level === 'exact'
+                          ? (candidate.ready_for_full_pack ? 'Полный Pack готов' : 'Готов к тексту')
+                          : 'Предварительно готов'
+                        : blockerShort(candidate.hard_blockers)}
                     </StatusBadge>
                     {candidate.has_saved_draft ? <StatusBadge>Есть draft</StatusBadge> : null}
                     {candidate.keyword_selection?.mode === 'auto_recommendation' ? <StatusBadge tone="warning">Ключи рекомендованы</StatusBadge> : null}
@@ -982,6 +1058,7 @@ function blockerLabel(code) {
     primary_keyword_portfolio_conflict: 'Этот же Primary уже выбран для другого товара. Один главный поисковый интент должен принадлежать одной странице.',
     primary_keyword_portfolio_map_unavailable: 'Не удалось проверить текущих владельцев Primary. OpenAI не вызван, чтобы не создать каннибализацию.',
     primary_keyword_peer_reassignment_pending: 'Этот товар сохраняет Primary, но конфликтующему товару нужен новый whole-product Primary до публикации.',
+    exact_queue_preflight_failed: 'Точная проверка очереди не завершилась. Товар безопасно исключён из генерации до повторной проверки.',
   };
   return labels[code] || String(code || 'Неизвестный блокер').replaceAll('_', ' ');
 }

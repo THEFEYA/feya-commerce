@@ -72,6 +72,26 @@ test('exact Primary ownership is checked before the only paid writer call', () =
   assert.equal(client.includes('enforce_portfolio_strategy: false'), false);
 });
 
+test('unsaved queue candidates receive an exact read-only preflight before generation', () => {
+  const candidateRoute = readFileSync(
+    new URL('../../app/api/admin/seo-engine/first-draft-candidates/route.ts', import.meta.url),
+    'utf8',
+  );
+  const client = readFileSync(
+    new URL('../../app/admin/seo-engine/first-real-draft/FirstRealDraftClient.tsx', import.meta.url),
+    'utf8',
+  );
+
+  assert.ok(candidateRoute.includes("verification_level: 'catalog'"));
+  assert.ok(candidateRoute.includes("verification_level: 'exact'"));
+  assert.ok(client.includes('!item.has_saved_draft'));
+  assert.ok(client.includes('item.verification_level !== \'exact\''));
+  assert.ok(client.includes('index += 3'));
+  assert.ok(client.includes('/api/admin/seo-engine/first-draft-candidates?product_id='));
+  assert.ok(client.includes("'exact_queue_preflight_failed'"));
+  assert.ok(client.includes("verification_level === 'exact'"));
+});
+
 test('legacy null keyword placeholders cannot break exact Product Truth preflight', () => {
   const server = readFileSync(
     new URL('../../lib/seoBriefContractServer.ts', import.meta.url),
