@@ -228,13 +228,14 @@ export function colorLabel(product: StorefrontProduct) {
   if (text.includes('white')) return 'White';
   if (text.includes('red')) return 'Red';
   if (text.includes('brown')) return 'Brown';
+  if (text.includes('green')) return 'Green';
   if (/holo|iridescent/.test(text)) return 'Holographic';
   return (product.color || '').split(',')[0] || 'Mirror';
 }
 export function colorOptions(product: StorefrontProduct) {
   if (Array.isArray(product.color_options) && product.color_options.length) return product.color_options.filter(Boolean);
   const text = `${product.color || ''} ${productTitle(product)} ${product.material || ''}`.toLowerCase();
-  const values = ['Gold','Silver','Black','White','Red','Brown','Holographic'].filter((c) => c === 'Holographic' ? /holo|iridescent/.test(text) : text.includes(c.toLowerCase()));
+  const values = ['Gold','Silver','Black','White','Red','Brown','Green','Holographic'].filter((c) => c === 'Holographic' ? /holo|iridescent/.test(text) : text.includes(c.toLowerCase()));
   return values.length ? values : [colorLabel(product)];
 }
 export function getMedia(product: StorefrontProduct) {

@@ -370,6 +370,26 @@ test('fails closed instead of leaking translated fallback labels into the Englis
   assert.deepEqual(storefrontIncludedOptions(product), []);
 });
 
+test('fails closed when unresolved variation rows are anonymous Option placeholders', () => {
+  const offer = resolveStorefrontSellableOffer({
+    configurations: [
+      { configuration_id: 'green', public_label: 'Option', component_code: null, component_family: null, needs_label_review: true },
+      { configuration_id: 'brown', public_label: 'Option 2', component_code: null, component_family: null, needs_label_review: true },
+      { configuration_id: 'black', public_label: 'Option 3', component_code: null, component_family: null, needs_label_review: true },
+    ],
+  });
+
+  assert.equal(offer.status, 'hold');
+  assert.deepEqual(offer.atomic_options, []);
+  assert.deepEqual(offer.component_codes, []);
+  assert.deepEqual(offer.component_labels, []);
+  assert.equal(
+    offer.blockers.includes('sellable_option_unresolved_component_identity:0'),
+    true,
+  );
+  assert.equal(offer.blockers.includes('sellable_offer_missing_atomic_options'), true);
+});
+
 test('fails closed when only inferred DNA or normalized component codes exist', () => {
   const product = {
     canonical_included_components: ['shoulders', 'top', 'skirt'],

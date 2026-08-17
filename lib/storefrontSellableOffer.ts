@@ -280,6 +280,22 @@ function normalizeConfiguration(
     || labelCode === FULL_SET_CODE;
   const isAggregate = isFullSet || row.is_bundle === true;
   let code = normalizeCode(row.component_code);
+
+  // Storefront v4 may expose an unresolved imported variation as `Option`.
+  // That placeholder can represent a colour, size or another non-component
+  // axis, so deriving a component code from it would manufacture a sellable
+  // piece and could leak `What's included: Option` into the PDP. Keep useful
+  // English labels such as `Skirt` eligible for the existing fallback, but
+  // fail closed on the anonymous placeholder until its component identity is
+  // reviewed or an explicit component code/family is attached.
+  if (
+    !code
+    && !firstString(row.component_family)
+    && /^option(?:\s+\d+)?$/i.test(label)
+  ) {
+    blockers.push(`sellable_option_unresolved_component_identity:${index}`);
+    return null;
+  }
   if (!code && isFullSet) code = FULL_SET_CODE;
   if (!code) code = labelCode;
 

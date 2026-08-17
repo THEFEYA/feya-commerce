@@ -128,10 +128,10 @@ const THEFEYA_PRODUCT_RIGHT_PDP_OVERRIDES: Record<string, RightPanelOverride> = 
   },
   'ce0a2c0a-5a95-4876-a198-70be635ca053': {
     material: [
-      'This handmade chest harness is made from green leather.',
+      'This handmade chest harness is made from natural leather.',
     ],
     care: [
-      'Wipe the green leather gently with a soft, slightly damp cloth.',
+      'Wipe the natural leather gently with a soft, slightly damp cloth.',
       'Do not use alcohol wipes, machine washing or prolonged soaking on this piece.',
       'Store the harness without tight folding or long-term heavy pressure.',
     ],
