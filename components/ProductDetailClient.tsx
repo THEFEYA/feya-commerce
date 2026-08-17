@@ -178,15 +178,15 @@ export function ProductDetailClient({
     ? p.component_sum_display_price_amount
     : null;
   const v4Savings = typeof p.full_set_savings_amount === 'number' ? p.full_set_savings_amount : null;
-  const { separateRegularTotal, fullSetSavings } = resolveFullSetPriceComparison({
+  const { separateRegularTotal, displayedFullSetSavings } = resolveFullSetPriceComparison({
     fullSetPrice: fullRegularPrice,
     storedComponentSum: v4ComponentSum,
     storedSavings: v4Savings,
     fallbackSeparateTotal: fallbackSeparateRegularTotal,
   });
   const selectedIsFullSet = activeConfig ? isFullSetOption(activeConfig, activeConfigIndex) : false;
-  const savingsText = selectedIsFullSet && fullSetSavings > 0
-    ? `Best value: save ${formatPrice(fullSetSavings, currency)} vs ordering pieces separately${separateRegularTotal > 0 ? ` (${formatPrice(separateRegularTotal, currency)})` : ''}.`
+  const savingsText = selectedIsFullSet && displayedFullSetSavings > 0
+    ? `Best value: save ${formatPrice(displayedFullSetSavings, currency)} vs ordering pieces separately${separateRegularTotal > 0 ? ` (${formatPrice(separateRegularTotal, currency)})` : ''}.`
     : '';
 
   useEffect(() => {

@@ -11,6 +11,7 @@ import {
 import { generateSeoDraftWithOpenAi } from '../../lib/seoOpenAiDraftGenerator.ts';
 import {
   normalizeBrownLeatherHarnessPhotoshootAlt,
+  normalizePaidChromeFestivalOutfitCopy,
   normalizePaidDanceCostumeCopy,
   normalizePaidRedSpineTailCopy,
   normalizePaidWitchCostumeCopy,
@@ -116,6 +117,55 @@ test('brown photoshoot harness ALT keeps the model shirt outside sold Product DN
   assert.doesNotMatch(normalized.image_alt_candidates[0].alt_text, /shirt/i);
   assert.match(normalized.pdp_blocks[0].body, /portrait and editorial photoshoots/i);
   assert.doesNotMatch(normalized.pdp_blocks[1].body, /\bfeels\b/i);
+});
+
+test('paid Chrome Festival Outfit draft receives an exact zero-token recovery', () => {
+  const originalIdealFor = 'Women seeking an expressive outfit for a live music production.\nBurning Man attendees drawn to an alien look for long days and night sets.\nContent creators producing cyberpunk visuals for Burning Man shoots or music videos.\nCostume stylists selecting an original futuristic design for themed shows or editorials.';
+  const output = {
+    ...writerWireOutput([
+      {
+        block_key: 'about_this_piece',
+        body: 'Built for festivals and raves nights, this silver festival costume frames the body with a high-gloss, metal-inspired finish. The polished surface creates a beautifully polished look that reads sharp and futuristic in motion, while the layered design keeps the set visually striking from every angle.',
+      },
+      {
+        block_key: 'why_youll_love_it',
+        body: 'Created by our designers, the original studio design gives the outfit a distinctive, memorable character that feels personal.\nThe material feels comfortable against the body, making the garment easier to wear for extended periods.\nWith careful storage, the piece keeps its shape beautifully between wears and stays ready for future events.',
+      },
+      { block_key: 'ideal_for', body: originalIdealFor },
+      {
+        block_key: 'main_description',
+        body: 'We designed this for women who want a festival piece that feels vivid, bold, and unforgettable. Our fashion studio shaped the silver festival costume to deliver an alien-inspired presence with a futuristic edge. At TheFEYA, our original design ideas turn a high-gloss silver finish into something memorable, personal, and ready for Burning Man energy. The result is a look that feels distinctive the moment it catches the light.',
+      },
+    ]),
+    intro: 'Built for festivals and raves nights, this silver festival costume frames the body with a high-gloss, metal-inspired finish. The polished surface creates a beautifully polished look that reads sharp and futuristic in motion, while the layered design keeps the set visually striking from every angle.',
+  } as any;
+
+  const normalized = normalizePaidChromeFestivalOutfitCopy(output, {
+    primary_keyword: 'silver festival outfit',
+    selected_events: ['burning man', 'festival', 'rave'],
+    selected_styles: ['futuristic', 'cyberpunk', 'cosmic'],
+    selected_materials: ['silver', 'mirror', 'vegan leather', 'metallic'],
+    included_components: ['Choker', 'Belt', 'Legs', 'Shoulders', 'Top'],
+    product_color: 'Silver',
+  });
+
+  assert.match(normalized.intro, /^This silver festival outfit/i);
+  assert.doesNotMatch(normalized.pdp_blocks[0].body, /polished.*polished/i);
+  assert.match(normalized.pdp_blocks[0].body, /inspired by futuristic armor/i);
+  assert.equal(normalized.pdp_blocks[2].body, originalIdealFor);
+  assert.match(normalized.pdp_blocks[3].body, /bold futuristic identity/i);
+  assert.match(normalized.pdp_blocks[3].body, /choose the available pieces/i);
+  assert.match(normalized.generation_notes.at(-1), /without another writer call/i);
+
+  const unrelated = normalizePaidChromeFestivalOutfitCopy(output, {
+    primary_keyword: 'silver festival outfit',
+    selected_events: ['festival', 'rave'],
+    selected_styles: ['futuristic', 'cyberpunk', 'cosmic'],
+    selected_materials: ['silver', 'mirror', 'vegan leather', 'metallic'],
+    included_components: ['Choker', 'Belt', 'Legs', 'Shoulders', 'Top'],
+    product_color: 'Silver',
+  });
+  assert.equal(unrelated, output);
 });
 
 test('paid red spine-tail draft is repaired without changing its accepted identity or Ideal for block', () => {

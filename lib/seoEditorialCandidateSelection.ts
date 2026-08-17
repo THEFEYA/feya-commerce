@@ -635,6 +635,7 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizeUnsafeVisualStyleSuggestions(normalized);
   normalized = normalizeBatchFiveEditorialBlacklistCopy(normalized, context);
   normalized = normalizePaidHarnessAndMetallicSetCopy(normalized, context);
+  normalized = normalizePaidChromeFestivalOutfitCopy(normalized, context);
   normalized = normalizePaidChromeShowgirlCopy(normalized, context);
   normalized = normalizePaidCosmicHarnessOutfitCopy(normalized, context);
   normalized = normalizePaidSilverBurningManHarnessSetCopy(normalized, context);
@@ -1142,6 +1143,83 @@ export function normalizePaidHarnessAndMetallicSetCopy<T>(
       isHarness
         ? 'Human-reviewed deterministic repair improved the paid black harness draft without another writer call.'
         : 'Human-reviewed deterministic repair improved the paid silver metallic-set draft without another writer call.',
+    ],
+  } as T;
+}
+
+/**
+ * Preserve the single paid Chrome Festival Outfit response while repairing
+ * the exact sentence that repeated "polished" and strengthening the accepted
+ * self-expression close. Product Truth, the complete operator-selected focus,
+ * and exact returned copy keep this zero-token correction local to the
+ * five-piece silver set rather than creating a broad silver-product rewrite.
+ */
+export function normalizePaidChromeFestivalOutfitCopy<T>(
+  output: T,
+  context: SeoIdentityNormalizationContext,
+): T {
+  if (!isRecord(output) || !Array.isArray(output.pdp_blocks)) return output;
+  const primary = normalizeIdentityValue(context.primary_keyword).toLowerCase();
+  const color = normalizeIdentityColor(context.product_color).toLowerCase();
+  const events = normalizeIdentityValues(context.selected_events).map((value) => value.toLowerCase());
+  const styles = normalizeIdentityValues(context.selected_styles).map((value) => value.toLowerCase());
+  const materials = normalizeIdentityValues(context.selected_materials).map((value) => value.toLowerCase());
+  const components = normalizeIdentityValues(context.included_components)
+    .map((value) => value.toLowerCase())
+    .sort();
+  if (
+    primary !== 'silver festival outfit'
+    || color !== 'silver'
+    || !events.includes('burning man')
+    || !events.includes('festival')
+    || !events.includes('rave')
+    || !styles.includes('futuristic')
+    || !styles.includes('cyberpunk')
+    || !styles.includes('cosmic')
+    || !materials.includes('mirror')
+    || !materials.includes('vegan leather')
+    || !materials.includes('metallic')
+    || components.join('|') !== 'belt|choker|legs|shoulders|top'
+  ) return output;
+
+  const exactFieldReplacements: Record<string, [string, string]> = {
+    intro: [
+      'Built for festivals and raves nights, this silver festival costume frames the body with a high-gloss, metal-inspired finish. The polished surface creates a beautifully polished look that reads sharp and futuristic in motion, while the layered design keeps the set visually striking from every angle.',
+      'This silver festival outfit brings mirror-finish vegan leather and angular armor-inspired lines to festivals, raves and Burning Man, giving women a confident futuristic look in motion.',
+    ],
+  };
+  const blockReplacements: Record<string, [string, string]> = {
+    about_this_piece: [
+      'Built for festivals and raves nights, this silver festival costume frames the body with a high-gloss, metal-inspired finish. The polished surface creates a beautifully polished look that reads sharp and futuristic in motion, while the layered design keeps the set visually striking from every angle.',
+      'Built for festival and rave nights, this silver festival outfit frames the body with angular, high-gloss panels inspired by futuristic armor. Its mirror-finish surfaces catch available light in motion, while the layered construction creates a coherent silhouette from every angle.',
+    ],
+    main_description: [
+      'We designed this for women who want a festival piece that feels vivid, bold, and unforgettable. Our fashion studio shaped the silver festival costume to deliver an alien-inspired presence with a futuristic edge. At TheFEYA, our original design ideas turn a high-gloss silver finish into something memorable, personal, and ready for Burning Man energy. The result is a look that feels distinctive the moment it catches the light.',
+      'At TheFEYA, our designers developed this silver festival outfit as an original studio piece for women who want a bold futuristic identity. The geometric lines and mirror finish create a recognizable look in crowds, on stage, and in photo or video projects. Wear the complete configuration for one cohesive statement, or choose the available pieces that fit your own styling plan.',
+    ],
+  };
+
+  let changed = false;
+  const normalized: Record<string, unknown> = { ...output };
+  Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
+    if (normalized[field] !== before) return;
+    normalized[field] = after;
+    changed = true;
+  });
+  normalized.pdp_blocks = output.pdp_blocks.map((block) => {
+    if (!isRecord(block) || typeof block.body !== 'string') return block;
+    const replacement = blockReplacements[String(block.block_key || '')];
+    if (!replacement || block.body !== replacement[0]) return block;
+    changed = true;
+    return { ...block, body: replacement[1] };
+  });
+  if (!changed) return output;
+
+  return {
+    ...normalized,
+    generation_notes: [
+      ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
+      'Human-reviewed deterministic repair recovered the paid Chrome Festival Outfit draft without another writer call.',
     ],
   } as T;
 }
