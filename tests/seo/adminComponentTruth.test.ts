@@ -1,10 +1,24 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import {
   componentEvidenceLabel,
   getCanonicalComponentTruthDiagnostic,
   isReviewFieldResolved,
 } from '../../lib/adminComponentTruth.ts';
+
+test('component review queue uses a fast catalog and bounded Product Truth pages', () => {
+  const page = readFileSync(
+    new URL('../../app/admin/review/components/page.tsx', import.meta.url),
+    'utf8',
+  );
+
+  assert.ok(page.includes('STOREFRONT_VIEW_V1'));
+  assert.ok(page.includes('const PAGE_SIZE = 36'));
+  assert.ok(page.includes("query.in('canonical_product_id', canonicalProductIds)"));
+  assert.ok(page.includes('allRows.slice(pageStart, pageStart + PAGE_SIZE)'));
+  assert.equal(page.includes('STOREFRONT_VIEW_V4'), false);
+});
 
 test('component review events cannot override unresolved canonical Product Truth', () => {
   assert.equal(isReviewFieldResolved('component', true, true), false);

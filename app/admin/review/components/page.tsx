@@ -18,13 +18,22 @@ import {
   toCatalogFallbackStorefrontProduct,
 } from '@/lib/admin-product-catalog-fallback';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
-import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle } from '@/lib/storefront';
+import { STOREFRONT_VIEW_V1, productSlug, productTitle } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 const ROW_LIMIT = 500;
+const PAGE_SIZE = 36;
+const COMPONENT_QUEUE_CATALOG_SELECT = [
+  'canonical_product_id',
+  'product_slug',
+  'matched_etsy_listing_id',
+  'card_title',
+  'h1',
+  'product_type',
+].join(',');
 
 function parseConfigurations(value: unknown): StorefrontConfiguration[] {
   if (!value) return [];
@@ -69,20 +78,25 @@ async function loadProducts(canonicalProductId?: string): Promise<{ rows: Storef
     };
   }
 
-  const query = supabase.from(STOREFRONT_VIEW_V4).select(STOREFRONT_V4_CARD_SELECT);
+  const query = supabase
+    .from(STOREFRONT_VIEW_V1)
+    .select(COMPONENT_QUEUE_CATALOG_SELECT)
+    .order('card_title', { ascending: true });
   const { data, error } = await query.limit(ROW_LIMIT);
   if (error) return { rows: [], error: error.message };
   return { rows: (data || []) as StorefrontProduct[] };
 }
 
-async function loadComponentTruth(canonicalProductId?: string) {
+async function loadComponentTruth(canonicalProductId?: string, canonicalProductIds: string[] = []) {
   const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
   if (!supabase) return { rows: [], error: getMissingSupabaseEnvMessage() };
   let query = supabase
     .from(CANONICAL_PRODUCT_TRUTH_VIEW)
     .select(ADMIN_COMPONENT_TRUTH_SELECT);
   if (canonicalProductId) query = query.eq('canonical_product_id', canonicalProductId);
-  const { data, error } = await query.limit(canonicalProductId ? 1 : ROW_LIMIT);
+  else if (canonicalProductIds.length) query = query.in('canonical_product_id', canonicalProductIds);
+  else return { rows: [] };
+  const { data, error } = await query.limit(canonicalProductId ? 1 : PAGE_SIZE);
   if (error) return { rows: [], error: error.message };
   return { rows: data || [] };
 }
@@ -138,18 +152,27 @@ function Chip({ children, tone = 'neutral' }) {
 }
 
 type PageProps = {
-  searchParams: Promise<{ product_id?: string | string[] }>;
+  searchParams: Promise<{ product_id?: string | string[]; page?: string | string[] }>;
 };
 
 export default async function AdminComponentReviewPage({ searchParams }: PageProps) {
   const query = await searchParams;
   const focusedProductId = Array.isArray(query.product_id) ? query.product_id[0] : query.product_id;
-  const [productResult, truthResult, assertionEditor] = await Promise.all([
+  const rawPage = Array.isArray(query.page) ? query.page[0] : query.page;
+  const requestedPage = Math.max(1, Number.parseInt(String(rawPage || '1'), 10) || 1);
+  const [productResult, assertionEditor] = await Promise.all([
     loadProducts(focusedProductId),
-    loadComponentTruth(focusedProductId),
     loadAssertionEditor(focusedProductId),
   ]);
-  const { rows, error } = productResult;
+  const { rows: allRows, error } = productResult;
+  const pageCount = focusedProductId ? 1 : Math.max(1, Math.ceil(allRows.length / PAGE_SIZE));
+  const page = Math.min(requestedPage, pageCount);
+  const pageStart = (page - 1) * PAGE_SIZE;
+  const rows = focusedProductId ? allRows : allRows.slice(pageStart, pageStart + PAGE_SIZE);
+  const truthResult = await loadComponentTruth(
+    focusedProductId,
+    rows.map((row) => String(row.canonical_product_id || '')).filter(Boolean),
+  );
   const truthByProductId = new Map(
     truthResult.rows.map((row) => [String(row.canonical_product_id || ''), row]),
   );
@@ -176,7 +199,8 @@ export default async function AdminComponentReviewPage({ searchParams }: PagePro
   return <main className="min-h-screen bg-[#07070A]"><section className="container-feya pt-10 pb-16">
     <div className="mb-7 border-b border-[rgba(216,214,211,.12)] pb-7"><div className="eyebrow-gold mb-3">Admin Review · Components</div><h1 className="text-bone text-[28px] font-medium leading-tight">Component mapping</h1><p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--bone-dim)]">Data-quality queue for canonical Product Truth: confirmed composition, source options, price ownership, unresolved facts and review blockers. Review events are an audit trail and never repair canonical product data.</p><div className="mt-5 flex gap-3"><Link href="/admin" className="btn-ghost">Admin cockpit</Link><Link href="/admin/products" className="btn-ghost">Products</Link>{focusedProductId ? <Link href="/admin/review/components" className="btn-ghost">Show full queue</Link> : null}</div></div>
     {error || truthResult.error || assertionEditor.error ? <div className="mb-6 rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)]">{error || `Canonical Product Truth: ${truthResult.error || assertionEditor.error}`}</div> : null}
-    <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4"><div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-2">Truth blocked</div><div className="text-bone text-[28px]">{truthBlocked}</div></div><div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-2">Variant checks</div><div className="text-bone text-[28px]">{variantChecks}</div></div><div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-2">Source variations</div><div className="text-bone text-[28px]">{sourceVariations}</div></div><div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-2">Full sets</div><div className="text-bone text-[28px]">{fullSets}</div></div></div>
+    <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-5"><div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-2">Truth blocked · page</div><div className="text-bone text-[28px]">{truthBlocked}</div></div><div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-2">Variant checks</div><div className="text-bone text-[28px]">{variantChecks}</div></div><div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-2">Source variations</div><div className="text-bone text-[28px]">{sourceVariations}</div></div><div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-2">Full sets</div><div className="text-bone text-[28px]">{fullSets}</div></div><div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-2">Queue page</div><div className="text-bone text-[28px]">{page}/{pageCount}</div><div className="mt-1 text-[10px] text-[var(--smoke)]">{rows.length} products</div></div></div>
+    {!focusedProductId && pageCount > 1 ? <div className="mb-6 flex items-center justify-between gap-3"><div className="text-[11px] text-[var(--bone-dim)]">Точная Product Truth проверка загружается по {PAGE_SIZE} товаров, без тяжёлого полного запроса.</div><div className="flex gap-2">{page > 1 ? <Link href={`/admin/review/components?page=${page - 1}`} className="btn-ghost px-4 py-2 text-[10px]">Previous</Link> : null}{page < pageCount ? <Link href={`/admin/review/components?page=${page + 1}`} className="btn-ghost px-4 py-2 text-[10px]">Next</Link> : null}</div></div> : null}
     <div className="space-y-4">{reviewRows.map(({ product, configs, truthDiagnostic }) => {
       const slug = productSlug(product);
       const visibleConfigs = configs.filter((config) => config.is_full_set || config.is_bundle).slice(0, 6);
