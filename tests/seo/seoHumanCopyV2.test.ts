@@ -168,6 +168,227 @@ test('paid Chrome Festival Outfit draft receives an exact zero-token recovery', 
   assert.equal(unrelated, output);
 });
 
+test('owner-reviewed Chrome Festival Outfit recovery passes all deterministic gates', () => {
+  const candidate = {
+    contract_version: 'seo_agent_output_v1',
+    status: 'draft',
+    seo_title: 'Silver Festival Outfit for Burning Man and Rave',
+    h1: 'Silver Festival Outfit for Burning Man',
+    meta_description: 'Shop a silver festival outfit in mirror-finish vegan leather, created for Burning Man, raves, live performance, photography and video.',
+    intro: 'Designed for Burning Man and rave nights, this complete silver set combines angular armor-inspired lines with a high-gloss mirror finish for a clear futuristic look in motion.',
+    bullet_highlights: [],
+    faq: [],
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'Metallic silver costume with choker, shoulder, top, belt and leg pieces',
+      truth_basis: 'visible_product_fact',
+    }],
+    internal_linking_hints: [],
+    visual_truth: {
+      observed_product_facts: [
+        'Silver mirror-finish surface',
+        'Angular layered construction',
+        'Choker, shoulder, top, belt and leg pieces',
+      ],
+      dna_matches: ['Futuristic styling', 'Cyberpunk styling', 'Cosmic styling'],
+      open_style_suggestions: [],
+      uncertain_or_missing_facts: [],
+      forbidden_visual_claims: ['Do not claim protective armor function'],
+    },
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        source_basis: 'product_fact',
+        body: 'Built for festivals and raves, this complete silver costume combines angular, armor-inspired lines with a high-gloss mirror finish. The layered forms create a clear futuristic character for Burning Man, live performance, photography and video, while the vegan leather surface catches available light as the wearer moves.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'why_youll_love_it',
+        placement: 'left_description',
+        heading: 'Why you’ll love it',
+        source_basis: 'product_fact',
+        body: 'Created by our designers, the original studio design gives the costume a recognizable character that feels personal.\nThe mirror finish catches available light, helping the angular details stay visible in photos and during live performances.\nAdjustable straps provide room to adjust the fit for different body shapes and help the selected configuration sit securely.\nWith careful storage, the vegan leather pieces keep their shape between wears and stay ready for repeat use.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'ideal_for',
+        placement: 'left_description',
+        heading: 'Ideal for',
+        source_basis: 'product_fact',
+        body: 'Women developing an original alien character for Burning Man or rave appearances.\nFestival-goers who want a complete silver costume for long days and night sets.\nPerformers selecting an armor-inspired outfit for live shows and dance productions.\nContent creators planning cyberpunk or cosmic fashion photography and video.\nCostume stylists sourcing an original studio design for editorials and themed productions.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'main_description',
+        placement: 'left_description',
+        heading: 'Designed for self-expression',
+        source_basis: 'brand_policy',
+        body: 'At TheFEYA, our designers developed this piece as an original studio interpretation of futuristic and cosmic fashion. Its geometric lines give women a recognizable character for crowded festival spaces, stage appearances and creative shoots. The design supports personal expression through a confident alien-inspired form that remains true to our studio style.',
+        needs_human_review: false,
+      },
+    ],
+    qa_self_report: {
+      cliche_phrase: 'pass',
+      long_dash: 'pass',
+      keyword_stuffing: 'pass',
+      product_specificity: 'pass',
+      forbidden_mismatch: 'pass',
+      similarity_cannibalization: 'pass',
+      image_alt_truth: 'pass',
+      commercial_placement: 'pass',
+      validated_metrics: 'pass',
+      notes: ['Owner-reviewed zero-token recovery after two paid drafts were blocked by wording-only QA.'],
+    },
+    generation_notes: ['Owner-reviewed manual recovery preserved the confirmed Product Truth and saved keyword decision without another writer call.'],
+  } as any;
+  const context = {
+    product_truth: {
+      color: 'Silver',
+      material: 'Vegan leather',
+      included_components: ['Choker', 'Belt', 'Legs', 'Shoulders', 'Top'],
+    },
+    manual_focus: {
+      material: ['silver', 'mirror', 'vegan leather', 'metallic'],
+      event: ['burning man', 'festival', 'rave'],
+      style: ['futuristic', 'cyberpunk', 'cosmic'],
+      persona: ['alien'],
+      audience: ['women'],
+    },
+    keyword_roles: {
+      primary: [{ keyword: 'silver festival outfit', keyword_norm: 'silver festival outfit', role: 'primary' }],
+      secondary: [
+        { keyword: 'futuristic armor costume', keyword_norm: 'futuristic armor costume', role: 'secondary' },
+        { keyword: 'futuristic shoulder armor', keyword_norm: 'futuristic shoulder armor', role: 'secondary' },
+        { keyword: 'cyberpunk shoulder armor', keyword_norm: 'cyberpunk shoulder armor', role: 'secondary' },
+      ],
+      support: [],
+      image_alt: [],
+      collection: [],
+      faq_commercial: [],
+      hold: [],
+      reject: [],
+    },
+  } as any;
+
+  const structural = validateSeoAgentOutput(candidate);
+  const commercial = validateSeoCommercialCopy(candidate, context);
+  const keywordPlacement = validateSeoKeywordPlacement(candidate, context);
+
+  assert.equal(structural.ok, true, JSON.stringify(structural.issues));
+  assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
+  assert.equal(keywordPlacement.ok, true, JSON.stringify(keywordPlacement.issues));
+});
+
+test('owner-reviewed gold metallic set recovery passes all deterministic gates', () => {
+  const candidate = {
+    contract_version: 'seo_agent_output_v1',
+    status: 'draft',
+    seo_title: 'Metallic Top and Skirt Set for Burning Man',
+    h1: 'Gold Metallic Top and Skirt Set for Burning Man',
+    meta_description: 'Shop a metallic top and skirt set for Burning Man, festivals, live performance, photography and video.',
+    intro: 'Designed for Burning Man and festivals, this gold costume uses angular armor-inspired lines to give women a strong futuristic character in motion.',
+    bullet_highlights: [],
+    faq: [],
+    image_alt_candidates: [{
+      image_role: 'primary',
+      alt_text: 'Gold futuristic costume with metallic top and skirt',
+      truth_basis: 'visible_product_fact',
+    }],
+    internal_linking_hints: [],
+    visual_truth: {
+      observed_product_facts: ['Gold mirror-finish surface', 'Angular fitted lines', 'Top and skirt'],
+      dna_matches: ['Futuristic styling', 'Desert styling', 'Warrior character'],
+      open_style_suggestions: [],
+      uncertain_or_missing_facts: [],
+      forbidden_visual_claims: ['Do not claim protective armor function'],
+    },
+    pdp_blocks: [
+      {
+        block_key: 'about_this_piece',
+        placement: 'left_description',
+        heading: 'About this piece',
+        source_basis: 'product_fact',
+        body: 'Built for Burning Man and festival settings, this complete metallic gold outfit uses angular, armor-inspired lines to create a clear futuristic character. The fitted geometry keeps its warrior-inspired profile recognizable during live appearances, photography and video.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'why_youll_love_it',
+        placement: 'left_description',
+        heading: 'Why you’ll love it',
+        source_basis: 'product_fact',
+        body: 'Created by our designers, the original studio design gives the costume a recognizable character that feels personal.\nThe fitted top frames the upper body, directing attention to the warrior-inspired lines in photographs.\nAdjustable straps provide room to adjust the fit for different body shapes and help the selected configuration sit securely.\nWith careful storage, the costume keeps its shape between wears and stays ready for repeat use.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'ideal_for',
+        placement: 'left_description',
+        heading: 'Ideal for',
+        source_basis: 'product_fact',
+        body: 'Women developing an original warrior character for Burning Man appearances.\nFestival-goers who want a complete gold costume for long days and night sets.\nPerformers selecting an armor-inspired outfit for live shows and dance productions.\nContent creators planning futuristic desert photography and video.\nCostume stylists sourcing an original studio design for editorials and themed productions.',
+        needs_human_review: false,
+      },
+      {
+        block_key: 'main_description',
+        placement: 'left_description',
+        heading: 'Designed for self-expression',
+        source_basis: 'brand_policy',
+        body: 'At TheFEYA, our designers developed this gold costume from original ideas for women who want a bold warrior-inspired character. The fitted geometry keeps the design recognizable across Burning Man camps, stage appearances and creative shoots. It supports personal expression while preserving the confident futuristic character of our studio.',
+        needs_human_review: false,
+      },
+    ],
+    qa_self_report: {
+      cliche_phrase: 'pass',
+      long_dash: 'pass',
+      keyword_stuffing: 'pass',
+      product_specificity: 'pass',
+      forbidden_mismatch: 'pass',
+      similarity_cannibalization: 'pass',
+      image_alt_truth: 'pass',
+      commercial_placement: 'pass',
+      validated_metrics: 'pass',
+      notes: ['Owner-reviewed zero-token recovery after one paid draft was blocked by wording-only QA.'],
+    },
+    generation_notes: ['Owner-reviewed manual recovery preserved the confirmed two-piece Product Truth and saved keyword decision without another writer call.'],
+  } as any;
+  const context = {
+    product_truth: {
+      color: 'Gold',
+      included_components: ['Skirt', 'Top'],
+    },
+    manual_focus: {
+      material: ['gold', 'mirror', 'metallic'],
+      event: ['burning man', 'festival'],
+      style: ['futuristic', 'desert'],
+      persona: ['warrior'],
+      audience: ['women'],
+    },
+    keyword_roles: {
+      primary: [{ keyword: 'metallic top and skirt set', keyword_norm: 'metallic top and skirt set', role: 'primary' }],
+      secondary: [
+        { keyword: 'futuristic armor costume', keyword_norm: 'futuristic armor costume', role: 'secondary' },
+        { keyword: 'warrior armor costume', keyword_norm: 'warrior armor costume', role: 'secondary' },
+        { keyword: 'metallic skirt outfit', keyword_norm: 'metallic skirt outfit', role: 'secondary' },
+      ],
+      support: [],
+      image_alt: [],
+      collection: [],
+      faq_commercial: [],
+      hold: [],
+      reject: [],
+    },
+  } as any;
+
+  const structural = validateSeoAgentOutput(candidate);
+  const commercial = validateSeoCommercialCopy(candidate, context);
+  const keywordPlacement = validateSeoKeywordPlacement(candidate, context);
+
+  assert.equal(structural.ok, true, JSON.stringify(structural.issues));
+  assert.equal(commercial.ok, true, JSON.stringify(commercial.issues));
+  assert.equal(keywordPlacement.ok, true, JSON.stringify(keywordPlacement.issues));
+});
+
 test('paid red spine-tail draft is repaired without changing its accepted identity or Ideal for block', () => {
   const originalIdealFor = '- Drag performers seeking a red burlesque look for the stage.\n- Showgirls drawn to glamorous red styling for live performance.\n- Women choosing a bold theatrical outfit for productions.\n- Content creators producing striking red visuals for drag and stage sets.\n- Costume stylists selecting an original red design for editorials and shows.';
   const output = {

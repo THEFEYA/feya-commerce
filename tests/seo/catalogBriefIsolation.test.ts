@@ -67,6 +67,7 @@ test('exact Primary ownership is checked before the only paid writer call', () =
   assert.ok(route.includes('getSeoPortfolioGenerationBlockers(portfolioStrategy)'));
   assert.ok(route.indexOf('getSeoPortfolioGenerationBlockers(portfolioStrategy)') < route.indexOf('await generateSeoDraftWithOpenAi('));
   assert.ok(candidateRoute.includes('getSeoPortfolioGenerationBlockers(bundle?.portfolioStrategy)'));
+  assert.ok(candidateRoute.includes('getSeoKeywordSelectionBlockers(draft)'));
   assert.ok(client.includes('enforce_portfolio_strategy: true'));
   assert.equal(client.includes('enforce_portfolio_strategy: false'), false);
 });

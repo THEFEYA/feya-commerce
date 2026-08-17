@@ -2,7 +2,10 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServiceClient } from '@/lib/supabase';
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
-import { getSeoGenerationProductTruthBlockers } from '@/lib/seoPackContract';
+import {
+  getSeoGenerationProductTruthBlockers,
+  getSeoKeywordSelectionBlockers,
+} from '@/lib/seoPackContract';
 import { STOREFRONT_VIEW_V1 } from '@/lib/storefront';
 import { hasTrustedSeoMetricSnapshot } from '@/lib/seoTrustedMetricSnapshot';
 import { getSeoPortfolioGenerationBlockers } from '@/lib/seoPrimaryKeywordOwnership';
@@ -283,6 +286,7 @@ function summarizeCandidate(bundle, decision) {
   if (draft?.qa_checks?.forbidden_mismatch === 'blocker') hardBlockers.push('qa_blocker_forbidden_mismatch');
   if (draft?.qa_checks?.product_specificity === 'blocker') hardBlockers.push('qa_blocker_product_specificity');
   if (draft?.qa_checks?.validated_metrics === 'blocker') hardBlockers.push('qa_blocker_validated_metrics');
+  hardBlockers.push(...getSeoKeywordSelectionBlockers(draft));
   hardBlockers.push(...getSeoPortfolioGenerationBlockers(bundle?.portfolioStrategy));
 
   const sectionBlockers = getSeoGenerationProductTruthBlockers(draft);
