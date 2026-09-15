@@ -6,6 +6,10 @@ type ProgressInput = {
 };
 
 export function listingMasterFeedback(input: ProgressInput) {
+  if (input.statusCode === 'data_unavailable') return {
+    tone: 'warning', title: 'Проверка временно недоступна',
+    message: 'Не удалось перечитать данные. Это не означает, что сохранение потеряно. Обновите страницу; заново выбирать оси не нужно.',
+  };
   if (!input.hasProduct) return {
     tone: 'warning', title: 'Выберите товар',
     message: 'Затем проверьте оси и сохраните подбор ключевых слов.',

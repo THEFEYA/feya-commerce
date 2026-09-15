@@ -22,3 +22,10 @@ test('a truth or keyword blocker is never presented as ready for generation', ()
   }
   assert.equal(listingMasterFeedback({ hasProduct: false, decisionIsCurrent: true, statusCode: 'ready' }).tone, 'warning');
 });
+
+test('a read failure is not presented as a missing save or unconfirmed composition', () => {
+  const feedback = listingMasterFeedback({ hasProduct: true, decisionIsCurrent: false, statusCode: 'data_unavailable' });
+  assert.equal(feedback.title, 'Проверка временно недоступна');
+  assert.match(feedback.message, /заново выбирать оси не нужно/);
+  assert.equal(feedback.tone, 'warning');
+});
