@@ -59,6 +59,9 @@ export default function FirstRealDraftClient({
   resaveSavedDraft?: boolean;
   recoverFailedDraft?: boolean;
 }) {
+  // Reading an existing draft does not require permission to generate a new
+  // one. Keep direct review links away from catalog-wide readiness scans.
+  const savedReviewMode = Boolean(initialProductId && loadSavedDraft && !autoGenerate && !resaveSavedDraft && !recoverFailedDraft);
   const [candidateLoading, setCandidateLoading] = useState(true);
   const [queueAudit, setQueueAudit] = useState({ pending: 0, total: 0 });
   const [detailLoading, setDetailLoading] = useState(false);
@@ -96,6 +99,10 @@ export default function FirstRealDraftClient({
   }, []);
 
   useEffect(() => {
+    if (savedReviewMode) {
+      setCandidateLoading(false);
+      return;
+    }
     let active = true;
 
     async function loadCandidates() {
@@ -200,10 +207,10 @@ export default function FirstRealDraftClient({
 
     loadCandidates();
     return () => { active = false; };
-  }, [initialProductId]);
+  }, [initialProductId, savedReviewMode]);
 
   useEffect(() => {
-    if (!selectedProductId) return;
+    if (!selectedProductId || savedReviewMode) return;
     const controller = new AbortController();
     const detailTimer = window.setTimeout(() => controller.abort(), 25_000);
     let active = true;
@@ -250,7 +257,7 @@ export default function FirstRealDraftClient({
       window.clearTimeout(detailTimer);
       controller.abort();
     };
-  }, [selectedProductId]);
+  }, [selectedProductId, savedReviewMode]);
 
   const selectedCandidate = useMemo(
     () => candidates.find((item) => item.canonical_product_id === selectedProductId) || null,
@@ -551,12 +558,10 @@ export default function FirstRealDraftClient({
   useEffect(() => {
     if (
       !loadSavedDraft
-      || !selectedCandidate
-      || detailLoading
-      || detailVerifiedProductId !== selectedProductId
+      || !selectedProductId
+      || (!savedReviewMode && (!selectedCandidate || detailLoading || detailVerifiedProductId !== selectedProductId || !selectedCandidate.has_saved_draft))
       || savedDraftLoading
       || result
-      || !selectedCandidate.has_saved_draft
       || savedDraftLoadStarted.current === selectedProductId
     ) return;
     savedDraftLoadStarted.current = selectedProductId;
@@ -564,7 +569,7 @@ export default function FirstRealDraftClient({
     // The read-only loader intentionally follows the same bounded one-shot
     // pattern as auto generation. It never calls OpenAI or writes storage.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadSavedDraft, selectedCandidate, detailLoading, detailVerifiedProductId, savedDraftLoading, result, selectedProductId]);
+  }, [loadSavedDraft, savedReviewMode, selectedCandidate, detailLoading, detailVerifiedProductId, savedDraftLoading, result, selectedProductId]);
 
   async function saveAndOpenNext() {
     if (saving || !selectedProductId || !draft || !reviewPass || savedCurrentResult) return;
@@ -639,7 +644,7 @@ export default function FirstRealDraftClient({
   const reviewPass = Boolean(structuralValidation?.ok && commercialValidation?.ok && keywordPlacementValidation?.ok);
 
   return <div className="min-w-0 space-y-6 overflow-x-hidden">
-    <section className="min-w-0 rounded-2xl border border-[rgba(212,178,106,.28)] bg-[rgba(212,178,106,.06)] p-4 sm:p-5">
+    {!savedReviewMode ? <section className="min-w-0 rounded-2xl border border-[rgba(212,178,106,.28)] bg-[rgba(212,178,106,.06)] p-4 sm:p-5">
       <div className="flex min-w-0 flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="min-w-0">
           <div className="eyebrow-gold">Каталог товаров для SEO-проверки</div>
@@ -659,10 +664,11 @@ export default function FirstRealDraftClient({
           <Fact label="Проверено здесь" value={String(testedCount)} />
         </div>
       </div>
-    </section>
+    </section> : null}
 
     {error ? <Notice tone="danger">{error}</Notice> : null}
     {workflowNotice ? <Notice tone="success">{workflowNotice}</Notice> : null}
+    {savedReviewMode && savedDraftLoading ? <Notice>Загружаю сохранённое описание товара…</Notice> : null}
 
     {recoverFailedDraft ? <section className="min-w-0 rounded-2xl border border-[rgba(212,178,106,.28)] bg-black/25 p-4 sm:p-5">
       <div className="eyebrow-gold">Восстановление несохранённого результата</div>
@@ -685,7 +691,7 @@ export default function FirstRealDraftClient({
       </button>
     </section> : null}
 
-    <div className="grid min-w-0 gap-5 2xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,.65fr)]">
+    {!savedReviewMode ? <div className="grid min-w-0 gap-5 2xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,.65fr)]">
       <section className="min-w-0 overflow-hidden rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)]">
         <div className="border-b border-[rgba(216,214,211,.10)] p-4 sm:p-5">
           <label className="block text-[9px] uppercase tracking-[.17em] text-[var(--smoke)]">Поиск товара</label>
@@ -849,7 +855,7 @@ export default function FirstRealDraftClient({
           </>}
         </section>
       </aside>
-    </div>
+    </div> : null}
 
     <div ref={resultRef} className="scroll-mt-5 min-w-0">
       {result ? <section className={`mb-5 rounded-2xl border p-5 ${draft
