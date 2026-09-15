@@ -20,3 +20,21 @@ test('a known search-query word order becomes natural copy without changing the 
   const repeated = validateSeoKeywordPlacement({ ...output, intro: 'Gold festival skirt and top set for everyone.' }, draft);
   assert.ok(repeated.issues.some(issue => issue.code === 'primary_exact_phrase_outside_owned_fields'));
 });
+
+
+test('harness fashion query keeps its intent in a grammatical photoshoot title', () => {
+  const keyword = 'leather body harness fashion';
+  const draft = { product_truth: { included_components: ['Harness'] }, keyword_roles: { primary: [{ keyword }], secondary: [] } } as unknown as SeoPackDraftContract;
+  const context = { primary_keyword: keyword, selected_events: ['photoshoot'], selected_materials: ['brown', 'leather'] };
+  const output = normalizeDeterministicSeoIdentity({
+    seo_title: '', h1: '',
+    meta_description: 'Brown leather body harness for fashion photoshoots, with a classic menswear character.',
+    intro: 'For men’s fashion photoshoots, this brown leather body harness has a classic character.',
+    pdp_blocks: [],
+  }, context);
+  assert.equal(output.seo_title, 'Brown Leather Body Harness for Fashion Photoshoots');
+  assert.equal(output.h1, output.seo_title);
+  assert.equal(validateSeoKeywordPlacement(output, draft).ok, true);
+  assert.equal(draft.keyword_roles.primary[0].keyword, keyword);
+  assert.deepEqual(normalizeDeterministicSeoIdentity(output, context), output);
+});

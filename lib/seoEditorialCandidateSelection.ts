@@ -185,9 +185,16 @@ export function normalizeDeterministicSeoIdentity<T>(
   // Do not append the same event twice when the reviewed Primary already owns
   // it. Known search-query word order is made grammatical without changing
   // the saved query, its intent, metrics or portfolio ownership.
-  const identity = containsWholePhrase(primary, selectedEvent)
-    ? primaryWithColor
-    : `${primaryWithColor} for ${formatSelectedEvent(selectedEvent)}`;
+  // This measured query is search shorthand. Keep its words and intent, but
+  // attach fashion to the selected occasion instead of calling the item
+  // "Harness Fashion for Photoshoot". No keyword or metric is changed.
+  const fashionPhotoshoot = /^leather body harness fashion$/i.test(primary)
+    && /^photoshoot$/i.test(selectedEvent);
+  const identity = fashionPhotoshoot
+    ? `${primaryWithColor.replace(/Harness Fashion$/i, 'Harness for Fashion')} Photoshoots`
+    : containsWholePhrase(primary, selectedEvent)
+      ? primaryWithColor
+      : `${primaryWithColor} for ${formatSelectedEvent(selectedEvent)}`;
   if (identity.length > 68) return output;
 
   const changed = output.seo_title !== identity || output.h1 !== identity;
