@@ -42,7 +42,7 @@ pilot-only pauses, while Product Truth, factual QA and final approval remain
 separate requirements.
 
 1. Exclude approved products and reuse existing unreviewed drafts.
-2. Take five saved decisions. Fetch exact current truth and offer for those IDs.
+2. Give the owner five Listing Master links. Require their explicit axis review and save before generation; old verified flags alone do not prove owner confirmation. Read back the new decision IDs and exact selected axes, including intentionally empty fields. Fetch current truth and offer for those IDs.
 3. Revalidate the saved shortlist, role/offer signatures and Primary ownership.
 4. Hold only the affected item if its facts or primary intent are unresolved.
 5. Give the writer the compact selected evidence and positive block frames.

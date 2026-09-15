@@ -29,6 +29,8 @@ import { applyOwnerReviewedStorefrontCorrections } from '@/lib/storefrontOwnerRe
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import ConfirmCompositionButton from './ConfirmCompositionButton';
 import VerifiedSaveButton from './VerifiedSaveButton';
+import FocusActionFeedback from './FocusActionFeedback';
+import { listingMasterFeedback } from '@/lib/listingMasterFeedback';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -186,10 +188,10 @@ export default async function ListingMasterPage({ searchParams }) {
   const active = applyAutoFocus(filters, selectedProduct);
   const keywordData = await loadKeywords(active, selectedProduct, keywordBankLoad.value);
   const rows = keywordData.rows.slice(0, DISPLAY_LIMIT);
-  const saved = savedMessage(filters.saved);
   const productStatus = productSeoStatus(selectedProduct, active, keywordData);
   const decisionReview = listingMasterDecisionReview(selectedProduct, active, rows);
   const decisionIsCurrent = decisionReview.isCurrent;
+  const saved = filters.saved === 'ok' && !decisionIsCurrent ? null : savedMessage(filters.saved);
   const primaryKeyword = rows.find((row) => row.role === 'primary') || null;
   console.info('[listing-master-load]', {
     product_ms: productLoad.durationMs,
@@ -373,7 +375,7 @@ async function saveDecisionAction(formData) {
       : 'ok';
   return {
     ok: true,
-    href: `${href}${href.includes('?') ? '&' : '?'}saved=${savedState}`,
+    href: `${href}${href.includes('?') ? '&' : '?'}saved=${savedState}#listing-actions`,
     requestId,
     decisionId: inserted.id,
   };
@@ -1019,7 +1021,7 @@ function FocusSearchForm({ product, filters, status, decisionReview }) {
     product?.truth?.optional_configurations,
     product?.truth?.source_variations,
   );
-  return <form key={formKey} action="/admin/listing-master" className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
+  return <form key={formKey} action="/admin/listing-master#listing-actions" className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
     <input type="hidden" name="product_id" value={product?.id || filters.productId || ''} /><input type="hidden" name="product_q" value={filters.productQ || ''} /><input type="hidden" name="product_section" value={filters.productSection || ''} /><input type="hidden" name="product_status" value={filters.productStatus || 'all'} /><input type="hidden" name="type" value={filters.type || 'all'} /><input type="hidden" name="focus_applied" value="1" />
     <input type="hidden" name="canonical_product_id" value={product?.id || ''} /><input type="hidden" name="product_slug" value={product?.slug || ''} /><input type="hidden" name="matched_etsy_listing_id" value={product?.etsyId || ''} /><input type="hidden" name="auto_focus_json" value={JSON.stringify(autoFocusSnapshot(product, filters.inferred || {}))} />
     <div className="flex items-center justify-between gap-3 mb-4"><div className="flex items-center gap-2 eyebrow-gold"><SlidersHorizontal size={14} /> Фокус товара</div><Chip tone={status.tone}>{status.label}</Chip></div>
@@ -1041,16 +1043,17 @@ function FocusSearchForm({ product, filters, status, decisionReview }) {
     </div> : null}
     <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-2"><div className="eyebrow-gold mb-3">Режим подбора слов</div><div className="grid gap-3 md:grid-cols-3">{STRATEGIES.map((s) => <CheckboxCard key={`${s}-${formKey}`} name="strategy" value={s} checked={strategyValues(filters.strategy).includes(s)} title={STRATEGY_LABELS[s]} note={STRATEGY_NOTES[s]} />)}</div><div className="mt-3 text-[11px] text-[var(--bone-dim)]">По умолчанию включены все три режима. Повторный клик снимает режим; фильтр применится только после кнопки ниже.</div></div>
     <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-4"><div className="eyebrow-gold mb-3">Поиск и минус-слова внутри SEO-ядра</div><div className="grid gap-3 md:grid-cols-[1fr_1fr]"><label><div className="eyebrow-dim mb-1.5">Доп. поиск</div><input name="q" defaultValue={filters.q} placeholder="например: armor, price, shipping" className="field" /></label><label><div className="eyebrow-dim mb-1.5">Минус-слова</div><input name="exclude" defaultValue={valuesOf(filters.exclude).join(', ')} placeholder="dance, bodysuit, neon" className="field" /></label></div></div>
-    <div className="mt-4 rounded-2xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.055)] p-4">
+    <div id="listing-actions" className="mt-4 scroll-mt-6 rounded-2xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.055)] p-4">
       <div className="text-[11px] leading-relaxed text-[var(--bone-dim)] mb-3">«Применить» только обновляет список для проверки. «Сохранить» записывает SEO-оси и проверяемый набор ключевых слов; состав товара при этом не изменяется.</div>
       {product?.truthBlockers?.length ? <div className="mb-3 rounded-xl border border-[rgba(212,178,106,.26)] bg-black/15 p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">
         Выбранные SEO-оси можно отдельно подтвердить как Product Truth. {compositionScope === 'canonical_listing'
           ? 'Для товара с вариантами они будут записаны как состав листинга; отдельные варианты и цены останутся в аудите.'
           : 'Для товара без выбора комплектации они будут записаны как неизменный состав.'}
       </div> : null}
+      <FocusActionFeedback key={formKey} {...listingMasterFeedback({ hasProduct: Boolean(product), decisionIsCurrent, statusCode: status.code, searchApplied: filters.focusApplied })} savedAt={product?.decision?.created_at} />
       <div className="flex flex-wrap gap-3"><button type="submit" className="btn-ghost"><SearchCheck size={13} /> Применить поиск слов</button>{product?.truthBlockers?.length ? <ConfirmCompositionButton action={confirmProductCompositionAction} disabled={!product} scope={compositionScope} /> : null}<VerifiedSaveButton action={saveDecisionAction} disabled={!product} /><Link href={product ? productHref(product, filters) : '/admin/listing-master'} className="btn-ghost">Сбросить товар/ДНК</Link>{product && status.code === 'ready' && decisionIsCurrent ? <Link className="btn-ghost" href={`/admin/seo-storefront-preview?product_id=${product.id}&generate=1`}>Дальше: сгенерировать и показать preview <ArrowUpRight size={13} /></Link> : null}</div>
       {product?.decision && !decisionIsCurrent ? <div className="mt-3 rounded-xl border border-[rgba(212,178,106,.26)] bg-black/15 p-3 text-[11px] leading-relaxed text-[var(--gold-warm)]">
-        <div>Старое keyword-решение не разрешает генерацию и не является SEO draft. Проверьте текущие SEO-оси и сохраните пересчитанные роли.</div>
+        <div>Показанный подбор отличается от сохранённого решения. Нажмите «Сохранить SEO-решение», чтобы зафиксировать изменения перед подготовкой текста.</div>
         {decisionReview?.blockers?.length ? <ul className="mt-2 space-y-1 text-[var(--bone-dim)]">{decisionReview.blockers.map((code) => <li key={code}>• {decisionInvalidationLabel(code)}</li>)}</ul> : null}
       </div> : null}
     </div>
@@ -1059,11 +1062,8 @@ function FocusSearchForm({ product, filters, status, decisionReview }) {
 function CheckboxChipGroup({ title, items, field, filters }) { const selected = valuesOf(filters[field]); return <div className="mb-4"><div className="eyebrow-dim mb-2">{title}</div><div className="flex flex-wrap gap-2">{items.map((item) => <label key={`${field}-${item}-${selected.includes(item) ? 'on' : 'off'}`} className="cursor-pointer"><input className="peer sr-only" type="checkbox" name={field} value={item} defaultChecked={selected.includes(item)} /><span className="inline-flex rounded-full border border-[rgba(216,214,211,.13)] bg-black/10 px-3 py-2 text-[10px] uppercase tracking-[0.15em] text-[var(--bone-dim)] peer-checked:border-[rgba(108,183,138,.55)] peer-checked:bg-[rgba(108,183,138,.11)] peer-checked:text-[#a9dfbd]">{labelFor(item)}</span></label>)}</div></div>; }
 function CheckboxCard({ name, value, checked, title, note }) { return <label className="cursor-pointer"><input className="peer sr-only" type="checkbox" name={name} value={value} defaultChecked={checked} /><span className="block rounded-2xl border border-[rgba(216,214,211,.12)] bg-black/15 p-3 peer-checked:border-[rgba(212,178,106,.60)] peer-checked:bg-[rgba(212,178,106,.11)]"><div className="text-bone text-[13px]">{title}</div><div className="mt-1.5 text-[10px] leading-relaxed text-[var(--bone-dim)]">{note}</div></span></label>; }
 function NextStepPanel({ product, keywordCount, saved, status }) {
-  const instruction = status?.code === 'blocked_product_truth'
-    ? 'Фокус и кандидаты можно сохранить как рабочее решение. Генерация останется закрыта, пока в Product Truth не подтверждены состав и исходные варианты товара.'
-    : status?.code === 'needs_keyword_review'
-      ? 'Проверь кандидатов и выбери Primary, который описывает весь продаваемый товар. Затем сохрани решение и переходи в генерацию.'
-      : 'Примени поиск слов, проверь Primary и Secondary, сохрани решение и переходи в генерацию и preview.';
+  const feedback = listingMasterFeedback({ hasProduct: Boolean(product), decisionIsCurrent: saved, statusCode: status?.code || 'no_product' });
+  const instruction = feedback.message;
   return <div className="rounded-2xl border border-[rgba(212,178,106,.20)] bg-[rgba(212,178,106,.045)] p-4"><div className="eyebrow-gold mb-2">Следующий шаг</div><p className="text-[12px] leading-relaxed text-[var(--bone-dim)]">{instruction}</p><div className="mt-3 flex flex-wrap gap-2"><Chip tone={product ? 'success' : 'warning'}>{product ? 'товар выбран' : 'выбери товар'}</Chip><Chip tone={keywordCount > 0 ? 'success' : 'warning'}>{keywordCount > 0 ? `${fmt(keywordCount)} слов` : 'нет слов'}</Chip><Chip tone={saved ? 'success' : 'warning'}>{saved ? 'решение сохранено' : 'нужно сохранить'}</Chip><Chip tone={status?.tone || 'neutral'}>{status?.label || 'статус не определён'}</Chip></div></div>;
 }
 function KeywordTable({ rows, error }) { return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden"><div className="grid grid-cols-[1.35fr_.42fr_.42fr_.52fr_.52fr_.70fr_.55fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.20em] text-[var(--smoke)]"><div>Ключ / роль</div><div>Совпадение</div><div>SEO</div><div>Спрос</div><div>Конкуренция</div><div>Сигнал</div><div>Почему</div></div><div className="divide-y divide-[rgba(216,214,211,.08)]">{rows.map((row, i) => { const signal = strategySignal(row); return <div key={`${row.keyword_norm || row.keyword}-${i}`} className="grid grid-cols-[1.35fr_.42fr_.42fr_.52fr_.52fr_.70fr_.55fr] gap-4 px-5 py-3 items-center hover:bg-[rgba(212,178,106,.035)]"><div><div className="text-bone text-[13px] leading-snug">{displayKeyword(row)}</div><div className="mt-1 flex flex-wrap gap-1.5"><Chip tone={keywordRoleTone(row.role)}>{keywordRoleLabel(row.role)}</Chip><Chip tone={toneByType(row.bank_bucket)}>{keywordUse(row)}</Chip>{row.match_label ? <Chip tone={row.match_label === 'точное' ? 'success' : 'gold'}>{row.match_label}</Chip> : null}</div></div><div className="font-price text-[20px] text-[#a9dfbd]">{row.match_score == null ? '—' : row.match_score}</div><div className="font-price text-[20px] text-[var(--gold-warm)]">{asText(row.score)}</div><div className="text-[12px] text-[var(--bone-dim)]">{fmt(row.avg_monthly_searches)}</div><div><Chip tone={String(row.competition || '').toUpperCase() === 'LOW' ? 'success' : String(row.competition || '').toUpperCase() === 'HIGH' ? 'warning' : 'neutral'}>{competitionLabel(row.competition)}</Chip></div><div><Chip tone={signal.tone}>{signal.label}</Chip></div><details className="text-[11px] leading-relaxed text-[var(--bone-dim)]"><summary className="cursor-pointer text-[var(--gold-warm)]">открыть</summary><div className="mt-2 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-2">{asText(row.match_reasons || row.source_clusters || row.source_files)}<br />Google: {fmt(row.avg_monthly_searches)} / {competitionLabel(row.competition)} · {asText(row.reason || row.notes, '')}</div></details></div>; })}{!rows.length && !error ? <div className="px-5 py-6 text-[13px] text-[var(--bone-dim)]">По текущим фильтрам слов не найдено. Сними часть фокуса или минус-слова.</div> : null}</div></div>; }
@@ -1351,7 +1351,7 @@ function autoFocusSnapshot(product, inferred) { return { inferred, product: prod
 function savedMessage(value) {
   if (value === 'blocked') return { tone: 'warning', text: 'Фокус и кандидаты сохранены. Генерация намеренно заблокирована: сначала нужно закрыть Product Truth этого товара.' };
   if (value === 'review') return { tone: 'warning', text: 'Фокус и кандидаты сохранены, но Primary ещё требует проверки перед генерацией.' };
-  if (value === 'ok') return { tone: 'success', text: 'Проверяемое решение сохранено. Product Truth закрыт, Primary найден; можно переходить к генерации и preview.' };
+  if (value === 'ok') return { tone: 'success', text: 'Оси и ключевые слова сохранены. Повторять выбор не нужно; можно готовить текст и проверять Preview.' };
   if (value === 'error') return { tone: 'warning', text: 'Решение не сохранилось. Нужно проверить серверный доступ к Supabase и журнал записи.' };
   return null;
 }
@@ -1405,7 +1405,7 @@ function decisionInvalidationLabel(code) {
     keyword_roles_changed_after_reaudit: 'список или роли ключевых слов изменились после повторной проверки',
     stale_option_snapshot: 'решение сохранено до фиксации текущего состава вариантов товара',
     manual_focus_contains_unsupported_component: 'старое решение трактовало SEO-оси как состав; его нужно один раз сохранить по новому контракту',
-    manual_focus_changed_after_save: 'текущий Product DNA / фокус отличается от сохранённого решения',
+    manual_focus_changed_after_save: 'выбранные на странице оси отличаются от последнего сохранения',
   };
   return labels[code] || String(code || 'неизвестная причина').replaceAll('_', ' ');
 }
