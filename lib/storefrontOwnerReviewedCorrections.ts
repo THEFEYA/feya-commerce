@@ -4,6 +4,13 @@ const SILVER_HARNESS_SET_ID = 'ce899f23-b983-4ede-ae81-3348757b1c15';
 const SILVER_MENS_WARRIOR_SET_ID = '4b0c8180-774d-4d5c-a12c-0864f305d1cb';
 const COSMIC_TOP_SKIRT_SET_ID = '657bd6d8-fbe1-4441-abad-f574e3380897';
 const COSMIC_TOP_OPTION_ID = '2a41b72b-4ce0-468f-b709-824d03b385e9';
+const BROWN_HARNESS_ID = 'de38a842-37c4-40a7-86b4-393341c4c9aa';
+// Original Primary color price rows, not three different component choices.
+const BROWN_HARNESS_COLORS = {
+  '4b56be10-1771-4a5c-9daa-6ae70e8650f0': { color: 'Brown', order: 1 },
+  'e689d3b4-acc1-4fa2-ad12-4463207fcdd9': { color: 'Black', order: 2 },
+  '9a3cd61f-e87f-4590-b39f-b143e75ca0f7': { color: 'Green', order: 3 },
+};
 
 const SILVER_HARNESS_SET_OPTIONS = {
   '7c29ac2a-8276-4ebd-a374-ffcf5fe31355': {
@@ -65,6 +72,9 @@ function configurationId(row: Record<string, any>) {
  * narrow, auditable correction to the current selector only.
  */
 export function applyOwnerReviewedStorefrontCorrections<T extends Record<string, any>>(product: T): T {
+  if (String(product?.canonical_product_id || '') === BROWN_HARNESS_ID) {
+    return correctBrownHarnessColors(product);
+  }
   if (String(product?.canonical_product_id || '') === COSMIC_TOP_SKIRT_SET_ID) {
     return correctCosmicTopSkirtSet(product);
   }
@@ -133,6 +143,39 @@ export function applyOwnerReviewedStorefrontCorrections<T extends Record<string,
     full_set_savings_percent: savings != null && componentSum > 0
       ? Math.round((savings / componentSum) * 10000) / 100
       : null,
+  };
+}
+
+/**
+ * Source price rows explicitly say Коричневый / Черный / Зеленый under
+ * Основной цвет. All belong to the same source-confirmed chest harness.
+ * Preserve every option ID, price and raw field. Brown is the page's default;
+ * configuration_color keeps the selector, swatch and price on one variant.
+ */
+function correctBrownHarnessColors<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const configurations = product.configurations.map((row: Record<string, any>) => {
+    const variant = BROWN_HARNESS_COLORS[configurationId(row)];
+    if (!variant) return row;
+    return {
+      ...row,
+      public_label: 'Harness',
+      component_code: 'harness',
+      component_family: 'Harness',
+      configuration_color: variant.color,
+      sort_order: variant.order,
+      needs_label_review: false,
+    };
+  });
+  if (!configurations.some((row: Record<string, any>) => row.configuration_color)) return product;
+  return {
+    ...product,
+    configurations,
+    color_options: configurations.filter((row: Record<string, any>) => row.configuration_color)
+      .sort((a: Record<string, any>, b: Record<string, any>) => a.sort_order - b.sort_order)
+      .map((row: Record<string, any>) => row.configuration_color),
+    canonical_color_label: 'Brown',
+    needs_label_review: configurations.some((row: Record<string, any>) => row.needs_label_review === true),
   };
 }
 

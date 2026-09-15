@@ -112,7 +112,10 @@ export function asMediaGallery(product: StorefrontProduct): StorefrontMedia[] {
 }
 export function optionLabel(option: StorefrontConfiguration, index = 0) {
   const preferred = option.public_label || option.configuration_label || option.configuration_name || option.option_value || option.title || option.label;
-  if (preferred) return publicOptionLabel(preferred, index);
+  if (preferred) {
+    const label = publicOptionLabel(preferred, index);
+    return option.configuration_color ? `${option.configuration_color} ${label}` : label;
+  }
   return `Option ${index + 1}`;
 }
 export function optionKey(option: StorefrontConfiguration, index = 0) {

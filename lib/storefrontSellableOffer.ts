@@ -178,7 +178,13 @@ export function resolveStorefrontSellableOffer(
   const defaultAggregate = aggregateOptions.find((option) => option.code === FULL_SET_CODE)
     || aggregateOptions[0]
     || null;
-  const defaultAtomic = atomicOptions.length === 1 ? atomicOptions[0] : null;
+  // Colour/size variants with identical included labels still sell one piece.
+  // Different quantities (Single/Pair of Leg Covers) remain unresolved until
+  // an actual selector choice is supplied.
+  const sameIncludedPiece = atomicOptions.length > 0 && atomicOptions.every(option => (
+    option.code === atomicOptions[0].code && option.label === atomicOptions[0].label
+  ));
+  const defaultAtomic = sameIncludedPiece ? atomicOptions[0] : null;
   const defaultOption = defaultAggregate || defaultAtomic;
   const defaultIncluded = defaultOption?.is_aggregate
     ? defaultOption.member_labels

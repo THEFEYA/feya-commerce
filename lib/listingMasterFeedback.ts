@@ -36,8 +36,10 @@ export function listingMasterFeedback(input: ProgressInput) {
     message: 'Сохранение подтверждено. Повторять выбор не нужно. Следующий шаг — подготовить текст и проверить Preview.',
   };
   if (input.statusCode === 'blocked_product_truth') return {
-    tone: 'warning', title: 'Нужно уточнить состав товара',
-    message: 'Оси можно сохранить. Перед генерацией нужно подтвердить продаваемый состав; выбор осей сам по себе его не меняет.',
+    tone: 'warning', title: input.axesSaved ? 'Оси сохранены — нужно уточнить состав товара' : 'Нужно уточнить состав товара',
+    message: input.axesSaved
+      ? 'Ваш выбор сохранён. Повторять оси не нужно. Перед подготовкой текста проверим состав и названия вариантов покупки.'
+      : 'Оси можно сохранить. Перед генерацией нужно подтвердить продаваемый состав; выбор осей сам по себе его не меняет.',
   };
   if (input.statusCode === 'needs_keyword_review' || input.statusCode === 'no_keywords') return {
     tone: 'warning', title: input.axesSaved ? 'Оси сохранены — нужно проверить Primary' : 'Нужно проверить подбор ключей',

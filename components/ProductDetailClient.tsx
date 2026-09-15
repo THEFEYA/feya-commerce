@@ -143,7 +143,7 @@ export function ProductDetailClient({
   const currency = activeConfig?.currency || p.currency || 'EUR';
   const total = sale * qty;
   const colors = colorOptions(p);
-  const selectedColor = colors[colorIdx] || colors[0] || 'Mirror';
+  const selectedColor = activeConfig?.configuration_color || colors[colorIdx] || colors[0] || 'Mirror';
   const slug = productSlug(p);
   const originalTitle = splitTitle(productTitle(p));
   const draftTitle = String(draft?.h1 || '').trim();
@@ -294,7 +294,11 @@ export function ProductDetailClient({
 
         <div className="mt-2">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Color · {selectedColor}</div><div className="eyebrow-dim">{colors.length || 1} shade</div></div>
-          <div className="flex gap-2">{colors.map((c, i) => <button key={c + i} onClick={() => setColorIdx(i)} className={`w-8 h-8 rounded-full border-2 ${i === colorIdx ? 'border-white' : 'border-[rgba(216,214,211,0.28)]'}`} style={colorStyle(c)} title={c} />)}</div>
+          <div className="flex gap-2">{colors.map((c, i) => <button key={c + i} onClick={() => {
+            const variantIndex = options.findIndex(option => option.configuration_color === c);
+            if (variantIndex >= 0) setConfigKey(optionKey(options[variantIndex], variantIndex));
+            else setColorIdx(i);
+          }} className={`w-8 h-8 rounded-full border-2 ${c === selectedColor ? 'border-white' : 'border-[rgba(216,214,211,0.28)]'}`} style={colorStyle(c)} title={c} />)}</div>
         </div>
 
         <div className="mt-2">

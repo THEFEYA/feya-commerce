@@ -16,6 +16,32 @@ const product = {
   ],
 };
 
+test('harness colour variants retain distinct prices but include just one harness', () => {
+  const source = {
+    canonical_product_id: 'de38a842-37c4-40a7-86b4-393341c4c9aa',
+    configurations: [
+      { configuration_id: 'e689d3b4-acc1-4fa2-ad12-4463207fcdd9', public_label: 'Option', component_code: null, component_family: null, sort_order: 1, display_price_amount: 130.35, raw_option_value: 'Черный', needs_label_review: true },
+      { configuration_id: '9a3cd61f-e87f-4590-b39f-b143e75ca0f7', public_label: 'Option', component_code: null, component_family: null, sort_order: 2, display_price_amount: 140.01, raw_option_value: 'Зеленый', needs_label_review: true },
+      { configuration_id: '4b56be10-1771-4a5c-9daa-6ae70e8650f0', public_label: 'Option', component_code: null, component_family: null, sort_order: 3, display_price_amount: 159.31, raw_option_value: 'Коричневый', needs_label_review: true },
+    ],
+  };
+  const before = JSON.stringify(source);
+  const corrected = applyOwnerReviewedStorefrontCorrections(source);
+  const offer = resolveStorefrontSellableOffer(corrected);
+  assert.equal(offer.status, 'ready');
+  assert.deepEqual(offer.component_codes, ['harness']);
+  assert.deepEqual(offer.default_included_components, ['Harness']);
+  assert.equal(offer.atomic_options.length, 3);
+  assert.equal(offer.aggregate_options.length, 0);
+  assert.deepEqual(corrected.configurations.map(row => [row.configuration_color, row.display_price_amount]), [['Black', 130.35], ['Green', 140.01], ['Brown', 159.31]]);
+  assert.equal([...corrected.configurations].sort((a,b)=>a.sort_order-b.sort_order)[0].configuration_color, 'Brown');
+  assert.deepEqual(corrected.configurations.map(row => [row.configuration_id, row.raw_option_value]), source.configurations.map(row => [row.configuration_id, row.raw_option_value]));
+  assert.equal(JSON.stringify(source), before);
+  assert.deepEqual(applyOwnerReviewedStorefrontCorrections(corrected), corrected);
+  const unknown = applyOwnerReviewedStorefrontCorrections({ ...source, configurations: [...source.configurations, {configuration_id:'unknown',public_label:'Option',needs_label_review:true}] });
+  assert.equal(resolveStorefrontSellableOffer(unknown).status, 'hold');
+});
+
 test('owner-confirmed cosmic top replaces its integrated shoulder label without changing options or prices', () => {
   const original = {
     canonical_product_id: '657bd6d8-fbe1-4441-abad-f574e3380897',

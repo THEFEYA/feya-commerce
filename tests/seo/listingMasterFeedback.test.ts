@@ -2,6 +2,15 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { listingMasterFeedback, listingMasterSavedAxesMatch } from '../../lib/listingMasterFeedback.ts';
 
+test('saved axes are acknowledged even while a sellable option is unresolved', () => {
+  const saved = listingMasterFeedback({ hasProduct: true, decisionIsCurrent: false, axesSaved: true, statusCode: 'blocked_product_truth' });
+  assert.equal(saved.tone, 'warning');
+  assert.match(saved.title, /Оси сохранены/);
+  assert.match(saved.message, /Повторять оси не нужно/);
+  const unsaved = listingMasterFeedback({ hasProduct: true, decisionIsCurrent: false, axesSaved: false, statusCode: 'blocked_product_truth' });
+  assert.doesNotMatch(unsaved.title, /сохранены/);
+});
+
 test('saved axes remain confirmed while Primary is pending, but edited axes do not', () => {
   const saved = { selection_verified: true, component: ['top', 'skirt'], event: ['festival'], persona: [], strategies: ['niche', 'demand'], keyword_type: 'all' };
   const active = { component: 'skirt,top', event: 'festival', persona: '', strategy: 'demand,niche', type: 'all' };
