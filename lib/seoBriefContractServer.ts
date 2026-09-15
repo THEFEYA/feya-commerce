@@ -95,7 +95,7 @@ const STOREFRONT_OFFER_SELECT = [
   'configurations',
 ].join(',');
 
-const DECISION_SELECT = 'canonical_product_id,product_slug,matched_etsy_listing_id,auto_focus_json,manual_focus_json,selected_strategy,selected_keywords_json,decision_status,updated_at,created_at';
+const DECISION_SELECT = 'id,canonical_product_id,product_slug,matched_etsy_listing_id,auto_focus_json,manual_focus_json,selected_strategy,selected_keywords_json,decision_status,updated_at,created_at';
 const LATEST_DRAFT_SELECT = 'id,canonical_product_id,matched_etsy_listing_id,product_slug,status,review_status,similarity_check_snapshot,qa_self_report,updated_at,created_at';
 const APPROVED_KEYWORD_SELECT = [
   'id',
@@ -172,6 +172,7 @@ export async function buildSeoBriefContractBundle(productId: string) {
   );
   const seoPackDraft = {
     ...identityDraft,
+    source_decision_id: source.decision?.id || null,
     portfolio_strategy: portfolioStrategy,
   };
   const aiAgentInput = buildSeoAgentInputFromDraft(seoPackDraft, { portfolio_strategy: portfolioStrategy });

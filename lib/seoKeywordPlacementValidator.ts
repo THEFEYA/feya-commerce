@@ -1,3 +1,4 @@
+import { naturalKeywordPhrase } from './seoNaturalKeywordPhrase.ts';
 import type { SeoKeywordRoleItem, SeoPackDraftContract } from '@/lib/seoPackContract';
 import { classifySeoProductPresentation, hasWholeProductScope } from './seoProductPresentation.ts';
 
@@ -70,7 +71,7 @@ export function validateSeoKeywordPlacement(
     }
     const exactOutsideOwnedFields = Object.entries(fields)
       .filter(([field]) => !['seo_title', 'h1', 'meta_description'].includes(field))
-      .filter(([, fieldText]) => exactPhraseCount(item.keyword, fieldText) > 0)
+      .filter(([, fieldText]) => primaryPhraseCount(item.keyword, fieldText) > 0)
       .map(([field]) => field);
     if (exactOutsideOwnedFields.length) {
       issues.push(blockerIssue(
@@ -80,7 +81,7 @@ export function validateSeoKeywordPlacement(
       ));
     }
     const duplicatedOwnedFields = ['seo_title', 'h1', 'meta_description']
-      .filter((field) => exactPhraseCount(item.keyword, fields[field] || '') > 1);
+      .filter((field) => primaryPhraseCount(item.keyword, fields[field] || '') > 1);
     if (duplicatedOwnedFields.length) {
       issues.push(blockerIssue(
         'primary_exact_phrase_repeated_within_owned_field',
@@ -256,7 +257,7 @@ function placementRow(
   const keyword = text(row?.keyword || row?.keyword_norm);
   const semanticRole = ['secondary', 'support', 'image_alt'].includes(role);
   const exactMatchedFields = Object.entries(fields)
-    .filter(([, fieldText]) => phraseRepresented(keyword, fieldText))
+    .filter(([field, fieldText]) => phraseRepresented(keyword, fieldText) || (role === 'primary' && ['seo_title', 'h1', 'meta_description'].includes(field) && phraseRepresented(naturalKeywordPhrase(keyword), fieldText)))
     .map(([field]) => field);
   const semanticPrimaryBodyFields = role === 'primary'
     ? displayUnits
@@ -278,8 +279,13 @@ function placementRow(
     keyword,
     role,
     fields: matchedFields,
-    exact_occurrences: Object.values(fields).reduce((count, fieldText) => count + exactPhraseCount(keyword, fieldText), 0),
+    exact_occurrences: Object.values(fields).reduce((count, fieldText) => count + (role === 'primary' ? primaryPhraseCount(keyword, fieldText) : exactPhraseCount(keyword, fieldText)), 0),
   };
+}
+
+function primaryPhraseCount(keyword: string, value: string) {
+  return [...new Set([keyword.toLowerCase(), naturalKeywordPhrase(keyword).toLowerCase()])]
+    .reduce((count, phrase) => count + exactPhraseCount(phrase, value), 0);
 }
 
 function phraseRepresented(keyword: string, value: string) {

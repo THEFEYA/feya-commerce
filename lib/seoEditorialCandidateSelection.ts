@@ -1,3 +1,5 @@
+import { naturalKeywordPhrase } from './seoNaturalKeywordPhrase.ts';
+
 type ValidationIssue = {
   code?: unknown;
   severity?: unknown;
@@ -176,12 +178,13 @@ export function normalizeDeterministicSeoIdentity<T>(
     .find((value) => OPERATOR_COLOR_FOCUS_VALUES.has(value.toLowerCase()))
     || '';
   const supportedColor = productColor || selectedColor;
-  const primaryWithColor = supportedColor && !containsWholePhrase(primary, supportedColor)
-    ? `${toTitleCase(supportedColor)} ${toTitleCase(primary)}`
-    : toTitleCase(primary);
+  const displayPrimary = naturalKeywordPhrase(primary);
+  const primaryWithColor = supportedColor && !containsWholePhrase(displayPrimary, supportedColor)
+    ? `${toTitleCase(supportedColor)} ${toTitleCase(displayPrimary)}`
+    : toTitleCase(displayPrimary);
   // Do not append the same event twice when the reviewed Primary already owns
-  // it (for example, "skirt and top set festival"). The exact Primary remains
-  // present while the customer-facing identity avoids "Festival for Festivals".
+  // it. Known search-query word order is made grammatical without changing
+  // the saved query, its intent, metrics or portfolio ownership.
   const identity = containsWholePhrase(primary, selectedEvent)
     ? primaryWithColor
     : `${primaryWithColor} for ${formatSelectedEvent(selectedEvent)}`;
