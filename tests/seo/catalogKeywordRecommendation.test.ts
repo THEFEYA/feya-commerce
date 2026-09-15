@@ -14,6 +14,33 @@ const baseMetric = {
   score: 70,
 };
 
+test('deselected shoulders cannot return from composition, and removing rave invalidates its reserved intent', () => {
+  const result = recommendCatalogKeywords({
+    product: {
+      canonical_product_id: '657bd6d8-fbe1-4441-abad-f574e3380897',
+      card_title: 'Cosmic Festival Outfit with Top & Skirt, Metallic Harness Set, Rave Wear',
+      source_category_label: 'costume_component_or_set',
+      sellable_offer_components: ['Top', 'Skirt', 'Shoulders'],
+      canonical_color_label: 'Silver',
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1',
+      component: ['top', 'harness', 'skirt'],
+      sellable_component_axes: ['top', 'skirt'],
+      search_only_component_axes: ['harness'],
+      material: ['silver', 'metallic'], event: ['festival', 'photoshoot'], style: ['cosmic', 'futuristic'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'metallic top and skirt set', bank_bucket: 'product', avg_monthly_searches: 10 },
+      { ...baseMetric, keyword: 'silver shoulder skirt outfit', bank_bucket: 'product', avg_monthly_searches: 100000 },
+      { ...baseMetric, keyword: 'silver shoulders', bank_bucket: 'product', avg_monthly_searches: 100000 },
+      { ...baseMetric, keyword: 'rave harness outfit', bank_bucket: 'product', avg_monthly_searches: 30 },
+    ],
+  });
+  assert.equal(result.keywords.find(row => row.role === 'primary')?.keyword, 'metallic top and skirt set');
+  assert.equal(result.keywords.some(row => /shoulder|rave/.test(String(row.keyword))), false);
+});
+
 test('auto recommendation applies Product Truth mismatch gates before search volume', () => {
   const result = recommendCatalogKeywords({
     product: {

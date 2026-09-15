@@ -2,6 +2,8 @@
 
 const SILVER_HARNESS_SET_ID = 'ce899f23-b983-4ede-ae81-3348757b1c15';
 const SILVER_MENS_WARRIOR_SET_ID = '4b0c8180-774d-4d5c-a12c-0864f305d1cb';
+const COSMIC_TOP_SKIRT_SET_ID = '657bd6d8-fbe1-4441-abad-f574e3380897';
+const COSMIC_TOP_OPTION_ID = '2a41b72b-4ce0-468f-b709-824d03b385e9';
 
 const SILVER_HARNESS_SET_OPTIONS = {
   '7c29ac2a-8276-4ebd-a374-ffcf5fe31355': {
@@ -63,6 +65,9 @@ function configurationId(row: Record<string, any>) {
  * narrow, auditable correction to the current selector only.
  */
 export function applyOwnerReviewedStorefrontCorrections<T extends Record<string, any>>(product: T): T {
+  if (String(product?.canonical_product_id || '') === COSMIC_TOP_SKIRT_SET_ID) {
+    return correctCosmicTopSkirtSet(product);
+  }
   if (String(product?.canonical_product_id || '') === SILVER_MENS_WARRIOR_SET_ID) {
     return correctSilverMensWarriorSet(product);
   }
@@ -129,6 +134,31 @@ export function applyOwnerReviewedStorefrontCorrections<T extends Record<string,
       ? Math.round((savings / componentSum) * 10000) / 100
       : null,
   };
+}
+
+/**
+ * Owner clarification, 2026-09-15: the option imported as Shoulders is the
+ * complete strapped top. Its small shoulder details are integrated, not a
+ * separate product part. This correction follows that explicit clarification,
+ * not a checkbox or photo inference. Preserve the option identity and prices.
+ */
+function correctCosmicTopSkirtSet<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  if (!product.configurations.some((row: Record<string, any>) => configurationId(row) === COSMIC_TOP_OPTION_ID)) return product;
+  const configurations = product.configurations.map((row: Record<string, any>) => {
+    if (configurationId(row) === COSMIC_TOP_OPTION_ID) {
+      return { ...row, public_label: 'Top', component_code: 'top', component_family: 'Top', needs_label_review: false };
+    }
+    if (!Array.isArray(row.bundle_component_codes) || !row.bundle_component_codes.includes('shoulders')) return row;
+    return {
+      ...row,
+      bundle_component_codes: row.bundle_component_codes.map((code: string) => code === 'shoulders' ? 'top' : code),
+      ...(Array.isArray(row.bundle_component_labels) ? {
+        bundle_component_labels: row.bundle_component_labels.map((label: string) => /^shoulders?$/i.test(label) ? 'Top' : label),
+      } : {}),
+    };
+  });
+  return { ...product, configurations };
 }
 
 /**

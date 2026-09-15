@@ -137,6 +137,18 @@ const EXPLICIT_PRODUCT_DETAIL_TERMS = ['chain', 'coin', 'feather'];
 // proof that a separate Armor component is included.
 const UMBRELLA_COMPONENT_FAMILIES = new Set(['armor']);
 
+// Only families represented by a selectable Listing Master chip are bounded
+// here. A real dress page can still use its identity: the form has no Dress
+// chip. Anatomical aliases follow their parent chip rather than a substring.
+const COMPONENT_SEARCH_AXIS_FAMILIES: Record<string, string[]> = {
+  shoulders: ['shoulders'], corset: ['corset'], bra: ['bra'],
+  top: ['top', 'crop top'], harness: ['harness'], bodysuit: ['bodysuit'],
+  skirt: ['skirt'], panties: ['panties'], arms: ['arms', 'bracelet'],
+  legs: ['legs', 'garters'], mask: ['mask'],
+  headpiece: ['headpiece', 'crown', 'halo', 'helmet', 'horns'],
+  choker: ['choker'], wings: ['wings'], spine: ['spine'], tail: ['tail'],
+};
+
 // A source-category entity can have a more specific public subtype in the
 // leading product identity. These relations describe naming scope only; they
 // never add a component to the current sellable offer.
@@ -707,6 +719,11 @@ function scoreRow(
     && hasWholeProductScope(keyword, profile.presentation.components);
 
   const componentMismatch = keywordComponents.some((family) => !supportedComponentFamilies.includes(family));
+  const deselectedComponentAxis = profile.usesSearchAxisContract
+    && Object.values(COMPONENT_SEARCH_AXIS_FAMILIES).some((families) => (
+      !profile.searchAxisFamilies.some((family) => families.includes(family))
+      && keywordComponents.some((family) => families.includes(family))
+    ));
   const colorMismatch = keywordColors.length > 0
     && profile.colors.length > 0
     && keywordColors.some((family) => !profile.colors.includes(family));
@@ -751,6 +768,7 @@ function scoreRow(
   let rejectReason: string | null = null;
   if (incompatibleDomain) rejectReason = 'incompatible_commerce_domain';
   else if (excludedMatch) rejectReason = 'excluded_keyword_term';
+  else if (deselectedComponentAxis) rejectReason = 'component_axis_not_selected';
   else if (!supportedBucket) rejectReason = 'unsupported_page_bucket';
   else if (anatomicalComponentMismatch) rejectReason = 'anatomical_component_mismatch';
   else if (unsupportedSizePositioning) rejectReason = 'unsupported_size_positioning';

@@ -1,6 +1,17 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { listingMasterFeedback } from '../../lib/listingMasterFeedback.ts';
+import { listingMasterFeedback, listingMasterSavedAxesMatch } from '../../lib/listingMasterFeedback.ts';
+
+test('saved axes remain confirmed while Primary is pending, but edited axes do not', () => {
+  const saved = { selection_verified: true, component: ['top', 'skirt'], event: ['festival'], persona: [], strategies: ['niche', 'demand'], keyword_type: 'all' };
+  const active = { component: 'skirt,top', event: 'festival', persona: '', strategy: 'demand,niche', type: 'all' };
+  assert.equal(listingMasterSavedAxesMatch(saved, active), true);
+  assert.equal(listingMasterSavedAxesMatch(saved, { ...active, component: 'shoulders,skirt' }), false);
+  const feedback = listingMasterFeedback({ hasProduct: true, decisionIsCurrent: false, axesSaved: true, statusCode: 'needs_keyword_review' });
+  assert.match(feedback.title, /Оси сохранены/);
+  assert.match(feedback.message, /Повторять оси не нужно/);
+  assert.equal(feedback.tone, 'warning');
+});
 
 test('a saved, current decision advances to preview instead of requesting another save', () => {
   const feedback = listingMasterFeedback({ hasProduct: true, decisionIsCurrent: true, statusCode: 'ready' });

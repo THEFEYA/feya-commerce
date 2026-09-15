@@ -76,5 +76,10 @@ The saved decision records selector-backed component axes separately from search
 
 For a visually coherent `top + skirt` ensemble, an evidence-backed phrase such as `carnival dress` may be retained only as indirect discovery vocabulary when the source identity uses that wording. Customer copy must still call the sold product a top-and-skirt set/outfit and must never claim a one-piece dress or place `Dress` in What's Included.
 
+## R23. Deselected component axes do not return through imported composition
+Under the versioned SEO search-axis contract, an unchecked component chip excludes queries for that component from keyword retrieval, even when the part physically exists in the sellable offer. Anatomical child names follow their selectable parent (for example bracelets follow Arms). This does not remove sold parts from the selector or What's Included. A product identity without a corresponding checkbox, such as Dress, remains governed by its factual identity gates.
+
+The owner clarified that the small shoulder details on product 4303866388 belong to its complete strapped top; the imported Shoulders option is therefore corrected to Top as one existing item, preserving its option ID and prices. This explicit factual clarification is separate from unchecking the SEO axis. Saved axes must be visibly acknowledged even when keyword readiness is still pending.
+
 ## Process rule
 Every owner review is captured the same way: complaint → named rule → committed here → reflected in prompts/validators. Cumulative and versioned.

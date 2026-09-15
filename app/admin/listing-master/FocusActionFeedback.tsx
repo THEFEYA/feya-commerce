@@ -8,9 +8,10 @@ type Props = {
   title: string;
   message: string;
   savedAt?: string;
+  axesSaved?: boolean;
 };
 
-export default function FocusActionFeedback({ tone, title, message, savedAt }: Props) {
+export default function FocusActionFeedback({ tone, title, message, savedAt, axesSaved }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [dirty, setDirty] = useState(false);
   const [applying, setApplying] = useState(false);
@@ -41,6 +42,6 @@ export default function FocusActionFeedback({ tone, title, message, savedAt }: P
     className={`mb-3 rounded-xl border p-3 text-[12px] leading-relaxed ${success ? 'border-green-400/40 bg-green-400/10 text-green-200' : 'border-amber-300/30 bg-amber-300/5 text-amber-100'}`}>
     <div className="flex items-center gap-2 font-semibold"><Icon size={16} className={applying ? 'animate-spin' : ''} />{heading}</div>
     <p className="mt-1">{detail}</p>
-    {success && savedAt ? <p className="mt-1 text-[11px] opacity-80">Сохранено: {new Intl.DateTimeFormat('ru-RU', { dateStyle: 'short', timeStyle: 'short', timeZone: 'UTC' }).format(new Date(savedAt))} UTC</p> : null}
+    {!dirty && !applying && (success || axesSaved) && savedAt ? <p className="mt-1 flex items-center gap-1 text-[11px] text-green-200"><CheckCircle2 size={13} />Оси сохранены: {new Intl.DateTimeFormat('ru-RU', { dateStyle: 'short', timeStyle: 'short', timeZone: 'UTC' }).format(new Date(savedAt))} UTC</p> : null}
   </div>;
 }

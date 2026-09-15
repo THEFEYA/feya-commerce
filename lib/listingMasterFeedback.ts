@@ -3,7 +3,24 @@ type ProgressInput = {
   decisionIsCurrent: boolean;
   statusCode: string;
   searchApplied?: boolean;
+  axesSaved?: boolean;
 };
+
+/** Persistence of the owner's choices is independent of keyword readiness. */
+export function listingMasterSavedAxesMatch(saved: Record<string, any> | null, active: Record<string, any>) {
+  if (!saved || saved.selection_verified !== true) return false;
+  const list = (value: unknown) => [...new Set((Array.isArray(value) ? value : [value])
+    .flatMap(item => String(item || '').split(','))
+    .map(item => item.trim().toLowerCase()).filter(Boolean))].sort();
+  const signature = (focus: Record<string, any>) => JSON.stringify({
+    ...Object.fromEntries(['component', 'material', 'event', 'style', 'persona', 'audience', 'exclude']
+      .map(key => [key, list(focus[key])])),
+    strategies: list(focus.strategies || focus.strategy),
+    q: String(focus.q || '').trim().toLowerCase().replace(/\s+/g, ' '),
+    keyword_type: focus.keyword_type || focus.type || 'all',
+  });
+  return signature(saved) === signature(active);
+}
 
 export function listingMasterFeedback(input: ProgressInput) {
   if (input.statusCode === 'data_unavailable') return {
@@ -23,8 +40,10 @@ export function listingMasterFeedback(input: ProgressInput) {
     message: 'Оси можно сохранить. Перед генерацией нужно подтвердить продаваемый состав; выбор осей сам по себе его не меняет.',
   };
   if (input.statusCode === 'needs_keyword_review' || input.statusCode === 'no_keywords') return {
-    tone: 'warning', title: 'Нужно проверить подбор ключей',
-    message: 'Не найден подходящий Primary для всего товара. Оси можно сохранить; текст подготовим после проверки ключей.',
+    tone: 'warning', title: input.axesSaved ? 'Оси сохранены — нужно проверить Primary' : 'Нужно проверить подбор ключей',
+    message: input.axesSaved
+      ? 'Ваш выбор сохранён. Повторять оси не нужно. Подбор ещё не содержит подходящего Primary для всего товара; это проверим перед подготовкой текста.'
+      : 'Не найден подходящий Primary для всего товара. Оси можно сохранить; текст подготовим после проверки ключей.',
   };
   return {
     tone: 'warning',

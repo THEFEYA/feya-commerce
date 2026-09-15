@@ -30,7 +30,7 @@ import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseService
 import ConfirmCompositionButton from './ConfirmCompositionButton';
 import VerifiedSaveButton from './VerifiedSaveButton';
 import FocusActionFeedback from './FocusActionFeedback';
-import { listingMasterFeedback } from '@/lib/listingMasterFeedback';
+import { listingMasterFeedback, listingMasterSavedAxesMatch } from '@/lib/listingMasterFeedback';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -1053,7 +1053,7 @@ function FocusSearchForm({ product, filters, status, decisionReview }) {
           ? 'Для товара с вариантами они будут записаны как состав листинга; отдельные варианты и цены останутся в аудите.'
           : 'Для товара без выбора комплектации они будут записаны как неизменный состав.'}
       </div> : null}
-      <FocusActionFeedback key={formKey} {...listingMasterFeedback({ hasProduct: Boolean(product), decisionIsCurrent, statusCode: status.code, searchApplied: filters.focusApplied })} savedAt={product?.decision?.created_at} />
+      <FocusActionFeedback key={formKey} {...listingMasterFeedback({ hasProduct: Boolean(product), decisionIsCurrent, statusCode: status.code, searchApplied: filters.focusApplied, axesSaved: decisionReview?.axesSaved })} axesSaved={decisionReview?.axesSaved} savedAt={product?.decision?.created_at} />
       <div className="flex flex-wrap gap-3"><button type="submit" className="btn-ghost"><SearchCheck size={13} /> Применить поиск слов</button>{product?.truthBlockers?.length && status.code !== 'data_unavailable' ? <ConfirmCompositionButton action={confirmProductCompositionAction} disabled={!product} scope={compositionScope} /> : null}<VerifiedSaveButton action={saveDecisionAction} disabled={!product} /><Link href={product ? productHref(product, filters) : '/admin/listing-master'} className="btn-ghost">Сбросить товар/ДНК</Link>{product && status.code === 'ready' && decisionIsCurrent ? <Link className="btn-ghost" href={`/admin/seo-storefront-preview?product_id=${product.id}&generate=1`}>Дальше: сгенерировать и показать preview <ArrowUpRight size={13} /></Link> : null}</div>
       {product?.decision && !decisionIsCurrent && status.code !== 'data_unavailable' ? <div className="mt-3 rounded-xl border border-[rgba(212,178,106,.26)] bg-black/15 p-3 text-[11px] leading-relaxed text-[var(--gold-warm)]">
         <div>Показанный подбор отличается от сохранённого решения. Нажмите «Сохранить SEO-решение», чтобы зафиксировать изменения перед подготовкой текста.</div>
@@ -1181,6 +1181,7 @@ function listingMasterDecisionReview(product, filters, keywordRows) {
   }
   return {
     isCurrent: blockers.length === 0,
+    axesSaved: listingMasterSavedAxesMatch(savedFocus, activeFocus),
     blockers: [...new Set(blockers)],
   };
 }

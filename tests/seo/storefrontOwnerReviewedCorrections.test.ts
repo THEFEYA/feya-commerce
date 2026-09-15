@@ -16,6 +16,27 @@ const product = {
   ],
 };
 
+test('owner-confirmed cosmic top replaces its integrated shoulder label without changing options or prices', () => {
+  const original = {
+    canonical_product_id: '657bd6d8-fbe1-4441-abad-f574e3380897',
+    configurations: [
+      { configuration_id: '2a41b72b-4ce0-468f-b709-824d03b385e9', public_label: 'Shoulders', component_code: 'shoulders', component_family: 'Shoulders', display_price_amount: 130.28, raw_option_value: 'Плечи' },
+      { configuration_id: '0b545588-0b9a-4fe3-a998-d412c97561c1', public_label: 'Skirt', component_code: 'skirt', component_family: 'Bottom', display_price_amount: 144.76 },
+      { configuration_id: 'f61b93dd-811a-437b-9594-d37867041107', public_label: 'Full Set', component_code: 'full_set', is_full_set: true, bundle_component_codes: ['shoulders', 'skirt'], bundle_component_labels: ['Shoulders', 'Skirt'], display_price_amount: 207.36 },
+    ],
+  };
+  const before = JSON.stringify(original);
+  const corrected = applyOwnerReviewedStorefrontCorrections(original);
+  const offer = resolveStorefrontSellableOffer(corrected);
+  assert.deepEqual(offer.default_included_components, ['Top', 'Skirt']);
+  assert.deepEqual(offer.component_codes, ['skirt', 'top']);
+  assert.equal(offer.status, 'ready');
+  assert.deepEqual(corrected.configurations.map(row => [row.configuration_id, row.display_price_amount]), original.configurations.map(row => [row.configuration_id, row.display_price_amount]));
+  assert.equal(corrected.configurations[0].raw_option_value, 'Плечи');
+  assert.equal(JSON.stringify(original), before);
+  assert.deepEqual(applyOwnerReviewedStorefrontCorrections(corrected), corrected);
+});
+
 test('restores the source-proven Top Harness and complete Full Set without editing raw evidence', () => {
   const corrected = applyOwnerReviewedStorefrontCorrections(product);
   const topHarness = corrected.configurations.find((row) => row.configuration_id === 'ed3b7548-e8b4-4342-8dbe-5093d70a9cfc');
