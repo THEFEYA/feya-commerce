@@ -38,3 +38,14 @@ test('harness fashion query keeps its intent in a grammatical photoshoot title',
   assert.equal(draft.keyword_roles.primary[0].keyword, keyword);
   assert.deepEqual(normalizeDeterministicSeoIdentity(output, context), output);
 });
+
+test('two confirmed colors read naturally while preserving the measured Primary', () => {
+  const context = { primary_keyword: 'black stage outfit', selected_events: ['stage'], selected_materials: ['gold', 'black', 'fabric', 'vegan leather'], product_color: 'Gold' };
+  const output = normalizeDeterministicSeoIdentity({ seo_title: '', h1: '', generation_notes: [] }, context);
+  assert.equal(output.seo_title, 'Gold and Black Stage Outfit');
+  assert.equal(output.h1, output.seo_title);
+  assert.ok(output.seo_title.toLowerCase().includes(context.primary_keyword));
+  assert.deepEqual(normalizeDeterministicSeoIdentity(output, context), output);
+  const ordinary = normalizeDeterministicSeoIdentity({ seo_title: '', h1: '' }, { ...context, primary_keyword: 'stage performance outfit' });
+  assert.equal(ordinary.seo_title, 'Gold Stage Performance Outfit');
+});

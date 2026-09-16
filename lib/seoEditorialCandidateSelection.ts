@@ -179,8 +179,13 @@ export function normalizeDeterministicSeoIdentity<T>(
     || '';
   const supportedColor = productColor || selectedColor;
   const displayPrimary = naturalKeywordPhrase(primary);
+  const selectedPrimaryColor = normalizeIdentityValues(context.selected_materials)
+    .map(normalizeIdentityColor)
+    .find((value) => OPERATOR_COLOR_FOCUS_VALUES.has(value.toLowerCase())
+      && value.toLowerCase() !== supportedColor.toLowerCase()
+      && containsWholePhrase(displayPrimary, value));
   const primaryWithColor = supportedColor && !containsWholePhrase(displayPrimary, supportedColor)
-    ? `${toTitleCase(supportedColor)} ${toTitleCase(displayPrimary)}`
+    ? `${toTitleCase(supportedColor)}${selectedPrimaryColor ? ' and' : ''} ${toTitleCase(displayPrimary)}`
     : toTitleCase(displayPrimary);
   // Do not append the same event twice when the reviewed Primary already owns
   // it. Known search-query word order is made grammatical without changing
