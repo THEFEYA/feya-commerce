@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { validateSeoKeywordPlacement } from '../../lib/seoKeywordPlacementValidator.ts';
+import { hasWholeProductScope } from '../../lib/seoProductPresentation.ts';
 import type { SeoPackDraftContract } from '../../lib/seoPackContract.ts';
 
 function contract(keyword = 'gold shoulder armor'): SeoPackDraftContract {
@@ -43,6 +44,27 @@ test('passes a naturally distributed primary keyword', () => {
   const result = validateSeoKeywordPlacement(output(), contract());
   assert.equal(result.ok, true);
   assert.deepEqual(result.placements[0].fields.slice(0, 4), ['seo_title', 'h1', 'meta_description', 'intro']);
+});
+
+test('keeps a confirmed character bodysuit costume as the whole PDP identity', () => {
+  const draft = contract('witch bodysuit costume');
+  draft.product_truth = {
+    included_components: ['Bodysuit', 'Shoulders', 'Headpiece', 'Leg Covers'],
+  } as SeoPackDraftContract['product_truth'];
+  const value = {
+    ...output(),
+    seo_title: 'Black Witch Bodysuit Costume for Halloween',
+    h1: 'Black Witch Bodysuit Costume for Halloween',
+    meta_description: 'Witch bodysuit costume for Halloween and fantasy cosplay.',
+    intro: 'This women’s witch costume brings a darker fantasy character to Halloween.',
+    pdp_blocks: [],
+    image_alt_candidates: [],
+  };
+  assert.equal(validateSeoKeywordPlacement(value, draft).ok, true);
+  assert.equal(hasWholeProductScope('witch headpiece costume', draft.product_truth.included_components), false);
+  assert.equal(hasWholeProductScope('witch shoulder armor costume', draft.product_truth.included_components), false);
+  assert.equal(hasWholeProductScope('bodysuit costume', draft.product_truth.included_components), false);
+  assert.equal(hasWholeProductScope('witch bodysuit costume', ['Top', 'Headpiece', 'Skirt']), false);
 });
 
 test('accepts a close whole-product semantic variation in body copy without repeating the exact H1 phrase', () => {
