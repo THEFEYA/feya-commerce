@@ -625,7 +625,10 @@ function attachProductIdentity(contract, source) {
       ...(canonicalProductId === '6bfcc9e6-3d45-4ef4-934f-12dd9dfc4532'
         && source.manualFocus?.material?.includes('black')
         && source.manualFocus?.material?.includes('holographic')
-        ? { color: 'Black' } : {}),
+        // Holographic is the existing finish-aware color family; Black stays
+        // in the owner's axes and measured Primary. Using plain Black here
+        // would incorrectly forbid the owner-confirmed holographic panels.
+        ? { color: 'Holographic' } : {}),
       primary_image_url: source.product?.primary_image_url || contract.product_truth.primary_image_url || null,
       primary_image_alt: source.product?.primary_image_alt || contract.product_truth.primary_image_alt || null,
       known_components: componentTruth.included_components,
