@@ -14,6 +14,57 @@ const baseMetric = {
   score: 70,
 };
 
+test('black arm-and-leg set retains owner exclusions while using its measured rave intent', () => {
+  const input = {
+    product: {
+      canonical_product_id: '6bfcc9e6-3d45-4ef4-934f-12dd9dfc4532',
+      card_title: 'Cyber Punk Armor Set for Women: Arm & Leg Covers',
+      sellable_offer_components: ['Arm Guards', 'Leg Covers'],
+      material: 'Faux leather', canonical_color_label: 'Silver',
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1', component: ['arms', 'legs'],
+      material: ['black', 'vegan leather', 'holographic'], event: ['rave', 'burning man'],
+      style: ['futuristic', 'sci fi'], persona: ['warrior'], audience: ['women'],
+      exclude: ['futuristic armor costume', 'warrior armor costume', 'sci fi armor costume'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'black leather rave outfit', bank_bucket: 'visual_collection', avg_monthly_searches: 30 },
+      ...['futuristic armor costume', 'warrior armor costume', 'sci fi armor costume'].map(keyword => (
+        { ...baseMetric, keyword, bank_bucket: 'product', avg_monthly_searches: 1000 }
+      )),
+    ],
+  };
+  const result = recommendCatalogKeywords(input);
+  assert.equal(result.keywords.find(row => row.role === 'primary')?.keyword, 'black leather rave outfit');
+  assert.equal(result.keywords.length, 1);
+  assert.equal(recommendCatalogKeywords({ ...input, focus: { ...input.focus, event: ['photoshoot'] } }).keywords.length, 0);
+});
+
+test('horned bodysuit costume owns a whole-product witch query rather than a headpiece query', () => {
+  const input = {
+    product: {
+      canonical_product_id: 'a767a1c1-65e7-4c0a-bd18-7a92f8ea4986',
+      card_title: 'Golden Horns Costume Set', source_category_label: 'Horns',
+      sellable_offer_components: ['Bodysuit', 'Horns', 'Leg Covers'],
+      canonical_color_label: 'Gold', material: 'Faux leather',
+    },
+    focus: {
+      component_focus_contract: 'seo_search_axes_v1', component: ['bodysuit', 'headpiece', 'legs'],
+      material: ['gold', 'vegan leather'], event: ['stage', 'cosplay'],
+      style: ['glam', 'fantasy'], persona: ['witch', 'maleficent'],
+    },
+    approvedKeywords: [
+      { ...baseMetric, keyword: 'maleficent horns headpiece', bank_bucket: 'product', avg_monthly_searches: 1000 },
+      { ...baseMetric, keyword: 'witch bodysuit costume', bank_bucket: 'product', avg_monthly_searches: 20 },
+    ],
+  };
+  const result = recommendCatalogKeywords(input);
+  assert.equal(result.keywords.find(row => row.role === 'primary')?.keyword, 'witch bodysuit costume');
+  const withoutWitch = recommendCatalogKeywords({ ...input, focus: { ...input.focus, persona: ['performer'] } });
+  assert.equal(withoutWitch.keywords.some(row => String(row.keyword).includes('witch')), false);
+});
+
 test('deselected shoulders cannot return from composition, and removing rave invalidates its reserved intent', () => {
   const result = recommendCatalogKeywords({
     product: {

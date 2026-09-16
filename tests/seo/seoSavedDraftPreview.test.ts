@@ -54,3 +54,12 @@ test('fails closed to empty validation objects when an old snapshot lacks valida
   assert.equal(result.assembled_seo_pack, null);
   assert.equal(result.openai_generation.status, 'not_called_saved_snapshot');
 });
+
+test('saved editorial Preview discloses missing demand evidence', () => {
+  const result = buildSavedDraftPreviewResult({
+    id: 'editorial-draft',
+    validation_result_snapshot: { approval_blockers: ['missing_validated_keyword_metric'] },
+  });
+  assert.match(result.editorial_review_notice, /без подтверждённых метрик/);
+  assert.equal(result.openai_generation.writer_calls, 0);
+});

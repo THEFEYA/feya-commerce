@@ -231,6 +231,11 @@ const PERSONA_FAMILIES: Record<string, string[]> = {
 // phrase. The exception remains exact product + exact validated keyword; it
 // never invents metrics or weakens the whole-product gate for other products.
 const OWNER_REVIEWED_PDP_PRIMARY: Record<string, string> = {
+  // Batch 06: retain the owner's black/holographic rave direction and all
+  // three excluded armor Primaries. The existing measured phrase is used.
+  '6bfcc9e6-3d45-4ef4-934f-12dd9dfc4532': 'black leather rave outfit',
+  // Horns are not the page entity of this confirmed bodysuit costume set.
+  'a767a1c1-65e7-4c0a-bd18-7a92f8ea4986': 'witch bodysuit costume',
   '103ff46a-892a-4961-80b1-e6996727c395': 'silver metallic dress costume',
   '657bd6d8-fbe1-4441-abad-f574e3380897': 'rave harness outfit',
   '6739b15c-f2f3-4a26-9e2a-3a0b5a3e2d2f': 'sci fi armor costume',

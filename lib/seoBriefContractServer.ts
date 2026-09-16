@@ -14,6 +14,7 @@ import {
 import { applyOwnerReviewedStorefrontCorrections } from '@/lib/storefrontOwnerReviewedCorrections';
 import { reconcileListingMasterComponentFocus } from '@/lib/listingMasterSearchAxisContract';
 import { hasTrustedSeoMetricSnapshot } from '@/lib/seoTrustedMetricSnapshot';
+import { applyUnmeasuredEditorialReviewIntent } from '@/lib/seoUnmeasuredEditorialReview';
 import {
   buildSeoPrimaryKeywordOwnershipStrategy,
   resolveSeoPrimaryOwnershipWithCurrentSelections,
@@ -159,7 +160,10 @@ export async function buildSeoBriefContractBundle(productId: string) {
   }
 
   const brief = buildSeoCatalogBrief(source.product, source.keywords, source.manualFocus);
-  const identityDraft = attachProductIdentity(buildSeoPackDraftContractFromBrief(brief), source);
+  const identityDraft = applyUnmeasuredEditorialReviewIntent({
+    ...attachProductIdentity(buildSeoPackDraftContractFromBrief(brief), source),
+    source_decision_id: source.decision?.id || null,
+  }, source);
   const latestSavedDraftContext = await loadLatestSavedSeoDraftContext(identityDraft.canonical_product_id);
   const savedSourceOverlapStrategy = extractPortfolioStrategy(latestSavedDraftContext);
   const livePrimaryOwnershipStrategy = await loadLivePrimaryOwnershipStrategy(
@@ -615,6 +619,13 @@ function attachProductIdentity(contract, source) {
       ...contract.product_truth,
       canonical_product_id: canonicalProductId,
       matched_etsy_listing_id: matchedEtsyListingId,
+      // The owner reviewed this photograph as black/holographic on 2026-09-16.
+      // Keep the imported Silver field untouched; correct this draft identity
+      // only while the corresponding explicit color axes remain selected.
+      ...(canonicalProductId === '6bfcc9e6-3d45-4ef4-934f-12dd9dfc4532'
+        && source.manualFocus?.material?.includes('black')
+        && source.manualFocus?.material?.includes('holographic')
+        ? { color: 'Black' } : {}),
       primary_image_url: source.product?.primary_image_url || contract.product_truth.primary_image_url || null,
       primary_image_alt: source.product?.primary_image_alt || contract.product_truth.primary_image_alt || null,
       known_components: componentTruth.included_components,

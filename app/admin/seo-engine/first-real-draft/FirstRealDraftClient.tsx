@@ -668,6 +668,7 @@ export default function FirstRealDraftClient({
 
     {error ? <Notice tone="danger">{error}</Notice> : null}
     {workflowNotice ? <Notice tone="success">{workflowNotice}</Notice> : null}
+    {result?.editorial_review_notice ? <Notice tone="warning">{result.editorial_review_notice}</Notice> : null}
     {savedReviewMode && savedDraftLoading ? <Notice>Загружаю сохранённое описание товара…</Notice> : null}
 
     {recoverFailedDraft ? <section className="min-w-0 rounded-2xl border border-[rgba(212,178,106,.28)] bg-black/25 p-4 sm:p-5">
