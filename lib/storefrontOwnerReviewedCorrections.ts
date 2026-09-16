@@ -72,6 +72,9 @@ function configurationId(row: Record<string, any>) {
  * narrow, auditable correction to the current selector only.
  */
 export function applyOwnerReviewedStorefrontCorrections<T extends Record<string, any>>(product: T): T {
+  if (BATCH08_REVIEWED_OPTIONS[String(product?.canonical_product_id || '')]) {
+    return correctBatch08SourceOptions(product);
+  }
   if (String(product?.canonical_product_id || '') === 'e7c214cd-a825-49c6-9759-12318d1464fe') {
     return correctAngelLimbOptions(product);
   }
@@ -153,6 +156,61 @@ export function applyOwnerReviewedStorefrontCorrections<T extends Record<string,
       ? Math.round((savings / componentSum) * 10000) / 100
       : null,
   };
+}
+
+// Source variation and exact price-row labels agree. These mappings preserve
+// the existing options and prices; SEO axes never manufacture sellable parts.
+const BATCH08_REVIEWED_OPTIONS = {
+  '057fbd51-52f5-4404-b126-e5d75b8599f4': {
+    'aefa2c61-c430-4675-9964-9cd1e3f1658e': {
+      public_label: "Men's Outfit", component_code: 'mens_outfit', component_family: 'Bundle',
+      is_bundle: true, is_full_set: false,
+      bundle_component_codes: ['choker', 'shoulders', 'arms'],
+      bundle_component_labels: ['Choker', 'Shoulders', 'Arm Pieces'],
+    },
+    '5074ad3c-af6a-4cf7-9624-ce351ee9cafc': {
+      public_label: "Women's Outfit", component_code: 'womens_outfit', component_family: 'Bundle',
+      is_bundle: true, is_full_set: false,
+      bundle_component_codes: ['choker', 'top', 'skirt', 'arms'],
+      bundle_component_labels: ['Choker', 'Top', 'Skirt', 'Arm Pieces'],
+    },
+  },
+  '9400d8af-b6b9-4b4a-b878-b97eba761e10': {
+    '02d389b4-a3b1-44c6-87bb-e18ba2922851': {
+      public_label: 'Choker + Shoulders', component_code: 'choker_shoulders', component_family: 'Bundle',
+      is_bundle: true, is_full_set: false,
+      bundle_component_codes: ['choker', 'shoulders'], bundle_component_labels: ['Choker', 'Shoulders'],
+    },
+  },
+  'd06ab9d9-52c5-4f8c-b583-d9e5316eb69c': {
+    'e61675cc-689b-416d-953d-3c8faada89c7': {
+      public_label: 'Top', component_code: 'top', component_family: 'Top',
+    },
+    // The source explicitly includes bracelets in Full Set, but does not
+    // sell a separate Bracelet option. Do not add a price row for it.
+    'ffff32fe-3d63-489b-9bb4-e47b49b97fbe': {
+      bundle_component_codes: ['choker', 'top', 'skirt', 'arms'],
+      bundle_component_labels: ['Choker', 'Top', 'Skirt', 'Bracelets'],
+      source_confirmed_bundle_members: true,
+    },
+  },
+  '5255562a-0181-4fe3-bf4f-e5083f5638e5': {
+    '30d69d12-f7bd-40f9-a63b-1e70d843ef0f': {
+      public_label: 'Top', component_code: 'top', component_family: 'Top',
+    },
+  },
+};
+
+function correctBatch08SourceOptions<T extends Record<string, any>>(product: T): T {
+  const options = BATCH08_REVIEWED_OPTIONS[String(product.canonical_product_id)];
+  if (!Array.isArray(product.configurations)
+    || !Object.keys(options).every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  const configurations = product.configurations.map(row => {
+    const correction = options[configurationId(row)];
+    return correction ? { ...row, ...correction, needs_label_review: false } : row;
+  });
+  return { ...product, configurations,
+    needs_label_review: configurations.some(row => row.needs_label_review === true) };
 }
 
 /** Owner clarification, 2026-09-16: Etsy1770360776 sells shoulder armor and

@@ -232,6 +232,13 @@ const PERSONA_FAMILIES: Record<string, string[]> = {
 // phrase. The exception remains exact product + exact validated keyword; it
 // never invents metrics or weakens the whole-product gate for other products.
 const OWNER_REVIEWED_PDP_PRIMARY: Record<string, string> = {
+  // Batch08: owner saved the axes and delegated measured keyword roles.
+  // Reserve the complete current offer, never the highest-volume loose part.
+  '057fbd51-52f5-4404-b126-e5d75b8599f4': 'matching couple festival outfits',
+  '9400d8af-b6b9-4b4a-b878-b97eba761e10': 'futuristic armor costume',
+  'd06ab9d9-52c5-4f8c-b583-d9e5316eb69c': 'skirt and top set festival',
+  'df030151-5853-46c1-be89-06f059224a44': 'black stage outfit',
+  '5255562a-0181-4fe3-bf4f-e5083f5638e5': 'stage performance outfit',
   // Batch07: the owner's angel + bodysuit direction describes the complete
   // winged costume. Keep the existing measured product phrase, not a
   // partial bodysuit-only query or invented belt demand.
@@ -795,7 +802,10 @@ function scoreRow(
   else if (styleMismatch) rejectReason = 'style_mismatch';
   else if (personaMismatch) rejectReason = 'persona_mismatch';
   else if (visualAttributeMismatch) rejectReason = 'visual_attribute_mismatch';
-  else if (productBucket && !productIdentityGate) rejectReason = 'insufficient_product_truth_overlap';
+  // An exact reviewed whole-product alias can be absent from the imported
+  // title; token overlap must not undo that bounded review. Every factual
+  // color/event/persona/visual gate above still applies.
+  else if (productBucket && !productIdentityGate && !exactOwnerReviewedPrimary) rejectReason = 'insufficient_product_truth_overlap';
   else if (!productBucket && !supportIntentGate) rejectReason = 'insufficient_focus_overlap';
 
   const productScopeScore = profile.presentation.requires_whole_product_entity

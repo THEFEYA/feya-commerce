@@ -1,4 +1,4 @@
-export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v23' as const;
+export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v24' as const;
 
 export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
   checkpoint_id: 'reload_latest_research_before_apply_publish_v1',
@@ -118,6 +118,17 @@ type RightPanelOverride = Partial<Record<string, readonly string[]>>;
  * and the more dangerous alternative of showing false universal material copy.
  */
 const THEFEYA_PRODUCT_RIGHT_PDP_OVERRIDES: Record<string, RightPanelOverride> = {
+  'df030151-5853-46c1-be89-06f059224a44': {
+    material: [
+      'This costume combines a black fabric base with gold vegan-leather details.',
+      'The glossy gold details are attached to the fabric; they are not solid metal.',
+    ],
+    care: [
+      'Clean gently by hand, paying separate attention to the fabric and coated details.',
+      'Avoid machine washing, strong rubbing and alcohol-based products on the fabric.',
+      'Store the costume without tight folding or heavy pressure on the decorated areas.',
+    ],
+  },
   '27a8243e-e0d9-430c-a83e-6573ef8a48cb': {
     material: [
       'This costume is made from acrylic, a type of plastic, with a glossy gold finish.',
