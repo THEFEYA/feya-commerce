@@ -81,5 +81,12 @@ Under the versioned SEO search-axis contract, an unchecked component chip exclud
 
 The owner clarified that the small shoulder details on product 4303866388 belong to its complete strapped top; the imported Shoulders option is therefore corrected to Top as one existing item, preserving its option ID and prices. This explicit factual clarification is separate from unchecking the SEO axis. Saved axes must be visibly acknowledged even when keyword readiness is still pending.
 
+## R24. Acrylic is a plastic; mirror describes finish, not optical performance
+Owner clarification, 2026-09-16, listing 1784427181: the gold costume is acrylic. The broader word `plastic` is relevant search vocabulary for the same confirmed substrate; plastic alone must never be upgraded to acrylic. Use both naturally, without inventing separate Google Ads metrics or replacing a relevant whole-product Primary.
+
+Substrate, color and finish remain separate: acrylic/plastic, gold, glossy mirror-style finish. `Mirror` alone does not authorize reflection, light-catching or stage-visibility claims. The confirmed material replaces the old canonical vegan-leather import for this product while raw import evidence stays intact. Its fixed Material and Care panel must use the same material truth as Preview and structured data.
+
+For this acrylic exception, gentle damp-cloth care and avoiding abrasive cleaners/solvents follow the conservative guidance in [ACRYLITE care instructions](https://www.acrylite.co/resources/fabrication-manuals/clean-disinfect-and-maintain-acrylite-acrylic-sheet). This is substrate-level guidance, not evidence of a particular coating brand or solvent tolerance.
+
 ## Process rule
 Every owner review is captured the same way: complaint → named rule → committed here → reflected in prompts/validators. Cumulative and versioned.

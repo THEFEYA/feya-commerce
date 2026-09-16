@@ -71,3 +71,16 @@ test('writer no-copy reference receives the same resolved product panel as store
   assert.match(prompt, /stretch-fabric base with selected gold mirror-finish vegan leather details/i);
   assert.doesNotMatch(prompt, /We use durable vegan leather with a glossy mirror-like coating/i);
 });
+
+test('owner-confirmed gold acrylic costume uses precise material and gentle care in preview and writer', () => {
+  const id = '27a8243e-e0d9-430c-a83e-6573ef8a48cb';
+  const material = blockBody(id, 'material');
+  assert.match(material, /acrylic, a type of plastic/i);
+  assert.match(material, /glossy gold finish/i);
+  assert.doesNotMatch(material, /vegan leather|reflective|catches.*light|soft against/i);
+  assert.match(blockBody(id, 'care'), /Avoid abrasive cleaners, alcohol wipes and solvents/i);
+  assert.doesNotMatch(blockBody(id, 'care'), /easy to remove with alcohol wipes/i);
+  const prompt = buildThefeyaSeoDoctrineUserLines({ canonical_product_id: id }).join('\n');
+  assert.ok(prompt.includes(material));
+  assert.doesNotMatch(prompt, /We use durable vegan leather with a glossy mirror-like coating/i);
+});

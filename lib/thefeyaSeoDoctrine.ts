@@ -1,4 +1,4 @@
-export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v22' as const;
+export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v23' as const;
 
 export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
   checkpoint_id: 'reload_latest_research_before_apply_publish_v1',
@@ -22,6 +22,8 @@ export const THEFEYA_BRAND_VALUE_PILLARS = [
   'Describe visual impact through observable product qualities and supported use cases. Do not mention algorithms, organic attention, reactions, saves, comments or social metrics in product copy.',
   'Adjustable straps, standard sizing and custom measurements are canonical studio facts for the fixed right PDP panel.',
   'Comfort, softness against the body, reinforcement, durability and shape retention may be described only when supported by actual material and construction evidence.',
+  'When acrylic is confirmed, plastic is its broader material name and may appear naturally once; plastic alone does not prove acrylic. Keep historical keyword metrics attached to their measured phrases.',
+  'Mirror is a glossy finish label, separate from substrate and gold or silver color. It alone does not establish reflection, light-catching behavior or improved visibility under stage lighting.',
   'Handmade and made-to-order value must explain studio craft, fit or purposeful construction. It must not repeat the same originality argument in different words.',
   'The studio can discuss selected changes while preserving its distinctive visual language; operational customization details belong only in the fixed right PDP panel.',
 ] as const;
@@ -116,6 +118,16 @@ type RightPanelOverride = Partial<Record<string, readonly string[]>>;
  * and the more dangerous alternative of showing false universal material copy.
  */
 const THEFEYA_PRODUCT_RIGHT_PDP_OVERRIDES: Record<string, RightPanelOverride> = {
+  '27a8243e-e0d9-430c-a83e-6573ef8a48cb': {
+    material: [
+      'This costume is made from acrylic, a type of plastic, with a glossy gold finish.',
+    ],
+    care: [
+      'Wipe gently with a soft cloth lightly dampened with water.',
+      'Avoid abrasive cleaners, alcohol wipes and solvents on the acrylic and its coating.',
+      'Handle the pieces carefully to avoid scratching the finish.',
+    ],
+  },
   'de38a842-37c4-40a7-86b4-393341c4c9aa': {
     material: [
       'This chest harness is made from brown leather.',
