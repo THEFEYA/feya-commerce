@@ -72,6 +72,15 @@ function configurationId(row: Record<string, any>) {
  * narrow, auditable correction to the current selector only.
  */
 export function applyOwnerReviewedStorefrontCorrections<T extends Record<string, any>>(product: T): T {
+  if (String(product?.canonical_product_id || '') === 'e7c214cd-a825-49c6-9759-12318d1464fe') {
+    return correctAngelLimbOptions(product);
+  }
+  if (String(product?.canonical_product_id || '') === '95d6c9f0-4437-4730-b772-f10f9c82321d') {
+    return correctShoulderBeltSet(product);
+  }
+  if (String(product?.canonical_product_id || '') === '8655f3ce-c4e8-4982-8a75-dce413e26674') {
+    return correctCosmicGroupedOptions(product);
+  }
   if (String(product?.canonical_product_id || '') === BROWN_HARNESS_ID) {
     return correctBrownHarnessColors(product);
   }
@@ -144,6 +153,69 @@ export function applyOwnerReviewedStorefrontCorrections<T extends Record<string,
       ? Math.round((savings / componentSum) * 10000) / 100
       : null,
   };
+}
+
+/** Owner clarification, 2026-09-16: Etsy1770360776 sells shoulder armor and
+ * a belt. The older imported group labels do not mean an extra top or skirt.
+ * Keep all three price-row identities and amounts; correct only their contents.
+ */
+function correctShoulderBeltSet<T extends Record<string, any>>(product: T): T {
+  const options = {
+    '4b355387-e0bf-48c6-bea7-0c7757707998': { public_label: 'Belt', component_code: 'belt', component_family: 'Belt' },
+    '38366d5b-9424-48f3-b9d7-65116841bcaf': { public_label: 'Shoulder Armor', component_code: 'shoulders', component_family: 'Shoulders' },
+  };
+  const fullSetId = 'c528ae08-b6ec-4538-b46b-48927b29bf5d';
+  if (!Array.isArray(product.configurations)
+    || ![...Object.keys(options), fullSetId].every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  const configurations = product.configurations.map(row => {
+    const correction = options[configurationId(row)];
+    if (correction) return { ...row, ...correction, is_bundle: false, is_full_set: false,
+      bundle_component_codes: [], bundle_component_labels: [], needs_label_review: false };
+    if (configurationId(row) === fullSetId) return { ...row,
+      bundle_component_codes: ['shoulders', 'belt'], bundle_component_labels: ['Shoulder Armor', 'Belt'] };
+    return row;
+  });
+  return { ...product, configurations };
+}
+
+/** Two equal-price bracelet rows are different body locations. Their exact
+ * price-row source labels are "Браслеты на руку" and "Браслеты для ног".
+ * This repairs the selector only; it never selects the owner's Legs SEO axis.
+ */
+function correctAngelLimbOptions<T extends Record<string, any>>(product: T): T {
+  const options = {
+    '59135d19-b2e1-4943-8bd8-b9154216f3be': { public_label: 'Hand Bracelets', component_code: 'arms', component_family: 'Arms' },
+    'cf47bc88-456d-467f-8cb3-393e1f5bf7a8': { public_label: 'Leg Bracelets', component_code: 'legs', component_family: 'Legs' },
+  };
+  if (!Array.isArray(product.configurations)
+    || !Object.keys(options).every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  const configurations = product.configurations.map(row => {
+    const correction = options[configurationId(row)];
+    if (correction) return { ...row, ...correction, needs_label_review: false };
+    if (configurationId(row) === 'b8d5302f-408c-4dec-b7cc-f9cd866b8951') return { ...row,
+      bundle_component_codes: ['headpiece', 'wings', 'bodysuit', 'arms', 'legs'],
+      bundle_component_labels: ['Headpiece', 'Wings', 'Bodysuit', 'Hand Bracelets', 'Leg Bracelets'] };
+    return row;
+  });
+  return { ...product, configurations };
+}
+
+/** Etsy1780952581 has two different grouped options. Its recovered exact RPC
+ * attaches Belt+Garters members to Bra+Shoulders as well. Restore each group
+ * from its own source option while retaining the original selector/prices.
+ */
+function correctCosmicGroupedOptions<T extends Record<string, any>>(product: T): T {
+  const groups = {
+    'b76e941b-be1d-465f-8d73-041b329989de': { codes: ['top', 'shoulders'], labels: ['Top', 'Shoulders'] },
+    'da462a0b-721b-4027-8b3c-f6e612415ba6': { codes: ['belt', 'legs'], labels: ['Belt', 'Garters'] },
+    '8b84057c-012a-41a3-9523-32a3e97b38f7': { codes: ['choker', 'top', 'shoulders', 'belt', 'legs'], labels: ['Choker', 'Top', 'Shoulders', 'Belt', 'Garters'] },
+  };
+  if (!Array.isArray(product.configurations)
+    || !Object.keys(groups).every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  return { ...product, configurations: product.configurations.map(row => {
+    const group = groups[configurationId(row)];
+    return group ? { ...row, bundle_component_codes: group.codes, bundle_component_labels: group.labels } : row;
+  }) };
 }
 
 /**

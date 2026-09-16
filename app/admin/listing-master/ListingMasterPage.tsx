@@ -132,7 +132,7 @@ const STRATEGY_LABELS = { demand: 'Больше спроса', opportunity: 'П�
 const STRATEGY_NOTES = { demand: 'Сначала слова с большим средним спросом.', opportunity: 'Ненулевой спрос + ниже конкуренция.', niche: 'Узкие long-tail слова под конкретный товар.' };
 const STATUS_LABELS = { all: 'Все товары', not_saved: 'Не сохранено', saved: 'Решение сохранено' };
 
-const COMPONENTS = ['shoulders', 'corset', 'bra', 'top', 'harness', 'bodysuit', 'skirt', 'panties', 'arms', 'legs', 'mask', 'headpiece', 'choker', 'wings', 'spine', 'tail'];
+const COMPONENTS = ['shoulders', 'corset', 'bra', 'top', 'harness', 'bodysuit', 'skirt', 'belt', 'panties', 'arms', 'legs', 'mask', 'headpiece', 'choker', 'wings', 'spine', 'tail'];
 const MATERIALS = ['gold', 'silver', 'black', 'white', 'red', 'brown', 'mirror', 'acrylic', 'fabric', 'leather', 'vegan leather', 'metallic', 'holographic', 'chain'];
 const EVENTS = ['burning man', 'festival', 'rave', 'stage', 'edm', 'edc', 'coachella', 'halloween', 'cosplay', 'pride', 'drag', 'photoshoot'];
 const STYLES = ['post apocalyptic', 'futuristic', 'cyberpunk', 'desert', 'glam', 'punk', 'goth', 'burlesque', 'cosmic', 'sci fi', 'steampunk', 'fantasy', 'classic'];
@@ -140,7 +140,7 @@ const PERSONAS = ['warrior', 'goddess', 'queen', 'cleopatra', 'robot', 'alien', 
 const AUDIENCES = ['men', 'women', 'couples', 'drag'];
 const FOCUS_FIELDS = ['component', 'material', 'event', 'style', 'persona', 'audience'];
 const COLOR_VALUES = ['gold', 'silver', 'black', 'white', 'red', 'brown', 'holographic'];
-const HARD_COMPONENT_CONFLICTS = ['bodysuit', 'corset', 'bra', 'top', 'harness', 'skirt', 'panties', 'arms', 'legs', 'mask', 'headpiece', 'choker', 'wings', 'spine', 'tail'];
+const HARD_COMPONENT_CONFLICTS = ['bodysuit', 'corset', 'bra', 'top', 'harness', 'skirt', 'belt', 'panties', 'arms', 'legs', 'mask', 'headpiece', 'choker', 'wings', 'spine', 'tail'];
 
 const LABELS = {
   corset: 'corset', bra: 'bra', top: 'top', harness: 'harness', bodysuit: 'bodysuit', skirt: 'skirt', panties: 'panties', shoulders: 'shoulders', arms: 'arms', legs: 'legs', mask: 'mask', headpiece: 'headpiece', choker: 'choker', wings: 'wings', spine: 'spine', tail: 'tail',

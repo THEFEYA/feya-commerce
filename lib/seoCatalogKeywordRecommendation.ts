@@ -92,6 +92,7 @@ const COLOR_FAMILIES: Record<string, string[]> = {
 // These are matching aliases for the existing Product DNA families, not product claims.
 const COMPONENT_FAMILIES: Record<string, string[]> = {
   armor: ['armor', 'armour'],
+  belt: ['belt', 'belts', 'waist belt', 'waist belts'],
   arms: ['arm', 'arms', 'arm cover', 'arm covers', 'arm guard', 'arm guards', 'arm cuff', 'arm cuffs', 'bracer', 'bracers'],
   bra: ['bra', 'bras', 'bralette', 'bustier'],
   bodysuit: ['bodysuit', 'body suit', 'leotard'],
@@ -143,7 +144,7 @@ const UMBRELLA_COMPONENT_FAMILIES = new Set(['armor']);
 const COMPONENT_SEARCH_AXIS_FAMILIES: Record<string, string[]> = {
   shoulders: ['shoulders'], corset: ['corset'], bra: ['bra'],
   top: ['top', 'crop top'], harness: ['harness'], bodysuit: ['bodysuit'],
-  skirt: ['skirt'], panties: ['panties'], arms: ['arms', 'bracelet'],
+  skirt: ['skirt'], belt: ['belt'], panties: ['panties'], arms: ['arms', 'bracelet'],
   legs: ['legs', 'garters'], mask: ['mask'],
   headpiece: ['headpiece', 'crown', 'halo', 'helmet', 'horns'],
   choker: ['choker'], wings: ['wings'], spine: ['spine'], tail: ['tail'],
@@ -231,6 +232,10 @@ const PERSONA_FAMILIES: Record<string, string[]> = {
 // phrase. The exception remains exact product + exact validated keyword; it
 // never invents metrics or weakens the whole-product gate for other products.
 const OWNER_REVIEWED_PDP_PRIMARY: Record<string, string> = {
+  // Batch07: the owner's angel + bodysuit direction describes the complete
+  // winged costume. Keep the existing measured product phrase, not a
+  // partial bodysuit-only query or invented belt demand.
+  'e7c214cd-a825-49c6-9759-12318d1464fe': 'angel bodysuit costume',
   // Batch 06: retain the owner's black/holographic rave direction and all
   // three excluded armor Primaries. The existing measured phrase is used.
   '6bfcc9e6-3d45-4ef4-934f-12dd9dfc4532': 'black leather rave outfit',
