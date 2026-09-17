@@ -1,4 +1,4 @@
-export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v24' as const;
+export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v25' as const;
 
 export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
   checkpoint_id: 'reload_latest_research_before_apply_publish_v1',
@@ -118,6 +118,26 @@ type RightPanelOverride = Partial<Record<string, readonly string[]>>;
  * and the more dangerous alternative of showing false universal material copy.
  */
 const THEFEYA_PRODUCT_RIGHT_PDP_OVERRIDES: Record<string, RightPanelOverride> = {
+  'a83b1b51-79be-4cae-a943-661060a34080': {
+    material: ['Glossy armor panels are held by black straps with buckle fastenings.'],
+    care: ['Wipe the panels gently with a soft, lightly damp cloth.', 'Avoid abrasive cleaners, solvents and machine washing.', 'Store without crushing or tightly folding the panels.'],
+  },
+  'e7238b1d-565c-4c4d-a7ae-a4402de80720': {
+    material: ['This costume combines black fabric with glossy red vegan-leather details.'],
+    care: [
+      'Clean gently by hand, paying separate attention to the fabric and coated details.',
+      'Avoid machine washing, strong rubbing and alcohol-based products on the fabric.',
+      'Store without tight folding or heavy pressure on the decorated areas.',
+    ],
+  },
+  '0e75d2f2-c345-440e-88e4-333b63caed09': {
+    material: ['This costume combines a fabric base with mirror-finish acrylic pieces. Acrylic is a type of plastic.'],
+    care: [
+      'Clean the acrylic pieces gently with a soft cloth lightly dampened with water.',
+      'Avoid abrasive cleaners, alcohol wipes and solvents on the acrylic and its coating.',
+      'Do not machine wash or fold tightly across the decorated areas.',
+    ],
+  },
   'df030151-5853-46c1-be89-06f059224a44': {
     material: [
       'This costume combines a black fabric base with gold vegan-leather details.',

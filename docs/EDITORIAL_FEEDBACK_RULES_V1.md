@@ -93,5 +93,8 @@ Owner clarification, 2026-09-17, listing 1765624488: Women's Outfit includes Cho
 
 Apply this layout to other couple listings only when both partner options have explicit, verified member lists. Titles, photos and SEO axes cannot fabricate either composition. Describe the benefit of complementary designs and individual character naturally; use relevant measured matching/couple search vocabulary without forcing every word-order variation into the prose. Preserve owner-selected search axes when composition is corrected, while still requiring an updated keyword decision before generation.
 
+### R25 update — owner-authorized combined option, 2026-09-17
+The owner subsequently requested a real Full Set option containing both complete outfits, priced EUR 50 below the sum of the two existing outfit prices: EUR 183.44 + EUR 327.00 - EUR 50.00 = EUR 460.44. Store this as a separate canonical configuration and price row. Show the saving against purchasing both outfits separately, never as an invented former selling price. The two partner composition groups stay visible for every option. This explicit authorization supersedes the previous absence of a combined option; it does not authorize adding bundles to other products.
+
 ## Process rule
 Every owner review is captured the same way: complaint → named rule → committed here → reflected in prompts/validators. Cumulative and versioned.

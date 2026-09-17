@@ -309,6 +309,25 @@ test('couple groups require explicit partner compositions, not a couple title or
  const truth=offer(products[0]);
  assert.deepEqual(sellableOfferCoupleIncludedGroups({...truth,aggregate_options:[...truth.aggregate_options,truth.aggregate_options[0]]}),[]);
 });
+
+test('owner-created Full Set preserves both outfits and saves EUR50 against their separate prices', () => {
+ const p={...products[0],configurations:[...products[0].configurations.map(r=>({...r,currency:'EUR'})),{
+  configuration_id:'26274d0c-81c9-44e6-9ce7-c3056c62040c',currency:'EUR',display_price_amount:460.44,
+  public_label:'Full Set',component_code:'full_set',component_family:'Bundle',is_full_set:true,is_bundle:false,
+  bundle_component_codes:[],bundle_component_labels:[],needs_label_review:false,sort_order:3,
+ }]};
+ const fixed=correct(p),truth=offer(fixed);
+ assert.equal(truth.status,'ready',JSON.stringify(truth.blockers));
+ assert.equal(truth.aggregate_options.length,3);
+ assert.equal(sellableOfferCoupleIncludedGroups(truth).length,2);
+ assert.equal((fixed as any).component_sum_display_price_amount,510.44);
+ assert.equal((fixed as any).full_set_savings_amount,50);
+ assert.equal((fixed as any).full_set_display_price_amount,460.44);
+ assert.deepEqual(fixed.configurations.map(r=>[r.configuration_id,r.display_price_amount]),p.configurations.map(r=>[r.configuration_id,r.display_price_amount]));
+ assert.deepEqual(correct(fixed),fixed);
+ assert.deepEqual(sellableOfferCoupleIncludedGroups(truth),sellableOfferCoupleIncludedGroups(offer(products[0])));
+ assert.equal(correct(products[0]).configurations.length,2,'No database option means no invented Full Set');
+});
 test('red grouped option restores choker without silently selecting its SEO axis', () => {
  const truth=offer(products[1]);
  assert.deepEqual(sellableOfferIncludedLabels(truth,{configuration_id:'02d389b4-a3b1-44c6-87bb-e18ba2922851'}),['Choker','Shoulders']);

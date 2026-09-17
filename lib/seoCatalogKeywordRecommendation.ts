@@ -232,6 +232,9 @@ const PERSONA_FAMILIES: Record<string, string[]> = {
 // phrase. The exception remains exact product + exact validated keyword; it
 // never invents metrics or weakens the whole-product gate for other products.
 const OWNER_REVIEWED_PDP_PRIMARY: Record<string, string> = {
+  // Batch09: saved owner axes + exact measured whole-outfit intents.
+  'e7238b1d-565c-4c4d-a7ae-a4402de80720': 'dance costume red',
+  '0e75d2f2-c345-440e-88e4-333b63caed09': 'mirror dance costume',
   // Batch08: owner saved the axes and delegated measured keyword roles.
   // Reserve the complete current offer, never the highest-volume loose part.
   '057fbd51-52f5-4404-b126-e5d75b8599f4': 'matching couple festival outfits',

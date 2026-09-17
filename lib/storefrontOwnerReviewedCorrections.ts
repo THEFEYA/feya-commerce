@@ -72,6 +72,9 @@ function configurationId(row: Record<string, any>) {
  * narrow, auditable correction to the current selector only.
  */
 export function applyOwnerReviewedStorefrontCorrections<T extends Record<string, any>>(product: T): T {
+  if (BATCH09_REVIEWED_OPTIONS[String(product?.canonical_product_id || '')]) {
+    return correctBatch09SourceOptions(product);
+  }
   if (BATCH08_REVIEWED_OPTIONS[String(product?.canonical_product_id || '')]) {
     return correctBatch08SourceOptions(product);
   }
@@ -210,8 +213,67 @@ function correctBatch08SourceOptions<T extends Record<string, any>>(product: T):
     const correction = options[configurationId(row)];
     return correction ? { ...row, ...correction, needs_label_review: false } : row;
   });
-  return { ...product, configurations,
+  const corrected = { ...product, configurations,
     needs_label_review: configurations.some(row => row.needs_label_review === true) };
+  return String(product.canonical_product_id) === '057fbd51-52f5-4404-b126-e5d75b8599f4'
+    ? correctOwnerCoupleFullSet(corrected) : corrected;
+}
+
+/** Only enrich the real, owner-created database option; never synthesize a SKU. */
+function correctOwnerCoupleFullSet<T extends Record<string, any>>(product: T): T {
+  const fullId = '26274d0c-81c9-44e6-9ce7-c3056c62040c';
+  const full = product.configurations.find(row => configurationId(row) === fullId);
+  if (!full) return product;
+  const partners = ['5074ad3c-af6a-4cf7-9624-ce351ee9cafc', 'aefa2c61-c430-4675-9964-9cd1e3f1658e']
+    .map(id => product.configurations.find(row => configurationId(row) === id));
+  if (partners.some(row => !row || row.currency !== full.currency)) return product;
+  const total = partners.reduce((sum, row) => sum + Number(row.display_price_amount), 0);
+  const price = Number(full.display_price_amount);
+  if (!Number.isFinite(total) || !Number.isFinite(price)) return product;
+  const members = new Map<string, string>();
+  partners.forEach(row => row.bundle_component_codes.forEach((code, i) => members.set(code, row.bundle_component_labels[i])));
+  const configurations = product.configurations.map(row => configurationId(row) === fullId ? {
+    ...row, public_label: 'Full Set — Both Outfits', component_code: 'full_set', component_family: 'Bundle',
+    is_full_set: true, is_bundle: true, needs_label_review: false,
+    bundle_component_codes: [...members.keys()], bundle_component_labels: [...members.values()],
+    price_source_mode: 'owner_authorized_bundle', price_confidence_status: 'owner_reviewed',
+  } : row);
+  const savings = Math.max(0, Math.round((total-price)*100)/100);
+  return { ...product, configurations, component_sum_display_price_amount: Math.round(total*100)/100,
+    full_set_display_price_amount: price, full_set_savings_amount: savings,
+    full_set_savings_percent: total > 0 ? Math.round(savings/total*10000)/100 : null };
+}
+
+// Exact imported variant names and descriptions agree; preserve price-row identities.
+const BATCH09_REVIEWED_OPTIONS = {
+  'cb31d61b-027c-4c47-b7ba-bf16283ada9c': {
+    '1210a522-aca3-4da9-9542-c297df40f569': { public_label: 'Glove', component_code: 'arms', component_family: 'Arms' },
+    '2e1e98bd-5c0a-46f2-b607-4272177bf3ee': { public_label: 'Spine & Tail', component_code: 'spine_tail', component_family: 'Bundle',
+      is_bundle: true, bundle_component_codes: ['spine','tail'], bundle_component_labels: ['Spine','Tail'] },
+  },
+  'e7238b1d-565c-4c4d-a7ae-a4402de80720': {
+    '7246011d-b286-495b-9487-d58b9eb4b10b': { public_label: 'Spine & Tail', component_code: 'spine_tail', component_family: 'Bundle',
+      is_bundle: true, bundle_component_codes: ['spine','tail'], bundle_component_labels: ['Spine','Tail'] },
+  },
+  'b3910e41-9de7-483f-8d88-5783e8d90607': {
+    '304d98e5-399f-4bf1-84df-da1af1a9cd0f': { public_label: 'Top Bra', component_code: 'top', component_family: 'Top' },
+  },
+};
+
+function correctBatch09SourceOptions<T extends Record<string, any>>(product: T): T {
+  const mapping = BATCH09_REVIEWED_OPTIONS[String(product.canonical_product_id)];
+  if (!Array.isArray(product.configurations)
+    || !Object.keys(mapping).every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  const corrected = product.configurations.map(row => mapping[configurationId(row)]
+    ? { ...row, ...mapping[configurationId(row)], needs_label_review: false } : row);
+  const members = new Map<string,string>();
+  corrected.filter(row => !row.is_full_set).forEach(row => {
+    if (row.is_bundle) row.bundle_component_codes.forEach((code,i) => members.set(code,row.bundle_component_labels[i]));
+    else if (row.component_code) members.set(row.component_code,row.public_label);
+  });
+  const configurations = corrected.map(row => row.is_full_set ? { ...row,
+    bundle_component_codes: [...members.keys()], bundle_component_labels: [...members.values()] } : row);
+  return { ...product, configurations, needs_label_review: configurations.some(row => row.needs_label_review === true) };
 }
 
 /** Owner clarification, 2026-09-16: Etsy1770360776 sells shoulder armor and

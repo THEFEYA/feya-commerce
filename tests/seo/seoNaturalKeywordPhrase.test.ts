@@ -3,6 +3,21 @@ import test from 'node:test';
 import { normalizeDeterministicSeoIdentity } from '../../lib/seoEditorialCandidateSelection.ts';
 import { validateSeoKeywordPlacement } from '../../lib/seoKeywordPlacementValidator.ts';
 import type { SeoPackDraftContract } from '../../lib/seoPackContract.ts';
+import { naturalKeywordPhrase } from '../../lib/seoNaturalKeywordPhrase.ts';
+
+test('reviewed dance and Halloween queries have natural identity wording without changing metrics',()=>{
+ for(const [keyword,phrase,event] of [
+  ['dance costume red','red dance costume','stage'],
+  ['halloween costumes with red bodysuit','Halloween Costume with Red Bodysuit','halloween'],
+ ]){
+  assert.equal(naturalKeywordPhrase(keyword),phrase);
+  const draft={product_truth:{included_components:['Bodysuit']},keyword_roles:{primary:[{keyword}],secondary:[]}} as unknown as SeoPackDraftContract;
+  const intro=event==='stage'?'This dance costume pairs red panels with black fabric.':'A red bodysuit costume for Halloween brings a demon character to life.';
+  const output=normalizeDeterministicSeoIdentity({seo_title:'',h1:'',meta_description:`${phrase} with original panel details.`,intro,pdp_blocks:[]},{primary_keyword:keyword,selected_events:[event]});
+  assert.equal(validateSeoKeywordPlacement(output,draft).ok,true);
+  assert.equal(draft.keyword_roles.primary[0].keyword,keyword);
+ }
+});
 
 test('a known search-query word order becomes natural copy without changing the saved keyword', () => {
   const keyword = 'skirt and top set festival';

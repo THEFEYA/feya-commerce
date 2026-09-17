@@ -188,7 +188,7 @@ export function ProductDetailClient({
   });
   const selectedIsFullSet = activeConfig ? isFullSetOption(activeConfig, activeConfigIndex) : false;
   const savingsText = selectedIsFullSet && displayedFullSetSavings > 0
-    ? `Best value: save ${formatPrice(displayedFullSetSavings, currency)} vs ordering pieces separately${separateRegularTotal > 0 ? ` (${formatPrice(separateRegularTotal, currency)})` : ''}.`
+    ? `Best value: save ${formatPrice(displayedFullSetSavings, currency)} vs ordering ${coupleIncludedGroups.length ? 'both outfits' : 'pieces'} separately${separateRegularTotal > 0 ? ` (${formatPrice(separateRegularTotal, currency)})` : ''}.`
     : '';
 
   useEffect(() => {

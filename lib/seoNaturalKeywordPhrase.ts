@@ -1,6 +1,9 @@
 /** Preserve the saved query and metrics; correct known search-query word order in copy only. */
 export function naturalKeywordPhrase(keyword: string): string {
-  return keyword.trim().toLowerCase() === 'skirt and top set festival'
-    ? 'festival skirt and top set'
-    : keyword;
+  const reviewed: Record<string, string> = {
+    'skirt and top set festival': 'festival skirt and top set',
+    'dance costume red': 'red dance costume',
+    'halloween costumes with red bodysuit': 'Halloween Costume with Red Bodysuit',
+  };
+  return reviewed[keyword.trim().toLowerCase()] || keyword;
 }
