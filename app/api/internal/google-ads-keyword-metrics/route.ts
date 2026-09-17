@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { getInternalApiAuthStatus } from '@/lib/internalAuth';
 import { getMissingSupabaseServiceRoleEnvMessage, getSupabaseServiceRoleClient } from '@/lib/supabaseAdmin';
@@ -8,7 +9,7 @@ const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 20;
 const DEFAULT_LANGUAGE_CONSTANT = 'languageConstants/1000';
 const DEFAULT_KEYWORD_PLAN_NETWORK = 'GOOGLE_SEARCH';
-const DEFAULT_GOOGLE_ADS_API_VERSION = 'v24';
+const DEFAULT_GOOGLE_ADS_API_VERSION = 'v25';
 const ALLOWED_BATCH_STATUSES = new Set(['pending', 'queued', 'ready', 'ready_for_fetch', 'partial']);
 const SENSITIVE_FIELD_PATTERN = /(authorization|access[_-]?token|refresh[_-]?token|developer[_-]?token|client[_-]?secret|service[_-]?role|apikey|api[_-]?key|secret|password|credential|cookie)/i;
 const SENSITIVE_STRING_PATTERN = /(Bearer\s+)[A-Za-z0-9._~+\/-]+=*|((?:developer|refresh|access)[_-]?token[=:]\s*)[^\s,}]+|((?:client[_-]?secret|service[_-]?role[_-]?key|authorization)[=:]\s*)[^\s,}]+/gi;
@@ -229,7 +230,6 @@ function buildGoogleAdsRequest(keywords: string[]): GoogleAdsMetricRequest {
 }
 
 async function runGoogleAdsKeywordMetrics(requestPayload: GoogleAdsMetricRequest, accessToken: string) {
-  const developerToken = process.env.GOOGLE_ADS_DEVELOPER_TOKEN;
   const loginCustomerId = sanitizeCustomerId(process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID);
 
   if (!requestPayload.endpoint) throw new Error('GOOGLE_ADS_CUSTOMER_ID is not configured.');
@@ -238,7 +238,6 @@ async function runGoogleAdsKeywordMetrics(requestPayload: GoogleAdsMetricRequest
     Authorization: `Bearer ${accessToken}`,
     'Content-Type': 'application/json',
   };
-  if (developerToken) headers['developer-token'] = developerToken;
   if (loginCustomerId) headers['login-customer-id'] = loginCustomerId;
 
   const response = await fetch(requestPayload.endpoint, {
@@ -484,7 +483,7 @@ async function handler(request: NextRequest) {
     let remainingKeywordRows: number | null = null;
     const safeError: string | null = null;
     const apiVersion = process.env.GOOGLE_ADS_API_VERSION || DEFAULT_GOOGLE_ADS_API_VERSION;
-    const ingestionRunId = crypto.randomUUID();
+    const ingestionRunId = randomUUID();
 
     if (!dryRun && keywords.length) {
       const accessToken = await getOAuthAccessToken();
@@ -560,7 +559,7 @@ async function handler(request: NextRequest) {
       write_mode: dryRun ? 'dry_run' : 'snapshot_upsert',
       access_model: 'google_cloud_project_oauth',
       google_ads_api_version: apiVersion,
-      developer_token_header_sent: Boolean(process.env.GOOGLE_ADS_DEVELOPER_TOKEN),
+      developer_token_header_sent: false,
     });
   } catch (error) {
     const googleAdsDiagnostics = error instanceof GoogleAdsApiError ? error.diagnostics : {};
