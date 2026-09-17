@@ -284,7 +284,10 @@ function placementRow(
 }
 
 function primaryPhraseCount(keyword: string, value: string) {
-  return [...new Set([keyword.toLowerCase(), naturalKeywordPhrase(keyword).toLowerCase()])]
+  // Search shorthand and its grammatical form can normalize to the same
+  // phrase (mens / men's). Count an occurrence once, while still detecting
+  // actual repetition of either representation in customer copy.
+  return [...new Set([normalize(keyword), normalize(naturalKeywordPhrase(keyword))])]
     .reduce((count, phrase) => count + exactPhraseCount(phrase, value), 0);
 }
 

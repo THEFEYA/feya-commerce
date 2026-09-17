@@ -46,6 +46,25 @@ test('passes a naturally distributed primary keyword', () => {
   assert.deepEqual(result.placements[0].fields.slice(0, 4), ['seo_title', 'h1', 'meta_description', 'intro']);
 });
 
+test('counts apostrophe-normalized Primary once and still blocks actual repetition', () => {
+  const value = {
+    ...output(),
+    seo_title: "Men's Burning Man Costume with Segmented Armor",
+    h1: "Men's Burning Man Costume with Segmented Armor",
+    meta_description: "Men's Burning Man costume with segmented armor and buckle straps.",
+    intro: "A men's armor outfit for Burning Man.",
+    pdp_blocks: [],
+    image_alt_candidates: [],
+  };
+  const result = validateSeoKeywordPlacement(value, contract('mens burning man costume'));
+  assert.equal(result.ok, true);
+  assert.equal(result.placements.find((row) => row.role === 'primary')?.exact_occurrences, 3);
+  value.meta_description += ' Mens Burning Man costume.';
+  const repeated = validateSeoKeywordPlacement(value, contract('mens burning man costume'));
+  assert.equal(repeated.ok, false);
+  assert.ok(repeated.issues.some((issue) => issue.code === 'primary_exact_phrase_repeated_within_owned_field'));
+});
+
 test('keeps a confirmed character bodysuit costume as the whole PDP identity', () => {
   const draft = contract('witch bodysuit costume');
   draft.product_truth = {
