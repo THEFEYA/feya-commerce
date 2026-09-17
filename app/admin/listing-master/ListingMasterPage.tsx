@@ -1231,6 +1231,11 @@ function applyAutoFocus(filters, product) {
   const hasUrlFocus = FOCUS_FIELDS.some((field) => valuesOf(filters[field]).length) || filters.q || filters.exclude;
   if (filters.focusApplied || hasUrlFocus) return { ...filters, inferred, focusSource: 'url' };
   const savedFocus = recordOf(product?.decision?.manual_focus_json);
+  const savedOfferIsCurrent = Boolean(
+    product?.sellableOffer?.status === 'ready'
+    && product.sellableOffer.signature
+    && val(savedFocus?.sellable_offer_signature) === val(product.sellableOffer.signature),
+  );
   if (
     savedFocus?.selection_verified === true
     && FOCUS_FIELDS.some((field) => Object.prototype.hasOwnProperty.call(savedFocus, field))
