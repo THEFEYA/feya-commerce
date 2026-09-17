@@ -222,3 +222,28 @@ export type SeoBriefReadiness = {
   content_full_description_count?: number | null;
   [key: string]: unknown;
 };
+
+
+export type SeoPagePortfolioRow = {
+  seo_page_id: string;
+  canonical_product_id?: string | null;
+  page_type?: string | null;
+  url_path?: string | null;
+  canonical_url?: string | null;
+  market_code?: string | null;
+  locale?: string | null;
+  lifecycle_state?: string | null;
+  indexation_intent?: string | null;
+  portfolio_status?: string | null;
+  protected_winner_flag?: boolean | null;
+  card_title?: string | null;
+  h1?: string | null;
+  product_type?: string | null;
+  material?: string | null;
+  color?: string | null;
+  ownership_count?: number | null;
+  primary_ownership_count?: number | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  [key: string]: unknown;
+};
