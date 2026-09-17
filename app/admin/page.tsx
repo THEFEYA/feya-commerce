@@ -46,6 +46,10 @@ export default function AdminHomePage() {
             <strong>SEO Keywords</strong>
             <span>Read-only cleanup and validation status for SEO keyword candidates.</span>
           </Link>
+          <Link className="card metric" href="/admin/seo-portfolio">
+            <strong>SEO Portfolio</strong>
+            <span>Stable page IDs, lifecycle, indexation intent and future query ownership.</span>
+          </Link>
         </div>
       </div>
     </main>
