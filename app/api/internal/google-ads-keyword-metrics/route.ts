@@ -58,6 +58,25 @@ function asBoolean(value: unknown) {
   return false;
 }
 
+function asNumber(value: unknown) {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string' && value.trim()) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
+function normalizeKeyword(value: unknown) {
+  const text = asString(value);
+  return text ? text.toLowerCase().trim().replace(/\s+/g, ' ') : null;
+}
+
+function microsToCurrencyUnits(value: unknown) {
+  const numeric = asNumber(value);
+  return numeric == null ? null : numeric / 1_000_000;
+}
+
 function clampLimit(value: unknown) {
   const parsed = typeof value === 'string' ? Number(value) : value;
   if (typeof parsed !== 'number' || !Number.isFinite(parsed)) return DEFAULT_LIMIT;
@@ -236,7 +255,8 @@ async function runGoogleAdsKeywordMetrics(requestPayload: GoogleAdsMetricRequest
     throw new GoogleAdsApiError(message, getGoogleAdsDiagnostics(requestPayload, loginCustomerId, response.status, requestId, payload));
   }
 
-  return payload;
+  const requestId = response.headers.get('request-id') || response.headers.get('x-request-id') || response.headers.get('x-google-ads-request-id');
+  return { payload, requestId };
 }
 
 function getRequestedBatchId(body: UnknownRecord, searchParams: URLSearchParams) {
@@ -262,6 +282,158 @@ async function getKeywordRows(supabase: ReturnType<typeof getSupabaseServiceRole
 
   if (!legacyBatchLookup.error) return legacyBatchLookup;
   return metricBatchLookup.error ? metricBatchLookup : legacyBatchLookup;
+}
+
+
+type GoogleAdsHistoricalMetricResult = {
+  text?: unknown;
+  closeVariants?: unknown;
+  keywordMetrics?: unknown;
+};
+
+function getHistoricalMetricResults(payload: unknown): GoogleAdsHistoricalMetricResult[] {
+  if (!payload || typeof payload !== 'object') return [];
+  const results = 'results' in payload ? (payload as UnknownRecord).results : null;
+  return Array.isArray(results) ? (results as GoogleAdsHistoricalMetricResult[]) : [];
+}
+
+function getMetricObject(result: GoogleAdsHistoricalMetricResult): UnknownRecord {
+  return result.keywordMetrics && typeof result.keywordMetrics === 'object' ? (result.keywordMetrics as UnknownRecord) : {};
+}
+
+function getCloseVariants(result: GoogleAdsHistoricalMetricResult) {
+  return Array.isArray(result.closeVariants)
+    ? result.closeVariants.map(normalizeKeyword).filter((value): value is string => Boolean(value))
+    : [];
+}
+
+function getResultKeywordNorms(result: GoogleAdsHistoricalMetricResult) {
+  return Array.from(new Set([normalizeKeyword(result.text), ...getCloseVariants(result)].filter((value): value is string => Boolean(value))));
+}
+
+function getBatchKeywordId(row: UnknownRecord) {
+  return asString(row.metric_batch_keyword_id);
+}
+
+function getBatchKeywordNorm(row: UnknownRecord) {
+  return normalizeKeyword(row.keyword_norm) || normalizeKeyword(getKeyword(row));
+}
+
+function getBatchGeo(batch: UnknownRecord | null) {
+  return asString(batch?.request_geo) || 'US';
+}
+
+function getBatchLanguage(batch: UnknownRecord | null) {
+  return asString(batch?.request_language) || 'en';
+}
+
+async function getKeywordMasterIds(
+  supabase: ReturnType<typeof getSupabaseServiceRoleClient>,
+  keywordNorms: string[],
+) {
+  if (!supabase || !keywordNorms.length) return new Map<string, number>();
+
+  const { data, error } = await supabase
+    .from('feya_commerce_seo_keyword_master_v1')
+    .select('keyword_id,keyword_norm')
+    .in('keyword_norm', keywordNorms);
+
+  if (error) throw new Error(error.message);
+
+  const result = new Map<string, number>();
+  for (const row of (data || []) as Array<{ keyword_id?: unknown; keyword_norm?: unknown }>) {
+    const keywordNorm = normalizeKeyword(row.keyword_norm);
+    const keywordId = asNumber(row.keyword_id);
+    if (keywordNorm && keywordId != null) result.set(keywordNorm, Math.trunc(keywordId));
+  }
+  return result;
+}
+
+async function saveHistoricalMetricSnapshots(args: {
+  supabase: ReturnType<typeof getSupabaseServiceRoleClient>;
+  batch: UnknownRecord | null;
+  batchId: string;
+  keywordRows: UnknownRecord[];
+  payload: unknown;
+  requestId: string | null;
+  apiVersion: string;
+  ingestionRunId: string;
+}) {
+  const { supabase, batch, batchId, keywordRows, payload, requestId, apiVersion, ingestionRunId } = args;
+  if (!supabase) throw new Error(getMissingSupabaseServiceRoleEnvMessage());
+
+  const rowsByNorm = new Map<string, UnknownRecord[]>();
+  for (const row of keywordRows) {
+    const keywordNorm = getBatchKeywordNorm(row);
+    if (!keywordNorm) continue;
+    const rows = rowsByNorm.get(keywordNorm) || [];
+    rows.push(row);
+    rowsByNorm.set(keywordNorm, rows);
+  }
+
+  const keywordMasterIds = await getKeywordMasterIds(supabase, Array.from(rowsByNorm.keys()));
+  const now = new Date().toISOString();
+  const geo = getBatchGeo(batch);
+  const language = getBatchLanguage(batch);
+  const upsertRows: UnknownRecord[] = [];
+
+  for (const result of getHistoricalMetricResults(payload)) {
+    const metric = getMetricObject(result);
+    const matchingRows = getResultKeywordNorms(result).flatMap((keywordNorm) => rowsByNorm.get(keywordNorm) || []);
+    if (!matchingRows.length) continue;
+
+    for (const row of matchingRows) {
+      const keywordNorm = getBatchKeywordNorm(row);
+      const batchKeywordId = getBatchKeywordId(row);
+      if (!keywordNorm || !batchKeywordId) continue;
+
+      upsertRows.push({
+        keyword_norm: keywordNorm,
+        source_api: 'google_ads_keyword_planner',
+        geo,
+        language,
+        avg_monthly_searches: asNumber(metric.avgMonthlySearches),
+        competition: asString(metric.competition),
+        competition_index: asNumber(metric.competitionIndex),
+        low_top_of_page_bid: microsToCurrencyUnits(metric.lowTopOfPageBidMicros),
+        high_top_of_page_bid: microsToCurrencyUnits(metric.highTopOfPageBidMicros),
+        monthly_search_volumes_json: Array.isArray(metric.monthlySearchVolumes) ? metric.monthlySearchVolumes : null,
+        fetched_at: now,
+        raw_payload_json: {
+          result,
+          metric_batch_id: batchId,
+          metric_batch_keyword_id: batchKeywordId,
+        },
+        data_freshness_status: 'fresh_api_fetch',
+        metric_batch_id: batchId,
+        metric_batch_keyword_id: batchKeywordId,
+        keyword_id: keywordMasterIds.get(keywordNorm) || null,
+        source_request_id: requestId,
+        api_version: apiVersion,
+        ingestion_run_id: ingestionRunId,
+        access_model: 'google_cloud_project_oauth',
+      });
+    }
+  }
+
+  if (!upsertRows.length) {
+    throw new Error('Google Ads returned no historical metric results that matched the requested batch keywords.');
+  }
+
+  const { data, error } = await supabase
+    .from('feya_commerce_seo_keyword_metric_snapshots_v1')
+    .upsert(upsertRows, {
+      onConflict: 'metric_batch_keyword_id,source_api',
+      ignoreDuplicates: false,
+    })
+    .select('snapshot_id,metric_batch_keyword_id,keyword_norm');
+
+  if (error) throw new Error(error.message);
+
+  return {
+    savedRows: data?.length || upsertRows.length,
+    savedKeywordNorms: Array.from(new Set(upsertRows.map((row) => asString(row.keyword_norm)).filter((value): value is string => Boolean(value)))),
+  };
 }
 
 async function handler(request: NextRequest) {
@@ -304,14 +476,46 @@ async function handler(request: NextRequest) {
 
     let googleAdsRequestOk = false;
     let savedRows = 0;
+    let savedKeywordNorms: string[] = [];
     const safeError: string | null = null;
+    const apiVersion = process.env.GOOGLE_ADS_API_VERSION || DEFAULT_GOOGLE_ADS_API_VERSION;
+    const ingestionRunId = crypto.randomUUID();
 
     if (!dryRun && keywords.length) {
       const accessToken = await getOAuthAccessToken();
-      await runGoogleAdsKeywordMetrics(googleAdsRequest, accessToken);
+      const { payload, requestId } = await runGoogleAdsKeywordMetrics(googleAdsRequest, accessToken);
       googleAdsRequestOk = true;
-      // Intentionally not writing yet: target staging/snapshot table mapping is not explicit in this repo.
-      savedRows = 0;
+
+      const saved = await saveHistoricalMetricSnapshots({
+        supabase,
+        batch,
+        batchId,
+        keywordRows: (keywordRows || []) as UnknownRecord[],
+        payload,
+        requestId,
+        apiVersion,
+        ingestionRunId,
+      });
+      savedRows = saved.savedRows;
+      savedKeywordNorms = saved.savedKeywordNorms;
+
+      const { error: batchUpdateError } = await supabase
+        .from('feya_metric_request_batch_v1')
+        .update({
+          batch_status: 'applied',
+          result_summary_json: {
+            provider: 'google_ads_api',
+            saved_rows: savedRows,
+            saved_keyword_norms: savedKeywordNorms,
+            api_version: apiVersion,
+            ingestion_run_id: ingestionRunId,
+            completed_at: new Date().toISOString(),
+          },
+          updated_at: new Date().toISOString(),
+        })
+        .eq('metric_batch_id', batchId);
+
+      if (batchUpdateError) throw new Error(batchUpdateError.message);
     }
 
     return NextResponse.json({
@@ -321,12 +525,13 @@ async function handler(request: NextRequest) {
       dry_run: dryRun,
       google_ads_request_ok: googleAdsRequestOk,
       saved_rows: savedRows,
+      saved_keyword_norms: savedKeywordNorms,
       safe_error_message: safeError,
       google_ads_request: googleAdsRequest,
       keyword_limit: limit,
-      write_mode: 'disabled_until_target_metric_table_confirmed',
+      write_mode: dryRun ? 'dry_run' : 'snapshot_upsert',
       access_model: 'google_cloud_project_oauth',
-      google_ads_api_version: process.env.GOOGLE_ADS_API_VERSION || DEFAULT_GOOGLE_ADS_API_VERSION,
+      google_ads_api_version: apiVersion,
       developer_token_header_sent: Boolean(process.env.GOOGLE_ADS_DEVELOPER_TOKEN),
     });
   } catch (error) {
