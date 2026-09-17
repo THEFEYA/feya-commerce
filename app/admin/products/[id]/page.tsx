@@ -7,6 +7,7 @@ import type {
   ProductBuilderMatchItem,
   ProductBuilderMediaItem,
   ProductBuilderPrice,
+  SeoBriefReadiness,
 } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -16,24 +17,39 @@ type PageProps = {
   params: Promise<{ id: string }>;
 };
 
-async function getProduct(id: string): Promise<{ product: AdminProductBuilderDetail | null; error?: string }> {
+async function getProduct(id: string): Promise<{
+  product: AdminProductBuilderDetail | null;
+  seoReadiness: SeoBriefReadiness | null;
+  error?: string;
+}> {
   const supabase = getSupabaseReadClient();
 
   if (!supabase) {
-    return { product: null, error: getMissingSupabaseEnvMessage() };
+    return { product: null, seoReadiness: null, error: getMissingSupabaseEnvMessage() };
   }
 
-  const { data, error } = await supabase
-    .from('feya_commerce_v_step6_product_builder_detail')
-    .select('*')
-    .eq('canonical_product_id', id)
-    .maybeSingle();
+  const [productResult, seoReadinessResult] = await Promise.all([
+    supabase
+      .from('feya_commerce_v_step6_product_builder_detail')
+      .select('*')
+      .eq('canonical_product_id', id)
+      .maybeSingle(),
+    supabase
+      .from('feya_commerce_v_seo_product_brief_readiness_v1')
+      .select('*')
+      .eq('canonical_product_id', id)
+      .maybeSingle(),
+  ]);
 
-  if (error) {
-    return { product: null, error: error.message };
+  if (productResult.error) {
+    return { product: null, seoReadiness: null, error: productResult.error.message };
   }
 
-  return { product: data as AdminProductBuilderDetail | null };
+  return {
+    product: productResult.data as AdminProductBuilderDetail | null,
+    seoReadiness: seoReadinessResult.error ? null : (seoReadinessResult.data as SeoBriefReadiness | null),
+    ...(seoReadinessResult.error ? { error: `SEO readiness: ${seoReadinessResult.error.message}` } : {}),
+  };
 }
 
 function asText(value: unknown, fallback = '—') {
@@ -105,7 +121,7 @@ function Fact({ label, value }: { label: string; value: unknown }) {
 
 export default async function AdminProductBuilderDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const { product, error } = await getProduct(id);
+  const { product, seoReadiness, error } = await getProduct(id);
 
   if (error) {
     return (
@@ -225,6 +241,29 @@ export default async function AdminProductBuilderDetailPage({ params }: PageProp
           <Fact label="Meta description" value={product.meta_description} />
           <Fact label="Internal notes" value={product.notes} />
         </section>
+
+        <section className="section-head">
+          <div>
+            <h2>SEO brief readiness</h2>
+            <p className="muted">Safe per-product readiness indicators from the existing SEO brief pipeline.</p>
+          </div>
+        </section>
+
+        {seoReadiness ? (
+          <section className="grid pdp-section-grid">
+            <Fact label="SEO brief status" value={seoReadiness.seo_brief_readiness_status} />
+            <Fact label="Priority order" value={seoReadiness.seo_brief_priority_order} />
+            <Fact label="Media / public media" value={`${seoReadiness.media_count ?? 0} / ${seoReadiness.public_media_count ?? 0}`} />
+            <Fact label="Alt text coverage" value={seoReadiness.alt_text_count} />
+            <Fact label="Configurations / public" value={`${seoReadiness.sellable_configuration_count ?? 0} / ${seoReadiness.public_configuration_count ?? 0}`} />
+            <Fact label="Content drafts" value={seoReadiness.content_draft_count} />
+            <Fact label="SEO title drafts" value={seoReadiness.content_seo_title_count} />
+            <Fact label="Meta drafts" value={seoReadiness.content_meta_count} />
+            <Fact label="Full description drafts" value={seoReadiness.content_full_description_count} />
+          </section>
+        ) : (
+          <div className="notice">SEO brief readiness is not available for this product.</div>
+        )}
 
         <section className="section-head">
           <div>
