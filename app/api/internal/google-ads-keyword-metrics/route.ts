@@ -229,6 +229,42 @@ function buildGoogleAdsRequest(keywords: string[]): GoogleAdsMetricRequest {
   };
 }
 
+async function getGoogleAdsCustomerContext(customerId: string | null, accessToken: string) {
+  if (!customerId) return { currencyCode: null as string | null, timeZone: null as string | null };
+
+  const loginCustomerId = sanitizeCustomerId(process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID);
+  const apiVersion = process.env.GOOGLE_ADS_API_VERSION || DEFAULT_GOOGLE_ADS_API_VERSION;
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${accessToken}`,
+    'Content-Type': 'application/json',
+  };
+  if (loginCustomerId) headers['login-customer-id'] = loginCustomerId;
+
+  try {
+    const response = await fetch(`https://googleads.googleapis.com/${apiVersion}/customers/${customerId}/googleAds:search`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        query: 'SELECT customer.currency_code, customer.time_zone FROM customer LIMIT 1',
+      }),
+      cache: 'no-store',
+    });
+
+    if (!response.ok) return { currencyCode: null, timeZone: null };
+    const payload = (await response.json().catch(() => null)) as UnknownRecord | null;
+    const results = payload && Array.isArray(payload.results) ? payload.results : [];
+    const first = results[0] && typeof results[0] === 'object' ? (results[0] as UnknownRecord) : null;
+    const customer = first?.customer && typeof first.customer === 'object' ? (first.customer as UnknownRecord) : null;
+
+    return {
+      currencyCode: asString(customer?.currencyCode),
+      timeZone: asString(customer?.timeZone),
+    };
+  } catch {
+    return { currencyCode: null, timeZone: null };
+  }
+}
+
 async function runGoogleAdsKeywordMetrics(requestPayload: GoogleAdsMetricRequest, accessToken: string) {
   const loginCustomerId = sanitizeCustomerId(process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID);
 
@@ -359,8 +395,9 @@ async function saveHistoricalMetricSnapshots(args: {
   requestId: string | null;
   apiVersion: string;
   ingestionRunId: string;
+  bidCurrencyCode: string | null;
 }) {
-  const { supabase, batch, batchId, keywordRows, payload, requestId, apiVersion, ingestionRunId } = args;
+  const { supabase, batch, batchId, keywordRows, payload, requestId, apiVersion, ingestionRunId, bidCurrencyCode } = args;
   if (!supabase) throw new Error(getMissingSupabaseServiceRoleEnvMessage());
 
   const rowsByNorm = new Map<string, UnknownRecord[]>();
@@ -398,6 +435,7 @@ async function saveHistoricalMetricSnapshots(args: {
         competition_index: asNumber(metric.competitionIndex),
         low_top_of_page_bid: microsToCurrencyUnits(metric.lowTopOfPageBidMicros),
         high_top_of_page_bid: microsToCurrencyUnits(metric.highTopOfPageBidMicros),
+        bid_currency_code: bidCurrencyCode,
         monthly_search_volumes_json: Array.isArray(metric.monthlySearchVolumes) ? metric.monthlySearchVolumes : null,
         fetched_at: now,
         raw_payload_json: {
@@ -487,6 +525,7 @@ async function handler(request: NextRequest) {
 
     if (!dryRun && keywords.length) {
       const accessToken = await getOAuthAccessToken();
+      const customerContext = await getGoogleAdsCustomerContext(googleAdsRequest.customerId, accessToken);
       const { payload, requestId } = await runGoogleAdsKeywordMetrics(googleAdsRequest, accessToken);
       googleAdsRequestOk = true;
 
@@ -499,6 +538,7 @@ async function handler(request: NextRequest) {
         requestId,
         apiVersion,
         ingestionRunId,
+        bidCurrencyCode: customerContext.currencyCode,
       });
       savedRows = saved.savedRows;
       savedKeywordNorms = saved.savedKeywordNorms;
@@ -534,6 +574,8 @@ async function handler(request: NextRequest) {
             remaining_keyword_rows: remainingKeywordRows,
             api_version: apiVersion,
             ingestion_run_id: ingestionRunId,
+            bid_currency_code: customerContext.currencyCode,
+            customer_time_zone: customerContext.timeZone,
             last_fetch_at: new Date().toISOString(),
             ...(batchStatus === 'applied' ? { completed_at: new Date().toISOString() } : {}),
           },
