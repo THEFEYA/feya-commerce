@@ -118,6 +118,25 @@ type RightPanelOverride = Partial<Record<string, readonly string[]>>;
  * and the more dangerous alternative of showing false universal material copy.
  */
 const THEFEYA_PRODUCT_RIGHT_PDP_OVERRIDES: Record<string, RightPanelOverride> = {
+  // Batch11: source and primary-photo review distinguish holographic panels
+  // from mirror finishes, and retain the first outfit's actual feather trim.
+  '6a4c1f02-8f02-4aca-b70d-8d9ac66b9b40': {
+    material: [
+      'This costume combines holographic vegan-leather panels with white feather trim.',
+      'The smooth, shiny panels show subtle shifts of color.',
+    ],
+    care: [
+      'The coated panels and feather trim need separate care. Contact us for guidance before using a cleaning product on the trim.',
+      'Do not machine wash or soak the costume.',
+      'Store without crushing the feathers, tightly folding the panels or placing heavy items on the costume.',
+    ],
+  },
+  '51a30d6f-a588-49b9-b077-5f33488efd36': {
+    material: [
+      'This costume is made from vegan leather with a smooth, shiny holographic surface.',
+      'The coated panels show subtle shifts of color and hold their shape between wears.',
+    ],
+  },
   'a83b1b51-79be-4cae-a943-661060a34080': {
     material: ['Glossy armor panels are held by black straps with buckle fastenings.'],
     care: ['Wipe the panels gently with a soft, lightly damp cloth.', 'Avoid abrasive cleaners, solvents and machine washing.', 'Store without crushing or tightly folding the panels.'],
