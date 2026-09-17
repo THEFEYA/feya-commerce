@@ -21,6 +21,7 @@ async function getProduct(id: string): Promise<{
   product: AdminProductBuilderDetail | null;
   seoReadiness: SeoBriefReadiness | null;
   error?: string;
+  warning?: string;
 }> {
   const supabase = getSupabaseReadClient();
 
@@ -48,7 +49,7 @@ async function getProduct(id: string): Promise<{
   return {
     product: productResult.data as AdminProductBuilderDetail | null,
     seoReadiness: seoReadinessResult.error ? null : (seoReadinessResult.data as SeoBriefReadiness | null),
-    ...(seoReadinessResult.error ? { error: `SEO readiness: ${seoReadinessResult.error.message}` } : {}),
+    ...(seoReadinessResult.error ? { warning: `SEO readiness: ${seoReadinessResult.error.message}` } : {}),
   };
 }
 
@@ -121,7 +122,7 @@ function Fact({ label, value }: { label: string; value: unknown }) {
 
 export default async function AdminProductBuilderDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const { product, seoReadiness, error } = await getProduct(id);
+  const { product, seoReadiness, error, warning } = await getProduct(id);
 
   if (error) {
     return (
@@ -187,6 +188,8 @@ export default async function AdminProductBuilderDetailPage({ params }: PageProp
             {product.styled_imagery_flag ? <span className="badge">Styled imagery</span> : null}
           </div>
         </section>
+
+        {warning ? <div className="notice">{warning}</div> : null}
 
         <section className="section-head">
           <div>
