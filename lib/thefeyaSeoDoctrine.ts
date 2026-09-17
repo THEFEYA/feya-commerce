@@ -118,6 +118,29 @@ type RightPanelOverride = Partial<Record<string, readonly string[]>>;
  * and the more dangerous alternative of showing false universal material copy.
  */
 const THEFEYA_PRODUCT_RIGHT_PDP_OVERRIDES: Record<string, RightPanelOverride> = {
+  // Batch12: keep the owner's leather choice distinct from coated vegan panels.
+  '596c5ec2-e59e-484f-8f73-89221f2b4171': {
+    material: ['This set combines leather straps with silver-tone hardware.'],
+    care: [
+      'Wipe the leather gently with a soft, slightly damp cloth.',
+      'Do not use alcohol wipes, machine washing or prolonged soaking on these pieces.',
+      'Store without tight folding or long-term heavy pressure.',
+    ],
+  },
+  'b8ab6fa1-1af6-4c52-b6fb-5b766e6d99da': {
+    material: ['This set combines leather straps with silver-tone rings and buckles.'],
+    care: [
+      'Wipe the leather gently with a soft, slightly damp cloth.',
+      'Do not use alcohol wipes, machine washing or prolonged soaking on these pieces.',
+      'Store without tight folding or long-term heavy pressure.',
+    ],
+  },
+  'f0e73d70-cf3d-4557-8d59-142c78a106ac': {
+    material: [
+      'This top and skirt set is made from vegan leather with a smooth, shiny holographic surface.',
+      'The coated panels show subtle shifts of color.',
+    ],
+  },
   // Batch11: source and primary-photo review distinguish holographic panels
   // from mirror finishes, and retain the first outfit's actual feather trim.
   '6a4c1f02-8f02-4aca-b70d-8d9ac66b9b40': {

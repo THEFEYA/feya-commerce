@@ -232,6 +232,12 @@ const PERSONA_FAMILIES: Record<string, string[]> = {
 // phrase. The exception remains exact product + exact validated keyword; it
 // never invents metrics or weakens the whole-product gate for other products.
 const OWNER_REVIEWED_PDP_PRIMARY: Record<string, string> = {
+  // Batch12: current owner axes, measured whole-offer queries and photo review.
+  'ff0996b6-f369-4313-baf5-2d465d9c06f2': 'burning man costumes for women',
+  '596c5ec2-e59e-484f-8f73-89221f2b4171': 'black harness outfit',
+  'b68d0386-ed1f-4410-8001-185bf3aaf25f': 'silver fringe outfit',
+  'f0e73d70-cf3d-4557-8d59-142c78a106ac': 'holographic outfit',
+  'b8ab6fa1-1af6-4c52-b6fb-5b766e6d99da': 'harness top outfit',
   // Batch11: preserved owner axes; measured, individually reviewed outfit intents.
   '6a4c1f02-8f02-4aca-b70d-8d9ac66b9b40': 'holographic rave outfit',
   '51a30d6f-a588-49b9-b077-5f33488efd36': 'cyberpunk rave outfit',
@@ -326,9 +332,9 @@ export function recommendCatalogKeywords(input: {
   const allProductRows = scored.filter((row) => (
     PRODUCT_BUCKETS.has(normalize(row.bank_bucket || row.page_type))
   ));
-  const ownerReviewedRow = ownerReviewedKeyword
-    ? allProductRows.find((row) => normalize(row.keyword_norm || row.keyword) === ownerReviewedKeyword)
-    : null;
+  // A reviewed whole-offer query may be stored in a visual/collection bucket.
+  // Reserve that exact eligible row before support-bucket limits truncate it.
+  const ownerReviewedRow = ownerReviewedEligibleRow || null;
   // An exact owner-reviewed Primary is already bounded by product id, trusted
   // bank evidence and every mismatch gate above. Reserve its one slot before
   // applying the compact top-ten display limit; otherwise a valid lower-volume
@@ -683,7 +689,13 @@ function scoreRow(
 ): ScoredKeywordRow {
   const keyword = normalize(row.keyword_norm || row.keyword);
   const bucket = normalize(row.bank_bucket || row.page_type);
-  const keywordComponents = detectedFamilies(keyword, COMPONENT_FAMILIES);
+  // For this exact reviewed offer, "harness top" names its Chest Harness
+  // option, not an additional top. Other products keep their existing ranking.
+  const componentKeyword = profile.canonicalProductId === 'b8ab6fa1-1af6-4c52-b6fb-5b766e6d99da'
+    && keyword === OWNER_REVIEWED_PDP_PRIMARY[profile.canonicalProductId]
+    ? keyword.replace(/\bharness top\b/g, 'harness')
+    : keyword;
+  const keywordComponents = detectedFamilies(componentKeyword, COMPONENT_FAMILIES);
   const keywordColors = detectedColorFamilies(keyword);
   const keywordAudiences = detectedFamilies(keyword, AUDIENCE_FAMILIES);
   const keywordEvents = detectedFamilies(keyword, EVENT_FAMILIES);
@@ -821,7 +833,7 @@ function scoreRow(
   // title; token overlap must not undo that bounded review. Every factual
   // color/event/persona/visual gate above still applies.
   else if (productBucket && !productIdentityGate && !exactOwnerReviewedPrimary) rejectReason = 'insufficient_product_truth_overlap';
-  else if (!productBucket && !supportIntentGate) rejectReason = 'insufficient_focus_overlap';
+  else if (!productBucket && !supportIntentGate && !exactOwnerReviewedPrimary) rejectReason = 'insufficient_focus_overlap';
 
   const productScopeScore = profile.presentation.requires_whole_product_entity
     ? wholeProductIntent ? 80 : partialComponentScope ? -35 : 0

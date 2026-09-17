@@ -14,6 +14,26 @@ const baseMetric = {
   score: 70,
 };
 
+test('reviewed holographic whole outfit keeps its visual-axis truth gate', () => {
+  const input = {
+    product: { canonical_product_id: 'f0e73d70-cf3d-4557-8d59-142c78a106ac', card_title: 'Buckle Top and Skirt', sellable_offer_components: ['Top', 'Skirt'] },
+    focus: { component_focus_contract: 'seo_search_axes_v1', component: ['top', 'skirt'], material: ['holographic', 'vegan leather'], event: ['rave'] },
+    approvedKeywords: [{ ...baseMetric, keyword: 'holographic outfit', bank_bucket: 'visual_collection', avg_monthly_searches: 210 }],
+  };
+  assert.equal(recommendCatalogKeywords(input).keywords.find(row => row.role === 'primary')?.keyword, 'holographic outfit');
+  assert.equal(recommendCatalogKeywords({ ...input, focus: { ...input.focus, material: ['vegan leather'] } }).keywords.length, 0);
+});
+
+test('harness top alias preserves the harness axis without admitting an unrelated top', () => {
+  const result = recommendCatalogKeywords({
+    product: { canonical_product_id: 'b8ab6fa1-1af6-4c52-b6fb-5b766e6d99da', card_title: 'Leather Chest Harness', sellable_offer_components: ['Choker', 'Chest Harness', 'Garters'] },
+    focus: { component_focus_contract: 'seo_search_axes_v1', component: ['harness', 'legs', 'choker'], material: ['leather'], event: ['pride'], audience: ['men'] },
+    approvedKeywords: ['harness top outfit', 'leather top outfit'].map(keyword => ({ ...baseMetric, keyword, bank_bucket: 'product', avg_monthly_searches: 10 })),
+  });
+  assert.equal(result.keywords.find(row => row.role === 'primary')?.keyword, 'harness top outfit');
+  assert.equal(result.keywords.some(row => row.keyword === 'leather top outfit'), false);
+});
+
 test('black arm-and-leg set retains owner exclusions while using its measured rave intent', () => {
   const input = {
     product: {
