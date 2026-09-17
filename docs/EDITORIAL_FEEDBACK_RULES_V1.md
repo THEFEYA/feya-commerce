@@ -88,5 +88,10 @@ Substrate, color and finish remain separate: acrylic/plastic, gold, glossy mirro
 
 For this acrylic exception, gentle damp-cloth care and avoiding abrasive cleaners/solvents follow the conservative guidance in [ACRYLITE care instructions](https://www.acrylite.co/resources/fabrication-manuals/clean-disinfect-and-maintain-acrylite-acrylic-sheet). This is substrate-level guidance, not evidence of a particular coating brand or solvent tolerance.
 
+## R25. Couple listings show each partner's composition together
+Owner clarification, 2026-09-17, listing 1765624488: Women's Outfit includes Choker, Top, Skirt and Bracelets; Men's Outfit includes Choker, Shoulders, Bicep Piece and Bracelet. Keep two visible, labelled lists in What's Included, regardless of the currently selected outfit. Preserve the original variation IDs and prices, and explain that the selected option determines the contents purchased and displayed price. Never imply that one outfit price includes both partners' outfits.
+
+Apply this layout to other couple listings only when both partner options have explicit, verified member lists. Titles, photos and SEO axes cannot fabricate either composition. Describe the benefit of complementary designs and individual character naturally; use relevant measured matching/couple search vocabulary without forcing every word-order variation into the prose. Preserve owner-selected search axes when composition is corrected, while still requiring an updated keyword decision before generation.
+
 ## Process rule
 Every owner review is captured the same way: complaint → named rule → committed here → reflected in prompts/validators. Cumulative and versioned.

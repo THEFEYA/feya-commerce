@@ -13,6 +13,7 @@ import {
   LISTING_MASTER_SEARCH_AXIS_CONTRACT,
   partitionListingMasterComponentAxes,
   reconcileListingMasterComponentFocus,
+  restoreListingMasterComponentAxes,
 } from '@/lib/listingMasterSearchAxisContract';
 import {
   productComponentAssertionScope,
@@ -1230,27 +1231,16 @@ function applyAutoFocus(filters, product) {
   const hasUrlFocus = FOCUS_FIELDS.some((field) => valuesOf(filters[field]).length) || filters.q || filters.exclude;
   if (filters.focusApplied || hasUrlFocus) return { ...filters, inferred, focusSource: 'url' };
   const savedFocus = recordOf(product?.decision?.manual_focus_json);
-  const savedOfferIsCurrent = Boolean(
-    product?.sellableOffer?.status === 'ready'
-    && product.sellableOffer.signature
-    && val(savedFocus?.sellable_offer_signature) === val(product.sellableOffer.signature),
-  );
   if (
     savedFocus?.selection_verified === true
     && FOCUS_FIELDS.some((field) => Object.prototype.hasOwnProperty.call(savedFocus, field))
   ) {
     const savedStrategy = product?.decision?.selected_strategy || savedFocus.strategies || filters.strategy;
-    const focusReconciliation = reconcileListingMasterComponentFocus(
+    const restoredComponents = restoreListingMasterComponentAxes(
       savedFocus,
       product?.sellableOffer,
+      valuesOf(inferred.component),
     );
-    const restoredComponents = savedOfferIsCurrent
-      ? focusReconciliation.usesSearchAxisContract
-        ? focusReconciliation.selected
-        : focusReconciliation.sellableComponentAxes.length
-          ? focusReconciliation.sellableComponentAxes
-          : valuesOf(inferred.component)
-      : valuesOf(inferred.component);
     return {
       ...filters,
       ...Object.fromEntries(FOCUS_FIELDS.map((field) => [field, joinValues(savedFocus[field])])),

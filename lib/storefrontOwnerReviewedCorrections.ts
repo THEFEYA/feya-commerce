@@ -165,14 +165,15 @@ const BATCH08_REVIEWED_OPTIONS = {
     'aefa2c61-c430-4675-9964-9cd1e3f1658e': {
       public_label: "Men's Outfit", component_code: 'mens_outfit', component_family: 'Bundle',
       is_bundle: true, is_full_set: false,
-      bundle_component_codes: ['choker', 'shoulders', 'arms'],
-      bundle_component_labels: ['Choker', 'Shoulders', 'Arm Pieces'],
+      // Owner clarified the two distinct arm accessories on 2026-09-17.
+      bundle_component_codes: ['choker', 'shoulders', 'biceps', 'bracelet'],
+      bundle_component_labels: ['Choker', 'Shoulders', 'Bicep Piece', 'Bracelet'],
     },
     '5074ad3c-af6a-4cf7-9624-ce351ee9cafc': {
       public_label: "Women's Outfit", component_code: 'womens_outfit', component_family: 'Bundle',
       is_bundle: true, is_full_set: false,
-      bundle_component_codes: ['choker', 'top', 'skirt', 'arms'],
-      bundle_component_labels: ['Choker', 'Top', 'Skirt', 'Arm Pieces'],
+      bundle_component_codes: ['choker', 'top', 'skirt', 'bracelets'],
+      bundle_component_labels: ['Choker', 'Top', 'Skirt', 'Bracelets'],
     },
   },
   '9400d8af-b6b9-4b4a-b878-b97eba761e10': {

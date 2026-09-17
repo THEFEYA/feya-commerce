@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { applyOwnerReviewedStorefrontCorrections as correct } from '../../lib/storefrontOwnerReviewedCorrections.ts';
-import { resolveStorefrontSellableOffer as offer, sellableOfferIncludedLabels, sellableOfferAvailabilitySentence } from '../../lib/storefrontSellableOffer.ts';
+import { resolveStorefrontSellableOffer as offer, sellableOfferIncludedLabels, sellableOfferAvailabilitySentence, sellableOfferCoupleIncludedGroups } from '../../lib/storefrontSellableOffer.ts';
 import { partitionListingMasterComponentAxes } from '../../lib/listingMasterSearchAxisContract.ts';
 import { resolveThefeyaRightPdpPanel } from '../../lib/thefeyaSeoDoctrine.ts';
 import { recommendCatalogKeywords } from '../../lib/seoCatalogKeywordRecommendation.ts';
@@ -294,9 +294,20 @@ test('couple listing keeps two independently priced outfits and their distinct c
  assert.equal(truth.atomic_options.length,0);
  assert.equal(truth.aggregate_options.length,2);
  assert.equal(truth.aggregate_options.some(r=>r.code==='full_set'),false);
- assert.deepEqual(sellableOfferIncludedLabels(truth,{configuration_id:'aefa2c61-c430-4675-9964-9cd1e3f1658e'}),['Choker','Shoulders','Arm Pieces']);
- assert.deepEqual(sellableOfferIncludedLabels(truth,{configuration_id:'5074ad3c-af6a-4cf7-9624-ce351ee9cafc'}),['Choker','Top','Skirt','Arm Pieces']);
+ assert.deepEqual(sellableOfferIncludedLabels(truth,{configuration_id:'aefa2c61-c430-4675-9964-9cd1e3f1658e'}),['Choker','Shoulders','Bicep Piece','Bracelet']);
+ assert.deepEqual(sellableOfferIncludedLabels(truth,{configuration_id:'5074ad3c-af6a-4cf7-9624-ce351ee9cafc'}),['Choker','Top','Skirt','Bracelets']);
+ assert.deepEqual(sellableOfferCoupleIncludedGroups(truth),[
+  {code:'womens_outfit',heading:"Women's Outfit",lines:['Choker','Top','Skirt','Bracelets']},
+  {code:'mens_outfit',heading:"Men's Outfit",lines:['Choker','Shoulders','Bicep Piece','Bracelet']},
+ ]);
+ assert.deepEqual(partitionListingMasterComponentAxes(['arms'],truth).sellableComponentAxes,['arms']);
  assert.doesNotMatch(sellableOfferAvailabilitySentence(truth),/full set|individual pieces/i);
+});
+test('couple groups require explicit partner compositions, not a couple title or partial mapping', () => {
+ assert.deepEqual(sellableOfferCoupleIncludedGroups(offer({...products[1],card_title:'Matching Couple Outfits'})),[]);
+ assert.deepEqual(sellableOfferCoupleIncludedGroups(offer({...products[0],configurations:products[0].configurations.slice(0,1)})),[]);
+ const truth=offer(products[0]);
+ assert.deepEqual(sellableOfferCoupleIncludedGroups({...truth,aggregate_options:[...truth.aggregate_options,truth.aggregate_options[0]]}),[]);
 });
 test('red grouped option restores choker without silently selecting its SEO axis', () => {
  const truth=offer(products[1]);

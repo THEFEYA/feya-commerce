@@ -238,6 +238,23 @@ export function sellableOfferAvailabilitySentence(
   return 'Each piece can be ordered separately or as a full set.';
 }
 
+/** Show both confirmed partner outfits without implying a combined purchase. */
+export function sellableOfferCoupleIncludedGroups(offer: StorefrontSellableOfferTruth) {
+  if (offer.status !== 'ready') return [];
+  const groups = ['womens_outfit', 'mens_outfit'].map((code) => (
+    offer.aggregate_options.filter((option) => option.code === code)
+  ));
+  // Require two unambiguous, explicit compositions; titles/SEO axes are not evidence.
+  if (groups.some((matches) => matches.length !== 1
+    || matches[0].mapping_source !== 'explicit_bundle_codes'
+    || !matches[0].member_labels.length)) return [];
+  return groups.map(([option]) => ({
+    code: option.code,
+    heading: option.label,
+    lines: option.member_labels,
+  }));
+}
+
 export function sellableOfferAllowsComponentFocus(
   offer: StorefrontSellableOfferTruth,
   value: unknown,

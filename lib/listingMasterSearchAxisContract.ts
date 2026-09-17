@@ -102,6 +102,22 @@ export function writerComponentAxesFromListingMasterFocus(focusValue: unknown) {
   );
 }
 
+/** Restoring owner choices is separate from validating a decision for generation. */
+export function restoreListingMasterComponentAxes(
+  focusValue: unknown,
+  offer: StorefrontSellableOfferTruth | null | undefined,
+  inferredComponents: unknown,
+) {
+  const reconciliation = reconcileListingMasterComponentFocus(focusValue, offer);
+  if (reconciliation.usesSearchAxisContract) return reconciliation.selected;
+  const focus = isRecord(focusValue) ? focusValue : {};
+  const current = offer?.status === 'ready' && offer.signature
+    && focus.sellable_offer_signature === offer.signature;
+  return current && reconciliation.sellableComponentAxes.length
+    ? reconciliation.sellableComponentAxes
+    : stringArray(inferredComponents);
+}
+
 function stringArray(value: unknown) {
   const values = Array.isArray(value) ? value : value == null ? [] : [value];
   const normalized = values
