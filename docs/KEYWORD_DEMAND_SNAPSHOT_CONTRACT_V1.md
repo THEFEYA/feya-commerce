@@ -72,7 +72,8 @@ Never expose OAuth secrets or account credentials in snapshot rows.
 - source_provider = GOOGLE_ADS_API
 - api_version
 - endpoint/method logical name
-- access_model = GOOGLE_CLOUD_PROJECT_OAUTH
+- access_model
+- bid_currency_code = GOOGLE_CLOUD_PROJECT_OAUTH
 - source_request_id where Google returns one
 - source_payload_ref or sanitized payload hash
 - ingestion_run_id
@@ -87,6 +88,7 @@ Recommended top-level fields:
 - competition_index
 - low_top_of_page_bid_micros
 - high_top_of_page_bid_micros
+- bid_currency_code
 
 Important:
 
@@ -228,3 +230,16 @@ Applied additive provenance/idempotency fields:
 Existing historical rows were not rewritten.
 
 A unique index on metric_batch_keyword_id + source_api supports retry-safe upsert for API-fetched snapshots.
+
+
+## 17. Verified implementation state
+
+Supabase audit after additive migrations:
+
+- historical snapshot row count remains 168;
+- 0 historical rows were rewritten with new batch provenance;
+- new provenance fields are nullable;
+- retry-safe unique index exists on metric_batch_keyword_id + source_api;
+- bid_currency_code is stored separately for future API-fetched rows;
+- runtime target API version is v25;
+- developer-token header is not sent after the 2026-09-09 sunset.
