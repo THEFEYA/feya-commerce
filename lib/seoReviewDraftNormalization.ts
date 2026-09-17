@@ -5,6 +5,22 @@ import { normalizeSeoEditorialCandidate } from './seoEditorialCandidateSelection
 // from existing color + Primary titles. Never transfer a reviewed title to
 // another product or a later keyword decision with a different Primary.
 const REVIEWED_DISTINCT_IDENTITIES = {
+  'bc59df1d-edd3-4e63-9393-175c28d9be2b': {
+    primary: 'white festival outfit', event: 'festival', color: 'silver',
+    title: 'White Festival Outfit with Silver Armor',
+  },
+  '09d41ed1-51be-43b0-aace-fc80e6e50f99': {
+    primary: 'mens burning man costume', event: 'burning man', color: 'silver',
+    title: "Men's Burning Man Costume with Segmented Armor",
+  },
+  '32b51b28-0570-49af-90f5-7bfdd7da5148': {
+    primary: 'black and gold festival outfits', event: 'festival', color: 'gold',
+    title: 'Black and Gold Festival Outfit with Armored Panels',
+  },
+  '5589b5ea-e21a-4e57-a4b2-b598bd8466d2': {
+    primary: 'costumes for drag queens', event: 'drag', color: 'needs review',
+    title: 'Pink Costume for Drag Queens',
+  },
   '82d2dc58-e635-4bc1-8571-2587641e627f': {
     primary: 'stage outfit', event: 'stage', color: 'red',
     title: 'Red Stage Outfit with Studded Details',

@@ -232,6 +232,12 @@ const PERSONA_FAMILIES: Record<string, string[]> = {
 // phrase. The exception remains exact product + exact validated keyword; it
 // never invents metrics or weakens the whole-product gate for other products.
 const OWNER_REVIEWED_PDP_PRIMARY: Record<string, string> = {
+  // Batch13: owner-selected axes, delegated bank review and confirmed whole sets.
+  'bc59df1d-edd3-4e63-9393-175c28d9be2b': 'white festival outfit',
+  '09d41ed1-51be-43b0-aace-fc80e6e50f99': 'mens burning man costume',
+  '32b51b28-0570-49af-90f5-7bfdd7da5148': 'black and gold festival outfits',
+  'ffbf1db6-6fae-4606-afbe-013415d6421d': 'festival fringe outfit',
+  '5589b5ea-e21a-4e57-a4b2-b598bd8466d2': 'costumes for drag queens',
   // Batch12: current owner axes, measured whole-offer queries and photo review.
   'ff0996b6-f369-4313-baf5-2d465d9c06f2': 'burning man costumes for women',
   '596c5ec2-e59e-484f-8f73-89221f2b4171': 'black harness outfit',

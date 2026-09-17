@@ -118,6 +118,20 @@ type RightPanelOverride = Partial<Record<string, readonly string[]>>;
  * and the more dangerous alternative of showing false universal material copy.
  */
 const THEFEYA_PRODUCT_RIGHT_PDP_OVERRIDES: Record<string, RightPanelOverride> = {
+  // Batch13: factual finish exceptions; the owner requested no new pink axis.
+  '09d41ed1-51be-43b0-aace-fc80e6e50f99': {
+    material: ['Glossy armor panels are held by black straps with buckle fastenings.'],
+    care: [
+      'Wipe the panels gently with a soft, lightly damp cloth.',
+      'Avoid abrasive cleaners, solvents and machine washing.',
+      'Store without crushing or tightly folding the panels.',
+    ],
+  },
+  '5589b5ea-e21a-4e57-a4b2-b598bd8466d2': {
+    material: [
+      'This costume is made from vegan leather with a shiny pink surface and a subtle iridescent effect.',
+    ],
+  },
   // Batch12: keep the owner's leather choice distinct from coated vegan panels.
   '596c5ec2-e59e-484f-8f73-89221f2b4171': {
     material: ['This set combines leather straps with silver-tone hardware.'],
