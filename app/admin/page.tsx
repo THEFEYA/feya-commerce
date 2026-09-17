@@ -1,6 +1,10 @@
 import Link from 'next/link';
+import { logoutAdmin } from './login/actions';
+import { isAdminAuthRequired } from '@/lib/supabaseAuth';
 
 export default function AdminHomePage() {
+  const authRequired = isAdminAuthRequired();
+
   return (
     <main className="page-shell">
       <div className="container">
@@ -8,13 +12,20 @@ export default function AdminHomePage() {
           <Link href="/" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
             <Link href="/shop">Shop Preview</Link>
+            {authRequired ? (
+              <form action={logoutAdmin}>
+                <button type="submit" style={{ background: 'none', border: 0, color: 'inherit', cursor: 'pointer', padding: 0 }}>
+                  Sign out
+                </button>
+              </form>
+            ) : null}
           </div>
         </nav>
 
         <section className="hero">
           <h1>Админка: read-only preview.</h1>
           <p>
-            Первый этап админки показывает очереди проверки и каталог без редактирования. Запись в базу, Product Builder и SEO/AI workflow будут добавлены позже отдельными безопасными этапами.
+            Админка остаётся read-only: очереди проверки, каталог, Product Builder detail и SEO keyword validation. Любые write/edit workflow будут добавляться только после включения защищённого admin gate и versioned change log.
           </p>
         </section>
 
@@ -29,7 +40,7 @@ export default function AdminHomePage() {
           </Link>
           <Link className="card metric" href="/admin/products">
             <strong>Products</strong>
-            <span>Read-only обзор product drafts.</span>
+            <span>Каталог product drafts + read-only Product Builder detail.</span>
           </Link>
           <Link className="card metric" href="/admin/seo-keywords">
             <strong>SEO Keywords</strong>
