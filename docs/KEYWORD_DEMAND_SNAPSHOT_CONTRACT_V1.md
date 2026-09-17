@@ -1,6 +1,6 @@
 # FEYA Keyword Demand Snapshot Contract v1
 
-Status: schema contract only — no migration applied
+Status: validated against existing Supabase snapshot layer; additive provenance migration applied
 Owner domain: GDAE
 Consumers: OSPM, future Growth Director
 Source: Google Ads API Keyword Planning historical metrics
@@ -30,11 +30,17 @@ Those conclusions belong to OSPM/CPIM/GMEL.
 
 ## 2. Logical entity
 
-Recommended logical name:
+Existing physical table confirmed:
 
-keyword_demand_snapshot_history
+feya_commerce_seo_keyword_metric_snapshots_v1
 
-Physical Supabase name must be chosen only after actual current schema is inspected.
+Existing downstream pipeline confirmed:
+- metric validation queue;
+- score preview;
+- recommendation layer;
+- system status views.
+
+No replacement table should be created.
 
 ## 3. Required identity fields
 
@@ -205,14 +211,20 @@ OSPM should not receive the raw Google payload unless investigating a data issue
 
 It must continue showing semantic cleanup status separately from external metrics.
 
-## 16. Migration rule
+## 16. Migration status
 
-No SQL migration should be committed until the actual Supabase definitions for:
+Supabase schema was inspected directly before DDL.
 
-- feya_metric_request_batch_v1
-- feya_metric_request_batch_keywords_v1
-- related keyword identity tables
+Applied additive provenance/idempotency fields:
+- metric_batch_id
+- metric_batch_keyword_id
+- keyword_id
+- source_request_id
+- api_version
+- ingestion_run_id
+- targeting_context_hash
+- access_model
 
-are inspected.
+Existing historical rows were not rewritten.
 
-This contract is the target semantics, not permission to guess the current database.
+A unique index on metric_batch_keyword_id + source_api supports retry-safe upsert for API-fetched snapshots.
