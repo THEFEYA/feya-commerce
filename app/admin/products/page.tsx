@@ -135,7 +135,7 @@ export default async function AdminProductsPage() {
 
                 return (
                   <tr key={row.canonical_product_id}>
-                    <td>{getTitle(row)}</td>
+                    <td><Link href={`/admin/products/${row.canonical_product_id}`}>{getTitle(row)}</Link></td>
                     <td>{asText(row.matched_etsy_listing_id || row.etsy_listing_id)}</td>
                     <td>
                       <span className={`status-pill ${getStatusClass(readiness)}`}>{readiness}</span>
