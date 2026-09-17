@@ -151,38 +151,39 @@ Required direction:
 - Basic Access verification remains prerequisite for production Keyword Planning;
 - do not block the rest of Growth OS on Basic Access.
 
-### Google Ads metric persistence — EXTEND
+### Google Ads metric persistence — EXTEND / NOW WIRED IN BRANCH
 
-Current route intentionally returns:
-- write_mode = disabled_until_target_metric_table_confirmed
-- saved_rows = 0
+Supabase audit confirmed that a canonical snapshot layer already existed:
 
-This is correct safety behavior.
+- feya_commerce_seo_keyword_metric_snapshots_v1
+- feya_commerce_seo_keyword_metric_import_staging_v1
+- feya_commerce_v_seo_keyword_metric_validation_queue_v1
+- feya_commerce_v_seo_keyword_score_preview_v1
+- feya_commerce_v_seo_keyword_recommendation_v1
 
-Before enabling writes, define a canonical keyword demand snapshot contract.
+Observed state during audit:
 
-Recommended logical target: keyword_demand_snapshot_history.
+- 168 snapshot rows total;
+- 150 placeholder rows with api_not_connected;
+- 18 real Google Ads CSV imports.
 
-Minimum logical fields:
-- snapshot_id
-- query_cluster_id or keyword identity
-- keyword_text
-- market
-- language
-- requested_at
-- metric_period
-- avg_monthly_searches
-- monthly_search_volumes
-- ads_competition
-- competition_index
-- bid_low
-- bid_high
-- google_ads_api_version
-- request_batch_id
-- source_payload_ref
-- source/calculation version
+Therefore no new snapshot table was created.
 
-Do not enable writes until the actual Supabase schema is reviewed.
+Applied additive migration:
+
+- metric_batch_id
+- metric_batch_keyword_id
+- keyword_id
+- source_request_id
+- api_version
+- ingestion_run_id
+- targeting_context_hash
+- access_model
+- FK/index/idempotency support
+
+The branch endpoint now persists successful Google Ads API historical metrics into the existing snapshot table and updates the metric batch result summary.
+
+Existing downstream views continue to select the latest metric row and automatically distinguish placeholders from fresh metrics.
 
 ### Admin SEO Keywords page — EXTEND
 
@@ -547,14 +548,11 @@ Do not attempt before G3/G5/G7 are stable.
 ## 8. Immediate recommended next work
 
 1. Do not build a new agent runtime.
-2. Inspect actual Supabase definitions for:
-   - feya_metric_request_batch_v1
-   - feya_metric_request_batch_keywords_v1
-   - feya_commerce_v_seo_keyword_ai_cleanup_report_v1
-   - feya_commerce_seo_keyword_ai_cleanup_v1
-3. Update Google Ads integration semantics for post-2026-09-09 Cloud Project access.
-4. Define canonical keyword metric snapshot contract.
-5. Extend /admin/seo-keywords only after snapshot persistence exists.
+2. DONE: inspect actual Supabase definitions for metric batches, SEO cleanup and snapshot pipeline.
+3. DONE IN BRANCH: update Google Ads integration semantics for post-2026-09-09 Cloud Project access.
+4. DONE: validate existing canonical keyword metric snapshot contract and add provenance/idempotency fields.
+5. NEXT: controlled live API test on a very small metric batch.
+6. AFTER LIVE TEST: extend /admin/seo-keywords with latest live metric status/provenance.
 
 ## 9. Current fit against canonical roles
 
