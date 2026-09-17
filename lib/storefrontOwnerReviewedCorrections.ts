@@ -72,6 +72,9 @@ function configurationId(row: Record<string, any>) {
  * narrow, auditable correction to the current selector only.
  */
 export function applyOwnerReviewedStorefrontCorrections<T extends Record<string, any>>(product: T): T {
+  if (BATCH10_REVIEWED_GROUPS[String(product?.canonical_product_id || '')]) {
+    return correctBatch10GroupedOptions(product);
+  }
   if (BATCH09_REVIEWED_OPTIONS[String(product?.canonical_product_id || '')]) {
     return correctBatch09SourceOptions(product);
   }
@@ -242,6 +245,33 @@ function correctOwnerCoupleFullSet<T extends Record<string, any>>(product: T): T
   return { ...product, configurations, component_sum_display_price_amount: Math.round(total*100)/100,
     full_set_display_price_amount: price, full_set_savings_amount: savings,
     full_set_savings_percent: total > 0 ? Math.round(savings/total*10000)/100 : null };
+}
+
+// Source descriptions and variant labels agree for these two Batch10 sets.
+// Distinct groups need distinct codes: a shared "bundle" code makes option
+// selection/signatures confuse Bra + Shoulders with Belt + Garters.
+const BATCH10_REVIEWED_GROUPS = {
+  'f96bb86c-43aa-49c1-a718-41fbe050a1ac': {
+    '352f29c3-1bd3-4867-8fb0-69c741d011c9': { code: 'top_shoulders', codes: ['top', 'shoulders'], labels: ['Top', 'Shoulders'] },
+    '6f078b00-3fbe-4815-be73-d9911a997b7a': { code: 'belt_garters', codes: ['belt', 'legs'], labels: ['Belt', 'Garters'] },
+    'e84c5af8-af09-47e5-a048-22b2590186b3': { code: 'full_set', codes: ['choker', 'top', 'shoulders', 'belt', 'legs'], labels: ['Choker', 'Top', 'Shoulders', 'Belt', 'Garters'] },
+  },
+  '6a885710-fbee-4790-ba09-d56530f641f6': {
+    '58a5e3b8-6656-4571-b39f-a509416f34fc': { code: 'top_shoulders', codes: ['top', 'shoulders'], labels: ['Top', 'Shoulders'] },
+    '3ca222c0-06d3-4fca-9c74-8c2c07d627fb': { code: 'belt_garters', codes: ['belt', 'legs'], labels: ['Belt', 'Garters'] },
+    '5723b1c6-0a4b-4a8b-ab6b-25ebf6313544': { code: 'full_set', codes: ['spine', 'top', 'shoulders', 'belt', 'legs'], labels: ['Spine', 'Top', 'Shoulders', 'Belt', 'Garters'] },
+  },
+};
+
+function correctBatch10GroupedOptions<T extends Record<string, any>>(product: T): T {
+  const groups = BATCH10_REVIEWED_GROUPS[String(product.canonical_product_id)];
+  if (!Array.isArray(product.configurations)
+    || !Object.keys(groups).every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  return { ...product, configurations: product.configurations.map(row => {
+    const group = groups[configurationId(row)];
+    return group ? { ...row, component_code: group.code,
+      bundle_component_codes: group.codes, bundle_component_labels: group.labels } : row;
+  }) };
 }
 
 // Exact imported variant names and descriptions agree; preserve price-row identities.
