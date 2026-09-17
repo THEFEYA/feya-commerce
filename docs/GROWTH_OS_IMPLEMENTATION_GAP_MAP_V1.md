@@ -674,3 +674,37 @@ Existing feya_commerce_seo_pack_drafts_v1 already contains:
 - event history.
 
 Future SCO/CQA work must extend this system rather than replace it.
+
+
+### G4 — SEO Portfolio Bootstrap
+STATUS: FOUNDATION IMPLEMENTED / CLUSTER REVIEW QUEUE NEXT
+
+Completed:
+- stable seo_page_id registry created;
+- 243 current storefront product pages bootstrapped;
+- 243 active URL-history rows created;
+- all bootstrap product pages remain indexation_intent=candidate;
+- no page was automatically promoted to indexable;
+- Query Cluster Registry created but intentionally left empty;
+- Query Cluster Members created but intentionally left empty;
+- Page/Query Ownership map created but intentionally left empty;
+- primary-owner uniqueness guard added by query cluster × market × locale;
+- read-only safe SEO Portfolio view added;
+- /admin/seo-portfolio added and linked from admin.
+
+Verified bootstrap counts:
+- seo_pages = 243
+- url_history = 243
+- query_clusters = 0
+- cluster_members = 0
+- page_query_ownership = 0
+
+Applied Supabase migrations:
+- 20260917235543 — feya_seo_portfolio_foundation_v1
+- 20260917235623 — feya_seo_page_portfolio_safe_view_v1
+
+Important:
+The existing 1,918 keyword placement rows are not treated as canonical page ownership because some are explicitly deprecated and because keyword placement is not query-cluster ownership.
+
+Next:
+Create a reviewable semantic-clustering candidate queue. Candidate generation may use keyword master, axes/patterns, metrics and Product DNA as evidence, but it must not auto-create approved clusters or ownership.
