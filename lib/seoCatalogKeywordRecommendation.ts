@@ -235,8 +235,8 @@ const OWNER_REVIEWED_PDP_PRIMARY: Record<string, string> = {
   // Batch10: owner saved these axes and delegated the measured keyword review.
   // Complete outfits must not inherit a choker, headpiece or leg-only Primary.
   'f96bb86c-43aa-49c1-a718-41fbe050a1ac': 'silver metallic outfit',
-  '82d2dc58-e635-4bc1-8571-2587641e627f': 'red stage outfit',
-  '6a885710-fbee-4790-ba09-d56530f641f6': 'silver festival outfit',
+  '82d2dc58-e635-4bc1-8571-2587641e627f': 'stage outfit',
+  '6a885710-fbee-4790-ba09-d56530f641f6': 'silver outfit',
   '1a8545eb-f997-4ddf-b6c9-c3c0afa1bd7c': 'gold dance costume',
   // Batch09: saved owner axes + exact measured whole-outfit intents.
   'e7238b1d-565c-4c4d-a7ae-a4402de80720': 'dance costume red',
