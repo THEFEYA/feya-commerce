@@ -232,6 +232,12 @@ const PERSONA_FAMILIES: Record<string, string[]> = {
 // phrase. The exception remains exact product + exact validated keyword; it
 // never invents metrics or weakens the whole-product gate for other products.
 const OWNER_REVIEWED_PDP_PRIMARY: Record<string, string> = {
+  // Batch11: preserved owner axes; measured, individually reviewed outfit intents.
+  '6a4c1f02-8f02-4aca-b70d-8d9ac66b9b40': 'holographic rave outfit',
+  '51a30d6f-a588-49b9-b077-5f33488efd36': 'cyberpunk rave outfit',
+  '51d879ce-f762-4307-b896-efcb2ffd64e9': 'gold festival outfit',
+  'b28d72d8-330b-400f-b595-124edc3f78f3': 'metallic silver skirt outfit',
+  '84cb55e1-a5a8-473c-abcd-17f0dc4161ab': 'female stage outfits',
   // Batch10: owner saved these axes and delegated the measured keyword review.
   // Complete outfits must not inherit a choker, headpiece or leg-only Primary.
   'f96bb86c-43aa-49c1-a718-41fbe050a1ac': 'silver metallic outfit',
