@@ -591,3 +591,86 @@ formalize -> extend -> version -> measure
 not:
 
 replace -> rebuild -> create eight new services.
+
+
+## 11. Implementation progress — 2026-09-18
+
+### G0 — implementation mapping
+STATUS: ACTIVE / CORE AUDIT COMPLETE
+
+- actual GitHub application inspected;
+- actual Supabase schema inspected directly;
+- duplicate architecture avoided.
+
+### G1 — Keyword Demand Foundation
+STATUS: IMPLEMENTED IN DRAFT BRANCH / LIVE ACCESS TEST PENDING
+
+Completed:
+- reused existing snapshot layer;
+- added API provenance and idempotency;
+- Google Ads Cloud Project/OAuth access semantics;
+- runtime default API v25;
+- developer-token header removed after sunset;
+- chunk-safe batch processing;
+- bid currency context;
+- existing metric validation/recommendation views preserved.
+
+Remaining:
+- controlled authenticated live API fetch once Cloud Project Keyword Planning access permits it.
+
+### G2 — Product Builder Read-Only + Truth
+STATUS: IMPLEMENTED IN DRAFT BRANCH
+
+Completed:
+- /admin/products/[id];
+- existing safe Product Builder aggregate reused;
+- identity/facts/configurations/prices/media/content/matching displayed;
+- safe SEO brief readiness connected;
+- restricted SEO Product Truth v4 intentionally not exposed through anonymous read client.
+
+### Admin Auth Gate
+STATUS: SCAFFOLDING IMPLEMENTED / ENFORCEMENT OFF
+
+Completed:
+- Supabase SSR auth;
+- existing-user login only;
+- no public signup;
+- feature flag;
+- server allowlist;
+- logout;
+- admin middleware.
+
+Activation still requires explicit approved admin account allowlist.
+
+### G3 — Controlled Editing + Version Ledger
+STATUS: DATABASE FOUNDATION IMPLEMENTED / UI WRITE DISABLED
+
+Completed:
+- existing admin_review_events extended as server-only audit journal;
+- generic entity version ledger created;
+- content language surface_key versioning;
+- atomic feya_fn_update_content_draft_v1;
+- strict patch allowlist;
+- mandatory reason;
+- before/after snapshot;
+- version chain;
+- idempotency;
+- rollback-only mutation test PASS;
+- rollback-only idempotency test PASS.
+
+No write route or edit form is enabled yet.
+
+### G5 — SCO/CQA data foundation
+STATUS: EXISTING FOUNDATION DISCOVERED
+
+Existing feya_commerce_seo_pack_drafts_v1 already contains:
+- Product Truth snapshot;
+- keyword-role snapshot;
+- agent input/output;
+- validation snapshot;
+- similarity snapshot;
+- human review;
+- publish guard;
+- event history.
+
+Future SCO/CQA work must extend this system rather than replace it.
