@@ -204,3 +204,21 @@ export type AdminProductBuilderDetail = {
   match_items?: ProductBuilderMatchItem[] | null;
   [key: string]: unknown;
 };
+
+
+export type SeoBriefReadiness = {
+  canonical_product_id: string;
+  seo_brief_readiness_status?: string | null;
+  seo_brief_priority_order?: number | null;
+  media_count?: number | null;
+  public_media_count?: number | null;
+  alt_text_count?: number | null;
+  filename_suggestion_count?: number | null;
+  sellable_configuration_count?: number | null;
+  public_configuration_count?: number | null;
+  content_draft_count?: number | null;
+  content_seo_title_count?: number | null;
+  content_meta_count?: number | null;
+  content_full_description_count?: number | null;
+  [key: string]: unknown;
+};
