@@ -13,11 +13,10 @@ const REQUIRED_ENV_KEYS = [
 ] as const;
 
 const OPTIONAL_ENV_KEYS = [
-  'GOOGLE_ADS_DEVELOPER_TOKEN',
   'GOOGLE_ADS_API_VERSION',
 ] as const;
 
-const DEFAULT_GOOGLE_ADS_API_VERSION = 'v24';
+const DEFAULT_GOOGLE_ADS_API_VERSION = 'v25';
 
 type RequiredEnvKey = (typeof REQUIRED_ENV_KEYS)[number];
 type OptionalEnvKey = (typeof OPTIONAL_ENV_KEYS)[number];
@@ -123,7 +122,6 @@ async function runOAuthCheck(): Promise<OAuthCheckResult> {
 }
 
 async function runGoogleAdsApiCheck(accessToken?: string): Promise<GoogleAdsApiCheckResult> {
-  const developerToken = process.env.GOOGLE_ADS_DEVELOPER_TOKEN;
   const loginCustomerId = sanitizeCustomerId(process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID);
   const apiVersion = process.env.GOOGLE_ADS_API_VERSION || DEFAULT_GOOGLE_ADS_API_VERSION;
 
@@ -135,10 +133,6 @@ async function runGoogleAdsApiCheck(accessToken?: string): Promise<GoogleAdsApiC
     const headers: Record<string, string> = {
       Authorization: `Bearer ${accessToken}`,
     };
-
-    if (developerToken) {
-      headers['developer-token'] = developerToken;
-    }
 
     if (loginCustomerId) {
       headers['login-customer-id'] = loginCustomerId;
@@ -192,7 +186,8 @@ export async function GET(request: NextRequest) {
     optional_env: optionalEnv,
     access_model: 'google_cloud_project_oauth',
     google_ads_api_version: process.env.GOOGLE_ADS_API_VERSION || DEFAULT_GOOGLE_ADS_API_VERSION,
-    developer_token_header_optional: true,
+    developer_token_sunset: '2026-09-09',
+    developer_token_header_sent: false,
     access_token_received: oauthCheck.accessTokenReceived,
     google_ads_api_status: googleAdsApiCheck.status,
     google_ads_api_error_type: googleAdsApiCheck.errorType,
