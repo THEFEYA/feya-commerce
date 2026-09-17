@@ -9,7 +9,7 @@ const MAX_LIMIT = 20;
 const DEFAULT_LANGUAGE_CONSTANT = 'languageConstants/1000';
 const DEFAULT_KEYWORD_PLAN_NETWORK = 'GOOGLE_SEARCH';
 const DEFAULT_GOOGLE_ADS_API_VERSION = 'v24';
-const ALLOWED_BATCH_STATUSES = new Set(['pending', 'queued', 'ready', 'ready_for_fetch']);
+const ALLOWED_BATCH_STATUSES = new Set(['pending', 'queued', 'ready', 'ready_for_fetch', 'partial']);
 const SENSITIVE_FIELD_PATTERN = /(authorization|access[_-]?token|refresh[_-]?token|developer[_-]?token|client[_-]?secret|service[_-]?role|apikey|api[_-]?key|secret|password|credential|cookie)/i;
 const SENSITIVE_STRING_PATTERN = /(Bearer\s+)[A-Za-z0-9._~+\/-]+=*|((?:developer|refresh|access)[_-]?token[=:]\s*)[^\s,}]+|((?:client[_-]?secret|service[_-]?role[_-]?key|authorization)[=:]\s*)[^\s,}]+/gi;
 
@@ -270,6 +270,7 @@ async function getKeywordRows(supabase: ReturnType<typeof getSupabaseServiceRole
     .from('feya_metric_request_batch_keywords_v1')
     .select('*')
     .eq('metric_batch_id', batchId)
+    .neq('keyword_status', 'metrics_fetched')
     .limit(limit);
 
   if (!metricBatchLookup.error && metricBatchLookup.data?.length) return metricBatchLookup;
@@ -278,6 +279,7 @@ async function getKeywordRows(supabase: ReturnType<typeof getSupabaseServiceRole
     .from('feya_metric_request_batch_keywords_v1')
     .select('*')
     .eq('batch_id', batchId)
+    .neq('keyword_status', 'metrics_fetched')
     .limit(limit);
 
   if (!legacyBatchLookup.error) return legacyBatchLookup;
@@ -433,6 +435,7 @@ async function saveHistoricalMetricSnapshots(args: {
   return {
     savedRows: data?.length || upsertRows.length,
     savedKeywordNorms: Array.from(new Set(upsertRows.map((row) => asString(row.keyword_norm)).filter((value): value is string => Boolean(value)))),
+    savedBatchKeywordIds: Array.from(new Set(upsertRows.map((row) => asString(row.metric_batch_keyword_id)).filter((value): value is string => Boolean(value)))),
   };
 }
 
@@ -477,6 +480,8 @@ async function handler(request: NextRequest) {
     let googleAdsRequestOk = false;
     let savedRows = 0;
     let savedKeywordNorms: string[] = [];
+    let savedBatchKeywordIds: string[] = [];
+    let remainingKeywordRows: number | null = null;
     const safeError: string | null = null;
     const apiVersion = process.env.GOOGLE_ADS_API_VERSION || DEFAULT_GOOGLE_ADS_API_VERSION;
     const ingestionRunId = crypto.randomUUID();
@@ -498,18 +503,40 @@ async function handler(request: NextRequest) {
       });
       savedRows = saved.savedRows;
       savedKeywordNorms = saved.savedKeywordNorms;
+      savedBatchKeywordIds = saved.savedBatchKeywordIds;
 
+      if (savedBatchKeywordIds.length) {
+        const { error: keywordStatusError } = await supabase
+          .from('feya_metric_request_batch_keywords_v1')
+          .update({ keyword_status: 'metrics_fetched' })
+          .in('metric_batch_keyword_id', savedBatchKeywordIds);
+
+        if (keywordStatusError) throw new Error(keywordStatusError.message);
+      }
+
+      const { count: remainingCount, error: remainingError } = await supabase
+        .from('feya_metric_request_batch_keywords_v1')
+        .select('metric_batch_keyword_id', { count: 'exact', head: true })
+        .eq('metric_batch_id', batchId)
+        .neq('keyword_status', 'metrics_fetched');
+
+      if (remainingError) throw new Error(remainingError.message);
+      remainingKeywordRows = remainingCount ?? 0;
+
+      const batchStatus = remainingKeywordRows === 0 ? 'applied' : 'partial';
       const { error: batchUpdateError } = await supabase
         .from('feya_metric_request_batch_v1')
         .update({
-          batch_status: 'applied',
+          batch_status: batchStatus,
           result_summary_json: {
             provider: 'google_ads_api',
-            saved_rows: savedRows,
-            saved_keyword_norms: savedKeywordNorms,
+            last_saved_rows: savedRows,
+            last_saved_keyword_norms: savedKeywordNorms,
+            remaining_keyword_rows: remainingKeywordRows,
             api_version: apiVersion,
             ingestion_run_id: ingestionRunId,
-            completed_at: new Date().toISOString(),
+            last_fetch_at: new Date().toISOString(),
+            ...(batchStatus === 'applied' ? { completed_at: new Date().toISOString() } : {}),
           },
           updated_at: new Date().toISOString(),
         })
@@ -526,6 +553,7 @@ async function handler(request: NextRequest) {
       google_ads_request_ok: googleAdsRequestOk,
       saved_rows: savedRows,
       saved_keyword_norms: savedKeywordNorms,
+      remaining_keyword_rows: remainingKeywordRows,
       safe_error_message: safeError,
       google_ads_request: googleAdsRequest,
       keyword_limit: limit,
