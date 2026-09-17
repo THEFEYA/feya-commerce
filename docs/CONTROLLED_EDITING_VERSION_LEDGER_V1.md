@@ -253,3 +253,13 @@ Next implementation task for controlled editing:
 4. call only feya_fn_update_content_draft_v1;
 5. display returned event/version;
 6. do not publish storefront changes automatically.
+
+
+## 14. SEO Portfolio migrations following this foundation
+
+The next Growth OS implementation wave added:
+
+- 20260917235543 — feya_seo_portfolio_foundation_v1
+- 20260917235623 — feya_seo_page_portfolio_safe_view_v1
+
+These are separate from controlled editing but share the same implementation branch and remote Supabase migration history.
