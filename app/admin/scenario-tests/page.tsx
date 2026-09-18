@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { ScenarioReleaseReadinessRow, ScenarioTestRegistryRow } from '@/lib/types';
+import { statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -64,53 +65,53 @@ export default async function AdminScenarioTestsPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/scenario-tests">Scenario Tests</Link>
-            <Link href="/admin/system-readiness">System Readiness</Link>
-            <Link href="/admin/execution-map">Execution Map</Link>
+            <Link href="/admin/scenario-tests">Проверки сценариев</Link>
+            <Link href="/admin/system-readiness">Готовность системы</Link>
+            <Link href="/admin/execution-map">Права действий</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Release safety · regression registry</div>
-          <h1>Scenario Tests</h1>
+          <div className="phase-label">Безопасность релиза · регрессионный реестр</div>
+          <h1>Проверки сценариев</h1>
           <p>
-            Active scenarios define required invariants. The registry does not pretend they passed: latest status remains NOT_RUN until an explicit regression harness records evidence.
+            Активные сценарии задают обязательные условия, которые нельзя нарушать. Реестр не считает проверку пройденной без фактического запуска: до появления доказательства статус остаётся «Ещё не проверено».
           </p>
         </section>
 
         <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{scenarios.length}</strong><span>Active scenarios</span></div>
-          <div className="card metric"><strong>{readiness?.pass_count || 0}</strong><span>PASS</span></div>
-          <div className="card metric"><strong>{readiness?.warn_count || 0}</strong><span>WARN</span></div>
-          <div className="card metric"><strong>{readiness?.fail_count || 0}</strong><span>FAIL</span></div>
-          <div className="card metric"><strong>{readiness?.not_run_count || 0}</strong><span>NOT RUN</span></div>
-          <div className="card metric"><strong>{readiness?.critical_not_pass_count || 0}</strong><span>Critical not PASS</span></div>
+          <div className="card metric"><strong>{scenarios.length}</strong><span>Активных сценариев</span></div>
+          <div className="card metric"><strong>{readiness?.pass_count || 0}</strong><span>Пройдено</span></div>
+          <div className="card metric"><strong>{readiness?.warn_count || 0}</strong><span>Требуют внимания</span></div>
+          <div className="card metric"><strong>{readiness?.fail_count || 0}</strong><span>Не пройдено</span></div>
+          <div className="card metric"><strong>{readiness?.not_run_count || 0}</strong><span>Ещё не запускались</span></div>
+          <div className="card metric"><strong>{readiness?.critical_not_pass_count || 0}</strong><span>Критичных не пройдено</span></div>
           <div className="card metric">
             <strong>
               <span className={`status-pill ${statusClass(readiness?.registry_release_state)}`}>
-                {asText(readiness?.registry_release_state, 'BLOCKED')}
+                {statusLabel(readiness?.registry_release_state || 'BLOCKED')}
               </span>
             </strong>
-            <span>Registry release state</span>
+            <span>Состояние реестра для релиза</span>
           </div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
         <div className="notice" style={{ marginBottom: '18px' }}>
-          Regression Runner is intentionally unavailable. Recording a Scenario Run is not the same as executing a scenario; future release automation must produce explicit invariant evidence.
+          Автоматический исполнитель регрессионных сценариев пока намеренно недоступен. Запись о запуске не равна фактической проверке: будущая автоматизация должна сохранять явные доказательства выполнения условий.
         </div>
 
         <div className="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Severity</th>
-                <th>Scenario</th>
-                <th>Category</th>
-                <th>Applies to</th>
-                <th>Latest run</th>
-                <th>Failure</th>
+                <th>Важность</th>
+                <th>Сценарий</th>
+                <th>Категория</th>
+                <th>Применяется к</th>
+                <th>Последний запуск</th>
+                <th>Ошибка</th>
               </tr>
             </thead>
             <tbody>
@@ -130,7 +131,7 @@ export default async function AdminScenarioTestsPage() {
                   <td>{asText(row.applies_to_json)}</td>
                   <td>
                     <span className={`status-pill ${statusClass(row.latest_run_status)}`}>
-                      {asText(row.latest_run_status, 'NOT_RUN')}
+                      {statusLabel(row.latest_run_status || 'NOT_RUN')}
                     </span>
                     {row.latest_target_code ? (
                       <div className="muted">{row.latest_target_type}/{row.latest_target_code}@{row.latest_target_version}</div>
