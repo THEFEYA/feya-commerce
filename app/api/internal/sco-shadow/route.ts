@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { getInternalApiAuthStatus } from '@/lib/internalAuth';
+import { recordOpenAiInvocation } from '@/lib/openAiUsage';
 import { getMissingSupabaseServiceRoleEnvMessage, getSupabaseServiceRoleClient } from '@/lib/supabaseAdmin';
 
 export const dynamic = 'force-dynamic';
@@ -262,7 +263,7 @@ function validateProposal(proposal: ScoProposal, compiledBrief: UnknownRecord) {
   };
 }
 
-async function runSco(rows: Array<{ productId: string; brief: UnknownRecord; truth: UnknownRecord }>, model: string) {
+async function runSco(rows: Array<{ productId: string; brief: UnknownRecord; truth: UnknownRecord }>, model: string, runId: string, dryRun: boolean) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error('OPENAI_API_KEY is not configured.');
 
@@ -274,6 +275,7 @@ async function runSco(rows: Array<{ productId: string; brief: UnknownRecord; tru
     product_truth: compactProductTruth(truth),
   }));
 
+  const startedAt = Date.now();
   const response = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: {
@@ -282,6 +284,7 @@ async function runSco(rows: Array<{ productId: string; brief: UnknownRecord; tru
     },
     body: JSON.stringify({
       model,
+      store: false,
       input: [
         {
           role: 'system',
@@ -356,11 +359,39 @@ async function runSco(rows: Array<{ productId: string; brief: UnknownRecord; tru
     cache: 'no-store',
   });
 
+  const latencyMs = Date.now() - startedAt;
+
   if (!response.ok) {
+    await recordOpenAiInvocation({
+      actionCode: 'RUN_SCO_SHADOW',
+      domainOwner: 'SCO',
+      sourceEndpoint: '/api/internal/sco-shadow',
+      runId,
+      dryRun,
+      itemCount: rows.length,
+      modelRequested: model,
+      promptVersion: PROMPT_VERSION,
+      httpStatus: response.status,
+      latencyMs,
+      invocationStatus: 'HTTP_ERROR',
+    });
     throw new Error(`OpenAI SCO request failed with status ${response.status}.`);
   }
 
   const payload = (await response.json()) as { output_text?: unknown; output?: unknown };
+  await recordOpenAiInvocation({
+    actionCode: 'RUN_SCO_SHADOW',
+    domainOwner: 'SCO',
+    sourceEndpoint: '/api/internal/sco-shadow',
+    runId,
+    dryRun,
+    itemCount: rows.length,
+    modelRequested: model,
+    promptVersion: PROMPT_VERSION,
+    httpStatus: response.status,
+    latencyMs,
+    payload,
+  });
   return extractJsonPayload(getResponseText(payload));
 }
 
@@ -489,7 +520,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const parsed = await runSco(selected, model);
+    const parsed = await runSco(selected, model, batchRunId, dryRun);
     const rawResults = Array.isArray(parsed.results) ? parsed.results : [];
     const resultByProduct = new Map<string, unknown>();
     for (const result of rawResults) {
