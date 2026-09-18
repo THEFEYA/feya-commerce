@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
+import { attentionTypeLabel, priorityLabel, statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -60,44 +61,44 @@ export default async function AdminOwnerAttentionPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/signals">Signals</Link>
-            <Link href="/admin/launch-readiness">Launch Readiness</Link>
-            <Link href="/admin/business-truth">Business Truth</Link>
+            <Link href="/admin/signals">Сигналы</Link>
+            <Link href="/admin/launch-readiness">Готовность к запуску</Link>
+            <Link href="/admin/business-truth">Правила бизнеса</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Human Owner · durable attention queue</div>
-          <h1>Owner Attention</h1>
+          <div className="phase-label">Владелец · постоянная очередь решений</div>
+          <h1>Решения владельца</h1>
           <p>
-            Only decisions or actions that genuinely require the Human Owner belong here. Routine monitoring stays hidden from this queue.
+            Здесь находятся только решения и действия, которые действительно требуют владельца. Обычное наблюдение и технический шум в эту очередь не попадают.
           </p>
         </section>
 
         <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Open attention items</span></div>
+          <div className="card metric"><strong>{rows.length}</strong><span>Открытых решений</span></div>
           <div className="card metric"><strong>{p0}</strong><span>P0</span></div>
           <div className="card metric"><strong>{p1}</strong><span>P1</span></div>
           <div className="card metric"><strong>{p2}</strong><span>P2</span></div>
-          <div className="card metric"><strong>{policy}</strong><span>Policy decisions</span></div>
+          <div className="card metric"><strong>{policy}</strong><span>Решений по правилам</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
         <div className="notice" style={{ marginBottom: '18px' }}>
-          Read-only in the current phase. Resolution/approval actions remain disabled until protected admin auth and audited owner actions are enabled.
+          На текущем этапе это только просмотр. Подтверждение, отклонение и другие действия останутся выключенными до включения защищённого входа и аудитируемых действий владельца.
         </div>
 
         <div className="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Priority</th>
-                <th>Type</th>
-                <th>Decision / action</th>
-                <th>Why it matters</th>
-                <th>Required from Owner</th>
-                <th>Deadline</th>
+                <th>Приоритет</th>
+                <th>Тип</th>
+                <th>Решение / действие</th>
+                <th>Почему это важно</th>
+                <th>Что требуется от владельца</th>
+                <th>Срок</th>
               </tr>
             </thead>
             <tbody>
@@ -105,17 +106,17 @@ export default async function AdminOwnerAttentionPage() {
                 <tr key={row.attention_id}>
                   <td>
                     <span className={`status-pill ${priorityClass(row.priority)}`}>
-                      {asText(row.priority)}
+                      {priorityLabel(row.priority)}
                     </span>
                   </td>
-                  <td>{asText(row.attention_type)}</td>
+                  <td>{attentionTypeLabel(row.attention_type)}</td>
                   <td>
                     <strong>{asText(row.title)}</strong>
-                    <div className="muted">{asText(row.attention_status)}</div>
+                    <div className="muted">{statusLabel(row.attention_status)}</div>
                   </td>
                   <td>{asText(row.summary)}</td>
                   <td>{asText(row.required_action)}</td>
-                  <td>{asText(row.due_at || row.expires_at, 'No fixed deadline')}</td>
+                  <td>{asText(row.due_at || row.expires_at, 'Жёсткого срока нет')}</td>
                 </tr>
               ))}
             </tbody>
@@ -123,7 +124,7 @@ export default async function AdminOwnerAttentionPage() {
         </div>
 
         {!error && rows.length === 0 ? (
-          <div className="notice">No Owner Attention items are currently open.</div>
+          <div className="notice">Сейчас нет открытых решений, требующих владельца.</div>
         ) : null}
       </div>
     </main>
