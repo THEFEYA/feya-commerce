@@ -930,6 +930,13 @@ Component-inclusion policy:
 - component_claim_truth must PASS before ready_for_publish;
 - broader semantic ambiguity still goes to independent CQA.
 
+Current deterministic backfill state:
+- active drafts with component_claim_truth=pass: **40**;
+- active drafts with component_claim_truth=warning: **95**;
+- detected explicit false-inclusion claims in current active drafts: **0**;
+- all 95 warnings are caused by upstream Product Truth/component-review blockers, not by a detected false inclusion sentence.
+This means the next fix is Product Truth/component mapping review, not automatic content rewriting.
+
 Rollback validation:
 - old draft preview caught an ALT mismatch that legacy qa_self_report had marked pass;
 - original similarity/ALT apply path created 2 audit events inside transaction and rolled back cleanly;
@@ -1226,11 +1233,12 @@ Still do not bypass:
 1. protected admin auth + verified owner allowlist + explicit admin hardening;
 2. public domain/Vercel attachment and launch verification;
 3. ACTIVE Business Truth required for customer-facing policy claims;
-4. SEO Page Portfolio / query-cluster / page-ownership review where still unresolved;
-5. Google Ads Keyword Planning access after external verification/access is available;
-6. GA4 production instrumentation and trusted commerce/order truth;
-7. GSC after the public site is live/verified;
-8. Measurement Engine promotion only after real datasets exist.
+4. Product Truth/component mapping review where current component-review blockers remain unresolved;
+5. SEO Page Portfolio / query-cluster / page-ownership review where still unresolved;
+6. Google Ads Keyword Planning access after external verification/access is available;
+7. GA4 production instrumentation and trusted commerce/order truth;
+8. GSC after the public site is live/verified;
+9. Measurement Engine promotion only after real datasets exist.
 
 ### Engineering rule from this checkpoint
 
@@ -1252,3 +1260,41 @@ Verified after migration:
 - within the audited SECURITY DEFINER FEYA Commerce/Growth DML surface, that storefront order-draft RPC is the only remaining anon/authenticated executable mutation path.
 
 This closes a real controlled-execution boundary gap without changing public storefront behavior.
+
+
+### Deterministic domain-routing policy
+STATUS: IMPLEMENTED AS DECISION SUPPORT / PRODUCTION INPUTS STILL GATED
+
+Applied Supabase migration:
+- 20260918110813 — feya_growth_domain_routing_policy_v1
+
+Verified policy boundaries:
+- healthy search + weak commerce → CPIM, not automatic SEO rewrite;
+- low exposure + high conversion → CPIM identifies the pattern, OSPM receives acquisition-expansion opportunity;
+- missing observability → GMEL/GDAE data path, not fabricated diagnosis;
+- protected winner does not become a free rewrite target.
+
+This closes canonical handoff regression scenarios without claiming that current GA4/Commerce data exists.
+
+### Historical component-claim backfill
+STATUS: DETERMINISTIC CHECKS APPLIED / UPSTREAM TRUTH REVIEW REMAINS
+
+Applied Supabase migration:
+- 20260918111006 — feya_component_claim_backfill_rpc_v1
+
+Current state:
+- 40 active drafts PASS component-claim truth;
+- 95 active drafts WARNING;
+- 0 explicit false inclusion claims found in active drafts;
+- warning population is explained by Product Truth/component-review blockers such as mapping review, configuration/component-family gaps and source/configuration mismatch.
+
+Do not solve these warnings by rewriting content. Resolve/confirm upstream Product Truth/component mapping first.
+
+### Commercial trigger security hygiene
+Applied Supabase migration:
+- 20260918111345 — feya_commercial_trigger_search_path_hardening_v1
+
+Result:
+- mutable search_path warnings for the two commercial-keyword trigger helpers removed;
+- browser EXECUTE revoked;
+- service-role execution retained.
