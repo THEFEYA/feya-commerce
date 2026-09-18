@@ -453,3 +453,46 @@ The Owner opens FEYA and can answer:
 without learning backend architecture.
 
 Engineering depth remains available, but only after explicit drill-down.
+
+
+## 10. UX-1 implementation checkpoint — 2026-09-18
+
+Implemented on `owner-ui-v1`:
+
+- persistent Russian owner shell;
+- six top-level owner destinations;
+- Today command center;
+- Work workspace;
+- Team FEYA role view;
+- owner-facing Signals;
+- owner-facing Owner Attention;
+- Growth / Results / System owner shells;
+- read-only global search across products, SEO pages, work and signals;
+- Russian terminology / presenter layer;
+- Advanced gateway preserving engineering diagnostics;
+- raw Signals diagnostic preserved separately under Advanced;
+- contextual Russian data-health explanations;
+- functional Cmd/Ctrl+K navigation to search;
+- responsive sidebar/mobile navigation foundation.
+
+Database projections added only for safe read presentation:
+- `feya_commerce_v_owner_work_safe_v1`;
+- `feya_commerce_v_owner_attention_safe_v2`.
+
+Current real state:
+- Owner Work rows: 0;
+- open Owner Attention: 2;
+- governed admin read surfaces: 42;
+- no owner write actions enabled;
+- admin hardening still intentionally pending verified owner auth.
+
+Validation:
+- Vercel preview: READY;
+- latest build completed without errors;
+- CSS compatibility warning found during build review and fixed;
+- no fake KPI, progress or confidence values added.
+
+Next gate before UX-2:
+- Owner visual review of Today / Work / Signals / System shell;
+- fix any comprehension/navigation problems found in preview;
+- only then expand Product Workspace.
