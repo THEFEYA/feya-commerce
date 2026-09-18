@@ -16,7 +16,7 @@ export default function AdminLegacyShell({ children }: { children: ReactNode }) 
       <AdminNav />
       <div className="lg:pl-[292px]">
         <div className="lg:hidden border-b border-[rgba(216,214,211,.12)] bg-black/50 px-5 py-4 backdrop-blur-xl">
-          <div className="eyebrow-gold mb-1">FEYA Control Tower</div>
+          <div className="eyebrow-gold mb-1">FEYA · Панель управления</div>
           <div className="text-[12px] text-[var(--bone-dim)]">Внутренняя навигация админки</div>
         </div>
         {children}
