@@ -120,6 +120,17 @@ async function getGrowthData(): Promise<GrowthData> {
   };
 }
 
+function bucketLabel(value: unknown) {
+  const key = String(value || '').toLowerCase();
+  if (key === 'collection') return 'категория';
+  if (key === 'product') return 'товар';
+  if (key === 'product_or_alt') return 'товар / ALT';
+  if (key === 'commercial_collection') return 'коммерческая посадочная';
+  if (key === 'visual_collection') return 'визуальная посадочная';
+  if (key === 'faq') return 'FAQ';
+  return key || '—';
+}
+
 function toneClass(tone: string) {
   return tone === 'danger'
     ? 'is-danger'
@@ -297,7 +308,7 @@ export default async function AdminGrowthPage() {
                     <div className="owner-demand-row" key={`${String(row.keyword)}-${index}`}>
                       <div className="owner-demand-keyword">
                         <strong>{String(row.keyword || '—')}</strong>
-                        <span>{String(row.region || '—')} · {String(row.language || '—')} · {String(row.bank_bucket || '—')}</span>
+                        <span>{String(row.region || '—')} · {String(row.language || '—')} · {bucketLabel(row.bank_bucket)}</span>
                         <i style={{ width: `${width}%` }} aria-hidden="true" />
                       </div>
                       <div className="owner-demand-number">{new Intl.NumberFormat('ru-RU').format(volume)}</div>
