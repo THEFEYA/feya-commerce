@@ -356,7 +356,7 @@ export function ProductDetailClient({
 
     <ReviewsSection summary={reviewSummary} />
 
-    {complete.length ? <section className="container-feya py-12"><div className="flex items-end justify-between mb-6"><div><div className="eyebrow-gold mb-3">Complete the look</div><h2 className="display-section text-bone" style={{ fontSize: 'clamp(36px,5vw,64px)' }}>Same world.</h2></div><Link href="/shop" className="btn-ghost">View all <ArrowUpRight size={13} /></Link></div><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">{complete.map((item, i) => <ProductCard key={item.canonical_product_id || i} product={item} index={i} />)}</div></section> : null}
+    {complete.length ? <section className="container-feya py-12"><div className="flex items-end justify-between mb-6"><div><div className="eyebrow-gold mb-3">Complete the look</div><h2 className="display-section text-bone" style={{ fontSize: 'clamp(36px,5vw,64px)' }}>Same world.</h2></div><Link href="/shop" className="btn-ghost">View all <ArrowUpRight size={13} /></Link></div><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">{complete.map((item, i) => <ProductCard key={item.canonical_product_id || i} product={item} />)}</div></section> : null}
 
     {lightboxOpen ? <div className="fixed inset-0 z-[120] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setLightboxOpen(false)}>
       <button type="button" className="absolute right-5 top-5 h-10 w-10 rounded-full border border-white/20 bg-black/40 text-white text-xl" onClick={() => setLightboxOpen(false)}>×</button>
