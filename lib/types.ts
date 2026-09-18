@@ -547,3 +547,44 @@ export type QueryClusterProposalRow = {
   updated_at?: string | null;
   [key: string]: unknown;
 };
+
+
+export type PageOwnershipCandidateClusterRow = {
+  query_cluster_id: string;
+  cluster_code?: string | null;
+  cluster_label?: string | null;
+  normalized_intent?: string | null;
+  intent_type?: string | null;
+  language_code?: string | null;
+  market_scope?: string | null;
+  cluster_status?: string | null;
+  member_count?: number | null;
+  primary_owner_count?: number | null;
+  ownership_candidate_status?: string | null;
+  [key: string]: unknown;
+};
+
+export type PageOwnershipProposalRow = {
+  proposal_id: string;
+  query_cluster_id?: string | null;
+  cluster_code?: string | null;
+  cluster_label?: string | null;
+  normalized_intent?: string | null;
+  seo_page_id?: string | null;
+  url_path?: string | null;
+  card_title?: string | null;
+  ownership_role?: string | null;
+  market_code?: string | null;
+  locale?: string | null;
+  rationale?: string | null;
+  proposal_status?: string | null;
+  model_name?: string | null;
+  prompt_version?: string | null;
+  review_note?: string | null;
+  reviewed_at?: string | null;
+  applied_page_query_ownership_id?: string | null;
+  applied_at?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  [key: string]: unknown;
+};
