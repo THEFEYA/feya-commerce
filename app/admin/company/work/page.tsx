@@ -169,6 +169,11 @@ export default async function AdminWorkPage() {
   const workVM = work.map(presentWorkItem);
   const attentionVM = attention.map(presentOwnerAttention);
   const roleVM = roles.map(presentRole);
+  const roleWorkCounts = new Map<string, number>();
+  for (const row of work) {
+    const code = String(row.current_accountable_domain || '').trim().toUpperCase();
+    if (code) roleWorkCounts.set(code, (roleWorkCounts.get(code) || 0) + 1);
+  }
   const operationalWork =
     operations.productFacts +
     operations.keywordReview +
@@ -352,7 +357,11 @@ export default async function AdminWorkPage() {
                   <span className={`owner-status ${toneClass(role.tone)}`}>{role.statusLabel}</span>
                 </div>
                 <h3>{role.name}</h3>
-                <p className="owner-card-copy">{role.autonomyLabel}</p>
+                <p className="owner-card-copy">{role.summary}</p>
+                <p className="owner-role-note"><strong>Режим:</strong> {role.autonomyLabel}.</p>
+                <p className="owner-role-note">
+                  <strong>Сейчас:</strong> {roleWorkCounts.get(role.code) ? `активных задач — ${roleWorkCounts.get(role.code)}` : 'активных задач нет'}.
+                </p>
                 <p className="owner-role-note">
                   Возможности: {role.availableCapabilityCount} полностью готовы из {role.requiredCapabilityCount}.
                   {role.blockedCapabilityCount > 0 ? ` Заблокировано: ${role.blockedCapabilityCount}.` : ' Критичных блокировок роли нет.'}
