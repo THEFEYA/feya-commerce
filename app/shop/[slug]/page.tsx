@@ -1,30 +1,50 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ProductCard } from '@/components/ProductCard';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
-import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
+import { absoluteSiteUrl, isSearchIndexingEnabled, isStructuredDataEnabled } from '@/lib/siteConfig';
+import type { SeoPagePortfolioRow, StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
 
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-async function getProduct(slug: string): Promise<{ product: StorefrontProduct | null; error?: string }> {
+async function getProduct(slug: string): Promise<{
+  product: StorefrontProduct | null;
+  portfolio: SeoPagePortfolioRow | null;
+  error?: string;
+}> {
   const supabase = getSupabaseReadClient();
 
   if (!supabase) {
-    return { product: null, error: getMissingSupabaseEnvMessage() };
+    return { product: null, portfolio: null, error: getMissingSupabaseEnvMessage() };
   }
 
-  const { data, error } = await supabase
+  const productResult = await supabase
     .from('feya_commerce_v_step7_storefront_products_api')
     .select('*')
     .eq('product_slug', slug)
     .maybeSingle();
 
-  if (error) {
-    return { product: null, error: error.message };
+  if (productResult.error) {
+    return { product: null, portfolio: null, error: productResult.error.message };
   }
 
-  return { product: data as StorefrontProduct | null };
+  const product = productResult.data as StorefrontProduct | null;
+  if (!product) return { product: null, portfolio: null };
+
+  const portfolioResult = await supabase
+    .from('feya_commerce_v_seo_page_portfolio_safe_v1')
+    .select('*')
+    .eq('canonical_product_id', product.canonical_product_id)
+    .eq('page_type', 'product')
+    .eq('portfolio_status', 'active')
+    .maybeSingle();
+
+  return {
+    product,
+    portfolio: portfolioResult.error ? null : (portfolioResult.data as SeoPagePortfolioRow | null),
+  };
 }
 
 function formatMoney(amount: number | null | undefined, currency = 'USD') {
@@ -68,6 +88,92 @@ function getConfigurationLabel(configuration: StorefrontConfiguration, index: nu
   );
 }
 
+function isProductIndexable(product: StorefrontProduct, portfolio: SeoPagePortfolioRow | null) {
+  return Boolean(
+    isSearchIndexingEnabled() &&
+      product.storefront_candidate_flag &&
+      portfolio?.indexation_intent === 'indexable' &&
+      portfolio?.portfolio_status === 'active',
+  );
+}
+
+function getProductName(product: StorefrontProduct) {
+  return product.h1 || product.card_title || 'TheFEYA product';
+}
+
+function buildProductStructuredData(product: StorefrontProduct, canonicalUrl: string, indexable: boolean) {
+  if (!isStructuredDataEnabled() || !indexable) return null;
+  if (product.has_fallback_price) return null;
+  if (product.min_price == null || product.max_price == null || product.min_price !== product.max_price) return null;
+  if (!product.currency || !product.primary_image_url) return null;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    '@id': `${canonicalUrl}#product`,
+    name: getProductName(product),
+    image: [product.primary_image_url],
+    ...(product.meta_description ? { description: product.meta_description } : {}),
+    ...(product.material ? { material: product.material } : {}),
+    ...(product.color ? { color: product.color } : {}),
+    brand: {
+      '@type': 'Brand',
+      name: 'TheFEYA',
+    },
+    offers: {
+      '@type': 'Offer',
+      url: canonicalUrl,
+      priceCurrency: product.currency,
+      price: product.min_price,
+    },
+  };
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const { product, portfolio } = await getProduct(slug);
+
+  if (!product) {
+    return {
+      title: 'Product not found',
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const canonicalUrl = absoluteSiteUrl(`/shop/${slug}`);
+  const indexable = isProductIndexable(product, portfolio);
+  const title = product.seo_title || product.h1 || product.card_title || 'TheFEYA product';
+  const description = product.meta_description || undefined;
+
+  return {
+    title: { absolute: title },
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    robots: {
+      index: indexable,
+      follow: indexable,
+      nocache: !indexable,
+    },
+    openGraph: {
+      type: 'website',
+      url: canonicalUrl,
+      title,
+      ...(description ? { description } : {}),
+      ...(product.primary_image_url
+        ? { images: [{ url: product.primary_image_url, alt: product.primary_image_alt || title }] }
+        : {}),
+    },
+    twitter: {
+      card: product.primary_image_url ? 'summary_large_image' : 'summary',
+      title,
+      ...(description ? { description } : {}),
+      ...(product.primary_image_url ? { images: [product.primary_image_url] } : {}),
+    },
+  };
+}
+
 function getConfigurationPrice(configuration: StorefrontConfiguration, fallbackCurrency: string | null) {
   const currency = configuration.currency || fallbackCurrency || 'USD';
   const single = configuration.price_amount ?? configuration.price ?? configuration.amount;
@@ -88,8 +194,11 @@ function getConfigurationPrice(configuration: StorefrontConfiguration, fallbackC
 
 export default async function ProductPreviewPage({ params }: PageProps) {
   const { slug } = await params;
-  const { product, error } = await getProduct(slug);
+  const { product, portfolio, error } = await getProduct(slug);
   const configurations = product ? getConfigurations(product).slice(0, 8) : [];
+  const canonicalUrl = absoluteSiteUrl(`/shop/${slug}`);
+  const indexable = product ? isProductIndexable(product, portfolio) : false;
+  const structuredData = product ? buildProductStructuredData(product, canonicalUrl, indexable) : null;
 
   return (
     <main className="page-shell">
@@ -108,6 +217,14 @@ export default async function ProductPreviewPage({ params }: PageProps) {
 
         {product ? (
           <>
+            {structuredData ? (
+              <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                  __html: JSON.stringify(structuredData).replace(/</g, '\\u003c'),
+                }}
+              />
+            ) : null}
             <section className="grid pdp-grid">
               <ProductCard product={product} />
               <div className="card pdp-panel">
