@@ -231,3 +231,33 @@ Validation:
 - rollback restored original draft snapshots/QA flags
 - end-to-end SCO shadow -> prechecks -> CQA shadow transition PASS
 - no test rows/events remained
+
+
+### Human review / action / metric / measurement governance
+
+20260918085403 — feya_sco_shadow_human_review_rpc_v1
+- server-only approve / changes-requested / reject transition for Growth OS SCO drafts
+- approval requires PASS deterministic prechecks and no validation blockers
+- rollback validation confirms READY_FOR_INDEPENDENT_CQA transition
+
+20260918085545 — feya_growth_registry_safe_views_v2
+- safe Action Capability Map projection
+- safe Metric Registry projection
+
+20260918085636 — feya_metric_registry_foundation_v1
+- canonical metric definitions
+- current operational metric view
+- future GSC/GA4/Commerce metrics remain unavailable until sources exist
+
+20260918085854 — feya_measurement_spec_registry_v1
+- Measurement Spec registry
+- Measurement Outcome registry foundation
+- immutable material spec hash/lock
+- locked-spec mutation guard
+
+Measurement rollback test:
+- lock PASS
+- SHA-256 hash created
+- material mutation after lock blocked
+- lifecycle status update allowed
+- rollback rows = 0
