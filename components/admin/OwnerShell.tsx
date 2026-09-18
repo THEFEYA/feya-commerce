@@ -71,7 +71,13 @@ function ownerArea(pathname: string) {
     pathname.startsWith('/admin/seo-ownership-proposals') ||
     pathname.startsWith('/admin/seo-indexability') ||
     pathname.startsWith('/admin/opportunities') ||
-    pathname.startsWith('/admin/strategy')
+    pathname.startsWith('/admin/strategy') ||
+    pathname.startsWith('/admin/seo-lab') ||
+    pathname.startsWith('/admin/seo-engine/scoring') ||
+    pathname.startsWith('/admin/seo-engine/metric-import') ||
+    pathname.startsWith('/admin/seo-engine/commercial-review') ||
+    pathname.startsWith('/admin/indexation') ||
+    pathname === '/admin/seo'
   ) return 'growth';
   if (
     pathname.startsWith('/admin/company/results') ||
@@ -95,7 +101,8 @@ function ownerArea(pathname: string) {
     pathname.startsWith('/admin/scenario-tests') ||
     pathname.startsWith('/admin/metrics') ||
     pathname.startsWith('/admin/business-truth') ||
-    pathname.startsWith('/admin/launch-readiness')
+    pathname.startsWith('/admin/launch-readiness') ||
+    pathname.startsWith('/admin/launch')
   ) return 'system';
   return 'products';
 }
