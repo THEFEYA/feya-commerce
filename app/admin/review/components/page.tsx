@@ -17,7 +17,8 @@ import {
   ADMIN_PRODUCT_CATALOG_FALLBACK_VIEW,
   toCatalogFallbackStorefrontProduct,
 } from '@/lib/admin-product-catalog-fallback';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
+import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
+import { getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_VIEW_V1, productSlug, productTitle } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
 
@@ -54,8 +55,8 @@ function labelText(config: StorefrontConfiguration) {
 }
 
 async function loadProducts(canonicalProductId?: string): Promise<{ rows: StorefrontProduct[]; error?: string }> {
-  const supabase = getSupabaseReadClient();
-  if (!supabase) return { rows: [], error: getMissingSupabaseEnvMessage() };
+  const supabase = getAdminReadClient();
+  if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
 
   if (canonicalProductId) {
     const fallbackResult = await supabase
@@ -88,8 +89,8 @@ async function loadProducts(canonicalProductId?: string): Promise<{ rows: Storef
 }
 
 async function loadComponentTruth(canonicalProductId?: string) {
-  const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
-  if (!supabase) return { rows: [], error: getMissingSupabaseEnvMessage() };
+  const supabase = getSupabaseServiceClient() || getAdminReadClient();
+  if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
   if (!canonicalProductId) return { rows: [] };
   const { data, error } = await supabase
     .from(CANONICAL_PRODUCT_TRUTH_VIEW)
@@ -113,7 +114,7 @@ async function loadAssertionEditor(canonicalProductId?: string) {
     return {
       componentFamilies: [] as ComponentFamilyOption[],
       approvedAssertions: [] as FixedComponentAssertion[],
-      error: getMissingSupabaseEnvMessage(),
+      error: getMissingAdminDataEnvMessage(),
     };
   }
 
