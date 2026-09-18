@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
-import { dataFreshnessLabel, ownerToneForStatus, scopeLabel, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
+import { dataFreshnessLabel, ownerToneForStatus, scopeLabel, sourceHealthSummary, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -82,7 +82,7 @@ export default async function AdminSystemPage() {
                       <span>{dataFreshnessLabel(row.freshness_state)}</span>
                     </div>
                     <h3>{sourceLabel(row.source_code)}</h3>
-                    {row.error_message ? <p>{String(row.error_message)}</p> : <p>Источник работает без зафиксированной ошибки.</p>}
+                    <p>{sourceHealthSummary(row.source_code)}</p>
                   </div>
                 </article>
               );
