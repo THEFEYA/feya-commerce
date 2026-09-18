@@ -123,11 +123,19 @@ export function AdminProductDetailView({ product, componentTruth }: { product: S
               <Blocker label="Компоненты" active={componentBlocked} detail={`${componentTruth.includedComponents.length} подтверждено · ${componentTruth.sourceVariations.length} вариантов источника · ${componentTruth.optionPriceRows.length} строк цен`} />
               <Blocker label="Медиа" active={mediaReview} />
             </div>
-            {componentEvidence.length ? <div className="mt-4 rounded-xl border border-[rgba(196,64,88,.25)] bg-[rgba(160,32,56,.07)] p-4">
-              <div className="eyebrow-dim mb-3">Канонические факты, требующие исправления</div>
-              <div className="flex flex-wrap gap-1.5">{componentEvidence.map((item, index) => <Chip key={`${componentEvidenceLabel(item)}-${index}`} tone="danger">{componentEvidenceLabel(item)}</Chip>)}</div>
-              {product.canonical_product_id ? <Link href={`/admin/review/components?product_id=${encodeURIComponent(product.canonical_product_id)}`} className="btn-ghost mt-4 px-4 py-2 text-[10px]">Открыть проверку фактов товара</Link> : null}
-            </div> : null}
+            {componentEvidence.length ? <details className="owner-disclosure owner-disclosure-section" style={{ marginTop: '14px' }}>
+              <summary>
+                <span>
+                  <strong>Данные и доказательства состава</strong>
+                  <small>{componentEvidence.length} записей требуют разбора</small>
+                </span>
+                <span className="owner-status is-warning">Нужно проверить</span>
+              </summary>
+              <div className="owner-disclosure-body">
+                <div className="flex flex-wrap gap-1.5">{componentEvidence.map((item, index) => <Chip key={`${componentEvidenceLabel(item)}-${index}`} tone="danger">{componentEvidenceLabel(item)}</Chip>)}</div>
+                {product.canonical_product_id ? <Link href={`/admin/review/components?product_id=${encodeURIComponent(product.canonical_product_id)}`} className="owner-button mt-4">Открыть проверку фактов товара</Link> : null}
+              </div>
+            </details> : null}
           </Panel>
 
           <AdminReviewActionsClient productSlug={slugValue} canonicalProductId={product.canonical_product_id} sourceRoute={adminHref} initialBlockers={{ label: labelReview, price: priceReview, component: componentBlocked, media: mediaReview }} />
