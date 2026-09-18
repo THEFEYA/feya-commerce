@@ -1191,9 +1191,9 @@ The original hardening RPC used a fixed list of 24 internal views. Implementatio
 
 It is now registry-backed:
 
-- governed admin read surfaces: **38**
-- anon-readable now: **38**
-- authenticated-readable now: **38**
+- governed admin read surfaces: **40**
+- anon-readable now: **40**
+- authenticated-readable now: **40**
 - hardening action: **NOT EXECUTED**
 
 This is intentional until protected admin auth, owner allowlist and server-side reads are verified. The hardening RPC now iterates the registry and refuses empty/missing registry state, preventing a false "hardened" result on only a partial list.
