@@ -86,7 +86,10 @@ function compactProductTruth(value: unknown) {
     available_variants: compactArray(value.available_variants, 20),
     sellable_offer_components: compactArray(value.sellable_offer_components, 20),
     unresolved_component_facts: compactArray(value.unresolved_component_facts, 20),
-    component_review_blockers: compactArray(value.component_review_blockers, 20),
+    component_review_blockers: compactArray(
+      value.component_review_blockers ?? value.component_review_blockers_json,
+      20,
+    ),
     primary_image_alt: value.primary_image_alt,
   };
 }
