@@ -62,6 +62,10 @@ export default function AdminHomePage() {
             <strong>Cluster Proposals</strong>
             <span>Human-approved keyword queue and non-canonical OSPM semantic proposals.</span>
           </Link>
+          <Link className="card metric" href="/admin/seo-ownership-proposals">
+            <strong>Ownership Proposals</strong>
+            <span>Approved query clusters mapped to candidate pages without changing indexability.</span>
+          </Link>
           <Link className="card metric" href="/admin/content-briefs">
             <strong>Content Briefs</strong>
             <span>Deterministic compiler readiness before SCO generation.</span>
