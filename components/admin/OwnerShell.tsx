@@ -37,6 +37,8 @@ const WORK_TOOLS = [
   { href: '/admin/listing-master', label: 'Мастер листинга', icon: SlidersHorizontal },
   { href: '/admin/seo-lab', label: 'SEO-лаборатория', icon: Layers3 },
   { href: '/admin/seo-engine/scoring', label: 'Оценка ключей', icon: BarChart3 },
+  { href: '/admin/seo-engine/metric-import/validate', label: 'Метрики Google', icon: FileSearch },
+  { href: '/admin/seo-engine/commercial-review', label: 'Сигналы Google Ads', icon: TrendingUp },
   { href: '/admin/seo-engine/briefs', label: 'SEO-бриф', icon: FileText },
   { href: '/admin/seo-approval', label: 'Проверка SEO', icon: CheckCircle2 },
   { href: '/admin/media', label: 'Проверка медиа', icon: ImageIcon },
