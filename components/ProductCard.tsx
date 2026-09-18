@@ -22,7 +22,7 @@ function formatPrice(product: StorefrontProduct) {
   return formatter.format(min ?? max ?? 0);
 }
 
-export function ProductCard({ product }: { product: StorefrontProduct }) {
+export function ProductCard({ product, index: _index }: { product: StorefrontProduct; index?: number }) {
   const slug = product.product_slug || product.canonical_product_id;
   const title = product.card_title || product.h1 || 'Untitled product';
   const imageUrl = product.primary_image_url;
