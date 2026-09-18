@@ -632,3 +632,35 @@ export type IndexabilityProposalRow = {
   updated_at?: string | null;
   [key: string]: unknown;
 };
+
+
+export type ScenarioTestRegistryRow = {
+  scenario_id: string;
+  scenario_code?: string | null;
+  scenario_version?: number | null;
+  scenario_category?: string | null;
+  title?: string | null;
+  description?: string | null;
+  applies_to_json?: unknown;
+  expected_invariants_json?: unknown;
+  severity?: string | null;
+  active_flag?: boolean | null;
+  latest_run_status?: string | null;
+  latest_target_type?: string | null;
+  latest_target_code?: string | null;
+  latest_target_version?: string | null;
+  latest_failure_summary?: string | null;
+  latest_run_at?: string | null;
+  [key: string]: unknown;
+};
+
+export type ScenarioReleaseReadinessRow = {
+  pass_count?: number | null;
+  fail_count?: number | null;
+  error_count?: number | null;
+  warn_count?: number | null;
+  not_run_count?: number | null;
+  critical_not_pass_count?: number | null;
+  registry_release_state?: string | null;
+  [key: string]: unknown;
+};
