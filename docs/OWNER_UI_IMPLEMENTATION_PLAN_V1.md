@@ -496,3 +496,54 @@ Next gate before UX-2:
 - Owner visual review of Today / Work / Signals / System shell;
 - fix any comprehension/navigation problems found in preview;
 - only then expand Product Workspace.
+
+
+## 11. Product Admin / Company Control separation
+
+Owner review on 2026-09-18 revealed a real UX boundary that the first shell blurred:
+
+- the existing FEYA Commerce/Product OS admin is a daily working tool for products, SEO, content, media, pricing and storefront preview;
+- the new Owner UI is a company/growth control center for AI roles, signals, durable work, results and system trust.
+
+These are related, but they are not the same workspace.
+
+Canonical route decision:
+
+- `/admin` — existing Commerce/Product OS admin, visually preserved;
+- `/admin/company` — Owner-first Company Control Center;
+- legacy admin pages keep their original layout and behavior;
+- a small global **Центр управления** switch links from the commerce admin into the company center;
+- the company center provides **Админка магазина** to return;
+- the company center may link into existing product/SEO pages rather than duplicate them.
+
+This prevents Growth OS navigation from replacing or visually contaminating the product/SEO workspace.
+
+### Smart localization boundary
+
+Translate:
+- navigation;
+- headings;
+- statuses;
+- actions;
+- explanations;
+- helper text;
+- role names;
+- system concepts.
+
+Do not translate business/search content merely because it is English:
+- product titles;
+- SEO keywords and queries;
+- H1/SEO title/meta drafts whose target language is English;
+- URLs/slugs;
+- source marketplace values;
+- canonical codes shown only in Technical details.
+
+Examples:
+- UI column `keyword` -> **Ключевой запрос**, but value `silver harness` stays `silver harness`;
+- UI label `Title` -> **Название**, but product title remains English;
+- `OSPM` -> **Стратег органического поиска** in normal UI, canonical code remains available in Technical details.
+
+### Visual preservation rule
+
+Company Control may add new owner-specific components, but must not restyle existing Product OS pages globally.
+Shared CSS changes must be scoped to owner/company classes unless they are a verified bug fix.
