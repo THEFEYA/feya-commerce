@@ -257,22 +257,22 @@ export default async function AdminHomePage() {
           </div>
 
           <div className="owner-summary-strip">
-            <div className="owner-summary-cell">
+            <Link href="/admin/company/work#operational-queues" className="owner-summary-cell owner-summary-link">
               <strong>{operationalQueueCount}</strong>
               <span>Элементов в рабочих очередях</span>
-            </div>
-            <div className="owner-summary-cell">
+            </Link>
+            <Link href="/admin/product-facts-review" className="owner-summary-cell owner-summary-link">
               <strong>{operations.productFacts}</strong>
               <span>Товаров ждут проверки фактов</span>
-            </div>
-            <div className="owner-summary-cell">
+            </Link>
+            <Link href="/admin/content-qa" className="owner-summary-cell owner-summary-link">
               <strong>{operations.cqaActionable}</strong>
               <span>Контентных проверок / исправлений</span>
-            </div>
-            <div className="owner-summary-cell">
+            </Link>
+            <Link href="/admin/company/work#work-list" className="owner-summary-cell owner-summary-link">
               <strong>{workVM.length}</strong>
               <span>Активных задач роста</span>
-            </div>
+            </Link>
           </div>
 
           {workVM.length ? (
