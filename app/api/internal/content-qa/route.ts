@@ -150,6 +150,8 @@ function compactQaSelfReport(value: unknown) {
   return pickObject(value, [
     'similarity_cannibalization',
     'image_alt_truth',
+    'component_claim_truth',
+    'component_claim_precheck',
     'keyword_stuffing',
     'forbidden_mismatch',
     'product_specificity',
@@ -355,7 +357,7 @@ async function runIndependentCqa(rows: UnknownRecord[], model: string, runId: st
               'Do not turn advertising competition into organic SEO difficulty.',
               'Do not fail text for missing exact-match repetitions when semantic coverage is natural.',
               'If deterministic approval_blockers or product_truth_blockers are non-empty, do not return pass.',
-              'If similarity status or image_alt_truth is not pass, do not return pass; request the appropriate precheck/domain review.',
+              'If similarity status, image_alt_truth or component_claim_truth is not pass, do not return pass; request the appropriate precheck/domain review.',
               'Do not infer a new page/query ownership decision. Route intent/portfolio conflicts to OSPM.',
               'Do not approve misleading guarantees, unsupported materials/colors/components, or policy promises.',
               'Claims about comfort, durability, fit, adjustability, ease of dressing, production timing, shipping timing, returns, cancellations, customs duties or other operational benefits must be supported by Product Truth or applicable active Business Truth.',
