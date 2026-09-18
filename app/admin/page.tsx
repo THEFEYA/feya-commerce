@@ -106,6 +106,10 @@ export default function AdminHomePage() {
             <strong>Strategy & Initiatives</strong>
             <span>Human-owned strategy versions, Director Gate, approval and revalidation state.</span>
           </Link>
+          <Link className="card metric" href="/admin/opportunities">
+            <strong>Opportunities</strong>
+            <span>Seasonal/event windows with commercial expiry and Owner Attention bridge.</span>
+          </Link>
           <Link className="card metric" href="/admin/incidents">
             <strong>Incidents</strong>
             <span>Root-cause deduplication and active mutation-freeze status.</span>
