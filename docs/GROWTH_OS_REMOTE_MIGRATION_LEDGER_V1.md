@@ -549,3 +549,32 @@ Rollback validation:
 Admin Data Boundary:
 - governed admin read surfaces now = 42
 - browser grants remain intentionally enabled until owner auth/allowlist verification and explicit hardening
+
+
+### Owner-action security hardening follow-up
+
+20260918150426 — harden_feya_step2_import_attempts_20260918
+- enabled RLS on the legacy internal `feya_commerce_step2_import_attempts` table
+- revoked anon/authenticated/PUBLIC table privileges
+- post-migration verification: anon/authenticated SELECT/INSERT = false
+- service-side access remains available through privileged backend roles
+
+20260918150523 — restrict_public_order_draft_rpc_20260918
+- revoked PUBLIC / anon / authenticated EXECUTE from `feya_commerce_create_order_draft_v1(jsonb)`
+- granted EXECUTE only to `service_role`
+- this supersedes the earlier decision in `feya_internal_rpc_privilege_hardening_v1` that intentionally kept the RPC browser-executable
+- reason: the current storefront client calls a server endpoint for checkout drafts and safely falls back to local storage; no repository code requires direct browser RPC execution
+- the RPC accepts client-supplied draft totals/product payloads and therefore should not be a direct public SECURITY DEFINER boundary before a validated server-side checkout contract exists
+
+Post-hardening security checks:
+- FEYA Commerce/Growth tables with RLS disabled in the audited scope: 0
+- FEYA Commerce/Growth SECURITY DEFINER functions executable by anon/authenticated in the audited scope: 0
+- Supabase advisor global counts decreased by one for both public RLS-disabled tables and browser-executable SECURITY DEFINER functions
+- broader project-level advisor findings remain outside this targeted FEYA change and must not be mass-modified without a separate scope review
+
+Protected Owner Actions remain disabled until:
+- `FEYA_ADMIN_AUTH_REQUIRED=true` is intentionally enabled;
+- owner allowlist is configured and verified;
+- unauthorized-access tests pass;
+- Supabase Auth leaked-password protection is reviewed/enabled;
+- audited mutation paths exist for each owner action.
