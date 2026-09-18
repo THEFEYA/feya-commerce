@@ -257,9 +257,9 @@ export default async function AdminHomePage() {
           </div>
 
           <div className="owner-summary-strip">
-            <Link href="/admin/company/work#operational-queues" className="owner-summary-cell owner-summary-link">
-              <strong>{operationalQueueCount}</strong>
-              <span>Элементов в рабочих очередях</span>
+            <Link href="/admin/seo-keyword-review" className="owner-summary-cell owner-summary-link">
+              <strong>{operations.keywordReview}</strong>
+              <span>Ключевых запросов ждут проверки</span>
             </Link>
             <Link href="/admin/product-facts-review" className="owner-summary-cell owner-summary-link">
               <strong>{operations.productFacts}</strong>
