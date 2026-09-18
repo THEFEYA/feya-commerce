@@ -619,10 +619,10 @@ export default function FirstRealDraftClient({
         && item.ready_for_openai
         && !item.has_saved_draft
       ));
-      setWorkflowNotice(`Review draft сохранён для ${selectedCandidate?.product_title || selectedCandidate?.product_slug || savedProductId}. Публикация не выполнялась.`);
+      setWorkflowNotice(`Черновик проверки сохранён для ${selectedCandidate?.product_title || selectedCandidate?.product_slug || savedProductId}. Публикация не выполнялась.`);
       if (nextCandidate) selectProduct(nextCandidate.canonical_product_id);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Неизвестная ошибка сохранения review draft.');
+      setError(err instanceof Error ? err.message : 'Неизвестная ошибка сохранения черновика проверки.');
     } finally {
       setSaving(false);
     }
@@ -649,7 +649,7 @@ export default function FirstRealDraftClient({
         <div className="min-w-0">
           <div className="eyebrow-gold">Каталог товаров для SEO-проверки</div>
           <p className="mt-2 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">
-            Найдите товар по названию, Etsy listing ID или slug. Фотография, готовность, сохранённый draft и история проверки видны до запуска OpenAI.
+            Найдите товар по названию, ID листинга Etsy или адрес страницы. Фотография, готовность, сохранённый draft и история проверки видны до запуска OpenAI.
           </p>
         </div>
         <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-5 xl:w-[650px]">
@@ -660,7 +660,7 @@ export default function FirstRealDraftClient({
             value={queueAudit.pending ? `${queueAudit.total - queueAudit.pending}/${queueAudit.total}` : (provisionalCount ? `0/${provisionalCount}` : 'готово')}
             tone={queueAudit.pending || provisionalCount ? 'warning' : 'success'}
           />
-          <Fact label="С draft" value={String(savedCount)} />
+          <Fact label="С черновиком" value={String(savedCount)} />
           <Fact label="Проверено здесь" value={String(testedCount)} />
         </div>
       </div>
@@ -674,7 +674,7 @@ export default function FirstRealDraftClient({
     {recoverFailedDraft ? <section className="min-w-0 rounded-2xl border border-[rgba(212,178,106,.28)] bg-black/25 p-4 sm:p-5">
       <div className="eyebrow-gold">Восстановление несохранённого результата</div>
       <p className="mt-2 max-w-3xl text-[12px] leading-relaxed text-[var(--bone-dim)]">
-        Вставьте JSON уже выполненной генерации. Это не вызывает OpenAI, ничего не сохраняет и не публикует; товар и product ID проверяются до загрузки preview.
+        Вставьте JSON уже выполненной генерации. Это не вызывает OpenAI, ничего не сохраняет и не публикует; товар и ID товара проверяются до загрузки preview.
       </p>
       <textarea
         value={recoveryText}
@@ -702,7 +702,7 @@ export default function FirstRealDraftClient({
               setSearch(event.target.value);
               setVisibleCount(PAGE_SIZE);
             }}
-            placeholder="Название, Etsy listing ID, slug или product ID"
+            placeholder="Название, ID листинга Etsy, адрес страницы или ID товара"
             className="mt-2 h-12 w-full min-w-0 rounded-xl border border-[rgba(216,214,211,.16)] bg-black/35 px-4 text-[13px] text-bone outline-none placeholder:text-[var(--smoke)] focus:border-[rgba(212,178,106,.55)]"
           />
           <div className="mt-3 flex min-w-0 flex-wrap gap-2">
@@ -790,10 +790,10 @@ export default function FirstRealDraftClient({
               {detailError ? <Notice tone="danger">{detailError}</Notice> : null}
 
               <div className="grid grid-cols-2 gap-2">
-                <Fact label="Режим" value={selectedCandidate.generation_mode || '—'} tone={selectedCandidate.ready_for_openai ? 'success' : 'warning'} />
+                <Fact label="Режим" value={generationModeLabel(selectedCandidate.generation_mode)} tone={selectedCandidate.ready_for_openai ? 'success' : 'warning'} />
                 <Fact label="Проверенных метрик" value={String(selectedCandidate.validated_metric_count ?? 0)} tone={Number(selectedCandidate.validated_metric_count || 0) > 0 ? 'success' : 'warning'} />
                 <Fact label="Выбрано ключей" value={String(selectedCandidate.selected_keyword_count ?? selectedCandidate.useful_keyword_count ?? 0)} />
-                <Fact label="Сохранённый черновик" value={selectedCandidate.has_saved_draft ? (selectedCandidate.latest_draft_status || 'есть') : 'нет'} />
+                <Fact label="Сохранённый черновик" value={selectedCandidate.has_saved_draft ? uiStatus(selectedCandidate.latest_draft_status || 'draft') : 'нет'} />
               </div>
 
               {selectedCandidate.keyword_selection?.mode === 'auto_recommendation' ? <Notice>
@@ -813,8 +813,8 @@ export default function FirstRealDraftClient({
               /> : null}
 
               {selectedCandidate.has_saved_draft ? <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">
-                Последний сохранённый черновик: <span className="text-bone">{selectedCandidate.latest_draft_status || '—'}</span>
-                {selectedCandidate.latest_review_status ? <> · проверка: <span className="text-bone">{selectedCandidate.latest_review_status}</span></> : null}
+                Последний сохранённый черновик: <span className="text-bone">{uiStatus(selectedCandidate.latest_draft_status)}</span>
+                {selectedCandidate.latest_review_status ? <> · проверка: <span className="text-bone">{uiStatus(selectedCandidate.latest_review_status)}</span></> : null}
                 {selectedCandidate.latest_draft_at ? <> · {formatDate(selectedCandidate.latest_draft_at)}</> : null}
               </div> : null}
 
@@ -908,7 +908,7 @@ export default function FirstRealDraftClient({
         </div>
         {commercialIssues.length ? <div className="mt-4 grid min-w-0 gap-2 md:grid-cols-2">{commercialIssues.map((item, index) => <Issue key={`${item.code}-${index}`} item={item} />)}</div> : <div className="mt-3 text-[12px] text-[#a9dfbd]">Коммерческий текст прошёл проверку на полезность, повторы, пустые фразы и запрещённые обещания.</div>}
         {keywordPlacementValidation ? <div className="mt-4 border-t border-[rgba(216,214,211,.10)] pt-4">
-          <div className="text-[10px] uppercase tracking-[.16em] text-[var(--gold-warm)]">Размещение ключевых слов · {keywordPlacementValidation.status}</div>
+          <div className="text-[10px] uppercase tracking-[.16em] text-[var(--gold-warm)]">Размещение ключевых слов · ${uiStatus(keywordPlacementValidation.status)}</div>
           {keywordPlacementIssues.length ? <div className="mt-3 grid min-w-0 gap-2 md:grid-cols-2">{keywordPlacementIssues.map((item, index) => <Issue key={`${item.code}-${index}`} item={item} />)}</div> : <div className="mt-2 text-[12px] text-[#a9dfbd]">Основной ключ, коммерческий интент и ALT размещены в разрешённых полях без точного переспама.</div>}
         </div> : null}
         <div className="mt-4 border-t border-[rgba(216,214,211,.10)] pt-4">
@@ -954,11 +954,11 @@ export default function FirstRealDraftClient({
       {result ? <div className="mt-5 min-w-0 space-y-5">
         <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
           <Fact label="HTTP" value={String(result.http_status ?? '—')} />
-          <Fact label="Статус" value={String(result.status || '—')} tone={result.ok ? 'success' : 'warning'} />
-          <Fact label="Режим данных" value={String(result.readiness?.mode || '—')} tone={result.readiness?.mode === 'READY_FULL' ? 'success' : 'warning'} />
+          <Fact label="Статус" value={uiStatus(result.status)} tone={result.ok ? 'success' : 'warning'} />
+          <Fact label="Режим данных" value={generationModeLabel(result.readiness?.mode)} tone={result.readiness?.mode === 'READY_FULL' ? 'success' : 'warning'} />
           <Fact label="OpenAI" value={result.openai_generation?.ok ? 'ответ получен' : result.openai_generation?.status || 'не вызван'} tone={result.openai_generation?.ok ? 'success' : 'warning'} />
-          <Fact label="Структура" value={structuralValidation?.ok ? 'PASS' : 'BLOCKED'} tone={structuralValidation?.ok ? 'success' : 'warning'} />
-          <Fact label="Коммерческий текст" value={commercialValidation?.ok ? 'PASS' : 'BLOCKED'} tone={commercialValidation?.ok ? 'success' : 'warning'} />
+          <Fact label="Структура" value={structuralValidation?.ok ? 'Проверка пройдена' : 'Заблокировано'} tone={structuralValidation?.ok ? 'success' : 'warning'} />
+          <Fact label="Коммерческий текст" value={commercialValidation?.ok ? 'Проверка пройдена' : 'Заблокировано'} tone={commercialValidation?.ok ? 'success' : 'warning'} />
         </div>
 
         {blockers.length ? <Panel title="Блокеры до генерации">
@@ -988,7 +988,7 @@ export default function FirstRealDraftClient({
               <div className="grid min-w-0 gap-2 md:grid-cols-2">
                 {(diagnostics.selected_keywords || []).map((item: any, index: number) => <div key={`${item.keyword}-${index}`} className="min-w-0 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3">
                   <div className="break-words text-[13px] text-bone">{item.keyword || '—'}</div>
-                  <div className="mt-1 break-words text-[11px] text-[var(--bone-dim)]">роль: {item.role || '—'} · спрос: {item.avg_monthly_searches ?? '—'} · конкуренция: {item.competition || '—'}</div>
+                  <div className="mt-1 break-words text-[11px] text-[var(--bone-dim)]">роль: {keywordRoleLabel(item.role)} · спрос: {item.avg_monthly_searches ?? '—'} · конкуренция: {competitionUi(item.competition)}</div>
                   <div className="mt-1 break-words text-[10px] text-[var(--smoke)]">{item.metric_source || '—'} · {item.last_checked || '—'}</div>
                 </div>)}
               </div>
@@ -1000,7 +1000,7 @@ export default function FirstRealDraftClient({
 
             {structuralValidation ? <Panel title="Структурная проверка">
               <div className="mb-3 grid min-w-0 gap-3 sm:grid-cols-2">
-                <Fact label="Результат" value={structuralValidation.ok ? 'PASS' : 'BLOCKED'} tone={structuralValidation.ok ? 'success' : 'warning'} />
+                <Fact label="Результат" value={structuralValidation.ok ? 'Проверка пройдена' : 'Заблокировано'} tone={structuralValidation.ok ? 'success' : 'warning'} />
                 <Fact label="Замечаний" value={String(structuralIssues.length)} tone={structuralIssues.length ? 'warning' : 'success'} />
               </div>
               {structuralIssues.length ? <div className="grid min-w-0 gap-2 md:grid-cols-2">{structuralIssues.map((item: any, index: number) => <Issue key={`${item.code}-${index}`} item={item} />)}</div> : <div className="text-[12px] text-[#a9dfbd]">Структурных ошибок не найдено.</div>}
@@ -1040,10 +1040,70 @@ function normalizeSearch(value) {
   return String(value || '').toLowerCase().replace(/\s+/g, ' ').trim();
 }
 
+function uiStatus(value) {
+  const key = String(value || '').trim();
+  const labels = {
+    ready: 'Готово',
+    READY_FULL: 'Полные данные готовы',
+    READY_LIMITED: 'Готово с ограничениями',
+    draft: 'Черновик',
+    approved_draft: 'Одобренный черновик',
+    human_review_requested: 'Ждёт проверки человеком',
+    approved: 'Одобрено',
+    rejected: 'Отклонено',
+    saved_draft_loaded: 'Загружен сохранённый черновик',
+    pass: 'Проверка пройдена',
+    PASS: 'Проверка пройдена',
+    blocked: 'Заблокировано',
+    BLOCKED: 'Заблокировано',
+    warning: 'Нужно проверить',
+    not_checked: 'Ещё не проверено',
+  };
+  return labels[key] || key || 'Не определено';
+}
+
+function generationModeLabel(value) {
+  const key = String(value || '').trim();
+  const labels = {
+    exact_truth: 'По подтверждённым фактам',
+    full_truth: 'Полные подтверждённые данные',
+    limited_truth: 'Ограниченные подтверждённые данные',
+    shadow: 'Безопасный режим',
+    auto_recommendation: 'Автоматическая рекомендация',
+  };
+  return labels[key] || uiStatus(key);
+}
+
+function keywordRoleLabel(value) {
+  const key = String(value || '').trim().toLowerCase();
+  const labels = {
+    primary: 'основной',
+    secondary: 'вторичный',
+    supporting: 'поддерживающий',
+    support: 'поддерживающий',
+    long_tail: 'точный длинный',
+    hold: 'отложить',
+    reject: 'исключить',
+    image_alt: 'ALT изображения',
+    faq: 'FAQ',
+    collection: 'коллекция',
+  };
+  return labels[key] || String(value || '—');
+}
+
+function competitionUi(value) {
+  const key = String(value || '').trim().toUpperCase();
+  if (key === 'LOW') return 'низкая';
+  if (key === 'MEDIUM') return 'средняя';
+  if (key === 'HIGH') return 'высокая';
+  if (key === 'UNKNOWN') return 'не определена';
+  return String(value || '—');
+}
+
 function blockerShort(values?: string[]) {
   const first = values?.[0];
   if (!first) return 'Требует проверки';
-  if (first.includes('portfolio')) return 'Конфликт Primary';
+  if (first.includes('portfolio')) return 'Конфликт основного ключа';
   if (first.includes('keyword_metric')) return 'Нет валидной метрики';
   if (first.includes('keyword')) return 'Нет выбранных ключей';
   if (first.includes('mismatch')) return 'Конфликт товара';
@@ -1054,29 +1114,29 @@ function blockerShort(values?: string[]) {
 
 function blockerLabel(code) {
   const labels = {
-    missing_primary_or_secondary_keyword: 'Не выбран релевантный primary или secondary keyword.',
-    missing_validated_keyword_metric: 'Ни у одного выбранного ключа нет доверенного validated metric snapshot.',
-    keyword_selection_not_human_confirmed: 'Нужно проверить авто-фокус и сохранить keyword decision в Мастере листинга.',
-    draft_status_blocked_by_product_mismatch: 'SEO draft заблокирован из-за несоответствия данных товара.',
-    latest_draft_blocked_by_product_mismatch: 'Последний сохранённый draft заблокирован из-за product mismatch.',
-    missing_storefront_catalog_product: 'Товар отсутствует в текущем storefront-каталоге.',
+    missing_primary_or_secondary_keyword: 'Не выбран релевантный основной или вторичный ключ.',
+    missing_validated_keyword_metric: 'Ни у одного выбранного ключа нет доверенного проверенного снимка метрик.',
+    keyword_selection_not_human_confirmed: 'Нужно проверить авто-фокус и сохранить решение по ключевым словам в Мастере листинга.',
+    draft_status_blocked_by_product_mismatch: 'SEO-черновик заблокирован из-за несоответствия данных товара.',
+    latest_draft_blocked_by_product_mismatch: 'Последний сохранённый draft заблокирован из-за несоответствия товара.',
+    missing_storefront_catalog_product: 'Товар отсутствует в текущем каталоге витрины.',
     missing_product_title: 'У товара отсутствует рабочее название.',
-    missing_product_slug: 'У товара отсутствует product slug.',
+    missing_product_slug: 'У товара отсутствует адрес страницы товара.',
     insufficient_product_identity_evidence: 'Недостаточно подтверждённых данных для идентификации товара.',
-    composition_missing_canonical_product_truth: 'Canonical Product Truth ещё не доступен для состава товара.',
-    composition_missing_confirmed_components: 'Нет подтверждённых included components.',
+    composition_missing_canonical_product_truth: 'канонические факты товара ещё не доступен для состава товара.',
+    composition_missing_confirmed_components: 'Нет подтверждённых подтверждённые компоненты.',
     composition_has_unresolved_facts: 'В составе товара остались нерешённые факты.',
-    composition_has_review_blockers: 'Есть блокеры component mapping review.',
-    qa_blocker_forbidden_mismatch: 'QA обнаружил запрещённое несоответствие товара.',
-    qa_blocker_product_specificity: 'QA не подтвердил достаточную специфичность текста.',
+    composition_has_review_blockers: 'Есть блокеры проверки сопоставления компонентов.',
+    qa_blocker_forbidden_mismatch: 'Проверка качества обнаружила запрещённое несоответствие товара.',
+    qa_blocker_product_specificity: 'Проверка качества не подтвердила достаточную специфичность текста.',
     qa_blocker_validated_metrics: 'QA не подтвердил валидированные метрики.',
     portfolio_strategy_missing: 'Не удалось загрузить обязательную стратегию портфеля до запуска OpenAI.',
-    primary_keyword_portfolio_conflict: 'Этот же Primary уже выбран для другого товара. Один главный поисковый интент должен принадлежать одной странице.',
-    primary_keyword_portfolio_map_unavailable: 'Не удалось проверить текущих владельцев Primary. OpenAI не вызван, чтобы не создать каннибализацию.',
-    primary_keyword_peer_reassignment_pending: 'Этот товар сохраняет Primary, но конфликтующему товару нужен новый основной ключ для всего товара до публикации.',
+    primary_keyword_portfolio_conflict: 'Этот же Основной ключ уже выбран для другого товара. Один главный поисковый интент должен принадлежать одной странице.',
+    primary_keyword_portfolio_map_unavailable: 'Не удалось проверить текущих владельцев основного ключа. OpenAI не вызван, чтобы не создать каннибализацию.',
+    primary_keyword_peer_reassignment_pending: 'Этот товар сохраняет основной ключ, но конфликтующему товару нужен новый основной ключ для всего товара до публикации.',
     exact_queue_preflight_failed: 'Точная проверка очереди не завершилась. Товар безопасно исключён из генерации до повторной проверки.',
   };
-  return labels[code] || String(code || 'Неизвестный блокер').replaceAll('_', ' ');
+  return labels[code] || 'Нужна техническая проверка';
 }
 
 function formatDate(value) {
@@ -1224,7 +1284,7 @@ function TextField({ label, value }: { label: string; value?: string | null }) {
 
 function Issue({ item }: { item: Record<string, any> }) {
   return <div className="min-w-0 rounded-xl border border-[rgba(212,178,106,.22)] bg-black/20 p-3">
-    <div className="break-words text-[11px] text-[var(--gold-warm)]">{item.severity || 'warning'}: {item.code || 'unknown'}</div>
+    <div className="break-words text-[11px] text-[var(--gold-warm)]">{item.severity === 'blocker' ? 'блокировка' : item.severity === 'warning' ? 'предупреждение' : item.severity || 'проверка'}: {item.code || 'unknown'}</div>
     <div className="mt-1 break-words text-[11px] leading-relaxed text-[var(--bone-dim)]">{item.message || blockerLabel(item.code) || '—'}</div>
   </div>;
 }
