@@ -60,7 +60,10 @@ export function resolveStorefrontSellableOffer(
 
   const atomicRows = rows.filter((row) => !row.is_aggregate);
   const aggregateRows = rows.filter((row) => row.is_aggregate);
-  if (!atomicRows.length) blockers.push('sellable_offer_missing_atomic_options');
+  const hasExplicitGroupedOption = aggregateRows.some(row => (
+    !row.is_full_set && row.bundle_component_codes.length > 0
+  ));
+  if (!atomicRows.length && !hasExplicitGroupedOption) blockers.push('sellable_offer_missing_atomic_options');
 
   const atomicByCode = new Map<string, NormalizedConfiguration>();
   atomicRows.forEach((row) => {
@@ -81,7 +84,7 @@ export function resolveStorefrontSellableOffer(
 
   const nestedComponentLabels = new Map<string, string>();
   aggregateRows
-    .filter((row) => !row.is_full_set)
+    .filter((row) => !row.is_full_set || row.source_confirmed_bundle_members)
     .forEach((row) => {
       const memberCodes = unique(row.bundle_component_codes.map(normalizeCode).filter(Boolean));
       const explicitMemberLabels = row.bundle_component_labels
@@ -178,7 +181,13 @@ export function resolveStorefrontSellableOffer(
   const defaultAggregate = aggregateOptions.find((option) => option.code === FULL_SET_CODE)
     || aggregateOptions[0]
     || null;
-  const defaultAtomic = atomicOptions.length === 1 ? atomicOptions[0] : null;
+  // Colour/size variants with identical included labels still sell one piece.
+  // Different quantities (Single/Pair of Leg Covers) remain unresolved until
+  // an actual selector choice is supplied.
+  const sameIncludedPiece = atomicOptions.length > 0 && atomicOptions.every(option => (
+    option.code === atomicOptions[0].code && option.label === atomicOptions[0].label
+  ));
+  const defaultAtomic = sameIncludedPiece ? atomicOptions[0] : null;
   const defaultOption = defaultAggregate || defaultAtomic;
   const defaultIncluded = defaultOption?.is_aggregate
     ? defaultOption.member_labels
@@ -219,10 +228,31 @@ export function sellableOfferAvailabilitySentence(
     return '';
   }
   const hasFullSet = offer.aggregate_options.some((option) => option.code === FULL_SET_CODE);
-  if (!hasFullSet) return '';
+  if (!hasFullSet) return offer.aggregate_options.length > 1
+    ? 'Choose an outfit option to see its included pieces.' : '';
   const hasGroupedOption = offer.aggregate_options.some((option) => option.code !== FULL_SET_CODE);
   if (hasGroupedOption) return 'Choose from individual pieces, grouped options, or the full set.';
+  if (offer.component_codes.some(code => !offer.atomic_options.some(option => option.code === code))) {
+    return 'Choose an available option or the full set.';
+  }
   return 'Each piece can be ordered separately or as a full set.';
+}
+
+/** Show both confirmed partner outfits without implying a combined purchase. */
+export function sellableOfferCoupleIncludedGroups(offer: StorefrontSellableOfferTruth) {
+  if (offer.status !== 'ready') return [];
+  const groups = ['womens_outfit', 'mens_outfit'].map((code) => (
+    offer.aggregate_options.filter((option) => option.code === code)
+  ));
+  // Require two unambiguous, explicit compositions; titles/SEO axes are not evidence.
+  if (groups.some((matches) => matches.length !== 1
+    || matches[0].mapping_source !== 'explicit_bundle_codes'
+    || !matches[0].member_labels.length)) return [];
+  return groups.map(([option]) => ({
+    code: option.code,
+    heading: option.label,
+    lines: option.member_labels,
+  }));
 }
 
 export function sellableOfferAllowsComponentFocus(
@@ -258,6 +288,7 @@ type NormalizedConfiguration = {
   sort_order: number;
   is_aggregate: boolean;
   is_full_set: boolean;
+  source_confirmed_bundle_members: boolean;
   bundle_component_codes: string[];
   bundle_component_labels: string[];
 };
@@ -319,6 +350,7 @@ function normalizeConfiguration(
     sort_order: finiteNumber(row.sort_order) ?? index + 1,
     is_aggregate: isAggregate,
     is_full_set: isFullSet,
+    source_confirmed_bundle_members: row.source_confirmed_bundle_members === true,
     bundle_component_codes: Array.isArray(row.bundle_component_codes)
       ? row.bundle_component_codes.map(String)
       : [],

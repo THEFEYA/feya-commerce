@@ -1793,3 +1793,11 @@ test('keeps the live black, red, and silver review repairs commercially clean', 
     assert.equal(result.issues.some((issue) => /color_finish_mismatch|unsupported_reflective/.test(issue.code)), false);
   }
 });
+
+test('natural word order of the saved Primary remains identity in Meta, not a composition recap', () => {
+  const context = { product_truth: { included_components: ['Top', 'Skirt'] }, keyword_roles: { primary: [{ keyword: 'skirt and top set festival' }] } };
+  const correct = validateSeoCommercialCopy(draft({ meta_description: 'Gold festival skirt and top set with cosmic styling for Burning Man.' }), context);
+  assert.equal(correct.issues.some(issue => issue.code === 'meta_description_repeats_deterministic_composition'), false);
+  const inventory = validateSeoCommercialCopy(draft({ meta_description: 'The costume combines a gold top and skirt for dancers.' }), context);
+  assert.equal(inventory.issues.some(issue => issue.code === 'meta_description_repeats_deterministic_composition'), true);
+});

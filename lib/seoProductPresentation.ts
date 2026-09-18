@@ -64,11 +64,24 @@ export function hasWholeProductEntity(value: unknown) {
 export function hasWholeProductScope(value: unknown, components: string[]) {
   if (!hasWholeProductEntity(value)) return false;
   if (components.length < 2) return true;
+  if (isCharacterBodysuitCostume(value)) {
+    return components.some((component) => /\b(?:bodysuit|body suit)\b/.test(normalize(component)));
+  }
   const mentioned = mentionedConfirmedComponents(value, components);
   return mentioned.length === 0
     || mentioned.length >= 2
     || hasWholeEntityWithConfirmedComponent(value, components)
     || hasOccasionQualifiedWholeProductHead(value);
+}
+
+/**
+ * A character-qualified bodysuit costume can name the complete dressed
+ * character, even when the selector also offers its headpiece or leg covers.
+ * Keep this limited to a confirmed full-body garment; a character name must
+ * not promote an accessory query such as "witch headpiece costume".
+ */
+function isCharacterBodysuitCostume(value: unknown) {
+  return /\b(?:witch|robot|alien|warrior|goddess|queen|angel|demon)\s+(?:bodysuit|body suit)\s+costumes?\s*$/.test(normalize(value));
 }
 
 /**

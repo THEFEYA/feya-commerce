@@ -1,3 +1,5 @@
+import { naturalKeywordPhrase } from './seoNaturalKeywordPhrase.ts';
+
 type ValidationIssue = {
   code?: unknown;
   severity?: unknown;
@@ -176,15 +178,28 @@ export function normalizeDeterministicSeoIdentity<T>(
     .find((value) => OPERATOR_COLOR_FOCUS_VALUES.has(value.toLowerCase()))
     || '';
   const supportedColor = productColor || selectedColor;
-  const primaryWithColor = supportedColor && !containsWholePhrase(primary, supportedColor)
-    ? `${toTitleCase(supportedColor)} ${toTitleCase(primary)}`
-    : toTitleCase(primary);
+  const displayPrimary = naturalKeywordPhrase(primary);
+  const selectedPrimaryColor = normalizeIdentityValues(context.selected_materials)
+    .map(normalizeIdentityColor)
+    .find((value) => OPERATOR_COLOR_FOCUS_VALUES.has(value.toLowerCase())
+      && value.toLowerCase() !== supportedColor.toLowerCase()
+      && containsWholePhrase(displayPrimary, value));
+  const primaryWithColor = supportedColor && !containsWholePhrase(displayPrimary, supportedColor)
+    ? `${toTitleCase(supportedColor)}${selectedPrimaryColor ? ' and' : ''} ${toTitleCase(displayPrimary)}`
+    : toTitleCase(displayPrimary);
   // Do not append the same event twice when the reviewed Primary already owns
-  // it (for example, "skirt and top set festival"). The exact Primary remains
-  // present while the customer-facing identity avoids "Festival for Festivals".
-  const identity = containsWholePhrase(primary, selectedEvent)
-    ? primaryWithColor
-    : `${primaryWithColor} for ${formatSelectedEvent(selectedEvent)}`;
+  // it. Known search-query word order is made grammatical without changing
+  // the saved query, its intent, metrics or portfolio ownership.
+  // This measured query is search shorthand. Keep its words and intent, but
+  // attach fashion to the selected occasion instead of calling the item
+  // "Harness Fashion for Photoshoot". No keyword or metric is changed.
+  const fashionPhotoshoot = /^leather body harness fashion$/i.test(primary)
+    && /^photoshoot$/i.test(selectedEvent);
+  const identity = fashionPhotoshoot
+    ? `${primaryWithColor.replace(/Harness Fashion$/i, 'Harness for Fashion')} Photoshoots`
+    : containsWholePhrase(primary, selectedEvent)
+      ? primaryWithColor
+      : `${primaryWithColor} for ${formatSelectedEvent(selectedEvent)}`;
   if (identity.length > 68) return output;
 
   const changed = output.seo_title !== identity || output.h1 !== identity;
@@ -651,7 +666,16 @@ export function normalizeSeoEditorialCandidate<T>(
   normalized = normalizeBrownLeatherHarnessPhotoshootAlt(normalized, context);
   normalized = normalizeImageAltPrimaryVariation(normalized, context);
   normalized = normalizeSingleSuppliedImageAltCandidate(normalized);
+  normalized = normalizeSelectedEventEditorialGrammar(normalized, context);
   return normalizeCodeOwnedPdpBlockOrder(normalized);
+}
+
+// Archived recovery fixtures include the old "raves nights" grammar error.
+// Accept its corrected spelling without widening those exact-copy repairs.
+function matchesReviewedCopy(actual: unknown, expected: string) {
+  if (typeof actual !== 'string') return false;
+  const normalize = (value: string) => value.replace(/\braves\b(?=\s+(?:nights?|settings?|styling)\b)/gi, 'rave');
+  return normalize(actual) === normalize(expected);
 }
 
 /**
@@ -707,14 +731,14 @@ export function normalizePaidRedSpineTailCopy<T>(
   let changed = false;
   const normalized: Record<string, unknown> = { ...output };
   Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
-    if (normalized[field] !== before) return;
+    if (!matchesReviewedCopy(normalized[field], before)) return;
     normalized[field] = after;
     changed = true;
   });
   normalized.pdp_blocks = output.pdp_blocks.map((block) => {
     if (!isRecord(block) || typeof block.body !== 'string') return block;
     const replacement = blockReplacements[String(block.block_key || '')];
-    if (!replacement || block.body !== replacement[0]) return block;
+    if (!replacement || !matchesReviewedCopy(block.body, replacement[0])) return block;
     changed = true;
     return { ...block, body: replacement[1] };
   });
@@ -793,14 +817,14 @@ export function normalizePaidDanceCostumeCopy<T>(
   let changed = false;
   const normalized: Record<string, unknown> = { ...output };
   Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
-    if (normalized[field] !== before) return;
+    if (!matchesReviewedCopy(normalized[field], before)) return;
     normalized[field] = after;
     changed = true;
   });
   normalized.pdp_blocks = output.pdp_blocks.map((block) => {
     if (!isRecord(block) || typeof block.body !== 'string') return block;
     const replacement = blockReplacements[String(block.block_key || '')];
-    if (!replacement || block.body !== replacement[0]) return block;
+    if (!replacement || !matchesReviewedCopy(block.body, replacement[0])) return block;
     changed = true;
     return { ...block, body: replacement[1] };
   });
@@ -862,14 +886,14 @@ export function normalizePaidWitchCostumeCopy<T>(
   let changed = false;
   const normalized: Record<string, unknown> = { ...output };
   Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
-    if (normalized[field] !== before) return;
+    if (!matchesReviewedCopy(normalized[field], before)) return;
     normalized[field] = after;
     changed = true;
   });
   normalized.pdp_blocks = output.pdp_blocks.map((block) => {
     if (!isRecord(block) || typeof block.body !== 'string') return block;
     const replacement = blockReplacements[String(block.block_key || '')];
-    if (!replacement || block.body !== replacement[0]) return block;
+    if (!replacement || !matchesReviewedCopy(block.body, replacement[0])) return block;
     changed = true;
     return { ...block, body: replacement[1] };
   });
@@ -952,14 +976,14 @@ export function normalizePaidConfigurableWitchSetCopy<T>(
   let changed = false;
   const normalized: Record<string, unknown> = { ...output };
   Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
-    if (normalized[field] !== before) return;
+    if (!matchesReviewedCopy(normalized[field], before)) return;
     normalized[field] = after;
     changed = true;
   });
   normalized.pdp_blocks = output.pdp_blocks.map((block) => {
     if (!isRecord(block) || typeof block.body !== 'string') return block;
     const replacement = blockReplacements[String(block.block_key || '')];
-    if (!replacement || block.body !== replacement[0]) return block;
+    if (!replacement || !matchesReviewedCopy(block.body, replacement[0])) return block;
     changed = true;
     return { ...block, body: replacement[1] };
   });
@@ -1123,14 +1147,14 @@ export function normalizePaidHarnessAndMetallicSetCopy<T>(
   let changed = false;
   const normalized: Record<string, unknown> = { ...output };
   Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
-    if (normalized[field] !== before) return;
+    if (!matchesReviewedCopy(normalized[field], before)) return;
     normalized[field] = after;
     changed = true;
   });
   normalized.pdp_blocks = output.pdp_blocks.map((block) => {
     if (!isRecord(block) || typeof block.body !== 'string') return block;
     const replacement = blockReplacements[String(block.block_key || '')];
-    if (!replacement || block.body !== replacement[0]) return block;
+    if (!replacement || !matchesReviewedCopy(block.body, replacement[0])) return block;
     changed = true;
     return { ...block, body: replacement[1] };
   });
@@ -1202,14 +1226,14 @@ export function normalizePaidChromeFestivalOutfitCopy<T>(
   let changed = false;
   const normalized: Record<string, unknown> = { ...output };
   Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
-    if (normalized[field] !== before) return;
+    if (!matchesReviewedCopy(normalized[field], before)) return;
     normalized[field] = after;
     changed = true;
   });
   normalized.pdp_blocks = output.pdp_blocks.map((block) => {
     if (!isRecord(block) || typeof block.body !== 'string') return block;
     const replacement = blockReplacements[String(block.block_key || '')];
-    if (!replacement || block.body !== replacement[0]) return block;
+    if (!replacement || !matchesReviewedCopy(block.body, replacement[0])) return block;
     changed = true;
     return { ...block, body: replacement[1] };
   });
@@ -1270,14 +1294,14 @@ export function normalizePaidChromeShowgirlCopy<T>(
   let changed = false;
   const normalized: Record<string, unknown> = { ...output };
   Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
-    if (normalized[field] !== before) return;
+    if (!matchesReviewedCopy(normalized[field], before)) return;
     normalized[field] = after;
     changed = true;
   });
   normalized.pdp_blocks = output.pdp_blocks.map((block) => {
     if (!isRecord(block) || typeof block.body !== 'string') return block;
     const replacement = blockReplacements[String(block.block_key || '')];
-    if (!replacement || block.body !== replacement[0]) return block;
+    if (!replacement || !matchesReviewedCopy(block.body, replacement[0])) return block;
     changed = true;
     return { ...block, body: replacement[1] };
   });
@@ -1338,14 +1362,14 @@ export function normalizePaidCosmicHarnessOutfitCopy<T>(
   let changed = false;
   const normalized: Record<string, unknown> = { ...output };
   Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
-    if (normalized[field] !== before) return;
+    if (!matchesReviewedCopy(normalized[field], before)) return;
     normalized[field] = after;
     changed = true;
   });
   normalized.pdp_blocks = output.pdp_blocks.map((block) => {
     if (!isRecord(block) || typeof block.body !== 'string') return block;
     const replacement = blockReplacements[String(block.block_key || '')];
-    if (!replacement || block.body !== replacement[0]) return block;
+    if (!replacement || !matchesReviewedCopy(block.body, replacement[0])) return block;
     changed = true;
     return { ...block, body: replacement[1] };
   });
@@ -1408,14 +1432,14 @@ export function normalizePaidSilverBurningManHarnessSetCopy<T>(
   let changed = false;
   const normalized: Record<string, unknown> = { ...output };
   Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
-    if (normalized[field] !== before) return;
+    if (!matchesReviewedCopy(normalized[field], before)) return;
     normalized[field] = after;
     changed = true;
   });
   normalized.pdp_blocks = output.pdp_blocks.map((block) => {
     if (!isRecord(block) || typeof block.body !== 'string') return block;
     const replacement = blockReplacements[String(block.block_key || '')];
-    if (!replacement || block.body !== replacement[0]) return block;
+    if (!replacement || !matchesReviewedCopy(block.body, replacement[0])) return block;
     changed = true;
     return { ...block, body: replacement[1] };
   });
@@ -1492,14 +1516,14 @@ export function normalizePaidSilverMensWarriorSetCopy<T>(
   let changed = false;
   const normalized: Record<string, unknown> = { ...output };
   Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
-    if (normalized[field] !== before) return;
+    if (!matchesReviewedCopy(normalized[field], before)) return;
     normalized[field] = after;
     changed = true;
   });
   normalized.pdp_blocks = output.pdp_blocks.map((block) => {
     if (!isRecord(block) || typeof block.body !== 'string') return block;
     const replacement = blockReplacements[String(block.block_key || '')];
-    if (!replacement || block.body !== replacement[0]) return block;
+    if (!replacement || !matchesReviewedCopy(block.body, replacement[0])) return block;
     changed = true;
     return { ...block, body: replacement[1] };
   });
@@ -1576,14 +1600,14 @@ export function normalizePaidGoldBurningManFringeSetCopy<T>(
   let changed = false;
   const normalized: Record<string, unknown> = { ...output };
   Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
-    if (normalized[field] !== before) return;
+    if (!matchesReviewedCopy(normalized[field], before)) return;
     normalized[field] = after;
     changed = true;
   });
   normalized.pdp_blocks = output.pdp_blocks.map((block) => {
     if (!isRecord(block) || typeof block.body !== 'string') return block;
     const replacement = blockReplacements[String(block.block_key || '')];
-    if (!replacement || block.body !== replacement[0]) return block;
+    if (!replacement || !matchesReviewedCopy(block.body, replacement[0])) return block;
     changed = true;
     return { ...block, body: replacement[1] };
   });
@@ -1666,14 +1690,14 @@ export function normalizePaidCosmicTopSkirtSetCopy<T>(
   let changed = false;
   const normalized: Record<string, unknown> = { ...output };
   Object.entries(exactFieldReplacements).forEach(([field, [before, after]]) => {
-    if (normalized[field] !== before) return;
+    if (!matchesReviewedCopy(normalized[field], before)) return;
     normalized[field] = after;
     changed = true;
   });
   normalized.pdp_blocks = output.pdp_blocks.map((block) => {
     if (!isRecord(block) || typeof block.body !== 'string') return block;
     const replacement = blockReplacements[String(block.block_key || '')];
-    if (!replacement || block.body !== replacement[0]) return block;
+    if (!replacement || !matchesReviewedCopy(block.body, replacement[0])) return block;
     changed = true;
     return { ...block, body: replacement[1] };
   });
@@ -1885,9 +1909,16 @@ export function normalizeSelectedEventEditorialGrammar<T>(
   let changed = false;
   const normalizeText = (value: unknown) => {
     if (typeof value !== 'string') return value;
-    const next = value.replace(/\bfestivals and rave\b/gi, (match) => (
-      /^[A-Z]/.test(match) ? 'Festivals and raves' : 'festivals and raves'
-    ));
+    // Rave stays singular when it modifies a noun ("rave nights"). Older
+    // normalization accidentally changed saved drafts to "raves nights".
+    const eventModifier = '(?:nights?|settings?|styling|outfits?|costumes?|clothing|wear|events?|parties|scenes?|looks?|culture|music|attendees?|goers?)';
+    const next = value
+      .replace(new RegExp(`\\braves\\b(?=\\s+${eventModifier}\\b)`, 'gi'), (match) => (
+        /^[A-Z]/.test(match) ? 'Rave' : 'rave'
+      ))
+      .replace(new RegExp(`\\bfestivals and rave\\b(?!\\s+${eventModifier}\\b)`, 'gi'), (match) => (
+        /^[A-Z]/.test(match) ? 'Festivals and raves' : 'festivals and raves'
+      ));
     if (next !== value) changed = true;
     return next;
   };
@@ -1917,7 +1948,7 @@ export function normalizeSelectedEventEditorialGrammar<T>(
     ...normalized,
     generation_notes: [
       ...(Array.isArray(output.generation_notes) ? output.generation_notes : []),
-      'Deterministic event grammar normalization pluralized the selected generic rave event in buyer-facing prose.',
+      'Deterministic event grammar normalization corrected the selected rave event while preserving singular noun modifiers.',
     ],
   } as T;
 }

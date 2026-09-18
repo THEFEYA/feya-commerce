@@ -226,8 +226,8 @@ test('does not append an event already owned by the reviewed Primary', () => {
     product_color: 'Gold',
   });
 
-  assert.equal(normalized.seo_title, 'Gold Skirt And Top Set Festival');
-  assert.equal(normalized.h1, 'Gold Skirt And Top Set Festival');
+  assert.equal(normalized.seo_title, 'Gold Festival Skirt And Top Set');
+  assert.equal(normalized.h1, 'Gold Festival Skirt And Top Set');
 });
 
 test('repairs the Festival Set control copy without another writer call', () => {
@@ -265,7 +265,7 @@ test('repairs the Festival Set control copy without another writer call', () => 
     product_color: 'Gold',
   });
 
-  assert.equal(normalized.seo_title, 'Gold Skirt And Top Set Festival');
+  assert.equal(normalized.seo_title, 'Gold Festival Skirt And Top Set');
   assert.equal(
     normalized.meta_description,
     'Gold skirt and top set festival with a glossy mirror-like finish for long festival days, live performances, and creative shoots.',

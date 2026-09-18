@@ -1,4 +1,4 @@
-export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v22' as const;
+export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v25' as const;
 
 export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
   checkpoint_id: 'reload_latest_research_before_apply_publish_v1',
@@ -22,6 +22,8 @@ export const THEFEYA_BRAND_VALUE_PILLARS = [
   'Describe visual impact through observable product qualities and supported use cases. Do not mention algorithms, organic attention, reactions, saves, comments or social metrics in product copy.',
   'Adjustable straps, standard sizing and custom measurements are canonical studio facts for the fixed right PDP panel.',
   'Comfort, softness against the body, reinforcement, durability and shape retention may be described only when supported by actual material and construction evidence.',
+  'When acrylic is confirmed, plastic is its broader material name and may appear naturally once; plastic alone does not prove acrylic. Keep historical keyword metrics attached to their measured phrases.',
+  'Mirror is a glossy finish label, separate from substrate and gold or silver color. It alone does not establish reflection, light-catching behavior or improved visibility under stage lighting.',
   'Handmade and made-to-order value must explain studio craft, fit or purposeful construction. It must not repeat the same originality argument in different words.',
   'The studio can discuss selected changes while preserving its distinctive visual language; operational customization details belong only in the fixed right PDP panel.',
 ] as const;
@@ -116,6 +118,103 @@ type RightPanelOverride = Partial<Record<string, readonly string[]>>;
  * and the more dangerous alternative of showing false universal material copy.
  */
 const THEFEYA_PRODUCT_RIGHT_PDP_OVERRIDES: Record<string, RightPanelOverride> = {
+  // Batch13: factual finish exceptions; the owner requested no new pink axis.
+  '09d41ed1-51be-43b0-aace-fc80e6e50f99': {
+    material: ['Glossy armor panels are held by black straps with buckle fastenings.'],
+    care: [
+      'Wipe the panels gently with a soft, lightly damp cloth.',
+      'Avoid abrasive cleaners, solvents and machine washing.',
+      'Store without crushing or tightly folding the panels.',
+    ],
+  },
+  '5589b5ea-e21a-4e57-a4b2-b598bd8466d2': {
+    material: [
+      'This costume is made from vegan leather with a shiny pink surface and a subtle iridescent effect.',
+    ],
+  },
+  // Batch12: keep the owner's leather choice distinct from coated vegan panels.
+  '596c5ec2-e59e-484f-8f73-89221f2b4171': {
+    material: ['This set combines leather straps with silver-tone hardware.'],
+    care: [
+      'Wipe the leather gently with a soft, slightly damp cloth.',
+      'Do not use alcohol wipes, machine washing or prolonged soaking on these pieces.',
+      'Store without tight folding or long-term heavy pressure.',
+    ],
+  },
+  'b8ab6fa1-1af6-4c52-b6fb-5b766e6d99da': {
+    material: ['This set combines leather straps with silver-tone rings and buckles.'],
+    care: [
+      'Wipe the leather gently with a soft, slightly damp cloth.',
+      'Do not use alcohol wipes, machine washing or prolonged soaking on these pieces.',
+      'Store without tight folding or long-term heavy pressure.',
+    ],
+  },
+  'f0e73d70-cf3d-4557-8d59-142c78a106ac': {
+    material: [
+      'This top and skirt set is made from vegan leather with a smooth, shiny holographic surface.',
+      'The coated panels show subtle shifts of color.',
+    ],
+  },
+  // Batch11: source and primary-photo review distinguish holographic panels
+  // from mirror finishes, and retain the first outfit's actual feather trim.
+  '6a4c1f02-8f02-4aca-b70d-8d9ac66b9b40': {
+    material: [
+      'This costume combines holographic vegan-leather panels with white feather trim.',
+      'The smooth, shiny panels show subtle shifts of color.',
+    ],
+    care: [
+      'The coated panels and feather trim need separate care. Contact us for guidance before using a cleaning product on the trim.',
+      'Do not machine wash or soak the costume.',
+      'Store without crushing the feathers, tightly folding the panels or placing heavy items on the costume.',
+    ],
+  },
+  '51a30d6f-a588-49b9-b077-5f33488efd36': {
+    material: [
+      'This costume is made from vegan leather with a smooth, shiny holographic surface.',
+      'The coated panels show subtle shifts of color and hold their shape between wears.',
+    ],
+  },
+  'a83b1b51-79be-4cae-a943-661060a34080': {
+    material: ['Glossy armor panels are held by black straps with buckle fastenings.'],
+    care: ['Wipe the panels gently with a soft, lightly damp cloth.', 'Avoid abrasive cleaners, solvents and machine washing.', 'Store without crushing or tightly folding the panels.'],
+  },
+  'e7238b1d-565c-4c4d-a7ae-a4402de80720': {
+    material: ['This costume combines black fabric with glossy red vegan-leather details.'],
+    care: [
+      'Clean gently by hand, paying separate attention to the fabric and coated details.',
+      'Avoid machine washing, strong rubbing and alcohol-based products on the fabric.',
+      'Store without tight folding or heavy pressure on the decorated areas.',
+    ],
+  },
+  '0e75d2f2-c345-440e-88e4-333b63caed09': {
+    material: ['This costume combines a fabric base with mirror-finish acrylic pieces. Acrylic is a type of plastic.'],
+    care: [
+      'Clean the acrylic pieces gently with a soft cloth lightly dampened with water.',
+      'Avoid abrasive cleaners, alcohol wipes and solvents on the acrylic and its coating.',
+      'Do not machine wash or fold tightly across the decorated areas.',
+    ],
+  },
+  'df030151-5853-46c1-be89-06f059224a44': {
+    material: [
+      'This costume combines a black fabric base with gold vegan-leather details.',
+      'The glossy gold details are attached to the fabric; they are not solid metal.',
+    ],
+    care: [
+      'Clean gently by hand, paying separate attention to the fabric and coated details.',
+      'Avoid machine washing, strong rubbing and alcohol-based products on the fabric.',
+      'Store the costume without tight folding or heavy pressure on the decorated areas.',
+    ],
+  },
+  '27a8243e-e0d9-430c-a83e-6573ef8a48cb': {
+    material: [
+      'This costume is made from acrylic, a type of plastic, with a glossy gold finish.',
+    ],
+    care: [
+      'Wipe gently with a soft cloth lightly dampened with water.',
+      'Avoid abrasive cleaners, alcohol wipes and solvents on the acrylic and its coating.',
+      'Handle the pieces carefully to avoid scratching the finish.',
+    ],
+  },
   'de38a842-37c4-40a7-86b4-393341c4c9aa': {
     material: [
       'This chest harness is made from brown leather.',

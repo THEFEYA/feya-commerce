@@ -5,6 +5,7 @@ import {
   partitionListingMasterComponentAxes,
   reconcileListingMasterComponentFocus,
   writerComponentAxesFromListingMasterFocus,
+  restoreListingMasterComponentAxes,
 } from '../../lib/listingMasterSearchAxisContract.ts';
 import { resolveStorefrontSellableOffer } from '../../lib/storefrontSellableOffer.ts';
 
@@ -65,4 +66,22 @@ test('writer-visible component focus excludes search-only axes', () => {
   };
 
   assert.deepEqual(writerComponentAxesFromListingMasterFocus(focus), ['legs', 'choker']);
+});
+
+test('restoring owner search axes preserves choices across offer changes and holds', () => {
+  const focus = {
+    component_focus_contract: LISTING_MASTER_SEARCH_AXIS_CONTRACT,
+    sellable_offer_signature: 'previous-composition',
+    component: ['top', 'arms'],
+  };
+  assert.deepEqual(restoreListingMasterComponentAxes(focus, offer, ['legs', 'choker']), ['top', 'arms']);
+  assert.deepEqual(restoreListingMasterComponentAxes(focus, { ...offer, status: 'hold' }, ['choker']), ['top', 'arms']);
+  assert.deepEqual(restoreListingMasterComponentAxes({ ...focus, component: [] }, offer, ['choker']), []);
+  // Restoration never updates the stored signature or marks the stale decision valid.
+  assert.equal(focus.sellable_offer_signature, 'previous-composition');
+});
+
+test('legacy restoration retains the current-offer boundary', () => {
+  assert.deepEqual(restoreListingMasterComponentAxes({component:['legs'],sellable_offer_signature:offer.signature},offer,['choker']), ['legs']);
+  assert.deepEqual(restoreListingMasterComponentAxes({component:['legs'],sellable_offer_signature:'old'},offer,['choker']), ['choker']);
 });

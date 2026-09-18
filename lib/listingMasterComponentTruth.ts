@@ -19,6 +19,7 @@ const COMPONENT_FAMILY_CANDIDATES: Record<string, string[]> = {
   harness: ['harness top'],
   bodysuit: ['bodysuit'],
   skirt: ['skirt'],
+  belt: ['belt'],
   panties: ['panties'],
   arms: ['arms'],
   legs: ['legs'],

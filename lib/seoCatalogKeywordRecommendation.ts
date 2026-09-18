@@ -92,6 +92,7 @@ const COLOR_FAMILIES: Record<string, string[]> = {
 // These are matching aliases for the existing Product DNA families, not product claims.
 const COMPONENT_FAMILIES: Record<string, string[]> = {
   armor: ['armor', 'armour'],
+  belt: ['belt', 'belts', 'waist belt', 'waist belts'],
   arms: ['arm', 'arms', 'arm cover', 'arm covers', 'arm guard', 'arm guards', 'arm cuff', 'arm cuffs', 'bracer', 'bracers'],
   bra: ['bra', 'bras', 'bralette', 'bustier'],
   bodysuit: ['bodysuit', 'body suit', 'leotard'],
@@ -136,6 +137,18 @@ const EXPLICIT_PRODUCT_DETAIL_TERMS = ['chain', 'coin', 'feather'];
 // as Shoulders, Harness Top and Skirt. It remains an identity descriptor, not
 // proof that a separate Armor component is included.
 const UMBRELLA_COMPONENT_FAMILIES = new Set(['armor']);
+
+// Only families represented by a selectable Listing Master chip are bounded
+// here. A real dress page can still use its identity: the form has no Dress
+// chip. Anatomical aliases follow their parent chip rather than a substring.
+const COMPONENT_SEARCH_AXIS_FAMILIES: Record<string, string[]> = {
+  shoulders: ['shoulders'], corset: ['corset'], bra: ['bra'],
+  top: ['top', 'crop top'], harness: ['harness'], bodysuit: ['bodysuit'],
+  skirt: ['skirt'], belt: ['belt'], panties: ['panties'], arms: ['arms', 'bracelet'],
+  legs: ['legs', 'garters'], mask: ['mask'],
+  headpiece: ['headpiece', 'crown', 'halo', 'helmet', 'horns'],
+  choker: ['choker'], wings: ['wings'], spine: ['spine'], tail: ['tail'],
+};
 
 // A source-category entity can have a more specific public subtype in the
 // leading product identity. These relations describe naming scope only; they
@@ -219,6 +232,49 @@ const PERSONA_FAMILIES: Record<string, string[]> = {
 // phrase. The exception remains exact product + exact validated keyword; it
 // never invents metrics or weakens the whole-product gate for other products.
 const OWNER_REVIEWED_PDP_PRIMARY: Record<string, string> = {
+  // Batch13: owner-selected axes, delegated bank review and confirmed whole sets.
+  'bc59df1d-edd3-4e63-9393-175c28d9be2b': 'white festival outfit',
+  '09d41ed1-51be-43b0-aace-fc80e6e50f99': 'mens burning man costume',
+  '32b51b28-0570-49af-90f5-7bfdd7da5148': 'black and gold festival outfits',
+  'ffbf1db6-6fae-4606-afbe-013415d6421d': 'festival fringe outfit',
+  '5589b5ea-e21a-4e57-a4b2-b598bd8466d2': 'costumes for drag queens',
+  // Batch12: current owner axes, measured whole-offer queries and photo review.
+  'ff0996b6-f369-4313-baf5-2d465d9c06f2': 'burning man costumes for women',
+  '596c5ec2-e59e-484f-8f73-89221f2b4171': 'black harness outfit',
+  'b68d0386-ed1f-4410-8001-185bf3aaf25f': 'silver fringe outfit',
+  'f0e73d70-cf3d-4557-8d59-142c78a106ac': 'holographic outfit',
+  'b8ab6fa1-1af6-4c52-b6fb-5b766e6d99da': 'harness top outfit',
+  // Batch11: preserved owner axes; measured, individually reviewed outfit intents.
+  '6a4c1f02-8f02-4aca-b70d-8d9ac66b9b40': 'holographic rave outfit',
+  '51a30d6f-a588-49b9-b077-5f33488efd36': 'cyberpunk rave outfit',
+  '51d879ce-f762-4307-b896-efcb2ffd64e9': 'gold festival outfit',
+  'b28d72d8-330b-400f-b595-124edc3f78f3': 'metallic silver skirt outfit',
+  '84cb55e1-a5a8-473c-abcd-17f0dc4161ab': 'female stage outfits',
+  // Batch10: owner saved these axes and delegated the measured keyword review.
+  // Complete outfits must not inherit a choker, headpiece or leg-only Primary.
+  'f96bb86c-43aa-49c1-a718-41fbe050a1ac': 'silver metallic outfit',
+  '82d2dc58-e635-4bc1-8571-2587641e627f': 'stage outfit',
+  '6a885710-fbee-4790-ba09-d56530f641f6': 'silver outfit',
+  '1a8545eb-f997-4ddf-b6c9-c3c0afa1bd7c': 'gold dance costume',
+  // Batch09: saved owner axes + exact measured whole-outfit intents.
+  'e7238b1d-565c-4c4d-a7ae-a4402de80720': 'dance costume red',
+  '0e75d2f2-c345-440e-88e4-333b63caed09': 'mirror dance costume',
+  // Batch08: owner saved the axes and delegated measured keyword roles.
+  // Reserve the complete current offer, never the highest-volume loose part.
+  '057fbd51-52f5-4404-b126-e5d75b8599f4': 'matching couple festival outfits',
+  '9400d8af-b6b9-4b4a-b878-b97eba761e10': 'futuristic armor costume',
+  'd06ab9d9-52c5-4f8c-b583-d9e5316eb69c': 'skirt and top set festival',
+  'df030151-5853-46c1-be89-06f059224a44': 'black stage outfit',
+  '5255562a-0181-4fe3-bf4f-e5083f5638e5': 'stage performance outfit',
+  // Batch07: the owner's angel + bodysuit direction describes the complete
+  // winged costume. Keep the existing measured product phrase, not a
+  // partial bodysuit-only query or invented belt demand.
+  'e7c214cd-a825-49c6-9759-12318d1464fe': 'angel bodysuit costume',
+  // Batch 06: retain the owner's black/holographic rave direction and all
+  // three excluded armor Primaries. The existing measured phrase is used.
+  '6bfcc9e6-3d45-4ef4-934f-12dd9dfc4532': 'black leather rave outfit',
+  // Horns are not the page entity of this confirmed bodysuit costume set.
+  'a767a1c1-65e7-4c0a-bd18-7a92f8ea4986': 'witch bodysuit costume',
   '103ff46a-892a-4961-80b1-e6996727c395': 'silver metallic dress costume',
   '657bd6d8-fbe1-4441-abad-f574e3380897': 'rave harness outfit',
   '6739b15c-f2f3-4a26-9e2a-3a0b5a3e2d2f': 'sci fi armor costume',
@@ -282,9 +338,9 @@ export function recommendCatalogKeywords(input: {
   const allProductRows = scored.filter((row) => (
     PRODUCT_BUCKETS.has(normalize(row.bank_bucket || row.page_type))
   ));
-  const ownerReviewedRow = ownerReviewedKeyword
-    ? allProductRows.find((row) => normalize(row.keyword_norm || row.keyword) === ownerReviewedKeyword)
-    : null;
+  // A reviewed whole-offer query may be stored in a visual/collection bucket.
+  // Reserve that exact eligible row before support-bucket limits truncate it.
+  const ownerReviewedRow = ownerReviewedEligibleRow || null;
   // An exact owner-reviewed Primary is already bounded by product id, trusted
   // bank evidence and every mismatch gate above. Reserve its one slot before
   // applying the compact top-ten display limit; otherwise a valid lower-volume
@@ -639,7 +695,13 @@ function scoreRow(
 ): ScoredKeywordRow {
   const keyword = normalize(row.keyword_norm || row.keyword);
   const bucket = normalize(row.bank_bucket || row.page_type);
-  const keywordComponents = detectedFamilies(keyword, COMPONENT_FAMILIES);
+  // For this exact reviewed offer, "harness top" names its Chest Harness
+  // option, not an additional top. Other products keep their existing ranking.
+  const componentKeyword = profile.canonicalProductId === 'b8ab6fa1-1af6-4c52-b6fb-5b766e6d99da'
+    && keyword === OWNER_REVIEWED_PDP_PRIMARY[profile.canonicalProductId]
+    ? keyword.replace(/\bharness top\b/g, 'harness')
+    : keyword;
+  const keywordComponents = detectedFamilies(componentKeyword, COMPONENT_FAMILIES);
   const keywordColors = detectedColorFamilies(keyword);
   const keywordAudiences = detectedFamilies(keyword, AUDIENCE_FAMILIES);
   const keywordEvents = detectedFamilies(keyword, EVENT_FAMILIES);
@@ -707,6 +769,11 @@ function scoreRow(
     && hasWholeProductScope(keyword, profile.presentation.components);
 
   const componentMismatch = keywordComponents.some((family) => !supportedComponentFamilies.includes(family));
+  const deselectedComponentAxis = profile.usesSearchAxisContract
+    && Object.values(COMPONENT_SEARCH_AXIS_FAMILIES).some((families) => (
+      !profile.searchAxisFamilies.some((family) => families.includes(family))
+      && keywordComponents.some((family) => families.includes(family))
+    ));
   const colorMismatch = keywordColors.length > 0
     && profile.colors.length > 0
     && keywordColors.some((family) => !profile.colors.includes(family));
@@ -751,6 +818,7 @@ function scoreRow(
   let rejectReason: string | null = null;
   if (incompatibleDomain) rejectReason = 'incompatible_commerce_domain';
   else if (excludedMatch) rejectReason = 'excluded_keyword_term';
+  else if (deselectedComponentAxis) rejectReason = 'component_axis_not_selected';
   else if (!supportedBucket) rejectReason = 'unsupported_page_bucket';
   else if (anatomicalComponentMismatch) rejectReason = 'anatomical_component_mismatch';
   else if (unsupportedSizePositioning) rejectReason = 'unsupported_size_positioning';
@@ -767,8 +835,11 @@ function scoreRow(
   else if (styleMismatch) rejectReason = 'style_mismatch';
   else if (personaMismatch) rejectReason = 'persona_mismatch';
   else if (visualAttributeMismatch) rejectReason = 'visual_attribute_mismatch';
-  else if (productBucket && !productIdentityGate) rejectReason = 'insufficient_product_truth_overlap';
-  else if (!productBucket && !supportIntentGate) rejectReason = 'insufficient_focus_overlap';
+  // An exact reviewed whole-product alias can be absent from the imported
+  // title; token overlap must not undo that bounded review. Every factual
+  // color/event/persona/visual gate above still applies.
+  else if (productBucket && !productIdentityGate && !exactOwnerReviewedPrimary) rejectReason = 'insufficient_product_truth_overlap';
+  else if (!productBucket && !supportIntentGate && !exactOwnerReviewedPrimary) rejectReason = 'insufficient_focus_overlap';
 
   const productScopeScore = profile.presentation.requires_whole_product_entity
     ? wholeProductIntent ? 80 : partialComponentScope ? -35 : 0

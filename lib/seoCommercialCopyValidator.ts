@@ -1,3 +1,4 @@
+import { naturalKeywordPhrase } from './seoNaturalKeywordPhrase.ts';
 import {
   classifySeoProductPresentation,
   hasWholeProductEntity,
@@ -1270,7 +1271,7 @@ function validateWholeProductPresentation(
     // multi-piece Primary itself names the compact composition, that one
     // occurrence is search identity rather than a redundant inventory recap.
     // Intro and About still must use a natural whole-product variation.
-    if (key === 'meta_description' && approvedPrimary && containsPhrase(text, approvedPrimary)) return;
+    if (key === 'meta_description' && approvedPrimary && (containsPhrase(text, approvedPrimary) || containsPhrase(text, naturalKeywordPhrase(approvedPrimary)))) return;
     const mentioned = mentionedConfirmedComponents(text, presentation.components);
     const genericRecap = /\b(?:design|product|costume|outfit|set|ensemble)\b[^.!?\n]{0,45}\b(?:combines?|pairs?|brings?\s+together|includes?|contains?|consists?\s+of|comes?\s+with)\b[^.!?\n]{0,90}\b(?:shoulders?|skirt|tops?|bottoms?|upper\s+pieces?|lower\s+pieces?|components?)\b[^.!?\n]{0,50}\b(?:and|with)\b[^.!?\n]{0,50}\b(?:shoulders?|skirt|tops?|bottoms?|upper\s+pieces?|lower\s+pieces?|components?)\b/i.test(text);
     const recapsComposition = (
