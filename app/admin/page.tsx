@@ -58,6 +58,10 @@ export default function AdminHomePage() {
             <strong>Content QA</strong>
             <span>Shadow CQA readiness over existing SEO pack drafts.</span>
           </Link>
+          <Link className="card metric" href="/admin/business-truth">
+            <strong>Business Truth</strong>
+            <span>Versioned production, shipping and policy facts available to content/CQA.</span>
+          </Link>
           <Link className="card metric" href="/admin/system-readiness">
             <strong>System Readiness</strong>
             <span>Capability Registry: what Growth OS can actually observe and execute now.</span>
