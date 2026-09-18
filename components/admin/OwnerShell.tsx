@@ -5,16 +5,16 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, type ReactNode } from 'react';
 
 const NAV_ITEMS = [
-  { href: '/admin', label: 'Сегодня', mark: 'С' },
-  { href: '/admin/work', label: 'Работа', mark: 'Р' },
-  { href: '/admin/growth', label: 'Рост', mark: '↑' },
+  { href: '/admin/company', label: 'Сегодня', mark: 'С' },
+  { href: '/admin/company/work', label: 'Работа', mark: 'Р' },
+  { href: '/admin/company/growth', label: 'Рост', mark: '↑' },
   { href: '/admin/products', label: 'Товары', mark: 'Т' },
-  { href: '/admin/results', label: 'Результаты', mark: '✓' },
-  { href: '/admin/system', label: 'Система', mark: '⚙' },
+  { href: '/admin/company/results', label: 'Результаты', mark: '✓' },
+  { href: '/admin/company/system', label: 'Система', mark: '⚙' },
 ];
 
 function isActive(pathname: string, href: string) {
-  if (href === '/admin') return pathname === '/admin';
+  if (href === '/admin/company') return pathname === '/admin/company';
   if (href === '/admin/products') {
     return pathname.startsWith('/admin/products') || pathname.startsWith('/admin/product-facts-review');
   }
@@ -29,7 +29,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
     const onKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
-        router.push('/admin/search');
+        router.push('/admin/company/search');
       }
     };
 
@@ -44,7 +44,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
   return (
     <div className="owner-shell">
       <aside className="owner-sidebar" aria-label="Основная навигация">
-        <Link href="/admin" className="owner-brand">
+        <Link href="/admin/company" className="owner-brand">
           <span className="owner-brand-name">FEYA</span>
           <span className="owner-brand-subtitle">Центр управления</span>
         </Link>
@@ -68,18 +68,22 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
 
         <div className="owner-sidebar-footer">
           <Link
-            href="/admin/search"
-            className={`owner-nav-item owner-nav-secondary${pathname.startsWith('/admin/search') ? ' is-active' : ''}`}
+            href="/admin/company/search"
+            className={`owner-nav-item owner-nav-secondary${pathname.startsWith('/admin/company/search') ? ' is-active' : ''}`}
           >
             <span className="owner-nav-mark" aria-hidden="true">⌕</span>
             <span>Поиск</span>
           </Link>
           <Link
-            href="/admin/advanced"
-            className={`owner-nav-item owner-nav-secondary${pathname.startsWith('/admin/advanced') ? ' is-active' : ''}`}
+            href="/admin/company/advanced"
+            className={`owner-nav-item owner-nav-secondary${pathname.startsWith('/admin/company/advanced') ? ' is-active' : ''}`}
           >
             <span className="owner-nav-mark" aria-hidden="true">···</span>
             <span>Технические детали</span>
+          </Link>
+          <Link href="/admin" className="owner-nav-item owner-nav-secondary">
+            <span className="owner-nav-mark" aria-hidden="true">←</span>
+            <span>Админка магазина</span>
           </Link>
           <Link href="/shop" className="owner-nav-item owner-nav-secondary">
             <span className="owner-nav-mark" aria-hidden="true">↗</span>
@@ -91,7 +95,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
       <div className="owner-stage">
         <header className="owner-topbar">
           <div className="owner-topbar-mobile-brand">FEYA</div>
-          <Link href="/admin/search" className="owner-search-trigger" aria-label="Открыть поиск">
+          <Link href="/admin/company/search" className="owner-search-trigger" aria-label="Открыть поиск">
             <span aria-hidden="true">⌕</span>
             <span>Найти товар, страницу, задачу или сигнал</span>
             <kbd>⌘ K</kbd>
@@ -120,7 +124,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
             </Link>
           );
         })}
-        <Link href="/admin/system" className={pathname.startsWith('/admin/system') ? 'is-active' : ''}>
+        <Link href="/admin/company/system" className={pathname.startsWith('/admin/company/system') ? 'is-active' : ''}>
           <span aria-hidden="true">•••</span>
           <small>Ещё</small>
         </Link>
