@@ -86,6 +86,10 @@ export default function AdminHomePage() {
             <strong>System Readiness</strong>
             <span>Capability Registry: what Growth OS can actually observe and execute now.</span>
           </Link>
+          <Link className="card metric" href="/admin/roles">
+            <strong>Roles</strong>
+            <span>Explicit INACTIVE/SHADOW/ACTIVE/PAUSED runtime state and autonomy ceilings.</span>
+          </Link>
           <Link className="card metric" href="/admin/data-authority">
             <strong>Data Authority</strong>
             <span>Source-of-Truth tiers and precedence across product, policy, search, analytics and commerce.</span>
