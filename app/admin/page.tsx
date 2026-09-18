@@ -50,6 +50,10 @@ export default function AdminHomePage() {
             <strong>SEO Portfolio</strong>
             <span>Stable page IDs, lifecycle, indexation intent and future query ownership.</span>
           </Link>
+          <Link className="card metric" href="/admin/seo-clusters">
+            <strong>Query Clusters</strong>
+            <span>Read-only semantic clustering gates and current bottlenecks.</span>
+          </Link>
         </div>
       </div>
     </main>
