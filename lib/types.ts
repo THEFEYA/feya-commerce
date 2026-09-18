@@ -457,3 +457,15 @@ export type GrowthSignalCandidateRow = {
   generated_at?: string | null;
   [key: string]: unknown;
 };
+
+
+export type CaseAdmissionPreviewRow = {
+  signal_fingerprint: string;
+  signal_code?: string | null;
+  existing_case_id?: string | null;
+  existing_case_code?: string | null;
+  existing_case_status?: string | null;
+  admission_decision?: string | null;
+  admission_reason?: string | null;
+  [key: string]: unknown;
+};
