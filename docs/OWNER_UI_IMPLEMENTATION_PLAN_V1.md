@@ -592,3 +592,75 @@ Validation:
 - Vercel production build for the recovered combined branch: READY;
 - recovered routes include `/admin/listing-master`, `/admin/seo-engine/studio`, `/admin/products` and the full SEO/review route family;
 - current Growth OS / Company Control routes remain present under `/admin/company`.
+
+
+## 13. Smart localization and operational integration checkpoint — 2026-09-18
+
+Owner confirmed that the recovered Product OS admin is the correct working baseline.
+
+### Smart localization implemented
+
+Normal admin chrome is being localized to Russian while preserving source/business/search data in its original language.
+
+Localized surfaces now include:
+- recovered admin navigation and dashboard;
+- product catalog and product detail;
+- Listing Master display terminology;
+- SEO keyword bank;
+- SEO Studio / briefs / scoring / metric import / commercial review;
+- SEO approval / apply / change sets / export / gate / storefront preview;
+- launch, indexation, content, graph and collection planning;
+- Media QA / Media SEO;
+- product label / price / component review queues;
+- draft-generation review surfaces and their admin controls.
+
+Preserved without translation:
+- product titles;
+- keyword/query text;
+- English SEO title / H1 / meta / descriptions intended for the public EN storefront;
+- URL slugs;
+- marketplace/source evidence;
+- canonical machine codes when used internally.
+
+### Company Work no longer equates "no Growth Case" with "no work"
+
+The Company Control Center now aggregates real read-only operational queue counts from existing safe views rather than fabricating Growth Cases.
+
+Current deterministic sources:
+- Product Fact review queue;
+- Keyword Cleanup review queue;
+- Content QA shadow status.
+
+The Work screen separates:
+- **Ждёт вас** — durable owner decisions;
+- **Операционные очереди** — real Product OS / SEO work;
+- **Задачи роста** — true Growth Cases/workflows only;
+- **Команда FEYA** — role runtime/capability state.
+
+Automatic CQA/precheck queues are explicitly shown as system work that does not require Owner attention.
+
+This preserves the canonical work model while giving the Owner a truthful view of real activity.
+
+### Product Workspace decision refined
+
+The recovered Product OS already contains the mature product/SEO workspace the Owner uses.
+
+Therefore UX-2 must NOT rebuild a second Product Workspace.
+
+Revised UX-2:
+- preserve existing Product OS routes and interactions;
+- improve Russian display copy incrementally;
+- add contextual Company/Growth links only where they answer a real owner question;
+- reuse current Listing Master / Product Detail / SEO workflows;
+- avoid duplicate product truth, SEO or review screens.
+
+### Validation discipline
+
+After each localization wave:
+- build must remain green;
+- display labels may change, canonical state codes may not;
+- classification/routing logic must use stable internal codes rather than translated labels;
+- public storefront preview remains English because it previews the EN storefront.
+
+A concrete issue was caught during this wave:
+translated commercial-review labels were initially being used as logic keys. This was corrected by introducing stable internal classification codes and keeping Russian labels display-only.
