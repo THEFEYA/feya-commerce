@@ -861,3 +861,28 @@ export type GrowthInitiativeRow = {
   updated_at?: string | null;
   [key: string]: unknown;
 };
+
+
+export type GrowthOpportunityRow = {
+  opportunity_id: string;
+  opportunity_code?: string | null;
+  event_id?: string | null;
+  event_code?: string | null;
+  event_name?: string | null;
+  event_type?: string | null;
+  event_starts_at?: string | null;
+  event_ends_at?: string | null;
+  opportunity_type?: string | null;
+  title?: string | null;
+  owner_role?: string | null;
+  priority?: string | null;
+  opportunity_status?: string | null;
+  commercial_expiry_at?: string | null;
+  due_at?: string | null;
+  expiry_state?: string | null;
+  initiative_id?: string | null;
+  detected_at?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  [key: string]: unknown;
+};
