@@ -8,9 +8,9 @@ export const revalidate = 0;
 const SEO_KEYWORDS_LIMIT = 200;
 
 const FILTERS = [
-  { key: 'cleanup_pipeline_status', label: 'cleanup_pipeline_status' },
-  { key: 'priority_tier', label: 'priority_tier' },
-  { key: 'queue_suggested_page_level', label: 'page_level' },
+  { key: 'cleanup_pipeline_status', label: 'Состояние обработки' },
+  { key: 'priority_tier', label: 'Приоритет' },
+  { key: 'queue_suggested_page_level', label: 'Уровень страницы' },
 ] as const;
 
 async function getSeoKeywordRows(): Promise<{ rows: SeoKeywordCleanupReportRow[]; totalCount: number | null; error?: string }> {
@@ -50,6 +50,29 @@ function getUniqueValues(rows: SeoKeywordCleanupReportRow[], key: keyof SeoKeywo
   return Array.from(new Set(rows.map((row) => asText(row[key], '')).filter(Boolean))).slice(0, 10);
 }
 
+function keywordStatusLabel(value: unknown) {
+  const key = normalizeStatus(value);
+  const labels: Record<string, string> = {
+    needs_ai_cleanup: 'Нужна автоматическая очистка',
+    needs_human_review: 'Нужна проверка человеком',
+    ready_for_metric_validation: 'Готово к проверке метрик',
+    approved: 'Одобрено',
+    rejected: 'Отклонено',
+    hold: 'Отложено',
+    clean: 'Готово',
+    ready: 'Готово',
+    pending: 'Ожидает',
+    not_checked: 'Ещё не проверено',
+  };
+  return labels[key] || asText(value);
+}
+
+function boolLabel(value: unknown) {
+  if (value === true || String(value).toLowerCase() === 'true') return 'Да';
+  if (value === false || String(value).toLowerCase() === 'false') return 'Нет';
+  return asText(value);
+}
+
 function getStatusClass(value: unknown) {
   const normalized = normalizeStatus(value);
 
@@ -68,12 +91,12 @@ export default async function AdminSeoKeywordsPage() {
   const { rows, totalCount, error } = await getSeoKeywordRows();
 
   const metrics = [
-    { label: 'Total queue rows', value: totalCount ?? rows.length },
-    { label: 'Rows shown', value: rows.length },
-    { label: 'needs_ai_cleanup', value: countCleanupStatus(rows, 'needs_ai_cleanup') },
-    { label: 'needs_human_review', value: countCleanupStatus(rows, 'needs_human_review') },
-    { label: 'ready_for_metric_validation', value: countCleanupStatus(rows, 'ready_for_metric_validation') },
-    { label: 'hold', value: countCleanupStatus(rows, 'hold') },
+    { label: 'Всего в очереди', value: totalCount ?? rows.length },
+    { label: 'Показано строк', value: rows.length },
+    { label: 'Нужна автоматическая очистка', value: countCleanupStatus(rows, 'needs_ai_cleanup') },
+    { label: 'Нужна проверка человеком', value: countCleanupStatus(rows, 'needs_human_review') },
+    { label: 'Готово к проверке метрик', value: countCleanupStatus(rows, 'ready_for_metric_validation') },
+    { label: 'Отложено', value: countCleanupStatus(rows, 'hold') },
   ];
 
   return (
@@ -82,19 +105,19 @@ export default async function AdminSeoKeywordsPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/review">Review</Link>
-            <Link href="/admin/products">Products</Link>
-            <Link href="/admin/seo-keyword-review">Keyword Review</Link>
-            <Link href="/admin/seo-keywords">SEO Keywords</Link>
-            <Link href="/shop">Shop</Link>
+            <Link href="/admin/review">Проверка</Link>
+            <Link href="/admin/products">Товары</Link>
+            <Link href="/admin/seo-keyword-review">Проверка ключевых слов</Link>
+            <Link href="/admin/seo-keywords">SEO и ключевые слова</Link>
+            <Link href="/shop">Магазин</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">SEO keyword validation gate</div>
-          <h1>SEO Keywords</h1>
+          <div className="phase-label">Проверка SEO-ключевых слов · только просмотр</div>
+          <h1>SEO и ключевые слова</h1>
           <p>
-            Generated keyword candidates are not final SEO keywords until cleaned, validated with real metrics, scored, and approved. This page is read-only and does not invent search volume, competition, CTR, bids, or trend metrics.
+            Ключевые запросы остаются на языке поиска и не переводятся. Кандидат становится рабочим SEO-ключом только после очистки, проверки реальных метрик и подтверждения. Система не придумывает объём поиска, конкуренцию, CTR, ставки или тренды.
           </p>
         </section>
 
@@ -114,7 +137,7 @@ export default async function AdminSeoKeywordsPage() {
             const values = getUniqueValues(rows, filter.key);
             return (
               <div className="filter-chip" key={filter.key}>
-                <strong>{filter.label}:</strong> {values.length ? values.join(' / ') : 'no values loaded'}
+                <strong>{filter.label}:</strong> {values.length ? values.join(' / ') : 'нет значений'}
               </div>
             );
           })}
@@ -124,19 +147,19 @@ export default async function AdminSeoKeywordsPage() {
           <table>
             <thead>
               <tr>
-                <th>keyword</th>
-                <th>keyword_norm</th>
-                <th>priority_tier</th>
-                <th>queue_suggested_page_level</th>
-                <th>queue_keyword_axis</th>
-                <th>queue_keyword_pattern</th>
-                <th>validation_status</th>
-                <th>cleanup_pipeline_status</th>
-                <th>cleaned_keyword</th>
-                <th>suggested_keyword</th>
-                <th>should_validate_api</th>
-                <th>should_hold</th>
-                <th>warning_flags</th>
+                <th>Ключевой запрос</th>
+                <th>Нормализованный запрос</th>
+                <th>Приоритет</th>
+                <th>Уровень страницы</th>
+                <th>Ось</th>
+                <th>Шаблон</th>
+                <th>Проверка</th>
+                <th>Обработка</th>
+                <th>Очищенный запрос</th>
+                <th>Предложенный запрос</th>
+                <th>Нужна API-проверка</th>
+                <th>Отложить</th>
+                <th>Предупреждения</th>
               </tr>
             </thead>
             <tbody>
@@ -148,12 +171,12 @@ export default async function AdminSeoKeywordsPage() {
                   <td>{asText(row.queue_suggested_page_level)}</td>
                   <td>{asText(row.queue_keyword_axis)}</td>
                   <td>{asText(row.queue_keyword_pattern)}</td>
-                  <td><span className={`status-pill ${getStatusClass(row.validation_status)}`}>{asText(row.validation_status)}</span></td>
-                  <td><span className={`status-pill ${getStatusClass(row.cleanup_pipeline_status)}`}>{asText(row.cleanup_pipeline_status)}</span></td>
+                  <td><span className={`status-pill ${getStatusClass(row.validation_status)}`}>{keywordStatusLabel(row.validation_status)}</span></td>
+                  <td><span className={`status-pill ${getStatusClass(row.cleanup_pipeline_status)}`}>{keywordStatusLabel(row.cleanup_pipeline_status)}</span></td>
                   <td>{asText(row.cleaned_keyword)}</td>
                   <td>{asText(row.suggested_keyword)}</td>
-                  <td>{asText(row.should_validate_api)}</td>
-                  <td>{asText(row.should_hold)}</td>
+                  <td>{boolLabel(row.should_validate_api)}</td>
+                  <td>{boolLabel(row.should_hold)}</td>
                   <td>{asText(row.warning_flags)}</td>
                 </tr>
               ))}
