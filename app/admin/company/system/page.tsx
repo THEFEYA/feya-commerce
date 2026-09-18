@@ -155,6 +155,15 @@ async function getSystemData(): Promise<{
   };
 }
 
+function healthRank(value: unknown) {
+  const key = String(value || '').toUpperCase();
+  if (key === 'UNAVAILABLE') return 0;
+  if (key === 'DEGRADED' || key === 'AVAILABLE_WITH_LIMITATIONS' || key === 'STALE') return 1;
+  if (key === 'NOT_OBSERVABLE') return 2;
+  if (key === 'HEALTHY' || key === 'AVAILABLE') return 4;
+  return 3;
+}
+
 function toneClass(tone: string) {
   return tone === 'danger' ? 'is-danger' : tone === 'warning' ? 'is-warning' : tone === 'success' ? 'is-success' : tone === 'info' ? 'is-info' : '';
 }
@@ -208,7 +217,7 @@ export default async function AdminSystemPage() {
             <Link href="/admin/data-health" className="owner-button">Подробнее</Link>
           </div>
           <div className="owner-list">
-            {sources.map((row) => {
+            {[...sources].sort((a, b) => healthRank(a.health_state) - healthRank(b.health_state)).map((row) => {
               const health = String(row.health_state || '');
               const tone = ownerToneForStatus(health);
               return (
