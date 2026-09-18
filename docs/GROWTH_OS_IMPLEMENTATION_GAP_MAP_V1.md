@@ -924,9 +924,17 @@ ALT policy:
 - if Product Truth has no primary_image_alt, SCO omits ALT candidate;
 - empty SCO ALT candidates can pass because media ALT remains a separate task.
 
+Component-inclusion policy:
+- optional configurations / known non-components are not treated as automatically included components;
+- explicit unconditional inclusion wording is deterministically checked;
+- component_claim_truth must PASS before ready_for_publish;
+- broader semantic ambiguity still goes to independent CQA.
+
 Rollback validation:
 - old draft preview caught an ALT mismatch that legacy qa_self_report had marked pass;
-- apply created exactly 2 events inside transaction and rolled back cleanly;
+- original similarity/ALT apply path created 2 audit events inside transaction and rolled back cleanly;
+- current precheck pipeline also includes component-inclusion claim evidence and a validation_checked event;
+- rollback fixture confirmed an explicit unconditional optional-configuration inclusion claim becomes needs_review;
 - end-to-end SCO -> prechecks -> CQA shadow test PASS;
 - after passing prechecks, new draft state became READY_FOR_HUMAN_AND_CQA_REVIEW;
 - cqa_status remained not_run;
@@ -1126,6 +1134,9 @@ This section supersedes older "next focus" notes where the corresponding foundat
 - Page Ownership proposal/shortlist foundation exists;
 - indexable-page eligibility/proposal foundation exists;
 - Scenario Regression Registry + explicit run evidence exists;
+- deterministic component-inclusion claim precheck + publish guard exists;
+- deterministic GA4/Commerce purchase-measurement reconciliation classifier exists;
+- internal SEO/Growth mutation RPCs have been least-privilege hardened to service-role execution;
 - Source-of-Truth Registry + Data Source Health foundation exists;
 - Incident + Change Freeze foundation exists;
 - Execution Gateway request/receipt foundation exists, but no production dispatcher;
@@ -1156,15 +1167,15 @@ These zeros are intentional PRE_LAUNCH state, not missing seed data. Do not crea
 
 Latest Scenario Registry readiness:
 
-- PASS: **10**
-- WARN: **2**
-- NOT_RUN: **3**
+- PASS: **15**
+- WARN: **0**
+- NOT_RUN: **0**
 - FAIL: **0**
 - ERROR: **0**
-- CRITICAL not PASS: **2**
-- registry release state: **BLOCKED**
+- CRITICAL not PASS: **0**
+- registry release state: **PASS**
 
-Do not convert WARN/NOT_RUN into PASS without executing the invariant with real evidence.
+The remaining launch blockers are therefore capability/data/owner gates, not unexecuted canonical regression scenarios. Scenario PASS does not imply that GA4, GSC, Commerce Truth or public launch capability exists.
 
 ### Admin boundary correction
 
@@ -1219,11 +1230,25 @@ Still do not bypass:
 5. Google Ads Keyword Planning access after external verification/access is available;
 6. GA4 production instrumentation and trusted commerce/order truth;
 7. GSC after the public site is live/verified;
-8. scenario gaps that genuinely require those missing sources;
-9. Measurement Engine promotion only after real datasets exist.
+8. Measurement Engine promotion only after real datasets exist.
 
 ### Engineering rule from this checkpoint
 
 Do not keep adding foundations merely because a canonical noun exists.
 
 Next work must close a real blocker, improve measurable reliability/cost, or connect a foundation to real data. Otherwise DEFER.
+
+
+### Internal RPC privilege audit
+STATUS: HARDENED FOR AUDITED FEYA COMMERCE / GROWTH MUTATION SURFACE
+
+Applied Supabase migration:
+- 20260918110651 — feya_internal_rpc_privilege_hardening_v1
+
+Verified after migration:
+- browser roles no longer EXECUTE internal SEO metric import/promotion, keyword-plan, brief worker, review, commercial-promotion or metric-batch mutation RPCs;
+- component-claim precheck and internal trigger helpers are service-role only;
+- public storefront order-draft RPC remains intentionally callable;
+- within the audited SECURITY DEFINER FEYA Commerce/Growth DML surface, that storefront order-draft RPC is the only remaining anon/authenticated executable mutation path.
+
+This closes a real controlled-execution boundary gap without changing public storefront behavior.
