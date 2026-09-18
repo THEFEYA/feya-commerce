@@ -799,3 +799,79 @@ Still required:
 5. cut browser access to registered admin views using the governed hardening path;
 6. verify all owner writes use audited service-side RPC / Execution Gateway paths;
 7. rerun Vercel + Supabase security regression checks.
+
+
+## 16. Russian admin localization + protected-read readiness checkpoint — 2026-09-18
+
+Owner confirmed the recovered Product OS as the correct daily-work baseline. The next pass therefore focused on two things only:
+
+1. smart Russian localization of the existing admin;
+2. preparing internal admin reads for the later protected-auth cutover.
+
+### Russian localization wave
+
+Normal admin UI is now Russian-first across the main Product OS / SEO / Company surfaces.
+
+Localized or substantially polished:
+- admin navigation/dashboard;
+- products and product detail;
+- Listing Master;
+- review overview / labels / prices / components;
+- SEO Engine hub;
+- SEO Studio / metric import / scoring / commercial review;
+- keyword bank and keyword-review queue;
+- content briefs and content QA;
+- query-cluster queue and cluster proposals;
+- page/query ownership proposals;
+- indexability readiness/proposals;
+- SEO apply/change-set/export/gate/preview flows;
+- Media QA / Media SEO;
+- launch / indexation / content / graph / collections;
+- Business Truth;
+- signals and Owner Attention diagnostics;
+- roles, opportunities, strategy, experiments, learning;
+- data authority, data health, metrics, execution map, executions, incidents;
+- launch readiness and scenario tests;
+- admin login.
+
+Smart localization boundary is preserved:
+- product titles stay in their original language;
+- search keywords/queries stay in their original language;
+- EN storefront copy stays EN;
+- URLs/slugs and raw source evidence are not translated;
+- canonical machine codes remain available where technically useful.
+
+### Admin read-boundary preparation
+
+All current `app/admin/**/page.tsx` routes were audited for direct use of `getSupabaseReadClient()`.
+
+Result after migration:
+- direct raw read-client usage in admin page files: **0**;
+- internal admin pages now use `getAdminReadClient()` for protected-read compatibility;
+- Listing Master and SEO brief server helpers were also updated so service-role/server protected reads can take over after auth cutover;
+- public `/shop` remains on the public read client and is intentionally unaffected.
+
+This means future Admin Data Boundary hardening no longer needs to redesign the Product OS UI first.
+
+### Build gate
+
+A TypeScript regression was detected during the localization wave:
+- `seo-clusters` referenced a translated display helper that had not been inserted because the original function name differed from the expected marker.
+
+The helper was restored, the page was fully localized, and the branch was rebuilt.
+
+Final build for this checkpoint:
+- commit: `503bdc26dda94debc179d1f617d61b3da65bdc2c`;
+- Vercel: **READY**;
+- Next.js compile/type/static generation: PASS.
+
+### What is intentionally still not enabled
+
+- protected Owner write actions;
+- direct production mutations;
+- Admin Data Boundary revoke cutover;
+- global indexing;
+- payment/checkout provider;
+- fake GA4/GSC/Google Ads charts.
+
+Those remain separate gates rather than UI decoration.
