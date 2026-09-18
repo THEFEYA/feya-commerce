@@ -90,6 +90,8 @@ export function AdminProductsFilterClient({ rows }: { rows: AdminProductRow[] })
   const [query, setQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [sort, setSort] = useState('priority');
+  const [page, setPage] = useState(1);
+  const pageSize = 50;
 
   const visibleRows = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -100,6 +102,10 @@ export function AdminProductsFilterClient({ rows }: { rows: AdminProductRow[] })
     return sortRows(filtered, sort);
   }, [rows, query, activeFilter, sort]);
 
+  const pageCount = Math.max(1, Math.ceil(visibleRows.length / pageSize));
+  const currentPage = Math.min(page, pageCount);
+  const pageRows = visibleRows.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   return <div className="rounded-xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
     <div className="border-b border-[rgba(216,214,211,.10)] p-4">
       <div className="grid gap-3 xl:grid-cols-[minmax(280px,1fr)_auto] xl:items-center">
@@ -107,7 +113,7 @@ export function AdminProductsFilterClient({ rows }: { rows: AdminProductRow[] })
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--smoke)]" />
           <input
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => { setQuery(event.target.value); setPage(1); }}
             placeholder="Найти товар, slug или статус..."
             className="w-full rounded-lg border border-[rgba(216,214,211,.12)] bg-black/20 py-3 pl-10 pr-4 text-[13px] text-bone outline-none placeholder:text-[var(--smoke)] focus:border-white/40"
           />
@@ -118,7 +124,7 @@ export function AdminProductsFilterClient({ rows }: { rows: AdminProductRow[] })
           <span className="text-[11px] text-[var(--bone-dim)]">Сортировка</span>
           <select
             value={sort}
-            onChange={(event) => setSort(event.target.value)}
+            onChange={(event) => { setSort(event.target.value); setPage(1); }}
             className="min-h-9 bg-transparent text-[12px] text-bone outline-none"
           >
             {SORTS.map((item) => <option key={item.value} value={item.value} className="bg-[#111117]">{item.label}</option>)}
@@ -131,7 +137,7 @@ export function AdminProductsFilterClient({ rows }: { rows: AdminProductRow[] })
           <button
             key={filter.value}
             type="button"
-            onClick={() => setActiveFilter(filter.value)}
+            onClick={() => { setActiveFilter(filter.value); setPage(1); }}
             className={`rounded-lg border px-3 py-2 text-[10px] uppercase tracking-[0.14em] transition ${activeFilter === filter.value ? 'border-[rgba(212,178,106,.48)] bg-[rgba(212,178,106,.10)] text-[var(--gold-warm)]' : 'border-[rgba(216,214,211,.12)] bg-black/15 text-[var(--bone-dim)] hover:border-white/30'}`}
           >
             {filter.label}
@@ -153,7 +159,7 @@ export function AdminProductsFilterClient({ rows }: { rows: AdminProductRow[] })
     </div>
 
     <div className="divide-y divide-[rgba(216,214,211,.08)]">
-      {visibleRows.map((row) => (
+      {pageRows.map((row) => (
         <Link
           key={row.id}
           href={`/admin/products/${row.slug}`}
@@ -184,5 +190,31 @@ export function AdminProductsFilterClient({ rows }: { rows: AdminProductRow[] })
 
       {!visibleRows.length ? <div className="p-6 text-[13px] text-[var(--bone-dim)]">Под этот фильтр товары не найдены.</div> : null}
     </div>
+
+    {visibleRows.length > pageSize ? (
+      <div className="flex flex-col gap-3 border-t border-[rgba(216,214,211,.10)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-[11px] text-[var(--smoke)]">
+          Страница {currentPage} из {pageCount} · показано {pageRows.length} · всего {visibleRows.length}
+        </div>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className="owner-button"
+            disabled={currentPage <= 1}
+            onClick={() => setPage((value) => Math.max(1, value - 1))}
+          >
+            Назад
+          </button>
+          <button
+            type="button"
+            className="owner-button"
+            disabled={currentPage >= pageCount}
+            onClick={() => setPage((value) => Math.min(pageCount, value + 1))}
+          >
+            Дальше
+          </button>
+        </div>
+      </div>
+    ) : null}
   </div>;
 }
