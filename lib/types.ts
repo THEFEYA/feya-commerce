@@ -411,3 +411,28 @@ export type GrowthActionCapabilityRow = {
   updated_at?: string | null;
   [key: string]: unknown;
 };
+
+
+export type LaunchReadinessGateRow = {
+  readiness_scope: string;
+  gate_code: string;
+  gate_name?: string | null;
+  gate_status?: string | null;
+  is_blocker?: boolean | null;
+  summary?: string | null;
+  next_action?: string | null;
+  owner_role?: string | null;
+  evidence_json?: unknown;
+  [key: string]: unknown;
+};
+
+export type LaunchReadinessSummaryRow = {
+  readiness_scope: string;
+  scope_status?: string | null;
+  gate_count?: number | null;
+  pass_count?: number | null;
+  warn_count?: number | null;
+  blocked_count?: number | null;
+  blocking_count?: number | null;
+  [key: string]: unknown;
+};
