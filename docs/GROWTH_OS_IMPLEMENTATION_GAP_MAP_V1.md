@@ -1003,3 +1003,58 @@ Capability state:
 
 Reason:
 GA4/GSC/Commerce analytical datasets are not active yet. Growth OS does not fabricate outcomes.
+
+
+### Launch Readiness / Admin Data Boundary
+STATUS: IMPLEMENTED / HARDENING PENDING
+
+Applied Supabase migrations:
+- 20260918090226 — feya_launch_readiness_gate_v1
+- 20260918090634 — feya_launch_readiness_admin_boundary_v2
+- 20260918090751 — feya_admin_data_hardening_rpc_v1
+
+Launch Readiness scopes:
+- PUBLIC_SITE = BLOCKED
+- SEARCH_INDEXING = BLOCKED
+- COMMERCE = BLOCKED
+- MEASUREMENT = BLOCKED
+
+Current hard blockers include:
+- production domain not connected in Vercel;
+- admin auth not enforced;
+- internal admin views still browser-readable;
+- no ACTIVE return-policy Business Truth;
+- zero indexable SEO Portfolio pages;
+- zero primary query/page ownership rows;
+- zero ready_for_publish drafts;
+- GA4 unavailable;
+- GSC Bulk Export unavailable;
+- Measurement Engine unavailable;
+- real checkout unavailable;
+- authoritative completed-order truth unavailable.
+
+Verified current Vercel state:
+- project=feya-commerce
+- live=false
+- domains contain vercel.app hosts only
+- zofeya.com not attached
+
+Admin data hardening:
+- all admin pages now use getAdminReadClient()
+- auth OFF -> current anon safe-view preview
+- auth ON -> server-only service-role reads
+- 24 allowlisted internal/admin views currently retain anon/authenticated SELECT
+- hardening RPC exists but has NOT been executed
+- hardening requires exact confirmation phrase and service role
+- storefront API views are excluded from the hardening allowlist
+
+Current capability:
+ADMIN_DATA_BOUNDARY = AVAILABLE_WITH_LIMITATIONS
+implementation_state=conditional_server_read_ready_anon_grants_pending
+
+Hardening must occur only after:
+1. approved admin account allowlist
+2. FEYA_ADMIN_AUTH_REQUIRED=true
+3. login/logout verified
+4. unauthorized user blocked
+5. protected server reads verified
