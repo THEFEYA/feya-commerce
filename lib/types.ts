@@ -588,3 +588,47 @@ export type PageOwnershipProposalRow = {
   updated_at?: string | null;
   [key: string]: unknown;
 };
+
+
+export type PageIndexabilityReadinessRow = {
+  seo_page_id: string;
+  page_type?: string | null;
+  canonical_product_id?: string | null;
+  url_path?: string | null;
+  market_code?: string | null;
+  locale?: string | null;
+  lifecycle_state?: string | null;
+  indexation_intent?: string | null;
+  portfolio_status?: string | null;
+  protected_winner_flag?: boolean | null;
+  card_title?: string | null;
+  h1?: string | null;
+  primary_ownership_count?: number | null;
+  ownership_count?: number | null;
+  ready_for_publish_count?: number | null;
+  indexability_readiness_status?: string | null;
+  [key: string]: unknown;
+};
+
+export type IndexabilityProposalRow = {
+  proposal_id: string;
+  seo_page_id?: string | null;
+  url_path?: string | null;
+  page_type?: string | null;
+  canonical_product_id?: string | null;
+  card_title?: string | null;
+  decision?: string | null;
+  criteria_json?: unknown;
+  rationale?: string | null;
+  proposal_status?: string | null;
+  model_name?: string | null;
+  prompt_version?: string | null;
+  review_note?: string | null;
+  reviewed_at?: string | null;
+  previous_indexation_intent?: string | null;
+  applied_indexation_intent?: string | null;
+  applied_at?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  [key: string]: unknown;
+};
