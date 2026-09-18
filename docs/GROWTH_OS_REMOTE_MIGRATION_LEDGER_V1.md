@@ -179,3 +179,36 @@ Create a real local migration baseline only when we intentionally choose one of:
 3. Fresh-environment rebuild strategy validated on a disposable Supabase project.
 
 Do not mix an incomplete migration directory with claims of reproducibility.
+
+
+### Business Truth / Content Brief / SCO shadow
+
+20260918082819 — feya_business_truth_registry_v1
+- versioned Business Truth
+- active vs review-required policy separation
+- safe status view
+
+20260918083239 — feya_content_brief_compiler_shadow_v1
+- deterministic shadow Content Brief Compiler
+- service-only full compiled payload
+- safe readiness projection
+
+20260918083810 — feya_sco_shadow_draft_foundation_v1
+- SCO shadow provenance fields
+- growth_os_sco_shadow source mode
+- atomic shadow-draft creation RPC
+- draft_created audit event
+- retry/idempotency support
+
+20260918083850 — fix_sco_shadow_draft_product_slug_v1
+- removes invalid product_drafts.product_slug fallback found by rollback validation
+- Product Truth snapshot is canonical slug source for SCO shadow drafts
+
+### SCO validation
+
+Rollback-only tests confirmed:
+- atomic draft + event creation
+- no production rows after rollback
+- repeated generation_run_id returns same draft
+- one draft + one event inside transaction
+- no duplicate write on retry
