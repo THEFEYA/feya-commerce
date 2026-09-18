@@ -143,7 +143,7 @@ export function AdminProductsFilterClient({ rows }: { rows: AdminProductRow[] })
       </div>
     </div>
 
-    <div className="hidden lg:grid grid-cols-[72px_1.6fr_0.95fr_0.65fr_0.75fr_1.2fr] gap-4 px-5 py-3 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">
+    <div className="sticky top-[64px] z-10 hidden lg:grid grid-cols-[72px_1.6fr_0.95fr_0.65fr_0.75fr_1.2fr] gap-4 px-5 py-3 border-b border-[rgba(216,214,211,.10)] bg-[#0f0f15]/95 backdrop-blur-xl text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">
       <div>Медиа</div>
       <div>Товар</div>
       <div>Готовность</div>
