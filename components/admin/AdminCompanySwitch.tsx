@@ -12,7 +12,7 @@ export default function AdminCompanySwitch() {
       <span className="admin-company-switch-mark" aria-hidden="true">◈</span>
       <span>
         <strong>Центр управления</strong>
-        <small>Компания и AI-команда FEYA</small>
+        <small>Компания и ИИ-команда FEYA</small>
       </span>
     </Link>
   );
