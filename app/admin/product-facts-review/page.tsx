@@ -36,6 +36,17 @@ function issueCodes(value: unknown) {
   return value.filter((item): item is string => typeof item === 'string' && Boolean(item.trim()));
 }
 
+function issueCodeLabel(value: string) {
+  const labels: Record<string, string> = {
+    PART_UNRESOLVED: 'Не определена часть товара',
+    COLOR_UNRESOLVED: 'Не определён цвет',
+    MATERIAL_UNRESOLVED: 'Не определён материал',
+    PRODUCT_TYPE_UNRESOLVED: 'Не определён тип товара',
+    FACT_GUARDRAIL_PRESENT: 'Есть защитное ограничение',
+  };
+  return labels[value] || value;
+}
+
 function priorityClass(value: number | null | undefined) {
   if (value != null && value <= 10) return 'danger';
   if (value != null && value <= 20) return 'warning';
@@ -129,7 +140,7 @@ export default async function AdminProductFactsReviewPage() {
                       <div className="muted">{row.canonical_product_id}</div>
                     </td>
                     <td>
-                      {codes.length ? codes.join(', ') : '—'}
+                      {codes.length ? codes.map(issueCodeLabel).join(', ') : '—'}
                     </td>
                     <td>
                       <div>Часть товара: {asText(row.final_primary_part)}</div>
