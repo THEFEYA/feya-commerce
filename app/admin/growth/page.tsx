@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
-import { ownerToneForStatus, statusLabel } from '@/lib/owner-ui/terminology';
+import { capabilityOwnerSummary, ownerToneForStatus, statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -105,12 +105,12 @@ export default async function AdminGrowthPage() {
             <article className="owner-card is-warning">
               <div className="owner-status is-warning">Google Ads</div>
               <h3 className="owner-card-title" style={{ marginTop: '10px' }}>Живые данные по спросу ограничены</h3>
-              <p className="owner-card-copy">{String(map.get('GOOGLE_ADS_KEYWORD_METRICS')?.limitations_summary || 'Доступ к планировщику ключевых слов ещё не подтверждён.')}</p>
+              <p className="owner-card-copy">{capabilityOwnerSummary('GOOGLE_ADS_KEYWORD_METRICS')}</p>
             </article>
             <article className="owner-card is-warning">
               <div className="owner-status is-warning">Search Console</div>
               <h3 className="owner-card-title" style={{ marginTop: '10px' }}>Реальные поисковые показатели ещё не подключены</h3>
-              <p className="owner-card-copy">{String(map.get('GSC_BULK_EXPORT')?.limitations_summary || 'Подключение возможно после запуска и подтверждения публичного сайта.')}</p>
+              <p className="owner-card-copy">{capabilityOwnerSummary('GSC_BULK_EXPORT')}</p>
             </article>
           </div>
         </section>
