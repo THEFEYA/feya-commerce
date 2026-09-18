@@ -84,6 +84,7 @@ export default async function AdminSeoKeywordsPage() {
           <div className="nav-links">
             <Link href="/admin/review">Review</Link>
             <Link href="/admin/products">Products</Link>
+            <Link href="/admin/seo-keyword-review">Keyword Review</Link>
             <Link href="/admin/seo-keywords">SEO Keywords</Link>
             <Link href="/shop">Shop</Link>
           </div>
