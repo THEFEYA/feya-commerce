@@ -292,7 +292,7 @@ export default async function AdminSystemPage() {
         <section className="owner-section">
           <div className="owner-section-head">
             <div>
-              <h2>Использование AI</h2>
+              <h2>Использование ИИ</h2>
               <div className="owner-section-kicker">Последние 30 дней · измеряем расход, но не превращаем экономию токенов в самоцель</div>
             </div>
           </div>
@@ -300,7 +300,7 @@ export default async function AdminSystemPage() {
           <div className="owner-summary-strip">
             <div className="owner-summary-cell">
               <strong>{aiUsage.invocations}</strong>
-              <span>AI-вызовов</span>
+              <span>вызовов ИИ</span>
             </div>
             <div className="owner-summary-cell">
               <strong>{new Intl.NumberFormat('ru-RU').format(aiUsage.totalTokens)}</strong>
@@ -322,7 +322,7 @@ export default async function AdminSystemPage() {
                 ? `Без учёта токенов: ${aiUsage.unmeteredInvocations}`
                 : aiUsage.invocations
                   ? `Учтено вызовов: ${aiUsage.meteredInvocations}`
-                  : 'Живых AI-вызовов пока нет'}
+                  : 'Живых вызовов ИИ пока нет'}
             </div>
             <p className="owner-card-copy">
               {aiUsage.invocations
