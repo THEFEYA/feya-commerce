@@ -118,6 +118,10 @@ export default function AdminHomePage() {
             <strong>Scenario Tests</strong>
             <span>Versioned regression invariants and explicit NOT_RUN/PASS/FAIL release state.</span>
           </Link>
+          <Link className="card metric" href="/admin/learning">
+            <strong>Learning</strong>
+            <span>Evidence-backed maturity from observations to regression-gated human policy adoption.</span>
+          </Link>
         </div>
       </div>
     </main>
