@@ -13,16 +13,38 @@ type TodayData = {
   signals: Row[];
   work: Row[];
   readiness: Row[];
+  operations: {
+    productFacts: number;
+    keywordReview: number;
+    cqaActionable: number;
+    cqaAutomatic: number;
+  };
   error?: string;
 };
 
 async function getTodayData(): Promise<TodayData> {
   const supabase = getAdminReadClient();
   if (!supabase) {
-    return { attention: [], signals: [], work: [], readiness: [], error: getMissingAdminDataEnvMessage() };
+    return {
+      attention: [],
+      signals: [],
+      work: [],
+      readiness: [],
+      operations: { productFacts: 0, keywordReview: 0, cqaActionable: 0, cqaAutomatic: 0 },
+      error: getMissingAdminDataEnvMessage(),
+    };
   }
 
-  const [attentionResult, signalResult, workResult, readinessResult] = await Promise.all([
+  const [
+    attentionResult,
+    signalResult,
+    workResult,
+    readinessResult,
+    productFactsResult,
+    keywordReviewResult,
+    cqaActionableResult,
+    cqaAutomaticResult,
+  ] = await Promise.all([
     supabase
       .from('feya_commerce_v_owner_attention_safe_v2')
       .select('*')
@@ -46,15 +68,40 @@ async function getTodayData(): Promise<TodayData> {
       .from('feya_commerce_v_launch_readiness_summary_safe_v2')
       .select('*')
       .order('readiness_scope', { ascending: true }),
+    supabase
+      .from('feya_commerce_v_product_fact_review_queue_safe_v1')
+      .select('fact_review_id', { count: 'exact', head: true })
+      .eq('review_status', 'pending'),
+    supabase
+      .from('feya_commerce_v_keyword_cleanup_review_status_safe_v1')
+      .select('cleanup_id', { count: 'exact', head: true })
+      .eq('review_status', 'pending'),
+    supabase
+      .from('feya_commerce_v_content_qa_shadow_status_safe_v1')
+      .select('draft_id', { count: 'exact', head: true })
+      .in('cqa_shadow_state', ['READY_FOR_HUMAN_AND_CQA_REVIEW', 'READY_FOR_INDEPENDENT_CQA', 'REVISION_REQUIRED', 'BLOCKED_BY_VALIDATION']),
+    supabase
+      .from('feya_commerce_v_content_qa_shadow_status_safe_v1')
+      .select('draft_id', { count: 'exact', head: true })
+      .in('cqa_shadow_state', ['APPROVED_NEEDS_SIMILARITY_CHECK', 'NEEDS_PRECHECKS', 'APPROVED_NEEDS_COMPONENT_CLAIM_CHECK']),
   ]);
 
-  const firstError = attentionResult.error || signalResult.error || workResult.error || readinessResult.error;
+  const firstError =
+    attentionResult.error ||
+    signalResult.error ||
+    workResult.error ||
+    readinessResult.error ||
+    productFactsResult.error ||
+    keywordReviewResult.error ||
+    cqaActionableResult.error ||
+    cqaAutomaticResult.error;
   if (firstError) {
     return {
       attention: [],
       signals: [],
       work: [],
       readiness: [],
+      operations: { productFacts: 0, keywordReview: 0, cqaActionable: 0, cqaAutomatic: 0 },
       error: firstError.message,
     };
   }
@@ -64,6 +111,12 @@ async function getTodayData(): Promise<TodayData> {
     signals: (signalResult.data || []) as Row[],
     work: (workResult.data || []) as Row[],
     readiness: (readinessResult.data || []) as Row[],
+    operations: {
+      productFacts: productFactsResult.count || 0,
+      keywordReview: keywordReviewResult.count || 0,
+      cqaActionable: cqaActionableResult.count || 0,
+      cqaAutomatic: cqaAutomaticResult.count || 0,
+    },
   };
 }
 
@@ -88,7 +141,7 @@ function russianDate() {
 }
 
 export default async function AdminHomePage() {
-  const { attention, signals, work, readiness, error } = await getTodayData();
+  const { attention, signals, work, readiness, operations, error } = await getTodayData();
 
   const attentionVM = attention.map(presentOwnerAttention);
   const attentionCodes = new Set(attentionVM.map((item) => item.sourceCode).filter(Boolean));
@@ -103,9 +156,7 @@ export default async function AdminHomePage() {
     .map(presentSignal);
 
   const workVM = work.map(presentWorkItem);
-  const blockedWork = workVM.filter((item) => item.status === 'BLOCKED').length;
-  const waitingWork = workVM.filter((item) => item.status.startsWith('WAITING')).length;
-  const runningWork = workVM.filter((item) => item.status === 'RUNNING').length;
+  const operationalQueueCount = operations.productFacts + operations.keywordReview + operations.cqaActionable;
 
   return (
     <main className="owner-page">
@@ -198,27 +249,27 @@ export default async function AdminHomePage() {
           <div className="owner-section-head">
             <div>
               <h2>В работе</h2>
-              <div className="owner-section-kicker">Текущие реальные рабочие процессы Growth OS</div>
+              <div className="owner-section-kicker">Реальные очереди Product OS / SEO и отдельные Growth-задачи</div>
             </div>
             <Link href="/admin/company/work" className="owner-button">Открыть работу</Link>
           </div>
 
           <div className="owner-summary-strip">
             <div className="owner-summary-cell">
+              <strong>{operationalQueueCount}</strong>
+              <span>Элементов в рабочих очередях</span>
+            </div>
+            <div className="owner-summary-cell">
+              <strong>{operations.productFacts}</strong>
+              <span>Товаров ждут проверки фактов</span>
+            </div>
+            <div className="owner-summary-cell">
+              <strong>{operations.cqaActionable}</strong>
+              <span>Контентных проверок / исправлений</span>
+            </div>
+            <div className="owner-summary-cell">
               <strong>{workVM.length}</strong>
-              <span>Активных рабочих ситуаций</span>
-            </div>
-            <div className="owner-summary-cell">
-              <strong>{runningWork}</strong>
-              <span>В работе сейчас</span>
-            </div>
-            <div className="owner-summary-cell">
-              <strong>{waitingWork}</strong>
-              <span>Ожидают данных или условия</span>
-            </div>
-            <div className="owner-summary-cell">
-              <strong>{blockedWork}</strong>
-              <span>Заблокировано</span>
+              <span>Активных Growth-задач</span>
             </div>
           </div>
 
@@ -244,7 +295,7 @@ export default async function AdminHomePage() {
             </div>
           ) : (
             <div className="owner-empty" style={{ marginTop: '10px' }}>
-              Сейчас нет активных Growth Cases или workflow. Это нормальное состояние подготовки к запуску — система не создаёт искусственную работу ради заполнения панели.
+              Отдельных Growth Cases сейчас нет. При этом Product OS и SEO продолжают реальную работу: ${operations.keywordReview} ключевых запросов в очереди проверки, ${operations.cqaAutomatic} контентных черновиков проходят автоматические проверки.
             </div>
           )}
         </section>
