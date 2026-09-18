@@ -381,7 +381,7 @@ th {
 }
 
 .pdp-panel h1 {
-  font-size: clamp(36px, 5vw, 64px);
+  font-size: clamp(32px, 3vw, 42px);
   letter-spacing: -0.06em;
   line-height: 0.96;
   margin: 18px 0;
@@ -460,7 +460,7 @@ th {
 
 /* Owner-first admin shell */
 :root {
-  --owner-sidebar: 292px;
+  --owner-sidebar: 252px;
   --owner-topbar: 64px;
   --owner-blue: #8fb8ff;
   --owner-info-bg: rgba(143, 184, 255, 0.08);
@@ -481,16 +481,22 @@ th {
   width: var(--owner-sidebar);
   display: flex;
   flex-direction: column;
-  padding: 22px 14px 18px;
+  padding: 18px 12px 16px;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
   border-right: 1px solid var(--line);
-  background: linear-gradient(180deg,rgba(7,7,10,.94),rgba(17,16,22,.94));
+  background: linear-gradient(180deg,rgba(7,7,10,.96),rgba(17,16,22,.96));
   backdrop-filter: blur(20px);
 }
 
 .owner-brand {
   display: grid;
   gap: 2px;
-  padding: 16px; border: 1px solid rgba(216,214,211,.13); border-radius: 16px; background: rgba(255,255,255,.035); margin-bottom: 20px;
+  padding: 14px;
+  border: 1px solid rgba(216,214,211,.13);
+  border-radius: 13px;
+  background: rgba(255,255,255,.035);
+  margin-bottom: 16px;
 }
 
 .owner-brand-name {
@@ -500,13 +506,21 @@ th {
   letter-spacing: .32em;
 }
 
+.owner-brand-title {
+  color: var(--text);
+  margin-top: 6px;
+  font-family: Italiana, 'Cormorant Garamond', serif;
+  font-size: 20px;
+  line-height: 1.1;
+}
+
 .owner-brand-subtitle {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 10px;
+  line-height: 1.45;
 }
 
 .owner-brand-name { text-transform: uppercase; }
-.owner-brand-subtitle { margin-top: 7px; line-height: 1.45; }
 
 .owner-nav {
   display: grid;
@@ -520,7 +534,7 @@ th {
   gap: 10px;
   padding: 8px 10px;
   border: 1px solid transparent;
-  border-radius: 12px;
+  border-radius: 10px;
   color: var(--bone-dim);
   font-size: 14px;
   transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
@@ -553,6 +567,87 @@ th {
 .owner-nav-item.is-active .owner-nav-mark {
   background: rgba(212,178,106,.10);
   color: var(--gold);
+}
+
+
+.owner-tools {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.owner-tools summary {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 9px;
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.owner-tools summary::-webkit-details-marker {
+  display: none;
+}
+
+.owner-tools summary:hover {
+  color: var(--text);
+  background: rgba(255,255,255,.035);
+}
+
+.owner-tools-chevron {
+  margin-left: auto;
+  transition: transform 140ms ease;
+}
+
+.owner-tools[open] .owner-tools-chevron {
+  transform: rotate(180deg);
+}
+
+.owner-tools-list {
+  display: grid;
+  gap: 2px;
+  margin-top: 5px;
+  padding-left: 4px;
+}
+
+.owner-tool-link {
+  min-height: 34px;
+  display: grid;
+  grid-template-columns: 24px minmax(0,1fr);
+  align-items: center;
+  gap: 7px;
+  padding: 6px 8px;
+  border-left: 1px solid rgba(216,214,211,.10);
+  border-radius: 0 8px 8px 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.owner-tool-link > span:first-child {
+  color: var(--smoke);
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.owner-tool-link:hover {
+  color: var(--text);
+  background: rgba(255,255,255,.03);
+}
+
+.owner-tool-link.is-active {
+  border-left-color: var(--gold);
+  color: var(--text);
+  background: rgba(212,178,106,.08);
+}
+
+.owner-tool-link.is-active > span:first-child {
+  color: var(--gold-warm);
 }
 
 .owner-sidebar-footer {
@@ -617,6 +712,23 @@ th {
   color: #8f8987;
   background: var(--panel-soft);
   font-size: 11px;
+}
+
+
+.owner-topbar-context {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  max-width: 230px;
+  padding: 5px 9px;
+  border: 1px solid rgba(216,214,211,.10);
+  border-radius: 8px;
+  color: var(--bone-dim);
+  background: rgba(255,255,255,.025);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .owner-topbar-status {
@@ -748,7 +860,7 @@ th {
 
 .owner-card {
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 13px;
   background: rgba(255,255,255,.025);
   padding: 16px;
 }
@@ -843,7 +955,7 @@ th {
   justify-content: center;
   padding: 7px 11px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 9px;
   background: var(--panel-soft);
   color: var(--text);
   font-size: 12px;
@@ -987,7 +1099,7 @@ th {
 
 @media (max-width: 1080px) {
   :root {
-    --owner-sidebar: 210px;
+    --owner-sidebar: 220px;
   }
 
   .owner-grid.three,
@@ -1023,6 +1135,7 @@ th {
 
   .owner-search-trigger span:nth-child(2),
   .owner-search-trigger kbd,
+  .owner-topbar-context,
   .owner-topbar-status {
     display: none;
   }
