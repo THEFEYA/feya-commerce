@@ -1091,6 +1091,16 @@ th {
   font-size: 12px;
 }
 
+.owner-summary-link {
+  transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
+}
+
+.owner-summary-link:hover {
+  border-color: rgba(212,178,106,.30);
+  background: rgba(212,178,106,.05);
+  transform: translateY(-1px);
+}
+
 .owner-empty {
   padding: 18px;
   border: 1px dashed var(--line);
