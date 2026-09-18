@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
+import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { ReviewQueueSummary } from '@/lib/types';
 
 const REVIEW_COPY: Record<string, { title: string; priority: 'high' | 'medium' | 'low'; description: string; nextStep: string }> = {
@@ -36,10 +36,10 @@ const REVIEW_COPY: Record<string, { title: string; priority: 'high' | 'medium' |
 };
 
 async function getReviewQueues(): Promise<{ rows: ReviewQueueSummary[]; error?: string }> {
-  const supabase = getSupabaseReadClient();
+  const supabase = getAdminReadClient();
 
   if (!supabase) {
-    return { rows: [], error: getMissingSupabaseEnvMessage() };
+    return { rows: [], error: getMissingAdminDataEnvMessage() };
   }
 
   const { data, error } = await supabase
