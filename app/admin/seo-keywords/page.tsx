@@ -2,7 +2,7 @@
 import { competitionLabel } from '@/lib/adminDisplayRu';
 import Link from 'next/link';
 import { ArrowUpRight, Database, FileSearch, Layers3, ShieldAlert, ShieldCheck, Sparkles } from 'lucide-react';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
+import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -92,14 +92,14 @@ function sortKeywordRows(rows) {
 }
 
 async function loadKeywords(tabKey, query = '') {
-  const supabase = getSupabaseReadClient();
+  const supabase = getAdminReadClient();
   if (!supabase) {
     return {
       rows: [],
       totalCount: null,
       counts: {},
       bucketRows: [],
-      error: getMissingSupabaseEnvMessage(),
+      error: getMissingAdminDataEnvMessage(),
       bucketError: null,
     };
   }
