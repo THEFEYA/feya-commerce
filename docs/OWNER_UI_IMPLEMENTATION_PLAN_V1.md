@@ -547,3 +547,48 @@ Examples:
 
 Company Control may add new owner-specific components, but must not restyle existing Product OS pages globally.
 Shared CSS changes must be scoped to owner/company classes unless they are a verified bug fix.
+
+
+## 12. Legacy Product OS recovery checkpoint — 2026-09-18
+
+Owner review identified that the actual working Product OS admin had been built on the recent working branch:
+
+- branch: `work/resume-listing-batches-20260915`
+- source commit: `4807d732a16005a43da0cff021936c12470a3d7d`
+
+This is the canonical visual/interaction baseline for the existing Commerce/Product OS admin.
+
+Recovered into `owner-ui-v1` without replacing the Growth OS backend:
+
+- original FEYA admin navigation and 292px sidebar;
+- original Manrope / Italiana / Cormorant Garamond typography and noir/gold visual system;
+- Product OS dashboard;
+- product catalog and product detail;
+- Listing Master, including Product DNA/search axes, keyword selection and verified SEO-decision save flow;
+- SEO Engine / Studio;
+- SEO brief, angle advisor, scoring, commercial review, draft preview, approval, export/apply/change-set flows;
+- review queues for labels, prices and components;
+- Media QA / Media SEO;
+- collections, graph, content, launch and indexation workspaces;
+- legacy admin API routes and supporting libraries required by those screens.
+
+The restored Product OS is not nested inside the new Owner shell.
+
+Integration rule:
+- `/admin` = recovered Product OS / Commerce admin;
+- `/admin/company` = Company & AI Team control center;
+- the recovered left navigation contains one additional item: **Компания и AI-команда**;
+- Company Control links back to the Product OS rather than duplicating its tools.
+
+Localization rule remains:
+- translate interface chrome, explanations, actions and statuses;
+- preserve product titles, English SEO keywords/queries, target-market content, URLs and source evidence in their original language.
+
+Safety:
+- a backup branch was created before recovery:
+  `backup/owner-ui-before-legacy-restore-20260918`.
+
+Validation:
+- Vercel production build for the recovered combined branch: READY;
+- recovered routes include `/admin/listing-master`, `/admin/seo-engine/studio`, `/admin/products` and the full SEO/review route family;
+- current Growth OS / Company Control routes remain present under `/admin/company`.
