@@ -767,7 +767,7 @@ export default function FirstRealDraftClient({
         </div>
       </section>
 
-      <aside className="min-w-0 2xl:sticky 2xl:top-5 2xl:self-start">
+      <aside className="min-w-0 2xl:sticky 2xl:top-[84px] 2xl:self-start">
         <section className="min-w-0 overflow-hidden rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)]">
           {!selectedCandidate ? <div className="p-8 text-[13px] text-[var(--bone-dim)]">Выберите товар слева.</div> : <>
             <div className="grid min-w-0 grid-cols-[92px_minmax(0,1fr)] gap-4 border-b border-[rgba(216,214,211,.10)] p-4 sm:p-5">
