@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
+import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { LaunchReadinessGateRow, LaunchReadinessSummaryRow } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -10,8 +10,8 @@ async function getReadiness(): Promise<{
   gates: LaunchReadinessGateRow[];
   error?: string;
 }> {
-  const supabase = getSupabaseReadClient();
-  if (!supabase) return { summary: [], gates: [], error: getMissingSupabaseEnvMessage() };
+  const supabase = getAdminReadClient();
+  if (!supabase) return { summary: [], gates: [], error: getMissingAdminDataEnvMessage() };
 
   const [summaryResult, gateResult] = await Promise.all([
     supabase
