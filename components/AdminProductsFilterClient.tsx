@@ -22,7 +22,7 @@ function readinessLabel(label: string) {
   if (label === 'Needs Price Review') return 'Проверить цену';
   if (label === 'Needs Component Mapping') return 'Проверить компоненты';
   if (label === 'Needs Media QA') return 'Проверить медиа';
-  if (label === 'SEO Ready') return 'Проверить SEO';
+  if (label === 'SEO Ready') return 'SEO готово к финальной проверке';
   if (label === 'Ready for Storefront') return 'Готово для витрины';
   if (label === 'Blocked') return 'Заблокировано';
   return label;
