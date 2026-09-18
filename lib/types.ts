@@ -753,3 +753,27 @@ export type ExecutionGatewayRow = {
   latest_completed_at?: string | null;
   [key: string]: unknown;
 };
+
+
+export type LearningRegistryRow = {
+  learning_id: string;
+  learning_code?: string | null;
+  learning_fingerprint?: string | null;
+  domain?: string | null;
+  title?: string | null;
+  learning_statement?: string | null;
+  learning_status?: string | null;
+  scope_json?: unknown;
+  evidence_count?: number | null;
+  distinct_context_count?: number | null;
+  proposed_policy_code?: string | null;
+  proposed_policy_version?: number | null;
+  proposed_policy_name?: string | null;
+  candidate_version?: string | null;
+  required_scenario_count?: number | null;
+  adopted_policy_version?: number | null;
+  adopted_at?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  [key: string]: unknown;
+};
