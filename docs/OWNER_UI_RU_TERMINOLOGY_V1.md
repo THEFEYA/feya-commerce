@@ -268,3 +268,25 @@ Preferred pattern:
 
 Avoid long explanatory paragraphs on cards.
 Use drawers/full detail for depth.
+
+
+## 16. What must stay in the original language
+
+Russian-first applies to interface semantics, not to the business data itself.
+
+Keep original language for:
+- product titles;
+- keyword/query text;
+- H1/SEO title/meta content targeted to a non-Russian market;
+- slugs and URLs;
+- marketplace source text where translation would change evidence;
+- canonical technical IDs in Technical details.
+
+Translate the surrounding UI.
+
+Example:
+- **Ключевой запрос:** `silver harness`
+- **Название товара:** `Metallic Fringe Harness Set Top & Skirt...`
+- **Статус:** **Готово к проверке**
+
+Never translate a search query merely to make the UI visually Russian.
