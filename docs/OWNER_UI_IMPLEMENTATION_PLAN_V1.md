@@ -125,6 +125,38 @@ Then:
 ### One canonical state
 UI aggregation and AI explanation never become an alternate source of truth.
 
+### Business situation is the owner-facing unit
+The normal UI should organize work around a business situation, not a database object or an agent:
+
+**Сигнал → объяснение → рекомендуемое действие → выполнение → результат → измерение → вывод**
+
+The Owner should not have to reconstruct this chain from separate technical pages.
+
+### Fact / inference / recommendation / hypothesis separation
+Every important statement must be presented as one of:
+- **Подтверждено данными**
+- **Вероятное объяснение**
+- **FEYA предлагает**
+- **Нужно проверить**
+
+A hypothesis must never be phrased as an established cause.
+
+### Data quality belongs next to the number
+Freshness/completeness limitations must be visible beside the affected metric or signal, not hidden only in System.
+
+Examples:
+- **Данные актуальны**
+- **Данные обновлены с задержкой**
+- **Показатель временно неполный**
+- **Недостаточно данных для вывода**
+
+### Approval is not execution
+Owner approval may authorize the next step, but it must not silently mean the external mutation already happened.
+Execution remains a separate governed step with receipt/audit.
+
+### One root cause — one owner situation
+Correlated or duplicate technical signals should be grouped into one owner-level case/attention item where a shared root cause exists.
+
 ## 4. Owner UI Projection Layer
 
 Do not create new business entities only for presentation.
@@ -184,6 +216,8 @@ Build:
 - **Работа v1**;
 - link to **Технические детали**;
 - Russian terminology adapter;
+- visible data freshness / source state where it affects interpretation;
+- basic read-only global search for navigation to products/pages/work/signals;
 - initial responsive shell;
 - legacy diagnostic routes remain reachable but are removed from primary navigation.
 
@@ -198,6 +232,7 @@ Today v1 uses only existing trustworthy data:
 Work v1:
 - prioritized list, not Kanban by default;
 - owner-facing lifecycle groups;
+- show time in current state when the timestamp is real and useful for diagnosing waiting/blockage;
 - task/work drawer;
 - Team FEYA secondary tab.
 
@@ -226,6 +261,13 @@ Build:
 Important:
 Use **Цены и варианты** instead of **Продажи** until authoritative commerce/order data exists.
 
+Keep Product DNA / positioning as sections inside **Обзор** or **Факты** rather than creating more top-level product tabs.
+
+Do not show a product readiness percentage unless it has a deterministic denominator. Prefer:
+**3 из 4 обязательных проверок пройдены**
+over:
+**Готовность 82%**
+
 Exit:
 - Owner can understand one product without jumping through multiple engineering pages.
 
@@ -236,7 +278,7 @@ Tabs:
 - Возможности
 - Спрос
 - Страницы
-- Технический поиск
+- Техническое SEO
 
 Before Google/GSC data:
 - show truthful readiness/empty states;
@@ -286,8 +328,11 @@ No direct browser mutations of canonical tables.
 ### UX-6 — Operator and Personalization
 Only after the Owner Shell and controlled actions are stable.
 
+Note:
+A basic **read-only search/navigation** surface is allowed in UX-1. Command actions belong here.
+
 Build:
-- global search / command palette;
+- command palette actions;
 - contextual **Спросить FEYA**;
 - prepared actions with decision preview;
 - saved filters;
@@ -371,6 +416,10 @@ Target:
 
 Spacing:
 4 / 8 / 12 / 16 / 24 / 32 / 48.
+
+### Contextual period controls
+Do not place one global date-period selector in the permanent top bar for every owner screen.
+A period selector should appear only where the data is actually period-dependent (Growth, Results, analytical drawers). Mixed Today/Work state should instead show each source timestamp/comparison window in context.
 
 Default owner UI should feel compact, premium and calm, not like an engineering console.
 
