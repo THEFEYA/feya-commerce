@@ -1158,6 +1158,7 @@ This section supersedes older "next focus" notes where the corresponding foundat
 ### Current live-state counts
 
 - Growth Cases: **0**
+- open Owner Attention items: **2** real PRE_LAUNCH decisions
 - active Growth Objectives: **0**
 - active Growth Strategies: **0**
 - Initiatives: **0**
@@ -1318,3 +1319,21 @@ Implemented:
 Current queue:
 - pending/unresolved products: **50**;
 - Product Truth write/resolution remains intentionally unavailable until protected admin auth + controlled editing are active.
+
+
+### Owner Attention cockpit
+STATUS: REAL PRE_LAUNCH DECISIONS DURABLE / RESOLUTION WRITES DISABLED
+
+Applied Supabase migration:
+- 20260918112026 — feya_owner_attention_safe_view_v1
+
+Current open queue:
+- P1 POLICY_DECISION — confirm canonical return-policy wording;
+- P2 STRATEGY_DECISION — real checkout/payment workflow remains absent.
+
+Behavior:
+- duplicate return-policy signals are deduplicated into one human decision;
+- no domain Growth Case is created for an owner-only decision;
+- /admin/owner-attention is read-only;
+- context_json/resolution_json are not exposed in the browser-safe projection;
+- owner resolution remains blocked until protected admin auth and audited owner actions are implemented.
