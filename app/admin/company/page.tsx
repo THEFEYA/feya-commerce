@@ -295,7 +295,7 @@ export default async function AdminHomePage() {
             </div>
           ) : (
             <div className="owner-empty" style={{ marginTop: '10px' }}>
-              Отдельных Growth Cases сейчас нет. При этом Product OS и SEO продолжают реальную работу: ${operations.keywordReview} ключевых запросов в очереди проверки, ${operations.cqaAutomatic} контентных черновиков проходят автоматические проверки.
+              Отдельных Growth Cases сейчас нет. При этом Product OS и SEO продолжают реальную работу: {operations.keywordReview} ключевых запросов в очереди проверки, {operations.cqaAutomatic} контентных черновиков проходят автоматические проверки.
             </div>
           )}
         </section>
