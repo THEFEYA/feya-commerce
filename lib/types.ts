@@ -282,3 +282,17 @@ export type QueryClusterReviewRow = {
   clustering_lane?: string | null;
   [key: string]: unknown;
 };
+
+
+export type GrowthCapabilityStatusRow = {
+  capability_code: string;
+  capability_name?: string | null;
+  owner_role?: string | null;
+  capability_state?: string | null;
+  implementation_state?: string | null;
+  public_summary?: string | null;
+  limitations_summary?: string | null;
+  version_no?: number | null;
+  updated_at?: string | null;
+  [key: string]: unknown;
+};
