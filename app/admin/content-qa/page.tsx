@@ -44,6 +44,9 @@ export default async function AdminContentQaPage() {
   const independentReady = countState(rows, 'READY_FOR_INDEPENDENT_CQA');
   const humanAndCqa = countState(rows, 'READY_FOR_HUMAN_AND_CQA_REVIEW');
   const similarity = countState(rows, 'APPROVED_NEEDS_SIMILARITY_CHECK');
+  const componentClaims =
+    countState(rows, 'APPROVED_NEEDS_COMPONENT_CLAIM_CHECK') +
+    countState(rows, 'CQA_RECORDED_NEEDS_COMPONENT_CLAIM_CHECK');
   const prechecks = countState(rows, 'NEEDS_PRECHECKS');
   const blocked = countState(rows, 'BLOCKED_BY_VALIDATION') + countState(rows, 'REVISION_REQUIRED');
 
@@ -74,6 +77,7 @@ export default async function AdminContentQaPage() {
           <div className="card metric"><strong>{independentReady}</strong><span>Ready for independent CQA</span></div>
           <div className="card metric"><strong>{humanAndCqa}</strong><span>Ready for human + CQA</span></div>
           <div className="card metric"><strong>{similarity}</strong><span>Approved but similarity missing</span></div>
+          <div className="card metric"><strong>{componentClaims}</strong><span>Component claim review</span></div>
           <div className="card metric"><strong>{prechecks}</strong><span>Need prechecks</span></div>
           <div className="card metric"><strong>{blocked}</strong><span>Blocked / revision</span></div>
         </section>
@@ -93,6 +97,7 @@ export default async function AdminContentQaPage() {
                 <th>Validation</th>
                 <th>Similarity</th>
                 <th>Image ALT</th>
+                <th>Component claim</th>
                 <th>CQA</th>
                 <th>Shadow state</th>
               </tr>
@@ -129,6 +134,11 @@ export default async function AdminContentQaPage() {
                   <td>
                     <span className={`status-pill ${statusClass(row.image_alt_truth_status)}`}>
                       {asText(row.image_alt_truth_status)}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={`status-pill ${statusClass(row.component_claim_truth_status)}`}>
+                      {asText(row.component_claim_truth_status)}
                     </span>
                   </td>
                   <td>
