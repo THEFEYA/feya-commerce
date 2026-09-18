@@ -1,7 +1,7 @@
 // @ts-nocheck
 import Link from 'next/link';
 import { ArrowUpRight, DatabaseZap, ShieldAlert } from 'lucide-react';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
+import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { STOREFRONT_VIEW_V1, productSlug, productTitle } from '@/lib/storefront';
 import { buildSeoPilotBrief } from '@/lib/seoPilotDraft';
 import { buildSeoMetricImportContract } from '@/lib/seoMetricImportContract';
@@ -18,8 +18,8 @@ function keyOf(product) { return String(product?.canonical_product_id || product
 function isSelected(product, selected) { return selected && [product?.canonical_product_id, product?.matched_etsy_listing_id, productSlug(product)].filter(Boolean).map(String).includes(String(selected)); }
 function queryFor(productId, q) { const params = new URLSearchParams(); if (productId) params.set('product', productId); if (q) params.set('q', q); const value = params.toString(); return value ? `?${value}` : ''; }
 async function loadPilotData(selectedProductId) {
-  const supabase = getSupabaseReadClient();
-  if (!supabase) return { product: FALLBACK_PRODUCT, keywords: [], warning: getMissingSupabaseEnvMessage(), fallbackUsed: true };
+  const supabase = getAdminReadClient();
+  if (!supabase) return { product: FALLBACK_PRODUCT, keywords: [], warning: getMissingAdminDataEnvMessage(), fallbackUsed: true };
   const productsResult = await supabase.from(STOREFRONT_VIEW_V1).select(PRODUCT_SELECT).limit(160);
   const products = (productsResult.data || []).filter((item) => productSlug(item) && productTitle(item));
   const product = products.find((item) => isSelected(item, selectedProductId)) || products[0] || FALLBACK_PRODUCT;
