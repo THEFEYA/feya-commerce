@@ -96,5 +96,12 @@ Apply this layout to other couple listings only when both partner options have e
 ### R25 update — owner-authorized combined option, 2026-09-17
 The owner subsequently requested a real Full Set option containing both complete outfits, priced EUR 50 below the sum of the two existing outfit prices: EUR 183.44 + EUR 327.00 - EUR 50.00 = EUR 460.44. Store this as a separate canonical configuration and price row. Show the saving against purchasing both outfits separately, never as an invented former selling price. The two partner composition groups stay visible for every option. This explicit authorization supersedes the previous absence of a combined option; it does not authorize adding bundles to other products.
 
+## R26. Google Primary overlap is monitored, not assumed cannibalization
+Owner clarification, 2026-09-18: the independent store is optimized for Google Search, not for Etsy marketplace traffic allocation. Do not import an Etsy-style assumption that one exact Primary query must belong to only one product page.
+
+Multiple genuinely different products may use the same relevant Primary keyword when the query naturally describes each product. Exact Primary overlap is a portfolio monitoring signal, not proof of cannibalization and not a generation/publish blocker by itself. Keep each PDP materially distinct through real product facts, title/H1 framing, copy, imagery and buyer use cases; do not create near-duplicate pages merely to multiply coverage.
+
+Reassign or consolidate only when evidence supports it, for example: Google canonicalizes materially similar PDPs together, Search Console shows persistent query-to-page competition with a weaker page displacing the stronger one, indexation becomes unstable, or the pages are so similar that they approach doorway/duplicate behavior. Until that evidence exists, preserve owner-selected relevant keywords and measure the outcome after launch.
+
 ## Process rule
 Every owner review is captured the same way: complaint → named rule → committed here → reflected in prompts/validators. Cumulative and versioned.
