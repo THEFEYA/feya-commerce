@@ -27,19 +27,19 @@ async function loadProducts(): Promise<{ rows: StorefrontProduct[]; error?: stri
 function mediaIssues(product: StorefrontProduct) {
   const issues: string[] = [];
   const mediaCount = Number(product.media_count || 0);
-  if (!product.primary_image_url) issues.push('Missing primary image');
-  if (!product.secondary_image_url && !product.hover_image_url && !product.has_video && mediaCount < 2) issues.push('No hover/second media');
-  if (mediaCount > 0 && mediaCount < 4) issues.push('Thin gallery');
-  if (product.primary_image_url && !product.primary_image_alt) issues.push('Missing alt text');
+  if (!product.primary_image_url) issues.push('Нет главного изображения');
+  if (!product.secondary_image_url && !product.hover_image_url && !product.has_video && mediaCount < 2) issues.push('Нет второго изображения или видео');
+  if (mediaCount > 0 && mediaCount < 4) issues.push('Мало изображений в галерее');
+  if (product.primary_image_url && !product.primary_image_alt) issues.push('Нет ALT-текста');
   return issues;
 }
 
 function galleryDepth(product: StorefrontProduct) {
   const count = Number(product.media_count || 0);
-  if (count >= 8) return 'Strong';
-  if (count >= 4) return 'OK';
-  if (count >= 2) return 'Thin';
-  return 'Weak';
+  if (count >= 8) return 'Хорошо';
+  if (count >= 4) return 'Нормально';
+  if (count >= 2) return 'Мало';
+  return 'Слабо';
 }
 
 function Chip({ children, tone = 'neutral' }) {
@@ -88,10 +88,10 @@ export default async function AdminMediaQaPage() {
       {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <Metric icon={ImageIcon} label="Missing primary" value={missingPrimary} note="Products without primary image URL." />
-        <Metric icon={Sparkles} label="Missing hover" value={missingHover} note="No second/hover/video signal for card swap." />
-        <Metric icon={Images} label="Thin gallery" value={thinGallery} note="Less than 4 media assets in current storefront-candidate slice." />
-        <Metric icon={Film} label="Video ready" value={hasVideo} note="Products with video signal available." />
+        <Metric icon={ImageIcon} label="Нет главного изображения" value={missingPrimary} note="Товары без главного изображения." />
+        <Metric icon={Sparkles} label="Нет второго медиа" value={missingHover} note="Нет второго изображения или видео для карточки." />
+        <Metric icon={Images} label="Мало медиа" value={thinGallery} note="В галерее меньше четырёх медиафайлов." />
+        <Metric icon={Film} label="Есть видео" value={hasVideo} note="Товары, для которых доступно видео." />
       </div>
 
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -102,7 +102,7 @@ export default async function AdminMediaQaPage() {
               <div className="relative aspect-[4/5] bg-black/30 overflow-hidden">
                 {product.primary_image_url ? <img src={product.primary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" /> : <div className="h-full w-full grid place-items-center text-[var(--smoke)] text-sm">Missing image</div>}
                 {product.secondary_image_url || product.hover_image_url ? <img src={product.hover_image_url || product.secondary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" /> : null}
-                <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">{issues.slice(0,2).map((issue) => <Chip key={issue} tone={issue.includes('Missing') || issue.includes('No ') ? 'danger' : 'warning'}>{issue}</Chip>)}</div>
+                <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">{issues.slice(0,2).map((issue) => <Chip key={issue} tone={issue.includes('Нет ') ? 'danger' : 'warning'}>{issue}</Chip>)}</div>
               </div>
               <div className="p-5">
                 <div className="text-bone text-[16px] leading-snug line-clamp-2">{productTitle(product)}</div>
