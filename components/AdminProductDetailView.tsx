@@ -7,6 +7,14 @@ import { getProductFlags } from '@/lib/admin-readiness';
 import { asMediaGallery, categoryLabel, colorLabel, formatPrice, optionLabel, optionPrice, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
 
+function blockerLabel(value: string) {
+  if (value === 'canonical_product_truth_unavailable') return 'Факты товара недоступны';
+  if (value === 'composition_missing_confirmed_components') return 'Состав ещё не подтверждён';
+  if (value === 'composition_has_unresolved_facts') return 'Есть неразобранные факты';
+  if (value === 'composition_has_review_blockers') return 'Есть блокеры проверки состава';
+  return 'Нужно проверить состав';
+}
+
 function Chip({ children, tone = 'neutral' }: { children: React.ReactNode; tone?: 'neutral' | 'warning' | 'danger' }) {
   const cls = tone === 'danger'
     ? 'border-[rgba(196,64,88,.36)] text-[var(--ruby-soft)] bg-[rgba(160,32,56,.08)]'
@@ -64,7 +72,7 @@ export function AdminProductDetailView({ product, componentTruth }: { product: S
             {!storefrontAvailable ? <Chip tone="warning">Данные из резервного каталога</Chip> : null}
             {labelReview ? <Chip tone="warning">Проверить название</Chip> : null}
             {priceReview ? <Chip tone="warning">Проверить цену</Chip> : null}
-            {componentTruth.blockers.map((blocker) => <Chip key={blocker} tone="danger">{blocker}</Chip>)}
+            {componentTruth.blockers.map((blocker) => <Chip key={blocker} tone="danger">{blockerLabel(blocker)}</Chip>)}
             {missingComponents ? <Chip tone="danger">Нет компонентов витрины: {missingComponents}</Chip> : null}
             {mediaReview ? <Chip tone="danger">Проверить медиа</Chip> : null}
           </div>
@@ -141,7 +149,7 @@ export function AdminProductDetailView({ product, componentTruth }: { product: S
                 {configs.map((config, index) => <div key={`${optionLabel(config, index)}-${index}`} className="grid grid-cols-[1.3fr_.7fr_.8fr_.8fr] gap-3 px-4 py-3 text-[13px] items-center">
                   <div><div className="text-bone">{optionLabel(config, index)}</div><div className="mt-1 text-[10px] uppercase tracking-[0.16em] text-[var(--smoke)]">{config.configuration_id || config.sellable_configuration_id || 'Нет ID'}</div></div>
                   <div className="font-price text-gold-grad text-[20px]">{formatPrice(optionPrice(config), product.currency || 'EUR')}</div>
-                  <div>{config.component_code ? <Chip>{config.component_code}</Chip> : <Chip tone="danger">Нет</Chip>}</div>
+                  <div>{config.component_code ? <span title={String(config.component_code)}><Chip>Назначен</Chip></span> : <Chip tone="danger">Нет</Chip>}</div>
                   <div className="flex flex-wrap gap-1.5">{config.is_full_set ? <Chip tone="warning">Полный комплект</Chip> : null}{config.is_bundle ? <Chip tone="warning">Комплект</Chip> : null}{config.needs_label_review ? <Chip tone="warning">Название</Chip> : null}</div>
                 </div>)}
                 {!configs.length ? <div className="p-4 text-[13px] text-[var(--bone-dim)]">Опции недоступны в текущем контракте товара. Для полного разбора нужны данные Product Builder.</div> : null}
