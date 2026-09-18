@@ -682,3 +682,27 @@ export type SourceOfTruthRegistryRow = {
   updated_at?: string | null;
   [key: string]: unknown;
 };
+
+
+export type DataSourceHealthRow = {
+  source_code: string;
+  source_name?: string | null;
+  authority_tier?: string | null;
+  authority_domain?: string | null;
+  registry_source_state?: string | null;
+  primary_source?: string | null;
+  source_instance_key?: string | null;
+  health_state?: string | null;
+  freshness_state?: string | null;
+  watermark_at?: string | null;
+  last_success_at?: string | null;
+  expected_max_age_seconds?: number | null;
+  observed_row_count?: number | null;
+  coverage_json?: unknown;
+  error_code?: string | null;
+  error_message?: string | null;
+  evidence_json?: unknown;
+  recorded_by?: string | null;
+  checked_at?: string | null;
+  [key: string]: unknown;
+};
