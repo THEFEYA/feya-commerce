@@ -249,7 +249,7 @@ export default async function AdminHomePage() {
           <div className="owner-section-head">
             <div>
               <h2>В работе</h2>
-              <div className="owner-section-kicker">Реальные очереди Product OS / SEO и отдельные Growth-задачи</div>
+              <div className="owner-section-kicker">Реальные очереди товарной системы / SEO и отдельные задач ростаи</div>
             </div>
             <Link href="/admin/company/work" className="owner-button">Открыть работу</Link>
           </div>
@@ -269,7 +269,7 @@ export default async function AdminHomePage() {
             </div>
             <div className="owner-summary-cell">
               <strong>{workVM.length}</strong>
-              <span>Активных Growth-задач</span>
+              <span>Активных задач роста</span>
             </div>
           </div>
 
@@ -295,7 +295,7 @@ export default async function AdminHomePage() {
             </div>
           ) : (
             <div className="owner-empty" style={{ marginTop: '10px' }}>
-              Отдельных Growth Cases сейчас нет. При этом Product OS и SEO продолжают реальную работу: {operations.keywordReview} ключевых запросов в очереди проверки, {operations.cqaAutomatic} контентных черновиков проходят автоматические проверки.
+              Отдельных задачи роста сейчас нет. При этом товарная система и SEO продолжают реальную работу: {operations.keywordReview} ключевых запросов в очереди проверки, {operations.cqaAutomatic} контентных черновиков проходят автоматические проверки.
             </div>
           )}
         </section>
