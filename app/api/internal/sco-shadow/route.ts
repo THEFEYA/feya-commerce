@@ -342,7 +342,7 @@ async function runSco(rows: Array<{ productId: string; brief: UnknownRecord; tru
               'Do not promise guaranteed delivery dates.',
               'Do not treat advertising competition as SEO difficulty.',
               'Do not invent internal links or destination URLs. Return role/anchor hints only.',
-              'ALT text must only use supplied image/product truth. If insufficient, omit ALT candidate.',
+              'For the primary image ALT: if Product Truth supplies primary_image_alt, reuse that text exactly and do not paraphrase it. If no primary_image_alt is supplied, omit the ALT candidate. Do not create secondary-image ALT without explicit visible-image truth.',
               'Do not describe accessories or styled items as included unless Product Truth confirms them.',
               'The proposal is a draft that still requires human review, similarity checks, image-alt verification and independent CQA.',
             ],
