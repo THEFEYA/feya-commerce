@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { GrowthOpportunityRow } from '@/lib/types';
+import { roleLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -106,17 +107,17 @@ export default async function AdminOpportunitiesPage() {
                     <td>{asText(row.priority)}</td>
                     <td>
                       <strong>{asText(row.title, row.opportunity_code || '—')}</strong>
-                      <div className="muted">{asText(row.opportunity_type)}</div>
+                      <div className="muted">Тип: {asText(row.opportunity_type)}</div>
                       <div className="muted">{asText(row.event_name)}</div>
                     </td>
-                    <td>{asText(row.owner_role)}</td>
+                    <td>{roleLabel(row.owner_role)}</td>
                     <td>
                       <span className={`status-pill ${statusClass(row.opportunity_status)}`}>
-                        {asText(row.opportunity_status)}
+                        {stateLabel(row.opportunity_status)}
                       </span>
                       <div className="badge-row">
                         <span className={`status-pill ${statusClass(row.expiry_state)}`}>
-                          {asText(row.expiry_state)}
+                          {stateLabel(row.expiry_state)}
                         </span>
                       </div>
                     </td>
