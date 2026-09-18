@@ -157,6 +157,8 @@ export default async function AdminHomePage() {
 
   const workVM = work.map(presentWorkItem);
   const operationalQueueCount = operations.productFacts + operations.keywordReview + operations.cqaActionable;
+  const blockedScopes = readiness.filter((row) => String(row.scope_status || '').toUpperCase() === 'BLOCKED');
+  const totalBlockers = readiness.reduce((sum, row) => sum + Number(row.blocking_count || 0), 0);
 
   return (
     <main className="owner-page">
@@ -309,20 +311,27 @@ export default async function AdminHomePage() {
             <Link href="/admin/company/system" className="owner-button">Открыть систему</Link>
           </div>
 
-          <div className="owner-grid four">
-            {readiness.map((row) => {
-              const state = String(row.scope_status || '');
-              const tone = ownerToneForStatus(state);
-              return (
-                <article className={`owner-card ${toneClass(tone)}`} key={String(row.readiness_scope)}>
-                  <div className={`owner-status ${toneClass(tone)}`}>{statusLabel(state)}</div>
-                  <h3 className="owner-card-title" style={{ marginTop: '10px' }}>{scopeLabel(row.readiness_scope)}</h3>
-                  <p className="owner-card-copy">
-                    {Number(row.blocking_count || 0)} блокирующих условий · {Number(row.pass_count || 0)} проверок пройдено
-                  </p>
-                </article>
-              );
-            })}
+          <div className={`owner-card ${blockedScopes.length ? 'is-warning' : 'is-success'}`}>
+            <div className={`owner-status ${blockedScopes.length ? 'is-warning' : 'is-success'}`}>
+              {blockedScopes.length ? 'Подготовка к запуску' : 'Критичных ограничений нет'}
+            </div>
+            <h3 className="owner-card-title" style={{ marginTop: '10px' }}>
+              {blockedScopes.length
+                ? `${blockedScopes.length} из ${readiness.length} зон пока имеют блокирующие условия`
+                : 'Основные зоны системы готовы'}
+            </h3>
+            <p className="owner-card-copy">
+              {blockedScopes.length
+                ? `Всего блокирующих условий: ${totalBlockers}. Это ожидаемое состояние до подключения домена, поисковых данных, реального commerce и измерения результатов.`
+                : 'Система не сообщает об активных блокирующих условиях.'}
+            </p>
+            <div className="owner-card-meta" style={{ marginTop: '12px', marginBottom: 0 }}>
+              {readiness.map((row) => (
+                <span key={String(row.readiness_scope)}>
+                  {scopeLabel(row.readiness_scope)} · {Number(row.blocking_count || 0)}
+                </span>
+              ))}
+            </div>
           </div>
         </section>
       </div>
