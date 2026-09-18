@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
+import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { ContentBriefCompilerStatusRow } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -8,8 +8,8 @@ export const revalidate = 0;
 const BRIEF_LIMIT = 400;
 
 async function getBriefs(): Promise<{ rows: ContentBriefCompilerStatusRow[]; error?: string }> {
-  const supabase = getSupabaseReadClient();
-  if (!supabase) return { rows: [], error: getMissingSupabaseEnvMessage() };
+  const supabase = getAdminReadClient();
+  if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
 
   const { data, error } = await supabase
     .from('feya_commerce_v_content_brief_compiler_status_safe_v1')
