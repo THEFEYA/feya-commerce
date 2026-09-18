@@ -63,6 +63,7 @@ export default async function AdminSeoPortfolioPage() {
             <Link href="/admin/products">Products</Link>
             <Link href="/admin/seo-keywords">SEO Keywords</Link>
             <Link href="/admin/seo-portfolio">SEO Portfolio</Link>
+            <Link href="/admin/seo-clusters">Cluster Queue</Link>
             <Link href="/admin/review">Review</Link>
             <Link href="/shop">Shop</Link>
           </div>
