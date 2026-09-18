@@ -102,7 +102,7 @@ export default async function AdminKeywordCleanupReviewPage() {
               {rows.map((row) => (
                 <tr key={row.cleanup_id}>
                   <td>
-                    <strong>{asText(row.effective_keyword, row.original_keyword)}</strong>
+                    <strong>{asText(row.effective_keyword, row.original_keyword || '—')}</strong>
                     <div className="muted">source: {asText(row.original_keyword)}</div>
                     {row.normalization_only ? <div className="badge-row"><span className="badge">normalization only</span></div> : null}
                   </td>
