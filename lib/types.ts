@@ -296,3 +296,30 @@ export type GrowthCapabilityStatusRow = {
   updated_at?: string | null;
   [key: string]: unknown;
 };
+
+
+export type ContentQaShadowRow = {
+  draft_id: string;
+  canonical_product_id: string;
+  product_slug?: string | null;
+  card_title?: string | null;
+  draft_status?: string | null;
+  human_review_status?: string | null;
+  source_mode?: string | null;
+  pack_version?: string | null;
+  source_brief_version?: string | null;
+  output_contract_version?: string | null;
+  metrics_status?: string | null;
+  validation_status?: string | null;
+  similarity_status?: string | null;
+  image_alt_truth_status?: string | null;
+  cqa_status?: string | null;
+  cqa_policy_version?: string | null;
+  cqa_reviewed_at?: string | null;
+  approval_blocker_count?: number | null;
+  product_truth_blocker_count?: number | null;
+  cqa_shadow_state?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  [key: string]: unknown;
+};
