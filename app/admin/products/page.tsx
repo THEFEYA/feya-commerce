@@ -32,7 +32,26 @@ function asText(value: unknown, fallback = '—') {
 }
 
 function getTitle(row: AdminCatalogRow) {
-  return asText(row.card_title || row.draft_site_title || row.h1 || row.source_title || row.raw_title, 'Untitled product');
+  return asText(row.card_title || row.draft_site_title || row.h1 || row.source_title || row.raw_title, 'Без названия');
+}
+
+function readinessLabel(value: string) {
+  const key = value.toLowerCase();
+  if (key === 'ready_candidate') return 'Кандидат готов';
+  if (key === 'ready' || key === 'approved') return 'Готово';
+  if (key.includes('need')) return 'Нужно проверить';
+  if (key.includes('block')) return 'Заблокировано';
+  if (key === 'unknown') return 'Не определено';
+  return value;
+}
+
+function publishLabel(value: string) {
+  const key = value.toLowerCase();
+  if (key === 'draft') return 'Черновик';
+  if (key === 'blocked') return 'Публикация заблокирована';
+  if (key === 'published') return 'Опубликовано';
+  if (key === 'ready') return 'Готово к публикации';
+  return value;
 }
 
 function getReadiness(row: AdminCatalogRow) {
@@ -45,8 +64,8 @@ function getPublishStatus(row: AdminCatalogRow) {
 }
 
 function getNextAction(row: AdminCatalogRow) {
-  if (row.do_not_publish_flag) return 'Do not publish until reviewed';
-  return asText(row.next_action || row.notes || row.review_reason || row.blocker_reason, 'Review in Product Builder later');
+  if (row.do_not_publish_flag) return 'Не публиковать до проверки';
+  return asText(row.next_action || row.notes || row.review_reason || row.blocker_reason, 'Проверить в Product Builder');
 }
 
 function getStatusClass(value: string) {
@@ -75,44 +94,44 @@ export default async function AdminProductsPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/review">Review</Link>
-            <Link href="/admin/product-facts-review">Product Facts</Link>
-            <Link href="/admin/seo-keywords">SEO Keywords</Link>
-            <Link href="/shop">Shop</Link>
+            <Link href="/admin/review">Проверка</Link>
+            <Link href="/admin/product-facts-review">Факты о товарах</Link>
+            <Link href="/admin/seo-keywords">SEO и ключевые слова</Link>
+            <Link href="/shop">Магазин</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Product overview gate</div>
+          <div className="phase-label">Каталог товаров · только просмотр</div>
           <p>
-            Read-only product catalog overview. This screen prepares the future Product Builder by showing readiness, publication status and next action without allowing edits yet.
+            Каталог показывает текущую готовность, статус публикации и следующий шаг. Названия товаров и SEO-запросы сохраняются в оригинальном языке.
           </p>
         </section>
 
         <section className="section-head">
           <div>
-            <h2>Product drafts</h2>
-            <p className="muted">Read-only overview from the admin catalog view.</p>
+            <h2>Товары</h2>
+            <p className="muted">Каталог рабочих карточек товаров.</p>
           </div>
-          <p className="muted">{rows.length} loaded</p>
+          <p className="muted">Загружено: {rows.length}</p>
         </section>
 
         <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
           <div className="card metric">
             <strong>{rows.length}</strong>
-            <span>Total product drafts loaded</span>
+            <span>Всего товаров</span>
           </div>
           <div className="card metric">
             <strong>{visibleCount}</strong>
-            <span>Not blocked in this view</span>
+            <span>Без блокировки</span>
           </div>
           <div className="card metric">
             <strong>{blockedCount}</strong>
-            <span>Do-not-publish flags</span>
+            <span>Запрещено публиковать</span>
           </div>
           <div className="card metric">
             <strong>{needsReviewCount}</strong>
-            <span>Need readiness review</span>
+            <span>Нужно проверить готовность</span>
           </div>
         </section>
 
@@ -122,11 +141,11 @@ export default async function AdminProductsPage() {
           <table>
             <thead>
               <tr>
-                <th>Title</th>
+                <th>Название</th>
                 <th>Etsy ID</th>
-                <th>Readiness</th>
-                <th>Publish</th>
-                <th>Next action</th>
+                <th>Готовность</th>
+                <th>Публикация</th>
+                <th>Следующий шаг</th>
               </tr>
             </thead>
             <tbody>
@@ -139,10 +158,10 @@ export default async function AdminProductsPage() {
                     <td><Link href={`/admin/products/${row.canonical_product_id}`}>{getTitle(row)}</Link></td>
                     <td>{asText(row.matched_etsy_listing_id || row.etsy_listing_id)}</td>
                     <td>
-                      <span className={`status-pill ${getStatusClass(readiness)}`}>{readiness}</span>
+                      <span className={`status-pill ${getStatusClass(readiness)}`}>{readinessLabel(readiness)}</span>
                     </td>
                     <td>
-                      <span className={`status-pill ${getStatusClass(publishStatus)}`}>{publishStatus}</span>
+                      <span className={`status-pill ${getStatusClass(publishStatus)}`}>{publishLabel(publishStatus)}</span>
                     </td>
                     <td>{getNextAction(row)}</td>
                   </tr>
