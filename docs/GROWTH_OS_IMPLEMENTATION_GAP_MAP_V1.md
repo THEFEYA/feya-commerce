@@ -1058,3 +1058,57 @@ Hardening must occur only after:
 3. login/logout verified
 4. unauthorized user blocked
 5. protected server reads verified
+
+
+### Pre-launch Signal / Objective / Handoff Core
+STATUS: DATABASE FOUNDATION IMPLEMENTED / AUTOMATIC ORCHESTRATION OFF
+
+Signal Engine:
+- 19 real pre-launch signal candidates at implementation audit
+- 9 P1 / 9 P2 / 1 P3
+- no automatic Growth Case creation
+
+Case Admission preview:
+- CASE_CANDIDATE = 7
+- OWNER_ATTENTION = 3
+- WORK_QUEUE = 4
+- DEFER = 4
+- MONITOR = 1
+
+Explicit admission RPC:
+- CASE only for CASE_CANDIDATE
+- OWNER_ATTENTION only for OWNER_ATTENTION
+- DEFER/MONITOR/WORK_QUEUE cannot be force-promoted
+- rollback idempotency/dedup tests PASS
+
+Growth Case lifecycle:
+- guarded status transitions
+- expected status + expected ownership epoch required
+- idempotent event history
+- rollback lifecycle test PASS
+
+Growth Objective Registry:
+- no ACTIVE objectives currently
+- feasibility can be analyzed by system/agent
+- activation requires FEASIBLE/PARTIAL plus real human user id
+- rollback activation test PASS
+
+Objective-aware signal behavior:
+- with zero active objectives, Commerce/Measurement pre-launch gaps remain deferred
+- rollback activation of a COMMERCE objective thawed Commerce implementation signal only
+- Measurement remained deferred
+- rollback left active_objectives=0
+
+Durable Handoffs:
+- modes SERVICE / COLLABORATION / FACILITATION
+- structured question/evidence/facts/unknowns/output contract
+- source must be current accountable domain
+- ownership epoch guard
+- default per-case budget=8
+- duplicate suppression
+- unchanged reverse-loop detection
+- stale result after ownership change
+- simple output schema validation
+- no free-form agent chat loop
+
+Automatic orchestration remains OFF.
