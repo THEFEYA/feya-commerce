@@ -239,6 +239,44 @@ export function sourceLabel(value: unknown) {
   return SOURCE_LABELS[key] || humanizeCode(key || '—');
 }
 
+export function sourceHealthSummary(value: unknown) {
+  const key = String(value || '').trim().toUpperCase();
+  const copy: Record<string, string> = {
+    BEHAVIORAL_ANALYTICS: 'GA4 пока не подключён к production-данным.',
+    BUSINESS_OPERATIONAL_POLICY: 'Основные бизнес-правила доступны; правила возврата ещё требуют подтверждения владельца.',
+    COMMERCE_ORDER_TRUTH: 'Достоверный источник завершённых заказов пока не подключён.',
+    COMMERCE_REVENUE_TRUTH: 'Достоверные данные выручки и возвратов пока не подключены.',
+    DERIVED_GROWTH_SIGNALS: 'Сигналы FEYA формируются из текущего состояния системы.',
+    EXTERNAL_KEYWORD_DEMAND: 'Исторические данные спроса есть, но живой доступ Google Ads пока ограничен.',
+    LEGACY_MARKETPLACE_HISTORY: 'Исторические данные маркетплейсов ещё не приведены к одному проверенному источнику.',
+    ORGANIC_SEARCH_PERFORMANCE: 'Search Console пока не подключён к production-сайту.',
+    PRODUCT_FACTS: 'Факты о товарах доступны и используются как основной источник для контента.',
+    SEO_PAGE_PORTFOLIO_AUTHORITY: 'Портфель поисковых страниц доступен; группы запросов и ответственность страниц ещё не завершены.',
+  };
+  return copy[key] || 'Состояние источника требует технической проверки.';
+}
+
+export function capabilityOwnerSummary(value: unknown) {
+  const key = String(value || '').trim().toUpperCase();
+  const copy: Record<string, string> = {
+    GOOGLE_ADS_KEYWORD_METRICS: 'Хранение данных подготовлено, но живой доступ к планировщику ключевых слов Google пока не подтверждён.',
+    GSC_BULK_EXPORT: 'Подключение Search Console и автоматического экспорта возможно после запуска и подтверждения публичного сайта.',
+    SEO_KEYWORD_CLEANUP: 'Очередь ключевых слов работает, но значительная часть ещё требует проверки перед группировкой.',
+    QUERY_CLUSTER_REVIEW_QUEUE: 'Механика группировки запросов готова, но канонические группы не создаются без проверенных входных данных.',
+    SEO_PAGE_PORTFOLIO: 'Портфель страниц создан; индексация и ответственность за запросы пока подтверждаются отдельно.',
+    SEARCH_LAUNCH_GATE: 'Техническая защита индексации работает, глобальный запуск поиска намеренно выключен.',
+    MEASUREMENT_ENGINE: 'Измерение бизнес-эффекта выключено до подключения реальных GA4, Search Console и данных заказов.',
+    MEASUREMENT_SPEC_REGISTRY: 'Правила измерения можно задавать и фиксировать, но реальных outcome-расчётов пока нет.',
+    EXPERIMENT_REGISTRY: 'Эксперименты можно описывать и контролировать, но результат нельзя считать без реальных измерительных данных.',
+    LEARNING_REGISTRY: 'Выводы можно сохранять только после достаточного подтверждения; единичный результат не становится правилом.',
+    CHANGE_EVENT_REGISTRY: 'История изменений фиксируется и может связываться с будущими измерениями результата.',
+    ADMIN_AUTH: 'Защищённый вход подготовлен, но ещё не включён для владельца.',
+    ADMIN_DATA_BOUNDARY: 'Внутренние экраны зарегистрированы для последующего закрытия прямого доступа после проверки входа.',
+    AI_RUNTIME_USAGE_METERING: 'Расход токенов и время AI-вызовов измеряются; жёсткий денежный лимит пока не задан владельцем.',
+  };
+  return copy[key] || 'Возможность системы доступна в текущем техническом состоянии.';
+}
+
 export function ownerToneForStatus(value: unknown): OwnerTone {
   const key = String(value || '').trim().toUpperCase();
   if (['FAIL', 'ERROR', 'BLOCKED', 'UNAVAILABLE'].includes(key)) return 'danger';
