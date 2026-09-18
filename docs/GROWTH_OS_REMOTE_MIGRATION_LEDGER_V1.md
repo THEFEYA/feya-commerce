@@ -344,3 +344,116 @@ Rollback validation:
 - stale handoff result PASS
 - handoff schema incompatibility guard PASS
 - all test rows cleaned by ROLLBACK
+
+
+## Post-handoff implementation wave
+
+### Durable runtime / review / execution / learning foundations
+
+20260918092631 — feya_durable_workflow_orchestrator_foundation_v1  
+20260918092724 — fix_workflow_stale_audit_events_v1
+- durable workflow run/event persistence installed
+- worker/automatic orchestration remains unavailable
+
+20260918093014 — feya_keyword_cleanup_review_risk_queue_v1  
+20260918093114 — feya_keyword_cleanup_independent_review_foundation_v1  
+20260918093210 — feya_keyword_cleanup_review_recommendation_rpc_v1
+- separate human/independent review layer over legacy keyword cleanup
+- historical cleanup state is not silently rewritten
+
+20260918094618 — feya_query_cluster_proposal_foundation_v1  
+20260918094653 — fix_query_cluster_apply_returning_ambiguity_v1  
+20260918094752 — feya_query_cluster_proposal_recorder_v1  
+20260918094834 — feya_query_cluster_proposal_queue_v1
+- semantic query clustering is proposal-first
+- canonical cluster creation remains review/apply gated
+
+20260918095435 — feya_page_query_ownership_proposal_foundation_v1  
+20260918095607 — feya_page_ownership_shortlist_v1  
+20260918100029 — feya_indexable_page_eligibility_foundation_v1
+- page ownership and indexability are separate controlled decisions
+- no automatic page creation/indexation
+
+### Regression / authority / health / incidents
+
+20260918100407 — feya_scenario_test_registry_v1  
+20260918100451 — feya_scenario_run_recorder_v1
+- canonical regression scenario registry + explicit run evidence
+- current latest scenario readiness: PASS 10 / WARN 2 / NOT_RUN 3 / FAIL 0 / ERROR 0
+- current release state remains BLOCKED because two CRITICAL scenarios are not PASS
+
+20260918100652 — feya_source_of_truth_registry_v1  
+20260918100818 — feya_data_source_health_registry_v1
+- explicit data authority and source-health state installed
+
+20260918101047 — feya_incident_change_freeze_foundation_v1  
+20260918101125 — feya_change_freeze_mutation_guards_v1
+- incidents can impose controlled mutation freezes
+- mutation guards are database-level, not chat-memory instructions
+
+### Execution / learning / experimentation
+
+20260918101513 — feya_execution_gateway_foundation_v1  
+20260918101611 — feya_execution_gateway_safe_view_v1
+- request/approval/receipt foundation installed
+- no production dispatcher is enabled
+
+20260918101742 — feya_learning_registry_foundation_v1  
+20260918103315 — feya_learning_policy_adoption_gate_v1
+- reusable evidence/learning persistence installed
+- policy promotion remains explicitly gated
+
+20260918103620 — feya_experiment_change_contamination_foundation_v1  
+20260918103726 — feya_execution_receipt_change_event_bridge_v1  
+20260918103846 — feya_change_event_safe_view_v1
+- experiment/change contamination and execution-change linkage installed
+
+### Strategy / opportunities / role maturity / stabilization
+
+20260918104110 — feya_growth_strategy_initiative_foundation_v1  
+20260918104142 — feya_growth_strategy_margin_mode_guard_v1
+- versioned Growth Strategy + Initiative primitives installed
+- margin-mode guard prevents pretending contribution margin is known without trusted variable-cost truth
+
+20260918104414 — feya_event_opportunity_registry_v1  
+20260918104448 — feya_event_opportunity_attention_bridge_v1  
+20260918104511 — fix_opportunity_expiry_transition_v1
+- opportunity/expiry foundation installed; no synthetic opportunity rows created
+
+20260918104727 — feya_role_activation_gate_v1
+- eight canonical roles have explicit runtime state/autonomy ceiling
+- current state: 5 SHADOW, 3 INACTIVE, 0 ACTIVE
+
+20260918104905 — feya_stabilization_window_gate_v1
+- stabilization-window gate installed; current windows = 0
+
+20260918105345 — feya_data_health_experiment_propagation_v1
+- required measurement-source degradation can propagate to active experiments
+- DEGRADED produces warning contamination; STALE/UNAVAILABLE/NOT_OBSERVABLE can invalidate affected experiment evidence
+
+### Admin boundary registry hardening
+
+20260918104927 — feya_admin_data_boundary_registry_v2  
+20260918105052 — feya_admin_data_boundary_registry_v3
+- replaced the earlier fixed 24-view hardening list with registry-backed governed admin-view registration
+- current registered admin read surfaces = 38
+- current browser-readable = 38 because hardening is intentionally NOT executed before admin auth/allowlist verification
+- hardening now refuses empty/missing registry state instead of claiming partial success
+
+### AI runtime cost discipline
+
+20260918105254 — feya_ai_runtime_usage_ledger_v1  
+20260918105716 — feya_ai_runtime_usage_metering_active_v1
+- private per-invocation model token/latency ledger
+- no prompt or model-response content stored
+- current internal OpenAI runners instrumented:
+  - SEO keyword cleanup
+  - independent CQA
+  - SCO shadow
+  - keyword cleanup review
+  - query-cluster proposals
+  - page-ownership proposals
+- live metered invocation rows at activation = 0
+- monetary cost estimation intentionally absent until a versioned pricing contract exists
+- AI_BUDGET_GATE remains UNAVAILABLE / owner_policy_not_defined
+- Human Owner must define any hard monetary limit after real usage is measured
