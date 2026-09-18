@@ -211,9 +211,9 @@ export function AdminReviewActionsClient({ productSlug, canonicalProductId, sour
       {actions.map((action) => {
         const saved = latestByType.get(action.event_type);
         const blockedByCanonicalTruth = action.event_type === 'component_mapping_checked' && initialBlockers.component;
-        return <button key={action.event_type} type="button" onClick={() => recordAction(action)} disabled={Boolean(saving) || blockedByCanonicalTruth} title={blockedByCanonicalTruth ? 'Сначала исправьте канонические данные Product Truth.' : undefined} className="rounded-xl border border-[rgba(216,214,211,.12)] bg-black/15 px-4 py-3 text-left hover:border-[rgba(212,178,106,.40)] transition disabled:opacity-60">
+        return <button key={action.event_type} type="button" onClick={() => recordAction(action)} disabled={Boolean(saving) || blockedByCanonicalTruth} title={blockedByCanonicalTruth ? 'Сначала исправьте канонические факты товара.' : undefined} className="rounded-xl border border-[rgba(216,214,211,.12)] bg-black/15 px-4 py-3 text-left hover:border-[rgba(212,178,106,.40)] transition disabled:opacity-60">
           <div className="flex items-center justify-between gap-3">
-            <span className="text-bone text-[13px]">{blockedByCanonicalTruth ? 'Сначала исправить Product Truth' : action.label}</span>
+            <span className="text-bone text-[13px]">{blockedByCanonicalTruth ? 'Сначала исправить факты товара' : action.label}</span>
             {saved ? <CheckCircle2 size={15} className="text-[var(--gold-warm)]" /> : null}
           </div>
           <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{blockedByCanonicalTruth ? 'Событие не может закрыть блокер данных' : saved?.created_at ? new Date(saved.created_at).toLocaleDateString() : 'События ещё нет'}</div>
