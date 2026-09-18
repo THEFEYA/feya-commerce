@@ -1,0 +1,150 @@
+import Link from 'next/link';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
+import type { QueryClusterReviewRow } from '@/lib/types';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+const QUEUE_LIMIT = 500;
+
+async function getQueue(): Promise<{ rows: QueryClusterReviewRow[]; error?: string }> {
+  const supabase = getSupabaseReadClient();
+
+  if (!supabase) {
+    return { rows: [], error: getMissingSupabaseEnvMessage() };
+  }
+
+  const { data, error } = await supabase
+    .from('feya_commerce_v_query_cluster_review_queue_v1')
+    .select('*')
+    .order('priority_tier', { ascending: true })
+    .order('product_count', { ascending: false })
+    .order('keyword_norm', { ascending: true })
+    .limit(QUEUE_LIMIT);
+
+  if (error) return { rows: [], error: error.message };
+  return { rows: (data || []) as QueryClusterReviewRow[] };
+}
+
+function asText(value: unknown, fallback = '—') {
+  if (value == null || value === '') return fallback;
+  if (Array.isArray(value)) return value.length ? value.join(', ') : fallback;
+  return String(value);
+}
+
+function getStatusClass(value: unknown) {
+  const normalized = asText(value, '').toUpperCase();
+  if (normalized.includes('READY') || normalized.includes('CLUSTERED')) return 'ok';
+  if (normalized.includes('HOLD')) return 'danger';
+  return 'warning';
+}
+
+function countStatus(rows: QueryClusterReviewRow[], status: string) {
+  return rows.filter((row) => row.cluster_queue_status === status).length;
+}
+
+export default async function AdminSeoClustersPage() {
+  const { rows, error } = await getQueue();
+
+  const ready = countStatus(rows, 'READY_FOR_SEMANTIC_CLUSTERING');
+  const cleanupReview = countStatus(rows, 'NEEDS_CLEANUP_REVIEW');
+  const cleanup = countStatus(rows, 'NEEDS_CLEANUP');
+  const metrics = countStatus(rows, 'WAIT_FOR_METRICS');
+  const hold = countStatus(rows, 'HOLD');
+  const clustered = countStatus(rows, 'ALREADY_CLUSTERED');
+
+  return (
+    <main className="page-shell">
+      <div className="container">
+        <nav className="top-nav">
+          <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
+          <div className="nav-links">
+            <Link href="/admin/products">Products</Link>
+            <Link href="/admin/seo-keywords">SEO Keywords</Link>
+            <Link href="/admin/seo-portfolio">SEO Portfolio</Link>
+            <Link href="/admin/seo-clusters">Cluster Queue</Link>
+            <Link href="/admin/review">Review</Link>
+          </div>
+        </nav>
+
+        <section className="phase-banner">
+          <div className="phase-label">OSPM semantic clustering gate · read-only</div>
+          <h1>Query Cluster Review Queue</h1>
+          <p>
+            This queue does not create query clusters. It shows whether each canonical keyword has enough reviewed semantic and metric evidence to enter clustering.
+          </p>
+        </section>
+
+        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
+          <div className="card metric"><strong>{rows.length}</strong><span>Active keywords loaded</span></div>
+          <div className="card metric"><strong>{ready}</strong><span>Ready for semantic clustering</span></div>
+          <div className="card metric"><strong>{cleanupReview}</strong><span>Need cleanup review</span></div>
+          <div className="card metric"><strong>{cleanup}</strong><span>Need cleanup</span></div>
+          <div className="card metric"><strong>{metrics}</strong><span>Wait for metrics</span></div>
+          <div className="card metric"><strong>{clustered}</strong><span>Already clustered</span></div>
+          <div className="card metric"><strong>{hold}</strong><span>Hold</span></div>
+        </section>
+
+        {error ? <div className="notice">{error}</div> : null}
+
+        <div className="notice" style={{ marginBottom: '18px' }}>
+          Axis and pattern are evidence dimensions only. They are not treated as query clusters. A cluster becomes canonical only after semantic review and explicit approval.
+        </div>
+
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Keyword</th>
+                <th>Lane</th>
+                <th>Axis / pattern</th>
+                <th>Cleanup</th>
+                <th>Metrics</th>
+                <th>Products</th>
+                <th>Cluster state</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.keyword_id}>
+                  <td>
+                    <strong>{asText(row.semantic_keyword_candidate || row.source_keyword)}</strong>
+                    {row.semantic_keyword_candidate && row.semantic_keyword_candidate !== row.source_keyword ? (
+                      <div className="muted">source: {asText(row.source_keyword)}</div>
+                    ) : null}
+                    <div className="badge-row">
+                      <span className="badge">{asText(row.suggested_page_level)}</span>
+                      {row.ai_intent ? <span className="badge">{row.ai_intent}</span> : null}
+                    </div>
+                  </td>
+                  <td>{asText(row.clustering_lane)}</td>
+                  <td>
+                    {asText(row.keyword_axis)}
+                    <div className="muted">{asText(row.keyword_pattern)}</div>
+                  </td>
+                  <td>
+                    <span className={`status-pill ${getStatusClass(row.cleanup_review_status)}`}>
+                      {asText(row.cleanup_review_status, row.cleanup_id ? 'pending' : 'missing')}
+                    </span>
+                    {row.warning_flags ? <div className="muted">{asText(row.warning_flags)}</div> : null}
+                  </td>
+                  <td>
+                    {row.avg_monthly_searches != null ? <strong>{row.avg_monthly_searches}</strong> : '—'}
+                    <div className="muted">{asText(row.metric_data_freshness_status)}</div>
+                  </td>
+                  <td>{row.product_count ?? 0}</td>
+                  <td>
+                    <span className={`status-pill ${getStatusClass(row.cluster_queue_status)}`}>
+                      {asText(row.cluster_queue_status)}
+                    </span>
+                    {row.cluster_membership_count ? <div className="muted">{row.cluster_membership_count} memberships</div> : null}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  );
+}
