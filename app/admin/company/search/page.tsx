@@ -22,8 +22,8 @@ async function searchOwnerData(query: string): Promise<{
   const [productsResult, pagesResult, workResult, signalsResult] = await Promise.all([
     supabase
       .from('feya_commerce_v_step6_product_catalog_overview')
-      .select('canonical_product_id,card_title,h1,matched_etsy_listing_id')
-      .or(`card_title.ilike.%${escaped}%,h1.ilike.%${escaped}%`)
+      .select('canonical_product_id,card_title,draft_site_title,matched_etsy_listing_id')
+      .or(`card_title.ilike.%${escaped}%,draft_site_title.ilike.%${escaped}%,matched_etsy_listing_id.ilike.%${escaped}%`)
       .limit(12),
     supabase
       .from('feya_commerce_v_seo_page_portfolio_safe_v1')
@@ -93,7 +93,7 @@ export default async function AdminSearchPage({ searchParams }: { searchParams: 
         {query && total === 0 ? <div className="owner-empty">Ничего не найдено. Попробуйте более короткий запрос.</div> : null}
 
         {products.length ? <section className="owner-section"><div className="owner-section-head"><h2>Товары</h2></div><div className="owner-list">
-          {products.map((row) => <Link className="owner-list-row" href={`/admin/products/${String(row.canonical_product_id)}`} key={String(row.canonical_product_id)}><div className="owner-list-row-main"><h3>{String(row.card_title || row.h1 || 'Товар')}</h3><p>Открыть товар</p></div></Link>)}
+          {products.map((row) => <Link className="owner-list-row" href={`/admin/products/${String(row.canonical_product_id)}`} key={String(row.canonical_product_id)}><div className="owner-list-row-main"><h3>{String(row.card_title || row.draft_site_title || 'Товар')}</h3><p>{row.matched_etsy_listing_id ? `Etsy: ${String(row.matched_etsy_listing_id)}` : 'Открыть товар'}</p></div></Link>)}
         </div></section> : null}
 
         {pages.length ? <section className="owner-section"><div className="owner-section-head"><h2>Поисковые страницы</h2></div><div className="owner-list">
