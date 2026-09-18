@@ -502,3 +502,48 @@ export type KeywordCleanupReviewStatusRow = {
   recommendation_created_at?: string | null;
   [key: string]: unknown;
 };
+
+
+export type QueryClusterProposalCandidateRow = {
+  cleanup_id: number;
+  keyword_id?: number | null;
+  keyword_norm?: string | null;
+  approved_keyword?: string | null;
+  approved_keyword_norm?: string | null;
+  keyword_axis?: string | null;
+  keyword_pattern?: string | null;
+  suggested_page_level?: string | null;
+  ai_intent?: string | null;
+  approved_at?: string | null;
+  active_membership_count?: number | null;
+  avg_monthly_searches?: number | null;
+  competition?: string | null;
+  competition_index?: number | null;
+  metric_fetched_at?: string | null;
+  metric_freshness_status?: string | null;
+  proposal_candidate_status?: string | null;
+  [key: string]: unknown;
+};
+
+export type QueryClusterProposalRow = {
+  proposal_id: string;
+  proposal_code?: string | null;
+  cluster_label?: string | null;
+  normalized_intent?: string | null;
+  intent_type?: string | null;
+  language_code?: string | null;
+  market_scope?: string | null;
+  proposed_members_json?: unknown;
+  proposed_member_count?: number | null;
+  rationale?: string | null;
+  proposal_status?: string | null;
+  model_name?: string | null;
+  prompt_version?: string | null;
+  review_note?: string | null;
+  reviewed_at?: string | null;
+  applied_query_cluster_id?: string | null;
+  applied_at?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  [key: string]: unknown;
+};
