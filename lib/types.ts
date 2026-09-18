@@ -339,3 +339,31 @@ export type BusinessTruthStatusRow = {
   updated_at?: string | null;
   [key: string]: unknown;
 };
+
+
+export type ContentBriefCompilerStatusRow = {
+  brief_queue_id: string;
+  canonical_product_id: string;
+  compiler_version?: string | null;
+  compiler_status?: string | null;
+  can_generate_shadow?: boolean | null;
+  can_produce_canonical_brief?: boolean | null;
+  generation_gate_status?: string | null;
+  safe_generation_status?: string | null;
+  product_fact_quality_status?: string | null;
+  plan_status?: string | null;
+  primary_keyword?: string | null;
+  page_goal_code?: string | null;
+  primary_axis_code?: string | null;
+  primary_term_code?: string | null;
+  seo_page_id?: string | null;
+  url_path?: string | null;
+  page_lifecycle_state?: string | null;
+  indexation_intent?: string | null;
+  protected_winner_flag?: boolean | null;
+  ownership_count?: number | null;
+  primary_ownership_count?: number | null;
+  business_truth_count?: number | null;
+  content_policy_version?: number | null;
+  [key: string]: unknown;
+};
