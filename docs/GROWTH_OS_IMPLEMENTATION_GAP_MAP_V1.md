@@ -831,3 +831,61 @@ Still intentionally blocked:
 - no auto-publish;
 - no strategy/keyword/page ownership mutations from CQA;
 - no live CQA persistence before first authenticated dry-run is inspected.
+
+
+### SCO Shadow Runner
+STATUS: IMPLEMENTED / FIRST AUTHENTICATED DRY-RUN PENDING
+
+New server-only route:
+- POST /api/internal/sco-shadow
+
+Selection:
+- Content Brief Compiler can_generate_shadow=true;
+- product has no active SEO pack draft;
+- Product Truth v4 exists.
+
+Current observed pool:
+- 133 shadow-ready compiled briefs;
+- 42 already have active SEO pack drafts;
+- 91 have no active draft and are eligible candidates;
+- canonical-ready briefs = 0.
+
+Safety:
+- FEYA_INTERNAL_API_TOKEN required;
+- dryRun=true by default;
+- default batch=2;
+- max batch=3;
+- per-draft generation_run_id;
+- proposal hash;
+- deterministic validation before persistence;
+- blocked proposals are not recorded;
+- no page intent/query ownership mutation;
+- no publishing;
+- newly recorded shadow drafts begin with prechecks/CQA not completed.
+
+Database:
+- 20260918083810 — feya_sco_shadow_draft_foundation_v1
+- 20260918083850 — fix_sco_shadow_draft_product_slug_v1
+
+Validation:
+- rollback-only create PASS;
+- rollback cleanliness PASS;
+- generation-run idempotency PASS;
+- first typecheck defect fixed;
+- second typecheck defect fixed;
+- final GitHub CI PASS;
+- final Vercel PASS.
+
+Business Truth:
+- 20260918082819 — feya_business_truth_registry_v1
+- CQA receives only ACTIVE scoped Business Truth.
+- Returns policy remains REVIEW_REQUIRED and is excluded from AI context.
+
+Content Brief Compiler:
+- 20260918083239 — feya_content_brief_compiler_shadow_v1
+- total candidates=313
+- shadow-ready=133
+- canonical-ready=0
+- with Business Truth=313
+- with stable SEO Page=239
+- primary query ownership=0
