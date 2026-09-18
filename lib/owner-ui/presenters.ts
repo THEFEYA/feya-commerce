@@ -4,6 +4,7 @@ import {
   ownerToneForStatus,
   priorityLabel,
   roleLabel,
+  roleSummary,
   signalCopy,
   statusLabel,
 } from './terminology';
@@ -107,6 +108,7 @@ export function presentRole(row: Row): RoleStatusVM {
     statusLabel: statusLabel(status),
     tone: ownerToneForStatus(status),
     autonomyLabel,
+    summary: roleSummary(row.role_code),
     blockedCapabilityCount: number(row.blocked_capability_count),
     availableCapabilityCount: number(row.fully_available_capability_count),
     requiredCapabilityCount: number(row.required_capability_count),
