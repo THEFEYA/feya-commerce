@@ -578,3 +578,15 @@ Protected Owner Actions remain disabled until:
 - unauthorized-access tests pass;
 - Supabase Auth leaked-password protection is reviewed/enabled;
 - audited mutation paths exist for each owner action.
+
+
+### Owner UI protected-read preparation
+
+No new database migration was required for the read-client refactor.
+
+Repository-side change:
+- internal admin pages use `getAdminReadClient()` instead of direct anonymous read clients;
+- when FEYA admin auth is later required, server-side service-role reads can support hardened admin views;
+- public storefront routes remain on public read contracts.
+
+This is a prerequisite for eventually executing `feya_fn_harden_admin_data_boundary_v1('HARDEN_FEYA_ADMIN_V1')`, but that hardening RPC remains intentionally NOT executed until auth + allowlist + unauthorized-access tests are verified.
