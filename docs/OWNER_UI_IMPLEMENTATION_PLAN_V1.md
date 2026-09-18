@@ -737,3 +737,65 @@ This resolves the false implication that “0 Growth Cases” means “0 work”
 UX-3 and UX-4 now have useful owner-facing v1 projections over existing safe data.
 This does not mean protected write actions are enabled.
 UX-5 remains blocked on verified owner authentication, audited mutation paths and unauthorized-access tests.
+
+
+## 15. Protected Owner Actions security audit checkpoint — 2026-09-18
+
+Before enabling UX-5 writes, a focused security audit was performed.
+
+### Admin auth state
+
+- Supabase Auth accounts exist and are confirmed, but the UI still treats protected owner actions as disabled until the FEYA admin auth flag and allowlist are intentionally enabled and tested.
+- Login UI is now Russian-first.
+- Login preserves the originally requested `/admin/...` route after successful authentication.
+- System explicitly displays whether protected FEYA Admin auth is currently required.
+
+### FEYA-specific database hardening completed
+
+Two previously exposed FEYA surfaces were hardened through remote Supabase migrations:
+
+- `20260918150426 — harden_feya_step2_import_attempts_20260918`
+  - RLS enabled;
+  - anon/authenticated/PUBLIC table privileges revoked.
+
+- `20260918150523 — restrict_public_order_draft_rpc_20260918`
+  - PUBLIC / anon / authenticated EXECUTE revoked from `feya_commerce_create_order_draft_v1(jsonb)`;
+  - service_role execution retained.
+
+Post-hardening focused audit:
+- FEYA Commerce/Growth tables with RLS disabled: **0**;
+- FEYA Commerce/Growth SECURITY DEFINER functions executable by anon/authenticated: **0**.
+
+### Why the order-draft boundary changed
+
+An earlier migration intentionally left the order-draft SECURITY DEFINER RPC public.
+The current repository no longer has a direct browser dependency on that RPC:
+- checkout attempts a server route;
+- if unavailable, it falls back to local draft storage;
+- payment remains disabled.
+
+Because the RPC accepts client-supplied draft totals/product payload, keeping it directly browser-executable was not justified before a validated server checkout contract exists.
+
+### Admin read-boundary status
+
+The governed admin-read preview currently reports **42** internal/admin views readable by anon and authenticated roles.
+
+This is intentionally NOT hardened yet because:
+- the current preview still relies on browser-safe read projections;
+- mandatory FEYA admin auth + allowlist has not been verified end-to-end;
+- revoking those reads prematurely would break the existing Product OS preview.
+
+The existing service-role-only hardening RPC remains the intended cutover mechanism after auth verification.
+
+### Remaining UX-5 security gates
+
+Do not enable owner mutation buttons yet.
+
+Still required:
+1. intentionally enable `FEYA_ADMIN_AUTH_REQUIRED=true`;
+2. configure and verify the owner allowlist;
+3. test unauthenticated and unauthorized access paths;
+4. review/enable Supabase Auth leaked-password protection;
+5. cut browser access to registered admin views using the governed hardening path;
+6. verify all owner writes use audited service-side RPC / Execution Gateway paths;
+7. rerun Vercel + Supabase security regression checks.
