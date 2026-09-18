@@ -889,3 +889,45 @@ Content Brief Compiler:
 - with Business Truth=313
 - with stable SEO Page=239
 - primary query ownership=0
+
+
+### Deterministic Content Prechecks
+STATUS: IMPLEMENTED / SHADOW DRAFTS ONLY
+
+Applied Supabase migration:
+- 20260918084759 — feya_content_prechecks_foundation_v1
+
+Implemented:
+- token_jaccard_v1 textual similarity precheck;
+- Product Truth primary ALT exact-match precheck;
+- preview RPC with no writes;
+- apply RPC with atomic snapshot/event updates;
+- internal protected runner /api/internal/content-prechecks;
+- runner defaults to dryRun=true;
+- runner only targets source_mode=growth_os_sco_shadow.
+
+Similarity thresholds are data-derived from current FEYA drafts:
+- p50 max similarity = 0.318
+- p90 = 0.514
+- p95 = 0.572
+- max observed = 0.688
+- pass < 0.50
+- warning 0.50–<0.60
+- review >= 0.60
+
+Important:
+Textual similarity is NOT called query cannibalization.
+Query/page conflict remains owned by OSPM.
+
+ALT policy:
+- primary ALT must exactly reuse Product Truth primary_image_alt;
+- if Product Truth has no primary_image_alt, SCO omits ALT candidate;
+- empty SCO ALT candidates can pass because media ALT remains a separate task.
+
+Rollback validation:
+- old draft preview caught an ALT mismatch that legacy qa_self_report had marked pass;
+- apply created exactly 2 events inside transaction and rolled back cleanly;
+- end-to-end SCO -> prechecks -> CQA shadow test PASS;
+- after passing prechecks, new draft state became READY_FOR_HUMAN_AND_CQA_REVIEW;
+- cqa_status remained not_run;
+- test drafts/events after rollback = 0.
