@@ -664,3 +664,21 @@ export type ScenarioReleaseReadinessRow = {
   registry_release_state?: string | null;
   [key: string]: unknown;
 };
+
+
+export type SourceOfTruthRegistryRow = {
+  source_code: string;
+  source_name?: string | null;
+  owner_role?: string | null;
+  source_state?: string | null;
+  implementation_state?: string | null;
+  public_summary?: string | null;
+  limitations_summary?: string | null;
+  authority_tier?: string | null;
+  authority_domain?: string | null;
+  primary_source?: string | null;
+  precedence?: number | null;
+  version_no?: number | null;
+  updated_at?: string | null;
+  [key: string]: unknown;
+};
