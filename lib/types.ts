@@ -706,3 +706,22 @@ export type DataSourceHealthRow = {
   checked_at?: string | null;
   [key: string]: unknown;
 };
+
+
+export type ActiveIncidentRow = {
+  incident_id: string;
+  incident_code?: string | null;
+  incident_type?: string | null;
+  severity?: string | null;
+  incident_status?: string | null;
+  title?: string | null;
+  summary?: string | null;
+  root_cause_key?: string | null;
+  scope_json?: unknown;
+  freeze_mutations?: boolean | null;
+  freeze_domains_json?: unknown;
+  detected_by?: string | null;
+  started_at?: string | null;
+  updated_at?: string | null;
+  [key: string]: unknown;
+};
