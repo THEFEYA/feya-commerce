@@ -97,6 +97,13 @@ export default async function AdminResultsPage() {
           </div>
         </header>
 
+        <nav className="owner-subnav" aria-label="Разделы результатов">
+          <a href="#results-summary">Результаты</a>
+          <Link href="/admin/experiments">Эксперименты</Link>
+          <Link href="/admin/company/advanced">Изменения</Link>
+          <Link href="/admin/learning">Выводы</Link>
+        </nav>
+
         {data.error ? (
           <div className="owner-card is-danger">
             <div className="owner-status is-danger">Ошибка данных</div>
@@ -110,7 +117,7 @@ export default async function AdminResultsPage() {
           <p className="owner-card-copy">{capabilityOwnerSummary('MEASUREMENT_ENGINE')}</p>
         </section>
 
-        <section className="owner-section">
+        <section className="owner-section" id="results-summary">
           <div className="owner-section-head">
             <div>
               <h2>Что уже зафиксировано</h2>
