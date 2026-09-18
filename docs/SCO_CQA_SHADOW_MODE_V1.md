@@ -89,6 +89,7 @@ status=ready_for_publish now requires all of:
 - reviewed_at exists
 - similarity_check_snapshot.status=pass
 - qa_self_report.image_alt_truth=pass
+- qa_self_report.component_claim_truth=pass
 - deterministic validation status is valid or warning
 - approval blockers count = 0
 - Product Truth blockers count = 0
@@ -236,7 +237,21 @@ domain_review_required
 
 is used rather than silently approving.
 
-## 13. Token discipline
+## 13. Component-inclusion truth gate
+
+Current deterministic precheck:
+- checks explicit unconditional inclusion wording against optional configurations / known non-components from Product Truth;
+- returns needs_review instead of guessing when the inclusion claim is unsafe or Product Truth blockers exist;
+- does not replace independent CQA for broader semantic ambiguity.
+
+Current publish boundary:
+- ready_for_publish requires component_claim_truth=pass;
+- historical approvals are not backfilled to PASS;
+- new SCO shadow drafts begin with component_claim_truth=not_checked.
+
+Rollback regression validation confirmed a temporary explicit false inclusion claim was detected as needs_review and fully rolled back.
+
+## 14. Token discipline
 
 Maximum 5 drafts/run.
 
@@ -252,7 +267,7 @@ Included Product Truth arrays are capped.
 
 This keeps review independent and cost-bounded.
 
-## 14. Current activation state
+## 15. Current activation state
 
 CQA_SHADOW_CLASSIFICATION = ACTIVE
 CQA_RUNNER_CODE = IMPLEMENTED_IN_BRANCH
