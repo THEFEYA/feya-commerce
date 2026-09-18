@@ -71,7 +71,7 @@ async function getGrowthData(): Promise<GrowthData> {
       .not('avg_monthly_searches', 'is', null)
       .eq('review_status', 'approved_draft')
       .order('avg_monthly_searches', { ascending: false })
-      .limit(8),
+      .limit(16),
     supabase
       .from('feya_commerce_v_keyword_cleanup_review_status_safe_v1')
       .select('cleanup_id', { count: 'exact', head: true })
@@ -143,7 +143,15 @@ export default async function AdminGrowthPage() {
   const launchState = String(map.get('SEARCH_LAUNCH_GATE')?.capability_state || 'UNAVAILABLE');
   const adsHealth = healthMap.get('EXTERNAL_KEYWORD_DEMAND');
   const gscHealth = healthMap.get('ORGANIC_SEARCH_PERFORMANCE');
-  const maxHistoricalDemand = Math.max(1, ...data.historicalDemand.map((row) => Number(row.avg_monthly_searches || 0)));
+  const historicalDemand = Array.from(
+    new Map(
+      data.historicalDemand.map((row) => [
+        String(row.keyword || '').toLowerCase().replace(/[^a-z0-9]+/g, ''),
+        row,
+      ]),
+    ).values(),
+  ).slice(0, 8);
+  const maxHistoricalDemand = Math.max(1, ...historicalDemand.map((row) => Number(row.avg_monthly_searches || 0)));
 
   const sourceStamp = (row: Row | undefined) => {
     if (!row) return 'Источник ещё не проверен';
@@ -261,7 +269,7 @@ export default async function AdminGrowthPage() {
             <Link href="/admin/seo-engine/metric-import/validate" className="owner-button">Открыть метрики</Link>
           </div>
 
-          {data.historicalDemand.length ? (
+          {historicalDemand.length ? (
             <div className="owner-card">
               <div className="owner-card-meta">
                 <span className="owner-status is-warning">Исторические данные</span>
@@ -274,7 +282,7 @@ export default async function AdminGrowthPage() {
                   <span>Google Ads</span>
                   <span>Проверено</span>
                 </div>
-                {data.historicalDemand.map((row, index) => {
+                {historicalDemand.map((row, index) => {
                   const volume = Number(row.avg_monthly_searches || 0);
                   const width = Math.max(4, Math.round((volume / maxHistoricalDemand) * 100));
                   const competition = String(row.competition || 'UNKNOWN').toUpperCase();
