@@ -522,6 +522,84 @@ th {
 
 .owner-brand-name { text-transform: uppercase; }
 
+
+.owner-sidebar-toggle {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -6px 2px 10px;
+  padding: 6px 9px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.owner-sidebar-toggle:hover {
+  border-color: rgba(216,214,211,.12);
+  background: rgba(255,255,255,.03);
+  color: var(--text);
+}
+
+.owner-shell.is-sidebar-collapsed .owner-sidebar {
+  width: 72px;
+  padding-inline: 8px;
+}
+
+.owner-shell.is-sidebar-collapsed .owner-stage {
+  margin-left: 72px;
+}
+
+.owner-shell.is-sidebar-collapsed .owner-brand {
+  padding: 12px 8px;
+  justify-items: center;
+}
+
+.owner-shell.is-sidebar-collapsed .owner-brand-name {
+  letter-spacing: .16em;
+}
+
+.owner-shell.is-sidebar-collapsed .owner-brand-title,
+.owner-shell.is-sidebar-collapsed .owner-brand-subtitle,
+.owner-shell.is-sidebar-collapsed .owner-sidebar-toggle span,
+.owner-shell.is-sidebar-collapsed .owner-nav-item > span:last-child,
+.owner-shell.is-sidebar-collapsed .owner-tools summary > span:nth-child(2),
+.owner-shell.is-sidebar-collapsed .owner-tools-chevron,
+.owner-shell.is-sidebar-collapsed .owner-tool-link > span:last-child,
+.owner-shell.is-sidebar-collapsed .owner-sidebar-footer .owner-nav-item > span:last-child {
+  display: none;
+}
+
+.owner-shell.is-sidebar-collapsed .owner-sidebar-toggle,
+.owner-shell.is-sidebar-collapsed .owner-nav-item,
+.owner-shell.is-sidebar-collapsed .owner-tools summary {
+  justify-content: center;
+  padding-inline: 6px;
+}
+
+.owner-shell.is-sidebar-collapsed .owner-tools-list {
+  padding-left: 0;
+}
+
+.owner-shell.is-sidebar-collapsed .owner-tool-link {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  padding-inline: 4px;
+  border-left: 0;
+  border-radius: 8px;
+}
+
+.owner-shell.is-sidebar-collapsed .owner-tool-link.is-active {
+  box-shadow: inset 2px 0 0 var(--gold);
+}
+
+.owner-shell.is-sidebar-collapsed .owner-sidebar-footer {
+  align-items: stretch;
+}
+
 .owner-nav {
   display: grid;
   gap: 4px;
@@ -1182,6 +1260,9 @@ th {
 }
 
 @media (max-width: 780px) {
+  .owner-shell.is-sidebar-collapsed .owner-stage {
+    margin-left: 0;
+  }
   .owner-sidebar {
     display: none;
   }
