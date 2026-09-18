@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { dataFreshnessLabel, ownerToneForStatus, scopeLabel, sourceHealthSummary, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
 import { getAdminAuthConfigStatus } from '@/lib/supabaseAuth';
+import { getSupabaseServiceRoleClient } from '@/lib/supabaseAdmin';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -15,6 +16,7 @@ async function getSystemData(): Promise<{
   executionRequests: number;
   activeIncidents: number;
   mutationFreezes: number;
+  adminBoundary: { registered: number; browserReadable: number } | null;
   error?: string;
 }> {
   const supabase = getAdminReadClient();
@@ -25,8 +27,11 @@ async function getSystemData(): Promise<{
     executionRequests: 0,
     activeIncidents: 0,
     mutationFreezes: 0,
+    adminBoundary: null,
     error: getMissingAdminDataEnvMessage(),
   };
+
+  const serviceRole = getSupabaseServiceRoleClient();
 
   const [
     readinessResult,
@@ -37,6 +42,7 @@ async function getSystemData(): Promise<{
     executionResult,
     incidentsResult,
     freezesResult,
+    adminBoundaryResult,
   ] = await Promise.all([
     supabase.from('feya_commerce_v_launch_readiness_summary_safe_v2').select('*').order('readiness_scope'),
     supabase.from('feya_commerce_v_data_source_health_latest_safe_v1')
@@ -57,6 +63,9 @@ async function getSystemData(): Promise<{
     supabase.from('feya_commerce_v_change_freeze_status_safe_v1')
       .select('incident_id', { count: 'exact', head: true })
       .eq('freeze_mutations', true),
+    serviceRole
+      ? serviceRole.rpc('feya_fn_preview_admin_data_boundary_v1')
+      : Promise.resolve({ data: null, error: null }),
   ]);
 
   const firstError =
@@ -67,7 +76,16 @@ async function getSystemData(): Promise<{
     approvalActionsResult.error ||
     executionResult.error ||
     incidentsResult.error ||
-    freezesResult.error;
+    freezesResult.error ||
+    adminBoundaryResult.error;
+
+  const adminBoundaryRows = Array.isArray(adminBoundaryResult.data) ? adminBoundaryResult.data : [];
+  const adminBoundary = serviceRole
+    ? {
+        registered: adminBoundaryRows.length,
+        browserReadable: adminBoundaryRows.filter((row) => row?.anon_select || row?.authenticated_select).length,
+      }
+    : null;
 
   if (firstError) return {
     readiness: [],
@@ -76,6 +94,7 @@ async function getSystemData(): Promise<{
     executionRequests: 0,
     activeIncidents: 0,
     mutationFreezes: 0,
+    adminBoundary,
     error: firstError.message,
   };
 
@@ -90,6 +109,7 @@ async function getSystemData(): Promise<{
     executionRequests: executionResult.count || 0,
     activeIncidents: incidentsResult.count || 0,
     mutationFreezes: freezesResult.count || 0,
+    adminBoundary,
   };
 }
 
@@ -98,7 +118,7 @@ function toneClass(tone: string) {
 }
 
 export default async function AdminSystemPage() {
-  const { readiness, sources, actions, executionRequests, activeIncidents, mutationFreezes, error } = await getSystemData();
+  const { readiness, sources, actions, executionRequests, activeIncidents, mutationFreezes, adminBoundary, error } = await getSystemData();
   const ownerAuth = getAdminAuthConfigStatus();
 
   return (
@@ -183,6 +203,22 @@ export default async function AdminSystemPage() {
               <span>Активных инцидентов · заморозок: {mutationFreezes}</span>
             </div>
           </div>
+
+          {adminBoundary ? (
+            <div className={`owner-card ${adminBoundary.browserReadable ? 'is-warning' : 'is-success'}`} style={{ marginTop: '10px' }}>
+              <div className={`owner-status ${adminBoundary.browserReadable ? 'is-warning' : 'is-success'}`}>
+                Контур административных данных
+              </div>
+              <h3 className="owner-card-title" style={{ marginTop: '10px' }}>
+                {adminBoundary.browserReadable
+                  ? `${adminBoundary.browserReadable} из ${adminBoundary.registered} внутренних представлений ещё читаются браузерными ролями`
+                  : `Все ${adminBoundary.registered} внутренних представлений переведены на серверный доступ`}
+              </h3>
+              <p className="owner-card-copy">
+                Отзыв browser SELECT выполняется только после проверки обязательного входа владельца и allowlist. До этого hardening намеренно не запускается, чтобы не сломать рабочую админку.
+              </p>
+            </div>
+          ) : null}
 
           <div className="owner-grid two" style={{ marginTop: '10px' }}>
             <article className={`owner-card ${ownerAuth.required && ownerAuth.allowlistConfigured && ownerAuth.supabaseUrlConfigured && ownerAuth.publicKeyConfigured ? 'is-success' : 'is-warning'}`}>
