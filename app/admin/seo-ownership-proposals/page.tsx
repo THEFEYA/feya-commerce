@@ -40,6 +40,21 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
+function ownershipStatusLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    READY_FOR_OWNERSHIP_PROPOSAL: 'Готово к назначению страницы',
+    OWNERSHIP_EXISTS: 'Ответственность уже назначена',
+    REVIEW: 'Ждёт проверки',
+    APPROVED: 'Одобрено',
+    APPLIED: 'Применено',
+    REJECTED: 'Отклонено',
+    CANCELLED: 'Отменено',
+    PRIMARY: 'Основная',
+  };
+  return labels[key] || asText(value);
+}
+
 function statusClass(value: unknown) {
   const normalized = asText(value, '').toUpperCase();
   if (normalized === 'APPLIED' || normalized === 'APPROVED' || normalized === 'OWNERSHIP_EXISTS') return 'ok';
@@ -69,7 +84,7 @@ export default async function AdminOwnershipProposalsPage() {
 
         <section className="phase-banner">
           <div className="phase-label">OSPM page/query ownership · read-only</div>
-          <h1>Page Ownership Proposals</h1>
+          <h1>Ответственность страниц за запросы</h1>
           <p>
             Query-cluster approval and page ownership are separate decisions. Ownership can become canonical only after human review and does not change page indexability.
           </p>
@@ -91,7 +106,7 @@ export default async function AdminOwnershipProposalsPage() {
 
         <section className="section-head">
           <div>
-            <h2>Cluster ownership state</h2>
+            <h2>Состояние ответственности групп</h2>
             <p className="muted">Only approved clusters can enter ownership proposal review.</p>
           </div>
         </section>
@@ -100,11 +115,11 @@ export default async function AdminOwnershipProposalsPage() {
           <table>
             <thead>
               <tr>
-                <th>Cluster</th>
-                <th>Intent</th>
-                <th>Members</th>
-                <th>Primary owners</th>
-                <th>Status</th>
+                <th>Группа запросов</th>
+                <th>Интент</th>
+                <th>Ключей</th>
+                <th>Основных страниц</th>
+                <th>Статус</th>
               </tr>
             </thead>
             <tbody>
@@ -122,12 +137,12 @@ export default async function AdminOwnershipProposalsPage() {
                   <td>{row.primary_owner_count ?? 0}</td>
                   <td>
                     <span className={`status-pill ${statusClass(row.ownership_candidate_status)}`}>
-                      {asText(row.ownership_candidate_status)}
+                      {ownershipStatusLabel(row.ownership_candidate_status)}
                     </span>
                   </td>
                 </tr>
               )) : (
-                <tr><td colSpan={5}>No approved query clusters exist yet.</td></tr>
+                <tr><td colSpan={5}>Одобренных групп запросов пока нет.</td></tr>
               )}
             </tbody>
           </table>
@@ -135,7 +150,7 @@ export default async function AdminOwnershipProposalsPage() {
 
         <section className="section-head">
           <div>
-            <h2>Ownership proposal history</h2>
+            <h2>История предложений ответственности</h2>
             <p className="muted">Applied ownership is created with status intended; indexation remains a separate gate.</p>
           </div>
         </section>
@@ -145,11 +160,11 @@ export default async function AdminOwnershipProposalsPage() {
             <thead>
               <tr>
                 <th>Cluster</th>
-                <th>Page</th>
-                <th>Role</th>
+                <th>Страница</th>
+                <th>Роль</th>
                 <th>Status</th>
-                <th>Rationale</th>
-                <th>Review</th>
+                <th>Обоснование</th>
+                <th>Проверка</th>
               </tr>
             </thead>
             <tbody>
@@ -163,10 +178,10 @@ export default async function AdminOwnershipProposalsPage() {
                     <strong>{asText(row.card_title, row.url_path || '—')}</strong>
                     <div className="muted">{asText(row.url_path)}</div>
                   </td>
-                  <td>{asText(row.ownership_role)}</td>
+                  <td>{ownershipStatusLabel(row.ownership_role)}</td>
                   <td>
                     <span className={`status-pill ${statusClass(row.proposal_status)}`}>
-                      {asText(row.proposal_status)}
+                      {ownershipStatusLabel(row.proposal_status)}
                     </span>
                   </td>
                   <td>{asText(row.rationale)}</td>
@@ -178,7 +193,7 @@ export default async function AdminOwnershipProposalsPage() {
                   </td>
                 </tr>
               )) : (
-                <tr><td colSpan={6}>No page ownership proposals recorded yet.</td></tr>
+                <tr><td colSpan={6}>Предложений ответственности страниц пока нет.</td></tr>
               )}
             </tbody>
           </table>
