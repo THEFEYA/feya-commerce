@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
+import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { GrowthMetricRegistryRow, GrowthOperationalMetricRow } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -10,8 +10,8 @@ async function getMetrics(): Promise<{
   values: GrowthOperationalMetricRow[];
   error?: string;
 }> {
-  const supabase = getSupabaseReadClient();
-  if (!supabase) return { registry: [], values: [], error: getMissingSupabaseEnvMessage() };
+  const supabase = getAdminReadClient();
+  if (!supabase) return { registry: [], values: [], error: getMissingAdminDataEnvMessage() };
 
   const [registryResult, valuesResult] = await Promise.all([
     supabase
