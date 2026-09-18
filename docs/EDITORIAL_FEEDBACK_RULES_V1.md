@@ -124,5 +124,13 @@ When an owner-confirmed persona is a recognizable character reference, it may ap
 
 Owner product clarification, listing 4373523076: the gold stage outfit uses many petal-shaped elements made from glossy mirror-finish vegan leather across the headpiece, top and skirt. This handmade repeated petal motif is a core visual and selling feature and should be described directly. Do not reduce it to generic `coordinated gold details` or invent feather material merely because an old listing title used the word `feather`.
 
+
+## R29. Vary nearby benefit verbs and sentence mechanics
+Owner clarification, 2026-09-18: adjacent benefit bullets must not repeat the same semantic verb pattern when natural alternatives exist. Avoid sequences such as `gives / gives / gives`, `adds / adds / adds`, or repeated `makes the look...` constructions. This is a readability and human-copy rule, not a synonym-stuffing exercise.
+
+Vary sentence mechanics naturally: a finish may `establish` the character, detailing may `introduce` a direction, handmade construction may `bring` originality, a repeated motif may `tie` the look together, and material may `help retain` shape or finish. Prefer the clearest human sentence over forced vocabulary rotation, but reject obvious nearby repetition before Preview.
+
+The post-generation editorial pass must check lexical repetition inside each block and across adjacent sentences, especially in `Why you'll love it`.
+
 ## Process rule
 Every owner review is captured the same way: complaint → named rule → committed here → reflected in prompts/validators. Cumulative and versioned.
