@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
+import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { ContentQaShadowRow } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -8,9 +8,9 @@ export const revalidate = 0;
 const CQA_QUEUE_LIMIT = 300;
 
 async function getQueue(): Promise<{ rows: ContentQaShadowRow[]; error?: string }> {
-  const supabase = getSupabaseReadClient();
+  const supabase = getAdminReadClient();
 
-  if (!supabase) return { rows: [], error: getMissingSupabaseEnvMessage() };
+  if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
 
   const { data, error } = await supabase
     .from('feya_commerce_v_content_qa_shadow_status_safe_v1')
