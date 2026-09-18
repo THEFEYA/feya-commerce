@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { GrowthMetricRegistryRow, GrowthOperationalMetricRow } from '@/lib/types';
+import { roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -56,17 +57,17 @@ export default async function AdminMetricsPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/system-readiness">System Readiness</Link>
-            <Link href="/admin/metrics">Metrics</Link>
-            <Link href="/admin/execution-map">Execution Map</Link>
+            <Link href="/admin/system-readiness">Готовность системы</Link>
+            <Link href="/admin/metrics">Метрики</Link>
+            <Link href="/admin/execution-map">Права действий</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Metric Registry · read-only</div>
-          <h1>Growth Metrics</h1>
+          <div className="phase-label">Реестр метрик · только просмотр</div>
+          <h1>Метрики</h1>
           <p>
-            Metric definitions are versioned separately from agent prompts. Unavailable source systems remain unavailable instead of producing synthetic values.
+            Определения метрик версионируются отдельно от промптов агентов. Если источник данных недоступен, FEYA не подставляет выдуманные значения.
           </p>
         </section>
 
@@ -76,13 +77,13 @@ export default async function AdminMetricsPage() {
           <table>
             <thead>
               <tr>
-                <th>Metric</th>
-                <th>Current value</th>
-                <th>Owner</th>
-                <th>State</th>
-                <th>Source / surface</th>
-                <th>Definition</th>
-                <th>Limitation</th>
+                <th>Метрика</th>
+                <th>Текущее значение</th>
+                <th>Ответственный</th>
+                <th>Состояние</th>
+                <th>Источник / поверхность</th>
+                <th>Определение</th>
+                <th>Ограничение</th>
               </tr>
             </thead>
             <tbody>
@@ -97,10 +98,10 @@ export default async function AdminMetricsPage() {
                     <td>
                       {current ? <strong>{asText(current.metric_value)} {asText(current.unit, '')}</strong> : '—'}
                     </td>
-                    <td>{asText(row.owner_role)}</td>
+                    <td>{roleLabel(row.owner_role)}</td>
                     <td>
                       <span className={`status-pill ${stateClass(row.metric_state)}`}>
-                        {asText(row.metric_state)}
+                        {statusLabel(row.metric_state)}
                       </span>
                     </td>
                     <td>
