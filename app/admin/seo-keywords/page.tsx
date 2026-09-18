@@ -10,26 +10,26 @@ const KEYWORD_LIMIT = 500;
 const KEYWORD_COLUMNS = 'keyword,keyword_norm,bank_bucket,review_status,source_clusters,score,avg_monthly_searches,competition,competition_index,low_bid,high_bid,region,language,metric_source,page_type,role,role_label,last_checked,duplicate_count,reason,notes,source_files';
 
 const TABS = [
-  { key: 'approved', label: 'Approved', view: 'vw_seo_keyword_bank_v1_approved', note: 'чистый пул для рекомендаций' },
-  { key: 'listing_master', label: 'Listing Master', view: 'vw_seo_keyword_bank_v1_for_listing_master', note: 'approved для мастера листинга' },
-  { key: 'hold', label: 'Hold', view: 'vw_seo_keyword_bank_v1_hold', note: 'спорные слова' },
-  { key: 'reject', label: 'Reject', view: 'vw_seo_keyword_bank_v1_reject', note: 'память анти-предложений' },
-  { key: 'all', label: 'Все', view: null, note: 'approved + hold + reject' },
+  { key: 'approved', label: 'Одобрено', view: 'vw_seo_keyword_bank_v1_approved', note: 'чистый пул для рекомендаций' },
+  { key: 'listing_master', label: 'Мастер листинга', view: 'vw_seo_keyword_bank_v1_for_listing_master', note: 'одобренный пул для мастера листинга' },
+  { key: 'hold', label: 'Отложено', view: 'vw_seo_keyword_bank_v1_hold', note: 'спорные слова' },
+  { key: 'reject', label: 'Исключено', view: 'vw_seo_keyword_bank_v1_reject', note: 'память анти-предложений' },
+  { key: 'all', label: 'Все', view: null, note: 'одобрено + отложено + исключено' },
 ];
 
 const BUCKET_LABELS = {
-  collection: 'collection',
-  commercial_collection: 'commercial',
-  visual_collection: 'visual',
-  product: 'product',
-  product_or_alt: 'product / alt',
+  collection: 'категория',
+  commercial_collection: 'коммерческая посадочная',
+  visual_collection: 'визуальный поиск',
+  product: 'товар',
+  product_or_alt: 'товар / ALT',
   faq: 'FAQ',
-  hold: 'hold',
-  reject: 'reject',
+  hold: 'отложено',
+  reject: 'исключено',
 };
 
 const STATUS_LABELS = {
-  approved_draft: 'approved draft',
+  approved_draft: 'одобренный черновик',
   hold: 'hold',
   reject: 'reject',
 };
@@ -271,22 +271,22 @@ export default async function AdminSeoKeywordsPage({ searchParams }) {
     <section className="container-feya pt-10 pb-16">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
         <div>
-          <div className="eyebrow-gold mb-3">Админка · SEO-ключи · Keyword Bank v1</div>
-          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>SEO Keyword Bank</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Read-only слой из Supabase. Approved используется как пул рекомендаций; Hold и Reject остаются памятью анти-предложений, чтобы система не возвращала плохие слова в Listing Master.</p>
+          <div className="eyebrow-gold mb-3">Админка · SEO-ключи · Банк ключевых слов</div>
+          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Банк SEO-ключей</h1>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Только просмотр данных из Supabase. Одобренные ключи используются для рекомендаций; отложенные и исключённые остаются памятью системы, чтобы плохие варианты не возвращались в Мастер листинга.</p>
         </div>
-        <div className="flex flex-wrap gap-3"><Link href="/admin/seo-engine/scoring" className="btn-ghost">Scoring <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine/metric-import/validate" className="btn-ghost">CSV метрики <ArrowUpRight size={13} /></Link><Link href="/admin" className="btn-ghost">Админка <ArrowUpRight size={13} /></Link></div>
+        <div className="flex flex-wrap gap-3"><Link href="/admin/seo-engine/scoring" className="btn-ghost">Оценка ключей <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine/metric-import/validate" className="btn-ghost">CSV метрики <ArrowUpRight size={13} /></Link><Link href="/admin" className="btn-ghost">Админка <ArrowUpRight size={13} /></Link></div>
       </div>
 
-      {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">Не удалось загрузить Keyword Bank v1. Ответ базы: {error}</div> : null}
+      {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">Не удалось загрузить банк ключевых слов. Ответ базы: {error}</div> : null}
       {countLoadError ? <div className="rounded-2xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] p-5 text-[var(--bone-dim)] mb-7">Один из count-запросов не вернулся: {countLoadError}</div> : null}
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-        <Metric icon={Database} label="Всего в банке" value={getCount(counts, 'all')} note="Approved + Hold + Reject через публичные views." />
-        <Metric icon={ShieldCheck} label="Approved" value={getCount(counts, 'approved')} note="Чистый пул для рекомендаций." tone="success" />
-        <Metric icon={Layers3} label="Listing Master" value={getCount(counts, 'listingMaster')} note="Approved buckets для мастера листинга." tone="success" />
-        <Metric icon={ShieldAlert} label="Hold" value={getCount(counts, 'hold')} note="Спорные слова до ручной проверки." tone="warning" />
-        <Metric icon={FileSearch} label="Reject" value={getCount(counts, 'reject')} note="Память анти-предложений." tone="danger" />
+        <Metric icon={Database} label="Всего в банке" value={getCount(counts, 'all')} note="Одобренные, отложенные и исключённые ключи." />
+        <Metric icon={ShieldCheck} label="Одобрено" value={getCount(counts, 'approved')} note="Чистый пул для рекомендаций." tone="success" />
+        <Metric icon={Layers3} label="Мастер листинга" value={getCount(counts, 'listingMaster')} note="Одобренные группы для Мастера листинга." tone="success" />
+        <Metric icon={ShieldAlert} label="Отложено" value={getCount(counts, 'hold')} note="Спорные слова до ручной проверки." tone="warning" />
+        <Metric icon={FileSearch} label="Исключено" value={getCount(counts, 'reject')} note="Память анти-предложений." tone="danger" />
       </div>
 
       <div className="rounded-2xl border border-[rgba(212,178,106,.18)] bg-[rgba(212,178,106,.045)] p-5 mb-6">
@@ -304,10 +304,10 @@ export default async function AdminSeoKeywordsPage({ searchParams }) {
           className="field"
           name="q"
           defaultValue={query}
-          placeholder="Поиск по всему Keyword Bank: armor outfit, bracelet, post apocalyptic"
-          aria-label="Поиск по всему Keyword Bank"
+          placeholder="Поиск по банку: armor outfit, bracelet, post apocalyptic"
+          aria-label="Поиск по банку ключевых слов"
         />
-        <button type="submit" className="btn-ghost justify-center">Найти в bank</button>
+        <button type="submit" className="btn-ghost justify-center">Найти в банке</button>
         {query ? <Link href={`/admin/seo-keywords?tab=${active}`} className="btn-ghost justify-center">Сбросить</Link> : <span />}
       </form>
 
@@ -318,7 +318,7 @@ export default async function AdminSeoKeywordsPage({ searchParams }) {
         </div>
 
         <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
-          <div className="eyebrow-dim mb-3">Bank по bucket/status</div>
+          <div className="eyebrow-dim mb-3">Распределение по группе и статусу</div>
           {bucketError ? <div className="text-[12px] leading-relaxed text-[var(--ruby-soft)]">Не удалось загрузить vw_seo_keyword_bank_v1_by_bucket: {bucketError}</div> : null}
           <div className="space-y-2">
             {bucketRows.slice(0, 8).map((row, index) => {
@@ -328,14 +328,14 @@ export default async function AdminSeoKeywordsPage({ searchParams }) {
                 <div className="font-price text-[20px] text-[var(--gold-warm)]">{formatNumber(bucketCount(row))}</div>
               </div>;
             })}
-            {!bucketRows.length && !bucketError ? <div className="text-[12px] text-[var(--bone-dim)]">Bucket view пустой или ещё не вернул строки.</div> : null}
+            {!bucketRows.length && !bucketError ? <div className="text-[12px] text-[var(--bone-dim)]">Данные по группам пока пусты или ещё не загрузились.</div> : null}
           </div>
         </div>
       </div>
 
       <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
         <div className="grid grid-cols-[1.25fr_.42fr_.6fr_.55fr_.55fr_.6fr_1fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.20em] text-[var(--smoke)]">
-          <div>Ключ</div><div>Score</div><div>Bucket</div><div>Volume</div><div>Comp</div><div>Role</div><div>Источник / причина</div>
+          <div>Ключ</div><div>Оценка</div><div>Группа</div><div>Спрос</div><div>Конкуренция</div><div>Роль</div><div>Источник / причина</div>
         </div>
         <div className="divide-y divide-[rgba(216,214,211,.08)]">
           {firstRows.map((row, index) => <div key={`${row.keyword_norm || row.keyword}-${index}`} className="grid grid-cols-[1.25fr_.42fr_.6fr_.55fr_.55fr_.6fr_1fr] gap-4 px-5 py-4 items-center hover:bg-[rgba(212,178,106,.035)] transition-colors">
