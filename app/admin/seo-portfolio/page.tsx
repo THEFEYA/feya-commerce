@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
+import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { SeoPagePortfolioRow } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -8,10 +8,10 @@ export const revalidate = 0;
 const PORTFOLIO_LIMIT = 350;
 
 async function getPortfolio(): Promise<{ rows: SeoPagePortfolioRow[]; error?: string }> {
-  const supabase = getSupabaseReadClient();
+  const supabase = getAdminReadClient();
 
   if (!supabase) {
-    return { rows: [], error: getMissingSupabaseEnvMessage() };
+    return { rows: [], error: getMissingAdminDataEnvMessage() };
   }
 
   const { data, error } = await supabase
