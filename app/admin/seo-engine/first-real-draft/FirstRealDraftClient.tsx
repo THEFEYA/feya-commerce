@@ -709,7 +709,7 @@ export default function FirstRealDraftClient({
             <FilterButton active={filter === 'all'} onClick={() => setFilter('all')}>Все</FilterButton>
             <FilterButton active={filter === 'ready'} onClick={() => setFilter('ready')}>Готовы</FilterButton>
             <FilterButton active={filter === 'blocked'} onClick={() => setFilter('blocked')}>Заблокированы</FilterButton>
-            <FilterButton active={filter === 'saved'} onClick={() => setFilter('saved')}>Есть draft</FilterButton>
+            <FilterButton active={filter === 'saved'} onClick={() => setFilter('saved')}>Есть черновик</FilterButton>
             <FilterButton active={filter === 'untested'} onClick={() => setFilter('untested')}>Не проверены</FilterButton>
           </div>
         </div>
@@ -744,11 +744,11 @@ export default function FirstRealDraftClient({
                     <StatusBadge tone={candidate.ready_for_openai ? 'success' : 'warning'}>
                       {candidate.ready_for_openai
                         ? candidate.verification_level === 'exact'
-                          ? (candidate.ready_for_full_pack ? 'Полный Pack готов' : 'Готов к тексту')
+                          ? (candidate.ready_for_full_pack ? 'Полный SEO-пакет готов' : 'Готов к тексту')
                           : 'Предварительно готов'
                         : blockerShort(candidate.hard_blockers)}
                     </StatusBadge>
-                    {candidate.has_saved_draft ? <StatusBadge>Есть draft</StatusBadge> : null}
+                    {candidate.has_saved_draft ? <StatusBadge>Есть черновик</StatusBadge> : null}
                     {candidate.keyword_selection?.mode === 'auto_recommendation' ? <StatusBadge tone="warning">Ключи рекомендованы</StatusBadge> : null}
                     {tested ? <StatusBadge tone="tested">Проверен здесь</StatusBadge> : null}
                   </div>
@@ -785,26 +785,26 @@ export default function FirstRealDraftClient({
             </div>
 
             <div className="min-w-0 space-y-4 p-4 sm:p-5">
-              {detailLoading ? <Notice>Проверяю точные Product Truth, ключи и метрики…</Notice> : null}
+              {detailLoading ? <Notice>Проверяю точные факты товара, ключи и метрики…</Notice> : null}
               {savedDraftLoading ? <Notice>Загружаю сохранённый SEO-черновик без OpenAI…</Notice> : null}
               {detailError ? <Notice tone="danger">{detailError}</Notice> : null}
 
               <div className="grid grid-cols-2 gap-2">
                 <Fact label="Режим" value={selectedCandidate.generation_mode || '—'} tone={selectedCandidate.ready_for_openai ? 'success' : 'warning'} />
-                <Fact label="Validated metrics" value={String(selectedCandidate.validated_metric_count ?? 0)} tone={Number(selectedCandidate.validated_metric_count || 0) > 0 ? 'success' : 'warning'} />
+                <Fact label="Проверенных метрик" value={String(selectedCandidate.validated_metric_count ?? 0)} tone={Number(selectedCandidate.validated_metric_count || 0) > 0 ? 'success' : 'warning'} />
                 <Fact label="Выбрано ключей" value={String(selectedCandidate.selected_keyword_count ?? selectedCandidate.useful_keyword_count ?? 0)} />
-                <Fact label="Сохранённый draft" value={selectedCandidate.has_saved_draft ? (selectedCandidate.latest_draft_status || 'есть') : 'нет'} />
+                <Fact label="Сохранённый черновик" value={selectedCandidate.has_saved_draft ? (selectedCandidate.latest_draft_status || 'есть') : 'нет'} />
               </div>
 
               {selectedCandidate.keyword_selection?.mode === 'auto_recommendation' ? <Notice>
-                Approved Keyword Bank подготовил рекомендации, но OpenAI не будет запущен до вашего подтверждения. Откройте Мастер листинга, проверьте авто-фокус, события, стили, персону, аудиторию, стратегии и сохраните keyword decision.
+                Банк одобренных ключей подготовил рекомендации, но OpenAI не будет запущен до вашего подтверждения. Откройте Мастер листинга, проверьте авто-фокус, события, стили, персону, аудиторию, стратегии и сохраните решение по ключевым словам.
               </Notice> : null}
 
               {(selectedCandidate.primary_keywords?.length || selectedCandidate.secondary_keywords?.length) ? <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3">
                 <div className="text-[10px] uppercase tracking-[.16em] text-[var(--gold-warm)]">Ключи до запуска OpenAI</div>
                 <div className="mt-3 space-y-3">
-                  <KeywordPreview label="Primary" items={selectedCandidate.primary_keywords} />
-                  <KeywordPreview label="Secondary" items={selectedCandidate.secondary_keywords} />
+                  <KeywordPreview label="Основной" items={selectedCandidate.primary_keywords} />
+                  <KeywordPreview label="Вторичные" items={selectedCandidate.secondary_keywords} />
                 </div>
               </div> : null}
 
@@ -813,8 +813,8 @@ export default function FirstRealDraftClient({
               /> : null}
 
               {selectedCandidate.has_saved_draft ? <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">
-                Последний сохранённый draft: <span className="text-bone">{selectedCandidate.latest_draft_status || '—'}</span>
-                {selectedCandidate.latest_review_status ? <> · review: <span className="text-bone">{selectedCandidate.latest_review_status}</span></> : null}
+                Последний сохранённый черновик: <span className="text-bone">{selectedCandidate.latest_draft_status || '—'}</span>
+                {selectedCandidate.latest_review_status ? <> · проверка: <span className="text-bone">{selectedCandidate.latest_review_status}</span></> : null}
                 {selectedCandidate.latest_draft_at ? <> · {formatDate(selectedCandidate.latest_draft_at)}</> : null}
               </div> : null}
 
@@ -823,10 +823,10 @@ export default function FirstRealDraftClient({
                 <div className="mt-3 space-y-2">
                   {selectedCandidate.hard_blockers.map((code) => <div key={code} className="text-[12px] leading-relaxed text-[var(--bone-dim)]">• {blockerLabel(code)}</div>)}
                 </div>
-              </div> : <Notice tone="success">Товар прошёл gate для генерации текста{selectedCandidate.ready_for_full_pack ? ' и имеет полный Product Truth' : '; полный SEO Pack останется заблокирован до закрытия Product Truth'}.</Notice>}
+              </div> : <Notice tone="success">Товар прошёл проверку для генерации текста{selectedCandidate.ready_for_full_pack ? ' и имеет полные подтверждённые факты товара' : '; полный SEO-пакет останется заблокирован до подтверждения фактов товара'}.</Notice>}
 
               {selectedCandidate.section_blockers?.length ? <details className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3">
-                <summary className="cursor-pointer text-[10px] uppercase tracking-[.15em] text-[var(--gold-warm)]">Ограничения Product Truth</summary>
+                <summary className="cursor-pointer text-[10px] uppercase tracking-[.15em] text-[var(--gold-warm)]">Ограничения фактов товара</summary>
                 <div className="mt-3 space-y-2">{selectedCandidate.section_blockers.map((code) => <div key={code} className="text-[11px] text-[var(--bone-dim)]">• {blockerLabel(code)}</div>)}</div>
               </details> : null}
 
@@ -844,14 +844,14 @@ export default function FirstRealDraftClient({
                 {savedSnapshotLoaded
                   ? 'Сохранённый черновик загружен — новая генерация не нужна'
                   : detailVerifiedProductId !== selectedProductId
-                  ? 'Проверяю Product Truth…'
+                  ? 'Проверяю факты товара…'
                   : loading
-                    ? 'OpenAI генерирует и собирает preview…'
+                    ? 'OpenAI генерирует и собирает предпросмотр…'
                     : result
                       ? 'Сгенерировать заново'
-                      : 'Сгенерировать и показать полный preview'}
+                      : 'Сгенерировать и показать полный предпросмотр'}
               </button>}
-              <div className="text-center text-[10px] leading-relaxed text-[var(--smoke)]">Сначала генерация и визуальная проверка; сохранение доступно только после PASS.</div>
+              <div className="text-center text-[10px] leading-relaxed text-[var(--smoke)]">Сначала генерация и визуальная проверка; сохранение доступно только после успешной проверки.</div>
             </div>
           </>}
         </section>
@@ -867,7 +867,7 @@ export default function FirstRealDraftClient({
           {draft
             ? savedSnapshotLoaded
               ? 'Сохранённый черновик загружен — начинайте визуальную проверку'
-              : 'Draft получен — начинайте визуальную проверку'
+              : 'Черновик получен — начинайте визуальную проверку'
             : 'OpenAI не вернул draft'}
         </div>
         <div className="mt-2 text-[12px] leading-relaxed text-[var(--bone-dim)]">
@@ -882,24 +882,24 @@ export default function FirstRealDraftClient({
       {draft && storefrontProduct ? <SeoDraftStorefrontPreview product={storefrontProduct} draft={draft} /> : null}
 
       {assembledPack ? <section className="mt-5 min-w-0 rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
-        <div className="eyebrow-gold">Собранный SEO Pack</div>
+        <div className="eyebrow-gold">Собранный SEO-пакет</div>
         <div className="mt-4 grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Fact label="Текущий URL" value={assembledPack.url?.current_path || '—'} />
           <Fact label="Короткий URL-кандидат" value={assembledPack.url?.proposed_path || '—'} tone="warning" />
-          <Fact label="Schema" value={assembledPack.structured_data?.product?.['@type'] || '—'} tone="success" />
-          <Fact label="Approval gate" value={assembledPack.quality_gate?.ready_for_storage ? 'READY' : 'BLOCKED'} tone={assembledPack.quality_gate?.ready_for_storage ? 'success' : 'warning'} />
+          <Fact label="Schema-разметка" value={assembledPack.structured_data?.product?.['@type'] || '—'} tone="success" />
+          <Fact label="Проверка готовности" value={assembledPack.quality_gate?.ready_for_storage ? 'READY' : 'BLOCKED'} tone={assembledPack.quality_gate?.ready_for_storage ? 'success' : 'warning'} />
         </div>
         <div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">
-          URL-кандидат не применяется автоматически: сначала обязательны проверка уникальности по каталогу и human review. Product/FAQ schema, image filename proposals, ALT, linking hints и полный validation snapshot собраны детерминированно и не придумываются OpenAI.
+          URL-кандидат не применяется автоматически: сначала обязательны проверка уникальности по каталогу и проверка человеком. Schema товара/FAQ, предложения имён изображений, ALT, подсказки внутренних ссылок и полный снимок проверки собраны детерминированно и не придумываются OpenAI.
         </div>
       </section> : null}
 
       {draft && commercialValidation ? <section className={`mt-5 rounded-2xl border p-5 ${reviewPass ? 'border-[rgba(108,183,138,.30)] bg-[rgba(108,183,138,.06)]' : 'border-[rgba(196,64,88,.34)] bg-[rgba(160,32,56,.08)]'}`}>
         <div className="flex min-w-0 flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
-            <div className="eyebrow-gold">Итоговый quality gate</div>
+            <div className="eyebrow-gold">Итоговая проверка качества</div>
             <div className={`mt-2 break-words text-[22px] ${reviewPass ? 'text-[#a9dfbd]' : 'text-[var(--ruby-soft)]'}`}>
-              {reviewPass ? 'PASS для ручной проверки' : 'BLOCKED: текст нужно доработать'}
+              {reviewPass ? 'ПРОЙДЕНО · можно проверять вручную' : 'ЗАБЛОКИРОВАНО · текст нужно доработать'}
             </div>
           </div>
           <div className="flex min-w-0 flex-wrap gap-2">
@@ -908,8 +908,8 @@ export default function FirstRealDraftClient({
         </div>
         {commercialIssues.length ? <div className="mt-4 grid min-w-0 gap-2 md:grid-cols-2">{commercialIssues.map((item, index) => <Issue key={`${item.code}-${index}`} item={item} />)}</div> : <div className="mt-3 text-[12px] text-[#a9dfbd]">Коммерческий текст прошёл проверку на полезность, повторы, пустые фразы и запрещённые обещания.</div>}
         {keywordPlacementValidation ? <div className="mt-4 border-t border-[rgba(216,214,211,.10)] pt-4">
-          <div className="text-[10px] uppercase tracking-[.16em] text-[var(--gold-warm)]">Keyword placement · {keywordPlacementValidation.status}</div>
-          {keywordPlacementIssues.length ? <div className="mt-3 grid min-w-0 gap-2 md:grid-cols-2">{keywordPlacementIssues.map((item, index) => <Issue key={`${item.code}-${index}`} item={item} />)}</div> : <div className="mt-2 text-[12px] text-[#a9dfbd]">Primary, commercial intent и ALT размещены в разрешённых полях без точного переспама.</div>}
+          <div className="text-[10px] uppercase tracking-[.16em] text-[var(--gold-warm)]">Размещение ключевых слов · {keywordPlacementValidation.status}</div>
+          {keywordPlacementIssues.length ? <div className="mt-3 grid min-w-0 gap-2 md:grid-cols-2">{keywordPlacementIssues.map((item, index) => <Issue key={`${item.code}-${index}`} item={item} />)}</div> : <div className="mt-2 text-[12px] text-[#a9dfbd]">Основной ключ, коммерческий интент и ALT размещены в разрешённых полях без точного переспама.</div>}
         </div> : null}
         <div className="mt-4 border-t border-[rgba(216,214,211,.10)] pt-4">
           {!reviewPass ? <div className="mb-4 rounded-xl border border-[rgba(212,178,106,.24)] bg-black/20 p-3">
@@ -936,7 +936,7 @@ export default function FirstRealDraftClient({
             className="btn-gold min-h-12 w-full justify-center px-4 text-center disabled:cursor-not-allowed disabled:opacity-40"
           >
             {saving
-              ? 'Сохраняю review draft…'
+              ? 'Сохраняю черновик проверки…'
               : savedCurrentResult
                 ? 'Этот результат сохранён'
                 : savedSnapshotLoaded
@@ -946,7 +946,7 @@ export default function FirstRealDraftClient({
                   : 'Сохранение доступно после PASS'}
           </button>
           <div className="mt-2 text-center text-[10px] leading-relaxed text-[var(--smoke)]">
-            Сохраняется только review draft. Approval, Apply и Publish не выполняются.
+            Сохраняется только черновик проверки. Утверждение, применение и публикация не выполняются.
           </div>
         </div>
       </section> : null}
@@ -970,25 +970,25 @@ export default function FirstRealDraftClient({
           <div className="mt-5 min-w-0 space-y-5">
             {draft ? <Panel title="SEO-поля">
               <div className="grid min-w-0 gap-3 lg:grid-cols-2">
-                <TextField label="SEO title" value={draft.seo_title} />
+                <TextField label="SEO-заголовок" value={draft.seo_title} />
                 <TextField label="H1" value={draft.h1} />
                 <TextField label="Meta description" value={draft.meta_description} />
-                <TextField label="Intro" value={draft.intro} />
+                <TextField label="Вступление" value={draft.intro} />
               </div>
             </Panel> : null}
 
             {diagnostics ? <Panel title="Карта ролей ключевых слов">
-              <p className="mb-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Primary обязан появиться естественно в основных SEO-полях. Secondary — семантические кандидаты, а не список для обязательного exact-match: близкие варианты используются только там, где добавляют смысл без переспама. Выбранные event/style/persona/audience должны быть отражены в блоке Ideal for; hold/reject в генерацию не попадают.</p>
+              <p className="mb-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Основной ключ должен появиться естественно в основных SEO-полях. Вторичные ключи — семантические кандидаты, а не список для обязательного точного совпадения: близкие варианты используются только там, где добавляют смысл без переспама. Выбранные события / стили / персона / аудитория должны быть отражены в блоке «Идеально для»; отложенные / исключённые в генерацию не попадают.</p>
               <div className="mb-3 grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <Fact label="Найдено" value={String(diagnostics.bank_rows_found ?? 0)} />
-                <Fact label="Trusted metrics" value={String(diagnostics.trusted_metric_rows ?? 0)} />
-                <Fact label="Usable candidates" value={String(diagnostics.useful_candidate_rows ?? 0)} />
-                <Fact label="Validated usable" value={String(diagnostics.useful_validated_rows ?? 0)} tone={Number(diagnostics.useful_validated_rows || 0) > 0 ? 'success' : 'warning'} />
+                <Fact label="Достоверных метрик" value={String(diagnostics.trusted_metric_rows ?? 0)} />
+                <Fact label="Подходящих кандидатов" value={String(diagnostics.useful_candidate_rows ?? 0)} />
+                <Fact label="Проверенных подходящих" value={String(diagnostics.useful_validated_rows ?? 0)} tone={Number(diagnostics.useful_validated_rows || 0) > 0 ? 'success' : 'warning'} />
               </div>
               <div className="grid min-w-0 gap-2 md:grid-cols-2">
                 {(diagnostics.selected_keywords || []).map((item: any, index: number) => <div key={`${item.keyword}-${index}`} className="min-w-0 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3">
                   <div className="break-words text-[13px] text-bone">{item.keyword || '—'}</div>
-                  <div className="mt-1 break-words text-[11px] text-[var(--bone-dim)]">role: {item.role || '—'} · volume: {item.avg_monthly_searches ?? '—'} · competition: {item.competition || '—'}</div>
+                  <div className="mt-1 break-words text-[11px] text-[var(--bone-dim)]">роль: {item.role || '—'} · спрос: {item.avg_monthly_searches ?? '—'} · конкуренция: {item.competition || '—'}</div>
                   <div className="mt-1 break-words text-[10px] text-[var(--smoke)]">{item.metric_source || '—'} · {item.last_checked || '—'}</div>
                 </div>)}
               </div>
@@ -998,7 +998,7 @@ export default function FirstRealDraftClient({
               <ul className="min-w-0 space-y-2">{alts.map((item: any, index: number) => <li key={`${item.alt_text}-${index}`} className="min-w-0 break-words rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3 text-[12px] text-[var(--bone-dim)]">{item.alt_text || '—'} <span className="text-[var(--smoke)]">· {item.truth_basis || '—'}</span></li>)}</ul>
             </Panel> : null}
 
-            {structuralValidation ? <Panel title="Структурный validator">
+            {structuralValidation ? <Panel title="Структурная проверка">
               <div className="mb-3 grid min-w-0 gap-3 sm:grid-cols-2">
                 <Fact label="Результат" value={structuralValidation.ok ? 'PASS' : 'BLOCKED'} tone={structuralValidation.ok ? 'success' : 'warning'} />
                 <Fact label="Замечаний" value={String(structuralIssues.length)} tone={structuralIssues.length ? 'warning' : 'success'} />
@@ -1073,7 +1073,7 @@ function blockerLabel(code) {
     portfolio_strategy_missing: 'Не удалось загрузить обязательную стратегию портфеля до запуска OpenAI.',
     primary_keyword_portfolio_conflict: 'Этот же Primary уже выбран для другого товара. Один главный поисковый интент должен принадлежать одной странице.',
     primary_keyword_portfolio_map_unavailable: 'Не удалось проверить текущих владельцев Primary. OpenAI не вызван, чтобы не создать каннибализацию.',
-    primary_keyword_peer_reassignment_pending: 'Этот товар сохраняет Primary, но конфликтующему товару нужен новый whole-product Primary до публикации.',
+    primary_keyword_peer_reassignment_pending: 'Этот товар сохраняет Primary, но конфликтующему товару нужен новый основной ключ для всего товара до публикации.',
     exact_queue_preflight_failed: 'Точная проверка очереди не завершилась. Товар безопасно исключён из генерации до повторной проверки.',
   };
   return labels[code] || String(code || 'Неизвестный блокер').replaceAll('_', ' ');
@@ -1143,15 +1143,15 @@ function PortfolioOwnershipNotice({ ownership }: { ownership: Record<string, any
 
   if (ownership?.status === 'pass') {
     return <Notice tone="success">
-      Primary <span className="text-bone">“{primary}”</span> свободен среди {ownership.compared_product_count || 0} других текущих решений Listing Master. Это разрешает генерацию, но не заменяет последующую проверку похожести готовых текстов.
+      Основной ключ <span className="text-bone">“{primary}”</span> свободен среди {ownership.compared_product_count || 0} других текущих решений Мастера листинга. Это разрешает генерацию, но не заменяет последующую проверку похожести готовых текстов.
     </Notice>;
   }
 
   if (ownership?.status === 'pass_with_pending_reassignment') {
     return <div className="rounded-xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.06)] p-4">
-      <div className="text-[10px] uppercase tracking-[.16em] text-[var(--gold-warm)]">Primary закреплён за этим товаром</div>
+      <div className="text-[10px] uppercase tracking-[.16em] text-[var(--gold-warm)]">Основной ключ закреплён за этим товаром</div>
       <p className="mt-2 text-[12px] leading-relaxed text-[var(--bone-dim)]">
-        Текущее подтверждённое решение сохраняет <span className="text-bone">“{primary}”</span> за выбранной карточкой. Генерация разрешена; публикация останется закрыта, пока устаревшее решение другой карточки не получит новый whole-product Primary.
+        Текущее подтверждённое решение сохраняет <span className="text-bone">“{primary}”</span> за выбранной карточкой. Генерация разрешена; публикация останется закрыта, пока устаревшее решение другой карточки не получит новый основной ключ для всего товара.
       </p>
       <div className="mt-3 space-y-2">
         {conflicts.map((item: Record<string, any>) => <a
@@ -1159,7 +1159,7 @@ function PortfolioOwnershipNotice({ ownership }: { ownership: Record<string, any
           href={`/admin/listing-master?product_id=${encodeURIComponent(item.canonical_product_id)}`}
           className="block rounded-lg border border-[rgba(216,214,211,.10)] bg-black/20 px-3 py-2 text-[11px] leading-relaxed text-[var(--bone-dim)] hover:border-[rgba(212,178,106,.35)] hover:text-bone"
         >
-          Требует нового Primary до публикации: Etsy {item.matched_etsy_listing_id || '—'} · статус текущей проверки {item.current_selection_status || 'не проверен'}
+          Нужен новый основной ключ до публикации: Etsy {item.matched_etsy_listing_id || '—'} · статус текущей проверки {item.current_selection_status || 'не проверен'}
         </a>)}
       </div>
     </div>;
@@ -1167,12 +1167,12 @@ function PortfolioOwnershipNotice({ ownership }: { ownership: Record<string, any
 
   if (ownership?.status === 'not_checked') {
     return <Notice tone="danger">
-      Карта владельцев Primary сейчас недоступна. OpenAI не будет вызван, пока read-only проверка не вернёт достоверный результат.
+      Карта владельцев основных ключей сейчас недоступна. OpenAI не будет вызван, пока read-only проверка не вернёт достоверный результат.
     </Notice>;
   }
 
   return <div className="rounded-xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-4">
-    <div className="text-[10px] uppercase tracking-[.16em] text-[var(--ruby-soft)]">Конфликт владельца Primary</div>
+    <div className="text-[10px] uppercase tracking-[.16em] text-[var(--ruby-soft)]">Конфликт основного ключа</div>
     <p className="mt-2 text-[12px] leading-relaxed text-[var(--bone-dim)]">
       Фраза <span className="text-bone">“{primary}”</span> уже выбрана главным ключом другой карточки. До решения конфликта OpenAI не вызывается и токены не расходуются.
     </p>
