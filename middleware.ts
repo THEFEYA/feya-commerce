@@ -15,6 +15,8 @@ function getPublicKey() {
 }
 
 export async function middleware(request: NextRequest) {
+  const isAdminApi = request.nextUrl.pathname.startsWith('/api/admin/');
+
   if (process.env.FEYA_ADMIN_AUTH_REQUIRED !== 'true') {
     return NextResponse.next({ request });
   }
@@ -27,6 +29,13 @@ export async function middleware(request: NextRequest) {
   const publicKey = getPublicKey();
 
   if (!supabaseUrl || !publicKey) {
+    if (isAdminApi) {
+      return NextResponse.json(
+        { ok: false, error: 'FEYA Admin authentication is required but Supabase Auth environment variables are missing.' },
+        { status: 503, headers: { 'Cache-Control': 'private, no-store' } },
+      );
+    }
+
     return new NextResponse('FEYA Admin authentication is required but Supabase Auth environment variables are missing.', {
       status: 503,
       headers: { 'Cache-Control': 'private, no-store' },
@@ -62,6 +71,13 @@ export async function middleware(request: NextRequest) {
   const claims = error ? null : data?.claims;
 
   if (!claims) {
+    if (isAdminApi) {
+      return NextResponse.json(
+        { ok: false, error: 'Authentication required.' },
+        { status: 401, headers: { 'Cache-Control': 'private, no-store' } },
+      );
+    }
+
     const url = request.nextUrl.clone();
     url.pathname = '/admin/login';
     url.searchParams.set('next', request.nextUrl.pathname);
@@ -72,6 +88,13 @@ export async function middleware(request: NextRequest) {
   const allowedEmails = parseCsvEnv('FEYA_ADMIN_ALLOWED_EMAILS');
 
   if (!allowedUserIds.size && !allowedEmails.size) {
+    if (isAdminApi) {
+      return NextResponse.json(
+        { ok: false, error: 'FEYA Admin auth is enabled, but no admin allowlist is configured.' },
+        { status: 403, headers: { 'Cache-Control': 'private, no-store' } },
+      );
+    }
+
     return new NextResponse('FEYA Admin auth is enabled, but no admin allowlist is configured.', {
       status: 403,
       headers: { 'Cache-Control': 'private, no-store' },
@@ -82,6 +105,13 @@ export async function middleware(request: NextRequest) {
   const email = typeof claims.email === 'string' ? claims.email.toLowerCase() : '';
 
   if (!allowedUserIds.has(userId) && !allowedEmails.has(email)) {
+    if (isAdminApi) {
+      return NextResponse.json(
+        { ok: false, error: 'Not authorized for FEYA Admin.' },
+        { status: 403, headers: { 'Cache-Control': 'private, no-store' } },
+      );
+    }
+
     const url = request.nextUrl.clone();
     url.pathname = '/admin/login';
     url.search = '';
@@ -94,5 +124,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/api/admin/:path*'],
 };
