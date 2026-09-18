@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { dataFreshnessLabel, ownerToneForStatus, scopeLabel, sourceHealthSummary, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
+import { isAdminAuthRequired } from '@/lib/supabaseAuth';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -98,6 +99,7 @@ function toneClass(tone: string) {
 
 export default async function AdminSystemPage() {
   const { readiness, sources, actions, executionRequests, activeIncidents, mutationFreezes, error } = await getSystemData();
+  const ownerAuthRequired = isAdminAuthRequired();
 
   return (
     <main className="owner-page">
@@ -182,14 +184,31 @@ export default async function AdminSystemPage() {
             </div>
           </div>
 
-          {!actions.available ? (
-            <div className="owner-card is-warning" style={{ marginTop: '10px' }}>
-              <div className="owner-status is-warning">Автодействия ещё закрыты</div>
+          <div className="owner-grid two" style={{ marginTop: '10px' }}>
+            <article className={`owner-card ${ownerAuthRequired ? 'is-success' : 'is-warning'}`}>
+              <div className={`owner-status ${ownerAuthRequired ? 'is-success' : 'is-warning'}`}>
+                {ownerAuthRequired ? 'Защищённый вход включён' : 'Защищённый вход ещё не включён'}
+              </div>
+              <h3 className="owner-card-title" style={{ marginTop: '10px' }}>Действия владельца</h3>
               <p className="owner-card-copy">
-                Это ожидаемо для текущего этапа: система умеет рассчитывать, проверять и готовить решения, но не должна изображать внешнее выполнение, пока исполнитель, одобрения и журнал результата не готовы.
+                {ownerAuthRequired
+                  ? 'Middleware требует подтверждённую сессию и разрешённый аккаунт. Реальные действия всё равно должны проходить через отдельный аудитируемый путь.'
+                  : 'Пока FEYA_ADMIN_AUTH_REQUIRED выключен, кнопки подтверждения и другие защищённые действия владельца должны оставаться недоступными.'}
               </p>
-            </div>
-          ) : null}
+            </article>
+
+            <article className={`owner-card ${actions.available ? 'is-success' : 'is-warning'}`}>
+              <div className={`owner-status ${actions.available ? 'is-success' : 'is-warning'}`}>
+                {actions.available ? 'Есть доступные действия' : 'Автодействия закрыты'}
+              </div>
+              <h3 className="owner-card-title" style={{ marginTop: '10px' }}>Внешнее выполнение</h3>
+              <p className="owner-card-copy">
+                {actions.available
+                  ? 'Есть действия, которые Execution Gateway считает доступными. Перед любым production-write всё равно проверяются класс одобрения и квитанция выполнения.'
+                  : 'Система умеет рассчитывать, проверять и готовить решения, но не должна изображать внешнее выполнение, пока исполнитель, одобрения и журнал результата не готовы.'}
+              </p>
+            </article>
+          </div>
         </section>
 
         <section className="owner-section">
