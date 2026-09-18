@@ -74,6 +74,10 @@ export default function AdminHomePage() {
             <strong>Launch Readiness</strong>
             <span>Hard gates for Public Site, Search, Commerce and Measurement.</span>
           </Link>
+          <Link className="card metric" href="/admin/signals">
+            <strong>Signals</strong>
+            <span>Pre-launch signal candidates with owner, priority and admission recommendation.</span>
+          </Link>
           <Link className="card metric" href="/admin/metrics">
             <strong>Metrics</strong>
             <span>Versioned metric definitions plus currently computable operational values.</span>
