@@ -1,3 +1,4 @@
+import { competitionLabel } from '@/lib/adminDisplayRu';
 // @ts-nocheck
 import Link from 'next/link';
 import { ArrowUpRight, Database, FileSearch, Layers3, ShieldAlert, ShieldCheck, Sparkles } from 'lucide-react';
@@ -343,7 +344,7 @@ export default async function AdminSeoKeywordsPage({ searchParams }) {
             <div className="font-price text-[22px] text-[var(--gold-warm)]">{asText(row.score)}</div>
             <div><Chip tone={toneByBucket(row.bank_bucket)}>{BUCKET_LABELS[row.bank_bucket] || asText(row.bank_bucket)}</Chip></div>
             <div className="text-[12px] text-[var(--bone-dim)]">{formatNumber(row.avg_monthly_searches)}</div>
-            <div><Chip tone={String(row.competition || '').toUpperCase() === 'LOW' ? 'success' : String(row.competition || '').toUpperCase() === 'HIGH' ? 'warning' : 'neutral'}>{asText(row.competition)}</Chip></div>
+            <div><Chip tone={String(row.competition || '').toUpperCase() === 'LOW' ? 'success' : String(row.competition || '').toUpperCase() === 'HIGH' ? 'warning' : 'neutral'}>{competitionLabel(row.competition)}</Chip></div>
             <div><Chip tone={toneByStatus(row.review_status)}>{asText(row.role_label || row.role || STATUS_LABELS[row.review_status])}</Chip></div>
             <div className="text-[11px] leading-relaxed text-[var(--bone-dim)]"><div>{asText(row.source_clusters || row.source_files)}</div><div className="mt-1 opacity-80">{asText(row.reason || row.notes, '')}</div></div>
           </div>)}
