@@ -121,11 +121,14 @@ Prechecks are deliberately not faked:
 
 similarity_cannibalization=not_checked
 image_alt_truth=not_checked
+component_claim_truth=not_checked
 validated_metrics=not_checked
 
 Therefore new SCO drafts cannot jump directly to publish or CQA PASS.
 
 ## Validation
+
+New drafts do not inherit component-inclusion PASS. The downstream deterministic content-precheck stage must explicitly establish component_claim_truth=pass before the publish gate can ever succeed.
 
 Deterministic pre-persistence validation checks:
 
