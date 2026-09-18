@@ -995,3 +995,74 @@ th {
     font-size: 10px;
   }
 }
+
+
+/* Separation between commerce admin and company control center */
+.admin-company-entry {
+  border-color: rgba(216, 181, 109, 0.42);
+  background:
+    radial-gradient(circle at top right, rgba(216, 181, 109, 0.14), transparent 38%),
+    var(--panel);
+}
+
+.admin-company-entry strong {
+  color: #f0d79f;
+}
+
+.admin-company-switch {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  z-index: 35;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid rgba(216, 181, 109, 0.30);
+  border-radius: 12px;
+  background: rgba(15, 15, 19, 0.94);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(16px);
+}
+
+.admin-company-switch:hover {
+  border-color: rgba(216, 181, 109, 0.55);
+  background: rgba(24, 22, 20, 0.97);
+}
+
+.admin-company-switch-mark {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: rgba(216, 181, 109, 0.12);
+  color: var(--gold);
+}
+
+.admin-company-switch > span:last-child {
+  display: grid;
+  gap: 1px;
+}
+
+.admin-company-switch strong {
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.admin-company-switch small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+@media (max-width: 700px) {
+  .admin-company-switch {
+    left: 12px;
+    bottom: 12px;
+  }
+
+  .admin-company-switch small {
+    display: none;
+  }
+}
