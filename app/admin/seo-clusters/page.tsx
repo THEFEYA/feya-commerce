@@ -63,6 +63,7 @@ export default async function AdminSeoClustersPage() {
             <Link href="/admin/seo-keywords">SEO Keywords</Link>
             <Link href="/admin/seo-portfolio">SEO Portfolio</Link>
             <Link href="/admin/seo-clusters">Cluster Queue</Link>
+            <Link href="/admin/seo-cluster-proposals">Cluster Proposals</Link>
             <Link href="/admin/review">Review</Link>
           </div>
         </nav>
