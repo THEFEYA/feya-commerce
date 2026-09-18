@@ -946,3 +946,51 @@ UX consequence:
 - Google Ads historical data can support current keyword work, but the UI must distinguish it from live/fresh demand;
 - revenue, conversion, outcome and causal analytics remain dependency-gated;
 - duplicated backend signals must not multiply Owner Attention.
+
+
+## 16. Visual interaction pass — 2026-09-18
+
+Implemented after Owner review of the research-driven UI requirements:
+
+### Navigation and layout
+- one persistent shell across Company Control and Product OS admin pages;
+- collapsible desktop sidebar with the preference stored locally;
+- semantic icons instead of letter placeholders;
+- compact owner headings and controls;
+- existing Product OS tools remain available under a collapsible **Рабочие инструменты** group.
+
+### Progressive disclosure
+- Team FEYA is collapsed by default as a secondary Work view;
+- automatic content prechecks are collapsed because they require no Owner action;
+- AI usage is collapsed in System;
+- owner-facing Signals now use compact summary -> expand -> recommendation/action;
+- canonical IDs/source identity on product detail are hidden under **Технические данные товара**.
+
+### Products
+- Products uses the owner visual hierarchy instead of a separate oversized dashboard style;
+- search + status filter + explicit sorting;
+- default sorting puts blocked/review-needed products first;
+- sort options include title, configuration count and displayed price;
+- long catalog lists paginate 50 rows at a time;
+- desktop column headings remain visible while scrolling;
+- Product detail links directly to Listing Master and SEO preview for the selected product.
+
+### Growth / data visualization
+- Growth now shows source freshness next to Google Ads / Search Console limitations;
+- a real historical Keyword Planner demand comparison is shown from stored metrics;
+- rows are ranked by actual saved average monthly searches;
+- duplicate spelling variants are collapsed in the owner view;
+- Google Ads competition is explicitly labelled as advertiser competition and **not SEO difficulty**;
+- live charts remain deferred until fresh Google/GSC/GA4/commerce sources exist.
+
+### Deliberately not implemented
+- no drag-and-drop workflow mutation;
+- no freeform dashboard builder;
+- no movable Critical / Owner Decision modules;
+- no fake live charts;
+- no fake progress percentages;
+- no decorative pie/donut/gauge visualizations;
+- no automatic production write from UI preferences.
+
+Reason:
+sorting, filtering, collapsing and pagination improve comprehension without changing business truth. Dragging/reordering that changes workflow or safety priority would violate canonical ownership/governance. Optional layout personalization remains a later bounded feature.
