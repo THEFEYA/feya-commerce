@@ -19,34 +19,34 @@ const REVIEW_QUEUE_SUMMARY_SELECT = [
 
 const REVIEW_COPY: Record<string, { title: string; priority: 'high' | 'medium' | 'low'; description: string; nextStep: string }> = {
   needs_price: {
-    title: 'Needs price',
+    title: 'Нужно проверить цену',
     priority: 'high',
-    description: 'Products that cannot safely enter storefront logic until price data is resolved.',
-    nextStep: 'Review source price rows and configuration prices.',
+    description: 'Товары, которые нельзя безопасно выводить на витрину, пока цена не подтверждена.',
+    nextStep: 'Проверить исходные цены и цены вариантов.',
   },
   missing_media: {
-    title: 'Missing media',
+    title: 'Не хватает медиа',
     priority: 'high',
-    description: 'Products without enough image data for a reliable public product card or PDP.',
-    nextStep: 'Check media drafts and source images before publishing.',
+    description: 'Товары, для которых недостаточно изображений для полноценной карточки и страницы товара.',
+    nextStep: 'Проверить изображения и медиа перед публикацией.',
   },
   fallback_price_review_rows: {
-    title: 'Fallback price review',
+    title: 'Проверить резервную цену',
     priority: 'medium',
-    description: 'Rows using visible/fallback pricing instead of stronger option-level price evidence.',
-    nextStep: 'Confirm whether fallback prices are acceptable or need correction.',
+    description: 'Товары, где используется резервная цена вместо подтверждённой цены конкретного варианта.',
+    nextStep: 'Подтвердить резервную цену или исправить её.',
   },
   storefront_excluded: {
-    title: 'Storefront excluded',
+    title: 'Исключено из витрины',
     priority: 'medium',
-    description: 'Products kept out of public storefront candidates by readiness or safety rules.',
-    nextStep: 'Audit exclusion reasons before expanding public catalog.',
+    description: 'Товары, которые пока исключены из публичной витрины из-за готовности или ограничений.',
+    nextStep: 'Проверить причины исключения перед расширением публичного каталога.',
   },
   sampler_excluded_rows: {
-    title: 'Sampler excluded',
+    title: 'Пробник исключён',
     priority: 'low',
-    description: 'Sampler/probnik rows intentionally excluded from public price ranges.',
-    nextStep: 'Audit only. This is expected behavior, not a launch blocker.',
+    description: 'Пробники намеренно не участвуют в публичном диапазоне цен.',
+    nextStep: 'Только контроль. Это ожидаемое поведение, а не блокировка запуска.',
   },
 };
 
@@ -91,13 +91,13 @@ export default async function AdminReviewPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/products">Products</Link>
-            <Link href="/shop">Shop</Link>
+            <Link href="/admin/products">Товары</Link>
+            <Link href="/shop">Магазин</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Read-only admin gate</div>
+          <div className="phase-label">Очереди проверки · только просмотр</div>
           <p>
             Эти очереди показывают, что мешает расширять каталог и что нужно проверить перед Product Builder и визуальной полировкой.
           </p>
@@ -106,7 +106,7 @@ export default async function AdminReviewPage() {
         <section className="section-head">
           <div>
             <h2>Очереди проверки</h2>
-            <p className="muted">Read-only dashboard из safe Supabase review view.</p>
+            <p className="muted">Показывает безопасные очереди проверки из Supabase.</p>
           </div>
         </section>
 
@@ -121,12 +121,12 @@ export default async function AdminReviewPage() {
             return (
               <div className={`card review-card priority-${priority}`} key={`${code}-${index}`}>
                 <span className={`status-pill ${priority === 'high' ? 'danger' : priority === 'medium' ? 'warning' : 'ok'}`}>
-                  {priority} priority
+                  {priority === 'high' ? 'Высокий приоритет' : priority === 'medium' ? 'Средний приоритет' : 'Низкий приоритет'}
                 </span>
                 <strong>{getCount(row)}</strong>
                 <h3>{getTitle(row)}</h3>
-                <p>{copy?.description || 'Review queue returned from Supabase.'}</p>
-                <span>{copy?.nextStep || 'Review in the next admin phase.'}</span>
+                <p>{copy?.description || 'Очередь проверки из Supabase.'}</p>
+                <span>{copy?.nextStep || 'Проверить на следующем этапе работы.'}</span>
               </div>
             );
           })}
