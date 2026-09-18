@@ -102,6 +102,10 @@ export default function AdminHomePage() {
             <strong>Execution Map</strong>
             <span>Action ownership, executor, approval and production-write boundaries.</span>
           </Link>
+          <Link className="card metric" href="/admin/scenario-tests">
+            <strong>Scenario Tests</strong>
+            <span>Versioned regression invariants and explicit NOT_RUN/PASS/FAIL release state.</span>
+          </Link>
         </div>
       </div>
     </main>
