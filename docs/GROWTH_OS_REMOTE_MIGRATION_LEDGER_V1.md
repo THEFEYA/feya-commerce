@@ -507,3 +507,13 @@ Rollback validation:
 - fixed mutable search_path warnings on the two commercial-keyword updated_at trigger helpers
 - revoked browser EXECUTE from those trigger functions; service_role retained
 - targeted post-migration security-advisor check returned no findings for the hardened functions
+
+
+### Product Truth review visibility
+
+20260918111828 — feya_product_fact_review_safe_view_v1
+- sanitized read-only Product Fact review queue added for the admin cockpit
+- excludes the raw fact_snapshot_json evidence payload from the browser-safe projection
+- registered with the registry-backed Admin Data Boundary
+- governed admin read surfaces = 39; all 39 remain browser-readable only because protected admin auth/hardening is intentionally not activated yet
+- /admin/product-facts-review links directly to the existing Product Builder evidence surface; no write/resolution action is enabled
