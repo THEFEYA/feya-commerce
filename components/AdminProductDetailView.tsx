@@ -50,11 +50,11 @@ export function AdminProductDetailView({ product, componentTruth }: { product: S
   const storefrontHref = `/shop/${slugValue}`;
   const adminHref = `/admin/products/${slugValue}`;
 
-  return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.12),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
-    <section className="container-feya pt-10 pb-16">
+  return <main className="owner-page">
+    <div className="owner-page-inner">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-6 mb-7">
         <div className="max-w-4xl">
-          <div className="eyebrow-gold mb-3">Админка · Карточка товара</div>
+          <div className="owner-eyebrow">Товар · рабочее пространство</div>
           <h1 className="text-bone text-[22px] md:text-[24px] lg:text-[26px] leading-snug font-medium max-w-4xl">{productTitle(product)}</h1>
           <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--bone-dim)]">Внутренняя карточка контроля товара. Данные могут приходить из витрины, Product Builder или резервного каталога. Действия ниже сохраняются как проверочные события и не меняют товар напрямую.</p>
           <div className="mt-4 flex flex-wrap gap-1.5">
@@ -69,9 +69,11 @@ export function AdminProductDetailView({ product, componentTruth }: { product: S
             {mediaReview ? <Chip tone="danger">Проверить медиа</Chip> : null}
           </div>
         </div>
-        <div className="flex gap-3">
-          <Link href="/admin/products" className="btn-ghost">Товары</Link>
-          {storefrontAvailable ? <Link href={storefrontHref} className="btn-ghost">Витрина <ArrowUpRight size={13} /></Link> : null}
+        <div className="flex flex-wrap gap-2">
+          <Link href="/admin/products" className="owner-button">Назад к товарам</Link>
+          {product.canonical_product_id ? <Link href={`/admin/listing-master?product_id=${encodeURIComponent(product.canonical_product_id)}`} className="owner-button primary">Мастер листинга</Link> : null}
+          {product.canonical_product_id ? <Link href={`/admin/seo-storefront-preview?product_id=${encodeURIComponent(product.canonical_product_id)}`} className="owner-button">SEO-предпросмотр</Link> : null}
+          {storefrontAvailable ? <Link href={storefrontHref} className="owner-button">Витрина <ArrowUpRight size={13} /></Link> : null}
         </div>
       </div>
 
@@ -87,15 +89,22 @@ export function AdminProductDetailView({ product, componentTruth }: { product: S
             {!media.length ? <div className="mt-3 text-[13px] text-[var(--bone-dim)]">Медиа недоступно в текущем контракте товара. Проверь очередь медиа или данные витрины.</div> : null}
           </Panel>
 
-          <Panel title="Идентичность товара" icon={Tags}>
-            <div className="space-y-3 text-[13px] text-[var(--bone-dim)]">
+          <details className="owner-disclosure owner-disclosure-section">
+            <summary>
+              <span>
+                <strong>Технические данные товара</strong>
+                <small>ID, slug и исходные значения — только когда нужны</small>
+              </span>
+              <Tags size={15} className="text-[var(--gold-warm)]" />
+            </summary>
+            <div className="owner-disclosure-body space-y-3 text-[13px] text-[var(--bone-dim)]">
               <Info label="Канонический ID товара" value={product.canonical_product_id} />
               <Info label="ID листинга Etsy" value={product.matched_etsy_listing_id} />
               <Info label="Адрес страницы" value={product.product_slug} />
               <Info label="Материал" value={product.material} />
-              <Info label="Сырой цвет" value={product.color} />
+              <Info label="Исходный цвет" value={product.color} />
             </div>
-          </Panel>
+          </details>
         </div>
 
         <div className="col-span-12 lg:col-span-7 space-y-5">
@@ -141,6 +150,6 @@ export function AdminProductDetailView({ product, componentTruth }: { product: S
           </Panel>
         </div>
       </div>
-    </section>
+    </div>
   </main>;
 }
