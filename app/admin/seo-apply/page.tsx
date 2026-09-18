@@ -50,10 +50,10 @@ function statusLabel(status: string) {
 }
 
 function fieldLabel(field: string) {
-  if (field === 'seo_title') return 'SEO title';
+  if (field === 'seo_title') return 'SEO-заголовок';
   if (field === 'meta_description') return 'Meta description';
   if (field === 'h1') return 'H1';
-  if (field === 'primary_image_alt') return 'Alt главного фото';
+  if (field === 'primary_image_alt') return 'ALT главного фото';
   if (field === 'collection_hint') return 'Коллекция';
   if (field === 'description_outline') return 'План описания';
   return field;
@@ -69,13 +69,13 @@ export default async function SeoApplyPreviewPage() {
     <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
       <section className="container-feya pb-16 pt-10">
         <div className="mb-7 border-b border-[rgba(216,214,211,.12)] pb-7">
-          <div className="eyebrow-gold mb-3">Админка · SEO Apply</div>
-          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>SEO Apply</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Внутренний предпросмотр SEO-изменений. Здесь создаются pending-строки для ручной проверки в SEO Change Sets.</p>
+          <div className="eyebrow-gold mb-3">Админка · SEO-правки</div>
+          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Создать SEO-правки</h1>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Внутренний предпросмотр SEO-изменений. Здесь создаются строки со статусом «Ждёт проверки» для ручной проверки в очереди SEO-правок.</p>
           <div className="mt-5 flex gap-3">
             <Link href="/admin/seo-change-sets" className="btn-ghost">Очередь SEO-правок</Link>
-            <Link href="/admin/seo-export" className="btn-ghost">SEO Export</Link>
-            <Link href="/admin/seo-approval" className="btn-ghost">SEO Approval</Link>
+            <Link href="/admin/seo-export" className="btn-ghost">SEO-экспорт</Link>
+            <Link href="/admin/seo-approval" className="btn-ghost">Проверка SEO</Link>
           </div>
         </div>
 
