@@ -103,5 +103,14 @@ Multiple genuinely different products may use the same relevant Primary keyword 
 
 Reassign or consolidate only when evidence supports it, for example: Google canonicalizes materially similar PDPs together, Search Console shows persistent query-to-page competition with a weaker page displacing the stronger one, indexation becomes unstable, or the pages are so similar that they approach doorway/duplicate behavior. Until that evidence exists, preserve owner-selected relevant keywords and measure the outcome after launch.
 
+## R27. Sell the positive product outcome; never define the product by what it is not
+Owner clarification, 2026-09-18: buyer copy describes what the product IS, what is visually strong about it, and what that gives the customer. Do not spend public copy comparing the item with irrelevant alternatives (for example historical armor, rigid metal armor, a full suit, or another shoulder-led construction) and do not use contrast frames such as "without", "rather than", "instead of" or "not X but Y" as a sales device. These phrases add irrelevant Google vocabulary and weaken the buyer benefit.
+
+Every meaningful construction fact should resolve into a human benefit or result. Examples: layered shoulders → stronger character from a distance; glossy finish → richer changing highlights in movement and camera; fitted bodysuit → a coherent finished look that is easy to style; modular shoulder/arm pieces → faster reuse across several character concepts. Plain factual description is useful for search, but customer copy must complete the thought with why that fact matters.
+
+Specific lighting setups are never the reason to buy a costume. Do not write "ideal for high-contrast lighting" or make blue/neon/studio light a target use case simply because it appears in product photography. When supported by the material/finish, describe the real portable benefit instead: the surface catches surrounding highlights, changes with movement, or gives photos/video more depth across different environments.
+
+Promotional tone should remain specific and evidenced: original/authorial/handmade/design-led, expressive, memorable, polished, easy to style, comfortable or shape-retaining only when supported by Product Truth. Keep unsupported luxury/premium/superlative claims banned under R21.
+
 ## Process rule
 Every owner review is captured the same way: complaint → named rule → committed here → reflected in prompts/validators. Cumulative and versioned.
