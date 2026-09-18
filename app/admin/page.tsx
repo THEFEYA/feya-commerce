@@ -102,6 +102,10 @@ export default function AdminHomePage() {
             <strong>Signals</strong>
             <span>Pre-launch signal candidates with owner, priority and admission recommendation.</span>
           </Link>
+          <Link className="card metric" href="/admin/strategy">
+            <strong>Strategy & Initiatives</strong>
+            <span>Human-owned strategy versions, Director Gate, approval and revalidation state.</span>
+          </Link>
           <Link className="card metric" href="/admin/incidents">
             <strong>Incidents</strong>
             <span>Root-cause deduplication and active mutation-freeze status.</span>
