@@ -906,3 +906,43 @@ Safety:
 - no owner write capability was enabled;
 - backup before this correction:
   `backup/owner-ui-before-unified-shell-20260918`.
+
+
+## 15. Owner runtime audit checkpoint — 2026-09-18
+
+A read-only audit against the current Supabase state was used to validate that the Owner UI is describing real conditions rather than mock activity.
+
+Observed state at this checkpoint:
+
+- regression scenario registry: **15 PASS / 0 FAIL / 0 WARN / 0 NOT_RUN**;
+- active Growth Cases / Owner Work rows: **0**;
+- open Owner Attention items: **2**;
+- raw owner-decision signal candidates: **3**, where the two return-policy signals represent the same owner decision and are intentionally grouped instead of creating duplicate interruptions;
+- keyword review queue: **431**;
+- product fact review queue: **50**;
+- SEO page portfolio: **243** pages;
+- CQA shadow:
+  - 17 ready for human + CQA review;
+  - 11 ready for independent CQA;
+  - 7 revision required;
+  - 16 blocked by validation;
+  - 82 approved pending similarity check;
+  - 5 approved pending component-claim check;
+  - 42 still in prechecks.
+
+Current source health:
+
+- Product Facts: healthy/fresh;
+- SEO Page Portfolio Authority: healthy/fresh;
+- Google Ads keyword demand: degraded/aging; historical metrics exist but live Keyword Planning access is not yet validated;
+- Search Console performance: unavailable until production property/export is connected;
+- GA4 behavioral analytics: unavailable until production collection/export is connected;
+- authoritative completed-order and revenue/refund truth: unavailable.
+
+UX consequence:
+
+- Today and Growth must show these limitations explicitly;
+- zero Growth Cases must not be padded with fake tasks;
+- Google Ads historical data can support current keyword work, but the UI must distinguish it from live/fresh demand;
+- revenue, conversion, outcome and causal analytics remain dependency-gated;
+- duplicated backend signals must not multiply Owner Attention.
