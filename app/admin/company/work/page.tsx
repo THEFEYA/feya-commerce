@@ -200,7 +200,7 @@ export default async function AdminWorkPage() {
         <nav className="owner-subnav" aria-label="Разделы работы">
           <a href="#owner-waiting">Ждёт вас · {attentionVM.length}</a>
           <a href="#operational-queues">Операционные очереди · {operationalWork}</a>
-          <a href="#work-list">Growth-задачи · {workVM.length}</a>
+          <a href="#work-list">задач ростаи · {workVM.length}</a>
           <a href="#team">Команда FEYA · {roleVM.length}</a>
         </nav>
 
@@ -247,7 +247,7 @@ export default async function AdminWorkPage() {
           <div className="owner-section-head">
             <div>
               <h2>Операционные очереди</h2>
-              <div className="owner-section-kicker">Реальная работа Product OS и SEO-контура, даже если отдельный Growth Case ещё не создан</div>
+              <div className="owner-section-kicker">Реальная работа товарная система и SEO-контура, даже если отдельный Growth Case ещё не создан</div>
             </div>
           </div>
 
@@ -296,7 +296,7 @@ export default async function AdminWorkPage() {
           <div className="owner-section-head">
             <div>
               <h2>Текущая работа</h2>
-              <div className="owner-section-kicker">Список по реальному состоянию workflow, а не по ручному перетаскиванию карточек</div>
+              <div className="owner-section-kicker">Список по реальному состоянию процесс, а не по ручному перетаскиванию карточек</div>
             </div>
           </div>
 
@@ -331,7 +331,7 @@ export default async function AdminWorkPage() {
             ))
           ) : (
             <div className="owner-empty">
-              Активных Growth Cases и workflow пока нет. Это не означает, что работы нет: реальные Product OS / SEO очереди показаны выше. FEYA просто не создаёт искусственные Growth Cases ради заполнения панели.
+              Активных задачи роста и процесс пока нет. Это не означает, что работы нет: реальные товарной системы / SEO очереди показаны выше. FEYA просто не создаёт искусственные задачи роста ради заполнения панели.
             </div>
           )}
         </section>
