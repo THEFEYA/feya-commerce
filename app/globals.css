@@ -540,6 +540,16 @@ th {
   transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
 }
 
+
+.owner-shell :where(a, button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid rgba(212, 178, 106, 0.95);
+  outline-offset: 2px;
+}
+
+.owner-shell :where(a, button, input, select, textarea, summary):focus:not(:focus-visible) {
+  outline: none;
+}
+
 .owner-nav-item:hover {
   background: rgba(255, 255, 255, 0.035);
   color: var(--text);
