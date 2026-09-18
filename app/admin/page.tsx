@@ -110,6 +110,10 @@ export default function AdminHomePage() {
             <strong>Signals</strong>
             <span>Pre-launch signal candidates with owner, priority and admission recommendation.</span>
           </Link>
+          <Link className="card metric" href="/admin/owner-attention">
+            <strong>Owner Attention</strong>
+            <span>Durable queue for real policy, strategy, approval and human-action decisions.</span>
+          </Link>
           <Link className="card metric" href="/admin/strategy">
             <strong>Strategy & Initiatives</strong>
             <span>Human-owned strategy versions, Director Gate, approval and revalidation state.</span>
