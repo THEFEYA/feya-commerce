@@ -40,18 +40,18 @@ export default async function AdminExecutionMapPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/system-readiness">System Readiness</Link>
-            <Link href="/admin/metrics">Metrics</Link>
-            <Link href="/admin/execution-map">Execution Map</Link>
-            <Link href="/admin/executions">Executions</Link>
+            <Link href="/admin/system-readiness">Готовность системы</Link>
+            <Link href="/admin/metrics">Метрики</Link>
+            <Link href="/admin/execution-map">Права действий</Link>
+            <Link href="/admin/executions">Выполнение</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Execution Capability Map · read-only</div>
-          <h1>Execution Map</h1>
+          <div className="phase-label">Карта разрешённых действий · только просмотр</div>
+          <h1>Права и автоматизация</h1>
           <p>
-            Every action declares who executes it, whether approval is required and whether it can mutate production. An unavailable action is not simulated by AI.
+            Для каждого действия явно указано, кто его выполняет, требуется ли одобрение и может ли оно менять рабочие данные. Недоступное действие система не должна имитировать.
           </p>
         </section>
 
@@ -61,14 +61,14 @@ export default async function AdminExecutionMapPage() {
           <table>
             <thead>
               <tr>
-                <th>Action</th>
-                <th>Owner</th>
-                <th>State</th>
-                <th>Class</th>
-                <th>Executor</th>
-                <th>Approval</th>
-                <th>Mutation</th>
-                <th>Limits</th>
+                <th>Действие</th>
+                <th>Ответственный</th>
+                <th>Состояние</th>
+                <th>Класс</th>
+                <th>Исполнитель</th>
+                <th>Одобрение</th>
+                <th>Изменение данных</th>
+                <th>Ограничения</th>
               </tr>
             </thead>
             <tbody>
@@ -90,11 +90,11 @@ export default async function AdminExecutionMapPage() {
                   <td>{asText(row.approval_class)}</td>
                   <td>
                     {row.production_mutation === true ? (
-                      <span className="status-pill danger">Production</span>
+                      <span className="status-pill danger">Рабочие данные</span>
                     ) : row.production_mutation === false ? (
-                      <span className="badge">No production write</span>
+                      <span className="badge">Без записи в рабочие данные</span>
                     ) : '—'}
-                    {row.dry_run_default ? <div className="badge-row"><span className="badge">dry-run default</span></div> : null}
+                    {row.dry_run_default ? <div className="badge-row"><span className="badge">по умолчанию тестовый режим</span></div> : null}
                   </td>
                   <td>{asText(row.limitations_summary)}</td>
                 </tr>
