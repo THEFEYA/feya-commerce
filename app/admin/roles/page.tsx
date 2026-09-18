@@ -97,11 +97,11 @@ export default async function AdminRolesPage() {
                 <tr key={row.role_code}>
                   <td>
                     <strong>{roleLabel(row.role_code)}</strong>
-                    <div className="muted">{row.role_code} · {asText(row.role_type)}</div>
+                    <div className="muted">Технический код: {row.role_code}</div>
                   </td>
                   <td>
                     <span className={`status-pill ${statusClass(row.runtime_status)}`}>
-                      {asText(row.runtime_status)}
+                      {statusLabel(row.runtime_status)}
                     </span>
                   </td>
                   <td>{autonomyLabel(row.autonomy_ceiling)}</td>
