@@ -42,6 +42,10 @@ export default function AdminHomePage() {
             <strong>Products</strong>
             <span>Каталог product drafts + read-only Product Builder detail.</span>
           </Link>
+          <Link className="card metric" href="/admin/product-facts-review">
+            <strong>Product Fact Review</strong>
+            <span>Upstream Product Truth ambiguities that must be resolved before content can safely pass QA.</span>
+          </Link>
           <Link className="card metric" href="/admin/seo-keywords">
             <strong>SEO Keywords</strong>
             <span>Read-only cleanup and validation status for SEO keyword candidates.</span>
