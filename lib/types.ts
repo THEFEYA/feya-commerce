@@ -777,3 +777,46 @@ export type LearningRegistryRow = {
   updated_at?: string | null;
   [key: string]: unknown;
 };
+
+
+export type ExperimentRegistryRow = {
+  experiment_id: string;
+  experiment_code?: string | null;
+  case_id?: string | null;
+  measurement_spec_id?: string | null;
+  title?: string | null;
+  experiment_mode?: string | null;
+  experiment_status?: string | null;
+  feasibility_status?: string | null;
+  contamination_state?: string | null;
+  planned_start_at?: string | null;
+  planned_end_at?: string | null;
+  started_at?: string | null;
+  ended_at?: string | null;
+  contamination_count?: number | null;
+  invalidating_contamination_count?: number | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  [key: string]: unknown;
+};
+
+export type ChangeEventRow = {
+  change_event_id: string;
+  event_code?: string | null;
+  change_domain?: string | null;
+  change_type?: string | null;
+  entity_type?: string | null;
+  entity_key?: string | null;
+  market_code?: string | null;
+  locale?: string | null;
+  case_id?: string | null;
+  execution_request_id?: string | null;
+  incident_id?: string | null;
+  version_before_json?: unknown;
+  version_after_json?: unknown;
+  source_type?: string | null;
+  source_ref?: string | null;
+  event_at?: string | null;
+  created_at?: string | null;
+  [key: string]: unknown;
+};
