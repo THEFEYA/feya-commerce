@@ -110,6 +110,10 @@ export default function AdminHomePage() {
             <strong>Metrics</strong>
             <span>Versioned metric definitions plus currently computable operational values.</span>
           </Link>
+          <Link className="card metric" href="/admin/experiments">
+            <strong>Experiments</strong>
+            <span>Locked measurement designs, feasibility, contamination and durable change events.</span>
+          </Link>
           <Link className="card metric" href="/admin/execution-map">
             <strong>Execution Map</strong>
             <span>Action ownership, executor, approval and production-write boundaries.</span>
