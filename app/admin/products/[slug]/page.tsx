@@ -9,7 +9,7 @@ import {
   getCanonicalComponentTruthDiagnostic,
 } from '@/lib/adminComponentTruth';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
-import { getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
+import { getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_V4_PDP_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
 
@@ -75,7 +75,7 @@ async function getProduct(slug: string): Promise<{ product: StorefrontProduct | 
 
 async function getComponentTruth(canonicalProductId?: string | null) {
   if (!canonicalProductId) return getCanonicalComponentTruthDiagnostic(null);
-  const supabase = getSupabaseServiceClient() || getAdminReadClient() || getSupabaseReadClient();
+  const supabase = getSupabaseServiceClient() || getAdminReadClient();
   if (!supabase) return getCanonicalComponentTruthDiagnostic(null);
   const { data, error } = await supabase
     .from(CANONICAL_PRODUCT_TRUTH_VIEW)
