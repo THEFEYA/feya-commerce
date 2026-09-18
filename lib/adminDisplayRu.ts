@@ -85,3 +85,41 @@ export function competitionLabel(value: unknown) {
   if (key === 'HIGH') return 'Высокая';
   return String(value || '—');
 }
+
+
+export function searchStageLabel(value: unknown) {
+  const key = String(value || '').trim();
+  const map: Record<string, string> = {
+    Blocked: 'Заблокировано',
+    'Needs SEO Review': 'Нужна проверка SEO',
+    'Needs Media': 'Нужно подготовить медиа',
+    'Ready for Preview': 'Готово к предпросмотру',
+    'Ready for Search': 'Готово к поиску',
+  };
+  return map[key] || key || 'Не определено';
+}
+
+export function mediaSeoStageLabel(value: unknown) {
+  const key = String(value || '').trim();
+  const map: Record<string, string> = {
+    Blocked: 'Заблокировано',
+    'Needs Alt Text': 'Нужен ALT-текст',
+    'Needs Filename': 'Нужно имя файла',
+    'Needs Export': 'Нужен экспорт',
+    'Ready for Image Sitemap': 'Готово для sitemap изображений',
+  };
+  return map[key] || key || 'Не определено';
+}
+
+export function mediaSeoNoteLabel(value: unknown) {
+  const key = String(value || '').trim();
+  const map: Record<string, string> = {
+    'Missing primary image.': 'Нет главного изображения.',
+    'Alt text needs product-specific rewrite.': 'ALT-текст нужно сделать конкретным для товара.',
+    'Use short descriptive SEO filename on export.': 'При экспорте нужно короткое описательное SEO-имя файла.',
+    'Normalize export format for web usage.': 'Нужно привести формат файла к веб-формату.',
+    'Run FEYA media export before image sitemap and Pinterest export.': 'Перед sitemap изображений и Pinterest нужно выполнить экспорт медиа FEYA.',
+    'Resize or convert image for web performance.': 'Изображение нужно уменьшить или преобразовать для быстрой загрузки сайта.',
+  };
+  return map[key] || key;
+}
