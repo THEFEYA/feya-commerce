@@ -5,6 +5,7 @@ import { AdminQueueQuickReviewClient } from '@/components/AdminQueueQuickReviewC
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
+import { seoIssueLabel, seoReadinessLabel } from '@/lib/adminDisplayRu';
 
 export const revalidate = 300;
 
@@ -100,32 +101,32 @@ export default async function AdminSeoPage() {
     <section className="container-feya pt-10 pb-16">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
         <div>
-          <div className="eyebrow-gold mb-3">Admin · SEO Readiness</div>
-          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>SEO readiness</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Первый контрольный слой перед SEO collections, Google/OpenAI feeds и product graph: title/H1, slug, image alt, category/color/context signals, configurations and price confidence.</p>
+          <div className="eyebrow-gold mb-3">Админка · SEO-готовность</div>
+          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>SEO-готовность</h1>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Первичная проверка перед SEO-коллекциями, фидами Google/OpenAI и товарными связями: заголовок/H1, адрес страницы, ALT изображения, категория, цвет, контекст, варианты и точность цены.</p>
         </div>
         <div className="flex gap-3">
           <Link href="/admin/seo-keywords" className="btn-ghost">SEO-ключи <ArrowUpRight size={13} /></Link>
-          <Link href="/admin" className="btn-ghost">Admin cockpit <ArrowUpRight size={13} /></Link>
-          <Link href="/admin/products" className="btn-ghost">Products <ArrowUpRight size={13} /></Link>
+          <Link href="/admin" className="btn-ghost">Панель управления <ArrowUpRight size={13} /></Link>
+          <Link href="/admin/products" className="btn-ghost">Товары <ArrowUpRight size={13} /></Link>
         </div>
       </div>
 
       {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <Metric icon={SearchCheck} label="SEO ready" value={ready} note="Products with strong first-pass readiness score." />
-        <Metric icon={FileSearch} label="Blocked" value={blocked} note="Products blocked by data quality issues." />
-        <Metric icon={ImageIcon} label="Missing alt" value={missingAlt} note="Primary image alt missing or empty." />
-        <Metric icon={Link2} label="Weak slug" value={weakSlug} note="Slug missing or falling back to ID-like value." />
+        <Metric icon={SearchCheck} label="SEO готово" value={ready} note="Товары с высокой базовой готовностью к SEO." />
+        <Metric icon={FileSearch} label="Заблокировано" value={blocked} note="Товары с проблемами качества данных." />
+        <Metric icon={ImageIcon} label="Нет ALT" value={missingAlt} note="У главного изображения отсутствует ALT-текст." />
+        <Metric icon={Link2} label="Слабый адрес" value={weakSlug} note="Адрес страницы отсутствует или заменён техническим ID." />
       </div>
 
       <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
         <div className="grid grid-cols-[76px_1.5fr_0.7fr_1.3fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.22em] text-[var(--smoke)]">
-          <div>Image</div>
-          <div>Product / signals</div>
-          <div>Score</div>
-          <div>SEO blockers</div>
+          <div>Фото</div>
+          <div>Товар / признаки</div>
+          <div>Оценка</div>
+          <div>SEO-проблемы</div>
         </div>
         <div className="divide-y divide-[rgba(216,214,211,.08)]">
           {seoRows.map(({ product, issues, readiness }) => {
@@ -137,28 +138,28 @@ export default async function AdminSeoPage() {
                 </div>
                 <div>
                   <div className="text-bone text-[15px] leading-snug line-clamp-2">{productTitle(product)}</div>
-                  <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'No category'} · {product.canonical_color_label || product.color || 'No color'}</div>
+                  <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'Категория не указана'} · {product.canonical_color_label || product.color || 'Цвет не указан'}</div>
                   <div className="mt-2 text-[11px] text-[var(--bone-dim)]">/{slug}</div>
                 </div>
                 <div>
                   <div className="font-price text-gold-grad text-[28px] leading-none">{readiness.score}</div>
-                  <div className="mt-2"><Chip tone={readiness.tone}>{readiness.label}</Chip></div>
+                  <div className="mt-2"><Chip tone={readiness.tone}>{seoReadinessLabel(readiness.label)}</Chip></div>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
-                  {issues.slice(0, 6).map((issue) => <Chip key={issue} tone={issue.includes('Missing') || issue.includes('Blocked') || issue.includes('Unverified') ? 'danger' : 'warning'}>{issue}</Chip>)}
+                  {issues.slice(0, 6).map((issue) => <Chip key={issue} tone={issue.includes('Missing') || issue.includes('Blocked') || issue.includes('Unverified') ? 'danger' : 'warning'}>{seoIssueLabel(issue)}</Chip>)}
                   {!issues.length ? <Chip tone="ok">OK</Chip> : null}
                 </div>
               </Link>
-              <AdminQueueQuickReviewClient productSlug={slug} canonicalProductId={product.canonical_product_id} sourceRoute="/admin/seo" approvedEventType="seo_ready_checked" subjectType="seo" approvedLabel="Mark SEO ready" />
+              <AdminQueueQuickReviewClient productSlug={slug} canonicalProductId={product.canonical_product_id} sourceRoute="/admin/seo" approvedEventType="seo_ready_checked" subjectType="seo" approvedLabel="Отметить SEO готовым" />
             </article>;
           })}
-          {!seoRows.length ? <div className="p-6 text-[13px] text-[var(--bone-dim)]">No SEO rows returned from v4.</div> : null}
+          {!seoRows.length ? <div className="p-6 text-[13px] text-[var(--bone-dim)]">Нет товаров для проверки SEO.</div> : null}
         </div>
       </div>
 
       <div className="mt-6 rounded-2xl border border-[rgba(212,178,106,.18)] bg-[rgba(212,178,106,.045)] p-5">
         <div className="flex items-center gap-2 eyebrow-gold mb-2"><Shapes size={14} /> Next SEO layer</div>
-        <p className="text-[13px] leading-relaxed text-[var(--bone-dim)]">Следующий уровень после этого экрана: collection graph по Part / Color / Occasion / Style, OpenAI/Google merchant feeds и canonical product-schema. Пока это read-only readiness, без автогенерации SEO-текста.</p>
+        <p className="text-[13px] leading-relaxed text-[var(--bone-dim)]">Следующий уровень после этого экрана: товарные связи по типу, цвету, событию и стилю, фиды OpenAI/Google Merchant и каноническая schema товара. Пока это только просмотр готовности без автоматической генерации SEO-текста.</p>
       </div>
     </section>
   </main>;
