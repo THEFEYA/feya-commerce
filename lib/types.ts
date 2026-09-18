@@ -436,3 +436,24 @@ export type LaunchReadinessSummaryRow = {
   blocking_count?: number | null;
   [key: string]: unknown;
 };
+
+
+export type GrowthSignalCandidateRow = {
+  signal_fingerprint: string;
+  signal_code: string;
+  signal_type?: string | null;
+  signal_scope?: string | null;
+  accountable_domain?: string | null;
+  priority?: string | null;
+  materiality_score?: number | string | null;
+  maturity_state?: string | null;
+  signal_state?: string | null;
+  case_admission_recommendation?: string | null;
+  title?: string | null;
+  summary?: string | null;
+  next_action?: string | null;
+  entity_scope_json?: unknown;
+  evidence_json?: unknown;
+  generated_at?: string | null;
+  [key: string]: unknown;
+};
