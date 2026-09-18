@@ -90,6 +90,10 @@ export default function AdminHomePage() {
             <strong>Data Authority</strong>
             <span>Source-of-Truth tiers and precedence across product, policy, search, analytics and commerce.</span>
           </Link>
+          <Link className="card metric" href="/admin/data-health">
+            <strong>Data Health</strong>
+            <span>Latest observability, freshness, watermarks, coverage and source errors.</span>
+          </Link>
           <Link className="card metric" href="/admin/launch-readiness">
             <strong>Launch Readiness</strong>
             <span>Hard gates for Public Site, Search, Commerce and Measurement.</span>
