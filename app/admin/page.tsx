@@ -54,6 +54,10 @@ export default function AdminHomePage() {
             <strong>Query Clusters</strong>
             <span>Read-only semantic clustering gates and current bottlenecks.</span>
           </Link>
+          <Link className="card metric" href="/admin/content-qa">
+            <strong>Content QA</strong>
+            <span>Shadow CQA readiness over existing SEO pack drafts.</span>
+          </Link>
           <Link className="card metric" href="/admin/system-readiness">
             <strong>System Readiness</strong>
             <span>Capability Registry: what Growth OS can actually observe and execute now.</span>
