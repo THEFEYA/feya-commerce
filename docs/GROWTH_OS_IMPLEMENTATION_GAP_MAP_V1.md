@@ -708,3 +708,76 @@ The existing 1,918 keyword placement rows are not treated as canonical page owne
 
 Next:
 Create a reviewable semantic-clustering candidate queue. Candidate generation may use keyword master, axes/patterns, metrics and Product DNA as evidence, but it must not auto-create approved clusters or ownership.
+
+
+### G4 — Query Cluster Review Queue
+STATUS: IMPLEMENTED / APPROVED CLUSTERS STILL EMPTY
+
+Applied:
+- 20260917235944 — feya_query_cluster_review_queue_v1
+
+Observed gating state:
+- active keyword master rows = 458
+- NEEDS_CLEANUP_REVIEW = 431
+- NEEDS_CLEANUP = 27
+- READY_FOR_SEMANTIC_CLUSTERING = 0
+
+Implemented:
+- deterministic safe review queue;
+- explicit clustering lanes;
+- cleanup/metric/membership gates;
+- /admin/seo-clusters;
+- no automatic query-cluster creation;
+- no automatic ownership assignment.
+
+This is the correct current state: semantic review is a real prerequisite, not something the system should fabricate.
+
+
+### G6 — Technical SEO Production Readiness
+STATUS: FOUNDATION IMPLEMENTED / LAUNCH OFF
+
+Implemented in branch:
+- global launch-safe metadata;
+- public site URL configuration;
+- admin noindex layout;
+- robots.ts;
+- portfolio-gated sitemap.ts;
+- PDP canonical metadata;
+- PDP robots gate;
+- Open Graph/Twitter metadata;
+- Product JSON-LD behind a separate feature flag and strict data-quality gate;
+- docs/TSEO_SEARCH_LAUNCH_GATE_V1.md.
+
+Hard safeguards:
+- FEYA_SEARCH_INDEXING_ENABLED=false by default;
+- current 243 product pages remain portfolio candidate, not indexable;
+- global launch flag alone cannot index candidate PDPs;
+- sitemap only includes portfolio rows explicitly marked indexable;
+- ProductGroup/variant markup is deferred until real variant URL/model exists;
+- fallback/range pricing is not pushed into simplified Product structured data.
+
+
+### G7 — Production Analytics
+STATUS: CONTRACT DEFINED / COLLECTION NOT ACTIVE
+
+Audit found no current:
+- GA4 instrumentation;
+- GSC integration;
+- BigQuery analytics export;
+- authoritative completed-order system.
+
+Added:
+- docs/PRODUCTION_ANALYTICS_EVENT_CONTRACT_V1.md
+
+Canonical future item_id:
+canonical_product_id
+
+Target ecommerce sequence:
+view_item_list -> select_item -> view_item -> add_to_cart -> begin_checkout -> purchase -> refund
+
+Current allowed implementation scope:
+- contract/readiness only.
+
+purchase/refund events remain prohibited until real commerce order/refund authority exists.
+
+CPIM and GMEL production modes remain inactive until first-party production data exists.
