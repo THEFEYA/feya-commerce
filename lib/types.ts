@@ -247,3 +247,38 @@ export type SeoPagePortfolioRow = {
   updated_at?: string | null;
   [key: string]: unknown;
 };
+
+
+export type QueryClusterReviewRow = {
+  keyword_id: number;
+  source_keyword?: string | null;
+  keyword_norm?: string | null;
+  semantic_keyword_candidate?: string | null;
+  keyword_axis?: string | null;
+  keyword_pattern?: string | null;
+  suggested_page_level?: string | null;
+  priority_tier?: string | null;
+  validation_priority?: string | null;
+  keyword_master_validation_status?: string | null;
+  requires_api_validation?: boolean | null;
+  product_count?: number | null;
+  cleanup_id?: number | null;
+  ai_intent?: string | null;
+  ai_rewrite_status?: string | null;
+  cleanup_review_status?: string | null;
+  should_validate_api?: boolean | null;
+  should_use_for_product?: boolean | null;
+  should_use_for_collection?: boolean | null;
+  should_use_for_image_alt?: boolean | null;
+  should_hold?: boolean | null;
+  warning_flags?: unknown;
+  avg_monthly_searches?: number | null;
+  competition?: string | null;
+  competition_index?: number | null;
+  latest_metric_fetched_at?: string | null;
+  metric_data_freshness_status?: string | null;
+  cluster_membership_count?: number | null;
+  cluster_queue_status?: string | null;
+  clustering_lane?: string | null;
+  [key: string]: unknown;
+};
