@@ -112,5 +112,17 @@ Specific lighting setups are never the reason to buy a costume. Do not write "id
 
 Promotional tone should remain specific and evidenced: original/authorial/handmade/design-led, expressive, memorable, polished, easy to style, comfortable or shape-retaining only when supported by Product Truth. Keep unsupported luxury/premium/superlative claims banned under R21.
 
+
+## R28. Do not invent buyer choreography; sell the whole look before body-part mechanics
+Owner clarification, 2026-09-18: a costume is not purchased because the buyer supposedly needs expressive hand gestures, standing poses, close-up framing, full-body framing, upper-body emphasis or any other choreography invented from the product photo. Those are usage guesses, not product benefits. Buyer copy must not claim that arm pieces "make gestures part of the costume", leg pieces "support full-body poses", a choker "improves close-ups", or a top is for performers who "need upper-body detail" unless a real functional product fact specifically supports such a claim.
+
+Describe the finished look as a whole first: authorial design, handmade construction, material/finish, memorable character, visual richness, craftsmanship and the owner-selected real-world use. Components may be named to explain a specific design feature, but do not repeat the same anatomy or component focus across About, benefits and Ideal For. No body region is a customer motivation by itself.
+
+Generic design-review phrases such as `coordinated design`, `visual structure`, `clear focal point`, `easy to read from a distance`, `upper-body focus` and similar language are not buyer benefits. Replace them with concrete product-specific value: a repeated petal motif, a distinctive horned character, a glossy mirror finish, intricate handmade detailing, an original stage character, a rich theatrical look or another supported fact.
+
+When an owner-confirmed persona is a recognizable character reference, it may appear naturally as an inspiration cue (for example `Maleficent-inspired`) when useful to search intent, while R14 still forbids claiming an exact franchise replica.
+
+Owner product clarification, listing 4373523076: the gold stage outfit uses many petal-shaped elements made from glossy mirror-finish vegan leather across the headpiece, top and skirt. This handmade repeated petal motif is a core visual and selling feature and should be described directly. Do not reduce it to generic `coordinated gold details` or invent feather material merely because an old listing title used the word `feather`.
+
 ## Process rule
 Every owner review is captured the same way: complaint → named rule → committed here → reflected in prompts/validators. Cumulative and versioned.
