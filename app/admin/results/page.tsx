@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
-import { ownerToneForStatus, statusLabel } from '@/lib/owner-ui/terminology';
+import { capabilityOwnerSummary, ownerToneForStatus, statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -47,7 +47,7 @@ export default async function AdminResultsPage() {
           <div className={`owner-status ${toneClass(tone)}`}>{statusLabel(measurementState)}</div>
           <h2 className="owner-card-title" style={{ marginTop: '12px' }}>Измерение реальных результатов</h2>
           <p className="owner-card-copy">
-            {String(map.get('MEASUREMENT_ENGINE')?.limitations_summary || 'Пока нет реальных GA4, Search Console и подтверждённых данных заказов, измерение бизнес-эффекта остаётся выключенным.')}
+            {capabilityOwnerSummary('MEASUREMENT_ENGINE')}
           </p>
         </section>
 
@@ -61,12 +61,12 @@ export default async function AdminResultsPage() {
             <Link href="/admin/learning" className="owner-card">
               <div className="owner-status is-success">Выводы</div>
               <h3 className="owner-card-title" style={{ marginTop: '10px' }}>Что FEYA уже узнала</h3>
-              <p className="owner-card-copy">Повторно используемые выводы появляются только после достаточного evidence, а не после одного удачного случая.</p>
+              <p className="owner-card-copy">Повторно используемые выводы появляются только после достаточных доказательств, а не после одного удачного случая.</p>
             </Link>
             <Link href="/admin/advanced" className="owner-card">
               <div className="owner-status">История</div>
               <h3 className="owner-card-title" style={{ marginTop: '10px' }}>Изменения и измерения</h3>
-              <p className="owner-card-copy">Техническая история изменений и measurement details пока остаются в диагностическом слое.</p>
+              <p className="owner-card-copy">Техническая история изменений и детали измерений пока остаются в диагностическом слое.</p>
             </Link>
           </div>
         </section>
