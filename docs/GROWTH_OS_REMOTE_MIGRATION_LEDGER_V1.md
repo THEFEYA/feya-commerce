@@ -212,3 +212,22 @@ Rollback-only tests confirmed:
 - repeated generation_run_id returns same draft
 - one draft + one event inside transaction
 - no duplicate write on retry
+
+
+### Deterministic content prechecks
+
+20260918084759 — feya_content_prechecks_foundation_v1
+- deterministic token-set helper
+- Jaccard similarity helper
+- preview content prechecks RPC
+- apply content prechecks RPC
+- textual similarity threshold calibration stored in capability evidence
+- exact Product Truth primary-ALT check
+
+Validation:
+- preview is read-only
+- apply tested only under explicit ROLLBACK
+- apply produced two expected audit events inside transaction
+- rollback restored original draft snapshots/QA flags
+- end-to-end SCO shadow -> prechecks -> CQA shadow transition PASS
+- no test rows/events remained
