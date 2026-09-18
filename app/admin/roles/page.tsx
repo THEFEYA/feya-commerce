@@ -63,7 +63,7 @@ export default async function AdminRolesPage() {
 
         <section className="phase-banner">
           <div className="phase-label">Команда FEYA · только просмотр</div>
-          <h1>Роли AI-команды</h1>
+          <h1>Роли ИИ-команды</h1>
           <p>
             Наличие роли в архитектуре не означает, что агент сейчас активен. Здесь показано реальное состояние роли и предел её самостоятельности.
           </p>
