@@ -88,26 +88,44 @@ export default async function AdminSignalsPage() {
 
         <section className="owner-list">
           {prepared.map(({ row, vm, routing }) => (
-            <article className="owner-card" key={vm.id}>
-              <div className="owner-card-meta">
-                <span className={`owner-status ${toneClass(vm.tone)}`}>{vm.priorityLabel}</span>
-                <span>{routing}</span>
-                <span>{vm.ownerLabel}</span>
-                <span>{vm.statusLabel}</span>
+            <details className="owner-disclosure owner-card" key={vm.id}>
+              <summary>
+                <span style={{ display: 'grid', gap: '6px' }}>
+                  <span className="owner-card-meta" style={{ marginBottom: 0 }}>
+                    <span className={`owner-status ${toneClass(vm.tone)}`}>{vm.priorityLabel}</span>
+                    <span>{routing}</span>
+                    <span>{vm.ownerLabel}</span>
+                    <span>{vm.statusLabel}</span>
+                  </span>
+                  <strong>{vm.title}</strong>
+                  <small>{vm.summary}</small>
+                </span>
+                <span className="owner-section-kicker">Подробнее</span>
+              </summary>
+
+              <div className="owner-disclosure-body">
+                <div className="owner-grid two">
+                  <div>
+                    <div className="owner-section-kicker">Что произошло</div>
+                    <p className="owner-card-copy">{vm.summary}</p>
+                  </div>
+                  <div>
+                    <div className="owner-section-kicker">Что предлагает FEYA</div>
+                    <p className="owner-card-copy">{vm.recommendedAction}</p>
+                  </div>
+                </div>
+                <div className="owner-actions">
+                  {row.case_admission_recommendation === 'OWNER_DECISION_REQUIRED' ? (
+                    <Link href="/admin/company/owner-attention" className="owner-button primary">Рассмотреть решение</Link>
+                  ) : row.case_admission_recommendation === 'WORK_QUEUE' ? (
+                    <Link href="/admin/company/work" className="owner-button">Открыть работу</Link>
+                  ) : (
+                    <Link href="/admin/company/system" className="owner-button">Посмотреть состояние</Link>
+                  )}
+                  <Link href="/admin/signals" className="owner-button">Технические данные</Link>
+                </div>
               </div>
-              <h2 className="owner-card-title">{vm.title}</h2>
-              <p className="owner-card-copy"><strong>Что произошло:</strong> {vm.summary}</p>
-              <p className="owner-card-copy"><strong>FEYA предлагает:</strong> {vm.recommendedAction}</p>
-              <div className="owner-actions">
-                {row.case_admission_recommendation === 'OWNER_DECISION_REQUIRED' ? (
-                  <Link href="/admin/company/owner-attention" className="owner-button primary">Рассмотреть решение</Link>
-                ) : row.case_admission_recommendation === 'WORK_QUEUE' ? (
-                  <Link href="/admin/company/work" className="owner-button">Открыть работу</Link>
-                ) : (
-                  <Link href="/admin/company/system" className="owner-button">Посмотреть состояние</Link>
-                )}
-              </div>
-            </article>
+            </details>
           ))}
         </section>
 
