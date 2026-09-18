@@ -1112,3 +1112,118 @@ Durable Handoffs:
 - no free-form agent chat loop
 
 Automatic orchestration remains OFF.
+
+
+## Current engineering checkpoint — 2026-09-18 late implementation wave
+
+This section supersedes older "next focus" notes where the corresponding foundation has already been implemented.
+
+### What now exists beyond the earlier G0→G9 map
+
+- durable Workflow Run/Event persistence exists; automatic worker/orchestration remains OFF;
+- keyword-cleanup independent review foundation exists;
+- semantic Query Cluster proposal + review/apply foundation exists;
+- Page Ownership proposal/shortlist foundation exists;
+- indexable-page eligibility/proposal foundation exists;
+- Scenario Regression Registry + explicit run evidence exists;
+- Source-of-Truth Registry + Data Source Health foundation exists;
+- Incident + Change Freeze foundation exists;
+- Execution Gateway request/receipt foundation exists, but no production dispatcher;
+- Learning Registry + policy-adoption gate exists;
+- Experiment Registry + contamination/change-event linkage exists;
+- versioned Growth Strategy + Initiative foundation exists;
+- event/opportunity registry exists;
+- Role Activation Gate exists;
+- Stabilization Window Gate exists;
+- AI runtime token/latency usage metering exists.
+
+### Current live-state counts
+
+- Growth Cases: **0**
+- active Growth Objectives: **0**
+- active Growth Strategies: **0**
+- Initiatives: **0**
+- Opportunities: **0**
+- Workflow Runs: **0**
+- Execution Requests: **0**
+- Experiments: **0**
+- metered live AI invocations: **0**
+- role runtime state: **5 SHADOW / 3 INACTIVE / 0 ACTIVE**
+
+These zeros are intentional PRE_LAUNCH state, not missing seed data. Do not create synthetic business activity just to populate the system.
+
+### Regression state
+
+Latest Scenario Registry readiness:
+
+- PASS: **10**
+- WARN: **2**
+- NOT_RUN: **3**
+- FAIL: **0**
+- ERROR: **0**
+- CRITICAL not PASS: **2**
+- registry release state: **BLOCKED**
+
+Do not convert WARN/NOT_RUN into PASS without executing the invariant with real evidence.
+
+### Admin boundary correction
+
+The original hardening RPC used a fixed list of 24 internal views. Implementation continued after that migration, so the static list became stale.
+
+It is now registry-backed:
+
+- governed admin read surfaces: **38**
+- anon-readable now: **38**
+- authenticated-readable now: **38**
+- hardening action: **NOT EXECUTED**
+
+This is intentional until protected admin auth, owner allowlist and server-side reads are verified. The hardening RPC now iterates the registry and refuses empty/missing registry state, preventing a false "hardened" result on only a partial list.
+
+### AI cost / token discipline
+
+Private ledger:
+
+- `feya_growth_ai_invocations_v1`
+- `feya_fn_record_ai_invocation_v1`
+- `feya_commerce_v_ai_usage_daily_v1`
+
+Instrumented current OpenAI runners:
+
+- keyword cleanup;
+- independent CQA;
+- SCO shadow;
+- keyword cleanup review;
+- query-cluster proposals;
+- page-ownership proposals.
+
+Rules:
+
+- no prompt/response content in the usage ledger;
+- provider token usage + latency only;
+- current model output caps are **not** reduced blindly before real measurements;
+- no hard-coded dollar estimate without versioned model-pricing truth;
+- no autonomous budget limit;
+- `AI_BUDGET_GATE = UNAVAILABLE / owner_policy_not_defined`;
+- Human Owner owns any future monetary limit.
+
+See `docs/AI_RUNTIME_COST_DISCIPLINE_V1.md`.
+
+### Remaining real blockers before public/operational behavior
+
+Still do not bypass:
+
+1. protected admin auth + verified owner allowlist + explicit admin hardening;
+2. public domain/Vercel attachment and launch verification;
+3. ACTIVE Business Truth required for customer-facing policy claims;
+4. SEO Page Portfolio / query-cluster / page-ownership review where still unresolved;
+5. Google Ads Keyword Planning access after external verification/access is available;
+6. GA4 production instrumentation and trusted commerce/order truth;
+7. GSC after the public site is live/verified;
+8. scenario gaps that genuinely require those missing sources;
+9. Measurement Engine promotion only after real datasets exist.
+
+### Engineering rule from this checkpoint
+
+Do not keep adding foundations merely because a canonical noun exists.
+
+Next work must close a real blocker, improve measurable reliability/cost, or connect a foundation to real data. Otherwise DEFER.
