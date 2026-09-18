@@ -379,8 +379,8 @@ Rollback validation:
 20260918100407 — feya_scenario_test_registry_v1  
 20260918100451 — feya_scenario_run_recorder_v1
 - canonical regression scenario registry + explicit run evidence
-- current latest scenario readiness: PASS 10 / WARN 2 / NOT_RUN 3 / FAIL 0 / ERROR 0
-- current release state remains BLOCKED because two CRITICAL scenarios are not PASS
+- current latest scenario readiness after the 18 Sep regression wave: PASS 15 / WARN 0 / NOT_RUN 0 / FAIL 0 / ERROR 0
+- current registry release state = PASS; this is regression-harness readiness only and does not override launch/data capability gates
 
 20260918100652 — feya_source_of_truth_registry_v1  
 20260918100818 — feya_data_source_health_registry_v1
@@ -457,3 +457,33 @@ Rollback validation:
 - monetary cost estimation intentionally absent until a versioned pricing contract exists
 - AI_BUDGET_GATE remains UNAVAILABLE / owner_policy_not_defined
 - Human Owner must define any hard monetary limit after real usage is measured
+
+
+### Component inclusion claim guard
+
+20260918105852 — feya_component_claim_precheck_v1  
+20260918110039 — feya_component_claim_publish_cqa_gate_v2  
+20260918110151 — feya_sco_component_claim_initial_state_v1
+- deterministic precheck detects explicit unconditional inclusion claims for optional configurations / known non-components
+- independent CQA remains required for broader semantic claims
+- ready_for_publish now additionally requires qa_self_report.component_claim_truth=pass
+- new SCO shadow drafts initialize component_claim_truth=not_checked rather than assuming PASS
+- rollback regression fixture confirmed an explicit false inclusion claim becomes needs_review and leaves no persistent fixture changes
+- STYLED_IMAGE_NOT_INCLUDED_COMPONENT latest Scenario Run = PASS
+
+### Purchase / measurement reconciliation classifier
+
+20260918110552 — feya_purchase_measurement_reconciliation_classifier_v1
+- deterministic classifier keeps Commerce DB authoritative for completed-order truth
+- GA4 purchase outage/missing measurement is classified as data quality / reconciliation failure, not business collapse
+- classifier regression evidence recorded for GA4_PURCHASE_OUTAGE_IS_DATA_QUALITY
+- latest Scenario Registry state after the regression wave: 15 PASS / 0 WARN / 0 NOT_RUN / 0 FAIL / 0 ERROR
+
+### Internal RPC least-privilege hardening
+
+20260918110651 — feya_internal_rpc_privilege_hardening_v1
+- revoked anon/authenticated EXECUTE from internal SEO metric import/promotion, brief worker, keyword-plan, review, commercial-promotion and metric-batch mutation RPCs
+- revoked browser EXECUTE from the internal component-claim precheck, admin-boundary preview, and internal trigger helpers
+- retained service_role execution for internal workflows
+- intentionally preserved public feya_commerce_create_order_draft_v1 because it is the storefront order-draft boundary
+- post-migration audit: among SECURITY DEFINER FEYA Commerce/Growth functions containing DML, the public order-draft RPC is the only remaining anon/authenticated executable path in this audited scope
