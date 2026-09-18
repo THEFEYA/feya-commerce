@@ -109,16 +109,16 @@ function formatMoney(value: unknown) {
 function formatPriceRange(row: AdminCatalogRow) {
   const min = toNumber(row.public_min_price);
   const max = toNumber(row.public_max_price);
-  if (min == null && max == null) return 'No public price';
+  if (min == null && max == null) return 'Публичная цена не указана';
   if (min != null && max != null && min !== max) return `${formatMoney(min)}–${formatMoney(max)}`;
-  return formatMoney(min ?? max) || 'No public price';
+  return formatMoney(min ?? max) || 'Публичная цена не указана';
 }
 
 function buildSubtitle(row: AdminCatalogRow) {
   const parts = [
-    row.source_shop_code || 'SHOP',
+    row.source_shop_code || 'Магазин',
     row.matched_etsy_listing_id ? `Etsy ${row.matched_etsy_listing_id}` : row.primary_source_listing_id,
-    row.product_type || 'Product'
+    row.product_type || 'Товар'
   ].filter(Boolean);
   return parts.join(' · ');
 }
@@ -136,12 +136,12 @@ function getReadiness(row: AdminCatalogRow): { label: AdminProductTableRow['read
 
 function getReviewChips(row: AdminCatalogRow): ReviewChip[] {
   const chips: ReviewChip[] = [];
-  if (numberOrZero(row.missing_price_row_count) > 0) chips.push({ label: 'Missing price', tone: 'warning' });
-  if (row.has_fallback_price) chips.push({ label: 'Fallback price', tone: 'warning' });
-  if (row.has_sampler_excluded_price) chips.push({ label: 'Sampler excluded', tone: 'warning' });
-  if (numberOrZero(row.public_primary_media_count) === 0) chips.push({ label: 'Missing media', tone: 'danger' });
-  if (numberOrZero(row.listing_match_review_count) > 0) chips.push({ label: 'Match review', tone: 'warning' });
-  if (row.styled_imagery_flag) chips.push({ label: 'Styled imagery', tone: 'neutral' });
+  if (numberOrZero(row.missing_price_row_count) > 0) chips.push({ label: 'Нет цены', tone: 'warning' });
+  if (row.has_fallback_price) chips.push({ label: 'Резервная цена', tone: 'warning' });
+  if (row.has_sampler_excluded_price) chips.push({ label: 'Пробник исключён', tone: 'warning' });
+  if (numberOrZero(row.public_primary_media_count) === 0) chips.push({ label: 'Нет медиа', tone: 'danger' });
+  if (numberOrZero(row.listing_match_review_count) > 0) chips.push({ label: 'Проверить сопоставление', tone: 'warning' });
+  if (row.styled_imagery_flag) chips.push({ label: 'Стилизованное изображение', tone: 'neutral' });
   if (!chips.length) chips.push({ label: 'OK', tone: 'neutral' });
   return chips;
 }
@@ -158,9 +158,9 @@ function mapAdminProductRow(row: AdminCatalogRow, enrichment?: ProductEnrichment
     imageUrl: enrichment?.primary_image_url || null,
     subtitle: buildSubtitle(row),
     price: formatPriceRange(row),
-    confidence: row.has_fallback_price || numberOrZero(row.missing_price_row_count) > 0 ? 'Needs price review' : 'Public price',
+    confidence: row.has_fallback_price || numberOrZero(row.missing_price_row_count) > 0 ? 'Нужно проверить цену' : 'Публичная цена подтверждена',
     configCount: publicConfigurations,
-    configNote: `${publicConfigurations} public / ${totalConfigurations} total`,
+    configNote: `${publicConfigurations} публичных / ${totalConfigurations} всего`,
     readinessLabel: readiness.label,
     readinessTone: readiness.tone,
     reviewChips: getReviewChips(row),
@@ -227,7 +227,7 @@ export default async function AdminProductsPage() {
         <div>
           <div className="eyebrow-gold mb-3">Админка · Контроль товаров</div>
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Товары</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Интерактивная таблица полного admin-каталога: готовность товара, цена, компоненты, медиа и события проверки.</p>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Интерактивная таблица полного внутреннего каталога: готовность товара, цена, компоненты, медиа и события проверки.</p>
         </div>
         <div className="flex gap-3">
           <Link href="/admin" className="btn-ghost">Панель управления <ArrowUpRight size={13} /></Link>
@@ -238,11 +238,11 @@ export default async function AdminProductsPage() {
       {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
 
       <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
-        <Metric icon={Search} label="Товары" value={rows.length} note="Загружены из step6 admin catalog." />
+        <Metric icon={Search} label="Товары" value={rows.length} note="Текущий внутренний каталог товаров." />
         <Metric icon={Boxes} label="Опции" value={totals.configs} note="Публичные продаваемые варианты." />
         <Metric icon={Tags} label="Названия" value={totals.label} note="Требуют проверки названий." />
         <Metric icon={WalletCards} label="Цены" value={totals.price} note="Цены с неподтверждённым статусом." />
-        <Metric icon={ImageIcon} label="Медиа" value={totals.media} note="Нет публичной primary media." />
+        <Metric icon={ImageIcon} label="Медиа" value={totals.media} note="Нет главного публичного изображения." />
         <Metric icon={CheckCircle2} label="Готово" value={totals.ready} note={`Заблокировано: ${totals.blocked}`} />
       </div>
 
