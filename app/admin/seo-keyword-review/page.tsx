@@ -27,6 +27,48 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
+function riskLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  if (key === 'LOW') return 'Низкий';
+  if (key === 'MEDIUM') return 'Средний';
+  if (key === 'HIGH') return 'Высокий';
+  return asText(value);
+}
+
+function recommendationLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    APPROVE: 'Одобрить',
+    REJECT: 'Исключить',
+    HUMAN_REVIEW: 'Проверить вручную',
+    HOLD: 'Отложить',
+  };
+  return labels[key] || asText(value);
+}
+
+function humanStatusLabel(value: unknown) {
+  const key = asText(value, '').toLowerCase();
+  const labels: Record<string, string> = {
+    pending: 'Ожидает проверки',
+    approved: 'Одобрено',
+    rejected: 'Отклонено',
+    hold: 'Отложено',
+  };
+  return labels[key] || asText(value);
+}
+
+function laneLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    FAST_TRACK: 'Быстрая проверка',
+    SEMANTIC_REVIEW: 'Смысловая проверка',
+    ROUTING_REVIEW: 'Проверка маршрута',
+    ALT_REVIEW: 'Проверка ALT',
+    HUMAN_REVIEW: 'Ручная проверка',
+  };
+  return labels[key] || asText(value);
+}
+
 function riskClass(value: unknown) {
   const risk = asText(value, '').toUpperCase();
   if (risk === 'LOW') return 'ok';
@@ -56,46 +98,46 @@ export default async function AdminKeywordCleanupReviewPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/seo-keywords">SEO Keywords</Link>
-            <Link href="/admin/seo-keyword-review">Keyword Review</Link>
-            <Link href="/admin/seo-clusters">Cluster Queue</Link>
-            <Link href="/admin/seo-portfolio">SEO Portfolio</Link>
+            <Link href="/admin/seo-keywords">SEO-ключи</Link>
+            <Link href="/admin/seo-keyword-review">Проверка ключей</Link>
+            <Link href="/admin/seo-clusters">Группы запросов</Link>
+            <Link href="/admin/seo-portfolio">SEO-страницы</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">OSPM cleanup review · read-only</div>
-          <h1>Keyword Cleanup Review</h1>
+          <div className="phase-label">Проверка очистки ключей · только просмотр</div>
+          <h1>Проверка ключевых слов</h1>
           <p>
-            Cleanup generation, independent OSPM recommendation and human review are separate states. An AI recommendation never changes the human review_status.
+            Автоматическая очистка, независимая рекомендация и решение человека — разные этапы. Рекомендация AI никогда сама не меняет человеческий статус проверки.
           </p>
         </section>
 
         <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Current review candidates</span></div>
-          <div className="card metric"><strong>{pending}</strong><span>Pending human review</span></div>
-          <div className="card metric"><strong>{low}</strong><span>Low risk</span></div>
-          <div className="card metric"><strong>{medium}</strong><span>Medium risk</span></div>
-          <div className="card metric"><strong>{high}</strong><span>High risk</span></div>
-          <div className="card metric"><strong>{recommended}</strong><span>Independent recommendations</span></div>
+          <div className="card metric"><strong>{rows.length}</strong><span>Кандидатов на проверку</span></div>
+          <div className="card metric"><strong>{pending}</strong><span>Ждут человека</span></div>
+          <div className="card metric"><strong>{low}</strong><span>Низкий риск проверки</span></div>
+          <div className="card metric"><strong>{medium}</strong><span>Средний риск проверки</span></div>
+          <div className="card metric"><strong>{high}</strong><span>Высокий риск проверки</span></div>
+          <div className="card metric"><strong>{recommended}</strong><span>Есть независимая рекомендация</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
         <div className="notice" style={{ marginBottom: '18px' }}>
-          LOW/MEDIUM/HIGH is a review-effort tier, not SEO value. Search volume, competition and rankings are not inferred by this queue.
+          Низкий / средний / высокий — это сложность проверки, а не SEO-ценность ключа. Объём поиска, конкуренция и позиции здесь не придумываются.
         </div>
 
         <div className="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Keyword</th>
-                <th>Routing</th>
-                <th>Risk</th>
-                <th>Cleanup provenance</th>
-                <th>OSPM recommendation</th>
-                <th>Human status</th>
+                <th>Ключевой запрос</th>
+                <th>Куда использовать</th>
+                <th>Сложность проверки</th>
+                <th>Предупреждения очистки</th>
+                <th>Независимая рекомендация</th>
+                <th>Решение человека</th>
               </tr>
             </thead>
             <tbody>
@@ -103,8 +145,8 @@ export default async function AdminKeywordCleanupReviewPage() {
                 <tr key={row.cleanup_id}>
                   <td>
                     <strong>{asText(row.effective_keyword, row.original_keyword || '—')}</strong>
-                    <div className="muted">source: {asText(row.original_keyword)}</div>
-                    {row.normalization_only ? <div className="badge-row"><span className="badge">normalization only</span></div> : null}
+                    <div className="muted">исходный: {asText(row.original_keyword)}</div>
+                    {row.normalization_only ? <div className="badge-row"><span className="badge">только нормализация</span></div> : null}
                   </td>
                   <td>
                     {asText(row.suggested_page_level)}
@@ -115,27 +157,27 @@ export default async function AdminKeywordCleanupReviewPage() {
                   </td>
                   <td>
                     <span className={`status-pill ${riskClass(row.review_risk)}`}>
-                      {asText(row.review_risk)}
+                      {riskLabel(row.review_risk)}
                     </span>
-                    <div className="muted">{asText(row.review_lane)}</div>
+                    <div className="muted">{laneLabel(row.review_lane)}</div>
                   </td>
-                  <td>{asText(row.warning_flags, 'none')}</td>
+                  <td>{asText(row.warning_flags, 'нет')}</td>
                   <td>
                     {row.recommendation ? (
                       <>
                         <span className={`status-pill ${recClass(row.recommendation)}`}>
-                          {row.recommendation}
+                          {recommendationLabel(row.recommendation)}
                         </span>
                         <div className="muted">{asText(row.recommended_keyword)}</div>
                         <div className="muted">{asText(row.recommendation_reason)}</div>
                       </>
                     ) : (
-                      <span className="badge">not run</span>
+                      <span className="badge">ещё не запускалось</span>
                     )}
                   </td>
                   <td>
                     <span className={`status-pill ${row.review_status === 'approved' ? 'ok' : row.review_status === 'rejected' ? 'danger' : 'warning'}`}>
-                      {asText(row.review_status)}
+                      {humanStatusLabel(row.review_status)}
                     </span>
                     {row.approved_keyword ? <div className="muted">{row.approved_keyword}</div> : null}
                   </td>
