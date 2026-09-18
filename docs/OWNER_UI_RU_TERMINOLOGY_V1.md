@@ -40,9 +40,9 @@ Backend role -> Owner-facing Russian:
 - OSPM -> **Стратег органического поиска**
 - CPIM -> **Аналитик товаров и продаж**
 - GMEL -> **Аналитик результатов и экспериментов**
-- SCO -> **Редактор поискового контента**
+- SCO -> **Редактор SEO-контента**
 - CQA -> **Контроль качества контента**
-- TSEO -> **Специалист по техническому поиску**
+- TSEO -> **Специалист по техническому SEO**
 - GDAE -> **Инженер данных и аналитики**
 
 Acronyms may appear only in Technical details.
@@ -175,6 +175,24 @@ Use:
 
 Always explain why when relevant.
 
+## 10.1 Data quality language
+
+- current/fresh -> **Данные актуальны**
+- delayed -> **Данные обновлены с задержкой**
+- partial -> **Показатель временно неполный**
+- unavailable for conclusion -> **Недостаточно данных для вывода**
+
+Show this beside the affected metric/signal when it changes interpretation.
+
+## 10.2 Evidence type language
+
+- fact from authoritative source -> **Подтверждено данными**
+- system inference -> **Вероятное объяснение**
+- recommended next step -> **FEYA предлагает**
+- unverified possibility -> **Нужно проверить**
+
+Never present **Вероятное объяснение** as a confirmed cause.
+
 ## 11. Product workspace vocabulary
 
 Tabs:
@@ -193,8 +211,8 @@ Until real commerce/order truth exists, do not label the current price/configura
 - Opportunities -> **Возможности**
 - Demand -> **Спрос**
 - Pages -> **Страницы**
-- Technical SEO -> **Технический поиск**
-- Query cluster -> primary copy **Группа близких поисковых запросов**
+- Technical SEO -> **Техническое SEO**
+- Query cluster -> primary copy **Группа поисковых запросов**
   - short table label may be **Группа запросов**
   - canonical term `query_cluster` only in Technical details
 - Page ownership -> **Ответственность страницы за запросы**
