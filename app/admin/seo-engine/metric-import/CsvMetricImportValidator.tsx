@@ -98,12 +98,12 @@ function validateRow(row: CsvRow, rowNumber: number): ValidationResult {
   if (row.language && row.language !== 'en') issues.push('language должен быть en');
   if (row.avg_monthly_searches && !isNonNegativeNumber(row.avg_monthly_searches)) issues.push('avg_monthly_searches должен быть числом >= 0');
   if (row.competition && !ALLOWED_COMPETITION.includes(row.competition.toUpperCase())) issues.push('competition должен быть LOW / MEDIUM / HIGH / UNKNOWN');
-  if (row.competition === 'UNKNOWN') warnings.push('competition unknown: можно оставить как support/hold');
-  if (row.metric_source === 'google_trends') warnings.push('Google Trends не заменяет search volume');
-  if (!row.low_bid && !row.high_bid) warnings.push('нет bid-данных: scoring будет менее точным');
+  if (row.competition === 'UNKNOWN') warnings.push('конкуренция неизвестна: можно оставить как поддержку или отложить');
+  if (row.metric_source === 'google_trends') warnings.push('Google Trends не заменяет объём поиска');
+  if (!row.low_bid && !row.high_bid) warnings.push('нет данных по ставкам: оценка будет менее точной');
   if (issues.length) return { rowNumber, keyword: row.keyword || '—', status: 'blocked', issues };
   if (warnings.length) return { rowNumber, keyword: row.keyword || '—', status: 'warning', issues: warnings };
-  return { rowNumber, keyword: row.keyword || '—', status: 'valid', issues: ['готово к scoring'] };
+  return { rowNumber, keyword: row.keyword || '—', status: 'valid', issues: ['готово к оценке'] };
 }
 
 function statusText(status: RowStatus) { if (status === 'valid') return 'валидно'; if (status === 'warning') return 'проверить'; return 'блокер'; }
