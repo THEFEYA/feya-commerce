@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import {
   BarChart3,
   BriefcaseBusiness,
@@ -15,6 +15,8 @@ import {
   ImageIcon,
   Layers3,
   PackageSearch,
+  PanelLeftClose,
+  PanelLeftOpen,
   Rocket,
   Search,
   Settings2,
@@ -108,11 +110,18 @@ function currentContext(pathname: string) {
 export default function OwnerShell({ children }: { children: ReactNode }) {
   const pathname = usePathname() || '/admin';
   const router = useRouter();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const activeArea = ownerArea(pathname);
   const activeTool = WORK_TOOLS.find((item) => pathMatches(pathname, item.href));
   const toolsOpen = Boolean(activeTool);
 
   useEffect(() => {
+    try {
+      setSidebarCollapsed(window.localStorage.getItem('feya-owner-sidebar') === 'collapsed');
+    } catch {
+      // Local storage is optional; the navigation still works without it.
+    }
+
     const onKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
@@ -126,14 +135,37 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
 
   if (pathname.startsWith('/admin/login')) return <>{children}</>;
 
+  const toggleSidebar = () => {
+    setSidebarCollapsed((current) => {
+      const next = !current;
+      try {
+        window.localStorage.setItem('feya-owner-sidebar', next ? 'collapsed' : 'expanded');
+      } catch {
+        // Preference persistence is best-effort only.
+      }
+      return next;
+    });
+  };
+
   return (
-    <div className="owner-shell" lang="ru">
+    <div className={`owner-shell${sidebarCollapsed ? ' is-sidebar-collapsed' : ''}`} lang="ru">
       <aside className="owner-sidebar" aria-label="Основная навигация">
-        <Link href="/admin/company" className="owner-brand">
+        <Link href="/admin/company" className="owner-brand" title="Центр управления FEYA">
           <span className="owner-brand-name">FEYA</span>
           <span className="owner-brand-title">Центр управления</span>
           <span className="owner-brand-subtitle">Бизнес · товары · рост · ИИ-команда</span>
         </Link>
+
+        <button
+          type="button"
+          className="owner-sidebar-toggle"
+          onClick={toggleSidebar}
+          aria-label={sidebarCollapsed ? 'Развернуть боковую панель' : 'Свернуть боковую панель'}
+          title={sidebarCollapsed ? 'Развернуть панель' : 'Свернуть панель'}
+        >
+          {sidebarCollapsed ? <PanelLeftOpen size={15} /> : <PanelLeftClose size={15} />}
+          <span>{sidebarCollapsed ? 'Развернуть' : 'Свернуть'}</span>
+        </button>
 
         <nav className="owner-nav" aria-label="Разделы владельца">
           {NAV_ITEMS.map((item) => {
@@ -145,6 +177,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
                 href={item.href}
                 className={`owner-nav-item${active ? ' is-active' : ''}`}
                 aria-current={active ? 'page' : undefined}
+                title={item.label}
               >
                 <span className="owner-nav-mark" aria-hidden="true"><Icon size={14} strokeWidth={1.8} /></span>
                 <span>{item.label}</span>
@@ -169,6 +202,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
                   href={item.href}
                   className={`owner-tool-link${active ? ' is-active' : ''}`}
                   aria-current={active ? 'page' : undefined}
+                  title={item.label}
                 >
                   <span aria-hidden="true"><Icon size={13} strokeWidth={1.8} /></span>
                   <span>{item.label}</span>
@@ -181,19 +215,19 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
         <div className="owner-sidebar-footer">
           <Link
             href="/admin/company/search"
-            className={`owner-nav-item owner-nav-secondary${pathname.startsWith('/admin/company/search') ? ' is-active' : ''}`}
+            className={`owner-nav-item owner-nav-secondary${pathname.startsWith('/admin/company/search') ? ' is-active' : ''}`} title="Поиск"
           >
             <span className="owner-nav-mark" aria-hidden="true"><Search size={14} strokeWidth={1.8} /></span>
             <span>Поиск</span>
           </Link>
           <Link
             href="/admin/company/advanced"
-            className={`owner-nav-item owner-nav-secondary${pathname.startsWith('/admin/company/advanced') ? ' is-active' : ''}`}
+            className={`owner-nav-item owner-nav-secondary${pathname.startsWith('/admin/company/advanced') ? ' is-active' : ''}`} title="Технические детали"
           >
             <span className="owner-nav-mark" aria-hidden="true"><Settings2 size={14} strokeWidth={1.8} /></span>
             <span>Технические детали</span>
           </Link>
-          <Link href="/shop" className="owner-nav-item owner-nav-secondary">
+          <Link href="/shop" className="owner-nav-item owner-nav-secondary" title="Магазин">
             <span className="owner-nav-mark" aria-hidden="true"><Store size={14} strokeWidth={1.8} /></span>
             <span>Магазин</span>
           </Link>
