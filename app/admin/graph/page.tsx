@@ -4,6 +4,7 @@ import { ArrowUpRight, Blocks, CheckCircle2, CircleDot, Layers3, Palette, Shirt,
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 import { buildSeoCollectionCandidates, summarizeSeoGraph, type SeoCollectionCandidate } from '@/lib/seo-product-graph';
+import { launchStageLabel } from '@/lib/adminDisplayRu';
 import type { AdminReviewEvent } from '@/lib/admin-readiness';
 import type { StorefrontProduct } from '@/lib/types';
 
@@ -77,24 +78,24 @@ export default async function SeoProductGraphPage() {
     <section className="container-feya pt-10 pb-16">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
         <div>
-          <div className="eyebrow-gold mb-3">Admin · SEO Product Graph</div>
-          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Product graph</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Read-only SEO collection candidate layer for Shop by Piece, Occasion, Style, Color and Material. No public collection pages or feeds are generated here.</p>
+          <div className="eyebrow-gold mb-3">Админка · Товарные связи</div>
+          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Товарные связи</h1>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Только просмотр кандидатов для будущих SEO-коллекций по типу товара, событию, стилю, цвету и материалу. Публичные страницы и фиды здесь автоматически не создаются.</p>
         </div>
         <div className="flex gap-3">
-          <Link href="/admin" className="btn-ghost">Admin cockpit <ArrowUpRight size={13} /></Link>
-          <Link href="/admin/launch" className="btn-ghost">Launch pipeline <ArrowUpRight size={13} /></Link>
+          <Link href="/admin" className="btn-ghost">Панель управления <ArrowUpRight size={13} /></Link>
+          <Link href="/admin/launch" className="btn-ghost">Готовность к запуску <ArrowUpRight size={13} /></Link>
         </div>
       </div>
 
       {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        <Metric icon={Layers3} label="Candidates" value={summary.total || 0} note="Internal SEO collection candidates." />
-        <Metric icon={Shirt} label="Piece" value={summary.piece || 0} note="Shop by Piece groups." />
-        <Metric icon={Sparkles} label="Style" value={summary.style || 0} note="Style/aesthetic groups." />
-        <Metric icon={CheckCircle2} label="Feed-ready" value={summary.readyForFeed || 0} note="Has at least one feed-ready product." tone="success" />
-        <Metric icon={TriangleAlert} label="With blockers" value={summary.blocked || 0} note="Contains blocked products." tone="danger" />
+        <Metric icon={Layers3} label="Кандидаты" value={summary.total || 0} note="Внутренние кандидаты для SEO-коллекций." />
+        <Metric icon={Shirt} label="По типу товара" value={summary.piece || 0} note="Группы товаров по типу или части образа." />
+        <Metric icon={Sparkles} label="По стилю" value={summary.style || 0} note="Группы по стилю и визуальному направлению." />
+        <Metric icon={CheckCircle2} label="Готовы для фида" value={summary.readyForFeed || 0} note="Есть хотя бы один товар, готовый для фида." tone="success" />
+        <Metric icon={TriangleAlert} label="С блокировками" value={summary.blocked || 0} note="В группе есть заблокированные товары." tone="danger" />
       </div>
 
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -105,15 +106,15 @@ export default async function SeoProductGraphPage() {
               <div>
                 <div className="flex items-center gap-2 eyebrow-gold mb-2"><Icon size={14} /> {candidate.axis}</div>
                 <div className="text-bone text-[18px] leading-tight">{candidate.label}</div>
-                <div className="mt-2 text-[11px] text-[var(--bone-dim)]">Future URL: {candidate.href}</div>
+                <div className="mt-2 text-[11px] text-[var(--bone-dim)]">Будущий URL: {candidate.href}</div>
               </div>
-              <Chip>{candidate.productCount} products</Chip>
+              <Chip>{candidate.productCount} товаров</Chip>
             </div>
 
             <div className="grid grid-cols-3 gap-2 mb-4 text-center">
               <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/15 p-2"><div className="eyebrow-dim mb-1">SEO</div><div className="font-price text-bone text-[18px]">{candidate.canPrepareSeoCount}</div></div>
-              <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/15 p-2"><div className="eyebrow-dim mb-1">Feed</div><div className="font-price text-bone text-[18px]">{candidate.readyForFeedCount}</div></div>
-              <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/15 p-2"><div className="eyebrow-dim mb-1">Blocked</div><div className="font-price text-bone text-[18px]">{candidate.blockedCount}</div></div>
+              <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/15 p-2"><div className="eyebrow-dim mb-1">Фид</div><div className="font-price text-bone text-[18px]">{candidate.readyForFeedCount}</div></div>
+              <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/15 p-2"><div className="eyebrow-dim mb-1">Заблокировано</div><div className="font-price text-bone text-[18px]">{candidate.blockedCount}</div></div>
             </div>
 
             <div className="space-y-2">
@@ -121,7 +122,7 @@ export default async function SeoProductGraphPage() {
                 <div className="relative h-12 w-10 rounded-md overflow-hidden bg-black/30">{product.imageUrl ? <img src={product.imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}</div>
                 <div>
                   <div className="text-bone text-[12px] leading-snug line-clamp-1">{product.title}</div>
-                  <div className="mt-1 flex flex-wrap gap-1"><Chip tone={product.launchStage === 'Blocked' ? 'danger' : product.launchStage === 'Can Prepare Feed' ? 'success' : 'warning'}>{product.launchStage}</Chip></div>
+                  <div className="mt-1 flex flex-wrap gap-1"><Chip tone={product.launchStage === 'Blocked' ? 'danger' : product.launchStage === 'Can Prepare Feed' ? 'success' : 'warning'}>{launchStageLabel(product.launchStage)}</Chip></div>
                 </div>
               </Link>)}
             </div>
