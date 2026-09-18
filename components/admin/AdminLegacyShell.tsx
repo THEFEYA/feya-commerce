@@ -3,7 +3,6 @@
 import { usePathname } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { AdminNav } from '@/components/AdminNav';
-import AdminCompanySwitch from '@/components/admin/AdminCompanySwitch';
 
 export default function AdminLegacyShell({ children }: { children: ReactNode }) {
   const pathname = usePathname() || '/admin';
@@ -22,7 +21,6 @@ export default function AdminLegacyShell({ children }: { children: ReactNode }) 
         </div>
         {children}
       </div>
-      <AdminCompanySwitch />
     </div>
   );
 }
