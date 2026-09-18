@@ -886,3 +886,21 @@ export type GrowthOpportunityRow = {
   updated_at?: string | null;
   [key: string]: unknown;
 };
+
+
+export type RoleActivationRow = {
+  role_code: string;
+  role_name?: string | null;
+  role_type?: string | null;
+  runtime_status?: string | null;
+  autonomy_ceiling?: string | null;
+  required_capability_count?: number | null;
+  allowed_action_count?: number | null;
+  fully_available_capability_count?: number | null;
+  blocked_capability_count?: number | null;
+  activation_reason?: string | null;
+  activated_at?: string | null;
+  paused_at?: string | null;
+  updated_at?: string | null;
+  [key: string]: unknown;
+};
