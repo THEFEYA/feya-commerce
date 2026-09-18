@@ -1286,9 +1286,10 @@ Current state:
 - 40 active drafts PASS component-claim truth;
 - 95 active drafts WARNING;
 - 0 explicit false inclusion claims found in active drafts;
-- warning population is explained by Product Truth/component-review blockers such as mapping review, configuration/component-family gaps and source/configuration mismatch.
+- warning population is explained by Product Truth/component-review blockers such as mapping review, configuration/component-family gaps and source/configuration mismatch;
+- the existing Product Fact review queue currently has **50 pending / unresolved** products.
 
-Do not solve these warnings by rewriting content. Resolve/confirm upstream Product Truth/component mapping first.
+A sanitized read-only cockpit now exists at `/admin/product-facts-review`, linked to Product Builder detail for evidence inspection. Do not solve these warnings by rewriting content. Resolve/confirm upstream Product Truth/component mapping first.
 
 ### Commercial trigger security hygiene
 Applied Supabase migration:
@@ -1298,3 +1299,22 @@ Result:
 - mutable search_path warnings for the two commercial-keyword trigger helpers removed;
 - browser EXECUTE revoked;
 - service-role execution retained.
+
+
+### Product Fact review cockpit
+STATUS: READ-ONLY VISIBILITY IMPLEMENTED / WRITES STILL DISABLED
+
+Applied Supabase migration:
+- 20260918111828 — feya_product_fact_review_safe_view_v1
+
+Implemented:
+- sanitized Product Fact review queue safe view;
+- raw fact_snapshot_json is not exposed through the browser-safe projection;
+- /admin/product-facts-review with priority, issue codes and current canonical facts;
+- direct link from each queue row to Product Builder detail;
+- admin-home and product-list navigation links;
+- admin boundary registry automatically governs the new view.
+
+Current queue:
+- pending/unresolved products: **50**;
+- Product Truth write/resolution remains intentionally unavailable until protected admin auth + controlled editing are active.
