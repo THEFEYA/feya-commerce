@@ -13,6 +13,17 @@ const ROLE_LABELS: Record<string, string> = {
   CORE: 'Система FEYA',
 };
 
+const ROLE_SUMMARIES: Record<string, string> = {
+  GROWTH_DIRECTOR: 'Сводит сигналы разных направлений, устраняет конфликт приоритетов и формирует следующий портфель работы.',
+  OSPM: 'Следит за поисковым спросом, группами запросов, страницами и возможностями органического роста.',
+  CPIM: 'Проверяет коммерческую силу товара, оффер, портфель и причины слабой реакции после привлечения трафика.',
+  GMEL: 'Определяет, можно ли доказательно измерить эффект изменения и насколько надёжен полученный вывод.',
+  SCO: 'Готовит SEO-контент по утверждённому заданию, ключам и подтверждённым фактам товара.',
+  CQA: 'Независимо проверяет качество, фактическую точность и готовность контента перед публикацией.',
+  TSEO: 'Следит за индексируемостью, robots, canonical, schema и техническим состоянием поисковых страниц.',
+  GDAE: 'Следит за источниками данных, идентификаторами, загрузкой данных и качеством аналитической инфраструктуры.',
+};
+
 const STATUS_LABELS: Record<string, string> = {
   INACTIVE: 'Не активирован',
   SHADOW: 'Режим наблюдения',
@@ -236,6 +247,11 @@ const GATE_COPY: Record<string, { title: string; summary?: string }> = {
 export function roleLabel(value: unknown) {
   const key = String(value || '').trim().toUpperCase();
   return ROLE_LABELS[key] || humanizeCode(key || '—');
+}
+
+export function roleSummary(value: unknown) {
+  const key = String(value || '').trim().toUpperCase();
+  return ROLE_SUMMARIES[key] || 'Выполняет свою часть Growth OS в пределах разрешённых данных и полномочий.';
 }
 
 export function statusLabel(value: unknown) {
