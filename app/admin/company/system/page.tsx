@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { dataFreshnessLabel, ownerToneForStatus, scopeLabel, sourceHealthSummary, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
-import { isAdminAuthRequired } from '@/lib/supabaseAuth';
+import { getAdminAuthConfigStatus } from '@/lib/supabaseAuth';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -99,7 +99,7 @@ function toneClass(tone: string) {
 
 export default async function AdminSystemPage() {
   const { readiness, sources, actions, executionRequests, activeIncidents, mutationFreezes, error } = await getSystemData();
-  const ownerAuthRequired = isAdminAuthRequired();
+  const ownerAuth = getAdminAuthConfigStatus();
 
   return (
     <main className="owner-page">
@@ -185,15 +185,15 @@ export default async function AdminSystemPage() {
           </div>
 
           <div className="owner-grid two" style={{ marginTop: '10px' }}>
-            <article className={`owner-card ${ownerAuthRequired ? 'is-success' : 'is-warning'}`}>
-              <div className={`owner-status ${ownerAuthRequired ? 'is-success' : 'is-warning'}`}>
-                {ownerAuthRequired ? 'Защищённый вход включён' : 'Защищённый вход ещё не включён'}
+            <article className={`owner-card ${ownerAuth.required && ownerAuth.allowlistConfigured && ownerAuth.supabaseUrlConfigured && ownerAuth.publicKeyConfigured ? 'is-success' : 'is-warning'}`}>
+              <div className={`owner-status ${ownerAuth.required && ownerAuth.allowlistConfigured && ownerAuth.supabaseUrlConfigured && ownerAuth.publicKeyConfigured ? 'is-success' : 'is-warning'}`}>
+                {ownerAuth.required && ownerAuth.allowlistConfigured && ownerAuth.supabaseUrlConfigured && ownerAuth.publicKeyConfigured ? 'Защищённый вход настроен' : 'Защищённый вход ещё не готов'}
               </div>
               <h3 className="owner-card-title" style={{ marginTop: '10px' }}>Действия владельца</h3>
               <p className="owner-card-copy">
-                {ownerAuthRequired
+                {ownerAuth.required && ownerAuth.allowlistConfigured && ownerAuth.supabaseUrlConfigured && ownerAuth.publicKeyConfigured
                   ? 'Middleware требует подтверждённую сессию и разрешённый аккаунт. Реальные действия всё равно должны проходить через отдельный аудитируемый путь.'
-                  : 'Пока FEYA_ADMIN_AUTH_REQUIRED выключен, кнопки подтверждения и другие защищённые действия владельца должны оставаться недоступными.'}
+                  : `Авторизация обязательна: ${ownerAuth.required ? 'да' : 'нет'} · allowlist: ${ownerAuth.allowlistConfigured ? 'настроен' : 'не настроен'} · Supabase Auth env: ${ownerAuth.supabaseUrlConfigured && ownerAuth.publicKeyConfigured ? 'готов' : 'неполный'}. Пока любой из этих пунктов не закрыт, действия владельца должны оставаться недоступными.`}
               </p>
             </article>
 
