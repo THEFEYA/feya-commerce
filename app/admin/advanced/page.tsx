@@ -26,7 +26,7 @@ const GROUPS = [
   {
     title: 'Growth OS',
     items: [
-      ['/admin/signals', 'Сырые сигналы'],
+      ['/admin/advanced/signals', 'Сырые сигналы'],
       ['/admin/owner-attention', 'Очередь решений владельца'],
       ['/admin/strategy', 'Стратегия и инициативы'],
       ['/admin/opportunities', 'Возможности'],
