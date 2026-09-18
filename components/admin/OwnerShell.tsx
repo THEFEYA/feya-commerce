@@ -125,7 +125,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
   if (pathname.startsWith('/admin/login')) return <>{children}</>;
 
   return (
-    <div className="owner-shell">
+    <div className="owner-shell" lang="ru">
       <aside className="owner-sidebar" aria-label="Основная навигация">
         <Link href="/admin/company" className="owner-brand">
           <span className="owner-brand-name">FEYA</span>
