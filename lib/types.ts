@@ -367,3 +367,47 @@ export type ContentBriefCompilerStatusRow = {
   content_policy_version?: number | null;
   [key: string]: unknown;
 };
+
+
+export type GrowthMetricRegistryRow = {
+  metric_code: string;
+  metric_name?: string | null;
+  owner_role?: string | null;
+  metric_state?: string | null;
+  implementation_state?: string | null;
+  public_summary?: string | null;
+  limitations_summary?: string | null;
+  measurement_surface?: string | null;
+  authority_source?: string | null;
+  unit?: string | null;
+  direction?: string | null;
+  version_no?: number | null;
+  updated_at?: string | null;
+  [key: string]: unknown;
+};
+
+export type GrowthOperationalMetricRow = {
+  metric_code: string;
+  metric_value?: string | number | null;
+  unit?: string | null;
+  measured_at?: string | null;
+  [key: string]: unknown;
+};
+
+export type GrowthActionCapabilityRow = {
+  action_code: string;
+  action_name?: string | null;
+  owner_role?: string | null;
+  action_state?: string | null;
+  implementation_state?: string | null;
+  public_summary?: string | null;
+  limitations_summary?: string | null;
+  action_class?: string | null;
+  executor_type?: string | null;
+  approval_class?: string | null;
+  production_mutation?: boolean | null;
+  dry_run_default?: boolean | null;
+  version_no?: number | null;
+  updated_at?: string | null;
+  [key: string]: unknown;
+};
