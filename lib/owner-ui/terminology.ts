@@ -213,6 +213,17 @@ export function attentionTypeLabel(value: unknown) {
   return ATTENTION_TYPE_LABELS[key] || 'Требует вашего решения';
 }
 
+export function admissionLabel(value: unknown) {
+  const key = String(value || '').trim().toUpperCase();
+  if (key === 'OWNER_DECISION_REQUIRED' || key === 'OWNER_ATTENTION') return 'Нужно ваше решение';
+  if (key === 'WORK_QUEUE') return 'Можно передать в работу';
+  if (key === 'IMPLEMENTATION_ACTION') return 'Требуется изменение системы';
+  if (key === 'DEFER_UNTIL_ACTIVE_OBJECTIVE' || key === 'DEFER') return 'Отложено до нужного этапа';
+  if (key === 'MONITOR') return 'Наблюдаем';
+  if (key === 'CASE_CANDIDATE') return 'Можно создать рабочую ситуацию';
+  return 'Для сведения';
+}
+
 export function scopeLabel(value: unknown) {
   const key = String(value || '').trim().toUpperCase();
   return SCOPE_LABELS[key] || humanizeCode(key || '—');
