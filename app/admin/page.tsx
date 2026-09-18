@@ -84,21 +84,6 @@ function summarize(products: StorefrontProduct[], reviewEvents: AdminReviewEvent
   };
 }
 
-function StatCard({ label, value, note, tone = 'default' }) {
-  const toneClass = tone === 'warning'
-    ? 'border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.06)]'
-    : tone === 'danger'
-      ? 'border-[rgba(196,64,88,.34)] bg-[rgba(160,32,56,.08)]'
-      : tone === 'success'
-        ? 'border-[rgba(108,183,138,.35)] bg-[rgba(108,183,138,.08)]'
-        : 'border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)]';
-  return <div className={`rounded-2xl border ${toneClass} p-5 min-h-[145px]`}>
-    <div className="eyebrow-dim mb-4">{label}</div>
-    <div className="font-price text-gold-grad text-[42px] leading-none">{value}</div>
-    <div className="mt-4 text-[12px] leading-relaxed text-[var(--bone-dim)]">{note}</div>
-  </div>;
-}
-
 function QueueRow({ label, count, note, href, icon: Icon }) {
   return <Link href={href} className="group grid grid-cols-[36px_1fr_auto] gap-4 items-center rounded-2xl border border-[rgba(216,214,211,.11)] bg-[rgba(255,255,255,.025)] p-4 hover:border-[rgba(212,178,106,.45)] hover:bg-[rgba(212,178,106,.05)] transition-all">
     <div className="h-9 w-9 rounded-full border border-[rgba(216,214,211,.14)] bg-black/25 flex items-center justify-center text-[var(--gold-warm)]"><Icon size={16} /></div>
@@ -132,28 +117,29 @@ export default async function AdminPage() {
     .filter(({ readiness }) => readiness.label !== 'Ready for Storefront')
     .slice(0, 8);
 
-  return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.14),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
-    <section className="container-feya pt-10 pb-16">
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
+  return <main className="owner-page">
+    <div className="owner-page-inner">
+      <header className="owner-page-head">
         <div>
-          <div className="eyebrow-gold mb-3">FEYA · Внутренняя админка</div>
-          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(46px,7vw,96px)' }}>Панель контроля</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Внутренняя панель качества каталога: v4-контракт, единая логика готовности, проверочные события, названия, цены, компоненты, медиа, SEO-готовность и черновики заказов.</p>
+          <div className="owner-eyebrow">Товары и качество</div>
+          <h1>Панель магазина</h1>
+          <p>Операционная сводка каталога: что требует проверки, что заблокировано и что уже готово для витрины.</p>
         </div>
-        <Link href="/shop" className="btn-ghost self-start lg:self-auto">Витрина <ArrowUpRight size={13} /></Link>
-      </div>
+        <Link href="/shop" className="owner-button">Витрина <ArrowUpRight size={13} /></Link>
+      </header>
 
       {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
 
       <AdminReadinessOverviewClient products={stats.products} labelReview={stats.labelReview} priceReview={stats.unverifiedPrice} componentIssues={stats.missingComponent} mediaReview={stats.mediaNeedsReview} />
 
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        <StatCard label="Готово" value={stats.ready} tone="success" note="Закрыто через общую логику готовности." />
-        <StatCard label="Нужна проверка" value={stats.needsReview} tone="warning" note="Открыт этап названия, цены, компонентов, медиа или SEO." />
-        <StatCard label="Черновики" value={stats.draft} note="Пока нет проверочных событий." />
-        <StatCard label="Заблокировано" value={stats.blocked} tone="danger" note="Есть событие “нужны исправления”." />
-        <StatCard label="Товары v4" value={stats.products} note="Срез storefront-контракта для админки." />
-      </div>
+      <section className="owner-section" style={{ marginTop: 0, marginBottom: '24px' }}>
+        <div className="owner-summary-strip">
+          <div className="owner-summary-cell"><strong>{stats.needsReview}</strong><span>Нужна проверка</span></div>
+          <div className="owner-summary-cell"><strong>{stats.blocked}</strong><span>Заблокировано</span></div>
+          <div className="owner-summary-cell"><strong>{stats.ready}</strong><span>Готово для витрины</span></div>
+          <div className="owner-summary-cell"><strong>{stats.products}</strong><span>Товаров в каталоге</span></div>
+        </div>
+      </section>
 
       <div className="grid grid-cols-12 gap-6 lg:gap-8">
         <aside className="col-span-12 lg:col-span-4 space-y-4">
@@ -199,6 +185,6 @@ export default async function AdminPage() {
           </div>
         </section>
       </div>
-    </section>
+    </div>
   </main>;
 }
