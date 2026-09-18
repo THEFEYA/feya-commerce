@@ -374,12 +374,12 @@ export async function POST(request: NextRequest) {
   const limit = clampLimit(body.limit);
   const dryRun = body.dryRun !== false;
   const model = process.env.OPENAI_SCO_MODEL || DEFAULT_MODEL;
-  const runId = randomUUID();
+  const batchRunId = randomUUID();
 
   const supabase = getSupabaseServiceRoleClient();
   if (!supabase) {
     return NextResponse.json(
-      { ok: false, dryRun, runId, error: getMissingSupabaseServiceRoleEnvMessage() },
+      { ok: false, dryRun, batchRunId, error: getMissingSupabaseServiceRoleEnvMessage() },
       { status: 500 },
     );
   }
@@ -394,7 +394,7 @@ export async function POST(request: NextRequest) {
     .limit(CANDIDATE_SCAN_LIMIT);
 
   if (compilerError) {
-    return NextResponse.json({ ok: false, dryRun, runId, error: compilerError.message }, { status: 500 });
+    return NextResponse.json({ ok: false, dryRun, batchRunId, error: compilerError.message }, { status: 500 });
   }
 
   const candidates = (compilerRows || []) as UnknownRecord[];
@@ -406,7 +406,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       ok: true,
       dryRun,
-      runId,
+      batchRunId,
       selectedCount: 0,
       processedCount: 0,
       recordedCount: 0,
@@ -431,10 +431,10 @@ export async function POST(request: NextRequest) {
     ]);
 
   if (activeError) {
-    return NextResponse.json({ ok: false, dryRun, runId, error: activeError.message }, { status: 500 });
+    return NextResponse.json({ ok: false, dryRun, batchRunId, error: activeError.message }, { status: 500 });
   }
   if (truthError) {
-    return NextResponse.json({ ok: false, dryRun, runId, error: truthError.message }, { status: 500 });
+    return NextResponse.json({ ok: false, dryRun, batchRunId, error: truthError.message }, { status: 500 });
   }
 
   const activeProductIds = new Set(
@@ -468,7 +468,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       ok: true,
       dryRun,
-      runId,
+      batchRunId,
       selectedCount: 0,
       processedCount: 0,
       recordedCount: 0,
@@ -501,6 +501,7 @@ export async function POST(request: NextRequest) {
 
       return {
         productId,
+        generationRunId: randomUUID(),
         briefQueueId: asString(brief.brief_queue_id),
         compilerVersion: asString(brief.compiler_version) || 'content_brief_compiler_v1',
         compilerStatus: asString(brief.compiler_status),
@@ -538,7 +539,7 @@ export async function POST(request: NextRequest) {
           {
             p_canonical_product_id: item.productId,
             p_brief_queue_id: item.briefQueueId,
-            p_generation_run_id: runId,
+            p_generation_run_id: item.generationRunId,
             p_proposal_hash: item.proposalHash,
             p_generation_model: model,
             p_compiler_version: item.compilerVersion,
@@ -564,7 +565,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       ok: true,
       dryRun,
-      runId,
+      batchRunId,
       selectedCount: selected.length,
       processedCount: results.length,
       recordedCount,
@@ -573,6 +574,7 @@ export async function POST(request: NextRequest) {
       results: results.map((item) => ({
         canonical_product_id: item.productId,
         compiler_status: item.compilerStatus,
+        generation_run_id: item.generationRunId,
         proposal_hash: item.proposalHash,
         validation: item.validation,
         proposal: item.proposal,
@@ -584,7 +586,7 @@ export async function POST(request: NextRequest) {
       {
         ok: false,
         dryRun,
-        runId,
+        batchRunId,
         selectedCount: selected.length,
         processedCount: 0,
         recordedCount: 0,
