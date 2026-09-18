@@ -290,46 +290,53 @@ export default async function AdminSystemPage() {
         </section>
 
         <section className="owner-section">
-          <div className="owner-section-head">
-            <div>
-              <h2>Использование ИИ</h2>
-              <div className="owner-section-kicker">Последние 30 дней · на первом плане полезная работа и качество учёта, а не количество токенов</div>
-            </div>
-          </div>
+          <details className="owner-disclosure owner-disclosure-section">
+            <summary>
+              <span>
+                <strong>Использование ИИ</strong>
+                <small>Последние 30 дней · раскрывать только когда нужен контроль стоимости или качества учёта</small>
+              </span>
+              <span className="owner-section-kicker">
+                {aiUsage.invocations ? `${aiUsage.invocations} вызовов` : 'вызовов пока нет'}
+              </span>
+            </summary>
 
-          <div className="owner-summary-strip">
-            <div className="owner-summary-cell">
-              <strong>{aiUsage.invocations}</strong>
-              <span>вызовов ИИ</span>
-            </div>
-            <div className="owner-summary-cell">
-              <strong>{aiUsage.meteredInvocations}</strong>
-              <span>вызовов учтено полностью</span>
-            </div>
-            <div className="owner-summary-cell">
-              <strong>{aiUsage.avgLatencyMs == null ? '—' : `${Math.round(aiUsage.avgLatencyMs)} мс`}</strong>
-              <span>средняя задержка</span>
-            </div>
-            <div className="owner-summary-cell">
-              <strong>{aiUsage.unmeteredInvocations}</strong>
-              <span>вызовов без полного учёта</span>
-            </div>
-          </div>
+            <div className="owner-disclosure-body">
+              <div className="owner-summary-strip">
+                <div className="owner-summary-cell">
+                  <strong>{aiUsage.invocations}</strong>
+                  <span>вызовов ИИ</span>
+                </div>
+                <div className="owner-summary-cell">
+                  <strong>{aiUsage.meteredInvocations}</strong>
+                  <span>вызовов учтено полностью</span>
+                </div>
+                <div className="owner-summary-cell">
+                  <strong>{aiUsage.avgLatencyMs == null ? '—' : `${Math.round(aiUsage.avgLatencyMs)} мс`}</strong>
+                  <span>средняя задержка</span>
+                </div>
+                <div className="owner-summary-cell">
+                  <strong>{aiUsage.unmeteredInvocations}</strong>
+                  <span>вызовов без полного учёта</span>
+                </div>
+              </div>
 
-          <div className={`owner-card ${aiUsage.unmeteredInvocations ? 'is-warning' : aiUsage.invocations ? 'is-success' : 'is-info'}`} style={{ marginTop: '10px' }}>
-            <div className={`owner-status ${aiUsage.unmeteredInvocations ? 'is-warning' : aiUsage.invocations ? 'is-success' : 'is-info'}`}>
-              {aiUsage.unmeteredInvocations
-                ? `Нужно проверить учёт: ${aiUsage.unmeteredInvocations}`
-                : aiUsage.invocations
-                  ? 'Учёт ИИ-операций работает'
-                  : 'Живых вызовов ИИ пока нет'}
+              <div className={`owner-card ${aiUsage.unmeteredInvocations ? 'is-warning' : aiUsage.invocations ? 'is-success' : 'is-info'}`} style={{ marginTop: '10px' }}>
+                <div className={`owner-status ${aiUsage.unmeteredInvocations ? 'is-warning' : aiUsage.invocations ? 'is-success' : 'is-info'}`}>
+                  {aiUsage.unmeteredInvocations
+                    ? `Нужно проверить учёт: ${aiUsage.unmeteredInvocations}`
+                    : aiUsage.invocations
+                      ? 'Учёт ИИ-операций работает'
+                      : 'Живых вызовов ИИ пока нет'}
+                </div>
+                <p className="owner-card-copy">
+                  {aiUsage.invocations
+                    ? `Последний вызов: ${aiUsage.lastInvocationAt ? new Date(aiUsage.lastInvocationAt).toLocaleString('ru-RU') : 'не определён'}. Технический расход: ${new Intl.NumberFormat('ru-RU').format(aiUsage.totalTokens)} токенов всего (${new Intl.NumberFormat('ru-RU').format(aiUsage.inputTokens)} вход / ${new Intl.NumberFormat('ru-RU').format(aiUsage.outputTokens)} выход).`
+                    : 'Это правильное состояние до запуска автоматических рабочих потоков. FEYA не должна тратить ресурсы только ради видимости «активных агентов».'}
+                </p>
+              </div>
             </div>
-            <p className="owner-card-copy">
-              {aiUsage.invocations
-                ? `Последний вызов: ${aiUsage.lastInvocationAt ? new Date(aiUsage.lastInvocationAt).toLocaleString('ru-RU') : 'не определён'}. Технический расход: ${new Intl.NumberFormat('ru-RU').format(aiUsage.totalTokens)} токенов всего (${new Intl.NumberFormat('ru-RU').format(aiUsage.inputTokens)} вход / ${new Intl.NumberFormat('ru-RU').format(aiUsage.outputTokens)} выход).`
-                : 'Это правильное состояние до запуска автоматических рабочих потоков. FEYA не должна тратить ресурсы только ради видимости «активных агентов».'}
-            </p>
-          </div>
+          </details>
         </section>
 
         <section className="owner-section">
