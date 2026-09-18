@@ -1,14 +1,14 @@
 import Link from 'next/link';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
+import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { GrowthCapabilityStatusRow } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 async function getCapabilities(): Promise<{ rows: GrowthCapabilityStatusRow[]; error?: string }> {
-  const supabase = getSupabaseReadClient();
+  const supabase = getAdminReadClient();
 
-  if (!supabase) return { rows: [], error: getMissingSupabaseEnvMessage() };
+  if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
 
   const { data, error } = await supabase
     .from('feya_commerce_v_growth_capability_status_safe_v1')
