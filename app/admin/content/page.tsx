@@ -4,7 +4,8 @@ import { ArrowUpRight, CheckCircle2, FileText, ImageIcon, MessageSquareText, Shi
 import { getContentStage, type ContentStageLabel } from '@/lib/admin-pipeline';
 import { adminReadinessLabel, contentStageLabel } from '@/lib/adminDisplayRu';
 import { getProductEvents, getProductFlags, getProductReadiness, type AdminReviewEvent } from '@/lib/admin-readiness';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
+import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
+import { getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
 
@@ -14,8 +15,8 @@ export const revalidate = 0;
 const CONTENT_PRODUCTS_LIMIT = 500;
 
 async function loadProducts() {
-  const supabase = getSupabaseReadClient();
-  if (!supabase) return { products: [], error: getMissingSupabaseEnvMessage() };
+  const supabase = getAdminReadClient();
+  if (!supabase) return { products: [], error: getMissingAdminDataEnvMessage() };
 
   const { data, error } = await supabase
     .from(STOREFRONT_VIEW_V4)
