@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { BusinessTruthStatusRow } from '@/lib/types';
+import { statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -43,25 +44,25 @@ export default async function AdminBusinessTruthPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/products">Products</Link>
-            <Link href="/admin/content-qa">Content QA</Link>
-            <Link href="/admin/business-truth">Business Truth</Link>
-            <Link href="/admin/system-readiness">System Readiness</Link>
+            <Link href="/admin/products">Товары</Link>
+            <Link href="/admin/content-qa">Контроль качества</Link>
+            <Link href="/admin/business-truth">Правила бизнеса</Link>
+            <Link href="/admin/system-readiness">Готовность системы</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Canonical operational facts · read-only</div>
-          <h1>Business Truth</h1>
+          <div className="phase-label">Канонические правила бизнеса · только просмотр</div>
+          <h1>Правила бизнеса</h1>
           <p>
-            Only ACTIVE rows may be treated as business facts by content generation or CQA. REVIEW_REQUIRED rows remain intentionally unavailable to AI until their storefront wording is confirmed.
+            Только активные записи могут использоваться генерацией контента и контролем качества как факты бизнеса. Записи, требующие проверки, намеренно недоступны AI, пока их публичная формулировка не подтверждена.
           </p>
         </section>
 
         <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Truth records</span></div>
-          <div className="card metric"><strong>{active}</strong><span>Active facts</span></div>
-          <div className="card metric"><strong>{review}</strong><span>Need owner review</span></div>
+          <div className="card metric"><strong>{rows.length}</strong><span>Всего записей</span></div>
+          <div className="card metric"><strong>{active}</strong><span>Активных правил</span></div>
+          <div className="card metric"><strong>{review}</strong><span>Нуждаются в проверке владельца</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
@@ -70,12 +71,12 @@ export default async function AdminBusinessTruthPage() {
           <table>
             <thead>
               <tr>
-                <th>Truth</th>
-                <th>Type</th>
-                <th>Scope</th>
-                <th>Status</th>
-                <th>Approved public wording</th>
-                <th>Version</th>
+                <th>Правило</th>
+                <th>Тип</th>
+                <th>Область</th>
+                <th>Статус</th>
+                <th>Подтверждённая публичная формулировка</th>
+                <th>Версия</th>
               </tr>
             </thead>
             <tbody>
@@ -89,10 +90,10 @@ export default async function AdminBusinessTruthPage() {
                   </td>
                   <td>
                     <span className={`status-pill ${statusClass(row.status)}`}>
-                      {asText(row.status)}
+                      {statusLabel(row.status)}
                     </span>
                   </td>
-                  <td>{asText(row.public_copy, 'Not approved for public copy')}</td>
+                  <td>{asText(row.public_copy, 'Публичная формулировка ещё не подтверждена')}</td>
                   <td>v{row.version_no ?? '—'}</td>
                 </tr>
               ))}
