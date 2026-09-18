@@ -9,6 +9,21 @@ export function isAdminAuthRequired() {
   return process.env.FEYA_ADMIN_AUTH_REQUIRED === 'true';
 }
 
+function hasCsvValues(value: string | undefined) {
+  return Boolean(value?.split(',').map((item) => item.trim()).filter(Boolean).length);
+}
+
+export function getAdminAuthConfigStatus() {
+  return {
+    required: isAdminAuthRequired(),
+    supabaseUrlConfigured: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
+    publicKeyConfigured: Boolean(getSupabasePublicKey()),
+    allowlistConfigured:
+      hasCsvValues(process.env.FEYA_ADMIN_ALLOWED_USER_IDS) ||
+      hasCsvValues(process.env.FEYA_ADMIN_ALLOWED_EMAILS),
+  };
+}
+
 export async function getSupabaseAuthServerClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const publicKey = getSupabasePublicKey();
