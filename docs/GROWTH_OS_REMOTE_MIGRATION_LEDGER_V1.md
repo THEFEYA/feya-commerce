@@ -530,3 +530,22 @@ Rollback validation:
 - the two return-policy launch signals are deduplicated into one Owner Attention item rather than creating duplicate decisions
 - no synthetic Growth Case was created; Growth Cases remain 0
 - /admin/owner-attention is read-only until protected admin auth and audited owner-resolution actions exist
+
+
+### Owner UI safe projections
+
+20260918124617 — feya_owner_work_safe_view_v1
+- sanitized read-only projection over Growth Cases + latest workflow state
+- excludes raw workflow state_json, leases and raw errors
+- supports the Owner Work workspace without creating a parallel work entity
+- current rows = 0, matching the intentional PRE_LAUNCH state
+
+20260918124647 — feya_owner_attention_safe_view_v2
+- adds stable source_code/source_type/source_scope to the sanitized Owner Attention projection
+- raw context_json/resolution_json remain hidden
+- enables deterministic Russian presentation without matching English free-text
+- current open attention items = 2
+
+Admin Data Boundary:
+- governed admin read surfaces now = 42
+- browser grants remain intentionally enabled until owner auth/allowlist verification and explicit hardening
