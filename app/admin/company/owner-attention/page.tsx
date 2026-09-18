@@ -85,7 +85,7 @@ export default async function AdminOwnerAttentionPage() {
                 </div>
 
                 <div className="owner-actions">
-                  <span className="owner-button primary" aria-disabled="true">Решение пока только для просмотра</span>
+                  <Link href={`/admin/company/owner-attention/${item.id}`} className="owner-button primary">Открыть решение</Link>
                 </div>
               </article>
             ))}
