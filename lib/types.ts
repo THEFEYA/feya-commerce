@@ -725,3 +725,31 @@ export type ActiveIncidentRow = {
   updated_at?: string | null;
   [key: string]: unknown;
 };
+
+
+export type ExecutionGatewayRow = {
+  execution_request_id: string;
+  request_code?: string | null;
+  action_code?: string | null;
+  action_capability_version?: number | null;
+  action_class?: string | null;
+  executor_type?: string | null;
+  approval_class?: string | null;
+  request_status?: string | null;
+  mutation_domain?: string | null;
+  requested_by_type?: string | null;
+  has_request_user?: boolean | null;
+  has_approval_user?: boolean | null;
+  approved_at?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  latest_receipt_id?: string | null;
+  latest_attempt_no?: number | null;
+  latest_receipt_status?: string | null;
+  latest_executor_id?: string | null;
+  latest_error_code?: string | null;
+  latest_error_message?: string | null;
+  latest_started_at?: string | null;
+  latest_completed_at?: string | null;
+  [key: string]: unknown;
+};
