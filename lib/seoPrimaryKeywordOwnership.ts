@@ -40,7 +40,7 @@ export type SeoPrimaryKeywordConflict = {
 
 export type SeoPrimaryKeywordOwnershipContract = {
   contract_version: 'seo_primary_keyword_ownership_v1';
-  status: 'pass' | 'pass_with_pending_reassignment' | 'conflict' | 'not_checked';
+  status: 'pass' | 'pass_with_overlap_monitoring' | 'pass_with_pending_reassignment' | 'conflict' | 'not_checked';
   target_product_id: string;
   target_product_title: string | null;
   primary_keyword: string | null;
@@ -64,7 +64,7 @@ export type SeoPrimaryOwnershipStrategy = Record<string, unknown> & {
   classification: 'PORTFOLIO_EXPANSION_OK' | 'DIFFERENTIATE_BEFORE_PUBLISH' | 'NEEDS_KEYWORD_REASSIGNMENT' | 'NEEDS_SOURCE_DATA_CLEANUP';
   risk_level: 'low' | 'medium' | 'high' | 'mapping';
   human_decision_needed: boolean;
-  recommended_generation_mode: 'normal_generation' | 'normal_generation_primary_reserved' | 'blocked_pending_keyword_reassignment' | 'blocked_pending_portfolio_map';
+  recommended_generation_mode: 'normal_generation' | 'normal_generation_shared_primary_monitored' | 'normal_generation_primary_reserved' | 'blocked_pending_keyword_reassignment' | 'blocked_pending_portfolio_map';
   primary_angle_to_own: string | null;
   generation_blockers: string[];
   publish_blockers: string[];
@@ -112,15 +112,18 @@ export function buildSeoPrimaryKeywordOwnershipStrategy(input: {
     .sort(compareAlternatives)
     .slice(0, 5);
 
+  // Google does not require one exclusive Primary query per product page.
+  // Exact Primary overlap is therefore a monitoring signal, not proof of
+  // cannibalization and not a generation blocker by itself. We still fail
+  // closed when the portfolio map cannot be read, because downstream
+  // similarity/canonical diagnostics need a reliable comparison set.
   const generationBlockers = sourceError
     ? [PRIMARY_KEYWORD_MAP_UNAVAILABLE_BLOCKER]
-    : conflicts.length
-      ? [PRIMARY_KEYWORD_CONFLICT_BLOCKER]
-      : [];
+    : [];
   const status: SeoPrimaryKeywordOwnershipContract['status'] = sourceError
     ? 'not_checked'
     : conflicts.length
-      ? 'conflict'
+      ? 'pass_with_overlap_monitoring'
       : 'pass';
   const ownership: SeoPrimaryKeywordOwnershipContract = {
     contract_version: 'seo_primary_keyword_ownership_v1',
@@ -138,7 +141,8 @@ export function buildSeoPrimaryKeywordOwnershipStrategy(input: {
     source_error: sourceError,
     checked_at: checkedAt,
     limitations: [
-      'This preflight reserves exact Primary intent before OpenAI generation; it does not replace saved-draft copy similarity review.',
+      'Exact Primary overlap is monitored; it is not treated as proven Google cannibalization or as an exclusive keyword reservation.',
+      'Duplicate or near-duplicate page similarity, canonical clustering and later Search Console query-to-page evidence are separate signals.',
       'Secondary and long-tail overlap may be strategic and is reviewed later with page facts, copy, images and Search Console evidence.',
       'No keyword decision is changed automatically.',
     ],
@@ -147,11 +151,11 @@ export function buildSeoPrimaryKeywordOwnershipStrategy(input: {
   const classification: SeoPrimaryOwnershipStrategy['classification'] = sourceError
     ? 'NEEDS_SOURCE_DATA_CLEANUP'
     : conflicts.length
-      ? 'NEEDS_KEYWORD_REASSIGNMENT'
+      ? 'DIFFERENTIATE_BEFORE_PUBLISH'
       : 'PORTFOLIO_EXPANSION_OK';
   const primaryAngle = primaryKeyword || null;
   const requiredDifferentiators = unique([
-    primaryAngle ? `owned primary intent: ${primaryAngle}` : null,
+    primaryAngle ? `${conflicts.length ? 'shared monitored' : 'primary'} intent: ${primaryAngle}` : null,
     components.length ? `confirmed component set: ${components.join(', ')}` : null,
     productTruthValue(input.productTruth, 'color') ? `product color: ${productTruthValue(input.productTruth, 'color')}` : null,
     productTruthValue(input.productTruth, 'material') ? `product material: ${productTruthValue(input.productTruth, 'material')}` : null,
@@ -161,18 +165,18 @@ export function buildSeoPrimaryKeywordOwnershipStrategy(input: {
     contract_version: 'seo_differentiation_strategy_v1',
     source: 'live_listing_master_primary_ownership',
     classification,
-    risk_level: sourceError ? 'mapping' : conflicts.length ? 'high' : 'low',
+    risk_level: sourceError ? 'mapping' : conflicts.length ? 'medium' : 'low',
     human_decision_needed: generationBlockers.length > 0,
     recommended_generation_mode: sourceError
       ? 'blocked_pending_portfolio_map'
       : conflicts.length
-        ? 'blocked_pending_keyword_reassignment'
+        ? 'normal_generation_shared_primary_monitored'
         : 'normal_generation',
     primary_angle_to_own: primaryAngle,
     agent_instruction_summary: conflicts.length
-      ? `Do not generate until one product owns the exact Primary intent “${primaryKeyword}”.`
+      ? `The exact Primary intent “${primaryKeyword}” is shared by another current product decision. This is not, by itself, a Google generation or publication blocker. Keep this page product-specific and monitor canonical/indexation plus Search Console query-to-page performance after launch; reassign only if evidence shows harmful overlap.`
       : `The exact Primary intent “${primaryKeyword}” is not selected as Primary by another current Listing Master decision. Keep this page product-specific; saved-draft similarity review is still required before publish.`,
-    title_strategy: 'Use the owned Primary naturally and add only verified product-specific differentiation.',
+    title_strategy: 'Use the Primary naturally when relevant and add only verified product-specific differentiation; shared query intent does not justify copied title structure.',
     h1_strategy: 'Keep one whole-product entity and one verified differentiator; do not copy another product title skeleton.',
     meta_strategy: 'Describe this product and its approved use case without stacking neighboring catalog intents.',
     body_strategy: 'Use confirmed product facts and a distinct opening; later saved-draft similarity QA remains mandatory.',
@@ -186,9 +190,10 @@ export function buildSeoPrimaryKeywordOwnershipStrategy(input: {
       shared_tokens: primaryKeywordNorm.split(' '),
     } : null,
     before_generation_checks: [
-      'Reserve exactly one Primary intent per product page.',
+      'Track exact Primary overlap as a portfolio signal; do not reserve one Google query to one product page by default.',
+      'Keep genuinely different products distinct through factual title/H1/body/image angles rather than forced keyword reassignment.',
       'Keep broad event/style terms available for collection or landing pages when appropriate.',
-      'Run saved-draft similarity and image ALT truth gates before publish readiness.',
+      'Run saved-draft similarity, canonical/indexability and image ALT truth gates before publish readiness.',
     ],
     generation_blockers: generationBlockers,
     publish_blockers: generationBlockers,
@@ -208,10 +213,13 @@ export type SeoPeerKeywordSelectionState = {
 };
 
 /**
- * Human-approved drafts are the durable ownership layer. A later Listing
- * Master save must never steal an exact Primary from an approved indexable
- * page. Without an approved owner, a current confirmed decision may reserve
- * the Primary when every matching peer has been invalidated by re-audit.
+ * Google-first overlap reconciliation.
+ *
+ * Historical versions treated an exact Primary as an exclusive reservation.
+ * Current policy keeps exact overlap visible for diagnostics but does not
+ * block generation or publication by itself. Real duplicate-page risk,
+ * canonical clustering and Search Console query-to-page behavior are reviewed
+ * separately.
  */
 export function resolveSeoPrimaryOwnershipWithCurrentSelections(
   strategy: SeoPrimaryOwnershipStrategy | null,
@@ -222,20 +230,12 @@ export function resolveSeoPrimaryOwnershipWithCurrentSelections(
     peerSelections?: SeoPeerKeywordSelectionState[];
   },
 ): SeoPrimaryOwnershipStrategy | null {
-  if (!strategy || strategy.keyword_ownership.status !== 'conflict') return strategy;
-  const targetSelectionStatus = clean(input.targetSelectionStatus).toLowerCase();
+  if (!strategy || !['conflict', 'pass_with_overlap_monitoring'].includes(strategy.keyword_ownership.status)) return strategy;
   const peerById = new Map(
     (input.peerSelections || []).map((item) => [clean(item.canonical_product_id), item]),
   );
   const primaryNorm = strategy.keyword_ownership.primary_keyword_norm || '';
-  const targetApprovedDraftId = clean(input.targetApprovedDraftId) || null;
-  const targetApprovedPrimaryKeyword = clean(input.targetApprovedPrimaryKeyword) || null;
-  const targetApprovedOwnsPrimary = Boolean(
-    targetApprovedDraftId
-    && normalizeKeyword(targetApprovedPrimaryKeyword) === primaryNorm,
-  );
   let peerStateUnavailable = false;
-  let confirmedPeerOwner = false;
   let approvedPeerOwner = false;
   let approvedPeerOwnerProductId: string | null = null;
   const conflicts = strategy.keyword_ownership.conflicts.map((conflict) => {
@@ -250,9 +250,6 @@ export function resolveSeoPrimaryOwnershipWithCurrentSelections(
     const approvedPrimaryKeywordNorm = normalizeKeyword(approvedPrimaryKeyword);
     const approvedDraftError = clean(current?.approved_draft_error) || null;
     if (!current || currentError || approvedDraftError) peerStateUnavailable = true;
-    if (currentStatus === 'confirmed' && currentPrimaryNorm === primaryNorm) {
-      confirmedPeerOwner = true;
-    }
     if (approvedDraftId && approvedPrimaryKeywordNorm === primaryNorm) {
       approvedPeerOwner = true;
       approvedPeerOwnerProductId ||= conflict.canonical_product_id;
@@ -271,24 +268,20 @@ export function resolveSeoPrimaryOwnershipWithCurrentSelections(
     };
   });
 
-  const targetCanReserve = !peerStateUnavailable
-    && !approvedPeerOwner
-    && (
-      targetApprovedOwnsPrimary
-      || (targetSelectionStatus === 'confirmed' && !confirmedPeerOwner)
-    );
-  if (!targetCanReserve) {
-    const generationBlockers = unique([
-      PRIMARY_KEYWORD_CONFLICT_BLOCKER,
-      peerStateUnavailable ? PRIMARY_KEYWORD_MAP_UNAVAILABLE_BLOCKER : null,
-    ]);
+  if (peerStateUnavailable) {
+    const generationBlockers = [PRIMARY_KEYWORD_MAP_UNAVAILABLE_BLOCKER];
     return {
       ...strategy,
+      classification: 'NEEDS_SOURCE_DATA_CLEANUP',
+      risk_level: 'mapping',
+      human_decision_needed: true,
+      recommended_generation_mode: 'blocked_pending_portfolio_map',
       generation_blockers: generationBlockers,
       publish_blockers: generationBlockers,
       keyword_ownership: {
         ...strategy.keyword_ownership,
         source: 'listing_master_latest_decisions_and_approved_drafts',
+        status: 'not_checked',
         conflicts,
         approved_owner_product_id: approvedPeerOwnerProductId,
         generation_blockers: generationBlockers,
@@ -301,23 +294,18 @@ export function resolveSeoPrimaryOwnershipWithCurrentSelections(
     ...strategy,
     classification: 'DIFFERENTIATE_BEFORE_PUBLISH',
     risk_level: 'medium',
-    human_decision_needed: true,
-    recommended_generation_mode: 'normal_generation_primary_reserved',
+    human_decision_needed: false,
+    recommended_generation_mode: 'normal_generation_shared_primary_monitored',
     generation_blockers: [],
-    publish_blockers: [PRIMARY_KEYWORD_PEER_REASSIGNMENT_PENDING],
-    agent_instruction_summary: `This confirmed product provisionally owns the exact Primary intent “${strategy.keyword_ownership.primary_keyword}”. Matching peer decisions are not current and must receive a different whole-product Primary before publish.`,
+    publish_blockers: [],
+    agent_instruction_summary: `The exact Primary intent “${strategy.keyword_ownership.primary_keyword}” is shared across current products. Keep each page materially distinct and monitor Google canonical/indexation plus Search Console query-to-page behavior after launch. Do not force reassignment without evidence of harmful overlap.`,
     keyword_ownership: {
       ...strategy.keyword_ownership,
       source: 'listing_master_latest_decisions_and_approved_drafts',
-      status: 'pass_with_pending_reassignment',
+      status: 'pass_with_overlap_monitoring',
       conflicts,
-      suggested_primary_alternatives: [],
       generation_blockers: [],
-      publish_blockers: [PRIMARY_KEYWORD_PEER_REASSIGNMENT_PENDING],
-      reserved_owner_product_id: strategy.keyword_ownership.target_product_id,
-      approved_owner_product_id: targetApprovedOwnsPrimary
-        ? strategy.keyword_ownership.target_product_id
-        : null,
+      publish_blockers: [],
     },
   };
 }
