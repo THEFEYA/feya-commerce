@@ -118,8 +118,8 @@ function AgentReadiness({ strategy, promptSummary, promptHasPortfolio }) {
           <Fact label="Визуальные факты" value={doctrine.visual_truth_rule_count} tone="success" />
         </div>
         <div className="grid lg:grid-cols-2 gap-3">
-          <Section label="Финальная проверка исследований">{researchCheckpoint?.admin_note_ru || 'Перед финальным применением / публикацией нужно заново сверить последние исследования.'}</Section>
-          <Section label="Единый редактор товара">{variationCheckpoint?.admin_note_ru || 'Вариации, комплектация, PDP-тексты, URL / meta и sitemap должны быть в одном потоке редактирования.'}</Section>
+          <Section label="Финальная проверка исследований">{researchCheckpoint?.admin_note_ru || 'Перед финальным применением или публикацией нужно заново сверить последние исследования.'}</Section>
+          <Section label="Единый редактор товара">{variationCheckpoint?.admin_note_ru || 'Вариации, комплектация, PDP-тексты, URL, meta и sitemap должны быть в одном потоке редактирования.'}</Section>
         </div>
       </div> : <div className="rounded-xl border border-[rgba(212,178,106,.25)] bg-black/15 p-3 text-[12px] text-[var(--gold-warm)]">Сводка правил ещё не пришла в данные промпта. Нужно проверить сборку контракта промпта.</div>}
 
@@ -147,7 +147,7 @@ function AgentReadiness({ strategy, promptSummary, promptHasPortfolio }) {
 
 export default async function SeoDraftPreviewPage({ searchParams }) {
   const params = await searchParams;
-  const productId = param(params?.ID товара || params?.product).trim();
+  const productId = param(params?.product_id || params?.product).trim();
   const bundle = await buildSeoBriefContractBundle(productId);
   const product = bundle.product || null;
   const brief = bundle.brief || null;
@@ -158,7 +158,7 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
   const promptSummary = promptContract ? summarizeSeoAgentPromptContract(promptContract) : null;
   const portfolioStrategy = bundle.aiAgentInput?.portfolio_strategy || null;
   const promptHasPortfolio = Boolean(portfolioStrategy && promptContract?.user_prompt?.includes('Portfolio differentiation strategy'));
-  const activeProductId = seoPackDraft?.canonical_ID товара || product?.canonical_ID товара || productId;
+  const activeProductId = seoPackDraft?.canonical_product_id || product?.canonical_product_id || productId;
   const baselineLeftBlocks = (mockDraft?.pdp_blocks || []).filter((block) => block.placement === 'left_description');
   const baselineReviewOnlyBlocks = (mockDraft?.pdp_blocks || []).filter((block) => block.placement === 'review_only' || block.placement === 'faq_lower');
   const baselineGeneratedRightBlocks = (mockDraft?.pdp_blocks || []).filter((block) => block.placement === 'right_info_panel');
@@ -172,15 +172,15 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
           <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Этот экран показывает черновик для проверки, готовность будущего AI-агента и безопасную генерацию только в черновик. Здесь нет публикации и нет изменения товара.</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          {activeProductId ? <Link href={`/admin/seo-engine/briefs?ID товара=${activeProductId}`} className="btn-ghost">Назад к SEO-брифу <ArrowUpRight size={13} /></Link> : null}
-          {activeProductId ? <Link href={`/api/admin/seo-engine/brief-contract?ID товара=${activeProductId}`} className="btn-ghost" target="_blank">Открыть JSON-контракт <ArrowUpRight size={13} /></Link> : null}
+          {activeProductId ? <Link href={`/admin/seo-engine/briefs?product_id=${activeProductId}`} className="btn-ghost">Назад к SEO-брифу <ArrowUpRight size={13} /></Link> : null}
+          {activeProductId ? <Link href={`/api/admin/seo-engine/brief-contract?product_id=${activeProductId}`} className="btn-ghost" target="_blank">Открыть JSON-контракт <ArrowUpRight size={13} /></Link> : null}
           <Link href="/admin/seo-engine/metric-import" className="btn-ghost">Импорт метрик <ArrowUpRight size={13} /></Link>
         </div>
       </div>
 
       {bundle.error ? <Notice tone="danger">{bundle.error}</Notice> : null}
       {!product ? <Notice tone="danger">Товар не найден в рабочем представлении товара. Открой SEO-бриф с конкретным ID товара.</Notice> : null}
-      {product && !bundle.decision ? <Notice>Для этого товара нет сохранённого решения Мастера листинга. Черновик может быть неполным, потому что нет ручного ДНК товара и выбранных ключей.</Notice> : null}
+      {product && !bundle.decision ? <Notice>Для этого товара нет сохранённого решения Мастера листинга. Черновик может быть неполным, потому что нет ручной ДНК товара и выбранных ключей.</Notice> : null}
 
       {product && brief && seoPackDraft && mockDraft ? <>
         <div className="grid lg:grid-cols-[.9fr_1.1fr] gap-5 mb-5">
