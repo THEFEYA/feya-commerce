@@ -1312,10 +1312,20 @@ th {
 }
 
 .owner-subnav {
+  position: sticky;
+  top: calc(var(--owner-topbar) + 8px);
+  z-index: 20;
+  width: fit-content;
+  max-width: 100%;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 18px;
+  padding: 5px;
+  border: 1px solid rgba(216,214,211,.10);
+  border-radius: 12px;
+  background: rgba(10,10,13,.88);
+  backdrop-filter: blur(16px);
 }
 
 .owner-subnav a {
@@ -1385,6 +1395,13 @@ th {
   .owner-topbar-context,
   .owner-topbar-status {
     display: none;
+  }
+
+  .owner-subnav {
+    top: 64px;
+    flex-wrap: nowrap;
+    width: 100%;
+    overflow-x: auto;
   }
 
   .owner-page,
