@@ -313,6 +313,7 @@ export type ContentQaShadowRow = {
   validation_status?: string | null;
   similarity_status?: string | null;
   image_alt_truth_status?: string | null;
+  component_claim_truth_status?: string | null;
   cqa_status?: string | null;
   cqa_policy_version?: string | null;
   cqa_reviewed_at?: string | null;
