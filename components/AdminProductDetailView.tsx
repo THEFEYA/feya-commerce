@@ -56,16 +56,16 @@ export function AdminProductDetailView({ product, componentTruth }: { product: S
         <div className="max-w-4xl">
           <div className="eyebrow-gold mb-3">Админка · Карточка товара</div>
           <h1 className="text-bone text-[22px] md:text-[24px] lg:text-[26px] leading-snug font-medium max-w-4xl">{productTitle(product)}</h1>
-          <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--bone-dim)]">Внутренняя карточка контроля товара. Данные могут приходить из storefront, builder detail или catalog fallback; действия ниже сохраняются как проверочные события и не меняют товар напрямую.</p>
+          <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--bone-dim)]">Внутренняя карточка контроля товара. Данные могут приходить из витрины, Product Builder или резервного каталога. Действия ниже сохраняются как проверочные события и не меняют товар напрямую.</p>
           <div className="mt-4 flex flex-wrap gap-1.5">
             <Chip>{worldLabel(product)}</Chip>
             <Chip>{categoryLabel(product)}</Chip>
             <Chip>{colorLabel(product)}</Chip>
-            {!storefrontAvailable ? <Chip tone="warning">Catalog fallback</Chip> : null}
+            {!storefrontAvailable ? <Chip tone="warning">Данные из резервного каталога</Chip> : null}
             {labelReview ? <Chip tone="warning">Проверить название</Chip> : null}
             {priceReview ? <Chip tone="warning">Проверить цену</Chip> : null}
             {componentTruth.blockers.map((blocker) => <Chip key={blocker} tone="danger">{blocker}</Chip>)}
-            {missingComponents ? <Chip tone="danger">Нет storefront-компонентов: {missingComponents}</Chip> : null}
+            {missingComponents ? <Chip tone="danger">Нет компонентов витрины: {missingComponents}</Chip> : null}
             {mediaReview ? <Chip tone="danger">Проверить медиа</Chip> : null}
           </div>
         </div>
@@ -84,14 +84,14 @@ export function AdminProductDetailView({ product, componentTruth }: { product: S
             <div className="mt-3 grid grid-cols-4 gap-2">
               {media.slice(0, 8).map((item, index) => <div key={`${item.url || item.image_url}-${index}`} className="relative aspect-square rounded-lg overflow-hidden bg-black/25 border border-[rgba(216,214,211,.10)]">{item.url || item.image_url ? <img src={item.url || item.image_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}</div>)}
             </div>
-            {!media.length ? <div className="mt-3 text-[13px] text-[var(--bone-dim)]">Медиа недоступно в текущем detail contract. Проверь media queue или storefront enrichment.</div> : null}
+            {!media.length ? <div className="mt-3 text-[13px] text-[var(--bone-dim)]">Медиа недоступно в текущем контракте товара. Проверь очередь медиа или данные витрины.</div> : null}
           </Panel>
 
           <Panel title="Идентичность товара" icon={Tags}>
             <div className="space-y-3 text-[13px] text-[var(--bone-dim)]">
-              <Info label="Canonical product ID" value={product.canonical_product_id} />
-              <Info label="Etsy listing ID" value={product.matched_etsy_listing_id} />
-              <Info label="Slug" value={product.product_slug} />
+              <Info label="Канонический ID товара" value={product.canonical_product_id} />
+              <Info label="ID листинга Etsy" value={product.matched_etsy_listing_id} />
+              <Info label="Адрес страницы" value={product.product_slug} />
               <Info label="Материал" value={product.material} />
               <Info label="Сырой цвет" value={product.color} />
             </div>
@@ -103,13 +103,13 @@ export function AdminProductDetailView({ product, componentTruth }: { product: S
             <div className="grid sm:grid-cols-2 gap-3">
               <Blocker label="Название" active={labelReview} />
               <Blocker label="Цена" active={priceReview} />
-              <Blocker label="Компоненты" active={componentBlocked} detail={`${componentTruth.includedComponents.length} confirmed · ${componentTruth.sourceVariations.length} source variations · ${componentTruth.optionPriceRows.length} price rows`} />
+              <Blocker label="Компоненты" active={componentBlocked} detail={`${componentTruth.includedComponents.length} подтверждено · ${componentTruth.sourceVariations.length} вариантов источника · ${componentTruth.optionPriceRows.length} строк цен`} />
               <Blocker label="Медиа" active={mediaReview} />
             </div>
             {componentEvidence.length ? <div className="mt-4 rounded-xl border border-[rgba(196,64,88,.25)] bg-[rgba(160,32,56,.07)] p-4">
               <div className="eyebrow-dim mb-3">Канонические факты, требующие исправления</div>
               <div className="flex flex-wrap gap-1.5">{componentEvidence.map((item, index) => <Chip key={`${componentEvidenceLabel(item)}-${index}`} tone="danger">{componentEvidenceLabel(item)}</Chip>)}</div>
-              {product.canonical_product_id ? <Link href={`/admin/review/components?product_id=${encodeURIComponent(product.canonical_product_id)}`} className="btn-ghost mt-4 px-4 py-2 text-[10px]">Открыть очередь Product Truth</Link> : null}
+              {product.canonical_product_id ? <Link href={`/admin/review/components?product_id=${encodeURIComponent(product.canonical_product_id)}`} className="btn-ghost mt-4 px-4 py-2 text-[10px]">Открыть проверку фактов товара</Link> : null}
             </div> : null}
           </Panel>
 
@@ -119,14 +119,14 @@ export function AdminProductDetailView({ product, componentTruth }: { product: S
             <div className="grid sm:grid-cols-3 gap-3">
               <Metric label="Мин. цена" value={formatPrice(product.min_price, product.currency || 'EUR')} />
               <Metric label="Макс. цена" value={formatPrice(product.max_price, product.currency || 'EUR')} />
-              <Metric label="Статус цены" value={product.price_confidence_status || 'unknown'} />
+              <Metric label="Статус цены" value={product.price_confidence_status === 'verified' ? 'Подтверждена' : product.price_confidence_status === 'unverified' ? 'Нужно проверить' : product.price_confidence_status || 'Не определено'} />
             </div>
           </Panel>
 
           <Panel title="Опции товара" icon={Boxes}>
             <div className="rounded-xl border border-[rgba(216,214,211,.10)] overflow-hidden">
               <div className="grid grid-cols-[1.3fr_.7fr_.8fr_.8fr] gap-3 px-4 py-3 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">
-                <div>Публичная опция</div><div>Цена</div><div>Компонент</div><div>Флаги</div>
+                <div>Вариант</div><div>Цена</div><div>Компонент</div><div>Статусы</div>
               </div>
               <div className="divide-y divide-[rgba(216,214,211,.08)]">
                 {configs.map((config, index) => <div key={`${optionLabel(config, index)}-${index}`} className="grid grid-cols-[1.3fr_.7fr_.8fr_.8fr] gap-3 px-4 py-3 text-[13px] items-center">
@@ -135,7 +135,7 @@ export function AdminProductDetailView({ product, componentTruth }: { product: S
                   <div>{config.component_code ? <Chip>{config.component_code}</Chip> : <Chip tone="danger">Нет</Chip>}</div>
                   <div className="flex flex-wrap gap-1.5">{config.is_full_set ? <Chip tone="warning">Полный комплект</Chip> : null}{config.is_bundle ? <Chip tone="warning">Комплект</Chip> : null}{config.needs_label_review ? <Chip tone="warning">Название</Chip> : null}</div>
                 </div>)}
-                {!configs.length ? <div className="p-4 text-[13px] text-[var(--bone-dim)]">Опции недоступны в текущем detail contract. Для полного разбора нужен builder detail row или отдельная lightweight detail view.</div> : null}
+                {!configs.length ? <div className="p-4 text-[13px] text-[var(--bone-dim)]">Опции недоступны в текущем контракте товара. Для полного разбора нужны данные Product Builder.</div> : null}
               </div>
             </div>
           </Panel>
