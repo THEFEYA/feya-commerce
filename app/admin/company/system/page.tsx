@@ -293,7 +293,7 @@ export default async function AdminSystemPage() {
           <div className="owner-section-head">
             <div>
               <h2>Использование ИИ</h2>
-              <div className="owner-section-kicker">Последние 30 дней · измеряем расход, но не превращаем экономию токенов в самоцель</div>
+              <div className="owner-section-kicker">Последние 30 дней · на первом плане полезная работа и качество учёта, а не количество токенов</div>
             </div>
           </div>
 
@@ -303,31 +303,31 @@ export default async function AdminSystemPage() {
               <span>вызовов ИИ</span>
             </div>
             <div className="owner-summary-cell">
-              <strong>{new Intl.NumberFormat('ru-RU').format(aiUsage.totalTokens)}</strong>
-              <span>Токенов всего</span>
+              <strong>{aiUsage.meteredInvocations}</strong>
+              <span>вызовов учтено полностью</span>
             </div>
             <div className="owner-summary-cell">
-              <strong>{new Intl.NumberFormat('ru-RU').format(aiUsage.inputTokens)}</strong>
-              <span>Входных токенов</span>
+              <strong>{aiUsage.avgLatencyMs == null ? '—' : `${Math.round(aiUsage.avgLatencyMs)} мс`}</strong>
+              <span>средняя задержка</span>
             </div>
             <div className="owner-summary-cell">
-              <strong>{new Intl.NumberFormat('ru-RU').format(aiUsage.outputTokens)}</strong>
-              <span>Выходных токенов</span>
+              <strong>{aiUsage.unmeteredInvocations}</strong>
+              <span>вызовов без полного учёта</span>
             </div>
           </div>
 
           <div className={`owner-card ${aiUsage.unmeteredInvocations ? 'is-warning' : aiUsage.invocations ? 'is-success' : 'is-info'}`} style={{ marginTop: '10px' }}>
             <div className={`owner-status ${aiUsage.unmeteredInvocations ? 'is-warning' : aiUsage.invocations ? 'is-success' : 'is-info'}`}>
               {aiUsage.unmeteredInvocations
-                ? `Без учёта токенов: ${aiUsage.unmeteredInvocations}`
+                ? `Нужно проверить учёт: ${aiUsage.unmeteredInvocations}`
                 : aiUsage.invocations
-                  ? `Учтено вызовов: ${aiUsage.meteredInvocations}`
+                  ? 'Учёт ИИ-операций работает'
                   : 'Живых вызовов ИИ пока нет'}
             </div>
             <p className="owner-card-copy">
               {aiUsage.invocations
-                ? `Средняя задержка: ${aiUsage.avgLatencyMs == null ? 'нет данных' : `${aiUsage.avgLatencyMs} мс`}. Последний вызов: ${aiUsage.lastInvocationAt ? new Date(aiUsage.lastInvocationAt).toLocaleString('ru-RU') : 'не определён'}.`
-                : 'Это правильное состояние до запуска автоматических рабочих потоков. FEYA не должна тратить токены просто для поддержания видимости «активных агентов».'}
+                ? `Последний вызов: ${aiUsage.lastInvocationAt ? new Date(aiUsage.lastInvocationAt).toLocaleString('ru-RU') : 'не определён'}. Технический расход: ${new Intl.NumberFormat('ru-RU').format(aiUsage.totalTokens)} токенов всего (${new Intl.NumberFormat('ru-RU').format(aiUsage.inputTokens)} вход / ${new Intl.NumberFormat('ru-RU').format(aiUsage.outputTokens)} выход).`
+                : 'Это правильное состояние до запуска автоматических рабочих потоков. FEYA не должна тратить ресурсы только ради видимости «активных агентов».'}
             </p>
           </div>
         </section>
