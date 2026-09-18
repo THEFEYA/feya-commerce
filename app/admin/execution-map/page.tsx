@@ -43,6 +43,7 @@ export default async function AdminExecutionMapPage() {
             <Link href="/admin/system-readiness">System Readiness</Link>
             <Link href="/admin/metrics">Metrics</Link>
             <Link href="/admin/execution-map">Execution Map</Link>
+            <Link href="/admin/executions">Executions</Link>
           </div>
         </nav>
 
