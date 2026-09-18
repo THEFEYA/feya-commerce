@@ -70,7 +70,7 @@ export default async function AdminSeoClustersPage() {
 
         <section className="phase-banner">
           <div className="phase-label">OSPM semantic clustering gate · read-only</div>
-          <h1>Query Cluster Review Queue</h1>
+          <h1>Очередь группировки запросов</h1>
           <p>
             This queue does not create query clusters. It shows whether each canonical keyword has enough reviewed semantic and metric evidence to enter clustering.
           </p>
@@ -81,8 +81,8 @@ export default async function AdminSeoClustersPage() {
           <div className="card metric"><strong>{ready}</strong><span>Ready for semantic clustering</span></div>
           <div className="card metric"><strong>{cleanupReview}</strong><span>Need cleanup review</span></div>
           <div className="card metric"><strong>{cleanup}</strong><span>Need cleanup</span></div>
-          <div className="card metric"><strong>{metrics}</strong><span>Wait for metrics</span></div>
-          <div className="card metric"><strong>{clustered}</strong><span>Already clustered</span></div>
+          <div className="card metric"><strong>{metrics}</strong><span>Ждут метрик</span></div>
+          <div className="card metric"><strong>{clustered}</strong><span>Уже сгруппировано</span></div>
           <div className="card metric"><strong>{hold}</strong><span>Hold</span></div>
         </section>
 
@@ -96,13 +96,13 @@ export default async function AdminSeoClustersPage() {
           <table>
             <thead>
               <tr>
-                <th>Keyword</th>
-                <th>Lane</th>
-                <th>Axis / pattern</th>
-                <th>Cleanup</th>
-                <th>Metrics</th>
-                <th>Products</th>
-                <th>Cluster state</th>
+                <th>Ключевой запрос</th>
+                <th>Направление</th>
+                <th>Ось / шаблон</th>
+                <th>Очистка</th>
+                <th>Метрики</th>
+                <th>Товаров</th>
+                <th>Состояние группировки</th>
               </tr>
             </thead>
             <tbody>
@@ -125,7 +125,7 @@ export default async function AdminSeoClustersPage() {
                   </td>
                   <td>
                     <span className={`status-pill ${getStatusClass(row.cleanup_review_status)}`}>
-                      {asText(row.cleanup_review_status, row.cleanup_id ? 'pending' : 'missing')}
+                      {clusterStatusLabel(row.cleanup_review_status || (row.cleanup_id ? 'PENDING' : 'MISSING'))}
                     </span>
                     {row.warning_flags ? <div className="muted">{asText(row.warning_flags)}</div> : null}
                   </td>
@@ -136,7 +136,7 @@ export default async function AdminSeoClustersPage() {
                   <td>{row.product_count ?? 0}</td>
                   <td>
                     <span className={`status-pill ${getStatusClass(row.cluster_queue_status)}`}>
-                      {asText(row.cluster_queue_status)}
+                      {clusterStatusLabel(row.cluster_queue_status)}
                     </span>
                     {row.cluster_membership_count ? <div className="muted">{row.cluster_membership_count} memberships</div> : null}
                   </td>
