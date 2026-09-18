@@ -69,6 +69,19 @@ const PRIORITY_LABELS: Record<string, string> = {
   P3: 'Для сведения',
 };
 
+const SOURCE_LABELS: Record<string, string> = {
+  BEHAVIORAL_ANALYTICS: 'Поведение пользователей (GA4)',
+  BUSINESS_OPERATIONAL_POLICY: 'Правила бизнеса',
+  COMMERCE_ORDER_TRUTH: 'Подтверждённые заказы',
+  COMMERCE_REVENUE_TRUTH: 'Выручка и возвраты',
+  DERIVED_GROWTH_SIGNALS: 'Сигналы FEYA',
+  EXTERNAL_KEYWORD_DEMAND: 'Спрос на ключевые слова',
+  LEGACY_MARKETPLACE_HISTORY: 'Исторические данные маркетплейсов',
+  ORGANIC_SEARCH_PERFORMANCE: 'Органический поиск (Search Console)',
+  PRODUCT_FACTS: 'Факты о товарах',
+  SEO_PAGE_PORTFOLIO_AUTHORITY: 'Поисковые страницы и их ответственность',
+};
+
 const SIGNAL_COPY: Record<string, { title: string; summary: string; action: string }> = {
   OSPM_KEYWORD_CLEANUP_BACKLOG: {
     title: 'Разобрать очередь ключевых слов',
@@ -208,6 +221,11 @@ export function scopeLabel(value: unknown) {
 export function priorityLabel(value: unknown) {
   const key = String(value || '').trim().toUpperCase();
   return PRIORITY_LABELS[key] || 'Обычный приоритет';
+}
+
+export function sourceLabel(value: unknown) {
+  const key = String(value || '').trim().toUpperCase();
+  return SOURCE_LABELS[key] || humanizeCode(key || '—');
 }
 
 export function ownerToneForStatus(value: unknown): OwnerTone {
