@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { SourceOfTruthRegistryRow } from '@/lib/types';
+import { roleLabel, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -47,17 +48,17 @@ export default async function AdminDataAuthorityPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/data-authority">Data Authority</Link>
-            <Link href="/admin/system-readiness">System Readiness</Link>
-            <Link href="/admin/metrics">Metrics</Link>
+            <Link href="/admin/data-authority">Источники истины</Link>
+            <Link href="/admin/system-readiness">Готовность системы</Link>
+            <Link href="/admin/metrics">Метрики</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Source-of-Truth Registry · read-only</div>
-          <h1>Data Authority</h1>
+          <div className="phase-label">Реестр источников истины · только просмотр</div>
+          <h1>Источники истины</h1>
           <p>
-            Growth OS distinguishes authoritative first-party truth, legacy evidence, external market data and derived operational signals. Derived/legacy data cannot silently override a higher-authority source.
+            FEYA разделяет достоверные собственные данные, исторические источники, внешние рыночные данные и производные сигналы. Источник более низкого уровня не может незаметно переопределить источник более высокого уровня.
           </p>
         </section>
 
@@ -67,20 +68,20 @@ export default async function AdminDataAuthorityPage() {
           <table>
             <thead>
               <tr>
-                <th>Domain</th>
-                <th>Authority</th>
-                <th>State</th>
-                <th>Owner</th>
-                <th>Primary source</th>
-                <th>Precedence</th>
-                <th>Limitation</th>
+                <th>Область</th>
+                <th>Уровень доверия</th>
+                <th>Состояние</th>
+                <th>Ответственный</th>
+                <th>Основной источник</th>
+                <th>Приоритет источника</th>
+                <th>Ограничение</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((row) => (
                 <tr key={row.source_code}>
                   <td>
-                    <strong>{asText(row.source_name, row.source_code)}</strong>
+                    <strong>{sourceLabel(row.source_code)}</strong>
                     <div className="muted">{asText(row.authority_domain)}</div>
                     <div className="muted">{row.source_code}</div>
                   </td>
@@ -91,11 +92,11 @@ export default async function AdminDataAuthorityPage() {
                   </td>
                   <td>
                     <span className={`status-pill ${stateClass(row.source_state)}`}>
-                      {asText(row.source_state)}
+                      {statusLabel(row.source_state)}
                     </span>
                     <div className="muted">{asText(row.implementation_state)}</div>
                   </td>
-                  <td>{asText(row.owner_role)}</td>
+                  <td>{roleLabel(row.owner_role)}</td>
                   <td>{asText(row.primary_source)}</td>
                   <td>{row.precedence ?? '—'}</td>
                   <td>
