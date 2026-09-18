@@ -28,6 +28,19 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
+function compilerStatusLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    SHADOW_READY: 'Можно готовить безопасный черновик',
+    CANONICAL_READY: 'Готово канонически',
+    BLOCKED_KEYWORD_REVIEW: 'Блокирует проверка ключевых слов',
+    BLOCKED_PRODUCT_FACT_REVIEW: 'Блокирует проверка фактов товара',
+    BLOCKED_GENERATION_GATE: 'Блокирует генерация',
+    BLOCKED_NO_SEO_PAGE: 'Нет SEO-страницы',
+  };
+  return labels[key] || asText(value);
+}
+
 function statusClass(value: unknown) {
   const normalized = asText(value, '').toUpperCase();
   if (normalized === 'SHADOW_READY' || normalized.includes('CANONICAL_READY')) return 'ok';
@@ -55,50 +68,50 @@ export default async function AdminContentBriefsPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/products">Products</Link>
-            <Link href="/admin/seo-portfolio">SEO Portfolio</Link>
-            <Link href="/admin/seo-clusters">Cluster Queue</Link>
-            <Link href="/admin/content-briefs">Content Briefs</Link>
-            <Link href="/admin/content-qa">Content QA</Link>
+            <Link href="/admin/products">Товары</Link>
+            <Link href="/admin/seo-portfolio">SEO-страницы</Link>
+            <Link href="/admin/seo-clusters">Группы запросов</Link>
+            <Link href="/admin/content-briefs">Контентные задания</Link>
+            <Link href="/admin/content-qa">Контроль качества</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Deterministic Content Brief Compiler · shadow</div>
-          <h1>Content Briefs</h1>
+          <div className="phase-label">Детерминированные контентные задания · безопасный режим</div>
+          <h1>Контентные задания</h1>
           <p>
-            Product facts, axis strategy, keyword plan, scoped Business Truth, Content Policy and SEO Page state are compiled without an LLM. Canonical-ready remains false until real OSPM ownership and approved keyword-plan conditions exist.
+            Факты товара, выбранные оси, план ключевых слов, правила бизнеса, политика контента и состояние SEO-страницы собираются без LLM. Каноническая готовность не считается достигнутой, пока нет подтверждённой ответственности страницы и одобренного плана ключевых слов.
           </p>
         </section>
 
         <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Brief candidates</span></div>
-          <div className="card metric"><strong>{shadowReady}</strong><span>Can generate shadow</span></div>
-          <div className="card metric"><strong>{canonicalReady}</strong><span>Canonical-ready</span></div>
-          <div className="card metric"><strong>{blockedKeyword}</strong><span>Blocked keyword review</span></div>
-          <div className="card metric"><strong>{blockedFacts}</strong><span>Blocked Product Facts</span></div>
-          <div className="card metric"><strong>{blockedGeneration}</strong><span>Blocked generation gate</span></div>
-          <div className="card metric"><strong>{missingPage}</strong><span>Missing SEO page</span></div>
+          <div className="card metric"><strong>{rows.length}</strong><span>Кандидатов заданий</span></div>
+          <div className="card metric"><strong>{shadowReady}</strong><span>Можно генерировать безопасный черновик</span></div>
+          <div className="card metric"><strong>{canonicalReady}</strong><span>Канонически готовы</span></div>
+          <div className="card metric"><strong>{blockedKeyword}</strong><span>Блокирует проверка ключей</span></div>
+          <div className="card metric"><strong>{blockedFacts}</strong><span>Блокируют факты товара</span></div>
+          <div className="card metric"><strong>{blockedGeneration}</strong><span>Блокирует генерация</span></div>
+          <div className="card metric"><strong>{missingPage}</strong><span>Нет SEO-страницы</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
         <div className="notice" style={{ marginBottom: '18px' }}>
-          Shadow-ready does not mean publish-ready. It means the deterministic compiler has enough truth/context to allow an experimental draft while preserving unresolved metric/ownership limitations.
+          Готовность к безопасному черновику не означает готовность к публикации. Это значит, что фактов и контекста достаточно для экспериментального черновика, но нерешённые ограничения по метрикам и ответственности страницы сохраняются.
         </div>
 
         <div className="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Product</th>
-                <th>Compiler</th>
-                <th>Facts</th>
-                <th>Keyword plan</th>
-                <th>Primary keyword</th>
-                <th>SEO page</th>
-                <th>Ownership</th>
-                <th>Business Truth</th>
+                <th>Товар</th>
+                <th>Состояние задания</th>
+                <th>Факты</th>
+                <th>План ключевых слов</th>
+                <th>Основной ключ</th>
+                <th>SEO-страница</th>
+                <th>Ответственность страницы</th>
+                <th>Правила бизнеса</th>
               </tr>
             </thead>
             <tbody>
@@ -112,11 +125,11 @@ export default async function AdminContentBriefsPage() {
                   </td>
                   <td>
                     <span className={`status-pill ${statusClass(row.compiler_status)}`}>
-                      {asText(row.compiler_status)}
+                      {compilerStatusLabel(row.compiler_status)}
                     </span>
                     <div className="badge-row">
-                      {row.can_generate_shadow ? <span className="badge">shadow</span> : null}
-                      {row.can_produce_canonical_brief ? <span className="status-pill ok">canonical</span> : null}
+                      {row.can_generate_shadow ? <span className="badge">безопасный черновик</span> : null}
+                      {row.can_produce_canonical_brief ? <span className="status-pill ok">канонически готово</span> : null}
                     </div>
                   </td>
                   <td>
@@ -126,14 +139,14 @@ export default async function AdminContentBriefsPage() {
                   <td>{asText(row.plan_status)}</td>
                   <td>{asText(row.primary_keyword)}</td>
                   <td>
-                    {row.seo_page_id ? asText(row.indexation_intent) : 'missing'}
+                    {row.seo_page_id ? asText(row.indexation_intent) : 'нет'}
                     <div className="muted">{asText(row.page_lifecycle_state)}</div>
                   </td>
                   <td>
-                    {row.primary_ownership_count || 0} primary
-                    <div className="muted">{row.ownership_count || 0} total</div>
+                    {row.primary_ownership_count || 0} основных
+                    <div className="muted">{row.ownership_count || 0} всего</div>
                   </td>
-                  <td>{row.business_truth_count || 0} active facts</td>
+                  <td>{row.business_truth_count || 0} активных правил</td>
                 </tr>
               ))}
             </tbody>
