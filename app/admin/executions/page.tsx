@@ -46,46 +46,46 @@ export default async function AdminExecutionsPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/execution-map">Execution Map</Link>
-            <Link href="/admin/executions">Executions</Link>
-            <Link href="/admin/incidents">Incidents</Link>
+            <Link href="/admin/execution-map">Права действий</Link>
+            <Link href="/admin/executions">Выполнение</Link>
+            <Link href="/admin/incidents">Инциденты</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Execution Gateway · read-only</div>
-          <h1>Execution Requests</h1>
+          <div className="phase-label">Шлюз выполнения · только просмотр</div>
+          <h1>Запросы на выполнение</h1>
           <p>
-            Immutable requests, approval hashes and receipts are visible here. The generic dispatcher is not implemented, so an APPROVED request does not execute automatically.
+            Здесь видны неизменяемые запросы, одобрения и квитанции выполнения. Универсальный исполнитель пока не включён, поэтому одобренный запрос не означает автоматическое выполнение.
           </p>
         </section>
 
         <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Requests</span></div>
-          <div className="card metric"><strong>{approvalRequired}</strong><span>Approval required</span></div>
-          <div className="card metric"><strong>{approved}</strong><span>Approved / waiting executor</span></div>
-          <div className="card metric"><strong>{executing}</strong><span>Executing</span></div>
-          <div className="card metric"><strong>{succeeded}</strong><span>Succeeded</span></div>
-          <div className="card metric"><strong>{failed}</strong><span>Failed</span></div>
+          <div className="card metric"><strong>{rows.length}</strong><span>Запросов</span></div>
+          <div className="card metric"><strong>{approvalRequired}</strong><span>Требуют одобрения</span></div>
+          <div className="card metric"><strong>{approved}</strong><span>Одобрены и ждут исполнителя</span></div>
+          <div className="card metric"><strong>{executing}</strong><span>Выполняются</span></div>
+          <div className="card metric"><strong>{succeeded}</strong><span>Успешно</span></div>
+          <div className="card metric"><strong>{failed}</strong><span>Ошибки</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
         {!rows.length ? (
-          <div className="notice">No real Execution Gateway requests have been created.</div>
+          <div className="notice">Реальных запросов на выполнение пока нет.</div>
         ) : (
           <div className="table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>Request</th>
-                  <th>Action</th>
-                  <th>Status</th>
-                  <th>Approval</th>
-                  <th>Mutation domain</th>
-                  <th>Latest receipt</th>
-                  <th>Error</th>
-                  <th>Created</th>
+                  <th>Запрос</th>
+                  <th>Действие</th>
+                  <th>Статус</th>
+                  <th>Одобрение</th>
+                  <th>Область изменений</th>
+                  <th>Последняя квитанция</th>
+                  <th>Ошибка</th>
+                  <th>Создан</th>
                 </tr>
               </thead>
               <tbody>
@@ -106,7 +106,7 @@ export default async function AdminExecutionsPage() {
                     </td>
                     <td>
                       {asText(row.approval_class)}
-                      <div className="muted">{row.has_approval_user ? 'human approval recorded' : 'no human approval record'}</div>
+                      <div className="muted">{row.has_approval_user ? 'одобрение человека зафиксировано' : 'одобрение человека не зафиксировано'}</div>
                     </td>
                     <td>{asText(row.mutation_domain)}</td>
                     <td>
@@ -115,7 +115,7 @@ export default async function AdminExecutionsPage() {
                           <span className={`status-pill ${statusClass(row.latest_receipt_status)}`}>
                             {asText(row.latest_receipt_status)}
                           </span>
-                          <div className="muted">attempt {row.latest_attempt_no ?? '—'} · {asText(row.latest_executor_id)}</div>
+                          <div className="muted">попытка {row.latest_attempt_no ?? '—'} · {asText(row.latest_executor_id)}</div>
                         </>
                       ) : '—'}
                     </td>
