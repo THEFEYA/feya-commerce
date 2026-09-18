@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
+import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type {
   AdminProductBuilderDetail,
   ProductBuilderConfiguration,
@@ -23,10 +23,10 @@ async function getProduct(id: string): Promise<{
   error?: string;
   warning?: string;
 }> {
-  const supabase = getSupabaseReadClient();
+  const supabase = getAdminReadClient();
 
   if (!supabase) {
-    return { product: null, seoReadiness: null, error: getMissingSupabaseEnvMessage() };
+    return { product: null, seoReadiness: null, error: getMissingAdminDataEnvMessage() };
   }
 
   const [productResult, seoReadinessResult] = await Promise.all([
