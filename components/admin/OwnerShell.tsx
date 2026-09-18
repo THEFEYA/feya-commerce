@@ -3,27 +3,46 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, type ReactNode } from 'react';
+import {
+  BarChart3,
+  BriefcaseBusiness,
+  CalendarDays,
+  CheckCircle2,
+  FileImage,
+  FileSearch,
+  FileText,
+  Gauge,
+  ImageIcon,
+  Layers3,
+  PackageSearch,
+  Rocket,
+  Search,
+  Settings2,
+  SlidersHorizontal,
+  Store,
+  TrendingUp,
+} from 'lucide-react';
 
 const NAV_ITEMS = [
-  { key: 'today', href: '/admin/company', label: 'Сегодня', mark: 'С' },
-  { key: 'work', href: '/admin/company/work', label: 'Работа', mark: 'Р' },
-  { key: 'growth', href: '/admin/company/growth', label: 'Рост', mark: '↑' },
-  { key: 'products', href: '/admin/products', label: 'Товары', mark: 'Т' },
-  { key: 'results', href: '/admin/company/results', label: 'Результаты', mark: '✓' },
-  { key: 'system', href: '/admin/company/system', label: 'Система', mark: '⚙' },
+  { key: 'today', href: '/admin/company', label: 'Сегодня', icon: CalendarDays },
+  { key: 'work', href: '/admin/company/work', label: 'Работа', icon: BriefcaseBusiness },
+  { key: 'growth', href: '/admin/company/growth', label: 'Рост', icon: TrendingUp },
+  { key: 'products', href: '/admin/products', label: 'Товары', icon: PackageSearch },
+  { key: 'results', href: '/admin/company/results', label: 'Результаты', icon: BarChart3 },
+  { key: 'system', href: '/admin/company/system', label: 'Система', icon: Settings2 },
 ] as const;
 
 const WORK_TOOLS = [
-  { href: '/admin', label: 'Панель магазина', mark: '⌂' },
-  { href: '/admin/listing-master', label: 'Мастер листинга', mark: 'Л' },
-  { href: '/admin/seo-lab', label: 'SEO-лаборатория', mark: 'S' },
-  { href: '/admin/seo-engine/scoring', label: 'Оценка ключей', mark: '#' },
-  { href: '/admin/seo-engine/briefs', label: 'SEO-бриф', mark: 'Б' },
-  { href: '/admin/seo-approval', label: 'Проверка SEO', mark: '✓' },
-  { href: '/admin/media', label: 'Проверка медиа', mark: 'М' },
-  { href: '/admin/media-seo', label: 'SEO изображений', mark: 'A' },
-  { href: '/admin/launch', label: 'Запуск', mark: '↗' },
-  { href: '/admin/indexation', label: 'Индексация', mark: 'I' },
+  { href: '/admin', label: 'Панель магазина', icon: Gauge },
+  { href: '/admin/listing-master', label: 'Мастер листинга', icon: SlidersHorizontal },
+  { href: '/admin/seo-lab', label: 'SEO-лаборатория', icon: Layers3 },
+  { href: '/admin/seo-engine/scoring', label: 'Оценка ключей', icon: BarChart3 },
+  { href: '/admin/seo-engine/briefs', label: 'SEO-бриф', icon: FileText },
+  { href: '/admin/seo-approval', label: 'Проверка SEO', icon: CheckCircle2 },
+  { href: '/admin/media', label: 'Проверка медиа', icon: ImageIcon },
+  { href: '/admin/media-seo', label: 'SEO изображений', icon: FileImage },
+  { href: '/admin/launch', label: 'Запуск', icon: Rocket },
+  { href: '/admin/indexation', label: 'Индексация', icon: FileSearch },
 ] as const;
 
 function pathMatches(pathname: string, href: string) {
@@ -117,6 +136,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
         <nav className="owner-nav" aria-label="Разделы владельца">
           {NAV_ITEMS.map((item) => {
             const active = activeArea === item.key;
+            const Icon = item.icon;
             return (
               <Link
                 key={item.key}
@@ -124,7 +144,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
                 className={`owner-nav-item${active ? ' is-active' : ''}`}
                 aria-current={active ? 'page' : undefined}
               >
-                <span className="owner-nav-mark" aria-hidden="true">{item.mark}</span>
+                <span className="owner-nav-mark" aria-hidden="true"><Icon size={14} strokeWidth={1.8} /></span>
                 <span>{item.label}</span>
               </Link>
             );
@@ -133,13 +153,14 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
 
         <details className="owner-tools" open={toolsOpen}>
           <summary>
-            <span className="owner-nav-mark" aria-hidden="true">⌘</span>
+            <span className="owner-nav-mark" aria-hidden="true"><SlidersHorizontal size={14} strokeWidth={1.8} /></span>
             <span>Рабочие инструменты</span>
             <span className="owner-tools-chevron" aria-hidden="true">⌄</span>
           </summary>
           <div className="owner-tools-list">
             {WORK_TOOLS.map((item) => {
               const active = pathMatches(pathname, item.href);
+              const Icon = item.icon;
               return (
                 <Link
                   key={item.href}
@@ -147,7 +168,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
                   className={`owner-tool-link${active ? ' is-active' : ''}`}
                   aria-current={active ? 'page' : undefined}
                 >
-                  <span aria-hidden="true">{item.mark}</span>
+                  <span aria-hidden="true"><Icon size={13} strokeWidth={1.8} /></span>
                   <span>{item.label}</span>
                 </Link>
               );
@@ -160,18 +181,18 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
             href="/admin/company/search"
             className={`owner-nav-item owner-nav-secondary${pathname.startsWith('/admin/company/search') ? ' is-active' : ''}`}
           >
-            <span className="owner-nav-mark" aria-hidden="true">⌕</span>
+            <span className="owner-nav-mark" aria-hidden="true"><Search size={14} strokeWidth={1.8} /></span>
             <span>Поиск</span>
           </Link>
           <Link
             href="/admin/company/advanced"
             className={`owner-nav-item owner-nav-secondary${pathname.startsWith('/admin/company/advanced') ? ' is-active' : ''}`}
           >
-            <span className="owner-nav-mark" aria-hidden="true">···</span>
+            <span className="owner-nav-mark" aria-hidden="true"><Settings2 size={14} strokeWidth={1.8} /></span>
             <span>Технические детали</span>
           </Link>
           <Link href="/shop" className="owner-nav-item owner-nav-secondary">
-            <span className="owner-nav-mark" aria-hidden="true">↗</span>
+            <span className="owner-nav-mark" aria-hidden="true"><Store size={14} strokeWidth={1.8} /></span>
             <span>Магазин</span>
           </Link>
         </div>
@@ -181,7 +202,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
         <header className="owner-topbar">
           <div className="owner-topbar-mobile-brand">FEYA</div>
           <Link href="/admin/company/search" className="owner-search-trigger" aria-label="Открыть поиск">
-            <span aria-hidden="true">⌕</span>
+            <Search size={14} strokeWidth={1.8} aria-hidden="true" />
             <span>Найти товар, страницу, задачу или сигнал</span>
             <kbd>⌘ K</kbd>
           </Link>
@@ -200,6 +221,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
       <nav className="owner-mobile-nav" aria-label="Мобильная навигация">
         {NAV_ITEMS.slice(0, 4).map((item) => {
           const active = activeArea === item.key;
+          const Icon = item.icon;
           return (
             <Link
               key={item.key}
@@ -207,7 +229,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
               className={active ? 'is-active' : ''}
               aria-current={active ? 'page' : undefined}
             >
-              <span aria-hidden="true">{item.mark}</span>
+              <span aria-hidden="true"><Icon size={16} strokeWidth={1.8} /></span>
               <small>{item.label}</small>
             </Link>
           );
