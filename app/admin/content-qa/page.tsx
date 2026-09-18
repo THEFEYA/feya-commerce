@@ -57,6 +57,7 @@ export default async function AdminContentQaPage() {
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
             <Link href="/admin/products">Products</Link>
+            <Link href="/admin/product-facts-review">Product Facts</Link>
             <Link href="/admin/seo-portfolio">SEO Portfolio</Link>
             <Link href="/admin/seo-clusters">Cluster Queue</Link>
             <Link href="/admin/content-qa">Content QA</Link>
