@@ -1,23 +1,44 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
-import type { GrowthSignalCandidateRow } from '@/lib/types';
+import type { CaseAdmissionPreviewRow, GrowthSignalCandidateRow } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-async function getSignals(): Promise<{ rows: GrowthSignalCandidateRow[]; error?: string }> {
+async function getSignals(): Promise<{
+  rows: GrowthSignalCandidateRow[];
+  admissionByFingerprint: Map<string, CaseAdmissionPreviewRow>;
+  error?: string;
+}> {
   const supabase = getAdminReadClient();
-  if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
+  if (!supabase) {
+    return { rows: [], admissionByFingerprint: new Map(), error: getMissingAdminDataEnvMessage() };
+  }
 
-  const { data, error } = await supabase
-    .from('feya_commerce_v_growth_signal_candidates_safe_v1')
-    .select('*')
-    .order('priority', { ascending: true })
-    .order('materiality_score', { ascending: false })
-    .order('signal_code', { ascending: true });
+  const [signalsResult, admissionResult] = await Promise.all([
+    supabase
+      .from('feya_commerce_v_growth_signal_candidates_safe_v1')
+      .select('*')
+      .order('priority', { ascending: true })
+      .order('materiality_score', { ascending: false })
+      .order('signal_code', { ascending: true }),
+    supabase
+      .from('feya_commerce_v_case_admission_preview_safe_v1')
+      .select('signal_fingerprint,signal_code,existing_case_id,existing_case_code,existing_case_status,admission_decision,admission_reason'),
+  ]);
 
-  if (error) return { rows: [], error: error.message };
-  return { rows: (data || []) as GrowthSignalCandidateRow[] };
+  if (signalsResult.error) {
+    return { rows: [], admissionByFingerprint: new Map(), error: signalsResult.error.message };
+  }
+  if (admissionResult.error) {
+    return { rows: [], admissionByFingerprint: new Map(), error: admissionResult.error.message };
+  }
+
+  const admissionRows = (admissionResult.data || []) as CaseAdmissionPreviewRow[];
+  return {
+    rows: (signalsResult.data || []) as GrowthSignalCandidateRow[],
+    admissionByFingerprint: new Map(admissionRows.map((row) => [row.signal_fingerprint, row])),
+  };
 }
 
 function asText(value: unknown, fallback = '—') {
@@ -40,7 +61,7 @@ function stateClass(value: unknown) {
 }
 
 export default async function AdminSignalsPage() {
-  const { rows, error } = await getSignals();
+  const { rows, admissionByFingerprint, error } = await getSignals();
 
   const p1 = rows.filter((row) => row.priority === 'P1').length;
   const p2 = rows.filter((row) => row.priority === 'P2').length;
@@ -93,6 +114,7 @@ export default async function AdminSignalsPage() {
                 <th>Owner</th>
                 <th>State</th>
                 <th>Admission</th>
+                <th>Case admission preview</th>
                 <th>Evidence</th>
                 <th>Next action</th>
               </tr>
@@ -121,6 +143,22 @@ export default async function AdminSignalsPage() {
                     </span>
                   </td>
                   <td>{asText(row.case_admission_recommendation)}</td>
+                  <td>
+                    {(() => {
+                      const admission = admissionByFingerprint.get(row.signal_fingerprint);
+                      return (
+                        <>
+                          <strong>{asText(admission?.admission_decision)}</strong>
+                          <div className="muted">{asText(admission?.admission_reason)}</div>
+                          {admission?.existing_case_code ? (
+                            <div className="badge-row">
+                              <span className="badge">{admission.existing_case_code}</span>
+                            </div>
+                          ) : null}
+                        </>
+                      );
+                    })()}
+                  </td>
                   <td>{asText(row.summary)}</td>
                   <td>{asText(row.next_action)}</td>
                 </tr>
