@@ -32,6 +32,20 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
+function portfolioLabel(value: unknown) {
+  const key = asText(value, '').toLowerCase();
+  const labels: Record<string, string> = {
+    bootstrap: 'Подготовка',
+    candidate: 'Кандидат',
+    indexable: 'Разрешена',
+    noindex: 'Не индексировать',
+    active: 'Активна',
+    mature: 'Стабильна',
+    protected: 'Защищена',
+  };
+  return labels[key] || asText(value);
+}
+
 function getStatusClass(value: unknown) {
   const normalized = asText(value, '').toLowerCase();
 
@@ -60,50 +74,50 @@ export default async function AdminSeoPortfolioPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/products">Products</Link>
-            <Link href="/admin/seo-keywords">SEO Keywords</Link>
-            <Link href="/admin/seo-portfolio">SEO Portfolio</Link>
-            <Link href="/admin/seo-clusters">Cluster Queue</Link>
-            <Link href="/admin/seo-ownership-proposals">Ownership Proposals</Link>
-            <Link href="/admin/seo-indexability">Indexability</Link>
-            <Link href="/admin/review">Review</Link>
-            <Link href="/shop">Shop</Link>
+            <Link href="/admin/products">Товары</Link>
+            <Link href="/admin/seo-keywords">Ключевые слова</Link>
+            <Link href="/admin/seo-portfolio">SEO-страницы</Link>
+            <Link href="/admin/seo-clusters">Группы запросов</Link>
+            <Link href="/admin/seo-ownership-proposals">Ответственность страниц</Link>
+            <Link href="/admin/seo-indexability">Индексация</Link>
+            <Link href="/admin/review">Проверка</Link>
+            <Link href="/shop">Магазин</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">OSPM portfolio bootstrap · read-only</div>
-          <h1>SEO Page Portfolio</h1>
+          <div className="phase-label">SEO-портфель · только просмотр</div>
+          <h1>SEO-страницы</h1>
           <p>
-            Stable page identities and intended search lifecycle. Product pages are bootstrapped as candidates only; no query ownership or indexability is inferred automatically.
+            Стабильный список страниц и их поисковое состояние. Страницы остаются кандидатами, пока группы запросов, ответственность и допуск к индексации не подтверждены.
           </p>
         </section>
 
         <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Pages loaded</span></div>
-          <div className="card metric"><strong>{candidateCount}</strong><span>Indexation candidates</span></div>
-          <div className="card metric"><strong>{indexableCount}</strong><span>Approved indexable</span></div>
-          <div className="card metric"><strong>{primaryOwnerCount}</strong><span>Pages with primary query owner</span></div>
-          <div className="card metric"><strong>{protectedCount}</strong><span>Protected winners</span></div>
+          <div className="card metric"><strong>{rows.length}</strong><span>Страниц</span></div>
+          <div className="card metric"><strong>{candidateCount}</strong><span>Кандидатов на индексацию</span></div>
+          <div className="card metric"><strong>{indexableCount}</strong><span>Разрешено индексировать</span></div>
+          <div className="card metric"><strong>{primaryOwnerCount}</strong><span>Есть основная группа запросов</span></div>
+          <div className="card metric"><strong>{protectedCount}</strong><span>Защищённых успешных страниц</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
         <div className="notice" style={{ marginBottom: '18px' }}>
-          Current expected bootstrap state: product pages exist, while Query Cluster Registry and page/query ownership remain empty until semantic clustering and OSPM review are implemented.
+          Текущее ожидаемое состояние: страницы товаров уже существуют, но группы запросов и ответственность страниц ещё не подтверждены. Это не ошибка и не повод включать индексацию автоматически.
         </div>
 
         <div className="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Page</th>
-                <th>Path</th>
-                <th>Type</th>
-                <th>Lifecycle</th>
-                <th>Indexation</th>
-                <th>Query ownership</th>
-                <th>Market</th>
+                <th>Страница</th>
+                <th>Путь</th>
+                <th>Тип</th>
+                <th>Этап</th>
+                <th>Индексация</th>
+                <th>Ответственность за запросы</th>
+                <th>Рынок</th>
               </tr>
             </thead>
             <tbody>
@@ -115,16 +129,16 @@ export default async function AdminSeoPortfolioPage() {
                         {row.card_title || row.h1 || row.seo_page_id}
                       </Link>
                     ) : asText(row.card_title || row.h1 || row.seo_page_id)}
-                    {row.protected_winner_flag ? <div className="badge-row"><span className="status-pill ok">Protected winner</span></div> : null}
+                    {row.protected_winner_flag ? <div className="badge-row"><span className="status-pill ok">Защищена от лишних изменений</span></div> : null}
                   </td>
                   <td>{asText(row.url_path)}</td>
                   <td>{asText(row.page_type)}</td>
-                  <td><span className={`status-pill ${getStatusClass(row.lifecycle_state)}`}>{asText(row.lifecycle_state)}</span></td>
-                  <td><span className={`status-pill ${getStatusClass(row.indexation_intent)}`}>{asText(row.indexation_intent)}</span></td>
+                  <td><span className={`status-pill ${getStatusClass(row.lifecycle_state)}`}>{portfolioLabel(row.lifecycle_state)}</span></td>
+                  <td><span className={`status-pill ${getStatusClass(row.indexation_intent)}`}>{portfolioLabel(row.indexation_intent)}</span></td>
                   <td>
-                    <span className="badge">{row.ownership_count || 0} total</span>
+                    <span className="badge">Всего: {row.ownership_count || 0}</span>
                     <div className="badge-row">
-                      <span className="badge">{row.primary_ownership_count || 0} primary</span>
+                      <span className="badge">Основных: {row.primary_ownership_count || 0}</span>
                     </div>
                   </td>
                   <td>{asText(row.market_code)} / {asText(row.locale)}</td>
