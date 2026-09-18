@@ -491,14 +491,13 @@ export async function POST(request: NextRequest) {
   try {
     const parsed = await runSco(selected, model);
     const rawResults = Array.isArray(parsed.results) ? parsed.results : [];
-    const resultByProduct = new Map(
-      rawResults
-        .map((result) => {
-          const record = isRecord(result) ? result : {};
-          return [asString(record.canonical_product_id), result] as const;
-        })
-        .filter((entry): entry is [string, ScoProposal] => Boolean(entry[0])),
-    );
+    const resultByProduct = new Map<string, unknown>();
+    for (const result of rawResults) {
+      const record = isRecord(result as unknown) ? (result as unknown as UnknownRecord) : null;
+      const productId = record ? asString(record.canonical_product_id) : null;
+      if (!productId) continue;
+      resultByProduct.set(productId, result);
+    }
 
     const results = selected.map(({ productId, brief, truth }) => {
       const proposal = normalizeProposal(resultByProduct.get(productId), productId);
