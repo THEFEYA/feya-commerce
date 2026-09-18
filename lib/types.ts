@@ -323,3 +323,19 @@ export type ContentQaShadowRow = {
   updated_at?: string | null;
   [key: string]: unknown;
 };
+
+
+export type BusinessTruthStatusRow = {
+  truth_code: string;
+  truth_type?: string | null;
+  scope_type?: string | null;
+  scope_key?: string | null;
+  locale?: string | null;
+  public_copy?: string | null;
+  status?: string | null;
+  version_no?: number | null;
+  valid_from?: string | null;
+  valid_to?: string | null;
+  updated_at?: string | null;
+  [key: string]: unknown;
+};
