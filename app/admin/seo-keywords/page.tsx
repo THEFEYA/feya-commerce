@@ -1,5 +1,5 @@
-import { competitionLabel } from '@/lib/adminDisplayRu';
 // @ts-nocheck
+import { competitionLabel } from '@/lib/adminDisplayRu';
 import Link from 'next/link';
 import { ArrowUpRight, Database, FileSearch, Layers3, ShieldAlert, ShieldCheck, Sparkles } from 'lucide-react';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
