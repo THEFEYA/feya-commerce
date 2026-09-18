@@ -469,3 +469,36 @@ export type CaseAdmissionPreviewRow = {
   admission_reason?: string | null;
   [key: string]: unknown;
 };
+
+
+export type KeywordCleanupReviewStatusRow = {
+  cleanup_id: number;
+  keyword_id?: number | null;
+  keyword_norm?: string | null;
+  original_keyword?: string | null;
+  cleaned_keyword?: string | null;
+  suggested_keyword?: string | null;
+  effective_keyword?: string | null;
+  keyword_axis?: string | null;
+  keyword_pattern?: string | null;
+  suggested_page_level?: string | null;
+  ai_intent?: string | null;
+  warning_flags?: unknown;
+  normalization_only?: boolean | null;
+  review_risk?: string | null;
+  review_lane?: string | null;
+  review_status?: string | null;
+  approved_keyword?: string | null;
+  approved_at?: string | null;
+  recommendation_id?: string | null;
+  recommendation?: string | null;
+  recommended_keyword?: string | null;
+  recommended_page_level?: string | null;
+  recommended_intent?: string | null;
+  issues_json?: unknown;
+  recommendation_reason?: string | null;
+  review_model_name?: string | null;
+  review_prompt_version?: string | null;
+  recommendation_created_at?: string | null;
+  [key: string]: unknown;
+};
