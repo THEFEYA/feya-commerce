@@ -3,14 +3,14 @@ import { loginAdmin } from './actions';
 import { isAdminAuthRequired } from '@/lib/supabaseAuth';
 
 type PageProps = {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; next?: string }>;
 };
 
 function getErrorMessage(error: string | undefined) {
   if (!error) return null;
-  if (error === 'missing_credentials') return 'Enter email and password.';
-  if (error === 'invalid_credentials') return 'Invalid email or password.';
-  if (error === 'not_authorized') return 'This account is authenticated but is not approved for FEYA Admin.';
+  if (error === 'missing_credentials') return 'Введите email и пароль.';
+  if (error === 'invalid_credentials') return 'Неверный email или пароль.';
+  if (error === 'not_authorized') return 'Аккаунт подтверждён, но не имеет доступа к FEYA Admin.';
   return error;
 }
 
@@ -18,6 +18,7 @@ export default async function AdminLoginPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const errorMessage = getErrorMessage(params.error);
   const authRequired = isAdminAuthRequired();
+  const nextPath = typeof params.next === 'string' && params.next.startsWith('/admin') ? params.next : '/admin';
 
   return (
     <main className="page-shell">
@@ -30,19 +31,20 @@ export default async function AdminLoginPage({ searchParams }: PageProps) {
         </nav>
 
         <section className="phase-banner" style={{ maxWidth: '620px', margin: '40px auto' }}>
-          <div className="phase-label">FEYA Admin authentication</div>
-          <h1>Admin sign in</h1>
-          <p>Existing Supabase Auth accounts only. Public signup is intentionally not available.</p>
+          <div className="phase-label">Защищённый вход FEYA Admin</div>
+          <h1>Вход в админку</h1>
+          <p>Только для заранее созданных аккаунтов Supabase Auth. Публичная регистрация намеренно отключена.</p>
 
           {!authRequired ? (
             <div className="notice">
-              Admin auth scaffolding is installed but enforcement is currently disabled. Set FEYA_ADMIN_AUTH_REQUIRED=true only after an approved admin allowlist is configured.
+              Механизм защищённого входа установлен, но обязательная авторизация пока выключена. Включать её можно только после настройки разрешённого списка владельцев.
             </div>
           ) : null}
 
           {errorMessage ? <div className="notice">{errorMessage}</div> : null}
 
           <form action={loginAdmin} className="grid" style={{ gap: '14px' }}>
+            <input type="hidden" name="next" value={nextPath} />
             <label>
               <span className="muted">Email</span>
               <input
@@ -55,7 +57,7 @@ export default async function AdminLoginPage({ searchParams }: PageProps) {
             </label>
 
             <label>
-              <span className="muted">Password</span>
+              <span className="muted">Пароль</span>
               <input
                 name="password"
                 type="password"
@@ -66,7 +68,7 @@ export default async function AdminLoginPage({ searchParams }: PageProps) {
             </label>
 
             <button type="submit" style={{ padding: '12px 16px', borderRadius: '12px', cursor: 'pointer' }}>
-              Sign in
+              Войти
             </button>
           </form>
         </section>
