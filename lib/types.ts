@@ -820,3 +820,44 @@ export type ChangeEventRow = {
   created_at?: string | null;
   [key: string]: unknown;
 };
+
+
+export type GrowthStrategyRow = {
+  strategy_version_id: string;
+  strategy_code?: string | null;
+  version_no?: number | null;
+  strategy_status?: string | null;
+  title?: string | null;
+  economic_mode?: string | null;
+  strategy_hash?: string | null;
+  active_from?: string | null;
+  active_to?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  [key: string]: unknown;
+};
+
+export type GrowthInitiativeRow = {
+  initiative_id: string;
+  initiative_code?: string | null;
+  case_id?: string | null;
+  objective_id?: string | null;
+  strategy_version_id?: string | null;
+  strategy_code?: string | null;
+  strategy_version_no?: number | null;
+  title?: string | null;
+  owner_role?: string | null;
+  action_class?: string | null;
+  initiative_status?: string | null;
+  director_gate_status?: string | null;
+  human_approval_status?: string | null;
+  strategy_revalidation_status?: string | null;
+  materiality_score?: number | string | null;
+  due_at?: string | null;
+  expires_at?: string | null;
+  human_approved_at?: string | null;
+  completed_at?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  [key: string]: unknown;
+};
