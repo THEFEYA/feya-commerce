@@ -66,6 +66,10 @@ export default function AdminHomePage() {
             <strong>Ownership Proposals</strong>
             <span>Approved query clusters mapped to candidate pages without changing indexability.</span>
           </Link>
+          <Link className="card metric" href="/admin/seo-indexability">
+            <strong>Indexability</strong>
+            <span>Separate human eligibility gate after ownership and content readiness.</span>
+          </Link>
           <Link className="card metric" href="/admin/content-briefs">
             <strong>Content Briefs</strong>
             <span>Deterministic compiler readiness before SCO generation.</span>
