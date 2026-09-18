@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { GrowthInitiativeRow, GrowthStrategyRow } from '@/lib/types';
+import { roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -61,35 +62,35 @@ export default async function AdminStrategyPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/strategy">Strategy</Link>
-            <Link href="/admin/signals">Signals</Link>
-            <Link href="/admin/executions">Executions</Link>
+            <Link href="/admin/strategy">Стратегия</Link>
+            <Link href="/admin/signals">Сигналы</Link>
+            <Link href="/admin/executions">Выполнение</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Growth Strategy / Initiative Registry · read-only</div>
-          <h1>Strategy & Initiatives</h1>
+          <div className="phase-label">Стратегия и инициативы · только просмотр</div>
+          <h1>Стратегия и инициативы</h1>
           <p>
-            Growth Strategy activation is human-owned. Director Gate and Human Approval remain separate, and unfinished initiatives must be revalidated when the active strategy changes.
+            Активировать стратегию может только человек. Проверка директора и подтверждение владельца остаются отдельными этапами, а незавершённые инициативы повторно проверяются при смене активной стратегии.
           </p>
         </section>
 
         <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{strategies.length}</strong><span>Strategy versions</span></div>
-          <div className="card metric"><strong>{activeStrategies}</strong><span>Active strategy</span></div>
-          <div className="card metric"><strong>{initiatives.length}</strong><span>Initiatives</span></div>
-          <div className="card metric"><strong>{directorPending}</strong><span>Director Gate pending</span></div>
-          <div className="card metric"><strong>{humanPending}</strong><span>Human approval pending</span></div>
-          <div className="card metric"><strong>{revalidation}</strong><span>Strategy revalidation required</span></div>
+          <div className="card metric"><strong>{strategies.length}</strong><span>Версий стратегии</span></div>
+          <div className="card metric"><strong>{activeStrategies}</strong><span>Активных стратегий</span></div>
+          <div className="card metric"><strong>{initiatives.length}</strong><span>Инициатив</span></div>
+          <div className="card metric"><strong>{directorPending}</strong><span>Ждут проверки директора</span></div>
+          <div className="card metric"><strong>{humanPending}</strong><span>Ждут подтверждения человека</span></div>
+          <div className="card metric"><strong>{revalidation}</strong><span>Нужна повторная проверка стратегии</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
         <section className="section-head">
           <div>
-            <h2>Strategy versions</h2>
-            <p className="muted">CONTRIBUTION_MARGIN_MODE cannot activate until VARIABLE_COST_TRUTH is available.</p>
+            <h2>Версии стратегии</h2>
+            <p className="muted">Режим маржинальности нельзя включать, пока нет достоверных данных по переменным затратам.</p>
           </div>
         </section>
 
@@ -97,11 +98,11 @@ export default async function AdminStrategyPage() {
           <table>
             <thead>
               <tr>
-                <th>Strategy</th>
-                <th>Version</th>
-                <th>Status</th>
-                <th>Economic mode</th>
-                <th>Active window</th>
+                <th>Стратегия</th>
+                <th>Версия</th>
+                <th>Статус</th>
+                <th>Экономический режим</th>
+                <th>Период действия</th>
               </tr>
             </thead>
             <tbody>
@@ -114,7 +115,7 @@ export default async function AdminStrategyPage() {
                   <td>v{row.version_no ?? '—'}</td>
                   <td>
                     <span className={`status-pill ${statusClass(row.strategy_status)}`}>
-                      {asText(row.strategy_status)}
+                      {statusLabel(row.strategy_status)}
                     </span>
                   </td>
                   <td>{asText(row.economic_mode)}</td>
@@ -124,7 +125,7 @@ export default async function AdminStrategyPage() {
                   </td>
                 </tr>
               )) : (
-                <tr><td colSpan={5}>No real Growth Strategy version has been created.</td></tr>
+                <tr><td colSpan={5}>Реальная версия стратегии пока не создана.</td></tr>
               )}
             </tbody>
           </table>
@@ -132,8 +133,8 @@ export default async function AdminStrategyPage() {
 
         <section className="section-head">
           <div>
-            <h2>Initiatives</h2>
-            <p className="muted">ACTIONING is blocked until strategy, Director Gate and required Human Approval are all valid.</p>
+            <h2>Инициативы</h2>
+            <p className="muted">Переход к выполнению блокируется, пока стратегия, проверка директора и требуемое подтверждение человека не станут действительными.</p>
           </div>
         </section>
 
@@ -141,14 +142,14 @@ export default async function AdminStrategyPage() {
           <table>
             <thead>
               <tr>
-                <th>Initiative</th>
-                <th>Owner</th>
-                <th>Action class</th>
+                <th>Инициатива</th>
+                <th>Ответственный</th>
+                <th>Класс действия</th>
                 <th>Status</th>
-                <th>Director Gate</th>
-                <th>Human approval</th>
+                <th>Проверка директора</th>
+                <th>Подтверждение человека</th>
                 <th>Strategy</th>
-                <th>Due / expiry</th>
+                <th>Срок / окончание</th>
               </tr>
             </thead>
             <tbody>
@@ -158,38 +159,38 @@ export default async function AdminStrategyPage() {
                     <strong>{asText(row.title, row.initiative_code || '—')}</strong>
                     <div className="muted">{asText(row.initiative_code)}</div>
                   </td>
-                  <td>{asText(row.owner_role)}</td>
+                  <td>{roleLabel(row.owner_role)}</td>
                   <td>{asText(row.action_class)}</td>
                   <td>
                     <span className={`status-pill ${statusClass(row.initiative_status)}`}>
-                      {asText(row.initiative_status)}
+                      {statusLabel(row.initiative_status)}
                     </span>
                   </td>
                   <td>
                     <span className={`status-pill ${statusClass(row.director_gate_status)}`}>
-                      {asText(row.director_gate_status)}
+                      {statusLabel(row.director_gate_status)}
                     </span>
                   </td>
                   <td>
                     <span className={`status-pill ${statusClass(row.human_approval_status)}`}>
-                      {asText(row.human_approval_status)}
+                      {statusLabel(row.human_approval_status)}
                     </span>
                   </td>
                   <td>
                     {asText(row.strategy_code)} v{row.strategy_version_no ?? '—'}
                     <div className="muted">
                       <span className={`status-pill ${statusClass(row.strategy_revalidation_status)}`}>
-                        {asText(row.strategy_revalidation_status)}
+                        {statusLabel(row.strategy_revalidation_status)}
                       </span>
                     </div>
                   </td>
                   <td>
                     {asText(row.due_at)}
-                    <div className="muted">expires {asText(row.expires_at)}</div>
+                    <div className="muted">истекает {asText(row.expires_at)}</div>
                   </td>
                 </tr>
               )) : (
-                <tr><td colSpan={8}>No real initiatives have been created.</td></tr>
+                <tr><td colSpan={8}>Реальных инициатив пока нет.</td></tr>
               )}
             </tbody>
           </table>
