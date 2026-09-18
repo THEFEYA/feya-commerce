@@ -33,6 +33,7 @@ const STATUS_LABELS: Record<string, string> = {
   CLOSED: 'Закрыто',
   CANCELLED: 'Отменено',
   AVAILABLE: 'Работает',
+  HEALTHY: 'Работает',
   AVAILABLE_WITH_LIMITATIONS: 'Работает с ограничениями',
   DEGRADED: 'Работает нестабильно',
   UNAVAILABLE: 'Недоступно',
@@ -312,9 +313,12 @@ export function dataFreshnessLabel(value: unknown) {
   const key = String(value || '').trim().toUpperCase();
   if (['HEALTHY', 'FRESH', 'CURRENT', 'AVAILABLE'].includes(key)) return 'Данные актуальны';
   if (['DEGRADED', 'DELAYED'].includes(key)) return 'Данные обновляются с задержкой';
-  if (['STALE'].includes(key)) return 'Данные устарели';
+  if (key === 'AGING') return 'Данные постепенно устаревают';
+  if (key === 'STALE') return 'Данные устарели';
+  if (key === 'NOT_APPLICABLE') return 'Обновление не требуется';
+  if (key === 'UNKNOWN') return 'Свежесть данных не определена';
   if (['UNAVAILABLE', 'NOT_OBSERVABLE', 'MISSING'].includes(key)) return 'Недостаточно данных для вывода';
-  return statusLabel(key);
+  return 'Состояние обновления не определено';
 }
 
 export function humanizeCode(value: unknown) {
