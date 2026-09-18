@@ -179,6 +179,25 @@ function buildCqaContext(row: UnknownRecord) {
     canonical_product_id: row.canonical_product_id,
     proposal: compactProposal(row),
     product_truth: compactProductTruth(row.product_truth_snapshot),
+    operational_context: pickObject(row.operational_context, [
+      'production_profile',
+      'shipping_profile',
+      'size_mode',
+      'handmade_flag',
+      'styled_imagery_flag',
+    ]),
+    business_truth: compactArray(row.business_truth, 20).map((truth) =>
+      pickObject(truth, [
+        'truth_code',
+        'truth_type',
+        'scope_type',
+        'scope_key',
+        'locale',
+        'value_json',
+        'public_copy',
+        'version_no',
+      ]),
+    ),
     manual_focus: pickObject(row.manual_focus_snapshot, [
       'page_goal',
       'primary_axis',
@@ -333,6 +352,8 @@ async function runIndependentCqa(rows: UnknownRecord[], model: string) {
               'If similarity status or image_alt_truth is not pass, do not return pass; request the appropriate precheck/domain review.',
               'Do not infer a new page/query ownership decision. Route intent/portfolio conflicts to OSPM.',
               'Do not approve misleading guarantees, unsupported materials/colors/components, or policy promises.',
+              'Claims about comfort, durability, fit, adjustability, ease of dressing, production timing, shipping timing, returns, cancellations, customs duties or other operational benefits must be supported by Product Truth or applicable active Business Truth.',
+              'Business Truth rows marked REVIEW_REQUIRED are intentionally excluded from this context and must not be inferred.',
               'Independent CQA evaluates the proposal; it does not replace SCO by rewriting it.',
             ],
             reviews: contexts,
@@ -427,10 +448,76 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, dryRun, runId, error: draftError.message }, { status: 500 });
   }
 
-  const rowsById = new Map(
-    ((draftRows || []) as UnknownRecord[])
-      .map((row) => [asString(row.id), row] as const)
+  const rawDraftRows = (draftRows || []) as UnknownRecord[];
+  const productIds = Array.from(
+    new Set(
+      rawDraftRows
+        .map((row) => asString(row.canonical_product_id))
+        .filter((value): value is string => Boolean(value)),
+    ),
+  );
+
+  const [productContextResult, businessTruthResult] = await Promise.all([
+    supabase
+      .from('feya_commerce_product_drafts')
+      .select('canonical_product_id,production_profile,shipping_profile,size_mode,handmade_flag,styled_imagery_flag')
+      .in('canonical_product_id', productIds),
+    supabase
+      .from('feya_commerce_business_truth_v1')
+      .select('truth_code,truth_type,scope_type,scope_key,locale,value_json,public_copy,version_no')
+      .eq('status', 'ACTIVE')
+      .is('valid_to', null),
+  ]);
+
+  if (productContextResult.error) {
+    return NextResponse.json({ ok: false, dryRun, runId, error: productContextResult.error.message }, { status: 500 });
+  }
+
+  if (businessTruthResult.error) {
+    return NextResponse.json({ ok: false, dryRun, runId, error: businessTruthResult.error.message }, { status: 500 });
+  }
+
+  const productContextById = new Map(
+    ((productContextResult.data || []) as UnknownRecord[])
+      .map((row) => [asString(row.canonical_product_id), row] as const)
       .filter((entry): entry is [string, UnknownRecord] => Boolean(entry[0])),
+  );
+  const activeBusinessTruth = (businessTruthResult.data || []) as UnknownRecord[];
+
+  function applicableBusinessTruth(productId: string, context: UnknownRecord | undefined) {
+    const productionProfile = asString(context?.production_profile);
+    const shippingProfile = asString(context?.shipping_profile);
+
+    return activeBusinessTruth.filter((truth) => {
+      const scopeType = asString(truth.scope_type);
+      const scopeKey = asString(truth.scope_key);
+
+      if (scopeType === 'GLOBAL') return true;
+      if (scopeType === 'PRODUCT') return scopeKey === productId;
+      if (scopeType === 'PRODUCTION_PROFILE') return Boolean(productionProfile && scopeKey === productionProfile);
+      if (scopeType === 'SHIPPING_PROFILE') return Boolean(shippingProfile && scopeKey === shippingProfile);
+      return false;
+    });
+  }
+
+  const rowsById = new Map(
+    rawDraftRows
+      .map((row) => {
+        const draftId = asString(row.id);
+        const productId = asString(row.canonical_product_id);
+        if (!draftId || !productId) return null;
+
+        const operationalContext = productContextById.get(productId);
+        return [
+          draftId,
+          {
+            ...row,
+            operational_context: operationalContext || {},
+            business_truth: applicableBusinessTruth(productId, operationalContext),
+          },
+        ] as [string, UnknownRecord];
+      })
+      .filter((entry): entry is [string, UnknownRecord] => Boolean(entry)),
   );
   const orderedRows = draftIds.map((id) => rowsById.get(id)).filter((row): row is UnknownRecord => Boolean(row));
 
