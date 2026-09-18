@@ -287,13 +287,18 @@ export default async function AdminWorkPage() {
               </p>
             </Link>
 
-            <article className="owner-card">
-              <div className="owner-status">Автоматически</div>
-              <h3 className="owner-card-title" style={{ marginTop: '10px' }}>Предварительные проверки контента</h3>
+            <details className="owner-disclosure owner-card">
+              <summary>
+                <span>
+                  <span className="owner-status">Автоматически</span>
+                  <strong>Предварительные проверки контента</strong>
+                </span>
+                <span className="owner-section-kicker">{operations.cqaAutomaticChecks} в процессе</span>
+              </summary>
               <p className="owner-card-copy">
-                {operations.cqaAutomaticChecks} черновиков находятся на автоматических проверках сходства, состава или базовых предварительных проверок. Это не требует вашего участия.
+                Эти черновики проходят проверки сходства, состава или базовые предварительные проверки. Это фоновая работа и не требует вашего участия, пока проверка не найдёт проблему.
               </p>
-            </article>
+            </details>
           </div>
         </section>
 
@@ -342,33 +347,44 @@ export default async function AdminWorkPage() {
         </section>
 
         <section className="owner-section" id="team">
-          <div className="owner-section-head">
-            <div>
-              <h2>Команда FEYA</h2>
-              <div className="owner-section-kicker">Логические роли и их реальные ограничения, а не восемь постоянно работающих ботов</div>
-            </div>
-            <Link href="/admin/roles" className="owner-button">Техническое состояние ролей</Link>
-          </div>
+          <details className="owner-disclosure owner-disclosure-section">
+            <summary>
+              <span>
+                <strong>Команда FEYA</strong>
+                <small>Логические роли и их реальное состояние</small>
+              </span>
+              <span className="owner-section-kicker">{roleVM.length} ролей</span>
+            </summary>
 
-          <div className="owner-team-grid">
-            {roleVM.map((role) => (
-              <article className={`owner-card owner-team-card ${toneClass(role.tone)}`} key={role.code}>
-                <div className="owner-card-meta">
-                  <span className={`owner-status ${toneClass(role.tone)}`}>{role.statusLabel}</span>
+            <div className="owner-disclosure-body">
+              <div className="owner-section-head">
+                <div>
+                  <div className="owner-section-kicker">Показываем только фактический runtime, ограничения и текущую работу. Это не восемь постоянно работающих ботов.</div>
                 </div>
-                <h3>{role.name}</h3>
-                <p className="owner-card-copy">{role.summary}</p>
-                <p className="owner-role-note"><strong>Режим:</strong> {role.autonomyLabel}.</p>
-                <p className="owner-role-note">
-                  <strong>Сейчас:</strong> {roleWorkCounts.get(role.code) ? `активных задач — ${roleWorkCounts.get(role.code)}` : 'активных задач нет'}.
-                </p>
-                <p className="owner-role-note">
-                  Возможности: {role.availableCapabilityCount} полностью готовы из {role.requiredCapabilityCount}.
-                  {role.blockedCapabilityCount > 0 ? ` Заблокировано: ${role.blockedCapabilityCount}.` : ' Критичных блокировок роли нет.'}
-                </p>
-              </article>
-            ))}
-          </div>
+                <Link href="/admin/roles" className="owner-button">Техническое состояние ролей</Link>
+              </div>
+
+              <div className="owner-team-grid">
+                {roleVM.map((role) => (
+                  <article className={`owner-card owner-team-card ${toneClass(role.tone)}`} key={role.code}>
+                    <div className="owner-card-meta">
+                      <span className={`owner-status ${toneClass(role.tone)}`}>{role.statusLabel}</span>
+                    </div>
+                    <h3>{role.name}</h3>
+                    <p className="owner-card-copy">{role.summary}</p>
+                    <p className="owner-role-note"><strong>Режим:</strong> {role.autonomyLabel}.</p>
+                    <p className="owner-role-note">
+                      <strong>Сейчас:</strong> {roleWorkCounts.get(role.code) ? `активных задач — ${roleWorkCounts.get(role.code)}` : 'активных задач нет'}.
+                    </p>
+                    <p className="owner-role-note">
+                      Возможности: {role.availableCapabilityCount} полностью готовы из {role.requiredCapabilityCount}.
+                      {role.blockedCapabilityCount > 0 ? ` Заблокировано: ${role.blockedCapabilityCount}.` : ' Критичных блокировок роли нет.'}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </details>
         </section>
       </div>
     </main>
