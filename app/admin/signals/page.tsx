@@ -17,13 +17,13 @@ async function getSignals(): Promise<{
 
   const [signalsResult, admissionResult] = await Promise.all([
     supabase
-      .from('feya_commerce_v_growth_signal_candidates_safe_v1')
+      .from('feya_commerce_v_growth_signal_candidates_safe_v2')
       .select('*')
       .order('priority', { ascending: true })
       .order('materiality_score', { ascending: false })
       .order('signal_code', { ascending: true }),
     supabase
-      .from('feya_commerce_v_case_admission_preview_safe_v1')
+      .from('feya_commerce_v_case_admission_preview_safe_v2')
       .select('signal_fingerprint,signal_code,existing_case_id,existing_case_code,existing_case_status,admission_decision,admission_reason'),
   ]);
 
