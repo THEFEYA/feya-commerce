@@ -517,3 +517,16 @@ Rollback validation:
 - registered with the registry-backed Admin Data Boundary
 - governed admin read surfaces = 39; all 39 remain browser-readable only because protected admin auth/hardening is intentionally not activated yet
 - /admin/product-facts-review links directly to the existing Product Builder evidence surface; no write/resolution action is enabled
+
+
+### Owner Attention cockpit activation
+
+20260918112026 — feya_owner_attention_safe_view_v1
+- sanitized read-only Owner Attention projection added and registered with the Admin Data Boundary
+- raw context_json / resolution_json are not exposed in the browser-safe view
+- two real PRE_LAUNCH owner items are now durable:
+  - P1 POLICY_DECISION — confirm canonical return-policy wording
+  - P2 STRATEGY_DECISION — real checkout/payment workflow remains absent
+- the two return-policy launch signals are deduplicated into one Owner Attention item rather than creating duplicate decisions
+- no synthetic Growth Case was created; Growth Cases remain 0
+- /admin/owner-attention is read-only until protected admin auth and audited owner-resolution actions exist
