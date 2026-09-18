@@ -448,21 +448,30 @@ export async function POST(request: NextRequest) {
       .filter((entry): entry is [string, UnknownRecord] => Boolean(entry[0])),
   );
 
-  const selected = candidates
-    .map((row) => {
-      const productId = asString(row.canonical_product_id);
-      if (!productId || activeProductIds.has(productId)) return null;
-      const truth = truthByProduct.get(productId);
-      const compiledBrief = isRecord(row.compiled_brief_json) ? row.compiled_brief_json : null;
-      if (!truth || !compiledBrief) return null;
-      return { productId, brief: { ...row, compiled_brief_json: compiledBrief }, truth };
-    })
-    .filter(
-      (
-        row,
-      ): row is { productId: string; brief: UnknownRecord; truth: UnknownRecord } => Boolean(row),
-    )
-    .slice(0, limit);
+  const selectedCandidates: Array<{
+    productId: string;
+    brief: UnknownRecord;
+    truth: UnknownRecord;
+  }> = [];
+
+  for (const row of candidates) {
+    const productId = asString(row.canonical_product_id);
+    if (!productId || activeProductIds.has(productId)) continue;
+
+    const truth = truthByProduct.get(productId);
+    const compiledBrief = isRecord(row.compiled_brief_json) ? row.compiled_brief_json : null;
+    if (!truth || !compiledBrief) continue;
+
+    selectedCandidates.push({
+      productId,
+      brief: { ...row, compiled_brief_json: compiledBrief },
+      truth,
+    });
+
+    if (selectedCandidates.length >= limit) break;
+  }
+
+  const selected = selectedCandidates;
 
   if (!selected.length) {
     return NextResponse.json({
