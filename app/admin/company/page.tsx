@@ -202,7 +202,7 @@ export default async function AdminHomePage() {
                   <p className="owner-card-copy"><strong>Почему сейчас:</strong> {item.whyNow}</p>
                   <p className="owner-card-copy"><strong>Что нужно:</strong> {item.requiredAction}</p>
                   <div className="owner-actions">
-                    <Link href="/admin/company/owner-attention" className="owner-button primary">Рассмотреть</Link>
+                    <Link href={`/admin/company/owner-attention/${item.id}`} className="owner-button primary">Рассмотреть</Link>
                   </div>
                 </article>
               ))}
