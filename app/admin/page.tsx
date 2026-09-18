@@ -1,152 +1,279 @@
 import Link from 'next/link';
-import { logoutAdmin } from './login/actions';
-import { isAdminAuthRequired } from '@/lib/supabaseAuth';
+import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
+import { presentOwnerAttention, presentSignal, presentWorkItem, formatRelativeTime } from '@/lib/owner-ui/presenters';
+import { scopeLabel, statusLabel, ownerToneForStatus } from '@/lib/owner-ui/terminology';
 
-export default function AdminHomePage() {
-  const authRequired = isAdminAuthRequired();
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+type Row = Record<string, unknown>;
+
+type TodayData = {
+  attention: Row[];
+  signals: Row[];
+  work: Row[];
+  readiness: Row[];
+  error?: string;
+};
+
+async function getTodayData(): Promise<TodayData> {
+  const supabase = getAdminReadClient();
+  if (!supabase) {
+    return { attention: [], signals: [], work: [], readiness: [], error: getMissingAdminDataEnvMessage() };
+  }
+
+  const [attentionResult, signalResult, workResult, readinessResult] = await Promise.all([
+    supabase
+      .from('feya_commerce_v_owner_attention_safe_v2')
+      .select('*')
+      .in('attention_status', ['OPEN', 'ACKNOWLEDGED'])
+      .order('priority', { ascending: true })
+      .order('created_at', { ascending: true }),
+    supabase
+      .from('feya_commerce_v_growth_signal_candidates_safe_v2')
+      .select('signal_fingerprint,signal_code,title,summary,next_action,priority,accountable_domain,signal_state,case_admission_recommendation,materiality_score')
+      .order('priority', { ascending: true })
+      .order('materiality_score', { ascending: false })
+      .limit(12),
+    supabase
+      .from('feya_commerce_v_owner_work_safe_v1')
+      .select('*')
+      .not('case_status', 'in', '(CLOSED,MERGED)')
+      .order('priority', { ascending: true })
+      .order('updated_at', { ascending: false })
+      .limit(5),
+    supabase
+      .from('feya_commerce_v_launch_readiness_summary_safe_v2')
+      .select('*')
+      .order('readiness_scope', { ascending: true }),
+  ]);
+
+  const firstError = attentionResult.error || signalResult.error || workResult.error || readinessResult.error;
+  if (firstError) {
+    return {
+      attention: [],
+      signals: [],
+      work: [],
+      readiness: [],
+      error: firstError.message,
+    };
+  }
+
+  return {
+    attention: (attentionResult.data || []) as Row[],
+    signals: (signalResult.data || []) as Row[],
+    work: (workResult.data || []) as Row[],
+    readiness: (readinessResult.data || []) as Row[],
+  };
+}
+
+function toneClass(tone: string) {
+  return tone === 'danger'
+    ? 'is-danger'
+    : tone === 'warning'
+      ? 'is-warning'
+      : tone === 'success'
+        ? 'is-success'
+        : tone === 'info'
+          ? 'is-info'
+          : '';
+}
+
+function russianDate() {
+  return new Intl.DateTimeFormat('ru-RU', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  }).format(new Date());
+}
+
+export default async function AdminHomePage() {
+  const { attention, signals, work, readiness, error } = await getTodayData();
+
+  const attentionVM = attention.map(presentOwnerAttention);
+  const attentionCodes = new Set(attentionVM.map((item) => item.sourceCode).filter(Boolean));
+
+  const signalVM = signals
+    .filter((row) => {
+      const code = String(row.signal_code || '');
+      const recommendation = String(row.case_admission_recommendation || '');
+      return !attentionCodes.has(code) && recommendation !== 'OWNER_DECISION_REQUIRED' && recommendation !== 'DEFER_UNTIL_ACTIVE_OBJECTIVE';
+    })
+    .slice(0, 4)
+    .map(presentSignal);
+
+  const workVM = work.map(presentWorkItem);
+  const blockedWork = workVM.filter((item) => item.status === 'BLOCKED').length;
+  const waitingWork = workVM.filter((item) => item.status.startsWith('WAITING')).length;
+  const runningWork = workVM.filter((item) => item.status === 'RUNNING').length;
 
   return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/" className="brand-mark">TheFEYA Admin</Link>
-          <div className="nav-links">
-            <Link href="/shop">Shop Preview</Link>
-            {authRequired ? (
-              <form action={logoutAdmin}>
-                <button type="submit" style={{ background: 'none', border: 0, color: 'inherit', cursor: 'pointer', padding: 0 }}>
-                  Sign out
-                </button>
-              </form>
-            ) : null}
+    <main className="owner-page">
+      <div className="owner-page-inner">
+        <header className="owner-page-head">
+          <div>
+            <div className="owner-eyebrow">Центр управления</div>
+            <h1>Сегодня</h1>
+            <p>
+              Короткая сводка только по тому, что действительно требует внимания, уже выполняется или мешает двигаться дальше.
+            </p>
           </div>
-        </nav>
+          <div className="owner-page-meta">{russianDate()}</div>
+        </header>
 
-        <section className="hero">
-          <h1>Админка: read-only preview.</h1>
-          <p>
-            Админка остаётся read-only: очереди проверки, каталог, Product Builder detail и SEO keyword validation. Любые write/edit workflow будут добавляться только после включения защищённого admin gate и versioned change log.
-          </p>
+        {error ? (
+          <div className="owner-card is-danger">
+            <div className="owner-status is-danger">Ошибка данных</div>
+            <h2 className="owner-card-title" style={{ marginTop: '10px' }}>Не удалось собрать сводку</h2>
+            <p className="owner-card-copy">{error}</p>
+          </div>
+        ) : null}
+
+        <section className="owner-section">
+          <div className="owner-section-head">
+            <div>
+              <h2>Нужно ваше решение</h2>
+              <div className="owner-section-kicker">Только то, что действительно требует владельца</div>
+            </div>
+            <Link href="/admin/owner-attention" className="owner-button">Показать всё</Link>
+          </div>
+
+          {attentionVM.length ? (
+            <div className="owner-grid two">
+              {attentionVM.slice(0, 3).map((item) => (
+                <article className={`owner-card ${toneClass(item.tone)}`} key={item.id}>
+                  <div className="owner-card-meta">
+                    <span className={`owner-status ${toneClass(item.tone)}`}>{item.priorityLabel}</span>
+                    <span>{item.typeLabel}</span>
+                    <span>{item.statusLabel}</span>
+                  </div>
+                  <h3 className="owner-card-title">{item.title}</h3>
+                  <p className="owner-card-copy"><strong>Почему сейчас:</strong> {item.whyNow}</p>
+                  <p className="owner-card-copy"><strong>Что нужно:</strong> {item.requiredAction}</p>
+                  <div className="owner-actions">
+                    <Link href="/admin/owner-attention" className="owner-button primary">Рассмотреть</Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="owner-empty">Сейчас нет решений, которые требуют вашего участия.</div>
+          )}
         </section>
 
-        <section className="section-head">
-          <h2>Разделы</h2>
+        <section className="owner-section">
+          <div className="owner-section-head">
+            <div>
+              <h2>Что важно сейчас</h2>
+              <div className="owner-section-kicker">Материальные сигналы без дублирования ваших решений</div>
+            </div>
+            <Link href="/admin/signals" className="owner-button">Все сигналы</Link>
+          </div>
+
+          {signalVM.length ? (
+            <div className="owner-list">
+              {signalVM.map((item) => (
+                <article className="owner-list-row" key={item.id}>
+                  <div className="owner-list-row-main">
+                    <div className="owner-card-meta">
+                      <span className={`owner-status ${toneClass(item.tone)}`}>{item.priorityLabel}</span>
+                      <span>{item.ownerLabel}</span>
+                      <span>{item.statusLabel}</span>
+                    </div>
+                    <h3>{item.title}</h3>
+                    <p>{item.summary}</p>
+                  </div>
+                  <div className="owner-list-row-side">
+                    <Link href="/admin/signals" className="owner-button">Проверить</Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="owner-empty">Новых значимых сигналов вне ваших текущих решений нет.</div>
+          )}
         </section>
 
-        <div className="grid admin-grid">
-          <Link className="card metric" href="/admin/review">
-            <strong>Review</strong>
-            <span>Очереди проверки: цены, медиа, fallback, excluded.</span>
-          </Link>
-          <Link className="card metric" href="/admin/products">
-            <strong>Products</strong>
-            <span>Каталог product drafts + read-only Product Builder detail.</span>
-          </Link>
-          <Link className="card metric" href="/admin/product-facts-review">
-            <strong>Product Fact Review</strong>
-            <span>Upstream Product Truth ambiguities that must be resolved before content can safely pass QA.</span>
-          </Link>
-          <Link className="card metric" href="/admin/seo-keywords">
-            <strong>SEO Keywords</strong>
-            <span>Read-only cleanup and validation status for SEO keyword candidates.</span>
-          </Link>
-          <Link className="card metric" href="/admin/seo-keyword-review">
-            <strong>Keyword Review</strong>
-            <span>Risk-tiered independent OSPM recommendations before human cleanup approval.</span>
-          </Link>
-          <Link className="card metric" href="/admin/seo-portfolio">
-            <strong>SEO Portfolio</strong>
-            <span>Stable page IDs, lifecycle, indexation intent and future query ownership.</span>
-          </Link>
-          <Link className="card metric" href="/admin/seo-clusters">
-            <strong>Query Clusters</strong>
-            <span>Read-only semantic clustering gates and current bottlenecks.</span>
-          </Link>
-          <Link className="card metric" href="/admin/seo-cluster-proposals">
-            <strong>Cluster Proposals</strong>
-            <span>Human-approved keyword queue and non-canonical OSPM semantic proposals.</span>
-          </Link>
-          <Link className="card metric" href="/admin/seo-ownership-proposals">
-            <strong>Ownership Proposals</strong>
-            <span>Approved query clusters mapped to candidate pages without changing indexability.</span>
-          </Link>
-          <Link className="card metric" href="/admin/seo-indexability">
-            <strong>Indexability</strong>
-            <span>Separate human eligibility gate after ownership and content readiness.</span>
-          </Link>
-          <Link className="card metric" href="/admin/content-briefs">
-            <strong>Content Briefs</strong>
-            <span>Deterministic compiler readiness before SCO generation.</span>
-          </Link>
-          <Link className="card metric" href="/admin/content-qa">
-            <strong>Content QA</strong>
-            <span>Shadow CQA readiness over existing SEO pack drafts.</span>
-          </Link>
-          <Link className="card metric" href="/admin/business-truth">
-            <strong>Business Truth</strong>
-            <span>Versioned production, shipping and policy facts available to content/CQA.</span>
-          </Link>
-          <Link className="card metric" href="/admin/system-readiness">
-            <strong>System Readiness</strong>
-            <span>Capability Registry: what Growth OS can actually observe and execute now.</span>
-          </Link>
-          <Link className="card metric" href="/admin/roles">
-            <strong>Roles</strong>
-            <span>Explicit INACTIVE/SHADOW/ACTIVE/PAUSED runtime state and autonomy ceilings.</span>
-          </Link>
-          <Link className="card metric" href="/admin/data-authority">
-            <strong>Data Authority</strong>
-            <span>Source-of-Truth tiers and precedence across product, policy, search, analytics and commerce.</span>
-          </Link>
-          <Link className="card metric" href="/admin/data-health">
-            <strong>Data Health</strong>
-            <span>Latest observability, freshness, watermarks, coverage and source errors.</span>
-          </Link>
-          <Link className="card metric" href="/admin/launch-readiness">
-            <strong>Launch Readiness</strong>
-            <span>Hard gates for Public Site, Search, Commerce and Measurement.</span>
-          </Link>
-          <Link className="card metric" href="/admin/signals">
-            <strong>Signals</strong>
-            <span>Pre-launch signal candidates with owner, priority and admission recommendation.</span>
-          </Link>
-          <Link className="card metric" href="/admin/owner-attention">
-            <strong>Owner Attention</strong>
-            <span>Durable queue for real policy, strategy, approval and human-action decisions.</span>
-          </Link>
-          <Link className="card metric" href="/admin/strategy">
-            <strong>Strategy & Initiatives</strong>
-            <span>Human-owned strategy versions, Director Gate, approval and revalidation state.</span>
-          </Link>
-          <Link className="card metric" href="/admin/opportunities">
-            <strong>Opportunities</strong>
-            <span>Seasonal/event windows with commercial expiry and Owner Attention bridge.</span>
-          </Link>
-          <Link className="card metric" href="/admin/incidents">
-            <strong>Incidents</strong>
-            <span>Root-cause deduplication and active mutation-freeze status.</span>
-          </Link>
-          <Link className="card metric" href="/admin/metrics">
-            <strong>Metrics</strong>
-            <span>Versioned metric definitions plus currently computable operational values.</span>
-          </Link>
-          <Link className="card metric" href="/admin/experiments">
-            <strong>Experiments</strong>
-            <span>Locked measurement designs, feasibility, contamination and durable change events.</span>
-          </Link>
-          <Link className="card metric" href="/admin/execution-map">
-            <strong>Execution Map</strong>
-            <span>Action ownership, executor, approval and production-write boundaries.</span>
-          </Link>
-          <Link className="card metric" href="/admin/scenario-tests">
-            <strong>Scenario Tests</strong>
-            <span>Versioned regression invariants and explicit NOT_RUN/PASS/FAIL release state.</span>
-          </Link>
-          <Link className="card metric" href="/admin/learning">
-            <strong>Learning</strong>
-            <span>Evidence-backed maturity from observations to regression-gated human policy adoption.</span>
-          </Link>
-        </div>
+        <section className="owner-section">
+          <div className="owner-section-head">
+            <div>
+              <h2>В работе</h2>
+              <div className="owner-section-kicker">Текущие реальные рабочие процессы Growth OS</div>
+            </div>
+            <Link href="/admin/work" className="owner-button">Открыть работу</Link>
+          </div>
+
+          <div className="owner-summary-strip">
+            <div className="owner-summary-cell">
+              <strong>{workVM.length}</strong>
+              <span>Активных рабочих ситуаций</span>
+            </div>
+            <div className="owner-summary-cell">
+              <strong>{runningWork}</strong>
+              <span>В работе сейчас</span>
+            </div>
+            <div className="owner-summary-cell">
+              <strong>{waitingWork}</strong>
+              <span>Ожидают данных или условия</span>
+            </div>
+            <div className="owner-summary-cell">
+              <strong>{blockedWork}</strong>
+              <span>Заблокировано</span>
+            </div>
+          </div>
+
+          {workVM.length ? (
+            <div className="owner-list" style={{ marginTop: '10px' }}>
+              {workVM.slice(0, 3).map((item) => (
+                <article className="owner-list-row" key={item.id}>
+                  <div className="owner-list-row-main">
+                    <div className="owner-card-meta">
+                      <span className={`owner-status ${toneClass(item.tone)}`}>{item.statusLabel}</span>
+                      <span>{item.ownerLabel}</span>
+                      <span>{item.priorityLabel}</span>
+                    </div>
+                    <h3>{item.title}</h3>
+                    <p>{item.purpose}</p>
+                  </div>
+                  <div className="owner-list-row-side">
+                    <span className="owner-section-kicker">{formatRelativeTime(item.updatedAt)}</span>
+                    <Link href="/admin/work" className="owner-button">Открыть</Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="owner-empty" style={{ marginTop: '10px' }}>
+              Сейчас нет активных Growth Cases или workflow. Это нормальное состояние подготовки к запуску — система не создаёт искусственную работу ради заполнения панели.
+            </div>
+          )}
+        </section>
+
+        <section className="owner-section">
+          <div className="owner-section-head">
+            <div>
+              <h2>Состояние системы</h2>
+              <div className="owner-section-kicker">Четыре независимые зоны готовности без общего искусственного балла</div>
+            </div>
+            <Link href="/admin/system" className="owner-button">Открыть систему</Link>
+          </div>
+
+          <div className="owner-grid four">
+            {readiness.map((row) => {
+              const state = String(row.scope_status || '');
+              const tone = ownerToneForStatus(state);
+              return (
+                <article className={`owner-card ${toneClass(tone)}`} key={String(row.readiness_scope)}>
+                  <div className={`owner-status ${toneClass(tone)}`}>{statusLabel(state)}</div>
+                  <h3 className="owner-card-title" style={{ marginTop: '10px' }}>{scopeLabel(row.readiness_scope)}</h3>
+                  <p className="owner-card-copy">
+                    {Number(row.blocking_count || 0)} блокирующих условий · {Number(row.pass_count || 0)} проверок пройдено
+                  </p>
+                </article>
+              );
+            })}
+          </div>
+        </section>
       </div>
     </main>
   );
