@@ -6,7 +6,7 @@ import { BarChart3, Boxes, CheckCircle2, ClipboardList, FileImage, FileSearch, F
 
 const NAV = [
   { href: '/admin', label: 'Обзор', note: 'Панель контроля', icon: Home },
-  { href: '/admin/company', label: 'Компания и AI-команда', note: 'сигналы, задачи, агенты и результаты', icon: Network },
+  { href: '/admin/company', label: 'Компания и ИИ-команда', note: 'сигналы, задачи, агенты и результаты', icon: Network },
   { href: '/admin/products', label: 'Товары', note: 'каталог, готовность и варианты', icon: PackageSearch },
   { href: '/admin/launch', label: 'Запуск', note: 'готово / заблокировано', icon: Rocket },
   { href: '/admin/indexation', label: 'Индексация', note: 'готовность к поиску', icon: FileSearch },
