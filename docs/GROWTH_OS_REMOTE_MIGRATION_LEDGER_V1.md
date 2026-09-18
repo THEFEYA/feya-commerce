@@ -261,3 +261,26 @@ Measurement rollback test:
 - material mutation after lock blocked
 - lifecycle status update allowed
 - rollback rows = 0
+
+
+### Launch readiness / admin security boundary
+
+20260918090226 — feya_launch_readiness_gate_v1
+- deterministic readiness gates for PUBLIC_SITE / SEARCH_INDEXING / MEASUREMENT / COMMERCE
+- no blended readiness score
+- each blocker has owner and next action
+
+20260918090634 — feya_launch_readiness_admin_boundary_v2
+- adds ADMIN_DATA_BOUNDARY as a hard public-site gate
+
+20260918090751 — feya_admin_data_hardening_rpc_v1
+- preview RPC inventories explicit internal/admin view allowlist
+- hardening RPC can revoke anon/authenticated SELECT only after explicit confirmation
+- hardening RPC has not been executed
+
+Current preview:
+- allowlisted internal views = 24
+- anon-readable = 24
+- authenticated-readable = 24
+
+Storefront/public commerce API views are not included in the hardening allowlist.
