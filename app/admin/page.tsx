@@ -70,6 +70,14 @@ export default function AdminHomePage() {
             <strong>System Readiness</strong>
             <span>Capability Registry: what Growth OS can actually observe and execute now.</span>
           </Link>
+          <Link className="card metric" href="/admin/metrics">
+            <strong>Metrics</strong>
+            <span>Versioned metric definitions plus currently computable operational values.</span>
+          </Link>
+          <Link className="card metric" href="/admin/execution-map">
+            <strong>Execution Map</strong>
+            <span>Action ownership, executor, approval and production-write boundaries.</span>
+          </Link>
         </div>
       </div>
     </main>
