@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
-import { capabilityOwnerSummary, ownerToneForStatus, statusLabel } from '@/lib/owner-ui/terminology';
+import { capabilityOwnerSummary, dataFreshnessLabel, ownerToneForStatus, statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -18,6 +18,7 @@ const CAPABILITY_CODES = [
 
 type GrowthData = {
   capabilities: Row[];
+  sourceHealth: Row[];
   keywordPending: number;
   seoPages: number;
   clusterProposals: number;
@@ -32,6 +33,7 @@ async function getGrowthData(): Promise<GrowthData> {
   if (!supabase) {
     return {
       capabilities: [],
+      sourceHealth: [],
       keywordPending: 0,
       seoPages: 0,
       clusterProposals: 0,
@@ -44,6 +46,7 @@ async function getGrowthData(): Promise<GrowthData> {
 
   const [
     capabilitiesResult,
+    sourceHealthResult,
     keywordResult,
     pagesResult,
     clusterProposalResult,
@@ -55,6 +58,10 @@ async function getGrowthData(): Promise<GrowthData> {
       .from('feya_commerce_v_growth_capability_status_safe_v1')
       .select('capability_code,capability_state,limitations_summary,updated_at')
       .in('capability_code', CAPABILITY_CODES),
+    supabase
+      .from('feya_commerce_v_data_source_health_latest_safe_v1')
+      .select('source_code,health_state,freshness_state,last_success_at,checked_at')
+      .in('source_code', ['EXTERNAL_KEYWORD_DEMAND', 'ORGANIC_SEARCH_PERFORMANCE']),
     supabase
       .from('feya_commerce_v_keyword_cleanup_review_status_safe_v1')
       .select('cleanup_id', { count: 'exact', head: true })
@@ -80,6 +87,7 @@ async function getGrowthData(): Promise<GrowthData> {
 
   const firstError =
     capabilitiesResult.error ||
+    sourceHealthResult.error ||
     keywordResult.error ||
     pagesResult.error ||
     clusterProposalResult.error ||
@@ -89,6 +97,7 @@ async function getGrowthData(): Promise<GrowthData> {
 
   return {
     capabilities: (capabilitiesResult.data || []) as Row[],
+    sourceHealth: (sourceHealthResult.data || []) as Row[],
     keywordPending: keywordResult.count || 0,
     seoPages: pagesResult.count || 0,
     clusterProposals: clusterProposalResult.count || 0,
@@ -114,11 +123,23 @@ function toneClass(tone: string) {
 export default async function AdminGrowthPage() {
   const data = await getGrowthData();
   const map = new Map(data.capabilities.map((row) => [String(row.capability_code), row]));
+  const healthMap = new Map(data.sourceHealth.map((row) => [String(row.source_code), row]));
 
   const adsState = String(map.get('GOOGLE_ADS_KEYWORD_METRICS')?.capability_state || 'UNAVAILABLE');
   const gscState = String(map.get('GSC_BULK_EXPORT')?.capability_state || 'UNAVAILABLE');
   const portfolioState = String(map.get('SEO_PAGE_PORTFOLIO')?.capability_state || 'UNAVAILABLE');
   const launchState = String(map.get('SEARCH_LAUNCH_GATE')?.capability_state || 'UNAVAILABLE');
+  const adsHealth = healthMap.get('EXTERNAL_KEYWORD_DEMAND');
+  const gscHealth = healthMap.get('ORGANIC_SEARCH_PERFORMANCE');
+
+  const sourceStamp = (row: Row | undefined) => {
+    if (!row) return 'Источник ещё не проверен';
+    const freshness = dataFreshnessLabel(row.freshness_state);
+    const last = row.last_success_at
+      ? new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(String(row.last_success_at)))
+      : 'успешного обновления ещё не было';
+    return `${freshness} · последнее успешное обновление: ${last}`;
+  };
 
   return (
     <main className="owner-page">
@@ -231,12 +252,18 @@ export default async function AdminGrowthPage() {
               <div className={'owner-status ' + toneClass(ownerToneForStatus(adsState))}>Google Ads · {statusLabel(adsState)}</div>
               <h3 className="owner-card-title" style={{ marginTop: '10px' }}>Живой спрос пока ограничен</h3>
               <p className="owner-card-copy">{capabilityOwnerSummary('GOOGLE_ADS_KEYWORD_METRICS')}</p>
+              <p className="owner-card-copy"><strong>Данные:</strong> {sourceStamp(adsHealth)}</p>
+              <div className="owner-actions">
+                <Link href="/admin/seo-engine/metric-import/validate" className="owner-button">Проверить / импортировать метрики</Link>
+                <Link href="/admin/seo-engine/commercial-review" className="owner-button">Сигналы Google Ads</Link>
+              </div>
             </article>
 
             <article className={'owner-card ' + toneClass(ownerToneForStatus(gscState))}>
               <div className={'owner-status ' + toneClass(ownerToneForStatus(gscState))}>Search Console · {statusLabel(gscState)}</div>
               <h3 className="owner-card-title" style={{ marginTop: '10px' }}>Позиции и клики ещё не измеряются</h3>
               <p className="owner-card-copy">{capabilityOwnerSummary('GSC_BULK_EXPORT')}</p>
+              <p className="owner-card-copy"><strong>Данные:</strong> {sourceStamp(gscHealth)}</p>
             </article>
           </div>
         </section>
