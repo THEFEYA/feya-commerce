@@ -34,7 +34,7 @@ function configPrice(config: StorefrontConfiguration) {
 }
 
 function labelText(config: StorefrontConfiguration) {
-  return config.public_label || config.configuration_label || config.configuration_name || config.option_value || config.title || config.label || 'Option';
+  return config.public_label || config.configuration_label || config.configuration_name || config.option_value || config.title || config.label || 'Вариант';
 }
 
 function needsPriceReview(product: StorefrontProduct) {
@@ -105,10 +105,10 @@ export default async function AdminPriceReviewPage() {
       {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <Metric icon={WalletCards} label="Unverified" value={unverifiedProducts} note="Products with unverified or review price status." />
-        <Metric icon={CircleDollarSign} label="Fallback configs" value={fallbackConfigs} note="Configurations using fallback price logic." />
-        <Metric icon={Calculator} label="Missing prices" value={missingConfigPrices} note="Configurations without a detected price." />
-        <Metric icon={BadgePercent} label="Discount flags" value={unverifiedDiscounts} note="Products with unverified discount state." />
+        <Metric icon={WalletCards} label="Нужно проверить" value={unverifiedProducts} note="Товары с неподтверждённой ценой или статусом проверки." />
+        <Metric icon={CircleDollarSign} label="Резервные цены" value={fallbackConfigs} note="Варианты, где используется резервная логика цены." />
+        <Metric icon={Calculator} label="Нет цены" value={missingConfigPrices} note="Варианты без найденной цены." />
+        <Metric icon={BadgePercent} label="Скидки на проверке" value={unverifiedDiscounts} note="Товары, где состояние скидки ещё не подтверждено." />
       </div>
 
       <div className="space-y-4">
@@ -129,9 +129,9 @@ export default async function AdminPriceReviewPage() {
                 <Link href={adminHref} className="text-bone text-[17px] leading-snug hover:text-[var(--gold-warm)] transition-colors">{productTitle(product)}</Link>
                 <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'Product'} · {product.canonical_color_label || product.color || 'Color'}</div>
                 <div className="mt-3 flex flex-wrap gap-1.5">
-                  <Chip tone="warning">{product.price_confidence_status || 'unknown price'}</Chip>
-                  {product.needs_price_review ? <Chip tone="danger">Needs price review</Chip> : null}
-                  {product.has_unverified_discount ? <Chip tone="danger">Unverified discount</Chip> : null}
+                  <Chip tone="warning">{product.price_confidence_status === 'verified' ? 'Цена подтверждена' : product.price_confidence_status === 'unverified' ? 'Нужно проверить цену' : product.price_confidence_status || 'Статус цены не определён'}</Chip>
+                  {product.needs_price_review ? <Chip tone="danger">Нужно проверить цену</Chip> : null}
+                  {product.has_unverified_discount ? <Chip tone="danger">Скидка не подтверждена</Chip> : null}
                 </div>
                 <AdminQueueQuickReviewClient productSlug={productSlug(product)} canonicalProductId={product.canonical_product_id} sourceRoute="/admin/review/prices" approvedEventType="price_review_approved" subjectType="price" approvedLabel="Mark price reviewed" />
               </div>
@@ -140,36 +140,36 @@ export default async function AdminPriceReviewPage() {
 
             <div className="mt-5 grid md:grid-cols-3 gap-3">
               <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4">
-                <div className="eyebrow-dim mb-2">Full set</div>
+                <div className="eyebrow-dim mb-2">Полный комплект</div>
                 <div className="font-price text-bone text-[22px] leading-none">{money(fullSetPrice, currency)}</div>
               </div>
               <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4">
-                <div className="eyebrow-dim mb-2">Component sum</div>
+                <div className="eyebrow-dim mb-2">Сумма компонентов</div>
                 <div className="font-price text-bone text-[22px] leading-none">{money(componentSum, currency)}</div>
               </div>
               <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4">
-                <div className="eyebrow-dim mb-2">Savings</div>
+                <div className="eyebrow-dim mb-2">Экономия</div>
                 <div className="font-price text-gold-grad text-[22px] leading-none">{money(savings, currency)}</div>
               </div>
             </div>
 
             <div className="mt-4 grid md:grid-cols-2 xl:grid-cols-3 gap-3">
               {flaggedConfigs.map((config, index) => <div key={config.configuration_id || `${product.canonical_product_id}-${index}`} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4">
-                <div className="eyebrow-dim mb-2">Configuration price</div>
+                <div className="eyebrow-dim mb-2">Цена варианта</div>
                 <div className="text-bone text-[14px] leading-snug">{labelText(config)}</div>
                 <div className="mt-2 font-price text-gold-grad text-[21px] leading-none">{money(configPrice(config), config.currency || currency)}</div>
                 <div className="mt-3 flex flex-wrap gap-1.5">
-                  {config.price_confidence_status === 'unverified' ? <Chip tone="warning">Unverified</Chip> : null}
-                  {config.has_fallback_price ? <Chip tone="danger">Fallback price</Chip> : null}
-                  {configPrice(config) == null ? <Chip tone="danger">Missing price</Chip> : null}
+                  {config.price_confidence_status === 'unverified' ? <Chip tone="warning">Не подтверждено</Chip> : null}
+                  {config.has_fallback_price ? <Chip tone="danger">Резервная цена</Chip> : null}
+                  {configPrice(config) == null ? <Chip tone="danger">Нет цены</Chip> : null}
                 </div>
               </div>)}
-              {!flaggedConfigs.length ? <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 text-[13px] text-[var(--bone-dim)]">Product-level price flag only. No flagged configuration rows in current payload.</div> : null}
+              {!flaggedConfigs.length ? <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 text-[13px] text-[var(--bone-dim)]">Проблема отмечена только на уровне товара. Отдельных проблемных вариантов сейчас нет.</div> : null}
             </div>
           </article>;
         })}
 
-        {!reviewRows.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">No price review rows returned from storefront contract.</div> : null}
+        {!reviewRows.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">Нет товаров, требующих проверки цены.</div> : null}
       </div>
     </section>
   </main>;
