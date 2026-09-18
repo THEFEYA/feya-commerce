@@ -487,3 +487,23 @@ Rollback validation:
 - retained service_role execution for internal workflows
 - intentionally preserved public feya_commerce_create_order_draft_v1 because it is the storefront order-draft boundary
 - post-migration audit: among SECURITY DEFINER FEYA Commerce/Growth functions containing DML, the public order-draft RPC is the only remaining anon/authenticated executable path in this audited scope
+
+
+### Deterministic domain routing / historical component-check backfill
+
+20260918110813 — feya_growth_domain_routing_policy_v1
+- deterministic routing policy encodes the OSPM ↔ CPIM boundary for observable first-party states
+- healthy organic acquisition + weak commercial response routes to CPIM rather than rewriting SEO
+- low exposure + high conversion routes the acquisition opportunity to OSPM after CPIM identifies the commercial pattern
+- protected winners are not opened to rewrite merely because another domain is weak
+
+20260918111006 — feya_component_claim_backfill_rpc_v1
+- service-role-only idempotent apply function for historical component-inclusion prechecks
+- historical approvals are not reinterpreted as PASS
+- current active-draft component check state after deterministic backfill: 40 PASS / 95 WARNING
+- aggregate inspection found 0 explicit false-inclusion claims in current active drafts; all 95 warnings come from upstream Product Truth/component-review blockers rather than detected false prose
+
+20260918111345 — feya_commercial_trigger_search_path_hardening_v1
+- fixed mutable search_path warnings on the two commercial-keyword updated_at trigger helpers
+- revoked browser EXECUTE from those trigger functions; service_role retained
+- targeted post-migration security-advisor check returned no findings for the hardened functions
