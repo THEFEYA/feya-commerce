@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { LaunchReadinessGateRow, LaunchReadinessSummaryRow } from '@/lib/types';
+import { gateTitle, roleLabel, scopeLabel, statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -55,30 +56,30 @@ export default async function AdminLaunchReadinessPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/system-readiness">System Readiness</Link>
-            <Link href="/admin/launch-readiness">Launch Readiness</Link>
-            <Link href="/admin/metrics">Metrics</Link>
-            <Link href="/admin/execution-map">Execution Map</Link>
+            <Link href="/admin/system-readiness">Готовность системы</Link>
+            <Link href="/admin/launch-readiness">Готовность к запуску</Link>
+            <Link href="/admin/metrics">Метрики</Link>
+            <Link href="/admin/execution-map">Права действий</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Launch Readiness Gate · deterministic</div>
-          <h1>Launch Readiness</h1>
+          <div className="phase-label">Готовность к запуску · детерминированная проверка</div>
+          <h1>Готовность к запуску</h1>
           <p>
-            Public site, Search indexing, Commerce and Measurement are evaluated separately. There is no blended readiness score that can hide a hard blocker.
+            Сайт, поисковая индексация, продажи и измерение результатов оцениваются отдельно. Общего «среднего балла» нет, поэтому критичная блокировка не может спрятаться за хорошим состоянием других зон.
           </p>
         </section>
 
         <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
           {summary.map((row) => (
             <div className="card metric" key={row.readiness_scope}>
-              <strong>{asText(row.readiness_scope)}</strong>
+              <strong>{scopeLabel(row.readiness_scope)}</strong>
               <span className={`status-pill ${stateClass(row.scope_status)}`}>
-                {asText(row.scope_status)}
+                {statusLabel(row.scope_status)}
               </span>
               <span>
-                {row.pass_count || 0} pass · {row.warn_count || 0} warn · {row.blocking_count || 0} blockers
+                {row.pass_count || 0} пройдено · {row.warn_count || 0} требуют внимания · {row.blocking_count || 0} блокируют
               </span>
             </div>
           ))}
@@ -90,29 +91,29 @@ export default async function AdminLaunchReadinessPage() {
           <table>
             <thead>
               <tr>
-                <th>Scope</th>
-                <th>Gate</th>
-                <th>Status</th>
-                <th>Owner</th>
-                <th>Current evidence</th>
-                <th>Next action</th>
+                <th>Зона</th>
+                <th>Проверка</th>
+                <th>Статус</th>
+                <th>Ответственный</th>
+                <th>Текущее подтверждение</th>
+                <th>Следующий шаг</th>
               </tr>
             </thead>
             <tbody>
               {gates.map((row) => (
                 <tr key={`${row.readiness_scope}-${row.gate_code}`}>
-                  <td>{row.readiness_scope}</td>
+                  <td>{scopeLabel(row.readiness_scope)}</td>
                   <td>
-                    <strong>{asText(row.gate_name, row.gate_code)}</strong>
+                    <strong>{gateTitle(row.gate_code, row.gate_name)}</strong>
                     <div className="muted">{row.gate_code}</div>
                   </td>
                   <td>
                     <span className={`status-pill ${stateClass(row.gate_status)}`}>
-                      {asText(row.gate_status)}
+                      {statusLabel(row.gate_status)}
                     </span>
-                    {row.is_blocker ? <div className="badge-row"><span className="badge">hard gate</span></div> : null}
+                    {row.is_blocker ? <div className="badge-row"><span className="badge">обязательная проверка</span></div> : null}
                   </td>
-                  <td>{asText(row.owner_role)}</td>
+                  <td>{roleLabel(row.owner_role)}</td>
                   <td>{asText(row.summary)}</td>
                   <td>{asText(row.next_action)}</td>
                 </tr>
