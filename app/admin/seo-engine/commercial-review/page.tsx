@@ -20,13 +20,13 @@ export default async function CommercialKeywordReviewPage({ searchParams }) {
     <section className="container-feya pt-7 pb-14">
       <div className="grid gap-5 lg:grid-cols-[1fr_420px] lg:items-end border-b border-[rgba(216,214,211,.12)] pb-6 mb-6">
         <div>
-          <div className="eyebrow-gold mb-2">Админка · SEO · Google Ads metrics</div>
-          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(38px,5.5vw,70px)' }}>Commercial metrics</h1>
-          <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Это не ручная работа по каждому слову. Экран показывает новые Google Ads candidates после импорта. Основной путь — batch import → validation → scoring → auto rules → SEO-ядро. Ручной review нужен только как override для спорных слов.</p>
+          <div className="eyebrow-gold mb-2">Админка · SEO · Метрики Google Ads</div>
+          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(38px,5.5vw,70px)' }}>Коммерческие метрики</h1>
+          <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Это не ручная работа по каждому ключу. Экран показывает новые кандидаты после импорта Google Ads. Основной путь: пакетный импорт → проверка → оценка → автоматические правила → SEO-ядро. Ручная проверка нужна только для спорных случаев.</p>
         </div>
         <div className="flex flex-wrap gap-3 lg:justify-end">
           <Link href="/admin/seo-engine/metric-import/validate" className="btn-ghost">CSV метрики ↗</Link>
-          <Link href="/admin/seo-engine/scoring" className="btn-ghost">Scoring ↗</Link>
+          <Link href="/admin/seo-engine/scoring" className="btn-ghost">Оценка ключей ↗</Link>
           <Link href="/admin/seo-keywords" className="btn-ghost">SEO-ядро ↗</Link>
         </div>
       </div>
@@ -34,16 +34,16 @@ export default async function CommercialKeywordReviewPage({ searchParams }) {
       {loaded.error ? <Notice tone="danger">{loaded.error}</Notice> : null}
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-5">
-        <Metric label="Новых кандидатов" value={fmt(counts.total)} note="Из первого commercial batch." />
-        <Metric label="High priority" value={fmt(counts.high)} note="Спрос от 100+ запросов." tone="gold" />
-        <Metric label="Landing / meta" value={fmt(counts.landing)} note="Где купить / сайты / shop." tone="success" />
-        <Metric label="Local hold" value={fmt(counts.local)} note="near me — не продвигать в товар." tone="warning" />
-        <Metric label="Research hold" value={fmt(counts.research)} note="reddit / исследовательский интент." tone="warning" />
+        <Metric label="Новых кандидатов" value={fmt(counts.total)} note="Из первой коммерческой партии данных." />
+        <Metric label="Высокий приоритет" value={fmt(counts.high)} note="Спрос от 100+ запросов." tone="gold" />
+        <Metric label="Посадочная / meta" value={fmt(counts.landing)} note="Запросы «где купить», сайты и shop." tone="success" />
+        <Metric label="Локальные — отложить" value={fmt(counts.local)} note="near me — не продвигать в товар." tone="warning" />
+        <Metric label="Исследовательские — отложить" value={fmt(counts.research)} note="reddit / исследовательский интент." tone="warning" />
       </div>
 
       <div className="rounded-2xl border border-[rgba(212,178,106,.20)] bg-[rgba(212,178,106,.045)] p-4 mb-5">
         <div className="eyebrow-gold mb-2">Решение по процессу</div>
-        <p className="text-[12px] leading-relaxed text-[var(--bone-dim)]">Не заставляем оператора approve/reject каждое слово. Эти 47 слов — staging-сигналы. Дальше я делаю rule-based dry-run: что можно добавить в ядро автоматически, что держать как FAQ/landing signal, а что оставить как evidence only.</p>
+        <p className="text-[12px] leading-relaxed text-[var(--bone-dim)]">Не заставляем оператора approve/reject каждое слово. Эти слова — промежуточные сигналы. Дальше правила определяют, что можно добавить в ядро, что оставить для FAQ/посадочной, а что сохранить только как доказательство.</p>
       </div>
 
       <Filters q={q} priority={priority} />
@@ -68,10 +68,10 @@ async function loadQueue(filters) {
 
 function classifyKeyword(row) {
   const k = String(row.keyword_norm || row.keyword || '').toLowerCase();
-  if (k.includes('near me')) return { label: 'local hold', tone: 'warning', reason: 'Локальный интент. Для онлайн-магазина не добавлять в product SEO автоматически.' };
-  if (k.includes('reddit')) return { label: 'research hold', tone: 'warning', reason: 'Исследовательский интент. Можно использовать позже для FAQ/контента, не для товарного ядра.' };
-  if (k.includes('where to buy') || k.includes('where can i buy') || k.includes('where do you buy') || k.includes('websites') || k.includes('shop') || k.includes('buy')) return { label: 'landing / meta', tone: 'success', reason: 'Коммерческий интент. Кандидат для category/FAQ/meta, не обязательно для каждой карточки.' };
-  return { label: 'candidate', tone: 'neutral', reason: 'Новый кандидат. Нужен rule-based promote preview.' };
+  if (k.includes('near me')) return { label: 'локальный — отложить', tone: 'warning', reason: 'Локальный интент. Для онлайн-магазина не добавлять в SEO товара автоматически.' };
+  if (k.includes('reddit')) return { label: 'исследовательский — отложить', tone: 'warning', reason: 'Исследовательский интент. Можно использовать позже для FAQ/контента, не для товарного ядра.' };
+  if (k.includes('where to buy') || k.includes('where can i buy') || k.includes('where do you buy') || k.includes('websites') || k.includes('shop') || k.includes('buy')) return { label: 'посадочная / meta', tone: 'success', reason: 'Коммерческий интент. Кандидат для категории / FAQ / meta, не обязательно для каждой карточки.' };
+  return { label: 'кандидат', tone: 'neutral', reason: 'Новый кандидат. Нужна проверка правилами перед продвижением.' };
 }
 
 function buildCounts(rows) {
@@ -86,7 +86,7 @@ function buildCounts(rows) {
   return counts;
 }
 
-function Filters({ q, priority }) { return <form action="/admin/seo-engine/commercial-review" className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4 mb-5"><div className="grid md:grid-cols-[1fr_190px_160px] gap-3 items-end"><label><div className="eyebrow-dim mb-1.5">Поиск</div><input name="q" defaultValue={q} placeholder="where to buy, websites, near me" className="field" /></label><Select name="priority" label="Приоритет" value={priority}><option value="all">Все</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></Select><button className="btn-ghost" type="submit">Применить</button></div></form>; }
+function Filters({ q, priority }) { return <form action="/admin/seo-engine/commercial-review" className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4 mb-5"><div className="grid md:grid-cols-[1fr_190px_160px] gap-3 items-end"><label><div className="eyebrow-dim mb-1.5">Поиск</div><input name="q" defaultValue={q} placeholder="where to buy, websites, near me" className="field" /></label><Select name="priority" label="Приоритет" value={priority}><option value="all">Все</option><option value="high">Высокий</option><option value="medium">Средний</option><option value="low">Низкий</option></Select><button className="btn-ghost" type="submit">Применить</button></div></form>; }
 function Table({ rows }) { return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden"><div className="grid grid-cols-[1.45fr_.45fr_.55fr_.9fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.20em] text-[var(--smoke)]"><div>Ключ</div><div>Спрос</div><div>Конкуренция</div><div>Авто-логика</div></div><div className="divide-y divide-[rgba(216,214,211,.08)]">{rows.map((row) => <Row key={row.commercial_id} row={row} />)}{!rows.length ? <div className="px-5 py-6 text-[13px] text-[var(--bone-dim)]">Кандидатов нет.</div> : null}</div></div>; }
 function Row({ row }) { const cls = classifyKeyword(row); return <div className="grid grid-cols-[1.45fr_.45fr_.55fr_.9fr] gap-4 px-5 py-4 items-start hover:bg-[rgba(212,178,106,.035)]"><div><div className="text-bone text-[14px] leading-snug">{row.keyword}</div><div className="mt-1 text-[10px] text-[var(--bone-dim)]">{row.suggested_usage} · {row.normalized_market}/{row.normalized_language}</div><div className="mt-2 flex flex-wrap gap-1.5"><Chip tone={row.review_priority === 'high' ? 'gold' : 'neutral'}>{row.review_priority}</Chip><Chip>{row.suggested_bucket || '—'}</Chip></div></div><div className="font-price text-[24px] text-[var(--gold-warm)]">{fmt(row.avg_monthly_searches)}</div><div><Chip tone={String(row.competition).toUpperCase() === 'HIGH' ? 'gold' : 'success'}>{row.competition || '—'} {row.competition_index ? `· ${row.competition_index}` : ''}</Chip></div><div><Chip tone={cls.tone}>{cls.label}</Chip><div className="mt-2 text-[10px] leading-relaxed text-[var(--bone-dim)]">{cls.reason}</div></div></div>; }
 function Select({ name, label, value, children }) { return <label><div className="eyebrow-dim mb-1.5">{label}</div><select name={name} defaultValue={value} className="field">{children}</select></label>; }
