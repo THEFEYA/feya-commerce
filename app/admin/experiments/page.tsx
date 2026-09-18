@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { ChangeEventRow, ExperimentRegistryRow } from '@/lib/types';
+import { statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -61,36 +62,36 @@ export default async function AdminExperimentsPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/experiments">Experiments</Link>
-            <Link href="/admin/metrics">Metrics</Link>
-            <Link href="/admin/incidents">Incidents</Link>
-            <Link href="/admin/executions">Executions</Link>
+            <Link href="/admin/experiments">Эксперименты</Link>
+            <Link href="/admin/metrics">Метрики</Link>
+            <Link href="/admin/incidents">Инциденты</Link>
+            <Link href="/admin/executions">Выполнение</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">GMEL experiment / contamination registry · read-only</div>
-          <h1>Experiments</h1>
+          <div className="phase-label">Эксперименты и влияющие изменения · только просмотр</div>
+          <h1>Эксперименты</h1>
           <p>
-            Experiments require locked Measurement Specs and explicit feasibility. Change events and incidents can contaminate attribution; invalidating contamination blocks OUTCOME_READY.
+            Эксперимент запускается только при зафиксированных правилах измерения и подтверждённой реализуемости. Параллельные изменения и инциденты могут испортить атрибуцию результата.
           </p>
         </section>
 
         <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{experiments.length}</strong><span>Experiments</span></div>
-          <div className="card metric"><strong>{running}</strong><span>Running</span></div>
-          <div className="card metric"><strong>{contaminated}</strong><span>Contaminated</span></div>
-          <div className="card metric"><strong>{invalidated}</strong><span>Invalidated</span></div>
-          <div className="card metric"><strong>{outcomeReady}</strong><span>Outcome-ready</span></div>
-          <div className="card metric"><strong>{changes.length}</strong><span>Recent change events</span></div>
+          <div className="card metric"><strong>{experiments.length}</strong><span>Экспериментов</span></div>
+          <div className="card metric"><strong>{running}</strong><span>В работе</span></div>
+          <div className="card metric"><strong>{contaminated}</strong><span>Есть влияющие изменения</span></div>
+          <div className="card metric"><strong>{invalidated}</strong><span>Результат непригоден</span></div>
+          <div className="card metric"><strong>{outcomeReady}</strong><span>Готов результат</span></div>
+          <div className="card metric"><strong>{changes.length}</strong><span>Последних изменений</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
         <section className="section-head">
           <div>
-            <h2>Experiment registry</h2>
-            <p className="muted">The Measurement Engine is still unavailable; this layer governs design/state/contamination only.</p>
+            <h2>Реестр экспериментов</h2>
+            <p className="muted">Система измерения результата ещё недоступна; здесь пока контролируются только дизайн эксперимента, состояние и внешние вмешательства.</p>
           </div>
         </section>
 
@@ -98,12 +99,12 @@ export default async function AdminExperimentsPage() {
           <table>
             <thead>
               <tr>
-                <th>Experiment</th>
-                <th>Mode</th>
-                <th>Status</th>
-                <th>Feasibility</th>
-                <th>Contamination</th>
-                <th>Window</th>
+                <th>Эксперимент</th>
+                <th>Режим</th>
+                <th>Статус</th>
+                <th>Реализуемость</th>
+                <th>Влияющие изменения</th>
+                <th>Период</th>
               </tr>
             </thead>
             <tbody>
@@ -116,19 +117,19 @@ export default async function AdminExperimentsPage() {
                   <td>{asText(row.experiment_mode)}</td>
                   <td>
                     <span className={`status-pill ${statusClass(row.experiment_status)}`}>
-                      {asText(row.experiment_status)}
+                      {statusLabel(row.experiment_status)}
                     </span>
                   </td>
                   <td>
                     <span className={`status-pill ${statusClass(row.feasibility_status)}`}>
-                      {asText(row.feasibility_status)}
+                      {statusLabel(row.feasibility_status)}
                     </span>
                   </td>
                   <td>
                     <span className={`status-pill ${statusClass(row.contamination_state)}`}>
-                      {asText(row.contamination_state)}
+                      {statusLabel(row.contamination_state)}
                     </span>
-                    <div className="muted">{row.contamination_count || 0} records · {row.invalidating_contamination_count || 0} invalidating</div>
+                    <div className="muted">{row.contamination_count || 0} записей · {row.invalidating_contamination_count || 0} критичных</div>
                   </td>
                   <td>
                     {asText(row.started_at, asText(row.planned_start_at))}
@@ -136,7 +137,7 @@ export default async function AdminExperimentsPage() {
                   </td>
                 </tr>
               )) : (
-                <tr><td colSpan={6}>No real experiments have been created.</td></tr>
+                <tr><td colSpan={6}>Реальных экспериментов пока нет.</td></tr>
               )}
             </tbody>
           </table>
@@ -144,8 +145,8 @@ export default async function AdminExperimentsPage() {
 
         <section className="section-head">
           <div>
-            <h2>Recent change events</h2>
-            <p className="muted">Successful Execution Gateway mutations are bridged here automatically.</p>
+            <h2>Последние изменения</h2>
+            <p className="muted">Успешные изменения через шлюз выполнения автоматически фиксируются здесь.</p>
           </div>
         </section>
 
@@ -153,12 +154,12 @@ export default async function AdminExperimentsPage() {
           <table>
             <thead>
               <tr>
-                <th>Event</th>
-                <th>Domain</th>
-                <th>Entity</th>
-                <th>Source</th>
-                <th>Execution / Incident</th>
-                <th>Time</th>
+                <th>Событие</th>
+                <th>Область</th>
+                <th>Объект</th>
+                <th>Источник</th>
+                <th>Выполнение / инцидент</th>
+                <th>Время</th>
               </tr>
             </thead>
             <tbody>
@@ -185,7 +186,7 @@ export default async function AdminExperimentsPage() {
                   <td>{asText(row.event_at)}</td>
                 </tr>
               )) : (
-                <tr><td colSpan={6}>No durable change events have been recorded.</td></tr>
+                <tr><td colSpan={6}>Зафиксированных изменений пока нет.</td></tr>
               )}
             </tbody>
           </table>
