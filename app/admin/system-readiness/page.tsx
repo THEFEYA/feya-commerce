@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { GrowthCapabilityStatusRow } from '@/lib/types';
+import { roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -45,28 +46,28 @@ export default async function AdminSystemReadinessPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/products">Products</Link>
-            <Link href="/admin/seo-keywords">SEO Keywords</Link>
-            <Link href="/admin/seo-portfolio">SEO Portfolio</Link>
-            <Link href="/admin/seo-clusters">Cluster Queue</Link>
-            <Link href="/admin/system-readiness">System Readiness</Link>
+            <Link href="/admin/products">Товары</Link>
+            <Link href="/admin/seo-keywords">SEO-ключи</Link>
+            <Link href="/admin/seo-portfolio">SEO-страницы</Link>
+            <Link href="/admin/seo-clusters">Группы запросов</Link>
+            <Link href="/admin/system-readiness">Готовность системы</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Growth OS capability registry · read-only</div>
-          <h1>System Readiness</h1>
+          <div className="phase-label">Реестр возможностей FEYA · только просмотр</div>
+          <h1>Готовность системы</h1>
           <p>
-            What FEYA Growth OS can actually observe or execute today. Missing integrations remain unavailable instead of being inferred by AI.
+            Что FEYA реально умеет наблюдать или выполнять сейчас. Отсутствующие интеграции остаются недоступными и не подменяются догадками AI.
           </p>
         </section>
 
         <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Capabilities registered</span></div>
-          <div className="card metric"><strong>{countState(rows, 'AVAILABLE')}</strong><span>Available</span></div>
-          <div className="card metric"><strong>{countState(rows, 'AVAILABLE_WITH_LIMITATIONS')}</strong><span>Available with limits</span></div>
-          <div className="card metric"><strong>{countState(rows, 'DEGRADED')}</strong><span>Degraded</span></div>
-          <div className="card metric"><strong>{countState(rows, 'UNAVAILABLE')}</strong><span>Unavailable</span></div>
+          <div className="card metric"><strong>{rows.length}</strong><span>Возможностей зарегистрировано</span></div>
+          <div className="card metric"><strong>{countState(rows, 'AVAILABLE')}</strong><span>Работают</span></div>
+          <div className="card metric"><strong>{countState(rows, 'AVAILABLE_WITH_LIMITATIONS')}</strong><span>Работают с ограничениями</span></div>
+          <div className="card metric"><strong>{countState(rows, 'DEGRADED')}</strong><span>Работают нестабильно</span></div>
+          <div className="card metric"><strong>{countState(rows, 'UNAVAILABLE')}</strong><span>Недоступны</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
@@ -75,12 +76,12 @@ export default async function AdminSystemReadinessPage() {
           <table>
             <thead>
               <tr>
-                <th>Capability</th>
-                <th>Owner</th>
-                <th>State</th>
-                <th>Implementation</th>
-                <th>What exists</th>
-                <th>Limitation / next gate</th>
+                <th>Возможность</th>
+                <th>Ответственный</th>
+                <th>Состояние</th>
+                <th>Реализация</th>
+                <th>Что уже есть</th>
+                <th>Ограничение / следующий шаг</th>
               </tr>
             </thead>
             <tbody>
@@ -90,10 +91,10 @@ export default async function AdminSystemReadinessPage() {
                     <strong>{asText(row.capability_name, row.capability_code)}</strong>
                     <div className="muted">{row.capability_code}</div>
                   </td>
-                  <td>{asText(row.owner_role)}</td>
+                  <td>{roleLabel(row.owner_role)}</td>
                   <td>
                     <span className={`status-pill ${statusClass(row.capability_state)}`}>
-                      {asText(row.capability_state)}
+                      {statusLabel(row.capability_state)}
                     </span>
                   </td>
                   <td>{asText(row.implementation_state)}</td>
