@@ -175,9 +175,17 @@ export default async function AdminSystemPage() {
           <Link href="/admin/company/advanced" className="owner-button">Технические детали</Link>
         </header>
 
+        <nav className="owner-subnav" aria-label="Разделы системы">
+          <a href="#readiness">Готовность</a>
+          <a href="#sources">Источники данных</a>
+          <a href="#permissions">Права и автоматизация</a>
+          <a href="#ai-usage">Использование ИИ</a>
+          <Link href="/admin/company/advanced">Технические детали</Link>
+        </nav>
+
         {error ? <div className="owner-card is-danger"><div className="owner-status is-danger">Ошибка данных</div><p className="owner-card-copy">{error}</p></div> : null}
 
-        <section className="owner-section">
+        <section className="owner-section" id="readiness">
           <div className="owner-section-head"><h2>Готовность</h2></div>
           <div className="owner-grid four">
             {readiness.map((row) => {
@@ -194,7 +202,7 @@ export default async function AdminSystemPage() {
           </div>
         </section>
 
-        <section className="owner-section">
+        <section className="owner-section" id="sources">
           <div className="owner-section-head">
             <div><h2>Источники данных</h2><div className="owner-section-kicker">Ограничение показывается рядом с источником, а не прячется в логах</div></div>
             <Link href="/admin/data-health" className="owner-button">Подробнее</Link>
@@ -219,7 +227,7 @@ export default async function AdminSystemPage() {
           </div>
         </section>
 
-        <section className="owner-section">
+        <section className="owner-section" id="permissions">
           <div className="owner-section-head">
             <div>
               <h2>Права, выполнение и безопасность</h2>
@@ -289,7 +297,7 @@ export default async function AdminSystemPage() {
           </div>
         </section>
 
-        <section className="owner-section">
+        <section className="owner-section" id="ai-usage">
           <details className="owner-disclosure owner-disclosure-section">
             <summary>
               <span>
