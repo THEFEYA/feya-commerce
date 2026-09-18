@@ -233,7 +233,7 @@ export default async function AdminWorkPage() {
                     <p>{item.whyNow}</p>
                   </div>
                   <div className="owner-list-row-side">
-                    <Link href="/admin/company/owner-attention" className="owner-button primary">Рассмотреть</Link>
+                    <Link href={`/admin/company/owner-attention/${item.id}`} className="owner-button primary">Рассмотреть</Link>
                   </div>
                 </article>
               ))}
@@ -286,7 +286,7 @@ export default async function AdminWorkPage() {
               <div className="owner-status">Автоматически</div>
               <h3 className="owner-card-title" style={{ marginTop: '10px' }}>Предварительные проверки контента</h3>
               <p className="owner-card-copy">
-                {operations.cqaAutomaticChecks} черновиков находятся на автоматических проверках сходства, состава или базовых prechecks. Это не требует вашего участия.
+                {operations.cqaAutomaticChecks} черновиков находятся на автоматических проверках сходства, состава или базовых предварительных проверок. Это не требует вашего участия.
               </p>
             </article>
           </div>
