@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, FileText, ImageIcon, MessageSquareText, ShieldAlert } from 'lucide-react';
 import { getContentStage, type ContentStageLabel } from '@/lib/admin-pipeline';
+import { adminReadinessLabel, contentStageLabel } from '@/lib/adminDisplayRu';
 import { getProductEvents, getProductFlags, getProductReadiness, type AdminReviewEvent } from '@/lib/admin-readiness';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle, worldLabel } from '@/lib/storefront';
@@ -89,42 +90,42 @@ export default async function ContentPreparationPage() {
     <section className="container-feya pt-10 pb-16">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
         <div>
-          <div className="eyebrow-gold mb-3">Admin · Content Preparation</div>
-          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Content pipeline</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Safe content preparation layer. This does not auto-generate or publish AI copy; it only shows which products are ready for controlled product copy work.</p>
+          <div className="eyebrow-gold mb-3">Админка · Подготовка контента</div>
+          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Подготовка контента</h1>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Безопасный слой подготовки контента. Он не генерирует и не публикует тексты автоматически, а показывает, какие товары готовы к работе с контентом.</p>
         </div>
         <div className="flex gap-3">
-          <Link href="/admin" className="btn-ghost">Admin cockpit <ArrowUpRight size={13} /></Link>
-          <Link href="/admin/launch" className="btn-ghost">Launch pipeline <ArrowUpRight size={13} /></Link>
+          <Link href="/admin" className="btn-ghost">Панель управления <ArrowUpRight size={13} /></Link>
+          <Link href="/admin/launch" className="btn-ghost">Готовность к запуску <ArrowUpRight size={13} /></Link>
         </div>
       </div>
 
       {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        <Metric icon={ShieldAlert} label="Blocked" value={counts.Blocked || 0} note="No content work until fixed." tone="danger" />
-        <Metric icon={FileText} label="Data Not Ready" value={counts['Data Not Ready'] || 0} note="Review labels/prices/components/media first." tone="warning" />
-        <Metric icon={ImageIcon} label="Needs Inputs" value={counts['Needs Content Inputs'] || 0} note="Missing media/config context." tone="warning" />
-        <Metric icon={MessageSquareText} label="Can Draft" value={counts['Can Draft Content'] || 0} note="Safe for controlled copy draft." tone="success" />
-        <Metric icon={CheckCircle2} label="Can Review" value={counts['Can Review Content'] || 0} note="Ready for content QA." tone="success" />
+        <Metric icon={ShieldAlert} label="Заблокировано" value={counts.Blocked || 0} note="Контент нельзя готовить, пока блокирующая проблема не исправлена." tone="danger" />
+        <Metric icon={FileText} label="Данные не готовы" value={counts['Data Not Ready'] || 0} note="Сначала нужно проверить названия, цены, компоненты и медиа." tone="warning" />
+        <Metric icon={ImageIcon} label="Не хватает данных" value={counts['Needs Content Inputs'] || 0} note="Не хватает медиа или контекста вариантов товара." tone="warning" />
+        <Metric icon={MessageSquareText} label="Можно готовить черновик" value={counts['Can Draft Content'] || 0} note="Можно безопасно готовить контролируемый черновик." tone="success" />
+        <Metric icon={CheckCircle2} label="Можно проверять" value={counts['Can Review Content'] || 0} note="Готово к проверке качества контента." tone="success" />
       </div>
 
       <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
         <div className="grid grid-cols-[76px_1.5fr_1fr_1fr_1.1fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.22em] text-[var(--smoke)]">
-          <div>Image</div><div>Product</div><div>Content stage</div><div>Readiness</div><div>Content inputs</div>
+          <div>Фото</div><div>Товар</div><div>Этап контента</div><div>Готовность</div><div>Входные данные</div>
         </div>
         <div className="divide-y divide-[rgba(216,214,211,.08)]">
           {visibleRows.map(({ product, readiness, stage, flags }) => {
             const slug = productSlug(product);
             return <Link key={product.canonical_product_id || slug} href={`/admin/products/${slug}`} className="grid grid-cols-[76px_1.5fr_1fr_1fr_1.1fr] gap-4 items-center px-5 py-4 hover:bg-[rgba(212,178,106,.04)] transition-colors">
               <div className="relative h-20 w-16 rounded-lg overflow-hidden bg-black/30 border border-[rgba(216,214,211,.10)]">{product.primary_image_url ? <img src={product.primary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}</div>
-              <div><div className="text-bone text-[15px] leading-snug line-clamp-2">{productTitle(product)}</div><div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'Product'} · {product.canonical_color_label || product.color || 'Color'}</div></div>
-              <div><Chip tone={stage.tone}>{stage.label}</Chip><div className="mt-2 text-[11px] leading-relaxed text-[var(--bone-dim)]">{stage.note}</div></div>
-              <div><Chip tone={readiness.tone}>{readiness.label}</Chip></div>
+              <div><div className="text-bone text-[15px] leading-snug line-clamp-2">{productTitle(product)}</div><div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'Товар'} · {product.canonical_color_label || product.color || 'Цвет не указан'}</div></div>
+              <div><Chip tone={stage.tone}>{contentStageLabel(stage.label)}</Chip><div className="mt-2 text-[11px] leading-relaxed text-[var(--bone-dim)]">{stage.note}</div></div>
+              <div><Chip tone={readiness.tone}>{adminReadinessLabel(readiness.label)}</Chip></div>
               <div className="flex flex-wrap gap-1.5">
-                {flags.configs.length ? <Chip>{flags.configs.length} options</Chip> : <Chip tone="danger">No options</Chip>}
-                {product.primary_image_url ? <Chip>Image</Chip> : <Chip tone="danger">No image</Chip>}
-                {product.primary_image_alt ? <Chip>Alt</Chip> : <Chip tone="warning">No alt</Chip>}
+                {flags.configs.length ? <Chip>{flags.configs.length} вариантов</Chip> : <Chip tone="danger">Нет вариантов</Chip>}
+                {product.primary_image_url ? <Chip>Есть фото</Chip> : <Chip tone="danger">Нет фото</Chip>}
+                {product.primary_image_alt ? <Chip>Alt</Chip> : <Chip tone="warning">Нет ALT</Chip>}
               </div>
             </Link>;
           })}
