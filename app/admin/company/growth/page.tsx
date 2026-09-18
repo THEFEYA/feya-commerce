@@ -175,6 +175,13 @@ export default async function AdminGrowthPage() {
           </div>
         </header>
 
+        <nav className="owner-subnav" aria-label="Разделы роста">
+          <Link href="/admin/opportunities">Возможности</Link>
+          <a href="#demand">Спрос</a>
+          <Link href="/admin/seo-portfolio">Страницы</Link>
+          <Link href="/admin/indexation">Техническое SEO</Link>
+        </nav>
+
         {data.error ? (
           <div className="owner-card is-danger">
             <div className="owner-status is-danger">Ошибка данных</div>
@@ -260,7 +267,7 @@ export default async function AdminGrowthPage() {
           </div>
         </section>
 
-        <section className="owner-section">
+        <section className="owner-section" id="demand">
           <div className="owner-section-head">
             <div>
               <h2>Исторический спрос</h2>
