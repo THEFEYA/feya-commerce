@@ -1,279 +1,57 @@
 import Link from 'next/link';
-import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
-import { presentOwnerAttention, presentSignal, presentWorkItem, formatRelativeTime } from '@/lib/owner-ui/presenters';
-import { scopeLabel, statusLabel, ownerToneForStatus } from '@/lib/owner-ui/terminology';
+import { logoutAdmin } from './login/actions';
+import { isAdminAuthRequired } from '@/lib/supabaseAuth';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
-type Row = Record<string, unknown>;
-
-type TodayData = {
-  attention: Row[];
-  signals: Row[];
-  work: Row[];
-  readiness: Row[];
-  error?: string;
-};
-
-async function getTodayData(): Promise<TodayData> {
-  const supabase = getAdminReadClient();
-  if (!supabase) {
-    return { attention: [], signals: [], work: [], readiness: [], error: getMissingAdminDataEnvMessage() };
-  }
-
-  const [attentionResult, signalResult, workResult, readinessResult] = await Promise.all([
-    supabase
-      .from('feya_commerce_v_owner_attention_safe_v2')
-      .select('*')
-      .in('attention_status', ['OPEN', 'ACKNOWLEDGED'])
-      .order('priority', { ascending: true })
-      .order('created_at', { ascending: true }),
-    supabase
-      .from('feya_commerce_v_growth_signal_candidates_safe_v2')
-      .select('signal_fingerprint,signal_code,title,summary,next_action,priority,accountable_domain,signal_state,case_admission_recommendation,materiality_score')
-      .order('priority', { ascending: true })
-      .order('materiality_score', { ascending: false })
-      .limit(12),
-    supabase
-      .from('feya_commerce_v_owner_work_safe_v1')
-      .select('*')
-      .not('case_status', 'in', '(CLOSED,MERGED)')
-      .order('priority', { ascending: true })
-      .order('updated_at', { ascending: false })
-      .limit(5),
-    supabase
-      .from('feya_commerce_v_launch_readiness_summary_safe_v2')
-      .select('*')
-      .order('readiness_scope', { ascending: true }),
-  ]);
-
-  const firstError = attentionResult.error || signalResult.error || workResult.error || readinessResult.error;
-  if (firstError) {
-    return {
-      attention: [],
-      signals: [],
-      work: [],
-      readiness: [],
-      error: firstError.message,
-    };
-  }
-
-  return {
-    attention: (attentionResult.data || []) as Row[],
-    signals: (signalResult.data || []) as Row[],
-    work: (workResult.data || []) as Row[],
-    readiness: (readinessResult.data || []) as Row[],
-  };
-}
-
-function toneClass(tone: string) {
-  return tone === 'danger'
-    ? 'is-danger'
-    : tone === 'warning'
-      ? 'is-warning'
-      : tone === 'success'
-        ? 'is-success'
-        : tone === 'info'
-          ? 'is-info'
-          : '';
-}
-
-function russianDate() {
-  return new Intl.DateTimeFormat('ru-RU', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  }).format(new Date());
-}
-
-export default async function AdminHomePage() {
-  const { attention, signals, work, readiness, error } = await getTodayData();
-
-  const attentionVM = attention.map(presentOwnerAttention);
-  const attentionCodes = new Set(attentionVM.map((item) => item.sourceCode).filter(Boolean));
-
-  const signalVM = signals
-    .filter((row) => {
-      const code = String(row.signal_code || '');
-      const recommendation = String(row.case_admission_recommendation || '');
-      return !attentionCodes.has(code) && recommendation !== 'OWNER_DECISION_REQUIRED' && recommendation !== 'DEFER_UNTIL_ACTIVE_OBJECTIVE';
-    })
-    .slice(0, 4)
-    .map(presentSignal);
-
-  const workVM = work.map(presentWorkItem);
-  const blockedWork = workVM.filter((item) => item.status === 'BLOCKED').length;
-  const waitingWork = workVM.filter((item) => item.status.startsWith('WAITING')).length;
-  const runningWork = workVM.filter((item) => item.status === 'RUNNING').length;
+export default function AdminHomePage() {
+  const authRequired = isAdminAuthRequired();
 
   return (
-    <main className="owner-page">
-      <div className="owner-page-inner">
-        <header className="owner-page-head">
-          <div>
-            <div className="owner-eyebrow">Центр управления</div>
-            <h1>Сегодня</h1>
-            <p>
-              Короткая сводка только по тому, что действительно требует внимания, уже выполняется или мешает двигаться дальше.
-            </p>
+    <main className="page-shell">
+      <div className="container">
+        <nav className="top-nav">
+          <Link href="/" className="brand-mark">TheFEYA Admin</Link>
+          <div className="nav-links">
+            <Link href="/admin/company">Центр управления FEYA</Link>
+            <Link href="/shop">Просмотр магазина</Link>
+            {authRequired ? (
+              <form action={logoutAdmin}>
+                <button type="submit" style={{ background: 'none', border: 0, color: 'inherit', cursor: 'pointer', padding: 0 }}>
+                  Выйти
+                </button>
+              </form>
+            ) : null}
           </div>
-          <div className="owner-page-meta">{russianDate()}</div>
-        </header>
+        </nav>
 
-        {error ? (
-          <div className="owner-card is-danger">
-            <div className="owner-status is-danger">Ошибка данных</div>
-            <h2 className="owner-card-title" style={{ marginTop: '10px' }}>Не удалось собрать сводку</h2>
-            <p className="owner-card-copy">{error}</p>
-          </div>
-        ) : null}
-
-        <section className="owner-section">
-          <div className="owner-section-head">
-            <div>
-              <h2>Нужно ваше решение</h2>
-              <div className="owner-section-kicker">Только то, что действительно требует владельца</div>
-            </div>
-            <Link href="/admin/owner-attention" className="owner-button">Показать всё</Link>
-          </div>
-
-          {attentionVM.length ? (
-            <div className="owner-grid two">
-              {attentionVM.slice(0, 3).map((item) => (
-                <article className={`owner-card ${toneClass(item.tone)}`} key={item.id}>
-                  <div className="owner-card-meta">
-                    <span className={`owner-status ${toneClass(item.tone)}`}>{item.priorityLabel}</span>
-                    <span>{item.typeLabel}</span>
-                    <span>{item.statusLabel}</span>
-                  </div>
-                  <h3 className="owner-card-title">{item.title}</h3>
-                  <p className="owner-card-copy"><strong>Почему сейчас:</strong> {item.whyNow}</p>
-                  <p className="owner-card-copy"><strong>Что нужно:</strong> {item.requiredAction}</p>
-                  <div className="owner-actions">
-                    <Link href="/admin/owner-attention" className="owner-button primary">Рассмотреть</Link>
-                  </div>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <div className="owner-empty">Сейчас нет решений, которые требуют вашего участия.</div>
-          )}
+        <section className="hero">
+          <h1>Админка TheFEYA.</h1>
+          <p>
+            Рабочее пространство товаров, SEO, контента и проверки. Интерфейс управления компанией и AI-командой теперь вынесен отдельно и не заменяет эту админку.
+          </p>
         </section>
 
-        <section className="owner-section">
-          <div className="owner-section-head">
-            <div>
-              <h2>Что важно сейчас</h2>
-              <div className="owner-section-kicker">Материальные сигналы без дублирования ваших решений</div>
-            </div>
-            <Link href="/admin/signals" className="owner-button">Все сигналы</Link>
-          </div>
-
-          {signalVM.length ? (
-            <div className="owner-list">
-              {signalVM.map((item) => (
-                <article className="owner-list-row" key={item.id}>
-                  <div className="owner-list-row-main">
-                    <div className="owner-card-meta">
-                      <span className={`owner-status ${toneClass(item.tone)}`}>{item.priorityLabel}</span>
-                      <span>{item.ownerLabel}</span>
-                      <span>{item.statusLabel}</span>
-                    </div>
-                    <h3>{item.title}</h3>
-                    <p>{item.summary}</p>
-                  </div>
-                  <div className="owner-list-row-side">
-                    <Link href="/admin/signals" className="owner-button">Проверить</Link>
-                  </div>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <div className="owner-empty">Новых значимых сигналов вне ваших текущих решений нет.</div>
-          )}
+        <section className="section-head">
+          <h2>Рабочие разделы</h2>
         </section>
 
-        <section className="owner-section">
-          <div className="owner-section-head">
-            <div>
-              <h2>В работе</h2>
-              <div className="owner-section-kicker">Текущие реальные рабочие процессы Growth OS</div>
-            </div>
-            <Link href="/admin/work" className="owner-button">Открыть работу</Link>
-          </div>
-
-          <div className="owner-summary-strip">
-            <div className="owner-summary-cell">
-              <strong>{workVM.length}</strong>
-              <span>Активных рабочих ситуаций</span>
-            </div>
-            <div className="owner-summary-cell">
-              <strong>{runningWork}</strong>
-              <span>В работе сейчас</span>
-            </div>
-            <div className="owner-summary-cell">
-              <strong>{waitingWork}</strong>
-              <span>Ожидают данных или условия</span>
-            </div>
-            <div className="owner-summary-cell">
-              <strong>{blockedWork}</strong>
-              <span>Заблокировано</span>
-            </div>
-          </div>
-
-          {workVM.length ? (
-            <div className="owner-list" style={{ marginTop: '10px' }}>
-              {workVM.slice(0, 3).map((item) => (
-                <article className="owner-list-row" key={item.id}>
-                  <div className="owner-list-row-main">
-                    <div className="owner-card-meta">
-                      <span className={`owner-status ${toneClass(item.tone)}`}>{item.statusLabel}</span>
-                      <span>{item.ownerLabel}</span>
-                      <span>{item.priorityLabel}</span>
-                    </div>
-                    <h3>{item.title}</h3>
-                    <p>{item.purpose}</p>
-                  </div>
-                  <div className="owner-list-row-side">
-                    <span className="owner-section-kicker">{formatRelativeTime(item.updatedAt)}</span>
-                    <Link href="/admin/work" className="owner-button">Открыть</Link>
-                  </div>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <div className="owner-empty" style={{ marginTop: '10px' }}>
-              Сейчас нет активных Growth Cases или workflow. Это нормальное состояние подготовки к запуску — система не создаёт искусственную работу ради заполнения панели.
-            </div>
-          )}
-        </section>
-
-        <section className="owner-section">
-          <div className="owner-section-head">
-            <div>
-              <h2>Состояние системы</h2>
-              <div className="owner-section-kicker">Четыре независимые зоны готовности без общего искусственного балла</div>
-            </div>
-            <Link href="/admin/system" className="owner-button">Открыть систему</Link>
-          </div>
-
-          <div className="owner-grid four">
-            {readiness.map((row) => {
-              const state = String(row.scope_status || '');
-              const tone = ownerToneForStatus(state);
-              return (
-                <article className={`owner-card ${toneClass(tone)}`} key={String(row.readiness_scope)}>
-                  <div className={`owner-status ${toneClass(tone)}`}>{statusLabel(state)}</div>
-                  <h3 className="owner-card-title" style={{ marginTop: '10px' }}>{scopeLabel(row.readiness_scope)}</h3>
-                  <p className="owner-card-copy">
-                    {Number(row.blocking_count || 0)} блокирующих условий · {Number(row.pass_count || 0)} проверок пройдено
-                  </p>
-                </article>
-              );
-            })}
-          </div>
-        </section>
+        <div className="grid admin-grid">
+          <Link className="card metric" href="/admin/products">
+            <strong>Товары</strong>
+            <span>Каталог, Product Builder, факты, варианты, цены, медиа и готовность.</span>
+          </Link>
+          <Link className="card metric" href="/admin/seo-keywords">
+            <strong>SEO и ключевые слова</strong>
+            <span>Ключевые запросы остаются в оригинальном языке; интерфейс и пояснения — на русском.</span>
+          </Link>
+          <Link className="card metric" href="/admin/review">
+            <strong>Проверка</strong>
+            <span>Очереди по ценам, медиа, готовности и другим проблемам товаров.</span>
+          </Link>
+          <Link className="card metric admin-company-entry" href="/admin/company">
+            <strong>Центр управления FEYA</strong>
+            <span>Компания, AI-команда, сигналы, работа, результаты и состояние системы.</span>
+          </Link>
+        </div>
       </div>
     </main>
   );
