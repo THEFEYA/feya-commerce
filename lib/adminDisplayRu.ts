@@ -137,3 +137,28 @@ export function seoScoreStageLabel(value: unknown) {
   };
   return map[key] || key || 'Не определено';
 }
+
+
+export function seoScoreNoteLabel(value: unknown) {
+  const key = String(value || '').trim();
+  const map: Record<string, string> = {
+    'Title needs SEO review.': 'Заголовок нужно проверить для SEO.',
+    'Meta description draft is missing or weak.': 'Meta description отсутствует или слишком слабый.',
+    'Product description needs a fuller site-native draft.': 'Нужно более полное описание товара для сайта.',
+    'Media SEO must be completed before image sitemap readiness.': 'Нужно завершить SEO медиа до готовности sitemap изображений.',
+    'Structured data inputs need review.': 'Нужно проверить входные данные для структурированной разметки.',
+  };
+  return map[key] || key;
+}
+
+export function collectionAxisLabel(value: unknown) {
+  const key = String(value || '').trim().toLowerCase();
+  const map: Record<string, string> = {
+    piece: 'Тип товара',
+    occasion: 'Событие',
+    style: 'Стиль',
+    color: 'Цвет',
+    material: 'Материал',
+  };
+  return map[key] || String(value || '—');
+}
