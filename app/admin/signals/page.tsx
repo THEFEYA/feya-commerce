@@ -76,6 +76,7 @@ export default async function AdminSignalsPage() {
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
             <Link href="/admin/signals">Signals</Link>
+            <Link href="/admin/owner-attention">Owner Attention</Link>
             <Link href="/admin/launch-readiness">Launch Readiness</Link>
             <Link href="/admin/system-readiness">System Readiness</Link>
             <Link href="/admin/execution-map">Execution Map</Link>
