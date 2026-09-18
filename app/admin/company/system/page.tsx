@@ -17,6 +17,16 @@ async function getSystemData(): Promise<{
   activeIncidents: number;
   mutationFreezes: number;
   adminBoundary: { registered: number; browserReadable: number } | null;
+  aiUsage: {
+    invocations: number;
+    meteredInvocations: number;
+    unmeteredInvocations: number;
+    totalTokens: number;
+    inputTokens: number;
+    outputTokens: number;
+    avgLatencyMs: number | null;
+    lastInvocationAt: string | null;
+  };
   error?: string;
 }> {
   const supabase = getAdminReadClient();
@@ -28,6 +38,7 @@ async function getSystemData(): Promise<{
     activeIncidents: 0,
     mutationFreezes: 0,
     adminBoundary: null,
+    aiUsage: { invocations: 0, meteredInvocations: 0, unmeteredInvocations: 0, totalTokens: 0, inputTokens: 0, outputTokens: 0, avgLatencyMs: null, lastInvocationAt: null },
     error: getMissingAdminDataEnvMessage(),
   };
 
@@ -43,6 +54,7 @@ async function getSystemData(): Promise<{
     incidentsResult,
     freezesResult,
     adminBoundaryResult,
+    aiUsageResult,
   ] = await Promise.all([
     supabase.from('feya_commerce_v_launch_readiness_summary_safe_v2').select('*').order('readiness_scope'),
     supabase.from('feya_commerce_v_data_source_health_latest_safe_v1')
@@ -66,6 +78,13 @@ async function getSystemData(): Promise<{
     serviceRole
       ? serviceRole.rpc('feya_fn_preview_admin_data_boundary_v1')
       : Promise.resolve({ data: null, error: null }),
+    serviceRole
+      ? serviceRole
+          .from('feya_commerce_v_ai_usage_daily_v1')
+          .select('usage_day,invocation_count,metered_invocation_count,unmetered_invocation_count,input_tokens,output_tokens,total_tokens,avg_latency_ms,last_invocation_at')
+          .gte('usage_day', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+          .order('usage_day', { ascending: false })
+      : Promise.resolve({ data: [], error: null }),
   ]);
 
   const firstError =
@@ -77,7 +96,8 @@ async function getSystemData(): Promise<{
     executionResult.error ||
     incidentsResult.error ||
     freezesResult.error ||
-    adminBoundaryResult.error;
+    adminBoundaryResult.error ||
+    aiUsageResult.error;
 
   const adminBoundaryRows = Array.isArray(adminBoundaryResult.data) ? adminBoundaryResult.data : [];
   const adminBoundary = serviceRole
@@ -87,6 +107,26 @@ async function getSystemData(): Promise<{
       }
     : null;
 
+  const aiRows = Array.isArray(aiUsageResult.data) ? aiUsageResult.data : [];
+  const latencyRows = aiRows.filter((row) => Number.isFinite(Number(row?.avg_latency_ms)) && Number(row?.invocation_count || 0) > 0);
+  const latencyWeight = latencyRows.reduce((sum, row) => sum + Number(row?.invocation_count || 0), 0);
+  const aiUsage = {
+    invocations: aiRows.reduce((sum, row) => sum + Number(row?.invocation_count || 0), 0),
+    meteredInvocations: aiRows.reduce((sum, row) => sum + Number(row?.metered_invocation_count || 0), 0),
+    unmeteredInvocations: aiRows.reduce((sum, row) => sum + Number(row?.unmetered_invocation_count || 0), 0),
+    totalTokens: aiRows.reduce((sum, row) => sum + Number(row?.total_tokens || 0), 0),
+    inputTokens: aiRows.reduce((sum, row) => sum + Number(row?.input_tokens || 0), 0),
+    outputTokens: aiRows.reduce((sum, row) => sum + Number(row?.output_tokens || 0), 0),
+    avgLatencyMs: latencyWeight
+      ? Math.round(latencyRows.reduce((sum, row) => sum + Number(row?.avg_latency_ms || 0) * Number(row?.invocation_count || 0), 0) / latencyWeight)
+      : null,
+    lastInvocationAt: aiRows
+      .map((row) => String(row?.last_invocation_at || ''))
+      .filter(Boolean)
+      .sort()
+      .at(-1) || null,
+  };
+
   if (firstError) return {
     readiness: [],
     sources: [],
@@ -95,6 +135,7 @@ async function getSystemData(): Promise<{
     activeIncidents: 0,
     mutationFreezes: 0,
     adminBoundary,
+    aiUsage,
     error: firstError.message,
   };
 
@@ -110,6 +151,7 @@ async function getSystemData(): Promise<{
     activeIncidents: incidentsResult.count || 0,
     mutationFreezes: freezesResult.count || 0,
     adminBoundary,
+    aiUsage,
   };
 }
 
@@ -118,7 +160,7 @@ function toneClass(tone: string) {
 }
 
 export default async function AdminSystemPage() {
-  const { readiness, sources, actions, executionRequests, activeIncidents, mutationFreezes, adminBoundary, error } = await getSystemData();
+  const { readiness, sources, actions, executionRequests, activeIncidents, mutationFreezes, adminBoundary, aiUsage, error } = await getSystemData();
   const ownerAuth = getAdminAuthConfigStatus();
 
   return (
@@ -244,6 +286,49 @@ export default async function AdminSystemPage() {
                   : 'Система умеет рассчитывать, проверять и готовить решения, но не должна изображать внешнее выполнение, пока исполнитель, одобрения и журнал результата не готовы.'}
               </p>
             </article>
+          </div>
+        </section>
+
+        <section className="owner-section">
+          <div className="owner-section-head">
+            <div>
+              <h2>Использование AI</h2>
+              <div className="owner-section-kicker">Последние 30 дней · измеряем расход, но не превращаем экономию токенов в самоцель</div>
+            </div>
+          </div>
+
+          <div className="owner-summary-strip">
+            <div className="owner-summary-cell">
+              <strong>{aiUsage.invocations}</strong>
+              <span>AI-вызовов</span>
+            </div>
+            <div className="owner-summary-cell">
+              <strong>{new Intl.NumberFormat('ru-RU').format(aiUsage.totalTokens)}</strong>
+              <span>Токенов всего</span>
+            </div>
+            <div className="owner-summary-cell">
+              <strong>{new Intl.NumberFormat('ru-RU').format(aiUsage.inputTokens)}</strong>
+              <span>Входных токенов</span>
+            </div>
+            <div className="owner-summary-cell">
+              <strong>{new Intl.NumberFormat('ru-RU').format(aiUsage.outputTokens)}</strong>
+              <span>Выходных токенов</span>
+            </div>
+          </div>
+
+          <div className={`owner-card ${aiUsage.unmeteredInvocations ? 'is-warning' : aiUsage.invocations ? 'is-success' : 'is-info'}`} style={{ marginTop: '10px' }}>
+            <div className={`owner-status ${aiUsage.unmeteredInvocations ? 'is-warning' : aiUsage.invocations ? 'is-success' : 'is-info'}`}>
+              {aiUsage.unmeteredInvocations
+                ? `Без учёта токенов: ${aiUsage.unmeteredInvocations}`
+                : aiUsage.invocations
+                  ? `Учтено вызовов: ${aiUsage.meteredInvocations}`
+                  : 'Живых AI-вызовов пока нет'}
+            </div>
+            <p className="owner-card-copy">
+              {aiUsage.invocations
+                ? `Средняя задержка: ${aiUsage.avgLatencyMs == null ? 'нет данных' : `${aiUsage.avgLatencyMs} мс`}. Последний вызов: ${aiUsage.lastInvocationAt ? new Date(aiUsage.lastInvocationAt).toLocaleString('ru-RU') : 'не определён'}.`
+                : 'Это правильное состояние до запуска автоматических рабочих потоков. FEYA не должна тратить токены просто для поддержания видимости «активных агентов».'}
+            </p>
           </div>
         </section>
 
