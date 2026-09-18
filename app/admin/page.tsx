@@ -70,6 +70,10 @@ export default function AdminHomePage() {
             <strong>System Readiness</strong>
             <span>Capability Registry: what Growth OS can actually observe and execute now.</span>
           </Link>
+          <Link className="card metric" href="/admin/launch-readiness">
+            <strong>Launch Readiness</strong>
+            <span>Hard gates for Public Site, Search, Commerce and Measurement.</span>
+          </Link>
           <Link className="card metric" href="/admin/metrics">
             <strong>Metrics</strong>
             <span>Versioned metric definitions plus currently computable operational values.</span>
