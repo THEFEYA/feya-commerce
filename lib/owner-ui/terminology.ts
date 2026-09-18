@@ -67,6 +67,18 @@ const STATUS_LABELS: Record<string, string> = {
   FAILED: 'Ошибка выполнения',
   APPROVAL_REQUIRED: 'Требуется одобрение',
   SUPERSEDED: 'Заменено новой версией',
+  REVIEW_REQUIRED: 'Нужна проверка',
+  DRAFT: 'Черновик',
+  NOT_STARTED: 'Не начато',
+  NOT_CHECKED: 'Ещё не проверено',
+  READY_FOR_INDEPENDENT_CQA: 'Готово к независимой проверке качества',
+  READY_FOR_HUMAN_AND_CQA_REVIEW: 'Готово к проверке человеком и контролю качества',
+  APPROVED_NEEDS_SIMILARITY_CHECK: 'Одобрено, но нужна проверка сходства',
+  APPROVED_NEEDS_COMPONENT_CLAIM_CHECK: 'Одобрено, но нужна проверка состава',
+  CQA_RECORDED_NEEDS_COMPONENT_CLAIM_CHECK: 'Контроль качества записан, нужна проверка состава',
+  NEEDS_PRECHECKS: 'Нужны предварительные проверки',
+  BLOCKED_BY_VALIDATION: 'Заблокировано проверкой',
+  REVISION_REQUIRED: 'Требуются исправления',
 };
 
 const ATTENTION_TYPE_LABELS: Record<string, string> = {
