@@ -46,6 +46,18 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
+function proposalStatusLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    REVIEW: 'Ждёт проверки',
+    APPROVED: 'Одобрено',
+    APPLIED: 'Применено',
+    REJECTED: 'Отклонено',
+    CANCELLED: 'Отменено',
+  };
+  return labels[key] || asText(value);
+}
+
 function statusClass(value: unknown) {
   const normalized = asText(value, '').toUpperCase();
   if (normalized === 'APPLIED' || normalized === 'APPROVED') return 'ok';
@@ -75,7 +87,7 @@ export default async function AdminClusterProposalsPage() {
 
         <section className="phase-banner">
           <div className="phase-label">OSPM semantic cluster proposals · read-only</div>
-          <h1>Query Cluster Proposals</h1>
+          <h1>Предложения групп запросов</h1>
           <p>
             Only human-approved cleanup keywords may enter this queue. AI proposals remain non-canonical until human review and explicit apply.
           </p>
@@ -97,7 +109,7 @@ export default async function AdminClusterProposalsPage() {
 
         <section className="section-head">
           <div>
-            <h2>Approved keyword queue</h2>
+            <h2>Очередь одобренных ключей</h2>
             <p className="muted">Current human-approved, unclustered keywords not already reserved by an active proposal.</p>
           </div>
         </section>
@@ -106,11 +118,11 @@ export default async function AdminClusterProposalsPage() {
           <table>
             <thead>
               <tr>
-                <th>Keyword</th>
-                <th>Axis / pattern</th>
-                <th>Suggested level</th>
-                <th>Intent</th>
-                <th>Metrics</th>
+                <th>Ключевой запрос</th>
+                <th>Ось / шаблон</th>
+                <th>Предлагаемый уровень</th>
+                <th>Интент</th>
+                <th>Метрики</th>
               </tr>
             </thead>
             <tbody>
@@ -129,7 +141,7 @@ export default async function AdminClusterProposalsPage() {
                   </td>
                 </tr>
               )) : (
-                <tr><td colSpan={5}>No human-approved unclustered keywords are ready yet.</td></tr>
+                <tr><td colSpan={5}>Пока нет одобренных человеком ключей, готовых к новой группировке.</td></tr>
               )}
             </tbody>
           </table>
@@ -137,7 +149,7 @@ export default async function AdminClusterProposalsPage() {
 
         <section className="section-head">
           <div>
-            <h2>Proposal history</h2>
+            <h2>История предложений</h2>
             <p className="muted">Proposal status is separate from canonical query-cluster status.</p>
           </div>
         </section>
@@ -146,12 +158,12 @@ export default async function AdminClusterProposalsPage() {
           <table>
             <thead>
               <tr>
-                <th>Proposal</th>
+                <th>Предложение</th>
                 <th>Intent</th>
-                <th>Members</th>
-                <th>Status</th>
-                <th>Rationale</th>
-                <th>Review</th>
+                <th>Ключей в группе</th>
+                <th>Статус</th>
+                <th>Обоснование</th>
+                <th>Проверка</th>
               </tr>
             </thead>
             <tbody>
@@ -168,7 +180,7 @@ export default async function AdminClusterProposalsPage() {
                   <td>{row.proposed_member_count ?? 0}</td>
                   <td>
                     <span className={`status-pill ${statusClass(row.proposal_status)}`}>
-                      {asText(row.proposal_status)}
+                      {proposalStatusLabel(row.proposal_status)}
                     </span>
                   </td>
                   <td>{asText(row.rationale)}</td>
@@ -180,7 +192,7 @@ export default async function AdminClusterProposalsPage() {
                   </td>
                 </tr>
               )) : (
-                <tr><td colSpan={6}>No query cluster proposals recorded yet.</td></tr>
+                <tr><td colSpan={6}>Предложений групп запросов пока нет.</td></tr>
               )}
             </tbody>
           </table>
