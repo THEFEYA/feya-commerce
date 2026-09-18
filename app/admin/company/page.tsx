@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentOwnerAttention, presentSignal, presentWorkItem, formatRelativeTime } from '@/lib/owner-ui/presenters';
-import { scopeLabel, statusLabel, ownerToneForStatus } from '@/lib/owner-ui/terminology';
+import { scopeLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
