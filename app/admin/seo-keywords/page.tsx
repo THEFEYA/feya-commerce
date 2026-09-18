@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
+import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { SeoKeywordCleanupReportRow } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -14,10 +14,10 @@ const FILTERS = [
 ] as const;
 
 async function getSeoKeywordRows(): Promise<{ rows: SeoKeywordCleanupReportRow[]; totalCount: number | null; error?: string }> {
-  const supabase = getSupabaseReadClient();
+  const supabase = getAdminReadClient();
 
   if (!supabase) {
-    return { rows: [], totalCount: null, error: getMissingSupabaseEnvMessage() };
+    return { rows: [], totalCount: null, error: getMissingAdminDataEnvMessage() };
   }
 
   const { data, error, count } = await supabase
@@ -84,6 +84,7 @@ export default async function AdminSeoKeywordsPage() {
           <div className="nav-links">
             <Link href="/admin/review">Review</Link>
             <Link href="/admin/products">Products</Link>
+            <Link href="/admin/seo-keyword-review">Keyword Review</Link>
             <Link href="/admin/seo-keywords">SEO Keywords</Link>
             <Link href="/shop">Shop</Link>
           </div>

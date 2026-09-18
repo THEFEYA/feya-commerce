@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
 import { getInternalApiAuthStatus } from '@/lib/internalAuth';
+import { recordOpenAiInvocation } from '@/lib/openAiUsage';
 import { getMissingSupabaseServiceRoleEnvMessage, getSupabaseServiceRoleClient } from '@/lib/supabaseAdmin';
 import type { SeoKeywordCleanupReportRow } from '@/lib/types';
 
@@ -96,10 +97,11 @@ function getResponseText(payload: { output_text?: unknown; output?: unknown }) {
     .join('\n');
 }
 
-async function runOpenAiCleanup(rows: SeoKeywordCleanupReportRow[], model: string) {
+async function runOpenAiCleanup(rows: SeoKeywordCleanupReportRow[], model: string, runId: string, dryRun: boolean) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error('OPENAI_API_KEY is not configured.');
 
+  const startedAt = Date.now();
   const response = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: {
@@ -108,6 +110,7 @@ async function runOpenAiCleanup(rows: SeoKeywordCleanupReportRow[], model: strin
     },
     body: JSON.stringify({
       model,
+      store: false,
       input: [
         {
           role: 'system',
@@ -160,11 +163,39 @@ async function runOpenAiCleanup(rows: SeoKeywordCleanupReportRow[], model: strin
     cache: 'no-store',
   });
 
+  const latencyMs = Date.now() - startedAt;
+
   if (!response.ok) {
+    await recordOpenAiInvocation({
+      actionCode: 'RUN_KEYWORD_CLEANUP',
+      domainOwner: 'OSPM',
+      sourceEndpoint: '/api/internal/seo-keyword-cleanup',
+      runId,
+      dryRun,
+      itemCount: rows.length,
+      modelRequested: model,
+      promptVersion: PROMPT_VERSION,
+      httpStatus: response.status,
+      latencyMs,
+      invocationStatus: 'HTTP_ERROR',
+    });
     throw new Error(`OpenAI cleanup request failed with status ${response.status}.`);
   }
 
   const payload = (await response.json()) as { output_text?: unknown; output?: unknown };
+  await recordOpenAiInvocation({
+    actionCode: 'RUN_KEYWORD_CLEANUP',
+    domainOwner: 'OSPM',
+    sourceEndpoint: '/api/internal/seo-keyword-cleanup',
+    runId,
+    dryRun,
+    itemCount: rows.length,
+    modelRequested: model,
+    promptVersion: PROMPT_VERSION,
+    httpStatus: response.status,
+    latencyMs,
+    payload,
+  });
   const responseText = getResponseText(payload);
   const parsed = extractJsonPayload(responseText);
   return { parsed, raw: parsed };
@@ -212,7 +243,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { parsed, raw } = await runOpenAiCleanup(rows, model);
+    const { parsed, raw } = await runOpenAiCleanup(rows, model, runId, dryRun);
     const results = (parsed.results || []).map((result, index) => normalizeResult(result, rows[index] || {}));
 
     let insertedCount = 0;

@@ -4,7 +4,6 @@ import { getInternalApiAuthStatus } from '@/lib/internalAuth';
 export const dynamic = 'force-dynamic';
 
 const REQUIRED_ENV_KEYS = [
-  'GOOGLE_ADS_DEVELOPER_TOKEN',
   'GOOGLE_ADS_CLIENT_ID',
   'GOOGLE_ADS_CLIENT_SECRET',
   'GOOGLE_ADS_REFRESH_TOKEN',
@@ -13,7 +12,14 @@ const REQUIRED_ENV_KEYS = [
   'FEYA_INTERNAL_API_TOKEN',
 ] as const;
 
+const OPTIONAL_ENV_KEYS = [
+  'GOOGLE_ADS_API_VERSION',
+] as const;
+
+const DEFAULT_GOOGLE_ADS_API_VERSION = 'v25';
+
 type RequiredEnvKey = (typeof REQUIRED_ENV_KEYS)[number];
+type OptionalEnvKey = (typeof OPTIONAL_ENV_KEYS)[number];
 
 type OAuthCheckResult = {
   ok: boolean;
@@ -38,6 +44,13 @@ function getPresentEnv() {
 
 function getMissingEnv(presentEnv: Record<RequiredEnvKey, boolean>) {
   return REQUIRED_ENV_KEYS.filter((key) => !presentEnv[key]);
+}
+
+function getOptionalEnv() {
+  return OPTIONAL_ENV_KEYS.reduce<Record<OptionalEnvKey, boolean>>((present, key) => {
+    present[key] = Boolean(process.env[key]);
+    return present;
+  }, {} as Record<OptionalEnvKey, boolean>);
 }
 
 function sanitizeCustomerId(customerId: string | undefined) {
@@ -109,28 +122,23 @@ async function runOAuthCheck(): Promise<OAuthCheckResult> {
 }
 
 async function runGoogleAdsApiCheck(accessToken?: string): Promise<GoogleAdsApiCheckResult> {
-  const developerToken = process.env.GOOGLE_ADS_DEVELOPER_TOKEN;
   const loginCustomerId = sanitizeCustomerId(process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID);
+  const apiVersion = process.env.GOOGLE_ADS_API_VERSION || DEFAULT_GOOGLE_ADS_API_VERSION;
 
   if (!accessToken) {
     return { ok: false, status: null, errorType: null, safeErrorMessage: 'No OAuth access token was available for Google Ads API check.' };
   }
 
-  if (!developerToken) {
-    return { ok: false, status: null, errorType: null, safeErrorMessage: 'GOOGLE_ADS_DEVELOPER_TOKEN is not configured.' };
-  }
-
   try {
     const headers: Record<string, string> = {
       Authorization: `Bearer ${accessToken}`,
-      'developer-token': developerToken,
     };
 
     if (loginCustomerId) {
       headers['login-customer-id'] = loginCustomerId;
     }
 
-    const response = await fetch('https://googleads.googleapis.com/v24/customers:listAccessibleCustomers', {
+    const response = await fetch(`https://googleads.googleapis.com/${apiVersion}/customers:listAccessibleCustomers`, {
       method: 'GET',
       headers,
       cache: 'no-store',
@@ -161,6 +169,7 @@ export async function GET(request: NextRequest) {
   }
 
   const presentEnv = getPresentEnv();
+  const optionalEnv = getOptionalEnv();
   const missingEnv = getMissingEnv(presentEnv);
   const envOk = missingEnv.length === 0;
   const oauthCheck = await runOAuthCheck();
@@ -174,6 +183,11 @@ export async function GET(request: NextRequest) {
     google_ads_api_ok: googleAdsApiCheck.ok,
     missing_env: missingEnv,
     present_env: presentEnv,
+    optional_env: optionalEnv,
+    access_model: 'google_cloud_project_oauth',
+    google_ads_api_version: process.env.GOOGLE_ADS_API_VERSION || DEFAULT_GOOGLE_ADS_API_VERSION,
+    developer_token_sunset: '2026-09-09',
+    developer_token_header_sent: false,
     access_token_received: oauthCheck.accessTokenReceived,
     google_ads_api_status: googleAdsApiCheck.status,
     google_ads_api_error_type: googleAdsApiCheck.errorType,

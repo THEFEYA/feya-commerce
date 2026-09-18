@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
+import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { AdminCatalogRow } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -8,10 +8,10 @@ export const revalidate = 0;
 const PHASE_B_ADMIN_PRODUCTS_LIMIT = 350;
 
 async function getProducts(): Promise<{ rows: AdminCatalogRow[]; error?: string }> {
-  const supabase = getSupabaseReadClient();
+  const supabase = getAdminReadClient();
 
   if (!supabase) {
-    return { rows: [], error: getMissingSupabaseEnvMessage() };
+    return { rows: [], error: getMissingAdminDataEnvMessage() };
   }
 
   const { data, error } = await supabase
@@ -76,6 +76,7 @@ export default async function AdminProductsPage() {
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
             <Link href="/admin/review">Review</Link>
+            <Link href="/admin/product-facts-review">Product Facts</Link>
             <Link href="/admin/seo-keywords">SEO Keywords</Link>
             <Link href="/shop">Shop</Link>
           </div>
@@ -135,7 +136,7 @@ export default async function AdminProductsPage() {
 
                 return (
                   <tr key={row.canonical_product_id}>
-                    <td>{getTitle(row)}</td>
+                    <td><Link href={`/admin/products/${row.canonical_product_id}`}>{getTitle(row)}</Link></td>
                     <td>{asText(row.matched_etsy_listing_id || row.etsy_listing_id)}</td>
                     <td>
                       <span className={`status-pill ${getStatusClass(readiness)}`}>{readiness}</span>
