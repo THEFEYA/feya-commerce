@@ -73,43 +73,43 @@ export default async function AdminProductFactsReviewPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/products">Products</Link>
-            <Link href="/admin/review">Review</Link>
-            <Link href="/admin/content-qa">Content QA</Link>
+            <Link href="/admin/products">Товары</Link>
+            <Link href="/admin/review">Проверка</Link>
+            <Link href="/admin/content-qa">Качество контента</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Product Truth · human review queue</div>
-          <h1>Product Fact Review</h1>
+          <div className="phase-label">Факты о товаре · очередь проверки</div>
+          <h1>Проверка фактов о товарах</h1>
           <p>
-            These are upstream Product Truth ambiguities. Resolve the product fact or mapping first; do not rewrite SEO content to hide a truth blocker.
+            Здесь собраны неоднозначности в исходных фактах о товаре. Сначала нужно исправить или подтвердить факт, а не переписывать SEO-текст, чтобы скрыть проблему.
           </p>
         </section>
 
         <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Pending fact reviews</span></div>
-          <div className="card metric"><strong>{partUnresolved}</strong><span>Part unresolved</span></div>
-          <div className="card metric"><strong>{colorUnresolved}</strong><span>Color unresolved</span></div>
-          <div className="card metric"><strong>{materialUnresolved}</strong><span>Material unresolved</span></div>
-          <div className="card metric"><strong>{guardrails}</strong><span>Guardrail present</span></div>
+          <div className="card metric"><strong>{rows.length}</strong><span>Ожидают проверки</span></div>
+          <div className="card metric"><strong>{partUnresolved}</strong><span>Не определена часть товара</span></div>
+          <div className="card metric"><strong>{colorUnresolved}</strong><span>Не определён цвет</span></div>
+          <div className="card metric"><strong>{materialUnresolved}</strong><span>Не определён материал</span></div>
+          <div className="card metric"><strong>{guardrails}</strong><span>Есть защитное ограничение</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
         <div className="notice" style={{ marginBottom: '18px' }}>
-          Read-only. Product Builder is the evidence surface; write/resolution actions remain disabled until protected admin auth and controlled editing are enabled.
+          Только просмотр. Product Builder используется как источник данных; изменение фактов останется выключенным до защищённого входа и контролируемого редактирования.
         </div>
 
         <div className="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Priority</th>
-                <th>Product</th>
-                <th>Issue codes</th>
-                <th>Current facts</th>
-                <th>Resolution</th>
+                <th>Приоритет</th>
+                <th>Товар</th>
+                <th>Причины проверки</th>
+                <th>Текущие факты</th>
+                <th>Решение</th>
               </tr>
             </thead>
             <tbody>
@@ -132,13 +132,13 @@ export default async function AdminProductFactsReviewPage() {
                       {codes.length ? codes.join(', ') : '—'}
                     </td>
                     <td>
-                      <div>Part: {asText(row.final_primary_part)}</div>
-                      <div>Type: {asText(row.final_product_type)}</div>
-                      <div>Material: {asText(row.final_material_primary)}</div>
-                      <div>Color: {asText(row.final_color_primary)}</div>
+                      <div>Часть товара: {asText(row.final_primary_part)}</div>
+                      <div>Тип: {asText(row.final_product_type)}</div>
+                      <div>Материал: {asText(row.final_material_primary)}</div>
+                      <div>Цвет: {asText(row.final_color_primary)}</div>
                     </td>
                     <td>
-                      <span className="status-pill warning">{asText(row.resolution_status, 'unresolved')}</span>
+                      <span className="status-pill warning">{row.resolution_status === 'resolved' ? 'Решено' : 'Не решено'}</span>
                     </td>
                   </tr>
                 );
@@ -148,7 +148,7 @@ export default async function AdminProductFactsReviewPage() {
         </div>
 
         {!error && rows.length === 0 ? (
-          <div className="notice">No pending Product Truth fact reviews.</div>
+          <div className="notice">Нет фактов о товарах, ожидающих проверки.</div>
         ) : null}
       </div>
     </main>
