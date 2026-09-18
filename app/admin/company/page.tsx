@@ -156,7 +156,6 @@ export default async function AdminHomePage() {
     .map(presentSignal);
 
   const workVM = work.map(presentWorkItem);
-  const operationalQueueCount = operations.productFacts + operations.keywordReview + operations.cqaActionable;
   const blockedScopes = readiness.filter((row) => String(row.scope_status || '').toUpperCase() === 'BLOCKED');
   const totalBlockers = readiness.reduce((sum, row) => sum + Number(row.blocking_count || 0), 0);
 
