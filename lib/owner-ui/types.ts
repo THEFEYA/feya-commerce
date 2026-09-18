@@ -50,6 +50,7 @@ export type RoleStatusVM = {
   statusLabel: string;
   tone: 'neutral' | 'info' | 'success' | 'warning' | 'danger';
   autonomyLabel: string;
+  summary: string;
   blockedCapabilityCount: number;
   availableCapabilityCount: number;
   requiredCapabilityCount: number;
