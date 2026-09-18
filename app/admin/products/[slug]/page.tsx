@@ -8,7 +8,8 @@ import {
   CANONICAL_PRODUCT_TRUTH_VIEW,
   getCanonicalComponentTruthDiagnostic,
 } from '@/lib/adminComponentTruth';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
+import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
+import { getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_V4_PDP_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
 
@@ -24,8 +25,8 @@ function isCanonicalProductId(value: string) {
 }
 
 async function getCatalogFallbackProduct(slug: string): Promise<{ product: StorefrontProduct | null; error?: string }> {
-  const supabase = getSupabaseReadClient();
-  if (!supabase) return { product: null, error: getMissingSupabaseEnvMessage() };
+  const supabase = getAdminReadClient();
+  if (!supabase) return { product: null, error: getMissingAdminDataEnvMessage() };
 
   const { data, error } = await supabase
     .from(ADMIN_PRODUCT_CATALOG_FALLBACK_VIEW)
@@ -38,8 +39,8 @@ async function getCatalogFallbackProduct(slug: string): Promise<{ product: Store
 }
 
 async function getBuilderProduct(slug: string): Promise<{ product: StorefrontProduct | null; error?: string }> {
-  const supabase = getSupabaseReadClient();
-  if (!supabase) return { product: null, error: getMissingSupabaseEnvMessage() };
+  const supabase = getAdminReadClient();
+  if (!supabase) return { product: null, error: getMissingAdminDataEnvMessage() };
 
   const { data, error } = await supabase
     .from(ADMIN_PRODUCT_BUILDER_DETAIL_VIEW)
@@ -53,8 +54,8 @@ async function getBuilderProduct(slug: string): Promise<{ product: StorefrontPro
 }
 
 async function getProduct(slug: string): Promise<{ product: StorefrontProduct | null; error?: string }> {
-  const supabase = getSupabaseReadClient();
-  if (!supabase) return { product: null, error: getMissingSupabaseEnvMessage() };
+  const supabase = getAdminReadClient();
+  if (!supabase) return { product: null, error: getMissingAdminDataEnvMessage() };
 
   if (isCanonicalProductId(slug)) {
     return getBuilderProduct(slug);
@@ -74,7 +75,7 @@ async function getProduct(slug: string): Promise<{ product: StorefrontProduct | 
 
 async function getComponentTruth(canonicalProductId?: string | null) {
   if (!canonicalProductId) return getCanonicalComponentTruthDiagnostic(null);
-  const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
+  const supabase = getSupabaseServiceClient() || getAdminReadClient() || getSupabaseReadClient();
   if (!supabase) return getCanonicalComponentTruthDiagnostic(null);
   const { data, error } = await supabase
     .from(CANONICAL_PRODUCT_TRUTH_VIEW)
