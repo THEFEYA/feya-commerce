@@ -1,6 +1,6 @@
 // @ts-nocheck
 import Link from 'next/link';
-import { ArrowUpRight, Boxes, CheckCircle2, ImageIcon, Search, Tags, WalletCards } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { AdminProductsFilterClient } from '@/components/AdminProductsFilterClient';
 import type { AdminProductTableRow, ReadinessTone, ReviewChip } from '@/lib/admin-readiness';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
@@ -196,17 +196,6 @@ async function getProducts(): Promise<{ rows: AdminProductTableRow[]; sourceRows
   };
 }
 
-function Metric({ label, value, note, icon: Icon }) {
-  return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
-    <div className="flex items-center justify-between gap-4 mb-4">
-      <div className="eyebrow-dim">{label}</div>
-      <Icon size={16} className="text-[var(--gold-warm)]" />
-    </div>
-    <div className="font-price text-gold-grad text-[38px] leading-none">{value}</div>
-    <div className="mt-4 text-[12px] leading-relaxed text-[var(--bone-dim)]">{note}</div>
-  </div>;
-}
-
 export default async function AdminProductsPage() {
   const { rows, sourceRows, error } = await getProducts();
 
@@ -221,32 +210,63 @@ export default async function AdminProductsPage() {
     return acc;
   }, { configs: 0, label: 0, price: 0, media: 0, ready: 0, blocked: 0 });
 
-  return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.12),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
-    <section className="container-feya pt-10 pb-16">
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
+  const needsReview = Math.max(0, rows.length - totals.ready - totals.blocked);
+
+  return <main className="owner-page">
+    <div className="owner-page-inner">
+      <header className="owner-page-head">
         <div>
-          <div className="eyebrow-gold mb-3">Админка · Контроль товаров</div>
-          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Товары</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Интерактивная таблица полного внутреннего каталога: готовность товара, цена, компоненты, медиа и события проверки.</p>
+          <div className="owner-eyebrow">Каталог и готовность</div>
+          <h1>Товары</h1>
+          <p>
+            Весь внутренний каталог в одном месте: что готово, что требует проверки и куда перейти для работы с конкретным товаром.
+          </p>
         </div>
-        <div className="flex gap-3">
-          <Link href="/admin" className="btn-ghost">Панель управления <ArrowUpRight size={13} /></Link>
-          <Link href="/shop" className="btn-ghost">Витрина <ArrowUpRight size={13} /></Link>
+        <div className="owner-actions" style={{ marginTop: 0 }}>
+          <Link href="/admin/listing-master" className="owner-button primary">Мастер листинга</Link>
+          <Link href="/shop" className="owner-button">Витрина <ArrowUpRight size={13} /></Link>
         </div>
-      </div>
+      </header>
 
-      {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
+      {error ? (
+        <div className="owner-card is-danger" style={{ marginBottom: '18px' }}>
+          <div className="owner-status is-danger">Ошибка данных</div>
+          <p className="owner-card-copy">{error}</p>
+        </div>
+      ) : null}
 
-      <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
-        <Metric icon={Search} label="Товары" value={rows.length} note="Текущий внутренний каталог товаров." />
-        <Metric icon={Boxes} label="Опции" value={totals.configs} note="Публичные продаваемые варианты." />
-        <Metric icon={Tags} label="Названия" value={totals.label} note="Требуют проверки названий." />
-        <Metric icon={WalletCards} label="Цены" value={totals.price} note="Цены с неподтверждённым статусом." />
-        <Metric icon={ImageIcon} label="Медиа" value={totals.media} note="Нет главного публичного изображения." />
-        <Metric icon={CheckCircle2} label="Готово" value={totals.ready} note={`Заблокировано: ${totals.blocked}`} />
-      </div>
+      <section className="owner-section" style={{ marginTop: 0 }}>
+        <div className="owner-summary-strip">
+          <div className="owner-summary-cell">
+            <strong>{rows.length}</strong>
+            <span>Товаров в каталоге</span>
+          </div>
+          <div className="owner-summary-cell">
+            <strong>{needsReview}</strong>
+            <span>Требуют проверки</span>
+          </div>
+          <div className="owner-summary-cell">
+            <strong>{totals.blocked}</strong>
+            <span>Заблокировано</span>
+          </div>
+          <div className="owner-summary-cell">
+            <strong>{totals.ready}</strong>
+            <span>Готово для витрины</span>
+          </div>
+        </div>
+      </section>
 
-      <AdminProductsFilterClient rows={rows} />
-    </section>
+      <section className="owner-section">
+        <div className="owner-section-head">
+          <div>
+            <h2>Каталог</h2>
+            <div className="owner-section-kicker">
+              Поиск, фильтр и сортировка работают только с отображением и ничего не меняют в Product Truth.
+            </div>
+          </div>
+        </div>
+        <AdminProductsFilterClient rows={rows} />
+      </section>
+    </div>
   </main>;
 }
