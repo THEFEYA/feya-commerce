@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { getInternalApiAuthStatus } from '@/lib/internalAuth';
+import { recordOpenAiInvocation } from '@/lib/openAiUsage';
 import { getMissingSupabaseServiceRoleEnvMessage, getSupabaseServiceRoleClient } from '@/lib/supabaseAdmin';
 
 export const dynamic = 'force-dynamic';
@@ -133,10 +134,11 @@ function compactReviewRow(row: UnknownRecord) {
   };
 }
 
-async function runOpenAiReview(rows: UnknownRecord[], model: string) {
+async function runOpenAiReview(rows: UnknownRecord[], model: string, runId: string, dryRun: boolean) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error('OPENAI_API_KEY is not configured.');
 
+  const startedAt = Date.now();
   const response = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: {
@@ -145,6 +147,7 @@ async function runOpenAiReview(rows: UnknownRecord[], model: string) {
     },
     body: JSON.stringify({
       model,
+      store: false,
       input: [
         {
           role: 'system',
@@ -190,11 +193,39 @@ async function runOpenAiReview(rows: UnknownRecord[], model: string) {
     cache: 'no-store',
   });
 
+  const latencyMs = Date.now() - startedAt;
+
   if (!response.ok) {
+    await recordOpenAiInvocation({
+      actionCode: 'RUN_KEYWORD_CLEANUP_REVIEW',
+      domainOwner: 'OSPM',
+      sourceEndpoint: '/api/internal/seo-keyword-review',
+      runId,
+      dryRun,
+      itemCount: rows.length,
+      modelRequested: model,
+      promptVersion: PROMPT_VERSION,
+      httpStatus: response.status,
+      latencyMs,
+      invocationStatus: 'HTTP_ERROR',
+    });
     throw new Error(`OpenAI keyword review request failed with status ${response.status}.`);
   }
 
   const payload = (await response.json()) as { output_text?: unknown; output?: unknown };
+  await recordOpenAiInvocation({
+    actionCode: 'RUN_KEYWORD_CLEANUP_REVIEW',
+    domainOwner: 'OSPM',
+    sourceEndpoint: '/api/internal/seo-keyword-review',
+    runId,
+    dryRun,
+    itemCount: rows.length,
+    modelRequested: model,
+    promptVersion: PROMPT_VERSION,
+    httpStatus: response.status,
+    latencyMs,
+    payload,
+  });
   return extractJsonPayload(getResponseText(payload));
 }
 
@@ -254,7 +285,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const parsed = await runOpenAiReview(selected, model);
+    const parsed = await runOpenAiReview(selected, model, runId, dryRun);
     const rawResults = Array.isArray(parsed.results) ? parsed.results : [];
 
     const resultByCleanup = new Map<number, unknown>();
