@@ -931,3 +931,75 @@ Rollback validation:
 - after passing prechecks, new draft state became READY_FOR_HUMAN_AND_CQA_REVIEW;
 - cqa_status remained not_run;
 - test drafts/events after rollback = 0.
+
+
+### Action Capability / Metric Registry
+STATUS: IMPLEMENTED
+
+Applied Supabase migrations:
+- 20260918085545 — feya_growth_registry_safe_views_v2
+- 20260918085636 — feya_metric_registry_foundation_v1
+
+Action Capability Map now distinguishes:
+- dry-run agent-assisted actions;
+- human-required actions;
+- unavailable production actions;
+- executor type;
+- approval class;
+- production-mutation boundary.
+
+Current action states:
+- AVAILABLE_WITH_LIMITATIONS = 6
+- UNAVAILABLE = 3
+
+Examples intentionally unavailable:
+- PUBLISH_CONTENT
+- CHANGE_PRICE
+- UPDATE_CANONICAL
+
+Metric Registry:
+- AVAILABLE = 5
+- AVAILABLE_WITH_LIMITATIONS = 1
+- UNAVAILABLE = 8
+
+Current operational values:
+- SEO_PAGE_CANDIDATE_COUNT = 243
+- QUERY_CLUSTER_READY_KEYWORD_COUNT = 0
+- CONTENT_BRIEF_SHADOW_READY_COUNT = 133
+- CONTENT_BRIEF_CANONICAL_READY_COUNT = 0
+- CQA_READY_FOR_INDEPENDENT_COUNT = 16
+
+Future GSC/GA4/Commerce metrics exist as definitions but remain UNAVAILABLE until their source systems exist.
+
+Admin:
+- /admin/metrics
+- /admin/execution-map
+
+### GMEL Measurement Spec Foundation
+STATUS: SPEC/LOCK IMPLEMENTED / MEASUREMENT ENGINE UNAVAILABLE
+
+Applied Supabase migration:
+- 20260918085854 — feya_measurement_spec_registry_v1
+
+Implemented:
+- versioned Measurement Spec;
+- measurement intent/mode/evidence ceiling;
+- primary/guardrail/secondary/diagnostic metric roles;
+- baseline/comparison/minimum useful effect;
+- sample/stopping/window/segment/contamination/confounder fields;
+- SHA-256 Measurement Spec Lock;
+- trigger blocking material changes after lock;
+- outcome registry foundation.
+
+Rollback validation:
+- lock created hash;
+- material primary-metric mutation after lock was rejected;
+- lifecycle LOCKED -> RUNNING remained allowed;
+- test spec rows after rollback = 0.
+
+Capability state:
+- MEASUREMENT_SPEC_REGISTRY = AVAILABLE_WITH_LIMITATIONS
+- MEASUREMENT_ENGINE = UNAVAILABLE
+
+Reason:
+GA4/GSC/Commerce analytical datasets are not active yet. Growth OS does not fabricate outcomes.
