@@ -436,8 +436,8 @@ Rollback validation:
 20260918104927 — feya_admin_data_boundary_registry_v2  
 20260918105052 — feya_admin_data_boundary_registry_v3
 - replaced the earlier fixed 24-view hardening list with registry-backed governed admin-view registration
-- current registered admin read surfaces = 38
-- current browser-readable = 38 because hardening is intentionally NOT executed before admin auth/allowlist verification
+- current registered admin read surfaces = 40
+- current browser-readable = 40 because hardening is intentionally NOT executed before admin auth/allowlist verification
 - hardening now refuses empty/missing registry state instead of claiming partial success
 
 ### AI runtime cost discipline
@@ -515,7 +515,7 @@ Rollback validation:
 - sanitized read-only Product Fact review queue added for the admin cockpit
 - excludes the raw fact_snapshot_json evidence payload from the browser-safe projection
 - registered with the registry-backed Admin Data Boundary
-- governed admin read surfaces = 39; all 39 remain browser-readable only because protected admin auth/hardening is intentionally not activated yet
+- governed admin read surfaces = 40; all 40 remain browser-readable only because protected admin auth/hardening is intentionally not activated yet
 - /admin/product-facts-review links directly to the existing Product Builder evidence surface; no write/resolution action is enabled
 
 
