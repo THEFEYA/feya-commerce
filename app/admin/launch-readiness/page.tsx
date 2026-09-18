@@ -15,11 +15,11 @@ async function getReadiness(): Promise<{
 
   const [summaryResult, gateResult] = await Promise.all([
     supabase
-      .from('feya_commerce_v_launch_readiness_summary_safe_v1')
+      .from('feya_commerce_v_launch_readiness_summary_safe_v2')
       .select('*')
       .order('readiness_scope', { ascending: true }),
     supabase
-      .from('feya_commerce_v_launch_readiness_safe_v1')
+      .from('feya_commerce_v_launch_readiness_safe_v2')
       .select('*')
       .order('readiness_scope', { ascending: true })
       .order('gate_code', { ascending: true }),
