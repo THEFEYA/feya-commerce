@@ -284,3 +284,63 @@ Current preview:
 - authenticated-readable = 24
 
 Storefront/public commerce API views are not included in the hardening allowlist.
+
+
+### Pre-launch Signals / Case Admission / Objectives / Handoffs
+
+20260918090958 — feya_prelaunch_signal_engine_v1
+- deterministic pre-launch signal candidates
+- launch blockers, domain work queues and degraded capabilities
+- no automatic Growth Case creation
+
+20260918091138 — feya_case_admission_preview_v1
+- classifies signals as CASE_CANDIDATE / OWNER_ATTENTION / WORK_QUEUE / DEFER / MONITOR
+
+20260918091338 — feya_explicit_signal_admission_rpc_v1
+- explicit service-role admission into Growth Case or Owner Attention
+- blocks promotion of DEFER / MONITOR / WORK_QUEUE into cases
+- idempotent/deduplicated
+
+20260918091455 — feya_growth_case_status_transition_rpc_v1
+- guarded case lifecycle transitions
+- expected current status + ownership epoch
+- transition graph + idempotent events
+
+20260918091704 — feya_growth_objective_registry_v1
+- versioned Growth Objective + objective events
+- structured feasibility
+- activation requires FEASIBLE/PARTIAL and human user id
+
+20260918091813 — feya_objective_aware_signal_engine_v2
+- deferred Commerce/Measurement signals thaw only when matching human-activated objective exists
+
+20260918091909 — feya_signal_admission_objective_aware_v2
+- signal admission primitive switched to objective-aware admission preview
+
+20260918092031 — feya_growth_handoff_registry_v1
+- durable structured handoffs
+- ownership epoch guard
+- duplicate suppression
+- per-case handoff budget
+- unchanged reverse-loop detection
+- stale result protection
+
+20260918092401 — feya_handoff_schema_validation_v1
+- simple required-field/type output contract validator
+- schema-incompatible COMPLETED result is rejected
+- compatible result can complete
+- top-level simple JSON types only by design
+
+Rollback validation:
+- Signal admission case idempotency PASS
+- Owner Attention admission dedup PASS
+- DEFER promotion guard PASS
+- Case lifecycle stale status guard PASS
+- Objective human-only activation PASS
+- Objective-aware thawing PASS
+- Handoff duplicate suppression PASS
+- Handoff budget PASS
+- Reverse-loop detection PASS
+- stale handoff result PASS
+- handoff schema incompatibility guard PASS
+- all test rows cleaned by ROLLBACK
