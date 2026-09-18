@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import OwnerShell from '@/components/admin/OwnerShell';
+import AdminCompanySwitch from '@/components/admin/AdminCompanySwitch';
 
 export const metadata: Metadata = {
-  title: 'FEYA — Центр управления',
+  title: 'Admin',
   robots: {
     index: false,
     follow: false,
@@ -11,5 +11,10 @@ export const metadata: Metadata = {
 };
 
 export default function AdminLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <OwnerShell>{children}</OwnerShell>;
+  return (
+    <>
+      {children}
+      <AdminCompanySwitch />
+    </>
+  );
 }
