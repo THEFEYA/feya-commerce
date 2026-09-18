@@ -1,172 +1,119 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
-import type { CaseAdmissionPreviewRow, GrowthSignalCandidateRow } from '@/lib/types';
+import { presentSignal } from '@/lib/owner-ui/presenters';
+import { admissionLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-async function getSignals(): Promise<{
-  rows: GrowthSignalCandidateRow[];
-  admissionByFingerprint: Map<string, CaseAdmissionPreviewRow>;
-  error?: string;
-}> {
+type Row = Record<string, unknown>;
+
+async function getSignals(): Promise<{ rows: Row[]; error?: string }> {
   const supabase = getAdminReadClient();
-  if (!supabase) {
-    return { rows: [], admissionByFingerprint: new Map(), error: getMissingAdminDataEnvMessage() };
-  }
+  if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
 
-  const [signalsResult, admissionResult] = await Promise.all([
-    supabase
-      .from('feya_commerce_v_growth_signal_candidates_safe_v2')
-      .select('*')
-      .order('priority', { ascending: true })
-      .order('materiality_score', { ascending: false })
-      .order('signal_code', { ascending: true }),
-    supabase
-      .from('feya_commerce_v_case_admission_preview_safe_v2')
-      .select('signal_fingerprint,signal_code,existing_case_id,existing_case_code,existing_case_status,admission_decision,admission_reason'),
-  ]);
+  const { data, error } = await supabase
+    .from('feya_commerce_v_growth_signal_candidates_safe_v2')
+    .select('signal_fingerprint,signal_code,title,summary,next_action,priority,accountable_domain,signal_state,case_admission_recommendation,materiality_score')
+    .order('priority', { ascending: true })
+    .order('materiality_score', { ascending: false })
+    .order('signal_code', { ascending: true });
 
-  if (signalsResult.error) {
-    return { rows: [], admissionByFingerprint: new Map(), error: signalsResult.error.message };
-  }
-  if (admissionResult.error) {
-    return { rows: [], admissionByFingerprint: new Map(), error: admissionResult.error.message };
-  }
-
-  const admissionRows = (admissionResult.data || []) as CaseAdmissionPreviewRow[];
-  return {
-    rows: (signalsResult.data || []) as GrowthSignalCandidateRow[],
-    admissionByFingerprint: new Map(admissionRows.map((row) => [row.signal_fingerprint, row])),
-  };
+  if (error) return { rows: [], error: error.message };
+  return { rows: (data || []) as Row[] };
 }
 
-function asText(value: unknown, fallback = '—') {
-  if (value == null || value === '') return fallback;
-  return String(value);
+function toneClass(tone: string) {
+  return tone === 'danger'
+    ? 'is-danger'
+    : tone === 'warning'
+      ? 'is-warning'
+      : tone === 'success'
+        ? 'is-success'
+        : tone === 'info'
+          ? 'is-info'
+          : '';
 }
 
-function priorityClass(value: unknown) {
-  const priority = asText(value, '').toUpperCase();
-  if (priority === 'P0' || priority === 'P1') return 'danger';
-  if (priority === 'P2') return 'warning';
-  return 'ok';
-}
-
-function stateClass(value: unknown) {
-  const state = asText(value, '').toUpperCase();
-  if (state === 'BLOCKED' || state === 'DEGRADED' || state === 'UNAVAILABLE') return 'danger';
-  if (state === 'WARN' || state === 'OPEN') return 'warning';
-  return 'ok';
+function routingOrder(value: unknown) {
+  const key = String(value || '');
+  if (key === 'OWNER_DECISION_REQUIRED') return 0;
+  if (key === 'WORK_QUEUE') return 1;
+  if (key === 'IMPLEMENTATION_ACTION') return 2;
+  if (key === 'MONITOR') return 3;
+  return 4;
 }
 
 export default async function AdminSignalsPage() {
-  const { rows, admissionByFingerprint, error } = await getSignals();
+  const { rows, error } = await getSignals();
+  const prepared = rows
+    .sort((a, b) => routingOrder(a.case_admission_recommendation) - routingOrder(b.case_admission_recommendation))
+    .map((row) => ({
+      row,
+      vm: presentSignal(row),
+      routing: admissionLabel(row.case_admission_recommendation),
+    }));
 
-  const p1 = rows.filter((row) => row.priority === 'P1').length;
-  const p2 = rows.filter((row) => row.priority === 'P2').length;
-  const ownerDecisions = rows.filter((row) => row.case_admission_recommendation === 'OWNER_DECISION_REQUIRED').length;
-  const workQueue = rows.filter((row) => row.case_admission_recommendation === 'WORK_QUEUE').length;
-  const implementation = rows.filter((row) => row.case_admission_recommendation === 'IMPLEMENTATION_ACTION').length;
+  const ownerCount = rows.filter((row) => row.case_admission_recommendation === 'OWNER_DECISION_REQUIRED').length;
+  const workCount = rows.filter((row) => row.case_admission_recommendation === 'WORK_QUEUE').length;
+  const implementationCount = rows.filter((row) => row.case_admission_recommendation === 'IMPLEMENTATION_ACTION').length;
 
   return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
-          <div className="nav-links">
-            <Link href="/admin/signals">Signals</Link>
-            <Link href="/admin/owner-attention">Owner Attention</Link>
-            <Link href="/admin/launch-readiness">Launch Readiness</Link>
-            <Link href="/admin/system-readiness">System Readiness</Link>
-            <Link href="/admin/execution-map">Execution Map</Link>
+    <main className="owner-page">
+      <div className="owner-page-inner">
+        <header className="owner-page-head">
+          <div>
+            <div className="owner-eyebrow">Наблюдение</div>
+            <h1>Сигналы</h1>
+            <p>
+              Система показывает понятную бизнес-интерпретацию. Внутренние коды и техническая маршрутизация доступны отдельно.
+            </p>
           </div>
-        </nav>
+          <Link href="/admin/advanced/signals" className="owner-button">Технические детали</Link>
+        </header>
 
-        <section className="phase-banner">
-          <div className="phase-label">Signal & Eligibility Engine · pre-launch</div>
-          <h1>Growth Signals</h1>
-          <p>
-            Deterministic candidates only. No signal creates a Growth Case automatically in the current PRE_LAUNCH maturity state.
-          </p>
+        <section className="owner-summary-strip" style={{ marginBottom: '24px' }}>
+          <div className="owner-summary-cell"><strong>{rows.length}</strong><span>Всего активных сигналов</span></div>
+          <div className="owner-summary-cell"><strong>{ownerCount}</strong><span>Нужно ваше решение</span></div>
+          <div className="owner-summary-cell"><strong>{workCount}</strong><span>Можно передать в работу</span></div>
+          <div className="owner-summary-cell"><strong>{implementationCount}</strong><span>Требуется изменение системы</span></div>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Signal candidates</span></div>
-          <div className="card metric"><strong>{p1}</strong><span>P1</span></div>
-          <div className="card metric"><strong>{p2}</strong><span>P2</span></div>
-          <div className="card metric"><strong>{ownerDecisions}</strong><span>Owner decisions</span></div>
-          <div className="card metric"><strong>{workQueue}</strong><span>Work queue</span></div>
-          <div className="card metric"><strong>{implementation}</strong><span>Implementation actions</span></div>
+        {error ? (
+          <div className="owner-card is-danger">
+            <div className="owner-status is-danger">Ошибка данных</div>
+            <p className="owner-card-copy">{error}</p>
+          </div>
+        ) : null}
+
+        <section className="owner-list">
+          {prepared.map(({ row, vm, routing }) => (
+            <article className="owner-card" key={vm.id}>
+              <div className="owner-card-meta">
+                <span className={`owner-status ${toneClass(vm.tone)}`}>{vm.priorityLabel}</span>
+                <span>{routing}</span>
+                <span>{vm.ownerLabel}</span>
+                <span>{vm.statusLabel}</span>
+              </div>
+              <h2 className="owner-card-title">{vm.title}</h2>
+              <p className="owner-card-copy"><strong>Что произошло:</strong> {vm.summary}</p>
+              <p className="owner-card-copy"><strong>FEYA предлагает:</strong> {vm.recommendedAction}</p>
+              <div className="owner-actions">
+                {row.case_admission_recommendation === 'OWNER_DECISION_REQUIRED' ? (
+                  <Link href="/admin/owner-attention" className="owner-button primary">Рассмотреть решение</Link>
+                ) : row.case_admission_recommendation === 'WORK_QUEUE' ? (
+                  <Link href="/admin/work" className="owner-button">Открыть работу</Link>
+                ) : (
+                  <Link href="/admin/system" className="owner-button">Посмотреть состояние</Link>
+                )}
+              </div>
+            </article>
+          ))}
         </section>
 
-        {error ? <div className="notice">{error}</div> : null}
-
-        <div className="notice" style={{ marginBottom: '18px' }}>
-          Commerce and measurement capabilities that are intentionally absent in PRE_LAUNCH are marked DEFER_UNTIL_ACTIVE_OBJECTIVE instead of generating noisy cases.
-        </div>
-
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Priority</th>
-                <th>Signal</th>
-                <th>Owner</th>
-                <th>State</th>
-                <th>Admission</th>
-                <th>Case admission preview</th>
-                <th>Evidence</th>
-                <th>Next action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.signal_fingerprint}>
-                  <td>
-                    <span className={`status-pill ${priorityClass(row.priority)}`}>
-                      {asText(row.priority)}
-                    </span>
-                    <div className="muted">{asText(row.materiality_score)}</div>
-                  </td>
-                  <td>
-                    <strong>{asText(row.title, row.signal_code)}</strong>
-                    <div className="muted">{row.signal_code}</div>
-                    <div className="badge-row">
-                      <span className="badge">{asText(row.signal_type)}</span>
-                      <span className="badge">{asText(row.signal_scope)}</span>
-                    </div>
-                  </td>
-                  <td>{asText(row.accountable_domain)}</td>
-                  <td>
-                    <span className={`status-pill ${stateClass(row.signal_state)}`}>
-                      {asText(row.signal_state)}
-                    </span>
-                  </td>
-                  <td>{asText(row.case_admission_recommendation)}</td>
-                  <td>
-                    {(() => {
-                      const admission = admissionByFingerprint.get(row.signal_fingerprint);
-                      return (
-                        <>
-                          <strong>{asText(admission?.admission_decision)}</strong>
-                          <div className="muted">{asText(admission?.admission_reason)}</div>
-                          {admission?.existing_case_code ? (
-                            <div className="badge-row">
-                              <span className="badge">{admission.existing_case_code}</span>
-                            </div>
-                          ) : null}
-                        </>
-                      );
-                    })()}
-                  </td>
-                  <td>{asText(row.summary)}</td>
-                  <td>{asText(row.next_action)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {!error && prepared.length === 0 ? (
+          <div className="owner-empty">Сейчас активных сигналов нет.</div>
+        ) : null}
       </div>
     </main>
   );
