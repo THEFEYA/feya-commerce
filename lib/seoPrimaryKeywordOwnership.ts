@@ -236,7 +236,6 @@ export function resolveSeoPrimaryOwnershipWithCurrentSelections(
   );
   const primaryNorm = strategy.keyword_ownership.primary_keyword_norm || '';
   let peerStateUnavailable = false;
-  let approvedPeerOwner = false;
   let approvedPeerOwnerProductId: string | null = null;
   const conflicts = strategy.keyword_ownership.conflicts.map((conflict) => {
     const current = peerById.get(conflict.canonical_product_id);
@@ -251,7 +250,6 @@ export function resolveSeoPrimaryOwnershipWithCurrentSelections(
     const approvedDraftError = clean(current?.approved_draft_error) || null;
     if (!current || currentError || approvedDraftError) peerStateUnavailable = true;
     if (approvedDraftId && approvedPrimaryKeywordNorm === primaryNorm) {
-      approvedPeerOwner = true;
       approvedPeerOwnerProductId ||= conflict.canonical_product_id;
     }
     return {
