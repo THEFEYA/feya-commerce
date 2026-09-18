@@ -42,41 +42,41 @@ export default async function AdminIncidentsPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/incidents">Incidents</Link>
-            <Link href="/admin/signals">Signals</Link>
-            <Link href="/admin/execution-map">Execution Map</Link>
+            <Link href="/admin/incidents">Инциденты</Link>
+            <Link href="/admin/signals">Сигналы</Link>
+            <Link href="/admin/execution-map">Права действий</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Incident Mode / Change Freeze · read-only</div>
-          <h1>Incidents</h1>
+          <div className="phase-label">Инциденты и заморозка изменений · только просмотр</div>
+          <h1>Инциденты</h1>
           <p>
-            Active P0/P1 incidents can freeze configured mutation domains. Root-cause deduplication prevents one sitewide failure from spawning hundreds of separate incident objects.
+            Активные инциденты P0/P1 могут замораживать изменяющие действия в затронутых областях. Одинаковая первопричина объединяется, чтобы одна общая проблема не превращалась в сотни отдельных инцидентов.
           </p>
         </section>
 
         <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Active incidents</span></div>
-          <div className="card metric"><strong>{freezes}</strong><span>Active mutation freezes</span></div>
+          <div className="card metric"><strong>{rows.length}</strong><span>Активных инцидентов</span></div>
+          <div className="card metric"><strong>{freezes}</strong><span>Активных заморозок изменений</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
         {!rows.length ? (
-          <div className="notice">No active incidents or mutation freezes.</div>
+          <div className="notice">Активных инцидентов и заморозок изменений нет.</div>
         ) : (
           <div className="table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>Severity</th>
-                  <th>Incident</th>
-                  <th>Status</th>
-                  <th>Freeze</th>
-                  <th>Root cause</th>
-                  <th>Scope</th>
-                  <th>Started</th>
+                  <th>Важность</th>
+                  <th>Инцидент</th>
+                  <th>Статус</th>
+                  <th>Заморозка</th>
+                  <th>Первопричина</th>
+                  <th>Область</th>
+                  <th>Начало</th>
                 </tr>
               </thead>
               <tbody>
@@ -96,11 +96,11 @@ export default async function AdminIncidentsPage() {
                     <td>
                       {row.freeze_mutations ? (
                         <>
-                          <span className="status-pill danger">FROZEN</span>
+                          <span className="status-pill danger">ИЗМЕНЕНИЯ ЗАМОРОЖЕНЫ</span>
                           <div className="muted">{asText(row.freeze_domains_json)}</div>
                         </>
                       ) : (
-                        <span className="badge">no freeze</span>
+                        <span className="badge">без заморозки</span>
                       )}
                     </td>
                     <td>{asText(row.root_cause_key)}</td>
