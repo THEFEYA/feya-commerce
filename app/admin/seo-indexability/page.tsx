@@ -41,6 +41,23 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
+function indexabilityLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    READY_FOR_INDEXABILITY_REVIEW: 'Готово к проверке индексации',
+    NEEDS_PRIMARY_OWNERSHIP: 'Нужна основная группа запросов',
+    NEEDS_PUBLISH_READY_CONTENT: 'Нужен готовый к публикации контент',
+    NOT_ELIGIBLE: 'Не допускается к индексации',
+    INDEXABLE: 'Можно индексировать',
+    NOINDEX: 'Не индексировать',
+    REVIEW: 'Ждёт проверки',
+    APPROVED: 'Одобрено',
+    APPLIED: 'Применено',
+    REJECTED: 'Отклонено',
+  };
+  return labels[key] || asText(value);
+}
+
 function statusClass(value: unknown) {
   const normalized = asText(value, '').toUpperCase();
   if (normalized === 'READY_FOR_INDEXABILITY_REVIEW' || normalized === 'APPLIED' || normalized === 'INDEXABLE') return 'ok';
@@ -71,7 +88,7 @@ export default async function AdminIndexabilityPage() {
 
         <section className="phase-banner">
           <div className="phase-label">Indexable Page Eligibility Gate · read-only</div>
-          <h1>Page Indexability</h1>
+          <h1>Допуск страниц к индексации</h1>
           <p>
             Page ownership does not imply indexability. Product pages require primary query ownership and ready-for-publish content before an INDEXABLE_PRODUCT decision can be applied.
           </p>
@@ -94,7 +111,7 @@ export default async function AdminIndexabilityPage() {
 
         <section className="section-head">
           <div>
-            <h2>Readiness</h2>
+            <h2>Готовность</h2>
             <p className="muted">Indexation intent remains candidate until a separate reviewed proposal is applied.</p>
           </div>
         </section>
@@ -103,12 +120,12 @@ export default async function AdminIndexabilityPage() {
           <table>
             <thead>
               <tr>
-                <th>Page</th>
-                <th>Type</th>
-                <th>Ownership</th>
-                <th>Publish-ready content</th>
-                <th>Intent</th>
-                <th>Readiness</th>
+                <th>Страница</th>
+                <th>Тип</th>
+                <th>Ответственность</th>
+                <th>Готовый контент</th>
+                <th>Намерение</th>
+                <th>Готовность</th>
               </tr>
             </thead>
             <tbody>
@@ -130,12 +147,12 @@ export default async function AdminIndexabilityPage() {
                   <td>{row.ready_for_publish_count || 0}</td>
                   <td>
                     <span className={`status-pill ${statusClass(row.indexation_intent)}`}>
-                      {asText(row.indexation_intent)}
+                      {indexabilityLabel(row.indexation_intent)}
                     </span>
                   </td>
                   <td>
                     <span className={`status-pill ${statusClass(row.indexability_readiness_status)}`}>
-                      {asText(row.indexability_readiness_status)}
+                      {indexabilityLabel(row.indexability_readiness_status)}
                     </span>
                   </td>
                 </tr>
@@ -146,7 +163,7 @@ export default async function AdminIndexabilityPage() {
 
         <section className="section-head">
           <div>
-            <h2>Eligibility proposal history</h2>
+            <h2>История предложений допуска</h2>
             <p className="muted">Human review/apply is required for every canonical indexation-intent change.</p>
           </div>
         </section>
@@ -156,11 +173,11 @@ export default async function AdminIndexabilityPage() {
             <thead>
               <tr>
                 <th>Page</th>
-                <th>Decision</th>
-                <th>Status</th>
-                <th>Rationale</th>
-                <th>Review</th>
-                <th>Applied intent</th>
+                <th>Решение</th>
+                <th>Статус</th>
+                <th>Обоснование</th>
+                <th>Проверка</th>
+                <th>Применённое намерение</th>
               </tr>
             </thead>
             <tbody>
@@ -170,18 +187,18 @@ export default async function AdminIndexabilityPage() {
                     <strong>{asText(row.card_title, row.url_path || '—')}</strong>
                     <div className="muted">{asText(row.url_path)}</div>
                   </td>
-                  <td>{asText(row.decision)}</td>
+                  <td>{indexabilityLabel(row.decision)}</td>
                   <td>
                     <span className={`status-pill ${statusClass(row.proposal_status)}`}>
-                      {asText(row.proposal_status)}
+                      {indexabilityLabel(row.proposal_status)}
                     </span>
                   </td>
                   <td>{asText(row.rationale)}</td>
                   <td>{asText(row.review_note)}</td>
-                  <td>{asText(row.applied_indexation_intent)}</td>
+                  <td>{indexabilityLabel(row.applied_indexation_intent)}</td>
                 </tr>
               )) : (
-                <tr><td colSpan={6}>No indexability proposals recorded yet.</td></tr>
+                <tr><td colSpan={6}>Предложений по индексации пока нет.</td></tr>
               )}
             </tbody>
           </table>
