@@ -19,6 +19,7 @@ const CAPABILITY_CODES = [
 type GrowthData = {
   capabilities: Row[];
   sourceHealth: Row[];
+  historicalDemand: Row[];
   keywordPending: number;
   seoPages: number;
   clusterProposals: number;
@@ -34,6 +35,7 @@ async function getGrowthData(): Promise<GrowthData> {
     return {
       capabilities: [],
       sourceHealth: [],
+      historicalDemand: [],
       keywordPending: 0,
       seoPages: 0,
       clusterProposals: 0,
@@ -47,6 +49,7 @@ async function getGrowthData(): Promise<GrowthData> {
   const [
     capabilitiesResult,
     sourceHealthResult,
+    historicalDemandResult,
     keywordResult,
     pagesResult,
     clusterProposalResult,
@@ -62,6 +65,13 @@ async function getGrowthData(): Promise<GrowthData> {
       .from('feya_commerce_v_data_source_health_latest_safe_v1')
       .select('source_code,health_state,freshness_state,last_success_at,checked_at')
       .in('source_code', ['EXTERNAL_KEYWORD_DEMAND', 'ORGANIC_SEARCH_PERFORMANCE']),
+    supabase
+      .from('vw_seo_keyword_bank_v1_for_listing_master')
+      .select('keyword,avg_monthly_searches,competition,competition_index,region,language,metric_source,last_checked,review_status,bank_bucket')
+      .not('avg_monthly_searches', 'is', null)
+      .eq('review_status', 'approved_draft')
+      .order('avg_monthly_searches', { ascending: false })
+      .limit(8),
     supabase
       .from('feya_commerce_v_keyword_cleanup_review_status_safe_v1')
       .select('cleanup_id', { count: 'exact', head: true })
@@ -88,6 +98,7 @@ async function getGrowthData(): Promise<GrowthData> {
   const firstError =
     capabilitiesResult.error ||
     sourceHealthResult.error ||
+    historicalDemandResult.error ||
     keywordResult.error ||
     pagesResult.error ||
     clusterProposalResult.error ||
@@ -98,6 +109,7 @@ async function getGrowthData(): Promise<GrowthData> {
   return {
     capabilities: (capabilitiesResult.data || []) as Row[],
     sourceHealth: (sourceHealthResult.data || []) as Row[],
+    historicalDemand: (historicalDemandResult.data || []) as Row[],
     keywordPending: keywordResult.count || 0,
     seoPages: pagesResult.count || 0,
     clusterProposals: clusterProposalResult.count || 0,
@@ -131,6 +143,7 @@ export default async function AdminGrowthPage() {
   const launchState = String(map.get('SEARCH_LAUNCH_GATE')?.capability_state || 'UNAVAILABLE');
   const adsHealth = healthMap.get('EXTERNAL_KEYWORD_DEMAND');
   const gscHealth = healthMap.get('ORGANIC_SEARCH_PERFORMANCE');
+  const maxHistoricalDemand = Math.max(1, ...data.historicalDemand.map((row) => Number(row.avg_monthly_searches || 0)));
 
   const sourceStamp = (row: Row | undefined) => {
     if (!row) return 'Источник ещё не проверен';
@@ -237,6 +250,55 @@ export default async function AdminGrowthPage() {
               </p>
             </Link>
           </div>
+        </section>
+
+        <section className="owner-section">
+          <div className="owner-section-head">
+            <div>
+              <h2>Исторический спрос</h2>
+              <div className="owner-section-kicker">Реальные сохранённые метрики Google Keyword Planner · не live-данные</div>
+            </div>
+            <Link href="/admin/seo-engine/metric-import/validate" className="owner-button">Открыть метрики</Link>
+          </div>
+
+          {data.historicalDemand.length ? (
+            <div className="owner-card">
+              <div className="owner-card-meta">
+                <span className="owner-status is-warning">Исторические данные</span>
+                <span>{sourceStamp(adsHealth)}</span>
+              </div>
+              <div className="owner-demand-table">
+                <div className="owner-demand-head">
+                  <span>Ключевой запрос</span>
+                  <span>Средний спрос / мес.</span>
+                  <span>Google Ads</span>
+                  <span>Проверено</span>
+                </div>
+                {data.historicalDemand.map((row, index) => {
+                  const volume = Number(row.avg_monthly_searches || 0);
+                  const width = Math.max(4, Math.round((volume / maxHistoricalDemand) * 100));
+                  const competition = String(row.competition || 'UNKNOWN').toUpperCase();
+                  return (
+                    <div className="owner-demand-row" key={`${String(row.keyword)}-${index}`}>
+                      <div className="owner-demand-keyword">
+                        <strong>{String(row.keyword || '—')}</strong>
+                        <span>{String(row.region || '—')} · {String(row.language || '—')} · {String(row.bank_bucket || '—')}</span>
+                        <i style={{ width: `${width}%` }} aria-hidden="true" />
+                      </div>
+                      <div className="owner-demand-number">{new Intl.NumberFormat('ru-RU').format(volume)}</div>
+                      <div>
+                        <span className="owner-status">{competition === 'HIGH' ? 'Высокая' : competition === 'MEDIUM' ? 'Средняя' : competition === 'LOW' ? 'Низкая' : 'Нет данных'}</span>
+                        <small className="owner-demand-note">конкуренция рекламодателей, не SEO-сложность</small>
+                      </div>
+                      <div className="owner-demand-date">{row.last_checked ? new Date(String(row.last_checked)).toLocaleDateString('ru-RU') : '—'}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <div className="owner-empty">Сохранённых метрик спроса пока нет.</div>
+          )}
         </section>
 
         <section className="owner-section">
