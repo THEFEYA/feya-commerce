@@ -664,3 +664,76 @@ After each localization wave:
 
 A concrete issue was caught during this wave:
 translated commercial-review labels were initially being used as logic keys. This was corrected by introducing stable internal classification codes and keeping Russian labels display-only.
+
+
+## 14. Owner Growth / Results / System real-state checkpoint — 2026-09-18
+
+The Company Control Center now reflects real internal operating state instead of placeholder concepts.
+
+### Growth
+
+Owner-facing Growth now shows the actual search-readiness sequence:
+
+1. keyword review queue;
+2. query-cluster proposals;
+3. page/query ownership;
+4. indexability readiness.
+
+Current verified state from safe views at implementation time:
+- 431 keyword cleanup/review rows pending;
+- 243 SEO portfolio pages;
+- 0 query-cluster proposals;
+- 0 page-ownership proposals;
+- 0 pages with a primary query owner;
+- 0 pages ready for indexation.
+
+This is intentionally presented as a dependency chain, not as failure cards.
+Zero values on later stages are expected until earlier stages are completed.
+
+The Growth page also continues to state Google Ads / Search Console limitations instead of inventing charts.
+
+### Results
+
+Results now reads real registries:
+- experiment registry;
+- change-event registry;
+- learning registry.
+
+Current verified state:
+- 0 experiments;
+- 0 active experiments;
+- 0 change events;
+- 0 reusable learnings.
+
+The UI explains that zero is correct before measured changes exist. It does not fabricate “AI progress”, uplift, revenue, conversion or learning.
+
+### System
+
+System now combines:
+- launch/readiness scopes;
+- source health/freshness;
+- action capability map;
+- execution request count;
+- active incidents and mutation freezes.
+
+Current verified execution state:
+- 54 registered action capabilities;
+- 0 actions currently AVAILABLE;
+- 48 action definitions require an approval class;
+- 0 real Execution Gateway requests;
+- 0 active incidents;
+- 0 mutation freezes.
+
+This makes the authority boundary explicit: FEYA may analyze and prepare decisions, but it must not pretend to have executed external mutations.
+
+### Company Work / Today
+
+Real Product OS queues remain visible in Company Work and Today even when there are no Growth Cases.
+
+This resolves the false implication that “0 Growth Cases” means “0 work”.
+
+### Phase interpretation
+
+UX-3 and UX-4 now have useful owner-facing v1 projections over existing safe data.
+This does not mean protected write actions are enabled.
+UX-5 remains blocked on verified owner authentication, audited mutation paths and unauthorized-access tests.
