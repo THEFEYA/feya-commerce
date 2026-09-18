@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Boxes, CheckCircle2, ClipboardList, FileImage, FileSearch, FileText, GitBranch, Home, ImageIcon, Layers3, ListChecks, ListTree, PackageSearch, Rocket, Scale, ShieldCheck, Tags, Upload, WalletCards } from 'lucide-react';
+import { BarChart3, Boxes, CheckCircle2, ClipboardList, FileImage, FileSearch, FileText, GitBranch, Home, ImageIcon, Layers3, ListChecks, ListTree, Network, PackageSearch, Rocket, Scale, ShieldCheck, Tags, Upload, WalletCards } from 'lucide-react';
 
 const NAV = [
   { href: '/admin', label: 'Обзор', note: 'Панель контроля', icon: Home },
+  { href: '/admin/company', label: 'Компания и AI-команда', note: 'сигналы, задачи, агенты и результаты', icon: Network },
   { href: '/admin/products', label: 'Товары', note: 'Таблица v4-каталога', icon: PackageSearch },
   { href: '/admin/launch', label: 'Запуск', note: 'готово / заблокировано', icon: Rocket },
   { href: '/admin/indexation', label: 'Индексация', note: 'готовность к поиску', icon: FileSearch },
