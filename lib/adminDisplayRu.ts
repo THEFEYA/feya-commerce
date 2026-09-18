@@ -123,3 +123,17 @@ export function mediaSeoNoteLabel(value: unknown) {
   };
   return map[key] || key;
 }
+
+
+export function seoScoreStageLabel(value: unknown) {
+  const key = String(value || '').trim();
+  const map: Record<string, string> = {
+    Blocked: 'Заблокировано',
+    'Needs Content': 'Нужно доработать контент',
+    'Needs Media': 'Нужно подготовить медиа',
+    'Needs SEO Work': 'Нужна SEO-доработка',
+    'Ready for Draft': 'Готово к черновику',
+    'Ready for Review': 'Готово к проверке',
+  };
+  return map[key] || key || 'Не определено';
+}
