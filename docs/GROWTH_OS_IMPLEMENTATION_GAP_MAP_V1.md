@@ -781,3 +781,53 @@ Current allowed implementation scope:
 purchase/refund events remain prohibited until real commerce order/refund authority exists.
 
 CPIM and GMEL production modes remain inactive until first-party production data exists.
+
+
+### G5 — SCO / CQA Shadow Mode
+STATUS: RUNNER IMPLEMENTED / FIRST LIVE DRY-RUN PENDING
+
+Existing system reused:
+- feya_commerce_seo_pack_drafts_v1
+- feya_commerce_seo_pack_draft_events_v1
+- feya_commerce_v_seo_pack_review_queue_v1
+
+Observed active state:
+- active drafts = 130
+- openai_draft = 129
+- human approved = 71
+- ready_for_publish = 0
+- independent CQA run count = 0
+
+Applied Supabase migrations:
+- 20260918081718 — feya_seo_pack_independent_cqa_gate_v1
+- 20260918081947 — feya_seo_pack_cqa_event_type_v1
+- 20260918082014 — feya_record_independent_cqa_result_rpc_v1
+
+Independent CQA shadow classification:
+- APPROVED_NEEDS_SIMILARITY_CHECK = 55
+- READY_FOR_HUMAN_AND_CQA_REVIEW = 47
+- READY_FOR_INDEPENDENT_CQA = 16
+- NEEDS_PRECHECKS = 9
+- REVISION_REQUIRED = 2
+- BLOCKED_BY_VALIDATION = 1
+
+Implemented:
+- cqa_status/result/reviewer/policy/time fields;
+- strengthened ready_for_publish database guard;
+- cqa_checked audit event;
+- atomic CQA result recorder with stale-state protection;
+- rollback-only recorder validation PASS;
+- /admin/content-qa safe read-only cockpit;
+- /api/internal/content-qa independent runner;
+- runner protected by FEYA_INTERNAL_API_TOKEN;
+- dryRun=true by default;
+- max batch = 5;
+- compact independent review context;
+- author agent input/reasoning excluded from CQA context;
+- CI PASS;
+- Vercel PASS.
+
+Still intentionally blocked:
+- no auto-publish;
+- no strategy/keyword/page ownership mutations from CQA;
+- no live CQA persistence before first authenticated dry-run is inspected.
