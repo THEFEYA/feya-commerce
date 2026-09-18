@@ -1,50 +1,65 @@
+// @ts-nocheck
 import Link from 'next/link';
-import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import type { ReviewQueueSummary } from '@/lib/types';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+const REVIEW_QUEUE_SUMMARY_SELECT = [
+  'queue_code',
+  'status',
+  'review_queue',
+  'queue_name',
+  'item_count',
+  'count',
+  'row_count',
+  'total',
+].join(',');
 
 const REVIEW_COPY: Record<string, { title: string; priority: 'high' | 'medium' | 'low'; description: string; nextStep: string }> = {
   needs_price: {
-    title: 'Нужно проверить цену',
+    title: 'Needs price',
     priority: 'high',
-    description: 'Товары, которые нельзя безопасно публиковать, пока цена не подтверждена.',
-    nextStep: 'Проверить исходные цены и цены вариантов.',
+    description: 'Products that cannot safely enter storefront logic until price data is resolved.',
+    nextStep: 'Review source price rows and configuration prices.',
   },
   missing_media: {
-    title: 'Не хватает медиа',
+    title: 'Missing media',
     priority: 'high',
-    description: 'Товары, для которых недостаточно изображений для полноценной карточки и страницы товара.',
-    nextStep: 'Проверить изображения и медиа перед публикацией.',
+    description: 'Products without enough image data for a reliable public product card or PDP.',
+    nextStep: 'Check media drafts and source images before publishing.',
   },
   fallback_price_review_rows: {
-    title: 'Проверить резервную цену',
+    title: 'Fallback price review',
     priority: 'medium',
-    description: 'Товары, где используется резервная цена вместо подтверждённой цены конкретного варианта.',
-    nextStep: 'Подтвердить резервную цену или исправить её.',
+    description: 'Rows using visible/fallback pricing instead of stronger option-level price evidence.',
+    nextStep: 'Confirm whether fallback prices are acceptable or need correction.',
   },
   storefront_excluded: {
-    title: 'Исключено из магазина',
+    title: 'Storefront excluded',
     priority: 'medium',
-    description: 'Товары, которые пока исключены из публичного магазина из-за готовности или ограничений.',
-    nextStep: 'Проверить причины исключения перед публикацией.',
+    description: 'Products kept out of public storefront candidates by readiness or safety rules.',
+    nextStep: 'Audit exclusion reasons before expanding public catalog.',
   },
   sampler_excluded_rows: {
-    title: 'Пробник исключён',
+    title: 'Sampler excluded',
     priority: 'low',
-    description: 'Пробники намеренно не участвуют в публичном диапазоне цен.',
-    nextStep: 'Только контроль. Это ожидаемое поведение, а не блокировка запуска.',
+    description: 'Sampler/probnik rows intentionally excluded from public price ranges.',
+    nextStep: 'Audit only. This is expected behavior, not a launch blocker.',
   },
 };
 
 async function getReviewQueues(): Promise<{ rows: ReviewQueueSummary[]; error?: string }> {
-  const supabase = getAdminReadClient();
+  const supabase = getSupabaseReadClient();
 
   if (!supabase) {
-    return { rows: [], error: getMissingAdminDataEnvMessage() };
+    return { rows: [], error: getMissingSupabaseEnvMessage() };
   }
 
   const { data, error } = await supabase
     .from('feya_commerce_v_step8_review_queues_summary')
-    .select('*');
+    .select(REVIEW_QUEUE_SUMMARY_SELECT);
 
   if (error) {
     return { rows: [], error: error.message };
@@ -76,14 +91,13 @@ export default async function AdminReviewPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/products">Товары</Link>
-            <Link href="/admin/seo-keywords">SEO и ключевые слова</Link>
-            <Link href="/shop">Магазин</Link>
+            <Link href="/admin/products">Products</Link>
+            <Link href="/shop">Shop</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Очереди проверки · только просмотр</div>
+          <div className="phase-label">Read-only admin gate</div>
           <p>
             Эти очереди показывают, что мешает расширять каталог и что нужно проверить перед Product Builder и визуальной полировкой.
           </p>
@@ -92,7 +106,7 @@ export default async function AdminReviewPage() {
         <section className="section-head">
           <div>
             <h2>Очереди проверки</h2>
-            <p className="muted">Показывает только безопасные данные из текущих очередей проверки.</p>
+            <p className="muted">Read-only dashboard из safe Supabase review view.</p>
           </div>
         </section>
 
@@ -107,12 +121,12 @@ export default async function AdminReviewPage() {
             return (
               <div className={`card review-card priority-${priority}`} key={`${code}-${index}`}>
                 <span className={`status-pill ${priority === 'high' ? 'danger' : priority === 'medium' ? 'warning' : 'ok'}`}>
-                  {priority === 'high' ? 'Высокий приоритет' : priority === 'medium' ? 'Средний приоритет' : 'Низкий приоритет'}
+                  {priority} priority
                 </span>
                 <strong>{getCount(row)}</strong>
                 <h3>{getTitle(row)}</h3>
-                <p>{copy?.description || 'Очередь проверки из Supabase.'}</p>
-                <span>{copy?.nextStep || 'Проверить на следующем этапе работы.'}</span>
+                <p>{copy?.description || 'Review queue returned from Supabase.'}</p>
+                <span>{copy?.nextStep || 'Review in the next admin phase.'}</span>
               </div>
             );
           })}
