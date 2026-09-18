@@ -32,6 +32,21 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
+function clusterStatusLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    READY_FOR_SEMANTIC_CLUSTERING: 'Готово к смысловой группировке',
+    NEEDS_CLEANUP_REVIEW: 'Нужна проверка очистки',
+    NEEDS_CLEANUP: 'Нужна очистка',
+    WAIT_FOR_METRICS: 'Ждём метрики',
+    HOLD: 'Отложено',
+    ALREADY_CLUSTERED: 'Уже сгруппировано',
+    PENDING: 'Ожидает проверки',
+    MISSING: 'Нет результата очистки',
+  };
+  return labels[key] || asText(value);
+}
+
 function getStatusClass(value: unknown) {
   const normalized = asText(value, '').toUpperCase();
   if (normalized.includes('READY') || normalized.includes('CLUSTERED')) return 'ok';
@@ -59,37 +74,37 @@ export default async function AdminSeoClustersPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/products">Products</Link>
-            <Link href="/admin/seo-keywords">SEO Keywords</Link>
-            <Link href="/admin/seo-portfolio">SEO Portfolio</Link>
-            <Link href="/admin/seo-clusters">Cluster Queue</Link>
-            <Link href="/admin/seo-cluster-proposals">Cluster Proposals</Link>
-            <Link href="/admin/review">Review</Link>
+            <Link href="/admin/products">Товары</Link>
+            <Link href="/admin/seo-keywords">SEO-ключи</Link>
+            <Link href="/admin/seo-portfolio">SEO-страницы</Link>
+            <Link href="/admin/seo-clusters">Группы запросов</Link>
+            <Link href="/admin/seo-cluster-proposals">Предложения групп</Link>
+            <Link href="/admin/review">Проверка</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">OSPM semantic clustering gate · read-only</div>
+          <div className="phase-label">Смысловая группировка запросов · только просмотр</div>
           <h1>Очередь группировки запросов</h1>
           <p>
-            This queue does not create query clusters. It shows whether each canonical keyword has enough reviewed semantic and metric evidence to enter clustering.
+            Эта очередь не создаёт группы запросов автоматически. Она показывает, достаточно ли по каждому каноническому ключу проверенных смысловых и метрических данных, чтобы перейти к группировке.
           </p>
         </section>
 
         <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Active keywords loaded</span></div>
-          <div className="card metric"><strong>{ready}</strong><span>Ready for semantic clustering</span></div>
-          <div className="card metric"><strong>{cleanupReview}</strong><span>Need cleanup review</span></div>
-          <div className="card metric"><strong>{cleanup}</strong><span>Need cleanup</span></div>
+          <div className="card metric"><strong>{rows.length}</strong><span>Активных ключей загружено</span></div>
+          <div className="card metric"><strong>{ready}</strong><span>Готовы к смысловой группировке</span></div>
+          <div className="card metric"><strong>{cleanupReview}</strong><span>Нужна проверка очистки</span></div>
+          <div className="card metric"><strong>{cleanup}</strong><span>Нужна очистка</span></div>
           <div className="card metric"><strong>{metrics}</strong><span>Ждут метрик</span></div>
           <div className="card metric"><strong>{clustered}</strong><span>Уже сгруппировано</span></div>
-          <div className="card metric"><strong>{hold}</strong><span>Hold</span></div>
+          <div className="card metric"><strong>{hold}</strong><span>Отложено</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
         <div className="notice" style={{ marginBottom: '18px' }}>
-          Axis and pattern are evidence dimensions only. They are not treated as query clusters. A cluster becomes canonical only after semantic review and explicit approval.
+          Ось и шаблон — только признаки для анализа, а не готовые группы запросов. Группа становится канонической только после смысловой проверки и явного одобрения.
         </div>
 
         <div className="table-wrap">
@@ -111,7 +126,7 @@ export default async function AdminSeoClustersPage() {
                   <td>
                     <strong>{asText(row.semantic_keyword_candidate || row.source_keyword)}</strong>
                     {row.semantic_keyword_candidate && row.semantic_keyword_candidate !== row.source_keyword ? (
-                      <div className="muted">source: {asText(row.source_keyword)}</div>
+                      <div className="muted">исходный: {asText(row.source_keyword)}</div>
                     ) : null}
                     <div className="badge-row">
                       <span className="badge">{asText(row.suggested_page_level)}</span>
@@ -138,7 +153,7 @@ export default async function AdminSeoClustersPage() {
                     <span className={`status-pill ${getStatusClass(row.cluster_queue_status)}`}>
                       {clusterStatusLabel(row.cluster_queue_status)}
                     </span>
-                    {row.cluster_membership_count ? <div className="muted">{row.cluster_membership_count} memberships</div> : null}
+                    {row.cluster_membership_count ? <div className="muted">{row.cluster_membership_count} групп</div> : null}
                   </td>
                 </tr>
               ))}
