@@ -16,57 +16,109 @@ const CAPABILITY_CODES = [
   'SEARCH_LAUNCH_GATE',
 ];
 
-async function getCapabilities(): Promise<{ rows: Row[]; error?: string }> {
+type GrowthData = {
+  capabilities: Row[];
+  keywordPending: number;
+  seoPages: number;
+  clusterProposals: number;
+  ownershipProposals: number;
+  pagesWithPrimaryOwner: number;
+  indexabilityReady: number;
+  error?: string;
+};
+
+async function getGrowthData(): Promise<GrowthData> {
   const supabase = getAdminReadClient();
-  if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
+  if (!supabase) {
+    return {
+      capabilities: [],
+      keywordPending: 0,
+      seoPages: 0,
+      clusterProposals: 0,
+      ownershipProposals: 0,
+      pagesWithPrimaryOwner: 0,
+      indexabilityReady: 0,
+      error: getMissingAdminDataEnvMessage(),
+    };
+  }
 
-  const { data, error } = await supabase
-    .from('feya_commerce_v_growth_capability_status_safe_v1')
-    .select('capability_code,capability_state,limitations_summary,updated_at')
-    .in('capability_code', CAPABILITY_CODES);
+  const [
+    capabilitiesResult,
+    keywordResult,
+    pagesResult,
+    clusterProposalResult,
+    ownershipProposalResult,
+    primaryOwnerResult,
+    indexabilityResult,
+  ] = await Promise.all([
+    supabase
+      .from('feya_commerce_v_growth_capability_status_safe_v1')
+      .select('capability_code,capability_state,limitations_summary,updated_at')
+      .in('capability_code', CAPABILITY_CODES),
+    supabase
+      .from('feya_commerce_v_keyword_cleanup_review_status_safe_v1')
+      .select('cleanup_id', { count: 'exact', head: true })
+      .eq('review_status', 'pending'),
+    supabase
+      .from('feya_commerce_v_seo_page_portfolio_safe_v1')
+      .select('seo_page_id', { count: 'exact', head: true }),
+    supabase
+      .from('feya_commerce_v_query_cluster_proposals_safe_v1')
+      .select('proposal_id', { count: 'exact', head: true }),
+    supabase
+      .from('feya_commerce_v_page_ownership_proposals_safe_v1')
+      .select('proposal_id', { count: 'exact', head: true }),
+    supabase
+      .from('feya_commerce_v_seo_page_portfolio_safe_v1')
+      .select('seo_page_id', { count: 'exact', head: true })
+      .gt('primary_ownership_count', 0),
+    supabase
+      .from('feya_commerce_v_page_indexability_readiness_v1')
+      .select('seo_page_id', { count: 'exact', head: true })
+      .eq('indexability_readiness_status', 'READY'),
+  ]);
 
-  if (error) return { rows: [], error: error.message };
-  return { rows: (data || []) as Row[] };
+  const firstError =
+    capabilitiesResult.error ||
+    keywordResult.error ||
+    pagesResult.error ||
+    clusterProposalResult.error ||
+    ownershipProposalResult.error ||
+    primaryOwnerResult.error ||
+    indexabilityResult.error;
+
+  return {
+    capabilities: (capabilitiesResult.data || []) as Row[],
+    keywordPending: keywordResult.count || 0,
+    seoPages: pagesResult.count || 0,
+    clusterProposals: clusterProposalResult.count || 0,
+    ownershipProposals: ownershipProposalResult.count || 0,
+    pagesWithPrimaryOwner: primaryOwnerResult.count || 0,
+    indexabilityReady: indexabilityResult.count || 0,
+    ...(firstError ? { error: firstError.message } : {}),
+  };
 }
 
 function toneClass(tone: string) {
-  return tone === 'danger' ? 'is-danger' : tone === 'warning' ? 'is-warning' : tone === 'success' ? 'is-success' : tone === 'info' ? 'is-info' : '';
+  return tone === 'danger'
+    ? 'is-danger'
+    : tone === 'warning'
+      ? 'is-warning'
+      : tone === 'success'
+        ? 'is-success'
+        : tone === 'info'
+          ? 'is-info'
+          : '';
 }
 
 export default async function AdminGrowthPage() {
-  const { rows, error } = await getCapabilities();
-  const map = new Map(rows.map((row) => [String(row.capability_code), row]));
+  const data = await getGrowthData();
+  const map = new Map(data.capabilities.map((row) => [String(row.capability_code), row]));
 
-  const areas = [
-    {
-      title: 'Возможности',
-      description: 'Сигналы и идеи роста, которые подтверждены данными и достаточно важны, чтобы их исследовать.',
-      href: '/admin/opportunities',
-      capability: 'SIGNAL_ENGINE',
-      state: 'AVAILABLE_WITH_LIMITATIONS',
-    },
-    {
-      title: 'Спрос',
-      description: 'Ключевые слова, группы запросов и внешний спрос. Живые данные Google Ads пока ограничены.',
-      href: '/admin/seo-keywords',
-      capability: 'GOOGLE_ADS_KEYWORD_METRICS',
-      state: String(map.get('GOOGLE_ADS_KEYWORD_METRICS')?.capability_state || 'UNAVAILABLE'),
-    },
-    {
-      title: 'Страницы',
-      description: 'Какая страница за какие запросы отвечает, готова ли она к индексации и нет ли конфликтов.',
-      href: '/admin/seo-portfolio',
-      capability: 'SEO_PAGE_PORTFOLIO',
-      state: String(map.get('SEO_PAGE_PORTFOLIO')?.capability_state || 'UNAVAILABLE'),
-    },
-    {
-      title: 'Техническое SEO',
-      description: 'Техническая готовность поиска. Глобальная индексация пока намеренно выключена.',
-      href: '/admin/seo-indexability',
-      capability: 'SEARCH_LAUNCH_GATE',
-      state: String(map.get('SEARCH_LAUNCH_GATE')?.capability_state || 'UNAVAILABLE'),
-    },
-  ];
+  const adsState = String(map.get('GOOGLE_ADS_KEYWORD_METRICS')?.capability_state || 'UNAVAILABLE');
+  const gscState = String(map.get('GSC_BULK_EXPORT')?.capability_state || 'UNAVAILABLE');
+  const portfolioState = String(map.get('SEO_PAGE_PORTFOLIO')?.capability_state || 'UNAVAILABLE');
+  const launchState = String(map.get('SEARCH_LAUNCH_GATE')?.capability_state || 'UNAVAILABLE');
 
   return (
     <main className="owner-page">
@@ -75,41 +127,115 @@ export default async function AdminGrowthPage() {
           <div>
             <div className="owner-eyebrow">Поиск и рост</div>
             <h1>Рост</h1>
-            <p>Здесь будут собираться реальные возможности, спрос, страницы и техническое состояние поиска. До подключения источников система показывает ограничения честно.</p>
+            <p>
+              Текущее состояние поисковой структуры FEYA. Здесь нет выдуманных графиков: до подключения реальных Google-источников показываются только уже подтверждённые внутренние данные и ограничения.
+            </p>
           </div>
         </header>
 
-        {error ? <div className="owner-card is-danger"><div className="owner-status is-danger">Ошибка данных</div><p className="owner-card-copy">{error}</p></div> : null}
+        {data.error ? (
+          <div className="owner-card is-danger">
+            <div className="owner-status is-danger">Ошибка данных</div>
+            <p className="owner-card-copy">{data.error}</p>
+          </div>
+        ) : null}
 
-        <section className="owner-grid two">
-          {areas.map((area) => {
-            const tone = ownerToneForStatus(area.state);
-            return (
-              <Link className={`owner-card ${toneClass(tone)}`} href={area.href} key={area.title}>
-                <div className={`owner-status ${toneClass(tone)}`}>{statusLabel(area.state)}</div>
-                <h2 className="owner-card-title" style={{ marginTop: '12px' }}>{area.title}</h2>
-                <p className="owner-card-copy">{area.description}</p>
-              </Link>
-            );
-          })}
+        <section className="owner-section">
+          <div className="owner-section-head">
+            <div>
+              <h2>Подготовка поисковой структуры</h2>
+              <div className="owner-section-kicker">Последовательность важнее количества экранов</div>
+            </div>
+          </div>
+
+          <div className="owner-summary-strip">
+            <div className="owner-summary-cell">
+              <strong>{data.keywordPending}</strong>
+              <span>Ключевых запросов ждут проверки</span>
+            </div>
+            <div className="owner-summary-cell">
+              <strong>{data.clusterProposals}</strong>
+              <span>Предложений групп запросов</span>
+            </div>
+            <div className="owner-summary-cell">
+              <strong>{data.pagesWithPrimaryOwner}/{data.seoPages}</strong>
+              <span>Страниц с основной группой запросов</span>
+            </div>
+            <div className="owner-summary-cell">
+              <strong>{data.indexabilityReady}/{data.seoPages}</strong>
+              <span>Страниц готовы к индексации</span>
+            </div>
+          </div>
+
+          <div className="owner-card is-info" style={{ marginTop: '10px' }}>
+            <div className="owner-status is-info">Текущий порядок</div>
+            <p className="owner-card-copy">
+              Сначала проверяем ключевые запросы → затем формируем группы запросов → закрепляем основные страницы → только после этого решаем вопрос индексации. Нулевые значения на следующих этапах сейчас являются ожидаемым состоянием, а не ошибкой.
+            </p>
+          </div>
         </section>
 
         <section className="owner-section">
           <div className="owner-section-head">
             <div>
-              <h2>Что пока не подключено</h2>
-              <div className="owner-section-kicker">Без фиктивных графиков и выводов</div>
+              <h2>Рабочие области</h2>
+              <div className="owner-section-kicker">Глубокая работа остаётся в существующей админке</div>
             </div>
           </div>
+
           <div className="owner-grid two">
-            <article className="owner-card is-warning">
-              <div className="owner-status is-warning">Google Ads</div>
-              <h3 className="owner-card-title" style={{ marginTop: '10px' }}>Живые данные по спросу ограничены</h3>
+            <Link className="owner-card is-info" href="/admin/seo-keyword-review">
+              <div className="owner-status is-info">{data.keywordPending ? 'Есть очередь' : 'Очередь пуста'}</div>
+              <h3 className="owner-card-title" style={{ marginTop: '12px' }}>Спрос и ключевые запросы</h3>
+              <p className="owner-card-copy">
+                Проверка ключей, смысловых направлений и будущего распределения по товарам и коллекциям. Значения запросов остаются на языке поиска.
+              </p>
+            </Link>
+
+            <Link className={'owner-card ' + toneClass(ownerToneForStatus(portfolioState))} href="/admin/seo-portfolio">
+              <div className={'owner-status ' + toneClass(ownerToneForStatus(portfolioState))}>{statusLabel(portfolioState)}</div>
+              <h3 className="owner-card-title" style={{ marginTop: '12px' }}>Страницы</h3>
+              <p className="owner-card-copy">
+                {data.seoPages} страниц уже находятся в портфеле. Предложений ответственности страниц сейчас: {data.ownershipProposals}.
+              </p>
+            </Link>
+
+            <Link className={'owner-card ' + toneClass(ownerToneForStatus(launchState))} href="/admin/indexation">
+              <div className={'owner-status ' + toneClass(ownerToneForStatus(launchState))}>{statusLabel(launchState)}</div>
+              <h3 className="owner-card-title" style={{ marginTop: '12px' }}>Индексация и техническое SEO</h3>
+              <p className="owner-card-copy">
+                Индексация остаётся закрытой до подтверждения поисковой структуры, основного домена и готовности контента.
+              </p>
+            </Link>
+
+            <Link className="owner-card" href="/admin/opportunities">
+              <div className="owner-status">Возможности</div>
+              <h3 className="owner-card-title" style={{ marginTop: '12px' }}>Возможности роста</h3>
+              <p className="owner-card-copy">
+                Здесь фиксируются только реальные возможности с достаточными данными и сроком действия. Пустой список не заполняется искусственно.
+              </p>
+            </Link>
+          </div>
+        </section>
+
+        <section className="owner-section">
+          <div className="owner-section-head">
+            <div>
+              <h2>Внешние данные</h2>
+              <div className="owner-section-kicker">Что пока ограничивает живую аналитику</div>
+            </div>
+          </div>
+
+          <div className="owner-grid two">
+            <article className={'owner-card ' + toneClass(ownerToneForStatus(adsState))}>
+              <div className={'owner-status ' + toneClass(ownerToneForStatus(adsState))}>Google Ads · {statusLabel(adsState)}</div>
+              <h3 className="owner-card-title" style={{ marginTop: '10px' }}>Живой спрос пока ограничен</h3>
               <p className="owner-card-copy">{capabilityOwnerSummary('GOOGLE_ADS_KEYWORD_METRICS')}</p>
             </article>
-            <article className="owner-card is-warning">
-              <div className="owner-status is-warning">Search Console</div>
-              <h3 className="owner-card-title" style={{ marginTop: '10px' }}>Реальные поисковые показатели ещё не подключены</h3>
+
+            <article className={'owner-card ' + toneClass(ownerToneForStatus(gscState))}>
+              <div className={'owner-status ' + toneClass(ownerToneForStatus(gscState))}>Search Console · {statusLabel(gscState)}</div>
+              <h3 className="owner-card-title" style={{ marginTop: '10px' }}>Позиции и клики ещё не измеряются</h3>
               <p className="owner-card-copy">{capabilityOwnerSummary('GSC_BULK_EXPORT')}</p>
             </article>
           </div>
