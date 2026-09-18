@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { LearningRegistryRow } from '@/lib/types';
+import { statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -46,45 +47,45 @@ export default async function AdminLearningPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/learning">Learning</Link>
-            <Link href="/admin/scenario-tests">Scenario Tests</Link>
-            <Link href="/admin/execution-map">Execution Map</Link>
+            <Link href="/admin/learning">Выводы</Link>
+            <Link href="/admin/scenario-tests">Проверки сценариев</Link>
+            <Link href="/admin/execution-map">Права действий</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Learning Registry / controlled Kaizen · read-only</div>
-          <h1>Learning</h1>
+          <div className="phase-label">Реестр выводов и улучшений · только просмотр</div>
+          <h1>Выводы</h1>
           <p>
-            Observations mature through repeated evidence and replication. Policy candidates still require targeted regression PASS and human adoption; agents cannot rewrite policy directly.
+            Наблюдение становится повторно используемым выводом только после повторных доказательств. Кандидат в правило требует целевой регрессионной проверки и человеческого подтверждения; агент не может сам переписать правило.
           </p>
         </section>
 
         <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Learning items</span></div>
-          <div className="card metric"><strong>{observations}</strong><span>Observations</span></div>
-          <div className="card metric"><strong>{repeated}</strong><span>Repeated observations</span></div>
-          <div className="card metric"><strong>{replicated}</strong><span>Replicated learnings</span></div>
-          <div className="card metric"><strong>{candidates}</strong><span>Policy candidates</span></div>
-          <div className="card metric"><strong>{adopted}</strong><span>Adopted policies</span></div>
+          <div className="card metric"><strong>{rows.length}</strong><span>Записей</span></div>
+          <div className="card metric"><strong>{observations}</strong><span>Наблюдений</span></div>
+          <div className="card metric"><strong>{repeated}</strong><span>Повторяющихся наблюдений</span></div>
+          <div className="card metric"><strong>{replicated}</strong><span>Подтверждённых выводов</span></div>
+          <div className="card metric"><strong>{candidates}</strong><span>Кандидатов в правила</span></div>
+          <div className="card metric"><strong>{adopted}</strong><span>Принятых правил</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
         {!rows.length ? (
-          <div className="notice">No durable learning items have been recorded yet.</div>
+          <div className="notice">Подтверждённых выводов пока нет.</div>
         ) : (
           <div className="table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>Learning</th>
-                  <th>Domain</th>
-                  <th>Stage</th>
-                  <th>Evidence</th>
-                  <th>Policy candidate</th>
-                  <th>Regression</th>
-                  <th>Adoption</th>
+                  <th>Вывод</th>
+                  <th>Область</th>
+                  <th>Этап</th>
+                  <th>Доказательства</th>
+                  <th>Кандидат в правило</th>
+                  <th>Регрессия</th>
+                  <th>Принятие</th>
                 </tr>
               </thead>
               <tbody>
@@ -98,24 +99,24 @@ export default async function AdminLearningPage() {
                     <td>{asText(row.domain)}</td>
                     <td>
                       <span className={`status-pill ${statusClass(row.learning_status)}`}>
-                        {asText(row.learning_status)}
+                        {statusLabel(row.learning_status)}
                       </span>
                     </td>
                     <td>
-                      {row.evidence_count ?? 0} evidence
-                      <div className="muted">{row.distinct_context_count ?? 0} contexts</div>
+                      {row.evidence_count ?? 0} доказательств
+                      <div className="muted">{row.distinct_context_count ?? 0} контекстов</div>
                     </td>
                     <td>
                       {asText(row.proposed_policy_name, row.proposed_policy_code || '—')}
                       {row.proposed_policy_version ? (
                         <div className="muted">{row.proposed_policy_code} v{row.proposed_policy_version}</div>
                       ) : null}
-                      {row.candidate_version ? <div className="muted">candidate {row.candidate_version}</div> : null}
+                      {row.candidate_version ? <div className="muted">кандидат {row.candidate_version}</div> : null}
                     </td>
-                    <td>{row.required_scenario_count ?? 0} required scenarios</td>
+                    <td>{row.required_scenario_count ?? 0} обязательных сценариев</td>
                     <td>
                       {row.adopted_policy_version ? (
-                        <span className="status-pill ok">policy v{row.adopted_policy_version}</span>
+                        <span className="status-pill ok">правило v{row.adopted_policy_version}</span>
                       ) : '—'}
                       {row.adopted_at ? <div className="muted">{row.adopted_at}</div> : null}
                     </td>
