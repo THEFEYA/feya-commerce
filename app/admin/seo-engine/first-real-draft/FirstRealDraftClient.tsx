@@ -908,7 +908,7 @@ export default function FirstRealDraftClient({
         </div>
         {commercialIssues.length ? <div className="mt-4 grid min-w-0 gap-2 md:grid-cols-2">{commercialIssues.map((item, index) => <Issue key={`${item.code}-${index}`} item={item} />)}</div> : <div className="mt-3 text-[12px] text-[#a9dfbd]">Коммерческий текст прошёл проверку на полезность, повторы, пустые фразы и запрещённые обещания.</div>}
         {keywordPlacementValidation ? <div className="mt-4 border-t border-[rgba(216,214,211,.10)] pt-4">
-          <div className="text-[10px] uppercase tracking-[.16em] text-[var(--gold-warm)]">Размещение ключевых слов · ${uiStatus(keywordPlacementValidation.status)}</div>
+          <div className="text-[10px] uppercase tracking-[.16em] text-[var(--gold-warm)]">Размещение ключевых слов · {uiStatus(keywordPlacementValidation.status)}</div>
           {keywordPlacementIssues.length ? <div className="mt-3 grid min-w-0 gap-2 md:grid-cols-2">{keywordPlacementIssues.map((item, index) => <Issue key={`${item.code}-${index}`} item={item} />)}</div> : <div className="mt-2 text-[12px] text-[#a9dfbd]">Основной ключ, коммерческий интент и ALT размещены в разрешённых полях без точного переспама.</div>}
         </div> : null}
         <div className="mt-4 border-t border-[rgba(216,214,211,.10)] pt-4">
