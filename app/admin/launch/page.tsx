@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, FileSearch, Rocket, ShieldAlert, Sparkles } from 'lucide-react';
 import { getLaunchStage, type LaunchStageLabel } from '@/lib/admin-pipeline';
+import { adminReadinessLabel, launchStageLabel } from '@/lib/adminDisplayRu';
 import { getProductEvents, getProductFlags, getProductReadiness, type AdminReviewEvent } from '@/lib/admin-readiness';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle, worldLabel } from '@/lib/storefront';
@@ -89,43 +90,43 @@ export default async function LaunchPipelinePage() {
     <section className="container-feya pt-10 pb-16">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
         <div>
-          <div className="eyebrow-gold mb-3">Admin · Launch Pipeline</div>
-          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Launch pipeline</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Operational launch layer from shared pipeline logic. This prepares SEO/feed/publish decisions while payment remains intentionally off.</p>
+          <div className="eyebrow-gold mb-3">Админка · Запуск</div>
+          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Готовность к запуску</h1>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Рабочий слой готовности к запуску. Он показывает, что уже можно готовить для SEO, фидов и публикации, пока оплата намеренно остаётся выключенной.</p>
         </div>
         <div className="flex gap-3">
-          <Link href="/admin" className="btn-ghost">Admin cockpit <ArrowUpRight size={13} /></Link>
-          <Link href="/admin/products" className="btn-ghost">Products <ArrowUpRight size={13} /></Link>
+          <Link href="/admin" className="btn-ghost">Панель управления <ArrowUpRight size={13} /></Link>
+          <Link href="/admin/products" className="btn-ghost">Товары <ArrowUpRight size={13} /></Link>
         </div>
       </div>
 
       {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        <Metric icon={ShieldAlert} label="Blocked" value={counts.Blocked || 0} note="Needs-fix event exists." tone="danger" />
-        <Metric icon={FileSearch} label="Needs Review" value={counts['Needs Review'] || 0} note="Data or admin review is open." tone="warning" />
-        <Metric icon={Sparkles} label="Can Prepare SEO" value={counts['Can Prepare SEO'] || 0} note="Operational checks closed; SEO next." />
-        <Metric icon={CheckCircle2} label="Can Prepare Feed" value={counts['Can Prepare Feed'] || 0} note="Safe candidate for feed prep." tone="success" />
-        <Metric icon={Rocket} label="Products" value={rows.length} note="Current storefront-candidate slice." />
+        <Metric icon={ShieldAlert} label="Заблокировано" value={counts.Blocked || 0} note="Есть зафиксированная проблема, требующая исправления." tone="danger" />
+        <Metric icon={FileSearch} label="Нужна проверка" value={counts['Needs Review'] || 0} note="Открыта проверка данных или товара." tone="warning" />
+        <Metric icon={Sparkles} label="Можно готовить SEO" value={counts['Can Prepare SEO'] || 0} note="Базовые проверки закрыты; следующий шаг — SEO." />
+        <Metric icon={CheckCircle2} label="Можно готовить фид" value={counts['Can Prepare Feed'] || 0} note="Товар можно безопасно готовить для фида." tone="success" />
+        <Metric icon={Rocket} label="Товары" value={rows.length} note="Текущий срез кандидатов для витрины." />
       </div>
 
       <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
         <div className="grid grid-cols-[76px_1.5fr_1fr_1fr_1fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.22em] text-[var(--smoke)]">
-          <div>Image</div><div>Product</div><div>Launch stage</div><div>Readiness</div><div>Open flags</div>
+          <div>Фото</div><div>Товар</div><div>Этап запуска</div><div>Готовность</div><div>Открытые проверки</div>
         </div>
         <div className="divide-y divide-[rgba(216,214,211,.08)]">
           {priorityRows.map(({ product, readiness, stage, flags }) => {
             const slug = productSlug(product);
             return <Link key={product.canonical_product_id || slug} href={`/admin/products/${slug}`} className="grid grid-cols-[76px_1.5fr_1fr_1fr_1fr] gap-4 items-center px-5 py-4 hover:bg-[rgba(212,178,106,.04)] transition-colors">
               <div className="relative h-20 w-16 rounded-lg overflow-hidden bg-black/30 border border-[rgba(216,214,211,.10)]">{product.primary_image_url ? <img src={product.primary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}</div>
-              <div><div className="text-bone text-[15px] leading-snug line-clamp-2">{productTitle(product)}</div><div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'Product'} · {product.canonical_color_label || product.color || 'Color'}</div></div>
-              <div><Chip tone={stage.tone}>{stage.label}</Chip><div className="mt-2 text-[11px] leading-relaxed text-[var(--bone-dim)]">{stage.note}</div></div>
-              <div><Chip tone={readiness.tone}>{readiness.label}</Chip></div>
+              <div><div className="text-bone text-[15px] leading-snug line-clamp-2">{productTitle(product)}</div><div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'Товар'} · {product.canonical_color_label || product.color || 'Цвет не указан'}</div></div>
+              <div><Chip tone={stage.tone}>{launchStageLabel(stage.label)}</Chip><div className="mt-2 text-[11px] leading-relaxed text-[var(--bone-dim)]">{stage.note}</div></div>
+              <div><Chip tone={readiness.tone}>{adminReadinessLabel(readiness.label)}</Chip></div>
               <div className="flex flex-wrap gap-1.5">
-                {flags.labelReview ? <Chip tone="warning">Label</Chip> : null}
-                {flags.priceReview ? <Chip tone="warning">Price</Chip> : null}
-                {flags.missingComponent ? <Chip tone="danger">Component {flags.missingComponent}</Chip> : null}
-                {flags.mediaReview ? <Chip tone="danger">Media</Chip> : null}
+                {flags.labelReview ? <Chip tone="warning">Название</Chip> : null}
+                {flags.priceReview ? <Chip tone="warning">Цена</Chip> : null}
+                {flags.missingComponent ? <Chip tone="danger">Компоненты {flags.missingComponent}</Chip> : null}
+                {flags.mediaReview ? <Chip tone="danger">Медиа</Chip> : null}
                 {!flags.labelReview && !flags.priceReview && !flags.missingComponent && !flags.mediaReview ? <Chip>OK</Chip> : null}
               </div>
             </Link>;
