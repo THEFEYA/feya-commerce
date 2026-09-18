@@ -875,3 +875,34 @@ Final build for this checkpoint:
 - fake GA4/GSC/Google Ads charts.
 
 Those remain separate gates rather than UI decoration.
+
+
+## 14. Unified Admin Shell correction — 2026-09-18
+
+Owner review identified that the route separation was still perceived as two different admin products even though both lived in one repository.
+
+Superseding presentation decision:
+
+- keep the recovered Product OS pages and their inner layouts/logic intact;
+- use one persistent Owner Shell around both Company Control and Product OS routes;
+- keep the six owner destinations as the primary information architecture:
+  **Сегодня / Работа / Рост / Товары / Результаты / Система**;
+- expose the existing Product OS flows through a collapsible **Рабочие инструменты** group instead of a second full navigation system;
+- preserve all legacy diagnostic routes until replacement parity is verified;
+- do not restyle public storefront pages or product cards;
+- do not translate product titles, keywords, search queries, EN SEO copy, URLs or source evidence.
+
+Implemented:
+- all non-login admin routes now share the same shell;
+- Product OS content is not rewritten or nested inside a second product workspace;
+- key daily tools remain one click away: Панель магазина, Мастер листинга, SEO-лаборатория, Оценка ключей, SEO-бриф, Проверка SEO, Проверка медиа, SEO изображений, Запуск, Индексация;
+- owner shell width and typography were tightened to match the research baseline;
+- buttons use compact rectangular controls while status chips remain pill-shaped;
+- AI token counts were demoted behind owner-relevant operational usage signals.
+
+Safety:
+- no public storefront component or product card was changed;
+- no Product Truth or SEO business data was mutated;
+- no owner write capability was enabled;
+- backup before this correction:
+  `backup/owner-ui-before-unified-shell-20260918`.
