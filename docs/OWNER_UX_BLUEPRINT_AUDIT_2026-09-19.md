@@ -35,7 +35,7 @@ The finish line is not “all possible UI ideas”. The finish line is: the Owne
 | Phase | State | Implemented | Still required before phase is considered done |
 |---|---|---|---|
 | UX-0 Canon & terminology | COMPLETE | six-destination IA; Russian terminology layer; status semantics; Advanced boundary; no-fake-maturity rules | Maintain terminology as new states appear |
-| UX-1 Owner Shell | IN REVIEW | persistent sidebar/topbar; Today; Work; Signals; Owner Attention; Team FEYA; global search; mobile navigation; compact density; drawer-first Work detail; full Work detail route | visual owner review; validate drawer with first real Growth Case; add handoff/evidence timeline only when the projection exists |
+| UX-1 Owner Shell | IN REVIEW | persistent sidebar/topbar; Today in research order; Work; Signals; Owner Attention; Team FEYA; global search; mobile navigation; compact density; drawer-first Work detail; evidence-first Signal drawer; full Work detail route | visual owner review; validate drawers with first real Growth Case and owner signal; add handoff timeline only when the projection exists |
 | UX-2 Product Workspace | IN PROGRESS | searchable catalog; unified product detail; blockers; facts; media; pricing/options; technical details collapsed; Product Workspace sub-navigation; integrated content/SEO/CQA summary; review-event history | verify product-context parity on real products; add contextual fact resolution only after protected write path; move remaining product-specific deep links into workspace where useful |
 | UX-3 Growth Workspace | IN PROGRESS | owner Growth shell; opportunities surface; historical demand; keyword review; query clusters; page portfolio; ownership; indexability; technical launch/search gates; honest missing-data states | consolidate remaining diagnostic-only SEO routes under Advanced/context; add trend views only after live datasets exist |
 | UX-4 Results & System | IN PROGRESS | Results shell; experiments; learnings; change records; System readiness; source health; permissions; AI usage; incidents; capability/action diagnostics | convert remaining registry-style owner pages into contextual drill-down where they still leak engineering structure; measured outcome cards require real measurement data |
@@ -60,12 +60,12 @@ Required order from research:
 Current state:
 - Owner decisions: DONE
 - Material signals: DONE
-- Opportunities: hidden because registry is currently empty; correct behavior
+- Opportunities: conditional block implemented; hidden while registry is empty, which is the correct behavior
 - Active work: DONE, includes real operational queues
 - KPI block: intentionally absent because authoritative business/search datasets are not live
 - Measured outcomes: intentionally absent until Measurement Engine has real evidence
 - System state: DONE
-- FYI: automatic content checks are collapsed inside Work rather than interrupting Today
+- FYI: automatic content checks are collapsed under «Для сведения» and do not interrupt the primary Today flow
 
 ### Work
 
@@ -76,7 +76,7 @@ Current state:
 - Owner waiting queue: DONE
 - operational queues: DONE
 - Team FEYA roster: DONE
-- right drawer: DONE
+- right drawer: DONE for Work and Signals
 - full detail route: DONE
 - workflow/handoff/evidence timeline: NOT YET — current owner projection does not expose enough evidence; UI says so instead of inventing events
 
@@ -121,8 +121,8 @@ Allowed by research:
 Current:
 - sidebar collapse: DONE
 - compact density: DONE
-- saved filters/views: NOT YET
-- pin/hide non-critical Today modules: NOT YET
+- saved filters/views: INITIAL VERSION DONE for Product catalog; expand only where repeated workflows justify it
+- pin/hide non-critical Today modules: NOT YET; deferred until owner review confirms which modules are actually worth personalizing
 - full drag/drop dashboard builder: WILL NOT BUILD IN V1
 
 ## Current pre-launch finish line
@@ -146,6 +146,6 @@ UX-5 and UX-7 are **not part of this finish line** because they are blocked by s
 
 1. Verify the new Work drawer/full-detail and Product Workspace on Vercel.
 2. Audit remaining normal owner routes for raw engineering terminology and duplicated registry pages.
-3. Add saved views for the largest review tables after the stable filter model is verified.
-4. Add pin/hide only for non-critical Today/Work informational blocks, with a visible Reset to default.
+3. Verify the first saved Product catalog views in owner use; only then propagate the pattern to another repeated review table.
+4. Add pin/hide only for non-critical Today/Work informational blocks if owner review shows a real need, with a visible Reset to default.
 5. Do not add live KPI charts, revenue, conversion, organic trends or measured outcomes until the authoritative sources are connected.
