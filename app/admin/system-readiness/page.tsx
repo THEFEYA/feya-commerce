@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { GrowthCapabilityStatusRow } from '@/lib/types';
-import { roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
+import { capabilityLabel, capabilityOwnerSummary, implementationStateLabel, roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -58,16 +58,15 @@ export default async function AdminSystemReadinessPage() {
           <div className="phase-label">Реестр возможностей FEYA · только просмотр</div>
           <h1>Готовность системы</h1>
           <p>
-            Что FEYA реально умеет наблюдать или выполнять сейчас. Отсутствующие интеграции остаются недоступными и не подменяются догадками AI.
+            Что FEYA реально умеет наблюдать или выполнять сейчас. Отсутствующие интеграции остаются недоступными и не подменяются догадками ИИ.
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Возможностей зарегистрировано</span></div>
-          <div className="card metric"><strong>{countState(rows, 'AVAILABLE')}</strong><span>Работают</span></div>
-          <div className="card metric"><strong>{countState(rows, 'AVAILABLE_WITH_LIMITATIONS')}</strong><span>Работают с ограничениями</span></div>
-          <div className="card metric"><strong>{countState(rows, 'DEGRADED')}</strong><span>Работают нестабильно</span></div>
-          <div className="card metric"><strong>{countState(rows, 'UNAVAILABLE')}</strong><span>Недоступны</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{countState(rows, 'AVAILABLE')}</strong><span>Работают полностью</span></div>
+          <div className="owner-summary-cell"><strong>{countState(rows, 'AVAILABLE_WITH_LIMITATIONS')}</strong><span>Работают с ограничениями</span></div>
+          <div className="owner-summary-cell"><strong>{countState(rows, 'DEGRADED')}</strong><span>Работают нестабильно</span></div>
+          <div className="owner-summary-cell"><strong>{countState(rows, 'UNAVAILABLE') + countState(rows, 'NOT_OBSERVABLE')}</strong><span>Недоступны / недостаточно данных</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
@@ -79,17 +78,16 @@ export default async function AdminSystemReadinessPage() {
                 <th>Возможность</th>
                 <th>Ответственный</th>
                 <th>Состояние</th>
-                <th>Реализация</th>
-                <th>Что уже есть</th>
-                <th>Ограничение / следующий шаг</th>
+                <th>Готовность</th>
+                <th>Что это значит</th>
+                <th>Техническая глубина</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((row) => (
                 <tr key={row.capability_code}>
                   <td>
-                    <strong>{asText(row.capability_name, row.capability_code)}</strong>
-                    <div className="muted">{row.capability_code}</div>
+                    <strong title={asText(row.capability_code)}>{capabilityLabel(row.capability_code)}</strong>
                   </td>
                   <td>{roleLabel(row.owner_role)}</td>
                   <td>
@@ -97,9 +95,9 @@ export default async function AdminSystemReadinessPage() {
                       {statusLabel(row.capability_state)}
                     </span>
                   </td>
-                  <td>{asText(row.implementation_state)}</td>
-                  <td>{asText(row.public_summary)}</td>
-                  <td>{asText(row.limitations_summary)}</td>
+                  <td title={asText(row.implementation_state)}>{implementationStateLabel(row.implementation_state)}</td>
+                  <td>{capabilityOwnerSummary(row.capability_code)}</td>
+                  <td><details><summary className="cursor-pointer text-[var(--gold-warm)]">Показать</summary><div className="muted" style={{ marginTop: '6px' }}>{asText(row.public_summary)}<br />{asText(row.limitations_summary)}</div></details></td>
                 </tr>
               ))}
             </tbody>
