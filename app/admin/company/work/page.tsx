@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentOwnerAttention, presentRole, presentWorkItem, formatRelativeTime } from '@/lib/owner-ui/presenters';
+import { OwnerWorkDrawerClient } from '@/components/admin/OwnerWorkDrawerClient';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -354,6 +355,7 @@ export default async function AdminWorkPage() {
                         </div>
                         <div className="owner-list-row-side">
                           <span className="owner-section-kicker">{formatRelativeTime(item.updatedAt)}</span>
+                          <OwnerWorkDrawerClient item={item} />
                         </div>
                       </article>
                     ))}
