@@ -12,6 +12,7 @@ type TodayData = {
   attention: Row[];
   signals: Row[];
   work: Row[];
+  workTotal: number;
   readiness: Row[];
   operations: {
     productFacts: number;
@@ -29,6 +30,7 @@ async function getTodayData(): Promise<TodayData> {
       attention: [],
       signals: [],
       work: [],
+      workTotal: 0,
       readiness: [],
       operations: { productFacts: 0, keywordReview: 0, cqaActionable: 0, cqaAutomatic: 0 },
       error: getMissingAdminDataEnvMessage(),
@@ -59,7 +61,7 @@ async function getTodayData(): Promise<TodayData> {
       .limit(12),
     supabase
       .from('feya_commerce_v_owner_work_safe_v1')
-      .select('*')
+      .select('*', { count: 'exact' })
       .not('case_status', 'in', '(CLOSED,MERGED)')
       .order('priority', { ascending: true })
       .order('updated_at', { ascending: false })
@@ -100,6 +102,7 @@ async function getTodayData(): Promise<TodayData> {
       attention: [],
       signals: [],
       work: [],
+      workTotal: 0,
       readiness: [],
       operations: { productFacts: 0, keywordReview: 0, cqaActionable: 0, cqaAutomatic: 0 },
       error: firstError.message,
@@ -110,6 +113,7 @@ async function getTodayData(): Promise<TodayData> {
     attention: (attentionResult.data || []) as Row[],
     signals: (signalResult.data || []) as Row[],
     work: (workResult.data || []) as Row[],
+    workTotal: workResult.count || 0,
     readiness: (readinessResult.data || []) as Row[],
     operations: {
       productFacts: productFactsResult.count || 0,
@@ -141,7 +145,7 @@ function russianDate() {
 }
 
 export default async function AdminHomePage() {
-  const { attention, signals, work, readiness, operations, error } = await getTodayData();
+  const { attention, signals, work, workTotal, readiness, operations, error } = await getTodayData();
 
   const attentionVM = attention.map(presentOwnerAttention);
   const attentionCodes = new Set(attentionVM.map((item) => item.sourceCode).filter(Boolean));
@@ -269,7 +273,7 @@ export default async function AdminHomePage() {
               <span>Контентных проверок / исправлений</span>
             </Link>
             <Link href="/admin/company/work#work-list" className="owner-summary-cell owner-summary-link">
-              <strong>{workVM.length}</strong>
+              <strong>{workTotal}</strong>
               <span>Активных задач роста</span>
             </Link>
           </div>
