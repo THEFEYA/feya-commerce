@@ -24,8 +24,8 @@ function Chip({ children, tone = 'neutral' }: { children: React.ReactNode; tone?
   return <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] ${cls}`}>{children}</span>;
 }
 
-function Panel({ title, icon: Icon, children }: { title: string; icon: React.ComponentType<{ size?: number }>; children: React.ReactNode }) {
-  return <section className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
+function Panel({ id, title, icon: Icon, children }: { id?: string; title: string; icon: React.ComponentType<{ size?: number }>; children: React.ReactNode }) {
+  return <section id={id} className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5 scroll-mt-24">
     <div className="eyebrow-gold mb-4 flex items-center gap-2"><Icon size={14} /> {title}</div>
     {children}
   </section>;
@@ -43,7 +43,83 @@ function Blocker({ label, active, detail }: { label: string; active: boolean; de
   return <div className={`rounded-xl border p-4 ${active ? 'border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.06)]' : 'border-[rgba(216,214,211,.10)] bg-black/15'}`}><div className="eyebrow-dim mb-2">{label}</div><div className={active ? 'text-[var(--gold-warm)]' : 'text-[var(--bone-dim)]'}>{active ? `Требует работы${detail ? ` · ${detail}` : ''}` : 'ОК'}</div></div>;
 }
 
-export function AdminProductDetailView({ product, componentTruth }: { product: StorefrontProduct; componentTruth: ComponentTruthDiagnostic }) {
+type OwnerProductContext = {
+  brief?: Record<string, unknown> | null;
+  cqa?: Record<string, unknown> | null;
+  seoPage?: Record<string, unknown> | null;
+  history?: Array<Record<string, unknown>>;
+};
+
+function textValue(value: unknown, fallback = '—') {
+  if (value == null || value === '') return fallback;
+  return String(value);
+}
+
+function contentBriefLabel(value: unknown) {
+  const key = textValue(value, '').toUpperCase();
+  const labels: Record<string,string> = {
+    SHADOW_READY: 'Можно готовить безопасный черновик',
+    CANONICAL_READY: 'Канонически готово',
+    BLOCKED_KEYWORD_REVIEW: 'Нужна проверка ключевых слов',
+    BLOCKED_PRODUCT_FACT_REVIEW: 'Блокируют факты товара',
+    BLOCKED_GENERATION_GATE: 'Генерация пока закрыта',
+    BLOCKED_NO_SEO_PAGE: 'Нет SEO-страницы',
+  };
+  return labels[key] || (key ? 'Требует проверки' : 'Данных пока нет');
+}
+
+function cqaLabel(value: unknown) {
+  const key = textValue(value, '').toUpperCase();
+  const labels: Record<string,string> = {
+    APPROVED_NEEDS_COMPONENT_CLAIM_CHECK: 'Проверить утверждения о составе',
+    APPROVED_NEEDS_SIMILARITY_CHECK: 'Проверить сходство контента',
+    BLOCKED_BY_VALIDATION: 'Заблокировано автоматической проверкой',
+    NEEDS_PRECHECKS: 'Нужны предварительные проверки',
+    READY_FOR_HUMAN_AND_CQA_REVIEW: 'Готово к проверке человеком и CQA',
+    READY_FOR_INDEPENDENT_CQA: 'Готово к независимой CQA',
+    REVISION_REQUIRED: 'Нужны исправления',
+  };
+  return labels[key] || (key ? 'Контроль качества в процессе' : 'CQA ещё не создана');
+}
+
+function indexationLabel(value: unknown) {
+  const key = textValue(value, '').toUpperCase();
+  if (key === 'INDEXABLE') return 'Разрешена к индексации';
+  if (key === 'NOINDEX') return 'Не индексировать';
+  if (key === 'CANDIDATE') return 'Кандидат';
+  return key ? 'Подготовка' : 'SEO-страница не создана';
+}
+
+function historyEventLabel(value: unknown) {
+  const key = textValue(value, '').toLowerCase();
+  const labels: Record<string,string> = {
+    seo_ready_checked: 'Проверена SEO-готовность',
+    order_draft_reviewed: 'Проверен черновик заказа',
+    internal_note_added: 'Добавлена внутренняя заметка',
+    needs_fix: 'Отмечено: нужны исправления',
+    media_ready_checked: 'Проверены медиа',
+    product_fact_reviewed: 'Проверены факты товара',
+  };
+  return labels[key] || 'Зафиксировано рабочее событие';
+}
+
+function eventStatusLabel(value: unknown) {
+  const key = textValue(value, '').toLowerCase();
+  if (key === 'approved') return 'Одобрено';
+  if (key === 'recorded') return 'Записано';
+  if (key === 'needs_fix') return 'Нужны исправления';
+  if (key === 'rejected') return 'Отклонено';
+  return key ? 'Зафиксировано' : '—';
+}
+
+function dateTimeLabel(value: unknown) {
+  if (!value) return '—';
+  const date = new Date(String(value));
+  if (Number.isNaN(date.getTime())) return textValue(value);
+  return new Intl.DateTimeFormat('ru-RU', { dateStyle: 'short', timeStyle: 'short' }).format(date);
+}
+
+export function AdminProductDetailView({ product, componentTruth, ownerContext = {} }: { product: StorefrontProduct; componentTruth: ComponentTruthDiagnostic; ownerContext?: OwnerProductContext }) {
   const flags = getProductFlags(product);
   const configs = flags.configs;
   const media = asMediaGallery(product);
@@ -57,6 +133,10 @@ export function AdminProductDetailView({ product, componentTruth }: { product: S
   const storefrontAvailable = product.storefront_candidate_flag !== false && slugValue !== product.canonical_product_id;
   const storefrontHref = `/shop/${slugValue}`;
   const adminHref = `/admin/products/${slugValue}`;
+  const brief = ownerContext.brief || null;
+  const cqa = ownerContext.cqa || null;
+  const seoPage = ownerContext.seoPage || null;
+  const history = ownerContext.history || [];
 
   return <main className="owner-page">
     <div className="owner-page-inner">
@@ -85,9 +165,18 @@ export function AdminProductDetailView({ product, componentTruth }: { product: S
         </div>
       </div>
 
+      <nav className="owner-subnav" aria-label="Разделы товара" style={{ marginBottom: '20px' }}>
+        <a href="#overview">Обзор</a>
+        <a href="#facts">Факты</a>
+        <a href="#content-search">Контент и поиск</a>
+        <a href="#media">Медиа</a>
+        <a href="#pricing">Цены и варианты</a>
+        <a href="#history">История</a>
+      </nav>
+
       <div className="grid grid-cols-12 gap-6 lg:gap-8">
         <div className="col-span-12 lg:col-span-5 space-y-5">
-          <Panel title="Медиа" icon={ImageIcon}>
+          <Panel id="media" title="Медиа" icon={ImageIcon}>
             <div className="relative aspect-[4/5] overflow-hidden rounded-xl border border-[rgba(216,214,211,.10)] bg-black/25">
               {product.primary_image_url ? <img src={product.primary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}
             </div>
@@ -95,6 +184,20 @@ export function AdminProductDetailView({ product, componentTruth }: { product: S
               {media.slice(0, 8).map((item, index) => <div key={`${item.url || item.image_url}-${index}`} className="relative aspect-square rounded-lg overflow-hidden bg-black/25 border border-[rgba(216,214,211,.10)]">{item.url || item.image_url ? <img src={item.url || item.image_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}</div>)}
             </div>
             {!media.length ? <div className="mt-3 text-[13px] text-[var(--bone-dim)]">Медиа недоступно в текущем контракте товара. Проверь очередь медиа или данные витрины.</div> : null}
+          </Panel>
+
+          <Panel id="facts" title="Факты товара" icon={Tags}>
+            <div className="grid sm:grid-cols-2 gap-3">
+              <Info label="Тип / категория" value={categoryLabel(product)} />
+              <Info label="Контекст" value={worldLabel(product)} />
+              <Info label="Материал" value={product.material || 'Нужно проверить'} />
+              <Info label="Цвет" value={colorLabel(product)} />
+            </div>
+            <div className="mt-3 owner-card-meta" style={{ marginBottom: 0 }}>
+              <span>Подтверждённых компонентов: {componentTruth.includedComponents.length}</span>
+              <span>Вариантов источника: {componentTruth.sourceVariations.length}</span>
+              <span>Строк цен компонентов: {componentTruth.optionPriceRows.length}</span>
+            </div>
           </Panel>
 
           <details className="owner-disclosure owner-disclosure-section">
@@ -116,7 +219,7 @@ export function AdminProductDetailView({ product, componentTruth }: { product: S
         </div>
 
         <div className="col-span-12 lg:col-span-7 space-y-5">
-          <Panel title="Блокеры запуска" icon={ShieldAlert}>
+          <Panel id="overview" title="Блокеры запуска" icon={ShieldAlert}>
             <div className="grid sm:grid-cols-2 gap-3">
               <Blocker label="Название" active={labelReview} />
               <Blocker label="Цена" active={priceReview} />
@@ -140,7 +243,26 @@ export function AdminProductDetailView({ product, componentTruth }: { product: S
 
           <AdminReviewActionsClient productSlug={slugValue} canonicalProductId={product.canonical_product_id} sourceRoute={adminHref} initialBlockers={{ label: labelReview, price: priceReview, component: componentBlocked, media: mediaReview }} />
 
-          <Panel title="Цены" icon={WalletCards}>
+          <Panel id="content-search" title="Контент и поиск" icon={Tags}>
+            <div className="grid sm:grid-cols-2 gap-3">
+              <Info label="Контентное задание" value={contentBriefLabel(brief?.compiler_status)} />
+              <Info label="Основной ключевой запрос" value={textValue(brief?.primary_keyword, 'Ещё не выбран')} />
+              <Info label="Контроль качества" value={cqaLabel(cqa?.cqa_shadow_state)} />
+              <Info label="SEO-страница" value={indexationLabel(seoPage?.indexation_intent || brief?.indexation_intent)} />
+            </div>
+            <div className="mt-3 owner-card-meta" style={{ marginBottom: 0 }}>
+              <span>Основных групп запросов: {Number(seoPage?.primary_ownership_count || brief?.primary_ownership_count || 0)}</span>
+              <span>Назначений запросов: {Number(seoPage?.ownership_count || brief?.ownership_count || 0)}</span>
+              <span>Активных правил бизнеса: {Number(brief?.business_truth_count || 0)}</span>
+            </div>
+            <div className="owner-actions">
+              {product.canonical_product_id ? <Link href={`/admin/content-briefs?q=${encodeURIComponent(product.canonical_product_id)}`} className="owner-button">Контентное задание</Link> : null}
+              <Link href="/admin/content-qa" className="owner-button">Контроль качества</Link>
+              {seoPage?.url_path ? <Link href={`/admin/seo-portfolio?q=${encodeURIComponent(String(seoPage.url_path))}`} className="owner-button">SEO-страница</Link> : null}
+            </div>
+          </Panel>
+
+          <Panel id="pricing" title="Цены" icon={WalletCards}>
             <div className="grid sm:grid-cols-3 gap-3">
               <Metric label="Мин. цена" value={formatPrice(product.min_price, product.currency || 'EUR')} />
               <Metric label="Макс. цена" value={formatPrice(product.max_price, product.currency || 'EUR')} />
@@ -163,6 +285,27 @@ export function AdminProductDetailView({ product, componentTruth }: { product: S
                 {!configs.length ? <div className="p-4 text-[13px] text-[var(--bone-dim)]">Опции недоступны в текущем контракте товара. Для полного разбора нужны данные Product Builder.</div> : null}
               </div>
             </div>
+          </Panel>
+
+          <Panel id="history" title="История" icon={Boxes}>
+            {history.length ? (
+              <div className="owner-list">
+                {history.map((event) => (
+                  <article className="owner-list-row" key={String(event.review_event_id)}>
+                    <div className="owner-list-row-main">
+                      <div className="owner-card-meta">
+                        <span>{eventStatusLabel(event.event_status)}</span>
+                        <span>{dateTimeLabel(event.created_at)}</span>
+                      </div>
+                      <h3>{historyEventLabel(event.event_type)}</h3>
+                      <p>{textValue(event.admin_note, 'Без дополнительной заметки.')}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="owner-empty">Для этого товара пока нет сохранённых рабочих событий. История появится после реальных проверок и изменений.</div>
+            )}
           </Panel>
         </div>
       </div>
