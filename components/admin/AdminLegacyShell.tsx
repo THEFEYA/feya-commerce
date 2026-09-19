@@ -5,54 +5,59 @@ import type { ReactNode } from 'react';
 import { AdminNav } from '@/components/AdminNav';
 import OwnerShell from '@/components/admin/OwnerShell';
 
+const AGENT_OWNER_PREFIXES = [
+  '/admin/advanced',
+  '/admin/business-truth',
+  '/admin/content-briefs',
+  '/admin/content-qa',
+  '/admin/data-authority',
+  '/admin/data-health',
+  '/admin/execution-map',
+  '/admin/executions',
+  '/admin/experiments',
+  '/admin/growth',
+  '/admin/incidents',
+  '/admin/launch-readiness',
+  '/admin/learning',
+  '/admin/metrics',
+  '/admin/opportunities',
+  '/admin/owner-attention',
+  '/admin/product-facts-review',
+  '/admin/results',
+  '/admin/roles',
+  '/admin/scenario-tests',
+  '/admin/search',
+  '/admin/seo-cluster-proposals',
+  '/admin/seo-clusters',
+  '/admin/seo-indexability',
+  '/admin/seo-keyword-review',
+  '/admin/seo-ownership-proposals',
+  '/admin/seo-portfolio',
+  '/admin/signals',
+  '/admin/strategy',
+  '/admin/system-readiness',
+  '/admin/system',
+  '/admin/work',
+] as const;
+
+function isAgentOwnerRoute(pathname: string) {
+  return AGENT_OWNER_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
+
 export default function AdminLegacyShell({ children }: { children: ReactNode }) {
   const pathname = usePathname() || '/admin';
 
   if (pathname.startsWith('/admin/login')) return <>{children}</>;
 
-  // The new Company / AI operating system uses the owner-first shell.
-  // These routes did not belong to the approved Product OS baseline.
-  const agentRoutes = [
-    '/admin/company',
-    '/admin/advanced',
-    '/admin/business-truth',
-    '/admin/content-briefs',
-    '/admin/content-qa',
-    '/admin/data-authority',
-    '/admin/data-health',
-    '/admin/execution-map',
-    '/admin/executions',
-    '/admin/experiments',
-    '/admin/growth',
-    '/admin/incidents',
-    '/admin/launch-readiness',
-    '/admin/learning',
-    '/admin/metrics',
-    '/admin/opportunities',
-    '/admin/owner-attention',
-    '/admin/product-facts-review',
-    '/admin/results',
-    '/admin/roles',
-    '/admin/scenario-tests',
-    '/admin/search',
-    '/admin/seo-cluster-proposals',
-    '/admin/seo-clusters',
-    '/admin/seo-indexability',
-    '/admin/seo-keyword-review',
-    '/admin/seo-ownership-proposals',
-    '/admin/seo-portfolio',
-    '/admin/signals',
-    '/admin/strategy',
-    '/admin/system',
-    '/admin/system-readiness',
-    '/admin/work',
-  ];
+  // /admin/company has its own nested OwnerShell layout.
+  if (pathname.startsWith('/admin/company')) return <>{children}</>;
 
-  if (agentRoutes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) {
+  // New Growth OS / AI-team surfaces use the modern owner-first shell.
+  if (isAgentOwnerRoute(pathname)) {
     return <OwnerShell>{children}</OwnerShell>;
   }
 
-  // Product OS remains on its approved legacy visual/workflow shell.
+  // Existing Product OS keeps its approved visual/workflow shell unchanged.
   return (
     <div className="min-h-screen bg-[#07070A]">
       <AdminNav />
