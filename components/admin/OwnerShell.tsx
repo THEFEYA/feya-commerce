@@ -32,14 +32,16 @@ function ownerArea(pathname: string) {
   if (
     pathname.startsWith('/admin/company/work') ||
     pathname.startsWith('/admin/company/owner-attention') ||
-    pathname.startsWith('/admin/owner-attention')
+    pathname.startsWith('/admin/owner-attention') ||
+    pathname.startsWith('/admin/content-qa') ||
+    pathname.startsWith('/admin/product-facts-review') ||
+    pathname.startsWith('/admin/seo-keyword-review')
   ) return 'work';
   if (
     pathname.startsWith('/admin/company/growth') ||
     pathname.startsWith('/admin/company/signals') ||
     pathname.startsWith('/admin/signals') ||
     pathname.startsWith('/admin/seo-keywords') ||
-    pathname.startsWith('/admin/seo-keyword-review') ||
     pathname.startsWith('/admin/seo-clusters') ||
     pathname.startsWith('/admin/seo-cluster-proposals') ||
     pathname.startsWith('/admin/seo-portfolio') ||
@@ -154,7 +156,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
         <Link href="/admin/company" className="owner-brand" title="Центр управления FEYA">
           <span className="owner-brand-name">FEYA</span>
           <span className="owner-brand-title">Центр управления</span>
-          <span className="owner-brand-subtitle">Бизнес · товары · рост · ИИ-команда</span>
+          <span className="owner-brand-subtitle">Сигналы · работа · рост · ИИ-команда</span>
         </Link>
 
         <button
