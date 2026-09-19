@@ -212,14 +212,14 @@ export default async function AdminComponentReviewPage({ searchParams }: PagePro
         {focusedProductId ? <Link href="/admin/review/components" className="owner-button">Вся очередь</Link> : null}
       </div>
     </header>
-    {error || truthResult.error || assertionEditor.error ? <div className="mb-6 rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)]">{error || `Canonical Product Truth: ${truthResult.error || assertionEditor.error}`}</div> : null}
+    {error || truthResult.error || assertionEditor.error ? <div className="mb-6 rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)]">{error || `Факты товара: ${truthResult.error || assertionEditor.error}`}</div> : null}
     <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
       <div className="owner-summary-cell"><strong>{focusedProductId ? truthBlocked : '—'}</strong><span>Блокеров фактов у выбранного товара</span></div>
       <div className="owner-summary-cell"><strong>{variantChecks}</strong><span>Проверок вариантов</span></div>
       <div className="owner-summary-cell"><strong>{sourceVariations}</strong><span>Вариантов исходного источника</span></div>
       <div className="owner-summary-cell"><strong>{page}/{pageCount}</strong><span>Страница очереди · {rows.length} товаров</span></div>
     </section>
-    {!focusedProductId && pageCount > 1 ? <div className="mb-6 flex items-center justify-between gap-3"><div className="text-[11px] text-[var(--bone-dim)]">Быстрый индекс показывает рабочую группу из {PAGE_SIZE} товаров. Точный Product Truth загружается только после открытия одного товара.</div><div className="flex gap-2">{page > 1 ? <Link href={`/admin/review/components?page=${page - 1}`} className="btn-ghost px-4 py-2 text-[10px]">Назад</Link> : null}{page < pageCount ? <Link href={`/admin/review/components?page=${page + 1}`} className="btn-ghost px-4 py-2 text-[10px]">Далее</Link> : null}</div></div> : null}
+    {!focusedProductId && pageCount > 1 ? <div className="mb-6 flex items-center justify-between gap-3"><div className="text-[11px] text-[var(--bone-dim)]">Быстрый индекс показывает рабочую группу из {PAGE_SIZE} товаров. Точный Product Truth загружается только после открытия одного товара.</div><div className="flex gap-2">{page > 1 ? <Link href={`/admin/review/components?page=${page - 1}`} className="owner-button">Назад</Link> : null}{page < pageCount ? <Link href={`/admin/review/components?page=${page + 1}`} className="owner-button">Далее</Link> : null}</div></div> : null}
     <div className="space-y-4">{reviewRows.map(({ product, configs, truthDiagnostic }) => {
       const slug = productSlug(product);
       const visibleConfigs = configs.filter((config) => config.is_full_set || config.is_bundle).slice(0, 6);
@@ -248,8 +248,8 @@ export default async function AdminComponentReviewPage({ searchParams }: PagePro
             {truthDiagnostic ? <AdminQueueQuickReviewClient productSlug={slug} canonicalProductId={product.canonical_product_id} sourceRoute="/admin/review/components" approvedEventType="component_mapping_checked" subjectType="component" approvedLabel="Отметить компоненты проверенными" approvalDisabled={approvalDisabled} approvalDisabledReason={approvalDisabledReason} /> : null}
           </div>
           <div className="flex flex-wrap justify-end gap-2">
-            {!focusedProductId ? <Link href={`/admin/review/components?product_id=${product.canonical_product_id}`} className="btn-ghost px-4 py-2 text-[10px]">Проверить факты товара</Link> : null}
-            <Link href={`/admin/products/${slug}`} className="btn-ghost px-4 py-2 text-[10px]">Карточка товара</Link>
+            {!focusedProductId ? <Link href={`/admin/review/components?product_id=${product.canonical_product_id}`} className="owner-button">Проверить факты товара</Link> : null}
+            <Link href={`/admin/products/${slug}`} className="owner-button">Карточка товара</Link>
           </div>
         </div>
         {focusedProductId && product.canonical_product_id ? <div className="mt-5">
