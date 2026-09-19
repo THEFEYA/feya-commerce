@@ -520,6 +520,43 @@ th {
 }
 
 
+
+.owner-shell .page-shell .metric {
+  min-height: 104px;
+  padding: 14px;
+  border-radius: 12px;
+}
+
+.owner-shell .page-shell .metric strong {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.owner-shell .page-shell .metric span {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.owner-shell .page-shell .table-wrap thead th {
+  position: sticky;
+  top: var(--owner-topbar);
+  z-index: 8;
+  background: rgba(12,12,16,.96);
+  backdrop-filter: blur(12px);
+}
+
+.owner-shell .page-shell table td {
+  font-size: 12px;
+}
+
+.owner-shell .page-shell .notice {
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+
 /* Owner-first admin shell */
 :root {
   --owner-sidebar: 252px;
