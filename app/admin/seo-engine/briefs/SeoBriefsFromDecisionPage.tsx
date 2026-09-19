@@ -17,25 +17,25 @@ export default async function SeoBriefsFromDecisionPage({ searchParams }) {
   const contractApiHref = activeProductId ? `/api/admin/seo-engine/brief-contract?product_id=${activeProductId}` : null;
   const draftPreviewHref = activeProductId ? `/admin/seo-engine/draft-preview?product_id=${activeProductId}` : null;
 
-  return <main className="owner-page">
-    <div className="owner-page-inner">
-      <header className="owner-page-head">
+  return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
+    <section className="container-feya pt-7 pb-12">
+      <div className="grid gap-5 lg:grid-cols-[1fr_460px] lg:items-end border-b border-[rgba(216,214,211,.12)] pb-6 mb-6">
         <div>
-          <div className="owner-eyebrow">SEO · задание товара</div>
-          <h1>SEO-бриф</h1>
-          <p>Собираем сохранённые оси товара, подтверждённые факты и выбранные ключи в единое задание для генерации. Это тот же контракт, который используют API и проверки черновика.</p>
+          <div className="eyebrow-gold mb-2">Админка · SEO-задание v2</div>
+          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(42px,6vw,72px)' }}>SEO-задание товара</h1>
+          <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--bone-dim)]">Этот экран берёт сохранённый черновик из Мастера листинга: товар, ручной Product DNA, режим и выбранные ключи. Теперь он использует тот же contract bundle, что JSON API, проверка генерации и проверка черновика.</p>
         </div>
-        <div className="owner-actions" style={{ marginTop: 0 }}>
-          <Link href="/admin/listing-master" className="owner-button primary">Мастер листинга <ArrowUpRight size={13} /></Link>
-          <Link href="/admin/seo-keywords" className="owner-button">SEO-ядро <ArrowUpRight size={13} /></Link>
-          {draftPreviewHref ? <Link href={draftPreviewHref} className="owner-button">Проверка черновика <ArrowUpRight size={13} /></Link> : null}
-          {data.product?.product_slug ? <Link href={`/shop/${data.product.product_slug}`} className="owner-button">Товар <ArrowUpRight size={13} /></Link> : null}
+        <div className="flex flex-wrap gap-3 lg:justify-end">
+          <Link href="/admin/listing-master" className="btn-ghost">Мастер листинга <ArrowUpRight size={13} /></Link>
+          <Link href="/admin/seo-keywords" className="btn-ghost">SEO-ядро <ArrowUpRight size={13} /></Link>
+          {draftPreviewHref ? <Link href={draftPreviewHref} className="btn-ghost">Проверка черновика <ArrowUpRight size={13} /></Link> : null}
+          {data.product?.product_slug ? <Link href={`/shop/${data.product.product_slug}`} className="btn-ghost">Открыть товар <ArrowUpRight size={13} /></Link> : null}
         </div>
-      </header>
+      </div>
 
       {data.error ? <Notice tone="warning">{data.error}</Notice> : null}
       {!data.decision ? <Notice tone="warning">Для этого товара ещё нет сохранённого черновика решения. Сначала выбери товар и сохрани решение в Мастере листинга.</Notice> : null}
-      {!data.product ? <Notice tone="danger">Товар не найден в рабочем представлении фокуса товара. Вернись в Мастер листинга и выбери товар заново.</Notice> : null}
+      {!data.product ? <Notice tone="danger">Товар не найден в Product Focus view. Вернись в Мастер листинга и выбери товар заново.</Notice> : null}
 
       {data.product ? <div className="grid xl:grid-cols-[.95fr_1.05fr] gap-5 mb-5">
         <Panel title="Товар" icon={FileText}>
@@ -51,7 +51,7 @@ export default async function SeoBriefsFromDecisionPage({ searchParams }) {
                 <Fact label="Источник Etsy" value={data.product.source_category_label || '—'} />
                 <Fact label="Материал" value={data.product.material || '—'} />
                 <Fact label="Цвет" value={data.product.canonical_color_label || data.product.color || '—'} />
-                <Fact label="Визуальный мир" value={data.product.world_label || '—'} />
+                <Fact label="World" value={data.product.world_label || '—'} />
                 <Fact label="ДНК-риск" value={data.product.has_component_review_risk ? `проверить: ${data.product.needs_component_review_count || 0}` : 'нет'} />
               </div>
             </div>
@@ -89,12 +89,12 @@ export default async function SeoBriefsFromDecisionPage({ searchParams }) {
             <div className="mb-3 rounded-xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.06)] p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">
               <span className="text-bone">Метрики:</span> {brief.metricsStatus.note}
             </div>
-            <div className="space-y-3">{brief.keywordRoleGroups.length ? brief.keywordRoleGroups.map((group) => <RoleGroup key={group.role} group={group} />) : <div className="text-[12px] text-[var(--bone-dim)]">Нет распределённых ролей. Вернись в Мастер листинга и сохрани ключи заново.</div>}</div>
+            <div className="space-y-3">{brief.keywordRoleGroups.length ? brief.keywordRoleGroups.map((group) => <RoleGroup key={group.role} group={group} />) : <div className="text-[12px] text-[var(--bone-dim)]">Нет распределённых ролей. Вернись в Listing Master и сохрани ключи заново.</div>}</div>
           </Panel>
         </div>
 
         <div className="grid xl:grid-cols-[.95fr_1.05fr] gap-5 mb-5">
-          <Panel title="Контракт проверки качества SEO" icon={ShieldAlert}>
+          <Panel title="SEO QA contract" icon={ShieldAlert}>
             <div className="space-y-2">{brief.seoQaChecks.map((check) => <CheckRow key={check.id} check={check} />)}</div>
           </Panel>
 
@@ -103,11 +103,11 @@ export default async function SeoBriefsFromDecisionPage({ searchParams }) {
               <div className="text-bone text-[13px] leading-snug">{kw.keyword || kw.keyword_norm}</div>
               <div className="mt-1.5 flex flex-wrap gap-1.5"><Chip tone={roleTone(kw.pilot_role)}>{roleLabel(kw.pilot_role)}</Chip><Chip tone="gold">{kw.avg_monthly_searches ?? '—'} / {kw.competition || '—'}</Chip></div>
               <div className="mt-1 text-[10px] leading-relaxed text-[var(--bone-dim)]">релевантность: {kw.pilot_relevance_score || 0} · {kw.pilot_relevance_reason}</div>
-            </div>) : <div className="text-[12px] text-[var(--bone-dim)]">В сохранённом наборе нет сильных кандидатов ключевых слов.</div>}</div>
+            </div>) : <div className="text-[12px] text-[var(--bone-dim)]">По сохранённому набору нет сильных candidate keywords.</div>}</div>
           </Panel>
         </div>
 
-        <Panel title="Предпросмотр SEO-пакета v2" icon={Sparkles}>
+        <Panel title="Предпросмотр SEO-pack v2" icon={Sparkles}>
           <div className="grid lg:grid-cols-[.85fr_1fr] gap-5">
             <div className="space-y-3">
               <Preview label="SEO-заголовок" value={brief.draftPreview.seoTitle} />
@@ -116,28 +116,28 @@ export default async function SeoBriefsFromDecisionPage({ searchParams }) {
               <Preview label="Решение" value={brief.decision} />
             </div>
             <div className="space-y-3">
-              <TextList title="Черновое вступление и тезисы" lead={brief.draftPreview.intro} items={brief.draftPreview.bullets} />
-              <TextList title="Кандидаты для FAQ" items={brief.draftPreview.faqCandidates} />
-              <TextList title="Направление ALT для изображений" items={brief.draftPreview.imageAltDirection} />
-              <TextList title="Подсказки для внутренних ссылок" items={brief.draftPreview.internalLinkingHints} />
-              <TextList title="Заблокированные / исключённые слова" items={brief.draftPreview.blockedWords} />
+              <TextList title="Черновой intro и тезисы" lead={brief.draftPreview.intro} items={brief.draftPreview.bullets} />
+              <TextList title="FAQ candidates" items={brief.draftPreview.faqCandidates} />
+              <TextList title="Image ALT direction" items={brief.draftPreview.imageAltDirection} />
+              <TextList title="Internal linking hints" items={brief.draftPreview.internalLinkingHints} />
+              <TextList title="Blocked / excluded words" items={brief.draftPreview.blockedWords} />
             </div>
           </div>
           <div className="mt-4 flex flex-wrap gap-3">
             <Link className="btn-ghost" href={`/admin/listing-master?product_id=${activeProductId}`}>Вернуться к ключам</Link>
             {draftPreviewHref ? <Link className="btn-ghost" href={draftPreviewHref}>Открыть проверку черновика <ArrowUpRight size={13} /></Link> : null}
-            <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Сохранить SEO-пакет — заблокировано</button>
+            <button className="btn-ghost opacity-60 cursor-not-allowed" disabled>Сохранить SEO-pack — заблокировано</button>
           </div>
         </Panel>
 
         {contractPreview ? <div className="mt-5">
-          <Panel title="Тестовый контракт AI-агента" icon={Code2}>
+          <Panel title="AI-agent dry-run contract" icon={Code2}>
             <div className="mb-3 rounded-xl border border-[rgba(212,178,106,.25)] bg-[rgba(212,178,106,.06)] p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">
-              <span className="text-bone">Только просмотр:</span> это будущий вход для AI-агента и хранения черновиков. Сейчас здесь нет вызова OpenAI, записи в Supabase или публикации.
+              <span className="text-bone">Read-only bridge:</span> это будущий вход для AI-agent и draft storage. Сейчас здесь нет OpenAI call, нет Supabase write, нет publish action.
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-3">
-              <Fact label="Статус пакета" value={seoPackDraft.status} />
-              <Fact label="Задача агента" value={agentInput.task} />
+              <Fact label="Статус pack" value={seoPackDraft.status} />
+              <Fact label="Задача agent" value={agentInput.task} />
               <Fact label="Главные ключи" value={seoPackDraft.keyword_roles.primary.length} />
               <Fact label="Вторичные ключи" value={seoPackDraft.keyword_roles.secondary.length} />
             </div>
@@ -152,16 +152,16 @@ export default async function SeoBriefsFromDecisionPage({ searchParams }) {
           </Panel>
         </div> : null}
       </> : null}
-    </div>
+    </section>
   </main>;
 }
 
-function titleOf(product) { return product?.card_title || product?.h1 || product?.seo_title || product?.product_slug || 'Без названия'; }
+function titleOf(product) { return product?.card_title || product?.h1 || product?.seo_title || product?.product_slug || 'Untitled product'; }
 function param(value) { if (typeof value === 'string') return value; if (Array.isArray(value) && typeof value[0] === 'string') return value[0]; return ''; }
 function statusLabel(value) { const labels = { pass: 'готово', warning: 'проверить', blocker: 'блокер', blocked: 'заблокировано', ready_for_human_draft_preview: 'готово к черновику', needs_metric_validation: 'нужны метрики' }; return labels[String(value || '').toLowerCase()] || value || 'нет данных'; }
 function asText(value, fallback = '—') { if (value == null || value === '') return fallback; return String(value); }
 function strategyLabel(value) { if (Array.isArray(value)) return value.map(strategyLabel).join(', '); return STRATEGY_LABELS[value] || String(value || 'режим не указан'); }
-function roleLabel(value) { return ({ primary: 'основной', secondary: 'вторичный', support: 'поддерживающий', image_alt: 'ALT изображений', collection: 'коллекция', faq_commercial: 'FAQ / коммерческий', hold: 'отложить', reject: 'исключить' }[String(value || '')] || 'роль'); }
+function roleLabel(value) { return ({ primary: 'primary', secondary: 'secondary', support: 'support', image_alt: 'image ALT', collection: 'collection', faq_commercial: 'FAQ/commercial', hold: 'hold', reject: 'reject' }[String(value || '')] || 'роль'); }
 function roleTone(value) { if (value === 'primary' || value === 'secondary') return 'success'; if (value === 'reject') return 'danger'; if (value === 'hold') return 'warning'; if (value === 'collection' || value === 'faq_commercial') return 'gold'; return 'neutral'; }
 function Chip({ children, tone = 'neutral' }) { const cls = tone === 'success' ? 'border-[rgba(108,183,138,.35)] text-[#a9dfbd] bg-[rgba(108,183,138,.08)]' : tone === 'danger' ? 'border-[rgba(196,64,88,.34)] text-[var(--ruby-soft)] bg-[rgba(160,32,56,.08)]' : tone === 'gold' ? 'border-[rgba(212,178,106,.35)] text-[var(--gold-warm)] bg-[rgba(212,178,106,.08)]' : tone === 'warning' ? 'border-[rgba(212,178,106,.30)] text-[var(--gold-warm)] bg-[rgba(212,178,106,.07)]' : 'border-[rgba(216,214,211,.16)] text-[var(--bone-dim)] bg-black/15'; return <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] ${cls}`}>{children}</span>; }
 function Notice({ children, tone = 'warning' }) { const cls = tone === 'danger' ? 'border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)]' : 'border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)]'; return <div className={`rounded-2xl border ${cls} p-4 text-[var(--bone-dim)] mb-5`}>{children}</div>; }
