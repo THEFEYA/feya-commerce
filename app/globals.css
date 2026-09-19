@@ -1329,6 +1329,32 @@ th {
 
 
 
+
+.owner-capability-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 7px;
+}
+
+.owner-capability-dots > span:not(.owner-section-kicker) {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  border: 1px solid rgba(216,214,211,.14);
+  background: rgba(255,255,255,.035);
+}
+
+.owner-capability-dots > span.is-ready {
+  border-color: rgba(115,217,159,.38);
+  background: rgba(115,217,159,.24);
+}
+
+.owner-capability-dots > span.is-missing {
+  border-color: rgba(247,200,115,.28);
+  background: rgba(247,200,115,.065);
+}
+
 .owner-mini-bars {
   display: grid;
   gap: 9px;
