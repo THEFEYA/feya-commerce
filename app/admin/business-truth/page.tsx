@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { BusinessTruthStatusRow } from '@/lib/types';
+import { statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -25,6 +26,40 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
+const TRUTH_LABELS: Record<string, string> = {
+  BRAND_NAME: 'Название бренда',
+  ORDER_CANCELLATIONS: 'Отмена заказа',
+  DELIVERY_DATE_GUARANTEE: 'Гарантия даты доставки',
+  CUSTOMS_DUTIES_BUYER_RESPONSIBILITY: 'Таможенные пошлины',
+  STANDARD_MADE_TO_ORDER_PRODUCTION_TIME: 'Срок изготовления',
+  EXPRESS_SHIPPING_TIME: 'Экспресс-доставка',
+  STANDARD_INTERNATIONAL_TRACKED_SHIPPING_TIME: 'Стандартная международная доставка',
+  DISCOUNTED_ITEM_RETURN_TREATMENT: 'Возврат товара со скидкой',
+  RETURN_POLICY_CURRENT: 'Правила возврата',
+};
+
+function truthTypeLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    BRAND: 'Бренд',
+    CANCELLATION: 'Заказы',
+    CLAIM_POLICY: 'Ограничение обещаний',
+    CUSTOMS_DUTIES: 'Таможня',
+    PRODUCTION: 'Изготовление',
+    SHIPPING: 'Доставка',
+    RETURNS: 'Возвраты',
+  };
+  return labels[key] || 'Правило бизнеса';
+}
+
+function scopeLabelLocal(value: unknown, keyValue: unknown) {
+  const key = asText(value, '').toUpperCase();
+  if (key === 'GLOBAL') return 'Для всего магазина';
+  if (key === 'PRODUCTION_PROFILE') return 'Профиль изготовления';
+  if (key === 'SHIPPING_PROFILE') return 'Профиль доставки';
+  return asText(keyValue, 'Специальная область');
+}
+
 function statusClass(value: unknown) {
   const normalized = asText(value, '').toUpperCase();
   if (normalized === 'ACTIVE') return 'ok';
@@ -43,25 +78,25 @@ export default async function AdminBusinessTruthPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/products">Products</Link>
-            <Link href="/admin/content-qa">Content QA</Link>
-            <Link href="/admin/business-truth">Business Truth</Link>
-            <Link href="/admin/system-readiness">System Readiness</Link>
+            <Link href="/admin/products">Товары</Link>
+            <Link href="/admin/content-qa">Контроль качества</Link>
+            <Link href="/admin/business-truth">Правила бизнеса</Link>
+            <Link href="/admin/system-readiness">Готовность системы</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Canonical operational facts · read-only</div>
-          <h1>Business Truth</h1>
+          <div className="phase-label">Канонические правила бизнеса · только просмотр</div>
+          <h1>Правила бизнеса</h1>
           <p>
-            Only ACTIVE rows may be treated as business facts by content generation or CQA. REVIEW_REQUIRED rows remain intentionally unavailable to AI until their storefront wording is confirmed.
+            Только активные записи могут использоваться генерацией контента и контролем качества как факты бизнеса. Записи, требующие проверки, намеренно недоступны ИИ, пока их публичная формулировка не подтверждена.
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Truth records</span></div>
-          <div className="card metric"><strong>{active}</strong><span>Active facts</span></div>
-          <div className="card metric"><strong>{review}</strong><span>Need owner review</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{review}</strong><span>Правил ждут решения владельца</span></div>
+          <div className="owner-summary-cell"><strong>{active}</strong><span>Активных подтверждённых правил</span></div>
+          <div className="owner-summary-cell"><strong>{rows.length}</strong><span>Всего записей в реестре</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
@@ -70,29 +105,29 @@ export default async function AdminBusinessTruthPage() {
           <table>
             <thead>
               <tr>
-                <th>Truth</th>
-                <th>Type</th>
-                <th>Scope</th>
-                <th>Status</th>
-                <th>Approved public wording</th>
-                <th>Version</th>
+                <th>Правило</th>
+                <th>Тип</th>
+                <th>Область</th>
+                <th>Статус</th>
+                <th>Подтверждённая публичная формулировка</th>
+                <th>Версия</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
+              {[...rows].sort((a, b) => {
+                const rank = (status: unknown) => asText(status, '').toUpperCase() === 'REVIEW_REQUIRED' ? 0 : 1;
+                return rank(a.status) - rank(b.status) || asText(a.truth_type).localeCompare(asText(b.truth_type));
+              }).map((row) => (
                 <tr key={`${row.truth_code}-${row.scope_type}-${row.scope_key}-${row.version_no}`}>
-                  <td><strong>{row.truth_code}</strong></td>
-                  <td>{asText(row.truth_type)}</td>
-                  <td>
-                    {asText(row.scope_type)}
-                    <div className="muted">{asText(row.scope_key)}</div>
-                  </td>
+                  <td><strong title={row.truth_code}>{TRUTH_LABELS[row.truth_code] || 'Правило бизнеса'}</strong></td>
+                  <td>{truthTypeLabel(row.truth_type)}</td>
+                  <td title={`${asText(row.scope_type)} · ${asText(row.scope_key)}`}>{scopeLabelLocal(row.scope_type, row.scope_key)}</td>
                   <td>
                     <span className={`status-pill ${statusClass(row.status)}`}>
-                      {asText(row.status)}
+                      {statusLabel(row.status)}
                     </span>
                   </td>
-                  <td>{asText(row.public_copy, 'Not approved for public copy')}</td>
+                  <td>{asText(row.public_copy, 'Публичная формулировка ещё не подтверждена')}</td>
                   <td>v{row.version_no ?? '—'}</td>
                 </tr>
               ))}

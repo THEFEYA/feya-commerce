@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { DataSourceHealthRow } from '@/lib/types';
+import { dataFreshnessLabel, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -21,6 +22,36 @@ async function getRows(): Promise<{ rows: DataSourceHealthRow[]; error?: string 
 function asText(value: unknown, fallback = '—') {
   if (value == null || value === '') return fallback;
   return String(value);
+}
+
+function authorityLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    CURRENT_FIRST_PARTY: 'Текущий внутренний источник',
+    DERIVED_OPERATIONAL: 'Рассчитано внутри FEYA',
+    EXTERNAL_MARKET: 'Внешний рыночный источник',
+    LEGACY_FIRST_PARTY: 'Исторический внутренний источник',
+  };
+  return labels[key] || 'Источник данных';
+}
+
+function dateTimeLabel(value: unknown) {
+  if (!value) return '—';
+  const date = new Date(String(value));
+  if (Number.isNaN(date.getTime())) return asText(value);
+  return new Intl.DateTimeFormat('ru-RU', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  }).format(date);
+}
+
+function healthRank(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  if (key === 'UNAVAILABLE') return 0;
+  if (key === 'DEGRADED') return 1;
+  if (key === 'NOT_OBSERVABLE' || key === 'STALE') return 2;
+  if (key === 'HEALTHY') return 4;
+  return 3;
 }
 
 function healthClass(value: unknown) {
@@ -44,73 +75,73 @@ export default async function AdminDataHealthPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/data-authority">Data Authority</Link>
-            <Link href="/admin/data-health">Data Health</Link>
-            <Link href="/admin/system-readiness">System Readiness</Link>
+            <Link href="/admin/data-authority">Источники истины</Link>
+            <Link href="/admin/data-health">Состояние данных</Link>
+            <Link href="/admin/system-readiness">Готовность системы</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Data freshness & health · latest snapshot</div>
-          <h1>Data Health</h1>
+          <div className="phase-label">Свежесть и доступность данных · последний снимок</div>
+          <h1>Состояние данных</h1>
           <p>
-            Authority and availability are separate from freshness. Missing or stale sources remain explicit and must not be interpreted as zero business activity.
+            Надёжность источника, его доступность и свежесть — разные вещи. Отсутствующие или устаревшие данные показываются явно и не должны трактоваться как нулевая бизнес-активность.
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Sources</span></div>
-          <div className="card metric"><strong>{healthy}</strong><span>Healthy</span></div>
-          <div className="card metric"><strong>{degraded}</strong><span>Degraded</span></div>
-          <div className="card metric"><strong>{unavailable}</strong><span>Unavailable</span></div>
-          <div className="card metric"><strong>{notObservable}</strong><span>Not observable</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{unavailable}</strong><span>Источников недоступны</span></div>
+          <div className="owner-summary-cell"><strong>{degraded}</strong><span>Работают с ограничениями</span></div>
+          <div className="owner-summary-cell"><strong>{notObservable}</strong><span>Недостаточно наблюдения</span></div>
+          <div className="owner-summary-cell"><strong>{healthy}</strong><span>Работают нормально</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
         <div className="notice" style={{ marginBottom: '18px' }}>
-          This is an append-only audit snapshot. No automatic health scheduler is deployed yet, so checked_at matters.
+          Это журнал снимков состояния. Автоматический планировщик проверки источников пока не запущен, поэтому важно время последней проверки.
         </div>
 
         <div className="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Source</th>
-                <th>Authority</th>
-                <th>Health</th>
-                <th>Freshness</th>
-                <th>Watermark</th>
-                <th>Rows</th>
-                <th>Error / limitation</th>
-                <th>Checked</th>
+                <th>Источник</th>
+                <th>Тип источника</th>
+                <th>Состояние</th>
+                <th>Свежесть</th>
+                <th>Последние данные</th>
+                <th>Строк</th>
+                <th>Ограничение</th>
+                <th>Проверено</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
+              {[...rows].sort((a, b) => healthRank(a.health_state) - healthRank(b.health_state)).map((row) => (
                 <tr key={`${row.source_code}-${row.source_instance_key || 'default'}`}>
                   <td>
-                    <strong>{asText(row.source_name, row.source_code)}</strong>
-                    <div className="muted">{row.source_code}</div>
-                    <div className="muted">{asText(row.source_instance_key)}</div>
+                    <strong title={asText(row.source_code)}>{sourceLabel(row.source_code)}</strong>
                   </td>
-                  <td>
-                    {asText(row.authority_tier)}
-                    <div className="muted">{asText(row.authority_domain)}</div>
+                  <td title={`${asText(row.authority_tier)} · ${asText(row.authority_domain)}`}>
+                    {authorityLabel(row.authority_tier)}
                   </td>
                   <td>
                     <span className={`status-pill ${healthClass(row.health_state)}`}>
-                      {asText(row.health_state)}
+                      {statusLabel(row.health_state)}
                     </span>
                   </td>
-                  <td>{asText(row.freshness_state)}</td>
-                  <td>{asText(row.watermark_at)}</td>
+                  <td>{dataFreshnessLabel(row.freshness_state)}</td>
+                  <td>{dateTimeLabel(row.watermark_at)}</td>
                   <td>{row.observed_row_count ?? '—'}</td>
                   <td>
-                    {asText(row.error_code)}
-                    <div className="muted">{asText(row.error_message)}</div>
+                    {row.error_message ? (
+                      <details>
+                        <summary className="cursor-pointer text-[var(--gold-warm)]">Показать ограничение</summary>
+                        <div className="muted" style={{ marginTop: '6px' }} title={asText(row.error_code)}>{asText(row.error_message)}</div>
+                      </details>
+                    ) : '—'}
                   </td>
-                  <td>{asText(row.checked_at)}</td>
+                  <td>{dateTimeLabel(row.checked_at)}</td>
                 </tr>
               ))}
             </tbody>

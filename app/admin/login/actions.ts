@@ -7,6 +7,8 @@ import { getMissingSupabaseAuthEnvMessage, getSupabaseAuthServerClient } from '@
 export async function loginAdmin(formData: FormData) {
   const email = String(formData.get('email') || '').trim();
   const password = String(formData.get('password') || '');
+  const requestedNext = String(formData.get('next') || '').trim();
+  const nextPath = requestedNext.startsWith('/admin') && !requestedNext.startsWith('/admin/login') ? requestedNext : '/admin';
 
   if (!email || !password) {
     redirect('/admin/login?error=missing_credentials');
@@ -24,7 +26,7 @@ export async function loginAdmin(formData: FormData) {
   }
 
   revalidatePath('/admin', 'layout');
-  redirect('/admin');
+  redirect(nextPath);
 }
 
 export async function logoutAdmin() {

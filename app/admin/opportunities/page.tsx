@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { GrowthOpportunityRow } from '@/lib/types';
+import { roleLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -24,6 +25,42 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
+function opportunityTypeLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    EVENT: 'Событие',
+    SEASONAL: 'Сезонная',
+    SEARCH_DEMAND: 'Поисковый спрос',
+    PRODUCT: 'Товарная',
+    CONTENT: 'Контент',
+    COMMERCIAL: 'Коммерческая',
+    TECHNICAL: 'Техническая',
+  };
+  return labels[key] || (key ? 'Возможность роста' : '—');
+}
+
+function dateLabel(value: unknown) {
+  if (!value) return '—';
+  const date = new Date(String(value));
+  if (Number.isNaN(date.getTime())) return asText(value);
+  return new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+}
+
+function stateLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    OPEN: 'Открыта',
+    ACTIONING: 'В работе',
+    CLOSED: 'Закрыта',
+    EXPIRED: 'Срок истёк',
+    CANCELLED: 'Отменена',
+    EXPIRING_SOON: 'Истекает в ближайшие 48 часов',
+    EXPIRING_THIS_WEEK: 'Истекает на этой неделе',
+    ACTIVE: 'Актуальна',
+  };
+  return labels[key] || asText(value);
+}
+
 function statusClass(value: unknown) {
   const status = asText(value, '').toUpperCase();
   if (status === 'CLOSED') return 'ok';
@@ -45,44 +82,43 @@ export default async function AdminOpportunitiesPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/opportunities">Opportunities</Link>
-            <Link href="/admin/strategy">Strategy</Link>
-            <Link href="/admin/signals">Signals</Link>
+            <Link href="/admin/opportunities">Возможности</Link>
+            <Link href="/admin/strategy">Стратегия</Link>
+            <Link href="/admin/company/signals">Сигналы</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Event / commercial deadline registry · read-only</div>
-          <h1>Opportunities</h1>
+          <div className="phase-label">Возможности и сроки · только просмотр</div>
+          <h1>Возможности</h1>
           <p>
-            Event dates and commercial deadlines are tracked separately. A seasonal event may still be weeks away while the practical production/shipping decision window has already expired.
+            Дата события и коммерческий срок учитываются отдельно: событие может быть ещё далеко, но окно для производства и доставки уже может закрываться.
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Opportunities</span></div>
-          <div className="card metric"><strong>{expiringSoon}</strong><span>Expiring ≤48h</span></div>
-          <div className="card metric"><strong>{thisWeek}</strong><span>Expiring this week</span></div>
-          <div className="card metric"><strong>{actioning}</strong><span>Actioning</span></div>
-          <div className="card metric"><strong>{expired}</strong><span>Expired</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{rows.length}</strong><span>Возможностей зафиксировано</span></div>
+          <div className="owner-summary-cell"><strong>{expiringSoon}</strong><span>Окно закрывается ≤48 ч</span></div>
+          <div className="owner-summary-cell"><strong>{thisWeek}</strong><span>Окно закрывается на этой неделе</span></div>
+          <div className="owner-summary-cell"><strong>{actioning}</strong><span>Уже в работе</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
         {!rows.length ? (
-          <div className="notice">No real Growth Opportunities have been recorded yet.</div>
+          <div className="notice">Реальные возможности роста пока не зафиксированы.</div>
         ) : (
           <div className="table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>Priority</th>
-                  <th>Opportunity</th>
-                  <th>Owner</th>
-                  <th>Status</th>
-                  <th>Commercial expiry</th>
-                  <th>Event window</th>
-                  <th>Initiative</th>
+                  <th>Приоритет</th>
+                  <th>Возможность</th>
+                  <th>Ответственный</th>
+                  <th>Статус</th>
+                  <th>Коммерческий срок</th>
+                  <th>Период события</th>
+                  <th>Инициатива</th>
                 </tr>
               </thead>
               <tbody>
@@ -91,29 +127,29 @@ export default async function AdminOpportunitiesPage() {
                     <td>{asText(row.priority)}</td>
                     <td>
                       <strong>{asText(row.title, row.opportunity_code || '—')}</strong>
-                      <div className="muted">{asText(row.opportunity_type)}</div>
+                      <div className="muted" title={asText(row.opportunity_type)}>Тип: {opportunityTypeLabel(row.opportunity_type)}</div>
                       <div className="muted">{asText(row.event_name)}</div>
                     </td>
-                    <td>{asText(row.owner_role)}</td>
+                    <td>{roleLabel(row.owner_role)}</td>
                     <td>
                       <span className={`status-pill ${statusClass(row.opportunity_status)}`}>
-                        {asText(row.opportunity_status)}
+                        {stateLabel(row.opportunity_status)}
                       </span>
                       <div className="badge-row">
                         <span className={`status-pill ${statusClass(row.expiry_state)}`}>
-                          {asText(row.expiry_state)}
+                          {stateLabel(row.expiry_state)}
                         </span>
                       </div>
                     </td>
                     <td>
-                      {asText(row.commercial_expiry_at)}
-                      <div className="muted">due {asText(row.due_at)}</div>
+                      {dateLabel(row.commercial_expiry_at)}
+                      <div className="muted">срок задачи: {dateLabel(row.due_at)}</div>
                     </td>
                     <td>
-                      {asText(row.event_starts_at)}
-                      <div className="muted">→ {asText(row.event_ends_at)}</div>
+                      {dateLabel(row.event_starts_at)}
+                      <div className="muted">→ {dateLabel(row.event_ends_at)}</div>
                     </td>
-                    <td>{asText(row.initiative_id)}</td>
+                    <td>{row.initiative_id ? <Link href="/admin/strategy" title={asText(row.initiative_id)}>Связана с инициативой</Link> : 'Не создана'}</td>
                   </tr>
                 ))}
               </tbody>

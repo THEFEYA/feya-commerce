@@ -4,17 +4,20 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run check:admin-boundary && next build",
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:seo": "node --experimental-strip-types --test tests/seo/*.test.ts",
+    "check:admin-boundary": "node scripts/check-admin-data-boundary.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.0",
     "next": "^15.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "@supabase/ssr": "^0.10.0"
+    "@supabase/ssr": "^0.10.0",
+    "lucide-react": "^0.451.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.0",
@@ -23,6 +26,9 @@
     "@types/react-dom": "^19.0.0",
     "eslint": "^9.21.0",
     "eslint-config-next": "^15.3.0",
-    "typescript": "^5.8.0"
+    "typescript": "^5.8.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13"
   }
 }

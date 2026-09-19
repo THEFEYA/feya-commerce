@@ -1,0 +1,519 @@
+export const THEFEYA_SEO_DOCTRINE_VERSION = 'thefeya_seo_doctrine_v25' as const;
+
+export const THEFEYA_RESEARCH_RELOAD_CHECKPOINT = {
+  checkpoint_id: 'reload_latest_research_before_apply_publish_v1',
+  required_before_stage: 'apply_to_product_or_publish_readiness',
+  admin_note_ru: 'Перед финальным apply-to-product / publish-readiness нужно попросить у пользователя заново загрузить последние SEO research-файлы и обновить doctrine, если исследования изменили правила.',
+  agent_note_en: 'Before implementing the final apply-to-product or publish-readiness stage, stop and ask the owner to re-upload the latest SEO research files. Do not rely only on summarized memory for the final doctrine.',
+} as const;
+
+export const THEFEYA_VARIATION_EDITING_CHECKPOINT = {
+  checkpoint_id: 'unify_variations_included_components_pdp_sitemap_v1',
+  required_before_stage: 'apply_to_product_or_catalog_scale_editing',
+  admin_note_ru: 'Перед массовым применением SEO к товарам нужно спроектировать единый редактор, где вариации, комплектация, PDP-блоки, slug/meta и sitemap не живут в разных мирах.',
+  agent_note_en: 'Before catalog-scale apply-to-product editing, design one canonical editing flow for product variations, included components, PDP blocks, slug/meta data, and sitemap updates. Do not split those facts across disconnected systems.',
+} as const;
+
+export const THEFEYA_BRAND_VALUE_PILLARS = [
+  'TheFEYA is a creative studio developing original festival and stage fashion. Explain what the original design gives the wearer; do not use independence or company size as a selling point.',
+  'Original studio design matters because our different design ideas help buyers find a piece that feels true to their own style and build a bold, recognizable look around it. State that buyer value directly without comparisons to standard templates, generic costumes or mass production.',
+  'The studio helps people express individuality through clothing. It is safe to say that a supported design is made to stand out at a festival, on stage or in photographs; never promise compliments, likes, followers, virality or universal attention.',
+  'A distinctive stage and camera design may support a memorable, recognizable look for performers, creators and public-facing buyers when the product and selected use cases support it.',
+  'Describe visual impact through observable product qualities and supported use cases. Do not mention algorithms, organic attention, reactions, saves, comments or social metrics in product copy.',
+  'Adjustable straps, standard sizing and custom measurements are canonical studio facts for the fixed right PDP panel.',
+  'Comfort, softness against the body, reinforcement, durability and shape retention may be described only when supported by actual material and construction evidence.',
+  'When acrylic is confirmed, plastic is its broader material name and may appear naturally once; plastic alone does not prove acrylic. Keep historical keyword metrics attached to their measured phrases.',
+  'Mirror is a glossy finish label, separate from substrate and gold or silver color. It alone does not establish reflection, light-catching behavior or improved visibility under stage lighting.',
+  'Handmade and made-to-order value must explain studio craft, fit or purposeful construction. It must not repeat the same originality argument in different words.',
+  'The studio can discuss selected changes while preserving its distinctive visual language; operational customization details belong only in the fixed right PDP panel.',
+] as const;
+
+export const THEFEYA_CUSTOMER_USE_CASE_MAP = [
+  'Ideal for answers only who the product serves and where or why they would wear it. Product construction, finish, silhouette, accents, layers and component combinations never belong in this block.',
+  'Product-compatible general roles may include festival-goers, Burning Man attendees, performers, dancers, DJs, show artists, creators and stylists when the current generation context explicitly supplies them.',
+  'High-intent or subculture-specific roles such as drag performers, cosplayers, showgirls, pole or exotic dancers and named character actors require an explicit operator-selected focus. Never infer them from a costume product type, legacy title, image setting or broad festival context.',
+  'Eligible occasions and productions include festivals, Burning Man, raves, stage shows, dance performances, theatrical productions, music videos, TV or film costume work, editorial photoshoots, costume parties, nightclub shows and other selected events.',
+  'Eligible B2B contexts include show ballets, dance troupes, event productions and costume studios only when the operator selected a compatible professional focus. Do not invent wholesale terms, discounts or service promises.',
+  'Style and persona axes may shape a natural context, such as a warrior-inspired stage look or cyberpunk performance costume, but the internal words persona and direction never appear in customer copy.',
+  'Do not add every possible customer or event. Use 4-5 distinct customer portraits, each with a person or at most two related roles and a concrete approved occasion, production or buying need. Product Truth remains the veto.',
+  'Under the Ideal for heading, each bullet must read as a direct answer to “for whom?” Start with the person or role, then vary the action naturally: seeking, choosing, creating, producing, selecting or another context-specific verb. Never repeat planning, preparing or any other sentence frame across three or more bullets.',
+] as const;
+
+export const THEFEYA_BENEFIT_GENERATION_POLICY = [
+  'Why you’ll love it is a purchase-decision block, not a second description and not an SEO keyword container.',
+  'Write 3-4 genuinely different bullets from available product-specific or canonical storefront evidence. If three honest buyer outcomes cannot be supported, block the draft for missing truth instead of publishing a thin benefit section or inventing filler.',
+  'Every bullet must connect one supported feature or studio truth to a useful buyer outcome. Use the mental test: feature or proof -> so what changes for the buyer.',
+  'Use at least three distinct value families when evidence exists: distinctive studio design; easy dressing or adjustment; body comfort; structure, shape retention or durability; verified finish behavior.',
+  'Include exactly one design-authorship benefit. State the real buyer value directly: our original design ideas give the buyer a distinctive, memorable piece that already feels bold and personal. Do not compare it with a standard template, generic costume or mass production.',
+  'Prefer practical buyer concerns over abstract art criticism: quick to put on, easier to adjust, comfortable against the body, keeps its shape between wears, remains useful for future events, or has a verified light-catching finish.',
+  'Make the product or confirmed material the grammatical subject of comfort copy. Never write vague mechanisms such as a comfortable feel supports an event, and never let translation imply that the store sells a comfortable atmosphere.',
+  'A particular photo crop is not a product advantage. Never use full-length photos, full-body shots or another framing format as proof that the garment looks good. When camera value is supported, use inclusive language covering photographs, video, detail views or performance lighting without implying that other crops are inferior.',
+  'A style, event, persona or audience is a use case for Ideal for, not a purchase benefit. Do not use works for warrior, futuristic or desert styling as a Why bullet.',
+  'A visual observation is not automatically a benefit. Contrast, visual depth, dramatic line, armored presence, attitude, mood and individual feel are too abstract unless tied to a concrete buyer outcome.',
+  'Never describe shape retention as keeping its form during movement. Explain the useful result literally: the supported material or layered construction helps the piece keep its shape between wears, resist creasing or remain reusable for future events.',
+  'If construction, structure or build appears in more than one Why bullet, rewrite the block. Different wording for the same construction idea is not benefit diversity.',
+  'Never call the material itself structured. When supported, say that careful storage helps the piece keep its shape beautifully between wears and remain ready for future events.',
+  'Do not describe dark clothing, goggles, masks, props, background scenery or other styling as a property or advantage of the sold product.',
+  'The fixed right panel may provide evidence, but do not copy its wording. Translate supported operational facts into a concise outcome, such as quick adjustment, easier dressing or shape retention.',
+  'Do not force primary or secondary keywords into Why you’ll love it. Place product queries naturally in title, H1, meta, intro or About this piece; preserve the benefit block for conversion clarity.',
+  'Comparative price, tax, discount, bulk-order, service-quality, assortment and delivery-superiority claims are store-level promises. Do not generate them in a product benefit block without a separate approved policy and evidence source.',
+] as const;
+
+export type ThefeyaRightPdpBlock = {
+  block_key: string;
+  heading: string;
+  lines: readonly string[];
+  body: string;
+};
+
+function rightPanelBlock(block_key: string, heading: string, lines: readonly string[]): ThefeyaRightPdpBlock {
+  return {
+    block_key,
+    heading,
+    lines,
+    body: lines.join('\n'),
+  };
+}
+
+export const THEFEYA_CANONICAL_RIGHT_PDP_PANEL = [
+  rightPanelBlock('sizing_fit', 'Sizing & fit', [
+    'Use our size chart to choose your standard size.',
+    'Where the design uses straps, adjust them for a comfortable, secure fit.',
+    'For custom measurements or a special fit request, add the details to your order note.',
+  ]),
+  rightPanelBlock('production_timing', 'Production time', [
+    'Standard made-to-order production usually takes 3-5 business days.',
+    'Need it sooner? Ask about rush production before ordering.',
+  ]),
+  rightPanelBlock('shipping_delivery', 'Shipping & delivery', [
+    'Standard shipping: 10-14 business days.',
+    'Express shipping: 6-9 business days.',
+  ]),
+  rightPanelBlock('material', 'Material', [
+    'We use durable vegan leather with a glossy mirror-like coating.',
+    'The material feels comfortable against the body and helps the piece keep its shape between wears.',
+  ]),
+  rightPanelBlock('care', 'Care', [
+    'Stains and surface marks are easy to remove with alcohol wipes or a mild cleaning product. Wipe the piece carefully by hand.',
+    'Machine washing is not recommended.',
+    'Store the piece carefully, preferably on a hanger, and avoid tight folding or long-term heavy pressure so it keeps its shape.',
+  ]),
+  rightPanelBlock('customization', 'Made to order & customization', [
+    'For a custom change, contact us before production.',
+    'We can discuss adjustments to color, size, length, fit, coverage or selected details while keeping the result within our studio style.',
+  ]),
+] as const;
+
+type ThefeyaRightPdpContext = {
+  canonical_product_id?: unknown;
+};
+
+type RightPanelOverride = Partial<Record<string, readonly string[]>>;
+
+/**
+ * The right-panel structure and ownership stay fixed in code. A very small
+ * owner-reviewed exception map changes only factual fit/material/care lines
+ * for products whose construction is known not to match the catalog default.
+ * This avoids both a new database subsystem for two or three rare products
+ * and the more dangerous alternative of showing false universal material copy.
+ */
+const THEFEYA_PRODUCT_RIGHT_PDP_OVERRIDES: Record<string, RightPanelOverride> = {
+  // Batch13: factual finish exceptions; the owner requested no new pink axis.
+  '09d41ed1-51be-43b0-aace-fc80e6e50f99': {
+    material: ['Glossy armor panels are held by black straps with buckle fastenings.'],
+    care: [
+      'Wipe the panels gently with a soft, lightly damp cloth.',
+      'Avoid abrasive cleaners, solvents and machine washing.',
+      'Store without crushing or tightly folding the panels.',
+    ],
+  },
+  '5589b5ea-e21a-4e57-a4b2-b598bd8466d2': {
+    material: [
+      'This costume is made from vegan leather with a shiny pink surface and a subtle iridescent effect.',
+    ],
+  },
+  // Batch12: keep the owner's leather choice distinct from coated vegan panels.
+  '596c5ec2-e59e-484f-8f73-89221f2b4171': {
+    material: ['This set combines leather straps with silver-tone hardware.'],
+    care: [
+      'Wipe the leather gently with a soft, slightly damp cloth.',
+      'Do not use alcohol wipes, machine washing or prolonged soaking on these pieces.',
+      'Store without tight folding or long-term heavy pressure.',
+    ],
+  },
+  'b8ab6fa1-1af6-4c52-b6fb-5b766e6d99da': {
+    material: ['This set combines leather straps with silver-tone rings and buckles.'],
+    care: [
+      'Wipe the leather gently with a soft, slightly damp cloth.',
+      'Do not use alcohol wipes, machine washing or prolonged soaking on these pieces.',
+      'Store without tight folding or long-term heavy pressure.',
+    ],
+  },
+  'f0e73d70-cf3d-4557-8d59-142c78a106ac': {
+    material: [
+      'This top and skirt set is made from vegan leather with a smooth, shiny holographic surface.',
+      'The coated panels show subtle shifts of color.',
+    ],
+  },
+  // Batch11: source and primary-photo review distinguish holographic panels
+  // from mirror finishes, and retain the first outfit's actual feather trim.
+  '6a4c1f02-8f02-4aca-b70d-8d9ac66b9b40': {
+    material: [
+      'This costume combines holographic vegan-leather panels with white feather trim.',
+      'The smooth, shiny panels show subtle shifts of color.',
+    ],
+    care: [
+      'The coated panels and feather trim need separate care. Contact us for guidance before using a cleaning product on the trim.',
+      'Do not machine wash or soak the costume.',
+      'Store without crushing the feathers, tightly folding the panels or placing heavy items on the costume.',
+    ],
+  },
+  '51a30d6f-a588-49b9-b077-5f33488efd36': {
+    material: [
+      'This costume is made from vegan leather with a smooth, shiny holographic surface.',
+      'The coated panels show subtle shifts of color and hold their shape between wears.',
+    ],
+  },
+  'a83b1b51-79be-4cae-a943-661060a34080': {
+    material: ['Glossy armor panels are held by black straps with buckle fastenings.'],
+    care: ['Wipe the panels gently with a soft, lightly damp cloth.', 'Avoid abrasive cleaners, solvents and machine washing.', 'Store without crushing or tightly folding the panels.'],
+  },
+  'e7238b1d-565c-4c4d-a7ae-a4402de80720': {
+    material: ['This costume combines black fabric with glossy red vegan-leather details.'],
+    care: [
+      'Clean gently by hand, paying separate attention to the fabric and coated details.',
+      'Avoid machine washing, strong rubbing and alcohol-based products on the fabric.',
+      'Store without tight folding or heavy pressure on the decorated areas.',
+    ],
+  },
+  '0e75d2f2-c345-440e-88e4-333b63caed09': {
+    material: ['This costume combines a fabric base with mirror-finish acrylic pieces. Acrylic is a type of plastic.'],
+    care: [
+      'Clean the acrylic pieces gently with a soft cloth lightly dampened with water.',
+      'Avoid abrasive cleaners, alcohol wipes and solvents on the acrylic and its coating.',
+      'Do not machine wash or fold tightly across the decorated areas.',
+    ],
+  },
+  'df030151-5853-46c1-be89-06f059224a44': {
+    material: [
+      'This costume combines a black fabric base with gold vegan-leather details.',
+      'The glossy gold details are attached to the fabric; they are not solid metal.',
+    ],
+    care: [
+      'Clean gently by hand, paying separate attention to the fabric and coated details.',
+      'Avoid machine washing, strong rubbing and alcohol-based products on the fabric.',
+      'Store the costume without tight folding or heavy pressure on the decorated areas.',
+    ],
+  },
+  '27a8243e-e0d9-430c-a83e-6573ef8a48cb': {
+    material: [
+      'This costume is made from acrylic, a type of plastic, with a glossy gold finish.',
+    ],
+    care: [
+      'Wipe gently with a soft cloth lightly dampened with water.',
+      'Avoid abrasive cleaners, alcohol wipes and solvents on the acrylic and its coating.',
+      'Handle the pieces carefully to avoid scratching the finish.',
+    ],
+  },
+  'de38a842-37c4-40a7-86b4-393341c4c9aa': {
+    material: [
+      'This chest harness is made from brown leather.',
+    ],
+    care: [
+      'Wipe the brown leather gently with a soft, slightly damp cloth.',
+      'Do not use alcohol wipes, machine washing or prolonged soaking on this piece.',
+      'Store the harness without tight folding or long-term heavy pressure.',
+    ],
+  },
+  'ce0a2c0a-5a95-4876-a198-70be635ca053': {
+    material: [
+      'This handmade chest harness is made from natural leather.',
+    ],
+    care: [
+      'Wipe the natural leather gently with a soft, slightly damp cloth.',
+      'Do not use alcohol wipes, machine washing or prolonged soaking on this piece.',
+      'Store the harness without tight folding or long-term heavy pressure.',
+    ],
+  },
+  'ffa74da5-c2e1-4c3a-b460-50d1aae09f56': {
+    sizing_fit: [
+      'Use our size chart to choose your standard size.',
+      'The stretch-fabric base follows the selected size and is designed to move with the wearer.',
+      'For custom measurements or a special fit request, add the details to your order note.',
+    ],
+    material: [
+      'This costume combines a stretch-fabric base with selected gold mirror-finish vegan leather details.',
+      'The fabric provides flexibility, while the coated details create the graphic gold finish.',
+    ],
+    care: [
+      'Clean the costume gently by hand, paying separate attention to the stretch fabric and coated gold details.',
+      'Avoid machine washing, strong rubbing and alcohol-based products on the fabric.',
+      'Store the costume on a hanger without tight folding or long-term heavy pressure.',
+    ],
+  },
+  '2a39f8ec-b5c3-403c-8f1a-7e10bb0ab829': {
+    material: [
+      'This costume combines glossy mirror-finish vegan leather pieces with a fabric cape.',
+    ],
+    care: [
+      'Wipe the coated vegan leather pieces gently by hand with a mild cleaner.',
+      'Clean the fabric cape separately with gentle hand care; do not use alcohol wipes on the fabric.',
+      'Avoid machine washing and store the pieces without tight folding or long-term heavy pressure.',
+    ],
+  },
+  '7bc4e89c-155d-45b8-982f-46253b7ed18d': {
+    sizing_fit: [
+      'Use our size chart to choose your standard size.',
+      'The stretch-fabric base follows the selected size and is designed to move with the wearer.',
+      'For custom measurements or a special fit request, add the details to your order note.',
+    ],
+    material: [
+      'This costume combines a stretch-fabric base with selected feather-shaped vegan-leather details.',
+      'The fabric provides flexibility, while the coated details create the sculptural feather effect.',
+    ],
+    care: [
+      'Clean the costume gently by hand, paying separate attention to the stretch fabric and coated vegan-leather details.',
+      'Avoid machine washing, strong rubbing and alcohol-based products on the fabric.',
+      'Store the costume on a hanger without tight folding or long-term heavy pressure.',
+    ],
+  },
+};
+
+export function resolveThefeyaRightPdpPanel(
+  context: ThefeyaRightPdpContext = {},
+): ThefeyaRightPdpBlock[] {
+  const productId = String(context.canonical_product_id || '').trim();
+  const overrides = THEFEYA_PRODUCT_RIGHT_PDP_OVERRIDES[productId];
+  if (!overrides) return THEFEYA_CANONICAL_RIGHT_PDP_PANEL.map((block) => ({ ...block }));
+
+  return THEFEYA_CANONICAL_RIGHT_PDP_PANEL.map((block) => {
+    const lines = overrides[block.block_key];
+    return lines ? rightPanelBlock(block.block_key, block.heading, lines) : { ...block };
+  });
+}
+
+export const THEFEYA_SEO_DOCTRINE = {
+  version: THEFEYA_SEO_DOCTRINE_VERSION,
+  purpose: 'Evidence-first SEO content intelligence for TheFEYA product pages before first indexation. This is not a simple description generator.',
+  operating_principles: [
+    'Product Truth, visual truth, validated keyword metrics, portfolio differentiation, human review and QA gates outrank fast generation.',
+    'Generated copy must map into the existing PDP layout instead of creating a separate content world.',
+    'OpenAI generation creates review drafts only. It must not publish, apply product changes, change storefront tables or write final metadata by itself.',
+    'Admin UI labels can be Russian, but customer-facing product copy must be natural English en-US until a separate localization workflow exists.',
+    'No fake metrics. Search volume, competition and trend signals must come from validated data sources only.',
+    'Before final apply-to-product or publish-readiness automation, reload the latest research files from the owner and update this doctrine if needed.',
+    'Product variations, included components, PDP text blocks, slug/meta data and future sitemap updates must be handled by one canonical product editing flow, not by disconnected one-off text patches.',
+    'The existing storefront PDP is the visual source of truth. Admin previews must reuse its structure, spacing, order, icons and interaction patterns rather than imitate it in a parallel component.',
+    'The complete right PDP information panel is code-owned canonical storefront copy. Its structure is immutable; narrow owner-reviewed product overrides may replace factual fit, material or care lines. OpenAI must never generate, rewrite, paraphrase or reorder it.',
+    'What’s included is a separate dynamic left-description block rendered after About this piece only from confirmed configuration mapping. It is not written by OpenAI.',
+    'The canonical admin review destination is the existing SEO storefront preview. Temporary generation routes must redirect into that workspace instead of creating parallel screens.',
+  ],
+  brand_value_pillars: THEFEYA_BRAND_VALUE_PILLARS,
+  customer_copy_principles: [
+    'Describe the product first. The brand name must not become the main repeated keyword of a product page.',
+    'Do not place TheFEYA in seo_title, H1 or meta_description. Across intro and all generated left-description blocks combined, use the brand name no more than once.',
+    'Prefer the single permitted TheFEYA mention inside the final Designed for self-expression paragraph, where the studio speaks directly as we and our, never as they, their or a third-party narrator.',
+    'Translate the idea of авторский дизайн into a concrete customer benefit rather than a literal internal-process phrase. Explain how the original design gives the finished product a distinctive, memorable character; omit the point when no product-specific value can be stated.',
+    'The opening must begin with the buyer job: the event, style or complete look the person is trying to create. Then explain how this product helps achieve it using supported product facts.',
+    'Directional image-audit details such as left, right, positioned high, visible from the front or clearly visible belong only in image ALT or internal visual truth. Do not use them in SEO title, H1, meta description, intro, About, Why, Ideal for or Designed for self-expression.',
+    'Do not turn anatomical geometry into a customer benefit. Phrases such as sculptural profile of the left shoulder, expressive upper-body form, upper-body line and shoulder silhouette describe coordinates, not a reason to buy.',
+    'Event words must describe a real use case, not an invented atmosphere. Ban desert light, open light, desert-ready and ready for the desert from customer copy.',
+    'Do not start customer-facing copy as an image audit, inventory note or source-data disclaimer. Avoid openings like The image shows, The listed materials, The product description says, The source lists, Product Truth confirms or The safest wording is.',
+    'Never write customer copy as if reporting database fields to an analyst. Never mention official product data, verification before publication, review status, source rows or internal uncertainty in buyer-facing text.',
+    'Keep copy commercial but calm: attractive, specific and human, without generic AI sales language or empty pseudo-benefits.',
+    'Use a warm, concrete and persuasive fashion-editorial voice with varied sentence rhythm. A complete, useful product story is required; a title restatement or keyword-perfect one-liner is not acceptable PDP copy.',
+    'Avoid filler words and weak catalog phrases: Edition, Ultimate, Best, Perfect, Luxury, Premium, Elevate, Crafted to perfection and Perfect for any occasion.',
+    'Use clear, short sentences. Avoid keyword stuffing, doorway-page copy, repeated phrase skeletons and long chained keyword titles.',
+    'Keep recurring section logic but vary the actual customer language by product. Do not reuse one complete Why you’ll love it block, Ideal for sentence pattern or studio-close paragraph across several products.',
+    'Do not expand a clear product name merely to reach a character target. H1 should name the primary product entity once and add only a different, verified attribute or use case.',
+    'Close keyword variants belong to one semantic cluster. They do not all need exact-match placement, and two near-synonymous product queries must not be stacked in one sentence or bullet.',
+    'The exact Primary may appear in SEO title, H1 and meta description, but visible body copy must use a close natural whole-product variation instead of repeating the H1 verbatim. Semantic dominance matters; density chasing does not.',
+    'The operator-selected event, style, persona and audience axes control high-intent search-focus coverage. Ideal for must represent at least one selected value from every non-empty axis. It may add only Product-Truth-compatible general buyer roles such as performers, dancers, creators or stylists; those roles do not authorize a new event, style or persona keyword.',
+    'Ideal for is reserved for 4-5 useful customer portraits: one person or at most two related professional roles plus a concrete approved occasion, production or buying need. Bare keyword fragments, role stacks, persona/direction labels, accents, silhouette, finish, construction, base layers and component combinations do not belong there.',
+    'Ideal for must answer its heading directly. Lead each bullet with the customer or professional role and vary the action; three or more bullets built around planning, preparing, choosing or another repeated verb frame are template copy and must be rewritten.',
+    'For a confirmed multi-component product, the whole outfit, set or costume is the page entity. A single component keyword may remain secondary, but it must not redefine the full product in title, H1, meta, intro or About.',
+    'For every multi-component product, meta and About identify the whole outfit, set or costume without re-narrating its inventory. The dynamic What’s included block owns the confirmed component list. A component term may appear elsewhere only when it supports a different concrete buyer value.',
+    'Do not mix different visual worlds simply to place more terms. Cyberpunk is not steampunk, and a high-volume but incompatible style is not a valid secondary angle.',
+    'Every sentence must add a product fact, a supported buyer outcome or a distinct use case. Delete sentences that only describe an abstract mood, presence, focal point or intentional look.',
+    'Main PDP copy must remain product-specific and concise. Required generated left-description order: About this piece, Why you’ll love it, Ideal for, Designed for self-expression.',
+    'Why you’ll love it must contain 3-4 genuinely different purchase reasons supported by Product Truth, canonical storefront facts or explicit visual evidence. A design-authorship point and a handmade-not-mass-produced point count as the same idea and must not appear as separate duplicate bullets. Translate evidence into buyer value; never add filler.',
+    'Weak styling filler is not a benefit. Do not use works over minimal clothing, easy to build into a look, part of a complete look, creates a clear accent, works as a centerpiece or without additional design elements.',
+    'Material and finish claims must come from product-specific Product Truth or verified image truth. Vegan leather and faux leather are synonyms in customer copy and must never be stacked as two materials. Reflective or retroreflective is not a synonym for glossy, mirror-like, metallic or light-catching.',
+    'Finish wording follows confirmed color: gold/silver may be polished and metal-inspired; black/red/white may be smooth, high-gloss and latex-like; holographic may be smooth, shiny and subtly color-shifting, but not metallic.',
+    'For a holographic product, an approved Secondary/support term may appear once as an indirect aesthetic phrase such as mirror-look, reflective-inspired or sparkling-inspired fashion. The same words must never be presented as the material’s physical reflective, mirrored or sparkling behavior.',
+    'Never promise or discuss likes, followers, popularity, viral reach, organic attention, reactions, saves, comments, sales, press attention or other social-performance outcomes.',
+    'The final Designed for self-expression block is a 45-75 word, 3-4 sentence product-relevant studio close. Identify TheFEYA once, explain our original in-studio design and the distinctive finished product it creates, then connect the product to one supported festival, stage or performance setting.',
+    'Use credible authorship language such as our designers, our fashion studio or original studio design, chosen to fit the sentence. Avoid repeating the bare adjective studio-designed across sections. Do not call the designers talented or use unsupported self-congratulation; demonstrate their value through the distinctive finished product.',
+    'Use plain literal language. Ban visual identity, silhouette, structured material, starting point, final-version choices, visual noise, clarity of the look, point of view, considered appearance, expressive accent and similar abstract design-review wording that a buyer cannot translate into a real benefit.',
+    'The sold product is already a finished choice. Never imply that it transforms, remains unfinished, leaves a final interpretation open or requires the buyer to decide how the completed character should look.',
+    'Use persuasive modifiers only with evidence. Striking, distinctive, glamorous, memorable, beautifully polished and excellent shape retention are useful when tied to a confirmed design, finish or care fact; empty superlatives remain filler.',
+    'Do not pad the close with the breadth of the store, a list of events, an invitation to discuss a new idea or claims about shareability. These are generic across the catalog and dilute product specificity.',
+    'Do not place operational customization details such as changing color, size, length, fit or coverage inside Designed for self-expression. Those facts belong only in the fixed right panel.',
+  ],
+  length_rules: {
+    seo_title: 'Aim for a concise snippet-safe title and keep the internal 68-character review cap. Never pad a short, complete title to hit a minimum.',
+    h1: 'Concise human-readable product name with an 82-character review cap. Name the primary product entity once; add only a non-redundant verified differentiator and never pad to a minimum.',
+    meta_description: 'Aim for concise product identity, differentiator and use case within the 158-character review cap. Completeness and natural language outrank a minimum character target.',
+    intro: '1-3 concise sentences; the whole product, a selected event/use case and only supported facts. One factual sentence is preferable to inferred filler.',
+    main_description: 'Coverage-first product copy, usually 120-300 words across the four generated left-description blocks. The final Designed for self-expression block should contain 45-75 words in 3-4 useful sentences. Never add filler merely to reach a word count.',
+  },
+  pdp_block_plan: [
+    {
+      block_key: 'about_this_piece',
+      placement: 'left_description',
+      intent: 'Opening product story under the gallery and buy box. Write 2-4 natural sentences and usually 45-90 words. Lead with the buyer job and a close whole-product semantic variation, never the exact H1 phrase. Then explain one distinctive design or color-aware finish and its concrete value. Do not compare the product with generic/basic/plain clothing, narrate the What’s included inventory, report image coordinates or pad the block with SEO tautology.',
+    },
+    {
+      block_key: 'why_youll_love_it',
+      placement: 'left_description',
+      intent: 'Write 3-4 purchase-decision bullets using the benefit generation policy. Include exactly one concrete studio-design differentiation point plus distinct supported purchase, fit, comfort, repeat-use or visual outcomes. A canonical right-panel fact may be translated once into a new buyer consequence, but its operational sentence must not be copied. Never use style/event lists, visual-audit observations or abstract phrases as benefits.',
+    },
+    {
+      block_key: 'ideal_for',
+      placement: 'left_description',
+      intent: 'Write 4-5 useful 7-22 word customer portraits. Each bullet names one person or at most two related roles plus a concrete selected occasion, production or buying need. Use the customer use-case map and operator-selected axes while Product Truth remains the veto. Product-compatible general roles may broaden conversion coverage, but they must not introduce an unselected event, style or persona. Never expose persona/direction labels or describe accents, silhouette, finish, construction, base layers, component combinations or how an outfit is built.',
+    },
+    {
+      block_key: 'main_description',
+      placement: 'left_description',
+      intent: 'Heading must be Designed for self-expression. Write 45-75 words in 3-4 sentences: name TheFEYA once, explain our original in-studio point of view, how it helps people find a design that feels personal, and how this product supports one selected setting. Do not mention independence, team size, anatomical geometry, abstract design-review language or social metrics.',
+    },
+    {
+      block_key: 'related_collections',
+      placement: 'review_only',
+      intent: 'Internal linking hints to future event, style, persona or collection landing pages, not automatic links yet.',
+    },
+  ],
+  right_panel_policy: [
+    'THEFEYA_CANONICAL_RIGHT_PDP_PANEL plus resolveThefeyaRightPdpPanel is the one code-owned source for both live PDP and admin preview.',
+    'OpenAI must never generate, rewrite, paraphrase, translate, reorder or append any right-panel block.',
+    'What’s included appears after About this piece only when confirmed configuration data exists. Render each component on its own check-marked line and hide the block when truth is unresolved.',
+    'What’s included comes only from the resolved current storefront v4 sellable offer for the selected option. Legacy Etsy variations remain provenance and cannot add a component. When separate current configurations exist, state that the Full Set or available pieces can be ordered separately.',
+    'Sizing & fit, Production time, Shipping & delivery, Material, Care and Made to order & customization keep one canonical order. Only owner-reviewed factual fit, material and care lines may vary for a named product.',
+    'Returns, exchanges and cancellation copy is not repeated in the quick right panel because policy links already exist under the purchase controls.',
+    'Product-specific material nuances may appear in both the code-owned factual right panel and the generated left description, but OpenAI never controls the right-panel wording.',
+  ],
+  buyer_facts: [
+    'Typical made-to-order production: 3-5 business days.',
+    'For rush production or an earlier dispatch date, the buyer should contact the studio before ordering.',
+    'Standard shipping: 10-14 business days. Express shipping: 6-9 business days.',
+    'Sizing: use the size chart. Where a design uses straps, they can be adjusted for fit. Custom measurements or a special fit request can be left with the order or discussed before production.',
+    'Customization is separate from generated product copy: color, size, detail, length, coverage and fit changes can be discussed in the fixed right panel while keeping the result within the studio style.',
+    'Material and finish claims require product-specific Product Truth or verified image truth. Approved canonical right-panel facts about adjustment, comfort or care may support one freshly written buyer consequence when they apply to the product, but their operational wording must not be copied.',
+    'Returns, exchanges and cancellations are available through the store-policy links under the purchase controls and are not duplicated in the quick right panel.',
+    'Gift note or card can be mentioned only as an optional request, not as a main SEO angle.',
+    'Included components come from approved configuration mapping and are rendered deterministically in the left description, not invented by the model.',
+    ...THEFEYA_BRAND_VALUE_PILLARS,
+  ],
+  faq_strategy: [
+    'Product PDP should not show a separate FAQ block by default because it duplicates the right information panel and global store FAQ.',
+    'The top-level faq array in seo_agent_output_v1 should normally be empty or contain review-only suggestions for future global FAQ, not rendered inside the PDP.',
+    'Useful global FAQ intents later: production timing, shipping timing, sizing and custom measurements, materials and care, color options, customization and the returns policy link.',
+    'Do not ask What is included in the order as a generic FAQ because each configuration has different included components and this belongs in the dynamic Product Truth block.',
+    'Do not ask What is the main focus of this image or product. Buyers can see the product.',
+  ],
+  visual_truth_strategy: [
+    'Use the primary image as visual evidence for component, silhouette, visible color, material impression, styling context and mood.',
+    'Keep visual_truth internal. Do not make intro, meta or body sound like a computer-vision report.',
+    'Map visible facts to approved product DNA when possible, but keep observed facts, selected DNA and open style suggestions separate.',
+    'Allow open style suggestions if the image genuinely shows something useful that is not in current DNA, but keep it cautious and review-only unless approved keywords and product truth support it.',
+    'ALT text must lead with the visible sold Product DNA component(s), not aspirational claims or a full inventory of the photograph. If a product fact is uncertain, mark needs_image_review.',
+    'Omit styled accessories, face coverings, capes, goggles, shoes, underwear, base clothing, props and scenery from ALT unless Product Truth confirms they are included in the sold configuration. A short setting or pose may follow the sold product only when it helps distinguish the image.',
+  ],
+  style_boundaries: [
+    'Allowed when supported: post-apocalyptic, warrior, futuristic, Burning Man, stage, festival, glam, cyber, reflective, armor, performance, desert-inspired and editorial.',
+    'Steampunk is not a default synonym for futuristic, leather, gold, Burning Man, apocalyptic or shoulder armor. Use it only with clear retro-futuristic Victorian or industrial cues such as gears, brass machinery, antique machinery aesthetics, Victorian silhouettes or corsetry as the dominant style.',
+    'Do not use external franchise, cosplay character, celebrity or protected brand references unless they are safe and explicitly allowed by product data.',
+  ],
+  portfolio_strategy: [
+    'For Google, similarity is a portfolio differentiation tool, not a marketplace traffic-share panic gate.',
+    'Similar products can coexist if they own distinct search angles, title skeletons, first paragraphs, image ALT stories and PDP differentiators.',
+    'Do not copy the nearest catalog match phrase order, H1 skeleton, title skeleton or opening paragraph.',
+    'Preserve useful cluster terms when genuinely relevant, but create a distinct product angle inside the same cluster.',
+    'Only block when there is near-duplicate risk, product mismatch or missing facts; otherwise mark needs_review with a clear differentiation strategy.',
+  ],
+} as const;
+
+export function buildThefeyaSeoDoctrineSystemLines() {
+  return [
+    `TheFEYA SEO doctrine version: ${THEFEYA_SEO_DOCTRINE.version}.`,
+    THEFEYA_SEO_DOCTRINE.purpose,
+    ...THEFEYA_SEO_DOCTRINE.operating_principles,
+    'Brand value pillars:',
+    ...THEFEYA_SEO_DOCTRINE.brand_value_pillars,
+    'Customer and use-case map:',
+    ...THEFEYA_CUSTOMER_USE_CASE_MAP,
+    'Customer copy principles:',
+    ...THEFEYA_SEO_DOCTRINE.customer_copy_principles,
+    'Why you’ll love it benefit policy:',
+    ...THEFEYA_BENEFIT_GENERATION_POLICY,
+    'Right PDP panel policy:',
+    ...THEFEYA_SEO_DOCTRINE.right_panel_policy,
+    'Visual truth principles:',
+    ...THEFEYA_SEO_DOCTRINE.visual_truth_strategy,
+    'Style boundaries:',
+    ...THEFEYA_SEO_DOCTRINE.style_boundaries,
+    'Portfolio differentiation principles:',
+    ...THEFEYA_SEO_DOCTRINE.portfolio_strategy,
+    `Research reload checkpoint: ${THEFEYA_RESEARCH_RELOAD_CHECKPOINT.agent_note_en}`,
+    `Variation editing checkpoint: ${THEFEYA_VARIATION_EDITING_CHECKPOINT.agent_note_en}`,
+  ];
+}
+
+export function buildThefeyaSeoDoctrineUserLines(context: ThefeyaRightPdpContext = {}) {
+  const rightPanel = resolveThefeyaRightPdpPanel(context);
+  return [
+    `Doctrine source: ${THEFEYA_SEO_DOCTRINE.version}.`,
+    'Use these buyer-facing facts when relevant, without inventing new promises:',
+    ...THEFEYA_SEO_DOCTRINE.buyer_facts,
+    'Customer and use-case map:',
+    ...THEFEYA_CUSTOMER_USE_CASE_MAP,
+    'Required generated PDP block plan:',
+    ...THEFEYA_SEO_DOCTRINE.pdp_block_plan.map((block) => `${block.block_key} (${block.placement}): ${block.intent}`),
+    'Why you’ll love it benefit policy:',
+    ...THEFEYA_BENEFIT_GENERATION_POLICY,
+    'Fixed right-panel copy already visible to the buyer. Treat it as a no-copy reference and do not repeat its sentences:',
+    ...rightPanel.map((block) => `${block.heading}: ${block.body.replaceAll('\n', ' ')}`),
+    'Right panel policy:',
+    ...THEFEYA_SEO_DOCTRINE.right_panel_policy,
+    `Research checkpoint: ${THEFEYA_RESEARCH_RELOAD_CHECKPOINT.agent_note_en}`,
+    `Variation/data checkpoint: ${THEFEYA_VARIATION_EDITING_CHECKPOINT.agent_note_en}`,
+  ];
+}
+
+export function buildThefeyaSeoDoctrineGuardrails() {
+  return [
+    `Doctrine version must be visible in readiness/debug output: ${THEFEYA_SEO_DOCTRINE.version}.`,
+    'Do not generate or overwrite final product data until the research reload checkpoint has been cleared by the owner.',
+    'Do not split product facts between disconnected variation, included-components, PDP-copy, slug/meta and sitemap flows.',
+    'Use the live storefront PDP component as the visual source of truth for admin preview.',
+    'Treat the complete right PDP panel as immutable code-owned storefront content.',
+    'Do not generate, paraphrase, reorder or append any right-panel block.',
+    'Render What’s included after About this piece only from confirmed configuration mapping, using one check-marked line per component; hide it when unresolved.',
+    'Do not output product FAQ inside PDP by default.',
+    'Do not present visual analysis, Product Truth diagnostics, source wording or review instructions as buyer-facing sales copy.',
+    'Do not use the brand name as a repeated product keyword.',
+    'Do not use weak styling filler or duplicate originality arguments as Why you’ll love it benefits.',
+    'Every Why you’ll love it bullet must state a supported feature or studio truth and a concrete buyer outcome; style lists and abstract visual commentary do not qualify.',
+    'Ideal for must contain people, professional roles, occasions, productions or selected style contexts, never product construction or abstract visual features.',
+    'A confirmed multi-component outfit or set must remain the page entity across title, H1, meta, intro and About; one component keyword cannot replace it.',
+    'Designed for self-expression must use first-person studio voice and explain buyer self-expression, not third-person narration or repeated product specifications.',
+    'Do not mention popularity, likes, followers, viral reach, organic attention, reactions, saves, comments, sales or audience outcomes, even as non-guaranteed possibilities.',
+    'Do not use steampunk unless visual and product evidence clearly support it.',
+  ];
+}
+
+export function summarizeThefeyaSeoDoctrine() {
+  return {
+    version: THEFEYA_SEO_DOCTRINE.version,
+    pdp_block_count: THEFEYA_SEO_DOCTRINE.pdp_block_plan.length,
+    right_panel_block_count: THEFEYA_CANONICAL_RIGHT_PDP_PANEL.length,
+    buyer_fact_count: THEFEYA_SEO_DOCTRINE.buyer_facts.length,
+    brand_value_pillar_count: THEFEYA_BRAND_VALUE_PILLARS.length,
+    benefit_policy_rule_count: THEFEYA_BENEFIT_GENERATION_POLICY.length,
+    customer_use_case_rule_count: THEFEYA_CUSTOMER_USE_CASE_MAP.length,
+    visual_truth_rule_count: THEFEYA_SEO_DOCTRINE.visual_truth_strategy.length,
+    research_reload_checkpoint: THEFEYA_RESEARCH_RELOAD_CHECKPOINT,
+    variation_editing_checkpoint: THEFEYA_VARIATION_EDITING_CHECKPOINT,
+  };
+}

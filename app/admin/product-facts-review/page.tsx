@@ -36,6 +36,23 @@ function issueCodes(value: unknown) {
   return value.filter((item): item is string => typeof item === 'string' && Boolean(item.trim()));
 }
 
+function issueCodeLabel(value: string) {
+  const labels: Record<string, string> = {
+    PART_UNRESOLVED: 'Не определена часть товара',
+    COLOR_UNRESOLVED: 'Не определён цвет',
+    MATERIAL_UNRESOLVED: 'Не определён материал',
+    PRODUCT_TYPE_UNRESOLVED: 'Не определён тип товара',
+    FACT_GUARDRAIL_PRESENT: 'Есть защитное ограничение',
+  };
+  return labels[value] || value;
+}
+
+function priorityLabel(value: number | null | undefined) {
+  if (value != null && value <= 10) return 'Высокий';
+  if (value != null && value <= 20) return 'Средний';
+  return 'Обычный';
+}
+
 function priorityClass(value: number | null | undefined) {
   if (value != null && value <= 10) return 'danger';
   if (value != null && value <= 20) return 'warning';
@@ -59,13 +76,50 @@ async function getRows(): Promise<{ rows: ProductFactReviewRow[]; error?: string
   return { rows: (data || []) as ProductFactReviewRow[] };
 }
 
-export default async function AdminProductFactsReviewPage() {
+export default async function AdminProductFactsReviewPage({ searchParams }: { searchParams: Promise<{ q?: string; issue?: string; page?: string }> }) {
+  const params = await searchParams;
   const { rows, error } = await getRows();
+  const q = String(params.q || '').trim().toLowerCase();
+  const issueFilter = String(params.issue || 'all');
+  const requestedPage = Math.max(1, Number(params.page || 1) || 1);
+  const pageSize = 75;
 
   const partUnresolved = rows.filter((row) => issueCodes(row.issue_codes_json).includes('PART_UNRESOLVED')).length;
   const colorUnresolved = rows.filter((row) => issueCodes(row.issue_codes_json).includes('COLOR_UNRESOLVED')).length;
   const materialUnresolved = rows.filter((row) => issueCodes(row.issue_codes_json).includes('MATERIAL_UNRESOLVED')).length;
   const guardrails = rows.filter((row) => issueCodes(row.issue_codes_json).includes('FACT_GUARDRAIL_PRESENT')).length;
+
+  const issueMap: Record<string, string> = {
+    part: 'PART_UNRESOLVED',
+    color: 'COLOR_UNRESOLVED',
+    material: 'MATERIAL_UNRESOLVED',
+    type: 'PRODUCT_TYPE_UNRESOLVED',
+    guardrail: 'FACT_GUARDRAIL_PRESENT',
+  };
+
+  const filteredRows = rows.filter((row) => {
+    const haystack = [row.current_title, row.canonical_product_id, row.final_primary_part, row.final_product_type, row.final_material_primary, row.final_color_primary]
+      .map((value) => String(value || '').toLowerCase())
+      .join(' ');
+    const matchesQuery = !q || haystack.includes(q);
+    const requiredIssue = issueMap[issueFilter];
+    const codes = issueCodes(row.issue_codes_json);
+    const matchesIssue = !requiredIssue || codes.includes(requiredIssue);
+    return matchesQuery && matchesIssue;
+  });
+
+  const pageCount = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+  const page = Math.min(requestedPage, pageCount);
+  const visibleRows = filteredRows.slice((page - 1) * pageSize, page * pageSize);
+
+  const pageHref = (nextPage: number) => {
+    const next = new URLSearchParams();
+    if (q) next.set('q', q);
+    if (issueFilter !== 'all') next.set('issue', issueFilter);
+    if (nextPage > 1) next.set('page', String(nextPage));
+    const query = next.toString();
+    return query ? `/admin/product-facts-review?${query}` : '/admin/product-facts-review';
+  };
 
   return (
     <main className="page-shell">
@@ -73,72 +127,97 @@ export default async function AdminProductFactsReviewPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/products">Products</Link>
-            <Link href="/admin/review">Review</Link>
-            <Link href="/admin/content-qa">Content QA</Link>
+            <Link href="/admin/products">Товары</Link>
+            <Link href="/admin/review">Проверка</Link>
+            <Link href="/admin/content-qa">Качество контента</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Product Truth · human review queue</div>
-          <h1>Product Fact Review</h1>
+          <div className="phase-label">Факты о товаре · очередь проверки</div>
+          <h1>Проверка фактов о товарах</h1>
           <p>
-            These are upstream Product Truth ambiguities. Resolve the product fact or mapping first; do not rewrite SEO content to hide a truth blocker.
+            Здесь собраны неоднозначности в исходных фактах о товаре. Сначала нужно исправить или подтвердить факт, а не переписывать SEO-текст, чтобы скрыть проблему.
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Pending fact reviews</span></div>
-          <div className="card metric"><strong>{partUnresolved}</strong><span>Part unresolved</span></div>
-          <div className="card metric"><strong>{colorUnresolved}</strong><span>Color unresolved</span></div>
-          <div className="card metric"><strong>{materialUnresolved}</strong><span>Material unresolved</span></div>
-          <div className="card metric"><strong>{guardrails}</strong><span>Guardrail present</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{rows.length}</strong><span>Товаров ждут проверки фактов</span></div>
+          <div className="owner-summary-cell"><strong>{partUnresolved}</strong><span>Не определена часть товара</span></div>
+          <div className="owner-summary-cell"><strong>{materialUnresolved + colorUnresolved}</strong><span>Не определён материал / цвет</span></div>
+          <div className="owner-summary-cell"><strong>{guardrails}</strong><span>Есть защитное ограничение</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
         <div className="notice" style={{ marginBottom: '18px' }}>
-          Read-only. Product Builder is the evidence surface; write/resolution actions remain disabled until protected admin auth and controlled editing are enabled.
+          Только просмотр. Канонический источник фактов товара уже используется для проверки; изменение фактов останется выключенным до защищённого входа и контролируемого редактирования.
         </div>
+
+        <form action="/admin/product-facts-review" className="owner-card" style={{ marginBottom: '14px' }}>
+          <div className="grid gap-3 md:grid-cols-[1fr_280px_auto] md:items-end">
+            <label>
+              <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Поиск товара / факта</div>
+              <input name="q" defaultValue={q} className="field" placeholder="название, материал, цвет, тип…" />
+            </label>
+            <label>
+              <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Причина проверки</div>
+              <select name="issue" defaultValue={issueFilter} className="field">
+                <option value="all">Все причины</option>
+                <option value="part">Не определена часть товара</option>
+                <option value="type">Не определён тип товара</option>
+                <option value="material">Не определён материал</option>
+                <option value="color">Не определён цвет</option>
+                <option value="guardrail">Защитное ограничение</option>
+              </select>
+            </label>
+            <button type="submit" className="owner-button primary">Применить</button>
+          </div>
+          <div className="owner-card-meta" style={{ marginTop: '10px', marginBottom: 0 }}>
+            <span>После фильтра: {filteredRows.length}</span>
+            <span>Показано: {visibleRows.length}</span>
+            <Link href="/admin/product-facts-review">Сбросить</Link>
+          </div>
+        </form>
 
         <div className="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Priority</th>
-                <th>Product</th>
-                <th>Issue codes</th>
-                <th>Current facts</th>
-                <th>Resolution</th>
+                <th>Приоритет</th>
+                <th>Товар</th>
+                <th>Причины проверки</th>
+                <th>Текущие факты</th>
+                <th>Решение</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => {
+              {visibleRows.map((row) => {
                 const codes = issueCodes(row.issue_codes_json);
                 return (
                   <tr key={row.fact_review_id}>
                     <td>
                       <span className={`status-pill ${priorityClass(row.issue_priority)}`}>
-                        P{asText(row.issue_priority)}
+                        {priorityLabel(row.issue_priority)}
                       </span>
                     </td>
                     <td>
                       <Link href={`/admin/products/${row.canonical_product_id}`}>
                         {asText(row.current_title, row.canonical_product_id)}
                       </Link>
-                      <div className="muted">{row.canonical_product_id}</div>
+                      <div className="muted" title={row.canonical_product_id}>Канонический товар</div>
                     </td>
                     <td>
-                      {codes.length ? codes.join(', ') : '—'}
+                      {codes.length ? codes.map(issueCodeLabel).join(', ') : '—'}
                     </td>
                     <td>
-                      <div>Part: {asText(row.final_primary_part)}</div>
-                      <div>Type: {asText(row.final_product_type)}</div>
-                      <div>Material: {asText(row.final_material_primary)}</div>
-                      <div>Color: {asText(row.final_color_primary)}</div>
+                      <div>Часть товара: {asText(row.final_primary_part)}</div>
+                      <div>Тип: {asText(row.final_product_type)}</div>
+                      <div>Материал: {asText(row.final_material_primary)}</div>
+                      <div>Цвет: {asText(row.final_color_primary)}</div>
                     </td>
                     <td>
-                      <span className="status-pill warning">{asText(row.resolution_status, 'unresolved')}</span>
+                      <span className="status-pill warning">{row.resolution_status === 'resolved' ? 'Решено' : 'Не решено'}</span>
                     </td>
                   </tr>
                 );
@@ -147,8 +226,18 @@ export default async function AdminProductFactsReviewPage() {
           </table>
         </div>
 
-        {!error && rows.length === 0 ? (
-          <div className="notice">No pending Product Truth fact reviews.</div>
+        {!error && filteredRows.length === 0 ? (
+          <div className="notice">По текущему фильтру фактов для проверки нет.</div>
+        ) : null}
+
+        {filteredRows.length > pageSize ? (
+          <div className="flex items-center justify-between gap-3" style={{ marginTop: '14px' }}>
+            <div className="owner-section-kicker">Страница {page} из {pageCount}</div>
+            <div className="owner-actions" style={{ marginTop: 0 }}>
+              {page > 1 ? <Link href={pageHref(page - 1)} className="owner-button">Назад</Link> : <span className="owner-button" style={{ opacity: .4 }}>Назад</span>}
+              {page < pageCount ? <Link href={pageHref(page + 1)} className="owner-button">Дальше</Link> : <span className="owner-button" style={{ opacity: .4 }}>Дальше</span>}
+            </div>
+          </div>
         ) : null}
       </div>
     </main>

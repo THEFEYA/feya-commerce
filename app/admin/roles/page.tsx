@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { RoleActivationRow } from '@/lib/types';
+import { roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -24,6 +25,15 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
+function autonomyLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  if (key === 'OBSERVE_ONLY') return 'Только наблюдение';
+  if (key === 'PROPOSE_ONLY') return 'Может предлагать';
+  if (key === 'SHADOW_ACTIONS') return 'Безопасный режим действий';
+  if (key === 'CONTROLLED_ACTIONS') return 'Разрешённые действия под контролем';
+  return asText(value);
+}
+
 function statusClass(value: unknown) {
   const status = asText(value, '').toUpperCase();
   if (status === 'ACTIVE') return 'ok';
@@ -45,26 +55,25 @@ export default async function AdminRolesPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/roles">Roles</Link>
-            <Link href="/admin/system-readiness">System Readiness</Link>
-            <Link href="/admin/execution-map">Execution Map</Link>
+            <Link href="/admin/roles">Роли</Link>
+            <Link href="/admin/system-readiness">Готовность системы</Link>
+            <Link href="/admin/execution-map">Права действий</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Role Activation Gate · read-only</div>
-          <h1>Agent Runtime Roles</h1>
+          <div className="phase-label">Команда FEYA · только просмотр</div>
+          <h1>Роли ИИ-команды</h1>
           <p>
-            A logical role existing in the architecture does not mean an agent is active. Runtime status and autonomy ceiling are explicit and capability-gated.
+            Наличие роли в архитектуре не означает, что агент сейчас активен. Здесь показано реальное состояние роли и предел её самостоятельности.
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Logical roles</span></div>
-          <div className="card metric"><strong>{active}</strong><span>ACTIVE</span></div>
-          <div className="card metric"><strong>{shadow}</strong><span>SHADOW</span></div>
-          <div className="card metric"><strong>{inactive}</strong><span>INACTIVE</span></div>
-          <div className="card metric"><strong>{paused}</strong><span>PAUSED</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{active}</strong><span>Ролей активны</span></div>
+          <div className="owner-summary-cell"><strong>{shadow}</strong><span>Работают в режиме наблюдения</span></div>
+          <div className="owner-summary-cell"><strong>{inactive}</strong><span>Ещё не активированы</span></div>
+          <div className="owner-summary-cell"><strong>{paused}</strong><span>Приостановлены</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
@@ -73,28 +82,27 @@ export default async function AdminRolesPage() {
           <table>
             <thead>
               <tr>
-                <th>Role</th>
-                <th>Runtime</th>
-                <th>Autonomy ceiling</th>
-                <th>Required capabilities</th>
-                <th>Fully available</th>
-                <th>Blocked</th>
-                <th>Allowed actions</th>
+                <th>Роль</th>
+                <th>Состояние</th>
+                <th>Предел самостоятельности</th>
+                <th>Нужно системных возможностей</th>
+                <th>Готово</th>
+                <th>Блокеров</th>
+                <th>Разрешённых действий</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((row) => (
                 <tr key={row.role_code}>
                   <td>
-                    <strong>{asText(row.role_name, row.role_code)}</strong>
-                    <div className="muted">{row.role_code} · {asText(row.role_type)}</div>
+                    <strong title={row.role_code}>{roleLabel(row.role_code)}</strong>
                   </td>
                   <td>
                     <span className={`status-pill ${statusClass(row.runtime_status)}`}>
-                      {asText(row.runtime_status)}
+                      {statusLabel(row.runtime_status)}
                     </span>
                   </td>
-                  <td>{asText(row.autonomy_ceiling)}</td>
+                  <td>{autonomyLabel(row.autonomy_ceiling)}</td>
                   <td>{row.required_capability_count ?? 0}</td>
                   <td>{row.fully_available_capability_count ?? 0}</td>
                   <td>{row.blocked_capability_count ?? 0}</td>

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { ChangeEventRow, ExperimentRegistryRow } from '@/lib/types';
+import { statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -40,6 +41,26 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
+function modeLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    A_B: 'A/B',
+    AB: 'A/B',
+    BEFORE_AFTER: 'До / после',
+    HOLDOUT: 'Контрольная группа',
+    OBSERVATIONAL: 'Наблюдение',
+    QUASI_EXPERIMENT: 'Квазиэксперимент',
+  };
+  return labels[key] || (key ? 'Настраиваемый дизайн' : '—');
+}
+
+function dateLabel(value: unknown) {
+  if (!value) return '—';
+  const date = new Date(String(value));
+  if (Number.isNaN(date.getTime())) return asText(value);
+  return new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+}
+
 function statusClass(value: unknown) {
   const status = asText(value, '').toUpperCase();
   if (status === 'OUTCOME_READY' || status === 'CLOSED' || status === 'FEASIBLE' || status === 'CLEAN') return 'ok';
@@ -61,36 +82,34 @@ export default async function AdminExperimentsPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/experiments">Experiments</Link>
-            <Link href="/admin/metrics">Metrics</Link>
-            <Link href="/admin/incidents">Incidents</Link>
-            <Link href="/admin/executions">Executions</Link>
+            <Link href="/admin/experiments">Эксперименты</Link>
+            <Link href="/admin/metrics">Метрики</Link>
+            <Link href="/admin/incidents">Инциденты</Link>
+            <Link href="/admin/executions">Выполнение</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">GMEL experiment / contamination registry · read-only</div>
-          <h1>Experiments</h1>
+          <div className="phase-label">Эксперименты и влияющие изменения · только просмотр</div>
+          <h1>Эксперименты</h1>
           <p>
-            Experiments require locked Measurement Specs and explicit feasibility. Change events and incidents can contaminate attribution; invalidating contamination blocks OUTCOME_READY.
+            Эксперимент запускается только при зафиксированных правилах измерения и подтверждённой реализуемости. Параллельные изменения и инциденты могут испортить атрибуцию результата.
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{experiments.length}</strong><span>Experiments</span></div>
-          <div className="card metric"><strong>{running}</strong><span>Running</span></div>
-          <div className="card metric"><strong>{contaminated}</strong><span>Contaminated</span></div>
-          <div className="card metric"><strong>{invalidated}</strong><span>Invalidated</span></div>
-          <div className="card metric"><strong>{outcomeReady}</strong><span>Outcome-ready</span></div>
-          <div className="card metric"><strong>{changes.length}</strong><span>Recent change events</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{running}</strong><span>Экспериментов в работе</span></div>
+          <div className="owner-summary-cell"><strong>{outcomeReady}</strong><span>Результат готов к оценке</span></div>
+          <div className="owner-summary-cell"><strong>{contaminated}</strong><span>Есть влияющие параллельные изменения</span></div>
+          <div className="owner-summary-cell"><strong>{invalidated}</strong><span>Результат нельзя использовать</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
         <section className="section-head">
           <div>
-            <h2>Experiment registry</h2>
-            <p className="muted">The Measurement Engine is still unavailable; this layer governs design/state/contamination only.</p>
+            <h2>Реестр экспериментов</h2>
+            <p className="muted">Система измерения результата ещё недоступна; здесь пока контролируются только дизайн эксперимента, состояние и внешние вмешательства.</p>
           </div>
         </section>
 
@@ -98,45 +117,44 @@ export default async function AdminExperimentsPage() {
           <table>
             <thead>
               <tr>
-                <th>Experiment</th>
-                <th>Mode</th>
-                <th>Status</th>
-                <th>Feasibility</th>
-                <th>Contamination</th>
-                <th>Window</th>
+                <th>Эксперимент</th>
+                <th>Режим</th>
+                <th>Статус</th>
+                <th>Реализуемость</th>
+                <th>Влияющие изменения</th>
+                <th>Период</th>
               </tr>
             </thead>
             <tbody>
               {experiments.length ? experiments.map((row) => (
                 <tr key={row.experiment_id}>
                   <td>
-                    <strong>{asText(row.title, row.experiment_code || '—')}</strong>
-                    <div className="muted">{asText(row.experiment_code)}</div>
+                    <strong title={asText(row.experiment_code)}>{asText(row.title, row.experiment_code || '—')}</strong>
                   </td>
-                  <td>{asText(row.experiment_mode)}</td>
+                  <td title={asText(row.experiment_mode)}>{modeLabel(row.experiment_mode)}</td>
                   <td>
                     <span className={`status-pill ${statusClass(row.experiment_status)}`}>
-                      {asText(row.experiment_status)}
+                      {statusLabel(row.experiment_status)}
                     </span>
                   </td>
                   <td>
                     <span className={`status-pill ${statusClass(row.feasibility_status)}`}>
-                      {asText(row.feasibility_status)}
+                      {statusLabel(row.feasibility_status)}
                     </span>
                   </td>
                   <td>
                     <span className={`status-pill ${statusClass(row.contamination_state)}`}>
-                      {asText(row.contamination_state)}
+                      {statusLabel(row.contamination_state)}
                     </span>
-                    <div className="muted">{row.contamination_count || 0} records · {row.invalidating_contamination_count || 0} invalidating</div>
+                    <div className="muted">{row.contamination_count || 0} записей · {row.invalidating_contamination_count || 0} критичных</div>
                   </td>
                   <td>
-                    {asText(row.started_at, asText(row.planned_start_at))}
-                    <div className="muted">→ {asText(row.ended_at, asText(row.planned_end_at))}</div>
+                    {dateLabel(row.started_at || row.planned_start_at)}
+                    <div className="muted">→ {dateLabel(row.ended_at || row.planned_end_at)}</div>
                   </td>
                 </tr>
               )) : (
-                <tr><td colSpan={6}>No real experiments have been created.</td></tr>
+                <tr><td colSpan={6}>Реальных экспериментов пока нет.</td></tr>
               )}
             </tbody>
           </table>
@@ -144,8 +162,8 @@ export default async function AdminExperimentsPage() {
 
         <section className="section-head">
           <div>
-            <h2>Recent change events</h2>
-            <p className="muted">Successful Execution Gateway mutations are bridged here automatically.</p>
+            <h2>Последние изменения</h2>
+            <p className="muted">Успешные изменения через шлюз выполнения автоматически фиксируются здесь.</p>
           </div>
         </section>
 
@@ -153,20 +171,19 @@ export default async function AdminExperimentsPage() {
           <table>
             <thead>
               <tr>
-                <th>Event</th>
-                <th>Domain</th>
-                <th>Entity</th>
-                <th>Source</th>
-                <th>Execution / Incident</th>
-                <th>Time</th>
+                <th>Событие</th>
+                <th>Область</th>
+                <th>Объект</th>
+                <th>Источник</th>
+                <th>Выполнение / инцидент</th>
+                <th>Время</th>
               </tr>
             </thead>
             <tbody>
               {changes.length ? changes.map((row) => (
                 <tr key={row.change_event_id}>
                   <td>
-                    <strong>{asText(row.change_type, row.event_code || '—')}</strong>
-                    <div className="muted">{asText(row.event_code)}</div>
+                    <strong title={asText(row.event_code)}>{asText(row.change_type, row.event_code || '—')}</strong>
                   </td>
                   <td>{asText(row.change_domain)}</td>
                   <td>
@@ -178,14 +195,14 @@ export default async function AdminExperimentsPage() {
                     <div className="muted">{asText(row.source_ref)}</div>
                   </td>
                   <td>
-                    {row.execution_request_id ? <div className="muted">execution {row.execution_request_id}</div> : null}
-                    {row.incident_id ? <div className="muted">incident {row.incident_id}</div> : null}
+                    {row.execution_request_id ? <div className="muted" title={asText(row.execution_request_id)}>есть запись выполнения</div> : null}
+                    {row.incident_id ? <div className="muted" title={asText(row.incident_id)}>связан с инцидентом</div> : null}
                     {!row.execution_request_id && !row.incident_id ? '—' : null}
                   </td>
-                  <td>{asText(row.event_at)}</td>
+                  <td>{dateLabel(row.event_at)}</td>
                 </tr>
               )) : (
-                <tr><td colSpan={6}>No durable change events have been recorded.</td></tr>
+                <tr><td colSpan={6}>Зафиксированных изменений пока нет.</td></tr>
               )}
             </tbody>
           </table>
