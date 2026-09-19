@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentSignal } from '@/lib/owner-ui/presenters';
 import { admissionLabel } from '@/lib/owner-ui/terminology';
+import { OwnerSignalDrawerClient } from '@/components/admin/OwnerSignalDrawerClient';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -14,7 +15,7 @@ async function getSignals(): Promise<{ rows: Row[]; error?: string }> {
 
   const { data, error } = await supabase
     .from('feya_commerce_v_growth_signal_candidates_safe_v2')
-    .select('signal_fingerprint,signal_code,title,summary,next_action,priority,accountable_domain,signal_state,case_admission_recommendation,materiality_score')
+    .select('signal_fingerprint,signal_code,title,summary,next_action,priority,accountable_domain,signal_state,case_admission_recommendation,materiality_score,evidence_json,entity_scope_json,generated_at')
     .order('priority', { ascending: true })
     .order('materiality_score', { ascending: false })
     .order('signal_code', { ascending: true });
@@ -88,44 +89,27 @@ export default async function AdminSignalsPage() {
 
         <section className="owner-list">
           {prepared.map(({ row, vm, routing }) => (
-            <details className="owner-disclosure owner-card" key={vm.id}>
-              <summary>
-                <span style={{ display: 'grid', gap: '6px' }}>
-                  <span className="owner-card-meta" style={{ marginBottom: 0 }}>
-                    <span className={`owner-status ${toneClass(vm.tone)}`}>{vm.priorityLabel}</span>
-                    <span>{routing}</span>
-                    <span>{vm.ownerLabel}</span>
-                    <span>{vm.statusLabel}</span>
-                  </span>
-                  <strong>{vm.title}</strong>
-                  <small>{vm.summary}</small>
-                </span>
-                <span className="owner-section-kicker">Подробнее</span>
-              </summary>
-
-              <div className="owner-disclosure-body">
-                <div className="owner-grid two">
-                  <div>
-                    <div className="owner-section-kicker">Что произошло</div>
-                    <p className="owner-card-copy">{vm.summary}</p>
-                  </div>
-                  <div>
-                    <div className="owner-section-kicker">Что предлагает FEYA</div>
-                    <p className="owner-card-copy">{vm.recommendedAction}</p>
-                  </div>
+            <article className="owner-list-row" key={vm.id}>
+              <div className="owner-list-row-main">
+                <div className="owner-card-meta">
+                  <span className={`owner-status ${toneClass(vm.tone)}`}>{vm.priorityLabel}</span>
+                  <span>{routing}</span>
+                  <span>{vm.ownerLabel}</span>
+                  <span>{vm.statusLabel}</span>
                 </div>
-                <div className="owner-actions">
-                  {row.case_admission_recommendation === 'OWNER_DECISION_REQUIRED' ? (
-                    <Link href="/admin/company/owner-attention" className="owner-button primary">Рассмотреть решение</Link>
-                  ) : row.case_admission_recommendation === 'WORK_QUEUE' ? (
-                    <Link href="/admin/company/work" className="owner-button">Открыть работу</Link>
-                  ) : (
-                    <Link href="/admin/company/system" className="owner-button">Посмотреть состояние</Link>
-                  )}
-                  <Link href="/admin/signals" className="owner-button">Технические данные</Link>
-                </div>
+                <h3>{vm.title}</h3>
+                <p>{vm.summary}</p>
               </div>
-            </details>
+              <div className="owner-list-row-side">
+                <OwnerSignalDrawerClient
+                  vm={vm}
+                  routing={routing}
+                  recommendation={String(row.case_admission_recommendation || '')}
+                  evidence={(row.evidence_json || {}) as Record<string, unknown>}
+                  generatedAt={row.generated_at ? String(row.generated_at) : null}
+                />
+              </div>
+            </article>
           ))}
         </section>
 
