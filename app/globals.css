@@ -1721,22 +1721,107 @@ th {
     backdrop-filter: blur(18px);
   }
 
-  .owner-mobile-nav a {
+  .owner-mobile-nav a,
+  .owner-mobile-nav button {
     display: grid;
     place-items: center;
     align-content: center;
     gap: 2px;
+    border: 0;
     color: var(--muted);
+    background: transparent;
     font-size: 13px;
   }
 
-  .owner-mobile-nav a.is-active {
+  .owner-mobile-nav a.is-active,
+  .owner-mobile-nav button.is-active {
     color: var(--gold);
   }
 
   .owner-mobile-nav small {
     font-size: 10px;
   }
+}
+
+
+
+.owner-mobile-more {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+}
+
+.owner-mobile-more-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: rgba(0,0,0,.62);
+  backdrop-filter: blur(3px);
+}
+
+.owner-mobile-more-sheet {
+  position: absolute;
+  inset: auto 0 0 0;
+  max-height: 78vh;
+  overflow-y: auto;
+  padding: 16px 16px 82px;
+  border-top: 1px solid rgba(216,214,211,.14);
+  border-radius: 18px 18px 0 0;
+  background: #0c0c11;
+  box-shadow: 0 -24px 80px rgba(0,0,0,.48);
+}
+
+.owner-mobile-more-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 13px;
+  border-bottom: 1px solid rgba(216,214,211,.09);
+}
+
+.owner-mobile-more-head strong {
+  display: block;
+  color: var(--text);
+  font-size: 18px;
+}
+
+.owner-mobile-more-grid {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.owner-mobile-more-grid > a {
+  display: grid;
+  grid-template-columns: 30px minmax(0,1fr);
+  align-items: center;
+  gap: 10px;
+  min-height: 58px;
+  padding: 10px 12px;
+  border: 1px solid rgba(216,214,211,.10);
+  border-radius: 11px;
+  color: var(--bone-dim);
+  background: rgba(255,255,255,.022);
+}
+
+.owner-mobile-more-grid > a > svg {
+  color: var(--gold-warm);
+}
+
+.owner-mobile-more-grid strong {
+  display: block;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.owner-mobile-more-grid small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 10px;
 }
 
 
