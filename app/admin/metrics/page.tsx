@@ -57,6 +57,73 @@ const METRIC_LABELS: Record<string, string> = {
   PRODUCT_VIEW_EVENTS: 'Просмотры товара на сайте',
 };
 
+const METRIC_SUMMARIES: Record<string, { summary: string; limitation: string }> = {
+  CONTENT_BRIEF_CANONICAL_READY_COUNT: {
+    summary: 'Количество детерминированных SEO-брифов, которые прошли канонические условия сборки.',
+    limitation: 'Ожидаемо остаётся низким или нулевым, пока не завершены ответственность страниц за запросы и одобрение планов ключевых слов.',
+  },
+  CONTENT_BRIEF_SHADOW_READY_COUNT: {
+    summary: 'Количество SEO-брифов, для которых уже можно безопасно готовить тестовый черновик.',
+    limitation: 'Готовность к безопасному черновику не означает готовность к каноническому использованию или публикации.',
+  },
+  CQA_READY_FOR_INDEPENDENT_COUNT: {
+    summary: 'Количество активных SEO-черновиков, готовых к независимому контролю качества.',
+    limitation: 'Это размер рабочей очереди, а не показатель качества контента сам по себе.',
+  },
+  QUERY_CLUSTER_READY_KEYWORD_COUNT: {
+    summary: 'Количество ключей, которые прошли обязательные входные проверки и готовы к смысловой группировке.',
+    limitation: 'Нулевое значение означает состояние процесса, а не провал SEO.',
+  },
+  SEO_PAGE_CANDIDATE_COUNT: {
+    summary: 'Количество активных SEO-страниц со статусом кандидата на индексацию.',
+    limitation: 'Это метрика готовности процесса, а не бизнес-KPI.',
+  },
+  EXTERNAL_AVG_MONTHLY_SEARCHES: {
+    summary: 'Оценка среднего месячного спроса Google Ads Keyword Planner для конкретного ключа, рынка и языка.',
+    limitation: 'Это не SEO-сложность, не позиция в органическом поиске и не спрос в реальном времени; live-доступ API пока ограничен.',
+  },
+  COMPLETED_ORDERS: {
+    summary: 'Количество достоверно завершённых заказов из канонического commerce-источника.',
+    limitation: 'Черновики заказов не считаются завершёнными продажами.',
+  },
+  CQA_FIRST_PASS_ACCEPTANCE_RATE: {
+    summary: 'Доля первых независимых CQA-проверок, которые проходят без обязательной повторной переработки.',
+    limitation: 'Пока недоступно: ещё нет достаточной истории реальных независимых CQA-запусков.',
+  },
+  NET_ITEM_REVENUE: {
+    summary: 'Чистая выручка по товарам после признанных возвратов и корректировок.',
+    limitation: 'Недоступно до появления достоверного источника завершённых заказов и возвратов.',
+  },
+  ORGANIC_AVG_POSITION: {
+    summary: 'Средняя позиция Search Console в заданном срезе.',
+    limitation: 'Не является точным rank-tracker; агрегация должна сохранять семантику Search Console.',
+  },
+  ORGANIC_CLICKS: {
+    summary: 'Клики из Google Search Console для заданной страницы, запроса и рынка.',
+    limitation: 'Недоступно до подключения production-данных Search Console.',
+  },
+  ORGANIC_CTR: {
+    summary: 'CTR органического поиска: клики, делённые на показы в заданном срезе.',
+    limitation: 'Нельзя усреднять готовые проценты CTR по строкам.',
+  },
+  ORGANIC_IMPRESSIONS: {
+    summary: 'Показы из Google Search Console для заданной страницы, запроса и рынка.',
+    limitation: 'Недоступно до подключения production-данных Search Console.',
+  },
+  PRODUCT_VIEW_EVENTS: {
+    summary: 'Количество событий просмотра товара на production-сайте.',
+    limitation: 'Недоступно до включения и проверки production-инструментации GA4.',
+  },
+};
+
+function metricCopy(code: unknown, fallbackSummary: unknown, fallbackLimitation: unknown) {
+  const key = asText(code, '').toUpperCase();
+  return METRIC_SUMMARIES[key] || {
+    summary: 'Метрика зарегистрирована в Growth OS и используется только в пределах доступного источника данных.',
+    limitation: 'Технические ограничения доступны в деталях источника.',
+  };
+}
+
 function unitLabel(value: unknown) {
   const key = asText(value, '').toLowerCase();
   const labels: Record<string, string> = {
@@ -150,8 +217,16 @@ export default async function AdminMetricsPage() {
                       </span>
                     </td>
                     <td title={`${asText(row.authority_source)} · ${asText(row.measurement_surface)}`}>{row.metric_state === 'AVAILABLE' ? 'Рабочий внутренний источник' : row.metric_state === 'AVAILABLE_WITH_LIMITATIONS' ? 'Ограниченный внешний / внутренний источник' : 'Источник ещё не подключён'}</td>
-                    <td>{asText(row.public_summary)}</td>
-                    <td><details><summary className="cursor-pointer text-[var(--gold-warm)]">Ограничения</summary><div className="muted" style={{ marginTop: '6px' }}>{asText(row.limitations_summary)}</div></details></td>
+                    <td>{metricCopy(row.metric_code, row.public_summary, row.limitations_summary).summary}</td>
+                    <td>
+                      <details>
+                        <summary className="cursor-pointer text-[var(--gold-warm)]">Ограничения</summary>
+                        <div className="muted" style={{ marginTop: '6px' }}>
+                          {metricCopy(row.metric_code, row.public_summary, row.limitations_summary).limitation}
+                          <div title={`${asText(row.public_summary)} · ${asText(row.limitations_summary)}`} style={{ marginTop: '5px', opacity: .65 }}>Технический оригинал сохранён в источнике данных.</div>
+                        </div>
+                      </details>
+                    </td>
                   </tr>
                 );
               })}
