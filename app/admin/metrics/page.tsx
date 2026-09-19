@@ -80,7 +80,7 @@ const METRIC_SUMMARIES: Record<string, { summary: string; limitation: string }> 
   },
   EXTERNAL_AVG_MONTHLY_SEARCHES: {
     summary: 'Оценка среднего месячного спроса Google Ads Keyword Planner для конкретного ключа, рынка и языка.',
-    limitation: 'Это не SEO-сложность, не позиция в органическом поиске и не спрос в реальном времени; live-доступ API пока ограничен.',
+    limitation: 'Это не SEO-сложность, не позиция в органическом поиске и не спрос в реальном времени; доступ к свежим данным через API пока ограничен.',
   },
   COMPLETED_ORDERS: {
     summary: 'Количество достоверно завершённых заказов из канонического commerce-источника.',
@@ -100,7 +100,7 @@ const METRIC_SUMMARIES: Record<string, { summary: string; limitation: string }> 
   },
   ORGANIC_CLICKS: {
     summary: 'Клики из Google Search Console для заданной страницы, запроса и рынка.',
-    limitation: 'Недоступно до подключения production-данных Search Console.',
+    limitation: 'Недоступно до подключения данных Search Console рабочего сайта.',
   },
   ORGANIC_CTR: {
     summary: 'CTR органического поиска: клики, делённые на показы в заданном срезе.',
@@ -108,11 +108,11 @@ const METRIC_SUMMARIES: Record<string, { summary: string; limitation: string }> 
   },
   ORGANIC_IMPRESSIONS: {
     summary: 'Показы из Google Search Console для заданной страницы, запроса и рынка.',
-    limitation: 'Недоступно до подключения production-данных Search Console.',
+    limitation: 'Недоступно до подключения данных Search Console рабочего сайта.',
   },
   PRODUCT_VIEW_EVENTS: {
-    summary: 'Количество событий просмотра товара на production-сайте.',
-    limitation: 'Недоступно до включения и проверки production-инструментации GA4.',
+    summary: 'Количество событий просмотра товара на рабочем сайте.',
+    limitation: 'Недоступно до включения и проверки сбора событий GA4 на рабочем сайте.',
   },
 };
 
