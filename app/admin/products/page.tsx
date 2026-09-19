@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { ArrowUpRight, Boxes, CheckCircle2, ImageIcon, Search, Tags, WalletCards } from 'lucide-react';
 import { AdminProductsFilterClient } from '@/components/AdminProductsFilterClient';
 import type { AdminProductTableRow, ReadinessTone, ReviewChip } from '@/lib/admin-readiness';
-import { getMissingAdminDataEnvMessage } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
