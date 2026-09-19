@@ -918,6 +918,27 @@ th {
   text-overflow: ellipsis;
 }
 
+.owner-density-toggle {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 9px;
+  border: 1px solid rgba(216,214,211,.10);
+  border-radius: 8px;
+  color: var(--muted);
+  background: rgba(255,255,255,.025);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.owner-density-toggle:hover,
+.owner-density-toggle.is-active {
+  border-color: rgba(212,178,106,.28);
+  color: var(--text);
+  background: rgba(212,178,106,.055);
+}
+
 .owner-topbar-status {
   margin-left: auto;
   display: flex;
@@ -934,6 +955,52 @@ th {
   border-radius: 50%;
   background: var(--warning);
   box-shadow: 0 0 0 4px rgba(247, 200, 115, 0.08);
+}
+
+.owner-shell.is-density-compact .owner-page,
+.owner-shell.is-density-compact .owner-main > .page-shell {
+  padding-top: 20px;
+  padding-bottom: 36px;
+}
+
+.owner-shell.is-density-compact .owner-page-head {
+  margin-bottom: 18px;
+}
+
+.owner-shell.is-density-compact .owner-section {
+  margin-top: 20px;
+}
+
+.owner-shell.is-density-compact .owner-card {
+  padding: 12px;
+}
+
+.owner-shell.is-density-compact .owner-list {
+  gap: 6px;
+}
+
+.owner-shell.is-density-compact .owner-list-row {
+  padding: 9px 11px;
+}
+
+.owner-shell.is-density-compact .owner-summary-cell {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.owner-shell.is-density-compact .owner-summary-cell strong {
+  margin-bottom: 4px;
+  font-size: 20px;
+}
+
+.owner-shell.is-density-compact .page-shell table td,
+.owner-shell.is-density-compact .page-shell table th {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.owner-shell.is-density-compact .owner-disclosure-section {
+  padding: 10px 12px;
 }
 
 .owner-main {
@@ -1563,7 +1630,8 @@ th {
   .owner-search-trigger span:nth-child(2),
   .owner-search-trigger kbd,
   .owner-topbar-context,
-  .owner-topbar-status {
+  .owner-topbar-status,
+  .owner-density-toggle span {
     display: none;
   }
 
