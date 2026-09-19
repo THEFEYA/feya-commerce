@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AlertTriangle, CheckCircle2, ClipboardList, MessageSquarePlus, PackageCheck, ShieldCheck, type LucideIcon } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, ClipboardList, MessageSquarePlus } from 'lucide-react';
 import { formatPrice } from '@/lib/storefront';
 
 type DraftItem = {
