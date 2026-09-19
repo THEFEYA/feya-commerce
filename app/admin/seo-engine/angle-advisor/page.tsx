@@ -1,7 +1,7 @@
 // @ts-nocheck
+import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, Compass } from 'lucide-react';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import { STOREFRONT_VIEW_V1, productSlug, productTitle } from '@/lib/storefront';
 import { buildSeoPilotBrief } from '@/lib/seoPilotDraft';
 
@@ -28,8 +28,8 @@ const FALLBACK_PRODUCT = {
 };
 
 async function loadPilotData() {
-  const supabase = getSupabaseReadClient();
-  if (!supabase) return { product: FALLBACK_PRODUCT, keywords: [], warning: getMissingSupabaseEnvMessage(), fallbackUsed: true };
+  const supabase = getAdminReadClient();
+  if (!supabase) return { product: FALLBACK_PRODUCT, keywords: [], warning: getMissingAdminDataEnvMessage(), fallbackUsed: true };
 
   const productsResult = await supabase.from(STOREFRONT_VIEW_V1).select(PRODUCT_SELECT).limit(24);
   const product = (productsResult.data || []).filter((item) => productSlug(item) && productTitle(item))[0] || FALLBACK_PRODUCT;
