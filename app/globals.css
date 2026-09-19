@@ -1385,6 +1385,11 @@ th {
   padding: 14px 16px;
 }
 
+.owner-disclosure-section.is-attention {
+  border-color: rgba(247,200,115,.28);
+  background: rgba(247,200,115,.045);
+}
+
 .owner-disclosure-section > summary > span:first-child {
   display: grid;
   gap: 3px;
