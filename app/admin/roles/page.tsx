@@ -69,12 +69,11 @@ export default async function AdminRolesPage() {
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Всего ролей</span></div>
-          <div className="card metric"><strong>{active}</strong><span>Активны</span></div>
-          <div className="card metric"><strong>{shadow}</strong><span>Режим наблюдения</span></div>
-          <div className="card metric"><strong>{inactive}</strong><span>Не активированы</span></div>
-          <div className="card metric"><strong>{paused}</strong><span>Приостановлены</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{active}</strong><span>Ролей активны</span></div>
+          <div className="owner-summary-cell"><strong>{shadow}</strong><span>Работают в режиме наблюдения</span></div>
+          <div className="owner-summary-cell"><strong>{inactive}</strong><span>Ещё не активированы</span></div>
+          <div className="owner-summary-cell"><strong>{paused}</strong><span>Приостановлены</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
@@ -86,18 +85,17 @@ export default async function AdminRolesPage() {
                 <th>Роль</th>
                 <th>Состояние</th>
                 <th>Предел самостоятельности</th>
-                <th>Нужно возможностей</th>
-                <th>Полностью готовы</th>
-                <th>Заблокировано</th>
-                <th>Разрешено действий</th>
+                <th>Нужно системных возможностей</th>
+                <th>Готово</th>
+                <th>Блокеров</th>
+                <th>Разрешённых действий</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((row) => (
                 <tr key={row.role_code}>
                   <td>
-                    <strong>{roleLabel(row.role_code)}</strong>
-                    <div className="muted">Технический код: {row.role_code}</div>
+                    <strong title={row.role_code}>{roleLabel(row.role_code)}</strong>
                   </td>
                   <td>
                     <span className={`status-pill ${statusClass(row.runtime_status)}`}>
