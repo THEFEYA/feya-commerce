@@ -459,64 +459,75 @@ th {
 
 
 
-/* Legacy admin pages inside the unified owner shell become contextual, not a second navigation system. */
+/* Agent / Growth OS diagnostic pages inherit the Owner Shell without creating a second navigation system. */
 .owner-shell .page-shell .top-nav {
-  min-height: 0;
-  justify-content: flex-end;
-  padding: 0 0 14px;
-}
-
-.owner-shell .page-shell .top-nav .brand-mark {
   display: none;
 }
 
-.owner-shell .page-shell .nav-links {
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 6px;
-  font-size: 11px;
+.owner-shell .page-shell {
+  min-height: auto;
+  background: transparent;
 }
 
-.owner-shell .page-shell .nav-links a {
-  padding: 6px 9px;
-  border: 1px solid rgba(216,214,211,.10);
-  border-radius: 8px;
-  background: rgba(255,255,255,.02);
-}
-
-.owner-shell .page-shell .nav-links a:hover {
-  border-color: rgba(212,178,106,.30);
-  color: var(--text);
+.owner-shell .page-shell > .container {
+  width: min(1500px, calc(100% - 40px));
+  margin: 0 auto;
+  padding-top: 30px;
+  padding-bottom: 56px;
 }
 
 .owner-shell .page-shell .phase-banner {
+  display: grid;
   gap: 8px;
-  margin-bottom: 20px;
-  padding: 18px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, rgba(216,181,109,.08), rgba(23,23,32,.64));
+  margin: 0 0 22px;
+  padding: 0 0 20px;
+  border: 0;
+  border-bottom: 1px solid rgba(216,214,211,.11);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.owner-shell .page-shell .phase-banner .phase-label {
+  color: var(--gold-warm);
+  font-size: 10px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
 }
 
 .owner-shell .page-shell .phase-banner h1 {
   margin: 0;
-  font-size: clamp(24px, 2.6vw, 34px);
-  line-height: 1.08;
-  letter-spacing: -.035em;
+  max-width: 940px;
+  font-size: clamp(30px, 3vw, 44px);
+  line-height: 1.02;
+  letter-spacing: -.045em;
 }
 
 .owner-shell .page-shell .phase-banner p {
-  max-width: 820px;
+  max-width: 900px;
+  margin: 0;
   color: var(--muted);
   font-size: 13px;
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
 .owner-shell .page-shell .table-wrap {
+  overflow: clip;
+  border: 1px solid rgba(216,214,211,.11);
   border-radius: 12px;
+  background: rgba(255,255,255,.018);
 }
 
 .owner-shell .page-shell th {
-  background: rgba(10,10,13,.82);
+  background: rgba(10,10,13,.92);
+}
+
+.owner-shell .page-shell tbody tr {
+  transition: background 140ms ease;
+}
+
+.owner-shell .page-shell tbody tr:hover {
+  background: rgba(212,178,106,.035);
 }
 
 
