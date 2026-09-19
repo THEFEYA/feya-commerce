@@ -260,10 +260,13 @@ export default async function AdminComponentReviewPage({ searchParams }: PagePro
             sourceRoute={`/admin/review/components?product_id=${product.canonical_product_id}`}
           />
         </div> : null}
-        {truthEvidence.length ? <div className="mt-5 rounded-xl border border-[rgba(196,64,88,.22)] bg-[rgba(160,32,56,.06)] p-4">
-          <div className="eyebrow-dim mb-3">Факты, которые нужно уточнить</div>
-          <div className="flex flex-wrap gap-1.5">{truthEvidence.map((item, index) => <Chip key={`${componentEvidenceLabel(item)}-${index}`} tone="danger">{componentEvidenceLabel(item)}</Chip>)}</div>
-        </div> : null}
+        {truthEvidence.length ? <details className="owner-disclosure owner-disclosure-section" style={{ marginTop: '14px' }}>
+          <summary>
+            <span><strong>Факты, которые нужно уточнить</strong><small>Сырые доказательства состава скрыты до раскрытия</small></span>
+            <span className="owner-status is-warning">{truthEvidence.length}</span>
+          </summary>
+          <div className="owner-disclosure-body flex flex-wrap gap-1.5">{truthEvidence.map((item, index) => <Chip key={`${componentEvidenceLabel(item)}-${index}`} tone="danger">{componentEvidenceLabel(item)}</Chip>)}</div>
+        </details> : null}
         {truthDiagnostic?.variantReviewFacts.length ? <div className="mt-5 rounded-xl border border-[rgba(212,178,106,.24)] bg-[rgba(212,178,106,.05)] p-4">
           <div className="eyebrow-dim mb-2">Проверка вариантов · не блокирует состав</div>
           <p className="text-[11px] leading-relaxed text-[var(--bone-dim)]">Размер, цвет и другие параметры остаются в истории проверки. Они проверяются отдельно и не могут автоматически становиться компонентами товара.</p>
