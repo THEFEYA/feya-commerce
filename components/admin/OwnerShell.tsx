@@ -82,9 +82,11 @@ function ownerArea(pathname: string) {
     pathname.startsWith('/admin/seo-apply') ||
     pathname.startsWith('/admin/seo-change-sets') ||
     pathname.startsWith('/admin/seo-gate') ||
-    pathname.startsWith('/admin/seo-engine/scoring') ||
-    pathname.startsWith('/admin/seo-engine/metric-import') ||
-    pathname.startsWith('/admin/seo-engine/commercial-review') ||
+    pathname.startsWith('/admin/seo-engine') ||
+    pathname.startsWith('/admin/seo-approval') ||
+    pathname.startsWith('/admin/seo-export') ||
+    pathname.startsWith('/admin/seo-storefront-preview') ||
+    pathname.startsWith('/admin/media-seo') ||
     pathname.startsWith('/admin/indexation') ||
     pathname === '/admin/seo'
   ) return 'growth';
