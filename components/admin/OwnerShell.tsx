@@ -204,10 +204,6 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
             <span className="owner-nav-mark" aria-hidden="true"><Settings2 size={14} strokeWidth={1.8} /></span>
             <span>Технические детали</span>
           </Link>
-          <Link href="/admin" className="owner-nav-item owner-nav-secondary" title="Товарная админка">
-            <span className="owner-nav-mark" aria-hidden="true"><PackageSearch size={14} strokeWidth={1.8} /></span>
-            <span>Товарная админка</span>
-          </Link>
           <Link href="/shop" className="owner-nav-item owner-nav-secondary" title="Магазин">
             <span className="owner-nav-mark" aria-hidden="true"><Store size={14} strokeWidth={1.8} /></span>
             <span>Магазин</span>
