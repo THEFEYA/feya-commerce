@@ -3,25 +3,24 @@ import Link from 'next/link';
 import { ArrowUpRight, Boxes, CheckCircle2, ClipboardCheck, ImageIcon, Layers3, PackageSearch, Tags, WalletCards } from 'lucide-react';
 import { AdminReadinessOverviewClient } from '@/components/AdminReadinessOverviewClient';
 import { getProductEvents, getProductFlags, getProductReadiness, type AdminReviewEvent } from '@/lib/admin-readiness';
-import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
-import { getSupabaseServiceClient } from '@/lib/supabase';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
 
 export const revalidate = 300;
 
 const ADMIN_MODULES = [
-  { href: '/admin/products', label: 'Каталог товаров', note: 'товары, готовность, варианты и медиа', icon: PackageSearch },
-  { href: '/admin/review/labels', label: 'Проверка названий', note: 'публичные названия и исходные подписи', icon: Tags },
-  { href: '/admin/review/prices', label: 'Проверка цен', note: 'точность, публичная цена и скидка', icon: WalletCards },
-  { href: '/admin/review/components', label: 'Состав и компоненты', note: 'компоненты, комплекты и полный набор', icon: Boxes },
-  { href: '/admin/media', label: 'Проверка медиа', note: 'главное фото, вторая фотография и галерея', icon: ImageIcon },
-  { href: '/admin/seo', label: 'SEO-готовность', note: 'заголовки, URL, связи и фиды', icon: Layers3 },
+  { href: '/admin/products', label: 'Каталог товаров', note: 'v4 products, readiness, конфигурации, media', icon: PackageSearch },
+  { href: '/admin/review/labels', label: 'Label Review', note: 'публичные labels и русские raw-флаги', icon: Tags },
+  { href: '/admin/review/prices', label: 'Price Review', note: 'confidence, display price, compare-at', icon: WalletCards },
+  { href: '/admin/review/components', label: 'Component Mapping', note: 'component_code, bundle, full set', icon: Boxes },
+  { href: '/admin/media', label: 'Media QA', note: 'primary/hover/gallery readiness', icon: ImageIcon },
+  { href: '/admin/seo', label: 'SEO Readiness', note: 'titles, URLs, product graph, feeds', icon: Layers3 },
 ];
 
 async function loadProducts() {
-  const supabase = getAdminReadClient();
-  if (!supabase) return { products: [], error: getMissingAdminDataEnvMessage() };
+  const supabase = getSupabaseReadClient();
+  if (!supabase) return { products: [], error: getMissingSupabaseEnvMessage() };
 
   const result = await supabase
     .from(STOREFRONT_VIEW_V4)
@@ -84,6 +83,21 @@ function summarize(products: StorefrontProduct[], reviewEvents: AdminReviewEvent
   };
 }
 
+function StatCard({ label, value, note, tone = 'default' }) {
+  const toneClass = tone === 'warning'
+    ? 'border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.06)]'
+    : tone === 'danger'
+      ? 'border-[rgba(196,64,88,.34)] bg-[rgba(160,32,56,.08)]'
+      : tone === 'success'
+        ? 'border-[rgba(108,183,138,.35)] bg-[rgba(108,183,138,.08)]'
+        : 'border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)]';
+  return <div className={`rounded-2xl border ${toneClass} p-5 min-h-[145px]`}>
+    <div className="eyebrow-dim mb-4">{label}</div>
+    <div className="font-price text-gold-grad text-[42px] leading-none">{value}</div>
+    <div className="mt-4 text-[12px] leading-relaxed text-[var(--bone-dim)]">{note}</div>
+  </div>;
+}
+
 function QueueRow({ label, count, note, href, icon: Icon }) {
   return <Link href={href} className="group grid grid-cols-[36px_1fr_auto] gap-4 items-center rounded-2xl border border-[rgba(216,214,211,.11)] bg-[rgba(255,255,255,.025)] p-4 hover:border-[rgba(212,178,106,.45)] hover:bg-[rgba(212,178,106,.05)] transition-all">
     <div className="h-9 w-9 rounded-full border border-[rgba(216,214,211,.14)] bg-black/25 flex items-center justify-center text-[var(--gold-warm)]"><Icon size={16} /></div>
@@ -117,43 +131,42 @@ export default async function AdminPage() {
     .filter(({ readiness }) => readiness.label !== 'Ready for Storefront')
     .slice(0, 8);
 
-  return <main className="owner-page">
-    <div className="owner-page-inner">
-      <header className="owner-page-head">
+  return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.14),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
+    <section className="container-feya pt-10 pb-16">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
         <div>
-          <div className="owner-eyebrow">Товары и качество</div>
-          <h1>Панель магазина</h1>
-          <p>Операционная сводка каталога: что требует проверки, что заблокировано и что уже готово для витрины.</p>
+          <div className="eyebrow-gold mb-3">FEYA · Внутренняя админка</div>
+          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(46px,7vw,96px)' }}>Панель контроля</h1>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Внутренняя панель качества каталога: v4-контракт, единая логика готовности, проверочные события, названия, цены, компоненты, медиа, SEO-готовность и черновики заказов.</p>
         </div>
-        <Link href="/shop" className="owner-button">Витрина <ArrowUpRight size={13} /></Link>
-      </header>
+        <Link href="/shop" className="btn-ghost self-start lg:self-auto">Витрина <ArrowUpRight size={13} /></Link>
+      </div>
 
       {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
 
       <AdminReadinessOverviewClient products={stats.products} labelReview={stats.labelReview} priceReview={stats.unverifiedPrice} componentIssues={stats.missingComponent} mediaReview={stats.mediaNeedsReview} />
 
-      <section className="owner-section" style={{ marginTop: 0, marginBottom: '24px' }}>
-        <div className="owner-summary-strip">
-          <div className="owner-summary-cell"><strong>{stats.needsReview}</strong><span>Нужна проверка</span></div>
-          <div className="owner-summary-cell"><strong>{stats.blocked}</strong><span>Заблокировано</span></div>
-          <div className="owner-summary-cell"><strong>{stats.ready}</strong><span>Готово для витрины</span></div>
-          <div className="owner-summary-cell"><strong>{stats.products}</strong><span>Товаров в каталоге</span></div>
-        </div>
-      </section>
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <StatCard label="Готово" value={stats.ready} tone="success" note="Закрыто через общую логику готовности." />
+        <StatCard label="Нужна проверка" value={stats.needsReview} tone="warning" note="Открыт этап названия, цены, компонентов, медиа или SEO." />
+        <StatCard label="Черновики" value={stats.draft} note="Пока нет проверочных событий." />
+        <StatCard label="Заблокировано" value={stats.blocked} tone="danger" note="Есть событие “нужны исправления”." />
+        <StatCard label="Товары v4" value={stats.products} note="Срез storefront-контракта для админки." />
+      </div>
 
       <div className="grid grid-cols-12 gap-6 lg:gap-8">
         <aside className="col-span-12 lg:col-span-4 space-y-4">
-          <div className="eyebrow-gold mb-1">Очереди проверки</div>
-          <QueueRow href="/admin/review/labels" icon={Tags} label="Проверка названий" count={stats.labelReview} note="Публичные названия без сырого служебного текста." />
-          <QueueRow href="/admin/review/prices" icon={WalletCards} label="Проверка цен" count={stats.unverifiedPrice} note="Публичная цена, точность и готовность к запуску." />
-          <QueueRow href="/admin/review/components" icon={Boxes} label="Проверка компонентов" count={stats.missingComponent} note="Состав товара, семейство компонентов и комплекты." />
-          <QueueRow href="/admin/media" icon={ImageIcon} label="Проверка медиа" count={stats.mediaNeedsReview} note="Вторая фотография, глубина галереи и готовность изображений." />
-          <QueueRow href="/admin/products" icon={CheckCircle2} label="Готово для витрины" count={stats.ready} note="Товары, прошедшие текущие проверки готовности." />
+          <div className="eyebrow-gold mb-1">Review queues</div>
+          <QueueRow href="/admin/review/labels" icon={Tags} label="Label Review" count={stats.labelReview} note="clean English labels, no raw collector text" />
+          <QueueRow href="/admin/review/prices" icon={WalletCards} label="Price Review" count={stats.unverifiedPrice} note="display price, confidence, launch approval" />
+          <QueueRow href="/admin/review/components" icon={Boxes} label="Missing component codes" count={stats.missingComponent} note="component_code, family, bundle/full-set truth" />
+          <QueueRow href="/admin/media" icon={ImageIcon} label="Media QA" count={stats.mediaNeedsReview} note="hover image, gallery depth, feed/image readiness" />
+          <QueueRow href="/admin/products" icon={CheckCircle2} label="Ready for Storefront" count={stats.ready} note="shared readiness status from v4 + review events" />
         </aside>
 
         <section className="col-span-12 lg:col-span-8 space-y-6">
           <div>
-            <div className="eyebrow-gold mb-4">Рабочие разделы</div>
+            <div className="eyebrow-gold mb-4">Admin modules</div>
             <div className="grid md:grid-cols-2 gap-4">
               {ADMIN_MODULES.map(({ href, label, note, icon: Icon }) => <Link key={href} href={href} className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5 hover:border-[rgba(212,178,106,.45)] hover:bg-[rgba(212,178,106,.05)] transition-all">
                 <div className="h-10 w-10 rounded-full border border-[rgba(216,214,211,.14)] bg-black/25 flex items-center justify-center text-[var(--gold-warm)] mb-4"><Icon size={17} /></div>
@@ -166,8 +179,8 @@ export default async function AdminPage() {
           <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
             <div className="flex items-center justify-between gap-4 mb-4">
               <div>
-                <div className="eyebrow-gold mb-2">Товары, которые стоит проверить первыми</div>
-                <div className="text-[12px] text-[var(--bone-dim)]">Первые товары, которые ещё не готовы для витрины. Нажатие открывает внутреннюю карточку товара.</div>
+                <div className="eyebrow-gold mb-2">Priority product checks</div>
+                <div className="text-[12px] text-[var(--bone-dim)]">First products that are not Ready for Storefront. Click opens admin product detail.</div>
               </div>
               <ClipboardCheck size={18} className="text-[var(--gold-warm)]" />
             </div>
@@ -176,15 +189,15 @@ export default async function AdminPage() {
                 <div className="relative h-12 w-11 rounded-md overflow-hidden bg-black/30">{product.primary_image_url ? <img src={product.primary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}</div>
                 <div>
                   <div className="text-bone text-[13px] leading-snug line-clamp-1">{productTitle(product)}</div>
-                  <div className="mt-1 text-[10px] uppercase tracking-[0.16em] text-[var(--smoke)]">{product.category_label || product.product_type || 'Товар'} · {product.canonical_color_label || product.color || 'Цвет не указан'}</div>
+                  <div className="mt-1 text-[10px] uppercase tracking-[0.16em] text-[var(--smoke)]">{product.category_label || product.product_type || 'Product'} · {product.canonical_color_label || product.color || 'Color'}</div>
                 </div>
                 <StatusPill tone={readiness.tone}>{readiness.label}</StatusPill>
               </Link>)}
-              {!priorityProducts.length ? <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 text-[13px] text-[var(--bone-dim)]">Нет товаров, требующих приоритетной проверки.</div> : null}
+              {!priorityProducts.length ? <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 text-[13px] text-[var(--bone-dim)]">No priority review rows returned from v4.</div> : null}
             </div>
           </div>
         </section>
       </div>
-    </div>
+    </section>
   </main>;
 }
