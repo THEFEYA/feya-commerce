@@ -92,13 +92,11 @@ export default async function AdminSignalsPage() {
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Кандидатов сигналов</span></div>
-          <div className="card metric"><strong>{p1}</strong><span>P1</span></div>
-          <div className="card metric"><strong>{p2}</strong><span>P2</span></div>
-          <div className="card metric"><strong>{ownerDecisions}</strong><span>Нужно решение владельца</span></div>
-          <div className="card metric"><strong>{workQueue}</strong><span>Можно передать в работу</span></div>
-          <div className="card metric"><strong>{implementation}</strong><span>Нужны изменения системы</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{ownerDecisions}</strong><span>Нужно решение владельца</span></div>
+          <div className="owner-summary-cell"><strong>{workQueue}</strong><span>Можно передать в работу</span></div>
+          <div className="owner-summary-cell"><strong>{implementation}</strong><span>Нужны изменения системы</span></div>
+          <div className="owner-summary-cell"><strong>{p1 + p2}</strong><span>Важных сигналов P1–P2</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
@@ -122,20 +120,36 @@ export default async function AdminSignalsPage() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
+              {[...rows].sort((a, b) => {
+                const routeRank = (value: unknown) => {
+                  const key = asText(value, '');
+                  if (key === 'OWNER_DECISION_REQUIRED') return 0;
+                  if (key === 'WORK_QUEUE') return 1;
+                  if (key === 'IMPLEMENTATION_ACTION') return 2;
+                  if (key === 'MONITOR') return 3;
+                  return 4;
+                };
+                const priorityRank = (value: unknown) => {
+                  const key = asText(value, '');
+                  if (key === 'P0') return 0;
+                  if (key === 'P1') return 1;
+                  if (key === 'P2') return 2;
+                  return 3;
+                };
+                return routeRank(a.case_admission_recommendation) - routeRank(b.case_admission_recommendation)
+                  || priorityRank(a.priority) - priorityRank(b.priority);
+              }).map((row) => (
                 <tr key={row.signal_fingerprint}>
                   <td>
                     <span className={`status-pill ${priorityClass(row.priority)}`}>
                       {priorityLabel(row.priority)}
                     </span>
-                    <div className="muted">{asText(row.materiality_score)}</div>
+
                   </td>
                   <td>
-                    <strong>{signalCopy(row.signal_code, { title: row.title, summary: row.summary, action: row.next_action }).title}</strong>
-                    <div className="muted">{row.signal_code}</div>
+                    <strong title={row.signal_code}>{signalCopy(row.signal_code, { title: row.title, summary: row.summary, action: row.next_action }).title}</strong>
                     <div className="badge-row">
-                      <span className="badge">{asText(row.signal_type)}</span>
-                      <span className="badge">{asText(row.signal_scope)}</span>
+                      <span className="badge" title={asText(row.signal_type)}>Системный сигнал</span>
                     </div>
                   </td>
                   <td>{roleLabel(row.accountable_domain)}</td>
@@ -154,7 +168,7 @@ export default async function AdminSignalsPage() {
                           <div className="muted">{asText(admission?.admission_reason)}</div>
                           {admission?.existing_case_code ? (
                             <div className="badge-row">
-                              <span className="badge">{admission.existing_case_code}</span>
+                              <span className="badge" title={admission.existing_case_code}>Есть связанная рабочая ситуация</span>
                             </div>
                           ) : null}
                         </>
