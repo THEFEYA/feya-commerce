@@ -233,42 +233,46 @@ function SavedDraftCard({ draft, events }) {
   const isFinalReviewState = ['approved', 'changes_requested', 'rejected'].includes(String(draft.review_status || '').toLowerCase());
   const needsSimilarityGate = String(draft.review_status || '').toLowerCase() === 'approved' && ['warning', 'not_checked', 'missing', 'проверить'].includes(String(draft.similarity_status || '').toLowerCase());
   const canRunSourceCatalogGate = String(draft.review_status || '').toLowerCase() === 'approved' && !needsSimilarityGate;
-  return <article className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-      <div className="grid sm:grid-cols-[92px_1fr] gap-4 min-w-0">
-        <div className="h-24 rounded-xl overflow-hidden border border-[rgba(216,214,211,.10)] bg-black/30 flex items-center justify-center text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">фото позже</div>
-        <div className="min-w-0">
-          <div className="flex flex-wrap gap-2 mb-3">
-            <Chip tone={draftTone(draft.status)}>{statusLabel(draft.status)}</Chip>
-            <Chip tone={draftTone(draft.review_status)}>{statusLabel(draft.review_status)}</Chip>
-            <Chip>{draft.source_mode || 'source'}</Chip>
-          </div>
-          <h2 className="text-bone text-[18px] leading-snug">{title}</h2>
-          <div className="mt-2 text-[10px] uppercase tracking-[0.14em] text-[var(--smoke)]">/{draft.product_slug || 'no-slug'} · черновик {String(draft.id).slice(0, 8)}</div>
-        </div>
+  const attentionNeeded = String(draft.review_status || '').toLowerCase() === 'not_reviewed';
+
+  return <details className={`owner-disclosure owner-disclosure-section${attentionNeeded ? ' is-attention' : ''}`}>
+    <summary>
+      <span>
+        <strong>{title}</strong>
+        <small>/{draft.product_slug || 'no-slug'} · обновлён {dateLabel(draft.updated_at)}</small>
+      </span>
+      <span className="owner-card-meta" style={{ marginBottom: 0 }}>
+        <Chip tone={draftTone(draft.review_status)}>{statusLabel(draft.review_status)}</Chip>
+        <Chip tone={draftTone(draft.validation_status)}>{statusLabel(draft.validation_status)}</Chip>
+      </span>
+    </summary>
+
+    <div className="owner-disclosure-body">
+      <div className="flex flex-wrap gap-2 mb-4">
+        <Link href={`/admin/seo-engine/draft-preview?product_id=${draft.canonical_product_id}`} className="owner-button primary">Открыть проверку <ArrowUpRight size={13} /></Link>
+        {draft.product_slug ? <Link href={`/shop/${draft.product_slug}`} className="owner-button">Товар <ArrowUpRight size={13} /></Link> : null}
       </div>
-      <div className="flex flex-wrap gap-2 lg:justify-end">
-        <Link href={`/admin/seo-engine/draft-preview?product_id=${draft.canonical_product_id}`} className="btn-ghost px-4 py-2 text-[10px]">Открыть проверку <ArrowUpRight size={13} /></Link>
-        {draft.product_slug ? <Link href={`/shop/${draft.product_slug}`} className="btn-ghost px-4 py-2 text-[10px]">Товар <ArrowUpRight size={13} /></Link> : null}
+
+      <div className="grid lg:grid-cols-2 gap-3">
+        <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3"><div className="eyebrow-dim mb-2">SEO-заголовок</div><div className="text-[13px] leading-relaxed text-bone">{draft.seo_title || '—'}</div></div>
+        <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3"><div className="eyebrow-dim mb-2">Meta description</div><div className="text-[13px] leading-relaxed text-bone">{draft.meta_description || '—'}</div></div>
       </div>
+
+      <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-5 gap-2">
+        <MiniFact label="Валидатор" value={statusLabel(draft.validation_status)} tone={draftTone(draft.validation_status)} />
+        <MiniFact label="Метрики" value={statusLabel(draft.metrics_status)} tone={draftTone(draft.metrics_status)} />
+        <MiniFact label="Портфель" value={statusLabel(draft.similarity_status)} tone={draftTone(draft.similarity_status)} />
+        <MiniFact label="ALT изображений" value={statusLabel(draft.image_alt_status)} tone={draftTone(draft.image_alt_status)} />
+        <MiniFact label="Обновлён" value={dateLabel(draft.updated_at)} />
+      </div>
+
+      <StoredPackDetails draft={draft} />
+      <EventTimeline events={events || []} />
+      {needsSimilarityGate ? <SeoDraftSimilarityCheckClient draftId={draft.id} /> : null}
+      {canRunSourceCatalogGate ? <SeoDraftSourceOverlapCheckClient draftId={draft.id} /> : null}
+      {isFinalReviewState ? <div className="mt-4 rounded-xl border border-[rgba(108,183,138,.22)] bg-[rgba(108,183,138,.06)] p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Статус проверки уже изменён: <span className="text-[#a9dfbd]">{statusLabel(draft.review_status)}</span>. Это не публикация; готовность к публикации всё ещё требует остальных контрольных этапов.</div> : <SeoDraftReviewActionsClient draftId={draft.id} />}
     </div>
-    <div className="mt-5 grid lg:grid-cols-2 gap-3">
-      <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3"><div className="eyebrow-dim mb-2">SEO-заголовок</div><div className="text-[13px] leading-relaxed text-bone">{draft.seo_title || '—'}</div></div>
-      <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3"><div className="eyebrow-dim mb-2">Meta description</div><div className="text-[13px] leading-relaxed text-bone">{draft.meta_description || '—'}</div></div>
-    </div>
-    <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-5 gap-2">
-      <MiniFact label="Валидатор" value={statusLabel(draft.validation_status)} tone={draftTone(draft.validation_status)} />
-      <MiniFact label="Метрики" value={statusLabel(draft.metrics_status)} tone={draftTone(draft.metrics_status)} />
-      <MiniFact label="Портфель" value={statusLabel(draft.similarity_status)} tone={draftTone(draft.similarity_status)} />
-      <MiniFact label="ALT изображений" value={statusLabel(draft.image_alt_status)} tone={draftTone(draft.image_alt_status)} />
-      <MiniFact label="Обновлён" value={dateLabel(draft.updated_at)} />
-    </div>
-    <StoredPackDetails draft={draft} />
-    <EventTimeline events={events || []} />
-    {needsSimilarityGate ? <SeoDraftSimilarityCheckClient draftId={draft.id} /> : null}
-    {canRunSourceCatalogGate ? <SeoDraftSourceOverlapCheckClient draftId={draft.id} /> : null}
-    {isFinalReviewState ? <div className="mt-4 rounded-xl border border-[rgba(108,183,138,.22)] bg-[rgba(108,183,138,.06)] p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Review status уже изменён: <span className="text-[#a9dfbd]">{statusLabel(draft.review_status)}</span>. Это не публикация; publish readiness всё ещё требует portfolio/source overlap, image ALT truth и финальный publish gate.</div> : <SeoDraftReviewActionsClient draftId={draft.id} />}
-  </article>;
+  </details>;
 }
 
 export default async function SeoApprovalPage() {
