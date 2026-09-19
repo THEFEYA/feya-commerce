@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { ArrowUpRight, BarChart3, CheckCircle2, FileSearch, FileText, ImageIcon, Layers3, ShieldAlert } from 'lucide-react';
 import { AdminGenerateKeywordCandidatesButton } from '@/components/AdminGenerateKeywordCandidatesButton';
 import { AdminSeoStrategyRecommendationCard } from '@/components/AdminSeoStrategyRecommendationCard';
-import { getMissingAdminDataEnvMessage } from '@/lib/supabase';
 import { productSlug, STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 import { buildSeoDraftSuggestion } from '@/lib/seo-draft-suggestions';
 import { buildRuleBasedKeywordCandidates } from '@/lib/seo-keyword-candidates';
