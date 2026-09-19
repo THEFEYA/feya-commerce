@@ -24,6 +24,36 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
+function authorityLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    CURRENT_FIRST_PARTY: 'Текущий внутренний источник',
+    DERIVED_OPERATIONAL: 'Рассчитано внутри FEYA',
+    EXTERNAL_MARKET: 'Внешний рыночный источник',
+    LEGACY_FIRST_PARTY: 'Исторический внутренний источник',
+  };
+  return labels[key] || 'Источник данных';
+}
+
+function dateTimeLabel(value: unknown) {
+  if (!value) return '—';
+  const date = new Date(String(value));
+  if (Number.isNaN(date.getTime())) return asText(value);
+  return new Intl.DateTimeFormat('ru-RU', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  }).format(date);
+}
+
+function healthRank(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  if (key === 'UNAVAILABLE') return 0;
+  if (key === 'DEGRADED') return 1;
+  if (key === 'NOT_OBSERVABLE' || key === 'STALE') return 2;
+  if (key === 'HEALTHY') return 4;
+  return 3;
+}
+
 function healthClass(value: unknown) {
   const state = asText(value, '').toUpperCase();
   if (state === 'HEALTHY') return 'ok';
@@ -59,12 +89,11 @@ export default async function AdminDataHealthPage() {
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Источников</span></div>
-          <div className="card metric"><strong>{healthy}</strong><span>Работают нормально</span></div>
-          <div className="card metric"><strong>{degraded}</strong><span>Работают с ограничениями</span></div>
-          <div className="card metric"><strong>{unavailable}</strong><span>Недоступны</span></div>
-          <div className="card metric"><strong>{notObservable}</strong><span>Нет наблюдения</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{unavailable}</strong><span>Источников недоступны</span></div>
+          <div className="owner-summary-cell"><strong>{degraded}</strong><span>Работают с ограничениями</span></div>
+          <div className="owner-summary-cell"><strong>{notObservable}</strong><span>Недостаточно наблюдения</span></div>
+          <div className="owner-summary-cell"><strong>{healthy}</strong><span>Работают нормально</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
@@ -78,26 +107,23 @@ export default async function AdminDataHealthPage() {
             <thead>
               <tr>
                 <th>Источник</th>
-                <th>Уровень доверия</th>
+                <th>Тип источника</th>
                 <th>Состояние</th>
                 <th>Свежесть</th>
                 <th>Последние данные</th>
                 <th>Строк</th>
-                <th>Ошибка / ограничение</th>
+                <th>Ограничение</th>
                 <th>Проверено</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
+              {[...rows].sort((a, b) => healthRank(a.health_state) - healthRank(b.health_state)).map((row) => (
                 <tr key={`${row.source_code}-${row.source_instance_key || 'default'}`}>
                   <td>
-                    <strong>{sourceLabel(row.source_code)}</strong>
-                    <div className="muted">{row.source_code}</div>
-                    <div className="muted">{asText(row.source_instance_key)}</div>
+                    <strong title={asText(row.source_code)}>{sourceLabel(row.source_code)}</strong>
                   </td>
-                  <td>
-                    {asText(row.authority_tier)}
-                    <div className="muted">{asText(row.authority_domain)}</div>
+                  <td title={`${asText(row.authority_tier)} · ${asText(row.authority_domain)}`}>
+                    {authorityLabel(row.authority_tier)}
                   </td>
                   <td>
                     <span className={`status-pill ${healthClass(row.health_state)}`}>
@@ -105,13 +131,17 @@ export default async function AdminDataHealthPage() {
                     </span>
                   </td>
                   <td>{dataFreshnessLabel(row.freshness_state)}</td>
-                  <td>{asText(row.watermark_at)}</td>
+                  <td>{dateTimeLabel(row.watermark_at)}</td>
                   <td>{row.observed_row_count ?? '—'}</td>
                   <td>
-                    {asText(row.error_code)}
-                    <div className="muted">{asText(row.error_message)}</div>
+                    {row.error_message ? (
+                      <details>
+                        <summary className="cursor-pointer text-[var(--gold-warm)]">Показать ограничение</summary>
+                        <div className="muted" style={{ marginTop: '6px' }} title={asText(row.error_code)}>{asText(row.error_message)}</div>
+                      </details>
+                    ) : '—'}
                   </td>
-                  <td>{asText(row.checked_at)}</td>
+                  <td>{dateTimeLabel(row.checked_at)}</td>
                 </tr>
               ))}
             </tbody>
