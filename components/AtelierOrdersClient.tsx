@@ -63,8 +63,8 @@ function readDraft(): CheckoutDraft | null {
 
 function itemWarnings(item: DraftItem) {
   const warnings: string[] = [];
-  if (!item.configuration_id) warnings.push('Нет configuration_id');
-  if (!item.component_code) warnings.push('Нет component_code');
+  if (!item.configuration_id) warnings.push('Не выбран канонический вариант товара');
+  if (!item.component_code) warnings.push('Не определён компонент товара');
   if (item.price_confidence_status === 'unverified') warnings.push('Цена не проверена');
   if (item.label_confidence_status === 'unverified') warnings.push('Название не проверено');
   return warnings;
@@ -97,8 +97,8 @@ export function AtelierOrdersClient() {
         <div className="glass rounded-2xl p-8">
           <div className="eyebrow-gold mb-3">Локальный резервный черновик</div>
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,68px)' }}>Локального черновика пока нет</h1>
-          <p className="mt-4 text-[var(--bone-dim)] max-w-xl">Создай тестовый черновик через checkout, если нужно проверить резервное локальное сохранение. Основная очередь черновиков Supabase находится выше.</p>
-          <Link href="/checkout" className="btn-chrome mt-6">Перейти к тестовому checkout <ArrowUpRight size={13} /></Link>
+          <p className="mt-4 text-[var(--bone-dim)] max-w-xl">Создай тестовый черновик через оформление заказа, если нужно проверить резервное локальное сохранение. Основная очередь черновиков Supabase находится выше.</p>
+          <Link href="/checkout" className="btn-chrome mt-6">Перейти к тестовому оформлению <ArrowUpRight size={13} /></Link>
         </div>
       </section>
     );
@@ -109,7 +109,7 @@ export function AtelierOrdersClient() {
       <div className="border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
         <div className="eyebrow-gold mb-3 flex items-center gap-2"><BadgeCheck size={14} /> Локальный резервный черновик</div>
         <h1 className="font-tall text-bone leading-[0.98] tracking-[0.035em]" style={{ fontSize: 'clamp(32px,4.5vw,62px)' }}>Резервная проверка черновика</h1>
-        <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Внутренняя проверка checkout-запроса из localStorage. Основной рабочий источник для админки — сохранённые черновики Supabase выше.</p>
+        <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Внутренняя проверка резервного локального черновика. Основной рабочий источник для админки — сохранённые черновики Supabase выше.</p>
       </div>
 
       <div className="grid grid-cols-12 gap-6 lg:gap-8">
@@ -138,8 +138,8 @@ export function AtelierOrdersClient() {
                     <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{item.config || 'Опция'} · {item.color || 'Цвет'} · {item.size || 'Размер'} · Кол-во {item.qty || 1}</div>
                     <div className="mt-2 font-price text-gold-grad text-[22px] leading-none">{formatPrice((item.price || 0) * (item.qty || 1), item.currency || currency)}</div>
                     <div className="mt-3 flex flex-wrap gap-1.5">
-                      {item.component_code ? <Pill>{item.component_code}</Pill> : null}
-                      {item.component_family ? <Pill>{item.component_family}</Pill> : null}
+                      {item.component_code ? <span title={item.component_code}><Pill>Компонент назначен</Pill></span> : null}
+                      {item.component_family ? <span title={item.component_family}><Pill>Семейство определено</Pill></span> : null}
                       {item.is_full_set ? <Pill tone="warning">Полный комплект</Pill> : null}
                       {item.is_bundle ? <Pill tone="warning">Комплект</Pill> : null}
                       {itemReview.map((warning) => <Pill key={warning} tone="danger">{warning}</Pill>)}
