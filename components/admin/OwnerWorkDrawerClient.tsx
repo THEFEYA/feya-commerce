@@ -1,26 +1,38 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import type { OwnerWorkItemVM } from '@/lib/owner-ui/types';
 import { OwnerWorkDetailContent } from '@/components/admin/OwnerWorkDetailContent';
 
 export function OwnerWorkDrawerClient({ item }: { item: OwnerWorkItemVM }) {
   const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const closeRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (!open) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.requestAnimationFrame(() => closeRef.current?.focus());
+
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setOpen(false);
     };
+
     window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = previousOverflow;
+      window.requestAnimationFrame(() => triggerRef.current?.focus());
+    };
   }, [open]);
 
   return (
     <>
-      <button type="button" className="owner-button" onClick={() => setOpen(true)}>Открыть</button>
+      <button ref={triggerRef} type="button" className="owner-button" onClick={() => setOpen(true)}>Открыть</button>
 
       {open ? (
         <div className="fixed inset-0 z-[80]" role="presentation">
@@ -41,7 +53,7 @@ export function OwnerWorkDrawerClient({ item }: { item: OwnerWorkItemVM }) {
                 <div className="owner-eyebrow" style={{ marginBottom: '5px' }}>Работа FEYA</div>
                 <h2 id={`work-drawer-${item.id}`} className="m-0 text-[20px] leading-snug text-bone">{item.title}</h2>
               </div>
-              <button type="button" className="owner-button" aria-label="Закрыть" onClick={() => setOpen(false)}><X size={15} /></button>
+              <button ref={closeRef} type="button" className="owner-button" aria-label="Закрыть" onClick={() => setOpen(false)}><X size={15} /></button>
             </div>
 
             <div className="p-5">
