@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { ExecutionGatewayRow } from '@/lib/types';
+import { statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -22,6 +23,38 @@ async function getRows(): Promise<{ rows: ExecutionGatewayRow[]; error?: string 
 function asText(value: unknown, fallback = '—') {
   if (value == null || value === '') return fallback;
   return String(value);
+}
+
+function requestActionLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    ENABLE_SEARCH_INDEXING: 'Включить поисковую индексацию',
+    PUBLISH_CONTENT: 'Опубликовать контент',
+    CHANGE_PRICE: 'Изменить публичную цену',
+    UPDATE_CANONICAL: 'Изменить canonical',
+    UPDATE_CONTENT_DRAFT: 'Обновить SEO-черновик',
+    HARDEN_ADMIN_DATA_BOUNDARY: 'Закрыть внутренние данные админки',
+    APPLY_INDEXABILITY_PROPOSAL: 'Применить решение по индексации',
+    APPLY_QUERY_CLUSTER_PROPOSAL: 'Применить группу запросов',
+    APPLY_PAGE_OWNERSHIP_PROPOSAL: 'Назначить страницу запросам',
+  };
+  return labels[key] || 'Контролируемое системное действие';
+}
+
+function approvalLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  if (key.includes('HUMAN_OWNER')) return 'Нужно решение владельца';
+  if (key.includes('HUMAN')) return 'Нужно одобрение человека';
+  if (key.includes('POLICY')) return 'Зависит от правила и риска';
+  if (!key || key === 'NONE') return 'Отдельное одобрение не требуется';
+  return 'Контролируемое одобрение';
+}
+
+function dateTimeLabel(value: unknown) {
+  if (!value) return '—';
+  const date = new Date(String(value));
+  if (Number.isNaN(date.getTime())) return asText(value);
+  return new Intl.DateTimeFormat('ru-RU', { dateStyle: 'short', timeStyle: 'short' }).format(date);
 }
 
 function statusClass(value: unknown) {
@@ -60,13 +93,11 @@ export default async function AdminExecutionsPage() {
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Запросов</span></div>
-          <div className="card metric"><strong>{approvalRequired}</strong><span>Требуют одобрения</span></div>
-          <div className="card metric"><strong>{approved}</strong><span>Одобрены и ждут исполнителя</span></div>
-          <div className="card metric"><strong>{executing}</strong><span>Выполняются</span></div>
-          <div className="card metric"><strong>{succeeded}</strong><span>Успешно</span></div>
-          <div className="card metric"><strong>{failed}</strong><span>Ошибки</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{approvalRequired}</strong><span>Требуют одобрения</span></div>
+          <div className="owner-summary-cell"><strong>{approved}</strong><span>Одобрены, ждут исполнителя</span></div>
+          <div className="owner-summary-cell"><strong>{executing}</strong><span>Выполняются сейчас</span></div>
+          <div className="owner-summary-cell"><strong>{failed}</strong><span>Завершились ошибкой</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
@@ -92,21 +123,19 @@ export default async function AdminExecutionsPage() {
                 {rows.map((row) => (
                   <tr key={row.execution_request_id}>
                     <td>
-                      <strong>{asText(row.request_code)}</strong>
-                      <div className="muted">{row.execution_request_id}</div>
+                      <strong title={asText(row.execution_request_id)}>{asText(row.request_code, 'Запрос на выполнение')}</strong>
                     </td>
                     <td>
-                      {asText(row.action_code)}
-                      <div className="muted">{asText(row.action_class)} / {asText(row.executor_type)}</div>
+                      <span title={`${asText(row.action_code)} · ${asText(row.action_class)} · ${asText(row.executor_type)}`}>{requestActionLabel(row.action_code)}</span>
                     </td>
                     <td>
                       <span className={`status-pill ${statusClass(row.request_status)}`}>
-                        {asText(row.request_status)}
+                        {statusLabel(row.request_status)}
                       </span>
                     </td>
                     <td>
-                      {asText(row.approval_class)}
-                      <div className="muted">{row.has_approval_user ? 'одобрение человека зафиксировано' : 'одобрение человека не зафиксировано'}</div>
+                      <span title={asText(row.approval_class)}>{approvalLabel(row.approval_class)}</span>
+                      <div className="muted">{row.has_approval_user ? 'одобрение зафиксировано' : 'одобрение ещё не зафиксировано'}</div>
                     </td>
                     <td>{asText(row.mutation_domain)}</td>
                     <td>
@@ -115,15 +144,12 @@ export default async function AdminExecutionsPage() {
                           <span className={`status-pill ${statusClass(row.latest_receipt_status)}`}>
                             {asText(row.latest_receipt_status)}
                           </span>
-                          <div className="muted">попытка {row.latest_attempt_no ?? '—'} · {asText(row.latest_executor_id)}</div>
+                          <div className="muted" title={asText(row.latest_executor_id)}>попытка {row.latest_attempt_no ?? '—'}</div>
                         </>
                       ) : '—'}
                     </td>
-                    <td>
-                      {asText(row.latest_error_code)}
-                      <div className="muted">{asText(row.latest_error_message)}</div>
-                    </td>
-                    <td>{asText(row.created_at)}</td>
+                    <td>{row.latest_error_message ? <details><summary className="cursor-pointer text-[var(--gold-warm)]">Показать ошибку</summary><div className="muted" style={{ marginTop: '6px' }} title={asText(row.latest_error_code)}>{asText(row.latest_error_message)}</div></details> : '—'}</td>
+                    <td>{dateTimeLabel(row.created_at)}</td>
                   </tr>
                 ))}
               </tbody>
