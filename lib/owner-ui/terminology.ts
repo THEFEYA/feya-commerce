@@ -388,6 +388,19 @@ export function attentionTypeLabel(value: unknown) {
   return ATTENTION_TYPE_LABELS[key] || 'Требует вашего решения';
 }
 
+export function admissionReasonLabel(value: unknown) {
+  const text = String(value || '').trim();
+  const copy: Record<string, string> = {
+    'Material implementation blocker is eligible for an explicit Growth Case.': 'Существенный технический блокер можно оформить как отдельную рабочую ситуацию роста.',
+    'Expected pre-launch gap; create a case only when the related human-activated business objective becomes active.': 'Это ожидаемый пробел до запуска; отдельную рабочую ситуацию стоит создавать только после активации связанной бизнес-цели.',
+    'Observe; current evidence does not justify a case.': 'Пока достаточно наблюдения: текущих доказательств недостаточно для отдельной рабочей ситуации.',
+    'Route to Owner Attention Queue; do not create a domain case before the owner decision.': 'Сначала требуется решение владельца; до него отдельную рабочую ситуацию направления создавать не нужно.',
+    'Handle as implementation work without automatic case creation.': 'Передать как обычную работу по реализации без автоматического создания отдельной рабочей ситуации.',
+    'Handle in the owning domain work queue; avoid unnecessary Growth Case overhead.': 'Передать в рабочую очередь ответственного направления без лишнего создания отдельной Growth Case.',
+  };
+  return copy[text] || 'Маршрут определён правилами допуска; техническое обоснование сохранено в источнике.';
+}
+
 export function admissionLabel(value: unknown) {
   const key = String(value || '').trim().toUpperCase();
   if (key === 'OWNER_DECISION_REQUIRED' || key === 'OWNER_ATTENTION') return 'Нужно ваше решение';
