@@ -26,6 +26,40 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
+const TRUTH_LABELS: Record<string, string> = {
+  BRAND_NAME: 'Название бренда',
+  ORDER_CANCELLATIONS: 'Отмена заказа',
+  DELIVERY_DATE_GUARANTEE: 'Гарантия даты доставки',
+  CUSTOMS_DUTIES_BUYER_RESPONSIBILITY: 'Таможенные пошлины',
+  STANDARD_MADE_TO_ORDER_PRODUCTION_TIME: 'Срок изготовления',
+  EXPRESS_SHIPPING_TIME: 'Экспресс-доставка',
+  STANDARD_INTERNATIONAL_TRACKED_SHIPPING_TIME: 'Стандартная международная доставка',
+  DISCOUNTED_ITEM_RETURN_TREATMENT: 'Возврат товара со скидкой',
+  RETURN_POLICY_CURRENT: 'Правила возврата',
+};
+
+function truthTypeLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    BRAND: 'Бренд',
+    CANCELLATION: 'Заказы',
+    CLAIM_POLICY: 'Ограничение обещаний',
+    CUSTOMS_DUTIES: 'Таможня',
+    PRODUCTION: 'Изготовление',
+    SHIPPING: 'Доставка',
+    RETURNS: 'Возвраты',
+  };
+  return labels[key] || 'Правило бизнеса';
+}
+
+function scopeLabelLocal(value: unknown, keyValue: unknown) {
+  const key = asText(value, '').toUpperCase();
+  if (key === 'GLOBAL') return 'Для всего магазина';
+  if (key === 'PRODUCTION_PROFILE') return 'Профиль изготовления';
+  if (key === 'SHIPPING_PROFILE') return 'Профиль доставки';
+  return asText(keyValue, 'Специальная область');
+}
+
 function statusClass(value: unknown) {
   const normalized = asText(value, '').toUpperCase();
   if (normalized === 'ACTIVE') return 'ok';
@@ -59,10 +93,10 @@ export default async function AdminBusinessTruthPage() {
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Всего записей</span></div>
-          <div className="card metric"><strong>{active}</strong><span>Активных правил</span></div>
-          <div className="card metric"><strong>{review}</strong><span>Нуждаются в проверке владельца</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{review}</strong><span>Правил ждут решения владельца</span></div>
+          <div className="owner-summary-cell"><strong>{active}</strong><span>Активных подтверждённых правил</span></div>
+          <div className="owner-summary-cell"><strong>{rows.length}</strong><span>Всего записей в реестре</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
@@ -80,14 +114,14 @@ export default async function AdminBusinessTruthPage() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
+              {[...rows].sort((a, b) => {
+                const rank = (status: unknown) => asText(status, '').toUpperCase() === 'REVIEW_REQUIRED' ? 0 : 1;
+                return rank(a.status) - rank(b.status) || asText(a.truth_type).localeCompare(asText(b.truth_type));
+              }).map((row) => (
                 <tr key={`${row.truth_code}-${row.scope_type}-${row.scope_key}-${row.version_no}`}>
-                  <td><strong>{row.truth_code}</strong></td>
-                  <td>{asText(row.truth_type)}</td>
-                  <td>
-                    {asText(row.scope_type)}
-                    <div className="muted">{asText(row.scope_key)}</div>
-                  </td>
+                  <td><strong title={row.truth_code}>{TRUTH_LABELS[row.truth_code] || 'Правило бизнеса'}</strong></td>
+                  <td>{truthTypeLabel(row.truth_type)}</td>
+                  <td title={`${asText(row.scope_type)} · ${asText(row.scope_key)}`}>{scopeLabelLocal(row.scope_type, row.scope_key)}</td>
                   <td>
                     <span className={`status-pill ${statusClass(row.status)}`}>
                       {statusLabel(row.status)}
