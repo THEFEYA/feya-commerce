@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { SourceOfTruthRegistryRow } from '@/lib/types';
-import { roleLabel, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
+import { implementationStateLabel, roleLabel, sourceHealthSummary, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -30,6 +30,17 @@ function stateClass(value: unknown) {
   if (state === 'AVAILABLE') return 'ok';
   if (state === 'UNAVAILABLE' || state === 'NOT_OBSERVABLE') return 'danger';
   return 'warning';
+}
+
+function tierLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    CURRENT_FIRST_PARTY: 'Текущий внутренний источник',
+    EXTERNAL_MARKET: 'Внешний рыночный источник',
+    LEGACY_FIRST_PARTY: 'Исторический внутренний источник',
+    DERIVED_OPERATIONAL: 'Рассчитано внутри FEYA',
+  };
+  return labels[key] || 'Источник данных';
 }
 
 function tierClass(value: unknown) {
@@ -81,27 +92,31 @@ export default async function AdminDataAuthorityPage() {
               {rows.map((row) => (
                 <tr key={row.source_code}>
                   <td>
-                    <strong>{sourceLabel(row.source_code)}</strong>
-                    <div className="muted">{asText(row.authority_domain)}</div>
-                    <div className="muted">{row.source_code}</div>
+                    <strong title={`${row.source_code} · ${asText(row.authority_domain)}`}>{sourceLabel(row.source_code)}</strong>
                   </td>
                   <td>
-                    <span className={tierClass(row.authority_tier)}>
-                      {asText(row.authority_tier)}
+                    <span className={tierClass(row.authority_tier)} title={asText(row.authority_tier)}>
+                      {tierLabel(row.authority_tier)}
                     </span>
                   </td>
                   <td>
                     <span className={`status-pill ${stateClass(row.source_state)}`}>
                       {statusLabel(row.source_state)}
                     </span>
-                    <div className="muted">{asText(row.implementation_state)}</div>
+                    <div className="muted" title={asText(row.implementation_state)}>{implementationStateLabel(row.implementation_state)}</div>
                   </td>
                   <td>{roleLabel(row.owner_role)}</td>
-                  <td>{asText(row.primary_source)}</td>
-                  <td>{row.precedence ?? '—'}</td>
+                  <td>{sourceHealthSummary(row.source_code)}</td>
+                  <td title={asText(row.primary_source)}>{row.precedence != null ? `Уровень ${row.precedence}` : '—'}</td>
                   <td>
-                    {asText(row.public_summary)}
-                    <div className="muted">{asText(row.limitations_summary)}</div>
+                    <details>
+                      <summary className="cursor-pointer text-[var(--gold-warm)]">Технические детали</summary>
+                      <div className="muted" style={{ marginTop: '6px' }}>
+                        Источник: {asText(row.primary_source)}<br />
+                        {asText(row.public_summary)}<br />
+                        {asText(row.limitations_summary)}
+                      </div>
+                    </details>
                   </td>
                 </tr>
               ))}
