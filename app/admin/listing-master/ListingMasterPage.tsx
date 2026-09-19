@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, Database, ImageIcon, Layers3, PackageSearch, Save, Search, SearchCheck, SlidersHorizontal } from 'lucide-react';
 import { recommendCatalogKeywords } from '@/lib/seoCatalogKeywordRecommendation';
@@ -27,7 +28,7 @@ import {
   sellableOfferAllowsComponentFocus,
 } from '@/lib/storefrontSellableOffer';
 import { applyOwnerReviewedStorefrontCorrections } from '@/lib/storefrontOwnerReviewedCorrections';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
+import { getSupabaseServiceClient } from '@/lib/supabase';
 import ConfirmCompositionButton from './ConfirmCompositionButton';
 import VerifiedSaveButton from './VerifiedSaveButton';
 import FocusActionFeedback from './FocusActionFeedback';
@@ -570,8 +571,8 @@ async function loadCanonicalProductTruthProduct(supabase, productId) {
 }
 
 async function loadProducts(filters) {
-  const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
-  if (!supabase) return emptyProducts(getMissingSupabaseEnvMessage());
+  const supabase = getSupabaseServiceClient() || getAdminReadClient();
+  if (!supabase) return emptyProducts(getMissingAdminDataEnvMessage());
   const decisionsPromise = loadDecisionMap();
   const selectedTruthPromise = filters.productId
     ? loadCanonicalProductTruthProduct(supabase, filters.productId).catch((error) => {
@@ -887,13 +888,13 @@ async function loadKeywords(filters, product = null, preloadedKeywordBank = null
 }
 
 async function loadKeywordBank() {
-  const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
+  const supabase = getSupabaseServiceClient() || getAdminReadClient();
   if (!supabase) {
     return {
       data: [],
       count: null,
       pages: 0,
-      error: getMissingSupabaseEnvMessage(),
+      error: getMissingAdminDataEnvMessage(),
     };
   }
   return loadCompleteKeywordBank(supabase);
