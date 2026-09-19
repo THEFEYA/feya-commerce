@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, FileText, ImageIcon, MessageSquareText, ShieldAlert } from 'lucide-react';
 import { getContentStage, type ContentStageLabel } from '@/lib/admin-pipeline';
 import { getProductEvents, getProductFlags, getProductReadiness, type AdminReviewEvent } from '@/lib/admin-readiness';
-import { getMissingAdminDataEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
+import { getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
 
