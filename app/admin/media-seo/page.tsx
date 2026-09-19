@@ -52,10 +52,36 @@ export default async function MediaSeoPipelinePage() {
   const summary = summarizeMediaSeoPlans(plans);
   const visiblePlans = plans.slice(0, 140);
 
-  return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]"><section className="container-feya pt-10 pb-16">
-    <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7"><div><div className="eyebrow-gold mb-3">Админка · SEO медиа</div><h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>SEO медиа</h1><p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">План подготовки изображений: имена файлов, ALT-тексты, веб-экспорт, sitemap изображений и готовность к Pinterest.</p></div><div className="flex gap-3"><Link href="/admin/media" className="btn-ghost">Проверка медиа <ArrowUpRight size={13} /></Link><Link href="/admin/collections" className="btn-ghost">Коллекции <ArrowUpRight size={13} /></Link></div></div>
+  return <main className="owner-page">
+    <div className="owner-page-inner">
+      <header className="owner-page-head">
+        <div>
+          <div className="owner-eyebrow">Товары · SEO изображений</div>
+          <h1>SEO изображений</h1>
+          <p>Проверяем имена файлов, ALT, необходимость веб-экспорта и готовность изображений к sitemap. Рекомендации здесь не меняют исходные медиа автоматически.</p>
+        </div>
+        <div className="owner-actions" style={{ marginTop: 0 }}>
+          <Link href="/admin/media" className="owner-button">Проверка медиа <ArrowUpRight size={13} /></Link>
+          <Link href="/admin/collections" className="owner-button">Коллекции <ArrowUpRight size={13} /></Link>
+        </div>
+      </header>
     {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
-    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8"><Metric icon={ImageIcon} label="Изображения" value={summary.total || 0} note="Главные изображения текущих кандидатов для витрины." /><Metric icon={RefreshCw} label="Нужен экспорт" value={summary.exportRequired || 0} note="Нужен контролируемый экспорт изображений." tone="warning" /><Metric icon={Scaling} label="Нужно уменьшить" value={summary.resizeRecommended || 0} note="Рекомендуется изменить размер или формат." tone="warning" /><Metric icon={CheckCircle2} label="Sitemap изображений" value={summary.imageSitemapEligible || 0} note="Готово для sitemap изображений." tone="success" /><Metric icon={FileImage} label="Pinterest" value={summary.pinterestExportEligible || 0} note="Готово для Pinterest." tone="success" /></div>
-    <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden"><div className="grid grid-cols-[1.2fr_.8fr_1fr_1.2fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.22em] text-[var(--smoke)]"><div>Товар</div><div>Этап</div><div>Текущий файл</div><div>Рекомендуемый файл</div></div><div className="divide-y divide-[rgba(216,214,211,.08)]">{visiblePlans.map((plan) => <Link key={plan.productSlug} href={`/admin/media-seo/${plan.productSlug}`} className="grid grid-cols-[1.2fr_.8fr_1fr_1.2fr] gap-4 items-center px-5 py-4 hover:bg-[rgba(212,178,106,.04)] transition-colors"><div><div className="text-bone text-[15px] leading-snug line-clamp-2">{plan.title}</div><div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">/{plan.productSlug}</div></div><div><Chip tone={toneForStage(plan.stage)}>{mediaSeoStageLabel(plan.stage)}</Chip></div><div className="text-[11px] leading-relaxed text-[var(--bone-dim)] break-all">{plan.currentFilename || 'Файл не найден'}</div><div className="text-[11px] leading-relaxed text-[var(--bone-dim)] break-all">{plan.suggestedFilename}</div></Link>)}</div></div>
-  </section></main>;
+    <section className="owner-section" style={{ marginTop: 0 }}>
+      <div className="owner-summary-strip">
+        <div className="owner-summary-cell"><strong>{summary.exportRequired || 0}</strong><span>Нужен контролируемый экспорт</span></div>
+        <div className="owner-summary-cell"><strong>{summary.resizeRecommended || 0}</strong><span>Нужно изменить размер / формат</span></div>
+        <div className="owner-summary-cell"><strong>{summary.imageSitemapEligible || 0}</strong><span>Готово для image sitemap</span></div>
+        <div className="owner-summary-cell"><strong>{summary.pinterestExportEligible || 0}</strong><span>Готово для Pinterest</span></div>
+      </div>
+      <div className="owner-card is-info" style={{ marginTop: '10px' }}>
+        <div className="owner-status is-info">Изображений в проверке: {summary.total || 0}</div>
+        <p className="owner-card-copy">Готовность Pinterest и sitemap — это техническая готовность файла, а не прогноз трафика или продаж.</p>
+      </div>
+    </section>
+    <section className="owner-section">
+      <div className="owner-section-head"><div><h2>План изображений</h2><div className="owner-section-kicker">Показано {visiblePlans.length} из {plans.length} товаров.</div></div></div>
+      <div className="rounded-xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden"><div className="sticky top-[64px] z-10 grid grid-cols-[1.2fr_.8fr_1fr_1.2fr] gap-4 px-5 py-3 border-b border-[rgba(216,214,211,.10)] bg-[#0f0f15]/95 backdrop-blur-xl text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]"><div>Товар</div><div>Этап</div><div>Текущий файл</div><div>Рекомендуемый файл</div></div><div className="divide-y divide-[rgba(216,214,211,.08)]">{visiblePlans.map((plan) => <Link key={plan.productSlug} href={`/admin/media-seo/${plan.productSlug}`} className="grid grid-cols-[1.2fr_.8fr_1fr_1.2fr] gap-4 items-center px-5 py-4 hover:bg-[rgba(212,178,106,.04)] transition-colors"><div><div className="text-bone text-[15px] leading-snug line-clamp-2">{plan.title}</div><div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">/{plan.productSlug}</div></div><div><Chip tone={toneForStage(plan.stage)}>{mediaSeoStageLabel(plan.stage)}</Chip></div><div className="text-[11px] leading-relaxed text-[var(--bone-dim)] break-all">{plan.currentFilename || 'Файл не найден'}</div><div className="text-[11px] leading-relaxed text-[var(--bone-dim)] break-all">{plan.suggestedFilename}</div></Link>)}</div></div>
+    </section>
+    </div>
+  </main>;
 }
