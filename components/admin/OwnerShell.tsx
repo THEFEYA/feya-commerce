@@ -72,6 +72,8 @@ function ownerArea(pathname: string) {
     pathname.startsWith('/admin/seo-indexability') ||
     pathname.startsWith('/admin/opportunities') ||
     pathname.startsWith('/admin/strategy') ||
+    pathname.startsWith('/admin/collections') ||
+    pathname.startsWith('/admin/graph') ||
     pathname.startsWith('/admin/seo-lab') ||
     pathname.startsWith('/admin/seo-engine/scoring') ||
     pathname.startsWith('/admin/seo-engine/metric-import') ||
