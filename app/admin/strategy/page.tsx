@@ -41,6 +41,33 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
+function economicModeLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    REVENUE: 'Выручка',
+    REVENUE_GROWTH: 'Рост выручки',
+    MARGIN: 'Маржинальность',
+    PROFIT: 'Прибыль',
+    TRAFFIC: 'Трафик',
+    SEARCH_GROWTH: 'Рост органического поиска',
+  };
+  return labels[key] || (key ? 'Настраиваемый режим' : '—');
+}
+
+function actionClassLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    OBSERVE: 'Наблюдение',
+    ANALYZE: 'Анализ',
+    PROPOSE: 'Подготовить предложение',
+    CONTENT: 'Контент',
+    SEO: 'SEO',
+    EXPERIMENT: 'Эксперимент',
+    PRODUCTION_WRITE: 'Изменение рабочих данных',
+  };
+  return labels[key] || (key ? 'Рабочее действие' : '—');
+}
+
 function statusClass(value: unknown) {
   const status = asText(value, '').toUpperCase();
   if (status === 'ACTIVE' || status === 'APPROVED' || status === 'VALID' || status === 'COMPLETED') return 'ok';
@@ -76,13 +103,11 @@ export default async function AdminStrategyPage() {
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{strategies.length}</strong><span>Версий стратегии</span></div>
-          <div className="card metric"><strong>{activeStrategies}</strong><span>Активных стратегий</span></div>
-          <div className="card metric"><strong>{initiatives.length}</strong><span>Инициатив</span></div>
-          <div className="card metric"><strong>{directorPending}</strong><span>Ждут проверки директора</span></div>
-          <div className="card metric"><strong>{humanPending}</strong><span>Ждут подтверждения человека</span></div>
-          <div className="card metric"><strong>{revalidation}</strong><span>Нужна повторная проверка стратегии</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{activeStrategies}</strong><span>Активных стратегий</span></div>
+          <div className="owner-summary-cell"><strong>{initiatives.length}</strong><span>Инициатив всего</span></div>
+          <div className="owner-summary-cell"><strong>{humanPending}</strong><span>Ждут решения владельца</span></div>
+          <div className="owner-summary-cell"><strong>{directorPending + revalidation}</strong><span>Нужна проверка / повторная проверка</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
@@ -110,7 +135,7 @@ export default async function AdminStrategyPage() {
                 <tr key={row.strategy_version_id}>
                   <td>
                     <strong>{asText(row.title, row.strategy_code || '—')}</strong>
-                    <div className="muted">{asText(row.strategy_code)}</div>
+                    
                   </td>
                   <td>v{row.version_no ?? '—'}</td>
                   <td>
@@ -118,7 +143,7 @@ export default async function AdminStrategyPage() {
                       {statusLabel(row.strategy_status)}
                     </span>
                   </td>
-                  <td>{asText(row.economic_mode)}</td>
+                  <td title={asText(row.economic_mode)}>{economicModeLabel(row.economic_mode)}</td>
                   <td>
                     {asText(row.active_from)}
                     <div className="muted">→ {asText(row.active_to)}</div>
@@ -145,10 +170,10 @@ export default async function AdminStrategyPage() {
                 <th>Инициатива</th>
                 <th>Ответственный</th>
                 <th>Класс действия</th>
-                <th>Status</th>
+                <th>Статус</th>
                 <th>Проверка директора</th>
                 <th>Подтверждение человека</th>
-                <th>Strategy</th>
+                <th>Стратегия</th>
                 <th>Срок / окончание</th>
               </tr>
             </thead>
@@ -157,10 +182,10 @@ export default async function AdminStrategyPage() {
                 <tr key={row.initiative_id}>
                   <td>
                     <strong>{asText(row.title, row.initiative_code || '—')}</strong>
-                    <div className="muted">{asText(row.initiative_code)}</div>
+                    
                   </td>
                   <td>{roleLabel(row.owner_role)}</td>
-                  <td>{asText(row.action_class)}</td>
+                  <td title={asText(row.action_class)}>{actionClassLabel(row.action_class)}</td>
                   <td>
                     <span className={`status-pill ${statusClass(row.initiative_status)}`}>
                       {statusLabel(row.initiative_status)}
@@ -177,7 +202,7 @@ export default async function AdminStrategyPage() {
                     </span>
                   </td>
                   <td>
-                    {asText(row.strategy_code)} v{row.strategy_version_no ?? '—'}
+                    <span title={asText(row.strategy_code)}>Версия v{row.strategy_version_no ?? '—'}</span>
                     <div className="muted">
                       <span className={`status-pill ${statusClass(row.strategy_revalidation_status)}`}>
                         {statusLabel(row.strategy_revalidation_status)}
