@@ -1605,12 +1605,38 @@ th {
 
 .owner-team-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 12px;
 }
 
 .owner-team-card {
-  min-height: 150px;
+  position: relative;
+  min-height: 190px;
+  overflow: hidden;
+}
+
+.owner-team-card::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  background: rgba(216,214,211,.10);
+}
+
+.owner-team-card.is-info::after {
+  background: rgba(143,184,255,.64);
+}
+
+.owner-team-card.is-warning::after {
+  background: rgba(247,200,115,.64);
+}
+
+.owner-team-card.is-success::after {
+  background: rgba(115,217,159,.64);
+}
+
+.owner-team-card.is-danger::after {
+  background: rgba(255,107,107,.66);
 }
 
 .owner-team-card h3 {
