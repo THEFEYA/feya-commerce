@@ -1,117 +1,170 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { RoleActivationRow } from '@/lib/types';
-import { roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
+import { presentRole } from '@/lib/owner-ui/presenters';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-async function getRows(): Promise<{ rows: RoleActivationRow[]; error?: string }> {
+type WorkRow = {
+  current_accountable_domain?: string | null;
+  case_status?: string | null;
+};
+
+async function getRows(): Promise<{ rows: RoleActivationRow[]; work: WorkRow[]; error?: string }> {
   const supabase = getAdminReadClient();
-  if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
+  if (!supabase) return { rows: [], work: [], error: getMissingAdminDataEnvMessage() };
 
-  const { data, error } = await supabase
-    .from('feya_commerce_v_role_activation_safe_v1')
-    .select('*')
-    .order('role_type', { ascending: true })
-    .order('role_code', { ascending: true });
+  const [rolesResult, workResult] = await Promise.all([
+    supabase
+      .from('feya_commerce_v_role_activation_safe_v1')
+      .select('*')
+      .order('role_type', { ascending: true })
+      .order('role_code', { ascending: true }),
+    supabase
+      .from('feya_commerce_v_owner_work_safe_v1')
+      .select('current_accountable_domain,case_status')
+      .not('case_status', 'in', '(CLOSED,MERGED)'),
+  ]);
 
-  if (error) return { rows: [], error: error.message };
-  return { rows: (data || []) as RoleActivationRow[] };
+  const firstError = rolesResult.error || workResult.error;
+  if (firstError) return { rows: [], work: [], error: firstError.message };
+
+  return {
+    rows: (rolesResult.data || []) as RoleActivationRow[],
+    work: (workResult.data || []) as WorkRow[],
+  };
 }
 
-function asText(value: unknown, fallback = '—') {
-  if (value == null || value === '') return fallback;
-  return String(value);
-}
-
-function autonomyLabel(value: unknown) {
-  const key = asText(value, '').toUpperCase();
-  if (key === 'OBSERVE_ONLY') return 'Только наблюдение';
-  if (key === 'PROPOSE_ONLY') return 'Может предлагать';
-  if (key === 'SHADOW_ACTIONS') return 'Безопасный режим действий';
-  if (key === 'CONTROLLED_ACTIONS') return 'Разрешённые действия под контролем';
-  return asText(value);
-}
-
-function statusClass(value: unknown) {
-  const status = asText(value, '').toUpperCase();
-  if (status === 'ACTIVE') return 'ok';
-  if (status === 'INACTIVE') return 'danger';
-  return 'warning';
+function toneClass(tone: string) {
+  return tone === 'danger'
+    ? 'is-danger'
+    : tone === 'warning'
+      ? 'is-warning'
+      : tone === 'success'
+        ? 'is-success'
+        : tone === 'info'
+          ? 'is-info'
+          : '';
 }
 
 export default async function AdminRolesPage() {
-  const { rows, error } = await getRows();
+  const { rows, work, error } = await getRows();
+  const roles = rows.map(presentRole);
 
-  const active = rows.filter((row) => row.runtime_status === 'ACTIVE').length;
-  const shadow = rows.filter((row) => row.runtime_status === 'SHADOW').length;
-  const inactive = rows.filter((row) => row.runtime_status === 'INACTIVE').length;
-  const paused = rows.filter((row) => row.runtime_status === 'PAUSED').length;
+  const active = roles.filter((role) => role.status === 'ACTIVE').length;
+  const shadow = roles.filter((role) => role.status === 'SHADOW').length;
+  const inactive = roles.filter((role) => role.status === 'INACTIVE').length;
+  const paused = roles.filter((role) => role.status === 'PAUSED').length;
+
+  const workCounts = new Map<string, number>();
+  for (const row of work) {
+    const code = String(row.current_accountable_domain || '').trim().toUpperCase();
+    if (!code) continue;
+    workCounts.set(code, (workCounts.get(code) || 0) + 1);
+  }
 
   return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
-          <div className="nav-links">
-            <Link href="/admin/roles">Роли</Link>
-            <Link href="/admin/system-readiness">Готовность системы</Link>
-            <Link href="/admin/execution-map">Права действий</Link>
+    <main className="owner-page">
+      <div className="owner-page-inner">
+        <header className="owner-page-head">
+          <div>
+            <div className="owner-eyebrow">Команда FEYA</div>
+            <h1>ИИ-команда</h1>
+            <p>
+              Роли показываются как реальные зоны ответственности: что сейчас активно, какой предел самостоятельности,
+              какие возможности доступны и есть ли у роли текущая работа.
+            </p>
           </div>
-        </nav>
-
-        <section className="phase-banner">
-          <div className="phase-label">Команда FEYA · только просмотр</div>
-          <h1>Роли ИИ-команды</h1>
-          <p>
-            Наличие роли в архитектуре не означает, что агент сейчас активен. Здесь показано реальное состояние роли и предел её самостоятельности.
-          </p>
-        </section>
+          <div className="owner-actions" style={{ marginTop: 0 }}>
+            <Link href="/admin/company/work#team" className="owner-button">Работа команды</Link>
+            <Link href="/admin/execution-map" className="owner-button">Права действий</Link>
+          </div>
+        </header>
 
         <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
-          <div className="owner-summary-cell"><strong>{active}</strong><span>Ролей активны</span></div>
-          <div className="owner-summary-cell"><strong>{shadow}</strong><span>Работают в режиме наблюдения</span></div>
+          <div className="owner-summary-cell"><strong>{active}</strong><span>Активны</span></div>
+          <div className="owner-summary-cell"><strong>{shadow}</strong><span>Безопасный режим</span></div>
           <div className="owner-summary-cell"><strong>{inactive}</strong><span>Ещё не активированы</span></div>
           <div className="owner-summary-cell"><strong>{paused}</strong><span>Приостановлены</span></div>
         </section>
 
-        {error ? <div className="notice">{error}</div> : null}
+        {error ? (
+          <div className="owner-card is-danger" style={{ marginBottom: '18px' }}>
+            <div className="owner-status is-danger">Ошибка данных</div>
+            <p className="owner-card-copy">{error}</p>
+          </div>
+        ) : null}
 
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Роль</th>
-                <th>Состояние</th>
-                <th>Предел самостоятельности</th>
-                <th>Нужно системных возможностей</th>
-                <th>Готово</th>
-                <th>Блокеров</th>
-                <th>Разрешённых действий</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.role_code}>
-                  <td>
-                    <strong title={row.role_code}>{roleLabel(row.role_code)}</strong>
-                  </td>
-                  <td>
-                    <span className={`status-pill ${statusClass(row.runtime_status)}`}>
-                      {statusLabel(row.runtime_status)}
-                    </span>
-                  </td>
-                  <td>{autonomyLabel(row.autonomy_ceiling)}</td>
-                  <td>{row.required_capability_count ?? 0}</td>
-                  <td>{row.fully_available_capability_count ?? 0}</td>
-                  <td>{row.blocked_capability_count ?? 0}</td>
-                  <td>{row.allowed_action_count ?? 0}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <section className="owner-section" style={{ marginTop: 0 }}>
+          <div className="owner-section-head">
+            <div>
+              <h2>Роли и текущее состояние</h2>
+              <div className="owner-section-kicker">
+                Логическая роль не считается работающим агентом, пока её runtime и нужные возможности не активированы
+              </div>
+            </div>
+          </div>
+
+          <div className="owner-team-grid">
+            {roles.map((role) => {
+              const required = Math.max(1, role.requiredCapabilityCount || 0);
+              const available = Math.min(required, role.availableCapabilityCount || 0);
+              const readyPct = Math.round((available / required) * 100);
+              const currentWork = workCounts.get(role.code) || 0;
+
+              return (
+                <article className={`owner-card owner-team-card ${toneClass(role.tone)}`} key={role.code}>
+                  <div className="owner-card-meta">
+                    <span className={`owner-status ${toneClass(role.tone)}`}>{role.statusLabel}</span>
+                    <span>{role.autonomyLabel}</span>
+                    <span>{currentWork ? `в работе: ${currentWork}` : 'активных задач нет'}</span>
+                  </div>
+
+                  <h3>{role.name}</h3>
+                  <p className="owner-card-copy">{role.summary}</p>
+
+                  <div className="owner-role-readiness">
+                    <div className="owner-mini-bar-label">
+                      <span>Готовность возможностей</span>
+                      <strong>{role.availableCapabilityCount}/{role.requiredCapabilityCount}</strong>
+                    </div>
+                    <div className="owner-mini-bar-track" aria-label={`Готово ${readyPct}% необходимых возможностей`}>
+                      <i
+                        className={role.blockedCapabilityCount ? 'is-warning' : 'is-success'}
+                        style={{ width: `${role.requiredCapabilityCount ? readyPct : 0}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="owner-card-meta" style={{ marginTop: '12px', marginBottom: 0 }}>
+                    <span>Блокеров: {role.blockedCapabilityCount}</span>
+                    <span>Рабочих возможностей: {role.availableCapabilityCount}</span>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="owner-section">
+          <details className="owner-disclosure owner-disclosure-section">
+            <summary>
+              <span>
+                <strong>Как читать этот экран</strong>
+                <small>Чтобы статус агента не выглядел как имитация виртуального офиса</small>
+              </span>
+              <span className="owner-section-kicker">методика</span>
+            </summary>
+            <div className="owner-disclosure-body">
+              <p className="owner-card-copy">
+                ACTIVE означает фактически активированную роль. SHADOW — безопасную работу без самостоятельного production-действия.
+                INACTIVE — роль существует в архитектуре, но ещё не готова к реальной работе. Количество возможностей показывает
+                техническую готовность, а не «интеллект» или качество роли.
+              </p>
+            </div>
+          </details>
+        </section>
       </div>
     </main>
   );
