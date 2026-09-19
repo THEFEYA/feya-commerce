@@ -92,6 +92,10 @@ export default async function SeoGatePage() {
       <div className="owner-section-head"><div><h2>Безопасная последовательность</h2><div className="owner-section-kicker">Каждый шаг подтверждает только свой этап и не перескакивает через публикационный gate.</div></div></div>
       <div className="grid gap-4"><ChecklistItem done={hasAnyChangeSet} title="1. Создать SEO-правки на проверку" note="Начни с одного товара. Создай строки только для реально изменившихся полей." href="/admin/seo-apply" action="Создать правки" /><ChecklistItem done={pending === 0 && hasAnyChangeSet} title="2. Проверить ожидающие строки" note="Одобри правильные строки или отклони ошибочные. Пока процесс не проверен, работай маленькими партиями." href="/admin/seo-change-sets" action="Проверить" /><ChecklistItem done={appliedChangeSets > 0} title="3. Отметить одобренные строки как применённые" note="Одобренные строки можно отметить как применённые в очереди SEO-правок. Это всё ещё не меняет витрину напрямую." href="/admin/seo-change-sets" action="Применить" /><ChecklistItem done={hasAnyAppliedValue} title="4. Проверить SEO-значения" note="SEO-значения должны показывать одобренные и применённые поля по товарам." href="/admin/seo-applied-values" action="Значения" /><ChecklistItem done={hasAnyPreviewValue} title="5. Проверить SEO-предпросмотр витрины" note="SEO-предпросмотр должен показывать текущие и применённые значения одного товара." href="/admin/seo-storefront-preview" action="Предпросмотр" /></div>
     </section>
-    <div className="owner-card is-info" style={{ marginTop: '20px' }}><div className="eyebrow-dim mb-3">Текущее решение</div><div className="text-[15px] leading-relaxed text-bone">Оставить SEO-процесс внутренним. Продолжать создавать, проверять и отмечать применёнными SEO-правки до появления отдельного безопасного контракта публикации на витрину.</div></div>
-  </section></main>;
+    <div className="owner-card is-info" style={{ marginTop: '20px' }}>
+      <div className="owner-status is-info">Текущее правило</div>
+      <p className="owner-card-copy">SEO-процесс остаётся внутренним: можно создавать, проверять и фиксировать применённые значения, но публикация на витрину должна оставаться отдельным контролируемым действием.</p>
+    </div>
+    </div>
+  </main>;
 }
