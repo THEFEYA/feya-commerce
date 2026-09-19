@@ -2,7 +2,6 @@
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, Database, FileSearch, Layers3, ShieldAlert, ShieldCheck, Sparkles } from 'lucide-react';
-import { getMissingAdminDataEnvMessage } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
