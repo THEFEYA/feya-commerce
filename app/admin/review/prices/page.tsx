@@ -153,7 +153,12 @@ export default async function AdminPriceReviewPage() {
               </div>
             </div>
 
-            <div className="mt-4 grid md:grid-cols-2 xl:grid-cols-3 gap-3">
+            <details className="owner-disclosure owner-disclosure-section" style={{ marginTop: '14px' }}>
+              <summary>
+                <span><strong>Проблемные варианты</strong><small>Резервные, отсутствующие или неподтверждённые цены</small></span>
+                <span className="owner-section-kicker">{flaggedConfigs.length}</span>
+              </summary>
+              <div className="owner-disclosure-body grid md:grid-cols-2 xl:grid-cols-3 gap-3">
               {flaggedConfigs.map((config, index) => <div key={config.configuration_id || `${product.canonical_product_id}-${index}`} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4">
                 <div className="eyebrow-dim mb-2">Цена варианта</div>
                 <div className="text-bone text-[14px] leading-snug">{labelText(config)}</div>
@@ -165,7 +170,8 @@ export default async function AdminPriceReviewPage() {
                 </div>
               </div>)}
               {!flaggedConfigs.length ? <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 text-[13px] text-[var(--bone-dim)]">Проблема отмечена только на уровне товара. Отдельных проблемных вариантов сейчас нет.</div> : null}
-            </div>
+              </div>
+            </details>
           </article>;
         })}
 
