@@ -58,8 +58,13 @@ function countStatus(rows: QueryClusterReviewRow[], status: string) {
   return rows.filter((row) => row.cluster_queue_status === status).length;
 }
 
-export default async function AdminSeoClustersPage() {
+export default async function AdminSeoClustersPage({ searchParams }: { searchParams: Promise<{ q?: string; state?: string; page?: string }> }) {
+  const params = await searchParams;
   const { rows, error } = await getQueue();
+  const q = String(params.q || '').trim().toLowerCase();
+  const stateFilter = String(params.state || 'attention');
+  const requestedPage = Math.max(1, Number(params.page || 1) || 1);
+  const pageSize = 100;
 
   const ready = countStatus(rows, 'READY_FOR_SEMANTIC_CLUSTERING');
   const cleanupReview = countStatus(rows, 'NEEDS_CLEANUP_REVIEW');
@@ -67,6 +72,43 @@ export default async function AdminSeoClustersPage() {
   const metrics = countStatus(rows, 'WAIT_FOR_METRICS');
   const hold = countStatus(rows, 'HOLD');
   const clustered = countStatus(rows, 'ALREADY_CLUSTERED');
+
+  const attentionStates = new Set(['NEEDS_CLEANUP_REVIEW', 'NEEDS_CLEANUP', 'WAIT_FOR_METRICS', 'HOLD']);
+  const filteredRows = rows.filter((row) => {
+    const keyword = asText(row.semantic_keyword_candidate || row.source_keyword, '').toLowerCase();
+    const matchesQuery = !q || keyword.includes(q) || asText(row.source_keyword, '').toLowerCase().includes(q);
+    const state = String(row.cluster_queue_status || '');
+    const matchesState =
+      stateFilter === 'all'
+        ? true
+        : stateFilter === 'attention'
+          ? attentionStates.has(state)
+          : state === stateFilter;
+    return matchesQuery && matchesState;
+  }).sort((a, b) => {
+    const rank = (state: unknown) => {
+      const key = String(state || '');
+      if (key === 'NEEDS_CLEANUP_REVIEW' || key === 'NEEDS_CLEANUP') return 0;
+      if (key === 'WAIT_FOR_METRICS') return 1;
+      if (key === 'READY_FOR_SEMANTIC_CLUSTERING') return 2;
+      if (key === 'HOLD') return 3;
+      return 4;
+    };
+    return rank(a.cluster_queue_status) - rank(b.cluster_queue_status);
+  });
+
+  const pageCount = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+  const page = Math.min(requestedPage, pageCount);
+  const visibleRows = filteredRows.slice((page - 1) * pageSize, page * pageSize);
+
+  const pageHref = (nextPage: number) => {
+    const next = new URLSearchParams();
+    if (q) next.set('q', q);
+    if (stateFilter !== 'attention') next.set('state', stateFilter);
+    if (nextPage > 1) next.set('page', String(nextPage));
+    const query = next.toString();
+    return query ? `/admin/seo-clusters?${query}` : '/admin/seo-clusters';
+  };
 
   return (
     <main className="page-shell">
@@ -91,14 +133,11 @@ export default async function AdminSeoClustersPage() {
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Активных ключей загружено</span></div>
-          <div className="card metric"><strong>{ready}</strong><span>Готовы к смысловой группировке</span></div>
-          <div className="card metric"><strong>{cleanupReview}</strong><span>Нужна проверка очистки</span></div>
-          <div className="card metric"><strong>{cleanup}</strong><span>Нужна очистка</span></div>
-          <div className="card metric"><strong>{metrics}</strong><span>Ждут метрик</span></div>
-          <div className="card metric"><strong>{clustered}</strong><span>Уже сгруппировано</span></div>
-          <div className="card metric"><strong>{hold}</strong><span>Отложено</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{cleanupReview + cleanup}</strong><span>Нужна очистка / проверка</span></div>
+          <div className="owner-summary-cell"><strong>{metrics}</strong><span>Ждут метрик</span></div>
+          <div className="owner-summary-cell"><strong>{ready}</strong><span>Готовы к смысловой группировке</span></div>
+          <div className="owner-summary-cell"><strong>{clustered}</strong><span>Уже сгруппировано</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
@@ -106,6 +145,35 @@ export default async function AdminSeoClustersPage() {
         <div className="notice" style={{ marginBottom: '18px' }}>
           Ось и шаблон — только признаки для анализа, а не готовые группы запросов. Группа становится канонической только после смысловой проверки и явного одобрения.
         </div>
+
+        <form action="/admin/seo-clusters" className="owner-card" style={{ marginBottom: '14px' }}>
+          <div className="grid gap-3 md:grid-cols-[1fr_280px_auto] md:items-end">
+            <label>
+              <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Поиск ключа</div>
+              <input name="q" defaultValue={q} className="field" placeholder="например: rave outfit" />
+            </label>
+            <label>
+              <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Состояние</div>
+              <select name="state" defaultValue={stateFilter} className="field">
+                <option value="attention">Требует внимания</option>
+                <option value="NEEDS_CLEANUP_REVIEW">Нужна проверка очистки</option>
+                <option value="NEEDS_CLEANUP">Нужна очистка</option>
+                <option value="WAIT_FOR_METRICS">Ждёт метрик</option>
+                <option value="READY_FOR_SEMANTIC_CLUSTERING">Готово к группировке</option>
+                <option value="ALREADY_CLUSTERED">Уже сгруппировано</option>
+                <option value="HOLD">Отложено</option>
+                <option value="all">Все состояния</option>
+              </select>
+            </label>
+            <button type="submit" className="owner-button primary">Применить</button>
+          </div>
+          <div className="owner-card-meta" style={{ marginTop: '10px', marginBottom: 0 }}>
+            <span>Показано: {visibleRows.length}</span>
+            <span>После фильтра: {filteredRows.length}</span>
+            <span>Отложено: {hold}</span>
+            <Link href="/admin/seo-clusters">Сбросить</Link>
+          </div>
+        </form>
 
         <div className="table-wrap">
           <table>
@@ -121,7 +189,7 @@ export default async function AdminSeoClustersPage() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
+              {visibleRows.map((row) => (
                 <tr key={row.keyword_id}>
                   <td>
                     <strong>{asText(row.semantic_keyword_candidate || row.source_keyword)}</strong>
@@ -160,6 +228,16 @@ export default async function AdminSeoClustersPage() {
             </tbody>
           </table>
         </div>
+
+        {filteredRows.length > pageSize ? (
+          <div className="flex items-center justify-between gap-3" style={{ marginTop: '14px' }}>
+            <div className="owner-section-kicker">Страница {page} из {pageCount}</div>
+            <div className="owner-actions" style={{ marginTop: 0 }}>
+              {page > 1 ? <Link href={pageHref(page - 1)} className="owner-button">Назад</Link> : <span className="owner-button" style={{ opacity: .4 }}>Назад</span>}
+              {page < pageCount ? <Link href={pageHref(page + 1)} className="owner-button">Дальше</Link> : <span className="owner-button" style={{ opacity: .4 }}>Дальше</span>}
+            </div>
+          </div>
+        ) : null}
       </div>
     </main>
   );
