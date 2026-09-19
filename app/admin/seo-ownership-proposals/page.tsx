@@ -76,38 +76,38 @@ export default async function AdminOwnershipProposalsPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/seo-cluster-proposals">Cluster Proposals</Link>
-            <Link href="/admin/seo-ownership-proposals">Ownership Proposals</Link>
-            <Link href="/admin/seo-portfolio">SEO Portfolio</Link>
+            <Link href="/admin/seo-cluster-proposals">Предложения групп</Link>
+            <Link href="/admin/seo-ownership-proposals">Ответственность страниц</Link>
+            <Link href="/admin/seo-portfolio">SEO-страницы</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">OSPM page/query ownership · read-only</div>
+          <div className="phase-label">Ответственность страниц за запросы · только просмотр</div>
           <h1>Ответственность страниц за запросы</h1>
           <p>
-            Query-cluster approval and page ownership are separate decisions. Ownership can become canonical only after human review and does not change page indexability.
+            Одобрение группы запросов и назначение основной страницы — разные решения. Ответственность становится канонической только после проверки человеком и сама по себе не разрешает индексацию.
           </p>
         </section>
 
         <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{clusters.length}</strong><span>Approved clusters inspected</span></div>
-          <div className="card metric"><strong>{ready}</strong><span>Need primary owner</span></div>
-          <div className="card metric"><strong>{review}</strong><span>Proposals awaiting review</span></div>
-          <div className="card metric"><strong>{approved}</strong><span>Approved, not applied</span></div>
-          <div className="card metric"><strong>{applied}</strong><span>Applied ownership</span></div>
+          <div className="card metric"><strong>{clusters.length}</strong><span>Одобренных групп проверено</span></div>
+          <div className="card metric"><strong>{ready}</strong><span>Нужна основная страница</span></div>
+          <div className="card metric"><strong>{review}</strong><span>Предложений ждут проверки</span></div>
+          <div className="card metric"><strong>{approved}</strong><span>Одобрено, ещё не применено</span></div>
+          <div className="card metric"><strong>{applied}</strong><span>Назначений применено</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
         <div className="notice" style={{ marginBottom: '18px' }}>
-          Lexical shortlist scores are retrieval-only. The runner may return NO_SUITABLE_PAGE instead of forcing a product page to own broad collection intent.
+          Лексическая оценка используется только для поиска кандидатов. Система может вернуть «подходящей страницы нет», вместо того чтобы насильно назначать товарную страницу владельцем слишком широкого запроса.
         </div>
 
         <section className="section-head">
           <div>
             <h2>Состояние ответственности групп</h2>
-            <p className="muted">Only approved clusters can enter ownership proposal review.</p>
+            <p className="muted">Только одобренные группы запросов могут перейти к выбору основной страницы.</p>
           </div>
         </section>
 
@@ -126,8 +126,7 @@ export default async function AdminOwnershipProposalsPage() {
               {clusters.length ? clusters.map((row) => (
                 <tr key={row.query_cluster_id}>
                   <td>
-                    <strong>{asText(row.cluster_label, row.cluster_code || '—')}</strong>
-                    <div className="muted">{asText(row.cluster_code)}</div>
+                    <strong title={asText(row.cluster_code)}>{asText(row.cluster_label, row.cluster_code || '—')}</strong>
                   </td>
                   <td>
                     {asText(row.normalized_intent)}
@@ -151,7 +150,7 @@ export default async function AdminOwnershipProposalsPage() {
         <section className="section-head">
           <div>
             <h2>История предложений ответственности</h2>
-            <p className="muted">Applied ownership is created with status intended; indexation remains a separate gate.</p>
+            <p className="muted">Назначение страницы фиксирует поисковое намерение; допуск к индексации остаётся отдельным этапом.</p>
           </div>
         </section>
 
@@ -159,10 +158,10 @@ export default async function AdminOwnershipProposalsPage() {
           <table>
             <thead>
               <tr>
-                <th>Cluster</th>
+                <th>Группа запросов</th>
                 <th>Страница</th>
                 <th>Роль</th>
-                <th>Status</th>
+                <th>Статус</th>
                 <th>Обоснование</th>
                 <th>Проверка</th>
               </tr>
@@ -171,7 +170,7 @@ export default async function AdminOwnershipProposalsPage() {
               {proposals.length ? proposals.map((row) => (
                 <tr key={row.proposal_id}>
                   <td>
-                    <strong>{asText(row.cluster_label, row.cluster_code || '—')}</strong>
+                    <strong title={asText(row.cluster_code)}>{asText(row.cluster_label, row.cluster_code || '—')}</strong>
                     <div className="muted">{asText(row.normalized_intent)}</div>
                   </td>
                   <td>
@@ -188,7 +187,7 @@ export default async function AdminOwnershipProposalsPage() {
                   <td>
                     {asText(row.review_note)}
                     {row.applied_page_query_ownership_id ? (
-                      <div className="badge-row"><span className="badge">ownership applied</span></div>
+                      <div className="badge-row"><span className="badge">назначение применено</span></div>
                     ) : null}
                   </td>
                 </tr>
