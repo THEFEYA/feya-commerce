@@ -40,6 +40,42 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
+const METRIC_LABELS: Record<string, string> = {
+  CONTENT_BRIEF_CANONICAL_READY_COUNT: 'SEO-брифов готовы к каноническому использованию',
+  CONTENT_BRIEF_SHADOW_READY_COUNT: 'SEO-брифов готовы к безопасной генерации',
+  CQA_READY_FOR_INDEPENDENT_COUNT: 'Черновиков готовы к независимой CQA',
+  QUERY_CLUSTER_READY_KEYWORD_COUNT: 'Ключей готовы к смысловой группировке',
+  SEO_PAGE_CANDIDATE_COUNT: 'Страниц-кандидатов SEO',
+  EXTERNAL_AVG_MONTHLY_SEARCHES: 'Средний месячный спрос Google Ads',
+  COMPLETED_ORDERS: 'Завершённые заказы',
+  CQA_FIRST_PASS_ACCEPTANCE_RATE: 'Доля прохождения CQA с первого раза',
+  NET_ITEM_REVENUE: 'Чистая выручка по товарам',
+  ORGANIC_AVG_POSITION: 'Средняя позиция в Search Console',
+  ORGANIC_CLICKS: 'Клики из органического поиска',
+  ORGANIC_CTR: 'CTR органического поиска',
+  ORGANIC_IMPRESSIONS: 'Показы в органическом поиске',
+  PRODUCT_VIEW_EVENTS: 'Просмотры товара на сайте',
+};
+
+function unitLabel(value: unknown) {
+  const key = asText(value, '').toLowerCase();
+  const labels: Record<string, string> = {
+    briefs: 'брифов',
+    drafts: 'черновиков',
+    keywords: 'ключей',
+    pages: 'страниц',
+    orders: 'заказов',
+    clicks: 'кликов',
+    impressions: 'показов',
+    events: 'событий',
+    ratio: '',
+    currency: '',
+    position: '',
+    'estimated searches per month': 'запросов/мес.',
+  };
+  return labels[key] ?? asText(value, '');
+}
+
 function stateClass(value: unknown) {
   const state = asText(value, '').toUpperCase();
   if (state === 'AVAILABLE') return 'ok';
@@ -50,6 +86,9 @@ function stateClass(value: unknown) {
 export default async function AdminMetricsPage() {
   const { registry, values, error } = await getMetrics();
   const valueMap = new Map(values.map((row) => [row.metric_code, row]));
+  const available = registry.filter((row) => row.metric_state === 'AVAILABLE').length;
+  const limited = registry.filter((row) => row.metric_state === 'AVAILABLE_WITH_LIMITATIONS').length;
+  const unavailable = registry.filter((row) => row.metric_state === 'UNAVAILABLE' || row.metric_state === 'NOT_OBSERVABLE').length;
 
   return (
     <main className="page-shell">
@@ -69,6 +108,13 @@ export default async function AdminMetricsPage() {
           <p>
             Определения метрик версионируются отдельно от промптов агентов. Если источник данных недоступен, FEYA не подставляет выдуманные значения.
           </p>
+        </section>
+
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{available}</strong><span>Метрик доступны сейчас</span></div>
+          <div className="owner-summary-cell"><strong>{limited}</strong><span>Доступны с ограничениями</span></div>
+          <div className="owner-summary-cell"><strong>{unavailable}</strong><span>Ещё нельзя измерять</span></div>
+          <div className="owner-summary-cell"><strong>{values.length}</strong><span>Имеют фактическое текущее значение</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
@@ -92,11 +138,10 @@ export default async function AdminMetricsPage() {
                 return (
                   <tr key={row.metric_code}>
                     <td>
-                      <strong>{asText(row.metric_name, row.metric_code)}</strong>
-                      <div className="muted">{row.metric_code}</div>
+                      <strong title={row.metric_code}>{METRIC_LABELS[row.metric_code] || asText(row.metric_name, 'Метрика')}</strong>
                     </td>
                     <td>
-                      {current ? <strong>{asText(current.metric_value)} {asText(current.unit, '')}</strong> : '—'}
+                      {current ? <strong>{asText(current.metric_value)} {unitLabel(current.unit)}</strong> : '—'}
                     </td>
                     <td>{roleLabel(row.owner_role)}</td>
                     <td>
@@ -104,12 +149,9 @@ export default async function AdminMetricsPage() {
                         {statusLabel(row.metric_state)}
                       </span>
                     </td>
-                    <td>
-                      {asText(row.authority_source)}
-                      <div className="muted">{asText(row.measurement_surface)}</div>
-                    </td>
+                    <td title={`${asText(row.authority_source)} · ${asText(row.measurement_surface)}`}>{row.metric_state === 'AVAILABLE' ? 'Рабочий внутренний источник' : row.metric_state === 'AVAILABLE_WITH_LIMITATIONS' ? 'Ограниченный внешний / внутренний источник' : 'Источник ещё не подключён'}</td>
                     <td>{asText(row.public_summary)}</td>
-                    <td>{asText(row.limitations_summary)}</td>
+                    <td><details><summary className="cursor-pointer text-[var(--gold-warm)]">Ограничения</summary><div className="muted" style={{ marginTop: '6px' }}>{asText(row.limitations_summary)}</div></details></td>
                   </tr>
                 );
               })}
