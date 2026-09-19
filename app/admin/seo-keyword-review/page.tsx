@@ -83,14 +83,50 @@ function recClass(value: unknown) {
   return 'warning';
 }
 
-export default async function AdminKeywordCleanupReviewPage() {
+export default async function AdminKeywordCleanupReviewPage({ searchParams }: { searchParams: Promise<{ q?: string; risk?: string; status?: string; page?: string }> }) {
+  const params = await searchParams;
   const { rows, error } = await getRows();
+  const q = String(params.q || '').trim().toLowerCase();
+  const riskFilter = String(params.risk || 'all').toUpperCase();
+  const statusFilter = String(params.status || 'pending').toLowerCase();
+  const requestedPage = Math.max(1, Number(params.page || 1) || 1);
+  const pageSize = 100;
 
   const pending = rows.filter((row) => row.review_status === 'pending').length;
   const low = rows.filter((row) => row.review_risk === 'LOW').length;
   const medium = rows.filter((row) => row.review_risk === 'MEDIUM').length;
   const high = rows.filter((row) => row.review_risk === 'HIGH').length;
   const recommended = rows.filter((row) => Boolean(row.recommendation_id)).length;
+
+  const filteredRows = rows.filter((row) => {
+    const keyword = asText(row.effective_keyword, row.original_keyword || '').toLowerCase();
+    const matchesQuery = !q || keyword.includes(q) || asText(row.original_keyword, '').toLowerCase().includes(q);
+    const matchesRisk = riskFilter === 'ALL' || asText(row.review_risk, '').toUpperCase() === riskFilter;
+    const matchesStatus = statusFilter === 'all' || asText(row.review_status, '').toLowerCase() === statusFilter;
+    return matchesQuery && matchesRisk && matchesStatus;
+  }).sort((a, b) => {
+    const rank = (row: KeywordCleanupReviewStatusRow) => {
+      if (row.review_status === 'pending' && row.review_risk === 'HIGH') return 0;
+      if (row.review_status === 'pending' && row.review_risk === 'MEDIUM') return 1;
+      if (row.review_status === 'pending') return 2;
+      return 3;
+    };
+    return rank(a) - rank(b);
+  });
+
+  const pageCount = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+  const page = Math.min(requestedPage, pageCount);
+  const visibleRows = filteredRows.slice((page - 1) * pageSize, page * pageSize);
+
+  const pageHref = (nextPage: number) => {
+    const next = new URLSearchParams();
+    if (q) next.set('q', q);
+    if (riskFilter !== 'ALL') next.set('risk', riskFilter);
+    if (statusFilter !== 'pending') next.set('status', statusFilter);
+    if (nextPage > 1) next.set('page', String(nextPage));
+    const query = next.toString();
+    return query ? `/admin/seo-keyword-review?${query}` : '/admin/seo-keyword-review';
+  };
 
   return (
     <main className="page-shell">
@@ -126,6 +162,40 @@ export default async function AdminKeywordCleanupReviewPage() {
           Низкий / средний / высокий — это сложность проверки, а не SEO-ценность ключа. Низкий риск сейчас: {low}. Объём поиска, конкуренция и позиции здесь не придумываются.
         </div>
 
+        <form action="/admin/seo-keyword-review" className="owner-card" style={{ marginBottom: '14px' }}>
+          <div className="grid gap-3 md:grid-cols-[1fr_180px_190px_auto] md:items-end">
+            <label>
+              <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Поиск ключа</div>
+              <input name="q" defaultValue={q} className="field" placeholder="например: rave outfit" />
+            </label>
+            <label>
+              <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Сложность</div>
+              <select name="risk" defaultValue={riskFilter} className="field">
+                <option value="ALL">Все</option>
+                <option value="HIGH">Высокая</option>
+                <option value="MEDIUM">Средняя</option>
+                <option value="LOW">Низкая</option>
+              </select>
+            </label>
+            <label>
+              <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Статус</div>
+              <select name="status" defaultValue={statusFilter} className="field">
+                <option value="pending">Ждут решения</option>
+                <option value="approved">Одобрено</option>
+                <option value="rejected">Отклонено</option>
+                <option value="hold">Отложено</option>
+                <option value="all">Все</option>
+              </select>
+            </label>
+            <button type="submit" className="owner-button primary">Применить</button>
+          </div>
+          <div className="owner-card-meta" style={{ marginTop: '10px', marginBottom: 0 }}>
+            <span>Показано: {visibleRows.length}</span>
+            <span>После фильтра: {filteredRows.length}</span>
+            <Link href="/admin/seo-keyword-review">Сбросить</Link>
+          </div>
+        </form>
+
         <div className="table-wrap">
           <table>
             <thead>
@@ -139,15 +209,7 @@ export default async function AdminKeywordCleanupReviewPage() {
               </tr>
             </thead>
             <tbody>
-              {[...rows].sort((a, b) => {
-                const rank = (row: any) => {
-                  if (row.review_status === 'pending' && row.review_risk === 'HIGH') return 0;
-                  if (row.review_status === 'pending' && row.review_risk === 'MEDIUM') return 1;
-                  if (row.review_status === 'pending') return 2;
-                  return 3;
-                };
-                return rank(a) - rank(b);
-              }).map((row) => (
+              {visibleRows.map((row) => (
                 <tr key={row.cleanup_id}>
                   <td>
                     <strong>{asText(row.effective_keyword, row.original_keyword || '—')}</strong>
@@ -192,6 +254,16 @@ export default async function AdminKeywordCleanupReviewPage() {
             </tbody>
           </table>
         </div>
+
+        {filteredRows.length > pageSize ? (
+          <div className="flex items-center justify-between gap-3" style={{ marginTop: '14px' }}>
+            <div className="owner-section-kicker">Страница {page} из {pageCount}</div>
+            <div className="owner-actions" style={{ marginTop: 0 }}>
+              {page > 1 ? <Link href={pageHref(page - 1)} className="owner-button">Назад</Link> : <span className="owner-button" style={{ opacity: .4 }}>Назад</span>}
+              {page < pageCount ? <Link href={pageHref(page + 1)} className="owner-button">Дальше</Link> : <span className="owner-button" style={{ opacity: .4 }}>Дальше</span>}
+            </div>
+          </div>
+        ) : null}
       </div>
     </main>
   );
