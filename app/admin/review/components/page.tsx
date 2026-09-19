@@ -8,7 +8,7 @@ import {
   ADMIN_COMPONENT_TRUTH_SELECT, CANONICAL_PRODUCT_TRUTH_VIEW, componentEvidenceLabel, getCanonicalComponentTruthDiagnostic, } from '@/lib/adminComponentTruth';
 import {
   ADMIN_PRODUCT_CATALOG_FALLBACK_SELECT, ADMIN_PRODUCT_CATALOG_FALLBACK_VIEW, toCatalogFallbackStorefrontProduct, } from '@/lib/admin-product-catalog-fallback';
-import { getMissingAdminDataEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
+import { getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_VIEW_V1, productSlug, productTitle } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
 
