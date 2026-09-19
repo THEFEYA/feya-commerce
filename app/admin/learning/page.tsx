@@ -25,6 +25,28 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
+function domainLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    SEO: 'SEO',
+    SEARCH: 'Органический поиск',
+    CONTENT: 'Контент',
+    PRODUCT: 'Товары',
+    COMMERCE: 'Продажи',
+    MEASUREMENT: 'Измерение',
+    DATA: 'Данные',
+    GROWTH: 'Рост',
+  };
+  return labels[key] || (key ? 'FEYA' : '—');
+}
+
+function dateLabel(value: unknown) {
+  if (!value) return '—';
+  const date = new Date(String(value));
+  if (Number.isNaN(date.getTime())) return asText(value);
+  return new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+}
+
 function statusClass(value: unknown) {
   const status = asText(value, '').toUpperCase();
   if (status === 'ADOPTED_POLICY' || status === 'REPLICATED_LEARNING') return 'ok';
@@ -61,13 +83,11 @@ export default async function AdminLearningPage() {
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Записей</span></div>
-          <div className="card metric"><strong>{observations}</strong><span>Наблюдений</span></div>
-          <div className="card metric"><strong>{repeated}</strong><span>Повторяющихся наблюдений</span></div>
-          <div className="card metric"><strong>{replicated}</strong><span>Подтверждённых выводов</span></div>
-          <div className="card metric"><strong>{candidates}</strong><span>Кандидатов в правила</span></div>
-          <div className="card metric"><strong>{adopted}</strong><span>Принятых правил</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{observations}</strong><span>Новых наблюдений</span></div>
+          <div className="owner-summary-cell"><strong>{repeated}</strong><span>Повторяющихся наблюдений</span></div>
+          <div className="owner-summary-cell"><strong>{replicated}</strong><span>Подтверждённых выводов</span></div>
+          <div className="owner-summary-cell"><strong>{candidates + adopted}</strong><span>Кандидатов в правила / принятых правил</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
@@ -92,11 +112,10 @@ export default async function AdminLearningPage() {
                 {rows.map((row) => (
                   <tr key={row.learning_id}>
                     <td>
-                      <strong>{asText(row.title, row.learning_code || '—')}</strong>
-                      <div className="muted">{asText(row.learning_code)}</div>
+                      <strong title={asText(row.learning_code)}>{asText(row.title, row.learning_code || '—')}</strong>
                       <div className="muted">{asText(row.learning_statement)}</div>
                     </td>
-                    <td>{asText(row.domain)}</td>
+                    <td title={asText(row.domain)}>{domainLabel(row.domain)}</td>
                     <td>
                       <span className={`status-pill ${statusClass(row.learning_status)}`}>
                         {statusLabel(row.learning_status)}
@@ -109,7 +128,7 @@ export default async function AdminLearningPage() {
                     <td>
                       {asText(row.proposed_policy_name, row.proposed_policy_code || '—')}
                       {row.proposed_policy_version ? (
-                        <div className="muted">{row.proposed_policy_code} v{row.proposed_policy_version}</div>
+                        <div className="muted" title={asText(row.proposed_policy_code)}>версия {row.proposed_policy_version}</div>
                       ) : null}
                       {row.candidate_version ? <div className="muted">кандидат {row.candidate_version}</div> : null}
                     </td>
@@ -118,7 +137,7 @@ export default async function AdminLearningPage() {
                       {row.adopted_policy_version ? (
                         <span className="status-pill ok">правило v{row.adopted_policy_version}</span>
                       ) : '—'}
-                      {row.adopted_at ? <div className="muted">{row.adopted_at}</div> : null}
+                      {row.adopted_at ? <div className="muted">{dateLabel(row.adopted_at)}</div> : null}
                     </td>
                   </tr>
                 ))}
