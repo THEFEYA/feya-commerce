@@ -64,10 +64,37 @@ export default async function IndexationReadinessPage() {
   const summary = summarizeSearchPlans(plans);
   const visiblePlans = plans.slice(0, 140);
 
-  return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]"><section className="container-feya pt-10 pb-16">
-    <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7"><div><div className="eyebrow-gold mb-3">Админка · Готовность к индексации</div><h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Индексация</h1><p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Контроль готовности страниц к появлению в поиске. Здесь объединяются проверка товара, подтверждение SEO и готовность медиа.</p></div><div className="flex gap-3"><Link href="/admin/seo-approval" className="btn-ghost">Проверка SEO <ArrowUpRight size={13} /></Link><Link href="/admin/media-seo" className="btn-ghost">SEO медиа <ArrowUpRight size={13} /></Link><Link href="/admin/collections" className="btn-ghost">Коллекции <ArrowUpRight size={13} /></Link></div></div>
+  return <main className="owner-page">
+    <div className="owner-page-inner">
+      <header className="owner-page-head">
+        <div>
+          <div className="owner-eyebrow">Рост · техническое SEO</div>
+          <h1>Индексация</h1>
+          <p>Контроль допуска страниц в поиск. Здесь объединяются готовность товара, подтверждение SEO и медиа; глобальная индексация остаётся выключенной до прохождения всех обязательных условий.</p>
+        </div>
+        <div className="owner-actions" style={{ marginTop: 0 }}>
+          <Link href="/admin/seo-approval" className="owner-button">Проверка SEO <ArrowUpRight size={13} /></Link>
+          <Link href="/admin/media-seo" className="owner-button">SEO медиа <ArrowUpRight size={13} /></Link>
+          <Link href="/admin/collections" className="owner-button">Коллекции <ArrowUpRight size={13} /></Link>
+        </div>
+      </header>
     {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
-    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8"><Metric icon={Rocket} label="Товары" value={summary.total || 0} note="Текущий список кандидатов для витрины." /><Metric icon={ShieldAlert} label="Заблокировано" value={summary.Blocked || 0} note="Нельзя открывать для поисковой индексации." tone="danger" /><Metric icon={FileSearch} label="SEO подтверждено" value={summary.seoApproved || 0} note="Подтверждено через очередь проверки SEO." tone="success" /><Metric icon={ImageIcon} label="Медиа готовы" value={summary.mediaReady || 0} note="Изображения готовы для sitemap." tone="success" /><Metric icon={CheckCircle2} label="Готово к предпросмотру" value={summary['Ready for Preview'] || 0} note="Можно открыть предпросмотр с закрытой индексацией." tone="success" /></div>
-    <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden"><div className="grid grid-cols-[76px_1.15fr_.85fr_.75fr_.85fr_.85fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.22em] text-[var(--smoke)]"><div>Фото</div><div>Товар</div><div>Этап</div><div>SEO</div><div>Товар</div><div>Медиа</div></div><div className="divide-y divide-[rgba(216,214,211,.08)]">{visiblePlans.map((plan) => <Link key={plan.productSlug} href={`/admin/seo-lab/${plan.productSlug}`} className="grid grid-cols-[76px_1.15fr_.85fr_.75fr_.85fr_.85fr] gap-4 items-center px-5 py-4 hover:bg-[rgba(212,178,106,.04)] transition-colors"><div className="relative h-20 w-16 rounded-lg overflow-hidden bg-black/30 border border-[rgba(216,214,211,.10)]">{plan.imageUrl ? <img src={plan.imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}</div><div><div className="text-bone text-[15px] leading-snug line-clamp-2">{plan.title}</div><div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">/{plan.productSlug}</div></div><div><Chip tone={toneForStage(plan.stage)}>{searchStageLabel(plan.stage)}</Chip></div><div><Chip tone={plan.hasSeoApproval ? 'success' : 'warning'}>{plan.hasSeoApproval ? 'подтверждено' : 'ожидает'}</Chip></div><div><Chip tone={plan.readiness.tone}>{adminReadinessLabel(plan.readiness.label)}</Chip></div><div><Chip tone={plan.media.stage === 'Ready for Image Sitemap' ? 'success' : 'warning'}>{mediaSeoStageLabel(plan.media.stage)}</Chip></div></Link>)}</div></div>
-  </section></main>;
+    <section className="owner-section" style={{ marginTop: 0 }}>
+      <div className="owner-summary-strip">
+        <div className="owner-summary-cell"><strong>{summary.Blocked || 0}</strong><span>Заблокировано для поиска</span></div>
+        <div className="owner-summary-cell"><strong>{summary.seoApproved || 0}</strong><span>SEO подтверждено</span></div>
+        <div className="owner-summary-cell"><strong>{summary.mediaReady || 0}</strong><span>Медиа готовы</span></div>
+        <div className="owner-summary-cell"><strong>{summary['Ready for Preview'] || 0}</strong><span>Готово к безопасному предпросмотру</span></div>
+      </div>
+      <div className="owner-card is-info" style={{ marginTop: '10px' }}>
+        <div className="owner-status is-info">Индексация пока закрыта</div>
+        <p className="owner-card-copy">Всего кандидатов: {summary.total || 0}. Предпросмотр не означает разрешение индексации — это отдельный управляемый gate.</p>
+      </div>
+    </section>
+    <section className="owner-section">
+      <div className="owner-section-head"><div><h2>Страницы-кандидаты</h2><div className="owner-section-kicker">Показано {visiblePlans.length} из {plans.length}; список только для проверки.</div></div></div>
+      <div className="rounded-xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden"><div className="sticky top-[64px] z-10 grid grid-cols-[76px_1.15fr_.85fr_.75fr_.85fr_.85fr] gap-4 px-5 py-3 border-b border-[rgba(216,214,211,.10)] bg-[#0f0f15]/95 backdrop-blur-xl text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]"><div>Фото</div><div>Товар</div><div>Этап</div><div>SEO</div><div>Товар</div><div>Медиа</div></div><div className="divide-y divide-[rgba(216,214,211,.08)]">{visiblePlans.map((plan) => <Link key={plan.productSlug} href={`/admin/seo-lab/${plan.productSlug}`} className="grid grid-cols-[76px_1.15fr_.85fr_.75fr_.85fr_.85fr] gap-4 items-center px-5 py-4 hover:bg-[rgba(212,178,106,.04)] transition-colors"><div className="relative h-20 w-16 rounded-lg overflow-hidden bg-black/30 border border-[rgba(216,214,211,.10)]">{plan.imageUrl ? <img src={plan.imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover" /> : null}</div><div><div className="text-bone text-[15px] leading-snug line-clamp-2">{plan.title}</div><div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">/{plan.productSlug}</div></div><div><Chip tone={toneForStage(plan.stage)}>{searchStageLabel(plan.stage)}</Chip></div><div><Chip tone={plan.hasSeoApproval ? 'success' : 'warning'}>{plan.hasSeoApproval ? 'подтверждено' : 'ожидает'}</Chip></div><div><Chip tone={plan.readiness.tone}>{adminReadinessLabel(plan.readiness.label)}</Chip></div><div><Chip tone={plan.media.stage === 'Ready for Image Sitemap' ? 'success' : 'warning'}>{mediaSeoStageLabel(plan.media.stage)}</Chip></div></Link>)}</div></div>
+    </section>
+    </div>
+  </main>;
 }
