@@ -1,9 +1,9 @@
 // @ts-nocheck
 import Link from 'next/link';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, Boxes, CheckCircle2, ImageIcon, Search, Tags, WalletCards } from 'lucide-react';
 import { AdminProductsFilterClient } from '@/components/AdminProductsFilterClient';
 import type { AdminProductTableRow, ReadinessTone, ReviewChip } from '@/lib/admin-readiness';
-import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -109,16 +109,16 @@ function formatMoney(value: unknown) {
 function formatPriceRange(row: AdminCatalogRow) {
   const min = toNumber(row.public_min_price);
   const max = toNumber(row.public_max_price);
-  if (min == null && max == null) return 'Публичная цена не указана';
+  if (min == null && max == null) return 'No public price';
   if (min != null && max != null && min !== max) return `${formatMoney(min)}–${formatMoney(max)}`;
-  return formatMoney(min ?? max) || 'Публичная цена не указана';
+  return formatMoney(min ?? max) || 'No public price';
 }
 
 function buildSubtitle(row: AdminCatalogRow) {
   const parts = [
-    row.source_shop_code || 'Магазин',
+    row.source_shop_code || 'SHOP',
     row.matched_etsy_listing_id ? `Etsy ${row.matched_etsy_listing_id}` : row.primary_source_listing_id,
-    row.product_type || 'Товар'
+    row.product_type || 'Product'
   ].filter(Boolean);
   return parts.join(' · ');
 }
@@ -136,12 +136,12 @@ function getReadiness(row: AdminCatalogRow): { label: AdminProductTableRow['read
 
 function getReviewChips(row: AdminCatalogRow): ReviewChip[] {
   const chips: ReviewChip[] = [];
-  if (numberOrZero(row.missing_price_row_count) > 0) chips.push({ label: 'Нет цены', tone: 'warning' });
-  if (row.has_fallback_price) chips.push({ label: 'Резервная цена', tone: 'warning' });
-  if (row.has_sampler_excluded_price) chips.push({ label: 'Пробник исключён', tone: 'warning' });
-  if (numberOrZero(row.public_primary_media_count) === 0) chips.push({ label: 'Нет медиа', tone: 'danger' });
-  if (numberOrZero(row.listing_match_review_count) > 0) chips.push({ label: 'Проверить сопоставление', tone: 'warning' });
-  if (row.styled_imagery_flag) chips.push({ label: 'Стилизованное изображение', tone: 'neutral' });
+  if (numberOrZero(row.missing_price_row_count) > 0) chips.push({ label: 'Missing price', tone: 'warning' });
+  if (row.has_fallback_price) chips.push({ label: 'Fallback price', tone: 'warning' });
+  if (row.has_sampler_excluded_price) chips.push({ label: 'Sampler excluded', tone: 'warning' });
+  if (numberOrZero(row.public_primary_media_count) === 0) chips.push({ label: 'Missing media', tone: 'danger' });
+  if (numberOrZero(row.listing_match_review_count) > 0) chips.push({ label: 'Match review', tone: 'warning' });
+  if (row.styled_imagery_flag) chips.push({ label: 'Styled imagery', tone: 'neutral' });
   if (!chips.length) chips.push({ label: 'OK', tone: 'neutral' });
   return chips;
 }
@@ -158,9 +158,9 @@ function mapAdminProductRow(row: AdminCatalogRow, enrichment?: ProductEnrichment
     imageUrl: enrichment?.primary_image_url || null,
     subtitle: buildSubtitle(row),
     price: formatPriceRange(row),
-    confidence: row.has_fallback_price || numberOrZero(row.missing_price_row_count) > 0 ? 'Нужно проверить цену' : 'Публичная цена подтверждена',
+    confidence: row.has_fallback_price || numberOrZero(row.missing_price_row_count) > 0 ? 'Needs price review' : 'Public price',
     configCount: publicConfigurations,
-    configNote: `${publicConfigurations} публичных / ${totalConfigurations} всего`,
+    configNote: `${publicConfigurations} public / ${totalConfigurations} total`,
     readinessLabel: readiness.label,
     readinessTone: readiness.tone,
     reviewChips: getReviewChips(row),
@@ -168,8 +168,8 @@ function mapAdminProductRow(row: AdminCatalogRow, enrichment?: ProductEnrichment
 }
 
 async function getProducts(): Promise<{ rows: AdminProductTableRow[]; sourceRows: AdminCatalogRow[]; error?: string }> {
-  const supabase = getAdminReadClient();
-  if (!supabase) return { rows: [], sourceRows: [], error: getMissingAdminDataEnvMessage() };
+  const supabase = getSupabaseReadClient();
+  if (!supabase) return { rows: [], sourceRows: [], error: getMissingSupabaseEnvMessage() };
 
   const [{ data: catalogRows, error: catalogError }, { data: enrichmentRows }] = await Promise.all([
     supabase
@@ -196,6 +196,17 @@ async function getProducts(): Promise<{ rows: AdminProductTableRow[]; sourceRows
   };
 }
 
+function Metric({ label, value, note, icon: Icon }) {
+  return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
+    <div className="flex items-center justify-between gap-4 mb-4">
+      <div className="eyebrow-dim">{label}</div>
+      <Icon size={16} className="text-[var(--gold-warm)]" />
+    </div>
+    <div className="font-price text-gold-grad text-[38px] leading-none">{value}</div>
+    <div className="mt-4 text-[12px] leading-relaxed text-[var(--bone-dim)]">{note}</div>
+  </div>;
+}
+
 export default async function AdminProductsPage() {
   const { rows, sourceRows, error } = await getProducts();
 
@@ -210,63 +221,32 @@ export default async function AdminProductsPage() {
     return acc;
   }, { configs: 0, label: 0, price: 0, media: 0, ready: 0, blocked: 0 });
 
-  const needsReview = Math.max(0, rows.length - totals.ready - totals.blocked);
-
-  return <main className="owner-page">
-    <div className="owner-page-inner">
-      <header className="owner-page-head">
+  return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.12),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
+    <section className="container-feya pt-10 pb-16">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
         <div>
-          <div className="owner-eyebrow">Каталог и готовность</div>
-          <h1>Товары</h1>
-          <p>
-            Весь внутренний каталог в одном месте: что готово, что требует проверки и куда перейти для работы с конкретным товаром.
-          </p>
+          <div className="eyebrow-gold mb-3">Админка · Контроль товаров</div>
+          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Товары</h1>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Интерактивная таблица полного admin-каталога: готовность товара, цена, компоненты, медиа и события проверки.</p>
         </div>
-        <div className="owner-actions" style={{ marginTop: 0 }}>
-          <Link href="/admin/listing-master" className="owner-button primary">Мастер листинга</Link>
-          <Link href="/shop" className="owner-button">Витрина <ArrowUpRight size={13} /></Link>
+        <div className="flex gap-3">
+          <Link href="/admin" className="btn-ghost">Панель управления <ArrowUpRight size={13} /></Link>
+          <Link href="/shop" className="btn-ghost">Витрина <ArrowUpRight size={13} /></Link>
         </div>
-      </header>
+      </div>
 
-      {error ? (
-        <div className="owner-card is-danger" style={{ marginBottom: '18px' }}>
-          <div className="owner-status is-danger">Ошибка данных</div>
-          <p className="owner-card-copy">{error}</p>
-        </div>
-      ) : null}
+      {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
 
-      <section className="owner-section" style={{ marginTop: 0 }}>
-        <div className="owner-summary-strip">
-          <div className="owner-summary-cell">
-            <strong>{rows.length}</strong>
-            <span>Товаров в каталоге</span>
-          </div>
-          <div className="owner-summary-cell">
-            <strong>{needsReview}</strong>
-            <span>Требуют проверки</span>
-          </div>
-          <div className="owner-summary-cell">
-            <strong>{totals.blocked}</strong>
-            <span>Заблокировано</span>
-          </div>
-          <div className="owner-summary-cell">
-            <strong>{totals.ready}</strong>
-            <span>Готово для витрины</span>
-          </div>
-        </div>
-      </section>
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
+        <Metric icon={Search} label="Товары" value={rows.length} note="Загружены из step6 admin catalog." />
+        <Metric icon={Boxes} label="Опции" value={totals.configs} note="Публичные продаваемые варианты." />
+        <Metric icon={Tags} label="Названия" value={totals.label} note="Требуют проверки названий." />
+        <Metric icon={WalletCards} label="Цены" value={totals.price} note="Цены с неподтверждённым статусом." />
+        <Metric icon={ImageIcon} label="Медиа" value={totals.media} note="Нет публичной primary media." />
+        <Metric icon={CheckCircle2} label="Готово" value={totals.ready} note={`Заблокировано: ${totals.blocked}`} />
+      </div>
 
-      <section className="owner-section">
-        <div className="owner-section-head">
-          <div>
-            <h2>Каталог</h2>
-            <div className="owner-section-kicker">
-              Поиск, фильтр и сортировка работают только с отображением и ничего не меняют в Product Truth.
-            </div>
-          </div>
-        </div>
-        <AdminProductsFilterClient rows={rows} />
-      </section>
-    </div>
+      <AdminProductsFilterClient rows={rows} />
+    </section>
   </main>;
 }
