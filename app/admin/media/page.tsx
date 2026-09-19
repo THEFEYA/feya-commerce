@@ -113,7 +113,7 @@ export default async function AdminMediaQaPage() {
                   <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/15 p-2"><div className="eyebrow-dim mb-1">Видео</div><div className="font-price text-bone text-[18px] leading-none">{product.has_video || product.video_url ? 'Есть' : 'Нет'}</div></div>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-1.5">
-                  {issues.map((issue) => <Chip key={issue} tone={issue.includes('Missing') || issue.includes('No ') ? 'danger' : 'warning'}>{issue}</Chip>)}
+                  {issues.map((issue) => <Chip key={issue} tone={issue.includes('Нет ') ? 'danger' : 'warning'}>{issue}</Chip>)}
                 </div>
               </div>
             </Link>
