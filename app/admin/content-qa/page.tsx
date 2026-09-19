@@ -74,14 +74,11 @@ export default async function AdminContentQaPage() {
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Активных SEO-черновиков</span></div>
-          <div className="card metric"><strong>{independentReady}</strong><span>Готовы к независимой проверке</span></div>
-          <div className="card metric"><strong>{humanAndCqa}</strong><span>Готовы к проверке человеком и CQA</span></div>
-          <div className="card metric"><strong>{similarity}</strong><span>Одобрены, но не проверено сходство</span></div>
-          <div className="card metric"><strong>{componentClaims}</strong><span>Нужна проверка состава</span></div>
-          <div className="card metric"><strong>{prechecks}</strong><span>Нужны предварительные проверки</span></div>
-          <div className="card metric"><strong>{blocked}</strong><span>Заблокированы / нужны исправления</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{blocked}</strong><span>Требуют исправления / заблокированы</span></div>
+          <div className="owner-summary-cell"><strong>{independentReady}</strong><span>Готовы к независимой проверке</span></div>
+          <div className="owner-summary-cell"><strong>{humanAndCqa}</strong><span>Готовы к проверке человеком + CQA</span></div>
+          <div className="owner-summary-cell"><strong>{similarity + componentClaims + prechecks}</strong><span>На автоматических и промежуточных проверках</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
@@ -105,7 +102,16 @@ export default async function AdminContentQaPage() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
+              {[...rows].sort((a, b) => {
+                const rank = (state: unknown) => {
+                  const key = String(state || '');
+                  if (key === 'BLOCKED_BY_VALIDATION' || key === 'REVISION_REQUIRED') return 0;
+                  if (key === 'READY_FOR_HUMAN_AND_CQA_REVIEW') return 1;
+                  if (key === 'READY_FOR_INDEPENDENT_CQA') return 2;
+                  return 3;
+                };
+                return rank(a.cqa_shadow_state) - rank(b.cqa_shadow_state);
+              }).map((row) => (
                 <tr key={row.draft_id}>
                   <td>
                     <Link href={`/admin/products/${row.canonical_product_id}`}>
