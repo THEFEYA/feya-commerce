@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentOwnerAttention, presentSignal, presentWorkItem, formatRelativeTime } from '@/lib/owner-ui/presenters';
-import { scopeLabel } from '@/lib/owner-ui/terminology';
+import { priorityLabel, roleLabel, scopeLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -73,7 +73,7 @@ async function getTodayData(): Promise<TodayData> {
       .from('feya_commerce_v_growth_opportunities_safe_v1')
       .select('opportunity_id,title,opportunity_type,priority,opportunity_status,commercial_expiry_at,due_at,expiry_state,owner_role')
       .in('opportunity_status', ['OPEN', 'ACTIONING'])
-      .not('expiry_state', 'eq', 'EXPIRED')
+      .or('expiry_state.is.null,expiry_state.neq.EXPIRED')
       .order('commercial_expiry_at', { ascending: true, nullsFirst: false })
       .limit(3),
     supabase
@@ -277,8 +277,9 @@ export default async function AdminHomePage() {
                 <Link href="/admin/opportunities" className="owner-list-row" key={String(row.opportunity_id)}>
                   <div className="owner-list-row-main">
                     <div className="owner-card-meta">
-                      <span className="owner-status is-info">{String(row.priority || 'P3')}</span>
+                      <span className="owner-status is-info">{priorityLabel(row.priority)}</span>
                       <span>{String(row.opportunity_status || '') === 'ACTIONING' ? 'В работе' : 'Открыта'}</span>
+                      <span>{roleLabel(row.owner_role)}</span>
                     </div>
                     <h3>{String(row.title || 'Возможность роста')}</h3>
                     <p>
