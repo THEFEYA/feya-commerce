@@ -280,24 +280,47 @@ export default async function SeoApprovalPage() {
   const validatorReady = savedDrafts.filter((draft) => draft.validation_status === 'valid').length;
   const totalEvents = Array.from(draftEvents.eventsByDraft.values()).reduce((sum, events) => sum + events.length, 0);
 
-  return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]"><section className="container-feya pt-10 pb-16">
-    <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7"><div><div className="eyebrow-gold mb-3">Админка · проверка SEO</div><h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Проверка SEO</h1><p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Быстрая очередь сохранённых SEO-черновиков из слоя хранения. Здесь проверяются сохранённые черновики без публикации и без прямого изменения таблиц товаров или витрины.</p></div><div className="flex flex-wrap gap-3"><Link href="/admin/seo-engine/briefs" className="btn-ghost">SEO-бриф <ArrowUpRight size={13} /></Link><Link href="/admin/indexation" className="btn-ghost">Индексация <ArrowUpRight size={13} /></Link></div></div>
+  return <main className="owner-page">
+    <div className="owner-page-inner">
+      <header className="owner-page-head">
+        <div>
+          <div className="owner-eyebrow">SEO · проверка черновиков</div>
+          <h1>Проверка SEO</h1>
+          <p>Очередь сохранённых SEO-черновиков. Здесь проверяем качество и историю без публикации и без прямого изменения товара.</p>
+        </div>
+        <div className="owner-actions" style={{ marginTop: 0 }}>
+          <Link href="/admin/seo-engine/briefs" className="owner-button">SEO-бриф <ArrowUpRight size={13} /></Link>
+          <Link href="/admin/indexation" className="owner-button">Индексация <ArrowUpRight size={13} /></Link>
+        </div>
+      </header>
     {savedDraftQueue.error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{savedDraftQueue.error}</div> : null}
     {savedDraftQueue.detailError ? <div className="rounded-2xl border border-[rgba(212,178,106,.35)] bg-[rgba(212,178,106,.08)] p-5 text-[var(--bone-dim)] mb-7">Очередь загружена, но полный snapshot черновика недоступен: {savedDraftQueue.detailError}</div> : null}
     {draftEvents.error ? <div className="rounded-2xl border border-[rgba(212,178,106,.35)] bg-[rgba(212,178,106,.08)] p-5 text-[var(--bone-dim)] mb-7">История событий не загрузилась: {draftEvents.error}. Очередь черновиков продолжает работать.</div> : null}
 
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8"><Metric icon={Database} label="Сохранённые" value={savedDrafts.length} note="Новые сохранённые SEO-черновики." tone="success" /><Metric icon={ShieldAlert} label="На проверке" value={notReviewed} note="Ждут проверки человеком." tone="danger" /><Metric icon={CheckCircle2} label="Валидатор пройден" value={validatorReady} note="Черновики прошли проверку структуры и формата." tone="success" /><Metric icon={Clock3} label="События" value={totalEvents} note="История действий по сохранённым черновикам." /></div>
+    <section className="owner-section" style={{ marginTop: 0 }}>
+      <div className="owner-summary-strip">
+        <div className="owner-summary-cell"><strong>{savedDrafts.length}</strong><span>Сохранённых черновиков</span></div>
+        <div className="owner-summary-cell"><strong>{notReviewed}</strong><span>Ждут проверки человеком</span></div>
+        <div className="owner-summary-cell"><strong>{validatorReady}</strong><span>Валидатор пройден</span></div>
+        <div className="owner-summary-cell"><strong>{totalEvents}</strong><span>Событий в истории</span></div>
+      </div>
+    </section>
 
-    <div className="mb-10">
-      <div className="flex items-end justify-between gap-4 mb-4"><div><div className="eyebrow-gold mb-2">Новые сохранённые SEO-черновики</div><h2 className="text-bone text-[24px] leading-tight">Очередь сохранённых черновиков</h2></div><Chip tone="success">{savedDrafts.length} строк</Chip></div>
+    <section className="owner-section">
+      <div className="owner-section-head"><div><h2>Очередь сохранённых черновиков</h2><div className="owner-section-kicker">Сначала проверка человеком, затем отдельные quality gates.</div></div><Chip tone="success">{savedDrafts.length} строк</Chip></div>
       {savedDrafts.length ? <div className="space-y-4">{savedDrafts.map((draft) => <SavedDraftCard key={draft.id} draft={draft} events={draftEvents.eventsByDraft.get(draft.id) || []} />)}</div> : <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5 text-[var(--bone-dim)]">Сохранённых SEO-черновиков пока нет. Открой проверку черновика и нажми “Сохранить черновик для проверки”.</div>}
-    </div>
+    </section>
 
-    <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
-      <div className="eyebrow-gold mb-2">Старый резервный режим</div>
-      <h2 className="text-bone text-[24px] leading-tight">Старые шаблонные черновики временно отключены</h2>
+    <section className="owner-section">
+      <details className="owner-disclosure owner-disclosure-section">
+        <summary><span><strong>Старый резервный режим</strong><small>Технический fallback временно отключён</small></span><span className="owner-section-kicker">Подробнее</span></summary>
+        <div className="owner-disclosure-body">
+      <h2 className="text-bone text-[18px] leading-tight">Старые шаблонные черновики временно отключены</h2>
       <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Этот блок раньше загружал тяжёлые представления товаров и мог вызывать тайм-ауты Supabase. Чтобы новая очередь работала стабильно, старый резервный режим вернётся позже через лёгкий API с пагинацией и лимитами.</p>
-      <div className="mt-4 flex flex-wrap gap-3"><Link href="/admin/seo-lab" className="btn-ghost">Открыть SEO-лабораторию <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine/briefs" className="btn-ghost">Создать новый SEO-бриф <ArrowUpRight size={13} /></Link></div>
+      <div className="mt-4 flex flex-wrap gap-3"><Link href="/admin/seo-lab" className="owner-button">Открыть SEO-лабораторию <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine/briefs" className="owner-button">Создать новый SEO-бриф <ArrowUpRight size={13} /></Link></div>
+        </div>
+      </details>
+    </section>
     </div>
-  </section></main>;
+  </main>;
 }
