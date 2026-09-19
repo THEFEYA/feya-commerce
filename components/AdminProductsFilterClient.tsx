@@ -1,12 +1,21 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
-import { ArrowUpRight, Filter, Search, SlidersHorizontal } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { ArrowUpRight, Bookmark, BookmarkPlus, Filter, Search, SlidersHorizontal, Trash2 } from 'lucide-react';
 import type { AdminProductTableRow, ReadinessTone } from '@/lib/admin-readiness';
 
 type AdminProductRow = AdminProductTableRow;
 type Tone = ReadinessTone;
+type SavedView = {
+  id: string;
+  name: string;
+  query: string;
+  filter: string;
+  sort: string;
+};
+
+const SAVED_VIEWS_KEY = 'feya-products-saved-views-v1';
 
 const filters = [
   { label: 'Все', value: 'all' },
@@ -91,7 +100,73 @@ export function AdminProductsFilterClient({ rows }: { rows: AdminProductRow[] })
   const [activeFilter, setActiveFilter] = useState('all');
   const [sort, setSort] = useState('priority');
   const [page, setPage] = useState(1);
+  const [savedViews, setSavedViews] = useState<SavedView[]>([]);
+  const [selectedViewId, setSelectedViewId] = useState('');
+  const [showSaveView, setShowSaveView] = useState(false);
+  const [newViewName, setNewViewName] = useState('');
   const pageSize = 50;
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(SAVED_VIEWS_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed?.version === 1 && Array.isArray(parsed.views)) {
+        setSavedViews(parsed.views.filter((item: SavedView) => item?.id && item?.name));
+      }
+    } catch {
+      // Saved views are a local convenience only; the catalog works without them.
+    }
+  }, []);
+
+  function persistViews(next: SavedView[]) {
+    setSavedViews(next);
+    try {
+      window.localStorage.setItem(SAVED_VIEWS_KEY, JSON.stringify({ version: 1, views: next }));
+    } catch {
+      // Local preference persistence is best-effort.
+    }
+  }
+
+  function applySavedView(id: string) {
+    setSelectedViewId(id);
+    const view = savedViews.find((item) => item.id === id);
+    if (!view) return;
+    setQuery(view.query);
+    setActiveFilter(view.filter);
+    setSort(view.sort);
+    setPage(1);
+  }
+
+  function saveCurrentView() {
+    const name = newViewName.trim();
+    if (!name) return;
+    const next: SavedView = {
+      id: `view-${Date.now()}`,
+      name,
+      query,
+      filter: activeFilter,
+      sort,
+    };
+    persistViews([...savedViews, next]);
+    setSelectedViewId(next.id);
+    setNewViewName('');
+    setShowSaveView(false);
+  }
+
+  function deleteSelectedView() {
+    if (!selectedViewId) return;
+    persistViews(savedViews.filter((item) => item.id !== selectedViewId));
+    setSelectedViewId('');
+  }
+
+  function resetView() {
+    setQuery('');
+    setActiveFilter('all');
+    setSort('priority');
+    setSelectedViewId('');
+    setPage(1);
+  }
 
   const visibleRows = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -113,7 +188,7 @@ export function AdminProductsFilterClient({ rows }: { rows: AdminProductRow[] })
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--smoke)]" />
           <input
             value={query}
-            onChange={(event) => { setQuery(event.target.value); setPage(1); }}
+            onChange={(event) => { setQuery(event.target.value); setSelectedViewId(''); setPage(1); }}
             placeholder="Найти товар, slug или статус..."
             className="w-full rounded-lg border border-[rgba(216,214,211,.12)] bg-black/20 py-3 pl-10 pr-4 text-[13px] text-bone outline-none placeholder:text-[var(--smoke)] focus:border-white/40"
           />
@@ -124,7 +199,7 @@ export function AdminProductsFilterClient({ rows }: { rows: AdminProductRow[] })
           <span className="text-[11px] text-[var(--bone-dim)]">Сортировка</span>
           <select
             value={sort}
-            onChange={(event) => { setSort(event.target.value); setPage(1); }}
+            onChange={(event) => { setSort(event.target.value); setSelectedViewId(''); setPage(1); }}
             className="min-h-9 bg-transparent text-[12px] text-bone outline-none"
           >
             {SORTS.map((item) => <option key={item.value} value={item.value} className="bg-[#111117]">{item.label}</option>)}
@@ -137,7 +212,7 @@ export function AdminProductsFilterClient({ rows }: { rows: AdminProductRow[] })
           <button
             key={filter.value}
             type="button"
-            onClick={() => { setActiveFilter(filter.value); setPage(1); }}
+            onClick={() => { setActiveFilter(filter.value); setSelectedViewId(''); setPage(1); }}
             className={`rounded-lg border px-3 py-2 text-[10px] uppercase tracking-[0.14em] transition ${activeFilter === filter.value ? 'border-[rgba(212,178,106,.48)] bg-[rgba(212,178,106,.10)] text-[var(--gold-warm)]' : 'border-[rgba(216,214,211,.12)] bg-black/15 text-[var(--bone-dim)] hover:border-white/30'}`}
           >
             {filter.label}
@@ -147,6 +222,50 @@ export function AdminProductsFilterClient({ rows }: { rows: AdminProductRow[] })
           <Filter size={12} /> Показано {visibleRows.length} из {rows.length}
         </div>
       </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[rgba(216,214,211,.08)] pt-3">
+        <div className="flex min-h-9 items-center gap-2 rounded-lg border border-[rgba(216,214,211,.12)] bg-black/15 px-3">
+          <Bookmark size={13} className="text-[var(--smoke)]" />
+          <select
+            value={selectedViewId}
+            onChange={(event) => applySavedView(event.target.value)}
+            className="min-h-8 bg-transparent text-[12px] text-bone outline-none"
+            aria-label="Сохранённый вид"
+          >
+            <option value="" className="bg-[#111117]">Сохранённые виды</option>
+            {savedViews.map((view) => <option key={view.id} value={view.id} className="bg-[#111117]">{view.name}</option>)}
+          </select>
+        </div>
+
+        <button type="button" className="owner-button" onClick={() => setShowSaveView((value) => !value)}>
+          <BookmarkPlus size={13} /> Сохранить вид
+        </button>
+        {selectedViewId ? (
+          <button type="button" className="owner-button" onClick={deleteSelectedView} title="Удалить выбранный сохранённый вид">
+            <Trash2 size={13} /> Удалить
+          </button>
+        ) : null}
+        <button type="button" className="owner-button" onClick={resetView}>Сбросить</button>
+      </div>
+
+      {showSaveView ? (
+        <div className="mt-3 grid gap-2 rounded-lg border border-[rgba(216,214,211,.10)] bg-black/15 p-3 sm:grid-cols-[1fr_auto]">
+          <input
+            value={newViewName}
+            onChange={(event) => setNewViewName(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                saveCurrentView();
+              }
+            }}
+            placeholder="Название вида, например: Нужна цена"
+            className="field"
+            autoFocus
+          />
+          <button type="button" className="owner-button primary" onClick={saveCurrentView} disabled={!newViewName.trim()}>Сохранить</button>
+        </div>
+      ) : null}
     </div>
 
     <div className="sticky top-[64px] z-10 hidden lg:grid grid-cols-[72px_1.6fr_0.95fr_0.65fr_0.75fr_1.2fr] gap-4 px-5 py-3 border-b border-[rgba(216,214,211,.10)] bg-[#0f0f15]/95 backdrop-blur-xl text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">
