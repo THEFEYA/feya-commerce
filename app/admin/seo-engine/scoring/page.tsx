@@ -1,7 +1,8 @@
 // @ts-nocheck
+import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, ShieldAlert, Upload } from 'lucide-react';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
+import { getMissingAdminDataEnvMessage } from '@/lib/supabase';
 import { STOREFRONT_VIEW_V1, mainRegularPrice, productSlug, productTitle } from '@/lib/storefront';
 import { buildSeoPilotBrief } from '@/lib/seoPilotDraft';
 import { ScoringContractPanel } from '../briefs/ScoringContractPanel';
@@ -15,8 +16,8 @@ const KEYWORD_SELECT = 'keyword,keyword_norm,priority_tier,validation_status,cle
 const EMERGENCY_PILOT_PRODUCT = { canonical_product_id: '4511817111', product_slug: 'gold-futuristic-armor-set-choker-collar-shoulder-armor-and-arm-bracers-performance-outfit-4511817111', matched_etsy_listing_id: '4511817111', card_title: 'Gold Futuristic Armor Set, Choker Collar, Shoulder Armor and Arm Bracers, Performance Outfit', h1: 'Gold Futuristic Armor Set, Choker Collar, Shoulder Armor and Arm Bracers, Performance Outfit', product_type: 'Armor', material: 'Fabric, Leather, Faux leather', color: 'Gold', primary_image_url: null, min_price: 79, max_price: 308, currency: 'EUR', storefront_candidate_flag: true };
 
 async function loadPilotData() {
-  const supabase = getSupabaseReadClient();
-  if (!supabase) return { product: EMERGENCY_PILOT_PRODUCT, keywords: [], warning: getMissingSupabaseEnvMessage(), fallbackUsed: true };
+  const supabase = getAdminReadClient();
+  if (!supabase) return { product: EMERGENCY_PILOT_PRODUCT, keywords: [], warning: getMissingAdminDataEnvMessage(), fallbackUsed: true };
   const productsResult = await supabase.from(STOREFRONT_VIEW_V1).select(PILOT_PRODUCT_SELECT).limit(24);
   const products = productsResult.data || [];
   const product = products.filter((item) => productSlug(item) && productTitle(item)).sort((a, b) => {
