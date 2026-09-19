@@ -59,11 +59,13 @@ function ownerArea(pathname: string) {
   if (pathname === '/admin/company') return 'today';
   if (
     pathname.startsWith('/admin/company/work') ||
-    pathname.startsWith('/admin/company/owner-attention')
+    pathname.startsWith('/admin/company/owner-attention') ||
+    pathname.startsWith('/admin/owner-attention')
   ) return 'work';
   if (
     pathname.startsWith('/admin/company/growth') ||
     pathname.startsWith('/admin/company/signals') ||
+    pathname.startsWith('/admin/signals') ||
     pathname.startsWith('/admin/seo-keywords') ||
     pathname.startsWith('/admin/seo-keyword-review') ||
     pathname.startsWith('/admin/seo-clusters') ||
@@ -76,6 +78,10 @@ function ownerArea(pathname: string) {
     pathname.startsWith('/admin/collections') ||
     pathname.startsWith('/admin/graph') ||
     pathname.startsWith('/admin/seo-lab') ||
+    pathname.startsWith('/admin/content-briefs') ||
+    pathname.startsWith('/admin/seo-apply') ||
+    pathname.startsWith('/admin/seo-change-sets') ||
+    pathname.startsWith('/admin/seo-gate') ||
     pathname.startsWith('/admin/seo-engine/scoring') ||
     pathname.startsWith('/admin/seo-engine/metric-import') ||
     pathname.startsWith('/admin/seo-engine/commercial-review') ||
