@@ -103,6 +103,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [compactDensity, setCompactDensity] = useState(false);
+  const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
   const activeArea = ownerArea(pathname);
 
   useEffect(() => {
@@ -117,6 +118,9 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
         router.push('/admin/company/search');
+      }
+      if (event.key === 'Escape') {
+        setMobileMoreOpen(false);
       }
     };
 
@@ -258,11 +262,49 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
           <span aria-hidden="true"><PackageSearch size={16} strokeWidth={1.8} /></span>
           <small>Товары</small>
         </Link>
-        <Link href="/admin/company/system" className={['growth','results','system'].includes(activeArea) ? 'is-active' : ''}>
+        <button
+          type="button"
+          onClick={() => setMobileMoreOpen(true)}
+          className={['growth','results','system'].includes(activeArea) ? 'is-active' : ''}
+          aria-haspopup="dialog"
+          aria-expanded={mobileMoreOpen}
+        >
           <span aria-hidden="true">•••</span>
           <small>Ещё</small>
-        </Link>
+        </button>
       </nav>
+
+      {mobileMoreOpen ? (
+        <div className="owner-mobile-more" role="presentation">
+          <button type="button" className="owner-mobile-more-backdrop" aria-label="Закрыть меню" onClick={() => setMobileMoreOpen(false)} />
+          <div className="owner-mobile-more-sheet" role="dialog" aria-modal="true" aria-label="Дополнительные разделы">
+            <div className="owner-mobile-more-head">
+              <div>
+                <div className="owner-eyebrow">Дополнительно</div>
+                <strong>Разделы FEYA</strong>
+              </div>
+              <button type="button" className="owner-button" onClick={() => setMobileMoreOpen(false)}>Закрыть</button>
+            </div>
+            <div className="owner-mobile-more-grid">
+              <Link href="/admin/company/growth" onClick={() => setMobileMoreOpen(false)}>
+                <TrendingUp size={17} /><span><strong>Рост</strong><small>сигналы, спрос, страницы</small></span>
+              </Link>
+              <Link href="/admin/company/results" onClick={() => setMobileMoreOpen(false)}>
+                <BarChart3 size={17} /><span><strong>Результаты</strong><small>эксперименты и выводы</small></span>
+              </Link>
+              <Link href="/admin/company/system" onClick={() => setMobileMoreOpen(false)}>
+                <Settings2 size={17} /><span><strong>Система</strong><small>данные, права, готовность</small></span>
+              </Link>
+              <Link href="/admin/company/advanced" onClick={() => setMobileMoreOpen(false)}>
+                <SlidersHorizontal size={17} /><span><strong>Технические детали</strong><small>глубокая диагностика</small></span>
+              </Link>
+              <Link href="/shop" onClick={() => setMobileMoreOpen(false)}>
+                <Store size={17} /><span><strong>Магазин</strong><small>публичная витрина</small></span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
