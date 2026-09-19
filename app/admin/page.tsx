@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowUpRight, Boxes, CheckCircle2, ClipboardCheck, ImageIcon, Layers3, PackageSearch, Tags, WalletCards } from 'lucide-react';
 import { AdminReadinessOverviewClient } from '@/components/AdminReadinessOverviewClient';
 import { getProductEvents, getProductFlags, getProductReadiness, type AdminReviewEvent } from '@/lib/admin-readiness';
-import { getMissingAdminDataEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
+import { getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
 
