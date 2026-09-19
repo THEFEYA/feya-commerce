@@ -38,7 +38,7 @@ type DraftRow = {
 
 type ApiPayload = { ok?: boolean; error?: string; drafts?: DraftRow[] };
 type ReviewResponse = { ok?: boolean; error?: string };
-type MetricProps = { label: string; value: string | number; note: string; icon: LucideIcon };
+
 type OrderAction = { label: string; event_type: string; status: 'recorded' | 'needs_fix' | 'approved' };
 
 const orderActions: OrderAction[] = [
@@ -63,14 +63,6 @@ function Chip({ children, tone = 'neutral' }: { children: string; tone?: 'neutra
       ? 'border-[rgba(212,178,106,.30)] text-[var(--gold-warm)] bg-[rgba(212,178,106,.07)]'
       : 'border-[rgba(216,214,211,.16)] text-[var(--bone-dim)] bg-black/15';
   return <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] ${className}`}>{children}</span>;
-}
-
-function Metric({ label, value, note, icon: Icon }: MetricProps) {
-  return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
-    <div className="flex items-center justify-between gap-4 mb-4"><div className="eyebrow-dim">{label}</div><Icon size={16} className="text-[var(--gold-warm)]" /></div>
-    <div className="font-price text-gold-grad text-[38px] leading-none">{value}</div>
-    <div className="mt-4 text-[12px] leading-relaxed text-[var(--bone-dim)]">{note}</div>
-  </div>;
 }
 
 export function AdminOrdersSavedClient() {
@@ -138,18 +130,18 @@ export function AdminOrdersSavedClient() {
   }
 
   return <section className="container-feya pb-10">
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <Metric icon={ClipboardList} label="Черновики" value={loading ? '…' : drafts.length} note="Загружены из защищённого API админки." />
-      <Metric icon={PackageCheck} label="Позиции" value={loading ? '…' : itemCount} note="Позиции черновиков сохранены в Supabase." />
-      <Metric icon={ShieldCheck} label="Предупреждения" value={loading ? '…' : warningCount} note="Флаги проверки цены или названия." />
-      <Metric icon={AlertTriangle} label="Оплата выключена" value="0" note="Создание оплаченного заказа отключено." />
+    <div className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+      <div className="owner-summary-cell"><strong>{loading ? '…' : drafts.length}</strong><span>Черновиков сохранено</span></div>
+      <div className="owner-summary-cell"><strong>{loading ? '…' : itemCount}</strong><span>Позиций в черновиках</span></div>
+      <div className="owner-summary-cell"><strong>{loading ? '…' : warningCount}</strong><span>Черновиков требуют проверки</span></div>
+      <div className="owner-summary-cell"><strong>Выкл.</strong><span>Создание оплаченного заказа</span></div>
     </div>
 
     {payload.error ? <div className="rounded-2xl border border-[rgba(212,178,106,.28)] bg-[rgba(212,178,106,.06)] p-5 text-[13px] leading-relaxed text-[var(--gold-warm)] mb-5"><AlertTriangle size={15} className="inline mr-2" />{payload.error}</div> : null}
 
     <div className="flex items-center justify-between gap-4 mb-4">
       <div><div className="eyebrow-gold">Черновики заказов из Supabase</div><p className="mt-2 text-[12px] text-[var(--bone-dim)]">Защищённое чтение только через админку. Публичный доступ к таблицам закрыт.</p></div>
-      <button type="button" onClick={load} className="btn-ghost px-4 py-2 text-[10px]" disabled={loading}>{loading ? 'Загрузка…' : 'Обновить'}</button>
+      <button type="button" onClick={load} className="owner-button" disabled={loading}>{loading ? 'Загрузка…' : 'Обновить'}</button>
     </div>
 
     <div className="space-y-4">
@@ -159,7 +151,7 @@ export function AdminOrdersSavedClient() {
         return <article key={draft.order_draft_id} className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
-              <div className="eyebrow-gold mb-2">{draft.draft_number || draft.order_draft_id}</div>
+              <div className="eyebrow-gold mb-2" title={draft.order_draft_id}>{draft.draft_number || 'Черновик без номера'}</div>
               <div className="text-bone text-[18px] leading-snug">{draft.full_name || 'Без имени'}</div>
               <div className="mt-1 text-[12px] text-[var(--bone-dim)]">{draft.email || 'Нет email'} · {draft.created_at ? new Date(draft.created_at).toLocaleString() : 'Нет даты'}</div>
               <div className="mt-3 flex flex-wrap gap-1.5">
@@ -179,7 +171,7 @@ export function AdminOrdersSavedClient() {
                 <div className="text-bone text-[13px] leading-snug line-clamp-2">{item.product_title || 'TheFEYA piece'}</div>
                 <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{item.public_label || item.configuration_label || 'Опция'} · {item.color || 'Цвет'} · {item.size || 'Размер'} · Кол-во {item.quantity || 1}</div>
                 <div className="mt-2 font-price text-gold-grad text-[20px] leading-none">{formatPrice(Number(item.line_total_amount || 0), item.currency || currency)}</div>
-                <div className="mt-2 flex flex-wrap gap-1.5">{item.component_code ? <Chip>{item.component_code}</Chip> : null}{item.is_full_set ? <Chip tone="warning">Полный комплект</Chip> : null}{item.is_bundle ? <Chip tone="warning">Комплект</Chip> : null}{item.price_confidence_status ? <Chip tone={item.price_confidence_status === 'approved' ? 'neutral' : 'warning'}>{statusLabel(item.price_confidence_status)}</Chip> : null}</div>
+                <div className="mt-2 flex flex-wrap gap-1.5">{item.component_code ? <span title={item.component_code}><Chip>Компонент назначен</Chip></span> : null}{item.is_full_set ? <Chip tone="warning">Полный комплект</Chip> : null}{item.is_bundle ? <Chip tone="warning">Комплект</Chip> : null}{item.price_confidence_status ? <Chip tone={item.price_confidence_status === 'approved' ? 'neutral' : 'warning'}>{statusLabel(item.price_confidence_status)}</Chip> : null}</div>
               </div>
             </div>)}
           </div>
