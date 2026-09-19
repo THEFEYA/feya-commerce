@@ -3,7 +3,7 @@
 import { getMissingAdminDataEnvMessage, getAdminReadClient } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, Blocks, CheckCircle2, CircleDot, Layers3, Palette, Shirt, Sparkles, TriangleAlert } from 'lucide-react';
-import { getMissingAdminDataEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
+import { getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 import { buildSeoCollectionCandidates, summarizeSeoGraph, type SeoCollectionCandidate } from '@/lib/seo-product-graph';
 import type { AdminReviewEvent } from '@/lib/admin-readiness';
