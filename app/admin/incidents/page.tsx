@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { ActiveIncidentRow } from '@/lib/types';
+import { statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -23,6 +24,22 @@ function asText(value: unknown, fallback = '—') {
   if (value == null || value === '') return fallback;
   if (Array.isArray(value)) return value.length ? value.join(', ') : fallback;
   return String(value);
+}
+
+function severityLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  if (key === 'P0') return 'Критично';
+  if (key === 'P1') return 'Очень важно';
+  if (key === 'P2') return 'Важно';
+  if (key === 'P3') return 'Наблюдать';
+  return asText(value);
+}
+
+function dateTimeLabel(value: unknown) {
+  if (!value) return '—';
+  const date = new Date(String(value));
+  if (Number.isNaN(date.getTime())) return asText(value);
+  return new Intl.DateTimeFormat('ru-RU', { dateStyle: 'short', timeStyle: 'short' }).format(date);
 }
 
 function severityClass(value: unknown) {
@@ -56,9 +73,9 @@ export default async function AdminIncidentsPage() {
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Активных инцидентов</span></div>
-          <div className="card metric"><strong>{freezes}</strong><span>Активных заморозок изменений</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{rows.length}</strong><span>Активных инцидентов</span></div>
+          <div className="owner-summary-cell"><strong>{freezes}</strong><span>Замораживают изменения</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
@@ -84,28 +101,27 @@ export default async function AdminIncidentsPage() {
                   <tr key={row.incident_id}>
                     <td>
                       <span className={`status-pill ${severityClass(row.severity)}`}>
-                        {asText(row.severity)}
+                        {severityLabel(row.severity)}
                       </span>
                     </td>
                     <td>
-                      <strong>{asText(row.title, row.incident_code || '—')}</strong>
-                      <div className="muted">{asText(row.incident_code)}</div>
+                      <strong title={asText(row.incident_code)}>{asText(row.title, 'Инцидент')}</strong>
                       <div className="muted">{asText(row.summary)}</div>
                     </td>
-                    <td>{asText(row.incident_status)}</td>
+                    <td>{statusLabel(row.incident_status)}</td>
                     <td>
                       {row.freeze_mutations ? (
                         <>
                           <span className="status-pill danger">ИЗМЕНЕНИЯ ЗАМОРОЖЕНЫ</span>
-                          <div className="muted">{asText(row.freeze_domains_json)}</div>
+                          <details><summary className="cursor-pointer text-[var(--gold-warm)]">Какие области</summary><div className="muted" style={{ marginTop: '6px' }}>{asText(row.freeze_domains_json)}</div></details>
                         </>
                       ) : (
                         <span className="badge">без заморозки</span>
                       )}
                     </td>
-                    <td>{asText(row.root_cause_key)}</td>
-                    <td>{asText(row.scope_json)}</td>
-                    <td>{asText(row.started_at)}</td>
+                    <td>{row.root_cause_key ? <span title={asText(row.root_cause_key)}>Одна объединённая причина</span> : 'Не определена'}</td>
+                    <td><details><summary className="cursor-pointer text-[var(--gold-warm)]">Показать область</summary><div className="muted" style={{ marginTop: '6px' }}>{asText(row.scope_json)}</div></details></td>
+                    <td>{dateTimeLabel(row.started_at)}</td>
                   </tr>
                 ))}
               </tbody>
