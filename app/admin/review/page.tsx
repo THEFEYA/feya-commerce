@@ -17,36 +17,41 @@ const REVIEW_QUEUE_SUMMARY_SELECT = [
   'total',
 ].join(',');
 
-const REVIEW_COPY: Record<string, { title: string; priority: 'high' | 'medium' | 'low'; description: string; nextStep: string }> = {
+const REVIEW_COPY: Record<string, { title: string; priority: 'high' | 'medium' | 'low'; description: string; nextStep: string; href?: string }> = {
   needs_price: {
     title: 'Нужно проверить цену',
     priority: 'high',
     description: 'Товары, которые нельзя безопасно выводить на витрину, пока цена не подтверждена.',
     nextStep: 'Проверить исходные цены и цены вариантов.',
+    href: '/admin/review/prices',
   },
   missing_media: {
     title: 'Не хватает медиа',
     priority: 'high',
     description: 'Товары, для которых недостаточно изображений для полноценной карточки и страницы товара.',
     nextStep: 'Проверить изображения и медиа перед публикацией.',
+    href: '/admin/media',
   },
   fallback_price_review_rows: {
     title: 'Проверить резервную цену',
     priority: 'medium',
     description: 'Товары, где используется резервная цена вместо подтверждённой цены конкретного варианта.',
     nextStep: 'Подтвердить резервную цену или исправить её.',
+    href: '/admin/review/prices?issue=fallback',
   },
   storefront_excluded: {
     title: 'Исключено из витрины',
     priority: 'medium',
     description: 'Товары, которые пока исключены из публичной витрины из-за готовности или ограничений.',
     nextStep: 'Проверить причины исключения перед расширением публичного каталога.',
+    href: '/admin/products',
   },
   sampler_excluded_rows: {
     title: 'Пробник исключён',
     priority: 'low',
     description: 'Пробники намеренно не участвуют в публичном диапазоне цен.',
     nextStep: 'Только контроль. Это ожидаемое поведение, а не блокировка запуска.',
+    href: '/admin/products',
   },
 };
 
@@ -97,9 +102,10 @@ export default async function AdminReviewPage() {
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Очереди проверки · только просмотр</div>
+          <div className="phase-label">Товары · очереди проверки</div>
+          <h1>Что нужно проверить</h1>
           <p>
-            Эти очереди показывают, что мешает расширять каталог и что нужно проверить перед Product Builder и визуальной полировкой.
+            Сводка проблем, которые мешают безопасно расширять каталог. Нажмите на нужную очередь, чтобы перейти сразу к рабочей проверке.
           </p>
         </section>
 
@@ -118,15 +124,25 @@ export default async function AdminReviewPage() {
             const copy = REVIEW_COPY[code];
             const priority = copy?.priority || 'medium';
 
-            return (
-              <div className={`card review-card priority-${priority}`} key={`${code}-${index}`}>
+            const card = (
+              <>
                 <span className={`status-pill ${priority === 'high' ? 'danger' : priority === 'medium' ? 'warning' : 'ok'}`}>
                   {priority === 'high' ? 'Высокий приоритет' : priority === 'medium' ? 'Средний приоритет' : 'Низкий приоритет'}
                 </span>
                 <strong>{getCount(row)}</strong>
                 <h3>{getTitle(row)}</h3>
-                <p>{copy?.description || 'Очередь проверки из Supabase.'}</p>
+                <p>{copy?.description || 'Очередь проверки из текущих данных.'}</p>
                 <span>{copy?.nextStep || 'Проверить на следующем этапе работы.'}</span>
+              </>
+            );
+
+            return copy?.href ? (
+              <Link className={`card review-card priority-${priority}`} href={copy.href} key={`${code}-${index}`}>
+                {card}
+              </Link>
+            ) : (
+              <div className={`card review-card priority-${priority}`} key={`${code}-${index}`}>
+                {card}
               </div>
             );
           })}
