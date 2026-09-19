@@ -24,7 +24,7 @@ type Row = {
 
 async function loadRows() {
   const supabase = getSupabaseServiceClient();
-  if (!supabase) return { rows: [] as Row[], error: 'Нет серверного доступа к базе для админки.' };
+  if (!supabase) return { rows: [] as Row[], error: 'Missing admin database client.' };
   const { data, error } = await supabase
     .from('feya_commerce_v_admin_storefront_seo_preview_v1')
     .select(ROW_SELECT)
@@ -37,8 +37,8 @@ function Pair({ label, current, approved }) {
   return <div className="min-w-0 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3">
     <div className="eyebrow-dim mb-2">{label}</div>
     <div className="grid min-w-0 gap-2 lg:grid-cols-2">
-      <div className="min-w-0 break-words text-[12px] text-[var(--bone-dim)]">Сейчас: {current || '—'}</div>
-      <div className="min-w-0 break-words text-[12px] text-bone">Одобрено: {approved || '—'}</div>
+      <div className="min-w-0 break-words text-[12px] text-[var(--bone-dim)]">Current: {current || '—'}</div>
+      <div className="min-w-0 break-words text-[12px] text-bone">Approved: {approved || '—'}</div>
     </div>
   </div>;
 }
@@ -61,20 +61,22 @@ export default async function SeoStorefrontPreviewPage({ searchParams }) {
   const withTitle = rows.filter((row) => row.applied_seo_title).length;
   const withMeta = rows.filter((row) => row.applied_meta_description).length;
 
-  return <main className="owner-page min-w-0 overflow-x-hidden">
-    <div className="owner-page-inner min-w-0">
-      <header className="owner-page-head">
+  return <main className="min-h-screen min-w-0 overflow-x-hidden bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
+    <section className="w-full min-w-0 px-4 pb-16 pt-6 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
+      <div className="mb-6 flex min-w-0 flex-col gap-5 border-b border-[rgba(216,214,211,.12)] pb-6 xl:flex-row xl:items-end xl:justify-between">
         <div className="min-w-0">
-          <div className="owner-eyebrow">SEO · генерация и предпросмотр</div>
-          <h1>SEO-предпросмотр</h1>
-          <p>Генерируем SEO-пакет для выбранного товара и проверяем его в структуре карточки до сохранения, применения или публикации.</p>
+          <div className="eyebrow-gold mb-3">Админка · SEO-предпросмотр карточки</div>
+          <h1 className="min-w-0 break-words font-tall leading-none text-bone" style={{ fontSize: 'clamp(38px,5vw,68px)' }}>SEO preview</h1>
+          <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--bone-dim)]">
+            Поиск товара, проверка готовности, реальная OpenAI-генерация и просмотр результата в структуре карточки до сохранения, применения или публикации.
+          </p>
         </div>
-        <div className="owner-actions" style={{ marginTop: 0 }}>
-          <Link href={initialProductId ? `/admin/listing-master?product_id=${encodeURIComponent(initialProductId)}` : '/admin/listing-master'} className="owner-button primary">1. Фокус и ключи</Link>
-          <Link href="/admin/seo-approval" className="owner-button">Проверка SEO</Link>
-          <Link href="/admin/seo-applied-values" className="owner-button">SEO-значения</Link>
+        <div className="flex min-w-0 flex-wrap gap-2">
+          <Link href={initialProductId ? `/admin/listing-master?product_id=${encodeURIComponent(initialProductId)}` : '/admin/listing-master'} className="btn-ghost px-5 py-3 text-[10px]">1. Фокус и ключи</Link>
+          <Link href="/admin/seo-approval" className="btn-ghost px-5 py-3 text-[10px]">Проверка SEO</Link>
+          <Link href="/admin/seo-applied-values" className="btn-ghost px-5 py-3 text-[10px]">SEO Values</Link>
         </div>
-      </header>
+      </div>
 
       <FirstRealDraftClient
         initialProductId={initialProductId}
@@ -84,12 +86,9 @@ export default async function SeoStorefrontPreviewPage({ searchParams }) {
         recoverFailedDraft={recoverFailedDraft}
       />
 
-      <details className="owner-disclosure owner-disclosure-section" style={{ marginTop: '28px' }}>
-        <summary>
-          <span><strong>Каталожное сравнение</strong><small>Текущие / одобренные SEO-значения всех товаров</small></span>
-          <span className="owner-section-kicker">Диагностика каталога</span>
-        </summary>
-        <div className="owner-disclosure-body min-w-0">
+      <details className="mt-8 min-w-0 rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4 sm:p-5">
+        <summary className="cursor-pointer text-[11px] uppercase tracking-[.18em] text-[var(--gold-warm)]">Каталожное сравнение current / approved</summary>
+        <div className="mt-5 min-w-0">
           {!showCatalogComparison ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-black/20 p-5">
             <p className="text-[12px] leading-relaxed text-[var(--bone-dim)]">
               Сравнение всех товаров не загружается во время генерации одного SEO Pack. Это отдельная диагностическая проверка каталога.
@@ -106,8 +105,8 @@ export default async function SeoStorefrontPreviewPage({ searchParams }) {
           </div> : null}
           {error ? <div className="mb-6 min-w-0 break-words rounded-2xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.06)] p-5 text-[var(--bone-dim)]">{error}</div> : null}
           {showCatalogComparison ? <><div className="mb-6 grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-black/20 p-4"><div className="eyebrow-dim mb-2">Строки</div><div className="text-[28px] text-bone">{rows.length}</div></div>
-            <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-black/20 p-4"><div className="eyebrow-dim mb-2">Заголовки</div><div className="text-[28px] text-bone">{withTitle}</div></div>
+            <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-black/20 p-4"><div className="eyebrow-dim mb-2">Rows</div><div className="text-[28px] text-bone">{rows.length}</div></div>
+            <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-black/20 p-4"><div className="eyebrow-dim mb-2">Titles</div><div className="text-[28px] text-bone">{withTitle}</div></div>
             <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-black/20 p-4"><div className="eyebrow-dim mb-2">Meta</div><div className="text-[28px] text-bone">{withMeta}</div></div>
           </div>
           <div className="min-w-0 space-y-4">
@@ -117,18 +116,18 @@ export default async function SeoStorefrontPreviewPage({ searchParams }) {
                   <Link href={`/admin/products/${row.product_slug}`} className="block break-words text-[18px] leading-snug text-bone hover:text-[var(--gold-warm)]">{row.card_title || row.product_slug}</Link>
                   <div className="mt-2 break-all text-[10px] uppercase tracking-[0.14em] text-[var(--smoke)]">/{row.product_slug}</div>
                 </div>
-                <Link href={`/admin/seo-lab/${row.product_slug}`} className="btn-ghost shrink-0 px-4 py-2 text-[10px]">SEO-лаборатория</Link>
+                <Link href={`/admin/seo-lab/${row.product_slug}`} className="btn-ghost shrink-0 px-4 py-2 text-[10px]">SEO Lab</Link>
               </div>
               <div className="min-w-0 space-y-2">
-                <Pair label="SEO-заголовок" current={row.current_seo_title} approved={row.applied_seo_title} />
+                <Pair label="SEO title" current={row.current_seo_title} approved={row.applied_seo_title} />
                 <Pair label="Meta description" current={row.current_meta_description} approved={row.applied_meta_description} />
                 <Pair label="H1" current={row.current_h1} approved={row.applied_h1} />
-                <Pair label="ALT главного изображения" current={row.current_primary_image_alt} approved={row.applied_primary_image_alt} />
+                <Pair label="Primary image alt" current={row.current_primary_image_alt} approved={row.applied_primary_image_alt} />
               </div>
-            </article>) : <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-black/20 p-6 text-[13px] text-[var(--bone-dim)]">Строк для предпросмотра пока нет.</div>}
+            </article>) : <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-black/20 p-6 text-[13px] text-[var(--bone-dim)]">No preview rows yet.</div>}
           </div></> : null}
         </div>
       </details>
-    </div>
+    </section>
   </main>;
 }
