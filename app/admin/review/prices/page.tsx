@@ -88,28 +88,28 @@ export default async function AdminPriceReviewPage() {
   const missingConfigPrices = rows.reduce((sum, product) => sum + parseConfigurations(product.configurations).filter((config) => configPrice(config) == null).length, 0);
   const unverifiedDiscounts = rows.filter((product) => product.has_unverified_discount).length;
 
-  return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.12),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
-    <section className="container-feya pt-10 pb-16">
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
+  return <main className="owner-page">
+    <div className="owner-page-inner">
+      <header className="owner-page-head">
         <div>
-          <div className="eyebrow-gold mb-3">Admin Review · Prices</div>
-          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Price review</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Очередь проверки цен перед запуском payment, feeds и SEO. Здесь видно unverified confidence, fallback prices, missing configuration prices и full set vs component sum.</p>
+          <div className="owner-eyebrow">Товары · цены</div>
+          <h1>Проверка цен</h1>
+          <p>Очередь цен, которые требуют подтверждения перед публикацией, фидами и будущим оформлением заказа. Резервные и отсутствующие цены показываются отдельно.</p>
         </div>
-        <div className="flex gap-3">
-          <Link href="/admin" className="btn-ghost">Admin cockpit <ArrowUpRight size={13} /></Link>
-          <Link href="/admin/products" className="btn-ghost">Products <ArrowUpRight size={13} /></Link>
+        <div className="owner-actions" style={{ marginTop: 0 }}>
+          <Link href="/admin" className="owner-button">Панель магазина <ArrowUpRight size={13} /></Link>
+          <Link href="/admin/products" className="owner-button">Товары <ArrowUpRight size={13} /></Link>
         </div>
-      </div>
+      </header>
 
       {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <Metric icon={WalletCards} label="Нужно проверить" value={unverifiedProducts} note="Товары с неподтверждённой ценой или статусом проверки." />
-        <Metric icon={CircleDollarSign} label="Резервные цены" value={fallbackConfigs} note="Варианты, где используется резервная логика цены." />
-        <Metric icon={Calculator} label="Нет цены" value={missingConfigPrices} note="Варианты без найденной цены." />
-        <Metric icon={BadgePercent} label="Скидки на проверке" value={unverifiedDiscounts} note="Товары, где состояние скидки ещё не подтверждено." />
-      </div>
+      <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+        <div className="owner-summary-cell"><strong>{unverifiedProducts}</strong><span>Товаров нужно проверить</span></div>
+        <div className="owner-summary-cell"><strong>{fallbackConfigs}</strong><span>Вариантов с резервной ценой</span></div>
+        <div className="owner-summary-cell"><strong>{missingConfigPrices}</strong><span>Вариантов без цены</span></div>
+        <div className="owner-summary-cell"><strong>{unverifiedDiscounts}</strong><span>Скидок требуют проверки</span></div>
+      </section>
 
       <div className="space-y-4">
         {reviewRows.map((product) => {
@@ -127,15 +127,15 @@ export default async function AdminPriceReviewPage() {
               </div>
               <div>
                 <Link href={adminHref} className="text-bone text-[17px] leading-snug hover:text-[var(--gold-warm)] transition-colors">{productTitle(product)}</Link>
-                <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'Product'} · {product.canonical_color_label || product.color || 'Color'}</div>
+                <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'Товар'} · {product.canonical_color_label || product.color || 'Цвет'}</div>
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   <Chip tone="warning">{product.price_confidence_status === 'verified' ? 'Цена подтверждена' : product.price_confidence_status === 'unverified' ? 'Нужно проверить цену' : product.price_confidence_status || 'Статус цены не определён'}</Chip>
                   {product.needs_price_review ? <Chip tone="danger">Нужно проверить цену</Chip> : null}
                   {product.has_unverified_discount ? <Chip tone="danger">Скидка не подтверждена</Chip> : null}
                 </div>
-                <AdminQueueQuickReviewClient productSlug={productSlug(product)} canonicalProductId={product.canonical_product_id} sourceRoute="/admin/review/prices" approvedEventType="price_review_approved" subjectType="price" approvedLabel="Mark price reviewed" />
+                <AdminQueueQuickReviewClient productSlug={productSlug(product)} canonicalProductId={product.canonical_product_id} sourceRoute="/admin/review/prices" approvedEventType="price_review_approved" subjectType="price" approvedLabel="Цена проверена" />
               </div>
-              <Link href={adminHref} className="btn-ghost px-4 py-3 text-[10px]">Review <ArrowUpRight size={12} /></Link>
+              <Link href={adminHref} className="btn-ghost px-4 py-3 text-[10px]">Проверить <ArrowUpRight size={12} /></Link>
             </div>
 
             <div className="mt-5 grid md:grid-cols-3 gap-3">
@@ -171,6 +171,6 @@ export default async function AdminPriceReviewPage() {
 
         {!reviewRows.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">Нет товаров, требующих проверки цены.</div> : null}
       </div>
-    </section>
+    </div>
   </main>;
 }
