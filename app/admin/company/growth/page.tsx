@@ -282,7 +282,7 @@ export default async function AdminGrowthPage() {
           <div className="owner-section-head">
             <div>
               <h2>Исторический спрос</h2>
-              <div className="owner-section-kicker">Реальные сохранённые метрики Google Keyword Planner · не live-данные</div>
+              <div className="owner-section-kicker">Реальные сохранённые метрики Google Keyword Planner · не данные в реальном времени</div>
             </div>
             <Link href="/admin/seo-engine/metric-import/validate" className="owner-button">Открыть метрики</Link>
           </div>
