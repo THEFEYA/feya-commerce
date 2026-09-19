@@ -67,7 +67,7 @@ async function getSystemData(): Promise<{
       .eq('action_state', 'AVAILABLE'),
     supabase.from('feya_commerce_v_growth_action_capability_safe_v1')
       .select('action_code', { count: 'exact', head: true })
-      .not('approval_class', 'in', '(NONE,NO_APPROVAL)'),
+      .or('approval_class.ilike.%HUMAN%,approval_class.eq.DIRECTOR_GATE'),
     supabase.from('feya_commerce_v_execution_gateway_safe_v1')
       .select('execution_request_id', { count: 'exact', head: true }),
     supabase.from('feya_commerce_v_change_freeze_status_safe_v1')
@@ -270,11 +270,11 @@ export default async function AdminSystemPage() {
               </div>
               <h3 className="owner-card-title" style={{ marginTop: '10px' }}>
                 {adminBoundary.browserReadable
-                  ? `${adminBoundary.browserReadable} из ${adminBoundary.registered} внутренних представлений ещё читаются браузерными ролями`
+                  ? `${adminBoundary.browserReadable} из ${adminBoundary.registered} внутренних представлений ещё доступны для прямого чтения из браузера`
                   : `Все ${adminBoundary.registered} внутренних представлений переведены на серверный доступ`}
               </h3>
               <p className="owner-card-copy">
-                Отзыв browser SELECT выполняется только после проверки обязательного входа владельца и allowlist. До этого hardening намеренно не запускается, чтобы не сломать рабочую админку.
+                Прямое чтение из браузера закрывается только после проверки обязательного входа владельца и списка разрешённых аккаунтов. До этого усиление защиты намеренно не запускается, чтобы не сломать рабочую админку.
               </p>
             </div>
           ) : null}
@@ -287,8 +287,8 @@ export default async function AdminSystemPage() {
               <h3 className="owner-card-title" style={{ marginTop: '10px' }}>Действия владельца</h3>
               <p className="owner-card-copy">
                 {ownerAuth.required && ownerAuth.allowlistConfigured && ownerAuth.supabaseUrlConfigured && ownerAuth.publicKeyConfigured
-                  ? 'Middleware требует подтверждённую сессию и разрешённый аккаунт. Реальные действия всё равно должны проходить через отдельный аудитируемый путь.'
-                  : `Авторизация обязательна: ${ownerAuth.required ? 'да' : 'нет'} · allowlist: ${ownerAuth.allowlistConfigured ? 'настроен' : 'не настроен'} · Supabase Auth env: ${ownerAuth.supabaseUrlConfigured && ownerAuth.publicKeyConfigured ? 'готов' : 'неполный'}. Пока любой из этих пунктов не закрыт, действия владельца должны оставаться недоступными.`}
+                  ? 'Защитный слой входа требует подтверждённую сессию и разрешённый аккаунт. Реальные действия всё равно должны проходить через отдельный аудитируемый путь.'
+                  : `Авторизация обязательна: ${ownerAuth.required ? 'да' : 'нет'} · список разрешённых аккаунтов: ${ownerAuth.allowlistConfigured ? 'настроен' : 'не настроен'} · настройки авторизации Supabase: ${ownerAuth.supabaseUrlConfigured && ownerAuth.publicKeyConfigured ? 'готовы' : 'неполные'}. Пока любой из этих пунктов не закрыт, действия владельца должны оставаться недоступными.`}
               </p>
             </article>
 
@@ -299,7 +299,7 @@ export default async function AdminSystemPage() {
               <h3 className="owner-card-title" style={{ marginTop: '10px' }}>Внешнее выполнение</h3>
               <p className="owner-card-copy">
                 {actions.available
-                  ? 'Есть действия, которые Execution Gateway считает доступными. Перед любым production-write всё равно проверяются класс одобрения и квитанция выполнения.'
+                  ? 'Есть действия, которые контролируемый шлюз выполнения считает доступными. Перед любым изменением рабочих данных всё равно проверяются класс одобрения и квитанция выполнения.'
                   : 'Система умеет рассчитывать, проверять и готовить решения, но не должна изображать внешнее выполнение, пока исполнитель, одобрения и журнал результата не готовы.'}
               </p>
             </article>
