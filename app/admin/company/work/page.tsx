@@ -181,6 +181,14 @@ export default async function AdminWorkPage() {
     operations.cqaIndependent +
     operations.cqaRevision +
     operations.cqaBlocked;
+  const cqaBars = [
+    { label: 'Человек + CQA', value: operations.cqaHumanReview, tone: 'info' },
+    { label: 'Независимая CQA', value: operations.cqaIndependent, tone: 'success' },
+    { label: 'Нужны исправления', value: operations.cqaRevision, tone: 'warning' },
+    { label: 'Заблокировано', value: operations.cqaBlocked, tone: 'danger' },
+    { label: 'Автопроверки', value: operations.cqaAutomaticChecks, tone: 'neutral' },
+  ];
+  const cqaMax = Math.max(1, ...cqaBars.map((item) => item.value));
 
   const grouped = new Map<string, typeof workVM>();
   for (const item of workVM) {
@@ -282,9 +290,16 @@ export default async function AdminWorkPage() {
                 Контроль качества
               </div>
               <h3 className="owner-card-title" style={{ marginTop: '10px' }}>Контент и независимая проверка</h3>
-              <p className="owner-card-copy">
-                К совместной проверке готовы: {operations.cqaHumanReview}. К независимой проверке: {operations.cqaIndependent}. Требуют исправления: {operations.cqaRevision}. Заблокированы валидатором: {operations.cqaBlocked}.
-              </p>
+              <div className="owner-mini-bars" style={{ marginTop: '12px' }}>
+                {cqaBars.map((item) => (
+                  <div className="owner-mini-bar" key={item.label}>
+                    <div className="owner-mini-bar-label"><span>{item.label}</span><strong>{item.value}</strong></div>
+                    <div className="owner-mini-bar-track">
+                      <i className={`is-${item.tone}`} style={{ width: `${Math.max(item.value ? 5 : 0, Math.round((item.value / cqaMax) * 100))}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </Link>
 
             <details className="owner-disclosure owner-card">
