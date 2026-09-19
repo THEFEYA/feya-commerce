@@ -37,8 +37,36 @@ function countState(rows: GrowthCapabilityStatusRow[], state: string) {
   return rows.filter((row) => row.capability_state === state).length;
 }
 
-export default async function AdminSystemReadinessPage() {
+export default async function AdminSystemReadinessPage({ searchParams }: { searchParams: Promise<{ q?: string; state?: string }> }) {
+  const params = await searchParams;
   const { rows, error } = await getCapabilities();
+  const q = String(params.q || '').trim().toLowerCase();
+  const stateFilter = String(params.state || 'attention').toUpperCase();
+
+  const filteredRows = rows
+    .filter((row) => {
+      const haystack = [capabilityLabel(row.capability_code), capabilityOwnerSummary(row.capability_code), row.capability_code]
+        .map((value) => String(value || '').toLowerCase())
+        .join(' ');
+      const matchesQuery = !q || haystack.includes(q);
+      const state = String(row.capability_state || '').toUpperCase();
+      const matchesState =
+        stateFilter === 'ALL' ||
+        (stateFilter === 'ATTENTION' && state !== 'AVAILABLE') ||
+        state === stateFilter;
+      return matchesQuery && matchesState;
+    })
+    .sort((a, b) => {
+      const rank = (value: unknown) => {
+        const key = asText(value, '').toUpperCase();
+        if (key === 'UNAVAILABLE') return 0;
+        if (key === 'DEGRADED') return 1;
+        if (key === 'NOT_OBSERVABLE') return 2;
+        if (key === 'AVAILABLE_WITH_LIMITATIONS') return 3;
+        return 4;
+      };
+      return rank(a.capability_state) - rank(b.capability_state) || capabilityLabel(a.capability_code).localeCompare(capabilityLabel(b.capability_code), 'ru');
+    });
 
   return (
     <main className="page-shell">
@@ -71,6 +99,33 @@ export default async function AdminSystemReadinessPage() {
 
         {error ? <div className="notice">{error}</div> : null}
 
+        <form action="/admin/system-readiness" className="owner-card" style={{ marginBottom: '14px' }}>
+          <div className="grid gap-3 md:grid-cols-[1fr_280px_auto] md:items-end">
+            <label>
+              <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Поиск возможности</div>
+              <input name="q" defaultValue={q} className="field" placeholder="Google Ads, GA4, контент, заказы…" />
+            </label>
+            <label>
+              <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Состояние</div>
+              <select name="state" defaultValue={stateFilter} className="field">
+                <option value="ATTENTION">Требует внимания</option>
+                <option value="UNAVAILABLE">Недоступно</option>
+                <option value="DEGRADED">Работает нестабильно</option>
+                <option value="NOT_OBSERVABLE">Недостаточно данных</option>
+                <option value="AVAILABLE_WITH_LIMITATIONS">Работает с ограничениями</option>
+                <option value="AVAILABLE">Работает полностью</option>
+                <option value="ALL">Все</option>
+              </select>
+            </label>
+            <button type="submit" className="owner-button primary">Применить</button>
+          </div>
+          <div className="owner-card-meta" style={{ marginTop: '10px', marginBottom: 0 }}>
+            <span>Показано: {filteredRows.length}</span>
+            <span>Всего: {rows.length}</span>
+            <Link href="/admin/system-readiness">Сбросить</Link>
+          </div>
+        </form>
+
         <div className="table-wrap">
           <table>
             <thead>
@@ -84,7 +139,7 @@ export default async function AdminSystemReadinessPage() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
+              {filteredRows.map((row) => (
                 <tr key={row.capability_code}>
                   <td>
                     <strong title={asText(row.capability_code)}>{capabilityLabel(row.capability_code)}</strong>
