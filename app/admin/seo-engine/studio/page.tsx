@@ -2,7 +2,6 @@
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, DatabaseZap, FileText, Gauge, Layers3, Search, ShieldAlert, Sparkles } from 'lucide-react';
-import { getMissingAdminDataEnvMessage } from '@/lib/supabase';
 import { STOREFRONT_VIEW_V1, productSlug, productTitle } from '@/lib/storefront';
 import { buildSeoPilotBrief } from '@/lib/seoPilotDraft';
 
