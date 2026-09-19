@@ -1,14 +1,23 @@
 // @ts-nocheck
-
-import { getMissingAdminDataEnvMessage, getAdminReadClient } from '@/lib/adminData';
 import Link from 'next/link';
-import { AdminProductComponentAssertionClient, type ComponentFamilyOption, type FixedComponentAssertion, } from '@/components/AdminProductComponentAssertionClient';
+import {
+  AdminProductComponentAssertionClient,
+  type ComponentFamilyOption,
+  type FixedComponentAssertion,
+} from '@/components/AdminProductComponentAssertionClient';
 import { AdminQueueQuickReviewClient } from '@/components/AdminQueueQuickReviewClient';
 import {
-  ADMIN_COMPONENT_TRUTH_SELECT, CANONICAL_PRODUCT_TRUTH_VIEW, componentEvidenceLabel, getCanonicalComponentTruthDiagnostic, } from '@/lib/adminComponentTruth';
+  ADMIN_COMPONENT_TRUTH_SELECT,
+  CANONICAL_PRODUCT_TRUTH_VIEW,
+  componentEvidenceLabel,
+  getCanonicalComponentTruthDiagnostic,
+} from '@/lib/adminComponentTruth';
 import {
-  ADMIN_PRODUCT_CATALOG_FALLBACK_SELECT, ADMIN_PRODUCT_CATALOG_FALLBACK_VIEW, toCatalogFallbackStorefrontProduct, } from '@/lib/admin-product-catalog-fallback';
-import { getSupabaseServiceClient } from '@/lib/supabase';
+  ADMIN_PRODUCT_CATALOG_FALLBACK_SELECT,
+  ADMIN_PRODUCT_CATALOG_FALLBACK_VIEW,
+  toCatalogFallbackStorefrontProduct,
+} from '@/lib/admin-product-catalog-fallback';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_VIEW_V1, productSlug, productTitle } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
 
@@ -45,8 +54,8 @@ function labelText(config: StorefrontConfiguration) {
 }
 
 async function loadProducts(canonicalProductId?: string): Promise<{ rows: StorefrontProduct[]; error?: string }> {
-  const supabase = getAdminReadClient();
-  if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
+  const supabase = getSupabaseReadClient();
+  if (!supabase) return { rows: [], error: getMissingSupabaseEnvMessage() };
 
   if (canonicalProductId) {
     const fallbackResult = await supabase
@@ -79,8 +88,8 @@ async function loadProducts(canonicalProductId?: string): Promise<{ rows: Storef
 }
 
 async function loadComponentTruth(canonicalProductId?: string) {
-  const supabase = getSupabaseServiceClient() || getAdminReadClient();
-  if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
+  const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
+  if (!supabase) return { rows: [], error: getMissingSupabaseEnvMessage() };
   if (!canonicalProductId) return { rows: [] };
   const { data, error } = await supabase
     .from(CANONICAL_PRODUCT_TRUTH_VIEW)
@@ -104,7 +113,7 @@ async function loadAssertionEditor(canonicalProductId?: string) {
     return {
       componentFamilies: [] as ComponentFamilyOption[],
       approvedAssertions: [] as FixedComponentAssertion[],
-      error: getMissingAdminDataEnvMessage(),
+      error: getMissingSupabaseEnvMessage(),
     };
   }
 

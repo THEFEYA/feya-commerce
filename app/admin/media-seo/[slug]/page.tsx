@@ -1,8 +1,7 @@
 // @ts-nocheck
-
-import { getMissingAdminDataEnvMessage, getAdminReadClient } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, FileImage, ImageIcon, RefreshCw, Scaling, TriangleAlert } from 'lucide-react';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 import { buildMediaSeoPlans, type MediaSeoStage } from '@/lib/media-seo';
 import type { StorefrontProduct } from '@/lib/types';
@@ -15,8 +14,8 @@ const MEDIA_SEO_DETAIL_PRODUCTS_LIMIT = 500;
 type PageProps = { params: Promise<{ slug: string }> };
 
 async function loadProducts() {
-  const supabase = getAdminReadClient();
-  if (!supabase) return { products: [], error: getMissingAdminDataEnvMessage() };
+  const supabase = getSupabaseReadClient();
+  if (!supabase) return { products: [], error: getMissingSupabaseEnvMessage() };
   const { data, error } = await supabase.from(STOREFRONT_VIEW_V4).select(STOREFRONT_V4_CARD_SELECT).limit(MEDIA_SEO_DETAIL_PRODUCTS_LIMIT);
   if (error) return { products: [], error: error.message };
   return { products: (data || []) as StorefrontProduct[], error: null };

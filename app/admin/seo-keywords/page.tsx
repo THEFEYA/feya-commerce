@@ -1,7 +1,7 @@
 // @ts-nocheck
-import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, Database, FileSearch, Layers3, ShieldAlert, ShieldCheck, Sparkles } from 'lucide-react';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -91,14 +91,14 @@ function sortKeywordRows(rows) {
 }
 
 async function loadKeywords(tabKey, query = '') {
-  const supabase = getAdminReadClient();
+  const supabase = getSupabaseReadClient();
   if (!supabase) {
     return {
       rows: [],
       totalCount: null,
       counts: {},
       bucketRows: [],
-      error: getMissingAdminDataEnvMessage(),
+      error: getMissingSupabaseEnvMessage(),
       bucketError: null,
     };
   }

@@ -1,8 +1,8 @@
 // @ts-nocheck
-import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, FileSearch, ImageIcon, Link2, SearchCheck, Shapes } from 'lucide-react';
 import { AdminQueueQuickReviewClient } from '@/components/AdminQueueQuickReviewClient';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
 
@@ -25,8 +25,8 @@ function parseConfigurations(value: unknown): StorefrontConfiguration[] {
 }
 
 async function loadProducts(): Promise<{ rows: StorefrontProduct[]; error?: string }> {
-  const supabase = getAdminReadClient();
-  if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
+  const supabase = getSupabaseReadClient();
+  if (!supabase) return { rows: [], error: getMissingSupabaseEnvMessage() };
 
   const { data, error } = await supabase
     .from(STOREFRONT_VIEW_V4)

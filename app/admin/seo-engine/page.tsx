@@ -1,8 +1,7 @@
 // @ts-nocheck
-import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, Database, FileCheck2, FileText, FlaskConical, Layers3, SearchCheck, ShieldCheck } from 'lucide-react';
-import { getMissingAdminDataEnvMessage } from '@/lib/supabase';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -16,8 +15,8 @@ async function safeCount(supabase, tableName, columnName) {
 }
 
 async function loadEngine() {
-  const supabase = getAdminReadClient();
-  if (!supabase) return { sources: [], rows: [], counts: {}, error: getMissingAdminDataEnvMessage() };
+  const supabase = getSupabaseReadClient();
+  if (!supabase) return { sources: [], rows: [], counts: {}, error: getMissingSupabaseEnvMessage() };
 
   const [sources, rows, keywords, briefs, assets, checks, runs, conflicts] = await Promise.all([
     supabase.from('feya_seo_source_connections_v1').select(SOURCE_SELECT).order('priority_level', { ascending: true }),

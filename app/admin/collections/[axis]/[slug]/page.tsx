@@ -1,9 +1,7 @@
 // @ts-nocheck
-
-import { getMissingAdminDataEnvMessage, getAdminReadClient } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, FileSearch, Layers3, ListTree, ShieldAlert } from 'lucide-react';
-import { getSupabaseServiceClient } from '@/lib/supabase';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 import { buildSeoCollectionPlans, type SeoCollectionPlanStage } from '@/lib/seo-collection-planning';
 import type { AdminReviewEvent } from '@/lib/admin-readiness';
@@ -14,8 +12,8 @@ export const revalidate = 300;
 type PageProps = { params: Promise<{ axis: string; slug: string }> };
 
 async function loadProducts() {
-  const supabase = getAdminReadClient();
-  if (!supabase) return { products: [], error: getMissingAdminDataEnvMessage() };
+  const supabase = getSupabaseReadClient();
+  if (!supabase) return { products: [], error: getMissingSupabaseEnvMessage() };
 
   const { data, error } = await supabase
     .from(STOREFRONT_VIEW_V4)

@@ -1,9 +1,8 @@
 // @ts-nocheck
-import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, Database, FileText, UploadCloud } from 'lucide-react';
 import { AdminKeywordMetricsImportForm } from '@/components/AdminKeywordMetricsImportForm';
-import { getMissingAdminDataEnvMessage } from '@/lib/supabase';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -11,8 +10,8 @@ export const revalidate = 0;
 const STATUS_SELECT = 'source_code,country_code,language_code,metric_rows,unique_keywords,last_metric_at,last_observed_month,avg_monthly_searches_avg,competition_index_avg';
 
 async function loadStatus() {
-  const supabase = getAdminReadClient();
-  if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
+  const supabase = getSupabaseReadClient();
+  if (!supabase) return { rows: [], error: getMissingSupabaseEnvMessage() };
   const { data, error } = await supabase.from('feya_commerce_v_external_keyword_metrics_status_v1').select(STATUS_SELECT).limit(80);
   if (error) return { rows: [], error: error.message };
   return { rows: data || [], error: null };

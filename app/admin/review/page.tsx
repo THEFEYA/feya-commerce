@@ -1,8 +1,6 @@
 // @ts-nocheck
-
-import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
-
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import type { ReviewQueueSummary } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -53,10 +51,10 @@ const REVIEW_COPY: Record<string, { title: string; priority: 'high' | 'medium' |
 };
 
 async function getReviewQueues(): Promise<{ rows: ReviewQueueSummary[]; error?: string }> {
-  const supabase = getAdminReadClient();
+  const supabase = getSupabaseReadClient();
 
   if (!supabase) {
-    return { rows: [], error: getMissingAdminDataEnvMessage() };
+    return { rows: [], error: getMissingSupabaseEnvMessage() };
   }
 
   const { data, error } = await supabase

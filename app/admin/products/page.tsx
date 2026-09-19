@@ -1,10 +1,9 @@
 // @ts-nocheck
-
-import { getMissingAdminDataEnvMessage, getAdminReadClient } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, Boxes, CheckCircle2, ImageIcon, Search, Tags, WalletCards } from 'lucide-react';
 import { AdminProductsFilterClient } from '@/components/AdminProductsFilterClient';
 import type { AdminProductTableRow, ReadinessTone, ReviewChip } from '@/lib/admin-readiness';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -169,8 +168,8 @@ function mapAdminProductRow(row: AdminCatalogRow, enrichment?: ProductEnrichment
 }
 
 async function getProducts(): Promise<{ rows: AdminProductTableRow[]; sourceRows: AdminCatalogRow[]; error?: string }> {
-  const supabase = getAdminReadClient();
-  if (!supabase) return { rows: [], sourceRows: [], error: getMissingAdminDataEnvMessage() };
+  const supabase = getSupabaseReadClient();
+  if (!supabase) return { rows: [], sourceRows: [], error: getMissingSupabaseEnvMessage() };
 
   const [{ data: catalogRows, error: catalogError }, { data: enrichmentRows }] = await Promise.all([
     supabase
