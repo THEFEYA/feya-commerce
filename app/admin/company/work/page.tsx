@@ -326,34 +326,38 @@ export default async function AdminWorkPage() {
           </div>
 
           {workVM.length ? (
-            GROUP_ORDER.filter((label) => grouped.has(label)).map((label) => (
-              <div key={label} style={{ marginBottom: '18px' }}>
-                <div className="owner-section-head" style={{ marginBottom: '8px' }}>
-                  <h3 style={{ margin: 0, fontSize: '14px' }}>{label}</h3>
-                  <span className="owner-section-kicker">{grouped.get(label)?.length || 0}</span>
-                </div>
-                <div className="owner-list">
-                  {(grouped.get(label) || []).map((item) => (
-                    <article className="owner-list-row" key={item.id}>
-                      <div className="owner-list-row-main">
-                        <div className="owner-card-meta">
-                          <span className={`owner-status ${toneClass(item.tone)}`}>{item.statusLabel}</span>
-                          <span>{item.priorityLabel}</span>
-                          <span>{item.ownerLabel}</span>
+            GROUP_ORDER.filter((label) => grouped.has(label)).map((label) => {
+              const items = grouped.get(label) || [];
+              const expanded = !['Работа завершена', 'Закрыто'].includes(label);
+              return (
+                <details className="owner-disclosure owner-disclosure-section" key={label} open={expanded} style={{ marginBottom: '12px' }}>
+                  <summary>
+                    <span><strong>{label}</strong><small>{items.length} элементов</small></span>
+                    <span className="owner-section-kicker">{expanded ? 'актуальная работа' : 'история'}</span>
+                  </summary>
+                  <div className="owner-disclosure-body owner-list">
+                    {items.map((item) => (
+                      <article className="owner-list-row" key={item.id}>
+                        <div className="owner-list-row-main">
+                          <div className="owner-card-meta">
+                            <span className={`owner-status ${toneClass(item.tone)}`}>{item.statusLabel}</span>
+                            <span>{item.priorityLabel}</span>
+                            <span>{item.ownerLabel}</span>
+                          </div>
+                          <h3>{item.title}</h3>
+                          <p>{item.purpose}</p>
+                          {item.blockedReason ? <p style={{ marginTop: '5px' }}><strong>Блокирует:</strong> {item.blockedReason}</p> : null}
+                          {item.waitReason ? <p style={{ marginTop: '5px' }}><strong>Ожидает:</strong> {item.waitReason}</p> : null}
                         </div>
-                        <h3>{item.title}</h3>
-                        <p>{item.purpose}</p>
-                        {item.blockedReason ? <p style={{ marginTop: '5px' }}><strong>Блокирует:</strong> {item.blockedReason}</p> : null}
-                        {item.waitReason ? <p style={{ marginTop: '5px' }}><strong>Ожидает:</strong> {item.waitReason}</p> : null}
-                      </div>
-                      <div className="owner-list-row-side">
-                        <span className="owner-section-kicker">{formatRelativeTime(item.updatedAt)}</span>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </div>
-            ))
+                        <div className="owner-list-row-side">
+                          <span className="owner-section-kicker">{formatRelativeTime(item.updatedAt)}</span>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </details>
+              );
+            })
           ) : (
             <div className="owner-empty">
               Активных задач роста и процессов пока нет. Это не означает, что работы нет: реальные очереди товарной системы и SEO показаны выше. FEYA не создаёт искусственные задачи только ради заполнения панели.
