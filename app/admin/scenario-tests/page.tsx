@@ -49,6 +49,14 @@ function statusClass(value: unknown) {
   return 'warning';
 }
 
+function severityLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  if (key === 'CRITICAL') return 'Критичный';
+  if (key === 'MAJOR') return 'Важный';
+  if (key === 'MINOR') return 'Обычный';
+  return asText(value);
+}
+
 function severityClass(value: unknown) {
   const severity = asText(value, '').toUpperCase();
   if (severity === 'CRITICAL') return 'danger';
@@ -79,22 +87,17 @@ export default async function AdminScenarioTestsPage() {
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{scenarios.length}</strong><span>Активных сценариев</span></div>
-          <div className="card metric"><strong>{readiness?.pass_count || 0}</strong><span>Пройдено</span></div>
-          <div className="card metric"><strong>{readiness?.warn_count || 0}</strong><span>Требуют внимания</span></div>
-          <div className="card metric"><strong>{readiness?.fail_count || 0}</strong><span>Не пройдено</span></div>
-          <div className="card metric"><strong>{readiness?.not_run_count || 0}</strong><span>Ещё не запускались</span></div>
-          <div className="card metric"><strong>{readiness?.critical_not_pass_count || 0}</strong><span>Критичных не пройдено</span></div>
-          <div className="card metric">
-            <strong>
-              <span className={`status-pill ${statusClass(readiness?.registry_release_state)}`}>
-                {statusLabel(readiness?.registry_release_state || 'BLOCKED')}
-              </span>
-            </strong>
-            <span>Состояние реестра для релиза</span>
-          </div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{readiness?.critical_not_pass_count || 0}</strong><span>Критичных проверок не пройдено</span></div>
+          <div className="owner-summary-cell"><strong>{readiness?.not_run_count || 0}</strong><span>Ещё не запускались</span></div>
+          <div className="owner-summary-cell"><strong>{readiness?.fail_count || 0}</strong><span>Завершились ошибкой / не пройдены</span></div>
+          <div className="owner-summary-cell"><strong>{readiness?.pass_count || 0}</strong><span>Пройдено</span></div>
         </section>
+
+        <div className="owner-card is-info" style={{ marginBottom: '18px' }}>
+          <div className="owner-status is-info">Состояние релизной проверки: {statusLabel(readiness?.registry_release_state || 'BLOCKED')}</div>
+          <p className="owner-card-copy">Реестр не засчитывает сценарий без фактического запуска и доказательства результата.</p>
+        </div>
 
         {error ? <div className="notice">{error}</div> : null}
 
@@ -119,7 +122,7 @@ export default async function AdminScenarioTestsPage() {
                 <tr key={row.scenario_id}>
                   <td>
                     <span className={`status-pill ${severityClass(row.severity)}`}>
-                      {asText(row.severity)}
+                      {severityLabel(row.severity)}
                     </span>
                   </td>
                   <td>
@@ -128,13 +131,13 @@ export default async function AdminScenarioTestsPage() {
                     <div className="muted">{asText(row.description)}</div>
                   </td>
                   <td>{asText(row.scenario_category)}</td>
-                  <td>{asText(row.applies_to_json)}</td>
+                  <td><details><summary className="cursor-pointer text-[var(--gold-warm)]">Область проверки</summary><div className="muted" style={{ marginTop: '6px' }}>{asText(row.applies_to_json)}</div></details></td>
                   <td>
                     <span className={`status-pill ${statusClass(row.latest_run_status)}`}>
                       {statusLabel(row.latest_run_status || 'NOT_RUN')}
                     </span>
                     {row.latest_target_code ? (
-                      <div className="muted">{row.latest_target_type}/{row.latest_target_code}@{row.latest_target_version}</div>
+                      <div className="muted" title={`${row.latest_target_type}/${row.latest_target_code}@${row.latest_target_version}`}>цель проверки сохранена</div>
                     ) : null}
                   </td>
                   <td>{asText(row.latest_failure_summary)}</td>
