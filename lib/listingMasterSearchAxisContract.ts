@@ -1,7 +1,7 @@
 import {
   sellableOfferAllowsComponentFocus,
   type StorefrontSellableOfferTruth,
-} from './storefrontSellableOffer';
+} from './storefrontSellableOffer.ts';
 
 export const LISTING_MASTER_SEARCH_AXIS_CONTRACT = 'seo_search_axes_v1';
 

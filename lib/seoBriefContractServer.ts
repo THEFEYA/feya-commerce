@@ -1,6 +1,5 @@
 // @ts-nocheck
-import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
-import { getSupabaseServiceClient } from '@/lib/supabase';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import { buildSeoCatalogBrief } from '@/lib/seoCatalogBrief';
 import { recommendCatalogKeywords } from '@/lib/seoCatalogKeywordRecommendation';
 import {
@@ -194,7 +193,7 @@ export async function buildSeoBriefContractBundle(productId: string) {
 
 export async function loadSeoBriefSource(productId: string) {
   const serviceClient = getSupabaseServiceClient();
-  const supabase = serviceClient || getAdminReadClient();
+  const supabase = serviceClient || getSupabaseReadClient();
   if (!supabase) {
     return {
       product: null,
@@ -203,7 +202,7 @@ export async function loadSeoBriefSource(productId: string) {
       manualFocus: {},
       productTruthSource: null,
       productTruthWarning: null,
-      error: getMissingAdminDataEnvMessage(),
+      error: getMissingSupabaseEnvMessage(),
     };
   }
 
@@ -539,7 +538,7 @@ function attachStorefrontSellableOffer(product, storefrontProduct) {
 
 export async function loadLatestSavedSeoDraftContext(productId: string) {
   const serviceClient = getSupabaseServiceClient();
-  const supabase = serviceClient || getAdminReadClient();
+  const supabase = serviceClient || getSupabaseReadClient();
   if (!supabase || !productId) return null;
 
   const result = await supabase
@@ -953,7 +952,7 @@ function extractPortfolioStrategy(latestSavedDraftContext) {
 
 async function loadLivePrimaryOwnershipStrategy(identityDraft, targetKeywordSelection) {
   const serviceClient = getSupabaseServiceClient();
-  const supabase = serviceClient || getAdminReadClient();
+  const supabase = serviceClient || getSupabaseReadClient();
   const primaryKeyword = identityDraft?.keyword_roles?.primary?.[0] || null;
   if (!primaryKeyword) return null;
 
@@ -965,7 +964,7 @@ async function loadLivePrimaryOwnershipStrategy(identityDraft, targetKeywordSele
       secondaryKeywords: identityDraft?.keyword_roles?.secondary || [],
       productTruth: identityDraft?.product_truth,
       decisionRows: [],
-      sourceError: getMissingAdminDataEnvMessage(),
+      sourceError: getMissingSupabaseEnvMessage(),
     });
   }
 
