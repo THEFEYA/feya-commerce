@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import type { OwnerSignalVM } from '@/lib/owner-ui/types';
 
@@ -60,20 +60,32 @@ export function OwnerSignalDrawerClient({
   generatedAt?: string | null;
 }) {
   const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const closeRef = useRef<HTMLButtonElement | null>(null);
   const entries = useMemo(() => ownerEvidenceEntries(evidence), [evidence]);
 
   useEffect(() => {
     if (!open) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.requestAnimationFrame(() => closeRef.current?.focus());
+
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setOpen(false);
     };
+
     window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = previousOverflow;
+      window.requestAnimationFrame(() => triggerRef.current?.focus());
+    };
   }, [open]);
 
   return (
     <>
-      <button type="button" className="owner-button" onClick={() => setOpen(true)}>Открыть сигнал</button>
+      <button ref={triggerRef} type="button" className="owner-button" onClick={() => setOpen(true)}>Открыть сигнал</button>
 
       {open ? (
         <div className="fixed inset-0 z-[80]" role="presentation">
@@ -94,7 +106,7 @@ export function OwnerSignalDrawerClient({
                 <div className="owner-eyebrow" style={{ marginBottom: '5px' }}>Сигнал FEYA</div>
                 <h2 id={`signal-drawer-${vm.id}`} className="m-0 text-[20px] leading-snug text-bone">{vm.title}</h2>
               </div>
-              <button type="button" className="owner-button" aria-label="Закрыть" onClick={() => setOpen(false)}><X size={15} /></button>
+              <button ref={closeRef} type="button" className="owner-button" aria-label="Закрыть" onClick={() => setOpen(false)}><X size={15} /></button>
             </div>
 
             <div className="space-y-4 p-5">
