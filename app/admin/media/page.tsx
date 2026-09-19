@@ -71,28 +71,28 @@ export default async function AdminMediaQaPage() {
   const thinGallery = rows.filter((product) => Number(product.media_count || 0) > 0 && Number(product.media_count || 0) < 4).length;
   const hasVideo = rows.filter((product) => product.has_video || product.video_url).length;
 
-  return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.12),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
-    <section className="container-feya pt-10 pb-16">
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
+  return <main className="owner-page">
+    <div className="owner-page-inner">
+      <header className="owner-page-head">
         <div>
-          <div className="eyebrow-gold mb-3">Admin QA · Media</div>
-          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Media QA</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Очередь проверки визуальной готовности: primary image, hover image, gallery depth, alt text, video readiness и future image/feed quality.</p>
+          <div className="owner-eyebrow">Товары · медиа</div>
+          <h1>Проверка медиа</h1>
+          <p>Очередь визуальной готовности товара: главное изображение, второе медиа, глубина галереи, ALT и видео. Показываем только реальные проблемы текущего контракта.</p>
         </div>
-        <div className="flex gap-3">
-          <Link href="/admin" className="btn-ghost">Admin cockpit <ArrowUpRight size={13} /></Link>
-          <Link href="/admin/products" className="btn-ghost">Products <ArrowUpRight size={13} /></Link>
+        <div className="owner-actions" style={{ marginTop: 0 }}>
+          <Link href="/admin" className="owner-button">Панель магазина <ArrowUpRight size={13} /></Link>
+          <Link href="/admin/products" className="owner-button">Товары <ArrowUpRight size={13} /></Link>
         </div>
-      </div>
+      </header>
 
       {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <Metric icon={ImageIcon} label="Нет главного изображения" value={missingPrimary} note="Товары без главного изображения." />
-        <Metric icon={Sparkles} label="Нет второго медиа" value={missingHover} note="Нет второго изображения или видео для карточки." />
-        <Metric icon={Images} label="Мало медиа" value={thinGallery} note="В галерее меньше четырёх медиафайлов." />
-        <Metric icon={Film} label="Есть видео" value={hasVideo} note="Товары, для которых доступно видео." />
-      </div>
+      <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+        <div className="owner-summary-cell"><strong>{missingPrimary}</strong><span>Нет главного изображения</span></div>
+        <div className="owner-summary-cell"><strong>{missingHover}</strong><span>Нет второго изображения / видео</span></div>
+        <div className="owner-summary-cell"><strong>{thinGallery}</strong><span>Слишком мало медиа</span></div>
+        <div className="owner-summary-cell"><strong>{hasVideo}</strong><span>Товаров уже имеют видео</span></div>
+      </section>
 
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
         {qaRows.map(({ product, issues }) => {
@@ -100,17 +100,17 @@ export default async function AdminMediaQaPage() {
           return <article key={product.canonical_product_id} className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
             <Link href={`/admin/products/${slug}`} className="group block">
               <div className="relative aspect-[4/5] bg-black/30 overflow-hidden">
-                {product.primary_image_url ? <img src={product.primary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" /> : <div className="h-full w-full grid place-items-center text-[var(--smoke)] text-sm">Missing image</div>}
+                {product.primary_image_url ? <img src={product.primary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" /> : <div className="h-full w-full grid place-items-center text-[var(--smoke)] text-sm">Нет изображения</div>}
                 {product.secondary_image_url || product.hover_image_url ? <img src={product.hover_image_url || product.secondary_image_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" /> : null}
                 <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">{issues.slice(0,2).map((issue) => <Chip key={issue} tone={issue.includes('Нет ') ? 'danger' : 'warning'}>{issue}</Chip>)}</div>
               </div>
               <div className="p-5">
                 <div className="text-bone text-[16px] leading-snug line-clamp-2">{productTitle(product)}</div>
-                <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'Product'} · {product.canonical_color_label || product.color || 'Color'}</div>
+                <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'Товар'} · {product.canonical_color_label || product.color || 'Цвет'}</div>
                 <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-                  <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/15 p-2"><div className="eyebrow-dim mb-1">Media</div><div className="font-price text-bone text-[18px] leading-none">{Number(product.media_count || 0)}</div></div>
-                  <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/15 p-2"><div className="eyebrow-dim mb-1">Depth</div><div className="font-price text-bone text-[18px] leading-none">{galleryDepth(product)}</div></div>
-                  <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/15 p-2"><div className="eyebrow-dim mb-1">Video</div><div className="font-price text-bone text-[18px] leading-none">{product.has_video || product.video_url ? 'Yes' : 'No'}</div></div>
+                  <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/15 p-2"><div className="eyebrow-dim mb-1">Медиа</div><div className="font-price text-bone text-[18px] leading-none">{Number(product.media_count || 0)}</div></div>
+                  <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/15 p-2"><div className="eyebrow-dim mb-1">Глубина</div><div className="font-price text-bone text-[18px] leading-none">{galleryDepth(product)}</div></div>
+                  <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/15 p-2"><div className="eyebrow-dim mb-1">Видео</div><div className="font-price text-bone text-[18px] leading-none">{product.has_video || product.video_url ? 'Есть' : 'Нет'}</div></div>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-1.5">
                   {issues.map((issue) => <Chip key={issue} tone={issue.includes('Missing') || issue.includes('No ') ? 'danger' : 'warning'}>{issue}</Chip>)}
@@ -118,13 +118,13 @@ export default async function AdminMediaQaPage() {
               </div>
             </Link>
             <div className="px-5 pb-5">
-              <AdminQueueQuickReviewClient productSlug={slug} canonicalProductId={product.canonical_product_id} sourceRoute="/admin/media" approvedEventType="media_checked" subjectType="media" approvedLabel="Mark media checked" />
+              <AdminQueueQuickReviewClient productSlug={slug} canonicalProductId={product.canonical_product_id} sourceRoute="/admin/media" approvedEventType="media_checked" subjectType="media" approvedLabel="Медиа проверены" />
             </div>
           </article>;
         })}
 
-        {!qaRows.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">No media QA rows returned from storefront contract.</div> : null}
+        {!qaRows.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">Нет товаров, требующих проверки медиа.</div> : null}
       </div>
-    </section>
+    </div>
   </main>;
 }
