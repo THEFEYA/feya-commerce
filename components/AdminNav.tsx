@@ -2,38 +2,37 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Boxes, CheckCircle2, ClipboardList, FileImage, FileSearch, FileText, GitBranch, Home, ImageIcon, Layers3, ListChecks, ListTree, Network, PackageSearch, Rocket, Scale, ShieldCheck, Tags, Upload, WalletCards } from 'lucide-react';
+import { BarChart3, Boxes, CheckCircle2, ClipboardList, FileImage, FileSearch, FileText, GitBranch, Home, ImageIcon, Layers3, ListChecks, ListTree, PackageSearch, Rocket, Scale, ShieldCheck, Tags, Upload, WalletCards } from 'lucide-react';
 
 const NAV = [
   { href: '/admin', label: 'Обзор', note: 'Панель контроля', icon: Home },
-  { href: '/admin/company', label: 'Компания и ИИ-команда', note: 'сигналы, задачи, агенты и результаты', icon: Network },
-  { href: '/admin/products', label: 'Товары', note: 'каталог, готовность и варианты', icon: PackageSearch },
+  { href: '/admin/products', label: 'Товары', note: 'Таблица v4-каталога', icon: PackageSearch },
   { href: '/admin/launch', label: 'Запуск', note: 'готово / заблокировано', icon: Rocket },
   { href: '/admin/indexation', label: 'Индексация', note: 'готовность к поиску', icon: FileSearch },
   { href: '/admin/seo-lab', label: 'SEO-лаборатория', note: 'оценка правил', icon: BarChart3 },
   { href: '/admin/seo-engine/metric-import/validate', label: 'CSV метрики', note: 'проверка Google-файлов', icon: Upload },
-  { href: '/admin/seo-engine/scoring', label: 'Оценка ключей', note: 'баллы, роли и приоритет ключей', icon: Scale },
-  { href: '/admin/seo-engine/commercial-review', label: 'Коммерческие метрики', note: 'сигналы Google Ads', icon: FileSearch },
+  { href: '/admin/seo-engine/scoring', label: 'Scoring ключей', note: 'баллы и роли ключей', icon: Scale },
+  { href: '/admin/seo-engine/commercial-review', label: 'Commercial metrics', note: 'Google Ads сигналы', icon: FileSearch },
   { href: '/admin/seo-engine/briefs', label: 'SEO-бриф', note: 'товар + ключи + черновик', icon: ListChecks },
-  { href: '/admin/seo-engine/angle-advisor', label: 'Разведение товаров', note: 'смысловые углы похожих товаров', icon: ShieldCheck },
-  { href: '/admin/seo-keywords', label: 'SEO-ключи', note: 'банк ключевых слов', icon: Tags },
-  { href: '/admin/listing-master', label: 'Мастер листинга', note: 'оси товара и SEO-теги', icon: Layers3 },
+  { href: '/admin/seo-engine/angle-advisor', label: 'Советник угла', note: 'развести похожие товары', icon: ShieldCheck },
+  { href: '/admin/seo-keywords', label: 'SEO-ключи', note: 'keyword bank v1', icon: Tags },
+  { href: '/admin/listing-master', label: 'Listing Master', note: 'SEO Tags из keyword bank', icon: Layers3 },
   { href: '/admin/seo-approval', label: 'Проверка SEO', note: 'черновики на проверке', icon: CheckCircle2 },
   { href: '/admin/seo-export', label: 'SEO-экспорт', note: 'одобренные тексты', icon: FileText },
   { href: '/admin/seo-apply', label: 'Создать SEO-правки', note: 'предпросмотр изменений', icon: Layers3 },
   { href: '/admin/seo-change-sets', label: 'Очередь SEO-правок', note: 'строки на проверке', icon: FileText },
-  { href: '/admin/seo-applied-values', label: 'Применённые SEO-значения', note: 'одобренные и применённые поля', icon: CheckCircle2 },
+  { href: '/admin/seo-applied-values', label: 'SEO-значения', note: 'одобренные значения', icon: CheckCircle2 },
   { href: '/admin/seo-storefront-preview', label: 'SEO-предпросмотр', note: 'сравнение с витриной', icon: FileSearch },
-  { href: '/admin/seo-gate', label: 'Контроль SEO-процесса', note: 'готовность и безопасные переходы', icon: FileText },
+  { href: '/admin/seo-gate', label: 'SEO-шлюз', note: 'статус процесса', icon: FileText },
   { href: '/admin/content', label: 'Контент', note: 'готовность текстов', icon: FileText },
   { href: '/admin/graph', label: 'Товарные связи', note: 'SEO-кандидаты', icon: GitBranch },
   { href: '/admin/collections', label: 'Коллекции', note: 'SEO-планирование', icon: ListTree },
   { href: '/admin/review/labels', label: 'Проверка названий', note: 'публичные названия', icon: Tags },
   { href: '/admin/review/prices', label: 'Проверка цен', note: 'точность и суммы', icon: WalletCards },
   { href: '/admin/review/components', label: 'Компоненты', note: 'комплект / набор', icon: Boxes },
-  { href: '/admin/media', label: 'Проверка медиа', note: 'вторая фотография и галерея', icon: ImageIcon },
-  { href: '/admin/media-seo', label: 'SEO изображений', note: 'ALT, файлы и готовность медиа', icon: FileImage },
-  { href: '/admin/seo', label: 'SEO-готовность', note: 'страницы, связи и фиды', icon: Layers3 },
+  { href: '/admin/media', label: 'Проверка медиа', note: 'hover и галерея', icon: ImageIcon },
+  { href: '/admin/media-seo', label: 'SEO медиа', note: 'готовность картинок', icon: FileImage },
+  { href: '/admin/seo', label: 'SEO-готовность', note: 'связи и фиды', icon: Layers3 },
   { href: '/admin/orders', label: 'Заказы', note: 'черновики заказов', icon: ClipboardList },
 ];
 
@@ -50,7 +49,7 @@ export function AdminNav() {
       <Link href="/admin" className="rounded-2xl border border-[rgba(216,214,211,.13)] bg-[rgba(255,255,255,.035)] p-4 hover:border-[rgba(212,178,106,.35)] transition-colors">
         <div className="eyebrow-gold mb-2">FEYA</div>
         <div className="font-tall text-[32px] leading-none text-bone">Панель управления</div>
-        <div className="mt-2 text-[11px] leading-relaxed text-[var(--bone-dim)]">Внутренняя админка · товары, SEO и качество</div>
+        <div className="mt-2 text-[11px] leading-relaxed text-[var(--bone-dim)]">Внутренняя админка · слой качества v4</div>
       </Link>
 
       <nav className="mt-5 space-y-1.5 overflow-y-auto pr-1">
