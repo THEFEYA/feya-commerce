@@ -1,7 +1,7 @@
 // @ts-nocheck
 import Link from 'next/link';
 import { ArrowUpRight, ShieldAlert, Upload } from 'lucide-react';
-import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import { STOREFRONT_VIEW_V1, mainRegularPrice, productSlug, productTitle } from '@/lib/storefront';
 import { buildSeoPilotBrief } from '@/lib/seoPilotDraft';
 import { ScoringContractPanel } from '../briefs/ScoringContractPanel';
@@ -15,8 +15,8 @@ const KEYWORD_SELECT = 'keyword,keyword_norm,priority_tier,validation_status,cle
 const EMERGENCY_PILOT_PRODUCT = { canonical_product_id: '4511817111', product_slug: 'gold-futuristic-armor-set-choker-collar-shoulder-armor-and-arm-bracers-performance-outfit-4511817111', matched_etsy_listing_id: '4511817111', card_title: 'Gold Futuristic Armor Set, Choker Collar, Shoulder Armor and Arm Bracers, Performance Outfit', h1: 'Gold Futuristic Armor Set, Choker Collar, Shoulder Armor and Arm Bracers, Performance Outfit', product_type: 'Armor', material: 'Fabric, Leather, Faux leather', color: 'Gold', primary_image_url: null, min_price: 79, max_price: 308, currency: 'EUR', storefront_candidate_flag: true };
 
 async function loadPilotData() {
-  const supabase = getAdminReadClient();
-  if (!supabase) return { product: EMERGENCY_PILOT_PRODUCT, keywords: [], warning: getMissingAdminDataEnvMessage(), fallbackUsed: true };
+  const supabase = getSupabaseReadClient();
+  if (!supabase) return { product: EMERGENCY_PILOT_PRODUCT, keywords: [], warning: getMissingSupabaseEnvMessage(), fallbackUsed: true };
   const productsResult = await supabase.from(STOREFRONT_VIEW_V1).select(PILOT_PRODUCT_SELECT).limit(24);
   const products = productsResult.data || [];
   const product = products.filter((item) => productSlug(item) && productTitle(item)).sort((a, b) => {
@@ -32,23 +32,11 @@ function Panel({ title, children, icon: Icon }) { return <div className="rounded
 export default async function SeoScoringContractPage() {
   const { product, keywords, warning, fallbackUsed } = await loadPilotData();
   const brief = buildSeoPilotBrief(product, keywords);
-  return <main className="owner-page">
-    <div className="owner-page-inner">
-      <header className="owner-page-head">
-        <div>
-          <div className="owner-eyebrow">SEO · ключевые слова</div>
-          <h1>Оценка ключей</h1>
-          <p>Проверяем импортированные метрики и объясняем роль каждого ключа. Этот экран ничего не публикует и не меняет Product Truth.</p>
-        </div>
-        <div className="owner-actions" style={{ marginTop: 0 }}>
-          <Link href="/admin/seo-engine/metric-import/validate" className="owner-button">Проверка CSV <ArrowUpRight size={13} /></Link>
-          <Link href="/admin/seo-engine/briefs" className="owner-button">SEO-бриф <ArrowUpRight size={13} /></Link>
-        </div>
-      </header>
-    {warning || fallbackUsed ? <div className="owner-card is-warning" style={{ marginBottom: '18px' }}><div className="owner-status is-warning">Ограничение данных</div><p className="owner-card-copy">{warning || 'Включён защитный образец товара.'}</p></div> : null}
-    <section className="owner-section" style={{ marginTop: 0 }}><Panel title="Загрузить CSV для оценки" icon={Upload}><CsvScoringPreview /></Panel></section>
-    <section className="owner-section"><div className="grid lg:grid-cols-[1fr_320px] gap-5"><Panel title="Товар для расчётной модели"><div className="text-bone text-[18px] leading-tight">{brief.productTitle}</div><div className="mt-2 text-[11px] text-[var(--bone-dim)]">Адрес товара: /{brief.productSlug}</div><div className="mt-4 grid sm:grid-cols-2 gap-2">{brief.productFacts.map((fact) => <div key={fact.label} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-2.5"><div className="text-[9px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1">{fact.label}</div><div className="text-[12px] text-bone leading-snug">{fact.value}</div></div>)}</div></Panel><Panel title="Статус расчёта" icon={ShieldAlert}><div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">Это предварительная оценка: она показывает роли ключей, но ещё не сохраняет результат в Supabase.</div><div className="mt-3 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-[11px] text-[var(--bone-dim)]">Фраз в исходном пакете товара: <span className="text-bone">{brief.metricValidationPackage.length}</span></div></Panel></div></section>
-    <section className="owner-section"><Panel title="Правила оценки ключей" icon={ShieldAlert}><ScoringContractPanel contract={brief.scoringContract} /></Panel></section>
-    </div>
-  </main>;
+  return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]"><section className="container-feya pt-7 pb-12">
+    <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-5 mb-5"><div><div className="eyebrow-gold mb-2">Админка · SEO · scoring</div><h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,64px)' }}>Scoring ключей</h1><p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Здесь теперь есть загрузка нормализованного CSV. Ниже остаётся контракт правил, чтобы было понятно, почему ключ получает роль.</p></div><div className="flex flex-wrap gap-2"><Link href="/admin/seo-engine/metric-import/validate" className="btn-ghost">Проверка CSV <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine/briefs" className="btn-ghost">SEO-бриф <ArrowUpRight size={13} /></Link></div></div>
+    {warning || fallbackUsed ? <div className="mb-5 rounded-xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] px-3 py-2 text-[12px] text-[var(--bone-dim)]">{warning || 'Включён защитный образец товара.'}</div> : null}
+    <div className="mb-5"><Panel title="Загрузить CSV для scoring" icon={Upload}><CsvScoringPreview /></Panel></div>
+    <div className="grid lg:grid-cols-[1fr_320px] gap-5 mb-5"><Panel title="Товар для расчётной модели"><div className="text-bone text-[18px] leading-tight">{brief.productTitle}</div><div className="mt-2 text-[11px] text-[var(--bone-dim)]">Адрес товара: /{brief.productSlug}</div><div className="mt-4 grid sm:grid-cols-2 gap-2">{brief.productFacts.map((fact) => <div key={fact.label} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-2.5"><div className="text-[9px] uppercase tracking-[0.18em] text-[var(--smoke)] mb-1">{fact.label}</div><div className="text-[12px] text-bone leading-snug">{fact.value}</div></div>)}</div></Panel><Panel title="Статус модели" icon={ShieldAlert}><div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">Это preview scoring: он помогает увидеть роли ключей, но ещё не сохраняет результат в Supabase.</div><div className="mt-3 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3 text-[11px] text-[var(--bone-dim)]">Фраз в seed-пакете товара: <span className="text-bone">{brief.metricValidationPackage.length}</span></div></Panel></div>
+    <Panel title="Контракт scoring ключей" icon={ShieldAlert}><ScoringContractPanel contract={brief.scoringContract} /></Panel>
+  </section></main>;
 }
