@@ -17,39 +17,43 @@ export default async function CommercialKeywordReviewPage({ searchParams }) {
   const rows = loaded.rows || [];
   const counts = buildCounts(loaded.allRows || []);
 
-  return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
-    <section className="container-feya pt-7 pb-14">
-      <div className="grid gap-5 lg:grid-cols-[1fr_420px] lg:items-end border-b border-[rgba(216,214,211,.12)] pb-6 mb-6">
+  return <main className="owner-page">
+    <div className="owner-page-inner">
+      <header className="owner-page-head">
         <div>
-          <div className="eyebrow-gold mb-2">Админка · SEO · Метрики Google Ads</div>
-          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(38px,5.5vw,70px)' }}>Коммерческие метрики</h1>
-          <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Это не ручная работа по каждому ключу. Экран показывает новые кандидаты после импорта Google Ads. Основной путь: пакетный импорт → проверка → оценка → автоматические правила → SEO-ядро. Ручная проверка нужна только для спорных случаев.</p>
+          <div className="owner-eyebrow">SEO · Google Ads</div>
+          <h1>Коммерческие сигналы</h1>
+          <p>Новые ключевые кандидаты после импорта Google Ads. Здесь смотрим спрос и интент, но не принимаем рекламную конкуренцию за SEO-сложность.</p>
         </div>
-        <div className="flex flex-wrap gap-3 lg:justify-end">
-          <Link href="/admin/seo-engine/metric-import/validate" className="btn-ghost">CSV метрики ↗</Link>
-          <Link href="/admin/seo-engine/scoring" className="btn-ghost">Оценка ключей ↗</Link>
-          <Link href="/admin/seo-keywords" className="btn-ghost">SEO-ядро ↗</Link>
+        <div className="owner-actions" style={{ marginTop: 0 }}>
+          <Link href="/admin/seo-engine/metric-import/validate" className="owner-button">CSV метрики</Link>
+          <Link href="/admin/seo-engine/scoring" className="owner-button">Оценка ключей</Link>
+          <Link href="/admin/seo-keywords" className="owner-button">SEO-ядро</Link>
         </div>
-      </div>
+      </header>
 
       {loaded.error ? <Notice tone="danger">{loaded.error}</Notice> : null}
 
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-5">
-        <Metric label="Новых кандидатов" value={fmt(counts.total)} note="Из первой коммерческой партии данных." />
-        <Metric label="Высокий приоритет" value={fmt(counts.high)} note="Спрос от 100+ запросов." tone="gold" />
-        <Metric label="Посадочная / meta" value={fmt(counts.landing)} note="Запросы «где купить», сайты и shop." tone="success" />
-        <Metric label="Локальные — отложить" value={fmt(counts.local)} note="near me — не продвигать в товар." tone="warning" />
-        <Metric label="Исследовательские — отложить" value={fmt(counts.research)} note="reddit / исследовательский интент." tone="warning" />
+      <section className="owner-section" style={{ marginTop: 0 }}>
+        <div className="owner-summary-strip">
+          <div className="owner-summary-cell"><strong>{fmt(counts.total)}</strong><span>Новых кандидатов</span></div>
+          <div className="owner-summary-cell"><strong>{fmt(counts.high)}</strong><span>Высокий приоритет</span></div>
+          <div className="owner-summary-cell"><strong>{fmt(counts.landing)}</strong><span>Кандидаты для посадочной / meta</span></div>
+          <div className="owner-summary-cell"><strong>{fmt(counts.local + counts.research)}</strong><span>Отложить / исследовать отдельно</span></div>
+        </div>
+      </section>
+
+      <div className="owner-card is-info" style={{ marginTop: '12px', marginBottom: '18px' }}>
+        <div className="owner-status is-info">Как использовать этот экран</div>
+        <p className="owner-card-copy">Не проверяем вручную каждое слово. Это промежуточные сигналы: правила решают, что идёт в SEO-ядро, что остаётся для FAQ/посадочной, а что сохраняется только как доказательство.</p>
       </div>
 
-      <div className="rounded-2xl border border-[rgba(212,178,106,.20)] bg-[rgba(212,178,106,.045)] p-4 mb-5">
-        <div className="eyebrow-gold mb-2">Решение по процессу</div>
-        <p className="text-[12px] leading-relaxed text-[var(--bone-dim)]">Не заставляем оператора approve/reject каждое слово. Эти слова — промежуточные сигналы. Дальше правила определяют, что можно добавить в ядро, что оставить для FAQ/посадочной, а что сохранить только как доказательство.</p>
-      </div>
-
-      <Filters q={q} priority={priority} />
-      <Table rows={rows} />
-    </section>
+      <section className="owner-section">
+        <div className="owner-section-head"><div><h2>Кандидаты</h2><div className="owner-section-kicker">Сортировка по спросу; значения ключей не переводим.</div></div></div>
+        <Filters q={q} priority={priority} />
+        <Table rows={rows} />
+      </section>
+    </div>
   </main>;
 }
 
