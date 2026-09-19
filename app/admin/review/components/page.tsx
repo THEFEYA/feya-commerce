@@ -17,8 +17,7 @@ import {
   ADMIN_PRODUCT_CATALOG_FALLBACK_VIEW,
   toCatalogFallbackStorefrontProduct,
 } from '@/lib/admin-product-catalog-fallback';
-import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
-import { getSupabaseServiceClient } from '@/lib/supabase';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_VIEW_V1, productSlug, productTitle } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
 
@@ -51,12 +50,12 @@ function parseConfigurations(value: unknown): StorefrontConfiguration[] {
 }
 
 function labelText(config: StorefrontConfiguration) {
-  return config.public_label || config.configuration_label || config.configuration_name || config.option_value || config.title || config.label || 'Вариант';
+  return config.public_label || config.configuration_label || config.configuration_name || config.option_value || config.title || config.label || 'Option';
 }
 
 async function loadProducts(canonicalProductId?: string): Promise<{ rows: StorefrontProduct[]; error?: string }> {
-  const supabase = getAdminReadClient();
-  if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
+  const supabase = getSupabaseReadClient();
+  if (!supabase) return { rows: [], error: getMissingSupabaseEnvMessage() };
 
   if (canonicalProductId) {
     const fallbackResult = await supabase
@@ -89,8 +88,8 @@ async function loadProducts(canonicalProductId?: string): Promise<{ rows: Storef
 }
 
 async function loadComponentTruth(canonicalProductId?: string) {
-  const supabase = getSupabaseServiceClient() || getAdminReadClient();
-  if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
+  const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
+  if (!supabase) return { rows: [], error: getMissingSupabaseEnvMessage() };
   if (!canonicalProductId) return { rows: [] };
   const { data, error } = await supabase
     .from(CANONICAL_PRODUCT_TRUTH_VIEW)
@@ -114,7 +113,7 @@ async function loadAssertionEditor(canonicalProductId?: string) {
     return {
       componentFamilies: [] as ComponentFamilyOption[],
       approvedAssertions: [] as FixedComponentAssertion[],
-      error: getMissingAdminDataEnvMessage(),
+      error: getMissingSupabaseEnvMessage(),
     };
   }
 
@@ -140,7 +139,7 @@ async function loadAssertionEditor(canonicalProductId?: string) {
   );
   const approvedAssertions = (assertionResult.data || []).map((assertion) => ({
     ...assertion,
-    component_family: familyNames.get(assertion.component_family_id) || 'Неизвестный компонент',
+    component_family: familyNames.get(assertion.component_family_id) || 'Unknown component',
   })) as FixedComponentAssertion[];
 
   return { componentFamilies, approvedAssertions, error };
@@ -199,27 +198,11 @@ export default async function AdminComponentReviewPage({ searchParams }: PagePro
   const fullSets = reviewRows.reduce((sum, row) => sum + row.configs.filter((config) => config.is_full_set).length, 0);
   const truthBlocked = reviewRows.filter((row) => row.truthDiagnostic?.blockers.length).length;
 
-  return <main className="owner-page"><div className="owner-page-inner">
-    <header className="owner-page-head">
-      <div>
-        <div className="owner-eyebrow">Товары · состав</div>
-        <h1>Состав и компоненты</h1>
-        <p>Проверяем канонический состав товара, исходные варианты и нерешённые факты. Проверка фиксирует решение, но не додумывает компоненты и не меняет Product Truth автоматически.</p>
-      </div>
-      <div className="owner-actions" style={{ marginTop: 0 }}>
-        <Link href="/admin" className="owner-button">Панель магазина</Link>
-        <Link href="/admin/products" className="owner-button">Товары</Link>
-        {focusedProductId ? <Link href="/admin/review/components" className="owner-button">Вся очередь</Link> : null}
-      </div>
-    </header>
-    {error || truthResult.error || assertionEditor.error ? <div className="mb-6 rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)]">{error || `Факты товара: ${truthResult.error || assertionEditor.error}`}</div> : null}
-    <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
-      <div className="owner-summary-cell"><strong>{focusedProductId ? truthBlocked : '—'}</strong><span>Блокеров фактов у выбранного товара</span></div>
-      <div className="owner-summary-cell"><strong>{variantChecks}</strong><span>Проверок вариантов</span></div>
-      <div className="owner-summary-cell"><strong>{sourceVariations}</strong><span>Вариантов исходного источника</span></div>
-      <div className="owner-summary-cell"><strong>{page}/{pageCount}</strong><span>Страница очереди · {rows.length} товаров</span></div>
-    </section>
-    {!focusedProductId && pageCount > 1 ? <div className="mb-6 flex items-center justify-between gap-3"><div className="text-[11px] text-[var(--bone-dim)]">Быстрый индекс показывает рабочую группу из {PAGE_SIZE} товаров. Точный Product Truth загружается только после открытия одного товара.</div><div className="flex gap-2">{page > 1 ? <Link href={`/admin/review/components?page=${page - 1}`} className="owner-button">Назад</Link> : null}{page < pageCount ? <Link href={`/admin/review/components?page=${page + 1}`} className="owner-button">Далее</Link> : null}</div></div> : null}
+  return <main className="min-h-screen bg-[#07070A]"><section className="container-feya pt-10 pb-16">
+    <div className="mb-7 border-b border-[rgba(216,214,211,.12)] pb-7"><div className="eyebrow-gold mb-3">Admin Review · Components</div><h1 className="text-bone text-[28px] font-medium leading-tight">Component mapping</h1><p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--bone-dim)]">Data-quality queue for canonical Product Truth: confirmed composition, source options, price ownership, unresolved facts and review blockers. Review events are an audit trail and never repair canonical product data.</p><div className="mt-5 flex gap-3"><Link href="/admin" className="btn-ghost">Admin cockpit</Link><Link href="/admin/products" className="btn-ghost">Products</Link>{focusedProductId ? <Link href="/admin/review/components" className="btn-ghost">Show full queue</Link> : null}</div></div>
+    {error || truthResult.error || assertionEditor.error ? <div className="mb-6 rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)]">{error || `Canonical Product Truth: ${truthResult.error || assertionEditor.error}`}</div> : null}
+    <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-5"><div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-2">Truth blocked · exact</div><div className="text-bone text-[28px]">{focusedProductId ? truthBlocked : '—'}</div></div><div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-2">Variant checks</div><div className="text-bone text-[28px]">{variantChecks}</div></div><div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-2">Source variations</div><div className="text-bone text-[28px]">{sourceVariations}</div></div><div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-2">Full sets</div><div className="text-bone text-[28px]">{fullSets}</div></div><div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-2">Queue page</div><div className="text-bone text-[28px]">{page}/{pageCount}</div><div className="mt-1 text-[10px] text-[var(--smoke)]">{rows.length} products</div></div></div>
+    {!focusedProductId && pageCount > 1 ? <div className="mb-6 flex items-center justify-between gap-3"><div className="text-[11px] text-[var(--bone-dim)]">Быстрый индекс показывает рабочую группу из {PAGE_SIZE} товаров. Точный Product Truth загружается только после открытия одного товара.</div><div className="flex gap-2">{page > 1 ? <Link href={`/admin/review/components?page=${page - 1}`} className="btn-ghost px-4 py-2 text-[10px]">Previous</Link> : null}{page < pageCount ? <Link href={`/admin/review/components?page=${page + 1}`} className="btn-ghost px-4 py-2 text-[10px]">Next</Link> : null}</div></div> : null}
     <div className="space-y-4">{reviewRows.map(({ product, configs, truthDiagnostic }) => {
       const slug = productSlug(product);
       const visibleConfigs = configs.filter((config) => config.is_full_set || config.is_bundle).slice(0, 6);
@@ -228,9 +211,9 @@ export default async function AdminComponentReviewPage({ searchParams }: PagePro
         : [];
       const approvalDisabled = Boolean(truthDiagnostic?.blockers.length);
       const approvalDisabledReason = truthDiagnostic && !truthDiagnostic.available
-        ? 'Канонические факты товара недоступны.'
+        ? 'Canonical Product Truth is unavailable.'
         : approvalDisabled
-          ? 'Сначала нужно подтвердить состав товара. Размеры и цвета остаются отдельными проверками и не определяют компоненты.'
+          ? 'Resolve canonical composition evidence first. Size and color checks remain auditable but do not define components.'
           : '';
       return <article key={product.canonical_product_id || slug} className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
         <div className="flex items-start justify-between gap-4">
@@ -239,17 +222,17 @@ export default async function AdminComponentReviewPage({ searchParams }: PagePro
             <div className="mt-3 flex flex-wrap gap-1.5">
               {!truthDiagnostic ? <Chip tone="warning">Точная проверка при открытии</Chip> : null}
               {truthDiagnostic?.blockers.map((blocker) => <Chip key={blocker} tone="danger">{blocker}</Chip>)}
-              {truthDiagnostic ? <Chip>{configs.length} вариантов витрины</Chip> : null}
-              {truthDiagnostic ? <Chip>{truthDiagnostic.includedComponents.length} подтверждённых компонентов</Chip> : null}
-              {truthDiagnostic?.variantReviewFacts.length ? <Chip tone="warning">{truthDiagnostic.variantReviewFacts.length} проверок вариантов без блокировки</Chip> : null}
-              {truthDiagnostic ? <Chip>{truthDiagnostic.sourceVariations.length} вариантов источника</Chip> : null}
-              {truthDiagnostic ? <Chip>{truthDiagnostic.optionPriceRows.length} строк цен</Chip> : null}
+              {truthDiagnostic ? <Chip>{configs.length} storefront configurations</Chip> : null}
+              {truthDiagnostic ? <Chip>{truthDiagnostic.includedComponents.length} confirmed components</Chip> : null}
+              {truthDiagnostic?.variantReviewFacts.length ? <Chip tone="warning">{truthDiagnostic.variantReviewFacts.length} non-blocking variant checks</Chip> : null}
+              {truthDiagnostic ? <Chip>{truthDiagnostic.sourceVariations.length} source variations</Chip> : null}
+              {truthDiagnostic ? <Chip>{truthDiagnostic.optionPriceRows.length} price rows</Chip> : null}
             </div>
-            {truthDiagnostic ? <AdminQueueQuickReviewClient productSlug={slug} canonicalProductId={product.canonical_product_id} sourceRoute="/admin/review/components" approvedEventType="component_mapping_checked" subjectType="component" approvedLabel="Отметить компоненты проверенными" approvalDisabled={approvalDisabled} approvalDisabledReason={approvalDisabledReason} /> : null}
+            {truthDiagnostic ? <AdminQueueQuickReviewClient productSlug={slug} canonicalProductId={product.canonical_product_id} sourceRoute="/admin/review/components" approvedEventType="component_mapping_checked" subjectType="component" approvedLabel="Mark component checked" approvalDisabled={approvalDisabled} approvalDisabledReason={approvalDisabledReason} /> : null}
           </div>
           <div className="flex flex-wrap justify-end gap-2">
-            {!focusedProductId ? <Link href={`/admin/review/components?product_id=${product.canonical_product_id}`} className="owner-button">Проверить факты товара</Link> : null}
-            <Link href={`/admin/products/${slug}`} className="owner-button">Карточка товара</Link>
+            {!focusedProductId ? <Link href={`/admin/review/components?product_id=${product.canonical_product_id}`} className="btn-ghost px-4 py-2 text-[10px]">Resolve Product Truth</Link> : null}
+            <Link href={`/admin/products/${slug}`} className="btn-ghost px-4 py-2 text-[10px]">Product details</Link>
           </div>
         </div>
         {focusedProductId && product.canonical_product_id ? <div className="mt-5">
@@ -260,21 +243,18 @@ export default async function AdminComponentReviewPage({ searchParams }: PagePro
             sourceRoute={`/admin/review/components?product_id=${product.canonical_product_id}`}
           />
         </div> : null}
-        {truthEvidence.length ? <details className="owner-disclosure owner-disclosure-section" style={{ marginTop: '14px' }}>
-          <summary>
-            <span><strong>Факты, которые нужно уточнить</strong><small>Сырые доказательства состава скрыты до раскрытия</small></span>
-            <span className="owner-status is-warning">{truthEvidence.length}</span>
-          </summary>
-          <div className="owner-disclosure-body flex flex-wrap gap-1.5">{truthEvidence.map((item, index) => <Chip key={`${componentEvidenceLabel(item)}-${index}`} tone="danger">{componentEvidenceLabel(item)}</Chip>)}</div>
-        </details> : null}
+        {truthEvidence.length ? <div className="mt-5 rounded-xl border border-[rgba(196,64,88,.22)] bg-[rgba(160,32,56,.06)] p-4">
+          <div className="eyebrow-dim mb-3">Canonical evidence requiring resolution</div>
+          <div className="flex flex-wrap gap-1.5">{truthEvidence.map((item, index) => <Chip key={`${componentEvidenceLabel(item)}-${index}`} tone="danger">{componentEvidenceLabel(item)}</Chip>)}</div>
+        </div> : null}
         {truthDiagnostic?.variantReviewFacts.length ? <div className="mt-5 rounded-xl border border-[rgba(212,178,106,.24)] bg-[rgba(212,178,106,.05)] p-4">
-          <div className="eyebrow-dim mb-2">Проверка вариантов · не блокирует состав</div>
-          <p className="text-[11px] leading-relaxed text-[var(--bone-dim)]">Размер, цвет и другие параметры остаются в истории проверки. Они проверяются отдельно и не могут автоматически становиться компонентами товара.</p>
+          <div className="eyebrow-dim mb-2">Variant review · non-blocking for composition</div>
+          <p className="text-[11px] leading-relaxed text-[var(--bone-dim)]">Size, color and non-product options remain in the audit trail. They are reviewed in their own queues and cannot become product components.</p>
         </div> : null}
         {visibleConfigs.length ? <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">{visibleConfigs.map((config, index) => {
-          return <div key={config.configuration_id || `${slug}-${index}`} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4"><div className="eyebrow-dim mb-2">Вариант состава для витрины</div><div className="text-bone text-[14px] leading-snug">{labelText(config)}</div><div className="mt-2 text-[11px] text-[var(--bone-dim)]" title={`Код: ${config.component_code || '—'} · Семейство: ${config.component_family || '—'}`}>{config.component_code ? 'Компонент назначен' : 'Компонент не назначен'}{config.component_family ? ' · семейство определено' : ''}</div><div className="mt-3 flex flex-wrap gap-1.5">{config.is_full_set ? <Chip tone="warning">Полный комплект</Chip> : null}{config.is_bundle ? <Chip tone="warning">Набор</Chip> : null}</div></div>;
+          return <div key={config.configuration_id || `${slug}-${index}`} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4"><div className="eyebrow-dim mb-2">Storefront component configuration</div><div className="text-bone text-[14px] leading-snug">{labelText(config)}</div><div className="mt-2 text-[11px] text-[var(--bone-dim)]">Code: {config.component_code || '—'} · Family: {config.component_family || '—'}</div><div className="mt-3 flex flex-wrap gap-1.5">{config.is_full_set ? <Chip tone="warning">Full set</Chip> : null}{config.is_bundle ? <Chip tone="warning">Bundle</Chip> : null}</div></div>;
         })}</div> : null}
       </article>;
-    })}{!reviewRows.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">Нет товаров для проверки компонентов.</div> : null}</div>
-  </div></main>;
+    })}{!reviewRows.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">No component review rows.</div> : null}</div>
+  </section></main>;
 }
