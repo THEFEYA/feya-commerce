@@ -92,7 +92,7 @@ async function getGrowthData(): Promise<GrowthData> {
     supabase
       .from('feya_commerce_v_page_indexability_readiness_v1')
       .select('seo_page_id', { count: 'exact', head: true })
-      .eq('indexability_readiness_status', 'READY'),
+      .eq('indexability_readiness_status', 'READY_FOR_INDEXABILITY_REVIEW'),
   ]);
 
   const firstError =
@@ -223,7 +223,7 @@ export default async function AdminGrowthPage() {
             </div>
             <div className="owner-summary-cell">
               <strong>{data.indexabilityReady}/{data.seoPages}</strong>
-              <span>Страниц готовы к индексации</span>
+              <span>Страниц готовы к проверке индексации</span>
             </div>
           </div>
 
