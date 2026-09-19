@@ -46,7 +46,8 @@ async function getData(): Promise<ResultsData> {
       .select('change_event_id', { count: 'exact', head: true }),
     supabase
       .from('feya_commerce_v_learning_registry_safe_v2')
-      .select('learning_id', { count: 'exact', head: true }),
+      .select('learning_id', { count: 'exact', head: true })
+      .in('learning_status', ['REPLICATED_LEARNING', 'ADOPTED_POLICY']),
   ]);
 
   const firstError =
@@ -136,7 +137,7 @@ export default async function AdminResultsPage() {
             </div>
             <div className="owner-summary-cell">
               <strong>{data.changeEvents}</strong>
-              <span>Изменений с измеримой историей</span>
+              <span>Зафиксированных изменений</span>
             </div>
             <div className="owner-summary-cell">
               <strong>{data.learnings}</strong>
