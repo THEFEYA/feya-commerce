@@ -16,7 +16,7 @@ import { STOREFRONT_VIEW_V1 } from '@/lib/storefront';
 import {
   resolveStorefrontSellableOffer, sellableOfferAllowsComponentFocus, } from '@/lib/storefrontSellableOffer';
 import { applyOwnerReviewedStorefrontCorrections } from '@/lib/storefrontOwnerReviewedCorrections';
-import { getMissingAdminDataEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
+import { getSupabaseServiceClient } from '@/lib/supabase';
 import ConfirmCompositionButton from './ConfirmCompositionButton';
 import VerifiedSaveButton from './VerifiedSaveButton';
 import FocusActionFeedback from './FocusActionFeedback';
