@@ -61,22 +61,20 @@ export default async function SeoStorefrontPreviewPage({ searchParams }) {
   const withTitle = rows.filter((row) => row.applied_seo_title).length;
   const withMeta = rows.filter((row) => row.applied_meta_description).length;
 
-  return <main className="min-h-screen min-w-0 overflow-x-hidden bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
-    <section className="w-full min-w-0 px-4 pb-16 pt-6 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
-      <div className="mb-6 flex min-w-0 flex-col gap-5 border-b border-[rgba(216,214,211,.12)] pb-6 xl:flex-row xl:items-end xl:justify-between">
+  return <main className="owner-page min-w-0 overflow-x-hidden">
+    <div className="owner-page-inner min-w-0">
+      <header className="owner-page-head">
         <div className="min-w-0">
-          <div className="eyebrow-gold mb-3">Админка · SEO-предпросмотр карточки</div>
-          <h1 className="min-w-0 break-words font-tall leading-none text-bone" style={{ fontSize: 'clamp(38px,5vw,68px)' }}>SEO-предпросмотр</h1>
-          <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--bone-dim)]">
-            Поиск товара, проверка готовности, реальная OpenAI-генерация и просмотр результата в структуре карточки до сохранения, применения или публикации.
-          </p>
+          <div className="owner-eyebrow">SEO · генерация и предпросмотр</div>
+          <h1>SEO-предпросмотр</h1>
+          <p>Генерируем SEO-пакет для выбранного товара и проверяем его в структуре карточки до сохранения, применения или публикации.</p>
         </div>
-        <div className="flex min-w-0 flex-wrap gap-2">
-          <Link href={initialProductId ? `/admin/listing-master?product_id=${encodeURIComponent(initialProductId)}` : '/admin/listing-master'} className="btn-ghost px-5 py-3 text-[10px]">1. Фокус и ключи</Link>
-          <Link href="/admin/seo-approval" className="btn-ghost px-5 py-3 text-[10px]">Проверка SEO</Link>
-          <Link href="/admin/seo-applied-values" className="btn-ghost px-5 py-3 text-[10px]">SEO-значения</Link>
+        <div className="owner-actions" style={{ marginTop: 0 }}>
+          <Link href={initialProductId ? `/admin/listing-master?product_id=${encodeURIComponent(initialProductId)}` : '/admin/listing-master'} className="owner-button primary">1. Фокус и ключи</Link>
+          <Link href="/admin/seo-approval" className="owner-button">Проверка SEO</Link>
+          <Link href="/admin/seo-applied-values" className="owner-button">SEO-значения</Link>
         </div>
-      </div>
+      </header>
 
       <FirstRealDraftClient
         initialProductId={initialProductId}
@@ -86,9 +84,12 @@ export default async function SeoStorefrontPreviewPage({ searchParams }) {
         recoverFailedDraft={recoverFailedDraft}
       />
 
-      <details className="mt-8 min-w-0 rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4 sm:p-5">
-        <summary className="cursor-pointer text-[11px] uppercase tracking-[.18em] text-[var(--gold-warm)]">Каталожное сравнение текущих / одобренных значений</summary>
-        <div className="mt-5 min-w-0">
+      <details className="owner-disclosure owner-disclosure-section" style={{ marginTop: '28px' }}>
+        <summary>
+          <span><strong>Каталожное сравнение</strong><small>Текущие / одобренные SEO-значения всех товаров</small></span>
+          <span className="owner-section-kicker">Диагностика каталога</span>
+        </summary>
+        <div className="owner-disclosure-body min-w-0">
           {!showCatalogComparison ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-black/20 p-5">
             <p className="text-[12px] leading-relaxed text-[var(--bone-dim)]">
               Сравнение всех товаров не загружается во время генерации одного SEO Pack. Это отдельная диагностическая проверка каталога.
@@ -128,6 +129,6 @@ export default async function SeoStorefrontPreviewPage({ searchParams }) {
           </div></> : null}
         </div>
       </details>
-    </section>
+    </div>
   </main>;
 }
