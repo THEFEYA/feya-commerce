@@ -1,7 +1,7 @@
 // @ts-nocheck
+import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, DatabaseZap, FileText, Gauge, Layers3, Search, ShieldAlert, Sparkles } from 'lucide-react';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import { STOREFRONT_VIEW_V1, productSlug, productTitle } from '@/lib/storefront';
 import { buildSeoPilotBrief } from '@/lib/seoPilotDraft';
 
@@ -17,8 +17,8 @@ function isSelected(product, selected) { return selected && [product?.canonical_
 function searchText(product) { return [productTitle(product), product?.h1, product?.product_type, product?.material, product?.color, keyOf(product), productSlug(product)].filter(Boolean).join(' ').toLowerCase(); }
 function queryFor(productId, q) { const params = new URLSearchParams(); if (productId) params.set('product', productId); if (q) params.set('q', q); const value = params.toString(); return value ? `?${value}` : ''; }
 async function loadData(selectedProductId, q) {
-  const supabase = getSupabaseReadClient();
-  if (!supabase) return { product: FALLBACK_PRODUCT, products: [FALLBACK_PRODUCT], allCount: 1, keywords: [], warning: getMissingSupabaseEnvMessage(), fallbackUsed: true };
+  const supabase = getAdminReadClient();
+  if (!supabase) return { product: FALLBACK_PRODUCT, products: [FALLBACK_PRODUCT], allCount: 1, keywords: [], warning: getMissingAdminDataEnvMessage(), fallbackUsed: true };
   const productsResult = await supabase.from(STOREFRONT_VIEW_V1).select(PRODUCT_SELECT).limit(160);
   const allProducts = (productsResult.data || []).filter((item) => productSlug(item) && productTitle(item));
   const needle = String(q || '').trim().toLowerCase();
