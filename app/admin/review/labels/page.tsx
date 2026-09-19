@@ -135,7 +135,12 @@ export default async function AdminLabelReviewPage() {
               <Link href={adminHref} className="btn-ghost px-4 py-3 text-[10px]">Проверить <ArrowUpRight size={12} /></Link>
             </div>
 
-            <div className="mt-5 grid md:grid-cols-2 gap-3">
+            <details className="owner-disclosure owner-disclosure-section" style={{ marginTop: '14px' }}>
+              <summary>
+                <span><strong>Проблемные опции</strong><small>Показать исходные подписи и причины проверки</small></span>
+                <span className="owner-section-kicker">{flaggedConfigs.length}</span>
+              </summary>
+              <div className="owner-disclosure-body grid md:grid-cols-2 gap-3">
               {flaggedConfigs.map((config, index) => <div key={config.configuration_id || `${product.canonical_product_id}-${index}`} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4">
                 <div className="eyebrow-dim mb-2">Опция</div>
                 <div className="text-bone text-[14px] leading-snug">{labelText(config)}</div>
@@ -148,7 +153,8 @@ export default async function AdminLabelReviewPage() {
                 </div>
               </div>)}
               {!flaggedConfigs.length ? <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 text-[13px] text-[var(--bone-dim)]">Есть только флаг на уровне товара. Строк опций для проверки в текущем payload нет.</div> : null}
-            </div>
+              </div>
+            </details>
           </article>;
         })}
 
