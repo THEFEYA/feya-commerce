@@ -4,6 +4,31 @@ Date: 2026-09-19
 Branch: `owner-ui-v1`  
 Research basis: **FEYA Marketing Intelligence & Growth OS — Owner-First UX Blueprint**
 
+## Scope correction — Owner review
+
+The approved Product OS / storefront UI is **out of scope** for the Owner-First agent-interface redesign.
+
+Frozen surfaces:
+- public storefront and product cards;
+- `/admin/listing-master`;
+- Product OS catalog/review/media/SEO working screens that existed before the agent/company UI program.
+
+Allowed change on frozen surfaces:
+- security/read-boundary fixes that do not alter visible layout or workflow;
+- one minimal navigation entry to the Company / AI control surface.
+
+Owner-First research now applies to:
+- `/admin/company/**`;
+- agent/team status;
+- Owner Attention;
+- Growth signals and Growth Cases;
+- agent Work;
+- Results / measurement / learning;
+- System readiness / capabilities / execution / data health;
+- Advanced diagnostic drill-down.
+
+This scope rule supersedes earlier audit items that proposed rebuilding the existing Product Workspace. The existing Product OS remains the approved operator workspace.
+
 ## Purpose
 
 This file is the completion map for the Owner UI. It prevents endless “continue improving” work by separating:
@@ -36,7 +61,7 @@ The finish line is not “all possible UI ideas”. The finish line is: the Owne
 |---|---|---|---|
 | UX-0 Canon & terminology | COMPLETE | six-destination IA; Russian terminology layer; status semantics; Advanced boundary; no-fake-maturity rules | Maintain terminology as new states appear |
 | UX-1 Owner Shell | IN REVIEW | persistent sidebar/topbar; Today in research order; Work; Signals; Owner Attention; Team FEYA; global search; mobile navigation; compact density; drawer-first Work detail; evidence-first Signal drawer; full Work detail route | visual owner review; validate drawers with first real Growth Case and owner signal; add handoff timeline only when the projection exists |
-| UX-2 Product Workspace | IN PROGRESS | searchable catalog; unified product detail; blockers; facts; media; pricing/options; technical details collapsed; Product Workspace sub-navigation; integrated content/SEO/CQA summary; review-event history | verify product-context parity on real products; add contextual fact resolution only after protected write path; move remaining product-specific deep links into workspace where useful |
+| UX-2 Existing Product OS | FROZEN / APPROVED | existing catalog, Listing Master, review, media and SEO operator screens remain on the approved baseline | no visual rebuild; only non-visual security boundary fixes and a minimal link to Company / AI control |
 | UX-3 Growth Workspace | IN PROGRESS | owner Growth shell; opportunities surface; historical demand; keyword review; query clusters; page portfolio; ownership; indexability; technical launch/search gates; honest missing-data states | consolidate remaining diagnostic-only SEO routes under Advanced/context; add trend views only after live datasets exist |
 | UX-4 Results & System | IN PROGRESS | Results shell; experiments; learnings; change records; System readiness; source health; permissions; AI usage; incidents; capability/action diagnostics | convert remaining registry-style owner pages into contextual drill-down where they still leak engineering structure; measured outcome cards require real measurement data |
 | UX-5 Protected Owner Actions | BLOCKED BY PREREQUISITES | decision screens exist read-only; authority boundaries are explicit | verified owner auth, allowlist, hardened admin reads, audited mutation path, then approve/reject/defer/snooze and controlled fact resolution |
@@ -130,7 +155,7 @@ Current:
 The current Owner UI visual/read-only program is complete when all of the following are true:
 
 1. UX-1 passes owner visual review on desktop and mobile.
-2. Product Workspace parity is verified on several real products.
+2. Existing Product OS screens remain visually and behaviorally on the approved baseline.
 3. Growth, Results and System contain no remaining owner-visible raw enum/registry walls except explicit Advanced drill-down.
 4. Global search reliably reaches Product, Page, Query, Work and Signal contexts.
 5. Large queues have search/filter/sort/pagination or an equivalent focused view.
@@ -144,7 +169,7 @@ UX-5 and UX-7 are **not part of this finish line** because they are blocked by s
 
 ## Next implementation order
 
-1. Verify the new Work drawer/full-detail and Product Workspace on Vercel.
+1. Verify the new Work/Signal drawers and the Company / AI control surfaces on Vercel; separately confirm the approved Product OS baseline is unchanged.
 2. Audit remaining normal owner routes for raw engineering terminology and duplicated registry pages.
 3. Verify the first saved Product catalog views in owner use; only then propagate the pattern to another repeated review table.
 4. Add pin/hide only for non-critical Today/Work informational blocks if owner review shows a real need, with a visible Reset to default.
