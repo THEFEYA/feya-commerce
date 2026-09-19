@@ -7,7 +7,7 @@ import { ADMIN_PRODUCT_BUILDER_DETAIL_SELECT, ADMIN_PRODUCT_BUILDER_DETAIL_VIEW,
 import { ADMIN_PRODUCT_CATALOG_FALLBACK_SELECT, ADMIN_PRODUCT_CATALOG_FALLBACK_VIEW, toCatalogFallbackStorefrontProduct } from '@/lib/admin-product-catalog-fallback';
 import {
   ADMIN_COMPONENT_TRUTH_SELECT, CANONICAL_PRODUCT_TRUTH_VIEW, getCanonicalComponentTruthDiagnostic, } from '@/lib/adminComponentTruth';
-import { getMissingAdminDataEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
+import { getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_V4_PDP_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
 
