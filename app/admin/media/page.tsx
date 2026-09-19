@@ -1,6 +1,6 @@
 // @ts-nocheck
 import Link from 'next/link';
-import { ArrowUpRight, Film, ImageIcon, Images, Sparkles } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { AdminQueueQuickReviewClient } from '@/components/AdminQueueQuickReviewClient';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle, worldLabel } from '@/lib/storefront';
@@ -49,14 +49,6 @@ function Chip({ children, tone = 'neutral' }) {
       ? 'border-[rgba(212,178,106,.30)] text-[var(--gold-warm)] bg-[rgba(212,178,106,.07)]'
       : 'border-[rgba(216,214,211,.16)] text-[var(--bone-dim)] bg-black/15';
   return <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] ${className}`}>{children}</span>;
-}
-
-function Metric({ label, value, note, icon: Icon }) {
-  return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
-    <div className="flex items-center justify-between gap-4 mb-4"><div className="eyebrow-dim">{label}</div><Icon size={16} className="text-[var(--gold-warm)]" /></div>
-    <div className="font-price text-gold-grad text-[38px] leading-none">{value}</div>
-    <div className="mt-4 text-[12px] leading-relaxed text-[var(--bone-dim)]">{note}</div>
-  </div>;
 }
 
 export default async function AdminMediaQaPage({ searchParams }: { searchParams: Promise<{ q?: string; issue?: string; page?: string }> }) {
