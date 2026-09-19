@@ -13,6 +13,7 @@ type TodayData = {
   signals: Row[];
   work: Row[];
   workTotal: number;
+  opportunities: Row[];
   readiness: Row[];
   operations: {
     productFacts: number;
@@ -31,6 +32,7 @@ async function getTodayData(): Promise<TodayData> {
       signals: [],
       work: [],
       workTotal: 0,
+      opportunities: [],
       readiness: [],
       operations: { productFacts: 0, keywordReview: 0, cqaActionable: 0, cqaAutomatic: 0 },
       error: getMissingAdminDataEnvMessage(),
@@ -41,6 +43,7 @@ async function getTodayData(): Promise<TodayData> {
     attentionResult,
     signalResult,
     workResult,
+    opportunityResult,
     readinessResult,
     productFactsResult,
     keywordReviewResult,
@@ -67,6 +70,13 @@ async function getTodayData(): Promise<TodayData> {
       .order('updated_at', { ascending: false })
       .limit(5),
     supabase
+      .from('feya_commerce_v_growth_opportunities_safe_v1')
+      .select('opportunity_id,title,opportunity_type,priority,opportunity_status,commercial_expiry_at,due_at,expiry_state,owner_role')
+      .in('opportunity_status', ['OPEN', 'ACTIONING'])
+      .not('expiry_state', 'eq', 'EXPIRED')
+      .order('commercial_expiry_at', { ascending: true, nullsFirst: false })
+      .limit(3),
+    supabase
       .from('feya_commerce_v_launch_readiness_summary_safe_v2')
       .select('*')
       .order('readiness_scope', { ascending: true }),
@@ -92,6 +102,7 @@ async function getTodayData(): Promise<TodayData> {
     attentionResult.error ||
     signalResult.error ||
     workResult.error ||
+    opportunityResult.error ||
     readinessResult.error ||
     productFactsResult.error ||
     keywordReviewResult.error ||
@@ -103,6 +114,7 @@ async function getTodayData(): Promise<TodayData> {
       signals: [],
       work: [],
       workTotal: 0,
+      opportunities: [],
       readiness: [],
       operations: { productFacts: 0, keywordReview: 0, cqaActionable: 0, cqaAutomatic: 0 },
       error: firstError.message,
@@ -114,6 +126,7 @@ async function getTodayData(): Promise<TodayData> {
     signals: (signalResult.data || []) as Row[],
     work: (workResult.data || []) as Row[],
     workTotal: workResult.count || 0,
+    opportunities: (opportunityResult.data || []) as Row[],
     readiness: (readinessResult.data || []) as Row[],
     operations: {
       productFacts: productFactsResult.count || 0,
@@ -145,7 +158,7 @@ function russianDate() {
 }
 
 export default async function AdminHomePage() {
-  const { attention, signals, work, workTotal, readiness, operations, error } = await getTodayData();
+  const { attention, signals, work, workTotal, opportunities, readiness, operations, error } = await getTodayData();
 
   const attentionVM = attention.map(presentOwnerAttention);
   const attentionCodes = new Set(attentionVM.map((item) => item.sourceCode).filter(Boolean));
@@ -250,6 +263,37 @@ export default async function AdminHomePage() {
           )}
         </section>
 
+        {opportunities.length ? (
+          <section className="owner-section">
+            <div className="owner-section-head">
+              <div>
+                <h2>Возможности</h2>
+                <div className="owner-section-kicker">Только реальные, ещё актуальные возможности из Growth OS</div>
+              </div>
+              <Link href="/admin/opportunities" className="owner-button">Все возможности</Link>
+            </div>
+            <div className="owner-list">
+              {opportunities.map((row) => (
+                <Link href="/admin/opportunities" className="owner-list-row" key={String(row.opportunity_id)}>
+                  <div className="owner-list-row-main">
+                    <div className="owner-card-meta">
+                      <span className="owner-status is-info">{String(row.priority || 'P3')}</span>
+                      <span>{String(row.opportunity_status || '') === 'ACTIONING' ? 'В работе' : 'Открыта'}</span>
+                    </div>
+                    <h3>{String(row.title || 'Возможность роста')}</h3>
+                    <p>
+                      {row.commercial_expiry_at
+                        ? `Окно актуальности до ${new Date(String(row.commercial_expiry_at)).toLocaleDateString('ru-RU')}`
+                        : 'Жёсткое коммерческое окно не задано.'}
+                    </p>
+                  </div>
+                  <div className="owner-list-row-side"><span className="owner-button">Исследовать</span></div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
         <section className="owner-section">
           <div className="owner-section-head">
             <div>
@@ -336,6 +380,28 @@ export default async function AdminHomePage() {
               ))}
             </div>
           </div>
+        </section>
+
+        <section className="owner-section">
+          <details className="owner-disclosure owner-disclosure-section">
+            <summary>
+              <span>
+                <strong>Для сведения</strong>
+                <small>Фоновая работа и низкоприоритетные состояния, которые не требуют вашего решения</small>
+              </span>
+              <span className="owner-section-kicker">{operations.cqaAutomatic} автоматических проверок</span>
+            </summary>
+            <div className="owner-disclosure-body">
+              <p className="owner-card-copy">
+                {operations.cqaAutomatic
+                  ? `${operations.cqaAutomatic} контентных черновиков проходят автоматические предварительные проверки. Они появятся выше только если найдут блокировку или потребуют решения.`
+                  : 'Фоновых проверок, которые нужно отдельно показывать, сейчас нет.'}
+              </p>
+              <div className="owner-actions">
+                <Link href="/admin/company/work#operational-queues" className="owner-button">Открыть рабочие очереди</Link>
+              </div>
+            </div>
+          </details>
         </section>
       </div>
     </main>
