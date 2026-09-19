@@ -131,12 +131,47 @@ function stateClass(value: unknown) {
   return 'warning';
 }
 
-export default async function AdminExecutionMapPage() {
+export default async function AdminExecutionMapPage({ searchParams }: { searchParams: Promise<{ q?: string; state?: string; approval?: string }> }) {
+  const params = await searchParams;
   const { rows, error } = await getActions();
+  const q = String(params.q || '').trim().toLowerCase();
+  const stateFilter = String(params.state || 'attention').toUpperCase();
+  const approvalFilter = String(params.approval || 'all').toLowerCase();
   const available = rows.filter((row) => row.action_state === 'AVAILABLE').length;
   const limited = rows.filter((row) => row.action_state === 'AVAILABLE_WITH_LIMITATIONS').length;
   const unavailable = rows.filter((row) => row.action_state === 'UNAVAILABLE').length;
   const ownerRequired = rows.filter((row) => String(row.approval_class || '').includes('HUMAN')).length;
+
+  const filteredRows = rows
+    .filter((row) => {
+      const haystack = [actionLabel(row.action_code), roleLabel(row.owner_role), row.action_code]
+        .map((value) => String(value || '').toLowerCase())
+        .join(' ');
+      const matchesQuery = !q || haystack.includes(q);
+      const state = String(row.action_state || '').toUpperCase();
+      const approval = String(row.approval_class || '').toUpperCase();
+      const matchesState =
+        stateFilter === 'ALL' ||
+        (stateFilter === 'ATTENTION' && (state !== 'AVAILABLE' || approval.includes('HUMAN'))) ||
+        state === stateFilter;
+      const matchesApproval =
+        approvalFilter === 'all' ||
+        (approvalFilter === 'human' && approval.includes('HUMAN')) ||
+        (approvalFilter === 'none' && (!approval || approval === 'NONE' || approval.includes('NONE_FOR')));
+      return matchesQuery && matchesState && matchesApproval;
+    })
+    .sort((a, b) => {
+      const attentionRank = (row: GrowthActionCapabilityRow) => {
+        const state = String(row.action_state || '').toUpperCase();
+        const approval = String(row.approval_class || '').toUpperCase();
+        if (state === 'UNAVAILABLE') return 0;
+        if (approval.includes('HUMAN_OWNER')) return 1;
+        if (approval.includes('HUMAN')) return 2;
+        if (state === 'AVAILABLE_WITH_LIMITATIONS') return 3;
+        return 4;
+      };
+      return attentionRank(a) - attentionRank(b) || actionLabel(a.action_code).localeCompare(actionLabel(b.action_code), 'ru');
+    });
 
   return (
     <main className="page-shell">
@@ -168,6 +203,39 @@ export default async function AdminExecutionMapPage() {
 
         {error ? <div className="notice">{error}</div> : null}
 
+        <form action="/admin/execution-map" className="owner-card" style={{ marginBottom: '14px' }}>
+          <div className="grid gap-3 lg:grid-cols-[1fr_250px_240px_auto] lg:items-end">
+            <label>
+              <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Поиск действия</div>
+              <input name="q" defaultValue={q} className="field" placeholder="индексация, цена, контент…" />
+            </label>
+            <label>
+              <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Состояние</div>
+              <select name="state" defaultValue={stateFilter} className="field">
+                <option value="ATTENTION">Требует внимания</option>
+                <option value="UNAVAILABLE">Недоступно</option>
+                <option value="AVAILABLE_WITH_LIMITATIONS">Доступно с ограничениями</option>
+                <option value="AVAILABLE">Доступно полностью</option>
+                <option value="ALL">Все</option>
+              </select>
+            </label>
+            <label>
+              <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Одобрение</div>
+              <select name="approval" defaultValue={approvalFilter} className="field">
+                <option value="all">Любое</option>
+                <option value="human">Нужен человек / владелец</option>
+                <option value="none">Без отдельного одобрения</option>
+              </select>
+            </label>
+            <button type="submit" className="owner-button primary">Применить</button>
+          </div>
+          <div className="owner-card-meta" style={{ marginTop: '10px', marginBottom: 0 }}>
+            <span>Показано: {filteredRows.length}</span>
+            <span>Всего действий: {rows.length}</span>
+            <Link href="/admin/execution-map">Сбросить</Link>
+          </div>
+        </form>
+
         <div className="table-wrap">
           <table>
             <thead>
@@ -183,7 +251,7 @@ export default async function AdminExecutionMapPage() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
+              {filteredRows.map((row) => (
                 <tr key={row.action_code}>
                   <td>
                     <strong title={asText(row.action_code)}>{actionLabel(row.action_code)}</strong>
