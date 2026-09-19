@@ -7,17 +7,9 @@ import {
   BarChart3,
   BriefcaseBusiness,
   CalendarDays,
-  CheckCircle2,
-  FileImage,
-  FileSearch,
-  FileText,
-  Gauge,
-  ImageIcon,
-  Layers3,
   PackageSearch,
   PanelLeftClose,
   PanelLeftOpen,
-  Rocket,
   Search,
   Settings2,
   SlidersHorizontal,
@@ -33,26 +25,6 @@ const NAV_ITEMS = [
   { key: 'results', href: '/admin/company/results', label: 'Результаты', icon: BarChart3 },
   { key: 'system', href: '/admin/company/system', label: 'Система', icon: Settings2 },
 ] as const;
-
-const WORK_TOOLS = [
-  { href: '/admin', label: 'Панель магазина', icon: Gauge },
-  { href: '/admin/listing-master', label: 'Мастер листинга', icon: SlidersHorizontal },
-  { href: '/admin/seo-lab', label: 'SEO-лаборатория', icon: Layers3 },
-  { href: '/admin/seo-engine/scoring', label: 'Оценка ключей', icon: BarChart3 },
-  { href: '/admin/seo-engine/metric-import/validate', label: 'Метрики Google', icon: FileSearch },
-  { href: '/admin/seo-engine/commercial-review', label: 'Сигналы Google Ads', icon: TrendingUp },
-  { href: '/admin/seo-engine/briefs', label: 'SEO-бриф', icon: FileText },
-  { href: '/admin/seo-approval', label: 'Проверка SEO', icon: CheckCircle2 },
-  { href: '/admin/media', label: 'Проверка медиа', icon: ImageIcon },
-  { href: '/admin/media-seo', label: 'SEO изображений', icon: FileImage },
-  { href: '/admin/launch', label: 'Запуск', icon: Rocket },
-  { href: '/admin/indexation', label: 'Индексация', icon: FileSearch },
-] as const;
-
-function pathMatches(pathname: string, href: string) {
-  if (href === '/admin') return pathname === '/admin';
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
 
 function ownerArea(pathname: string) {
   if (pathname.startsWith('/admin/company/search')) return 'search';
@@ -119,8 +91,6 @@ function ownerArea(pathname: string) {
 }
 
 function currentContext(pathname: string) {
-  const tool = WORK_TOOLS.find((item) => pathMatches(pathname, item.href));
-  if (tool) return tool.label;
   const key = ownerArea(pathname);
   if (key === 'search') return 'Поиск';
   return NAV_ITEMS.find((item) => item.key === key)?.label || 'FEYA';
@@ -132,8 +102,6 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [compactDensity, setCompactDensity] = useState(false);
   const activeArea = ownerArea(pathname);
-  const activeTool = WORK_TOOLS.find((item) => pathMatches(pathname, item.href));
-  const toolsOpen = Boolean(activeTool);
 
   useEffect(() => {
     try {
@@ -219,32 +187,6 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
           })}
         </nav>
 
-        <details className="owner-tools" open={toolsOpen}>
-          <summary>
-            <span className="owner-nav-mark" aria-hidden="true"><SlidersHorizontal size={14} strokeWidth={1.8} /></span>
-            <span>Рабочие инструменты</span>
-            <span className="owner-tools-chevron" aria-hidden="true">⌄</span>
-          </summary>
-          <div className="owner-tools-list">
-            {WORK_TOOLS.map((item) => {
-              const active = pathMatches(pathname, item.href);
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`owner-tool-link${active ? ' is-active' : ''}`}
-                  aria-current={active ? 'page' : undefined}
-                  title={item.label}
-                >
-                  <span aria-hidden="true"><Icon size={13} strokeWidth={1.8} /></span>
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
-          </div>
-        </details>
-
         <div className="owner-sidebar-footer">
           <Link
             href="/admin/company/search"
@@ -259,6 +201,10 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
           >
             <span className="owner-nav-mark" aria-hidden="true"><Settings2 size={14} strokeWidth={1.8} /></span>
             <span>Технические детали</span>
+          </Link>
+          <Link href="/admin" className="owner-nav-item owner-nav-secondary" title="Товарная админка">
+            <span className="owner-nav-mark" aria-hidden="true"><PackageSearch size={14} strokeWidth={1.8} /></span>
+            <span>Товарная админка</span>
           </Link>
           <Link href="/shop" className="owner-nav-item owner-nav-secondary" title="Магазин">
             <span className="owner-nav-mark" aria-hidden="true"><Store size={14} strokeWidth={1.8} /></span>
