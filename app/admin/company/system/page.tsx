@@ -171,6 +171,14 @@ function toneClass(tone: string) {
 export default async function AdminSystemPage() {
   const { readiness, sources, actions, executionRequests, activeIncidents, mutationFreezes, adminBoundary, aiUsage, error } = await getSystemData();
   const ownerAuth = getAdminAuthConfigStatus();
+  const blockedReadiness = readiness.filter((row) => String(row.scope_status || '').toUpperCase() !== 'PASS');
+  const healthyReadiness = readiness.filter((row) => String(row.scope_status || '').toUpperCase() === 'PASS');
+  const sourceIssues = [...sources]
+    .filter((row) => !['HEALTHY', 'AVAILABLE'].includes(String(row.health_state || '').toUpperCase()))
+    .sort((a, b) => healthRank(a.health_state) - healthRank(b.health_state));
+  const healthySources = [...sources]
+    .filter((row) => ['HEALTHY', 'AVAILABLE'].includes(String(row.health_state || '').toUpperCase()))
+    .sort((a, b) => sourceLabel(a.source_code).localeCompare(sourceLabel(b.source_code), 'ru'));
 
   return (
     <main className="owner-page">
@@ -195,45 +203,101 @@ export default async function AdminSystemPage() {
         {error ? <div className="owner-card is-danger"><div className="owner-status is-danger">Ошибка данных</div><p className="owner-card-copy">{error}</p></div> : null}
 
         <section className="owner-section" id="readiness">
-          <div className="owner-section-head"><h2>Готовность</h2></div>
-          <div className="owner-grid four">
-            {readiness.map((row) => {
-              const state = String(row.scope_status || '');
-              const tone = ownerToneForStatus(state);
-              return (
-                <article className={`owner-card ${toneClass(tone)}`} key={String(row.readiness_scope)}>
-                  <div className={`owner-status ${toneClass(tone)}`}>{statusLabel(state)}</div>
-                  <h3 className="owner-card-title" style={{ marginTop: '10px' }}>{scopeLabel(row.readiness_scope)}</h3>
-                  <p className="owner-card-copy">{Number(row.blocking_count || 0)} блокирующих условий</p>
-                </article>
-              );
-            })}
+          <div className="owner-section-head">
+            <div>
+              <h2>Что мешает запуску</h2>
+              <div className="owner-section-kicker">Нормальные зоны не занимают главный экран</div>
+            </div>
           </div>
+
+          {blockedReadiness.length ? (
+            <div className="owner-grid two">
+              {blockedReadiness.map((row) => {
+                const state = String(row.scope_status || '');
+                const tone = ownerToneForStatus(state);
+                return (
+                  <article className={`owner-card ${toneClass(tone)}`} key={String(row.readiness_scope)}>
+                    <div className={`owner-status ${toneClass(tone)}`}>{statusLabel(state)}</div>
+                    <h3 className="owner-card-title" style={{ marginTop: '10px' }}>{scopeLabel(row.readiness_scope)}</h3>
+                    <p className="owner-card-copy">
+                      {Number(row.blocking_count || 0)} блокирующих условий · {Number(row.warn_count || 0)} предупреждений
+                    </p>
+                    <div className="owner-actions">
+                      <Link href="/admin/launch-readiness" className="owner-button">Что именно блокирует</Link>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="owner-card is-success">
+              <div className="owner-status is-success">Критичных ограничений нет</div>
+              <p className="owner-card-copy">Все проверяемые зоны сейчас проходят обязательные условия.</p>
+            </div>
+          )}
+
+          {healthyReadiness.length ? (
+            <details className="owner-disclosure owner-disclosure-section" style={{ marginTop: '10px' }}>
+              <summary>
+                <span><strong>Зоны без блокировок</strong><small>Скрыты, потому что сейчас не требуют вашего внимания</small></span>
+                <span className="owner-section-kicker">{healthyReadiness.length}</span>
+              </summary>
+              <div className="owner-disclosure-body owner-card-meta" style={{ marginBottom: 0 }}>
+                {healthyReadiness.map((row) => <span key={String(row.readiness_scope)}>{scopeLabel(row.readiness_scope)}</span>)}
+              </div>
+            </details>
+          ) : null}
         </section>
 
         <section className="owner-section" id="sources">
           <div className="owner-section-head">
-            <div><h2>Источники данных</h2><div className="owner-section-kicker">Ограничение показывается рядом с источником, а не прячется в логах</div></div>
-            <Link href="/admin/data-health" className="owner-button">Подробнее</Link>
+            <div>
+              <h2>Источники данных</h2>
+              <div className="owner-section-kicker">Сначала только источники, которые ограничивают решения</div>
+            </div>
+            <Link href="/admin/data-health" className="owner-button">Все источники</Link>
           </div>
-          <div className="owner-list">
-            {[...sources].sort((a, b) => healthRank(a.health_state) - healthRank(b.health_state)).map((row) => {
-              const health = String(row.health_state || '');
-              const tone = ownerToneForStatus(health);
-              return (
-                <article className="owner-list-row" key={String(row.source_code)}>
-                  <div className="owner-list-row-main">
-                    <div className="owner-card-meta">
-                      <span className={`owner-status ${toneClass(tone)}`}>{statusLabel(health)}</span>
-                      <span>{dataFreshnessLabel(row.freshness_state)}</span>
+
+          {sourceIssues.length ? (
+            <div className="owner-list">
+              {sourceIssues.map((row) => {
+                const health = String(row.health_state || '');
+                const tone = ownerToneForStatus(health);
+                return (
+                  <article className="owner-list-row" key={String(row.source_code)}>
+                    <div className="owner-list-row-main">
+                      <div className="owner-card-meta">
+                        <span className={`owner-status ${toneClass(tone)}`}>{statusLabel(health)}</span>
+                        <span>{dataFreshnessLabel(row.freshness_state)}</span>
+                      </div>
+                      <h3>{sourceLabel(row.source_code)}</h3>
+                      <p>{sourceHealthSummary(row.source_code)}</p>
                     </div>
-                    <h3>{sourceLabel(row.source_code)}</h3>
-                    <p>{sourceHealthSummary(row.source_code)}</p>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+                    <div className="owner-list-row-side">
+                      <Link href="/admin/data-health" className="owner-button">Подробнее</Link>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="owner-card is-success">
+              <div className="owner-status is-success">Источники без критичных проблем</div>
+              <p className="owner-card-copy">Нет источников, состояние которых сейчас требует внимания владельца.</p>
+            </div>
+          )}
+
+          {healthySources.length ? (
+            <details className="owner-disclosure owner-disclosure-section" style={{ marginTop: '10px' }}>
+              <summary>
+                <span><strong>Работают нормально</strong><small>Здоровые источники скрыты по умолчанию</small></span>
+                <span className="owner-section-kicker">{healthySources.length}</span>
+              </summary>
+              <div className="owner-disclosure-body owner-card-meta" style={{ marginBottom: 0 }}>
+                {healthySources.map((row) => <span key={String(row.source_code)}>{sourceLabel(row.source_code)}</span>)}
+              </div>
+            </details>
+          ) : null}
         </section>
 
         <section className="owner-section" id="permissions">
