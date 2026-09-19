@@ -41,6 +41,26 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
+function modeLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    A_B: 'A/B',
+    AB: 'A/B',
+    BEFORE_AFTER: 'До / после',
+    HOLDOUT: 'Контрольная группа',
+    OBSERVATIONAL: 'Наблюдение',
+    QUASI_EXPERIMENT: 'Квазиэксперимент',
+  };
+  return labels[key] || (key ? 'Настраиваемый дизайн' : '—');
+}
+
+function dateLabel(value: unknown) {
+  if (!value) return '—';
+  const date = new Date(String(value));
+  if (Number.isNaN(date.getTime())) return asText(value);
+  return new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+}
+
 function statusClass(value: unknown) {
   const status = asText(value, '').toUpperCase();
   if (status === 'OUTCOME_READY' || status === 'CLOSED' || status === 'FEASIBLE' || status === 'CLEAN') return 'ok';
@@ -77,13 +97,11 @@ export default async function AdminExperimentsPage() {
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{experiments.length}</strong><span>Экспериментов</span></div>
-          <div className="card metric"><strong>{running}</strong><span>В работе</span></div>
-          <div className="card metric"><strong>{contaminated}</strong><span>Есть влияющие изменения</span></div>
-          <div className="card metric"><strong>{invalidated}</strong><span>Результат непригоден</span></div>
-          <div className="card metric"><strong>{outcomeReady}</strong><span>Готов результат</span></div>
-          <div className="card metric"><strong>{changes.length}</strong><span>Последних изменений</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{running}</strong><span>Экспериментов в работе</span></div>
+          <div className="owner-summary-cell"><strong>{outcomeReady}</strong><span>Результат готов к оценке</span></div>
+          <div className="owner-summary-cell"><strong>{contaminated}</strong><span>Есть влияющие параллельные изменения</span></div>
+          <div className="owner-summary-cell"><strong>{invalidated}</strong><span>Результат нельзя использовать</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
@@ -111,10 +129,9 @@ export default async function AdminExperimentsPage() {
               {experiments.length ? experiments.map((row) => (
                 <tr key={row.experiment_id}>
                   <td>
-                    <strong>{asText(row.title, row.experiment_code || '—')}</strong>
-                    <div className="muted">{asText(row.experiment_code)}</div>
+                    <strong title={asText(row.experiment_code)}>{asText(row.title, row.experiment_code || '—')}</strong>
                   </td>
-                  <td>{asText(row.experiment_mode)}</td>
+                  <td title={asText(row.experiment_mode)}>{modeLabel(row.experiment_mode)}</td>
                   <td>
                     <span className={`status-pill ${statusClass(row.experiment_status)}`}>
                       {statusLabel(row.experiment_status)}
@@ -132,8 +149,8 @@ export default async function AdminExperimentsPage() {
                     <div className="muted">{row.contamination_count || 0} записей · {row.invalidating_contamination_count || 0} критичных</div>
                   </td>
                   <td>
-                    {asText(row.started_at, asText(row.planned_start_at))}
-                    <div className="muted">→ {asText(row.ended_at, asText(row.planned_end_at))}</div>
+                    {dateLabel(row.started_at || row.planned_start_at)}
+                    <div className="muted">→ {dateLabel(row.ended_at || row.planned_end_at)}</div>
                   </td>
                 </tr>
               )) : (
@@ -166,8 +183,7 @@ export default async function AdminExperimentsPage() {
               {changes.length ? changes.map((row) => (
                 <tr key={row.change_event_id}>
                   <td>
-                    <strong>{asText(row.change_type, row.event_code || '—')}</strong>
-                    <div className="muted">{asText(row.event_code)}</div>
+                    <strong title={asText(row.event_code)}>{asText(row.change_type, row.event_code || '—')}</strong>
                   </td>
                   <td>{asText(row.change_domain)}</td>
                   <td>
@@ -179,11 +195,11 @@ export default async function AdminExperimentsPage() {
                     <div className="muted">{asText(row.source_ref)}</div>
                   </td>
                   <td>
-                    {row.execution_request_id ? <div className="muted">execution {row.execution_request_id}</div> : null}
-                    {row.incident_id ? <div className="muted">incident {row.incident_id}</div> : null}
+                    {row.execution_request_id ? <div className="muted" title={asText(row.execution_request_id)}>есть запись выполнения</div> : null}
+                    {row.incident_id ? <div className="muted" title={asText(row.incident_id)}>связан с инцидентом</div> : null}
                     {!row.execution_request_id && !row.incident_id ? '—' : null}
                   </td>
-                  <td>{asText(row.event_at)}</td>
+                  <td>{dateLabel(row.event_at)}</td>
                 </tr>
               )) : (
                 <tr><td colSpan={6}>Зафиксированных изменений пока нет.</td></tr>
