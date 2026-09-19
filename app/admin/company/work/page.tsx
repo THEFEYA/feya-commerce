@@ -165,8 +165,12 @@ const GROUP_ORDER = [
   'Закрыто',
 ];
 
-export default async function AdminWorkPage() {
+export default async function AdminWorkPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; owner?: string }> }) {
+  const params = await searchParams;
   const { work, attention, roles, operations, error } = await getWorkData();
+  const q = String(params.q || '').trim().toLowerCase();
+  const statusFilter = String(params.status || 'active');
+  const ownerFilter = String(params.owner || 'all');
   const workVM = work.map(presentWorkItem);
   const activeWorkVM = workVM.filter((item) => !['COMPLETED', 'CLOSED'].includes(item.status));
   const attentionVM = attention.map(presentOwnerAttention);
@@ -194,8 +198,21 @@ export default async function AdminWorkPage() {
   ];
   const cqaMax = Math.max(1, ...cqaBars.map((item) => item.value));
 
-  const grouped = new Map<string, typeof workVM>();
-  for (const item of workVM) {
+  const filteredWorkVM = workVM.filter((item) => {
+    const haystack = [item.title, item.purpose, item.ownerLabel, item.statusLabel, item.blockedReason, item.waitReason]
+      .map((value) => String(value || '').toLowerCase())
+      .join(' ');
+    const matchesQuery = !q || haystack.includes(q);
+    const matchesStatus =
+      statusFilter === 'all' ||
+      (statusFilter === 'active' && !['COMPLETED', 'CLOSED'].includes(item.status)) ||
+      item.status === statusFilter;
+    const matchesOwner = ownerFilter === 'all' || item.ownerLabel === ownerFilter;
+    return matchesQuery && matchesStatus && matchesOwner;
+  });
+
+  const grouped = new Map<string, typeof filteredWorkVM>();
+  for (const item of filteredWorkVM) {
     const label = groupLabel(item.status);
     grouped.set(label, [...(grouped.get(label) || []), item]);
   }
@@ -217,7 +234,7 @@ export default async function AdminWorkPage() {
         <nav className="owner-subnav" aria-label="Разделы работы">
           <a href="#owner-waiting">Ждёт вас · {attentionVM.length}</a>
           <a href="#operational-queues">Операционные очереди · {operationalWork}</a>
-          <a href="#work-list">задачи роста · {workVM.length}</a>
+          <a href="#work-list">задачи роста · {activeWorkVM.length}</a>
           <a href="#team">Команда FEYA · {roleVM.length}</a>
         </nav>
 
@@ -330,6 +347,43 @@ export default async function AdminWorkPage() {
           </div>
 
           {workVM.length ? (
+            <form action="/admin/company/work" className="owner-card" style={{ marginBottom: '14px' }}>
+              <div className="grid gap-3 lg:grid-cols-[1fr_250px_260px_auto] lg:items-end">
+                <label>
+                  <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Поиск работы</div>
+                  <input name="q" defaultValue={q} className="field" placeholder="задача, причина, роль…" />
+                </label>
+                <label>
+                  <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Состояние</div>
+                  <select name="status" defaultValue={statusFilter} className="field">
+                    <option value="active">Только активные</option>
+                    <option value="BLOCKED">Заблокировано</option>
+                    <option value="RUNNING">В работе</option>
+                    <option value="QUEUED">В очереди</option>
+                    <option value="MEASURING">Измеряем результат</option>
+                    <option value="LEARNING">Формируем вывод</option>
+                    <option value="COMPLETED">Завершено</option>
+                    <option value="all">Все состояния</option>
+                  </select>
+                </label>
+                <label>
+                  <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Ответственная роль</div>
+                  <select name="owner" defaultValue={ownerFilter} className="field">
+                    <option value="all">Все роли</option>
+                    {roleVM.map((role) => <option value={role.name} key={role.code}>{role.name}</option>)}
+                  </select>
+                </label>
+                <button type="submit" className="owner-button primary">Применить</button>
+              </div>
+              <div className="owner-card-meta" style={{ marginTop: '10px', marginBottom: 0 }}>
+                <span>После фильтра: {filteredWorkVM.length}</span>
+                <span>Всего процессов: {workVM.length}</span>
+                <Link href="/admin/company/work#work-list">Сбросить</Link>
+              </div>
+            </form>
+          ) : null}
+
+          {filteredWorkVM.length ? (
             GROUP_ORDER.filter((label) => grouped.has(label)).map((label) => {
               const items = grouped.get(label) || [];
               const expanded = !['Работа завершена', 'Закрыто'].includes(label);
@@ -365,7 +419,9 @@ export default async function AdminWorkPage() {
             })
           ) : (
             <div className="owner-empty">
-              Активных задач роста и процессов пока нет. Это не означает, что работы нет: реальные очереди товарной системы и SEO показаны выше. FEYA не создаёт искусственные задачи только ради заполнения панели.
+              {workVM.length
+                ? 'По текущему фильтру задач роста нет.'
+                : 'Активных задач роста и процессов пока нет. Это не означает, что работы нет: реальные очереди товарной системы и SEO показаны выше. FEYA не создаёт искусственные задачи только ради заполнения панели.'}
             </div>
           )}
         </section>
