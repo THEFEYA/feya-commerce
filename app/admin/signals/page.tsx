@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { CaseAdmissionPreviewRow, GrowthSignalCandidateRow } from '@/lib/types';
-import { admissionLabel, priorityLabel, roleLabel, signalCopy, statusLabel } from '@/lib/owner-ui/terminology';
+import { admissionLabel, admissionReasonLabel, priorityLabel, roleLabel, signalCopy, statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -165,7 +165,7 @@ export default async function AdminSignalsPage() {
                       return (
                         <>
                           <strong>{admissionLabel(admission?.admission_decision)}</strong>
-                          <div className="muted">{asText(admission?.admission_reason)}</div>
+                          <div className="muted" title={asText(admission?.admission_reason)}>{admissionReasonLabel(admission?.admission_reason)}</div>
                           {admission?.existing_case_code ? (
                             <div className="badge-row">
                               <span className="badge" title={admission.existing_case_code}>Есть связанная рабочая ситуация</span>
