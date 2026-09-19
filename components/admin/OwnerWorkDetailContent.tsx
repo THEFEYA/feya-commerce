@@ -1,0 +1,116 @@
+import Link from 'next/link';
+import type { OwnerWorkItemVM } from '@/lib/owner-ui/types';
+
+function toneClass(tone: OwnerWorkItemVM['tone']) {
+  return tone === 'danger'
+    ? 'is-danger'
+    : tone === 'warning'
+      ? 'is-warning'
+      : tone === 'success'
+        ? 'is-success'
+        : tone === 'info'
+          ? 'is-info'
+          : '';
+}
+
+function dateTimeLabel(value?: string | null) {
+  if (!value) return 'Время не указано';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Время не указано';
+  return new Intl.DateTimeFormat('ru-RU', { dateStyle: 'short', timeStyle: 'short' }).format(date);
+}
+
+export function OwnerWorkDetailContent({ item, compact = false }: { item: OwnerWorkItemVM; compact?: boolean }) {
+  return (
+    <div className={compact ? 'space-y-4' : 'space-y-5'}>
+      <section className={`owner-card ${toneClass(item.tone)}`}>
+        <div className="owner-card-meta">
+          <span className={`owner-status ${toneClass(item.tone)}`}>{item.statusLabel}</span>
+          <span>{item.priorityLabel}</span>
+          <span>{item.ownerLabel}</span>
+        </div>
+        <h2 className="owner-card-title">Зачем появилась работа</h2>
+        <p className="owner-card-copy">{item.purpose}</p>
+      </section>
+
+      <section className="owner-card">
+        <div className="owner-section-kicker">Текущее состояние</div>
+        <h3 className="owner-card-title" style={{ marginTop: '7px' }}>{item.statusLabel}</h3>
+        <p className="owner-card-copy">Ответственная роль: {item.ownerLabel}. Последнее обновление: {dateTimeLabel(item.updatedAt)}.</p>
+      </section>
+
+      <section className="owner-card">
+        <div className="owner-section-kicker">Что делается сейчас</div>
+        <p className="owner-card-copy">
+          {item.status === 'RUNNING'
+            ? 'Работа выполняется в текущем ответственном направлении.'
+            : item.status.startsWith('WAITING')
+              ? 'Активное выполнение приостановлено до выполнения условия ожидания.'
+              : item.status === 'BLOCKED'
+                ? 'Продолжение остановлено блокирующим условием.'
+                : 'Текущий этап зафиксирован в рабочем процессе.'}
+        </p>
+      </section>
+
+      <section className={`owner-card ${item.blockedReason ? 'is-warning' : item.waitReason ? 'is-info' : ''}`}>
+        <div className="owner-section-kicker">Что ждёт или блокирует</div>
+        <p className="owner-card-copy">
+          {item.blockedReason
+            ? item.blockedReason
+            : item.waitReason
+              ? item.waitReason
+              : 'Отдельная причина ожидания или блокировки сейчас не зафиксирована.'}
+        </p>
+      </section>
+
+      <section className="owner-card">
+        <div className="owner-section-kicker">Ожидаемый результат</div>
+        <p className="owner-card-copy">
+          Отдельное формализованное поле результата пока не входит в owner-проекцию этой рабочей ситуации. FEYA не подставляет выдуманную цель вместо отсутствующих данных.
+        </p>
+      </section>
+
+      <details className="owner-disclosure owner-disclosure-section">
+        <summary>
+          <span><strong>Workflow, доказательства и измерение</strong><small>Раскрывать только когда нужен контекст процесса</small></span>
+          <span className="owner-section-kicker">детали</span>
+        </summary>
+        <div className="owner-disclosure-body space-y-3">
+          <div>
+            <div className="owner-section-kicker">Передачи между ролями</div>
+            <p className="owner-card-copy">В текущую owner-проекцию ещё не включена отдельная timeline-проекция handoff-событий.</p>
+          </div>
+          <div>
+            <div className="owner-section-kicker">Доказательства</div>
+            <p className="owner-card-copy">Отдельный evidence summary для этой ситуации пока не подключён.</p>
+          </div>
+          <div>
+            <div className="owner-section-kicker">Изменения и измерение</div>
+            <p className="owner-card-copy">Показываются только после появления фактического change/measurement контекста; отсутствие данных не заменяется предположением.</p>
+          </div>
+        </div>
+      </details>
+
+      <details className="owner-disclosure owner-disclosure-section">
+        <summary>
+          <span><strong>Технические детали</strong><small>Коды нужны только для диагностики</small></span>
+          <span className="owner-section-kicker">Advanced</span>
+        </summary>
+        <div className="owner-disclosure-body">
+          <div className="owner-card-meta" style={{ marginBottom: 0 }}>
+            <span title={item.id}>ID рабочей ситуации</span>
+            {item.code ? <span title={item.code}>Код ситуации</span> : null}
+            {item.currentStep ? <span title={item.currentStep}>Код текущего этапа</span> : null}
+          </div>
+        </div>
+      </details>
+
+      {!compact ? (
+        <div className="owner-actions">
+          <Link href="/admin/company/work" className="owner-button">Назад к работе</Link>
+          <Link href="/admin/company/advanced" className="owner-button">Технические детали</Link>
+        </div>
+      ) : null}
+    </div>
+  );
+}
