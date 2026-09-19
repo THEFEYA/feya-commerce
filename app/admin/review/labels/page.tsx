@@ -1,6 +1,6 @@
 // @ts-nocheck
 import Link from 'next/link';
-import { ArrowUpRight, Languages, Search, Tags } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { AdminQueueQuickReviewClient } from '@/components/AdminQueueQuickReviewClient';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle, worldLabel } from '@/lib/storefront';
@@ -82,15 +82,55 @@ function Chip({ children, tone = 'neutral' }) {
   return <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] ${className}`}>{children}</span>;
 }
 
-export default async function AdminLabelReviewPage() {
+export default async function AdminLabelReviewPage({ searchParams }: { searchParams: Promise<{ q?: string; reason?: string; page?: string }> }) {
+  const params = await searchParams;
   const { rows, error } = await loadProducts();
-  const reviewRows = rows
-    .map((product) => ({ product, configs: parseConfigurations(product.configurations), reasons: labelReviewReasons(product) }))
-    .filter((row) => row.reasons.length)
-    .slice(0, 120);
+  const q = String(params.q || '').trim().toLowerCase();
+  const reasonFilter = String(params.reason || 'all');
+  const requestedPage = Math.max(1, Number(params.page || 1) || 1);
+  const pageSize = 40;
 
-  const configReviewCount = reviewRows.reduce((sum, row) => sum + row.configs.filter((config) => config.needs_label_review || config.has_russian_raw_label || !config.public_label).length, 0);
-  const russianRawCount = reviewRows.reduce((sum, row) => sum + row.configs.filter((config) => config.has_russian_raw_label).length, 0);
+  const allReviewRows = rows
+    .map((product) => ({ product, configs: parseConfigurations(product.configurations), reasons: labelReviewReasons(product) }))
+    .filter((row) => row.reasons.length);
+
+  const reasonMap: Record<string, string> = {
+    product: 'Product label review',
+    russian: 'Russian raw source label exists',
+    public_russian: 'Russian public label flag',
+    config: 'Configuration label review',
+    missing: 'No configurations returned',
+  };
+
+  const reviewRows = allReviewRows.filter(({ product, reasons }) => {
+    const haystack = [productTitle(product), productSlug(product), worldLabel(product), product.category_label, product.product_type]
+      .map((value) => String(value || '').toLowerCase())
+      .join(' ');
+    const matchesQuery = !q || haystack.includes(q);
+    const requiredReason = reasonMap[reasonFilter];
+    const matchesReason = !requiredReason || reasons.includes(requiredReason);
+    return matchesQuery && matchesReason;
+  }).sort((a, b) => {
+    const aDanger = a.reasons.some((reason) => reasonTone(reason) === 'danger') ? 0 : 1;
+    const bDanger = b.reasons.some((reason) => reasonTone(reason) === 'danger') ? 0 : 1;
+    return aDanger - bDanger || b.reasons.length - a.reasons.length || productTitle(a.product).localeCompare(productTitle(b.product), 'en');
+  });
+
+  const configReviewCount = allReviewRows.reduce((sum, row) => sum + row.configs.filter((config) => config.needs_label_review || config.has_russian_raw_label || !config.public_label).length, 0);
+  const russianRawCount = allReviewRows.reduce((sum, row) => sum + row.configs.filter((config) => config.has_russian_raw_label).length, 0);
+
+  const pageCount = Math.max(1, Math.ceil(reviewRows.length / pageSize));
+  const page = Math.min(requestedPage, pageCount);
+  const visibleReviewRows = reviewRows.slice((page - 1) * pageSize, page * pageSize);
+
+  const pageHref = (nextPage: number) => {
+    const next = new URLSearchParams();
+    if (q) next.set('q', q);
+    if (reasonFilter !== 'all') next.set('reason', reasonFilter);
+    if (nextPage > 1) next.set('page', String(nextPage));
+    const query = next.toString();
+    return query ? `/admin/review/labels?${query}` : '/admin/review/labels';
+  };
 
   return <main className="owner-page">
     <div className="owner-page-inner">
@@ -109,14 +149,40 @@ export default async function AdminLabelReviewPage() {
       {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
 
       <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
-        <div className="owner-summary-cell"><strong>{reviewRows.length}</strong><span>Товаров в очереди</span></div>
+        <div className="owner-summary-cell"><strong>{allReviewRows.length}</strong><span>Товаров в очереди</span></div>
         <div className="owner-summary-cell"><strong>{configReviewCount}</strong><span>Опций требуют проверки</span></div>
         <div className="owner-summary-cell"><strong>{russianRawCount}</strong><span>Опций с русским исходником</span></div>
         <div className="owner-summary-cell"><strong>{rows.length}</strong><span>Товаров проверено в срезе</span></div>
       </section>
 
+      <form action="/admin/review/labels" className="owner-card" style={{ marginBottom: '16px' }}>
+        <div className="grid gap-3 md:grid-cols-[1fr_280px_auto] md:items-end">
+          <label>
+            <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Поиск товара</div>
+            <input name="q" defaultValue={q} className="field" placeholder="название, slug, категория" />
+          </label>
+          <label>
+            <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Причина проверки</div>
+            <select name="reason" defaultValue={reasonFilter} className="field">
+              <option value="all">Все причины</option>
+              <option value="russian">Русский исходный текст</option>
+              <option value="public_russian">Русская публичная подпись</option>
+              <option value="config">Проверка названия опции</option>
+              <option value="product">Проверка названия товара</option>
+              <option value="missing">Нет вариантов</option>
+            </select>
+          </label>
+          <button type="submit" className="owner-button primary">Применить</button>
+        </div>
+        <div className="owner-card-meta" style={{ marginTop: '10px', marginBottom: 0 }}>
+          <span>После фильтра: {reviewRows.length}</span>
+          <span>Показано: {visibleReviewRows.length}</span>
+          <Link href="/admin/review/labels">Сбросить</Link>
+        </div>
+      </form>
+
       <div className="space-y-4">
-        {reviewRows.map(({ product, configs, reasons }) => {
+        {visibleReviewRows.map(({ product, configs, reasons }) => {
           const flaggedConfigs = configs.filter((config) => config.needs_label_review || config.has_russian_raw_label || !config.public_label).slice(0, 4);
           const adminHref = `/admin/products/${productSlug(product)}`;
           return <article key={product.canonical_product_id} className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
@@ -158,19 +224,19 @@ export default async function AdminLabelReviewPage() {
           </article>;
         })}
 
-        {!reviewRows.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">Строк для проверки названий из storefront contract сейчас нет.</div> : null}
+        {!reviewRows.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">По текущему фильтру названий для проверки нет.</div> : null}
       </div>
+
+      {reviewRows.length > pageSize ? (
+        <div className="flex items-center justify-between gap-3" style={{ marginTop: '16px' }}>
+          <div className="owner-section-kicker">Страница {page} из {pageCount}</div>
+          <div className="owner-actions" style={{ marginTop: 0 }}>
+            {page > 1 ? <Link href={pageHref(page - 1)} className="owner-button">Назад</Link> : <span className="owner-button" style={{ opacity: .4 }}>Назад</span>}
+            {page < pageCount ? <Link href={pageHref(page + 1)} className="owner-button">Дальше</Link> : <span className="owner-button" style={{ opacity: .4 }}>Дальше</span>}
+          </div>
+        </div>
+      ) : null}
     </div>
   </main>;
 }
 
-function Metric({ label, value, note, icon: Icon }) {
-  return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
-    <div className="flex items-center justify-between gap-4 mb-4">
-      <div className="eyebrow-dim">{label}</div>
-      <Icon size={16} className="text-[var(--gold-warm)]" />
-    </div>
-    <div className="font-price text-gold-grad text-[38px] leading-none">{value}</div>
-    <div className="mt-4 text-[12px] leading-relaxed text-[var(--bone-dim)]">{note}</div>
-  </div>;
-}
