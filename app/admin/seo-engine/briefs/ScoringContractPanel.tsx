@@ -5,8 +5,8 @@ export function ScoringContractPanel({ contract }: { contract: SeoScoringContrac
     primary: 'главный',
     secondary: 'вторичный',
     supporting: 'поддержка',
-    long_tail: 'точный длинный',
-    image_alt: 'ALT изображения',
+    long_tail: 'long-tail',
+    image_alt: 'alt-фото',
     faq: 'FAQ',
     collection: 'коллекция',
     hold: 'удержать',
@@ -30,13 +30,13 @@ export function ScoringContractPanel({ contract }: { contract: SeoScoringContrac
       <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <div className="text-bone text-[14px]">Формула будущей оценки</div>
+            <div className="text-bone text-[14px]">Формула будущего scoring</div>
             <div className="mt-1 text-[10px] leading-relaxed text-[var(--smoke)]">Сейчас баллы не считаются, потому что реальные метрики ещё не вернулись.</div>
           </div>
           {chip('ожидает метрики')}
         </div>
         <div className="mt-3 rounded-lg border border-[rgba(216,214,211,.08)] bg-black/30 p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">{contract.formula}</div>
-        <div className="mt-3 text-[11px] text-[var(--bone-dim)]">Максимум: <span className="text-bone">{contract.totalMaxScore}</span> баллов. Финальный ключ появляется только после метрик и жёстких стоп-правил.</div>
+        <div className="mt-3 text-[11px] text-[var(--bone-dim)]">Максимум: <span className="text-bone">{contract.totalMaxScore}</span> баллов. Финальный ключ появляется только после метрик и hard gates.</div>
       </div>
       <div className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-3">
         <div className="text-bone text-[14px] mb-2">Обязательные поля метрик</div>

@@ -26,7 +26,7 @@ export default function PortfolioOverlapPolicyPage() {
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,64px)' }}>Политика похожести товаров</h1>
           <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Переопределяем старую Etsy-логику каннибализации: для Google похожесть не является автоматическим минусом. Это инструмент управления уникальностью, углом текста и распределением главного поискового намерения.</p>
         </div>
-        <div className="flex flex-wrap gap-2"><Link href="/admin/seo-engine/scoring/preview" className="btn-ghost">Предпросмотр оценки <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine/scoring" className="btn-ghost">Правила оценки <ArrowUpRight size={13} /></Link></div>
+        <div className="flex flex-wrap gap-2"><Link href="/admin/seo-engine/scoring/preview" className="btn-ghost">Preview scoring <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine/scoring" className="btn-ghost">Контракт scoring <ArrowUpRight size={13} /></Link></div>
       </div>
 
       <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 mb-5">{DECISIONS.map((item) => <div key={item.title} className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4"><div className="flex items-start justify-between gap-3"><div className="text-bone text-[14px] leading-snug">{item.title}</div><ShieldCheck size={15} className="text-[var(--gold-warm)]" /></div><div className="mt-2 text-[11px] leading-relaxed text-[var(--bone-dim)]">{item.text}</div></div>)}</div>

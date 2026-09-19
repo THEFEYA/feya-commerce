@@ -134,8 +134,8 @@ export default async function SeoPdpVisualPreviewPage({ searchParams }) {
   if (!product || !brief || !seoPackDraft || !mockDraft) {
     return <main className="min-h-screen bg-[#07070A] text-bone">
       <section className="container-feya py-12">
-        <Link href={`/admin/seo-engine/draft-preview?product_id=${productId}`} className="btn-ghost mb-6">Назад к проверке черновика</Link>
-        <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--ruby-soft)]">Не удалось собрать визуальный предпросмотр страницы товара. Проверь ID товара и SEO-бриф.</div>
+        <Link href={`/admin/seo-engine/draft-preview?product_id=${productId}`} className="btn-ghost mb-6">Назад к draft preview</Link>
+        <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--ruby-soft)]">Не удалось собрать визуальный PDP-preview. Проверь product_id и SEO-бриф.</div>
       </section>
     </main>;
   }
@@ -153,18 +153,18 @@ export default async function SeoPdpVisualPreviewPage({ searchParams }) {
     <section className="container-feya pt-7 pb-5 border-b border-[rgba(216,214,211,.12)]">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <div className="eyebrow-gold mb-2">SEO · визуальный предпросмотр · только черновик</div>
+          <div className="eyebrow-gold mb-2">SEO PDP visual preview · draft-only</div>
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,64px)' }}>Визуальная проверка карточки</h1>
-          <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Это не публикация на витрину. Это визуальный предпросмотр того, как SEO-черновик ляжет в реальную структуру товара: главное изображение, цена, варианты, основной текст слева и каноническая правая колонка.</p>
+          <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Это не storefront publish. Это визуальный предпросмотр того, как SEO-черновик ляжет в реальную структуру товара: hero, цена, options, левый основной текст и правая каноническая колонка.</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link href={`/admin/seo-engine/draft-preview?product_id=${productId}`} className="btn-ghost">Назад к технической проверке <ArrowUpRight size={13} /></Link>
+          <Link href={`/admin/seo-engine/draft-preview?product_id=${productId}`} className="btn-ghost">Назад к техническому preview <ArrowUpRight size={13} /></Link>
           {product.product_slug ? <Link href={`/shop/${product.product_slug}`} className="btn-ghost" target="_blank">Открыть текущий товар <ArrowUpRight size={13} /></Link> : null}
         </div>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
-        <span className="chip">источник: базовый черновик</span>
-        <span className="chip">проверка: {validation?.status || 'не определено'}</span>
+        <span className="chip">source: baseline/mock</span>
+        <span className="chip">validator: {validation?.status || 'unknown'}</span>
         <span className="chip">без публикации</span>
         <span className="chip">без изменения товара</span>
         <span className="chip">перед финалом нужны research-файлы</span>
@@ -181,7 +181,7 @@ export default async function SeoPdpVisualPreviewPage({ searchParams }) {
         <div className="col-span-12 lg:col-span-10 flex justify-center">
           <div className="relative w-full max-w-[520px] aspect-[4/5] rounded-md overflow-hidden bg-[rgba(255,255,255,0.025)] border border-[rgba(216,214,211,0.12)] text-left">
             {image ? <img src={String(image)} alt={mockDraft.image_alt_candidates?.[0]?.alt_text || head} className="absolute inset-0 w-full h-full object-cover object-center" /> : <div className="absolute inset-0 flex items-center justify-center text-[12px] text-[var(--bone-dim)]">нет фото</div>}
-            <span className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/55 backdrop-blur text-xs text-white">предпросмотр</span>
+            <span className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/55 backdrop-blur text-xs text-white">preview</span>
           </div>
         </div>
       </div>
@@ -215,7 +215,7 @@ export default async function SeoPdpVisualPreviewPage({ searchParams }) {
 
     <section id="description" className="container-feya py-8 border-t border-[rgba(216,214,211,0.12)] grid grid-cols-12 gap-7">
       <div className="col-span-12 lg:col-span-7">
-        <div className="eyebrow-gold mb-3">Сгенерированный основной текст слева</div>
+        <div className="eyebrow-gold mb-3">Generated left PDP description</div>
         <h2 className="display-section text-bone mb-5" style={{ fontSize: 'clamp(24px, 2.3vw, 34px)' }}>{head}</h2>
         <PdpLeftDescription draft={mockDraft} leftBlocks={leftBlocks} />
       </div>

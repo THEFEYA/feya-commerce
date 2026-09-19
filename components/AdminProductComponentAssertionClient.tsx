@@ -46,7 +46,7 @@ export function AdminProductComponentAssertionClient({
   async function mutate(action: 'approve' | 'revoke', componentFamilyId: string) {
     const saving = `${action}:${componentFamilyId}`;
     setSavingKey(saving);
-    setStatus(action === 'approve' ? 'Сохраняю факты товара…' : 'Отзываю подтверждение…');
+    setStatus(action === 'approve' ? 'Сохраняю Product Truth…' : 'Отзываю подтверждение…');
     try {
       const response = await fetch('/api/admin/product-component-assertions', {
         method: 'POST',
@@ -60,7 +60,7 @@ export function AdminProductComponentAssertionClient({
       });
       const payload = await response.json() as AssertionResponse;
       if (!response.ok || !payload.ok) {
-        throw new Error(payload.error || 'Не удалось сохранить факты товара.');
+        throw new Error(payload.error || 'Не удалось сохранить Product Truth.');
       }
       setSelectedFamilyId('');
       setStatus(action === 'approve' ? 'Компонент подтверждён.' : 'Подтверждение отозвано.');
@@ -73,7 +73,7 @@ export function AdminProductComponentAssertionClient({
   }
 
   return <div className="rounded-2xl border border-[rgba(212,178,106,.28)] bg-[rgba(212,178,106,.05)] p-5">
-    <div className="eyebrow-gold mb-2">Неизменный состав товара</div>
+    <div className="eyebrow-gold mb-2">Fixed product composition</div>
     <p className="max-w-3xl text-[12px] leading-relaxed text-[var(--bone-dim)]">
       Подтвердите только компонент, который всегда входит в этот товар. Размер, цвет, фото и SEO-фокус не создают Product Truth автоматически.
     </p>
@@ -114,7 +114,7 @@ export function AdminProductComponentAssertionClient({
         className="btn-ghost min-h-11 px-5 text-[10px] disabled:opacity-50"
       >
         <CheckCircle2 size={13} />
-        {savingKey.startsWith('approve:') ? 'Сохраняю…' : 'Подтвердить компонент'}
+        {savingKey.startsWith('approve:') ? 'Сохраняю…' : 'Подтвердить fixed component'}
       </button>
     </div>
     {status ? <div className="mt-3 text-[11px] text-[var(--gold-warm)]">{status}</div> : null}

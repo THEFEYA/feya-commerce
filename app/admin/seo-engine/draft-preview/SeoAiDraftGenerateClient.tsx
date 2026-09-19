@@ -160,7 +160,7 @@ export default function SeoAiDraftGenerateClient({ productId }: { productId: str
       <div>
         <div className="eyebrow-gold mb-1">Реальная генерация AI-черновика</div>
         <div className="max-w-3xl text-[12px] leading-relaxed text-[var(--bone-dim)]">
-          Эта кнопка вызывает OpenAI только на сервере и возвращает новый SEO-черновик для проверки. AI теперь отвечает за уникальный левый PDP-текст, SEO-поля, визуальные факты и ALT. Правая колонка показывается как канонический неизменный блок магазина и не генерируется заново.
+          Эта кнопка вызывает OpenAI только на сервере и возвращает новый SEO-черновик для проверки. AI теперь отвечает за уникальный левый PDP-текст, SEO-поля, visual truth и ALT. Правая колонка показывается как канонический неизменный блок магазина и не генерируется заново.
         </div>
       </div>
       <button
@@ -174,7 +174,7 @@ export default function SeoAiDraftGenerateClient({ productId }: { productId: str
     </div>
 
     <div className="mt-3 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">
-      Безопасность: генерация сработает только если в Vercel Preview включён <span className="text-[var(--gold-warm)]">FEYA_SEO_AI_GENERATION_ENABLED=true</span>, есть серверный <span className="text-[var(--gold-warm)]">OPENAI_API_KEY</span>, стратегия портфеля загружена и проверка готова. Даже при успехе это только черновик на экране.
+      Безопасность: генерация сработает только если в Vercel Preview включён <span className="text-[var(--gold-warm)]">FEYA_SEO_AI_GENERATION_ENABLED=true</span>, есть серверный <span className="text-[var(--gold-warm)]">OPENAI_API_KEY</span>, стратегия портфеля загружена и validator готов. Даже при успехе это только черновик на экране.
     </div>
 
     {error ? <Alert tone="danger">{error}</Alert> : null}
@@ -196,7 +196,7 @@ export default function SeoAiDraftGenerateClient({ productId }: { productId: str
         <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
           <div>
             <div className="text-[10px] uppercase tracking-[0.18em] text-[#a9dfbd]">AI-черновик создан, но ещё не сохранён</div>
-            <div className="mt-1 text-[11px] text-[var(--bone-dim)]">Сейчас видно: SEO-поля, основной текст слева, каноническая правая колонка, служебные заметки для проверки, визуальные факты и ALT.</div>
+            <div className="mt-1 text-[11px] text-[var(--bone-dim)]">Сейчас видно: SEO-поля, основной текст слева, каноническая правая колонка, review-only заметки, visual truth и ALT.</div>
           </div>
           <button
             type="button"
@@ -214,11 +214,11 @@ export default function SeoAiDraftGenerateClient({ productId }: { productId: str
             <PreviewField label="H1-заголовок" value={draft.h1} />
             <PreviewField label="Описание для Google" value={draft.meta_description} />
             <PreviewField label="Intro / первый абзац" value={draft.intro} />
-            <PreviewPdpBlocks blocks={leftBlocks} title="Основной текст слева — генерирует AI" description="Это главный уникальный блок под фото/в левой части товара: about, benefits, ideal for, what is included, material/finish. Именно здесь должен быть полноценный описание товара." />
+            <PreviewPdpBlocks blocks={leftBlocks} title="Основной текст PDP слева — генерирует AI" description="Это главный уникальный блок под фото/в левой части товара: about, benefits, ideal for, what is included, material/finish. Именно здесь должен быть полноценный product description." />
           </div>
           <div className="space-y-2">
             <PreviewList label="Тезисы для проверки" items={draft.bullet_highlights || []} />
-            <PreviewPdpBlocks blocks={canonicalRightBlocks} title="Правая колонка — каноническая, не генерируется AI" description="Порядок и текст принадлежат storefront-коду; редкие подтверждённые материалы могут иметь точечный точечное подтверждённое исключение. AI этот блок не пишет." />
+            <PreviewPdpBlocks blocks={canonicalRightBlocks} title="Правая колонка PDP — каноническая, не генерируется AI" description="Порядок и текст принадлежат storefront-коду; редкие подтверждённые материалы могут иметь точечный factual override. AI этот блок не пишет." />
             <PreviewList label="ALT для изображений" items={(draft.image_alt_candidates || []).map((item) => `${item.alt_text || 'ALT требует проверки'} · ${translateTruthBasis(item.truth_basis)}`)} />
           </div>
         </div>
@@ -227,7 +227,7 @@ export default function SeoAiDraftGenerateClient({ productId }: { productId: str
           <PreviewVisualTruth truth={draft.visual_truth || null} />
           <div className="space-y-2">
             {generatedRightBlocks.length ? <PreviewPdpBlocks blocks={generatedRightBlocks} title="Ошибка: AI попытался сгенерировать правую колонку" description="Эти блоки не должны попадать в сохранение. Validator должен заблокировать такой output." /> : <PreviewNote title="Правая колонка" text="AI не сгенерировал правые блоки. Это правильно: они берутся из канонического storefront-блока." />}
-            <PreviewPdpBlocks blocks={reviewBlocks} title="Только для проверки / не выводить в товар автоматически" description="Служебные подсказки для будущей перелинковки или глобального FAQ. В карточке товара это не дублируется." />
+            <PreviewPdpBlocks blocks={reviewBlocks} title="Review-only / не выводить в товар автоматически" description="Служебные подсказки для будущей перелинковки или глобального FAQ. В product tile это не дублируется." />
             {draft.faq?.length ? <PreviewReviewFaq items={draft.faq} /> : <PreviewNote title="FAQ в товаре" text="FAQ намеренно пустой: ответы покупателю должны быть в канонической правой колонке или глобальной FAQ-странице, а комплектация — в основном левом описании товара." />}
             <PreviewList label="Заметки генерации" items={draft.generation_notes || []} />
           </div>
@@ -244,7 +244,7 @@ export default function SeoAiDraftGenerateClient({ productId }: { productId: str
       </div> : null}
 
       {issues.length ? <div className="rounded-xl border border-[rgba(212,178,106,.24)] bg-black/20 p-3">
-        <div className="mb-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">Замечания проверки по AI-ответу</div>
+        <div className="mb-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">Замечания validator по AI-ответу</div>
         <div className="grid md:grid-cols-2 gap-2">
           {issues.slice(0, 12).map((issue, index) => <div key={`${issue.code}-${index}`} className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/20 p-2.5">
             <div className="text-[11px] text-[var(--gold-warm)]">{translateIssueCode(issue.code || 'issue')}</div>
@@ -336,13 +336,13 @@ function PreviewNote({ title, text }: { title: string; text: string }) {
 }
 
 function PreviewVisualTruth({ truth }: { truth: GeneratedDraftOutput['visual_truth'] }) {
-  if (!truth) return <PreviewList label="Визуальные факты" items={[]} />;
+  if (!truth) return <PreviewList label="Visual truth" items={[]} />;
   return <div className="rounded-lg border border-[rgba(216,214,211,.10)] bg-black/20 p-2.5">
-    <div className="mb-1 text-[9px] uppercase tracking-[0.16em] text-[var(--smoke)]">Визуальные факты / что увидел агент</div>
+    <div className="mb-1 text-[9px] uppercase tracking-[0.16em] text-[var(--smoke)]">Visual truth / что увидел агент</div>
     <div className="grid sm:grid-cols-2 gap-2">
       <TinyList label="Видимые факты" items={truth.observed_product_facts || []} />
-      <TinyList label="Совпадения с ДНК товара" items={truth.dna_matches || []} />
-      <TinyList label="Дополнительные идеи стиля" items={truth.open_style_suggestions || []} />
+      <TinyList label="Совпадения с DNA" items={truth.dna_matches || []} />
+      <TinyList label="Открытые style идеи" items={truth.open_style_suggestions || []} />
       <TinyList label="Неясно / запрещено" items={[...(truth.uncertain_or_missing_facts || []), ...(truth.forbidden_visual_claims || [])]} />
     </div>
   </div>;
@@ -439,7 +439,7 @@ function translateIssueCode(code: string) {
     wrong_contract_version: 'неверная версия контракта',
     invalid_status: 'неверный статус черновика',
     missing_qa_self_report: 'нет QA self-report',
-    missing_visual_truth: 'нет визуальные факты',
+    missing_visual_truth: 'нет visual truth',
     invalid_pdp_blocks: 'нет PDP blocks',
     invalid_qa_notes: 'неверный формат QA notes',
     seo_title_long: 'SEO-заголовок слишком длинный',
@@ -482,7 +482,7 @@ function translateIssueMessage(message: string) {
     'whats_included should be part of the left main description, not a separate right-panel FAQ-style block.': 'Комплектация должна быть в основном левом описании, не как отдельный правый FAQ-блок.',
     'Material block should describe the actual material benefit, not only list a generic material.': 'Материал должен быть описан как преимущество: глянцевое зеркальное покрытие, мягкость к телу, плотность/форма.',
     'Glossy mirror products should not be described as textured leather unless source data proves it.': 'Для глянцевого зеркального покрытия не писать texture/текстурная кожа без доказательства.',
-    'Main left_description PDP copy is too thin; generate a real описание товара, not only a short intro.': 'Основной левый текст слишком короткий: нужен полноценный описание товара, а не только intro.',
+    'Main left_description PDP copy is too thin; generate a real product description, not only a short intro.': 'Основной левый текст слишком короткий: нужен полноценный product description, а не только intro.',
     'Top-level faq is review-only and should not be rendered inside product PDP by default.': 'FAQ сейчас не выводим в карточку товара; это максимум review-only для будущей общей FAQ-страницы.',
   };
   if (message.includes('canonical right-panel policy content')) return 'Этот блок относится к неизменной правой колонке/policy и не должен генерироваться отдельно для товара.';

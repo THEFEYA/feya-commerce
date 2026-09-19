@@ -27,8 +27,7 @@ import {
   sellableOfferAllowsComponentFocus,
 } from '@/lib/storefrontSellableOffer';
 import { applyOwnerReviewedStorefrontCorrections } from '@/lib/storefrontOwnerReviewedCorrections';
-import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
-import { getSupabaseServiceClient } from '@/lib/supabase';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
 import ConfirmCompositionButton from './ConfirmCompositionButton';
 import VerifiedSaveButton from './VerifiedSaveButton';
 import FocusActionFeedback from './FocusActionFeedback';
@@ -131,7 +130,7 @@ const DEFAULT_EXCLUDED_TERMS = ['lego', 'pokemon', 'pokémon', 'gatsby', 'saint 
 
 const KW_LABELS = { all: 'Все типы использования', product: 'Товарные слова', product_or_alt: 'Товар / ALT', collection: 'Категории', commercial_collection: 'Коммерческие посадочные', visual_collection: 'Визуальный поиск', faq: 'FAQ / вопросы' };
 const STRATEGY_LABELS = { demand: 'Больше спроса', opportunity: 'Перспективные', niche: 'Нишевые' };
-const STRATEGY_NOTES = { demand: 'Сначала слова с большим средним спросом.', opportunity: 'Ненулевой спрос + ниже конкуренция.', niche: 'Узкие длинные запросы под конкретный товар.' };
+const STRATEGY_NOTES = { demand: 'Сначала слова с большим средним спросом.', opportunity: 'Ненулевой спрос + ниже конкуренция.', niche: 'Узкие long-tail слова под конкретный товар.' };
 const STATUS_LABELS = { all: 'Все товары', not_saved: 'Не сохранено', saved: 'Решение сохранено' };
 
 const COMPONENTS = ['shoulders', 'corset', 'bra', 'top', 'harness', 'bodysuit', 'skirt', 'belt', 'panties', 'arms', 'legs', 'mask', 'headpiece', 'choker', 'wings', 'spine', 'tail'];
@@ -228,7 +227,7 @@ export default async function ListingMasterPage({ searchParams }) {
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-5">
         <Metric icon={Database} label="Одобренных слов" value={countLabel(keywordData.counts, 'all')} note="Источник: SEO-ядро." tone="success" />
         <Metric icon={PackageSearch} label="Товары" value={fmt(productData.visibleProducts)} note={`Из ${fmt(productData.totalProducts)}. ${productData.source}.`} tone="success" />
-        <Metric icon={Save} label="Сохранённых решений" value={fmt(productData.statusCounts.saved)} note={`Это SEO-фокус, а не текстовый черновик. Не сохранено: ${fmt(productData.statusCounts.not_saved)}.`} tone="warning" />
+        <Metric icon={Save} label="Сохранённых решений" value={fmt(productData.statusCounts.saved)} note={`Это SEO-фокус, не текстовый draft. Не сохранено: ${fmt(productData.statusCounts.not_saved)}.`} tone="warning" />
         <Metric icon={Layers3} label="Товар / ALT" value={countLabel(keywordData.counts, 'product_or_alt')} note="Для карточки и картинок." tone="success" />
         <Metric icon={SearchCheck} label="Слов сейчас" value={fmt(keywordData.totalCount ?? keywordData.rows.length)} note="После текущего подбора." tone="warning" />
       </div>
@@ -245,9 +244,9 @@ export default async function ListingMasterPage({ searchParams }) {
       <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-4 mb-5">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div><div className="eyebrow-dim">Активный подбор слов</div><h2 className="mt-1 text-bone text-[22px]">{KW_LABELS[active.type] || active.type}</h2></div>
-          <div className="flex flex-wrap gap-2"><Chip tone="success">Показано {fmt(rows.length)}</Chip><Chip tone="warning">Найдено {fmt(keywordData.totalCount ?? keywordData.rows.length)}</Chip><Chip>Из выборки {fmt(keywordData.rawCount ?? keywordData.rows.length)}</Chip><Chip tone="gold">{strategyLabel(active.strategy)}</Chip><Chip tone="success">{selectedProduct ? 'проверка фактов товара' : 'обзор ядра'}</Chip>{selectedProduct ? <Chip tone={primaryKeyword ? 'success' : 'warning'}>{primaryKeyword ? `Основной · ${displayKeyword(primaryKeyword)}` : 'Основной ключ не найден'}</Chip> : null}</div>
+          <div className="flex flex-wrap gap-2"><Chip tone="success">Показано {fmt(rows.length)}</Chip><Chip tone="warning">Найдено {fmt(keywordData.totalCount ?? keywordData.rows.length)}</Chip><Chip>Из выборки {fmt(keywordData.rawCount ?? keywordData.rows.length)}</Chip><Chip tone="gold">{strategyLabel(active.strategy)}</Chip><Chip tone="success">{selectedProduct ? 'Product Truth matcher' : 'обзор ядра'}</Chip>{selectedProduct ? <Chip tone={primaryKeyword ? 'success' : 'warning'}>{primaryKeyword ? `Primary · ${displayKeyword(primaryKeyword)}` : 'Primary не найден'}</Chip> : null}</div>
         </div>
-        <p className="mt-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">Фильтры применяются только после кнопки “Применить поиск слов”. Для выбранного товара сначала отсекаются несовместимые компоненты, цвет, аудитория и чужие коммерческие группы; спрос и конкуренция влияют на порядок только после проверки фактов товара. Роль каждого слова видна в таблице до сохранения решения и до запуска OpenAI.</p>
+        <p className="mt-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">Фильтры применяются только после кнопки “Применить поиск слов”. Для выбранного товара сначала отсекаются несовместимые компоненты, цвет, аудитория и чужие commerce-домены; спрос и конкуренция влияют на порядок только после Product Truth gate. Роль каждого слова видна в таблице до сохранения решения и до запуска OpenAI.</p>
       </div>
       <KeywordTable rows={rows} error={keywordData.error} />
     </section>
@@ -265,7 +264,7 @@ async function saveDecisionAction(formData) {
   if (!canonicalProduct) {
     return saveFailure(
       'missing_canonical_product_truth',
-      'Сервер не нашёл канонический факты выбранного товара.',
+      'Сервер не нашёл канонический Product Truth выбранного товара.',
       requestId,
     );
   }
@@ -407,7 +406,7 @@ async function confirmProductCompositionAction(formData) {
   if (!canonicalProduct) {
     return saveFailure(
       'missing_canonical_product_truth',
-      'Сервер не нашёл канонический факты выбранного товара.',
+      'Сервер не нашёл канонический Product Truth выбранного товара.',
       requestId,
     );
   }
@@ -571,8 +570,8 @@ async function loadCanonicalProductTruthProduct(supabase, productId) {
 }
 
 async function loadProducts(filters) {
-  const supabase = getSupabaseServiceClient() || getAdminReadClient();
-  if (!supabase) return emptyProducts(getMissingAdminDataEnvMessage());
+  const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
+  if (!supabase) return emptyProducts(getMissingSupabaseEnvMessage());
   const decisionsPromise = loadDecisionMap();
   const selectedTruthPromise = filters.productId
     ? loadCanonicalProductTruthProduct(supabase, filters.productId).catch((error) => {
@@ -590,7 +589,7 @@ async function loadProducts(filters) {
     .from(STOREFRONT_VIEW_V1)
     .select(CATALOG_PRODUCT_SELECT)
     .limit(PRODUCT_LIMIT));
-  let source = 'быстрый каталог + точечные факты товара';
+  let source = 'быстрый каталог + точечный Product Truth';
   let warning = null;
   if (result.error) {
     warning = friendlySupabaseError(result.error);
@@ -598,9 +597,9 @@ async function loadProducts(filters) {
       .from(FALLBACK_VIEW)
       .select(FALLBACK_SELECT)
       .limit(PRODUCT_LIMIT));
-    source = result.error ? 'ошибка проверки фактов товара' : 'резервный каталог с фотографиями';
+    source = result.error ? 'ошибка Product Truth' : 'резервный каталог с фотографиями';
   }
-  if (result.error) return emptyProducts(`${warning || 'Факты товара недоступны'} / ${friendlySupabaseError(result.error)}`);
+  if (result.error) return emptyProducts(`${warning || 'Product Truth недоступен'} / ${friendlySupabaseError(result.error)}`);
   if (source === 'резервный каталог с фотографиями') {
     const media = await loadFallbackPrimaryMedia(supabase);
     if (media.error) {
@@ -621,7 +620,7 @@ async function loadProducts(filters) {
   const [sourceSignals, decisions, selectedTruth] = await Promise.all([
     loadProductSourceSignalMap(supabase, selectedRows),
     decisionsPromise,
-    source === 'быстрый каталог + точечные факты товара'
+    source === 'быстрый каталог + точечный Product Truth'
       ? selectedTruthPromise
       : Promise.resolve(null),
   ]);
@@ -646,7 +645,7 @@ async function loadProducts(filters) {
     .filter((p) => !activeSection || p.sectionKey === activeSection)
     .filter((p) => activeStatus === 'all' || p.statusKey === activeStatus)
     .filter((p) => !tokens.length || tokens.every((t) => productSearchTokenMatch(p, t)));
-  return { allProducts, products, visibleProducts: products.length, totalProducts: allProducts.length, sections, statusCounts, activeSection, activeStatus, source, error: warning ? `Факты товара недоступны, включён резервный каталог: ${warning}` : null };
+  return { allProducts, products, visibleProducts: products.length, totalProducts: allProducts.length, sections, statusCounts, activeSection, activeStatus, source, error: warning ? `Product Truth недоступен, включён резервный каталог: ${warning}` : null };
 }
 function emptyProducts(error) { return { allProducts: [], products: [], visibleProducts: 0, totalProducts: 0, sections: [], statusCounts: { all: 0, not_saved: 0, saved: 0 }, activeSection: '', activeStatus: 'all', source: 'none', error }; }
 async function loadFallbackPrimaryMedia(supabase) {
@@ -729,17 +728,17 @@ function normalizeProduct(row, sourceSignals = {}) {
     card_title: row.card_title || '',
     h1: row.h1 || '',
     focus_text: row.focus_text || '',
-    included_компоненты: included,
-    known_компоненты: [],
-    sellable_offer_компоненты: sellableOffer.status === 'ready'
+    included_components: included,
+    known_components: [],
+    sellable_offer_components: sellableOffer.status === 'ready'
       ? sellableOffer.component_labels
       : [],
     sellable_offer: sellableOffer,
     sellable_offer_signature: sellableOffer.signature,
-    legacy_product_truth_included_компоненты: legacyIncluded,
+    legacy_product_truth_included_components: legacyIncluded,
     optional_configurations: optionalConfigurations,
     available_variants: availableVariants,
-    known_non_компоненты: knownNonComponents,
+    known_non_components: knownNonComponents,
     unresolved_component_facts: unresolvedFacts,
     component_review_blockers: reviewBlockers,
     component_evidence: row.component_evidence || null,
@@ -888,13 +887,13 @@ async function loadKeywords(filters, product = null, preloadedKeywordBank = null
 }
 
 async function loadKeywordBank() {
-  const supabase = getSupabaseServiceClient() || getAdminReadClient();
+  const supabase = getSupabaseServiceClient() || getSupabaseReadClient();
   if (!supabase) {
     return {
       data: [],
       count: null,
       pages: 0,
-      error: getMissingAdminDataEnvMessage(),
+      error: getMissingSupabaseEnvMessage(),
     };
   }
   return loadCompleteKeywordBank(supabase);
@@ -1013,9 +1012,9 @@ function keywordCounts(rows, totalCount) {
 }
 
 function ProductPicker({ data, filters, selectedProduct, selectedDecisionIsCurrent }) {
-  return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5 xl:sticky xl:top-[88px] self-start">
+  return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5 xl:sticky xl:top-6 self-start">
     <div className="flex items-center gap-2 eyebrow-gold mb-4"><PackageSearch size={14} /> Выбрать товар</div>
-    <form action="/admin/listing-master" className="mb-4 rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4"><div className="grid gap-3"><input name="product_q" defaultValue={filters.productQ} placeholder="Поиск: gold, harness, Etsy ID, первые слова" className="field" /><div className="grid grid-cols-2 gap-3"><SelectBox name="product_section" label="Раздел товара" value={data.activeSection || ''}><option value="">Все товары · {data.totalProducts}</option>{data.sections.map((item) => <option key={item.key} value={item.key}>{item.label} · {item.count}</option>)}</SelectBox><SelectBox name="product_status" label="Статус работы" value={data.activeStatus || 'all'}>{Object.keys(STATUS_LABELS).map((key) => <option key={key} value={key}>{STATUS_LABELS[key]} · {fmt(data.statusCounts?.[key] || 0)}</option>)}</SelectBox></div><button type="submit" className="btn-ghost"><Search size={13} /> Найти / применить</button><div className="flex flex-wrap gap-2"><Link href="/admin/listing-master" className="text-[11px] text-[var(--gold-warm)] hover:underline">Сбросить всё</Link><span className="text-[11px] text-[var(--bone-dim)]">Найдено: {fmt(data.visibleProducts)}</span></div></div></form>
+    <form action="/admin/listing-master" className="mb-4 rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4"><div className="grid gap-3"><input name="product_q" defaultValue={filters.productQ} placeholder="Поиск: gold, harness, Etsy ID, первые слова" className="field" /><div className="grid grid-cols-2 gap-3"><SelectBox name="product_section" label="Раздел товара" value={data.activeSection || ''}><option value="">All products · {data.totalProducts}</option>{data.sections.map((item) => <option key={item.key} value={item.key}>{item.label} · {item.count}</option>)}</SelectBox><SelectBox name="product_status" label="Статус работы" value={data.activeStatus || 'all'}>{Object.keys(STATUS_LABELS).map((key) => <option key={key} value={key}>{STATUS_LABELS[key]} · {fmt(data.statusCounts?.[key] || 0)}</option>)}</SelectBox></div><button type="submit" className="btn-ghost"><Search size={13} /> Найти / применить</button><div className="flex flex-wrap gap-2"><Link href="/admin/listing-master" className="text-[11px] text-[var(--gold-warm)] hover:underline">Сбросить всё</Link><span className="text-[11px] text-[var(--bone-dim)]">Найдено: {fmt(data.visibleProducts)}</span></div></div></form>
     <div className="max-h-[calc(100vh-330px)] min-h-[360px] space-y-2 overflow-auto pr-1">{data.products.map((product) => <ProductCard key={product.id} product={product} active={selectedProduct?.id === product.id} filters={filters} decisionIsCurrent={selectedProduct?.id === product.id ? selectedDecisionIsCurrent : undefined} />)}{!data.products.length && !data.error ? <div className="text-[12px] text-[var(--bone-dim)]">По этим фильтрам товаров не найдено.</div> : null}</div>
   </div>;
 }
@@ -1030,7 +1029,7 @@ function FocusSearchForm({ product, filters, status, decisionReview }) {
     <input type="hidden" name="product_id" value={product?.id || filters.productId || ''} /><input type="hidden" name="product_q" value={filters.productQ || ''} /><input type="hidden" name="product_section" value={filters.productSection || ''} /><input type="hidden" name="product_status" value={filters.productStatus || 'all'} /><input type="hidden" name="type" value={filters.type || 'all'} /><input type="hidden" name="focus_applied" value="1" />
     <input type="hidden" name="canonical_product_id" value={product?.id || ''} /><input type="hidden" name="product_slug" value={product?.slug || ''} /><input type="hidden" name="matched_etsy_listing_id" value={product?.etsyId || ''} /><input type="hidden" name="auto_focus_json" value={JSON.stringify(autoFocusSnapshot(product, filters.inferred || {}))} />
     <div className="flex items-center justify-between gap-3 mb-4"><div className="flex items-center gap-2 eyebrow-gold"><SlidersHorizontal size={14} /> Фокус товара</div><Chip tone={status.tone}>{status.label}</Chip></div>
-    {product ? <div className="grid sm:grid-cols-[96px_1fr] gap-4 rounded-2xl border border-[rgba(212,178,106,.18)] bg-[rgba(212,178,106,.055)] p-4 mb-4"><ProductImage product={product} size="lg" /><div><div className="text-bone text-[18px] leading-snug">{product.title}</div><div className="mt-1 text-[12px] text-[var(--bone-dim)]">{product.sectionLabel} · {product.worldLabel || '—'} · {product.colorRaw || '—'}</div><div className="mt-3 flex flex-wrap gap-2"><Chip tone="success">SEO-оси: {labelForMulti(filters.component)}</Chip><Chip tone="gold">материал/цвет: {labelForMulti(filters.material)}</Chip><Chip tone="warning">сценарий: {labelForMulti(filters.event)}</Chip><Chip tone="gold">стиль: {labelForMulti(filters.style)}</Chip><Chip tone="success">персона: {labelForMulti(filters.persona)}</Chip><Chip>аудитория: {labelForMulti(filters.audience)}</Chip>{decisionLabel(product.decision, decisionReview?.isCurrent) ? <Chip tone={decisionLabel(product.decision, decisionReview?.isCurrent).tone}>{decisionLabel(product.decision, decisionReview?.isCurrent).text}</Chip> : null}{product.hasComponentReviewRisk ? <Chip tone="warning">ДНК требует проверки: {product.needsComponentReviewCount}</Chip> : null}</div><div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Исходная категория: {product.sourceCategory || '—'} · компоненты: {product.parentComponents.join(', ') || '—'} / {product.childComponents.join(', ') || '—'}. {status.note}</div></div></div> : <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mb-4 text-[13px] leading-relaxed text-[var(--bone-dim)]">Товар ещё не выбран. Слева можно фильтровать по разделу и статусу работы.</div>}
+    {product ? <div className="grid sm:grid-cols-[96px_1fr] gap-4 rounded-2xl border border-[rgba(212,178,106,.18)] bg-[rgba(212,178,106,.055)] p-4 mb-4"><ProductImage product={product} size="lg" /><div><div className="text-bone text-[18px] leading-snug">{product.title}</div><div className="mt-1 text-[12px] text-[var(--bone-dim)]">{product.sectionLabel} · {product.worldLabel || '—'} · {product.colorRaw || '—'}</div><div className="mt-3 flex flex-wrap gap-2"><Chip tone="success">SEO-оси: {labelForMulti(filters.component)}</Chip><Chip tone="gold">материал/цвет: {labelForMulti(filters.material)}</Chip><Chip tone="warning">сценарий: {labelForMulti(filters.event)}</Chip><Chip tone="gold">стиль: {labelForMulti(filters.style)}</Chip><Chip tone="success">персона: {labelForMulti(filters.persona)}</Chip><Chip>аудитория: {labelForMulti(filters.audience)}</Chip>{decisionLabel(product.decision, decisionReview?.isCurrent) ? <Chip tone={decisionLabel(product.decision, decisionReview?.isCurrent).tone}>{decisionLabel(product.decision, decisionReview?.isCurrent).text}</Chip> : null}{product.hasComponentReviewRisk ? <Chip tone="warning">ДНК требует проверки: {product.needsComponentReviewCount}</Chip> : null}</div><div className="mt-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">Source category: {product.sourceCategory || '—'} · components: {product.parentComponents.join(', ') || '—'} / {product.childComponents.join(', ') || '—'}. {status.note}</div></div></div> : <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mb-4 text-[13px] leading-relaxed text-[var(--bone-dim)]">Товар ещё не выбран. Слева можно фильтровать по разделу и статусу работы.</div>}
     <CheckboxChipGroup key={`component-${formKey}`} title="SEO-оси товара / расположение" items={COMPONENTS} field="component" filters={filters} />
     {product ? <div className="mb-4 rounded-2xl border border-[rgba(212,178,106,.24)] bg-[rgba(212,178,106,.05)] p-4">
       <div className="eyebrow-gold mb-2">Как работают эти оси</div>
@@ -1042,21 +1041,21 @@ function FocusSearchForm({ product, filters, status, decisionReview }) {
     <CheckboxChipGroup key={`event-${formKey}`} title="Сценарий / событие" items={EVENTS} field="event" filters={filters} />
     <CheckboxChipGroup key={`style-${formKey}`} title="Стиль / визуальный мир" items={STYLES} field="style" filters={filters} />
     <CheckboxChipGroup key={`persona-${formKey}`} title="Персона / образ" items={PERSONAS} field="persona" filters={filters} />
-    <CheckboxChipGroup key={`audience-${formKey}`} title="Аудитория / угол аудитории" items={AUDIENCES} field="audience" filters={filters} />
+    <CheckboxChipGroup key={`audience-${formKey}`} title="Аудитория / buyer angle" items={AUDIENCES} field="audience" filters={filters} />
     {filters.focusSource === 'truth_auto' ? <div className="mb-4 rounded-2xl border border-[rgba(212,178,106,.24)] bg-[rgba(212,178,106,.05)] p-4 text-[11px] leading-relaxed text-[var(--bone-dim)]">
-      Состав и подтверждённый цвет подставлены из подтверждённых фактов товара. Сценарий, стиль, персона и аудитория намеренно не выбираются по старому названию автоматически. Возможные подсказки из исходных данных: {softFocusSuggestionLabel(filters.inferred)}. Они попадут в SEO только после вашего выбора и сохранения.
+      Состав и подтверждённый цвет подставлены из Product Truth. Сценарий, стиль, персона и аудитория намеренно не выбираются по старому title автоматически. Возможные подсказки из исходных данных: {softFocusSuggestionLabel(filters.inferred)}. Они попадут в SEO только после вашего выбора и сохранения.
     </div> : null}
     <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-2"><div className="eyebrow-gold mb-3">Режим подбора слов</div><div className="grid gap-3 md:grid-cols-3">{STRATEGIES.map((s) => <CheckboxCard key={`${s}-${formKey}`} name="strategy" value={s} checked={strategyValues(filters.strategy).includes(s)} title={STRATEGY_LABELS[s]} note={STRATEGY_NOTES[s]} />)}</div><div className="mt-3 text-[11px] text-[var(--bone-dim)]">По умолчанию включены все три режима. Повторный клик снимает режим; фильтр применится только после кнопки ниже.</div></div>
-    <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-4"><div className="eyebrow-gold mb-3">Поиск и минус-слова внутри SEO-ядра</div><div className="grid gap-3 md:grid-cols-[1fr_1fr]"><label><div className="eyebrow-dim mb-1.5">Доп. поиск</div><input name="q" defaultValue={filters.q} placeholder="например: armor, price, shipping" className="field" /></label><label><div className="eyebrow-dim mb-1.5">Минус-слова</div><input name="exclude" defaultValue={valuesOf(filters.exclude).join(', ')} placeholder="например: dance, bodysuit, neon" className="field" /></label></div></div>
+    <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4 mt-4"><div className="eyebrow-gold mb-3">Поиск и минус-слова внутри SEO-ядра</div><div className="grid gap-3 md:grid-cols-[1fr_1fr]"><label><div className="eyebrow-dim mb-1.5">Доп. поиск</div><input name="q" defaultValue={filters.q} placeholder="например: armor, price, shipping" className="field" /></label><label><div className="eyebrow-dim mb-1.5">Минус-слова</div><input name="exclude" defaultValue={valuesOf(filters.exclude).join(', ')} placeholder="dance, bodysuit, neon" className="field" /></label></div></div>
     <div id="listing-actions" className="mt-4 scroll-mt-6 rounded-2xl border border-[rgba(108,183,138,.25)] bg-[rgba(108,183,138,.055)] p-4">
       <div className="text-[11px] leading-relaxed text-[var(--bone-dim)] mb-3">«Применить» только обновляет список для проверки. «Сохранить» записывает SEO-оси и проверяемый набор ключевых слов; состав товара при этом не изменяется.</div>
       {product?.truthBlockers?.length && status.code !== 'data_unavailable' ? <div className="mb-3 rounded-xl border border-[rgba(212,178,106,.26)] bg-black/15 p-3 text-[11px] leading-relaxed text-[var(--bone-dim)]">
-        Выбранные SEO-оси можно отдельно подтвердить как факты товара. {compositionScope === 'canonical_listing'
+        Выбранные SEO-оси можно отдельно подтвердить как Product Truth. {compositionScope === 'canonical_listing'
           ? 'Для товара с вариантами они будут записаны как состав листинга; отдельные варианты и цены останутся в аудите.'
           : 'Для товара без выбора комплектации они будут записаны как неизменный состав.'}
       </div> : null}
       <FocusActionFeedback key={formKey} {...listingMasterFeedback({ hasProduct: Boolean(product), decisionIsCurrent, statusCode: status.code, searchApplied: filters.focusApplied, axesSaved: decisionReview?.axesSaved })} axesSaved={decisionReview?.axesSaved} savedAt={product?.decision?.created_at} />
-      <div className="flex flex-wrap gap-3"><button type="submit" className="btn-ghost"><SearchCheck size={13} /> Применить поиск слов</button>{product?.truthBlockers?.length && status.code !== 'data_unavailable' ? <ConfirmCompositionButton action={confirmProductCompositionAction} disabled={!product} scope={compositionScope} /> : null}<VerifiedSaveButton action={saveDecisionAction} disabled={!product} /><Link href={product ? productHref(product, filters) : '/admin/listing-master'} className="btn-ghost">Сбросить товар/ДНК</Link>{product && status.code === 'ready' && decisionIsCurrent ? <Link className="btn-ghost" href={`/admin/seo-storefront-preview?product_id=${product.id}&generate=1`}>Дальше: сгенерировать и показать предпросмотр <ArrowUpRight size={13} /></Link> : null}</div>
+      <div className="flex flex-wrap gap-3"><button type="submit" className="btn-ghost"><SearchCheck size={13} /> Применить поиск слов</button>{product?.truthBlockers?.length && status.code !== 'data_unavailable' ? <ConfirmCompositionButton action={confirmProductCompositionAction} disabled={!product} scope={compositionScope} /> : null}<VerifiedSaveButton action={saveDecisionAction} disabled={!product} /><Link href={product ? productHref(product, filters) : '/admin/listing-master'} className="btn-ghost">Сбросить товар/ДНК</Link>{product && status.code === 'ready' && decisionIsCurrent ? <Link className="btn-ghost" href={`/admin/seo-storefront-preview?product_id=${product.id}&generate=1`}>Дальше: сгенерировать и показать preview <ArrowUpRight size={13} /></Link> : null}</div>
       {product?.decision && !decisionIsCurrent && status.code !== 'data_unavailable' ? <div className="mt-3 rounded-xl border border-[rgba(212,178,106,.26)] bg-black/15 p-3 text-[11px] leading-relaxed text-[var(--gold-warm)]">
         <div>Показанный подбор отличается от сохранённого решения. Нажмите «Сохранить SEO-решение», чтобы зафиксировать изменения перед подготовкой текста.</div>
         {decisionReview?.blockers?.length ? <ul className="mt-2 space-y-1 text-[var(--bone-dim)]">{decisionReview.blockers.map((code) => <li key={code}>• {decisionInvalidationLabel(code)}</li>)}</ul> : null}
@@ -1347,7 +1346,7 @@ function conflictReason(core, meta, selected) {
 function sortRows(a, b) { return Number(b.strategy_rank || 0) - Number(a.strategy_rank || 0) || Number(b.match_score || 0) - Number(a.match_score || 0) || Number(b.score || 0) - Number(a.score || 0) || Number(b.avg_monthly_searches || 0) - Number(a.avg_monthly_searches || 0); }
 function rank(row, strategy) { const values = strategyValues(strategy); const scores = values.map((s) => rankOne(row, s)); return Math.max(...scores) + scores.reduce((sum, item) => sum + item, 0) / Math.max(1, scores.length) * 0.08; }
 function rankOne(row, strategy) { const match = Number(row.match_score || 0); const score = Number(row.score || 0); const volume = Number(row.avg_monthly_searches || 0); const comp = String(row.competition || '').toUpperCase(); const idx = Number(row.competition_index || 0); const keyword = String(row.keyword || '').toLowerCase(); const bucket = String(row.bank_bucket || ''); const volumeBoost = volume >= 3000 ? 45 : volume >= 1000 ? 35 : volume >= 500 ? 26 : volume >= 200 ? 18 : volume >= 50 ? 10 : volume > 0 ? 5 : -25; const compBoost = comp === 'LOW' ? 35 : comp === 'MEDIUM' ? 18 : comp === 'HIGH' ? -18 : 0; const idxBoost = idx > 0 ? Math.max(-20, 24 - Math.round(idx / 4)) : 0; const longTail = keyword.split(/\s+/).length >= 3 ? 22 : 0; const buyer = /buy|price|cost|order|shop|for sale|shipping|delivery|outfit|costume|set|wear|clothing|website|websites/.test(keyword) || bucket.includes('commercial') ? 16 : 0; if (strategy === 'demand') return match * 1.15 + score + volumeBoost * 2 + buyer * 0.35; if (strategy === 'niche') return match * 1.7 + score + longTail + compBoost + buyer * 0.25 - Math.max(0, volumeBoost - 30); return match * 1.35 + score + volumeBoost + compBoost + idxBoost + buyer * 0.4; }
-function autoFocusSnapshot(product, inferred) { return { inferred, product: product ? { canonical_product_id: product.id, slug: product.slug, etsy_id: product.etsyId, title: product.title, operator_section: product.sectionLabel, source_category: product.sourceCategory, world_label: product.worldLabel, parent_компоненты: product.parentComponents, child_компоненты: product.childComponents, needs_component_review_count: product.needsComponentReviewCount } : null }; }
+function autoFocusSnapshot(product, inferred) { return { inferred, product: product ? { canonical_product_id: product.id, slug: product.slug, etsy_id: product.etsyId, title: product.title, operator_section: product.sectionLabel, source_category: product.sourceCategory, world_label: product.worldLabel, parent_components: product.parentComponents, child_components: product.childComponents, needs_component_review_count: product.needsComponentReviewCount } : null }; }
 function savedMessage(value) {
   if (value === 'blocked') return { tone: 'warning', text: 'Фокус и кандидаты сохранены. Генерация намеренно заблокирована: сначала нужно закрыть Product Truth этого товара.' };
   if (value === 'review') return { tone: 'warning', text: 'Фокус и кандидаты сохранены, но Primary ещё требует проверки перед генерацией.' };
@@ -1367,7 +1366,7 @@ function productSeoStatus(product, filters, keywordData) {
   if (product.truthBlockers?.length) {
     return {
       code: 'blocked_product_truth',
-      label: 'Факты товара не подтверждены',
+      label: 'Product Truth не закрыт',
       tone: 'warning',
       note: `${product.truthBlockers.length} блокер(а): фокус сохраняется, OpenAI не запускается`,
     };
@@ -1376,13 +1375,13 @@ function productSeoStatus(product, filters, keywordData) {
     return { code: 'missing_focus', label: 'нужен фокус', tone: 'warning', note: 'авто-фокус не распознал ни одного направления' };
   }
   const rows = keywordData?.rows || [];
-  if (!rows.length) return { code: 'no_keywords', label: 'нет слов', tone: 'warning', note: 'проверка фактов товара не нашла совместимых кандидатов' };
+  if (!rows.length) return { code: 'no_keywords', label: 'нет слов', tone: 'warning', note: 'Product Truth matcher не нашёл совместимых кандидатов' };
   const hasPrimary = rows.some((row) => row.role === 'primary');
   const primaryScopeBlocked = keywordData?.diagnostics?.auto_primary_scope === 'blocked_no_whole_product_candidate';
   if (!hasPrimary || primaryScopeBlocked) {
-    return { code: 'needs_keyword_review', label: 'нужен Primary', tone: 'warning', note: 'нет подтверждённого ключа, описывающего весь продаваемый товар' };
+    return { code: 'needs_keyword_review', label: 'нужен Primary', tone: 'warning', note: 'нет доказанного ключа, описывающего весь продаваемый товар' };
   }
-  return { code: 'ready', label: 'ключи готовы к проверке', tone: 'success', note: 'кандидаты прошли проверку фактов товара; сохранение фиксирует источник решения' };
+  return { code: 'ready', label: 'ключи готовы к проверке', tone: 'success', note: 'кандидаты прошли Product Truth matcher; сохранение фиксирует provenance' };
 }
 function buildHref(filters, patch = {}) { const next = { ...filters, ...patch }; const params = new URLSearchParams(); if (next.type && next.type !== 'all') params.set('type', next.type); if (next.strategy && next.strategy !== DEFAULT_STRATEGY) params.set('strategy', next.strategy); FOCUS_FIELDS.forEach((field) => { if (next[field]) params.set(field, next[field]); }); if (next.focusApplied || next.focus_applied) params.set('focus_applied', '1'); if (next.q) params.set('q', next.q); if (next.exclude) params.set('exclude', next.exclude); if (next.productId || next.product_id) params.set('product_id', next.productId || next.product_id); if (next.productQ || next.product_q) params.set('product_q', next.productQ || next.product_q); if (next.productSection || next.product_section) params.set('product_section', next.productSection || next.product_section); if (next.productStatus || next.product_status) params.set('product_status', next.productStatus || next.product_status); const query = params.toString(); return query ? `/admin/listing-master?${query}` : '/admin/listing-master'; }
 function productHref(product, filters = {}) { return buildHref(filters, { productId: product.id, component: '', material: '', event: '', style: '', persona: '', audience: '', q: '', exclude: '', focusApplied: '' }); }
@@ -1394,14 +1393,14 @@ function displayKeyword(row) { return asText(row.keyword, asText(row.keyword_nor
 function asText(value, fallback = '—') { if (value == null || value === '') return fallback; if (Array.isArray(value)) return value.length ? value.join(', ') : fallback; return String(value); }
 function competitionLabel(value) { const text = String(value || '').toUpperCase(); if (text === 'LOW') return 'Низкая'; if (text === 'MEDIUM') return 'Средняя'; if (text === 'HIGH') return 'Высокая'; if (text === 'UNKNOWN') return 'Нет данных'; return asText(value); }
 function toneByType(value) { const text = asText(value, '').toLowerCase(); if (text.includes('product')) return 'success'; if (text.includes('commercial') || text.includes('visual') || text.includes('collection')) return 'gold'; if (text.includes('faq')) return 'warning'; return 'neutral'; }
-function keywordRoleLabel(value) { const role = norm(value); if (role === 'primary') return 'Основной · весь товар'; if (role === 'secondary') return 'Вторичный'; if (role === 'supporting') return 'Поддерживающий'; return 'роль не назначена'; }
+function keywordRoleLabel(value) { const role = norm(value); if (role === 'primary') return 'Primary · весь товар'; if (role === 'secondary') return 'Secondary'; if (role === 'supporting') return 'Supporting'; return 'роль не назначена'; }
 function keywordRoleTone(value) { const role = norm(value); if (role === 'primary') return 'success'; if (role === 'secondary') return 'gold'; if (role === 'supporting') return 'neutral'; return 'warning'; }
 function decisionInvalidationLabel(code) {
   const labels = {
     decision_not_human_confirmed: 'предыдущее решение не имеет подтверждённого human-review snapshot',
     decision_status_not_ready: 'предыдущее решение не находится в статусе, разрешающем генерацию',
     sellable_offer_not_ready: 'текущий продаваемый состав ещё не закрыт',
-    no_valid_pdp_primary: 'после повторной проверки нет основного ключа, описывающего весь продаваемый товар',
+    no_valid_pdp_primary: 'после повторной проверки нет Primary, описывающего весь продаваемый товар',
     keyword_roles_changed_after_reaudit: 'список или роли ключевых слов изменились после повторной проверки',
     stale_option_snapshot: 'решение сохранено до фиксации текущего состава вариантов товара',
     manual_focus_contains_unsupported_component: 'старое решение трактовало SEO-оси как состав; его нужно один раз сохранить по новому контракту',
@@ -1409,5 +1408,5 @@ function decisionInvalidationLabel(code) {
   };
   return labels[code] || String(code || 'неизвестная причина').replaceAll('_', ' ');
 }
-function keywordUse(row) { const type = row.bank_bucket; if (type === 'product_or_alt') return 'Товар / ALT'; if (type === 'product') return 'Заголовок / описание'; if (type === 'commercial_collection') return 'Посадочная / мета'; if (type === 'visual_collection') return 'ALT / картинки'; if (type === 'collection') return 'Категория'; if (type === 'faq') return 'FAQ'; return 'Проверить'; }
+function keywordUse(row) { const type = row.bank_bucket; if (type === 'product_or_alt') return 'Товар / ALT'; if (type === 'product') return 'Title / описание'; if (type === 'commercial_collection') return 'Посадочная / meta'; if (type === 'visual_collection') return 'ALT / картинки'; if (type === 'collection') return 'Категория'; if (type === 'faq') return 'FAQ'; return 'Проверить'; }
 function strategySignal(row) { const volume = Number(row.avg_monthly_searches || 0); const comp = String(row.competition || '').toUpperCase(); const type = String(row.bank_bucket || ''); const keyword = String(row.keyword || '').toLowerCase(); if (/buy|price|cost|order|shop|for sale|shipping|delivery|website|websites/.test(keyword) || type.includes('commercial')) return { label: 'покупательский запрос', tone: 'gold' }; if (volume > 0 && comp === 'LOW') return { label: 'низкая конкуренция', tone: 'success' }; if (type.includes('product') && volume <= 500 && volume > 0 && comp !== 'HIGH') return { label: 'нишевая точка', tone: 'success' }; if (volume >= 1000 && comp === 'HIGH') return { label: 'большой спрос', tone: 'warning' }; if (type.includes('visual')) return { label: 'для картинок', tone: 'gold' }; if (type.includes('collection')) return { label: 'для посадочной', tone: 'gold' }; return { label: 'поддержка', tone: 'neutral' }; }

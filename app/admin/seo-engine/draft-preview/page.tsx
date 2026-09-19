@@ -71,7 +71,7 @@ function PdpBlockList({ items = [], emptyText = 'PDP-блоки не найде�
   return <div className="space-y-2">
     {items.map((block, index) => <div key={`${block.block_key || block.heading}-${index}`} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 p-3">
       <div className="flex flex-wrap items-center gap-2 mb-1.5">
-        <span className="text-bone text-[12px]">{block.heading || block.block_key || 'Блок страницы товара'}</span>
+        <span className="text-bone text-[12px]">{block.heading || block.block_key || 'PDP block'}</span>
         <Pill tone={block.placement === 'left_description' ? 'success' : block.placement === 'right_info_panel' ? 'danger' : 'gold'}>{translatePdpPlacement(block.placement)}</Pill>
         <Pill>{translatePdpBlockKey(block.block_key)}</Pill>
         {block.needs_human_review ? <Pill tone="warning">нужна проверка</Pill> : null}
@@ -105,39 +105,39 @@ function AgentReadiness({ strategy, promptSummary, promptHasPortfolio }) {
     <div className="p-4 space-y-3">
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
         <Fact label="Стратегия портфеля" value={strategyLoaded ? 'загружена' : 'нет'} tone={strategyLoaded ? 'success' : 'warning'} />
-        <Fact label="Стратегия в промпте" value={promptHasPortfolio ? 'да' : 'нет'} tone={promptHasPortfolio ? 'success' : 'warning'} />
+        <Fact label="Стратегия в prompt" value={promptHasPortfolio ? 'да' : 'нет'} tone={promptHasPortfolio ? 'success' : 'warning'} />
         <Fact label="Классификация" value={translateClassification(strategy?.classification)} tone={strategyLoaded ? 'success' : 'warning'} />
         <Fact label="Риск" value={translateRisk(strategy?.risk_level)} tone={strategy?.risk_level === 'high' ? 'danger' : strategyLoaded ? 'warning' : undefined} />
       </div>
 
       {doctrine ? <div className="rounded-2xl border border-[rgba(108,183,138,.24)] bg-[rgba(108,183,138,.045)] p-3 space-y-3">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
-          <Fact label="Правила контента" value={doctrine.version} tone="success" />
+          <Fact label="Doctrine" value={doctrine.version} tone="success" />
           <Fact label="PDP-блоков" value={doctrine.pdp_block_count} tone="success" />
-          <Fact label="Факты для покупателя" value={doctrine.buyer_fact_count} tone="success" />
-          <Fact label="Визуальные факты" value={doctrine.visual_truth_rule_count} tone="success" />
+          <Fact label="Buyer facts" value={doctrine.buyer_fact_count} tone="success" />
+          <Fact label="Visual truth" value={doctrine.visual_truth_rule_count} tone="success" />
         </div>
         <div className="grid lg:grid-cols-2 gap-3">
-          <Section label="Финальная проверка исследований">{researchCheckpoint?.admin_note_ru || 'Перед финальным применением или публикацией нужно заново сверить последние исследования.'}</Section>
-          <Section label="Единый редактор товара">{variationCheckpoint?.admin_note_ru || 'Вариации, комплектация, PDP-тексты, URL, meta и sitemap должны быть в одном потоке редактирования.'}</Section>
+          <Section label="Финальный research checkpoint">{researchCheckpoint?.admin_note_ru || 'Перед финальным apply/publish нужно заново сверить последние исследования.'}</Section>
+          <Section label="Единый редактор товара">{variationCheckpoint?.admin_note_ru || 'Вариации, комплектация, PDP-тексты, slug/meta и sitemap должны быть в одном потоке редактирования.'}</Section>
         </div>
-      </div> : <div className="rounded-xl border border-[rgba(212,178,106,.25)] bg-black/15 p-3 text-[12px] text-[var(--gold-warm)]">Сводка правил ещё не пришла в данные промпта. Нужно проверить сборку контракта промпта.</div>}
+      </div> : <div className="rounded-xl border border-[rgba(212,178,106,.25)] bg-black/15 p-3 text-[12px] text-[var(--gold-warm)]">Doctrine summary ещё не пришёл в prompt summary. Нужно проверить сборку prompt-контракта.</div>}
 
       <div className="rounded-xl border border-[rgba(212,178,106,.25)] bg-[rgba(212,178,106,.06)] p-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">
         Это не кнопка. Это серверная проверка: страница уже собрала будущий prompt для OpenAI-агента и показывает, дошла ли туда стратегия дифференциации, doctrine правил, визуальная логика и checkpoint перед будущим применением к товару. Реальный publish выключен.
       </div>
       {strategyLoaded ? <div className="grid lg:grid-cols-2 gap-3">
         <Section label="Что должен сделать будущий агент">{translateUiText(strategy.agent_instruction_summary || 'Стратегия есть, но короткое описание не найдено.')}</Section>
-        <Section label="Угол товара">{translateUiText(strategy.primary_angle_to_own || 'Нужен отдельный смысловой угол товара.')}</Section>
-        <Section label="Стратегия заголовка / H1"><ReviewList items={[strategy.title_strategy, strategy.h1_strategy].filter(Boolean)} /></Section>
-        <Section label="Стратегия meta / основного текста"><ReviewList items={[strategy.meta_strategy, strategy.body_strategy].filter(Boolean)} /></Section>
+        <Section label="Угол товара">{translateUiText(strategy.primary_angle_to_own || 'Нужен отдельный product angle.')}</Section>
+        <Section label="Стратегия title / H1"><ReviewList items={[strategy.title_strategy, strategy.h1_strategy].filter(Boolean)} /></Section>
+        <Section label="Стратегия meta / body"><ReviewList items={[strategy.meta_strategy, strategy.body_strategy].filter(Boolean)} /></Section>
         <Section label="Оставить кластерные слова"><ReviewList items={strategy.keep_cluster_terms || []} /></Section>
         <Section label="Не переспамить"><ReviewList items={strategy.avoid_overusing_terms || []} /></Section>
         <Section label="Обязательные отличия"><ReviewList items={strategy.required_differentiators || []} /></Section>
         <Section label="Ближайший похожий товар">{strategy.nearest_catalog_match ? `${strategy.nearest_catalog_match.title || strategy.nearest_catalog_match.product_slug || 'товар'} · ${strategy.nearest_catalog_match.overlap_pct ?? '—'}%` : '—'}</Section>
       </div> : <div className="rounded-xl border border-[rgba(212,178,106,.25)] bg-black/15 p-3 text-[12px] text-[var(--gold-warm)]">Стратегия ещё не загружена. Нужно сначала на странице “Проверка SEO” нажать “Проверить текущий каталог” для сохранённого черновика.</div>}
       {promptSummary ? <div className="grid sm:grid-cols-3 gap-2">
-        <Fact label="Контракт промпта" value="собран" tone="success" />
+        <Fact label="Prompt contract" value="собран" tone="success" />
         <Fact label="Символов system" value={promptSummary.system_prompt_chars} />
         <Fact label="Символов user" value={promptSummary.user_prompt_chars} />
       </div> : null}
@@ -169,7 +169,7 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
         <div>
           <div className="eyebrow-gold mb-2">Админка · SEO · проверка черновика</div>
           <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(34px,5vw,64px)' }}>Проверка SEO-черновика</h1>
-          <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Этот экран показывает черновик для проверки, готовность будущего AI-агента и безопасную генерацию только в черновик. Здесь нет публикации и нет изменения товара.</p>
+          <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">Этот экран показывает черновик для проверки, готовность будущего AI-агента и безопасную draft-only генерацию. Здесь нет публикации и нет изменения товара.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {activeProductId ? <Link href={`/admin/seo-engine/briefs?product_id=${activeProductId}`} className="btn-ghost">Назад к SEO-брифу <ArrowUpRight size={13} /></Link> : null}
@@ -179,8 +179,8 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
       </div>
 
       {bundle.error ? <Notice tone="danger">{bundle.error}</Notice> : null}
-      {!product ? <Notice tone="danger">Товар не найден в рабочем представлении товара. Открой SEO-бриф с конкретным ID товара.</Notice> : null}
-      {product && !bundle.decision ? <Notice>Для этого товара нет сохранённого решения Мастера листинга. Черновик может быть неполным, потому что нет ручной ДНК товара и выбранных ключей.</Notice> : null}
+      {!product ? <Notice tone="danger">Товар не найден в Product Focus view. Открой SEO-бриф с конкретным product_id.</Notice> : null}
+      {product && !bundle.decision ? <Notice>Для этого товара нет сохранённого решения Listing Master. Черновик может быть неполным, потому что нет ручного Product DNA и выбранных ключей.</Notice> : null}
 
       {product && brief && seoPackDraft && mockDraft ? <>
         <div className="grid lg:grid-cols-[.9fr_1.1fr] gap-5 mb-5">
@@ -195,7 +195,7 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
                   <div className="text-bone text-[18px] leading-tight">{brief.productTitle}</div>
                   <div className="mt-2 text-[11px] text-[var(--bone-dim)]">ID: {activeProductId} · /{brief.productSlug}</div>
                   <div className="mt-4 grid sm:grid-cols-2 gap-2">
-                    <Fact label="Статус SEO-пакета" value={translatePackStatus(seoPackDraft.status)} />
+                    <Fact label="Статус SEO-pack" value={translatePackStatus(seoPackDraft.status)} />
                     <Fact label="Статус брифа" value={translateBriefStatus(brief.status)} />
                     <Fact label="Главные ключи" value={seoPackDraft.keyword_roles.primary.length} />
                     <Fact label="Вторичные ключи" value={seoPackDraft.keyword_roles.secondary.length} />
@@ -216,7 +216,7 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
               <div className="rounded-xl border border-[rgba(212,178,106,.25)] bg-[rgba(212,178,106,.06)] p-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">
                 Главный левый PDP-текст теперь выведен отдельным блоком ниже: about, why you’ll love it, ideal for, what’s included, material. Блок SEO-базы не является публикацией и не меняет товар.
               </div>
-              <div className="flex flex-wrap gap-2"><Pill tone={statusTone(validation?.status)}>{translateValidationStatus(validation?.status)}</Pill><Pill tone="success">Базовая SEO-проверка</Pill><Pill tone="success">основной текст виден</Pill><Pill tone="warning">без записи в Supabase</Pill><Pill tone="warning">без публикации</Pill><Pill tone="warning">без реального OpenAI</Pill></div>
+              <div className="flex flex-wrap gap-2"><Pill tone={statusTone(validation?.status)}>{translateValidationStatus(validation?.status)}</Pill><Pill tone="success">SEO baseline</Pill><Pill tone="success">левый PDP visible</Pill><Pill tone="warning">без записи в Supabase</Pill><Pill tone="warning">без публикации</Pill><Pill tone="warning">без реального OpenAI</Pill></div>
             </div>
           </div>
         </div>
@@ -226,7 +226,7 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
         <div className="mb-5"><SeoAiDraftGenerateClient productId={activeProductId} /></div>
 
         <div className="rounded-2xl border border-[rgba(108,183,138,.22)] bg-[rgba(108,183,138,.035)] overflow-hidden mb-5">
-          <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold">Базовый предпросмотр · основной текст слева</div><div className="mt-1 text-bone text-[18px]">Основное описание под фото / не публикация</div></div><Sparkles size={17} className="text-[var(--gold-warm)]" /></div>
+          <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div><div className="eyebrow-gold">Baseline preview · левый PDP-текст</div><div className="mt-1 text-bone text-[18px]">Основное описание под фото / не публикация</div></div><Sparkles size={17} className="text-[var(--gold-warm)]" /></div>
           <div className="p-4 space-y-4">
             <div className="grid lg:grid-cols-[.75fr_1.25fr] gap-4">
               <div className="space-y-3">
@@ -236,16 +236,16 @@ export default async function SeoDraftPreviewPage({ searchParams }) {
                 <Section label="Intro / первый абзац">{mockDraft.intro}</Section>
               </div>
               <div className="space-y-3">
-                <Section label="Главный левый PDP-текст"><PdpBlockList items={baselineLeftBlocks} emptyText="Основные текстовые блоки не пришли в базовый предпросмотр. Это ошибка контракта, которую нужно исправить до проверки текста." /></Section>
-                {baselineGeneratedRightBlocks.length ? <Section label="Ошибка: AI сгенерировал каноническую правую колонку"><PdpBlockList items={baselineGeneratedRightBlocks} /></Section> : <Section label="Правая колонка"><div className="text-[#a9dfbd]">Не генерируется здесь. Это правильно: правая колонка теперь каноническая и одинаковая для товаров.</div></Section>}
+                <Section label="Главный левый PDP-текст"><PdpBlockList items={baselineLeftBlocks} emptyText="Левые PDP-блоки не пришли в baseline. Это ошибка контракта/preview и её нужно чинить до проверки текста." /></Section>
+                {baselineGeneratedRightBlocks.length ? <Section label="Ошибка: AI/baseline сгенерировал правую колонку"><PdpBlockList items={baselineGeneratedRightBlocks} /></Section> : <Section label="Правая колонка"><div className="text-[#a9dfbd]">Не генерируется здесь. Это правильно: правая колонка теперь каноническая и одинаковая для товаров.</div></Section>}
               </div>
             </div>
             <div className="grid lg:grid-cols-2 gap-4">
               <Section label="Тезисы для проверки"><ReviewList items={mockDraft.bullet_highlights || []} /></Section>
-              <Section label="FAQ на странице товара"><div className="text-[#a9dfbd]">Не выводится в товаре. FAQ остаётся для будущей общей страницы/служебных идей, чтобы не дублировать правую колонку.</div></Section>
+              <Section label="FAQ в product PDP"><div className="text-[#a9dfbd]">Не выводится в товаре. FAQ остаётся для будущей общей страницы/служебных идей, чтобы не дублировать правую колонку.</div></Section>
               <Section label="ALT для изображений"><ReviewList items={(mockDraft.image_alt_candidates || []).map((item) => `${item.alt_text || 'ALT требует проверки'} · ${translateTruthBasis(item.truth_basis)}`)} /></Section>
-              <Section label="Внутренние ссылки"><ReviewList items={(mockDraft.internal_linking_hints || []).map((item) => `${item.anchor || 'текст ссылки'} → ${translateTargetType(item.target_type)} · ${translateUiText(item.reason || 'нужно проверить')}`)} /></Section>
-              {baselineReviewOnlyBlocks.length ? <Section label="Служебные блоки только для проверки"><PdpBlockList items={baselineReviewOnlyBlocks} /></Section> : null}
+              <Section label="Внутренние ссылки"><ReviewList items={(mockDraft.internal_linking_hints || []).map((item) => `${item.anchor || 'anchor'} → ${translateTargetType(item.target_type)} · ${translateUiText(item.reason || 'нужно проверить')}`)} /></Section>
+              {baselineReviewOnlyBlocks.length ? <Section label="Review-only PDP blocks"><PdpBlockList items={baselineReviewOnlyBlocks} /></Section> : null}
               <Section label="Служебные заметки"><ReviewList items={mockDraft.generation_notes || []} /></Section>
             </div>
           </div>
