@@ -1,5 +1,6 @@
 // @ts-nocheck
-import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
+
+import { getMissingAdminDataEnvMessage, getAdminReadClient } from '@/lib/adminData';
 import Link from 'next/link';
 import { AdminProductDetailView } from '@/components/AdminProductDetailView';
 import { ADMIN_PRODUCT_BUILDER_DETAIL_SELECT, ADMIN_PRODUCT_BUILDER_DETAIL_VIEW, toBuilderStorefrontProduct } from '@/lib/admin-product-builder-detail';
