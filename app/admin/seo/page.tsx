@@ -60,9 +60,16 @@ function seoIssues(product: StorefrontProduct) {
 }
 
 function readinessState(issues: string[]) {
-  if (issues.length <= 1) return { label: 'Ready', tone: 'ok', rank: 2 };
-  if (issues.length <= 3) return { label: 'Needs polish', tone: 'warning', rank: 1 };
-  return { label: 'Blocked', tone: 'danger', rank: 0 };
+  const blockingIssues = new Set([
+    'Weak slug',
+    'Missing primary image',
+    'No configurations',
+    'Unverified price',
+    'Label review blocks SEO',
+  ]);
+  if (issues.some((issue) => blockingIssues.has(issue))) return { label: 'Blocked', tone: 'danger', rank: 0 };
+  if (issues.length) return { label: 'Needs polish', tone: 'warning', rank: 1 };
+  return { label: 'Ready', tone: 'ok', rank: 2 };
 }
 
 function Chip({ children, tone = 'neutral' }) {
