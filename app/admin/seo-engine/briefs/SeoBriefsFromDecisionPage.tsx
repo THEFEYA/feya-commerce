@@ -17,21 +17,21 @@ export default async function SeoBriefsFromDecisionPage({ searchParams }) {
   const contractApiHref = activeProductId ? `/api/admin/seo-engine/brief-contract?product_id=${activeProductId}` : null;
   const draftPreviewHref = activeProductId ? `/admin/seo-engine/draft-preview?product_id=${activeProductId}` : null;
 
-  return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
-    <section className="container-feya pt-7 pb-12">
-      <div className="grid gap-5 lg:grid-cols-[1fr_460px] lg:items-end border-b border-[rgba(216,214,211,.12)] pb-6 mb-6">
+  return <main className="owner-page">
+    <div className="owner-page-inner">
+      <header className="owner-page-head">
         <div>
-          <div className="eyebrow-gold mb-2">Админка · SEO-задание v2</div>
-          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(42px,6vw,72px)' }}>SEO-задание товара</h1>
-          <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--bone-dim)]">Этот экран берёт сохранённый черновик из Мастера листинга: товар, ручную ДНК товара, режим и выбранные ключи. Теперь он использует тот же пакет данных, что JSON API, проверка генерации и проверка черновика.</p>
+          <div className="owner-eyebrow">SEO · задание товара</div>
+          <h1>SEO-бриф</h1>
+          <p>Собираем сохранённые оси товара, подтверждённые факты и выбранные ключи в единое задание для генерации. Это тот же контракт, который используют API и проверки черновика.</p>
         </div>
-        <div className="flex flex-wrap gap-3 lg:justify-end">
-          <Link href="/admin/listing-master" className="btn-ghost">Мастер листинга <ArrowUpRight size={13} /></Link>
-          <Link href="/admin/seo-keywords" className="btn-ghost">SEO-ядро <ArrowUpRight size={13} /></Link>
-          {draftPreviewHref ? <Link href={draftPreviewHref} className="btn-ghost">Проверка черновика <ArrowUpRight size={13} /></Link> : null}
-          {data.product?.product_slug ? <Link href={`/shop/${data.product.product_slug}`} className="btn-ghost">Открыть товар <ArrowUpRight size={13} /></Link> : null}
+        <div className="owner-actions" style={{ marginTop: 0 }}>
+          <Link href="/admin/listing-master" className="owner-button primary">Мастер листинга <ArrowUpRight size={13} /></Link>
+          <Link href="/admin/seo-keywords" className="owner-button">SEO-ядро <ArrowUpRight size={13} /></Link>
+          {draftPreviewHref ? <Link href={draftPreviewHref} className="owner-button">Проверка черновика <ArrowUpRight size={13} /></Link> : null}
+          {data.product?.product_slug ? <Link href={`/shop/${data.product.product_slug}`} className="owner-button">Товар <ArrowUpRight size={13} /></Link> : null}
         </div>
-      </div>
+      </header>
 
       {data.error ? <Notice tone="warning">{data.error}</Notice> : null}
       {!data.decision ? <Notice tone="warning">Для этого товара ещё нет сохранённого черновика решения. Сначала выбери товар и сохрани решение в Мастере листинга.</Notice> : null}
@@ -152,7 +152,7 @@ export default async function SeoBriefsFromDecisionPage({ searchParams }) {
           </Panel>
         </div> : null}
       </> : null}
-    </section>
+    </div>
   </main>;
 }
 
