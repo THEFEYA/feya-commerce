@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { LaunchReadinessGateRow, LaunchReadinessSummaryRow } from '@/lib/types';
-import { gateTitle, roleLabel, scopeLabel, statusLabel } from '@/lib/owner-ui/terminology';
+import { gateTitle, launchGateOwnerCopy, roleLabel, scopeLabel, statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -50,44 +50,53 @@ function stateClass(value: unknown) {
 export default async function AdminLaunchReadinessPage() {
   const { summary, gates, error } = await getReadiness();
 
+  const orderedGates = [...gates].sort((a, b) => {
+    const rank = (row: LaunchReadinessGateRow) => {
+      const state = asText(row.gate_status, '').toUpperCase();
+      if (state === 'BLOCKED') return 0;
+      if (state === 'WARN') return 1;
+      return 2;
+    };
+    return rank(a) - rank(b) || asText(a.readiness_scope).localeCompare(asText(b.readiness_scope));
+  });
+
   return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
-          <div className="nav-links">
-            <Link href="/admin/system-readiness">Готовность системы</Link>
-            <Link href="/admin/launch-readiness">Готовность к запуску</Link>
-            <Link href="/admin/metrics">Метрики</Link>
-            <Link href="/admin/execution-map">Права действий</Link>
+    <main className="owner-page">
+      <div className="owner-page-inner">
+        <header className="owner-page-head">
+          <div>
+            <div className="owner-eyebrow">Система · запуск</div>
+            <h1>Готовность к запуску</h1>
+            <p>Сайт, поиск, продажи и измерение проверяются отдельно. Общего «среднего балла» нет: критическая блокировка не должна прятаться за готовностью другой зоны.</p>
           </div>
-        </nav>
+          <div className="owner-actions" style={{ marginTop: 0 }}>
+            <Link href="/admin/company/system" className="owner-button">Система</Link>
+            <Link href="/admin/execution-map" className="owner-button">Права и автоматизация</Link>
+          </div>
+        </header>
 
-        <section className="phase-banner">
-          <div className="phase-label">Готовность к запуску · детерминированная проверка</div>
-          <h1>Готовность к запуску</h1>
-          <p>
-            Сайт, поисковая индексация, продажи и измерение результатов оцениваются отдельно. Общего «среднего балла» нет, поэтому критичная блокировка не может спрятаться за хорошим состоянием других зон.
-          </p>
-        </section>
-
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
+        <section className="owner-grid four" style={{ marginBottom: '20px' }}>
           {summary.map((row) => (
-            <div className="card metric" key={row.readiness_scope}>
-              <strong>{scopeLabel(row.readiness_scope)}</strong>
-              <span className={`status-pill ${stateClass(row.scope_status)}`}>
+            <article className={`owner-card ${row.scope_status === 'BLOCKED' ? 'is-warning' : row.scope_status === 'PASS' ? 'is-success' : 'is-info'}`} key={row.readiness_scope}>
+              <div className={`owner-status ${row.scope_status === 'BLOCKED' ? 'is-warning' : row.scope_status === 'PASS' ? 'is-success' : 'is-info'}`}>
                 {statusLabel(row.scope_status)}
-              </span>
-              <span>
-                {row.pass_count || 0} пройдено · {row.warn_count || 0} требуют внимания · {row.blocking_count || 0} блокируют
-              </span>
-            </div>
+              </div>
+              <h2 className="owner-card-title" style={{ marginTop: '10px' }}>{scopeLabel(row.readiness_scope)}</h2>
+              <p className="owner-card-copy">{row.blocking_count || 0} блокируют · {row.warn_count || 0} требуют внимания · {row.pass_count || 0} пройдено</p>
+            </article>
           ))}
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
-        <div className="table-wrap">
+        <section className="owner-section">
+          <div className="owner-section-head">
+            <div>
+              <h2>Что мешает запуску</h2>
+              <div className="owner-section-kicker">Сначала блокирующие условия, затем предупреждения и уже пройденные проверки.</div>
+            </div>
+          </div>
+          <div className="table-wrap">
           <table>
             <thead>
               <tr>
@@ -95,17 +104,18 @@ export default async function AdminLaunchReadinessPage() {
                 <th>Проверка</th>
                 <th>Статус</th>
                 <th>Ответственный</th>
-                <th>Текущее подтверждение</th>
-                <th>Следующий шаг</th>
+                <th>Что это значит</th>
+                <th>Что делать дальше</th>
               </tr>
             </thead>
             <tbody>
-              {gates.map((row) => (
+              {orderedGates.map((row) => {
+                const copy = launchGateOwnerCopy(row.gate_code, { summary: row.summary, action: row.next_action });
+                return (
                 <tr key={`${row.readiness_scope}-${row.gate_code}`}>
                   <td>{scopeLabel(row.readiness_scope)}</td>
                   <td>
-                    <strong>{gateTitle(row.gate_code, row.gate_name)}</strong>
-                    <div className="muted">{row.gate_code}</div>
+                    <strong title={asText(row.gate_code)}>{gateTitle(row.gate_code, row.gate_name)}</strong>
                   </td>
                   <td>
                     <span className={`status-pill ${stateClass(row.gate_status)}`}>
@@ -114,13 +124,14 @@ export default async function AdminLaunchReadinessPage() {
                     {row.is_blocker ? <div className="badge-row"><span className="badge">обязательная проверка</span></div> : null}
                   </td>
                   <td>{roleLabel(row.owner_role)}</td>
-                  <td>{asText(row.summary)}</td>
-                  <td>{asText(row.next_action)}</td>
+                  <td>{copy.summary}</td>
+                  <td>{copy.action}</td>
                 </tr>
-              ))}
+              )})}
             </tbody>
           </table>
-        </div>
+          </div>
+        </section>
       </div>
     </main>
   );
