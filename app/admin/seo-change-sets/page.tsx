@@ -138,6 +138,38 @@ export default async function SeoChangeSetsPage({ searchParams }: { searchParams
       </div>
     </form>
 
-    <div className="rounded-xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden"><div className="sticky top-[64px] z-10 grid grid-cols-[1fr_.65fr_.8fr_1fr_1fr_1.2fr] gap-4 px-5 py-3 border-b border-[rgba(216,214,211,.10)] bg-[#0f0f15]/95 backdrop-blur-xl text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]"><div>Товар</div><div>Статус</div><div>Поле</div><div>Сейчас</div><div>Предлагается</div><div>Действие</div></div><div className="divide-y divide-[rgba(216,214,211,.08)]">{visibleRows.length ? visibleRows.map((row) => <div key={row.change_set_id} className="grid grid-cols-[1fr_.65fr_.8fr_1fr_1fr_1.2fr] gap-4 px-5 py-4"><div><Link href={`/admin/products/${row.product_slug}`} className="text-bone text-[14px] leading-snug hover:text-[var(--gold-warm)]">/{row.product_slug}</Link><div className="mt-2 text-[10px] text-[var(--smoke)]" title={row.change_set_id}>сохранённая SEO-правка</div></div><div><Chip>{statusLabel(row.status)}</Chip></div><div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">{fieldLabel(row.target_field)}</div><div className="text-[12px] leading-relaxed text-[var(--bone-dim)] line-clamp-3">{row.current_value || '—'}</div><div className="text-[12px] leading-relaxed text-bone line-clamp-3">{row.proposed_value || '—'}</div><AdminSeoChangeSetStatusClient changeSetId={row.change_set_id} currentStatus={row.status} /></div>) : <div className="p-6 text-[13px] leading-relaxed text-[var(--bone-dim)]">По текущему фильтру SEO-правок нет.</div>}</div></div>
-  </section></main>;
+    <div className="rounded-xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
+      <div className="sticky top-[64px] z-10 grid grid-cols-[1fr_.65fr_.8fr_1fr_1fr_1.2fr] gap-4 px-5 py-3 border-b border-[rgba(216,214,211,.10)] bg-[#0f0f15]/95 backdrop-blur-xl text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">
+        <div>Товар</div><div>Статус</div><div>Поле</div><div>Сейчас</div><div>Предлагается</div><div>Действие</div>
+      </div>
+      <div className="divide-y divide-[rgba(216,214,211,.08)]">
+        {visibleRows.length ? visibleRows.map((row) => (
+          <div key={row.change_set_id} className="grid grid-cols-[1fr_.65fr_.8fr_1fr_1fr_1.2fr] gap-4 px-5 py-4">
+            <div>
+              <Link href={`/admin/products/${row.product_slug}`} className="text-bone text-[14px] leading-snug hover:text-[var(--gold-warm)]">/{row.product_slug}</Link>
+              <div className="mt-2 text-[10px] text-[var(--smoke)]" title={row.change_set_id}>сохранённая SEO-правка</div>
+            </div>
+            <div><Chip>{statusLabel(row.status)}</Chip></div>
+            <div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">{fieldLabel(row.target_field)}</div>
+            <div className="text-[12px] leading-relaxed text-[var(--bone-dim)] line-clamp-3">{row.current_value || '—'}</div>
+            <div className="text-[12px] leading-relaxed text-bone line-clamp-3">{row.proposed_value || '—'}</div>
+            <AdminSeoChangeSetStatusClient changeSetId={row.change_set_id} currentStatus={row.status} />
+          </div>
+        )) : (
+          <div className="p-6 text-[13px] leading-relaxed text-[var(--bone-dim)]">По текущему фильтру SEO-правок нет.</div>
+        )}
+      </div>
+    </div>
+
+    {filteredRows.length > pageSize ? (
+      <div className="flex items-center justify-between gap-3" style={{ marginTop: '14px' }}>
+        <div className="owner-section-kicker">Страница {page} из {pageCount}</div>
+        <div className="owner-actions" style={{ marginTop: 0 }}>
+          {page > 1 ? <Link href={pageHref(page - 1)} className="owner-button">Назад</Link> : <span className="owner-button" style={{ opacity: .4 }}>Назад</span>}
+          {page < pageCount ? <Link href={pageHref(page + 1)} className="owner-button">Дальше</Link> : <span className="owner-button" style={{ opacity: .4 }}>Дальше</span>}
+        </div>
+      </div>
+    ) : null}
+    </div>
+  </main>;
 }
