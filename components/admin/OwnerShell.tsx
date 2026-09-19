@@ -128,6 +128,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
   const pathname = usePathname() || '/admin';
   const router = useRouter();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [compactDensity, setCompactDensity] = useState(false);
   const activeArea = ownerArea(pathname);
   const activeTool = WORK_TOOLS.find((item) => pathMatches(pathname, item.href));
   const toolsOpen = Boolean(activeTool);
@@ -135,6 +136,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       setSidebarCollapsed(window.localStorage.getItem('feya-owner-sidebar') === 'collapsed');
+      setCompactDensity(window.localStorage.getItem('feya-owner-density') === 'compact');
     } catch {
       // Local storage is optional; the navigation still works without it.
     }
@@ -152,6 +154,18 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
 
   if (pathname.startsWith('/admin/login')) return <>{children}</>;
 
+  const toggleDensity = () => {
+    setCompactDensity((current) => {
+      const next = !current;
+      try {
+        window.localStorage.setItem('feya-owner-density', next ? 'compact' : 'comfortable');
+      } catch {
+        // View preference is optional.
+      }
+      return next;
+    });
+  };
+
   const toggleSidebar = () => {
     setSidebarCollapsed((current) => {
       const next = !current;
@@ -165,7 +179,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className={`owner-shell${sidebarCollapsed ? ' is-sidebar-collapsed' : ''}`} lang="ru">
+    <div className={`owner-shell${sidebarCollapsed ? ' is-sidebar-collapsed' : ''}${compactDensity ? ' is-density-compact' : ''}`} lang="ru">
       <aside className="owner-sidebar" aria-label="Основная навигация">
         <Link href="/admin/company" className="owner-brand" title="Центр управления FEYA">
           <span className="owner-brand-name">FEYA</span>
@@ -262,6 +276,16 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
           <div className="owner-topbar-context" title="Текущий раздел">
             {currentContext(pathname)}
           </div>
+          <button
+            type="button"
+            className={`owner-density-toggle${compactDensity ? ' is-active' : ''}`}
+            onClick={toggleDensity}
+            aria-pressed={compactDensity}
+            title={compactDensity ? 'Вернуть обычную плотность' : 'Сделать таблицы и карточки компактнее'}
+          >
+            <SlidersHorizontal size={13} strokeWidth={1.8} aria-hidden="true" />
+            <span>{compactDensity ? 'Обычный вид' : 'Компактно'}</span>
+          </button>
           <div className="owner-topbar-status">
             <span className="owner-status-dot" aria-hidden="true" />
             <span>Подготовка к запуску</span>
