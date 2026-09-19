@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Boxes, CheckCircle2, ClipboardList, FileImage, FileSearch, FileText, GitBranch, Home, ImageIcon, Layers3, ListChecks, ListTree, Network, PackageSearch, Rocket, Scale, ShieldCheck, Tags, Upload, WalletCards } from 'lucide-react';
+import { BarChart3, Boxes, CheckCircle2, ClipboardList, FileImage, FileSearch, FileText, GitBranch, Home, ImageIcon, Layers3, ListChecks, ListTree, PackageSearch, Rocket, Scale, ShieldCheck, Tags, Upload, WalletCards } from 'lucide-react';
 
 const NAV = [
   { href: '/admin', label: 'Обзор', note: 'Панель контроля', icon: Home },
@@ -65,18 +65,12 @@ export function AdminNav() {
         })}
       </nav>
 
-      <div className="mt-auto space-y-2">
-        <Link href="/admin/company" className="group grid grid-cols-[32px_1fr] gap-3 rounded-xl border border-[rgba(216,214,211,.10)] bg-black/20 px-3 py-3 text-[var(--bone-dim)] transition-all hover:border-[rgba(212,178,106,.28)] hover:text-white">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full border border-[rgba(216,214,211,.10)] text-[var(--gold-warm)]"><Network size={15} /></div>
-          <div>
-            <div className="text-[13px] leading-tight">Компания и ИИ-команда</div>
-            <div className="mt-1 text-[10px] leading-tight text-[var(--smoke)]">агенты, сигналы, работа и результаты</div>
-          </div>
-        </Link>
-        <div className="rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/20 p-4">
+      <div className="mt-auto rounded-2xl border border-[rgba(216,214,211,.10)] bg-black/20 p-4">
         <div className="flex items-center gap-2 eyebrow-dim mb-2"><BarChart3 size={13} /> Режим</div>
         <div className="text-[12px] leading-relaxed text-[var(--bone-dim)]">Внутренний режим контроля. Оплата остаётся выключенной до готовности чеклиста запуска.</div>
-        </div>
+        <Link href="/admin/company" className="mt-3 block border-t border-[rgba(216,214,211,.08)] pt-3 text-[11px] text-[var(--gold-warm)] hover:text-white">
+          Компания и ИИ-команда →
+        </Link>
       </div>
     </div>
   </aside>;
