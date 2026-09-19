@@ -3,7 +3,6 @@
 import { getMissingAdminDataEnvMessage, getAdminReadClient } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, FileImage, ImageIcon, RefreshCw, Scaling } from 'lucide-react';
-import { getMissingAdminDataEnvMessage } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 import { buildMediaSeoPlans, summarizeMediaSeoPlans, type MediaSeoStage } from '@/lib/media-seo';
 import type { StorefrontProduct } from '@/lib/types';
