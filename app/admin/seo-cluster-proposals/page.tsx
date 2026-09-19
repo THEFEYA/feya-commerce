@@ -46,6 +46,43 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
+function pageLevelLabel(value: unknown) {
+  const key = asText(value, '').toLowerCase();
+  const labels: Record<string, string> = {
+    product: 'Товар',
+    collection: 'Категория / коллекция',
+    landing: 'Посадочная страница',
+    faq: 'FAQ / информационная',
+    homepage: 'Главная',
+  };
+  return labels[key] || asText(value);
+}
+
+function intentLabel(value: unknown) {
+  const key = asText(value, '').toLowerCase();
+  const labels: Record<string, string> = {
+    commercial: 'Коммерческий',
+    transactional: 'Покупательский',
+    informational: 'Информационный',
+    navigational: 'Навигационный',
+    mixed: 'Смешанный',
+  };
+  return labels[key] || asText(value);
+}
+
+function freshnessLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    FRESH: 'Данные актуальны',
+    CURRENT: 'Данные актуальны',
+    AGING: 'Данные постепенно устаревают',
+    STALE: 'Данные устарели',
+    UNKNOWN: 'Свежесть не определена',
+    MISSING: 'Метрик нет',
+  };
+  return labels[key] || asText(value);
+}
+
 function proposalStatusLabel(value: unknown) {
   const key = asText(value, '').toUpperCase();
   const labels: Record<string, string> = {
@@ -78,39 +115,38 @@ export default async function AdminClusterProposalsPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/seo-keyword-review">Keyword Review</Link>
-            <Link href="/admin/seo-clusters">Cluster Queue</Link>
-            <Link href="/admin/seo-cluster-proposals">Cluster Proposals</Link>
-            <Link href="/admin/seo-portfolio">SEO Portfolio</Link>
+            <Link href="/admin/seo-keyword-review">Проверка ключей</Link>
+            <Link href="/admin/seo-clusters">Очередь группировки</Link>
+            <Link href="/admin/seo-cluster-proposals">Предложения групп</Link>
+            <Link href="/admin/seo-portfolio">SEO-страницы</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">OSPM semantic cluster proposals · read-only</div>
+          <div className="phase-label">Смысловые группы запросов · только просмотр</div>
           <h1>Предложения групп запросов</h1>
           <p>
-            Only human-approved cleanup keywords may enter this queue. AI proposals remain non-canonical until human review and explicit apply.
+            В эту очередь попадают только ключи, уже одобренные человеком после очистки. Предложение ИИ не становится канонической группой, пока человек его не проверит и явно не применит.
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{candidates.length}</strong><span>Approved keywords ready for proposal</span></div>
-          <div className="card metric"><strong>{proposals.length}</strong><span>Proposals</span></div>
-          <div className="card metric"><strong>{review}</strong><span>Awaiting human review</span></div>
-          <div className="card metric"><strong>{approved}</strong><span>Approved, not applied</span></div>
-          <div className="card metric"><strong>{applied}</strong><span>Applied canonical clusters</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{candidates.length}</strong><span>Ключей готовы к предложению группы</span></div>
+          <div className="owner-summary-cell"><strong>{review}</strong><span>Предложений ждут проверки</span></div>
+          <div className="owner-summary-cell"><strong>{approved}</strong><span>Одобрено, но ещё не применено</span></div>
+          <div className="owner-summary-cell"><strong>{applied}</strong><span>Канонических групп применено</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
         <div className="notice" style={{ marginBottom: '18px' }}>
-          Axis, style, event and product-family similarity are not enough to form a query cluster. The proposal runner is instructed to prefer single-member clusters over broad grouping.
+          Совпадения по оси, стилю, событию или семейству товара недостаточно, чтобы объединять запросы. Если смысловая близость не доказана, безопаснее оставить отдельную группу, чем создать слишком широкую.
         </div>
 
         <section className="section-head">
           <div>
             <h2>Очередь одобренных ключей</h2>
-            <p className="muted">Current human-approved, unclustered keywords not already reserved by an active proposal.</p>
+            <p className="muted">Одобренные человеком ключи, которые ещё не вошли в каноническую группу и не заняты активным предложением.</p>
           </div>
         </section>
 
@@ -119,7 +155,7 @@ export default async function AdminClusterProposalsPage() {
             <thead>
               <tr>
                 <th>Ключевой запрос</th>
-                <th>Ось / шаблон</th>
+                <th>Смысловые признаки</th>
                 <th>Предлагаемый уровень</th>
                 <th>Интент</th>
                 <th>Метрики</th>
@@ -133,11 +169,11 @@ export default async function AdminClusterProposalsPage() {
                     {asText(row.keyword_axis)}
                     <div className="muted">{asText(row.keyword_pattern)}</div>
                   </td>
-                  <td>{asText(row.suggested_page_level)}</td>
-                  <td>{asText(row.ai_intent)}</td>
+                  <td>{pageLevelLabel(row.suggested_page_level)}</td>
+                  <td>{intentLabel(row.ai_intent)}</td>
                   <td>
                     {row.avg_monthly_searches != null ? row.avg_monthly_searches : '—'}
-                    <div className="muted">{asText(row.metric_freshness_status)}</div>
+                    <div className="muted">{freshnessLabel(row.metric_freshness_status)}</div>
                   </td>
                 </tr>
               )) : (
@@ -150,7 +186,7 @@ export default async function AdminClusterProposalsPage() {
         <section className="section-head">
           <div>
             <h2>История предложений</h2>
-            <p className="muted">Proposal status is separate from canonical query-cluster status.</p>
+            <p className="muted">Статус предложения и статус канонической группы — разные вещи.</p>
           </div>
         </section>
 
@@ -159,7 +195,7 @@ export default async function AdminClusterProposalsPage() {
             <thead>
               <tr>
                 <th>Предложение</th>
-                <th>Intent</th>
+                <th>Интент</th>
                 <th>Ключей в группе</th>
                 <th>Статус</th>
                 <th>Обоснование</th>
@@ -170,12 +206,11 @@ export default async function AdminClusterProposalsPage() {
               {proposals.length ? proposals.map((row) => (
                 <tr key={row.proposal_id}>
                   <td>
-                    <strong>{asText(row.cluster_label, row.proposal_code || '—')}</strong>
-                    <div className="muted">{asText(row.proposal_code)}</div>
+                    <strong title={asText(row.proposal_code)}>{asText(row.cluster_label, row.proposal_code || '—')}</strong>
                   </td>
                   <td>
-                    {asText(row.normalized_intent)}
-                    <div className="muted">{asText(row.intent_type)}</div>
+                    {intentLabel(row.normalized_intent)}
+                    <div className="muted">{intentLabel(row.intent_type)}</div>
                   </td>
                   <td>{row.proposed_member_count ?? 0}</td>
                   <td>
@@ -187,7 +222,7 @@ export default async function AdminClusterProposalsPage() {
                   <td>
                     {asText(row.review_note)}
                     {row.applied_query_cluster_id ? (
-                      <div className="badge-row"><span className="badge">cluster applied</span></div>
+                      <div className="badge-row"><span className="badge">группа применена</span></div>
                     ) : null}
                   </td>
                 </tr>
