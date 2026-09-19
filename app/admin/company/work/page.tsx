@@ -167,13 +167,16 @@ const GROUP_ORDER = [
 export default async function AdminWorkPage() {
   const { work, attention, roles, operations, error } = await getWorkData();
   const workVM = work.map(presentWorkItem);
+  const activeWorkVM = workVM.filter((item) => !['COMPLETED', 'CLOSED'].includes(item.status));
   const attentionVM = attention.map(presentOwnerAttention);
   const roleVM = roles.map(presentRole);
   const roleWorkCounts = new Map<string, number>();
-  for (const row of work) {
+  work.forEach((row, index) => {
+    const item = workVM[index];
+    if (!item || ['COMPLETED', 'CLOSED'].includes(item.status)) return;
     const code = String(row.current_accountable_domain || '').trim().toUpperCase();
     if (code) roleWorkCounts.set(code, (roleWorkCounts.get(code) || 0) + 1);
-  }
+  });
   const operationalWork =
     operations.productFacts +
     operations.keywordReview +
@@ -207,7 +210,7 @@ export default async function AdminWorkPage() {
               Здесь видно, что FEYA действительно выполняет, чего ждёт и где требуется ваше участие. Пустая очередь не считается проблемой.
             </p>
           </div>
-          <div className="owner-page-meta">{operationalWork + workVM.length} элементов в рабочих очередях</div>
+          <div className="owner-page-meta">{operationalWork + activeWorkVM.length} элементов в активных рабочих очередях</div>
         </header>
 
         <nav className="owner-subnav" aria-label="Разделы работы">
