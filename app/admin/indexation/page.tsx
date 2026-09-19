@@ -3,7 +3,7 @@
 import { getMissingAdminDataEnvMessage, getAdminReadClient } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, FileSearch, ImageIcon, Rocket, ShieldAlert } from 'lucide-react';
-import { getMissingAdminDataEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
+import { getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 import { buildSearchPlans, summarizeSearchPlans, type SearchStage } from '@/lib/search-readiness';
 import type { AdminReviewEvent } from '@/lib/admin-readiness';
