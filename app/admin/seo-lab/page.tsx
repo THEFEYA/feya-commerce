@@ -1,7 +1,7 @@
 // @ts-nocheck
+import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, BarChart3, FileSearch, FileText, ImageIcon, Layers3, ShieldAlert } from 'lucide-react';
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 import { buildSeoScores, summarizeSeoScores, type SeoScoreStage } from '@/lib/seo-scoring';
 import type { StorefrontProduct } from '@/lib/types';
@@ -12,8 +12,8 @@ export const revalidate = 0;
 const SEO_LAB_PRODUCTS_LIMIT = 500;
 
 async function loadProducts() {
-  const supabase = getSupabaseReadClient();
-  if (!supabase) return { products: [], error: getMissingSupabaseEnvMessage() };
+  const supabase = getAdminReadClient();
+  if (!supabase) return { products: [], error: getMissingAdminDataEnvMessage() };
   const { data, error } = await supabase.from(STOREFRONT_VIEW_V4).select(STOREFRONT_V4_CARD_SELECT).limit(SEO_LAB_PRODUCTS_LIMIT);
   if (error) return { products: [], error: error.message };
   return { products: (data || []) as StorefrontProduct[], error: null };
