@@ -113,19 +113,17 @@ export default async function AdminKeywordCleanupReviewPage() {
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Кандидатов на проверку</span></div>
-          <div className="card metric"><strong>{pending}</strong><span>Ждут человека</span></div>
-          <div className="card metric"><strong>{low}</strong><span>Низкий риск проверки</span></div>
-          <div className="card metric"><strong>{medium}</strong><span>Средний риск проверки</span></div>
-          <div className="card metric"><strong>{high}</strong><span>Высокий риск проверки</span></div>
-          <div className="card metric"><strong>{recommended}</strong><span>Есть независимая рекомендация</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{pending}</strong><span>Ждут решения человека</span></div>
+          <div className="owner-summary-cell"><strong>{high}</strong><span>Высокая сложность проверки</span></div>
+          <div className="owner-summary-cell"><strong>{medium}</strong><span>Средняя сложность проверки</span></div>
+          <div className="owner-summary-cell"><strong>{recommended}</strong><span>Есть независимая рекомендация</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
         <div className="notice" style={{ marginBottom: '18px' }}>
-          Низкий / средний / высокий — это сложность проверки, а не SEO-ценность ключа. Объём поиска, конкуренция и позиции здесь не придумываются.
+          Низкий / средний / высокий — это сложность проверки, а не SEO-ценность ключа. Низкий риск сейчас: {low}. Объём поиска, конкуренция и позиции здесь не придумываются.
         </div>
 
         <div className="table-wrap">
@@ -141,7 +139,15 @@ export default async function AdminKeywordCleanupReviewPage() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
+              {[...rows].sort((a, b) => {
+                const rank = (row: any) => {
+                  if (row.review_status === 'pending' && row.review_risk === 'HIGH') return 0;
+                  if (row.review_status === 'pending' && row.review_risk === 'MEDIUM') return 1;
+                  if (row.review_status === 'pending') return 2;
+                  return 3;
+                };
+                return rank(a) - rank(b);
+              }).map((row) => (
                 <tr key={row.cleanup_id}>
                   <td>
                     <strong>{asText(row.effective_keyword, row.original_keyword || '—')}</strong>
