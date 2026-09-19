@@ -128,6 +128,67 @@ const SOURCE_LABELS: Record<string, string> = {
   SEO_PAGE_PORTFOLIO_AUTHORITY: 'Поисковые страницы и их ответственность',
 };
 
+const CAPABILITY_LABELS: Record<string, string> = {
+  ADMIN_AUTH: 'Защищённый вход в админку',
+  ADMIN_DATA_BOUNDARY: 'Защита внутренних данных админки',
+  AI_BUDGET_GATE: 'Лимит расходов ИИ',
+  AI_RUNTIME_USAGE_METERING: 'Учёт использования ИИ',
+  AI_SEARCH_VISIBILITY: 'Видимость в ИИ-поиске',
+  BUSINESS_TRUTH_REGISTRY: 'Правила и факты бизнеса',
+  CASE_ADMISSION_GATE: 'Допуск ситуации в рабочий процесс',
+  CHANGE_EVENT_REGISTRY: 'История изменений',
+  COMMERCE_CHECKOUT: 'Оформление заказа',
+  COMMERCE_ORDER_TRUTH: 'Достоверные завершённые заказы',
+  CONTENT_BRIEF_COMPILER: 'Сборка задания для контента',
+  CONTENT_PRECHECKS: 'Предварительные проверки контента',
+  CONTENT_QA_SHADOW: 'Независимый контроль качества контента',
+  CONTROLLED_CONTENT_EDIT: 'Контролируемое редактирование контента',
+  DATA_HEALTH_REGISTRY: 'Состояние и свежесть данных',
+  DURABLE_HANDOFF_REGISTRY: 'Передача работы между ролями',
+  DURABLE_WORKFLOW_STATE: 'Состояние рабочего процесса',
+  EVENT_OPPORTUNITY_REGISTRY: 'События и возможности роста',
+  EXECUTION_DISPATCHER: 'Исполнитель внешних действий',
+  EXECUTION_GATEWAY: 'Контролируемое выполнение действий',
+  EXPERIMENT_REGISTRY: 'Эксперименты и влияющие изменения',
+  GA4_BIGQUERY_EXPORT: 'Экспорт GA4 в BigQuery',
+  GA4_COLLECTION: 'Сбор данных GA4',
+  GOOGLE_ADS_KEYWORD_METRICS: 'Метрики ключевых слов Google Ads',
+  GROWTH_CASE_REGISTRY: 'Рабочие ситуации роста',
+  GROWTH_STRATEGY_REGISTRY: 'Версии стратегии роста',
+  GSC_BULK_EXPORT: 'Экспорт Search Console',
+  INCIDENT_CHANGE_FREEZE: 'Режим инцидента и заморозка изменений',
+  INDEXABLE_PAGE_ELIGIBILITY_GATE: 'Допуск страницы к индексации',
+  INITIATIVE_REGISTRY: 'Инициативы роста',
+  KEYWORD_CLEANUP_REVIEW_SHADOW: 'Независимая проверка очистки ключей',
+  KEYWORD_METRIC_SNAPSHOT_HISTORY: 'История метрик ключевых слов',
+  LEARNING_REGISTRY: 'Реестр подтверждённых выводов',
+  MEASUREMENT_ENGINE: 'Измерение бизнес-результатов',
+  MEASUREMENT_SPEC_REGISTRY: 'Правила измерения результатов',
+  OBJECTIVE_REGISTRY: 'Цели роста',
+  OWNER_ATTENTION_QUEUE: 'Очередь решений владельца',
+  PAGE_QUERY_OWNERSHIP_PROPOSAL_SHADOW: 'Предложения ответственности страниц',
+  PRODUCT_BUILDER_READ: 'Чтение Product Builder',
+  PRODUCT_CATALOG_SAFE_READ: 'Безопасное чтение каталога',
+  PRODUCTION_DOMAIN: 'Основной домен сайта',
+  QUERY_CLUSTER_PROPOSAL_SHADOW: 'Предложения групп запросов',
+  QUERY_CLUSTER_REVIEW_QUEUE: 'Очередь группировки запросов',
+  REGRESSION_RUNNER: 'Автоматический запуск регрессионных проверок',
+  RETURN_POLICY_CANON: 'Подтверждённые правила возврата',
+  ROLE_ACTIVATION_GATE: 'Допуск ролей к работе',
+  SCENARIO_TEST_REGISTRY: 'Проверки надёжности сценариев',
+  SCO_HUMAN_REVIEW_PRIMITIVE: 'Проверка SEO-контента человеком',
+  SCO_SHADOW_RUNNER: 'Подготовка SEO-контента в безопасном режиме',
+  SEARCH_LAUNCH_GATE: 'Допуск поисковой индексации',
+  SEO_KEYWORD_CLEANUP: 'Очистка SEO-ключей',
+  SEO_PACK_WORKFLOW: 'Рабочий процесс SEO-пакета',
+  SEO_PAGE_PORTFOLIO: 'Портфель SEO-страниц',
+  SIGNAL_ENGINE: 'Сигналы и условия допуска',
+  SOURCE_OF_TRUTH_REGISTRY: 'Источники истины',
+  STABILIZATION_WINDOW_GATE: 'Защитное окно после изменений',
+  VARIABLE_COST_TRUTH: 'Достоверные переменные затраты',
+  WORKFLOW_WORKER: 'Фоновый исполнитель рабочих процессов',
+};
+
 const SIGNAL_COPY: Record<string, { title: string; summary: string; action: string }> = {
   OSPM_KEYWORD_CLEANUP_BACKLOG: {
     title: 'Разобрать очередь ключевых слов',
@@ -307,6 +368,26 @@ export function sourceHealthSummary(value: unknown) {
   return copy[key] || 'Состояние источника требует технической проверки.';
 }
 
+export function capabilityLabel(value: unknown) {
+  const key = String(value || '').trim().toUpperCase();
+  return CAPABILITY_LABELS[key] || 'Системная возможность';
+}
+
+export function implementationStateLabel(value: unknown) {
+  const key = String(value || '').trim().toLowerCase();
+  if (!key) return 'Состояние не определено';
+  if (key.includes('not_implemented') || key.includes('not_deployed')) return 'Ещё не реализовано';
+  if (key.includes('not_configured')) return 'Ещё не подключено';
+  if (key.includes('disabled')) return 'Подготовлено, но выключено';
+  if (key.includes('blocked') || key.includes('permission')) return 'Подготовлено, но внешне заблокировано';
+  if (key.includes('shadow') || key.includes('dry_run')) return 'Работает в безопасном режиме';
+  if (key.includes('db_foundation') || key.includes('foundation') || key.includes('primitive')) return 'Основа готова, выполнение ограничено';
+  if (key.includes('pending')) return 'Требует следующего этапа настройки';
+  if (key.includes('implemented') || key.includes('active') || key.includes('wired') || key.includes('registry') || key.includes('v1')) return 'Реализовано';
+  if (key.includes('unsupported')) return 'Не поддерживается в текущей версии';
+  return 'Частично реализовано';
+}
+
 export function capabilityOwnerSummary(value: unknown) {
   const key = String(value || '').trim().toUpperCase();
   const copy: Record<string, string> = {
@@ -321,6 +402,33 @@ export function capabilityOwnerSummary(value: unknown) {
     EXPERIMENT_REGISTRY: 'Эксперименты можно описывать и контролировать, но результат нельзя считать без реальных измерительных данных.',
     LEARNING_REGISTRY: 'Выводы можно сохранять только после достаточного подтверждения; единичный результат не становится правилом.',
     CHANGE_EVENT_REGISTRY: 'История изменений фиксируется и может связываться с будущими измерениями результата.',
+    AI_BUDGET_GATE: 'Жёсткий лимит расходов ИИ пока не задан владельцем; автоматические расходы не должны расширяться без такого правила.',
+    AI_SEARCH_VISIBILITY: 'Надёжного источника данных о видимости FEYA в ответах ИИ-поиска пока нет, поэтому система не показывает выдуманный показатель.',
+    BUSINESS_TRUTH_REGISTRY: 'Канонические бизнес-факты и очередь проверки существуют; неподтверждённые правила не должны использоваться как истина.',
+    COMMERCE_CHECKOUT: 'Реальное оформление заказа и оплата пока не подключены.',
+    COMMERCE_ORDER_TRUTH: 'Достоверного источника завершённых заказов пока нет; черновики нельзя считать продажами.',
+    CONTENT_BRIEF_COMPILER: 'SEO-задание собирается из подтверждённых фактов и решений, но автоматическая публикация не разрешена.',
+    CONTENT_PRECHECKS: 'Автоматические проверки контента работают в безопасном режиме и не публикуют изменения.',
+    CONTENT_QA_SHADOW: 'Независимый контроль качества подготовлен и работает без права публикации.',
+    DATA_HEALTH_REGISTRY: 'Снимки свежести и доступности источников сохраняются и используются для ограничения выводов.',
+    DURABLE_WORKFLOW_STATE: 'Состояние процессов хранится, но постоянный фоновый worker ещё не активирован.',
+    EVENT_OPPORTUNITY_REGISTRY: 'События и коммерческие окна можно фиксировать отдельно от даты самого события.',
+    EXECUTION_DISPATCHER: 'Автоматический внешний исполнитель ещё не подключён.',
+    EXECUTION_GATEWAY: 'Контур запрос → одобрение → квитанция выполнения подготовлен; реальные production-действия остаются ограничены.',
+    GA4_COLLECTION: 'Сбор production-событий GA4 ещё не подключён.',
+    GA4_BIGQUERY_EXPORT: 'Автоматический экспорт GA4 в BigQuery ещё не настроен.',
+    GROWTH_STRATEGY_REGISTRY: 'Версии стратегии можно фиксировать и активировать только через человеческое решение.',
+    INCIDENT_CHANGE_FREEZE: 'Критические инциденты могут блокировать опасные изменения до снятия заморозки.',
+    INITIATIVE_REGISTRY: 'Инициативы поддерживают отдельные проверки стратегии, директора и владельца.',
+    KEYWORD_METRIC_SNAPSHOT_HISTORY: 'История сохранённых метрик ключевых слов доступна и не подменяется только последним значением.',
+    OWNER_ATTENTION_QUEUE: 'Решения владельца выделяются отдельно от обычных сигналов и фоновой работы.',
+    PRODUCT_CATALOG_SAFE_READ: 'Каталог доступен для безопасного чтения внутренними рабочими экранами.',
+    PRODUCTION_DOMAIN: 'Основной production-домен ещё не подтверждён как готовый к публичному запуску.',
+    RETURN_POLICY_CANON: 'Актуальная формулировка правил возврата ещё требует явного подтверждения владельца.',
+    ROLE_ACTIVATION_GATE: 'Роль не становится активным агентом только потому, что существует в архитектуре.',
+    SCENARIO_TEST_REGISTRY: 'Регрессионные сценарии и их результаты хранятся отдельно от заявленной готовности.',
+    VARIABLE_COST_TRUTH: 'Достоверные переменные затраты ещё не подтверждены, поэтому маржинальные выводы ограничены.',
+    WORKFLOW_WORKER: 'Постоянный фоновый исполнитель workflow ещё не развёрнут.',
     ADMIN_AUTH: 'Защищённый вход подготовлен, но ещё не включён для владельца.',
     ADMIN_DATA_BOUNDARY: 'Внутренние экраны зарегистрированы для последующего закрытия прямого доступа после проверки входа.',
     AI_RUNTIME_USAGE_METERING: 'Расход токенов и время AI-вызовов измеряются; жёсткий денежный лимит пока не задан владельцем.',
