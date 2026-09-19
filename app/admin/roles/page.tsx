@@ -108,9 +108,8 @@ export default async function AdminRolesPage() {
 
           <div className="owner-team-grid">
             {roles.map((role) => {
-              const required = Math.max(1, role.requiredCapabilityCount || 0);
+              const required = Math.max(0, role.requiredCapabilityCount || 0);
               const available = Math.min(required, role.availableCapabilityCount || 0);
-              const readyPct = Math.round((available / required) * 100);
               const currentWork = workCounts.get(role.code) || 0;
 
               return (
@@ -126,14 +125,17 @@ export default async function AdminRolesPage() {
 
                   <div className="owner-role-readiness">
                     <div className="owner-mini-bar-label">
-                      <span>Готовность возможностей</span>
+                      <span>Необходимые возможности</span>
                       <strong>{role.availableCapabilityCount}/{role.requiredCapabilityCount}</strong>
                     </div>
-                    <div className="owner-mini-bar-track" aria-label={`Готово ${readyPct}% необходимых возможностей`}>
-                      <i
-                        className={role.blockedCapabilityCount ? 'is-warning' : 'is-success'}
-                        style={{ width: `${role.requiredCapabilityCount ? readyPct : 0}%` }}
-                      />
+                    <div className="owner-capability-dots" aria-label={`Доступно ${role.availableCapabilityCount} из ${role.requiredCapabilityCount} необходимых возможностей`}>
+                      {required ? Array.from({ length: required }).map((_, index) => (
+                        <span
+                          key={index}
+                          className={index < available ? 'is-ready' : 'is-missing'}
+                          title={index < available ? 'Доступно' : 'Ещё не доступно'}
+                        />
+                      )) : <span className="owner-section-kicker">отдельные обязательные возможности не заданы</span>}
                     </div>
                   </div>
 
