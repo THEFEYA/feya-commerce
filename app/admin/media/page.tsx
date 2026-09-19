@@ -59,12 +59,51 @@ function Metric({ label, value, note, icon: Icon }) {
   </div>;
 }
 
-export default async function AdminMediaQaPage() {
+export default async function AdminMediaQaPage({ searchParams }: { searchParams: Promise<{ q?: string; issue?: string; page?: string }> }) {
+  const params = await searchParams;
   const { rows, error } = await loadProducts();
+  const q = String(params.q || '').trim().toLowerCase();
+  const issueFilter = String(params.issue || 'all');
+  const requestedPage = Math.max(1, Number(params.page || 1) || 1);
+  const pageSize = 36;
+
+  const issueNeedle: Record<string, string> = {
+    primary: 'Нет главного изображения',
+    secondary: 'Нет второго изображения или видео',
+    gallery: 'Мало изображений в галерее',
+    alt: 'Нет ALT-текста',
+  };
+
   const qaRows = rows
     .map((product) => ({ product, issues: mediaIssues(product) }))
     .filter((row) => row.issues.length)
-    .slice(0, 160);
+    .filter(({ product, issues }) => {
+      const haystack = [productTitle(product), productSlug(product), worldLabel(product)]
+        .map((value) => String(value || '').toLowerCase())
+        .join(' ');
+      const matchesQuery = !q || haystack.includes(q);
+      const requiredIssue = issueNeedle[issueFilter];
+      const matchesIssue = !requiredIssue || issues.includes(requiredIssue);
+      return matchesQuery && matchesIssue;
+    })
+    .sort((a, b) => {
+      const aPrimary = a.issues.includes('Нет главного изображения') ? 0 : 1;
+      const bPrimary = b.issues.includes('Нет главного изображения') ? 0 : 1;
+      return aPrimary - bPrimary || b.issues.length - a.issues.length || productTitle(a.product).localeCompare(productTitle(b.product), 'en');
+    });
+
+  const pageCount = Math.max(1, Math.ceil(qaRows.length / pageSize));
+  const page = Math.min(requestedPage, pageCount);
+  const visibleQaRows = qaRows.slice((page - 1) * pageSize, page * pageSize);
+
+  const pageHref = (nextPage: number) => {
+    const next = new URLSearchParams();
+    if (q) next.set('q', q);
+    if (issueFilter !== 'all') next.set('issue', issueFilter);
+    if (nextPage > 1) next.set('page', String(nextPage));
+    const query = next.toString();
+    return query ? `/admin/media?${query}` : '/admin/media';
+  };
 
   const missingPrimary = rows.filter((product) => !product.primary_image_url).length;
   const missingHover = rows.filter((product) => !product.secondary_image_url && !product.hover_image_url && !product.has_video && Number(product.media_count || 0) < 2).length;
@@ -94,8 +133,33 @@ export default async function AdminMediaQaPage() {
         <div className="owner-summary-cell"><strong>{hasVideo}</strong><span>Товаров уже имеют видео</span></div>
       </section>
 
+      <form action="/admin/media" className="owner-card" style={{ marginBottom: '16px' }}>
+        <div className="grid gap-3 md:grid-cols-[1fr_280px_auto] md:items-end">
+          <label>
+            <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Поиск товара</div>
+            <input name="q" defaultValue={q} className="field" placeholder="название, slug, категория" />
+          </label>
+          <label>
+            <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Проблема</div>
+            <select name="issue" defaultValue={issueFilter} className="field">
+              <option value="all">Все проблемы</option>
+              <option value="primary">Нет главного изображения</option>
+              <option value="secondary">Нет второго изображения / видео</option>
+              <option value="gallery">Мало изображений</option>
+              <option value="alt">Нет ALT-текста</option>
+            </select>
+          </label>
+          <button type="submit" className="owner-button primary">Применить</button>
+        </div>
+        <div className="owner-card-meta" style={{ marginTop: '10px', marginBottom: 0 }}>
+          <span>В очереди: {qaRows.length}</span>
+          <span>Показано: {visibleQaRows.length}</span>
+          <Link href="/admin/media">Сбросить</Link>
+        </div>
+      </form>
+
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {qaRows.map(({ product, issues }) => {
+        {visibleQaRows.map(({ product, issues }) => {
           const slug = productSlug(product);
           return <article key={product.canonical_product_id} className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
             <Link href={`/admin/products/${slug}`} className="group block">
