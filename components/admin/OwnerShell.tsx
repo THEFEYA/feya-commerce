@@ -55,6 +55,7 @@ function pathMatches(pathname: string, href: string) {
 }
 
 function ownerArea(pathname: string) {
+  if (pathname.startsWith('/admin/company/search')) return 'search';
   if (pathname === '/admin/company') return 'today';
   if (
     pathname.startsWith('/admin/company/work') ||
@@ -113,6 +114,7 @@ function currentContext(pathname: string) {
   const tool = WORK_TOOLS.find((item) => pathMatches(pathname, item.href));
   if (tool) return tool.label;
   const key = ownerArea(pathname);
+  if (key === 'search') return 'Поиск';
   return NAV_ITEMS.find((item) => item.key === key)?.label || 'FEYA';
 }
 
