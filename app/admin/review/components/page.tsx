@@ -199,10 +199,26 @@ export default async function AdminComponentReviewPage({ searchParams }: PagePro
   const fullSets = reviewRows.reduce((sum, row) => sum + row.configs.filter((config) => config.is_full_set).length, 0);
   const truthBlocked = reviewRows.filter((row) => row.truthDiagnostic?.blockers.length).length;
 
-  return <main className="min-h-screen bg-[#07070A]"><section className="container-feya pt-10 pb-16">
-    <div className="mb-7 border-b border-[rgba(216,214,211,.12)] pb-7"><div className="eyebrow-gold mb-3">Проверка · Компоненты</div><h1 className="text-bone text-[28px] font-medium leading-tight">Состав и компоненты товара</h1><p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-[var(--bone-dim)]">Очередь проверки канонических фактов товара: подтверждённый состав, исходные варианты, цены, нерешённые факты и блокировки. Проверочные события фиксируют историю, но не исправляют данные автоматически.</p><div className="mt-5 flex gap-3"><Link href="/admin" className="btn-ghost">Панель управления</Link><Link href="/admin/products" className="btn-ghost">Товары</Link>{focusedProductId ? <Link href="/admin/review/components" className="btn-ghost">Показать всю очередь</Link> : null}</div></div>
+  return <main className="owner-page"><div className="owner-page-inner">
+    <header className="owner-page-head">
+      <div>
+        <div className="owner-eyebrow">Товары · состав</div>
+        <h1>Состав и компоненты</h1>
+        <p>Проверяем канонический состав товара, исходные варианты и нерешённые факты. Проверка фиксирует решение, но не додумывает компоненты и не меняет Product Truth автоматически.</p>
+      </div>
+      <div className="owner-actions" style={{ marginTop: 0 }}>
+        <Link href="/admin" className="owner-button">Панель магазина</Link>
+        <Link href="/admin/products" className="owner-button">Товары</Link>
+        {focusedProductId ? <Link href="/admin/review/components" className="owner-button">Вся очередь</Link> : null}
+      </div>
+    </header>
     {error || truthResult.error || assertionEditor.error ? <div className="mb-6 rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)]">{error || `Canonical Product Truth: ${truthResult.error || assertionEditor.error}`}</div> : null}
-    <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-5"><div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-2">Факты заблокированы</div><div className="text-bone text-[28px]">{focusedProductId ? truthBlocked : '—'}</div></div><div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-2">Проверки вариантов</div><div className="text-bone text-[28px]">{variantChecks}</div></div><div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-2">Варианты источника</div><div className="text-bone text-[28px]">{sourceVariations}</div></div><div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-2">Полные комплекты</div><div className="text-bone text-[28px]">{fullSets}</div></div><div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5"><div className="eyebrow-dim mb-2">Страница очереди</div><div className="text-bone text-[28px]">{page}/{pageCount}</div><div className="mt-1 text-[10px] text-[var(--smoke)]">{rows.length} товаров</div></div></div>
+    <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+      <div className="owner-summary-cell"><strong>{focusedProductId ? truthBlocked : '—'}</strong><span>Блокеров фактов у выбранного товара</span></div>
+      <div className="owner-summary-cell"><strong>{variantChecks}</strong><span>Проверок вариантов</span></div>
+      <div className="owner-summary-cell"><strong>{sourceVariations}</strong><span>Вариантов исходного источника</span></div>
+      <div className="owner-summary-cell"><strong>{page}/{pageCount}</strong><span>Страница очереди · {rows.length} товаров</span></div>
+    </section>
     {!focusedProductId && pageCount > 1 ? <div className="mb-6 flex items-center justify-between gap-3"><div className="text-[11px] text-[var(--bone-dim)]">Быстрый индекс показывает рабочую группу из {PAGE_SIZE} товаров. Точный Product Truth загружается только после открытия одного товара.</div><div className="flex gap-2">{page > 1 ? <Link href={`/admin/review/components?page=${page - 1}`} className="btn-ghost px-4 py-2 text-[10px]">Назад</Link> : null}{page < pageCount ? <Link href={`/admin/review/components?page=${page + 1}`} className="btn-ghost px-4 py-2 text-[10px]">Далее</Link> : null}</div></div> : null}
     <div className="space-y-4">{reviewRows.map(({ product, configs, truthDiagnostic }) => {
       const slug = productSlug(product);
@@ -253,9 +269,9 @@ export default async function AdminComponentReviewPage({ searchParams }: PagePro
           <p className="text-[11px] leading-relaxed text-[var(--bone-dim)]">Размер, цвет и другие параметры остаются в истории проверки. Они проверяются отдельно и не могут автоматически становиться компонентами товара.</p>
         </div> : null}
         {visibleConfigs.length ? <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">{visibleConfigs.map((config, index) => {
-          return <div key={config.configuration_id || `${slug}-${index}`} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4"><div className="eyebrow-dim mb-2">Вариант состава для витрины</div><div className="text-bone text-[14px] leading-snug">{labelText(config)}</div><div className="mt-2 text-[11px] text-[var(--bone-dim)]">Код: {config.component_code || '—'} · Семейство: {config.component_family || '—'}</div><div className="mt-3 flex flex-wrap gap-1.5">{config.is_full_set ? <Chip tone="warning">Полный комплект</Chip> : null}{config.is_bundle ? <Chip tone="warning">Набор</Chip> : null}</div></div>;
+          return <div key={config.configuration_id || `${slug}-${index}`} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4"><div className="eyebrow-dim mb-2">Вариант состава для витрины</div><div className="text-bone text-[14px] leading-snug">{labelText(config)}</div><div className="mt-2 text-[11px] text-[var(--bone-dim)]" title={`Код: ${config.component_code || '—'} · Семейство: ${config.component_family || '—'}`}>{config.component_code ? 'Компонент назначен' : 'Компонент не назначен'}{config.component_family ? ' · семейство определено' : ''}</div><div className="mt-3 flex flex-wrap gap-1.5">{config.is_full_set ? <Chip tone="warning">Полный комплект</Chip> : null}{config.is_bundle ? <Chip tone="warning">Набор</Chip> : null}</div></div>;
         })}</div> : null}
       </article>;
     })}{!reviewRows.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">Нет товаров для проверки компонентов.</div> : null}</div>
-  </section></main>;
+  </div></main>;
 }
