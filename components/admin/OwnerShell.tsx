@@ -298,22 +298,23 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
       </div>
 
       <nav className="owner-mobile-nav" aria-label="Мобильная навигация">
-        {NAV_ITEMS.slice(0, 4).map((item) => {
-          const active = activeArea === item.key;
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.key}
-              href={item.href}
-              className={active ? 'is-active' : ''}
-              aria-current={active ? 'page' : undefined}
-            >
-              <span aria-hidden="true"><Icon size={16} strokeWidth={1.8} /></span>
-              <small>{item.label}</small>
-            </Link>
-          );
-        })}
-        <Link href="/admin/company/system" className={activeArea === 'system' || activeArea === 'results' ? 'is-active' : ''}>
+        <Link href="/admin/company" className={activeArea === 'today' ? 'is-active' : ''} aria-current={activeArea === 'today' ? 'page' : undefined}>
+          <span aria-hidden="true"><CalendarDays size={16} strokeWidth={1.8} /></span>
+          <small>Сегодня</small>
+        </Link>
+        <Link href="/admin/company/work" className={activeArea === 'work' ? 'is-active' : ''} aria-current={activeArea === 'work' ? 'page' : undefined}>
+          <span aria-hidden="true"><BriefcaseBusiness size={16} strokeWidth={1.8} /></span>
+          <small>Работа</small>
+        </Link>
+        <Link href="/admin/company/search" className={activeArea === 'search' ? 'is-active' : ''} aria-current={activeArea === 'search' ? 'page' : undefined}>
+          <span aria-hidden="true"><Search size={16} strokeWidth={1.8} /></span>
+          <small>Найти</small>
+        </Link>
+        <Link href="/admin/products" className={activeArea === 'products' ? 'is-active' : ''} aria-current={activeArea === 'products' ? 'page' : undefined}>
+          <span aria-hidden="true"><PackageSearch size={16} strokeWidth={1.8} /></span>
+          <small>Товары</small>
+        </Link>
+        <Link href="/admin/company/system" className={['growth','results','system'].includes(activeArea) ? 'is-active' : ''}>
           <span aria-hidden="true">•••</span>
           <small>Ещё</small>
         </Link>
