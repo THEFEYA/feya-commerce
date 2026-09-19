@@ -9,6 +9,11 @@ export const revalidate = 0;
 type WorkRow = {
   current_accountable_domain?: string | null;
   case_status?: string | null;
+  workflow_status?: string | null;
+  title?: string | null;
+  workflow_updated_at?: string | null;
+  updated_at?: string | null;
+  closed_at?: string | null;
 };
 
 async function getRows(): Promise<{ rows: RoleActivationRow[]; work: WorkRow[]; error?: string }> {
@@ -23,8 +28,8 @@ async function getRows(): Promise<{ rows: RoleActivationRow[]; work: WorkRow[]; 
       .order('role_code', { ascending: true }),
     supabase
       .from('feya_commerce_v_owner_work_safe_v1')
-      .select('current_accountable_domain,case_status')
-      .not('case_status', 'in', '(CLOSED,MERGED)'),
+      .select('current_accountable_domain,case_status,workflow_status,title,workflow_updated_at,updated_at,closed_at')
+      .order('updated_at', { ascending: false }),
   ]);
 
   const firstError = rolesResult.error || workResult.error;
@@ -57,11 +62,23 @@ export default async function AdminRolesPage() {
   const inactive = roles.filter((role) => role.status === 'INACTIVE').length;
   const paused = roles.filter((role) => role.status === 'PAUSED').length;
 
-  const workCounts = new Map<string, number>();
+  const roleWork = new Map<string, { active: number; queued: number; waiting: number; latestTitle: string | null; latestAt: string | null }>();
   for (const row of work) {
     const code = String(row.current_accountable_domain || '').trim().toUpperCase();
     if (!code) continue;
-    workCounts.set(code, (workCounts.get(code) || 0) + 1);
+    const current = roleWork.get(code) || { active: 0, queued: 0, waiting: 0, latestTitle: null, latestAt: null };
+    const workflowStatus = String(row.workflow_status || row.case_status || '').toUpperCase();
+    const closed = ['CLOSED', 'MERGED', 'COMPLETED'].includes(workflowStatus) || ['CLOSED', 'MERGED'].includes(String(row.case_status || '').toUpperCase());
+    if (!closed) {
+      current.active += 1;
+      if (workflowStatus === 'QUEUED') current.queued += 1;
+      if (workflowStatus.startsWith('WAITING') || workflowStatus === 'BLOCKED') current.waiting += 1;
+    }
+    if (!current.latestAt) {
+      current.latestTitle = row.title || null;
+      current.latestAt = row.closed_at || row.workflow_updated_at || row.updated_at || null;
+    }
+    roleWork.set(code, current);
   }
 
   return (
@@ -110,14 +127,17 @@ export default async function AdminRolesPage() {
             {roles.map((role) => {
               const required = Math.max(0, role.requiredCapabilityCount || 0);
               const available = Math.min(required, role.availableCapabilityCount || 0);
-              const currentWork = workCounts.get(role.code) || 0;
+              const stats = roleWork.get(role.code) || { active: 0, queued: 0, waiting: 0, latestTitle: null, latestAt: null };
+              const lastActivity = stats.latestAt
+                ? new Intl.RelativeTimeFormat('ru-RU', { numeric: 'auto' }).format(-Math.max(1, Math.round((Date.now() - new Date(stats.latestAt).getTime()) / 86400000)), 'day')
+                : 'ещё не было';
 
               return (
                 <article className={`owner-card owner-team-card ${toneClass(role.tone)}`} key={role.code}>
                   <div className="owner-card-meta">
                     <span className={`owner-status ${toneClass(role.tone)}`}>{role.statusLabel}</span>
                     <span>{role.autonomyLabel}</span>
-                    <span>{currentWork ? `в работе: ${currentWork}` : 'активных задач нет'}</span>
+                    <span>{stats.active ? `в работе: ${stats.active}` : 'активной работы нет'}</span>
                   </div>
 
                   <h3>{role.name}</h3>
@@ -139,9 +159,19 @@ export default async function AdminRolesPage() {
                     </div>
                   </div>
 
+                  <div className="owner-role-roster">
+                    <div><span>Сейчас</span><strong>{stats.active ? `${stats.active} активных` : 'нет активной работы'}</strong></div>
+                    <div><span>В очереди</span><strong>{stats.queued}</strong></div>
+                    <div><span>Ждёт / заблокировано</span><strong>{stats.waiting}</strong></div>
+                    <div><span>Последняя активность</span><strong>{lastActivity}</strong></div>
+                  </div>
+                  {stats.latestTitle ? <p className="owner-role-note"><strong>Последняя работа:</strong> {stats.latestTitle}</p> : null}
                   <div className="owner-card-meta" style={{ marginTop: '12px', marginBottom: 0 }}>
-                    <span>Блокеров: {role.blockedCapabilityCount}</span>
-                    <span>Рабочих возможностей: {role.availableCapabilityCount}</span>
+                    <span>Блокеров возможностей: {role.blockedCapabilityCount}</span>
+                    <span>Доступно возможностей: {role.availableCapabilityCount}</span>
+                  </div>
+                  <div className="owner-actions">
+                    <Link href={`/admin/company/work?owner=${encodeURIComponent(role.name)}#work-list`} className="owner-button">Посмотреть работу</Link>
                   </div>
                 </article>
               );
