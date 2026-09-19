@@ -139,3 +139,5 @@ Anything beyond that belongs to one of two later programs:
 
 - **Protected actions** after authentication/audit is ready;
 - **Real analytics** after real production datasets exist.
+
+Build checkpoint after Product OS scope restore and agent-only UX pass: 2026-09-19.
