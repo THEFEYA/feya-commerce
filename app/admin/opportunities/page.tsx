@@ -25,6 +25,27 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
+function opportunityTypeLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    EVENT: 'Событие',
+    SEASONAL: 'Сезонная',
+    SEARCH_DEMAND: 'Поисковый спрос',
+    PRODUCT: 'Товарная',
+    CONTENT: 'Контент',
+    COMMERCIAL: 'Коммерческая',
+    TECHNICAL: 'Техническая',
+  };
+  return labels[key] || (key ? 'Возможность роста' : '—');
+}
+
+function dateLabel(value: unknown) {
+  if (!value) return '—';
+  const date = new Date(String(value));
+  if (Number.isNaN(date.getTime())) return asText(value);
+  return new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+}
+
 function stateLabel(value: unknown) {
   const key = asText(value, '').toUpperCase();
   const labels: Record<string, string> = {
@@ -75,12 +96,11 @@ export default async function AdminOpportunitiesPage() {
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Всего возможностей</span></div>
-          <div className="card metric"><strong>{expiringSoon}</strong><span>Истекают ≤48 ч</span></div>
-          <div className="card metric"><strong>{thisWeek}</strong><span>Истекают на этой неделе</span></div>
-          <div className="card metric"><strong>{actioning}</strong><span>В работе</span></div>
-          <div className="card metric"><strong>{expired}</strong><span>Срок истёк</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{rows.length}</strong><span>Возможностей зафиксировано</span></div>
+          <div className="owner-summary-cell"><strong>{expiringSoon}</strong><span>Окно закрывается ≤48 ч</span></div>
+          <div className="owner-summary-cell"><strong>{thisWeek}</strong><span>Окно закрывается на этой неделе</span></div>
+          <div className="owner-summary-cell"><strong>{actioning}</strong><span>Уже в работе</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
@@ -107,7 +127,7 @@ export default async function AdminOpportunitiesPage() {
                     <td>{asText(row.priority)}</td>
                     <td>
                       <strong>{asText(row.title, row.opportunity_code || '—')}</strong>
-                      <div className="muted">Тип: {asText(row.opportunity_type)}</div>
+                      <div className="muted" title={asText(row.opportunity_type)}>Тип: {opportunityTypeLabel(row.opportunity_type)}</div>
                       <div className="muted">{asText(row.event_name)}</div>
                     </td>
                     <td>{roleLabel(row.owner_role)}</td>
@@ -122,14 +142,14 @@ export default async function AdminOpportunitiesPage() {
                       </div>
                     </td>
                     <td>
-                      {asText(row.commercial_expiry_at)}
-                      <div className="muted">срок задачи: {asText(row.due_at)}</div>
+                      {dateLabel(row.commercial_expiry_at)}
+                      <div className="muted">срок задачи: {dateLabel(row.due_at)}</div>
                     </td>
                     <td>
-                      {asText(row.event_starts_at)}
-                      <div className="muted">→ {asText(row.event_ends_at)}</div>
+                      {dateLabel(row.event_starts_at)}
+                      <div className="muted">→ {dateLabel(row.event_ends_at)}</div>
                     </td>
-                    <td>{asText(row.initiative_id)}</td>
+                    <td>{row.initiative_id ? <Link href="/admin/strategy" title={asText(row.initiative_id)}>Связана с инициативой</Link> : 'Не создана'}</td>
                   </tr>
                 ))}
               </tbody>
