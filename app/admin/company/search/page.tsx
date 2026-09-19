@@ -80,8 +80,8 @@ export default async function AdminSearchPage({ searchParams }: { searchParams: 
 
         <form action="/admin/company/search" method="get" className="owner-card" style={{ marginBottom: '18px' }}>
           <label htmlFor="owner-search" className="owner-card-title">Что найти?</label>
-          <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-            <input id="owner-search" name="q" defaultValue={query} placeholder="Например: silver harness" style={{ flex: 1, minHeight: '40px', border: '1px solid var(--line)', borderRadius: '9px', background: 'var(--panel-soft)', color: 'var(--text)', padding: '8px 10px' }} />
+          <div className="grid gap-2 sm:grid-cols-[1fr_auto]" style={{ marginTop: '12px' }}>
+            <input id="owner-search" name="q" defaultValue={query} placeholder="Например: silver harness" className="field" autoFocus />
             <button className="owner-button primary" type="submit">Найти</button>
           </div>
         </form>
@@ -93,15 +93,18 @@ export default async function AdminSearchPage({ searchParams }: { searchParams: 
         {query && total === 0 ? <div className="owner-empty">Ничего не найдено. Попробуйте более короткий запрос.</div> : null}
 
         {products.length ? <section className="owner-section"><div className="owner-section-head"><h2>Товары</h2></div><div className="owner-list">
-          {products.map((row) => <Link className="owner-list-row" href={`/admin/products/${String(row.canonical_product_id)}`} key={String(row.canonical_product_id)}><div className="owner-list-row-main"><h3>{String(row.card_title || row.draft_site_title || 'Товар')}</h3><p>{row.matched_etsy_listing_id ? `Etsy: ${String(row.matched_etsy_listing_id)}` : 'Открыть товар'}</p></div></Link>)}
+          {products.map((row) => <Link className="owner-list-row" href={`/admin/products/${String(row.canonical_product_id)}`} key={String(row.canonical_product_id)}><div className="owner-list-row-main"><h3>{String(row.card_title || row.draft_site_title || 'Товар')}</h3><p title={row.matched_etsy_listing_id ? `Etsy ID: ${String(row.matched_etsy_listing_id)}` : undefined}>Открыть рабочую карточку товара</p></div></Link>)}
         </div></section> : null}
 
         {pages.length ? <section className="owner-section"><div className="owner-section-head"><h2>Поисковые страницы</h2></div><div className="owner-list">
-          {pages.map((row) => <Link className="owner-list-row" href="/admin/seo-portfolio" key={String(row.seo_page_id)}><div className="owner-list-row-main"><h3>{String(row.card_title || row.h1 || row.url_path || 'Страница')}</h3><p>{String(row.url_path || '')}</p></div></Link>)}
+          {pages.map((row) => {
+            const pageQuery = String(row.url_path || row.card_title || row.h1 || '').trim();
+            return <Link className="owner-list-row" href={`/admin/seo-portfolio?q=${encodeURIComponent(pageQuery)}`} key={String(row.seo_page_id)}><div className="owner-list-row-main"><h3>{String(row.card_title || row.h1 || row.url_path || 'Страница')}</h3><p>{String(row.url_path || 'Открыть SEO-страницу')}</p></div></Link>;
+          })}
         </div></section> : null}
 
         {workVM.length ? <section className="owner-section"><div className="owner-section-head"><h2>Работа</h2></div><div className="owner-list">
-          {workVM.map((item) => <Link className="owner-list-row" href="/admin/company/work" key={item.id}><div className="owner-list-row-main"><h3>{item.title}</h3><p>{item.statusLabel} · {item.ownerLabel}</p></div></Link>)}
+          {workVM.map((item) => <Link className="owner-list-row" href="/admin/company/work#work-list" key={item.id}><div className="owner-list-row-main"><h3>{item.title}</h3><p>{item.statusLabel} · {item.ownerLabel}</p></div></Link>)}
         </div></section> : null}
 
         {signalVM.length ? <section className="owner-section"><div className="owner-section-head"><h2>Сигналы</h2></div><div className="owner-list">
