@@ -168,6 +168,13 @@ function toneClass(tone: string) {
   return tone === 'danger' ? 'is-danger' : tone === 'warning' ? 'is-warning' : tone === 'success' ? 'is-success' : tone === 'info' ? 'is-info' : '';
 }
 
+function sourceTimestamp(value: unknown) {
+  if (!value) return 'успешного обновления ещё не было';
+  const date = new Date(String(value));
+  if (Number.isNaN(date.getTime())) return 'время обновления не определено';
+  return `обновлено ${new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).format(date)}`;
+}
+
 export default async function AdminSystemPage() {
   const { readiness, sources, actions, executionRequests, activeIncidents, mutationFreezes, adminBoundary, aiUsage, error } = await getSystemData();
   const ownerAuth = getAdminAuthConfigStatus();
@@ -269,6 +276,7 @@ export default async function AdminSystemPage() {
                       <div className="owner-card-meta">
                         <span className={`owner-status ${toneClass(tone)}`}>{statusLabel(health)}</span>
                         <span>{dataFreshnessLabel(row.freshness_state)}</span>
+                        <span>{sourceTimestamp(row.last_success_at)}</span>
                       </div>
                       <h3>{sourceLabel(row.source_code)}</h3>
                       <p>{sourceHealthSummary(row.source_code)}</p>
