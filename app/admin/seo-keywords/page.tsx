@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { competitionLabel } from '@/lib/adminDisplayRu';
 import Link from 'next/link';
-import { ArrowUpRight, Database, FileSearch, Layers3, ShieldAlert, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 
 export const dynamic = 'force-dynamic';
@@ -237,62 +237,62 @@ function Chip({ children, tone = 'neutral' }) {
   return <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] ${className}`}>{children}</span>;
 }
 
-function Metric({ label, value, note, icon: Icon, tone = 'neutral' }) {
-  const border = tone === 'danger'
-    ? 'border-[rgba(196,64,88,.34)] bg-[rgba(160,32,56,.08)]'
-    : tone === 'success'
-      ? 'border-[rgba(108,183,138,.35)] bg-[rgba(108,183,138,.08)]'
-      : tone === 'warning'
-        ? 'border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.06)]'
-        : 'border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)]';
-  return <div className={`rounded-2xl border ${border} p-5 min-h-[150px]`}>
-    <div className="flex items-center justify-between gap-4 mb-4"><div className="eyebrow-dim">{label}</div><Icon size={16} className="text-[var(--gold-warm)]" /></div>
-    <div className="font-price text-gold-grad text-[42px] leading-none">{value}</div>
-    <div className="mt-4 text-[12px] leading-relaxed text-[var(--bone-dim)]">{note}</div>
-  </div>;
-}
-
 function TabLink({ tab, active, query }) {
   const isActive = active === tab.key;
   const href = `/admin/seo-keywords?tab=${tab.key}${query ? `&q=${encodeURIComponent(query)}` : ''}`;
-  return <Link href={href} className={`rounded-full border px-4 py-2 text-[11px] uppercase tracking-[0.16em] transition-colors ${isActive ? 'border-[rgba(212,178,106,.65)] bg-[rgba(212,178,106,.12)] text-[var(--gold-warm)]' : 'border-[rgba(216,214,211,.14)] bg-black/10 text-[var(--bone-dim)] hover:border-[rgba(212,178,106,.35)]'}`}>
+  return <Link href={href} className={`rounded-lg border px-4 py-2 text-[11px] uppercase tracking-[0.14em] transition-colors ${isActive ? 'border-[rgba(212,178,106,.65)] bg-[rgba(212,178,106,.12)] text-[var(--gold-warm)]' : 'border-[rgba(216,214,211,.14)] bg-black/10 text-[var(--bone-dim)] hover:border-[rgba(212,178,106,.35)]'}`}>
     {tab.label}
   </Link>;
 }
 
 export default async function AdminSeoKeywordsPage({ searchParams }) {
-  const active = currentTab(searchParams);
-  const query = currentQuery(searchParams);
+  const params = await searchParams;
+  const active = currentTab(params);
+  const query = currentQuery(params);
+  const requestedPage = Math.max(1, Number(params?.page || 1) || 1);
+  const pageSize = 100;
   const activeTab = TABS.find((tab) => tab.key === active) || TABS[0];
   const { rows, totalCount, counts, bucketRows, error, bucketError } = await loadKeywords(active, query);
-  const firstRows = rows.slice(0, 180);
+  const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
+  const page = Math.min(requestedPage, pageCount);
+  const visibleRows = rows.slice((page - 1) * pageSize, page * pageSize);
   const countLoadError = countError(counts);
 
-  return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
-    <section className="container-feya pt-10 pb-16">
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
+  const pageHref = (nextPage) => {
+    const next = new URLSearchParams();
+    next.set('tab', active);
+    if (query) next.set('q', query);
+    if (nextPage > 1) next.set('page', String(nextPage));
+    return `/admin/seo-keywords?${next.toString()}`;
+  };
+
+  return <main className="owner-page">
+    <div className="owner-page-inner">
+      <header className="owner-page-head">
         <div>
-          <div className="eyebrow-gold mb-3">Админка · SEO-ключи · Банк ключевых слов</div>
-          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Банк SEO-ключей</h1>
-          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Только просмотр данных из Supabase. Одобренные ключи используются для рекомендаций; отложенные и исключённые остаются памятью системы, чтобы плохие варианты не возвращались в Мастер листинга.</p>
+          <div className="owner-eyebrow">SEO · банк ключевых слов</div>
+          <h1>SEO-ключи</h1>
+          <p>Одобренные запросы используются в рекомендациях и Мастере листинга; отложенные и исключённые сохраняются как память системы, чтобы плохие варианты не возвращались.</p>
         </div>
-        <div className="flex flex-wrap gap-3"><Link href="/admin/seo-engine/scoring" className="btn-ghost">Оценка ключей <ArrowUpRight size={13} /></Link><Link href="/admin/seo-engine/metric-import/validate" className="btn-ghost">CSV метрики <ArrowUpRight size={13} /></Link><Link href="/admin" className="btn-ghost">Админка <ArrowUpRight size={13} /></Link></div>
-      </div>
+        <div className="owner-actions" style={{ marginTop: 0 }}>
+          <Link href="/admin/seo-engine/scoring" className="owner-button">Оценка ключей <ArrowUpRight size={13} /></Link>
+          <Link href="/admin/seo-engine/metric-import/validate" className="owner-button">Метрики Google <ArrowUpRight size={13} /></Link>
+        </div>
+      </header>
 
       {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">Не удалось загрузить банк ключевых слов. Ответ базы: {error}</div> : null}
       {countLoadError ? <div className="rounded-2xl border border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.07)] p-5 text-[var(--bone-dim)] mb-7">Один из count-запросов не вернулся: {countLoadError}</div> : null}
 
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-        <Metric icon={Database} label="Всего в банке" value={getCount(counts, 'all')} note="Одобренные, отложенные и исключённые ключи." />
-        <Metric icon={ShieldCheck} label="Одобрено" value={getCount(counts, 'approved')} note="Чистый пул для рекомендаций." tone="success" />
-        <Metric icon={Layers3} label="Мастер листинга" value={getCount(counts, 'listingMaster')} note="Одобренные группы для Мастера листинга." tone="success" />
-        <Metric icon={ShieldAlert} label="Отложено" value={getCount(counts, 'hold')} note="Спорные слова до ручной проверки." tone="warning" />
-        <Metric icon={FileSearch} label="Исключено" value={getCount(counts, 'reject')} note="Память анти-предложений." tone="danger" />
-      </div>
+      <section className="owner-summary-strip" style={{ marginBottom: '16px' }}>
+        <div className="owner-summary-cell"><strong>{getCount(counts, 'approved')}</strong><span>Одобрено для рекомендаций</span></div>
+        <div className="owner-summary-cell"><strong>{getCount(counts, 'listingMaster')}</strong><span>Доступно Мастеру листинга</span></div>
+        <div className="owner-summary-cell"><strong>{getCount(counts, 'hold')}</strong><span>Отложено до проверки</span></div>
+        <div className="owner-summary-cell"><strong>{getCount(counts, 'reject')}</strong><span>Исключено и не должно возвращаться</span></div>
+      </section>
 
-      <div className="rounded-2xl border border-[rgba(212,178,106,.18)] bg-[rgba(212,178,106,.045)] p-5 mb-6">
-        <div className="flex items-center gap-2 eyebrow-gold mb-2"><Sparkles size={14} /> Текущее решение</div>
-        <p className="text-[13px] leading-relaxed text-[var(--bone-dim)]">Keyword Bank v1 импортирован в Supabase и теперь должен быть источником правды для SEO Recommendation Engine. Следующий инженерный шаг после этой страницы — подключить `vw_seo_keyword_bank_v1_for_listing_master` к Listing Master, чтобы предложения брались из approved-банка по bucket/source_clusters, а reject/hold блокировали плохие варианты.</p>
+      <div className="owner-card is-info" style={{ marginBottom: '16px' }}>
+        <div className="owner-status is-info">Источник для SEO-рекомендаций</div>
+        <p className="owner-card-copy">Банк уже подключён к Мастеру листинга: одобренный пул используется для подбора кандидатов, а отложенные и исключённые запросы не должны возвращаться как обычные рекомендации.</p>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-6">
@@ -308,19 +308,19 @@ export default async function AdminSeoKeywordsPage({ searchParams }) {
           placeholder="Поиск по банку: armor outfit, bracelet, post apocalyptic"
           aria-label="Поиск по банку ключевых слов"
         />
-        <button type="submit" className="btn-ghost justify-center">Найти в банке</button>
-        {query ? <Link href={`/admin/seo-keywords?tab=${active}`} className="btn-ghost justify-center">Сбросить</Link> : <span />}
+        <button type="submit" className="owner-button justify-center">Найти в банке</button>
+        {query ? <Link href={`/admin/seo-keywords?tab=${active}`} className="owner-button justify-center">Сбросить</Link> : <span />}
       </form>
 
       <div className="grid lg:grid-cols-[1fr_360px] gap-6 mb-8">
         <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
           <div className="flex items-center justify-between gap-4 mb-4"><div><div className="eyebrow-dim">Текущая вкладка</div><h2 className="mt-2 text-bone text-[24px]">{activeTab.label}</h2></div><Chip tone={active === 'reject' ? 'danger' : active === 'hold' ? 'warning' : 'success'}>{activeTab.note}</Chip></div>
-          <p className="text-[13px] leading-relaxed text-[var(--bone-dim)]">{query ? <>По запросу <span className="text-bone">“{query}”</span> найдено: {formatNumber(totalCount ?? rows.length)}.</> : <>Загружено на экран: {formatNumber(rows.length)} из {formatNumber(totalCount ?? rows.length)}.</>} Таблица ограничена первыми {formatNumber(KEYWORD_LIMIT)} строками, чтобы не перегружать админку.</p>
+          <p className="text-[13px] leading-relaxed text-[var(--bone-dim)]">{query ? <>По запросу <span className="text-bone">“{query}”</span> найдено: {formatNumber(totalCount ?? rows.length)}.</> : <>Загружено в рабочий срез: {formatNumber(rows.length)} из {formatNumber(totalCount ?? rows.length)}.</>} На одной странице показываем до {pageSize} строк; серверный срез ограничен {formatNumber(KEYWORD_LIMIT)} строками.</p>
         </div>
 
         <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
           <div className="eyebrow-dim mb-3">Распределение по группе и статусу</div>
-          {bucketError ? <div className="text-[12px] leading-relaxed text-[var(--ruby-soft)]">Не удалось загрузить vw_seo_keyword_bank_v1_by_bucket: {bucketError}</div> : null}
+          {bucketError ? <div className="text-[12px] leading-relaxed text-[var(--ruby-soft)]">Не удалось загрузить распределение по группам. Техническая причина доступна в логах.</div> : null}
           <div className="space-y-2">
             {bucketRows.slice(0, 8).map((row, index) => {
               const bucket = bucketName(row);
@@ -334,12 +334,12 @@ export default async function AdminSeoKeywordsPage({ searchParams }) {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
-        <div className="grid grid-cols-[1.25fr_.42fr_.6fr_.55fr_.55fr_.6fr_1fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.20em] text-[var(--smoke)]">
+      <div className="rounded-xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
+        <div className="sticky top-[64px] z-10 grid grid-cols-[1.25fr_.42fr_.6fr_.55fr_.55fr_.6fr_1fr] gap-4 px-5 py-3 border-b border-[rgba(216,214,211,.10)] bg-[#0f0f15]/95 backdrop-blur-xl text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">
           <div>Ключ</div><div>Оценка</div><div>Группа</div><div>Спрос</div><div>Конкуренция</div><div>Роль</div><div>Источник / причина</div>
         </div>
         <div className="divide-y divide-[rgba(216,214,211,.08)]">
-          {firstRows.map((row, index) => <div key={`${row.keyword_norm || row.keyword}-${index}`} className="grid grid-cols-[1.25fr_.42fr_.6fr_.55fr_.55fr_.6fr_1fr] gap-4 px-5 py-4 items-center hover:bg-[rgba(212,178,106,.035)] transition-colors">
+          {visibleRows.map((row, index) => <div key={`${row.keyword_norm || row.keyword}-${index}`} className="grid grid-cols-[1.25fr_.42fr_.6fr_.55fr_.55fr_.6fr_1fr] gap-4 px-5 py-4 items-center hover:bg-[rgba(212,178,106,.035)] transition-colors">
             <div><div className="text-bone text-[14px] leading-snug">{asText(row.keyword)}</div><div className="mt-1 text-[11px] text-[var(--bone-dim)]">{asText(row.keyword_norm)}</div></div>
             <div className="font-price text-[22px] text-[var(--gold-warm)]">{asText(row.score)}</div>
             <div><Chip tone={toneByBucket(row.bank_bucket)}>{BUCKET_LABELS[row.bank_bucket] || asText(row.bank_bucket)}</Chip></div>
@@ -348,9 +348,19 @@ export default async function AdminSeoKeywordsPage({ searchParams }) {
             <div><Chip tone={toneByStatus(row.review_status)}>{asText(row.role_label || row.role || STATUS_LABELS[row.review_status])}</Chip></div>
             <div className="text-[11px] leading-relaxed text-[var(--bone-dim)]"><div>{asText(row.source_clusters || row.source_files)}</div><div className="mt-1 opacity-80">{asText(row.reason || row.notes, '')}</div></div>
           </div>)}
-          {!firstRows.length && !error ? <div className="px-5 py-6 text-[13px] text-[var(--bone-dim)]">Keyword Bank v1 не вернул строки для этой вкладки.</div> : null}
+          {!visibleRows.length && !error ? <div className="px-5 py-6 text-[13px] text-[var(--bone-dim)]">Для этой вкладки строки не найдены.</div> : null}
         </div>
       </div>
-    </section>
+
+      {rows.length > pageSize ? (
+        <div className="flex items-center justify-between gap-3" style={{ marginTop: '14px' }}>
+          <div className="owner-section-kicker">Страница {page} из {pageCount} · показано {visibleRows.length}</div>
+          <div className="owner-actions" style={{ marginTop: 0 }}>
+            {page > 1 ? <Link href={pageHref(page - 1)} className="owner-button">Назад</Link> : <span className="owner-button" style={{ opacity: .4 }}>Назад</span>}
+            {page < pageCount ? <Link href={pageHref(page + 1)} className="owner-button">Дальше</Link> : <span className="owner-button" style={{ opacity: .4 }}>Дальше</span>}
+          </div>
+        </div>
+      ) : null}
+    </div>
   </main>;
 }
