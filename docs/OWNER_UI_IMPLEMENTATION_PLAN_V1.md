@@ -994,3 +994,43 @@ Implemented after Owner review of the research-driven UI requirements:
 
 Reason:
 sorting, filtering, collapsing and pagination improve comprehension without changing business truth. Dragging/reordering that changes workflow or safety priority would violate canonical ownership/governance. Optional layout personalization remains a later bounded feature.
+
+
+## 17. Owner queue and truthfulness pass — 2026-09-19
+
+Additional owner-first cleanup after the visual interaction pass:
+
+### Large queues
+- added owner-facing search, filters and pagination to product facts, labels, prices, media, content readiness, launch readiness, keyword review, query clusters, SEO portfolio, indexability, system capabilities, action permissions and applied SEO values;
+- default ordering now surfaces blocked / owner-action / unresolved rows before healthy or historical rows;
+- long tables keep headers visible while scrolling;
+- detailed raw evidence and technical limitations stay behind disclosure controls.
+
+### Local view preference
+- added a local-only **Compact view** toggle in the unified top bar;
+- the preference is stored only in browser local storage and changes visual density, never workflow or business data;
+- sidebar collapse and density are therefore safe presentation preferences rather than canonical system state.
+
+### Removed misleading owner scores
+- removed synthetic collection priority numbers from collection owner views;
+- removed synthetic SEO readiness numbers from the owner-facing SEO readiness page;
+- removed synthetic SEO score display from SEO export and SEO change creation;
+- internal deterministic rule scores may remain in the SEO laboratory where they are explicitly labelled as diagnostic rules, not Google rank, traffic forecast or business outcome.
+
+### Data-truth corrections
+- Today now shows the true count of active Growth work instead of the five-row preview length;
+- Work active workload excludes completed/closed history;
+- Growth now counts the actual `READY_FOR_INDEXABILITY_REVIEW` state rather than a non-canonical `READY` value;
+- Results counts only replicated/adopted learnings as confirmed learnings;
+- System approval counts exclude actions that are explicitly approval-free in dry-run/design/proposal modes;
+- order drafts are explicitly presented as test/production-preparation records, never as completed orders, revenue or commerce truth.
+
+### Simplification
+- `/admin/seo-engine` now redirects to the canonical SEO Studio instead of maintaining another SEO hub;
+- legacy root Growth / Work / Results / System routes already redirect into the unified Company Control workspaces;
+- SEO work routes stay visually inside the Growth workspace, rather than making the sidebar jump back to Products.
+
+### Language
+- owner-facing capability, metric, signal-routing, action-permission and readiness explanations are Russian;
+- literal keywords, product text and source data remain unchanged where translation would corrupt the data;
+- raw codes are generally available only via title/technical detail disclosures.
