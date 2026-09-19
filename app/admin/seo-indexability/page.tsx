@@ -65,13 +65,59 @@ function statusClass(value: unknown) {
   return 'warning';
 }
 
-export default async function AdminIndexabilityPage() {
+export default async function AdminIndexabilityPage({ searchParams }: { searchParams: Promise<{ q?: string; state?: string; page?: string }> }) {
+  const params = await searchParams;
   const { readiness, proposals, error } = await getData();
+  const q = String(params.q || '').trim().toLowerCase();
+  const stateFilter = String(params.state || 'attention');
+  const requestedPage = Math.max(1, Number(params.page || 1) || 1);
+  const pageSize = 75;
 
   const needsOwnership = readiness.filter((row) => row.indexability_readiness_status === 'NEEDS_PRIMARY_OWNERSHIP').length;
   const needsContent = readiness.filter((row) => row.indexability_readiness_status === 'NEEDS_PUBLISH_READY_CONTENT').length;
   const ready = readiness.filter((row) => row.indexability_readiness_status === 'READY_FOR_INDEXABILITY_REVIEW').length;
   const indexable = readiness.filter((row) => row.indexation_intent === 'indexable').length;
+
+  const attentionStates = new Set(['NEEDS_PRIMARY_OWNERSHIP', 'NEEDS_PUBLISH_READY_CONTENT', 'NOT_ELIGIBLE']);
+  const filteredReadiness = readiness
+    .filter((row) => {
+      const haystack = [row.card_title, row.url_path, row.page_type]
+        .map((value) => String(value || '').toLowerCase())
+        .join(' ');
+      const matchesQuery = !q || haystack.includes(q);
+      const state = String(row.indexability_readiness_status || '');
+      const matchesState =
+        stateFilter === 'all'
+          ? true
+          : stateFilter === 'attention'
+            ? attentionStates.has(state)
+            : state === stateFilter;
+      return matchesQuery && matchesState;
+    })
+    .sort((a, b) => {
+      const rank = (state: unknown) => {
+        const key = String(state || '');
+        if (key === 'NEEDS_PRIMARY_OWNERSHIP') return 0;
+        if (key === 'NEEDS_PUBLISH_READY_CONTENT') return 1;
+        if (key === 'NOT_ELIGIBLE') return 2;
+        if (key === 'READY_FOR_INDEXABILITY_REVIEW') return 3;
+        return 4;
+      };
+      return rank(a.indexability_readiness_status) - rank(b.indexability_readiness_status) || String(a.url_path || '').localeCompare(String(b.url_path || ''));
+    });
+
+  const pageCount = Math.max(1, Math.ceil(filteredReadiness.length / pageSize));
+  const page = Math.min(requestedPage, pageCount);
+  const visibleReadiness = filteredReadiness.slice((page - 1) * pageSize, page * pageSize);
+
+  const pageHref = (nextPage: number) => {
+    const next = new URLSearchParams();
+    if (q) next.set('q', q);
+    if (stateFilter !== 'attention') next.set('state', stateFilter);
+    if (nextPage > 1) next.set('page', String(nextPage));
+    const query = next.toString();
+    return query ? `/admin/seo-indexability?${query}` : '/admin/seo-indexability';
+  };
 
   return (
     <main className="page-shell">
@@ -79,40 +125,65 @@ export default async function AdminIndexabilityPage() {
         <nav className="top-nav">
           <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
           <div className="nav-links">
-            <Link href="/admin/seo-portfolio">SEO Portfolio</Link>
-            <Link href="/admin/seo-ownership-proposals">Ownership Proposals</Link>
-            <Link href="/admin/seo-indexability">Indexability</Link>
-            <Link href="/admin/launch-readiness">Launch Readiness</Link>
+            <Link href="/admin/seo-portfolio">SEO-страницы</Link>
+            <Link href="/admin/seo-ownership-proposals">Ответственность страниц</Link>
+            <Link href="/admin/seo-indexability">Индексация</Link>
+            <Link href="/admin/launch-readiness">Готовность к запуску</Link>
           </div>
         </nav>
 
         <section className="phase-banner">
-          <div className="phase-label">Indexable Page Eligibility Gate · read-only</div>
+          <div className="phase-label">Допуск к индексации · только просмотр</div>
           <h1>Допуск страниц к индексации</h1>
           <p>
-            Page ownership does not imply indexability. Product pages require primary query ownership and ready-for-publish content before an INDEXABLE_PRODUCT decision can be applied.
+            Ответственность страницы за группу запросов сама по себе не разрешает индексацию. Для товарной страницы сначала нужны основная группа запросов и готовый к публикации контент, после чего решение об индексации проверяется отдельно.
           </p>
         </section>
 
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{readiness.length}</strong><span>Portfolio pages</span></div>
-          <div className="card metric"><strong>{needsOwnership}</strong><span>Need primary ownership</span></div>
-          <div className="card metric"><strong>{needsContent}</strong><span>Need publish-ready content</span></div>
-          <div className="card metric"><strong>{ready}</strong><span>Ready for eligibility review</span></div>
-          <div className="card metric"><strong>{indexable}</strong><span>Indexable</span></div>
-          <div className="card metric"><strong>{proposals.length}</strong><span>Eligibility proposals</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{needsOwnership}</strong><span>Нужна основная группа запросов</span></div>
+          <div className="owner-summary-cell"><strong>{needsContent}</strong><span>Нужен готовый контент</span></div>
+          <div className="owner-summary-cell"><strong>{ready}</strong><span>Готовы к ручной проверке индексации</span></div>
+          <div className="owner-summary-cell"><strong>{indexable}</strong><span>Уже разрешено индексировать</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
         <div className="notice" style={{ marginBottom: '18px' }}>
-          The current system does not run an AI indexability proposal runner because no page currently passes the prerequisite ownership/content gates.
+          Автоматическое предложение индексации сейчас не запускается: ни одна страница ещё не прошла обязательные условия по ответственности за запросы и готовности контента.
         </div>
+
+        <form action="/admin/seo-indexability" className="owner-card" style={{ marginBottom: '14px' }}>
+          <div className="grid gap-3 md:grid-cols-[1fr_300px_auto] md:items-end">
+            <label>
+              <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Поиск страницы</div>
+              <input name="q" defaultValue={q} className="field" placeholder="название или путь" />
+            </label>
+            <label>
+              <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Готовность</div>
+              <select name="state" defaultValue={stateFilter} className="field">
+                <option value="attention">Требует внимания</option>
+                <option value="NEEDS_PRIMARY_OWNERSHIP">Нужна основная группа запросов</option>
+                <option value="NEEDS_PUBLISH_READY_CONTENT">Нужен готовый контент</option>
+                <option value="READY_FOR_INDEXABILITY_REVIEW">Готово к проверке</option>
+                <option value="NOT_ELIGIBLE">Не допускается</option>
+                <option value="all">Все состояния</option>
+              </select>
+            </label>
+            <button type="submit" className="owner-button primary">Применить</button>
+          </div>
+          <div className="owner-card-meta" style={{ marginTop: '10px', marginBottom: 0 }}>
+            <span>Всего страниц: {readiness.length}</span>
+            <span>После фильтра: {filteredReadiness.length}</span>
+            <span>Показано: {visibleReadiness.length}</span>
+            <Link href="/admin/seo-indexability">Сбросить</Link>
+          </div>
+        </form>
 
         <section className="section-head">
           <div>
             <h2>Готовность</h2>
-            <p className="muted">Indexation intent remains candidate until a separate reviewed proposal is applied.</p>
+            <p className="muted">Страница остаётся кандидатом, пока отдельное решение по индексации не проверено и не применено.</p>
           </div>
         </section>
 
@@ -129,7 +200,7 @@ export default async function AdminIndexabilityPage() {
               </tr>
             </thead>
             <tbody>
-              {readiness.map((row) => (
+              {visibleReadiness.map((row) => (
                 <tr key={row.seo_page_id}>
                   <td>
                     {row.canonical_product_id ? (
@@ -141,8 +212,8 @@ export default async function AdminIndexabilityPage() {
                   </td>
                   <td>{asText(row.page_type)}</td>
                   <td>
-                    {row.primary_ownership_count || 0} primary
-                    <div className="muted">{row.ownership_count || 0} total</div>
+                    {row.primary_ownership_count || 0} основных
+                    <div className="muted">{row.ownership_count || 0} всего назначений</div>
                   </td>
                   <td>{row.ready_for_publish_count || 0}</td>
                   <td>
@@ -161,10 +232,20 @@ export default async function AdminIndexabilityPage() {
           </table>
         </div>
 
+        {filteredReadiness.length > pageSize ? (
+          <div className="flex items-center justify-between gap-3" style={{ marginTop: '14px', marginBottom: '26px' }}>
+            <div className="owner-section-kicker">Страница {page} из {pageCount}</div>
+            <div className="owner-actions" style={{ marginTop: 0 }}>
+              {page > 1 ? <Link href={pageHref(page - 1)} className="owner-button">Назад</Link> : <span className="owner-button" style={{ opacity: .4 }}>Назад</span>}
+              {page < pageCount ? <Link href={pageHref(page + 1)} className="owner-button">Дальше</Link> : <span className="owner-button" style={{ opacity: .4 }}>Дальше</span>}
+            </div>
+          </div>
+        ) : null}
+
         <section className="section-head">
           <div>
             <h2>История предложений допуска</h2>
-            <p className="muted">Human review/apply is required for every canonical indexation-intent change.</p>
+            <p className="muted">Каждое каноническое изменение индексации требует проверки человеком.</p>
           </div>
         </section>
 
@@ -172,7 +253,7 @@ export default async function AdminIndexabilityPage() {
           <table>
             <thead>
               <tr>
-                <th>Page</th>
+                <th>Страница</th>
                 <th>Решение</th>
                 <th>Статус</th>
                 <th>Обоснование</th>
