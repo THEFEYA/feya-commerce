@@ -105,8 +105,8 @@ function executorLabel(value: unknown) {
     INTERNAL_API: 'Внутренний API',
     EXECUTION_GATEWAY: 'Контролируемый шлюз выполнения',
     EXECUTION_DISPATCHER: 'Внешний исполнитель',
-    WORKFLOW_WORKER: 'Фоновый worker',
-    DEPLOYMENT_ENV: 'Настройка deployment',
+    WORKFLOW_WORKER: 'Фоновый процесс',
+    DEPLOYMENT_ENV: 'Настройка развёртывания',
     HUMAN_OR_COMMERCE_TOOL: 'Человек / commerce-инструмент',
   };
   return labels[key] || (key ? 'Системный исполнитель' : 'Не назначен');
