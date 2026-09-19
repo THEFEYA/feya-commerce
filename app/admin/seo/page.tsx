@@ -1,11 +1,10 @@
 // @ts-nocheck
 import Link from 'next/link';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, FileSearch, ImageIcon, Link2, SearchCheck, Shapes } from 'lucide-react';
 import { AdminQueueQuickReviewClient } from '@/components/AdminQueueQuickReviewClient';
-import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
+import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
-import { seoIssueLabel, seoReadinessLabel } from '@/lib/adminDisplayRu';
 
 export const revalidate = 300;
 
@@ -26,8 +25,8 @@ function parseConfigurations(value: unknown): StorefrontConfiguration[] {
 }
 
 async function loadProducts(): Promise<{ rows: StorefrontProduct[]; error?: string }> {
-  const supabase = getAdminReadClient();
-  if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
+  const supabase = getSupabaseReadClient();
+  if (!supabase) return { rows: [], error: getMissingSupabaseEnvMessage() };
 
   const { data, error } = await supabase
     .from(STOREFRONT_VIEW_V4)
@@ -59,17 +58,11 @@ function seoIssues(product: StorefrontProduct) {
   return issues;
 }
 
-function readinessState(issues: string[]) {
-  const blockingIssues = new Set([
-    'Weak slug',
-    'Missing primary image',
-    'No configurations',
-    'Unverified price',
-    'Label review blocks SEO',
-  ]);
-  if (issues.some((issue) => blockingIssues.has(issue))) return { label: 'Blocked', tone: 'danger', rank: 0 };
-  if (issues.length) return { label: 'Needs polish', tone: 'warning', rank: 1 };
-  return { label: 'Ready', tone: 'ok', rank: 2 };
+function readinessScore(product: StorefrontProduct) {
+  const score = Math.max(0, 100 - seoIssues(product).length * 12);
+  if (score >= 85) return { score, label: 'Ready', tone: 'ok' };
+  if (score >= 65) return { score, label: 'Needs polish', tone: 'warning' };
+  return { score, label: 'Blocked', tone: 'danger' };
 }
 
 function Chip({ children, tone = 'neutral' }) {
@@ -83,110 +76,59 @@ function Chip({ children, tone = 'neutral' }) {
   return <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] ${className}`}>{children}</span>;
 }
 
-export default async function AdminSeoPage({ searchParams }: { searchParams: Promise<{ q?: string; state?: string; page?: string }> }) {
-  const params = await searchParams;
+function Metric({ label, value, note, icon: Icon }) {
+  return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
+    <div className="flex items-center justify-between gap-4 mb-4"><div className="eyebrow-dim">{label}</div><Icon size={16} className="text-[var(--gold-warm)]" /></div>
+    <div className="font-price text-gold-grad text-[38px] leading-none">{value}</div>
+    <div className="mt-4 text-[12px] leading-relaxed text-[var(--bone-dim)]">{note}</div>
+  </div>;
+}
+
+export default async function AdminSeoPage() {
   const { rows, error } = await loadProducts();
-  const q = String(params.q || '').trim().toLowerCase();
-  const stateFilter = String(params.state || 'attention');
-  const requestedPage = Math.max(1, Number(params.page || 1) || 1);
-  const pageSize = 75;
-
   const seoRows = rows
-    .map((product) => {
-      const issues = seoIssues(product);
-      return { product, issues, readiness: readinessState(issues) };
-    });
+    .map((product) => ({ product, issues: seoIssues(product), readiness: readinessScore(product) }))
+    .sort((a, b) => a.readiness.score - b.readiness.score)
+    .slice(0, 160);
 
-  const blocked = seoRows.filter((row) => row.readiness.tone === 'danger').length;
+  const blocked = rows.filter((product) => readinessScore(product).tone === 'danger').length;
   const missingAlt = rows.filter((product) => !product.primary_image_alt).length;
   const weakSlug = rows.filter((product) => !productSlug(product) || productSlug(product) === String(product.canonical_product_id || '')).length;
-  const ready = seoRows.filter((row) => row.readiness.tone === 'ok').length;
+  const ready = rows.filter((product) => readinessScore(product).tone === 'ok').length;
 
-  const filteredRows = seoRows
-    .filter((row) => {
-      const haystack = [productTitle(row.product), productSlug(row.product), worldLabel(row.product), row.product.category_label, row.product.product_type]
-        .map((value) => String(value || '').toLowerCase())
-        .join(' ');
-      const matchesQuery = !q || haystack.includes(q);
-      const state = row.readiness.label;
-      const matchesState =
-        stateFilter === 'all' ||
-        (stateFilter === 'attention' && state !== 'Ready') ||
-        state === stateFilter;
-      return matchesQuery && matchesState;
-    })
-    .sort((a, b) => a.readiness.rank - b.readiness.rank || b.issues.length - a.issues.length || productTitle(a.product).localeCompare(productTitle(b.product), 'en'));
-
-  const pageCount = Math.max(1, Math.ceil(filteredRows.length / pageSize));
-  const page = Math.min(requestedPage, pageCount);
-  const visibleRows = filteredRows.slice((page - 1) * pageSize, page * pageSize);
-
-  const pageHref = (nextPage: number) => {
-    const next = new URLSearchParams();
-    if (q) next.set('q', q);
-    if (stateFilter !== 'attention') next.set('state', stateFilter);
-    if (nextPage > 1) next.set('page', String(nextPage));
-    const query = next.toString();
-    return query ? `/admin/seo?${query}` : '/admin/seo';
-  };
-
-  return <main className="owner-page">
-    <div className="owner-page-inner">
-      <header className="owner-page-head">
+  return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.12),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
+    <section className="container-feya pt-10 pb-16">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7">
         <div>
-          <div className="owner-eyebrow">SEO · базовая готовность товара</div>
-          <h1>SEO-готовность</h1>
-          <p>Детерминированная проверка обязательных товарных сигналов: заголовок, адрес страницы, ALT, категория, цвет, контекст, варианты и точность цены. Это не SEO-рейтинг и не прогноз позиции в Google.</p>
+          <div className="eyebrow-gold mb-3">Admin · SEO Readiness</div>
+          <h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>SEO readiness</h1>
+          <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Первый контрольный слой перед SEO collections, Google/OpenAI feeds и product graph: title/H1, slug, image alt, category/color/context signals, configurations and price confidence.</p>
         </div>
-        <div className="owner-actions" style={{ marginTop: 0 }}>
-          <Link href="/admin/seo-keywords" className="owner-button">SEO-ключи <ArrowUpRight size={13} /></Link>
-          <Link href="/admin/products" className="owner-button">Товары <ArrowUpRight size={13} /></Link>
+        <div className="flex gap-3">
+          <Link href="/admin/seo-keywords" className="btn-ghost">SEO-ключи <ArrowUpRight size={13} /></Link>
+          <Link href="/admin" className="btn-ghost">Admin cockpit <ArrowUpRight size={13} /></Link>
+          <Link href="/admin/products" className="btn-ghost">Products <ArrowUpRight size={13} /></Link>
         </div>
-      </header>
+      </div>
 
       {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
 
-      <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
-        <div className="owner-summary-cell"><strong>{blocked}</strong><span>Товаров заблокированы базовыми проблемами</span></div>
-        <div className="owner-summary-cell"><strong>{missingAlt}</strong><span>Нет ALT главного изображения</span></div>
-        <div className="owner-summary-cell"><strong>{weakSlug}</strong><span>Слабый или технический адрес страницы</span></div>
-        <div className="owner-summary-cell"><strong>{ready}</strong><span>Базовые проверки пройдены</span></div>
-      </section>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <Metric icon={SearchCheck} label="SEO ready" value={ready} note="Products with strong first-pass readiness score." />
+        <Metric icon={FileSearch} label="Blocked" value={blocked} note="Products blocked by data quality issues." />
+        <Metric icon={ImageIcon} label="Missing alt" value={missingAlt} note="Primary image alt missing or empty." />
+        <Metric icon={Link2} label="Weak slug" value={weakSlug} note="Slug missing or falling back to ID-like value." />
+      </div>
 
-      <form action="/admin/seo" className="owner-card" style={{ marginBottom: '14px' }}>
-        <div className="grid gap-3 md:grid-cols-[1fr_280px_auto] md:items-end">
-          <label>
-            <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Поиск товара</div>
-            <input name="q" defaultValue={q} className="field" placeholder="название, slug, категория…" />
-          </label>
-          <label>
-            <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Состояние</div>
-            <select name="state" defaultValue={stateFilter} className="field">
-              <option value="attention">Требует внимания</option>
-              <option value="Blocked">Заблокировано</option>
-              <option value="Needs polish">Нужно доработать</option>
-              <option value="Ready">Базовые проверки пройдены</option>
-              <option value="all">Все</option>
-            </select>
-          </label>
-          <button type="submit" className="owner-button primary">Применить</button>
-        </div>
-        <div className="owner-card-meta" style={{ marginTop: '10px', marginBottom: 0 }}>
-          <span>После фильтра: {filteredRows.length}</span>
-          <span>Показано: {visibleRows.length}</span>
-          <Link href="/admin/seo">Сбросить</Link>
-        </div>
-      </form>
-
-      <div className="rounded-xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
+      <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
         <div className="grid grid-cols-[76px_1.5fr_0.7fr_1.3fr] gap-4 px-5 py-4 border-b border-[rgba(216,214,211,.10)] text-[10px] uppercase tracking-[0.22em] text-[var(--smoke)]">
-          <div>Фото</div>
-          <div>Товар / признаки</div>
-          <div>Состояние</div>
-          <div>SEO-проблемы</div>
+          <div>Image</div>
+          <div>Product / signals</div>
+          <div>Score</div>
+          <div>SEO blockers</div>
         </div>
         <div className="divide-y divide-[rgba(216,214,211,.08)]">
-          {visibleRows.map(({ product, issues, readiness }) => {
+          {seoRows.map(({ product, issues, readiness }) => {
             const slug = productSlug(product);
             return <article key={product.canonical_product_id} className="px-5 py-4 hover:bg-[rgba(212,178,106,.035)] transition-colors">
               <Link href={`/admin/products/${slug}`} className="grid grid-cols-[76px_1.5fr_0.7fr_1.3fr] gap-4 items-center">
@@ -195,36 +137,29 @@ export default async function AdminSeoPage({ searchParams }: { searchParams: Pro
                 </div>
                 <div>
                   <div className="text-bone text-[15px] leading-snug line-clamp-2">{productTitle(product)}</div>
-                  <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'Категория не указана'} · {product.canonical_color_label || product.color || 'Цвет не указан'}</div>
+                  <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">{worldLabel(product)} · {product.category_label || product.product_type || 'No category'} · {product.canonical_color_label || product.color || 'No color'}</div>
                   <div className="mt-2 text-[11px] text-[var(--bone-dim)]">/{slug}</div>
                 </div>
-                <div><Chip tone={readiness.tone}>{seoReadinessLabel(readiness.label)}</Chip><div className="mt-2 text-[11px] text-[var(--bone-dim)]">{issues.length} проверок требуют внимания</div></div>
+                <div>
+                  <div className="font-price text-gold-grad text-[28px] leading-none">{readiness.score}</div>
+                  <div className="mt-2"><Chip tone={readiness.tone}>{readiness.label}</Chip></div>
+                </div>
                 <div className="flex flex-wrap gap-1.5">
-                  {issues.slice(0, 6).map((issue) => <Chip key={issue} tone={issue.includes('Missing') || issue.includes('Blocked') || issue.includes('Unverified') ? 'danger' : 'warning'}>{seoIssueLabel(issue)}</Chip>)}
+                  {issues.slice(0, 6).map((issue) => <Chip key={issue} tone={issue.includes('Missing') || issue.includes('Blocked') || issue.includes('Unverified') ? 'danger' : 'warning'}>{issue}</Chip>)}
                   {!issues.length ? <Chip tone="ok">OK</Chip> : null}
                 </div>
               </Link>
-              <AdminQueueQuickReviewClient productSlug={slug} canonicalProductId={product.canonical_product_id} sourceRoute="/admin/seo" approvedEventType="seo_ready_checked" subjectType="seo" approvedLabel="Отметить SEO готовым" />
+              <AdminQueueQuickReviewClient productSlug={slug} canonicalProductId={product.canonical_product_id} sourceRoute="/admin/seo" approvedEventType="seo_ready_checked" subjectType="seo" approvedLabel="Mark SEO ready" />
             </article>;
           })}
-          {!visibleRows.length ? <div className="p-6 text-[13px] text-[var(--bone-dim)]">По текущему фильтру товаров для проверки SEO нет.</div> : null}
+          {!seoRows.length ? <div className="p-6 text-[13px] text-[var(--bone-dim)]">No SEO rows returned from v4.</div> : null}
         </div>
       </div>
 
-      <div className="owner-card is-info" style={{ marginTop: '18px' }}>
-        <div className="owner-status is-info">Следующий уровень</div>
-        <p className="owner-card-copy">После базовой готовности товар переходит к ключевым запросам, смысловым группам, коллекциям и технической индексации. Никакая из этих проверок не публикует SEO автоматически.</p>
+      <div className="mt-6 rounded-2xl border border-[rgba(212,178,106,.18)] bg-[rgba(212,178,106,.045)] p-5">
+        <div className="flex items-center gap-2 eyebrow-gold mb-2"><Shapes size={14} /> Next SEO layer</div>
+        <p className="text-[13px] leading-relaxed text-[var(--bone-dim)]">Следующий уровень после этого экрана: collection graph по Part / Color / Occasion / Style, OpenAI/Google merchant feeds и canonical product-schema. Пока это read-only readiness, без автогенерации SEO-текста.</p>
       </div>
-
-      {filteredRows.length > pageSize ? (
-        <div className="flex items-center justify-between gap-3" style={{ marginTop: '14px' }}>
-          <div className="owner-section-kicker">Страница {page} из {pageCount}</div>
-          <div className="owner-actions" style={{ marginTop: 0 }}>
-            {page > 1 ? <Link href={pageHref(page - 1)} className="owner-button">Назад</Link> : <span className="owner-button" style={{ opacity: .4 }}>Назад</span>}
-            {page < pageCount ? <Link href={pageHref(page + 1)} className="owner-button">Дальше</Link> : <span className="owner-button" style={{ opacity: .4 }}>Дальше</span>}
-          </div>
-        </div>
-      ) : null}
-    </div>
+    </section>
   </main>;
 }
