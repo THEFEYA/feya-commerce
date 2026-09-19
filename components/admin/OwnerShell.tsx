@@ -93,6 +93,34 @@ function ownerArea(pathname: string) {
 }
 
 function currentContext(pathname: string) {
+  const detailed: Array<[string, string]> = [
+    ['/admin/roles', 'ИИ-команда'],
+    ['/admin/system-readiness', 'Готовность системы'],
+    ['/admin/data-health', 'Состояние данных'],
+    ['/admin/data-authority', 'Источники истины'],
+    ['/admin/execution-map', 'Права действий'],
+    ['/admin/executions', 'История выполнения'],
+    ['/admin/incidents', 'Инциденты'],
+    ['/admin/scenario-tests', 'Проверки надёжности'],
+    ['/admin/metrics', 'Метрики'],
+    ['/admin/business-truth', 'Правила бизнеса'],
+    ['/admin/opportunities', 'Возможности'],
+    ['/admin/strategy', 'Стратегия'],
+    ['/admin/experiments', 'Эксперименты'],
+    ['/admin/learning', 'Выводы'],
+    ['/admin/content-qa', 'Контроль качества'],
+    ['/admin/content-briefs', 'Контентные задания'],
+    ['/admin/product-facts-review', 'Факты товара'],
+    ['/admin/seo-keyword-review', 'Проверка ключей'],
+    ['/admin/seo-clusters', 'Группы запросов'],
+    ['/admin/seo-portfolio', 'SEO-страницы'],
+    ['/admin/seo-indexability', 'Индексация'],
+    ['/admin/signals', 'Сигналы'],
+  ];
+
+  const match = detailed.find(([prefix]) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+  if (match) return match[1];
+
   const key = ownerArea(pathname);
   if (key === 'search') return 'Поиск';
   return NAV_ITEMS.find((item) => item.key === key)?.label || 'FEYA';
