@@ -1,6 +1,6 @@
 // @ts-nocheck
 import Link from 'next/link';
-import { ArrowUpRight, BadgePercent, Calculator, CircleDollarSign, WalletCards } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { AdminQueueQuickReviewClient } from '@/components/AdminQueueQuickReviewClient';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, formatPrice, productSlug, productTitle, worldLabel } from '@/lib/storefront';
@@ -69,19 +69,53 @@ function Chip({ children, tone = 'neutral' }) {
   return <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] ${className}`}>{children}</span>;
 }
 
-function Metric({ label, value, note, icon: Icon }) {
-  return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5">
-    <div className="flex items-center justify-between gap-4 mb-4"><div className="eyebrow-dim">{label}</div><Icon size={16} className="text-[var(--gold-warm)]" /></div>
-    <div className="font-price text-gold-grad text-[38px] leading-none">{value}</div>
-    <div className="mt-4 text-[12px] leading-relaxed text-[var(--bone-dim)]">{note}</div>
-  </div>;
-}
-
-export default async function AdminPriceReviewPage() {
+export default async function AdminPriceReviewPage({ searchParams }: { searchParams: Promise<{ q?: string; issue?: string; page?: string }> }) {
+  const params = await searchParams;
   const { rows, error } = await loadProducts();
-  const reviewRows = rows
-    .filter(needsPriceReview)
-    .slice(0, 160);
+  const q = String(params.q || '').trim().toLowerCase();
+  const issueFilter = String(params.issue || 'all');
+  const requestedPage = Math.max(1, Number(params.page || 1) || 1);
+  const pageSize = 40;
+
+  const allReviewRows = rows.filter(needsPriceReview);
+  const reviewRows = allReviewRows.filter((product) => {
+    const haystack = [productTitle(product), productSlug(product), worldLabel(product), product.category_label, product.product_type]
+      .map((value) => String(value || '').toLowerCase())
+      .join(' ');
+    const configs = parseConfigurations(product.configurations);
+    const hasFallback = configs.some((config) => config.has_fallback_price);
+    const hasMissing = configs.some((config) => configPrice(config) == null);
+    const hasUnverified = product.price_confidence_status === 'unverified' || product.needs_price_review || configs.some((config) => config.price_confidence_status === 'unverified');
+    const matchesIssue =
+      issueFilter === 'all' ||
+      (issueFilter === 'fallback' && hasFallback) ||
+      (issueFilter === 'missing' && hasMissing) ||
+      (issueFilter === 'unverified' && hasUnverified) ||
+      (issueFilter === 'discount' && Boolean(product.has_unverified_discount));
+    return (!q || haystack.includes(q)) && matchesIssue;
+  }).sort((a, b) => {
+    const score = (product: StorefrontProduct) => {
+      const configs = parseConfigurations(product.configurations);
+      if (configs.some((config) => configPrice(config) == null)) return 0;
+      if (configs.some((config) => config.has_fallback_price)) return 1;
+      if (product.has_unverified_discount) return 2;
+      return 3;
+    };
+    return score(a) - score(b) || productTitle(a).localeCompare(productTitle(b), 'en');
+  });
+
+  const pageCount = Math.max(1, Math.ceil(reviewRows.length / pageSize));
+  const page = Math.min(requestedPage, pageCount);
+  const visibleReviewRows = reviewRows.slice((page - 1) * pageSize, page * pageSize);
+
+  const pageHref = (nextPage: number) => {
+    const next = new URLSearchParams();
+    if (q) next.set('q', q);
+    if (issueFilter !== 'all') next.set('issue', issueFilter);
+    if (nextPage > 1) next.set('page', String(nextPage));
+    const query = next.toString();
+    return query ? `/admin/review/prices?${query}` : '/admin/review/prices';
+  };
 
   const unverifiedProducts = rows.filter((product) => product.price_confidence_status === 'unverified' || product.needs_price_review).length;
   const fallbackConfigs = rows.reduce((sum, product) => sum + parseConfigurations(product.configurations).filter((config) => config.has_fallback_price).length, 0);
@@ -111,8 +145,34 @@ export default async function AdminPriceReviewPage() {
         <div className="owner-summary-cell"><strong>{unverifiedDiscounts}</strong><span>Скидок требуют проверки</span></div>
       </section>
 
+      <form action="/admin/review/prices" className="owner-card" style={{ marginBottom: '16px' }}>
+        <div className="grid gap-3 md:grid-cols-[1fr_280px_auto] md:items-end">
+          <label>
+            <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Поиск товара</div>
+            <input name="q" defaultValue={q} className="field" placeholder="название, slug, категория" />
+          </label>
+          <label>
+            <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Проблема</div>
+            <select name="issue" defaultValue={issueFilter} className="field">
+              <option value="all">Все проблемы</option>
+              <option value="missing">Нет цены</option>
+              <option value="fallback">Резервная цена</option>
+              <option value="unverified">Цена не подтверждена</option>
+              <option value="discount">Скидка не подтверждена</option>
+            </select>
+          </label>
+          <button type="submit" className="owner-button primary">Применить</button>
+        </div>
+        <div className="owner-card-meta" style={{ marginTop: '10px', marginBottom: 0 }}>
+          <span>Всего в очереди: {allReviewRows.length}</span>
+          <span>После фильтра: {reviewRows.length}</span>
+          <span>Показано: {visibleReviewRows.length}</span>
+          <Link href="/admin/review/prices">Сбросить</Link>
+        </div>
+      </form>
+
       <div className="space-y-4">
-        {reviewRows.map((product) => {
+        {visibleReviewRows.map((product) => {
           const currency = product.currency || 'EUR';
           const configs = parseConfigurations(product.configurations);
           const flaggedConfigs = configs.filter((config) => config.price_confidence_status === 'unverified' || config.has_fallback_price || configPrice(config) == null).slice(0, 6);
@@ -175,8 +235,18 @@ export default async function AdminPriceReviewPage() {
           </article>;
         })}
 
-        {!reviewRows.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">Нет товаров, требующих проверки цены.</div> : null}
+        {!reviewRows.length ? <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-6 text-[13px] text-[var(--bone-dim)]">По текущему фильтру товаров для проверки цены нет.</div> : null}
       </div>
+
+      {reviewRows.length > pageSize ? (
+        <div className="flex items-center justify-between gap-3" style={{ marginTop: '16px' }}>
+          <div className="owner-section-kicker">Страница {page} из {pageCount}</div>
+          <div className="owner-actions" style={{ marginTop: 0 }}>
+            {page > 1 ? <Link href={pageHref(page - 1)} className="owner-button">Назад</Link> : <span className="owner-button" style={{ opacity: .4 }}>Назад</span>}
+            {page < pageCount ? <Link href={pageHref(page + 1)} className="owner-button">Дальше</Link> : <span className="owner-button" style={{ opacity: .4 }}>Дальше</span>}
+          </div>
+        </div>
+      ) : null}
     </div>
   </main>;
 }
