@@ -196,6 +196,8 @@ if (!failures.length) {
   if (!signalDiagnostics.includes('className="owner-page"') || signalDiagnostics.includes('className="page-shell"')) failures.push('Advanced signal diagnostics must use the Company owner surface.');
   if (!dataAuthority.includes('className="owner-page"') || dataAuthority.includes('className="page-shell"')) failures.push('Data Authority must use the Company owner surface.');
   if (!scenarioTests.includes('className="owner-page"') || scenarioTests.includes('className="page-shell"')) failures.push('Scenario Tests must use the Company owner surface.');
+  const systemPage = text('app/admin/company/system/page.tsx');
+  if (!systemPage.includes('feya_commerce_v_owner_action_audit_safe_v1')) failures.push('System must surface the protected Owner Action audit projection.');
 
   if (!coverage.includes('Handoff timeline') || !coverage.includes('COVERED')) {
     failures.push('Functional coverage map must record durable handoff coverage.');
