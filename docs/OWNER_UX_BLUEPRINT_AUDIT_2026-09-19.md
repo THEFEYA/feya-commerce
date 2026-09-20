@@ -169,7 +169,7 @@ The Company / AI visual program is now bounded by `OWNER_COMPANY_VISUAL_CONTRACT
 | V3 Signals | DESKTOP APPROVED | compact routing strip; search/filter; evidence-first drawer; owner-decision de-duplication explanation |
 | V4 Growth | DESKTOP APPROVED | sequential query → cluster → ownership → indexability; opportunity/initiative drill-down; historical demand only; live-data limitations explicit |
 | V5 Results + System | DESKTOP APPROVED | experiment/change/learning drill-down; quiet-first system; data-source/execution/incident context drawers |
-| V6 Mobile / accessibility / polish | MOBILE REVIEW PENDING | mobile priority nav; More sheet; focus trapping; Escape/return focus; reduced motion; loading/error states; desktop secondary-copy readability corrected |
+| V6 Mobile / accessibility / polish | ENGINEERING DONE / DEVICE REVIEW PENDING | mobile priority nav; safe-area handling; full-width drawers; 44px+ touch targets; 16px search input; horizontal table containment; More sheet; focus trapping; Escape/return focus; reduced motion; loading/error states; secondary-copy readability corrected |
 
 Owner reviewed the desktop Company surfaces on 2026-09-20 and approved the visual direction. The only concrete feedback was that some secondary copy was too small; the Company readability floor was raised without changing the compact visual language. No further cosmetic pass is planned unless review reveals a reproducible usability/accessibility defect.
 
@@ -279,3 +279,20 @@ The UI now exposes the capability without fabricating activity:
 - Work detail shows durable handoffs/workflow events when they exist;
 - no agent/tool trace is mixed into business history;
 - no write path was enabled.
+
+
+## Mobile engineering hardening checkpoint — 2026-09-20
+
+The Company surface received a bounded mobile/touch pass without changing Product OS:
+
+- safe-area bottom padding for fixed mobile navigation and bottom sheets;
+- sticky compact top bar;
+- minimum 44px actionable controls;
+- 16px search input to avoid mobile browser zoom;
+- owner drawers become full-width on narrow screens;
+- long analytical tables stay horizontally contained rather than breaking the page;
+- secondary text retains the desktop readability correction at mobile widths;
+- Team FEYA, Growth steps, queue strips and timeline rows use mobile-specific density;
+- the existing keyboard/focus/reduced-motion behavior remains intact.
+
+This closes the implementation side of V6. A real-device owner visual review is still useful before production launch, but no further mobile cosmetic expansion is planned without a concrete defect.
