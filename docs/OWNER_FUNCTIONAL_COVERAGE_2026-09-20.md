@@ -36,7 +36,7 @@ A backend table/view/registry does **not** automatically require its own screen.
 | Page/query ownership proposals | `/admin/seo-ownership-proposals` | groups without owner + proposals awaiting review | COVERED |
 | Indexability readiness | `/admin/seo-indexability` | ownership + content readiness before indexability | COVERED |
 | Opportunities | `/admin/opportunities` | commercial window vs event date + opportunity drawer | COVERED |
-| Strategy / initiatives | `/admin/strategy` | human-activated strategy, initiative gates, initiative drawer | COVERED |
+| Strategy / objectives / initiatives | `/admin/strategy` | human-activated strategy; Growth Objectives with feasibility/metric/history; initiative gates and drawers | COVERED |
 | Live GSC performance | future Growth analytics | not fabricated | BLOCKED BY DATA |
 | Seasonality / rising-falling live demand | future Growth analytics | not fabricated | BLOCKED BY HISTORY |
 | Protected-winner automation | future | no automation before performance history | BLOCKED BY DATA |
@@ -88,8 +88,9 @@ A backend table/view/registry does **not** automatically require its own screen.
 | Role ownership | Work / Team / Role drawer | one accountable role shown | COVERED |
 | Work lifecycle | Work | queued/running/waiting/blocked/measuring/completed | COVERED |
 | Durable case state | Work detail | real state only | COVERED |
-| Handoff timeline | Work detail | placeholder explains absence instead of inventing events | BLOCKED BY PROJECTION |
-| Evidence timeline | Work detail | no synthetic evidence timeline | BLOCKED BY PROJECTION |
+| Handoff timeline | Work detail | durable source→target role handoffs, question/result reason, known facts/unknowns/evidence counts; honest empty state when no rows exist | COVERED |
+| Workflow event timeline | Work detail | durable workflow events/status transitions/step/reason; current production count is 0 | COVERED |
+| Evidence timeline | Work detail | handoff evidence summary is available; measured outcome evidence remains separate and data-gated | PARTIAL / DATA-GATED |
 | Agent trace/tool spans | Advanced only | not mixed with business history | COVERED / ADVANCED |
 | Virtual office | not built | intentionally rejected as primary model | WILL NOT BUILD V1 |
 
@@ -123,6 +124,7 @@ Prerequisite sequence:
 ## 8. Features intentionally deferred
 
 - natural-language Operator that can prepare writes;
+- automatic creation/activation of Growth Objectives without explicit Human Owner authority;
 - owner notes that mutate workflow;
 - pin/hide/reorder beyond already-safe local preferences unless repeated owner need is demonstrated;
 - live GSC / GA4 / commerce dashboards;
@@ -142,7 +144,7 @@ Context surfaces:
 - Signals
 - Team FEYA
 - Opportunities
-- Strategy / initiatives
+- Strategy / objectives / initiatives
 - Keyword review
 - Query clusters
 - Page ownership
@@ -178,3 +180,19 @@ Continue UI work only when one of these is true:
 5. a reproducible accessibility/usability defect exists.
 
 Otherwise move to prerequisites, data integration or protected execution rather than cosmetic expansion.
+
+
+## 11. Safe projections added on 2026-09-20
+
+The previous Work limitation around durable handoff/objective visibility was closed additively without exposing raw runtime tables.
+
+Added governed read projections:
+
+- `feya_commerce_v_growth_objectives_safe_v1`;
+- `feya_commerce_v_growth_objective_events_safe_v1`;
+- `feya_commerce_v_growth_handoffs_safe_v1`;
+- `feya_commerce_v_growth_workflow_events_safe_v1`.
+
+Owner UI now uses them in Strategy and Work. Current row counts are zero, so empty states remain truthful and no synthetic objective/handoff activity is generated.
+
+These views are registered in Admin Data Boundary and deliberately remain browser-readable only during the existing pre-auth preview phase. They will be hardened together with the other governed admin read surfaces only after the owner-auth runbook succeeds.
