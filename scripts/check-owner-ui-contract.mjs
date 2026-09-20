@@ -28,6 +28,8 @@ const requiredFiles = [
   'components/admin/OwnerAttentionDecisionClient.tsx',
   'lib/ownerActionAuth.ts',
   'app/api/admin/company/owner-attention/decision/route.ts',
+  'components/admin/OwnerProposalReviewClient.tsx',
+  'app/api/admin/company/proposal-review/route.ts',
   'docs/OWNER_UX_BLUEPRINT_AUDIT_2026-09-19.md',
   'docs/OWNER_FUNCTIONAL_COVERAGE_2026-09-20.md',
   'docs/OWNER_COMPANY_VISUAL_CONTRACT_V1.md',
@@ -169,6 +171,15 @@ if (!failures.length) {
   if (!ownerActionAuth.includes('FEYA_OWNER_ACTIONS_ENABLED')) failures.push('Owner Action gate must keep an independent circuit breaker.');
   if (!ownerActionRoute.includes('requireOwnerActionActor')) failures.push('Owner Action API must require server-side owner authority.');
   if (!ownerActionRoute.includes('feya_fn_transition_owner_attention_v1')) failures.push('Owner Attention action must use the guarded RPC, not direct table mutation.');
+  const proposalReviewRoute = text('app/api/admin/company/proposal-review/route.ts');
+  const clusterProposalPage = text('app/admin/seo-cluster-proposals/page.tsx');
+  const ownershipProposalPage = text('app/admin/seo-ownership-proposals/page.tsx');
+  const indexabilityPage = text('app/admin/seo-indexability/page.tsx');
+  if (!proposalReviewRoute.includes('requireOwnerActionActor')) failures.push('SEO proposal review route must require owner authority.');
+  if (!proposalReviewRoute.includes('feya_fn_owner_review_seo_proposal_v1')) failures.push('SEO proposal review route must use the guarded owner action wrapper.');
+  if (!clusterProposalPage.includes('OwnerProposalReviewClient')) failures.push('Query-cluster proposals must expose protected Human review.');
+  if (!ownershipProposalPage.includes('OwnerProposalReviewClient')) failures.push('Page-ownership proposals must expose protected Human review.');
+  if (!indexabilityPage.includes('OwnerProposalReviewClient')) failures.push('Indexability proposals must expose protected Human review.');
 
   if (!coverage.includes('Handoff timeline') || !coverage.includes('COVERED')) {
     failures.push('Functional coverage map must record durable handoff coverage.');
