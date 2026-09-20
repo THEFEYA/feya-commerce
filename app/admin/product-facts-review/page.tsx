@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
+import { OwnerProductFactDrawerClient } from '@/components/admin/OwnerProductFactDrawerClient';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -188,6 +189,7 @@ export default async function AdminProductFactsReviewPage({ searchParams }: { se
                 <th>Причины проверки</th>
                 <th>Текущие факты</th>
                 <th>Решение</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -218,6 +220,7 @@ export default async function AdminProductFactsReviewPage({ searchParams }: { se
                     <td>
                       <span className="status-pill warning">{row.resolution_status === 'resolved' ? 'Решено' : 'Не решено'}</span>
                     </td>
+                    <td><OwnerProductFactDrawerClient row={row} /></td>
                   </tr>
                 );
               })}
