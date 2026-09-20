@@ -3,11 +3,20 @@
 import Link from 'next/link';
 import { useCallback, useRef, useState } from 'react';
 import { X } from 'lucide-react';
+import type { GrowthHandoffRow, GrowthWorkflowEventRow } from '@/lib/types';
 import type { OwnerWorkItemVM } from '@/lib/owner-ui/types';
 import { OwnerWorkDetailContent } from '@/components/admin/OwnerWorkDetailContent';
 import { useOwnerDrawerA11y } from '@/components/admin/useOwnerDrawerA11y';
 
-export function OwnerWorkDrawerClient({ item }: { item: OwnerWorkItemVM }) {
+export function OwnerWorkDrawerClient({
+  item,
+  handoffs = [],
+  workflowEvents = [],
+}: {
+  item: OwnerWorkItemVM;
+  handoffs?: GrowthHandoffRow[];
+  workflowEvents?: GrowthWorkflowEventRow[];
+}) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const closeRef = useRef<HTMLButtonElement | null>(null);
@@ -51,7 +60,7 @@ export function OwnerWorkDrawerClient({ item }: { item: OwnerWorkItemVM }) {
             </div>
 
             <div className="owner-drawer-body p-5">
-              <OwnerWorkDetailContent item={item} compact />
+              <OwnerWorkDetailContent item={item} compact handoffs={handoffs} workflowEvents={workflowEvents} />
               <div className="owner-actions" style={{ marginTop: '16px' }}>
                 <Link href={`/admin/company/work/${encodeURIComponent(item.id)}`} className="owner-button primary">Открыть полностью</Link>
                 <button type="button" className="owner-button" onClick={() => setOpen(false)}>Закрыть</button>
