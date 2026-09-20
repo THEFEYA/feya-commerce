@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { LearningRegistryRow } from '@/lib/types';
 import { statusLabel } from '@/lib/owner-ui/terminology';
@@ -88,7 +89,7 @@ export default async function AdminLearningPage() {
           <div className="owner-summary-cell"><strong>{adopted}</strong><span>Принятых правил</span></div>
         </section>
 
-        {error ? <div className="owner-card is-danger"><div className="owner-status is-danger">Ошибка данных</div><p className="owner-card-copy">{error}</p></div> : null}
+        {error ? <OwnerDataError error={error} /> : null}
 
         <section className="owner-section" style={{ marginTop: 0 }}>
           <div className="owner-section-head">
