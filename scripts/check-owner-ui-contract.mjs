@@ -36,6 +36,8 @@ const requiredFiles = [
   'app/api/admin/company/proposal-apply/route.ts',
   'components/admin/OwnerExecutionApprovalClient.tsx',
   'app/api/admin/company/execution-approval/route.ts',
+  'components/admin/OwnerKeywordReviewClient.tsx',
+  'app/api/admin/company/keyword-review/route.ts',
   'docs/OWNER_UX_BLUEPRINT_AUDIT_2026-09-19.md',
   'docs/OWNER_FUNCTIONAL_COVERAGE_2026-09-20.md',
   'docs/OWNER_COMPANY_VISUAL_CONTRACT_V1.md',
@@ -195,6 +197,11 @@ if (!failures.length) {
   if (!proposalApplyRoute.includes('feya_fn_owner_apply_seo_proposal_v1')) failures.push('SEO proposal apply route must use the guarded canonical apply wrapper.');
   if (!ownershipProposalPage.includes('OwnerProposalApplyClient')) failures.push('Approved page-ownership proposals must expose a separate protected apply step.');
   if (!indexabilityPage.includes('OwnerProposalApplyClient')) failures.push('Approved indexability proposals must expose a separate protected apply step.');
+  const keywordReviewRoute = text('app/api/admin/company/keyword-review/route.ts');
+  const keywordReviewPage = text('app/admin/seo-keyword-review/page.tsx');
+  if (!keywordReviewRoute.includes('requireOwnerActionActor')) failures.push('Keyword review route must require owner authority.');
+  if (!keywordReviewRoute.includes('feya_fn_owner_review_keyword_cleanup_v1')) failures.push('Keyword review route must use the guarded owner review wrapper.');
+  if (!keywordReviewPage.includes('OwnerKeywordReviewClient')) failures.push('Keyword review queue must expose protected Human review context.');
   const strategicActionRoute = text('app/api/admin/company/strategic-action/route.ts');
   const strategicActionClient = text('components/admin/OwnerStrategicActionClient.tsx');
   if (!strategicActionRoute.includes('requireOwnerActionActor')) failures.push('Strategic owner route must require owner authority.');
