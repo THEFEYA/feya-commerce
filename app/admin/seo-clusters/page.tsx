@@ -162,27 +162,19 @@ export default async function AdminSeoClustersPage({ searchParams }: { searchPar
   };
 
   return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
-          <div className="nav-links">
-            <Link href="/admin/products">Товары</Link>
-            <Link href="/admin/seo-keywords">SEO-ключи</Link>
-            <Link href="/admin/seo-portfolio">SEO-страницы</Link>
-            <Link href="/admin/seo-clusters">Группы запросов</Link>
-            <Link href="/admin/seo-cluster-proposals">Предложения групп</Link>
-            <Link href="/admin/review">Проверка</Link>
+    <main className="owner-page">
+      <div className="owner-page-inner">
+        <header className="owner-page-head">
+          <div>
+            <div className="owner-eyebrow">Рост · поисковая архитектура</div>
+            <h1>Группировка запросов</h1>
+            <p>Очередь не создаёт группы автоматически. Она показывает, где ключ уже достаточно чистый и понятный для смысловой группировки, а где сначала нужны метрики или человеческая проверка.</p>
           </div>
-        </nav>
-
-        <section className="phase-banner">
-          <div className="phase-label">Смысловая группировка запросов · только просмотр</div>
-          <h1>Очередь группировки запросов</h1>
-          <p>
-            Эта очередь не создаёт группы запросов автоматически. Она показывает, достаточно ли по каждому каноническому ключу проверенных смысловых и метрических данных, чтобы перейти к группировке.
-          </p>
-        </section>
+          <div className="owner-actions" style={{ marginTop: 0 }}>
+            <Link href="/admin/company/growth" className="owner-button">Назад к росту</Link>
+            <Link href="/admin/seo-portfolio" className="owner-button">SEO-страницы</Link>
+          </div>
+        </header>
 
         <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
           <div className="owner-summary-cell"><strong>{cleanupReview + cleanup}</strong><span>Нужна очистка / проверка</span></div>
