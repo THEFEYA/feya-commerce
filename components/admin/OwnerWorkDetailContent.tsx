@@ -20,6 +20,25 @@ function dateTimeLabel(value?: string | null) {
   return new Intl.DateTimeFormat('ru-RU', { dateStyle: 'short', timeStyle: 'short' }).format(date);
 }
 
+function lifecyclePhase(status: string) {
+  if (status === 'QUEUED' || status === 'NEW' || status === 'ASSIGNED') return 0;
+  if (status === 'RUNNING') return 1;
+  if (status.startsWith('WAITING') || status === 'BLOCKED') return 2;
+  if (status === 'COMPLETED') return 3;
+  if (status === 'MEASURING' || status === 'LEARNING') return 4;
+  if (status === 'CLOSED') return 5;
+  return 0;
+}
+
+const LIFECYCLE_STAGES = [
+  'В очереди',
+  'В работе',
+  'Ожидание',
+  'Работа завершена',
+  'Измерение',
+  'Закрыто',
+];
+
 export function OwnerWorkDetailContent({ item, compact = false }: { item: OwnerWorkItemVM; compact?: boolean }) {
   return (
     <div className={compact ? 'space-y-4' : 'space-y-5'}>
@@ -33,14 +52,32 @@ export function OwnerWorkDetailContent({ item, compact = false }: { item: OwnerW
         <p className="owner-card-copy">{item.purpose}</p>
       </section>
 
-      <section className="owner-card">
+      <section className="owner-card owner-work-state-card">
         <div className="owner-section-kicker">Текущее состояние</div>
-        <h3 className="owner-card-title" style={{ marginTop: '7px' }}>{item.statusLabel}</h3>
-        <p className="owner-card-copy">Ответственная роль: {item.ownerLabel}. Последнее обновление: {dateTimeLabel(item.updatedAt)}.</p>
+        <div className="owner-work-state-head">
+          <h3 className="owner-card-title">{item.statusLabel}</h3>
+          <span>{dateTimeLabel(item.updatedAt)}</span>
+        </div>
+        <p className="owner-card-copy">Ответственная роль: {item.ownerLabel}.</p>
+        <div className="owner-work-stage-track" aria-label={`Текущий этап: ${item.statusLabel}`}>
+          {LIFECYCLE_STAGES.map((label, index) => {
+            const current = lifecyclePhase(item.status);
+            const complete = index < current;
+            const active = index === current;
+            return (
+              <div className={`owner-work-stage${complete ? ' is-complete' : ''}${active ? ' is-active' : ''}`} key={label}>
+                <span className="owner-work-stage-dot" aria-hidden="true" />
+                <small>{label}</small>
+              </div>
+            );
+          })}
+        </div>
+        <p className="owner-work-stage-note">Этапы показывают фактическое состояние workflow. Это не процент готовности и не оценка времени.</p>
       </section>
 
       <section className="owner-card">
         <div className="owner-section-kicker">Что делается сейчас</div>
+        {item.currentStep ? <div className="owner-work-current-step">{item.currentStep}</div> : null}
         <p className="owner-card-copy">
           {item.status === 'RUNNING'
             ? 'Работа выполняется в текущем ответственном направлении.'
