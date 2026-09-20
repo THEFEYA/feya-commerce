@@ -1920,6 +1920,21 @@ a.owner-list-row:hover {
   .owner-mobile-nav small {
     font-size: 10px;
   }
+
+  .owner-shell .owner-button {
+    min-height: 42px;
+    padding-inline: 12px;
+  }
+
+  .owner-shell .field {
+    min-height: 44px;
+  }
+
+  .owner-shell .owner-subnav a {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+  }
 }
 
 
@@ -1974,6 +1989,7 @@ a.owner-list-row:hover {
 }
 
 .owner-mobile-more-grid > a {
+  min-height: 54px;
   display: grid;
   grid-template-columns: 30px minmax(0,1fr);
   align-items: center;
