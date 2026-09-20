@@ -97,6 +97,9 @@ function ownerArea(pathname: string) {
 
 function currentContext(pathname: string) {
   const detailed: Array<[string, string]> = [
+    ['/admin/company/owner-attention', 'Решения владельца'],
+    ['/admin/company/signals', 'Сигналы'],
+    ['/admin/company/results/changes', 'Изменения'],
     ['/admin/roles', 'ИИ-команда'],
     ['/admin/system-readiness', 'Готовность системы'],
     ['/admin/data-health', 'Состояние данных'],
