@@ -4,6 +4,7 @@ import type { ContentQaShadowRow } from '@/lib/types';
 import { statusLabel } from '@/lib/owner-ui/terminology';
 import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
 import { OwnerContentQaDrawerClient } from '@/components/admin/OwnerContentQaDrawerClient';
+import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -44,6 +45,7 @@ function countState(rows: ContentQaShadowRow[], state: string) {
 export default async function AdminContentQaPage({ searchParams }: { searchParams: Promise<{ q?: string; state?: string; page?: string }> }) {
   const params = await searchParams;
   const { rows, error } = await getQueue();
+  const ownerActions = getOwnerActionConfigStatus();
   const q = String(params.q || '').trim().toLowerCase();
   const stateFilter = String(params.state || 'actionable');
   const requestedPage = Math.max(1, Number(params.page || 1) || 1);
@@ -229,7 +231,7 @@ export default async function AdminContentQaPage({ searchParams }: { searchParam
                     </span>
                     <div className="muted">метрики: {asText(row.metrics_status)}</div>
                   </td>
-                  <td><OwnerContentQaDrawerClient row={row} /></td>
+                  <td><OwnerContentQaDrawerClient row={row} actionEnabled={ownerActions.ready} actionBlockers={ownerActions.blockers} /></td>
                 </tr>
               ))}
             </tbody>
