@@ -6,6 +6,7 @@ import { presentOwnerAttention, presentRole, presentWorkItem, formatRelativeTime
 import { OwnerWorkDrawerClient } from '@/components/admin/OwnerWorkDrawerClient';
 import { OwnerRoleDrawerClient } from '@/components/admin/OwnerRoleDrawerClient';
 import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
+import type { GrowthHandoffRow, GrowthWorkflowEventRow } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -16,6 +17,8 @@ async function getWorkData(): Promise<{
   work: Row[];
   attention: Row[];
   roles: Row[];
+  handoffs: GrowthHandoffRow[];
+  workflowEvents: GrowthWorkflowEventRow[];
   operations: {
     productFacts: number;
     keywordReview: number;
@@ -33,6 +36,8 @@ async function getWorkData(): Promise<{
       work: [],
       attention: [],
       roles: [],
+      handoffs: [],
+      workflowEvents: [],
       operations: { productFacts: 0, keywordReview: 0, cqaHumanReview: 0, cqaIndependent: 0, cqaRevision: 0, cqaBlocked: 0, cqaAutomaticChecks: 0 },
       error: getMissingAdminDataEnvMessage(),
     };
@@ -42,6 +47,8 @@ async function getWorkData(): Promise<{
     workResult,
     attentionResult,
     rolesResult,
+    handoffsResult,
+    workflowEventsResult,
     productFactsResult,
     keywordReviewResult,
     cqaHumanResult,
@@ -66,6 +73,16 @@ async function getWorkData(): Promise<{
       .select('*')
       .order('role_type', { ascending: true })
       .order('role_code', { ascending: true }),
+    supabase
+      .from('feya_commerce_v_growth_handoffs_safe_v1')
+      .select('*')
+      .order('created_at', { ascending: true })
+      .limit(500),
+    supabase
+      .from('feya_commerce_v_growth_workflow_events_safe_v1')
+      .select('*')
+      .order('created_at', { ascending: true })
+      .limit(1000),
     supabase
       .from('feya_commerce_v_product_fact_review_queue_safe_v1')
       .select('fact_review_id', { count: 'exact', head: true })
@@ -100,6 +117,8 @@ async function getWorkData(): Promise<{
     workResult.error ||
     attentionResult.error ||
     rolesResult.error ||
+    handoffsResult.error ||
+    workflowEventsResult.error ||
     productFactsResult.error ||
     keywordReviewResult.error ||
     cqaHumanResult.error ||
@@ -112,6 +131,8 @@ async function getWorkData(): Promise<{
       work: [],
       attention: [],
       roles: [],
+      handoffs: [],
+      workflowEvents: [],
       operations: { productFacts: 0, keywordReview: 0, cqaHumanReview: 0, cqaIndependent: 0, cqaRevision: 0, cqaBlocked: 0, cqaAutomaticChecks: 0 },
       error: firstError.message,
     };
@@ -121,6 +142,8 @@ async function getWorkData(): Promise<{
     work: (workResult.data || []) as Row[],
     attention: (attentionResult.data || []) as Row[],
     roles: (rolesResult.data || []) as Row[],
+    handoffs: (handoffsResult.data || []) as GrowthHandoffRow[],
+    workflowEvents: (workflowEventsResult.data || []) as GrowthWorkflowEventRow[],
     operations: {
       productFacts: productFactsResult.count || 0,
       keywordReview: keywordReviewResult.count || 0,
@@ -171,7 +194,7 @@ const GROUP_ORDER = [
 
 export default async function AdminWorkPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; owner?: string }> }) {
   const params = await searchParams;
-  const { work, attention, roles, operations, error } = await getWorkData();
+  const { work, attention, roles, handoffs, workflowEvents, operations, error } = await getWorkData();
   const q = String(params.q || '').trim().toLowerCase();
   const statusFilter = String(params.status || 'active');
   const ownerFilter = String(params.owner || 'all');
@@ -180,6 +203,10 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
   const attentionVM = attention.map(presentOwnerAttention);
   const roleVM = roles.map(presentRole);
   const roleRows = new Map(roles.map((row) => [String(row.role_code || '').trim().toUpperCase(), row]));
+  const handoffsByCase = new Map<string, GrowthHandoffRow[]>();
+  handoffs.forEach((handoff) => handoffsByCase.set(handoff.case_id, [...(handoffsByCase.get(handoff.case_id) || []), handoff]));
+  const workflowEventsByCase = new Map<string, GrowthWorkflowEventRow[]>();
+  workflowEvents.forEach((event) => workflowEventsByCase.set(event.case_id, [...(workflowEventsByCase.get(event.case_id) || []), event]));
   const roleWork = new Map<string, { active: number; queued: number; waiting: number; latestTitle: string | null; latestAt: string | null }>();
 
   work.forEach((row, index) => {
@@ -483,7 +510,11 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
                         </div>
                         <div className="owner-list-row-side">
                           <span className="owner-section-kicker">{formatRelativeTime(item.updatedAt)}</span>
-                          <OwnerWorkDrawerClient item={item} />
+                          <OwnerWorkDrawerClient
+                            item={item}
+                            handoffs={handoffsByCase.get(item.id) || []}
+                            workflowEvents={workflowEventsByCase.get(item.id) || []}
+                          />
                         </div>
                       </article>
                     ))}
