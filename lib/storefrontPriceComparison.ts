@@ -117,3 +117,53 @@ function normalizeCodes(value: unknown) {
     .filter(Boolean))]
     .sort();
 }
+
+
+export type FullSetPriceAudit = {
+  status: 'ok' | 'review';
+  discountPercent: number | null;
+  reasons: string[];
+};
+
+/**
+ * Internal review guardrail for bundle prices.
+ * It does not set prices. It only flags combinations that deserve owner review.
+ *
+ * Owner pricing guidance:
+ * - one shared order avoids repeating roughly €30 of delivery/overhead per extra
+ *   separately priced choice;
+ * - a deeper promotional discount (often around 20–25%) can be intentional;
+ * - prices deeper than that remain allowed but should be reviewed explicitly.
+ */
+export function resolveFullSetPriceAudit({
+  fullSetPrice,
+  separateRegularTotal,
+  maxSingleOptionPrice,
+}: {
+  fullSetPrice: unknown;
+  separateRegularTotal: unknown;
+  maxSingleOptionPrice: unknown;
+}): FullSetPriceAudit {
+  const full = finiteAmount(fullSetPrice);
+  const separate = finiteAmount(separateRegularTotal);
+  const maxSingle = finiteAmount(maxSingleOptionPrice);
+  if (full == null || separate == null || separate <= 0) {
+    return { status: 'review', discountPercent: null, reasons: ['price_comparison_incomplete'] };
+  }
+
+  const discountPercent = Math.round((1 - full / separate) * 1000) / 10;
+  const reasons: string[] = [];
+
+  if (full >= separate) reasons.push('full_set_not_cheaper_than_separate_choices');
+  if (maxSingle != null && full <= maxSingle * 1.1) {
+    reasons.push('full_set_too_close_to_single_option');
+  }
+  if (discountPercent > 25) reasons.push('bundle_discount_over_25_percent_review');
+  if (discountPercent < 0) reasons.push('negative_bundle_discount');
+
+  return {
+    status: reasons.length ? 'review' : 'ok',
+    discountPercent,
+    reasons,
+  };
+}
