@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { QueryClusterReviewRow } from '@/lib/types';
+import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -30,6 +31,56 @@ function asText(value: unknown, fallback = '—') {
   if (value == null || value === '') return fallback;
   if (Array.isArray(value)) return value.length ? value.join(', ') : fallback;
   return String(value);
+}
+
+function clusterLaneLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    COLLECTION_INTENT_FAMILY: 'Запрос для коллекции / категории',
+    PRODUCT_INTENT_FAMILY: 'Запрос для товара',
+    IMAGE_SEMANTIC_SUPPORT: 'Поддержка ALT / изображения',
+  };
+  return labels[key] || 'Маршрут ещё не классифицирован';
+}
+
+function pageLevelLabel(value: unknown) {
+  const key = asText(value, '').toLowerCase();
+  const labels: Record<string, string> = {
+    collection: 'категория / коллекция',
+    product: 'товар',
+    image_alt: 'ALT изображения',
+  };
+  return labels[key] || asText(value);
+}
+
+function intentLabel(value: unknown) {
+  const key = asText(value, '').toLowerCase();
+  const labels: Record<string, string> = {
+    commercial: 'коммерческий',
+    'commercial/product/use-case': 'коммерческий / сценарий использования',
+    descriptive: 'описательный',
+    informational: 'информационный',
+    navigational: 'навигационный',
+    transactional: 'покупательский',
+    unclear: 'неясный',
+  };
+  return labels[key] || (key ? 'другой' : 'не определён');
+}
+
+function axisLabel(value: unknown) {
+  const key = asText(value, '').toLowerCase();
+  const labels: Record<string, string> = {
+    buyer_use_case: 'сценарий покупателя',
+    color_component: 'цвет компонента',
+    component: 'компонент',
+    effect_component: 'эффект / визуал',
+    event_component: 'событие + компонент',
+    event_outfit: 'событие + образ',
+    material_component: 'материал + компонент',
+    persona_component: 'персона + компонент',
+    style_component: 'стиль + компонент',
+  };
+  return labels[key] || asText(value);
 }
 
 function clusterStatusLabel(value: unknown) {
@@ -173,6 +224,7 @@ export default async function AdminSeoClustersPage({ searchParams }: { searchPar
             <span>Отложено: {hold}</span>
             <Link href="/admin/seo-clusters">Сбросить</Link>
           </div>
+          <OwnerSavedViewsClient scope="seo-clusters" />
         </form>
 
         <div className="table-wrap">
@@ -197,13 +249,13 @@ export default async function AdminSeoClustersPage({ searchParams }: { searchPar
                       <div className="muted">исходный: {asText(row.source_keyword)}</div>
                     ) : null}
                     <div className="badge-row">
-                      <span className="badge">{asText(row.suggested_page_level)}</span>
-                      {row.ai_intent ? <span className="badge">{row.ai_intent}</span> : null}
+                      <span className="badge">{pageLevelLabel(row.suggested_page_level)}</span>
+                      {row.ai_intent ? <span className="badge">{intentLabel(row.ai_intent)}</span> : null}
                     </div>
                   </td>
-                  <td>{asText(row.clustering_lane)}</td>
+                  <td>{clusterLaneLabel(row.clustering_lane)}</td>
                   <td>
-                    {asText(row.keyword_axis)}
+                    {axisLabel(row.keyword_axis)}
                     <div className="muted">{asText(row.keyword_pattern)}</div>
                   </td>
                   <td>
