@@ -80,8 +80,146 @@ const BATCH28_WOMENS_HARNESS_SET_ID = 'c3f1018e-665b-44a8-90db-ecc5bb64eedc';
 const BATCH28_SILVER_BRA_PANTY_ID = 'fdd42158-087b-4190-9eb8-fda7f7460258';
 const BATCH28_RED_CORSET_SKIRT_ID = '665296a0-f5ad-422c-837c-868f611c45c6';
 const BATCH28_GOLD_SPINE_TAIL_ID = 'd17c17b6-76dd-429d-bf5c-ccd432cd1e0f';
+const BATCH29_CAPTAIN_ARMOR_ID = 'e51e0a66-8358-41f9-bd51-2ab4833b24b3';
+const BATCH29_WHITE_MENS_ARMOR_ID = 'b0b2a75c-f301-45d6-857c-dd6575862619';
+const BATCH29_PLAGUE_DOCTOR_ID = '98600aa8-307b-4165-a8ae-38e347c114bd';
+const BATCH29_RED_DRAGON_ID = '27786636-7021-4809-8e81-7f566a3436ae';
 
 
+
+
+function correctBatch29CaptainArmor<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const chestId = 'c7277bb1-350a-466b-9074-07e6ca5aecd8';
+  const fullId = '9b1052a5-83d3-40ce-a402-4dba22ee0edb';
+  if (![chestId, fullId].every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  const configurations = product.configurations.map(row => {
+    const id = configurationId(row);
+    if (id === chestId) return {
+      ...row,
+      public_label: 'Chest Armor',
+      component_code: 'top',
+      component_family: 'Top',
+      needs_label_review: false,
+    };
+    if (id === fullId) return {
+      ...row,
+      bundle_component_codes: ['arms', 'belt', 'choker', 'top'],
+      bundle_component_labels: ['Bracelets', 'Belt Armor', 'Choker', 'Chest Armor'],
+      source_confirmed_bundle_members: true,
+      needs_label_review: false,
+    };
+    return row;
+  });
+  return { ...product, configurations,
+    needs_label_review: configurations.some(row => row.needs_label_review === true) };
+}
+
+function correctBatch29WhiteMensArmor<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const glovesId = '86121b07-a7c8-4836-bf2b-2c5528ddaca5';
+  const shoulderArmId = '3450d3fb-3d5a-4237-9408-04e26bc8372e';
+  const fullId = 'b734518a-b6c3-423d-b958-e850f177f16b';
+  if (![glovesId, shoulderArmId, fullId].every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  const configurations = product.configurations.map(row => {
+    const id = configurationId(row);
+    if (id === glovesId) return {
+      ...row,
+      public_label: 'Gloves',
+      component_code: 'gloves',
+      component_family: 'Arms',
+      needs_label_review: false,
+    };
+    if (id === shoulderArmId) return {
+      ...row,
+      public_label: 'Shoulder + Arm',
+      component_code: 'shoulder_arm',
+      component_family: 'Bundle',
+      is_bundle: true,
+      is_full_set: false,
+      bundle_component_codes: ['shoulders', 'arms'],
+      bundle_component_labels: ['Shoulder', 'Arm'],
+      needs_label_review: false,
+    };
+    if (id === fullId) return {
+      ...row,
+      bundle_component_codes: ['gloves', 'shoulders', 'arms', 'panties', 'legs'],
+      bundle_component_labels: ['Gloves', 'Shoulder', 'Arm', 'Panties', 'Leg Covers'],
+      source_confirmed_bundle_members: true,
+      needs_label_review: false,
+    };
+    return row;
+  });
+  return { ...product, configurations,
+    needs_label_review: configurations.some(row => row.needs_label_review === true) };
+}
+
+function correctBatch29PlagueDoctor<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const maskId = '44f68b45-228f-4a68-bbf9-dc0651c3376d';
+  const collarId = '503f6911-329b-462e-aff6-5285f4800c09';
+  const skirtId = '5bd65d9b-4a5c-4ccc-8b2b-7c2f86bc6c14';
+  const collarSkirtId = '13e9270d-ee80-4d75-bf19-0e615e41106c';
+  const fullId = '7ce46a04-57e2-4dc1-8437-663b025fe216';
+  if (![maskId, collarId, skirtId, collarSkirtId, fullId].every(
+    id => product.configurations.some(row => configurationId(row) === id),
+  )) return product;
+  const configurations = product.configurations.map(row => {
+    const id = configurationId(row);
+    if (id === collarSkirtId) return {
+      ...row,
+      public_label: 'Collar + Skirt',
+      component_code: 'collar_skirt',
+      component_family: 'Bundle',
+      is_bundle: true,
+      is_full_set: false,
+      bundle_component_codes: ['collar', 'skirt'],
+      bundle_component_labels: ['Collar', 'Skirt'],
+      needs_label_review: false,
+    };
+    if (id === fullId) return {
+      ...row,
+      bundle_component_codes: ['mask', 'collar', 'skirt'],
+      bundle_component_labels: ['Mask', 'Collar', 'Skirt'],
+      source_confirmed_bundle_members: true,
+      needs_label_review: false,
+    };
+    return row;
+  });
+  return { ...product, configurations,
+    needs_label_review: configurations.some(row => row.needs_label_review === true) };
+}
+
+function correctBatch29RedDragon<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const spineTailId = '30497b10-c3af-48ab-9cc7-c93ecb7abc74';
+  const fullId = '89aa265a-8c2e-4e25-a56f-ec72b4f39644';
+  if (![spineTailId, fullId].every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  const configurations = product.configurations.map(row => {
+    const id = configurationId(row);
+    if (id === spineTailId) return {
+      ...row,
+      public_label: 'Spine + Tail',
+      component_code: 'spine_tail',
+      component_family: 'Bundle',
+      is_bundle: true,
+      is_full_set: false,
+      bundle_component_codes: ['spine', 'tail'],
+      bundle_component_labels: ['Spine', 'Tail'],
+      needs_label_review: false,
+    };
+    if (id === fullId) return {
+      ...row,
+      bundle_component_codes: ['arms', 'shoulders', 'spine', 'tail', 'bodysuit'],
+      bundle_component_labels: ['Gloves', 'Shoulders', 'Spine', 'Tail', 'Bodysuit'],
+      source_confirmed_bundle_members: true,
+      needs_label_review: false,
+    };
+    return row;
+  });
+  return { ...product, configurations,
+    needs_label_review: configurations.some(row => row.needs_label_review === true) };
+}
 
 function correctBatch28MensChestHarness<T extends Record<string, any>>(product: T): T {
   if (!Array.isArray(product.configurations)) return product;
@@ -332,6 +470,10 @@ function correctSilverBraSkirtSet<T extends Record<string, any>>(product: T): T 
 
 export function applyOwnerReviewedStorefrontCorrections<T extends Record<string, any>>(product: T): T {
   const productId = String(product?.canonical_product_id || '');
+  if (productId === BATCH29_CAPTAIN_ARMOR_ID) return correctBatch29CaptainArmor(product);
+  if (productId === BATCH29_WHITE_MENS_ARMOR_ID) return correctBatch29WhiteMensArmor(product);
+  if (productId === BATCH29_PLAGUE_DOCTOR_ID) return correctBatch29PlagueDoctor(product);
+  if (productId === BATCH29_RED_DRAGON_ID) return correctBatch29RedDragon(product);
   if (productId === BATCH28_MENS_CHEST_HARNESS_ID) return correctBatch28MensChestHarness(product);
   if (productId === BATCH28_WOMENS_HARNESS_SET_ID) return correctBatch28WomensHarnessSet(product);
   if (productId === BATCH28_SILVER_BRA_PANTY_ID) return correctBatch28SilverBraPantySet(product);
