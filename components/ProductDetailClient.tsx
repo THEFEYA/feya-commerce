@@ -27,6 +27,7 @@ import { ProductCard } from '@/components/ProductCard';
 import { SalePrice } from '@/components/SalePrice';
 import { resolveThefeyaRightPdpPanel } from '@/lib/thefeyaSeoDoctrine';
 import {
+  resolveFullSetPriceAudit,
   resolveFullSetPriceComparison,
   resolveMinimumSeparatePurchaseTotal,
 } from '@/lib/storefrontPriceComparison';
@@ -211,8 +212,19 @@ export function ProductDetailClient({
     exactSeparateTotal: exactSeparateRegularTotal,
   });
   const selectedIsFullSet = activeConfig ? isFullSetOption(activeConfig, activeConfigIndex) : false;
+  const maxSingleOptionPrice = options
+    .filter((o, i) => !isFullSetOption(o, i))
+    .reduce((max, option) => Math.max(max, optionPrice(option) || 0), 0);
+  const priceAudit = resolveFullSetPriceAudit({
+    fullSetPrice: fullRegularPrice,
+    separateRegularTotal: exactSeparateRegularTotal ?? separateRegularTotal,
+    maxSingleOptionPrice,
+  });
+  const displayedRegular = selectedIsFullSet && displayedFullSetSavings > 0
+    ? separateRegularTotal
+    : regular;
   const savingsText = selectedIsFullSet && displayedFullSetSavings > 0
-    ? `${coupleIncludedGroups.length ? 'Both outfits' : 'Pieces'} separately ${formatPrice(separateRegularTotal, currency)} · Full Set saves ${formatPrice(displayedFullSetSavings, currency)}.`
+    ? `Save ${formatPrice(displayedFullSetSavings, currency)} vs pieces separately`
     : '';
 
   useEffect(() => {
@@ -300,7 +312,13 @@ export function ProductDetailClient({
         {tail ? <p className="editorial-italic text-[var(--bone-dim)] text-[12px] mt-1 leading-relaxed line-clamp-1">{tail}</p> : null}
         {reviewSummary.count > 0 ? <ReviewAnchor average={reviewSummary.average} count={reviewSummary.count} /> : null}
 
-        <div className="mt-2"><SalePrice regular={regular} sale={sale} currency={currency} variant="pdp" testidPrefix="pdp-price" discountPercent={optionDiscountPercent(activeConfig)} /></div>
+        <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <SalePrice regular={displayedRegular} sale={sale} currency={currency} variant="pdp" testidPrefix="pdp-price" discountPercent={selectedIsFullSet && displayedFullSetSavings > 0 ? null : optionDiscountPercent(activeConfig)} />
+          {savingsText ? <span className="text-[11px] font-medium tracking-[0.08em] uppercase text-[var(--gold-warm)]">{savingsText}</span> : null}
+        </div>
+        {previewMode && selectedIsFullSet && priceAudit.status === 'review' ? <div className="mt-1 text-[10px] leading-relaxed text-amber-300/85">
+          Internal price review: {priceAudit.reasons.join(', ')}.
+        </div> : null}
 
         <div className="mt-2 relative">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Configuration</div><div className="eyebrow-dim">{options.length || 1} options</div></div>
@@ -320,13 +338,10 @@ export function ProductDetailClient({
                   <span className="truncate">{optionLabel(o, i)}</span>
                   <span className="shrink-0 font-medium text-bone">{rowPrice == null ? '—' : formatPrice(rowPrice, o.currency || currency)}</span>
                 </span>
-                {optionIsFullSet && displayedFullSetSavings > 0 ? <span className="mt-1 block text-[10px] uppercase tracking-[0.12em] text-[var(--gold-warm)]">Save {formatPrice(displayedFullSetSavings, o.currency || currency)} vs pieces separately</span> : null}
               </button>;
             })}
           </div> : null}
         </div>
-        <p className="mt-1.5 min-h-[18px] text-[12px] leading-relaxed text-[var(--gold-warm)]">{savingsText}</p>
-
         <div className="mt-2">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Color · {selectedColor}</div><div className="eyebrow-dim">{colors.length || 1} shade</div></div>
           <div className="flex gap-2">{colors.map((c, i) => <button key={c + i} onClick={() => {
