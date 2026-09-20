@@ -80,6 +80,7 @@ A backend table/view/registry does **not** automatically require its own screen.
 | AI usage metering | System → AI usage | invocations, metering completeness, latency/tokens only when useful | COVERED |
 | Admin data boundary | System | current hardening state surfaced | COVERED |
 | Owner auth | System / login | prepared but not enabled as mutation authority | PREPARED |
+| Owner Attention decision write | Decision detail | guarded server route + expected-status RPC + durable audit event; UI remains locked behind auth/allowlist/action switch | PREPARED / LOCKED |
 
 ## 6. Workflow / multi-agent behavior
 
@@ -98,7 +99,7 @@ A backend table/view/registry does **not** automatically require its own screen.
 
 The following are UX-5, not missing visual polish:
 
-- approve / reject / defer / snooze Owner Attention;
+- Owner Attention decision recording is PREPARED but remains locked until auth cutover + FEYA_OWNER_ACTIONS_ENABLED;
 - resolve Product Truth facts;
 - apply query cluster proposals;
 - apply page ownership proposals;
@@ -196,3 +197,31 @@ Added governed read projections:
 Owner UI now uses them in Strategy and Work. Current row counts are zero, so empty states remain truthful and no synthetic objective/handoff activity is generated.
 
 These views are registered in Admin Data Boundary and deliberately remain browser-readable only during the existing pre-auth preview phase. They will be hardened together with the other governed admin read surfaces only after the owner-auth runbook succeeds.
+
+
+## 12. UX-5 protected action foundation — 2026-09-20
+
+Migration `20260920122540 feya_owner_attention_protected_decision_v1` created the first audited Human Owner write primitive.
+
+Implemented:
+
+- `feya_fn_transition_owner_attention_v1` — service-role-only, expected-status guarded;
+- `feya_growth_owner_attention_events_v1` — durable audit history;
+- `feya_commerce_v_owner_attention_safe_v3` — owner decision projection with decision/resolution context;
+- `feya_commerce_v_owner_attention_events_safe_v1` — owner-safe decision history;
+- `DECIDE_OWNER_ATTENTION` Action Capability;
+- server-side auth/allowlist/action-switch gate;
+- protected Company API route;
+- decision preview UI that explicitly says recording a decision does not execute the underlying business change.
+
+Current validated state:
+
+- 2 active Owner Attention items;
+- 0 owner decision events;
+- RPC executable by anon/authenticated = false;
+- RPC executable by service_role = true;
+- governed Admin Data Boundary views = 48;
+- all 48 remain browser-readable only because the auth cutover has not been executed;
+- `FEYA_OWNER_ACTIONS_ENABLED` is intentionally unset/false.
+
+This is a prepared write path, not an activated production action.
