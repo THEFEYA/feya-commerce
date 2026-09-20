@@ -323,3 +323,24 @@ Current blockers remain explicit:
 6. only then enable `FEYA_OWNER_ACTIONS_ENABLED=true` in preview.
 
 This keeps Product OS operational and prevents UX-5 from silently changing production behavior before the security boundary is proven.
+
+
+## Protected SEO proposal review checkpoint — 2026-09-20
+
+The second UX-5 family is implemented in locked mode:
+
+- query-cluster proposal review;
+- page-ownership proposal review;
+- indexability proposal review.
+
+Each review:
+1. requires the server-side owner auth/allowlist/action-switch gate;
+2. requires APPROVED or REJECTED plus a human note;
+3. goes through a service-role-only wrapper;
+4. preserves the existing proposal-specific stale-state guard;
+5. writes an owner action audit receipt;
+6. refreshes the owner surface after success.
+
+The UI explicitly separates **review** from **apply**. No canonical SEO mutation is enabled by these controls.
+
+Because current review queues are empty, this work changes capability coverage only, not business data.
