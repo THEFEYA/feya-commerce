@@ -250,3 +250,64 @@ For the current data maturity, visual/read-only Company UI is done when:
 After that, stop redesigning.
 
 Next work after visual approval is not “more UI”; it is UX-5 protected actions and UX-7 real analytics when their prerequisites exist.
+
+
+## Simulation 8 — Bounded visual contract
+
+### Question
+
+Did the Company / AI interface receive a finite visual pass without leaking into Product OS?
+
+### Current implementation
+
+- V0: visual contract and scoped tokens;
+- V1: Shell + Today command surface;
+- V2: Work + Team FEYA;
+- V3: Signals;
+- V4: Growth sequential pipeline;
+- V5: Results + System;
+- V6: mobile / accessibility / polish.
+
+### Result
+
+PASS at source/contract level; awaiting Owner visual review.
+
+Why:
+- Company styles are scoped under `.owner-shell`;
+- Product OS files and the original global CSS prefix are protected by build-time freeze checks;
+- Work, Signals and Team use context-first drawers;
+- Growth presents query → cluster → ownership → indexability as a sequence rather than an unrelated KPI wall;
+- Results collapses to one honest pre-measurement state when no real outcomes exist;
+- System remains issue-first and hides healthy detail by default;
+- mobile touch targets and drawer focus behavior have explicit accessibility handling.
+
+## Simulation 9 — “Agent looks busy” failure mode
+
+### Question
+
+Could the UI imply that eight agents are independently working even when no active Growth Cases exist?
+
+### Current real state
+
+- ACTIVE roles: 0;
+- SHADOW roles: 5;
+- INACTIVE roles: 3;
+- active Growth Cases: 0.
+
+### Result
+
+PASS.
+
+Why:
+- role state and current work are separate;
+- Team FEYA shows no active work when there is none;
+- capability readiness is shown as discrete available/missing capability indicators, not a fake completion percentage;
+- role drawers explicitly state when no confirmed business result exists;
+- next step is derived from real activation/blocking state, not from invented work;
+- no perpetual animation, fake online presence or autonomous “thinking” indicator exists.
+
+## Stop condition
+
+The planned visual passes are complete. Remaining work before declaring the read-only Company UI finished is **Owner visual review on the actual preview routes**, plus correction of any concrete defect found there.
+
+Do not continue cosmetic iteration after that review unless a reproducible usability/accessibility problem is found.
