@@ -4491,3 +4491,167 @@ a.owner-list-row:hover {
     font-size: 9px;
   }
 }
+
+
+/* =========================================================
+   Protected Owner Actions UX-5 foundation — 2026-09-20
+   ========================================================= */
+.owner-shell .owner-action-readiness {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.owner-shell .owner-action-readiness span {
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 8px;
+  border: 1px solid var(--company-line);
+  border-radius: 8px;
+  color: rgba(238,233,223,.42);
+  background: rgba(255,255,255,.015);
+  font-size: 9px;
+}
+
+.owner-shell .owner-action-readiness span::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  border-radius: 50%;
+  background: rgba(238,233,223,.24);
+}
+
+.owner-shell .owner-action-readiness span.is-done {
+  color: rgba(238,233,223,.66);
+}
+
+.owner-shell .owner-action-readiness span.is-done::before {
+  background: #73d99f;
+  box-shadow: 0 0 0 3px rgba(115,217,159,.045);
+}
+
+.owner-shell .owner-action-blockers {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: rgba(238,233,223,.49);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.owner-shell .owner-action-blockers li + li {
+  margin-top: 4px;
+}
+
+.owner-shell .owner-decision-action-panel {
+  border-color: rgba(212,178,106,.18);
+}
+
+.owner-shell .owner-decision-preview {
+  margin-top: 13px;
+  padding: 13px;
+  border: 1px solid rgba(212,178,106,.17);
+  border-radius: 10px;
+  background:
+    radial-gradient(360px 140px at 10% 0%, rgba(212,178,106,.06), transparent 74%),
+    rgba(255,255,255,.014);
+}
+
+.owner-shell .owner-decision-preview > strong {
+  display: block;
+  margin-top: 5px;
+  color: rgba(238,233,223,.82);
+  font-size: 13px;
+}
+
+.owner-shell .owner-decision-preview > p {
+  margin: 8px 0 0;
+  color: rgba(238,233,223,.52);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.owner-shell .owner-decision-preview b {
+  color: rgba(238,233,223,.73);
+  font-weight: 600;
+}
+
+.owner-shell .owner-decision-reason {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.owner-shell .owner-decision-reason > span {
+  color: rgba(238,233,223,.49);
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.owner-shell .owner-decision-reason textarea {
+  width: 100%;
+  min-height: 96px;
+  resize: vertical;
+  padding: 10px 11px;
+  border: 1px solid var(--company-line);
+  border-radius: 9px;
+  outline: none;
+  color: var(--company-bone);
+  background: rgba(5,6,9,.52);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.owner-shell .owner-decision-reason textarea:focus {
+  border-color: rgba(212,178,106,.34);
+  box-shadow: 0 0 0 3px rgba(212,178,106,.055);
+}
+
+.owner-shell .owner-button.is-danger {
+  border-color: rgba(255,107,107,.20);
+  color: rgba(255,151,151,.82);
+  background: rgba(255,107,107,.035);
+}
+
+.owner-shell .owner-button:disabled {
+  cursor: not-allowed;
+  opacity: .45;
+}
+
+.owner-shell .owner-action-message {
+  margin: 11px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.owner-shell .owner-action-message.is-success {
+  color: #99e2b5;
+  background: rgba(115,217,159,.06);
+}
+
+.owner-shell .owner-action-message.is-danger {
+  color: #ffaaa7;
+  background: rgba(255,107,107,.06);
+}
+
+@media (max-width: 780px) {
+  .owner-shell .owner-action-readiness {
+    grid-template-columns: 1fr;
+  }
+
+  .owner-shell .owner-decision-preview {
+    padding: 12px;
+  }
+
+  .owner-shell .owner-decision-reason textarea {
+    font-size: 16px;
+  }
+}
