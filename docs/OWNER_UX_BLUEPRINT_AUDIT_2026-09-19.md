@@ -408,3 +408,17 @@ The preview says explicitly:
 - receipt is still required to claim factual execution.
 
 The action remains behind mandatory owner auth, exact allowlist and `FEYA_OWNER_ACTIONS_ENABLED=true`.
+
+
+## Protected keyword review checkpoint — 2026-09-20
+
+The keyword-review workspace now exposes the real Human decision point as a protected context drawer.
+
+The UI keeps three layers separate:
+- automated cleanup;
+- independent AI recommendation;
+- Human Owner review status.
+
+Approval lets the owner confirm/edit the final approved keyword before submission. Rejection and needs-review remain explicit alternatives. The control remains locked until auth/allowlist/action switch are verified.
+
+The live queue contains 431 reviewable keywords, but no production decision was written during implementation.
