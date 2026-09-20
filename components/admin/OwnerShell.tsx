@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   BarChart3,
+  Bot,
   BriefcaseBusiness,
   CalendarDays,
   PackageSearch,
@@ -16,6 +17,7 @@ import {
   Store,
   TrendingUp,
 } from 'lucide-react';
+import { useOwnerDrawerA11y } from '@/components/admin/useOwnerDrawerA11y';
 
 const NAV_ITEMS = [
   { key: 'today', href: '/admin/company', label: 'Сегодня', icon: CalendarDays },
@@ -132,7 +134,19 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [compactDensity, setCompactDensity] = useState(false);
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
+  const mobileMoreDialogRef = useRef<HTMLDivElement | null>(null);
+  const mobileMoreTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const mobileMoreCloseRef = useRef<HTMLButtonElement | null>(null);
+  const closeMobileMore = useCallback(() => setMobileMoreOpen(false), []);
   const activeArea = ownerArea(pathname);
+
+  useOwnerDrawerA11y({
+    open: mobileMoreOpen,
+    dialogRef: mobileMoreDialogRef,
+    triggerRef: mobileMoreTriggerRef,
+    initialFocusRef: mobileMoreCloseRef,
+    close: closeMobileMore,
+  });
 
   useEffect(() => {
     try {
@@ -147,9 +161,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
         event.preventDefault();
         router.push('/admin/company/search');
       }
-      if (event.key === 'Escape') {
-        setMobileMoreOpen(false);
-      }
+
     };
 
     window.addEventListener('keydown', onKeyDown);
@@ -291,6 +303,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
           <small>Товары</small>
         </Link>
         <button
+          ref={mobileMoreTriggerRef}
           type="button"
           onClick={() => setMobileMoreOpen(true)}
           className={['growth','results','system'].includes(activeArea) ? 'is-active' : ''}
@@ -304,29 +317,32 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
 
       {mobileMoreOpen ? (
         <div className="owner-mobile-more" role="presentation">
-          <button type="button" className="owner-mobile-more-backdrop" aria-label="Закрыть меню" onClick={() => setMobileMoreOpen(false)} />
-          <div className="owner-mobile-more-sheet" role="dialog" aria-modal="true" aria-label="Дополнительные разделы">
+          <button type="button" className="owner-mobile-more-backdrop" aria-label="Закрыть меню" onClick={closeMobileMore} />
+          <div ref={mobileMoreDialogRef} className="owner-mobile-more-sheet" role="dialog" aria-modal="true" aria-label="Дополнительные разделы" tabIndex={-1}>
             <div className="owner-mobile-more-head">
               <div>
                 <div className="owner-eyebrow">Дополнительно</div>
                 <strong>Разделы FEYA</strong>
               </div>
-              <button type="button" className="owner-button" onClick={() => setMobileMoreOpen(false)}>Закрыть</button>
+              <button ref={mobileMoreCloseRef} type="button" className="owner-button" onClick={closeMobileMore}>Закрыть</button>
             </div>
             <div className="owner-mobile-more-grid">
-              <Link href="/admin/company/growth" onClick={() => setMobileMoreOpen(false)}>
+              <Link href="/admin/company/growth" onClick={closeMobileMore}>
                 <TrendingUp size={17} /><span><strong>Рост</strong><small>сигналы, спрос, страницы</small></span>
               </Link>
-              <Link href="/admin/company/results" onClick={() => setMobileMoreOpen(false)}>
+              <Link href="/admin/company/results" onClick={closeMobileMore}>
                 <BarChart3 size={17} /><span><strong>Результаты</strong><small>эксперименты и выводы</small></span>
               </Link>
-              <Link href="/admin/company/system" onClick={() => setMobileMoreOpen(false)}>
+              <Link href="/admin/company/system" onClick={closeMobileMore}>
                 <Settings2 size={17} /><span><strong>Система</strong><small>данные, права, готовность</small></span>
               </Link>
-              <Link href="/admin/company/advanced" onClick={() => setMobileMoreOpen(false)}>
+              <Link href="/admin/roles" onClick={closeMobileMore}>
+                <Bot size={17} /><span><strong>Команда FEYA</strong><small>роли, активность, ограничения</small></span>
+              </Link>
+              <Link href="/admin/company/advanced" onClick={closeMobileMore}>
                 <SlidersHorizontal size={17} /><span><strong>Технические детали</strong><small>глубокая диагностика</small></span>
               </Link>
-              <Link href="/shop" onClick={() => setMobileMoreOpen(false)}>
+              <Link href="/shop" onClick={closeMobileMore}>
                 <Store size={17} /><span><strong>Магазин</strong><small>публичная витрина</small></span>
               </Link>
             </div>
