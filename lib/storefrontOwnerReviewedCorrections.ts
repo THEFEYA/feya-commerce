@@ -74,6 +74,46 @@ function configurationId(row: Record<string, any>) {
 
 const SILVER_ROBOT_ARMS_ID = '3a006050-ab78-4b4d-9964-ed8c9f32e923';
 const SILVER_BRA_SKIRT_SET_ID = '81fc83de-76aa-4733-9a88-f631e7699fa6';
+const PINK_RAVE_BODYSUIT_ID = 'a97ca78f-ed0d-4f17-a18d-8d54efd2679a';
+
+
+function correctPinkRaveBodysuitSet<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const sleevesLegsId = '099731eb-a253-4bdc-81a5-28f8295d93d3';
+  const shouldersId = '2d7ae103-2aec-4113-9fe1-e6282f3f3a32';
+  const bodysuitId = '49312166-a743-45e9-acee-20919b8f6759';
+  const fullId = 'b23fa19a-fab6-42c7-95e5-c5056f274fae';
+  if (![sleevesLegsId, shouldersId, bodysuitId, fullId].every(
+    id => product.configurations.some(row => configurationId(row) === id),
+  )) return product;
+  const configurations = product.configurations.map(row => {
+    const id = configurationId(row);
+    if (id === sleevesLegsId) return {
+      ...row,
+      public_label: 'Sleeves + Leg Covers',
+      component_code: 'sleeves_leg_covers',
+      component_family: 'Bundle',
+      is_bundle: true,
+      is_full_set: false,
+      bundle_component_codes: ['arms', 'legs'],
+      bundle_component_labels: ['Sleeves', 'Leg Covers'],
+      needs_label_review: false,
+    };
+    if (id === fullId) return {
+      ...row,
+      bundle_component_codes: ['arms', 'legs', 'shoulders', 'bodysuit'],
+      bundle_component_labels: ['Sleeves', 'Leg Covers', 'Shoulders', 'Bodysuit'],
+      source_confirmed_bundle_members: true,
+      needs_label_review: false,
+    };
+    return row;
+  });
+  return {
+    ...product,
+    configurations,
+    needs_label_review: configurations.some(row => row.needs_label_review === true),
+  };
+}
 
 function correctSilverRobotArmQuantities<T extends Record<string, any>>(product: T): T {
   if (!Array.isArray(product.configurations)) return product;
@@ -145,6 +185,9 @@ function correctSilverBraSkirtSet<T extends Record<string, any>>(product: T): T 
 }
 
 export function applyOwnerReviewedStorefrontCorrections<T extends Record<string, any>>(product: T): T {
+  if (String(product?.canonical_product_id || '') === PINK_RAVE_BODYSUIT_ID) {
+    return correctPinkRaveBodysuitSet(product);
+  }
   if (String(product?.canonical_product_id || '') === SILVER_ROBOT_ARMS_ID) {
     return correctSilverRobotArmQuantities(product);
   }
