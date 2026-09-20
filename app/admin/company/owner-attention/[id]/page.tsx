@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { ownerDecisionPlan } from '@/lib/owner-ui/decisions';
-import { presentOwnerAttention } from '@/lib/owner-ui/presenters';
+import { formatDueTime, presentOwnerAttention } from '@/lib/owner-ui/presenters';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -82,6 +82,9 @@ export default async function OwnerDecisionDetailPage({ params }: { params: Prom
               </div>
               <h2 className="owner-card-title">Что требуется от вас</h2>
               <p className="owner-card-copy">{item.requiredAction}</p>
+              <div className="owner-card-meta" style={{ marginTop: '12px', marginBottom: 0 }}>
+                <span>{item.dueAt ? `Срок: ${formatDueTime(item.dueAt)}` : 'Жёсткого срока нет'}</span>
+              </div>
             </section>
 
             <section className="owner-section">
