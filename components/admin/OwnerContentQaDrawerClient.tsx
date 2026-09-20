@@ -6,6 +6,7 @@ import { X } from 'lucide-react';
 import type { ContentQaShadowRow } from '@/lib/types';
 import { useOwnerDrawerA11y } from '@/components/admin/useOwnerDrawerA11y';
 import { statusLabel } from '@/lib/owner-ui/terminology';
+import { OwnerScoDraftReviewClient } from '@/components/admin/OwnerScoDraftReviewClient';
 
 function asText(value: unknown, fallback = '—') {
   if (value == null || value === '') return fallback;
@@ -38,7 +39,15 @@ function nextStep(row: ContentQaShadowRow) {
   return 'Открыть текущий контекст и продолжить только по фактическому состоянию проверки.';
 }
 
-export function OwnerContentQaDrawerClient({ row }: { row: ContentQaShadowRow }) {
+export function OwnerContentQaDrawerClient({
+  row,
+  actionEnabled = false,
+  actionBlockers = [],
+}: {
+  row: ContentQaShadowRow;
+  actionEnabled?: boolean;
+  actionBlockers?: string[];
+}) {
   const [open,setOpen]=useState(false);
   const triggerRef=useRef<HTMLButtonElement|null>(null);
   const closeRef=useRef<HTMLButtonElement|null>(null);
@@ -80,6 +89,16 @@ export function OwnerContentQaDrawerClient({ row }: { row: ContentQaShadowRow })
             <div className={`owner-status ${blockers ? 'is-warning':'is-info'}`}>{blockers ? 'Есть блокирующие факты':'Блокеры фактов не заявлены'}</div>
             <p className="owner-card-copy">Approval blockers: {row.approval_blocker_count||0}. Product Truth blockers: {row.product_truth_blocker_count||0}. Эти блокеры нельзя компенсировать более красивым текстом.</p>
           </section>
+
+          {String(row.cqa_shadow_state || '').toUpperCase() === 'READY_FOR_HUMAN_AND_CQA_REVIEW' ? (
+            <OwnerScoDraftReviewClient
+              draftId={row.draft_id}
+              expectedReviewStatus={String(row.human_review_status || 'not_reviewed')}
+              title={asText(row.card_title, row.product_slug || 'Черновик')}
+              enabled={actionEnabled}
+              blockers={actionBlockers}
+            />
+          ) : null}
 
           <div className="owner-actions">
             <Link href={`/admin/products/${row.canonical_product_id}`} className="owner-button">Товар</Link>
