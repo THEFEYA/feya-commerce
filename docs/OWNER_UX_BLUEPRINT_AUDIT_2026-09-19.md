@@ -374,3 +374,15 @@ Three remaining Growth OS diagnostics that still used the old nested admin prese
 They remain Advanced/context surfaces rather than primary navigation. Raw tables are now behind owner-readable summaries and progressive disclosure, while full diagnostic detail remains available when needed.
 
 No Product OS route or storefront component was changed.
+
+
+## Owner Action audit visibility — 2026-09-20
+
+Company → System now reads the sanitized `feya_commerce_v_owner_action_audit_safe_v1` projection and shows the latest protected Human Owner actions in a collapsed audit section.
+
+The UI keeps three histories distinct:
+- Human Owner decision/review history;
+- controlled Execution Gateway receipts;
+- measured business outcomes.
+
+This avoids treating an approval as an execution or an execution as a proven business result.
