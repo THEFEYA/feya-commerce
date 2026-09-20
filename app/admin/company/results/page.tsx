@@ -102,7 +102,7 @@ export default async function AdminResultsPage() {
         <nav className="owner-subnav" aria-label="Разделы результатов">
           <a href="#results-summary">Результаты</a>
           <Link href="/admin/experiments">Эксперименты</Link>
-          <Link href="/admin/company/advanced">Изменения</Link>
+          <Link href="/admin/company/results/changes">Изменения</Link>
           <Link href="/admin/learning">Выводы</Link>
         </nav>
 
@@ -132,7 +132,7 @@ export default async function AdminResultsPage() {
                 <span className="owner-queue-copy"><strong>Активные эксперименты</strong><small>из {data.experiments} всего</small></span>
                 <b>{data.activeExperiments}</b>
               </Link>
-              <Link href="/admin/company/advanced" className="owner-queue-item">
+              <Link href="/admin/company/results/changes" className="owner-queue-item">
                 <span className="owner-queue-icon" aria-hidden="true"><History size={15} strokeWidth={1.7} /></span>
                 <span className="owner-queue-copy"><strong>Изменения</strong><small>зафиксировано</small></span>
                 <b>{data.changeEvents}</b>
@@ -177,7 +177,7 @@ export default async function AdminResultsPage() {
               </p>
             </Link>
 
-            <Link href="/admin/company/advanced" className="owner-card">
+            <Link href="/admin/company/results/changes" className="owner-card">
               <div className="owner-status">История</div>
               <h3 className="owner-card-title" style={{ marginTop: '10px' }}>Изменения и измерения</h3>
               <p className="owner-card-copy">
