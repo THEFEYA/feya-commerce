@@ -12,8 +12,8 @@ export function getAdminReadClient() {
 
 export function getMissingAdminDataEnvMessage() {
   if (isAdminAuthRequired()) {
-    return 'FEYA Admin auth is enabled, but SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL is missing for protected server-side admin reads.';
+    return 'Защищённый режим FEYA Admin включён, но для серверного чтения не хватает SUPABASE_SERVICE_ROLE_KEY или NEXT_PUBLIC_SUPABASE_URL.';
   }
 
-  return 'Supabase read-only environment variables are missing for the current admin preview.';
+  return 'Для текущего режима просмотра админки не настроены переменные Supabase для чтения.';
 }

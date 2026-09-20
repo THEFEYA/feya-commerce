@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { KeywordCleanupReviewStatusRow } from '@/lib/types';
+import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
+import { OwnerKeywordReviewClient } from '@/components/admin/OwnerKeywordReviewClient';
+import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -27,6 +30,48 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
+function riskLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  if (key === 'LOW') return 'Низкий';
+  if (key === 'MEDIUM') return 'Средний';
+  if (key === 'HIGH') return 'Высокий';
+  return asText(value);
+}
+
+function recommendationLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    APPROVE: 'Одобрить',
+    REJECT: 'Исключить',
+    HUMAN_REVIEW: 'Проверить вручную',
+    HOLD: 'Отложить',
+  };
+  return labels[key] || asText(value);
+}
+
+function humanStatusLabel(value: unknown) {
+  const key = asText(value, '').toLowerCase();
+  const labels: Record<string, string> = {
+    pending: 'Ожидает проверки',
+    approved: 'Одобрено',
+    rejected: 'Отклонено',
+    hold: 'Отложено',
+  };
+  return labels[key] || asText(value);
+}
+
+function laneLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    FAST_TRACK: 'Быстрая проверка',
+    SEMANTIC_REVIEW: 'Смысловая проверка',
+    ROUTING_REVIEW: 'Проверка маршрута',
+    ALT_REVIEW: 'Проверка ALT',
+    HUMAN_REVIEW: 'Ручная проверка',
+  };
+  return labels[key] || asText(value);
+}
+
 function riskClass(value: unknown) {
   const risk = asText(value, '').toUpperCase();
   if (risk === 'LOW') return 'ok';
@@ -41,8 +86,15 @@ function recClass(value: unknown) {
   return 'warning';
 }
 
-export default async function AdminKeywordCleanupReviewPage() {
+export default async function AdminKeywordCleanupReviewPage({ searchParams }: { searchParams: Promise<{ q?: string; risk?: string; status?: string; page?: string }> }) {
+  const params = await searchParams;
   const { rows, error } = await getRows();
+  const ownerActions = getOwnerActionConfigStatus();
+  const q = String(params.q || '').trim().toLowerCase();
+  const riskFilter = String(params.risk || 'all').toUpperCase();
+  const statusFilter = String(params.status || 'pending').toLowerCase();
+  const requestedPage = Math.max(1, Number(params.page || 1) || 1);
+  const pageSize = 100;
 
   const pending = rows.filter((row) => row.review_status === 'pending').length;
   const low = rows.filter((row) => row.review_risk === 'LOW').length;
@@ -50,61 +102,121 @@ export default async function AdminKeywordCleanupReviewPage() {
   const high = rows.filter((row) => row.review_risk === 'HIGH').length;
   const recommended = rows.filter((row) => Boolean(row.recommendation_id)).length;
 
+  const filteredRows = rows.filter((row) => {
+    const keyword = asText(row.effective_keyword, row.original_keyword || '').toLowerCase();
+    const matchesQuery = !q || keyword.includes(q) || asText(row.original_keyword, '').toLowerCase().includes(q);
+    const matchesRisk = riskFilter === 'ALL' || asText(row.review_risk, '').toUpperCase() === riskFilter;
+    const matchesStatus = statusFilter === 'all' || asText(row.review_status, '').toLowerCase() === statusFilter;
+    return matchesQuery && matchesRisk && matchesStatus;
+  }).sort((a, b) => {
+    const rank = (row: KeywordCleanupReviewStatusRow) => {
+      if (row.review_status === 'pending' && row.review_risk === 'HIGH') return 0;
+      if (row.review_status === 'pending' && row.review_risk === 'MEDIUM') return 1;
+      if (row.review_status === 'pending') return 2;
+      return 3;
+    };
+    return rank(a) - rank(b);
+  });
+
+  const pageCount = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+  const page = Math.min(requestedPage, pageCount);
+  const visibleRows = filteredRows.slice((page - 1) * pageSize, page * pageSize);
+
+  const pageHref = (nextPage: number) => {
+    const next = new URLSearchParams();
+    if (q) next.set('q', q);
+    if (riskFilter !== 'ALL') next.set('risk', riskFilter);
+    if (statusFilter !== 'pending') next.set('status', statusFilter);
+    if (nextPage > 1) next.set('page', String(nextPage));
+    const query = next.toString();
+    return query ? `/admin/seo-keyword-review?${query}` : '/admin/seo-keyword-review';
+  };
+
   return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
-          <div className="nav-links">
-            <Link href="/admin/seo-keywords">SEO Keywords</Link>
-            <Link href="/admin/seo-keyword-review">Keyword Review</Link>
-            <Link href="/admin/seo-clusters">Cluster Queue</Link>
-            <Link href="/admin/seo-portfolio">SEO Portfolio</Link>
+    <main className="owner-page">
+      <div className="owner-page-inner">
+        <header className="owner-page-head">
+          <div>
+            <div className="owner-eyebrow">Работа · ключевые запросы</div>
+            <h1>Проверка ключевых слов</h1>
+            <p>Автоматическая очистка, независимая рекомендация и решение человека — разные этапы. FEYA может подготовить рекомендацию, но не может сама изменить человеческий статус проверки.</p>
           </div>
-        </nav>
+          <div className="owner-actions" style={{ marginTop: 0 }}>
+            <Link href="/admin/company/work#operational-queues" className="owner-button">Назад к работе</Link>
+            <Link href="/admin/company/growth" className="owner-button">Рост</Link>
+          </div>
+        </header>
 
-        <section className="phase-banner">
-          <div className="phase-label">OSPM cleanup review · read-only</div>
-          <h1>Keyword Cleanup Review</h1>
-          <p>
-            Cleanup generation, independent OSPM recommendation and human review are separate states. An AI recommendation never changes the human review_status.
-          </p>
-        </section>
-
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{rows.length}</strong><span>Current review candidates</span></div>
-          <div className="card metric"><strong>{pending}</strong><span>Pending human review</span></div>
-          <div className="card metric"><strong>{low}</strong><span>Low risk</span></div>
-          <div className="card metric"><strong>{medium}</strong><span>Medium risk</span></div>
-          <div className="card metric"><strong>{high}</strong><span>High risk</span></div>
-          <div className="card metric"><strong>{recommended}</strong><span>Independent recommendations</span></div>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{pending}</strong><span>Ждут решения человека</span></div>
+          <div className="owner-summary-cell"><strong>{high}</strong><span>Высокая сложность проверки</span></div>
+          <div className="owner-summary-cell"><strong>{medium}</strong><span>Средняя сложность проверки</span></div>
+          <div className="owner-summary-cell"><strong>{recommended}</strong><span>Есть независимая рекомендация</span></div>
         </section>
 
         {error ? <div className="notice">{error}</div> : null}
 
         <div className="notice" style={{ marginBottom: '18px' }}>
-          LOW/MEDIUM/HIGH is a review-effort tier, not SEO value. Search volume, competition and rankings are not inferred by this queue.
+          Низкий / средний / высокий — это сложность проверки, а не SEO-ценность ключа. Низкий риск сейчас: {low}. Объём поиска, конкуренция и позиции здесь не придумываются.
         </div>
 
-        <div className="table-wrap">
+        <form action="/admin/seo-keyword-review" className="owner-card" style={{ marginBottom: '14px' }}>
+          <div className="grid gap-3 md:grid-cols-[1fr_180px_190px_auto] md:items-end">
+            <label>
+              <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Поиск ключа</div>
+              <input name="q" defaultValue={q} className="field" placeholder="например: rave outfit" />
+            </label>
+            <label>
+              <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Сложность</div>
+              <select name="risk" defaultValue={riskFilter} className="field">
+                <option value="ALL">Все</option>
+                <option value="HIGH">Высокая</option>
+                <option value="MEDIUM">Средняя</option>
+                <option value="LOW">Низкая</option>
+              </select>
+            </label>
+            <label>
+              <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Статус</div>
+              <select name="status" defaultValue={statusFilter} className="field">
+                <option value="pending">Ждут решения</option>
+                <option value="approved">Одобрено</option>
+                <option value="rejected">Отклонено</option>
+                <option value="hold">Отложено</option>
+                <option value="all">Все</option>
+              </select>
+            </label>
+            <button type="submit" className="owner-button primary">Применить</button>
+          </div>
+          <div className="owner-card-meta" style={{ marginTop: '10px', marginBottom: 0 }}>
+            <span>Показано: {visibleRows.length}</span>
+            <span>После фильтра: {filteredRows.length}</span>
+            <Link href="/admin/seo-keyword-review">Сбросить</Link>
+          </div>
+          <OwnerSavedViewsClient scope="keyword-review" />
+        </form>
+
+        <section className="owner-section" style={{ marginTop: '18px' }}>
+          <div className="owner-section-head"><div><h2>Очередь запросов</h2><div className="owner-section-kicker">Сначала высокий риск и нерешённые случаи, без изменения исходного текста запросов</div></div></div>
+          <div className="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Keyword</th>
-                <th>Routing</th>
-                <th>Risk</th>
-                <th>Cleanup provenance</th>
-                <th>OSPM recommendation</th>
-                <th>Human status</th>
+                <th>Ключевой запрос</th>
+                <th>Куда использовать</th>
+                <th>Сложность проверки</th>
+                <th>Предупреждения очистки</th>
+                <th>Независимая рекомендация</th>
+                <th>Решение человека</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
+              {visibleRows.map((row) => (
                 <tr key={row.cleanup_id}>
                   <td>
                     <strong>{asText(row.effective_keyword, row.original_keyword || '—')}</strong>
-                    <div className="muted">source: {asText(row.original_keyword)}</div>
-                    {row.normalization_only ? <div className="badge-row"><span className="badge">normalization only</span></div> : null}
+                    <div className="muted">исходный: {asText(row.original_keyword)}</div>
+                    {row.normalization_only ? <div className="badge-row"><span className="badge">только нормализация</span></div> : null}
                   </td>
                   <td>
                     {asText(row.suggested_page_level)}
@@ -115,35 +227,61 @@ export default async function AdminKeywordCleanupReviewPage() {
                   </td>
                   <td>
                     <span className={`status-pill ${riskClass(row.review_risk)}`}>
-                      {asText(row.review_risk)}
+                      {riskLabel(row.review_risk)}
                     </span>
-                    <div className="muted">{asText(row.review_lane)}</div>
+                    <div className="muted">{laneLabel(row.review_lane)}</div>
                   </td>
-                  <td>{asText(row.warning_flags, 'none')}</td>
+                  <td>{asText(row.warning_flags, 'нет')}</td>
                   <td>
                     {row.recommendation ? (
                       <>
                         <span className={`status-pill ${recClass(row.recommendation)}`}>
-                          {row.recommendation}
+                          {recommendationLabel(row.recommendation)}
                         </span>
                         <div className="muted">{asText(row.recommended_keyword)}</div>
                         <div className="muted">{asText(row.recommendation_reason)}</div>
                       </>
                     ) : (
-                      <span className="badge">not run</span>
+                      <span className="badge">ещё не запускалось</span>
                     )}
                   </td>
                   <td>
                     <span className={`status-pill ${row.review_status === 'approved' ? 'ok' : row.review_status === 'rejected' ? 'danger' : 'warning'}`}>
-                      {asText(row.review_status)}
+                      {humanStatusLabel(row.review_status)}
                     </span>
                     {row.approved_keyword ? <div className="muted">{row.approved_keyword}</div> : null}
+                  </td>
+                  <td>
+                    {['pending', 'needs_review'].includes(String(row.review_status || '').toLowerCase()) ? (
+                      <OwnerKeywordReviewClient
+                        cleanupId={Number(row.cleanup_id)}
+                        expectedStatus={String(row.review_status || 'pending')}
+                        keyword={asText(row.effective_keyword, row.original_keyword || '—')}
+                        suggestedKeyword={asText(row.recommended_keyword, '') || asText(row.cleaned_keyword, '') || null}
+                        recommendation={row.recommendation ? recommendationLabel(row.recommendation) : null}
+                        recommendationReason={asText(row.recommendation_reason, '') || null}
+                        riskLabel={riskLabel(row.review_risk)}
+                        enabled={ownerActions.ready}
+                        blockers={ownerActions.blockers}
+                      />
+                    ) : null}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+          </div>
+        </section>
+
+        {filteredRows.length > pageSize ? (
+          <div className="flex items-center justify-between gap-3" style={{ marginTop: '14px' }}>
+            <div className="owner-section-kicker">Страница {page} из {pageCount}</div>
+            <div className="owner-actions" style={{ marginTop: 0 }}>
+              {page > 1 ? <Link href={pageHref(page - 1)} className="owner-button">Назад</Link> : <span className="owner-button" style={{ opacity: .4 }}>Назад</span>}
+              {page < pageCount ? <Link href={pageHref(page + 1)} className="owner-button">Дальше</Link> : <span className="owner-button" style={{ opacity: .4 }}>Дальше</span>}
+            </div>
+          </div>
+        ) : null}
       </div>
     </main>
   );

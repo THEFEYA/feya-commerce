@@ -1,4 +1,13 @@
+import { timingSafeEqual } from 'node:crypto';
 import type { NextRequest } from 'next/server';
+
+function tokensMatch(providedToken: string | undefined, configuredToken: string) {
+  if (!providedToken) return false;
+  const provided = Buffer.from(providedToken, 'utf8');
+  const configured = Buffer.from(configuredToken, 'utf8');
+  if (provided.length !== configured.length) return false;
+  return timingSafeEqual(provided, configured);
+}
 
 export function isInternalApiTokenConfigured() {
   return Boolean(process.env.FEYA_INTERNAL_API_TOKEN);
@@ -18,6 +27,6 @@ export function getInternalApiAuthStatus(request: NextRequest) {
 
   return {
     configured: true,
-    authorized: providedToken === configuredToken,
+    authorized: tokensMatch(providedToken, configuredToken),
   };
 }

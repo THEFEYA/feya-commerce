@@ -530,3 +530,239 @@ Rollback validation:
 - the two return-policy launch signals are deduplicated into one Owner Attention item rather than creating duplicate decisions
 - no synthetic Growth Case was created; Growth Cases remain 0
 - /admin/owner-attention is read-only until protected admin auth and audited owner-resolution actions exist
+
+
+### Owner UI safe projections
+
+20260918124617 — feya_owner_work_safe_view_v1
+- sanitized read-only projection over Growth Cases + latest workflow state
+- excludes raw workflow state_json, leases and raw errors
+- supports the Owner Work workspace without creating a parallel work entity
+- current rows = 0, matching the intentional PRE_LAUNCH state
+
+20260918124647 — feya_owner_attention_safe_view_v2
+- adds stable source_code/source_type/source_scope to the sanitized Owner Attention projection
+- raw context_json/resolution_json remain hidden
+- enables deterministic Russian presentation without matching English free-text
+- current open attention items = 2
+
+Admin Data Boundary:
+- governed admin read surfaces now = 42
+- browser grants remain intentionally enabled until owner auth/allowlist verification and explicit hardening
+
+
+### Owner-action security hardening follow-up
+
+20260918150426 — harden_feya_step2_import_attempts_20260918
+- enabled RLS on the legacy internal `feya_commerce_step2_import_attempts` table
+- revoked anon/authenticated/PUBLIC table privileges
+- post-migration verification: anon/authenticated SELECT/INSERT = false
+- service-side access remains available through privileged backend roles
+
+20260918150523 — restrict_public_order_draft_rpc_20260918
+- revoked PUBLIC / anon / authenticated EXECUTE from `feya_commerce_create_order_draft_v1(jsonb)`
+- granted EXECUTE only to `service_role`
+- this supersedes the earlier decision in `feya_internal_rpc_privilege_hardening_v1` that intentionally kept the RPC browser-executable
+- reason: the current storefront client calls a server endpoint for checkout drafts and safely falls back to local storage; no repository code requires direct browser RPC execution
+- the RPC accepts client-supplied draft totals/product payloads and therefore should not be a direct public SECURITY DEFINER boundary before a validated server-side checkout contract exists
+
+Post-hardening security checks:
+- FEYA Commerce/Growth tables with RLS disabled in the audited scope: 0
+- FEYA Commerce/Growth SECURITY DEFINER functions executable by anon/authenticated in the audited scope: 0
+- Supabase advisor global counts decreased by one for both public RLS-disabled tables and browser-executable SECURITY DEFINER functions
+- broader project-level advisor findings remain outside this targeted FEYA change and must not be mass-modified without a separate scope review
+
+Protected Owner Actions remain disabled until:
+- `FEYA_ADMIN_AUTH_REQUIRED=true` is intentionally enabled;
+- owner allowlist is configured and verified;
+- unauthorized-access tests pass;
+- Supabase Auth leaked-password protection is reviewed/enabled;
+- audited mutation paths exist for each owner action.
+
+
+### Owner UI protected-read preparation
+
+No new database migration was required for the read-client refactor.
+
+Repository-side change:
+- internal admin pages use `getAdminReadClient()` instead of direct anonymous read clients;
+- when FEYA admin auth is later required, server-side service-role reads can support hardened admin views;
+- public storefront routes remain on public read contracts.
+
+This is a prerequisite for eventually executing `feya_fn_harden_admin_data_boundary_v1('HARDEN_FEYA_ADMIN_V1')`, but that hardening RPC remains intentionally NOT executed until auth + allowlist + unauthorized-access tests are verified.
+
+
+### Owner Objective / Handoff safe read projections
+
+20260920104947 — feya_owner_objective_handoff_safe_projections_v1
+- added security-barrier owner/admin projections for Growth Objectives, Objective Events, durable Handoffs and Workflow Events;
+- projections intentionally expose business workflow state, not user IDs or model/tool traces;
+- all four views were registered in the existing Admin Data Boundary policy registry;
+- current validated data state remains honest: 0 Growth Objectives, 0 handoffs, 0 workflow events;
+- registered governed admin read surfaces increased from 42 to 46;
+- all 46 remain browser-readable in the current pre-auth preview state by design;
+- admin-view hardening remains NOT executed until the owner auth + allowlist cutover passes the existing runbook.
+
+Post-migration verification:
+- Supabase migration applied successfully;
+- project security/performance advisors were re-run;
+- no mass remediation was applied to broader project advisor findings;
+- the migration does not enable writes, role activation, autonomous routing or synthetic workflow history.
+
+
+### Protected Owner Attention decision foundation
+
+20260920122540 — feya_owner_attention_protected_decision_v1
+- added service-role-only `feya_fn_transition_owner_attention_v1`;
+- expected current status is mandatory, preventing stale browser decisions;
+- allowed transitions are intentionally narrow: OPEN → ACKNOWLEDGED/RESOLVED/CANCELLED and ACKNOWLEDGED → RESOLVED/CANCELLED;
+- RESOLVED requires an explicit decision code; terminal decisions are designed to carry a human reason;
+- added durable `feya_growth_owner_attention_events_v1` audit events with idempotency key;
+- added owner-safe v3 attention projection plus owner-safe event-history projection;
+- registered both new safe views in the Admin Data Boundary;
+- added Action Capability `DECIDE_OWNER_ATTENTION` as AVAILABLE_WITH_LIMITATIONS / protected UI locked.
+
+Validation after migration:
+- active Owner Attention rows = 2;
+- owner decision events = 0;
+- anon/authenticated EXECUTE on transition RPC = false;
+- service_role EXECUTE = true;
+- governed admin views = 48;
+- browser-readable governed views = 48 until the existing auth/hardening runbook is executed.
+
+No current Owner Attention state was changed by the migration.
+
+
+### Protected SEO proposal review gateway
+
+20260920123137 — feya_owner_seo_proposal_review_gateway_v1
+- added generic owner action audit table with idempotency key;
+- added service-role-only wrapper for Human Owner review of query-cluster, page-ownership and indexability proposals;
+- wrapper delegates to the existing guarded review RPCs and records a durable owner audit receipt;
+- added sanitized owner-action audit view and registered it with Admin Data Boundary;
+- updated REVIEW_QUERY_CLUSTER_PROPOSAL, REVIEW_PAGE_OWNERSHIP_PROPOSAL and REVIEW_INDEXABILITY_PROPOSAL capability state to protected_ui_locked.
+
+Validation:
+- reviewable query-cluster proposals = 0;
+- reviewable page-ownership proposals = 0;
+- reviewable indexability proposals = 0;
+- owner action audit rows = 0;
+- anon/authenticated EXECUTE on wrapper = false;
+- service_role EXECUTE = true;
+- governed Admin Data Boundary views = 49;
+- browser-readable governed views = 49 until owner-auth hardening.
+
+The migration does not apply any proposal and does not mutate canonical SEO ownership/indexability.
+
+
+### Protected strategic Human Owner action gateway
+
+20260920123743 — feya_owner_strategic_action_gateway_v1
+- added service-role-only `feya_fn_owner_strategic_action_v1`;
+- delegates to the existing guarded domain primitives for objective activation, initiative Human Owner decision and strategy activation;
+- requires real Auth user, explicit reason and idempotency key;
+- reuses the generic Owner Action audit ledger;
+- updated ACTIVATE_GROWTH_OBJECTIVE, HUMAN_APPROVE_INITIATIVE and ACTIVATE_GROWTH_STRATEGY Action Capabilities to protected_ui_locked.
+
+Validation:
+- anon/authenticated EXECUTE on wrapper = false;
+- service_role EXECUTE = true;
+- draft strategies = 0;
+- activatable objectives = 0;
+- initiatives pending Human Owner = 0;
+- owner action audit rows remain 0.
+
+No Growth Objective, Initiative or Strategy state was changed by this migration.
+
+
+### Protected canonical SEO proposal apply
+
+20260920125031 — feya_owner_seo_proposal_apply_gateway_v1
+- added service-role-only owner wrapper for applying already APPROVED page-ownership and indexability proposals;
+- delegates to existing guarded canonical apply RPCs;
+- requires real Auth user, explicit apply reason, expected APPROVED status and idempotency key;
+- records generic Owner Action audit receipt;
+- updated APPLY_PAGE_OWNERSHIP_PROPOSAL and APPLY_INDEXABILITY_PROPOSAL to protected_ui_locked;
+- APPLY_QUERY_CLUSTER_PROPOSAL remains UI-deferred until deterministic cluster_code policy exists.
+
+Validation:
+- anon/authenticated EXECUTE = false;
+- service_role EXECUTE = true;
+- approved page-ownership proposals = 0;
+- approved indexability proposals = 0;
+- owner action audit rows remain 0.
+
+No canonical SEO state was changed by the migration.
+
+
+### Protected Execution Gateway approval
+
+20260920125157 — feya_owner_execution_approval_gateway_v1
+- added service-role-only Human Owner wrapper around execution request approval;
+- requires expected APPROVAL_REQUIRED state, explicit reason and idempotency key;
+- preserves immutable request-hash approval semantics from the canonical RPC;
+- records a separate Owner Action audit receipt;
+- updated APPROVE_EXECUTION_REQUEST capability to protected_ui_locked.
+
+Validation:
+- anon/authenticated EXECUTE = false;
+- service_role EXECUTE = true;
+- execution requests requiring approval = 0;
+- owner action audit rows remain 0.
+
+Approval remains separate from dispatcher execution and Execution Receipt.
+
+
+### Protected Human keyword review gateway
+
+20260920125450 — feya_owner_keyword_review_gateway_v1
+- added service-role-only owner wrapper around keyword cleanup Human review;
+- supports approved / rejected / needs_review with stale-status guard;
+- approved decisions require an explicit approved keyword;
+- requires real Auth user, human reason and idempotency key;
+- delegates to the existing canonical review RPC, preserving keyword cleanup review events;
+- additionally records generic Owner Action audit;
+- updated APPLY_KEYWORD_CLEANUP_HUMAN_REVIEW capability to protected_ui_locked.
+
+Validation:
+- anon/authenticated EXECUTE = false;
+- service_role EXECUTE = true;
+- reviewable keyword rows = 431;
+- owner action audit rows remain 0.
+
+No keyword review state was changed by this migration.
+
+
+### Protected Human SCO shadow draft review
+
+20260920125821 — feya_owner_sco_shadow_review_gateway_v1
+- added service-role-only owner wrapper around the existing SCO shadow Human review RPC;
+- added explicit expected Human review-status guard;
+- preserves canonical approval prechecks for similarity, ALT truth, component truth and validation blockers;
+- requires real Auth user, Human note and idempotency key;
+- preserves existing SEO pack draft event history and adds generic Owner Action audit;
+- updated REVIEW_SCO_SHADOW_DRAFT Action Capability to protected_ui_locked.
+
+Validation:
+- anon/authenticated EXECUTE = false;
+- service_role EXECUTE = true;
+- READY_FOR_HUMAN_AND_CQA_REVIEW rows = 17;
+- owner action audit rows remain 0.
+
+No draft review state was changed by this migration.
+
+
+### Deterministic protected query-cluster apply policy
+
+20260920130109 — feya_owner_query_cluster_apply_policy_v1
+- extended the protected SEO apply wrapper to QUERY_CLUSTER;
+- canonical cluster_code is derived deterministically from immutable proposal identity instead of asking the owner for an engineering code;
+- primary policy: QCP-* proposal code → QC-* cluster code with same immutable suffix;
+- fallback: QC- + first 16 hex chars of proposal UUID;
+- existing apply RPC still re-validates human-approved keyword cleanup and active cluster membership;
+- updated APPLY_QUERY_CLUSTER_PROPOSAL capability to protected_ui_locked.
+
+Validation:
+- wrapper remains service-role-only;
+- no approved cluster proposals currently exist;
+- no canonical query cluster was created by migration or UI work.

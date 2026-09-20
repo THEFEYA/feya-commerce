@@ -15,9 +15,6 @@ function clampLimit(value: unknown) {
   return Math.max(1, Math.min(MAX_LIMIT, Math.trunc(numeric)));
 }
 
-function asBoolean(value: unknown) {
-  return typeof value === 'boolean' ? value : false;
-}
 
 export async function POST(request: NextRequest) {
   const auth = getInternalApiAuthStatus(request);

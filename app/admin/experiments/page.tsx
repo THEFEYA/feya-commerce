@@ -1,6 +1,9 @@
 import Link from 'next/link';
+import { OwnerDataError } from '@/components/admin/OwnerDataError';
+import { OwnerExperimentDrawerClient } from '@/components/admin/OwnerExperimentDrawerClient';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { ChangeEventRow, ExperimentRegistryRow } from '@/lib/types';
+import { statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -40,6 +43,26 @@ function asText(value: unknown, fallback = '—') {
   return String(value);
 }
 
+function modeLabel(value: unknown) {
+  const key = asText(value, '').toUpperCase();
+  const labels: Record<string, string> = {
+    A_B: 'A/B',
+    AB: 'A/B',
+    BEFORE_AFTER: 'До / после',
+    HOLDOUT: 'Контрольная группа',
+    OBSERVATIONAL: 'Наблюдение',
+    QUASI_EXPERIMENT: 'Квазиэксперимент',
+  };
+  return labels[key] || (key ? 'Настраиваемый дизайн' : '—');
+}
+
+function dateLabel(value: unknown) {
+  if (!value) return '—';
+  const date = new Date(String(value));
+  if (Number.isNaN(date.getTime())) return asText(value);
+  return new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+}
+
 function statusClass(value: unknown) {
   const status = asText(value, '').toUpperCase();
   if (status === 'OUTCOME_READY' || status === 'CLOSED' || status === 'FEASIBLE' || status === 'CLEAN') return 'ok';
@@ -55,141 +78,148 @@ export default async function AdminExperimentsPage() {
   const invalidated = experiments.filter((row) => row.contamination_state === 'INVALIDATED').length;
   const outcomeReady = experiments.filter((row) => row.experiment_status === 'OUTCOME_READY').length;
 
+  const activeRows = experiments.filter((row) => !['CLOSED', 'CANCELLED'].includes(String(row.experiment_status || '')));
+  const outcomeRows = experiments.filter((row) => row.experiment_status === 'OUTCOME_READY');
+  const riskyRows = experiments.filter((row) => ['CONTAMINATED', 'INVALIDATED'].includes(String(row.contamination_state || '')));
+
   return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
-          <div className="nav-links">
-            <Link href="/admin/experiments">Experiments</Link>
-            <Link href="/admin/metrics">Metrics</Link>
-            <Link href="/admin/incidents">Incidents</Link>
-            <Link href="/admin/executions">Executions</Link>
-          </div>
-        </nav>
-
-        <section className="phase-banner">
-          <div className="phase-label">GMEL experiment / contamination registry · read-only</div>
-          <h1>Experiments</h1>
-          <p>
-            Experiments require locked Measurement Specs and explicit feasibility. Change events and incidents can contaminate attribution; invalidating contamination blocks OUTCOME_READY.
-          </p>
-        </section>
-
-        <section className="grid admin-grid" style={{ marginBottom: '24px' }}>
-          <div className="card metric"><strong>{experiments.length}</strong><span>Experiments</span></div>
-          <div className="card metric"><strong>{running}</strong><span>Running</span></div>
-          <div className="card metric"><strong>{contaminated}</strong><span>Contaminated</span></div>
-          <div className="card metric"><strong>{invalidated}</strong><span>Invalidated</span></div>
-          <div className="card metric"><strong>{outcomeReady}</strong><span>Outcome-ready</span></div>
-          <div className="card metric"><strong>{changes.length}</strong><span>Recent change events</span></div>
-        </section>
-
-        {error ? <div className="notice">{error}</div> : null}
-
-        <section className="section-head">
+    <main className="owner-page">
+      <div className="owner-page-inner">
+        <header className="owner-page-head">
           <div>
-            <h2>Experiment registry</h2>
-            <p className="muted">The Measurement Engine is still unavailable; this layer governs design/state/contamination only.</p>
+            <div className="owner-eyebrow">Результаты · эксперименты</div>
+            <h1>Эксперименты</h1>
+            <p>Эксперимент считается полезным только при заранее зафиксированном измерении и чистом контексте. Параллельные изменения или инциденты могут ограничить допустимый вывод.</p>
           </div>
+          <div className="owner-actions" style={{ marginTop: 0 }}>
+            <Link href="/admin/company/results" className="owner-button">Назад к результатам</Link>
+            <Link href="/admin/metrics" className="owner-button">Метрики</Link>
+          </div>
+        </header>
+
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{running}</strong><span>В работе</span></div>
+          <div className="owner-summary-cell"><strong>{outcomeReady}</strong><span>Результат готов к оценке</span></div>
+          <div className="owner-summary-cell"><strong>{contaminated}</strong><span>Есть влияющие изменения</span></div>
+          <div className="owner-summary-cell"><strong>{invalidated}</strong><span>Результат нельзя использовать</span></div>
         </section>
 
-        <div className="table-wrap" style={{ marginBottom: '30px' }}>
-          <table>
-            <thead>
-              <tr>
-                <th>Experiment</th>
-                <th>Mode</th>
-                <th>Status</th>
-                <th>Feasibility</th>
-                <th>Contamination</th>
-                <th>Window</th>
-              </tr>
-            </thead>
-            <tbody>
-              {experiments.length ? experiments.map((row) => (
-                <tr key={row.experiment_id}>
-                  <td>
-                    <strong>{asText(row.title, row.experiment_code || '—')}</strong>
-                    <div className="muted">{asText(row.experiment_code)}</div>
-                  </td>
-                  <td>{asText(row.experiment_mode)}</td>
-                  <td>
-                    <span className={`status-pill ${statusClass(row.experiment_status)}`}>
-                      {asText(row.experiment_status)}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={`status-pill ${statusClass(row.feasibility_status)}`}>
-                      {asText(row.feasibility_status)}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={`status-pill ${statusClass(row.contamination_state)}`}>
-                      {asText(row.contamination_state)}
-                    </span>
-                    <div className="muted">{row.contamination_count || 0} records · {row.invalidating_contamination_count || 0} invalidating</div>
-                  </td>
-                  <td>
-                    {asText(row.started_at, asText(row.planned_start_at))}
-                    <div className="muted">→ {asText(row.ended_at, asText(row.planned_end_at))}</div>
-                  </td>
-                </tr>
-              )) : (
-                <tr><td colSpan={6}>No real experiments have been created.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        {error ? <OwnerDataError error={error} /> : null}
 
-        <section className="section-head">
-          <div>
-            <h2>Recent change events</h2>
-            <p className="muted">Successful Execution Gateway mutations are bridged here automatically.</p>
+        <section className="owner-section" style={{ marginTop: 0 }}>
+          <div className="owner-section-head">
+            <div>
+              <h2>Что происходит сейчас</h2>
+              <div className="owner-section-kicker">Только активные эксперименты и ситуации, которые влияют на достоверность результата</div>
+            </div>
           </div>
+
+          {activeRows.length ? (
+            <div className="owner-list">
+              {activeRows.map((row) => (
+                <article className="owner-list-row" key={row.experiment_id}>
+                  <div className="owner-list-row-main">
+                    <div className="owner-card-meta">
+                      <span className={`owner-status ${row.contamination_state === 'INVALIDATED' ? 'is-danger' : row.contamination_state === 'CONTAMINATED' ? 'is-warning' : 'is-info'}`}>
+                        {statusLabel(row.experiment_status)}
+                      </span>
+                      <span>{modeLabel(row.experiment_mode)}</span>
+                      <span>{statusLabel(row.feasibility_status)}</span>
+                    </div>
+                    <h3>{asText(row.title, 'Эксперимент')}</h3>
+                    <p>
+                      Период: {dateLabel(row.started_at || row.planned_start_at)} → {dateLabel(row.ended_at || row.planned_end_at)}.
+                      {row.contamination_count ? ` Влияющих изменений: ${row.contamination_count}.` : ''}
+                    </p>
+                  </div>
+                  <div className="owner-list-row-side">
+                    <span className="owner-section-kicker">{statusLabel(row.contamination_state)}</span>
+                    <OwnerExperimentDrawerClient row={row} />
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="owner-empty">Активных экспериментов пока нет. Это нормальное состояние до появления измеримых инициатив.</div>
+          )}
         </section>
 
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Event</th>
-                <th>Domain</th>
-                <th>Entity</th>
-                <th>Source</th>
-                <th>Execution / Incident</th>
-                <th>Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {changes.length ? changes.map((row) => (
-                <tr key={row.change_event_id}>
-                  <td>
-                    <strong>{asText(row.change_type, row.event_code || '—')}</strong>
-                    <div className="muted">{asText(row.event_code)}</div>
-                  </td>
-                  <td>{asText(row.change_domain)}</td>
-                  <td>
-                    {asText(row.entity_type)}
-                    <div className="muted">{asText(row.entity_key)}</div>
-                  </td>
-                  <td>
-                    {asText(row.source_type)}
-                    <div className="muted">{asText(row.source_ref)}</div>
-                  </td>
-                  <td>
-                    {row.execution_request_id ? <div className="muted">execution {row.execution_request_id}</div> : null}
-                    {row.incident_id ? <div className="muted">incident {row.incident_id}</div> : null}
-                    {!row.execution_request_id && !row.incident_id ? '—' : null}
-                  </td>
-                  <td>{asText(row.event_at)}</td>
-                </tr>
-              )) : (
-                <tr><td colSpan={6}>No durable change events have been recorded.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        {outcomeRows.length ? (
+          <section className="owner-section">
+            <div className="owner-section-head"><div><h2>Готово к оценке результата</h2></div></div>
+            <div className="owner-grid two">
+              {outcomeRows.map((row) => (
+                <article className="owner-card is-success" key={row.experiment_id}>
+                  <div className="owner-card-meta"><span className="owner-status is-success">Результат готов</span><span>{modeLabel(row.experiment_mode)}</span></div>
+                  <h3 className="owner-card-title">{asText(row.title, 'Эксперимент')}</h3>
+                  <p className="owner-card-copy">Доказательность всё равно ограничивается состоянием измерения и наличием влияющих изменений.</p>
+                  <div className="owner-actions"><OwnerExperimentDrawerClient row={row} /></div>
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {riskyRows.length ? (
+          <section className="owner-section">
+            <div className="owner-section-head"><div><h2>Риски интерпретации</h2><div className="owner-section-kicker">Эти эксперименты нельзя интерпретировать как чистый эффект без дополнительной проверки</div></div></div>
+            <div className="owner-grid two">
+              {riskyRows.map((row) => (
+                <article className={`owner-card ${row.contamination_state === 'INVALIDATED' ? 'is-danger' : 'is-warning'}`} key={row.experiment_id}>
+                  <div className={`owner-status ${row.contamination_state === 'INVALIDATED' ? 'is-danger' : 'is-warning'}`}>{statusLabel(row.contamination_state)}</div>
+                  <h3 className="owner-card-title" style={{ marginTop: '10px' }}>{asText(row.title, 'Эксперимент')}</h3>
+                  <p className="owner-card-copy">{row.contamination_count || 0} влияющих изменений · {row.invalidating_contamination_count || 0} критичных.</p>
+                  <div className="owner-actions"><OwnerExperimentDrawerClient row={row} /></div>
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        <section className="owner-section">
+          <details className="owner-disclosure owner-disclosure-section">
+            <summary>
+              <span><strong>История изменений и технический реестр</strong><small>Все эксперименты и change events для диагностики</small></span>
+              <span className="owner-section-kicker">{experiments.length + changes.length}</span>
+            </summary>
+            <div className="owner-disclosure-body">
+              <div className="table-wrap" style={{ marginBottom: '18px' }}>
+                <table>
+                  <thead><tr><th>Эксперимент</th><th>Режим</th><th>Статус</th><th>Реализуемость</th><th>Влияющие изменения</th><th>Период</th></tr></thead>
+                  <tbody>
+                    {experiments.length ? experiments.map((row) => (
+                      <tr key={row.experiment_id}>
+                        <td><strong>{asText(row.title, row.experiment_code || '—')}</strong></td>
+                        <td>{modeLabel(row.experiment_mode)}</td>
+                        <td>{statusLabel(row.experiment_status)}</td>
+                        <td>{statusLabel(row.feasibility_status)}</td>
+                        <td>{statusLabel(row.contamination_state)} · {row.contamination_count || 0}</td>
+                        <td>{dateLabel(row.started_at || row.planned_start_at)} → {dateLabel(row.ended_at || row.planned_end_at)}</td>
+                      </tr>
+                    )) : <tr><td colSpan={6}>Экспериментов пока нет.</td></tr>}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="table-wrap">
+                <table>
+                  <thead><tr><th>Изменение</th><th>Область</th><th>Объект</th><th>Источник</th><th>Время</th></tr></thead>
+                  <tbody>
+                    {changes.length ? changes.map((row) => (
+                      <tr key={row.change_event_id}>
+                        <td><strong>{asText(row.change_type, row.event_code || '—')}</strong></td>
+                        <td>{asText(row.change_domain)}</td>
+                        <td>{asText(row.entity_type)}</td>
+                        <td>{asText(row.source_type)}</td>
+                        <td>{dateLabel(row.event_at)}</td>
+                      </tr>
+                    )) : <tr><td colSpan={5}>Зафиксированных изменений пока нет.</td></tr>}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </details>
+        </section>
       </div>
     </main>
   );

@@ -1,0 +1,262 @@
+import { readFileSync, existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+const requiredFiles = [
+  'app/admin/company/page.tsx',
+  'app/admin/company/work/page.tsx',
+  'app/admin/company/growth/page.tsx',
+  'app/admin/company/results/page.tsx',
+  'app/admin/company/system/page.tsx',
+  'app/admin/company/search/page.tsx',
+  'app/admin/roles/page.tsx',
+  'components/admin/OwnerShell.tsx',
+  'components/admin/AdminLegacyShell.tsx',
+  'components/admin/OwnerWorkDrawerClient.tsx',
+  'components/admin/OwnerSignalDrawerClient.tsx',
+  'components/admin/OwnerRoleDrawerClient.tsx',
+  'components/admin/OwnerOpportunityDrawerClient.tsx',
+  'components/admin/OwnerExperimentDrawerClient.tsx',
+  'components/admin/OwnerIncidentDrawerClient.tsx',
+  'components/admin/OwnerExecutionDrawerClient.tsx',
+  'components/admin/OwnerDataSourceDrawerClient.tsx',
+  'components/admin/OwnerLearningDrawerClient.tsx',
+  'components/admin/OwnerContentBriefDrawerClient.tsx',
+  'components/admin/OwnerContentQaDrawerClient.tsx',
+  'components/admin/OwnerProductFactDrawerClient.tsx',
+  'components/admin/OwnerInitiativeDrawerClient.tsx',
+  'components/admin/OwnerObjectiveDrawerClient.tsx',
+  'components/admin/OwnerAttentionDecisionClient.tsx',
+  'lib/ownerActionAuth.ts',
+  'app/api/admin/company/owner-attention/decision/route.ts',
+  'components/admin/OwnerProposalReviewClient.tsx',
+  'app/api/admin/company/proposal-review/route.ts',
+  'components/admin/OwnerStrategicActionClient.tsx',
+  'app/api/admin/company/strategic-action/route.ts',
+  'components/admin/OwnerProposalApplyClient.tsx',
+  'app/api/admin/company/proposal-apply/route.ts',
+  'components/admin/OwnerExecutionApprovalClient.tsx',
+  'app/api/admin/company/execution-approval/route.ts',
+  'components/admin/OwnerKeywordReviewClient.tsx',
+  'app/api/admin/company/keyword-review/route.ts',
+  'components/admin/OwnerScoDraftReviewClient.tsx',
+  'app/api/admin/company/content-review/route.ts',
+  'docs/OWNER_UX_BLUEPRINT_AUDIT_2026-09-19.md',
+  'docs/OWNER_FUNCTIONAL_COVERAGE_2026-09-20.md',
+  'docs/OWNER_COMPANY_VISUAL_CONTRACT_V1.md',
+];
+
+const failures = [];
+for (const file of requiredFiles) {
+  if (!existsSync(resolve(process.cwd(), file))) failures.push(`missing required owner UI file: ${file}`);
+}
+
+function text(file) {
+  return readFileSync(resolve(process.cwd(), file), 'utf8');
+}
+
+if (!failures.length) {
+  const shell = text('components/admin/OwnerShell.tsx');
+  const legacy = text('components/admin/AdminLegacyShell.tsx');
+  const audit = text('docs/OWNER_UX_BLUEPRINT_AUDIT_2026-09-19.md');
+
+  for (const label of ['Сегодня', 'Работа', 'Рост', 'Товары', 'Результаты', 'Система']) {
+    if (!shell.includes(`label: '${label}'`)) failures.push(`OwnerShell missing primary destination: ${label}`);
+  }
+
+  for (const label of ['Сегодня', 'Работа', 'Найти', 'Товары', 'Ещё']) {
+    if (!shell.includes(`<small>${label}</small>`)) failures.push(`OwnerShell mobile nav missing: ${label}`);
+  }
+
+  if (shell.includes('WORK_TOOLS')) failures.push('OwnerShell must not embed Product OS tool navigation.');
+  if (!legacy.includes('Existing Product OS keeps its approved visual/workflow shell unchanged')) {
+    failures.push('AdminLegacyShell no longer documents Product OS scope isolation.');
+  }
+  if (!legacy.includes('isAgentOwnerRoute')) failures.push('AdminLegacyShell missing agent-route isolation.');
+
+  const frozenProductPrefixes = [
+    '/admin/listing-master',
+    '/admin/products',
+    '/admin/review',
+    '/admin/media',
+    '/admin/media-seo',
+    '/admin/seo-lab',
+    '/admin/seo-engine',
+    '/admin/seo-keywords',
+    '/admin/seo-approval',
+    '/admin/seo-export',
+    '/admin/seo-apply',
+    '/admin/seo-change-sets',
+    '/admin/seo-applied-values',
+    '/admin/seo-storefront-preview',
+    '/admin/seo-gate',
+    '/admin/content',
+    '/admin/collections',
+    '/admin/graph',
+    '/admin/launch',
+    '/admin/indexation',
+    '/admin/orders',
+  ];
+
+  const prefixBlock = legacy.match(/const AGENT_OWNER_PREFIXES = \[([\s\S]*?)\] as const;/)?.[1] || '';
+  for (const prefix of frozenProductPrefixes) {
+    if (prefixBlock.includes(`'${prefix}'`)) {
+      failures.push(`AdminLegacyShell must not wrap frozen Product OS route with OwnerShell: ${prefix}`);
+    }
+  }
+
+  if (!audit.includes('Scope correction — Owner review')) failures.push('Owner UX audit missing scope correction.');
+  if (!audit.includes('FROZEN / APPROVED')) failures.push('Owner UX audit no longer marks Product OS frozen.');
+
+  const today = text('app/admin/company/page.tsx');
+  const work = text('app/admin/company/work/page.tsx');
+  const growth = text('app/admin/company/growth/page.tsx');
+  const signals = text('app/admin/company/signals/page.tsx');
+  const visualContract = text('docs/OWNER_COMPANY_VISUAL_CONTRACT_V1.md');
+
+  const todayOrder = [
+    'owner-command-brief',
+    'Нужно ваше решение',
+    'Что существенно изменилось',
+    'Возможности',
+    'В работе',
+    'Состояние системы',
+    'Для сведения',
+  ];
+  let previousIndex = -1;
+  for (const marker of todayOrder) {
+    const index = today.indexOf(marker);
+    if (index === -1) {
+      if (marker !== 'Возможности') failures.push(`Today missing research section: ${marker}`);
+      continue;
+    }
+    if (index < previousIndex) failures.push(`Today research order is broken at: ${marker}`);
+    previousIndex = index;
+  }
+
+  if (!work.includes('OwnerWorkDrawerClient')) failures.push('Work must use context-first drawer detail.');
+  if (!work.includes('OwnerRoleDrawerClient')) failures.push('Team FEYA must use contextual role detail.');
+  if (!signals.includes('OwnerSignalDrawerClient')) failures.push('Signals must use evidence-first drawer detail.');
+  if (!visualContract.includes('Product OS and public storefront are visually frozen')) failures.push('Visual contract lost Product OS freeze.');
+  if (!visualContract.includes('No fake revenue, conversion, ranking')) failures.push('Visual contract lost no-fake-analytics rule.');
+
+
+  const strategy = text('app/admin/strategy/page.tsx');
+  const opportunities = text('app/admin/opportunities/page.tsx');
+  const experiments = text('app/admin/experiments/page.tsx');
+  const executions = text('app/admin/executions/page.tsx');
+  const incidents = text('app/admin/incidents/page.tsx');
+  const dataHealth = text('app/admin/data-health/page.tsx');
+  const learning = text('app/admin/learning/page.tsx');
+  const contentBriefs = text('app/admin/content-briefs/page.tsx');
+  const contentQa = text('app/admin/content-qa/page.tsx');
+  const productFacts = text('app/admin/product-facts-review/page.tsx');
+  const results = text('app/admin/company/results/page.tsx');
+  const coverage = text('docs/OWNER_FUNCTIONAL_COVERAGE_2026-09-20.md');
+
+  if (!work.includes('feya_commerce_v_growth_handoffs_safe_v1')) {
+    failures.push('Work must read durable handoffs through the governed safe projection.');
+  }
+  if (!work.includes('feya_commerce_v_growth_workflow_events_safe_v1')) {
+    failures.push('Work must read durable workflow events through the governed safe projection.');
+  }
+  if (!growth.includes('feya_commerce_v_growth_objectives_safe_v1')) {
+    failures.push('Growth must expose Growth Objectives through the governed safe projection.');
+  }
+  if (!strategy.includes('OwnerObjectiveDrawerClient')) failures.push('Strategy must expose Growth Objective context.');
+  if (!strategy.includes('OwnerInitiativeDrawerClient')) failures.push('Strategy must expose initiative governance context.');
+  if (!opportunities.includes('OwnerOpportunityDrawerClient')) failures.push('Opportunities must use context-first detail.');
+  if (!experiments.includes('OwnerExperimentDrawerClient')) failures.push('Experiments must use evidence-first context detail.');
+  if (!executions.includes('OwnerExecutionDrawerClient')) failures.push('Execution must distinguish request/approval/receipt in context.');
+  const executionApprovalRoute = text('app/api/admin/company/execution-approval/route.ts');
+  if (!executionApprovalRoute.includes('requireOwnerActionActor')) failures.push('Execution approval route must require owner authority.');
+  if (!executionApprovalRoute.includes('feya_fn_owner_approve_execution_request_v1')) failures.push('Execution approval route must use the guarded approval wrapper.');
+  if (!executions.includes('actionEnabled={ownerActions.ready}')) failures.push('Execution drawers must receive protected Owner Action readiness.');
+  if (!incidents.includes('OwnerIncidentDrawerClient')) failures.push('Incidents must expose mutation-freeze context.');
+  if (!dataHealth.includes('OwnerDataSourceDrawerClient')) failures.push('Data Health must expose source freshness/authority context.');
+  if (!learning.includes('OwnerLearningDrawerClient')) failures.push('Learning must expose evidence maturity context.');
+  if (!contentBriefs.includes('OwnerContentBriefDrawerClient')) failures.push('Content briefs must expose compiler readiness context.');
+  if (!contentQa.includes('OwnerContentQaDrawerClient')) failures.push('CQA must expose independent validation context.');
+  if (!productFacts.includes('OwnerProductFactDrawerClient')) failures.push('Product Truth review must expose ambiguity context.');
+  if (!results.includes('/admin/company/results/changes')) failures.push('Results must route change history to the owner-facing Changes surface.');
+  const ownerAttentionDetail = text('app/admin/company/owner-attention/[id]/page.tsx');
+  const ownerActionAuth = text('lib/ownerActionAuth.ts');
+  const ownerActionRoute = text('app/api/admin/company/owner-attention/decision/route.ts');
+  if (!ownerAttentionDetail.includes('OwnerAttentionDecisionClient')) failures.push('Owner Attention detail must use the protected decision component.');
+  if (!ownerActionAuth.includes('FEYA_OWNER_ACTIONS_ENABLED')) failures.push('Owner Action gate must keep an independent circuit breaker.');
+  if (!ownerActionRoute.includes('requireOwnerActionActor')) failures.push('Owner Action API must require server-side owner authority.');
+  if (!ownerActionRoute.includes('feya_fn_transition_owner_attention_v1')) failures.push('Owner Attention action must use the guarded RPC, not direct table mutation.');
+  const proposalReviewRoute = text('app/api/admin/company/proposal-review/route.ts');
+  const clusterProposalPage = text('app/admin/seo-cluster-proposals/page.tsx');
+  const ownershipProposalPage = text('app/admin/seo-ownership-proposals/page.tsx');
+  const indexabilityPage = text('app/admin/seo-indexability/page.tsx');
+  if (!proposalReviewRoute.includes('requireOwnerActionActor')) failures.push('SEO proposal review route must require owner authority.');
+  if (!proposalReviewRoute.includes('feya_fn_owner_review_seo_proposal_v1')) failures.push('SEO proposal review route must use the guarded owner action wrapper.');
+  if (!clusterProposalPage.includes('OwnerProposalReviewClient')) failures.push('Query-cluster proposals must expose protected Human review.');
+  if (!clusterProposalPage.includes('OwnerProposalApplyClient')) failures.push('Query-cluster proposals must expose a separate protected apply step.');
+  if (!ownershipProposalPage.includes('OwnerProposalReviewClient')) failures.push('Page-ownership proposals must expose protected Human review.');
+  if (!indexabilityPage.includes('OwnerProposalReviewClient')) failures.push('Indexability proposals must expose protected Human review.');
+  const proposalApplyRoute = text('app/api/admin/company/proposal-apply/route.ts');
+  if (!proposalApplyRoute.includes('requireOwnerActionActor')) failures.push('SEO proposal apply route must require owner authority.');
+  if (!proposalApplyRoute.includes('feya_fn_owner_apply_seo_proposal_v1')) failures.push('SEO proposal apply route must use the guarded canonical apply wrapper.');
+  if (!proposalApplyRoute.includes('QUERY_CLUSTER')) failures.push('Protected SEO apply route must support query-cluster canonical apply.');
+  if (!ownershipProposalPage.includes('OwnerProposalApplyClient')) failures.push('Approved page-ownership proposals must expose a separate protected apply step.');
+  if (!indexabilityPage.includes('OwnerProposalApplyClient')) failures.push('Approved indexability proposals must expose a separate protected apply step.');
+  const keywordReviewRoute = text('app/api/admin/company/keyword-review/route.ts');
+  const keywordReviewPage = text('app/admin/seo-keyword-review/page.tsx');
+  if (!keywordReviewRoute.includes('requireOwnerActionActor')) failures.push('Keyword review route must require owner authority.');
+  if (!keywordReviewRoute.includes('feya_fn_owner_review_keyword_cleanup_v1')) failures.push('Keyword review route must use the guarded owner review wrapper.');
+  if (!keywordReviewPage.includes('OwnerKeywordReviewClient')) failures.push('Keyword review queue must expose protected Human review context.');
+  const contentReviewRoute = text('app/api/admin/company/content-review/route.ts');
+  if (!contentReviewRoute.includes('requireOwnerActionActor')) failures.push('Content Human review route must require owner authority.');
+  if (!contentReviewRoute.includes('feya_fn_owner_review_sco_shadow_draft_v1')) failures.push('Content review route must use the guarded SCO Human review wrapper.');
+  if (!contentQa.includes('actionEnabled={ownerActions.ready}')) failures.push('CQA drawers must receive protected Owner Action readiness.');
+  const strategicActionRoute = text('app/api/admin/company/strategic-action/route.ts');
+  const strategicActionClient = text('components/admin/OwnerStrategicActionClient.tsx');
+  if (!strategicActionRoute.includes('requireOwnerActionActor')) failures.push('Strategic owner route must require owner authority.');
+  if (!strategicActionRoute.includes('feya_fn_owner_strategic_action_v1')) failures.push('Strategic owner route must use the guarded strategic wrapper.');
+  if (!strategy.includes('OwnerStrategicActionClient')) failures.push('Strategy workspace must expose protected strategic owner actions.');
+  if (!strategicActionClient.includes('ACTIVATE_GROWTH_OBJECTIVE') || !strategicActionClient.includes('HUMAN_APPROVE_INITIATIVE') || !strategicActionClient.includes('ACTIVATE_GROWTH_STRATEGY')) {
+    failures.push('Strategic owner action component must cover objective, initiative and strategy Human Owner boundaries.');
+  }
+  const signalDiagnostics = text('app/admin/signals/page.tsx');
+  const dataAuthority = text('app/admin/data-authority/page.tsx');
+  const scenarioTests = text('app/admin/scenario-tests/page.tsx');
+  if (!signalDiagnostics.includes('className="owner-page"') || signalDiagnostics.includes('className="page-shell"')) failures.push('Advanced signal diagnostics must use the Company owner surface.');
+  if (!dataAuthority.includes('className="owner-page"') || dataAuthority.includes('className="page-shell"')) failures.push('Data Authority must use the Company owner surface.');
+  if (!scenarioTests.includes('className="owner-page"') || scenarioTests.includes('className="page-shell"')) failures.push('Scenario Tests must use the Company owner surface.');
+  const systemPage = text('app/admin/company/system/page.tsx');
+  if (!systemPage.includes('feya_commerce_v_owner_action_audit_safe_v1')) failures.push('System must surface the protected Owner Action audit projection.');
+
+  if (!coverage.includes('Handoff timeline') || !coverage.includes('COVERED')) {
+    failures.push('Functional coverage map must record durable handoff coverage.');
+  }
+  if (!coverage.includes('Growth Objective')) failures.push('Functional coverage map must include Growth Objectives.');
+
+  const companyFiles = [
+    'app/admin/company/page.tsx',
+    'app/admin/company/work/page.tsx',
+    'app/admin/company/growth/page.tsx',
+    'app/admin/company/results/page.tsx',
+    'app/admin/company/system/page.tsx',
+  ];
+  const forbiddenOwnerClaims = [
+    'conversion rate',
+    'revenue growth',
+    'overallScore',
+    'confidence score',
+  ];
+  for (const file of companyFiles) {
+    const source = text(file).toLowerCase();
+    for (const phrase of forbiddenOwnerClaims) {
+      if (source.includes(phrase.toLowerCase())) failures.push(`${file}: forbidden synthetic owner claim "${phrase}"`);
+    }
+  }
+}
+
+if (failures.length) {
+  console.error('\nOwner UI contract check failed:\n');
+  for (const failure of failures) console.error(`- ${failure}`);
+  process.exit(1);
+}
+
+console.log('Owner UI contract: OK');
