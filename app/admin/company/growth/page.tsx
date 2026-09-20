@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { FileSearch, GitBranch, SearchCheck, ShieldCheck, Sparkles, TrendingUp } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
+import { OwnerObjectiveDrawerClient } from '@/components/admin/OwnerObjectiveDrawerClient';
+import type { GrowthObjectiveEventRow, GrowthObjectiveRow } from '@/lib/types';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { capabilityOwnerSummary, dataFreshnessLabel, ownerToneForStatus, statusLabel } from '@/lib/owner-ui/terminology';
 
@@ -22,6 +24,8 @@ type GrowthData = {
   capabilities: Row[];
   sourceHealth: Row[];
   historicalDemand: Row[];
+  objectives: GrowthObjectiveRow[];
+  objectiveEvents: GrowthObjectiveEventRow[];
   keywordPending: number;
   seoPages: number;
   clusterProposals: number;
@@ -38,6 +42,8 @@ async function getGrowthData(): Promise<GrowthData> {
       capabilities: [],
       sourceHealth: [],
       historicalDemand: [],
+      objectives: [],
+      objectiveEvents: [],
       keywordPending: 0,
       seoPages: 0,
       clusterProposals: 0,
@@ -52,6 +58,8 @@ async function getGrowthData(): Promise<GrowthData> {
     capabilitiesResult,
     sourceHealthResult,
     historicalDemandResult,
+    objectiveResult,
+    objectiveEventResult,
     keywordResult,
     pagesResult,
     clusterProposalResult,
@@ -74,6 +82,15 @@ async function getGrowthData(): Promise<GrowthData> {
       .eq('review_status', 'approved_draft')
       .order('avg_monthly_searches', { ascending: false })
       .limit(16),
+    supabase
+      .from('feya_commerce_v_growth_objectives_safe_v1')
+      .select('*')
+      .order('updated_at', { ascending: false }),
+    supabase
+      .from('feya_commerce_v_growth_objective_events_safe_v1')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(300),
     supabase
       .from('feya_commerce_v_keyword_cleanup_review_status_safe_v1')
       .select('cleanup_id', { count: 'exact', head: true })
@@ -101,6 +118,8 @@ async function getGrowthData(): Promise<GrowthData> {
     capabilitiesResult.error ||
     sourceHealthResult.error ||
     historicalDemandResult.error ||
+    objectiveResult.error ||
+    objectiveEventResult.error ||
     keywordResult.error ||
     pagesResult.error ||
     clusterProposalResult.error ||
@@ -112,6 +131,8 @@ async function getGrowthData(): Promise<GrowthData> {
     capabilities: (capabilitiesResult.data || []) as Row[],
     sourceHealth: (sourceHealthResult.data || []) as Row[],
     historicalDemand: (historicalDemandResult.data || []) as Row[],
+    objectives: (objectiveResult.data || []) as GrowthObjectiveRow[],
+    objectiveEvents: (objectiveEventResult.data || []) as GrowthObjectiveEventRow[],
     keywordPending: keywordResult.count || 0,
     seoPages: pagesResult.count || 0,
     clusterProposals: clusterProposalResult.count || 0,
@@ -165,6 +186,12 @@ export default async function AdminGrowthPage() {
     ).values(),
   ).slice(0, 8);
   const maxHistoricalDemand = Math.max(1, ...historicalDemand.map((row) => Number(row.avg_monthly_searches || 0)));
+  const activeObjectives = data.objectives.filter((row) => String(row.objective_status || '').toUpperCase() === 'ACTIVE');
+  const proposedObjectives = data.objectives.filter((row) => ['DRAFT', 'PROPOSED', 'PENDING'].includes(String(row.objective_status || '').toUpperCase()));
+  const objectiveEventsById = new Map<string, GrowthObjectiveEventRow[]>();
+  data.objectiveEvents.forEach((event) => {
+    objectiveEventsById.set(event.objective_id, [...(objectiveEventsById.get(event.objective_id) || []), event]);
+  });
 
   const sourceStamp = (row: Row | undefined) => {
     if (!row) return 'Источник ещё не проверен';
@@ -187,6 +214,7 @@ export default async function AdminGrowthPage() {
         </header>
 
         <nav className="owner-subnav" aria-label="Разделы роста">
+          <a href="#objectives">Цели</a>
           <Link href="/admin/opportunities">Возможности</Link>
           <a href="#demand">Спрос</a>
           <Link href="/admin/seo-portfolio">Страницы</Link>
@@ -194,6 +222,49 @@ export default async function AdminGrowthPage() {
         </nav>
 
         {data.error ? <OwnerDataError error={data.error} /> : null}
+
+        <section className="owner-section" id="objectives">
+          <div className="owner-section-head">
+            <div className="owner-section-heading">
+              <span className="owner-section-icon is-opportunity" aria-hidden="true"><Sparkles size={17} strokeWidth={1.7} /></span>
+              <div>
+                <h2>Куда идём</h2>
+                <div className="owner-section-kicker">Активные цели задают измеримую рамку. FEYA не создаёт цель только ради активности агентов.</div>
+              </div>
+            </div>
+            <Link href="/admin/strategy" className="owner-button">Стратегия и цели</Link>
+          </div>
+
+          {activeObjectives.length ? (
+            <div className="owner-list">
+              {activeObjectives.slice(0, 4).map((row) => (
+                <article className="owner-list-row" key={row.objective_id}>
+                  <div className="owner-list-row-main">
+                    <div className="owner-card-meta">
+                      <span className="owner-status is-success">Активная цель</span>
+                      <span>метрика: {String(row.primary_metric_code || 'не назначена')}</span>
+                      <span>реализуемость: {statusLabel(row.feasibility_status)}</span>
+                    </div>
+                    <h3>{String(row.title || 'Цель роста')}</h3>
+                    <p>{row.activation_reason ? String(row.activation_reason) : 'Цель активирована в текущей стратегии.'}</p>
+                  </div>
+                  <div className="owner-list-row-side">
+                    <OwnerObjectiveDrawerClient row={row} events={objectiveEventsById.get(row.objective_id) || []} />
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="owner-card is-info">
+              <div className="owner-status is-info">Pre-launch</div>
+              <h3 className="owner-card-title" style={{ marginTop: '10px' }}>Активная цель роста пока не включена</h3>
+              <p className="owner-card-copy">
+                Это ожидаемо: сначала закрываются Product Truth, ключевые слова, структура страниц и источники данных. Черновиков/предложений целей сейчас: {proposedObjectives.length}.
+              </p>
+              <div className="owner-actions"><Link href="/admin/strategy" className="owner-button">Открыть стратегию</Link></div>
+            </div>
+          )}
+        </section>
 
         <section className="owner-section">
           <div className="owner-section-head">
