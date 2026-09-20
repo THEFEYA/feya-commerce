@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { BarChart3, BookOpenCheck, FlaskConical, History, Scale } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { capabilityOwnerSummary, ownerToneForStatus, statusLabel } from '@/lib/owner-ui/terminology';
@@ -85,17 +86,16 @@ export default async function AdminResultsPage() {
   const map = new Map(data.capabilities.map((row) => [String(row.capability_code), row]));
   const measurementState = String(map.get('MEASUREMENT_ENGINE')?.capability_state || 'UNAVAILABLE');
   const tone = ownerToneForStatus(measurementState);
+  const hasRecordedActivity = Boolean(data.experiments || data.changeEvents || data.learnings);
 
   return (
     <main className="owner-page">
       <div className="owner-page-inner">
         <header className="owner-page-head">
           <div>
-            <div className="owner-eyebrow">Эффект и обучение</div>
+            <div className="owner-eyebrow"><span className="owner-eyebrow-mark" aria-hidden="true" />Эффект и обучение</div>
             <h1>Результаты</h1>
-            <p>
-              Выполненная работа и доказанный бизнес-результат — разные вещи. FEYA не объявляет изменение успешным, пока его нельзя измерить на реальных данных.
-            </p>
+            <p>Что действительно произошло после изменений, насколько этому можно доверять и какие выводы уже можно использовать повторно.</p>
           </div>
         </header>
 
@@ -108,47 +108,55 @@ export default async function AdminResultsPage() {
 
         {data.error ? <OwnerDataError error={data.error} /> : null}
 
-        <section className={'owner-card ' + toneClass(tone)}>
-          <div className={'owner-status ' + toneClass(tone)}>{statusLabel(measurementState)}</div>
-          <h2 className="owner-card-title" style={{ marginTop: '12px' }}>Измерение реальных результатов</h2>
-          <p className="owner-card-copy">{capabilityOwnerSummary('MEASUREMENT_ENGINE')}</p>
+        <section className={`owner-results-ribbon ${toneClass(tone)}`}>
+          <span className="owner-results-ribbon-icon" aria-hidden="true"><Scale size={18} strokeWidth={1.7} /></span>
+          <div>
+            <div className={`owner-status ${toneClass(tone)}`}>{statusLabel(measurementState)}</div>
+            <h2>Измерение реальных результатов</h2>
+            <p>{capabilityOwnerSummary('MEASUREMENT_ENGINE')}</p>
+          </div>
         </section>
 
         <section className="owner-section" id="results-summary">
           <div className="owner-section-head">
-            <div>
-              <h2>Что уже зафиксировано</h2>
-              <div className="owner-section-kicker">Только реальные записи из реестров, без имитации активности</div>
+            <div className="owner-section-heading">
+              <span className="owner-section-icon is-info" aria-hidden="true"><BarChart3 size={17} strokeWidth={1.7} /></span>
+              <div><h2>Что уже зафиксировано</h2><div className="owner-section-kicker">Только реальные записи — без имитации прогресса</div></div>
             </div>
           </div>
 
-          <div className="owner-summary-strip">
-            <div className="owner-summary-cell">
-              <strong>{data.activeExperiments}</strong>
-              <span>Активных экспериментов</span>
+          {hasRecordedActivity ? (
+            <div className="owner-queue-strip">
+              <Link href="/admin/experiments" className="owner-queue-item">
+                <span className="owner-queue-icon" aria-hidden="true"><FlaskConical size={15} strokeWidth={1.7} /></span>
+                <span className="owner-queue-copy"><strong>Активные эксперименты</strong><small>из {data.experiments} всего</small></span>
+                <b>{data.activeExperiments}</b>
+              </Link>
+              <Link href="/admin/company/advanced" className="owner-queue-item">
+                <span className="owner-queue-icon" aria-hidden="true"><History size={15} strokeWidth={1.7} /></span>
+                <span className="owner-queue-copy"><strong>Изменения</strong><small>зафиксировано</small></span>
+                <b>{data.changeEvents}</b>
+              </Link>
+              <Link href="/admin/learning" className="owner-queue-item">
+                <span className="owner-queue-icon" aria-hidden="true"><BookOpenCheck size={15} strokeWidth={1.7} /></span>
+                <span className="owner-queue-copy"><strong>Подтверждённые выводы</strong><small>можно использовать повторно</small></span>
+                <b>{data.learnings}</b>
+              </Link>
+              <div className="owner-queue-item is-static">
+                <span className="owner-queue-icon" aria-hidden="true"><BarChart3 size={15} strokeWidth={1.7} /></span>
+                <span className="owner-queue-copy"><strong>Измеримость</strong><small>только реальные данные</small></span>
+                <b>{data.activeExperiments ? '→' : '—'}</b>
+              </div>
             </div>
-            <div className="owner-summary-cell">
-              <strong>{data.experiments}</strong>
-              <span>Экспериментов всего</span>
+          ) : (
+            <div className="owner-result-empty-state">
+              <span className="owner-result-empty-icon" aria-hidden="true"><BarChart3 size={20} strokeWidth={1.6} /></span>
+              <div>
+                <strong>Измеренных результатов пока нет — и это сейчас правильно</strong>
+                <p>Эксперименты, изменения и подтверждённые выводы появятся только после реальных действий и доступных измерительных данных. FEYA не заполняет раздел декоративными нулями или придуманным прогрессом.</p>
+              </div>
             </div>
-            <div className="owner-summary-cell">
-              <strong>{data.changeEvents}</strong>
-              <span>Зафиксированных изменений</span>
-            </div>
-            <div className="owner-summary-cell">
-              <strong>{data.learnings}</strong>
-              <span>Подтверждённых выводов</span>
-            </div>
-          </div>
-
-          {!data.experiments && !data.changeEvents && !data.learnings ? (
-            <div className="owner-card is-info" style={{ marginTop: '10px' }}>
-              <div className="owner-status is-info">Ожидаемое состояние до запуска</div>
-              <p className="owner-card-copy">
-                Нулевые значения здесь правильны: система не создаёт фиктивные эксперименты, результаты или «выводы» только ради заполнения панели. Они появятся после реальных изменений и доступных измерительных данных.
-              </p>
-            </div>
-          ) : null}
+          )}
         </section>
 
         <section className="owner-section">
