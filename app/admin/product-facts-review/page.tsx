@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
+import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -122,24 +123,19 @@ export default async function AdminProductFactsReviewPage({ searchParams }: { se
   };
 
   return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
-          <div className="nav-links">
-            <Link href="/admin/products">Товары</Link>
-            <Link href="/admin/review">Проверка</Link>
-            <Link href="/admin/content-qa">Качество контента</Link>
+    <main className="owner-page">
+      <div className="owner-page-inner">
+        <header className="owner-page-head">
+          <div>
+            <div className="owner-eyebrow">Работа · факты о товарах</div>
+            <h1>Проверка фактов о товарах</h1>
+            <p>Здесь собраны неоднозначности в исходных фактах. Правильный путь — подтвердить или исправить факт в каноническом источнике, а не маскировать проблему SEO-текстом.</p>
           </div>
-        </nav>
-
-        <section className="phase-banner">
-          <div className="phase-label">Факты о товаре · очередь проверки</div>
-          <h1>Проверка фактов о товарах</h1>
-          <p>
-            Здесь собраны неоднозначности в исходных фактах о товаре. Сначала нужно исправить или подтвердить факт, а не переписывать SEO-текст, чтобы скрыть проблему.
-          </p>
-        </section>
+          <div className="owner-actions" style={{ marginTop: 0 }}>
+            <Link href="/admin/company/work#operational-queues" className="owner-button">Назад к работе</Link>
+            <Link href="/admin" className="owner-button">Товарная админка</Link>
+          </div>
+        </header>
 
         <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
           <div className="owner-summary-cell"><strong>{rows.length}</strong><span>Товаров ждут проверки фактов</span></div>
@@ -178,9 +174,12 @@ export default async function AdminProductFactsReviewPage({ searchParams }: { se
             <span>Показано: {visibleRows.length}</span>
             <Link href="/admin/product-facts-review">Сбросить</Link>
           </div>
+          <OwnerSavedViewsClient scope="product-facts-review" />
         </form>
 
-        <div className="table-wrap">
+        <section className="owner-section" style={{ marginTop: '18px' }}>
+          <div className="owner-section-head"><div><h2>Неоднозначные факты</h2><div className="owner-section-kicker">Приоритет определяется типом и риском неоднозначности, а не коммерческой ценностью товара</div></div></div>
+          <div className="table-wrap">
           <table>
             <thead>
               <tr>
@@ -225,6 +224,9 @@ export default async function AdminProductFactsReviewPage({ searchParams }: { se
             </tbody>
           </table>
         </div>
+
+          </div>
+        </section>
 
         {!error && filteredRows.length === 0 ? (
           <div className="notice">По текущему фильтру фактов для проверки нет.</div>
