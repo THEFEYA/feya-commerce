@@ -63,88 +63,113 @@ export default async function AdminLearningPage() {
   const candidates = rows.filter((row) => row.learning_status === 'POLICY_CANDIDATE').length;
   const adopted = rows.filter((row) => row.learning_status === 'ADOPTED_POLICY').length;
 
-  return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
-          <div className="nav-links">
-            <Link href="/admin/learning">Выводы</Link>
-            <Link href="/admin/scenario-tests">Проверки сценариев</Link>
-            <Link href="/admin/execution-map">Права действий</Link>
-          </div>
-        </nav>
+  const confirmedRows = rows.filter((row) => ['REPLICATED_LEARNING', 'ADOPTED_POLICY'].includes(String(row.learning_status || '')));
+  const developingRows = rows.filter((row) => !confirmedRows.includes(row));
 
-        <section className="phase-banner">
-          <div className="phase-label">Реестр выводов и улучшений · только просмотр</div>
-          <h1>Выводы</h1>
-          <p>
-            Наблюдение становится повторно используемым выводом только после повторных доказательств. Кандидат в правило требует целевой регрессионной проверки и человеческого подтверждения; агент не может сам переписать правило.
-          </p>
-        </section>
+  return (
+    <main className="owner-page">
+      <div className="owner-page-inner">
+        <header className="owner-page-head">
+          <div>
+            <div className="owner-eyebrow">Результаты · обучение системы</div>
+            <h1>Выводы</h1>
+            <p>Наблюдение становится повторно используемым выводом только после повторных доказательств. FEYA не превращает один удачный случай в правило автоматически.</p>
+          </div>
+          <div className="owner-actions" style={{ marginTop: 0 }}>
+            <Link href="/admin/company/results" className="owner-button">Назад к результатам</Link>
+            <Link href="/admin/scenario-tests" className="owner-button">Проверки сценариев</Link>
+          </div>
+        </header>
 
         <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
           <div className="owner-summary-cell"><strong>{observations}</strong><span>Новых наблюдений</span></div>
           <div className="owner-summary-cell"><strong>{repeated}</strong><span>Повторяющихся наблюдений</span></div>
           <div className="owner-summary-cell"><strong>{replicated}</strong><span>Подтверждённых выводов</span></div>
-          <div className="owner-summary-cell"><strong>{candidates + adopted}</strong><span>Кандидатов в правила / принятых правил</span></div>
+          <div className="owner-summary-cell"><strong>{adopted}</strong><span>Принятых правил</span></div>
         </section>
 
-        {error ? <div className="notice">{error}</div> : null}
+        {error ? <div className="owner-card is-danger"><div className="owner-status is-danger">Ошибка данных</div><p className="owner-card-copy">{error}</p></div> : null}
 
-        {!rows.length ? (
-          <div className="notice">Подтверждённых выводов пока нет.</div>
-        ) : (
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Вывод</th>
-                  <th>Область</th>
-                  <th>Этап</th>
-                  <th>Доказательства</th>
-                  <th>Кандидат в правило</th>
-                  <th>Регрессия</th>
-                  <th>Принятие</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => (
-                  <tr key={row.learning_id}>
-                    <td>
-                      <strong title={asText(row.learning_code)}>{asText(row.title, row.learning_code || '—')}</strong>
-                      <div className="muted">{asText(row.learning_statement)}</div>
-                    </td>
-                    <td title={asText(row.domain)}>{domainLabel(row.domain)}</td>
-                    <td>
-                      <span className={`status-pill ${statusClass(row.learning_status)}`}>
-                        {statusLabel(row.learning_status)}
-                      </span>
-                    </td>
-                    <td>
-                      {row.evidence_count ?? 0} доказательств
-                      <div className="muted">{row.distinct_context_count ?? 0} контекстов</div>
-                    </td>
-                    <td>
-                      {asText(row.proposed_policy_name, row.proposed_policy_code || '—')}
-                      {row.proposed_policy_version ? (
-                        <div className="muted" title={asText(row.proposed_policy_code)}>версия {row.proposed_policy_version}</div>
-                      ) : null}
-                      {row.candidate_version ? <div className="muted">кандидат {row.candidate_version}</div> : null}
-                    </td>
-                    <td>{row.required_scenario_count ?? 0} обязательных сценариев</td>
-                    <td>
-                      {row.adopted_policy_version ? (
-                        <span className="status-pill ok">правило v{row.adopted_policy_version}</span>
-                      ) : '—'}
-                      {row.adopted_at ? <div className="muted">{dateLabel(row.adopted_at)}</div> : null}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <section className="owner-section" style={{ marginTop: 0 }}>
+          <div className="owner-section-head">
+            <div>
+              <h2>Подтверждённые выводы</h2>
+              <div className="owner-section-kicker">Только то, что прошло достаточный уровень повторяемости</div>
+            </div>
           </div>
-        )}
+
+          {confirmedRows.length ? (
+            <div className="owner-grid two">
+              {confirmedRows.map((row) => (
+                <article className="owner-card is-success" key={row.learning_id}>
+                  <div className="owner-card-meta">
+                    <span className="owner-status is-success">{statusLabel(row.learning_status)}</span>
+                    <span>{domainLabel(row.domain)}</span>
+                  </div>
+                  <h3 className="owner-card-title">{asText(row.title, 'Подтверждённый вывод')}</h3>
+                  <p className="owner-card-copy">{asText(row.learning_statement)}</p>
+                  <div className="owner-card-meta" style={{ marginTop: '12px', marginBottom: 0 }}>
+                    <span>{row.evidence_count ?? 0} доказательств</span>
+                    <span>{row.distinct_context_count ?? 0} контекстов</span>
+                    {row.adopted_policy_version ? <span>правило v{row.adopted_policy_version}</span> : null}
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="owner-empty">Подтверждённых выводов пока нет. Это нормальное состояние до накопления повторяемых результатов.</div>
+          )}
+        </section>
+
+        <section className="owner-section">
+          <details className="owner-disclosure owner-disclosure-section">
+            <summary>
+              <span><strong>Выводы в развитии</strong><small>Наблюдения, повторения и кандидаты в правила ещё не считаются корпоративным знанием</small></span>
+              <span className="owner-section-kicker">{developingRows.length}</span>
+            </summary>
+            <div className="owner-disclosure-body owner-list">
+              {developingRows.length ? developingRows.map((row) => (
+                <article className="owner-list-row" key={row.learning_id}>
+                  <div className="owner-list-row-main">
+                    <div className="owner-card-meta"><span>{statusLabel(row.learning_status)}</span><span>{domainLabel(row.domain)}</span></div>
+                    <h3>{asText(row.title, 'Наблюдение')}</h3>
+                    <p>{asText(row.learning_statement)}</p>
+                  </div>
+                  <div className="owner-list-row-side"><span className="owner-section-kicker">{row.evidence_count ?? 0} доказательств</span></div>
+                </article>
+              )) : <div className="owner-empty">Наблюдений в развитии сейчас нет.</div>}
+            </div>
+          </details>
+        </section>
+
+        <section className="owner-section">
+          <details className="owner-disclosure owner-disclosure-section">
+            <summary>
+              <span><strong>Технический реестр</strong><small>Полная история зрелости, кандидатов в правила и регрессионных требований</small></span>
+              <span className="owner-section-kicker">{rows.length}</span>
+            </summary>
+            <div className="owner-disclosure-body">
+              <div className="table-wrap">
+                <table>
+                  <thead><tr><th>Вывод</th><th>Область</th><th>Этап</th><th>Доказательства</th><th>Кандидат в правило</th><th>Регрессия</th><th>Принятие</th></tr></thead>
+                  <tbody>
+                    {rows.map((row) => (
+                      <tr key={row.learning_id}>
+                        <td><strong title={asText(row.learning_code)}>{asText(row.title, row.learning_code || '—')}</strong><div className="muted">{asText(row.learning_statement)}</div></td>
+                        <td>{domainLabel(row.domain)}</td>
+                        <td>{statusLabel(row.learning_status)}</td>
+                        <td>{row.evidence_count ?? 0} · {row.distinct_context_count ?? 0} контекстов</td>
+                        <td>{asText(row.proposed_policy_name, row.proposed_policy_code || '—')}</td>
+                        <td>{row.required_scenario_count ?? 0} сценариев</td>
+                        <td>{row.adopted_policy_version ? `v${row.adopted_policy_version}` : '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </details>
+        </section>
       </div>
     </main>
   );
