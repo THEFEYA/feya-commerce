@@ -144,7 +144,7 @@ export function OwnerRoleDrawerClient({
               <details className="owner-disclosure owner-disclosure-section">
                 <summary>
                   <span><strong>Технические детали</strong><small>Только для диагностики</small></span>
-                  <span className="owner-section-kicker">Advanced</span>
+                  <span className="owner-section-kicker">Технически</span>
                 </summary>
                 <div className="owner-disclosure-body">
                   <div className="owner-card-meta" style={{ marginBottom: 0 }}>
