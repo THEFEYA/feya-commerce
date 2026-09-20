@@ -1,4 +1,7 @@
 import Link from 'next/link';
+import { Layers3, ShieldCheck, Workflow } from 'lucide-react';
+import { OwnerDataError } from '@/components/admin/OwnerDataError';
+import { OwnerContentBriefDrawerClient } from '@/components/admin/OwnerContentBriefDrawerClient';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { ContentBriefCompilerStatusRow } from '@/lib/types';
 
@@ -133,38 +136,48 @@ export default async function AdminContentBriefsPage({ searchParams }: { searchP
   };
 
   return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
-          <div className="nav-links">
-            <Link href="/admin/products">Товары</Link>
-            <Link href="/admin/seo-portfolio">SEO-страницы</Link>
-            <Link href="/admin/seo-clusters">Группы запросов</Link>
-            <Link href="/admin/content-briefs">Контентные задания</Link>
-            <Link href="/admin/content-qa">Контроль качества</Link>
+    <main className="owner-page">
+      <div className="owner-page-inner">
+        <header className="owner-page-head">
+          <div>
+            <div className="owner-eyebrow"><span className="owner-eyebrow-mark" aria-hidden="true" />Работа · контент</div>
+            <h1>Контентные задания</h1>
+            <p>Факты товара, Product DNA, план ключевых слов, Business Truth и состояние SEO-страницы собираются до генерации. Готовность черновика, каноническая готовность и публикация — разные этапы.</p>
           </div>
-        </nav>
+          <div className="owner-actions" style={{ marginTop: 0 }}>
+            <Link href="/admin/company/work" className="owner-button">Назад к работе</Link>
+            <Link href="/admin/content-qa" className="owner-button">Контроль качества</Link>
+          </div>
+        </header>
 
-        <section className="phase-banner">
-          <div className="phase-label">Детерминированные контентные задания · безопасный режим</div>
-          <h1>Контентные задания</h1>
-          <p>
-            Факты товара, выбранные оси, план ключевых слов, правила бизнеса, политика контента и состояние SEO-страницы собираются детерминированно, без генеративной модели. Каноническая готовность не считается достигнутой, пока нет подтверждённой ответственности страницы и одобренного плана ключевых слов.
-          </p>
+        <section className="owner-queue-strip" aria-label="Состояние контентных заданий" style={{ marginBottom: '20px' }}>
+          <div className="owner-queue-item is-static">
+            <span className="owner-queue-icon" aria-hidden="true"><ShieldCheck size={15} strokeWidth={1.7} /></span>
+            <span className="owner-queue-copy"><strong>Есть блокеры</strong><small>нужно закрыть до генерации</small></span>
+            <b>{blockedFacts + blockedKeyword + blockedGeneration + missingPage}</b>
+          </div>
+          <div className="owner-queue-item is-static">
+            <span className="owner-queue-icon" aria-hidden="true"><Workflow size={15} strokeWidth={1.7} /></span>
+            <span className="owner-queue-copy"><strong>Shadow draft</strong><small>можно готовить безопасно</small></span>
+            <b>{shadowReady}</b>
+          </div>
+          <div className="owner-queue-item is-static">
+            <span className="owner-queue-icon" aria-hidden="true"><Layers3 size={15} strokeWidth={1.7} /></span>
+            <span className="owner-queue-copy"><strong>Canonical ready</strong><small>задание собрано полностью</small></span>
+            <b>{canonicalReady}</b>
+          </div>
+          <div className="owner-queue-item is-static">
+            <span className="owner-queue-icon" aria-hidden="true"><Layers3 size={15} strokeWidth={1.7} /></span>
+            <span className="owner-queue-copy"><strong>Всего товаров</strong><small>в compiler registry</small></span>
+            <b>{rows.length}</b>
+          </div>
         </section>
 
-        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
-          <div className="owner-summary-cell"><strong>{blockedFacts + blockedKeyword + blockedGeneration + missingPage}</strong><span>Требуют устранить блокеры</span></div>
-          <div className="owner-summary-cell"><strong>{shadowReady}</strong><span>Можно готовить безопасный черновик</span></div>
-          <div className="owner-summary-cell"><strong>{canonicalReady}</strong><span>Канонически готовы</span></div>
-          <div className="owner-summary-cell"><strong>{rows.length}</strong><span>Товаров в реестре заданий</span></div>
-        </section>
+        {error ? <OwnerDataError error={error} /> : null}
 
-        {error ? <div className="notice">{error}</div> : null}
-
-        <div className="notice" style={{ marginBottom: '18px' }}>
-          Готовность к безопасному черновику не означает готовность к публикации. Это значит, что фактов и контекста достаточно для экспериментального черновика, но нерешённые ограничения по метрикам и ответственности страницы сохраняются.
+        <div className="owner-card is-info" style={{ marginBottom: '18px' }}>
+          <div className="owner-status is-info">Важно</div>
+          <p className="owner-card-copy">Shadow-ready означает только достаточный контекст для безопасного черновика. Это не публикация и не доказательство готовности страницы к индексации.</p>
         </div>
 
         <form action="/admin/content-briefs" className="owner-card" style={{ marginBottom: '14px' }}>
@@ -207,6 +220,7 @@ export default async function AdminContentBriefsPage({ searchParams }: { searchP
                 <th>SEO-страница</th>
                 <th>Ответственность страницы</th>
                 <th>Правила бизнеса</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -242,6 +256,7 @@ export default async function AdminContentBriefsPage({ searchParams }: { searchP
                     <div className="muted">{row.ownership_count || 0} всего</div>
                   </td>
                   <td>{row.business_truth_count || 0} активных правил</td>
+                  <td><OwnerContentBriefDrawerClient row={row} /></td>
                 </tr>
               ))}
             </tbody>
