@@ -524,11 +524,13 @@ th {
   background: rgba(10,10,13,.92);
 }
 
-.owner-shell .page-shell tbody tr {
+.owner-shell .page-shell tbody tr,
+.owner-shell .owner-page tbody tr {
   transition: background 140ms ease;
 }
 
-.owner-shell .page-shell tbody tr:hover {
+.owner-shell .page-shell tbody tr:hover,
+.owner-shell .owner-page tbody tr:hover {
   background: rgba(212,178,106,.035);
 }
 
@@ -550,7 +552,8 @@ th {
   line-height: 1.35;
 }
 
-.owner-shell .page-shell .table-wrap thead th {
+.owner-shell .page-shell .table-wrap thead th,
+.owner-shell .owner-page .table-wrap thead th {
   position: sticky;
   top: var(--owner-topbar);
   z-index: 8;
@@ -558,11 +561,13 @@ th {
   backdrop-filter: blur(12px);
 }
 
-.owner-shell .page-shell table td {
+.owner-shell .page-shell table td,
+.owner-shell .owner-page table td {
   font-size: 12px;
 }
 
-.owner-shell .page-shell .notice {
+.owner-shell .page-shell .notice,
+.owner-shell .owner-page .notice {
   border-radius: 12px;
   padding: 14px;
   font-size: 12px;
