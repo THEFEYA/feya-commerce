@@ -49,7 +49,7 @@ A backend table/view/registry does **not** automatically require its own screen.
 | Product DNA / manual axes | existing Product OS / Listing Master | approved working UI remains canonical operator surface | COVERED / FROZEN |
 | Content Brief Compiler | `/admin/content-briefs` | blockers vs shadow-ready vs canonical-ready + brief drawer | COVERED |
 | SCO shadow/content generation | existing Product OS SEO Studio + content queues | generator/operator workflow preserved | COVERED / FROZEN |
-| Independent CQA | `/admin/content-qa` | stage states + CQA drawer + deterministic blockers | COVERED |
+| Independent CQA | `/admin/content-qa` | stage states + CQA drawer + deterministic blockers; protected Human draft review prepared separately from CQA | COVERED / UX-5 PREPARED |
 | Similarity / ALT / component claims | CQA | visible as separate checks; not collapsed into one fake QA score | COVERED |
 | Publication | future protected execution | no direct owner/browser publish | BLOCKED BY AUTH / EXECUTION |
 
@@ -333,3 +333,28 @@ Server path:
 - additionally writes generic Owner Action audit.
 
 Current reviewable keyword rows: 431. No row was changed because owner actions remain locked.
+
+
+## 18. Protected Human SCO draft review — 2026-09-20
+
+Migration `20260920125821 feya_owner_sco_shadow_review_gateway_v1` prepared the Human review step for SCO shadow drafts.
+
+The protected action is shown only for `READY_FOR_HUMAN_AND_CQA_REVIEW` items and supports:
+
+- approve draft;
+- request changes;
+- reject draft;
+- mandatory Human note.
+
+Approval is revalidated server-side against the existing canonical safeguards:
+- textual similarity precheck must pass;
+- image ALT truth must pass;
+- component inclusion claim truth must pass;
+- approval blockers must be empty;
+- Product Truth blockers must be empty.
+
+The wrapper adds expected Human review-status protection and Owner Action audit on top of the existing draft review event.
+
+Current rows ready for Human + CQA review: 17. No draft was changed because owner actions remain locked.
+
+Important boundary: Human approval is not independent CQA and is not publication.
