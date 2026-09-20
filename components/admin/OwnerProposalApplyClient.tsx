@@ -7,7 +7,7 @@ import { X } from 'lucide-react';
 import { useOwnerDrawerA11y } from '@/components/admin/useOwnerDrawerA11y';
 
 type Props = {
-  proposalKind: 'PAGE_OWNERSHIP' | 'INDEXABILITY';
+  proposalKind: 'QUERY_CLUSTER' | 'PAGE_OWNERSHIP' | 'INDEXABILITY';
   proposalId: string;
   title: string;
   consequence: string;
@@ -16,6 +16,7 @@ type Props = {
 };
 
 function label(kind: Props['proposalKind']) {
+  if (kind === 'QUERY_CLUSTER') return 'Создать canonical cluster';
   return kind === 'PAGE_OWNERSHIP' ? 'Применить ownership' : 'Применить решение индексации';
 }
 
