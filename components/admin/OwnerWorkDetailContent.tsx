@@ -1,5 +1,7 @@
 import Link from 'next/link';
+import type { GrowthHandoffRow, GrowthWorkflowEventRow } from '@/lib/types';
 import type { OwnerWorkItemVM } from '@/lib/owner-ui/types';
+import { roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
 
 function toneClass(tone: OwnerWorkItemVM['tone']) {
   return tone === 'danger'
@@ -39,7 +41,40 @@ const LIFECYCLE_STAGES = [
   'Закрыто',
 ];
 
-export function OwnerWorkDetailContent({ item, compact = false }: { item: OwnerWorkItemVM; compact?: boolean }) {
+function eventLabel(value: unknown) {
+  const key = String(value || '').trim().toUpperCase();
+  const labels: Record<string, string> = {
+    CREATED: 'Процесс создан',
+    STATUS_CHANGED: 'Изменено состояние',
+    STEP_STARTED: 'Начат этап',
+    STEP_COMPLETED: 'Этап завершён',
+    WAITING: 'Процесс ожидает',
+    RESUMED: 'Процесс продолжен',
+    COMPLETED: 'Работа завершена',
+    FAILED: 'Ошибка выполнения',
+    HANDOFF_CREATED: 'Создана передача роли',
+    HANDOFF_COMPLETED: 'Передача роли завершена',
+  };
+  return labels[key] || statusLabel(value);
+}
+
+function jsonCount(value: unknown) {
+  if (Array.isArray(value)) return value.length;
+  if (value && typeof value === 'object') return Object.keys(value as Record<string, unknown>).length;
+  return 0;
+}
+
+export function OwnerWorkDetailContent({
+  item,
+  compact = false,
+  handoffs = [],
+  workflowEvents = [],
+}: {
+  item: OwnerWorkItemVM;
+  compact?: boolean;
+  handoffs?: GrowthHandoffRow[];
+  workflowEvents?: GrowthWorkflowEventRow[];
+}) {
   return (
     <div className={compact ? 'space-y-4' : 'space-y-5'}>
       <section className={`owner-card ${toneClass(item.tone)}`}>
@@ -109,21 +144,65 @@ export function OwnerWorkDetailContent({ item, compact = false }: { item: OwnerW
 
       <details className="owner-disclosure owner-disclosure-section">
         <summary>
-          <span><strong>Workflow, доказательства и измерение</strong><small>Раскрывать только когда нужен контекст процесса</small></span>
-          <span className="owner-section-kicker">детали</span>
+          <span><strong>Workflow, передачи и доказательства</strong><small>Durable события из канонической истории процесса</small></span>
+          <span className="owner-section-kicker">{handoffs.length + workflowEvents.length} событий</span>
         </summary>
-        <div className="owner-disclosure-body space-y-3">
+        <div className="owner-disclosure-body space-y-4">
           <div>
             <div className="owner-section-kicker">Передачи между ролями</div>
-            <p className="owner-card-copy">В текущую owner-проекцию ещё не включена отдельная timeline-проекция handoff-событий.</p>
+            {handoffs.length ? (
+              <div className="owner-timeline" style={{ marginTop: '10px' }}>
+                {handoffs.map((handoff) => (
+                  <div className="owner-timeline-row" key={handoff.handoff_id}>
+                    <span className="owner-timeline-dot" aria-hidden="true" />
+                    <div>
+                      <strong>{roleLabel(handoff.source_domain)} → {roleLabel(handoff.target_domain)}</strong>
+                      <p>{handoff.question || handoff.result_reason || 'Передача рабочей ситуации зафиксирована.'}</p>
+                      <small>
+                        {statusLabel(handoff.handoff_status)} · {dateTimeLabel(handoff.created_at)}
+                        {handoff.completed_at ? ` · завершено ${dateTimeLabel(handoff.completed_at)}` : ''}
+                      </small>
+                      {(jsonCount(handoff.known_facts_json) || jsonCount(handoff.known_unknowns_json) || jsonCount(handoff.evidence_json)) ? (
+                        <small>
+                          Фактов: {jsonCount(handoff.known_facts_json)} · неизвестных: {jsonCount(handoff.known_unknowns_json)} · evidence: {jsonCount(handoff.evidence_json)}
+                        </small>
+                      ) : null}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="owner-card-copy">Передач между ролями для этой рабочей ситуации пока не зафиксировано.</p>
+            )}
           </div>
+
           <div>
-            <div className="owner-section-kicker">Доказательства</div>
-            <p className="owner-card-copy">Отдельный evidence summary для этой ситуации пока не подключён.</p>
+            <div className="owner-section-kicker">События workflow</div>
+            {workflowEvents.length ? (
+              <div className="owner-timeline" style={{ marginTop: '10px' }}>
+                {workflowEvents.map((event) => (
+                  <div className="owner-timeline-row" key={event.workflow_event_id}>
+                    <span className="owner-timeline-dot" aria-hidden="true" />
+                    <div>
+                      <strong>{eventLabel(event.event_type)}</strong>
+                      <p>
+                        {event.reason ||
+                          [event.from_status, event.to_status].filter(Boolean).map(statusLabel).join(' → ') ||
+                          (event.step_code ? `Этап: ${event.step_code}` : 'Событие процесса зафиксировано.')}
+                      </p>
+                      <small>{dateTimeLabel(event.created_at)}</small>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="owner-card-copy">Отдельных событий workflow пока нет. FEYA не создаёт историю искусственно.</p>
+            )}
           </div>
+
           <div>
             <div className="owner-section-kicker">Изменения и измерение</div>
-            <p className="owner-card-copy">Показываются только после появления фактического change/measurement контекста; отсутствие данных не заменяется предположением.</p>
+            <p className="owner-card-copy">Change Events и измеренные outcomes отображаются только после фактического изменения и появления измерительного контекста. Наличие workflow-события само по себе не доказывает бизнес-результат.</p>
           </div>
         </div>
       </details>
