@@ -151,5 +151,19 @@ In `Why you'll love it`, no more than one bullet should be a generic material/sh
 
 Before Preview, the editorial pass must ask: `Could this exact benefit block be pasted onto three other FEYA products with only the color changed?` If yes, rewrite it.
 
+
+## R31. Prefer brand-safe fashion/performance language when adult legacy wording is not owner-selected
+Owner clarification, 2026-09-20: old marketplace titles/descriptions may contain adult-category wording such as `BDSM`, `fetish`, `bondage`, `kinky`, `sexual` or similar terms. Do not carry those words into new Google/PDP copy merely because they exist in legacy Etsy text.
+
+When the product is truthfully describable through current owner-selected axes such as fashion, stage, performance, Pride, photoshoot, harness, corset, costume, glam or classic styling, prefer that neutral buyer-facing vocabulary. This supports brand positioning and future advertising/licensing readiness without changing product truth.
+
+Rules:
+- Legacy adult wording is not a public-copy requirement.
+- Owner-selected current axes outrank legacy marketplace positioning.
+- Do not add adult-use motivations or intimate-use claims unless the owner explicitly selects that positioning for the current product.
+- Keep accurate physical identity such as `body harness`, `chest harness`, `garters`, `corset` and `body straps` when they are product truth.
+- Keyword selection should prefer accurate neutral whole-product queries when available.
+- Before Preview, scan Title, H1, Meta, ALT and PDP blocks for unwanted adult-category vocabulary.
+
 ## Process rule
 Every owner review is captured the same way: complaint → named rule → committed here → reflected in prompts/validators. Cumulative and versioned.
