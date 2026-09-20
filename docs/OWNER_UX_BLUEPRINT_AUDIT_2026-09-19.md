@@ -103,7 +103,9 @@ Current state:
 - Team FEYA roster: DONE
 - right drawer: DONE for Work and Signals
 - full detail route: DONE
-- workflow/handoff/evidence timeline: NOT YET — current owner projection does not expose enough evidence; UI says so instead of inventing events
+- durable handoff timeline: DONE — governed handoff projection is wired into Work detail; current production rows are 0, so the empty state is truthful
+- durable workflow-event timeline: DONE — governed workflow-event projection is wired into Work detail; current production rows are 0
+- measured outcome evidence remains data-gated and is not inferred from workflow activity
 
 ### Existing Product OS
 
@@ -252,8 +254,28 @@ New owner-facing contextual surfaces added after the initial visual pass:
 - CQA drawer: human review, deterministic validation, similarity, ALT truth, component truth and independent CQA as separate checks;
 - Product Truth review drawer: ambiguity reason, current facts and controlled resolution boundary;
 - initiative drawer: Growth Director gate, Human Owner gate and strategy revalidation;
+- Growth Objective projection + drawer: objective status, owner, primary/guardrail metrics, feasibility, human activation and durable objective events;
+- Work durable history: role handoffs and workflow events now render from governed projections instead of a placeholder;
 - owner-facing Change Events history under Results;
 - global search expanded to opportunities, experiments, incidents, execution and learning;
 - legacy `/admin/owner-attention` now redirects to the single canonical Company Owner Attention projection.
 
 These additions do not enable mutations and do not create synthetic data. They expose already-existing governed state more clearly.
+
+
+## Objective / handoff projection checkpoint — 2026-09-20
+
+Migration `20260920104947 feya_owner_objective_handoff_safe_projections_v1` added governed read projections for Growth Objectives, Objective Events, Handoffs and Workflow Events.
+
+Validation:
+- objectives: 0;
+- handoffs: 0;
+- workflow events: 0;
+- registered Admin Data Boundary views: 46;
+- browser-readable registered views: 46, intentionally unchanged until owner auth/allowlist cutover.
+
+The UI now exposes the capability without fabricating activity:
+- Strategy shows an honest empty Growth Objective state until a Human Owner activates a real objective;
+- Work detail shows durable handoffs/workflow events when they exist;
+- no agent/tool trace is mixed into business history;
+- no write path was enabled.
