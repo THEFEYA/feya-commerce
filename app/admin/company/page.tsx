@@ -1,4 +1,14 @@
 import Link from 'next/link';
+import {
+  Activity,
+  ArrowRight,
+  CalendarDays,
+  CircleAlert,
+  Layers3,
+  ShieldCheck,
+  Sparkles,
+  Workflow,
+} from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { OwnerSignalDrawerClient } from '@/components/admin/OwnerSignalDrawerClient';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
@@ -159,6 +169,14 @@ function russianDate() {
   }).format(new Date());
 }
 
+function pluralRu(value: number, one: string, few: string, many: string) {
+  const mod10 = value % 10;
+  const mod100 = value % 100;
+  if (mod10 === 1 && mod100 !== 11) return one;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return few;
+  return many;
+}
+
 export default async function AdminHomePage() {
   const { attention, signals, work, workTotal, opportunities, readiness, operations, error } = await getTodayData();
 
@@ -177,28 +195,74 @@ export default async function AdminHomePage() {
   const workVM = work.map(presentWorkItem);
   const blockedScopes = readiness.filter((row) => String(row.scope_status || '').toUpperCase() === 'BLOCKED');
   const totalBlockers = readiness.reduce((sum, row) => sum + Number(row.blocking_count || 0), 0);
+  const operationalQueueTotal = operations.productFacts + operations.keywordReview + operations.cqaActionable;
+  const decisionWord = pluralRu(attentionVM.length, 'решение', 'решения', 'решений');
+  const decisionVerb = attentionVM.length === 1 ? 'ждёт' : 'ждут';
 
   return (
     <main className="owner-page">
       <div className="owner-page-inner">
-        <header className="owner-page-head">
+        <header className="owner-page-head owner-today-head">
           <div>
-            <div className="owner-eyebrow">Центр управления</div>
+            <div className="owner-eyebrow"><span className="owner-eyebrow-mark" aria-hidden="true" />Центр управления</div>
             <h1>Сегодня</h1>
             <p>
-              Короткая сводка только по тому, что действительно требует внимания, уже выполняется или мешает двигаться дальше.
+              Что требует вашего решения, что команда уже делает и какие ограничения мешают следующему шагу.
             </p>
           </div>
-          <div className="owner-page-meta">{russianDate()}</div>
+          <div className="owner-today-date"><CalendarDays size={15} strokeWidth={1.7} aria-hidden="true" />{russianDate()}</div>
         </header>
 
         {error ? <OwnerDataError error={error} /> : null}
 
+        {!error ? (
+          <section className="owner-command-brief" aria-label="Сводка на сегодня">
+            <div className="owner-command-brief-main">
+              <div className={`owner-command-state${attentionVM.length ? ' is-attention' : ''}`}>
+                <span className="owner-command-state-dot" aria-hidden="true" />
+                {attentionVM.length ? 'Нужно ваше внимание' : 'Работа идёт'}
+              </div>
+              <h2>
+                {attentionVM.length
+                  ? `${attentionVM.length} ${decisionWord} ${decisionVerb} вас`
+                  : 'Вашего решения сейчас не требуется'}
+              </h2>
+              <p>
+                {attentionVM.length
+                  ? 'Сначала разберите эти решения: они являются реальными точками human authority и могут удерживать следующий безопасный шаг.'
+                  : totalBlockers
+                    ? 'Команда продолжает подготовку к запуску. Ограничения ниже связаны с ещё не подключёнными данными и launch-gates, а не с аварией.'
+                    : 'Основные рабочие потоки продолжаются без блокирующего участия владельца.'}
+              </p>
+            </div>
+            <div className="owner-command-brief-metrics" aria-label="Ключевые состояния">
+              <Link href="/admin/company/owner-attention">
+                <span>Решения</span>
+                <strong>{attentionVM.length}</strong>
+                <small>{attentionVM.length ? 'нужно рассмотреть' : 'ничего не ждёт'}</small>
+              </Link>
+              <Link href="/admin/company/work#operational-queues">
+                <span>Рабочие очереди</span>
+                <strong>{operationalQueueTotal}</strong>
+                <small>требуют обработки</small>
+              </Link>
+              <Link href="/admin/company/system">
+                <span>Ограничения</span>
+                <strong>{blockedScopes.length}</strong>
+                <small>зон подготовки</small>
+              </Link>
+            </div>
+          </section>
+        ) : null}
+
         <section className="owner-section">
           <div className="owner-section-head">
-            <div>
-              <h2>Нужно ваше решение</h2>
-              <div className="owner-section-kicker">Только то, что действительно требует владельца</div>
+            <div className="owner-section-heading">
+              <span className="owner-section-icon is-attention" aria-hidden="true"><CircleAlert size={17} strokeWidth={1.7} /></span>
+              <div>
+                <h2>Нужно ваше решение</h2>
+                <div className="owner-section-kicker">Только реальные точки, где без владельца нельзя продолжить безопасно</div>
+              </div>
             </div>
             <Link href="/admin/company/owner-attention" className="owner-button">Показать всё</Link>
           </div>
@@ -206,7 +270,7 @@ export default async function AdminHomePage() {
           {attentionVM.length ? (
             <div className="owner-grid two">
               {attentionVM.slice(0, 3).map((item) => (
-                <article className={`owner-card ${toneClass(item.tone)}`} key={item.id}>
+                <article className={`owner-card owner-decision-card ${toneClass(item.tone)}`} key={item.id}>
                   <div className="owner-card-meta">
                     <span className={`owner-status ${toneClass(item.tone)}`}>{item.priorityLabel}</span>
                     <span>{item.typeLabel}</span>
@@ -219,7 +283,7 @@ export default async function AdminHomePage() {
                     <span>{item.dueAt ? `Срок: ${formatDueTime(item.dueAt)}` : 'Жёсткого срока нет'}</span>
                   </div>
                   <div className="owner-actions">
-                    <Link href={`/admin/company/owner-attention/${item.id}`} className="owner-button primary">Рассмотреть</Link>
+                    <Link href={`/admin/company/owner-attention/${item.id}`} className="owner-button primary owner-button-arrow">Рассмотреть <ArrowRight size={13} strokeWidth={1.8} aria-hidden="true" /></Link>
                   </div>
                 </article>
               ))}
@@ -231,15 +295,18 @@ export default async function AdminHomePage() {
 
         <section className="owner-section">
           <div className="owner-section-head">
-            <div>
-              <h2>Что важно сейчас</h2>
-              <div className="owner-section-kicker">Материальные сигналы без дублирования ваших решений</div>
+            <div className="owner-section-heading">
+              <span className="owner-section-icon is-info" aria-hidden="true"><Activity size={17} strokeWidth={1.7} /></span>
+              <div>
+                <h2>Что существенно изменилось</h2>
+                <div className="owner-section-kicker">Материальные сигналы без дублирования ваших решений и технического шума</div>
+              </div>
             </div>
             <Link href="/admin/company/signals" className="owner-button">Все сигналы</Link>
           </div>
 
           {signalItems.length ? (
-            <div className="owner-list">
+            <div className="owner-list owner-feed-list">
               {signalItems.map(({ row, vm }) => (
                 <article className="owner-list-row" key={vm.id}>
                   <div className="owner-list-row-main">
@@ -271,9 +338,12 @@ export default async function AdminHomePage() {
         {opportunities.length ? (
           <section className="owner-section">
             <div className="owner-section-head">
-              <div>
-                <h2>Возможности</h2>
-                <div className="owner-section-kicker">Только реальные, ещё актуальные возможности из Growth OS</div>
+              <div className="owner-section-heading">
+                <span className="owner-section-icon is-opportunity" aria-hidden="true"><Sparkles size={17} strokeWidth={1.7} /></span>
+                <div>
+                  <h2>Возможности</h2>
+                  <div className="owner-section-kicker">Только реальные, ещё актуальные возможности из Growth OS</div>
+                </div>
               </div>
               <Link href="/admin/opportunities" className="owner-button">Все возможности</Link>
             </div>
@@ -302,29 +372,36 @@ export default async function AdminHomePage() {
 
         <section className="owner-section">
           <div className="owner-section-head">
-            <div>
-              <h2>В работе</h2>
-              <div className="owner-section-kicker">Реальные очереди товарной системы и SEO, плюс отдельные задачи роста</div>
+            <div className="owner-section-heading">
+              <span className="owner-section-icon is-work" aria-hidden="true"><Workflow size={17} strokeWidth={1.7} /></span>
+              <div>
+                <h2>В работе</h2>
+                <div className="owner-section-kicker">Реальные очереди товарной системы и SEO, плюс отдельные задачи роста</div>
+              </div>
             </div>
             <Link href="/admin/company/work" className="owner-button">Открыть работу</Link>
           </div>
 
-          <div className="owner-summary-strip">
-            <Link href="/admin/seo-keyword-review" className="owner-summary-cell owner-summary-link">
-              <strong>{operations.keywordReview}</strong>
-              <span>Ключевых запросов ждут проверки</span>
+          <div className="owner-queue-strip">
+            <Link href="/admin/seo-keyword-review" className="owner-queue-item">
+              <span className="owner-queue-icon" aria-hidden="true"><Layers3 size={15} strokeWidth={1.7} /></span>
+              <span className="owner-queue-copy"><strong>Проверка ключей</strong><small>смысл и маршрут</small></span>
+              <b>{operations.keywordReview}</b>
             </Link>
-            <Link href="/admin/product-facts-review" className="owner-summary-cell owner-summary-link">
-              <strong>{operations.productFacts}</strong>
-              <span>Товаров ждут проверки фактов</span>
+            <Link href="/admin/product-facts-review" className="owner-queue-item">
+              <span className="owner-queue-icon" aria-hidden="true"><ShieldCheck size={15} strokeWidth={1.7} /></span>
+              <span className="owner-queue-copy"><strong>Факты товаров</strong><small>истина до SEO</small></span>
+              <b>{operations.productFacts}</b>
             </Link>
-            <Link href="/admin/content-qa" className="owner-summary-cell owner-summary-link">
-              <strong>{operations.cqaActionable}</strong>
-              <span>Контентных проверок / исправлений</span>
+            <Link href="/admin/content-qa" className="owner-queue-item">
+              <span className="owner-queue-icon" aria-hidden="true"><Activity size={15} strokeWidth={1.7} /></span>
+              <span className="owner-queue-copy"><strong>Контент QA</strong><small>проверка и правки</small></span>
+              <b>{operations.cqaActionable}</b>
             </Link>
-            <Link href="/admin/company/work#work-list" className="owner-summary-cell owner-summary-link">
-              <strong>{workTotal}</strong>
-              <span>Активных задач роста</span>
+            <Link href="/admin/company/work#work-list" className="owner-queue-item">
+              <span className="owner-queue-icon" aria-hidden="true"><Workflow size={15} strokeWidth={1.7} /></span>
+              <span className="owner-queue-copy"><strong>Задачи роста</strong><small>durable workflow</small></span>
+              <b>{workTotal}</b>
             </Link>
           </div>
 
@@ -357,31 +434,32 @@ export default async function AdminHomePage() {
 
         <section className="owner-section">
           <div className="owner-section-head">
-            <div>
-              <h2>Состояние системы</h2>
-              <div className="owner-section-kicker">Четыре независимые зоны готовности без общего искусственного балла</div>
+            <div className="owner-section-heading">
+              <span className="owner-section-icon is-system" aria-hidden="true"><ShieldCheck size={17} strokeWidth={1.7} /></span>
+              <div>
+                <h2>Состояние системы</h2>
+                <div className="owner-section-kicker">Надёжность и launch-gates без общего искусственного балла</div>
+              </div>
             </div>
             <Link href="/admin/company/system" className="owner-button">Открыть систему</Link>
           </div>
 
-          <div className={`owner-card ${blockedScopes.length ? 'is-warning' : 'is-success'}`}>
-            <div className={`owner-status ${blockedScopes.length ? 'is-warning' : 'is-success'}`}>
-              {blockedScopes.length ? 'Подготовка к запуску' : 'Критичных ограничений нет'}
+          <div className={`owner-system-ribbon${blockedScopes.length ? ' is-limited' : ' is-healthy'}`}>
+            <div className="owner-system-ribbon-main">
+              <span className="owner-system-ribbon-icon" aria-hidden="true"><ShieldCheck size={18} strokeWidth={1.7} /></span>
+              <div>
+                <strong>{blockedScopes.length ? 'Система работает в режиме подготовки' : 'Критичных ограничений нет'}</strong>
+                <p>
+                  {blockedScopes.length
+                    ? `${blockedScopes.length} из ${readiness.length} зон имеют launch-ограничения · ${totalBlockers} условий всего.`
+                    : 'Основные зоны не сообщают о блокирующих условиях.'}
+                </p>
+              </div>
             </div>
-            <h3 className="owner-card-title" style={{ marginTop: '10px' }}>
-              {blockedScopes.length
-                ? `${blockedScopes.length} из ${readiness.length} зон пока имеют блокирующие условия`
-                : 'Основные зоны системы готовы'}
-            </h3>
-            <p className="owner-card-copy">
-              {blockedScopes.length
-                ? `Всего блокирующих условий: ${totalBlockers}. Это ожидаемое состояние до подключения домена, поисковых данных, реального commerce и измерения результатов.`
-                : 'Система не сообщает об активных блокирующих условиях.'}
-            </p>
-            <div className="owner-card-meta" style={{ marginTop: '12px', marginBottom: 0 }}>
+            <div className="owner-system-ribbon-scopes">
               {readiness.map((row) => (
                 <span key={String(row.readiness_scope)}>
-                  {scopeLabel(row.readiness_scope)} · {Number(row.blocking_count || 0)}
+                  {scopeLabel(row.readiness_scope)} <b>{Number(row.blocking_count || 0)}</b>
                 </span>
               ))}
             </div>
