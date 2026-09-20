@@ -251,8 +251,6 @@ export default async function AdminKeywordCleanupReviewPage({ searchParams }: { 
               ))}
             </tbody>
           </table>
-        </div>
-
           </div>
         </section>
 
