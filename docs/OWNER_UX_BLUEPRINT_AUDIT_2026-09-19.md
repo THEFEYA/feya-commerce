@@ -386,3 +386,25 @@ The UI keeps three histories distinct:
 - measured business outcomes.
 
 This avoids treating an approval as an execution or an execution as a proven business result.
+
+
+## Protected canonical SEO apply checkpoint — 2026-09-20
+
+Owner UI now shows the second step after Human review for:
+- approved page-ownership proposals;
+- approved indexability proposals.
+
+The UI explicitly states what the apply step changes and what it does not change. Query-cluster apply remains intentionally gated because raw `cluster_code` is an engineering identifier, not an owner-facing business decision.
+
+No approved rows currently exist, so these controls stay visually quiet.
+
+## Protected Execution Request approval checkpoint — 2026-09-20
+
+Execution drawer now contains a locked Human Owner approval control only when request status is APPROVAL_REQUIRED.
+
+The preview says explicitly:
+- approval is not execution;
+- approval does not dispatch;
+- receipt is still required to claim factual execution.
+
+The action remains behind mandatory owner auth, exact allowlist and `FEYA_OWNER_ACTIONS_ENABLED=true`.
