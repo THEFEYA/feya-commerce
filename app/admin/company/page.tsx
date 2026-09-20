@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentOwnerAttention, presentSignal, presentWorkItem, formatDueTime, formatRelativeTime } from '@/lib/owner-ui/presenters';
 import { priorityLabel, roleLabel, scopeLabel } from '@/lib/owner-ui/terminology';
@@ -190,13 +191,7 @@ export default async function AdminHomePage() {
           <div className="owner-page-meta">{russianDate()}</div>
         </header>
 
-        {error ? (
-          <div className="owner-card is-danger">
-            <div className="owner-status is-danger">Ошибка данных</div>
-            <h2 className="owner-card-title" style={{ marginTop: '10px' }}>Не удалось собрать сводку</h2>
-            <p className="owner-card-copy">{error}</p>
-          </div>
-        ) : null}
+        {error ? <OwnerDataError error={error} /> : null}
 
         <section className="owner-section">
           <div className="owner-section-head">
