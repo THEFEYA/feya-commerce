@@ -478,3 +478,79 @@ test('prefers a real Shoulders + Skirt selector over separate internal members',
     ['Bracelet', 'Shoulders + Skirt'],
   );
 });
+
+
+test('restores Single Arm Piece and Pair of Arm Pieces from exact source quantities', () => {
+  const product = {
+    canonical_product_id: '3a006050-ab78-4b4d-9964-ed8c9f32e923',
+    configurations: [
+      {
+        configuration_id: 'fca12d8b-7be7-49ac-a35b-ca41f6bc0d79',
+        sort_order: 1,
+        public_label: 'Arm Pieces',
+        component_code: 'arms',
+        component_family: 'Arms',
+        display_price_amount: 295.09,
+      },
+      {
+        configuration_id: '098a025b-5437-460f-b640-3e57b94e7619',
+        sort_order: 2,
+        public_label: 'Arm Pieces',
+        component_code: 'arms',
+        component_family: 'Arms',
+        display_price_amount: 159.51,
+      },
+    ],
+  } as any;
+
+  const offer = resolveStorefrontSellableOffer(product);
+  assert.equal(offer.status, 'ready');
+  assert.deepEqual(
+    offer.atomic_options.map((option) => option.label),
+    ['Single Arm Piece', 'Pair of Arm Pieces'],
+  );
+});
+
+test('restores Bra and Full Set membership for silver bra and skirt set', () => {
+  const product = {
+    canonical_product_id: '81fc83de-76aa-4733-9a88-f631e7699fa6',
+    configurations: [
+      {
+        configuration_id: '1a2bcbf2-8354-43c8-92b8-c4a4c09274e7',
+        sort_order: 1,
+        public_label: 'Option',
+        component_code: null,
+        component_family: null,
+        needs_label_review: true,
+        display_price_amount: 96.55,
+      },
+      {
+        configuration_id: 'ba7b364f-1b1e-4432-aa87-30287071087e',
+        sort_order: 2,
+        public_label: 'Skirt',
+        component_code: 'skirt',
+        component_family: 'Bottom',
+        display_price_amount: 135.17,
+      },
+      {
+        configuration_id: '87538880-4abc-4dbb-9be7-8f600d612b2a',
+        sort_order: 3,
+        public_label: 'Full Set',
+        component_code: 'full_set',
+        component_family: 'Bundle',
+        is_full_set: true,
+        bundle_component_codes: ['skirt'],
+        bundle_component_labels: ['Skirt'],
+        display_price_amount: 175.55,
+      },
+    ],
+  } as any;
+
+  const offer = resolveStorefrontSellableOffer(product);
+  assert.equal(offer.status, 'ready');
+  assert.deepEqual(offer.component_codes, ['skirt', 'top']);
+  assert.deepEqual(
+    storefrontIncludedOptions(product, { configuration_id: '87538880-4abc-4dbb-9be7-8f600d612b2a' }),
+    ['Bra', 'Skirt'],
+  );
+});
