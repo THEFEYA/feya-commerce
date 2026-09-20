@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { IndexabilityProposalRow, PageIndexabilityReadinessRow } from '@/lib/types';
+import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -39,6 +40,17 @@ async function getData(): Promise<{
 function asText(value: unknown, fallback = '—') {
   if (value == null || value === '') return fallback;
   return String(value);
+}
+
+function pageTypeLabel(value: unknown) {
+  const key = asText(value, '').toLowerCase();
+  const labels: Record<string, string> = {
+    product: 'товарная страница',
+    collection: 'категория / коллекция',
+    landing: 'посадочная страница',
+    editorial: 'редакционная страница',
+  };
+  return labels[key] || asText(value);
 }
 
 function indexabilityLabel(value: unknown) {
@@ -178,6 +190,7 @@ export default async function AdminIndexabilityPage({ searchParams }: { searchPa
             <span>Показано: {visibleReadiness.length}</span>
             <Link href="/admin/seo-indexability">Сбросить</Link>
           </div>
+          <OwnerSavedViewsClient scope="seo-indexability" />
         </form>
 
         <section className="section-head">
@@ -210,7 +223,7 @@ export default async function AdminIndexabilityPage({ searchParams }: { searchPa
                     ) : asText(row.url_path)}
                     <div className="muted">{asText(row.url_path)}</div>
                   </td>
-                  <td>{asText(row.page_type)}</td>
+                  <td>{pageTypeLabel(row.page_type)}</td>
                   <td>
                     {row.primary_ownership_count || 0} основных
                     <div className="muted">{row.ownership_count || 0} всего назначений</div>
@@ -242,48 +255,40 @@ export default async function AdminIndexabilityPage({ searchParams }: { searchPa
           </div>
         ) : null}
 
-        <section className="section-head">
-          <div>
-            <h2>История предложений допуска</h2>
-            <p className="muted">Каждое каноническое изменение индексации требует проверки человеком.</p>
+        <details className="owner-disclosure owner-disclosure-section" style={{ marginTop: '22px' }}>
+          <summary>
+            <span><strong>История предложений допуска</strong><small>Канонические изменения индексации требуют отдельной человеческой проверки</small></span>
+            <span className="owner-section-kicker">{proposals.length}</span>
+          </summary>
+          <div className="owner-disclosure-body">
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Страница</th>
+                    <th>Решение</th>
+                    <th>Статус</th>
+                    <th>Обоснование</th>
+                    <th>Проверка</th>
+                    <th>Применённое намерение</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {proposals.length ? proposals.map((row) => (
+                    <tr key={row.proposal_id}>
+                      <td><strong>{asText(row.card_title, row.url_path || '—')}</strong><div className="muted">{asText(row.url_path)}</div></td>
+                      <td>{indexabilityLabel(row.decision)}</td>
+                      <td>{indexabilityLabel(row.proposal_status)}</td>
+                      <td>{asText(row.rationale)}</td>
+                      <td>{asText(row.review_note)}</td>
+                      <td>{indexabilityLabel(row.applied_indexation_intent)}</td>
+                    </tr>
+                  )) : <tr><td colSpan={6}>Предложений по индексации пока нет.</td></tr>}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </section>
-
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Страница</th>
-                <th>Решение</th>
-                <th>Статус</th>
-                <th>Обоснование</th>
-                <th>Проверка</th>
-                <th>Применённое намерение</th>
-              </tr>
-            </thead>
-            <tbody>
-              {proposals.length ? proposals.map((row) => (
-                <tr key={row.proposal_id}>
-                  <td>
-                    <strong>{asText(row.card_title, row.url_path || '—')}</strong>
-                    <div className="muted">{asText(row.url_path)}</div>
-                  </td>
-                  <td>{indexabilityLabel(row.decision)}</td>
-                  <td>
-                    <span className={`status-pill ${statusClass(row.proposal_status)}`}>
-                      {indexabilityLabel(row.proposal_status)}
-                    </span>
-                  </td>
-                  <td>{asText(row.rationale)}</td>
-                  <td>{asText(row.review_note)}</td>
-                  <td>{indexabilityLabel(row.applied_indexation_intent)}</td>
-                </tr>
-              )) : (
-                <tr><td colSpan={6}>Предложений по индексации пока нет.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        </details>
       </div>
     </main>
   );
