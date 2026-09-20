@@ -192,11 +192,13 @@ if (!failures.length) {
   if (!proposalReviewRoute.includes('requireOwnerActionActor')) failures.push('SEO proposal review route must require owner authority.');
   if (!proposalReviewRoute.includes('feya_fn_owner_review_seo_proposal_v1')) failures.push('SEO proposal review route must use the guarded owner action wrapper.');
   if (!clusterProposalPage.includes('OwnerProposalReviewClient')) failures.push('Query-cluster proposals must expose protected Human review.');
+  if (!clusterProposalPage.includes('OwnerProposalApplyClient')) failures.push('Query-cluster proposals must expose a separate protected apply step.');
   if (!ownershipProposalPage.includes('OwnerProposalReviewClient')) failures.push('Page-ownership proposals must expose protected Human review.');
   if (!indexabilityPage.includes('OwnerProposalReviewClient')) failures.push('Indexability proposals must expose protected Human review.');
   const proposalApplyRoute = text('app/api/admin/company/proposal-apply/route.ts');
   if (!proposalApplyRoute.includes('requireOwnerActionActor')) failures.push('SEO proposal apply route must require owner authority.');
   if (!proposalApplyRoute.includes('feya_fn_owner_apply_seo_proposal_v1')) failures.push('SEO proposal apply route must use the guarded canonical apply wrapper.');
+  if (!proposalApplyRoute.includes('QUERY_CLUSTER')) failures.push('Protected SEO apply route must support query-cluster canonical apply.');
   if (!ownershipProposalPage.includes('OwnerProposalApplyClient')) failures.push('Approved page-ownership proposals must expose a separate protected apply step.');
   if (!indexabilityPage.includes('OwnerProposalApplyClient')) failures.push('Approved indexability proposals must expose a separate protected apply step.');
   const keywordReviewRoute = text('app/api/admin/company/keyword-review/route.ts');
