@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
+import { OwnerExperimentDrawerClient } from '@/components/admin/OwnerExperimentDrawerClient';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { ChangeEventRow, ExperimentRegistryRow } from '@/lib/types';
 import { statusLabel } from '@/lib/owner-ui/terminology';
@@ -133,6 +134,7 @@ export default async function AdminExperimentsPage() {
                   </div>
                   <div className="owner-list-row-side">
                     <span className="owner-section-kicker">{statusLabel(row.contamination_state)}</span>
+                    <OwnerExperimentDrawerClient row={row} />
                   </div>
                 </article>
               ))}
@@ -151,6 +153,7 @@ export default async function AdminExperimentsPage() {
                   <div className="owner-card-meta"><span className="owner-status is-success">Результат готов</span><span>{modeLabel(row.experiment_mode)}</span></div>
                   <h3 className="owner-card-title">{asText(row.title, 'Эксперимент')}</h3>
                   <p className="owner-card-copy">Доказательность всё равно ограничивается состоянием измерения и наличием влияющих изменений.</p>
+                  <div className="owner-actions"><OwnerExperimentDrawerClient row={row} /></div>
                 </article>
               ))}
             </div>
@@ -166,6 +169,7 @@ export default async function AdminExperimentsPage() {
                   <div className={`owner-status ${row.contamination_state === 'INVALIDATED' ? 'is-danger' : 'is-warning'}`}>{statusLabel(row.contamination_state)}</div>
                   <h3 className="owner-card-title" style={{ marginTop: '10px' }}>{asText(row.title, 'Эксперимент')}</h3>
                   <p className="owner-card-copy">{row.contamination_count || 0} влияющих изменений · {row.invalidating_contamination_count || 0} критичных.</p>
+                  <div className="owner-actions"><OwnerExperimentDrawerClient row={row} /></div>
                 </article>
               ))}
             </div>
