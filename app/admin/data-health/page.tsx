@@ -69,84 +69,136 @@ export default async function AdminDataHealthPage() {
   const unavailable = rows.filter((row) => row.health_state === 'UNAVAILABLE').length;
   const notObservable = rows.filter((row) => row.health_state === 'NOT_OBSERVABLE').length;
 
-  return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
-          <div className="nav-links">
-            <Link href="/admin/data-authority">Источники истины</Link>
-            <Link href="/admin/data-health">Состояние данных</Link>
-            <Link href="/admin/system-readiness">Готовность системы</Link>
-          </div>
-        </nav>
+  const issueRows = [...rows]
+    .filter((row) => row.health_state !== 'HEALTHY')
+    .sort((a, b) => healthRank(a.health_state) - healthRank(b.health_state));
+  const healthyRows = [...rows]
+    .filter((row) => row.health_state === 'HEALTHY')
+    .sort((a, b) => sourceLabel(a.source_code).localeCompare(sourceLabel(b.source_code), 'ru'));
 
-        <section className="phase-banner">
-          <div className="phase-label">Свежесть и доступность данных · последний снимок</div>
-          <h1>Состояние данных</h1>
-          <p>
-            Надёжность источника, его доступность и свежесть — разные вещи. Отсутствующие или устаревшие данные показываются явно и не должны трактоваться как нулевая бизнес-активность.
-          </p>
-        </section>
+  return (
+    <main className="owner-page">
+      <div className="owner-page-inner">
+        <header className="owner-page-head">
+          <div>
+            <div className="owner-eyebrow">Система · данные</div>
+            <h1>Состояние данных</h1>
+            <p>Показываем доступность, свежесть и ограничения источников отдельно. Отсутствующие или устаревшие данные не трактуются как нулевая бизнес-активность.</p>
+          </div>
+          <div className="owner-actions" style={{ marginTop: 0 }}>
+            <Link href="/admin/company/system#sources" className="owner-button">Назад к системе</Link>
+            <Link href="/admin/data-authority" className="owner-button">Источники истины</Link>
+          </div>
+        </header>
 
         <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
-          <div className="owner-summary-cell"><strong>{unavailable}</strong><span>Источников недоступны</span></div>
+          <div className="owner-summary-cell"><strong>{unavailable}</strong><span>Недоступны</span></div>
           <div className="owner-summary-cell"><strong>{degraded}</strong><span>Работают с ограничениями</span></div>
           <div className="owner-summary-cell"><strong>{notObservable}</strong><span>Недостаточно наблюдения</span></div>
           <div className="owner-summary-cell"><strong>{healthy}</strong><span>Работают нормально</span></div>
         </section>
 
-        {error ? <div className="notice">{error}</div> : null}
+        {error ? <div className="owner-card is-danger"><div className="owner-status is-danger">Ошибка данных</div><p className="owner-card-copy">{error}</p></div> : null}
 
-        <div className="notice" style={{ marginBottom: '18px' }}>
-          Это журнал снимков состояния. Автоматический планировщик проверки источников пока не запущен, поэтому важно время последней проверки.
+        <div className="owner-card is-info" style={{ marginBottom: '18px' }}>
+          <div className="owner-status is-info">Как читать экран</div>
+          <p className="owner-card-copy">Это последний сохранённый снимок состояния. Автоматический планировщик проверки источников пока не запущен, поэтому рядом с каждым источником показывается время последней проверки и последнего набора данных.</p>
         </div>
 
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Источник</th>
-                <th>Тип источника</th>
-                <th>Состояние</th>
-                <th>Свежесть</th>
-                <th>Последние данные</th>
-                <th>Строк</th>
-                <th>Ограничение</th>
-                <th>Проверено</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[...rows].sort((a, b) => healthRank(a.health_state) - healthRank(b.health_state)).map((row) => (
-                <tr key={`${row.source_code}-${row.source_instance_key || 'default'}`}>
-                  <td>
-                    <strong title={asText(row.source_code)}>{sourceLabel(row.source_code)}</strong>
-                  </td>
-                  <td title={`${asText(row.authority_tier)} · ${asText(row.authority_domain)}`}>
-                    {authorityLabel(row.authority_tier)}
-                  </td>
-                  <td>
-                    <span className={`status-pill ${healthClass(row.health_state)}`}>
-                      {statusLabel(row.health_state)}
-                    </span>
-                  </td>
-                  <td>{dataFreshnessLabel(row.freshness_state)}</td>
-                  <td>{dateTimeLabel(row.watermark_at)}</td>
-                  <td>{row.observed_row_count ?? '—'}</td>
-                  <td>
-                    {row.error_message ? (
-                      <details>
-                        <summary className="cursor-pointer text-[var(--gold-warm)]">Показать ограничение</summary>
-                        <div className="muted" style={{ marginTop: '6px' }} title={asText(row.error_code)}>{asText(row.error_message)}</div>
-                      </details>
-                    ) : '—'}
-                  </td>
-                  <td>{dateTimeLabel(row.checked_at)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <section className="owner-section" style={{ marginTop: 0 }}>
+          <div className="owner-section-head">
+            <div>
+              <h2>Что ограничивает решения сейчас</h2>
+              <div className="owner-section-kicker">Сначала только источники с проблемами доступности, свежести или наблюдения</div>
+            </div>
+          </div>
+
+          {issueRows.length ? (
+            <div className="owner-list">
+              {issueRows.map((row) => {
+                const state = String(row.health_state || '');
+                const tone = state === 'UNAVAILABLE' || state === 'NOT_OBSERVABLE' || state === 'STALE' ? 'is-danger' : 'is-warning';
+                return (
+                  <article className="owner-list-row" key={`${row.source_code}-${row.source_instance_key || 'default'}`}>
+                    <div className="owner-list-row-main">
+                      <div className="owner-card-meta">
+                        <span className={`owner-status ${tone}`}>{statusLabel(row.health_state)}</span>
+                        <span>{dataFreshnessLabel(row.freshness_state)}</span>
+                        <span>{authorityLabel(row.authority_tier)}</span>
+                      </div>
+                      <h3>{sourceLabel(row.source_code)}</h3>
+                      <p>{row.error_message ? asText(row.error_message) : 'Источник доступен не полностью или его состояние пока нельзя надёжно наблюдать.'}</p>
+                    </div>
+                    <div className="owner-list-row-side">
+                      <span className="owner-section-kicker">данные: {dateTimeLabel(row.watermark_at)}</span>
+                      <span className="owner-section-kicker">проверено: {dateTimeLabel(row.checked_at)}</span>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="owner-card is-success">
+              <div className="owner-status is-success">Проблемных источников нет</div>
+              <p className="owner-card-copy">Все наблюдаемые источники в последнем снимке работают нормально.</p>
+            </div>
+          )}
+        </section>
+
+        {healthyRows.length ? (
+          <section className="owner-section">
+            <details className="owner-disclosure owner-disclosure-section">
+              <summary>
+                <span><strong>Работают нормально</strong><small>Скрыты по умолчанию, потому что не требуют внимания</small></span>
+                <span className="owner-section-kicker">{healthyRows.length}</span>
+              </summary>
+              <div className="owner-disclosure-body owner-grid two">
+                {healthyRows.map((row) => (
+                  <article className="owner-card is-success" key={`${row.source_code}-${row.source_instance_key || 'default'}`}>
+                    <div className="owner-card-meta">
+                      <span className="owner-status is-success">Работает</span>
+                      <span>{dataFreshnessLabel(row.freshness_state)}</span>
+                    </div>
+                    <h3 className="owner-card-title">{sourceLabel(row.source_code)}</h3>
+                    <p className="owner-card-copy">Последние данные: {dateTimeLabel(row.watermark_at)} · проверено: {dateTimeLabel(row.checked_at)}</p>
+                  </article>
+                ))}
+              </div>
+            </details>
+          </section>
+        ) : null}
+
+        <section className="owner-section">
+          <details className="owner-disclosure owner-disclosure-section">
+            <summary>
+              <span><strong>Полный снимок источников</strong><small>Техническая таблица с количеством строк и исходными ограничениями</small></span>
+              <span className="owner-section-kicker">{rows.length}</span>
+            </summary>
+            <div className="owner-disclosure-body">
+              <div className="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Источник</th><th>Тип</th><th>Состояние</th><th>Свежесть</th><th>Последние данные</th><th>Строк</th><th>Ограничение</th><th>Проверено</th></tr>
+                  </thead>
+                  <tbody>
+                    {[...rows].sort((a, b) => healthRank(a.health_state) - healthRank(b.health_state)).map((row) => (
+                      <tr key={`${row.source_code}-${row.source_instance_key || 'default'}`}>
+                        <td><strong title={asText(row.source_code)}>{sourceLabel(row.source_code)}</strong></td>
+                        <td>{authorityLabel(row.authority_tier)}</td>
+                        <td>{statusLabel(row.health_state)}</td>
+                        <td>{dataFreshnessLabel(row.freshness_state)}</td>
+                        <td>{dateTimeLabel(row.watermark_at)}</td>
+                        <td>{row.observed_row_count ?? '—'}</td>
+                        <td>{asText(row.error_message)}</td>
+                        <td>{dateTimeLabel(row.checked_at)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </details>
+        </section>
       </div>
     </main>
   );
