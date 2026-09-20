@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentOwnerAttention, presentRole, presentWorkItem, formatRelativeTime } from '@/lib/owner-ui/presenters';
 import { OwnerWorkDrawerClient } from '@/components/admin/OwnerWorkDrawerClient';
@@ -256,13 +257,7 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
           <a href="#team">Команда FEYA · {roleVM.length}</a>
         </nav>
 
-        {error ? (
-          <div className="owner-card is-danger">
-            <div className="owner-status is-danger">Ошибка данных</div>
-            <h2 className="owner-card-title" style={{ marginTop: '10px' }}>Не удалось загрузить рабочее состояние</h2>
-            <p className="owner-card-copy">{error}</p>
-          </div>
-        ) : null}
+        {error ? <OwnerDataError error={error} /> : null}
 
         <section className="owner-section" id="owner-waiting">
           <div className="owner-section-head">
