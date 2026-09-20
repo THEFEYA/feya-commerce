@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Bot, BriefcaseBusiness, CircleAlert, Layers3, Workflow } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentOwnerAttention, presentRole, presentWorkItem, formatRelativeTime } from '@/lib/owner-ui/presenters';
@@ -216,6 +217,7 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
     { label: 'Автопроверки', value: operations.cqaAutomaticChecks, tone: 'neutral' },
   ];
   const cqaMax = Math.max(1, ...cqaBars.map((item) => item.value));
+  const activeQueueTotal = operationalWork + activeWorkVM.length;
 
   const filteredWorkVM = workVM.filter((item) => {
     const haystack = [item.title, item.purpose, item.ownerLabel, item.statusLabel, item.blockedReason, item.waitReason]
@@ -241,14 +243,33 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
       <div className="owner-page-inner">
         <header className="owner-page-head">
           <div>
-            <div className="owner-eyebrow">Выполнение</div>
+            <div className="owner-eyebrow"><span className="owner-eyebrow-mark" aria-hidden="true" />Выполнение</div>
             <h1>Работа</h1>
-            <p>
-              Здесь видно, что FEYA действительно выполняет, чего ждёт и где требуется ваше участие. Пустая очередь не считается проблемой.
-            </p>
+            <p>Что реально выполняется, чего ждёт система и где без владельца нельзя продолжить безопасно.</p>
           </div>
-          <div className="owner-page-meta">{operationalWork + activeWorkVM.length} элементов в активных рабочих очередях</div>
         </header>
+
+        {!error ? (
+          <section className="owner-command-brief owner-work-brief" aria-label="Сводка работы">
+            <div className="owner-command-brief-main">
+              <div className={`owner-command-state${attentionVM.length ? ' is-attention' : ''}`}>
+                <span className="owner-command-state-dot" aria-hidden="true" />
+                {attentionVM.length ? 'Есть работа, которая ждёт вас' : 'Работа идёт без вашего решения'}
+              </div>
+              <h2>{activeQueueTotal ? `${activeQueueTotal} элементов в рабочих очередях` : 'Активных очередей сейчас нет'}</h2>
+              <p>
+                {activeWorkVM.length
+                  ? 'Отдельные задачи роста идут вместе с операционной работой.'
+                  : 'Отдельных Growth Cases сейчас нет. Это не означает отсутствие работы: товарные, ключевые и контентные очереди учитываются отдельно.'}
+              </p>
+            </div>
+            <div className="owner-command-brief-metrics" aria-label="Ключевые рабочие состояния">
+              <a href="#owner-waiting"><span>Ждёт вас</span><strong>{attentionVM.length}</strong><small>решений владельца</small></a>
+              <a href="#operational-queues"><span>Очереди</span><strong>{operationalWork}</strong><small>операционных элементов</small></a>
+              <a href="#work-list"><span>Рост</span><strong>{activeWorkVM.length}</strong><small>активных задач</small></a>
+            </div>
+          </section>
+        ) : null}
 
         <nav className="owner-subnav" aria-label="Разделы работы">
           <a href="#owner-waiting">Ждёт вас · {attentionVM.length}</a>
@@ -261,9 +282,9 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
 
         <section className="owner-section" id="owner-waiting">
           <div className="owner-section-head">
-            <div>
-              <h2>Ждёт вас</h2>
-              <div className="owner-section-kicker">Работа остановлена только там, где без владельца нельзя продолжить безопасно</div>
+            <div className="owner-section-heading">
+              <span className="owner-section-icon is-attention" aria-hidden="true"><CircleAlert size={17} strokeWidth={1.7} /></span>
+              <div><h2>Ждёт вас</h2><div className="owner-section-kicker">Только работа, которая остановлена на границе полномочий владельца</div></div>
             </div>
           </div>
 
@@ -292,9 +313,9 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
 
         <section className="owner-section" id="operational-queues">
           <div className="owner-section-head">
-            <div>
-              <h2>Операционные очереди</h2>
-              <div className="owner-section-kicker">Реальная работа товарной системы и SEO-контура, даже если отдельная задача роста ещё не создана</div>
+            <div className="owner-section-heading">
+              <span className="owner-section-icon is-work" aria-hidden="true"><Layers3 size={17} strokeWidth={1.7} /></span>
+              <div><h2>Операционные очереди</h2><div className="owner-section-kicker">Реальная работа товара, поиска и контента — независимо от наличия Growth Case</div></div>
             </div>
           </div>
 
@@ -353,9 +374,9 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
 
         <section className="owner-section" id="work-list">
           <div className="owner-section-head">
-            <div>
-              <h2>Текущая работа</h2>
-              <div className="owner-section-kicker">Список по реальному состоянию процесса, а не по ручному перетаскиванию карточек</div>
+            <div className="owner-section-heading">
+              <span className="owner-section-icon is-info" aria-hidden="true"><Workflow size={17} strokeWidth={1.7} /></span>
+              <div><h2>Текущая работа</h2><div className="owner-section-kicker">Статус приходит из реального процесса; перетаскивание карточек его не меняет</div></div>
             </div>
           </div>
 
@@ -444,8 +465,8 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
           <details className="owner-disclosure owner-disclosure-section">
             <summary>
               <span>
-                <strong>Команда FEYA</strong>
-                <small>Логические роли и их реальное состояние</small>
+                <strong><span className="owner-inline-heading-icon" aria-hidden="true"><Bot size={15} strokeWidth={1.7} /></span>Команда FEYA</strong>
+                <small>Логические бизнес-роли, реальная готовность и текущая работа</small>
               </span>
               <span className="owner-section-kicker">{roleVM.length} ролей</span>
             </summary>
@@ -455,7 +476,7 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
                 <div>
                   <div className="owner-section-kicker">Показываем только фактическое рабочее состояние, ограничения и текущую работу. Это не восемь постоянно работающих ботов.</div>
                 </div>
-                <Link href="/admin/roles" className="owner-button">Техническое состояние ролей</Link>
+                <Link href="/admin/roles" className="owner-button">Открыть команду</Link>
               </div>
 
               <div className="owner-team-grid">
