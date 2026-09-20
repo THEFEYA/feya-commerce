@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { FileSearch, GitBranch, ShieldCheck } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { OwnerProposalReviewClient } from '@/components/admin/OwnerProposalReviewClient';
+import { OwnerProposalApplyClient } from '@/components/admin/OwnerProposalApplyClient';
 import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { PageOwnershipCandidateClusterRow, PageOwnershipProposalRow } from '@/lib/types';
@@ -72,7 +73,8 @@ export default async function AdminOwnershipProposalsPage() {
 
   const readyRows = clusters.filter((row) => row.ownership_candidate_status === 'READY_FOR_OWNERSHIP_PROPOSAL');
   const reviewRows = proposals.filter((row) => row.proposal_status === 'REVIEW');
-  const approved = proposals.filter((row) => row.proposal_status === 'APPROVED').length;
+  const approvedRows = proposals.filter((row) => row.proposal_status === 'APPROVED');
+  const approved = approvedRows.length;
   const applied = proposals.filter((row) => row.proposal_status === 'APPLIED').length;
 
   return (
@@ -193,6 +195,41 @@ export default async function AdminOwnershipProposalsPage() {
             <div className="owner-empty">Предложений ownership, ожидающих проверки, сейчас нет.</div>
           )}
         </section>
+
+        {approvedRows.length ? (
+          <section className="owner-section">
+            <div className="owner-section-head">
+              <div className="owner-section-heading">
+                <span className="owner-section-icon is-system" aria-hidden="true"><ShieldCheck size={17} strokeWidth={1.7} /></span>
+                <div><h2>Одобрено, ждёт канонического применения</h2><div className="owner-section-kicker">Review уже завершён; apply создаст intended ownership, но не изменит индексацию</div></div>
+              </div>
+            </div>
+            <div className="owner-list">
+              {approvedRows.map((row) => (
+                <article className="owner-list-row" key={row.proposal_id}>
+                  <div className="owner-list-row-main">
+                    <div className="owner-card-meta">
+                      <span className="owner-status is-success">Одобрено человеком</span>
+                      <span>{ownershipStatusLabel(row.ownership_role)}</span>
+                    </div>
+                    <h3>{asText(row.cluster_label, row.cluster_code || 'Группа запросов')}</h3>
+                    <p>Страница: {asText(row.card_title, row.url_path || '—')} · {asText(row.url_path)}</p>
+                  </div>
+                  <div className="owner-list-row-side">
+                    <OwnerProposalApplyClient
+                      proposalKind="PAGE_OWNERSHIP"
+                      proposalId={row.proposal_id}
+                      title={asText(row.cluster_label, row.cluster_code || 'Ownership')}
+                      consequence="Будет создано каноническое intended page/query ownership. Indexation intent и публикация контента этим не меняются."
+                      enabled={ownerActions.ready}
+                      blockers={ownerActions.blockers}
+                    />
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <section className="owner-section">
           <details className="owner-disclosure owner-disclosure-section">
