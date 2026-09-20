@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { IndexabilityProposalRow, PageIndexabilityReadinessRow } from '@/lib/types';
 import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
+import { OwnerProposalReviewClient } from '@/components/admin/OwnerProposalReviewClient';
+import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -80,6 +82,7 @@ function statusClass(value: unknown) {
 export default async function AdminIndexabilityPage({ searchParams }: { searchParams: Promise<{ q?: string; state?: string; page?: string }> }) {
   const params = await searchParams;
   const { readiness, proposals, error } = await getData();
+  const ownerActions = getOwnerActionConfigStatus();
   const q = String(params.q || '').trim().toLowerCase();
   const stateFilter = String(params.state || 'attention');
   const requestedPage = Math.max(1, Number(params.page || 1) || 1);
@@ -266,6 +269,7 @@ export default async function AdminIndexabilityPage({ searchParams }: { searchPa
                     <th>Обоснование</th>
                     <th>Проверка</th>
                     <th>Применённое намерение</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -277,8 +281,21 @@ export default async function AdminIndexabilityPage({ searchParams }: { searchPa
                       <td>{asText(row.rationale)}</td>
                       <td>{asText(row.review_note)}</td>
                       <td>{indexabilityLabel(row.applied_indexation_intent)}</td>
+                      <td>
+                        {row.proposal_status === 'REVIEW' ? (
+                          <OwnerProposalReviewClient
+                            proposalKind="INDEXABILITY"
+                            proposalId={row.proposal_id}
+                            expectedStatus={String(row.proposal_status || 'REVIEW')}
+                            title={asText(row.card_title, row.url_path || 'Страница')}
+                            summary={`Предлагаемое решение: ${indexabilityLabel(row.decision)}. ${asText(row.rationale, '')}`}
+                            enabled={ownerActions.ready}
+                            blockers={ownerActions.blockers}
+                          />
+                        ) : null}
+                      </td>
                     </tr>
-                  )) : <tr><td colSpan={6}>Предложений по индексации пока нет.</td></tr>}
+                  )) : <tr><td colSpan={7}>Предложений по индексации пока нет.</td></tr>}
                 </tbody>
               </table>
             </div>
