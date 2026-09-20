@@ -190,7 +190,7 @@ export default async function AdminGrowthPage() {
           <Link href="/admin/opportunities">Возможности</Link>
           <a href="#demand">Спрос</a>
           <Link href="/admin/seo-portfolio">Страницы</Link>
-          <Link href="/admin/indexation">Техническое SEO</Link>
+          <Link href="/admin/seo-indexability">Техническое SEO</Link>
         </nav>
 
         {data.error ? <OwnerDataError error={data.error} /> : null}
@@ -256,7 +256,7 @@ export default async function AdminGrowthPage() {
               </p>
             </Link>
 
-            <Link className={'owner-card ' + toneClass(ownerToneForStatus(launchState))} href="/admin/indexation">
+            <Link className={'owner-card ' + toneClass(ownerToneForStatus(launchState))} href="/admin/seo-indexability">
               <div className={'owner-status ' + toneClass(ownerToneForStatus(launchState))}>{statusLabel(launchState)}</div>
               <h3 className="owner-card-title" style={{ marginTop: '12px' }}>Индексация и техническое SEO</h3>
               <p className="owner-card-copy">
