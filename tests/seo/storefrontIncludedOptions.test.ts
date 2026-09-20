@@ -554,3 +554,59 @@ test('restores Bra and Full Set membership for silver bra and skirt set', () => 
     ['Bra', 'Skirt'],
   );
 });
+
+
+test('restores Sleeves + Leg Covers as one grouped option for the pink rave bodysuit', () => {
+  const product = {
+    canonical_product_id: 'a97ca78f-ed0d-4f17-a18d-8d54efd2679a',
+    configurations: [
+      {
+        configuration_id: '099731eb-a253-4bdc-81a5-28f8295d93d3',
+        sort_order: 1,
+        public_label: 'Arm Pieces',
+        component_code: 'arms',
+        component_family: 'Arms',
+        display_price_amount: 95.59,
+      },
+      {
+        configuration_id: '2d7ae103-2aec-4113-9fe1-e6282f3f3a32',
+        sort_order: 2,
+        public_label: 'Shoulders',
+        component_code: 'shoulders',
+        component_family: 'Shoulders',
+        display_price_amount: 106.21,
+      },
+      {
+        configuration_id: '49312166-a743-45e9-acee-20919b8f6759',
+        sort_order: 3,
+        public_label: 'Bodysuit',
+        component_code: 'bodysuit',
+        component_family: 'Bodysuit',
+        display_price_amount: 228.22,
+      },
+      {
+        configuration_id: 'b23fa19a-fab6-42c7-95e5-c5056f274fae',
+        sort_order: 4,
+        public_label: 'Full Set',
+        component_code: 'full_set',
+        component_family: 'Bundle',
+        is_full_set: true,
+        bundle_component_codes: ['arms', 'shoulders', 'bodysuit'],
+        bundle_component_labels: ['Arm Pieces', 'Shoulders', 'Bodysuit'],
+        display_price_amount: 307.21,
+      },
+    ],
+  } as any;
+
+  const offer = resolveStorefrontSellableOffer(product);
+  assert.equal(offer.status, 'ready');
+  assert.deepEqual(offer.component_codes, ['arms', 'bodysuit', 'legs', 'shoulders']);
+  assert.deepEqual(
+    storefrontIncludedOptions(product, { configuration_id: '099731eb-a253-4bdc-81a5-28f8295d93d3' }),
+    ['Sleeves + Leg Covers'],
+  );
+  assert.deepEqual(
+    storefrontIncludedOptions(product, { configuration_id: 'b23fa19a-fab6-42c7-95e5-c5056f274fae' }),
+    ['Sleeves + Leg Covers', 'Shoulders', 'Bodysuit'],
+  );
+});
