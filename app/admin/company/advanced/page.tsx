@@ -2,9 +2,8 @@ import Link from 'next/link';
 
 const GROUPS = [
   {
-    title: 'Товары и контент',
+    title: 'Рабочие проверки Growth OS',
     items: [
-      ['/admin/review', 'Старые очереди проверки'],
       ['/admin/product-facts-review', 'Проверка фактов о товарах'],
       ['/admin/content-briefs', 'Готовность контентных заданий'],
       ['/admin/content-qa', 'Диагностика контроля качества'],
@@ -12,9 +11,8 @@ const GROUPS = [
     ],
   },
   {
-    title: 'Поиск',
+    title: 'Поисковая архитектура',
     items: [
-      ['/admin/seo-keywords', 'Ключевые слова'],
       ['/admin/seo-keyword-review', 'Проверка ключевых слов'],
       ['/admin/seo-clusters', 'Группы запросов'],
       ['/admin/seo-cluster-proposals', 'Предложения групп запросов'],
@@ -59,9 +57,17 @@ export default function AdminAdvancedPage() {
           <div>
             <div className="owner-eyebrow">Инженерная глубина</div>
             <h1>Технические детали</h1>
-            <p>Старые диагностические экраны сохранены для проверки системы. Здесь могут встречаться внутренние коды и инженерные термины — они не являются основным интерфейсом владельца.</p>
+            <p>Диагностические экраны Growth OS сохранены для проверки системы. Здесь могут встречаться внутренние коды и инженерные термины — они не являются основным интерфейсом владельца. Товарная админка остаётся отдельным утверждённым рабочим пространством.</p>
+          </div>
+          <div className="owner-actions" style={{ marginTop: 0 }}>
+            <Link href="/admin" className="owner-button">Открыть товарную админку</Link>
           </div>
         </header>
+
+        <div className="owner-card is-info" style={{ marginBottom: '18px' }}>
+          <div className="owner-status is-info">Разделение рабочих пространств</div>
+          <p className="owner-card-copy">Эта страница относится только к Company / AI / Growth OS. Старый Product OS не дублируется внутри технического меню и открывается отдельно.</p>
+        </div>
 
         <div className="owner-grid two">
           {GROUPS.map((group) => (
