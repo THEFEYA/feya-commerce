@@ -154,7 +154,7 @@ export default async function AdminOpportunitiesPage() {
               ))}
             </div>
           ) : (
-            <div className="owner-empty">Реальные возможности роста пока не зафиксированы. FEYA не создаёт декоративные opportunity-карточки без данных.</div>
+            <div className="owner-empty">Реальные возможности роста пока не зафиксированы. FEYA не создаёт декоративные карточки возможностей без данных.</div>
           )}
         </section>
 
