@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { GrowthCapabilityStatusRow } from '@/lib/types';
 import { capabilityLabel, capabilityOwnerSummary, implementationStateLabel, roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
@@ -93,7 +94,7 @@ export default async function AdminSystemReadinessPage({ searchParams }: { searc
           <div className="owner-summary-cell"><strong>{countState(rows, 'AVAILABLE')}</strong><span>Работают полностью</span></div>
         </section>
 
-        {error ? <div className="owner-card is-danger"><div className="owner-status is-danger">Ошибка данных</div><p className="owner-card-copy">{error}</p></div> : null}
+        {error ? <OwnerDataError error={error} /> : null}
 
         <form action="/admin/system-readiness" className="owner-card" style={{ marginBottom: '18px' }}>
           <div className="grid gap-3 md:grid-cols-[1fr_280px_auto] md:items-end">
