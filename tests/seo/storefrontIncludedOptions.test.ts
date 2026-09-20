@@ -813,3 +813,78 @@ test('restores Batch30 source-confirmed selectors', () => {
     ['Gloves', 'Mask', 'Hood', 'Pants'],
   );
 });
+
+
+test('restores Batch31 source-confirmed selectors', () => {
+  const goldBraSkirt = {
+    canonical_product_id: '9c845a5a-666a-47b4-99d6-9f0a393bfa1c',
+    configurations: [
+      { configuration_id: '9961e3f9-37b1-4e2e-9d0e-b670cdc67b62', sort_order: 1, public_label: 'Choker', component_code: 'choker', component_family: 'Neck', display_price_amount: 91.68 },
+      { configuration_id: '818451e6-b589-4d96-8628-0e4e3ceb9395', sort_order: 2, public_label: 'Skirt', component_code: 'skirt', component_family: 'Bottom', display_price_amount: 139.93 },
+      { configuration_id: 'bb0a0060-bbea-41af-8271-5d3552996539', sort_order: 3, public_label: 'Option', needs_label_review: true, display_price_amount: 164.06 },
+      { configuration_id: '436d2875-a50e-4c10-b8a4-cc06e17d620d', sort_order: 4, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['choker','skirt'], display_price_amount: 327 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(goldBraSkirt, { configuration_id: '436d2875-a50e-4c10-b8a4-cc06e17d620d' }),
+    ['Choker', 'Skirt', 'Bra'],
+  );
+
+  const silverCorset = {
+    canonical_product_id: 'f36acd08-1591-4e15-8ad2-96bc22ec4b77',
+    configurations: [
+      { configuration_id: 'ab79b367-2ed4-491a-bfc0-b362641a7fd0', sort_order: 1, public_label: 'Garters', component_code: 'legs', component_family: 'Legs', display_price_amount: 86.9 },
+      { configuration_id: '61cc3a4e-68c5-49c3-8bc8-8ad821a62d31', sort_order: 2, public_label: 'Bracelet', component_code: 'arms', component_family: 'Arms', display_price_amount: 96.55 },
+      { configuration_id: '0c5a6e8e-9af6-4aeb-8ad8-901553f6b29d', sort_order: 3, public_label: 'Corset', component_code: 'corset', component_family: 'Top', display_price_amount: 178.63 },
+      { configuration_id: 'c9751d15-d524-4194-a99d-b1bf7fd74f32', sort_order: 4, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['legs','arms','corset'], display_price_amount: 255.35 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(silverCorset, { configuration_id: 'c9751d15-d524-4194-a99d-b1bf7fd74f32' }),
+    ['Garters', 'Leg Bracelets', 'Corset'],
+  );
+
+  const butterfly = {
+    canonical_product_id: '8242d255-f77f-4e9f-88a2-a5db326fa297',
+    configurations: [
+      { configuration_id: 'e39a252e-b943-40b7-984f-11645c92d22a', sort_order: 1, public_label: 'Bracelet', component_code: 'arms', component_family: 'Arms', display_price_amount: 96.55 },
+      { configuration_id: '608e71bb-dfcd-407d-9cd1-b3a51689f984', sort_order: 2, public_label: 'Bracelet', component_code: 'arms', component_family: 'Arms', display_price_amount: 96.55 },
+      { configuration_id: '0cfd7bdb-9515-4f40-97bf-9539f0b21241', sort_order: 3, public_label: 'Spine', component_code: 'spine', component_family: 'Back', display_price_amount: 101.39 },
+      { configuration_id: 'b9c93906-4408-4a88-9dfb-83193e2c726c', sort_order: 4, public_label: 'Bodysuit', component_code: 'bodysuit', component_family: 'Bodysuit', display_price_amount: 178.63 },
+      { configuration_id: '2a88b9d4-efda-4bb1-a567-c42902e170ab', sort_order: 5, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['arms','spine','bodysuit'], display_price_amount: 319.18 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(butterfly, { configuration_id: '2a88b9d4-efda-4bb1-a567-c42902e170ab' }),
+    ['Hand Bracelets', 'Leg Bracelets', 'Spine', 'Bodysuit'],
+  );
+
+  const horns = {
+    canonical_product_id: '8b4e23fd-456e-462b-a6b3-8aaa0333debe',
+    configurations: [
+      { configuration_id: 'ca3cfea5-3c0e-4da8-a0fa-c5e265517816', sort_order: 1, public_label: 'Option', needs_label_review: true, display_price_amount: 144.76 },
+      { configuration_id: '2dfdd6fd-9e1b-4a6c-8238-fc887d8318ba', sort_order: 2, public_label: 'Shoulders', component_code: 'shoulders', component_family: 'Shoulders', display_price_amount: 151.54 },
+      { configuration_id: 'b89c570d-4bee-4b03-85cb-b8b63cde02d2', sort_order: 3, public_label: 'Horns', component_code: 'horns', component_family: 'Headpiece', display_price_amount: 187.43 },
+      { configuration_id: '49d804d9-5a42-4700-8dff-6758ad32646c', sort_order: 4, public_label: 'Leg Covers', component_code: 'legs', component_family: 'Legs', display_price_amount: 159.51 },
+      { configuration_id: 'a2c35e0d-65fc-4906-8096-eb1a4042aba0', sort_order: 5, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['shoulders','horns','legs'], display_price_amount: 546.32 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(horns, { configuration_id: 'a2c35e0d-65fc-4906-8096-eb1a4042aba0' }),
+    ['Chest', 'Shoulders', 'Horns', 'Leg Covers'],
+  );
+
+  const goddess = {
+    canonical_product_id: '5e034423-6c04-459b-b7d7-0d10ad564c4e',
+    configurations: [
+      { configuration_id: '90665dc5-1860-4f1d-8c02-f10511ff7f0f', sort_order: 1, public_label: 'Option', needs_label_review: true, display_price_amount: 77.2 },
+      { configuration_id: 'b85fe542-6eaa-489c-99cd-ef8a54ea9a9d', sort_order: 2, public_label: 'Skirt', component_code: 'skirt', component_family: 'Bottom', display_price_amount: 139.93 },
+      { configuration_id: '43c218a1-a524-4a3b-96cd-78f9b4b8a52b', sort_order: 3, public_label: 'Top + Shoulders', component_code: 'bundle', component_family: 'Bundle', is_bundle: true, bundle_component_codes: ['shoulders','top'], display_price_amount: 159.51 },
+      { configuration_id: 'ce965e08-8741-442a-a490-ea9a01251148', sort_order: 4, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['skirt','top','shoulders'], display_price_amount: 287.12 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(goddess, { configuration_id: 'ce965e08-8741-442a-a490-ea9a01251148' }),
+    ['Headpiece', 'Skirt', 'Top + Shoulders'],
+  );
+});
