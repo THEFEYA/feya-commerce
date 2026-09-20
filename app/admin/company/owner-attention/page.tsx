@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { formatDueTime, presentOwnerAttention } from '@/lib/owner-ui/presenters';
 
@@ -52,12 +53,7 @@ export default async function AdminOwnerAttentionPage() {
           <Link href="/admin/company/work" className="owner-button">Вернуться к работе</Link>
         </header>
 
-        {error ? (
-          <div className="owner-card is-danger">
-            <div className="owner-status is-danger">Ошибка данных</div>
-            <p className="owner-card-copy">{error}</p>
-          </div>
-        ) : null}
+        {error ? <OwnerDataError error={error} /> : null}
 
         {items.length ? (
           <div className="owner-grid two">
