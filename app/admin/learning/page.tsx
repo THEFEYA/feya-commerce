@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
+import { OwnerLearningDrawerClient } from '@/components/admin/OwnerLearningDrawerClient';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { LearningRegistryRow } from '@/lib/types';
 import { statusLabel } from '@/lib/owner-ui/terminology';
@@ -114,6 +115,7 @@ export default async function AdminLearningPage() {
                     <span>{row.distinct_context_count ?? 0} контекстов</span>
                     {row.adopted_policy_version ? <span>правило v{row.adopted_policy_version}</span> : null}
                   </div>
+                  <div className="owner-actions"><OwnerLearningDrawerClient row={row} /></div>
                 </article>
               ))}
             </div>
@@ -136,7 +138,7 @@ export default async function AdminLearningPage() {
                     <h3>{asText(row.title, 'Наблюдение')}</h3>
                     <p>{asText(row.learning_statement)}</p>
                   </div>
-                  <div className="owner-list-row-side"><span className="owner-section-kicker">{row.evidence_count ?? 0} доказательств</span></div>
+                  <div className="owner-list-row-side"><span className="owner-section-kicker">{row.evidence_count ?? 0} доказательств</span><OwnerLearningDrawerClient row={row} /></div>
                 </article>
               )) : <div className="owner-empty">Наблюдений в развитии сейчас нет.</div>}
             </div>
