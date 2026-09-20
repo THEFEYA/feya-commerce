@@ -204,7 +204,7 @@ export default async function AdminExecutionMapPage({ searchParams }: { searchPa
           <div className="owner-section-head">
             <div>
               <h2>Что нельзя выполнить сейчас</h2>
-              <div className="owner-section-kicker">Только реальные недоступные действия — без стенки из всех 54 определений</div>
+              <div className="owner-section-kicker">Только реальные недоступные действия — без стены из полного технического реестра</div>
             </div>
           </div>
           {unavailableRows.length ? (
