@@ -2827,6 +2827,97 @@ a.owner-list-row:hover {
   font-variant-numeric: tabular-nums;
 }
 
+.owner-shell .owner-growth-pipeline {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  overflow: hidden;
+  border: 1px solid var(--company-line);
+  border-radius: 12px;
+  background: rgba(255,255,255,.014);
+}
+
+.owner-shell .owner-growth-step {
+  position: relative;
+  min-height: 88px;
+  display: grid;
+  grid-template-columns: 32px minmax(0,1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 13px;
+  border-right: 1px solid var(--company-line);
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.owner-shell .owner-growth-step:last-child {
+  border-right: 0;
+}
+
+.owner-shell .owner-growth-step:hover {
+  background: rgba(212,178,106,.03);
+}
+
+.owner-shell .owner-growth-step.is-current {
+  background: linear-gradient(180deg, rgba(212,178,106,.045), rgba(212,178,106,.012));
+}
+
+.owner-shell .owner-growth-step-icon {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--company-line);
+  border-radius: 8px;
+  color: rgba(238,233,223,.46);
+  background: rgba(255,255,255,.022);
+}
+
+.owner-shell .owner-growth-step.is-current .owner-growth-step-icon {
+  border-color: rgba(212,178,106,.22);
+  color: var(--company-gold-soft);
+  background: rgba(212,178,106,.055);
+}
+
+.owner-shell .owner-growth-step-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.owner-shell .owner-growth-step-copy small {
+  color: rgba(238,233,223,.30);
+  font-size: 8px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.owner-shell .owner-growth-step-copy strong {
+  overflow: hidden;
+  color: rgba(238,233,223,.72);
+  font-size: 10px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.owner-shell .owner-growth-step-copy span {
+  color: rgba(238,233,223,.32);
+  font-size: 8px;
+}
+
+.owner-shell .owner-growth-step b {
+  color: var(--company-bone);
+  font-size: 20px;
+  font-weight: 520;
+  font-variant-numeric: tabular-nums;
+}
+
+.owner-shell .owner-growth-note {
+  padding: 8px 2px 0;
+  color: rgba(238,233,223,.34);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
 .owner-shell .owner-system-ribbon {
   display: grid;
   grid-template-columns: minmax(300px,1fr) auto;
@@ -2944,6 +3035,18 @@ a.owner-list-row:hover {
     grid-template-columns: repeat(2, minmax(0,1fr));
   }
 
+  .owner-shell .owner-growth-pipeline {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+
+  .owner-shell .owner-growth-step:nth-child(2) {
+    border-right: 0;
+  }
+
+  .owner-shell .owner-growth-step:nth-child(-n+2) {
+    border-bottom: 1px solid var(--company-line);
+  }
+
   .owner-shell .owner-queue-item:nth-child(2) {
     border-right: 0;
   }
@@ -3010,6 +3113,20 @@ a.owner-list-row:hover {
 
   .owner-shell .owner-queue-strip {
     grid-template-columns: 1fr;
+  }
+
+  .owner-shell .owner-growth-pipeline {
+    grid-template-columns: 1fr;
+  }
+
+  .owner-shell .owner-growth-step,
+  .owner-shell .owner-growth-step:nth-child(2) {
+    border-right: 0;
+    border-bottom: 1px solid var(--company-line);
+  }
+
+  .owner-shell .owner-growth-step:last-child {
+    border-bottom: 0;
   }
 
   .owner-shell .owner-queue-item,
