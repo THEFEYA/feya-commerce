@@ -3,6 +3,12 @@ type FullSetPriceComparisonInput = {
   storedComponentSum: unknown;
   storedSavings: unknown;
   fallbackSeparateTotal: unknown;
+  exactSeparateTotal?: unknown;
+};
+
+type SeparatePurchaseCandidate = {
+  price: unknown;
+  memberCodes: unknown;
 };
 
 export type FullSetPriceComparison = {
@@ -23,12 +29,15 @@ export function resolveFullSetPriceComparison({
   storedComponentSum,
   storedSavings,
   fallbackSeparateTotal,
+  exactSeparateTotal,
 }: FullSetPriceComparisonInput): FullSetPriceComparison {
   const full = finiteAmount(fullSetPrice);
   const componentSum = finiteAmount(storedComponentSum);
   const savings = finiteAmount(storedSavings);
   const fallback = finiteAmount(fallbackSeparateTotal) || 0;
-  const separateRegularTotal = componentSum
+  const exact = finiteAmount(exactSeparateTotal);
+  const separateRegularTotal = exact
+    ?? componentSum
     ?? (full != null && savings != null ? roundCurrency(full + savings) : fallback);
   const fullSetSavings = full != null && separateRegularTotal > full
     ? roundCurrency(separateRegularTotal - full)
@@ -51,4 +60,60 @@ function finiteAmount(value: unknown): number | null {
 
 function roundCurrency(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+
+/**
+ * Finds the cheapest combination of current non-Full-Set selector choices
+ * that covers every component in the current Full Set.
+ *
+ * This is intentionally a set-cover calculation rather than a sum of all
+ * selector rows: a grouped option such as "Top + Shoulders" must not be
+ * counted on top of separate Top/Shoulders choices when both exist.
+ */
+export function resolveMinimumSeparatePurchaseTotal({
+  targetMemberCodes,
+  candidates,
+}: {
+  targetMemberCodes: unknown;
+  candidates: SeparatePurchaseCandidate[];
+}): number | null {
+  const target = normalizeCodes(targetMemberCodes);
+  if (!target.length) return null;
+  const targetSet = new Set(target);
+  const fullKey = target.join('|');
+
+  let states = new Map<string, number>([['', 0]]);
+
+  for (const candidate of candidates || []) {
+    const price = finiteAmount(candidate?.price);
+    if (price == null || price <= 0) continue;
+    const coverage = normalizeCodes(candidate?.memberCodes)
+      .filter((code) => targetSet.has(code));
+    if (!coverage.length) continue;
+
+    const snapshot = [...states.entries()];
+    const next = new Map(states);
+
+    for (const [key, total] of snapshot) {
+      const covered = key ? key.split('|') : [];
+      const nextKey = [...new Set([...covered, ...coverage])].sort().join('|');
+      const nextTotal = roundCurrency(total + price);
+      const current = next.get(nextKey);
+      if (current == null || nextTotal < current) next.set(nextKey, nextTotal);
+    }
+
+    states = next;
+  }
+
+  const total = states.get(fullKey);
+  return total == null ? null : roundCurrency(total);
+}
+
+function normalizeCodes(value: unknown) {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value
+    .map((item) => String(item || '').trim().toLowerCase())
+    .filter(Boolean))]
+    .sort();
 }
