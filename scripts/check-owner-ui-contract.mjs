@@ -41,6 +41,38 @@ if (!failures.length) {
     failures.push('AdminLegacyShell no longer documents Product OS scope isolation.');
   }
   if (!legacy.includes('isAgentOwnerRoute')) failures.push('AdminLegacyShell missing agent-route isolation.');
+
+  const frozenProductPrefixes = [
+    '/admin/listing-master',
+    '/admin/products',
+    '/admin/review',
+    '/admin/media',
+    '/admin/media-seo',
+    '/admin/seo-lab',
+    '/admin/seo-engine',
+    '/admin/seo-keywords',
+    '/admin/seo-approval',
+    '/admin/seo-export',
+    '/admin/seo-apply',
+    '/admin/seo-change-sets',
+    '/admin/seo-applied-values',
+    '/admin/seo-storefront-preview',
+    '/admin/seo-gate',
+    '/admin/content',
+    '/admin/collections',
+    '/admin/graph',
+    '/admin/launch',
+    '/admin/indexation',
+    '/admin/orders',
+  ];
+
+  const prefixBlock = legacy.match(/const AGENT_OWNER_PREFIXES = \[([\s\S]*?)\] as const;/)?.[1] || '';
+  for (const prefix of frozenProductPrefixes) {
+    if (prefixBlock.includes(`'${prefix}'`)) {
+      failures.push(`AdminLegacyShell must not wrap frozen Product OS route with OwnerShell: ${prefix}`);
+    }
+  }
+
   if (!audit.includes('Scope correction — Owner review')) failures.push('Owner UX audit missing scope correction.');
   if (!audit.includes('FROZEN / APPROVED')) failures.push('Owner UX audit no longer marks Product OS frozen.');
 
