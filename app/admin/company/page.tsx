@@ -3,7 +3,7 @@ import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { OwnerSignalDrawerClient } from '@/components/admin/OwnerSignalDrawerClient';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentOwnerAttention, presentSignal, presentWorkItem, formatDueTime, formatRelativeTime } from '@/lib/owner-ui/presenters';
-import { priorityLabel, roleLabel, scopeLabel } from '@/lib/owner-ui/terminology';
+import { admissionLabel, priorityLabel, roleLabel, scopeLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -254,7 +254,7 @@ export default async function AdminHomePage() {
                   <div className="owner-list-row-side">
                     <OwnerSignalDrawerClient
                       vm={vm}
-                      routing="Требует проверки"
+                      routing={admissionLabel(row.case_admission_recommendation)}
                       recommendation={String(row.case_admission_recommendation || '')}
                       evidence={(row.evidence_json || {}) as Record<string, unknown>}
                       generatedAt={row.generated_at ? String(row.generated_at) : null}
