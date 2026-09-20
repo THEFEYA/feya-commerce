@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentSignal } from '@/lib/owner-ui/presenters';
 import { admissionLabel } from '@/lib/owner-ui/terminology';
@@ -149,12 +150,7 @@ export default async function AdminSignalsPage({ searchParams }: { searchParams:
           <OwnerSavedViewsClient scope="signals" />
         </form>
 
-        {error ? (
-          <div className="owner-card is-danger">
-            <div className="owner-status is-danger">Ошибка данных</div>
-            <p className="owner-card-copy">{error}</p>
-          </div>
-        ) : null}
+        {error ? <OwnerDataError error={error} /> : null}
 
         <section className="owner-list">
           {prepared.map(({ row, vm, routing }) => (
