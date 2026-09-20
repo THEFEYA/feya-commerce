@@ -2827,6 +2827,80 @@ a.owner-list-row:hover {
   font-variant-numeric: tabular-nums;
 }
 
+.owner-shell .owner-results-ribbon {
+  display: grid;
+  grid-template-columns: 38px minmax(0,1fr);
+  align-items: start;
+  gap: 12px;
+  padding: 14px 15px;
+  border: 1px solid var(--company-line);
+  border-radius: 12px;
+  background: rgba(255,255,255,.016);
+}
+
+.owner-shell .owner-results-ribbon.is-warning {
+  border-color: rgba(247,200,115,.20);
+  background: rgba(247,200,115,.025);
+}
+
+.owner-shell .owner-results-ribbon.is-success {
+  border-color: rgba(115,217,159,.18);
+  background: rgba(115,217,159,.025);
+}
+
+.owner-shell .owner-results-ribbon-icon,
+.owner-shell .owner-result-empty-icon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--company-line);
+  border-radius: 10px;
+  color: rgba(212,178,106,.72);
+  background: rgba(212,178,106,.04);
+}
+
+.owner-shell .owner-results-ribbon h2 {
+  margin: 8px 0 4px;
+  color: var(--company-bone);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.owner-shell .owner-results-ribbon p {
+  margin: 0;
+  max-width: 900px;
+  color: rgba(238,233,223,.45);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.owner-shell .owner-result-empty-state {
+  display: grid;
+  grid-template-columns: 38px minmax(0,1fr);
+  align-items: start;
+  gap: 12px;
+  padding: 16px;
+  border: 1px dashed rgba(216,214,211,.12);
+  border-radius: 12px;
+  background: rgba(255,255,255,.01);
+}
+
+.owner-shell .owner-result-empty-state strong {
+  display: block;
+  color: rgba(238,233,223,.72);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.owner-shell .owner-result-empty-state p {
+  max-width: 880px;
+  margin: 5px 0 0;
+  color: rgba(238,233,223,.38);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
 .owner-shell .owner-growth-pipeline {
   display: grid;
   grid-template-columns: repeat(4, minmax(0,1fr));
