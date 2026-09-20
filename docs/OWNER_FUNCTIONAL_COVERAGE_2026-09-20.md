@@ -81,6 +81,7 @@ A backend table/view/registry does **not** automatically require its own screen.
 | Admin data boundary | System | current hardening state surfaced | COVERED |
 | Owner auth | System / login | prepared but not enabled as mutation authority | PREPARED |
 | Owner Attention decision write | Decision detail | guarded server route + expected-status RPC + durable audit event; UI remains locked behind auth/allowlist/action switch | PREPARED / LOCKED |
+| Owner Action audit history | System | latest protected owner reviews/strategic actions are shown separately from Execution Receipt | COVERED |
 
 ## 6. Workflow / multi-agent behavior
 
