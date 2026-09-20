@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { OwnerInitiativeDrawerClient } from '@/components/admin/OwnerInitiativeDrawerClient';
 import { OwnerObjectiveDrawerClient } from '@/components/admin/OwnerObjectiveDrawerClient';
+import { OwnerStrategicActionClient } from '@/components/admin/OwnerStrategicActionClient';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
+import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
 import type { GrowthInitiativeRow, GrowthObjectiveEventRow, GrowthObjectiveRow, GrowthStrategyRow } from '@/lib/types';
 import { roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
 
@@ -92,6 +94,7 @@ function statusClass(value: unknown) {
 
 export default async function AdminStrategyPage() {
   const { strategies, objectives, objectiveEvents, initiatives, error } = await getData();
+  const ownerActions = getOwnerActionConfigStatus();
 
   const activeStrategies = strategies.filter((row) => row.strategy_status === 'ACTIVE').length;
   const activeObjectives = objectives.filter((row) => row.objective_status === 'ACTIVE').length;
@@ -107,6 +110,10 @@ export default async function AdminStrategyPage() {
   const humanPending = initiatives.filter((row) => row.human_approval_status === 'PENDING').length;
 
   const activeRows = strategies.filter((row) => row.strategy_status === 'ACTIVE');
+  const draftStrategyRows = strategies.filter((row) => row.strategy_status === 'DRAFT');
+  const activeStrategyVersionByCode = new Map(
+    activeRows.map((row) => [String(row.strategy_code || ''), Number(row.version_no || 0)]),
+  );
   const attentionInitiatives = initiatives.filter((row) =>
     row.human_approval_status === 'PENDING' ||
     row.director_gate_status === 'PENDING' ||
@@ -172,6 +179,42 @@ export default async function AdminStrategyPage() {
           )}
         </section>
 
+        {draftStrategyRows.length ? (
+          <section className="owner-section">
+            <div className="owner-section-head">
+              <div>
+                <h2>Черновики стратегии</h2>
+                <div className="owner-section-kicker">Только владелец может сделать черновик активной стратегией</div>
+              </div>
+            </div>
+            <div className="owner-list">
+              {draftStrategyRows.map((row) => (
+                <article className="owner-list-row" key={row.strategy_version_id}>
+                  <div className="owner-list-row-main">
+                    <div className="owner-card-meta">
+                      <span className="owner-status is-warning">Черновик</span>
+                      <span>v{row.version_no ?? '—'}</span>
+                      <span>{economicModeLabel(row.economic_mode)}</span>
+                    </div>
+                    <h3>{asText(row.title, 'Стратегия роста')}</h3>
+                    <p>Активация заменит текущую активную версию этого strategy code и может отправить незавершённые инициативы на revalidation.</p>
+                  </div>
+                  <div className="owner-list-row-side">
+                    <OwnerStrategicActionClient
+                      actionCode="ACTIVATE_GROWTH_STRATEGY"
+                      entityId={row.strategy_version_id}
+                      expectedState="DRAFT"
+                      title={asText(row.title, 'Стратегия роста')}
+                      enabled={ownerActions.ready}
+                      blockers={ownerActions.blockers}
+                      expectedActiveVersion={activeStrategyVersionByCode.get(String(row.strategy_code || '')) || 0}
+                    />
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <section className="owner-section">
           <div className="owner-section-head">
@@ -217,7 +260,13 @@ export default async function AdminStrategyPage() {
                       <p>Основная метрика: {asText(row.primary_metric_code, 'не назначена')}. Стратегия: {asText(row.strategy_version_ref, 'не связана')}.</p>
                     </div>
                     <div className="owner-list-row-side">
-                      <OwnerObjectiveDrawerClient row={row} events={objectiveEventsById.get(row.objective_id) || []} />
+                      <OwnerObjectiveDrawerClient
+                        row={row}
+                        events={objectiveEventsById.get(row.objective_id) || []}
+                        showOwnerAction
+                        actionEnabled={ownerActions.ready}
+                        actionBlockers={ownerActions.blockers}
+                      />
                     </div>
                   </article>
                 ))}
@@ -264,7 +313,12 @@ export default async function AdminStrategyPage() {
                   </div>
                   <div className="owner-list-row-side">
                     <span className="owner-section-kicker">{statusLabel(row.initiative_status)}</span>
-                    <OwnerInitiativeDrawerClient row={row} />
+                    <OwnerInitiativeDrawerClient
+                      row={row}
+                      showOwnerAction
+                      actionEnabled={ownerActions.ready}
+                      actionBlockers={ownerActions.blockers}
+                    />
                   </div>
                 </article>
               ))}
@@ -288,7 +342,12 @@ export default async function AdminStrategyPage() {
                       <div className="owner-card-meta"><span>{statusLabel(row.initiative_status)}</span><span>{roleLabel(row.owner_role)}</span></div>
                       <h3>{asText(row.title, 'Инициатива')}</h3>
                     </div>
-                    <div className="owner-list-row-side"><OwnerInitiativeDrawerClient row={row} /></div>
+                    <div className="owner-list-row-side"><OwnerInitiativeDrawerClient
+                      row={row}
+                      showOwnerAction
+                      actionEnabled={ownerActions.ready}
+                      actionBlockers={ownerActions.blockers}
+                    /></div>
                   </article>
                 ))}
               </div>
