@@ -128,3 +128,29 @@ export function formatRelativeTime(value: unknown) {
   const days = Math.round(hours / 24);
   return `${days} дн назад`;
 }
+
+
+export function formatDueTime(value: unknown) {
+  if (!value) return 'жёсткого срока нет';
+  const date = new Date(String(value));
+  if (Number.isNaN(date.getTime())) return 'срок не определён';
+
+  const diffMs = date.getTime() - Date.now();
+  const minutes = Math.round(Math.abs(diffMs) / 60000);
+
+  if (Math.abs(diffMs) < 2 * 60000) return 'сейчас';
+
+  if (diffMs > 0) {
+    if (minutes < 60) return `через ${minutes} мин`;
+    const hours = Math.round(minutes / 60);
+    if (hours < 24) return `через ${hours} ч`;
+    const days = Math.round(hours / 24);
+    return `через ${days} дн`;
+  }
+
+  if (minutes < 60) return `просрочено на ${minutes} мин`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `просрочено на ${hours} ч`;
+  const days = Math.round(hours / 24);
+  return `просрочено на ${days} дн`;
+}
