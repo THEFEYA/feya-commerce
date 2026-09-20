@@ -339,16 +339,28 @@ export default async function AdminSystemPage() {
           {adminBoundary ? (
             <div className={`owner-card ${adminBoundary.browserReadable ? 'is-warning' : 'is-success'}`} style={{ marginTop: '10px' }}>
               <div className={`owner-status ${adminBoundary.browserReadable ? 'is-warning' : 'is-success'}`}>
-                Контур административных данных
+                {adminBoundary.browserReadable ? 'Защита ещё не завершена' : 'Внутренние данные защищены'}
               </div>
               <h3 className="owner-card-title" style={{ marginTop: '10px' }}>
                 {adminBoundary.browserReadable
-                  ? `${adminBoundary.browserReadable} из ${adminBoundary.registered} внутренних представлений ещё доступны для прямого чтения из браузера`
-                  : `Все ${adminBoundary.registered} внутренних представлений переведены на серверный доступ`}
+                  ? 'Часть внутренних данных пока читается рабочим интерфейсом напрямую'
+                  : 'Рабочие данные читаются через защищённый серверный контур'}
               </h3>
               <p className="owner-card-copy">
-                Прямое чтение из браузера закрывается только после проверки обязательного входа владельца и списка разрешённых аккаунтов. До этого усиление защиты намеренно не запускается, чтобы не сломать рабочую админку.
+                {adminBoundary.browserReadable
+                  ? 'Это временное состояние до проверки обязательного входа владельца. Усиление защиты специально не включается раньше времени, чтобы не сломать утверждённую товарную админку.'
+                  : 'Обычный браузер больше не является прямым источником доступа к внутренним административным данным.'}
               </p>
+              <details className="owner-disclosure owner-disclosure-section" style={{ marginTop: '12px' }}>
+                <summary>
+                  <span><strong>Техническая проверка</strong><small>Количество внутренних представлений</small></span>
+                  <span className="owner-section-kicker">Подробнее</span>
+                </summary>
+                <div className="owner-disclosure-body owner-card-meta" style={{ marginBottom: 0 }}>
+                  <span>всего: {adminBoundary.registered}</span>
+                  <span>ещё читаются напрямую: {adminBoundary.browserReadable}</span>
+                </div>
+              </details>
             </div>
           ) : null}
 
@@ -361,7 +373,7 @@ export default async function AdminSystemPage() {
               <p className="owner-card-copy">
                 {ownerAuth.required && ownerAuth.allowlistConfigured && ownerAuth.supabaseUrlConfigured && ownerAuth.publicKeyConfigured
                   ? 'Защитный слой входа требует подтверждённую сессию и разрешённый аккаунт. Реальные действия всё равно должны проходить через отдельный аудитируемый путь.'
-                  : `Авторизация обязательна: ${ownerAuth.required ? 'да' : 'нет'} · список разрешённых аккаунтов: ${ownerAuth.allowlistConfigured ? 'настроен' : 'не настроен'} · настройки авторизации Supabase: ${ownerAuth.supabaseUrlConfigured && ownerAuth.publicKeyConfigured ? 'готовы' : 'неполные'}. Пока любой из этих пунктов не закрыт, действия владельца должны оставаться недоступными.`}
+                  : `Обязательный вход: ${ownerAuth.required ? 'включён' : 'ещё не включён'} · список разрешённых аккаунтов: ${ownerAuth.allowlistConfigured ? 'настроен' : 'не настроен'} · системные настройки авторизации: ${ownerAuth.supabaseUrlConfigured && ownerAuth.publicKeyConfigured ? 'готовы' : 'неполные'}. Пока любой из этих пунктов не закрыт, реальные действия владельца остаются недоступными.`}
               </p>
             </article>
 
