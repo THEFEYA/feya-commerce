@@ -190,6 +190,12 @@ if (!failures.length) {
   if (!strategicActionClient.includes('ACTIVATE_GROWTH_OBJECTIVE') || !strategicActionClient.includes('HUMAN_APPROVE_INITIATIVE') || !strategicActionClient.includes('ACTIVATE_GROWTH_STRATEGY')) {
     failures.push('Strategic owner action component must cover objective, initiative and strategy Human Owner boundaries.');
   }
+  const signalDiagnostics = text('app/admin/signals/page.tsx');
+  const dataAuthority = text('app/admin/data-authority/page.tsx');
+  const scenarioTests = text('app/admin/scenario-tests/page.tsx');
+  if (!signalDiagnostics.includes('className="owner-page"') || signalDiagnostics.includes('className="page-shell"')) failures.push('Advanced signal diagnostics must use the Company owner surface.');
+  if (!dataAuthority.includes('className="owner-page"') || dataAuthority.includes('className="page-shell"')) failures.push('Data Authority must use the Company owner surface.');
+  if (!scenarioTests.includes('className="owner-page"') || scenarioTests.includes('className="page-shell"')) failures.push('Scenario Tests must use the Company owner surface.');
 
   if (!coverage.includes('Handoff timeline') || !coverage.includes('COVERED')) {
     failures.push('Functional coverage map must record durable handoff coverage.');
