@@ -919,6 +919,78 @@ export type GrowthInitiativeRow = {
 };
 
 
+export type GrowthObjectiveRow = {
+  objective_id: string;
+  objective_code?: string | null;
+  objective_type?: string | null;
+  title?: string | null;
+  objective_status?: string | null;
+  owner_role?: string | null;
+  scope_json?: unknown;
+  primary_metric_code?: string | null;
+  guardrail_metric_codes_json?: unknown;
+  timeframe_json?: unknown;
+  constraints_json?: unknown;
+  strategy_version_ref?: string | null;
+  feasibility_status?: string | null;
+  feasibility_json?: unknown;
+  activation_reason?: string | null;
+  activated_at?: string | null;
+  completed_at?: string | null;
+  created_by_type?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  [key: string]: unknown;
+};
+
+export type GrowthObjectiveEventRow = {
+  objective_event_id: string;
+  objective_id: string;
+  event_type?: string | null;
+  from_status?: string | null;
+  to_status?: string | null;
+  actor_type?: string | null;
+  reason?: string | null;
+  created_at?: string | null;
+  [key: string]: unknown;
+};
+
+export type GrowthHandoffRow = {
+  handoff_id: string;
+  case_id: string;
+  ownership_epoch?: number | null;
+  source_domain?: string | null;
+  target_domain?: string | null;
+  handoff_mode?: string | null;
+  handoff_status?: string | null;
+  question?: string | null;
+  evidence_json?: unknown;
+  known_facts_json?: unknown;
+  known_unknowns_json?: unknown;
+  expected_output_schema_code?: string | null;
+  result_json?: unknown;
+  result_reason?: string | null;
+  expires_at?: string | null;
+  completed_at?: string | null;
+  created_by_type?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  [key: string]: unknown;
+};
+
+export type GrowthWorkflowEventRow = {
+  workflow_event_id: string;
+  workflow_run_id: string;
+  case_id: string;
+  event_type?: string | null;
+  from_status?: string | null;
+  to_status?: string | null;
+  step_code?: string | null;
+  reason?: string | null;
+  created_at?: string | null;
+  [key: string]: unknown;
+};
+
 export type GrowthOpportunityRow = {
   opportunity_id: string;
   opportunity_code?: string | null;
