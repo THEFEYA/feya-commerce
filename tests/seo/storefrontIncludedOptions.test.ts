@@ -610,3 +610,70 @@ test('restores Sleeves + Leg Covers as one grouped option for the pink rave body
     ['Sleeves + Leg Covers', 'Shoulders', 'Bodysuit'],
   );
 });
+
+
+test('restores Batch28 source-confirmed selectors and bundle members', () => {
+  const harness = {
+    canonical_product_id: '88d4332c-95bc-4859-a31e-33d6ee89fb4d',
+    configurations: [
+      { configuration_id: 'dc3b0fea-fc8e-4154-852e-dbdbcc3f6fbf', public_label: 'Option', needs_label_review: true, display_price_amount: 86.9 },
+      { configuration_id: 'ee10b92e-397e-41a9-931e-0b398f840591', public_label: 'Option', needs_label_review: true, display_price_amount: 125.52 },
+    ],
+  } as any;
+  const hOffer = resolveStorefrontSellableOffer(harness);
+  assert.equal(hOffer.status, 'ready');
+  assert.deepEqual(hOffer.atomic_options.map((o) => o.label), ['Vegan Leather Harness', 'Natural Leather Harness']);
+
+  const womens = {
+    canonical_product_id: 'c3f1018e-665b-44a8-90db-ecc5bb64eedc',
+    configurations: [
+      { configuration_id: 'fb7391f0-1a05-4229-8f8f-a6d2c476e5c7', sort_order: 1, public_label: 'Garters', component_code: 'legs', component_family: 'Legs', display_price_amount: 77.24 },
+      { configuration_id: '5909c2fb-f536-48e8-a576-b02a2d26f510', sort_order: 2, public_label: 'Option', needs_label_review: true, display_price_amount: 86.9 },
+      { configuration_id: '02c3b18e-eb67-4bb4-aa1a-b4201f8da9c2', sort_order: 3, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['legs'], bundle_component_labels: ['Garters'], display_price_amount: 140.01 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(womens, { configuration_id: '02c3b18e-eb67-4bb4-aa1a-b4201f8da9c2' }),
+    ['Garters', 'Harness'],
+  );
+
+  const braPanty = {
+    canonical_product_id: 'fdd42158-087b-4190-9eb8-fda7f7460258',
+    configurations: [
+      { configuration_id: '613184e3-0f00-43ec-8c83-12d97a8b93d1', sort_order: 1, public_label: 'Panties', component_code: 'panties', component_family: 'Bottom', display_price_amount: 106.16 },
+      { configuration_id: '5c1081e5-b25b-4fec-9f97-229cdacd46e1', sort_order: 2, public_label: 'Option', needs_label_review: true, display_price_amount: 120.63 },
+      { configuration_id: '8515103f-a153-44c9-a19a-5f4ce76488e2', sort_order: 3, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['panties'], bundle_component_labels: ['Panties'], display_price_amount: 171.47 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(braPanty, { configuration_id: '8515103f-a153-44c9-a19a-5f4ce76488e2' }),
+    ['Panties', 'Top Bra'],
+  );
+
+  const corsetSkirt = {
+    canonical_product_id: '665296a0-f5ad-422c-837c-868f611c45c6',
+    configurations: [
+      { configuration_id: '94c75b43-867a-492b-bc03-bb11ef04807e', sort_order: 1, public_label: 'Choker', component_code: 'choker', component_family: 'Neck', display_price_amount: 96.5 },
+      { configuration_id: '5925744d-4f17-4c73-b0b8-062f2c702b0d', sort_order: 2, public_label: 'Corset', component_code: 'corset', component_family: 'Top', display_price_amount: 159.23 },
+      { configuration_id: 'bc5d078e-6a54-4270-9f17-52c0b55a3dd8', sort_order: 3, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['choker', 'corset'], bundle_component_labels: ['Choker', 'Corset'], display_price_amount: 183.44 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(corsetSkirt, { configuration_id: 'bc5d078e-6a54-4270-9f17-52c0b55a3dd8' }),
+    ['Choker', 'Corset + Skirt'],
+  );
+
+  const spineTail = {
+    canonical_product_id: 'd17c17b6-76dd-429d-bf5c-ccd432cd1e0f',
+    configurations: [
+      { configuration_id: '2499f3fb-056f-4d21-bab5-27dad44f9906', sort_order: 1, public_label: 'Tail', component_code: 'tail', component_family: 'Back', display_price_amount: 131.32 },
+      { configuration_id: 'faddd671-9041-4c1b-803e-61ac293eee58', sort_order: 2, public_label: 'Belt + Garters', component_code: 'bundle', component_family: 'Bundle', is_bundle: true, bundle_component_codes: ['belt','legs'], display_price_amount: 97.51 },
+      { configuration_id: 'a1fd1a9a-95df-4e1f-be85-51c9f823c889', sort_order: 3, public_label: 'Bra + Shoulders', component_code: 'bundle', component_family: 'Bundle', is_bundle: true, bundle_component_codes: ['shoulders','top'], display_price_amount: 107.17 },
+      { configuration_id: 'bdf66ecc-1c4b-4b40-ba3d-bebcbc230a4f', sort_order: 4, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['tail','belt','legs','top','shoulders'], display_price_amount: 256.15 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(spineTail, { configuration_id: 'bdf66ecc-1c4b-4b40-ba3d-bebcbc230a4f' }),
+    ['Spine + Tail', 'Belt + Garters', 'Bra + Shoulders'],
+  );
+});
