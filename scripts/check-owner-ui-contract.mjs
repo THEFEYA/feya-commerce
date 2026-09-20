@@ -25,6 +25,9 @@ const requiredFiles = [
   'components/admin/OwnerProductFactDrawerClient.tsx',
   'components/admin/OwnerInitiativeDrawerClient.tsx',
   'components/admin/OwnerObjectiveDrawerClient.tsx',
+  'components/admin/OwnerAttentionDecisionClient.tsx',
+  'lib/ownerActionAuth.ts',
+  'app/api/admin/company/owner-attention/decision/route.ts',
   'docs/OWNER_UX_BLUEPRINT_AUDIT_2026-09-19.md',
   'docs/OWNER_FUNCTIONAL_COVERAGE_2026-09-20.md',
   'docs/OWNER_COMPANY_VISUAL_CONTRACT_V1.md',
@@ -159,6 +162,13 @@ if (!failures.length) {
   if (!contentQa.includes('OwnerContentQaDrawerClient')) failures.push('CQA must expose independent validation context.');
   if (!productFacts.includes('OwnerProductFactDrawerClient')) failures.push('Product Truth review must expose ambiguity context.');
   if (!results.includes('/admin/company/results/changes')) failures.push('Results must route change history to the owner-facing Changes surface.');
+  const ownerAttentionDetail = text('app/admin/company/owner-attention/[id]/page.tsx');
+  const ownerActionAuth = text('lib/ownerActionAuth.ts');
+  const ownerActionRoute = text('app/api/admin/company/owner-attention/decision/route.ts');
+  if (!ownerAttentionDetail.includes('OwnerAttentionDecisionClient')) failures.push('Owner Attention detail must use the protected decision component.');
+  if (!ownerActionAuth.includes('FEYA_OWNER_ACTIONS_ENABLED')) failures.push('Owner Action gate must keep an independent circuit breaker.');
+  if (!ownerActionRoute.includes('requireOwnerActionActor')) failures.push('Owner Action API must require server-side owner authority.');
+  if (!ownerActionRoute.includes('feya_fn_transition_owner_attention_v1')) failures.push('Owner Attention action must use the guarded RPC, not direct table mutation.');
 
   if (!coverage.includes('Handoff timeline') || !coverage.includes('COVERED')) {
     failures.push('Functional coverage map must record durable handoff coverage.');
