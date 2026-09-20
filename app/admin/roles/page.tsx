@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { RoleActivationRow } from '@/lib/types';
 import { presentRole } from '@/lib/owner-ui/presenters';
+import { OwnerRoleDrawerClient } from '@/components/admin/OwnerRoleDrawerClient';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -56,6 +57,7 @@ function toneClass(tone: string) {
 export default async function AdminRolesPage() {
   const { rows, work, error } = await getRows();
   const roles = rows.map(presentRole);
+  const roleRows = new Map(rows.map((row) => [String(row.role_code || '').trim().toUpperCase(), row]));
 
   const active = roles.filter((role) => role.status === 'ACTIVE').length;
   const shadow = roles.filter((role) => role.status === 'SHADOW').length;
@@ -172,6 +174,13 @@ export default async function AdminRolesPage() {
                   </div>
                   <div className="owner-actions">
                     <Link href={`/admin/company/work?owner=${encodeURIComponent(role.name)}#work-list`} className="owner-button">Посмотреть работу</Link>
+                    <OwnerRoleDrawerClient
+                      role={role}
+                      work={stats}
+                      allowedActionCount={Number(roleRows.get(role.code)?.allowed_action_count || 0)}
+                      activationReason={roleRows.get(role.code)?.activation_reason || null}
+                      updatedAt={roleRows.get(role.code)?.updated_at || null}
+                    />
                   </div>
                 </article>
               );
