@@ -3,6 +3,7 @@ import { CircleAlert, ShieldCheck, Workflow } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { OwnerExecutionDrawerClient } from '@/components/admin/OwnerExecutionDrawerClient';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
+import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
 import type { ExecutionGatewayRow } from '@/lib/types';
 import { statusLabel } from '@/lib/owner-ui/terminology';
 
@@ -70,6 +71,7 @@ function dateTimeLabel(value: unknown) {
 
 export default async function AdminExecutionsPage() {
   const { rows, error } = await getRows();
+  const ownerActions = getOwnerActionConfigStatus();
 
   const approvalRequired = rows.filter((row) => row.request_status === 'APPROVAL_REQUIRED').length;
   const approved = rows.filter((row) => row.request_status === 'APPROVED').length;
@@ -155,7 +157,7 @@ export default async function AdminExecutionsPage() {
                   </div>
                   <div className="owner-list-row-side">
                     <span className="owner-section-kicker">{dateTimeLabel(row.created_at)}</span>
-                    <OwnerExecutionDrawerClient row={row} />
+                    <OwnerExecutionDrawerClient row={row} actionEnabled={ownerActions.ready} actionBlockers={ownerActions.blockers} />
                   </div>
                 </article>
               ))}
@@ -183,7 +185,7 @@ export default async function AdminExecutionsPage() {
                     <p>{row.latest_receipt_id ? `Последняя квитанция: ${statusLabel(row.latest_receipt_status)}.` : 'Квитанции выполнения пока нет.'}</p>
                   </div>
                   <div className="owner-list-row-side">
-                    <OwnerExecutionDrawerClient row={row} />
+                    <OwnerExecutionDrawerClient row={row} actionEnabled={ownerActions.ready} actionBlockers={ownerActions.blockers} />
                   </div>
                 </article>
               ))}
@@ -212,7 +214,7 @@ export default async function AdminExecutionsPage() {
                       <div className="owner-card-meta"><span>{statusLabel(row.request_status)}</span><span>{dateTimeLabel(row.created_at)}</span></div>
                       <h3>{requestActionLabel(row.action_code)}</h3>
                     </div>
-                    <div className="owner-list-row-side"><OwnerExecutionDrawerClient row={row} /></div>
+                    <div className="owner-list-row-side"><OwnerExecutionDrawerClient row={row} actionEnabled={ownerActions.ready} actionBlockers={ownerActions.blockers} /></div>
                   </article>
                 ))}
               </div>
