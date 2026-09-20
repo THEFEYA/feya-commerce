@@ -608,3 +608,26 @@ Post-migration verification:
 - project security/performance advisors were re-run;
 - no mass remediation was applied to broader project advisor findings;
 - the migration does not enable writes, role activation, autonomous routing or synthetic workflow history.
+
+
+### Protected Owner Attention decision foundation
+
+20260920122540 — feya_owner_attention_protected_decision_v1
+- added service-role-only `feya_fn_transition_owner_attention_v1`;
+- expected current status is mandatory, preventing stale browser decisions;
+- allowed transitions are intentionally narrow: OPEN → ACKNOWLEDGED/RESOLVED/CANCELLED and ACKNOWLEDGED → RESOLVED/CANCELLED;
+- RESOLVED requires an explicit decision code; terminal decisions are designed to carry a human reason;
+- added durable `feya_growth_owner_attention_events_v1` audit events with idempotency key;
+- added owner-safe v3 attention projection plus owner-safe event-history projection;
+- registered both new safe views in the Admin Data Boundary;
+- added Action Capability `DECIDE_OWNER_ATTENTION` as AVAILABLE_WITH_LIMITATIONS / protected UI locked.
+
+Validation after migration:
+- active Owner Attention rows = 2;
+- owner decision events = 0;
+- anon/authenticated EXECUTE on transition RPC = false;
+- service_role EXECUTE = true;
+- governed admin views = 48;
+- browser-readable governed views = 48 until the existing auth/hardening runbook is executed.
+
+No current Owner Attention state was changed by the migration.
