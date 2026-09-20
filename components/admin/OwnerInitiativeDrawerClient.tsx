@@ -5,6 +5,7 @@ import { useCallback, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import type { GrowthInitiativeRow } from '@/lib/types';
 import { useOwnerDrawerA11y } from '@/components/admin/useOwnerDrawerA11y';
+import { OwnerStrategicActionClient } from '@/components/admin/OwnerStrategicActionClient';
 import { roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
 
 function asText(value: unknown, fallback = '—') {
@@ -41,7 +42,17 @@ function tone(value: unknown) {
   return 'is-info';
 }
 
-export function OwnerInitiativeDrawerClient({ row }: { row: GrowthInitiativeRow }) {
+export function OwnerInitiativeDrawerClient({
+  row,
+  actionEnabled = false,
+  actionBlockers = [],
+  showOwnerAction = false,
+}: {
+  row: GrowthInitiativeRow;
+  actionEnabled?: boolean;
+  actionBlockers?: string[];
+  showOwnerAction?: boolean;
+}) {
   const [open,setOpen]=useState(false);
   const triggerRef=useRef<HTMLButtonElement|null>(null);
   const closeRef=useRef<HTMLButtonElement|null>(null);
@@ -105,8 +116,19 @@ export function OwnerInitiativeDrawerClient({ row }: { row: GrowthInitiativeRow 
             </div>
           </section>
 
+          {showOwnerAction && ownerPending ? (
+            <OwnerStrategicActionClient
+              actionCode="HUMAN_APPROVE_INITIATIVE"
+              entityId={row.initiative_id}
+              expectedState={String(row.human_approval_status || 'PENDING')}
+              title={asText(row.title, 'Инициатива роста')}
+              enabled={actionEnabled}
+              blockers={actionBlockers}
+            />
+          ) : null}
+
           <div className="owner-actions">
-            {ownerPending ? <Link href="/admin/company/owner-attention" className="owner-button primary">Решения владельца</Link>:null}
+            {ownerPending ? <Link href="/admin/company/owner-attention" className="owner-button">Решения владельца</Link>:null}
             <Link href="/admin/company/work" className="owner-button">Работа</Link>
             <Link href="/admin/opportunities" className="owner-button">Возможности</Link>
           </div>
