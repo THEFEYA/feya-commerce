@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentOwnerAttention, presentRole, presentWorkItem, formatRelativeTime } from '@/lib/owner-ui/presenters';
 import { OwnerWorkDrawerClient } from '@/components/admin/OwnerWorkDrawerClient';
+import { OwnerRoleDrawerClient } from '@/components/admin/OwnerRoleDrawerClient';
 import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
 
 export const dynamic = 'force-dynamic';
@@ -176,12 +177,28 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
   const activeWorkVM = workVM.filter((item) => !['COMPLETED', 'CLOSED'].includes(item.status));
   const attentionVM = attention.map(presentOwnerAttention);
   const roleVM = roles.map(presentRole);
-  const roleWorkCounts = new Map<string, number>();
+  const roleRows = new Map(roles.map((row) => [String(row.role_code || '').trim().toUpperCase(), row]));
+  const roleWork = new Map<string, { active: number; queued: number; waiting: number; latestTitle: string | null; latestAt: string | null }>();
+
   work.forEach((row, index) => {
     const item = workVM[index];
-    if (!item || ['COMPLETED', 'CLOSED'].includes(item.status)) return;
     const code = String(row.current_accountable_domain || '').trim().toUpperCase();
-    if (code) roleWorkCounts.set(code, (roleWorkCounts.get(code) || 0) + 1);
+    if (!code || !item) return;
+
+    const current = roleWork.get(code) || { active: 0, queued: 0, waiting: 0, latestTitle: null, latestAt: null };
+    if (!['COMPLETED', 'CLOSED'].includes(item.status)) {
+      current.active += 1;
+      if (item.status === 'QUEUED') current.queued += 1;
+      if (item.status.startsWith('WAITING') || item.status === 'BLOCKED') current.waiting += 1;
+    }
+
+    const itemAt = item.updatedAt || null;
+    if (!current.latestAt || (itemAt && new Date(itemAt).getTime() > new Date(current.latestAt).getTime())) {
+      current.latestAt = itemAt;
+      current.latestTitle = item.title || null;
+    }
+
+    roleWork.set(code, current);
   });
   const operationalWork =
     operations.productFacts +
@@ -447,23 +464,34 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
               </div>
 
               <div className="owner-team-grid">
-                {roleVM.map((role) => (
-                  <article className={`owner-card owner-team-card ${toneClass(role.tone)}`} key={role.code}>
-                    <div className="owner-card-meta">
-                      <span className={`owner-status ${toneClass(role.tone)}`}>{role.statusLabel}</span>
-                    </div>
-                    <h3>{role.name}</h3>
-                    <p className="owner-card-copy">{role.summary}</p>
-                    <p className="owner-role-note"><strong>Режим:</strong> {role.autonomyLabel}.</p>
-                    <p className="owner-role-note">
-                      <strong>Сейчас:</strong> {roleWorkCounts.get(role.code) ? `активных задач — ${roleWorkCounts.get(role.code)}` : 'активных задач нет'}.
-                    </p>
-                    <p className="owner-role-note">
-                      Возможности: {role.availableCapabilityCount} полностью готовы из {role.requiredCapabilityCount}.
-                      {role.blockedCapabilityCount > 0 ? ` Заблокировано: ${role.blockedCapabilityCount}.` : ' Критичных блокировок роли нет.'}
-                    </p>
-                  </article>
-                ))}
+                {roleVM.map((role) => {
+                  const raw = roleRows.get(role.code) || {};
+                  const workStats = roleWork.get(role.code) || { active: 0, queued: 0, waiting: 0, latestTitle: null, latestAt: null };
+                  return (
+                    <article className={`owner-card owner-team-card ${toneClass(role.tone)}`} key={role.code}>
+                      <div className="owner-card-meta">
+                        <span className={`owner-status ${toneClass(role.tone)}`}>{role.statusLabel}</span>
+                        <span>{workStats.active ? `в работе: ${workStats.active}` : 'активных задач нет'}</span>
+                      </div>
+                      <h3>{role.name}</h3>
+                      <p className="owner-card-copy">{role.summary}</p>
+                      <p className="owner-role-note"><strong>Режим:</strong> {role.autonomyLabel}.</p>
+                      <p className="owner-role-note">
+                        Возможности: {role.availableCapabilityCount} из {role.requiredCapabilityCount} полностью готовы.
+                        {role.blockedCapabilityCount > 0 ? ` Блокеров: ${role.blockedCapabilityCount}.` : ' Критичных блокировок роли нет.'}
+                      </p>
+                      <div className="owner-actions">
+                        <OwnerRoleDrawerClient
+                          role={role}
+                          work={workStats}
+                          allowedActionCount={Number(raw.allowed_action_count || 0)}
+                          activationReason={raw.activation_reason ? String(raw.activation_reason) : null}
+                          updatedAt={raw.updated_at ? String(raw.updated_at) : null}
+                        />
+                      </div>
+                    </article>
+                  );
+                })}
               </div>
             </div>
           </details>
