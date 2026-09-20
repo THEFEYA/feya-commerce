@@ -219,6 +219,7 @@ export function ProductDetailClient({
     fullSetPrice: fullRegularPrice,
     separateRegularTotal: exactSeparateRegularTotal ?? separateRegularTotal,
     maxSingleOptionPrice,
+    separateChoiceCount: options.filter((o, i) => !isFullSetOption(o, i)).length,
   });
   const displayedRegular = selectedIsFullSet && displayedFullSetSavings > 0
     ? separateRegularTotal
