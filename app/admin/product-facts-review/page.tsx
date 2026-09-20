@@ -223,8 +223,6 @@ export default async function AdminProductFactsReviewPage({ searchParams }: { se
               })}
             </tbody>
           </table>
-        </div>
-
           </div>
         </section>
 
