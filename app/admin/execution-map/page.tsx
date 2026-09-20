@@ -141,6 +141,9 @@ export default async function AdminExecutionMapPage({ searchParams }: { searchPa
   const limited = rows.filter((row) => row.action_state === 'AVAILABLE_WITH_LIMITATIONS').length;
   const unavailable = rows.filter((row) => row.action_state === 'UNAVAILABLE').length;
   const ownerRequired = rows.filter((row) => String(row.approval_class || '').includes('HUMAN')).length;
+  const productionWrites = rows.filter((row) => row.production_mutation === true).length;
+  const unavailableRows = rows.filter((row) => row.action_state === 'UNAVAILABLE');
+  const humanApprovalRows = rows.filter((row) => String(row.approval_class || '').includes('HUMAN'));
 
   const filteredRows = rows
     .filter((row) => {
@@ -174,112 +177,145 @@ export default async function AdminExecutionMapPage({ searchParams }: { searchPa
     });
 
   return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
-          <div className="nav-links">
-            <Link href="/admin/system-readiness">Готовность системы</Link>
-            <Link href="/admin/metrics">Метрики</Link>
-            <Link href="/admin/execution-map">Права действий</Link>
-            <Link href="/admin/executions">Выполнение</Link>
+    <main className="owner-page">
+      <div className="owner-page-inner">
+        <header className="owner-page-head">
+          <div>
+            <div className="owner-eyebrow">Система · права и автоматизация</div>
+            <h1>Что FEYA может делать</h1>
+            <p>Разделяем возможность анализировать, готовить предложение и реально менять рабочие данные. Недоступное действие система не должна имитировать, а одобрение не считается выполнением.</p>
           </div>
-        </nav>
-
-        <section className="phase-banner">
-          <div className="phase-label">Карта разрешённых действий · только просмотр</div>
-          <h1>Права и автоматизация</h1>
-          <p>
-            Для каждого действия явно указано, кто его выполняет, требуется ли одобрение и может ли оно менять рабочие данные. Недоступное действие система не должна имитировать.
-          </p>
-        </section>
+          <div className="owner-actions" style={{ marginTop: 0 }}>
+            <Link href="/admin/company/system#permissions" className="owner-button">Назад к системе</Link>
+            <Link href="/admin/executions" className="owner-button">История выполнения</Link>
+          </div>
+        </header>
 
         <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
-          <div className="owner-summary-cell"><strong>{available}</strong><span>Действий полностью доступны</span></div>
-          <div className="owner-summary-cell"><strong>{limited}</strong><span>Доступны с ограничениями</span></div>
-          <div className="owner-summary-cell"><strong>{unavailable}</strong><span>Пока недоступны</span></div>
-          <div className="owner-summary-cell"><strong>{ownerRequired}</strong><span>Требуют решения человека / владельца</span></div>
+          <div className="owner-summary-cell"><strong>{unavailable}</strong><span>Действий пока недоступны</span></div>
+          <div className="owner-summary-cell"><strong>{ownerRequired}</strong><span>Требуют человека / владельца</span></div>
+          <div className="owner-summary-cell"><strong>{productionWrites}</strong><span>Могут менять рабочие данные</span></div>
+          <div className="owner-summary-cell"><strong>{available + limited}</strong><span>Имеют реализованный путь с ограничениями</span></div>
         </section>
 
-        {error ? <div className="notice">{error}</div> : null}
+        {error ? <div className="owner-card is-danger"><div className="owner-status is-danger">Ошибка данных</div><p className="owner-card-copy">{error}</p></div> : null}
 
-        <form action="/admin/execution-map" className="owner-card" style={{ marginBottom: '14px' }}>
-          <div className="grid gap-3 lg:grid-cols-[1fr_250px_240px_auto] lg:items-end">
-            <label>
-              <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Поиск действия</div>
-              <input name="q" defaultValue={q} className="field" placeholder="индексация, цена, контент…" />
-            </label>
-            <label>
-              <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Состояние</div>
-              <select name="state" defaultValue={stateFilter} className="field">
-                <option value="ATTENTION">Требует внимания</option>
-                <option value="UNAVAILABLE">Недоступно</option>
-                <option value="AVAILABLE_WITH_LIMITATIONS">Доступно с ограничениями</option>
-                <option value="AVAILABLE">Доступно полностью</option>
-                <option value="ALL">Все</option>
-              </select>
-            </label>
-            <label>
-              <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Одобрение</div>
-              <select name="approval" defaultValue={approvalFilter} className="field">
-                <option value="all">Любое</option>
-                <option value="human">Нужен человек / владелец</option>
-                <option value="none">Без отдельного одобрения</option>
-              </select>
-            </label>
-            <button type="submit" className="owner-button primary">Применить</button>
+        <section className="owner-section" style={{ marginTop: 0 }}>
+          <div className="owner-section-head">
+            <div>
+              <h2>Что нельзя выполнить сейчас</h2>
+              <div className="owner-section-kicker">Только реальные недоступные действия — без стенки из всех 54 определений</div>
+            </div>
           </div>
-          <div className="owner-card-meta" style={{ marginTop: '10px', marginBottom: 0 }}>
-            <span>Показано: {filteredRows.length}</span>
-            <span>Всего действий: {rows.length}</span>
-            <Link href="/admin/execution-map">Сбросить</Link>
-          </div>
-        </form>
-
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Действие</th>
-                <th>Ответственный</th>
-                <th>Состояние</th>
-                <th>Класс</th>
-                <th>Исполнитель</th>
-                <th>Одобрение</th>
-                <th>Изменение данных</th>
-                <th>Ограничения</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRows.map((row) => (
-                <tr key={row.action_code}>
-                  <td>
-                    <strong title={asText(row.action_code)}>{actionLabel(row.action_code)}</strong>
-                  </td>
-                  <td>{roleLabel(row.owner_role)}</td>
-                  <td>
-                    <span className={`status-pill ${stateClass(row.action_state)}`}>
-                      {statusLabel(row.action_state)}
-                    </span>
-                    <div className="muted" title={asText(row.implementation_state)}>{implementationStateLabel(row.implementation_state)}</div>
-                  </td>
-                  <td title={asText(row.action_class)}>{actionClassLabel(row.action_class)}</td>
-                  <td title={asText(row.executor_type)}>{executorLabel(row.executor_type)}</td>
-                  <td title={asText(row.approval_class)}>{approvalLabel(row.approval_class)}</td>
-                  <td>
-                    {row.production_mutation === true ? (
-                      <span className="status-pill danger">Рабочие данные</span>
-                    ) : row.production_mutation === false ? (
-                      <span className="badge">Без записи в рабочие данные</span>
-                    ) : '—'}
-                    {row.dry_run_default ? <div className="badge-row"><span className="badge">по умолчанию тестовый режим</span></div> : null}
-                  </td>
-                  <td><details><summary className="cursor-pointer text-[var(--gold-warm)]">Подробнее</summary><div className="muted" style={{ marginTop: '6px' }}>{asText(row.limitations_summary)}</div></details></td>
-                </tr>
+          {unavailableRows.length ? (
+            <div className="owner-grid two">
+              {unavailableRows.map((row) => (
+                <article className="owner-card is-danger" key={row.action_code}>
+                  <div className="owner-card-meta">
+                    <span className="owner-status is-danger">Недоступно</span>
+                    <span>{roleLabel(row.owner_role)}</span>
+                  </div>
+                  <h3 className="owner-card-title">{actionLabel(row.action_code)}</h3>
+                  <p className="owner-card-copy">{asText(row.limitations_summary, 'Исполнительный путь ещё не готов.')}</p>
+                  <div className="owner-card-meta" style={{ marginTop: '12px', marginBottom: 0 }}>
+                    <span>{approvalLabel(row.approval_class)}</span>
+                    {row.production_mutation === true ? <span>меняет рабочие данные</span> : null}
+                  </div>
+                </article>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
+          ) : (
+            <div className="owner-card is-success"><div className="owner-status is-success">Недоступных действий нет</div><p className="owner-card-copy">Все зарегистрированные действия имеют хотя бы ограниченный путь выполнения.</p></div>
+          )}
+        </section>
+
+        <section className="owner-section">
+          <details className="owner-disclosure owner-disclosure-section">
+            <summary>
+              <span><strong>Действия, где нужен человек</strong><small>Самостоятельность FEYA заканчивается на этой границе</small></span>
+              <span className="owner-section-kicker">{humanApprovalRows.length}</span>
+            </summary>
+            <div className="owner-disclosure-body owner-list">
+              {humanApprovalRows.map((row) => (
+                <article className="owner-list-row" key={row.action_code}>
+                  <div className="owner-list-row-main">
+                    <div className="owner-card-meta">
+                      <span className="owner-status is-warning">{approvalLabel(row.approval_class)}</span>
+                      <span>{roleLabel(row.owner_role)}</span>
+                    </div>
+                    <h3>{actionLabel(row.action_code)}</h3>
+                    <p>{asText(row.limitations_summary, 'После одобрения всё равно требуется отдельное контролируемое выполнение.')}</p>
+                  </div>
+                  <div className="owner-list-row-side">
+                    {row.production_mutation === true ? <span className="owner-status is-danger">изменяет данные</span> : <span className="owner-section-kicker">без прямой записи</span>}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </details>
+        </section>
+
+        <section className="owner-section">
+          <details className="owner-disclosure owner-disclosure-section">
+            <summary>
+              <span><strong>Полная карта действий</strong><small>Поиск, фильтры, исполнитель и технические ограничения</small></span>
+              <span className="owner-section-kicker">{rows.length}</span>
+            </summary>
+            <div className="owner-disclosure-body">
+              <form action="/admin/execution-map" className="owner-card" style={{ marginBottom: '14px' }}>
+                <div className="grid gap-3 lg:grid-cols-[1fr_250px_240px_auto] lg:items-end">
+                  <label>
+                    <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Поиск действия</div>
+                    <input name="q" defaultValue={q} className="field" placeholder="индексация, цена, контент…" />
+                  </label>
+                  <label>
+                    <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Состояние</div>
+                    <select name="state" defaultValue={stateFilter} className="field">
+                      <option value="ATTENTION">Требует внимания</option>
+                      <option value="UNAVAILABLE">Недоступно</option>
+                      <option value="AVAILABLE_WITH_LIMITATIONS">Доступно с ограничениями</option>
+                      <option value="AVAILABLE">Доступно полностью</option>
+                      <option value="ALL">Все</option>
+                    </select>
+                  </label>
+                  <label>
+                    <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Одобрение</div>
+                    <select name="approval" defaultValue={approvalFilter} className="field">
+                      <option value="all">Любое</option>
+                      <option value="human">Нужен человек / владелец</option>
+                      <option value="none">Без отдельного одобрения</option>
+                    </select>
+                  </label>
+                  <button type="submit" className="owner-button primary">Применить</button>
+                </div>
+                <div className="owner-card-meta" style={{ marginTop: '10px', marginBottom: 0 }}>
+                  <span>Показано: {filteredRows.length}</span>
+                  <span>Всего действий: {rows.length}</span>
+                  <Link href="/admin/execution-map">Сбросить</Link>
+                </div>
+              </form>
+
+              <div className="table-wrap">
+                <table>
+                  <thead><tr><th>Действие</th><th>Ответственный</th><th>Состояние</th><th>Исполнитель</th><th>Одобрение</th><th>Запись</th><th>Ограничения</th></tr></thead>
+                  <tbody>
+                    {filteredRows.map((row) => (
+                      <tr key={row.action_code}>
+                        <td><strong title={asText(row.action_code)}>{actionLabel(row.action_code)}</strong></td>
+                        <td>{roleLabel(row.owner_role)}</td>
+                        <td>{statusLabel(row.action_state)}<div className="muted">{implementationStateLabel(row.implementation_state)}</div></td>
+                        <td>{executorLabel(row.executor_type)}</td>
+                        <td>{approvalLabel(row.approval_class)}</td>
+                        <td>{row.production_mutation === true ? 'Меняет рабочие данные' : 'Без прямой записи'}</td>
+                        <td>{asText(row.limitations_summary)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </details>
+        </section>
       </div>
     </main>
   );
