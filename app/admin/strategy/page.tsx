@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { OwnerInitiativeDrawerClient } from '@/components/admin/OwnerInitiativeDrawerClient';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { GrowthInitiativeRow, GrowthStrategyRow } from '@/lib/types';
 import { roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
@@ -183,6 +184,7 @@ export default async function AdminStrategyPage() {
                   </div>
                   <div className="owner-list-row-side">
                     <span className="owner-section-kicker">{statusLabel(row.initiative_status)}</span>
+                    <OwnerInitiativeDrawerClient row={row} />
                   </div>
                 </article>
               ))}
@@ -206,6 +208,7 @@ export default async function AdminStrategyPage() {
                       <div className="owner-card-meta"><span>{statusLabel(row.initiative_status)}</span><span>{roleLabel(row.owner_role)}</span></div>
                       <h3>{asText(row.title, 'Инициатива')}</h3>
                     </div>
+                    <div className="owner-list-row-side"><OwnerInitiativeDrawerClient row={row} /></div>
                   </article>
                 ))}
               </div>
