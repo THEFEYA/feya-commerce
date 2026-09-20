@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Bot, Eye, PauseCircle, ShieldCheck, Workflow } from 'lucide-react';
+import { Bot, CirclePause, Eye, ShieldCheck, Workflow } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { RoleActivationRow } from '@/lib/types';
@@ -120,7 +120,7 @@ export default async function AdminRolesPage() {
               <div><span className="owner-team-state-icon is-success"><Workflow size={14} /></span><span><strong>{active}</strong><small>активны</small></span></div>
               <div><span className="owner-team-state-icon is-info"><Eye size={14} /></span><span><strong>{shadow}</strong><small>наблюдают</small></span></div>
               <div><span className="owner-team-state-icon"><ShieldCheck size={14} /></span><span><strong>{inactive}</strong><small>не активированы</small></span></div>
-              <div><span className="owner-team-state-icon is-warning"><PauseCircle size={14} /></span><span><strong>{paused}</strong><small>на паузе</small></span></div>
+              <div><span className="owner-team-state-icon is-warning"><CirclePause size={14} /></span><span><strong>{paused}</strong><small>на паузе</small></span></div>
             </div>
           </section>
         ) : null>
