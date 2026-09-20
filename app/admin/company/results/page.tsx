@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { capabilityOwnerSummary, ownerToneForStatus, statusLabel } from '@/lib/owner-ui/terminology';
 
@@ -105,12 +106,7 @@ export default async function AdminResultsPage() {
           <Link href="/admin/learning">Выводы</Link>
         </nav>
 
-        {data.error ? (
-          <div className="owner-card is-danger">
-            <div className="owner-status is-danger">Ошибка данных</div>
-            <p className="owner-card-copy">{data.error}</p>
-          </div>
-        ) : null}
+        {data.error ? <OwnerDataError error={data.error} /> : null}
 
         <section className={'owner-card ' + toneClass(tone)}>
           <div className={'owner-status ' + toneClass(tone)}>{statusLabel(measurementState)}</div>
