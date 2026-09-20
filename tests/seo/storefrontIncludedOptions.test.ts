@@ -1060,3 +1060,90 @@ test('restores Batch33 source-confirmed selectors', () => {
     ['Horns', 'Corset + Spine'],
   );
 });
+
+
+test('restores Batch34 source-confirmed selectors', () => {
+  const silver = {
+    canonical_product_id: '9d1d101d-e1d1-48fd-ac41-65c07dd5ce05',
+    configurations: [
+      { configuration_id: '1991c64a-04bc-4445-a9cc-f3b3f09f7a66', sort_order: 1, public_label: 'Option', needs_label_review: true, display_price_amount: 96.50 },
+      { configuration_id: '8a17c686-1635-4730-ab75-7b10a2d54248', sort_order: 2, public_label: 'Skirt', component_code: 'skirt', component_family: 'Bottom', display_price_amount: 135.10 },
+      { configuration_id: 'bc81f075-cda9-4eb3-9233-20646b315f63', sort_order: 3, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['skirt'], display_price_amount: 167.49 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(silver, { configuration_id: 'bc81f075-cda9-4eb3-9233-20646b315f63' }),
+    ['Bra', 'Skirt'],
+  );
+
+  const couple = {
+    canonical_product_id: '8f4646f0-ea2b-48c3-af11-e22f0dec4f08',
+    configurations: [
+      { configuration_id: 'a0bef7cc-1cf1-470c-af16-d77c13a457f6', sort_order: 1, public_label: 'Option', needs_label_review: true, display_price_amount: 201.78 },
+      { configuration_id: '3526fd7a-cad5-456a-b1f2-8327d95966e7', sort_order: 2, public_label: 'Option', needs_label_review: true, display_price_amount: 350.92 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(couple, { configuration_id: '3526fd7a-cad5-456a-b1f2-8327d95966e7' }),
+    ["Women's Outfit"],
+  );
+  assert.deepEqual(
+    storefrontIncludedOptions(couple, { configuration_id: 'a0bef7cc-1cf1-470c-af16-d77c13a457f6' }),
+    ["Men's Outfit"],
+  );
+
+  const wings = {
+    canonical_product_id: '74634519-add3-490f-8ef3-3b4d74a7ca7d',
+    configurations: [
+      { configuration_id: '9116628c-d672-4a97-bcb0-1180aef501c4', sort_order: 1, public_label: 'Bracelet', component_code: 'arms', component_family: 'Arms', display_price_amount: 77.20 },
+      { configuration_id: 'ad6b5b46-64d4-4f6a-a0b3-b5fcf782b722', sort_order: 2, public_label: 'Bracelet', component_code: 'arms', component_family: 'Arms', display_price_amount: 77.20 },
+      { configuration_id: 'f071ab1d-a896-49c2-bfa0-008431c05f22', sort_order: 3, public_label: 'Headpiece', component_code: 'headpiece', component_family: 'Headpiece', display_price_amount: 106.16 },
+      { configuration_id: 'f6266c1a-aafd-46d2-9ebb-7acf1ace990b', sort_order: 4, public_label: 'Bodysuit', component_code: 'bodysuit', component_family: 'Bodysuit', display_price_amount: 144.76 },
+      { configuration_id: '1caeb6be-174c-47e3-a5c6-d67e8997e97e', sort_order: 5, public_label: 'Wings', component_code: 'wings', component_family: 'Wings', display_price_amount: 173.70 },
+      { configuration_id: 'cf3bd456-c57b-421f-819a-11612a8e8bc7', sort_order: 6, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['arms','headpiece','bodysuit','wings'], display_price_amount: 418.72 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(wings, { configuration_id: 'cf3bd456-c57b-421f-819a-11612a8e8bc7' }),
+    ['Hand Bracelets', 'Leg Bracelets', 'Headpiece', 'Bodysuit', 'Wings'],
+  );
+
+  const pink = {
+    canonical_product_id: 'c61827ef-4530-426b-a2bf-7a44738352af',
+    configurations: [
+      { configuration_id: 'fabc18be-e918-44cb-ab58-5894e21f25fc', sort_order: 1, public_label: 'Arm Pieces', component_code: 'arms', component_family: 'Arms', display_price_amount: 96.50 },
+      { configuration_id: '6a485b71-326f-4ac0-bb56-69470e28871d', sort_order: 2, public_label: 'Shoulders', component_code: 'shoulders', component_family: 'Shoulders', display_price_amount: 96.50 },
+      { configuration_id: '9f94f4a6-4894-4d29-b7ec-83aa7e05cb11', sort_order: 3, public_label: 'Bodysuit', component_code: 'bodysuit', component_family: 'Bodysuit', display_price_amount: 207.36 },
+      { configuration_id: '014b5b68-ca7e-478c-9d8f-5a37b67b3d83', sort_order: 4, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['arms','shoulders','bodysuit'], display_price_amount: 279.14 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(pink, { configuration_id: 'fabc18be-e918-44cb-ab58-5894e21f25fc' }),
+    ['Sleeves + Leg Covers'],
+  );
+  assert.deepEqual(
+    storefrontIncludedOptions(pink, { configuration_id: '014b5b68-ca7e-478c-9d8f-5a37b67b3d83' }),
+    ['Bodysuit', 'Shoulders', 'Sleeves + Leg Covers'],
+  );
+
+  const horns = {
+    canonical_product_id: '8223ea35-644b-4bd8-bd05-4ba7810b116a',
+    configurations: [
+      { configuration_id: '7286939c-44c0-497d-8b76-3e9066b28683', sort_order: 1, public_label: 'Leg Covers', component_code: 'legs', component_family: 'Legs', display_price_amount: 159.51 },
+      { configuration_id: 'b147aea3-8bf7-4a16-b4b0-610e962cc58c', sort_order: 2, public_label: 'Horns', component_code: 'horns', component_family: 'Headpiece', display_price_amount: 199.39 },
+      { configuration_id: '0e235063-e459-45a0-8df2-6eb87ab1bd8e', sort_order: 3, public_label: 'Bodysuit', component_code: 'bodysuit', component_family: 'Bodysuit', display_price_amount: 295.09 },
+      { configuration_id: '8adcff72-3599-429b-873d-48887f46b096', sort_order: 4, public_label: 'Horns', component_code: 'horns', component_family: 'Headpiece', display_price_amount: 558.29 },
+      { configuration_id: '1f23ad98-bd3f-4e96-83bf-6b56307f527e', sort_order: 5, public_label: 'Corset + Boots', component_code: 'bundle', component_family: 'Bundle', is_bundle: true, bundle_component_codes: ['boots','corset'], display_price_amount: 430.68 },
+      { configuration_id: '7265ce35-20ca-41f2-b1c7-0892db93f805', sort_order: 6, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['legs','horns','bodysuit','corset','boots'], display_price_amount: 606.14 },
+      { configuration_id: '4957f3e1-9fed-4360-a34e-3192bddf9b06', sort_order: 7, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['legs','horns','bodysuit','corset','boots'], display_price_amount: 957.06 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(horns, { configuration_id: '7265ce35-20ca-41f2-b1c7-0892db93f805' }),
+    ['Leg Covers', 'Horns (New)', 'Bodysuit', 'Corset + Boots'],
+  );
+  assert.deepEqual(
+    storefrontIncludedOptions(horns, { configuration_id: '4957f3e1-9fed-4360-a34e-3192bddf9b06' }),
+    ['Leg Covers', 'Horns (Old)', 'Bodysuit', 'Corset + Boots'],
+  );
+});
