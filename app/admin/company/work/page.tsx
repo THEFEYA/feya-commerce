@@ -441,7 +441,7 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
             <div className="owner-disclosure-body">
               <div className="owner-section-head">
                 <div>
-                  <div className="owner-section-kicker">Показываем только фактический runtime, ограничения и текущую работу. Это не восемь постоянно работающих ботов.</div>
+                  <div className="owner-section-kicker">Показываем только фактическое рабочее состояние, ограничения и текущую работу. Это не восемь постоянно работающих ботов.</div>
                 </div>
                 <Link href="/admin/roles" className="owner-button">Техническое состояние ролей</Link>
               </div>
