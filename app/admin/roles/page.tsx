@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { RoleActivationRow } from '@/lib/types';
 import { formatRelativeTime, presentRole } from '@/lib/owner-ui/presenters';
