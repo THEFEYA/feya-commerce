@@ -30,6 +30,8 @@ const requiredFiles = [
   'app/api/admin/company/owner-attention/decision/route.ts',
   'components/admin/OwnerProposalReviewClient.tsx',
   'app/api/admin/company/proposal-review/route.ts',
+  'components/admin/OwnerStrategicActionClient.tsx',
+  'app/api/admin/company/strategic-action/route.ts',
   'docs/OWNER_UX_BLUEPRINT_AUDIT_2026-09-19.md',
   'docs/OWNER_FUNCTIONAL_COVERAGE_2026-09-20.md',
   'docs/OWNER_COMPANY_VISUAL_CONTRACT_V1.md',
@@ -180,6 +182,14 @@ if (!failures.length) {
   if (!clusterProposalPage.includes('OwnerProposalReviewClient')) failures.push('Query-cluster proposals must expose protected Human review.');
   if (!ownershipProposalPage.includes('OwnerProposalReviewClient')) failures.push('Page-ownership proposals must expose protected Human review.');
   if (!indexabilityPage.includes('OwnerProposalReviewClient')) failures.push('Indexability proposals must expose protected Human review.');
+  const strategicActionRoute = text('app/api/admin/company/strategic-action/route.ts');
+  const strategicActionClient = text('components/admin/OwnerStrategicActionClient.tsx');
+  if (!strategicActionRoute.includes('requireOwnerActionActor')) failures.push('Strategic owner route must require owner authority.');
+  if (!strategicActionRoute.includes('feya_fn_owner_strategic_action_v1')) failures.push('Strategic owner route must use the guarded strategic wrapper.');
+  if (!strategy.includes('OwnerStrategicActionClient')) failures.push('Strategy workspace must expose protected strategic owner actions.');
+  if (!strategicActionClient.includes('ACTIVATE_GROWTH_OBJECTIVE') || !strategicActionClient.includes('HUMAN_APPROVE_INITIATIVE') || !strategicActionClient.includes('ACTIVATE_GROWTH_STRATEGY')) {
+    failures.push('Strategic owner action component must cover objective, initiative and strategy Human Owner boundaries.');
+  }
 
   if (!coverage.includes('Handoff timeline') || !coverage.includes('COVERED')) {
     failures.push('Functional coverage map must record durable handoff coverage.');
