@@ -84,9 +84,106 @@ const BATCH29_CAPTAIN_ARMOR_ID = 'e51e0a66-8358-41f9-bd51-2ab4833b24b3';
 const BATCH29_WHITE_MENS_ARMOR_ID = 'b0b2a75c-f301-45d6-857c-dd6575862619';
 const BATCH29_PLAGUE_DOCTOR_ID = '98600aa8-307b-4165-a8ae-38e347c114bd';
 const BATCH29_RED_DRAGON_ID = '27786636-7021-4809-8e81-7f566a3436ae';
+const BATCH30_NECKLACE_BELT_ID = 'abf11fbb-9794-484d-b93c-1449fa3a9a44';
+const BATCH30_SILVER_BELT_PANTIES_ID = 'f27fdb4d-d007-4d4c-899c-a50728c1ea4d';
+const BATCH30_FULL_BODY_HARNESS_ID = '11bb0057-8c1f-4347-8c03-46856df0653c';
+const BATCH30_HOLO_WINGS_ID = '12a0faf1-9c3c-44e2-bbf1-1583ac309a46';
+const BATCH30_DESERT_WARRIOR_ID = '7bf47f01-8114-4e8f-ba96-632f0fdd8d7d';
 
 
 
+
+
+function correctBatch30NecklaceBelt<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const necklaceId = '8995c12a-4d56-4fd8-b656-9cec86e108f7';
+  const fullId = '1f004691-a2d9-4af9-9d4f-98d44fc361f6';
+  if (![necklaceId, fullId].every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  const configurations = product.configurations.map(row => {
+    const id = configurationId(row);
+    if (id === necklaceId) return { ...row, public_label: 'Necklace', component_code: 'choker', component_family: 'Neck', needs_label_review: false };
+    if (id === fullId) return { ...row, bundle_component_codes: ['choker','belt'], bundle_component_labels: ['Necklace','Belt'], source_confirmed_bundle_members: true, needs_label_review: false };
+    return row;
+  });
+  return { ...product, configurations, needs_label_review: configurations.some(row => row.needs_label_review === true) };
+}
+
+function correctBatch30SilverBeltPanties<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const bundleId = '335deb18-22fe-45b1-99d5-89916a336f52';
+  const fullId = 'c93f9e36-0295-4595-8ff0-ab8889f335f5';
+  if (![bundleId, fullId].every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  const configurations = product.configurations.map(row => {
+    const id = configurationId(row);
+    if (id === bundleId) return {
+      ...row, public_label: 'Belt + Panties', component_code: 'belt_panties',
+      component_family: 'Bundle', is_bundle: true, is_full_set: false,
+      bundle_component_codes: ['belt','panties'], bundle_component_labels: ['Belt','Panties'], needs_label_review: false
+    };
+    if (id === fullId) return {
+      ...row, bundle_component_codes: ['top','belt','panties'],
+      bundle_component_labels: ['Top','Belt','Panties'],
+      source_confirmed_bundle_members: true, needs_label_review: false
+    };
+    return row;
+  });
+  return { ...product, configurations, needs_label_review: configurations.some(row => row.needs_label_review === true) };
+}
+
+function correctBatch30FullBodyHarness<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const topId = '4f3d2d7a-e230-4180-880b-5f9e7719d25e';
+  const fullId = '4a3527f6-9140-4309-b380-5d033a66bc01';
+  if (![topId, fullId].every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  const configurations = product.configurations.map(row => {
+    const id = configurationId(row);
+    if (id === topId) return { ...row, public_label: 'Top Harness', component_code: 'harness', component_family: 'Harness', needs_label_review: false };
+    if (id === fullId) return { ...row, bundle_component_codes: ['harness','legs'], bundle_component_labels: ['Top Harness','Garters'], source_confirmed_bundle_members: true, needs_label_review: false };
+    return row;
+  });
+  return { ...product, configurations, needs_label_review: configurations.some(row => row.needs_label_review === true) };
+}
+
+function correctBatch30HoloWings<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const handId = '0ff29db2-de7e-4c99-8ea0-7911dff6a4a8';
+  const legId = '9aa6c030-60d2-431d-91f2-a811d2f6d6cd';
+  const fullId = 'b5c06f4a-4de8-4183-9e0a-6c1fb997ca62';
+  if (![handId, legId, fullId].every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  const configurations = product.configurations.map(row => {
+    const id = configurationId(row);
+    if (id === handId) return { ...row, public_label: 'Hand Bracelets', component_code: 'arms', component_family: 'Arms', needs_label_review: false };
+    if (id === legId) return { ...row, public_label: 'Leg Bracelets', component_code: 'legs', component_family: 'Legs', needs_label_review: false };
+    if (id === fullId) return {
+      ...row,
+      bundle_component_codes: ['arms','legs','headpiece','bodysuit','wings'],
+      bundle_component_labels: ['Hand Bracelets','Leg Bracelets','Headpiece','Bodysuit','Wings'],
+      source_confirmed_bundle_members: true, needs_label_review: false
+    };
+    return row;
+  });
+  return { ...product, configurations, needs_label_review: configurations.some(row => row.needs_label_review === true) };
+}
+
+function correctBatch30DesertWarrior<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const hoodId = '2002c029-1cd2-4717-b3d7-744ad1203baf';
+  const pantsId = '77b75eaf-5cee-4e17-966f-485a2cced59f';
+  const fullId = 'c97fc92a-2ac8-4c99-8fd5-54fba1e1a055';
+  if (![hoodId, pantsId, fullId].every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  const configurations = product.configurations.map(row => {
+    const id = configurationId(row);
+    if (id === hoodId) return { ...row, public_label: 'Hood', component_code: 'headpiece', component_family: 'Headpiece', needs_label_review: false };
+    if (id === pantsId) return { ...row, public_label: 'Pants', component_code: 'pants', component_family: 'Bottom', needs_label_review: false };
+    if (id === fullId) return {
+      ...row, bundle_component_codes: ['arms','mask','headpiece','pants'],
+      bundle_component_labels: ['Gloves','Mask','Hood','Pants'],
+      source_confirmed_bundle_members: true, needs_label_review: false
+    };
+    return row;
+  });
+  return { ...product, configurations, needs_label_review: configurations.some(row => row.needs_label_review === true) };
+}
 
 function correctBatch29CaptainArmor<T extends Record<string, any>>(product: T): T {
   if (!Array.isArray(product.configurations)) return product;
@@ -470,6 +567,11 @@ function correctSilverBraSkirtSet<T extends Record<string, any>>(product: T): T 
 
 export function applyOwnerReviewedStorefrontCorrections<T extends Record<string, any>>(product: T): T {
   const productId = String(product?.canonical_product_id || '');
+  if (productId === BATCH30_NECKLACE_BELT_ID) return correctBatch30NecklaceBelt(product);
+  if (productId === BATCH30_SILVER_BELT_PANTIES_ID) return correctBatch30SilverBeltPanties(product);
+  if (productId === BATCH30_FULL_BODY_HARNESS_ID) return correctBatch30FullBodyHarness(product);
+  if (productId === BATCH30_HOLO_WINGS_ID) return correctBatch30HoloWings(product);
+  if (productId === BATCH30_DESERT_WARRIOR_ID) return correctBatch30DesertWarrior(product);
   if (productId === BATCH29_CAPTAIN_ARMOR_ID) return correctBatch29CaptainArmor(product);
   if (productId === BATCH29_WHITE_MENS_ARMOR_ID) return correctBatch29WhiteMensArmor(product);
   if (productId === BATCH29_PLAGUE_DOCTOR_ID) return correctBatch29PlagueDoctor(product);
