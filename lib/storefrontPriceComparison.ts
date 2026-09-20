@@ -139,27 +139,48 @@ export function resolveFullSetPriceAudit({
   fullSetPrice,
   separateRegularTotal,
   maxSingleOptionPrice,
+  separateChoiceCount,
+  sharedOverheadPerExtraChoice = 30,
 }: {
   fullSetPrice: unknown;
   separateRegularTotal: unknown;
   maxSingleOptionPrice: unknown;
+  separateChoiceCount?: unknown;
+  sharedOverheadPerExtraChoice?: unknown;
 }): FullSetPriceAudit {
   const full = finiteAmount(fullSetPrice);
   const separate = finiteAmount(separateRegularTotal);
   const maxSingle = finiteAmount(maxSingleOptionPrice);
+  const choiceCount = Math.max(1, Math.floor(Number(separateChoiceCount) || 1));
+  const sharedOverhead = finiteAmount(sharedOverheadPerExtraChoice) ?? 30;
   if (full == null || separate == null || separate <= 0) {
     return { status: 'review', discountPercent: null, reasons: ['price_comparison_incomplete'] };
   }
 
-  const discountPercent = Math.round((1 - full / separate) * 1000) / 10;
+  // Owner rule: separately priced options historically carry roughly €30 of
+  // delivery/overhead each. A combined order only needs that overhead once.
+  // Promotional bundle discount is therefore reviewed against the normalized
+  // shared-overhead baseline, while buyer-visible savings still compare against
+  // the actual sum of separate selector prices.
+  const normalizedBaseline = Math.max(
+    maxSingle || 0,
+    roundCurrency(separate - sharedOverhead * Math.max(0, choiceCount - 1)),
+  );
+  const discountPercent = normalizedBaseline > 0
+    ? Math.round((1 - full / normalizedBaseline) * 1000) / 10
+    : null;
   const reasons: string[] = [];
 
   if (full >= separate) reasons.push('full_set_not_cheaper_than_separate_choices');
   if (maxSingle != null && full <= maxSingle * 1.1) {
     reasons.push('full_set_too_close_to_single_option');
   }
-  if (discountPercent > 25) reasons.push('bundle_discount_over_25_percent_review');
-  if (discountPercent < 0) reasons.push('negative_bundle_discount');
+  if (discountPercent != null && discountPercent > 25) {
+    reasons.push('bundle_discount_over_25_percent_review');
+  }
+  if (discountPercent != null && discountPercent < 0 && full >= separate) {
+    reasons.push('negative_bundle_discount');
+  }
 
   return {
     status: reasons.length ? 'review' : 'ok',
