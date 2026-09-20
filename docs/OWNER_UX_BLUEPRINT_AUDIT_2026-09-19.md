@@ -344,3 +344,20 @@ Each review:
 The UI explicitly separates **review** from **apply**. No canonical SEO mutation is enabled by these controls.
 
 Because current review queues are empty, this work changes capability coverage only, not business data.
+
+
+## Protected strategic owner actions checkpoint — 2026-09-20
+
+The Strategy workspace now has locked UX-5 controls for the three Human Owner boundaries defined by canon:
+
+- Growth Objective activation;
+- Human Owner initiative approval/rejection;
+- Growth Strategy activation.
+
+The controls are contextual:
+- objective activation only appears for an activation-eligible objective;
+- an objective with insufficient feasibility explains the missing prerequisite instead of exposing an invalid button;
+- initiative approval appears only while Human Owner status is PENDING;
+- DRAFT strategy activation is shown only when a draft version exists.
+
+All controls remain non-operational until mandatory auth, exact allowlist and `FEYA_OWNER_ACTIONS_ENABLED=true` are verified. Current production has no rows eligible for these actions, so owner screens remain visually quiet.
