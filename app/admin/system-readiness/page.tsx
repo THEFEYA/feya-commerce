@@ -45,7 +45,7 @@ export default async function AdminSystemReadinessPage({ searchParams }: { searc
 
   const filteredRows = rows
     .filter((row) => {
-      const haystack = [capabilityLabel(row.capability_code), capabilityOwnerSummary(row.capability_code), row.capability_code]
+      const haystack = [capabilityLabel(row.capability_code), capabilityOwnerSummary(row.capability_code), roleLabel(row.owner_role), row.capability_code]
         .map((value) => String(value || '').toLowerCase())
         .join(' ');
       const matchesQuery = !q || haystack.includes(q);
