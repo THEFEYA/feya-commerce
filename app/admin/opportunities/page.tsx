@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
+import { OwnerOpportunityDrawerClient } from '@/components/admin/OwnerOpportunityDrawerClient';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { GrowthOpportunityRow } from '@/lib/types';
 import { roleLabel } from '@/lib/owner-ui/terminology';
@@ -149,7 +150,7 @@ export default async function AdminOpportunitiesPage() {
                   </div>
                   <div className="owner-list-row-side">
                     <span className="owner-section-kicker">{asText(row.priority, 'P3')}</span>
-                    {row.initiative_id ? <Link href="/admin/strategy" className="owner-button">Открыть инициативу</Link> : <span className="owner-section-kicker">инициатива не создана</span>}
+                    <OwnerOpportunityDrawerClient row={row} />
                   </div>
                 </article>
               ))}
