@@ -731,3 +731,22 @@ Validation:
 - owner action audit rows remain 0.
 
 No keyword review state was changed by this migration.
+
+
+### Protected Human SCO shadow draft review
+
+20260920125821 — feya_owner_sco_shadow_review_gateway_v1
+- added service-role-only owner wrapper around the existing SCO shadow Human review RPC;
+- added explicit expected Human review-status guard;
+- preserves canonical approval prechecks for similarity, ALT truth, component truth and validation blockers;
+- requires real Auth user, Human note and idempotency key;
+- preserves existing SEO pack draft event history and adds generic Owner Action audit;
+- updated REVIEW_SCO_SHADOW_DRAFT Action Capability to protected_ui_locked.
+
+Validation:
+- anon/authenticated EXECUTE = false;
+- service_role EXECUTE = true;
+- READY_FOR_HUMAN_AND_CQA_REVIEW rows = 17;
+- owner action audit rows remain 0.
+
+No draft review state was changed by this migration.
