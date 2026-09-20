@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  resolveFullSetPriceAudit,
   resolveFullSetPriceComparison,
   resolveMinimumSeparatePurchaseTotal,
 } from '../../lib/storefrontPriceComparison.ts';
@@ -106,4 +107,31 @@ test('does not double-count overlapping atomic and grouped selector choices', ()
   });
 
   assert.equal(total, 292.94);
+});
+
+
+test('flags a Full Set that is implausibly close to one option', () => {
+  const audit = resolveFullSetPriceAudit({
+    fullSetPrice: 164.06,
+    separateRegularTotal: 289.51,
+    maxSingleOptionPrice: 154.41,
+  });
+
+  assert.equal(audit.status, 'review');
+  assert.equal(audit.reasons.includes('full_set_too_close_to_single_option'), true);
+  assert.equal(audit.reasons.includes('bundle_discount_over_25_percent_review'), true);
+});
+
+test('accepts the corrected shared-overhead Full Set price', () => {
+  const audit = resolveFullSetPriceAudit({
+    fullSetPrice: 260,
+    separateRegularTotal: 289.51,
+    maxSingleOptionPrice: 154.41,
+  });
+
+  assert.deepEqual(audit, {
+    status: 'ok',
+    discountPercent: 10.2,
+    reasons: [],
+  });
 });
