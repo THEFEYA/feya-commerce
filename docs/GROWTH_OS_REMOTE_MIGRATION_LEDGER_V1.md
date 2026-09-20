@@ -711,3 +711,23 @@ Validation:
 - owner action audit rows remain 0.
 
 Approval remains separate from dispatcher execution and Execution Receipt.
+
+
+### Protected Human keyword review gateway
+
+20260920125450 — feya_owner_keyword_review_gateway_v1
+- added service-role-only owner wrapper around keyword cleanup Human review;
+- supports approved / rejected / needs_review with stale-status guard;
+- approved decisions require an explicit approved keyword;
+- requires real Auth user, human reason and idempotency key;
+- delegates to the existing canonical review RPC, preserving keyword cleanup review events;
+- additionally records generic Owner Action audit;
+- updated APPLY_KEYWORD_CLEANUP_HUMAN_REVIEW capability to protected_ui_locked.
+
+Validation:
+- anon/authenticated EXECUTE = false;
+- service_role EXECUTE = true;
+- reviewable keyword rows = 431;
+- owner action audit rows remain 0.
+
+No keyword review state was changed by this migration.
