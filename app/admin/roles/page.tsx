@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { RoleActivationRow } from '@/lib/types';
-import { presentRole } from '@/lib/owner-ui/presenters';
+import { formatRelativeTime, presentRole } from '@/lib/owner-ui/presenters';
 import { OwnerRoleDrawerClient } from '@/components/admin/OwnerRoleDrawerClient';
 
 export const dynamic = 'force-dynamic';
@@ -130,9 +130,7 @@ export default async function AdminRolesPage() {
               const required = Math.max(0, role.requiredCapabilityCount || 0);
               const available = Math.min(required, role.availableCapabilityCount || 0);
               const stats = roleWork.get(role.code) || { active: 0, queued: 0, waiting: 0, latestTitle: null, latestAt: null };
-              const lastActivity = stats.latestAt
-                ? new Intl.RelativeTimeFormat('ru-RU', { numeric: 'auto' }).format(-Math.max(1, Math.round((Date.now() - new Date(stats.latestAt).getTime()) / 86400000)), 'day')
-                : 'ещё не было';
+              const lastActivity = stats.latestAt ? formatRelativeTime(stats.latestAt) : 'ещё не было';
 
               return (
                 <article className={`owner-card owner-team-card ${toneClass(role.tone)}`} key={role.code}>
