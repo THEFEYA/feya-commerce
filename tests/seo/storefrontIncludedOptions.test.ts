@@ -740,3 +740,76 @@ test('restores Batch29 source-confirmed selectors and Full Set members', () => {
     ['Gloves', 'Shoulders', 'Spine + Tail', 'Bodysuit'],
   );
 });
+
+
+test('restores Batch30 source-confirmed selectors', () => {
+  const necklaceBelt = {
+    canonical_product_id: 'abf11fbb-9794-484d-b93c-1449fa3a9a44',
+    configurations: [
+      { configuration_id: '8995c12a-4d56-4fd8-b656-9cec86e108f7', sort_order: 1, public_label: 'Option', needs_label_review: true, display_price_amount: 86.9 },
+      { configuration_id: 'fec2875f-7f6e-4c29-9119-bb2d8f899d83', sort_order: 2, public_label: 'Belt', component_code: 'belt', component_family: 'Belt', display_price_amount: 108.03 },
+      { configuration_id: '1f004691-a2d9-4af9-9d4f-98d44fc361f6', sort_order: 3, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['belt'], display_price_amount: 171.41 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(necklaceBelt, { configuration_id: '1f004691-a2d9-4af9-9d4f-98d44fc361f6' }),
+    ['Necklace', 'Belt'],
+  );
+
+  const silver = {
+    canonical_product_id: 'f27fdb4d-d007-4d4c-899c-a50728c1ea4d',
+    configurations: [
+      { configuration_id: '89124658-8255-45ee-8321-f17f19283251', sort_order: 1, public_label: 'Top', component_code: 'top', component_family: 'Top', display_price_amount: 144.76 },
+      { configuration_id: '335deb18-22fe-45b1-99d5-89916a336f52', sort_order: 2, public_label: 'Panties', component_code: 'panties', component_family: 'Bottom', display_price_amount: 159.51 },
+      { configuration_id: 'c93f9e36-0295-4595-8ff0-ab8889f335f5', sort_order: 3, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['top','panties'], display_price_amount: 255.22 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(silver, { configuration_id: 'c93f9e36-0295-4595-8ff0-ab8889f335f5' }),
+    ['Top', 'Belt + Panties'],
+  );
+
+  const harness = {
+    canonical_product_id: '11bb0057-8c1f-4347-8c03-46856df0653c',
+    configurations: [
+      { configuration_id: 'e0aff685-a16a-4c69-991d-d6e60d6e9021', sort_order: 1, public_label: 'Garters', component_code: 'legs', component_family: 'Legs', display_price_amount: 67.56 },
+      { configuration_id: '4f3d2d7a-e230-4180-880b-5f9e7719d25e', sort_order: 2, public_label: 'Option', needs_label_review: true, display_price_amount: 77.2 },
+      { configuration_id: '4a3527f6-9140-4309-b380-5d033a66bc01', sort_order: 3, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['legs'], display_price_amount: 125.45 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(harness, { configuration_id: '4a3527f6-9140-4309-b380-5d033a66bc01' }),
+    ['Top Harness', 'Garters'],
+  );
+
+  const wings = {
+    canonical_product_id: '12a0faf1-9c3c-44e2-bbf1-1583ac309a46',
+    configurations: [
+      { configuration_id: '0ff29db2-de7e-4c99-8ea0-7911dff6a4a8', sort_order: 1, public_label: 'Bracelet', component_code: 'arms', component_family: 'Arms', display_price_amount: 77.24 },
+      { configuration_id: '9aa6c030-60d2-431d-91f2-a811d2f6d6cd', sort_order: 2, public_label: 'Bracelet', component_code: 'arms', component_family: 'Arms', display_price_amount: 77.24 },
+      { configuration_id: 'cc57ca5d-0a9d-4303-801d-bf4c40434f82', sort_order: 3, public_label: 'Headpiece', component_code: 'headpiece', component_family: 'Headpiece', display_price_amount: 106.21 },
+      { configuration_id: '1e6858cb-4d81-41b5-81f0-eecc3cff4715', sort_order: 4, public_label: 'Bodysuit', component_code: 'bodysuit', component_family: 'Bodysuit', display_price_amount: 144.83 },
+      { configuration_id: 'f3544426-4ebb-4aca-b0f7-f37251e2aa63', sort_order: 5, public_label: 'Wings', component_code: 'wings', component_family: 'Wings', display_price_amount: 199.49 },
+      { configuration_id: 'b5c06f4a-4de8-4183-9e0a-6c1fb997ca62', sort_order: 6, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['arms','headpiece','bodysuit','wings'], display_price_amount: 446.86 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(wings, { configuration_id: 'b5c06f4a-4de8-4183-9e0a-6c1fb997ca62' }),
+    ['Hand Bracelets', 'Leg Bracelets', 'Headpiece', 'Bodysuit', 'Wings'],
+  );
+
+  const warrior = {
+    canonical_product_id: '7bf47f01-8114-4e8f-ba96-632f0fdd8d7d',
+    configurations: [
+      { configuration_id: '077e7c8b-0eda-4ae0-a52c-18a05f91c897', sort_order: 1, public_label: 'Gloves', component_code: 'arms', component_family: 'Arms', display_price_amount: 86.85 },
+      { configuration_id: 'c1483d69-73cc-4876-8359-d5eb16e3166d', sort_order: 2, public_label: 'Mask', component_code: 'mask', component_family: 'Headpiece', display_price_amount: 96.5 },
+      { configuration_id: '2002c029-1cd2-4717-b3d7-744ad1203baf', sort_order: 3, public_label: 'Option', needs_label_review: true, display_price_amount: 106.16 },
+      { configuration_id: '77b75eaf-5cee-4e17-966f-485a2cced59f', sort_order: 4, public_label: 'Option', needs_label_review: true, display_price_amount: 115.81 },
+      { configuration_id: 'c97fc92a-2ac8-4c99-8fd5-54fba1e1a055', sort_order: 5, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['arms','mask'], display_price_amount: 239.27 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(warrior, { configuration_id: 'c97fc92a-2ac8-4c99-8fd5-54fba1e1a055' }),
+    ['Gloves', 'Mask', 'Hood', 'Pants'],
+  );
+});
