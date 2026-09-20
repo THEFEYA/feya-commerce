@@ -26,6 +26,16 @@ function toneClass(tone: RoleStatusVM['tone']) {
           : '';
 }
 
+function nextStepForRole(role: RoleStatusVM, work: RoleWorkStats) {
+  if (role.status === 'PAUSED') return 'Сохранять паузу до явного решения о повторной активации.';
+  if (role.blockedCapabilityCount > 0) return 'Сначала закрыть блокирующие системные возможности. Роль не должна компенсировать отсутствующие данные или исполнителей догадкой.';
+  if (role.status === 'INACTIVE') return 'Не активировать роль ради видимости работы. Активация нужна только при реальной задаче и готовых обязательных возможностях.';
+  if (work.waiting > 0) return 'Разобрать условия ожидания или блокировки и эскалировать владельцу только то, что действительно находится на его границе полномочий.';
+  if (work.active > 0) return 'Продолжать текущую работу в пределах разрешённой самостоятельности и зафиксировать результат после фактического выполнения.';
+  if (role.status === 'SHADOW') return 'Оставаться в безопасном режиме: наблюдать, анализировать и готовить предложения без самостоятельного изменения рабочих данных.';
+  return 'Ждать подходящего сигнала или рабочей ситуации. FEYA не создаёт искусственную занятость роли.';
+}
+
 function dateTimeLabel(value?: string | null) {
   if (!value) return 'не зафиксировано';
   const date = new Date(value);
@@ -133,6 +143,20 @@ export function OwnerRoleDrawerClient({
                     ? 'Роль существует и может быть полезна только в пределах доступных возможностей. Недостающие источники или исполнители не заменяются догадкой.'
                     : 'Текущие зарегистрированные обязательные возможности роли не сообщают о критичной блокировке.'}
                 </p>
+              </section>
+
+              <section className="owner-grid two">
+                <article className="owner-card">
+                  <div className="owner-section-kicker">Последний подтверждённый результат</div>
+                  <p className="owner-card-copy">
+                    Отдельный доказанный бизнес-результат этой роли пока не зафиксирован в owner-проекции. Рабочая активность не считается результатом сама по себе.
+                  </p>
+                  <div className="owner-actions"><Link href="/admin/company/results" className="owner-button">Результаты</Link></div>
+                </article>
+                <article className="owner-card is-info">
+                  <div className="owner-section-kicker">Следующий безопасный шаг</div>
+                  <p className="owner-card-copy">{nextStepForRole(role, work)}</p>
+                </article>
               </section>
 
               <div className="owner-actions">
