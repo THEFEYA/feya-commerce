@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Database, LockKeyhole, PlayCircle, ShieldCheck, Siren, UserCheck } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { dataFreshnessLabel, ownerToneForStatus, scopeLabel, sourceHealthSummary, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
@@ -193,9 +194,9 @@ export default async function AdminSystemPage() {
       <div className="owner-page-inner">
         <header className="owner-page-head">
           <div>
-            <div className="owner-eyebrow">Надёжность</div>
+            <div className="owner-eyebrow"><span className="owner-eyebrow-mark" aria-hidden="true" />Надёжность</div>
             <h1>Система</h1>
-            <p>Здесь видно, можно ли доверять данным и автоматизации. В нормальном состоянии этот раздел должен быть спокойным и коротким.</p>
+            <p>Можно ли доверять данным, что ещё блокирует запуск и какие действия системе действительно разрешены.</p>
           </div>
           <Link href="/admin/company/advanced" className="owner-button">Технические детали</Link>
         </header>
@@ -212,9 +213,9 @@ export default async function AdminSystemPage() {
 
         <section className="owner-section" id="readiness">
           <div className="owner-section-head">
-            <div>
-              <h2>Что мешает запуску</h2>
-              <div className="owner-section-kicker">Нормальные зоны не занимают главный экран</div>
+            <div className="owner-section-heading">
+              <span className="owner-section-icon is-attention" aria-hidden="true"><LockKeyhole size={17} strokeWidth={1.7} /></span>
+              <div><h2>Что мешает запуску</h2><div className="owner-section-kicker">Нормальные зоны не занимают главный экран</div></div>
             </div>
           </div>
 
@@ -259,9 +260,9 @@ export default async function AdminSystemPage() {
 
         <section className="owner-section" id="sources">
           <div className="owner-section-head">
-            <div>
-              <h2>Источники данных</h2>
-              <div className="owner-section-kicker">Сначала только источники, которые ограничивают решения</div>
+            <div className="owner-section-heading">
+              <span className="owner-section-icon is-info" aria-hidden="true"><Database size={17} strokeWidth={1.7} /></span>
+              <div><h2>Источники данных</h2><div className="owner-section-kicker">Сначала только источники, которые ограничивают решения</div></div>
             </div>
             <Link href="/admin/data-health" className="owner-button">Все источники</Link>
           </div>
@@ -311,29 +312,33 @@ export default async function AdminSystemPage() {
 
         <section className="owner-section" id="permissions">
           <div className="owner-section-head">
-            <div>
-              <h2>Права, выполнение и безопасность</h2>
-              <div className="owner-section-kicker">Отдельно от готовности данных: что системе вообще разрешено делать</div>
+            <div className="owner-section-heading">
+              <span className="owner-section-icon is-system" aria-hidden="true"><ShieldCheck size={17} strokeWidth={1.7} /></span>
+              <div><h2>Права, выполнение и безопасность</h2><div className="owner-section-kicker">Отдельно от готовности данных: что системе вообще разрешено делать</div></div>
             </div>
           </div>
 
-          <div className="owner-summary-strip">
-            <div className="owner-summary-cell">
-              <strong>{actions.available}/{actions.total}</strong>
-              <span>Действий реально доступны</span>
-            </div>
-            <div className="owner-summary-cell">
-              <strong>{actions.approvalRequired}</strong>
-              <span>Действий требуют одобрения</span>
-            </div>
-            <div className="owner-summary-cell">
-              <strong>{executionRequests}</strong>
-              <span>Реальных запросов на выполнение</span>
-            </div>
-            <div className="owner-summary-cell">
-              <strong>{activeIncidents}</strong>
-              <span>Активных инцидентов · заморозок: {mutationFreezes}</span>
-            </div>
+          <div className="owner-queue-strip" aria-label="Права и выполнение">
+            <Link href="/admin/execution-map" className="owner-queue-item">
+              <span className="owner-queue-icon" aria-hidden="true"><ShieldCheck size={15} strokeWidth={1.7} /></span>
+              <span className="owner-queue-copy"><strong>Доступные действия</strong><small>из {actions.total} зарегистрированных</small></span>
+              <b>{actions.available}</b>
+            </Link>
+            <Link href="/admin/execution-map?approval=human" className="owner-queue-item">
+              <span className="owner-queue-icon" aria-hidden="true"><UserCheck size={15} strokeWidth={1.7} /></span>
+              <span className="owner-queue-copy"><strong>Нужно одобрение</strong><small>человек или владелец</small></span>
+              <b>{actions.approvalRequired}</b>
+            </Link>
+            <Link href="/admin/executions" className="owner-queue-item">
+              <span className="owner-queue-icon" aria-hidden="true"><PlayCircle size={15} strokeWidth={1.7} /></span>
+              <span className="owner-queue-copy"><strong>Запросы выполнения</strong><small>фактически созданы</small></span>
+              <b>{executionRequests}</b>
+            </Link>
+            <Link href="/admin/incidents" className="owner-queue-item">
+              <span className="owner-queue-icon" aria-hidden="true"><Siren size={15} strokeWidth={1.7} /></span>
+              <span className="owner-queue-copy"><strong>Инциденты</strong><small>заморозок: {mutationFreezes}</small></span>
+              <b>{activeIncidents}</b>
+            </Link>
           </div>
 
           {adminBoundary ? (
