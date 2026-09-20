@@ -62,10 +62,10 @@ The finish line is not “all possible UI ideas”. The finish line is: the Owne
 | UX-0 Canon & terminology | COMPLETE | six-destination IA; Russian terminology layer; status semantics; Advanced boundary; no-fake-maturity rules | Maintain terminology as new states appear |
 | UX-1 Owner Shell | IN REVIEW | persistent sidebar/topbar; Today in research order; Work; Signals; Owner Attention; Team FEYA; global search; mobile navigation; compact density; drawer-first Work detail; evidence-first Signal drawer; full Work detail route | visual owner review; validate drawers with first real Growth Case and owner signal; add handoff timeline only when the projection exists |
 | UX-2 Existing Product OS | FROZEN / APPROVED | existing catalog, Listing Master, review, media and SEO operator screens remain on the approved baseline | no visual rebuild; only non-visual security boundary fixes and a minimal link to Company / AI control |
-| UX-3 Growth Workspace | IN PROGRESS | owner Growth shell; opportunities surface; historical demand; keyword review; query clusters; page portfolio; ownership; indexability; technical launch/search gates; honest missing-data states | consolidate remaining diagnostic-only SEO routes under Advanced/context; add trend views only after live datasets exist |
-| UX-4 Results & System | IN PROGRESS | Results shell; experiments; learnings; change records; System readiness; source health; permissions; AI usage; incidents; capability/action diagnostics | convert remaining registry-style owner pages into contextual drill-down where they still leak engineering structure; measured outcome cards require real measurement data |
+| UX-3 Growth Workspace | READY FOR OWNER REVIEW | owner Growth shell; opportunities; historical demand with freshness; keyword review; query clusters; page portfolio; ownership; indexability; saved views on repeated growth queues; technical proposal pages remain contextual/Advanced; honest missing-data states | owner visual review; trend views remain blocked until live datasets exist |
+| UX-4 Results & System | READY FOR OWNER REVIEW | Results shell; evidence-first experiments; maturity-first learnings; real metric maturity; quiet-first System; owner-first system readiness; data health; business truth; action permissions; incidents/technical registries kept behind contextual drill-down or Advanced | owner visual review; measured outcome cards remain blocked until real measurement data exists |
 | UX-5 Protected Owner Actions | BLOCKED BY PREREQUISITES | decision screens exist read-only; authority boundaries are explicit | verified owner auth, allowlist, hardened admin reads, audited mutation path, then approve/reject/defer/snooze and controlled fact resolution |
-| UX-6 Operator & Personalization | PARTIAL / DEFERRED | Cmd/Ctrl+K search; keyword/page/product/work/signal discovery; safe navigation shortcuts; sidebar collapse; compact density | saved filters/views; pin/hide non-critical blocks; contextual “Спросить FEYA”; prepared write previews only after UX-5 |
+| UX-6 Operator & Personalization | SAFE V1 PARTIAL | Cmd/Ctrl+K search; keyword/page/product/work/signal discovery; safe navigation shortcuts; sidebar collapse; compact density; local saved views for Work, Signals, CQA, keyword review, fact review, clustering, page portfolio and indexability | pin/hide is deferred until owner review proves a real need; contextual “Спросить FEYA” and prepared writes wait for later operator/action capability |
 | UX-7 Real Analytics | BLOCKED BY DATA | historical Google Keyword Planner demand is shown with source/freshness caveat | production GA4, GSC/Bulk Export, authoritative commerce orders/refunds and sufficient history before KPI movement, revenue/conversion, seasonality or outcome charts |
 
 ## Research-to-screen compliance
@@ -146,7 +146,7 @@ Allowed by research:
 Current:
 - sidebar collapse: DONE
 - compact density: DONE
-- saved filters/views: DONE for the repeated agent Work and Signals queues; local-only and non-canonical
+- saved filters/views: DONE for repeated agent queues (Work, Signals, CQA, keyword review, fact review, clustering, page portfolio, indexability); local-only and non-canonical
 - pin/hide non-critical Today modules: NOT YET; deferred until owner review confirms which modules are actually worth personalizing
 - full drag/drop dashboard builder: WILL NOT BUILD IN V1
 
@@ -169,11 +169,12 @@ UX-5 and UX-7 are **not part of this finish line** because they are blocked by s
 
 ## Next implementation order
 
-1. Verify the new Work/Signal drawers and the Company / AI control surfaces on Vercel; separately confirm the approved Product OS baseline is unchanged.
-2. Audit remaining normal owner routes for raw engineering terminology and duplicated registry pages.
-3. Verify saved Work/Signals views in owner use; only propagate the pattern to another repeated agent queue if it solves a real recurring workflow.
-4. Add pin/hide only for non-critical Today/Work informational blocks if owner review shows a real need, with a visible Reset to default.
-5. Do not add live KPI charts, revenue, conversion, organic trends or measured outcomes until the authoritative sources are connected.
+1. **Owner visual review on the actual Company / AI routes**: Today, Work, Signals, Team FEYA, Growth, Results, System.
+2. Fix only issues found by that review or by a deterministic simulation/accessibility check.
+3. Keep raw diagnostic registries under Advanced/context; do not polish every engineering table just because it exists.
+4. Add pin/hide only if owner review proves a repeated need; do not build a free-form dashboard.
+5. Do not add revenue, conversion, Search Console/GA4 trends or measured-outcome charts until authoritative production datasets exist.
+6. When owner-facing read-only UX passes review, **stop visual redesign**. The next project is protected actions (UX-5), not more cosmetics.
 
 
 ## Product OS visual freeze verification
@@ -199,3 +200,16 @@ The remaining visual work is only in the Company / AI system:
 3. validate desktop + mobile navigation, drawers, saved views and empty/error states;
 4. stop visual work when these owner surfaces pass the research checklist;
 5. do not restart Product OS redesign.
+
+
+## Accessibility verification
+
+Current owner drawer pattern:
+- Escape closes the drawer;
+- body scrolling is locked while the drawer is open;
+- focus moves into the drawer on open;
+- Tab / Shift+Tab are trapped inside the modal context;
+- focus returns to the trigger after close;
+- Work, Signal and Role drawers use the same shared behavior.
+
+This satisfies the current keyboard-accessibility requirement for context-first drawers. A full WCAG audit remains outside the current visual finish line but can be run before production launch.
