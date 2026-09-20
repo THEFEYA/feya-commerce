@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import type { RoleStatusVM } from '@/lib/owner-ui/types';
+import { useOwnerDrawerA11y } from '@/components/admin/useOwnerDrawerA11y';
 
 type RoleWorkStats = {
   active: number;
@@ -48,25 +49,16 @@ export function OwnerRoleDrawerClient({
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const closeRef = useRef<HTMLButtonElement | null>(null);
+  const dialogRef = useRef<HTMLElement | null>(null);
+  const closeDrawer = useCallback(() => setOpen(false), []);
 
-  useEffect(() => {
-    if (!open) return;
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    window.requestAnimationFrame(() => closeRef.current?.focus());
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false);
-    };
-    window.addEventListener('keydown', onKeyDown);
-
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-      document.body.style.overflow = previousOverflow;
-      window.requestAnimationFrame(() => triggerRef.current?.focus());
-    };
-  }, [open]);
+  useOwnerDrawerA11y({
+    open,
+    dialogRef,
+    triggerRef,
+    initialFocusRef: closeRef,
+    close: closeDrawer,
+  });
 
   return (
     <>
@@ -80,9 +72,11 @@ export function OwnerRoleDrawerClient({
             type="button"
             aria-label="Закрыть карточку роли"
             className="absolute inset-0 h-full w-full bg-black/65 backdrop-blur-[2px]"
-            onClick={() => setOpen(false)}
+            onClick={closeDrawer}
           />
           <aside
+            ref={dialogRef}
+            tabIndex={-1}
             role="dialog"
             aria-modal="true"
             aria-labelledby={`role-drawer-${role.code}`}
