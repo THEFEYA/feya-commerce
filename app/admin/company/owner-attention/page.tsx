@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
-import { presentOwnerAttention } from '@/lib/owner-ui/presenters';
+import { formatDueTime, presentOwnerAttention } from '@/lib/owner-ui/presenters';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -81,7 +81,7 @@ export default async function AdminOwnerAttentionPage() {
                 </div>
 
                 <div className="owner-card-meta" style={{ marginTop: '14px', marginBottom: 0 }}>
-                  {item.dueAt ? <span>Срок: {new Date(item.dueAt).toLocaleDateString('ru-RU')}</span> : <span>Жёсткого срока нет</span>}
+                  {item.dueAt ? <span>Срок: {formatDueTime(item.dueAt)}</span> : <span>Жёсткого срока нет</span>}
                 </div>
 
                 <div className="owner-actions">
