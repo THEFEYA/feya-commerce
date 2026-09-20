@@ -76,86 +76,137 @@ export default async function AdminOpportunitiesPage() {
   const expired = rows.filter((row) => row.opportunity_status === 'EXPIRED').length;
   const actioning = rows.filter((row) => row.opportunity_status === 'ACTIONING').length;
 
-  return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
-          <div className="nav-links">
-            <Link href="/admin/opportunities">Возможности</Link>
-            <Link href="/admin/strategy">Стратегия</Link>
-            <Link href="/admin/company/signals">Сигналы</Link>
-          </div>
-        </nav>
 
-        <section className="phase-banner">
-          <div className="phase-label">Возможности и сроки · только просмотр</div>
-          <h1>Возможности</h1>
-          <p>
-            Дата события и коммерческий срок учитываются отдельно: событие может быть ещё далеко, но окно для производства и доставки уже может закрываться.
-          </p>
-        </section>
+  const activeRows = rows
+    .filter((row) => row.opportunity_status !== 'EXPIRED' && row.opportunity_status !== 'CLOSED' && row.opportunity_status !== 'CANCELLED')
+    .sort((a, b) => {
+      const priorityRank = (value: unknown) => {
+        const key = asText(value, '').toUpperCase();
+        if (key === 'P0') return 0;
+        if (key === 'P1') return 1;
+        if (key === 'P2') return 2;
+        return 3;
+      };
+      const expiryRank = (value: unknown) => {
+        const key = asText(value, '').toUpperCase();
+        if (key === 'EXPIRING_SOON') return 0;
+        if (key === 'EXPIRING_THIS_WEEK') return 1;
+        return 2;
+      };
+      return expiryRank(a.expiry_state) - expiryRank(b.expiry_state) || priorityRank(a.priority) - priorityRank(b.priority);
+    });
+  const historicalRows = rows.filter((row) => !activeRows.includes(row));
+  return (
+    <main className="owner-page">
+      <div className="owner-page-inner">
+        <header className="owner-page-head">
+          <div>
+            <div className="owner-eyebrow">Рост · возможности</div>
+            <h1>Возможности</h1>
+            <p>Показываем только реальные возможности из Growth OS. Дата события и коммерческое окно разделены: окно для производства и доставки может закрыться раньше самого события.</p>
+          </div>
+          <div className="owner-actions" style={{ marginTop: 0 }}>
+            <Link href="/admin/company/growth" className="owner-button">Назад к росту</Link>
+            <Link href="/admin/strategy" className="owner-button">Стратегия</Link>
+          </div>
+        </header>
 
         <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
-          <div className="owner-summary-cell"><strong>{rows.length}</strong><span>Возможностей зафиксировано</span></div>
+          <div className="owner-summary-cell"><strong>{activeRows.length}</strong><span>Актуальных возможностей</span></div>
           <div className="owner-summary-cell"><strong>{expiringSoon}</strong><span>Окно закрывается ≤48 ч</span></div>
           <div className="owner-summary-cell"><strong>{thisWeek}</strong><span>Окно закрывается на этой неделе</span></div>
           <div className="owner-summary-cell"><strong>{actioning}</strong><span>Уже в работе</span></div>
         </section>
 
-        {error ? <div className="notice">{error}</div> : null}
+        {error ? <div className="owner-card is-danger"><div className="owner-status is-danger">Ошибка данных</div><p className="owner-card-copy">{error}</p></div> : null}
 
-        {!rows.length ? (
-          <div className="notice">Реальные возможности роста пока не зафиксированы.</div>
-        ) : (
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Приоритет</th>
-                  <th>Возможность</th>
-                  <th>Ответственный</th>
-                  <th>Статус</th>
-                  <th>Коммерческий срок</th>
-                  <th>Период события</th>
-                  <th>Инициатива</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => (
-                  <tr key={row.opportunity_id}>
-                    <td>{asText(row.priority)}</td>
-                    <td>
-                      <strong>{asText(row.title, row.opportunity_code || '—')}</strong>
-                      <div className="muted" title={asText(row.opportunity_type)}>Тип: {opportunityTypeLabel(row.opportunity_type)}</div>
-                      <div className="muted">{asText(row.event_name)}</div>
-                    </td>
-                    <td>{roleLabel(row.owner_role)}</td>
-                    <td>
-                      <span className={`status-pill ${statusClass(row.opportunity_status)}`}>
-                        {stateLabel(row.opportunity_status)}
-                      </span>
-                      <div className="badge-row">
-                        <span className={`status-pill ${statusClass(row.expiry_state)}`}>
-                          {stateLabel(row.expiry_state)}
-                        </span>
-                      </div>
-                    </td>
-                    <td>
-                      {dateLabel(row.commercial_expiry_at)}
-                      <div className="muted">срок задачи: {dateLabel(row.due_at)}</div>
-                    </td>
-                    <td>
-                      {dateLabel(row.event_starts_at)}
-                      <div className="muted">→ {dateLabel(row.event_ends_at)}</div>
-                    </td>
-                    <td>{row.initiative_id ? <Link href="/admin/strategy" title={asText(row.initiative_id)}>Связана с инициативой</Link> : 'Не создана'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <section className="owner-section" style={{ marginTop: 0 }}>
+          <div className="owner-section-head">
+            <div>
+              <h2>Что можно использовать сейчас</h2>
+              <div className="owner-section-kicker">Сначала возможности с ближайшим коммерческим окном и высоким приоритетом</div>
+            </div>
           </div>
-        )}
+
+          {activeRows.length ? (
+            <div className="owner-list">
+              {activeRows.map((row) => (
+                <article className="owner-list-row" key={row.opportunity_id}>
+                  <div className="owner-list-row-main">
+                    <div className="owner-card-meta">
+                      <span className={`owner-status ${row.expiry_state === 'EXPIRING_SOON' ? 'is-danger' : row.expiry_state === 'EXPIRING_THIS_WEEK' ? 'is-warning' : 'is-info'}`}>
+                        {stateLabel(row.expiry_state || row.opportunity_status)}
+                      </span>
+                      <span>{opportunityTypeLabel(row.opportunity_type)}</span>
+                      <span>{roleLabel(row.owner_role)}</span>
+                    </div>
+                    <h3>{asText(row.title, 'Возможность роста')}</h3>
+                    <p>
+                      Коммерческий срок: {dateLabel(row.commercial_expiry_at)}.
+                      {row.event_starts_at ? ` Событие: ${dateLabel(row.event_starts_at)} → ${dateLabel(row.event_ends_at)}.` : ''}
+                    </p>
+                  </div>
+                  <div className="owner-list-row-side">
+                    <span className="owner-section-kicker">{asText(row.priority, 'P3')}</span>
+                    {row.initiative_id ? <Link href="/admin/strategy" className="owner-button">Открыть инициативу</Link> : <span className="owner-section-kicker">инициатива не создана</span>}
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="owner-empty">Реальные возможности роста пока не зафиксированы. FEYA не создаёт декоративные opportunity-карточки без данных.</div>
+          )}
+        </section>
+
+        {historicalRows.length ? (
+          <section className="owner-section">
+            <details className="owner-disclosure owner-disclosure-section">
+              <summary>
+                <span><strong>История возможностей</strong><small>Закрытые, отменённые и истёкшие окна</small></span>
+                <span className="owner-section-kicker">{historicalRows.length}</span>
+              </summary>
+              <div className="owner-disclosure-body owner-list">
+                {historicalRows.map((row) => (
+                  <article className="owner-list-row" key={row.opportunity_id}>
+                    <div className="owner-list-row-main">
+                      <div className="owner-card-meta"><span>{stateLabel(row.opportunity_status)}</span><span>{opportunityTypeLabel(row.opportunity_type)}</span></div>
+                      <h3>{asText(row.title, 'Возможность роста')}</h3>
+                      <p>{dateLabel(row.commercial_expiry_at)}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </details>
+          </section>
+        ) : null}
+
+        <section className="owner-section">
+          <details className="owner-disclosure owner-disclosure-section">
+            <summary>
+              <span><strong>Техническая таблица</strong><small>Все поля реестра возможностей</small></span>
+              <span className="owner-section-kicker">{rows.length}</span>
+            </summary>
+            <div className="owner-disclosure-body">
+              <div className="table-wrap">
+                <table>
+                  <thead><tr><th>Возможность</th><th>Ответственный</th><th>Статус</th><th>Коммерческий срок</th><th>Событие</th><th>Инициатива</th></tr></thead>
+                  <tbody>
+                    {rows.map((row) => (
+                      <tr key={row.opportunity_id}>
+                        <td><strong>{asText(row.title, row.opportunity_code || '—')}</strong><div className="muted">{opportunityTypeLabel(row.opportunity_type)}</div></td>
+                        <td>{roleLabel(row.owner_role)}</td>
+                        <td>{stateLabel(row.opportunity_status)}<div className="muted">{stateLabel(row.expiry_state)}</div></td>
+                        <td>{dateLabel(row.commercial_expiry_at)}</td>
+                        <td>{dateLabel(row.event_starts_at)} → {dateLabel(row.event_ends_at)}</td>
+                        <td>{row.initiative_id ? 'Связана' : '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </details>
+        </section>
       </div>
     </main>
   );
