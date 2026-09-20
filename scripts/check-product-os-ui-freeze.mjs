@@ -12,6 +12,18 @@ function gitBlobSha(buffer) {
 
 const failures = [];
 
+const globalCssBaselinePath = resolve(process.cwd(), 'config/product-os-globals-baseline.css');
+const globalCssPath = resolve(process.cwd(), 'app/globals.css');
+if (!existsSync(globalCssBaselinePath) || !existsSync(globalCssPath)) {
+  failures.push('global CSS baseline or app/globals.css is missing');
+} else {
+  const approvedPrefix = readFileSync(globalCssBaselinePath);
+  const currentGlobalCss = readFileSync(globalCssPath);
+  if (currentGlobalCss.length < approvedPrefix.length || !currentGlobalCss.subarray(0, approvedPrefix.length).equals(approvedPrefix)) {
+    failures.push('app/globals.css: approved Product OS CSS prefix changed');
+  }
+}
+
 for (const [relativePath, expectedSha] of Object.entries(manifest.files || {})) {
   const absolutePath = resolve(process.cwd(), relativePath);
   if (!existsSync(absolutePath)) {
