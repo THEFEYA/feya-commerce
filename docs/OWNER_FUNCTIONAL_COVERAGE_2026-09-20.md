@@ -106,7 +106,7 @@ The following are UX-5, not missing visual polish:
 - review query-cluster proposals is PREPARED but locked; canonical apply remains disabled;
 - review page-ownership proposals is PREPARED but locked; canonical apply remains disabled;
 - review indexability proposals is PREPARED but locked; canonical apply remains disabled;
-- query-cluster canonical apply remains intentionally BLOCKED until deterministic owner-safe cluster_code policy exists;
+- query-cluster canonical apply is PREPARED but locked; cluster_code is generated deterministically from immutable proposal identity and is not exposed as a Human Owner input;
 - page-ownership canonical apply is PREPARED but locked;
 - indexability canonical apply is PREPARED but locked;
 - Growth Objective activation, Growth Strategy activation and Human Owner initiative approval are PREPARED but locked until auth cutover + FEYA_OWNER_ACTIONS_ENABLED;
@@ -358,3 +358,23 @@ The wrapper adds expected Human review-status protection and Owner Action audit 
 Current rows ready for Human + CQA review: 17. No draft was changed because owner actions remain locked.
 
 Important boundary: Human approval is not independent CQA and is not publication.
+
+
+## 19. Deterministic query-cluster apply policy — 2026-09-20
+
+Migration `20260920130109 feya_owner_query_cluster_apply_policy_v1` closed the last canonical SEO apply gap without leaking technical IDs into Owner UX.
+
+Policy:
+
+- if proposal_code starts with `QCP-`, canonical cluster_code is `QC-` + the immutable proposal-code suffix;
+- otherwise fallback is `QC-` + the first 16 hex characters of proposal UUID;
+- the generated code is deterministic, stable and unique by proposal identity;
+- the Human Owner never types or approves this technical identifier.
+
+The existing protected proposal-apply API/UI now supports QUERY_CLUSTER as a separate apply step after Human review.
+
+Boundary remains sequential:
+
+`Human keyword review → cluster proposal → Human proposal review → canonical cluster apply → page ownership proposal/review/apply → indexability proposal/review/apply`
+
+Current approved cluster proposals: 0. No canonical cluster was created during implementation.
