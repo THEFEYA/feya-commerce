@@ -19,6 +19,7 @@ async function getSystemData(): Promise<{
   executionRequests: number;
   activeIncidents: number;
   mutationFreezes: number;
+  ownerActionAudit: Row[];
   adminBoundary: { registered: number; browserReadable: number } | null;
   aiUsage: {
     invocations: number;
@@ -40,6 +41,7 @@ async function getSystemData(): Promise<{
     executionRequests: 0,
     activeIncidents: 0,
     mutationFreezes: 0,
+    ownerActionAudit: [],
     adminBoundary: null,
     aiUsage: { invocations: 0, meteredInvocations: 0, unmeteredInvocations: 0, totalTokens: 0, inputTokens: 0, outputTokens: 0, avgLatencyMs: null, lastInvocationAt: null },
     error: getMissingAdminDataEnvMessage(),
@@ -56,6 +58,7 @@ async function getSystemData(): Promise<{
     executionResult,
     incidentsResult,
     freezesResult,
+    ownerActionAuditResult,
     adminBoundaryResult,
     aiUsageResult,
   ] = await Promise.all([
@@ -78,6 +81,10 @@ async function getSystemData(): Promise<{
     supabase.from('feya_commerce_v_change_freeze_status_safe_v1')
       .select('incident_id', { count: 'exact', head: true })
       .eq('freeze_mutations', true),
+    supabase.from('feya_commerce_v_owner_action_audit_safe_v1')
+      .select('owner_action_audit_id,action_code,entity_type,entity_id,decision_code,reason,result_json,created_at')
+      .order('created_at', { ascending: false })
+      .limit(20),
     serviceRole
       ? serviceRole.rpc('feya_fn_preview_admin_data_boundary_v1')
       : Promise.resolve({ data: null, error: null }),
@@ -99,6 +106,7 @@ async function getSystemData(): Promise<{
     executionResult.error ||
     incidentsResult.error ||
     freezesResult.error ||
+    ownerActionAuditResult.error ||
     adminBoundaryResult.error ||
     aiUsageResult.error;
 
@@ -137,6 +145,7 @@ async function getSystemData(): Promise<{
     executionRequests: 0,
     activeIncidents: 0,
     mutationFreezes: 0,
+    ownerActionAudit: (ownerActionAuditResult.data || []) as Row[],
     adminBoundary,
     aiUsage,
     error: firstError.message,
@@ -153,6 +162,7 @@ async function getSystemData(): Promise<{
     executionRequests: executionResult.count || 0,
     activeIncidents: incidentsResult.count || 0,
     mutationFreezes: freezesResult.count || 0,
+    ownerActionAudit: (ownerActionAuditResult.data || []) as Row[],
     adminBoundary,
     aiUsage,
   };
@@ -179,7 +189,7 @@ function sourceTimestamp(value: unknown) {
 }
 
 export default async function AdminSystemPage() {
-  const { readiness, sources, actions, executionRequests, activeIncidents, mutationFreezes, adminBoundary, aiUsage, error } = await getSystemData();
+  const { readiness, sources, actions, executionRequests, activeIncidents, mutationFreezes, ownerActionAudit, adminBoundary, aiUsage, error } = await getSystemData();
   const ownerAuth = getAdminAuthConfigStatus();
   const ownerActions = getOwnerActionConfigStatus();
   const blockedReadiness = readiness.filter((row) => String(row.scope_status || '').toUpperCase() !== 'PASS');
@@ -417,6 +427,36 @@ export default async function AdminSystemPage() {
               </p>
             </article>
           </div>
+
+          <details className="owner-disclosure owner-disclosure-section" style={{ marginTop: '10px' }} open={ownerActionAudit.length > 0}>
+            <summary>
+              <span><strong>Журнал защищённых действий владельца</strong><small>Решение, review или стратегическое действие; не смешивается с Execution Receipt</small></span>
+              <span className="owner-section-kicker">{ownerActionAudit.length}</span>
+            </summary>
+            <div className="owner-disclosure-body">
+              {ownerActionAudit.length ? (
+                <div className="owner-list">
+                  {ownerActionAudit.map((row) => (
+                    <article className="owner-list-row" key={String(row.owner_action_audit_id)}>
+                      <div className="owner-list-row-main">
+                        <div className="owner-card-meta">
+                          <span className="owner-status is-info">{String(row.decision_code || 'RECORDED')}</span>
+                          <span>{String(row.entity_type || 'OWNER_ACTION')}</span>
+                        </div>
+                        <h3>{String(row.action_code || 'Действие владельца')}</h3>
+                        <p>{String(row.reason || 'Причина не зафиксирована.')}</p>
+                      </div>
+                      <div className="owner-list-row-side">
+                        <span className="owner-section-kicker">{row.created_at ? new Date(String(row.created_at)).toLocaleString('ru-RU') : 'время не указано'}</span>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <p className="owner-card-copy">Защищённых owner-write действий пока не выполнялось. Это соответствует текущему locked состоянию UX-5.</p>
+              )}
+            </div>
+          </details>
         </section>
 
         <section className="owner-section" id="ai-usage">
