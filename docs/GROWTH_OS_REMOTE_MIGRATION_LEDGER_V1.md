@@ -750,3 +750,19 @@ Validation:
 - owner action audit rows remain 0.
 
 No draft review state was changed by this migration.
+
+
+### Deterministic protected query-cluster apply policy
+
+20260920130109 — feya_owner_query_cluster_apply_policy_v1
+- extended the protected SEO apply wrapper to QUERY_CLUSTER;
+- canonical cluster_code is derived deterministically from immutable proposal identity instead of asking the owner for an engineering code;
+- primary policy: QCP-* proposal code → QC-* cluster code with same immutable suffix;
+- fallback: QC- + first 16 hex chars of proposal UUID;
+- existing apply RPC still re-validates human-approved keyword cleanup and active cluster membership;
+- updated APPLY_QUERY_CLUSTER_PROPOSAL capability to protected_ui_locked.
+
+Validation:
+- wrapper remains service-role-only;
+- no approved cluster proposals currently exist;
+- no canonical query cluster was created by migration or UI work.
