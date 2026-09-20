@@ -653,3 +653,23 @@ Validation:
 - browser-readable governed views = 49 until owner-auth hardening.
 
 The migration does not apply any proposal and does not mutate canonical SEO ownership/indexability.
+
+
+### Protected strategic Human Owner action gateway
+
+20260920123743 — feya_owner_strategic_action_gateway_v1
+- added service-role-only `feya_fn_owner_strategic_action_v1`;
+- delegates to the existing guarded domain primitives for objective activation, initiative Human Owner decision and strategy activation;
+- requires real Auth user, explicit reason and idempotency key;
+- reuses the generic Owner Action audit ledger;
+- updated ACTIVATE_GROWTH_OBJECTIVE, HUMAN_APPROVE_INITIATIVE and ACTIVATE_GROWTH_STRATEGY Action Capabilities to protected_ui_locked.
+
+Validation:
+- anon/authenticated EXECUTE on wrapper = false;
+- service_role EXECUTE = true;
+- draft strategies = 0;
+- activatable objectives = 0;
+- initiatives pending Human Owner = 0;
+- owner action audit rows remain 0.
+
+No Growth Objective, Initiative or Strategy state was changed by this migration.
