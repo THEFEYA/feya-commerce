@@ -4076,3 +4076,72 @@ a.owner-list-row:hover {
     display: none;
   }
 }
+
+
+/* Durable business timeline: owner history, not model/tool trace. */
+.owner-shell .owner-timeline {
+  display: grid;
+  gap: 0;
+}
+
+.owner-shell .owner-timeline-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 18px minmax(0,1fr);
+  gap: 9px;
+  min-width: 0;
+  padding: 0 0 15px;
+}
+
+.owner-shell .owner-timeline-row:last-child {
+  padding-bottom: 0;
+}
+
+.owner-shell .owner-timeline-row::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 12px;
+  bottom: -1px;
+  width: 1px;
+  background: rgba(238,233,223,.09);
+}
+
+.owner-shell .owner-timeline-row:last-child::before {
+  display: none;
+}
+
+.owner-shell .owner-timeline-dot {
+  position: relative;
+  z-index: 1;
+  width: 11px;
+  height: 11px;
+  margin-top: 2px;
+  border: 2px solid #0f1118;
+  border-radius: 50%;
+  background: rgba(212,178,106,.62);
+  box-shadow: 0 0 0 1px rgba(212,178,106,.13);
+}
+
+.owner-shell .owner-timeline-row strong {
+  display: block;
+  color: rgba(238,233,223,.76);
+  font-size: 11px;
+  font-weight: 620;
+  line-height: 1.35;
+}
+
+.owner-shell .owner-timeline-row p {
+  margin: 3px 0 0;
+  color: rgba(238,233,223,.49);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.owner-shell .owner-timeline-row small {
+  display: block;
+  margin-top: 3px;
+  color: rgba(238,233,223,.34);
+  font-size: 9px;
+  line-height: 1.35;
+}
