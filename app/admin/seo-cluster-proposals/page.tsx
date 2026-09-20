@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { GitBranch, SearchCheck } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { OwnerProposalReviewClient } from '@/components/admin/OwnerProposalReviewClient';
+import { OwnerProposalApplyClient } from '@/components/admin/OwnerProposalApplyClient';
 import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { QueryClusterProposalCandidateRow, QueryClusterProposalRow } from '@/lib/types';
@@ -198,11 +199,32 @@ export default async function AdminClusterProposalsPage() {
         {approvedRows.length ? (
           <section className="owner-section">
             <div className="owner-section-head">
-              <div><h2>Одобрено, но применение пока закрыто</h2><div className="owner-section-kicker">Для новой canonical cluster нужен стабильный cluster_code, который владелец не должен вводить как технический ID</div></div>
+              <div><h2>Одобрено, ждёт канонического применения</h2><div className="owner-section-kicker">Технический cluster_code теперь генерируется детерминированно и не показывается как решение владельца</div></div>
             </div>
-            <div className="owner-card is-warning">
-              <div className="owner-status is-warning">Нужен deterministic code policy</div>
-              <p className="owner-card-copy">Одобрено предложений: {approvedRows.length}. Apply RPC существует, но UI намеренно не просит вас придумывать внутренний cluster_code. Сначала будет зафиксировано безопасное правило генерации кода.</p>
+            <div className="owner-list">
+              {approvedRows.map((row) => (
+                <article className="owner-list-row" key={row.proposal_id}>
+                  <div className="owner-list-row-main">
+                    <div className="owner-card-meta">
+                      <span className="owner-status is-success">Одобрено человеком</span>
+                      <span>{intentLabel(row.normalized_intent)}</span>
+                      <span>{row.proposed_member_count ?? 0} запросов</span>
+                    </div>
+                    <h3>{asText(row.cluster_label, 'Предлагаемая группа')}</h3>
+                    <p>{asText(row.rationale, 'Обоснование ещё не зафиксировано.')}</p>
+                  </div>
+                  <div className="owner-list-row-side">
+                    <OwnerProposalApplyClient
+                      proposalKind="QUERY_CLUSTER"
+                      proposalId={row.proposal_id}
+                      title={asText(row.cluster_label, 'Группа запросов')}
+                      consequence="Будет создан canonical query cluster и его members из одобренного proposal. Page ownership и индексация останутся отдельными следующими решениями."
+                      enabled={ownerActions.ready}
+                      blockers={ownerActions.blockers}
+                    />
+                  </div>
+                </article>
+              ))}
             </div>
           </section>
         ) : null}
