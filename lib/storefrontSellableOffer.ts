@@ -218,7 +218,113 @@ export function sellableOfferIncludedLabels(
 
   const selected = findSelectedOption(offer, activeConfiguration);
   if (!selected) return [];
-  return selected.is_aggregate ? selected.member_labels : [selected.label];
+
+  // Buyer-facing inclusion lines must reflect actual selectable purchase units,
+  // not internal atomic SEO/component axes.
+  //
+  // Example:
+  // selector = Full Set / Skirt / Top + Shoulders
+  // internal composition = skirt + top + shoulders
+  // buyer-facing Full Set = Skirt + Top + Shoulders (two purchasable units),
+  // NOT Skirt / Top / Shoulders as three independent-looking items.
+  if (selected.code === FULL_SET_CODE) {
+    return fullSetPurchasableDisplayLabels(offer, selected);
+  }
+
+  // A grouped selector choice is one purchasable option. Keep its public label
+  // intact instead of exposing its internal members as separately orderable.
+  if (selected.is_aggregate) return [selected.label];
+
+  return [selected.label];
+}
+
+
+function fullSetPurchasableDisplayLabels(
+  offer: StorefrontSellableOfferTruth,
+  fullSet: StorefrontSellableOfferOption,
+) {
+  const targetCodes = unique(fullSet.member_codes.map(normalizeCode).filter(Boolean));
+  if (!targetCodes.length) return fullSet.member_labels;
+
+  const targetSet = new Set(targetCodes);
+  const targetLabelByCode = new Map<string, string>();
+  if (fullSet.member_labels.length === fullSet.member_codes.length) {
+    fullSet.member_codes.forEach((code, index) => {
+      targetLabelByCode.set(normalizeCode(code), fullSet.member_labels[index]);
+    });
+  }
+
+  const candidates = [
+    ...offer.aggregate_options.filter((option) => option.code !== FULL_SET_CODE),
+    ...offer.atomic_options,
+  ]
+    .map((option) => {
+      const memberCodes = option.is_aggregate
+        ? unique(option.member_codes.map(normalizeCode).filter(Boolean))
+        : [normalizeCode(option.code)].filter(Boolean);
+      const coverage = memberCodes.filter((code) => targetSet.has(code));
+      if (!coverage.length) return null;
+
+      // When several atomic selector rows share one canonical axis (for example
+      // Single Leg Cover vs Pair of Leg Covers), preserve the exact label named
+      // by the selected Full Set instead of swapping quantity semantics.
+      if (!option.is_aggregate && coverage.length === 1) {
+        const expected = targetLabelByCode.get(coverage[0]);
+        if (expected && normalize(expected) !== normalize(option.label)) return null;
+      }
+
+      return {
+        label: option.label,
+        sort_order: option.sort_order,
+        coverage,
+      };
+    })
+    .filter((candidate): candidate is {
+      label: string;
+      sort_order: number;
+      coverage: string[];
+    } => Boolean(candidate));
+
+  if (!candidates.length) return fullSet.member_labels;
+
+  type State = { labels: string[]; sortOrders: number[] };
+  let states = new Map<string, State>([['', { labels: [], sortOrders: [] }]]);
+
+  for (const candidate of candidates) {
+    const snapshot = [...states.entries()];
+    const next = new Map(states);
+
+    for (const [key, state] of snapshot) {
+      const covered = key ? key.split('|') : [];
+      const nextCodes = unique([...covered, ...candidate.coverage]).sort();
+      const nextKey = nextCodes.join('|');
+      const proposal: State = {
+        labels: [...state.labels, candidate.label],
+        sortOrders: [...state.sortOrders, candidate.sort_order],
+      };
+      const current = next.get(nextKey);
+
+      // Prefer fewer visible purchase units. On ties, preserve storefront order.
+      if (
+        !current
+        || proposal.labels.length < current.labels.length
+        || (
+          proposal.labels.length === current.labels.length
+          && proposal.sortOrders.join('|').localeCompare(current.sortOrders.join('|')) < 0
+        )
+      ) {
+        next.set(nextKey, proposal);
+      }
+    }
+
+    states = next;
+  }
+
+  const targetKey = [...targetSet].sort().join('|');
+  const best = states.get(targetKey);
+  if (!best?.labels.length) return fullSet.member_labels;
+
+  return best.labels;
 }
 
 export function sellableOfferAvailabilitySentence(
