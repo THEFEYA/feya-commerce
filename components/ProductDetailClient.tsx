@@ -26,7 +26,10 @@ import { colorStyle } from '@/components/colors';
 import { ProductCard } from '@/components/ProductCard';
 import { SalePrice } from '@/components/SalePrice';
 import { resolveThefeyaRightPdpPanel } from '@/lib/thefeyaSeoDoctrine';
-import { resolveFullSetPriceComparison } from '@/lib/storefrontPriceComparison';
+import {
+  resolveFullSetPriceComparison,
+  resolveMinimumSeparatePurchaseTotal,
+} from '@/lib/storefrontPriceComparison';
 import type { StorefrontProduct } from '@/lib/types';
 import { storefrontIncludedOptions } from '@/lib/storefrontIncludedOptions';
 import {
@@ -173,6 +176,26 @@ export function ProductDetailClient({
   }), [p.canonical_product_id]);
 
   const fullRegularPrice = full ? optionPrice(full) : null;
+  const fullMemberCodes = Array.isArray(full?.bundle_component_codes)
+    ? full.bundle_component_codes.map(String).filter(Boolean)
+    : [];
+  const exactSeparateRegularTotal = full
+    ? resolveMinimumSeparatePurchaseTotal({
+        targetMemberCodes: fullMemberCodes,
+        candidates: options
+          .filter((o, i) => !isFullSetOption(o, i))
+          .map((option) => {
+            const code = componentCode(option);
+            const explicitMembers = Array.isArray(option.bundle_component_codes)
+              ? option.bundle_component_codes.map(String).filter(Boolean)
+              : [];
+            return {
+              price: optionPrice(option),
+              memberCodes: explicitMembers.length ? explicitMembers : code ? [code] : [],
+            };
+          }),
+      })
+    : null;
   const fallbackSeparateRegularTotal = options
     .filter((o, i) => !isFullSetOption(o, i))
     .reduce((sum, option) => sum + (optionPrice(option) || 0), 0);
@@ -185,10 +208,11 @@ export function ProductDetailClient({
     storedComponentSum: v4ComponentSum,
     storedSavings: v4Savings,
     fallbackSeparateTotal: fallbackSeparateRegularTotal,
+    exactSeparateTotal: exactSeparateRegularTotal,
   });
   const selectedIsFullSet = activeConfig ? isFullSetOption(activeConfig, activeConfigIndex) : false;
   const savingsText = selectedIsFullSet && displayedFullSetSavings > 0
-    ? `Best value: save ${formatPrice(displayedFullSetSavings, currency)} vs ordering ${coupleIncludedGroups.length ? 'both outfits' : 'pieces'} separately${separateRegularTotal > 0 ? ` (${formatPrice(separateRegularTotal, currency)})` : ''}.`
+    ? `${coupleIncludedGroups.length ? 'Both outfits' : 'Pieces'} separately ${formatPrice(separateRegularTotal, currency)} · Full Set saves ${formatPrice(displayedFullSetSavings, currency)}.`
     : '';
 
   useEffect(() => {
@@ -288,7 +312,15 @@ export function ProductDetailClient({
             {options.map((o, i) => {
               const key = optionKey(o, i);
               const active = key === configKey;
-              return <button key={key} type="button" onClick={() => { setConfigKey(key); setConfigOpen(false); }} className={`w-full text-left px-4 py-2.5 rounded-md text-[13px] transition-all ${active ? 'bg-[rgba(212,178,106,.14)] text-[var(--gold-warm)]' : 'text-[var(--bone-dim)] hover:text-white hover:bg-white/10'}`}>{optionLabel(o, i)}</button>;
+              const optionIsFullSet = isFullSetOption(o, i);
+              const rowPrice = optionPrice(o);
+              return <button key={key} type="button" onClick={() => { setConfigKey(key); setConfigOpen(false); }} className={`w-full text-left px-4 py-2.5 rounded-md text-[13px] transition-all ${active ? 'bg-[rgba(212,178,106,.14)] text-[var(--gold-warm)]' : 'text-[var(--bone-dim)] hover:text-white hover:bg-white/10'}`}>
+                <span className="flex items-center justify-between gap-4">
+                  <span className="truncate">{optionLabel(o, i)}</span>
+                  <span className="shrink-0 font-medium text-bone">{rowPrice == null ? '—' : formatPrice(rowPrice, o.currency || currency)}</span>
+                </span>
+                {optionIsFullSet && displayedFullSetSavings > 0 ? <span className="mt-1 block text-[10px] uppercase tracking-[0.12em] text-[var(--gold-warm)]">Save {formatPrice(displayedFullSetSavings, o.currency || currency)} vs pieces separately</span> : null}
+              </button>;
             })}
           </div> : null}
         </div>
@@ -333,6 +365,7 @@ export function ProductDetailClient({
               coupleIncludedGroups={coupleIncludedGroups}
               canChooseSeparately={canChoosePiecesSeparately}
               availabilitySentence={availabilitySentence}
+              selectedOptionLabel={activeConfigLabel}
             />
           : <DefaultDescription
               product={p}
@@ -341,6 +374,7 @@ export function ProductDetailClient({
               coupleIncludedGroups={coupleIncludedGroups}
               canChooseSeparately={canChoosePiecesSeparately}
               availabilitySentence={availabilitySentence}
+              selectedOptionLabel={activeConfigLabel}
             />}
       </div>
       <div className="col-span-12 lg:col-span-5 space-y-0">
@@ -372,6 +406,7 @@ function GeneratedDescription({
   coupleIncludedGroups,
   canChooseSeparately,
   availabilitySentence,
+  selectedOptionLabel,
 }: {
   title: string;
   blocks: DraftBlock[];
@@ -379,6 +414,7 @@ function GeneratedDescription({
   coupleIncludedGroups: ReturnType<typeof sellableOfferCoupleIncludedGroups>;
   canChooseSeparately: boolean;
   availabilitySentence: string;
+  selectedOptionLabel: string;
 }) {
   return <div>
     <div className="eyebrow-gold mb-3">{blocks[0]?.heading || 'About this piece'}</div>
@@ -390,7 +426,7 @@ function GeneratedDescription({
           <DisplayBody body={String(block.body || '')} />
         </article>
         {index === 0 && includedLines.length
-          ? <IncludedDetail lines={includedLines} groups={coupleIncludedGroups} canChooseSeparately={canChooseSeparately} availabilitySentence={availabilitySentence} />
+          ? <IncludedDetail lines={includedLines} groups={coupleIncludedGroups} canChooseSeparately={canChooseSeparately} availabilitySentence={availabilitySentence} selectedOptionLabel={selectedOptionLabel} />
           : null}
       </div>)}
     </div>
@@ -404,6 +440,7 @@ function DefaultDescription({
   coupleIncludedGroups,
   canChooseSeparately,
   availabilitySentence,
+  selectedOptionLabel,
 }: {
   product: StorefrontProduct;
   title: string;
@@ -411,13 +448,14 @@ function DefaultDescription({
   coupleIncludedGroups: ReturnType<typeof sellableOfferCoupleIncludedGroups>;
   canChooseSeparately: boolean;
   availabilitySentence: string;
+  selectedOptionLabel: string;
 }) {
   return <div>
     <div className="eyebrow-gold mb-3">About this piece</div>
     <h2 className="display-section text-bone mb-4" style={{ fontSize: 'clamp(24px, 2.3vw, 34px)' }}>{title}</h2>
     <div className="space-y-4 text-[15px] text-[var(--bone-dim)] leading-[1.8]">
       <p>{product.meta_description || `${title} is a studio-created statement piece for festival, stage, and editorial looks.`}</p>
-      {includedLines.length ? <IncludedDetail lines={includedLines} groups={coupleIncludedGroups} canChooseSeparately={canChooseSeparately} availabilitySentence={availabilitySentence} /> : null}
+      {includedLines.length ? <IncludedDetail lines={includedLines} groups={coupleIncludedGroups} canChooseSeparately={canChooseSeparately} availabilitySentence={availabilitySentence} selectedOptionLabel={selectedOptionLabel} /> : null}
       <p>Its silhouette is designed to stay visually clear in motion, from a distance, and on camera. Product-specific material, finish, and fit details are shown in the selected configuration and information panel.</p>
       <p>Made to order in standard or custom sizing, with worldwide tracked delivery options selected in the cart.</p>
     </div>
@@ -443,14 +481,16 @@ function IncludedDetail({
   groups,
   canChooseSeparately,
   availabilitySentence,
+  selectedOptionLabel,
 }: {
   lines: string[];
   groups: ReturnType<typeof sellableOfferCoupleIncludedGroups>;
   canChooseSeparately: boolean;
   availabilitySentence: string;
+  selectedOptionLabel: string;
 }) {
   return <section className="border-t border-[rgba(216,214,211,0.12)] mt-6 pt-5">
-    <div className="eyebrow-gold mb-3 flex items-center gap-2"><Scissors size={15} />What&apos;s included</div>
+    <div className="eyebrow-gold mb-3 flex items-center gap-2"><Scissors size={15} />What&apos;s included in {selectedOptionLabel}</div>
     {groups.length ? <div className="grid gap-5 sm:grid-cols-2">
       {groups.map((group) => <div key={group.code}>
         <h3 className="mb-2 text-[16px] text-bone">{group.heading}</h3>
