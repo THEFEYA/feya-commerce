@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { Bot, ShieldCheck, Workflow } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { RoleActivationRow } from '@/lib/types';
@@ -90,10 +89,11 @@ export default async function AdminRolesPage() {
       <div className="owner-page-inner">
         <header className="owner-page-head">
           <div>
-            <div className="owner-eyebrow"><span className="owner-eyebrow-mark" aria-hidden="true" />Команда FEYA</div>
+            <div className="owner-eyebrow">Команда FEYA</div>
             <h1>ИИ-команда</h1>
             <p>
-              Восемь логических сотрудников с разными зонами ответственности. Здесь показывается только фактическая готовность, реальная работа и границы самостоятельности.
+              Роли показываются как реальные зоны ответственности: что сейчас активно, какой предел самостоятельности,
+              какие возможности доступны и есть ли у роли текущая работа.
             </p>
           </div>
           <div className="owner-actions" style={{ marginTop: 0 }}>
@@ -102,28 +102,12 @@ export default async function AdminRolesPage() {
           </div>
         </header>
 
-        {!error ? (
-          <section className="owner-team-command" aria-label="Состояние команды">
-            <div className="owner-team-command-copy">
-              <div className="owner-command-state">
-                <span className="owner-command-state-dot" aria-hidden="true" />
-                Текущий режим команды
-              </div>
-              <h2>{active ? `${active} ролей активны` : shadow ? 'Команда работает в безопасном режиме' : 'Активные роли пока не запущены'}</h2>
-              <p>
-                {shadow
-                  ? `${shadow} ролей наблюдают и готовят выводы без самостоятельного изменения production. Активация расширяется только после появления данных, разрешённых действий и реальной задачи.`
-                  : 'FEYA не включает роли только ради визуального ощущения активности.'}
-              </p>
-            </div>
-            <div className="owner-team-state-strip">
-              <div><span className="owner-team-state-icon is-success"><Workflow size={14} /></span><span><strong>{active}</strong><small>активны</small></span></div>
-              <div><span className="owner-team-state-icon is-info"><ShieldCheck size={14} /></span><span><strong>{shadow}</strong><small>наблюдают</small></span></div>
-              <div><span className="owner-team-state-icon"><ShieldCheck size={14} /></span><span><strong>{inactive}</strong><small>не активированы</small></span></div>
-              <div><span className="owner-team-state-icon is-warning"><Bot size={14} /></span><span><strong>{paused}</strong><small>на паузе</small></span></div>
-            </div>
-          </section>
-        ) : null>
+        <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
+          <div className="owner-summary-cell"><strong>{active}</strong><span>Активны</span></div>
+          <div className="owner-summary-cell"><strong>{shadow}</strong><span>Безопасный режим</span></div>
+          <div className="owner-summary-cell"><strong>{inactive}</strong><span>Ещё не активированы</span></div>
+          <div className="owner-summary-cell"><strong>{paused}</strong><span>Приостановлены</span></div>
+        </section>
 
         {error ? (
           <div className="owner-card is-danger" style={{ marginBottom: '18px' }}>
@@ -134,11 +118,10 @@ export default async function AdminRolesPage() {
 
         <section className="owner-section" style={{ marginTop: 0 }}>
           <div className="owner-section-head">
-            <div className="owner-section-heading">
-              <span className="owner-section-icon is-team" aria-hidden="true"><Bot size={17} strokeWidth={1.7} /></span>
-              <div>
-                <h2>Роли и текущее состояние</h2>
-                <div className="owner-section-kicker">Ответственность, текущая работа, доступные возможности и ограничения — без имитации «живого офиса»</div>
+            <div>
+              <h2>Роли и текущее состояние</h2>
+              <div className="owner-section-kicker">
+                Логическая роль не считается работающим агентом, пока не активированы её режим выполнения и необходимые возможности
               </div>
             </div>
           </div>
@@ -151,17 +134,14 @@ export default async function AdminRolesPage() {
               const lastActivity = stats.latestAt ? formatRelativeTime(stats.latestAt) : 'ещё не было';
 
               return (
-                <article className={`owner-card owner-team-card owner-team-card-v2 ${toneClass(role.tone)}`} key={role.code}>
+                <article className={`owner-card owner-team-card ${toneClass(role.tone)}`} key={role.code}>
                   <div className="owner-card-meta">
                     <span className={`owner-status ${toneClass(role.tone)}`}>{role.statusLabel}</span>
                     <span>{role.autonomyLabel}</span>
                     <span>{stats.active ? `в работе: ${stats.active}` : 'активной работы нет'}</span>
                   </div>
 
-                  <div className="owner-team-card-titleline">
-                    <h3>{role.name}</h3>
-                    <span className="owner-team-card-activity">{stats.active ? `${stats.active} в работе` : role.status === 'SHADOW' ? 'наблюдает' : 'ожидает задачу'}</span>
-                  </div>
+                  <h3>{role.name}</h3>
                   <p className="owner-card-copy">{role.summary}</p>
 
                   <div className="owner-role-readiness">
