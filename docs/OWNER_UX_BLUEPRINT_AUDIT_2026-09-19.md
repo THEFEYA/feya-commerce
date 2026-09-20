@@ -105,19 +105,19 @@ Current state:
 - full detail route: DONE
 - workflow/handoff/evidence timeline: NOT YET — current owner projection does not expose enough evidence; UI says so instead of inventing events
 
-### Product Workspace
+### Existing Product OS
 
-Research tabs: **Обзор · Факты · Контент и поиск · Медиа · Цены и варианты · История**.
+Owner scope correction freezes the existing Product OS as the approved operator workspace.
 
 Current state:
-- one product workspace route: DONE
-- six-section navigation: DONE
-- Facts: DONE
-- Content/Search summary from real brief/CQA/SEO portfolio: DONE
-- Media: DONE
-- Pricing/options: DONE
-- History from actual review events: DONE
-- protected edits / fact resolution: intentionally read-only until UX-5
+- public storefront and product-card design: FROZEN / APPROVED
+- Listing Master: FROZEN / APPROVED
+- Product catalog/detail and existing Product OS review/media/SEO workflows: FROZEN / APPROVED
+- visible changes are not part of the agent/company UX program
+- only non-visual protected-read/security compatibility changes are allowed
+- one minimal link between Product OS and Company / AI control is allowed
+
+The Product Workspace redesign described in the original research is therefore not implemented as a second product workspace. The existing Product OS already fulfills the operator role and remains canonical for daily product work.
 
 ### Search / command access
 
@@ -146,7 +146,7 @@ Allowed by research:
 Current:
 - sidebar collapse: DONE
 - compact density: DONE
-- saved filters/views: INITIAL VERSION DONE for Product catalog; expand only where repeated workflows justify it
+- saved filters/views: DONE for the repeated agent Work and Signals queues; local-only and non-canonical
 - pin/hide non-critical Today modules: NOT YET; deferred until owner review confirms which modules are actually worth personalizing
 - full drag/drop dashboard builder: WILL NOT BUILD IN V1
 
@@ -171,6 +171,31 @@ UX-5 and UX-7 are **not part of this finish line** because they are blocked by s
 
 1. Verify the new Work/Signal drawers and the Company / AI control surfaces on Vercel; separately confirm the approved Product OS baseline is unchanged.
 2. Audit remaining normal owner routes for raw engineering terminology and duplicated registry pages.
-3. Verify the first saved Product catalog views in owner use; only then propagate the pattern to another repeated review table.
+3. Verify saved Work/Signals views in owner use; only propagate the pattern to another repeated agent queue if it solves a real recurring workflow.
 4. Add pin/hide only for non-critical Today/Work informational blocks if owner review shows a real need, with a visible Reset to default.
 5. Do not add live KPI charts, revenue, conversion, organic trends or measured outcomes until the authoritative sources are connected.
+
+
+## Product OS visual freeze verification
+
+After Owner review, the branch was corrected so the approved Product OS is no longer wrapped in the Company Owner Shell.
+
+Verified scope:
+- `/admin/listing-master` stays on the existing Product OS visual shell;
+- `/admin/products` and Product OS review/media/SEO routes stay on the approved baseline;
+- `/shop`, product cards and public product detail components remain baseline-identical;
+- new Growth OS / agent routes use the modern Owner Shell;
+- Product OS gets only a minimal entry to **Компания и ИИ-команда**.
+
+Security exception:
+internal Product OS server pages may switch from the public read client to `getAdminReadClient()` for protected-read compatibility. This is intentionally non-visual and must not change layout/workflow.
+
+## Current completion target after scope correction
+
+The remaining visual work is only in the Company / AI system:
+
+1. finish owner-first Team FEYA, Today, Work, Signals, Results, Growth and System;
+2. make normal agent/system pages modern and contextual, while keeping raw registries under Advanced;
+3. validate desktop + mobile navigation, drawers, saved views and empty/error states;
+4. stop visual work when these owner surfaces pass the research checklist;
+5. do not restart Product OS redesign.
