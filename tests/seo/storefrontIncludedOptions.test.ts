@@ -322,8 +322,12 @@ test('expands one Full Set through a current grouped option without inventing at
     'Top',
   ]);
   assert.deepEqual(
+    storefrontIncludedOptions(product, { configuration_id: 'full-set' }),
+    ['Bracelet', 'Skirt', 'Top + Shoulders'],
+  );
+  assert.deepEqual(
     storefrontIncludedOptions(product, { configuration_id: 'top-shoulders' }),
-    ['Shoulders', 'Top'],
+    ['Top + Shoulders'],
   );
   assert.equal(sellableOfferAllowsComponentFocus(offer, 'shoulders'), true);
   assert.equal(sellableOfferAllowsComponentFocus(offer, 'top'), true);
@@ -399,4 +403,78 @@ test('fails closed when only inferred DNA or normalized component codes exist', 
     public_label: 'Full Set',
     bundle_component_codes: ['shoulders', 'top', 'skirt'],
   }), []);
+});
+
+
+test('keeps Top + Shoulders as one buyer-facing line inside Full Set', () => {
+  const product = {
+    configurations: [
+      {
+        configuration_id: 'skirt',
+        sort_order: 1,
+        public_label: 'Skirt',
+        component_code: 'skirt',
+      },
+      {
+        configuration_id: 'top-shoulders',
+        sort_order: 2,
+        public_label: 'Top + Shoulders',
+        component_code: 'bundle',
+        component_family: 'Bundle',
+        is_bundle: true,
+        bundle_component_codes: ['shoulders', 'top'],
+      },
+      {
+        configuration_id: 'full-set',
+        sort_order: 3,
+        public_label: 'Full Set',
+        component_code: 'full_set',
+        component_family: 'Bundle',
+        is_full_set: true,
+        bundle_component_codes: ['skirt', 'top', 'shoulders'],
+        bundle_component_labels: ['Skirt', 'Top', 'Shoulders'],
+      },
+    ],
+  } as any;
+
+  assert.deepEqual(
+    storefrontIncludedOptions(product, { configuration_id: 'full-set' }),
+    ['Skirt', 'Top + Shoulders'],
+  );
+  assert.deepEqual(
+    storefrontIncludedOptions(product, { configuration_id: 'top-shoulders' }),
+    ['Top + Shoulders'],
+  );
+});
+
+test('prefers a real Shoulders + Skirt selector over separate internal members', () => {
+  const product = {
+    configurations: [
+      { configuration_id: 'bracelet', sort_order: 1, public_label: 'Bracelet', component_code: 'arms' },
+      { configuration_id: 'skirt', sort_order: 2, public_label: 'Skirt', component_code: 'skirt' },
+      { configuration_id: 'shoulders', sort_order: 3, public_label: 'Shoulders', component_code: 'shoulders' },
+      {
+        configuration_id: 'shoulders-skirt',
+        sort_order: 4,
+        public_label: 'Shoulders + Skirt',
+        component_code: 'bundle',
+        is_bundle: true,
+        bundle_component_codes: ['shoulders', 'skirt'],
+      },
+      {
+        configuration_id: 'full-set',
+        sort_order: 5,
+        public_label: 'Full Set',
+        component_code: 'full_set',
+        is_full_set: true,
+        bundle_component_codes: ['arms', 'skirt', 'shoulders'],
+        bundle_component_labels: ['Bracelet', 'Skirt', 'Shoulders'],
+      },
+    ],
+  } as any;
+
+  assert.deepEqual(
+    storefrontIncludedOptions(product, { configuration_id: 'full-set' }),
+    ['Bracelet', 'Shoulders + Skirt'],
+  );
 });
