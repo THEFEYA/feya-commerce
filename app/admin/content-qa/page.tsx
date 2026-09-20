@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { ContentQaShadowRow } from '@/lib/types';
 import { statusLabel } from '@/lib/owner-ui/terminology';
+import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -101,27 +102,19 @@ export default async function AdminContentQaPage({ searchParams }: { searchParam
   };
 
   return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
-          <div className="nav-links">
-            <Link href="/admin/products">Товары</Link>
-            <Link href="/admin/product-facts-review">Факты о товарах</Link>
-            <Link href="/admin/seo-portfolio">SEO-страницы</Link>
-            <Link href="/admin/seo-clusters">Группы запросов</Link>
-            <Link href="/admin/content-qa">Контроль качества</Link>
-            <Link href="/admin/system-readiness">Готовность системы</Link>
+    <main className="owner-page">
+      <div className="owner-page-inner">
+        <header className="owner-page-head">
+          <div>
+            <div className="owner-eyebrow">Работа · контроль качества</div>
+            <h1>Контроль качества контента</h1>
+            <p>Одобрение человеком и независимая CQA — разные этапы. Здесь видно, что требует исправления, что готово к независимой проверке и что всё ещё проходит автоматические проверки.</p>
           </div>
-        </nav>
-
-        <section className="phase-banner">
-          <div className="phase-label">Контроль качества · безопасный режим · только просмотр</div>
-          <h1>Контроль качества контента</h1>
-          <p>
-            Одобрение человеком не считается независимой проверкой качества. Экран классифицирует существующие SEO-черновики по детерминированным проверкам и не переписывает исторические статусы.
-          </p>
-        </section>
+          <div className="owner-actions" style={{ marginTop: 0 }}>
+            <Link href="/admin/company/work#operational-queues" className="owner-button">Назад к работе</Link>
+            <Link href="/admin/company/results" className="owner-button">Результаты</Link>
+          </div>
+        </header>
 
         <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
           <div className="owner-summary-cell"><strong>{blocked}</strong><span>Требуют исправления / заблокированы</span></div>
@@ -163,9 +156,14 @@ export default async function AdminContentQaPage({ searchParams }: { searchParam
             <span>После фильтра: {filteredRows.length}</span>
             <Link href="/admin/content-qa">Сбросить</Link>
           </div>
+          <OwnerSavedViewsClient scope="content-qa" />
         </form>
 
-        <div className="table-wrap">
+        <section className="owner-section" style={{ marginTop: '18px' }}>
+          <div className="owner-section-head">
+            <div><h2>Очередь проверки</h2><div className="owner-section-kicker">Сначала блокировки и обязательные исправления, затем готовые к CQA черновики</div></div>
+          </div>
+          <div className="table-wrap">
           <table>
             <thead>
               <tr>
@@ -234,6 +232,9 @@ export default async function AdminContentQaPage({ searchParams }: { searchParam
             </tbody>
           </table>
         </div>
+
+          </div>
+        </section>
 
         {filteredRows.length > pageSize ? (
           <div className="flex items-center justify-between gap-3" style={{ marginTop: '14px' }}>
