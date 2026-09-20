@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { GrowthActionCapabilityRow } from '@/lib/types';
 import { implementationStateLabel, roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
@@ -198,7 +199,7 @@ export default async function AdminExecutionMapPage({ searchParams }: { searchPa
           <div className="owner-summary-cell"><strong>{available + limited}</strong><span>Имеют реализованный путь с ограничениями</span></div>
         </section>
 
-        {error ? <div className="owner-card is-danger"><div className="owner-status is-danger">Ошибка данных</div><p className="owner-card-copy">{error}</p></div> : null}
+        {error ? <OwnerDataError error={error} /> : null}
 
         <section className="owner-section" style={{ marginTop: 0 }}>
           <div className="owner-section-head">
