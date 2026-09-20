@@ -125,29 +125,19 @@ export default async function AdminSeoPortfolioPage({ searchParams }: { searchPa
   };
 
   return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
-          <div className="nav-links">
-            <Link href="/admin/products">Товары</Link>
-            <Link href="/admin/seo-keywords">Ключевые слова</Link>
-            <Link href="/admin/seo-portfolio">SEO-страницы</Link>
-            <Link href="/admin/seo-clusters">Группы запросов</Link>
-            <Link href="/admin/seo-ownership-proposals">Ответственность страниц</Link>
-            <Link href="/admin/seo-indexability">Индексация</Link>
-            <Link href="/admin/review">Проверка</Link>
-            <Link href="/shop">Магазин</Link>
+    <main className="owner-page">
+      <div className="owner-page-inner">
+        <header className="owner-page-head">
+          <div>
+            <div className="owner-eyebrow">Рост · поисковая архитектура</div>
+            <h1>SEO-страницы</h1>
+            <p>Стабильный портфель поисковых страниц. Страница остаётся кандидатом, пока не подтверждены её группа запросов, ответственность и отдельный допуск к индексации.</p>
           </div>
-        </nav>
-
-        <section className="phase-banner">
-          <div className="phase-label">SEO-портфель · только просмотр</div>
-          <h1>SEO-страницы</h1>
-          <p>
-            Стабильный список страниц и их поисковое состояние. Страницы остаются кандидатами, пока группы запросов, ответственность и допуск к индексации не подтверждены.
-          </p>
-        </section>
+          <div className="owner-actions" style={{ marginTop: 0 }}>
+            <Link href="/admin/company/growth" className="owner-button">Назад к росту</Link>
+            <Link href="/admin/seo-indexability" className="owner-button">Индексация</Link>
+          </div>
+        </header>
 
         <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
           <div className="owner-summary-cell"><strong>{candidateCount}</strong><span>Кандидатов на индексацию</span></div>
