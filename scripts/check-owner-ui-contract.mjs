@@ -11,7 +11,11 @@ const requiredFiles = [
   'app/admin/roles/page.tsx',
   'components/admin/OwnerShell.tsx',
   'components/admin/AdminLegacyShell.tsx',
+  'components/admin/OwnerWorkDrawerClient.tsx',
+  'components/admin/OwnerSignalDrawerClient.tsx',
+  'components/admin/OwnerRoleDrawerClient.tsx',
   'docs/OWNER_UX_BLUEPRINT_AUDIT_2026-09-19.md',
+  'docs/OWNER_COMPANY_VISUAL_CONTRACT_V1.md',
 ];
 
 const failures = [];
@@ -75,6 +79,37 @@ if (!failures.length) {
 
   if (!audit.includes('Scope correction — Owner review')) failures.push('Owner UX audit missing scope correction.');
   if (!audit.includes('FROZEN / APPROVED')) failures.push('Owner UX audit no longer marks Product OS frozen.');
+
+  const today = text('app/admin/company/page.tsx');
+  const work = text('app/admin/company/work/page.tsx');
+  const signals = text('app/admin/company/signals/page.tsx');
+  const visualContract = text('docs/OWNER_COMPANY_VISUAL_CONTRACT_V1.md');
+
+  const todayOrder = [
+    'owner-command-brief',
+    'Нужно ваше решение',
+    'Что существенно изменилось',
+    'Возможности',
+    'В работе',
+    'Состояние системы',
+    'Для сведения',
+  ];
+  let previousIndex = -1;
+  for (const marker of todayOrder) {
+    const index = today.indexOf(marker);
+    if (index === -1) {
+      if (marker !== 'Возможности') failures.push(`Today missing research section: ${marker}`);
+      continue;
+    }
+    if (index < previousIndex) failures.push(`Today research order is broken at: ${marker}`);
+    previousIndex = index;
+  }
+
+  if (!work.includes('OwnerWorkDrawerClient')) failures.push('Work must use context-first drawer detail.');
+  if (!work.includes('OwnerRoleDrawerClient')) failures.push('Team FEYA must use contextual role detail.');
+  if (!signals.includes('OwnerSignalDrawerClient')) failures.push('Signals must use evidence-first drawer detail.');
+  if (!visualContract.includes('Product OS and public storefront are visually frozen')) failures.push('Visual contract lost Product OS freeze.');
+  if (!visualContract.includes('No fake revenue, conversion, ranking')) failures.push('Visual contract lost no-fake-analytics rule.');
 
   const companyFiles = [
     'app/admin/company/page.tsx',
