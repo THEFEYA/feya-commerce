@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { OwnerInitiativeDrawerClient } from '@/components/admin/OwnerInitiativeDrawerClient';
+import { OwnerObjectiveDrawerClient } from '@/components/admin/OwnerObjectiveDrawerClient';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
-import type { GrowthInitiativeRow, GrowthStrategyRow } from '@/lib/types';
+import type { GrowthInitiativeRow, GrowthObjectiveEventRow, GrowthObjectiveRow, GrowthStrategyRow } from '@/lib/types';
 import { roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
@@ -9,18 +10,29 @@ export const revalidate = 0;
 
 async function getData(): Promise<{
   strategies: GrowthStrategyRow[];
+  objectives: GrowthObjectiveRow[];
+  objectiveEvents: GrowthObjectiveEventRow[];
   initiatives: GrowthInitiativeRow[];
   error?: string;
 }> {
   const supabase = getAdminReadClient();
-  if (!supabase) return { strategies: [], initiatives: [], error: getMissingAdminDataEnvMessage() };
+  if (!supabase) return { strategies: [], objectives: [], objectiveEvents: [], initiatives: [], error: getMissingAdminDataEnvMessage() };
 
-  const [strategyResult, initiativeResult] = await Promise.all([
+  const [strategyResult, objectiveResult, objectiveEventResult, initiativeResult] = await Promise.all([
     supabase
       .from('feya_commerce_v_growth_strategy_safe_v1')
       .select('*')
       .order('strategy_code', { ascending: true })
       .order('version_no', { ascending: false }),
+    supabase
+      .from('feya_commerce_v_growth_objectives_safe_v1')
+      .select('*')
+      .order('updated_at', { ascending: false }),
+    supabase
+      .from('feya_commerce_v_growth_objective_events_safe_v1')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(500),
     supabase
       .from('feya_commerce_v_growth_initiatives_safe_v1')
       .select('*')
@@ -28,11 +40,13 @@ async function getData(): Promise<{
       .limit(300),
   ]);
 
-  if (strategyResult.error) return { strategies: [], initiatives: [], error: strategyResult.error.message };
-  if (initiativeResult.error) return { strategies: [], initiatives: [], error: initiativeResult.error.message };
+  const firstError = strategyResult.error || objectiveResult.error || objectiveEventResult.error || initiativeResult.error;
+  if (firstError) return { strategies: [], objectives: [], objectiveEvents: [], initiatives: [], error: firstError.message };
 
   return {
     strategies: (strategyResult.data || []) as GrowthStrategyRow[],
+    objectives: (objectiveResult.data || []) as GrowthObjectiveRow[],
+    objectiveEvents: (objectiveEventResult.data || []) as GrowthObjectiveEventRow[],
     initiatives: (initiativeResult.data || []) as GrowthInitiativeRow[],
   };
 }
@@ -77,9 +91,17 @@ function statusClass(value: unknown) {
 }
 
 export default async function AdminStrategyPage() {
-  const { strategies, initiatives, error } = await getData();
+  const { strategies, objectives, objectiveEvents, initiatives, error } = await getData();
 
   const activeStrategies = strategies.filter((row) => row.strategy_status === 'ACTIVE').length;
+  const activeObjectives = objectives.filter((row) => row.objective_status === 'ACTIVE').length;
+  const proposedObjectives = objectives.filter((row) => ['DRAFT', 'PROPOSED', 'PENDING'].includes(String(row.objective_status || '').toUpperCase())).length;
+  const objectiveEventsById = new Map<string, GrowthObjectiveEventRow[]>();
+  objectiveEvents.forEach((event) => {
+    const current = objectiveEventsById.get(event.objective_id) || [];
+    current.push(event);
+    objectiveEventsById.set(event.objective_id, current);
+  });
   const revalidation = initiatives.filter((row) => row.strategy_revalidation_status === 'REQUIRED').length;
   const directorPending = initiatives.filter((row) => row.director_gate_status === 'PENDING').length;
   const humanPending = initiatives.filter((row) => row.human_approval_status === 'PENDING').length;
@@ -146,6 +168,64 @@ export default async function AdminStrategyPage() {
             <div className="owner-card is-warning">
               <div className="owner-status is-warning">Активная стратегия не зафиксирована</div>
               <p className="owner-card-copy">FEYA не должна самостоятельно выбирать или активировать стратегию владельца.</p>
+            </div>
+          )}
+        </section>
+
+
+        <section className="owner-section">
+          <div className="owner-section-head">
+            <div>
+              <h2>Цели роста</h2>
+              <div className="owner-section-kicker">Цель активируется человеком и задаёт измеримую рамку, в которой сигналы могут переходить в работу</div>
+            </div>
+          </div>
+
+          {objectives.length ? (
+            <>
+              <div className="owner-queue-strip" style={{ marginBottom: '12px' }}>
+                <div className="owner-queue-item is-static">
+                  <span className="owner-queue-copy"><strong>Активные цели</strong><small>человечески активированы</small></span>
+                  <b>{activeObjectives}</b>
+                </div>
+                <div className="owner-queue-item is-static">
+                  <span className="owner-queue-copy"><strong>Черновики / предложения</strong><small>ещё не активны</small></span>
+                  <b>{proposedObjectives}</b>
+                </div>
+                <div className="owner-queue-item is-static">
+                  <span className="owner-queue-copy"><strong>Всего целей</strong><small>версионируемый реестр</small></span>
+                  <b>{objectives.length}</b>
+                </div>
+                <div className="owner-queue-item is-static">
+                  <span className="owner-queue-copy"><strong>События целей</strong><small>durable history</small></span>
+                  <b>{objectiveEvents.length}</b>
+                </div>
+              </div>
+
+              <div className="owner-list">
+                {objectives.map((row) => (
+                  <article className="owner-list-row" key={row.objective_id}>
+                    <div className="owner-list-row-main">
+                      <div className="owner-card-meta">
+                        <span className={`owner-status ${row.objective_status === 'ACTIVE' ? 'is-success' : row.objective_status === 'BLOCKED' ? 'is-danger' : 'is-warning'}`}>
+                          {statusLabel(row.objective_status)}
+                        </span>
+                        <span>{roleLabel(row.owner_role)}</span>
+                        <span>реализуемость: {statusLabel(row.feasibility_status)}</span>
+                      </div>
+                      <h3>{asText(row.title, 'Цель роста')}</h3>
+                      <p>Основная метрика: {asText(row.primary_metric_code, 'не назначена')}. Стратегия: {asText(row.strategy_version_ref, 'не связана')}.</p>
+                    </div>
+                    <div className="owner-list-row-side">
+                      <OwnerObjectiveDrawerClient row={row} events={objectiveEventsById.get(row.objective_id) || []} />
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="owner-empty">
+              Активных или черновых целей роста пока нет. Это соответствует текущему pre-launch состоянию: FEYA не создаёт цель только ради того, чтобы «разбудить» сигналы.
             </div>
           )}
         </section>
