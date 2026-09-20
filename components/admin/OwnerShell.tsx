@@ -266,7 +266,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
           </button>
           <div className="owner-topbar-status">
             <span className="owner-status-dot" aria-hidden="true" />
-            <span>Подготовка к запуску</span>
+            <span>Внутренний режим</span>
           </div>
         </header>
 
