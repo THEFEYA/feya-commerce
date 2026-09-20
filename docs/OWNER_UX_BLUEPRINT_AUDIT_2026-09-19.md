@@ -361,3 +361,16 @@ The controls are contextual:
 - DRAFT strategy activation is shown only when a draft version exists.
 
 All controls remain non-operational until mandatory auth, exact allowlist and `FEYA_OWNER_ACTIONS_ENABLED=true` are verified. Current production has no rows eligible for these actions, so owner screens remain visually quiet.
+
+
+## Advanced surface consistency checkpoint — 2026-09-20
+
+Three remaining Growth OS diagnostics that still used the old nested admin presentation were normalized into the Company visual system without changing their data contracts:
+
+- technical Signal Diagnostics;
+- Source-of-Truth / Data Authority;
+- Scenario Regression registry.
+
+They remain Advanced/context surfaces rather than primary navigation. Raw tables are now behind owner-readable summaries and progressive disclosure, while full diagnostic detail remains available when needed.
+
+No Product OS route or storefront component was changed.
