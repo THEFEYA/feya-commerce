@@ -14,6 +14,8 @@ async function searchOwnerData(query: string): Promise<{
   queries: Row[];
   work: Row[];
   signals: Row[];
+  objectives: Row[];
+  initiatives: Row[];
   opportunities: Row[];
   experiments: Row[];
   incidents: Row[];
@@ -22,8 +24,8 @@ async function searchOwnerData(query: string): Promise<{
   error?: string;
 }> {
   const supabase = getAdminReadClient();
-  if (!supabase) return { products: [], pages: [], queries: [], work: [], signals: [], opportunities: [], experiments: [], incidents: [], executions: [], learnings: [], error: getMissingAdminDataEnvMessage() };
-  if (!query) return { products: [], pages: [], queries: [], work: [], signals: [], opportunities: [], experiments: [], incidents: [], executions: [], learnings: [] };
+  if (!supabase) return { products: [], pages: [], queries: [], work: [], signals: [], objectives: [], initiatives: [], opportunities: [], experiments: [], incidents: [], executions: [], learnings: [], error: getMissingAdminDataEnvMessage() };
+  if (!query) return { products: [], pages: [], queries: [], work: [], signals: [], objectives: [], initiatives: [], opportunities: [], experiments: [], incidents: [], executions: [], learnings: [] };
 
   const escaped = query.replace(/[,%()]/g, ' ').trim();
   const [
@@ -32,6 +34,8 @@ async function searchOwnerData(query: string): Promise<{
     queriesResult,
     workResult,
     signalsResult,
+    objectivesResult,
+    initiativesResult,
     opportunitiesResult,
     experimentsResult,
     incidentsResult,
@@ -63,6 +67,16 @@ async function searchOwnerData(query: string): Promise<{
       .from('feya_commerce_v_growth_signal_candidates_safe_v2')
       .select('signal_fingerprint,signal_code,title,summary,next_action,priority,accountable_domain,signal_state')
       .limit(50),
+    supabase
+      .from('feya_commerce_v_growth_objectives_safe_v1')
+      .select('objective_id,objective_code,title,objective_status,owner_role,primary_metric_code,feasibility_status')
+      .or(`title.ilike.%${escaped}%,objective_code.ilike.%${escaped}%,primary_metric_code.ilike.%${escaped}%`)
+      .limit(8),
+    supabase
+      .from('feya_commerce_v_growth_initiatives_safe_v1')
+      .select('initiative_id,initiative_code,title,initiative_status,owner_role,strategy_code,action_class')
+      .or(`title.ilike.%${escaped}%,initiative_code.ilike.%${escaped}%,strategy_code.ilike.%${escaped}%`)
+      .limit(8),
     supabase
       .from('feya_commerce_v_growth_opportunities_safe_v1')
       .select('opportunity_id,opportunity_code,title,event_name,opportunity_status,owner_role')
@@ -96,12 +110,14 @@ async function searchOwnerData(query: string): Promise<{
     queriesResult.error ||
     workResult.error ||
     signalsResult.error ||
+    objectivesResult.error ||
+    initiativesResult.error ||
     opportunitiesResult.error ||
     experimentsResult.error ||
     incidentsResult.error ||
     executionsResult.error ||
     learningsResult.error;
-  if (firstError) return { products: [], pages: [], queries: [], work: [], signals: [], opportunities: [], experiments: [], incidents: [], executions: [], learnings: [], error: firstError.message };
+  if (firstError) return { products: [], pages: [], queries: [], work: [], signals: [], objectives: [], initiatives: [], opportunities: [], experiments: [], incidents: [], executions: [], learnings: [], error: firstError.message };
 
   const q = query.toLocaleLowerCase('ru-RU');
   const signalRows = ((signalsResult.data || []) as Row[]).filter((row) => {
@@ -116,6 +132,8 @@ async function searchOwnerData(query: string): Promise<{
     queries: (queriesResult.data || []) as Row[],
     work: (workResult.data || []) as Row[],
     signals: signalRows,
+    objectives: (objectivesResult.data || []) as Row[],
+    initiatives: (initiativesResult.data || []) as Row[],
     opportunities: (opportunitiesResult.data || []) as Row[],
     experiments: (experimentsResult.data || []) as Row[],
     incidents: (incidentsResult.data || []) as Row[],
@@ -127,7 +145,7 @@ async function searchOwnerData(query: string): Promise<{
 export default async function AdminSearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const params = await searchParams;
   const query = String(params.q || '').trim();
-  const { products, pages, queries, work, signals, opportunities, experiments, incidents, executions, learnings, error } = await searchOwnerData(query);
+  const { products, pages, queries, work, signals, objectives, initiatives, opportunities, experiments, incidents, executions, learnings, error } = await searchOwnerData(query);
   const workVM = work.map(presentWorkItem);
   const signalVM = signals.map(presentSignal);
   const total =
@@ -136,6 +154,8 @@ export default async function AdminSearchPage({ searchParams }: { searchParams: 
     queries.length +
     workVM.length +
     signalVM.length +
+    objectives.length +
+    initiatives.length +
     opportunities.length +
     experiments.length +
     incidents.length +
@@ -149,7 +169,7 @@ export default async function AdminSearchPage({ searchParams }: { searchParams: 
           <div>
             <div className="owner-eyebrow">Быстрый доступ</div>
             <h1>Поиск</h1>
-            <p>Ищет товары, страницы, запросы, работу, сигналы, возможности, эксперименты, инциденты, выполнение и выводы. Поиск ничего не изменяет — он только ведёт к каноническому рабочему контексту.</p>
+            <p>Ищет товары, страницы, запросы, работу, сигналы, цели, инициативы, возможности, эксперименты, инциденты, выполнение и выводы. Поиск ничего не изменяет — он только ведёт к каноническому рабочему контексту.</p>
           </div>
         </header>
 
@@ -172,6 +192,7 @@ export default async function AdminSearchPage({ searchParams }: { searchParams: 
               <Link href="/admin/company/work#work-list" className="owner-card"><h3 className="owner-card-title">Заблокированная и текущая работа</h3><p className="owner-card-copy">Перейти к рабочим очередям и текущим процессам.</p></Link>
               <Link href="/admin/company/work#team" className="owner-card"><h3 className="owner-card-title">Команда FEYA</h3><p className="owner-card-copy">Посмотреть роли, ограничения и фактическую текущую работу.</p></Link>
               <Link href="/admin/company/system" className="owner-card"><h3 className="owner-card-title">Что сейчас ограничивает систему</h3><p className="owner-card-copy">Источники данных, запуск, права и автоматизация.</p></Link>
+              <Link href="/admin/strategy" className="owner-card"><h3 className="owner-card-title">Цели и стратегия</h3><p className="owner-card-copy">Куда идём, какие цели активированы и какие инициативы требуют проверок.</p></Link>
               <Link href="/admin/opportunities" className="owner-card"><h3 className="owner-card-title">Возможности роста</h3><p className="owner-card-copy">Коммерческие окна, события и другие реальные opportunities.</p></Link>
               <Link href="/admin/company/results" className="owner-card"><h3 className="owner-card-title">Результаты и обучение</h3><p className="owner-card-copy">Эксперименты, изменения, доказательства и повторно используемые выводы.</p></Link>
             </div>
@@ -204,6 +225,14 @@ export default async function AdminSearchPage({ searchParams }: { searchParams: 
 
         {signalVM.length ? <section className="owner-section"><div className="owner-section-head"><h2>Сигналы</h2></div><div className="owner-list">
           {signalVM.map((item) => <Link className="owner-list-row" href="/admin/company/signals" key={item.id}><div className="owner-list-row-main"><h3>{item.title}</h3><p>{item.summary}</p></div></Link>)}
+        </div></section> : null}
+
+        {objectives.length ? <section className="owner-section"><div className="owner-section-head"><h2>Цели роста</h2></div><div className="owner-list">
+          {objectives.map((row) => <Link className="owner-list-row" href="/admin/strategy" key={String(row.objective_id)}><div className="owner-list-row-main"><h3>{String(row.title || row.objective_code || 'Цель роста')}</h3><p>{String(row.objective_status || 'Открыть цель')} · метрика: {String(row.primary_metric_code || 'не назначена')}</p></div></Link>)}
+        </div></section> : null}
+
+        {initiatives.length ? <section className="owner-section"><div className="owner-section-head"><h2>Инициативы</h2></div><div className="owner-list">
+          {initiatives.map((row) => <Link className="owner-list-row" href="/admin/strategy" key={String(row.initiative_id)}><div className="owner-list-row-main"><h3>{String(row.title || row.initiative_code || 'Инициатива')}</h3><p>{String(row.initiative_status || 'Открыть инициативу')} · {String(row.strategy_code || row.action_class || 'стратегический контекст')}</p></div></Link>)}
         </div></section> : null}
 
         {opportunities.length ? <section className="owner-section"><div className="owner-section-head"><h2>Возможности</h2></div><div className="owner-list">
