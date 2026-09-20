@@ -296,3 +296,30 @@ The Company surface received a bounded mobile/touch pass without changing Produc
 - the existing keyboard/focus/reduced-motion behavior remains intact.
 
 This closes the implementation side of V6. A real-device owner visual review is still useful before production launch, but no further mobile cosmetic expansion is planned without a concrete defect.
+
+
+## UX-5 protected Owner Action foundation — 2026-09-20
+
+The first Human Owner write path is now implemented but intentionally **not enabled**.
+
+Owner Attention detail now uses:
+- a protected action readiness panel;
+- decision preview before submission;
+- server-side owner-auth + allowlist validation;
+- an independent `FEYA_OWNER_ACTIONS_ENABLED` circuit breaker;
+- expected-status concurrency guard;
+- service-role-only mutation RPC;
+- durable owner decision audit events;
+- refetch after successful write.
+
+The action records the Human Owner's decision only. It does not publish content, change price/canonical/indexability, activate checkout, or otherwise treat approval as execution.
+
+Current blockers remain explicit:
+1. choose the exact owner Auth account (there are multiple confirmed Auth users, so no identity is guessed);
+2. configure exact allowlist;
+3. enable mandatory admin auth in preview and test unauthorized access;
+4. harden governed admin views;
+5. run security regression checks;
+6. only then enable `FEYA_OWNER_ACTIONS_ENABLED=true` in preview.
+
+This keeps Product OS operational and prevents UX-5 from silently changing production behavior before the security boundary is proven.
