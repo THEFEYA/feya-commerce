@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentOwnerAttention, presentRole, presentWorkItem, formatRelativeTime } from '@/lib/owner-ui/presenters';
 import { OwnerWorkDrawerClient } from '@/components/admin/OwnerWorkDrawerClient';
+import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -380,6 +381,7 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
                 <span>Всего процессов: {workVM.length}</span>
                 <Link href="/admin/company/work#work-list">Сбросить</Link>
               </div>
+              <OwnerSavedViewsClient scope="work" />
             </form>
           ) : null}
 
