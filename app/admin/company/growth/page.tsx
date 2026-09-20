@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { FileSearch, GitBranch, SearchCheck, ShieldCheck, Sparkles, TrendingUp } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { capabilityOwnerSummary, dataFreshnessLabel, ownerToneForStatus, statusLabel } from '@/lib/owner-ui/terminology';
@@ -179,11 +180,9 @@ export default async function AdminGrowthPage() {
       <div className="owner-page-inner">
         <header className="owner-page-head">
           <div>
-            <div className="owner-eyebrow">Поиск и рост</div>
+            <div className="owner-eyebrow"><span className="owner-eyebrow-mark" aria-hidden="true" />Поиск и рост</div>
             <h1>Рост</h1>
-            <p>
-              Текущее состояние поисковой структуры FEYA. Здесь нет выдуманных графиков: до подключения реальных Google-источников показываются только уже подтверждённые внутренние данные и ограничения.
-            </p>
+            <p>Где FEYA уже видит спрос, как собирается поисковая структура и что пока ограничивает измеримый рост.</p>
           </div>
         </header>
 
@@ -198,44 +197,45 @@ export default async function AdminGrowthPage() {
 
         <section className="owner-section">
           <div className="owner-section-head">
-            <div>
-              <h2>Подготовка поисковой структуры</h2>
-              <div className="owner-section-kicker">Последовательность важнее количества экранов</div>
+            <div className="owner-section-heading">
+              <span className="owner-section-icon is-info" aria-hidden="true"><TrendingUp size={17} strokeWidth={1.7} /></span>
+              <div><h2>Подготовка поисковой структуры</h2><div className="owner-section-kicker">Следующий этап не считается готовым раньше предыдущего</div></div>
             </div>
           </div>
 
-          <div className="owner-summary-strip">
-            <div className="owner-summary-cell">
-              <strong>{data.keywordPending}</strong>
-              <span>Ключевых запросов ждут проверки</span>
-            </div>
-            <div className="owner-summary-cell">
-              <strong>{data.clusterProposals}</strong>
-              <span>Предложений групп запросов</span>
-            </div>
-            <div className="owner-summary-cell">
-              <strong>{data.pagesWithPrimaryOwner}/{data.seoPages}</strong>
-              <span>Страниц с основной группой запросов</span>
-            </div>
-            <div className="owner-summary-cell">
-              <strong>{data.indexabilityReady}/{data.seoPages}</strong>
-              <span>Страниц готовы к проверке индексации</span>
-            </div>
+          <div className="owner-growth-pipeline" aria-label="Этапы поисковой структуры">
+            <Link href="/admin/seo-keyword-review" className="owner-growth-step is-current">
+              <span className="owner-growth-step-icon" aria-hidden="true"><SearchCheck size={16} strokeWidth={1.7} /></span>
+              <span className="owner-growth-step-copy"><small>1 · Проверка</small><strong>Ключевые запросы</strong><span>ждут проверки</span></span>
+              <b>{data.keywordPending}</b>
+            </Link>
+            <Link href="/admin/seo-cluster-proposals" className="owner-growth-step">
+              <span className="owner-growth-step-icon" aria-hidden="true"><GitBranch size={16} strokeWidth={1.7} /></span>
+              <span className="owner-growth-step-copy"><small>2 · Структура</small><strong>Группы запросов</strong><span>предложений</span></span>
+              <b>{data.clusterProposals}</b>
+            </Link>
+            <Link href="/admin/seo-portfolio" className="owner-growth-step">
+              <span className="owner-growth-step-icon" aria-hidden="true"><FileSearch size={16} strokeWidth={1.7} /></span>
+              <span className="owner-growth-step-copy"><small>3 · Ответственность</small><strong>Основные страницы</strong><span>из {data.seoPages}</span></span>
+              <b>{data.pagesWithPrimaryOwner}</b>
+            </Link>
+            <Link href="/admin/seo-indexability" className="owner-growth-step">
+              <span className="owner-growth-step-icon" aria-hidden="true"><ShieldCheck size={16} strokeWidth={1.7} /></span>
+              <span className="owner-growth-step-copy"><small>4 · Допуск</small><strong>Индексация</strong><span>готовы к проверке</span></span>
+              <b>{data.indexabilityReady}</b>
+            </Link>
           </div>
 
-          <div className="owner-card is-info" style={{ marginTop: '10px' }}>
-            <div className="owner-status is-info">Текущий порядок</div>
-            <p className="owner-card-copy">
-              Сначала проверяем ключевые запросы → затем формируем группы запросов → закрепляем основные страницы → только после этого решаем вопрос индексации. Нулевые значения на следующих этапах сейчас являются ожидаемым состоянием, а не ошибкой.
-            </p>
+          <div className="owner-growth-note">
+            Нулевые значения на следующих этапах сейчас нормальны: каждый шаг открывается только после подтверждения предыдущего.
           </div>
         </section>
 
         <section className="owner-section">
           <div className="owner-section-head">
-            <div>
-              <h2>Рабочие области</h2>
-              <div className="owner-section-kicker">Глубокая работа остаётся в существующей админке</div>
+            <div className="owner-section-heading">
+              <span className="owner-section-icon is-work" aria-hidden="true"><Sparkles size={17} strokeWidth={1.7} /></span>
+              <div><h2>Рабочие области</h2><div className="owner-section-kicker">Командный центр объясняет состояние; глубокая операторская работа открывается отдельно</div></div>
             </div>
           </div>
 
