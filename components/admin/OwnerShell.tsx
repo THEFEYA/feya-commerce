@@ -119,7 +119,9 @@ function currentContext(pathname: string) {
     ['/admin/product-facts-review', 'Факты товара'],
     ['/admin/seo-keyword-review', 'Проверка ключей'],
     ['/admin/seo-clusters', 'Группы запросов'],
+    ['/admin/seo-cluster-proposals', 'Предложения групп'],
     ['/admin/seo-portfolio', 'SEO-страницы'],
+    ['/admin/seo-ownership-proposals', 'Ответственность страниц'],
     ['/admin/seo-indexability', 'Индексация'],
     ['/admin/signals', 'Сигналы'],
   ];
