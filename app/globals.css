@@ -1137,6 +1137,16 @@ th {
   padding: 16px;
 }
 
+a.owner-card {
+  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+}
+
+a.owner-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(212,178,106,.28);
+  background: rgba(212,178,106,.04);
+}
+
 .owner-card.is-danger {
   border-color: rgba(255, 107, 107, 0.30);
   background: var(--owner-danger-bg);
@@ -1320,6 +1330,16 @@ th {
   border: 1px solid var(--line);
   border-radius: 11px;
   background: var(--panel);
+}
+
+a.owner-list-row {
+  transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
+}
+
+a.owner-list-row:hover {
+  transform: translateY(-1px);
+  border-color: rgba(212,178,106,.24);
+  background: rgba(212,178,106,.035);
 }
 
 .owner-list-row-main {
