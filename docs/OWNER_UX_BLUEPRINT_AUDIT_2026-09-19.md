@@ -60,10 +60,10 @@ The finish line is not “all possible UI ideas”. The finish line is: the Owne
 | Phase | State | Implemented | Still required before phase is considered done |
 |---|---|---|---|
 | UX-0 Canon & terminology | COMPLETE | six-destination IA; Russian terminology layer; status semantics; Advanced boundary; no-fake-maturity rules | Maintain terminology as new states appear |
-| UX-1 Owner Shell | READY FOR OWNER REVIEW | persistent sidebar/topbar; Today in research order; Work; Signals; Owner Attention; Team FEYA; global search; mobile navigation; compact density; drawer-first Work detail; evidence-first Signal drawer; full Work detail route | visual owner review; validate drawers with first real Growth Case and owner signal; add handoff timeline only when the projection exists |
+| UX-1 Owner Shell | DESKTOP OWNER-APPROVED / MOBILE REVIEW PENDING | persistent sidebar/topbar; Today in research order; Work; Signals; Owner Attention; Team FEYA; global search; mobile navigation; compact density; drawer-first Work detail; evidence-first Signal drawer; full Work detail route; secondary-copy readability floor raised after owner screenshot review | validate mobile owner experience; validate Work handoff timeline only when the canonical projection exists |
 | UX-2 Existing Product OS | FROZEN / APPROVED | existing catalog, Listing Master, review, media and SEO operator screens remain on the approved baseline | no visual rebuild; only non-visual security boundary fixes and a minimal link to Company / AI control |
-| UX-3 Growth Workspace | READY FOR OWNER REVIEW | owner Growth shell; opportunities; historical demand with freshness; keyword review; query clusters; page portfolio; ownership; indexability; saved views on repeated growth queues; technical proposal pages remain contextual/Advanced; honest missing-data states | owner visual review; trend views remain blocked until live datasets exist |
-| UX-4 Results & System | READY FOR OWNER REVIEW | Results shell; evidence-first experiments; maturity-first learnings; real metric maturity; quiet-first System; owner-first system readiness; data health; business truth; action permissions; incidents/technical registries kept behind contextual drill-down or Advanced | owner visual review; measured outcome cards remain blocked until real measurement data exists |
+| UX-3 Growth Workspace | DESKTOP OWNER-APPROVED / DATA-GATED | owner Growth shell; opportunities with context drawer; historical demand with freshness; keyword review; query cluster proposal flow; query clusters; page portfolio; owner-first page ownership proposals; indexability; strategy/initiative gates + initiative drawer; saved views; honest missing-data states | live trend/seasonality views remain blocked until authoritative datasets/history exist |
+| UX-4 Results & System | DESKTOP OWNER-APPROVED / DATA-GATED | Results shell; experiment evidence drawers; owner-facing Change Events history; maturity-first learnings + learning drawer; quiet-first System; data-source health drawers; execution request/receipt flow; owner-first incidents/freeze; action permissions; diagnostics behind contextual drill-down or Advanced | measured business outcome cards remain blocked until real measurement data exists |
 | UX-5 Protected Owner Actions | BLOCKED BY PREREQUISITES | decision screens exist read-only; authority boundaries are explicit | verified owner auth, allowlist, hardened admin reads, audited mutation path, then approve/reject/defer/snooze and controlled fact resolution |
 | UX-6 Operator & Personalization | SAFE V1 PARTIAL | Cmd/Ctrl+K search; keyword/page/product/work/signal discovery; safe navigation shortcuts; sidebar collapse; compact density; local saved views for Work, Signals, CQA, keyword review, fact review, clustering, page portfolio and indexability | pin/hide is deferred until owner review proves a real need; contextual “Спросить FEYA” and prepared writes wait for later operator/action capability |
 | UX-7 Real Analytics | BLOCKED BY DATA | historical Google Keyword Planner demand is shown with source/freshness caveat | production GA4, GSC/Bulk Export, authoritative commerce orders/refunds and sufficient history before KPI movement, revenue/conversion, seasonality or outcome charts |
@@ -131,6 +131,11 @@ Current state:
 - work: DONE
 - signals: DONE
 - safe navigation commands: DONE
+- opportunities: DONE
+- experiments: DONE
+- incidents: DONE
+- execution requests: DONE
+- learning records: DONE
 - natural-language Operator: DEFERRED until UX-6
 
 ### Personalization
@@ -157,14 +162,14 @@ The Company / AI visual program is now bounded by `OWNER_COMPANY_VISUAL_CONTRACT
 | Pass | State | Current implementation |
 |---|---|---|
 | V0 Contract / tokens | DONE | scoped Company palette, typography, geometry, truthfulness and Product OS boundary |
-| V1 Shell + Today | READY FOR OWNER REVIEW | premium Company shell; command brief; research order; no fake KPI wall |
-| V2 Work + Team FEYA | READY FOR OWNER REVIEW | owner waiting; real operational queues; durable work; role cards; role drawers; truthful last-result absence and next step |
-| V3 Signals | READY FOR OWNER REVIEW | compact routing strip; search/filter; evidence-first drawer; owner-decision de-duplication explanation |
-| V4 Growth | READY FOR OWNER REVIEW | sequential query → cluster → ownership → indexability pipeline; historical demand only; live-data limitations explicit |
-| V5 Results + System | READY FOR OWNER REVIEW | evidence-first empty/results state; quiet-first system; issue-first sources; compact permission/execution state |
-| V6 Mobile / accessibility / polish | READY FOR OWNER REVIEW | mobile priority nav; More sheet; focus trapping; Escape/return focus; reduced motion; loading/error states |
+| V1 Shell + Today | DESKTOP APPROVED | premium Company shell; command brief; research order; no fake KPI wall |
+| V2 Work + Team FEYA | DESKTOP APPROVED | owner waiting; real operational queues; durable work; role cards; role drawers; truthful last-result absence and next step |
+| V3 Signals | DESKTOP APPROVED | compact routing strip; search/filter; evidence-first drawer; owner-decision de-duplication explanation |
+| V4 Growth | DESKTOP APPROVED | sequential query → cluster → ownership → indexability; opportunity/initiative drill-down; historical demand only; live-data limitations explicit |
+| V5 Results + System | DESKTOP APPROVED | experiment/change/learning drill-down; quiet-first system; data-source/execution/incident context drawers |
+| V6 Mobile / accessibility / polish | MOBILE REVIEW PENDING | mobile priority nav; More sheet; focus trapping; Escape/return focus; reduced motion; loading/error states; desktop secondary-copy readability corrected |
 
-No further cosmetic pass is planned unless owner review reveals a concrete usability defect.
+Owner reviewed the desktop Company surfaces on 2026-09-20 and approved the visual direction. The only concrete feedback was that some secondary copy was too small; the Company readability floor was raised without changing the compact visual language. No further cosmetic pass is planned unless review reveals a reproducible usability/accessibility defect.
 
 ## Current pre-launch finish line
 
@@ -229,3 +234,26 @@ Current owner drawer pattern:
 - Work, Signal and Role drawers use the same shared behavior.
 
 This satisfies the current keyboard-accessibility requirement for context-first drawers. A full WCAG audit remains outside the current visual finish line but can be run before production launch.
+
+
+## Functional projection expansion — 2026-09-20
+
+A separate completion map now lives at `docs/OWNER_FUNCTIONAL_COVERAGE_2026-09-20.md`.
+
+New owner-facing contextual surfaces added after the initial visual pass:
+
+- opportunity drawer: commercial expiry vs event timing, role, priority and initiative relation;
+- experiment drawer: feasibility, measurement period, contamination and Measurement Spec;
+- incident drawer: impact, mutation freeze and root-cause context;
+- execution drawer: request → approval → executor → receipt, with approval explicitly distinct from execution;
+- data-source drawer: health, freshness, watermark, authority and source-of-truth context;
+- learning drawer: learning maturity, evidence/context counts and policy adoption boundary;
+- content-brief drawer: Product Truth/generation/keyword-plan/Business Truth/SEO ownership readiness;
+- CQA drawer: human review, deterministic validation, similarity, ALT truth, component truth and independent CQA as separate checks;
+- Product Truth review drawer: ambiguity reason, current facts and controlled resolution boundary;
+- initiative drawer: Growth Director gate, Human Owner gate and strategy revalidation;
+- owner-facing Change Events history under Results;
+- global search expanded to opportunities, experiments, incidents, execution and learning;
+- legacy `/admin/owner-attention` now redirects to the single canonical Company Owner Attention projection.
+
+These additions do not enable mutations and do not create synthetic data. They expose already-existing governed state more clearly.
