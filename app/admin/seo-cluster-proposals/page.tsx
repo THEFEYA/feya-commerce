@@ -102,7 +102,8 @@ export default async function AdminClusterProposalsPage() {
   const { candidates, proposals, error } = await getData();
   const ownerActions = getOwnerActionConfigStatus();
   const reviewRows = proposals.filter((row) => row.proposal_status === 'REVIEW');
-  const approved = proposals.filter((row) => row.proposal_status === 'APPROVED').length;
+  const approvedRows = proposals.filter((row) => row.proposal_status === 'APPROVED');
+  const approved = approvedRows.length;
   const applied = proposals.filter((row) => row.proposal_status === 'APPLIED').length;
   const topCandidates = [...candidates]
     .sort((a, b) => Number(b.avg_monthly_searches || 0) - Number(a.avg_monthly_searches || 0))
@@ -193,6 +194,18 @@ export default async function AdminClusterProposalsPage() {
             <div className="owner-empty">Предложений, которые ждут проверки, сейчас нет.</div>
           )}
         </section>
+
+        {approvedRows.length ? (
+          <section className="owner-section">
+            <div className="owner-section-head">
+              <div><h2>Одобрено, но применение пока закрыто</h2><div className="owner-section-kicker">Для новой canonical cluster нужен стабильный cluster_code, который владелец не должен вводить как технический ID</div></div>
+            </div>
+            <div className="owner-card is-warning">
+              <div className="owner-status is-warning">Нужен deterministic code policy</div>
+              <p className="owner-card-copy">Одобрено предложений: {approvedRows.length}. Apply RPC существует, но UI намеренно не просит вас придумывать внутренний cluster_code. Сначала будет зафиксировано безопасное правило генерации кода.</p>
+            </div>
+          </section>
+        ) : null}
 
         <section className="owner-section">
           <div className="owner-section-head">
