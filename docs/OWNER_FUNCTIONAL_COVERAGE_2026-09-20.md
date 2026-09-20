@@ -107,7 +107,7 @@ The following are UX-5, not missing visual polish:
 - apply query cluster proposals;
 - apply page ownership proposals;
 - apply indexability proposals;
-- activate strategy / initiative;
+- Growth Objective activation, Growth Strategy activation and Human Owner initiative approval are PREPARED but locked until auth cutover + FEYA_OWNER_ACTIONS_ENABLED;
 - publish content;
 - change price / canonical;
 - create or approve execution requests from normal browser UI.
@@ -249,3 +249,26 @@ Important boundary:
 **APPROVED is still not APPLIED.** Review only records the Human Owner's evaluation of a proposal. Creating canonical query clusters, page/query ownership or indexability intent remains a separate action with separate guardrails.
 
 Current production queues contain 0 reviewable proposals, so no business state was changed.
+
+
+## 14. Protected strategic owner actions — 2026-09-20
+
+Migration `20260920123743 feya_owner_strategic_action_gateway_v1` prepared the Human Owner strategic action family without activating it.
+
+Prepared actions:
+
+- activate a Growth Objective only from DRAFT / FEASIBILITY_REVIEW / PAUSED and only when feasibility is FEASIBLE or PARTIAL;
+- approve or reject a Growth Initiative only when Human Owner approval is PENDING, Director Gate is APPROVED and strategy revalidation is VALID;
+- activate a DRAFT Growth Strategy with stale-current-version protection; contribution-margin mode remains blocked without trusted variable-cost truth.
+
+All three use:
+
+- the same server-side owner auth/allowlist/action-switch gate;
+- service-role-only strategic wrapper;
+- existing domain-specific guarded RPCs;
+- durable generic Owner Action audit receipts;
+- required human reason;
+- UI preview before write;
+- refetch after success.
+
+Current production state contains 0 draft strategies, 0 activatable objectives and 0 initiatives pending Human Owner approval, so no business state changed during this pass.
