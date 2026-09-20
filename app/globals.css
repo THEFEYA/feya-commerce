@@ -1173,6 +1173,30 @@ a.owner-card:hover {
   line-height: 1.35;
 }
 
+.owner-skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgba(216,214,211,.07);
+}
+
+.owner-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+  animation: owner-skeleton-sweep 1.35s ease-in-out infinite;
+}
+
+@keyframes owner-skeleton-sweep {
+  to { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .owner-skeleton::after { animation: none; }
+}
+
 .owner-error-code {
   display: block;
   max-width: 100%;
