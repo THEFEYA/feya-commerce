@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { BriefcaseBusiness, CircleAlert, Eye, Wrench } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentSignal } from '@/lib/owner-ui/presenters';
@@ -98,21 +99,41 @@ export default async function AdminSignalsPage({ searchParams }: { searchParams:
       <div className="owner-page-inner">
         <header className="owner-page-head">
           <div>
-            <div className="owner-eyebrow">Наблюдение</div>
+            <div className="owner-eyebrow"><span className="owner-eyebrow-mark" aria-hidden="true" />Наблюдение</div>
             <h1>Сигналы</h1>
-            <p>
-              Система показывает понятную бизнес-интерпретацию. Внутренние коды и техническая маршрутизация доступны отдельно.
-            </p>
+            <p>Что существенно изменилось, кому это относится и какой следующий безопасный маршрут предлагает FEYA.</p>
           </div>
           <Link href="/admin/signals" className="owner-button">Технические детали</Link>
         </header>
 
-        <section className="owner-summary-strip" style={{ marginBottom: '24px' }}>
-          <div className="owner-summary-cell"><strong>{rows.length}</strong><span>Всего активных сигналов</span></div>
-          <div className="owner-summary-cell"><strong>{ownerCount}</strong><span>Нужно ваше решение</span></div>
-          <div className="owner-summary-cell"><strong>{workCount}</strong><span>Можно передать в работу</span></div>
-          <div className="owner-summary-cell"><strong>{implementationCount}</strong><span>Требуется изменение системы</span></div>
+        <section className="owner-queue-strip owner-signal-route-strip" aria-label="Маршрутизация сигналов" style={{ marginBottom: '18px' }}>
+          <div className="owner-queue-item is-static">
+            <span className="owner-queue-icon" aria-hidden="true"><Eye size={15} strokeWidth={1.7} /></span>
+            <span className="owner-queue-copy"><strong>Всего сигналов</strong><small>текущие кандидаты</small></span>
+            <b>{rows.length}</b>
+          </div>
+          <Link href="/admin/company/owner-attention" className="owner-queue-item">
+            <span className="owner-queue-icon" aria-hidden="true"><CircleAlert size={15} strokeWidth={1.7} /></span>
+            <span className="owner-queue-copy"><strong>Граница владельца</strong><small>могут группироваться в решения</small></span>
+            <b>{ownerCount}</b>
+          </Link>
+          <a href="?route=WORK_QUEUE" className="owner-queue-item">
+            <span className="owner-queue-icon" aria-hidden="true"><BriefcaseBusiness size={15} strokeWidth={1.7} /></span>
+            <span className="owner-queue-copy"><strong>Передать в работу</strong><small>без решения владельца</small></span>
+            <b>{workCount}</b>
+          </a>
+          <a href="?route=IMPLEMENTATION_ACTION" className="owner-queue-item">
+            <span className="owner-queue-icon" aria-hidden="true"><Wrench size={15} strokeWidth={1.7} /></span>
+            <span className="owner-queue-copy"><strong>Изменить систему</strong><small>требуется реализация</small></span>
+            <b>{implementationCount}</b>
+          </a>
         </section>
+
+        <div className="owner-card is-info owner-signal-dedupe-note" style={{ marginBottom: '14px' }}>
+          <p className="owner-card-copy" style={{ marginTop: 0 }}>
+            Несколько сырых сигналов могут относиться к одному и тому же решению владельца. Поэтому количество сигналов на границе владельца может быть больше, чем число карточек в «Нужно ваше решение».
+          </p>
+        </div>
 
         <form action="/admin/company/signals" className="owner-card" style={{ marginBottom: '14px' }}>
           <div className="grid gap-3 lg:grid-cols-[1fr_260px_180px_auto] lg:items-end">
@@ -152,7 +173,7 @@ export default async function AdminSignalsPage({ searchParams }: { searchParams:
 
         {error ? <OwnerDataError error={error} /> : null}
 
-        <section className="owner-list">
+        <section className="owner-list owner-feed-list">
           {prepared.map(({ row, vm, routing }) => (
             <article className="owner-list-row" key={vm.id}>
               <div className="owner-list-row-main">
