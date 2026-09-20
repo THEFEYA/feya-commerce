@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { dataFreshnessLabel, ownerToneForStatus, scopeLabel, sourceHealthSummary, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
 import { getAdminAuthConfigStatus } from '@/lib/supabaseAuth';
@@ -207,7 +208,7 @@ export default async function AdminSystemPage() {
           <Link href="/admin/company/advanced">Технические детали</Link>
         </nav>
 
-        {error ? <div className="owner-card is-danger"><div className="owner-status is-danger">Ошибка данных</div><p className="owner-card-copy">{error}</p></div> : null}
+        {error ? <OwnerDataError error={error} /> : null}
 
         <section className="owner-section" id="readiness">
           <div className="owner-section-head">
