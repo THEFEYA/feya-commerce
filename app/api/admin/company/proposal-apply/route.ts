@@ -5,7 +5,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 type Input = {
-  proposal_kind?: 'PAGE_OWNERSHIP' | 'INDEXABILITY' | string;
+  proposal_kind?: 'QUERY_CLUSTER' | 'PAGE_OWNERSHIP' | 'INDEXABILITY' | string;
   proposal_id?: string;
   expected_status?: string;
   reason?: string;
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
   const reason = cleanText(input.reason);
   const idempotencyKey = cleanText(input.idempotency_key) || crypto.randomUUID();
 
-  if (!['PAGE_OWNERSHIP', 'INDEXABILITY'].includes(proposalKind)) {
+  if (!['QUERY_CLUSTER', 'PAGE_OWNERSHIP', 'INDEXABILITY'].includes(proposalKind)) {
     return NextResponse.json({ ok: false, code: 'invalid_proposal_kind', error: 'Unsupported proposal apply kind.' }, { status: 400 });
   }
 
@@ -84,9 +84,12 @@ export async function POST(request: NextRequest) {
     {
       ok: true,
       apply: Array.isArray(data) ? data[0] : data,
-      message: proposalKind === 'PAGE_OWNERSHIP'
-        ? 'Каноническая ответственность страницы записана. Индексация этим не менялась.'
-        : 'Решение по индексации применено к SEO Page Portfolio. Публикация контента этим не выполнялась.',
+      message:
+        proposalKind === 'QUERY_CLUSTER'
+          ? 'Каноническая группа запросов создана из одобренного предложения. Ownership страницы этим не назначался.'
+          : proposalKind === 'PAGE_OWNERSHIP'
+            ? 'Каноническая ответственность страницы записана. Индексация этим не менялась.'
+            : 'Решение по индексации применено к SEO Page Portfolio. Публикация контента этим не выполнялась.',
     },
     { headers: { 'Cache-Control': 'private, no-store' } },
   );
