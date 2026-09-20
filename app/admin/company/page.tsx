@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
+import { OwnerSignalDrawerClient } from '@/components/admin/OwnerSignalDrawerClient';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentOwnerAttention, presentSignal, presentWorkItem, formatDueTime, formatRelativeTime } from '@/lib/owner-ui/presenters';
 import { priorityLabel, roleLabel, scopeLabel } from '@/lib/owner-ui/terminology';
@@ -59,7 +60,7 @@ async function getTodayData(): Promise<TodayData> {
       .order('created_at', { ascending: true }),
     supabase
       .from('feya_commerce_v_growth_signal_candidates_safe_v2')
-      .select('signal_fingerprint,signal_code,title,summary,next_action,priority,accountable_domain,signal_state,case_admission_recommendation,materiality_score')
+      .select('signal_fingerprint,signal_code,title,summary,next_action,priority,accountable_domain,signal_state,case_admission_recommendation,materiality_score,evidence_json,generated_at')
       .order('priority', { ascending: true })
       .order('materiality_score', { ascending: false })
       .limit(12),
@@ -164,14 +165,14 @@ export default async function AdminHomePage() {
   const attentionVM = attention.map(presentOwnerAttention);
   const attentionCodes = new Set(attentionVM.map((item) => item.sourceCode).filter(Boolean));
 
-  const signalVM = signals
+  const signalItems = signals
     .filter((row) => {
       const code = String(row.signal_code || '');
       const recommendation = String(row.case_admission_recommendation || '');
       return !attentionCodes.has(code) && recommendation !== 'OWNER_DECISION_REQUIRED' && recommendation !== 'DEFER_UNTIL_ACTIVE_OBJECTIVE';
     })
     .slice(0, 4)
-    .map(presentSignal);
+    .map((row) => ({ row, vm: presentSignal(row) }));
 
   const workVM = work.map(presentWorkItem);
   const blockedScopes = readiness.filter((row) => String(row.scope_status || '').toUpperCase() === 'BLOCKED');
@@ -237,21 +238,27 @@ export default async function AdminHomePage() {
             <Link href="/admin/company/signals" className="owner-button">Все сигналы</Link>
           </div>
 
-          {signalVM.length ? (
+          {signalItems.length ? (
             <div className="owner-list">
-              {signalVM.map((item) => (
-                <article className="owner-list-row" key={item.id}>
+              {signalItems.map(({ row, vm }) => (
+                <article className="owner-list-row" key={vm.id}>
                   <div className="owner-list-row-main">
                     <div className="owner-card-meta">
-                      <span className={`owner-status ${toneClass(item.tone)}`}>{item.priorityLabel}</span>
-                      <span>{item.ownerLabel}</span>
-                      <span>{item.statusLabel}</span>
+                      <span className={`owner-status ${toneClass(vm.tone)}`}>{vm.priorityLabel}</span>
+                      <span>{vm.ownerLabel}</span>
+                      <span>{vm.statusLabel}</span>
                     </div>
-                    <h3>{item.title}</h3>
-                    <p>{item.summary}</p>
+                    <h3>{vm.title}</h3>
+                    <p>{vm.summary}</p>
                   </div>
                   <div className="owner-list-row-side">
-                    <Link href="/admin/company/signals" className="owner-button">Проверить</Link>
+                    <OwnerSignalDrawerClient
+                      vm={vm}
+                      routing="Требует проверки"
+                      recommendation={String(row.case_admission_recommendation || '')}
+                      evidence={(row.evidence_json || {}) as Record<string, unknown>}
+                      generatedAt={row.generated_at ? String(row.generated_at) : null}
+                    />
                   </div>
                 </article>
               ))}
