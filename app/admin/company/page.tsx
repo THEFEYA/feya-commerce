@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
-import { presentOwnerAttention, presentSignal, presentWorkItem, formatRelativeTime } from '@/lib/owner-ui/presenters';
+import { presentOwnerAttention, presentSignal, presentWorkItem, formatDueTime, formatRelativeTime } from '@/lib/owner-ui/presenters';
 import { priorityLabel, roleLabel, scopeLabel } from '@/lib/owner-ui/terminology';
 
 export const dynamic = 'force-dynamic';
@@ -219,6 +219,9 @@ export default async function AdminHomePage() {
                   <h3 className="owner-card-title">{item.title}</h3>
                   <p className="owner-card-copy"><strong>Почему сейчас:</strong> {item.whyNow}</p>
                   <p className="owner-card-copy"><strong>Что нужно:</strong> {item.requiredAction}</p>
+                  <div className="owner-card-meta" style={{ marginTop: '12px', marginBottom: 0 }}>
+                    <span>{item.dueAt ? `Срок: ${formatDueTime(item.dueAt)}` : 'Жёсткого срока нет'}</span>
+                  </div>
                   <div className="owner-actions">
                     <Link href={`/admin/company/owner-attention/${item.id}`} className="owner-button primary">Рассмотреть</Link>
                   </div>
