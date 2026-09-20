@@ -888,3 +888,79 @@ test('restores Batch31 source-confirmed selectors', () => {
     ['Headpiece', 'Skirt', 'Top + Shoulders'],
   );
 });
+
+
+test('restores Batch32 source-confirmed selectors', () => {
+  const silverArmor = {
+    canonical_product_id: '85752f94-b2d7-465e-ace2-40bb77977461',
+    configurations: [
+      { configuration_id: '3c110b4c-789b-4259-84d2-6b9724dc7ca3', sort_order: 1, public_label: 'Arm Pieces', component_code: 'arms', component_family: 'Arms', display_price_amount: 114.05 },
+      { configuration_id: 'c0fcd4b1-e2fe-4823-902e-22abab90e0c7', sort_order: 2, public_label: 'Shoulders', component_code: 'shoulders', component_family: 'Shoulders', display_price_amount: 149.14 },
+      { configuration_id: '0a8924ce-fa3b-48d4-9206-2c5436da4efb', sort_order: 3, public_label: 'Leg Covers', component_code: 'legs', component_family: 'Legs', display_price_amount: 166.76 },
+      { configuration_id: '4c68e492-284e-489c-9107-97abb09d067e', sort_order: 4, public_label: 'Belt', component_code: 'belt', component_family: 'Belt', display_price_amount: 175.46 },
+      { configuration_id: 'e1840e34-e7ea-417d-9f2f-9fefc30bfd34', sort_order: 5, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['arms','shoulders','legs','belt'], bundle_component_labels: ['Arm Pieces','Shoulders','Leg Covers','Belt'], display_price_amount: 435.03 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(silverArmor, { configuration_id: '3c110b4c-789b-4259-84d2-6b9724dc7ca3' }),
+    ['Arm Covers'],
+  );
+
+  const femaleWarrior = {
+    canonical_product_id: 'ec204df6-13b6-4deb-b493-04391501d72d',
+    configurations: [
+      { configuration_id: '8f4d5900-a373-4721-804c-a9741aba9067', sort_order: 1, public_label: 'Choker', component_code: 'choker', component_family: 'Neck', display_price_amount: 57.93 },
+      { configuration_id: '0a628744-de0b-466a-8345-73d96b1aa411', sort_order: 2, public_label: 'Option', needs_label_review: true, display_price_amount: 86.90 },
+      { configuration_id: '38d57f4d-0cb4-4d41-962e-1022aa2d4f75', sort_order: 3, public_label: 'Arm Guards', component_code: 'arms', component_family: 'Arms', display_price_amount: 115.87 },
+      { configuration_id: '970e0500-8f89-4c6b-ac34-b9832bbc6ae7', sort_order: 4, public_label: 'Shoulders', component_code: 'shoulders', component_family: 'Shoulders', display_price_amount: 125.52 },
+      { configuration_id: '776ff6d5-2910-45af-a949-9b2b29dac7cb', sort_order: 5, public_label: 'Belt + Garters', component_code: 'bundle', component_family: 'Bundle', is_bundle: true, bundle_component_codes: ['belt','legs'], display_price_amount: 115.87 },
+      { configuration_id: '791c60df-1bdf-44ef-b851-70da0b483f34', sort_order: 6, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['choker','arms','shoulders','belt','legs'], display_price_amount: 319.18 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(femaleWarrior, { configuration_id: '791c60df-1bdf-44ef-b851-70da0b483f34' }),
+    ['Choker', 'Bra', 'Arm Guards', 'Shoulders', 'Belt + Garters'],
+  );
+
+  const catCostume = {
+    canonical_product_id: 'c7b07eb1-d003-471b-a3f9-40b1c98edc19',
+    configurations: [
+      { configuration_id: 'aee72315-b8b1-42ca-8886-e231bc85008c', sort_order: 1, public_label: 'Bracelet', component_code: 'arms', component_family: 'Arms', display_price_amount: 77.24 },
+      { configuration_id: '9b311634-c1fb-4219-8de4-cc9cf343b683', sort_order: 2, public_label: 'Mask', component_code: 'mask', component_family: 'Headpiece', display_price_amount: 96.55 },
+      { configuration_id: 'd721e11e-2a8c-4b14-9911-db477659b69b', sort_order: 3, public_label: 'Option', needs_label_review: true, display_price_amount: 144.83 },
+      { configuration_id: '0d4d3fd4-96c2-4a97-86c1-21238c723c0f', sort_order: 4, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['arms','mask'], display_price_amount: 223.43 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(catCostume, { configuration_id: '0d4d3fd4-96c2-4a97-86c1-21238c723c0f' }),
+    ['Bracelets', 'Cat Mask', 'Metallic Top'],
+  );
+
+  const corsetSkirt = {
+    canonical_product_id: 'fba170e8-582d-45fa-b954-f9136e733950',
+    configurations: [
+      { configuration_id: '59389c1f-eac0-417a-b795-32c64999d4ea', sort_order: 1, public_label: 'Option', needs_label_review: true, display_price_amount: 82.07 },
+      { configuration_id: 'b2c4dde9-1dff-471a-b4fd-8c7584e597dd', sort_order: 2, public_label: 'Corset', component_code: 'corset', component_family: 'Top', display_price_amount: 159.31 },
+      { configuration_id: '8055183e-7d31-4ff2-8526-5de87920c9c4', sort_order: 3, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['corset'], display_price_amount: 175.55 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(corsetSkirt, { configuration_id: '8055183e-7d31-4ff2-8526-5de87920c9c4' }),
+    ['Necklace', 'Corset + Skirt'],
+  );
+
+  const goldArms = {
+    canonical_product_id: '0395cb11-424f-407f-a849-7ee3b617ab57',
+    configurations: [
+      { configuration_id: '725e27b2-5598-4802-b7e0-abcc568212c6', sort_order: 1, public_label: 'Choker', component_code: 'choker', component_family: 'Neck', display_price_amount: 78.96 },
+      { configuration_id: 'f5cf58e2-1faf-47a9-8e01-94dedf29f96e', sort_order: 2, public_label: 'Arm Guards', component_code: 'arms', component_family: 'Arms', display_price_amount: 105.28 },
+      { configuration_id: '437e08e1-7d01-4b39-9c8e-98f7fc2349d5', sort_order: 3, public_label: 'Shoulders', component_code: 'shoulders', component_family: 'Shoulders', display_price_amount: 122.82 },
+      { configuration_id: '3dfe2387-06f1-479c-9750-f2cd5946b27c', sort_order: 4, public_label: 'Arm Pieces', component_code: 'arms', component_family: 'Arms', display_price_amount: 144.76 },
+      { configuration_id: '92c052c7-85a6-47db-a4b8-f4e651990122', sort_order: 5, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['choker','arms','shoulders'], display_price_amount: 308.15 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(goldArms, { configuration_id: '92c052c7-85a6-47db-a4b8-f4e651990122' }),
+    ['Choker', 'Forearm Bracers', 'Shoulders', 'Bicep Armor'],
+  );
+});
