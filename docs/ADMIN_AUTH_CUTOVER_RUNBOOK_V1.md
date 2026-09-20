@@ -23,6 +23,7 @@ All must be true before cutover:
 7. npm run check:admin-boundary passes.
 8. The registered Admin Data Boundary view list is complete.
 9. Backup/rollback reference exists.
+10. FEYA_OWNER_ACTIONS_ENABLED remains false during auth cutover and Admin Data Boundary hardening.
 
 ## Current safety state
 
@@ -143,6 +144,12 @@ Review Supabase Auth leaked-password protection.
 
 Authentication is necessary but not sufficient.
 
+The Company UI now has a separate circuit breaker:
+
+FEYA_OWNER_ACTIONS_ENABLED=false
+
+Keep it false through Steps A–G. After auth, allowlist, protected reads and security regression checks pass, enable it first in preview and test only the explicitly prepared owner action.
+
 Before each owner mutation is enabled:
 
 1. define exact canonical write target;
@@ -152,6 +159,16 @@ Before each owner mutation is enabled:
 5. define rollback/reversal semantics where applicable;
 6. verify action-specific permission;
 7. add scenario/regression coverage.
+
+The first prepared UX-5 action is Owner Attention decision recording:
+- browser route: /api/admin/company/owner-attention/decision;
+- server RPC: feya_fn_transition_owner_attention_v1;
+- allowed transitions: OPEN → ACKNOWLEDGED / RESOLVED / CANCELLED, ACKNOWLEDGED → RESOLVED / CANCELLED;
+- expected-status guard blocks stale decisions;
+- terminal decisions require a human reason;
+- actor comes from the authenticated allowlisted owner session;
+- every change creates feya_growth_owner_attention_events_v1;
+- the action does **not** execute the underlying business change.
 
 Never expose direct browser table mutation merely because the owner is authenticated.
 
@@ -182,5 +199,6 @@ The cutover is complete only when:
 - Company Control works for the owner;
 - registered admin views are server-only;
 - public storefront still works;
-- no owner write action bypasses audited execution;
+- no owner write action bypasses authenticated server-side authority and durable audit;
+- FEYA_OWNER_ACTIONS_ENABLED is enabled only after the read boundary is verified;
 - security regression checks pass.
