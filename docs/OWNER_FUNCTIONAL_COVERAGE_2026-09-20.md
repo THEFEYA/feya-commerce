@@ -101,7 +101,8 @@ A backend table/view/registry does **not** automatically require its own screen.
 The following are UX-5, not missing visual polish:
 
 - Owner Attention decision recording is PREPARED but remains locked until auth cutover + FEYA_OWNER_ACTIONS_ENABLED;
-- resolve Product Truth facts;
+- Human keyword cleanup review is PREPARED but locked;
+- resolve Product Truth facts remains blocked because no canonical resolution write primitive exists yet;
 - review query-cluster proposals is PREPARED but locked; canonical apply remains disabled;
 - review page-ownership proposals is PREPARED but locked; canonical apply remains disabled;
 - review indexability proposals is PREPARED but locked; canonical apply remains disabled;
@@ -311,3 +312,24 @@ Approval:
 - does **not** create an Execution Receipt.
 
 Current approval-required request count is 0, so no execution state changed.
+
+
+## 17. Protected Human keyword review — 2026-09-20
+
+Migration `20260920125450 feya_owner_keyword_review_gateway_v1` prepared the high-volume Human keyword cleanup review queue for UX-5.
+
+The protected drawer supports:
+- approve with an explicit approved keyword;
+- reject;
+- keep as needs_review;
+- required human reason;
+- independent AI recommendation shown as evidence, not authority.
+
+Server path:
+- validates authenticated allowlisted Human Owner;
+- requires current review status pending/needs_review;
+- delegates to the existing keyword-cleanup human review RPC;
+- preserves the existing keyword review event;
+- additionally writes generic Owner Action audit.
+
+Current reviewable keyword rows: 431. No row was changed because owner actions remain locked.
