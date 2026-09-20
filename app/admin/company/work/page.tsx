@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Bot, CheckCircle2, CircleAlert, Clock3, Layers3, PauseCircle, PlayCircle, ShieldCheck, Workflow } from 'lucide-react';
+import { ArrowRight, Bot, CircleAlert, Eye, Layers3, ShieldCheck, Workflow } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentOwnerAttention, presentRole, presentWorkItem, formatRelativeTime } from '@/lib/owner-ui/presenters';
@@ -294,23 +294,23 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
             </div>
             <div className="owner-work-lifecycle-items">
               <a href="#work-list" className={lifecycle.running ? 'is-live' : ''}>
-                <span className="owner-work-lifecycle-icon"><PlayCircle size={14} strokeWidth={1.8} /></span>
+                <span className="owner-work-lifecycle-icon"><Workflow size={14} strokeWidth={1.8} /></span>
                 <span><strong>{lifecycle.running}</strong><small>в работе</small></span>
               </a>
               <a href="#work-list" className={lifecycle.queued ? 'is-queued' : ''}>
-                <span className="owner-work-lifecycle-icon"><Clock3 size={14} strokeWidth={1.8} /></span>
+                <span className="owner-work-lifecycle-icon"><Layers3 size={14} strokeWidth={1.8} /></span>
                 <span><strong>{lifecycle.queued}</strong><small>в очереди</small></span>
               </a>
               <a href="#work-list" className={lifecycle.waiting || lifecycle.blocked ? 'is-waiting' : ''}>
-                <span className="owner-work-lifecycle-icon"><PauseCircle size={14} strokeWidth={1.8} /></span>
+                <span className="owner-work-lifecycle-icon"><CircleAlert size={14} strokeWidth={1.8} /></span>
                 <span><strong>{lifecycle.waiting + lifecycle.blocked}</strong><small>ждут / блокированы</small></span>
               </a>
               <a href="#work-list" className={lifecycle.measuring ? 'is-measuring' : ''}>
-                <span className="owner-work-lifecycle-icon"><Workflow size={14} strokeWidth={1.8} /></span>
+                <span className="owner-work-lifecycle-icon"><Eye size={14} strokeWidth={1.8} /></span>
                 <span><strong>{lifecycle.measuring}</strong><small>измеряются</small></span>
               </a>
               <a href="#work-list" className={lifecycle.completed ? 'is-done' : ''}>
-                <span className="owner-work-lifecycle-icon"><CheckCircle2 size={14} strokeWidth={1.8} /></span>
+                <span className="owner-work-lifecycle-icon"><ShieldCheck size={14} strokeWidth={1.8} /></span>
                 <span><strong>{lifecycle.completed}</strong><small>завершены</small></span>
               </a>
             </div>
