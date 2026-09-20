@@ -34,6 +34,7 @@ function ownerArea(pathname: string) {
   if (pathname === '/admin/company') return 'today';
   if (
     pathname.startsWith('/admin/company/work') ||
+    pathname.startsWith('/admin/roles') ||
     pathname.startsWith('/admin/company/owner-attention') ||
     pathname.startsWith('/admin/owner-attention') ||
     pathname.startsWith('/admin/content-qa') ||
@@ -85,7 +86,6 @@ function ownerArea(pathname: string) {
     pathname.startsWith('/admin/execution-map') ||
     pathname.startsWith('/admin/executions') ||
     pathname.startsWith('/admin/incidents') ||
-    pathname.startsWith('/admin/roles') ||
     pathname.startsWith('/admin/scenario-tests') ||
     pathname.startsWith('/admin/metrics') ||
     pathname.startsWith('/admin/business-truth') ||
@@ -281,10 +281,10 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
             <SlidersHorizontal size={13} strokeWidth={1.8} aria-hidden="true" />
             <span>{compactDensity ? 'Обычный вид' : 'Компактно'}</span>
           </button>
-          <div className="owner-topbar-status">
+          <Link href="/admin/company/system" className="owner-topbar-status" title="Открыть состояние системы">
             <span className="owner-status-dot" aria-hidden="true" />
-            <span>Подготовка к запуску</span>
-          </div>
+            <span>Состояние системы</span>
+          </Link>
         </header>
 
         <div className="owner-main">{children}</div>
