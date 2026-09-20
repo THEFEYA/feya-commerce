@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
+import { OwnerDataSourceDrawerClient } from '@/components/admin/OwnerDataSourceDrawerClient';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { DataSourceHealthRow } from '@/lib/types';
 import { dataFreshnessLabel, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
@@ -133,6 +134,7 @@ export default async function AdminDataHealthPage() {
                     <div className="owner-list-row-side">
                       <span className="owner-section-kicker">данные: {dateTimeLabel(row.watermark_at)}</span>
                       <span className="owner-section-kicker">проверено: {dateTimeLabel(row.checked_at)}</span>
+                      <OwnerDataSourceDrawerClient row={row} />
                     </div>
                   </article>
                 );
@@ -162,6 +164,7 @@ export default async function AdminDataHealthPage() {
                     </div>
                     <h3 className="owner-card-title">{sourceLabel(row.source_code)}</h3>
                     <p className="owner-card-copy">Последние данные: {dateTimeLabel(row.watermark_at)} · проверено: {dateTimeLabel(row.checked_at)}</p>
+                    <div className="owner-actions"><OwnerDataSourceDrawerClient row={row} /></div>
                   </article>
                 ))}
               </div>
