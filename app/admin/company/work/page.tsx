@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Bot, BriefcaseBusiness, CircleAlert, Layers3, Workflow } from 'lucide-react';
+import { ArrowRight, Bot, CircleAlert, Layers3, ShieldCheck, Workflow } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentOwnerAttention, presentRole, presentWorkItem, formatRelativeTime } from '@/lib/owner-ui/presenters';
@@ -462,55 +462,62 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
         </section>
 
         <section className="owner-section" id="team">
-          <details className="owner-disclosure owner-disclosure-section">
-            <summary>
-              <span>
-                <strong><span className="owner-inline-heading-icon" aria-hidden="true"><Bot size={15} strokeWidth={1.7} /></span>Команда FEYA</strong>
-                <small>Логические бизнес-роли, реальная готовность и текущая работа</small>
-              </span>
-              <span className="owner-section-kicker">{roleVM.length} ролей</span>
-            </summary>
-
-            <div className="owner-disclosure-body">
-              <div className="owner-section-head">
-                <div>
-                  <div className="owner-section-kicker">Показываем только фактическое рабочее состояние, ограничения и текущую работу. Это не восемь постоянно работающих ботов.</div>
-                </div>
-                <Link href="/admin/roles" className="owner-button">Открыть команду</Link>
-              </div>
-
-              <div className="owner-team-grid">
-                {roleVM.map((role) => {
-                  const raw = roleRows.get(role.code) || {};
-                  const workStats = roleWork.get(role.code) || { active: 0, queued: 0, waiting: 0, latestTitle: null, latestAt: null };
-                  return (
-                    <article className={`owner-card owner-team-card ${toneClass(role.tone)}`} key={role.code}>
-                      <div className="owner-card-meta">
-                        <span className={`owner-status ${toneClass(role.tone)}`}>{role.statusLabel}</span>
-                        <span>{workStats.active ? `в работе: ${workStats.active}` : 'активных задач нет'}</span>
-                      </div>
-                      <h3>{role.name}</h3>
-                      <p className="owner-card-copy">{role.summary}</p>
-                      <p className="owner-role-note"><strong>Режим:</strong> {role.autonomyLabel}.</p>
-                      <p className="owner-role-note">
-                        Возможности: {role.availableCapabilityCount} из {role.requiredCapabilityCount} полностью готовы.
-                        {role.blockedCapabilityCount > 0 ? ` Блокеров: ${role.blockedCapabilityCount}.` : ' Критичных блокировок роли нет.'}
-                      </p>
-                      <div className="owner-actions">
-                        <OwnerRoleDrawerClient
-                          role={role}
-                          work={workStats}
-                          allowedActionCount={Number(raw.allowed_action_count || 0)}
-                          activationReason={raw.activation_reason ? String(raw.activation_reason) : null}
-                          updatedAt={raw.updated_at ? String(raw.updated_at) : null}
-                        />
-                      </div>
-                    </article>
-                  );
-                })}
+          <div className="owner-section-head">
+            <div className="owner-section-heading">
+              <span className="owner-section-icon is-team" aria-hidden="true"><Bot size={17} strokeWidth={1.7} /></span>
+              <div>
+                <h2>Команда FEYA</h2>
+                <div className="owner-section-kicker">Кто за что отвечает, в каком режиме работает и чего реально ждёт</div>
               </div>
             </div>
-          </details>
+            <Link href="/admin/roles" className="owner-button owner-button-arrow">Вся команда <ArrowRight size={13} strokeWidth={1.8} aria-hidden="true" /></Link>
+          </div>
+
+          <div className="owner-team-roster" aria-label="Состояние команды FEYA">
+            {roleVM.map((role) => {
+              const raw = roleRows.get(role.code) || {};
+              const workStats = roleWork.get(role.code) || { active: 0, queued: 0, waiting: 0, latestTitle: null, latestAt: null };
+              const hasLimits = role.blockedCapabilityCount > 0;
+              return (
+                <article className={`owner-team-roster-row ${toneClass(role.tone)}`} key={role.code}>
+                  <div className="owner-team-roster-status" aria-hidden="true">
+                    <span />
+                  </div>
+                  <div className="owner-team-roster-main">
+                    <div className="owner-team-roster-title">
+                      <h3>{role.name}</h3>
+                      <span className={`owner-status ${toneClass(role.tone)}`}>{role.statusLabel}</span>
+                    </div>
+                    <p>{role.summary}</p>
+                  </div>
+                  <div className="owner-team-roster-now">
+                    <span>Сейчас</span>
+                    <strong>{workStats.active ? `${workStats.active} в работе` : role.status === 'SHADOW' ? 'наблюдает' : 'ожидает задачу'}</strong>
+                    <small>{workStats.waiting ? `${workStats.waiting} ждёт / заблокировано` : workStats.latestTitle || 'активных блокировок работы нет'}</small>
+                  </div>
+                  <div className="owner-team-roster-cap">
+                    <span>Готовность</span>
+                    <strong>{role.availableCapabilityCount}/{role.requiredCapabilityCount}</strong>
+                    <small>{hasLimits ? `${role.blockedCapabilityCount} ограничений` : role.autonomyLabel}</small>
+                  </div>
+                  <div className="owner-team-roster-action">
+                    <OwnerRoleDrawerClient
+                      role={role}
+                      work={workStats}
+                      allowedActionCount={Number(raw.allowed_action_count || 0)}
+                      activationReason={raw.activation_reason ? String(raw.activation_reason) : null}
+                      updatedAt={raw.updated_at ? String(raw.updated_at) : null}
+                    />
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+
+          <div className="owner-team-note">
+            <ShieldCheck size={14} strokeWidth={1.7} aria-hidden="true" />
+            <span>Роль существует как ответственность, а не как отдельный постоянно работающий бот. FEYA не изображает занятость, которой нет.</span>
+          </div>
         </section>
       </div>
     </main>
