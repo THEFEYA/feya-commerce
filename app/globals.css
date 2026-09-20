@@ -2550,6 +2550,71 @@ a.owner-list-row:hover {
   background: rgba(115,217,159,.04);
 }
 
+.owner-shell .owner-inline-heading-icon {
+  width: 24px;
+  height: 24px;
+  display: inline-grid;
+  place-items: center;
+  margin-right: 7px;
+  border: 1px solid var(--company-line);
+  border-radius: 7px;
+  color: var(--company-gold-soft);
+  background: rgba(212,178,106,.045);
+  vertical-align: middle;
+}
+
+.owner-shell .owner-work-brief {
+  margin-top: 2px;
+}
+
+.owner-shell .owner-team-card {
+  min-height: 205px;
+  padding-left: 18px;
+  border-color: var(--company-line);
+  background:
+    radial-gradient(260px 140px at 100% 0%, rgba(91,110,157,.045), transparent 74%),
+    linear-gradient(180deg, rgba(255,255,255,.024), rgba(255,255,255,.012));
+}
+
+.owner-shell .owner-team-card::after {
+  inset: 14px auto 14px 0;
+  border-radius: 2px;
+}
+
+.owner-shell .owner-team-card h3 {
+  color: var(--company-bone);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.owner-shell .owner-team-card .owner-role-note {
+  color: rgba(238,233,223,.43);
+  font-size: 11px;
+}
+
+.owner-shell .owner-signal-route-strip .owner-queue-icon {
+  color: #9bb3df;
+}
+
+.owner-shell .owner-signal-route-strip .owner-queue-item:nth-child(2) .owner-queue-icon {
+  color: var(--company-gold-soft);
+  background: rgba(212,178,106,.055);
+}
+
+.owner-shell .owner-queue-item.is-static {
+  cursor: default;
+}
+
+.owner-shell .owner-queue-item.is-static:hover {
+  background: transparent;
+}
+
+.owner-shell .owner-signal-dedupe-note {
+  padding: 11px 13px;
+  box-shadow: none;
+}
+
+
 .owner-shell .owner-section h2 {
   font-size: 20px;
   font-weight: 540;
