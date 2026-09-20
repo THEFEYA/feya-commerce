@@ -231,8 +231,6 @@ export default async function AdminContentQaPage({ searchParams }: { searchParam
               ))}
             </tbody>
           </table>
-        </div>
-
           </div>
         </section>
 
