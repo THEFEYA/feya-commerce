@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import type { GrowthObjectiveEventRow, GrowthObjectiveRow } from '@/lib/types';
 import { useOwnerDrawerA11y } from '@/components/admin/useOwnerDrawerA11y';
+import { OwnerStrategicActionClient } from '@/components/admin/OwnerStrategicActionClient';
 import { roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
 
 function asText(value: unknown, fallback = '—') {
@@ -57,13 +58,30 @@ function eventLabel(value: unknown) {
   return labels[key] || statusLabel(value);
 }
 
-export function OwnerObjectiveDrawerClient({ row, events = [] }: { row: GrowthObjectiveRow; events?: GrowthObjectiveEventRow[] }) {
+export function OwnerObjectiveDrawerClient({
+  row,
+  events = [],
+  actionEnabled = false,
+  actionBlockers = [],
+  showOwnerAction = false,
+}: {
+  row: GrowthObjectiveRow;
+  events?: GrowthObjectiveEventRow[];
+  actionEnabled?: boolean;
+  actionBlockers?: string[];
+  showOwnerAction?: boolean;
+}) {
   const [open,setOpen]=useState(false);
   const triggerRef=useRef<HTMLButtonElement|null>(null);
   const closeRef=useRef<HTMLButtonElement|null>(null);
   const dialogRef=useRef<HTMLElement|null>(null);
   const close=useCallback(()=>setOpen(false),[]);
   useOwnerDrawerA11y({open,dialogRef,triggerRef,initialFocusRef:closeRef,close});
+  const objectiveStatus = String(row.objective_status || '').toUpperCase();
+  const feasibility = String(row.feasibility_status || '').toUpperCase();
+  const activationEligible =
+    ['DRAFT', 'FEASIBILITY_REVIEW', 'PAUSED'].includes(objectiveStatus) &&
+    ['FEASIBLE', 'PARTIAL'].includes(feasibility);
 
   return <>
     <button ref={triggerRef} type="button" className="owner-button" onClick={()=>setOpen(true)}>Подробнее</button>
@@ -107,6 +125,24 @@ export function OwnerObjectiveDrawerClient({ row, events = [] }: { row: GrowthOb
               <div><span>Создана</span><strong>{dateTimeLabel(row.created_at)}</strong></div>
             </div>
           </section>
+
+          {showOwnerAction && activationEligible ? (
+            <OwnerStrategicActionClient
+              actionCode="ACTIVATE_GROWTH_OBJECTIVE"
+              entityId={row.objective_id}
+              expectedState={objectiveStatus}
+              title={asText(row.title, 'Цель роста')}
+              enabled={actionEnabled}
+              blockers={actionBlockers}
+            />
+          ) : null}
+
+          {showOwnerAction && ['DRAFT', 'FEASIBILITY_REVIEW', 'PAUSED'].includes(objectiveStatus) && !activationEligible ? (
+            <section className="owner-card is-warning">
+              <div className="owner-status is-warning">Активация пока недопустима</div>
+              <p className="owner-card-copy">Сначала реализуемость цели должна быть FEASIBLE или PARTIAL. Текущее состояние: {statusLabel(row.feasibility_status)}.</p>
+            </section>
+          ) : null}
 
           <section className="owner-card">
             <div className="owner-section-kicker">История цели</div>
