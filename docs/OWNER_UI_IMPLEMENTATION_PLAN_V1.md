@@ -1034,3 +1034,29 @@ Additional owner-first cleanup after the visual interaction pass:
 - owner-facing capability, metric, signal-routing, action-permission and readiness explanations are Russian;
 - literal keywords, product text and source data remain unchanged where translation would corrupt the data;
 - raw codes are generally available only via title/technical detail disclosures.
+
+
+## 18. Canonical visual scope correction — 2026-09-20
+
+This section supersedes any earlier presentation decision that wrapped the existing Product OS inside the Owner Shell.
+
+Owner-approved boundary:
+
+- **Product OS / Commerce Admin remains visually frozen** on the approved working baseline.
+- **Company / AI Team / Growth OS** is the only area being redesigned with Owner-First research.
+- Existing Product OS routes keep their original navigation, cards, typography, workflow and page structure.
+- Public storefront, product cards and product page design are outside the agent UX program.
+- Product OS receives only a minimal navigation entry to **Компания и ИИ-команда**.
+- Company Control may link back to Product OS, but must not duplicate or restyle Product OS tools.
+- Security/read-boundary changes are allowed only when they do not alter visible Product OS behavior.
+
+Owner-first modern shell applies to:
+- `/admin/company/**`;
+- Team FEYA / roles;
+- signals and Owner Attention;
+- Growth work / Growth Cases;
+- Results / experiments / learning;
+- System readiness / data health / capabilities / execution;
+- Advanced diagnostics for the new Growth OS.
+
+This is now the canonical visual scope.
