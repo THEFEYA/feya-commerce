@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import {
+  ArrowUpRight,
   BarChart3,
   Bot,
   BriefcaseBusiness,
@@ -199,8 +200,8 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
       <aside className="owner-sidebar" aria-label="Основная навигация">
         <Link href="/admin/company" className="owner-brand" title="Центр управления FEYA">
           <span className="owner-brand-name">FEYA</span>
-          <span className="owner-brand-title">Центр управления</span>
-          <span className="owner-brand-subtitle">Сигналы · работа · рост · ИИ-команда</span>
+          <span className="owner-brand-title">Командный центр</span>
+          <span className="owner-brand-subtitle">Growth OS · сотрудники и решения</span>
         </Link>
 
         <button
@@ -227,7 +228,11 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
                 title={item.label}
               >
                 <span className="owner-nav-mark" aria-hidden="true"><Icon size={14} strokeWidth={1.8} /></span>
-                <span>{item.label}</span>
+                <span className="owner-nav-copy">
+                  <span>{item.label}</span>
+                  {item.key === 'products' ? <small>Product OS</small> : null}
+                </span>
+                {item.key === 'products' ? <ArrowUpRight className="owner-nav-bridge" size={12} strokeWidth={1.7} aria-hidden="true" /> : null}
               </Link>
             );
           })}
@@ -260,7 +265,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
           <div className="owner-topbar-mobile-brand">FEYA</div>
           <Link href="/admin/company/search" className="owner-search-trigger" aria-label="Открыть поиск">
             <Search size={14} strokeWidth={1.8} aria-hidden="true" />
-            <span>Найти товар, страницу, задачу или сигнал</span>
+            <span>Найти задачу, сигнал, страницу или товар</span>
             <kbd>⌘ K</kbd>
           </Link>
           <div className="owner-topbar-context" title="Текущий раздел">
@@ -278,7 +283,7 @@ export default function OwnerShell({ children }: { children: ReactNode }) {
           </button>
           <div className="owner-topbar-status">
             <span className="owner-status-dot" aria-hidden="true" />
-            <span>Внутренний режим</span>
+            <span>Подготовка к запуску</span>
           </div>
         </header>
 
