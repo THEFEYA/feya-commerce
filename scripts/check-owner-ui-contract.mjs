@@ -94,6 +94,7 @@ if (!failures.length) {
 
   const today = text('app/admin/company/page.tsx');
   const work = text('app/admin/company/work/page.tsx');
+  const growth = text('app/admin/company/growth/page.tsx');
   const signals = text('app/admin/company/signals/page.tsx');
   const visualContract = text('docs/OWNER_COMPANY_VISUAL_CONTRACT_V1.md');
 
