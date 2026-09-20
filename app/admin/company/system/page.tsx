@@ -4,6 +4,7 @@ import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { dataFreshnessLabel, ownerToneForStatus, scopeLabel, sourceHealthSummary, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
 import { getAdminAuthConfigStatus } from '@/lib/supabaseAuth';
+import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
 import { getSupabaseServiceRoleClient } from '@/lib/supabaseAdmin';
 
 export const dynamic = 'force-dynamic';
@@ -180,6 +181,7 @@ function sourceTimestamp(value: unknown) {
 export default async function AdminSystemPage() {
   const { readiness, sources, actions, executionRequests, activeIncidents, mutationFreezes, adminBoundary, aiUsage, error } = await getSystemData();
   const ownerAuth = getAdminAuthConfigStatus();
+  const ownerActions = getOwnerActionConfigStatus();
   const blockedReadiness = readiness.filter((row) => String(row.scope_status || '').toUpperCase() !== 'PASS');
   const healthyReadiness = readiness.filter((row) => String(row.scope_status || '').toUpperCase() === 'PASS');
   const sourceIssues = [...sources]
@@ -370,16 +372,37 @@ export default async function AdminSystemPage() {
           ) : null}
 
           <div className="owner-grid two" style={{ marginTop: '10px' }}>
-            <article className={`owner-card ${ownerAuth.required && ownerAuth.allowlistConfigured && ownerAuth.supabaseUrlConfigured && ownerAuth.publicKeyConfigured ? 'is-success' : 'is-warning'}`}>
-              <div className={`owner-status ${ownerAuth.required && ownerAuth.allowlistConfigured && ownerAuth.supabaseUrlConfigured && ownerAuth.publicKeyConfigured ? 'is-success' : 'is-warning'}`}>
-                {ownerAuth.required && ownerAuth.allowlistConfigured && ownerAuth.supabaseUrlConfigured && ownerAuth.publicKeyConfigured ? 'Защищённый вход настроен' : 'Защищённый вход ещё не готов'}
+            <article className={`owner-card ${ownerActions.ready ? 'is-success' : 'is-warning'}`}>
+              <div className={`owner-status ${ownerActions.ready ? 'is-success' : 'is-warning'}`}>
+                {ownerActions.ready ? 'Protected owner actions готовы' : 'Protected owner actions заблокированы'}
               </div>
               <h3 className="owner-card-title" style={{ marginTop: '10px' }}>Действия владельца</h3>
               <p className="owner-card-copy">
-                {ownerAuth.required && ownerAuth.allowlistConfigured && ownerAuth.supabaseUrlConfigured && ownerAuth.publicKeyConfigured
-                  ? 'Защитный слой входа требует подтверждённую сессию и разрешённый аккаунт. Реальные действия всё равно должны проходить через отдельный аудитируемый путь.'
-                  : `Обязательный вход: ${ownerAuth.required ? 'включён' : 'ещё не включён'} · список разрешённых аккаунтов: ${ownerAuth.allowlistConfigured ? 'настроен' : 'не настроен'} · системные настройки авторизации: ${ownerAuth.supabaseUrlConfigured && ownerAuth.publicKeyConfigured ? 'готовы' : 'неполные'}. Пока любой из этих пунктов не закрыт, реальные действия владельца остаются недоступными.`}
+                {ownerActions.ready
+                  ? 'Включены обязательная авторизация, allowlist, защищённый серверный исполнитель и отдельный switch owner actions. Каждое действие всё равно проходит собственные проверки и аудит.'
+                  : 'UI и серверный путь действий уже подготовлены, но состояние остаётся read-only до закрытия всех security-gates.'}
               </p>
+              {!ownerActions.ready ? (
+                <div className="owner-action-readiness">
+                  <span className={ownerAuth.required ? 'is-done' : ''}>Обязательный вход</span>
+                  <span className={ownerAuth.allowlistConfigured ? 'is-done' : ''}>Allowlist владельца</span>
+                  <span className={ownerActions.serviceRoleConfigured ? 'is-done' : ''}>Server executor</span>
+                  <span className={ownerActions.actionSwitchEnabled ? 'is-done' : ''}>Owner actions switch</span>
+                </div>
+              ) : null}
+              {ownerActions.blockers.length ? (
+                <details className="owner-disclosure owner-disclosure-section" style={{ marginTop: '12px' }}>
+                  <summary>
+                    <span><strong>Что ещё закрыть</strong><small>Без этого кнопки записи не активируются</small></span>
+                    <span className="owner-section-kicker">{ownerActions.blockers.length}</span>
+                  </summary>
+                  <div className="owner-disclosure-body">
+                    <ul className="owner-action-blockers">
+                      {ownerActions.blockers.map((item) => <li key={item}>{item}</li>)}
+                    </ul>
+                  </div>
+                </details>
+              ) : null}
             </article>
 
             <article className={`owner-card ${actions.available ? 'is-success' : 'is-warning'}`}>
