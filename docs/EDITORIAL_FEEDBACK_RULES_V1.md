@@ -132,5 +132,24 @@ Vary sentence mechanics naturally: a finish may `establish` the character, detai
 
 The post-generation editorial pass must check lexical repetition inside each block and across adjacent sentences, especially in `Why you'll love it`.
 
+
+## R30. Benefits must be product-specific, human and non-formulaic
+Owner clarification, 2026-09-20: a technically correct benefit can still fail if it reads like generic AI copy. Do not let every product fall into the same benefit template such as `finish creates character / material keeps shape / handmade construction adds originality`. Those ideas may be true, but repeating them across products makes the copy feel synthetic and weak.
+
+For every product, identify at least two benefits that are specific to that exact design, construction, configuration, fit or intended use. Prefer concrete buyer value such as:
+- adjustable construction → easier fit tuning across real body differences;
+- grouped costume pieces → a complete finished look with fewer styling decisions;
+- repeated motif or distinctive headpiece → stronger character identity;
+- lightweight/flexible construction → easier long-wear comfort;
+- shape-retaining parts → the costume keeps its intended form through repeated use;
+- modular real sellable options → easier reuse of purchased pieces across multiple looks;
+- detailed handmade finishing → closer inspection still feels intentional and crafted.
+
+Do not invent choreography, camera framing or use cases merely to make a sentence sound specific. Specificity must come from Product Truth, current sellable options, owner-selected axes or visually confirmed design facts.
+
+In `Why you'll love it`, no more than one bullet should be a generic material/shape-retention benefit unless the product genuinely depends on that construction. The remaining bullets should answer different buyer questions: what makes this design distinctive, what makes it easier or more comfortable to use, what makes it versatile/reusable, or what makes the handmade work worth paying for.
+
+Before Preview, the editorial pass must ask: `Could this exact benefit block be pasted onto three other FEYA products with only the color changed?` If yes, rewrite it.
+
 ## Process rule
 Every owner review is captured the same way: complaint → named rule → committed here → reflected in prompts/validators. Cumulative and versioned.
