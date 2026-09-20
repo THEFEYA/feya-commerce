@@ -191,8 +191,8 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
     operations.cqaRevision +
     operations.cqaBlocked;
   const cqaBars = [
-    { label: 'Человек + CQA', value: operations.cqaHumanReview, tone: 'info' },
-    { label: 'Независимая CQA', value: operations.cqaIndependent, tone: 'success' },
+    { label: 'Человек + проверка качества', value: operations.cqaHumanReview, tone: 'info' },
+    { label: 'Независимая проверка', value: operations.cqaIndependent, tone: 'success' },
     { label: 'Нужны исправления', value: operations.cqaRevision, tone: 'warning' },
     { label: 'Заблокировано', value: operations.cqaBlocked, tone: 'danger' },
     { label: 'Автопроверки', value: operations.cqaAutomaticChecks, tone: 'neutral' },
