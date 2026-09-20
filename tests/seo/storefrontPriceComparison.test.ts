@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { resolveFullSetPriceComparison } from '../../lib/storefrontPriceComparison.ts';
+import {
+  resolveFullSetPriceComparison,
+  resolveMinimumSeparatePurchaseTotal,
+} from '../../lib/storefrontPriceComparison.ts';
 
 test('uses the canonical component sum instead of double-counting an aggregate option', () => {
   const result = resolveFullSetPriceComparison({
@@ -60,4 +63,47 @@ test('keeps the displayed saving consistent with zero-decimal storefront prices'
     fullSetSavings: 55.37,
     displayedFullSetSavings: 56,
   });
+});
+
+
+test('uses an exact current-selector coverage total over a stale stored component sum', () => {
+  const result = resolveFullSetPriceComparison({
+    fullSetPrice: 164.06,
+    storedComponentSum: 135.10,
+    storedSavings: null,
+    fallbackSeparateTotal: 289.51,
+    exactSeparateTotal: 289.51,
+  });
+
+  assert.deepEqual(result, {
+    separateRegularTotal: 289.51,
+    fullSetSavings: 125.45,
+    displayedFullSetSavings: 126,
+  });
+});
+
+test('finds the minimum-cost separate choices needed to cover a grouped Full Set', () => {
+  const total = resolveMinimumSeparatePurchaseTotal({
+    targetMemberCodes: ['skirt', 'top', 'shoulders'],
+    candidates: [
+      { price: 135.10, memberCodes: ['skirt'] },
+      { price: 154.41, memberCodes: ['top', 'shoulders'] },
+    ],
+  });
+
+  assert.equal(total, 289.51);
+});
+
+test('does not double-count overlapping atomic and grouped selector choices', () => {
+  const total = resolveMinimumSeparatePurchaseTotal({
+    targetMemberCodes: ['skirt', 'arms', 'shoulders'],
+    candidates: [
+      { price: 115.81, memberCodes: ['skirt'] },
+      { price: 125.45, memberCodes: ['arms'] },
+      { price: 135.10, memberCodes: ['shoulders'] },
+      { price: 167.49, memberCodes: ['shoulders', 'skirt'] },
+    ],
+  });
+
+  assert.equal(total, 292.94);
 });
