@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { GitBranch, SearchCheck } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
+import { OwnerProposalReviewClient } from '@/components/admin/OwnerProposalReviewClient';
+import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { QueryClusterProposalCandidateRow, QueryClusterProposalRow } from '@/lib/types';
 
@@ -98,6 +100,7 @@ function toneClass(value: unknown) {
 
 export default async function AdminClusterProposalsPage() {
   const { candidates, proposals, error } = await getData();
+  const ownerActions = getOwnerActionConfigStatus();
   const reviewRows = proposals.filter((row) => row.proposal_status === 'REVIEW');
   const approved = proposals.filter((row) => row.proposal_status === 'APPROVED').length;
   const applied = proposals.filter((row) => row.proposal_status === 'APPLIED').length;
@@ -173,6 +176,15 @@ export default async function AdminClusterProposalsPage() {
                   </div>
                   <div className="owner-list-row-side">
                     <span className="owner-section-kicker">{asText(row.review_note, 'проверка не завершена')}</span>
+                    <OwnerProposalReviewClient
+                      proposalKind="QUERY_CLUSTER"
+                      proposalId={row.proposal_id}
+                      expectedStatus={String(row.proposal_status || 'REVIEW')}
+                      title={asText(row.cluster_label, 'Предлагаемая группа')}
+                      summary={asText(row.rationale, 'Обоснование ещё не зафиксировано.')}
+                      enabled={ownerActions.ready}
+                      blockers={ownerActions.blockers}
+                    />
                   </div>
                 </article>
               ))}
