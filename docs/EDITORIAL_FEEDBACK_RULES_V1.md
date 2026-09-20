@@ -133,7 +133,7 @@ Vary sentence mechanics naturally: a finish may `establish` the character, detai
 The post-generation editorial pass must check lexical repetition inside each block and across adjacent sentences, especially in `Why you'll love it`.
 
 
-## R30. Benefits must be product-specific, human and non-formulaic
+Additional R29 clarification, 2026-09-20: also scan for repeated abstract nouns/adjectives across adjacent blocks (for example complete/cohesive/structured/clean/finished). If the same descriptive idea or word family appears repeatedly, vary the thought itself, not only the synonym.\n\n## R30. Benefits must be product-specific, human and non-formulaic
 Owner clarification, 2026-09-20: a technically correct benefit can still fail if it reads like generic AI copy. Do not let every product fall into the same benefit template such as `finish creates character / material keeps shape / handmade construction adds originality`. Those ideas may be true, but repeating them across products makes the copy feel synthetic and weak.
 
 For every product, identify at least two benefits that are specific to that exact design, construction, configuration, fit or intended use. Prefer concrete buyer value such as:
