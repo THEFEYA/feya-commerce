@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Bot, CircleAlert, Layers3, ShieldCheck, Workflow } from 'lucide-react';
+import { ArrowRight, Bot, CheckCircle2, CircleAlert, Clock3, Layers3, PauseCircle, PlayCircle, ShieldCheck, Workflow } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentOwnerAttention, presentRole, presentWorkItem, formatRelativeTime } from '@/lib/owner-ui/presenters';
@@ -218,6 +218,14 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
   ];
   const cqaMax = Math.max(1, ...cqaBars.map((item) => item.value));
   const activeQueueTotal = operationalWork + activeWorkVM.length;
+  const lifecycle = {
+    running: workVM.filter((item) => item.status === 'RUNNING').length,
+    queued: workVM.filter((item) => item.status === 'QUEUED').length,
+    waiting: workVM.filter((item) => item.status.startsWith('WAITING')).length,
+    blocked: workVM.filter((item) => item.status === 'BLOCKED').length,
+    measuring: workVM.filter((item) => item.status === 'MEASURING' || item.status === 'LEARNING').length,
+    completed: workVM.filter((item) => item.status === 'COMPLETED' || item.status === 'CLOSED').length,
+  };
 
   const filteredWorkVM = workVM.filter((item) => {
     const haystack = [item.title, item.purpose, item.ownerLabel, item.statusLabel, item.blockedReason, item.waitReason]
@@ -274,9 +282,40 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
         <nav className="owner-subnav" aria-label="Разделы работы">
           <a href="#owner-waiting">Ждёт вас · {attentionVM.length}</a>
           <a href="#operational-queues">Операционные очереди · {operationalWork}</a>
-          <a href="#work-list">задачи роста · {activeWorkVM.length}</a>
+          <a href="#work-list">Задачи роста · {activeWorkVM.length}</a>
           <a href="#team">Команда FEYA · {roleVM.length}</a>
         </nav>
+
+        {workVM.length ? (
+          <section className="owner-work-lifecycle" aria-label="Состояния задач роста">
+            <div className="owner-work-lifecycle-label">
+              <span>Жизненный цикл</span>
+              <small>реальные состояния workflow, не процент выполнения</small>
+            </div>
+            <div className="owner-work-lifecycle-items">
+              <a href="#work-list" className={lifecycle.running ? 'is-live' : ''}>
+                <span className="owner-work-lifecycle-icon"><PlayCircle size={14} strokeWidth={1.8} /></span>
+                <span><strong>{lifecycle.running}</strong><small>в работе</small></span>
+              </a>
+              <a href="#work-list" className={lifecycle.queued ? 'is-queued' : ''}>
+                <span className="owner-work-lifecycle-icon"><Clock3 size={14} strokeWidth={1.8} /></span>
+                <span><strong>{lifecycle.queued}</strong><small>в очереди</small></span>
+              </a>
+              <a href="#work-list" className={lifecycle.waiting || lifecycle.blocked ? 'is-waiting' : ''}>
+                <span className="owner-work-lifecycle-icon"><PauseCircle size={14} strokeWidth={1.8} /></span>
+                <span><strong>{lifecycle.waiting + lifecycle.blocked}</strong><small>ждут / блокированы</small></span>
+              </a>
+              <a href="#work-list" className={lifecycle.measuring ? 'is-measuring' : ''}>
+                <span className="owner-work-lifecycle-icon"><Workflow size={14} strokeWidth={1.8} /></span>
+                <span><strong>{lifecycle.measuring}</strong><small>измеряются</small></span>
+              </a>
+              <a href="#work-list" className={lifecycle.completed ? 'is-done' : ''}>
+                <span className="owner-work-lifecycle-icon"><CheckCircle2 size={14} strokeWidth={1.8} /></span>
+                <span><strong>{lifecycle.completed}</strong><small>завершены</small></span>
+              </a>
+            </div>
+          </section>
+        ) : null}
 
         {error ? <OwnerDataError error={error} /> : null}
 
@@ -494,6 +533,7 @@ export default async function AdminWorkPage({ searchParams }: { searchParams: Pr
                     <span>Сейчас</span>
                     <strong>{workStats.active ? `${workStats.active} в работе` : role.status === 'SHADOW' ? 'наблюдает' : 'ожидает задачу'}</strong>
                     <small>{workStats.waiting ? `${workStats.waiting} ждёт / заблокировано` : workStats.latestTitle || 'активных блокировок работы нет'}</small>
+                    {workStats.latestAt ? <small className="owner-team-roster-time">обновлено {formatRelativeTime(workStats.latestAt)}</small> : null}
                   </div>
                   <div className="owner-team-roster-cap">
                     <span>Готовность</span>
