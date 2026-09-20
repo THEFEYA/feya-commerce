@@ -115,6 +115,7 @@ test('flags a Full Set that is implausibly close to one option', () => {
     fullSetPrice: 164.06,
     separateRegularTotal: 289.51,
     maxSingleOptionPrice: 154.41,
+    separateChoiceCount: 2,
   });
 
   assert.equal(audit.status, 'review');
@@ -127,11 +128,41 @@ test('accepts the corrected shared-overhead Full Set price', () => {
     fullSetPrice: 260,
     separateRegularTotal: 289.51,
     maxSingleOptionPrice: 154.41,
+    separateChoiceCount: 2,
   });
 
   assert.deepEqual(audit, {
     status: 'ok',
-    discountPercent: 10.2,
+    discountPercent: -0.2,
     reasons: [],
   });
+});
+
+
+test('audits deep buyer-visible savings against the normalized shared-overhead baseline', () => {
+  const audit = resolveFullSetPriceAudit({
+    fullSetPrice: 279.14,
+    separateRegularTotal: 434.27,
+    maxSingleOptionPrice: 154.41,
+    separateChoiceCount: 4,
+  });
+
+  assert.deepEqual(audit, {
+    status: 'ok',
+    discountPercent: 18.9,
+    reasons: [],
+  });
+});
+
+test('flags only the promotional discount beyond the shared-overhead baseline', () => {
+  const audit = resolveFullSetPriceAudit({
+    fullSetPrice: 287.12,
+    separateRegularTotal: 487.62,
+    maxSingleOptionPrice: 159.51,
+    separateChoiceCount: 4,
+  });
+
+  assert.equal(audit.status, 'review');
+  assert.equal(audit.discountPercent, 27.8);
+  assert.deepEqual(audit.reasons, ['bundle_discount_over_25_percent_review']);
 });
