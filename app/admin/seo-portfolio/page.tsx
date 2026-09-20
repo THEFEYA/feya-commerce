@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { SeoPagePortfolioRow } from '@/lib/types';
+import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -30,6 +31,17 @@ async function getPortfolio(): Promise<{ rows: SeoPagePortfolioRow[]; error?: st
 function asText(value: unknown, fallback = '—') {
   if (value == null || value === '') return fallback;
   return String(value);
+}
+
+function pageTypeLabel(value: unknown) {
+  const key = asText(value, '').toLowerCase();
+  const labels: Record<string, string> = {
+    product: 'товарная страница',
+    collection: 'категория / коллекция',
+    landing: 'посадочная страница',
+    editorial: 'редакционная страница',
+  };
+  return labels[key] || asText(value);
 }
 
 function portfolioLabel(value: unknown) {
@@ -180,6 +192,7 @@ export default async function AdminSeoPortfolioPage({ searchParams }: { searchPa
             <span>После фильтра: {filteredRows.length}</span>
             <Link href="/admin/seo-portfolio">Сбросить</Link>
           </div>
+          <OwnerSavedViewsClient scope="seo-portfolio" />
         </form>
 
         <div className="table-wrap">
@@ -207,7 +220,7 @@ export default async function AdminSeoPortfolioPage({ searchParams }: { searchPa
                     {row.protected_winner_flag ? <div className="badge-row"><span className="status-pill ok">Защищена от лишних изменений</span></div> : null}
                   </td>
                   <td>{asText(row.url_path)}</td>
-                  <td>{asText(row.page_type)}</td>
+                  <td>{pageTypeLabel(row.page_type)}</td>
                   <td><span className={`status-pill ${getStatusClass(row.lifecycle_state)}`}>{portfolioLabel(row.lifecycle_state)}</span></td>
                   <td><span className={`status-pill ${getStatusClass(row.indexation_intent)}`}>{portfolioLabel(row.indexation_intent)}</span></td>
                   <td>
