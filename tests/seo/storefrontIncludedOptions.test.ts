@@ -677,3 +677,66 @@ test('restores Batch28 source-confirmed selectors and bundle members', () => {
     ['Spine + Tail', 'Belt + Garters', 'Bra + Shoulders'],
   );
 });
+
+
+test('restores Batch29 source-confirmed selectors and Full Set members', () => {
+  const captain = {
+    canonical_product_id: 'e51e0a66-8358-41f9-bd51-2ab4833b24b3',
+    configurations: [
+      { configuration_id: '833647ea-bee6-400d-b798-0f6d0b0657d9', sort_order: 1, public_label: 'Bracelet', component_code: 'arms', component_family: 'Arms', display_price_amount: 115.81 },
+      { configuration_id: '39186d61-fe2e-4cdb-934a-931ec3cdd452', sort_order: 2, public_label: 'Belt', component_code: 'belt', component_family: 'Belt', display_price_amount: 144.76 },
+      { configuration_id: '851f004d-6942-4ce8-9250-0e3d1af7687d', sort_order: 3, public_label: 'Choker', component_code: 'choker', component_family: 'Neck', display_price_amount: 144.76 },
+      { configuration_id: 'c7277bb1-350a-466b-9074-07e6ca5aecd8', sort_order: 4, public_label: 'Option', needs_label_review: true, display_price_amount: 199.39 },
+      { configuration_id: '9b1052a5-83d3-40ce-a402-4dba22ee0edb', sort_order: 5, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['arms','belt','choker'], display_price_amount: 470.56 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(captain, { configuration_id: '9b1052a5-83d3-40ce-a402-4dba22ee0edb' }),
+    ['Bracelet', 'Belt', 'Choker', 'Chest Armor'],
+  );
+
+  const whiteMens = {
+    canonical_product_id: 'b0b2a75c-f301-45d6-857c-dd6575862619',
+    configurations: [
+      { configuration_id: '86121b07-a7c8-4836-bf2b-2c5528ddaca5', sort_order: 1, public_label: 'Gloves', component_code: 'arms', component_family: 'Arms', display_price_amount: 115.81 },
+      { configuration_id: 'a7aa21cf-cf0e-4975-92f0-0c21cdf84f59', sort_order: 2, public_label: 'Panties', component_code: 'panties', component_family: 'Bottom', display_price_amount: 120.63 },
+      { configuration_id: '3450d3fb-3d5a-4237-9408-04e26bc8372e', sort_order: 3, public_label: 'Shoulders', component_code: 'arms', component_family: 'Arms', display_price_amount: 164.06 },
+      { configuration_id: 'da2b43a3-d0ca-409c-86a9-da2802265bb4', sort_order: 4, public_label: 'Leg Covers', component_code: 'legs', component_family: 'Legs', display_price_amount: 173.70 },
+      { configuration_id: 'b734518a-b6c3-423d-b958-e850f177f16b', sort_order: 5, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['arms','panties','legs'], display_price_amount: 398.78 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(whiteMens, { configuration_id: 'b734518a-b6c3-423d-b958-e850f177f16b' }),
+    ['Gloves', 'Panties', 'Shoulder + Arm', 'Leg Covers'],
+  );
+
+  const plague = {
+    canonical_product_id: '98600aa8-307b-4165-a8ae-38e347c114bd',
+    configurations: [
+      { configuration_id: '13e9270d-ee80-4d75-bf19-0e615e41106c', sort_order: 1, public_label: 'Option', needs_label_review: true, display_price_amount: 263.33 },
+      { configuration_id: '5bd65d9b-4a5c-4ccc-8b2b-7c2f86bc6c14', sort_order: 2, public_label: 'Skirt Only', component_code: 'skirt', component_family: 'Bottom', display_price_amount: 159.59 },
+      { configuration_id: '44f68b45-228f-4a68-bbf9-dc0651c3376d', sort_order: 3, public_label: 'Mask', component_code: 'mask', component_family: 'Headpiece', display_price_amount: 183.53 },
+      { configuration_id: '503f6911-329b-462e-aff6-5285f4800c09', sort_order: 4, public_label: 'Collar', component_code: 'collar', component_family: 'Neck', display_price_amount: 154.49 },
+      { configuration_id: '7ce46a04-57e2-4dc1-8437-663b025fe216', sort_order: 5, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['mask','collar','skirt'], display_price_amount: 414.94 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(plague, { configuration_id: '7ce46a04-57e2-4dc1-8437-663b025fe216' }),
+    ['Mask', 'Collar + Skirt'],
+  );
+
+  const dragon = {
+    canonical_product_id: '27786636-7021-4809-8e81-7f566a3436ae',
+    configurations: [
+      { configuration_id: 'edfc3ca4-f4f3-418f-82d8-7118ce7eeb3e', sort_order: 1, public_label: 'Gloves', component_code: 'arms', component_family: 'Arms', display_price_amount: 96.55 },
+      { configuration_id: 'dcb90a35-4f84-4ac9-8266-95d378b0daec', sort_order: 2, public_label: 'Shoulders', component_code: 'shoulders', component_family: 'Shoulders', display_price_amount: 101.39 },
+      { configuration_id: '30497b10-c3af-48ab-9cc7-c93ecb7abc74', sort_order: 3, public_label: 'Spine', component_code: 'spine', component_family: 'Back', display_price_amount: 144.83 },
+      { configuration_id: 'aa191cfa-b741-4978-b957-d44556735457', sort_order: 4, public_label: 'Bodysuit', component_code: 'bodysuit', component_family: 'Bodysuit', display_price_amount: 239.39 },
+      { configuration_id: '89aa265a-8c2e-4e25-a56f-ec72b4f39644', sort_order: 5, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['arms','shoulders','spine','bodysuit'], display_price_amount: 462.82 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(dragon, { configuration_id: '89aa265a-8c2e-4e25-a56f-ec72b4f39644' }),
+    ['Gloves', 'Shoulders', 'Spine + Tail', 'Bodysuit'],
+  );
+});
