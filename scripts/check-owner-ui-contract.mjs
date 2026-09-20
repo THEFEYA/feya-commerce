@@ -32,6 +32,10 @@ const requiredFiles = [
   'app/api/admin/company/proposal-review/route.ts',
   'components/admin/OwnerStrategicActionClient.tsx',
   'app/api/admin/company/strategic-action/route.ts',
+  'components/admin/OwnerProposalApplyClient.tsx',
+  'app/api/admin/company/proposal-apply/route.ts',
+  'components/admin/OwnerExecutionApprovalClient.tsx',
+  'app/api/admin/company/execution-approval/route.ts',
   'docs/OWNER_UX_BLUEPRINT_AUDIT_2026-09-19.md',
   'docs/OWNER_FUNCTIONAL_COVERAGE_2026-09-20.md',
   'docs/OWNER_COMPANY_VISUAL_CONTRACT_V1.md',
@@ -159,6 +163,10 @@ if (!failures.length) {
   if (!opportunities.includes('OwnerOpportunityDrawerClient')) failures.push('Opportunities must use context-first detail.');
   if (!experiments.includes('OwnerExperimentDrawerClient')) failures.push('Experiments must use evidence-first context detail.');
   if (!executions.includes('OwnerExecutionDrawerClient')) failures.push('Execution must distinguish request/approval/receipt in context.');
+  const executionApprovalRoute = text('app/api/admin/company/execution-approval/route.ts');
+  if (!executionApprovalRoute.includes('requireOwnerActionActor')) failures.push('Execution approval route must require owner authority.');
+  if (!executionApprovalRoute.includes('feya_fn_owner_approve_execution_request_v1')) failures.push('Execution approval route must use the guarded approval wrapper.');
+  if (!executions.includes('actionEnabled={ownerActions.ready}')) failures.push('Execution drawers must receive protected Owner Action readiness.');
   if (!incidents.includes('OwnerIncidentDrawerClient')) failures.push('Incidents must expose mutation-freeze context.');
   if (!dataHealth.includes('OwnerDataSourceDrawerClient')) failures.push('Data Health must expose source freshness/authority context.');
   if (!learning.includes('OwnerLearningDrawerClient')) failures.push('Learning must expose evidence maturity context.');
@@ -182,6 +190,11 @@ if (!failures.length) {
   if (!clusterProposalPage.includes('OwnerProposalReviewClient')) failures.push('Query-cluster proposals must expose protected Human review.');
   if (!ownershipProposalPage.includes('OwnerProposalReviewClient')) failures.push('Page-ownership proposals must expose protected Human review.');
   if (!indexabilityPage.includes('OwnerProposalReviewClient')) failures.push('Indexability proposals must expose protected Human review.');
+  const proposalApplyRoute = text('app/api/admin/company/proposal-apply/route.ts');
+  if (!proposalApplyRoute.includes('requireOwnerActionActor')) failures.push('SEO proposal apply route must require owner authority.');
+  if (!proposalApplyRoute.includes('feya_fn_owner_apply_seo_proposal_v1')) failures.push('SEO proposal apply route must use the guarded canonical apply wrapper.');
+  if (!ownershipProposalPage.includes('OwnerProposalApplyClient')) failures.push('Approved page-ownership proposals must expose a separate protected apply step.');
+  if (!indexabilityPage.includes('OwnerProposalApplyClient')) failures.push('Approved indexability proposals must expose a separate protected apply step.');
   const strategicActionRoute = text('app/api/admin/company/strategic-action/route.ts');
   const strategicActionClient = text('components/admin/OwnerStrategicActionClient.tsx');
   if (!strategicActionRoute.includes('requireOwnerActionActor')) failures.push('Strategic owner route must require owner authority.');
