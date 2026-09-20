@@ -76,137 +76,145 @@ export default async function AdminExperimentsPage() {
   const invalidated = experiments.filter((row) => row.contamination_state === 'INVALIDATED').length;
   const outcomeReady = experiments.filter((row) => row.experiment_status === 'OUTCOME_READY').length;
 
-  return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
-          <div className="nav-links">
-            <Link href="/admin/experiments">Эксперименты</Link>
-            <Link href="/admin/metrics">Метрики</Link>
-            <Link href="/admin/incidents">Инциденты</Link>
-            <Link href="/admin/executions">Выполнение</Link>
-          </div>
-        </nav>
+  const activeRows = experiments.filter((row) => !['CLOSED', 'CANCELLED'].includes(String(row.experiment_status || '')));
+  const outcomeRows = experiments.filter((row) => row.experiment_status === 'OUTCOME_READY');
+  const riskyRows = experiments.filter((row) => ['CONTAMINATED', 'INVALIDATED'].includes(String(row.contamination_state || '')));
 
-        <section className="phase-banner">
-          <div className="phase-label">Эксперименты и влияющие изменения · только просмотр</div>
-          <h1>Эксперименты</h1>
-          <p>
-            Эксперимент запускается только при зафиксированных правилах измерения и подтверждённой реализуемости. Параллельные изменения и инциденты могут испортить атрибуцию результата.
-          </p>
-        </section>
+  return (
+    <main className="owner-page">
+      <div className="owner-page-inner">
+        <header className="owner-page-head">
+          <div>
+            <div className="owner-eyebrow">Результаты · эксперименты</div>
+            <h1>Эксперименты</h1>
+            <p>Эксперимент считается полезным только при заранее зафиксированном измерении и чистом контексте. Параллельные изменения или инциденты могут ограничить допустимый вывод.</p>
+          </div>
+          <div className="owner-actions" style={{ marginTop: 0 }}>
+            <Link href="/admin/company/results" className="owner-button">Назад к результатам</Link>
+            <Link href="/admin/metrics" className="owner-button">Метрики</Link>
+          </div>
+        </header>
 
         <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
-          <div className="owner-summary-cell"><strong>{running}</strong><span>Экспериментов в работе</span></div>
+          <div className="owner-summary-cell"><strong>{running}</strong><span>В работе</span></div>
           <div className="owner-summary-cell"><strong>{outcomeReady}</strong><span>Результат готов к оценке</span></div>
-          <div className="owner-summary-cell"><strong>{contaminated}</strong><span>Есть влияющие параллельные изменения</span></div>
+          <div className="owner-summary-cell"><strong>{contaminated}</strong><span>Есть влияющие изменения</span></div>
           <div className="owner-summary-cell"><strong>{invalidated}</strong><span>Результат нельзя использовать</span></div>
         </section>
 
-        {error ? <div className="notice">{error}</div> : null}
+        {error ? <div className="owner-card is-danger"><div className="owner-status is-danger">Ошибка данных</div><p className="owner-card-copy">{error}</p></div> : null}
 
-        <section className="section-head">
-          <div>
-            <h2>Реестр экспериментов</h2>
-            <p className="muted">Система измерения результата ещё недоступна; здесь пока контролируются только дизайн эксперимента, состояние и внешние вмешательства.</p>
+        <section className="owner-section" style={{ marginTop: 0 }}>
+          <div className="owner-section-head">
+            <div>
+              <h2>Что происходит сейчас</h2>
+              <div className="owner-section-kicker">Только активные эксперименты и ситуации, которые влияют на достоверность результата</div>
+            </div>
           </div>
+
+          {activeRows.length ? (
+            <div className="owner-list">
+              {activeRows.map((row) => (
+                <article className="owner-list-row" key={row.experiment_id}>
+                  <div className="owner-list-row-main">
+                    <div className="owner-card-meta">
+                      <span className={`owner-status ${row.contamination_state === 'INVALIDATED' ? 'is-danger' : row.contamination_state === 'CONTAMINATED' ? 'is-warning' : 'is-info'}`}>
+                        {statusLabel(row.experiment_status)}
+                      </span>
+                      <span>{modeLabel(row.experiment_mode)}</span>
+                      <span>{statusLabel(row.feasibility_status)}</span>
+                    </div>
+                    <h3>{asText(row.title, 'Эксперимент')}</h3>
+                    <p>
+                      Период: {dateLabel(row.started_at || row.planned_start_at)} → {dateLabel(row.ended_at || row.planned_end_at)}.
+                      {row.contamination_count ? ` Влияющих изменений: ${row.contamination_count}.` : ''}
+                    </p>
+                  </div>
+                  <div className="owner-list-row-side">
+                    <span className="owner-section-kicker">{statusLabel(row.contamination_state)}</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="owner-empty">Активных экспериментов пока нет. Это нормальное состояние до появления измеримых инициатив.</div>
+          )}
         </section>
 
-        <div className="table-wrap" style={{ marginBottom: '30px' }}>
-          <table>
-            <thead>
-              <tr>
-                <th>Эксперимент</th>
-                <th>Режим</th>
-                <th>Статус</th>
-                <th>Реализуемость</th>
-                <th>Влияющие изменения</th>
-                <th>Период</th>
-              </tr>
-            </thead>
-            <tbody>
-              {experiments.length ? experiments.map((row) => (
-                <tr key={row.experiment_id}>
-                  <td>
-                    <strong title={asText(row.experiment_code)}>{asText(row.title, row.experiment_code || '—')}</strong>
-                  </td>
-                  <td title={asText(row.experiment_mode)}>{modeLabel(row.experiment_mode)}</td>
-                  <td>
-                    <span className={`status-pill ${statusClass(row.experiment_status)}`}>
-                      {statusLabel(row.experiment_status)}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={`status-pill ${statusClass(row.feasibility_status)}`}>
-                      {statusLabel(row.feasibility_status)}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={`status-pill ${statusClass(row.contamination_state)}`}>
-                      {statusLabel(row.contamination_state)}
-                    </span>
-                    <div className="muted">{row.contamination_count || 0} записей · {row.invalidating_contamination_count || 0} критичных</div>
-                  </td>
-                  <td>
-                    {dateLabel(row.started_at || row.planned_start_at)}
-                    <div className="muted">→ {dateLabel(row.ended_at || row.planned_end_at)}</div>
-                  </td>
-                </tr>
-              )) : (
-                <tr><td colSpan={6}>Реальных экспериментов пока нет.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        {outcomeRows.length ? (
+          <section className="owner-section">
+            <div className="owner-section-head"><div><h2>Готово к оценке результата</h2></div></div>
+            <div className="owner-grid two">
+              {outcomeRows.map((row) => (
+                <article className="owner-card is-success" key={row.experiment_id}>
+                  <div className="owner-card-meta"><span className="owner-status is-success">Результат готов</span><span>{modeLabel(row.experiment_mode)}</span></div>
+                  <h3 className="owner-card-title">{asText(row.title, 'Эксперимент')}</h3>
+                  <p className="owner-card-copy">Доказательность всё равно ограничивается состоянием измерения и наличием влияющих изменений.</p>
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
-        <section className="section-head">
-          <div>
-            <h2>Последние изменения</h2>
-            <p className="muted">Успешные изменения через шлюз выполнения автоматически фиксируются здесь.</p>
-          </div>
+        {riskyRows.length ? (
+          <section className="owner-section">
+            <div className="owner-section-head"><div><h2>Риски интерпретации</h2><div className="owner-section-kicker">Эти эксперименты нельзя интерпретировать как чистый эффект без дополнительной проверки</div></div></div>
+            <div className="owner-grid two">
+              {riskyRows.map((row) => (
+                <article className={`owner-card ${row.contamination_state === 'INVALIDATED' ? 'is-danger' : 'is-warning'}`} key={row.experiment_id}>
+                  <div className={`owner-status ${row.contamination_state === 'INVALIDATED' ? 'is-danger' : 'is-warning'}`}>{statusLabel(row.contamination_state)}</div>
+                  <h3 className="owner-card-title" style={{ marginTop: '10px' }}>{asText(row.title, 'Эксперимент')}</h3>
+                  <p className="owner-card-copy">{row.contamination_count || 0} влияющих изменений · {row.invalidating_contamination_count || 0} критичных.</p>
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        <section className="owner-section">
+          <details className="owner-disclosure owner-disclosure-section">
+            <summary>
+              <span><strong>История изменений и технический реестр</strong><small>Все эксперименты и change events для диагностики</small></span>
+              <span className="owner-section-kicker">{experiments.length + changes.length}</span>
+            </summary>
+            <div className="owner-disclosure-body">
+              <div className="table-wrap" style={{ marginBottom: '18px' }}>
+                <table>
+                  <thead><tr><th>Эксперимент</th><th>Режим</th><th>Статус</th><th>Реализуемость</th><th>Влияющие изменения</th><th>Период</th></tr></thead>
+                  <tbody>
+                    {experiments.length ? experiments.map((row) => (
+                      <tr key={row.experiment_id}>
+                        <td><strong>{asText(row.title, row.experiment_code || '—')}</strong></td>
+                        <td>{modeLabel(row.experiment_mode)}</td>
+                        <td>{statusLabel(row.experiment_status)}</td>
+                        <td>{statusLabel(row.feasibility_status)}</td>
+                        <td>{statusLabel(row.contamination_state)} · {row.contamination_count || 0}</td>
+                        <td>{dateLabel(row.started_at || row.planned_start_at)} → {dateLabel(row.ended_at || row.planned_end_at)}</td>
+                      </tr>
+                    )) : <tr><td colSpan={6}>Экспериментов пока нет.</td></tr>}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="table-wrap">
+                <table>
+                  <thead><tr><th>Изменение</th><th>Область</th><th>Объект</th><th>Источник</th><th>Время</th></tr></thead>
+                  <tbody>
+                    {changes.length ? changes.map((row) => (
+                      <tr key={row.change_event_id}>
+                        <td><strong>{asText(row.change_type, row.event_code || '—')}</strong></td>
+                        <td>{asText(row.change_domain)}</td>
+                        <td>{asText(row.entity_type)}</td>
+                        <td>{asText(row.source_type)}</td>
+                        <td>{dateLabel(row.event_at)}</td>
+                      </tr>
+                    )) : <tr><td colSpan={5}>Зафиксированных изменений пока нет.</td></tr>}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </details>
         </section>
-
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Событие</th>
-                <th>Область</th>
-                <th>Объект</th>
-                <th>Источник</th>
-                <th>Выполнение / инцидент</th>
-                <th>Время</th>
-              </tr>
-            </thead>
-            <tbody>
-              {changes.length ? changes.map((row) => (
-                <tr key={row.change_event_id}>
-                  <td>
-                    <strong title={asText(row.event_code)}>{asText(row.change_type, row.event_code || '—')}</strong>
-                  </td>
-                  <td>{asText(row.change_domain)}</td>
-                  <td>
-                    {asText(row.entity_type)}
-                    <div className="muted">{asText(row.entity_key)}</div>
-                  </td>
-                  <td>
-                    {asText(row.source_type)}
-                    <div className="muted">{asText(row.source_ref)}</div>
-                  </td>
-                  <td>
-                    {row.execution_request_id ? <div className="muted" title={asText(row.execution_request_id)}>есть запись выполнения</div> : null}
-                    {row.incident_id ? <div className="muted" title={asText(row.incident_id)}>связан с инцидентом</div> : null}
-                    {!row.execution_request_id && !row.incident_id ? '—' : null}
-                  </td>
-                  <td>{dateLabel(row.event_at)}</td>
-                </tr>
-              )) : (
-                <tr><td colSpan={6}>Зафиксированных изменений пока нет.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
       </div>
     </main>
   );
