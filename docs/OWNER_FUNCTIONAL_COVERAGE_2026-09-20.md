@@ -105,13 +105,13 @@ The following are UX-5, not missing visual polish:
 - review query-cluster proposals is PREPARED but locked; canonical apply remains disabled;
 - review page-ownership proposals is PREPARED but locked; canonical apply remains disabled;
 - review indexability proposals is PREPARED but locked; canonical apply remains disabled;
-- apply query cluster proposals;
-- apply page ownership proposals;
-- apply indexability proposals;
+- query-cluster canonical apply remains intentionally BLOCKED until deterministic owner-safe cluster_code policy exists;
+- page-ownership canonical apply is PREPARED but locked;
+- indexability canonical apply is PREPARED but locked;
 - Growth Objective activation, Growth Strategy activation and Human Owner initiative approval are PREPARED but locked until auth cutover + FEYA_OWNER_ACTIONS_ENABLED;
 - publish content;
 - change price / canonical;
-- create or approve execution requests from normal browser UI.
+- execution request approval is PREPARED but locked; generic request creation / dispatcher execution remain disabled from normal owner UI.
 
 Prerequisite sequence:
 
@@ -273,3 +273,41 @@ All three use:
 - refetch after success.
 
 Current production state contains 0 draft strategies, 0 activatable objectives and 0 initiatives pending Human Owner approval, so no business state changed during this pass.
+
+
+## 15. Protected canonical SEO apply — 2026-09-20
+
+Migration `20260920125031 feya_owner_seo_proposal_apply_gateway_v1` prepared canonical application for two already-reviewed SEO decisions:
+
+- PAGE_OWNERSHIP: creates intended canonical page/query ownership without changing indexability;
+- INDEXABILITY: applies the reviewed indexation intent to SEO Page Portfolio without publishing content.
+
+Both use:
+- mandatory expected status APPROVED;
+- service-role-only wrapper;
+- existing domain guards and change-freeze checks;
+- required Human Owner reason;
+- generic Owner Action audit receipt;
+- locked preview UI.
+
+Query-cluster apply remains intentionally unexposed. Its canonical RPC requires a stable `cluster_code`, and the owner UI will not ask a human to invent an internal technical ID. A deterministic owner-safe code policy must be defined first.
+
+Current approved ownership/indexability queues are 0, so no canonical SEO state changed.
+
+## 16. Protected Execution Request approval — 2026-09-20
+
+Migration `20260920125157 feya_owner_execution_approval_gateway_v1` prepared Human Owner approval of an immutable Execution Gateway request.
+
+The UI and API preserve the distinction:
+
+`REQUESTED → APPROVAL_REQUIRED → APPROVED → EXECUTION/DISPATCH → RECEIPT`
+
+Approval:
+- requires expected status APPROVAL_REQUIRED;
+- locks approval hash to the immutable request hash through the existing RPC;
+- requires Human Owner reason;
+- writes Owner Action audit;
+- does **not** dispatch execution;
+- does **not** create an Execution Receipt.
+
+Current approval-required request count is 0, so no execution state changed.
