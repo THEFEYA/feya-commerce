@@ -4145,3 +4145,349 @@ a.owner-list-row:hover {
   font-size: 9px;
   line-height: 1.35;
 }
+
+
+/* =========================================================
+   Company mobile / touch / readability hardening v1 — 2026-09-20
+   ========================================================= */
+@media (max-width: 780px) {
+  .owner-shell {
+    --owner-topbar: 56px;
+  }
+
+  .owner-shell .owner-stage {
+    padding-bottom: calc(70px + env(safe-area-inset-bottom));
+  }
+
+  .owner-shell .owner-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 45;
+    gap: 9px;
+    min-height: 56px;
+    padding: 8px 12px;
+  }
+
+  .owner-shell .owner-topbar-mobile-brand {
+    flex: 0 0 auto;
+    color: var(--company-gold);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .20em;
+  }
+
+  .owner-shell .owner-search-trigger {
+    min-width: 0;
+    min-height: 40px;
+    padding: 8px 11px;
+  }
+
+  .owner-shell .owner-page {
+    padding: 18px 14px calc(30px + env(safe-area-inset-bottom));
+  }
+
+  .owner-shell .owner-page-inner {
+    width: 100%;
+  }
+
+  .owner-shell .owner-page-head {
+    margin-bottom: 18px;
+  }
+
+  .owner-shell .owner-page-head h1 {
+    font-size: clamp(32px, 10vw, 38px);
+    line-height: 1;
+  }
+
+  .owner-shell .owner-page-head p {
+    max-width: none;
+    margin-top: 8px;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .owner-shell .owner-eyebrow {
+    font-size: 9px;
+  }
+
+  .owner-shell .owner-subnav {
+    top: 61px;
+    max-width: calc(100vw - 28px);
+    margin-bottom: 18px;
+    padding: 4px;
+    scrollbar-width: none;
+  }
+
+  .owner-shell .owner-subnav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .owner-shell .owner-subnav a {
+    flex: 0 0 auto;
+    min-height: 40px;
+    padding: 8px 11px;
+    font-size: 10px;
+  }
+
+  .owner-shell .owner-command-brief {
+    border-radius: 12px;
+  }
+
+  .owner-shell .owner-command-brief h2 {
+    font-size: 22px;
+    line-height: 1.15;
+  }
+
+  .owner-shell .owner-command-brief p,
+  .owner-shell .owner-card-copy,
+  .owner-shell .owner-list-row p {
+    font-size: 12.5px;
+    line-height: 1.55;
+  }
+
+  .owner-shell .owner-section {
+    margin-top: 24px;
+  }
+
+  .owner-shell .owner-section h2 {
+    font-size: 19px;
+  }
+
+  .owner-shell .owner-section-kicker {
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+  .owner-shell .owner-card,
+  .owner-shell .owner-list-row,
+  .owner-shell .owner-disclosure-section {
+    border-radius: 11px;
+  }
+
+  .owner-shell .owner-card {
+    padding: 14px;
+  }
+
+  .owner-shell .owner-list-row {
+    gap: 10px;
+    padding: 13px;
+  }
+
+  .owner-shell .owner-list-row-side {
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .owner-shell .owner-button,
+  .owner-shell button.owner-button,
+  .owner-shell a.owner-button {
+    min-height: 44px;
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+
+  .owner-shell .owner-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .owner-shell .owner-actions > .owner-button,
+  .owner-shell .owner-actions > a,
+  .owner-shell .owner-actions > button {
+    flex: 1 1 148px;
+    justify-content: center;
+  }
+
+  .owner-shell .field {
+    min-height: 46px;
+    font-size: 16px;
+  }
+
+  .owner-shell select.field {
+    font-size: 15px;
+  }
+
+  .owner-shell .owner-card-meta {
+    gap: 6px;
+    font-size: 9.5px;
+  }
+
+  .owner-shell .owner-status {
+    min-height: 25px;
+    padding: 4px 8px;
+    font-size: 9.5px;
+  }
+
+  .owner-shell .owner-queue-item {
+    min-height: 62px;
+    padding: 11px 12px;
+  }
+
+  .owner-shell .owner-queue-copy strong {
+    font-size: 11px;
+  }
+
+  .owner-shell .owner-queue-copy small {
+    font-size: 9px;
+  }
+
+  .owner-shell .owner-team-roster-row {
+    min-height: 88px;
+    padding: 12px 11px;
+  }
+
+  .owner-shell .owner-team-roster-title h3 {
+    font-size: 12.5px;
+  }
+
+  .owner-shell .owner-team-roster-main p {
+    margin-top: 6px;
+    font-size: 10.5px;
+    line-height: 1.5;
+  }
+
+  .owner-shell .owner-team-roster-action .owner-button {
+    min-width: 44px;
+    padding-inline: 10px;
+  }
+
+  .owner-shell .owner-growth-step {
+    min-height: 68px;
+    padding: 12px;
+  }
+
+  .owner-shell .owner-growth-step-copy strong {
+    font-size: 11px;
+  }
+
+  .owner-shell .owner-growth-step-copy span {
+    font-size: 9px;
+  }
+
+  .owner-shell .owner-demand-table {
+    min-width: 680px;
+  }
+
+  .owner-shell .owner-drawer {
+    width: min(100vw, 560px);
+    max-width: 100vw !important;
+    border-left: 0 !important;
+  }
+
+  .owner-shell .owner-drawer-head {
+    padding: 14px 14px 12px !important;
+  }
+
+  .owner-shell .owner-drawer-body {
+    padding: 14px !important;
+    padding-bottom: calc(28px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .owner-shell .owner-drawer-head h2 {
+    font-size: 18px !important;
+  }
+
+  .owner-shell .owner-work-stage small {
+    white-space: normal;
+    line-height: 1.25;
+  }
+
+  .owner-shell .owner-timeline-row strong {
+    font-size: 11px;
+  }
+
+  .owner-shell .owner-timeline-row p {
+    font-size: 10.5px;
+  }
+
+  .owner-shell .owner-timeline-row small {
+    font-size: 9.5px;
+  }
+
+  .owner-shell .table-wrap {
+    margin-inline: -2px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .owner-shell .table-wrap table {
+    min-width: 760px;
+  }
+
+  .owner-mobile-nav {
+    min-height: calc(62px + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    border-top-color: rgba(222,216,204,.12);
+    background: rgba(7,8,12,.96);
+    box-shadow: 0 -12px 38px rgba(0,0,0,.24);
+  }
+
+  .owner-mobile-nav a,
+  .owner-mobile-nav button {
+    min-width: 0;
+    min-height: 62px;
+    padding: 6px 2px;
+    color: rgba(238,233,223,.50);
+    touch-action: manipulation;
+  }
+
+  .owner-mobile-nav a.is-active,
+  .owner-mobile-nav button.is-active {
+    color: var(--company-gold-soft);
+    background: linear-gradient(180deg, rgba(212,178,106,.06), transparent);
+  }
+
+  .owner-mobile-nav small {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 9.5px;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .owner-mobile-more-sheet {
+    max-height: min(82vh, 720px);
+    padding: 16px 14px calc(82px + env(safe-area-inset-bottom));
+    background:
+      radial-gradient(480px 200px at 80% 0%, rgba(93,112,157,.09), transparent 70%),
+      #0b0c11;
+  }
+
+  .owner-mobile-more-grid > a {
+    min-height: 60px;
+    padding: 11px 12px;
+  }
+
+  .owner-mobile-more-grid strong {
+    font-size: 13px;
+  }
+
+  .owner-mobile-more-grid small {
+    font-size: 10px;
+    line-height: 1.35;
+  }
+}
+
+@media (max-width: 390px) {
+  .owner-shell .owner-page {
+    padding-inline: 11px;
+  }
+
+  .owner-shell .owner-page-head h1 {
+    font-size: 31px;
+  }
+
+  .owner-shell .owner-command-brief,
+  .owner-shell .owner-card,
+  .owner-shell .owner-list-row {
+    padding-inline: 12px;
+  }
+
+  .owner-mobile-nav small {
+    font-size: 9px;
+  }
+}
