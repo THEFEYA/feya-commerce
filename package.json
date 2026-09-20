@@ -4,12 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run check:admin-boundary && next build",
+    "build": "npm run check:admin-boundary && npm run check:product-os-freeze && npm run check:owner-ui && next build",
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "test:seo": "node --experimental-strip-types --test tests/seo/*.test.ts",
-    "check:admin-boundary": "node scripts/check-admin-data-boundary.mjs"
+    "check:admin-boundary": "node scripts/check-admin-data-boundary.mjs",
+    "check:product-os-freeze": "node scripts/check-product-os-ui-freeze.mjs",
+    "check:owner-ui": "node scripts/check-owner-ui-contract.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.0",
