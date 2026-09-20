@@ -71,7 +71,86 @@ function configurationId(row: Record<string, any>) {
  * both prove the exact component. Keep the raw evidence untouched and apply a
  * narrow, auditable correction to the current selector only.
  */
+
+const SILVER_ROBOT_ARMS_ID = '3a006050-ab78-4b4d-9964-ed8c9f32e923';
+const SILVER_BRA_SKIRT_SET_ID = '81fc83de-76aa-4733-9a88-f631e7699fa6';
+
+function correctSilverRobotArmQuantities<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const options = {
+    '098a025b-5437-460f-b640-3e57b94e7619': {
+      public_label: 'Single Arm Piece',
+      component_code: 'arms',
+      component_family: 'Arms',
+      sort_order: 1,
+    },
+    'fca12d8b-7be7-49ac-a35b-ca41f6bc0d79': {
+      public_label: 'Pair of Arm Pieces',
+      component_code: 'arms',
+      component_family: 'Arms',
+      sort_order: 2,
+    },
+  };
+  if (!Object.keys(options).every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  const configurations = product.configurations.map(row => options[configurationId(row)]
+    ? { ...row, ...options[configurationId(row)], needs_label_review: false }
+    : row);
+  return {
+    ...product,
+    configurations,
+    needs_label_review: configurations.some(row => row.needs_label_review === true),
+  };
+}
+
+function correctSilverBraSkirtSet<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const braId = '1a2bcbf2-8354-43c8-92b8-c4a4c09274e7';
+  const skirtId = 'ba7b364f-1b1e-4432-aa87-30287071087e';
+  const fullId = '87538880-4abc-4dbb-9be7-8f600d612b2a';
+  if (![braId, skirtId, fullId].every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  const configurations = product.configurations.map(row => {
+    const id = configurationId(row);
+    if (id === braId) return {
+      ...row,
+      public_label: 'Bra',
+      component_code: 'top',
+      component_family: 'Top',
+      needs_label_review: false,
+    };
+    if (id === fullId) return {
+      ...row,
+      bundle_component_codes: ['top', 'skirt'],
+      bundle_component_labels: ['Bra', 'Skirt'],
+      source_confirmed_bundle_members: true,
+      needs_label_review: false,
+    };
+    return row;
+  });
+  const bra = configurations.find(row => configurationId(row) === braId);
+  const skirt = configurations.find(row => configurationId(row) === skirtId);
+  const full = configurations.find(row => configurationId(row) === fullId);
+  const componentSum = (numeric(bra?.display_price_amount) || 0) + (numeric(skirt?.display_price_amount) || 0);
+  const fullPrice = numeric(full?.display_price_amount);
+  const savings = fullPrice != null && componentSum > fullPrice ? componentSum - fullPrice : null;
+  return {
+    ...product,
+    configurations,
+    needs_label_review: configurations.some(row => row.needs_label_review === true),
+    component_sum_display_price_amount: componentSum || product.component_sum_display_price_amount,
+    full_set_savings_amount: savings,
+    full_set_savings_percent: savings != null && componentSum > 0
+      ? Math.round((savings / componentSum) * 10000) / 100
+      : null,
+  };
+}
+
 export function applyOwnerReviewedStorefrontCorrections<T extends Record<string, any>>(product: T): T {
+  if (String(product?.canonical_product_id || '') === SILVER_ROBOT_ARMS_ID) {
+    return correctSilverRobotArmQuantities(product);
+  }
+  if (String(product?.canonical_product_id || '') === SILVER_BRA_SKIRT_SET_ID) {
+    return correctSilverBraSkirtSet(product);
+  }
   if (BATCH10_REVIEWED_GROUPS[String(product?.canonical_product_id || '')]) {
     return correctBatch10GroupedOptions(product);
   }
