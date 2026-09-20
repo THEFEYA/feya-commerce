@@ -6,6 +6,7 @@ import { X } from 'lucide-react';
 import type { ExecutionGatewayRow } from '@/lib/types';
 import { useOwnerDrawerA11y } from '@/components/admin/useOwnerDrawerA11y';
 import { statusLabel } from '@/lib/owner-ui/terminology';
+import { OwnerExecutionApprovalClient } from '@/components/admin/OwnerExecutionApprovalClient';
 
 function asText(value: unknown, fallback = '—') {
   if (value == null || value === '') return fallback;
@@ -52,7 +53,15 @@ function toneClass(value: unknown) {
   return 'is-warning';
 }
 
-export function OwnerExecutionDrawerClient({ row }: { row: ExecutionGatewayRow }) {
+export function OwnerExecutionDrawerClient({
+  row,
+  actionEnabled = false,
+  actionBlockers = [],
+}: {
+  row: ExecutionGatewayRow;
+  actionEnabled?: boolean;
+  actionBlockers?: string[];
+}) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const closeRef = useRef<HTMLButtonElement | null>(null);
@@ -97,6 +106,15 @@ export function OwnerExecutionDrawerClient({ row }: { row: ExecutionGatewayRow }
                   <div><span>Создано</span><strong>{dateTimeLabel(row.created_at)}</strong></div>
                 </div>
               </section>
+
+              {String(row.request_status || '').toUpperCase() === 'APPROVAL_REQUIRED' ? (
+                <OwnerExecutionApprovalClient
+                  executionRequestId={row.execution_request_id}
+                  title={actionLabel(row.action_code)}
+                  enabled={actionEnabled}
+                  blockers={actionBlockers}
+                />
+              ) : null}
 
               <section className={`owner-card ${row.latest_receipt_id ? toneClass(row.latest_receipt_status) : 'is-info'}`}>
                 <div className={`owner-status ${row.latest_receipt_id ? toneClass(row.latest_receipt_status) : 'is-info'}`}>
