@@ -101,6 +101,9 @@ The following are UX-5, not missing visual polish:
 
 - Owner Attention decision recording is PREPARED but remains locked until auth cutover + FEYA_OWNER_ACTIONS_ENABLED;
 - resolve Product Truth facts;
+- review query-cluster proposals is PREPARED but locked; canonical apply remains disabled;
+- review page-ownership proposals is PREPARED but locked; canonical apply remains disabled;
+- review indexability proposals is PREPARED but locked; canonical apply remains disabled;
 - apply query cluster proposals;
 - apply page ownership proposals;
 - apply indexability proposals;
@@ -220,8 +223,29 @@ Current validated state:
 - 0 owner decision events;
 - RPC executable by anon/authenticated = false;
 - RPC executable by service_role = true;
-- governed Admin Data Boundary views = 48;
-- all 48 remain browser-readable only because the auth cutover has not been executed;
+- governed Admin Data Boundary views = 49 after the SEO proposal-review audit projection;
+- all 49 remain browser-readable only because the auth cutover has not been executed;
 - `FEYA_OWNER_ACTIONS_ENABLED` is intentionally unset/false.
 
 This is a prepared write path, not an activated production action.
+
+
+## 13. Protected SEO proposal review — 2026-09-20
+
+Migration `20260920123137 feya_owner_seo_proposal_review_gateway_v1` prepared the next Human Owner action family without enabling canonical application.
+
+Implemented:
+
+- generic immutable `feya_growth_owner_action_audit_v1` for owner action receipts;
+- service-role-only wrapper `feya_fn_owner_review_seo_proposal_v1`;
+- owner-safe audit projection `feya_commerce_v_owner_action_audit_safe_v1`;
+- protected server API `/api/admin/company/proposal-review`;
+- owner review drawer with explicit preview and required review note;
+- review UI wired to query-cluster, page-ownership and indexability proposals;
+- existing review Action Capabilities now report `protected_ui_locked`.
+
+Important boundary:
+
+**APPROVED is still not APPLIED.** Review only records the Human Owner's evaluation of a proposal. Creating canonical query clusters, page/query ownership or indexability intent remains a separate action with separate guardrails.
+
+Current production queues contain 0 reviewable proposals, so no business state was changed.
