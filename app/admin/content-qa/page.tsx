@@ -3,6 +3,7 @@ import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminDa
 import type { ContentQaShadowRow } from '@/lib/types';
 import { statusLabel } from '@/lib/owner-ui/terminology';
 import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
+import { OwnerContentQaDrawerClient } from '@/components/admin/OwnerContentQaDrawerClient';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -175,6 +176,7 @@ export default async function AdminContentQaPage({ searchParams }: { searchParam
                 <th>Заявления о составе</th>
                 <th>Независимая проверка</th>
                 <th>Текущее состояние</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -227,6 +229,7 @@ export default async function AdminContentQaPage({ searchParams }: { searchParam
                     </span>
                     <div className="muted">метрики: {asText(row.metrics_status)}</div>
                   </td>
+                  <td><OwnerContentQaDrawerClient row={row} /></td>
                 </tr>
               ))}
             </tbody>
