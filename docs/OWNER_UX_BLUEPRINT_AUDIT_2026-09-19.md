@@ -422,3 +422,17 @@ The UI keeps three layers separate:
 Approval lets the owner confirm/edit the final approved keyword before submission. Rejection and needs-review remain explicit alternatives. The control remains locked until auth/allowlist/action switch are verified.
 
 The live queue contains 431 reviewable keywords, but no production decision was written during implementation.
+
+
+## Protected Human SCO review checkpoint — 2026-09-20
+
+The CQA drawer now exposes Human review only where the current shadow state explicitly says Human + CQA review is ready.
+
+The flow preserves the author/reviewer boundary:
+1. Human Owner may approve, request changes or reject;
+2. server re-runs canonical approval guards;
+3. Human review event is written;
+4. independent CQA remains a separate later state;
+5. publication is not triggered.
+
+The live queue contains 17 Human-review-ready drafts, but no write was executed because UX-5 remains locked.
