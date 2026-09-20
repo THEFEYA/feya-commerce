@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { FileSearch, GitBranch, ShieldCheck } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
+import { OwnerProposalReviewClient } from '@/components/admin/OwnerProposalReviewClient';
+import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { PageOwnershipCandidateClusterRow, PageOwnershipProposalRow } from '@/lib/types';
 
@@ -66,6 +68,7 @@ function toneClass(value: unknown) {
 
 export default async function AdminOwnershipProposalsPage() {
   const { clusters, proposals, error } = await getData();
+  const ownerActions = getOwnerActionConfigStatus();
 
   const readyRows = clusters.filter((row) => row.ownership_candidate_status === 'READY_FOR_OWNERSHIP_PROPOSAL');
   const reviewRows = proposals.filter((row) => row.proposal_status === 'REVIEW');
@@ -173,6 +176,15 @@ export default async function AdminOwnershipProposalsPage() {
                   </div>
                   <div className="owner-list-row-side">
                     <span className="owner-section-kicker">{asText(row.review_note, 'проверка не завершена')}</span>
+                    <OwnerProposalReviewClient
+                      proposalKind="PAGE_OWNERSHIP"
+                      proposalId={row.proposal_id}
+                      expectedStatus={String(row.proposal_status || 'REVIEW')}
+                      title={asText(row.cluster_label, row.cluster_code || 'Группа запросов')}
+                      summary={`Предлагаемая страница: ${asText(row.card_title, row.url_path || '—')} · ${asText(row.url_path)}. ${asText(row.rationale, '')}`}
+                      enabled={ownerActions.ready}
+                      blockers={ownerActions.blockers}
+                    />
                   </div>
                 </article>
               ))}
