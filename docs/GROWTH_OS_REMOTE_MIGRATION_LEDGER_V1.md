@@ -590,3 +590,21 @@ Repository-side change:
 - public storefront routes remain on public read contracts.
 
 This is a prerequisite for eventually executing `feya_fn_harden_admin_data_boundary_v1('HARDEN_FEYA_ADMIN_V1')`, but that hardening RPC remains intentionally NOT executed until auth + allowlist + unauthorized-access tests are verified.
+
+
+### Owner Objective / Handoff safe read projections
+
+20260920104947 — feya_owner_objective_handoff_safe_projections_v1
+- added security-barrier owner/admin projections for Growth Objectives, Objective Events, durable Handoffs and Workflow Events;
+- projections intentionally expose business workflow state, not user IDs or model/tool traces;
+- all four views were registered in the existing Admin Data Boundary policy registry;
+- current validated data state remains honest: 0 Growth Objectives, 0 handoffs, 0 workflow events;
+- registered governed admin read surfaces increased from 42 to 46;
+- all 46 remain browser-readable in the current pre-auth preview state by design;
+- admin-view hardening remains NOT executed until the owner auth + allowlist cutover passes the existing runbook.
+
+Post-migration verification:
+- Supabase migration applied successfully;
+- project security/performance advisors were re-run;
+- no mass remediation was applied to broader project advisor findings;
+- the migration does not enable writes, role activation, autonomous routing or synthetic workflow history.
