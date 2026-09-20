@@ -3,25 +3,38 @@ import { notFound } from 'next/navigation';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { ownerDecisionPlan } from '@/lib/owner-ui/decisions';
 import { formatDueTime, presentOwnerAttention } from '@/lib/owner-ui/presenters';
+import { OwnerAttentionDecisionClient } from '@/components/admin/OwnerAttentionDecisionClient';
+import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 type Row = Record<string, unknown>;
 
-async function getAttention(id: string): Promise<{ row?: Row; error?: string }> {
+async function getAttention(id: string): Promise<{ row?: Row; events: Row[]; error?: string }> {
   const supabase = getAdminReadClient();
-  if (!supabase) return { error: getMissingAdminDataEnvMessage() };
+  if (!supabase) return { events: [], error: getMissingAdminDataEnvMessage() };
 
-  const { data, error } = await supabase
-    .from('feya_commerce_v_owner_attention_safe_v2')
-    .select('*')
-    .eq('attention_id', id)
-    .maybeSingle();
+  const [attentionResult, eventsResult] = await Promise.all([
+    supabase
+      .from('feya_commerce_v_owner_attention_safe_v3')
+      .select('*')
+      .eq('attention_id', id)
+      .maybeSingle(),
+    supabase
+      .from('feya_commerce_v_owner_attention_events_safe_v1')
+      .select('*')
+      .eq('attention_id', id)
+      .order('created_at', { ascending: true }),
+  ]);
 
-  if (error) return { error: error.message };
-  if (!data) return {};
-  return { row: data as Row };
+  const firstError = attentionResult.error || eventsResult.error;
+  if (firstError) return { events: [], error: firstError.message };
+  if (!attentionResult.data) return { events: (eventsResult.data || []) as Row[] };
+  return {
+    row: attentionResult.data as Row,
+    events: (eventsResult.data || []) as Row[],
+  };
 }
 
 function toneClass(tone: string) {
@@ -46,12 +59,13 @@ function List({ items }: { items: string[] }) {
 
 export default async function OwnerDecisionDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { row, error } = await getAttention(id);
+  const { row, events, error } = await getAttention(id);
 
   if (!row && !error) notFound();
 
   const item = row ? presentOwnerAttention(row) : null;
   const plan = ownerDecisionPlan(row?.source_code);
+  const ownerActions = getOwnerActionConfigStatus();
 
   return (
     <main className="owner-page">
@@ -137,13 +151,41 @@ export default async function OwnerDecisionDetailPage({ params }: { params: Prom
             </section>
 
             <section className="owner-section">
-              <div className="owner-card is-warning">
-                <div className="owner-status is-warning">Действия пока выключены</div>
-                <h2 className="owner-card-title" style={{ marginTop: '10px' }}>Это только экран принятия решения</h2>
-                <p className="owner-card-copy">
-                  Кнопки «Подтвердить», «Отклонить» и «Отложить» появятся только после проверки защищённого входа владельца и аудитируемого пути записи. Просмотр этого экрана ничего не меняет.
-                </p>
-              </div>
+              <OwnerAttentionDecisionClient
+                attentionId={item.id}
+                currentStatus={String(row?.attention_status || 'OPEN')}
+                title={item.title}
+                recommendation={plan.recommendation}
+                enabled={ownerActions.ready}
+                blockers={ownerActions.blockers}
+              />
+            </section>
+
+            <section className="owner-section">
+              <details className="owner-disclosure owner-disclosure-section" open={events.length > 0}>
+                <summary>
+                  <span><strong>История решения</strong><small>Только реальные действия владельца, без выдуманных событий</small></span>
+                  <span className="owner-section-kicker">{events.length}</span>
+                </summary>
+                <div className="owner-disclosure-body">
+                  {events.length ? (
+                    <div className="owner-timeline">
+                      {events.map((event) => (
+                        <div className="owner-timeline-row" key={String(event.attention_event_id)}>
+                          <span className="owner-timeline-dot" aria-hidden="true" />
+                          <div>
+                            <strong>{String(event.to_status || event.event_type || 'Изменение')}</strong>
+                            <p>{String(event.reason || event.decision_code || 'Решение записано.')}</p>
+                            <small>{event.created_at ? new Date(String(event.created_at)).toLocaleString('ru-RU') : 'время не указано'}</small>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="owner-card-copy">Записанных owner-действий по этому вопросу пока нет.</p>
+                  )}
+                </div>
+              </details>
             </section>
           </>
         ) : null}
