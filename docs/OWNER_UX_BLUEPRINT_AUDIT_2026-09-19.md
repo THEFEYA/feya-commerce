@@ -436,3 +436,12 @@ The flow preserves the author/reviewer boundary:
 5. publication is not triggered.
 
 The live queue contains 17 Human-review-ready drafts, but no write was executed because UX-5 remains locked.
+
+
+## Query-cluster apply policy checkpoint — 2026-09-20
+
+The owner-facing query-cluster flow no longer stops at an unexplained technical `cluster_code` requirement.
+
+The technical code is now deterministic implementation metadata, not an owner decision. Approved proposals will show the same protected canonical apply control used by the later ownership/indexability stages.
+
+This closes the owner UX sequence without weakening the separation between Human review and canonical application.
