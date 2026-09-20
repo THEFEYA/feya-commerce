@@ -132,25 +132,20 @@ export default async function AdminIndexabilityPage({ searchParams }: { searchPa
   };
 
   return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
-          <div className="nav-links">
-            <Link href="/admin/seo-portfolio">SEO-страницы</Link>
-            <Link href="/admin/seo-ownership-proposals">Ответственность страниц</Link>
-            <Link href="/admin/seo-indexability">Индексация</Link>
-            <Link href="/admin/launch-readiness">Готовность к запуску</Link>
+    <main className="owner-page">
+      <div className="owner-page-inner">
+        <header className="owner-page-head">
+          <div>
+            <div className="owner-eyebrow">Рост · индексация</div>
+            <h1>Допуск к индексации</h1>
+            <p>Ответственность страницы за группу запросов сама по себе не разрешает индексацию. Сначала нужны основная группа запросов и готовый контент, затем отдельная проверка допуска.</p>
           </div>
-        </nav>
-
-        <section className="phase-banner">
-          <div className="phase-label">Допуск к индексации · только просмотр</div>
-          <h1>Допуск страниц к индексации</h1>
-          <p>
-            Ответственность страницы за группу запросов сама по себе не разрешает индексацию. Для товарной страницы сначала нужны основная группа запросов и готовый к публикации контент, после чего решение об индексации проверяется отдельно.
-          </p>
-        </section>
+          <div className="owner-actions" style={{ marginTop: 0 }}>
+            <Link href="/admin/company/growth" className="owner-button">Назад к росту</Link>
+            <Link href="/admin/seo-portfolio" className="owner-button">SEO-страницы</Link>
+            <Link href="/admin/launch-readiness" className="owner-button">Запуск</Link>
+          </div>
+        </header>
 
         <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
           <div className="owner-summary-cell"><strong>{needsOwnership}</strong><span>Нужна основная группа запросов</span></div>
