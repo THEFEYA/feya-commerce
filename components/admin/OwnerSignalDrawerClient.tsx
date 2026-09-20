@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { X } from 'lucide-react';
+import { ArrowRight, Database, Route, ShieldCheck, Sparkles, X } from 'lucide-react';
 import type { OwnerSignalVM } from '@/lib/owner-ui/types';
 import { useOwnerDrawerA11y } from '@/components/admin/useOwnerDrawerA11y';
 
@@ -93,9 +93,9 @@ export function OwnerSignalDrawerClient({
             role="dialog"
             aria-modal="true"
             aria-labelledby={`signal-drawer-${vm.id}`}
-            className="absolute right-0 top-0 h-full w-full max-w-[560px] overflow-y-auto border-l border-[rgba(216,214,211,.14)] bg-[#0c0c11] shadow-[-30px_0_90px_rgba(0,0,0,.55)]"
+            className="owner-drawer absolute right-0 top-0 h-full w-full max-w-[560px] overflow-y-auto border-l border-[rgba(216,214,211,.14)] bg-[#0c0c11] shadow-[-30px_0_90px_rgba(0,0,0,.55)]"
           >
-            <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[rgba(216,214,211,.10)] bg-[#0c0c11]/95 px-5 py-4 backdrop-blur-xl">
+            <div className="owner-drawer-head sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[rgba(216,214,211,.10)] bg-[#0c0c11]/95 px-5 py-4 backdrop-blur-xl">
               <div>
                 <div className="owner-eyebrow" style={{ marginBottom: '5px' }}>Сигнал FEYA</div>
                 <h2 id={`signal-drawer-${vm.id}`} className="m-0 text-[20px] leading-snug text-bone">{vm.title}</h2>
@@ -103,25 +103,34 @@ export function OwnerSignalDrawerClient({
               <button ref={closeRef} type="button" className="owner-button" aria-label="Закрыть" onClick={() => setOpen(false)}><X size={15} /></button>
             </div>
 
-            <div className="space-y-4 p-5">
-              <section className={`owner-card ${toneClass(vm.tone)}`}>
+            <div className="owner-drawer-body space-y-4 p-5">
+              <section className={`owner-card owner-signal-fact-card ${toneClass(vm.tone)}`}>
                 <div className="owner-card-meta">
                   <span className={`owner-status ${toneClass(vm.tone)}`}>{vm.priorityLabel}</span>
-                  <span>{routing}</span>
-                  <span>{vm.ownerLabel}</span>
                   <span>{vm.statusLabel}</span>
                 </div>
-                <h3 className="owner-card-title">Что произошло</h3>
+                <div className="owner-signal-drawer-label"><ShieldCheck size={14} strokeWidth={1.7} aria-hidden="true" />Что зафиксировано</div>
+                <h3 className="owner-card-title">{vm.title}</h3>
                 <p className="owner-card-copy">{vm.summary}</p>
               </section>
 
-              <section className="owner-card is-info">
-                <div className="owner-status is-info">FEYA предлагает</div>
+              <section className="owner-card owner-signal-route-card">
+                <div className="owner-signal-drawer-label"><Route size={14} strokeWidth={1.7} aria-hidden="true" />Кому дальше</div>
+                <div className="owner-signal-route-line">
+                  <span>{vm.ownerLabel}</span>
+                  <ArrowRight size={13} strokeWidth={1.8} aria-hidden="true" />
+                  <strong>{routing}</strong>
+                </div>
+                <p className="owner-card-copy">Маршрут определяется правилами допуска и границами полномочий, а не свободным выбором интерфейса.</p>
+              </section>
+
+              <section className="owner-card is-info owner-signal-recommendation-card">
+                <div className="owner-signal-drawer-label"><Sparkles size={14} strokeWidth={1.7} aria-hidden="true" />Рекомендованный следующий шаг</div>
                 <p className="owner-card-copy">{vm.recommendedAction}</p>
               </section>
 
               <section className="owner-card">
-                <div className="owner-section-kicker">Подтверждающие данные</div>
+                <div className="owner-signal-drawer-label"><Database size={14} strokeWidth={1.7} aria-hidden="true" />Подтверждающие данные</div>
                 {entries.length ? (
                   <div className="owner-list" style={{ marginTop: '10px' }}>
                     {entries.map((entry) => (
@@ -140,7 +149,7 @@ export function OwnerSignalDrawerClient({
               </section>
 
               <section className="owner-card">
-                <div className="owner-section-kicker">Что делать дальше</div>
+                <div className="owner-section-kicker">Доступное действие</div>
                 <p className="owner-card-copy">{recommendation || 'Маршрут работы определён правилами допуска.'}</p>
                 <div className="owner-actions">
                   {recommendation === 'OWNER_DECISION_REQUIRED' ? (
