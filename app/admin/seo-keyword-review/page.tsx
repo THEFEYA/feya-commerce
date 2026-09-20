@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { KeywordCleanupReviewStatusRow } from '@/lib/types';
+import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -129,25 +130,19 @@ export default async function AdminKeywordCleanupReviewPage({ searchParams }: { 
   };
 
   return (
-    <main className="page-shell">
-      <div className="container">
-        <nav className="top-nav">
-          <Link href="/admin" className="brand-mark">TheFEYA Admin</Link>
-          <div className="nav-links">
-            <Link href="/admin/seo-keywords">SEO-ключи</Link>
-            <Link href="/admin/seo-keyword-review">Проверка ключей</Link>
-            <Link href="/admin/seo-clusters">Группы запросов</Link>
-            <Link href="/admin/seo-portfolio">SEO-страницы</Link>
+    <main className="owner-page">
+      <div className="owner-page-inner">
+        <header className="owner-page-head">
+          <div>
+            <div className="owner-eyebrow">Работа · ключевые запросы</div>
+            <h1>Проверка ключевых слов</h1>
+            <p>Автоматическая очистка, независимая рекомендация и решение человека — разные этапы. FEYA может подготовить рекомендацию, но не может сама изменить человеческий статус проверки.</p>
           </div>
-        </nav>
-
-        <section className="phase-banner">
-          <div className="phase-label">Проверка очистки ключей · только просмотр</div>
-          <h1>Проверка ключевых слов</h1>
-          <p>
-            Автоматическая очистка, независимая рекомендация и решение человека — разные этапы. Рекомендация AI никогда сама не меняет человеческий статус проверки.
-          </p>
-        </section>
+          <div className="owner-actions" style={{ marginTop: 0 }}>
+            <Link href="/admin/company/work#operational-queues" className="owner-button">Назад к работе</Link>
+            <Link href="/admin/company/growth" className="owner-button">Рост</Link>
+          </div>
+        </header>
 
         <section className="owner-summary-strip" style={{ marginBottom: '20px' }}>
           <div className="owner-summary-cell"><strong>{pending}</strong><span>Ждут решения человека</span></div>
@@ -194,9 +189,12 @@ export default async function AdminKeywordCleanupReviewPage({ searchParams }: { 
             <span>После фильтра: {filteredRows.length}</span>
             <Link href="/admin/seo-keyword-review">Сбросить</Link>
           </div>
+          <OwnerSavedViewsClient scope="keyword-review" />
         </form>
 
-        <div className="table-wrap">
+        <section className="owner-section" style={{ marginTop: '18px' }}>
+          <div className="owner-section-head"><div><h2>Очередь запросов</h2><div className="owner-section-kicker">Сначала высокий риск и нерешённые случаи, без изменения исходного текста запросов</div></div></div>
+          <div className="table-wrap">
           <table>
             <thead>
               <tr>
@@ -254,6 +252,9 @@ export default async function AdminKeywordCleanupReviewPage({ searchParams }: { 
             </tbody>
           </table>
         </div>
+
+          </div>
+        </section>
 
         {filteredRows.length > pageSize ? (
           <div className="flex items-center justify-between gap-3" style={{ marginTop: '14px' }}>
