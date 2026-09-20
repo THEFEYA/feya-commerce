@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { KeywordCleanupReviewStatusRow } from '@/lib/types';
 import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
+import { OwnerKeywordReviewClient } from '@/components/admin/OwnerKeywordReviewClient';
+import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -87,6 +89,7 @@ function recClass(value: unknown) {
 export default async function AdminKeywordCleanupReviewPage({ searchParams }: { searchParams: Promise<{ q?: string; risk?: string; status?: string; page?: string }> }) {
   const params = await searchParams;
   const { rows, error } = await getRows();
+  const ownerActions = getOwnerActionConfigStatus();
   const q = String(params.q || '').trim().toLowerCase();
   const riskFilter = String(params.risk || 'all').toUpperCase();
   const statusFilter = String(params.status || 'pending').toLowerCase();
@@ -204,6 +207,7 @@ export default async function AdminKeywordCleanupReviewPage({ searchParams }: { 
                 <th>Предупреждения очистки</th>
                 <th>Независимая рекомендация</th>
                 <th>Решение человека</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -246,6 +250,21 @@ export default async function AdminKeywordCleanupReviewPage({ searchParams }: { 
                       {humanStatusLabel(row.review_status)}
                     </span>
                     {row.approved_keyword ? <div className="muted">{row.approved_keyword}</div> : null}
+                  </td>
+                  <td>
+                    {['pending', 'needs_review'].includes(String(row.review_status || '').toLowerCase()) ? (
+                      <OwnerKeywordReviewClient
+                        cleanupId={Number(row.cleanup_id)}
+                        expectedStatus={String(row.review_status || 'pending')}
+                        keyword={asText(row.effective_keyword, row.original_keyword || '—')}
+                        suggestedKeyword={asText(row.recommended_keyword, '') || asText(row.cleaned_keyword, '') || null}
+                        recommendation={row.recommendation ? recommendationLabel(row.recommendation) : null}
+                        recommendationReason={asText(row.recommendation_reason, '') || null}
+                        riskLabel={riskLabel(row.review_risk)}
+                        enabled={ownerActions.ready}
+                        blockers={ownerActions.blockers}
+                      />
+                    ) : null}
                   </td>
                 </tr>
               ))}
