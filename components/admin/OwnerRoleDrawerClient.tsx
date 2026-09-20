@@ -90,9 +90,9 @@ export function OwnerRoleDrawerClient({
             role="dialog"
             aria-modal="true"
             aria-labelledby={`role-drawer-${role.code}`}
-            className="absolute right-0 top-0 h-full w-full max-w-[560px] overflow-y-auto border-l border-[rgba(216,214,211,.14)] bg-[#0c0c11] shadow-[-30px_0_90px_rgba(0,0,0,.55)]"
+            className="owner-drawer absolute right-0 top-0 h-full w-full max-w-[560px] overflow-y-auto border-l border-[rgba(216,214,211,.14)] bg-[#0c0c11] shadow-[-30px_0_90px_rgba(0,0,0,.55)]"
           >
-            <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[rgba(216,214,211,.10)] bg-[#0c0c11]/95 px-5 py-4 backdrop-blur-xl">
+            <div className="owner-drawer-head sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[rgba(216,214,211,.10)] bg-[#0c0c11]/95 px-5 py-4 backdrop-blur-xl">
               <div>
                 <div className="owner-eyebrow" style={{ marginBottom: '5px' }}>Команда FEYA</div>
                 <h2 id={`role-drawer-${role.code}`} className="m-0 text-[20px] leading-snug text-bone">{role.name}</h2>
@@ -102,7 +102,7 @@ export function OwnerRoleDrawerClient({
               </button>
             </div>
 
-            <div className="space-y-4 p-5">
+            <div className="owner-drawer-body space-y-4 p-5">
               <section className={`owner-card ${toneClass(role.tone)}`}>
                 <div className="owner-card-meta">
                   <span className={`owner-status ${toneClass(role.tone)}`}>{role.statusLabel}</span>
