@@ -304,9 +304,10 @@ export function ProductDetailClient({
 
         <div className="mt-2 relative">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Configuration</div><div className="eyebrow-dim">{options.length || 1} options</div></div>
-          <button type="button" onClick={() => setConfigOpen((open) => !open)} className="w-full h-10 rounded-md bg-[rgba(255,255,255,0.035)] border border-[rgba(216,214,211,0.18)] text-bone px-4 focus:outline-none focus:border-white flex items-center justify-between text-left">
+          <button type="button" onClick={() => setConfigOpen((open) => !open)} className="w-full h-10 rounded-md bg-[rgba(255,255,255,0.035)] border border-[rgba(216,214,211,0.18)] text-bone px-4 focus:outline-none focus:border-white flex items-center justify-between gap-4 text-left">
             <span className="truncate">{activeConfigLabel}</span>
-            <ChevronDown size={15} className={`transition-transform ${configOpen ? 'rotate-180' : ''}`} />
+            <span className="ml-auto shrink-0 text-[12px] text-[var(--bone-dim)]">{formatPrice(sale, currency)}</span>
+            <ChevronDown size={15} className={`shrink-0 transition-transform ${configOpen ? 'rotate-180' : ''}`} />
           </button>
           {configOpen ? <div className="absolute left-0 right-0 top-full mt-2 z-[80] rounded-lg border border-[rgba(216,214,211,.22)] bg-[rgba(5,5,8,.96)] p-1.5 shadow-[0_28px_80px_rgba(0,0,0,.75)] backdrop-blur-xl max-h-[250px] overflow-auto">
             {options.map((o, i) => {
