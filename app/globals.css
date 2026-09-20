@@ -3654,3 +3654,425 @@ a.owner-list-row:hover {
     grid-template-columns: repeat(2,minmax(0,1fr));
   }
 }
+
+
+/* =========================================================
+   Company readability + Work/Team/Signal pass v2 — 2026-09-20
+   ========================================================= */
+.owner-shell .owner-page-head p {
+  color: rgba(238,233,223,.58);
+  font-size: 14px;
+}
+
+.owner-shell .owner-section-kicker {
+  color: rgba(238,233,223,.44);
+  font-size: 11px;
+}
+
+.owner-shell .owner-card-meta {
+  color: rgba(238,233,223,.44);
+  font-size: 10px;
+}
+
+.owner-shell .owner-status {
+  font-size: 10px;
+}
+
+.owner-shell .owner-card-copy {
+  color: rgba(238,233,223,.56);
+  font-size: 12px;
+}
+
+.owner-shell .owner-list-row p {
+  color: rgba(238,233,223,.50);
+  font-size: 12px;
+}
+
+.owner-shell .owner-command-brief p {
+  color: rgba(238,233,223,.56);
+  font-size: 13px;
+}
+
+.owner-shell .owner-command-brief-metrics small {
+  color: rgba(238,233,223,.42);
+  font-size: 10px;
+}
+
+.owner-shell .owner-queue-copy strong {
+  font-size: 11px;
+}
+
+.owner-shell .owner-queue-copy small {
+  color: rgba(238,233,223,.39);
+  font-size: 9px;
+}
+
+.owner-shell .owner-system-ribbon-main p {
+  color: rgba(238,233,223,.45);
+  font-size: 10px;
+}
+
+.owner-shell .owner-system-ribbon-scopes span {
+  color: rgba(238,233,223,.46);
+  font-size: 9px;
+}
+
+.owner-shell .owner-team-roster-main p {
+  color: rgba(238,233,223,.46);
+  font-size: 10px;
+}
+
+.owner-shell .owner-team-roster-now > span,
+.owner-shell .owner-team-roster-cap > span {
+  color: rgba(238,233,223,.38);
+  font-size: 9px;
+}
+
+.owner-shell .owner-team-roster-now strong,
+.owner-shell .owner-team-roster-cap strong {
+  color: rgba(238,233,223,.74);
+  font-size: 11px;
+}
+
+.owner-shell .owner-team-roster-now small,
+.owner-shell .owner-team-roster-cap small {
+  color: rgba(238,233,223,.40);
+  font-size: 9px;
+}
+
+.owner-shell .owner-team-roster-time {
+  color: rgba(212,178,106,.54) !important;
+}
+
+.owner-shell .owner-team-note {
+  color: rgba(238,233,223,.40);
+  font-size: 9px;
+}
+
+.owner-shell .owner-team-command p {
+  color: rgba(238,233,223,.50);
+  font-size: 11px;
+}
+
+.owner-shell .owner-team-state-strip small {
+  color: rgba(238,233,223,.39);
+  font-size: 9px;
+}
+
+.owner-shell .owner-team-card-activity {
+  color: rgba(238,233,223,.38);
+  font-size: 9px;
+}
+
+.owner-shell .owner-role-roster span {
+  color: rgba(238,233,223,.38);
+  font-size: 9px;
+}
+
+.owner-shell .owner-role-roster strong {
+  color: rgba(238,233,223,.68);
+  font-size: 10px;
+}
+
+/* Work lifecycle: stage, never fake progress. */
+.owner-shell .owner-work-lifecycle {
+  display: grid;
+  grid-template-columns: minmax(170px,.62fr) minmax(0,2.1fr);
+  align-items: stretch;
+  gap: 12px;
+  margin: 0 0 20px;
+}
+
+.owner-shell .owner-work-lifecycle-label {
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  padding: 11px 13px;
+  border: 1px solid var(--company-line);
+  border-radius: 11px;
+  background: rgba(255,255,255,.014);
+}
+
+.owner-shell .owner-work-lifecycle-label span {
+  color: rgba(238,233,223,.72);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.owner-shell .owner-work-lifecycle-label small {
+  color: rgba(238,233,223,.40);
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.owner-shell .owner-work-lifecycle-items {
+  display: grid;
+  grid-template-columns: repeat(5,minmax(0,1fr));
+  overflow: hidden;
+  border: 1px solid var(--company-line);
+  border-radius: 11px;
+  background: rgba(255,255,255,.012);
+}
+
+.owner-shell .owner-work-lifecycle-items > a {
+  min-width: 0;
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: 26px minmax(0,1fr);
+  align-items: center;
+  gap: 7px;
+  padding: 9px 10px;
+  border-right: 1px solid var(--company-line);
+  color: inherit;
+  transition: background 150ms ease;
+}
+
+.owner-shell .owner-work-lifecycle-items > a:last-child {
+  border-right: 0;
+}
+
+.owner-shell .owner-work-lifecycle-items > a:hover {
+  background: rgba(255,255,255,.022);
+}
+
+.owner-shell .owner-work-lifecycle-icon {
+  width: 25px;
+  height: 25px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  background: rgba(255,255,255,.025);
+  color: rgba(238,233,223,.34);
+}
+
+.owner-shell .owner-work-lifecycle-items > a.is-live .owner-work-lifecycle-icon {
+  color: #8ea7d9;
+  background: rgba(142,167,217,.055);
+}
+
+.owner-shell .owner-work-lifecycle-items > a.is-queued .owner-work-lifecycle-icon {
+  color: rgba(238,233,223,.56);
+}
+
+.owner-shell .owner-work-lifecycle-items > a.is-waiting .owner-work-lifecycle-icon {
+  color: var(--company-gold-soft);
+  background: rgba(212,178,106,.055);
+}
+
+.owner-shell .owner-work-lifecycle-items > a.is-measuring .owner-work-lifecycle-icon {
+  color: #a3b8e1;
+  background: rgba(142,167,217,.05);
+}
+
+.owner-shell .owner-work-lifecycle-items > a.is-done .owner-work-lifecycle-icon {
+  color: #73d99f;
+  background: rgba(115,217,159,.045);
+}
+
+.owner-shell .owner-work-lifecycle-items > a > span:last-child {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.owner-shell .owner-work-lifecycle-items strong {
+  color: rgba(238,233,223,.76);
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.owner-shell .owner-work-lifecycle-items small {
+  overflow: hidden;
+  color: rgba(238,233,223,.40);
+  font-size: 8.5px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Work detail stage track inside the drawer/full detail. */
+.owner-shell .owner-work-state-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 7px;
+}
+
+.owner-shell .owner-work-state-head span {
+  color: rgba(238,233,223,.38);
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.owner-shell .owner-work-stage-track {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(6,minmax(0,1fr));
+  gap: 0;
+  margin-top: 16px;
+}
+
+.owner-shell .owner-work-stage-track::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 8%;
+  right: 8%;
+  height: 1px;
+  background: rgba(238,233,223,.10);
+}
+
+.owner-shell .owner-work-stage {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.owner-shell .owner-work-stage-dot {
+  width: 10px;
+  height: 10px;
+  border: 2px solid #0f1118;
+  border-radius: 50%;
+  background: rgba(238,233,223,.20);
+  box-shadow: 0 0 0 1px rgba(238,233,223,.08);
+}
+
+.owner-shell .owner-work-stage.is-complete .owner-work-stage-dot {
+  background: rgba(115,217,159,.58);
+  box-shadow: 0 0 0 1px rgba(115,217,159,.24);
+}
+
+.owner-shell .owner-work-stage.is-active .owner-work-stage-dot {
+  background: var(--company-gold);
+  box-shadow: 0 0 0 3px rgba(212,178,106,.09), 0 0 18px rgba(212,178,106,.12);
+}
+
+.owner-shell .owner-work-stage small {
+  overflow: hidden;
+  max-width: 100%;
+  color: rgba(238,233,223,.33);
+  font-size: 7.5px;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.owner-shell .owner-work-stage.is-active small,
+.owner-shell .owner-work-stage.is-complete small {
+  color: rgba(238,233,223,.58);
+}
+
+.owner-shell .owner-work-stage-note {
+  margin: 10px 0 0;
+  color: rgba(238,233,223,.34);
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.owner-shell .owner-work-current-step {
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 8px;
+  padding: 5px 8px;
+  border: 1px solid rgba(142,167,217,.14);
+  border-radius: 7px;
+  color: rgba(164,188,230,.72);
+  background: rgba(142,167,217,.035);
+  font-size: 9px;
+  overflow-wrap: anywhere;
+}
+
+/* Signal drawer: fact -> route -> recommendation -> evidence -> action. */
+.owner-shell .owner-signal-drawer-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 8px;
+  color: rgba(238,233,223,.48);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+}
+
+.owner-shell .owner-signal-drawer-label svg {
+  color: rgba(212,178,106,.62);
+}
+
+.owner-shell .owner-signal-fact-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.owner-shell .owner-signal-fact-card::before {
+  content: '';
+  position: absolute;
+  inset: 13px auto 13px 0;
+  width: 2px;
+  border-radius: 2px;
+  background: rgba(142,167,217,.55);
+}
+
+.owner-shell .owner-signal-route-card {
+  background: rgba(255,255,255,.018);
+}
+
+.owner-shell .owner-signal-route-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 34px;
+  color: rgba(238,233,223,.48);
+  font-size: 11px;
+}
+
+.owner-shell .owner-signal-route-line strong {
+  color: rgba(238,233,223,.76);
+  font-weight: 600;
+}
+
+.owner-shell .owner-signal-route-line svg {
+  color: rgba(212,178,106,.56);
+}
+
+.owner-shell .owner-signal-recommendation-card {
+  border-color: rgba(142,167,217,.16);
+  background: linear-gradient(180deg, rgba(142,167,217,.045), rgba(255,255,255,.012));
+}
+
+@media (max-width: 980px) {
+  .owner-shell .owner-work-lifecycle {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 780px) {
+  .owner-shell .owner-work-lifecycle-items {
+    grid-template-columns: 1fr;
+  }
+
+  .owner-shell .owner-work-lifecycle-items > a {
+    min-height: 48px;
+    border-right: 0;
+    border-bottom: 1px solid var(--company-line);
+  }
+
+  .owner-shell .owner-work-lifecycle-items > a:last-child {
+    border-bottom: 0;
+  }
+
+  .owner-shell .owner-work-stage-track {
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    row-gap: 14px;
+  }
+
+  .owner-shell .owner-work-stage-track::before {
+    display: none;
+  }
+}
