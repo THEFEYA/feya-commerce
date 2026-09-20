@@ -673,3 +673,41 @@ Validation:
 - owner action audit rows remain 0.
 
 No Growth Objective, Initiative or Strategy state was changed by this migration.
+
+
+### Protected canonical SEO proposal apply
+
+20260920125031 — feya_owner_seo_proposal_apply_gateway_v1
+- added service-role-only owner wrapper for applying already APPROVED page-ownership and indexability proposals;
+- delegates to existing guarded canonical apply RPCs;
+- requires real Auth user, explicit apply reason, expected APPROVED status and idempotency key;
+- records generic Owner Action audit receipt;
+- updated APPLY_PAGE_OWNERSHIP_PROPOSAL and APPLY_INDEXABILITY_PROPOSAL to protected_ui_locked;
+- APPLY_QUERY_CLUSTER_PROPOSAL remains UI-deferred until deterministic cluster_code policy exists.
+
+Validation:
+- anon/authenticated EXECUTE = false;
+- service_role EXECUTE = true;
+- approved page-ownership proposals = 0;
+- approved indexability proposals = 0;
+- owner action audit rows remain 0.
+
+No canonical SEO state was changed by the migration.
+
+
+### Protected Execution Gateway approval
+
+20260920125157 — feya_owner_execution_approval_gateway_v1
+- added service-role-only Human Owner wrapper around execution request approval;
+- requires expected APPROVAL_REQUIRED state, explicit reason and idempotency key;
+- preserves immutable request-hash approval semantics from the canonical RPC;
+- records a separate Owner Action audit receipt;
+- updated APPROVE_EXECUTION_REQUEST capability to protected_ui_locked.
+
+Validation:
+- anon/authenticated EXECUTE = false;
+- service_role EXECUTE = true;
+- execution requests requiring approval = 0;
+- owner action audit rows remain 0.
+
+Approval remains separate from dispatcher execution and Execution Receipt.
