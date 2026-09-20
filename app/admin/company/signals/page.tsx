@@ -3,6 +3,7 @@ import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminDa
 import { presentSignal } from '@/lib/owner-ui/presenters';
 import { admissionLabel } from '@/lib/owner-ui/terminology';
 import { OwnerSignalDrawerClient } from '@/components/admin/OwnerSignalDrawerClient';
+import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -132,10 +133,10 @@ export default async function AdminSignalsPage({ searchParams }: { searchParams:
               <div className="owner-section-kicker" style={{ marginBottom: '6px' }}>Приоритет</div>
               <select name="priority" defaultValue={priorityFilter} className="field">
                 <option value="ALL">Все</option>
-                <option value="P0">P0</option>
-                <option value="P1">P1</option>
-                <option value="P2">P2</option>
-                <option value="P3">P3</option>
+                <option value="P0">Критично (P0)</option>
+                <option value="P1">Очень важно (P1)</option>
+                <option value="P2">Важно (P2)</option>
+                <option value="P3">Наблюдать (P3)</option>
               </select>
             </label>
             <button type="submit" className="owner-button primary">Применить</button>
@@ -145,6 +146,7 @@ export default async function AdminSignalsPage({ searchParams }: { searchParams:
             <span>Показано: {prepared.length}</span>
             <Link href="/admin/company/signals">Сбросить</Link>
           </div>
+          <OwnerSavedViewsClient scope="signals" />
         </form>
 
         {error ? (
