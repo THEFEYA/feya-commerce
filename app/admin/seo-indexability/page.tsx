@@ -3,6 +3,7 @@ import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminDa
 import type { IndexabilityProposalRow, PageIndexabilityReadinessRow } from '@/lib/types';
 import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
 import { OwnerProposalReviewClient } from '@/components/admin/OwnerProposalReviewClient';
+import { OwnerProposalApplyClient } from '@/components/admin/OwnerProposalApplyClient';
 import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
 
 export const dynamic = 'force-dynamic';
@@ -92,6 +93,7 @@ export default async function AdminIndexabilityPage({ searchParams }: { searchPa
   const needsContent = readiness.filter((row) => row.indexability_readiness_status === 'NEEDS_PUBLISH_READY_CONTENT').length;
   const ready = readiness.filter((row) => row.indexability_readiness_status === 'READY_FOR_INDEXABILITY_REVIEW').length;
   const indexable = readiness.filter((row) => row.indexation_intent === 'indexable').length;
+  const approvedRows = proposals.filter((row) => row.proposal_status === 'APPROVED');
 
   const attentionStates = new Set(['NEEDS_PRIMARY_OWNERSHIP', 'NEEDS_PUBLISH_READY_CONTENT', 'NOT_ELIGIBLE']);
   const filteredReadiness = readiness
@@ -251,6 +253,35 @@ export default async function AdminIndexabilityPage({ searchParams }: { searchPa
               {page < pageCount ? <Link href={pageHref(page + 1)} className="owner-button">Дальше</Link> : <span className="owner-button" style={{ opacity: .4 }}>Дальше</span>}
             </div>
           </div>
+        ) : null}
+
+        {approvedRows.length ? (
+          <section className="owner-section">
+            <div className="owner-section-head">
+              <div><h2>Одобрено, ждёт применения</h2><div className="owner-section-kicker">Канонический indexation intent меняется отдельным защищённым действием</div></div>
+            </div>
+            <div className="owner-list">
+              {approvedRows.map((row) => (
+                <article className="owner-list-row" key={row.proposal_id}>
+                  <div className="owner-list-row-main">
+                    <div className="owner-card-meta"><span className="owner-status is-success">Одобрено человеком</span><span>{indexabilityLabel(row.decision)}</span></div>
+                    <h3>{asText(row.card_title, row.url_path || 'Страница')}</h3>
+                    <p>{asText(row.url_path)} · {asText(row.rationale, 'Обоснование не указано.')}</p>
+                  </div>
+                  <div className="owner-list-row-side">
+                    <OwnerProposalApplyClient
+                      proposalKind="INDEXABILITY"
+                      proposalId={row.proposal_id}
+                      title={asText(row.card_title, row.url_path || 'Страница')}
+                      consequence={`SEO Page Portfolio изменит indexation intent согласно решению «${indexabilityLabel(row.decision)}». Это не публикует контент и не запускает внешний deployment.`}
+                      enabled={ownerActions.ready}
+                      blockers={ownerActions.blockers}
+                    />
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
         ) : null}
 
         <details className="owner-disclosure owner-disclosure-section" style={{ marginTop: '22px' }}>
