@@ -631,3 +631,25 @@ Validation after migration:
 - browser-readable governed views = 48 until the existing auth/hardening runbook is executed.
 
 No current Owner Attention state was changed by the migration.
+
+
+### Protected SEO proposal review gateway
+
+20260920123137 — feya_owner_seo_proposal_review_gateway_v1
+- added generic owner action audit table with idempotency key;
+- added service-role-only wrapper for Human Owner review of query-cluster, page-ownership and indexability proposals;
+- wrapper delegates to the existing guarded review RPCs and records a durable owner audit receipt;
+- added sanitized owner-action audit view and registered it with Admin Data Boundary;
+- updated REVIEW_QUERY_CLUSTER_PROPOSAL, REVIEW_PAGE_OWNERSHIP_PROPOSAL and REVIEW_INDEXABILITY_PROPOSAL capability state to protected_ui_locked.
+
+Validation:
+- reviewable query-cluster proposals = 0;
+- reviewable page-ownership proposals = 0;
+- reviewable indexability proposals = 0;
+- owner action audit rows = 0;
+- anon/authenticated EXECUTE on wrapper = false;
+- service_role EXECUTE = true;
+- governed Admin Data Boundary views = 49;
+- browser-readable governed views = 49 until owner-auth hardening.
+
+The migration does not apply any proposal and does not mutate canonical SEO ownership/indexability.
