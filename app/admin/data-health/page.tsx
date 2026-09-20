@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { DataSourceHealthRow } from '@/lib/types';
 import { dataFreshnessLabel, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
@@ -98,7 +99,7 @@ export default async function AdminDataHealthPage() {
           <div className="owner-summary-cell"><strong>{healthy}</strong><span>Работают нормально</span></div>
         </section>
 
-        {error ? <div className="owner-card is-danger"><div className="owner-status is-danger">Ошибка данных</div><p className="owner-card-copy">{error}</p></div> : null}
+        {error ? <OwnerDataError error={error} /> : null}
 
         <div className="owner-card is-info" style={{ marginBottom: '18px' }}>
           <div className="owner-status is-info">Как читать экран</div>
