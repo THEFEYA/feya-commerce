@@ -38,6 +38,8 @@ const requiredFiles = [
   'app/api/admin/company/execution-approval/route.ts',
   'components/admin/OwnerKeywordReviewClient.tsx',
   'app/api/admin/company/keyword-review/route.ts',
+  'components/admin/OwnerScoDraftReviewClient.tsx',
+  'app/api/admin/company/content-review/route.ts',
   'docs/OWNER_UX_BLUEPRINT_AUDIT_2026-09-19.md',
   'docs/OWNER_FUNCTIONAL_COVERAGE_2026-09-20.md',
   'docs/OWNER_COMPANY_VISUAL_CONTRACT_V1.md',
@@ -202,6 +204,10 @@ if (!failures.length) {
   if (!keywordReviewRoute.includes('requireOwnerActionActor')) failures.push('Keyword review route must require owner authority.');
   if (!keywordReviewRoute.includes('feya_fn_owner_review_keyword_cleanup_v1')) failures.push('Keyword review route must use the guarded owner review wrapper.');
   if (!keywordReviewPage.includes('OwnerKeywordReviewClient')) failures.push('Keyword review queue must expose protected Human review context.');
+  const contentReviewRoute = text('app/api/admin/company/content-review/route.ts');
+  if (!contentReviewRoute.includes('requireOwnerActionActor')) failures.push('Content Human review route must require owner authority.');
+  if (!contentReviewRoute.includes('feya_fn_owner_review_sco_shadow_draft_v1')) failures.push('Content review route must use the guarded SCO Human review wrapper.');
+  if (!contentQa.includes('actionEnabled={ownerActions.ready}')) failures.push('CQA drawers must receive protected Owner Action readiness.');
   const strategicActionRoute = text('app/api/admin/company/strategic-action/route.ts');
   const strategicActionClient = text('components/admin/OwnerStrategicActionClient.tsx');
   if (!strategicActionRoute.includes('requireOwnerActionActor')) failures.push('Strategic owner route must require owner authority.');
