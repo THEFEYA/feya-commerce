@@ -109,6 +109,11 @@ const BATCH34_COUPLE_OUTFITS_ID = '8f4646f0-ea2b-48c3-af11-e22f0dec4f08';
 const BATCH34_HOLO_WINGS_ID = '74634519-add3-490f-8ef3-3b4d74a7ca7d';
 const BATCH34_PINK_BODYSUIT_ID = 'c61827ef-4530-426b-a2bf-7a44738352af';
 const BATCH34_GOLD_HORNS_ID = '8223ea35-644b-4bd8-bd05-4ba7810b116a';
+const BATCH35_SILVER_ROBOT_ID = '13300fb8-c39d-476f-9485-75747c4e6599';
+const BATCH35_COUPLE_PAIRED_ID = 'a759b44e-1329-47a6-a444-0c9feabcc0ce';
+const BATCH35_SILVER_DANCE_ID = 'b9e7bdbd-1edd-41c5-af9e-8f3799469715';
+const BATCH35_DESERT_GODDESS_ID = '481ca9fa-1100-439d-b52b-80caadba52a9';
+const BATCH35_SILVER_ARMOR_COMBOS_ID = '818a1991-46e2-4628-ac61-6db77314c9af';
 
 
 
@@ -117,6 +122,150 @@ const BATCH34_GOLD_HORNS_ID = '8223ea35-644b-4bd8-bd05-4ba7810b116a';
 
 
 
+
+
+function correctBatch35SilverRobot<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const armId = '1b0f4316-bc85-4556-bfab-014ed9e2d1d1';
+  const fullId = 'e97abcfb-98e4-46f0-b631-1321cbad10cf';
+  if (![armId, fullId].every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  const configurations = product.configurations.map(row => {
+    const id = configurationId(row);
+    if (id === armId) return {
+      ...row, public_label: 'Arm Covers', component_code: 'arms', component_family: 'Arms', needs_label_review: false
+    };
+    if (id === fullId) return {
+      ...row,
+      bundle_component_codes: ['arms','shoulders','legs','belt'],
+      bundle_component_labels: ['Arm Covers','Shoulders','Leg Covers','Belt'],
+      source_confirmed_bundle_members: true,
+      needs_label_review: false
+    };
+    return row;
+  });
+  return { ...product, configurations, needs_label_review: configurations.some(row => row.needs_label_review === true) };
+}
+
+function correctBatch35CouplePaired<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const womenId = 'c5e525cb-3b26-4df7-af42-e63a399127d5';
+  const menId = '6653af11-a640-423a-b355-3c64ccaa94af';
+  const pairId = '6a68bce4-4a2c-4419-a3a1-2a85f1aa80af';
+  if (![womenId, menId, pairId].every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  const configurations = product.configurations.map(row => {
+    const id = configurationId(row);
+    if (id === womenId) return {
+      ...row, public_label: "Women's Outfit", component_code: 'women_outfit', component_family: 'Outfit',
+      configuration_audience: 'Women', sort_order: 1, needs_label_review: false
+    };
+    if (id === menId) return {
+      ...row, public_label: "Men's Outfit", component_code: 'men_outfit', component_family: 'Outfit',
+      configuration_audience: 'Men', sort_order: 2, needs_label_review: false
+    };
+    if (id === pairId) return {
+      ...row, public_label: 'Paired Set', component_code: 'paired_set', component_family: 'Bundle',
+      is_bundle: true, is_full_set: true,
+      bundle_component_codes: ['women_outfit','men_outfit'],
+      bundle_component_labels: ["Women's Outfit","Men's Outfit"],
+      source_confirmed_bundle_members: true,
+      sort_order: 3, needs_label_review: false
+    };
+    return row;
+  });
+  return { ...product, configurations, needs_label_review: configurations.some(row => row.needs_label_review === true) };
+}
+
+function correctBatch35SilverDance<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const topSkirtId = '7f1d8eb0-bb9a-49dd-9667-ab40cb313145';
+  const topPantiesId = 'd77e1f68-e882-467a-8041-e2cb4e282d2c';
+  const trioId = 'd7195ac0-128f-4347-bc2e-aa36d856a1b5';
+  if (![topSkirtId, topPantiesId, trioId].every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  const configurations = product.configurations.map(row => {
+    const id = configurationId(row);
+    if (id === topSkirtId) return {
+      ...row, public_label: 'Top + Skirt', component_code: 'top_skirt', component_family: 'Bundle',
+      is_bundle: true, is_full_set: false,
+      bundle_component_codes: ['top','skirt'], bundle_component_labels: ['Top','Skirt'], needs_label_review: false
+    };
+    if (id === topPantiesId) return {
+      ...row, public_label: 'Top + Panties', component_code: 'top_panties', component_family: 'Bundle',
+      is_bundle: true, is_full_set: false,
+      bundle_component_codes: ['top','panties'], bundle_component_labels: ['Top','Panties'], needs_label_review: false
+    };
+    if (id === trioId) return {
+      ...row, public_label: 'Top + Skirt + Panties', component_code: 'top_skirt_panties', component_family: 'Bundle',
+      is_bundle: true, is_full_set: true,
+      bundle_component_codes: ['top','skirt','panties'], bundle_component_labels: ['Top','Skirt','Panties'],
+      source_confirmed_bundle_members: true, needs_label_review: false
+    };
+    return row;
+  });
+  return { ...product, configurations, needs_label_review: configurations.some(row => row.needs_label_review === true) };
+}
+
+function correctBatch35DesertGoddess<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const groupedId = '7363b8a0-1eb9-4972-b476-71b5783467ea';
+  const fullId = 'ffbf2114-be94-4d15-834b-7db3ad693862';
+  if (![groupedId, fullId].every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  const configurations = product.configurations.map(row => {
+    const id = configurationId(row);
+    if (id === groupedId) return {
+      ...row, public_label: 'Top + Shoulders', component_code: 'top_shoulders', component_family: 'Bundle',
+      is_bundle: true, is_full_set: false,
+      bundle_component_codes: ['top','shoulders'], bundle_component_labels: ['Top','Shoulders'],
+      needs_label_review: false
+    };
+    if (id === fullId) return {
+      ...row,
+      bundle_component_codes: ['skirt','top','shoulders'],
+      bundle_component_labels: ['Skirt','Top','Shoulders'],
+      source_confirmed_bundle_members: true,
+      needs_label_review: false
+    };
+    return row;
+  });
+  return { ...product, configurations, needs_label_review: configurations.some(row => row.needs_label_review === true) };
+}
+
+function correctBatch35SilverArmorCombos<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const topSkirtId = '68332766-581a-446f-bf94-191672a0744f';
+  const topShouldersId = 'cae9a15c-c04f-4335-89b8-c5e1b1527d71';
+  const trioId = 'bf0af5a4-dbd7-4d86-bd0b-646822f0a4b0';
+  const fullId = 'b40753e5-665a-49e6-ba10-46e54b0bf22a';
+  if (![topSkirtId, topShouldersId, trioId, fullId].every(
+    id => product.configurations.some(row => configurationId(row) === id)
+  )) return product;
+  const configurations = product.configurations.map(row => {
+    const id = configurationId(row);
+    if (id === topSkirtId) return {
+      ...row, public_label: 'Top + Skirt', component_code: 'top_skirt', component_family: 'Bundle',
+      is_bundle: true, is_full_set: false,
+      bundle_component_codes: ['top','skirt'], bundle_component_labels: ['Top','Skirt'], needs_label_review: false
+    };
+    if (id === topShouldersId) return {
+      ...row, public_label: 'Top + Shoulders', component_code: 'top_shoulders', component_family: 'Bundle',
+      is_bundle: true, is_full_set: false,
+      bundle_component_codes: ['top','shoulders'], bundle_component_labels: ['Top','Shoulders'], needs_label_review: false
+    };
+    if (id === trioId) return {
+      ...row, public_label: 'Top + Skirt + Panties', component_code: 'top_skirt_panties', component_family: 'Bundle',
+      is_bundle: true, is_full_set: false,
+      bundle_component_codes: ['top','skirt','panties'], bundle_component_labels: ['Top','Skirt','Panties'], needs_label_review: false
+    };
+    if (id === fullId) return {
+      ...row,
+      bundle_component_codes: ['top','shoulders','skirt','panties'],
+      bundle_component_labels: ['Top','Shoulders','Skirt','Panties'],
+      source_confirmed_bundle_members: true,
+      needs_label_review: false
+    };
+    return row;
+  });
+  return { ...product, configurations, needs_label_review: configurations.some(row => row.needs_label_review === true) };
+}
 
 function correctBatch34SilverBraSkirt<T extends Record<string, any>>(product: T): T {
   if (!Array.isArray(product.configurations)) return product;
@@ -1152,6 +1301,11 @@ function correctSilverBraSkirtSet<T extends Record<string, any>>(product: T): T 
 
 export function applyOwnerReviewedStorefrontCorrections<T extends Record<string, any>>(product: T): T {
   const productId = String(product?.canonical_product_id || '');
+  if (productId === BATCH35_SILVER_ROBOT_ID) return correctBatch35SilverRobot(product);
+  if (productId === BATCH35_COUPLE_PAIRED_ID) return correctBatch35CouplePaired(product);
+  if (productId === BATCH35_SILVER_DANCE_ID) return correctBatch35SilverDance(product);
+  if (productId === BATCH35_DESERT_GODDESS_ID) return correctBatch35DesertGoddess(product);
+  if (productId === BATCH35_SILVER_ARMOR_COMBOS_ID) return correctBatch35SilverArmorCombos(product);
   if (productId === BATCH34_SILVER_BRA_SKIRT_ID) return correctBatch34SilverBraSkirt(product);
   if (productId === BATCH34_COUPLE_OUTFITS_ID) return correctBatch34CoupleOutfits(product);
   if (productId === BATCH34_HOLO_WINGS_ID) return correctBatch34HoloWings(product);
