@@ -1147,3 +1147,82 @@ test('restores Batch34 source-confirmed selectors', () => {
     ['Leg Covers', 'Horns (Old)', 'Bodysuit', 'Corset + Boots'],
   );
 });
+
+
+test('restores Batch35 source-confirmed selectors', () => {
+  const robot = {
+    canonical_product_id: '13300fb8-c39d-476f-9485-75747c4e6599',
+    configurations: [
+      { configuration_id: '1b0f4316-bc85-4556-bfab-014ed9e2d1d1', sort_order: 1, public_label: 'Arm Pieces', component_code: 'arms', component_family: 'Arms', display_price_amount: 114.05 },
+      { configuration_id: 'fdb204ca-20b5-4f6e-882b-a4c623f1a5c3', sort_order: 2, public_label: 'Shoulders', component_code: 'shoulders', component_family: 'Shoulders', display_price_amount: 149.14 },
+      { configuration_id: 'fbd1129c-9af9-4822-9dbc-3d8c55f89c7f', sort_order: 3, public_label: 'Leg Covers', component_code: 'legs', component_family: 'Legs', display_price_amount: 166.76 },
+      { configuration_id: '452dea20-7b12-4e6b-b012-1864c9483519', sort_order: 4, public_label: 'Belt', component_code: 'belt', component_family: 'Belt', display_price_amount: 175.46 },
+      { configuration_id: 'e97abcfb-98e4-46f0-b631-1321cbad10cf', sort_order: 5, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['arms','shoulders','legs','belt'], display_price_amount: 435.03 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(robot, { configuration_id: 'e97abcfb-98e4-46f0-b631-1321cbad10cf' }),
+    ['Arm Covers', 'Shoulders', 'Leg Covers', 'Belt'],
+  );
+
+  const couple = {
+    canonical_product_id: 'a759b44e-1329-47a6-a444-0c9feabcc0ce',
+    configurations: [
+      { configuration_id: '6653af11-a640-423a-b355-3c64ccaa94af', sort_order: 1, public_label: 'Option', needs_label_review: true, display_price_amount: 199.39 },
+      { configuration_id: 'c5e525cb-3b26-4df7-af42-e63a399127d5', sort_order: 2, public_label: 'Option', needs_label_review: true, display_price_amount: 327.00 },
+      { configuration_id: '6a68bce4-4a2c-4419-a3a1-2a85f1aa80af', sort_order: 3, public_label: 'Option', needs_label_review: true, display_price_amount: 502.46 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(couple, { configuration_id: '6a68bce4-4a2c-4419-a3a1-2a85f1aa80af' }),
+    ["Women's Outfit", "Men's Outfit"],
+  );
+
+  const dance = {
+    canonical_product_id: 'b9e7bdbd-1edd-41c5-af9e-8f3799469715',
+    configurations: [
+      { configuration_id: 'b6335184-9177-49a4-a7bf-5b748e2878f2', sort_order: 1, public_label: 'Panties', component_code: 'panties', component_family: 'Bottom', display_price_amount: 106.16 },
+      { configuration_id: '57f69de3-ab0c-4d91-b990-a1ec842cb8fb', sort_order: 2, public_label: 'Skirt', component_code: 'skirt', component_family: 'Bottom', display_price_amount: 144.76 },
+      { configuration_id: 'fde8cbae-61b6-4093-9387-6d5aa2291b18', sort_order: 3, public_label: 'Top', component_code: 'top', component_family: 'Top', display_price_amount: 144.76 },
+      { configuration_id: 'd77e1f68-e882-467a-8041-e2cb4e282d2c', sort_order: 4, public_label: 'Panties', component_code: 'panties', component_family: 'Bottom', display_price_amount: 183.44 },
+      { configuration_id: '7f1d8eb0-bb9a-49dd-9667-ab40cb313145', sort_order: 5, public_label: 'Skirt', component_code: 'skirt', component_family: 'Bottom', display_price_amount: 215.34 },
+      { configuration_id: 'd7195ac0-128f-4347-bc2e-aa36d856a1b5', sort_order: 6, public_label: 'Panties', component_code: 'panties', component_family: 'Bottom', display_price_amount: 279.14 },
+    ],
+  } as any;
+  assert.deepEqual(storefrontIncludedOptions(dance, { configuration_id: '7f1d8eb0-bb9a-49dd-9667-ab40cb313145' }), ['Top + Skirt']);
+  assert.deepEqual(storefrontIncludedOptions(dance, { configuration_id: 'd77e1f68-e882-467a-8041-e2cb4e282d2c' }), ['Top + Panties']);
+  assert.deepEqual(storefrontIncludedOptions(dance, { configuration_id: 'd7195ac0-128f-4347-bc2e-aa36d856a1b5' }), ['Top + Skirt + Panties']);
+
+  const goddess = {
+    canonical_product_id: '481ca9fa-1100-439d-b52b-80caadba52a9',
+    configurations: [
+      { configuration_id: '37588aaf-19a1-4967-b397-40357e160368', sort_order: 1, public_label: 'Skirt', component_code: 'skirt', component_family: 'Bottom', display_price_amount: 139.94 },
+      { configuration_id: '7363b8a0-1eb9-4972-b476-71b5783467ea', sort_order: 2, public_label: 'Top + Shoulders', component_code: 'bundle', component_family: 'Bundle', is_bundle: true, bundle_component_codes: ['shoulders','top'], display_price_amount: 159.51 },
+      { configuration_id: 'ffbf2114-be94-4d15-834b-7db3ad693862', sort_order: 3, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['skirt','top','shoulders'], display_price_amount: 251.23 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(goddess, { configuration_id: 'ffbf2114-be94-4d15-834b-7db3ad693862' }),
+    ['Skirt', 'Top + Shoulders'],
+  );
+
+  const armor = {
+    canonical_product_id: '818a1991-46e2-4628-ac61-6db77314c9af',
+    configurations: [
+      { configuration_id: '8d937df5-8a1e-4434-80fc-9b2b9c4e2a6d', sort_order: 1, public_label: 'Panties', component_code: 'panties', component_family: 'Bottom', display_price_amount: 96.50 },
+      { configuration_id: '481e80ca-a68a-4069-b41e-c450b48b751e', sort_order: 2, public_label: 'Top', component_code: 'top', component_family: 'Top', display_price_amount: 115.81 },
+      { configuration_id: '96ea219d-1599-472a-ab6e-0bd03b5f04ad', sort_order: 3, public_label: 'Shoulders', component_code: 'shoulders', component_family: 'Shoulders', display_price_amount: 135.10 },
+      { configuration_id: '7e20a796-41c9-4fe3-82f3-392320185463', sort_order: 4, public_label: 'Skirt', component_code: 'skirt', component_family: 'Bottom', display_price_amount: 135.10 },
+      { configuration_id: '68332766-581a-446f-bf94-191672a0744f', sort_order: 5, public_label: 'Skirt', component_code: 'skirt', component_family: 'Bottom', display_price_amount: 183.44 },
+      { configuration_id: 'bf0af5a4-dbd7-4d86-bd0b-646822f0a4b0', sort_order: 6, public_label: 'Panties', component_code: 'panties', component_family: 'Bottom', display_price_amount: 239.27 },
+      { configuration_id: 'cae9a15c-c04f-4335-89b8-c5e1b1527d71', sort_order: 7, public_label: 'Top + Shoulders', component_code: 'bundle', component_family: 'Bundle', is_bundle: true, bundle_component_codes: ['shoulders','top'], display_price_amount: 183.44 },
+      { configuration_id: 'b40753e5-665a-49e6-ba10-46e54b0bf22a', sort_order: 8, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['panties','top','shoulders','skirt'], display_price_amount: 319.02 },
+    ],
+  } as any;
+  assert.deepEqual(storefrontIncludedOptions(armor, { configuration_id: '68332766-581a-446f-bf94-191672a0744f' }), ['Top + Skirt']);
+  assert.deepEqual(storefrontIncludedOptions(armor, { configuration_id: 'bf0af5a4-dbd7-4d86-bd0b-646822f0a4b0' }), ['Top + Skirt + Panties']);
+  assert.deepEqual(
+    [...storefrontIncludedOptions(armor, { configuration_id: 'b40753e5-665a-49e6-ba10-46e54b0bf22a' })].sort(),
+    ['Top + Skirt + Panties', 'Shoulders'].sort(),
+  );
+});
