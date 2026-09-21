@@ -177,3 +177,15 @@ Owner clarification 2026-09-21:
 - Use ordinary wording when it says the same thing more clearly: **matching**, **look like a pair**, **same finish**, **same style**, **share the same gold look**, **work well together**.
 - These abstract terms may appear internally, but public copy should sound like a human stylist or maker speaking to a buyer.
 - For couple listings, explain the actual difference between the women's and men's outfit, what each version contains when owner/source truth is available, and why the two versions work well together.
+
+
+## R33. Explain variant composition only when it materially improves buyer clarity
+
+Owner clarification 2026-09-21:
+
+- Treat variant-breakdown copy as a **clarity tool, not a mandatory template**.
+- When selector labels are opaque, numbered, quantity-based, grouped, or otherwise easy to misunderstand, explain in public copy what the important variants contain.
+- Examples: Variant #1/#2 composition, x1 vs x2 quantity meaning, men's vs women's outfit contents, or a grouped option such as Shoulder + Bracelet.
+- When selector labels are already obvious, do not restate every purchase option in prose.
+- Keep the explanation natural and useful; do not turn the PDP into technical option documentation.
+- Current storefront/source-confirmed offer remains composition truth. Variant explanation must never invent components.
