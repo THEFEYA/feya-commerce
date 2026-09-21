@@ -167,3 +167,13 @@ Rules:
 
 ## Process rule
 Every owner review is captured the same way: complaint → named rule → committed here → reflected in prompts/validators. Cumulative and versioned.
+
+
+## R32. Prefer ordinary human wording over abstract styling language
+
+Owner clarification 2026-09-21:
+
+- Avoid using **coordinated / cohesive / visual direction / visual concept / design language** as default buyer-facing prose.
+- Use ordinary wording when it says the same thing more clearly: **matching**, **look like a pair**, **same finish**, **same style**, **share the same gold look**, **work well together**.
+- These abstract terms may appear internally, but public copy should sound like a human stylist or maker speaking to a buyer.
+- For couple listings, explain the actual difference between the women's and men's outfit, what each version contains when owner/source truth is available, and why the two versions work well together.
