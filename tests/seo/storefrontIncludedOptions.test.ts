@@ -1226,3 +1226,85 @@ test('restores Batch35 source-confirmed selectors', () => {
     ['Top + Skirt + Panties', 'Shoulders'].sort(),
   );
 });
+
+
+test('restores Batch36 source-confirmed selectors', () => {
+  const dance = {
+    canonical_product_id: 'a9f110dc-4ed4-454f-9e28-f67ca5a042e1',
+    configurations: [
+      { configuration_id: 'ec5063ec-a913-4155-95da-c509926f5d09', sort_order: 1, public_label: 'Skirt', component_code: 'skirt', component_family: 'Bottom', display_price_amount: 82.07 },
+      { configuration_id: 'c5c7c429-3f42-4652-914e-5740110c877f', sort_order: 2, public_label: 'Leg Covers', component_code: 'legs', component_family: 'Legs', display_price_amount: 144.83 },
+      { configuration_id: 'd97f43bd-2d3c-4ebd-94b1-8ce0ca69635e', sort_order: 3, public_label: 'Spine', component_code: 'spine', component_family: 'Back', display_price_amount: 144.83 },
+      { configuration_id: '1f00ab55-265d-4969-813a-65818ea573cf', sort_order: 4, public_label: 'Bodysuit', component_code: 'bodysuit', component_family: 'Bodysuit', display_price_amount: 175.55 },
+      { configuration_id: '0901f124-d832-40f4-aa3b-1dc2b20e0b8c', sort_order: 5, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['skirt','legs','spine','bodysuit'], display_price_amount: 398.98 },
+    ],
+  } as any;
+  assert.deepEqual(
+    [...storefrontIncludedOptions(dance, { configuration_id: '0901f124-d832-40f4-aa3b-1dc2b20e0b8c' })].sort(),
+    ['Skirt','Leg Covers','Spine + Tail','Bodysuit'].sort(),
+  );
+
+  const silverCorset = {
+    canonical_product_id: 'a6beccc2-bbd3-4040-8e29-af06efd6dd97',
+    configurations: [
+      { configuration_id: 'd42558a3-480f-4c01-9b2b-5d240cb42317', sort_order: 1, public_label: 'Bracelet', component_code: 'arms', component_family: 'Arms', display_price_amount: 96.50 },
+      { configuration_id: 'c4075b16-61c8-474a-a906-0f89743a46e6', sort_order: 2, public_label: 'Garters', component_code: 'legs', component_family: 'Legs', display_price_amount: 96.50 },
+      { configuration_id: '5412e16d-c1e8-4d78-be09-bd0dde25955c', sort_order: 3, public_label: 'Corset', component_code: 'corset', component_family: 'Top', display_price_amount: 178.53 },
+      { configuration_id: '993bf1da-692e-4949-abc3-0b5097470ae7', sort_order: 4, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['arms','legs','corset'], display_price_amount: 255.22 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(silverCorset, { configuration_id: '993bf1da-692e-4949-abc3-0b5097470ae7' }),
+    ['Leg Bracelets','Garters','Corset'],
+  );
+
+  const warrior = {
+    canonical_product_id: '0b7e5ccd-f5a3-4dd7-877f-1e21fbda9486',
+    configurations: [
+      { configuration_id: '0096778a-a054-47d3-a158-1c1ec636d8fd', sort_order: 1, public_label: 'Bracelet', component_code: 'arms', component_family: 'Arms', display_price_amount: 96.50 },
+      { configuration_id: 'fd828c77-6094-457f-9b8d-425eeaff53db', sort_order: 2, public_label: 'Garters', component_code: 'legs', component_family: 'Legs', display_price_amount: 96.50 },
+      { configuration_id: 'de582e95-5729-4d44-9b3e-95161a979278', sort_order: 3, public_label: 'Option', needs_label_review: true, display_price_amount: 96.50 },
+      { configuration_id: '04499dde-3d4a-4e29-ba94-036f1fa7ddc7', sort_order: 4, public_label: 'Shoulders', component_code: 'shoulders', component_family: 'Shoulders', display_price_amount: 125.45 },
+      { configuration_id: 'e9bd5c59-d9a4-4b65-b57c-bf2860aaa4d1', sort_order: 5, public_label: 'Shoulder + Bracelet', component_code: 'bundle', component_family: 'Bundle', is_bundle: true, bundle_component_codes: ['arms','shoulders'], display_price_amount: 159.51 },
+      { configuration_id: '5233fb65-7ff7-4177-885d-1455fc8b9aa0', sort_order: 6, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['arms','legs','shoulders'], display_price_amount: 277.69 },
+    ],
+  } as any;
+  assert.deepEqual(
+    [...storefrontIncludedOptions(warrior, { configuration_id: '5233fb65-7ff7-4177-885d-1455fc8b9aa0' })].sort(),
+    ['Top Harness','Leg Garters','Shoulder + Bracelet'].sort(),
+  );
+
+  const angel = {
+    canonical_product_id: 'a7109e93-df1f-43a6-bb6f-62bdf74e4c4f',
+    configurations: [
+      { configuration_id: '7d88e8f4-ade9-4ff3-85af-497e0e5f6961', sort_order: 1, public_label: 'Shoulders', component_code: 'shoulders', component_family: 'Shoulders', display_price_amount: 207.36 },
+      { configuration_id: '84941441-d77e-41c9-bed9-94611553a975', sort_order: 2, public_label: 'Shoulders', component_code: 'shoulders', component_family: 'Shoulders', display_price_amount: 135.10 },
+      { configuration_id: 'be10cdf7-dd19-4a47-8d5d-15fbb761114f', sort_order: 3, public_label: 'Arm Pieces', component_code: 'arms', component_family: 'Arms', display_price_amount: 144.76 },
+      { configuration_id: '423d53ec-0a4d-4dc1-8bcf-6224a0c9b0ca', sort_order: 4, public_label: 'Arm Pieces', component_code: 'arms', component_family: 'Arms', display_price_amount: 82.03 },
+      { configuration_id: '91993da0-b771-4215-ba1c-6edabf0737ad', sort_order: 5, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['shoulders','arms'], display_price_amount: 303.07 },
+      { configuration_id: 'fe93bdb2-824c-4669-a58c-4bb3a377f2ef', sort_order: 6, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['shoulders','arms'], display_price_amount: 175.46 },
+    ],
+  } as any;
+  assert.deepEqual(
+    storefrontIncludedOptions(angel, { configuration_id: 'fe93bdb2-824c-4669-a58c-4bb3a377f2ef', is_full_set: true }),
+    ['Shoulder x1','Arm Cover x1'],
+  );
+  assert.deepEqual(
+    storefrontIncludedOptions(angel, { configuration_id: '91993da0-b771-4215-ba1c-6edabf0737ad', is_full_set: true }),
+    ['Shoulders x2','Arm Covers x2'],
+  );
+
+  const spine = {
+    canonical_product_id: '31bde143-e483-454b-a397-14bcffa47f20',
+    configurations: [
+      { configuration_id: 'b6625b12-eb5b-49b6-942b-00570f562381', sort_order: 1, public_label: 'Spine', component_code: 'spine', component_family: 'Back', display_price_amount: 130.28 },
+      { configuration_id: '260e1e5f-b933-4315-a216-86bfc840d83e', sort_order: 2, public_label: 'Belt + Garters', component_code: 'bundle', component_family: 'Bundle', is_bundle: true, bundle_component_codes: ['belt','legs'], display_price_amount: 96.50 },
+      { configuration_id: '8a01e45a-1278-4215-bbe9-92603659c9b4', sort_order: 3, public_label: 'Bra + Shoulders', component_code: 'bundle', component_family: 'Bundle', is_bundle: true, bundle_component_codes: ['shoulders','top'], display_price_amount: 106.16 },
+      { configuration_id: 'c45dfaca-600d-46ef-b6a7-556de132d0e1', sort_order: 4, public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, bundle_component_codes: ['spine','belt','legs','top','shoulders'], display_price_amount: 255.22 },
+    ],
+  } as any;
+  assert.deepEqual(
+    [...storefrontIncludedOptions(spine, { configuration_id: 'c45dfaca-600d-46ef-b6a7-556de132d0e1' })].sort(),
+    ['Spine','Belt + Garters','Bra + Shoulders'].sort(),
+  );
+});
