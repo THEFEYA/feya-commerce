@@ -163,7 +163,7 @@ function correctBatch35CouplePaired<T extends Record<string, any>>(product: T): 
       configuration_audience: 'Men', sort_order: 2, needs_label_review: false
     };
     if (id === pairId) return {
-      ...row, public_label: 'Paired Set', component_code: 'paired_set', component_family: 'Bundle',
+      ...row, public_label: 'Paired Set', component_code: 'full_set', component_family: 'Bundle',
       is_bundle: true, is_full_set: true,
       bundle_component_codes: ['women_outfit','men_outfit'],
       bundle_component_labels: ["Women's Outfit","Men's Outfit"],
@@ -195,7 +195,7 @@ function correctBatch35SilverDance<T extends Record<string, any>>(product: T): T
     };
     if (id === trioId) return {
       ...row, public_label: 'Top + Skirt + Panties', component_code: 'top_skirt_panties', component_family: 'Bundle',
-      is_bundle: true, is_full_set: true,
+      is_bundle: true, is_full_set: false,
       bundle_component_codes: ['top','skirt','panties'], bundle_component_labels: ['Top','Skirt','Panties'],
       source_confirmed_bundle_members: true, needs_label_review: false
     };
