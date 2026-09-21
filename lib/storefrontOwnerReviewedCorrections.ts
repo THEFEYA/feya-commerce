@@ -114,6 +114,11 @@ const BATCH35_COUPLE_PAIRED_ID = 'a759b44e-1329-47a6-a444-0c9feabcc0ce';
 const BATCH35_SILVER_DANCE_ID = 'b9e7bdbd-1edd-41c5-af9e-8f3799469715';
 const BATCH35_DESERT_GODDESS_ID = '481ca9fa-1100-439d-b52b-80caadba52a9';
 const BATCH35_SILVER_ARMOR_COMBOS_ID = '818a1991-46e2-4628-ac61-6db77314c9af';
+const BATCH36_DANCE_SPINE_TAIL_ID = 'a9f110dc-4ed4-454f-9e28-f67ca5a042e1';
+const BATCH36_SILVER_CORSET_LEGS_ID = 'a6beccc2-bbd3-4040-8e29-af06efd6dd97';
+const BATCH36_WARRIOR_PRINCESS_ID = '0b7e5ccd-f5a3-4dd7-877f-1e21fbda9486';
+const BATCH36_ANGEL_ARMOR_QTY_ID = 'a7109e93-df1f-43a6-bb6f-62bdf74e4c4f';
+const BATCH36_SILVER_SPINE_ID = '31bde143-e483-454b-a397-14bcffa47f20';
 
 
 
@@ -123,6 +128,201 @@ const BATCH35_SILVER_ARMOR_COMBOS_ID = '818a1991-46e2-4628-ac61-6db77314c9af';
 
 
 
+
+
+function correctBatch36DanceSpineTail<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const spineTailId = 'd97f43bd-2d3c-4ebd-94b1-8ce0ca69635e';
+  const fullId = '0901f124-d832-40f4-aa3b-1dc2b20e0b8c';
+  if (![spineTailId, fullId].every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  const configurations = product.configurations.map(row => {
+    const id = configurationId(row);
+    if (id === spineTailId) return {
+      ...row,
+      public_label: 'Spine + Tail',
+      component_code: 'spine_tail',
+      component_family: 'Bundle',
+      is_bundle: true,
+      is_full_set: false,
+      bundle_component_codes: ['spine','tail'],
+      bundle_component_labels: ['Spine','Tail'],
+      needs_label_review: false,
+    };
+    if (id === fullId) return {
+      ...row,
+      bundle_component_codes: ['skirt','legs','spine','tail','bodysuit'],
+      bundle_component_labels: ['Skirt','Leg Covers','Spine','Tail','Bodysuit'],
+      source_confirmed_bundle_members: true,
+      needs_label_review: false,
+    };
+    return row;
+  });
+  return { ...product, configurations, needs_label_review: configurations.some(row => row.needs_label_review === true) };
+}
+
+function correctBatch36SilverCorsetLegs<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const legBraceletsId = 'd42558a3-480f-4c01-9b2b-5d240cb42317';
+  const fullId = '993bf1da-692e-4949-abc3-0b5097470ae7';
+  if (![legBraceletsId, fullId].every(id => product.configurations.some(row => configurationId(row) === id))) return product;
+  const configurations = product.configurations.map(row => {
+    const id = configurationId(row);
+    if (id === legBraceletsId) return {
+      ...row,
+      public_label: 'Leg Bracelets',
+      component_code: 'leg_bracelets',
+      component_family: 'Legs',
+      needs_label_review: false,
+    };
+    if (id === fullId) return {
+      ...row,
+      bundle_component_codes: ['leg_bracelets','legs','corset'],
+      bundle_component_labels: ['Leg Bracelets','Garters','Corset'],
+      source_confirmed_bundle_members: true,
+      needs_label_review: false,
+    };
+    return row;
+  });
+  return { ...product, configurations, needs_label_review: configurations.some(row => row.needs_label_review === true) };
+}
+
+function correctBatch36WarriorPrincess<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const harnessId = 'de582e95-5729-4d44-9b3e-95161a979278';
+  const braceletId = '0096778a-a054-47d3-a158-1c1ec636d8fd';
+  const shoulderBraceletId = 'e9bd5c59-d9a4-4b65-b57c-bf2860aaa4d1';
+  const fullId = '5233fb65-7ff7-4177-885d-1455fc8b9aa0';
+  if (![harnessId, braceletId, shoulderBraceletId, fullId].every(
+    id => product.configurations.some(row => configurationId(row) === id),
+  )) return product;
+  const configurations = product.configurations.map(row => {
+    const id = configurationId(row);
+    if (id === harnessId) return {
+      ...row, public_label: 'Top Harness', component_code: 'harness', component_family: 'Harness', needs_label_review: false
+    };
+    if (id === braceletId) return {
+      ...row, public_label: 'Arm Bracelet', component_code: 'arms', component_family: 'Arms', needs_label_review: false
+    };
+    if (id === shoulderBraceletId) return {
+      ...row,
+      public_label: 'Shoulder + Bracelet',
+      component_code: 'shoulder_bracelet',
+      component_family: 'Bundle',
+      is_bundle: true,
+      is_full_set: false,
+      bundle_component_codes: ['shoulders','arms'],
+      bundle_component_labels: ['Shoulder','Arm Bracelet'],
+      needs_label_review: false,
+    };
+    if (id === fullId) return {
+      ...row,
+      bundle_component_codes: ['harness','shoulders','arms','legs'],
+      bundle_component_labels: ['Top Harness','Shoulder','Arm Bracelet','Leg Garters'],
+      source_confirmed_bundle_members: true,
+      needs_label_review: false,
+    };
+    return row;
+  });
+  return { ...product, configurations, needs_label_review: configurations.some(row => row.needs_label_review === true) };
+}
+
+function correctBatch36AngelArmorQty<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const shoulder1 = '84941441-d77e-41c9-bed9-94611553a975';
+  const shoulder2 = '7d88e8f4-ade9-4ff3-85af-497e0e5f6961';
+  const arm1 = '423d53ec-0a4d-4dc1-8bcf-6224a0c9b0ca';
+  const arm2 = 'be10cdf7-dd19-4a47-8d5d-15fbb761114f';
+  const full1 = 'fe93bdb2-824c-4669-a58c-4bb3a377f2ef';
+  const full2 = '91993da0-b771-4215-ba1c-6edabf0737ad';
+  if (![shoulder1, shoulder2, arm1, arm2, full1, full2].every(
+    id => product.configurations.some(row => configurationId(row) === id),
+  )) return product;
+  const configurations = product.configurations.map(row => {
+    const id = configurationId(row);
+    if (id === shoulder1) return {
+      ...row, public_label: 'Shoulder x1', component_code: 'shoulder_x1', component_family: 'Shoulders', sort_order: 1, needs_label_review: false
+    };
+    if (id === shoulder2) return {
+      ...row, public_label: 'Shoulders x2', component_code: 'shoulders_x2', component_family: 'Shoulders', sort_order: 2, needs_label_review: false
+    };
+    if (id === arm1) return {
+      ...row, public_label: 'Arm Cover x1', component_code: 'arm_cover_x1', component_family: 'Arms', sort_order: 3, needs_label_review: false
+    };
+    if (id === arm2) return {
+      ...row, public_label: 'Arm Covers x2', component_code: 'arm_covers_x2', component_family: 'Arms', sort_order: 4, needs_label_review: false
+    };
+    if (id === full1) return {
+      ...row,
+      public_label: 'Full Set x1',
+      component_code: 'full_set',
+      component_family: 'Bundle',
+      is_full_set: true,
+      bundle_component_codes: ['shoulder_x1','arm_cover_x1'],
+      bundle_component_labels: ['Shoulder x1','Arm Cover x1'],
+      source_confirmed_bundle_members: true,
+      sort_order: 5,
+      needs_label_review: false,
+    };
+    if (id === full2) return {
+      ...row,
+      public_label: 'Full Set x2',
+      component_code: 'full_set',
+      component_family: 'Bundle',
+      is_full_set: true,
+      bundle_component_codes: ['shoulders_x2','arm_covers_x2'],
+      bundle_component_labels: ['Shoulders x2','Arm Covers x2'],
+      source_confirmed_bundle_members: true,
+      sort_order: 6,
+      needs_label_review: false,
+    };
+    return row;
+  });
+  return { ...product, configurations, needs_label_review: configurations.some(row => row.needs_label_review === true) };
+}
+
+function correctBatch36SilverSpine<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+  const beltGartersId = '260e1e5f-b933-4315-a216-86bfc840d83e';
+  const braShouldersId = '8a01e45a-1278-4215-bbe9-92603659c9b4';
+  const fullId = 'c45dfaca-600d-46ef-b6a7-556de132d0e1';
+  if (![beltGartersId, braShouldersId, fullId].every(
+    id => product.configurations.some(row => configurationId(row) === id),
+  )) return product;
+  const configurations = product.configurations.map(row => {
+    const id = configurationId(row);
+    if (id === beltGartersId) return {
+      ...row,
+      public_label: 'Belt + Garters',
+      component_code: 'belt_garters',
+      component_family: 'Bundle',
+      is_bundle: true,
+      is_full_set: false,
+      bundle_component_codes: ['belt','legs'],
+      bundle_component_labels: ['Belt','Garters'],
+      needs_label_review: false,
+    };
+    if (id === braShouldersId) return {
+      ...row,
+      public_label: 'Bra + Shoulders',
+      component_code: 'bra_shoulders',
+      component_family: 'Bundle',
+      is_bundle: true,
+      is_full_set: false,
+      bundle_component_codes: ['top','shoulders'],
+      bundle_component_labels: ['Bra','Shoulders'],
+      needs_label_review: false,
+    };
+    if (id === fullId) return {
+      ...row,
+      bundle_component_codes: ['spine','belt','legs','top','shoulders'],
+      bundle_component_labels: ['Spine','Belt','Garters','Bra','Shoulders'],
+      source_confirmed_bundle_members: true,
+      needs_label_review: false,
+    };
+    return row;
+  });
+  return { ...product, configurations, needs_label_review: configurations.some(row => row.needs_label_review === true) };
+}
 
 function correctBatch35SilverRobot<T extends Record<string, any>>(product: T): T {
   if (!Array.isArray(product.configurations)) return product;
@@ -1301,6 +1501,11 @@ function correctSilverBraSkirtSet<T extends Record<string, any>>(product: T): T 
 
 export function applyOwnerReviewedStorefrontCorrections<T extends Record<string, any>>(product: T): T {
   const productId = String(product?.canonical_product_id || '');
+  if (productId === BATCH36_DANCE_SPINE_TAIL_ID) return correctBatch36DanceSpineTail(product);
+  if (productId === BATCH36_SILVER_CORSET_LEGS_ID) return correctBatch36SilverCorsetLegs(product);
+  if (productId === BATCH36_WARRIOR_PRINCESS_ID) return correctBatch36WarriorPrincess(product);
+  if (productId === BATCH36_ANGEL_ARMOR_QTY_ID) return correctBatch36AngelArmorQty(product);
+  if (productId === BATCH36_SILVER_SPINE_ID) return correctBatch36SilverSpine(product);
   if (productId === BATCH35_SILVER_ROBOT_ID) return correctBatch35SilverRobot(product);
   if (productId === BATCH35_COUPLE_PAIRED_ID) return correctBatch35CouplePaired(product);
   if (productId === BATCH35_SILVER_DANCE_ID) return correctBatch35SilverDance(product);
