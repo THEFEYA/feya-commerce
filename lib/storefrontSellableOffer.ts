@@ -495,12 +495,6 @@ function findSelectedOption(
       || (offer.atomic_options.length === 1 ? offer.atomic_options[0] : null);
   }
 
-  if (activeConfiguration.is_full_set === true) {
-    return offer.aggregate_options.find((option) => option.code === FULL_SET_CODE)
-      || offer.aggregate_options[0]
-      || null;
-  }
-
   const activeId = firstString(
     activeConfiguration.configuration_id,
     activeConfiguration.configuration_price_id,
@@ -510,6 +504,15 @@ function findSelectedOption(
   if (activeId) {
     const exactId = options.find((option) => option.configuration_id === activeId);
     if (exactId) return exactId;
+  }
+
+  // Multiple source-confirmed Full Set variants can coexist (for example x1/x2
+  // quantity versions). Resolve the exact configuration id first so a selected
+  // Full Set never falls through to the first generic full-set row.
+  if (activeConfiguration.is_full_set === true) {
+    return offer.aggregate_options.find((option) => option.code === FULL_SET_CODE)
+      || offer.aggregate_options[0]
+      || null;
   }
 
   const activeCode = normalizeCode(activeConfiguration.component_code);
