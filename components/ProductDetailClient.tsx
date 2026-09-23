@@ -61,9 +61,10 @@ const CART_KEY = 'feya_visual_cart_v1';
 const COUNT_KEY = 'feya_visual_bag';
 const GENERATED_DESCRIPTION_BLOCK_ORDER: Record<string, number> = {
   about_this_piece: 0,
-  why_youll_love_it: 1,
-  ideal_for: 2,
-  main_description: 3,
+  variant_guide: 1,
+  why_youll_love_it: 2,
+  ideal_for: 3,
+  main_description: 4,
 };
 
 type DraftBlock = {
