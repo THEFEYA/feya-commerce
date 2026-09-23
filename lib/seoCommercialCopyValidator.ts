@@ -60,6 +60,8 @@ const REFLECTIVE_CLAIM = /\b(?:reflective|retroreflective|retro-reflective)\b/i;
 const STRUCTURED_MATERIAL = /\bstructured\s+(?:material|fabric|vegan leather|faux leather)\b/i;
 const ROBOTIC_DESIGN_REVIEW_LANGUAGE = /\b(?:visual identity|silhouette|(?:clear\s+)?starting point|final interpretation|final version|finished version)\b|\b(?:final|finished)\s+(?:halloween\s+|festival\s+|stage\s+|cosplay\s+|performance\s+)?(?:look|character|outfit)\b[^.!?\n]{0,80}\b(?:open|choices?|choose|decide|interpretation)\b|\b(?:choose|decide|shape)\b[^.!?\n]{0,45}\b(?:final|finished)\s+(?:look|character|version)\b/i;
 const NARROW_PHOTO_CROP_PSEUDO_BENEFIT = /\b(?:full[- ]length|full[- ]body)\s+(?:photos?|photographs?|shots?|images?)\b/i;
+
+const BRAND_CLOSE_PRODUCT_DETAIL = /\b(?:vegan leather|faux leather|leather|acrylic|plastic|fabric|mirror(?:[- ](?:style|finish|coated|coating))?|glossy|metallic|holographic|gold|silver|red|white|black|soft(?:ness)?|comfortable|comfort|shape retention|holds? its shape|fringe|bodysuit|skirts?|shoulders?|corset|harness|masks?|horns?|leg covers?|choker|headpiece)\b/i;
 const VAGUE_COMFORT_MECHANISM = /\b(?:a\s+)?comfortable\s+(?:feel|feeling|atmosphere)\b[^.!?\n]{0,55}\b(?:supports?|helps?|encourages?|promotes?|contributes?\s+to)\b/i;
 const METAL_FINISH_LANGUAGE = /\b(?:metallic|metal[- ]like|metal[- ]inspired|polished[- ]?metal|liquid[- ]metal|chrome[- ]like)\b/i;
 const COLOR_SHIFT_LANGUAGE = /\b(?:holographic|hologram|iridescent|color[- ]shift(?:ing)?|colour[- ]shift(?:ing)?|shifts? (?:between |through )?(?:colors?|colours?|tones?))\b/i;
@@ -977,6 +979,13 @@ export function validateSeoCommercialCopy(
       issues.push(warning(
         'self_expression_close_lacks_clear_buyer_value',
         'The final paragraph should connect the product to self-expression, visual identity, studio authorship, or supported customization.',
+      ));
+    }
+
+    if (BRAND_CLOSE_PRODUCT_DETAIL.test(closingBody)) {
+      issues.push(blocker(
+        'self_expression_close_repeats_product_detail',
+        'Designed for self-expression is the TheFEYA brand-mission block. Do not repeat color, material, finish, comfort, components or construction here; explain individuality, creative freedom, character and memorable self-expression.',
       ));
     }
     const closingWords = wordCount(closingBody);
