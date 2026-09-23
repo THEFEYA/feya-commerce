@@ -214,3 +214,17 @@ Owner clarification 2026-09-23 after Batch39 review:
 - Do not call mirror-coated material `polished` when the product truth is a smooth mirror coating. Describe the confirmed substrate and finish separately: for example `soft vegan leather with a smooth mirror finish` or `gold acrylic/plastic with a glossy mirror-style surface`.
 - Variations of search vocabulary are useful only when the sentence remains natural. Primary identity belongs in prominent SEO fields; Secondary/support terms are distributed through useful copy, not mechanically inserted to hit density.
 - Before Preview, perform a second editorial pass with four questions: (1) would a human stylist or maker naturally say this; (2) is it true for this exact product; (3) does it add information not already shown in the next code-owned block; (4) would the sentence still be worth keeping if no keyword were attached to it? Any `no` means rewrite before the owner sees it.
+
+
+## R36. Designed for self-expression is the TheFEYA brand-mission block
+
+Owner clarification 2026-09-23 after Batch41 approval:
+
+- The final `Designed for self-expression` paragraph has a different job from About and Why. It explains **why TheFEYA exists for the wearer**, not the physical product again.
+- Do not repeat material, softness, finish, color, mirror behavior, shape retention, components, construction or selector facts in this block. Those belong in About, Why you’ll love it, What’s Included and the fixed right panel.
+- The core brand idea is human self-expression through original designer stage and festival clothing. TheFEYA helps creative people show personality, imagination, character, taste and parts of their inner world that may have little room in ordinary daily clothing.
+- The paragraph may naturally speak about becoming a character for a night, showing a bolder side of yourself, creating a memorable presence, starting conversations or making expressive content. Keep this as possibility and creative value, never as a guaranteed social outcome.
+- Never promise virality, follower growth, likes, comments, popularity, guaranteed attention or commercial success. TheFEYA is a fashion/design studio, not a marketing service.
+- Public wording should feel warm and human, not like a corporate mission statement. Vary the language across products while keeping the same brand purpose.
+- TheFEYA appears once in this final block. A strong default structure is: **who we are → what freedom the clothing gives the wearer → why that matters at stage/festival/creative moments**.
+- Before Preview ask: could this paragraph still represent TheFEYA if all material/color/component words were removed? If not, rewrite it.
