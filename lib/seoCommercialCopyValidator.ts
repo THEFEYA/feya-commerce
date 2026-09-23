@@ -47,6 +47,11 @@ const UNNATURAL_EVENT_ATMOSPHERE = /\b(?:desert light|open light|desert[- ]ready
 const BRAND_STATUS_DIMINUTION = /\b(?:small|tiny) independent (?:team|studio|company|brand)\b/i;
 const BRAND_INDEPENDENCE_PADDING = /\bindependent (?:design )?(?:team|studio|company|brand)\b/i;
 const TEMPLATE_COMPARISON = /\b(?:(?:standard|generic|mass[- ]produced) costume template|(?:standard|generic) festival basics|generic festival dressing|standard template costume|(?:not\s+)?(?:a\s+)?(?:copy|replica)(?:\s+of\s+(?:a\s+)?(?:standard|generic|named|existing)?\s*(?:costume|character|template|look))?|without\s+(?:borrowing|copying)\b[^.!?\n]{0,65}\b(?:character|look|design|costume)\b|stands? apart from (?:a )?(?:basic|generic) (?:metallic )?(?:look|costume|outfit|design)|(?:generic|basic|ordinary|plain) (?:festival |costume |party )?(?:dressing|clothes?|outfits?|looks?)\b[^.!?\n]{0,55}\b(?:plain|basic|generic|ordinary|unfinished|on its own))\b/i;
+
+const NEGATIVE_CONTRAST_SALES_FRAME = /\b(?:instead of|rather than|as opposed to|unlike|not just|not only|without (?:needing|requiring|adding|using|wearing|buying|building|turning|making|creating|becoming))\b/i;
+const ROBOTIC_SYSTEM_COPY = /\b(?:modular system|styling system|modular construction|modular pieces?|visual concept|visual direction|visual language|coordinated (?:parts?|pieces?|elements?)|reads? clearly|readable (?:from|to) (?:the )?audience|keeps? (?:the )?look connected|carries? (?:the )?(?:finish|styling|look) through)\b/i;
+const GENERIC_MOVEMENT_PSEUDOBENEFIT = /\b(?:adds?|brings?|gives?|creates?)\s+(?:more\s+|extra\s+)?movement\b/i;
+const SELECTOR_NARRATION = /\b(?:choose|select)\s+(?:one|both|the full set|a full set|your set|an option|a configuration)\b/i;
 const PRODUCT_COMPONENT_AS_BUYER_GOAL = /\b(?:buyers?|customers?|people) (?:who want|looking for|seeking) (?:to (?:buy|find) )?(?:a|an|this|the)?\s*(?:statement |expressive |gold |futuristic |cyberpunk |warrior )*(?:shoulder (?:piece|armor|armour)|shoulders?|pauldrons?)\b/i;
 const SOCIAL_METRICS_BOILERPLATE = /\b(organic attention|reactions?, saves? (?:and|or) comments?|likes?, followers?|social (?:engagement|metrics?)|viral(?:ity| reach)?)\b/i;
 const REDUNDANT_FAUX_LEATHER = /\b(?:vegan leather\s+(?:and|or|\/)\s+faux leather|faux leather\s+(?:and|or|\/)\s+vegan leather)\b/i;
@@ -415,6 +420,34 @@ export function validateSeoCommercialCopy(
     issues.push(blocker(
       'customer_copy_uses_invented_template_comparison',
       'Do not compare the design with an undefined standard costume template. Explain how original design helps the buyer build a personal look.',
+    ));
+  }
+
+  if (NEGATIVE_CONTRAST_SALES_FRAME.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_uses_negative_contrast_sales_frame',
+      'Sell the positive product outcome directly. Do not define the item through instead of, rather than, unlike, not X but Y, or without-needing comparisons.',
+    ));
+  }
+
+  if (ROBOTIC_SYSTEM_COPY.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_uses_robotic_system_language',
+      'Customer-facing copy reads like design-system or internal styling language. Replace modular/system/visual-concept wording with a concrete product fact and buyer value.',
+    ));
+  }
+
+  if (GENERIC_MOVEMENT_PSEUDOBENEFIT.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_uses_generic_movement_pseudobenefit',
+      'Do not claim that a garment generically adds or creates movement. If a confirmed moving detail such as fringe matters, describe that physical behavior directly.',
+    ));
+  }
+
+  if (SELECTOR_NARRATION.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_narrates_selector_choices',
+      'Selector choices belong in the selector and deterministic What’s Included block, not in generated editorial copy.',
     ));
   }
 
