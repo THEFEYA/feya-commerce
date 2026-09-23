@@ -977,7 +977,9 @@ async function retryTransientSupabaseRead(queryFactory) {
 
 function isTransientSupabaseReadError(error) {
   const raw = `${error?.code || ''} ${error?.message || error || ''}`.toLowerCase();
-  return raw.includes('522')
+  return raw.includes('57014')
+    || raw.includes('statement timeout')
+    || raw.includes('522')
     || raw.includes('connection timed out')
     || raw.includes('gateway timeout')
     || raw.includes('bad gateway')
