@@ -277,7 +277,10 @@ export default async function SeoApprovalPage({ searchParams }) {
   const savedDraftQueue = await loadSavedDraftQueue();
   const allSavedDrafts = savedDraftQueue.drafts || [];
   const savedDrafts = productId
-    ? allSavedDrafts.filter((draft) => String(draft.canonical_product_id || '') === productId)
+    ? allSavedDrafts
+        .filter((draft) => String(draft.canonical_product_id || '') === productId)
+        .sort((a, b) => new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime())
+        .slice(0, 1)
     : allSavedDrafts;
   const draftIds = savedDrafts.map((draft) => draft.id).filter(Boolean);
   const draftEvents = await loadDraftEvents(draftIds);
