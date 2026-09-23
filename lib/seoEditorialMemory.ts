@@ -63,3 +63,19 @@ export const SEO_EDITORIAL_MEMORY_V6: SeoEditorialMemoryV6 = {
     studio_close: 'The final block is the only brand paragraph and the only TheFEYA mention. It closes on product-specific designer authorship and personal expression without repeating a catalog template.',
   },
 };
+
+
+/** New writer policy; V6 remains available for historical provenance/replay. */
+export const SEO_EDITORIAL_MEMORY_V7 = {
+  ...SEO_EDITORIAL_MEMORY_V6,
+  contract_version: 'seo_editorial_memory_v7' as const,
+  source: 'product_branch_c28e112_brand_mission_policy' as const,
+  positive_block_frames: {
+    ...SEO_EDITORIAL_MEMORY_V6.positive_block_frames,
+    studio_close: 'Mention TheFEYA once in a first-person studio voice. Explain original design purpose, individuality, creative freedom and memorable personal self-expression. Keep product facts in their assigned sections; never say “style pair” or list taxonomy. Do not repeat color, material, finish, comfort, components, construction, selected-event lists or customization instructions. Never prescribe unsold styling or promise audience reactions.',
+  },
+  writing_moves: {
+    ...SEO_EDITORIAL_MEMORY_V6.writing_moves,
+    studio_close: 'The final block owns the single brand mention, original design purpose and personal self-expression. Product facts belong in other sections.',
+  },
+};

@@ -1,6 +1,6 @@
 # FEYA — First implementation sprint
 
-Дата: 23 сентября 2026. Результат этого прохода: подготовленная и локально проверенная foundation. Production indexing остаётся закрытой. Полная интеграция Product OS / Growth OS и pre-index gate ещё не завершены.
+Дата: 23 сентября 2026. Результат: foundation и выборочная Product/SEO integration, проверенные локально. Подробности следующего прохода — Product_Growth_Integration_20260923.md. Production indexing остаётся закрытой. Полная интеграция Product OS / Growth OS и pre-index gate ещё не завершены.
 
 ## Что реализовано
 
@@ -28,13 +28,13 @@
 
 Tests include: inherited preview flag; missing/invalid canonical host; duplicate IDs/paths; API pagination cap and failure; candidate exclusion; wrong source/market and stale demand; zero/null/range semantics; duplicate product/design depth; stale truth; current ownership overlap and half-open periods; immutable SQL evidence; incomplete snapshot commit; FK mismatch; public/private grants.
 
-Сборка проверялась без production Supabase secrets. Она не доказывает успешное подключение каждого admin route к live database. PGlite не заменяет Supabase staging restore, concurrent transaction tests, реальный browser crawl, SQL migration advisor или полный агентный E2E. Существующий legacy `test:seo` в baseline ссылается на отсутствующие в этой ветке tests/seo; их перенос из Product branch входит в J3, новый suite не подменяет их.
+Сборка проверялась без production Supabase secrets. Она не доказывает успешное подключение каждого admin route к live database. PGlite не заменяет Supabase staging restore, concurrent transaction tests, реальный browser crawl, SQL migration advisor или полный агентный E2E. Legacy tests/seo восстановлены из Product branch и согласованы с versioned editorial и offer contracts: 437 PASS. Вместе с search и SQL — 468 PASS. Три live RPC snapshots проверены без изменения исходных ID и цен. Read-only schema preflight подтверждает UUID keys и отсутствие конфликтов имён; полноценный staging gate ещё открыт.
 
 ## Следующие зависимости
 
 | Шаг | Owner | Input → output | Validation / Done | Blocker / rollback |
 |---|---|---|---|---|
-| 1. Reconcile Product branch | Engineering + CPIM | branch-compatibility.json, current owner corrections/RPC callers → selective nonvisual integration | Product fixtures, exact approval/price/config parity; no silent overwrite | Если меняется защищённый UI, подготовить отдельный точный diff; revert changeset |
+| 1. Reconcile Product branch — выполнена nonvisual часть | Engineering + CPIM | branch-compatibility.json, current owner corrections/RPC callers → selective nonvisual integration | Product fixtures, exact approval/price/config parity; no silent overwrite | Если меняется защищённый UI, подготовить отдельный точный diff; revert changeset |
 | 2. Staging migration | GDAE | Existing schema restore + SQL → private foundation tables | Full schema drift/FK/default privileges/RLS checks and previous app reads | Need isolated DB, not production shortcut; keep dormant tables on rollback |
 | 3. Inventory/brief pilot | CPIM + OSPM | Current truth v4 + confirmed selection rule → a few candidate briefs/snapshots | Unknown excluded, designs deduped, inventory policy approved, owner reserved | Missing truth/intent → hold; stable IDs retained |
 | 4. Demand bridge | GDAE + OSPM | Reuse existing metrics, then Q01–Q03 export → traceable normalized snapshots | Idempotent CSV/API ingest, actual targeting/period, null handling | API access can remain unavailable; CSV fallback; rollback staging run |
@@ -55,4 +55,4 @@ Tests include: inherited preview flag; missing/invalid canonical host; duplicate
 
 Reviewable scope: новые policy modules/tests/docs, environment/sitemap hardening, private migration file, CI/lockfile. Не изменены storefront JSX, шрифты, цвета, prices, protected UI files, generation approvals или agent passports.
 
-Рекомендуемая следующая единица работы — selective Product integration + staging validation. До её окончания branch является foundation draft, а не replacement текущего live deployment. Откат кода — revert draft changeset; production DB/environment не менялись, откатывать их в этом проходе не требуется.
+Следующая единица работы — staging validation и authenticated runtime scenarios; protected visual deltas перечислены в integration checkpoint. До её окончания branch является foundation draft, а не replacement текущего live deployment. Откат кода — revert draft changeset; production DB/environment не менялись, откатывать их в этом проходе не требуется.

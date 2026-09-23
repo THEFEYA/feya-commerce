@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { stampCurrentSeoEditorialPolicy } from '@/lib/seoEditorialPolicy';
 import { NextResponse } from 'next/server';
 import { getMissingSupabaseServiceEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
@@ -91,11 +92,13 @@ export async function POST(request: Request) {
 
   const providedAgentOutput = pickProvidedAgentOutput(body);
   const usesProvidedOpenAiOutput = requestedSourceMode === 'openai_draft' && Boolean(providedAgentOutput);
-  const agentOutput = usesProvidedOpenAiOutput
+  const agentOutput = stampCurrentSeoEditorialPolicy(usesProvidedOpenAiOutput
     ? normalizeReviewDraftForSeoPack(providedAgentOutput, bundle.seoPackDraft)
-    : buildMockSeoAgentOutput(bundle.aiAgentInput, bundle.brief);
+    : buildMockSeoAgentOutput(bundle.aiAgentInput, bundle.brief));
   const structuralValidation = validateSeoAgentOutput(agentOutput);
+  // A new save must satisfy today's policy, regardless of client-supplied metadata.
   const commercialValidation = validateSeoCommercialCopy(agentOutput, {
+    editorial_policy_version: 'brand_mission_v2',
     product_truth: bundle.seoPackDraft.product_truth,
     manual_focus: bundle.seoPackDraft.manual_focus,
     keyword_roles: bundle.seoPackDraft.keyword_roles,

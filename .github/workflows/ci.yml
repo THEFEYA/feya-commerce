@@ -30,6 +30,9 @@ jobs:
       - name: Search migration constraints
         run: npm run test:search-db
 
+      - name: Product truth and SEO compatibility
+        run: npm run test:seo
+
       - name: Typecheck
         run: npm run typecheck
 

@@ -2,7 +2,7 @@
   "observed_at": "2026-09-23",
   "base_sha": "928d8dfcfb18cec0e8b19fa27ee40faa636e2b3d",
   "product_sha": "c28e112923d33eaea18c5c08aa858a4c5bb91c26",
-  "integration_mode": "additive_foundation_no_visual_merge",
+  "integration_mode": "selective_product_runtime_and_tests_no_protected_visual_merge",
   "files": [
     {
       "status": "M",
@@ -1316,5 +1316,6 @@
       "status": "M",
       "path": "tsconfig.json"
     }
-  ]
+  ],
+  "integration_checkpoint": "Product_Growth_Integration_20260923.md"
 }
