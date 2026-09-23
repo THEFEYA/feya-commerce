@@ -26,12 +26,17 @@ import { colorStyle } from '@/components/colors';
 import { ProductCard } from '@/components/ProductCard';
 import { SalePrice } from '@/components/SalePrice';
 import { resolveThefeyaRightPdpPanel } from '@/lib/thefeyaSeoDoctrine';
-import { resolveFullSetPriceComparison } from '@/lib/storefrontPriceComparison';
+import {
+  resolveFullSetPriceAudit,
+  resolveFullSetPriceComparison,
+  resolveMinimumSeparatePurchaseTotal,
+} from '@/lib/storefrontPriceComparison';
 import type { StorefrontProduct } from '@/lib/types';
 import { storefrontIncludedOptions } from '@/lib/storefrontIncludedOptions';
 import {
   resolveStorefrontSellableOffer,
   sellableOfferAvailabilitySentence,
+  sellableOfferCoupleIncludedGroups,
 } from '@/lib/storefrontSellableOffer';
 import {
   categoryLabel,
@@ -56,9 +61,10 @@ const CART_KEY = 'feya_visual_cart_v1';
 const COUNT_KEY = 'feya_visual_bag';
 const GENERATED_DESCRIPTION_BLOCK_ORDER: Record<string, number> = {
   about_this_piece: 0,
-  why_youll_love_it: 1,
-  ideal_for: 2,
-  main_description: 3,
+  variant_guide: 1,
+  why_youll_love_it: 2,
+  ideal_for: 3,
+  main_description: 4,
 };
 
 type DraftBlock = {
@@ -143,7 +149,7 @@ export function ProductDetailClient({
   const currency = activeConfig?.currency || p.currency || 'EUR';
   const total = sale * qty;
   const colors = colorOptions(p);
-  const selectedColor = colors[colorIdx] || colors[0] || 'Mirror';
+  const selectedColor = activeConfig?.configuration_color || colors[colorIdx] || colors[0] || 'Mirror';
   const slug = productSlug(p);
   const originalTitle = splitTitle(productTitle(p));
   const draftTitle = String(draft?.h1 || '').trim();
@@ -164,6 +170,7 @@ export function ProductDetailClient({
   const reviewSummary = useMemo(() => readReviewSummary(p), [p]);
   const includedLines = storefrontIncludedOptions(p, activeConfig);
   const sellableOffer = useMemo(() => resolveStorefrontSellableOffer(p), [p]);
+  const coupleIncludedGroups = sellableOfferCoupleIncludedGroups(sellableOffer);
   const availabilitySentence = sellableOfferAvailabilitySentence(sellableOffer);
   const canChoosePiecesSeparately = options.length > 1 && Boolean(full);
   const rightPdpPanel = useMemo(() => resolveThefeyaRightPdpPanel({
@@ -171,6 +178,26 @@ export function ProductDetailClient({
   }), [p.canonical_product_id]);
 
   const fullRegularPrice = full ? optionPrice(full) : null;
+  const fullMemberCodes = Array.isArray(full?.bundle_component_codes)
+    ? full.bundle_component_codes.map(String).filter(Boolean)
+    : [];
+  const exactSeparateRegularTotal = full
+    ? resolveMinimumSeparatePurchaseTotal({
+        targetMemberCodes: fullMemberCodes,
+        candidates: options
+          .filter((o, i) => !isFullSetOption(o, i))
+          .map((option) => {
+            const code = componentCode(option);
+            const explicitMembers = Array.isArray(option.bundle_component_codes)
+              ? option.bundle_component_codes.map(String).filter(Boolean)
+              : [];
+            return {
+              price: optionPrice(option),
+              memberCodes: explicitMembers.length ? explicitMembers : code ? [code] : [],
+            };
+          }),
+      })
+    : null;
   const fallbackSeparateRegularTotal = options
     .filter((o, i) => !isFullSetOption(o, i))
     .reduce((sum, option) => sum + (optionPrice(option) || 0), 0);
@@ -183,10 +210,23 @@ export function ProductDetailClient({
     storedComponentSum: v4ComponentSum,
     storedSavings: v4Savings,
     fallbackSeparateTotal: fallbackSeparateRegularTotal,
+    exactSeparateTotal: exactSeparateRegularTotal,
   });
   const selectedIsFullSet = activeConfig ? isFullSetOption(activeConfig, activeConfigIndex) : false;
+  const maxSingleOptionPrice = options
+    .filter((o, i) => !isFullSetOption(o, i))
+    .reduce((max, option) => Math.max(max, optionPrice(option) || 0), 0);
+  const priceAudit = resolveFullSetPriceAudit({
+    fullSetPrice: fullRegularPrice,
+    separateRegularTotal: exactSeparateRegularTotal ?? separateRegularTotal,
+    maxSingleOptionPrice,
+    separateChoiceCount: options.filter((o, i) => !isFullSetOption(o, i)).length,
+  });
+  const displayedRegular = selectedIsFullSet && displayedFullSetSavings > 0
+    ? separateRegularTotal
+    : regular;
   const savingsText = selectedIsFullSet && displayedFullSetSavings > 0
-    ? `Best value: save ${formatPrice(displayedFullSetSavings, currency)} vs ordering pieces separately${separateRegularTotal > 0 ? ` (${formatPrice(separateRegularTotal, currency)})` : ''}.`
+    ? `Save ${formatPrice(displayedFullSetSavings, currency)} vs pieces separately`
     : '';
 
   useEffect(() => {
@@ -274,27 +314,43 @@ export function ProductDetailClient({
         {tail ? <p className="editorial-italic text-[var(--bone-dim)] text-[12px] mt-1 leading-relaxed line-clamp-1">{tail}</p> : null}
         {reviewSummary.count > 0 ? <ReviewAnchor average={reviewSummary.average} count={reviewSummary.count} /> : null}
 
-        <div className="mt-2"><SalePrice regular={regular} sale={sale} currency={currency} variant="pdp" testidPrefix="pdp-price" discountPercent={optionDiscountPercent(activeConfig)} /></div>
+        <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <SalePrice regular={displayedRegular} sale={sale} currency={currency} variant="pdp" testidPrefix="pdp-price" discountPercent={selectedIsFullSet && displayedFullSetSavings > 0 ? null : optionDiscountPercent(activeConfig)} />
+          {savingsText ? <span className="text-[11px] font-medium tracking-[0.08em] uppercase text-[var(--gold-warm)]">{savingsText}</span> : null}
+        </div>
+        {previewMode && selectedIsFullSet && priceAudit.status === 'review' ? <div className="mt-1 text-[10px] leading-relaxed text-amber-300/85">
+          Internal price review: {priceAudit.reasons.join(', ')}.
+        </div> : null}
 
         <div className="mt-2 relative">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Configuration</div><div className="eyebrow-dim">{options.length || 1} options</div></div>
-          <button type="button" onClick={() => setConfigOpen((open) => !open)} className="w-full h-10 rounded-md bg-[rgba(255,255,255,0.035)] border border-[rgba(216,214,211,0.18)] text-bone px-4 focus:outline-none focus:border-white flex items-center justify-between text-left">
+          <button type="button" onClick={() => setConfigOpen((open) => !open)} className="w-full h-10 rounded-md bg-[rgba(255,255,255,0.035)] border border-[rgba(216,214,211,0.18)] text-bone px-4 focus:outline-none focus:border-white flex items-center justify-between gap-4 text-left">
             <span className="truncate">{activeConfigLabel}</span>
-            <ChevronDown size={15} className={`transition-transform ${configOpen ? 'rotate-180' : ''}`} />
+            <span className="ml-auto shrink-0 text-[12px] text-[var(--bone-dim)]">{formatPrice(sale, currency)}</span>
+            <ChevronDown size={15} className={`shrink-0 transition-transform ${configOpen ? 'rotate-180' : ''}`} />
           </button>
           {configOpen ? <div className="absolute left-0 right-0 top-full mt-2 z-[80] rounded-lg border border-[rgba(216,214,211,.22)] bg-[rgba(5,5,8,.96)] p-1.5 shadow-[0_28px_80px_rgba(0,0,0,.75)] backdrop-blur-xl max-h-[250px] overflow-auto">
             {options.map((o, i) => {
               const key = optionKey(o, i);
               const active = key === configKey;
-              return <button key={key} type="button" onClick={() => { setConfigKey(key); setConfigOpen(false); }} className={`w-full text-left px-4 py-2.5 rounded-md text-[13px] transition-all ${active ? 'bg-[rgba(212,178,106,.14)] text-[var(--gold-warm)]' : 'text-[var(--bone-dim)] hover:text-white hover:bg-white/10'}`}>{optionLabel(o, i)}</button>;
+              const optionIsFullSet = isFullSetOption(o, i);
+              const rowPrice = optionPrice(o);
+              return <button key={key} type="button" onClick={() => { setConfigKey(key); setConfigOpen(false); }} className={`w-full text-left px-4 py-2.5 rounded-md text-[13px] transition-all ${active ? 'bg-[rgba(212,178,106,.14)] text-[var(--gold-warm)]' : 'text-[var(--bone-dim)] hover:text-white hover:bg-white/10'}`}>
+                <span className="flex items-center justify-between gap-4">
+                  <span className="truncate">{optionLabel(o, i)}</span>
+                  <span className="shrink-0 font-medium text-bone">{rowPrice == null ? '—' : formatPrice(rowPrice, o.currency || currency)}</span>
+                </span>
+              </button>;
             })}
           </div> : null}
         </div>
-        <p className="mt-1.5 min-h-[18px] text-[12px] leading-relaxed text-[var(--gold-warm)]">{savingsText}</p>
-
         <div className="mt-2">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Color · {selectedColor}</div><div className="eyebrow-dim">{colors.length || 1} shade</div></div>
-          <div className="flex gap-2">{colors.map((c, i) => <button key={c + i} onClick={() => setColorIdx(i)} className={`w-8 h-8 rounded-full border-2 ${i === colorIdx ? 'border-white' : 'border-[rgba(216,214,211,0.28)]'}`} style={colorStyle(c)} title={c} />)}</div>
+          <div className="flex gap-2">{colors.map((c, i) => <button key={c + i} onClick={() => {
+            const variantIndex = options.findIndex(option => option.configuration_color === c);
+            if (variantIndex >= 0) setConfigKey(optionKey(options[variantIndex], variantIndex));
+            else setColorIdx(i);
+          }} className={`w-8 h-8 rounded-full border-2 ${c === selectedColor ? 'border-white' : 'border-[rgba(216,214,211,0.28)]'}`} style={colorStyle(c)} title={c} />)}</div>
         </div>
 
         <div className="mt-2">
@@ -324,15 +380,19 @@ export function ProductDetailClient({
               title={shortHead}
               blocks={draftBlocks}
               includedLines={includedLines}
+              coupleIncludedGroups={coupleIncludedGroups}
               canChooseSeparately={canChoosePiecesSeparately}
               availabilitySentence={availabilitySentence}
+              selectedOptionLabel={activeConfigLabel}
             />
           : <DefaultDescription
               product={p}
               title={shortHead}
               includedLines={includedLines}
+              coupleIncludedGroups={coupleIncludedGroups}
               canChooseSeparately={canChoosePiecesSeparately}
               availabilitySentence={availabilitySentence}
+              selectedOptionLabel={activeConfigLabel}
             />}
       </div>
       <div className="col-span-12 lg:col-span-5 space-y-0">
@@ -361,14 +421,18 @@ function GeneratedDescription({
   title,
   blocks,
   includedLines,
+  coupleIncludedGroups,
   canChooseSeparately,
   availabilitySentence,
+  selectedOptionLabel,
 }: {
   title: string;
   blocks: DraftBlock[];
   includedLines: string[];
+  coupleIncludedGroups: ReturnType<typeof sellableOfferCoupleIncludedGroups>;
   canChooseSeparately: boolean;
   availabilitySentence: string;
+  selectedOptionLabel: string;
 }) {
   return <div>
     <div className="eyebrow-gold mb-3">{blocks[0]?.heading || 'About this piece'}</div>
@@ -380,7 +444,7 @@ function GeneratedDescription({
           <DisplayBody body={String(block.body || '')} />
         </article>
         {index === 0 && includedLines.length
-          ? <IncludedDetail lines={includedLines} canChooseSeparately={canChooseSeparately} availabilitySentence={availabilitySentence} />
+          ? <IncludedDetail lines={includedLines} groups={coupleIncludedGroups} canChooseSeparately={canChooseSeparately} availabilitySentence={availabilitySentence} selectedOptionLabel={selectedOptionLabel} />
           : null}
       </div>)}
     </div>
@@ -391,21 +455,25 @@ function DefaultDescription({
   product,
   title,
   includedLines,
+  coupleIncludedGroups,
   canChooseSeparately,
   availabilitySentence,
+  selectedOptionLabel,
 }: {
   product: StorefrontProduct;
   title: string;
   includedLines: string[];
+  coupleIncludedGroups: ReturnType<typeof sellableOfferCoupleIncludedGroups>;
   canChooseSeparately: boolean;
   availabilitySentence: string;
+  selectedOptionLabel: string;
 }) {
   return <div>
     <div className="eyebrow-gold mb-3">About this piece</div>
     <h2 className="display-section text-bone mb-4" style={{ fontSize: 'clamp(24px, 2.3vw, 34px)' }}>{title}</h2>
     <div className="space-y-4 text-[15px] text-[var(--bone-dim)] leading-[1.8]">
       <p>{product.meta_description || `${title} is a studio-created statement piece for festival, stage, and editorial looks.`}</p>
-      {includedLines.length ? <IncludedDetail lines={includedLines} canChooseSeparately={canChooseSeparately} availabilitySentence={availabilitySentence} /> : null}
+      {includedLines.length ? <IncludedDetail lines={includedLines} groups={coupleIncludedGroups} canChooseSeparately={canChooseSeparately} availabilitySentence={availabilitySentence} selectedOptionLabel={selectedOptionLabel} /> : null}
       <p>Its silhouette is designed to stay visually clear in motion, from a distance, and on camera. Product-specific material, finish, and fit details are shown in the selected configuration and information panel.</p>
       <p>Made to order in standard or custom sizing, with worldwide tracked delivery options selected in the cart.</p>
     </div>
@@ -428,25 +496,40 @@ function Detail({ icon, title, lines, id }: { icon: ReactNode; title: string; li
 
 function IncludedDetail({
   lines,
+  groups,
   canChooseSeparately,
   availabilitySentence,
+  selectedOptionLabel,
 }: {
   lines: string[];
+  groups: ReturnType<typeof sellableOfferCoupleIncludedGroups>;
   canChooseSeparately: boolean;
   availabilitySentence: string;
+  selectedOptionLabel: string;
 }) {
   return <section className="border-t border-[rgba(216,214,211,0.12)] mt-6 pt-5">
-    <div className="eyebrow-gold mb-3 flex items-center gap-2"><Scissors size={15} />What&apos;s included</div>
-    <ul className="m-0 list-none space-y-2 p-0 text-[14px] text-[var(--bone-dim)]">
-      {lines.map((line) => <li key={line} className="flex items-start gap-2">
-        <Check size={14} className="mt-0.5 shrink-0 text-[var(--gold-warm)]" />
-        <span>{line}</span>
-      </li>)}
-    </ul>
-    {canChooseSeparately ? <p className="mt-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">
+    <div className="eyebrow-gold mb-3 flex items-center gap-2"><Scissors size={15} />What&apos;s included in {selectedOptionLabel}</div>
+    {groups.length ? <div className="grid gap-5 sm:grid-cols-2">
+      {groups.map((group) => <div key={group.code}>
+        <h3 className="mb-2 text-[16px] text-bone">{group.heading}</h3>
+        <IncludedList lines={group.lines} />
+      </div>)}
+    </div> : <IncludedList lines={lines} />}
+    {groups.length ? <p className="mt-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">
+      The selected option determines what you receive and the price shown.
+    </p> : canChooseSeparately ? <p className="mt-3 text-[12px] leading-relaxed text-[var(--bone-dim)]">
       {availabilitySentence || 'Choose the Full Set or order available pieces separately.'}
     </p> : null}
   </section>;
+}
+
+function IncludedList({ lines }: { lines: string[] }) {
+  return <ul className="m-0 list-none space-y-2 p-0 text-[14px] text-[var(--bone-dim)]">
+    {lines.map((line) => <li key={line} className="flex items-start gap-2">
+      <Check size={14} className="mt-0.5 shrink-0 text-[var(--gold-warm)]" />
+      <span>{line}</span>
+    </li>)}
+  </ul>;
 }
 
 function ReviewAnchor({ average, count }: { average: number; count: number }) {

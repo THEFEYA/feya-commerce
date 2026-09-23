@@ -1793,3 +1793,54 @@ test('keeps the live black, red, and silver review repairs commercially clean', 
     assert.equal(result.issues.some((issue) => /color_finish_mismatch|unsupported_reflective/.test(issue.code)), false);
   }
 });
+
+test('natural word order of the saved Primary remains identity in Meta, not a composition recap', () => {
+  const context = { product_truth: { included_components: ['Top', 'Skirt'] }, keyword_roles: { primary: [{ keyword: 'skirt and top set festival' }] } };
+  const correct = validateSeoCommercialCopy(draft({ meta_description: 'Gold festival skirt and top set with cosmic styling for Burning Man.' }), context);
+  assert.equal(correct.issues.some(issue => issue.code === 'meta_description_repeats_deterministic_composition'), false);
+  const inventory = validateSeoCommercialCopy(draft({ meta_description: 'The costume combines a gold top and skirt for dancers.' }), context);
+  assert.equal(inventory.issues.some(issue => issue.code === 'meta_description_repeats_deterministic_composition'), true);
+});
+
+
+test('blocks negative comparison, system language, selector narration and generic movement filler', () => {
+  const value = draft({
+    intro: 'This outfit works as a modular system rather than a fixed costume.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => {
+      if (block.block_key === 'why_youll_love_it') {
+        return {
+          ...block,
+          body: [
+            'The skirt adds movement.',
+            'Choose one option or both pieces.',
+            'The coordinated pieces keep the visual concept connected.',
+          ].join('\n'),
+        };
+      }
+      return block;
+    }),
+  });
+  const result = validateSeoCommercialCopy(value);
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('customer_copy_uses_negative_contrast_sales_frame'));
+  assert.ok(codes.includes('customer_copy_uses_robotic_system_language'));
+  assert.ok(codes.includes('customer_copy_uses_generic_movement_pseudobenefit'));
+  assert.ok(codes.includes('customer_copy_narrates_selector_choices'));
+});
+
+
+test('blocks product-detail repetition in the self-expression brand close', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'main_description'
+      ? {
+        ...block,
+        body: 'At TheFEYA, we create original stage fashion for people who want to express their individuality. Our soft vegan leather and glossy gold finish keep the costume comfortable and polished. Creative clothing can give people more room to show personality, imagination and a bolder side of themselves.',
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.ok(result.issues.some((issue) => (
+    issue.code === 'self_expression_close_repeats_product_detail'
+    && issue.severity === 'blocker'
+  )));
+});

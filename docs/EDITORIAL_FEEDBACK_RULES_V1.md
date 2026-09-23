@@ -76,5 +76,155 @@ The saved decision records selector-backed component axes separately from search
 
 For a visually coherent `top + skirt` ensemble, an evidence-backed phrase such as `carnival dress` may be retained only as indirect discovery vocabulary when the source identity uses that wording. Customer copy must still call the sold product a top-and-skirt set/outfit and must never claim a one-piece dress or place `Dress` in What's Included.
 
+## R23. Deselected component axes do not return through imported composition
+Under the versioned SEO search-axis contract, an unchecked component chip excludes queries for that component from keyword retrieval, even when the part physically exists in the sellable offer. Anatomical child names follow their selectable parent (for example bracelets follow Arms). This does not remove sold parts from the selector or What's Included. A product identity without a corresponding checkbox, such as Dress, remains governed by its factual identity gates.
+
+The owner clarified that the small shoulder details on product 4303866388 belong to its complete strapped top; the imported Shoulders option is therefore corrected to Top as one existing item, preserving its option ID and prices. This explicit factual clarification is separate from unchecking the SEO axis. Saved axes must be visibly acknowledged even when keyword readiness is still pending.
+
+## R24. Acrylic is a plastic; mirror describes finish, not optical performance
+Owner clarification, 2026-09-16, listing 1784427181: the gold costume is acrylic. The broader word `plastic` is relevant search vocabulary for the same confirmed substrate; plastic alone must never be upgraded to acrylic. Use both naturally, without inventing separate Google Ads metrics or replacing a relevant whole-product Primary.
+
+Substrate, color and finish remain separate: acrylic/plastic, gold, glossy mirror-style finish. `Mirror` alone does not authorize reflection, light-catching or stage-visibility claims. The confirmed material replaces the old canonical vegan-leather import for this product while raw import evidence stays intact. Its fixed Material and Care panel must use the same material truth as Preview and structured data.
+
+For this acrylic exception, gentle damp-cloth care and avoiding abrasive cleaners/solvents follow the conservative guidance in [ACRYLITE care instructions](https://www.acrylite.co/resources/fabrication-manuals/clean-disinfect-and-maintain-acrylite-acrylic-sheet). This is substrate-level guidance, not evidence of a particular coating brand or solvent tolerance.
+
+## R25. Couple listings show each partner's composition together
+Owner clarification, 2026-09-17, listing 1765624488: Women's Outfit includes Choker, Top, Skirt and Bracelets; Men's Outfit includes Choker, Shoulders, Bicep Piece and Bracelet. Keep two visible, labelled lists in What's Included, regardless of the currently selected outfit. Preserve the original variation IDs and prices, and explain that the selected option determines the contents purchased and displayed price. Never imply that one outfit price includes both partners' outfits.
+
+Apply this layout to other couple listings only when both partner options have explicit, verified member lists. Titles, photos and SEO axes cannot fabricate either composition. Describe the benefit of complementary designs and individual character naturally; use relevant measured matching/couple search vocabulary without forcing every word-order variation into the prose. Preserve owner-selected search axes when composition is corrected, while still requiring an updated keyword decision before generation.
+
+### R25 update — owner-authorized combined option, 2026-09-17
+The owner subsequently requested a real Full Set option containing both complete outfits, priced EUR 50 below the sum of the two existing outfit prices: EUR 183.44 + EUR 327.00 - EUR 50.00 = EUR 460.44. Store this as a separate canonical configuration and price row. Show the saving against purchasing both outfits separately, never as an invented former selling price. The two partner composition groups stay visible for every option. This explicit authorization supersedes the previous absence of a combined option; it does not authorize adding bundles to other products.
+
+## R26. Google Primary overlap is monitored, not assumed cannibalization
+Owner clarification, 2026-09-18: the independent store is optimized for Google Search, not for Etsy marketplace traffic allocation. Do not import an Etsy-style assumption that one exact Primary query must belong to only one product page.
+
+Multiple genuinely different products may use the same relevant Primary keyword when the query naturally describes each product. Exact Primary overlap is a portfolio monitoring signal, not proof of cannibalization and not a generation/publish blocker by itself. Keep each PDP materially distinct through real product facts, title/H1 framing, copy, imagery and buyer use cases; do not create near-duplicate pages merely to multiply coverage.
+
+Reassign or consolidate only when evidence supports it, for example: Google canonicalizes materially similar PDPs together, Search Console shows persistent query-to-page competition with a weaker page displacing the stronger one, indexation becomes unstable, or the pages are so similar that they approach doorway/duplicate behavior. Until that evidence exists, preserve owner-selected relevant keywords and measure the outcome after launch.
+
+## R27. Sell the positive product outcome; never define the product by what it is not
+Owner clarification, 2026-09-18: buyer copy describes what the product IS, what is visually strong about it, and what that gives the customer. Do not spend public copy comparing the item with irrelevant alternatives (for example historical armor, rigid metal armor, a full suit, or another shoulder-led construction) and do not use contrast frames such as "without", "rather than", "instead of" or "not X but Y" as a sales device. These phrases add irrelevant Google vocabulary and weaken the buyer benefit.
+
+Every meaningful construction fact should resolve into a human benefit or result. Examples: layered shoulders → stronger character from a distance; glossy finish → richer changing highlights in movement and camera; fitted bodysuit → a coherent finished look that is easy to style; modular shoulder/arm pieces → faster reuse across several character concepts. Plain factual description is useful for search, but customer copy must complete the thought with why that fact matters.
+
+Specific lighting setups are never the reason to buy a costume. Do not write "ideal for high-contrast lighting" or make blue/neon/studio light a target use case simply because it appears in product photography. When supported by the material/finish, describe the real portable benefit instead: the surface catches surrounding highlights, changes with movement, or gives photos/video more depth across different environments.
+
+Promotional tone should remain specific and evidenced: original/authorial/handmade/design-led, expressive, memorable, polished, easy to style, comfortable or shape-retaining only when supported by Product Truth. Keep unsupported luxury/premium/superlative claims banned under R21.
+
+
+## R28. Do not invent buyer choreography; sell the whole look before body-part mechanics
+Owner clarification, 2026-09-18: a costume is not purchased because the buyer supposedly needs expressive hand gestures, standing poses, close-up framing, full-body framing, upper-body emphasis or any other choreography invented from the product photo. Those are usage guesses, not product benefits. Buyer copy must not claim that arm pieces "make gestures part of the costume", leg pieces "support full-body poses", a choker "improves close-ups", or a top is for performers who "need upper-body detail" unless a real functional product fact specifically supports such a claim.
+
+Describe the finished look as a whole first: authorial design, handmade construction, material/finish, memorable character, visual richness, craftsmanship and the owner-selected real-world use. Components may be named to explain a specific design feature, but do not repeat the same anatomy or component focus across About, benefits and Ideal For. No body region is a customer motivation by itself.
+
+Generic design-review phrases such as `coordinated design`, `visual structure`, `clear focal point`, `easy to read from a distance`, `upper-body focus` and similar language are not buyer benefits. Replace them with concrete product-specific value: a repeated petal motif, a distinctive horned character, a glossy mirror finish, intricate handmade detailing, an original stage character, a rich theatrical look or another supported fact.
+
+When an owner-confirmed persona is a recognizable character reference, it may appear naturally as an inspiration cue (for example `Maleficent-inspired`) when useful to search intent, while R14 still forbids claiming an exact franchise replica.
+
+Owner product clarification, listing 4373523076: the gold stage outfit uses many petal-shaped elements made from glossy mirror-finish vegan leather across the headpiece, top and skirt. This handmade repeated petal motif is a core visual and selling feature and should be described directly. Do not reduce it to generic `coordinated gold details` or invent feather material merely because an old listing title used the word `feather`.
+
+
+## R29. Vary nearby benefit verbs and sentence mechanics
+Owner clarification, 2026-09-18: adjacent benefit bullets must not repeat the same semantic verb pattern when natural alternatives exist. Avoid sequences such as `gives / gives / gives`, `adds / adds / adds`, or repeated `makes the look...` constructions. This is a readability and human-copy rule, not a synonym-stuffing exercise.
+
+Vary sentence mechanics naturally: a finish may `establish` the character, detailing may `introduce` a direction, handmade construction may `bring` originality, a repeated motif may `tie` the look together, and material may `help retain` shape or finish. Prefer the clearest human sentence over forced vocabulary rotation, but reject obvious nearby repetition before Preview.
+
+The post-generation editorial pass must check lexical repetition inside each block and across adjacent sentences, especially in `Why you'll love it`.
+
+
+Additional R29 clarification, 2026-09-20: also scan for repeated abstract nouns/adjectives across adjacent blocks (for example complete/cohesive/structured/clean/finished). If the same descriptive idea or word family appears repeatedly, vary the thought itself, not only the synonym.\n\n## R30. Benefits must be product-specific, human and non-formulaic
+Owner clarification, 2026-09-20: a technically correct benefit can still fail if it reads like generic AI copy. Do not let every product fall into the same benefit template such as `finish creates character / material keeps shape / handmade construction adds originality`. Those ideas may be true, but repeating them across products makes the copy feel synthetic and weak.
+
+For every product, identify at least two benefits that are specific to that exact design, construction, configuration, fit or intended use. Prefer concrete buyer value such as:
+- adjustable construction → easier fit tuning across real body differences;
+- grouped costume pieces → a complete finished look with fewer styling decisions;
+- repeated motif or distinctive headpiece → stronger character identity;
+- lightweight/flexible construction → easier long-wear comfort;
+- shape-retaining parts → the costume keeps its intended form through repeated use;
+- modular real sellable options → easier reuse of purchased pieces across multiple looks;
+- detailed handmade finishing → closer inspection still feels intentional and crafted.
+
+Do not invent choreography, camera framing or use cases merely to make a sentence sound specific. Specificity must come from Product Truth, current sellable options, owner-selected axes or visually confirmed design facts.
+
+In `Why you'll love it`, no more than one bullet should be a generic material/shape-retention benefit unless the product genuinely depends on that construction. The remaining bullets should answer different buyer questions: what makes this design distinctive, what makes it easier or more comfortable to use, what makes it versatile/reusable, or what makes the handmade work worth paying for.
+
+Before Preview, the editorial pass must ask: `Could this exact benefit block be pasted onto three other FEYA products with only the color changed?` If yes, rewrite it.
+
+
+## R31. Prefer brand-safe fashion/performance language when adult legacy wording is not owner-selected
+Owner clarification, 2026-09-20: old marketplace titles/descriptions may contain adult-category wording such as `BDSM`, `fetish`, `bondage`, `kinky`, `sexual` or similar terms. Do not carry those words into new Google/PDP copy merely because they exist in legacy Etsy text.
+
+When the product is truthfully describable through current owner-selected axes such as fashion, stage, performance, Pride, photoshoot, harness, corset, costume, glam or classic styling, prefer that neutral buyer-facing vocabulary. This supports brand positioning and future advertising/licensing readiness without changing product truth.
+
+Rules:
+- Legacy adult wording is not a public-copy requirement.
+- Owner-selected current axes outrank legacy marketplace positioning.
+- Do not add adult-use motivations or intimate-use claims unless the owner explicitly selects that positioning for the current product.
+- Keep accurate physical identity such as `body harness`, `chest harness`, `garters`, `corset` and `body straps` when they are product truth.
+- Keyword selection should prefer accurate neutral whole-product queries when available.
+- Before Preview, scan Title, H1, Meta, ALT and PDP blocks for unwanted adult-category vocabulary.
+
 ## Process rule
 Every owner review is captured the same way: complaint → named rule → committed here → reflected in prompts/validators. Cumulative and versioned.
+
+
+## R32. Prefer ordinary human wording over abstract styling language
+
+Owner clarification 2026-09-21:
+
+- Avoid using **coordinated / cohesive / visual direction / visual concept / design language** as default buyer-facing prose.
+- Use ordinary wording when it says the same thing more clearly: **matching**, **look like a pair**, **same finish**, **same style**, **share the same gold look**, **work well together**.
+- These abstract terms may appear internally, but public copy should sound like a human stylist or maker speaking to a buyer.
+- For couple listings, explain the actual difference between the women's and men's outfit, what each version contains when owner/source truth is available, and why the two versions work well together.
+
+
+## R33. Explain variant composition only when it materially improves buyer clarity
+
+Owner clarification 2026-09-21:
+
+- Treat variant-breakdown copy as a **clarity tool, not a mandatory template**.
+- When selector labels are opaque, numbered, quantity-based, grouped, or otherwise easy to misunderstand, explain in public copy what the important variants contain.
+- Examples: Variant #1/#2 composition, x1 vs x2 quantity meaning, men's vs women's outfit contents, or a grouped option such as Shoulder + Bracelet.
+- When selector labels are already obvious, do not restate every purchase option in prose.
+- Keep the explanation natural and useful; do not turn the PDP into technical option documentation.
+- Current storefront/source-confirmed offer remains composition truth. Variant explanation must never invent components.
+
+
+## R34. Do not duplicate code-owned selector composition in generated couple copy
+
+Owner clarification 2026-09-23:
+
+- If the deterministic **What’s Included** block already shows selector units such as **Women’s Outfit / Men’s Outfit**, generated copy must not create a second block that repeats those selector-unit names or explains that the paired option contains both.
+- When buyers still need to understand the internal composition of each outfit, explain it once inside normal editorial copy using natural wording such as **For him / For her**.
+- Do not repeat **Paired Set**, **Women’s Outfit**, or **Men’s Outfit** in generated composition prose when those labels are already visible in the code-owned selector/What’s Included area.
+- The purpose of generated copy is to explain the contents and value of each look, not restate the UI.
+
+
+## R35. Final anti-robot editorial pass is mandatory before Preview
+
+Owner clarification 2026-09-23 after Batch39 review:
+
+- Every generated customer-facing sentence must add a new job. Do not repeat composition, selector choices, or purchase combinations that the deterministic `What’s Included` block already shows.
+- `About this piece` sells the product itself: recognizable design, confirmed material/finish, craftsmanship, character and the strongest product-specific detail. It must not narrate the selector.
+- `Why you'll love it` must explain concrete product-specific advantages. Avoid abstract claims such as `adds movement`, `creates a silhouette`, `keeps the visual concept connected`, `reads clearly`, `modular system`, or `visual direction`. If literal fringe moves, say what the fringe physically does; do not use movement as generic fashion filler.
+- `Ideal for` describes real people and situations, not body-part mechanics, selector logic, styling theory or comparisons with another garment type.
+- The final brand paragraph must sound like a maker speaking to a customer. Do not describe the product as a `system`, `modular construction`, `collection of modules`, or a framework the buyer must complete.
+- Negative comparison is rejected before Preview. Do not sell through `instead of`, `rather than`, `unlike`, `not X but Y`, `without needing`, `without requiring`, or similar contrast frames. Describe the positive product advantage directly.
+- Do not call mirror-coated material `polished` when the product truth is a smooth mirror coating. Describe the confirmed substrate and finish separately: for example `soft vegan leather with a smooth mirror finish` or `gold acrylic/plastic with a glossy mirror-style surface`.
+- Variations of search vocabulary are useful only when the sentence remains natural. Primary identity belongs in prominent SEO fields; Secondary/support terms are distributed through useful copy, not mechanically inserted to hit density.
+- Before Preview, perform a second editorial pass with four questions: (1) would a human stylist or maker naturally say this; (2) is it true for this exact product; (3) does it add information not already shown in the next code-owned block; (4) would the sentence still be worth keeping if no keyword were attached to it? Any `no` means rewrite before the owner sees it.
+
+
+## R36. Designed for self-expression is the TheFEYA brand-mission block
+
+Owner clarification 2026-09-23 after Batch41 approval:
+
+- The final `Designed for self-expression` paragraph has a different job from About and Why. It explains **why TheFEYA exists for the wearer**, not the physical product again.
+- Do not repeat material, softness, finish, color, mirror behavior, shape retention, components, construction or selector facts in this block. Those belong in About, Why you’ll love it, What’s Included and the fixed right panel.
+- The core brand idea is human self-expression through original designer stage and festival clothing. TheFEYA helps creative people show personality, imagination, character, taste and parts of their inner world that may have little room in ordinary daily clothing.
+- The paragraph may naturally speak about becoming a character for a night, showing a bolder side of yourself, creating a memorable presence, starting conversations or making expressive content. Keep this as possibility and creative value, never as a guaranteed social outcome.
+- Never promise virality, follower growth, likes, comments, popularity, guaranteed attention or commercial success. TheFEYA is a fashion/design studio, not a marketing service.
+- Public wording should feel warm and human, not like a corporate mission statement. Vary the language across products while keeping the same brand purpose.
+- TheFEYA appears once in this final block. A strong default structure is: **who we are → what freedom the clothing gives the wearer → why that matters at stage/festival/creative moments**.
+- Before Preview ask: could this paragraph still represent TheFEYA if all material/color/component words were removed? If not, rewrite it.

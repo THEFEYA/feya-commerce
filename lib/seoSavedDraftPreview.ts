@@ -18,6 +18,9 @@ export function buildSavedDraftPreviewResult(row: Record<string, any>) {
     status: 'saved_draft_loaded',
     read_only: true,
     message: 'Latest saved review draft loaded. OpenAI was not called.',
+    editorial_review_notice: (validation.approval_blockers || []).includes('missing_validated_keyword_metric')
+      ? 'Текст сохранён для визуальной проверки. Основная тема пока без подтверждённых метрик: подходящий запрос не найден в текущей выгрузке. SEO-утверждение и применение ждут проверки ключа.'
+      : null,
     saved_draft: {
       id: row.id,
       canonical_product_id: row.canonical_product_id,

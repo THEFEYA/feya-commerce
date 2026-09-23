@@ -33,6 +33,7 @@ export type StorefrontConfiguration = {
   // v4 storefront contract fields. These are optional so the frontend remains
   // backward-compatible with v1/v2/v3 safe views until v4 exists in Supabase.
   public_label?: string | null;
+  configuration_color?: string | null;
   component_code?: string | null;
   component_family?: string | null;
   is_full_set?: boolean | null;

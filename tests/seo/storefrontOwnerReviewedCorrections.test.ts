@@ -16,6 +16,53 @@ const product = {
   ],
 };
 
+test('harness colour variants retain distinct prices but include just one harness', () => {
+  const source = {
+    canonical_product_id: 'de38a842-37c4-40a7-86b4-393341c4c9aa',
+    configurations: [
+      { configuration_id: 'e689d3b4-acc1-4fa2-ad12-4463207fcdd9', public_label: 'Option', component_code: null, component_family: null, sort_order: 1, display_price_amount: 130.35, raw_option_value: 'Черный', needs_label_review: true },
+      { configuration_id: '9a3cd61f-e87f-4590-b39f-b143e75ca0f7', public_label: 'Option', component_code: null, component_family: null, sort_order: 2, display_price_amount: 140.01, raw_option_value: 'Зеленый', needs_label_review: true },
+      { configuration_id: '4b56be10-1771-4a5c-9daa-6ae70e8650f0', public_label: 'Option', component_code: null, component_family: null, sort_order: 3, display_price_amount: 159.31, raw_option_value: 'Коричневый', needs_label_review: true },
+    ],
+  };
+  const before = JSON.stringify(source);
+  const corrected = applyOwnerReviewedStorefrontCorrections(source);
+  const offer = resolveStorefrontSellableOffer(corrected);
+  assert.equal(offer.status, 'ready');
+  assert.deepEqual(offer.component_codes, ['harness']);
+  assert.deepEqual(offer.default_included_components, ['Harness']);
+  assert.equal(offer.atomic_options.length, 3);
+  assert.equal(offer.aggregate_options.length, 0);
+  assert.deepEqual(corrected.configurations.map(row => [row.configuration_color, row.display_price_amount]), [['Black', 130.35], ['Green', 140.01], ['Brown', 159.31]]);
+  assert.equal([...corrected.configurations].sort((a,b)=>a.sort_order-b.sort_order)[0].configuration_color, 'Brown');
+  assert.deepEqual(corrected.configurations.map(row => [row.configuration_id, row.raw_option_value]), source.configurations.map(row => [row.configuration_id, row.raw_option_value]));
+  assert.equal(JSON.stringify(source), before);
+  assert.deepEqual(applyOwnerReviewedStorefrontCorrections(corrected), corrected);
+  const unknown = applyOwnerReviewedStorefrontCorrections({ ...source, configurations: [...source.configurations, {configuration_id:'unknown',public_label:'Option',needs_label_review:true}] });
+  assert.equal(resolveStorefrontSellableOffer(unknown).status, 'hold');
+});
+
+test('owner-confirmed cosmic top replaces its integrated shoulder label without changing options or prices', () => {
+  const original = {
+    canonical_product_id: '657bd6d8-fbe1-4441-abad-f574e3380897',
+    configurations: [
+      { configuration_id: '2a41b72b-4ce0-468f-b709-824d03b385e9', public_label: 'Shoulders', component_code: 'shoulders', component_family: 'Shoulders', display_price_amount: 130.28, raw_option_value: 'Плечи' },
+      { configuration_id: '0b545588-0b9a-4fe3-a998-d412c97561c1', public_label: 'Skirt', component_code: 'skirt', component_family: 'Bottom', display_price_amount: 144.76 },
+      { configuration_id: 'f61b93dd-811a-437b-9594-d37867041107', public_label: 'Full Set', component_code: 'full_set', is_full_set: true, bundle_component_codes: ['shoulders', 'skirt'], bundle_component_labels: ['Shoulders', 'Skirt'], display_price_amount: 207.36 },
+    ],
+  };
+  const before = JSON.stringify(original);
+  const corrected = applyOwnerReviewedStorefrontCorrections(original);
+  const offer = resolveStorefrontSellableOffer(corrected);
+  assert.deepEqual(offer.default_included_components, ['Top', 'Skirt']);
+  assert.deepEqual(offer.component_codes, ['skirt', 'top']);
+  assert.equal(offer.status, 'ready');
+  assert.deepEqual(corrected.configurations.map(row => [row.configuration_id, row.display_price_amount]), original.configurations.map(row => [row.configuration_id, row.display_price_amount]));
+  assert.equal(corrected.configurations[0].raw_option_value, 'Плечи');
+  assert.equal(JSON.stringify(original), before);
+  assert.deepEqual(applyOwnerReviewedStorefrontCorrections(corrected), corrected);
+});
+
 test('restores the source-proven Top Harness and complete Full Set without editing raw evidence', () => {
   const corrected = applyOwnerReviewedStorefrontCorrections(product);
   const topHarness = corrected.configurations.find((row) => row.configuration_id === 'ed3b7548-e8b4-4342-8dbe-5093d70a9cfc');
@@ -69,4 +116,29 @@ test('silver mens warrior Full Set includes its grouped option and compares all 
   const offer = resolveStorefrontSellableOffer(corrected);
   assert.equal(offer.status, 'ready');
   assert.deepEqual(offer.default_included_components, ['Bracelet', 'Shoulders', 'Skirt', 'Top']);
+});
+
+
+test('gold armor numbered variants stay distinct with source prices', () => {
+  const corrected = applyOwnerReviewedStorefrontCorrections({
+    canonical_product_id: '437a20cd-27a3-4aaf-b154-3353899e0ebd',
+    needs_label_review: true,
+    configurations: [
+      { configuration_id: '899e0b93-6222-4208-9d3a-218e4747b982', public_label: 'Option', display_price_amount: 303.07, sort_order: 1, needs_label_review: true },
+      { configuration_id: 'a737ac7d-bff8-4325-b101-fa934bb1d322', public_label: 'Option', display_price_amount: 358.90, sort_order: 2, needs_label_review: true },
+      { configuration_id: '3ae4183d-f178-4231-a551-5c874520a25a', public_label: 'Option', display_price_amount: 199.39, sort_order: 3, needs_label_review: true },
+      { configuration_id: 'dce0b722-5c5b-4b2b-81c4-032c1d295a53', public_label: 'Option', display_price_amount: 223.31, sort_order: 4, needs_label_review: true },
+    ],
+  });
+
+  assert.deepEqual(
+    corrected.configurations.map((row: any) => [row.public_label, row.display_price_amount, row.sort_order]),
+    [
+      ['Variant #1', 303.07, 1],
+      ['Variant #2', 358.90, 2],
+      ['Variant #3', 199.39, 3],
+      ['Variant #4', 223.31, 4],
+    ],
+  );
+  assert.equal(corrected.needs_label_review, false);
 });

@@ -81,7 +81,10 @@ export function buildSeoDraftStoragePayload({
     image_alt_candidates: Array.isArray(agentOutput.image_alt_candidates) ? agentOutput.image_alt_candidates : [],
     internal_linking_hints: Array.isArray(agentOutput.internal_linking_hints) ? agentOutput.internal_linking_hints : [],
     product_truth_snapshot: seoPackDraft.product_truth || {},
-    manual_focus_snapshot: agentInput.manual_focus || {},
+    manual_focus_snapshot: {
+      ...(agentInput.manual_focus || {}),
+      source_decision_id: seoPackDraft.source_decision_id || null,
+    },
     keyword_roles_snapshot: seoPackDraft.keyword_roles || {},
     metrics_status_snapshot: agentInput.metrics_status || {},
     qa_self_report: agentOutput.qa_self_report || {},

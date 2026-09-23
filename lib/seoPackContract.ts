@@ -1,5 +1,6 @@
 import { classifySeoProductPresentation, hasWholeProductScope } from './seoProductPresentation.ts';
 import type { StorefrontSellableOfferTruth } from './storefrontSellableOffer.ts';
+import { isUnmeasuredEditorialReviewDraft } from './seoUnmeasuredEditorialReview.ts';
 
 export type SeoPackContractVersion = 'seo_pack_v1';
 export type SeoAgentInputContractVersion = 'seo_agent_input_v1';
@@ -445,6 +446,7 @@ export function getSeoPackReviewDraftStorageBlockers(draft: SeoPackDraftContract
   if (!draft) return ['missing_seo_pack_draft'];
 
   const blockers: string[] = [];
+  const editorialPreviewOnly = isUnmeasuredEditorialReviewDraft(draft);
   const truth = draft.product_truth;
   const usefulKeywords = [
     ...(draft.keyword_roles?.primary || []),
@@ -456,17 +458,18 @@ export function getSeoPackReviewDraftStorageBlockers(draft: SeoPackDraftContract
     || truth?.sellable_offer?.source_available === true;
 
   if (!draft.canonical_product_id) blockers.push('missing_canonical_product_id');
-  if (draft.keyword_selection?.status !== 'confirmed') blockers.push('keyword_selection_not_human_confirmed');
+  if (draft.keyword_selection?.status !== 'confirmed' && !editorialPreviewOnly) blockers.push('keyword_selection_not_human_confirmed');
   if (!truth?.title?.trim()) blockers.push('missing_product_title');
   if (!truth?.slug?.trim()) blockers.push('missing_product_slug');
   if (truth?.product_truth_source !== 'seo_product_truth_v1') blockers.push('missing_canonical_product_truth_contract');
   if (!hasSourceEvidence) blockers.push('missing_source_configuration_evidence');
   if (!usefulKeywords.length) blockers.push('missing_primary_or_secondary_keyword');
   blockers.push(...getSeoKeywordSelectionBlockers(draft));
-  if ((draft.metrics_status?.validated_count || 0) < 1) blockers.push('missing_validated_keyword_metric');
+  if ((draft.metrics_status?.validated_count || 0) < 1 && !editorialPreviewOnly) blockers.push('missing_validated_keyword_metric');
   if (String(draft.status || '').startsWith('blocked_')) blockers.push(`draft_status_${draft.status}`);
 
   Object.entries(draft.qa_checks || {}).forEach(([key, value]) => {
+    if (editorialPreviewOnly && key === 'validated_metrics') return;
     if (key !== 'notes' && value === 'blocker') blockers.push(`qa_blocker_${key}`);
   });
 

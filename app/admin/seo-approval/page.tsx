@@ -271,9 +271,17 @@ function SavedDraftCard({ draft, events }) {
   </article>;
 }
 
-export default async function SeoApprovalPage() {
+export default async function SeoApprovalPage({ searchParams }) {
+  const params = await searchParams;
+  const productId = typeof params?.product_id === 'string' ? params.product_id.trim() : '';
   const savedDraftQueue = await loadSavedDraftQueue();
-  const savedDrafts = savedDraftQueue.drafts || [];
+  const allSavedDrafts = savedDraftQueue.drafts || [];
+  const savedDrafts = productId
+    ? allSavedDrafts
+        .filter((draft) => String(draft.canonical_product_id || '') === productId)
+        .sort((a, b) => new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime())
+        .slice(0, 1)
+    : allSavedDrafts;
   const draftIds = savedDrafts.map((draft) => draft.id).filter(Boolean);
   const draftEvents = await loadDraftEvents(draftIds);
   const notReviewed = savedDrafts.filter((draft) => draft.review_status === 'not_reviewed').length;
@@ -281,7 +289,7 @@ export default async function SeoApprovalPage() {
   const totalEvents = Array.from(draftEvents.eventsByDraft.values()).reduce((sum, events) => sum + events.length, 0);
 
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]"><section className="container-feya pt-10 pb-16">
-    <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7"><div><div className="eyebrow-gold mb-3">Админка · проверка SEO</div><h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Проверка SEO</h1><p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Быстрая очередь сохранённых SEO-черновиков из storage layer. Здесь мы проверяем drafts, но не публикуем и не меняем storefront/product tables.</p></div><div className="flex flex-wrap gap-3"><Link href="/admin/seo-engine/briefs" className="btn-ghost">SEO-бриф <ArrowUpRight size={13} /></Link><Link href="/admin/indexation" className="btn-ghost">Индексация <ArrowUpRight size={13} /></Link></div></div>
+    <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between border-b border-[rgba(216,214,211,.12)] pb-7 mb-7"><div><div className="eyebrow-gold mb-3">Админка · проверка SEO</div><h1 className="font-tall text-bone leading-none" style={{ fontSize: 'clamp(44px,7vw,88px)' }}>Проверка SEO</h1><p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-[var(--bone-dim)]">Быстрая очередь сохранённых SEO-черновиков из storage layer. Здесь мы проверяем drafts, но не публикуем и не меняем storefront/product tables.</p></div><div className="flex flex-wrap gap-3">{productId ? <Link href="/admin/seo-approval" className="btn-ghost">Вся очередь <ArrowUpRight size={13} /></Link> : null}<Link href="/admin/seo-engine/briefs" className="btn-ghost">SEO-бриф <ArrowUpRight size={13} /></Link><Link href="/admin/indexation" className="btn-ghost">Индексация <ArrowUpRight size={13} /></Link></div></div>
     {savedDraftQueue.error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{savedDraftQueue.error}</div> : null}
     {savedDraftQueue.detailError ? <div className="rounded-2xl border border-[rgba(212,178,106,.35)] bg-[rgba(212,178,106,.08)] p-5 text-[var(--bone-dim)] mb-7">Очередь загружена, но полный snapshot черновика недоступен: {savedDraftQueue.detailError}</div> : null}
     {draftEvents.error ? <div className="rounded-2xl border border-[rgba(212,178,106,.35)] bg-[rgba(212,178,106,.08)] p-5 text-[var(--bone-dim)] mb-7">История событий не загрузилась: {draftEvents.error}. Очередь черновиков продолжает работать.</div> : null}

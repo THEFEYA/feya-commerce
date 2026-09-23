@@ -112,7 +112,10 @@ export function asMediaGallery(product: StorefrontProduct): StorefrontMedia[] {
 }
 export function optionLabel(option: StorefrontConfiguration, index = 0) {
   const preferred = option.public_label || option.configuration_label || option.configuration_name || option.option_value || option.title || option.label;
-  if (preferred) return publicOptionLabel(preferred, index);
+  if (preferred) {
+    const label = publicOptionLabel(preferred, index);
+    return option.configuration_color ? `${option.configuration_color} ${label}` : label;
+  }
   return `Option ${index + 1}`;
 }
 export function optionKey(option: StorefrontConfiguration, index = 0) {
@@ -162,7 +165,7 @@ export function sortedOptions(product: StorefrontProduct) {
   return Array.from(byLabel.values()).sort((a, b) => {
     const aLabel = optionLabel(a), bLabel = optionLabel(b);
     const aFull = isFullSetOption(a) || isFullSet(aLabel), bFull = isFullSetOption(b) || isFullSet(bLabel);
-    if (aFull !== bFull) return aFull ? 1 : -1;
+    if (aFull !== bFull) return aFull ? -1 : 1;
     const aSort = Number(a.sort_order || 0), bSort = Number(b.sort_order || 0);
     if (aSort !== bSort) return aSort - bSort;
     return (optionPrice(a) || 0) - (optionPrice(b) || 0);
