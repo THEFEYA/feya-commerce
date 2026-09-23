@@ -1,3 +1,5 @@
+import { inspectSearchEnvironment } from './searchEnvironmentGate';
+
 export function getSiteUrl() {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
 
@@ -9,7 +11,7 @@ export function getSiteUrl() {
 }
 
 export function isSearchIndexingEnabled() {
-  return process.env.FEYA_SEARCH_INDEXING_ENABLED === 'true';
+  return inspectSearchEnvironment(process.env).enabled;
 }
 
 export function isStructuredDataEnabled() {
