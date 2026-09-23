@@ -189,3 +189,13 @@ Owner clarification 2026-09-21:
 - When selector labels are already obvious, do not restate every purchase option in prose.
 - Keep the explanation natural and useful; do not turn the PDP into technical option documentation.
 - Current storefront/source-confirmed offer remains composition truth. Variant explanation must never invent components.
+
+
+## R34. Do not duplicate code-owned selector composition in generated couple copy
+
+Owner clarification 2026-09-23:
+
+- If the deterministic **What’s Included** block already shows selector units such as **Women’s Outfit / Men’s Outfit**, generated copy must not create a second block that repeats those selector-unit names or explains that the paired option contains both.
+- When buyers still need to understand the internal composition of each outfit, explain it once inside normal editorial copy using natural wording such as **For him / For her**.
+- Do not repeat **Paired Set**, **Women’s Outfit**, or **Men’s Outfit** in generated composition prose when those labels are already visible in the code-owned selector/What’s Included area.
+- The purpose of generated copy is to explain the contents and value of each look, not restate the UI.
