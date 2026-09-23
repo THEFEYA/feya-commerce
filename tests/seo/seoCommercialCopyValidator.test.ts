@@ -1801,3 +1801,29 @@ test('natural word order of the saved Primary remains identity in Meta, not a co
   const inventory = validateSeoCommercialCopy(draft({ meta_description: 'The costume combines a gold top and skirt for dancers.' }), context);
   assert.equal(inventory.issues.some(issue => issue.code === 'meta_description_repeats_deterministic_composition'), true);
 });
+
+
+test('blocks negative comparison, system language, selector narration and generic movement filler', () => {
+  const value = draft({
+    intro: 'This outfit works as a modular system rather than a fixed costume.',
+    pdp_blocks: draft().pdp_blocks.map((block: any) => {
+      if (block.block_key === 'why_youll_love_it') {
+        return {
+          ...block,
+          body: [
+            'The skirt adds movement.',
+            'Choose one option or both pieces.',
+            'The coordinated pieces keep the visual concept connected.',
+          ].join('\n'),
+        };
+      }
+      return block;
+    }),
+  });
+  const result = validateSeoCommercialCopy(value);
+  const codes = result.issues.map((issue) => issue.code);
+  assert.ok(codes.includes('customer_copy_uses_negative_contrast_sales_frame'));
+  assert.ok(codes.includes('customer_copy_uses_robotic_system_language'));
+  assert.ok(codes.includes('customer_copy_uses_generic_movement_pseudobenefit'));
+  assert.ok(codes.includes('customer_copy_narrates_selector_choices'));
+});
