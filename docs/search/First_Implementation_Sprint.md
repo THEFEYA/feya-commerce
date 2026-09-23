@@ -6,6 +6,10 @@
 
 Новый checkpoint — [Atomic_Draft_Save_20260923.md](Atomic_Draft_Save_20260923.md): восстановление 14-table dependency schema, единая current-policy validation для resave/save, атомарный draft+event+receipt и отдельный native PostgreSQL CI. Ниже сохранены исходные результаты foundation; новые результаты и deployment dependencies описаны в checkpoint. Production migration и indexing не выполнялись.
 
+## Продолжение: demand evidence bridge
+
+Следующий checkpoint — [Demand_Evidence_Bridge_20260923.md](Demand_Evidence_Bridge_20260923.md): read-only audit 168 snapshots и 15 exact seed matches из существующего keyword bank, общий CSV parser, сохранение range/null/zero/provenance, блокировка конфликтующих наблюдений и отказ от автоматических SEO-баллов/Primary. Экраны CSV и scoring используют новый review contract. Persistent atomic import ещё не включён; Auth/browser/PostgREST gate остаётся открытым. Ниже исторические counts исходного sprint, актуальные результаты — в checkpoint и PR.
+
 ## Что реализовано
 
 | Блок | Реальный результат | Граница |

@@ -22,6 +22,14 @@ export function normalizeResearchKeyword(keyword: string) {
   return keyword.normalize('NFKC').trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
+function evidenceDate(value:string|null) {
+  if(!value)return NaN;
+  if(!/^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2}))?$/.test(value))return NaN;
+  const dateOnly=value.slice(0,10), day=Date.parse(dateOnly+'T00:00:00Z');
+  if(!Number.isFinite(day)||new Date(day).toISOString().slice(0,10)!==dateOnly)return NaN;
+  return Date.parse(value);
+}
+
 export function validateDemandEvidence(row: DemandEvidence, context: {
   market: string; language: string; network: string; now: Date; max_age_days: number;
 }) {
@@ -33,13 +41,15 @@ export function validateDemandEvidence(row: DemandEvidence, context: {
   if (!['google_ads_csv', 'google_ads_api'].includes(row.source)) errors.push('not_google_demand_source');
   if (!row.source_ref?.trim()) errors.push('provenance_missing');
   if (row.market !== context.market || row.language !== context.language || row.network !== context.network) errors.push('targeting_context_mismatch');
-  const fetched = row.fetched_at ? Date.parse(row.fetched_at) : NaN;
-  const start = row.period_start ? Date.parse(row.period_start) : NaN;
-  const end = row.period_end ? Date.parse(row.period_end) : NaN;
+  const fetched = evidenceDate(row.fetched_at);
+  const start = evidenceDate(row.period_start);
+  const end = evidenceDate(row.period_end);
   if (!Number.isFinite(fetched) || fetched > context.now.getTime()) errors.push('capture_date_invalid');
   if (!Number.isFinite(start) || !Number.isFinite(end) || start > end || end > fetched) errors.push('metric_period_invalid');
   const ageDays = Number.isFinite(fetched) ? (context.now.getTime() - fetched) / 86400000 : null;
   if (ageDays !== null && ageDays > context.max_age_days) warnings.push('snapshot_stale');
+  // FEYA review policy, not a Google ranking threshold. New imports cannot refresh old periods.
+  if (Number.isFinite(end) && (context.now.getTime() - end) / 86400000 > context.max_age_days + 31) warnings.push('metric_period_stale');
   const volume = row.avg_monthly_searches;
   if (volume !== null && (!Number.isSafeInteger(volume) || volume < 0)) errors.push('invalid_search_volume');
   const range = row.search_volume_range;
