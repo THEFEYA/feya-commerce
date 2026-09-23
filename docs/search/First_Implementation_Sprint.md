@@ -14,6 +14,10 @@
 
 [Atomic_Metric_Import_20260923.md](Atomic_Metric_Import_20260923.md): атомарный staging + snapshot + receipt на существующих таблицах, проверка 7-table dependency schema, сохранение zero/range/currency/capture и отдельный concurrency CI suite. Migration не применена, write activation закрыта: выявлены 17 legacy SQL readers, которые необходимо согласовать с новым context gate. Это следующий prerequisite перед включением импорта, а не отмена исторических approvals.
 
+## Продолжение: metric reader reconciliation
+
+[Metric_Reader_Reconciliation_20260923.md](Metric_Reader_Reconciliation_20260923.md): совместимая изоляция atomic observations в 17 direct SQL paths, 23 predicates до legacy selection/scoring, сохранение ACL/security_barrier и fingerprint health. Новый snapshot adapter сохраняет evidence и удерживает source-context review. SQL migration подготовлена и проверяется в isolated CI; production не менялась. Следующие gates — Supabase staging/advisors и authenticated runtime, затем context review и inventory/page pilot.
+
 ## Что реализовано
 
 | Блок | Реальный результат | Граница |

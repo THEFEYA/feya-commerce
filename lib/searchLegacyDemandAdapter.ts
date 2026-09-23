@@ -1,4 +1,5 @@
 import type { MetricCsvRow } from './searchMetricCsv.ts';
+import {isAtomicMetricSnapshot,storedSnapshotToDemandRow} from './searchStoredDemandAdapter.ts';
 
 type Row=Record<string,unknown>;
 const object=(v:unknown):Row=>v&&typeof v==='object'&&!Array.isArray(v)?v as Row:{};
@@ -14,6 +15,7 @@ function recordedPeriod(value:unknown) {
 
 /** Read-only adaptation. No legacy rows, metric labels, IDs or approvals are rewritten. */
 export function legacySnapshotToDemandRow(row:Row):MetricCsvRow {
+  if(isAtomicMetricSnapshot(row))return storedSnapshotToDemandRow(row);
   const raw=object(row.raw_payload_json), history=object(row.monthly_search_volumes_json);
   let extra:Row={};
   try{extra=object(JSON.parse(text(history.raw)));}catch{/* Missing evidence remains missing. */}

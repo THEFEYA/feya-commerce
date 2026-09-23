@@ -96,6 +96,12 @@ export function demandReasonLabel(code:string) {
     ambiguous_volume_representation:'Одновременно указаны число и диапазон спроса',
     invalid_ads_competition:'Некорректное значение рекламной конкуренции',
     source_capture_time_unverified:'Дата получения исходного экспорта не подтверждена',
+    source_context_review_required:'Контекст источника ещё требует проверки',
+    stored_evidence_contract_invalid:'Сохранённое доказательство не соответствует контракту',
+    stored_evidence_column_mismatch:'Поля снимка расходятся с исходным доказательством',
+    stored_capture_date_mismatch:'Дата снимка расходится с датой источника',
+    unsafe_integer_identifier:'Идентификатор потерял точность при чтении',
+    unrecognized_atomic_review_status:'Статус проверки источника не подтверждён',
     api_placeholder_not_observation:'Это заготовка API; метрики ещё не получены',
   };
   return labels[code]||(/^.*(numeric|decimal)/.test(code)?'Число неоднозначно: проверьте разделители и исходное значение':code);

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { previewDemandImport } from '@/lib/searchDemandImportPreview';
 import type { MetricCsvContext, MetricCsvRow } from '@/lib/searchMetricCsv';
-import { importMetricsAtomically, metricImportWriteBlockers, prepareMetricImport } from '@/lib/searchMetricAtomicStorage';
+import { importMetricsAtomically, metricImportWriteBlockers, prepareMetricImport, verifyMetricReaderBoundary } from '@/lib/searchMetricAtomicStorage';
 import { getSupabaseServiceClient } from '@/lib/supabase';
 
 export const runtime = 'nodejs';
@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
       try{payload=prepareMetricImport(result,input.context_evidence_ref);}catch(error){return NextResponse.json({ok:false,error:String(error),writes_performed:0},{status:422,headers:{'Cache-Control':'no-store'}});}
       const client=getSupabaseServiceClient();
       if(!client)return NextResponse.json({ok:false,error:'Metric storage unavailable.',writes_performed:0},{status:503,headers:{'Cache-Control':'no-store'}});
+      if(!await verifyMetricReaderBoundary(client))return NextResponse.json({ok:false,error:'Metric reader contract missing or changed.',writes_performed:0},{status:503,headers:{'Cache-Control':'no-store'}});
       const saved=await importMetricsAtomically(client,payload,request.headers.get('Idempotency-Key'));
       return NextResponse.json({...saved,can_assign_primary:false,can_publish:false,can_index:false},{status:saved.httpStatus,headers:{'Cache-Control':'no-store'}});
     }

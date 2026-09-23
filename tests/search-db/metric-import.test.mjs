@@ -99,8 +99,8 @@ test('half-written evidence pairs cannot pass SQL checks through null semantics'
   await service(()=>assert.rejects(db.query(`insert into public.${tables[0]}(batch_code,keyword_norm,demand_observation_key,demand_evidence_json) values('invalid-pair','synthetic', $1,$2::jsonb)`,[key,evidence]),/check constraint/));
  }
 });
-test('API activation stays blocked until legacy consumer integration even if storage env is enabled',()=>{
- assert.deepEqual(metricImportWriteBlockers({FEYA_METRIC_IMPORT_STORAGE_ENABLED:'true',FEYA_ADMIN_AUTH_REQUIRED:'true'}),['legacy_metric_consumers_not_reconciled']);
+test('API activation stays blocked until authenticated runtime verification even if storage env is enabled',()=>{
+ assert.deepEqual(metricImportWriteBlockers({FEYA_METRIC_IMPORT_STORAGE_ENABLED:'true',FEYA_ADMIN_AUTH_REQUIRED:'true'}),['authenticated_metric_import_runtime_not_verified']);
 });
 test('missing health RPC never falls back to separate inserts; invalid transport receipts fail closed',async()=>{
  const calls=[];const absent={rpc:async n=>{calls.push(n);return {data:null,error:{message:'missing'}};}};

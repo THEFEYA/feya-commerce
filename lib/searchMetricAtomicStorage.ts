@@ -4,9 +4,12 @@ import type { previewDemandImport } from './searchDemandImportPreview.ts';
 export const METRIC_IMPORT_RPC = 'feya_commerce_import_keyword_metrics_atomic_v1';
 export const METRIC_IMPORT_HEALTH_RPC = 'feya_commerce_keyword_metric_import_contract_v1';
 export const METRIC_IMPORT_CONTRACT = 'atomic_keyword_metric_import_v1';
-// Audited legacy readers can select new observations without full context checks.
-// A reviewed reader integration + authenticated runtime gate must precede activation.
-export const METRIC_IMPORT_CONSUMERS_READY = false;
+// Boundary migration excludes atomic observations before legacy selection/scoring.
+// Actual deployment must prove both SQL health and authenticated runtime separately.
+export const METRIC_IMPORT_CONSUMERS_READY = true;
+export const METRIC_IMPORT_RUNTIME_VERIFIED = false;
+export const METRIC_READER_HEALTH_RPC = 'feya_commerce_metric_reader_boundary_health_v1';
+export const METRIC_READER_CONTRACT = 'metric_reader_boundary_v1';
 export type DemandPreview = ReturnType<typeof previewDemandImport>;
 function canonical(value:unknown):string {
   if(Array.isArray(value))return '['+value.map(canonical).join(',')+']';
@@ -48,5 +51,11 @@ export async function importMetricsAtomically(client:RpcClient,payload:ReturnTyp
 export function metricImportWriteBlockers(env:Record<string,string|undefined>) {
   return [env.FEYA_METRIC_IMPORT_STORAGE_ENABLED!=='true'?'storage_disabled':null,
     env.FEYA_ADMIN_AUTH_REQUIRED!=='true'?'admin_auth_required':null,
-    !METRIC_IMPORT_CONSUMERS_READY?'legacy_metric_consumers_not_reconciled':null].filter((v):v is string=>v!==null);
+    !METRIC_IMPORT_CONSUMERS_READY?'legacy_metric_consumers_not_reconciled':null,
+    !METRIC_IMPORT_RUNTIME_VERIFIED?'authenticated_metric_import_runtime_not_verified':null].filter((v):v is string=>v!==null);
+}
+
+export async function verifyMetricReaderBoundary(client:RpcClient) {
+  try{const {data,error}=await client.rpc(METRIC_READER_HEALTH_RPC,{});return !error&&data===METRIC_READER_CONTRACT;}
+  catch{return false;}
 }
