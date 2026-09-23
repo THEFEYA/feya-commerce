@@ -1459,3 +1459,43 @@ test('restores Batch38 source-confirmed selectors', () => {
     ['Top Harness','Shoulders','Arm Bracelet','Garters'].sort(),
   );
 });
+
+
+test('restores Batch39 white robot quantity selectors', () => {
+  const robot = {
+    canonical_product_id: 'ebd949d5-6596-4a7c-aec7-11e258dae417',
+    configurations: [
+      { configuration_id: 'd44685a6-b1eb-4c25-8fd7-dab8d6b08f77', sort_order: 1, public_label: 'Arm Pieces', component_code: 'arms', component_family: 'Arms', display_price_amount: 247.24 },
+      { configuration_id: '6fbe98e5-d0dd-42b7-80a4-86a43e021be2', sort_order: 2, public_label: 'Leg Covers', component_code: 'legs', component_family: 'Legs', display_price_amount: 303.07 },
+      { configuration_id: '48134eaf-66da-40c2-bd2d-e996f313aea6', sort_order: 3, public_label: 'Leg Covers', component_code: 'legs', component_family: 'Legs', display_price_amount: 159.51 },
+      { configuration_id: 'ae3f72cc-0016-4db5-9672-923207a900f2', sort_order: 4, public_label: 'Option', needs_label_review: true, display_price_amount: 164.06 },
+      { configuration_id: '45ea1065-4e25-406c-85f3-d6871129b551', sort_order: 5, public_label: 'Leg Covers', component_code: 'arms', component_family: 'Arms', display_price_amount: 271.17 },
+      { configuration_id: '83a7ce93-264d-4d67-b8dd-c6fc40cce43b', sort_order: 6, public_label: 'Arm Pieces', component_code: 'arms', component_family: 'Arms', display_price_amount: 518.41 },
+    ],
+  } as any;
+
+  assert.deepEqual(
+    storefrontIncludedOptions(robot, { configuration_id: 'ae3f72cc-0016-4db5-9672-923207a900f2' }),
+    ['One Arm Armor'],
+  );
+  assert.deepEqual(
+    storefrontIncludedOptions(robot, { configuration_id: '48134eaf-66da-40c2-bd2d-e996f313aea6' }),
+    ['One Leg Armor'],
+  );
+  assert.deepEqual(
+    storefrontIncludedOptions(robot, { configuration_id: '45ea1065-4e25-406c-85f3-d6871129b551' }),
+    ['One Arm + Leg Armor'],
+  );
+  assert.deepEqual(
+    storefrontIncludedOptions(robot, { configuration_id: '6fbe98e5-d0dd-42b7-80a4-86a43e021be2' }),
+    ['Both Legs Armor x2'],
+  );
+  assert.deepEqual(
+    storefrontIncludedOptions(robot, { configuration_id: 'd44685a6-b1eb-4c25-8fd7-dab8d6b08f77' }),
+    ['Both Arms Armor x2'],
+  );
+  assert.deepEqual(
+    storefrontIncludedOptions(robot, { configuration_id: '83a7ce93-264d-4d67-b8dd-c6fc40cce43b' }),
+    ['Both Arms + Legs'],
+  );
+});
