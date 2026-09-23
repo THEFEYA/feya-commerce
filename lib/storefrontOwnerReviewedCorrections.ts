@@ -128,6 +128,7 @@ const BATCH38_GOLD_HORNS_ID = 'b18d342a-c323-4f11-8c98-d5eb5f543e12';
 const BATCH38_COUPLE_GOLD_ID = 'fefd1c3e-2fd1-47c9-970f-c30962c1a737';
 const BATCH38_COUPLE_ALT_ID = '5bf3df64-84dc-4baf-84bd-8a94e1b06ccb';
 const BATCH38_WARRIOR_PRINCESS_ID = '679c975c-b309-49dc-9207-f89fc96b84d1';
+const BATCH39_WHITE_ROBOT_QTY_ID = 'ebd949d5-6596-4a7c-aec7-11e258dae417';
 
 
 
@@ -140,6 +141,81 @@ const BATCH38_WARRIOR_PRINCESS_ID = '679c975c-b309-49dc-9207-f89fc96b84d1';
 
 
 
+
+
+function correctBatch39WhiteRobotQty<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+
+  const options: Record<string, Record<string, any>> = {
+    'ae3f72cc-0016-4db5-9672-923207a900f2': {
+      public_label: 'One Arm Armor',
+      component_code: 'arm_x1',
+      component_family: 'Arms',
+      is_bundle: false,
+      is_full_set: false,
+      sort_order: 1,
+    },
+    '48134eaf-66da-40c2-bd2d-e996f313aea6': {
+      public_label: 'One Leg Armor',
+      component_code: 'leg_x1',
+      component_family: 'Legs',
+      is_bundle: false,
+      is_full_set: false,
+      sort_order: 2,
+    },
+    '45ea1065-4e25-406c-85f3-d6871129b551': {
+      public_label: 'One Arm + Leg Armor',
+      component_code: 'arm_leg_x1',
+      component_family: 'Bundle',
+      is_bundle: true,
+      is_full_set: false,
+      bundle_component_codes: ['arm_x1','leg_x1'],
+      bundle_component_labels: ['One Arm Armor','One Leg Armor'],
+      sort_order: 3,
+    },
+    '6fbe98e5-d0dd-42b7-80a4-86a43e021be2': {
+      public_label: 'Both Legs Armor x2',
+      component_code: 'legs_x2',
+      component_family: 'Legs',
+      is_bundle: false,
+      is_full_set: false,
+      sort_order: 4,
+    },
+    'd44685a6-b1eb-4c25-8fd7-dab8d6b08f77': {
+      public_label: 'Both Arms Armor x2',
+      component_code: 'arms_x2',
+      component_family: 'Arms',
+      is_bundle: false,
+      is_full_set: false,
+      sort_order: 5,
+    },
+    '83a7ce93-264d-4d67-b8dd-c6fc40cce43b': {
+      public_label: 'Both Arms + Legs',
+      component_code: 'arms_legs_x2',
+      component_family: 'Bundle',
+      is_bundle: true,
+      is_full_set: false,
+      bundle_component_codes: ['arms_x2','legs_x2'],
+      bundle_component_labels: ['Both Arms Armor x2','Both Legs Armor x2'],
+      sort_order: 6,
+    },
+  };
+
+  if (!Object.keys(options).every(id => product.configurations.some(row => configurationId(row) === id))) {
+    return product;
+  }
+
+  const configurations = product.configurations.map(row => {
+    const correction = options[configurationId(row)];
+    return correction ? { ...row, ...correction, needs_label_review: false } : row;
+  });
+
+  return {
+    ...product,
+    configurations,
+    needs_label_review: configurations.some(row => row.needs_label_review === true),
+  };
+}
 
 function correctBatch38GoldHorns<T extends Record<string, any>>(product: T): T {
   if (!Array.isArray(product.configurations)) return product;
@@ -1824,6 +1900,7 @@ function correctSilverBraSkirtSet<T extends Record<string, any>>(product: T): T 
 
 export function applyOwnerReviewedStorefrontCorrections<T extends Record<string, any>>(product: T): T {
   const productId = String(product?.canonical_product_id || '');
+  if (productId === BATCH39_WHITE_ROBOT_QTY_ID) return correctBatch39WhiteRobotQty(product);
   if (productId === BATCH38_GOLD_HORNS_ID) return correctBatch38GoldHorns(product);
   if (productId === BATCH38_COUPLE_GOLD_ID) return correctBatch38CoupleGold(product);
   if (productId === BATCH38_COUPLE_ALT_ID) return correctBatch38CoupleAlt(product);
