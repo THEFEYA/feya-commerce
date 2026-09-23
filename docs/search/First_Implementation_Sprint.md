@@ -10,6 +10,10 @@
 
 Следующий checkpoint — [Demand_Evidence_Bridge_20260923.md](Demand_Evidence_Bridge_20260923.md): read-only audit 168 snapshots и 15 exact seed matches из существующего keyword bank, общий CSV parser, сохранение range/null/zero/provenance, блокировка конфликтующих наблюдений и отказ от автоматических SEO-баллов/Primary. Экраны CSV и scoring используют новый review contract. Persistent atomic import ещё не включён; Auth/browser/PostgREST gate остаётся открытым. Ниже исторические counts исходного sprint, актуальные результаты — в checkpoint и PR.
 
+## Продолжение: atomic metric storage
+
+[Atomic_Metric_Import_20260923.md](Atomic_Metric_Import_20260923.md): атомарный staging + snapshot + receipt на существующих таблицах, проверка 7-table dependency schema, сохранение zero/range/currency/capture и отдельный concurrency CI suite. Migration не применена, write activation закрыта: выявлены 17 legacy SQL readers, которые необходимо согласовать с новым context gate. Это следующий prerequisite перед включением импорта, а не отмена исторических approvals.
+
 ## Что реализовано
 
 | Блок | Реальный результат | Граница |

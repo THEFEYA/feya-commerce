@@ -22,6 +22,10 @@ export function previewDemandImport(input:{csv_text?:string;rows?:MetricCsvRow[]
     const source=rows[row.row_number-2];
     const evidenceKey=hash(canonical({evidence:row.evidence,monthly_history_json:source.monthly_history_json||'',returned_keyword:source.returned_keyword||'',close_variants_json:source.close_variants_json||''}));
     return {evidence_key:evidenceKey,existing_snapshot_id:source.snapshot_id||null,keyword_bank_id:source.keyword_bank_id||null,
+      storage_observation:{keyword_norm:row.keyword_norm,evidence:row.evidence,
+        keyword_bank_id:source.keyword_bank_id||null,existing_snapshot_id:source.snapshot_id||null,
+        metadata:{monthly_history_json:source.monthly_history_json||'',returned_keyword:source.returned_keyword||'',
+          close_variants_json:source.close_variants_json||'',observation_group:source.observation_group||'',raw_input_json:source.raw_input_json||''}},
       staging_payload:{keyword:source.keyword,keyword_norm:row.keyword_norm,geo:source.region,language:source.language,
         avg_monthly_searches:row.avg_monthly_searches,competition:row.evidence.competition,competition_index:row.evidence.competition_index,
         low_top_of_page_bid:row.evidence.low_bid,high_top_of_page_bid:row.evidence.high_bid,
