@@ -117,3 +117,28 @@ test('silver mens warrior Full Set includes its grouped option and compares all 
   assert.equal(offer.status, 'ready');
   assert.deepEqual(offer.default_included_components, ['Bracelet', 'Shoulders', 'Skirt', 'Top']);
 });
+
+
+test('gold armor numbered variants stay distinct with source prices', () => {
+  const corrected = applyOwnerReviewedStorefrontCorrections({
+    canonical_product_id: '437a20cd-27a3-4aaf-b154-3353899e0ebd',
+    needs_label_review: true,
+    configurations: [
+      { configuration_id: '899e0b93-6222-4208-9d3a-218e4747b982', public_label: 'Option', display_price_amount: 303.07, sort_order: 1, needs_label_review: true },
+      { configuration_id: 'a737ac7d-bff8-4325-b101-fa934bb1d322', public_label: 'Option', display_price_amount: 358.90, sort_order: 2, needs_label_review: true },
+      { configuration_id: '3ae4183d-f178-4231-a551-5c874520a25a', public_label: 'Option', display_price_amount: 199.39, sort_order: 3, needs_label_review: true },
+      { configuration_id: 'dce0b722-5c5b-4b2b-81c4-032c1d295a53', public_label: 'Option', display_price_amount: 223.31, sort_order: 4, needs_label_review: true },
+    ],
+  });
+
+  assert.deepEqual(
+    corrected.configurations.map((row: any) => [row.public_label, row.display_price_amount, row.sort_order]),
+    [
+      ['Variant #1', 303.07, 1],
+      ['Variant #2', 358.90, 2],
+      ['Variant #3', 199.39, 3],
+      ['Variant #4', 223.31, 4],
+    ],
+  );
+  assert.equal(corrected.needs_label_review, false);
+});
