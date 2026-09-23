@@ -1827,3 +1827,20 @@ test('blocks negative comparison, system language, selector narration and generi
   assert.ok(codes.includes('customer_copy_uses_generic_movement_pseudobenefit'));
   assert.ok(codes.includes('customer_copy_narrates_selector_choices'));
 });
+
+
+test('blocks product-detail repetition in the self-expression brand close', () => {
+  const value = draft({
+    pdp_blocks: draft().pdp_blocks.map((block: any) => block.block_key === 'main_description'
+      ? {
+        ...block,
+        body: 'At TheFEYA, we create original stage fashion for people who want to express their individuality. Our soft vegan leather and glossy gold finish keep the costume comfortable and polished. Creative clothing can give people more room to show personality, imagination and a bolder side of themselves.',
+      }
+      : block),
+  });
+  const result = validateSeoCommercialCopy(value);
+  assert.ok(result.issues.some((issue) => (
+    issue.code === 'self_expression_close_repeats_product_detail'
+    && issue.severity === 'blocker'
+  )));
+});
