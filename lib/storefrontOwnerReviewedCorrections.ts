@@ -129,6 +129,7 @@ const BATCH38_COUPLE_GOLD_ID = 'fefd1c3e-2fd1-47c9-970f-c30962c1a737';
 const BATCH38_COUPLE_ALT_ID = '5bf3df64-84dc-4baf-84bd-8a94e1b06ccb';
 const BATCH38_WARRIOR_PRINCESS_ID = '679c975c-b309-49dc-9207-f89fc96b84d1';
 const BATCH39_WHITE_ROBOT_QTY_ID = 'ebd949d5-6596-4a7c-aec7-11e258dae417';
+const FINAL_GOLD_ARMOR_VARIANTS_ID = '437a20cd-27a3-4aaf-b154-3353899e0ebd';
 
 
 
@@ -142,6 +143,40 @@ const BATCH39_WHITE_ROBOT_QTY_ID = 'ebd949d5-6596-4a7c-aec7-11e258dae417';
 
 
 
+
+
+function correctFinalGoldArmorVariants<T extends Record<string, any>>(product: T): T {
+  if (!Array.isArray(product.configurations)) return product;
+
+  // Etsy 1902238173 exposes four source-confirmed numbered choices.
+  // The exact RPC preserves all four price rows but normalizes every public
+  // label to "Option", so storefront.ts de-duplicates them by label and shows
+  // only the highest-priced row. Restore the source variant identities only;
+  // prices and raw source rows remain untouched.
+  const labels: Record<string, { public_label: string; sort_order: number }> = {
+    '899e0b93-6222-4208-9d3a-218e4747b982': { public_label: 'Variant #1', sort_order: 1 },
+    'a737ac7d-bff8-4325-b101-fa934bb1d322': { public_label: 'Variant #2', sort_order: 2 },
+    '3ae4183d-f178-4231-a551-5c874520a25a': { public_label: 'Variant #3', sort_order: 3 },
+    'dce0b722-5c5b-4b2b-81c4-032c1d295a53': { public_label: 'Variant #4', sort_order: 4 },
+  };
+
+  if (!Object.keys(labels).every((id) => product.configurations.some(
+    (row: Record<string, any>) => configurationId(row) === id,
+  ))) return product;
+
+  const configurations = product.configurations.map((row: Record<string, any>) => {
+    const correction = labels[configurationId(row)];
+    return correction
+      ? { ...row, ...correction, needs_label_review: false }
+      : row;
+  });
+
+  return {
+    ...product,
+    configurations,
+    needs_label_review: configurations.some((row: Record<string, any>) => row.needs_label_review === true),
+  };
+}
 
 function correctBatch39WhiteRobotQty<T extends Record<string, any>>(product: T): T {
   if (!Array.isArray(product.configurations)) return product;
@@ -1900,6 +1935,7 @@ function correctSilverBraSkirtSet<T extends Record<string, any>>(product: T): T 
 
 export function applyOwnerReviewedStorefrontCorrections<T extends Record<string, any>>(product: T): T {
   const productId = String(product?.canonical_product_id || '');
+  if (productId === FINAL_GOLD_ARMOR_VARIANTS_ID) return correctFinalGoldArmorVariants(product);
   if (productId === BATCH39_WHITE_ROBOT_QTY_ID) return correctBatch39WhiteRobotQty(product);
   if (productId === BATCH38_GOLD_HORNS_ID) return correctBatch38GoldHorns(product);
   if (productId === BATCH38_COUPLE_GOLD_ID) return correctBatch38CoupleGold(product);
