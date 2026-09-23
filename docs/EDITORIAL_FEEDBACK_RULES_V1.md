@@ -199,3 +199,18 @@ Owner clarification 2026-09-23:
 - When buyers still need to understand the internal composition of each outfit, explain it once inside normal editorial copy using natural wording such as **For him / For her**.
 - Do not repeat **Paired Set**, **Women’s Outfit**, or **Men’s Outfit** in generated composition prose when those labels are already visible in the code-owned selector/What’s Included area.
 - The purpose of generated copy is to explain the contents and value of each look, not restate the UI.
+
+
+## R35. Final anti-robot editorial pass is mandatory before Preview
+
+Owner clarification 2026-09-23 after Batch39 review:
+
+- Every generated customer-facing sentence must add a new job. Do not repeat composition, selector choices, or purchase combinations that the deterministic `What’s Included` block already shows.
+- `About this piece` sells the product itself: recognizable design, confirmed material/finish, craftsmanship, character and the strongest product-specific detail. It must not narrate the selector.
+- `Why you'll love it` must explain concrete product-specific advantages. Avoid abstract claims such as `adds movement`, `creates a silhouette`, `keeps the visual concept connected`, `reads clearly`, `modular system`, or `visual direction`. If literal fringe moves, say what the fringe physically does; do not use movement as generic fashion filler.
+- `Ideal for` describes real people and situations, not body-part mechanics, selector logic, styling theory or comparisons with another garment type.
+- The final brand paragraph must sound like a maker speaking to a customer. Do not describe the product as a `system`, `modular construction`, `collection of modules`, or a framework the buyer must complete.
+- Negative comparison is rejected before Preview. Do not sell through `instead of`, `rather than`, `unlike`, `not X but Y`, `without needing`, `without requiring`, or similar contrast frames. Describe the positive product advantage directly.
+- Do not call mirror-coated material `polished` when the product truth is a smooth mirror coating. Describe the confirmed substrate and finish separately: for example `soft vegan leather with a smooth mirror finish` or `gold acrylic/plastic with a glossy mirror-style surface`.
+- Variations of search vocabulary are useful only when the sentence remains natural. Primary identity belongs in prominent SEO fields; Secondary/support terms are distributed through useful copy, not mechanically inserted to hit density.
+- Before Preview, perform a second editorial pass with four questions: (1) would a human stylist or maker naturally say this; (2) is it true for this exact product; (3) does it add information not already shown in the next code-owned block; (4) would the sentence still be worth keeping if no keyword were attached to it? Any `no` means rewrite before the owner sees it.
