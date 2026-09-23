@@ -2,6 +2,10 @@
 
 Дата: 23 сентября 2026. Результат: foundation и выборочная Product/SEO integration, проверенные локально. Подробности следующего прохода — Product_Growth_Integration_20260923.md. Production indexing остаётся закрытой. Полная интеграция Product OS / Growth OS и pre-index gate ещё не завершены.
 
+## Продолжение: isolated storage integration
+
+Новый checkpoint — [Atomic_Draft_Save_20260923.md](Atomic_Draft_Save_20260923.md): восстановление 14-table dependency schema, единая current-policy validation для resave/save, атомарный draft+event+receipt и отдельный native PostgreSQL CI. Ниже сохранены исходные результаты foundation; новые результаты и deployment dependencies описаны в checkpoint. Production migration и indexing не выполнялись.
+
 ## Что реализовано
 
 | Блок | Реальный результат | Граница |

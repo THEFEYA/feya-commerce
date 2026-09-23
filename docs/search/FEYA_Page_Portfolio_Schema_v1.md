@@ -76,3 +76,8 @@ File: `supabase/migrations/20260923205841_search_portfolio_foundation_v1.sql` (c
 Local verification uses actual PostgreSQL semantics via PGlite with minimal parent fixtures, not a full Supabase restore. Before production: restore schema/data into an isolated environment, inspect roles/default grants/extensions/schema-drift, run migration, validate RLS/auth and existing application reads, then record exact migration hash. Do not apply this file blindly to an empty Supabase project; its existing parent tables are prerequisites.
 
 Rollback for code is reverting the isolated changeset with indexing disabled. Empty additive tables can be removed in a separately reviewed reverse migration. Once populated, retain them read-only/dormant and preserve provenance; do not drop evidence to undo application behavior. No production migration has been executed in this sprint.
+
+
+## Follow-up validation, 23 September 2026
+
+The captured 14-table dependency closure now exercises both migrations with observed constraints, triggers and broad default privileges. A separate native PostgreSQL CI job tests concurrent writes. The adjacent `Atomic_Draft_Save_20260923.md` defines the evidence boundary and pending Supabase Auth/PostgREST staging gate. The additive draft receipt table is an adapter for existing editorial storage, not a second page portfolio or Growth approval authority.

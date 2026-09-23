@@ -149,7 +149,7 @@ test('draft storage reapplies zero-token editorial normalization before validati
   );
 
   assert.ok(saveRoute.includes('normalizeReviewDraftForSeoPack(providedAgentOutput, bundle.seoPackDraft)'));
-  assert.ok(saveRoute.indexOf('normalizeReviewDraftForSeoPack(providedAgentOutput, bundle.seoPackDraft)') < saveRoute.indexOf('validateSeoAgentOutput(agentOutput)'));
+  assert.ok(saveRoute.indexOf('normalizeReviewDraftForSeoPack(providedAgentOutput, bundle.seoPackDraft)') < saveRoute.indexOf('validateSeoReviewDraft(agentOutput, bundle.seoPackDraft)'));
   assert.equal(saveRoute.includes('generateSeoDraftWithOpenAi'), false);
 });
 
@@ -173,7 +173,7 @@ test('saved-draft renormalization requires an explicit resave flag and stays tok
   assert.ok(client.includes('Сохранить новую нормализованную версию'));
   assert.ok(previewRoute.includes("searchParams.get('renormalize') === '1'"));
   assert.ok(previewRoute.includes('normalizeReviewDraftForSeoPack(data.agent_output_snapshot || {}, bundle.seoPackDraft)'));
-  assert.ok(previewRoute.indexOf('normalizeReviewDraftForSeoPack(data.agent_output_snapshot || {}, bundle.seoPackDraft)') < previewRoute.indexOf('validateSeoAgentOutput(output)'));
+  assert.ok(previewRoute.indexOf('normalizeReviewDraftForSeoPack(data.agent_output_snapshot || {}, bundle.seoPackDraft)') < previewRoute.indexOf('validateSeoReviewDraft(output, bundle.seoPackDraft)'));
   assert.equal(client.includes('generateSeoDraftWithOpenAi'), false);
   assert.equal(previewRoute.includes('generateSeoDraftWithOpenAi'), false);
 });
