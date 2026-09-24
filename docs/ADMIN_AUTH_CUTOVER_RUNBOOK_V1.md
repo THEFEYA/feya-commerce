@@ -174,6 +174,8 @@ Never expose direct browser table mutation merely because the owner is authentic
 
 ## Rollback
 
+24 September candidate amendment: [guarded admin + metric boundary](search/Admin_Metric_Access_Boundary_20260924.md) retires anonymous admin fallback. In this candidate, `FEYA_ADMIN_AUTH_REQUIRED=false` or missing returns 503 for protected routes; it is a lock, not a login bypass. The older pre-hardening instructions below describe the historical branch only. No production flag was changed. After metric access hardening, preserve authenticated server reads; permission rollback must be a reviewed migration and leaves the new access/write gate closed.
+
 If the auth cutover breaks the admin before admin-view hardening:
 
 - set FEYA_ADMIN_AUTH_REQUIRED=false;

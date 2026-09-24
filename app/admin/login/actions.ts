@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { getMissingSupabaseAuthEnvMessage, getSupabaseAuthServerClient, isAdminAuthRequired } from '@/lib/supabaseAuth';
+import { getMissingSupabaseAuthEnvMessage, getSupabaseAuthServerClient } from '@/lib/supabaseAuth';
 import { adminAccessDecision } from '@/lib/adminAccess';
 
 export async function loginAdmin(formData: FormData) {
@@ -26,7 +26,7 @@ export async function loginAdmin(formData: FormData) {
     redirect('/admin/login?error=invalid_credentials');
   }
 
-  if (isAdminAuthRequired() && (!data.user || !adminAccessDecision(data.user, process.env).allowed)) {
+  if (!data.user || !adminAccessDecision(data.user, process.env).allowed) {
     await supabase.auth.signOut({ scope: 'local' });
     redirect('/admin/login?error=not_authorized');
   }

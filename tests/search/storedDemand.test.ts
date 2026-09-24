@@ -25,7 +25,8 @@ test('a numeric ID that lost JavaScript precision is rejected, not converted to 
 test('reader health rejects missing migration, drift, errors and transport failure',async()=>{
  for(const response of [{data:null,error:null},{data:'old',error:null},{data:METRIC_READER_CONTRACT,error:{message:'denied'}}])assert.equal(await verifyMetricReaderBoundary({rpc:async()=>response}),false);
  assert.equal(await verifyMetricReaderBoundary({rpc:async()=>{throw Error('network');}}),false);
- assert.equal(await verifyMetricReaderBoundary({rpc:async()=>({data:METRIC_READER_CONTRACT,error:null})}),true);
+ assert.equal(await verifyMetricReaderBoundary({rpc:async()=>({data:METRIC_READER_CONTRACT,error:null})}),false,'reader-only install is insufficient');
+ assert.equal(await verifyMetricReaderBoundary({rpc:async(name)=>({data:name==='feya_commerce_metric_access_boundary_health_v1'?'metric_access_boundary_v1':METRIC_READER_CONTRACT,error:null})}),true);
  assert.deepEqual(metricImportWriteBlockers({FEYA_METRIC_IMPORT_STORAGE_ENABLED:'true',FEYA_ADMIN_AUTH_REQUIRED:'true'}),[]);
  assert.deepEqual(metricImportWriteBlockers({}),['storage_disabled','admin_auth_required']);
  assert.deepEqual(metricImportWriteBlockers({FEYA_METRIC_IMPORT_STORAGE_ENABLED:'true'}),['admin_auth_required']);

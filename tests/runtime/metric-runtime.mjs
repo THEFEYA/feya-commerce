@@ -11,14 +11,16 @@ import {chromium} from 'playwright';
 import {createClient} from '@supabase/supabase-js';
 import {createServerClient} from '@supabase/ssr';
 import {observedMetricSchemaSQL,metricMigrationSQL} from '../search-db/helpers/observed-metric-schema.mjs';
-import {readerBoundarySchemaSQL,readerMigrationSQL} from '../search-db/helpers/observed-reader-boundary.mjs';
+import {readerMigrationSQL} from '../search-db/helpers/observed-reader-boundary.mjs';
 import {functionHardeningSQL} from '../search-db/helpers/metric-function-hardening.mjs';
+import {metricClosureSchemaSQL,metricClosureFixture} from '../search-db/helpers/observed-metric-closure.mjs';
+import {accessBoundarySQL} from '../search-db/helpers/metric-access-boundary.mjs';
 import {previewDemandImport} from '../../lib/searchDemandImportPreview.ts';
 import {prepareMetricImport,verifyMetricReaderBoundary,METRIC_IMPORT_RUNTIME_VERIFIED,METRIC_IMPORT_RPC} from '../../lib/searchMetricAtomicStorage.ts';
 import {legacySnapshotToDemandRow} from '../../lib/searchLegacyDemandAdapter.ts';
 import {metricRowsToCsv} from '../../lib/searchMetricCsv.ts';
 const root=process.cwd(),out=resolve('runtime-results');
-const report={contract:'metric_runtime_proof_v1',commit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),workflow_event_sha:process.env.GITHUB_SHA||null,environment:'ephemeral_loopback_supabase',production_connected:false,next_write_path_verified:false,checks:[],limitations:['Observed direct schema with typed upstream boundaries; not full production restore.','Hosted staging, platform advisors and production activation remain separate.']};
+const report={contract:'metric_runtime_proof_v1',commit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),workflow_event_sha:process.env.GITHUB_SHA||null,environment:'ephemeral_loopback_supabase',production_connected:false,next_write_path_verified:false,checks:[],limitations:['Exact 80-view SELECT closure on 38 observed table contracts; external FKs, non-core triggers and indexes are outside the read/permission restore.','Hosted staging, broader database API surface and production activation remain separate.']};
 const base='http://127.0.0.1:3000',endpoint=base+'/api/admin/seo-engine/keyword-metrics/import';
 const bankId='10000000-0000-4000-8000-000000000001';
 const staging='feya_commerce_seo_keyword_metric_import_staging_v1',snapshots='feya_commerce_seo_keyword_metric_snapshots_v1',receipts='feya_commerce_seo_metric_import_receipts_v1';
@@ -61,16 +63,16 @@ try {
   assert.equal((await db.query("select count(*)::int n from pg_tables where schemaname='public'")).rows[0].n,0);
   assert.equal((await db.query("select count(*)::int n from pg_roles where rolname in ('anon','authenticated','service_role','authenticator')")).rows[0].n,4);
  });
- await check('Observed metric schema and three unapplied migrations restore in Supabase',async()=>{
-  await db.query(await observedMetricSchemaSQL({existingSupabaseRoles:true}));await db.query(await readerBoundarySchemaSQL());
+ await check('Full metric SELECT closure and four unapplied migrations restore in Supabase',async()=>{
+  await db.query(await observedMetricSchemaSQL({existingSupabaseRoles:true}));await db.query(await metricClosureSchemaSQL());
   await db.query(`insert into public.seo_keyword_bank_v1(id,keyword,keyword_norm,bank_bucket,review_status,score,avg_monthly_searches) values($1,'synthetic shoulder armor','synthetic shoulder armor','product','approved_draft',77,90)`,[bankId]);
   await db.query(`insert into public.feya_commerce_seo_keyword_master_v1(keyword_id,keyword,keyword_norm,keyword_word_count,priority_tier,validation_priority) values(800,'synthetic shoulder armor','synthetic shoulder armor',3,'test','test');
    insert into public.${snapshots}(snapshot_id,keyword_norm,source_api,geo,language,avg_monthly_searches,data_freshness_status) values(900,'synthetic shoulder armor','google_ads_csv','US','en',90,'fresh_manual_import');
    insert into public.${staging}(import_row_id,batch_code,keyword_norm,avg_monthly_searches,import_status) values(900,'legacy-fixture','synthetic shoulder armor',90,'promoted_to_snapshots');`);
-  await db.query(await metricMigrationSQL());await db.query(await readerMigrationSQL());await db.query(await functionHardeningSQL());await db.query("notify pgrst, 'reload schema'");
+  await db.query(await metricMigrationSQL());await db.query(await readerMigrationSQL());await db.query(await functionHardeningSQL());await db.query(await accessBoundarySQL());await db.query("notify pgrst, 'reload schema'");
  });
  service=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
- await check('PostgREST exposes both exact service-only contracts',async()=>{
+ await check('PostgREST exposes storage, reader and access service-only contracts',async()=>{
   let ready=false;for(let i=0;i<40;i++){if(await verifyMetricReaderBoundary(service)){ready=true;break;}await new Promise(r=>setTimeout(r,500));}
   assert.equal(ready,true,'Reader boundary must be visible through PostgREST');
   const r=await service.rpc('feya_commerce_keyword_metric_import_contract_v1');assert.equal(r.error,null);assert.equal(r.data,'atomic_keyword_metric_import_v1');
@@ -87,10 +89,16 @@ try {
  await check('Anon and signed-in outsider cannot call private RPCs or read receipts',async()=>{
   const payload=prepareMetricImport(previewDemandImport({rows:[input()]},new Date()),'fixture:denied');
   for(const c of [createClient(url,anon,{auth:{persistSession:false,autoRefreshToken:false}}),outsider]){
-   for(const name of [METRIC_IMPORT_RPC,'feya_commerce_metric_reader_boundary_health_v1','feya_commerce_keyword_metric_import_contract_v1']){const r=await c.rpc(name,name===METRIC_IMPORT_RPC?{p_request_key:'f'.repeat(64),p_payload:payload}:{});assert.ok(r.error,'Private RPC must reject public roles');}
+   for(const name of [METRIC_IMPORT_RPC,'feya_commerce_metric_reader_boundary_health_v1','feya_commerce_metric_access_boundary_health_v1','feya_commerce_keyword_metric_import_contract_v1']){const r=await c.rpc(name,name===METRIC_IMPORT_RPC?{p_request_key:'f'.repeat(64),p_payload:payload}:{});assert.ok(r.error,'Private RPC must reject public roles');}
    const r=await c.from(receipts).select('*');assert.ok(r.error,'Private receipts must not be readable');
   }
   assert.deepEqual(await counts(),[1,1,0]);
+ });
+ await check('Real Data API denies raw, direct and downstream metric reads while service keeps queue access',async()=>{
+  for(const name of [snapshots,'feya_commerce_v_query_cluster_review_queue_v1','feya_commerce_v_growth_signal_candidates_safe_v2']){
+   for(const client of [createClient(url,anon,{auth:{persistSession:false,autoRefreshToken:false}}),outsider]){const r=await client.from(name).select('*').limit(1);assert.ok(r.error);assert.ok([401,403].includes(r.status),'Known object must be denied, not absent');}
+   const r=await service.from(name).select('*').limit(1);assert.equal(r.error,null,name);
+  }
  });
  const env={...cleanEnv,NODE_ENV:'production',NEXT_TELEMETRY_DISABLED:'1',NEXT_PUBLIC_SUPABASE_URL:url,NEXT_PUBLIC_SUPABASE_ANON_KEY:anon,SUPABASE_SERVICE_ROLE_KEY:key,FEYA_ADMIN_AUTH_REQUIRED:'true',FEYA_ADMIN_ALLOWED_USER_IDS:admin.data.user.id,FEYA_METRIC_IMPORT_STORAGE_ENABLED:'true',FEYA_SEARCH_INDEXING_ENABLED:'false'};
  console.log('Building the unchanged production Next application against the isolated stack.');
@@ -118,6 +126,30 @@ try {
   await login(ownerPage,adminEmail,password);await ownerPage.waitForURL('**/admin/seo-engine/keyword-metrics');await ownerPage.getByRole('heading',{name:'Keyword Metrics',exact:true}).waitFor();
   assert.equal(await ownerPage.locator('meta[name="robots"]').getAttribute('content'),'noindex, nofollow, nocache');
   assert.equal(await ownerPage.getByText('Не удалось получить полную сводку наблюдений:',{exact:false}).count(),0);
+ });
+ await check('Disabled and absent Auth flags lock admin reads/writes even with an owner cookie; public routes remain available',async()=>{
+  const before=await counts(),lockedBase='http://127.0.0.1:3001';
+  for(const flag of ['false',undefined]){
+   const lockedEnv={...env};if(flag===undefined)delete lockedEnv.FEYA_ADMIN_AUTH_REQUIRED;else lockedEnv.FEYA_ADMIN_AUTH_REQUIRED=flag;
+   const locked=spawn(process.execPath,['node_modules/next/dist/bin/next','start','--hostname','127.0.0.1','--port','3001'],{env:lockedEnv,stdio:'ignore'});
+   try{
+    let ready=false;for(let i=0;i<60;i++){try{if((await fetch(lockedBase+'/admin/login')).status===200){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,500));}assert.ok(ready,'Locked-mode server must start');
+    for(const client of [anonymousPage.request,ownerPage.request]){
+     for(const path of ['/admin/company','/admin/seo-engine/keyword-metrics','/api/admin/seo-change-sets']){const r=await client.get(lockedBase+path);assert.equal(r.status(),503);assert.match(r.headers()['cache-control'],/private.*no-store/);}
+     const r=await client.post(lockedBase+'/api/admin/review-events',{data:{}});assert.equal(r.status(),503);
+    }
+    assert.equal((await fetch(lockedBase+'/shop')).status,200);
+    assert.deepEqual(await counts(),before);
+   }finally{locked.kill('SIGTERM');await Promise.race([once(locked,'exit'),new Promise(r=>setTimeout(r,5000))]);if(locked.exitCode===null)locked.kill('SIGKILL');}
+  }
+ });
+ await check('Existing cluster queue and Growth signal screens load through guarded server reads after public revocation',async()=>{
+  for(const [path,heading] of [['/admin/seo-clusters','Группировка запросов'],['/admin/signals','Диагностика сигналов']]){
+   const response=await ownerPage.goto(base+path);assert.equal(response.status(),200);await ownerPage.getByRole('heading',{name:heading,exact:true}).waitFor();
+   assert.equal(await ownerPage.locator('.notice, .owner-card.is-danger').count(),0,'Protected read must succeed, not render a data error');
+   assert.match(response.headers()['cache-control'],/no-store/);
+  }
+  await ownerPage.goto(base+'/admin/seo-engine/keyword-metrics');
  });
  const csv=metricRowsToCsv([input()]);
  await check('Existing CSV form calls real API, shows preview and never claims a save',async()=>{
@@ -156,6 +188,12 @@ try {
   finally{await db.query('alter view public.feya_commerce_v_seo_metric_system_status_v1 reset (security_barrier)');}
   assert.equal(await verifyMetricReaderBoundary(service),true);
  });
+ await check('Downstream grant drift closes enabled Next writes without changing rows',async()=>{
+  const before=await counts();await db.query('grant select on public.feya_commerce_v_growth_signal_candidates_safe_v2 to anon');
+  try{assert.equal(await verifyMetricReaderBoundary(service),false);assert.equal((await save([input({source_ref:'fixture:access-drift'})],'runtime-access-drift')).httpStatus,503);assert.deepEqual(await counts(),before);}
+  finally{await db.query('revoke select on public.feya_commerce_v_growth_signal_candidates_safe_v2 from anon');}
+  assert.equal(await verifyMetricReaderBoundary(service),true);
+ });
  await check('Historical bank approvals, IDs and original metric remain unchanged',async()=>{
   const b=(await db.query('select review_status,score,avg_monthly_searches from public.seo_keyword_bank_v1 where id=$1',[bankId])).rows[0];assert.deepEqual(b,{review_status:'approved_draft',score:77,avg_monthly_searches:90});
   assert.equal((await db.query(`select avg_monthly_searches from public.${snapshots} where snapshot_id=900`)).rows[0].avg_monthly_searches,90);assert.deepEqual(pageErrors,[]);
@@ -168,6 +206,10 @@ try {
   const fixed=['feya_commerce_apply_seo_keyword_metric_import_v1','feya_commerce_fn_promote_keyword_metric_import_v1','feya_fn_apply_manual_keyword_metrics_v1','seo_keyword_bank_v1_set_updated_at'];
   assert.equal(parsed.filter(f=>f.name==='function_search_path_mutable'&&fixed.includes(f.metadata?.name)).length,0);
   report.function_path_advisor_pass=true;
+  const protectedNames=new Set((await metricClosureFixture()).relations.filter(r=>r.in_metric_closure).map(r=>r.name));
+  assert.equal(parsed.filter(f=>f.name==='security_definer_view'&&protectedNames.has(f.metadata?.name)).length,0);
+  assert.equal(parsed.filter(f=>f.name==='rls_disabled_in_public').length,0);
+  report.metric_access_advisor_pass=true;
   report.advisor_counts=Object.fromEntries([...new Set(parsed.map(f=>f.name))].sort().map(name=>[name,parsed.filter(f=>f.name===name).length]));
  });
  report.next_write_path_verified=true;

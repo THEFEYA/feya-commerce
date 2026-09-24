@@ -9,12 +9,14 @@ function getPublicKey() {
 export async function middleware(request: NextRequest) {
   const isAdminApi = request.nextUrl.pathname.startsWith('/api/admin/');
 
-  if (process.env.FEYA_ADMIN_AUTH_REQUIRED !== 'true') {
+  if (request.nextUrl.pathname === '/admin/login') {
     return NextResponse.next({ request });
   }
 
-  if (request.nextUrl.pathname === '/admin/login') {
-    return NextResponse.next({ request });
+  if (process.env.FEYA_ADMIN_AUTH_REQUIRED !== 'true') {
+    return isAdminApi
+      ? NextResponse.json({ ok: false, error: 'FEYA Admin is locked until authentication is configured.' }, { status: 503, headers: { 'Cache-Control': 'private, no-store' } })
+      : new NextResponse('FEYA Admin is locked until authentication is configured.', { status: 503, headers: { 'Cache-Control': 'private, no-store' } });
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

@@ -58,6 +58,11 @@ export function metricImportWriteBlockers(env:Record<string,string|undefined>) {
 }
 
 export async function verifyMetricReaderBoundary(client:RpcClient) {
-  try{const {data,error}=await client.rpc(METRIC_READER_HEALTH_RPC,{});return !error&&data===METRIC_READER_CONTRACT;}
+  try{
+    const {data,error}=await client.rpc(METRIC_READER_HEALTH_RPC,{});
+    if(error||data!==METRIC_READER_CONTRACT)return false;
+    const access=await client.rpc('feya_commerce_metric_access_boundary_health_v1',{});
+    return !access.error&&access.data==='metric_access_boundary_v1';
+  }
   catch{return false;}
 }

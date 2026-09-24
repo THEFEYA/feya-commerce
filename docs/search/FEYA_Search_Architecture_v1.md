@@ -427,6 +427,8 @@ GA4/GSC credentials/ownership будут нужны к этапу подключ
 
 K12 остаётся **FAIL** после успешного isolated Auth/PostgREST/browser runtime: [legacy security audit 24 September](Legacy_Metric_Security_20260924.md) подтвердил публичные grants на 48 связанных metric/Growth views. Targeted function search_path patch не закрывает этот permission surface; production не менялась. Test stand-in RLS notices отдельно сверены с реальными объектами.
 
+Следующий prepared checkpoint: [Admin_Metric_Access_Boundary_20260924.md](Admin_Metric_Access_Boundary_20260924.md) добавляет session-guarded server reads, закрытый unconfigured mode и unapplied revoke для 50 metric objects. Проверка использует 80 exact view definitions. Production K12 остаётся FAIL до hosted cutover и review остального DB API surface; isolated pass не выдаёт launch authorization.
+
 ## Sources and implementation boundaries
 
 Business sources: 12 FEYA Growth OS CANONICAL docs v1.0, current Product Truth RPC v4, current storefront RPC v7, item-specific owner corrections, visual contracts и действующие approval/change ledgers. Research inputs R2–R8 сохраняют класс evidence; внешние примеры fashion categories не являются FEYA inventory. Product/SEO state и branch SHAs зафиксированы в A; read-only повтор 2026-09-23T21:09Z — `portfolio-audit-input.json` / `portfolio-audit-report.json`.

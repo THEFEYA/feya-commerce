@@ -24,6 +24,8 @@
 
 ## Что реализовано
 
+Продолжение после function hardening: [Admin_Metric_Access_Boundary_20260924.md](Admin_Metric_Access_Boundary_20260924.md). Guarded server admin clients без anon fallback; false/missing Auth теперь закрывает routes. Полная SELECT closure 80 views/38 tables; шестая unapplied migration закрывает 50 metric objects и вводит access drift health. Public storefront и 41 frozen file сохранены. Следующий production prerequisite — оставшийся DB API surface и hosted cutover; read-only demand/inventory pilot не требует новых исследований владельца.
+
 Последний dependency checkpoint: [Legacy_Metric_Security_20260924.md](Legacy_Metric_Security_20260924.md). Live read-only сверка 50 relations / четырёх функций / восьми RPC callers; подготовлена пятая unapplied migration — trusted search_path для четырёх функций с guarded rollback и семью SQL scenarios. K12 остаётся FAIL до закрытия legacy view surface; следующий шаг — server-only admin read contract и полный dependency restore перед ACL migration. Owner input сейчас не нужен. Ниже исторические foundation counts относятся к исходному checkpoint, свежие run/commit результаты находятся в PR.
 
 | Блок | Реальный результат | Граница |
