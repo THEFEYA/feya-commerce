@@ -4,7 +4,7 @@ import {execFileSync,spawn} from 'node:child_process';
 import {mkdtemp,readFile,writeFile,mkdir,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {resolve,join} from 'node:path';
-import {randomBytes} from 'node:crypto';
+import {randomBytes,randomUUID} from 'node:crypto';
 import {once} from 'node:events';
 import pg from 'pg';
 import {chromium} from 'playwright';
