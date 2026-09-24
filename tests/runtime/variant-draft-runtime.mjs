@@ -32,6 +32,9 @@ export async function verifyVariantDraftRuntime({ db, browser, ownerPage, env, o
       assert.equal((await ownerPage.request.get('http://127.0.0.1:3000'+path)).status(),423);
       const body=variantDraftRequest(await read(),randomUUID());
       assert.equal((await post(body,{Origin:'https://untrusted.example'})).status,403);
+      assert.equal((await post(body,{Origin:'https://127.0.0.1:3003'})).status,403);
+      assert.equal((await post(body,{Origin:'null'})).status,403);
+      assert.equal((await ownerPage.request.post(base+path,{data:body})).status(),403);
       assert.equal((await count()).revisions,0);
     });
     await check('Authenticated outsider cannot save variants or bypass the server through private RPC',async()=>{

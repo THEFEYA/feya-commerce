@@ -51,6 +51,8 @@ CI расширен до десяти jobs. Новый отдельный Postgr
 
 Первый CI `36039577244` на `e5598eb9` подтвердил 9 jobs, в том числе 16/16 native variant scenarios. Runtime остановился в test-fixture setup: попытка `CREATE TABLE IF NOT EXISTS auth.users` получила отказ на managed Auth schema. Fixture исправлен: при real Supabase он не выполняет Auth DDL, а использует уже созданных настоящим Auth пользователей. Права Auth не расширялись. Полный runtime результат исправленного head фиксируется отдельно в PR.
 
+Следующий `36040376196` на `6a5257ed` подтвердил restore и real outsider denial, затем нашёл ошибку сравнения Origin: NextURL нормализует loopback IP в localhost. Route теперь сравнивает точный Origin host с фактическим HTTP Host и protocol с Next request protocol. Чужой/отсутствующий/null Origin и несовпадение protocol отвергаются; произвольный forwarded-host не используется. Исправление проверяется полным новым runtime.
+
 Полная captured FK-closure нового writer — 14 таблиц, восстановленных из SELECT metadata в отдельной БД. В общем runtime уже существующие таблицы сохраняют ранее описанные fixture ограничения. Тестовые товары, пользователи и цены синтетические. Общий security advisor сохраняет upstream findings; успешный C4.1 не превращает K12 или весь pre-index gate в PASS. Hosted parity, реальный UI editor, order/payment, live Google и release activation этим прогоном не доказываются.
 
 ## Rollout и rollback

@@ -7,6 +7,16 @@ export const dynamic = 'force-dynamic';
 type Context = { params: Promise<{ productId: string }> };
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const reply = (body: unknown, status = 200) => NextResponse.json(body, { status, headers: { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' } });
+function sameOrigin(request: NextRequest) {
+  const origin = request.headers.get('origin'), host = request.headers.get('host');
+  if (!origin || !host) return false;
+  try {
+    const url = new URL(origin);
+    // NextURL normalizes 127.0.0.1 to localhost. Use the actual HTTP Host, not that rewritten hostname.
+    // Do not accept arbitrary X-Forwarded-Host or wildcard origin overrides.
+    return url.origin === origin && url.host === host && url.protocol === request.nextUrl.protocol;
+  } catch { return false; }
+}
 function failure(error: unknown) {
   if (error instanceof VariantStorageError) return reply({ ok: false, code: error.message, write_outcome: error.outcome,
     retry_same_request: error.outcome === 'unknown', can_publish: false, can_index: false }, error.status);
@@ -38,7 +48,7 @@ export async function GET(_request: NextRequest, context: Context) {
 export async function POST(request: NextRequest, context: Context) {
   try {
     const actor = await requireVariantDraftActor(); if (!actor.ok) return reply({ ok: false, code: actor.code, write_outcome: 'not_written' }, actor.status);
-    if (request.headers.get('origin') !== request.nextUrl.origin) return reply({ ok: false, code: 'variant_same_origin_required', write_outcome: 'not_written' }, 403);
+    if (!sameOrigin(request)) return reply({ ok: false, code: 'variant_same_origin_required', write_outcome: 'not_written' }, 403);
     const { productId } = await context.params; if (!uuid.test(productId)) return reply({ ok: false, code: 'variant_product_id_invalid' }, 400);
     const body = await limitedJson(request);
     let input;
