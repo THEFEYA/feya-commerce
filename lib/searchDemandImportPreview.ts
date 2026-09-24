@@ -37,6 +37,6 @@ export function previewDemandImport(input:{csv_text?:string;rows?:MetricCsvRow[]
     source_content_sha256:sourceHash,errors:parsed?.errors||[],report,observations,
     replay_identity:hash(canonical(observations.map(o=>o.evidence_key).sort())),
     target_table:'feya_commerce_seo_keyword_metric_import_staging_v1',
-    persistence_status:'blocked_pending_reviewed_atomic_import_contract',writes_performed:0,
+    persistence_status:'preview_only_no_write',writes_performed:0,
     can_assign_primary:false,can_publish:false,can_index:false};
 }

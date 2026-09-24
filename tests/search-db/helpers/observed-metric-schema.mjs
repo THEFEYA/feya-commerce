@@ -1,8 +1,8 @@
 import { readFile } from 'node:fs/promises';
 const q=s=>'"'+s.replaceAll('"','""')+'"';
-export async function observedMetricSchemaSQL() {
+export async function observedMetricSchemaSQL({existingSupabaseRoles=false}={}) {
   const {tables}=JSON.parse(await readFile(new URL('../fixtures/observed-metric-schema-20260923.json',import.meta.url),'utf8'));
-  const sql=[`create role anon; create role authenticated; create role service_role bypassrls;
+  const sql=[`${existingSupabaseRoles?'':'create role anon; create role authenticated; create role service_role bypassrls;'}
     grant usage on schema public to anon,authenticated,service_role;
     alter default privileges in schema public grant all on tables to anon,authenticated,service_role;
     alter default privileges in schema public grant all on sequences to anon,authenticated,service_role;

@@ -77,3 +77,31 @@ jobs:
         env:
           FEYA_TEST_DATABASE_URL: postgresql://postgres:ephemeral-test-only@127.0.0.1:5432/feya_test
         run: node --experimental-strip-types --test tests/search-db/${{ matrix.suite }}.test.mjs
+
+  supabase-runtime:
+    name: Supabase Auth, PostgREST and browser
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.117.0
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund --silent
+      - name: Install Chromium for isolated UI verification
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Real local services and authenticated application flow
+        run: node --experimental-strip-types tests/runtime/metric-runtime.mjs
+      - name: Runtime evidence (no credentials or browser state)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metric-runtime-evidence
+          path: runtime-results/
+          retention-days: 7

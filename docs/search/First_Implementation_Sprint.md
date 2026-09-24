@@ -18,6 +18,10 @@
 
 [Metric_Reader_Reconciliation_20260923.md](Metric_Reader_Reconciliation_20260923.md): совместимая изоляция atomic observations в 17 direct SQL paths, 23 predicates до legacy selection/scoring, сохранение ACL/security_barrier и fingerprint health. Новый snapshot adapter сохраняет evidence и удерживает source-context review. SQL migration подготовлена и проверяется в isolated CI; production не менялась. Следующие gates — Supabase staging/advisors и authenticated runtime, затем context review и inventory/page pilot.
 
+## Продолжение: authenticated runtime
+
+[Authenticated_Metric_Runtime_20260924.md](Authenticated_Metric_Runtime_20260924.md): временный Supabase Auth/PostgREST + Next/Chromium в CI, проверка настоящего admin login, CSV preview и атомарного хранения; исправление устаревшего контракта формы/сводки с сохранением визуальных классов. Hosted staging и production activation остаются отдельными gates; фактический runtime статус фиксируется в PR.
+
 ## Что реализовано
 
 | Блок | Реальный результат | Граница |
