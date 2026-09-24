@@ -1,5 +1,8 @@
 # FEYA Search Architecture v1
 
+
+Актуальное продолжение 24 September: [Google_Ads_Atomic_Adapter_20260924.md](Google_Ads_Atomic_Adapter_20260924.md) — существующий atomic RPC расширен Google API evidence contract, явный targeting/period/selection, immutable first-capture receipt и атомарные fetch statuses. Migration8 unapplied; exact-head proof фиксируется в PR. Live Google и production activation отдельно; следующий этап — inventory/page pilot.
+
 Дата среза: 23 сентября 2026. Статус: спецификация для реализации и проверки; не разрешение на индексацию. Язык публичного контента — английский; язык управления — русский. Базовый исследовательский контекст — US / en, поскольку он уже используется в портфеле и metric snapshots; это не новое решение ограничить продажи США.
 
 ## Решение и границы

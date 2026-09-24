@@ -20,12 +20,14 @@ import {previewDemandImport} from '../../lib/searchDemandImportPreview.ts';
 import {prepareMetricImport,verifyMetricReaderBoundary,METRIC_IMPORT_RUNTIME_VERIFIED,METRIC_IMPORT_RPC} from '../../lib/searchMetricAtomicStorage.ts';
 import {legacySnapshotToDemandRow} from '../../lib/searchLegacyDemandAdapter.ts';
 import {metricRowsToCsv} from '../../lib/searchMetricCsv.ts';
+import {startGoogleProviderFixture,seedGoogleBatch} from './google-provider-fixture.mjs';
+import {googleBatch} from '../search/googleAdsFixture.ts';
 const root=process.cwd(),out=resolve('runtime-results');
 const report={contract:'metric_runtime_proof_v1',commit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),workflow_event_sha:process.env.GITHUB_SHA||null,environment:'ephemeral_loopback_supabase',production_connected:false,next_write_path_verified:false,checks:[],limitations:['Exact 84-view SELECT closure on 39 observed table contracts; external FKs, non-core triggers and indexes are outside the read/permission restore.','Hosted staging, broader database API surface and production activation remain separate.']};
 const base='http://127.0.0.1:3000',endpoint=base+'/api/admin/seo-engine/keyword-metrics/import';
 const bankId='10000000-0000-4000-8000-000000000001';
 const staging='feya_commerce_seo_keyword_metric_import_staging_v1',snapshots='feya_commerce_seo_keyword_metric_snapshots_v1',receipts='feya_commerce_seo_metric_import_receipts_v1';
-let work,db,browser,server,started=false,service,ownerPage,appLog='';
+let work,db,browser,server,googleProvider,started=false,service,ownerPage,appLog='';
 const runtimeSecrets=[];
 const cleanEnv=Object.fromEntries(Object.entries(process.env).filter(([k])=>!(/^(SUPABASE_|NEXT_PUBLIC_|FEYA_|OPENAI_|GOOGLE_|VERCEL_)/.test(k))));
 function cli(args){return execFileSync('supabase',args,{encoding:'utf8',env:cleanEnv,maxBuffer:20*1024*1024,timeout:600000});}
@@ -64,13 +66,14 @@ try {
   assert.equal((await db.query("select count(*)::int n from pg_tables where schemaname='public'")).rows[0].n,0);
   assert.equal((await db.query("select count(*)::int n from pg_roles where rolname in ('anon','authenticated','service_role','authenticator')")).rows[0].n,4);
  });
- await check('Extended SELECT closure and five unapplied migrations restore in Supabase',async()=>{
+ await check('Extended SELECT closure and six unapplied migrations restore in Supabase',async()=>{
   await db.query(await observedMetricSchemaSQL({existingSupabaseRoles:true}));await db.query(await metricClosureSchemaSQL());await db.query(await internalViewExtensionSchemaSQL());await db.query(await internalViewSeedSQL());
   await db.query(`insert into public.seo_keyword_bank_v1(id,keyword,keyword_norm,bank_bucket,review_status,score,avg_monthly_searches) values($1,'synthetic shoulder armor','synthetic shoulder armor','product','approved_draft',77,90)`,[bankId]);
   await db.query(`insert into public.feya_commerce_seo_keyword_master_v1(keyword_id,keyword,keyword_norm,keyword_word_count,priority_tier,validation_priority) values(800,'synthetic shoulder armor','synthetic shoulder armor',3,'test','test');
    insert into public.${snapshots}(snapshot_id,keyword_norm,source_api,geo,language,avg_monthly_searches,data_freshness_status) values(900,'synthetic shoulder armor','google_ads_csv','US','en',90,'fresh_manual_import');
    insert into public.${staging}(import_row_id,batch_code,keyword_norm,avg_monthly_searches,import_status) values(900,'legacy-fixture','synthetic shoulder armor',90,'promoted_to_snapshots');`);
-  await db.query(await metricMigrationSQL());await db.query(await readerMigrationSQL());await db.query(await functionHardeningSQL());await db.query(await accessBoundarySQL());await db.query(await internalViewAccessSQL());await db.query("notify pgrst, 'reload schema'");
+  await db.query(await metricMigrationSQL());await db.query(await readerMigrationSQL());await db.query(await functionHardeningSQL());await db.query(await accessBoundarySQL());await db.query(await internalViewAccessSQL());
+  await db.query(await readFile('supabase/migrations/20260924095003_google_ads_atomic_evidence_v1.sql','utf8'));await db.query("notify pgrst, 'reload schema'");
  });
  service=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
  await check('PostgREST exposes storage, reader and access service-only contracts',async()=>{
@@ -90,7 +93,7 @@ try {
  await check('Anon and signed-in outsider cannot call private RPCs or read receipts',async()=>{
   const payload=prepareMetricImport(previewDemandImport({rows:[input()]},new Date()),'fixture:denied');
   for(const c of [createClient(url,anon,{auth:{persistSession:false,autoRefreshToken:false}}),outsider]){
-   for(const name of [METRIC_IMPORT_RPC,'feya_commerce_metric_reader_boundary_health_v1','feya_commerce_metric_access_boundary_health_v1','feya_commerce_keyword_metric_import_contract_v1']){const r=await c.rpc(name,name===METRIC_IMPORT_RPC?{p_request_key:'f'.repeat(64),p_payload:payload}:{});assert.ok(r.error,'Private RPC must reject public roles');}
+   for(const name of [METRIC_IMPORT_RPC,'feya_commerce_metric_reader_boundary_health_v1','feya_commerce_metric_access_boundary_health_v1','feya_commerce_keyword_metric_import_contract_v1','feya_commerce_google_ads_import_contract_v1']){const r=await c.rpc(name,name===METRIC_IMPORT_RPC?{p_request_key:'f'.repeat(64),p_payload:payload}:{});assert.ok(r.error,'Private RPC must reject public roles');}
    const r=await c.from(receipts).select('*');assert.ok(r.error,'Private receipts must not be readable');
   }
   assert.deepEqual(await counts(),[1,1,0]);
@@ -110,8 +113,10 @@ try {
   assert.equal(shortlist.data[0].seo_page_id,'20000000-0000-4000-8000-000000000024');assert.equal(shortlist.data[0].shortlist_method,'lexical_candidate_retrieval_not_ownership');
  });
  const internalToken=randomUUID();runtimeSecrets.push(internalToken);
+ googleProvider=await startGoogleProviderFixture();
  const internalRoutes=[['content-prechecks','POST'],['content-qa','POST'],['google-ads-health','GET'],['google-ads-keyword-metrics','GET'],['google-ads-keyword-metrics','POST'],['openai-health','GET'],['page-ownership-proposals','POST'],['query-cluster-proposals','POST'],['sco-shadow','POST'],['seo-keyword-cleanup','POST'],['seo-keyword-review','POST']];
  const env={...cleanEnv,FEYA_INTERNAL_API_TOKEN:internalToken,NODE_ENV:'production',NEXT_TELEMETRY_DISABLED:'1',NEXT_PUBLIC_SUPABASE_URL:url,NEXT_PUBLIC_SUPABASE_ANON_KEY:anon,SUPABASE_SERVICE_ROLE_KEY:key,FEYA_ADMIN_AUTH_REQUIRED:'true',FEYA_ADMIN_ALLOWED_USER_IDS:admin.data.user.id,FEYA_METRIC_IMPORT_STORAGE_ENABLED:'true',FEYA_SEARCH_INDEXING_ENABLED:'false'};
+ Object.assign(env,{FEYA_GOOGLE_ADS_IMPORT_ENABLED:'true',GOOGLE_ADS_CUSTOMER_ID:'1234567890',GOOGLE_ADS_CLIENT_ID:'synthetic-client-id',GOOGLE_ADS_CLIENT_SECRET:'synthetic-client-secret',GOOGLE_ADS_REFRESH_TOKEN:'synthetic-refresh-token',FEYA_TEST_GOOGLE_ORIGIN:googleProvider.origin,NODE_OPTIONS:'--require='+resolve('tests/runtime/google-fetch-preload.cjs')});
  console.log('Building the unchanged production Next application against the isolated stack.');
  await new Promise((res,rej)=>{const p=spawn('npm',['run','build'],{env,stdio:['ignore','pipe','pipe']});let log='';p.stdout.on('data',b=>{log+=b;});p.stderr.on('data',b=>{log+=b;});p.on('error',rej);p.on('exit',async code=>{await writeFile(join(out,'build.log'),log);code===0?res():rej(Error('Next build failed; see build.log'));});});
  server=spawn(process.execPath,['node_modules/next/dist/bin/next','start','--hostname','127.0.0.1','--port','3000'],{env,stdio:['ignore','pipe','pipe']});server.stdout.on('data',b=>{appLog+=b;});server.stderr.on('data',b=>{appLog+=b;});
@@ -262,6 +267,39 @@ try {
   assert.equal((await db.query(`select avg_monthly_searches from public.${snapshots} where snapshot_id=900`)).rows[0].avg_monthly_searches,90);assert.deepEqual(pageErrors,[]);
   const robots=await (await fetch(base+'/robots.txt')).text();assert.match(robots,/Disallow: \//);
  });
+ const googleEndpoint=base+'/api/internal/google-ads-keyword-metrics';
+ const googleBody={dry_run:false,batch_id:googleBatch,...googleProvider.fixture.input};
+ const googleCall=async(body=googleBody,key='runtime-google-request')=>{
+  const response=await fetch(googleEndpoint,{method:'POST',headers:{'x-feya-internal-token':internalToken,'Content-Type':'application/json','Idempotency-Key':key},body:JSON.stringify(body)});
+  return {status:response.status,body:await response.json(),cache:response.headers.get('cache-control')};
+ };
+ await seedGoogleBatch(db,googleProvider.fixture);
+ await check('Google explicit preview is read-only; targeting/selection errors do not reach provider',async()=>{
+  const before=await counts(),calls=googleProvider.state.calls.length;
+  const preview=await googleCall({...googleBody,dry_run:true});assert.equal(preview.status,200);assert.deepEqual(preview.body.google_ads_request,googleProvider.fixture.plan.request);
+  const invalid=await googleCall({...googleBody,keyword_ids:[googleBatch]});assert.equal(invalid.status,400);assert.equal(googleProvider.state.calls.length,calls);assert.deepEqual(await counts(),before);
+ });
+ await check('Google provider errors, missing account context and partial periods hold all writes',async()=>{
+  const before=await counts();for(const [mode,status] of [['currency_failure',502],['provider_error',502],['partial',422]]){
+   googleProvider.state.mode=mode;const r=await googleCall();assert.equal(r.status,status,JSON.stringify(r.body));assert.deepEqual(await counts(),before);
+   assert.equal((await db.query('select batch_status from public.feya_metric_request_batch_v1 where metric_batch_id=$1',[googleBatch])).rows[0].batch_status,'ready');
+  }googleProvider.state.mode='complete';
+ });
+ await check('Google boundary drift blocks provider execution and database writes',async()=>{
+  const before=await counts(),calls=googleProvider.state.calls.length;await db.query('grant select on public.feya_commerce_v_page_ownership_shortlist_v1 to anon');
+  try{assert.equal((await googleCall()).status,503);assert.deepEqual(await counts(),before);assert.equal(googleProvider.state.calls.length,calls);}
+  finally{await db.query('revoke select on public.feya_commerce_v_page_ownership_shortlist_v1 from anon');}
+ });
+ await check('Google receipt failure rolls back metrics and statuses; real Next retry stores one grouped capture',async()=>{
+  const before=await counts();await db.query(`create function public.runtime_fail_google() returns trigger language plpgsql as $$ begin raise exception 'synthetic Google receipt failure'; end $$; create trigger runtime_fail_google before insert on public.${receipts} for each row execute function public.runtime_fail_google();`);
+  try{assert.equal((await googleCall()).status,503);assert.deepEqual(await counts(),before);assert.equal((await db.query('select batch_status from public.feya_metric_request_batch_v1 where metric_batch_id=$1',[googleBatch])).rows[0].batch_status,'ready');}
+  finally{await db.query(`drop trigger runtime_fail_google on public.${receipts}; drop function public.runtime_fail_google();`);}
+  const r=await googleCall();assert.equal(r.status,201,JSON.stringify(r.body));assert.equal(r.body.saved_rows,2);assert.equal(r.body.context_review_required,true);assert.equal(r.body.can_assign_primary,false);assert.equal(r.body.can_publish,false);assert.equal(r.body.can_index,false);assert.match(r.cache,/private.*no-store/);
+  const rows=(await db.query(`select demand_evidence_json,data_freshness_status from public.${snapshots} where source_api='google_ads_api'`)).rows;assert.equal(rows.length,2);assert.ok(rows.every(r=>r.data_freshness_status==='context_review_required'));assert.equal(rows[0].demand_evidence_json.metadata.observation_group,rows[1].demand_evidence_json.metadata.observation_group);
+  const calls=googleProvider.state.calls.length;const replay=await googleCall();assert.equal(replay.status,200);assert.deepEqual(replay.body.receipt.entries,r.body.receipt.entries);assert.equal(googleProvider.state.calls.length,calls);
+  const conflict=await googleCall({...googleBody,keyword_ids:[googleProvider.fixture.input.keyword_ids[0]]});assert.equal(conflict.status,409);assert.equal(googleProvider.state.calls.length,calls);
+  assert.deepEqual(googleProvider.state.errors,[]);report.google_ads_provider='synthetic_loopback_not_live_google';report.google_ads_atomic_runtime_pass=true;
+ });
  await check('Local advisor confirms hardened paths; other findings retained for review',async()=>{
   const findings=cli(['db','advisors','--local','--workdir',work,'--type','security','--fail-on','none','-o','json']);
   await writeFile(join(out,'security-advisors.json'),findings);report.local_advisors_executed=true;report.advisor_release_pass=false;
@@ -294,6 +332,6 @@ finally{
  }
  await writeFile(join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
  await browser?.close();if(server){server.kill('SIGTERM');await Promise.race([once(server,'exit'),new Promise(r=>setTimeout(r,5000))]);if(server.exitCode===null)server.kill('SIGKILL');}
- await db?.end();if(started){try{cli(['stop','--workdir',work,'--no-backup']);}catch{console.error('Ephemeral stack cleanup needs runner teardown.');}}
+ await googleProvider?.close();await db?.end();if(started){try{cli(['stop','--workdir',work,'--no-backup']);}catch{console.error('Ephemeral stack cleanup needs runner teardown.');}}
  if(work)await rm(work,{recursive:true,force:true});
 }

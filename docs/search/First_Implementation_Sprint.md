@@ -1,5 +1,8 @@
 # FEYA — First implementation sprint
 
+
+Актуальное продолжение 24 September: [Google_Ads_Atomic_Adapter_20260924.md](Google_Ads_Atomic_Adapter_20260924.md) — существующий atomic RPC расширен Google API evidence contract, явный targeting/period/selection, immutable first-capture receipt и атомарные fetch statuses. Migration8 unapplied; exact-head proof фиксируется в PR. Live Google и production activation отдельно; следующий этап — inventory/page pilot.
+
 Дата: 23 сентября 2026. Результат: foundation и выборочная Product/SEO integration, проверенные локально. Подробности следующего прохода — Product_Growth_Integration_20260923.md. Production indexing остаётся закрытой. Полная интеграция Product OS / Growth OS и pre-index gate ещё не завершены.
 
 ## Продолжение: isolated storage integration
