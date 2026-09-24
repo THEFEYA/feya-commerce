@@ -31,7 +31,7 @@ SessionStorage не содержит токенов/ключей и не слу�
 
 В прежний isolated runtime добавлены восемь проверок:
 
-- реальная captured Product builder view и отдельная synthetic private Growth queue projection, без замены наблюдаемого reader;
+- существующая Product page с восстановленной captured builder view и отдельной synthetic private Growth queue projection, без замены наблюдаемого reader;
 - реальные поля/кнопки редактора → Auth → Next → PostgREST → DB → reload для первого draft;
 - второе цветовое сочетание с одной базовой ценой; Growth показывает тот же hash/revision;
 - конфликт двух открытых форм и явное перечитывание;
@@ -40,7 +40,9 @@ SessionStorage не содержит токенов/ключей и не слу�
 - архивирование с сохранением IDs/quote/source amounts;
 - desktop/mobile, console/page errors, default-off скрытие блока в обеих админках.
 
-UI, cookies/Auth, API и DB реальные, пользователи/товары/цены синтетические. Fact queue — fixture для подключения существующего drawer, не доказательство всех production CPIM readers. В этом workspace нет Docker/browser CLI; полный браузерный прогон выполняется существующим CI с Chromium, а screenshots скачиваются для визуальной проверки. Production deployment, реальные media и orderability не сертифицируются этим тестом.
+UI, cookies/Auth, API и DB реальные, пользователи/товары/цены синтетические. Для этого synthetic товара старая Product page использует штатный catalog fallback; captured builder view сохранена, но полный Product Truth/media/review-event контур не seeded и показывает прежние диагностические сообщения. Fact queue — fixture для подключения существующего drawer, не доказательство всех production CPIM readers. В этом workspace нет Docker/browser CLI; полный браузерный прогон выполняется существующим CI с Chromium, а screenshots скачиваются для визуальной проверки. Production deployment, реальные media и orderability не сертифицируются этим тестом.
+
+Первый runtime на `9db5d49b` обнаружил неоднозначную доступную подпись вложенного `<select>`: поиск точного имени включал option text. Исправлены доступные имена шести select controls в новом редакторе; видимые подписи и классы сохранены. Повторный exact-head runtime обязателен.
 
 ## Rollback и следующий пакет
 

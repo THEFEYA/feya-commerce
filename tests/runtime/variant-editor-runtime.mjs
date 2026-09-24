@@ -16,7 +16,7 @@ export async function verifyVariantEditorRuntime({db,ownerPage,base,out,check,re
   const save=async(p,n)=>{await editor(p).getByRole('button',{name:'Сохранить варианты',exact:true}).click();await revision(p,n);await editor(p).getByRole('status').filter({hasText:'Сохранено и проверено'}).waitFor();};
   const selectTuple=async(color)=>{await editor(page).getByLabel('Комплектация сочетания',{exact:true}).selectOption(config);await editor(page).getByLabel('Цвет сочетания',{exact:true}).selectOption({label:color});await editor(page).getByLabel('Размер сочетания',{exact:true}).selectOption({label:'M'});await editor(page).getByRole('button',{name:'Добавить сочетание',exact:true}).click();};
   try {
-    await check('Variant editor uses existing Product builder view and a private synthetic Growth queue fixture',async()=>{
+    await check('Existing Product page hosts editor with observed builder view restored and private synthetic Growth queue fixture',async()=>{
       assert.ok((await db.query("select to_regclass('public.feya_commerce_v_step6_product_builder_detail') r")).rows[0].r);
       await db.query('update public.feya_commerce_product_drafts set draft_site_title=$1 where canonical_product_id=$2',['Synthetic variant editor product',product]);
       await db.query("insert into public.feya_commerce_sellable_configurations(sellable_configuration_id,canonical_product_id,configuration_name,normalized_key) values($1,$2,'Synthetic Full Set','editor-full-set')",[parent,product]);
@@ -99,10 +99,10 @@ export async function verifyVariantEditorRuntime({db,ownerPage,base,out,check,re
       await growth.goto(base.replace(':3003',':3000')+'/admin/product-facts-review');await growth.getByRole('button',{name:'Разобрать',exact:true}).click();assert.equal(await growth.getByTestId('variant-summary').count(),0);
     });
     report.variant_editor_runtime_pass=true;
-    report.limitations.push('C4.2 uses the captured real Product builder view with synthetic products/prices and a synthetic private Growth queue projection. Real editor controls/Auth/API/DB/reload are exercised; hosted catalog/release/price approval remain separate.');
+    report.limitations.push('C4.2 restores the captured Product builder view; the existing page resolves this synthetic product through its catalog fallback. Products/prices and the private Growth queue projection are synthetic; full Product Truth/media/review-event readers are not seeded. Real editor controls/Auth/API/DB/reload are exercised; hosted catalog/release/price approval remain separate.');
   } catch(error) {
     await page.screenshot({path:join(out,'variant-editor-failure.png'),fullPage:true}).catch(()=>{});
-    await writeFile(join(out,'variant-editor-failure.json'),JSON.stringify({error:String(error.message),body:(await page.locator('body').innerText().catch(()=>'')),pageErrors:errors},null,2));
+    await writeFile(join(out,'variant-editor-failure.json'),JSON.stringify({error:String(error.message),body:(await page.locator('body').innerText().catch(()=>'')),pageErrors:errors,layout:await page.evaluate(()=>({viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,editorWidth:document.querySelector('[data-testid=variant-editor]')?.getBoundingClientRect().width,editorScrollWidth:document.querySelector('[data-testid=variant-editor]')?.scrollWidth,selectLabels:[...document.querySelectorAll('[data-testid=variant-editor] select')].map(x=>({aria:x.getAttribute('aria-label'),label:x.closest('label')?.textContent}))})).catch(()=>null)},null,2));
     throw error;
   } finally {await Promise.all([page.close(),other.close(),growth.close()]);}
 }
