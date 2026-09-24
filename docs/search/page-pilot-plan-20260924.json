@@ -1,0 +1,241 @@
+{
+  "contract_version": "search_page_pilot_v1",
+  "captured_on": "2026-09-24",
+  "evidence_class": "measured_catalog_plus_explicit_proposals",
+  "portfolio_write_performed": false,
+  "pages": [
+    {
+      "market_code": "US",
+      "locale": "en-US",
+      "primary_parent_candidate": "SHOP",
+      "accountable_owner": "OSPM",
+      "truth_reviewer": "CPIM",
+      "quality_reviewer": "CQA",
+      "implementation_owner": "Engineering/Core",
+      "seo_page_id": null,
+      "query_cluster_id": null,
+      "status": "review_proposal",
+      "inventory_policy": null,
+      "can_publish": false,
+      "can_index": false,
+      "candidate_code": "TYPE-ARMOR",
+      "family": "type_hub",
+      "url_path": "/collections/shoulder-armor",
+      "title": "Shoulder armor",
+      "user_intent": "Compare decorative shoulder pieces available as selectable purchases.",
+      "primary_cluster": "DECORATIVE_SHOULDER_ARMOR_COMMERCIAL",
+      "query_examples": [
+        "shoulder armor",
+        "shoulder armour",
+        "shoulder armor costume",
+        "costume shoulder armor",
+        "festival shoulder armor"
+      ],
+      "query_exclusions": [
+        "protective armor",
+        "historical replica armor",
+        "how to wear shoulder armor",
+        "a specific FEYA design"
+      ],
+      "unique_value": "Show the exact shoulder option and its contents on each card; distinguish a single piece, pair and outfit. Link to the existing PDP selector without implying that every photographed piece is included.",
+      "rule": {
+        "kind": "sellable_component",
+        "codes": [
+          "shoulders",
+          "shoulder_x1",
+          "shoulders_x2"
+        ],
+        "scope": "standalone"
+      },
+      "research_batch": "Q02",
+      "decision": "Prepare a type-hub brief from current selectable options. Commercial intent, distinct designs and inventory policy still require review.",
+      "url_note": "New candidate path. The broader linked /collections/armor path has a different scope; do not redirect it to shoulders or award the same primary cluster automatically."
+    },
+    {
+      "market_code": "US",
+      "locale": "en-US",
+      "primary_parent_candidate": "SHOP",
+      "accountable_owner": "OSPM",
+      "truth_reviewer": "CPIM",
+      "quality_reviewer": "CQA",
+      "implementation_owner": "Engineering/Core",
+      "seo_page_id": null,
+      "query_cluster_id": null,
+      "status": "review_proposal",
+      "inventory_policy": null,
+      "can_publish": false,
+      "can_index": false,
+      "candidate_code": "TYPE-HARNESS",
+      "family": "type_hub",
+      "url_path": "/collections/harness",
+      "title": "Body and fashion harnesses",
+      "user_intent": "Compare a harness as an actual selectable garment, with clear contents.",
+      "primary_cluster": "FASHION_BODY_HARNESS_COMMERCIAL",
+      "query_examples": [
+        "body harness",
+        "fashion harness",
+        "festival harness",
+        "costume harness"
+      ],
+      "query_exclusions": [
+        "safety harness",
+        "climbing harness",
+        "dog harness",
+        "garters without a harness",
+        "how to style a body harness",
+        "a specific FEYA design"
+      ],
+      "unique_value": "Identify the harness configuration and precise included pieces; distinguish full outfits from individual harness choices. Do not treat all belts or chokers as harnesses.",
+      "rule": {
+        "kind": "sellable_component",
+        "codes": [
+          "harness"
+        ],
+        "scope": "standalone"
+      },
+      "research_batch": "Q02",
+      "decision": "Prepare a narrow type-hub brief; verify fashion/costume intent before claiming the broad body-harness cluster.",
+      "url_note": "Reuse the existing linked slug harness. Architecture B2 harnesses was provisional. No second harnesses page or redirect is deployed by this proposal."
+    },
+    {
+      "market_code": "US",
+      "locale": "en-US",
+      "primary_parent_candidate": "SHOP",
+      "accountable_owner": "OSPM",
+      "truth_reviewer": "CPIM",
+      "quality_reviewer": "CQA",
+      "implementation_owner": "Engineering/Core",
+      "seo_page_id": null,
+      "query_cluster_id": null,
+      "status": "review_proposal",
+      "inventory_policy": null,
+      "can_publish": false,
+      "can_index": false,
+      "candidate_code": "EVENT-BM",
+      "family": "event_hub",
+      "url_path": "/collections/burning-man-looks",
+      "title": "Burning Man outfits",
+      "user_intent": "Select FEYA pieces for an event with accurate composition and ordering information.",
+      "primary_cluster": "BURNING_MAN_OUTFITS_COMMERCIAL",
+      "query_examples": [
+        "burning man outfits",
+        "burning man costumes"
+      ],
+      "query_exclusions": [
+        "what to wear to burning man",
+        "festival outfits without specific event intent",
+        "playa safe",
+        "a specific FEYA design"
+      ],
+      "unique_value": "A reviewed edit with specific suitability rationale, component choices and current production/shipping limits; no protective, weather or arrival guarantees.",
+      "rule": {
+        "kind": "confirmed_axis",
+        "axis": "event",
+        "value": "burning_man"
+      },
+      "research_batch": "Q01",
+      "decision": "Hold membership. A title-derived world label is a discovery hint only. Obtain product-scoped suitability evidence through the existing Product OS review.",
+      "url_note": "Prefer the existing linked burning-man-looks slug when the route is implemented. No live route or canonical-history evidence currently establishes burning-man-outfits as a replacement."
+    },
+    {
+      "market_code": "US",
+      "locale": "en-US",
+      "primary_parent_candidate": "HOME",
+      "accountable_owner": "OSPM",
+      "truth_reviewer": "CPIM",
+      "quality_reviewer": "CQA",
+      "implementation_owner": "Engineering/Core",
+      "seo_page_id": null,
+      "query_cluster_id": null,
+      "status": "review_proposal",
+      "inventory_policy": null,
+      "can_publish": false,
+      "can_index": false,
+      "candidate_code": "SHOP",
+      "family": "shop",
+      "url_path": "/shop",
+      "title": "The shop",
+      "user_intent": "Browse the FEYA catalog and narrow the choices.",
+      "primary_cluster": "THEFEYA_SHOP_NAVIGATIONAL",
+      "query_examples": [
+        "TheFEYA shop"
+      ],
+      "query_exclusions": [
+        "all generic type/event queries"
+      ],
+      "unique_value": "Existing approved catalog, filters and product cards; future crawlable pagination in the same visual composition.",
+      "rule": null,
+      "research_batch": null,
+      "decision": "Preserve current visual structure and 243 product identities. Bind an existing or newly approved portfolio ID only through the normal registry workflow.",
+      "url_note": "Existing route; no duplication."
+    },
+    {
+      "market_code": "US",
+      "locale": "en-US",
+      "primary_parent_candidate": "SHOP",
+      "accountable_owner": "OSPM",
+      "truth_reviewer": "CPIM",
+      "quality_reviewer": "CQA",
+      "implementation_owner": "Engineering/Core",
+      "seo_page_id": null,
+      "query_cluster_id": null,
+      "status": "review_proposal",
+      "inventory_policy": null,
+      "can_publish": false,
+      "can_index": false,
+      "candidate_code": "GUIDE-COMPONENTS",
+      "family": "guide",
+      "url_path": "/guides/choosing-a-costume-set",
+      "title": "How to choose pieces and a costume set",
+      "user_intent": "Understand exactly which pieces a selector option includes before ordering.",
+      "primary_cluster": null,
+      "query_examples": [],
+      "query_exclusions": [
+        "generic commercial outfit ownership",
+        "unverified material or comfort claims"
+      ],
+      "unique_value": "Use reviewed FEYA examples for a standalone piece, grouped option and full set; explain photograph versus selected contents and link back to the exact PDP.",
+      "rule": null,
+      "research_batch": null,
+      "decision": "Prepare a utility brief with current offer examples. Keyword Planner volume is not a prerequisite for this buyer-help page; use the existing utility-rationale exception and CQA review.",
+      "url_note": "Proposed route only; current admin collection planner remains the preparation surface."
+    }
+  ],
+  "next_research": {
+    "batch": "Q02",
+    "status": "prepared_not_submitted",
+    "market": "US",
+    "language": "en",
+    "network": "GOOGLE_SEARCH",
+    "seeds": [
+      "shoulder armor",
+      "shoulder armour",
+      "shoulder armor costume",
+      "costume shoulder armor",
+      "festival shoulder armor",
+      "body harness",
+      "fashion harness",
+      "festival harness",
+      "costume harness"
+    ],
+    "decision": "Split decorative shoulder-armor and fashion-harness commercial ownership; review ambiguous intent with search-result evidence. Volume alone cannot approve a page.",
+    "deferred_seed": {
+      "keyword": "vegan leather harness",
+      "reason": "Require product-scoped material evidence; raw mixed leather/faux-leather text cannot establish vegan eligibility."
+    },
+    "deferred_batches": [
+      "Q01 until event-suitability membership is reviewed",
+      "Q03 until material evidence and type-owner decisions are available"
+    ],
+    "owner_action_now": "none; use existing evidence workflow after independent staging/provider prerequisites are ready"
+  },
+  "ownership_policy": {
+    "status": "proposed_only",
+    "scope": "US/en-US",
+    "one_primary_per_cluster": true,
+    "spelling_aliases": "armor and armour belong to one proposed cluster",
+    "pdp_owner": "specific design/product configuration intent on existing seo_page_id",
+    "guide_owner": "informational answer or justified buyer utility, never automatically generic commercial queries",
+    "conflict_resolution": "OSPM compares intent and scope, CPIM verifies product facts, CQA reviews. Existing approvals and protected winners are retained; merge/split requires explicit evidence and versioned changeset."
+  }
+}

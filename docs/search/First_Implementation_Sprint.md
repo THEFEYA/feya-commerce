@@ -87,3 +87,9 @@ Tests include: inherited preview flag; missing/invalid canonical host; duplicate
 Reviewable scope: новые policy modules/tests/docs, environment/sitemap hardening, private migration file, CI/lockfile. Не изменены storefront JSX, шрифты, цвета, prices, protected UI files, generation approvals или agent passports.
 
 Следующая единица работы — staging validation и authenticated runtime scenarios; protected visual deltas перечислены в integration checkpoint. До её окончания branch является foundation draft, а не replacement текущего live deployment. Откат кода — revert draft changeset; production DB/environment не менялись, откатывать их в этом проходе не требуется.
+
+### Checkpoint 2026-09-24 — inventory/page pilot
+
+Завершён [предметный аудит ассортимента и пяти briefs](Inventory_Page_Pilot_20260924.md). Новый bounded selector использует текущий sellable-offer resolver и owner-reviewed corrections; проверка не приравнивает состав комплекта к отдельной покупке. Снимок 243 товаров и 243 прежних seo_page_id воспроизводится offline. 65 shoulder-armor / 12 harness matches остаются review candidates; design depth и orderability неизвестны. У 26 товаров не разрешён состав, у одного — тип номерных вариантов. Все строки и причины сохранены в `inventory-pilot-report-20260924.json`.
+
+Следующий конкретный шаг — I1: сверить эти 27 строк с прежними предметными owner decisions и собрать design-family proposal для двух type hubs. Затем Q02 из 9 seeds, utility draft и plan отсутствующих collection routes. Новая админка, миграция, публикация или разрешение индексации для этого checkpoint не требуются. От владельца сейчас действий нет.

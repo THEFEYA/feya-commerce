@@ -456,3 +456,9 @@ Official references (проверены 23 сентября 2026; standards мо
 - G12: [Robots metadata](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag).
 
 Материализованная схема первого этапа — SQL migration и `FEYA_Page_Portfolio_Schema_v1.md`; целевой release resolver, serialized ownership writer, public hubs, importer wiring и production integrations пока не считаются реализованными. Это явные следующие зависимости, а не скрытые допущения.
+
+### Checkpoint 2026-09-24 — фактический ассортимент и ограниченный пилот
+
+[Inventory_Page_Pilot_20260924.md](Inventory_Page_Pilot_20260924.md) добавляет воспроизводимый SELECT-аудит: 243 product/page IDs сохранены, 217 selector compositions разрешаются текущим resolver, 26 требуют предметной сверки, ещё один товар имеет номерные варианты без типа. Для standalone type-подборок найдены 65 shoulder-armor и 12 harness product IDs; это не distinct designs и не publication eligibility. У event-оси нет структурированного подтверждения в проверенном контракте; title-derived labels не дают membership.
+
+Подготовлены 5 briefs (Shop, два type hubs, event hold, utility guide) и суженный Q02 из 9 seeds. С учётом уже присутствующих ссылок предварительные B2 slugs уточнены до `/collections/harness` и `/collections/burning-man-looks`; параллельные страницы и redirects не создаются. Публичного collection route в текущем checkout нет — вопрос явно включён в следующий TSEO/release этап. Production, UI, цены, паспорта, approvals и noindex не изменены.
