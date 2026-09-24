@@ -42,7 +42,9 @@ try {
  const configFile=join(work,'supabase/config.toml');let config=await readFile(configFile,'utf8');
  config=config.replace(/^project_id = .*$/m,'project_id = "feya-metric-runtime"');
  // Keep real Auth/API; no email is sent and public signup is disabled.
- config=config.replace(/enable_signup = true/g,'enable_signup = false');
+ const authSection=/\[auth\]\n[\s\S]*?(?=\n\[)/;
+ assert.match(config.match(authSection)?.[0]||'',/enable_signup = true/);
+ config=config.replace(authSection,section=>section.replace('enable_signup = true','enable_signup = false'));
  await writeFile(configFile,config);
  console.log('Starting isolated Supabase services.');
  started=true;cli(['start','--workdir',work,'--exclude','realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor']);
@@ -72,6 +74,10 @@ try {
  const admin=await service.auth.admin.createUser({email:adminEmail,password,email_confirm:true});assert.equal(admin.error,null);
  const other=await service.auth.admin.createUser({email:otherEmail,password,email_confirm:true,user_metadata:{role:'admin',is_admin:true}});assert.equal(other.error,null);
  const outsider=createClient(url,anon,{auth:{persistSession:false,autoRefreshToken:false}});assert.equal((await outsider.auth.signInWithPassword({email:otherEmail,password})).error,null);
+ await check('Public signup stays disabled while pre-created email users can log in',async()=>{
+  const c=createClient(url,anon,{auth:{persistSession:false,autoRefreshToken:false}});
+  const result=await c.auth.signUp({email:'signup-denied@example.test',password});assert.ok(result.error);assert.equal(result.error.code,'signup_disabled');
+ });
  await check('Anon and signed-in outsider cannot call private RPCs or read receipts',async()=>{
   const payload=prepareMetricImport(previewDemandImport({rows:[input()]},new Date()),'fixture:denied');
   for(const c of [createClient(url,anon,{auth:{persistSession:false,autoRefreshToken:false}}),outsider]){

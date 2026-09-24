@@ -23,6 +23,8 @@
 
 При `METRIC_IMPORT_RUNTIME_VERIFIED=false` стенд отдельно доказывает 423 на Next write endpoint; storage scenarios выполняются через service PostgREST. Отчёт явно фиксирует `next_write_path_verified=false`. Это **не** выдаётся за успешную запись через Next. Если проверенный release candidate снимает этот compile-time gate, тот же стенд выполняет запись с authenticated browser cookies через настоящий Next endpoint и должен подтвердить `next_write_path_verified=true`. Auth/allowlist и environment storage gate при этом остаются обязательными.
 
+Первый реальный прогон восстановил schema и оба PostgREST contracts, затем выявил ошибку test config: отключение `auth.email.enable_signup` также выключило email login. Исправление ограничивает запрет регистраций глобальным `auth.enable_signup=false`; добавлен реальный отрицательный signup test. Production Auth не менялся.
+
 ## Обнаруженная несовместимость старого экрана
 
 `/admin/seo-engine/keyword-metrics` ещё обращался к старому external-metrics status view и ожидал `accepted_rows/import_batch_id` в ответе API. После перехода API на preview это могло дать ложное сообщение «импорт готов» и undefined counts.
