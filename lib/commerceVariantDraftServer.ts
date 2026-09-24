@@ -4,8 +4,11 @@ import { adminAccessDecision } from '@/lib/adminAccess';
 import { getSupabaseServiceClient } from '@/lib/supabase';
 
 /** Fresh Auth lookup and existing allowlist; no actor/approval field is accepted from request JSON. */
+export function isVariantDraftEnabled() {
+  return isAdminAuthRequired() && process.env.FEYA_PRODUCT_VARIANT_DRAFT_ENABLED === 'true';
+}
 export async function requireVariantDraftActor() {
-  if (!isAdminAuthRequired() || process.env.FEYA_PRODUCT_VARIANT_DRAFT_ENABLED !== 'true')
+  if (!isVariantDraftEnabled())
     return { ok: false as const, status: 423, code: 'variant_draft_disabled' };
   const auth = await getSupabaseAuthServerClient();
   if (!auth) return { ok: false as const, status: 503, code: 'variant_auth_unavailable' };

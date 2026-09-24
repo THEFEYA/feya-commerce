@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useCallback, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { useOwnerDrawerA11y } from '@/components/admin/useOwnerDrawerA11y';
+import { AdminVariantDraftClient } from '@/components/AdminVariantDraftClient';
 
 export type ProductFactReviewDrawerRow = {
   fact_review_id: string;
@@ -29,7 +30,7 @@ function codes(v:unknown){return Array.isArray(v)?v.filter((x):x is string=>type
 function codeLabel(v:string){const m:Record<string,string>={PART_UNRESOLVED:'Не определена часть товара',COLOR_UNRESOLVED:'Не определён цвет',MATERIAL_UNRESOLVED:'Не определён материал',PRODUCT_TYPE_UNRESOLVED:'Не определён тип товара',FACT_GUARDRAIL_PRESENT:'Есть защитное ограничение'};return m[v]||v}
 function dateLabel(v:unknown){if(!v)return'не зафиксировано';const d=new Date(String(v));return Number.isNaN(d.getTime())?asText(v):new Intl.DateTimeFormat('ru-RU',{dateStyle:'short',timeStyle:'short'}).format(d)}
 
-export function OwnerProductFactDrawerClient({row}:{row:ProductFactReviewDrawerRow}){
+export function OwnerProductFactDrawerClient({row,variantDraftEnabled=false}:{row:ProductFactReviewDrawerRow;variantDraftEnabled?:boolean}){
   const [open,setOpen]=useState(false);
   const triggerRef=useRef<HTMLButtonElement|null>(null),closeRef=useRef<HTMLButtonElement|null>(null),dialogRef=useRef<HTMLElement|null>(null);
   const close=useCallback(()=>setOpen(false),[]);
@@ -75,6 +76,8 @@ export function OwnerProductFactDrawerClient({row}:{row:ProductFactReviewDrawerR
             <Link href={`/admin/products/${row.canonical_product_id}`} className="owner-button primary">Открыть товар</Link>
             <Link href="/admin/listing-master" className="owner-button">Listing Master</Link>
           </div>
+
+          {variantDraftEnabled ? <AdminVariantDraftClient key={row.canonical_product_id} productId={row.canonical_product_id} readOnly /> : null}
 
           <details className="owner-disclosure owner-disclosure-section">
             <summary><span><strong>Технические детали</strong><small>ID и состояние review</small></span><span className="owner-section-kicker">Advanced</span></summary>

@@ -5,6 +5,7 @@ import { once } from 'node:events';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createServerClient } from '@supabase/ssr';
+import { verifyVariantEditorRuntime } from './variant-editor-runtime.mjs';
 import { variantDependenciesSQL, variantMigrationSQL, seedVariantProduct, variantDraftRequest, variantTestIds as ids } from '../search-db/helpers/variant-draft.mjs';
 
 /** Actual Auth cookie -> Next route -> PostgREST -> transaction; all data and prices synthetic. */
@@ -85,7 +86,8 @@ export async function verifyVariantDraftRuntime({ db, browser, ownerPage, env, o
       assert.equal((await db.query("select count(*)::int n from public.feya_commerce_variant_draft_outbox_v1 where delivery_state='pending'")).rows[0].n,3);
     });
     report.variant_draft_runtime_pass=true;
-    report.limitations.push('Variant writer uses synthetic catalog/prices and real isolated Auth/PostgREST transactions. Editor UI, hosted apply, quote approval and release/outbox consumption remain separate.');
+    await verifyVariantEditorRuntime({db,ownerPage,base,out,check,report,service});
+    report.limitations.push('Variant writer uses synthetic catalog/prices and real isolated Auth/PostgREST transactions. Hosted apply, quote approval and release/outbox consumption remain separate.');
   } finally {
     for(const value of [env.SUPABASE_SERVICE_ROLE_KEY,env.NEXT_PUBLIC_SUPABASE_ANON_KEY])if(value)log=log.replaceAll(value,'[redacted]');
     await writeFile(join(out,'variant-draft-runtime.log'),log);

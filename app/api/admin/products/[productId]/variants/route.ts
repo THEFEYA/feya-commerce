@@ -42,12 +42,14 @@ export async function GET(_request: NextRequest, context: Context) {
   try {
     const actor = await requireVariantDraftActor(); if (!actor.ok) return reply({ ok: false, code: actor.code }, actor.status);
     const { productId } = await context.params; if (!uuid.test(productId)) return reply({ ok: false, code: 'variant_product_id_invalid' }, 400);
-    return reply({ ok: true, ...await readVariantDraft(actor.client, productId) });
+    return reply({ ok: true, ...await readVariantDraft(actor.client, productId), editor_actor_id: actor.actorId });
   } catch (error) { return failure(error); }
 }
 export async function POST(request: NextRequest, context: Context) {
   try {
     const actor = await requireVariantDraftActor(); if (!actor.ok) return reply({ ok: false, code: actor.code, write_outcome: 'not_written' }, actor.status);
+    const expectedActor = request.headers.get('x-feya-editor-actor');
+    if (expectedActor && expectedActor !== actor.actorId) return reply({ ok: false, code: 'variant_editor_actor_changed', write_outcome: 'not_written' }, 409);
     if (!sameOrigin(request)) return reply({ ok: false, code: 'variant_same_origin_required', write_outcome: 'not_written' }, 403);
     const { productId } = await context.params; if (!uuid.test(productId)) return reply({ ok: false, code: 'variant_product_id_invalid' }, 400);
     const body = await limitedJson(request);
