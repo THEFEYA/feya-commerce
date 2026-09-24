@@ -1,5 +1,7 @@
 # FEYA Search Architecture v1
 
+Launch-track уточнение: [Launch_Track_Decision_20260924.md](Launch_Track_Decision_20260924.md) разделяет публичное представление компании для Google Ads API review, каталог, реальную покупку и выборочную индексацию; каждый этап имеет собственную проверку.
+
 
 Актуальное продолжение 24 September: [Google_Ads_Atomic_Adapter_20260924.md](Google_Ads_Atomic_Adapter_20260924.md) — существующий atomic RPC расширен Google API evidence contract, явный targeting/period/selection, immutable first-capture receipt и атомарные fetch statuses. Migration8 unapplied; exact-head proof фиксируется в PR. Live Google и production activation отдельно; следующий этап — inventory/page pilot.
 
@@ -412,7 +414,7 @@ GA4/GSC credentials/ownership будут нужны к этапу подключ
 | K03 | Все indexable URLs зарегистрированы по stable ID; нет неучтённых Home/Shop/landing exceptions | OSPM |
 | K04 | Каждый hub имеет distinct intent, unique value, approved inventory policy, current eligible snapshot | OSPM + CPIM |
 | K05 | Владелец primary cluster определён; no interval conflicts; utility exceptions обоснованы | OSPM |
-| K06 | Public facts, composition/configuration/price/orderability и claims подтверждены current truth | CPIM + CQA |
+| K06 | Public facts, composition/configuration/price/orderability и claims подтверждены current truth; выбранная комбинация piece/size/color связана с точной ценой и availability, диапазон не выдаётся за quote | CPIM + CQA |
 | K07 | Shipping/returns/contact и публичный способ заказа утверждены; нельзя обещать работающую покупку без неё | Owner + CPIM |
 | K08 | Unified resolver даёт согласованные robots/canonical/render/sitemap/schema из одного release | TSEO |
 | K09 | Indexable responses 200; drafts/utilities/facets не просачиваются; pagination crawlable/self-canonical | TSEO |
@@ -468,3 +470,9 @@ Official references (проверены 23 сентября 2026; standards мо
 [Inventory_Reconciliation_20260924.md](Inventory_Reconciliation_20260924.md): шесть точечных восстановлений по exact configuration/source-price IDs, пять снятых composition holds и один типизированный номерной комплект. Текущий resolver: 222 ready / 21 hold; standalone type candidates: 65 shoulder armor / 13 harness. Остальные 237 offer signatures совпадают с `883d0f1`. Номерной комплект остаётся одной единицей покупки с точными количествами частей, а цвет/размер не становится отдельной DNA-осью состава.
 
 Для design-depth проверки подготовлены девять evidence pairs из 15 товаров в scope 75 type-hub candidates; shared media служит только поиском кандидатов на CPIM review. Ни одна family не утверждена, distinct_design_count/orderability остаются неизвестными. Следующая зависимость — size/color price binding и предметное подтверждение физических моделей через существующий Product OS. Approvals, production и indexing gate не менялись.
+
+### Checkpoint 2026-09-24 — purchase binding evidence
+
+[Purchase_Binding_20260924.md](Purchase_Binding_20260924.md) проверяет 142 price/mapping/source rows для оставшихся 21 карточки, включая оригинальный импорт. 125 строк — размерные наблюдения; 13 исходных диапазонов ранее спроецированы в lower bounds; четыре legacy parents объединяют разные purchase mappings. Offline selector replay показывает потерю 113 строк из-за одинакового label. Текущий PDP хранит size отдельно от выбранной цены.
+
+Подготовлен воспроизводимый compiler и selection rehearsal, который сохраняет IDs/суммы и не выводит полные комбинации из отдельных осей. Он не подключён к публичной витрине, не является quote resolver и не снимает 21 hold. Полной tuple-price матрицы нет и в проверенном исходном master. K06 уточнён: связь выбранной конфигурации/размера/цвета с ценой/availability обязательна. Следующие зависимости — CPIM scope, approved binding, adapter существующих controls и physical-design review; production/индексация не менялись.

@@ -99,3 +99,9 @@ Reviewable scope: новые policy modules/tests/docs, environment/sitemap hard
 [Предметная сверка выполнена](Inventory_Reconciliation_20260924.md): 27 случаев разобраны по прежним drafts/owner notes и source-price joins. Шесть точечных исправлений подготовлены в коде; 21 случай остаётся в адресной очереди (17 size/color, два jacket, один copy/truth conflict, один obsolete-choice conflict). Current resolver: 222 ready / 21 hold, цены/IDs сохранены, 237 остальных signatures идентичны предыдущему commit. Draft approval и подтверждение фактов различаются.
 
 Design review packet содержит девять пар; автоматических families/merges нет. Следующий конкретный шаг — I1b/I1c: подготовить piece/size/color/price mapping и закрыть два truth conflicts по существующим owner records, затем I2 — проверить физические модели. Задачи, владельцы, validation, blockers, rollback и done приведены в отчёте. До выявления действительно отсутствующего предметного факта действий от владельца не требуется.
+
+### Checkpoint 2026-09-24 — I1b binding preparation
+
+[Связи размеров/цветов/цен разобраны](Purchase_Binding_20260924.md): 142 ценовых строки сверены с DB lineage и оригинальным master file; все исходные IDs и суммы сохранены. Подготовлен offline compiler с 125 size observations, 17 purchase-choice observations и 13 восстановленными диапазонами. Исправление публичного selector пока не включено: tuple-level price/availability не подтверждены, а fixed size state и dedupe Option не дают корректного выбора цены.
+
+I1b завершён как подготовка доказательных привязок; activation и 21 product hold остаются открыты. Следующие зависимости PB2–PB5 подробно описаны в отчёте. Независимая полезная работа — I2, предметная проверка девяти пар физических моделей; она не требует изменения цен/интерфейса или новых общих исследований. Owner input запросить только для конкретного отсутствующего факта после этой подготовки.
