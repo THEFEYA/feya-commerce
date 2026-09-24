@@ -22,3 +22,7 @@ The scope uses server-provided Vercel/project/branch metadata, not request heade
 Automated tests cover scoped deployment metadata, kill switch, ordinary auth behavior, release selection, noindex, allowed reads and rejected writes/RPC/origin requests. Hosted browser checks must verify company data, Shop count/pagination and a rendered approved product before calling the owner preview ready.
 
 Rollback: set `FEYA_OWNER_PREVIEW_DISABLED=true` on this preview or revert the access commit and redeploy. No DB rollback is necessary. Hosted variant persistence remains separately disabled pending its DB rollout; visual availability does not claim write readiness.
+
+## Hosted verification follow-up
+
+The first hosted build successfully rendered Company data and the 207-product Shop. Browser navigation exposed a prefetch stampede: the existing ProductCard explicitly prefetched every visible PDP, each checking the entire release, and the next catalog page returned 404 under concurrent load. Disable that single Link prefetch attribute. The hover image/video logic, HTML, styles, copy and media order are byte-for-byte unchanged after normalizing that one attribute; a dedicated test checks the original Git blob hash. The UI freeze baseline advances only for this documented non-visual attribute. Add safe source/error-count diagnostics without product content or credentials; retain all release validation checks.

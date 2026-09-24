@@ -43,11 +43,17 @@ export const readClosedReviewPresentation = cache(async (): Promise<Result> => {
         client.from(STOREFRONT_VIEW_V4).select('canonical_product_id,product_slug').in('canonical_product_id', productIds),
         client.from('feya_commerce_product_drafts').select('canonical_product_id,do_not_publish_flag').in('canonical_product_id', productIds),
       ]);
-      if (results.some(r => r.error || !r.data || r.data.length !== chunk.length)) return blocked();
+      if (results.some(r => r.error || !r.data || r.data.length !== chunk.length)) {
+        console.warn('closed_review_source_read_failed', results.map((r,index) => ({source:index,code:r.error?.code ?? null,rows:r.data?.length ?? null,expected:chunk.length})));
+        return blocked();
+      }
       drafts.push(...results[0].data!); pages.push(...results[1].data!);
       products.push(...results[2].data!); productHolds.push(...results[3].data!);
     }
     assertReviewLiveSources(release, { drafts, pages, products, productHolds });
     return { status: 'review', release };
-  } catch { return blocked(); }
+  } catch (error) {
+    console.warn('closed_review_validation_failed', error instanceof Error && /^review_[a-z_]+$/.test(error.message) ? error.message : 'unavailable');
+    return blocked();
+  }
 });
