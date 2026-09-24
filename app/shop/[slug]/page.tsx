@@ -25,6 +25,7 @@ import { applyOwnerReviewedStorefrontCorrections } from '@/lib/storefrontOwnerRe
 import type { StorefrontProduct } from '@/lib/types';
 import { readApprovedStorefrontCopy } from '@/lib/seoApprovedStorefrontServer';
 import type { ApprovedCopyPayload } from '@/lib/seoApprovedContentProjection';
+import { absoluteSiteUrl } from '@/lib/siteConfig';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -32,11 +33,10 @@ export const revalidate = 0;
 type PageProps = { params: Promise<{ slug: string }> };
 type SupabaseReader = NonNullable<ReturnType<typeof getSupabaseReadClient>>;
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thefeya.com';
 const PDP_FAST_SELECT = `${STOREFRONT_FALLBACK_CARD_SELECT},configurations,pdp_option_count,has_multiple_pdp_options`;
 
 function canonicalProductUrl(slug: string) {
-  return `${siteUrl}/shop/${slug}`;
+  return absoluteSiteUrl(`/shop/${slug}`);
 }
 
 function textValue(product: StorefrontProduct, keys: string[]) {

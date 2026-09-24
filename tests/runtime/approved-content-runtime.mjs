@@ -93,7 +93,8 @@ export async function verifyApprovedContentRuntime({ db, browser, ownerPage, env
         }, {html,d});
         assert.equal(result.h1,d.h1); assert.equal(result.title,`${d.seo_title} | TheFEYA`);
         assert.equal(result.description,d.meta_description); assert.match(result.robots,/noindex/); assert.match(result.robots,/nofollow/);
-        assert.equal(new URL(result.canonical).pathname,p.url_path); assert.equal(result.schema.name,d.h1); assert.equal(result.schema.description,d.meta_description);
+        assert.equal(new URL(result.canonical).pathname,p.url_path); assert.equal(result.schema.url,result.canonical);
+        assert.equal(result.schema.name,d.h1); assert.equal(result.schema.description,d.meta_description);
         assert.ok(!('offers' in result.schema)); assert.equal(result.bodiesMatch,true,d.canonical_product_id); assert.equal(result.previewDisabled,true);
       }
       report.approved_copy_rendered_products=208;

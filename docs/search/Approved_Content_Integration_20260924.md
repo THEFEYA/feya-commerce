@@ -13,6 +13,7 @@
 ## Реальное подключение существующего экрана
 
 - `app/shop/[slug]/page.tsx` получает approved payload на сервере; `generateMetadata`, Product JSON-LD и существующий `ProductDetailClient` используют одну request-scoped версию через React cache.
+- Обнаружено расхождение прежних fallback origins: metadataBase использовал `zofeya.com`, PDP JSON-LD — `thefeya.com`. PDP теперь использует общий `absoluteSiteUrl` из siteConfig; проверяется равенство полного canonical и schema URL. Это устраняет внутреннее расхождение, но не подтверждает владение доменом: реальный production origin по-прежнему требует проверки перед release.
 - `config/approved-content-review-bindings.json` содержит **208** точных привязок product/page/draft/path/content hash/updated_at. Полные служебные записи и предложения metadata не импортируются в клиент.
 - На каждом запросе читается **текущий latest draft**, проверяется approval, архивирование, hash, URL и версия updated_at с микросекундной точностью. При отозванном одобрении, новой версии, изменённом пути или ошибке чтения review закрывается; старый текст не подставляется.
 - Использован существующий `getAdminServiceClient`: каждое привилегированное чтение требует текущей Auth session и allowlist; нет публичного service-role reader.
