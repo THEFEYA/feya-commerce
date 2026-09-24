@@ -133,9 +133,9 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       await page.goto(base+path);const related=page.locator('a[href^="/shop?collection="]').first();if(await related.count()){const target=await related.getAttribute('href');await related.click();await page.waitForURL(base+target);await page.getByTestId('shop-page').waitFor();assert.equal(await page.getByTestId('shop-page').count(),1);}
       const galleryEntry=release.entries.find(e=>Array.isArray(e.product.media_gallery)&&e.product.media_gallery.length>1);
       await page.goto(base+galleryEntry.copy.metadata.canonical_path);
-      const mainImage=page.locator('button.aspect-\\[4\\/5\\] img');
-      const before=await mainImage.getAttribute('src');await page.locator('svg.lucide-chevron-right').first().click();
-      await page.waitForFunction(before=>document.querySelector('button.aspect-\\[4\\/5\\] img')?.getAttribute('src')!==before,before);
+      const mainImage=page.locator('button[class*="max-w-[520px]"] img');
+      const before=await mainImage.getAttribute('src');await page.locator('button[class*="max-w-[520px]"] svg.lucide-chevron-right').click();
+      await page.waitForFunction(before=>Boolean(document.querySelector('button[class*="max-w-[520px]"] img')) && document.querySelector('button[class*="max-w-[520px]"] img').getAttribute('src')!==before,before);
       for(const viewport of [{width:1440,height:1000},{width:390,height:844}]){
         await page.setViewportSize(viewport);await page.goto(base+'/shop');await page.getByTestId('shop-page').waitFor();
         await page.screenshot({path:join(out,`closed-review-shop-${viewport.width}.png`),fullPage:true});
