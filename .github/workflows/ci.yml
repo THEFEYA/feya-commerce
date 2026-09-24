@@ -56,7 +56,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [observed-integration, metric-import, metric-readers, metric-function-hardening, metric-access-boundary, internal-view-access, google-ads-import]
+        suite: [observed-integration, metric-import, metric-readers, metric-function-hardening, metric-access-boundary, internal-view-access, google-ads-import, variant-draft]
     services:
       postgres:
         image: postgres:17.6

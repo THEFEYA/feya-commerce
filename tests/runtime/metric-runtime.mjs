@@ -23,6 +23,7 @@ import {metricRowsToCsv} from '../../lib/searchMetricCsv.ts';
 import {startGoogleProviderFixture,seedGoogleBatch} from './google-provider-fixture.mjs';
 import {googleBatch} from '../search/googleAdsFixture.ts';
 import {verifyApprovedContentRuntime} from './approved-content-runtime.mjs';
+import {verifyVariantDraftRuntime} from './variant-draft-runtime.mjs';
 const root=process.cwd(),out=resolve('runtime-results');
 const report={contract:'metric_runtime_proof_v1',commit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),workflow_event_sha:process.env.GITHUB_SHA||null,environment:'ephemeral_loopback_supabase',production_connected:false,next_write_path_verified:false,checks:[],limitations:['Exact 84-view SELECT closure on 39 observed table contracts; external FKs, non-core triggers and indexes are outside the read/permission restore.','Hosted staging, broader database API surface and production activation remain separate.']};
 const base='http://127.0.0.1:3000',endpoint=base+'/api/admin/seo-engine/keyword-metrics/import';
@@ -301,6 +302,7 @@ try {
   const conflict=await googleCall({...googleBody,keyword_ids:[googleProvider.fixture.input.keyword_ids[0]]});assert.equal(conflict.status,409);assert.equal(googleProvider.state.calls.length,calls);
   assert.deepEqual(googleProvider.state.errors,[]);report.google_ads_provider='synthetic_loopback_not_live_google';report.google_ads_atomic_runtime_pass=true;
  });
+ await verifyVariantDraftRuntime({db,browser,ownerPage,env,out,check,report,service,outsider,url,anon,otherEmail,password});
  await check('Local advisor confirms hardened paths; other findings retained for review',async()=>{
   const findings=cli(['db','advisors','--local','--workdir',work,'--type','security','--fail-on','none','-o','json']);
   await writeFile(join(out,'security-advisors.json'),findings);report.local_advisors_executed=true;report.advisor_release_pass=false;

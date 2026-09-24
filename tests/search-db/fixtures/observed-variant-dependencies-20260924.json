@@ -1,0 +1,4549 @@
+{
+  "contract": "variant_draft_observed_dependencies_v1",
+  "date": "2026-09-24",
+  "project_ref": "ysnizcgzhdwdfdkjkhud",
+  "production_writes": 0,
+  "query": "with recursive deps(oid) as (\n select unnest(array['public.feya_commerce_product_drafts'::regclass::oid,'public.feya_commerce_configuration_prices'::regclass::oid,'public.feya_commerce_sellable_configurations'::regclass::oid,'public.feya_growth_registry_items_v1'::regclass::oid,'public.feya_growth_execution_requests_v1'::regclass::oid,'public.feya_growth_change_events_v1'::regclass::oid])\n union select c.confrelid from pg_constraint c join deps d on d.oid=c.conrelid join pg_class r on r.oid=c.confrelid join pg_namespace n on n.oid=r.relnamespace where c.contype='f' and n.nspname='public'\n) select jsonb_agg(jsonb_build_object('name',r.relname,'columns',(select jsonb_agg(jsonb_build_object('name',a.attname,'type',format_type(a.atttypid,a.atttypmod),'not_null',a.attnotnull,'default',pg_get_expr(ad.adbin,ad.adrelid),'identity',a.attidentity,'generated',a.attgenerated) order by a.attnum) from pg_attribute a left join pg_attrdef ad on ad.adrelid=a.attrelid and ad.adnum=a.attnum where a.attrelid=r.oid and a.attnum>0 and not a.attisdropped),'constraints',(select coalesce(jsonb_agg(jsonb_build_object('name',c.conname,'type',c.contype,'definition',pg_get_constraintdef(c.oid),'foreign_schema',fn.nspname,'foreign_table',fr.relname)),'[]'::jsonb) from pg_constraint c left join pg_class fr on fr.oid=c.confrelid left join pg_namespace fn on fn.oid=fr.relnamespace where c.conrelid=r.oid),'indexes',(select coalesce(jsonb_agg(pg_get_indexdef(i.indexrelid)),'[]'::jsonb) from pg_index i where i.indrelid=r.oid and not exists(select 1 from pg_constraint c where c.conindid=i.indexrelid)),'triggers',(select coalesce(jsonb_agg(jsonb_build_object('name',tg.tgname,'definition',pg_get_triggerdef(tg.oid),'function',p.proname)),'[]'::jsonb) from pg_trigger tg join pg_proc p on p.oid=tg.tgfoid where tg.tgrelid=r.oid and not tg.tgisinternal),'rls',r.relrowsecurity) order by r.relname) tables from deps d join pg_class r on r.oid=d.oid",
+  "tables": [
+    {
+      "rls": true,
+      "name": "feya_commerce_component_families",
+      "columns": [
+        {
+          "name": "component_family_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "canonical_name",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "normalized_name",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "component_group",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "public_sort_order",
+          "type": "integer",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "active_flag",
+          "type": "boolean",
+          "default": "true",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "is_default_whole_product",
+          "type": "boolean",
+          "default": "false",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [],
+      "triggers": [
+        {
+          "name": "trg_feya_commerce_component_families_updated_at",
+          "function": "feya_commerce_set_updated_at",
+          "definition": "CREATE TRIGGER trg_feya_commerce_component_families_updated_at BEFORE UPDATE ON public.feya_commerce_component_families FOR EACH ROW EXECUTE FUNCTION feya_commerce_set_updated_at()"
+        }
+      ],
+      "constraints": [
+        {
+          "name": "feya_commerce_component_families_canonical_name_key",
+          "type": "u",
+          "definition": "UNIQUE (canonical_name)",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_commerce_component_families_normalized_name_key",
+          "type": "u",
+          "definition": "UNIQUE (normalized_name)",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_commerce_component_families_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (component_family_id)",
+          "foreign_table": null,
+          "foreign_schema": null
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_commerce_configuration_prices",
+      "columns": [
+        {
+          "name": "configuration_price_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "canonical_product_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "sellable_configuration_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "option_mapping_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "source_price_row_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "source_amount",
+          "type": "numeric(12,2)",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "source_currency",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "confidence",
+          "type": "numeric(5,2)",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "fallback_flag",
+          "type": "boolean",
+          "default": "false",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "sampler_excluded_flag",
+          "type": "boolean",
+          "default": "false",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "public_price_amount",
+          "type": "numeric(12,2)",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "manual_override_amount",
+          "type": "numeric(12,2)",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "review_status",
+          "type": "text",
+          "default": "'not_reviewed'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "price_status",
+          "type": "text",
+          "default": "'draft'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX feya_commerce_configuration_prices_product_idx ON public.feya_commerce_configuration_prices USING btree (canonical_product_id, sellable_configuration_id)",
+        "CREATE INDEX feya_commerce_configuration_prices_flags_idx ON public.feya_commerce_configuration_prices USING btree (fallback_flag, sampler_excluded_flag, review_status)"
+      ],
+      "triggers": [
+        {
+          "name": "trg_feya_commerce_configuration_prices_updated_at",
+          "function": "feya_commerce_set_updated_at",
+          "definition": "CREATE TRIGGER trg_feya_commerce_configuration_prices_updated_at BEFORE UPDATE ON public.feya_commerce_configuration_prices FOR EACH ROW EXECUTE FUNCTION feya_commerce_set_updated_at()"
+        }
+      ],
+      "constraints": [
+        {
+          "name": "feya_commerce_configuration_pric_sellable_configuration_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (sellable_configuration_id) REFERENCES feya_commerce_sellable_configurations(sellable_configuration_id)",
+          "foreign_table": "feya_commerce_sellable_configurations",
+          "foreign_schema": "public"
+        },
+        {
+          "name": "feya_commerce_configuration_prices_amounts_chk",
+          "type": "c",
+          "definition": "CHECK ((((source_amount IS NULL) OR (source_amount >= (0)::numeric)) AND ((public_price_amount IS NULL) OR (public_price_amount >= (0)::numeric)) AND ((manual_override_amount IS NULL) OR (manual_override_amount >= (0)::numeric))))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_commerce_configuration_prices_canonical_product_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (canonical_product_id) REFERENCES feya_commerce_product_drafts(canonical_product_id)",
+          "foreign_table": "feya_commerce_product_drafts",
+          "foreign_schema": "public"
+        },
+        {
+          "name": "feya_commerce_configuration_prices_confidence_chk",
+          "type": "c",
+          "definition": "CHECK (((confidence IS NULL) OR ((confidence >= (0)::numeric) AND (confidence <= (100)::numeric))))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_commerce_configuration_prices_option_mapping_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (option_mapping_id) REFERENCES feya_commerce_option_mappings(option_mapping_id)",
+          "foreign_table": "feya_commerce_option_mappings",
+          "foreign_schema": "public"
+        },
+        {
+          "name": "feya_commerce_configuration_prices_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (configuration_price_id)",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_commerce_configuration_prices_source_price_row_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (source_price_row_id) REFERENCES feya_commerce_source_price_rows(source_price_row_id)",
+          "foreign_table": "feya_commerce_source_price_rows",
+          "foreign_schema": "public"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_commerce_import_batches",
+      "columns": [
+        {
+          "name": "import_batch_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "source_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "shop_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "file_name",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "raw_file_reference",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "imported_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "row_count",
+          "type": "integer",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "parsing_status",
+          "type": "text",
+          "default": "'uploaded'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "error_summary",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_metadata",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [],
+      "triggers": [
+        {
+          "name": "trg_feya_commerce_import_batches_updated_at",
+          "function": "feya_commerce_set_updated_at",
+          "definition": "CREATE TRIGGER trg_feya_commerce_import_batches_updated_at BEFORE UPDATE ON public.feya_commerce_import_batches FOR EACH ROW EXECUTE FUNCTION feya_commerce_set_updated_at()"
+        }
+      ],
+      "constraints": [
+        {
+          "name": "feya_commerce_import_batches_parsing_status_chk",
+          "type": "c",
+          "definition": "CHECK ((parsing_status = ANY (ARRAY['uploaded'::text, 'parsed'::text, 'partially_parsed'::text, 'failed'::text, 'archived'::text])))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_commerce_import_batches_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (import_batch_id)",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_commerce_import_batches_row_count_chk",
+          "type": "c",
+          "definition": "CHECK (((row_count IS NULL) OR (row_count >= 0)))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_commerce_import_batches_shop_code_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (shop_code) REFERENCES feya_commerce_shops(shop_code)",
+          "foreign_table": "feya_commerce_shops",
+          "foreign_schema": "public"
+        },
+        {
+          "name": "feya_commerce_import_batches_source_type_chk",
+          "type": "c",
+          "definition": "CHECK ((source_type = ANY (ARRAY['etsy_csv'::text, 'price_master_json'::text, 'manual_file'::text, 'other'::text])))",
+          "foreign_table": null,
+          "foreign_schema": null
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_commerce_option_mappings",
+      "columns": [
+        {
+          "name": "option_mapping_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "canonical_product_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "source_listing_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "source_price_row_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_option_name",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_option_value",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_option_text",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "detected_canonical_axis",
+          "type": "text",
+          "default": "'unknown'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "canonical_option_value",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "component_family_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "confidence",
+          "type": "numeric(5,2)",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "review_status",
+          "type": "text",
+          "default": "'not_reviewed'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "sampler_flag",
+          "type": "boolean",
+          "default": "false",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "non_catalog_flag",
+          "type": "boolean",
+          "default": "false",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "mapping_source",
+          "type": "text",
+          "default": "'import_detection'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "raw_payload",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX feya_commerce_option_mappings_product_axis_idx ON public.feya_commerce_option_mappings USING btree (canonical_product_id, detected_canonical_axis, review_status)"
+      ],
+      "triggers": [
+        {
+          "name": "trg_feya_commerce_option_mappings_updated_at",
+          "function": "feya_commerce_set_updated_at",
+          "definition": "CREATE TRIGGER trg_feya_commerce_option_mappings_updated_at BEFORE UPDATE ON public.feya_commerce_option_mappings FOR EACH ROW EXECUTE FUNCTION feya_commerce_set_updated_at()"
+        }
+      ],
+      "constraints": [
+        {
+          "name": "feya_commerce_option_mappings_axis_chk",
+          "type": "c",
+          "definition": "CHECK ((detected_canonical_axis = ANY (ARRAY['configuration'::text, 'size'::text, 'color'::text, 'material'::text, 'not_product_axis'::text, 'unknown'::text])))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_commerce_option_mappings_canonical_product_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (canonical_product_id) REFERENCES feya_commerce_product_drafts(canonical_product_id)",
+          "foreign_table": "feya_commerce_product_drafts",
+          "foreign_schema": "public"
+        },
+        {
+          "name": "feya_commerce_option_mappings_component_family_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (component_family_id) REFERENCES feya_commerce_component_families(component_family_id)",
+          "foreign_table": "feya_commerce_component_families",
+          "foreign_schema": "public"
+        },
+        {
+          "name": "feya_commerce_option_mappings_confidence_chk",
+          "type": "c",
+          "definition": "CHECK (((confidence IS NULL) OR ((confidence >= (0)::numeric) AND (confidence <= (100)::numeric))))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_commerce_option_mappings_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (option_mapping_id)",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_commerce_option_mappings_source_listing_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (source_listing_id) REFERENCES feya_commerce_source_listings(source_listing_id)",
+          "foreign_table": "feya_commerce_source_listings",
+          "foreign_schema": "public"
+        },
+        {
+          "name": "feya_commerce_option_mappings_source_price_row_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (source_price_row_id) REFERENCES feya_commerce_source_price_rows(source_price_row_id)",
+          "foreign_table": "feya_commerce_source_price_rows",
+          "foreign_schema": "public"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_commerce_product_drafts",
+      "columns": [
+        {
+          "name": "canonical_product_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "source_shop_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "primary_source_listing_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "matched_etsy_listing_id",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "source_url",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "draft_site_title",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "card_title",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "h1",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "seo_title",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "meta_description",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "product_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "primary_component_family_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "material",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "color",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "size_mode",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "fit_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "production_profile",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "shipping_profile",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "handmade_flag",
+          "type": "boolean",
+          "default": "true",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "styled_imagery_flag",
+          "type": "boolean",
+          "default": "false",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "publish_status",
+          "type": "text",
+          "default": "'draft'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "readiness_status",
+          "type": "text",
+          "default": "'not_started'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "do_not_publish_flag",
+          "type": "boolean",
+          "default": "false",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_ai_context",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX feya_commerce_product_drafts_publish_idx ON public.feya_commerce_product_drafts USING btree (publish_status, readiness_status, do_not_publish_flag)",
+        "CREATE INDEX feya_commerce_product_drafts_source_idx ON public.feya_commerce_product_drafts USING btree (primary_source_listing_id)"
+      ],
+      "triggers": [
+        {
+          "name": "trg_feya_commerce_product_drafts_updated_at",
+          "function": "feya_commerce_set_updated_at",
+          "definition": "CREATE TRIGGER trg_feya_commerce_product_drafts_updated_at BEFORE UPDATE ON public.feya_commerce_product_drafts FOR EACH ROW EXECUTE FUNCTION feya_commerce_set_updated_at()"
+        }
+      ],
+      "constraints": [
+        {
+          "name": "feya_commerce_product_drafts_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (canonical_product_id)",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_commerce_product_drafts_primary_component_family_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (primary_component_family_id) REFERENCES feya_commerce_component_families(component_family_id)",
+          "foreign_table": "feya_commerce_component_families",
+          "foreign_schema": "public"
+        },
+        {
+          "name": "feya_commerce_product_drafts_primary_source_listing_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (primary_source_listing_id) REFERENCES feya_commerce_source_listings(source_listing_id)",
+          "foreign_table": "feya_commerce_source_listings",
+          "foreign_schema": "public"
+        },
+        {
+          "name": "feya_commerce_product_drafts_source_shop_code_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (source_shop_code) REFERENCES feya_commerce_shops(shop_code)",
+          "foreign_table": "feya_commerce_shops",
+          "foreign_schema": "public"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_commerce_sellable_configurations",
+      "columns": [
+        {
+          "name": "sellable_configuration_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "canonical_product_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "option_mapping_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "component_family_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "configuration_name",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "normalized_key",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "is_default_whole_product",
+          "type": "boolean",
+          "default": "false",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "is_sampler",
+          "type": "boolean",
+          "default": "false",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "is_public_candidate",
+          "type": "boolean",
+          "default": "true",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "sort_order",
+          "type": "integer",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "review_status",
+          "type": "text",
+          "default": "'not_reviewed'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX feya_commerce_sellable_configurations_product_idx ON public.feya_commerce_sellable_configurations USING btree (canonical_product_id, is_public_candidate, is_sampler)"
+      ],
+      "triggers": [
+        {
+          "name": "trg_feya_commerce_sellable_configurations_updated_at",
+          "function": "feya_commerce_set_updated_at",
+          "definition": "CREATE TRIGGER trg_feya_commerce_sellable_configurations_updated_at BEFORE UPDATE ON public.feya_commerce_sellable_configurations FOR EACH ROW EXECUTE FUNCTION feya_commerce_set_updated_at()"
+        }
+      ],
+      "constraints": [
+        {
+          "name": "feya_commerce_sellable_config_canonical_product_id_normaliz_key",
+          "type": "u",
+          "definition": "UNIQUE (canonical_product_id, normalized_key)",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_commerce_sellable_configurations_canonical_product_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (canonical_product_id) REFERENCES feya_commerce_product_drafts(canonical_product_id)",
+          "foreign_table": "feya_commerce_product_drafts",
+          "foreign_schema": "public"
+        },
+        {
+          "name": "feya_commerce_sellable_configurations_component_family_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (component_family_id) REFERENCES feya_commerce_component_families(component_family_id)",
+          "foreign_table": "feya_commerce_component_families",
+          "foreign_schema": "public"
+        },
+        {
+          "name": "feya_commerce_sellable_configurations_option_mapping_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (option_mapping_id) REFERENCES feya_commerce_option_mappings(option_mapping_id)",
+          "foreign_table": "feya_commerce_option_mappings",
+          "foreign_schema": "public"
+        },
+        {
+          "name": "feya_commerce_sellable_configurations_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (sellable_configuration_id)",
+          "foreign_table": null,
+          "foreign_schema": null
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_commerce_shops",
+      "columns": [
+        {
+          "name": "shop_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "shop_name",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "default_currency",
+          "type": "text",
+          "default": "'USD'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "storefront_language",
+          "type": "text",
+          "default": "'en'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "admin_language",
+          "type": "text",
+          "default": "'ru'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "active_flag",
+          "type": "boolean",
+          "default": "true",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_metadata",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [],
+      "triggers": [
+        {
+          "name": "trg_feya_commerce_shops_updated_at",
+          "function": "feya_commerce_set_updated_at",
+          "definition": "CREATE TRIGGER trg_feya_commerce_shops_updated_at BEFORE UPDATE ON public.feya_commerce_shops FOR EACH ROW EXECUTE FUNCTION feya_commerce_set_updated_at()"
+        }
+      ],
+      "constraints": [
+        {
+          "name": "feya_commerce_shops_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (shop_code)",
+          "foreign_table": null,
+          "foreign_schema": null
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_commerce_source_listings",
+      "columns": [
+        {
+          "name": "source_listing_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "import_batch_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "shop_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "source_row_number",
+          "type": "integer",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "source_listing_external_id",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "etsy_listing_id",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "source_url",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_title",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_description",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_price_text",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_price_amount",
+          "type": "numeric(12,2)",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_currency",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_quantity",
+          "type": "integer",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_tags",
+          "type": "text[]",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_materials",
+          "type": "text[]",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_variation_1_name",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_variation_1_values",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_variation_2_name",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_variation_2_values",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_image_urls",
+          "type": "text[]",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_payload",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "source_hash",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "ingest_status",
+          "type": "text",
+          "default": "'raw_imported'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX feya_commerce_source_listings_etsy_listing_idx ON public.feya_commerce_source_listings USING btree (etsy_listing_id)",
+        "CREATE UNIQUE INDEX feya_commerce_source_listings_batch_row_uidx ON public.feya_commerce_source_listings USING btree (import_batch_id, source_row_number) WHERE (source_row_number IS NOT NULL)",
+        "CREATE INDEX feya_commerce_source_listings_shop_idx ON public.feya_commerce_source_listings USING btree (shop_code)"
+      ],
+      "triggers": [
+        {
+          "name": "trg_feya_commerce_source_listings_updated_at",
+          "function": "feya_commerce_set_updated_at",
+          "definition": "CREATE TRIGGER trg_feya_commerce_source_listings_updated_at BEFORE UPDATE ON public.feya_commerce_source_listings FOR EACH ROW EXECUTE FUNCTION feya_commerce_set_updated_at()"
+        }
+      ],
+      "constraints": [
+        {
+          "name": "feya_commerce_source_listings_import_batch_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (import_batch_id) REFERENCES feya_commerce_import_batches(import_batch_id)",
+          "foreign_table": "feya_commerce_import_batches",
+          "foreign_schema": "public"
+        },
+        {
+          "name": "feya_commerce_source_listings_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (source_listing_id)",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_commerce_source_listings_quantity_chk",
+          "type": "c",
+          "definition": "CHECK (((raw_quantity IS NULL) OR (raw_quantity >= 0)))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_commerce_source_listings_row_number_chk",
+          "type": "c",
+          "definition": "CHECK (((source_row_number IS NULL) OR (source_row_number > 0)))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_commerce_source_listings_shop_code_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (shop_code) REFERENCES feya_commerce_shops(shop_code)",
+          "foreign_table": "feya_commerce_shops",
+          "foreign_schema": "public"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_commerce_source_price_rows",
+      "columns": [
+        {
+          "name": "source_price_row_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "import_batch_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "source_listing_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "shop_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "source_row_number",
+          "type": "integer",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "etsy_listing_id",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "source_url",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_option_name",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_option_value",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_option_text",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "price_text",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "parsed_price_amount",
+          "type": "numeric(12,2)",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "currency",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "row_kind",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "price_source",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "confidence",
+          "type": "numeric(5,2)",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "fallback_flag",
+          "type": "boolean",
+          "default": "false",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "sampler_non_catalog_flag",
+          "type": "boolean",
+          "default": "false",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "raw_payload",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "review_status",
+          "type": "text",
+          "default": "'not_reviewed'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX feya_commerce_source_price_rows_etsy_listing_idx ON public.feya_commerce_source_price_rows USING btree (etsy_listing_id)",
+        "CREATE INDEX feya_commerce_source_price_rows_sampler_idx ON public.feya_commerce_source_price_rows USING btree (sampler_non_catalog_flag)",
+        "CREATE INDEX feya_commerce_source_price_rows_listing_idx ON public.feya_commerce_source_price_rows USING btree (source_listing_id)"
+      ],
+      "triggers": [
+        {
+          "name": "trg_feya_commerce_source_price_rows_updated_at",
+          "function": "feya_commerce_set_updated_at",
+          "definition": "CREATE TRIGGER trg_feya_commerce_source_price_rows_updated_at BEFORE UPDATE ON public.feya_commerce_source_price_rows FOR EACH ROW EXECUTE FUNCTION feya_commerce_set_updated_at()"
+        }
+      ],
+      "constraints": [
+        {
+          "name": "feya_commerce_source_price_rows_confidence_chk",
+          "type": "c",
+          "definition": "CHECK (((confidence IS NULL) OR ((confidence >= (0)::numeric) AND (confidence <= (100)::numeric))))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_commerce_source_price_rows_import_batch_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (import_batch_id) REFERENCES feya_commerce_import_batches(import_batch_id)",
+          "foreign_table": "feya_commerce_import_batches",
+          "foreign_schema": "public"
+        },
+        {
+          "name": "feya_commerce_source_price_rows_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (source_price_row_id)",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_commerce_source_price_rows_price_chk",
+          "type": "c",
+          "definition": "CHECK (((parsed_price_amount IS NULL) OR (parsed_price_amount >= (0)::numeric)))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_commerce_source_price_rows_row_number_chk",
+          "type": "c",
+          "definition": "CHECK (((source_row_number IS NULL) OR (source_row_number > 0)))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_commerce_source_price_rows_shop_code_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (shop_code) REFERENCES feya_commerce_shops(shop_code)",
+          "foreign_table": "feya_commerce_shops",
+          "foreign_schema": "public"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_growth_cases_v1",
+      "columns": [
+        {
+          "name": "case_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "case_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "case_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "business_question",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "case_status",
+          "type": "text",
+          "default": "'OPEN'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "current_accountable_domain",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "ownership_epoch",
+          "type": "integer",
+          "default": "1",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "priority",
+          "type": "text",
+          "default": "'P2'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "maturity_state",
+          "type": "text",
+          "default": "'PRE_LAUNCH'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "materiality_score",
+          "type": "numeric",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "confidence_level",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "urgency_level",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "case_fingerprint",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "entity_scope_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "signal_refs_json",
+          "type": "jsonb",
+          "default": "'[]'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "strategy_version_ref",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "due_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "blocked_reason",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "parent_case_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "merged_into_case_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "created_by_type",
+          "type": "text",
+          "default": "'system'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "created_by_user_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "opened_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "closed_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "idempotency_key",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX uq_feya_growth_case_active_fingerprint ON public.feya_growth_cases_v1 USING btree (case_fingerprint) WHERE ((case_fingerprint IS NOT NULL) AND (case_status <> ALL (ARRAY['CLOSED'::text, 'CANCELLED'::text])))",
+        "CREATE UNIQUE INDEX uq_feya_growth_case_idempotency ON public.feya_growth_cases_v1 USING btree (idempotency_key) WHERE (idempotency_key IS NOT NULL)",
+        "CREATE INDEX idx_feya_growth_cases_owner_status ON public.feya_growth_cases_v1 USING btree (current_accountable_domain, case_status, priority)",
+        "CREATE INDEX idx_feya_growth_cases_expiry ON public.feya_growth_cases_v1 USING btree (expires_at) WHERE ((expires_at IS NOT NULL) AND (case_status <> ALL (ARRAY['CLOSED'::text, 'CANCELLED'::text])))"
+      ],
+      "triggers": [],
+      "constraints": [
+        {
+          "name": "feya_growth_case_creator_chk",
+          "type": "c",
+          "definition": "CHECK ((created_by_type = ANY (ARRAY['human'::text, 'agent'::text, 'system'::text])))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_growth_case_maturity_chk",
+          "type": "c",
+          "definition": "CHECK ((maturity_state = ANY (ARRAY['PRE_LAUNCH'::text, 'LEARNING'::text, 'BASELINE_BUILDING'::text, 'OPERATIONAL'::text, 'MATURE'::text])))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_growth_case_owner_chk",
+          "type": "c",
+          "definition": "CHECK ((current_accountable_domain = ANY (ARRAY['HUMAN_OWNER'::text, 'GROWTH_DIRECTOR'::text, 'OSPM'::text, 'CPIM'::text, 'GMEL'::text, 'SCO'::text, 'CQA'::text, 'TSEO'::text, 'GDAE'::text, 'CORE'::text])))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_growth_case_priority_chk",
+          "type": "c",
+          "definition": "CHECK ((priority = ANY (ARRAY['P0'::text, 'P1'::text, 'P2'::text, 'P3'::text])))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_growth_case_status_chk",
+          "type": "c",
+          "definition": "CHECK ((case_status = ANY (ARRAY['OPEN'::text, 'TRIAGED'::text, 'INVESTIGATING'::text, 'DECISION_READY'::text, 'ACTIONING'::text, 'MEASURING'::text, 'LEARNING'::text, 'CLOSED'::text, 'BLOCKED'::text, 'DEFERRED'::text, 'CANCELLED'::text, 'NOT_OBSERVABLE'::text])))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_growth_cases_v1_case_code_key",
+          "type": "u",
+          "definition": "UNIQUE (case_code)",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_growth_cases_v1_created_by_user_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (created_by_user_id) REFERENCES auth.users(id) ON DELETE SET NULL",
+          "foreign_table": "users",
+          "foreign_schema": "auth"
+        },
+        {
+          "name": "feya_growth_cases_v1_merged_into_case_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (merged_into_case_id) REFERENCES feya_growth_cases_v1(case_id) ON DELETE SET NULL",
+          "foreign_table": "feya_growth_cases_v1",
+          "foreign_schema": "public"
+        },
+        {
+          "name": "feya_growth_cases_v1_ownership_epoch_check",
+          "type": "c",
+          "definition": "CHECK ((ownership_epoch > 0))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_growth_cases_v1_parent_case_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (parent_case_id) REFERENCES feya_growth_cases_v1(case_id) ON DELETE SET NULL",
+          "foreign_table": "feya_growth_cases_v1",
+          "foreign_schema": "public"
+        },
+        {
+          "name": "feya_growth_cases_v1_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (case_id)",
+          "foreign_table": null,
+          "foreign_schema": null
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_growth_change_events_v1",
+      "columns": [
+        {
+          "name": "change_event_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "event_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "change_domain",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "change_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "entity_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "entity_key",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "market_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "locale",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "case_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "execution_request_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "incident_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "version_before_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "version_after_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "source_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "source_ref",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "metadata_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "idempotency_key",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "event_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_feya_change_events_entity_time ON public.feya_growth_change_events_v1 USING btree (entity_type, entity_key, event_at)",
+        "CREATE INDEX idx_feya_change_events_domain_time ON public.feya_growth_change_events_v1 USING btree (change_domain, event_at)",
+        "CREATE UNIQUE INDEX uq_feya_change_event_idempotency ON public.feya_growth_change_events_v1 USING btree (idempotency_key) WHERE (idempotency_key IS NOT NULL)"
+      ],
+      "triggers": [],
+      "constraints": [
+        {
+          "name": "feya_change_event_domain_chk",
+          "type": "c",
+          "definition": "CHECK ((change_domain = ANY (ARRAY['CONTENT'::text, 'SEO_PORTFOLIO'::text, 'TECHNICAL_SEO'::text, 'PRICE'::text, 'OFFER'::text, 'MEDIA'::text, 'COMMERCE'::text, 'POLICY'::text, 'MEASUREMENT'::text, 'INCIDENT'::text, 'MANUAL_OTHER'::text])))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_change_event_source_chk",
+          "type": "c",
+          "definition": "CHECK ((source_type = ANY (ARRAY['human'::text, 'agent'::text, 'system'::text, 'external'::text])))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_growth_change_events_v1_case_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (case_id) REFERENCES feya_growth_cases_v1(case_id) ON DELETE SET NULL",
+          "foreign_table": "feya_growth_cases_v1",
+          "foreign_schema": "public"
+        },
+        {
+          "name": "feya_growth_change_events_v1_event_code_key",
+          "type": "u",
+          "definition": "UNIQUE (event_code)",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_growth_change_events_v1_execution_request_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (execution_request_id) REFERENCES feya_growth_execution_requests_v1(execution_request_id) ON DELETE SET NULL",
+          "foreign_table": "feya_growth_execution_requests_v1",
+          "foreign_schema": "public"
+        },
+        {
+          "name": "feya_growth_change_events_v1_incident_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (incident_id) REFERENCES feya_growth_incidents_v1(incident_id) ON DELETE SET NULL",
+          "foreign_table": "feya_growth_incidents_v1",
+          "foreign_schema": "public"
+        },
+        {
+          "name": "feya_growth_change_events_v1_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (change_event_id)",
+          "foreign_table": null,
+          "foreign_schema": null
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_growth_execution_requests_v1",
+      "columns": [
+        {
+          "name": "execution_request_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "request_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "action_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "action_capability_version",
+          "type": "integer",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "action_class",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "executor_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "approval_class",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "request_status",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "request_hash",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "approval_hash",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "mutation_domain",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "target_scope_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "target_version_refs_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "request_payload_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "rollback_plan_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "postflight_check_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "requested_by_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "requested_by_user_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "approved_by_user_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "approval_reason",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "approved_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "idempotency_key",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_feya_execution_requests_status ON public.feya_growth_execution_requests_v1 USING btree (request_status, created_at)",
+        "CREATE UNIQUE INDEX uq_feya_execution_request_idempotency ON public.feya_growth_execution_requests_v1 USING btree (idempotency_key) WHERE (idempotency_key IS NOT NULL)"
+      ],
+      "triggers": [
+        {
+          "name": "trg_feya_guard_execution_request_material_v1",
+          "function": "feya_fn_guard_execution_request_material_v1",
+          "definition": "CREATE TRIGGER trg_feya_guard_execution_request_material_v1 BEFORE UPDATE ON public.feya_growth_execution_requests_v1 FOR EACH ROW EXECUTE FUNCTION feya_fn_guard_execution_request_material_v1()"
+        }
+      ],
+      "constraints": [
+        {
+          "name": "feya_execution_request_requester_chk",
+          "type": "c",
+          "definition": "CHECK ((requested_by_type = ANY (ARRAY['human'::text, 'agent'::text, 'system'::text])))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_execution_request_status_chk",
+          "type": "c",
+          "definition": "CHECK ((request_status = ANY (ARRAY['APPROVAL_REQUIRED'::text, 'APPROVED'::text, 'EXECUTING'::text, 'SUCCEEDED'::text, 'FAILED'::text, 'CANCELLED'::text, 'STALE'::text, 'ROLLED_BACK'::text])))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_growth_execution_requests_v1_approved_by_user_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (approved_by_user_id) REFERENCES auth.users(id) ON DELETE SET NULL",
+          "foreign_table": "users",
+          "foreign_schema": "auth"
+        },
+        {
+          "name": "feya_growth_execution_requests_v1_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (execution_request_id)",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_growth_execution_requests_v1_request_code_key",
+          "type": "u",
+          "definition": "UNIQUE (request_code)",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_growth_execution_requests_v1_requested_by_user_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (requested_by_user_id) REFERENCES auth.users(id) ON DELETE SET NULL",
+          "foreign_table": "users",
+          "foreign_schema": "auth"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_growth_incidents_v1",
+      "columns": [
+        {
+          "name": "incident_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "incident_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "incident_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "severity",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "incident_status",
+          "type": "text",
+          "default": "'OPEN'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "summary",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "root_cause_key",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "scope_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "freeze_mutations",
+          "type": "boolean",
+          "default": "false",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "freeze_domains_json",
+          "type": "jsonb",
+          "default": "'[]'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "detected_by",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "resolved_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "closed_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX uq_feya_incident_active_root_cause ON public.feya_growth_incidents_v1 USING btree (root_cause_key) WHERE (incident_status <> ALL (ARRAY['RESOLVED'::text, 'CLOSED'::text, 'CANCELLED'::text]))",
+        "CREATE INDEX idx_feya_incident_active_severity ON public.feya_growth_incidents_v1 USING btree (severity, incident_status, started_at) WHERE (incident_status <> ALL (ARRAY['RESOLVED'::text, 'CLOSED'::text, 'CANCELLED'::text]))"
+      ],
+      "triggers": [],
+      "constraints": [
+        {
+          "name": "feya_growth_incidents_v1_incident_code_key",
+          "type": "u",
+          "definition": "UNIQUE (incident_code)",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_growth_incidents_v1_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (incident_id)",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_incident_freeze_domains_array_chk",
+          "type": "c",
+          "definition": "CHECK ((jsonb_typeof(freeze_domains_json) = 'array'::text))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_incident_severity_chk",
+          "type": "c",
+          "definition": "CHECK ((severity = ANY (ARRAY['P0'::text, 'P1'::text, 'P2'::text, 'P3'::text])))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_incident_status_chk",
+          "type": "c",
+          "definition": "CHECK ((incident_status = ANY (ARRAY['OPEN'::text, 'INVESTIGATING'::text, 'MITIGATING'::text, 'STABILIZING'::text, 'RESOLVED'::text, 'CLOSED'::text, 'CANCELLED'::text])))",
+          "foreign_table": null,
+          "foreign_schema": null
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_growth_registry_items_v1",
+      "columns": [
+        {
+          "name": "registry_item_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "registry_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "item_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "item_name",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "owner_role",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "item_state",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "implementation_state",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "public_summary",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "limitations_summary",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "config_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "evidence_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "version_no",
+          "type": "integer",
+          "default": "1",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "active_flag",
+          "type": "boolean",
+          "default": "true",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_feya_growth_registry_type_state ON public.feya_growth_registry_items_v1 USING btree (registry_type, item_state) WHERE (active_flag IS TRUE)",
+        "CREATE UNIQUE INDEX uq_feya_growth_registry_active_item ON public.feya_growth_registry_items_v1 USING btree (registry_type, item_code) WHERE (active_flag IS TRUE)"
+      ],
+      "triggers": [],
+      "constraints": [
+        {
+          "name": "feya_growth_registry_item_version_uniq",
+          "type": "u",
+          "definition": "UNIQUE (registry_type, item_code, version_no)",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_growth_registry_items_v1_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (registry_item_id)",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_growth_registry_items_v1_version_no_check",
+          "type": "c",
+          "definition": "CHECK ((version_no > 0))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_growth_registry_state_chk",
+          "type": "c",
+          "definition": "CHECK ((item_state = ANY (ARRAY['AVAILABLE'::text, 'AVAILABLE_WITH_LIMITATIONS'::text, 'DEGRADED'::text, 'UNAVAILABLE'::text, 'NOT_OBSERVABLE'::text])))",
+          "foreign_table": null,
+          "foreign_schema": null
+        },
+        {
+          "name": "feya_growth_registry_type_chk",
+          "type": "c",
+          "definition": "CHECK ((registry_type = ANY (ARRAY['capability'::text, 'metric'::text, 'policy'::text, 'template'::text, 'action_capability'::text, 'source_of_truth'::text])))",
+          "foreign_table": null,
+          "foreign_schema": null
+        }
+      ]
+    }
+  ],
+  "governance": {
+    "views": [
+      {
+        "name": "feya_commerce_v_growth_action_capability_safe_v1",
+        "definition": " SELECT item_code AS action_code,\n    item_name AS action_name,\n    owner_role,\n    item_state AS action_state,\n    implementation_state,\n    public_summary,\n    limitations_summary,\n    config_json ->> 'action_class'::text AS action_class,\n    config_json ->> 'executor_type'::text AS executor_type,\n    config_json ->> 'approval_class'::text AS approval_class,\n        CASE\n            WHEN jsonb_typeof(config_json -> 'production_mutation'::text) = 'boolean'::text THEN (config_json ->> 'production_mutation'::text)::boolean\n            ELSE NULL::boolean\n        END AS production_mutation,\n        CASE\n            WHEN jsonb_typeof(config_json -> 'dry_run_default'::text) = 'boolean'::text THEN (config_json ->> 'dry_run_default'::text)::boolean\n            ELSE NULL::boolean\n        END AS dry_run_default,\n    version_no,\n    updated_at\n   FROM feya_growth_registry_items_v1\n  WHERE registry_type = 'action_capability'::text AND active_flag IS TRUE;"
+      }
+    ],
+    "functions": [
+      {
+        "name": "feya_fn_execution_request_material_json_v1",
+        "definition": "CREATE OR REPLACE FUNCTION public.feya_fn_execution_request_material_json_v1(p_row feya_growth_execution_requests_v1)\n RETURNS jsonb\n LANGUAGE sql\n IMMUTABLE\n SET search_path TO ''\nAS $function$\n  select jsonb_build_object(\n    'action_code',p_row.action_code,\n    'action_capability_version',p_row.action_capability_version,\n    'action_class',p_row.action_class,\n    'executor_type',p_row.executor_type,\n    'approval_class',p_row.approval_class,\n    'mutation_domain',p_row.mutation_domain,\n    'target_scope',p_row.target_scope_json,\n    'target_version_refs',p_row.target_version_refs_json,\n    'request_payload',p_row.request_payload_json,\n    'rollback_plan',p_row.rollback_plan_json,\n    'postflight_check',p_row.postflight_check_json\n  );\n$function$\n"
+      },
+      {
+        "name": "feya_fn_guard_execution_request_material_v1",
+        "definition": "CREATE OR REPLACE FUNCTION public.feya_fn_guard_execution_request_material_v1()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO ''\nAS $function$\nbegin\n  if public.feya_fn_execution_request_material_json_v1(old)\n     is distinct from public.feya_fn_execution_request_material_json_v1(new) then\n    raise exception 'Execution request material fields are immutable; create a new request';\n  end if;\n\n  return new;\nend;\n$function$\n"
+      }
+    ],
+    "capabilities": [
+      {
+        "version_no": 1,
+        "action_code": "ACTIVATE_GROWTH_OBJECTIVE",
+        "action_class": "HUMAN_ACTION",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "HUMAN_OWNER_REQUIRED",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "ACTIVATE_GROWTH_STRATEGY",
+        "action_class": "HUMAN_ACTION",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "HUMAN_OWNER_REQUIRED",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "ADMIT_SIGNAL",
+        "action_class": "EXECUTABLE_WITH_APPROVAL",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "HUMAN_OR_CONTROLLED_ORCHESTRATOR",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "ADOPT_LEARNING_POLICY",
+        "action_class": "HUMAN_ACTION",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "HUMAN_OWNER_REQUIRED",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "APPLY_INDEXABILITY_PROPOSAL",
+        "action_class": "HUMAN_ACTION",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "HUMAN_REQUIRED",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "APPLY_KEYWORD_CLEANUP_HUMAN_REVIEW",
+        "action_class": "HUMAN_ACTION",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "HUMAN_REQUIRED",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "APPLY_PAGE_OWNERSHIP_PROPOSAL",
+        "action_class": "HUMAN_ACTION",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "HUMAN_REQUIRED",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "APPLY_QUERY_CLUSTER_PROPOSAL",
+        "action_class": "HUMAN_ACTION",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "HUMAN_REQUIRED",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "APPROVE_EXECUTION_REQUEST",
+        "action_class": "HUMAN_ACTION",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "HUMAN_REQUIRED",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "BEGIN_EXECUTION_REQUEST",
+        "action_class": "AUTO_ALLOWED",
+        "action_state": "UNAVAILABLE",
+        "executor_type": "EXECUTION_DISPATCHER",
+        "approval_class": null,
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "CHANGE_PRICE",
+        "action_class": "HUMAN_ACTION",
+        "action_state": "UNAVAILABLE",
+        "executor_type": "HUMAN_OR_COMMERCE_TOOL",
+        "approval_class": "HUMAN_OWNER_REQUIRED",
+        "dry_run_default": null,
+        "production_mutation": true
+      },
+      {
+        "version_no": 1,
+        "action_code": "CLAIM_WORKFLOW_RUN",
+        "action_class": "AUTO_ALLOWED",
+        "action_state": "UNAVAILABLE",
+        "executor_type": "WORKFLOW_WORKER",
+        "approval_class": null,
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "COMPLETE_GROWTH_HANDOFF",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "POLICY_DEPENDENT",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "CREATE_EXECUTION_REQUEST",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "POLICY_DERIVED",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "CREATE_EXPERIMENT",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "NONE_FOR_DESIGN",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "CREATE_GROWTH_EVENT",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "POLICY_DEPENDENT",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "CREATE_GROWTH_HANDOFF",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "POLICY_DEPENDENT",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "CREATE_GROWTH_OPPORTUNITY",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "POLICY_DEPENDENT",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "CREATE_GROWTH_STRATEGY_VERSION",
+        "action_class": "HUMAN_ACTION",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "HUMAN_OWNER_FOR_ACTIVATION",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "CREATE_INCIDENT",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "POLICY_DEPENDENT",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "CREATE_STABILIZATION_WINDOW",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "POLICY_DEPENDENT",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "CREATE_WORKFLOW_RUN",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "POLICY_DEPENDENT",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "DECIDE_OWNER_ATTENTION",
+        "action_class": "HUMAN_ACTION",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "HUMAN_OWNER_REQUIRED",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "DIRECTOR_GATE_INITIATIVE",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "DIRECTOR_GATE",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "ENABLE_SEARCH_INDEXING",
+        "action_class": "HUMAN_ACTION",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "DEPLOYMENT_ENV",
+        "approval_class": "HUMAN_REQUIRED",
+        "dry_run_default": null,
+        "production_mutation": true
+      },
+      {
+        "version_no": 1,
+        "action_code": "ENQUEUE_EXPIRING_OPPORTUNITIES",
+        "action_class": "AUTO_ALLOWED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "WORKFLOW_WORKER",
+        "approval_class": "NONE",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "HARDEN_ADMIN_DATA_BOUNDARY",
+        "action_class": "EXECUTABLE_WITH_APPROVAL",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "HUMAN_REQUIRED",
+        "dry_run_default": null,
+        "production_mutation": true
+      },
+      {
+        "version_no": 1,
+        "action_code": "HUMAN_APPROVE_INITIATIVE",
+        "action_class": "HUMAN_ACTION",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "HUMAN_REQUIRED",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "PREPARE_POLICY_CANDIDATE",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "NONE_FOR_CANDIDATE",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "PUBLISH_CONTENT",
+        "action_class": "EXECUTABLE_WITH_APPROVAL",
+        "action_state": "UNAVAILABLE",
+        "executor_type": "EXECUTION_GATEWAY",
+        "approval_class": "HUMAN_REQUIRED",
+        "dry_run_default": null,
+        "production_mutation": true
+      },
+      {
+        "version_no": 1,
+        "action_code": "RECORD_DATA_SOURCE_HEALTH",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "NONE",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "RECORD_EXPERIMENT_CONTAMINATION",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "NONE",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "RECORD_INDEXABILITY_PROPOSAL",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "NONE_FOR_PROPOSAL",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "RECORD_LEARNING_EVIDENCE",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "NONE",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "RECORD_SCENARIO_RUN",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "RUNNER_OR_HUMAN",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "REVALIDATE_INITIATIVE_STRATEGY",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "DIRECTOR_GATE",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "REVIEW_INDEXABILITY_PROPOSAL",
+        "action_class": "HUMAN_ACTION",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "HUMAN_REQUIRED",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "REVIEW_PAGE_OWNERSHIP_PROPOSAL",
+        "action_class": "HUMAN_ACTION",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "HUMAN_REQUIRED",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "REVIEW_QUERY_CLUSTER_PROPOSAL",
+        "action_class": "HUMAN_ACTION",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "HUMAN_REQUIRED",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "REVIEW_SCO_SHADOW_DRAFT",
+        "action_class": "HUMAN_ACTION",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "HUMAN_REQUIRED",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "RUN_CONTENT_PRECHECKS",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "INTERNAL_API",
+        "approval_class": "NONE_FOR_DRY_RUN",
+        "dry_run_default": true,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "RUN_INDEPENDENT_CQA",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "INTERNAL_API",
+        "approval_class": "NONE_FOR_DRY_RUN",
+        "dry_run_default": true,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "RUN_KEYWORD_CLEANUP",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": null,
+        "approval_class": "INTERNAL_TOKEN",
+        "dry_run_default": true,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "RUN_KEYWORD_CLEANUP_REVIEW",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "INTERNAL_API",
+        "approval_class": "NONE_FOR_DRY_RUN",
+        "dry_run_default": true,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "RUN_PAGE_OWNERSHIP_PROPOSALS",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "INTERNAL_API",
+        "approval_class": "NONE_FOR_DRY_RUN",
+        "dry_run_default": true,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "RUN_QUERY_CLUSTER_PROPOSALS",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "INTERNAL_API",
+        "approval_class": "NONE_FOR_DRY_RUN",
+        "dry_run_default": true,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "RUN_SCO_SHADOW",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "INTERNAL_API",
+        "approval_class": "NONE_FOR_DRY_RUN",
+        "dry_run_default": true,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "SET_EXPERIMENT_FEASIBILITY",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "NONE_FOR_ANALYSIS",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "SET_OBJECTIVE_FEASIBILITY",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "NONE_FOR_ANALYSIS",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "SET_ROLE_RUNTIME_STATUS",
+        "action_class": "HUMAN_ACTION",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "HUMAN_REQUIRED_FOR_ACTIVE",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "START_EXPERIMENT",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "POLICY_DEPENDENT",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "TRANSITION_GROWTH_CASE",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "POLICY_DEPENDENT",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "TRANSITION_INCIDENT",
+        "action_class": "AGENT_ASSISTED",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "POLICY_DEPENDENT",
+        "dry_run_default": null,
+        "production_mutation": false
+      },
+      {
+        "version_no": 1,
+        "action_code": "UPDATE_CANONICAL",
+        "action_class": "EXECUTABLE_WITH_APPROVAL",
+        "action_state": "UNAVAILABLE",
+        "executor_type": "EXECUTION_GATEWAY",
+        "approval_class": "TSEO_OR_HUMAN_BY_RISK",
+        "dry_run_default": null,
+        "production_mutation": true
+      },
+      {
+        "version_no": 1,
+        "action_code": "UPDATE_CONTENT_DRAFT",
+        "action_class": "EXECUTABLE_WITH_APPROVAL",
+        "action_state": "AVAILABLE_WITH_LIMITATIONS",
+        "executor_type": "SERVER_RPC",
+        "approval_class": "HUMAN_REQUIRED",
+        "dry_run_default": null,
+        "production_mutation": true
+      }
+    ]
+  },
+  "governance_query": "select jsonb_build_object(\n'views',(select jsonb_agg(jsonb_build_object('name',c.relname,'definition',pg_get_viewdef(c.oid,true))) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relname='feya_commerce_v_growth_action_capability_safe_v1'),\n'functions',(select jsonb_agg(jsonb_build_object('name',p.proname,'definition',pg_get_functiondef(p.oid))) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname in ('feya_fn_guard_execution_request_material_v1','feya_fn_execution_request_material_json_v1')),\n'capabilities',(select jsonb_agg(x) from (select action_code,action_class,executor_type,approval_class,production_mutation,dry_run_default,action_state,version_no from public.feya_commerce_v_growth_action_capability_safe_v1 order by action_code) x)\n) audit",
+  "auth": {
+    "auth_columns": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "table": "sessions"
+      },
+      {
+        "name": "user_id",
+        "type": "uuid",
+        "table": "sessions"
+      },
+      {
+        "name": "not_after",
+        "type": "timestamptz",
+        "table": "sessions"
+      },
+      {
+        "name": "id",
+        "type": "uuid",
+        "table": "users"
+      },
+      {
+        "name": "banned_until",
+        "type": "timestamptz",
+        "table": "users"
+      },
+      {
+        "name": "deleted_at",
+        "type": "timestamptz",
+        "table": "users"
+      },
+      {
+        "name": "is_anonymous",
+        "type": "bool",
+        "table": "users"
+      }
+    ],
+    "auth_service_grants": [
+      {
+        "table": "auth.users",
+        "select": false
+      },
+      {
+        "table": "auth.sessions",
+        "select": false
+      }
+    ],
+    "ledger_service_grants": [
+      {
+        "table": "public.feya_growth_execution_requests_v1",
+        "insert": true,
+        "select": true
+      },
+      {
+        "table": "public.feya_growth_change_events_v1",
+        "insert": true,
+        "select": true
+      },
+      {
+        "table": "public.feya_growth_registry_items_v1",
+        "insert": true,
+        "select": true
+      }
+    ]
+  },
+  "auth_query": "select jsonb_build_object(\n'auth_columns',(select jsonb_agg(jsonb_build_object('table',table_name,'name',column_name,'type',udt_name) order by table_name,ordinal_position) from information_schema.columns where table_schema='auth' and ((table_name='users' and column_name in ('id','banned_until','deleted_at','is_anonymous')) or (table_name='sessions' and column_name in ('id','user_id','not_after')))),\n'auth_service_grants',(select jsonb_agg(jsonb_build_object('table',t,'select',has_table_privilege('service_role',t,'SELECT'))) from unnest(array['auth.users','auth.sessions']) t),\n'ledger_service_grants',(select jsonb_agg(jsonb_build_object('table',t,'select',has_table_privilege('service_role',t,'SELECT'),'insert',has_table_privilege('service_role',t,'INSERT'))) from unnest(array['public.feya_growth_execution_requests_v1','public.feya_growth_change_events_v1','public.feya_growth_registry_items_v1']) t)\n) audit",
+  "schema": {
+    "tables": [
+      {
+        "name": "feya_growth_change_events_v1",
+        "columns": [
+          {
+            "name": "change_event_id",
+            "type": "uuid",
+            "default": "gen_random_uuid()",
+            "nullable": "NO"
+          },
+          {
+            "name": "event_code",
+            "type": "text",
+            "default": null,
+            "nullable": "NO"
+          },
+          {
+            "name": "change_domain",
+            "type": "text",
+            "default": null,
+            "nullable": "NO"
+          },
+          {
+            "name": "change_type",
+            "type": "text",
+            "default": null,
+            "nullable": "NO"
+          },
+          {
+            "name": "entity_type",
+            "type": "text",
+            "default": null,
+            "nullable": "NO"
+          },
+          {
+            "name": "entity_key",
+            "type": "text",
+            "default": null,
+            "nullable": "NO"
+          },
+          {
+            "name": "market_code",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "locale",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "case_id",
+            "type": "uuid",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "execution_request_id",
+            "type": "uuid",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "incident_id",
+            "type": "uuid",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "version_before_json",
+            "type": "jsonb",
+            "default": "'{}'::jsonb",
+            "nullable": "NO"
+          },
+          {
+            "name": "version_after_json",
+            "type": "jsonb",
+            "default": "'{}'::jsonb",
+            "nullable": "NO"
+          },
+          {
+            "name": "source_type",
+            "type": "text",
+            "default": null,
+            "nullable": "NO"
+          },
+          {
+            "name": "source_ref",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "metadata_json",
+            "type": "jsonb",
+            "default": "'{}'::jsonb",
+            "nullable": "NO"
+          },
+          {
+            "name": "idempotency_key",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "event_at",
+            "type": "timestamptz",
+            "default": "now()",
+            "nullable": "NO"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz",
+            "default": "now()",
+            "nullable": "NO"
+          }
+        ]
+      },
+      {
+        "name": "feya_commerce_product_drafts",
+        "columns": [
+          {
+            "name": "canonical_product_id",
+            "type": "uuid",
+            "default": "gen_random_uuid()",
+            "nullable": "NO"
+          },
+          {
+            "name": "source_shop_code",
+            "type": "text",
+            "default": null,
+            "nullable": "NO"
+          },
+          {
+            "name": "primary_source_listing_id",
+            "type": "uuid",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "matched_etsy_listing_id",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "source_url",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "draft_site_title",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "card_title",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "h1",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "seo_title",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "meta_description",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "product_type",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "primary_component_family_id",
+            "type": "uuid",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "material",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "color",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "size_mode",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "fit_type",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "production_profile",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "shipping_profile",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "handmade_flag",
+            "type": "bool",
+            "default": "true",
+            "nullable": "NO"
+          },
+          {
+            "name": "styled_imagery_flag",
+            "type": "bool",
+            "default": "false",
+            "nullable": "NO"
+          },
+          {
+            "name": "publish_status",
+            "type": "text",
+            "default": "'draft'::text",
+            "nullable": "NO"
+          },
+          {
+            "name": "readiness_status",
+            "type": "text",
+            "default": "'not_started'::text",
+            "nullable": "NO"
+          },
+          {
+            "name": "do_not_publish_flag",
+            "type": "bool",
+            "default": "false",
+            "nullable": "NO"
+          },
+          {
+            "name": "notes",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "raw_ai_context",
+            "type": "jsonb",
+            "default": "'{}'::jsonb",
+            "nullable": "NO"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz",
+            "default": "now()",
+            "nullable": "NO"
+          },
+          {
+            "name": "updated_at",
+            "type": "timestamptz",
+            "default": "now()",
+            "nullable": "NO"
+          }
+        ]
+      },
+      {
+        "name": "feya_commerce_sellable_configurations",
+        "columns": [
+          {
+            "name": "sellable_configuration_id",
+            "type": "uuid",
+            "default": "gen_random_uuid()",
+            "nullable": "NO"
+          },
+          {
+            "name": "canonical_product_id",
+            "type": "uuid",
+            "default": null,
+            "nullable": "NO"
+          },
+          {
+            "name": "option_mapping_id",
+            "type": "uuid",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "component_family_id",
+            "type": "uuid",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "configuration_name",
+            "type": "text",
+            "default": null,
+            "nullable": "NO"
+          },
+          {
+            "name": "normalized_key",
+            "type": "text",
+            "default": null,
+            "nullable": "NO"
+          },
+          {
+            "name": "is_default_whole_product",
+            "type": "bool",
+            "default": "false",
+            "nullable": "NO"
+          },
+          {
+            "name": "is_sampler",
+            "type": "bool",
+            "default": "false",
+            "nullable": "NO"
+          },
+          {
+            "name": "is_public_candidate",
+            "type": "bool",
+            "default": "true",
+            "nullable": "NO"
+          },
+          {
+            "name": "sort_order",
+            "type": "int4",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "review_status",
+            "type": "text",
+            "default": "'not_reviewed'::text",
+            "nullable": "NO"
+          },
+          {
+            "name": "notes",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz",
+            "default": "now()",
+            "nullable": "NO"
+          },
+          {
+            "name": "updated_at",
+            "type": "timestamptz",
+            "default": "now()",
+            "nullable": "NO"
+          }
+        ]
+      },
+      {
+        "name": "feya_commerce_configuration_prices",
+        "columns": [
+          {
+            "name": "configuration_price_id",
+            "type": "uuid",
+            "default": "gen_random_uuid()",
+            "nullable": "NO"
+          },
+          {
+            "name": "canonical_product_id",
+            "type": "uuid",
+            "default": null,
+            "nullable": "NO"
+          },
+          {
+            "name": "sellable_configuration_id",
+            "type": "uuid",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "option_mapping_id",
+            "type": "uuid",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "source_price_row_id",
+            "type": "uuid",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "source_amount",
+            "type": "numeric",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "source_currency",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "confidence",
+            "type": "numeric",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "fallback_flag",
+            "type": "bool",
+            "default": "false",
+            "nullable": "NO"
+          },
+          {
+            "name": "sampler_excluded_flag",
+            "type": "bool",
+            "default": "false",
+            "nullable": "NO"
+          },
+          {
+            "name": "public_price_amount",
+            "type": "numeric",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "manual_override_amount",
+            "type": "numeric",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "review_status",
+            "type": "text",
+            "default": "'not_reviewed'::text",
+            "nullable": "NO"
+          },
+          {
+            "name": "price_status",
+            "type": "text",
+            "default": "'draft'::text",
+            "nullable": "NO"
+          },
+          {
+            "name": "notes",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz",
+            "default": "now()",
+            "nullable": "NO"
+          },
+          {
+            "name": "updated_at",
+            "type": "timestamptz",
+            "default": "now()",
+            "nullable": "NO"
+          }
+        ]
+      },
+      {
+        "name": "feya_growth_execution_requests_v1",
+        "columns": [
+          {
+            "name": "execution_request_id",
+            "type": "uuid",
+            "default": "gen_random_uuid()",
+            "nullable": "NO"
+          },
+          {
+            "name": "request_code",
+            "type": "text",
+            "default": null,
+            "nullable": "NO"
+          },
+          {
+            "name": "action_code",
+            "type": "text",
+            "default": null,
+            "nullable": "NO"
+          },
+          {
+            "name": "action_capability_version",
+            "type": "int4",
+            "default": null,
+            "nullable": "NO"
+          },
+          {
+            "name": "action_class",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "executor_type",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "approval_class",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "request_status",
+            "type": "text",
+            "default": null,
+            "nullable": "NO"
+          },
+          {
+            "name": "request_hash",
+            "type": "text",
+            "default": null,
+            "nullable": "NO"
+          },
+          {
+            "name": "approval_hash",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "mutation_domain",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "target_scope_json",
+            "type": "jsonb",
+            "default": "'{}'::jsonb",
+            "nullable": "NO"
+          },
+          {
+            "name": "target_version_refs_json",
+            "type": "jsonb",
+            "default": "'{}'::jsonb",
+            "nullable": "NO"
+          },
+          {
+            "name": "request_payload_json",
+            "type": "jsonb",
+            "default": "'{}'::jsonb",
+            "nullable": "NO"
+          },
+          {
+            "name": "rollback_plan_json",
+            "type": "jsonb",
+            "default": "'{}'::jsonb",
+            "nullable": "NO"
+          },
+          {
+            "name": "postflight_check_json",
+            "type": "jsonb",
+            "default": "'{}'::jsonb",
+            "nullable": "NO"
+          },
+          {
+            "name": "requested_by_type",
+            "type": "text",
+            "default": null,
+            "nullable": "NO"
+          },
+          {
+            "name": "requested_by_user_id",
+            "type": "uuid",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "approved_by_user_id",
+            "type": "uuid",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "approval_reason",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "approved_at",
+            "type": "timestamptz",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "idempotency_key",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz",
+            "default": "now()",
+            "nullable": "NO"
+          },
+          {
+            "name": "updated_at",
+            "type": "timestamptz",
+            "default": "now()",
+            "nullable": "NO"
+          }
+        ]
+      },
+      {
+        "name": "feya_commerce_v_growth_action_capability_safe_v1",
+        "columns": [
+          {
+            "name": "action_code",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "action_name",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "owner_role",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "action_state",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "implementation_state",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "public_summary",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "limitations_summary",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "action_class",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "executor_type",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "approval_class",
+            "type": "text",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "production_mutation",
+            "type": "bool",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "dry_run_default",
+            "type": "bool",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "version_no",
+            "type": "int4",
+            "default": null,
+            "nullable": "YES"
+          },
+          {
+            "name": "updated_at",
+            "type": "timestamptz",
+            "default": null,
+            "nullable": "YES"
+          }
+        ]
+      }
+    ],
+    "constraints": [
+      {
+        "name": "feya_commerce_sellable_config_canonical_product_id_normaliz_key",
+        "table": "feya_commerce_sellable_configurations",
+        "definition": "UNIQUE (canonical_product_id, normalized_key)"
+      },
+      {
+        "name": "feya_commerce_sellable_configurations_canonical_product_id_fkey",
+        "table": "feya_commerce_sellable_configurations",
+        "definition": "FOREIGN KEY (canonical_product_id) REFERENCES feya_commerce_product_drafts(canonical_product_id)"
+      },
+      {
+        "name": "feya_commerce_sellable_configurations_component_family_id_fkey",
+        "table": "feya_commerce_sellable_configurations",
+        "definition": "FOREIGN KEY (component_family_id) REFERENCES feya_commerce_component_families(component_family_id)"
+      },
+      {
+        "name": "feya_commerce_sellable_configurations_option_mapping_id_fkey",
+        "table": "feya_commerce_sellable_configurations",
+        "definition": "FOREIGN KEY (option_mapping_id) REFERENCES feya_commerce_option_mappings(option_mapping_id)"
+      },
+      {
+        "name": "feya_commerce_sellable_configurations_pkey",
+        "table": "feya_commerce_sellable_configurations",
+        "definition": "PRIMARY KEY (sellable_configuration_id)"
+      },
+      {
+        "name": "feya_commerce_configuration_pric_sellable_configuration_id_fkey",
+        "table": "feya_commerce_configuration_prices",
+        "definition": "FOREIGN KEY (sellable_configuration_id) REFERENCES feya_commerce_sellable_configurations(sellable_configuration_id)"
+      },
+      {
+        "name": "feya_commerce_configuration_prices_amounts_chk",
+        "table": "feya_commerce_configuration_prices",
+        "definition": "CHECK ((((source_amount IS NULL) OR (source_amount >= (0)::numeric)) AND ((public_price_amount IS NULL) OR (public_price_amount >= (0)::numeric)) AND ((manual_override_amount IS NULL) OR (manual_override_amount >= (0)::numeric))))"
+      },
+      {
+        "name": "feya_commerce_configuration_prices_canonical_product_id_fkey",
+        "table": "feya_commerce_configuration_prices",
+        "definition": "FOREIGN KEY (canonical_product_id) REFERENCES feya_commerce_product_drafts(canonical_product_id)"
+      },
+      {
+        "name": "feya_commerce_configuration_prices_confidence_chk",
+        "table": "feya_commerce_configuration_prices",
+        "definition": "CHECK (((confidence IS NULL) OR ((confidence >= (0)::numeric) AND (confidence <= (100)::numeric))))"
+      },
+      {
+        "name": "feya_commerce_configuration_prices_option_mapping_id_fkey",
+        "table": "feya_commerce_configuration_prices",
+        "definition": "FOREIGN KEY (option_mapping_id) REFERENCES feya_commerce_option_mappings(option_mapping_id)"
+      },
+      {
+        "name": "feya_commerce_configuration_prices_pkey",
+        "table": "feya_commerce_configuration_prices",
+        "definition": "PRIMARY KEY (configuration_price_id)"
+      },
+      {
+        "name": "feya_commerce_configuration_prices_source_price_row_id_fkey",
+        "table": "feya_commerce_configuration_prices",
+        "definition": "FOREIGN KEY (source_price_row_id) REFERENCES feya_commerce_source_price_rows(source_price_row_id)"
+      },
+      {
+        "name": "feya_execution_request_requester_chk",
+        "table": "feya_growth_execution_requests_v1",
+        "definition": "CHECK ((requested_by_type = ANY (ARRAY['human'::text, 'agent'::text, 'system'::text])))"
+      },
+      {
+        "name": "feya_execution_request_status_chk",
+        "table": "feya_growth_execution_requests_v1",
+        "definition": "CHECK ((request_status = ANY (ARRAY['APPROVAL_REQUIRED'::text, 'APPROVED'::text, 'EXECUTING'::text, 'SUCCEEDED'::text, 'FAILED'::text, 'CANCELLED'::text, 'STALE'::text, 'ROLLED_BACK'::text])))"
+      },
+      {
+        "name": "feya_growth_execution_requests_v1_approved_by_user_id_fkey",
+        "table": "feya_growth_execution_requests_v1",
+        "definition": "FOREIGN KEY (approved_by_user_id) REFERENCES auth.users(id) ON DELETE SET NULL"
+      },
+      {
+        "name": "feya_growth_execution_requests_v1_pkey",
+        "table": "feya_growth_execution_requests_v1",
+        "definition": "PRIMARY KEY (execution_request_id)"
+      },
+      {
+        "name": "feya_growth_execution_requests_v1_request_code_key",
+        "table": "feya_growth_execution_requests_v1",
+        "definition": "UNIQUE (request_code)"
+      },
+      {
+        "name": "feya_growth_execution_requests_v1_requested_by_user_id_fkey",
+        "table": "feya_growth_execution_requests_v1",
+        "definition": "FOREIGN KEY (requested_by_user_id) REFERENCES auth.users(id) ON DELETE SET NULL"
+      },
+      {
+        "name": "feya_change_event_domain_chk",
+        "table": "feya_growth_change_events_v1",
+        "definition": "CHECK ((change_domain = ANY (ARRAY['CONTENT'::text, 'SEO_PORTFOLIO'::text, 'TECHNICAL_SEO'::text, 'PRICE'::text, 'OFFER'::text, 'MEDIA'::text, 'COMMERCE'::text, 'POLICY'::text, 'MEASUREMENT'::text, 'INCIDENT'::text, 'MANUAL_OTHER'::text])))"
+      },
+      {
+        "name": "feya_change_event_source_chk",
+        "table": "feya_growth_change_events_v1",
+        "definition": "CHECK ((source_type = ANY (ARRAY['human'::text, 'agent'::text, 'system'::text, 'external'::text])))"
+      },
+      {
+        "name": "feya_growth_change_events_v1_case_id_fkey",
+        "table": "feya_growth_change_events_v1",
+        "definition": "FOREIGN KEY (case_id) REFERENCES feya_growth_cases_v1(case_id) ON DELETE SET NULL"
+      },
+      {
+        "name": "feya_growth_change_events_v1_event_code_key",
+        "table": "feya_growth_change_events_v1",
+        "definition": "UNIQUE (event_code)"
+      },
+      {
+        "name": "feya_growth_change_events_v1_execution_request_id_fkey",
+        "table": "feya_growth_change_events_v1",
+        "definition": "FOREIGN KEY (execution_request_id) REFERENCES feya_growth_execution_requests_v1(execution_request_id) ON DELETE SET NULL"
+      },
+      {
+        "name": "feya_growth_change_events_v1_incident_id_fkey",
+        "table": "feya_growth_change_events_v1",
+        "definition": "FOREIGN KEY (incident_id) REFERENCES feya_growth_incidents_v1(incident_id) ON DELETE SET NULL"
+      },
+      {
+        "name": "feya_growth_change_events_v1_pkey",
+        "table": "feya_growth_change_events_v1",
+        "definition": "PRIMARY KEY (change_event_id)"
+      }
+    ],
+    "server_version": "17.6"
+  },
+  "schema_query": "select jsonb_build_object(\n'server_version',current_setting('server_version'),\n'tables',(select jsonb_agg(jsonb_build_object('name',t.table_name,'columns',(select jsonb_agg(jsonb_build_object('name',c.column_name,'type',c.udt_name,'nullable',c.is_nullable,'default',c.column_default) order by c.ordinal_position) from information_schema.columns c where c.table_schema='public' and c.table_name=t.table_name))) from information_schema.tables t where t.table_schema='public' and (t.table_name in ('feya_commerce_product_drafts','feya_commerce_sellable_configurations','feya_commerce_configuration_prices','feya_growth_execution_requests_v1','feya_growth_change_events_v1') or t.table_name ilike '%action_capab%' or t.table_name ilike '%owner%user%')),\n'constraints',(select jsonb_agg(jsonb_build_object('table',c.conrelid::regclass::text,'name',c.conname,'definition',pg_get_constraintdef(c.oid))) from pg_constraint c where c.conrelid in ('public.feya_growth_execution_requests_v1'::regclass,'public.feya_growth_change_events_v1'::regclass,'public.feya_commerce_configuration_prices'::regclass,'public.feya_commerce_sellable_configurations'::regclass))\n) as audit",
+  "registry": {
+    "guard_names": [
+      {
+        "args": "p_action_code text, p_mutation_domain text, p_target_scope_json jsonb, p_target_version_refs_json jsonb, p_request_payload_json jsonb, p_rollback_plan_json jsonb, p_postflight_check_json jsonb, p_requested_by_type text, p_requested_by_user_id uuid DEFAULT NULL::uuid, p_idempotency_key text DEFAULT NULL::text",
+        "name": "feya_fn_create_execution_request_v1"
+      },
+      {
+        "args": "p_execution_request_id uuid, p_expected_status text, p_human_user_id uuid, p_approval_reason text",
+        "name": "feya_fn_approve_execution_request_v1"
+      },
+      {
+        "args": "",
+        "name": "feya_fn_guard_execution_request_material_v1"
+      },
+      {
+        "args": "p_row feya_growth_execution_requests_v1",
+        "name": "feya_fn_execution_request_material_json_v1"
+      },
+      {
+        "args": "p_execution_request_id uuid, p_expected_status text, p_reason text, p_human_user_id uuid, p_idempotency_key text",
+        "name": "feya_fn_owner_approve_execution_request_v1"
+      }
+    ],
+    "price_states": [
+      {
+        "count": 17,
+        "price_status": "missing_price",
+        "review_status": "needs_review"
+      },
+      {
+        "count": 2,
+        "price_status": "excluded",
+        "review_status": "needs_review"
+      },
+      {
+        "count": 1072,
+        "price_status": "draft",
+        "review_status": "not_reviewed"
+      },
+      {
+        "count": 5,
+        "price_status": "approved",
+        "review_status": "approved"
+      },
+      {
+        "count": 1,
+        "price_status": "owner_reviewed",
+        "review_status": "approved"
+      },
+      {
+        "count": 73,
+        "price_status": "draft",
+        "review_status": "needs_review"
+      }
+    ],
+    "registry_columns": [
+      {
+        "name": "registry_item_id",
+        "type": "uuid",
+        "default": "gen_random_uuid()",
+        "nullable": "NO"
+      },
+      {
+        "name": "registry_type",
+        "type": "text",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "name": "item_code",
+        "type": "text",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "name": "item_name",
+        "type": "text",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "name": "owner_role",
+        "type": "text",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "name": "item_state",
+        "type": "text",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "name": "implementation_state",
+        "type": "text",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "name": "public_summary",
+        "type": "text",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "name": "limitations_summary",
+        "type": "text",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "name": "config_json",
+        "type": "jsonb",
+        "default": "'{}'::jsonb",
+        "nullable": "NO"
+      },
+      {
+        "name": "evidence_json",
+        "type": "jsonb",
+        "default": "'{}'::jsonb",
+        "nullable": "NO"
+      },
+      {
+        "name": "version_no",
+        "type": "int4",
+        "default": "1",
+        "nullable": "NO"
+      },
+      {
+        "name": "active_flag",
+        "type": "bool",
+        "default": "true",
+        "nullable": "NO"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "default": "now()",
+        "nullable": "NO"
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamptz",
+        "default": "now()",
+        "nullable": "NO"
+      }
+    ],
+    "registry_constraints": [
+      "UNIQUE (registry_type, item_code, version_no)",
+      "PRIMARY KEY (registry_item_id)",
+      "CHECK ((version_no > 0))",
+      "CHECK ((item_state = ANY (ARRAY['AVAILABLE'::text, 'AVAILABLE_WITH_LIMITATIONS'::text, 'DEGRADED'::text, 'UNAVAILABLE'::text, 'NOT_OBSERVABLE'::text])))",
+      "CHECK ((registry_type = ANY (ARRAY['capability'::text, 'metric'::text, 'policy'::text, 'template'::text, 'action_capability'::text, 'source_of_truth'::text])))"
+    ]
+  },
+  "registry_query": "select jsonb_build_object(\n'registry_columns',(select jsonb_agg(jsonb_build_object('name',column_name,'type',udt_name,'nullable',is_nullable,'default',column_default) order by ordinal_position) from information_schema.columns where table_schema='public' and table_name='feya_growth_registry_items_v1'),\n'registry_constraints',(select jsonb_agg(pg_get_constraintdef(oid)) from pg_constraint where conrelid='public.feya_growth_registry_items_v1'::regclass),\n'price_states',(select jsonb_agg(s) from (select review_status,price_status,count(*) count from public.feya_commerce_configuration_prices group by review_status,price_status) s),\n'guard_names',(select jsonb_agg(jsonb_build_object('name',p.proname,'args',pg_get_function_arguments(p.oid))) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and (p.proname ilike '%execution%request%' or p.proname ilike '%owner%actor%' or p.proname ilike '%assert%owner%'))\n) audit",
+  "canonical_functions": [
+    {
+      "proname": "feya_commerce_set_updated_at",
+      "definition": "CREATE OR REPLACE FUNCTION public.feya_commerce_set_updated_at()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nbegin\n  new.updated_at = now();\n  return new;\nend;\n$function$\n"
+    },
+    {
+      "proname": "feya_fn_approve_execution_request_v1",
+      "definition": "CREATE OR REPLACE FUNCTION public.feya_fn_approve_execution_request_v1(p_execution_request_id uuid, p_expected_status text, p_human_user_id uuid, p_approval_reason text)\n RETURNS TABLE(execution_request_id uuid, request_status text, approval_hash text, approved_at timestamp with time zone)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\ndeclare\n  v_row public.feya_growth_execution_requests_v1%rowtype;\n  v_now timestamptz := now();\nbegin\n  if p_human_user_id is null then\n    raise exception 'Human user id is required for execution approval';\n  end if;\n\n  if nullif(btrim(coalesce(p_approval_reason,'')),'') is null then\n    raise exception 'Approval reason is required';\n  end if;\n\n  select *\n    into v_row\n  from public.feya_growth_execution_requests_v1 e\n  where e.execution_request_id=p_execution_request_id\n  for update;\n\n  if not found then\n    raise exception 'Execution request not found: %',p_execution_request_id;\n  end if;\n\n  if v_row.request_status <> p_expected_status then\n    raise exception 'Stale execution request status: expected %, current %',\n      p_expected_status,v_row.request_status;\n  end if;\n\n  if v_row.request_status <> 'APPROVAL_REQUIRED' then\n    raise exception 'Execution request status % does not require approval',v_row.request_status;\n  end if;\n\n  update public.feya_growth_execution_requests_v1 e\n  set request_status='APPROVED',\n      approval_hash=v_row.request_hash,\n      approved_by_user_id=p_human_user_id,\n      approval_reason=p_approval_reason,\n      approved_at=v_now,\n      updated_at=v_now\n  where e.execution_request_id=p_execution_request_id;\n\n  return query\n  select p_execution_request_id,'APPROVED'::text,v_row.request_hash,v_now;\nend;\n$function$\n"
+    },
+    {
+      "proname": "feya_fn_create_execution_request_v1",
+      "definition": "CREATE OR REPLACE FUNCTION public.feya_fn_create_execution_request_v1(p_action_code text, p_mutation_domain text, p_target_scope_json jsonb, p_target_version_refs_json jsonb, p_request_payload_json jsonb, p_rollback_plan_json jsonb, p_postflight_check_json jsonb, p_requested_by_type text, p_requested_by_user_id uuid DEFAULT NULL::uuid, p_idempotency_key text DEFAULT NULL::text)\n RETURNS TABLE(execution_request_id uuid, request_code text, created_new boolean, request_status text, request_hash text)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\ndeclare\n  v_action public.feya_growth_registry_items_v1%rowtype;\n  v_existing public.feya_growth_execution_requests_v1%rowtype;\n  v_row public.feya_growth_execution_requests_v1%rowtype;\n  v_code text;\n  v_status text;\n  v_requires_material_guard boolean := false;\n  v_dry_run boolean := false;\n  v_material jsonb;\n  v_hash text;\nbegin\n  if p_requested_by_type not in ('human','agent','system') then\n    raise exception 'Unsupported requester type: %',p_requested_by_type;\n  end if;\n\n  if nullif(btrim(coalesce(p_action_code,'')),'') is null then\n    raise exception 'Action code is required';\n  end if;\n\n  select *\n    into v_action\n  from public.feya_growth_registry_items_v1 r\n  where r.registry_type='action_capability'\n    and r.item_code=p_action_code\n    and r.active_flag=true\n  order by r.version_no desc\n  limit 1;\n\n  if not found then\n    raise exception 'Active Action Capability not found: %',p_action_code;\n  end if;\n\n  if v_action.item_state='UNAVAILABLE' then\n    raise exception 'Action Capability % is unavailable',p_action_code;\n  end if;\n\n  v_requires_material_guard :=\n    coalesce((v_action.config_json ->> 'production_mutation')::boolean,false)\n    or coalesce((v_action.config_json ->> 'canonical_seo_mutation')::boolean,false)\n    or coalesce((v_action.config_json ->> 'security_mutation')::boolean,false)\n    or coalesce((v_action.config_json ->> 'indexation_mutation')::boolean,false);\n\n  v_dry_run := coalesce(\n    nullif(p_request_payload_json ->> 'dry_run','')::boolean,\n    nullif(p_request_payload_json ->> 'dryRun','')::boolean,\n    false\n  );\n\n  if v_requires_material_guard then\n    if nullif(btrim(coalesce(p_mutation_domain,'')),'') is null then\n      raise exception 'Mutation domain is required for mutating action %',p_action_code;\n    end if;\n\n    if coalesce(p_target_version_refs_json,'{}'::jsonb)='{}'::jsonb then\n      raise exception 'Target version references are required for mutating action %',p_action_code;\n    end if;\n\n    if coalesce(p_rollback_plan_json,'{}'::jsonb)='{}'::jsonb then\n      raise exception 'Rollback plan is required for mutating action %',p_action_code;\n    end if;\n  end if;\n\n  if p_idempotency_key is not null then\n    select *\n      into v_existing\n    from public.feya_growth_execution_requests_v1 e\n    where e.idempotency_key=p_idempotency_key\n    limit 1;\n\n    if found then\n      return query\n      select v_existing.execution_request_id,v_existing.request_code,false,\n             v_existing.request_status,v_existing.request_hash;\n      return;\n    end if;\n  end if;\n\n  v_status := case\n    when v_action.config_json ->> 'approval_class' in ('NONE','NONE_FOR_ANALYSIS') then 'APPROVED'\n    when v_action.config_json ->> 'approval_class'='NONE_FOR_DRY_RUN' and v_dry_run then 'APPROVED'\n    else 'APPROVAL_REQUIRED'\n  end;\n\n  v_code := 'EXE-' || to_char(clock_timestamp(),'YYYYMMDD-HH24MISS') || '-' ||\n            upper(substr(replace(gen_random_uuid()::text,'-',''),1,6));\n\n  insert into public.feya_growth_execution_requests_v1 (\n    request_code,action_code,action_capability_version,\n    action_class,executor_type,approval_class,request_status,\n    request_hash,mutation_domain,target_scope_json,target_version_refs_json,\n    request_payload_json,rollback_plan_json,postflight_check_json,\n    requested_by_type,requested_by_user_id,idempotency_key\n  )\n  values (\n    v_code,p_action_code,v_action.version_no,\n    v_action.config_json ->> 'action_class',\n    v_action.config_json ->> 'executor_type',\n    v_action.config_json ->> 'approval_class',\n    v_status,'PENDING',\n    nullif(upper(btrim(p_mutation_domain)),''),\n    coalesce(p_target_scope_json,'{}'::jsonb),\n    coalesce(p_target_version_refs_json,'{}'::jsonb),\n    coalesce(p_request_payload_json,'{}'::jsonb),\n    coalesce(p_rollback_plan_json,'{}'::jsonb),\n    coalesce(p_postflight_check_json,'{}'::jsonb),\n    p_requested_by_type,p_requested_by_user_id,p_idempotency_key\n  )\n  returning * into v_row;\n\n  v_material := public.feya_fn_execution_request_material_json_v1(v_row);\n  v_hash := encode(\n    extensions.digest(convert_to(v_material::text,'UTF8'),'sha256'),\n    'hex'\n  );\n\n  update public.feya_growth_execution_requests_v1 e\n  set request_hash=v_hash,\n      approval_hash=case when v_status='APPROVED' then v_hash else null end,\n      approved_at=case when v_status='APPROVED' then now() else null end,\n      updated_at=now()\n  where e.execution_request_id=v_row.execution_request_id\n  returning * into v_row;\n\n  return query\n  select v_row.execution_request_id,v_row.request_code,true,\n         v_row.request_status,v_row.request_hash;\nend;\n$function$\n"
+    }
+  ]
+}

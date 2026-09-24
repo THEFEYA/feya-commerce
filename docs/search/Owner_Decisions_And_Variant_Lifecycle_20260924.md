@@ -1,5 +1,7 @@
 # FEYA — ответы владельца, состав выпуска и изменения вариантов
 
+> C4.1 update, 24.09: серверный draft writer и additive migration реализованы; детали и доказательства — `Variant_Draft_Writer_20260924.md`, точный head CI — верхний checkpoint PR №26. Новые варианты сохраняются только как draft/retired, цены — unverified/range. Save не подтверждает price evidence и не меняет source prices. UI save/reload — следующий C4.2; production OFF. Нижние формулировки «будущий writer» относятся к исходному плану, утверждение цены — к отдельному C4.3.
+
 24 сентября 2026. Продолжение C1/C4; draft PR №26. Авторитет фактов — ответ владельца на пять карточек из `Owner_Product_Questions_20260924.md`. Машиночитаемые решения и точные source bindings: `owner-product-decisions-20260924.json`. Это подготовленный пакет: production DB не менялась, storefront release, redirects, оплата и индексация не активированы.
 
 ## Решения по пяти карточкам
