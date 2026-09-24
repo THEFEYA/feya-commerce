@@ -14,7 +14,7 @@
     },
     {
       "path": "lib/storefrontReconciledOfferCorrections.ts",
-      "sha256": "b30e415f782be19d96da3f2762210fd9e72c1b7fae0bb1837deada3bc8cdc34a"
+      "sha256": "b153065d90eba46d3c7b147859def17b48e5760ffd594b99a70d50aa9c084baf"
     },
     {
       "path": "lib/searchInventorySelection.ts",
@@ -55,8 +55,8 @@
     "pdp_paths_consistent": true
   },
   "offer_counts": {
-    "ready": 222,
-    "hold": 21
+    "ready": 223,
+    "hold": 20
   },
   "offer_ready_meaning": "Current selector composition resolves; not owner-approved publication, price verification, orderability or distinct-design depth.",
   "raw_truth_blocked_products": 230,
@@ -127,8 +127,8 @@
       "source_sha256": "c947912c945666581017ba00905bc7e76bbd9f985e9fac7d14dd3bfd320124c2",
       "selection_counts": {
         "match": 65,
-        "no_match": 157,
-        "unknown": 21
+        "no_match": 158,
+        "unknown": 20
       },
       "matched_product_count": 65,
       "confirmed_orderable_product_count": null,
@@ -155,7 +155,7 @@
             "437e08e1-7d01-4b39-9c8e-98f7fc2349d5"
           ],
           "evidence_refs": [
-            "observed_sha256:4d054fae135cf89b792ba4fb809b9459283dfec79e41e156c97fb687bb0595a9"
+            "observed_sha256:31661de46cab8cfe461745155b9122ed65447e9629a7097260e1162deca242d6"
           ],
           "can_publish": false,
           "can_index": false,
@@ -171,7 +171,7 @@
             "2ab597f1-2c02-46fa-a5b4-c0e8c7bc47c7"
           ],
           "evidence_refs": [
-            "observed_sha256:e743f44b69e2d8669071e4789f9d95e74c98017a6f1ebcc3104118026603d129"
+            "observed_sha256:8d2d45be0f6beb424854da41ee2caf5356f184bf93ae3a74ce9aaf4c0d33081c"
           ],
           "can_publish": false,
           "can_index": false,
@@ -199,7 +199,7 @@
             "9e41c08f-c1e2-46cb-91b0-830ee248f8df"
           ],
           "evidence_refs": [
-            "observed_sha256:91f155f71d358c289fe39564a365784653b83e778ad749b940567ef6a014d010"
+            "observed_sha256:014fd4b9785ccdde5ed18eb4a74d152066b394f81ac4339237803cadf77c4dfe"
           ],
           "can_publish": false,
           "can_index": false,
@@ -215,7 +215,7 @@
             "a12ae538-a512-4e83-9379-0eeeeaaeb936"
           ],
           "evidence_refs": [
-            "observed_sha256:8712a230af12513c672239ef31e52398523916b4e782734702abf11c2cf38c67"
+            "observed_sha256:fab36514265a70e51aee20c826f399f53398f5094e872023cb8eae972ae23a05"
           ],
           "can_publish": false,
           "can_index": false,
@@ -267,7 +267,7 @@
             "f9a98c8f-a746-4541-9713-d65a2042d4c4"
           ],
           "evidence_refs": [
-            "observed_sha256:43154a12fb393090259a7881e775491084bdf48560aca2d4b7cc6e4c29d5e193"
+            "observed_sha256:032dcad07ca2dd0155796fa003f3825ac8dc16fec702e8f92a11344239639191"
           ],
           "can_publish": false,
           "can_index": false,
@@ -307,7 +307,7 @@
             "65c6956d-3a4d-4fb7-9085-9ca784a6da2a"
           ],
           "evidence_refs": [
-            "observed_sha256:b4d575e6dfdbbb1070aa7819dfbb74be0e0422884307b228a4abb05636074a04"
+            "observed_sha256:04f9b36766e9a1c40e586962017d1e07cc81e23a56af456abdb0b9cdf462936c"
           ],
           "can_publish": false,
           "can_index": false,
@@ -323,7 +323,7 @@
             "04499dde-3d4a-4e29-ba94-036f1fa7ddc7"
           ],
           "evidence_refs": [
-            "observed_sha256:bceeee576d8fc33ee7c2b88a15c590f8351501d8a70b19c3ed3799adbc9b69b3"
+            "observed_sha256:dfd241b6d59b92f99e71e4c5f14d77c2da81175c179c32a79456188688996b16"
           ],
           "can_publish": false,
           "can_index": false,
@@ -394,7 +394,7 @@
             "c41dabf6-e767-46c8-a92e-f24423947e62"
           ],
           "evidence_refs": [
-            "observed_sha256:ae77081c183550433b21933dbc2716c426b968270d7d0ca19390565f399c8352"
+            "observed_sha256:ea9b3c8624d9be0df08369f4c730e1e52bbf0b6ae207006656e4708d1ddf5575"
           ],
           "can_publish": false,
           "can_index": false,
@@ -434,7 +434,7 @@
             "fdb204ca-20b5-4f6e-882b-a4c623f1a5c3"
           ],
           "evidence_refs": [
-            "observed_sha256:349c95e94915ca1c76344619d0502a7c105ab2631d77f138614609bbaf57058b"
+            "observed_sha256:7aedd5d5b744774af7946a1f54ce04bf9d166c877babef85d6d26b10f4fd897a"
           ],
           "can_publish": false,
           "can_index": false,
@@ -578,7 +578,7 @@
             "8d4e5f53-2154-426d-93d0-539b8685634a"
           ],
           "evidence_refs": [
-            "observed_sha256:228c509bf548aa5c0e445f3a2554fc05e69ee598115ec7735c50e040d22342bb"
+            "observed_sha256:e67b432165d5a16e65ee83b21c7c1d3d46245d817a1ae499d8a4377dc7051f5a"
           ],
           "can_publish": false,
           "can_index": false,
@@ -594,7 +594,7 @@
             "af1846ee-7a12-4796-b037-ded61847df01"
           ],
           "evidence_refs": [
-            "observed_sha256:6464f35c4f33877817d716a3bd45b772e07aef2a446bcb44bb1ec583fbbe119b"
+            "observed_sha256:824fa609f35adfe3dc80e543bcea3222106745a065722ae9fdf8bc4b507dca5f"
           ],
           "can_publish": false,
           "can_index": false,
@@ -610,7 +610,7 @@
             "7fa8495d-e2f9-408a-82c8-fdbdf51920fd"
           ],
           "evidence_refs": [
-            "observed_sha256:9a1d78f6b3030b12c0d8206ce7cd46e9147ab2ded9f876a2b79e7fb9d8d83ae7"
+            "observed_sha256:af5be07947e0211a6da61e139277dcc1229260ecd6581fda89f7c5157fd07a9d"
           ],
           "can_publish": false,
           "can_index": false,
@@ -626,7 +626,7 @@
             "2ec11b3c-c4a9-4e26-9274-15e551078ad9"
           ],
           "evidence_refs": [
-            "observed_sha256:66100c23d5dbd5fdb973e48410762167fa4907f1192226bad97f014440008053"
+            "observed_sha256:e4497b652227ae7198a8f02299b12c1994502656a8802791bcd4a4d4732eb22b"
           ],
           "can_publish": false,
           "can_index": false,
@@ -654,7 +654,7 @@
             "dcb90a35-4f84-4ac9-8266-95d378b0daec"
           ],
           "evidence_refs": [
-            "observed_sha256:5c9801ffe99335a0d93c1ed8e5fd4fbf98fc7f84385f2c064275ea4cf21809bf"
+            "observed_sha256:c4ddb296d77df0eb2aaa00adc74f203c9944c74c99f47a6f04edb7fcbb17e04f"
           ],
           "can_publish": false,
           "can_index": false,
@@ -702,7 +702,7 @@
             "e207818e-a7fe-46f1-9b6f-2a127e35f8b3"
           ],
           "evidence_refs": [
-            "observed_sha256:96141388dbbf657f72324ecebeb34b73234cbf06e6a4b44835b4822305995eb7"
+            "observed_sha256:49bac64d38fb9c64b40251d05b472dfc9c8b47da513120e46f1e48df8305b4af"
           ],
           "can_publish": false,
           "can_index": false,
@@ -730,7 +730,7 @@
             "fcb4c28d-a0ac-4631-a7bb-157475731adb"
           ],
           "evidence_refs": [
-            "observed_sha256:a6c065110084d45b34d6065dadc5abd690067df8af8a9a78ec37b54cbbe6d116"
+            "observed_sha256:d0829e3bd34ff879bc318a9c2c1d9316f070132367c309fc637a2cd86a3ca975"
           ],
           "can_publish": false,
           "can_index": false,
@@ -893,7 +893,7 @@
             "eeb82d13-6484-49ce-9284-acb0b57a50a1"
           ],
           "evidence_refs": [
-            "observed_sha256:c5fa495bc1f2b84842503310415337a08f46c4948509871d5ee79293f996b50b"
+            "observed_sha256:cd23c73b9df9c2ee92d9830302437957a413f98e662c241bc920d8332a6fce3b"
           ],
           "can_publish": false,
           "can_index": false,
@@ -965,7 +965,7 @@
             "57bb3455-5f86-48eb-be46-eec652814a79"
           ],
           "evidence_refs": [
-            "observed_sha256:561afa94fc151b36b3132fb4033c9a52c190c970dbadfb8041c195ba0b3da28a"
+            "observed_sha256:14a2fe9ecee2d5dffdab590f3f34bbee44f5443e5b2a3fec0da162248231d89b"
           ],
           "can_publish": false,
           "can_index": false,
@@ -981,7 +981,7 @@
             "e1bb8003-1889-4fe6-97db-0ce4c8da8fc6"
           ],
           "evidence_refs": [
-            "observed_sha256:d69d62c9736079c549766819505fbbcd2402da5ea6e1ad69e34af9bcf72b265a"
+            "observed_sha256:02ba19404cadbdb820b1ca7e10279b7584bd95938b1b5424b12b14d55d93bfb6"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1013,11 +1013,9 @@
         },
         {
           "canonical_product_id": "40384eea-fd82-40f4-98e7-804383c42796",
-          "state": "unknown",
+          "state": "no_match",
           "reason_codes": [
-            "aggregate_members_unknown:full_set",
-            "sellable_offer_unresolved",
-            "sellable_option_unresolved_component_identity:0"
+            "no_matching_sellable_component"
           ],
           "configuration_ids": [],
           "evidence_refs": [],
@@ -1035,7 +1033,7 @@
             "ae12904f-63bb-4a00-8985-8457b23f3be6"
           ],
           "evidence_refs": [
-            "observed_sha256:c7c3cae100bd4bea034ed3caf378951af6e98760e19be04c8681cd3655b183c1"
+            "observed_sha256:69c0675a8b2325273a3ed617f7bea91cce0fc3947360b286113a9f3797ec18bb"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1051,7 +1049,7 @@
             "17921b78-abe2-4955-9e0e-b786a7b1f295"
           ],
           "evidence_refs": [
-            "observed_sha256:f34987a041ad1493d89ba5ef2051fd835b22695833a53aee293d7d7efae275cd"
+            "observed_sha256:457e2a01972c484c67c336f5c1f9b33819c07354c06c0a3f86e9e5bd532e3800"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1079,7 +1077,7 @@
             "ffe4a60b-fb7f-41bf-b3d5-68d21e5dc0fa"
           ],
           "evidence_refs": [
-            "observed_sha256:8d29efe33cd9028947b74e0fde308d2010475309ae72841fb8207f47f6a81d7f"
+            "observed_sha256:dffefe0f85bc96e35a61a671176c2c48fea0f0c5bb009b5411b31faa00ea5c36"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1095,7 +1093,7 @@
             "cd2de4ca-778a-47b2-9110-4db3cba4dfd1"
           ],
           "evidence_refs": [
-            "observed_sha256:e8be75521999dbdc195093e6f14abfd93180d9c7fcb06dfc4a506cf5fb16fffe"
+            "observed_sha256:053accfc38a349d28340671456513abaad011f0f889ede78ac19c28a022370e4"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1279,7 +1277,7 @@
             "8148c4a0-e491-4af9-9809-d7a4bfc2c169"
           ],
           "evidence_refs": [
-            "observed_sha256:8e8ccb78f34f7f6a47dcb1824ce2d224630fbfe543825f344548d50df5034be6"
+            "observed_sha256:dae38a2e6c5b4ff5e10acac03d5db296e486dc33c55243b5cb5a4718d89cfc0f"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1295,7 +1293,7 @@
             "6c5b1ae7-297a-473d-ab94-59ef0ab56125"
           ],
           "evidence_refs": [
-            "observed_sha256:6e31043b60a0e0f7285197bea7276d322c142c2637ebce430ad9a13ce8c366c3"
+            "observed_sha256:38050dd5f34e3ae3c9781e2d0bbf460bbea00fe8ca9624b237d82a855de23561"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1434,7 +1432,7 @@
             "65cb9ce0-a9e4-4f28-bcb1-a659c733e50f"
           ],
           "evidence_refs": [
-            "observed_sha256:7c706469cd1928bf448703cb327b5f0a0392bd1e19c2197949239a95ff9126ab"
+            "observed_sha256:08b7692651cbed82fe309e959e680e1f8660ec737a6ab7ac20bae91dddef7b00"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1462,7 +1460,7 @@
             "e0ca6158-7e37-4816-a275-a9dffa59b98b"
           ],
           "evidence_refs": [
-            "observed_sha256:5da81513d22f3f5d31bd22c436ca5a8177b2e6773bb96fd9d982ff6c0cdfa233"
+            "observed_sha256:b45984365267bdbe4354f3896760a9bcb346ad9ffd37293786bb64af06bb8ad4"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1490,7 +1488,7 @@
             "d1357030-653b-4a6a-ae31-7ad6ca9d99b1"
           ],
           "evidence_refs": [
-            "observed_sha256:6e1e37e7283a3ba0ec243762d85b11b80bc3d29dc7a6e4bc7ec26481fc512d5c"
+            "observed_sha256:129b20c0cb6988e18e360958ad73a0875cbae5fc5e1c3969a091176084b34306"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1530,7 +1528,7 @@
             "552bd70d-615e-4454-b975-843ebc3ff928"
           ],
           "evidence_refs": [
-            "observed_sha256:86d4b827fda0299f41b78c6b5dfe55d1d98c80beb631b24cd81eb124c3c6ac70"
+            "observed_sha256:9bdc5cbd36dce663ca362fe599e4c833229ec4f6dc99ebab6b512a9756a35f64"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1614,7 +1612,7 @@
             "09d8e5e6-57d4-4def-8a0f-0bc56e585b69"
           ],
           "evidence_refs": [
-            "observed_sha256:ed6d8944ff3e8fb94900ea34c3ec4cf78359451a35f848a046c9ce5b52b87559"
+            "observed_sha256:f6ec4821ccdcd0d3afd454d25e6b333d1a38e58e80f5c2c8b1d1287246a6bb12"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1666,7 +1664,7 @@
             "b16c32f1-470a-499b-a429-738abd85413c"
           ],
           "evidence_refs": [
-            "observed_sha256:2339ae11846faf6953c92f0d97c5185780bd12e8bb8449222ab07ca8f2e5ce6b"
+            "observed_sha256:9fbc4ae87975cc8ea2dc0e9061d3d5eb1c48ad97c6a4d5effe7c2c9702452e63"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1770,7 +1768,7 @@
             "161a67fa-58d9-47f2-adbe-e18aad206cd1"
           ],
           "evidence_refs": [
-            "observed_sha256:7a414828817f05749d863ea1f7fad391ff463d7a57e309a137f2a19e8a79df82"
+            "observed_sha256:09bb597fdd2093c11b05e99ee880f6ec93804e359bf17fa49f6583189d5f29dc"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1830,7 +1828,7 @@
             "15aff8a7-d79e-47ac-8a63-d2de72953ebb"
           ],
           "evidence_refs": [
-            "observed_sha256:bbc7b8da980206358338a3e50e20eea4fc28a6d9f9ac10e5b5a235780234f20e"
+            "observed_sha256:bcfad1aa249bfd4a08aac4b36b5ea90059992f8a57708a88b98406993f20098f"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1858,7 +1856,7 @@
             "96ea219d-1599-472a-ab6e-0bd03b5f04ad"
           ],
           "evidence_refs": [
-            "observed_sha256:831975b887c2b92ae42ca11f566b993897a1e358dd1893a31aefc9484c6ee8e5"
+            "observed_sha256:a83495bf2c37339b7093349c81144e49adebe95d0546d99923ec0b0bd5bd6d39"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1958,7 +1956,7 @@
             "c0fcd4b1-e2fe-4823-902e-22abab90e0c7"
           ],
           "evidence_refs": [
-            "observed_sha256:853ae0277e570eb69fe65e5accd61ca5e09238d629caf6a6e014d9f1ffa68f9e"
+            "observed_sha256:62eaf7e0a6b35fe6784830a4d96a3a1ab7eec2cd69855a0f6c45a587489d5e56"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2022,7 +2020,7 @@
             "68203b9a-2420-40bf-8808-eff7a2dfd66e"
           ],
           "evidence_refs": [
-            "observed_sha256:0e15048a3dd9b1d357b15823e9ff8ecf30c7239c13afa10f224b185749cf2bb6"
+            "observed_sha256:af5351665c2fd7ee556a28772fb14999192c76029ac3a15fa95ffd5496c5287c"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2038,7 +2036,7 @@
             "2dfdd6fd-9e1b-4a6c-8238-fc887d8318ba"
           ],
           "evidence_refs": [
-            "observed_sha256:a8e7b024235aa651628773a1edc981a9fd11757560baa966d107166136fc6442"
+            "observed_sha256:060477f5316c03bd8ce8a5dc05afe98a9ce2060f630a6f2ca7ae285d62a21fcd"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2098,7 +2096,7 @@
             "38366d5b-9424-48f3-b9d7-65116841bcaf"
           ],
           "evidence_refs": [
-            "observed_sha256:2fc73157fdd6c4f4062d13335a7521968c702fe1ddbe88926498c633ebc1dcec"
+            "observed_sha256:b447224d2d8104d6088838bf86d994dcdae4899541dcaa5a66ffcba981e09b65"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2126,7 +2124,7 @@
             "5b24e14c-94d7-427c-9cbe-9d4640da6537"
           ],
           "evidence_refs": [
-            "observed_sha256:a28fe2e2fc8d53fc0d5592ed45c2fae6eb7b623271574a32c089055d44e6e000"
+            "observed_sha256:09035eae699ceb2de85b956ec643bc1bd833ff36b922fe15e54f5185ffa9390d"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2166,7 +2164,7 @@
             "0058ef0e-3c50-45b6-ba62-33b23b8c87a7"
           ],
           "evidence_refs": [
-            "observed_sha256:4a5d4e166d750af4ff91c5f0f57c75d8da862e81336a29284b7b318e33d67fa7"
+            "observed_sha256:e3f7ed4f54a873e60804699ed8cdf937f214971d8138da2d06b3f4fa56dc9464"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2230,7 +2228,7 @@
             "fe58da32-305d-430a-9716-011ada8d0e11"
           ],
           "evidence_refs": [
-            "observed_sha256:69ac71d1bf20c3a93efc21d659e21bfa766a60b53aaf4f33e33c4a4b475591b2"
+            "observed_sha256:03e0a058a4947a934e09828154fdb6a0d82a95b915e0b9a54a7e65da555fc40e"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2295,7 +2293,7 @@
             "84941441-d77e-41c9-bed9-94611553a975"
           ],
           "evidence_refs": [
-            "observed_sha256:57e28802114390171e0a0fd2d2588c8f4779d439c2104151066eb91877c13a16"
+            "observed_sha256:30de3f5c88225033304dc19ab6b402de84a0b2ed74e3a60aecd1a966cf5d9bd8"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2359,7 +2357,7 @@
             "332be292-7cae-41ac-9ae0-6fbfaf0a0c27"
           ],
           "evidence_refs": [
-            "observed_sha256:5912a74c570858c4dfae49da5dc7ab1e6d00fcae00cf9d97af7811fb576e4777"
+            "observed_sha256:136270db8c8cade2d57a3b1c56f4b1e6e8145843aa44b55cc80f629ff079dd4e"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2375,7 +2373,7 @@
             "6d81f3ba-d45e-40f4-8843-e12f7ee5f050"
           ],
           "evidence_refs": [
-            "observed_sha256:4582155510a484843ebc89ae5559dfef9ece99ec9f2203347819b930b9c8d791"
+            "observed_sha256:5f6d3407875d634ea382e0fccde1ab92270eeb1f03d609b5ae68f695b4193344"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2391,7 +2389,7 @@
             "2d7ae103-2aec-4113-9fe1-e6282f3f3a32"
           ],
           "evidence_refs": [
-            "observed_sha256:3a01d11ded1aa3b1083bd46e1aab56fdc3df48a9c5b7f1c38d80272257335518"
+            "observed_sha256:3a583b612adce7b957262ff31992d44267db3319a8b1590e002e876df1e4b503"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2455,7 +2453,7 @@
             "c87bd722-bebd-4368-a113-9e06aaab3009"
           ],
           "evidence_refs": [
-            "observed_sha256:259c662e77eae1e8e2b4aabd9ba464adf0eb9bc3b5fb946e43abb96a6910cebe"
+            "observed_sha256:bdbfc5b34e02ec52b99c990660af24da0ac00df3d60cc34287becb104de500a7"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2471,7 +2469,7 @@
             "735dc61f-3fe1-4a5a-8d9a-d30f6578b332"
           ],
           "evidence_refs": [
-            "observed_sha256:e909f0a9a5fe1368a80670c914e20dd7503a2fd9f24bca53d4719d976870f293"
+            "observed_sha256:3c6c3f15c5b9718e9fb3fa7df8e04ffa7f3d6d0fed4a3b6d6cc27e17808cae5d"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2559,7 +2557,7 @@
             "e026594b-3a4d-4b7f-9fc0-b1a4376ff9b4"
           ],
           "evidence_refs": [
-            "observed_sha256:3abfc716af10d5d2d61b421a5e68660ce8e707f875a6b44811f98d54608579d1"
+            "observed_sha256:a193880597dbaca776f355f15b48f5aa3e3c65bd38bf395019421b121481b1f7"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2576,7 +2574,7 @@
             "c1c6a9e3-e86d-4306-83a0-0fe06392d31f"
           ],
           "evidence_refs": [
-            "observed_sha256:fcb85cb5cf04648359ee154d0e4303f19263b46698f99e9fcb3a8e579a78c25a"
+            "observed_sha256:0ecd76bb4a0cbba016abd6ba56f5f2f9bbf0c108472fc4a1cfc916dfd56c0814"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2691,7 +2689,7 @@
             "f979e219-9ec4-4145-83d0-c9b858b61c67"
           ],
           "evidence_refs": [
-            "observed_sha256:c84b75bd84e6cecc78941d23134c576d32bf47dec935b96a764cfec663ea1a73"
+            "observed_sha256:3c2300fa75bf32d44b5ee48b11f9dbe6661afc587bf517321ad74e8cd87bf587"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2719,7 +2717,7 @@
             "5a65e878-f0df-4584-806d-99f0aa5e586d"
           ],
           "evidence_refs": [
-            "observed_sha256:2007a653f9416e29aa7865edb598457cdf9f2dd23f3f7af0f9896c142850d060"
+            "observed_sha256:1eaab419774e1fa1a40539ca8e1610e4b0839ba8fe1522c030849013445ee88c"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2771,7 +2769,7 @@
             "95c4442d-e08d-4c7d-8292-2f7ad48894ac"
           ],
           "evidence_refs": [
-            "observed_sha256:3d740eddd9d0a2fc903b359468f52d3fb97edd6e67a4d0aa45e8f34f372b59e9"
+            "observed_sha256:a33eb7c6c0ba96746adf74ae267d4fdd2759b7f11ea0dc1683eadd62fd2fc963"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2787,7 +2785,7 @@
             "6a485b71-326f-4ac0-bb56-69470e28871d"
           ],
           "evidence_refs": [
-            "observed_sha256:5d8ef8599ee073ddb076d67d025508593ffbbc8e8ee571e29662228d9b019d25"
+            "observed_sha256:c4c5f6adb95aa272ce171267fcc6e1e478b64bfa850965987f46aa3c6ddd1e2d"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2851,7 +2849,7 @@
             "11c009d8-3aa8-4fa8-a34d-b3739cd4ec69"
           ],
           "evidence_refs": [
-            "observed_sha256:d45d98236b52e4a824d725ac8dc91092dd3e768f12fd99ac19ea9bf56f22567a"
+            "observed_sha256:a007f29ab9f27002cd333002e0c99e93aba3f3031ceceed730e7bd3ec7e90dfd"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2867,7 +2865,7 @@
             "ab749cd4-b004-4ab2-a32d-a984d0d5d4fb"
           ],
           "evidence_refs": [
-            "observed_sha256:7adeb9f606f0a88f58a84120be28214d89458bde8c73be1f771a0356db644312"
+            "observed_sha256:afc94b26310a6efb733b315fbab096d3fe462b478a4d728984501ae016817af4"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2895,7 +2893,7 @@
             "9ecc5baf-5028-407e-923c-cf216033364d"
           ],
           "evidence_refs": [
-            "observed_sha256:bfe639c38bc79400d7f8e72ab10b2d34cac37e5f2635eff3297b64dce8360080"
+            "observed_sha256:f7604e8d4b22de97e7fd8222bfd1d2a9732d5a36259c4db3dd57a799367df46f"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2947,7 +2945,7 @@
             "451955f3-5621-4cca-a215-b3095eb298cd"
           ],
           "evidence_refs": [
-            "observed_sha256:6b71f6397950f6bcb3c2335ff30e0e6276910cb1d0c574f624389b5c845c2fed"
+            "observed_sha256:132845b96d154ed41c225c7f23bbb72eb2f0554b2f976efbfe235e2d2261c52d"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2963,7 +2961,7 @@
             "259106a5-6be1-463e-b688-7a2e2a35fe23"
           ],
           "evidence_refs": [
-            "observed_sha256:d782ea46e60ae566416e830026888fabe2c0762571bb710483c68b5e29df6bea"
+            "observed_sha256:228c04d0d6689cb366ef526fe66d0e5ffa8478ca590c20bff01d25f79eaf375b"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2979,7 +2977,7 @@
             "96627c1d-0cd5-417f-9c72-b7b65e61f278"
           ],
           "evidence_refs": [
-            "observed_sha256:adb97c973e2fdf90169fa3c572ddf64c0b9e4d6a5ca05755e920e37457215e69"
+            "observed_sha256:265c0cc0af55e3cb85d44dd347f55e35ce171997094632bacfc335bce744025f"
           ],
           "can_publish": false,
           "can_index": false,
@@ -3055,7 +3053,7 @@
             "e7ebc2b0-dde7-4de2-a1d1-0cb913f54878"
           ],
           "evidence_refs": [
-            "observed_sha256:162678cf164c451dba1178c1f949da84e3da568001640075086e754481ed2755"
+            "observed_sha256:2b1fcf2a1f01ab7494da7830ee2a16ba86c5410a6d9e585d9b431350f22602ca"
           ],
           "can_publish": false,
           "can_index": false,
@@ -3167,7 +3165,7 @@
             "018bbe66-3e38-40c9-b3e3-8d24465751fa"
           ],
           "evidence_refs": [
-            "observed_sha256:7a826b98ecf1825a862ca1074404008df32d678fb6a789994fbcd2cea97dc17a"
+            "observed_sha256:8bab7c0917495b7c96265154fe0804bc15fded82bb393c5a07f3e12b8be9bed7"
           ],
           "can_publish": false,
           "can_index": false,
@@ -3195,7 +3193,7 @@
             "970e0500-8f89-4c6b-ac34-b9832bbc6ae7"
           ],
           "evidence_refs": [
-            "observed_sha256:05a3e5271111e14a428982e29704e88040bac30c333ea9e97030e96cad6bf2a6"
+            "observed_sha256:2032af0832264c59f306b04325a6456acead68982c1e03be89ec5dc6e2f6918c"
           ],
           "can_publish": false,
           "can_index": false,
@@ -3331,7 +3329,7 @@
             "30effd17-6bd6-48f7-bec0-cbb96fac5e11"
           ],
           "evidence_refs": [
-            "observed_sha256:37c3d553e29d6da4f65d4637781bc819a980e8b6a78327054b36a112f4b2842e"
+            "observed_sha256:932194554194bb4ca3557fdbbdb702d2a836e4881ce917cabb85210ede542891"
           ],
           "can_publish": false,
           "can_index": false,
@@ -3347,7 +3345,7 @@
             "761b0957-8754-43ab-a42b-30fba3ea2e50"
           ],
           "evidence_refs": [
-            "observed_sha256:bca3fcf907c092b7fdc264800cc5c99ac9ae831bf57c317c47c341884a8a211c"
+            "observed_sha256:9357f3d1041122d313637c8119ae51f043b6800a4c6a720a35be9151846f4080"
           ],
           "can_publish": false,
           "can_index": false,
@@ -3447,7 +3445,7 @@
             "bbc17d7a-ee29-47b3-b6b6-ef347afa0fd5"
           ],
           "evidence_refs": [
-            "observed_sha256:864f6127b5a6e9551aceb3ba219833444d53a2a375a3da0167352223b823916a"
+            "observed_sha256:7de54d77e7d70e1fbef39c81f8b7dcd4b2dbfb0d8e662a76783cab833e0f7955"
           ],
           "can_publish": false,
           "can_index": false,
@@ -3527,8 +3525,8 @@
       "source_sha256": "c947912c945666581017ba00905bc7e76bbd9f985e9fac7d14dd3bfd320124c2",
       "selection_counts": {
         "match": 13,
-        "no_match": 209,
-        "unknown": 21
+        "no_match": 210,
+        "unknown": 20
       },
       "matched_product_count": 13,
       "confirmed_orderable_product_count": null,
@@ -3699,7 +3697,7 @@
             "de582e95-5729-4d44-9b3e-95161a979278"
           ],
           "evidence_refs": [
-            "observed_sha256:bceeee576d8fc33ee7c2b88a15c590f8351501d8a70b19c3ed3799adbc9b69b3"
+            "observed_sha256:dfd241b6d59b92f99e71e4c5f14d77c2da81175c179c32a79456188688996b16"
           ],
           "can_publish": false,
           "can_index": false,
@@ -3758,7 +3756,7 @@
             "4f3d2d7a-e230-4180-880b-5f9e7719d25e"
           ],
           "evidence_refs": [
-            "observed_sha256:6dc52168ef371dee67d4be4d29e06a36f71b432c0c559eda3ddbc0cb451edd38"
+            "observed_sha256:e4f3d510eb001601b6a58e30135e0e5fc4643d13eb0c449df369d2f205e11fe1"
           ],
           "can_publish": false,
           "can_index": false,
@@ -4345,11 +4343,9 @@
         },
         {
           "canonical_product_id": "40384eea-fd82-40f4-98e7-804383c42796",
-          "state": "unknown",
+          "state": "no_match",
           "reason_codes": [
-            "aggregate_members_unknown:full_set",
-            "sellable_offer_unresolved",
-            "sellable_option_unresolved_component_identity:0"
+            "no_matching_sellable_component"
           ],
           "configuration_ids": [],
           "evidence_refs": [],
@@ -4675,7 +4671,7 @@
             "06db80a2-5f7a-41a3-8c77-549fd50413d2"
           ],
           "evidence_refs": [
-            "observed_sha256:19d217ff1289c43791d50a7910fb7f8784ac17bc9dcf0a9024ced7f92578b270"
+            "observed_sha256:9ead9976deeb9aedc20d5202cfa7d60a5f7d5c024b522d2b8674c59ab7d3d2e4"
           ],
           "can_publish": false,
           "can_index": false,
@@ -4830,7 +4826,7 @@
             "62452a71-f39d-47dc-b06f-30a5538e7ddc"
           ],
           "evidence_refs": [
-            "observed_sha256:86d4b827fda0299f41b78c6b5dfe55d1d98c80beb631b24cd81eb124c3c6ac70"
+            "observed_sha256:9bdc5cbd36dce663ca362fe599e4c833229ec4f6dc99ebab6b512a9756a35f64"
           ],
           "can_publish": false,
           "can_index": false,
@@ -5076,7 +5072,7 @@
             "66058dbc-f8ed-4189-ba0e-464204df96df"
           ],
           "evidence_refs": [
-            "observed_sha256:ab78d1d31827c81bad4801cd2c6632134cd3ec5b0bd81e4f4febc6c28cdcf654"
+            "observed_sha256:2934bd4acb3f597ec8793f798812bc51d14765fbb1949eb1d39bc7ecc784a3cd"
           ],
           "can_publish": false,
           "can_index": false,
@@ -5282,7 +5278,7 @@
             "ac83c38f-b1b7-420f-b0a9-7ff5b7eb3b4a"
           ],
           "evidence_refs": [
-            "observed_sha256:cf3f445e79424d795bd988377ff7e9d4fba93038996a2db4377c2a9da680a96a"
+            "observed_sha256:e4945a45d98d396d3f99caac7f2a871379c247a2c55ddb9585059cb85841569e"
           ],
           "can_publish": false,
           "can_index": false,
@@ -5299,7 +5295,7 @@
             "ee10b92e-397e-41a9-931e-0b398f840591"
           ],
           "evidence_refs": [
-            "observed_sha256:5fb81fa47884f819ff3cbc249fa28da2a63397d25ba24e047fda49daa046096f"
+            "observed_sha256:0e36cf4983433418b852a9e95b1cc00d9d44d69d62f3d0bee3d580021b1e78a9"
           ],
           "can_publish": false,
           "can_index": false,
@@ -5851,7 +5847,7 @@
             "aab62113-4fe4-4725-992b-b1d22485ff56"
           ],
           "evidence_refs": [
-            "observed_sha256:5dad661223ed3e7198ffbda4f25cd9adf68501db13bdf3cfdd12a0526914ca27"
+            "observed_sha256:9558bb01bebe8c6fc4ede11794c8587c2b7e9d32cd0b70c6f09cd78ce9020c4f"
           ],
           "can_publish": false,
           "can_index": false,
@@ -5978,7 +5974,7 @@
             "5909c2fb-f536-48e8-a576-b02a2d26f510"
           ],
           "evidence_refs": [
-            "observed_sha256:30952889259c5c48ca7f3f17261090bf2148682531ad9f815342eca01e1ae725"
+            "observed_sha256:07081e36566bd471db1c2154056e6ef793de05453cb614202014ecb66873595a"
           ],
           "can_publish": false,
           "can_index": false,
@@ -6104,7 +6100,7 @@
             "d5cfc179-9ccc-477c-9031-998ab103bcb3"
           ],
           "evidence_refs": [
-            "observed_sha256:41de7c6315d52c8f817808554a07a58fd55c178367dc59a1d57c78629fdd8aa9"
+            "observed_sha256:3c560df55f0a373260d5397f09db10ab015c6ebc7dcebbbb8023232d2fc2c2cc"
           ],
           "can_publish": false,
           "can_index": false,
@@ -6120,7 +6116,7 @@
             "ed3b7548-e8b4-4342-8dbe-5093d70a9cfc"
           ],
           "evidence_refs": [
-            "observed_sha256:bfe639c38bc79400d7f8e72ab10b2d34cac37e5f2635eff3297b64dce8360080"
+            "observed_sha256:f7604e8d4b22de97e7fd8222bfd1d2a9732d5a36259c4db3dd57a799367df46f"
           ],
           "can_publish": false,
           "can_index": false,
@@ -6234,7 +6230,7 @@
             "e689d3b4-acc1-4fa2-ad12-4463207fcdd9"
           ],
           "evidence_refs": [
-            "observed_sha256:79d39fc62e3795971de0060fc7fa4ff834af1497fd54f315ab25484b2ddef19a"
+            "observed_sha256:a6688a184b46ed751c87e8df96aa6caaa889faaa576560f81227c917adb1ba65"
           ],
           "can_publish": false,
           "can_index": false,
@@ -6502,7 +6498,7 @@
             "75b0d613-2d5f-4b50-aaa2-6352c9eb42bf"
           ],
           "evidence_refs": [
-            "observed_sha256:d40f6a20cd003c15a4956618c115a8ad15816ff231d94182f1d1d5d808804daf"
+            "observed_sha256:8b02b32779c305c0adde0171f0b4594b8202a98d0be06c2e4bfe6038c760cf4a"
           ],
           "can_publish": false,
           "can_index": false,
@@ -9914,17 +9910,6 @@
         "sellable_option_unresolved_component_identity:5",
         "sellable_option_unresolved_component_identity:6",
         "sellable_offer_missing_atomic_options"
-      ],
-      "owner": "CPIM",
-      "action": "Inspect existing owner decisions and exact configurations; no blanket reset or source-price rewrite."
-    },
-    {
-      "canonical_product_id": "40384eea-fd82-40f4-98e7-804383c42796",
-      "seo_page_id": "48596b76-1afc-46cd-890e-5088211f62e9",
-      "product_slug": "golden-festival-outfit-with-bra-skirt-gold-harness-set-festival-basque-accessories-1901540523",
-      "blockers": [
-        "sellable_option_unresolved_component_identity:0",
-        "aggregate_members_unknown:full_set"
       ],
       "owner": "CPIM",
       "action": "Inspect existing owner decisions and exact configurations; no blanket reset or source-price rewrite."

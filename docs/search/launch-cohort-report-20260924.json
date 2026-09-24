@@ -38,7 +38,7 @@
     },
     {
       "path": "lib/storefrontReconciledOfferCorrections.ts",
-      "sha256": "b30e415f782be19d96da3f2762210fd9e72c1b7fae0bb1837deada3bc8cdc34a"
+      "sha256": "b153065d90eba46d3c7b147859def17b48e5760ffd594b99a70d50aa9c084baf"
     }
   ],
   "scope": "Offline work priority from non-atomic read-only captures. Revalidate live versions before release. Existing approval records are not invalidated by a backlog assessment.",
@@ -1781,7 +1781,6 @@
       "title": "Gold Body Harness Outfit for Stage and Festivals",
       "state": "review_backlog",
       "reasons": [
-        "offer_composition_unresolved",
         "offer_signature_not_covered",
         "saved_draft_blockers",
         "saved_metric_review_incomplete"
@@ -1796,7 +1795,7 @@
         "language": "en",
         "interpretation": "stored historical evidence; not a new demand measurement"
       },
-      "composition_status": "hold",
+      "composition_status": "ready",
       "cqa_status": "not_run",
       "can_publish": false,
       "can_index": false,

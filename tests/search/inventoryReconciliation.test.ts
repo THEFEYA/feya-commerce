@@ -16,7 +16,7 @@ const evidence = JSON.parse(readFileSync('docs/search/inventory-reconciliation-c
 const product = (id: string) => structuredClone(source.products.find((p: { canonical_product_id: string }) => p.canonical_product_id === id));
 const sha = (s: string) => createHash('sha256').update(s).digest('hex');
 
-test('all six reconciliations have exact source-price lineage, preserve money/IDs and do not mutate capture', () => {
+test('all seven reconciliations have exact source-price lineage, preserve money/IDs and do not mutate capture', () => {
   for (const id of Object.keys(RECONCILED_OFFER_CORRECTIONS)) {
     const p = product(id), before = JSON.stringify(p), corrected = applyOwnerReviewedStorefrontCorrections(p);
     assert.equal(corrected.configurations.length, p.configurations.length);
@@ -31,14 +31,14 @@ test('all six reconciliations have exact source-price lineage, preserve money/ID
     assert.deepEqual(applyOwnerReviewedStorefrontCorrections(corrected), corrected, 'Idempotent');
   }
 });
-test('237 unrelated product signatures and states remain byte-identical to the previous committed resolver', () => {
+test('236 unrelated product signatures and states remain byte-identical to the previous committed resolver', () => {
   let unchanged = 0;
   for (const old of evidence.baseline_offer_signatures.rows) {
     if (RECONCILED_OFFER_CORRECTIONS[old.canonical_product_id]) continue;
     const current = resolveStorefrontSellableOffer(product(old.canonical_product_id));
     assert.equal(current.status, old.status); assert.equal(sha(current.signature || ''), old.signature_sha256); unchanged++;
   }
-  assert.equal(unchanged, 237);
+  assert.equal(unchanged, 236);
 });
 test('missing, extra or duplicated configuration IDs cannot apply the reconciliation manifest', () => {
   const p = product('437a20cd-27a3-4aaf-b154-3353899e0ebd');
@@ -72,7 +72,7 @@ test('green identity keeps source color prices separately; size-only rows and ob
   assert.equal(applyOwnerReviewedStorefrontCorrections(green).canonical_color_label, 'Green');
   assert.equal(sortedOptions(green).length, 3);
   assert.deepEqual(resolveStorefrontSellableOffer(green).component_codes, ['harness']);
-  for (const id of ['0cd7c558-7344-4076-91a5-86f7f5fe0ad0', '320fede3-0406-428f-8091-c7a7986e07aa', '40384eea-fd82-40f4-98e7-804383c42796']) {
+  for (const id of ['0cd7c558-7344-4076-91a5-86f7f5fe0ad0', '320fede3-0406-428f-8091-c7a7986e07aa']) {
     assert.equal(applyReconciledOfferCorrections(product(id)).canonical_product_id, id);
     assert.equal(resolveStorefrontSellableOffer(product(id)).status, 'hold');
   }

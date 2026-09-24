@@ -19,7 +19,10 @@ assert.equal(new Set(originalFileAudit.matches.map((m: { source_price_row_id: st
 type Source = { canonical_product_id: string; source_listing_id: string; source_variations_json: { raw_variation_name: string; values: string[] }[] };
 const scoped: Source[] = sources.products.filter((s: Source) => capture.scope_product_ids.includes(s.canonical_product_id));
 const heldIds = reconciliation.cases.filter((c: { offer_status: string }) => c.offer_status === 'hold').map((c: { canonical_product_id: string }) => c.canonical_product_id);
-assert.deepEqual([...capture.scope_product_ids].sort(), heldIds.sort());
+// A later composition confirmation does not resolve the full size/color price tuple.
+// Preserve the original evidence scope rather than dropping price rows when composition resolves.
+assert.ok(heldIds.every((id: string) => capture.scope_product_ids.includes(id)));
+assert.equal(scoped.length, capture.scope_product_ids.length);
 const scopes: ProductScope[] = scoped.map(s => ({ canonical_product_id: s.canonical_product_id, source_listing_id: s.source_listing_id,
   declared_sizes: s.source_variations_json.filter(a => /^(?:Size|Unisex shirt size)$/i.test(a.raw_variation_name)).flatMap(a => a.values),
   declared_colors: s.source_variations_json.filter(a => /^(?:Primary color|Color|Colour)$/i.test(a.raw_variation_name)).flatMap(a => a.values),
@@ -30,7 +33,7 @@ assert.ok(schema.includes("'configuration_id', (ranked_options.configuration_pri
 const products: StorefrontProduct[] = catalog.products;
 const currentSurface = scopes.map(s => {
   const p = products.find(p => p.canonical_product_id === s.canonical_product_id)!;
-  assert.equal(resolveStorefrontSellableOffer(p).status, 'hold');
+  const compositionStatus = resolveStorefrontSellableOffer(p).status;
   const configurations = p.configurations as { configuration_id: string; display_price_amount: number; currency: string }[];
   const owned = capture.prices.filter((r: { canonical_product_id: string }) => r.canonical_product_id === s.canonical_product_id);
   assert.deepEqual(configurations.map(c => c.configuration_id).sort(), owned.map((r: { configuration_price_id: string }) => r.configuration_price_id).sort());
@@ -45,7 +48,7 @@ const currentSurface = scopes.map(s => {
     current_visible_option_count: shown.length, current_visible_configuration_ids: shown,
     configuration_ids_collapsed_by_label: configurations.map(c => c.configuration_id).filter(id => !shown.includes(id)),
     observation: 'Offline replay of current sortedOptions; equal display labels retain the highest-priced row. Not a live browser crawl.',
-    offer_status: 'hold', can_publish: false };
+    offer_status: compositionStatus, can_publish: false };
 });
 const classify = (kind: string) => proposal.rows.filter(r => r.price_observation.kind === kind).length;
 const pdpSource = readFileSync('components/ProductDetailClient.tsx', 'utf8');

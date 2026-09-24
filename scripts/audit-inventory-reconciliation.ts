@@ -6,9 +6,9 @@ import { RECONCILED_OFFER_CORRECTIONS, applyReconciledOfferCorrections } from '.
 import { resolveStorefrontSellableOffer, sellableOfferPurchaseUnitLabels } from '../lib/storefrontSellableOffer.ts';
 
 const sha = (s: string) => createHash('sha256').update(s).digest('hex');
-const sourcePaths = ['docs/search/inventory-capture-20260924.json', 'docs/search/inventory-reconciliation-capture-20260924.json', 'docs/search/inventory-pilot-report-20260924.json'];
+const sourcePaths = ['docs/search/inventory-capture-20260924.json', 'docs/search/inventory-reconciliation-capture-20260924.json', 'docs/search/inventory-pilot-report-20260924.json', 'docs/search/owner-launch-scope-20260924.json'];
 const sourceTexts = sourcePaths.map(p => readFileSync(p, 'utf8'));
-const [baseline, capture, pilot] = sourceTexts.map(s => JSON.parse(s));
+const [baseline, capture, pilot, ownerScope] = sourceTexts.map(s => JSON.parse(s));
 type Product = Record<string, unknown> & { canonical_product_id: string; product_slug: string; title: string; configurations: Record<string, unknown>[] };
 type Source = { canonical_product_id: string; raw_title: string; raw_variation_1_name: string; raw_variation_2_name: string | null };
 type Draft = { id: string; canonical_product_id: string; review_status: string; updated_at: string; product_truth_snapshot: Record<string, unknown> };
@@ -25,7 +25,7 @@ const preserved = capture.baseline_offer_signatures.rows.filter((r: { canonical_
   assert.equal(sha(current.signature || ''), r.signature_sha256);
   return true;
 });
-assert.equal(preserved.length, 237);
+assert.equal(preserved.length, 236);
 
 const special: Record<string, { classification: string; action: string }> = {
   '179e407a-5fed-4b42-ae19-ff220f939867': { classification: 'jacket_purchase_scope_review', action: 'Verify jacket/leggings grouped and separate choices against exact source rows; do not flatten size and piece axes.' },
@@ -41,6 +41,10 @@ const cases = capture.products.map((s: Source) => {
   const drafts = capture.seo_drafts.filter((d: Draft) => d.canonical_product_id === s.canonical_product_id);
   if (manifest) {
     assert.equal(offer.status, 'ready');
+    if (s.canonical_product_id === '40384eea-fd82-40f4-98e7-804383c42796') {
+      assert.equal(ownerScope.decision_id, 'owner-launch-scope-20260924-02');
+      assert.deepEqual(ownerScope.owner_product_facts.find((f: { canonical_product_id: string }) => f.canonical_product_id === s.canonical_product_id)?.facts.components, ['bra', 'skirt']);
+    }
     for (const ref of manifest.evidence_refs.filter(r => r.startsWith('seo_draft:'))) {
       const [, id, scope] = ref.split(':');
       const draft = drafts.find((d: Draft) => d.id === id);
@@ -84,7 +88,7 @@ const cases = capture.products.map((s: Source) => {
 for (const id of Object.keys(RECONCILED_OFFER_CORRECTIONS)) assert.ok(sourceIds.has(id));
 const classifications = Object.fromEntries([...new Set(cases.map((c: { classification: string }) => c.classification))].sort().map(k => [String(k), cases.filter((c: { classification: string }) => c.classification === k).length]));
 assert.equal(classifications.size_color_axis_requires_offer_mapping, 17);
-assert.equal(cases.filter((c: { offer_status: string }) => c.offer_status === 'hold').length, 21);
+assert.equal(cases.filter((c: { offer_status: string }) => c.offer_status === 'hold').length, 20);
 const targetIds: string[] = pilot.proposals.filter((p: { candidate_code: string }) => ['TYPE-ARMOR', 'TYPE-HARNESS'].includes(p.candidate_code))
   .flatMap((p: { selection: { state: string; canonical_product_id: string }[] }) => p.selection.filter(s => s.state === 'match').map(s => s.canonical_product_id));
 const designReview = buildDesignReviewPairs(capture.catalog_identity, targetIds);
@@ -93,7 +97,7 @@ const report = { contract_version: 'inventory_reconciliation_report_v1', capture
   implementation: ['scripts/audit-inventory-reconciliation.ts', 'lib/searchDesignReview.ts', 'lib/storefrontReconciledOfferCorrections.ts', 'lib/storefrontSellableOffer.ts', 'lib/storefrontOwnerReviewedCorrections.ts']
     .map(path => ({ path, sha256: sha(readFileSync(path, 'utf8')) })),
   evidence_scope: 'Read-only production captures across separate queries, not an atomic live snapshot; source identifiers join exact configuration-price rows. No new keyword metrics or image interpretation.',
-  summary: { original_review_cases: 27, corrected_product_count: 6, newly_resolved_offers: 5, typed_numbered_offer: 1,
+  summary: { original_review_cases: 27, corrected_product_count: 7, newly_resolved_offers: 6, typed_numbered_offer: 1,
     offer_ready: pilot.offer_counts.ready, offer_hold: pilot.offer_counts.hold, unchanged_other_product_signatures: preserved.length,
     classification_counts: classifications, design_review_pair_count: designReview.proposals.length,
     products_in_review_pairs: new Set(designReview.proposals.flatMap(p => p.product_ids)).size },

@@ -21,7 +21,7 @@
     },
     {
       "path": "docs/search/inventory-reconciliation-report-20260924.json",
-      "sha256": "4b506837d614e42b483d3f31935e63f85a290146481ec297f720e89bff1a8b54"
+      "sha256": "129fef97681ad798a548c258eb75c248e79a3a2f0199ae49b3015b7fd79d8453"
     },
     {
       "path": "docs/search/purchase-binding-import-provenance-20260924.json",
@@ -39,7 +39,7 @@
     },
     {
       "path": "scripts/audit-purchase-bindings.ts",
-      "sha256": "671b825ec2ae0f02ab1988750cdccd8131f4e62edccb80d1aa120fabcfeedd25"
+      "sha256": "e7918cc487d8e2e0a6c216d25318d4ab87e69954ac894a3bea7dfd95ac445661"
     },
     {
       "path": "lib/storefront.ts",
@@ -8091,7 +8091,7 @@
       ],
       "configuration_ids_collapsed_by_label": [],
       "observation": "Offline replay of current sortedOptions; equal display labels retain the highest-priced row. Not a live browser crawl.",
-      "offer_status": "hold",
+      "offer_status": "ready",
       "can_publish": false
     },
     {

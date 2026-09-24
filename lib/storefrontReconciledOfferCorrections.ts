@@ -23,6 +23,15 @@ const group = (label: string, code: string, codes: string[], labels: string[], f
 });
 type Correction = { evidence_refs: string[]; options: Record<string, Patch>; preferred_color?: string };
 export const RECONCILED_OFFER_CORRECTIONS: Readonly<Record<string, Correction>> = {
+  '40384eea-fd82-40f4-98e7-804383c42796': {
+    // Owner batch 1 answer: bra + skirt. No belt, fabric garments or price tuple inferred.
+    evidence_refs: ['owner_decision:owner-launch-scope-20260924-02:bra_skirt', 'source_listing:1901540523'],
+    options: {
+      'a415b1cc-1001-4c8b-b03e-7ed6a27f7ad6': atomic('Bra', 'top', 'Top'),
+      'ebf42918-4916-46c1-b2a9-75a8e2fe4ae0': atomic('Skirt', 'skirt', 'Bottom'),
+      '40b8d2ce-8267-42b8-a4a3-f6a7ea24f212': group('Full Set', 'full_set', ['top', 'skirt'], ['Bra', 'Skirt'], true),
+    },
+  },
   '4b0c8180-774d-4d5c-a12c-0864f305d1cb': {
     evidence_refs: ['seo_draft:ab0bc6b6-0cc9-4a45-a4fd-45df32d87c42:approved', 'source_listing:4487639486'],
     options: {

@@ -79,3 +79,7 @@ npm run check:owner-ui
 | P2, Search/TSEO + Editorial | Подтверждённые family/orderability данные + пять прежних briefs → проверка достаточности двух type hubs и utility draft | Явное query ownership, отдельная польза/intent; никаких новых indexable pages только из DNA | Demand decision требует Q02 → использовать подготовленные девять seeds; rollback brief/version |
 
 Production release остаётся отдельным незавершённым gate: advisor/security, миграции, реальные orderability/checkout/policy решения, domain/measurement и page approvals не заменены этой сверкой. Откат текущего этапа — revert кода/отчётов в draft branch; production DB/environment не изменялись. От владельца **сейчас действий не требуется**.
+
+## Последующее уточнение владельца — Bra/Skirt
+
+По decision `owner-launch-scope-20260924-02` подготовлено седьмое exact-ID исправление товара `40384eea-fd82-40f4-98e7-804383c42796`: Bra, Skirt, Full Set=Bra+Skirt. Все три ID/суммы сохранены. Актуальный replay: 223 ready / 20 hold из 243; 236 незатронутых сигнатур сохранены. Price capture scope 21/142 сохраняется независимо от нового composition-ready. Подробнее `Approved_Catalog_Launch_20260924.md`.

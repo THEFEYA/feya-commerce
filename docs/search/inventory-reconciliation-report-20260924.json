@@ -13,13 +13,17 @@
     },
     {
       "path": "docs/search/inventory-pilot-report-20260924.json",
-      "sha256": "9b28458c294359d299e8f8dfdbea090639d041fd47b547e1622353a8fb92ada7"
+      "sha256": "b69e3fc865c6c63b407853db13ce33f3b55bd3e9a6f52252159651585970b39f"
+    },
+    {
+      "path": "docs/search/owner-launch-scope-20260924.json",
+      "sha256": "a3024653330b93ea4c94b229a6e9822b9011c32d5bcb8118d5d9cbc55d98b679"
     }
   ],
   "implementation": [
     {
       "path": "scripts/audit-inventory-reconciliation.ts",
-      "sha256": "1ec0bba15dd9d52c306b1c505c63e8039ab5bcac6a980f8feac7ca98bb2d1be3"
+      "sha256": "1a7cc1f1fa98839441f0a39d9326962aac9eb495059d26033ad3f19cef3d9f19"
     },
     {
       "path": "lib/searchDesignReview.ts",
@@ -27,7 +31,7 @@
     },
     {
       "path": "lib/storefrontReconciledOfferCorrections.ts",
-      "sha256": "b30e415f782be19d96da3f2762210fd9e72c1b7fae0bb1837deada3bc8cdc34a"
+      "sha256": "b153065d90eba46d3c7b147859def17b48e5760ffd594b99a70d50aa9c084baf"
     },
     {
       "path": "lib/storefrontSellableOffer.ts",
@@ -41,17 +45,16 @@
   "evidence_scope": "Read-only production captures across separate queries, not an atomic live snapshot; source identifiers join exact configuration-price rows. No new keyword metrics or image interpretation.",
   "summary": {
     "original_review_cases": 27,
-    "corrected_product_count": 6,
-    "newly_resolved_offers": 5,
+    "corrected_product_count": 7,
+    "newly_resolved_offers": 6,
     "typed_numbered_offer": 1,
-    "offer_ready": 222,
-    "offer_hold": 21,
-    "unchanged_other_product_signatures": 237,
+    "offer_ready": 223,
+    "offer_hold": 20,
+    "unchanged_other_product_signatures": 236,
     "classification_counts": {
-      "copy_approval_with_truth_hold": 1,
       "jacket_purchase_scope_review": 2,
       "obsolete_source_choices": 1,
-      "restored_approved_offer": 4,
+      "restored_approved_offer": 5,
       "restored_owner_identity": 1,
       "restored_owner_variant_guide": 1,
       "size_color_axis_requires_offer_mapping": 17
@@ -354,13 +357,13 @@
       "canonical_product_id": "40384eea-fd82-40f4-98e7-804383c42796",
       "url_path": "/shop/golden-festival-outfit-with-bra-skirt-gold-harness-set-festival-basque-accessories-1901540523",
       "source_title": "Golden Festival Outfit with Bra & Skirt, Gold Harness Set, Festival Basque Accessories",
-      "classification": "copy_approval_with_truth_hold",
-      "offer_status": "hold",
-      "blockers": [
-        "sellable_option_unresolved_component_identity:0",
-        "aggregate_members_unknown:full_set"
+      "classification": "restored_approved_offer",
+      "offer_status": "ready",
+      "blockers": [],
+      "evidence_refs": [
+        "owner_decision:owner-launch-scope-20260924-02:bra_skirt",
+        "source_listing:1901540523"
       ],
-      "evidence_refs": [],
       "historical_drafts": [
         {
           "id": "8b121a9f-e21e-4977-aa19-e5d497421332",
@@ -371,26 +374,48 @@
       "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
       "options": [
         {
+          "configuration_id": "a415b1cc-1001-4c8b-b03e-7ed6a27f7ad6",
+          "label": "Bra",
+          "grouped_purchase": false,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [
+            "Bra"
+          ],
+          "display_price_amount": 96.5
+        },
+        {
           "configuration_id": "ebf42918-4916-46c1-b2a9-75a8e2fe4ae0",
           "label": "Skirt",
           "grouped_purchase": false,
           "component_codes": [],
           "factual_contents": [],
-          "purchase_unit_display": [],
+          "purchase_unit_display": [
+            "Skirt"
+          ],
           "display_price_amount": 135.1
         },
         {
           "configuration_id": "40b8d2ce-8267-42b8-a4a3-f6a7ea24f212",
           "label": "Full Set",
           "grouped_purchase": true,
-          "component_codes": [],
-          "factual_contents": [],
-          "purchase_unit_display": [],
+          "component_codes": [
+            "top",
+            "skirt"
+          ],
+          "factual_contents": [
+            "Bra",
+            "Skirt"
+          ],
+          "purchase_unit_display": [
+            "Bra",
+            "Skirt"
+          ],
           "display_price_amount": 175.46
         }
       ],
       "owner": "CPIM",
-      "next_action": "Preserve approved copy scope; repair bra/skirt sellable composition separately. Copy approval explicitly did not resolve the offer.",
+      "next_action": "Review exact draft diff and preserve all existing approval gates; no live write performed.",
       "can_publish": false,
       "can_index": false
     },

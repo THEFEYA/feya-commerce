@@ -72,7 +72,7 @@ test('capture reproduces the pilot without network, writes, price changes or rep
   const report = JSON.parse(readFileSync('docs/search/inventory-pilot-report-20260924.json', 'utf8'));
   assert.equal(report.catalog_integrity.unique_products, 243);
   assert.equal(report.catalog_integrity.preserved_product_page_ids, 243);
-  assert.deepEqual(report.offer_counts, { ready: 222, hold: 21 });
+  assert.deepEqual(report.offer_counts, { ready: 223, hold: 20 });
   const armor = report.proposals.find((p: { candidate_code: string }) => p.candidate_code === 'TYPE-ARMOR');
   const harness = report.proposals.find((p: { candidate_code: string }) => p.candidate_code === 'TYPE-HARNESS');
   assert.equal(armor.selection_counts.match, 65); assert.equal(harness.selection_counts.match, 13);
