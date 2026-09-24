@@ -130,7 +130,7 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       await page.mouse.move(0,0);
       await page.goto(base+'/shop?collection=armor');assert.ok(await page.locator('a[data-testid^="product-card-"]').count()>0);
       const next=page.getByRole('link',{name:'Show 20 more',exact:true});if(await next.count()){assert.match(await next.getAttribute('href'),/collection=armor/);await next.click();await page.waitForURL('**/shop?collection=armor&page=2');}
-      await page.goto(base+path);const related=page.locator('a[href^="/shop?collection="]').first();if(await related.count()){await related.click();assert.equal(await page.getByTestId('shop-page').count(),1);}
+      await page.goto(base+path);const related=page.locator('a[href^="/shop?collection="]').first();if(await related.count()){const target=await related.getAttribute('href');await related.click();await page.waitForURL(base+target);await page.getByTestId('shop-page').waitFor();assert.equal(await page.getByTestId('shop-page').count(),1);}
       const galleryEntry=release.entries.find(e=>Array.isArray(e.product.media_gallery)&&e.product.media_gallery.length>1);
       await page.goto(base+galleryEntry.copy.metadata.canonical_path);
       const mainImage=page.locator('button.aspect-\\[4\\/5\\] img');
@@ -143,7 +143,7 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
         await page.screenshot({path:join(out,`closed-review-pdp-${viewport.width}.png`),fullPage:true});
       }
       const noJs=await browser.newContext({javaScriptEnabled:false,storageState:await ownerPage.context().storageState()});
-      try{const p=await noJs.newPage();await p.goto(base+'/shop');await p.getByRole('link',{name:'Show 20 more',exact:true}).click();await p.waitForURL('**/shop?page=2');assert.equal(await p.locator('a[data-testid^="product-card-"]').count(),20);}finally{await noJs.close();}
+      try{await noJs.route('**/*',route=>route.request().resourceType()==='image'?route.fulfill({status:200,contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800"><rect width="600" height="800" fill="#393128"/></svg>'}):route.request().resourceType()==='media'?route.abort():route.continue());const p=await noJs.newPage();await p.goto(base+'/shop');await p.getByRole('link',{name:'Show 20 more',exact:true}).click();await p.waitForURL('**/shop?page=2');assert.equal(await p.locator('a[data-testid^="product-card-"]').count(),20);}finally{await noJs.close();}
       assert.deepEqual(errors,[]);assert.equal(await page.locator('[data-nextjs-dialog]').count(),0);
     });
     await check('Mistaken production/index flags cannot expose a closed release or populate sitemap',async()=>{
@@ -155,6 +155,12 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
     });
     report.closed_review_runtime_pass=true;report.closed_review_release_id=binding.release_id;report.closed_review_presentation_sha256=binding.presentation_sha256;
     report.limitations.push('Closed release uses pinned real copy/media URLs and source prices, loopback source/approval fixtures, and substituted browser image bytes. No production deployment, live CDN/price/orderability/payment or indexation certification.');
+  }catch(error){
+    if(page){
+      await page.screenshot({path:join(out,'closed-review-failure.png'),fullPage:true}).catch(()=>{});
+      await writeFile(join(out,'closed-review-failure.json'),JSON.stringify({url:page.url(),error:String(error.stack||error)},null,2));
+    }
+    throw error;
   }finally{
     await page?.close();await outsiderContext?.close();await stop();
     for(const key of ['NEXT_PUBLIC_SUPABASE_ANON_KEY','SUPABASE_SERVICE_ROLE_KEY','FEYA_INTERNAL_API_TOKEN'])if(env[key])log=log.replaceAll(env[key],'[redacted]');
