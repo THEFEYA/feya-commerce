@@ -4,15 +4,20 @@ import { applyOwnerReviewedStorefrontCorrections } from './storefrontOwnerReview
 import { selectApprovedStorefrontCopy } from './seoApprovedStorefrontPolicy.ts';
 import { resolveThefeyaRightPdpPanel, THEFEYA_SEO_DOCTRINE_VERSION } from './thefeyaSeoDoctrine.ts';
 import type { StorefrontProduct } from './types.ts';
+import { isOwnerPreviewDeployment } from './ownerPreviewPolicy.ts';
 
 type Row = Record<string, unknown>;
 export type ReviewPresentation = ReturnType<typeof prepareReviewPresentation>;
 
 export function closedReviewRequested(env: Record<string, string | undefined>) {
-  return Boolean(env.FEYA_CLOSED_REVIEW_RELEASE && env.FEYA_CLOSED_REVIEW_RELEASE !== 'off');
+  return isOwnerPreviewDeployment(env) || Boolean(env.FEYA_CLOSED_REVIEW_RELEASE && env.FEYA_CLOSED_REVIEW_RELEASE !== 'off');
 }
 
 export function closedReviewMode(env: Record<string, string | undefined>, releaseId: string) {
+  if (isOwnerPreviewDeployment(env)) {
+    const requested = env.FEYA_CLOSED_REVIEW_RELEASE;
+    return !requested || requested === 'off' || requested === releaseId ? 'review' as const : 'blocked' as const;
+  }
   if (!closedReviewRequested(env)) return 'disabled' as const;
   if (env.FEYA_CLOSED_REVIEW_RELEASE !== releaseId || env.FEYA_ADMIN_AUTH_REQUIRED !== 'true'
     || !['preview', 'development'].includes(env.VERCEL_ENV ?? '')) return 'blocked' as const;

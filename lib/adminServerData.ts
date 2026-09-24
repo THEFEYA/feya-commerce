@@ -4,6 +4,7 @@ import {createClient} from '@supabase/supabase-js';
 import {getSupabaseAuthServerClient,isAdminAuthRequired} from '@/lib/supabaseAuth';
 import {adminAccessDecision} from '@/lib/adminAccess';
 import {authorizedAdminFetch,type AdminDataAccess} from '@/lib/adminAuthorizedFetch';
+import {isOwnerPreviewDeployment,ownerPreviewReadFetch} from '@/lib/ownerPreviewPolicy';
 
 // React cache is scoped to this RSC request; no module-level actor/client promise is retained.
 const requireAdminDataActor=cache(async():Promise<AdminDataAccess>=>{
@@ -19,9 +20,10 @@ const requireAdminDataActor=cache(async():Promise<AdminDataAccess>=>{
 /** Synchronous factory preserves existing page contracts; each SQL fetch verifies the actor. */
 export function getAdminServiceClient(){
   const url=process.env.NEXT_PUBLIC_SUPABASE_URL,key=process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if(!isAdminAuthRequired()||!url||!key)return null;
+  const ownerPreview=isOwnerPreviewDeployment(process.env);
+  if((!isAdminAuthRequired()&&!ownerPreview)||!url||!key)return null;
   return createClient(url,key,{
     auth:{persistSession:false,autoRefreshToken:false},
-    global:{fetch:authorizedAdminFetch(requireAdminDataActor,fetch)},
+    global:{fetch:ownerPreview?ownerPreviewReadFetch(fetch,url):authorizedAdminFetch(requireAdminDataActor,fetch)},
   });
 }

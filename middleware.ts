@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { adminAccessDecision } from '@/lib/adminAccess';
+import { isOwnerPreviewDeployment } from '@/lib/ownerPreviewPolicy';
 
 function getPublicKey() {
   return process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || null;
@@ -8,6 +9,16 @@ function getPublicKey() {
 
 export async function middleware(request: NextRequest) {
   const isAdminApi = request.nextUrl.pathname.startsWith('/api/admin/');
+
+  if (isOwnerPreviewDeployment(process.env)) {
+    const headers = { 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex, nofollow, noarchive' };
+    if (!['GET', 'HEAD'].includes(request.method)) {
+      return NextResponse.json({ ok: false, code: 'owner_preview_read_only', error: 'Предпросмотр: изменение данных выключено.' }, { status: 423, headers });
+    }
+    const response = NextResponse.next({ request });
+    for (const [key, value] of Object.entries(headers)) response.headers.set(key, value);
+    return response;
+  }
 
   if (request.nextUrl.pathname === '/admin/login') {
     return NextResponse.next({ request });

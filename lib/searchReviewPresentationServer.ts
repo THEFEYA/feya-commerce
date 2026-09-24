@@ -5,6 +5,7 @@ import binding from '@/config/closed-review-presentation-binding.json';
 import { getAdminServiceClient } from '@/lib/adminServerData';
 import { getSupabaseAuthServerClient } from '@/lib/supabaseAuth';
 import { adminAccessDecision } from '@/lib/adminAccess';
+import { isOwnerPreviewDeployment } from '@/lib/ownerPreviewPolicy';
 import { STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 import type { ReviewRelease } from './searchReviewRelease';
 import { assertReviewLiveSources, closedReviewMode, prepareReviewPresentation, type ReviewPresentation } from './searchReviewPresentation';
@@ -20,10 +21,12 @@ export const readClosedReviewPresentation = cache(async (): Promise<Result> => {
   if (mode === 'disabled') return { status: 'disabled', release: null };
   if (mode === 'blocked') return blocked();
   try {
-    const auth = await getSupabaseAuthServerClient();
-    if (!auth) return blocked();
-    const { data, error } = await auth.auth.getUser();
-    if (error || !data.user || !adminAccessDecision(data.user, process.env).allowed) return blocked();
+    if (!isOwnerPreviewDeployment(process.env)) {
+      const auth = await getSupabaseAuthServerClient();
+      if (!auth) return blocked();
+      const { data, error } = await auth.auth.getUser();
+      if (error || !data.user || !adminAccessDecision(data.user, process.env).allowed) return blocked();
+    }
     const client = getAdminServiceClient();
     if (!client) return blocked();
     const release = prepareReviewPresentation(sourceJson as unknown as ReviewRelease, binding.source_sha256);
