@@ -118,5 +118,20 @@
         "single fixed default color for all photos"
       ]
     }
-  ]
+  ],
+  "pricing_policy": {
+    "decision_id": "owner-configuration-base-price-20260924-04",
+    "source": "Subsequent owner clarification in this conversation.",
+    "owner_quote": "цвета не влияют на стоимость. Стоимость влияет только варианты товаров, а цвета и материал не влияют на стоимость. В большинстве случаев. Может быть, конечно, будут какие-то исключения, но в большинстве случаев не влияет.",
+    "authority": "owner_confirmed_default_business_rule_with_explicit_exceptions",
+    "default_price_owner": "selected sellable configuration / existing configuration_price_id",
+    "color_effect": "neutral_unless_explicit_exception",
+    "material_effect": "neutral_unless_explicit_exception",
+    "exception_policy": "Explicit scoped override with evidence and reason; never infer surcharge from label, finish or material. An incomplete exception cannot fall back to the base price.",
+    "inheritance": "An explicitly available color selection references the same verified configuration quote. No copied amount and no new per-color price approval for the normal case.",
+    "revision_policy": "Product/attribute revisions and price revisions are separate; renaming or adding a price-neutral color does not revise the base quote.",
+    "availability_policy": "Price inheritance does not create availability, sizes, full Cartesian combinations or orderability.",
+    "historical_preservation": "Do not overwrite differing captured source amounts or infer size neutrality. Resolve imported price-row/configuration bindings and known exceptions explicitly.",
+    "current_material_policy": "Material is a product fact unless an actual selectable material option is recorded. Historical acrylic does not become a current option."
+  }
 }
