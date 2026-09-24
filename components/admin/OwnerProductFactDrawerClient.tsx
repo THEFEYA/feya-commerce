@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { createPortal } from 'react-dom';
 import { useCallback, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { useOwnerDrawerA11y } from '@/components/admin/useOwnerDrawerA11y';
@@ -38,7 +39,7 @@ export function OwnerProductFactDrawerClient({row,variantDraftEnabled=false}:{ro
   const issues=codes(row.issue_codes_json);
   return <>
     <button ref={triggerRef} type="button" className="owner-button" onClick={()=>setOpen(true)}>Разобрать</button>
-    {open?<div className="fixed inset-0 z-[80]" role="presentation">
+    {open?createPortal(<div className="fixed inset-0 z-[80]" role="presentation">
       <button type="button" aria-label="Закрыть проверку факта" className="absolute inset-0 h-full w-full bg-black/65 backdrop-blur-[2px]" onClick={close}/>
       <aside ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby={`fact-drawer-${row.fact_review_id}`} className="owner-drawer absolute right-0 top-0 h-full w-full max-w-[560px] overflow-y-auto">
         <div className="owner-drawer-head sticky top-0 z-10 flex items-start justify-between gap-4 px-5 py-4">
@@ -85,6 +86,6 @@ export function OwnerProductFactDrawerClient({row,variantDraftEnabled=false}:{ro
           </details>
         </div>
       </aside>
-    </div>:null}
+    </div>,document.querySelector('.owner-shell') || document.body):null}
   </>;
 }

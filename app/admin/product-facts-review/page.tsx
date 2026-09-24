@@ -185,12 +185,12 @@ export default async function AdminProductFactsReviewPage({ searchParams }: { se
           <table>
             <thead>
               <tr>
-                <th>Приоритет</th>
-                <th>Товар</th>
-                <th>Причины проверки</th>
-                <th>Текущие факты</th>
-                <th>Решение</th>
-                <th></th>
+                <th style={{top:0}}>Приоритет</th>
+                <th style={{top:0}}>Товар</th>
+                <th style={{top:0}}>Причины проверки</th>
+                <th style={{top:0}}>Текущие факты</th>
+                <th style={{top:0}}>Решение</th>
+                <th style={{top:0}}></th>
               </tr>
             </thead>
             <tbody>

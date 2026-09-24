@@ -11,13 +11,14 @@ export async function verifyVariantEditorRuntime({db,ownerPage,base,out,check,re
   const page=await ownerPage.context().newPage(),other=await ownerPage.context().newPage(),growth=await ownerPage.context().newPage(),errors=[];
   for(const p of [page,other,growth]){p.on('pageerror',e=>errors.push(e.message));p.on('dialog',dialog=>dialog.accept());}
   const editor=p=>p.getByTestId('variant-editor');
-  const openGrowthWithKeyboard=async(mode)=>{
+  const openGrowth=async(mode)=>{
     const trigger=growth.getByRole('button',{name:'Разобрать',exact:true});await trigger.scrollIntoViewIfNeeded();
     const hit=await trigger.evaluate(el=>{const r=el.getBoundingClientRect(),target=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return {mode:el.closest('table')?'table':'other',hitTag:target?.tagName,clickCovered:!(target===el||el.contains(target)),viewport:{width:innerWidth,height:innerHeight}};});
-    report.legacy_growth_trigger_hit_tests??={};report.legacy_growth_trigger_hit_tests[mode]=hit;
+    report.growth_trigger_hit_tests??={};report.growth_trigger_hit_tests[mode]=hit;
     await growth.screenshot({path:join(out,`variant-growth-entry-${mode}.png`),fullPage:true});
-    // Actual keyboard activation, never force-click through a covered control. Keep the observed legacy layout intact.
-    await trigger.focus();await trigger.press('Enter');await growth.getByRole('dialog').waitFor();
+    assert.equal(hit.clickCovered,false,'Visible first-row trigger must receive real pointer events');
+    await trigger.click();await growth.getByRole('dialog').waitFor();
+    assert.ok(await growth.getByRole('dialog').evaluate(el=>{const r=el.getBoundingClientRect();return r.top>=-1&&r.bottom<=innerHeight+1&&r.height>=innerHeight-1&&el.closest('[role=presentation]')?.parentElement?.classList.contains('owner-shell');}),'Drawer must occupy the viewport outside the animated/clipping table');
   };
   const revision=async(p,n)=>p.locator(`[data-testid="variant-editor-revision"][data-revision="${n}"]`).waitFor();
   const read=async()=>{const r=await ownerPage.request.get(api);assert.equal(r.status(),200);return r.json();};
@@ -52,13 +53,15 @@ export async function verifyVariantEditorRuntime({db,ownerPage,base,out,check,re
       await page.reload();await revision(page,1);assert.equal(await editor(page).getByLabel('Цвет 1',{exact:true}).inputValue(),'Gold');
       assert.equal(await editor(page).locator('[data-variant-id]').getAttribute('data-variant-id'),first.snapshot.variants[0].variant_id);
     });
-    await check('Adding a second color tuple keeps one price; keyboard-opened Growth drawer reads the same revision and hash',async()=>{
+    await check('Adding a second color tuple keeps one price; mouse-opened Growth drawer reads the same revision and hash',async()=>{
       await selectTuple('Silver');await save(page,2);second=await read();assert.equal(second.snapshot.variants.length,2);
       assert.deepEqual(second.snapshot.configurations,first.snapshot.configurations);
       assert.equal((await db.query('select count(*)::int n from public.feya_commerce_variant_quotes_v1 where canonical_product_id=$1',[product])).rows[0].n,1);
-      await growth.goto(base+'/admin/product-facts-review');await openGrowthWithKeyboard('enabled');
+      await growth.goto(base+'/admin/product-facts-review');await openGrowth('enabled');
       const rev=growth.locator('[data-testid="variant-summary-revision"][data-revision="2"]');await rev.waitFor();assert.equal(await rev.getAttribute('data-snapshot-hash'),second.snapshot_sha256);
       assert.match(await growth.getByTestId('variant-summary').innerText(),/Gold, Silver/);assert.equal(await growth.getByRole('button',{name:'Сохранить варианты',exact:true}).count(),0);
+      await growth.getByTestId('variant-summary').scrollIntoViewIfNeeded();
+      assert.ok(await growth.getByTestId('variant-summary').evaluate(el=>{const r=el.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight+1;}),'Variant summary must be visible inside the viewport');
       await growth.screenshot({path:join(out,'variant-growth-summary.png'),fullPage:true});await growth.getByRole('button',{name:'Закрыть',exact:true}).click();
     });
     await check('Two real editor tabs retain the losing edits and require explicit reload after conflict',async()=>{
@@ -104,10 +107,10 @@ export async function verifyVariantEditorRuntime({db,ownerPage,base,out,check,re
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'No horizontal overflow on mobile');
       await page.screenshot({path:join(out,'variant-editor-mobile.png'),fullPage:true});assert.deepEqual(errors,[]);
       await other.goto(url.replace(':3003',':3000'));assert.equal(await other.getByTestId('variant-editor').count(),0);
-      await growth.goto(base.replace(':3003',':3000')+'/admin/product-facts-review');await openGrowthWithKeyboard('disabled');assert.equal(await growth.getByTestId('variant-summary').count(),0);assert.deepEqual(report.legacy_growth_trigger_hit_tests.enabled,report.legacy_growth_trigger_hit_tests.disabled,'New integration must not change the existing table trigger hit area');
+      await growth.goto(base.replace(':3003',':3000')+'/admin/product-facts-review');await openGrowth('disabled');assert.equal(await growth.getByTestId('variant-summary').count(),0);assert.deepEqual(report.growth_trigger_hit_tests.enabled,report.growth_trigger_hit_tests.disabled,'New integration must not change the existing table trigger hit area');
     });
     report.variant_editor_runtime_pass=true;
-    report.limitations.push('The existing Growth table sticky header can cover the first-row trigger at the test viewport, including with the variant flag OFF. Growth integration is verified by native keyboard activation, not mouse click; the legacy pointer/layout issue is separate and remains open.');
+    report.growth_pointer_runtime_pass=true;
     report.limitations.push('C4.2 restores the captured Product builder view; the existing page resolves this synthetic product through its catalog fallback. Products/prices and the private Growth queue projection are synthetic; full Product Truth/media/review-event readers are not seeded. Real editor controls/Auth/API/DB/reload are exercised; hosted catalog/release/price approval remain separate.');
   } catch(error) {
     await growth.screenshot({path:join(out,'variant-growth-failure.png'),fullPage:true}).catch(()=>{});

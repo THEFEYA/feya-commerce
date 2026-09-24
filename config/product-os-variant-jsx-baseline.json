@@ -1,7 +1,7 @@
 {
   "version": 1,
   "source_commit": "c96e88e49b51a1fd9b99a885e0c518aa5929b143",
-  "scope": "Prior JSX excluding only the explicitly authorized optional variant mount and its enable prop; no prior layout or label changes.",
+  "scope": "Prior JSX excluding the optional variant mount/enable prop and two observed interaction repairs: fixed modal portal to the existing OwnerShell root outside the animated table, table header top:0. All baseline hashes, visible labels, class lists, children and order retained.",
   "files": {
     "components/AdminProductDetailView.tsx": {
       "sha256": "82364f71a922e14b61490de3e0b73ec93a5a83e1d5865bae27a5671b3cffcce2"
