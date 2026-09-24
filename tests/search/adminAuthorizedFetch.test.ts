@@ -4,7 +4,7 @@ import {authorizedAdminFetch,type AdminDataAccess} from '../../lib/adminAuthoriz
 
 test('denied or unavailable identity performs no privileged transport, including writes',async()=>{
  let calls=0;const transport:typeof fetch=async()=>{calls++;return new Response('{}');};
- const denied:AdminDataAccess[]=[{ok:false,status:401,code:'anonymous'},{ok:false,status:403,code:'outsider'},{ok:false,status:503,code:'disabled'}];
+ const denied:Extract<AdminDataAccess,{ok:false}>[]=[{ok:false,status:401,code:'anonymous'},{ok:false,status:403,code:'outsider'},{ok:false,status:503,code:'disabled'}];
  for(const decision of denied)for(const method of ['GET','POST','PATCH','DELETE']){
   const response=await authorizedAdminFetch(async()=>decision,transport)('https://example.test/rest/v1/private',{method});
   assert.equal(response.status,decision.status);assert.match(response.headers.get('cache-control')||'',/no-store/);

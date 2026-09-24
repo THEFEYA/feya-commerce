@@ -146,7 +146,13 @@ try {
  await check('Existing cluster queue and Growth signal screens load through guarded server reads after public revocation',async()=>{
   for(const [path,heading] of [['/admin/seo-clusters','Группировка запросов'],['/admin/signals','Диагностика сигналов']]){
    const response=await ownerPage.goto(base+path);assert.equal(response.status(),200);await ownerPage.getByRole('heading',{name:heading,exact:true}).waitFor();
-   assert.equal(await ownerPage.locator('.notice, .owner-card.is-danger').count(),0,'Protected read must succeed, not render a data error');
+   assert.equal(await ownerPage.locator('.owner-error-code').count(),0,'Protected read must succeed, not render a data error');
+   if(path==='/admin/seo-clusters'){
+    const row=ownerPage.getByRole('row').filter({hasText:'synthetic shoulder armor'});assert.equal(await row.count(),1);await row.getByText('90',{exact:true}).waitFor();
+   }else{
+    const expected=await service.from('feya_commerce_v_growth_signal_candidates_safe_v2').select('signal_fingerprint');
+    assert.equal(expected.error,null);assert.ok(expected.data.length>0);assert.equal(await ownerPage.locator('article.owner-list-row').count(),Math.min(20,expected.data.length));
+   }
    assert.match(response.headers()['cache-control'],/no-store/);
   }
   await ownerPage.goto(base+'/admin/seo-engine/keyword-metrics');
