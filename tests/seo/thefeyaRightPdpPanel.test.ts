@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 import {
   THEFEYA_CANONICAL_RIGHT_PDP_PANEL,
   buildThefeyaSeoDoctrineUserLines,
@@ -10,6 +11,26 @@ function blockBody(productId: string, blockKey: string) {
   return resolveThefeyaRightPdpPanel({ canonical_product_id: productId })
     .find((block) => block.block_key === blockKey)?.body || '';
 }
+
+test('storefront panel and writer use the active fulfillment truth with the original day units', () => {
+  const capture = JSON.parse(readFileSync('docs/search/fulfillment-truth-capture-20260924.json', 'utf8'));
+  const registry = JSON.parse(readFileSync('docs/search/inventory-capture-20260924.json', 'utf8')).business_truth;
+  // Includes ordinary products and a product-specific material/fit override.
+  for (const id of ['ordinary-product', 'ffa74da5-c2e1-4c3a-b460-50d1aae09f56']) {
+    const panel = resolveThefeyaRightPdpPanel({ canonical_product_id: id });
+    const prompt = buildThefeyaSeoDoctrineUserLines({ canonical_product_id: id }).join('\n');
+    for (const row of capture.rows) {
+      const original = registry.find((r: any) => r.truth_code === row.truth_code);
+      assert.equal(row.status, 'ACTIVE'); assert.equal(row.valid_to, null);
+      assert.equal(row.version_no, original.version_no);
+      const block = panel.find(b => b.block_key === (row.truth_type === 'PRODUCTION' ? 'production_timing' : 'shipping_delivery'));
+      assert.ok(block?.lines.includes(row.public_copy), row.truth_code);
+      assert.ok(prompt.includes(row.public_copy), row.truth_code);
+    }
+    assert.doesNotMatch(prompt, /3[-–]5 business days|6[-–]9 business days/);
+  }
+  assert.equal(registry.find((r: any) => r.truth_code === 'STANDARD_MADE_TO_ORDER_PRODUCTION_TIME').value_json.day_type, 'unspecified');
+});
 
 test('ordinary products keep the canonical right-panel order and copy', () => {
   const resolved = resolveThefeyaRightPdpPanel({ canonical_product_id: 'ordinary-product' });

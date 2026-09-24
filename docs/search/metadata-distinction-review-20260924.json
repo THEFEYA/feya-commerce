@@ -6,9 +6,9 @@
   "status": "prepared_review_only",
   "source_queue": "metadata-distinction-queue-20260924.json",
   "summary": {
-    "proposed": 39,
-    "retain": 5,
-    "held": 20
+    "proposed": 42,
+    "retain": 6,
+    "held": 16
   },
   "allowed_fields": [
     "seo_title",
@@ -359,20 +359,29 @@
         "h1": "Holographic Rave Skirt and Top Set"
       },
       "decision_id": "metadata-review-20260924-12",
-      "status": "held",
-      "reason_code": "physical_design_review",
-      "reason": "Same Top Only / Skirt Only / Full Set structure as 4033e707; generic iridescent copy gives no reliable distinction.",
+      "status": "retain",
+      "reason_code": "visually_distinct_pair",
+      "reason": "Retain existing metadata; the paired 4033e707 has a visibly lace-up top and receives the narrow descriptor proposal. No physical family approval asserted.",
       "proposed": {},
       "evidence": {
         "draft_id": "c42aa8c4-9b85-4488-a686-64871859f946",
         "approved_intro": "A handmade holographic rave skirt and top set with a shiny, color-shifting finish and a bright futuristic stage character.",
         "approved_about_this_piece": "Shiny holographic vegan leather gives the set an iridescent surface that changes subtly with the surrounding environment. The top and open skirt share the same futuristic character, creating a complete rave and stage look with a distinctive handmade finish.",
         "source_card_title": "Holographic Costume Set with Top & Skirt, Sparkling Rave Outfit, Iridescent Stage Costume, Leather Party Wear, Showgirl Clothing",
-        "offer_source": "approved-catalog-storefront-capture-20260924.json; apply existing owner/reconciled offer corrections before interpreting labels"
+        "offer_source": "approved-catalog-storefront-capture-20260924.json; apply existing owner/reconciled offer corrections before interpreting labels",
+        "followup_review": "held-metadata-visual-review-20260924.json",
+        "resolved_offer_signature": "storefront-sellable-offer-v1:[{\"id\":\"5beb728c-710c-4513-8928-0a1e8f039f96\",\"code\":\"skirt\",\"family\":\"bottom\",\"label\":\"Skirt Only\",\"aggregate\":false,\"full_set\":false,\"members\":[]},{\"id\":\"00f2653f-08fd-4095-b5e0-f3a149505147\",\"code\":\"top\",\"family\":\"top\",\"label\":\"Top Only\",\"aggregate\":false,\"full_set\":false,\"members\":[]},{\"id\":\"be42c6b1-9678-4eb2-89ec-8097591ac1bc\",\"code\":\"full_set\",\"family\":\"bundle\",\"label\":\"Full Set\",\"aggregate\":true,\"full_set\":true,\"members\":[\"skirt\",\"top\"]}]"
       },
       "owner_approval_asserted": false,
       "can_publish": false,
-      "can_index": false
+      "can_index": false,
+      "previous_review": {
+        "status": "held",
+        "reason_code": "physical_design_review",
+        "reason": "Same Top Only / Skirt Only / Full Set structure as 4033e707; generic iridescent copy gives no reliable distinction.",
+        "proposed": {}
+      },
+      "review_revision": 2
     },
     {
       "canonical_product_id": "28c6558b-2738-4c60-ad55-6d4dbd14d698",
@@ -496,20 +505,32 @@
         "h1": "Holographic Rave Skirt And Top Set"
       },
       "decision_id": "metadata-review-20260924-17",
-      "status": "held",
-      "reason_code": "physical_design_review",
-      "reason": "Compare with 256c75b4; generic iridescent copy and same options are insufficient to distinguish models.",
-      "proposed": {},
+      "status": "proposed",
+      "reason_code": "visual_construction_distinction",
+      "reason": "Visible front lacing on the sold top distinguishes it from the rounded-front 256c75b4 cover. Top/Skirt choices and existing approved visual strap facts support the descriptor; no added component or material claim.",
+      "proposed": {
+        "seo_title": "Holographic Rave Skirt and Top Set with Lace-Up Top",
+        "h1": "Holographic Rave Skirt and Top Set with Lace-Up Top"
+      },
       "evidence": {
         "draft_id": "3e540f07-42b2-4145-8055-4f881b720d6c",
         "approved_intro": "This rave skirt and top outfit is designed for rave and the stage, where its original studio design creates a bold, distinctive look.",
         "approved_about_this_piece": "Made for rave nights and stage performance, this holographic outfit uses a smooth, shiny surface to create vivid color shifts as the light or viewing angle changes. The glossy finish looks sleek in motion and gives photos and video a bold iridescent character.",
         "source_card_title": null,
-        "offer_source": "approved-catalog-storefront-capture-20260924.json; apply existing owner/reconciled offer corrections before interpreting labels"
+        "offer_source": "approved-catalog-storefront-capture-20260924.json; apply existing owner/reconciled offer corrections before interpreting labels",
+        "followup_review": "held-metadata-visual-review-20260924.json",
+        "resolved_offer_signature": "storefront-sellable-offer-v1:[{\"id\":\"4e48f7ea-ab65-4c99-addd-a2200a42c5ea\",\"code\":\"top\",\"family\":\"top\",\"label\":\"Top Only\",\"aggregate\":false,\"full_set\":false,\"members\":[]},{\"id\":\"d36b8337-028f-4c87-b620-59dd8c460911\",\"code\":\"skirt\",\"family\":\"bottom\",\"label\":\"Skirt Only\",\"aggregate\":false,\"full_set\":false,\"members\":[]},{\"id\":\"63255652-c105-48f3-8fa7-085228dedacb\",\"code\":\"full_set\",\"family\":\"bundle\",\"label\":\"Full Set\",\"aggregate\":true,\"full_set\":true,\"members\":[\"skirt\",\"top\"]}]"
       },
       "owner_approval_asserted": false,
       "can_publish": false,
-      "can_index": false
+      "can_index": false,
+      "previous_review": {
+        "status": "held",
+        "reason_code": "physical_design_review",
+        "reason": "Compare with 256c75b4; generic iridescent copy and same options are insufficient to distinguish models.",
+        "proposed": {}
+      },
+      "review_revision": 2
     },
     {
       "canonical_product_id": "4311bc31-ee98-458e-8290-b663ee525a4c",
@@ -693,20 +714,32 @@
         "h1": "Silver Metallic Top And Skirt Set for Festivals"
       },
       "decision_id": "metadata-review-20260924-24",
-      "status": "held",
-      "reason_code": "copy_offer_conflict",
-      "reason": "Title says Top and Skirt, but observed purchase choices are Shoulders / Skirt / Full Set. Confirm whether shoulder assembly includes the described top before rewriting.",
-      "proposed": {},
+      "status": "proposed",
+      "reason_code": "existing_owner_correction_recovered",
+      "reason": "Correct prior audit error: owner-confirmed Top mapping exists since 2026-09-15 for exact option ID. Crossing straps are described in approved About and visible in the source cover.",
+      "proposed": {
+        "seo_title": "Silver Cross-Strap Metallic Top and Skirt Set",
+        "h1": "Silver Cross-Strap Metallic Top and Skirt Set"
+      },
       "evidence": {
         "draft_id": "cd2ea1a8-2244-4a64-a915-d17782c2b7ef",
         "approved_intro": "This silver festival outfit brings a cosmic mood to festival dressing and creative photoshoots, with an original design built around a distinctive strapped look.",
         "approved_about_this_piece": "For festivals and photoshoots, this silver metallic outfit offers a clear futuristic character. Crossing straps and visible buckles give the design its distinctive detailing. The smooth, high-gloss surface has a polished, metal-inspired finish that complements the cosmic mood of the complete look.",
         "source_card_title": null,
-        "offer_source": "approved-catalog-storefront-capture-20260924.json; apply existing owner/reconciled offer corrections before interpreting labels"
+        "offer_source": "approved-catalog-storefront-capture-20260924.json; apply existing owner/reconciled offer corrections before interpreting labels",
+        "followup_review": "held-metadata-visual-review-20260924.json",
+        "resolved_offer_signature": "storefront-sellable-offer-v1:[{\"id\":\"2a41b72b-4ce0-468f-b709-824d03b385e9\",\"code\":\"top\",\"family\":\"top\",\"label\":\"Top\",\"aggregate\":false,\"full_set\":false,\"members\":[]},{\"id\":\"0b545588-0b9a-4fe3-a998-d412c97561c1\",\"code\":\"skirt\",\"family\":\"bottom\",\"label\":\"Skirt\",\"aggregate\":false,\"full_set\":false,\"members\":[]},{\"id\":\"f61b93dd-811a-437b-9594-d37867041107\",\"code\":\"full_set\",\"family\":\"bundle\",\"label\":\"Full Set\",\"aggregate\":true,\"full_set\":true,\"members\":[\"skirt\",\"top\"]}]"
       },
       "owner_approval_asserted": false,
       "can_publish": false,
-      "can_index": false
+      "can_index": false,
+      "previous_review": {
+        "status": "held",
+        "reason_code": "copy_offer_conflict",
+        "reason": "Title says Top and Skirt, but observed purchase choices are Shoulders / Skirt / Full Set. Confirm whether shoulder assembly includes the described top before rewriting.",
+        "proposed": {}
+      },
+      "review_revision": 2
     },
     {
       "canonical_product_id": "679c975c-b309-49dc-9207-f89fc96b84d1",
@@ -1233,20 +1266,37 @@
         "h1": "Silver Warrior Armor Costume for Burning Man"
       },
       "decision_id": "metadata-review-20260924-43",
-      "status": "held",
-      "reason_code": "copy_truth_conflict",
-      "reason": "SEO title says Silver; approved about text explicitly describes gold and silver panels and black/gold styling. Verify canonical colour and included arm/leg parts before any title correction.",
-      "proposed": {},
+      "status": "proposed",
+      "reason_code": "color_neutral_offer_specific_title",
+      "reason": "Use existing Arm Armor / Leg Armor options and approved warrior intent. Remove overly narrow Silver from metadata without changing mixed-color body/meta, canonical colour or unresolved substrate.",
+      "proposed": {
+        "seo_title": "Warrior Armor Costume with Arm and Leg Pieces",
+        "h1": "Warrior Armor Costume with Arm and Leg Pieces"
+      },
       "evidence": {
         "draft_id": "c1203762-3fb8-4000-9e58-8b259d5b0322",
         "approved_intro": "A warrior-inspired armor outfit with glossy panels and black straps, bringing a cyberpunk character to Burning Man and festival dressing.",
         "approved_about_this_piece": "Gold and silver panels, round fastenings and rows of black buckle straps give this costume its post-apocalyptic character. The open construction leaves space between the panels, creating an expressive armor-inspired look. For women drawn to black and gold festival outfits, it brings an original warrior theme to a wardrobe with a taste for cyberpunk fashion.",
         "source_card_title": null,
-        "offer_source": "approved-catalog-storefront-capture-20260924.json; apply existing owner/reconciled offer corrections before interpreting labels"
+        "offer_source": "approved-catalog-storefront-capture-20260924.json; apply existing owner/reconciled offer corrections before interpreting labels",
+        "followup_review": "held-metadata-visual-review-20260924.json",
+        "resolved_offer_signature": "storefront-sellable-offer-v1:[{\"id\":\"e3d9d1b7-e8ff-4d0b-84ad-f7a06873800a\",\"code\":\"legs\",\"family\":\"legs\",\"label\":\"Leg Armor\",\"aggregate\":false,\"full_set\":false,\"members\":[]},{\"id\":\"242e3bfc-64b5-4b53-9f16-b2b0c5cf0ce0\",\"code\":\"arms\",\"family\":\"arms\",\"label\":\"Arm Armor\",\"aggregate\":false,\"full_set\":false,\"members\":[]},{\"id\":\"2266d9a3-ba25-445f-ab6a-7eb2bc354942\",\"code\":\"full_set\",\"family\":\"bundle\",\"label\":\"Full Set\",\"aggregate\":true,\"full_set\":true,\"members\":[\"arms\",\"legs\"]}]"
       },
       "owner_approval_asserted": false,
       "can_publish": false,
-      "can_index": false
+      "can_index": false,
+      "previous_review": {
+        "status": "held",
+        "reason_code": "copy_truth_conflict",
+        "reason": "SEO title says Silver; approved about text explicitly describes gold and silver panels and black/gold styling. Verify canonical colour and included arm/leg parts before any title correction.",
+        "proposed": {}
+      },
+      "review_revision": 2,
+      "remaining_non_metadata_holds": [
+        "canonical_color_reconciliation",
+        "substrate_clarification",
+        "gallery_review"
+      ]
     },
     {
       "canonical_product_id": "a875757c-140d-4fea-83f9-93098406c3b1",

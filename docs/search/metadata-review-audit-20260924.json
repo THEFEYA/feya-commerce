@@ -4,9 +4,9 @@
   "target_products": 208,
   "reviewed_candidates": 64,
   "summary": {
-    "proposed": 39,
-    "retain": 5,
-    "held": 20
+    "proposed": 42,
+    "retain": 6,
+    "held": 16
   },
   "title_groups_after_proposals": [
     {
@@ -75,13 +75,6 @@
       ]
     },
     {
-      "normalized_text": "holographic rave skirt and top set",
-      "product_ids": [
-        "256c75b4-f378-4b21-8321-9d5766bd209c",
-        "4033e707-98e2-45ad-9fd6-b7d615673fa3"
-      ]
-    },
-    {
       "normalized_text": "men's gold warrior armor costume",
       "product_ids": [
         "1eb4b55c-dedf-4399-92fd-c94c8d962091",
@@ -110,7 +103,7 @@
       ]
     }
   ],
-  "residual_metadata_collision_products": 18,
+  "residual_metadata_collision_products": 16,
   "preservation": {
     "existing_drafts_written": 0,
     "full_descriptions_changed": 0,
@@ -133,7 +126,11 @@
     },
     {
       "path": "docs/search/metadata-distinction-review-20260924.json",
-      "sha256": "c9e7b25f756a93892afa8c9c1c29c048e6ef65f752d8e4354e523ff9a0f8f32c"
+      "sha256": "6e548892cbe8aa12f986f204068fae43463eca025e63babb33087afb6bd3a69f"
+    },
+    {
+      "path": "docs/search/approved-catalog-storefront-capture-20260924.json",
+      "sha256": "866342ea3c596aef10182941a5ac77f1cc4e388c8ce8789820a834337962b5a6"
     }
   ],
   "can_publish": false,

@@ -3,11 +3,14 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { previewMetadataReview } from '../lib/seoMetadataReview.ts';
 import { auditExactCatalogCopy } from '../lib/seoCatalogCopyAudit.ts';
+import { resolveStorefrontSellableOffer } from '../lib/storefrontSellableOffer.ts';
 
 const paths = ['docs/search/approved-catalog-content-capture-20260924.json', 'docs/search/approved-catalog-content-bindings-20260924.json',
-  'docs/search/metadata-distinction-queue-20260924.json', 'docs/search/metadata-distinction-review-20260924.json'];
+  'docs/search/metadata-distinction-queue-20260924.json', 'docs/search/metadata-distinction-review-20260924.json',
+  'docs/search/approved-catalog-storefront-capture-20260924.json'];
 const source = paths.map(p => readFileSync(p, 'utf8'));
-const [capture, bindings, queue, review] = source.map(s => JSON.parse(s));
+const [capture, bindings, queue, review, storefrontCapture] = source.map(s => JSON.parse(s));
+const storefront = storefrontCapture.products;
 const map = new Map<string, any>(review.rows.map((r: any) => [r.canonical_product_id, r]));
 assert.equal(map.size, 64);
 assert.deepEqual([...map.keys()].sort(), queue.rows.map((r: any) => r.canonical_product_id).sort());
@@ -19,6 +22,11 @@ const projected = capture.products.map((draft: any) => {
   assert.equal(row.evidence.approved_intro, draft.intro);
   assert.equal(row.evidence.approved_about_this_piece, draft.agent_output_snapshot.pdp_blocks.find((b: any) => b.block_key === 'about_this_piece').body);
   assert.equal(row.source_record_md5, draft.full_record_md5);
+  if (row.evidence.resolved_offer_signature) {
+    const offer = resolveStorefrontSellableOffer(storefront.find((p: any) => p.canonical_product_id === row.canonical_product_id));
+    assert.equal(offer.status, 'ready');
+    assert.equal(row.evidence.resolved_offer_signature, offer.signature, 'Review used stale/raw labels instead of the corrected offer');
+  }
   if (row.status !== 'proposed') { assert.deepEqual(row.proposed, {}); return draft; }
   const binding = bindings.entries.find((e: any) => e.identity.canonical_product_id === draft.canonical_product_id);
   const result = previewMetadataReview(binding.payload, binding.identity, row);

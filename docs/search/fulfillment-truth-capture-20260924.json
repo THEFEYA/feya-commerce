@@ -1,0 +1,48 @@
+{
+  "contract_version": "fulfillment_truth_capture_v1",
+  "captured_on": "2026-09-24",
+  "mode": "production_select_only",
+  "project_ref": "ysnizcgzhdwdfdkjkhud",
+  "query": "select truth_code,truth_type,scope_type,scope_key,locale,status,public_copy,version_no,valid_from,valid_to,updated_at from feya_commerce_v_business_truth_status_safe_v1 where truth_type in ('PRODUCTION','SHIPPING') order by truth_code",
+  "rows": [
+    {
+      "truth_code": "EXPRESS_SHIPPING_TIME",
+      "truth_type": "SHIPPING",
+      "scope_type": "SHIPPING_PROFILE",
+      "scope_key": "express_shipping",
+      "locale": "en",
+      "status": "ACTIVE",
+      "public_copy": "Express shipping usually takes 7–10 business days.",
+      "version_no": 1,
+      "valid_from": "2026-09-18 08:28:19.498029+00",
+      "valid_to": null,
+      "updated_at": "2026-09-18 08:28:19.498029+00"
+    },
+    {
+      "truth_code": "STANDARD_INTERNATIONAL_TRACKED_SHIPPING_TIME",
+      "truth_type": "SHIPPING",
+      "scope_type": "SHIPPING_PROFILE",
+      "scope_key": "international_tracked_shipping",
+      "locale": "en",
+      "status": "ACTIVE",
+      "public_copy": "Standard international shipping usually takes 10–14 business days.",
+      "version_no": 1,
+      "valid_from": "2026-09-18 08:28:19.498029+00",
+      "valid_to": null,
+      "updated_at": "2026-09-18 08:28:19.498029+00"
+    },
+    {
+      "truth_code": "STANDARD_MADE_TO_ORDER_PRODUCTION_TIME",
+      "truth_type": "PRODUCTION",
+      "scope_type": "PRODUCTION_PROFILE",
+      "scope_key": "standard_made_to_order",
+      "locale": "en",
+      "status": "ACTIVE",
+      "public_copy": "Production usually takes 3–5 days.",
+      "version_no": 1,
+      "valid_from": "2026-09-18 08:28:19.498029+00",
+      "valid_to": null,
+      "updated_at": "2026-09-18 08:28:19.498029+00"
+    }
+  ]
+}

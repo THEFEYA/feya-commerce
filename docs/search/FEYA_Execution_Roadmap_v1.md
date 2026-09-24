@@ -2,11 +2,15 @@
 
 Актуализировано 24 сентября 2026; постоянный checkpoint для следующих сессий. Основа: `FEYA_Search_Architecture_v1.md` (A–K), `FEYA_Page_Portfolio_Schema_v1.md`, `FEYA_Keyword_Research_Queue_v1.json`, `Launch_Track_Decision_20260924.md`, Product/Growth contracts, предметные audits. Статус из этого документа проверяется по фактическому commit, БД и deployment, а не по памяти разговора. Owner отвечает за стратегические бизнес решения; Core проверяет роли/версии и исполняет только разрешённый changeset.
 
-## Текущий checkpoint: C1/C3, 24.09.2026
+## Текущий checkpoint: C1/C2/C5, 24.09.2026
 
-Продолжать с `Approved_Content_Integration_20260924.md`. Все 208 товаров остаются target. Все 64 metadata candidates разобраны: 39 адресных предложений, 5 сохранений, 20 предметных holds (18 physical-design, 2 copy/truth). Предложения не записаны поверх approved drafts. Закрытое серверное подключение approved copy к настоящему PDP подготовлено для 208 точных версий; по умолчанию OFF, только authenticated review, noindex и previewMode. Метаданные/JSON-LD/description используют одну версию. Публичный release и C2 ownership ещё не завершены.
+Продолжать с `Query_Ownership_And_Truth_Review_20260924.md`. Все 208 товаров остаются target; 19 отложенных не возвращать на критический путь. Предшествующий `e2eb870224c4702da5b7686d59879c8581b530ec` проверен: CI 9/9, 36/36 runtime, server HTML 208/208; новый пакет проверять по точному head PR.
 
-Следующий порядок: exact-head runtime evidence → C1.2 предметные holds + C2 query ownership → C3.2 public-safe release → C4 exact quotes/SEO gates; C5 company/domain/policy готовить независимо. Отложенные 19 не возвращать на критический путь. От владельца сейчас ничего не требуется.
+C1: просмотрены 20 спорных обложек. Исправлена ошибка аудита, игнорировавшая прежнее owner confirmation Top для 657bd6d8; повторно не спрашивать. Текущие 64 metadata reviews: **42 предложения, 6 сохранений, 16 holds** в восьми физических парах. Новые предложения не применены к approved copy. Material/color hold a83b1b51 сохраняется отдельно от исправления заголовка.
+
+C2: готово 50 query proposals по 112 историческим Primary формулировкам (203 PDP); 5 PDP без Primary в обоих capture источниках. 14 cluster proposals направлены семи ранее запланированным кандидатам разделов, 31 — существующим PDP, 5 model scopes остаются без owner. Это не новые опубликованные страницы и не зарегистрированные DB ownership rows. C5: production 3–5 days, standard 10–14 business days, express 7–10 business days сверены с ACTIVE v1 и внесены в общий code-owned источник.
+
+Следующий порядок: ответы/источники по C1.3 + secondary/scope C2.2 → C3.2 immutable public-safe release и Shop cohort → C4 exact tuple quotes/crawl → C6 pre-index. C5 company/domain/policy продолжать независимо. **От владельца подготовлены три уточнения по пяти карточкам** в `Owner_Product_Questions_20260924.md` (две пары моделей и один материал/цвет); новых выгрузок ключей, файлов или подключений сейчас не требуется. Эти вопросы не блокируют подготовку release-кода.
 
 ## Неподвижные ограничения
 
@@ -32,7 +36,7 @@
 
 Этапы 1 и 2 готовятся параллельно; 6 можно готовить независимо от 3–5. Публичный company release не ждёт всех product holds или Keyword Planner; фактический checkout требует доказанной цены выбранной комбинации. Полное снятие `noindex` ждёт этапы 1, 3, 4, 5 и нужные технические/security части 6–7 для конкретных коммерческих URL. Если решён каталог без оплаты, это отдельное явное решение с корректной семантикой страниц, не скрытый обход commerce gate.
 
-## Следующий bounded work package
+## Исторический checkpoint до C1/C2/C5 (не следующий work package)
 
 Текущий checkpoint: [Deployment_Source_Map_20260924.md](Deployment_Source_Map_20260924.md). Прежний локальный пакет полностью опубликован в `c2b5cd4`, 12 Git blobs и полное дерево проверены; CI 9/9, runtime log 30 PASS, preview READY. Установлены обе screenshot branch/deployment связи. Supabase ref и 243-record contracts проверены SELECT; привязка Vercel environment к БД ещё неизвестна. На проверенном preview действует Vercel SSO; public release нуждается в отдельном анонимном тесте. 15 cover images просмотрены; результаты записаны в Design Review.
 
@@ -51,8 +55,8 @@
 
 Коротко: **что готово → что остаётся заблокированным → следующий шаг → что требуется от вас сейчас**. Указывать отдельно локальный результат, remote PR, production DB и индексацию. Если действий владельца пока нет, говорить об этом явно. Если требуется факт, показывать конкретный товар/решение и почему источники его не содержат.
 
-### Runtime checkpoint C3 и независимый C5
+### Исторический runtime checkpoint C3 и обнаружение C5
 
 Основной renderer `bd0a0718` прошёл 9/9 CI, 36/36 runtime сценариев, 208/208 серверных PDP. Подробности и artifact SHA — в `Approved_Content_Integration_20260924.md`. Последний canonical-origin follow-up и актуальный branch head проверять по верхнему checkpoint PR; не переносить автоматически CI статус между коммитами.
 
-C5 имеет конкретные code/canon расхождения: production day type и express 6–9 против канонических 7–10; Footer placeholder links и неподтверждённый Berlin/материалы. Сначала текущий business-truth registry + прежние owner decisions, затем точный пакет вопросов только при оставшихся пробелах. Основной SEO draft не подтверждает sidebar policy copy.
+C5 исходно выявил production day type и express 6–9 против канонических 7–10. Сроки исправлены в новом пакете после актуального SELECT; Footer placeholder links и неподтверждённый Berlin/материалы остаются открыты. Основной SEO draft не подтверждает sidebar policy copy.
