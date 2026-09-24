@@ -25,6 +25,7 @@ import { applyOwnerReviewedStorefrontCorrections } from '@/lib/storefrontOwnerRe
 import type { StorefrontProduct } from '@/lib/types';
 import { readApprovedStorefrontCopy } from '@/lib/seoApprovedStorefrontServer';
 import type { ApprovedCopyPayload } from '@/lib/seoApprovedContentProjection';
+import { readClosedReviewPresentation } from '@/lib/searchReviewPresentationServer';
 import { absoluteSiteUrl } from '@/lib/siteConfig';
 
 export const dynamic = 'force-dynamic';
@@ -152,6 +153,12 @@ async function getProduct(slug: string) {
 
 // One request-scoped source for head, JSON-LD and existing PDP props.
 const getPresentation = cache(async (slug: string) => {
+  const review = await readClosedReviewPresentation();
+  if (review.status === 'blocked') return { product: null, related: [], approvedCopy: null, copyBlocked: true, error: null };
+  if (review.status === 'review') {
+    const entry = review.release.entries.find(e => e.product.product_slug === slug);
+    return { product: entry?.product ?? null, related: [], approvedCopy: entry?.copy ?? null, copyBlocked: !entry, error: null };
+  }
   const result = await getProduct(slug);
   const approved = result.product ? await readApprovedStorefrontCopy(result.product) : null;
   return { ...result, approvedCopy: approved?.copy ?? null, copyBlocked: approved?.status === 'blocked' };
@@ -204,8 +211,9 @@ export default async function ProductPage({ params }: PageProps) {
     {productCollections.length ? <section className="container-feya py-10 border-t border-[rgba(216,214,211,.12)]">
       <div className="eyebrow-gold mb-4">Explore related collections</div>
       <div className="flex flex-wrap gap-2">
-        {productCollections.map((collection) => <Link key={collection.slug} href={`/collections/${collection.slug}`} className="chip">{collection.title}</Link>)}
+        {productCollections.map((collection) => <Link key={collection.slug} href={`/shop?collection=${collection.slug}`} className="chip">{collection.title}</Link>)}
       </div>
     </section> : null}
   </main>;
 }
+

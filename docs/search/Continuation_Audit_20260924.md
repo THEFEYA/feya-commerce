@@ -20,7 +20,7 @@
 
 `closed-review-source-manifest-20260924.json` was generated from fresh SELECT data. Its companion audit records the exact capture time and hash. **Raw source material/configuration values still require the already-approved exact-ID correction layer from the pinned code commit. `correction_overlay_applied=false`, `runtime_connected=false`.** Do not import this file into a client component, expose it publicly, or describe it as a public release. It is a private engineering input and contains review-only source prices and configurations.
 
-## Remaining C3.2 work (not completed by this package)
+## Historical C3.2 remainder at the source-manifest checkpoint
 
 1. Build the public-safe projection after applying the existing owner correction layer; pin correction, truth, content and media versions. Never infer orderability from this source manifest.
 2. Add the authenticated closed-review resolver, exact pinned-draft revocation checks and consistent request-scoped read. A newer unrelated draft must not silently substitute the approved snapshot. Archived/revoked approval fails closed.
@@ -33,3 +33,7 @@ Then C4.3 exact server quotes/orderability; independently C5 company/domain/priv
 ## Scope and rollback
 
 No existing application route, component, font, CSS, visual contract, approved copy, stored price, DB schema or hosted flag was modified. This change is additive preparation. Rollback: revert this code/document commit or leave the prepared files unused; retain audit/history. No DB reverse migration is needed.
+
+## Follow-up integration
+
+The next C3.2 implementation is documented in `Shared_Review_Release_20260924.md`. The raw input manifest remains `closed_review_prepared`; a separate trusted presentation binding applies corrections and powers authenticated runtime. Do not rewrite the raw capture or treat the new closed runtime as public launch approval.

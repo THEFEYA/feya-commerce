@@ -1,0 +1,10 @@
+{
+  "source_commit": "dbc46e33d88a541ee75a4186ff7861fe98c0f3d1",
+  "scope": "Existing JSX class/style expressions and literal copy; only data routing, href and pagination behavior authorized.",
+  "surfaces": {
+    "app/page.tsx": "36f1aba7d97f78e1a8f15551807b8a3106b26e61d9b7c893f2b48cca26c3cefe",
+    "app/shop/page.tsx": "1c99a96c2cc81ebd095f643a5513f1dc07cf7dd467ac76ad412123b42ecbb3ae",
+    "app/shop/[slug]/page.tsx": "730ebe65437ced0c8a5548bbbba3ba384b294cde9dd7eeb55ca0b1d69c2eefc3",
+    "components/ShopClient.tsx": "93cd8dec5bb7d4585cc8f9a36effa92bf0673432651cc2a20160d8a4636300bc"
+  }
+}

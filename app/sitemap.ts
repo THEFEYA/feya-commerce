@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next';
+import { closedReviewRequested } from '@/lib/searchReviewPresentation';
 import { getSupabaseReadClient } from '@/lib/supabase';
 import { getSiteUrl, isSearchIndexingEnabled } from '@/lib/siteConfig';
 import { portfolioSitemapUrls, readCompletePortfolio, type SitemapPortfolioRow } from '@/lib/searchSitemapPolicy';
@@ -6,7 +7,7 @@ import { portfolioSitemapUrls, readCompletePortfolio, type SitemapPortfolioRow }
 export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  if (!isSearchIndexingEnabled()) return [];
+  if (closedReviewRequested(process.env) || !isSearchIndexingEnabled()) return [];
   const supabase = getSupabaseReadClient();
   if (!supabase) throw new Error('Sitemap source unavailable');
   const rows = await readCompletePortfolio<SitemapPortfolioRow>(async (from, to) => {
@@ -22,3 +23,4 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Home/Shop must be actual approved portfolio rows, never implicit entries.
   return portfolioSitemapUrls(rows, getSiteUrl().origin);
 }
+

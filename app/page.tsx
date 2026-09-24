@@ -1,5 +1,8 @@
 // @ts-nocheck
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { readClosedReviewPresentation } from '@/lib/searchReviewPresentationServer';
+import { closedReviewRequested } from '@/lib/searchReviewPresentation';
 import Link from 'next/link';
 import { ArrowUpRight, Globe2, Ruler, Scissors, Sparkles, Truck } from 'lucide-react';
 import { Header } from '@/components/Header';
@@ -18,6 +21,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export const metadata: Metadata = {
+  ...(closedReviewRequested(process.env) ? { robots: { index: false, follow: false } } : {}),
   title: 'TheFEYA | Handmade Stagewear and Festival Looks',
   description: 'Original handmade designs for stage, festival, desert and editorial looks. Adjustable sizing and selected color/detail customization for existing TheFEYA designs.',
   alternates: { canonical: '/' },
@@ -55,6 +59,9 @@ async function mergeMedia(supabase, products) {
 }
 
 async function getProducts() {
+  const review = await readClosedReviewPresentation();
+  if (review.status === 'blocked') notFound();
+  if (review.status === 'review') return review.release.entries.slice(0, HOME_PRODUCTS_LIMIT).map(e => e.product);
   const supabase = getSupabaseReadClient();
   if (!supabase) return [];
 
@@ -89,7 +96,7 @@ export default async function HomePage() {
             <p className="editorial-italic text-[var(--bone-dim)] text-lg lg:text-xl mt-6 max-w-xl">Statement pieces for stage, festival, desert and editorial styling. Designed by TheFEYA, with adjustable sizing and selected detail customization for existing designs.</p>
             <div className="flex flex-wrap gap-4 mt-8">
               <Link href="/shop" className="btn-chrome">Shop catalog <ArrowUpRight size={14} /></Link>
-              <Link href="/collections" className="btn-ghost">Explore collections <ArrowUpRight size={14} /></Link>
+              <Link href="/shop" className="btn-ghost">Explore collections <ArrowUpRight size={14} /></Link>
             </div>
           </div>
 
@@ -137,3 +144,4 @@ function ProductRail({ title, kicker, products }) {
     </section>
   );
 }
+

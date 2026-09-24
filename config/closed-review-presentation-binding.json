@@ -1,0 +1,12 @@
+{
+  "release_id": "feya-review-207-20260924",
+  "source_sha256": "6842ff45e4380758216f74cb309e557d68d5f6692a1206254beef954eab07440",
+  "presentation_sha256": "28339e854bf9a1579d74284aa00bff1ade0ea75e18a6ac12929da2ca237230c3",
+  "source_count": 208,
+  "visible_count": 207,
+  "correction_commit": "be77b761749876810953c3cc6fb4062a06688854",
+  "can_publish": false,
+  "can_index": false,
+  "can_enable_checkout": false,
+  "doctrine_version": "thefeya_seo_doctrine_v25"
+}

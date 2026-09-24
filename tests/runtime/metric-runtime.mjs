@@ -22,6 +22,7 @@ import {legacySnapshotToDemandRow} from '../../lib/searchLegacyDemandAdapter.ts'
 import {metricRowsToCsv} from '../../lib/searchMetricCsv.ts';
 import {startGoogleProviderFixture,seedGoogleBatch} from './google-provider-fixture.mjs';
 import {googleBatch} from '../search/googleAdsFixture.ts';
+import {verifyClosedReviewRuntime} from './closed-review-runtime.mjs';
 import {verifyApprovedContentRuntime} from './approved-content-runtime.mjs';
 import {verifyVariantDraftRuntime} from './variant-draft-runtime.mjs';
 const root=process.cwd(),out=resolve('runtime-results');
@@ -317,6 +318,7 @@ try {
   report.advisor_counts=Object.fromEntries([...new Set(parsed.map(f=>f.name))].sort().map(name=>[name,parsed.filter(f=>f.name===name).length]));
  });
  await verifyApprovedContentRuntime({db,browser,ownerPage,env,out,check,report});
+ await verifyClosedReviewRuntime({db,browser,ownerPage,env,out,check,report,otherEmail,password});
  report.next_write_path_verified=true;
  report.status='pass';await writeFile(join(out,'next.log'),appLog);
 } catch(e){report.status='fail';report.error=String(e.message).slice(0,1000);console.error(report.error);process.exitCode=1;}
@@ -339,3 +341,4 @@ finally{
  await googleProvider?.close();await db?.end();if(started){try{cli(['stop','--workdir',work,'--no-backup']);}catch{console.error('Ephemeral stack cleanup needs runner teardown.');}}
  if(work)await rm(work,{recursive:true,force:true});
 }
+

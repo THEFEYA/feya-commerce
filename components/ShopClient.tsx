@@ -4,37 +4,15 @@ import { useEffect, useMemo, useState } from 'react';
 import { colorStyle } from '@/components/colors';
 import { ProductCard } from '@/components/ProductCard';
 import type { StorefrontProduct } from '@/lib/types';
-import { categoryLabel, colorLabel, mainRegularPrice, productTitle } from '@/lib/storefront';
 
-const PAGE_SIZE = 20;
-const CATEGORIES = ['All', 'Corsets', 'Harness', 'Masks', 'Armor', 'Bodysuits', 'Stage Looks', 'Skirts', 'Accessories'];
-const COLORS = ['Gold', 'Silver', 'Black', 'White', 'Red', 'Holographic'];
-const SIZES = ['XS','S','M','L','XL','XXL','XXXL','Custom'];
-const MATERIALS = ['Mirror Acrylic', 'Vegan Leather', 'Mirror Chrome', 'Holographic Vinyl', 'Resin'];
-const OCCASIONS = ['Festival', 'Stage', 'Burning Man', 'Editorial', 'Carnival'];
-const STYLES = ['Desert', 'Rave', 'Stage', 'Editorial', 'Futuristic', 'Goddess', 'Warrior'];
-const PRODUCTION_TIMES = ['7–10 days', '14–21 days', '21–28 days', '30+ days'];
-const SORTS = ['Editorial pick', 'Best sellers', 'Price · low to high', 'Price · high to low', 'Newest'];
+import { ShopPagination } from '@/components/ShopPagination';
+import { SHOP_PAGE_SIZE as PAGE_SIZE, CATEGORIES, COLORS, SIZES, MATERIALS, OCCASIONS, STYLES, PRODUCTION_TIMES, SORTS, defaultShopFilters, filterShopProducts, type ShopNavigation } from '@/lib/shopCatalogNavigation';
 
 type ShopCollectionLink = {
   slug: string;
   title: string;
   products?: StorefrontProduct[];
 };
-
-function contains(p: StorefrontProduct, q: string) {
-  return `${productTitle(p)} ${p.meta_description || ''} ${p.material || ''} ${p.color || ''} ${p.product_type || ''} ${p.production_profile || ''} ${p.shipping_profile || ''}`.toLowerCase().includes(q.toLowerCase());
-}
-
-function matchesProduction(p: StorefrontProduct, value: string) {
-  if (!value) return true;
-  const text = `${p.production_profile || ''} ${p.shipping_profile || ''} ${p.meta_description || ''}`.toLowerCase();
-  if (value === '7–10 days') return /7|10|express/.test(text);
-  if (value === '14–21 days') return /14|21|standard|ups|made/.test(text) || !text.trim();
-  if (value === '21–28 days') return /21|28/.test(text);
-  if (value === '30+ days') return /30|month/.test(text);
-  return true;
-}
 
 function toggleValue(list: string[], value: string) {
   return list.includes(value) ? list.filter((item) => item !== value) : [...list, value];
@@ -52,22 +30,26 @@ function FilterBox({ checked }: { checked: boolean }) {
   </span>;
 }
 
-export function ShopClient({ products, error }: { products: StorefrontProduct[]; error?: string; collections?: ShopCollectionLink[] }) {
-  const [category, setCategory] = useState('All');
-  const [priceMin, setPriceMin] = useState(0);
-  const [priceMax, setPriceMax] = useState(1000);
-  const [color, setColor] = useState('');
-  const [size, setSize] = useState('');
-  const [material, setMaterial] = useState('');
-  const [occasion, setOccasion] = useState<string[]>([]);
-  const [style, setStyle] = useState<string[]>([]);
-  const [productionTime, setProductionTime] = useState('');
-  const [search, setSearch] = useState('');
-  const [sort, setSort] = useState(SORTS[0]);
+export function ShopClient({ products, error, navigation }: { products: StorefrontProduct[]; error?: string; collections?: ShopCollectionLink[]; navigation?: ShopNavigation }) {
+  const initial = navigation?.filters ?? defaultShopFilters();
+  const [page, setPage] = useState(navigation?.page ?? 1);
+  const [collection, setCollection] = useState(initial.collection);
+  const [category, setCategory] = useState(initial.category);
+  const [priceMin, setPriceMin] = useState(initial.priceMin);
+  const [priceMax, setPriceMax] = useState(initial.priceMax);
+  const [color, setColor] = useState(initial.color);
+  const [size, setSize] = useState(initial.size);
+  const [material, setMaterial] = useState(initial.material);
+  const [occasion, setOccasion] = useState<string[]>(initial.occasion);
+  const [style, setStyle] = useState<string[]>(initial.style);
+  const [productionTime, setProductionTime] = useState(initial.productionTime);
+  const [search, setSearch] = useState(initial.search);
+  const [sort, setSort] = useState(initial.sort);
   const [sortOpen, setSortOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   useEffect(() => {
+    if (navigation) return;
     const params = new URLSearchParams(window.location.search);
     const nextCategory = allowedParamValue(params.get('category'), CATEGORIES);
     const nextOccasion = allowedParamValue(params.get('occasion'), OCCASIONS);
@@ -80,37 +62,25 @@ export function ShopClient({ products, error }: { products: StorefrontProduct[];
     if (nextSearch) setSearch(nextSearch);
   }, []);
 
-  const filtered = useMemo(() => {
-    let list = products.filter((p) => {
-      const price = mainRegularPrice(p) || 0;
-      if (category !== 'All' && categoryLabel(p) !== category) return false;
-      if (price < priceMin || price > priceMax) return false;
-      if (color && colorLabel(p) !== color) return false;
-      if (size === 'Custom' && p.size_mode !== 'custom') return false;
-      if (material && !contains(p, material.replace('Mirror ', ''))) return false;
-      if (occasion.length && !occasion.some((o) => contains(p, o))) return false;
-      if (style.length && !style.some((s) => contains(p, s))) return false;
-      if (productionTime && !matchesProduction(p, productionTime)) return false;
-      if (search.trim() && !contains(p, search.trim())) return false;
-      return true;
-    });
-    if (sort === 'Price · low to high') list = list.sort((a,b)=>(mainRegularPrice(a)||0)-(mainRegularPrice(b)||0));
-    if (sort === 'Price · high to low') list = list.sort((a,b)=>(mainRegularPrice(b)||0)-(mainRegularPrice(a)||0));
-    if (sort === 'Newest') list = list.reverse();
-    return list;
-  }, [products, category, priceMin, priceMax, color, size, material, occasion, style, productionTime, search, sort]);
+  const filters = useMemo(() => ({ category, priceMin, priceMax, color, size, material, occasion, style, productionTime, search, sort, collection }), [category, priceMin, priceMax, color, size, material, occasion, style, productionTime, search, sort, collection]);
+  const filtered = useMemo(() => filterShopProducts(products, filters), [products, filters]);
+  const [previousFilters, setPreviousFilters] = useState(filters);
+  if (previousFilters !== filters) {
+    setPreviousFilters(filters);
+    if (page !== 1) setPage(1);
+  }
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [category, priceMin, priceMax, color, size, material, occasion, style, productionTime, search, sort]);
+  }, [category, priceMin, priceMax, color, size, material, occasion, style, productionTime, search, sort, collection]);
 
-  const visibleProducts = filtered.slice(0, visibleCount);
+  const visibleProducts = navigation ? filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE) : filtered.slice(0, visibleCount);
   const canLoadMore = visibleCount < filtered.length;
-  const clear = () => { setCategory('All'); setPriceMin(0); setPriceMax(1000); setColor(''); setSize(''); setMaterial(''); setOccasion([]); setStyle([]); setProductionTime(''); setSearch(''); setSort(SORTS[0]); };
-  const activeCount = Number(category !== 'All') + Number(priceMin > 0 || priceMax < 1000) + Number(Boolean(color)) + Number(Boolean(size)) + Number(Boolean(material)) + occasion.length + style.length + Number(Boolean(productionTime)) + Number(Boolean(search));
+  const clear = () => { setCollection(''); setCategory('All'); setPriceMin(0); setPriceMax(1000); setColor(''); setSize(''); setMaterial(''); setOccasion([]); setStyle([]); setProductionTime(''); setSearch(''); setSort(SORTS[0]); };
+  const activeCount = Number(Boolean(collection)) + Number(category !== 'All') + Number(priceMin > 0 || priceMax < 1000) + Number(Boolean(color)) + Number(Boolean(size)) + Number(Boolean(material)) + occasion.length + style.length + Number(Boolean(productionTime)) + Number(Boolean(search));
 
   return <div data-testid="shop-page" className="relative pt-24 lg:pt-28">
-    <section className="container-feya py-8 lg:py-10"><div className="eyebrow mb-3 reveal">TheFEYA catalog · Real storefront products</div><h1 className="display-hero text-bone reveal reveal-d1" style={{ fontSize: 'clamp(44px, 6.5vw, 96px)' }}>The <span className="editorial-italic text-gold-grad">shop</span></h1><p className="editorial-italic text-[var(--bone-dim)] mt-4 text-lg">{products.length || 200} handmade designs and statement pieces. Filter by world, material or stage-readiness.</p></section>
+    <section className="container-feya py-8 lg:py-10"><div className="eyebrow mb-3 reveal">TheFEYA catalog · Real storefront products</div><h1 className="display-hero text-bone reveal reveal-d1" style={{ fontSize: 'clamp(44px, 6.5vw, 96px)' }}>The <span className="editorial-italic text-gold-grad">shop</span></h1><p className="editorial-italic text-[var(--bone-dim)] mt-4 text-lg">{navigation ? products.length : (products.length || 200)} handmade designs and statement pieces. Filter by world, material or stage-readiness.</p></section>
     <div className="sticky top-[62px] lg:top-[64px] z-30 border-y border-[rgba(216,214,211,0.12)] bg-[rgba(7,7,10,0.90)] backdrop-blur-xl category-tabs-recovered"><div className="container-feya flex items-center gap-5 xl:gap-7 overflow-x-auto overflow-y-visible py-4 min-h-[58px] whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {CATEGORIES.map((c) => <button key={c} onClick={() => setCategory(c)} className={`chip shrink-0 ${category === c ? 'chip-active' : ''}`}>{c}</button>)}
       <div className="ml-auto relative shrink-0"><button onClick={() => setSortOpen(v=>!v)} className="chip flex items-center gap-2"><SlidersHorizontal size={13} /> {sort}</button>{sortOpen && <div className="absolute right-0 top-full mt-2 w-[278px] rounded-xl border border-[rgba(216,214,211,.22)] bg-[rgba(5,5,8,.96)] p-2 z-[100] shadow-[0_28px_80px_rgba(0,0,0,.75)] backdrop-blur-xl flex flex-col gap-1 overflow-hidden">{SORTS.map((s)=><button key={s} onClick={()=>{setSort(s);setSortOpen(false);}} className={`block w-full text-left px-4 py-2.5 rounded-lg text-[10px] tracking-[0.20em] uppercase transition-all ${sort === s ? 'text-[var(--gold-warm)] bg-[rgba(212,178,106,.12)]' : 'text-[var(--bone-dim)] hover:text-white hover:bg-white/8'}`}>{s}</button>)}</div>}</div>
@@ -127,7 +97,8 @@ export function ShopClient({ products, error }: { products: StorefrontProduct[];
         <div><div className="eyebrow text-[10.5px] mb-3">Production time</div>{PRODUCTION_TIMES.map(t=><button key={t} onClick={()=>setProductionTime(productionTime===t?'':t)} className="w-full flex items-center gap-2 text-left text-[12px] text-[var(--bone-dim)] py-1.5 hover:text-white"><FilterBox checked={productionTime===t} />{t}</button>)}</div>
         {activeCount > 0 && <button onClick={clear} className="w-full text-left flex items-center gap-2 text-[var(--gold)] hover:text-white text-[11px] tracking-[0.22em] uppercase pt-2 border-t border-[rgba(216,214,211,0.10)]"><X size={12} /> Clear all filters</button>}
       </div></aside>
-      <main className="col-span-12 lg:col-span-10"><div className="flex items-center justify-between mb-5"><div className="eyebrow-dim">Showing {visibleProducts.length} of {filtered.length} pieces</div></div>{error && products.length === 0 ? <div className="glass rounded-xl p-6 text-bone-dim">{error}</div> : null}{products.length > 0 && filtered.length === 0 ? <div className="glass rounded-xl p-6 text-bone-dim">No products match these filters.</div> : null}<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 lg:gap-6">{visibleProducts.map((p, i)=><ProductCard key={p.canonical_product_id} product={p} index={i} />)}</div>{canLoadMore ? <div className="flex justify-center pt-10"><button onClick={() => setVisibleCount((count) => Math.min(count + PAGE_SIZE, filtered.length))} className="btn-ghost">Show 20 more</button></div> : null}</main>
+      <main className="col-span-12 lg:col-span-10"><div className="flex items-center justify-between mb-5"><div className="eyebrow-dim">Showing {visibleProducts.length} of {filtered.length} pieces</div></div>{error && products.length === 0 ? <div className="glass rounded-xl p-6 text-bone-dim">{error}</div> : null}{products.length > 0 && filtered.length === 0 ? <div className="glass rounded-xl p-6 text-bone-dim">No products match these filters.</div> : null}<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 lg:gap-6">{visibleProducts.map((p, i)=><ProductCard key={p.canonical_product_id} product={p} index={i} />)}</div>{navigation ? <ShopPagination page={page} count={filtered.length} filters={filters} /> : canLoadMore ? <div className="flex justify-center pt-10"><button onClick={() => setVisibleCount((count) => Math.min(count + PAGE_SIZE, filtered.length))} className="btn-ghost">Show 20 more</button></div> : null}</main>
     </section>
   </div>;
 }
+

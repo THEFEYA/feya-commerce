@@ -1,5 +1,5 @@
-import type { StorefrontProduct } from '@/lib/types';
-import { categoryLabel, productTitle, worldLabel } from '@/lib/storefront';
+import type { StorefrontProduct } from './types.ts';
+import { categoryLabel, productTitle, worldLabel } from './storefront.ts';
 
 export type PublicCollection = {
   slug: string;
@@ -118,3 +118,4 @@ export function summarizeCollections(products: StorefrontProduct[]) {
     products: productsForCollection(products, collection.slug),
   })).filter((collection) => collection.products.length > 0);
 }
+

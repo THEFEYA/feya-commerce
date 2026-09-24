@@ -2,6 +2,17 @@
 
 Актуализировано 24 сентября 2026; постоянный checkpoint для следующих сессий. Основа: `FEYA_Search_Architecture_v1.md` (A–K), `FEYA_Page_Portfolio_Schema_v1.md`, `FEYA_Keyword_Research_Queue_v1.json`, `Launch_Track_Decision_20260924.md`, Product/Growth contracts, предметные audits. Статус из этого документа проверяется по фактическому commit, БД и deployment, а не по памяти разговора. Owner отвечает за стратегические бизнес решения; Core проверяет роли/версии и исполняет только разрешённый changeset.
 
+## C3.2 continuation — shared closed review and HTML pagination, 24.09.2026
+
+Implemented in the next PR #26 commit; exact-head CI must be attached after completion. This supersedes the earlier statement that shared release integration is still absent.
+
+- One request-scoped, authenticated resolver connects Home, Shop, PDP, head/schema, product links and the closed sitemap policy to `feya-review-207-20260924`.
+- 208 raw source identities remain; 207 visible entries. Exact approved copy + pinned images/configuration source amounts + existing owner corrections. Current glossy vegan leather correction applied to a83b1b51. No new approvals or source writes.
+- Exact draft IDs are read from the base table; new unrelated drafts do not replace the release. Revocation/archive/content/timestamp drift, missing/moved source, product hold, auth or query failure blocks the entire review. No fallback catalog on a closed-review failure.
+- Shop pagination uses real server-rendered links: 11 disjoint pages at 20 per page, last page 7. Filters survive navigation. Existing classes, styles and literal visual copy are frozen separately; ProductCard/ProductDetail/Header/CSS are unchanged.
+- **Next after exact-head runtime verification:** C4.3 authoritative variant/quote/orderability projection and UI selection integration; then C5 domain/company/returns/privacy/payment and C6 selective indexing gate. Do not enable indexing or checkout from this review manifest.
+- Detailed scope, rollback and validation: `Shared_Review_Release_20260924.md`. Hosted flags and production DB unchanged; no repeated owner product questions required.
+
 ## Текущий checkpoint: C4.2 подключён; следующий пакет C3.2, 24.09.2026
 
 Продолжать с `Owner_Decisions_And_Variant_Lifecycle_20260924.md` и `owner-product-decisions-20260924.json`. Ответы по текущим пяти карточкам получены; **не спрашивать повторно**. Владелец разрешил оставить одну золотую карточку; выбрана `453ffb2e…`, `d42dd678…` исключена только из будущего видимого выпуска. Все **208 исходных записей сохраняются, 207 — кандидаты витрины**. Обе witch listings сохранить; costume/headpiece — предложение разделения задач, не подтверждение разных моделей. У `a83b1b51…` текущий материал — глянцевая веганская кожа, Arm/Leg/Full Set и цвет — отдельные измерения. Отложенные 19 изделий не возвращать на критический путь.
@@ -62,3 +73,4 @@ C4: новое owner pricing rule `owner-configuration-base-price-20260924-04`: 
 Основной renderer `bd0a0718` прошёл 9/9 CI, 36/36 runtime сценариев, 208/208 серверных PDP. Подробности и artifact SHA — в `Approved_Content_Integration_20260924.md`. Последний canonical-origin follow-up и актуальный branch head проверять по верхнему checkpoint PR; не переносить автоматически CI статус между коммитами.
 
 C5 исходно выявил production day type и express 6–9 против канонических 7–10. Сроки исправлены в новом пакете после актуального SELECT; Footer placeholder links и неподтверждённый Berlin/материалы остаются открыты. Основной SEO draft не подтверждает sidebar policy copy.
+

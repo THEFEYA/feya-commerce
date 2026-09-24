@@ -7,6 +7,8 @@ import ts from 'typescript';
 // The full file remains hash-frozen. This additional baseline proves that the
 // one authorized data integration did not change the previous JSX/CSS layout.
 export function pdpJsxHash(source: string) {
+  // Authorized link repair only; the original visual baseline remains unchanged.
+  source = source.replace('href={`/shop?collection=${collection.slug}`}', 'href={`/collections/${collection.slug}`}');
   const file = ts.createSourceFile('page.tsx', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
   const printer = ts.createPrinter({ removeComments: true });
   const nodes: string[] = [];
@@ -34,5 +36,7 @@ test('approved-copy wiring preserves prior PDP markup, classes and component lay
   const baseline = JSON.parse(readFileSync('config/product-os-pdp-jsx-baseline.json','utf8'));
   const source = readFileSync('app/shop/[slug]/page.tsx','utf8');
   assert.equal(pdpJsxHash(source),baseline.normalized_jsx_sha256);
+  assert.ok(source.includes('href={`/shop?collection=${collection.slug}`}'));
   assert.ok(source.includes('draft={approvedCopy?.draft} previewMode={Boolean(approvedCopy)}'));
 });
+

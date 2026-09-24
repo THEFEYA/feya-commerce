@@ -2,6 +2,7 @@ type Environment = Record<string, string | undefined>;
 
 export function inspectSearchEnvironment(env: Environment) {
   const reasons: string[] = [];
+  if (env.FEYA_CLOSED_REVIEW_RELEASE && env.FEYA_CLOSED_REVIEW_RELEASE !== 'off') reasons.push('closed_review_release');
   if (env.FEYA_SEARCH_INDEXING_ENABLED !== 'true') reasons.push('global_switch_off');
   if (env.VERCEL_ENV !== 'production') reasons.push('not_production_deployment');
   if (env.FEYA_CANONICAL_ORIGIN_CONFIRMED !== 'true') reasons.push('canonical_origin_not_confirmed');
@@ -18,3 +19,4 @@ export function inspectSearchEnvironment(env: Environment) {
   // Environment prerequisite only. Page/release gates remain separate.
   return { enabled: reasons.length === 0, origin, reason_codes: reasons };
 }
+

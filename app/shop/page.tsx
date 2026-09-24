@@ -1,4 +1,10 @@
 // @ts-nocheck
+import type { Metadata } from 'next';
+import { cache } from 'react';
+import { notFound, redirect } from 'next/navigation';
+import { readClosedReviewPresentation } from '@/lib/searchReviewPresentationServer';
+import { closedReviewRequested } from '@/lib/searchReviewPresentation';
+import { filterShopProducts, parseShopNavigation, shopPageHref, SHOP_PAGE_SIZE } from '@/lib/shopCatalogNavigation';
 import { Header } from '@/components/Header';
 import { ShopClient } from '@/components/ShopClient';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
@@ -62,7 +68,10 @@ async function mergeMedia(supabase, products) {
   });
 }
 
-async function getProducts() {
+const getProducts = cache(async () => {
+  const review = await readClosedReviewPresentation();
+  if (review.status === 'blocked') notFound();
+  if (review.status === 'review') return { products: review.release.entries.map(e => e.product), review: true };
   const supabase = getSupabaseReadClient();
   if (!supabase) return { products: [], error: getMissingSupabaseEnvMessage() };
 
@@ -79,10 +88,27 @@ async function getProducts() {
   if (!v1.error && v1.data?.length) return { products: await mergeMedia(supabase, v1.data) };
 
   return { products: [], error: v4.error?.message || v3.error?.message || v2.error?.message || v1.error?.message || 'No storefront products returned.' };
+});
+
+type ShopPageProps = { searchParams: Promise<Record<string, string | string[] | undefined>> };
+
+export async function generateMetadata({ searchParams }: ShopPageProps): Promise<Metadata> {
+  const query = parseShopNavigation(await searchParams);
+  return { title: 'Shop', alternates: { canonical: query ? shopPageHref(query.page, query.filters) : '/shop' },
+    ...(closedReviewRequested(process.env) ? { robots: { index: false, follow: false } } : {}) };
 }
 
-export default async function ShopPage() {
-  const { products, error } = await getProducts();
+export default async function ShopPage({ searchParams }: ShopPageProps) {
+  const { products, error, review } = await getProducts();
+  const params = await searchParams;
+  const navigation = review ? parseShopNavigation(params) : undefined;
+  if (review && !navigation) notFound();
+  if (navigation) {
+    const count = filterShopProducts(products, navigation.filters).length;
+    if (navigation.page > Math.max(1, Math.ceil(count / SHOP_PAGE_SIZE))) notFound();
+    if (params.page === '1') redirect(shopPageHref(1, navigation.filters));
+  }
   const collections = summarizeCollections(products);
-  return <main className="relative min-h-screen"><Header /><ShopClient products={products} error={error} collections={collections} /></main>;
+  return <main className="relative min-h-screen"><Header /><ShopClient key={navigation ? shopPageHref(navigation.page, navigation.filters) : 'legacy'} products={products} error={error} collections={collections} navigation={navigation} /></main>;
 }
+
