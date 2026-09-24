@@ -50,3 +50,17 @@ C3 теперь реализован как закрытая проверка н
 ## Источники технических решений
 
 Next.js 15 `generateMetadata` / React cache: https://nextjs.org/docs/15/app/api-reference/functions/generate-metadata (проверено 24.09.2026). Google title guidance подтверждено предыдущим этапом; новые «правила Google», SEO пороги или обещания ранжирования здесь не вводятся. FEYA источники — versioned captures и owner scope из этого репозитория.
+
+## Выполненный runtime: основной changeset
+
+Commit `bd0a0718b60899b333afdbe73311587a8b5ad200`, [CI 36016560285](https://github.com/THEFEYA/feya-commerce/actions/runs/36016560285): **9/9 jobs success; 36/36 runtime scenarios PASS**. Отчёт подтверждает `approved_copy_rendered_products=208`, `approved_content_runtime_pass=true`, `production_connected=false`. Самостоятельно скачан и проверен artifact `10814494175`, SHA256 `39032a8e51340cbf1fafe0f935c7ab2cdf8c8b70ec985cc80e986da6520db321`; срок хранения до 01.10.2026. Desktop 1440 и mobile 390 screenshots просмотрены: текст и прежняя структура отображаются, кнопка Preview only отключена; фото в этом тесте намеренно заменено placeholder.
+
+Последующий commit `4934d9efc272a7a06ca15e8b559a603dc7f2b652` унифицирует только canonical origin и усиливает соответствующую runtime assertion; TypeScript / JSX freeze проверены. На момент этого checkpoint его отдельный workflow ещё не отображается, а PR read model показывает предыдущий head, хотя `git ls-remote` уже подтверждает `4934d9e`. Результат предыдущего CI не выдаётся за exact-head CI этой правки. Актуальный статус фиксируется в верхнем checkpoint PR №26.
+
+## Конкретные оставшиеся C4/C5 проверки
+
+- Серверное подключение проверяет основной approved copy. Правая колонка PDP берёт отдельную политику из `lib/thefeyaSeoDoctrine.ts`; её readiness не следует из `approved_copy_rendered_products=208`.
+- Doctrine содержит production **3–5 business days**, express **6–9 business days**; канон A1 фиксировал production **3–5 days без типа дней**, express **7–10 business days**. Сверить актуальный business-truth registry и прежние owner решения; не выбирать срок по принципу «последний текст выглядит лучше».
+- Footer сейчас направляет Shipping & returns / production links в `/shop`, About в `/`, social/email — в `/`; выделенных публичных policy/contact/checkout routes в текущем дереве нет. Это незавершённые функции, а не готовые trust pages.
+- Footer содержит `Berlin`, `brushed chrome`, `patinated brass` и `Visual concept`. Эти шаблонные подписи не являются подтверждением юридического адреса, материалов или готовности магазина.
+- Следующая C5 работа: извлечь уже имеющиеся подтверждённые company/policy сведения, собрать конфликты в один пакет, подготовить реальные маршруты в существующем оформлении; только оставшиеся факты спрашивать у владельца. Эти пункты не требуют новых SEO исследований.
