@@ -1,0 +1,2497 @@
+{
+  "contract_version": "inventory_reconciliation_report_v1",
+  "captured_on": "2026-09-24",
+  "baseline_commit": "883d0f188a1ca0a14b1ac8b57611e4c8c27d6409",
+  "source_fingerprints": [
+    {
+      "path": "docs/search/inventory-capture-20260924.json",
+      "sha256": "c947912c945666581017ba00905bc7e76bbd9f985e9fac7d14dd3bfd320124c2"
+    },
+    {
+      "path": "docs/search/inventory-reconciliation-capture-20260924.json",
+      "sha256": "6a0b8b7d6d21ed97fcbdbc6fb4da870478397e2021c7965ebf67075d7d5c1ac3"
+    },
+    {
+      "path": "docs/search/inventory-pilot-report-20260924.json",
+      "sha256": "9b28458c294359d299e8f8dfdbea090639d041fd47b547e1622353a8fb92ada7"
+    }
+  ],
+  "implementation": [
+    {
+      "path": "scripts/audit-inventory-reconciliation.ts",
+      "sha256": "1ec0bba15dd9d52c306b1c505c63e8039ab5bcac6a980f8feac7ca98bb2d1be3"
+    },
+    {
+      "path": "lib/searchDesignReview.ts",
+      "sha256": "c146c1d6e7a7aa8b9404059189296ac1a9c1cc77916f0a37df4a986a56265053"
+    },
+    {
+      "path": "lib/storefrontReconciledOfferCorrections.ts",
+      "sha256": "b30e415f782be19d96da3f2762210fd9e72c1b7fae0bb1837deada3bc8cdc34a"
+    },
+    {
+      "path": "lib/storefrontSellableOffer.ts",
+      "sha256": "900d6f97db1b62097dc89ae3734613dca10a27534d3230518120ced021e17683"
+    },
+    {
+      "path": "lib/storefrontOwnerReviewedCorrections.ts",
+      "sha256": "45ace4121803fff2f7ddb8f9ce51d881faf3a943efd236aba6103d5a23959cd5"
+    }
+  ],
+  "evidence_scope": "Read-only production captures across separate queries, not an atomic live snapshot; source identifiers join exact configuration-price rows. No new keyword metrics or image interpretation.",
+  "summary": {
+    "original_review_cases": 27,
+    "corrected_product_count": 6,
+    "newly_resolved_offers": 5,
+    "typed_numbered_offer": 1,
+    "offer_ready": 222,
+    "offer_hold": 21,
+    "unchanged_other_product_signatures": 237,
+    "classification_counts": {
+      "copy_approval_with_truth_hold": 1,
+      "jacket_purchase_scope_review": 2,
+      "obsolete_source_choices": 1,
+      "restored_approved_offer": 4,
+      "restored_owner_identity": 1,
+      "restored_owner_variant_guide": 1,
+      "size_color_axis_requires_offer_mapping": 17
+    },
+    "design_review_pair_count": 9,
+    "products_in_review_pairs": 15
+  },
+  "cases": [
+    {
+      "canonical_product_id": "0cd7c558-7344-4076-91a5-86f7f5fe0ad0",
+      "url_path": "/shop/luxury-overbust-plate-fashion-body-armor-women-s-chest-corset-gold-top-dress-acrylic-breastplate-mirrored-bustier-metallic-corset-1892092907",
+      "source_title": "Luxury Overbust Plate, Fashion Body Armor, Women's Chest Corset, Gold Top Dress, Acrylic Breastplate, Mirrored Bustier, Metallic Corset",
+      "classification": "size_color_axis_requires_offer_mapping",
+      "offer_status": "hold",
+      "blockers": [
+        "sellable_option_unresolved_component_identity:0",
+        "sellable_option_unresolved_component_identity:1",
+        "sellable_option_unresolved_component_identity:2",
+        "sellable_option_unresolved_component_identity:3",
+        "sellable_option_unresolved_component_identity:4",
+        "sellable_option_unresolved_component_identity:5",
+        "sellable_offer_missing_atomic_options"
+      ],
+      "evidence_refs": [],
+      "historical_drafts": [],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [],
+      "owner": "CPIM",
+      "next_action": "Reuse Product OS to bind size/color price rows to the confirmed physical piece. Verify variant availability and existing owner decisions; no automatic family count or component per size.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "15819042-d632-41a4-b009-73d49d1e8110",
+      "url_path": "/shop/black-acrylic-overbust-plate-fashion-body-armor-chest-corset-dark-top-dress-plastic-breastplate-mirrored-bustier-1878725564",
+      "source_title": "Black Acrylic Overbust Plate, Fashion Body Armor, Chest Corset, Dark Top Dress, Plastic Breastplate, Mirrored Bustier",
+      "classification": "size_color_axis_requires_offer_mapping",
+      "offer_status": "hold",
+      "blockers": [
+        "sellable_option_unresolved_component_identity:0",
+        "sellable_option_unresolved_component_identity:1",
+        "sellable_option_unresolved_component_identity:2",
+        "sellable_option_unresolved_component_identity:3",
+        "sellable_option_unresolved_component_identity:4",
+        "sellable_option_unresolved_component_identity:5",
+        "sellable_offer_missing_atomic_options"
+      ],
+      "evidence_refs": [],
+      "historical_drafts": [],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [],
+      "owner": "CPIM",
+      "next_action": "Reuse Product OS to bind size/color price rows to the confirmed physical piece. Verify variant availability and existing owner decisions; no automatic family count or component per size.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "179e407a-5fed-4b42-ae19-ff220f939867",
+      "url_path": "/shop/mirror-jacket-leggings-for-performance-clothing-fashion-half-suit-stage-mirror-costume-sparkling-disco-shimmering-sequin-costume-1830563653",
+      "source_title": "Mirror Jacket & Leggings for Performance Clothing, Fashion Half Suit, Stage Mirror Costume, Sparkling Disco Shimmering Sequin Costume",
+      "classification": "jacket_purchase_scope_review",
+      "offer_status": "hold",
+      "blockers": [
+        "sellable_option_unresolved_component_identity:0",
+        "sellable_option_unresolved_component_identity:1",
+        "sellable_offer_missing_atomic_options",
+        "aggregate_members_unknown:full_set"
+      ],
+      "evidence_refs": [],
+      "historical_drafts": [],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [
+        {
+          "configuration_id": "9b217ae0-eac1-497a-9001-9c44909dc057",
+          "label": "Full Set",
+          "grouped_purchase": true,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [],
+          "display_price_amount": 446.63
+        }
+      ],
+      "owner": "CPIM",
+      "next_action": "Verify jacket/leggings grouped and separate choices against exact source rows; do not flatten size and piece axes.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "1ce50e76-c066-46b8-97ba-d6be92a593ff",
+      "url_path": "/shop/white-acrylic-breastplate-armor-futuristic-fashion-corset-performance-stage-clothing-plastic-body-top-for-women-festival-event-outfit-1869903377",
+      "source_title": "White Acrylic Breastplate Armor – Futuristic Fashion Corset, Performance Stage Clothing, Plastic Body Top for Women, Festival Event Outfit",
+      "classification": "size_color_axis_requires_offer_mapping",
+      "offer_status": "hold",
+      "blockers": [
+        "sellable_option_unresolved_component_identity:0",
+        "sellable_option_unresolved_component_identity:1",
+        "sellable_option_unresolved_component_identity:2",
+        "sellable_option_unresolved_component_identity:3",
+        "sellable_option_unresolved_component_identity:4",
+        "sellable_option_unresolved_component_identity:5",
+        "sellable_option_unresolved_component_identity:6",
+        "sellable_option_unresolved_component_identity:7",
+        "sellable_offer_missing_atomic_options"
+      ],
+      "evidence_refs": [],
+      "historical_drafts": [],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [],
+      "owner": "CPIM",
+      "next_action": "Reuse Product OS to bind size/color price rows to the confirmed physical piece. Verify variant availability and existing owner decisions; no automatic family count or component per size.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "28af189d-f3e1-4642-b906-027c7003233e",
+      "url_path": "/shop/golden-overbust-plate-fashion-body-armor-women-s-chest-corset-top-dress-acrylic-breastplate-mirrored-bustier-metallic-corset-top-1906096113",
+      "source_title": "Golden Overbust Plate, Fashion Body Armor, Women's Chest Corset, Top Dress, Acrylic Breastplate, Mirrored Bustier, Metallic Corset Top",
+      "classification": "size_color_axis_requires_offer_mapping",
+      "offer_status": "hold",
+      "blockers": [
+        "sellable_option_unresolved_component_identity:0",
+        "sellable_option_unresolved_component_identity:1",
+        "sellable_option_unresolved_component_identity:2",
+        "sellable_option_unresolved_component_identity:3",
+        "sellable_option_unresolved_component_identity:4",
+        "sellable_option_unresolved_component_identity:5",
+        "sellable_option_unresolved_component_identity:6",
+        "sellable_offer_missing_atomic_options"
+      ],
+      "evidence_refs": [],
+      "historical_drafts": [],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [],
+      "owner": "CPIM",
+      "next_action": "Reuse Product OS to bind size/color price rows to the confirmed physical piece. Verify variant availability and existing owner decisions; no automatic family count or component per size.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "2dddffcc-dd07-4d94-a4df-0217aac4f815",
+      "url_path": "/shop/sparkling-mirror-jacket-leggings-for-stage-shimmering-clothing-disco-suit-mirror-clothing-sparkling-costume-sequin-jacket-1846031742",
+      "source_title": "Sparkling Mirror Jacket & Leggings for Stage - Shimmering Clothing, Disco Suit, Mirror Clothing, Sparkling Costume, Sequin Jacket",
+      "classification": "jacket_purchase_scope_review",
+      "offer_status": "hold",
+      "blockers": [
+        "sellable_option_unresolved_component_identity:0",
+        "sellable_option_unresolved_component_identity:1",
+        "sellable_option_unresolved_component_identity:2",
+        "sellable_option_unresolved_component_identity:3",
+        "sellable_option_unresolved_component_identity:4",
+        "sellable_option_unresolved_component_identity:5",
+        "sellable_option_unresolved_component_identity:6",
+        "sellable_option_unresolved_component_identity:7",
+        "sellable_option_unresolved_component_identity:8",
+        "sellable_option_unresolved_component_identity:9",
+        "sellable_option_unresolved_component_identity:10",
+        "sellable_option_unresolved_component_identity:11",
+        "sellable_offer_missing_atomic_options",
+        "aggregate_members_unknown:full_set"
+      ],
+      "evidence_refs": [],
+      "historical_drafts": [],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [
+        {
+          "configuration_id": "684fc04a-8692-4e0a-ba9c-1d0cc9114234",
+          "label": "Full Set",
+          "grouped_purchase": true,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [],
+          "display_price_amount": 957.55
+        }
+      ],
+      "owner": "CPIM",
+      "next_action": "Resolve mixed size/piece mapping before composition; do not manufacture a Cartesian price matrix.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "320fede3-0406-428f-8091-c7a7986e07aa",
+      "url_path": "/shop/cosplay-helmet-with-horns-golden-carnival-costume-unique-festival-wear-halloween-outfit-burning-man-clothing-for-women-1904670057",
+      "source_title": "Cosplay Helmet with Horns - Golden Carnival Costume, Unique Festival Wear, Halloween Outfit, Burning Man Clothing for Women",
+      "classification": "obsolete_source_choices",
+      "offer_status": "hold",
+      "blockers": [
+        "aggregate_members_unknown:full_set"
+      ],
+      "evidence_refs": [],
+      "historical_drafts": [
+        {
+          "id": "c33ae003-cff8-4362-a1f2-d7000ea865d5",
+          "review_status": "not_reviewed",
+          "updated_at": "2026-09-23 17:24:09.948794+00"
+        }
+      ],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [
+        {
+          "configuration_id": "3dcc385f-2949-48c2-9439-81007b707e3f",
+          "label": "Leg Covers",
+          "grouped_purchase": false,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [],
+          "display_price_amount": 159.59
+        },
+        {
+          "configuration_id": "60881684-9a9f-4f9a-9fca-b106784d2a09",
+          "label": "Horns",
+          "grouped_purchase": false,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [],
+          "display_price_amount": 199.49
+        },
+        {
+          "configuration_id": "171b056f-38b1-4371-b36f-383a227fe5b7",
+          "label": "Bodysuit",
+          "grouped_purchase": false,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [],
+          "display_price_amount": 295.25
+        },
+        {
+          "configuration_id": "c3658d98-5fad-4df2-b376-d85142b14390",
+          "label": "Horns",
+          "grouped_purchase": false,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [],
+          "display_price_amount": 558.57
+        },
+        {
+          "configuration_id": "ad212193-d8ad-4e05-8ae2-130c480e313f",
+          "label": "Corset + Boots",
+          "grouped_purchase": true,
+          "component_codes": [
+            "corset",
+            "boots"
+          ],
+          "factual_contents": [
+            "Corset",
+            "Boots"
+          ],
+          "purchase_unit_display": [],
+          "display_price_amount": 430.9
+        },
+        {
+          "configuration_id": "0c5bc690-8138-452c-a1c3-8a772c22d5ea",
+          "label": "Full Set",
+          "grouped_purchase": true,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [],
+          "display_price_amount": 606.45
+        },
+        {
+          "configuration_id": "908976b6-774f-4363-b600-235340173f35",
+          "label": "Full Set",
+          "grouped_purchase": true,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [],
+          "display_price_amount": 957.55
+        }
+      ],
+      "owner": "CPIM",
+      "next_action": "Reconcile current headpiece-only owner truth and legacy price/configuration rows; do not restore obsolete bodysuit/corset/boots/set options.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "3a7dbca5-4dc4-484a-979b-887a099c07ef",
+      "url_path": "/shop/fashion-overbust-corset-top-gold-metallic-body-armor-women-s-chest-corset-acrylic-breastplate-mirrored-bustier-4299785512",
+      "source_title": "Fashion Overbust Corset Top, Gold Metallic Body Armor, Women's Chest Corset, Acrylic Breastplate, Mirrored Bustier",
+      "classification": "size_color_axis_requires_offer_mapping",
+      "offer_status": "hold",
+      "blockers": [
+        "sellable_option_unresolved_component_identity:0",
+        "sellable_option_unresolved_component_identity:1",
+        "sellable_option_unresolved_component_identity:2",
+        "sellable_option_unresolved_component_identity:3",
+        "sellable_option_unresolved_component_identity:4",
+        "sellable_option_unresolved_component_identity:5",
+        "sellable_option_unresolved_component_identity:6",
+        "sellable_offer_missing_atomic_options"
+      ],
+      "evidence_refs": [],
+      "historical_drafts": [],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [],
+      "owner": "CPIM",
+      "next_action": "Reuse Product OS to bind size/color price rows to the confirmed physical piece. Verify variant availability and existing owner decisions; no automatic family count or component per size.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "40384eea-fd82-40f4-98e7-804383c42796",
+      "url_path": "/shop/golden-festival-outfit-with-bra-skirt-gold-harness-set-festival-basque-accessories-1901540523",
+      "source_title": "Golden Festival Outfit with Bra & Skirt, Gold Harness Set, Festival Basque Accessories",
+      "classification": "copy_approval_with_truth_hold",
+      "offer_status": "hold",
+      "blockers": [
+        "sellable_option_unresolved_component_identity:0",
+        "aggregate_members_unknown:full_set"
+      ],
+      "evidence_refs": [],
+      "historical_drafts": [
+        {
+          "id": "8b121a9f-e21e-4977-aa19-e5d497421332",
+          "review_status": "approved",
+          "updated_at": "2026-09-23 17:08:48.855885+00"
+        }
+      ],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [
+        {
+          "configuration_id": "ebf42918-4916-46c1-b2a9-75a8e2fe4ae0",
+          "label": "Skirt",
+          "grouped_purchase": false,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [],
+          "display_price_amount": 135.1
+        },
+        {
+          "configuration_id": "40b8d2ce-8267-42b8-a4a3-f6a7ea24f212",
+          "label": "Full Set",
+          "grouped_purchase": true,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [],
+          "display_price_amount": 175.46
+        }
+      ],
+      "owner": "CPIM",
+      "next_action": "Preserve approved copy scope; repair bra/skirt sellable composition separately. Copy approval explicitly did not resolve the offer.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "437a20cd-27a3-4aaf-b154-3353899e0ebd",
+      "url_path": "/shop/golden-festival-armor-outfit-women-s-shoulder-harness-cyberpunk-rave-costume-burning-man-clothing-metallic-forearm-accessories-1902238173",
+      "source_title": "Golden Festival Armor Outfit – Women’s Shoulder Harness, Cyberpunk Rave Costume, Burning Man Clothing, Metallic Forearm Accessories",
+      "classification": "restored_owner_variant_guide",
+      "offer_status": "ready",
+      "blockers": [],
+      "evidence_refs": [
+        "seo_draft:ecf6d94b-4d66-4472-98a5-da577a22a45a:owner_variant_guide",
+        "source_listing:1902238173"
+      ],
+      "historical_drafts": [
+        {
+          "id": "ecf6d94b-4d66-4472-98a5-da577a22a45a",
+          "review_status": "not_reviewed",
+          "updated_at": "2026-09-23 17:34:04.772037+00"
+        }
+      ],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [
+        {
+          "configuration_id": "899e0b93-6222-4208-9d3a-218e4747b982",
+          "label": "Variant #1",
+          "grouped_purchase": true,
+          "component_codes": [
+            "shoulders",
+            "harness",
+            "legs",
+            "arms"
+          ],
+          "factual_contents": [
+            "1 Shoulder",
+            "Harness",
+            "Garters",
+            "2 Bracelets"
+          ],
+          "purchase_unit_display": [
+            "Variant #1 — 1 Shoulder + Harness + Garters + 2 Bracelets"
+          ],
+          "display_price_amount": 303.07
+        },
+        {
+          "configuration_id": "a737ac7d-bff8-4325-b101-fa934bb1d322",
+          "label": "Variant #2",
+          "grouped_purchase": true,
+          "component_codes": [
+            "shoulders",
+            "harness",
+            "legs",
+            "arms"
+          ],
+          "factual_contents": [
+            "2 Shoulders",
+            "Harness",
+            "Garters",
+            "2 Bracelets"
+          ],
+          "purchase_unit_display": [
+            "Variant #2 — 2 Shoulders + Harness + Garters + 2 Bracelets"
+          ],
+          "display_price_amount": 358.9
+        },
+        {
+          "configuration_id": "3ae4183d-f178-4231-a551-5c874520a25a",
+          "label": "Variant #3",
+          "grouped_purchase": true,
+          "component_codes": [
+            "harness",
+            "legs",
+            "arms"
+          ],
+          "factual_contents": [
+            "Harness",
+            "Garters",
+            "2 Bracelets"
+          ],
+          "purchase_unit_display": [
+            "Variant #3 — Harness + Garters + 2 Bracelets"
+          ],
+          "display_price_amount": 199.39
+        },
+        {
+          "configuration_id": "dce0b722-5c5b-4b2b-81c4-032c1d295a53",
+          "label": "Variant #4",
+          "grouped_purchase": true,
+          "component_codes": [
+            "shoulders",
+            "legs",
+            "arms"
+          ],
+          "factual_contents": [
+            "1 Shoulder",
+            "Garters",
+            "1 Bracelet"
+          ],
+          "purchase_unit_display": [
+            "Variant #4 — 1 Shoulder + Garters + 1 Bracelet"
+          ],
+          "display_price_amount": 223.31
+        }
+      ],
+      "owner": "CPIM",
+      "next_action": "Review exact draft diff and preserve all existing approval gates; no live write performed.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "45c4d5e0-0e96-4b14-a993-35a6ebc75170",
+      "url_path": "/shop/gold-sculpted-top-metallic-breastplate-bustier-mirrored-acrylic-female-armor-asymmetrical-plastic-body-golden-corset-4307156133",
+      "source_title": "Gold Sculpted Top – Metallic Breastplate Bustier, Mirrored Acrylic Female Armor, Asymmetrical Plastic Body, Golden Corset",
+      "classification": "size_color_axis_requires_offer_mapping",
+      "offer_status": "hold",
+      "blockers": [
+        "sellable_option_unresolved_component_identity:0",
+        "sellable_option_unresolved_component_identity:1",
+        "sellable_option_unresolved_component_identity:2",
+        "sellable_option_unresolved_component_identity:3",
+        "sellable_option_unresolved_component_identity:4",
+        "sellable_option_unresolved_component_identity:5",
+        "sellable_option_unresolved_component_identity:6",
+        "sellable_offer_missing_atomic_options"
+      ],
+      "evidence_refs": [],
+      "historical_drafts": [],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [],
+      "owner": "CPIM",
+      "next_action": "Reuse Product OS to bind size/color price rows to the confirmed physical piece. Verify variant availability and existing owner decisions; no automatic family count or component per size.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "465a24ce-de26-4af5-be50-b7c6a22e7af6",
+      "url_path": "/shop/golden-sculpted-corset-metallic-breastplate-bustier-mirrored-acrylic-female-armor-asymmetrical-fashion-top-women-s-gold-body-4310963965",
+      "source_title": "Golden Sculpted Corset – Metallic Breastplate Bustier, Mirrored Acrylic Female Armor, Asymmetrical Fashion Top, Women's Gold Body",
+      "classification": "size_color_axis_requires_offer_mapping",
+      "offer_status": "hold",
+      "blockers": [
+        "sellable_option_unresolved_component_identity:0",
+        "sellable_option_unresolved_component_identity:1",
+        "sellable_option_unresolved_component_identity:2",
+        "sellable_option_unresolved_component_identity:3",
+        "sellable_option_unresolved_component_identity:4",
+        "sellable_option_unresolved_component_identity:5",
+        "sellable_option_unresolved_component_identity:6",
+        "sellable_offer_missing_atomic_options"
+      ],
+      "evidence_refs": [],
+      "historical_drafts": [],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [],
+      "owner": "CPIM",
+      "next_action": "Reuse Product OS to bind size/color price rows to the confirmed physical piece. Verify variant availability and existing owner decisions; no automatic family count or component per size.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "4b0c8180-774d-4d5c-a12c-0864f305d1cb",
+      "url_path": "/shop/burning-man-silver-outfit-cyber-warrior-men-s-costume-rave-festival-fashion-steampunk-leather-shoulder-futuristic-dune-wear-4487639486",
+      "source_title": "Burning Man Silver Outfit – Cyber Warrior Men's Costume, Rave Festival Fashion, Steampunk Leather Shoulder, Futuristic Dune Wear",
+      "classification": "restored_approved_offer",
+      "offer_status": "ready",
+      "blockers": [],
+      "evidence_refs": [
+        "seo_draft:ab0bc6b6-0cc9-4a45-a4fd-45df32d87c42:approved",
+        "source_listing:4487639486"
+      ],
+      "historical_drafts": [
+        {
+          "id": "ab0bc6b6-0cc9-4a45-a4fd-45df32d87c42",
+          "review_status": "approved",
+          "updated_at": "2026-09-18 11:10:41.929629+00"
+        },
+        {
+          "id": "a45aed1a-0324-4921-a1b0-95c8d614c427",
+          "review_status": "not_reviewed",
+          "updated_at": "2026-09-18 11:10:41.929629+00"
+        }
+      ],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [
+        {
+          "configuration_id": "bb5ae6b4-824d-45cf-a1ac-8e2a26111242",
+          "label": "Bracelet",
+          "grouped_purchase": false,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [
+            "Bracelet"
+          ],
+          "display_price_amount": 96.5
+        },
+        {
+          "configuration_id": "22aacfc5-7ffa-4a7e-800e-448ba0ec88dc",
+          "label": "Skirt",
+          "grouped_purchase": false,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [
+            "Skirt"
+          ],
+          "display_price_amount": 144.76
+        },
+        {
+          "configuration_id": "e0b68b79-a4a1-4b9e-a33e-8240777a52bc",
+          "label": "Top + Shoulders",
+          "grouped_purchase": true,
+          "component_codes": [
+            "shoulders",
+            "top"
+          ],
+          "factual_contents": [
+            "Shoulders",
+            "Top"
+          ],
+          "purchase_unit_display": [
+            "Top + Shoulders"
+          ],
+          "display_price_amount": 144.76
+        },
+        {
+          "configuration_id": "aa40d23b-7bcf-4a59-ab91-7e1fca94fab8",
+          "label": "Full Set",
+          "grouped_purchase": true,
+          "component_codes": [
+            "arms",
+            "shoulders",
+            "skirt",
+            "top"
+          ],
+          "factual_contents": [
+            "Bracelet",
+            "Shoulders",
+            "Skirt",
+            "Top"
+          ],
+          "purchase_unit_display": [
+            "Bracelet",
+            "Top + Shoulders",
+            "Skirt"
+          ],
+          "display_price_amount": 282.77
+        }
+      ],
+      "owner": "CPIM",
+      "next_action": "Review exact draft diff and preserve all existing approval gates; no live write performed.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "4bfc6eac-b665-4f94-b5f2-5715cacb03f9",
+      "url_path": "/shop/gold-corset-top-for-stage-women-s-body-armor-acrylic-chest-breastplate-mirrored-metallic-bustier-4368748488",
+      "source_title": "Gold Corset Top for Stage, Women's Body Armor, Acrylic Chest Breastplate, Mirrored Metallic Bustier",
+      "classification": "size_color_axis_requires_offer_mapping",
+      "offer_status": "hold",
+      "blockers": [
+        "sellable_option_unresolved_component_identity:0",
+        "sellable_option_unresolved_component_identity:1",
+        "sellable_option_unresolved_component_identity:2",
+        "sellable_option_unresolved_component_identity:3",
+        "sellable_option_unresolved_component_identity:4",
+        "sellable_option_unresolved_component_identity:5",
+        "sellable_option_unresolved_component_identity:6",
+        "sellable_offer_missing_atomic_options"
+      ],
+      "evidence_refs": [],
+      "historical_drafts": [],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [],
+      "owner": "CPIM",
+      "next_action": "Reuse Product OS to bind size/color price rows to the confirmed physical piece. Verify variant availability and existing owner decisions; no automatic family count or component per size.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "56f67da5-a2f9-4e8e-a1ac-f7147abd453d",
+      "url_path": "/shop/gold-sculpted-body-top-metallic-breastplate-bustier-mirrored-acrylic-female-armor-asymmetrical-fashion-corset-women-s-golden-corset-4314382205",
+      "source_title": "Gold Sculpted Body Top – Metallic Breastplate Bustier, Mirrored Acrylic Female Armor, Asymmetrical Fashion Corset, Women's Golden Corset",
+      "classification": "size_color_axis_requires_offer_mapping",
+      "offer_status": "hold",
+      "blockers": [
+        "sellable_option_unresolved_component_identity:0",
+        "sellable_option_unresolved_component_identity:1",
+        "sellable_option_unresolved_component_identity:2",
+        "sellable_option_unresolved_component_identity:3",
+        "sellable_option_unresolved_component_identity:4",
+        "sellable_option_unresolved_component_identity:5",
+        "sellable_option_unresolved_component_identity:6",
+        "sellable_offer_missing_atomic_options"
+      ],
+      "evidence_refs": [],
+      "historical_drafts": [],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [],
+      "owner": "CPIM",
+      "next_action": "Reuse Product OS to bind size/color price rows to the confirmed physical piece. Verify variant availability and existing owner decisions; no automatic family count or component per size.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "5bd94c47-354c-4f28-a64e-e36a6c35bcb6",
+      "url_path": "/shop/luxury-golden-overbust-plate-fashion-body-armor-women-s-chest-corset-top-dress-acrylic-breastplate-mirrored-bustier-metallic-corset-1892103749",
+      "source_title": "Luxury Golden Overbust Plate, Fashion Body Armor, Women's Chest Corset, Top Dress, Acrylic Breastplate, Mirrored Bustier, Metallic Corset",
+      "classification": "size_color_axis_requires_offer_mapping",
+      "offer_status": "hold",
+      "blockers": [
+        "sellable_option_unresolved_component_identity:0",
+        "sellable_option_unresolved_component_identity:1",
+        "sellable_option_unresolved_component_identity:2",
+        "sellable_option_unresolved_component_identity:3",
+        "sellable_option_unresolved_component_identity:4",
+        "sellable_option_unresolved_component_identity:5",
+        "sellable_offer_missing_atomic_options"
+      ],
+      "evidence_refs": [],
+      "historical_drafts": [],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [],
+      "owner": "CPIM",
+      "next_action": "Reuse Product OS to bind size/color price rows to the confirmed physical piece. Verify variant availability and existing owner decisions; no automatic family count or component per size.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "6cf78dcf-74b7-45e7-93db-b33c9b9fa920",
+      "url_path": "/shop/metallic-sculpted-corset-top-chrome-breastplate-bustier-mirrored-acrylic-female-armor-asymmetrical-fashion-top-silver-body-top-4311079517",
+      "source_title": "Metallic Sculpted Corset Top – Chrome Breastplate Bustier, Mirrored Acrylic Female Armor, Asymmetrical Fashion Top, Silver Body Top",
+      "classification": "size_color_axis_requires_offer_mapping",
+      "offer_status": "hold",
+      "blockers": [
+        "sellable_option_unresolved_component_identity:0",
+        "sellable_option_unresolved_component_identity:1",
+        "sellable_option_unresolved_component_identity:2",
+        "sellable_option_unresolved_component_identity:3",
+        "sellable_option_unresolved_component_identity:4",
+        "sellable_option_unresolved_component_identity:5",
+        "sellable_option_unresolved_component_identity:6",
+        "sellable_offer_missing_atomic_options"
+      ],
+      "evidence_refs": [],
+      "historical_drafts": [],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [],
+      "owner": "CPIM",
+      "next_action": "Reuse Product OS to bind size/color price rows to the confirmed physical piece. Verify variant availability and existing owner decisions; no automatic family count or component per size.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "7af9efb1-bdcc-46ab-9c45-06df8cb8656e",
+      "url_path": "/shop/gold-overbust-plate-fashion-body-top-women-s-chest-corset-top-dress-acrylic-breastplate-mirrored-bustier-metallic-corset-top-1891976656",
+      "source_title": "Gold Overbust Plate, Fashion Body Top, Women's Chest Corset, Top Dress, Acrylic Breastplate, Mirrored Bustier, Metallic Corset Top",
+      "classification": "size_color_axis_requires_offer_mapping",
+      "offer_status": "hold",
+      "blockers": [
+        "sellable_option_unresolved_component_identity:0",
+        "sellable_option_unresolved_component_identity:1",
+        "sellable_option_unresolved_component_identity:2",
+        "sellable_option_unresolved_component_identity:3",
+        "sellable_option_unresolved_component_identity:4",
+        "sellable_option_unresolved_component_identity:5",
+        "sellable_option_unresolved_component_identity:6",
+        "sellable_offer_missing_atomic_options"
+      ],
+      "evidence_refs": [],
+      "historical_drafts": [],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [],
+      "owner": "CPIM",
+      "next_action": "Reuse Product OS to bind size/color price rows to the confirmed physical piece. Verify variant availability and existing owner decisions; no automatic family count or component per size.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "7bae7b6e-64fa-4986-8b71-13edb53f01fa",
+      "url_path": "/shop/fashion-gold-overbust-corset-metallic-female-body-armor-women-s-chest-corset-acrylic-breastplate-mirrored-bustier-golden-sculptural-top-4314365111",
+      "source_title": "Fashion Gold Overbust Corset, Metallic Female Body Armor, Women's Chest Corset, Acrylic Breastplate, Mirrored Bustier, Golden Sculptural Top",
+      "classification": "size_color_axis_requires_offer_mapping",
+      "offer_status": "hold",
+      "blockers": [
+        "sellable_option_unresolved_component_identity:0",
+        "sellable_option_unresolved_component_identity:1",
+        "sellable_option_unresolved_component_identity:2",
+        "sellable_option_unresolved_component_identity:3",
+        "sellable_option_unresolved_component_identity:4",
+        "sellable_option_unresolved_component_identity:5",
+        "sellable_option_unresolved_component_identity:6",
+        "sellable_offer_missing_atomic_options"
+      ],
+      "evidence_refs": [],
+      "historical_drafts": [],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [],
+      "owner": "CPIM",
+      "next_action": "Reuse Product OS to bind size/color price rows to the confirmed physical piece. Verify variant availability and existing owner decisions; no automatic family count or component per size.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "7d3c3ec4-0cb7-4cb0-9ff4-0c2fe8b4974c",
+      "url_path": "/shop/fashion-overbust-corset-top-gold-metallic-body-armor-women-s-chest-corset-acrylic-breastplate-mirrored-bustier-4354831103",
+      "source_title": "Fashion Overbust Corset Top, Gold Metallic Body Armor, Women's Chest Corset, Acrylic Breastplate, Mirrored Bustier",
+      "classification": "size_color_axis_requires_offer_mapping",
+      "offer_status": "hold",
+      "blockers": [
+        "sellable_option_unresolved_component_identity:0",
+        "sellable_option_unresolved_component_identity:1",
+        "sellable_option_unresolved_component_identity:2",
+        "sellable_option_unresolved_component_identity:3",
+        "sellable_option_unresolved_component_identity:4",
+        "sellable_option_unresolved_component_identity:5",
+        "sellable_option_unresolved_component_identity:6",
+        "sellable_offer_missing_atomic_options"
+      ],
+      "evidence_refs": [],
+      "historical_drafts": [],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [],
+      "owner": "CPIM",
+      "next_action": "Reuse Product OS to bind size/color price rows to the confirmed physical piece. Verify variant availability and existing owner decisions; no automatic family count or component per size.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "910d5aa6-bd18-40b8-9357-223f92ae18c2",
+      "url_path": "/shop/fashion-gold-overbust-corset-metallic-female-body-armor-women-s-top-corset-acrylic-chestplate-mirrored-bustier-metallic-sculptural-top-4318091220",
+      "source_title": "Fashion Gold Overbust Corset, Metallic Female Body Armor, Women's Top Corset, Acrylic Chestplate, Mirrored Bustier, Metallic Sculptural Top",
+      "classification": "size_color_axis_requires_offer_mapping",
+      "offer_status": "hold",
+      "blockers": [
+        "sellable_option_unresolved_component_identity:0",
+        "sellable_option_unresolved_component_identity:1",
+        "sellable_option_unresolved_component_identity:2",
+        "sellable_option_unresolved_component_identity:3",
+        "sellable_option_unresolved_component_identity:4",
+        "sellable_option_unresolved_component_identity:5",
+        "sellable_option_unresolved_component_identity:6",
+        "sellable_offer_missing_atomic_options"
+      ],
+      "evidence_refs": [],
+      "historical_drafts": [],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [],
+      "owner": "CPIM",
+      "next_action": "Reuse Product OS to bind size/color price rows to the confirmed physical piece. Verify variant availability and existing owner decisions; no automatic family count or component per size.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "98600aa8-307b-4165-a8ae-38e347c114bd",
+      "url_path": "/shop/mirror-plague-doctor-costume-reflective-polygonal-clothes-steampunk-masquerade-mask-halloween-futuristic-cosplay-gothic-festival-outfit-1882682017",
+      "source_title": "Mirror Plague Doctor Costume – Reflective Polygonal Clothes, Steampunk Masquerade Mask, Halloween Futuristic Cosplay, Gothic Festival Outfit",
+      "classification": "restored_approved_offer",
+      "offer_status": "ready",
+      "blockers": [],
+      "evidence_refs": [
+        "seo_draft:83ed5c0f-e191-45d2-b13a-424f50952a80:approved",
+        "source_listing:1882682017"
+      ],
+      "historical_drafts": [
+        {
+          "id": "83ed5c0f-e191-45d2-b13a-424f50952a80",
+          "review_status": "approved",
+          "updated_at": "2026-09-20 20:45:44.472494+00"
+        }
+      ],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [
+        {
+          "configuration_id": "503f6911-329b-462e-aff6-5285f4800c09",
+          "label": "Collar",
+          "grouped_purchase": false,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [
+            "Collar"
+          ],
+          "display_price_amount": 154.49
+        },
+        {
+          "configuration_id": "5bd65d9b-4a5c-4ccc-8b2b-7c2f86bc6c14",
+          "label": "Skirt Only",
+          "grouped_purchase": false,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [
+            "Skirt Only"
+          ],
+          "display_price_amount": 159.59
+        },
+        {
+          "configuration_id": "44f68b45-228f-4a68-bbf9-dc0651c3376d",
+          "label": "Mask",
+          "grouped_purchase": false,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [
+            "Mask"
+          ],
+          "display_price_amount": 183.53
+        },
+        {
+          "configuration_id": "13e9270d-ee80-4d75-bf19-0e615e41106c",
+          "label": "Collar + Skirt",
+          "grouped_purchase": true,
+          "component_codes": [
+            "collar",
+            "skirt"
+          ],
+          "factual_contents": [
+            "Collar",
+            "Skirt"
+          ],
+          "purchase_unit_display": [
+            "Collar + Skirt"
+          ],
+          "display_price_amount": 263.33
+        },
+        {
+          "configuration_id": "7ce46a04-57e2-4dc1-8437-663b025fe216",
+          "label": "Full Set",
+          "grouped_purchase": true,
+          "component_codes": [
+            "mask",
+            "collar",
+            "skirt"
+          ],
+          "factual_contents": [
+            "Mask",
+            "Collar",
+            "Skirt"
+          ],
+          "purchase_unit_display": [
+            "Mask",
+            "Collar + Skirt"
+          ],
+          "display_price_amount": 414.94
+        }
+      ],
+      "owner": "CPIM",
+      "next_action": "Review exact draft diff and preserve all existing approval gates; no live write performed.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "9d6047ad-406d-4279-a10b-2918e111d587",
+      "url_path": "/shop/red-devil-costume-set-bodysuit-forearm-armor-and-tail-unique-cosplay-party-wear-drag-queen-outfit-spine-tail-costume-leather-clothes-1779245327",
+      "source_title": "Red Devil Costume set: Bodysuit Forearm Armor and Tail - Unique Cosplay Party Wear Drag Queen Outfit, Spine Tail Costume, Leather Clothes",
+      "classification": "restored_approved_offer",
+      "offer_status": "ready",
+      "blockers": [],
+      "evidence_refs": [
+        "seo_draft:557634fa-e0c4-4895-b999-bc9f038334d5:approved",
+        "source_listing:1779245327"
+      ],
+      "historical_drafts": [
+        {
+          "id": "557634fa-e0c4-4895-b999-bc9f038334d5",
+          "review_status": "approved",
+          "updated_at": "2026-09-18 11:10:41.929629+00"
+        },
+        {
+          "id": "0c972804-9dc2-40f6-9b10-97c3cdda6966",
+          "review_status": "not_reviewed",
+          "updated_at": "2026-09-18 11:10:41.929629+00"
+        },
+        {
+          "id": "bf663428-6bee-4f2c-83b0-4626335c6d1e",
+          "review_status": "not_reviewed",
+          "updated_at": "2026-09-18 11:10:41.929629+00"
+        }
+      ],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [
+        {
+          "configuration_id": "99e81c83-417f-4ac4-9c50-de4ae8d7f549",
+          "label": "Forearm Covers",
+          "grouped_purchase": false,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [
+            "Forearm Covers"
+          ],
+          "display_price_amount": 91.68
+        },
+        {
+          "configuration_id": "5e94fece-df7d-458d-b2ed-ac0006092af1",
+          "label": "Tail",
+          "grouped_purchase": false,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [
+            "Tail"
+          ],
+          "display_price_amount": 115.81
+        },
+        {
+          "configuration_id": "2131f965-586f-4d03-874f-a23d34f14318",
+          "label": "Bodysuit",
+          "grouped_purchase": false,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [
+            "Bodysuit"
+          ],
+          "display_price_amount": 279.14
+        },
+        {
+          "configuration_id": "6d558d91-230a-4ce8-83a6-fc69885cf6f7",
+          "label": "Full Set",
+          "grouped_purchase": true,
+          "component_codes": [
+            "arms",
+            "tail",
+            "bodysuit"
+          ],
+          "factual_contents": [
+            "Forearm Covers",
+            "Tail",
+            "Bodysuit"
+          ],
+          "purchase_unit_display": [
+            "Forearm Covers",
+            "Tail",
+            "Bodysuit"
+          ],
+          "display_price_amount": 390.8
+        }
+      ],
+      "owner": "CPIM",
+      "next_action": "Review exact draft diff and preserve all existing approval gates; no live write performed.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "b9086353-2305-4d47-b34e-38cb73a41a97",
+      "url_path": "/shop/fashion-golden-corset-luxury-metallic-corset-women-s-body-armor-mirrored-top-festival-metal-corsets-1858130037",
+      "source_title": "Fashion Golden Corset, Luxury Metallic Corset, Women's Body Armor, Mirrored Top, Festival Metal Corsets",
+      "classification": "size_color_axis_requires_offer_mapping",
+      "offer_status": "hold",
+      "blockers": [
+        "sellable_option_unresolved_component_identity:0",
+        "sellable_option_unresolved_component_identity:1",
+        "sellable_option_unresolved_component_identity:2",
+        "sellable_option_unresolved_component_identity:3",
+        "sellable_option_unresolved_component_identity:4",
+        "sellable_option_unresolved_component_identity:5",
+        "sellable_offer_missing_atomic_options"
+      ],
+      "evidence_refs": [],
+      "historical_drafts": [],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [],
+      "owner": "CPIM",
+      "next_action": "Reuse Product OS to bind size/color price rows to the confirmed physical piece. Verify variant availability and existing owner decisions; no automatic family count or component per size.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "baaf3068-0904-49a3-bfd4-2be2bc16e8ec",
+      "url_path": "/shop/fashion-golden-corset-gold-sculpted-women-s-top-metallic-chest-corset-acrylic-breastplate-mirrored-bustier-luxury-female-body-top-4307123634",
+      "source_title": "Fashion Golden Corset, Gold Sculpted Women's Top, Metallic Chest Corset, Acrylic Breastplate, Mirrored Bustier, Luxury Female Body Top",
+      "classification": "size_color_axis_requires_offer_mapping",
+      "offer_status": "hold",
+      "blockers": [
+        "sellable_option_unresolved_component_identity:0",
+        "sellable_option_unresolved_component_identity:1",
+        "sellable_option_unresolved_component_identity:2",
+        "sellable_option_unresolved_component_identity:3",
+        "sellable_option_unresolved_component_identity:4",
+        "sellable_option_unresolved_component_identity:5",
+        "sellable_option_unresolved_component_identity:6",
+        "sellable_offer_missing_atomic_options"
+      ],
+      "evidence_refs": [],
+      "historical_drafts": [],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [],
+      "owner": "CPIM",
+      "next_action": "Reuse Product OS to bind size/color price rows to the confirmed physical piece. Verify variant availability and existing owner decisions; no automatic family count or component per size.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "ce0a2c0a-5a95-4876-a198-70be635ca053",
+      "url_path": "/shop/elegant-green-leather-suspenders-the-best-groomsmen-gift-fashion-chest-belt-for-men-handmade-leather-suspenders-men-s-suspenders-1871319427",
+      "source_title": "Elegant Green Leather Suspenders – The Best Groomsmen Gift, Fashion Chest Belt for Men, Handmade Leather Suspenders, Men's Suspenders",
+      "classification": "restored_owner_identity",
+      "offer_status": "ready",
+      "blockers": [],
+      "evidence_refs": [
+        "seo_draft:4de86fde-81af-4ccf-9ca1-258b967adb25:owner_identity_note",
+        "source_listing:1871319427"
+      ],
+      "historical_drafts": [
+        {
+          "id": "4de86fde-81af-4ccf-9ca1-258b967adb25",
+          "review_status": "not_reviewed",
+          "updated_at": "2026-09-23 17:34:04.772037+00"
+        }
+      ],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [
+        {
+          "configuration_id": "c47c5fa4-5739-492e-9767-9a8b5c0b0c27",
+          "label": "Harness",
+          "grouped_purchase": false,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [
+            "Harness"
+          ],
+          "display_price_amount": 140.01
+        },
+        {
+          "configuration_id": "9be27162-64f5-4e88-a568-b3f8511edd32",
+          "label": "Harness",
+          "grouped_purchase": false,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [
+            "Harness"
+          ],
+          "display_price_amount": 130.35
+        },
+        {
+          "configuration_id": "d5cfc179-9ccc-477c-9031-998ab103bcb3",
+          "label": "Harness",
+          "grouped_purchase": false,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [
+            "Harness"
+          ],
+          "display_price_amount": 159.31
+        }
+      ],
+      "owner": "CPIM",
+      "next_action": "Review exact draft diff and preserve all existing approval gates; no live write performed.",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "canonical_product_id": "e39f9164-4001-4f63-9407-a1ddd3d962dd",
+      "url_path": "/shop/cyberpunk-mirror-armor-costume-bodysuit-leg-covers-metallic-cyborg-cosplay-outfit-for-showgirl-performances-apocalyptic-robot-wear-1792447742",
+      "source_title": "Cyberpunk Mirror Armor Costume – Bodysuit & Leg Covers, Metallic Cyborg Cosplay Outfit for Showgirl Performances, Apocalyptic Robot Wear",
+      "classification": "restored_approved_offer",
+      "offer_status": "ready",
+      "blockers": [],
+      "evidence_refs": [
+        "seo_draft:843e2b31-62fd-4a02-b17b-4424bd768027:approved",
+        "source_listing:1792447742"
+      ],
+      "historical_drafts": [
+        {
+          "id": "843e2b31-62fd-4a02-b17b-4424bd768027",
+          "review_status": "approved",
+          "updated_at": "2026-09-18 11:10:41.929629+00"
+        },
+        {
+          "id": "bd2fb9b0-bd4a-42d9-a3e0-65d3741b7c6c",
+          "review_status": "not_reviewed",
+          "updated_at": "2026-09-18 11:10:41.929629+00"
+        },
+        {
+          "id": "6096f43b-cb4e-495d-9330-8886a60576db",
+          "review_status": "not_reviewed",
+          "updated_at": "2026-09-18 11:10:41.929629+00"
+        }
+      ],
+      "approval_semantics": "Captured historical state retained. Resolved composition does not approve a new SEO draft, publication or indexability.",
+      "options": [
+        {
+          "configuration_id": "5b906cbb-7473-415f-90e2-57c172d5a2ee",
+          "label": "Single Leg Cover",
+          "grouped_purchase": false,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [
+            "Single Leg Cover"
+          ],
+          "display_price_amount": 144.83
+        },
+        {
+          "configuration_id": "7c286f97-754a-41de-89a5-83dee62f5ee2",
+          "label": "Bodysuit",
+          "grouped_purchase": false,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [
+            "Bodysuit"
+          ],
+          "display_price_amount": 231.41
+        },
+        {
+          "configuration_id": "d0bb5eb6-840b-4a94-9ef3-4ba3ccb786c6",
+          "label": "Pair of Leg Covers",
+          "grouped_purchase": false,
+          "component_codes": [],
+          "factual_contents": [],
+          "purchase_unit_display": [
+            "Pair of Leg Covers"
+          ],
+          "display_price_amount": 215.45
+        },
+        {
+          "configuration_id": "d33b481a-d6a9-4b95-8f89-97a1b290503a",
+          "label": "Full Set — 1 Leg Cover",
+          "grouped_purchase": true,
+          "component_codes": [
+            "legs",
+            "bodysuit"
+          ],
+          "factual_contents": [
+            "Single Leg Cover",
+            "Bodysuit"
+          ],
+          "purchase_unit_display": [
+            "Single Leg Cover",
+            "Bodysuit"
+          ],
+          "display_price_amount": 319.18
+        },
+        {
+          "configuration_id": "e7741b64-c7a1-46aa-ba91-d5376d45baba",
+          "label": "Full Set — 2 Leg Covers",
+          "grouped_purchase": true,
+          "component_codes": [
+            "legs",
+            "bodysuit"
+          ],
+          "factual_contents": [
+            "Pair of Leg Covers",
+            "Bodysuit"
+          ],
+          "purchase_unit_display": [
+            "Pair of Leg Covers",
+            "Bodysuit"
+          ],
+          "display_price_amount": 414.94
+        }
+      ],
+      "owner": "CPIM",
+      "next_action": "Review exact draft diff and preserve all existing approval gates; no live write performed.",
+      "can_publish": false,
+      "can_index": false
+    }
+  ],
+  "design_review": {
+    "policy_version": "design_review_retrieval_v1",
+    "scope_product_count": 243,
+    "target_product_count": 75,
+    "retrieval_parameters": {
+      "maximum_asset_product_frequency": 3,
+      "minimum_shared_assets": 2,
+      "minimum_smaller_gallery_overlap": 0.5
+    },
+    "parameter_meaning": "Review prioritization only; not Google thresholds, uniqueness scores or approved inventory policy.",
+    "excluded_common_asset_count": 25,
+    "confirmed_distinct_design_count": null,
+    "transitive_merging_performed": false,
+    "proposals": [
+      {
+        "proposal_key": "design-review:81bfdbfb14d284bb92ad05cb",
+        "product_ids": [
+          "0396612a-c30b-4d8f-b58a-441f8b1cbdcf",
+          "51d879ce-f762-4307-b896-efcb2ffd64e9"
+        ],
+        "shared_source_listing": false,
+        "shared_etsy_listing": false,
+        "shared_rare_media": [
+          "https://i.etsystatic.com/54033853/r/il/1397ec/6247706371/il_fullxfull.6247706371_d11x.jpg",
+          "https://i.etsystatic.com/54033853/r/il/3289ed/6247696945/il_fullxfull.6247696945_l4x5.jpg",
+          "https://i.etsystatic.com/54033853/r/il/a24103/6199665382/il_fullxfull.6199665382_nn9q.jpg",
+          "https://i.etsystatic.com/54033853/r/il/a7d43a/6247696951/il_fullxfull.6247696951_j7q4.jpg",
+          "https://i.etsystatic.com/54033853/r/il/fa2f44/6247699545/il_fullxfull.6247699545_kn0y.jpg"
+        ],
+        "rare_media_counts": [
+          6,
+          6
+        ],
+        "smaller_gallery_overlap": 0.8333333333333334,
+        "evidence_sha256": "ff767317ea6a9c359f3c8c8d267ccc4be6477d79a45ab15e6a06e1a8db432346",
+        "status": "review_required",
+        "design_family_key": null,
+        "reviewer": "CPIM",
+        "required_decision": "Same underlying physical design, different configurations of one design, or different pieces sharing a photoshoot? Attach product-scoped evidence and current revision.",
+        "can_merge_products": false,
+        "can_assign_family": false,
+        "can_index": false,
+        "product_context": [
+          {
+            "canonical_product_id": "0396612a-c30b-4d8f-b58a-441f8b1cbdcf",
+            "url_path": "/shop/futuristic-festival-outfit-for-burning-man-shoulder-top-skirt-bracelet-white-and-gold-rave-armor-wear-1778922501",
+            "component_codes": [
+              "bracelet",
+              "mask",
+              "shoulders",
+              "skirt",
+              "top"
+            ],
+            "standalone_options": [
+              {
+                "id": "1db291c2-9f3f-4375-b851-9bbb265bb8d2",
+                "label": "Mask",
+                "code": "mask"
+              },
+              {
+                "id": "4265f575-4dbb-49e6-bbdf-8b0e9701a0ee",
+                "label": "Skirt",
+                "code": "skirt"
+              },
+              {
+                "id": "179571b9-6df8-4ba9-9d3f-289838bd1416",
+                "label": "Bracelet",
+                "code": "bracelet"
+              },
+              {
+                "id": "2ab597f1-2c02-46fa-a5b4-c0e8c7bc47c7",
+                "label": "Shoulders",
+                "code": "shoulders"
+              },
+              {
+                "id": "6d495fd6-0082-4731-a9b6-8f2951987914",
+                "label": "Top",
+                "code": "top"
+              }
+            ],
+            "grouped_options": [
+              {
+                "id": "6faf3713-024b-495a-9a66-a7503f6fb424",
+                "label": "Full Set",
+                "contents": [
+                  "Bracelet",
+                  "Mask",
+                  "Shoulders",
+                  "Skirt",
+                  "Top"
+                ]
+              }
+            ]
+          },
+          {
+            "canonical_product_id": "51d879ce-f762-4307-b896-efcb2ffd64e9",
+            "url_path": "/shop/rave-festival-outfit-with-mask-shoulder-top-skirt-bracelet-white-gold-leather-armor-wear-burning-man-costume-set-women-futuristic-suit-1842722795",
+            "component_codes": [
+              "bracelet",
+              "mask",
+              "shoulders",
+              "skirt",
+              "top"
+            ],
+            "standalone_options": [
+              {
+                "id": "0d5c85cd-27a9-4fa6-a902-99800bfe61f1",
+                "label": "Mask",
+                "code": "mask"
+              },
+              {
+                "id": "3fcb43eb-2833-4b06-887d-12fb9490f306",
+                "label": "Skirt",
+                "code": "skirt"
+              },
+              {
+                "id": "39d51e7d-5d4a-4535-9ef8-23f541fb018f",
+                "label": "Bracelet",
+                "code": "bracelet"
+              },
+              {
+                "id": "8148c4a0-e491-4af9-9809-d7a4bfc2c169",
+                "label": "Shoulders",
+                "code": "shoulders"
+              },
+              {
+                "id": "65485197-d431-4552-be62-5a9685344366",
+                "label": "Top",
+                "code": "top"
+              }
+            ],
+            "grouped_options": [
+              {
+                "id": "40c34a79-648a-4036-af67-e1ff48e5afd6",
+                "label": "Full Set",
+                "contents": [
+                  "Bracelet",
+                  "Mask",
+                  "Shoulders",
+                  "Skirt",
+                  "Top"
+                ]
+              }
+            ]
+          }
+        ],
+        "decision_options": [
+          "same_physical_design",
+          "different_pieces_same_photoshoot",
+          "insufficient_evidence"
+        ],
+        "warning": "Media overlap identifies review candidates only. Different sellable pieces can share a photoshoot. No transitive family assignment or PDP merge."
+      },
+      {
+        "proposal_key": "design-review:f53f6a1693fe90d10e89a09e",
+        "product_ids": [
+          "0396612a-c30b-4d8f-b58a-441f8b1cbdcf",
+          "bc59df1d-edd3-4e63-9393-175c28d9be2b"
+        ],
+        "shared_source_listing": false,
+        "shared_etsy_listing": false,
+        "shared_rare_media": [
+          "https://i.etsystatic.com/54033853/r/il/1397ec/6247706371/il_fullxfull.6247706371_d11x.jpg",
+          "https://i.etsystatic.com/54033853/r/il/3289ed/6247696945/il_fullxfull.6247696945_l4x5.jpg",
+          "https://i.etsystatic.com/54033853/r/il/a24103/6199665382/il_fullxfull.6199665382_nn9q.jpg",
+          "https://i.etsystatic.com/54033853/r/il/a7d43a/6247696951/il_fullxfull.6247696951_j7q4.jpg",
+          "https://i.etsystatic.com/54033853/r/il/fa2f44/6247699545/il_fullxfull.6247699545_kn0y.jpg"
+        ],
+        "rare_media_counts": [
+          6,
+          8
+        ],
+        "smaller_gallery_overlap": 0.8333333333333334,
+        "evidence_sha256": "480dbb38c5baa3b25f9d3b8c7f8d2d1eec44c5f32917d272fc4ce12d040b741b",
+        "status": "review_required",
+        "design_family_key": null,
+        "reviewer": "CPIM",
+        "required_decision": "Same underlying physical design, different configurations of one design, or different pieces sharing a photoshoot? Attach product-scoped evidence and current revision.",
+        "can_merge_products": false,
+        "can_assign_family": false,
+        "can_index": false,
+        "product_context": [
+          {
+            "canonical_product_id": "0396612a-c30b-4d8f-b58a-441f8b1cbdcf",
+            "url_path": "/shop/futuristic-festival-outfit-for-burning-man-shoulder-top-skirt-bracelet-white-and-gold-rave-armor-wear-1778922501",
+            "component_codes": [
+              "bracelet",
+              "mask",
+              "shoulders",
+              "skirt",
+              "top"
+            ],
+            "standalone_options": [
+              {
+                "id": "1db291c2-9f3f-4375-b851-9bbb265bb8d2",
+                "label": "Mask",
+                "code": "mask"
+              },
+              {
+                "id": "4265f575-4dbb-49e6-bbdf-8b0e9701a0ee",
+                "label": "Skirt",
+                "code": "skirt"
+              },
+              {
+                "id": "179571b9-6df8-4ba9-9d3f-289838bd1416",
+                "label": "Bracelet",
+                "code": "bracelet"
+              },
+              {
+                "id": "2ab597f1-2c02-46fa-a5b4-c0e8c7bc47c7",
+                "label": "Shoulders",
+                "code": "shoulders"
+              },
+              {
+                "id": "6d495fd6-0082-4731-a9b6-8f2951987914",
+                "label": "Top",
+                "code": "top"
+              }
+            ],
+            "grouped_options": [
+              {
+                "id": "6faf3713-024b-495a-9a66-a7503f6fb424",
+                "label": "Full Set",
+                "contents": [
+                  "Bracelet",
+                  "Mask",
+                  "Shoulders",
+                  "Skirt",
+                  "Top"
+                ]
+              }
+            ]
+          },
+          {
+            "canonical_product_id": "bc59df1d-edd3-4e63-9393-175c28d9be2b",
+            "url_path": "/shop/futuristic-festival-costume-for-burning-man-outfit-mask-shoulder-top-skirt-bracelet-white-silver-leather-armor-wear-cyber-punk-suit-1877356645",
+            "component_codes": [
+              "bracelet",
+              "mask",
+              "shoulders",
+              "skirt",
+              "top"
+            ],
+            "standalone_options": [
+              {
+                "id": "ada04f1e-f71f-4dec-ad97-0f9e72afdcca",
+                "label": "Mask",
+                "code": "mask"
+              },
+              {
+                "id": "f833dfad-8e43-4ed4-ac83-33aba00b518a",
+                "label": "Skirt",
+                "code": "skirt"
+              },
+              {
+                "id": "4c128a5e-4040-46ce-9e1a-f0fca9f1f71a",
+                "label": "Bracelet",
+                "code": "bracelet"
+              },
+              {
+                "id": "f979e219-9ec4-4145-83d0-c9b858b61c67",
+                "label": "Shoulders",
+                "code": "shoulders"
+              },
+              {
+                "id": "5150d0e8-ed4c-4ac8-939f-377679bddb11",
+                "label": "Top",
+                "code": "top"
+              }
+            ],
+            "grouped_options": [
+              {
+                "id": "9aeaeb64-477c-4ca2-baf8-61e6d0d7f116",
+                "label": "Full Set",
+                "contents": [
+                  "Bracelet",
+                  "Mask",
+                  "Shoulders",
+                  "Skirt",
+                  "Top"
+                ]
+              }
+            ]
+          }
+        ],
+        "decision_options": [
+          "same_physical_design",
+          "different_pieces_same_photoshoot",
+          "insufficient_evidence"
+        ],
+        "warning": "Media overlap identifies review candidates only. Different sellable pieces can share a photoshoot. No transitive family assignment or PDP merge."
+      },
+      {
+        "proposal_key": "design-review:6a0e888bf4e3d4808c0fd441",
+        "product_ids": [
+          "0b7e5ccd-f5a3-4dd7-877f-1e21fbda9486",
+          "ce899f23-b983-4ede-ae81-3348757b1c15"
+        ],
+        "shared_source_listing": false,
+        "shared_etsy_listing": false,
+        "shared_rare_media": [
+          "https://i.etsystatic.com/54033853/r/il/13ec53/6550796049/il_fullxfull.6550796049_hwns.jpg",
+          "https://i.etsystatic.com/54033853/r/il/8a1a1c/6445108823/il_fullxfull.6445108823_n62d.jpg",
+          "https://i.etsystatic.com/54033853/r/il/8e4b8f/6445108843/il_fullxfull.6445108843_e72p.jpg",
+          "https://i.etsystatic.com/54033853/r/il/989e16/6397020072/il_fullxfull.6397020072_9iqc.jpg",
+          "https://i.etsystatic.com/54033853/r/il/a8b828/6397021246/il_fullxfull.6397021246_5kxg.jpg",
+          "https://i.etsystatic.com/54033853/r/il/e8a781/6445108829/il_fullxfull.6445108829_2p53.jpg",
+          "https://i.etsystatic.com/54033853/r/il/f56693/6445108839/il_fullxfull.6445108839_7wvd.jpg"
+        ],
+        "rare_media_counts": [
+          7,
+          7
+        ],
+        "smaller_gallery_overlap": 1,
+        "evidence_sha256": "e43c27929edfbde52cbea7e01df8076954ad9a362bd05896596333dc3b1b2890",
+        "status": "review_required",
+        "design_family_key": null,
+        "reviewer": "CPIM",
+        "required_decision": "Same underlying physical design, different configurations of one design, or different pieces sharing a photoshoot? Attach product-scoped evidence and current revision.",
+        "can_merge_products": false,
+        "can_assign_family": false,
+        "can_index": false,
+        "product_context": [
+          {
+            "canonical_product_id": "0b7e5ccd-f5a3-4dd7-877f-1e21fbda9486",
+            "url_path": "/shop/warrior-princess-outfit-golden-armor-costume-set-cyberpunk-rave-outfit-4482426736",
+            "component_codes": [
+              "arms",
+              "garters",
+              "harness",
+              "legs",
+              "shoulders"
+            ],
+            "standalone_options": [
+              {
+                "id": "0096778a-a054-47d3-a158-1c1ec636d8fd",
+                "label": "Arm Bracelet",
+                "code": "arms"
+              },
+              {
+                "id": "fd828c77-6094-457f-9b8d-425eeaff53db",
+                "label": "Garters",
+                "code": "garters"
+              },
+              {
+                "id": "de582e95-5729-4d44-9b3e-95161a979278",
+                "label": "Top Harness",
+                "code": "harness"
+              },
+              {
+                "id": "04499dde-3d4a-4e29-ba94-036f1fa7ddc7",
+                "label": "Shoulders",
+                "code": "shoulders"
+              }
+            ],
+            "grouped_options": [
+              {
+                "id": "e9bd5c59-d9a4-4b65-b57c-bf2860aaa4d1",
+                "label": "Shoulder + Bracelet",
+                "contents": [
+                  "Shoulder",
+                  "Arm Bracelet"
+                ]
+              },
+              {
+                "id": "5233fb65-7ff7-4177-885d-1455fc8b9aa0",
+                "label": "Full Set",
+                "contents": [
+                  "Top Harness",
+                  "Shoulder",
+                  "Arm Bracelet",
+                  "Leg Garters"
+                ]
+              }
+            ]
+          },
+          {
+            "canonical_product_id": "ce899f23-b983-4ede-ae81-3348757b1c15",
+            "url_path": "/shop/burning-man-costume-set-with-bracelet-armor-shoulder-harness-garters-silver-rave-outfit-women-cyberpunk-accessories-metallic-wear-1842725537",
+            "component_codes": [
+              "arms",
+              "bracelet",
+              "harness",
+              "legs",
+              "shoulders"
+            ],
+            "standalone_options": [
+              {
+                "id": "7c29ac2a-8276-4ebd-a374-ffcf5fe31355",
+                "label": "Bracelet",
+                "code": "arms"
+              },
+              {
+                "id": "7f9f2f1d-2a1b-4a48-b155-ff782b02f8e8",
+                "label": "Garters",
+                "code": "legs"
+              },
+              {
+                "id": "ed3b7548-e8b4-4342-8dbe-5093d70a9cfc",
+                "label": "Top Harness",
+                "code": "harness"
+              },
+              {
+                "id": "9ecc5baf-5028-407e-923c-cf216033364d",
+                "label": "Shoulders",
+                "code": "shoulders"
+              }
+            ],
+            "grouped_options": [
+              {
+                "id": "2bdff862-d860-49f9-b9ff-a99809620882",
+                "label": "Shoulder + Bracelet",
+                "contents": [
+                  "Shoulders",
+                  "Bracelet"
+                ]
+              },
+              {
+                "id": "3b0d3f60-3e99-40ab-b0b3-6e5034efcc9a",
+                "label": "Full Set",
+                "contents": [
+                  "Shoulders",
+                  "Top Harness",
+                  "Bracelet",
+                  "Garters",
+                  "Bracelet"
+                ]
+              }
+            ]
+          }
+        ],
+        "decision_options": [
+          "same_physical_design",
+          "different_pieces_same_photoshoot",
+          "insufficient_evidence"
+        ],
+        "warning": "Media overlap identifies review candidates only. Different sellable pieces can share a photoshoot. No transitive family assignment or PDP merge."
+      },
+      {
+        "proposal_key": "design-review:7d0edfb1e70aed7c160756d7",
+        "product_ids": [
+          "1eb4b55c-dedf-4399-92fd-c94c8d962091",
+          "8b321ebd-25ab-4d9b-ba30-2cfc3ba18094"
+        ],
+        "shared_source_listing": false,
+        "shared_etsy_listing": false,
+        "shared_rare_media": [
+          "https://i.etsystatic.com/54033853/r/il/0e1eb7/6970054032/il_fullxfull.6970054032_o8tw.jpg",
+          "https://i.etsystatic.com/54033853/r/il/3f32d6/6970053994/il_fullxfull.6970053994_32er.jpg",
+          "https://i.etsystatic.com/54033853/r/il/4161e7/7018030959/il_fullxfull.7018030959_f0bt.jpg",
+          "https://i.etsystatic.com/54033853/r/il/7ced98/6970053990/il_fullxfull.6970053990_rczv.jpg",
+          "https://i.etsystatic.com/54033853/r/il/99061a/7018031019/il_fullxfull.7018031019_5qiv.jpg",
+          "https://i.etsystatic.com/54033853/r/il/9bd267/6970054066/il_fullxfull.6970054066_hb0y.jpg",
+          "https://i.etsystatic.com/54033853/r/il/bbfa73/6970054030/il_fullxfull.6970054030_tqf2.jpg",
+          "https://i.etsystatic.com/54033853/r/il/c7b033/7018031077/il_fullxfull.7018031077_rqaf.jpg"
+        ],
+        "rare_media_counts": [
+          9,
+          9
+        ],
+        "smaller_gallery_overlap": 0.8888888888888888,
+        "evidence_sha256": "c51f851e03df75a75ba8a5a9209929bbed7de784aacc20fc1b4e0b36b74de254",
+        "status": "review_required",
+        "design_family_key": null,
+        "reviewer": "CPIM",
+        "required_decision": "Same underlying physical design, different configurations of one design, or different pieces sharing a photoshoot? Attach product-scoped evidence and current revision.",
+        "can_merge_products": false,
+        "can_assign_family": false,
+        "can_index": false,
+        "product_context": [
+          {
+            "canonical_product_id": "1eb4b55c-dedf-4399-92fd-c94c8d962091",
+            "url_path": "/shop/desert-warrior-men-s-costume-burning-man-gold-armor-outfit-rave-festival-fashion-steampunk-leather-shoulders-futuristic-dune-wear-4326178885",
+            "component_codes": [
+              "bracelet",
+              "shoulders"
+            ],
+            "standalone_options": [
+              {
+                "id": "0a0b255e-93ec-4947-a1f5-eadf15544e1c",
+                "label": "Bracelet",
+                "code": "bracelet"
+              },
+              {
+                "id": "af1846ee-7a12-4796-b037-ded61847df01",
+                "label": "Shoulders",
+                "code": "shoulders"
+              }
+            ],
+            "grouped_options": [
+              {
+                "id": "a13e8013-c00b-44b5-b046-b92813a1842f",
+                "label": "Full Set",
+                "contents": [
+                  "Bracelet",
+                  "Shoulders"
+                ]
+              }
+            ]
+          },
+          {
+            "canonical_product_id": "8b321ebd-25ab-4d9b-ba30-2cfc3ba18094",
+            "url_path": "/shop/burning-man-gold-armor-outfit-desert-warrior-men-s-costume-rave-festival-fashion-steampunk-leather-shoulder-futuristic-dune-wear-4356540547",
+            "component_codes": [
+              "bracelet",
+              "shoulders"
+            ],
+            "standalone_options": [
+              {
+                "id": "f0e046f0-5726-49dd-b2e6-b1eaec267d92",
+                "label": "Bracelet",
+                "code": "bracelet"
+              },
+              {
+                "id": "68203b9a-2420-40bf-8808-eff7a2dfd66e",
+                "label": "Shoulders",
+                "code": "shoulders"
+              }
+            ],
+            "grouped_options": [
+              {
+                "id": "bfaa888f-6c1e-4775-b633-ab810094097d",
+                "label": "Full Set",
+                "contents": [
+                  "Bracelet",
+                  "Shoulders"
+                ]
+              }
+            ]
+          }
+        ],
+        "decision_options": [
+          "same_physical_design",
+          "different_pieces_same_photoshoot",
+          "insufficient_evidence"
+        ],
+        "warning": "Media overlap identifies review candidates only. Different sellable pieces can share a photoshoot. No transitive family assignment or PDP merge."
+      },
+      {
+        "proposal_key": "design-review:fd506d9a31ec3fba3c4db875",
+        "product_ids": [
+          "27786636-7021-4809-8e81-7f566a3436ae",
+          "cb31d61b-027c-4c47-b7ba-bf16283ada9c"
+        ],
+        "shared_source_listing": false,
+        "shared_etsy_listing": false,
+        "shared_rare_media": [
+          "https://i.etsystatic.com/54033853/r/il/7a57b8/6369866715/il_fullxfull.6369866715_bc57.jpg",
+          "https://i.etsystatic.com/54033853/r/il/c365e2/6321806140/il_fullxfull.6321806140_29u3.jpg",
+          "https://i.etsystatic.com/54033853/r/il/d6c095/6321806172/il_fullxfull.6321806172_1l1y.jpg",
+          "https://i.etsystatic.com/54033853/r/il/f10138/6369869803/il_fullxfull.6369869803_5e9r.jpg",
+          "https://i.etsystatic.com/54033853/r/il/fea151/6321806146/il_fullxfull.6321806146_4udb.jpg"
+        ],
+        "rare_media_counts": [
+          6,
+          6
+        ],
+        "smaller_gallery_overlap": 0.8333333333333334,
+        "evidence_sha256": "db0b2e1e41fc24732c7e660d2704fb4febe07e321e37fcf63e490686bffa0f03",
+        "status": "review_required",
+        "design_family_key": null,
+        "reviewer": "CPIM",
+        "required_decision": "Same underlying physical design, different configurations of one design, or different pieces sharing a photoshoot? Attach product-scoped evidence and current revision.",
+        "can_merge_products": false,
+        "can_assign_family": false,
+        "can_index": false,
+        "product_context": [
+          {
+            "canonical_product_id": "27786636-7021-4809-8e81-7f566a3436ae",
+            "url_path": "/shop/red-leather-dragon-cosplay-sexy-latex-halloween-outfit-with-festival-armor-shoudelrs-bodysuit-leather-gloves-spine-tail-costume-1852762562",
+            "component_codes": [
+              "arms",
+              "bodysuit",
+              "gloves",
+              "shoulders",
+              "spine",
+              "tail"
+            ],
+            "standalone_options": [
+              {
+                "id": "edfc3ca4-f4f3-418f-82d8-7118ce7eeb3e",
+                "label": "Gloves",
+                "code": "gloves"
+              },
+              {
+                "id": "dcb90a35-4f84-4ac9-8266-95d378b0daec",
+                "label": "Shoulders",
+                "code": "shoulders"
+              },
+              {
+                "id": "aa191cfa-b741-4978-b957-d44556735457",
+                "label": "Bodysuit",
+                "code": "bodysuit"
+              }
+            ],
+            "grouped_options": [
+              {
+                "id": "30497b10-c3af-48ab-9cc7-c93ecb7abc74",
+                "label": "Spine + Tail",
+                "contents": [
+                  "Spine",
+                  "Tail"
+                ]
+              },
+              {
+                "id": "89aa265a-8c2e-4e25-a56f-ec72b4f39644",
+                "label": "Full Set",
+                "contents": [
+                  "Gloves",
+                  "Shoulders",
+                  "Spine",
+                  "Tail",
+                  "Bodysuit"
+                ]
+              }
+            ]
+          },
+          {
+            "canonical_product_id": "cb31d61b-027c-4c47-b7ba-bf16283ada9c",
+            "url_path": "/shop/red-leather-devil-cosplay-luxury-latex-halloween-outfit-with-fashion-armor-shoudelrs-bodysuit-gloves-spine-tail-1804455423",
+            "component_codes": [
+              "arms",
+              "bodysuit",
+              "shoulders",
+              "spine",
+              "tail"
+            ],
+            "standalone_options": [
+              {
+                "id": "1210a522-aca3-4da9-9542-c297df40f569",
+                "label": "Glove",
+                "code": "arms"
+              },
+              {
+                "id": "ab749cd4-b004-4ab2-a32d-a984d0d5d4fb",
+                "label": "Shoulders",
+                "code": "shoulders"
+              },
+              {
+                "id": "4353e4fa-f213-4349-b6b6-7e2e6833b549",
+                "label": "Bodysuit",
+                "code": "bodysuit"
+              }
+            ],
+            "grouped_options": [
+              {
+                "id": "2e1e98bd-5c0a-46f2-b607-4272177bf3ee",
+                "label": "Spine & Tail",
+                "contents": [
+                  "Spine",
+                  "Tail"
+                ]
+              },
+              {
+                "id": "ac91dd77-4b4a-4534-b597-30bc70c16288",
+                "label": "Full Set",
+                "contents": [
+                  "Glove",
+                  "Shoulders",
+                  "Spine",
+                  "Tail",
+                  "Bodysuit"
+                ]
+              }
+            ]
+          }
+        ],
+        "decision_options": [
+          "same_physical_design",
+          "different_pieces_same_photoshoot",
+          "insufficient_evidence"
+        ],
+        "warning": "Media overlap identifies review candidates only. Different sellable pieces can share a photoshoot. No transitive family assignment or PDP merge."
+      },
+      {
+        "proposal_key": "design-review:2afbe96e047fc43f6483f2ec",
+        "product_ids": [
+          "453ffb2e-2ed9-4e8d-b74c-e891604f9644",
+          "d42dd678-7b11-4f38-890e-411de686f418"
+        ],
+        "shared_source_listing": false,
+        "shared_etsy_listing": false,
+        "shared_rare_media": [
+          "https://i.etsystatic.com/54033853/r/il/26f86f/6961873580/il_fullxfull.6961873580_1f8j.jpg",
+          "https://i.etsystatic.com/54033853/r/il/2ea5a6/6961873548/il_fullxfull.6961873548_e5uw.jpg",
+          "https://i.etsystatic.com/54033853/r/il/2ff7a2/7009840953/il_fullxfull.7009840953_77qa.jpg",
+          "https://i.etsystatic.com/54033853/r/il/95b955/6961873554/il_fullxfull.6961873554_6of4.jpg",
+          "https://i.etsystatic.com/54033853/r/il/b95d59/6961873422/il_fullxfull.6961873422_cenf.jpg",
+          "https://i.etsystatic.com/54033853/r/il/bf61fb/7009840965/il_fullxfull.7009840965_5c4i.jpg",
+          "https://i.etsystatic.com/54033853/r/il/d4f5eb/6961873544/il_fullxfull.6961873544_jooj.jpg"
+        ],
+        "rare_media_counts": [
+          8,
+          7
+        ],
+        "smaller_gallery_overlap": 1,
+        "evidence_sha256": "ba237fb2a26ce569580fee8365a87ab12bf4a7bbcd13089d779c605671f85031",
+        "status": "review_required",
+        "design_family_key": null,
+        "reviewer": "CPIM",
+        "required_decision": "Same underlying physical design, different configurations of one design, or different pieces sharing a photoshoot? Attach product-scoped evidence and current revision.",
+        "can_merge_products": false,
+        "can_assign_family": false,
+        "can_index": false,
+        "product_context": [
+          {
+            "canonical_product_id": "453ffb2e-2ed9-4e8d-b74c-e891604f9644",
+            "url_path": "/shop/unique-festival-outfit-with-gold-leather-shoulder-skirt-gold-metallic-armor-burning-man-clothing-for-women-luxury-rave-accessories-4324575912",
+            "component_codes": [
+              "shoulders",
+              "skirt"
+            ],
+            "standalone_options": [
+              {
+                "id": "ffe4a60b-fb7f-41bf-b3d5-68d21e5dc0fa",
+                "label": "Shoulders",
+                "code": "shoulders"
+              },
+              {
+                "id": "cd1e606e-9e35-43c4-8ea0-4b71f6ff04b2",
+                "label": "Skirt",
+                "code": "skirt"
+              }
+            ],
+            "grouped_options": [
+              {
+                "id": "cdd8239c-35ec-4cb7-bb4f-67f83cceb64b",
+                "label": "Full Set",
+                "contents": [
+                  "Shoulders",
+                  "Skirt"
+                ]
+              }
+            ]
+          },
+          {
+            "canonical_product_id": "d42dd678-7b11-4f38-890e-411de686f418",
+            "url_path": "/shop/unique-festival-outfit-with-gold-leather-shoulder-skirt-gold-metallic-armor-burning-man-clothing-for-women-luxury-rave-accessories-4324592783",
+            "component_codes": [
+              "shoulders",
+              "skirt"
+            ],
+            "standalone_options": [
+              {
+                "id": "96627c1d-0cd5-417f-9c72-b7b65e61f278",
+                "label": "Shoulders",
+                "code": "shoulders"
+              },
+              {
+                "id": "e1c256f1-d052-4cd1-94d2-ca83a1003495",
+                "label": "Skirt",
+                "code": "skirt"
+              }
+            ],
+            "grouped_options": [
+              {
+                "id": "7a3a1bbc-5f57-45b4-bea6-6c313caee5a2",
+                "label": "Full Set",
+                "contents": [
+                  "Shoulders",
+                  "Skirt"
+                ]
+              }
+            ]
+          }
+        ],
+        "decision_options": [
+          "same_physical_design",
+          "different_pieces_same_photoshoot",
+          "insufficient_evidence"
+        ],
+        "warning": "Media overlap identifies review candidates only. Different sellable pieces can share a photoshoot. No transitive family assignment or PDP merge."
+      },
+      {
+        "proposal_key": "design-review:2f3ccf3814c5e1a6c34e5c14",
+        "product_ids": [
+          "51d879ce-f762-4307-b896-efcb2ffd64e9",
+          "bc59df1d-edd3-4e63-9393-175c28d9be2b"
+        ],
+        "shared_source_listing": false,
+        "shared_etsy_listing": false,
+        "shared_rare_media": [
+          "https://i.etsystatic.com/54033853/r/il/1397ec/6247706371/il_fullxfull.6247706371_d11x.jpg",
+          "https://i.etsystatic.com/54033853/r/il/3289ed/6247696945/il_fullxfull.6247696945_l4x5.jpg",
+          "https://i.etsystatic.com/54033853/r/il/a24103/6199665382/il_fullxfull.6199665382_nn9q.jpg",
+          "https://i.etsystatic.com/54033853/r/il/a7d43a/6247696951/il_fullxfull.6247696951_j7q4.jpg",
+          "https://i.etsystatic.com/54033853/r/il/d60f37/6247946057/il_fullxfull.6247946057_fbb1.jpg",
+          "https://i.etsystatic.com/54033853/r/il/fa2f44/6247699545/il_fullxfull.6247699545_kn0y.jpg"
+        ],
+        "rare_media_counts": [
+          6,
+          8
+        ],
+        "smaller_gallery_overlap": 1,
+        "evidence_sha256": "b601250e80325c1905ff9d9760fd348076a494f0c075322e54fc8cf7e2f9f182",
+        "status": "review_required",
+        "design_family_key": null,
+        "reviewer": "CPIM",
+        "required_decision": "Same underlying physical design, different configurations of one design, or different pieces sharing a photoshoot? Attach product-scoped evidence and current revision.",
+        "can_merge_products": false,
+        "can_assign_family": false,
+        "can_index": false,
+        "product_context": [
+          {
+            "canonical_product_id": "51d879ce-f762-4307-b896-efcb2ffd64e9",
+            "url_path": "/shop/rave-festival-outfit-with-mask-shoulder-top-skirt-bracelet-white-gold-leather-armor-wear-burning-man-costume-set-women-futuristic-suit-1842722795",
+            "component_codes": [
+              "bracelet",
+              "mask",
+              "shoulders",
+              "skirt",
+              "top"
+            ],
+            "standalone_options": [
+              {
+                "id": "0d5c85cd-27a9-4fa6-a902-99800bfe61f1",
+                "label": "Mask",
+                "code": "mask"
+              },
+              {
+                "id": "3fcb43eb-2833-4b06-887d-12fb9490f306",
+                "label": "Skirt",
+                "code": "skirt"
+              },
+              {
+                "id": "39d51e7d-5d4a-4535-9ef8-23f541fb018f",
+                "label": "Bracelet",
+                "code": "bracelet"
+              },
+              {
+                "id": "8148c4a0-e491-4af9-9809-d7a4bfc2c169",
+                "label": "Shoulders",
+                "code": "shoulders"
+              },
+              {
+                "id": "65485197-d431-4552-be62-5a9685344366",
+                "label": "Top",
+                "code": "top"
+              }
+            ],
+            "grouped_options": [
+              {
+                "id": "40c34a79-648a-4036-af67-e1ff48e5afd6",
+                "label": "Full Set",
+                "contents": [
+                  "Bracelet",
+                  "Mask",
+                  "Shoulders",
+                  "Skirt",
+                  "Top"
+                ]
+              }
+            ]
+          },
+          {
+            "canonical_product_id": "bc59df1d-edd3-4e63-9393-175c28d9be2b",
+            "url_path": "/shop/futuristic-festival-costume-for-burning-man-outfit-mask-shoulder-top-skirt-bracelet-white-silver-leather-armor-wear-cyber-punk-suit-1877356645",
+            "component_codes": [
+              "bracelet",
+              "mask",
+              "shoulders",
+              "skirt",
+              "top"
+            ],
+            "standalone_options": [
+              {
+                "id": "ada04f1e-f71f-4dec-ad97-0f9e72afdcca",
+                "label": "Mask",
+                "code": "mask"
+              },
+              {
+                "id": "f833dfad-8e43-4ed4-ac83-33aba00b518a",
+                "label": "Skirt",
+                "code": "skirt"
+              },
+              {
+                "id": "4c128a5e-4040-46ce-9e1a-f0fca9f1f71a",
+                "label": "Bracelet",
+                "code": "bracelet"
+              },
+              {
+                "id": "f979e219-9ec4-4145-83d0-c9b858b61c67",
+                "label": "Shoulders",
+                "code": "shoulders"
+              },
+              {
+                "id": "5150d0e8-ed4c-4ac8-939f-377679bddb11",
+                "label": "Top",
+                "code": "top"
+              }
+            ],
+            "grouped_options": [
+              {
+                "id": "9aeaeb64-477c-4ca2-baf8-61e6d0d7f116",
+                "label": "Full Set",
+                "contents": [
+                  "Bracelet",
+                  "Mask",
+                  "Shoulders",
+                  "Skirt",
+                  "Top"
+                ]
+              }
+            ]
+          }
+        ],
+        "decision_options": [
+          "same_physical_design",
+          "different_pieces_same_photoshoot",
+          "insufficient_evidence"
+        ],
+        "warning": "Media overlap identifies review candidates only. Different sellable pieces can share a photoshoot. No transitive family assignment or PDP merge."
+      },
+      {
+        "proposal_key": "design-review:87fdaad8d5c9e3d5b1d80d44",
+        "product_ids": [
+          "9d368368-12e9-4d61-9a5d-2ba9c4508861",
+          "a94b5c1b-3346-4868-b0f6-7a60d954530e"
+        ],
+        "shared_source_listing": false,
+        "shared_etsy_listing": false,
+        "shared_rare_media": [
+          "https://i.etsystatic.com/54033853/r/il/046cbf/7275761549/il_fullxfull.7275761549_nmse.jpg",
+          "https://i.etsystatic.com/54033853/r/il/0d422a/7227778188/il_fullxfull.7227778188_5avq.jpg",
+          "https://i.etsystatic.com/54033853/r/il/109f62/6700071558/il_fullxfull.6700071558_iy65.jpg",
+          "https://i.etsystatic.com/54033853/r/il/1228e3/6700071554/il_fullxfull.6700071554_jp6k.jpg",
+          "https://i.etsystatic.com/54033853/r/il/1e8ac9/6700081734/il_fullxfull.6700081734_3t1i.jpg",
+          "https://i.etsystatic.com/54033853/r/il/576c9e/7275743631/il_fullxfull.7275743631_jaki.jpg",
+          "https://i.etsystatic.com/54033853/r/il/5e2efc/7275743633/il_fullxfull.7275743633_94m5.jpg",
+          "https://i.etsystatic.com/54033853/r/il/b3e720/6700073448/il_fullxfull.6700073448_a2he.jpg"
+        ],
+        "rare_media_counts": [
+          9,
+          9
+        ],
+        "smaller_gallery_overlap": 0.8888888888888888,
+        "evidence_sha256": "ac4630f3736579c842bd925da51de797eb15fffaade2acd95b49192b2097915e",
+        "status": "review_required",
+        "design_family_key": null,
+        "reviewer": "CPIM",
+        "required_decision": "Same underlying physical design, different configurations of one design, or different pieces sharing a photoshoot? Attach product-scoped evidence and current revision.",
+        "can_merge_products": false,
+        "can_assign_family": false,
+        "can_index": false,
+        "product_context": [
+          {
+            "canonical_product_id": "9d368368-12e9-4d61-9a5d-2ba9c4508861",
+            "url_path": "/shop/gold-warrior-leather-armor-set-festival-amazon-costume-set-4484819335",
+            "component_codes": [
+              "headpiece",
+              "legs",
+              "shoulders",
+              "top"
+            ],
+            "standalone_options": [
+              {
+                "id": "22dd2af4-da73-4be9-8188-5b4ef43f0601",
+                "label": "Headpiece",
+                "code": "headpiece"
+              },
+              {
+                "id": "0058ef0e-3c50-45b6-ba62-33b23b8c87a7",
+                "label": "Shoulders",
+                "code": "shoulders"
+              },
+              {
+                "id": "5429a335-4f63-4703-bf91-b211049121a7",
+                "label": "Leg Covers",
+                "code": "legs"
+              },
+              {
+                "id": "a0aebc60-bf3c-457c-a722-b0c6c0adc79a",
+                "label": "Top",
+                "code": "top"
+              }
+            ],
+            "grouped_options": [
+              {
+                "id": "86d9aeba-2d0b-4184-b8fb-d345a45cabde",
+                "label": "Full Set",
+                "contents": [
+                  "Headpiece",
+                  "Leg Covers",
+                  "Shoulders",
+                  "Top"
+                ]
+              }
+            ]
+          },
+          {
+            "canonical_product_id": "a94b5c1b-3346-4868-b0f6-7a60d954530e",
+            "url_path": "/shop/gold-warrior-armor-set-cosplay-headpiece-harness-top-shoulder-armor-leg-covers-festival-outfit-metallic-leather-performer-costume-1885178663",
+            "component_codes": [
+              "headpiece",
+              "legs",
+              "shoulders",
+              "top"
+            ],
+            "standalone_options": [
+              {
+                "id": "ea265af6-0ed4-4850-b230-971cf4b93e24",
+                "label": "Headpiece",
+                "code": "headpiece"
+              },
+              {
+                "id": "6d81f3ba-d45e-40f4-8843-e12f7ee5f050",
+                "label": "Shoulders",
+                "code": "shoulders"
+              },
+              {
+                "id": "502ee72a-ab7e-4d80-a5d2-99e44a39db2f",
+                "label": "Leg Covers",
+                "code": "legs"
+              },
+              {
+                "id": "f403bfee-7c1d-4eaf-bb66-17c80cd084aa",
+                "label": "Top",
+                "code": "top"
+              }
+            ],
+            "grouped_options": [
+              {
+                "id": "bfd30433-15c1-4957-8209-df1c2f0a0825",
+                "label": "Full Set",
+                "contents": [
+                  "Headpiece",
+                  "Leg Covers",
+                  "Shoulders",
+                  "Top"
+                ]
+              }
+            ]
+          }
+        ],
+        "decision_options": [
+          "same_physical_design",
+          "different_pieces_same_photoshoot",
+          "insufficient_evidence"
+        ],
+        "warning": "Media overlap identifies review candidates only. Different sellable pieces can share a photoshoot. No transitive family assignment or PDP merge."
+      },
+      {
+        "proposal_key": "design-review:f2d1d29f32d3e4c686a59753",
+        "product_ids": [
+          "a97ca78f-ed0d-4f17-a18d-8d54efd2679a",
+          "c61827ef-4530-426b-a2bf-7a44738352af"
+        ],
+        "shared_source_listing": false,
+        "shared_etsy_listing": false,
+        "shared_rare_media": [
+          "https://i.etsystatic.com/54033853/r/il/2438f7/6381041149/il_fullxfull.6381041149_re8g.jpg",
+          "https://i.etsystatic.com/54033853/r/il/244a27/6381049239/il_fullxfull.6381049239_r889.jpg",
+          "https://i.etsystatic.com/54033853/r/il/2e9ca6/6381041131/il_fullxfull.6381041131_5160.jpg",
+          "https://i.etsystatic.com/54033853/r/il/32199c/6381049243/il_fullxfull.6381049243_7ksq.jpg",
+          "https://i.etsystatic.com/54033853/r/il/34ace2/6332980942/il_fullxfull.6332980942_bc0d.jpg",
+          "https://i.etsystatic.com/54033853/r/il/59746b/6332972774/il_fullxfull.6332972774_akbs.jpg",
+          "https://i.etsystatic.com/54033853/r/il/6fe354/6381041125/il_fullxfull.6381041125_eb6o.jpg",
+          "https://i.etsystatic.com/54033853/r/il/d53d0c/6381041139/il_fullxfull.6381041139_1x6o.jpg",
+          "https://i.etsystatic.com/54033853/r/il/fc29c3/6381041141/il_fullxfull.6381041141_si6p.jpg"
+        ],
+        "rare_media_counts": [
+          9,
+          9
+        ],
+        "smaller_gallery_overlap": 1,
+        "evidence_sha256": "0d157d336ea5493c04fddba642b6d405dec4af2e7433f23ddfa871fec961762f",
+        "status": "review_required",
+        "design_family_key": null,
+        "reviewer": "CPIM",
+        "required_decision": "Same underlying physical design, different configurations of one design, or different pieces sharing a photoshoot? Attach product-scoped evidence and current revision.",
+        "can_merge_products": false,
+        "can_assign_family": false,
+        "can_index": false,
+        "product_context": [
+          {
+            "canonical_product_id": "a97ca78f-ed0d-4f17-a18d-8d54efd2679a",
+            "url_path": "/shop/glamorous-rave-bodysuit-festival-woman-outfit-festival-costume-set-party-rave-clothing-women-pink-iridescent-bodysuit-festival-catsuit-1870586860",
+            "component_codes": [
+              "arms",
+              "bodysuit",
+              "legs",
+              "shoulders"
+            ],
+            "standalone_options": [
+              {
+                "id": "2d7ae103-2aec-4113-9fe1-e6282f3f3a32",
+                "label": "Shoulders",
+                "code": "shoulders"
+              },
+              {
+                "id": "49312166-a743-45e9-acee-20919b8f6759",
+                "label": "Bodysuit",
+                "code": "bodysuit"
+              }
+            ],
+            "grouped_options": [
+              {
+                "id": "099731eb-a253-4bdc-81a5-28f8295d93d3",
+                "label": "Sleeves + Leg Covers",
+                "contents": [
+                  "Sleeves",
+                  "Leg Covers"
+                ]
+              },
+              {
+                "id": "b23fa19a-fab6-42c7-95e5-c5056f274fae",
+                "label": "Full Set",
+                "contents": [
+                  "Sleeves",
+                  "Leg Covers",
+                  "Shoulders",
+                  "Bodysuit"
+                ]
+              }
+            ]
+          },
+          {
+            "canonical_product_id": "c61827ef-4530-426b-a2bf-7a44738352af",
+            "url_path": "/shop/rave-outfit-for-women-with-shimmering-pink-costume-glam-vegan-leather-bodysuit-with-fabric-sleeves-leg-covers-unique-festival-wear-1806668429",
+            "component_codes": [
+              "arms",
+              "bodysuit",
+              "legs",
+              "shoulders"
+            ],
+            "standalone_options": [
+              {
+                "id": "6a485b71-326f-4ac0-bb56-69470e28871d",
+                "label": "Shoulders",
+                "code": "shoulders"
+              },
+              {
+                "id": "9f94f4a6-4894-4d29-b7ec-83aa7e05cb11",
+                "label": "Bodysuit",
+                "code": "bodysuit"
+              }
+            ],
+            "grouped_options": [
+              {
+                "id": "fabc18be-e918-44cb-ab58-5894e21f25fc",
+                "label": "Sleeves + Leg Covers",
+                "contents": [
+                  "Sleeves",
+                  "Leg Covers"
+                ]
+              },
+              {
+                "id": "014b5b68-ca7e-478c-9d8f-5a37b67b3d83",
+                "label": "Full Set",
+                "contents": [
+                  "Bodysuit",
+                  "Shoulders",
+                  "Sleeves",
+                  "Leg Covers"
+                ]
+              }
+            ]
+          }
+        ],
+        "decision_options": [
+          "same_physical_design",
+          "different_pieces_same_photoshoot",
+          "insufficient_evidence"
+        ],
+        "warning": "Media overlap identifies review candidates only. Different sellable pieces can share a photoshoot. No transitive family assignment or PDP merge."
+      }
+    ],
+    "unassigned_product_ids": [
+      "0395cb11-424f-407f-a849-7ee3b617ab57",
+      "0396612a-c30b-4d8f-b58a-441f8b1cbdcf",
+      "04099215-8328-4238-82dd-876bc3f2afdb",
+      "043406cd-0a96-45c5-8796-57c5cc4b276e",
+      "098044e5-c452-4c52-a0a4-2b29120196e8",
+      "0aa6b0e1-54eb-43f3-a5fb-d77215887459",
+      "0b7e5ccd-f5a3-4dd7-877f-1e21fbda9486",
+      "11bb0057-8c1f-4347-8c03-46856df0653c",
+      "11d2b7ca-3a13-4bcb-b1f2-b91565a20e7e",
+      "13300fb8-c39d-476f-9485-75747c4e6599",
+      "1dbf149a-739c-4afa-ba59-3b5f99acfb77",
+      "1eb4b55c-dedf-4399-92fd-c94c8d962091",
+      "1fc815c5-0165-468a-a6d8-e91c1cefcd61",
+      "1ff57e72-8360-4f9c-8e9c-768b66fe29e5",
+      "27786636-7021-4809-8e81-7f566a3436ae",
+      "28c6558b-2738-4c60-ad55-6d4dbd14d698",
+      "2973f3ae-6097-49c0-ab91-21a9697560cc",
+      "39d33dfd-1a01-458a-94c7-8372f344bce5",
+      "3cffa988-7f84-4fbf-b6e2-67a6164f7dc2",
+      "3ec78c4d-7cdb-4628-aa3b-083acefcbe45",
+      "4243eca2-4f2a-4a63-a352-b71e9fcb8256",
+      "4311bc31-ee98-458e-8290-b663ee525a4c",
+      "453ffb2e-2ed9-4e8d-b74c-e891604f9644",
+      "457416ed-92b3-4450-a5b0-ff4e27ee11a2",
+      "51d879ce-f762-4307-b896-efcb2ffd64e9",
+      "5255562a-0181-4fe3-bf4f-e5083f5638e5",
+      "596c5ec2-e59e-484f-8f73-89221f2b4171",
+      "5f0df65c-4b04-4905-80c5-53bd7e807063",
+      "641ba42d-8ad9-4178-b0c6-d41c14fc8f66",
+      "65e36680-71ca-44ba-9873-f7c962928642",
+      "679c975c-b309-49dc-9207-f89fc96b84d1",
+      "7150bacf-c6e1-4e0c-abb2-9c491e83c5e8",
+      "764debf0-4d46-4d1d-a17b-2bb6f2dc5702",
+      "7c220537-de7c-4157-99c3-ba1f9144d113",
+      "7cf4ea37-cd11-4203-860c-7eed4ae965ba",
+      "7e77810b-ee7d-46a4-91af-f24d1adcfd4a",
+      "818a1991-46e2-4628-ac61-6db77314c9af",
+      "85752f94-b2d7-465e-ace2-40bb77977461",
+      "882793f6-15ca-4617-a579-5cd47290ce72",
+      "88d4332c-95bc-4859-a31e-33d6ee89fb4d",
+      "8b321ebd-25ab-4d9b-ba30-2cfc3ba18094",
+      "8b4e23fd-456e-462b-a6b3-8aaa0333debe",
+      "95d6c9f0-4437-4730-b772-f10f9c82321d",
+      "9c59e997-1e03-463b-8f3d-3259c71d05d0",
+      "9d368368-12e9-4d61-9a5d-2ba9c4508861",
+      "a606be83-50aa-462d-ae54-04e9ce7aeb3b",
+      "a7109e93-df1f-43a6-bb6f-62bdf74e4c4f",
+      "a875757c-140d-4fea-83f9-93098406c3b1",
+      "a94b5c1b-3346-4868-b0f6-7a60d954530e",
+      "a97ca78f-ed0d-4f17-a18d-8d54efd2679a",
+      "adbb91ec-29d2-490f-9844-f73b22111e36",
+      "afdb0aea-7a68-45e8-bbdb-5b7b03ec71ea",
+      "b68d0386-ed1f-4410-8001-185bf3aaf25f",
+      "b6e0171f-4d42-4d71-88b1-ee0d4e0e109e",
+      "b8ab6fa1-1af6-4c52-b6fb-5b766e6d99da",
+      "bc59df1d-edd3-4e63-9393-175c28d9be2b",
+      "bffb3644-a34d-437d-accc-4a661d1cac6f",
+      "c3f1018e-665b-44a8-90db-ecc5bb64eedc",
+      "c52eafde-baaa-44ec-8729-c54e6c2f5706",
+      "c61827ef-4530-426b-a2bf-7a44738352af",
+      "ca33ac05-47a1-49c8-9782-a78e0fa552b9",
+      "cb31d61b-027c-4c47-b7ba-bf16283ada9c",
+      "ce0a2c0a-5a95-4876-a198-70be635ca053",
+      "ce899f23-b983-4ede-ae81-3348757b1c15",
+      "d2a3b40c-fd74-4e25-93f5-cfce92b2d88b",
+      "d42b9d73-1327-49fa-bfab-9a732b133772",
+      "d42dd678-7b11-4f38-890e-411de686f418",
+      "de38a842-37c4-40a7-86b4-393341c4c9aa",
+      "dfd36bcb-88f9-40fb-95c9-8e6e4c609fdd",
+      "ea365de7-a807-40a1-abb4-374d9df7f156",
+      "ec204df6-13b6-4deb-b493-04391501d72d",
+      "f3f7a334-3b77-44ce-bb2a-b0daff184ab1",
+      "f6b85532-eae2-4036-badc-401141c2ad6e",
+      "f746beae-43c9-4f4f-8307-301d136eda58",
+      "ff0996b6-f369-4313-baf5-2d465d9c06f2"
+    ],
+    "can_index": false
+  },
+  "writes_performed": 0,
+  "approvals_changed": 0,
+  "prices_changed": 0,
+  "product_ids_changed": 0,
+  "can_publish": false,
+  "can_index": false
+}

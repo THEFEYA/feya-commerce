@@ -93,3 +93,9 @@ Reviewable scope: новые policy modules/tests/docs, environment/sitemap hard
 Завершён [предметный аудит ассортимента и пяти briefs](Inventory_Page_Pilot_20260924.md). Новый bounded selector использует текущий sellable-offer resolver и owner-reviewed corrections; проверка не приравнивает состав комплекта к отдельной покупке. Снимок 243 товаров и 243 прежних seo_page_id воспроизводится offline. 65 shoulder-armor / 12 harness matches остаются review candidates; design depth и orderability неизвестны. У 26 товаров не разрешён состав, у одного — тип номерных вариантов. Все строки и причины сохранены в `inventory-pilot-report-20260924.json`.
 
 Следующий конкретный шаг — I1: сверить эти 27 строк с прежними предметными owner decisions и собрать design-family proposal для двух type hubs. Затем Q02 из 9 seeds, utility draft и plan отсутствующих collection routes. Новая админка, миграция, публикация или разрешение индексации для этого checkpoint не требуются. От владельца сейчас действий нет.
+
+### Checkpoint 2026-09-24 — I1 evidence reconciliation
+
+[Предметная сверка выполнена](Inventory_Reconciliation_20260924.md): 27 случаев разобраны по прежним drafts/owner notes и source-price joins. Шесть точечных исправлений подготовлены в коде; 21 случай остаётся в адресной очереди (17 size/color, два jacket, один copy/truth conflict, один obsolete-choice conflict). Current resolver: 222 ready / 21 hold, цены/IDs сохранены, 237 остальных signatures идентичны предыдущему commit. Draft approval и подтверждение фактов различаются.
+
+Design review packet содержит девять пар; автоматических families/merges нет. Следующий конкретный шаг — I1b/I1c: подготовить piece/size/color/price mapping и закрыть два truth conflicts по существующим owner records, затем I2 — проверить физические модели. Задачи, владельцы, validation, blockers, rollback и done приведены в отчёте. До выявления действительно отсутствующего предметного факта действий от владельца не требуется.

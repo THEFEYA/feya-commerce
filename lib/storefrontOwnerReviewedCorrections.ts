@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { applyReconciledOfferCorrections } from './storefrontReconciledOfferCorrections.ts';
 
 const SILVER_HARNESS_SET_ID = 'ce899f23-b983-4ede-ae81-3348757b1c15';
 const SILVER_MENS_WARRIOR_SET_ID = '4b0c8180-774d-4d5c-a12c-0864f305d1cb';
@@ -1934,6 +1935,7 @@ function correctSilverBraSkirtSet<T extends Record<string, any>>(product: T): T 
 }
 
 export function applyOwnerReviewedStorefrontCorrections<T extends Record<string, any>>(product: T): T {
+  product = applyReconciledOfferCorrections(product);
   const productId = String(product?.canonical_product_id || '');
   if (productId === FINAL_GOLD_ARMOR_VARIANTS_ID) return correctFinalGoldArmorVariants(product);
   if (productId === BATCH39_WHITE_ROBOT_QTY_ID) return correctBatch39WhiteRobotQty(product);

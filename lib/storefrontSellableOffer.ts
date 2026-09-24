@@ -89,7 +89,10 @@ export function resolveStorefrontSellableOffer(
     .filter((row) => !row.is_full_set || row.source_confirmed_bundle_members)
     .forEach((row) => {
       const memberCodes = unique(row.bundle_component_codes.map(normalizeCode).filter(Boolean));
-      const explicitMemberLabels = row.bundle_component_labels
+      // Canonical axis labels avoid turning quantities into new DNA parts.
+      // Exact option labels/quantities remain on aggregate_options for display.
+      const explicitMemberLabels = (row.bundle_component_axis_labels.length
+        ? row.bundle_component_axis_labels : row.bundle_component_labels)
         .map((label) => firstString(label))
         .filter(Boolean);
       if (explicitMemberLabels.length && explicitMemberLabels.length !== memberCodes.length) {
@@ -248,9 +251,15 @@ export function sellableOfferPurchaseUnitLabels(
     return fullSetPurchasableDisplayLabels(offer, selected);
   }
 
-  // A grouped selector choice is one purchasable option. Keep its public label
-  // intact instead of exposing its internal members as separately orderable.
-  if (selected.is_aggregate) return [selected.label];
+  // Numbered labels alone conceal the selected contents. Keep one grouped
+  // purchase unit while spelling out its resolved, quantity-specific members.
+  // Ordinary named groups (Top + Shoulders) retain their existing label.
+  if (selected.is_aggregate) {
+    if (/^variant\s*#\d+$/i.test(selected.label) && selected.member_labels.length) {
+      return [`${selected.label} — ${selected.member_labels.join(' + ')}`];
+    }
+    return [selected.label];
+  }
 
   return [selected.label];
 }
@@ -441,6 +450,7 @@ type NormalizedConfiguration = {
   source_confirmed_bundle_members: boolean;
   bundle_component_codes: string[];
   bundle_component_labels: string[];
+  bundle_component_axis_labels: string[];
 };
 
 function normalizeConfiguration(
@@ -481,6 +491,8 @@ function normalizeConfiguration(
   if (!code) code = labelCode;
 
   if (!label) blockers.push(`sellable_option_missing_public_label:${index}`);
+  if (Array.isArray(row.bundle_component_axis_labels) && row.bundle_component_axis_labels.length
+    && row.source_confirmed_bundle_members !== true) blockers.push(`aggregate_axis_labels_not_source_confirmed:${index}`);
   if (label && CYRILLIC.test(label)) blockers.push(`sellable_option_non_english_public_label:${index}`);
   if (!code) blockers.push(`sellable_option_missing_component_code:${index}`);
   if (!label || !code) return null;
@@ -506,6 +518,9 @@ function normalizeConfiguration(
       : [],
     bundle_component_labels: Array.isArray(row.bundle_component_labels)
       ? row.bundle_component_labels.map(String)
+      : [],
+    bundle_component_axis_labels: Array.isArray(row.bundle_component_axis_labels)
+      ? row.bundle_component_axis_labels.map(String)
       : [],
   };
 }
@@ -595,6 +610,13 @@ function buildSignature(
     // the same exact components in a different order; that must not
     // invalidate an otherwise identical human-confirmed keyword decision.
     members: [...(membersByIdentity.get(row.configuration_id || row.code) || [])].sort(),
+    // Opt-in composition detail only: unrelated historical v1 signatures stay
+    // byte-identical. Quantities on these reviewed bundles must affect freshness.
+    ...(row.bundle_component_axis_labels.length ? {
+      member_details: row.bundle_component_codes.map((code, index) => ({ code,
+        label: row.bundle_component_labels[index] || '', axis_label: row.bundle_component_axis_labels[index] || '',
+      })).sort((a, b) => a.code.localeCompare(b.code)),
+    } : {}),
   }));
   return `storefront-sellable-offer-v1:${JSON.stringify(snapshot)}`;
 }

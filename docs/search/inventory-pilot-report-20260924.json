@@ -6,11 +6,15 @@
   "implementation": [
     {
       "path": "lib/storefrontSellableOffer.ts",
-      "sha256": "22b9b6ea290d3595c9152d8d7ec395047eee8452300b4afe9be1d9e5bfef70ac"
+      "sha256": "900d6f97db1b62097dc89ae3734613dca10a27534d3230518120ced021e17683"
     },
     {
       "path": "lib/storefrontOwnerReviewedCorrections.ts",
-      "sha256": "f92bedf9ee5176462c9e46294b61a1e4ab59c828db8128a43503bb3612c8dc90"
+      "sha256": "45ace4121803fff2f7ddb8f9ce51d881faf3a943efd236aba6103d5a23959cd5"
+    },
+    {
+      "path": "lib/storefrontReconciledOfferCorrections.ts",
+      "sha256": "b30e415f782be19d96da3f2762210fd9e72c1b7fae0bb1837deada3bc8cdc34a"
     },
     {
       "path": "lib/searchInventorySelection.ts",
@@ -51,8 +55,8 @@
     "pdp_paths_consistent": true
   },
   "offer_counts": {
-    "ready": 217,
-    "hold": 26
+    "ready": 222,
+    "hold": 21
   },
   "offer_ready_meaning": "Current selector composition resolves; not owner-approved publication, price verification, orderability or distinct-design depth.",
   "raw_truth_blocked_products": 230,
@@ -123,8 +127,8 @@
       "source_sha256": "c947912c945666581017ba00905bc7e76bbd9f985e9fac7d14dd3bfd320124c2",
       "selection_counts": {
         "match": 65,
-        "no_match": 151,
-        "unknown": 27
+        "no_match": 157,
+        "unknown": 21
       },
       "matched_product_count": 65,
       "confirmed_orderable_product_count": null,
@@ -151,7 +155,7 @@
             "437e08e1-7d01-4b39-9c8e-98f7fc2349d5"
           ],
           "evidence_refs": [
-            "observed_sha256:37a0919d712c4494571eccd9b4ec42bfc8657d7de40aad2aaa8e6d00736e08de"
+            "observed_sha256:4d054fae135cf89b792ba4fb809b9459283dfec79e41e156c97fb687bb0595a9"
           ],
           "can_publish": false,
           "can_index": false,
@@ -167,7 +171,7 @@
             "2ab597f1-2c02-46fa-a5b4-c0e8c7bc47c7"
           ],
           "evidence_refs": [
-            "observed_sha256:a930d6ad3277a97bdcea8f9627884db6c209c475162a50d4e4725150678fb721"
+            "observed_sha256:e743f44b69e2d8669071e4789f9d95e74c98017a6f1ebcc3104118026603d129"
           ],
           "can_publish": false,
           "can_index": false,
@@ -195,7 +199,7 @@
             "9e41c08f-c1e2-46cb-91b0-830ee248f8df"
           ],
           "evidence_refs": [
-            "observed_sha256:ed880255f3200d02ef4cd465b9726e7a49dd50dc8b2a41a6416937c28cc1083d"
+            "observed_sha256:91f155f71d358c289fe39564a365784653b83e778ad749b940567ef6a014d010"
           ],
           "can_publish": false,
           "can_index": false,
@@ -211,7 +215,7 @@
             "a12ae538-a512-4e83-9379-0eeeeaaeb936"
           ],
           "evidence_refs": [
-            "observed_sha256:7893b6163b0b1d73dc9e19b916fea1e6c9b642b567a2e98b0be156473d83f326"
+            "observed_sha256:8712a230af12513c672239ef31e52398523916b4e782734702abf11c2cf38c67"
           ],
           "can_publish": false,
           "can_index": false,
@@ -263,7 +267,7 @@
             "f9a98c8f-a746-4541-9713-d65a2042d4c4"
           ],
           "evidence_refs": [
-            "observed_sha256:eef707c081fdba080ce2a3277407b766a0fce68c089748c13b577ffb944dad8f"
+            "observed_sha256:43154a12fb393090259a7881e775491084bdf48560aca2d4b7cc6e4c29d5e193"
           ],
           "can_publish": false,
           "can_index": false,
@@ -303,7 +307,7 @@
             "65c6956d-3a4d-4fb7-9085-9ca784a6da2a"
           ],
           "evidence_refs": [
-            "observed_sha256:ccae821de3060b7e7f02f0252cbcbfd7d30d7f43c8248a5b3b53d14654942472"
+            "observed_sha256:b4d575e6dfdbbb1070aa7819dfbb74be0e0422884307b228a4abb05636074a04"
           ],
           "can_publish": false,
           "can_index": false,
@@ -319,7 +323,7 @@
             "04499dde-3d4a-4e29-ba94-036f1fa7ddc7"
           ],
           "evidence_refs": [
-            "observed_sha256:86260fa8ac24b40f4c6475f398488349f8bfb80ac8ee1b022673e8a18e647477"
+            "observed_sha256:bceeee576d8fc33ee7c2b88a15c590f8351501d8a70b19c3ed3799adbc9b69b3"
           ],
           "can_publish": false,
           "can_index": false,
@@ -390,7 +394,7 @@
             "c41dabf6-e767-46c8-a92e-f24423947e62"
           ],
           "evidence_refs": [
-            "observed_sha256:392813585cfc5c694c1717e76131a5454eb5117840718a07d2cad8119dea1b50"
+            "observed_sha256:ae77081c183550433b21933dbc2716c426b968270d7d0ca19390565f399c8352"
           ],
           "can_publish": false,
           "can_index": false,
@@ -430,7 +434,7 @@
             "fdb204ca-20b5-4f6e-882b-a4c623f1a5c3"
           ],
           "evidence_refs": [
-            "observed_sha256:826f03ad124e290e174f09a230c41e0964118c1470f169377754859cea08b279"
+            "observed_sha256:349c95e94915ca1c76344619d0502a7c105ab2631d77f138614609bbaf57058b"
           ],
           "can_publish": false,
           "can_index": false,
@@ -574,7 +578,7 @@
             "8d4e5f53-2154-426d-93d0-539b8685634a"
           ],
           "evidence_refs": [
-            "observed_sha256:573a22293393518c5cebd6e373017bf73a0c6ff6dcc5a25f1f5530f9facd47fb"
+            "observed_sha256:228c509bf548aa5c0e445f3a2554fc05e69ee598115ec7735c50e040d22342bb"
           ],
           "can_publish": false,
           "can_index": false,
@@ -590,7 +594,7 @@
             "af1846ee-7a12-4796-b037-ded61847df01"
           ],
           "evidence_refs": [
-            "observed_sha256:8524e1ecbaf39c03ef1458ecea7f73c87f2d53e0d0cf1bf8851815e1d20a9870"
+            "observed_sha256:6464f35c4f33877817d716a3bd45b772e07aef2a446bcb44bb1ec583fbbe119b"
           ],
           "can_publish": false,
           "can_index": false,
@@ -606,7 +610,7 @@
             "7fa8495d-e2f9-408a-82c8-fdbdf51920fd"
           ],
           "evidence_refs": [
-            "observed_sha256:96bc950304886b2b6d8e4bf1e253469744e5503dec6d1afaa633bd6eeafd1495"
+            "observed_sha256:9a1d78f6b3030b12c0d8206ce7cd46e9147ab2ded9f876a2b79e7fb9d8d83ae7"
           ],
           "can_publish": false,
           "can_index": false,
@@ -622,7 +626,7 @@
             "2ec11b3c-c4a9-4e26-9274-15e551078ad9"
           ],
           "evidence_refs": [
-            "observed_sha256:2f364e57683a881efd90c9039cbf02e0600086642d4383b2c4d3a45ec97373d3"
+            "observed_sha256:66100c23d5dbd5fdb973e48410762167fa4907f1192226bad97f014440008053"
           ],
           "can_publish": false,
           "can_index": false,
@@ -650,7 +654,7 @@
             "dcb90a35-4f84-4ac9-8266-95d378b0daec"
           ],
           "evidence_refs": [
-            "observed_sha256:dad6d4c90ac647f24ed6b209d6b9782ea8f9bd4da59e1b41ce01d497bb6ba916"
+            "observed_sha256:5c9801ffe99335a0d93c1ed8e5fd4fbf98fc7f84385f2c064275ea4cf21809bf"
           ],
           "can_publish": false,
           "can_index": false,
@@ -698,7 +702,7 @@
             "e207818e-a7fe-46f1-9b6f-2a127e35f8b3"
           ],
           "evidence_refs": [
-            "observed_sha256:2fe69548902038f509f55f9a29669abaf78195d6f7b2543da7d411d8907d9aa4"
+            "observed_sha256:96141388dbbf657f72324ecebeb34b73234cbf06e6a4b44835b4822305995eb7"
           ],
           "can_publish": false,
           "can_index": false,
@@ -726,7 +730,7 @@
             "fcb4c28d-a0ac-4631-a7bb-157475731adb"
           ],
           "evidence_refs": [
-            "observed_sha256:69c7bdc03d47ca9e107544b26bb240cd3c2df3a62af763c1b08f520fbd3e653e"
+            "observed_sha256:a6c065110084d45b34d6065dadc5abd690067df8af8a9a78ec37b54cbbe6d116"
           ],
           "can_publish": false,
           "can_index": false,
@@ -889,7 +893,7 @@
             "eeb82d13-6484-49ce-9284-acb0b57a50a1"
           ],
           "evidence_refs": [
-            "observed_sha256:e412d895951e5006098f541f610e3a4a0f9e324a60b2a6fa6865872410a39194"
+            "observed_sha256:c5fa495bc1f2b84842503310415337a08f46c4948509871d5ee79293f996b50b"
           ],
           "can_publish": false,
           "can_index": false,
@@ -961,7 +965,7 @@
             "57bb3455-5f86-48eb-be46-eec652814a79"
           ],
           "evidence_refs": [
-            "observed_sha256:e585f74c4487dfca5f59e37b8438e00b64c7ad835b86373b0bf6e8d65c42f27f"
+            "observed_sha256:561afa94fc151b36b3132fb4033c9a52c190c970dbadfb8041c195ba0b3da28a"
           ],
           "can_publish": false,
           "can_index": false,
@@ -977,7 +981,7 @@
             "e1bb8003-1889-4fe6-97db-0ce4c8da8fc6"
           ],
           "evidence_refs": [
-            "observed_sha256:c171b717dd4ab56574570d708c9f47feb31791d95c9a4f88a7e90fa3f33720c0"
+            "observed_sha256:d69d62c9736079c549766819505fbbcd2402da5ea6e1ad69e34af9bcf72b265a"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1031,7 +1035,7 @@
             "ae12904f-63bb-4a00-8985-8457b23f3be6"
           ],
           "evidence_refs": [
-            "observed_sha256:c302ee93e259ec17d14f18772d01e0c0d09c4872353c11718c6fca647aa3d015"
+            "observed_sha256:c7c3cae100bd4bea034ed3caf378951af6e98760e19be04c8681cd3655b183c1"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1047,7 +1051,7 @@
             "17921b78-abe2-4955-9e0e-b786a7b1f295"
           ],
           "evidence_refs": [
-            "observed_sha256:108b31d4bbdfb964b6ac7b6013a47efe221d265ad51ce02bce01314d12a60ccf"
+            "observed_sha256:f34987a041ad1493d89ba5ef2051fd835b22695833a53aee293d7d7efae275cd"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1055,9 +1059,9 @@
         },
         {
           "canonical_product_id": "437a20cd-27a3-4aaf-b154-3353899e0ebd",
-          "state": "unknown",
+          "state": "no_match",
           "reason_codes": [
-            "numbered_variant_type_unmapped"
+            "component_only_in_grouped_configuration"
           ],
           "configuration_ids": [],
           "evidence_refs": [],
@@ -1075,7 +1079,7 @@
             "ffe4a60b-fb7f-41bf-b3d5-68d21e5dc0fa"
           ],
           "evidence_refs": [
-            "observed_sha256:bc019626d146f2b9a3a1f1eb3c0b25cac0d029101e8b1b0a0d82328f6b455748"
+            "observed_sha256:8d29efe33cd9028947b74e0fde308d2010475309ae72841fb8207f47f6a81d7f"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1091,7 +1095,7 @@
             "cd2de4ca-778a-47b2-9110-4db3cba4dfd1"
           ],
           "evidence_refs": [
-            "observed_sha256:82720bd27a8c15408399356659e9b61ba9cb329585f2b4fca18767357009aaa2"
+            "observed_sha256:e8be75521999dbdc195093e6f14abfd93180d9c7fcb06dfc4a506cf5fb16fffe"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1163,10 +1167,9 @@
         },
         {
           "canonical_product_id": "4b0c8180-774d-4d5c-a12c-0864f305d1cb",
-          "state": "unknown",
+          "state": "no_match",
           "reason_codes": [
-            "aggregate_member_not_found_in_current_options:arms",
-            "sellable_offer_unresolved"
+            "component_only_in_grouped_configuration"
           ],
           "configuration_ids": [],
           "evidence_refs": [],
@@ -1276,7 +1279,7 @@
             "8148c4a0-e491-4af9-9809-d7a4bfc2c169"
           ],
           "evidence_refs": [
-            "observed_sha256:0033469c8b2a1e299d770544b9bf4db7d65dbf4b7d4b06abad6c8b13a75c1333"
+            "observed_sha256:8e8ccb78f34f7f6a47dcb1824ce2d224630fbfe543825f344548d50df5034be6"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1292,7 +1295,7 @@
             "6c5b1ae7-297a-473d-ab94-59ef0ab56125"
           ],
           "evidence_refs": [
-            "observed_sha256:52ea0d776a3a949a275d92807627416abfed106cec3e9583ada767130bc02488"
+            "observed_sha256:6e31043b60a0e0f7285197bea7276d322c142c2637ebce430ad9a13ce8c366c3"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1431,7 +1434,7 @@
             "65cb9ce0-a9e4-4f28-bcb1-a659c733e50f"
           ],
           "evidence_refs": [
-            "observed_sha256:39b7b8b1a1b4b62676e169a0d4af68339679589da706d8396e6753d97b21c718"
+            "observed_sha256:7c706469cd1928bf448703cb327b5f0a0392bd1e19c2197949239a95ff9126ab"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1459,7 +1462,7 @@
             "e0ca6158-7e37-4816-a275-a9dffa59b98b"
           ],
           "evidence_refs": [
-            "observed_sha256:59decc9ec3232126ec825fb64228ac74c5a1ace7ba33789c999a1c0b88a94606"
+            "observed_sha256:5da81513d22f3f5d31bd22c436ca5a8177b2e6773bb96fd9d982ff6c0cdfa233"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1487,7 +1490,7 @@
             "d1357030-653b-4a6a-ae31-7ad6ca9d99b1"
           ],
           "evidence_refs": [
-            "observed_sha256:a8b98712f272391ab324554f92fa44d4e6567b339f7307af1ba35e987bc2a505"
+            "observed_sha256:6e1e37e7283a3ba0ec243762d85b11b80bc3d29dc7a6e4bc7ec26481fc512d5c"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1527,7 +1530,7 @@
             "552bd70d-615e-4454-b975-843ebc3ff928"
           ],
           "evidence_refs": [
-            "observed_sha256:e01a2c53ee31e08ef69617598b7fd182a34020a506cf7e5a246cd57c9e70ad58"
+            "observed_sha256:86d4b827fda0299f41b78c6b5dfe55d1d98c80beb631b24cd81eb124c3c6ac70"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1611,7 +1614,7 @@
             "09d8e5e6-57d4-4def-8a0f-0bc56e585b69"
           ],
           "evidence_refs": [
-            "observed_sha256:39e5771f13854f43f3f74ba33cd7f19aa433bb617b2351d69c750f4206f7dd85"
+            "observed_sha256:ed6d8944ff3e8fb94900ea34c3ec4cf78359451a35f848a046c9ce5b52b87559"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1663,7 +1666,7 @@
             "b16c32f1-470a-499b-a429-738abd85413c"
           ],
           "evidence_refs": [
-            "observed_sha256:ac4475c64e614daa52613af6c38314123334ce4a33f731a40b94f76eae109ef4"
+            "observed_sha256:2339ae11846faf6953c92f0d97c5185780bd12e8bb8449222ab07ca8f2e5ce6b"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1767,7 +1770,7 @@
             "161a67fa-58d9-47f2-adbe-e18aad206cd1"
           ],
           "evidence_refs": [
-            "observed_sha256:eb38b8f1bddf8610eb02bcd1e83908236d899a45b5e292571596ba42922d5d38"
+            "observed_sha256:7a414828817f05749d863ea1f7fad391ff463d7a57e309a137f2a19e8a79df82"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1827,7 +1830,7 @@
             "15aff8a7-d79e-47ac-8a63-d2de72953ebb"
           ],
           "evidence_refs": [
-            "observed_sha256:924882c784ad14d4802ffba80be6fc706058825ba01fe6492d402bd59c5f3219"
+            "observed_sha256:bbc7b8da980206358338a3e50e20eea4fc28a6d9f9ac10e5b5a235780234f20e"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1855,7 +1858,7 @@
             "96ea219d-1599-472a-ab6e-0bd03b5f04ad"
           ],
           "evidence_refs": [
-            "observed_sha256:f032c1e880d2762dd04847eda9cdb05645c4bb74612e76a7e3d8aa99e843694f"
+            "observed_sha256:831975b887c2b92ae42ca11f566b993897a1e358dd1893a31aefc9484c6ee8e5"
           ],
           "can_publish": false,
           "can_index": false,
@@ -1955,7 +1958,7 @@
             "c0fcd4b1-e2fe-4823-902e-22abab90e0c7"
           ],
           "evidence_refs": [
-            "observed_sha256:8eab73498048c58604c4608157abac62f24d71dd50e0374829a7116e8e854f56"
+            "observed_sha256:853ae0277e570eb69fe65e5accd61ca5e09238d629caf6a6e014d9f1ffa68f9e"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2019,7 +2022,7 @@
             "68203b9a-2420-40bf-8808-eff7a2dfd66e"
           ],
           "evidence_refs": [
-            "observed_sha256:1d77d1450f874f414a23a1c11283f33521b233de6f54ec8a14487fcc9af635e4"
+            "observed_sha256:0e15048a3dd9b1d357b15823e9ff8ecf30c7239c13afa10f224b185749cf2bb6"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2035,7 +2038,7 @@
             "2dfdd6fd-9e1b-4a6c-8238-fc887d8318ba"
           ],
           "evidence_refs": [
-            "observed_sha256:abca0f5f68bc43547b5c2235b51ca407dc6f57f47f48a41914bcb7ba485c651f"
+            "observed_sha256:a8e7b024235aa651628773a1edc981a9fd11757560baa966d107166136fc6442"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2095,7 +2098,7 @@
             "38366d5b-9424-48f3-b9d7-65116841bcaf"
           ],
           "evidence_refs": [
-            "observed_sha256:c5dbcbd3753bb1c5af8ffd6a46627b5db2fa109af692085fd19ac014b66ee8b0"
+            "observed_sha256:2fc73157fdd6c4f4062d13335a7521968c702fe1ddbe88926498c633ebc1dcec"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2103,10 +2106,9 @@
         },
         {
           "canonical_product_id": "98600aa8-307b-4165-a8ae-38e347c114bd",
-          "state": "unknown",
+          "state": "no_match",
           "reason_codes": [
-            "sellable_offer_unresolved",
-            "sellable_option_unresolved_component_identity:0"
+            "no_matching_sellable_component"
           ],
           "configuration_ids": [],
           "evidence_refs": [],
@@ -2124,7 +2126,7 @@
             "5b24e14c-94d7-427c-9cbe-9d4640da6537"
           ],
           "evidence_refs": [
-            "observed_sha256:0b689715878e58a725da4919ddf273aa8ae0c5c58149df7035d1240d56b718fa"
+            "observed_sha256:a28fe2e2fc8d53fc0d5592ed45c2fae6eb7b623271574a32c089055d44e6e000"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2164,7 +2166,7 @@
             "0058ef0e-3c50-45b6-ba62-33b23b8c87a7"
           ],
           "evidence_refs": [
-            "observed_sha256:1a068db07f32400969781e405065c5ce0c43dc842f7032dd000a036a235f823e"
+            "observed_sha256:4a5d4e166d750af4ff91c5f0f57c75d8da862e81336a29284b7b318e33d67fa7"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2172,10 +2174,9 @@
         },
         {
           "canonical_product_id": "9d6047ad-406d-4279-a10b-2918e111d587",
-          "state": "unknown",
+          "state": "no_match",
           "reason_codes": [
-            "sellable_offer_unresolved",
-            "sellable_option_unresolved_component_identity:0"
+            "no_matching_sellable_component"
           ],
           "configuration_ids": [],
           "evidence_refs": [],
@@ -2229,7 +2230,7 @@
             "fe58da32-305d-430a-9716-011ada8d0e11"
           ],
           "evidence_refs": [
-            "observed_sha256:03e30ffa2bb793cc544266e4ff933c2f57018fd8d6beb4a930d1d897b7a2f618"
+            "observed_sha256:69ac71d1bf20c3a93efc21d659e21bfa766a60b53aaf4f33e33c4a4b475591b2"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2294,7 +2295,7 @@
             "84941441-d77e-41c9-bed9-94611553a975"
           ],
           "evidence_refs": [
-            "observed_sha256:3c736ffdf4748cfd29e8bc876caf25e3ab24a7dc401f93a5a300e32e9e31c376"
+            "observed_sha256:57e28802114390171e0a0fd2d2588c8f4779d439c2104151066eb91877c13a16"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2358,7 +2359,7 @@
             "332be292-7cae-41ac-9ae0-6fbfaf0a0c27"
           ],
           "evidence_refs": [
-            "observed_sha256:4384c61f32e6fb6524ae85a695dea14cd6bfc3889054835ddf0276b203a131bc"
+            "observed_sha256:5912a74c570858c4dfae49da5dc7ab1e6d00fcae00cf9d97af7811fb576e4777"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2374,7 +2375,7 @@
             "6d81f3ba-d45e-40f4-8843-e12f7ee5f050"
           ],
           "evidence_refs": [
-            "observed_sha256:1a3d7ce84a0abf5142a55d4aabd06da33b183dada1cf69276cf9bdd328e3675f"
+            "observed_sha256:4582155510a484843ebc89ae5559dfef9ece99ec9f2203347819b930b9c8d791"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2390,7 +2391,7 @@
             "2d7ae103-2aec-4113-9fe1-e6282f3f3a32"
           ],
           "evidence_refs": [
-            "observed_sha256:87e34808b00237cf96047142f5a884b686080f55ee55f143004eafe4158461e6"
+            "observed_sha256:3a01d11ded1aa3b1083bd46e1aab56fdc3df48a9c5b7f1c38d80272257335518"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2454,7 +2455,7 @@
             "c87bd722-bebd-4368-a113-9e06aaab3009"
           ],
           "evidence_refs": [
-            "observed_sha256:e711f6373067a9f5d716665e53fe261f5fa6ba0efa91a2127c32f631a1df3d7e"
+            "observed_sha256:259c662e77eae1e8e2b4aabd9ba464adf0eb9bc3b5fb946e43abb96a6910cebe"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2470,7 +2471,7 @@
             "735dc61f-3fe1-4a5a-8d9a-d30f6578b332"
           ],
           "evidence_refs": [
-            "observed_sha256:f4e87154bed30ea993170010b19d477b7de0af1fb69528cd4574469c5faaea90"
+            "observed_sha256:e909f0a9a5fe1368a80670c914e20dd7503a2fd9f24bca53d4719d976870f293"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2558,7 +2559,7 @@
             "e026594b-3a4d-4b7f-9fc0-b1a4376ff9b4"
           ],
           "evidence_refs": [
-            "observed_sha256:9d822105be1bc25fc94e09e476ca3beeb2acd90dc50cbe999a50d1c84db7b243"
+            "observed_sha256:3abfc716af10d5d2d61b421a5e68660ce8e707f875a6b44811f98d54608579d1"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2575,7 +2576,7 @@
             "c1c6a9e3-e86d-4306-83a0-0fe06392d31f"
           ],
           "evidence_refs": [
-            "observed_sha256:acb146a1f9246278d537b2a0c74122d63712df31e9034b8ff4febe8d260cfd65"
+            "observed_sha256:fcb85cb5cf04648359ee154d0e4303f19263b46698f99e9fcb3a8e579a78c25a"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2690,7 +2691,7 @@
             "f979e219-9ec4-4145-83d0-c9b858b61c67"
           ],
           "evidence_refs": [
-            "observed_sha256:02cf440c3475ccd52ef2550bf993b7bd53ed1b032d2576b8842662c7fb4e8922"
+            "observed_sha256:c84b75bd84e6cecc78941d23134c576d32bf47dec935b96a764cfec663ea1a73"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2718,7 +2719,7 @@
             "5a65e878-f0df-4584-806d-99f0aa5e586d"
           ],
           "evidence_refs": [
-            "observed_sha256:0a2084c69019e80ff3333fcb75753744d5d0a4b4bf1d302b07f0dfad7479c915"
+            "observed_sha256:2007a653f9416e29aa7865edb598457cdf9f2dd23f3f7af0f9896c142850d060"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2770,7 +2771,7 @@
             "95c4442d-e08d-4c7d-8292-2f7ad48894ac"
           ],
           "evidence_refs": [
-            "observed_sha256:8380bcd19b8560db79e1ba9cda1a75f9e2c0d99a87e53236046ee688cfbe9b19"
+            "observed_sha256:3d740eddd9d0a2fc903b359468f52d3fb97edd6e67a4d0aa45e8f34f372b59e9"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2786,7 +2787,7 @@
             "6a485b71-326f-4ac0-bb56-69470e28871d"
           ],
           "evidence_refs": [
-            "observed_sha256:3056fd6e4a807c520ad6e6cd369c1ce43f848158fbe0e42de868da7133e775c1"
+            "observed_sha256:5d8ef8599ee073ddb076d67d025508593ffbbc8e8ee571e29662228d9b019d25"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2850,7 +2851,7 @@
             "11c009d8-3aa8-4fa8-a34d-b3739cd4ec69"
           ],
           "evidence_refs": [
-            "observed_sha256:ad59aa49289ebb65909716d9d90eddefa805e4aaefca490938bf0d5d8afadf49"
+            "observed_sha256:d45d98236b52e4a824d725ac8dc91092dd3e768f12fd99ac19ea9bf56f22567a"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2866,7 +2867,7 @@
             "ab749cd4-b004-4ab2-a32d-a984d0d5d4fb"
           ],
           "evidence_refs": [
-            "observed_sha256:e68ba145f69bd0737b0bad45c1de8874f417921f3c9124f1ba3f0084e1248687"
+            "observed_sha256:7adeb9f606f0a88f58a84120be28214d89458bde8c73be1f771a0356db644312"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2874,13 +2875,9 @@
         },
         {
           "canonical_product_id": "ce0a2c0a-5a95-4876-a198-70be635ca053",
-          "state": "unknown",
+          "state": "no_match",
           "reason_codes": [
-            "sellable_offer_missing_atomic_options",
-            "sellable_offer_unresolved",
-            "sellable_option_unresolved_component_identity:0",
-            "sellable_option_unresolved_component_identity:1",
-            "sellable_option_unresolved_component_identity:2"
+            "no_matching_sellable_component"
           ],
           "configuration_ids": [],
           "evidence_refs": [],
@@ -2898,7 +2895,7 @@
             "9ecc5baf-5028-407e-923c-cf216033364d"
           ],
           "evidence_refs": [
-            "observed_sha256:e339891d0f991a4de6688971381a838d5fb9dcfbc61674d6f7da7d7baa50f182"
+            "observed_sha256:bfe639c38bc79400d7f8e72ab10b2d34cac37e5f2635eff3297b64dce8360080"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2950,7 +2947,7 @@
             "451955f3-5621-4cca-a215-b3095eb298cd"
           ],
           "evidence_refs": [
-            "observed_sha256:b0e14d6fe425fc79fa5cada0ceb8a41aa9cad4cdef7a66a10ce1a4e6702f6a55"
+            "observed_sha256:6b71f6397950f6bcb3c2335ff30e0e6276910cb1d0c574f624389b5c845c2fed"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2966,7 +2963,7 @@
             "259106a5-6be1-463e-b688-7a2e2a35fe23"
           ],
           "evidence_refs": [
-            "observed_sha256:5df14da915126424d64a87f0a5c1252586d876893e02ac24d3aeafb5e30c6829"
+            "observed_sha256:d782ea46e60ae566416e830026888fabe2c0762571bb710483c68b5e29df6bea"
           ],
           "can_publish": false,
           "can_index": false,
@@ -2982,7 +2979,7 @@
             "96627c1d-0cd5-417f-9c72-b7b65e61f278"
           ],
           "evidence_refs": [
-            "observed_sha256:a7769d78fb9a8f7ad58bb7d3fac2a5a7fb212eb3d87ead04d57c2c09f0bab5cd"
+            "observed_sha256:adb97c973e2fdf90169fa3c572ddf64c0b9e4d6a5ca05755e920e37457215e69"
           ],
           "can_publish": false,
           "can_index": false,
@@ -3058,7 +3055,7 @@
             "e7ebc2b0-dde7-4de2-a1d1-0cb913f54878"
           ],
           "evidence_refs": [
-            "observed_sha256:0d274ebf81f2b928ab435a0e5e75ea6e5ea8845815625f8bf3ca024a0a1ac995"
+            "observed_sha256:162678cf164c451dba1178c1f949da84e3da568001640075086e754481ed2755"
           ],
           "can_publish": false,
           "can_index": false,
@@ -3102,11 +3099,9 @@
         },
         {
           "canonical_product_id": "e39f9164-4001-4f63-9407-a1ddd3d962dd",
-          "state": "unknown",
+          "state": "no_match",
           "reason_codes": [
-            "aggregate_members_unknown:full_set",
-            "sellable_offer_unresolved",
-            "sellable_option_unresolved_component_identity:0"
+            "no_matching_sellable_component"
           ],
           "configuration_ids": [],
           "evidence_refs": [],
@@ -3172,7 +3167,7 @@
             "018bbe66-3e38-40c9-b3e3-8d24465751fa"
           ],
           "evidence_refs": [
-            "observed_sha256:d33d82bc8ffbda8bf8a2cc57f42a50f6b09dcb48c6a5377d9c0376a15f6ab607"
+            "observed_sha256:7a826b98ecf1825a862ca1074404008df32d678fb6a789994fbcd2cea97dc17a"
           ],
           "can_publish": false,
           "can_index": false,
@@ -3200,7 +3195,7 @@
             "970e0500-8f89-4c6b-ac34-b9832bbc6ae7"
           ],
           "evidence_refs": [
-            "observed_sha256:da81cd145a62de4700f6b8146dfe5a423e08b28989f4eec564e9c0e99ded1c9b"
+            "observed_sha256:05a3e5271111e14a428982e29704e88040bac30c333ea9e97030e96cad6bf2a6"
           ],
           "can_publish": false,
           "can_index": false,
@@ -3336,7 +3331,7 @@
             "30effd17-6bd6-48f7-bec0-cbb96fac5e11"
           ],
           "evidence_refs": [
-            "observed_sha256:b391c7d20446548f1fd766890c2c448ee328c69ab005a24543c0f3e7a071c519"
+            "observed_sha256:37c3d553e29d6da4f65d4637781bc819a980e8b6a78327054b36a112f4b2842e"
           ],
           "can_publish": false,
           "can_index": false,
@@ -3352,7 +3347,7 @@
             "761b0957-8754-43ab-a42b-30fba3ea2e50"
           ],
           "evidence_refs": [
-            "observed_sha256:b1206416800a31672baeba3aa8b35fe5a39c6d7ed021679fecfe152f4989dcb4"
+            "observed_sha256:bca3fcf907c092b7fdc264800cc5c99ac9ae831bf57c317c47c341884a8a211c"
           ],
           "can_publish": false,
           "can_index": false,
@@ -3452,7 +3447,7 @@
             "bbc17d7a-ee29-47b3-b6b6-ef347afa0fd5"
           ],
           "evidence_refs": [
-            "observed_sha256:1c565d9cd849c5a9b134b6c93e7ab8b764555678c6b1f7ed92dfec096902ce63"
+            "observed_sha256:864f6127b5a6e9551aceb3ba219833444d53a2a375a3da0167352223b823916a"
           ],
           "can_publish": false,
           "can_index": false,
@@ -3531,11 +3526,11 @@
       "url_note": "Reuse the existing linked slug harness. Architecture B2 harnesses was provisional. No second harnesses page or redirect is deployed by this proposal.",
       "source_sha256": "c947912c945666581017ba00905bc7e76bbd9f985e9fac7d14dd3bfd320124c2",
       "selection_counts": {
-        "match": 12,
-        "no_match": 204,
-        "unknown": 27
+        "match": 13,
+        "no_match": 209,
+        "unknown": 21
       },
-      "matched_product_count": 12,
+      "matched_product_count": 13,
       "confirmed_orderable_product_count": null,
       "confirmed_distinct_design_count": null,
       "eligibility": "hold",
@@ -3704,7 +3699,7 @@
             "de582e95-5729-4d44-9b3e-95161a979278"
           ],
           "evidence_refs": [
-            "observed_sha256:86260fa8ac24b40f4c6475f398488349f8bfb80ac8ee1b022673e8a18e647477"
+            "observed_sha256:bceeee576d8fc33ee7c2b88a15c590f8351501d8a70b19c3ed3799adbc9b69b3"
           ],
           "can_publish": false,
           "can_index": false,
@@ -3763,7 +3758,7 @@
             "4f3d2d7a-e230-4180-880b-5f9e7719d25e"
           ],
           "evidence_refs": [
-            "observed_sha256:f05de0caa498e31703266ded3ba3c86fce4e65d786df8f3a3c632ce368429365"
+            "observed_sha256:6dc52168ef371dee67d4be4d29e06a36f71b432c0c559eda3ddbc0cb451edd38"
           ],
           "can_publish": false,
           "can_index": false,
@@ -4388,9 +4383,9 @@
         },
         {
           "canonical_product_id": "437a20cd-27a3-4aaf-b154-3353899e0ebd",
-          "state": "unknown",
+          "state": "no_match",
           "reason_codes": [
-            "numbered_variant_type_unmapped"
+            "component_only_in_grouped_configuration"
           ],
           "configuration_ids": [],
           "evidence_refs": [],
@@ -4488,10 +4483,9 @@
         },
         {
           "canonical_product_id": "4b0c8180-774d-4d5c-a12c-0864f305d1cb",
-          "state": "unknown",
+          "state": "no_match",
           "reason_codes": [
-            "aggregate_member_not_found_in_current_options:arms",
-            "sellable_offer_unresolved"
+            "no_matching_sellable_component"
           ],
           "configuration_ids": [],
           "evidence_refs": [],
@@ -4681,7 +4675,7 @@
             "06db80a2-5f7a-41a3-8c77-549fd50413d2"
           ],
           "evidence_refs": [
-            "observed_sha256:7571d766fca673d2a9a4bd5709868046cd3d478121a22c49ce61126791590e5d"
+            "observed_sha256:19d217ff1289c43791d50a7910fb7f8784ac17bc9dcf0a9024ced7f92578b270"
           ],
           "can_publish": false,
           "can_index": false,
@@ -4836,7 +4830,7 @@
             "62452a71-f39d-47dc-b06f-30a5538e7ddc"
           ],
           "evidence_refs": [
-            "observed_sha256:e01a2c53ee31e08ef69617598b7fd182a34020a506cf7e5a246cd57c9e70ad58"
+            "observed_sha256:86d4b827fda0299f41b78c6b5dfe55d1d98c80beb631b24cd81eb124c3c6ac70"
           ],
           "can_publish": false,
           "can_index": false,
@@ -5082,7 +5076,7 @@
             "66058dbc-f8ed-4189-ba0e-464204df96df"
           ],
           "evidence_refs": [
-            "observed_sha256:f5fb48339acf14729260f96ddee6f824b381d2e3668c36e8f4786d97471c5d80"
+            "observed_sha256:ab78d1d31827c81bad4801cd2c6632134cd3ec5b0bd81e4f4febc6c28cdcf654"
           ],
           "can_publish": false,
           "can_index": false,
@@ -5288,7 +5282,7 @@
             "ac83c38f-b1b7-420f-b0a9-7ff5b7eb3b4a"
           ],
           "evidence_refs": [
-            "observed_sha256:86cf644b0cc913959e1b1078d91014b39ae921d5df084557086b1cc7f1a2d3ab"
+            "observed_sha256:cf3f445e79424d795bd988377ff7e9d4fba93038996a2db4377c2a9da680a96a"
           ],
           "can_publish": false,
           "can_index": false,
@@ -5305,7 +5299,7 @@
             "ee10b92e-397e-41a9-931e-0b398f840591"
           ],
           "evidence_refs": [
-            "observed_sha256:82072e152522ce60dde98d4313db9657d4bff936bbe0dbba23145564ecb0157a"
+            "observed_sha256:5fb81fa47884f819ff3cbc249fa28da2a63397d25ba24e047fda49daa046096f"
           ],
           "can_publish": false,
           "can_index": false,
@@ -5393,10 +5387,9 @@
         },
         {
           "canonical_product_id": "98600aa8-307b-4165-a8ae-38e347c114bd",
-          "state": "unknown",
+          "state": "no_match",
           "reason_codes": [
-            "sellable_offer_unresolved",
-            "sellable_option_unresolved_component_identity:0"
+            "no_matching_sellable_component"
           ],
           "configuration_ids": [],
           "evidence_refs": [],
@@ -5454,10 +5447,9 @@
         },
         {
           "canonical_product_id": "9d6047ad-406d-4279-a10b-2918e111d587",
-          "state": "unknown",
+          "state": "no_match",
           "reason_codes": [
-            "sellable_offer_unresolved",
-            "sellable_option_unresolved_component_identity:0"
+            "no_matching_sellable_component"
           ],
           "configuration_ids": [],
           "evidence_refs": [],
@@ -5859,7 +5851,7 @@
             "aab62113-4fe4-4725-992b-b1d22485ff56"
           ],
           "evidence_refs": [
-            "observed_sha256:34c277c4c12c69c3a12517875650dc15f531b44d5cbf6caeac889795a747b695"
+            "observed_sha256:5dad661223ed3e7198ffbda4f25cd9adf68501db13bdf3cfdd12a0526914ca27"
           ],
           "can_publish": false,
           "can_index": false,
@@ -5986,7 +5978,7 @@
             "5909c2fb-f536-48e8-a576-b02a2d26f510"
           ],
           "evidence_refs": [
-            "observed_sha256:95be6574ff584386f7d0bfb9909b5b5f3ca87cd10bd861de9aea1a57ed4bd489"
+            "observed_sha256:30952889259c5c48ca7f3f17261090bf2148682531ad9f815342eca01e1ae725"
           ],
           "can_publish": false,
           "can_index": false,
@@ -6102,16 +6094,18 @@
         },
         {
           "canonical_product_id": "ce0a2c0a-5a95-4876-a198-70be635ca053",
-          "state": "unknown",
+          "state": "match",
           "reason_codes": [
-            "sellable_offer_missing_atomic_options",
-            "sellable_offer_unresolved",
-            "sellable_option_unresolved_component_identity:0",
-            "sellable_option_unresolved_component_identity:1",
-            "sellable_option_unresolved_component_identity:2"
+            "standalone_configuration_match"
           ],
-          "configuration_ids": [],
-          "evidence_refs": [],
+          "configuration_ids": [
+            "9be27162-64f5-4e88-a568-b3f8511edd32",
+            "c47c5fa4-5739-492e-9767-9a8b5c0b0c27",
+            "d5cfc179-9ccc-477c-9031-998ab103bcb3"
+          ],
+          "evidence_refs": [
+            "observed_sha256:41de7c6315d52c8f817808554a07a58fd55c178367dc59a1d57c78629fdd8aa9"
+          ],
           "can_publish": false,
           "can_index": false,
           "seo_page_id": "8446a8f5-cdd0-4dad-bed8-be3f290bc484"
@@ -6126,7 +6120,7 @@
             "ed3b7548-e8b4-4342-8dbe-5093d70a9cfc"
           ],
           "evidence_refs": [
-            "observed_sha256:e339891d0f991a4de6688971381a838d5fb9dcfbc61674d6f7da7d7baa50f182"
+            "observed_sha256:bfe639c38bc79400d7f8e72ab10b2d34cac37e5f2635eff3297b64dce8360080"
           ],
           "can_publish": false,
           "can_index": false,
@@ -6240,7 +6234,7 @@
             "e689d3b4-acc1-4fa2-ad12-4463207fcdd9"
           ],
           "evidence_refs": [
-            "observed_sha256:848d9cba15522eb4602f12423d4ad701cbec87cde372d7d990488b69e667381c"
+            "observed_sha256:79d39fc62e3795971de0060fc7fa4ff834af1497fd54f315ab25484b2ddef19a"
           ],
           "can_publish": false,
           "can_index": false,
@@ -6320,11 +6314,9 @@
         },
         {
           "canonical_product_id": "e39f9164-4001-4f63-9407-a1ddd3d962dd",
-          "state": "unknown",
+          "state": "no_match",
           "reason_codes": [
-            "aggregate_members_unknown:full_set",
-            "sellable_offer_unresolved",
-            "sellable_option_unresolved_component_identity:0"
+            "no_matching_sellable_component"
           ],
           "configuration_ids": [],
           "evidence_refs": [],
@@ -6510,7 +6502,7 @@
             "75b0d613-2d5f-4b50-aaa2-6352c9eb42bf"
           ],
           "evidence_refs": [
-            "observed_sha256:ef2dbe73960ea5cf8341ace846978b2b6eb014c74f4286112140fbb33c7cd3b8"
+            "observed_sha256:d40f6a20cd003c15a4956618c115a8ad15816ff231d94182f1d1d5d808804daf"
           ],
           "can_publish": false,
           "can_index": false,
@@ -9774,7 +9766,7 @@
         "679c975c-b309-49dc-9207-f89fc96b84d1",
         "ce899f23-b983-4ede-ae81-3348757b1c15"
       ],
-      "matched_subset_jaccard": 0.04054054054054054,
+      "matched_subset_jaccard": 0.04,
       "selection_complete": false,
       "interpretation": "Known matched subset only. Unknown membership is not disjointness. Not search-intent equivalence or evidence of Google cannibalization."
     },
@@ -9972,16 +9964,6 @@
       "action": "Inspect existing owner decisions and exact configurations; no blanket reset or source-price rewrite."
     },
     {
-      "canonical_product_id": "4b0c8180-774d-4d5c-a12c-0864f305d1cb",
-      "seo_page_id": "c98b1f3f-64b0-4ec5-86e0-516e214f1557",
-      "product_slug": "burning-man-silver-outfit-cyber-warrior-men-s-costume-rave-festival-fashion-steampunk-leather-shoulder-futuristic-dune-wear-4487639486",
-      "blockers": [
-        "aggregate_member_not_found_in_current_options:arms"
-      ],
-      "owner": "CPIM",
-      "action": "Inspect existing owner decisions and exact configurations; no blanket reset or source-price rewrite."
-    },
-    {
       "canonical_product_id": "4bfc6eac-b665-4f94-b5f2-5715cacb03f9",
       "seo_page_id": "f162ef55-db8d-4583-9a32-e31fc708660f",
       "product_slug": "gold-corset-top-for-stage-women-s-body-armor-acrylic-chest-breastplate-mirrored-metallic-bustier-4368748488",
@@ -10117,26 +10099,6 @@
       "action": "Inspect existing owner decisions and exact configurations; no blanket reset or source-price rewrite."
     },
     {
-      "canonical_product_id": "98600aa8-307b-4165-a8ae-38e347c114bd",
-      "seo_page_id": "cd2bbf1e-8db0-4d06-917a-3cf159473e9f",
-      "product_slug": "mirror-plague-doctor-costume-reflective-polygonal-clothes-steampunk-masquerade-mask-halloween-futuristic-cosplay-gothic-festival-outfit-1882682017",
-      "blockers": [
-        "sellable_option_unresolved_component_identity:0"
-      ],
-      "owner": "CPIM",
-      "action": "Inspect existing owner decisions and exact configurations; no blanket reset or source-price rewrite."
-    },
-    {
-      "canonical_product_id": "9d6047ad-406d-4279-a10b-2918e111d587",
-      "seo_page_id": "1829d138-d673-46d1-8306-94f2f8d6a19c",
-      "product_slug": "red-devil-costume-set-bodysuit-forearm-armor-and-tail-unique-cosplay-party-wear-drag-queen-outfit-spine-tail-costume-leather-clothes-1779245327",
-      "blockers": [
-        "sellable_option_unresolved_component_identity:0"
-      ],
-      "owner": "CPIM",
-      "action": "Inspect existing owner decisions and exact configurations; no blanket reset or source-price rewrite."
-    },
-    {
       "canonical_product_id": "b9086353-2305-4d47-b34e-38cb73a41a97",
       "seo_page_id": "10890d07-0673-4d12-96ef-cace5508084c",
       "product_slug": "fashion-golden-corset-luxury-metallic-corset-women-s-body-armor-mirrored-top-festival-metal-corsets-1858130037",
@@ -10168,46 +10130,9 @@
       ],
       "owner": "CPIM",
       "action": "Inspect existing owner decisions and exact configurations; no blanket reset or source-price rewrite."
-    },
-    {
-      "canonical_product_id": "ce0a2c0a-5a95-4876-a198-70be635ca053",
-      "seo_page_id": "8446a8f5-cdd0-4dad-bed8-be3f290bc484",
-      "product_slug": "elegant-green-leather-suspenders-the-best-groomsmen-gift-fashion-chest-belt-for-men-handmade-leather-suspenders-men-s-suspenders-1871319427",
-      "blockers": [
-        "sellable_option_unresolved_component_identity:0",
-        "sellable_option_unresolved_component_identity:1",
-        "sellable_option_unresolved_component_identity:2",
-        "sellable_offer_missing_atomic_options"
-      ],
-      "owner": "CPIM",
-      "action": "Inspect existing owner decisions and exact configurations; no blanket reset or source-price rewrite."
-    },
-    {
-      "canonical_product_id": "e39f9164-4001-4f63-9407-a1ddd3d962dd",
-      "seo_page_id": "0784ce1e-7f8b-44e7-b8d9-e2a4cfa8bfee",
-      "product_slug": "cyberpunk-mirror-armor-costume-bodysuit-leg-covers-metallic-cyborg-cosplay-outfit-for-showgirl-performances-apocalyptic-robot-wear-1792447742",
-      "blockers": [
-        "sellable_option_unresolved_component_identity:0",
-        "aggregate_members_unknown:full_set"
-      ],
-      "owner": "CPIM",
-      "action": "Inspect existing owner decisions and exact configurations; no blanket reset or source-price rewrite."
     }
   ],
-  "unresolved_type_queue": [
-    {
-      "canonical_product_id": "437a20cd-27a3-4aaf-b154-3353899e0ebd",
-      "seo_page_id": "6bb413de-72e1-4e86-a634-a706a103a730",
-      "configuration_ids": [
-        "899e0b93-6222-4208-9d3a-218e4747b982",
-        "a737ac7d-bff8-4325-b101-fa934bb1d322",
-        "3ae4183d-f178-4231-a551-5c874520a25a",
-        "dce0b722-5c5b-4b2b-81c4-032c1d295a53"
-      ],
-      "owner": "CPIM",
-      "action": "Preserve approved numbered choices; attach scoped type evidence before hub membership."
-    }
-  ],
+  "unresolved_type_queue": [],
   "writes_performed": 0,
   "approvals_changed": 0,
   "can_publish": false,
