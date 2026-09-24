@@ -49,6 +49,8 @@ Owner rule `owner-configuration-base-price-20260924-04`: базовая цена
 
 CI расширен до десяти jobs. Новый отдельный PostgreSQL 17.6 job запускает все 16 SQL сценариев, включая конкуренцию. Real Supabase/Auth/PostgREST/Next/Chromium suite дополнен восемью сценариями: dependency restore; anonymous/default-off/origin; настоящий outsider; save/reload с одной ценой двух цветов; replay/forgery; two tabs race; полный rollback при ошибке outbox; ACL drift и сохранность source prices. Существующий прогон 208 server-rendered approved review PDPs сохранён.
 
+Первый CI `36039577244` на `e5598eb9` подтвердил 9 jobs, в том числе 16/16 native variant scenarios. Runtime остановился в test-fixture setup: попытка `CREATE TABLE IF NOT EXISTS auth.users` получила отказ на managed Auth schema. Fixture исправлен: при real Supabase он не выполняет Auth DDL, а использует уже созданных настоящим Auth пользователей. Права Auth не расширялись. Полный runtime результат исправленного head фиксируется отдельно в PR.
+
 Полная captured FK-closure нового writer — 14 таблиц, восстановленных из SELECT metadata в отдельной БД. В общем runtime уже существующие таблицы сохраняют ранее описанные fixture ограничения. Тестовые товары, пользователи и цены синтетические. Общий security advisor сохраняет upstream findings; успешный C4.1 не превращает K12 или весь pre-index gate в PASS. Hosted parity, реальный UI editor, order/payment, live Google и release activation этим прогоном не доказываются.
 
 ## Rollout и rollback

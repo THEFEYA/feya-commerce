@@ -6,15 +6,16 @@ const q = s => '"' + s.replaceAll('"', '""') + '"';
 
 /** Observed public FK closure; existing runtime tables retain their earlier SELECT fixture.
  * PGlite uses native SHA256 for digest compatibility; real PostgreSQL uses pgcrypto. */
-export async function variantDependenciesSQL({ existing = [], pglite = false } = {}) {
+export async function variantDependenciesSQL({ existing = [], pglite = false, existingAuth = false } = {}) {
   const f = await variantFixture(), names = new Set(existing), sql = [];
-  sql.push(`create schema if not exists auth; create schema if not exists extensions;
+  // The real Supabase Auth schema is managed separately; never attempt DDL there.
+  if (!existingAuth) sql.push('create schema if not exists auth; create table if not exists auth.users(id uuid primary key);');
+  sql.push(`create schema if not exists extensions;
     do $$ begin
       if not exists(select 1 from pg_roles where rolname='anon') then create role anon; end if;
       if not exists(select 1 from pg_roles where rolname='authenticated') then create role authenticated; end if;
       if not exists(select 1 from pg_roles where rolname='service_role') then create role service_role bypassrls; end if;
     end $$;
-    create table if not exists auth.users(id uuid primary key);
     grant usage on schema public to anon,authenticated,service_role;
     alter default privileges in schema public grant all on tables to anon,authenticated,service_role;
     alter default privileges in schema public grant execute on functions to anon,authenticated,service_role;`);

@@ -18,7 +18,7 @@ export async function verifyVariantDraftRuntime({ db, browser, ownerPage, env, o
   try {
     await check('Variant draft dependencies and private RPC restore on real Supabase',async()=>{
       const existing=(await db.query("select tablename from pg_tables where schemaname='public'")).rows.map(r=>r.tablename);
-      await db.query(await variantDependenciesSQL({existing}));await db.query(await variantMigrationSQL());await seedVariantProduct(db);
+      await db.query(await variantDependenciesSQL({existing,existingAuth:true}));await db.query(await variantMigrationSQL());await seedVariantProduct(db);
       await db.query("notify pgrst,'reload schema'");
       let ready=false;for(let i=0;i<50;i++){const r=await service.rpc('feya_commerce_variant_draft_health_v1');if(!r.error&&r.data?.ready){ready=true;break;}await new Promise(r=>setTimeout(r,100));}
       assert.ok(ready,'Private variant RPC not available');

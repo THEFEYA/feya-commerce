@@ -29,6 +29,7 @@ async function next(){return variantDraftRequest(await read(),randomUUID());}
 async function counts(){return (await db.query("select (select count(*) from public.feya_commerce_variant_revisions_v1)::int revisions,(select count(*) from public.feya_commerce_variant_save_receipts_v1)::int receipts,(select count(*) from public.feya_growth_execution_requests_v1)::int executions,(select count(*) from public.feya_growth_change_events_v1)::int events,(select count(*) from public.feya_commerce_variant_draft_outbox_v1)::int outbox")).rows[0];}
 
 test('fresh observed dependencies migrate; shared SQL/TS shape and private boundary agree',async()=>{
+  assert.doesNotMatch(await variantDependenciesSQL({existingAuth:true}),/create (?:schema|table) if not exists auth/i);
   assert.deepEqual((await db.query('select public.feya_commerce_variant_draft_schema_v1() s')).rows[0].s,VARIANT_DRAFT_SCHEMA);
   const h=(await service(c=>c.query('select public.feya_commerce_variant_draft_health_v1() h'))).rows[0].h;assert.equal(h.ready,true);
   for(const role of ['anon','authenticated']){
