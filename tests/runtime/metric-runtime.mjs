@@ -20,7 +20,8 @@ const report={contract:'metric_runtime_proof_v1',commit:process.env.GITHUB_SHA||
 const base='http://127.0.0.1:3000',endpoint=base+'/api/admin/seo-engine/keyword-metrics/import';
 const bankId='10000000-0000-4000-8000-000000000001';
 const staging='feya_commerce_seo_keyword_metric_import_staging_v1',snapshots='feya_commerce_seo_keyword_metric_snapshots_v1',receipts='feya_commerce_seo_metric_import_receipts_v1';
-let work,db,browser,server,started=false,service,ownerPage;
+let work,db,browser,server,started=false,service,ownerPage,appLog='';
+const runtimeSecrets=[];
 const cleanEnv=Object.fromEntries(Object.entries(process.env).filter(([k])=>!(/^(SUPABASE_|NEXT_PUBLIC_|FEYA_|OPENAI_|VERCEL_)/.test(k))));
 function cli(args){return execFileSync('supabase',args,{encoding:'utf8',env:cleanEnv,maxBuffer:20*1024*1024,timeout:600000});}
 function local(value,protocols,port){const u=new URL(value);assert.ok(['127.0.0.1','localhost'].includes(u.hostname),'Loopback required');assert.ok(protocols.includes(u.protocol));assert.equal(u.port,String(port));return u;}
@@ -32,7 +33,7 @@ async function save(rows,key){
  if(METRIC_IMPORT_RUNTIME_VERIFIED){const r=await api(ownerPage,{dry_run:false,rows,context_evidence_ref:'fixture:runtime-context'},key);return {...r.body,httpStatus:r.status};}
  return importMetricsAtomically(service,prepareMetricImport(previewDemandImport({rows},new Date()),'fixture:runtime-context'),key);
 }
-async function login(page,email,password){await page.goto(base+'/admin/login?next=/admin/seo-engine/keyword-metrics');await page.getByLabel('Email',{exact:true}).fill(email);await page.getByLabel('Пароль',{exact:true}).fill(password);await page.getByRole('button',{name:'Войти',exact:true}).click();}
+async function login(page,email,password){await page.goto(base+'/admin/login?next=/admin/seo-engine/keyword-metrics');await page.getByLabel('Email',{exact:true}).fill(email);await page.getByLabel('Пароль',{exact:true}).fill(password);const action=page.waitForResponse(r=>r.request().method()==='POST'&&new URL(r.url()).pathname==='/admin/login');await page.getByRole('button',{name:'Войти',exact:true}).click();const response=await action;console.log('Login Server Action status: '+response.status());}
 await mkdir(out,{recursive:true});
 try {
  assert.ok(!process.env.SUPABASE_ACCESS_TOKEN&&!process.env.SUPABASE_SERVICE_ROLE_KEY,'No cloud credentials allowed in runtime job');
@@ -51,6 +52,7 @@ try {
  const status=JSON.parse(cli(['status','--workdir',work,'-o','json']));
  const url=status.API_URL||status.api_url,anon=status.ANON_KEY||status.anon_key,key=status.SERVICE_ROLE_KEY||status.service_role_key,dbURL=status.DB_URL||status.db_url;
  local(url,['http:'],54321);const dbLocation=local(dbURL,['postgresql:','postgres:'],54322);assert.equal(dbLocation.pathname,'/postgres');assert.ok(anon&&key);
+ runtimeSecrets.push(anon,key);
  db=new pg.Client({connectionString:dbURL,statement_timeout:30000,connectionTimeoutMillis:5000});await db.connect();
  await check('Fresh isolated database; real Supabase roles exist',async()=>{
   assert.equal((await db.query("select count(*)::int n from pg_tables where schemaname='public'")).rows[0].n,0);
@@ -71,6 +73,7 @@ try {
   const r=await service.rpc('feya_commerce_keyword_metric_import_contract_v1');assert.equal(r.error,null);assert.equal(r.data,'atomic_keyword_metric_import_v1');
  });
  const password='T!'+randomBytes(24).toString('base64url'),adminEmail='owner-runtime@example.test',otherEmail='outsider-runtime@example.test';
+ runtimeSecrets.push(password);
  const admin=await service.auth.admin.createUser({email:adminEmail,password,email_confirm:true});assert.equal(admin.error,null);
  const other=await service.auth.admin.createUser({email:otherEmail,password,email_confirm:true,user_metadata:{role:'admin',is_admin:true}});assert.equal(other.error,null);
  const outsider=createClient(url,anon,{auth:{persistSession:false,autoRefreshToken:false}});assert.equal((await outsider.auth.signInWithPassword({email:otherEmail,password})).error,null);
@@ -89,7 +92,7 @@ try {
  const env={...cleanEnv,NODE_ENV:'production',NEXT_TELEMETRY_DISABLED:'1',NEXT_PUBLIC_SUPABASE_URL:url,NEXT_PUBLIC_SUPABASE_ANON_KEY:anon,SUPABASE_SERVICE_ROLE_KEY:key,FEYA_ADMIN_AUTH_REQUIRED:'true',FEYA_ADMIN_ALLOWED_USER_IDS:admin.data.user.id,FEYA_METRIC_IMPORT_STORAGE_ENABLED:'true',FEYA_SEARCH_INDEXING_ENABLED:'false'};
  console.log('Building the unchanged production Next application against the isolated stack.');
  await new Promise((res,rej)=>{const p=spawn('npm',['run','build'],{env,stdio:['ignore','pipe','pipe']});let log='';p.stdout.on('data',b=>{log+=b;});p.stderr.on('data',b=>{log+=b;});p.on('error',rej);p.on('exit',async code=>{await writeFile(join(out,'build.log'),log);code===0?res():rej(Error('Next build failed; see build.log'));});});
- server=spawn(process.execPath,['node_modules/next/dist/bin/next','start','--hostname','127.0.0.1','--port','3000'],{env,stdio:['ignore','pipe','pipe']});let appLog='';server.stdout.on('data',b=>{appLog+=b;});server.stderr.on('data',b=>{appLog+=b;});
+ server=spawn(process.execPath,['node_modules/next/dist/bin/next','start','--hostname','127.0.0.1','--port','3000'],{env,stdio:['ignore','pipe','pipe']});server.stdout.on('data',b=>{appLog+=b;});server.stderr.on('data',b=>{appLog+=b;});
  let ready=false;for(let i=0;i<80;i++){try{const r=await fetch(base+'/admin/login');if(r.status===200){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,500));}assert.equal(ready,true,'Next did not start');
  browser=await chromium.launch({headless:true});const anonymous=await browser.newContext();const anonymousPage=await anonymous.newPage();
  await check('Next denies anonymous API calls and redirects protected pages to login',async()=>{
@@ -152,6 +155,19 @@ try {
  report.status='pass';await writeFile(join(out,'next.log'),appLog);
 } catch(e){report.status='fail';report.error=String(e.message).slice(0,1000);console.error(report.error);process.exitCode=1;}
 finally{
+ for(const secret of runtimeSecrets)appLog=appLog.replaceAll(secret,'[redacted]');
+ await writeFile(join(out,'next.log'),appLog);
+ if(report.status==='fail'&&browser){
+  const pages=browser.contexts().flatMap(c=>c.pages());const diagnostic=[];
+  for(const [index,page] of pages.entries()){
+   const u=new URL(page.url());let text=(await page.locator('body').innerText().catch(()=>''));for(const secret of runtimeSecrets)text=text.replaceAll(secret,'[redacted]');
+   diagnostic.push({path:u.pathname,error:u.searchParams.get('error'),text:text.slice(0,4000)});
+   for(const field of await page.locator('input[type="password"]').all())await field.fill('').catch(()=>{});
+   await page.screenshot({path:join(out,`failure-page-${index}.png`),fullPage:true}).catch(()=>{});
+  }
+  await writeFile(join(out,'browser-diagnostic.json'),JSON.stringify(diagnostic,null,2));
+  console.error('Runtime failure diagnostics: '+JSON.stringify({pages:diagnostic,server:appLog.slice(-6000)}));
+ }
  await writeFile(join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
  await browser?.close();if(server){server.kill('SIGTERM');await Promise.race([once(server,'exit'),new Promise(r=>setTimeout(r,5000))]);if(server.exitCode===null)server.kill('SIGKILL');}
  await db?.end();if(started){try{cli(['stop','--workdir',work,'--no-backup']);}catch{console.error('Ephemeral stack cleanup needs runner teardown.');}}
