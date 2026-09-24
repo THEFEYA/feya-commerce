@@ -10,7 +10,7 @@
 
 `tests/runtime/metric-runtime.mjs` проверяет:
 
-1. Восстановление schema и обеих metric migrations на local Supabase.
+1. Восстановление schema и трёх metric migrations (atomic storage, reader boundary, function search_path) на local Supabase.
 2. Schema-cache visibility двух service-only contracts через настоящий PostgREST.
 3. Denial для anon/authenticated: private RPCs и receipts.
 4. Настоящий browser login через существующий Next Server Action, signed cookies и owner ID allowlist.
@@ -30,6 +30,8 @@
 `report.json` теперь берёт фактический checked-out commit через git, а GitHub event/merge SHA хранит отдельным полем. В первом отчёте поле commit содержало event SHA; artifact metadata и checkout связывают тот прогон с указанным head commit.
 
 Local CLI security advisors выполняются отдельно и сохраняются как evidence. Findings на captured legacy views и typed boundary fixtures не объявляются production findings или зелёным release gate. Новые private contracts дополнительно проверяются реальными role-denial tests.
+
+Следующий checkpoint: [Legacy_Metric_Security_20260924.md](Legacy_Metric_Security_20260924.md) сверяет эти findings с live catalog, добавляет targeted function-path advisor assertion и сохраняет `advisor_release_pass=false` до разрешения legacy view surface. Полный Next write runtime на исходном commit `7506c7d4369292495e6268ead28feca1e8251bfc` завершился 17/17 PASS, [CI 35939653728](https://github.com/THEFEYA/feya-commerce/actions/runs/35939653728); новый search_path changeset должен пройти тот же flow заново.
 
 Первый реальный прогон восстановил schema и оба PostgREST contracts, затем выявил ошибку test config: отключение `auth.email.enable_signup` также выключило email login. Исправление ограничивает запрет регистраций глобальным `auth.enable_signup=false`; добавлен реальный отрицательный signup test. Production Auth не менялся.
 

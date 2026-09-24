@@ -415,7 +415,7 @@ GA4/GSC credentials/ownership будут нужны к этапу подключ
 | K09 | Indexable responses 200; drafts/utilities/facets не просачиваются; pagination crawlable/self-canonical | TSEO |
 | K10 | Structured data, если включена, соответствует видимым фактам; unsupported optional markup отключена | TSEO + CQA |
 | K11 | Redirect history, link targets, parents, no orphan/cycle/loop проверены полным crawl | TSEO |
-| K12 | Auth/RLS/admin/internal APIs и service-role boundaries проверены; secrets не в browser bundle | Engineering |
+| K12 | Auth/RLS/admin/internal APIs и service-role boundaries проверены, включая direct/downstream SQL views и RPC; публичные projections имеют явный data contract; secrets не в browser bundle | Engineering |
 | K13 | Ошибки источника не дают ложный success; sitemap полон; значимый lastmod или omission | GDAE + TSEO |
 | K14 | Mobile/desktop visual parity и лабораторные performance budgets пройдены; field baseline plan записан | Engineering |
 | K15 | Production measurement scope настроен и проверен; GSC property доступна; недоступные commerce events выключены | GDAE + GMEL |
@@ -423,7 +423,9 @@ GA4/GSC credentials/ownership будут нужны к этапу подключ
 | K17 | Core execution approval, idempotency/preconditions, change log и rollback rehearsal готовы | Core |
 | K18 | Concrete release получил launch authorization по действующей authority; global switch меняется последним | Owner/Core |
 
-Текущий aggregate: **FAIL — production indexing не разрешена**. 31 локальная проверка foundation не заменяет K01–K18. Catalog-only launch возможен как отдельное явное бизнес-решение с честным inquiry flow и отключёнными неподтверждёнными ecommerce promises/events; это не автоматический обход K07.
+Текущий aggregate: **FAIL — production indexing не разрешена**. Локальные проверки foundation не заменяют K01–K18. Catalog-only launch возможен как отдельное явное бизнес-решение с честным inquiry flow и отключёнными неподтверждёнными ecommerce promises/events; это не автоматический обход K07.
+
+K12 остаётся **FAIL** после успешного isolated Auth/PostgREST/browser runtime: [legacy security audit 24 September](Legacy_Metric_Security_20260924.md) подтвердил публичные grants на 48 связанных metric/Growth views. Targeted function search_path patch не закрывает этот permission surface; production не менялась. Test stand-in RLS notices отдельно сверены с реальными объектами.
 
 ## Sources and implementation boundaries
 

@@ -24,6 +24,8 @@
 
 ## Что реализовано
 
+Последний dependency checkpoint: [Legacy_Metric_Security_20260924.md](Legacy_Metric_Security_20260924.md). Live read-only сверка 50 relations / четырёх функций / восьми RPC callers; подготовлена пятая unapplied migration — trusted search_path для четырёх функций с guarded rollback и семью SQL scenarios. K12 остаётся FAIL до закрытия legacy view surface; следующий шаг — server-only admin read contract и полный dependency restore перед ACL migration. Owner input сейчас не нужен. Ниже исторические foundation counts относятся к исходному checkpoint, свежие run/commit результаты находятся в PR.
+
 | Блок | Реальный результат | Граница |
 |---|---|---|
 | Baseline | Isolated branch from owner-ui-v1 `928d8df…`; exact branch comparison in branch-compatibility.json | Product branch `c28e112…` не слит вслепую; отличия не потеряны |

@@ -12,6 +12,7 @@ import {createClient} from '@supabase/supabase-js';
 import {createServerClient} from '@supabase/ssr';
 import {observedMetricSchemaSQL,metricMigrationSQL} from '../search-db/helpers/observed-metric-schema.mjs';
 import {readerBoundarySchemaSQL,readerMigrationSQL} from '../search-db/helpers/observed-reader-boundary.mjs';
+import {functionHardeningSQL} from '../search-db/helpers/metric-function-hardening.mjs';
 import {previewDemandImport} from '../../lib/searchDemandImportPreview.ts';
 import {prepareMetricImport,verifyMetricReaderBoundary,METRIC_IMPORT_RUNTIME_VERIFIED,METRIC_IMPORT_RPC} from '../../lib/searchMetricAtomicStorage.ts';
 import {legacySnapshotToDemandRow} from '../../lib/searchLegacyDemandAdapter.ts';
@@ -60,13 +61,13 @@ try {
   assert.equal((await db.query("select count(*)::int n from pg_tables where schemaname='public'")).rows[0].n,0);
   assert.equal((await db.query("select count(*)::int n from pg_roles where rolname in ('anon','authenticated','service_role','authenticator')")).rows[0].n,4);
  });
- await check('Observed metric schema and both unapplied migrations restore in Supabase',async()=>{
+ await check('Observed metric schema and three unapplied migrations restore in Supabase',async()=>{
   await db.query(await observedMetricSchemaSQL({existingSupabaseRoles:true}));await db.query(await readerBoundarySchemaSQL());
   await db.query(`insert into public.seo_keyword_bank_v1(id,keyword,keyword_norm,bank_bucket,review_status,score,avg_monthly_searches) values($1,'synthetic shoulder armor','synthetic shoulder armor','product','approved_draft',77,90)`,[bankId]);
   await db.query(`insert into public.feya_commerce_seo_keyword_master_v1(keyword_id,keyword,keyword_norm,keyword_word_count,priority_tier,validation_priority) values(800,'synthetic shoulder armor','synthetic shoulder armor',3,'test','test');
    insert into public.${snapshots}(snapshot_id,keyword_norm,source_api,geo,language,avg_monthly_searches,data_freshness_status) values(900,'synthetic shoulder armor','google_ads_csv','US','en',90,'fresh_manual_import');
    insert into public.${staging}(import_row_id,batch_code,keyword_norm,avg_monthly_searches,import_status) values(900,'legacy-fixture','synthetic shoulder armor',90,'promoted_to_snapshots');`);
-  await db.query(await metricMigrationSQL());await db.query(await readerMigrationSQL());await db.query("notify pgrst, 'reload schema'");
+  await db.query(await metricMigrationSQL());await db.query(await readerMigrationSQL());await db.query(await functionHardeningSQL());await db.query("notify pgrst, 'reload schema'");
  });
  service=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
  await check('PostgREST exposes both exact service-only contracts',async()=>{
@@ -160,9 +161,14 @@ try {
   assert.equal((await db.query(`select avg_monthly_searches from public.${snapshots} where snapshot_id=900`)).rows[0].avg_monthly_searches,90);assert.deepEqual(pageErrors,[]);
   const robots=await (await fetch(base+'/robots.txt')).text();assert.match(robots,/Disallow: \//);
  });
- await check('Local security advisor executes; fixture findings retained for review',async()=>{
+ await check('Local advisor confirms hardened paths; other findings retained for review',async()=>{
   const findings=cli(['db','advisors','--local','--workdir',work,'--type','security','--fail-on','none','-o','json']);
   await writeFile(join(out,'security-advisors.json'),findings);report.local_advisors_executed=true;report.advisor_release_pass=false;
+  const parsed=JSON.parse(findings);assert.ok(Array.isArray(parsed),'Expected CLI advisory list');
+  const fixed=['feya_commerce_apply_seo_keyword_metric_import_v1','feya_commerce_fn_promote_keyword_metric_import_v1','feya_fn_apply_manual_keyword_metrics_v1','seo_keyword_bank_v1_set_updated_at'];
+  assert.equal(parsed.filter(f=>f.name==='function_search_path_mutable'&&fixed.includes(f.metadata?.name)).length,0);
+  report.function_path_advisor_pass=true;
+  report.advisor_counts=Object.fromEntries([...new Set(parsed.map(f=>f.name))].sort().map(name=>[name,parsed.filter(f=>f.name===name).length]));
  });
  report.next_write_path_verified=true;
  report.status='pass';await writeFile(join(out,'next.log'),appLog);

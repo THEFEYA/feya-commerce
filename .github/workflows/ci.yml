@@ -51,7 +51,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [observed-integration, metric-import, metric-readers]
+        suite: [observed-integration, metric-import, metric-readers, metric-function-hardening]
     services:
       postgres:
         image: postgres:17.6
