@@ -1,0 +1,112 @@
+{
+  "captured_on": "2026-09-24",
+  "scope": "15 source cover images visually inspected; no automatic physical family authority",
+  "source_capture": "inventory-reconciliation-capture-20260924.json",
+  "assets": [
+    {
+      "product_id": "0396612a-c30b-4d8f-b58a-441f8b1cbdcf",
+      "url": "https://i.etsystatic.com/54033853/r/il/9c5b22/6830763847/il_fullxfull.6830763847_520l.jpg",
+      "bytes": 342001,
+      "sha256": "64a4f9949251b49c57c23dbb485bfb5b67b99cedb87fde6a20b189fa091667fb",
+      "status": "downloaded"
+    },
+    {
+      "product_id": "0b7e5ccd-f5a3-4dd7-877f-1e21fbda9486",
+      "url": "https://i.etsystatic.com/54033853/r/il/8e4b8f/6445108843/il_fullxfull.6445108843_e72p.jpg",
+      "bytes": 945963,
+      "sha256": "6eb2979338b357581b726cd6c48c886b286b37ddfac4e52954ac0c8233526d46",
+      "status": "downloaded"
+    },
+    {
+      "product_id": "1eb4b55c-dedf-4399-92fd-c94c8d962091",
+      "url": "https://i.etsystatic.com/54033853/r/il/7ced98/6970053990/il_fullxfull.6970053990_rczv.jpg",
+      "bytes": 412144,
+      "sha256": "bbc5cbd640b424c5870f8125cee586190aff2361b22f5fd563dd66244ffe9174",
+      "status": "downloaded"
+    },
+    {
+      "product_id": "27786636-7021-4809-8e81-7f566a3436ae",
+      "url": "https://i.etsystatic.com/54033853/r/il/d07f19/6656374563/il_fullxfull.6656374563_15ha.jpg",
+      "bytes": 560056,
+      "sha256": "9cc58838caf3ba8b7af5e37cc41ff6f1d9128a48d5dfeb6ac6b0bf4f118b047e",
+      "status": "downloaded"
+    },
+    {
+      "product_id": "453ffb2e-2ed9-4e8d-b74c-e891604f9644",
+      "url": "https://i.etsystatic.com/54033853/r/il/bf61fb/7009840965/il_fullxfull.7009840965_5c4i.jpg",
+      "bytes": 597978,
+      "sha256": "0cfab9e7514e88bf386cde3644d76a7bf39353336537f19f5fcf07a07d5dc53e",
+      "status": "downloaded"
+    },
+    {
+      "product_id": "51d879ce-f762-4307-b896-efcb2ffd64e9",
+      "url": "https://i.etsystatic.com/54033853/r/il/3289ed/6247696945/il_fullxfull.6247696945_l4x5.jpg",
+      "bytes": 426733,
+      "sha256": "2b8c152de91d3cb3146262331abcde0007939d97bdd151c67cfb3aa04b3d4cf6",
+      "status": "downloaded"
+    },
+    {
+      "product_id": "8b321ebd-25ab-4d9b-ba30-2cfc3ba18094",
+      "url": "https://i.etsystatic.com/54033853/r/il/99061a/7018031019/il_fullxfull.7018031019_5qiv.jpg",
+      "bytes": 608570,
+      "sha256": "6c93ef16e51b68420e85d1904d61f917795a9870fc0f19114ab82f63d399d790",
+      "status": "downloaded"
+    },
+    {
+      "product_id": "9d368368-12e9-4d61-9a5d-2ba9c4508861",
+      "url": "https://i.etsystatic.com/54033853/r/il/597c43/7888607338/il_fullxfull.7888607338_ants.jpg",
+      "bytes": 103071,
+      "sha256": "65e4768bbc9f3abc0738f7a9336fe8f313344c8e77baf0aadcf32658d51c4167",
+      "status": "downloaded"
+    },
+    {
+      "product_id": "a94b5c1b-3346-4868-b0f6-7a60d954530e",
+      "url": "https://i.etsystatic.com/54033853/r/il/046cbf/7275761549/il_fullxfull.7275761549_nmse.jpg",
+      "bytes": 150721,
+      "sha256": "efd7311f9767d99a2b0b11449bb4bb679aac273908957dde9521e1f78e717f1f",
+      "status": "downloaded"
+    },
+    {
+      "product_id": "a97ca78f-ed0d-4f17-a18d-8d54efd2679a",
+      "url": "https://i.etsystatic.com/54033853/r/il/59746b/6332972774/il_fullxfull.6332972774_akbs.jpg",
+      "bytes": 537499,
+      "sha256": "bad819b4d01536ddf4534b2307ffe50e7d86fb549f220023f7b4c8288730dde4",
+      "status": "downloaded"
+    },
+    {
+      "product_id": "bc59df1d-edd3-4e63-9393-175c28d9be2b",
+      "url": "https://i.etsystatic.com/54033853/r/il/91ca36/6708345929/il_fullxfull.6708345929_obap.jpg",
+      "bytes": 483949,
+      "sha256": "6e83b07914aabdd85b0810b44ff892fb87142601e9485809e486f68fdb8583ff",
+      "status": "downloaded"
+    },
+    {
+      "product_id": "c61827ef-4530-426b-a2bf-7a44738352af",
+      "url": "https://i.etsystatic.com/54033853/r/il/2e9ca6/6381041131/il_fullxfull.6381041131_5160.jpg",
+      "bytes": 419441,
+      "sha256": "e2a635491bd5d0585d9bf4e6ea1404e10eaff2960287eb5e4d0537406f0f89ca",
+      "status": "downloaded"
+    },
+    {
+      "product_id": "cb31d61b-027c-4c47-b7ba-bf16283ada9c",
+      "url": "https://i.etsystatic.com/54033853/r/il/f10138/6369869803/il_fullxfull.6369869803_5e9r.jpg",
+      "bytes": 425586,
+      "sha256": "b8b05509fecd4fba757497d8b9a160f7af4130ce4853a83160d166753331a74b",
+      "status": "downloaded"
+    },
+    {
+      "product_id": "ce899f23-b983-4ede-ae81-3348757b1c15",
+      "url": "https://i.etsystatic.com/54033853/r/il/13ec53/6550796049/il_fullxfull.6550796049_hwns.jpg",
+      "bytes": 686086,
+      "sha256": "de91309fe41eb8c4f24467d7827f6ffcc8b10122609b649b2063f7492c0d27e2",
+      "status": "downloaded"
+    },
+    {
+      "product_id": "d42dd678-7b11-4f38-890e-411de686f418",
+      "url": "https://i.etsystatic.com/54033853/r/il/bf61fb/7009840965/il_fullxfull.7009840965_5c4i.jpg",
+      "bytes": 610462,
+      "sha256": "5afe25c055ef34d9dec3a46c41ae773e866ca6e972b0bd10d118090490a8b08e",
+      "status": "downloaded"
+    }
+  ]
+}

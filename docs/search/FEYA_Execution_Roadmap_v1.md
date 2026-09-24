@@ -14,7 +14,7 @@
 
 | Этап | Статус на 24.09 | Owner; вход → результат | Условие готовности / при сбое |
 | --- | --- | --- | --- |
-| 0. Базовая интеграция | Частично: draft PR №26, remote `8ba94cc`; локальный `723b73a` ещё не remote | Engineering + Core; сверка Product/Growth/старого канона → versioned repo/deployment/data map и опубликованный проверенный PR | Точный head CI, защищённые UI contracts, source DB identity; откат commit/feature flag, без слепого merge |
+| 0. Базовая интеграция | Код синхронизирован: draft PR №26, `c2b5cd4`; CI 9/9 и preview READY; hosted env/DB mapping открыт | Engineering + Core; сверка Product/Growth/старого канона → versioned repo/deployment/data map и опубликованный проверенный PR | Точный head CI, защищённые UI contracts, source DB identity; откат commit/feature flag, без слепого merge |
 | 1. Truth и покупки | 222 состава resolved; 21 hold; 142 price rows разобраны, tuple price unknown | CPIM + GDAE; 21 адресный case и девять model pairs → approved composition/design/binding, неизвестные факты изолированы | Точная server-side quote для каждой продаваемой комбинации; нет auto Cartesian, label dedupe и цены по умолчанию; иначе соответствующий товар остаётся недоступным для заказа |
 | 2. Company/API review | Нет доказанного публичного release на утверждённом домене | Owner + TSEO; identity/contact/policy/application description → правдивые страницы для проверки компании и назначения внутренней аналитики | HTTPS, реальные сведения, недоступность private admin, точный scope заявки; Google API permission проверяется независимо от сайта |
 | 3. Товарный и поисковый портфель | 243 сохранённых page IDs, пять briefs; 0 confirmed query owners; хабы — candidates | OSPM + CPIM + SCO; inventory families, existing demand, Q02 decision seeds → page specs, intent owners, unique-value briefs | Нет конфликта primary query ownership; достаточный доказанный ассортимент; несостоявшиеся хабы остаются фильтрами/holds |
@@ -28,11 +28,11 @@
 
 ## Следующий bounded work package
 
-Live read 24.09: Vercel team `alexs-projects-5419f9ec` contains project `feya-commerce` (`prj_ePIymo4sUG33wrRjHBxWrSlaxPID`). Its latest listed preview `dpl_4FEW3dq8bw4NdAHfs7VBNk7EaAX8` is READY with `target=null` and GitHub SHA `8ba94cc`; it does not contain local `723b73a` or this roadmap. This confirms project/ref mapping for the current PR preview, but does not verify a production domain, production Supabase ref or the two other screenshot preview URLs. Those remain LT1 tasks.
+Текущий checkpoint: [Deployment_Source_Map_20260924.md](Deployment_Source_Map_20260924.md). Прежний локальный пакет полностью опубликован в `c2b5cd4`, 12 Git blobs и полное дерево проверены; CI 9/9, runtime log 30 PASS, preview READY. Установлены обе screenshot branch/deployment связи. Supabase ref и 243-record contracts проверены SELECT; привязка Vercel environment к БД ещё неизвестна. На проверенном preview действует Vercel SSO; public release нуждается в отдельном анонимном тесте. 15 cover images просмотрены; результаты записаны в Design Review.
 
 1. Закончить LT1: сопоставить PR head, deployments, DB refs и домен; зафиксировать расхождения. Не использовать READY preview как доказательство production readiness.
-2. Исполнить LT2: проверить фото/состав девяти пар по `Design_Review_20260924.md`; оставить `unknown` при нехватке материала. Не создавать design family транзитивно.
-3. Для 21 held item искать owner decisions и точный source tuple; подготовить короткую очередь оставшихся предметных вопросов. Исходный импорт уже проверен, повторять массовый запрос к владельцу нельзя.
+2. Продолжить LT2 после завершённого просмотра 15 cover images: сопоставить девять visual-supported proposals с предметным составом и источниками вариантов; family assignments пока не применены.
+3. Для 21 held item: владелец разрешил адресные вопросы по две–пять карточек и уточнил, что DNA axes служат keywords. Подготовлен первый batch из пяти товаров. Состав устанавливать по вариациям/опциям, тексту и прямому ответу; цены и размерные tuples проверять отдельно.
 4. Составить release inventory для company/trust и первого ограниченного product pilot. Одновременно проверить какие из Q02 seed запросов действительно меняют page decision; без Ads API пользоваться имеющимся CSV workflow.
 5. Перед каждым внешним изменением обновлять checkpoint: входные SHA/revision, доказательства, diff, тесты, rollback, фактический remote/deployment/DB статус и что требуется от Owner. Никакого утверждения CI успеха для локального commit без exact-head CI.
 

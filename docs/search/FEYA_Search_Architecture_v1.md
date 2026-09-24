@@ -476,3 +476,10 @@ Official references (проверены 23 сентября 2026; standards мо
 [Purchase_Binding_20260924.md](Purchase_Binding_20260924.md) проверяет 142 price/mapping/source rows для оставшихся 21 карточки, включая оригинальный импорт. 125 строк — размерные наблюдения; 13 исходных диапазонов ранее спроецированы в lower bounds; четыре legacy parents объединяют разные purchase mappings. Offline selector replay показывает потерю 113 строк из-за одинакового label. Текущий PDP хранит size отдельно от выбранной цены.
 
 Подготовлен воспроизводимый compiler и selection rehearsal, который сохраняет IDs/суммы и не выводит полные комбинации из отдельных осей. Он не подключён к публичной витрине, не является quote resolver и не снимает 21 hold. Полной tuple-price матрицы нет и в проверенном исходном master. K06 уточнён: связь выбранной конфигурации/размера/цвета с ценой/availability обязательна. Следующие зависимости — CPIM scope, approved binding, adapter существующих controls и physical-design review; production/индексация не менялись.
+
+
+### Уточнение владельца и проверка источников 24.09
+
+В этой сессии владелец прямо уточнил: выбранные DNA axes предназначались для keywords. Для состава покупки использовать конкретные options/variations и предметный текст с прямыми owner confirmations; не превращать keyword axis в продаваемую часть. Если варианты неоднозначны, разрешены короткие проверки по две–пять товаров. Состав, размерная система, цена и доступность остаются разными фактами.
+
+Актуальная связь веток/preview, подтверждённый доступ Supabase, отсутствие новых import contracts на hosted DB и public-access dependency зафиксированы в [Deployment_Source_Map_20260924.md](Deployment_Source_Map_20260924.md). Полный purchase-binding пакет уже опубликован в PR №26 на `c2b5cd4`; прежний local-only blocker закрыт. Индексация и production activation остаются отдельными непройденными допусками.
