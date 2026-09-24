@@ -7,7 +7,9 @@ export const METRIC_IMPORT_CONTRACT = 'atomic_keyword_metric_import_v1';
 // Boundary migration excludes atomic observations before legacy selection/scoring.
 // Actual deployment must prove both SQL health and authenticated runtime separately.
 export const METRIC_IMPORT_CONSUMERS_READY = true;
-export const METRIC_IMPORT_RUNTIME_VERIFIED = false;
+// Local Auth/PostgREST proof: CI 35939007790. Next writes must also pass the runtime CI job.
+// Hosted activation still requires an installed SQL boundary and explicit storage flag.
+export const METRIC_IMPORT_RUNTIME_VERIFIED = true;
 export const METRIC_READER_HEALTH_RPC = 'feya_commerce_metric_reader_boundary_health_v1';
 export const METRIC_READER_CONTRACT = 'metric_reader_boundary_v1';
 export type DemandPreview = ReturnType<typeof previewDemandImport>;

@@ -13,11 +13,11 @@ import {createServerClient} from '@supabase/ssr';
 import {observedMetricSchemaSQL,metricMigrationSQL} from '../search-db/helpers/observed-metric-schema.mjs';
 import {readerBoundarySchemaSQL,readerMigrationSQL} from '../search-db/helpers/observed-reader-boundary.mjs';
 import {previewDemandImport} from '../../lib/searchDemandImportPreview.ts';
-import {prepareMetricImport,importMetricsAtomically,verifyMetricReaderBoundary,METRIC_IMPORT_RUNTIME_VERIFIED,METRIC_IMPORT_RPC} from '../../lib/searchMetricAtomicStorage.ts';
+import {prepareMetricImport,verifyMetricReaderBoundary,METRIC_IMPORT_RUNTIME_VERIFIED,METRIC_IMPORT_RPC} from '../../lib/searchMetricAtomicStorage.ts';
 import {legacySnapshotToDemandRow} from '../../lib/searchLegacyDemandAdapter.ts';
 import {metricRowsToCsv} from '../../lib/searchMetricCsv.ts';
 const root=process.cwd(),out=resolve('runtime-results');
-const report={contract:'metric_runtime_proof_v1',commit:process.env.GITHUB_SHA||null,environment:'ephemeral_loopback_supabase',production_connected:false,next_write_path_verified:false,checks:[],limitations:['Observed direct schema with typed upstream boundaries; not full production restore.','Hosted staging, platform advisors and production activation remain separate.']};
+const report={contract:'metric_runtime_proof_v1',commit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),workflow_event_sha:process.env.GITHUB_SHA||null,environment:'ephemeral_loopback_supabase',production_connected:false,next_write_path_verified:false,checks:[],limitations:['Observed direct schema with typed upstream boundaries; not full production restore.','Hosted staging, platform advisors and production activation remain separate.']};
 const base='http://127.0.0.1:3000',endpoint=base+'/api/admin/seo-engine/keyword-metrics/import';
 const bankId='10000000-0000-4000-8000-000000000001';
 const staging='feya_commerce_seo_keyword_metric_import_staging_v1',snapshots='feya_commerce_seo_keyword_metric_snapshots_v1',receipts='feya_commerce_seo_metric_import_receipts_v1';
@@ -31,12 +31,13 @@ async function counts(){return Promise.all([staging,snapshots,receipts].map(asyn
 function input(patch={}) {const now=new Date(),day=new Date(now.getTime()-86400000).toISOString().slice(0,10);return {keyword:'synthetic shoulder armor',metric_source:'google_ads_csv',source_ref:'fixture:runtime-metric',region:'US',language:'en',network:'GOOGLE_SEARCH',period_start:new Date(Date.UTC(now.getUTCFullYear()-1,now.getUTCMonth(),1)).toISOString().slice(0,10),period_end:new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),0)).toISOString().slice(0,10),last_checked:day,avg_monthly_searches:'0',competition:'LOW',competition_index:'12',low_bid:'1.25',high_bid:'2.5',bid_currency_code:'UAH',keyword_bank_id:bankId,...patch};}
 async function api(page,body,key){const r=await page.request.post(endpoint,{data:body,headers:key?{'Idempotency-Key':key}:{}});return {status:r.status(),body:await r.json(),cache:r.headers()['cache-control']};}
 async function save(rows,key){
- if(METRIC_IMPORT_RUNTIME_VERIFIED){const r=await api(ownerPage,{dry_run:false,rows,context_evidence_ref:'fixture:runtime-context'},key);return {...r.body,httpStatus:r.status};}
- return importMetricsAtomically(service,prepareMetricImport(previewDemandImport({rows},new Date()),'fixture:runtime-context'),key);
+ const r=await api(ownerPage,{dry_run:false,rows,context_evidence_ref:'fixture:runtime-context'},key);return {...r.body,httpStatus:r.status};
 }
+
 async function login(page,email,password){await page.goto(base+'/admin/login?next=/admin/seo-engine/keyword-metrics');await page.getByLabel('Email',{exact:true}).fill(email);await page.getByLabel('Пароль',{exact:true}).fill(password);const action=page.waitForResponse(r=>r.request().method()==='POST'&&new URL(r.url()).pathname==='/admin/login');await page.getByRole('button',{name:'Войти',exact:true}).click();const response=await action;console.log('Login Server Action status: '+response.status());}
 await mkdir(out,{recursive:true});
 try {
+ assert.equal(METRIC_IMPORT_RUNTIME_VERIFIED,true,'This suite must exercise the real Next write path.');
  assert.ok(!process.env.SUPABASE_ACCESS_TOKEN&&!process.env.SUPABASE_SERVICE_ROLE_KEY,'No cloud credentials allowed in runtime job');
  execFileSync('docker',['info'],{stdio:'ignore'});
  work=await mkdtemp(join(tmpdir(),'feya-metric-runtime-'));
@@ -124,16 +125,17 @@ try {
   await ownerPage.getByRole('button',{name:'Проверить данные',exact:true}).click();const r=await response;assert.equal(r.status(),200);
   const data=await r.json();assert.equal(data.writes_performed,0);assert.equal(data.observations.length,1);assert.equal(data.can_assign_primary,false);
   await ownerPage.getByText('Сохранено: 0.',{exact:false}).waitFor();assert.deepEqual(await counts(),before);
-  assert.equal(await ownerPage.getByText('Импорт готов:',{exact:false}).count(),0);await ownerPage.screenshot({path:join(out,'metric-preview.png'),fullPage:true});
+  assert.equal(await ownerPage.getByText('Импорт готов:',{exact:false}).count(),0);await ownerPage.evaluate(()=>window.scrollTo(0,0));await ownerPage.screenshot({path:join(out,'metric-preview.png'),fullPage:true});
  });
  await check('Malformed CSV and incomplete context are held without writes',async()=>{
   const before=await counts();const bad=await api(ownerPage,{dry_run:true,csv_text:'keyword\n"unclosed'});assert.equal(bad.status,422);
   const held=await api(ownerPage,{rows:[input({network:''})]});assert.equal(held.status,200);assert.equal(held.body.observations.length,0);assert.deepEqual(await counts(),before);
+  const writeHeld=await api(ownerPage,{dry_run:false,rows:[input({network:''})],context_evidence_ref:'fixture:held'});assert.equal(writeHeld.status,422);assert.deepEqual(await counts(),before);
  });
  let saved;
- await check(METRIC_IMPORT_RUNTIME_VERIFIED?'Authenticated Next API → PostgREST → atomic receipt':'PostgREST → atomic receipt; Next write gate remains closed',async()=>{
-  if(!METRIC_IMPORT_RUNTIME_VERIFIED){const closed=await api(ownerPage,{dry_run:false,rows:[input()]});assert.equal(closed.status,423);assert.ok(closed.body.blockers.includes('authenticated_metric_import_runtime_not_verified'));}
+ await check('Authenticated Next API → PostgREST → atomic receipt',async()=>{
   saved=await save([input()],'runtime-first');assert.equal(saved.ok,true,saved.error);assert.equal(saved.httpStatus,201);assert.deepEqual(await counts(),[2,2,1]);
+  assert.equal(saved.can_assign_primary,false);assert.equal(saved.can_publish,false);assert.equal(saved.can_index,false);
   const r=await service.from(snapshots).select('*').eq('snapshot_id',saved.receipt.entries[0].snapshot_id).single();assert.equal(r.error,null);assert.equal(r.data.avg_monthly_searches,0);assert.equal(r.data.bid_currency_code,'UAH');assert.equal(r.data.data_freshness_status,'context_review_required');assert.equal(r.data.demand_evidence_json.evidence.fetched_at,input().last_checked);
   assert.match(legacySnapshotToDemandRow(r.data).parse_issues,/source_context_review_required/);
  });
@@ -149,7 +151,7 @@ try {
  });
  await check('Reader drift closes PostgREST health and the enabled Next write path',async()=>{
   const before=await counts();await db.query('alter view public.feya_commerce_v_seo_metric_system_status_v1 set (security_barrier=true)');
-  try{assert.equal(await verifyMetricReaderBoundary(service),false);if(METRIC_IMPORT_RUNTIME_VERIFIED)assert.equal((await save([input({source_ref:'fixture:drift'})],'runtime-drift')).httpStatus,503);assert.deepEqual(await counts(),before);}
+  try{assert.equal(await verifyMetricReaderBoundary(service),false);assert.equal((await save([input({source_ref:'fixture:drift'})],'runtime-drift')).httpStatus,503);assert.deepEqual(await counts(),before);}
   finally{await db.query('alter view public.feya_commerce_v_seo_metric_system_status_v1 reset (security_barrier)');}
   assert.equal(await verifyMetricReaderBoundary(service),true);
  });
@@ -158,7 +160,11 @@ try {
   assert.equal((await db.query(`select avg_monthly_searches from public.${snapshots} where snapshot_id=900`)).rows[0].avg_monthly_searches,90);assert.deepEqual(pageErrors,[]);
   const robots=await (await fetch(base+'/robots.txt')).text();assert.match(robots,/Disallow: \//);
  });
- report.next_write_path_verified=METRIC_IMPORT_RUNTIME_VERIFIED;
+ await check('Local security advisor executes; fixture findings retained for review',async()=>{
+  const findings=cli(['db','advisors','--local','--workdir',work,'--type','security','--fail-on','none','-o','json']);
+  await writeFile(join(out,'security-advisors.json'),findings);report.local_advisors_executed=true;report.advisor_release_pass=false;
+ });
+ report.next_write_path_verified=true;
  report.status='pass';await writeFile(join(out,'next.log'),appLog);
 } catch(e){report.status='fail';report.error=String(e.message).slice(0,1000);console.error(report.error);process.exitCode=1;}
 finally{

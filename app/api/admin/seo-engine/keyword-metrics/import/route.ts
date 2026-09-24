@@ -3,6 +3,8 @@ import { previewDemandImport } from '@/lib/searchDemandImportPreview';
 import type { MetricCsvContext, MetricCsvRow } from '@/lib/searchMetricCsv';
 import { importMetricsAtomically, metricImportWriteBlockers, prepareMetricImport, verifyMetricReaderBoundary } from '@/lib/searchMetricAtomicStorage';
 import { getSupabaseServiceClient } from '@/lib/supabase';
+import { getSupabaseAuthServerClient } from '@/lib/supabaseAuth';
+import { adminAccessDecision } from '@/lib/adminAccess';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -16,7 +18,12 @@ export async function POST(request: NextRequest) {
     if(!input||typeof input!=='object'||Array.isArray(input))return NextResponse.json({ok:false,error:'Expected an import object.'},{status:400});
     if(input.dry_run===false){
       const blockers=metricImportWriteBlockers(process.env);
-      if(blockers.length)return NextResponse.json({ok:false,status:'storage_bridge_not_enabled',blockers,writes_performed:0,error:'Atomic storage is prepared; activation awaits legacy consumer integration and authenticated runtime verification.'},{status:423,headers:{'Cache-Control':'no-store'}});
+      if(blockers.length)return NextResponse.json({ok:false,status:'storage_bridge_not_enabled',blockers,writes_performed:0,error:'Metric storage is disabled or required authorization is not configured.'},{status:423,headers:{'Cache-Control':'no-store'}});
+      const auth=await getSupabaseAuthServerClient();
+      if(!auth)return NextResponse.json({ok:false,error:'Authentication unavailable.',writes_performed:0},{status:503,headers:{'Cache-Control':'no-store'}});
+      const {data,error}=await auth.auth.getClaims();
+      if(error||!data?.claims)return NextResponse.json({ok:false,error:'Authentication required.',writes_performed:0},{status:401,headers:{'Cache-Control':'no-store'}});
+      if(!adminAccessDecision({id:data.claims.sub,email:data.claims.email},process.env).allowed)return NextResponse.json({ok:false,error:'Not authorized for FEYA Admin.',writes_performed:0},{status:403,headers:{'Cache-Control':'no-store'}});
     }
     if(input.csv_text!==undefined&&typeof input.csv_text!=='string')return NextResponse.json({ok:false,error:'csv_text must be a string.'},{status:400});
     if(input.rows!==undefined&&(!Array.isArray(input.rows)||input.rows.some((row:unknown)=>!row||typeof row!=='object'||Array.isArray(row))))return NextResponse.json({ok:false,error:'rows must contain objects.'},{status:400});

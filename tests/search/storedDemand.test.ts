@@ -26,5 +26,7 @@ test('reader health rejects missing migration, drift, errors and transport failu
  for(const response of [{data:null,error:null},{data:'old',error:null},{data:METRIC_READER_CONTRACT,error:{message:'denied'}}])assert.equal(await verifyMetricReaderBoundary({rpc:async()=>response}),false);
  assert.equal(await verifyMetricReaderBoundary({rpc:async()=>{throw Error('network');}}),false);
  assert.equal(await verifyMetricReaderBoundary({rpc:async()=>({data:METRIC_READER_CONTRACT,error:null})}),true);
- assert.deepEqual(metricImportWriteBlockers({FEYA_METRIC_IMPORT_STORAGE_ENABLED:'true',FEYA_ADMIN_AUTH_REQUIRED:'true'}),['authenticated_metric_import_runtime_not_verified']);
+ assert.deepEqual(metricImportWriteBlockers({FEYA_METRIC_IMPORT_STORAGE_ENABLED:'true',FEYA_ADMIN_AUTH_REQUIRED:'true'}),[]);
+ assert.deepEqual(metricImportWriteBlockers({}),['storage_disabled','admin_auth_required']);
+ assert.deepEqual(metricImportWriteBlockers({FEYA_METRIC_IMPORT_STORAGE_ENABLED:'true'}),['admin_auth_required']);
 });

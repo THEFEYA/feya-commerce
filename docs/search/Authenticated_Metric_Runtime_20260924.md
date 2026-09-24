@@ -21,7 +21,15 @@
 9. Failure injection в receipt → полный rollback → успешный retry.
 10. Reader drift закрывает health; исторические approvals/IDs/metrics не меняются; robots остаётся закрытым.
 
-При `METRIC_IMPORT_RUNTIME_VERIFIED=false` стенд отдельно доказывает 423 на Next write endpoint; storage scenarios выполняются через service PostgREST. Отчёт явно фиксирует `next_write_path_verified=false`. Это **не** выдаётся за успешную запись через Next. Если проверенный release candidate снимает этот compile-time gate, тот же стенд выполняет запись с authenticated browser cookies через настоящий Next endpoint и должен подтвердить `next_write_path_verified=true`. Auth/allowlist и environment storage gate при этом остаются обязательными.
+Первый зелёный runtime прогон: commit `f4bfa09d58dcb6a311594a8759cbe2e1f6bdb36d`, [CI 35939007790](https://github.com/THEFEYA/feya-commerce/actions/runs/35939007790), **16/16 PASS**. Он отдельно доказал authenticated Next preview/423 и успешные service PostgREST writes, явно с `next_write_path_verified=false`. Browser screenshot просмотрен; новые сообщения читаемы, literal CSS classes сохранены.
+
+Следующий проверяемый changeset устанавливает `METRIC_IMPORT_RUNTIME_VERIFIED=true` на основании local Auth/PostgREST proof и требует успешного полного Next write сценария в CI. Теперь runtime suite не содержит обходного service-only write пути: POST с действительной browser cookie → дополнительный claims/allowlist check внутри route → оба SQL health checks → RPC. При false compile-time gate suite завершается ошибкой, а не подменяет endpoint прямым RPC. API дополнительно проверяет неполный контекст → 422/zero writes и неизменность can_assign_primary/can_publish/can_index=false.
+
+Это проверка release candidate в draft branch. Hosted activation требует отдельного `FEYA_METRIC_IMPORT_STORAGE_ENABLED=true`, обязательного Auth и установленных SQL migrations. Production SELECT на 24 September подтвердил отсутствие atomic import RPC и reader health RPC; production migrations/env flags не менялись. Отсутствующий SQL contract блокирует запись независимо от compile-time readiness.
+
+`report.json` теперь берёт фактический checked-out commit через git, а GitHub event/merge SHA хранит отдельным полем. В первом отчёте поле commit содержало event SHA; artifact metadata и checkout связывают тот прогон с указанным head commit.
+
+Local CLI security advisors выполняются отдельно и сохраняются как evidence. Findings на captured legacy views и typed boundary fixtures не объявляются production findings или зелёным release gate. Новые private contracts дополнительно проверяются реальными role-denial tests.
 
 Первый реальный прогон восстановил schema и оба PostgREST contracts, затем выявил ошибку test config: отключение `auth.email.enable_signup` также выключило email login. Исправление ограничивает запрет регистраций глобальным `auth.enable_signup=false`; добавлен реальный отрицательный signup test. Production Auth не менялся.
 
@@ -65,6 +73,6 @@ node --experimental-strip-types tests/runtime/metric-runtime.mjs
 
 Команда не использует `link`, `db push`, remote migrations или production credentials. При ошибке cleanup runner уничтожает временные контейнеры. Rollback приложения не удаляет SQL reader boundary/receipts из populated canonical storage.
 
-Следующий owner-independent шаг после зелёного прогона — проверка оставшегося Next write gate и source-context workflow. Для production release нужен отдельный точный staging/activation пакет; текущий PR остаётся draft, indexing выключен.
+Следующий owner-independent шаг после зелёного полного прогона — source-context review workflow и inventory/page pilot. Для production release нужен отдельный точный staging/activation пакет; текущий PR остаётся draft, indexing выключен.
 
 Технические источники: [Supabase CI testing](https://supabase.com/docs/guides/deployment/ci/testing), [Supabase local config](https://supabase.com/docs/guides/local-development/cli/config), [Playwright CI](https://playwright.dev/docs/ci-intro), текущие Supabase changelog и CLI help.
