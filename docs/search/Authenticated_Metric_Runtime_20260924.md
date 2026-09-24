@@ -25,6 +25,12 @@
 
 Первый реальный прогон восстановил schema и оба PostgREST contracts, затем выявил ошибку test config: отключение `auth.email.enable_signup` также выключило email login. Исправление ограничивает запрет регистраций глобальным `auth.enable_signup=false`; добавлен реальный отрицательный signup test. Production Auth не менялся.
 
+## Исправление перехода после отказа во входе
+
+Настоящий Chromium обнаружил: middleware возвращает правильный login error, но после Server Action redirect Next 15 сохраняет адрес защищённой страницы и показывает login внутри её shell. Данные защищённой страницы не отображались; это не подтверждённая утечка.
+
+Теперь login Server Action проверяет тот же ID/email allowlist через общий `adminAccessDecision`, завершает только текущую неразрешённую сессию и возвращает пользователя прямо на login error. Middleware продолжает проверять каждое защищённое обращение, включая заранее созданную действительную сессию постороннего пользователя. Editable user metadata не участвует в решении. Пустой allowlist по-прежнему закрывает доступ.
+
 ## Обнаруженная несовместимость старого экрана
 
 `/admin/seo-engine/keyword-metrics` ещё обращался к старому external-metrics status view и ожидал `accepted_rows/import_batch_id` в ответе API. После перехода API на preview это могло дать ложное сообщение «импорт готов» и undefined counts.
@@ -41,7 +47,7 @@
 
 ## Проверка и оставшиеся границы
 
-Локально: Search 48/48, direct-reader SQL 9/9 и typecheck PASS. В этом workspace Docker отсутствует; реальный runtime выполняется отдельным GitHub CI job. Точный commit/run/status и проверенный screenshot фиксируются в PR #26 после прогона. До получения evidence runtime не считается пройденным.
+Локально: Search 50/50, direct-reader SQL 9/9 и typecheck PASS. В этом workspace Docker отсутствует; реальный runtime выполняется отдельным GitHub CI job. Точный commit/run/status и проверенный screenshot фиксируются в PR #26 после прогона. До получения evidence runtime не считается пройденным.
 
 Артефакты CI: `report.json`, `metric-preview.png`, build/runtime logs. Нет auth storage state, passwords, API keys или traces с session cookies. Данные синтетические; 0/90/77 — fixtures, не измерения спроса FEYA.
 

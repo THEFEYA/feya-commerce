@@ -1,14 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
-
-function parseCsvEnv(name: string) {
-  return new Set(
-    (process.env[name] || '')
-      .split(',')
-      .map((value) => value.trim().toLowerCase())
-      .filter(Boolean),
-  );
-}
+import { adminAccessDecision } from '@/lib/adminAccess';
 
 function getPublicKey() {
   return process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || null;
@@ -84,10 +76,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  const allowedUserIds = parseCsvEnv('FEYA_ADMIN_ALLOWED_USER_IDS');
-  const allowedEmails = parseCsvEnv('FEYA_ADMIN_ALLOWED_EMAILS');
+  const access = adminAccessDecision({ id: claims.sub, email: claims.email }, process.env);
 
-  if (!allowedUserIds.size && !allowedEmails.size) {
+  if (!access.configured) {
     if (isAdminApi) {
       return NextResponse.json(
         { ok: false, error: 'FEYA Admin auth is enabled, but no admin allowlist is configured.' },
@@ -101,10 +92,7 @@ export async function middleware(request: NextRequest) {
     });
   }
 
-  const userId = typeof claims.sub === 'string' ? claims.sub.toLowerCase() : '';
-  const email = typeof claims.email === 'string' ? claims.email.toLowerCase() : '';
-
-  if (!allowedUserIds.has(userId) && !allowedEmails.has(email)) {
+  if (!access.allowed) {
     if (isAdminApi) {
       return NextResponse.json(
         { ok: false, error: 'Not authorized for FEYA Admin.' },

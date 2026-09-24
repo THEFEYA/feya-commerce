@@ -2,7 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { getMissingSupabaseAuthEnvMessage, getSupabaseAuthServerClient } from '@/lib/supabaseAuth';
+import { getMissingSupabaseAuthEnvMessage, getSupabaseAuthServerClient, isAdminAuthRequired } from '@/lib/supabaseAuth';
+import { adminAccessDecision } from '@/lib/adminAccess';
 
 export async function loginAdmin(formData: FormData) {
   const email = String(formData.get('email') || '').trim();
@@ -19,10 +20,15 @@ export async function loginAdmin(formData: FormData) {
     redirect(`/admin/login?error=${encodeURIComponent(getMissingSupabaseAuthEnvMessage())}`);
   }
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
     redirect('/admin/login?error=invalid_credentials');
+  }
+
+  if (isAdminAuthRequired() && (!data.user || !adminAccessDecision(data.user, process.env).allowed)) {
+    await supabase.auth.signOut({ scope: 'local' });
+    redirect('/admin/login?error=not_authorized');
   }
 
   revalidatePath('/admin', 'layout');

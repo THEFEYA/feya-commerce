@@ -9,6 +9,7 @@ import {once} from 'node:events';
 import pg from 'pg';
 import {chromium} from 'playwright';
 import {createClient} from '@supabase/supabase-js';
+import {createServerClient} from '@supabase/ssr';
 import {observedMetricSchemaSQL,metricMigrationSQL} from '../search-db/helpers/observed-metric-schema.mjs';
 import {readerBoundarySchemaSQL,readerMigrationSQL} from '../search-db/helpers/observed-reader-boundary.mjs';
 import {previewDemandImport} from '../../lib/searchDemandImportPreview.ts';
@@ -102,7 +103,13 @@ try {
  });
  await check('Real browser login rejects outsider despite editable admin metadata',async()=>{
   await login(anonymousPage,otherEmail,password);await anonymousPage.waitForURL('**/admin/login?error=not_authorized');
-  const r=await api(anonymousPage,{rows:[input()]});assert.equal(r.status,403);assert.match(r.cache,/no-store/);
+  const r=await api(anonymousPage,{rows:[input()]});assert.equal(r.status,401);assert.match(r.cache,/no-store/);
+ });
+ await check('Previously authenticated outsider is still denied by middleware',async()=>{
+  const jar=new Map();const client=createServerClient(url,anon,{cookies:{getAll:()=>[...jar].map(([name,value])=>({name,value})),setAll:values=>values.forEach(c=>jar.set(c.name,c.value))}});
+  assert.equal((await client.auth.signInWithPassword({email:otherEmail,password})).error,null);
+  const context=await browser.newContext();await context.addCookies([...jar].map(([name,value])=>({name,value,url:base})));
+  const page=await context.newPage();const r=await api(page,{rows:[input()]});assert.equal(r.status,403);assert.match(r.cache,/no-store/);await context.close();
  });
  const owner=await browser.newContext();ownerPage=await owner.newPage();const pageErrors=[];ownerPage.on('pageerror',e=>pageErrors.push(e.message));
  await check('Allowlisted browser user logs in through the actual Server Action',async()=>{
