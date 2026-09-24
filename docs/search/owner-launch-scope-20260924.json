@@ -1,0 +1,127 @@
+{
+  "decision_id": "owner-launch-scope-20260924-02",
+  "date": "2026-09-24",
+  "authority": "direct_owner_instruction",
+  "status": "accepted_for_work_prioritization",
+  "owner_quotes_ru": [
+    "Поэтому эту категорию мы откладываем",
+    "То есть не дело в материале. Есть материалы, которые с пластиком у нас генерировано описание, а есть вот такие корсеты, которые нет.",
+    "По поводу зеркального пиджака, да, у нас тоже там нету данных как части товара, как пиджак, ну, ноги есть, а пиджак нету, поэтому мы тоже его отложили намеренно.",
+    "А по поводу пятого товара — там топ и юбка.",
+    "Сейчас, в принципе, у нас достаточно, я думаю, товаров, чтобы можно было выставить что-то на сайте, чтобы оно соответствовало полностью всем оптимизированным параметрам для предварительной индексации."
+  ],
+  "interpretation": "Prioritize a bounded launch using existing supported, reviewed products. Do not wait for all deferred products or a new Ads API connection. No publishing/indexing/checkout activation is implied.",
+  "deferred_groups": [
+    {
+      "code": "molded_acrylic_plastic_corsets",
+      "status": "deferred_expansion",
+      "product_ids": [
+        "0cd7c558-7344-4076-91a5-86f7f5fe0ad0",
+        "15819042-d632-41a4-b009-73d49d1e8110",
+        "1ce50e76-c066-46b8-97ba-d6be92a593ff",
+        "28af189d-f3e1-4642-b906-027c7003233e",
+        "3a7dbca5-4dc4-484a-979b-887a099c07ef",
+        "45c4d5e0-0e96-4b14-a993-35a6ebc75170",
+        "465a24ce-de26-4af5-be50-b7c6a22e7af6",
+        "4bfc6eac-b665-4f94-b5f2-5715cacb03f9",
+        "56f67da5-a2f9-4e8e-a1ac-f7147abd453d",
+        "5bd94c47-354c-4f28-a64e-e36a6c35bcb6",
+        "6cf78dcf-74b7-45e7-93db-b33c9b9fa920",
+        "7af9efb1-bdcc-46ab-9c45-06df8cb8656e",
+        "7bae7b6e-64fa-4986-8b71-13edb53f01fa",
+        "7d3c3ec4-0cb7-4cb0-9ff4-0c2fe8b4974c",
+        "910d5aa6-bd18-40b8-9357-223f92ae18c2",
+        "b9086353-2305-4d47-b34e-38cb73a41a97",
+        "baaf3068-0904-49a3-bfd4-2be2bc16e8ec"
+      ],
+      "scope": "17 identified molded/sculpted breastplate/corset products, including color and silhouette variants; not every acrylic/plastic product.",
+      "reopen_when": [
+        "Owner chooses to resume this product family",
+        "Relevant Keyword Planner evidence is imported and reviewed",
+        "Product-type/offer mapping supports exact purchase scope"
+      ]
+    },
+    {
+      "code": "mirror_fabric_tailored_clothing",
+      "status": "deferred_expansion",
+      "product_ids": [
+        "179e407a-5fed-4b42-ae19-ff220f939867",
+        "2dddffcc-dd07-4d94-a4df-0217aac4f815"
+      ],
+      "scope": "Two identified mirror jacket / shorts / leggings listings; future family membership requires scoped evidence, never a global mirror/fabric material filter.",
+      "reopen_when": [
+        "Owner chooses to resume mirror clothing",
+        "Dedicated keyword evidence and product-type support are ready",
+        "Piece/size/range-price mapping is reviewed"
+      ]
+    }
+  ],
+  "owner_product_facts": [
+    {
+      "canonical_product_id": "0cd7c558-7344-4076-91a5-86f7f5fe0ad0",
+      "facts": {
+        "identity": "overbust / stage corset",
+        "material_terms": [
+          "gold plastic",
+          "acrylic"
+        ]
+      },
+      "unresolved_deferred": [
+        "back fastening",
+        "size/color price matrix"
+      ],
+      "authority": "direct owner, first item in batch 1"
+    },
+    {
+      "canonical_product_id": "40384eea-fd82-40f4-98e7-804383c42796",
+      "facts": {
+        "components": [
+          "bra",
+          "skirt"
+        ],
+        "bra_description": "bra-shaped harness-like upper piece",
+        "bra_material": "vegan leather",
+        "bra_color": "gold"
+      },
+      "not_confirmed": [
+        "belt purchase boundary",
+        "black fabric inclusion",
+        "skirt material from this utterance",
+        "size/color price matrix"
+      ],
+      "next_action": "Preserve previous text approval; prepare scoped offer correction separately; do not block unrelated pilot products."
+    }
+  ],
+  "family_facts": [
+    {
+      "scope": "mirror_fabric_tailored_clothing",
+      "facts": "Fabric base covered/glued with mirror pieces, triangular or other shapes; shines in light. Exact mirror polymer and tuple prices are not newly confirmed."
+    }
+  ],
+  "dress_backlog": {
+    "status": "investigate_when_expanding",
+    "observed_code": "app/admin/listing-master/ListingMasterPage.tsx COMPONENTS lacks dress and jacket; same allowlist filters submitted components.",
+    "metrics_status": "not established for physical dress products; title word dress is not sufficient identification",
+    "plan": "Extend form, server contracts and keyword matching together after physical scope and data review; retain existing approved top/skirt sets whose SEO title says dress."
+  },
+  "pilot_product_ids": [
+    "067628e8-3ecd-4979-8501-6da61ca2f51a",
+    "2b8d122f-5830-4bc6-8e11-7e3ae594c9b2",
+    "a606be83-50aa-462d-ae54-04e9ce7aeb3b",
+    "f81adf93-49a7-489c-b3a8-02520accce59",
+    "0395cb11-424f-407f-a849-7ee3b617ab57"
+  ],
+  "pilot_selection_authority": "Architect proposal based on source compatibility and variety; not an owner approval or publication allowlist.",
+  "pilot_selection_reason": "Five existing approved drafts with current decision/offer linkage and recorded metrics; varied harness, headpiece, bodysuit and armor purchase scopes. No draft regeneration. Final intent/offer/CQA/technical verification still required.",
+  "never_infer": [
+    "all acrylic products deferred",
+    "all corsets deferred",
+    "all mirror products deferred",
+    "all products called dress are physical dresses",
+    "missing keyword metrics equal zero demand",
+    "copy approval equals checkout/index eligibility"
+  ],
+  "can_publish": false,
+  "can_index": false,
+  "can_enable_checkout": false
+}

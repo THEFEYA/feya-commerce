@@ -1,6 +1,6 @@
 {
   "batch_id": "owner-product-truth-20260924-01",
-  "status": "awaiting_owner_answers",
+  "status": "answered_for_launch_scope",
   "purpose": "Close physical purchase-scope ambiguity; not keyword-axis reconfirmation",
   "source_priority": "specific owner confirmation > options/variations and scoped text; keyword DNA axes do not prove composition",
   "source_capture": "inventory-reconciliation-capture-20260924.json",
@@ -14,8 +14,11 @@
       "status": "downloaded",
       "label": "Золотой формованный нагрудный топ",
       "question_ru": "Продаётся один нагрудный топ? Уточните материал и крепление сзади. В пределах одного размера цвет влияет на цену?",
-      "owner_response": null,
-      "response_status": "pending",
+      "owner_response": {
+        "interpretation_ref": "owner-launch-scope-20260924.json",
+        "scope": "Do not treat unaddressed subquestions as confirmed."
+      },
+      "response_status": "deferred_by_owner",
       "applies_to": "this canonical_product_id only",
       "can_publish": false,
       "can_index": false
@@ -29,8 +32,11 @@
       "status": "downloaded",
       "label": "Белый формованный нагрудный топ",
       "question_ru": "Здесь продаётся только белый топ? Материал и крепление такие же, как у №1, или отличаются? В пределах размера цвет влияет на цену?",
-      "owner_response": null,
-      "response_status": "pending",
+      "owner_response": {
+        "interpretation_ref": "owner-launch-scope-20260924.json",
+        "scope": "Do not treat unaddressed subquestions as confirmed."
+      },
+      "response_status": "deferred_by_owner",
       "applies_to": "this canonical_product_id only",
       "can_publish": false,
       "can_index": false
@@ -44,8 +50,11 @@
       "status": "downloaded",
       "label": "Асимметричный зеркальный комплект",
       "question_ru": "Вариации Mirror Jacket / Mirror Leggings / Full Set: верх — асимметричная куртка с одним рукавом, а Leggings — пара отдельных чехлов на ноги или полноценные леггинсы? Что точно входит в Full Set?",
-      "owner_response": null,
-      "response_status": "pending",
+      "owner_response": {
+        "interpretation_ref": "owner-launch-scope-20260924.json",
+        "scope": "Do not treat unaddressed subquestions as confirmed."
+      },
+      "response_status": "deferred_by_owner",
       "applies_to": "this canonical_product_id only",
       "can_publish": false,
       "can_index": false
@@ -59,8 +68,11 @@
       "status": "downloaded",
       "label": "Зеркальный пиджак, низ и детали ног",
       "question_ru": "Вариации Mirror Jacket / Mirror Short / Mirror Leggings / Full Set: Full Set включает пиджак, шорты (или трусики) и пару чехлов на ноги? Уточните, что означает Short и Leggings.",
-      "owner_response": null,
-      "response_status": "pending",
+      "owner_response": {
+        "interpretation_ref": "owner-launch-scope-20260924.json",
+        "scope": "Do not treat unaddressed subquestions as confirmed."
+      },
+      "response_status": "deferred_by_owner",
       "applies_to": "this canonical_product_id only",
       "can_publish": false,
       "can_index": false
@@ -74,8 +86,11 @@
       "status": "downloaded",
       "label": "Золотой bra + skirt",
       "question_ru": "Вариации Bra / Skirt / Full Set: полный комплект — золотой верх и юбка с поясом? Пояс входит в Skirt? Чёрная тканевая одежда не входит?",
-      "owner_response": null,
-      "response_status": "pending",
+      "owner_response": {
+        "interpretation_ref": "owner-launch-scope-20260924.json",
+        "scope": "Do not treat unaddressed subquestions as confirmed."
+      },
+      "response_status": "composition_partially_confirmed",
       "applies_to": "this canonical_product_id only",
       "can_publish": false,
       "can_index": false
@@ -85,5 +100,7 @@
     "product_id": "320fede3-0406-428f-8091-c7a7986e07aa",
     "reason": "Existing headpiece-only owner decision remains authoritative; repair legacy options without asking composition again."
   },
-  "limits": "Answers about composition do not authorize inferred size equivalence, new prices, Cartesian variants, publication or indexing."
+  "limits": "Answers about composition do not authorize inferred size equivalence, new prices, Cartesian variants, publication or indexing.",
+  "answer_ref": "owner-launch-scope-20260924.json",
+  "next_action": "No repeat questions on deferred items for initial launch. Continue existing supported catalog pilot."
 }

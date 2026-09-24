@@ -1,0 +1,519 @@
+{
+  "captured_on": "2026-09-24",
+  "capture_mode": "production_select_only",
+  "query": "select d.id,d.canonical_product_id,d.agent_output_snapshot,md5(to_jsonb(d)::text) as full_record_md5 from feya_commerce_v_seo_pack_drafts_latest_v1 v join feya_commerce_seo_pack_drafts_v1 d on d.id=v.id where d.canonical_product_id::text in ('067628e8-3ecd-4979-8501-6da61ca2f51a','2b8d122f-5830-4bc6-8e11-7e3ae594c9b2','a606be83-50aa-462d-ae54-04e9ce7aeb3b','f81adf93-49a7-489c-b3a8-02520accce59','0395cb11-424f-407f-a849-7ee3b617ab57') order by d.canonical_product_id",
+  "products": [
+    {
+      "id": "7faba4bd-2089-423b-bb29-2e2546fb48e1",
+      "canonical_product_id": "0395cb11-424f-407f-a849-7ee3b617ab57",
+      "agent_output_snapshot": {
+        "h1": "Gold Futuristic Armor Costume for Men",
+        "faq": [],
+        "intro": "A handmade gold futuristic armor costume for men with layered shoulder, bicep and forearm pieces for warrior, rave and Burning Man styling.",
+        "status": "draft",
+        "seo_title": "Gold Futuristic Armor Costume for Men",
+        "pdp_blocks": [
+          {
+            "body": "Gold shoulder armor sets the main warrior shape, while separate bicep and forearm pieces build layered detail through the arms. Dense vegan leather helps each element keep its intended form, and the glossy gold finish gives the costume a futuristic, post-apocalyptic character.",
+            "heading": "About this piece",
+            "block_key": "about_this_piece",
+            "placement": "left_description",
+            "source_basis": "product_fact_and_owner_axes",
+            "needs_human_review": false
+          },
+          {
+            "body": "Separate bicep and forearm armor lets you vary how much arm coverage you use from one look to the next.\nDense vegan leather holds the sharper armor shapes well while remaining flexible enough for festival wear.\nThe choker and shoulder pieces frame the upper costume with a strong warrior character that works across rave and Burning Man styling.\nEach armor element can return independently in future futuristic or post-apocalyptic outfits.",
+            "heading": "Why you'll love it",
+            "block_key": "why_youll_love_it",
+            "placement": "left_description",
+            "source_basis": "product_fact_and_current_offer",
+            "needs_human_review": false
+          },
+          {
+            "body": "Men creating a gold futuristic warrior look.\nBurning Man and festival styling with a post-apocalyptic direction.\nRave outfits built around modular shoulder and arm armor.\nPerformance wardrobes where individual armor pieces can be reused later.",
+            "heading": "Ideal for",
+            "block_key": "ideal_for",
+            "placement": "left_description",
+            "source_basis": "owner_axes_and_product_fact",
+            "needs_human_review": false
+          },
+          {
+            "body": "The layered arm construction is what makes this armor set especially versatile: shoulder, upper-arm and forearm elements can build a fuller warrior look or be reused in smaller combinations later. TheFEYA combines handmade vegan leather with a glossy gold finish for repeated festival and performance styling.",
+            "heading": "Designed for self-expression",
+            "block_key": "main_description",
+            "placement": "left_description",
+            "source_basis": "brand_policy_and_product_fact",
+            "needs_human_review": false
+          }
+        ],
+        "visual_truth": {
+          "dna_matches": [
+            "Burning Man",
+            "Festival",
+            "Rave",
+            "Post apocalyptic",
+            "Futuristic",
+            "Glam",
+            "Warrior",
+            "Men",
+            "Gold",
+            "Vegan leather",
+            "Shoulders",
+            "Arms",
+            "Choker"
+          ],
+          "observed_product_facts": [
+            "Exact source options confirm Choker, Forearm Bracers, Shoulders, Bicep Armor and Full Set",
+            "Owner-reviewed correction preserves Forearm Bracers and Bicep Armor as distinct selector choices while both remain Arms-family components",
+            "Owner axes: Burning Man, Festival, Rave, Post apocalyptic, Futuristic, Glam, Warrior, Men, Gold, Vegan Leather, Shoulders, Arms, Choker",
+            "Source supports dense vegan leather, glossy mirror gold finish, shape retention, flexibility and easy cleaning"
+          ],
+          "open_style_suggestions": [],
+          "forbidden_visual_claims": [
+            "Do not collapse Forearm Bracers and Bicep Armor into one buyer-facing option",
+            "No optical reflection/safety claim"
+          ],
+          "uncertain_or_missing_facts": []
+        },
+        "qa_self_report": {
+          "price_audit": "OK",
+          "owner_rule_r27": "passed",
+          "owner_rule_r28": "passed",
+          "owner_rule_r29": "passed",
+          "owner_rule_r30": "passed",
+          "owner_rule_r31": "passed",
+          "validated_metrics": "validated"
+        },
+        "contract_version": "seo_agent_output_v1",
+        "generation_notes": [
+          "R27-R31 draft from owner-confirmed Batch32 axes and source-backed selector repair.",
+          "Validated whole-product Primary futuristic armor costume retained.",
+          "Price audit OK.",
+          "Awaiting owner review; no Apply or Publish."
+        ],
+        "meta_description": "Gold futuristic armor costume in vegan leather, handmade for men creating warrior, Burning Man, rave and post-apocalyptic festival looks.",
+        "bullet_highlights": [],
+        "image_alt_candidates": [
+          {
+            "alt_text": "Man wearing gold futuristic armor with shoulder, bicep and forearm pieces",
+            "image_role": "primary",
+            "truth_basis": "owner_axes_source_and_corrected_offer"
+          }
+        ],
+        "internal_linking_hints": []
+      },
+      "full_record_md5": "dd75fa6e0f440e1b07f6f6b6398a7f80"
+    },
+    {
+      "id": "5200b0ec-d196-4d51-b751-1199a5985ccf",
+      "canonical_product_id": "067628e8-3ecd-4979-8501-6da61ca2f51a",
+      "agent_output_snapshot": {
+        "h1": "Silver Body Harness Top and Fringe Skirt Set",
+        "faq": [],
+        "intro": "A glossy silver performance set with graphic harness lines and long fringe, designed for stage styling and camera-focused performance outfits.",
+        "status": "draft",
+        "seo_title": "Silver Body Harness Top and Fringe Skirt Set",
+        "pdp_blocks": [
+          {
+            "body": "Glossy silver harness lines give this costume a crisp, graphic character, while the long fringe adds movement below the waist. The contrast between structured straps and free-moving fringe makes the design especially effective for stage and camera work.",
+            "heading": "About this piece",
+            "block_key": "about_this_piece",
+            "placement": "left_description",
+            "source_basis": "product_fact",
+            "needs_human_review": false
+          },
+          {
+            "body": "The glossy silver finish picks up highlights under stage and studio lighting.\nLong fringe responds visibly to movement, adding energy to performance photos and video.\nStructured vegan leather gives the harness-style sections enough body to keep their graphic lines defined.",
+            "heading": "Why you'll love it",
+            "block_key": "why_youll_love_it",
+            "placement": "left_description",
+            "source_basis": "product_fact",
+            "needs_human_review": false
+          },
+          {
+            "body": "Stage performers building a silver glam costume.\nDancers who want fringe movement to register clearly on camera.\nPhotographers planning a polished performance portrait.\nContent creators working with bold silver styling for music or show visuals.",
+            "heading": "Ideal for",
+            "block_key": "ideal_for",
+            "placement": "left_description",
+            "source_basis": "product_fact",
+            "needs_human_review": false
+          },
+          {
+            "body": "Stage clothing can change the way a performance feels before the first move begins. We design pieces that give performers a strong visual starting point while leaving the character in their hands. At TheFEYA, we value that freedom as much as the costume itself.",
+            "heading": "Designed for self-expression",
+            "block_key": "main_description",
+            "placement": "left_description",
+            "source_basis": "brand_policy",
+            "needs_human_review": false
+          }
+        ],
+        "visual_truth": {
+          "dna_matches": [
+            "Silver",
+            "Vegan leather",
+            "Harness",
+            "Skirt",
+            "Stage",
+            "Photoshoot",
+            "Glam"
+          ],
+          "observed_product_facts": [
+            "Silver harness-style upper design",
+            "Long fringe is a defining lower-body detail",
+            "Glossy silver finish is part of the saved product identity"
+          ],
+          "open_style_suggestions": [],
+          "forbidden_visual_claims": [
+            "Do not add rave or cyberpunk context to this PDP copy",
+            "Do not claim sequins, crystals or retroreflective performance",
+            "Do not treat external base garments or accessories as included"
+          ],
+          "uncertain_or_missing_facts": [
+            "Primary image could not be re-opened in the current protected preview session; ALT stays limited to confirmed product identity"
+          ]
+        },
+        "qa_self_report": {
+          "notes": [],
+          "long_dash": "not_checked",
+          "cliche_phrase": "not_checked",
+          "image_alt_truth": "not_checked",
+          "keyword_stuffing": "not_checked",
+          "validated_metrics": "not_checked",
+          "forbidden_mismatch": "not_checked",
+          "product_specificity": "not_checked",
+          "commercial_placement": "not_checked",
+          "similarity_cannibalization": "not_checked"
+        },
+        "contract_version": "seo_agent_output_v1",
+        "generation_notes": [
+          "Assistant-authored using saved owner axes, validated Keyword Bank selections and current storefront offer; no separate paid writer or editor API call.",
+          "Harness remains a search/body-placement axis while the sellable selector composition stays code-owned.",
+          "Google Primary overlap is monitored rather than treated as an automatic cannibalization blocker.",
+          "Awaiting owner visual review; no approval, apply or publish action."
+        ],
+        "meta_description": "Silver body harness top with a matching fringe skirt for stage performers, photoshoots and polished glam costume looks.",
+        "bullet_highlights": [],
+        "image_alt_candidates": [
+          {
+            "alt_text": "Woman wearing a silver body harness top with a long fringe skirt for stage styling",
+            "image_role": "primary",
+            "truth_basis": "product_fact_and_primary_media"
+          }
+        ],
+        "internal_linking_hints": []
+      },
+      "full_record_md5": "f95594db667c9656ea43e594cce25701"
+    },
+    {
+      "id": "614da1d1-ce70-458d-9942-c3b536a20709",
+      "canonical_product_id": "2b8d122f-5830-4bc6-8e11-7e3ae594c9b2",
+      "agent_output_snapshot": {
+        "h1": "Gold Festival Headpiece and Stage Costume Set",
+        "faq": [],
+        "intro": "A crown-like gold headpiece with feather detailing becomes the theatrical focus of a coordinated costume for festival and stage performance.",
+        "status": "draft",
+        "seo_title": "Gold Festival Headpiece and Stage Costume Set",
+        "pdp_blocks": [
+          {
+            "body": "A crown-like gold headpiece with feather detailing gives this costume its theatrical focus. The gold finish and coordinated performance styling connect glam and burlesque influences without losing the strong festival character of the design.",
+            "heading": "About this piece",
+            "block_key": "about_this_piece",
+            "placement": "left_description",
+            "source_basis": "product_fact",
+            "needs_human_review": false
+          },
+          {
+            "body": "Feather detailing adds height and visible movement around the head during performance.\nThe gold finish creates a consistent visual direction that works well under stage and camera lighting.\nStructured vegan leather helps the costume elements keep their defined shape between wears.",
+            "heading": "Why you'll love it",
+            "block_key": "why_youll_love_it",
+            "placement": "left_description",
+            "source_basis": "product_fact",
+            "needs_human_review": false
+          },
+          {
+            "body": "Women preparing a gold festival costume with a theatrical headpiece.\nStage performers and dancers working with glam or burlesque styling.\nShow performers building a queen-inspired character for live appearances.\nPhotographers and creators planning a polished gold performance portrait.",
+            "heading": "Ideal for",
+            "block_key": "ideal_for",
+            "placement": "left_description",
+            "source_basis": "product_fact",
+            "needs_human_review": false
+          },
+          {
+            "body": "A headpiece can change posture, attitude and the scale of a stage character before a performance even starts. We design with that kind of transformation in mind. At TheFEYA, we want theatrical clothing to give performers room to make the final character unmistakably their own.",
+            "heading": "Designed for self-expression",
+            "block_key": "main_description",
+            "placement": "left_description",
+            "source_basis": "brand_policy",
+            "needs_human_review": false
+          }
+        ],
+        "visual_truth": {
+          "dna_matches": [
+            "Gold",
+            "Vegan leather",
+            "Headpiece",
+            "Top",
+            "Skirt",
+            "Festival",
+            "Stage",
+            "Glam",
+            "Burlesque",
+            "Queen",
+            "Performer"
+          ],
+          "observed_product_facts": [
+            "Gold crown-like headpiece with feather detailing",
+            "Gold performance costume identity",
+            "Headpiece is the primary search-led visual element while the PDP represents a coordinated costume set"
+          ],
+          "open_style_suggestions": [],
+          "forbidden_visual_claims": [
+            "Do not describe external styling accessories as included",
+            "Do not turn the PDP into a headpiece-only product description",
+            "Do not add unselected rave, carnival or Burning Man targeting to this PDP copy"
+          ],
+          "uncertain_or_missing_facts": [
+            "Primary image could not be re-opened in the current protected preview session; ALT stays limited to confirmed product identity"
+          ]
+        },
+        "qa_self_report": {
+          "notes": [],
+          "long_dash": "not_checked",
+          "cliche_phrase": "not_checked",
+          "image_alt_truth": "not_checked",
+          "keyword_stuffing": "not_checked",
+          "validated_metrics": "not_checked",
+          "forbidden_mismatch": "not_checked",
+          "product_specificity": "not_checked",
+          "commercial_placement": "not_checked",
+          "similarity_cannibalization": "not_checked"
+        },
+        "contract_version": "seo_agent_output_v1",
+        "generation_notes": [
+          "Assistant-authored using saved owner axes, validated Keyword Bank selections and current storefront offer; no separate paid writer or editor API call.",
+          "The headpiece-led Primary is retained while the PDP identity remains a coordinated costume set.",
+          "Current sellable configurations remain code-owned and are rendered by the deterministic What's included block.",
+          "Awaiting owner visual review; no approval, apply or publish action."
+        ],
+        "meta_description": "Gold festival headpiece with feather detailing and a coordinated stage costume look for festival performers, glam shows and burlesque styling.",
+        "bullet_highlights": [],
+        "image_alt_candidates": [
+          {
+            "alt_text": "Woman wearing a gold festival headpiece with feather detailing and a coordinated gold stage costume",
+            "image_role": "primary",
+            "truth_basis": "product_fact_and_primary_media"
+          }
+        ],
+        "internal_linking_hints": []
+      },
+      "full_record_md5": "47d6d25e40f0b588511cb5398fe34744"
+    },
+    {
+      "id": "6455b451-9554-4823-8792-2bac428470be",
+      "canonical_product_id": "a606be83-50aa-462d-ae54-04e9ce7aeb3b",
+      "agent_output_snapshot": {
+        "h1": "Halloween Costume with Black Bodysuit",
+        "faq": [],
+        "intro": "A Halloween costume with black bodysuit at its core, designed for women creating goth, glam, stage and cosplay looks.",
+        "status": "draft",
+        "seo_title": "Halloween Costume with Black Bodysuit for Women",
+        "pdp_blocks": [
+          {
+            "body": "The fitted black bodysuit is the center of this look, giving the costume a dark, polished base that works naturally across Halloween, cosplay and stage styling. Vegan leather adds definition to the fitted shape while keeping the overall direction clean enough for glam or goth interpretation.",
+            "heading": "About this piece",
+            "block_key": "about_this_piece",
+            "placement": "left_description",
+            "source_basis": "product_fact_and_owner_axes",
+            "needs_human_review": false
+          },
+          {
+            "body": "The black bodysuit creates an immediate costume base, so the main look is already established before additional styling is added.\nFitted construction works well for stage and photoshoot use where a clear, close-to-body shape matters.\nVegan leather gives the black surface a defined, polished finish that suits goth and glam styling.\nCustom sizing helps refine the fit for repeated performance, Halloween and cosplay wear.",
+            "heading": "Why you'll love it",
+            "block_key": "why_youll_love_it",
+            "placement": "left_description",
+            "source_basis": "product_fact_and_owner_focus",
+            "needs_human_review": false
+          },
+          {
+            "body": "Women creating a black Halloween costume with a fitted bodysuit base.\nGoth and glam cosplay concepts.\nStage performers who want a dark, body-conscious costume foundation.\nEditorial photoshoots built around clean black styling.",
+            "heading": "Ideal for",
+            "block_key": "ideal_for",
+            "placement": "left_description",
+            "source_basis": "owner_axes_and_product_fact",
+            "needs_human_review": false
+          },
+          {
+            "body": "A fitted black bodysuit gives this costume a strong foundation that can move between goth, glam, Halloween and cosplay styling. TheFEYA combines handmade vegan-leather construction with custom-fit options for a piece designed to stay useful across repeated creative work.",
+            "heading": "Designed for self-expression",
+            "block_key": "main_description",
+            "placement": "left_description",
+            "source_basis": "brand_policy_and_product_fact",
+            "needs_human_review": false
+          }
+        ],
+        "visual_truth": {
+          "dna_matches": [
+            "Stage",
+            "Halloween",
+            "Cosplay",
+            "Photoshoot",
+            "Glam",
+            "Goth",
+            "Performer",
+            "Women",
+            "Black",
+            "Vegan leather",
+            "Bodysuit"
+          ],
+          "observed_product_facts": [
+            "Exact source options confirm Bodysuit, Shoulders, Headpiece, Bodysuit + Shoulders and Full Set",
+            "Owner-reviewed correction restores Bodysuit + Shoulders as one grouped sellable option",
+            "Owner selected only Bodysuit as generated-copy component axis",
+            "Owner axes: Stage, Halloween, Cosplay, Photoshoot, Glam, Goth, Performer, Women, Black, Vegan Leather, Bodysuit",
+            "Legacy fetish/latex wording is not owner-selected"
+          ],
+          "open_style_suggestions": [],
+          "forbidden_visual_claims": [
+            "Do not reintroduce deselected Shoulders/Headpiece into persuasive copy",
+            "No fetish/sexual positioning under R31",
+            "No latex material claim"
+          ],
+          "uncertain_or_missing_facts": []
+        },
+        "qa_self_report": {
+          "price_audit": "OK",
+          "owner_rule_r27": "passed",
+          "owner_rule_r28": "passed",
+          "owner_rule_r29": "passed",
+          "owner_rule_r30": "passed",
+          "owner_rule_r31": "passed",
+          "validated_metrics": "validated"
+        },
+        "contract_version": "seo_agent_output_v1",
+        "generation_notes": [
+          "R27-R31 draft from owner-confirmed Batch33 axes and current storefront truth.",
+          "Validated whole-product Primary halloween costume with black bodysuit retained.",
+          "Exact-cover price audit OK.",
+          "Awaiting owner review; no Apply or Publish."
+        ],
+        "meta_description": "Halloween costume with black bodysuit in vegan leather, handmade for women creating goth, glam, stage, cosplay and editorial photoshoot looks.",
+        "bullet_highlights": [],
+        "image_alt_candidates": [
+          {
+            "alt_text": "Woman wearing a black vegan leather bodysuit for a goth Halloween stage costume",
+            "image_role": "primary",
+            "truth_basis": "owner_axes_source_and_owner_focus"
+          }
+        ],
+        "internal_linking_hints": []
+      },
+      "full_record_md5": "b61fdb44dbf4e33873a4954fb6de31d9"
+    },
+    {
+      "id": "9dda49c5-084a-4509-b1df-58e4461e3f9e",
+      "canonical_product_id": "f81adf93-49a7-489c-b3a8-02520accce59",
+      "agent_output_snapshot": {
+        "h1": "Gold Bodysuit for Women with Arm Guards",
+        "faq": [],
+        "intro": "A white-and-gold bodysuit with matching arm guards, designed to create a clean, expressive desert-warrior look with a strong handmade fashion character.",
+        "status": "draft",
+        "seo_title": "Gold Bodysuit for Women with Futuristic Arm Guards",
+        "pdp_blocks": [
+          {
+            "body": "Gold accents run across the light base and bring warmth, contrast and a distinctive festival character to the whole outfit. The fitted bodysuit keeps the design visually connected from torso to hips, while the matching arm guards carry the same character through gestures and movement.",
+            "heading": "About this piece",
+            "block_key": "about_this_piece",
+            "placement": "left_description",
+            "source_basis": "product_fact",
+            "needs_human_review": false
+          },
+          {
+            "body": "The white-and-gold contrast keeps decorative details clear and makes the outfit instantly recognizable from a distance.\nThe fitted bodysuit gives the costume a strong, connected white-and-gold design through the torso and hips.\nMatching arm guards turn hand and arm movement into part of the styling, adding more expression in dancing, posing and photos.\nVegan leather helps the shaped details stay neat and defined while keeping the look polished through the event.",
+            "heading": "Why you'll love it",
+            "block_key": "why_youll_love_it",
+            "placement": "left_description",
+            "source_basis": "product_fact",
+            "needs_human_review": false
+          },
+          {
+            "body": "Women building a white-and-gold Burning Man look.\nFestival performers combining warrior and glam references.\nCreators who want a clean desert-futurist costume for photos and video.\nPerformers looking for a strong bodysuit-based character with coordinated arm details.",
+            "heading": "Ideal for",
+            "block_key": "ideal_for",
+            "placement": "left_description",
+            "source_basis": "owner_axes_and_product_fact",
+            "needs_human_review": false
+          },
+          {
+            "body": "White and gold create a bright, confident character with an artistic handmade finish. The fitted bodysuit and coordinated arm guards keep the design connected through movement and give the outfit a memorable desert-futurist identity. At TheFEYA, we make performance pieces that feel distinctive the moment they are worn.",
+            "heading": "Designed for self-expression",
+            "block_key": "main_description",
+            "placement": "left_description",
+            "source_basis": "brand_policy",
+            "needs_human_review": false
+          }
+        ],
+        "visual_truth": {
+          "dna_matches": [
+            "Burning Man",
+            "Festival",
+            "Post apocalyptic",
+            "Glam",
+            "Warrior",
+            "Performer",
+            "Women",
+            "Gold",
+            "White",
+            "Vegan leather",
+            "Bodysuit",
+            "Arms"
+          ],
+          "observed_product_facts": [
+            "Current offer confirms bodysuit, arm guards and full set",
+            "Gold and white axes are owner-confirmed",
+            "Vegan leather is confirmed by source material"
+          ],
+          "open_style_suggestions": [],
+          "forbidden_visual_claims": [
+            "No unselected cosplay context",
+            "No safety-reflective performance claim"
+          ],
+          "uncertain_or_missing_facts": [
+            "Primary CDN image unavailable in current review session, so public copy avoids unverified decorative geometry"
+          ]
+        },
+        "qa_self_report": {
+          "notes": [
+            "Benefit-led revision."
+          ],
+          "long_dash": "not_checked",
+          "cliche_phrase": "not_checked",
+          "image_alt_truth": "product_identity_only",
+          "keyword_stuffing": "not_checked",
+          "validated_metrics": "validated",
+          "forbidden_mismatch": "not_checked",
+          "product_specificity": "not_checked",
+          "commercial_placement": "not_checked",
+          "similarity_cannibalization": "monitored"
+        },
+        "contract_version": "seo_agent_output_v1",
+        "generation_notes": [
+          "Revised after owner editorial feedback: removed comparison with other armor formats; every feature now explains a customer-facing visual, styling or movement benefit.",
+          "Measured whole-product Primary gold bodysuit for women retained.",
+          "Awaiting owner visual review; no Apply or Publish action.",
+          "R1/R20/R21 follow-up preflight: removed unsupported premium wording and completion-style framing."
+        ],
+        "meta_description": "Gold bodysuit for women with white contrast details and matching arm guards in vegan leather for Burning Man, festivals and post-apocalyptic styling.",
+        "bullet_highlights": [],
+        "image_alt_candidates": [
+          {
+            "alt_text": "Woman wearing a white and gold bodysuit with matching futuristic arm guards",
+            "image_role": "primary",
+            "truth_basis": "product_identity_owner_axes_and_source_offer"
+          }
+        ],
+        "internal_linking_hints": []
+      },
+      "full_record_md5": "d595455be1c31aa840d21894206c31a4"
+    }
+  ]
+}
