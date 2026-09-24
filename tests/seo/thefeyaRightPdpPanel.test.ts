@@ -12,6 +12,15 @@ function blockBody(productId: string, blockKey: string) {
     .find((block) => block.block_key === blockKey)?.body || '';
 }
 
+test('arm and leg armor uses current owner-confirmed glossy vegan leather without fixing all variants to one color', () => {
+  const id = 'a83b1b51-79be-4cae-a943-661060a34080';
+  const material = blockBody(id, 'material');
+  assert.match(material, /Glossy vegan-leather armor panels/);
+  assert.match(material, /black straps with buckle fastenings/);
+  assert.doesNotMatch(material, /acrylic|plastic|gold|silver/i);
+  assert.ok(buildThefeyaSeoDoctrineUserLines({ canonical_product_id: id }).join('\n').includes(material));
+});
+
 test('storefront panel and writer use the active fulfillment truth with the original day units', () => {
   const capture = JSON.parse(readFileSync('docs/search/fulfillment-truth-capture-20260924.json', 'utf8'));
   const registry = JSON.parse(readFileSync('docs/search/inventory-capture-20260924.json', 'utf8')).business_truth;

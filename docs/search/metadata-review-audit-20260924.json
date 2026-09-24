@@ -1,12 +1,27 @@
 {
   "contract_version": "metadata_review_audit_v1",
   "mode": "offline_proposal_simulation",
-  "target_products": 208,
+  "source_products_preserved": 208,
+  "visible_launch_candidates": 207,
+  "suppressed_product_ids": [
+    "d42dd678-7b11-4f38-890e-411de686f418"
+  ],
+  "redirect_candidates": [
+    {
+      "decision_id": "owner-gold-duplicate-20260924-01",
+      "from_product_id": "d42dd678-7b11-4f38-890e-411de686f418",
+      "to_product_id": "453ffb2e-2ed9-4e8d-b74c-e891604f9644",
+      "from_path": "/shop/unique-festival-outfit-with-gold-leather-shoulder-skirt-gold-metallic-armor-burning-man-clothing-for-women-luxury-rave-accessories-4324592783",
+      "to_path": "/shop/unique-festival-outfit-with-gold-leather-shoulder-skirt-gold-metallic-armor-burning-man-clothing-for-women-luxury-rave-accessories-4324575912",
+      "activation_authorized": false
+    }
+  ],
   "reviewed_candidates": 64,
   "summary": {
-    "proposed": 42,
-    "retain": 6,
-    "held": 16
+    "proposed": 43,
+    "retain": 8,
+    "held": 12,
+    "suppressed_in_launch": 1
   },
   "title_groups_after_proposals": [
     {
@@ -14,20 +29,6 @@
       "product_ids": [
         "7cf4ea37-cd11-4203-860c-7eed4ae965ba",
         "882793f6-15ca-4617-a579-5cd47290ce72"
-      ]
-    },
-    {
-      "normalized_text": "dark witch costume with horns, corset and spine",
-      "product_ids": [
-        "340b160f-93e3-4389-866f-df79cc14dea8",
-        "83ea907b-a523-47cf-834f-5a1b16b80339"
-      ]
-    },
-    {
-      "normalized_text": "gold rave outfit with skirt and shoulder armor",
-      "product_ids": [
-        "453ffb2e-2ed9-4e8d-b74c-e891604f9644",
-        "d42dd678-7b11-4f38-890e-411de686f418"
       ]
     },
     {
@@ -68,13 +69,6 @@
       ]
     },
     {
-      "normalized_text": "dark witch costume with horns and spine",
-      "product_ids": [
-        "340b160f-93e3-4389-866f-df79cc14dea8",
-        "83ea907b-a523-47cf-834f-5a1b16b80339"
-      ]
-    },
-    {
       "normalized_text": "men's gold warrior armor costume",
       "product_ids": [
         "1eb4b55c-dedf-4399-92fd-c94c8d962091",
@@ -103,7 +97,7 @@
       ]
     }
   ],
-  "residual_metadata_collision_products": 16,
+  "residual_metadata_collision_products": 12,
   "preservation": {
     "existing_drafts_written": 0,
     "full_descriptions_changed": 0,
@@ -126,11 +120,15 @@
     },
     {
       "path": "docs/search/metadata-distinction-review-20260924.json",
-      "sha256": "6e548892cbe8aa12f986f204068fae43463eca025e63babb33087afb6bd3a69f"
+      "sha256": "c76e3d52913b823f8f66c2a60b1a242b850d1c588d96ef3b93fa64fef5af48b5"
     },
     {
       "path": "docs/search/approved-catalog-storefront-capture-20260924.json",
       "sha256": "866342ea3c596aef10182941a5ac77f1cc4e388c8ce8789820a834337962b5a6"
+    },
+    {
+      "path": "docs/search/owner-product-decisions-20260924.json",
+      "sha256": "5daa6cd00c884f54aadb0f964864760b2d548fd03b641b471f021e72e932ff67"
     }
   ],
   "can_publish": false,

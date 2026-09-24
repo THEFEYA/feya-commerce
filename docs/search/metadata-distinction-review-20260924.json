@@ -2,13 +2,14 @@
   "contract_version": "metadata_distinction_review_v1",
   "review_date": "2026-09-24",
   "reviewer": "Codex editorial evidence review; not an owner or human-CQA approval",
-  "scope": "64 exact-title/H1 collision candidates within the unchanged 208-product catalog",
+  "scope": "64 metadata collision reviews across 208 preserved source records; one owner-authorized future launch suppression. Metadata proposals are not publication approvals.",
   "status": "prepared_review_only",
   "source_queue": "metadata-distinction-queue-20260924.json",
   "summary": {
-    "proposed": 42,
-    "retain": 6,
-    "held": 16
+    "proposed": 43,
+    "retain": 8,
+    "held": 12,
+    "suppressed_in_launch": 1
   },
   "allowed_fields": [
     "seo_title",
@@ -478,20 +479,31 @@
         "h1": "Dark Witch Costume with Horns and Spine"
       },
       "decision_id": "metadata-review-20260924-16",
-      "status": "held",
-      "reason_code": "physical_design_review",
-      "reason": "Same horns/corset/spine structure as 83ea907b; do not add a made-up model name.",
+      "status": "retain",
+      "reason_code": "owner_keep_costume_page",
+      "reason": "Owner explicitly keeps both witch listings. Preserve this costume title; separate headpiece intent is proposed for the other page, not a claim of different physical models.",
       "proposed": {},
       "evidence": {
         "draft_id": "073dd41e-77b0-40d4-acdc-533f9b4d0904",
         "approved_intro": "A dark witch costume in black vegan leather, built around a dramatic horn headpiece, fitted corset and spine detail for goth and fantasy styling.",
         "approved_about_this_piece": "The horn headpiece establishes the dark witch character immediately, while the fitted corset gives the costume a defined center and the spine element adds an unusual fantasy detail along the back. Black vegan leather keeps the three design ideas visually connected across stage, cosplay and photoshoot styling.",
         "source_card_title": "Dark Witch Cosplay Costume Set - Leather Horns Corset Spine, Women's Latex Halloween Outfit, Festival Headpiece, Carnivals Clothing Black",
-        "offer_source": "approved-catalog-storefront-capture-20260924.json; apply existing owner/reconciled offer corrections before interpreting labels"
+        "offer_source": "approved-catalog-storefront-capture-20260924.json; apply existing owner/reconciled offer corrections before interpreting labels",
+        "owner_decision_source": "owner-product-decisions-20260924.json",
+        "owner_decision_id": "owner-keep-witch-pair-20260924-02"
       },
       "owner_approval_asserted": false,
       "can_publish": false,
-      "can_index": false
+      "can_index": false,
+      "review_history": [
+        {
+          "status": "held",
+          "reason_code": "physical_design_review",
+          "reason": "Same horns/corset/spine structure as 83ea907b; do not add a made-up model name.",
+          "proposed": {}
+        }
+      ],
+      "review_revision": 2
     },
     {
       "canonical_product_id": "4033e707-98e2-45ad-9fd6-b7d615673fa3",
@@ -574,20 +586,31 @@
         "h1": "Gold Rave Outfit with Skirt and Shoulder Armor"
       },
       "decision_id": "metadata-review-20260924-19",
-      "status": "held",
-      "reason_code": "physical_design_review",
-      "reason": "Prior visual review found same main image and composition as d42dd678; preserve IDs pending physical-design decision.",
+      "status": "retain",
+      "reason_code": "owner_selected_retained_listing",
+      "reason": "Owner authorized one gold listing; retain the later approved, more design-specific draft. Exact launch suppression is recorded separately.",
       "proposed": {},
       "evidence": {
         "draft_id": "43377c00-4721-45ca-963c-6d4c428d5b4d",
         "approved_intro": "A gold rave outfit with skirt and layered shoulder armor, created in soft vegan leather for women who enjoy glam festival fashion with a stronger costume character.",
         "approved_about_this_piece": "Layered curved gold panels create the most distinctive detail of this festival outfit, forming an expressive armor-inspired accent with a polished mirror-style surface. The vegan leather feels soft against the body while the shaped layers keep their form between wears. Repeated fan-like details give the design an original handmade character that feels glamorous, theatrical and carefully finished.",
         "source_card_title": null,
-        "offer_source": "approved-catalog-storefront-capture-20260924.json; apply existing owner/reconciled offer corrections before interpreting labels"
+        "offer_source": "approved-catalog-storefront-capture-20260924.json; apply existing owner/reconciled offer corrections before interpreting labels",
+        "owner_decision_source": "owner-product-decisions-20260924.json",
+        "owner_decision_id": "owner-gold-duplicate-20260924-01"
       },
       "owner_approval_asserted": false,
       "can_publish": false,
-      "can_index": false
+      "can_index": false,
+      "review_history": [
+        {
+          "status": "held",
+          "reason_code": "physical_design_review",
+          "reason": "Prior visual review found same main image and composition as d42dd678; preserve IDs pending physical-design decision.",
+          "proposed": {}
+        }
+      ],
+      "review_revision": 2
     },
     {
       "canonical_product_id": "457416ed-92b3-4450-a5b0-ff4e27ee11a2",
@@ -894,20 +917,39 @@
         "h1": "Dark Witch Costume with Horns and Spine"
       },
       "decision_id": "metadata-review-20260924-30",
-      "status": "held",
-      "reason_code": "physical_design_review",
-      "reason": "Same horns/corset/spine structure as 340b160f; compare source photos and listing revisions.",
-      "proposed": {},
+      "status": "proposed",
+      "reason_code": "headpiece_intent_supported_by_source",
+      "reason": "Owner explicitly keeps both listings; source card title and verified Horns option support a headpiece-oriented proposal. Other costume options remain selectable. Distinct utility and query ownership still require review.",
+      "proposed": {
+        "seo_title": "Black Witch Horns Headpiece with Optional Costume Pieces",
+        "h1": "Black Witch Horns Headpiece with Optional Costume Pieces"
+      },
       "evidence": {
         "draft_id": "ade67a96-f701-4b43-87b7-bd17337790a6",
         "approved_intro": "A dark witch costume in black vegan leather with a horn headpiece, fitted corset and spine detail for goth, fantasy, Halloween and cosplay styling.",
         "approved_about_this_piece": "The horn headpiece establishes the witch and demon character immediately, while the fitted corset gives the outfit a strong center and the Spine adds an unusual detail along the back. Black vegan leather keeps the three elements connected through one dark fantasy look.",
         "source_card_title": "Leather Horns Headpiece for Cosplay - Dark Witch Costume Set, Black Latex Outfit, Halloween Costume, Festival Headdress, Carnival Wear",
-        "offer_source": "approved-catalog-storefront-capture-20260924.json; apply existing owner/reconciled offer corrections before interpreting labels"
+        "offer_source": "approved-catalog-storefront-capture-20260924.json; apply existing owner/reconciled offer corrections before interpreting labels",
+        "owner_decision_source": "owner-product-decisions-20260924.json",
+        "owner_decision_id": "owner-keep-witch-pair-20260924-02"
       },
       "owner_approval_asserted": false,
       "can_publish": false,
-      "can_index": false
+      "can_index": false,
+      "review_history": [
+        {
+          "status": "held",
+          "reason_code": "physical_design_review",
+          "reason": "Same horns/corset/spine structure as 340b160f; compare source photos and listing revisions.",
+          "proposed": {}
+        }
+      ],
+      "review_revision": 2,
+      "remaining_non_metadata_holds": [
+        "headpiece_focused_unique_value_review",
+        "query_ownership_review",
+        "exact_tuple_price_review"
+      ]
     },
     {
       "canonical_product_id": "8441aa63-d524-4ee4-8bdb-2d7b3f6c3bcf",
@@ -1268,7 +1310,7 @@
       "decision_id": "metadata-review-20260924-43",
       "status": "proposed",
       "reason_code": "color_neutral_offer_specific_title",
-      "reason": "Use existing Arm Armor / Leg Armor options and approved warrior intent. Remove overly narrow Silver from metadata without changing mixed-color body/meta, canonical colour or unresolved substrate.",
+      "reason": "Color-neutral title matches separate Arm Armor / Leg Armor / Full Set and color selection. Owner now confirms glossy vegan leather; photo-to-color and exact tuple pricing remain separate work.",
       "proposed": {
         "seo_title": "Warrior Armor Costume with Arm and Leg Pieces",
         "h1": "Warrior Armor Costume with Arm and Leg Pieces"
@@ -1280,7 +1322,9 @@
         "source_card_title": null,
         "offer_source": "approved-catalog-storefront-capture-20260924.json; apply existing owner/reconciled offer corrections before interpreting labels",
         "followup_review": "held-metadata-visual-review-20260924.json",
-        "resolved_offer_signature": "storefront-sellable-offer-v1:[{\"id\":\"e3d9d1b7-e8ff-4d0b-84ad-f7a06873800a\",\"code\":\"legs\",\"family\":\"legs\",\"label\":\"Leg Armor\",\"aggregate\":false,\"full_set\":false,\"members\":[]},{\"id\":\"242e3bfc-64b5-4b53-9f16-b2b0c5cf0ce0\",\"code\":\"arms\",\"family\":\"arms\",\"label\":\"Arm Armor\",\"aggregate\":false,\"full_set\":false,\"members\":[]},{\"id\":\"2266d9a3-ba25-445f-ab6a-7eb2bc354942\",\"code\":\"full_set\",\"family\":\"bundle\",\"label\":\"Full Set\",\"aggregate\":true,\"full_set\":true,\"members\":[\"arms\",\"legs\"]}]"
+        "resolved_offer_signature": "storefront-sellable-offer-v1:[{\"id\":\"e3d9d1b7-e8ff-4d0b-84ad-f7a06873800a\",\"code\":\"legs\",\"family\":\"legs\",\"label\":\"Leg Armor\",\"aggregate\":false,\"full_set\":false,\"members\":[]},{\"id\":\"242e3bfc-64b5-4b53-9f16-b2b0c5cf0ce0\",\"code\":\"arms\",\"family\":\"arms\",\"label\":\"Arm Armor\",\"aggregate\":false,\"full_set\":false,\"members\":[]},{\"id\":\"2266d9a3-ba25-445f-ab6a-7eb2bc354942\",\"code\":\"full_set\",\"family\":\"bundle\",\"label\":\"Full Set\",\"aggregate\":true,\"full_set\":true,\"members\":[\"arms\",\"legs\"]}]",
+        "owner_decision_source": "owner-product-decisions-20260924.json",
+        "owner_decision_id": "owner-glossy-vegan-armor-20260924-03"
       },
       "owner_approval_asserted": false,
       "can_publish": false,
@@ -1291,11 +1335,26 @@
         "reason": "SEO title says Silver; approved about text explicitly describes gold and silver panels and black/gold styling. Verify canonical colour and included arm/leg parts before any title correction.",
         "proposed": {}
       },
-      "review_revision": 2,
+      "review_revision": 3,
       "remaining_non_metadata_holds": [
-        "canonical_color_reconciliation",
-        "substrate_clarification",
-        "gallery_review"
+        "color_variant_and_gallery_mapping",
+        "exact_tuple_price_review"
+      ],
+      "review_history": [
+        {
+          "status": "proposed",
+          "reason_code": "color_neutral_offer_specific_title",
+          "reason": "Use existing Arm Armor / Leg Armor options and approved warrior intent. Remove overly narrow Silver from metadata without changing mixed-color body/meta, canonical colour or unresolved substrate.",
+          "proposed": {
+            "seo_title": "Warrior Armor Costume with Arm and Leg Pieces",
+            "h1": "Warrior Armor Costume with Arm and Leg Pieces"
+          },
+          "remaining_non_metadata_holds": [
+            "canonical_color_reconciliation",
+            "substrate_clarification",
+            "gallery_review"
+          ]
+        }
       ]
     },
     {
@@ -1547,20 +1606,31 @@
         "h1": "Gold Rave Outfit with Skirt"
       },
       "decision_id": "metadata-review-20260924-52",
-      "status": "held",
-      "reason_code": "physical_design_review",
-      "reason": "Same image/shoulder-skirt offer as 453ffb2e in prior visual review. No synonym-only differentiation.",
+      "status": "suppressed_in_launch",
+      "reason_code": "owner_authorized_duplicate_suppression",
+      "reason": "Preserve approved content, stable IDs and prices. Exclude only from the future visible launch selection; retained target is 453ffb2e.",
       "proposed": {},
       "evidence": {
         "draft_id": "0e0be164-5ef5-4051-a57f-19b421a9509a",
         "approved_intro": "A polished gold shoulder-and-skirt set that creates a clear rave character with strong upper-body detail and expressive movement through the skirt.",
         "approved_about_this_piece": "The gold shoulder piece gives the upper body a strong focal point, while the matching skirt carries the same finish into movement. Together they create a clean, coordinated rave look with a polished armor-inspired character that remains easy to read from different angles.",
         "source_card_title": "Unique Festival Outfit with Gold Leather Shoulder & Skirt, Gold Metallic Armor, Burning man Clothing for women, Luxury Rave Accessories",
-        "offer_source": "approved-catalog-storefront-capture-20260924.json; apply existing owner/reconciled offer corrections before interpreting labels"
+        "offer_source": "approved-catalog-storefront-capture-20260924.json; apply existing owner/reconciled offer corrections before interpreting labels",
+        "owner_decision_source": "owner-product-decisions-20260924.json",
+        "owner_decision_id": "owner-gold-duplicate-20260924-01"
       },
       "owner_approval_asserted": false,
       "can_publish": false,
-      "can_index": false
+      "can_index": false,
+      "review_history": [
+        {
+          "status": "held",
+          "reason_code": "physical_design_review",
+          "reason": "Same image/shoulder-skirt offer as 453ffb2e in prior visual review. No synonym-only differentiation.",
+          "proposed": {}
+        }
+      ],
+      "review_revision": 2
     },
     {
       "canonical_product_id": "dc6e07c7-f758-4a6c-8f09-fa3f2d9f99cc",

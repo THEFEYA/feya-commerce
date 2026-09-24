@@ -184,7 +184,8 @@ const THEFEYA_PRODUCT_RIGHT_PDP_OVERRIDES: Record<string, RightPanelOverride> = 
     ],
   },
   'a83b1b51-79be-4cae-a943-661060a34080': {
-    material: ['Glossy armor panels are held by black straps with buckle fastenings.'],
+    // owner-glossy-vegan-armor-20260924-03; current material, not the historical acrylic version.
+    material: ['Glossy vegan-leather armor panels are held by black straps with buckle fastenings.'],
     care: ['Wipe the panels gently with a soft, lightly damp cloth.', 'Avoid abrasive cleaners, solvents and machine washing.', 'Store without crushing or tightly folding the panels.'],
   },
   'e7238b1d-565c-4c4d-a7ae-a4402de80720': {

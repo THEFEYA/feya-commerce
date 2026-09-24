@@ -26,11 +26,14 @@ test('Batch09 source options resolve without changing prices, identities or owne
  assert.equal(correct({...products[3],canonical_product_id:'unreviewed'}).configurations,products[3].configurations);
 });
 
-test('mixed material panels keep fabric, acrylic and uncertain substrates distinct',()=>{
+test('mixed material panels keep fabric, acrylic and newly confirmed vegan leather distinct',()=>{
  const panel=(i: number,key: string)=>resolveThefeyaRightPdpPanel({canonical_product_id:products[i].canonical_product_id}).find(b=>b.block_key===key)!.body;
  assert.match(panel(1,'material'),/black fabric.*vegan-leather/);
  assert.match(panel(2,'material'),/fabric base.*acrylic.*plastic/);
  assert.doesNotMatch(panel(2,'material'),/vegan leather|reflective/i);
  assert.match(panel(2,'care'),/Avoid.*alcohol wipes/);
- assert.doesNotMatch(panel(4,'material'),/leather|acrylic|plastic/i);
+ // owner-glossy-vegan-armor-20260924-03 resolves this exact product's former substrate hold.
+ assert.equal(products[4].canonical_product_id,'a83b1b51-79be-4cae-a943-661060a34080');
+ assert.match(panel(4,'material'),/Glossy vegan-leather/);
+ assert.doesNotMatch(panel(4,'material'),/acrylic|plastic/i);
 });

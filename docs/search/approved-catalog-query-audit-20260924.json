@@ -4,6 +4,8 @@
   "summary": {
     "target_products": 208,
     "products_with_primary": 203,
+    "visible_launch_candidates": 207,
+    "source_records_suppressed_from_launch": 1,
     "missing_primary_products": 5,
     "distinct_primary_terms": 112,
     "repeated_exact_primary_terms": 23,
@@ -33,13 +35,25 @@
     },
     {
       "path": "docs/search/metadata-distinction-review-20260924.json",
-      "sha256": "6e548892cbe8aa12f986f204068fae43463eca025e63babb33087afb6bd3a69f"
+      "sha256": "c76e3d52913b823f8f66c2a60b1a242b850d1c588d96ef3b93fa64fef5af48b5"
+    },
+    {
+      "path": "docs/search/approved-catalog-content-bindings-20260924.json",
+      "sha256": "334bd87294320a014ef8d13074d87f55f7c3affb00dbbbb3d7ca43ac175a35fa"
+    },
+    {
+      "path": "docs/search/owner-product-decisions-20260924.json",
+      "sha256": "5daa6cd00c884f54aadb0f964864760b2d548fd03b641b471f021e72e932ff67"
     }
   ],
   "implementation_fingerprints": [
     {
       "path": "scripts/audit-approved-query-plan.ts",
-      "sha256": "054555239f3c93041481529d2ecba0603cc7e1caca2b25b5744a6863ae437cde"
+      "sha256": "cdf8098ec0450f8780d8276dbc9922e1affe88d8fa296268188aaeec6e117b1b"
+    },
+    {
+      "path": "lib/searchLaunchSelection.ts",
+      "sha256": "bfa6683b9fc55096a6a1cc8e206eb8a979ea874e68a7571ebeb0ba6e10a416dc"
     },
     {
       "path": "lib/storefrontSellableOffer.ts",
@@ -86,7 +100,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "0403df9f-3ff9-498d-b3d9-69ad64b3dd4c",
@@ -113,7 +128,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "04099215-8328-4238-82dd-876bc3f2afdb",
@@ -145,7 +161,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "043406cd-0a96-45c5-8796-57c5cc4b276e",
@@ -177,7 +194,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "057fbd51-52f5-4404-b126-e5d75b8599f4",
@@ -204,7 +222,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "067628e8-3ecd-4979-8501-6da61ca2f51a",
@@ -236,7 +255,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "098044e5-c452-4c52-a0a4-2b29120196e8",
@@ -263,7 +283,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "09d41ed1-51be-43b0-aace-fc80e6e50f99",
@@ -290,7 +311,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "09f51ad4-6b90-4311-aa5a-54f91cf4b7bf",
@@ -322,7 +344,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "0b7e5ccd-f5a3-4dd7-877f-1e21fbda9486",
@@ -354,7 +377,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "0e75d2f2-c345-440e-88e4-333b63caed09",
@@ -381,7 +405,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "103ff46a-892a-4961-80b1-e6996727c395",
@@ -408,7 +433,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "11bb0057-8c1f-4347-8c03-46856df0653c",
@@ -440,7 +466,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "11d2b7ca-3a13-4bcb-b1f2-b91565a20e7e",
@@ -467,7 +494,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "12111ddc-2364-4861-bd93-4bbc27ae4b28",
@@ -499,7 +527,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "12a0faf1-9c3c-44e2-bbf1-1583ac309a46",
@@ -527,7 +556,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "13300fb8-c39d-476f-9485-75747c4e6599",
@@ -559,7 +589,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "158e7824-4876-4991-b506-e3f6f4aa8371",
@@ -591,7 +622,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "17de9c7b-53d0-4a7d-90d0-3e79f26e3489",
@@ -623,7 +655,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "187f01a3-40e0-4820-b3aa-1bccc1eea6d2",
@@ -652,7 +685,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "1a8545eb-f997-4ddf-b6c9-c3c0afa1bd7c",
@@ -679,7 +713,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "1af7458c-aaff-4460-a874-45c9ad4ccb8c",
@@ -707,7 +742,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "1dbf149a-739c-4afa-ba59-3b5f99acfb77",
@@ -734,7 +770,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "1eb4b55c-dedf-4399-92fd-c94c8d962091",
@@ -766,7 +803,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "1fc815c5-0165-468a-a6d8-e91c1cefcd61",
@@ -794,7 +832,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "1ff57e72-8360-4f9c-8e9c-768b66fe29e5",
@@ -822,7 +861,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "256c75b4-f378-4b21-8321-9d5766bd209c",
@@ -854,7 +894,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "27786636-7021-4809-8e81-7f566a3436ae",
@@ -882,7 +923,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "28c6558b-2738-4c60-ad55-6d4dbd14d698",
@@ -898,7 +940,8 @@
         "primary_missing_from_both_captured_draft_and_latest_decision"
       ],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "28c84d65-57b4-4b83-a2bc-6e4370ac188a",
@@ -926,7 +969,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "2973f3ae-6097-49c0-ab91-21a9697560cc",
@@ -958,7 +1002,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "29ebbf71-cd02-42fb-8372-55002ca56495",
@@ -990,7 +1035,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "2a39f8ec-b5c3-403c-8f1a-7e10bb0ab829",
@@ -1017,7 +1063,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "2b8d122f-5830-4bc6-8e11-7e3ae594c9b2",
@@ -1049,7 +1096,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "3013d058-8299-4c10-ba42-3c553799255b",
@@ -1077,7 +1125,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "31bde143-e483-454b-a397-14bcffa47f20",
@@ -1105,7 +1154,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "32b1e29b-d709-4e00-a95c-6ad0b4c92704",
@@ -1130,7 +1180,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "32b51b28-0570-49af-90f5-7bfdd7da5148",
@@ -1157,7 +1208,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "330fd9bc-f3d0-4eec-8e98-b36fb490b486",
@@ -1185,7 +1237,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "340b160f-93e3-4389-866f-df79cc14dea8",
@@ -1213,7 +1266,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "39d33dfd-1a01-458a-94c7-8372f344bce5",
@@ -1245,7 +1299,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "3a006050-ab78-4b4d-9964-ed8c9f32e923",
@@ -1273,7 +1328,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "3ba4ec57-7b0f-41ea-911d-5988b5088f1b",
@@ -1301,7 +1357,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "3c08ea9c-76a9-4079-bc08-58fa8a831019",
@@ -1328,7 +1385,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "3cffa988-7f84-4fbf-b6e2-67a6164f7dc2",
@@ -1355,7 +1413,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "3ec78c4d-7cdb-4628-aa3b-083acefcbe45",
@@ -1387,7 +1446,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "3ff937a2-838f-4986-be64-07b11faf8d17",
@@ -1415,7 +1475,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "4033e707-98e2-45ad-9fd6-b7d615673fa3",
@@ -1442,7 +1503,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "40384eea-fd82-40f4-98e7-804383c42796",
@@ -1474,7 +1536,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "4243eca2-4f2a-4a63-a352-b71e9fcb8256",
@@ -1502,7 +1565,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "4311bc31-ee98-458e-8290-b663ee525a4c",
@@ -1534,7 +1598,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "453ffb2e-2ed9-4e8d-b74c-e891604f9644",
@@ -1566,7 +1631,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "457416ed-92b3-4450-a5b0-ff4e27ee11a2",
@@ -1582,7 +1648,8 @@
         "primary_missing_from_both_captured_draft_and_latest_decision"
       ],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "481ca9fa-1100-439d-b52b-80caadba52a9",
@@ -1610,7 +1677,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "4a4d2214-fc12-41a9-8ce3-f39272a8e22d",
@@ -1638,7 +1706,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "4b0c8180-774d-4d5c-a12c-0864f305d1cb",
@@ -1665,7 +1734,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "4da73818-2f50-43de-b326-8b2c63b17983",
@@ -1697,7 +1767,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "5044435f-d093-4437-9945-ff822b2df2d9",
@@ -1724,7 +1795,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "50c370fb-3f41-4e49-8e3b-cbc5e1dd478b",
@@ -1751,7 +1823,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "5124ce7f-daf1-45f7-bbe2-0f97f17ecaea",
@@ -1767,7 +1840,8 @@
         "primary_missing_from_both_captured_draft_and_latest_decision"
       ],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "51487104-166f-45e0-a528-d8b27a6258d6",
@@ -1794,7 +1868,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "51a30d6f-a588-49b9-b077-5f33488efd36",
@@ -1821,7 +1896,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "51d879ce-f762-4307-b896-efcb2ffd64e9",
@@ -1848,7 +1924,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "5255562a-0181-4fe3-bf4f-e5083f5638e5",
@@ -1875,7 +1952,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "5589b5ea-e21a-4e57-a4b2-b598bd8466d2",
@@ -1902,7 +1980,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "5602d557-9d98-454b-bc98-9b9ea84b442f",
@@ -1934,7 +2013,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "56ac8372-da2a-444d-8b8e-4dc196520bf7",
@@ -1962,7 +2042,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "596c5ec2-e59e-484f-8f73-89221f2b4171",
@@ -1989,7 +2070,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "5bf3df64-84dc-4baf-84bd-8a94e1b06ccb",
@@ -2017,7 +2099,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "5cd806f8-8aaa-4b6e-ae6a-4acc716677a2",
@@ -2045,7 +2128,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "5e034423-6c04-459b-b7d7-0d10ad564c4e",
@@ -2073,7 +2157,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "5f0df65c-4b04-4905-80c5-53bd7e807063",
@@ -2105,7 +2190,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "60ee8feb-32d3-4a8c-b64b-38d33433e2f2",
@@ -2132,7 +2218,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "641ba42d-8ad9-4178-b0c6-d41c14fc8f66",
@@ -2160,7 +2247,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "657bd6d8-fbe1-4441-abad-f574e3380897",
@@ -2187,7 +2275,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "65e36680-71ca-44ba-9873-f7c962928642",
@@ -2219,7 +2308,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "665296a0-f5ad-422c-837c-868f611c45c6",
@@ -2247,7 +2337,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "6739b15c-f2f3-4a26-9e2a-3a0b5a3e2d2f",
@@ -2274,7 +2365,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "679c975c-b309-49dc-9207-f89fc96b84d1",
@@ -2302,7 +2394,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "6a4c1f02-8f02-4aca-b70d-8d9ac66b9b40",
@@ -2329,7 +2422,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "6a885710-fbee-4790-ba09-d56530f641f6",
@@ -2356,7 +2450,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "6bfcc9e6-3d45-4ef4-934f-12dd9dfc4532",
@@ -2383,7 +2478,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "6ddd240e-01ae-4ac8-800e-3a14dbac64a0",
@@ -2411,7 +2507,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "72d8461a-1f64-40eb-b3f7-959a19a0c8fa",
@@ -2439,7 +2536,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "73735bd6-82e7-48fa-8b2e-235a13bbf4b0",
@@ -2467,7 +2565,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "74634519-add3-490f-8ef3-3b4d74a7ca7d",
@@ -2495,7 +2594,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "764debf0-4d46-4d1d-a17b-2bb6f2dc5702",
@@ -2527,7 +2627,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "79754caa-9c09-4241-8c08-d0c9e60db460",
@@ -2554,7 +2655,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "7bb70eab-b2f5-4079-96e7-d116484d1466",
@@ -2586,7 +2688,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "7bc4e89c-155d-45b8-982f-46253b7ed18d",
@@ -2613,7 +2716,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "7bf47f01-8114-4e8f-ba96-632f0fdd8d7d",
@@ -2645,7 +2749,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "7c220537-de7c-4157-99c3-ba1f9144d113",
@@ -2661,7 +2766,8 @@
         "primary_missing_from_both_captured_draft_and_latest_decision"
       ],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "7cf4ea37-cd11-4203-860c-7eed4ae965ba",
@@ -2693,7 +2799,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "7e743440-3e9f-490c-b306-5c8c87969973",
@@ -2720,7 +2827,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "7e77810b-ee7d-46a4-91af-f24d1adcfd4a",
@@ -2752,7 +2860,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "81224290-77db-4738-923b-65a16d1c691a",
@@ -2784,7 +2893,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "818a1991-46e2-4628-ac61-6db77314c9af",
@@ -2816,7 +2926,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "81fc83de-76aa-4733-9a88-f631e7699fa6",
@@ -2844,7 +2955,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "8223ea35-644b-4bd8-bd05-4ba7810b116a",
@@ -2872,7 +2984,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "8242d255-f77f-4e9f-88a2-a5db326fa297",
@@ -2904,7 +3017,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "82d2dc58-e635-4bc1-8571-2587641e627f",
@@ -2931,7 +3045,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "83ea907b-a523-47cf-834f-5a1b16b80339",
@@ -2959,7 +3074,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "8441aa63-d524-4ee4-8bdb-2d7b3f6c3bcf",
@@ -2986,7 +3102,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "84cb55e1-a5a8-473c-abcd-17f0dc4161ab",
@@ -3013,7 +3130,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "85752f94-b2d7-465e-ace2-40bb77977461",
@@ -3045,7 +3163,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "8635ab3f-cf01-42fb-a4da-508c7fd0db65",
@@ -3077,7 +3196,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "882793f6-15ca-4617-a579-5cd47290ce72",
@@ -3109,7 +3229,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "88d4332c-95bc-4859-a31e-33d6ee89fb4d",
@@ -3141,7 +3262,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "8b321ebd-25ab-4d9b-ba30-2cfc3ba18094",
@@ -3168,7 +3290,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "8b4e23fd-456e-462b-a6b3-8aaa0333debe",
@@ -3196,7 +3319,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "8f4646f0-ea2b-48c3-af11-e22f0dec4f08",
@@ -3224,7 +3348,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "9400d8af-b6b9-4b4a-b878-b97eba761e10",
@@ -3251,7 +3376,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "98600aa8-307b-4165-a8ae-38e347c114bd",
@@ -3279,7 +3405,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "9c59e997-1e03-463b-8f3d-3259c71d05d0",
@@ -3306,7 +3433,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "9c845a5a-666a-47b4-99d6-9f0a393bfa1c",
@@ -3334,7 +3462,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "9d1d101d-e1d1-48fd-ac41-65c07dd5ce05",
@@ -3362,7 +3491,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "9d368368-12e9-4d61-9a5d-2ba9c4508861",
@@ -3394,7 +3524,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "9d6047ad-406d-4279-a10b-2918e111d587",
@@ -3421,7 +3552,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "9e47719d-1afd-4298-808e-bacae86bbc38",
@@ -3449,7 +3581,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "a3aa7148-889a-42de-9d2d-2e0fca631ed4",
@@ -3465,7 +3598,8 @@
         "primary_missing_from_both_captured_draft_and_latest_decision"
       ],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "a3db3d94-aa6f-4d57-abce-905b31e14b4a",
@@ -3493,7 +3627,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "a606be83-50aa-462d-ae54-04e9ce7aeb3b",
@@ -3525,7 +3660,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "a6239781-34bb-42a1-85ae-91a733f7df65",
@@ -3553,7 +3689,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "a6337955-4cb6-4270-8c0e-a178442350ac",
@@ -3582,7 +3719,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "a6a81b75-c4a2-4b64-a2a9-48a221b08dc1",
@@ -3614,7 +3752,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "a6beccc2-bbd3-4040-8e29-af06efd6dd97",
@@ -3646,7 +3785,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "a7109e93-df1f-43a6-bb6f-62bdf74e4c4f",
@@ -3678,7 +3818,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "a74a2415-92a4-488c-b4d2-7bdeb601a0c4",
@@ -3710,7 +3851,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "a759b44e-1329-47a6-a444-0c9feabcc0ce",
@@ -3742,7 +3884,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "a767a1c1-65e7-4c0a-bd18-7a92f8ea4986",
@@ -3769,7 +3912,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "a83b1b51-79be-4cae-a943-661060a34080",
@@ -3796,7 +3940,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "a875757c-140d-4fea-83f9-93098406c3b1",
@@ -3828,7 +3973,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "a94b5c1b-3346-4868-b0f6-7a60d954530e",
@@ -3855,7 +4001,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "a97ca78f-ed0d-4f17-a18d-8d54efd2679a",
@@ -3887,7 +4034,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "a9f110dc-4ed4-454f-9e28-f67ca5a042e1",
@@ -3919,7 +4067,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "a9fa4b69-4f79-4669-bd60-783a05d12296",
@@ -3947,7 +4096,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "abf11fbb-9794-484d-b93c-1449fa3a9a44",
@@ -3975,7 +4125,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "ad0e3743-70cf-4b59-9da6-88080d7f3651",
@@ -4007,7 +4158,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "adbb91ec-29d2-490f-9844-f73b22111e36",
@@ -4035,7 +4187,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "afdb0aea-7a68-45e8-bbdb-5b7b03ec71ea",
@@ -4067,7 +4220,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "b0b2a75c-f301-45d6-857c-dd6575862619",
@@ -4099,7 +4253,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "b18d342a-c323-4f11-8c98-d5eb5f543e12",
@@ -4127,7 +4282,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "b28d72d8-330b-400f-b595-124edc3f78f3",
@@ -4154,7 +4310,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "b3910e41-9de7-483f-8d88-5783e8d90607",
@@ -4181,7 +4338,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "b524764b-6dba-4c51-be55-f1ec92fc60cf",
@@ -4213,7 +4371,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "b5fbab09-1be1-439b-be72-582beceed09a",
@@ -4245,7 +4404,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "b68d0386-ed1f-4410-8001-185bf3aaf25f",
@@ -4272,7 +4432,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "b6e0171f-4d42-4d71-88b1-ee0d4e0e109e",
@@ -4299,7 +4460,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "b6fe4fd9-400d-4fc4-a6e1-2e1dee936371",
@@ -4326,7 +4488,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "b7003343-6537-437d-9dab-cdf902d37b7e",
@@ -4353,7 +4516,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "b8ab6fa1-1af6-4c52-b6fb-5b766e6d99da",
@@ -4380,7 +4544,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "b9a476c7-b902-4fea-bead-ec5b2275e835",
@@ -4408,7 +4573,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "b9e7bdbd-1edd-41c5-af9e-8f3799469715",
@@ -4440,7 +4606,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "bc59df1d-edd3-4e63-9393-175c28d9be2b",
@@ -4467,7 +4634,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "bffb3644-a34d-437d-accc-4a661d1cac6f",
@@ -4499,7 +4667,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "c35b5b75-7e6e-492b-9528-6a126384086e",
@@ -4531,7 +4700,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "c3f1018e-665b-44a8-90db-ecc5bb64eedc",
@@ -4563,7 +4733,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "c40e0895-a55a-4825-9592-cf6c23a14fe7",
@@ -4595,7 +4766,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "c52eafde-baaa-44ec-8729-c54e6c2f5706",
@@ -4627,7 +4799,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "c661cd70-55e4-445e-97ab-591e22d02221",
@@ -4659,7 +4832,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "c7b07eb1-d003-471b-a3f9-40b1c98edc19",
@@ -4687,7 +4861,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "c9ec5047-d7ca-4a97-9247-8d3fb56a3953",
@@ -4715,7 +4890,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "ca291096-219d-4269-981c-97f6929da308",
@@ -4743,7 +4919,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "ca33ac05-47a1-49c8-9782-a78e0fa552b9",
@@ -4775,7 +4952,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "cb31d61b-027c-4c47-b7ba-bf16283ada9c",
@@ -4802,7 +4980,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "ce899f23-b983-4ede-ae81-3348757b1c15",
@@ -4829,7 +5008,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "d0625355-308f-4edd-9c28-e358491c12a3",
@@ -4861,7 +5041,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "d06ab9d9-52c5-4f8c-b583-d9e5316eb69c",
@@ -4888,7 +5069,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "d17c17b6-76dd-429d-bf5c-ccd432cd1e0f",
@@ -4916,7 +5098,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "d2a3b40c-fd74-4e25-93f5-cfce92b2d88b",
@@ -4948,7 +5131,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "d42b9d73-1327-49fa-bfab-9a732b133772",
@@ -4975,7 +5159,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "d42dd678-7b11-4f38-890e-411de686f418",
@@ -5007,7 +5192,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "suppressed_by_owner"
     },
     {
       "canonical_product_id": "dc6e07c7-f758-4a6c-8f09-fa3f2d9f99cc",
@@ -5035,7 +5221,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "dcd0d24a-473b-4592-b56f-466fda984b1e",
@@ -5063,7 +5250,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "de38a842-37c4-40a7-86b4-393341c4c9aa",
@@ -5090,7 +5278,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "df030151-5853-46c1-be89-06f059224a44",
@@ -5117,7 +5306,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "df2227dc-3d74-4b19-848f-f9210e46dccd",
@@ -5144,7 +5334,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "dfd36bcb-88f9-40fb-95c9-8e6e4c609fdd",
@@ -5176,7 +5367,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "e01ef0b1-6155-4d02-a3cd-413d272502b3",
@@ -5208,7 +5400,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "e247cf0a-cea9-4570-ab68-c8a5505a7845",
@@ -5235,7 +5428,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "e2d129b4-eb97-4ab4-ad6b-dfaef040b5fa",
@@ -5267,7 +5461,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "e39f9164-4001-4f63-9407-a1ddd3d962dd",
@@ -5294,7 +5489,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "e46d7064-6d80-42db-b321-beb8bbdccc69",
@@ -5323,7 +5519,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "e51e0a66-8358-41f9-bd51-2ab4833b24b3",
@@ -5355,7 +5552,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "e7238b1d-565c-4c4d-a7ae-a4402de80720",
@@ -5382,7 +5580,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "ea365de7-a807-40a1-abb4-374d9df7f156",
@@ -5414,7 +5613,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "ec204df6-13b6-4deb-b493-04391501d72d",
@@ -5446,7 +5646,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "edc709f1-3a74-43d6-bd00-6c0569392f1b",
@@ -5478,7 +5679,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "f012a88f-44db-4e17-ba57-7f60bb7b5719",
@@ -5506,7 +5708,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "f0e73d70-cf3d-4557-8d59-142c78a106ac",
@@ -5533,7 +5736,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "f27fdb4d-d007-4d4c-899c-a50728c1ea4d",
@@ -5565,7 +5769,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "f36acd08-1591-4e15-8ad2-96bc22ec4b77",
@@ -5597,7 +5802,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "f3d4bdd8-9ba0-400b-9cfc-e4a8097707fc",
@@ -5624,7 +5830,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "f3f7a334-3b77-44ce-bb2a-b0daff184ab1",
@@ -5651,7 +5858,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "f44cb59b-1632-4c86-b376-8afd205a6e63",
@@ -5683,7 +5891,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "f473fb62-0440-473c-a7fb-a52dccafebc6",
@@ -5710,7 +5919,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "f6b85532-eae2-4036-badc-401141c2ad6e",
@@ -5742,7 +5952,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "f746beae-43c9-4f4f-8307-301d136eda58",
@@ -5774,7 +5985,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "f81adf93-49a7-489c-b3a8-02520accce59",
@@ -5806,7 +6018,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "f86a13ec-184e-4764-9813-33b18db7dbb3",
@@ -5833,7 +6046,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "f96bb86c-43aa-49c1-a718-41fbe050a1ac",
@@ -5860,7 +6074,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "f972aed2-6061-4973-8b20-8e1d2c362d77",
@@ -5892,7 +6107,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "fba170e8-582d-45fa-b954-f9136e733950",
@@ -5924,7 +6140,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "fdd42158-087b-4190-9eb8-fda7f7460258",
@@ -5956,7 +6173,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "fefd1c3e-2fd1-47c9-970f-c30962c1a737",
@@ -5984,7 +6202,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "ff0996b6-f369-4313-baf5-2d465d9c06f2",
@@ -6011,7 +6230,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "ffa74da5-c2e1-4c3a-b460-50d1aae09f56",
@@ -6038,7 +6258,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     },
     {
       "canonical_product_id": "ffbf1db6-6fae-4606-afbe-013415d6421d",
@@ -6065,7 +6286,8 @@
       ],
       "review_blockers": [],
       "approval_preserved": true,
-      "catalog_target_preserved": true
+      "source_identity_preserved": true,
+      "launch_disposition": "visible_candidate"
     }
   ],
   "cluster_proposals": [
@@ -6480,8 +6702,7 @@
         "intent_and_secondary_query_review_pending",
         "not_registered_in_existing_query_registry",
         "production_release_not_approved",
-        "hub_inventory_design_depth_and_unique_value_not_approved",
-        "affected_product_metadata_or_physical_identity_review"
+        "hub_inventory_design_depth_and_unique_value_not_approved"
       ],
       "owner_role": "OSPM",
       "truth_reviewer": "CPIM",
@@ -7261,7 +7482,7 @@
         "not_registered_in_existing_query_registry",
         "production_release_not_approved",
         "physical_offer_or_model_owner_unresolved",
-        "affected_product_metadata_or_physical_identity_review"
+        "headpiece_intent_unique_value_review_pending"
       ],
       "owner_role": "OSPM",
       "truth_reviewer": "CPIM",
@@ -8728,7 +8949,7 @@
       "configuration_match_count": 12,
       "confirmed_distinct_design_count": null,
       "confirmed_orderable_count": null,
-      "meaning": "Configuration matches within the 208-product target only; not page eligibility or approved inventory membership."
+      "meaning": "Configuration matches within the 207 visible launch candidates after owner duplicate suppression; not distinct design counts, page eligibility or orderability."
     },
     {
       "candidate_code": "TYPE-ARMOR",
@@ -8801,7 +9022,6 @@
         "ce899f23-b983-4ede-ae81-3348757b1c15",
         "d2a3b40c-fd74-4e25-93f5-cfce92b2d88b",
         "d42b9d73-1327-49fa-bfab-9a732b133772",
-        "d42dd678-7b11-4f38-890e-411de686f418",
         "dfd36bcb-88f9-40fb-95c9-8e6e4c609fdd",
         "ea365de7-a807-40a1-abb4-374d9df7f156",
         "ec204df6-13b6-4deb-b493-04391501d72d",
@@ -8809,10 +9029,10 @@
         "f746beae-43c9-4f4f-8307-301d136eda58",
         "ff0996b6-f369-4313-baf5-2d465d9c06f2"
       ],
-      "configuration_match_count": 60,
+      "configuration_match_count": 59,
       "confirmed_distinct_design_count": null,
       "confirmed_orderable_count": null,
-      "meaning": "Configuration matches within the 208-product target only; not page eligibility or approved inventory membership."
+      "meaning": "Configuration matches within the 207 visible launch candidates after owner duplicate suppression; not distinct design counts, page eligibility or orderability."
     },
     {
       "candidate_code": "TYPE-BODYSUIT",
@@ -8867,7 +9087,7 @@
       "configuration_match_count": 33,
       "confirmed_distinct_design_count": null,
       "confirmed_orderable_count": null,
-      "meaning": "Configuration matches within the 208-product target only; not page eligibility or approved inventory membership."
+      "meaning": "Configuration matches within the 207 visible launch candidates after owner duplicate suppression; not distinct design counts, page eligibility or orderability."
     },
     {
       "candidate_code": "TYPE-OUTFIT",
@@ -8889,7 +9109,7 @@
       "configuration_match_count": null,
       "confirmed_distinct_design_count": null,
       "confirmed_orderable_count": null,
-      "meaning": "Configuration matches within the 208-product target only; not page eligibility or approved inventory membership."
+      "meaning": "Configuration matches within the 207 visible launch candidates after owner duplicate suppression; not distinct design counts, page eligibility or orderability."
     },
     {
       "candidate_code": "EVENT-FESTIVAL",
@@ -8906,7 +9126,7 @@
       "configuration_match_count": null,
       "confirmed_distinct_design_count": null,
       "confirmed_orderable_count": null,
-      "meaning": "Configuration matches within the 208-product target only; not page eligibility or approved inventory membership."
+      "meaning": "Configuration matches within the 207 visible launch candidates after owner duplicate suppression; not distinct design counts, page eligibility or orderability."
     },
     {
       "candidate_code": "EVENT-BM",
@@ -8922,7 +9142,7 @@
       "configuration_match_count": null,
       "confirmed_distinct_design_count": null,
       "confirmed_orderable_count": null,
-      "meaning": "Configuration matches within the 208-product target only; not page eligibility or approved inventory membership."
+      "meaning": "Configuration matches within the 207 visible launch candidates after owner duplicate suppression; not distinct design counts, page eligibility or orderability."
     },
     {
       "candidate_code": "OCCASION-STAGE",
@@ -8938,7 +9158,7 @@
       "configuration_match_count": null,
       "confirmed_distinct_design_count": null,
       "confirmed_orderable_count": null,
-      "meaning": "Configuration matches within the 208-product target only; not page eligibility or approved inventory membership."
+      "meaning": "Configuration matches within the 207 visible launch candidates after owner duplicate suppression; not distinct design counts, page eligibility or orderability."
     }
   ],
   "can_publish": false,

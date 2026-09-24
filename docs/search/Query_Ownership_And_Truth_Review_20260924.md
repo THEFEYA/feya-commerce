@@ -1,5 +1,7 @@
 # FEYA — C1/C2/C5: предметная проверка и распределение запросов
 
+**Исторический checkpoint до ответа владельца.** Продолжение и актуальные числа — [Owner_Decisions_And_Variant_Lifecycle_20260924.md](Owner_Decisions_And_Variant_Lifecycle_20260924.md): 208 source records / 207 visible candidates, 43/8/12/1 metadata states; material hold a83b1b51 разрешён, variant/gallery/price mapping ещё требуется. Исходные Primary сохранены.
+
 24 сентября 2026. Draft PR №26. Этот пакет продолжает проверенный renderer на `e2eb870224c4702da5b7686d59879c8581b530ec`: его CI run `36017919964` прошёл 9/9 jobs, 36/36 runtime сценариев, включая server HTML всех 208 PDP. Статус CI нового пакета фиксируется по его точному head в PR, а не переносится с предшественника.
 
 ## Результат и границы

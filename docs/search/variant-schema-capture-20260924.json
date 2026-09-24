@@ -1,0 +1,424 @@
+{
+  "contract_version": "variant_schema_audit_v1",
+  "captured_date": "2026-09-24",
+  "mode": "read_only_information_schema_and_pg_proc",
+  "project_ref": "ysnizcgzhdwdfdkjkhud",
+  "production_writes": 0,
+  "scope_limit": "Targeted schema/routine queries, not proof that no differently named writer or external repository exists.",
+  "queries": [
+    {
+      "sql": "select table_name,column_name,data_type from information_schema.columns where table_schema='public' and (table_name ilike '%variant%' or table_name ilike '%color%' or table_name ilike '%configuration%') order by table_name,ordinal_position",
+      "rows": [
+        {
+          "table_name": "feya_commerce_color_aliases",
+          "column_name": "color_alias_id",
+          "data_type": "uuid"
+        },
+        {
+          "table_name": "feya_commerce_color_aliases",
+          "column_name": "canonical_color_name",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_color_aliases",
+          "column_name": "raw_alias",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_color_aliases",
+          "column_name": "normalized_alias",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_color_aliases",
+          "column_name": "alias_language",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_color_aliases",
+          "column_name": "alias_source",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_color_aliases",
+          "column_name": "confidence",
+          "data_type": "numeric"
+        },
+        {
+          "table_name": "feya_commerce_color_aliases",
+          "column_name": "review_status",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_color_aliases",
+          "column_name": "active_flag",
+          "data_type": "boolean"
+        },
+        {
+          "table_name": "feya_commerce_color_aliases",
+          "column_name": "notes",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_color_aliases",
+          "column_name": "created_at",
+          "data_type": "timestamp with time zone"
+        },
+        {
+          "table_name": "feya_commerce_color_aliases",
+          "column_name": "updated_at",
+          "data_type": "timestamp with time zone"
+        },
+        {
+          "table_name": "feya_commerce_configuration_prices",
+          "column_name": "configuration_price_id",
+          "data_type": "uuid"
+        },
+        {
+          "table_name": "feya_commerce_configuration_prices",
+          "column_name": "canonical_product_id",
+          "data_type": "uuid"
+        },
+        {
+          "table_name": "feya_commerce_configuration_prices",
+          "column_name": "sellable_configuration_id",
+          "data_type": "uuid"
+        },
+        {
+          "table_name": "feya_commerce_configuration_prices",
+          "column_name": "option_mapping_id",
+          "data_type": "uuid"
+        },
+        {
+          "table_name": "feya_commerce_configuration_prices",
+          "column_name": "source_price_row_id",
+          "data_type": "uuid"
+        },
+        {
+          "table_name": "feya_commerce_configuration_prices",
+          "column_name": "source_amount",
+          "data_type": "numeric"
+        },
+        {
+          "table_name": "feya_commerce_configuration_prices",
+          "column_name": "source_currency",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_configuration_prices",
+          "column_name": "confidence",
+          "data_type": "numeric"
+        },
+        {
+          "table_name": "feya_commerce_configuration_prices",
+          "column_name": "fallback_flag",
+          "data_type": "boolean"
+        },
+        {
+          "table_name": "feya_commerce_configuration_prices",
+          "column_name": "sampler_excluded_flag",
+          "data_type": "boolean"
+        },
+        {
+          "table_name": "feya_commerce_configuration_prices",
+          "column_name": "public_price_amount",
+          "data_type": "numeric"
+        },
+        {
+          "table_name": "feya_commerce_configuration_prices",
+          "column_name": "manual_override_amount",
+          "data_type": "numeric"
+        },
+        {
+          "table_name": "feya_commerce_configuration_prices",
+          "column_name": "review_status",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_configuration_prices",
+          "column_name": "price_status",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_configuration_prices",
+          "column_name": "notes",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_configuration_prices",
+          "column_name": "created_at",
+          "data_type": "timestamp with time zone"
+        },
+        {
+          "table_name": "feya_commerce_configuration_prices",
+          "column_name": "updated_at",
+          "data_type": "timestamp with time zone"
+        },
+        {
+          "table_name": "feya_commerce_sellable_configurations",
+          "column_name": "sellable_configuration_id",
+          "data_type": "uuid"
+        },
+        {
+          "table_name": "feya_commerce_sellable_configurations",
+          "column_name": "canonical_product_id",
+          "data_type": "uuid"
+        },
+        {
+          "table_name": "feya_commerce_sellable_configurations",
+          "column_name": "option_mapping_id",
+          "data_type": "uuid"
+        },
+        {
+          "table_name": "feya_commerce_sellable_configurations",
+          "column_name": "component_family_id",
+          "data_type": "uuid"
+        },
+        {
+          "table_name": "feya_commerce_sellable_configurations",
+          "column_name": "configuration_name",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_sellable_configurations",
+          "column_name": "normalized_key",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_sellable_configurations",
+          "column_name": "is_default_whole_product",
+          "data_type": "boolean"
+        },
+        {
+          "table_name": "feya_commerce_sellable_configurations",
+          "column_name": "is_sampler",
+          "data_type": "boolean"
+        },
+        {
+          "table_name": "feya_commerce_sellable_configurations",
+          "column_name": "is_public_candidate",
+          "data_type": "boolean"
+        },
+        {
+          "table_name": "feya_commerce_sellable_configurations",
+          "column_name": "sort_order",
+          "data_type": "integer"
+        },
+        {
+          "table_name": "feya_commerce_sellable_configurations",
+          "column_name": "review_status",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_sellable_configurations",
+          "column_name": "notes",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_sellable_configurations",
+          "column_name": "created_at",
+          "data_type": "timestamp with time zone"
+        },
+        {
+          "table_name": "feya_commerce_sellable_configurations",
+          "column_name": "updated_at",
+          "data_type": "timestamp with time zone"
+        },
+        {
+          "table_name": "feya_commerce_v_product_component_configuration_derivation_v1",
+          "column_name": "canonical_product_id",
+          "data_type": "uuid"
+        },
+        {
+          "table_name": "feya_commerce_v_product_component_configuration_derivation_v1",
+          "column_name": "public_config_count",
+          "data_type": "integer"
+        },
+        {
+          "table_name": "feya_commerce_v_product_component_configuration_derivation_v1",
+          "column_name": "config_part_signal_count",
+          "data_type": "integer"
+        },
+        {
+          "table_name": "feya_commerce_v_product_component_configuration_derivation_v1",
+          "column_name": "full_set_signal_count",
+          "data_type": "integer"
+        },
+        {
+          "table_name": "feya_commerce_v_product_component_configuration_derivation_v1",
+          "column_name": "public_config_component_json",
+          "data_type": "jsonb"
+        },
+        {
+          "table_name": "feya_commerce_v_product_component_configuration_derivation_v1",
+          "column_name": "config_part_tags_json",
+          "data_type": "jsonb"
+        },
+        {
+          "table_name": "feya_commerce_v_product_component_configuration_derivation_v1",
+          "column_name": "config_part_tags_without_full_set_json",
+          "data_type": "jsonb"
+        },
+        {
+          "table_name": "feya_commerce_v_product_component_configuration_derivation_v1",
+          "column_name": "config_primary_part",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_v_product_component_configuration_derivation_v1",
+          "column_name": "config_derived_product_type",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_v_product_component_configuration_derivation_v1",
+          "column_name": "config_derivation_json",
+          "data_type": "jsonb"
+        },
+        {
+          "table_name": "feya_commerce_v_step5_configuration_price_status",
+          "column_name": "metric",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_v_step5_configuration_price_status",
+          "column_name": "value",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_v_step7_storefront_configurations",
+          "column_name": "canonical_product_id",
+          "data_type": "uuid"
+        },
+        {
+          "table_name": "feya_commerce_v_step7_storefront_configurations",
+          "column_name": "matched_etsy_listing_id",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_v_step7_storefront_configurations",
+          "column_name": "sellable_configuration_id",
+          "data_type": "uuid"
+        },
+        {
+          "table_name": "feya_commerce_v_step7_storefront_configurations",
+          "column_name": "configuration_name",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_v_step7_storefront_configurations",
+          "column_name": "normalized_key",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_v_step7_storefront_configurations",
+          "column_name": "sort_order",
+          "data_type": "integer"
+        },
+        {
+          "table_name": "feya_commerce_v_step7_storefront_configurations",
+          "column_name": "is_default_whole_product",
+          "data_type": "boolean"
+        },
+        {
+          "table_name": "feya_commerce_v_step7_storefront_configurations",
+          "column_name": "is_public_candidate",
+          "data_type": "boolean"
+        },
+        {
+          "table_name": "feya_commerce_v_step7_storefront_configurations",
+          "column_name": "configuration_review_status",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_v_step7_storefront_configurations",
+          "column_name": "min_price",
+          "data_type": "numeric"
+        },
+        {
+          "table_name": "feya_commerce_v_step7_storefront_configurations",
+          "column_name": "max_price",
+          "data_type": "numeric"
+        },
+        {
+          "table_name": "feya_commerce_v_step7_storefront_configurations",
+          "column_name": "currency",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_v_step7_storefront_configurations",
+          "column_name": "public_price_row_count",
+          "data_type": "bigint"
+        },
+        {
+          "table_name": "feya_commerce_v_step7_storefront_configurations",
+          "column_name": "has_fallback_price",
+          "data_type": "boolean"
+        },
+        {
+          "table_name": "feya_commerce_v_step7_storefront_configurations",
+          "column_name": "has_sampler_excluded_price",
+          "data_type": "boolean"
+        }
+      ]
+    },
+    {
+      "sql": "select table_name,column_name,data_type from information_schema.columns where table_schema='public' and ((table_name in('feya_commerce_product_drafts','feya_commerce_listing_master_decisions_v1','feya_commerce_seo_pages_v1') and column_name in('canonical_product_id','color','updated_at','current_focus','lifecycle_state','indexation_intent','url_path','metadata')) or column_name in('variant_id','color_id','product_revision','release_id','published_content_changed_at')) order by table_name,column_name",
+      "rows": [
+        {
+          "table_name": "feya_commerce_listing_master_decisions_v1",
+          "column_name": "canonical_product_id",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_listing_master_decisions_v1",
+          "column_name": "updated_at",
+          "data_type": "timestamp with time zone"
+        },
+        {
+          "table_name": "feya_commerce_product_drafts",
+          "column_name": "canonical_product_id",
+          "data_type": "uuid"
+        },
+        {
+          "table_name": "feya_commerce_product_drafts",
+          "column_name": "color",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_product_drafts",
+          "column_name": "updated_at",
+          "data_type": "timestamp with time zone"
+        },
+        {
+          "table_name": "feya_commerce_seo_pages_v1",
+          "column_name": "canonical_product_id",
+          "data_type": "uuid"
+        },
+        {
+          "table_name": "feya_commerce_seo_pages_v1",
+          "column_name": "indexation_intent",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_seo_pages_v1",
+          "column_name": "lifecycle_state",
+          "data_type": "text"
+        },
+        {
+          "table_name": "feya_commerce_seo_pages_v1",
+          "column_name": "updated_at",
+          "data_type": "timestamp with time zone"
+        },
+        {
+          "table_name": "feya_commerce_seo_pages_v1",
+          "column_name": "url_path",
+          "data_type": "text"
+        }
+      ]
+    },
+    {
+      "sql": "select proname,pg_get_function_arguments(p.oid) arguments from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and (p.proname ilike '%color%' or p.proname ilike '%variant%' or p.proname ilike '%listing_master%save%') order by proname",
+      "rows": []
+    }
+  ]
+}
