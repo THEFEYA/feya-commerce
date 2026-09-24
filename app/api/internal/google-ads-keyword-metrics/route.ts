@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
-import { getInternalApiAuthStatus } from '@/lib/internalAuth';
+import { withInternalApi } from '@/lib/internalAuth';
+import { readInternalExecutionRequest } from '@/lib/internalExecutionRequest';
 import { getMissingSupabaseServiceRoleEnvMessage, getSupabaseServiceRoleClient } from '@/lib/supabaseAdmin';
 
 export const dynamic = 'force-dynamic';
@@ -51,12 +52,6 @@ class GoogleAdsApiError extends Error {
 
 function asString(value: unknown) {
   return typeof value === 'string' && value.trim() ? value.trim() : null;
-}
-
-function asBoolean(value: unknown) {
-  if (typeof value === 'boolean') return value;
-  if (typeof value === 'string') return ['true', '1', 'yes'].includes(value.toLowerCase());
-  return false;
 }
 
 function asNumber(value: unknown) {
@@ -477,16 +472,10 @@ async function saveHistoricalMetricSnapshots(args: {
 }
 
 async function handler(request: NextRequest) {
-  const auth = getInternalApiAuthStatus(request);
-  if (!auth.authorized) {
-    return NextResponse.json({ ok: false, error: 'Unauthorized.' }, { status: 401 });
-  }
-
-  const body = request.method === 'POST' ? ((await request.json().catch(() => ({}))) as UnknownRecord) : {};
+  const execution = await readInternalExecutionRequest(request, { queryDryRun: true });
+  if (!execution.ok) return execution.response;
+  const { body, dryRun } = execution;
   const searchParams = request.nextUrl.searchParams;
-  const dryRun = body.dry_run === undefined && body.dryRun === undefined && !searchParams.has('dry_run') && !searchParams.has('dryRun')
-    ? true
-    : asBoolean(body.dry_run ?? body.dryRun ?? searchParams.get('dry_run') ?? searchParams.get('dryRun'));
   const limit = clampLimit(body.limit ?? searchParams.get('limit'));
 
   const supabase = getSupabaseServiceRoleClient();
@@ -609,10 +598,5 @@ async function handler(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
-  return handler(request);
-}
-
-export async function POST(request: NextRequest) {
-  return handler(request);
-}
+export const GET = withInternalApi(handler);
+export const POST = withInternalApi(handler);

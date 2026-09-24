@@ -26,7 +26,7 @@ const bankId='10000000-0000-4000-8000-000000000001';
 const staging='feya_commerce_seo_keyword_metric_import_staging_v1',snapshots='feya_commerce_seo_keyword_metric_snapshots_v1',receipts='feya_commerce_seo_metric_import_receipts_v1';
 let work,db,browser,server,started=false,service,ownerPage,appLog='';
 const runtimeSecrets=[];
-const cleanEnv=Object.fromEntries(Object.entries(process.env).filter(([k])=>!(/^(SUPABASE_|NEXT_PUBLIC_|FEYA_|OPENAI_|VERCEL_)/.test(k))));
+const cleanEnv=Object.fromEntries(Object.entries(process.env).filter(([k])=>!(/^(SUPABASE_|NEXT_PUBLIC_|FEYA_|OPENAI_|GOOGLE_|VERCEL_)/.test(k))));
 function cli(args){return execFileSync('supabase',args,{encoding:'utf8',env:cleanEnv,maxBuffer:20*1024*1024,timeout:600000});}
 function local(value,protocols,port){const u=new URL(value);assert.ok(['127.0.0.1','localhost'].includes(u.hostname),'Loopback required');assert.ok(protocols.includes(u.protocol));assert.equal(u.port,String(port));return u;}
 async function check(name,fn){try{await fn();report.checks.push({name,status:'pass'});console.log('PASS '+name);}catch(e){report.checks.push({name,status:'fail',error:String(e.message).slice(0,700)});throw e;}}
@@ -100,7 +100,9 @@ try {
    const r=await service.from(name).select('*').limit(1);assert.equal(r.error,null,name);
   }
  });
- const env={...cleanEnv,NODE_ENV:'production',NEXT_TELEMETRY_DISABLED:'1',NEXT_PUBLIC_SUPABASE_URL:url,NEXT_PUBLIC_SUPABASE_ANON_KEY:anon,SUPABASE_SERVICE_ROLE_KEY:key,FEYA_ADMIN_AUTH_REQUIRED:'true',FEYA_ADMIN_ALLOWED_USER_IDS:admin.data.user.id,FEYA_METRIC_IMPORT_STORAGE_ENABLED:'true',FEYA_SEARCH_INDEXING_ENABLED:'false'};
+ const internalToken=randomUUID();runtimeSecrets.push(internalToken);
+ const internalRoutes=[['content-prechecks','POST'],['content-qa','POST'],['google-ads-health','GET'],['google-ads-keyword-metrics','GET'],['google-ads-keyword-metrics','POST'],['openai-health','GET'],['page-ownership-proposals','POST'],['query-cluster-proposals','POST'],['sco-shadow','POST'],['seo-keyword-cleanup','POST'],['seo-keyword-review','POST']];
+ const env={...cleanEnv,FEYA_INTERNAL_API_TOKEN:internalToken,NODE_ENV:'production',NEXT_TELEMETRY_DISABLED:'1',NEXT_PUBLIC_SUPABASE_URL:url,NEXT_PUBLIC_SUPABASE_ANON_KEY:anon,SUPABASE_SERVICE_ROLE_KEY:key,FEYA_ADMIN_AUTH_REQUIRED:'true',FEYA_ADMIN_ALLOWED_USER_IDS:admin.data.user.id,FEYA_METRIC_IMPORT_STORAGE_ENABLED:'true',FEYA_SEARCH_INDEXING_ENABLED:'false'};
  console.log('Building the unchanged production Next application against the isolated stack.');
  await new Promise((res,rej)=>{const p=spawn('npm',['run','build'],{env,stdio:['ignore','pipe','pipe']});let log='';p.stdout.on('data',b=>{log+=b;});p.stderr.on('data',b=>{log+=b;});p.on('error',rej);p.on('exit',async code=>{await writeFile(join(out,'build.log'),log);code===0?res():rej(Error('Next build failed; see build.log'));});});
  server=spawn(process.execPath,['node_modules/next/dist/bin/next','start','--hostname','127.0.0.1','--port','3000'],{env,stdio:['ignore','pipe','pipe']});server.stdout.on('data',b=>{appLog+=b;});server.stderr.on('data',b=>{appLog+=b;});
@@ -110,6 +112,34 @@ try {
   assert.equal((await api(anonymousPage,{rows:[input()]})).status,401);
   assert.equal((await api(anonymousPage,{dry_run:false,rows:[input()]})).status,401);
   await anonymousPage.goto(base+'/admin/seo-engine/keyword-metrics');assert.equal(new URL(anonymousPage.url()).pathname,'/admin/login');
+ });
+ await check('All 10 internal endpoints reject missing/wrong tokens before work, including OpenAI health',async()=>{
+  const before=await counts();
+  for(const [route,method] of internalRoutes){
+   for(const headers of [{},{authorization:'Bearer invalid-fixture-token'}]){
+    const r=await fetch(base+'/api/internal/'+route,{method,headers,...(method==='POST'?{body:'{'}:{})});
+    assert.equal(r.status,401,route);assert.match(r.headers.get('cache-control'),/private.*no-store/);
+    assert.deepEqual(await r.json(),{ok:false,code:'internal_auth_required'});
+   }
+  }
+  assert.deepEqual(await counts(),before);
+ });
+ await check('Authenticated internal input rejects coercion and GET execution; health works without provider credentials',async()=>{
+  const before=await counts(),headers={'x-feya-internal-token':internalToken};
+  for(const [route,method] of internalRoutes.filter(([,method])=>method==='POST')){
+   for(const body of ['null','{','{"dryRun":"false"}','{"dryRun":true,"dry_run":false}']){
+    const r=await fetch(base+'/api/internal/'+route,{method,headers,body});assert.equal(r.status,400,route);
+    assert.match(r.headers.get('cache-control'),/private.*no-store/);
+   }
+  }
+  for(const [query,status] of [['?dry_run=false',405],['?dry_run=flase',400],['?dryRun=true&dryRun=false',400]]){
+   const r=await fetch(base+'/api/internal/google-ads-keyword-metrics'+query,{headers});assert.equal(r.status,status);
+   if(status===405)assert.equal(r.headers.get('allow'),'POST');
+  }
+  const health=await fetch(base+'/api/internal/openai-health',{headers:{authorization:'Bearer '+internalToken}});
+  assert.equal(health.status,200);assert.match(health.headers.get('cache-control'),/private.*no-store/);
+  const h=await health.json();assert.equal(h.authorizedForTestCall,true);assert.equal(h.openAiTest.attempted,false);
+  assert.deepEqual(await counts(),before);
  });
  await check('Real browser login rejects outsider despite editable admin metadata',async()=>{
   await login(anonymousPage,otherEmail,password);await anonymousPage.waitForURL('**/admin/login?error=not_authorized');
@@ -130,13 +160,18 @@ try {
  await check('Disabled and absent Auth flags lock admin reads/writes even with an owner cookie; public routes remain available',async()=>{
   const before=await counts(),lockedBase='http://127.0.0.1:3001';
   for(const flag of ['false',undefined]){
-   const lockedEnv={...env};if(flag===undefined)delete lockedEnv.FEYA_ADMIN_AUTH_REQUIRED;else lockedEnv.FEYA_ADMIN_AUTH_REQUIRED=flag;
+   const lockedEnv={...env};delete lockedEnv.FEYA_INTERNAL_API_TOKEN;if(flag===undefined)delete lockedEnv.FEYA_ADMIN_AUTH_REQUIRED;else lockedEnv.FEYA_ADMIN_AUTH_REQUIRED=flag;
    const locked=spawn(process.execPath,['node_modules/next/dist/bin/next','start','--hostname','127.0.0.1','--port','3001'],{env:lockedEnv,stdio:'ignore'});
    try{
     let ready=false;for(let i=0;i<60;i++){try{if((await fetch(lockedBase+'/admin/login')).status===200){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,500));}assert.ok(ready,'Locked-mode server must start');
     for(const client of [anonymousPage.request,ownerPage.request]){
      for(const path of ['/admin/company','/admin/seo-engine/keyword-metrics','/api/admin/seo-change-sets']){const r=await client.get(lockedBase+path);assert.equal(r.status(),503);assert.match(r.headers()['cache-control'],/private.*no-store/);}
      const r=await client.post(lockedBase+'/api/admin/review-events',{data:{}});assert.equal(r.status(),503);
+    }
+    for(const [route,method] of internalRoutes){
+     const r=await fetch(lockedBase+'/api/internal/'+route,{method,headers:{authorization:'Bearer '+internalToken},...(method==='POST'?{body:'{'}:{})});
+     assert.equal(r.status,503,route);assert.match(r.headers.get('cache-control'),/private.*no-store/);
+     assert.deepEqual(await r.json(),{ok:false,code:'internal_auth_unavailable'});
     }
     assert.equal((await fetch(lockedBase+'/shop')).status,200);
     assert.deepEqual(await counts(),before);

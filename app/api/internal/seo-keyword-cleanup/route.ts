@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
-import { getInternalApiAuthStatus } from '@/lib/internalAuth';
+import { withInternalApi } from '@/lib/internalAuth';
+import { readInternalExecutionRequest } from '@/lib/internalExecutionRequest';
 import { recordOpenAiInvocation } from '@/lib/openAiUsage';
 import { getMissingSupabaseServiceRoleEnvMessage, getSupabaseServiceRoleClient } from '@/lib/supabaseAdmin';
 import type { SeoKeywordCleanupReportRow } from '@/lib/types';
@@ -209,15 +210,11 @@ function getStatusCounts(results: CleanupResult[]) {
   }, {});
 }
 
-export async function POST(request: NextRequest) {
-  const auth = getInternalApiAuthStatus(request);
-  if (!auth.authorized) {
-    return NextResponse.json({ ok: false, error: 'Unauthorized.' }, { status: 401 });
-  }
-
-  const body = (await request.json().catch(() => ({}))) as { limit?: unknown; dryRun?: unknown };
+async function handlePost(request: NextRequest) {
+  const execution = await readInternalExecutionRequest(request);
+  if (!execution.ok) return execution.response;
+  const { body, dryRun } = execution;
   const limit = clampLimit(body.limit);
-  const dryRun = body.dryRun !== false;
   const model = process.env.OPENAI_SEO_CLEANUP_MODEL || DEFAULT_MODEL;
   const runId = randomUUID();
   const warnings: string[] = [];
@@ -272,3 +269,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, dryRun, runId, selectedCount: rows.length, processedCount: 0, insertedCount: 0, model, promptVersion: PROMPT_VERSION, statusCounts: {}, sampleResults: [], warnings, error: error instanceof Error ? error.message : 'Keyword cleanup failed.' }, { status: 500 });
   }
 }
+
+export const POST = withInternalApi(handlePost);
