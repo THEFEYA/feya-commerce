@@ -2,6 +2,12 @@
 
 Актуализировано 24 сентября 2026; постоянный checkpoint для следующих сессий. Основа: `FEYA_Search_Architecture_v1.md` (A–K), `FEYA_Page_Portfolio_Schema_v1.md`, `FEYA_Keyword_Research_Queue_v1.json`, `Launch_Track_Decision_20260924.md`, Product/Growth contracts, предметные audits. Статус из этого документа проверяется по фактическому commit, БД и deployment, а не по памяти разговора. Owner отвечает за стратегические бизнес решения; Core проверяет роли/версии и исполняет только разрешённый changeset.
 
+## Текущий checkpoint: C1/C3, 24.09.2026
+
+Продолжать с `Approved_Content_Integration_20260924.md`. Все 208 товаров остаются target. Все 64 metadata candidates разобраны: 39 адресных предложений, 5 сохранений, 20 предметных holds (18 physical-design, 2 copy/truth). Предложения не записаны поверх approved drafts. Закрытое серверное подключение approved copy к настоящему PDP подготовлено для 208 точных версий; по умолчанию OFF, только authenticated review, noindex и previewMode. Метаданные/JSON-LD/description используют одну версию. Публичный release и C2 ownership ещё не завершены.
+
+Следующий порядок: exact-head runtime evidence → C1.2 предметные holds + C2 query ownership → C3.2 public-safe release → C4 exact quotes/SEO gates; C5 company/domain/policy готовить независимо. Отложенные 19 не возвращать на критический путь. От владельца сейчас ничего не требуется.
+
 ## Неподвижные ограничения
 
 - Публичный язык EN, admin RU. Шрифты, цвета, компоненты storefront и Product OS защищены; визуальный редизайн — отдельная задача.

@@ -22,6 +22,7 @@ import {legacySnapshotToDemandRow} from '../../lib/searchLegacyDemandAdapter.ts'
 import {metricRowsToCsv} from '../../lib/searchMetricCsv.ts';
 import {startGoogleProviderFixture,seedGoogleBatch} from './google-provider-fixture.mjs';
 import {googleBatch} from '../search/googleAdsFixture.ts';
+import {verifyApprovedContentRuntime} from './approved-content-runtime.mjs';
 const root=process.cwd(),out=resolve('runtime-results');
 const report={contract:'metric_runtime_proof_v1',commit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),workflow_event_sha:process.env.GITHUB_SHA||null,environment:'ephemeral_loopback_supabase',production_connected:false,next_write_path_verified:false,checks:[],limitations:['Exact 84-view SELECT closure on 39 observed table contracts; external FKs, non-core triggers and indexes are outside the read/permission restore.','Hosted staging, broader database API surface and production activation remain separate.']};
 const base='http://127.0.0.1:3000',endpoint=base+'/api/admin/seo-engine/keyword-metrics/import';
@@ -313,6 +314,7 @@ try {
   report.metric_access_advisor_pass=true;report.internal_view_access_advisor_pass=true;report.metric_access_contract='metric_access_boundary_v2';
   report.advisor_counts=Object.fromEntries([...new Set(parsed.map(f=>f.name))].sort().map(name=>[name,parsed.filter(f=>f.name===name).length]));
  });
+ await verifyApprovedContentRuntime({db,browser,ownerPage,env,out,check,report});
  report.next_write_path_verified=true;
  report.status='pass';await writeFile(join(out,'next.log'),appLog);
 } catch(e){report.status='fail';report.error=String(e.message).slice(0,1000);console.error(report.error);process.exitCode=1;}

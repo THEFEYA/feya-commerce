@@ -1,5 +1,7 @@
 // @ts-nocheck
 import type { Metadata } from 'next';
+import { cache } from 'react';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { ProductDetailClient } from '@/components/ProductDetailClient';
@@ -21,6 +23,8 @@ import {
 } from '@/lib/storefront';
 import { applyOwnerReviewedStorefrontCorrections } from '@/lib/storefrontOwnerReviewedCorrections';
 import type { StorefrontProduct } from '@/lib/types';
+import { readApprovedStorefrontCopy } from '@/lib/seoApprovedStorefrontServer';
+import type { ApprovedCopyPayload } from '@/lib/seoApprovedContentProjection';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -54,13 +58,13 @@ function productImages(product: StorefrontProduct) {
   return Array.from(new Set([...mediaUrls, ...fallbackUrls]));
 }
 
-function productJsonLd(product: StorefrontProduct, slug: string) {
+function productJsonLd(product: StorefrontProduct, slug: string, approvedCopy: ApprovedCopyPayload | null = null) {
   const price = mainRegularPrice(product);
   const jsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'Product',
-    name: productTitle(product),
-    description: productDescription(product),
+    name: approvedCopy?.draft.h1 || productTitle(product),
+    description: approvedCopy?.metadata.description || productDescription(product),
     image: productImages(product),
     sku: product.canonical_product_id || slug,
     url: canonicalProductUrl(slug),
@@ -70,7 +74,7 @@ function productJsonLd(product: StorefrontProduct, slug: string) {
     },
   };
 
-  if (price != null) {
+  if (!approvedCopy && price != null) {
     jsonLd.offers = {
       '@type': 'Offer',
       url: canonicalProductUrl(slug),
@@ -146,22 +150,30 @@ async function getProduct(slug: string) {
   return { product: null, related: [], error: v4.error?.message || v3.error?.message || v2.error?.message || v1.error?.message || 'Product not found.' };
 }
 
+// One request-scoped source for head, JSON-LD and existing PDP props.
+const getPresentation = cache(async (slug: string) => {
+  const result = await getProduct(slug);
+  const approved = result.product ? await readApprovedStorefrontCopy(result.product) : null;
+  return { ...result, approvedCopy: approved?.copy ?? null, copyBlocked: approved?.status === 'blocked' };
+});
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const { product } = await getProduct(slug);
+  const { product, approvedCopy, copyBlocked } = await getPresentation(slug);
 
-  if (!product) {
+  if (!product || copyBlocked) {
     return {
       title: 'Product not found | TheFEYA',
       robots: { index: false, follow: true },
     };
   }
 
-  const title = productTitle(product);
-  const description = productDescription(product);
+  const title = approvedCopy?.metadata.title || productTitle(product);
+  const description = approvedCopy?.metadata.description || productDescription(product);
   const images = productImages(product);
 
   return {
+    ...(approvedCopy ? { robots: { index: false, follow: false } } : {}),
     title,
     description,
     alternates: { canonical: `/shop/${slug}` },
@@ -177,17 +189,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ProductPage({ params }: PageProps) {
   const { slug } = await params;
-  const { product, related, error } = await getProduct(slug);
+  const { product, related, error, approvedCopy, copyBlocked } = await getPresentation(slug);
+  if (copyBlocked) notFound();
   if (error) return <main className="min-h-screen"><Header /><div className="container-feya pt-40"><div className="glass rounded-xl p-6 text-bone-dim">{error}</div></div></main>;
   if (!product) return <main className="min-h-screen"><Header /><div className="container-feya pt-40"><div className="glass rounded-xl p-6">Product not found. <Link className="text-gold" href="/shop">Back to shop</Link></div></div></main>;
 
-  const jsonLd = productJsonLd(product, slug);
+  const jsonLd = productJsonLd(product, slug, approvedCopy);
   const productCollections = collectionsForProduct(product);
 
   return <main className="relative min-h-screen">
     <Header />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
-    <ProductDetailClient product={product} related={related} />
+    <ProductDetailClient product={product} related={related} draft={approvedCopy?.draft} previewMode={Boolean(approvedCopy)} />
     {productCollections.length ? <section className="container-feya py-10 border-t border-[rgba(216,214,211,.12)]">
       <div className="eyebrow-gold mb-4">Explore related collections</div>
       <div className="flex flex-wrap gap-2">
