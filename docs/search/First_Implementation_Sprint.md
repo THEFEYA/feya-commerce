@@ -4,6 +4,8 @@
 
 ## Продолжение: isolated storage integration
 
+Следующий завершённый implementation package: [Internal_View_Access_Extension_20260924.md](Internal_View_Access_Extension_20260924.md) — семь дополнительных внутренних views, охват 50→57, строгий v2 marker и fixture restore 84 views/39 tables. Migration7 unapplied; exact-head proof фиксируется в PR. Следующий dependency — Google Ads evidence adapter, затем inventory/page pilot. Owner input пока не нужен.
+
 Актуальное продолжение 24 September: [Internal_API_Boundary_20260924.md](Internal_API_Boundary_20260924.md) — аудит 10 internal endpoints, 8 RPC, 16 relations и 28 capability records; общий закрытый token guard и строгий dryRun. GET не может запускать metric write. Legacy Google Ads atomic adapter и четыре view families остаются release blockers; новые owner inputs пока не нужны.
 
 Новый checkpoint — [Atomic_Draft_Save_20260923.md](Atomic_Draft_Save_20260923.md): восстановление 14-table dependency schema, единая current-policy validation для resave/save, атомарный draft+event+receipt и отдельный native PostgreSQL CI. Ниже сохранены исходные результаты foundation; новые результаты и deployment dependencies описаны в checkpoint. Production migration и indexing не выполнялись.

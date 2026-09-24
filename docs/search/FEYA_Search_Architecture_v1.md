@@ -431,6 +431,8 @@ K12 остаётся **FAIL** после успешного isolated Auth/PostgR
 
 Internal API checkpoint: [Internal_API_Boundary_20260924.md](Internal_API_Boundary_20260924.md) согласует 10 endpoints с 28 действующими capability records; закрывает anonymous health, GET metric execution и неоднозначный dryRun. Catalog подтверждает private EXECUTE восьми RPC, но четыре дополнительные view families и legacy Google Ads API ingestion ещё требуют реализации/проверки. K12 остаётся FAIL; token authentication не заменяет Core capability/owner authority.
 
+Prepared extension: [Internal_View_Access_Extension_20260924.md](Internal_View_Access_Extension_20260924.md) включает эти view families и обнаруженные upstream/CSV пути: семь дополнительных views, всего 57 protected objects. Application writer требует `metric_access_boundary_v2`; migration7 unapplied. Остальные projections/hosted cutover и Google Ads evidence adapter остаются отдельными blockers; K12 не становится PASS автоматически.
+
 ## Sources and implementation boundaries
 
 Business sources: 12 FEYA Growth OS CANONICAL docs v1.0, current Product Truth RPC v4, current storefront RPC v7, item-specific owner corrections, visual contracts и действующие approval/change ledgers. Research inputs R2–R8 сохраняют класс evidence; внешние примеры fashion categories не являются FEYA inventory. Product/SEO state и branch SHAs зафиксированы в A; read-only повтор 2026-09-23T21:09Z — `portfolio-audit-input.json` / `portfolio-audit-report.json`.

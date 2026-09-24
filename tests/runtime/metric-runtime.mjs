@@ -15,12 +15,13 @@ import {readerMigrationSQL} from '../search-db/helpers/observed-reader-boundary.
 import {functionHardeningSQL} from '../search-db/helpers/metric-function-hardening.mjs';
 import {metricClosureSchemaSQL,metricClosureFixture} from '../search-db/helpers/observed-metric-closure.mjs';
 import {accessBoundarySQL} from '../search-db/helpers/metric-access-boundary.mjs';
+import {internalViewFixture,internalViewExtensionSchemaSQL,internalViewAccessSQL,internalViewSeedSQL} from '../search-db/helpers/internal-view-access.mjs';
 import {previewDemandImport} from '../../lib/searchDemandImportPreview.ts';
 import {prepareMetricImport,verifyMetricReaderBoundary,METRIC_IMPORT_RUNTIME_VERIFIED,METRIC_IMPORT_RPC} from '../../lib/searchMetricAtomicStorage.ts';
 import {legacySnapshotToDemandRow} from '../../lib/searchLegacyDemandAdapter.ts';
 import {metricRowsToCsv} from '../../lib/searchMetricCsv.ts';
 const root=process.cwd(),out=resolve('runtime-results');
-const report={contract:'metric_runtime_proof_v1',commit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),workflow_event_sha:process.env.GITHUB_SHA||null,environment:'ephemeral_loopback_supabase',production_connected:false,next_write_path_verified:false,checks:[],limitations:['Exact 80-view SELECT closure on 38 observed table contracts; external FKs, non-core triggers and indexes are outside the read/permission restore.','Hosted staging, broader database API surface and production activation remain separate.']};
+const report={contract:'metric_runtime_proof_v1',commit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),workflow_event_sha:process.env.GITHUB_SHA||null,environment:'ephemeral_loopback_supabase',production_connected:false,next_write_path_verified:false,checks:[],limitations:['Exact 84-view SELECT closure on 39 observed table contracts; external FKs, non-core triggers and indexes are outside the read/permission restore.','Hosted staging, broader database API surface and production activation remain separate.']};
 const base='http://127.0.0.1:3000',endpoint=base+'/api/admin/seo-engine/keyword-metrics/import';
 const bankId='10000000-0000-4000-8000-000000000001';
 const staging='feya_commerce_seo_keyword_metric_import_staging_v1',snapshots='feya_commerce_seo_keyword_metric_snapshots_v1',receipts='feya_commerce_seo_metric_import_receipts_v1';
@@ -63,13 +64,13 @@ try {
   assert.equal((await db.query("select count(*)::int n from pg_tables where schemaname='public'")).rows[0].n,0);
   assert.equal((await db.query("select count(*)::int n from pg_roles where rolname in ('anon','authenticated','service_role','authenticator')")).rows[0].n,4);
  });
- await check('Full metric SELECT closure and four unapplied migrations restore in Supabase',async()=>{
-  await db.query(await observedMetricSchemaSQL({existingSupabaseRoles:true}));await db.query(await metricClosureSchemaSQL());
+ await check('Extended SELECT closure and five unapplied migrations restore in Supabase',async()=>{
+  await db.query(await observedMetricSchemaSQL({existingSupabaseRoles:true}));await db.query(await metricClosureSchemaSQL());await db.query(await internalViewExtensionSchemaSQL());await db.query(await internalViewSeedSQL());
   await db.query(`insert into public.seo_keyword_bank_v1(id,keyword,keyword_norm,bank_bucket,review_status,score,avg_monthly_searches) values($1,'synthetic shoulder armor','synthetic shoulder armor','product','approved_draft',77,90)`,[bankId]);
   await db.query(`insert into public.feya_commerce_seo_keyword_master_v1(keyword_id,keyword,keyword_norm,keyword_word_count,priority_tier,validation_priority) values(800,'synthetic shoulder armor','synthetic shoulder armor',3,'test','test');
    insert into public.${snapshots}(snapshot_id,keyword_norm,source_api,geo,language,avg_monthly_searches,data_freshness_status) values(900,'synthetic shoulder armor','google_ads_csv','US','en',90,'fresh_manual_import');
    insert into public.${staging}(import_row_id,batch_code,keyword_norm,avg_monthly_searches,import_status) values(900,'legacy-fixture','synthetic shoulder armor',90,'promoted_to_snapshots');`);
-  await db.query(await metricMigrationSQL());await db.query(await readerMigrationSQL());await db.query(await functionHardeningSQL());await db.query(await accessBoundarySQL());await db.query("notify pgrst, 'reload schema'");
+  await db.query(await metricMigrationSQL());await db.query(await readerMigrationSQL());await db.query(await functionHardeningSQL());await db.query(await accessBoundarySQL());await db.query(await internalViewAccessSQL());await db.query("notify pgrst, 'reload schema'");
  });
  service=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
  await check('PostgREST exposes storage, reader and access service-only contracts',async()=>{
@@ -99,6 +100,14 @@ try {
    for(const client of [createClient(url,anon,{auth:{persistSession:false,autoRefreshToken:false}}),outsider]){const r=await client.from(name).select('*').limit(1);assert.ok(r.error);assert.ok([401,403].includes(r.status),'Known object must be denied, not absent');}
    const r=await service.from(name).select('*').limit(1);assert.equal(r.error,null,name);
   }
+ });
+ await check('Data API denies all ten related views to public roles while service preserves review and shortlist records',async()=>{
+  for(const name of (await internalViewFixture()).downstream){
+   for(const client of [createClient(url,anon,{auth:{persistSession:false,autoRefreshToken:false}}),outsider]){const r=await client.from(name).select('*').limit(1);assert.ok(r.error);assert.ok([401,403].includes(r.status),name);}
+   const r=await service.from(name).select('*').limit(1);assert.equal(r.error,null,name);if(!['feya_commerce_v_seo_keyword_metric_import_ready_v1','feya_commerce_v_seo_keyword_metric_import_validation_report_v1'].includes(name))assert.ok(r.data.length>0,name);
+  }
+  const shortlist=await service.from('feya_commerce_v_page_ownership_shortlist_v1').select('seo_page_id,shortlist_method');assert.equal(shortlist.error,null);
+  assert.equal(shortlist.data[0].seo_page_id,'20000000-0000-4000-8000-000000000024');assert.equal(shortlist.data[0].shortlist_method,'lexical_candidate_retrieval_not_ownership');
  });
  const internalToken=randomUUID();runtimeSecrets.push(internalToken);
  const internalRoutes=[['content-prechecks','POST'],['content-qa','POST'],['google-ads-health','GET'],['google-ads-keyword-metrics','GET'],['google-ads-keyword-metrics','POST'],['openai-health','GET'],['page-ownership-proposals','POST'],['query-cluster-proposals','POST'],['sco-shadow','POST'],['seo-keyword-cleanup','POST'],['seo-keyword-review','POST']];
@@ -192,6 +201,13 @@ try {
   }
   await ownerPage.goto(base+'/admin/seo-engine/keyword-metrics');
  });
+ await check('Existing keyword review screen loads its recommendation after public revocation; owner approval stays pending',async()=>{
+  const r=await ownerPage.goto(base+'/admin/seo-keyword-review');assert.equal(r.status(),200);await ownerPage.getByRole('heading',{name:'Проверка ключевых слов',exact:true}).waitFor();
+  const row=ownerPage.getByRole('row').filter({hasText:'synthetic review armor'});assert.equal(await row.count(),1);await row.getByText('Отложить',{exact:true}).waitFor();
+  assert.equal((await db.query('select review_status from public.feya_commerce_seo_keyword_ai_cleanup_v1 where cleanup_id=820')).rows[0].review_status,'pending');
+  await ownerPage.screenshot({path:join(out,'internal-keyword-review.png'),fullPage:true});
+  await ownerPage.goto(base+'/admin/seo-engine/keyword-metrics');
+ });
  const csv=metricRowsToCsv([input()]);
  await check('Existing CSV form calls real API, shows preview and never claims a save',async()=>{
   const before=await counts();await ownerPage.getByLabel('CSV или JSON с метриками').fill(csv);
@@ -235,6 +251,12 @@ try {
   finally{await db.query('revoke select on public.feya_commerce_v_growth_signal_candidates_safe_v2 from anon');}
   assert.equal(await verifyMetricReaderBoundary(service),true);
  });
+ await check('New internal-view grant drift closes actual Next metric writes without changing receipts',async()=>{
+  const before=await counts();await db.query('grant select on public.feya_commerce_v_page_ownership_shortlist_v1 to anon');
+  try{assert.equal(await verifyMetricReaderBoundary(service),false);assert.equal((await save([input({source_ref:'fixture:internal-view-drift'})],'internal-view-drift')).httpStatus,503);assert.deepEqual(await counts(),before);}
+  finally{await db.query('revoke select on public.feya_commerce_v_page_ownership_shortlist_v1 from anon');}
+  assert.equal(await verifyMetricReaderBoundary(service),true);
+ });
  await check('Historical bank approvals, IDs and original metric remain unchanged',async()=>{
   const b=(await db.query('select review_status,score,avg_monthly_searches from public.seo_keyword_bank_v1 where id=$1',[bankId])).rows[0];assert.deepEqual(b,{review_status:'approved_draft',score:77,avg_monthly_searches:90});
   assert.equal((await db.query(`select avg_monthly_searches from public.${snapshots} where snapshot_id=900`)).rows[0].avg_monthly_searches,90);assert.deepEqual(pageErrors,[]);
@@ -247,10 +269,10 @@ try {
   const fixed=['feya_commerce_apply_seo_keyword_metric_import_v1','feya_commerce_fn_promote_keyword_metric_import_v1','feya_fn_apply_manual_keyword_metrics_v1','seo_keyword_bank_v1_set_updated_at'];
   assert.equal(parsed.filter(f=>f.name==='function_search_path_mutable'&&fixed.includes(f.metadata?.name)).length,0);
   report.function_path_advisor_pass=true;
-  const protectedNames=new Set((await metricClosureFixture()).relations.filter(r=>r.in_metric_closure).map(r=>r.name));
+  const protectedNames=new Set([...(await metricClosureFixture()).relations.filter(r=>r.in_metric_closure).map(r=>r.name),...(await internalViewFixture()).downstream]);
   assert.equal(parsed.filter(f=>f.name==='security_definer_view'&&protectedNames.has(f.metadata?.name)).length,0);
   assert.equal(parsed.filter(f=>f.name==='rls_disabled_in_public').length,0);
-  report.metric_access_advisor_pass=true;
+  report.metric_access_advisor_pass=true;report.internal_view_access_advisor_pass=true;report.metric_access_contract='metric_access_boundary_v2';
   report.advisor_counts=Object.fromEntries([...new Set(parsed.map(f=>f.name))].sort().map(name=>[name,parsed.filter(f=>f.name===name).length]));
  });
  report.next_write_path_verified=true;

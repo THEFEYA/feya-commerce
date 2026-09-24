@@ -12,6 +12,7 @@ export const METRIC_IMPORT_CONSUMERS_READY = true;
 export const METRIC_IMPORT_RUNTIME_VERIFIED = true;
 export const METRIC_READER_HEALTH_RPC = 'feya_commerce_metric_reader_boundary_health_v1';
 export const METRIC_READER_CONTRACT = 'metric_reader_boundary_v1';
+export const METRIC_ACCESS_CONTRACT = 'metric_access_boundary_v2';
 export type DemandPreview = ReturnType<typeof previewDemandImport>;
 function canonical(value:unknown):string {
   if(Array.isArray(value))return '['+value.map(canonical).join(',')+']';
@@ -62,7 +63,7 @@ export async function verifyMetricReaderBoundary(client:RpcClient) {
     const {data,error}=await client.rpc(METRIC_READER_HEALTH_RPC,{});
     if(error||data!==METRIC_READER_CONTRACT)return false;
     const access=await client.rpc('feya_commerce_metric_access_boundary_health_v1',{});
-    return !access.error&&access.data==='metric_access_boundary_v1';
+    return !access.error&&access.data===METRIC_ACCESS_CONTRACT;
   }
   catch{return false;}
 }
