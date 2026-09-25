@@ -24,7 +24,7 @@ async function connect(){
 
 async function seed(db,{pglite=false}={}){
   if(pglite){
-    await db.exec("create function extensions.uuid_generate_v5(namespace uuid,name text) returns uuid language sql immutable strict as $ select (substr(md5(namespace::text||':'||name),1,8)||'-'||substr(md5(namespace::text||':'||name),9,4)||'-5'||substr(md5(namespace::text||':'||name),14,3)||'-a'||substr(md5(namespace::text||':'||name),18,3)||'-'||substr(md5(namespace::text||':'||name),21,12))::uuid $;");
+    await db.exec("create function extensions.uuid_generate_v5(namespace uuid,name text) returns uuid language sql immutable strict as $body$ select (substr(md5(namespace::text||':'||name),1,8)||'-'||substr(md5(namespace::text||':'||name),9,4)||'-5'||substr(md5(namespace::text||':'||name),14,3)||'-a'||substr(md5(namespace::text||':'||name),18,3)||'-'||substr(md5(namespace::text||':'||name),21,12))::uuid $body$;");
   }else{
     await db.exec('create extension if not exists "uuid-ossp" with schema extensions;');
   }
