@@ -112,9 +112,9 @@ export default async function AdminOwnerAttentionPage() {
         <section className="owner-section">
           <div className="owner-card is-info">
             <div className="owner-status is-info">Безопасный режим</div>
-            <h2 className="owner-card-title" style={{ marginTop: '10px' }}>Кнопки решений пока не активны</h2>
+            <h2 className="owner-card-title" style={{ marginTop: '10px' }}>Решения исполняются только через защищённый путь</h2>
             <p className="owner-card-copy">
-              Сначала нужно включить защищённый вход владельца и проверить аудит действий. После этого появятся подтверждение, отклонение, отсрочка и другие реальные действия.
+              Там, где точный approval workflow уже реализован, карточка ведёт в соответствующий защищённый экран. Остальные решения остаются read-only до готовности их action path; обход Execution Gateway не допускается.
             </p>
           </div>
         </section>
