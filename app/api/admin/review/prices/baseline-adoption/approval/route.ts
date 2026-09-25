@@ -1,5 +1,6 @@
 import { NextRequest,NextResponse } from 'next/server';
 import audit from '@/docs/search/price-baseline-audit-manifest-20260925.json';
+import structureAudit from '@/docs/search/configuration-binding-audit-20260925.json';
 import release from '@/docs/search/closed-review-source-manifest-20260924.json';
 import { requireOwnerActionActor } from '@/lib/ownerActionAuth';
 import { priceBaselineApprovalScopeDecision } from '@/lib/commercePriceBaselineApproval';
@@ -8,10 +9,11 @@ export const runtime='nodejs';
 export const dynamic='force-dynamic';
 
 const RELEASE_REF=String((audit as any).release_ref||'');
-const EXPECTED_PRODUCTS=Number((audit as any).counts?.clean_source_products||0);
-const EXPECTED_ROWS=Number((audit as any).counts?.clean_source_price_rows||0);
 const MANUAL_IDS=new Set<string>(((audit as any).manual_override_product_ids||[]).map(String));
-const CLEAN_IDS=((release as any).entries||[]).map((entry:any)=>String(entry?.identity?.canonical_product_id||'')).filter((id:string)=>id&&!MANUAL_IDS.has(id)).sort();
+const COLOR_PRICE_IDS=new Set<string>(((structureAudit as any).color_price_axis_product_ids||[]).map(String));
+const CLEAN_IDS=((release as any).entries||[]).map((entry:any)=>String(entry?.identity?.canonical_product_id||'')).filter((id:string)=>id&&!MANUAL_IDS.has(id)&&!COLOR_PRICE_IDS.has(id)).sort();
+const EXPECTED_PRODUCTS=Number((structureAudit as any).clean_configuration_baseline_products_after_repair||0);
+const EXPECTED_ROWS=Number((structureAudit as any).clean_configuration_baseline_price_rows_after_repair||0);
 const reply=(body:unknown,status=200)=>NextResponse.json(body,{status,headers:{'Cache-Control':'private, no-store','X-Robots-Tag':'noindex, nofollow'}});
 const enabled=()=>process.env.FEYA_COMMERCE_PRICE_BASELINE_ADOPTION_ENABLED==='true';
 
@@ -50,6 +52,10 @@ export async function POST(request:NextRequest){
   if(!requestRow)return reply({ok:false,code:'price_baseline_execution_request_not_found'},404);
 
   if(CLEAN_IDS.length!==EXPECTED_PRODUCTS)return reply({ok:false,code:'price_baseline_release_manifest_mismatch'},503);
+
+  const {data:structure,error:structureError}=await actor.service.rpc('feya_commerce_price_baseline_structure_health_v1',{p_product_ids:CLEAN_IDS});
+  if(structureError)return reply({ok:false,code:structureError.message||'price_baseline_structure_check_failed'},503);
+  if((structure as any)?.ready!==true)return reply({ok:false,code:'price_baseline_structure_not_ready',structure},409);
 
   const scope=priceBaselineApprovalScopeDecision({
     row:requestRow,
