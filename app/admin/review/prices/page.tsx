@@ -5,11 +5,53 @@ import { ArrowUpRight, BadgePercent, Calculator, CircleDollarSign, WalletCards }
 import { AdminQueueQuickReviewClient } from '@/components/AdminQueueQuickReviewClient';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, formatPrice, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
+import { classifyConfigurationQuoteReadiness } from '@/lib/commerceQuoteReadiness';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 const PRICE_REVIEW_LIMIT = 500;
+const QUOTE_PRICE_PAGE = 1000;
+
+type QuotePriceRow = {
+  configuration_price_id: string;
+  canonical_product_id: string;
+  sellable_configuration_id: string | null;
+  public_price_amount: number | string | null;
+  source_currency: string | null;
+  price_status: string | null;
+  review_status: string | null;
+  fallback_flag: boolean | null;
+};
+
+type QuoteConfigRow = {
+  sellable_configuration_id: string;
+  canonical_product_id: string;
+  configuration_name: string | null;
+  review_status: string | null;
+  is_public_candidate: boolean | null;
+  is_sampler: boolean | null;
+};
+
+type QuoteReadinessRow = {
+  price: QuotePriceRow;
+  config: QuoteConfigRow | null;
+  ready: boolean;
+  reason_codes: string[];
+};
+
+const QUOTE_REASON_LABELS: Record<string,string> = {
+  QUOTE_IDENTITY_INVALID: 'Неверный ID',
+  SELLABLE_CONFIGURATION_MISSING: 'Нет sellable configuration',
+  CONFIGURATION_NOT_APPROVED: 'Конфигурация не подтверждена',
+  CONFIGURATION_NOT_PUBLIC: 'Не public candidate',
+  SAMPLER_NOT_ORDERABLE: 'Sampler / не продаётся',
+  PRICE_REVIEW_NOT_APPROVED: 'Цена не подтверждена',
+  PRICE_STATUS_NOT_EXACT: 'Цена не exact',
+  FALLBACK_PRICE_FORBIDDEN: 'Fallback price',
+  PUBLIC_PRICE_INVALID: 'Нет exact public price',
+  CURRENCY_INVALID: 'Валюта не подтверждена',
+};
 
 function parseConfigurations(value: unknown): StorefrontConfiguration[] {
   if (!value) return [];
@@ -60,6 +102,52 @@ async function loadProducts(): Promise<{ rows: StorefrontProduct[]; error?: stri
   return { rows: (data || []) as StorefrontProduct[] };
 }
 
+async function loadQuoteReadiness(): Promise<{ rows: QuoteReadinessRow[]; error?: string }> {
+  const supabase = getAdminReadClient();
+  if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
+
+  const priceSelect = 'configuration_price_id,canonical_product_id,sellable_configuration_id,public_price_amount,source_currency,price_status,review_status,fallback_flag';
+  const configSelect = 'sellable_configuration_id,canonical_product_id,configuration_name,review_status,is_public_candidate,is_sampler';
+
+  const [firstPrices, secondPrices, configs] = await Promise.all([
+    supabase.from('feya_commerce_configuration_prices').select(priceSelect).order('configuration_price_id').range(0, QUOTE_PRICE_PAGE - 1),
+    supabase.from('feya_commerce_configuration_prices').select(priceSelect).order('configuration_price_id').range(QUOTE_PRICE_PAGE, QUOTE_PRICE_PAGE * 2 - 1),
+    supabase.from('feya_commerce_sellable_configurations').select(configSelect).order('sellable_configuration_id').limit(1000),
+  ]);
+
+  const error = firstPrices.error || secondPrices.error || configs.error;
+  if (error) return { rows: [], error: error.message };
+
+  const configById = new Map((configs.data || []).map((row: any) => [String(row.sellable_configuration_id), row as QuoteConfigRow]));
+  const seen = new Set<string>();
+  const prices = [...(firstPrices.data || []), ...(secondPrices.data || [])]
+    .filter((row: any) => {
+      const id = String(row.configuration_price_id || '');
+      if (!id || seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    }) as QuotePriceRow[];
+
+  const rows = prices.map((price) => {
+    const config = price.sellable_configuration_id ? configById.get(price.sellable_configuration_id) || null : null;
+    const result = classifyConfigurationQuoteReadiness({
+      configuration_price_id: price.configuration_price_id,
+      canonical_product_id: price.canonical_product_id,
+      sellable_configuration_id: price.sellable_configuration_id,
+      configuration_review_status: config?.review_status ?? null,
+      configuration_is_public_candidate: config?.is_public_candidate ?? null,
+      configuration_is_sampler: config?.is_sampler ?? null,
+      price_status: price.price_status,
+      price_review_status: price.review_status,
+      fallback_flag: price.fallback_flag,
+      public_price_amount: price.public_price_amount,
+      source_currency: price.source_currency,
+    });
+    return { price, config, ready: result.ready, reason_codes: result.reason_codes };
+  });
+  return { rows };
+}
+
 function Chip({ children, tone = 'neutral' }) {
   const className = tone === 'danger'
     ? 'border-[rgba(196,64,88,.34)] text-[var(--ruby-soft)] bg-[rgba(160,32,56,.08)]'
@@ -78,10 +166,36 @@ function Metric({ label, value, note, icon: Icon }) {
 }
 
 export default async function AdminPriceReviewPage() {
-  const { rows, error } = await loadProducts();
+  const [{ rows, error }, quoteReadiness] = await Promise.all([loadProducts(), loadQuoteReadiness()]);
+  const combinedError = error || quoteReadiness.error;
   const reviewRows = rows
     .filter(needsPriceReview)
     .slice(0, 160);
+
+  const productById = new Map(rows.map((product) => [String(product.canonical_product_id), product]));
+  const quoteReadyRows = quoteReadiness.rows.filter((row) => row.ready);
+  const quoteBlockedRows = quoteReadiness.rows.filter((row) => !row.ready);
+  const quoteReadyProducts = new Set(quoteReadyRows.map((row) => row.price.canonical_product_id));
+  const quoteBlockedProducts = new Set(quoteBlockedRows.map((row) => row.price.canonical_product_id));
+
+  const strictByProduct = new Map<string, QuoteReadinessRow[]>();
+  for (const row of quoteReadiness.rows) {
+    const list = strictByProduct.get(row.price.canonical_product_id) || [];
+    list.push(row);
+    strictByProduct.set(row.price.canonical_product_id, list);
+  }
+  const strictQueue = [...strictByProduct.entries()]
+    .map(([productId, configRows]) => ({
+      productId,
+      product: productById.get(productId) || null,
+      configRows,
+      readyCount: configRows.filter((row) => row.ready).length,
+      blockedCount: configRows.filter((row) => !row.ready).length,
+      reasons: [...new Set(configRows.flatMap((row) => row.reason_codes))],
+    }))
+    .filter((item) => item.blockedCount > 0)
+    .sort((a,b) => b.blockedCount - a.blockedCount || a.productId.localeCompare(b.productId))
+    .slice(0, 120);
 
   const unverifiedProducts = rows.filter((product) => product.price_confidence_status === 'unverified' || product.needs_price_review).length;
   const fallbackConfigs = rows.reduce((sum, product) => sum + parseConfigurations(product.configurations).filter((config) => config.has_fallback_price).length, 0);
@@ -102,14 +216,59 @@ export default async function AdminPriceReviewPage() {
         </div>
       </div>
 
-      {error ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{error}</div> : null}
+      {combinedError ? <div className="rounded-2xl border border-[rgba(196,64,88,.35)] bg-[rgba(160,32,56,.10)] p-5 text-[var(--bone-dim)] mb-7">{combinedError}</div> : null}
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+        <Metric icon={ShieldCheck} label="Quote-ready products" value={quoteReadyProducts.size} note="Товары, у которых есть хотя бы одна конфигурация, прошедшая строгий server-quote gate." />
+        <Metric icon={CircleDollarSign} label="Quote-ready configs" value={quoteReadyRows.length} note="Подтверждённая конфигурация + approved exact price + non-fallback + валидная валюта." />
+        <Metric icon={WalletCards} label="Blocked products" value={quoteBlockedProducts.size} note="Товары с конфигурациями, которые пока нельзя превращать в authoritative quote." />
+        <Metric icon={Calculator} label="Blocked configs" value={quoteBlockedRows.length} note="Каждая строка остаётся HOLD до устранения всех blocker reason codes." />
+      </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <Metric icon={WalletCards} label="Unverified" value={unverifiedProducts} note="Products with unverified or review price status." />
+        <Metric icon={WalletCards} label="Unverified UI" value={unverifiedProducts} note="Legacy storefront confidence flags; не равны authoritative quote readiness." />
         <Metric icon={CircleDollarSign} label="Fallback configs" value={fallbackConfigs} note="Configurations using fallback price logic." />
         <Metric icon={Calculator} label="Missing prices" value={missingConfigPrices} note="Configurations without a detected price." />
         <Metric icon={BadgePercent} label="Discount flags" value={unverifiedDiscounts} note="Products with unverified discount state." />
       </div>
+
+      <section className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5 mb-8">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="eyebrow-gold mb-2">Authoritative quote readiness</div>
+            <h2 className="font-tall text-bone leading-none text-[32px]">Что реально блокирует цену заказа</h2>
+            <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">
+              Эта очередь читает исходные configuration/price rows и применяет тот же fail-closed gate, который будет стоять перед server quote.
+              Display price, fallback и просто заполненная сумма не считаются подтверждённой ценой заказа.
+            </p>
+          </div>
+          <div className="text-[11px] text-[var(--smoke)]">{quoteReadiness.rows.length} price rows checked</div>
+        </div>
+
+        <div className="mt-5 space-y-3">
+          {strictQueue.slice(0, 40).map((item) => {
+            const product = item.product;
+            const href = product ? `/admin/products/${productSlug(product)}` : '/admin/products';
+            return <article key={item.productId} className="rounded-xl border border-[rgba(216,214,211,.10)] bg-black/15 p-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div className="min-w-0">
+                  <Link href={href} className="text-bone text-[15px] leading-snug hover:text-[var(--gold-warm)] transition-colors">
+                    {product ? productTitle(product) : item.productId}
+                  </Link>
+                  <div className="mt-2 text-[10px] uppercase tracking-[0.18em] text-[var(--smoke)]">
+                    {item.readyCount} ready · {item.blockedCount} blocked configuration rows
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {item.reasons.slice(0, 8).map((reason) => <Chip key={reason} tone="danger">{QUOTE_REASON_LABELS[reason] || reason}</Chip>)}
+                  </div>
+                </div>
+                <Link href={href} className="btn-ghost px-4 py-2 text-[10px]">Исправить <ArrowUpRight size={12} /></Link>
+              </div>
+            </article>;
+          })}
+          {!strictQueue.length && !quoteReadiness.error ? <div className="text-[13px] text-[var(--bone-dim)]">Все загруженные конфигурации прошли strict quote gate.</div> : null}
+        </div>
+      </section>
 
       <div className="space-y-4">
         {reviewRows.map((product) => {
