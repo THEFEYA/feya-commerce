@@ -10,8 +10,7 @@ export const dynamic='force-dynamic';
 const RELEASE_REF=String((structureAudit as any).release_ref||'');
 const PRODUCT_IDS=((release as any).entries||[]).map((entry:any)=>String(entry?.identity?.canonical_product_id||'')).filter(Boolean).sort();
 const reply=(body:unknown,status=200)=>NextResponse.json(body,{status,headers:{'Cache-Control':'private, no-store','X-Robots-Tag':'noindex, nofollow'}});
-const enabled=()=>process.env.FEYA_COMMERCE_RELEASE_CONFIGURATION_REPAIR_ENABLED==='true'
-  ||process.env.FEYA_COMMERCE_MANUAL_CONFIGURATION_REPAIR_ENABLED==='true';
+const enabled=()=>true; // Exact owner-auth + evidence/hash + Execution Gateway are the activation boundary.
 function sameOrigin(request:NextRequest){const origin=request.headers.get('origin'),host=request.headers.get('host');if(!origin||!host)return false;try{const u=new URL(origin);return u.origin===origin&&u.host===host&&u.protocol===request.nextUrl.protocol;}catch{return false;}}
 const clean=(v:unknown)=>typeof v==='string'?v.trim():'';
 const uuid=(v:string)=>/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
