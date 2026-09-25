@@ -2,29 +2,61 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { adminAccessDecision } from '@/lib/adminAccess';
 import { isOwnerPreviewDeployment } from '@/lib/ownerPreviewPolicy';
+import {
+  isOwnerActionStepUpPath,
+  ownerPreviewMutationAllowed,
+} from '@/lib/ownerActionStepUpPolicy';
 
 function getPublicKey() {
   return process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || null;
 }
 
 export async function middleware(request: NextRequest) {
-  const isAdminApi = request.nextUrl.pathname.startsWith('/api/admin/');
+  const pathname = request.nextUrl.pathname;
+  const isAdminApi = pathname.startsWith('/api/admin/');
+  const isLogin = pathname === '/admin/login';
+  const isStepUpOwnerAction = isOwnerActionStepUpPath(pathname);
+  const ownerPreview = isOwnerPreviewDeployment(process.env);
 
-  if (isOwnerPreviewDeployment(process.env)) {
-    const headers = { 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex, nofollow, noarchive' };
-    if (!['GET', 'HEAD'].includes(request.method)) {
-      return NextResponse.json({ ok: false, code: 'owner_preview_read_only', error: 'Предпросмотр: изменение данных выключено.' }, { status: 423, headers });
+  if (isLogin) {
+    if (ownerPreview && !ownerPreviewMutationAllowed(pathname, request.method, process.env)) {
+      return NextResponse.json(
+        { ok: false, code: 'owner_preview_read_only', error: 'Предпросмотр: изменение данных выключено.' },
+        { status: 423, headers: { 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex, nofollow, noarchive' } },
+      );
     }
     const response = NextResponse.next({ request });
-    for (const [key, value] of Object.entries(headers)) response.headers.set(key, value);
+    response.headers.set('Cache-Control','private, no-store');
+    response.headers.set('X-Robots-Tag','noindex, nofollow, noarchive');
     return response;
   }
 
-  if (request.nextUrl.pathname === '/admin/login') {
-    return NextResponse.next({ request });
+  if (ownerPreview && ['GET','HEAD'].includes(request.method) && !isStepUpOwnerAction) {
+    const response = NextResponse.next({ request });
+    response.headers.set('Cache-Control','private, no-store');
+    response.headers.set('X-Robots-Tag','noindex, nofollow, noarchive');
+    return response;
   }
 
-  if (process.env.FEYA_ADMIN_AUTH_REQUIRED !== 'true') {
+  if (ownerPreview && !['GET','HEAD'].includes(request.method)
+    && !ownerPreviewMutationAllowed(pathname,request.method,process.env)) {
+    return NextResponse.json(
+      { ok: false, code: 'owner_preview_read_only', error: 'Предпросмотр: изменение данных выключено.' },
+      { status: 423, headers: { 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex, nofollow, noarchive' } },
+    );
+  }
+
+  const stepUpAuth = isStepUpOwnerAction && process.env.FEYA_OWNER_ACTION_AUTH_REQUIRED === 'true';
+  const fullAdminAuth = process.env.FEYA_ADMIN_AUTH_REQUIRED === 'true';
+  const authRequiredForRequest = fullAdminAuth || stepUpAuth;
+
+  if (!authRequiredForRequest) {
+    if (ownerPreview) {
+      return NextResponse.json(
+        { ok: false, code: 'owner_action_step_up_disabled', error: 'Protected owner action authentication is disabled.' },
+        { status: 423, headers: { 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex, nofollow, noarchive' } },
+      );
+    }
     return isAdminApi
       ? NextResponse.json({ ok: false, error: 'FEYA Admin is locked until authentication is configured.' }, { status: 503, headers: { 'Cache-Control': 'private, no-store' } })
       : new NextResponse('FEYA Admin is locked until authentication is configured.', { status: 503, headers: { 'Cache-Control': 'private, no-store' } });
@@ -78,14 +110,14 @@ export async function middleware(request: NextRequest) {
   if (!claims) {
     if (isAdminApi) {
       return NextResponse.json(
-        { ok: false, error: 'Authentication required.' },
+        { ok: false, code: 'authentication_required', error: 'Authentication required.' },
         { status: 401, headers: { 'Cache-Control': 'private, no-store' } },
       );
     }
 
     const url = request.nextUrl.clone();
     url.pathname = '/admin/login';
-    url.searchParams.set('next', request.nextUrl.pathname);
+    url.searchParams.set('next', pathname);
     return NextResponse.redirect(url);
   }
 
@@ -94,7 +126,7 @@ export async function middleware(request: NextRequest) {
   if (!access.configured) {
     if (isAdminApi) {
       return NextResponse.json(
-        { ok: false, error: 'FEYA Admin auth is enabled, but no admin allowlist is configured.' },
+        { ok: false, code: 'owner_allowlist_missing', error: 'FEYA Admin auth is enabled, but no admin allowlist is configured.' },
         { status: 403, headers: { 'Cache-Control': 'private, no-store' } },
       );
     }
@@ -108,7 +140,7 @@ export async function middleware(request: NextRequest) {
   if (!access.allowed) {
     if (isAdminApi) {
       return NextResponse.json(
-        { ok: false, error: 'Not authorized for FEYA Admin.' },
+        { ok: false, code: 'owner_not_allowed', error: 'Not authorized for FEYA Admin.' },
         { status: 403, headers: { 'Cache-Control': 'private, no-store' } },
       );
     }
@@ -121,6 +153,7 @@ export async function middleware(request: NextRequest) {
   }
 
   response.headers.set('Cache-Control', 'private, no-store');
+  if (ownerPreview) response.headers.set('X-Robots-Tag','noindex, nofollow, noarchive');
   return response;
 }
 
