@@ -1,3 +1,5 @@
+import structureAudit from '@/docs/search/configuration-binding-audit-20260925.json';
+
 type Row = Record<string, unknown>;
 
 export type CommerceExecutionApprovalVM = {
@@ -43,6 +45,9 @@ export function presentCommerceExecutionApproval(row: Row): CommerceExecutionApp
   if (actionCode === 'ADOPT_SOURCE_PRICE_BASELINE') {
     const products = ids(data.canonical_product_ids);
     const prices = number(data.price_row_count);
+    const expectedProducts=Number((structureAudit as any).clean_configuration_baseline_products_after_repair||0);
+    const expectedPrices=Number((structureAudit as any).clean_configuration_baseline_price_rows_after_repair||0);
+    if(products!==expectedProducts||prices!==expectedPrices)return null;
     return {
       id: `execution:${requestId}`,
       sourceCode: actionCode,
@@ -58,23 +63,28 @@ export function presentCommerceExecutionApproval(row: Row): CommerceExecutionApp
     };
   }
 
-  if (actionCode === 'REPAIR_MANUAL_CONFIGURATION_BINDINGS') {
+  if (actionCode === 'REPAIR_RELEASE_CONFIGURATION_BINDINGS') {
     const products = ids(data.canonical_product_ids);
-    const prices = number(data.expected_price_rows);
-    const configs = number(data.expected_target_configurations);
+    const rows = number(data.expected_rebind_rows);
+    const create = number(data.expected_create_configurations);
     return {
       id: `execution:${requestId}`,
       sourceCode: actionCode,
       priorityLabel: 'Важно',
       tone: 'warning',
       typeLabel: 'Подтверждение',
-      title: 'Подтвердить разделение sellable configurations',
-      whyNow: `У ${products || 2} manual-price товаров разные продаваемые варианты сейчас склеены в общие identities${prices ? `; затронуто ${prices} price rows` : ''}${configs ? `, целевое состояние — ${configs} configurations` : ''}. Суммы цен repair не меняет.`,
-      requiredAction: 'Открыть проверку цен, сверить structural repair и подтвердить точный mutation scope.',
+      title: 'Исправить configuration identities launch-каталога',
+      whyNow: `Полный production-аудит обнаружил catalog-wide structural defect: ${rows || 631} configuration-axis price rows привязаны к неверным sellable configuration identities. Repair охватывает ${products || 207} launch-товаров и создаёт ${create || 631} недостающих identities без изменения цен.`,
+      requiredAction: 'Открыть проверку цен, сверить exact structural evidence и подтвердить atomic rebinding. Три color-price товара останутся отдельным HOLD.',
       statusLabel: 'Открыто',
       dueAt: null,
-      href: '/admin/review/prices#manual-configuration-repair',
+      href: '/admin/review/prices#release-configuration-repair',
     };
+  }
+
+  if (actionCode === 'REPAIR_MANUAL_CONFIGURATION_BINDINGS') {
+    // Superseded by catalog-wide configuration repair; keep historical request in DB but do not surface it as actionable.
+    return null;
   }
 
   if (actionCode === 'ADOPT_MANUAL_PRICE_LANE_GOVERNANCE') {
