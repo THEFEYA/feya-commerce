@@ -67,9 +67,11 @@ export async function verifyOwnerActionStepUpRuntime({
       const body=await response.json();
       assert.equal(body.code,'price_baseline_adoption_disabled');
 
-      const unrelated=await page.request.post(base+'/api/admin/review-events',{data:{}});
-      assert.equal(unrelated.status(),423);
-      assert.equal((await unrelated.json()).code,'owner_preview_read_only');
+      for(const path of ['/api/admin/review-events','/api/admin/company/execution-approval']){
+        const unrelated=await page.request.post(base+path,{data:{}});
+        assert.equal(unrelated.status(),423);
+        assert.equal((await unrelated.json()).code,'owner_preview_read_only');
+      }
     });
     await owner.close();
 

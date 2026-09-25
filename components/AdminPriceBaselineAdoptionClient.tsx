@@ -41,7 +41,7 @@ export function AdminPriceBaselineAdoptionClient({preparedCount}:{preparedCount:
     setBusy(true);setMessage('Записываю human approval…');
     try{
       const reason=`Подтверждаю unchanged source-price baseline: ${state.preview.candidate_product_count} товаров / ${state.preview.candidate_price_row_count} цен; evidence ${state.preview.evidence_sha256.slice(0,16)}.`;
-      const approval=await fetch('/api/admin/company/execution-approval',{
+      const approval=await fetch('/api/admin/review/prices/baseline-adoption/approval',{
         method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
           execution_request_id:state.execution.execution_request_id,

@@ -1,6 +1,6 @@
 export const OWNER_ACTION_STEP_UP_PATHS = new Set([
-  '/api/admin/company/execution-approval',
   '/api/admin/review/prices/baseline-adoption',
+  '/api/admin/review/prices/baseline-adoption/approval',
 ]);
 
 export function isOwnerActionAuthRequired(env:Record<string,string|undefined>){
