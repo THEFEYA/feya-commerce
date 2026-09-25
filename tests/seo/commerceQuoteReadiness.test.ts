@@ -83,7 +83,7 @@ test('invalid identity and non-positive or malformed price are reported determin
     'PUBLIC_PRICE_INVALID',
   ]);
   row.public_price_amount = '12,50';
-  assert.match(() => requireConfigurationQuoteReady(row), /configuration_quote_not_ready/);
+  assert.throws(() => requireConfigurationQuoteReady(row), /configuration_quote_not_ready/);
 });
 
 test('the readiness gate never activates variants or claims checkout capability', () => {
