@@ -17,5 +17,5 @@ from public.feya_commerce_configuration_prices;
 
 select version,name
 from supabase_migrations.schema_migrations
-where version in ('20260925170000')
+where name='price_baseline_adoption_v1'
 order by version;

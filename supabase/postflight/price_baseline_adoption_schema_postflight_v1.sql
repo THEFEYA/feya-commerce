@@ -18,4 +18,5 @@ order by version_no desc;
 
 select version,name
 from supabase_migrations.schema_migrations
-where version='20260925170000';
+where name='price_baseline_adoption_v1'
+order by version desc;

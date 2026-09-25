@@ -766,3 +766,16 @@ Validation:
 - wrapper remains service-role-only;
 - no approved cluster proposals currently exist;
 - no canonical query cluster was created by migration or UI work.
+
+
+### Commerce price baseline adoption
+
+20260925153503 — price_baseline_adoption_v1
+- remote Supabase version assigned by the migration API to repository migration `supabase/migrations/20260925170000_price_baseline_adoption_v1.sql`
+- installs the private clean-source baseline preview + approved executor
+- registers `ADOPT_SOURCE_PRICE_BASELINE` as HUMAN_REQUIRED / EXECUTION_GATEWAY
+- service_role can preview/execute; anon/authenticated cannot execute
+- production schema apply only; no 205-product adoption execution was run at apply time
+- immediate postflight: 205 candidates / 850 rows / 0 hold / 0 already-ready
+- evidence SHA remained `500c7c18cca25ecee33adb399dfa2380042ed4946775ef95c64f727a8e8e5c6f`
+- Supabase security/performance advisors reported no finding tied to the new baseline functions
