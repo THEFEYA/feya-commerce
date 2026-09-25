@@ -2,25 +2,42 @@ import Link from 'next/link';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { formatDueTime, presentOwnerAttention } from '@/lib/owner-ui/presenters';
+import { presentCommerceExecutionApprovals } from '@/lib/owner-ui/commerceApprovals';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 type Row = Record<string, unknown>;
 
-async function getRows(): Promise<{ rows: Row[]; error?: string }> {
+async function getRows(): Promise<{ rows: Row[]; commerceRows: Row[]; error?: string }> {
   const supabase = getAdminReadClient();
-  if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
+  if (!supabase) return { rows: [], commerceRows: [], error: getMissingAdminDataEnvMessage() };
 
-  const { data, error } = await supabase
-    .from('feya_commerce_v_owner_attention_safe_v2')
-    .select('*')
-    .in('attention_status', ['OPEN', 'ACKNOWLEDGED'])
-    .order('priority', { ascending: true })
-    .order('created_at', { ascending: true });
+  const [attentionResult, commerceResult] = await Promise.all([
+    supabase
+      .from('feya_commerce_v_owner_attention_safe_v2')
+      .select('*')
+      .in('attention_status', ['OPEN', 'ACKNOWLEDGED'])
+      .order('priority', { ascending: true })
+      .order('created_at', { ascending: true }),
+    supabase
+      .from('feya_growth_execution_requests_v1')
+      .select('execution_request_id,action_code,request_status,request_payload_json,created_at,updated_at')
+      .eq('request_status', 'APPROVAL_REQUIRED')
+      .in('action_code', [
+        'ADOPT_SOURCE_PRICE_BASELINE',
+        'REPAIR_MANUAL_CONFIGURATION_BINDINGS',
+        'ADOPT_MANUAL_PRICE_LANE_GOVERNANCE',
+      ])
+      .order('created_at', { ascending: true }),
+  ]);
 
-  if (error) return { rows: [], error: error.message };
-  return { rows: (data || []) as Row[] };
+  const error = attentionResult.error || commerceResult.error;
+  if (error) return { rows: [], commerceRows: [], error: error.message };
+  return {
+    rows: (attentionResult.data || []) as Row[],
+    commerceRows: (commerceResult.data || []) as Row[],
+  };
 }
 
 function toneClass(tone: string) {
@@ -36,8 +53,10 @@ function toneClass(tone: string) {
 }
 
 export default async function AdminOwnerAttentionPage() {
-  const { rows, error } = await getRows();
-  const items = rows.map(presentOwnerAttention);
+  const { rows, commerceRows, error } = await getRows();
+  const items = rows.map((row) => ({ ...presentOwnerAttention(row), href: `/admin/company/owner-attention/${String(row.attention_id)}` }));
+  const commerceItems = presentCommerceExecutionApprovals(commerceRows);
+  const allItems = [...items, ...commerceItems];
 
   return (
     <main className="owner-page">
@@ -55,9 +74,9 @@ export default async function AdminOwnerAttentionPage() {
 
         {error ? <OwnerDataError error={error} /> : null}
 
-        {items.length ? (
+        {allItems.length ? (
           <div className="owner-grid two">
-            {items.map((item) => (
+            {allItems.map((item) => (
               <article className={`owner-card ${toneClass(item.tone)}`} key={item.id}>
                 <div className="owner-card-meta">
                   <span className={`owner-status ${toneClass(item.tone)}`}>{item.priorityLabel}</span>
@@ -81,7 +100,7 @@ export default async function AdminOwnerAttentionPage() {
                 </div>
 
                 <div className="owner-actions">
-                  <Link href={`/admin/company/owner-attention/${item.id}`} className="owner-button primary">Открыть решение</Link>
+                  <Link href={item.href} className="owner-button primary">Открыть решение</Link>
                 </div>
               </article>
             ))}
