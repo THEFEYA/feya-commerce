@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {presentCommerceExecutionApproval, presentCommerceExecutionApprovals} from '../../lib/owner-ui/commerceApprovals';
+import {presentCommerceExecutionApproval, presentCommerceExecutionApprovals} from '../../lib/owner-ui/commerceApprovals.ts';
 
 test('projects exact pending baseline approval into owner UI without changing authority', () => {
   const item=presentCommerceExecutionApproval({
