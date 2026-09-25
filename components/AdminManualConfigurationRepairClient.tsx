@@ -67,7 +67,7 @@ export function AdminManualConfigurationRepairClient({productCount}:{productCoun
 
   if(productCount<1)return null;
 
-  return <div className="mt-4 rounded-xl border border-[rgba(216,214,211,.12)] bg-black/15 p-4">
+  return <div id="manual-configuration-repair" className="mt-4 rounded-xl border border-[rgba(216,214,211,.12)] bg-black/15 p-4">
     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
       <div>
         <div className="text-bone text-[14px]">Manual lane · structural configuration repair</div>
