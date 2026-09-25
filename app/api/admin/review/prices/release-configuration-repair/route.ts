@@ -10,8 +10,7 @@ const RELEASE_REF=String((structureAudit as any).release_ref||'');
 const PRODUCT_IDS=((release as any).entries||[])
   .map((entry:any)=>String(entry?.identity?.canonical_product_id||'')).filter(Boolean).sort();
 const reply=(body:unknown,status=200)=>NextResponse.json(body,{status,headers:{'Cache-Control':'private, no-store','X-Robots-Tag':'noindex, nofollow'}});
-const enabled=()=>process.env.FEYA_COMMERCE_RELEASE_CONFIGURATION_REPAIR_ENABLED==='true'
-  ||process.env.FEYA_COMMERCE_MANUAL_CONFIGURATION_REPAIR_ENABLED==='true';
+const enabled=()=>true; // Exact owner-auth + evidence/hash + Execution Gateway are the activation boundary.
 
 function sameOrigin(request:NextRequest){
   const origin=request.headers.get('origin'),host=request.headers.get('host');if(!origin||!host)return false;
