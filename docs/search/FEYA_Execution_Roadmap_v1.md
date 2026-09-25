@@ -1,3 +1,10 @@
+## Latest commerce authority checkpoint — 25.09.2026
+
+- Production baseline-adoption schema is installed; clean 205-product request remains APPROVAL_REQUIRED and unexecuted.
+- Production manual-configuration-repair schema is installed; exact two-product request `3181a279-3f98-4faf-874f-788d20d8731a` remains APPROVAL_REQUIRED and unexecuted.
+- No price amount, offer, order, payment or indexing activation occurred from either preparation step.
+- Protected step-up endpoints and Price Review controls exist, but human execution remains blocked until an allowlisted Supabase Auth owner session and action-specific environment switches are deliberately enabled.
+
 # FEYA Search + Commerce: маршрут до запуска
 
 ## Current C4.3 checkpoint — production baseline schema + step-up owner boundary, 25.09.2026

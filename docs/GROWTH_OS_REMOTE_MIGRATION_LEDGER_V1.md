@@ -779,3 +779,15 @@ Validation:
 - immediate postflight: 205 candidates / 850 rows / 0 hold / 0 already-ready
 - evidence SHA remained `500c7c18cca25ecee33adb399dfa2380042ed4946775ef95c64f727a8e8e5c6f`
 - Supabase security/performance advisors reported no finding tied to the new baseline functions
+
+
+### Manual-lane sellable configuration repair
+
+20260925162857 — manual_configuration_binding_repair_v1
+- remote Supabase version assigned to repository migration `supabase/migrations/20260925193000_manual_configuration_binding_repair_v1.sql`
+- installs exact two-product evidence reader + HUMAN_REQUIRED repair executor
+- service_role only; anon/authenticated execute denied
+- schema apply changed no configuration binding or price value
+- immediate evidence remained 6 price rows / 3 configuration rows / SHA `19a84d86e52724753350d3c12d22ded4e6e19a0ab2c0dedb36a292a481e502ae`
+- no security/performance advisor finding tied to the new repair functions
+- agent-prepared request `3181a279-3f98-4faf-874f-788d20d8731a` remains `APPROVAL_REQUIRED`; no approval hash, receipt or repair execution exists
