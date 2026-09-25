@@ -184,10 +184,10 @@ begin
     return receipt.response||'{"replayed":true}'::jsonb;
   end if;
 
-  select * into head_row from public.feya_commerce_offer_heads_v1 h where h.canonical_product_id=product_id for share;
+  select * into head_row from public.feya_commerce_offer_heads_v1 h where h.canonical_product_id=product_id;
   if not found then raise exception 'quote_offer_not_found'; end if;
   select * into offer_row from public.feya_commerce_offer_revisions_v1 o
-    where o.offer_revision_id=head_row.current_offer_revision_id and o.canonical_product_id=product_id for share;
+    where o.offer_revision_id=head_row.current_offer_revision_id and o.canonical_product_id=product_id;
   if not found then raise exception 'quote_offer_not_found'; end if;
   if offer_row.status<>'active' then raise exception 'quote_offer_not_orderable'; end if;
   if offer_row.offer_revision<>expected_offer_revision then raise exception 'quote_offer_revision_conflict'; end if;
@@ -195,7 +195,7 @@ begin
   if quantity>offer_row.max_quantity_per_line then raise exception 'quote_quantity_exceeds_offer_limit'; end if;
 
   select * into item_row from public.feya_commerce_offer_variant_items_v1 i
-    where i.offer_revision_id=offer_row.offer_revision_id and i.variant_id=variant_id for share;
+    where i.offer_revision_id=offer_row.offer_revision_id and i.variant_id=variant_id;
   if not found or item_row.item_status<>'active' then raise exception 'quote_variant_not_orderable'; end if;
   if item_row.canonical_product_id<>product_id or item_row.configuration_price_id<>config_id
     or item_row.color_id is distinct from color_id or item_row.size_id is distinct from size_id then raise exception 'quote_variant_conflict'; end if;
