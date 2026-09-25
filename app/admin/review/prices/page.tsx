@@ -3,6 +3,7 @@ import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminDa
 import Link from 'next/link';
 import { ArrowUpRight, BadgePercent, Calculator, CircleDollarSign, ShieldCheck, WalletCards } from 'lucide-react';
 import { AdminQueueQuickReviewClient } from '@/components/AdminQueueQuickReviewClient';
+import { AdminPriceBaselineAdoptionClient } from '@/components/AdminPriceBaselineAdoptionClient';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, formatPrice, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
 import { classifyConfigurationQuoteReadiness } from '@/lib/commerceQuoteReadiness';
@@ -279,6 +280,7 @@ export default async function AdminPriceReviewPage() {
           <Metric icon={CircleDollarSign} label="Already ready" value={alreadyReadyProducts} note="Все строки товара уже проходят текущий governance gate." />
           <Metric icon={Calculator} label="Other hold" value={adoptionHoldProducts} note="Необъяснимые или структурные расхождения; автоматический перенос запрещён." />
         </div>
+        <AdminPriceBaselineAdoptionClient preparedCount={cleanBaselineProducts} />
       </section>
 
       <section className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5 mb-8">
