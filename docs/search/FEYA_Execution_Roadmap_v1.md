@@ -1,5 +1,15 @@
 # FEYA Search + Commerce: маршрут до запуска
 
+## Current C4.3 checkpoint — production baseline schema + step-up owner boundary, 25.09.2026
+
+Production project `ysnizcgzhdwdfdkjkhud` now has only the narrowly scoped `price_baseline_adoption_v1` schema installed. Supabase recorded the remote migration as `20260925153503`; repository source remains `supabase/migrations/20260925170000_price_baseline_adoption_v1.sql`. Immediate postflight preserved the exact **205 clean products / 850 price rows / 0 hold** evidence and SHA `500c7c18cca25ecee33adb399dfa2380042ed4946775ef95c64f727a8e8e5c6f`. Anon/authenticated cannot execute the new executor; service_role can.
+
+No 205-product Execution Request, human approval or executor run has occurred in production. Offer/quote/variant migrations remain unapplied; payment and indexing remain OFF.
+
+To preserve the owner-approved direct read-only Product OS preview, protected mutations no longer require turning the whole Admin into a login wall. A dedicated step-up auth boundary now exists for only the baseline prepare/execute endpoint and its baseline-specific approval endpoint. The generic execution-approval route is deliberately excluded. Real isolated browser runtime proof is part of the exact-head CI before any application-side action window is enabled.
+
+**Next gate:** exact-head runtime PASS for the step-up boundary, then hosted environment configuration/verification for owner login + allowlist + the three owner-action switches. Only after that can a production batch be prepared; prepare still performs no price-governance mutation.
+
 Актуализировано 24 сентября 2026; постоянный checkpoint для следующих сессий. Основа: `FEYA_Search_Architecture_v1.md` (A–K), `FEYA_Page_Portfolio_Schema_v1.md`, `FEYA_Keyword_Research_Queue_v1.json`, `Launch_Track_Decision_20260924.md`, Product/Growth contracts, предметные audits. Статус из этого документа проверяется по фактическому commit, БД и deployment, а не по памяти разговора. Owner отвечает за стратегические бизнес решения; Core проверяет роли/версии и исполняет только разрешённый changeset.
 
 ## C4.3-A — quote readiness audit, 25.09.2026
