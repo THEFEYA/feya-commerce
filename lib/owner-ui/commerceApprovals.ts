@@ -1,3 +1,5 @@
+import structureAudit from '@/docs/search/configuration-binding-audit-20260925.json';
+
 import structureAudit from '../../docs/search/configuration-binding-audit-20260925.json' with {type:'json'};
 
 type Row = Record<string, unknown>;
@@ -38,6 +40,8 @@ function ids(value: unknown) {
 
 export function presentCommerceExecutionApproval(row: Row): CommerceExecutionApprovalVM | null {
   const actionCode = text(row.action_code).toUpperCase();
+  const structureRepairPending = String((structureAudit as {status?:unknown}).status || '').startsWith('STRUCTURAL_DEFECT');
+  if (structureRepairPending && (actionCode === 'ADOPT_SOURCE_PRICE_BASELINE' || actionCode === 'REPAIR_MANUAL_CONFIGURATION_BINDINGS')) return null;
   const requestId = text(row.execution_request_id);
   const data = payload(row);
   if (!requestId) return null;
