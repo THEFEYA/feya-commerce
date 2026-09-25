@@ -1,0 +1,105 @@
+type Row = Record<string, unknown>;
+
+export type CommerceExecutionApprovalVM = {
+  id: string;
+  sourceCode: string;
+  priorityLabel: string;
+  tone: 'warning';
+  typeLabel: string;
+  title: string;
+  whyNow: string;
+  requiredAction: string;
+  statusLabel: string;
+  dueAt: null;
+  href: string;
+};
+
+function text(value: unknown) {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function payload(row: Row): Record<string, unknown> {
+  const value = row.request_payload_json;
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {};
+}
+
+function number(value: unknown) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function ids(value: unknown) {
+  return Array.isArray(value) ? value.filter((item) => typeof item === 'string' && item.trim()).length : 0;
+}
+
+export function presentCommerceExecutionApproval(row: Row): CommerceExecutionApprovalVM | null {
+  const actionCode = text(row.action_code).toUpperCase();
+  const requestId = text(row.execution_request_id);
+  const data = payload(row);
+  if (!requestId) return null;
+
+  if (actionCode === 'ADOPT_SOURCE_PRICE_BASELINE') {
+    const products = ids(data.canonical_product_ids);
+    const prices = number(data.price_row_count);
+    return {
+      id: `execution:${requestId}`,
+      sourceCode: actionCode,
+      priorityLabel: 'Важно',
+      tone: 'warning',
+      typeLabel: 'Подтверждение',
+      title: 'Подтвердить базовые цены launch-каталога',
+      whyNow: `Подготовлен точный unchanged-source batch${products ? ` для ${products} товаров` : ''}${prices ? ` / ${prices} цен` : ''}. Без подтверждения эти цены не могут стать authority для variants, offers и server quote.`,
+      requiredAction: 'Открыть проверку цен, сверить exact batch и подтвердить его только если scope и evidence совпадают.',
+      statusLabel: 'Открыто',
+      dueAt: null,
+      href: '/admin/review/prices#baseline-adoption',
+    };
+  }
+
+  if (actionCode === 'REPAIR_MANUAL_CONFIGURATION_BINDINGS') {
+    const products = ids(data.canonical_product_ids);
+    const prices = number(data.expected_price_rows);
+    const configs = number(data.expected_target_configurations);
+    return {
+      id: `execution:${requestId}`,
+      sourceCode: actionCode,
+      priorityLabel: 'Важно',
+      tone: 'warning',
+      typeLabel: 'Подтверждение',
+      title: 'Подтвердить разделение sellable configurations',
+      whyNow: `У ${products || 2} manual-price товаров разные продаваемые варианты сейчас склеены в общие identities${prices ? `; затронуто ${prices} price rows` : ''}${configs ? `, целевое состояние — ${configs} configurations` : ''}. Суммы цен repair не меняет.`,
+      requiredAction: 'Открыть проверку цен, сверить structural repair и подтвердить точный mutation scope.',
+      statusLabel: 'Открыто',
+      dueAt: null,
+      href: '/admin/review/prices#manual-configuration-repair',
+    };
+  }
+
+  if (actionCode === 'ADOPT_MANUAL_PRICE_LANE_GOVERNANCE') {
+    const prices = number(data.expected_price_rows);
+    const configs = number(data.expected_configuration_rows);
+    return {
+      id: `execution:${requestId}`,
+      sourceCode: actionCode,
+      priorityLabel: 'Важно',
+      tone: 'warning',
+      typeLabel: 'Подтверждение',
+      title: 'Подтвердить финальный governance manual-price товаров',
+      whyNow: `После structural repair готов exact governance${prices ? ` для ${prices} цен` : ''}${configs ? ` / ${configs} configurations` : ''}. Owner override prices сохраняются без изменения.`,
+      requiredAction: 'Проверить post-repair evidence и подтвердить governance перед созданием authoritative variants/offers.',
+      statusLabel: 'Открыто',
+      dueAt: null,
+      href: '/admin/review/prices#manual-price-governance',
+    };
+  }
+
+  return null;
+}
+
+export function presentCommerceExecutionApprovals(rows: Row[]) {
+  return rows
+    .map(presentCommerceExecutionApproval)
+    .filter((item): item is CommerceExecutionApprovalVM => Boolean(item));
+}
