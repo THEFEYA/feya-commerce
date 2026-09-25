@@ -26,7 +26,7 @@ test('projects catalog-wide structural repair as the current M1 owner gate', () 
     },
   });
   assert.ok(item);
-  assert.equal(item.href,'/admin/review/prices#release-configuration-repair');
+  assert.equal(item.href,'/admin/company/commerce-configuration-repair');
   assert.match(item.whyNow,/631 configuration-axis price rows/);
   assert.match(item.whyNow,/207 launch-товаров/);
 });
