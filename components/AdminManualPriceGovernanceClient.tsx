@@ -29,7 +29,7 @@ export function AdminManualPriceGovernanceClient({productCount}:{productCount:nu
   }catch(e){setMessage(e instanceof Error?e.message:'Governance adoption не выполнен.')}finally{setBusy(false)}
  }
  if(productCount<1)return null;
- return <div className="mt-4 rounded-xl border border-[rgba(216,214,211,.12)] bg-black/15 p-4">
+ return <div id="manual-price-governance" className="mt-4 rounded-xl border border-[rgba(216,214,211,.12)] bg-black/15 p-4">
   <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
    <div><div className="text-bone text-[14px]">Manual lane · final price governance</div><div className="mt-1 text-[11px] leading-relaxed text-[var(--bone-dim)]">Доступно только после structural repair: 6 truthful configuration identities → 6/6 quote-ready. Две owner prices остаются неизменными.</div></div>
    <div className="flex flex-wrap gap-2">
