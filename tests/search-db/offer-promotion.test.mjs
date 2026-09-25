@@ -9,6 +9,7 @@ import {
 } from './helpers/offer-promotion.mjs';
 const nativeURL=process.env.FEYA_TEST_DATABASE_URL;
 const actor='70000000-0000-4000-8000-000000000041';
+const otherActor='70000000-0000-4000-8000-000000000042';
 let db,base;
 async function connect(){const u=new URL(nativeURL);assert.ok(['localhost','127.0.0.1'].includes(u.hostname));assert.equal(u.pathname,'/feya_test');
   const c=new pg.Client({connectionString:nativeURL,statement_timeout:15000,connectionTimeoutMillis:5000});await c.connect();return c;}
@@ -17,7 +18,7 @@ before(async()=>{
     assert.equal((await db.query("select count(*)::int n from pg_tables where schemaname='public'")).rows[0].n,0,'Dedicated empty DB required');}
   else db=new PGlite();
   await db.exec(await variantDependenciesSQL({pglite:!nativeURL}));
-  await db.query('insert into auth.users(id) values($1)',[actor]);
+  await db.query('insert into auth.users(id) values($1),($2)',[actor,otherActor]);
   await seedVariantProduct(db);await db.exec(await variantMigrationSQL());base=await saveBaseVariant(db,actor);
   await db.exec(await commerceQuoteMigrationSQL());await db.exec(await offerPromotionMigrationSQL());await approveBaseConfiguration(db);
 });
@@ -50,7 +51,7 @@ test('reviewed exact configuration promotes one immutable active offer and canon
 test('same request replays exact receipt and changed payload/actor conflict without new offer',async()=>{
   const replay=await promote(firstPayload);assert.equal(replay.replayed,true);assert.equal(replay.offer_revision_id,firstReceipt.offer_revision_id);
   await assert.rejects(promote({...firstPayload,max_quantity_per_line:5}),/offer_promotion_request_conflict/);
-  await assert.rejects(promote(firstPayload,db,randomUUID()),/offer_promotion_request_conflict/);
+  await assert.rejects(promote(firstPayload,db,otherActor),/offer_promotion_request_conflict/);
   assert.deepEqual(await counts(),{offers:1,items:1,receipts:1,outbox:1});
 });
 test('new promotion requires both current variant revision and current offer revision',async()=>{
