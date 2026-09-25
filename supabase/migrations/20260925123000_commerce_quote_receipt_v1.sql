@@ -158,9 +158,12 @@ begin
   foreach k in array array['expected_product_revision','expected_offer_revision','quantity'] loop
     if jsonb_typeof(p_payload->k)<>'number'
       or (p_payload->>k)::numeric<>trunc((p_payload->>k)::numeric)
-      or (p_payload->>k)::numeric<1
-      or (p_payload->>k)::numeric>case when k='quantity' then 2147483647 else 9007199254740991 end
-      then raise exception 'quote_request_invalid'; end if;
+      or (p_payload->>k)::numeric<1 then raise exception 'quote_request_invalid'; end if;
+    if k='quantity' then
+      if (p_payload->>k)::numeric>2147483647 then raise exception 'quote_request_invalid'; end if;
+    elsif (p_payload->>k)::numeric>9007199254740991 then
+      raise exception 'quote_request_invalid';
+    end if;
   end loop;
 
   request_id:=(p_payload->>'request_id')::uuid;
