@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "status": "HOLD_NOT_AUTHORIZED",
+  "checked_at": "2026-09-25",
+  "production_project_ref": "ysnizcgzhdwdfdkjkhud",
+  "release_ref": "feya-review-207-20260924",
+  "release_source_sha256": "6842ff45e4380758216f74cb309e557d68d5f6692a1206254beef954eab07440",
+  "exact_pre_cutover_evidence_sha256": "500c7c18cca25ecee33adb399dfa2380042ed4946775ef95c64f727a8e8e5c6f",
+  "expected": {
+    "release_products": 207,
+    "clean_source_products": 205,
+    "clean_source_price_rows": 850,
+    "manual_override_products": 2,
+    "unexplained_hold_products": 0,
+    "already_ready_clean_products": 0
+  },
+  "production_observed": {
+    "migrations_since_20260924": 0,
+    "variant_schema_present": false,
+    "quote_schema_present": false,
+    "offer_schema_present": false,
+    "baseline_adoption_schema_present": false
+  },
+  "minimal_cutover_plan": {
+    "apply_only": "supabase/migrations/20260925170000_price_baseline_adoption_v1.sql",
+    "do_not_bundle": [
+      "supabase/migrations/20260924173914_product_variant_draft_atomic_v1.sql",
+      "supabase/migrations/20260925123000_commerce_quote_receipt_v1.sql",
+      "supabase/migrations/20260925143000_commerce_offer_promotion_v1.sql"
+    ],
+    "reason": "Minimize production blast radius: price-governance adoption is independently testable and does not require active variant/quote/offer infrastructure."
+  },
+  "feature_gates": {
+    "FEYA_OWNER_ACTIONS_ENABLED": "UNKNOWN_BLOCKER",
+    "FEYA_COMMERCE_PRICE_BASELINE_ADOPTION_ENABLED": "MUST_START_FALSE",
+    "admin_auth_allowlist_service_role": "MUST_PASS"
+  },
+  "authorization": {
+    "schema_apply": false,
+    "batch_prepare": false,
+    "human_approval": false,
+    "batch_execute": false,
+    "payment": false,
+    "indexing": false
+  },
+  "go_conditions": [
+    "exact_head_ci_success",
+    "target_migration_not_previously_applied",
+    "205_clean_products_850_rows_0_hold",
+    "pre_cutover_evidence_sha256_matches",
+    "owner_auth_allowlist_service_role_ready",
+    "dedicated_feature_flag_starts_false",
+    "schema_postflight_passes_before_route_enable",
+    "manual_override_products_excluded",
+    "payment_and_indexing_remain_false"
+  ]
+}
