@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowUpRight, BadgePercent, Calculator, CircleDollarSign, ShieldCheck, WalletCards } from 'lucide-react';
 import { AdminQueueQuickReviewClient } from '@/components/AdminQueueQuickReviewClient';
 import { AdminPriceBaselineAdoptionClient } from '@/components/AdminPriceBaselineAdoptionClient';
-import { AdminReleaseConfigurationRepairClient } from '@/components/AdminReleaseConfigurationRepairClient';
+import { AdminManualConfigurationRepairClient } from '@/components/AdminManualConfigurationRepairClient';
 import { AdminManualPriceGovernanceClient } from '@/components/AdminManualPriceGovernanceClient';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, formatPrice, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
@@ -282,8 +282,8 @@ export default async function AdminPriceReviewPage() {
           <Metric icon={CircleDollarSign} label="Already ready" value={alreadyReadyProducts} note="Все строки товара уже проходят текущий governance gate." />
           <Metric icon={Calculator} label="Other hold" value={adoptionHoldProducts} note="Необъяснимые или структурные расхождения; автоматический перенос запрещён." />
         </div>
-        <AdminReleaseConfigurationRepairClient />
         <AdminPriceBaselineAdoptionClient preparedCount={cleanBaselineProducts} />
+        <AdminManualConfigurationRepairClient productCount={manualOverrideProducts} />
         <AdminManualPriceGovernanceClient productCount={manualOverrideProducts} />
       </section>
 
