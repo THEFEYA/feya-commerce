@@ -2,7 +2,7 @@ import test,{before,after} from 'node:test';
 import assert from 'node:assert/strict';
 import {PGlite} from '@electric-sql/pglite';
 import pg from 'pg';
-import {variantDependenciesSQL,seedVariantProduct,variantTestIds as ids,priceBaselineMigrationSQL,seedPriceProvenance,ensureExecutionReceiptDependency} from './helpers/price-baseline-adoption.mjs';
+import {variantDependenciesSQL,seedVariantProduct,variantTestIds as ids,priceBaselineMigrationSQL,priceBaselineStructuralGuardSQL,seedPriceProvenance,ensureExecutionReceiptDependency} from './helpers/price-baseline-adoption.mjs';
 
 const nativeURL=process.env.FEYA_TEST_DATABASE_URL;
 const actor='70000000-0000-4000-8000-000000000041';
@@ -13,7 +13,7 @@ before(async()=>{
   else db=new PGlite();
   await db.exec(await variantDependenciesSQL({pglite:!nativeURL}));
   await db.query('insert into auth.users(id) values($1)',[actor]);
-  await seedVariantProduct(db);await seedPriceProvenance(db);await ensureExecutionReceiptDependency(db);await db.exec(await priceBaselineMigrationSQL());
+  await seedVariantProduct(db);await seedPriceProvenance(db);await ensureExecutionReceiptDependency(db);await db.exec(await priceBaselineMigrationSQL());await db.exec(await priceBaselineStructuralGuardSQL());
 });
 after(async()=>{await db?.close();});
 async function service(fn,c=db){await c.query('set role service_role');try{return await fn(c);}finally{await c.query('reset role');}}
@@ -39,6 +39,16 @@ test('preview is private and classifies clean unchanged source evidence without 
     await assert.rejects(db.query('select public.feya_commerce_preview_price_baseline_adoption_v1($1::uuid[])',[[ids.product]]),/permission denied/);
     await assert.rejects(db.query('select public.feya_commerce_execute_price_baseline_adoption_v1($1)',[ids.product]),/permission denied/);
   }finally{await db.query('reset role');}}
+});
+
+
+test('structural guard rejects a configuration mapping mismatch before approval can become commerce authority',async()=>{
+  const health=await service(async()=> (await db.query('select public.feya_commerce_price_baseline_structure_health_v1($1::uuid[]) r',[[ids.product]])).rows[0].r);
+  assert.equal(health.ready,true);
+  await db.query("update public.feya_commerce_sellable_configurations set option_mapping_id=null where sellable_configuration_id=$1",[ids.parent]);
+  const blocked=await service(async()=> (await db.query('select public.feya_commerce_price_baseline_structure_health_v1($1::uuid[]) r',[[ids.product]])).rows[0].r);
+  assert.equal(blocked.ready,false);assert.equal(blocked.mapping_mismatch_rows,1);
+  await seedPriceProvenance(db);
 });
 
 let executionId;
