@@ -5,7 +5,7 @@ import {PGlite} from '@electric-sql/pglite';
 import pg from 'pg';
 import {
   variantDependenciesSQL,variantMigrationSQL,commerceQuoteMigrationSQL,offerPromotionMigrationSQL,
-  seedVariantProduct,variantTestIds as ids,saveBaseVariant,approveBaseConfiguration,
+  seedVariantProduct,variantDraftRequest,variantTestIds as ids,saveBaseVariant,approveBaseConfiguration,
 } from './helpers/offer-promotion.mjs';
 const nativeURL=process.env.FEYA_TEST_DATABASE_URL;
 const actor='70000000-0000-4000-8000-000000000041';
@@ -79,7 +79,7 @@ test('configuration approval is independent from price approval',async()=>{
 });
 test('explicit draft exception is held until a dedicated verified exception workflow exists',async()=>{
   const ctx=await service(async()=> (await db.query('select public.feya_commerce_read_variant_draft_v1($1) r',[ids.product])).rows[0].r);
-  const p={...base.payload,request_id:randomUUID(),expected_revision:ctx.current_revision,snapshot:{...structuredClone(ctx.snapshot),product_revision:ctx.current_revision+1}};
+  const p=variantDraftRequest(ctx,randomUUID());
   p.snapshot.variants[0].pricing={mode:'exception_override',exception_id:randomUUID(),reason:'Synthetic exception pending verification',
     price:{...p.snapshot.configurations[0].base_price,quote_id:randomUUID(),price_revision:1,amount_minor:15000}};
   await service(c=>c.query('select public.feya_commerce_save_variant_draft_v1($1,$2::jsonb)',[actor,JSON.stringify(p)]));
@@ -87,7 +87,7 @@ test('explicit draft exception is held until a dedicated verified exception work
 });
 test('after restoring base pricing, second offer revision can promote and server quote binds to the new head',async()=>{
   const ctx=await service(async()=> (await db.query('select public.feya_commerce_read_variant_draft_v1($1) r',[ids.product])).rows[0].r);
-  const p={...base.payload,request_id:randomUUID(),expected_revision:ctx.current_revision,snapshot:{...structuredClone(ctx.snapshot),product_revision:ctx.current_revision+1}};
+  const p=variantDraftRequest(ctx,randomUUID());
   p.snapshot.variants[0].pricing={mode:'configuration_base'};
   await service(c=>c.query('select public.feya_commerce_save_variant_draft_v1($1,$2::jsonb)',[actor,JSON.stringify(p)]));
   const second=await promote(payload(randomUUID(),{expected_variant_revision:3,expected_offer_revision:1}));
@@ -105,7 +105,7 @@ test('historical offer/item/promotion receipts are immutable while the head adva
 });
 test('injected outbox failure rolls back offer, execution, event and receipt together',async()=>{
   const ctx=await service(async()=> (await db.query('select public.feya_commerce_read_variant_draft_v1($1) r',[ids.product])).rows[0].r);
-  const p={...base.payload,request_id:randomUUID(),expected_revision:ctx.current_revision,snapshot:{...structuredClone(ctx.snapshot),product_revision:ctx.current_revision+1}};
+  const p=variantDraftRequest(ctx,randomUUID());
   await service(c=>c.query('select public.feya_commerce_save_variant_draft_v1($1,$2::jsonb)',[actor,JSON.stringify(p)]));
   const before=await counts(),request=payload(randomUUID(),{expected_variant_revision:4,expected_offer_revision:2});
   await db.exec("create function public.test_reject_offer_outbox() returns trigger language plpgsql as $$ begin raise exception 'injected offer outbox failure'; end $$;create trigger test_reject_offer_outbox before insert on public.feya_commerce_offer_promotion_outbox_v1 for each row execute function public.test_reject_offer_outbox();");
@@ -115,7 +115,7 @@ test('injected outbox failure rolls back offer, execution, event and receipt tog
 });
 test('native concurrent identical promotion requests create one offer revision and one receipt',{skip:!nativeURL},async()=>{
   const ctx=await service(async()=> (await db.query('select public.feya_commerce_read_variant_draft_v1($1) r',[ids.product])).rows[0].r);
-  const p={...base.payload,request_id:randomUUID(),expected_revision:ctx.current_revision,snapshot:{...structuredClone(ctx.snapshot),product_revision:ctx.current_revision+1}};
+  const p=variantDraftRequest(ctx,randomUUID());
   await service(c=>c.query('select public.feya_commerce_save_variant_draft_v1($1,$2::jsonb)',[actor,JSON.stringify(p)]));
   const before=await counts(),req=payload(randomUUID(),{expected_variant_revision:5,expected_offer_revision:3}),clients=await Promise.all([connect(),connect(),connect()]);
   try{const out=await Promise.all(clients.map(c=>promote(req,c)));assert.equal(out.filter(x=>!x.replayed).length,1);assert.equal(new Set(out.map(x=>x.offer_revision_id)).size,1);

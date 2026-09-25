@@ -6,7 +6,7 @@ import {
 import { commerceQuoteMigrationSQL } from './commerce-quote.mjs';
 
 export const offerPromotionMigrationSQL=()=>readFile(new URL('../../../supabase/migrations/20260925143000_commerce_offer_promotion_v1.sql',import.meta.url),'utf8');
-export {variantDependenciesSQL,variantMigrationSQL,seedVariantProduct,variantTestIds,commerceQuoteMigrationSQL};
+export {variantDependenciesSQL,variantMigrationSQL,seedVariantProduct,variantDraftRequest,variantTestIds,commerceQuoteMigrationSQL};
 
 export async function saveBaseVariant(db,actor){
   const service=async fn=>{await db.query('set role service_role');try{return await fn();}finally{await db.query('reset role');}};
