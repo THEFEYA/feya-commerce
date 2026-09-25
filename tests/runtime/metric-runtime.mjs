@@ -25,6 +25,7 @@ import {googleBatch} from '../search/googleAdsFixture.ts';
 import {verifyClosedReviewRuntime} from './closed-review-runtime.mjs';
 import {verifyApprovedContentRuntime} from './approved-content-runtime.mjs';
 import {verifyVariantDraftRuntime} from './variant-draft-runtime.mjs';
+import {verifyOwnerActionStepUpRuntime} from './owner-action-step-up-runtime.mjs';
 const root=process.cwd(),out=resolve('runtime-results');
 const report={contract:'metric_runtime_proof_v1',commit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),workflow_event_sha:process.env.GITHUB_SHA||null,environment:'ephemeral_loopback_supabase',production_connected:false,next_write_path_verified:false,checks:[],limitations:['Exact 84-view SELECT closure on 39 observed table contracts; external FKs, non-core triggers and indexes are outside the read/permission restore.','Hosted staging, broader database API surface and production activation remain separate.']};
 const base='http://127.0.0.1:3000',endpoint=base+'/api/admin/seo-engine/keyword-metrics/import';
@@ -195,6 +196,7 @@ try {
    }finally{locked.kill('SIGTERM');await Promise.race([once(locked,'exit'),new Promise(r=>setTimeout(r,5000))]);if(locked.exitCode===null)locked.kill('SIGKILL');}
   }
  });
+ await verifyOwnerActionStepUpRuntime({browser,env,adminEmail,password,check,report});
  await check('Existing cluster queue and Growth signal screens load through guarded server reads after public revocation',async()=>{
   for(const [path,heading] of [['/admin/seo-clusters','Группировка запросов'],['/admin/signals','Диагностика сигналов']]){
    const response=await ownerPage.goto(base+path);assert.equal(response.status(),200);await ownerPage.getByRole('heading',{name:heading,exact:true}).waitFor();
