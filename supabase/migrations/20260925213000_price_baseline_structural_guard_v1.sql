@@ -16,17 +16,18 @@ begin
     select r.canonical_product_id,p.configuration_price_id,p.sellable_configuration_id,p.option_mapping_id,
            c.option_mapping_id configuration_option_mapping_id,
            m.detected_canonical_axis,m.sampler_flag mapping_sampler,m.non_catalog_flag mapping_non_catalog,
-           (
+           coalesce((
              p.configuration_price_id is not null
              and p.sellable_configuration_id is not null
              and p.option_mapping_id is not null
              and c.sellable_configuration_id is not null
+             and c.option_mapping_id is not null
              and c.option_mapping_id=p.option_mapping_id
              and m.option_mapping_id=p.option_mapping_id
              and m.canonical_product_id=p.canonical_product_id
              and m.detected_canonical_axis='configuration'
-             and m.sampler_flag=false and m.non_catalog_flag=false
-           ) structure_ready
+             and m.sampler_flag is false and m.non_catalog_flag is false
+           ),false) structure_ready
     from requested r
     left join public.feya_commerce_configuration_prices p on p.canonical_product_id=r.canonical_product_id
     left join public.feya_commerce_sellable_configurations c
@@ -137,7 +138,7 @@ begin
         on m.option_mapping_id=p.option_mapping_id
        and m.canonical_product_id=p.canonical_product_id
        and m.detected_canonical_axis='configuration'
-       and m.sampler_flag=false and m.non_catalog_flag=false
+       and m.sampler_flag is false and m.non_catalog_flag is false
       where p.canonical_product_id=c.canonical_product_id
         and p.sellable_configuration_id=c.sellable_configuration_id
         and p.option_mapping_id=c.option_mapping_id
@@ -162,7 +163,7 @@ begin
         on m.option_mapping_id=p.option_mapping_id
        and m.canonical_product_id=p.canonical_product_id
        and m.detected_canonical_axis='configuration'
-       and m.sampler_flag=false and m.non_catalog_flag=false
+       and m.sampler_flag is false and m.non_catalog_flag is false
       where c.sellable_configuration_id=p.sellable_configuration_id
         and c.canonical_product_id=p.canonical_product_id
         and c.option_mapping_id=p.option_mapping_id
