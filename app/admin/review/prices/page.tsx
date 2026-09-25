@@ -5,6 +5,7 @@ import { ArrowUpRight, BadgePercent, Calculator, CircleDollarSign, ShieldCheck, 
 import { AdminQueueQuickReviewClient } from '@/components/AdminQueueQuickReviewClient';
 import { AdminPriceBaselineAdoptionClient } from '@/components/AdminPriceBaselineAdoptionClient';
 import { AdminManualConfigurationRepairClient } from '@/components/AdminManualConfigurationRepairClient';
+import { AdminManualPriceGovernanceClient } from '@/components/AdminManualPriceGovernanceClient';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, formatPrice, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
 import { classifyConfigurationQuoteReadiness } from '@/lib/commerceQuoteReadiness';
@@ -283,6 +284,7 @@ export default async function AdminPriceReviewPage() {
         </div>
         <AdminPriceBaselineAdoptionClient preparedCount={cleanBaselineProducts} />
         <AdminManualConfigurationRepairClient productCount={manualOverrideProducts} />
+        <AdminManualPriceGovernanceClient productCount={manualOverrideProducts} />
       </section>
 
       <section className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5 mb-8">
