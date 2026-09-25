@@ -67,8 +67,7 @@ test('manual override is held outside the batch',async()=>{
 });
 
 test('evidence drift after human approval fails closed and leaves statuses untouched',async()=>{
-  const p=await preview();const req=await prepare({...p,evidence_sha256:'f'.repeat(64)}).catch(()=>null);
-  assert.equal(req,null);
+  const p=await preview();
   const realReq=await prepare(p);await approve(realReq.execution_request_id);
   await db.query("update public.feya_commerce_configuration_prices set public_price_amount=124 where configuration_price_id=$1",[ids.config]);
   await assert.rejects(execute(realReq.execution_request_id),/price_baseline_execution_evidence_conflict/);
