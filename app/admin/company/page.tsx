@@ -237,7 +237,7 @@ export default async function AdminHomePage() {
         {!error ? (
           <section className="owner-command-brief" aria-label="Сводка на сегодня">
             <div className="owner-command-brief-main">
-              <div className={`owner-command-state${attentionVM.length ? ' is-attention' : ''}`}>
+              <div className={`owner-command-state${ownerDecisionItems.length ? ' is-attention' : ''}`}>
                 <span className="owner-command-state-dot" aria-hidden="true" />
                 {ownerDecisionItems.length ? 'Нужно ваше внимание' : 'Работа идёт'}
               </div>
