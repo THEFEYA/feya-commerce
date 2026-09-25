@@ -8,7 +8,7 @@ Read-only production audit completed before wiring checkout. Current price/confi
 
 Added `lib/commerceQuoteReadiness.ts` + SEO regression tests. The gate refuses draft/unreviewed/fallback/sampler/non-public/missing-price evidence and does not activate variants or checkout. Full audit and exact next dependency are in `docs/search/C4_3_Quote_Readiness_20260925.md`.
 
-**C4.3-B implemented as a pure contract:** exact active tuple + offer/product revision CAS + server-derived amount/currency + quantity/overflow guard. Browser amount/currency/orderability fields are rejected. **Next C4.3-C:** isolated approved-offer/quote receipt persistence and authenticated server API; cart/order must revalidate server-side. No production writes, payment, index activation or visual storefront changes. No owner input is required for this engineering step.
+**C4.3-B implemented as a pure contract:** exact active tuple + offer/product revision CAS + server-derived amount/currency + quantity/overflow guard. Browser amount/currency/orderability fields are rejected. **C4.3-C implemented as unapplied/private infrastructure:** immutable offer projection, idempotent quote receipts and a feature-flagged same-origin server quote API; quote service cannot promote offers and keeps order/payment disabled. **Next C4.3-D:** controlled offer-promotion/release writer, then wire PDP/cart to server quotes. No production writes, payment, index activation or visual storefront changes. No owner input is required for this engineering step.
 
 ## C3.2 continuation — shared closed review and HTML pagination, 24.09.2026
 
