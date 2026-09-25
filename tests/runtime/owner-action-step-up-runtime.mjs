@@ -6,13 +6,12 @@ const BRANCH='work/search-architecture-foundation-20260923';
 const PROJECT='prj_ePIymo4sUG33wrRjHBxWrSlaxPID';
 
 export async function verifyOwnerActionStepUpRuntime({
-  browser,env,adminEmail,password,check,report,
+  browser,ownerPage,env,check,report,
 }){
   const base='http://127.0.0.1:3002';
   const stepEnv={
     ...env,
     FEYA_ADMIN_AUTH_REQUIRED:'false',
-    FEYA_ADMIN_ALLOWED_EMAILS:adminEmail,
     FEYA_OWNER_ACTION_AUTH_REQUIRED:'true',
     FEYA_OWNER_ACTIONS_ENABLED:'true',
     FEYA_COMMERCE_PRICE_BASELINE_ADOPTION_ENABLED:'false',
@@ -52,22 +51,20 @@ export async function verifyOwnerActionStepUpRuntime({
     await anonymous.close();
 
     const owner=await browser.newContext();
+    const existingCookies=await ownerPage.context().cookies();
+    await owner.addCookies(existingCookies.map(cookie=>({...cookie,url:base})));
     const page=await owner.newPage();
-    await check('Owner can establish a Supabase session without making the whole preview require login',async()=>{
-      await page.goto(base+'/admin/login?next=/admin');
-      await page.getByLabel('Email',{exact:true}).fill(adminEmail);
-      await page.getByLabel('Пароль',{exact:true}).fill(password);
-      await page.getByRole('button',{name:'Войти',exact:true}).click();
-      await page.waitForURL('**/admin');
-      assert.equal(new URL(page.url()).pathname,'/admin');
-    });
 
-    await check('Authenticated step-up request reaches the protected route but action-specific switch still closes execution',async()=>{
+    await check('Existing allowlisted Supabase session steps up without locking anonymous preview reads',async()=>{
+      const read=await page.goto(base+'/admin');
+      assert.equal(read?.status(),200);
       const response=await page.request.post(base+'/api/admin/review/prices/baseline-adoption',{data:{action:'prepare'}});
       assert.equal(response.status(),423);
       const body=await response.json();
       assert.equal(body.code,'price_baseline_adoption_disabled');
+    });
 
+    await check('Authenticated owner still cannot use unrelated preview mutation endpoints',async()=>{
       for(const path of ['/api/admin/review-events','/api/admin/company/execution-approval']){
         const unrelated=await page.request.post(base+path,{data:{}});
         assert.equal(unrelated.status(),423);

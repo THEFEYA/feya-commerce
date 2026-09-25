@@ -196,7 +196,7 @@ try {
    }finally{locked.kill('SIGTERM');await Promise.race([once(locked,'exit'),new Promise(r=>setTimeout(r,5000))]);if(locked.exitCode===null)locked.kill('SIGKILL');}
   }
  });
- await verifyOwnerActionStepUpRuntime({browser,env,adminEmail,password,check,report});
+ await verifyOwnerActionStepUpRuntime({browser,ownerPage,env,check,report});
  await check('Existing cluster queue and Growth signal screens load through guarded server reads after public revocation',async()=>{
   for(const [path,heading] of [['/admin/seo-clusters','Группировка запросов'],['/admin/signals','Диагностика сигналов']]){
    const response=await ownerPage.goto(base+path);assert.equal(response.status(),200);await ownerPage.getByRole('heading',{name:heading,exact:true}).waitFor();
