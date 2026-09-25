@@ -6,12 +6,18 @@ import { AdminQueueQuickReviewClient } from '@/components/AdminQueueQuickReviewC
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, formatPrice, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
 import { classifyConfigurationQuoteReadiness } from '@/lib/commerceQuoteReadiness';
+import sourceJson from '@/docs/search/closed-review-source-manifest-20260924.json';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 const PRICE_REVIEW_LIMIT = 500;
 const QUOTE_PRICE_PAGE = 1000;
+const RELEASE_PRODUCT_IDS = new Set(
+  Array.isArray((sourceJson as any)?.entries)
+    ? (sourceJson as any).entries.map((entry: any) => String(entry?.identity?.canonical_product_id || '')).filter(Boolean)
+    : []
+);
 
 type QuotePriceRow = {
   configuration_price_id: string;
@@ -99,7 +105,7 @@ async function loadProducts(): Promise<{ rows: StorefrontProduct[]; error?: stri
     .limit(PRICE_REVIEW_LIMIT);
 
   if (error) return { rows: [], error: error.message };
-  return { rows: (data || []) as StorefrontProduct[] };
+  return { rows: ((data || []) as StorefrontProduct[]).filter((row) => RELEASE_PRODUCT_IDS.has(String(row.canonical_product_id))) };
 }
 
 async function loadQuoteReadiness(): Promise<{ rows: QuoteReadinessRow[]; error?: string }> {
@@ -128,7 +134,7 @@ async function loadQuoteReadiness(): Promise<{ rows: QuoteReadinessRow[]; error?
       return true;
     }) as QuotePriceRow[];
 
-  const rows = prices.map((price) => {
+  const rows = prices.filter((price) => RELEASE_PRODUCT_IDS.has(String(price.canonical_product_id))).map((price) => {
     const config = price.sellable_configuration_id ? configById.get(price.sellable_configuration_id) || null : null;
     const result = classifyConfigurationQuoteReadiness({
       configuration_price_id: price.configuration_price_id,
@@ -242,7 +248,7 @@ export default async function AdminPriceReviewPage() {
               Display price, fallback и просто заполненная сумма не считаются подтверждённой ценой заказа.
             </p>
           </div>
-          <div className="text-[11px] text-[var(--smoke)]">{quoteReadiness.rows.length} price rows checked</div>
+          <div className="text-[11px] text-[var(--smoke)]">{quoteReadiness.rows.length} launch-release price rows checked</div>
         </div>
 
         <div className="mt-5 space-y-3">

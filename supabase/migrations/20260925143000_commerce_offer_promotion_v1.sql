@@ -139,9 +139,17 @@ begin
   foreach k in array array['expected_variant_revision','expected_offer_revision','max_quantity_per_line'] loop
     if jsonb_typeof(p_payload->k)<>'number'
       or (p_payload->>k)::numeric<>trunc((p_payload->>k)::numeric)
-      or (p_payload->>k)::numeric<case when k='expected_offer_revision' then 0 else 1 end
-      or (p_payload->>k)::numeric>case when k='max_quantity_per_line' then 1000 else 9007199254740991 end
       then raise exception 'offer_promotion_request_invalid'; end if;
+    if k='expected_offer_revision' then
+      if (p_payload->>k)::numeric<0 or (p_payload->>k)::numeric>9007199254740991
+        then raise exception 'offer_promotion_request_invalid'; end if;
+    elsif k='max_quantity_per_line' then
+      if (p_payload->>k)::numeric<1 or (p_payload->>k)::numeric>1000
+        then raise exception 'offer_promotion_request_invalid'; end if;
+    else
+      if (p_payload->>k)::numeric<1 or (p_payload->>k)::numeric>9007199254740991
+        then raise exception 'offer_promotion_request_invalid'; end if;
+    end if;
   end loop;
   if jsonb_typeof(p_payload->'release_ref')<>'string' or length(btrim(p_payload->>'release_ref')) not between 1 and 200
     or jsonb_typeof(p_payload->'variant_ids')<>'array'
