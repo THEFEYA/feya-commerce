@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import plan from '../../docs/search/manual-override-configuration-repair-plan-20260925.json' with { type: 'json' };
+import rawPlan from '../../docs/search/manual-override-configuration-repair-plan-20260925.json' with { type: 'json' };
+
+const plan = rawPlan as any;
 
 test('clean baseline production request is pending human approval with no receipt/mutation',()=>{
   const r=plan.clean_baseline_request;
