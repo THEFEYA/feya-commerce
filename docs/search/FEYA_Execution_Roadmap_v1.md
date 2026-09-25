@@ -2,6 +2,14 @@
 
 Актуализировано 24 сентября 2026; постоянный checkpoint для следующих сессий. Основа: `FEYA_Search_Architecture_v1.md` (A–K), `FEYA_Page_Portfolio_Schema_v1.md`, `FEYA_Keyword_Research_Queue_v1.json`, `Launch_Track_Decision_20260924.md`, Product/Growth contracts, предметные audits. Статус из этого документа проверяется по фактическому commit, БД и deployment, а не по памяти разговора. Owner отвечает за стратегические бизнес решения; Core проверяет роли/версии и исполняет только разрешённый changeset.
 
+## C4.3-A — quote readiness audit, 25.09.2026
+
+Read-only production audit completed before wiring checkout. Current price/configuration data cannot safely support a 207-product server quote yet: 1,170 configuration-price rows / 460 sellable configurations exist, but the strict approved/non-fallback/public gate yields only **5 configuration-price rows across 2 products**. One additional owner-reviewed price is held because its configuration is still not reviewed. Production C4.1 variant tables/RPCs remain intentionally unapplied.
+
+Added `lib/commerceQuoteReadiness.ts` + SEO regression tests. The gate refuses draft/unreviewed/fallback/sampler/non-public/missing-price evidence and does not activate variants or checkout. Full audit and exact next dependency are in `docs/search/C4_3_Quote_Readiness_20260925.md`.
+
+**Next C4.3-B:** isolated active-variant/quote projection and server quote contract using stable IDs/revisions; cart/order must revalidate server-side. No production writes, payment, index activation or visual storefront changes. No owner input is required for this engineering step.
+
 ## C3.2 continuation — shared closed review and HTML pagination, 24.09.2026
 
 Implemented in the next PR #26 commit; exact-head CI must be attached after completion. This supersedes the earlier statement that shared release integration is still absent.
