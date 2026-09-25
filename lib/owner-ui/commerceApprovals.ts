@@ -78,7 +78,7 @@ export function presentCommerceExecutionApproval(row: Row): CommerceExecutionApp
       requiredAction: 'Открыть проверку цен, сверить exact structural evidence и подтвердить atomic rebinding. Три color-price товара останутся отдельным HOLD.',
       statusLabel: 'Открыто',
       dueAt: null,
-      href: '/admin/review/prices#release-configuration-repair',
+      href: '/admin/company/commerce-configuration-repair',
     };
   }
 
