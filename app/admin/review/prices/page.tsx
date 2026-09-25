@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ArrowUpRight, BadgePercent, Calculator, CircleDollarSign, ShieldCheck, WalletCards } from 'lucide-react';
 import { AdminQueueQuickReviewClient } from '@/components/AdminQueueQuickReviewClient';
 import { AdminPriceBaselineAdoptionClient } from '@/components/AdminPriceBaselineAdoptionClient';
+import { AdminManualConfigurationRepairClient } from '@/components/AdminManualConfigurationRepairClient';
 import { AdminManualPriceGovernanceClient } from '@/components/AdminManualPriceGovernanceClient';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, formatPrice, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
@@ -282,6 +283,7 @@ export default async function AdminPriceReviewPage() {
           <Metric icon={Calculator} label="Other hold" value={adoptionHoldProducts} note="Необъяснимые или структурные расхождения; автоматический перенос запрещён." />
         </div>
         <AdminPriceBaselineAdoptionClient preparedCount={cleanBaselineProducts} />
+        <AdminManualConfigurationRepairClient productCount={manualOverrideProducts} />
         <AdminManualPriceGovernanceClient productCount={manualOverrideProducts} />
       </section>
 
