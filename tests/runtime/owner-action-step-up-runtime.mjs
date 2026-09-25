@@ -15,6 +15,7 @@ export async function verifyOwnerActionStepUpRuntime({
     FEYA_OWNER_ACTION_AUTH_REQUIRED:'true',
     FEYA_OWNER_ACTIONS_ENABLED:'true',
     FEYA_COMMERCE_PRICE_BASELINE_ADOPTION_ENABLED:'false',
+    FEYA_COMMERCE_MANUAL_CONFIGURATION_REPAIR_ENABLED:'false',
     VERCEL:'1',
     VERCEL_ENV:'preview',
     VERCEL_PROJECT_ID:PROJECT,
@@ -43,10 +44,12 @@ export async function verifyOwnerActionStepUpRuntime({
     });
 
     await check('Step-up price endpoint requires an authenticated owner instead of opening preview writes',async()=>{
-      const response=await anonPage.request.post(base+'/api/admin/review/prices/baseline-adoption',{data:{action:'prepare'}});
-      assert.equal(response.status(),401);
-      const body=await response.json();
-      assert.equal(body.code,'authentication_required');
+      for(const path of ['/api/admin/review/prices/baseline-adoption','/api/admin/review/prices/manual-configuration-repair']){
+        const response=await anonPage.request.post(base+path,{data:{action:'prepare'}});
+        assert.equal(response.status(),401,path);
+        const body=await response.json();
+        assert.equal(body.code,'authentication_required');
+      }
     });
     await anonymous.close();
 
@@ -56,10 +59,12 @@ export async function verifyOwnerActionStepUpRuntime({
     await check('Existing allowlisted Supabase session steps up without locking anonymous preview reads',async()=>{
       const read=await page.goto(base+'/admin');
       assert.equal(read?.status(),200);
-      const response=await page.request.post(base+'/api/admin/review/prices/baseline-adoption',{data:{action:'prepare'}});
-      assert.equal(response.status(),423);
-      const body=await response.json();
-      assert.equal(body.code,'price_baseline_adoption_disabled');
+      const baseline=await page.request.post(base+'/api/admin/review/prices/baseline-adoption',{data:{action:'prepare'}});
+      assert.equal(baseline.status(),423);
+      assert.equal((await baseline.json()).code,'price_baseline_adoption_disabled');
+      const repair=await page.request.post(base+'/api/admin/review/prices/manual-configuration-repair',{data:{action:'prepare'}});
+      assert.equal(repair.status(),423);
+      assert.equal((await repair.json()).code,'manual_configuration_repair_disabled');
     });
 
     await check('Authenticated owner still cannot use unrelated preview mutation endpoints',async()=>{
