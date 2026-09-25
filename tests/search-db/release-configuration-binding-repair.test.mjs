@@ -95,6 +95,10 @@ test('catalog-wide release repair compiles, fails closed before approval, preser
     assert.equal(result.created_configurations,631);assert.equal(result.rebound_price_rows,631);
     assert.equal(result.color_price_axis_rows_held,9);assert.equal(result.direct_owner_rows_preserved,1);
     assert.equal(result.commercial_values_unchanged,true);assert.equal(result.payment_enabled,false);assert.equal(result.indexing_enabled,false);
+    const receipt=(await db.query('select rollback_result_json from public.feya_growth_execution_receipts_v1 where execution_request_id=$1',[request.execution_request_id])).rows[0].rollback_result_json;
+    assert.equal(receipt.mode,'restore_sellable_configuration_bindings');assert.equal(receipt.binding_count,631);
+    assert.equal(receipt.bindings.length,631);assert.equal(receipt.created_configuration_ids.length,631);
+    assert.equal(receipt.commercial_values_unchanged,true);assert.equal(receipt.delete_created_configurations_automatically,false);
 
     const after=(await db.query('select public.feya_commerce_release_configuration_binding_evidence_v1($1::uuid[]) r',[productIds])).rows[0].r;
     assert.equal(after.already_repaired,true);assert.equal(after.rebind_rows,0);assert.equal(after.aligned_configuration_rows,846);
