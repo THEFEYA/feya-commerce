@@ -50,9 +50,7 @@ export async function verifyOwnerActionStepUpRuntime({
     });
     await anonymous.close();
 
-    const owner=await browser.newContext();
-    const existingCookies=await ownerPage.context().cookies();
-    await owner.addCookies(existingCookies.map(cookie=>({...cookie,url:base})));
+    const owner=ownerPage.context();
     const page=await owner.newPage();
 
     await check('Existing allowlisted Supabase session steps up without locking anonymous preview reads',async()=>{
@@ -71,7 +69,7 @@ export async function verifyOwnerActionStepUpRuntime({
         assert.equal((await unrelated.json()).code,'owner_preview_read_only');
       }
     });
-    await owner.close();
+    await page.close();
 
     report.owner_action_step_up_runtime=true;
     report.owner_preview_read_only_preserved=true;
