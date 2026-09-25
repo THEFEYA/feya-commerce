@@ -6,6 +6,7 @@ import { AdminQueueQuickReviewClient } from '@/components/AdminQueueQuickReviewC
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, formatPrice, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
 import { classifyConfigurationQuoteReadiness } from '@/lib/commerceQuoteReadiness';
+import { classifyProductPriceAdoption, type PriceAdoptionEvidence } from '@/lib/commercePriceAdoption';
 import sourceJson from '@/docs/search/closed-review-source-manifest-20260924.json';
 
 export const dynamic = 'force-dynamic';
@@ -23,8 +24,11 @@ type QuotePriceRow = {
   configuration_price_id: string;
   canonical_product_id: string;
   sellable_configuration_id: string | null;
+  source_amount: number | string | null;
   public_price_amount: number | string | null;
+  manual_override_amount: number | string | null;
   source_currency: string | null;
+  confidence: number | string | null;
   price_status: string | null;
   review_status: string | null;
   fallback_flag: boolean | null;
@@ -112,7 +116,7 @@ async function loadQuoteReadiness(): Promise<{ rows: QuoteReadinessRow[]; error?
   const supabase = getAdminReadClient();
   if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
 
-  const priceSelect = 'configuration_price_id,canonical_product_id,sellable_configuration_id,public_price_amount,source_currency,price_status,review_status,fallback_flag';
+  const priceSelect = 'configuration_price_id,canonical_product_id,sellable_configuration_id,source_amount,public_price_amount,manual_override_amount,source_currency,confidence,price_status,review_status,fallback_flag';
   const configSelect = 'sellable_configuration_id,canonical_product_id,configuration_name,review_status,is_public_candidate,is_sampler';
 
   const [firstPrices, secondPrices, configs] = await Promise.all([
@@ -203,6 +207,30 @@ export default async function AdminPriceReviewPage() {
     .sort((a,b) => b.blockedCount - a.blockedCount || a.productId.localeCompare(b.productId))
     .slice(0, 120);
 
+  const adoptionByProduct = [...strictByProduct.entries()].map(([productId, configRows]) => {
+    const evidence: PriceAdoptionEvidence[] = configRows.map(({price,config}) => ({
+      canonical_product_id: price.canonical_product_id,
+      configuration_price_id: price.configuration_price_id,
+      sellable_configuration_id: price.sellable_configuration_id,
+      source_amount: price.source_amount,
+      public_price_amount: price.public_price_amount,
+      manual_override_amount: price.manual_override_amount,
+      source_currency: price.source_currency,
+      confidence: price.confidence,
+      fallback_flag: price.fallback_flag,
+      price_status: price.price_status,
+      price_review_status: price.review_status,
+      configuration_review_status: config?.review_status ?? null,
+      configuration_is_public_candidate: config?.is_public_candidate ?? null,
+      configuration_is_sampler: config?.is_sampler ?? null,
+    }));
+    return { productId, result: classifyProductPriceAdoption(evidence) };
+  });
+  const cleanBaselineProducts = adoptionByProduct.filter((x) => x.result.state === 'clean_source_baseline').length;
+  const manualOverrideProducts = adoptionByProduct.filter((x) => x.result.state === 'manual_override_review').length;
+  const alreadyReadyProducts = adoptionByProduct.filter((x) => x.result.state === 'already_ready').length;
+  const adoptionHoldProducts = adoptionByProduct.filter((x) => x.result.state === 'hold').length;
+
   const unverifiedProducts = rows.filter((product) => product.price_confidence_status === 'unverified' || product.needs_price_review).length;
   const fallbackConfigs = rows.reduce((sum, product) => sum + parseConfigurations(product.configurations).filter((config) => config.has_fallback_price).length, 0);
   const missingConfigPrices = rows.reduce((sum, product) => sum + parseConfigurations(product.configurations).filter((config) => configPrice(config) == null).length, 0);
@@ -237,6 +265,21 @@ export default async function AdminPriceReviewPage() {
         <Metric icon={Calculator} label="Missing prices" value={missingConfigPrices} note="Configurations without a detected price." />
         <Metric icon={BadgePercent} label="Discount flags" value={unverifiedDiscounts} note="Products with unverified discount state." />
       </div>
+
+      <section className="rounded-2xl border border-[rgba(212,178,106,.20)] bg-[rgba(212,178,106,.035)] p-5 mb-8">
+        <div className="eyebrow-gold mb-2">Baseline adoption candidates</div>
+        <h2 className="font-tall text-bone leading-none text-[32px]">Не вводить цены заново</h2>
+        <p className="mt-3 max-w-3xl text-[13px] leading-relaxed text-[var(--bone-dim)]">
+          Отдельная проверка различает товары, где public price в точности совпадает с исходной ценой и имеет высокую уверенность,
+          ручные owner overrides и необъяснимые расхождения. Это только evidence queue: она не подтверждает цены автоматически.
+        </p>
+        <div className="mt-5 grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <Metric icon={ShieldCheck} label="Clean source" value={cleanBaselineProducts} note="Можно собрать в точный owner-review batch без повторного ввода сумм." />
+          <Metric icon={WalletCards} label="Manual overrides" value={manualOverrideProducts} note="Показывать отдельно: owner/manual price evidence нельзя смешивать с source carry-forward." />
+          <Metric icon={CircleDollarSign} label="Already ready" value={alreadyReadyProducts} note="Все строки товара уже проходят текущий governance gate." />
+          <Metric icon={Calculator} label="Other hold" value={adoptionHoldProducts} note="Необъяснимые или структурные расхождения; автоматический перенос запрещён." />
+        </div>
+      </section>
 
       <section className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] p-5 mb-8">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
