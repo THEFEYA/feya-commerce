@@ -12,7 +12,7 @@ const PRODUCT_IDS=[
 ].sort();
 const EXPECTED_EVIDENCE='19a84d86e52724753350d3c12d22ded4e6e19a0ab2c0dedb36a292a481e502ae';
 const reply=(body:unknown,status=200)=>NextResponse.json(body,{status,headers:{'Cache-Control':'private, no-store','X-Robots-Tag':'noindex, nofollow'}});
-const enabled=()=>process.env.FEYA_COMMERCE_MANUAL_CONFIGURATION_REPAIR_ENABLED==='true';
+const enabled=()=>false; // Superseded by catalog-wide REPAIR_RELEASE_CONFIGURATION_BINDINGS after production structural audit.
 function sameOrigin(request:NextRequest){const origin=request.headers.get('origin'),host=request.headers.get('host');if(!origin||!host)return false;try{const u=new URL(origin);return u.origin===origin&&u.host===host&&u.protocol===request.nextUrl.protocol;}catch{return false;}}
 const clean=(v:unknown)=>typeof v==='string'?v.trim():'';
 const uuid=(v:string)=>/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
