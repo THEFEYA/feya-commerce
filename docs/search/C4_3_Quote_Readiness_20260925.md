@@ -45,7 +45,23 @@ The current legacy cart/checkout UI must remain non-authoritative. It stores cli
 
 The current cart also contains legacy hard-coded delivery presentation. C5 will replace those values only from approved Business Truth; they are not used by C4.3 quote readiness.
 
-## C4.3-B — next engineering package
+## C4.3-B — server quote basis contract
+
+Implemented immediately after the readiness audit in `lib/commerceOrderQuoteContract.ts` with synthetic regression tests.
+
+The request deliberately accepts **no browser amount, currency or orderability flag**. It contains only stable product/variant/configuration/attribute IDs, expected product/offer revisions and quantity. Resolution then:
+
+- requires an active governed offer snapshot;
+- compare-and-swaps both offer revision and product revision;
+- resolves the exact tuple through the existing C4 variant contract;
+- rejects a mismatched variant ID even if another tuple exists;
+- applies the offer's quantity bound;
+- computes the line amount from the verified server-side unit price with safe-integer overflow protection;
+- returns the price quote ID/revision and whether the source was configuration base or explicit exception.
+
+This still does **not** persist a quote or order and does not activate payment. The next database/API package must bind this pure contract to an immutable approved offer revision and idempotent quote receipt.
+
+## C4.3-C — next engineering package
 
 The next package should stay isolated from production and add the actual quote/orderability projection:
 
