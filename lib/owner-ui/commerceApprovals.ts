@@ -1,4 +1,4 @@
-import structureAudit from '@/docs/search/configuration-binding-audit-20260925.json';
+import structureAudit from '../../docs/search/configuration-binding-audit-20260925.json' with {type:'json'};
 
 type Row = Record<string, unknown>;
 
