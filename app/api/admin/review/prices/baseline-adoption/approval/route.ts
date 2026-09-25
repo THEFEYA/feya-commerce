@@ -1,6 +1,8 @@
 import { NextRequest,NextResponse } from 'next/server';
 import audit from '@/docs/search/price-baseline-audit-manifest-20260925.json';
+import release from '@/docs/search/closed-review-source-manifest-20260924.json';
 import { requireOwnerActionActor } from '@/lib/ownerActionAuth';
+import { priceBaselineApprovalScopeDecision } from '@/lib/commercePriceBaselineApproval';
 
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -8,6 +10,8 @@ export const dynamic='force-dynamic';
 const RELEASE_REF=String((audit as any).release_ref||'');
 const EXPECTED_PRODUCTS=Number((audit as any).counts?.clean_source_products||0);
 const EXPECTED_ROWS=Number((audit as any).counts?.clean_source_price_rows||0);
+const MANUAL_IDS=new Set<string>(((audit as any).manual_override_product_ids||[]).map(String));
+const CLEAN_IDS=((release as any).entries||[]).map((entry:any)=>String(entry?.identity?.canonical_product_id||'')).filter((id:string)=>id&&!MANUAL_IDS.has(id)).sort();
 const reply=(body:unknown,status=200)=>NextResponse.json(body,{status,headers:{'Cache-Control':'private, no-store','X-Robots-Tag':'noindex, nofollow'}});
 const enabled=()=>process.env.FEYA_COMMERCE_PRICE_BASELINE_ADOPTION_ENABLED==='true';
 
@@ -45,28 +49,17 @@ export async function POST(request:NextRequest){
   if(requestError)return reply({ok:false,code:'price_baseline_approval_lookup_failed',error:requestError.message},503);
   if(!requestRow)return reply({ok:false,code:'price_baseline_execution_request_not_found'},404);
 
-  const scope=requestRow.target_scope_json as any;
-  const refs=requestRow.target_version_refs_json as any;
-  const payload=requestRow.request_payload_json as any;
-  const ids=Array.isArray(payload?.canonical_product_ids)?payload.canonical_product_ids:[];
+  if(CLEAN_IDS.length!==EXPECTED_PRODUCTS)return reply({ok:false,code:'price_baseline_release_manifest_mismatch'},503);
 
-  const exactScope=
-    requestRow.action_code==='ADOPT_SOURCE_PRICE_BASELINE'
-    &&requestRow.mutation_domain==='COMMERCE_PRICE'
-    &&requestRow.request_status==='APPROVAL_REQUIRED'
-    &&requestRow.requested_by_type==='human'
-    &&requestRow.requested_by_user_id===actor.userId
-    &&scope?.entity_type==='RELEASE'
-    &&scope?.entity_key===RELEASE_REF
-    &&payload?.contract_version==='commerce_price_baseline_adoption_v1'
-    &&payload?.release_ref===RELEASE_REF
-    &&ids.length===EXPECTED_PRODUCTS
-    &&Number(payload?.price_row_count)===EXPECTED_ROWS
-    &&typeof payload?.evidence_sha256==='string'
-    &&payload.evidence_sha256===refs?.evidence_sha256
-    &&Number(refs?.price_row_count)===EXPECTED_ROWS;
+  const scope=priceBaselineApprovalScopeDecision({
+    row:requestRow,
+    actorUserId:actor.userId,
+    releaseRef:RELEASE_REF,
+    cleanProductIds:CLEAN_IDS,
+    expectedRows:EXPECTED_ROWS,
+  });
 
-  if(!exactScope)return reply({ok:false,code:'price_baseline_approval_scope_mismatch'},409);
+  if(!scope.ok)return reply({ok:false,code:'price_baseline_approval_scope_mismatch',reason_codes:scope.reasons},409);
 
   const {data,error}=await actor.service.rpc('feya_fn_owner_approve_execution_request_v1',{
     p_execution_request_id:executionRequestId,
