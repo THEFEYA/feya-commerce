@@ -147,6 +147,8 @@ declare
   expected_hash text;
   before_values_hash text;
   after_values_hash text;
+  rollback_bindings jsonb;
+  created_configuration_ids jsonb;
   inserted_configs integer;
   rebound_rows integer;
   attempt integer;
@@ -214,6 +216,27 @@ begin
   into before_values_hash
   from public.feya_commerce_configuration_prices where canonical_product_id=any(product_ids);
 
+  select coalesce(jsonb_agg(jsonb_build_object(
+    'configuration_price_id',p.configuration_price_id,
+    'canonical_product_id',p.canonical_product_id,
+    'option_mapping_id',p.option_mapping_id,
+    'old_sellable_configuration_id',p.sellable_configuration_id,
+    'target_sellable_configuration_id',public.feya_commerce_binding_target_configuration_id_v1(p.canonical_product_id,p.option_mapping_id)
+  ) order by p.canonical_product_id,p.configuration_price_id),'[]'::jsonb)
+  into rollback_bindings
+  from public.feya_commerce_configuration_prices p
+  join public.feya_commerce_option_mappings m
+    on m.option_mapping_id=p.option_mapping_id and m.canonical_product_id=p.canonical_product_id
+  left join public.feya_commerce_sellable_configurations c
+    on c.sellable_configuration_id=p.sellable_configuration_id and c.canonical_product_id=p.canonical_product_id
+  where p.canonical_product_id=any(product_ids)
+    and m.detected_canonical_axis='configuration'
+    and p.option_mapping_id is distinct from c.option_mapping_id;
+
+  if jsonb_array_length(rollback_bindings)<>631 then
+    raise exception 'release_configuration_binding_rollback_capture_conflict';
+  end if;
+
   update public.feya_growth_execution_requests_v1 set request_status='EXECUTING',updated_at=now()
   where execution_request_id=p_execution_request_id and request_status='APPROVED';
   if not found then raise exception 'release_configuration_binding_state_conflict'; end if;
@@ -257,6 +280,10 @@ begin
   on conflict (sellable_configuration_id) do nothing;
   get diagnostics inserted_configs=row_count;
   if inserted_configs<>631 then raise exception 'release_configuration_binding_insert_count_conflict'; end if;
+
+  select coalesce(jsonb_agg((x->>'target_sellable_configuration_id')::uuid order by (x->>'target_sellable_configuration_id')::uuid),'[]'::jsonb)
+  into created_configuration_ids
+  from jsonb_array_elements(rollback_bindings) x;
 
   with repair_rows as (
     select p.configuration_price_id,
@@ -317,7 +344,14 @@ begin
     result,
     jsonb_build_object('aligned_configuration_rows',846,'rebind_rows',0,'commercial_values_unchanged',true,
       'color_price_axis_rows_held',9,'payment_enabled',false,'indexing_enabled',false),
-    '{}'::jsonb,now()
+    jsonb_build_object(
+      'mode','restore_sellable_configuration_bindings',
+      'binding_count',jsonb_array_length(rollback_bindings),
+      'bindings',rollback_bindings,
+      'created_configuration_ids',created_configuration_ids,
+      'commercial_values_unchanged',true,
+      'delete_created_configurations_automatically',false
+    ),now()
   );
 
   update public.feya_growth_execution_requests_v1 set request_status='SUCCEEDED',updated_at=now()
