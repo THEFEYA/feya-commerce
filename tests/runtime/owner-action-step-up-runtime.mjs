@@ -12,6 +12,7 @@ export async function verifyOwnerActionStepUpRuntime({
   const stepEnv={
     ...env,
     FEYA_ADMIN_AUTH_REQUIRED:'false',
+    FEYA_ADMIN_ALLOWED_EMAILS:adminEmail,
     FEYA_OWNER_ACTION_AUTH_REQUIRED:'true',
     FEYA_OWNER_ACTIONS_ENABLED:'true',
     FEYA_COMMERCE_PRICE_BASELINE_ADOPTION_ENABLED:'false',
