@@ -15,3 +15,28 @@ export async function seedPriceProvenance(db){
   await db.query("update public.feya_commerce_configuration_prices set option_mapping_id=$1,source_price_row_id=$2,source_amount=123.45,public_price_amount=123.45,manual_override_amount=null,source_currency='EUR',confidence=95,fallback_flag=false,review_status='not_reviewed',price_status='draft' where configuration_price_id=$3",[mapping,source,i.config]);
   await db.query("update public.feya_commerce_sellable_configurations set review_status='not_reviewed',is_public_candidate=true,is_sampler=false where sellable_configuration_id=$1",[i.parent]);
 }
+
+export async function ensureExecutionReceiptDependency(db){
+  await db.exec(`
+    create table if not exists public.feya_growth_execution_receipts_v1(
+      execution_receipt_id uuid primary key default gen_random_uuid(),
+      execution_request_id uuid not null references public.feya_growth_execution_requests_v1(execution_request_id) on delete cascade,
+      attempt_no integer not null check(attempt_no>0),
+      receipt_status text not null check(receipt_status in ('STARTED','SUCCEEDED','FAILED','ROLLED_BACK')),
+      executor_id text not null,
+      request_hash text not null,
+      result_json jsonb not null default '{}'::jsonb,
+      postflight_result_json jsonb not null default '{}'::jsonb,
+      rollback_result_json jsonb not null default '{}'::jsonb,
+      error_code text,
+      error_message text,
+      started_at timestamptz not null default now(),
+      completed_at timestamptz,
+      created_at timestamptz not null default now(),
+      unique(execution_request_id,attempt_no)
+    );
+    alter table public.feya_growth_execution_receipts_v1 enable row level security;
+    revoke all on public.feya_growth_execution_receipts_v1 from public,anon,authenticated;
+    grant select,insert,update,delete on public.feya_growth_execution_receipts_v1 to service_role;
+  `);
+}

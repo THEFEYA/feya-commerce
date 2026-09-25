@@ -2,7 +2,7 @@ import test,{before,after} from 'node:test';
 import assert from 'node:assert/strict';
 import {PGlite} from '@electric-sql/pglite';
 import pg from 'pg';
-import {variantDependenciesSQL,seedVariantProduct,variantTestIds as ids,priceBaselineMigrationSQL,seedPriceProvenance} from './helpers/price-baseline-adoption.mjs';
+import {variantDependenciesSQL,seedVariantProduct,variantTestIds as ids,priceBaselineMigrationSQL,seedPriceProvenance,ensureExecutionReceiptDependency} from './helpers/price-baseline-adoption.mjs';
 
 const nativeURL=process.env.FEYA_TEST_DATABASE_URL;
 const actor='70000000-0000-4000-8000-000000000041';
@@ -13,7 +13,7 @@ before(async()=>{
   else db=new PGlite();
   await db.exec(await variantDependenciesSQL({pglite:!nativeURL}));
   await db.query('insert into auth.users(id) values($1)',[actor]);
-  await seedVariantProduct(db);await seedPriceProvenance(db);await db.exec(await priceBaselineMigrationSQL());
+  await seedVariantProduct(db);await seedPriceProvenance(db);await ensureExecutionReceiptDependency(db);await db.exec(await priceBaselineMigrationSQL());
 });
 after(async()=>{await db?.close();});
 async function service(fn,c=db){await c.query('set role service_role');try{return await fn(c);}finally{await c.query('reset role');}}
