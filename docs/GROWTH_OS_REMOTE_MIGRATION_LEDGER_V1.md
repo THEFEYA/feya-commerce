@@ -791,3 +791,33 @@ Validation:
 - immediate evidence remained 6 price rows / 3 configuration rows / SHA `19a84d86e52724753350d3c12d22ded4e6e19a0ab2c0dedb36a292a481e502ae`
 - no security/performance advisor finding tied to the new repair functions
 - agent-prepared request `3181a279-3f98-4faf-874f-788d20d8731a` remains `APPROVAL_REQUIRED`; no approval hash, receipt or repair execution exists
+
+
+### Manual price lane governance + commerce runtime foundation
+
+20260925165047 — manual_price_lane_governance_v1
+- remote version for repository migration `supabase/migrations/20260925200000_manual_price_lane_governance_v1.sql`
+- schema-only apply; no repair/governance execution occurred
+- service_role can read evidence / execute an approved request; anon/authenticated execute denied
+- current evidence before structural repair: 6 price rows / 3 configuration rows / strict-ready 1 / candidate=false
+- this is expected: the E12 structural repair must succeed first
+
+20260925165214 — product_variant_draft_atomic_v1
+- remote version for `supabase/migrations/20260924173914_product_variant_draft_atomic_v1.sql`
+- installs draft-only stable variant identities, revisions, source bindings, immutable history and save receipts
+- health postflight: ready=true / draft_only=true / can_publish=false / can_enable_checkout=false
+- rows created by schema apply: 0
+
+20260925165217 — commerce_quote_receipt_v1
+- remote version for `supabase/migrations/20260925123000_commerce_quote_receipt_v1.sql`
+- installs immutable offer/quote receipt foundation
+- health postflight: ready=true / quote receipt write enabled / offer projection write disabled / order/payment/indexing false
+- rows created by schema apply: 0
+
+20260925165220 — commerce_offer_promotion_v1
+- remote version for `supabase/migrations/20260925143000_commerce_offer_promotion_v1.sql`
+- installs approval-gated offer promotion on top of stable variants + approved exact prices
+- health postflight: ready=true / direct offer-table writes disabled / order/payment/indexing false
+- rows created by schema apply: 0
+
+These four schema applies prepare the next commerce phase but do not make any product orderable by themselves.

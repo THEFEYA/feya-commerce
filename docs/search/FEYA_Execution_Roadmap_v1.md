@@ -1,3 +1,59 @@
+## Macro execution checkpoint — 25.09.2026
+
+From this point, FEYA work is reported by **macro milestone**, not by every internal E-step. Internal E9–E18 files remain audit history, not the operating roadmap.
+
+### M1 — Commerce Truth → authoritative quote
+**Engineering foundation installed. Human authority gate is now the blocker.**
+
+Done:
+- 205 clean-source products / 850 price rows isolated and rehearsed;
+- exact production baseline request prepared and waiting for Human Owner approval;
+- two manual-price products structurally diagnosed;
+- exact structural-repair request prepared and waiting for Human Owner approval;
+- post-repair manual price-governance schema installed;
+- variant, quote and offer-promotion schemas installed and healthy;
+- no schema apply changed a commercial amount or made an offer/order/payment/index state active.
+
+Still required to close M1:
+1. Human Owner approves clean 205-product baseline request.
+2. Execute it and confirm 850/850 strict price readiness.
+3. Human Owner approves two-product configuration repair.
+4. Execute repair, then prepare/approve/execute two-product price governance.
+5. Persist governed current variant revisions for the sellable launch set.
+6. Promote exact offers from those revisions.
+7. Verify authoritative server quote on every orderable tuple.
+
+**M1 DONE condition:** every launch tuple intended for sale resolves to one stable variant + active offer + exact server quote; no browser price can authorize an order.
+
+### M2 — Checkout / company / policy / domain
+Runs in parallel where facts are available.
+
+Still blocked by owner/business facts:
+- canonical returns wording;
+- final public domain;
+- payment provider/account;
+- final company/contact/legal/privacy data.
+
+**M2 DONE condition:** provider sandbox purchase + persisted order + policy/domain/company pages + exact shipping/returns truth pass.
+
+### M3 — Search portfolio and content release
+Architecture/content work is largely prepared; indexing intentionally remains closed.
+
+**M3 DONE condition:** final page ownership + release content + technical crawl tests pass for the exact commercial release.
+
+### M4 — Launch gate
+Requires M1 + M2 + M3 for the URLs being opened.
+
+**M4 DONE condition:** selective pre-index gate PASS, canonical domain live, checkout truth consistent, then controlled index cutover.
+
+### M5 — Measurement / learning
+Prepared architecture; activation follows launch instrumentation and real traffic/orders.
+
+**M5 DONE condition:** GA4/GSC/Commerce/Ads observations join through stable IDs and post-change measurement is running.
+
+**Original plan check:** the broad sequence Product Truth → prices/variants → authoritative quote → checkout → selective indexing was the original critical path. The E1–E18 granularity was introduced later because production audits exposed missing schemas, collapsed configuration identities and an unexercised owner-auth boundary. Those micro-steps were safety implementation details, not a new business strategy.
+
+
 ## Latest commerce authority checkpoint — 25.09.2026
 
 - Production baseline-adoption schema is installed; clean 205-product request remains APPROVAL_REQUIRED and unexecuted.
