@@ -3,9 +3,10 @@ import test from 'node:test';
 import {
   OFFER_PROMOTION_CONTRACT,OFFER_PROMOTION_HEALTH_RPC,OFFER_PROMOTION_RPC,
   parseOfferPromotionReceipt,parseOfferPromotionRequest,promoteOffer,
+  type OfferPromotionRequest,
 } from '../../lib/commerceOfferPromotionStorage.ts';
 const id=(n:number)=>`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`;
-const req=()=>({contract_version:OFFER_PROMOTION_CONTRACT,request_id:id(1),canonical_product_id:id(2),
+const req=():OfferPromotionRequest=>({contract_version:OFFER_PROMOTION_CONTRACT,request_id:id(1),canonical_product_id:id(2),
   expected_variant_revision:3,expected_offer_revision:0,release_ref:'synthetic-release',max_quantity_per_line:4,variant_ids:[id(3)]});
 const rec=()=>({contract_version:OFFER_PROMOTION_CONTRACT,request_id:id(1),canonical_product_id:id(2),variant_revision:3,
   offer_revision_id:id(4),offer_revision:1,release_ref:'synthetic-release',variant_count:1,execution_request_id:id(5),
