@@ -1,18 +1,33 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {PGlite} from '@electric-sql/pglite';
+import pg from 'pg';
 import {readFile} from 'node:fs/promises';
 import {variantDependenciesSQL} from './helpers/variant-draft.mjs';
 import {ensureExecutionReceiptDependency} from './helpers/price-baseline-adoption.mjs';
 
 const migrationSQL=()=>readFile(new URL('../../supabase/migrations/20260925214500_release_configuration_binding_repair_v1.sql',import.meta.url),'utf8');
+const nativeURL=process.env.FEYA_TEST_DATABASE_URL;
 const actor='70000000-0000-4000-8000-000000000091';
 const uid=(prefix,n)=>prefix+'0000000-0000-4000-8000-'+n.toString(16).padStart(12,'0');
 const esc=s=>String(s).replaceAll("'","''");
 const lit=s=>"'" + esc(s) + "'";
 
-async function seed(db){
-  await db.exec("create function extensions.uuid_generate_v5(namespace uuid,name text) returns uuid language sql immutable strict as $$ select (substr(md5(namespace::text||':'||name),1,8)||'-'||substr(md5(namespace::text||':'||name),9,4)||'-5'||substr(md5(namespace::text||':'||name),14,3)||'-a'||substr(md5(namespace::text||':'||name),18,3)||'-'||substr(md5(namespace::text||':'||name),21,12))::uuid $$;");
+async function connect(){
+  const u=new URL(nativeURL);
+  assert.ok(['localhost','127.0.0.1'].includes(u.hostname));
+  assert.equal(u.pathname,'/feya_test');
+  const c=new pg.Client({connectionString:nativeURL,statement_timeout:30000,connectionTimeoutMillis:5000});
+  await c.connect();
+  return c;
+}
+
+async function seed(db,{pglite=false}={}){
+  if(pglite){
+    await db.exec("create function extensions.uuid_generate_v5(namespace uuid,name text) returns uuid language sql immutable strict as $ select (substr(md5(namespace::text||':'||name),1,8)||'-'||substr(md5(namespace::text||':'||name),9,4)||'-5'||substr(md5(namespace::text||':'||name),14,3)||'-a'||substr(md5(namespace::text||':'||name),18,3)||'-'||substr(md5(namespace::text||':'||name),21,12))::uuid $;");
+  }else{
+    await db.exec('create extension if not exists "uuid-ossp" with schema extensions;');
+  }
   await db.query('insert into auth.users(id) values($1)',[actor]);
   await db.exec("insert into public.feya_commerce_shops(shop_code,shop_name) values('release-repair-test','Release repair test') on conflict do nothing;");
 
@@ -65,11 +80,18 @@ async function seed(db){
 }
 
 test('catalog-wide release repair compiles, fails closed before approval, preserves commercial values and fixes 631 bindings',async()=>{
-  const db=new PGlite();
+  let db;
+  if(nativeURL){
+    const c=await connect();
+    db={query:(sql,params)=>c.query(sql,params),exec:sql=>c.query(sql),close:()=>c.end()};
+    assert.equal((await db.query("select count(*)::int n from pg_tables where schemaname='public'")).rows[0].n,0);
+  }else{
+    db=new PGlite();
+  }
   try{
-    await db.exec(await variantDependenciesSQL({pglite:true}));
+    await db.exec(await variantDependenciesSQL({pglite:!nativeURL}));
     await ensureExecutionReceiptDependency(db);
-    const productIds=await seed(db);
+    const productIds=await seed(db,{pglite:!nativeURL});
     await db.exec(await migrationSQL());
 
     await db.query('set role service_role');
