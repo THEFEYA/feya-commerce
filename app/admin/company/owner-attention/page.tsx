@@ -26,6 +26,7 @@ async function getRows(): Promise<{ rows: Row[]; commerceRows: Row[]; error?: st
       .eq('request_status', 'APPROVAL_REQUIRED')
       .in('action_code', [
         'ADOPT_SOURCE_PRICE_BASELINE',
+        'REPAIR_RELEASE_CONFIGURATION_BINDINGS',
         'REPAIR_MANUAL_CONFIGURATION_BINDINGS',
         'ADOPT_MANUAL_PRICE_LANE_GOVERNANCE',
       ])
