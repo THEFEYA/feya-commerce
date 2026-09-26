@@ -29,7 +29,28 @@ export async function verifyApprovedContentRuntime({ db, browser, ownerPage, env
       grant select on public.runtime_approved_products to anon,authenticated,service_role;
       create view public.feya_commerce_v_step7_storefront_products_api_v4 with(security_invoker=true) as
         select r.* from public.runtime_approved_products p cross join lateral jsonb_to_record(p.data) as r(${columns});
-      grant select on public.feya_commerce_v_step7_storefront_products_api_v4 to anon,authenticated,service_role;`);
+      grant select on public.feya_commerce_v_step7_storefront_products_api_v4 to anon,authenticated,service_role;
+
+      -- PDP now reads immutable Search Portfolio membership to render related collection links.
+      -- This runtime is an approved-copy proof, not a landing-membership proof, so restore the
+      -- minimal service-only contracts with zero memberships instead of weakening the PDP reader.
+      create table public.feya_search_membership_snapshots_v1(
+        membership_snapshot_id uuid primary key,
+        seo_page_id uuid not null,
+        source_revision text not null
+      );
+      alter table public.feya_search_membership_snapshots_v1 enable row level security;
+      grant select on public.feya_search_membership_snapshots_v1 to service_role;
+
+      create table public.feya_search_membership_items_v1(
+        membership_snapshot_id uuid not null,
+        canonical_product_id uuid not null,
+        eligibility_status text not null,
+        orderability_status text not null,
+        primary key(membership_snapshot_id,canonical_product_id)
+      );
+      alter table public.feya_search_membership_items_v1 enable row level security;
+      grant select on public.feya_search_membership_items_v1 to service_role;`);
     if (!(await db.query("select to_regclass('public.feya_commerce_v_seo_pack_drafts_latest_v1') n")).rows[0].n) {
       const definition = observed.views.find(v => v.name === 'feya_commerce_v_seo_pack_drafts_latest_v1').definition;
       await db.query(`create view public.feya_commerce_v_seo_pack_drafts_latest_v1 as ${definition}`);
