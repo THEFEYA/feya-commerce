@@ -1,3 +1,15 @@
+## M2 policy/domain checkpoint — 26.09.2026
+
+- Canonical public domain confirmed by Human Owner: `https://thefeya.com`.
+- Payment settlement architecture is intentionally not frozen. FEYA may receive funds through the eventual merchant/business account or an authorized payment intermediary/merchant-of-record style provider. Public UX must disclose the contracting seller and accepted payment method/arrangement where legally required, but it must not expose internal banking/settlement routing without a real requirement.
+- Current store policy: no discretionary order cancellation after placement; anti-free-rental return model; genuine defect/wrong-item/wrong-agreed-size-color-configuration cases receive adjustment/repair/remake/replacement or other required remedy; voluntary sale-item remedies use store credit; made-to-measure/personalized/non-standard custom orders are final sale under store policy; event/weather/shoot changes do not create voluntary cancellation rights.
+- Customer issue notice: ideally 1–3 days, no later than 7 days for the voluntary exchange/remake workflow; this does not shorten non-waivable legal rights.
+- Customs/duties/clearance charges are buyer responsibility where applicable; event-date delivery is not guaranteed unless expressly accepted in writing for the specific order.
+- Checkout must require explicit unticked acknowledgement of Terms + Returns + Shipping and retain policy version + timestamp + quoted tuple evidence.
+- Legal-safe implementation guardrail: do not invent hygiene/intimate classifications or blanket carrier disclaimers to evade mandatory consumer rights.
+- Public `/returns` and `/shipping` policy pages now exist in preview and remain `noindex` until the final M2 legal/contact/payment package is complete.
+- Remaining Human Owner facts for M2 legal shell: public email and final seller/contact address. Final payment provider can remain undecided until payment integration work.
+
 ## M1 CLOSED — 26.09.2026
 
 Commerce Truth → authoritative quote is complete for the sealed release `feya-review-207-20260924`.
