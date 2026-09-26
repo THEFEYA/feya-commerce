@@ -146,6 +146,82 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       try{await noJs.route('**/*',route=>route.request().resourceType()==='image'?route.fulfill({status:200,contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800"><rect width="600" height="800" fill="#393128"/></svg>'}):route.request().resourceType()==='media'?route.abort():route.continue());const p=await noJs.newPage();await p.goto(base+'/shop');await p.getByRole('link',{name:'Show 20 more',exact:true}).click();await p.waitForURL('**/shop?page=2');assert.equal(await p.locator('a[data-testid^="product-card-"]').count(),20);}finally{await noJs.close();}
       assert.deepEqual(errors,[]);assert.equal(await page.locator('[data-nextjs-dialog]').count(),0);
     });
+    await check('PDP keyboard flow covers gallery, configuration and modal focus without mouse-only dependency',async()=>{
+      const galleryEntry=release.entries.find(e=>Array.isArray(e.product.media_gallery)&&e.product.media_gallery.length>1);
+      assert.ok(galleryEntry,'Expected at least one multi-image release product');
+      await page.setViewportSize({width:1440,height:1000});
+      await page.goto(base+galleryEntry.copy.metadata.canonical_path);
+
+      const mainMedia=page.getByRole('button',{name:/Open image \d+ of \d+/});
+      await mainMedia.focus();
+      assert.equal(await mainMedia.evaluate(el=>el===document.activeElement),true);
+
+      const mainImage=mainMedia.locator('img');
+      const before=await mainImage.getAttribute('src');
+      await page.keyboard.press('ArrowRight');
+      await page.waitForFunction(before=>{
+        const button=[...document.querySelectorAll('button')].find(el=>/^Open image \d+ of \d+/.test(el.getAttribute('aria-label')||''));
+        const image=button?.querySelector('img');
+        return Boolean(image&&image.getAttribute('src')!==before);
+      },before);
+
+      await page.keyboard.press('Enter');
+      const dialog=page.getByRole('dialog',{name:/Image viewer:/});
+      await dialog.waitFor();
+      const close=page.getByRole('button',{name:'Close image viewer',exact:true});
+      assert.equal(await close.evaluate(el=>el===document.activeElement),true);
+      await page.keyboard.press('Tab');
+      assert.equal(await close.evaluate(el=>el===document.activeElement),true,'Modal Tab must remain inside the one-control dialog');
+      await page.keyboard.press('Escape');
+      await dialog.waitFor({state:'detached'});
+      assert.equal(await mainMedia.evaluate(el=>el===document.activeElement),true,'Closing dialog must restore prior focus');
+
+      const config=page.locator('button[aria-controls="product-configuration-options"]');
+      await config.focus();
+      await page.keyboard.press('Enter');
+      assert.equal(await config.getAttribute('aria-expanded'),'true');
+      const firstOption=page.locator('#product-configuration-options button').first();
+      await page.keyboard.press('Tab');
+      assert.equal(await firstOption.evaluate(el=>el===document.activeElement),true);
+      await page.keyboard.press('Enter');
+      assert.equal(await config.getAttribute('aria-expanded'),'false');
+
+      const nav=page.locator('[data-testid="primary-nav"] a').first();
+      await nav.focus();
+      assert.equal(await nav.evaluate(el=>el===document.activeElement),true);
+      assert.ok(await page.locator('button[aria-label^="Select color"]').count()>=0);
+      assert.ok(await page.locator('button[aria-pressed]').count()>0);
+      report.closed_review_keyboard_pass=true;
+    });
+
+    await check('Release lab asset budgets guard JavaScript and CSS regressions without claiming field CWV',async()=>{
+      const routes=['/shop',path];
+      const budgets={maxScriptBytes:2500000,maxStyleBytes:600000,maxScriptResources:48,maxStyleResources:16};
+      const observed=[];
+      for(const route of routes){
+        await page.goto(base+route,{waitUntil:'networkidle'});
+        const metrics=await page.evaluate(()=>{
+          const resources=performance.getEntriesByType('resource');
+          const size=r=>Number(r.encodedBodySize||r.transferSize||r.decodedBodySize||0);
+          const scripts=resources.filter(r=>r.initiatorType==='script'||/\/_next\/static\/.*\.js(?:\?|$)/.test(r.name));
+          const styles=resources.filter(r=>r.initiatorType==='css'||/\.css(?:\?|$)/.test(r.name));
+          return{
+            path:location.pathname+location.search,
+            scriptBytes:scripts.reduce((sum,r)=>sum+size(r),0),
+            styleBytes:styles.reduce((sum,r)=>sum+size(r),0),
+            scriptResources:new Set(scripts.map(r=>r.name)).size,
+            styleResources:new Set(styles.map(r=>r.name)).size,
+          };
+        });
+        assert.ok(metrics.scriptBytes<=budgets.maxScriptBytes,JSON.stringify({kind:'script_bytes',metrics,budgets}));
+        assert.ok(metrics.styleBytes<=budgets.maxStyleBytes,JSON.stringify({kind:'style_bytes',metrics,budgets}));
+        assert.ok(metrics.scriptResources<=budgets.maxScriptResources,JSON.stringify({kind:'script_resources',metrics,budgets}));
+        assert.ok(metrics.styleResources<=budgets.maxStyleResources,JSON.stringify({kind:'style_resources',metrics,budgets}));
+        observed.push(metrics);
+      }
+      report.release_lab_asset_budget={budgets,observed,note:'CI regression guard only; not field Core Web Vitals.'};
+    });
+
     await check('Mistaken production/index flags cannot expose a closed release or populate sitemap',async()=>{
       let r=await request('/sitemap.xml');assert.equal(r.status(),200);assert.ok(!(await r.text()).includes('<loc>'));
       await stop();await start({VERCEL_ENV:'production'});
