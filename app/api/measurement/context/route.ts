@@ -22,6 +22,9 @@ function measurementEnvironment(){
 export async function GET(request:NextRequest){
   const path=normalizePath(request.nextUrl.searchParams.get('path'));
   if(!path)return NextResponse.json({ok:false,code:'invalid_path'},{status:400,headers:{'Cache-Control':'no-store'}});
+  if(path.startsWith('/admin')||path.startsWith('/api')){
+    return NextResponse.json({ok:false,code:'measurement_private_surface_excluded'},{status:404,headers:{'Cache-Control':'no-store'}});
+  }
 
   const service=getSupabaseServiceRoleClient();
   if(!service)return NextResponse.json({ok:false,code:'measurement_context_unavailable'},{status:503,headers:{'Cache-Control':'no-store'}});
