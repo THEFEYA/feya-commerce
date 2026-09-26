@@ -1,0 +1,40 @@
+{
+  "keys_pass": true,
+  "read_only": true,
+  "observed_at": "2026-09-23T22:13:43.13439+00:00",
+  "required_keys": [
+    {
+      "attnotnull": true,
+      "table_name": "feya_commerce_product_drafts",
+      "actual_type": "uuid",
+      "column_name": "canonical_product_id",
+      "exact_unique_key": true
+    },
+    {
+      "attnotnull": true,
+      "table_name": "feya_commerce_seo_pages_v1",
+      "actual_type": "uuid",
+      "column_name": "seo_page_id",
+      "exact_unique_key": true
+    },
+    {
+      "attnotnull": true,
+      "table_name": "feya_growth_change_events_v1",
+      "actual_type": "uuid",
+      "column_name": "change_event_id",
+      "exact_unique_key": true
+    },
+    {
+      "attnotnull": true,
+      "table_name": "feya_growth_execution_requests_v1",
+      "actual_type": "uuid",
+      "column_name": "execution_request_id",
+      "exact_unique_key": true
+    }
+  ],
+  "remaining_gate": "isolated full Supabase schema restore, advisors, grants and authenticated API/browser validation",
+  "page_type_column": "text",
+  "object_collisions": [],
+  "can_apply_production": false,
+  "required_roles_present": true
+}

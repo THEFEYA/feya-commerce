@@ -1,0 +1,1321 @@
+{
+  "observed_at": "2026-09-23",
+  "base_sha": "928d8dfcfb18cec0e8b19fa27ee40faa636e2b3d",
+  "product_sha": "c28e112923d33eaea18c5c08aa858a4c5bb91c26",
+  "integration_mode": "selective_product_runtime_and_tests_no_protected_visual_merge",
+  "files": [
+    {
+      "status": "M",
+      "path": ".env.example"
+    },
+    {
+      "status": "M",
+      "path": ".github/workflows/ci.yml"
+    },
+    {
+      "status": "D",
+      "path": ".nvmrc"
+    },
+    {
+      "status": "A",
+      "path": "app/account/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/advanced/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/advanced/signals/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/business-truth/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/collections/[axis]/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/collections/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/company/advanced/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/company/growth/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/company/layout.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/company/loading.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/company/owner-attention/[id]/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/company/owner-attention/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/company/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/company/results/changes/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/company/results/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/company/search/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/company/signals/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/company/system/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/company/work/[id]/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/company/work/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/content-briefs/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/content-qa/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/content/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/data-authority/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/data-health/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/execution-map/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/executions/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/experiments/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/graph/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/growth/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/incidents/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/indexation/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/launch-readiness/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/launch/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/layout.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/learning/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/listing-master/ListingMasterPage.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/login/actions.ts"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/login/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/media-seo/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/media-seo/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/media/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/metrics/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/opportunities/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/owner-attention/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/product-facts-review/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/products/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/products/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/results/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/review/components/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/review/labels/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/review/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/review/prices/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/roles/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/scenario-tests/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/search/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/seo-approval/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/seo-cluster-proposals/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/seo-clusters/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/seo-engine/angle-advisor/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/seo-engine/keyword-metrics/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/seo-engine/metric-import/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/seo-engine/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/seo-engine/scoring/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/seo-engine/studio/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/seo-export/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/seo-indexability/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/seo-keyword-review/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/seo-keywords/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/seo-lab/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/seo-lab/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/seo-ownership-proposals/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/seo-portfolio/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/seo/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/signals/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/strategy/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/system-readiness/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/system/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/admin/work/page.tsx"
+    },
+    {
+      "status": "D",
+      "path": "app/api/admin/company/content-review/route.ts"
+    },
+    {
+      "status": "D",
+      "path": "app/api/admin/company/execution-approval/route.ts"
+    },
+    {
+      "status": "D",
+      "path": "app/api/admin/company/keyword-review/route.ts"
+    },
+    {
+      "status": "D",
+      "path": "app/api/admin/company/owner-attention/decision/route.ts"
+    },
+    {
+      "status": "D",
+      "path": "app/api/admin/company/proposal-apply/route.ts"
+    },
+    {
+      "status": "D",
+      "path": "app/api/admin/company/proposal-review/route.ts"
+    },
+    {
+      "status": "D",
+      "path": "app/api/admin/company/strategic-action/route.ts"
+    },
+    {
+      "status": "A",
+      "path": "app/api/checkout/drafts/route.ts"
+    },
+    {
+      "status": "D",
+      "path": "app/api/internal/content-prechecks/route.ts"
+    },
+    {
+      "status": "D",
+      "path": "app/api/internal/content-qa/route.ts"
+    },
+    {
+      "status": "D",
+      "path": "app/api/internal/google-ads-health/route.ts"
+    },
+    {
+      "status": "D",
+      "path": "app/api/internal/google-ads-keyword-metrics/route.ts"
+    },
+    {
+      "status": "D",
+      "path": "app/api/internal/openai-health/route.ts"
+    },
+    {
+      "status": "D",
+      "path": "app/api/internal/page-ownership-proposals/route.ts"
+    },
+    {
+      "status": "D",
+      "path": "app/api/internal/query-cluster-proposals/route.ts"
+    },
+    {
+      "status": "D",
+      "path": "app/api/internal/sco-shadow/route.ts"
+    },
+    {
+      "status": "D",
+      "path": "app/api/internal/seo-keyword-cleanup/route.ts"
+    },
+    {
+      "status": "D",
+      "path": "app/api/internal/seo-keyword-review/route.ts"
+    },
+    {
+      "status": "A",
+      "path": "app/api/payments/sessions/route.ts"
+    },
+    {
+      "status": "A",
+      "path": "app/api/payments/webhook/route.ts"
+    },
+    {
+      "status": "A",
+      "path": "app/cart/page.tsx"
+    },
+    {
+      "status": "A",
+      "path": "app/checkout/page.tsx"
+    },
+    {
+      "status": "A",
+      "path": "app/collections/[axis]/[slug]/page.tsx"
+    },
+    {
+      "status": "A",
+      "path": "app/collections/[axis]/page.tsx"
+    },
+    {
+      "status": "A",
+      "path": "app/collections/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/globals.css"
+    },
+    {
+      "status": "M",
+      "path": "app/layout.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/robots.ts"
+    },
+    {
+      "status": "M",
+      "path": "app/sitemap.ts"
+    },
+    {
+      "status": "A",
+      "path": "app/studio/orders/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "components/AdminNav.tsx"
+    },
+    {
+      "status": "M",
+      "path": "components/ProductDetailClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/AdminCompanySwitch.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/AdminLegacyShell.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerAttentionDecisionClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerContentBriefDrawerClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerContentQaDrawerClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerDataError.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerDataSourceDrawerClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerExecutionApprovalClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerExecutionDrawerClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerExperimentDrawerClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerIncidentDrawerClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerInitiativeDrawerClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerKeywordReviewClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerLearningDrawerClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerObjectiveDrawerClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerOpportunityDrawerClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerProductFactDrawerClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerProposalApplyClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerProposalReviewClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerRoleDrawerClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerSavedViewsClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerScoDraftReviewClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerShell.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerSignalDrawerClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerStrategicActionClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerWorkDetailContent.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/OwnerWorkDrawerClient.tsx"
+    },
+    {
+      "status": "D",
+      "path": "components/admin/useOwnerDrawerA11y.ts"
+    },
+    {
+      "status": "D",
+      "path": "config/product-os-globals-baseline.css"
+    },
+    {
+      "status": "D",
+      "path": "config/product-os-ui-freeze.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/00_CURRENT_START_HERE.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/ADMIN_AUTH_CUTOVER_RUNBOOK_V1.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/ADMIN_AUTH_GATE_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/ADMIN_REVIEW_EVENTS_CONTRACT_V1.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/AI_RUNTIME_COST_DISCIPLINE_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/BATCH06_REVIEW_20260916.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/BATCH07_REVIEW_20260916.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/BRAND_KNOWLEDGE_MATERIAL_STORIES.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/CONTINUATION_PROTOCOL.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/CONTROLLED_EDITING_VERSION_LEDGER_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/CONTROL_TOWER_ROADMAP_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/CURRENT_REALITY_UPDATE_2026-06-28.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/CUSTOMER_ACCOUNT_AND_CHECKOUT_BACKBONE_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/DATA_AUDIT_PRICE_DNA_V1.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/DURABLE_HANDOFF_REGISTRY_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/EDITORIAL_FEEDBACK_RULES_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/FEYA_COMMERCE_PHASE_A_STABILIZATION_PASSPORT.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/FRONTEND_V4_BUILD_QA_STATUS_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/FRONTEND_V4_ROUTE_QA_RESULTS_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/FRONTEND_V4_SWITCH_IMPLEMENTATION_LOG_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/FRONTEND_V4_SWITCH_PLAN_V1.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/GROWTH_CASE_CORE_V1.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/GROWTH_OS_IMPLEMENTATION_GAP_MAP_V1.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/GROWTH_OS_REMOTE_MIGRATION_LEDGER_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/HANDOFF_2026_06_15_SEO_APPLY_FIX.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/HANDOFF_2026_06_15_SEO_PIPELINE_STATUS.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/HUMAN_COPY_V2_PLAN_2026-07-27.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/HUMAN_COPY_V3_DECISION_2026-08-06.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/KEYWORD_DEMAND_SNAPSHOT_CONTRACT_V1.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/MEASUREMENT_FOUNDATION_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/MEDIA_AI_POSTPRODUCTION_RULE_V1.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/OWNER_COMPANY_VISUAL_CONTRACT_V1.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/OWNER_FUNCTIONAL_COVERAGE_2026-09-20.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/OWNER_UI_IMPLEMENTATION_PLAN_V1.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/OWNER_UI_RESEARCH_SYNTHESIS_V1.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/OWNER_UI_RU_TERMINOLOGY_V1.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/OWNER_UX_BLUEPRINT_AUDIT_2026-09-19.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/OWNER_UX_SIMULATION_2026-09-19.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/OWNER_UX_SIMULATION_2026-09-20.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/PRODUCTION_ANALYTICS_EVENT_CONTRACT_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/PRODUCT_SEO_COMPLETION_OPERATING_PROMPT_2026-07-27.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/REAL_STORE_SECURITY_AND_ENV_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/REFERENCE_EXAMPLE_001_WARRIOR_ARMOR.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/SCO_CQA_SHADOW_MODE_V1.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/SCO_SHADOW_RUNNER_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SEO_APPLIED_VALUES_CONTRACT_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SEO_APPLY_DRAFT_CONTRACT_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SEO_CHANGE_SET_STORAGE_CONTRACT_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SEO_DRAFT_STORAGE_CONTRACT_V1.sql"
+    },
+    {
+      "status": "A",
+      "path": "docs/SEO_DRAFT_STORAGE_HANDOFF_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SEO_DRAFT_STORAGE_SECURITY_PATCH_V1.sql"
+    },
+    {
+      "status": "A",
+      "path": "docs/SEO_KEYWORD_SOURCE_AND_AGENT_PLAN_2026-06-28.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SEO_PACK_STORAGE_AND_AI_AGENT_CONTRACT_V0_2026-07-08.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SEO_PORTFOLIO_OVERLAP_STRATEGY_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SEO_PRODUCT_TRUTH_AGGREGATION_CONTRACT_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SEO_PRODUCT_TRUTH_V2_EXTERNAL_REVIEW_2026-07-10.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SEO_QUEUE_REPLACE_FLOW_DEPLOY_MARKER_2026_06_15.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SEO_RULE_ENGINE_ARCHITECTURE_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/STOREFRONT_BUNDLE_PRICING_RULES_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/STOREFRONT_SEO_PREVIEW_CONTRACT_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SUPABASE_PRICE_CONFIG_CONTRACT_V4_SPEC.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SUPABASE_REALITY_REPORT_2026-06-28.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SUPABASE_V4_CREATION_RESULTS_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SUPABASE_V4_DIAGNOSTIC_EXECUTION_PLAN_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SUPABASE_V4_DIAGNOSTIC_PROMPT_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SUPABASE_V4_DIAGNOSTIC_RESULTS_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SUPABASE_V4_HANDOFF_FROM_GITHUB_V1.md"
+    },
+    {
+      "status": "D",
+      "path": "docs/TSEO_SEARCH_LAUNCH_GATE_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/VISUAL_LOCK_PHASE_C_V1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/commercial-keyword-batches-2026-07-05.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/commercial-keyword-promote-result-2026-07-05.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/commercial-keyword-promote-rpc-plan-2026-07-05.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/commercial-keyword-promote-rpc-status-2026-07-05.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/commercial-keyword-validation-status-2026-07-05.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/commercial-keyword-workflow-correction-2026-07-05.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/current-work-checkpoint-2026-07-05.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/current-work-status-2026-07-05.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/keyword-pipeline-reconciliation-2026-07-05.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/listing-master-status-model-v1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/seo-pack-generation-guardrails-v1.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/sql/FEYA_Commerce_Component_Non_Component_Review_v1_applied.sql"
+    },
+    {
+      "status": "A",
+      "path": "docs/sql/FEYA_Commerce_SEO_Product_Truth_v1_preview_v3.sql"
+    },
+    {
+      "status": "A",
+      "path": "docs/sql/FEYA_Commerce_SEO_Product_Truth_v1_proposed_v3.sql"
+    },
+    {
+      "status": "A",
+      "path": "docs/sql/feya_commerce_v_seo_keyword_master_to_bank_insert_dry_run_v1.sql"
+    },
+    {
+      "status": "A",
+      "path": "docs/vision-focus-agent-plan-v1.md"
+    },
+    {
+      "status": "D",
+      "path": "lib/adminData.ts"
+    },
+    {
+      "status": "D",
+      "path": "lib/adminDisplayRu.ts"
+    },
+    {
+      "status": "D",
+      "path": "lib/internalAuth.ts"
+    },
+    {
+      "status": "D",
+      "path": "lib/openAiUsage.ts"
+    },
+    {
+      "status": "D",
+      "path": "lib/owner-ui/decisions.ts"
+    },
+    {
+      "status": "D",
+      "path": "lib/owner-ui/presenters.ts"
+    },
+    {
+      "status": "D",
+      "path": "lib/owner-ui/terminology.ts"
+    },
+    {
+      "status": "D",
+      "path": "lib/owner-ui/types.ts"
+    },
+    {
+      "status": "D",
+      "path": "lib/ownerActionAuth.ts"
+    },
+    {
+      "status": "M",
+      "path": "lib/seoCommercialCopyValidator.ts"
+    },
+    {
+      "status": "D",
+      "path": "lib/siteConfig.ts"
+    },
+    {
+      "status": "M",
+      "path": "lib/storefront.ts"
+    },
+    {
+      "status": "M",
+      "path": "lib/storefrontOwnerReviewedCorrections.ts"
+    },
+    {
+      "status": "M",
+      "path": "lib/storefrontPriceComparison.ts"
+    },
+    {
+      "status": "M",
+      "path": "lib/storefrontSellableOffer.ts"
+    },
+    {
+      "status": "M",
+      "path": "lib/supabase.ts"
+    },
+    {
+      "status": "D",
+      "path": "lib/supabaseAdmin.ts"
+    },
+    {
+      "status": "D",
+      "path": "lib/supabaseAuth.ts"
+    },
+    {
+      "status": "M",
+      "path": "lib/types.ts"
+    },
+    {
+      "status": "M",
+      "path": "middleware.ts"
+    },
+    {
+      "status": "M",
+      "path": "package.json"
+    },
+    {
+      "status": "D",
+      "path": "scripts/check-admin-data-boundary.mjs"
+    },
+    {
+      "status": "D",
+      "path": "scripts/check-owner-ui-contract.mjs"
+    },
+    {
+      "status": "D",
+      "path": "scripts/check-product-os-ui-freeze.mjs"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260613_checkout_order_draft_schema.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260613_customer_account_rls_policies.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260613_order_lifecycle_status_history.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260613_paid_order_conversion_schema.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260616_external_keyword_metrics_foundation_v1.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260616_keyword_candidates_metrics_bridge_v1.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260616_legacy_keyword_universe_import_v1.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260616_seo_content_engine_v1.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260723_product_truth_atomic_composition_replace_v4.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260723_product_truth_listing_composition_v3.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260723_product_truth_variant_separation_v2.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260724_product_truth_listing_gate_v4.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260724_product_truth_listing_scope_constraint_v5.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260725_seo_exact_storefront_read_chain.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260725_seo_product_truth_exact_read_rpc.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260725_seo_product_truth_exact_read_rpc_builder_filter.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260725_seo_product_truth_exact_read_rpc_permissions.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260727135844_create_feya_v_product_fact_sheet_v1.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260727135929_improve_feya_v_product_fact_sheet_v1_kit_extraction.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260727171527_patch_v4_truth_source_description_after_composition_confirmed.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260727172222_patch_v3_truth_resolution_filter_after_composition_confirmed.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260727172810_patch_rpc_truth_v4_source_description_after_composition_confirmed.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260814_canonical_limb_axes_exact_rpc_v7.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260814_canonical_limb_axes_storefront_read_v5.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260814_singular_leg_cover_storefront_read_v6.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/migrations/20260918_fix_step7_v7_fullset_bundle_members.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/operations/20260917_batch09_owner_materials.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/operations/20260917_batch10_owner_materials.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/operations/20260917_batch11_owner_materials.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/operations/20260917_batch12_owner_materials.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/operations/20260917_batch13_owner_materials.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/operations/20260917_owner_couple_full_set.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/operations/20260917_product_truth_rpc_jit.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/seo_applied_values_v1.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/seo_change_sets_v1.sql"
+    },
+    {
+      "status": "A",
+      "path": "supabase/seo_storefront_preview_v1.sql"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/adminComponentTruth.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/batch07Composition.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/batch08Composition.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/batch09Composition.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/batch10Composition.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/batch10Identity.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/catalogBriefIsolation.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/catalogKeywordRecommendation.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/fixtures/batch09Offers.json"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/fixtures/batch10Offers.json"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/greenLeatherHarness.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/listingMasterComponentTruth.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/listingMasterDecision.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/listingMasterFeedback.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/listingMasterSearchAxisContract.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/seoAgentOutputValidator.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/seoCatalogBriefRoles.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/seoCommercialCopyValidator.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/seoEditorialCandidateSelection.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/seoFullPackAssembler.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/seoHumanCopyV2.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/seoKeywordBankPagination.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/seoKeywordPlacementValidator.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/seoKeywordSelectionGate.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/seoNaturalKeywordPhrase.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/seoPortfolioOverlap.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/seoPrimaryKeywordOwnership.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/seoRaveEventGrammar.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/seoSavedDraftPreview.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/seoTrustedMetricSnapshot.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/storefrontColorLabel.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/storefrontIncludedOptions.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/storefrontOptionOrdering.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/storefrontOwnerReviewedCorrections.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/storefrontPriceComparison.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/thefeyaRightPdpPanel.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "tests/seo/unmeasuredEditorialReview.test.ts"
+    },
+    {
+      "status": "M",
+      "path": "tsconfig.json"
+    }
+  ],
+  "integration_checkpoint": "Product_Growth_Integration_20260923.md"
+}

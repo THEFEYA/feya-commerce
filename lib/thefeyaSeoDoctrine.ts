@@ -75,6 +75,15 @@ function rightPanelBlock(block_key: string, heading: string, lines: readonly str
   };
 }
 
+// Active business-truth v1, rechecked 2026-09-24. Exact public copy, not an
+// inferred promise or a conversion of unspecified production days to weekdays.
+// Provenance: docs/search/fulfillment-truth-capture-20260924.json.
+export const THEFEYA_APPROVED_FULFILLMENT_COPY = {
+  production: 'Production usually takes 3–5 days.',
+  standard: 'Standard international shipping usually takes 10–14 business days.',
+  express: 'Express shipping usually takes 7–10 business days.',
+} as const;
+
 export const THEFEYA_CANONICAL_RIGHT_PDP_PANEL = [
   rightPanelBlock('sizing_fit', 'Sizing & fit', [
     'Use our size chart to choose your standard size.',
@@ -82,12 +91,12 @@ export const THEFEYA_CANONICAL_RIGHT_PDP_PANEL = [
     'For custom measurements or a special fit request, add the details to your order note.',
   ]),
   rightPanelBlock('production_timing', 'Production time', [
-    'Standard made-to-order production usually takes 3-5 business days.',
+    THEFEYA_APPROVED_FULFILLMENT_COPY.production,
     'Need it sooner? Ask about rush production before ordering.',
   ]),
   rightPanelBlock('shipping_delivery', 'Shipping & delivery', [
-    'Standard shipping: 10-14 business days.',
-    'Express shipping: 6-9 business days.',
+    THEFEYA_APPROVED_FULFILLMENT_COPY.standard,
+    THEFEYA_APPROVED_FULFILLMENT_COPY.express,
   ]),
   rightPanelBlock('material', 'Material', [
     'We use durable vegan leather with a glossy mirror-like coating.',
@@ -175,7 +184,8 @@ const THEFEYA_PRODUCT_RIGHT_PDP_OVERRIDES: Record<string, RightPanelOverride> = 
     ],
   },
   'a83b1b51-79be-4cae-a943-661060a34080': {
-    material: ['Glossy armor panels are held by black straps with buckle fastenings.'],
+    // owner-glossy-vegan-armor-20260924-03; current material, not the historical acrylic version.
+    material: ['Glossy vegan-leather armor panels are held by black straps with buckle fastenings.'],
     care: ['Wipe the panels gently with a soft, lightly damp cloth.', 'Avoid abrasive cleaners, solvents and machine washing.', 'Store without crushing or tightly folding the panels.'],
   },
   'e7238b1d-565c-4c4d-a7ae-a4402de80720': {
@@ -394,9 +404,9 @@ export const THEFEYA_SEO_DOCTRINE = {
     'Product-specific material nuances may appear in both the code-owned factual right panel and the generated left description, but OpenAI never controls the right-panel wording.',
   ],
   buyer_facts: [
-    'Typical made-to-order production: 3-5 business days.',
+    THEFEYA_APPROVED_FULFILLMENT_COPY.production,
     'For rush production or an earlier dispatch date, the buyer should contact the studio before ordering.',
-    'Standard shipping: 10-14 business days. Express shipping: 6-9 business days.',
+    `${THEFEYA_APPROVED_FULFILLMENT_COPY.standard} ${THEFEYA_APPROVED_FULFILLMENT_COPY.express}`,
     'Sizing: use the size chart. Where a design uses straps, they can be adjusted for fit. Custom measurements or a special fit request can be left with the order or discussed before production.',
     'Customization is separate from generated product copy: color, size, detail, length, coverage and fit changes can be discussed in the fixed right panel while keeping the result within the studio style.',
     'Material and finish claims require product-specific Product Truth or verified image truth. Approved canonical right-panel facts about adjustment, comfort or care may support one freshly written buyer consequence when they apply to the product, but their operational wording must not be copied.',

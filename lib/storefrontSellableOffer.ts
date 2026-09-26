@@ -9,6 +9,7 @@ export type StorefrontSellableOfferOption = {
   label: string;
   sort_order: number;
   is_aggregate: boolean;
+  is_full_set: boolean;
   member_codes: string[];
   member_labels: string[];
   mapping_source: 'atomic' | 'explicit_bundle_codes' | 'complete_current_selector';
@@ -83,11 +84,15 @@ export function resolveStorefrontSellableOffer(
   });
 
   const nestedComponentLabels = new Map<string, string>();
+  const explicitNestedLabels = new Set<string>();
   aggregateRows
     .filter((row) => !row.is_full_set || row.source_confirmed_bundle_members)
     .forEach((row) => {
       const memberCodes = unique(row.bundle_component_codes.map(normalizeCode).filter(Boolean));
-      const explicitMemberLabels = row.bundle_component_labels
+      // Canonical axis labels avoid turning quantities into new DNA parts.
+      // Exact option labels/quantities remain on aggregate_options for display.
+      const explicitMemberLabels = (row.bundle_component_axis_labels.length
+        ? row.bundle_component_axis_labels : row.bundle_component_labels)
         .map((label) => firstString(label))
         .filter(Boolean);
       if (explicitMemberLabels.length && explicitMemberLabels.length !== memberCodes.length) {
@@ -98,11 +103,15 @@ export function resolveStorefrontSellableOffer(
           ? explicitMemberLabels[index]
           : humanizeComponentCode(code);
         const existing = nestedComponentLabels.get(code);
-        if (existing && normalize(existing) !== normalize(label)) {
+        const isExplicit = explicitMemberLabels.length === memberCodes.length;
+        if (existing && normalize(existing) !== normalize(label) && isExplicit && explicitNestedLabels.has(code)) {
           blockers.push(`sellable_component_label_conflict:${code}`);
           return;
         }
-        nestedComponentLabels.set(code, label);
+        // A generated axis name (Legs) cannot contradict a confirmed member
+        // label (Garters). Two conflicting explicit labels still fail closed.
+        if (!existing || isExplicit) nestedComponentLabels.set(code, label);
+        if (isExplicit) explicitNestedLabels.add(code);
       });
     });
 
@@ -137,7 +146,7 @@ export function resolveStorefrontSellableOffer(
     // atomic option plus the declared members of current grouped options. This
     // is not an Etsy variation inference; it is a closed mapping over the live
     // selector and it does not manufacture extra purchasable choices.
-    if (row.is_full_set && fullSetRows.length === 1 && componentCodes.length >= 2) {
+    if (row.is_full_set && !row.source_confirmed_bundle_members && fullSetRows.length === 1 && componentCodes.length >= 2) {
       const hasOnlyCurrentMembers = memberCodes.every((code) => componentCodes.includes(code));
       if (!memberCodes.length || (hasOnlyCurrentMembers && memberCodes.length < componentCodes.length)) {
         memberCodes = unique([...memberCodes, ...componentCodes]);
@@ -178,7 +187,7 @@ export function resolveStorefrontSellableOffer(
 
   const uniqueBlockers = unique(blockers);
   const status = uniqueBlockers.length ? 'hold' : 'ready';
-  const defaultAggregate = aggregateOptions.find((option) => option.code === FULL_SET_CODE)
+  const defaultAggregate = aggregateOptions.find((option) => option.is_full_set)
     || aggregateOptions[0]
     || null;
   // Colour/size variants with identical included labels still sell one piece.
@@ -215,10 +224,160 @@ export function sellableOfferIncludedLabels(
   activeConfiguration?: Record<string, unknown> | null,
 ) {
   if (offer.status !== 'ready') return [];
-
   const selected = findSelectedOption(offer, activeConfiguration);
   if (!selected) return [];
   return selected.is_aggregate ? selected.member_labels : [selected.label];
+}
+
+/** Display units are distinct from the factual component list used by Product OS. */
+export function sellableOfferPurchaseUnitLabels(
+  offer: StorefrontSellableOfferTruth,
+  activeConfiguration?: Record<string, unknown> | null,
+) {
+  if (offer.status !== 'ready') return [];
+
+  const selected = findSelectedOption(offer, activeConfiguration);
+  if (!selected) return [];
+
+  // Buyer-facing inclusion lines must reflect actual selectable purchase units,
+  // not internal atomic SEO/component axes.
+  //
+  // Example:
+  // selector = Full Set / Skirt / Top + Shoulders
+  // internal composition = skirt + top + shoulders
+  // buyer-facing Full Set = Skirt + Top + Shoulders (two purchasable units),
+  // NOT Skirt / Top / Shoulders as three independent-looking items.
+  if (selected.is_full_set) {
+    return fullSetPurchasableDisplayLabels(offer, selected);
+  }
+
+  // Numbered labels alone conceal the selected contents. Keep one grouped
+  // purchase unit while spelling out its resolved, quantity-specific members.
+  // Ordinary named groups (Top + Shoulders) retain their existing label.
+  if (selected.is_aggregate) {
+    if (/^variant\s*#\d+$/i.test(selected.label) && selected.member_labels.length) {
+      return [`${selected.label} — ${selected.member_labels.join(' + ')}`];
+    }
+    return [selected.label];
+  }
+
+  return [selected.label];
+}
+
+
+function fullSetPurchasableDisplayLabels(
+  offer: StorefrontSellableOfferTruth,
+  fullSet: StorefrontSellableOfferOption,
+) {
+  const targetCodes = unique(fullSet.member_codes.map(normalizeCode).filter(Boolean));
+  if (!targetCodes.length) return fullSet.member_labels;
+
+  const targetSet = new Set(targetCodes);
+  const targetLabelByCode = new Map<string, string>();
+  if (fullSet.member_labels.length === fullSet.member_codes.length) {
+    fullSet.member_codes.forEach((code, index) => {
+      targetLabelByCode.set(normalizeCode(code), fullSet.member_labels[index]);
+    });
+  }
+
+  const candidates = [
+    ...offer.aggregate_options.filter((option) => !option.is_full_set),
+    ...offer.atomic_options,
+  ]
+    .map((option) => {
+      const memberCodes = option.is_aggregate
+        ? unique(option.member_codes.map(normalizeCode).filter(Boolean))
+        : [normalizeCode(option.code)].filter(Boolean);
+      // A group containing extra pieces is not the selected Full Set's contents.
+      if (!memberCodes.length || memberCodes.some((code) => !targetSet.has(code))) return null;
+      const coverage = memberCodes;
+      let label = option.label;
+
+      // When several atomic selector rows share one canonical axis (for example
+      // Single Leg Cover vs Pair of Leg Covers), preserve the exact label named
+      // by the selected Full Set instead of swapping quantity semantics.
+      if (!option.is_aggregate && coverage.length === 1) {
+        const expected = targetLabelByCode.get(coverage[0]);
+        const sameAxisChoices = offer.atomic_options.filter((row) => normalizeCode(row.code) === coverage[0]);
+        if (sameAxisChoices.length > 1 && expected && normalize(expected) !== normalize(option.label)) return null;
+        // Quantity and member wording belong to the selected Full Set.
+        label = expected || option.label;
+      }
+
+      return {
+        label,
+        sort_order: Math.min(...coverage.map(code => targetCodes.indexOf(code))),
+        coverage,
+      };
+    })
+    .filter((candidate): candidate is {
+      label: string;
+      sort_order: number;
+      coverage: string[];
+    } => Boolean(candidate))
+    .sort((left, right) => left.sort_order - right.sort_order || left.label.localeCompare(right.label));
+
+  // Full Sets may contain a confirmed piece that is not sold separately.
+  // Keep that inclusion without inventing a selector choice or losing the
+  // grouping of the other real purchase units.
+  for (const [index, code] of targetCodes.entries()) {
+    if (candidates.some(candidate => candidate.coverage.length === 1 && candidate.coverage[0] === code)) continue;
+    const label = targetLabelByCode.get(code);
+    if (!label) return fullSet.member_labels;
+    candidates.push({ label, sort_order: index, coverage: [code] });
+  }
+
+  if (!candidates.length) return fullSet.member_labels;
+  candidates.sort((left, right) => left.sort_order - right.sort_order || left.label.localeCompare(right.label));
+
+  type State = { labels: string[]; sortOrders: number[] };
+  let states = new Map<string, State>([['', { labels: [], sortOrders: [] }]]);
+
+  for (const candidate of candidates) {
+    const snapshot = [...states.entries()];
+    const next = new Map(states);
+
+    for (const [key, state] of snapshot) {
+      const covered = key ? key.split('|') : [];
+      // A display partition cannot count the same piece twice.
+      if (candidate.coverage.some(code => covered.includes(code))) continue;
+      const nextCodes = unique([...covered, ...candidate.coverage]).sort();
+      const nextKey = nextCodes.join('|');
+      const proposal: State = {
+        labels: [...state.labels, candidate.label],
+        sortOrders: [...state.sortOrders, candidate.sort_order],
+      };
+      const current = next.get(nextKey);
+
+      // Prefer fewer visible purchase units. On ties, preserve the Full Set's
+      // confirmed composition order (not price-sorted selector order).
+      if (
+        !current
+        || proposal.labels.length < current.labels.length
+        || (
+          proposal.labels.length === current.labels.length
+          && compareSortOrders(proposal.sortOrders, current.sortOrders) < 0
+        )
+      ) {
+        next.set(nextKey, proposal);
+      }
+    }
+
+    states = next;
+  }
+
+  const targetKey = [...targetSet].sort().join('|');
+  const best = states.get(targetKey);
+  if (!best?.labels.length) return fullSet.member_labels;
+
+  return best.labels;
+}
+
+function compareSortOrders(left: number[], right: number[]) {
+  for (let index = 0; index < Math.min(left.length, right.length); index += 1) {
+    if (left[index] !== right[index]) return left[index] - right[index];
+  }
+  return left.length - right.length;
 }
 
 export function sellableOfferAvailabilitySentence(
@@ -227,10 +386,10 @@ export function sellableOfferAvailabilitySentence(
   if (offer.status !== 'ready' || offer.component_labels.length < 2) {
     return '';
   }
-  const hasFullSet = offer.aggregate_options.some((option) => option.code === FULL_SET_CODE);
+  const hasFullSet = offer.aggregate_options.some((option) => option.is_full_set);
   if (!hasFullSet) return offer.aggregate_options.length > 1
     ? 'Choose an outfit option to see its included pieces.' : '';
-  const hasGroupedOption = offer.aggregate_options.some((option) => option.code !== FULL_SET_CODE);
+  const hasGroupedOption = offer.aggregate_options.some((option) => !option.is_full_set);
   if (hasGroupedOption) return 'Choose from individual pieces, grouped options, or the full set.';
   if (offer.component_codes.some(code => !offer.atomic_options.some(option => option.code === code))) {
     return 'Choose an available option or the full set.';
@@ -291,6 +450,7 @@ type NormalizedConfiguration = {
   source_confirmed_bundle_members: boolean;
   bundle_component_codes: string[];
   bundle_component_labels: string[];
+  bundle_component_axis_labels: string[];
 };
 
 function normalizeConfiguration(
@@ -331,6 +491,8 @@ function normalizeConfiguration(
   if (!code) code = labelCode;
 
   if (!label) blockers.push(`sellable_option_missing_public_label:${index}`);
+  if (Array.isArray(row.bundle_component_axis_labels) && row.bundle_component_axis_labels.length
+    && row.source_confirmed_bundle_members !== true) blockers.push(`aggregate_axis_labels_not_source_confirmed:${index}`);
   if (label && CYRILLIC.test(label)) blockers.push(`sellable_option_non_english_public_label:${index}`);
   if (!code) blockers.push(`sellable_option_missing_component_code:${index}`);
   if (!label || !code) return null;
@@ -357,6 +519,9 @@ function normalizeConfiguration(
     bundle_component_labels: Array.isArray(row.bundle_component_labels)
       ? row.bundle_component_labels.map(String)
       : [],
+    bundle_component_axis_labels: Array.isArray(row.bundle_component_axis_labels)
+      ? row.bundle_component_axis_labels.map(String)
+      : [],
   };
 }
 
@@ -373,6 +538,7 @@ function asOfferOption(
     label: row.label,
     sort_order: row.sort_order,
     is_aggregate: row.is_aggregate,
+    is_full_set: row.is_full_set,
     member_codes: memberCodes,
     member_labels: memberLabels,
     mapping_source: mappingSource,
@@ -385,14 +551,8 @@ function findSelectedOption(
 ) {
   const options = [...offer.atomic_options, ...offer.aggregate_options];
   if (!activeConfiguration) {
-    return offer.aggregate_options.find((option) => option.code === FULL_SET_CODE)
+    return offer.aggregate_options.find((option) => option.is_full_set)
       || (offer.atomic_options.length === 1 ? offer.atomic_options[0] : null);
-  }
-
-  if (activeConfiguration.is_full_set === true) {
-    return offer.aggregate_options.find((option) => option.code === FULL_SET_CODE)
-      || offer.aggregate_options[0]
-      || null;
   }
 
   const activeId = firstString(
@@ -403,7 +563,15 @@ function findSelectedOption(
   );
   if (activeId) {
     const exactId = options.find((option) => option.configuration_id === activeId);
-    if (exactId) return exactId;
+    return exactId || null;
+  }
+
+  // Multiple source-confirmed Full Set variants can coexist (for example x1/x2
+  // quantity versions). Resolve the exact configuration id first so a selected
+  // Full Set never falls through to the first generic full-set row.
+  if (activeConfiguration.is_full_set === true) {
+    const fullSets = offer.aggregate_options.filter(option => option.is_full_set);
+    return fullSets.length === 1 ? fullSets[0] : null;
   }
 
   const activeCode = normalizeCode(activeConfiguration.component_code);
@@ -428,8 +596,8 @@ function buildSignature(
   rows: NormalizedConfiguration[],
   aggregateOptions: StorefrontSellableOfferOption[],
 ) {
-  const membersByCode = new Map(
-    aggregateOptions.map((option) => [option.code, option.member_codes]),
+  const membersByIdentity = new Map(
+    aggregateOptions.map((option) => [option.configuration_id || option.code, option.member_codes]),
   );
   const snapshot = rows.map((row) => ({
     id: row.configuration_id,
@@ -441,7 +609,14 @@ function buildSignature(
     // Aggregate membership is a set. SQL plans and source imports may return
     // the same exact components in a different order; that must not
     // invalidate an otherwise identical human-confirmed keyword decision.
-    members: [...(membersByCode.get(row.code) || [])].sort(),
+    members: [...(membersByIdentity.get(row.configuration_id || row.code) || [])].sort(),
+    // Opt-in composition detail only: unrelated historical v1 signatures stay
+    // byte-identical. Quantities on these reviewed bundles must affect freshness.
+    ...(row.bundle_component_axis_labels.length ? {
+      member_details: row.bundle_component_codes.map((code, index) => ({ code,
+        label: row.bundle_component_labels[index] || '', axis_label: row.bundle_component_axis_labels[index] || '',
+      })).sort((a, b) => a.code.localeCompare(b.code)),
+    } : {}),
   }));
   return `storefront-sellable-offer-v1:${JSON.stringify(snapshot)}`;
 }

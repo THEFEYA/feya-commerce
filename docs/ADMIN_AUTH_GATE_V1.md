@@ -112,3 +112,17 @@ Do not set FEYA_ADMIN_AUTH_REQUIRED=true until:
 No product/content/media/price write UI should be added before Admin Auth Activation PASS.
 
 This is a hard Growth OS prerequisite.
+
+
+## 25 Sep amendment — full Admin auth vs owner-action step-up
+
+Two distinct boundaries now exist:
+
+1. `FEYA_ADMIN_AUTH_REQUIRED=true` — protects the entire Admin.
+2. `FEYA_OWNER_ACTION_AUTH_REQUIRED=true` — protects only an explicit allowlist of high-risk owner-action endpoints while the current owner-preview GET/HEAD experience remains read-only and directly viewable.
+
+Both modes use the same Supabase Auth session, server-side allowlist and service-role-only executor. The step-up mode is not anonymous write access and does not weaken the database approval/execution gates.
+
+The current step-up allowlist is intentionally limited to the price-baseline prepare/execute route and its dedicated price-baseline approval route. Generic owner actions remain closed.
+
+No public signup is enabled in either mode.

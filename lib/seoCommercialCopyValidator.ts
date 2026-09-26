@@ -1,4 +1,6 @@
 import { naturalKeywordPhrase } from './seoNaturalKeywordPhrase.ts';
+import { CURRENT_SEO_EDITORIAL_POLICY, resolveSeoEditorialPolicy } from './seoEditorialPolicy.ts';
+import type { SeoEditorialPolicyVersion } from './seoEditorialPolicy.ts';
 import {
   classifySeoProductPresentation,
   hasWholeProductEntity,
@@ -12,6 +14,7 @@ export type SeoCommercialCopyIssue = {
 };
 
 export type SeoCommercialCopyValidation = {
+  editorial_policy_version?: SeoEditorialPolicyVersion;
   ok: boolean;
   status: 'valid' | 'warning' | 'blocked';
   issues: SeoCommercialCopyIssue[];
@@ -23,6 +26,7 @@ export type SeoCommercialCopyValidation = {
 };
 
 export type SeoCommercialCopyContext = {
+  editorial_policy_version?: SeoEditorialPolicyVersion;
   product_truth?: unknown;
   manual_focus?: unknown;
   keyword_roles?: unknown;
@@ -47,6 +51,11 @@ const UNNATURAL_EVENT_ATMOSPHERE = /\b(?:desert light|open light|desert[- ]ready
 const BRAND_STATUS_DIMINUTION = /\b(?:small|tiny) independent (?:team|studio|company|brand)\b/i;
 const BRAND_INDEPENDENCE_PADDING = /\bindependent (?:design )?(?:team|studio|company|brand)\b/i;
 const TEMPLATE_COMPARISON = /\b(?:(?:standard|generic|mass[- ]produced) costume template|(?:standard|generic) festival basics|generic festival dressing|standard template costume|(?:not\s+)?(?:a\s+)?(?:copy|replica)(?:\s+of\s+(?:a\s+)?(?:standard|generic|named|existing)?\s*(?:costume|character|template|look))?|without\s+(?:borrowing|copying)\b[^.!?\n]{0,65}\b(?:character|look|design|costume)\b|stands? apart from (?:a )?(?:basic|generic) (?:metallic )?(?:look|costume|outfit|design)|(?:generic|basic|ordinary|plain) (?:festival |costume |party )?(?:dressing|clothes?|outfits?|looks?)\b[^.!?\n]{0,55}\b(?:plain|basic|generic|ordinary|unfinished|on its own))\b/i;
+
+const NEGATIVE_CONTRAST_SALES_FRAME = /\b(?:instead of|rather than|as opposed to|unlike|not just|not only|without (?:needing|requiring|adding|using|wearing|buying|building|turning|making|creating|becoming))\b/i;
+const ROBOTIC_SYSTEM_COPY = /\b(?:modular system|styling system|modular construction|modular pieces?|visual concept|visual direction|visual language|coordinated (?:parts?|pieces?|elements?)|reads? clearly|readable (?:from|to) (?:the )?audience|keeps? (?:the )?look connected|carries? (?:the )?(?:finish|styling|look) through)\b/i;
+const GENERIC_MOVEMENT_PSEUDOBENEFIT = /\b(?:adds?|brings?|gives?|creates?)\s+(?:more\s+|extra\s+)?movement\b/i;
+const SELECTOR_NARRATION = /\b(?:choose|select)\s+(?:one|both|the full set|a full set|your set|an option|a configuration)\b/i;
 const PRODUCT_COMPONENT_AS_BUYER_GOAL = /\b(?:buyers?|customers?|people) (?:who want|looking for|seeking) (?:to (?:buy|find) )?(?:a|an|this|the)?\s*(?:statement |expressive |gold |futuristic |cyberpunk |warrior )*(?:shoulder (?:piece|armor|armour)|shoulders?|pauldrons?)\b/i;
 const SOCIAL_METRICS_BOILERPLATE = /\b(organic attention|reactions?, saves? (?:and|or) comments?|likes?, followers?|social (?:engagement|metrics?)|viral(?:ity| reach)?)\b/i;
 const REDUNDANT_FAUX_LEATHER = /\b(?:vegan leather\s+(?:and|or|\/)\s+faux leather|faux leather\s+(?:and|or|\/)\s+vegan leather)\b/i;
@@ -55,6 +64,8 @@ const REFLECTIVE_CLAIM = /\b(?:reflective|retroreflective|retro-reflective)\b/i;
 const STRUCTURED_MATERIAL = /\bstructured\s+(?:material|fabric|vegan leather|faux leather)\b/i;
 const ROBOTIC_DESIGN_REVIEW_LANGUAGE = /\b(?:visual identity|silhouette|(?:clear\s+)?starting point|final interpretation|final version|finished version)\b|\b(?:final|finished)\s+(?:halloween\s+|festival\s+|stage\s+|cosplay\s+|performance\s+)?(?:look|character|outfit)\b[^.!?\n]{0,80}\b(?:open|choices?|choose|decide|interpretation)\b|\b(?:choose|decide|shape)\b[^.!?\n]{0,45}\b(?:final|finished)\s+(?:look|character|version)\b/i;
 const NARROW_PHOTO_CROP_PSEUDO_BENEFIT = /\b(?:full[- ]length|full[- ]body)\s+(?:photos?|photographs?|shots?|images?)\b/i;
+
+const BRAND_CLOSE_PRODUCT_DETAIL = /\b(?:vegan leather|faux leather|leather|acrylic|plastic|fabric|mirror(?:[- ](?:style|finish|coated|coating))?|glossy|metallic|holographic|gold|silver|red|white|black|soft(?:ness)?|comfortable|comfort|shape retention|holds? its shape|fringe|bodysuit|skirts?|shoulders?|corset|harness|masks?|horns?|leg covers?|choker|headpiece)\b/i;
 const VAGUE_COMFORT_MECHANISM = /\b(?:a\s+)?comfortable\s+(?:feel|feeling|atmosphere)\b[^.!?\n]{0,55}\b(?:supports?|helps?|encourages?|promotes?|contributes?\s+to)\b/i;
 const METAL_FINISH_LANGUAGE = /\b(?:metallic|metal[- ]like|metal[- ]inspired|polished[- ]?metal|liquid[- ]metal|chrome[- ]like)\b/i;
 const COLOR_SHIFT_LANGUAGE = /\b(?:holographic|hologram|iridescent|color[- ]shift(?:ing)?|colour[- ]shift(?:ing)?|shifts? (?:between |through )?(?:colors?|colours?|tones?))\b/i;
@@ -225,7 +236,7 @@ const BENEFIT_OUTCOME_PATTERNS: Record<string, RegExp> = {
   fit_flexibility: /\b(secure fit|closer fit|fit around|room to adjust|different body shapes?|custom measurements?|flexible fit)\b/i,
   comfort: /\b(comfortable|comfortably against the body|comfort|soft against the body|soft body[- ]facing|gentle on the body|easier to wear|remain wearable)\b/i,
   durability_structure: /\b(holds? its (?:shape|form)|keeps? its (?:shape|form)|shape retention|between wears|resists? creasing|long[- ]lasting|less likely to (?:crease|collapse|lose its shape)|ready for repeat (?:wear|use)|repeat (?:wear|use)|future wears?)\b/i,
-  verified_finish_behavior: /\b(catches? (?:(?:available|ambient|stage) )?(?:day)?light|picks? up (?:available |ambient |stage )?light|light[- ]catching|shows? clearly in photos?|looks? brighter in photos?|photographs? brighter(?: outdoors| in daylight)?|visible under (?:stage |event )?lighting|keeps? details? visible|helps? (?:product )?details? (?:stay|remain) visible|details? (?:stay|remain) visible)\b/i,
+  verified_finish_behavior: /\b(catches? (?:(?:available|ambient|stage) )?(?:day)?light|picks? up (?:available |ambient |stage )?light|light[- ]catching|shows? clearly in photos?|looks? brighter in photos?|photographs? brighter(?: outdoors| in daylight)?|visible under (?:stage |event )?lighting|keeps? details? visible|helps? (?:product )?details? (?:stay|remain) visible|details? (?:stay|remain) visible|metal[- ]like appearance|glossy appearance|lacquer[- ]like appearance|mirror[- ]style appearance)\b/i,
   styling_flexibility: STYLING_FLEXIBILITY_PATTERN,
   movement_in_wear: /\b(?:moves?|swings?|flows?)\b[^.!?\n]{0,90}\b(?:walk|dance|turn|motion|photographs?|photos?|stage)\b/i,
   wearer_framing: /\b(?:frames?|draws? attention to)\b[^.!?\n]{0,70}\b(?:face|neckline|shoulders?|upper body)\b/i,
@@ -284,6 +295,8 @@ export function validateSeoCommercialCopy(
 ): SeoCommercialCopyValidation {
   const issues: SeoCommercialCopyIssue[] = [];
   const record = isRecord(draft) ? draft : {};
+  const editorialPolicy = resolveSeoEditorialPolicy(record, context.editorial_policy_version);
+  if (!editorialPolicy.valid) issues.push(blocker('editorial_policy_version_invalid', 'Unknown editorial policy version; review its provenance before validation.'));
   const blocks = Array.isArray(record.pdp_blocks) ? record.pdp_blocks.filter(isRecord) : [];
   const leftBlocks = blocks.filter((block) => block.placement === 'left_description');
   const customerText = [
@@ -415,6 +428,34 @@ export function validateSeoCommercialCopy(
     issues.push(blocker(
       'customer_copy_uses_invented_template_comparison',
       'Do not compare the design with an undefined standard costume template. Explain how original design helps the buyer build a personal look.',
+    ));
+  }
+
+  if (editorialPolicy.version === CURRENT_SEO_EDITORIAL_POLICY && NEGATIVE_CONTRAST_SALES_FRAME.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_uses_negative_contrast_sales_frame',
+      'Sell the positive product outcome directly. Do not define the item through instead of, rather than, unlike, not X but Y, or without-needing comparisons.',
+    ));
+  }
+
+  if (editorialPolicy.version === CURRENT_SEO_EDITORIAL_POLICY && ROBOTIC_SYSTEM_COPY.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_uses_robotic_system_language',
+      'Customer-facing copy reads like design-system or internal styling language. Replace modular/system/visual-concept wording with a concrete product fact and buyer value.',
+    ));
+  }
+
+  if (editorialPolicy.version === CURRENT_SEO_EDITORIAL_POLICY && GENERIC_MOVEMENT_PSEUDOBENEFIT.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_uses_generic_movement_pseudobenefit',
+      'Do not claim that a garment generically adds or creates movement. If a confirmed moving detail such as fringe matters, describe that physical behavior directly.',
+    ));
+  }
+
+  if (editorialPolicy.version === CURRENT_SEO_EDITORIAL_POLICY && SELECTOR_NARRATION.test(customerText)) {
+    issues.push(blocker(
+      'customer_copy_narrates_selector_choices',
+      'Selector choices belong in the selector and deterministic What’s Included block, not in generated editorial copy.',
     ));
   }
 
@@ -946,12 +987,19 @@ export function validateSeoCommercialCopy(
         'The final paragraph should connect the product to self-expression, visual identity, studio authorship, or supported customization.',
       ));
     }
+
+    if (editorialPolicy.version === CURRENT_SEO_EDITORIAL_POLICY && BRAND_CLOSE_PRODUCT_DETAIL.test(closingBody)) {
+      issues.push(blocker(
+        'self_expression_close_repeats_product_detail',
+        'Designed for self-expression is the TheFEYA brand-mission block. Do not repeat color, material, finish, comfort, components or construction here; explain individuality, creative freedom, character and memorable self-expression.',
+      ));
+    }
     const closingWords = wordCount(closingBody);
     const closingSentences = splitSentences(closingBody).length;
     if (closingWords < 45) {
       issues.push(blocker(
         'self_expression_close_too_thin',
-        'Designed for self-expression must contain 45-75 useful words: our original studio perspective, design purpose, a supported product connection and an honest buyer outcome.',
+        'Designed for self-expression must contain 45-75 useful words: our original studio perspective, design purpose, individuality and an honest self-expression outcome.',
       ));
     }
     if (closingWords > 75) {
@@ -992,6 +1040,7 @@ export function validateSeoCommercialCopy(
 
   const hasBlocker = issues.some((issue) => issue.severity === 'blocker');
   return {
+    editorial_policy_version: editorialPolicy.version,
     ok: !hasBlocker,
     status: hasBlocker ? 'blocked' : issues.length ? 'warning' : 'valid',
     issues,

@@ -1,0 +1,143 @@
+{
+  "_evidence": {
+    "type": "measured_database_snapshot",
+    "observed_at": "2026-09-23",
+    "purpose": "historical read-only preview regression; no approval reissue",
+    "source_table": "feya_commerce_seo_pack_drafts_v1"
+  },
+  "id": "ea07a9eb-9879-47d5-a824-78572985c5ce",
+  "canonical_product_id": "b18d342a-c323-4f11-8c98-d5eb5f543e12",
+  "status": "approved_draft",
+  "review_status": "approved",
+  "source_mode": "openai_draft",
+  "agent_output_snapshot": {
+    "h1": "Gold Maleficent-Inspired Costume with Horns",
+    "faq": [],
+    "intro": "An original gold Maleficent-inspired costume built around a fitted bodysuit, dramatic horn headpiece and full-length leg pieces for stage, cosplay and show performance.",
+    "status": "draft",
+    "seo_title": "Gold Maleficent-Inspired Costume with Horns",
+    "pdp_blocks": [
+      {
+        "body": "This is an original glamorous interpretation of a horned Maleficent-inspired character. A fitted gold bodysuit forms the base, the headpiece defines the fantasy character, and long leg elements built from repeated shapes suggest a mix of scales and skeletal armor down the legs.",
+        "heading": "About this piece",
+        "block_key": "about_this_piece",
+        "placement": "left_description",
+        "source_basis": "owner_design_description_and_axes",
+        "needs_human_review": false
+      },
+      {
+        "body": "Gold vegan leather gives the costume a polished surface that catches surrounding highlights as the performer moves.\nTransparent silicone straps keep the fastening visually light, letting the gold shapes stay prominent.\nThe older horn version has a fuller, more enclosed design, while the newer version is simpler and more open; both are available in the selector.\nThe fitted bodysuit and long leg elements make the costume read clearly across a stage while keeping the major pieces modular.",
+        "heading": "Why you'll love it",
+        "block_key": "why_youll_love_it",
+        "placement": "left_description",
+        "source_basis": "owner_material_variant_and_use_case_truth",
+        "needs_human_review": false
+      },
+      {
+        "body": "GoGo dancers, showgirls and show-ballet performers building a glamorous fantasy character.\nStage appearances where the horned headpiece needs to carry the identity of the look.\nHalloween and cosplay with a polished Maleficent-inspired direction.\nMusic video, event and editorial styling that calls for an attention-focused gold costume.",
+        "heading": "Ideal for",
+        "block_key": "ideal_for",
+        "placement": "left_description",
+        "source_basis": "owner_axes_and_use_cases",
+        "needs_human_review": false
+      },
+      {
+        "body": "The look combines a fitted gold base with an expressive horn headpiece and long segmented leg details, giving the character a refined fantasy edge that feels made for performance. TheFEYA treats the Maleficent inspiration as a starting point for an original handmade stage design with its own proportions, finish and character.",
+        "heading": "Designed for self-expression",
+        "block_key": "main_description",
+        "placement": "left_description",
+        "source_basis": "brand_policy_and_owner_design_description",
+        "needs_human_review": false
+      }
+    ],
+    "visual_truth": {
+      "dna_matches": [
+        "Stage",
+        "Halloween",
+        "Cosplay",
+        "Photoshoot",
+        "Glam",
+        "Fantasy",
+        "Performer",
+        "Showgirl",
+        "Go go dancer",
+        "Maleficent",
+        "Women",
+        "Gold",
+        "Vegan leather",
+        "Bodysuit",
+        "Legs",
+        "Headpiece"
+      ],
+      "observed_product_facts": [
+        "Owner axes: Stage, Halloween, Cosplay, Photoshoot, Glam, Fantasy, Performer, Showgirl, Go go dancer, Maleficent, Women, Gold, Vegan Leather, Bodysuit, Legs, Headpiece",
+        "Owner public composition: Bodysuit + Horn Headpiece + full-length Leg Elements",
+        "Owner states gold vegan leather, transparent silicone straps, repeated skeletal/scale-like leg shapes, old fuller horns and new simplified horns",
+        "Exact source rows preserve Horns (Old), Horns (New), Bodysuit, Leg Covers and corresponding full-set variants"
+      ],
+      "open_style_suggestions": [],
+      "forbidden_visual_claims": [
+        "No franchise-authenticity claim",
+        "No latex material claim",
+        "No buyer-facing explanation of old/new price gap"
+      ],
+      "uncertain_or_missing_facts": [
+        "Source selector also contains Corset + Boots; owner explicitly scoped generated public description to bodysuit, horn headpiece and full-length leg elements."
+      ]
+    },
+    "qa_self_report": {
+      "price_audit": "REVIEW_OWNER_PUBLIC_COMPOSITION_OVERRIDE",
+      "owner_rule_r27": "passed",
+      "owner_rule_r28": "passed",
+      "owner_rule_r29": "passed",
+      "owner_rule_r30": "passed",
+      "owner_rule_r31": "passed",
+      "owner_rule_r32": "passed",
+      "owner_rule_r33": "passed",
+      "validated_metrics": "needs_review"
+    },
+    "contract_version": "seo_agent_output_v1",
+    "generation_notes": [
+      "R27-R33 draft from owner-confirmed Batch38 axes and direct owner public-composition override.",
+      "Natural whole-product Primary gold maleficent-inspired costume used instead of component-only saved Primary maleficent horns headpiece; exact product metric unavailable.",
+      "Old/new horn design difference explained once; price difference intentionally not discussed.",
+      "Pricing audit marked REVIEW because source full-set composition includes extra selector units outside owner public-copy scope.",
+      "Awaiting owner review; no Apply or Publish."
+    ],
+    "meta_description": "Gold Maleficent-inspired costume with horn headpiece, bodysuit and full-length leg pieces in vegan leather, handmade for stage, cosplay and Halloween.",
+    "bullet_highlights": [],
+    "image_alt_candidates": [
+      {
+        "alt_text": "Woman wearing a gold Maleficent-inspired costume with horn headpiece, fitted bodysuit and full-length leg pieces",
+        "image_role": "primary",
+        "truth_basis": "owner_axes_and_owner_public_composition"
+      }
+    ],
+    "internal_linking_hints": []
+  },
+  "validation_result_snapshot": {
+    "ok": true,
+    "issues": [
+      {
+        "code": "assistant_authored_review_draft",
+        "message": "Review draft; no separate paid writer/editor API call.",
+        "severity": "warning"
+      }
+    ],
+    "status": "warning",
+    "price_audit": {
+      "note": "Source selector also contains Corset + Boots/full-set configurations; owner public-copy truth for this costume is Bodysuit + Horn Headpiece + full-length Leg Elements. No buyer-facing savings claim.",
+      "status": "REVIEW_OWNER_PUBLIC_COMPOSITION_OVERRIDE",
+      "new_full_price": 590.49,
+      "old_full_price": 941.59,
+      "new_horns_price": 199.49,
+      "old_horns_price": 558.57
+    },
+    "approval_blockers": [
+      "missing_validated_keyword_metric"
+    ],
+    "product_truth_blockers": [
+      "missing_validated_keyword_metric"
+    ]
+  }
+}

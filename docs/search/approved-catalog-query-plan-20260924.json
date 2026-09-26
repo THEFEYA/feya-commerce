@@ -1,0 +1,638 @@
+{
+  "contract_version": "approved_catalog_query_plan_v1",
+  "status": "prepared_review_only",
+  "review_date": "2026-09-24",
+  "reviewer": "Codex architecture proposal; not human approval or registered DB ownership",
+  "scope": {
+    "market_code": "US",
+    "locale": "en-US",
+    "metric_language": "en"
+  },
+  "page_candidates": [
+    {
+      "candidate_code": "TYPE-HARNESS",
+      "url_path": "/collections/harness",
+      "seo_page_id": null,
+      "source": "FEYA_Search_Architecture_v1.md B2; Inventory_Page_Pilot_20260924.md slug corrections",
+      "page_creation_authorized": false
+    },
+    {
+      "candidate_code": "TYPE-ARMOR",
+      "url_path": "/collections/shoulder-armor",
+      "seo_page_id": null,
+      "source": "FEYA_Search_Architecture_v1.md B2; Inventory_Page_Pilot_20260924.md slug corrections",
+      "page_creation_authorized": false
+    },
+    {
+      "candidate_code": "TYPE-BODYSUIT",
+      "url_path": "/collections/bodysuits",
+      "seo_page_id": null,
+      "source": "FEYA_Search_Architecture_v1.md B2; Inventory_Page_Pilot_20260924.md slug corrections",
+      "page_creation_authorized": false
+    },
+    {
+      "candidate_code": "TYPE-OUTFIT",
+      "url_path": "/collections/outfits",
+      "seo_page_id": null,
+      "source": "FEYA_Search_Architecture_v1.md B2; Inventory_Page_Pilot_20260924.md slug corrections",
+      "page_creation_authorized": false
+    },
+    {
+      "candidate_code": "EVENT-FESTIVAL",
+      "url_path": "/collections/festival-outfits",
+      "seo_page_id": null,
+      "source": "FEYA_Search_Architecture_v1.md B2; Inventory_Page_Pilot_20260924.md slug corrections",
+      "page_creation_authorized": false
+    },
+    {
+      "candidate_code": "EVENT-BM",
+      "url_path": "/collections/burning-man-looks",
+      "seo_page_id": null,
+      "source": "FEYA_Search_Architecture_v1.md B2; Inventory_Page_Pilot_20260924.md slug corrections",
+      "page_creation_authorized": false
+    },
+    {
+      "candidate_code": "OCCASION-STAGE",
+      "url_path": "/collections/stage-outfits",
+      "seo_page_id": null,
+      "source": "FEYA_Search_Architecture_v1.md B2; Inventory_Page_Pilot_20260924.md slug corrections",
+      "page_creation_authorized": false
+    }
+  ],
+  "clusters": [
+    {
+      "proposal_code": "FASHION_HARNESS",
+      "intent": "Select wearable fashion/body harnesses; exclude safety/climbing/pet equipment.",
+      "query_terms": [
+        "black harness outfit",
+        "chest harness",
+        "gold body harness",
+        "harness festival outfit",
+        "harness top outfit",
+        "leather body harness fashion",
+        "leather harness outfit",
+        "rave harness",
+        "silver body harness",
+        "women's body harness"
+      ],
+      "proposed_owner_candidate_code": "TYPE-HARNESS",
+      "disposition": "candidate_hub_owner",
+      "rationale": "Shared commercial selection intent. Mapping is a reviewed architecture hypothesis, not measured SERP equivalence; related PDP keyword roles remain unchanged."
+    },
+    {
+      "proposal_code": "DECORATIVE_SHOULDER_ARMOR",
+      "intent": "Select decorative shoulder armor; exclude protective armor.",
+      "query_terms": [
+        "gold shoulder armor"
+      ],
+      "proposed_owner_candidate_code": "TYPE-ARMOR",
+      "disposition": "candidate_hub_owner",
+      "rationale": "Shared commercial selection intent. Mapping is a reviewed architecture hypothesis, not measured SERP equivalence; related PDP keyword roles remain unchanged."
+    },
+    {
+      "proposal_code": "COSTUME_BODYSUIT",
+      "intent": "Select complete costume bodysuits; exclude a base garment visible only as styling.",
+      "query_terms": [
+        "black bodysuit halloween costume",
+        "bodysuit halloween costume",
+        "festival bodysuit",
+        "futuristic bodysuit",
+        "gold bodysuit for women",
+        "halloween costume with black bodysuit",
+        "halloween costumes with red bodysuit",
+        "performance bodysuit",
+        "rave bodysuit",
+        "silver metallic bodysuit"
+      ],
+      "proposed_owner_candidate_code": "TYPE-BODYSUIT",
+      "disposition": "candidate_hub_owner",
+      "rationale": "Shared commercial selection intent. Mapping is a reviewed architecture hypothesis, not measured SERP equivalence; related PDP keyword roles remain unchanged."
+    },
+    {
+      "proposal_code": "TOP_SKIRT_OUTFIT",
+      "intent": "Choose a purchasable top and skirt set; one owner for close shopping formulations, not one page per colour or word order.",
+      "query_terms": [
+        "gold festival skirt and top set",
+        "gold goddess festival skirt and top set",
+        "gold top and skirt set",
+        "holographic top and skirt set",
+        "metallic top and skirt set",
+        "rave outfit with skirt",
+        "rave skirt and top set",
+        "silver festival skirt and top set",
+        "silver top and skirt set",
+        "skirt and top set festival"
+      ],
+      "proposed_owner_candidate_code": "TYPE-OUTFIT",
+      "disposition": "candidate_hub_owner",
+      "rationale": "Shared commercial selection intent. Mapping is a reviewed architecture hypothesis, not measured SERP equivalence; related PDP keyword roles remain unchanged."
+    },
+    {
+      "proposal_code": "FUTURISTIC_ARMOR_COSTUME",
+      "intent": "Choose decorative futuristic costumes; future style subhub requires distinct intent and inventory evidence.",
+      "query_terms": [
+        "cyberpunk rave outfit",
+        "futuristic armor costume",
+        "sci fi armor costume",
+        "silver futuristic costume",
+        "silver sci-fi costume"
+      ],
+      "proposed_owner_candidate_code": "TYPE-OUTFIT",
+      "disposition": "candidate_hub_owner",
+      "rationale": "Shared commercial selection intent. Mapping is a reviewed architecture hypothesis, not measured SERP equivalence; related PDP keyword roles remain unchanged."
+    },
+    {
+      "proposal_code": "WARRIOR_ARMOR_COSTUME",
+      "intent": "Choose decorative warrior costumes; distinct from protective/historical equipment. Do not auto-split style pages.",
+      "query_terms": [
+        "warrior armor costume"
+      ],
+      "proposed_owner_candidate_code": "TYPE-OUTFIT",
+      "disposition": "candidate_hub_owner",
+      "rationale": "Shared commercial selection intent. Mapping is a reviewed architecture hypothesis, not measured SERP equivalence; related PDP keyword roles remain unchanged."
+    },
+    {
+      "proposal_code": "ROBOT_ARMOR_COSTUME",
+      "intent": "Choose robot-inspired costume sets; exclude electronics/protective equipment.",
+      "query_terms": [
+        "futuristic robot costume",
+        "robot armor costume"
+      ],
+      "proposed_owner_candidate_code": "TYPE-OUTFIT",
+      "disposition": "candidate_hub_owner",
+      "rationale": "Shared commercial selection intent. Mapping is a reviewed architecture hypothesis, not measured SERP equivalence; related PDP keyword roles remain unchanged."
+    },
+    {
+      "proposal_code": "FESTIVAL_OUTFIT",
+      "intent": "Choose festival clothing; validate event suitability and separation from Shop and complete-outfit hub.",
+      "query_terms": [
+        "black and gold festival outfits",
+        "gold and white festival outfit",
+        "gold festival outfit",
+        "holographic festival outfit",
+        "silver festival outfit",
+        "white festival outfit"
+      ],
+      "proposed_owner_candidate_code": "EVENT-FESTIVAL",
+      "disposition": "candidate_hub_owner",
+      "rationale": "Shared commercial selection intent. Mapping is a reviewed architecture hypothesis, not measured SERP equivalence; related PDP keyword roles remain unchanged."
+    },
+    {
+      "proposal_code": "RAVE_OUTFIT",
+      "intent": "Choose rave clothing; assignment to festival hub is a review proposal pending rave/festival intent comparison, not equivalence asserted.",
+      "query_terms": [
+        "black leather rave outfit",
+        "black rave costume"
+      ],
+      "proposed_owner_candidate_code": "EVENT-FESTIVAL",
+      "disposition": "candidate_hub_owner",
+      "rationale": "Shared commercial selection intent. Mapping is a reviewed architecture hypothesis, not measured SERP equivalence; related PDP keyword roles remain unchanged."
+    },
+    {
+      "proposal_code": "BURNING_MAN_OUTFIT",
+      "intent": "Choose an outfit for Burning Man; no weather/safety/affiliation promise.",
+      "query_terms": [
+        "burning man costumes for women",
+        "gold burning man outfit",
+        "men's gold burning man outfit",
+        "mens burning man costume"
+      ],
+      "proposed_owner_candidate_code": "EVENT-BM",
+      "disposition": "candidate_hub_owner",
+      "rationale": "Shared commercial selection intent. Mapping is a reviewed architecture hypothesis, not measured SERP equivalence; related PDP keyword roles remain unchanged."
+    },
+    {
+      "proposal_code": "STAGE_OUTFIT",
+      "intent": "Choose performance clothing; preserve separately evidenced movement/fit facts.",
+      "query_terms": [
+        "black stage outfit",
+        "costumes for drag queens",
+        "dance costume for ladies",
+        "dance costume red",
+        "female stage outfits",
+        "gold dance costume",
+        "gold futuristic stage outfit",
+        "gold performance costume",
+        "gold showgirl costume",
+        "gold stage costume set",
+        "holographic stage outfit",
+        "mirror dance costume",
+        "red stage outfit",
+        "silver stage costume",
+        "stage outfit",
+        "stage performance outfit"
+      ],
+      "proposed_owner_candidate_code": "OCCASION-STAGE",
+      "disposition": "candidate_hub_owner",
+      "rationale": "Shared commercial selection intent. Mapping is a reviewed architecture hypothesis, not measured SERP equivalence; related PDP keyword roles remain unchanged."
+    },
+    {
+      "proposal_code": "HOLOGRAPHIC_OUTFIT",
+      "intent": "Choose a holographic finished outfit; no new material/style page until selection and demand justify it.",
+      "query_terms": [
+        "holographic outfit",
+        "holographic rave outfit"
+      ],
+      "proposed_owner_candidate_code": "TYPE-OUTFIT",
+      "disposition": "candidate_hub_owner",
+      "rationale": "Shared commercial selection intent. Mapping is a reviewed architecture hypothesis, not measured SERP equivalence; related PDP keyword roles remain unchanged."
+    },
+    {
+      "proposal_code": "SILVER_OUTFIT",
+      "intent": "Choose a silver finished outfit; no automatic colour landing page.",
+      "query_terms": [
+        "silver metallic outfit",
+        "silver outfit",
+        "silver rave outfit"
+      ],
+      "proposed_owner_candidate_code": "TYPE-OUTFIT",
+      "disposition": "candidate_hub_owner",
+      "rationale": "Shared commercial selection intent. Mapping is a reviewed architecture hypothesis, not measured SERP equivalence; related PDP keyword roles remain unchanged."
+    },
+    {
+      "proposal_code": "COUPLE_OUTFIT",
+      "intent": "Choose a complete paired option; not two independent products pictured together.",
+      "query_terms": [
+        "festival couple costume",
+        "futuristic couple costume",
+        "matching couple festival outfits",
+        "silver futuristic couple costume"
+      ],
+      "proposed_owner_candidate_code": "TYPE-OUTFIT",
+      "disposition": "candidate_hub_owner",
+      "rationale": "Shared commercial selection intent. Mapping is a reviewed architecture hypothesis, not measured SERP equivalence; related PDP keyword roles remain unchanged."
+    },
+    {
+      "proposal_code": "MODEL_REVIEW_DARK_WITCH_COSTUME",
+      "intent": "Specific costume/model shopping intent awaiting physical offer distinction.",
+      "query_terms": [
+        "dark witch costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "unresolved_model_owner",
+      "rationale": "Resolve 340b160f / 83ea907b physical identity before selecting a model owner; do not fabricate a witch collection."
+    },
+    {
+      "proposal_code": "MODEL_REVIEW_MIRROR_BUNNY_COSTUME",
+      "intent": "Specific costume/model shopping intent awaiting physical offer distinction.",
+      "query_terms": [
+        "mirror bunny costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "unresolved_model_owner",
+      "rationale": "Three PDPs share this term; compare actual mask/corset/leg configurations and physical families before selecting the model owner."
+    },
+    {
+      "proposal_code": "MODEL_REVIEW_SILVER_FUTURISTIC_TOP_AND_BELT_SET",
+      "intent": "Specific costume/model shopping intent awaiting physical offer distinction.",
+      "query_terms": [
+        "silver futuristic top and belt set"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "unresolved_model_owner",
+      "rationale": "Resolve 28c84d65 / dc6e07c7 physical identity before selecting one model owner."
+    },
+    {
+      "proposal_code": "MODEL_REVIEW_SILVER_SPINE_COSTUME",
+      "intent": "Specific costume/model shopping intent awaiting physical offer distinction.",
+      "query_terms": [
+        "silver spine costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "unresolved_model_owner",
+      "rationale": "Compare the two spine offers and existing owner evidence before selecting an owner; a new spine hub is not justified by two keyword selections."
+    },
+    {
+      "proposal_code": "MODEL_REVIEW_WITCH_BODYSUIT_COSTUME",
+      "intent": "Specific costume/model shopping intent awaiting physical offer distinction.",
+      "query_terms": [
+        "witch bodysuit costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "unresolved_model_owner",
+      "rationale": "Compare the two actual bodysuit costumes and query scope; retain all approvals and propose a qualified model owner only after distinction."
+    },
+    {
+      "proposal_code": "QUALIFIED_BLACK_AND_GOLD_CORSET_SKIRT_SET",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "black and gold corset skirt set"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_BLACK_GOTH_COSTUME",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "black goth costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_FESTIVAL_FRINGE_OUTFIT",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "festival fringe outfit"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_GOLD_BODYSUIT_COSTUME_WITH_HORNS",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "gold bodysuit costume with horns"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_GOLD_BUNNY_COSTUME",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "gold bunny costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_GOLD_CAT_COSTUME",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "gold cat costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_GOLD_CORSET_COSTUME",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "gold corset costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_GOLD_DESERT_GODDESS_COSTUME",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "gold desert goddess costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_GOLD_DRAGON_COSPLAY_COSTUME",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "gold dragon cosplay costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_GOLD_FESTIVAL_HEADPIECE",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "gold festival headpiece"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_GOLD_GODDESS_ARMOR_COSTUME",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "gold goddess armor costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_GOLD_GODDESS_FESTIVAL_OUTFIT",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "gold goddess festival outfit"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_GOLD_HORN_COSTUME",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "gold horn costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_GOLD_MALEFICENT_INSPIRED_COSTUME",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "gold maleficent-inspired costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_GOLD_SPINE_AND_TAIL_COSTUME",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "gold spine and tail costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_GOLD_STAGE_OUTFIT_WITH_HEADPIECE",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "gold stage outfit with headpiece"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_GOLD_WITCH_COSTUME",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "gold witch costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_HOLOGRAPHIC_ALIEN_COSTUME",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "holographic alien costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_HOLOGRAPHIC_WINGS_COSTUME",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "holographic wings costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_MALEFICENT_HORNS_HEADPIECE",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "maleficent horns headpiece"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_METALLIC_SILVER_SKIRT_OUTFIT",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "metallic silver skirt outfit"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_PLAGUE_DOCTOR_COSTUME",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "plague doctor costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_RED_DRAGON_COSPLAY_COSTUME",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "red dragon cosplay costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_RED_FUTURISTIC_COSTUME",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "red futuristic costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_ROBOT_ARM_ARMOR",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "robot arm armor"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_SILVER_BELT_AND_NECKLACE_SET",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "silver belt and necklace set"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_SILVER_FRINGE_OUTFIT",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "silver fringe outfit"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_SILVER_FUTURISTIC_LINGERIE_SET",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "silver futuristic lingerie set"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_SILVER_GOGO_DANCER_OUTFIT",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "silver gogo dancer outfit"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_SILVER_METALLIC_DRESS_COSTUME",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "silver metallic dress costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    },
+    {
+      "proposal_code": "QUALIFIED_WHITE_RAVE_COSTUME",
+      "intent": "Qualified product shopping intent represented by one approved FEYA draft in this capture.",
+      "query_terms": [
+        "white rave costume"
+      ],
+      "proposed_owner_candidate_code": null,
+      "disposition": "existing_pdp_candidate",
+      "rationale": "Retain the sole approved PDP as the proposed accountable owner. This is not evidence that the query has demand, only one result, or inherently product-only SERPs; verify product fit and semantic conflicts before registration."
+    }
+  ],
+  "no_primary_policy": "Keep exact product/page/draft IDs and approval; do not derive Primary from title or DNA. Trace existing decision evidence before asking for new keywords.",
+  "global_policy": [
+    "Existing keyword roles remain relevance/editorial decisions, not global exclusive ownership.",
+    "One query cluster/scope has at most one primary owner in each effective interval; DB IDs are assigned only through the existing registry.",
+    "A proposed hub is not publishable until distinct intent, eligible diverse inventory, unique value, query ownership and technical release all pass.",
+    "PDPs retain design-specific long-tail intent and supporting use of broad terms. Do not invent model names to evade duplicated titles.",
+    "Informational what-to-wear/how-to queries belong to reviewed guides when evidenced, not to these commercial clusters. No new guide invented from this Primary-only capture.",
+    "Source metrics are not aggregated, refreshed, filled or treated as SEO difficulty. Missing ID/market/metric fields remain unknown.",
+    "Only Primary terms are covered here; secondary/supporting cross-cluster and synonym review remains required before registration."
+  ],
+  "can_publish": false,
+  "can_index": false
+}

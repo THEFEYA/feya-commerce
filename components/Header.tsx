@@ -8,8 +8,8 @@ import { FeyaButterfly, FeyaMark } from '@/components/FeyaMark';
 const NAV = [
   { href: '/', label: 'Home' },
   { href: '/shop', label: 'Shop', mega: true },
-  { href: '/#about', label: 'About Us' },
-  { href: '/#contact', label: 'Contact Us' },
+  { href: '/about', label: 'About Us' },
+  { href: '/contact', label: 'Contact Us' },
 ];
 
 const CATALOG_GROUPS = [
@@ -18,13 +18,27 @@ const CATALOG_GROUPS = [
   { title: 'Style / World', items: ['Desert', 'Rave', 'Futuristic', 'Goddess', 'Warrior'] },
 ];
 
+const EVIDENCE_BACKED_COLLECTION_ROUTES: Record<string,string> = {
+  'Categories:Armor': '/collections/shoulder-armor',
+  'Categories:Masks': '/collections/costume-masks',
+  'Categories:Bodysuits': '/collections/bodysuits',
+  'Categories:Stage Looks': '/collections/stage-outfits',
+  'Occasion:Festival': '/collections/festival-outfits',
+  'Occasion:Stage': '/collections/stage-outfits',
+  'Occasion:Burning Man': '/collections/burning-man-looks',
+  'Style / World:Rave': '/collections/rave-outfits',
+};
+
 function navIsActive(pathname: string, href: string, label: string) {
   if (href === '/') return pathname === '/';
-  if (label === 'Shop') return pathname === '/shop' || pathname.startsWith('/shop/');
-  return false;
+  if (label === 'Shop') return pathname === '/shop' || pathname.startsWith('/shop/') || pathname.startsWith('/collections');
+  return pathname === href;
 }
 
 function shopFilterHref(groupTitle: string, item: string) {
+  const ownedRoute=EVIDENCE_BACKED_COLLECTION_ROUTES[`${groupTitle}:${item}`];
+  if(ownedRoute)return ownedRoute;
+
   const params = new URLSearchParams();
 
   if (groupTitle === 'Categories') params.set('category', item);

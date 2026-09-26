@@ -1,0 +1,329 @@
+[
+  {
+    "canonical_product_id": "cb31d61b-027c-4c47-b7ba-bf16283ada9c",
+    "configurations": [
+      {
+        "configuration_id": "1210a522-aca3-4da9-9542-c297df40f569",
+        "display_price_amount": 96.5,
+        "currency": "EUR",
+        "public_label": "Gloves",
+        "component_code": "arms",
+        "component_family": "Arms",
+        "is_bundle": false,
+        "is_full_set": false,
+        "needs_label_review": false,
+        "bundle_component_codes": [],
+        "bundle_component_labels": [],
+        "sort_order": 1
+      },
+      {
+        "configuration_id": "ab749cd4-b004-4ab2-a32d-a984d0d5d4fb",
+        "display_price_amount": 101.33,
+        "currency": "EUR",
+        "public_label": "Shoulders",
+        "component_code": "shoulders",
+        "component_family": "Shoulders",
+        "is_bundle": false,
+        "is_full_set": false,
+        "needs_label_review": false,
+        "bundle_component_codes": [],
+        "bundle_component_labels": [],
+        "sort_order": 2
+      },
+      {
+        "configuration_id": "2e1e98bd-5c0a-46f2-b607-4272177bf3ee",
+        "display_price_amount": 144.76,
+        "currency": "EUR",
+        "public_label": "Spine",
+        "component_code": "spine",
+        "component_family": "Back",
+        "is_bundle": false,
+        "is_full_set": false,
+        "needs_label_review": false,
+        "bundle_component_codes": [],
+        "bundle_component_labels": [],
+        "sort_order": 3
+      },
+      {
+        "configuration_id": "4353e4fa-f213-4349-b6b6-7e2e6833b549",
+        "display_price_amount": 239.27,
+        "currency": "EUR",
+        "public_label": "Bodysuit",
+        "component_code": "bodysuit",
+        "component_family": "Bodysuit",
+        "is_bundle": false,
+        "is_full_set": false,
+        "needs_label_review": false,
+        "bundle_component_codes": [],
+        "bundle_component_labels": [],
+        "sort_order": 4
+      },
+      {
+        "configuration_id": "ac91dd77-4b4a-4534-b597-30bc70c16288",
+        "display_price_amount": 462.58,
+        "currency": "EUR",
+        "public_label": "Full Set",
+        "component_code": "full_set",
+        "component_family": "Bundle",
+        "is_bundle": false,
+        "is_full_set": true,
+        "needs_label_review": false,
+        "bundle_component_codes": [
+          "arms",
+          "shoulders",
+          "spine",
+          "bodysuit"
+        ],
+        "bundle_component_labels": [
+          "Gloves",
+          "Shoulders",
+          "Spine",
+          "Bodysuit"
+        ],
+        "sort_order": 5
+      }
+    ]
+  },
+  {
+    "canonical_product_id": "e7238b1d-565c-4c4d-a7ae-a4402de80720",
+    "configurations": [
+      {
+        "configuration_id": "a33b87ea-f415-493a-871e-25b80a5d6b8e",
+        "display_price_amount": 82.03,
+        "currency": "EUR",
+        "public_label": "Skirt",
+        "component_code": "skirt",
+        "component_family": "Bottom",
+        "is_bundle": false,
+        "is_full_set": false,
+        "needs_label_review": false,
+        "bundle_component_codes": [],
+        "bundle_component_labels": [],
+        "sort_order": 1
+      },
+      {
+        "configuration_id": "14f946c4-5f24-4599-9290-e93ef53ec07a",
+        "display_price_amount": 144.76,
+        "currency": "EUR",
+        "public_label": "Leg Covers",
+        "component_code": "legs",
+        "component_family": "Legs",
+        "is_bundle": false,
+        "is_full_set": false,
+        "needs_label_review": false,
+        "bundle_component_codes": [],
+        "bundle_component_labels": [],
+        "sort_order": 2
+      },
+      {
+        "configuration_id": "7246011d-b286-495b-9487-d58b9eb4b10b",
+        "display_price_amount": 144.76,
+        "currency": "EUR",
+        "public_label": "Spine",
+        "component_code": "spine",
+        "component_family": "Back",
+        "is_bundle": false,
+        "is_full_set": false,
+        "needs_label_review": false,
+        "bundle_component_codes": [],
+        "bundle_component_labels": [],
+        "sort_order": 3
+      },
+      {
+        "configuration_id": "f6150b68-ca51-4b3e-8deb-6714afb3f528",
+        "display_price_amount": 175.46,
+        "currency": "EUR",
+        "public_label": "Bodysuit",
+        "component_code": "bodysuit",
+        "component_family": "Bodysuit",
+        "is_bundle": false,
+        "is_full_set": false,
+        "needs_label_review": false,
+        "bundle_component_codes": [],
+        "bundle_component_labels": [],
+        "sort_order": 4
+      },
+      {
+        "configuration_id": "f937757f-6a7b-4fe2-9264-23940001d945",
+        "display_price_amount": 398.78,
+        "currency": "EUR",
+        "public_label": "Full Set",
+        "component_code": "full_set",
+        "component_family": "Bundle",
+        "is_bundle": false,
+        "is_full_set": true,
+        "needs_label_review": false,
+        "bundle_component_codes": [
+          "skirt",
+          "legs",
+          "spine",
+          "bodysuit"
+        ],
+        "bundle_component_labels": [
+          "Skirt",
+          "Leg Covers",
+          "Spine",
+          "Bodysuit"
+        ],
+        "sort_order": 5
+      }
+    ]
+  },
+  {
+    "canonical_product_id": "0e75d2f2-c345-440e-88e4-333b63caed09",
+    "configurations": [
+      {
+        "configuration_id": "bb8c0625-229b-4c20-9a39-7b51de503c48",
+        "display_price_amount": 151.54,
+        "currency": "EUR",
+        "public_label": "Leg Covers",
+        "component_code": "legs",
+        "component_family": "Legs",
+        "is_bundle": false,
+        "is_full_set": false,
+        "needs_label_review": false,
+        "bundle_component_codes": [],
+        "bundle_component_labels": [],
+        "sort_order": 1
+      },
+      {
+        "configuration_id": "0d0bc14d-4c26-4c30-b8ff-66eab329791b",
+        "display_price_amount": 199.39,
+        "currency": "EUR",
+        "public_label": "Bodysuit",
+        "component_code": "bodysuit",
+        "component_family": "Bodysuit",
+        "is_bundle": false,
+        "is_full_set": false,
+        "needs_label_review": false,
+        "bundle_component_codes": [],
+        "bundle_component_labels": [],
+        "sort_order": 2
+      },
+      {
+        "configuration_id": "e246697a-eb2d-4c33-8fe3-d4ad5fffcb68",
+        "display_price_amount": 279.14,
+        "currency": "EUR",
+        "public_label": "Full Set",
+        "component_code": "full_set",
+        "component_family": "Bundle",
+        "is_bundle": false,
+        "is_full_set": true,
+        "needs_label_review": false,
+        "bundle_component_codes": [
+          "legs",
+          "bodysuit"
+        ],
+        "bundle_component_labels": [
+          "Leg Covers",
+          "Bodysuit"
+        ],
+        "sort_order": 3
+      }
+    ]
+  },
+  {
+    "canonical_product_id": "b3910e41-9de7-483f-8d88-5783e8d90607",
+    "configurations": [
+      {
+        "configuration_id": "304d98e5-399f-4bf1-84df-da1af1a9cd0f",
+        "display_price_amount": 127.38,
+        "currency": "EUR",
+        "public_label": "Option",
+        "component_code": null,
+        "component_family": null,
+        "is_bundle": false,
+        "is_full_set": false,
+        "needs_label_review": true,
+        "bundle_component_codes": [],
+        "bundle_component_labels": [],
+        "sort_order": 1
+      },
+      {
+        "configuration_id": "f713289e-afc7-4c19-a601-535594310eb9",
+        "display_price_amount": 175.15,
+        "currency": "EUR",
+        "public_label": "Panties",
+        "component_code": "panties",
+        "component_family": "Bottom",
+        "is_bundle": false,
+        "is_full_set": false,
+        "needs_label_review": false,
+        "bundle_component_codes": [],
+        "bundle_component_labels": [],
+        "sort_order": 2
+      },
+      {
+        "configuration_id": "0f48d54d-65cd-4326-b0da-004135f9dc6a",
+        "display_price_amount": 193.01,
+        "currency": "EUR",
+        "public_label": "Full Set",
+        "component_code": "full_set",
+        "component_family": "Bundle",
+        "is_bundle": false,
+        "is_full_set": true,
+        "needs_label_review": false,
+        "bundle_component_codes": [
+          "panties"
+        ],
+        "bundle_component_labels": [
+          "Panties"
+        ],
+        "sort_order": 3
+      }
+    ]
+  },
+  {
+    "canonical_product_id": "a83b1b51-79be-4cae-a943-661060a34080",
+    "configurations": [
+      {
+        "configuration_id": "e3d9d1b7-e8ff-4d0b-84ad-f7a06873800a",
+        "display_price_amount": 163.5,
+        "currency": "EUR",
+        "public_label": "Leg Armor",
+        "component_code": "legs",
+        "component_family": "Legs",
+        "is_bundle": false,
+        "is_full_set": false,
+        "needs_label_review": false,
+        "bundle_component_codes": [],
+        "bundle_component_labels": [],
+        "sort_order": 1
+      },
+      {
+        "configuration_id": "242e3bfc-64b5-4b53-9f16-b2b0c5cf0ce0",
+        "display_price_amount": 164.06,
+        "currency": "EUR",
+        "public_label": "Arm Armor",
+        "component_code": "arms",
+        "component_family": "Arms",
+        "is_bundle": false,
+        "is_full_set": false,
+        "needs_label_review": false,
+        "bundle_component_codes": [],
+        "bundle_component_labels": [],
+        "sort_order": 2
+      },
+      {
+        "configuration_id": "2266d9a3-ba25-445f-ab6a-7eb2bc354942",
+        "display_price_amount": 279.14,
+        "currency": "EUR",
+        "public_label": "Full Set",
+        "component_code": "full_set",
+        "component_family": "Bundle",
+        "is_bundle": false,
+        "is_full_set": true,
+        "needs_label_review": false,
+        "bundle_component_codes": [
+          "legs",
+          "arms"
+        ],
+        "bundle_component_labels": [
+          "Leg Armor",
+          "Arm Armor"
+        ],
+        "sort_order": 3
+      }
+    ]
+  }
+]

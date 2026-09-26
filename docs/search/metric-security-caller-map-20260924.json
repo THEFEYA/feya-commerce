@@ -1,0 +1,98 @@
+{
+  "baseline_commit": "7506c7d4369292495e6268ead28feca1e8251bfc",
+  "method": "Literal repository references to 50 catalog-reachable metric relations; no runtime traffic or dynamic SQL coverage",
+  "references": [
+    {
+      "path": "app/admin/advanced/signals/page.tsx",
+      "relation_mentions": [
+        "feya_commerce_v_case_admission_preview_safe_v2",
+        "feya_commerce_v_growth_signal_candidates_safe_v2"
+      ]
+    },
+    {
+      "path": "app/admin/company/page.tsx",
+      "relation_mentions": [
+        "feya_commerce_v_growth_signal_candidates_safe_v2"
+      ]
+    },
+    {
+      "path": "app/admin/company/search/page.tsx",
+      "relation_mentions": [
+        "feya_commerce_v_growth_signal_candidates_safe_v2"
+      ]
+    },
+    {
+      "path": "app/admin/company/signals/page.tsx",
+      "relation_mentions": [
+        "feya_commerce_v_growth_signal_candidates_safe_v2"
+      ]
+    },
+    {
+      "path": "app/admin/metrics/page.tsx",
+      "relation_mentions": [
+        "feya_commerce_v_growth_operational_metrics_safe_v1"
+      ]
+    },
+    {
+      "path": "app/admin/seo-cluster-proposals/page.tsx",
+      "relation_mentions": [
+        "feya_commerce_v_query_cluster_proposal_queue_safe_v1"
+      ]
+    },
+    {
+      "path": "app/admin/seo-clusters/page.tsx",
+      "relation_mentions": [
+        "feya_commerce_v_query_cluster_review_queue_v1"
+      ]
+    },
+    {
+      "path": "app/admin/signals/page.tsx",
+      "relation_mentions": [
+        "feya_commerce_v_case_admission_preview_safe_v2",
+        "feya_commerce_v_growth_signal_candidates_safe_v2"
+      ]
+    },
+    {
+      "path": "app/api/internal/google-ads-keyword-metrics/route.ts",
+      "relation_mentions": [
+        "feya_commerce_seo_keyword_metric_snapshots_v1"
+      ]
+    },
+    {
+      "path": "app/api/internal/query-cluster-proposals/route.ts",
+      "relation_mentions": [
+        "feya_commerce_v_query_cluster_proposal_queue_safe_v1"
+      ]
+    },
+    {
+      "path": "lib/searchDemandImportPreview.ts",
+      "relation_mentions": [
+        "feya_commerce_seo_keyword_metric_import_staging_v1"
+      ]
+    },
+    {
+      "path": "lib/searchLegacyDemandAdapter.ts",
+      "relation_mentions": [
+        "feya_commerce_seo_keyword_metric_snapshots_v1"
+      ]
+    },
+    {
+      "path": "lib/searchMetricStatus.ts",
+      "relation_mentions": [
+        "feya_commerce_seo_keyword_metric_snapshots_v1"
+      ]
+    },
+    {
+      "path": "lib/seoMetricImportContract.ts",
+      "relation_mentions": [
+        "feya_commerce_seo_keyword_metric_snapshots_v1"
+      ]
+    }
+  ],
+  "public_route_hits": [],
+  "admin_client_contract": {
+    "auth_required_true": "service_role on server",
+    "auth_required_false": "anon fallback; privileged views still needed until this legacy mode is retired"
+  },
+  "production_env_verified": false
+}

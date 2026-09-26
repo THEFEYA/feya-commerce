@@ -1,0 +1,280 @@
+{
+  "registry_version": "phase_a_candidate_intent_registry_20260926",
+  "source_release": "feya-review-207-20260924",
+  "source_semantics": "latest approved SEO pack manual_focus_snapshot + sellable_component_axes",
+  "formal_index_authority": false,
+  "candidates": [
+    {
+      "code": "Q02_SHOULDER_ARMOR",
+      "label": "Shoulder Armor",
+      "dna_predicate": {
+        "sellable_component": "shoulders"
+      },
+      "eligible_parent_products": 80,
+      "status": "hold",
+      "reason_codes": [
+        "MISSING_GKP_EXACT",
+        "SERP_GATE_UNRESOLVED"
+      ]
+    },
+    {
+      "code": "Q02_FESTIVAL_SHOULDER_ARMOR",
+      "label": "Festival Shoulder Armor",
+      "dna_predicate": {
+        "sellable_component": "shoulders",
+        "event": "festival"
+      },
+      "eligible_parent_products": 61,
+      "status": "hold",
+      "reason_codes": [
+        "MISSING_GKP_EXACT",
+        "TWO_AXIS_SERP_UNRESOLVED"
+      ]
+    },
+    {
+      "code": "Q02_BODY_HARNESS",
+      "label": "Fashion / Body Harness",
+      "dna_predicate": {
+        "sellable_component": "harness"
+      },
+      "eligible_parent_products": 11,
+      "search_only_semantic_products": 29,
+      "status": "hold",
+      "reason_codes": [
+        "MISSING_GKP_EXACT",
+        "MIXED_SERP_NEEDS_FORMAL_SAMPLE",
+        "SEARCH_ONLY_AXIS_EXCLUDED"
+      ]
+    },
+    {
+      "code": "Q02_FESTIVAL_HARNESS",
+      "label": "Festival Harness",
+      "dna_predicate": {
+        "sellable_component": "harness",
+        "event": "festival"
+      },
+      "eligible_parent_products": 4,
+      "status": "hold",
+      "reason_codes": [
+        "MISSING_GKP_EXACT",
+        "DESIGN_FAMILY_COUNT_REQUIRED",
+        "MINIMUM_DEPTH_BOUNDARY"
+      ]
+    },
+    {
+      "code": "Q02_VEGAN_LEATHER_HARNESS",
+      "label": "Vegan Leather Harness",
+      "dna_predicate": {
+        "sellable_component": "harness",
+        "material": "vegan leather"
+      },
+      "eligible_parent_products": 2,
+      "status": "filter_or_pdp_likely",
+      "reason_codes": [
+        "THIN_PRODUCT_DEPTH"
+      ]
+    },
+    {
+      "code": "Q01_FESTIVAL",
+      "label": "Festival",
+      "dna_predicate": {
+        "event": "festival"
+      },
+      "eligible_parent_products": 111,
+      "status": "hold",
+      "reason_codes": [
+        "MISSING_GKP_EXACT",
+        "COMMERCIAL_SERP_GATE_UNRESOLVED"
+      ]
+    },
+    {
+      "code": "Q01_RAVE",
+      "label": "Rave",
+      "dna_predicate": {
+        "event": "rave"
+      },
+      "eligible_parent_products": 40,
+      "status": "hold",
+      "reason_codes": [
+        "MISSING_GKP_EXACT",
+        "SERP_OVERLAP_WITH_FESTIVAL_REQUIRED"
+      ]
+    },
+    {
+      "code": "Q01_BURNING_MAN",
+      "label": "Burning Man",
+      "dna_predicate": {
+        "event": "burning man"
+      },
+      "eligible_parent_products": 45,
+      "status": "hold",
+      "reason_codes": [
+        "MISSING_GKP_EXACT",
+        "COMMERCIAL_VS_EDITORIAL_CLUSTER_SPLIT_REQUIRED"
+      ]
+    },
+    {
+      "code": "Q01_STAGE",
+      "label": "Stage / Performance",
+      "dna_predicate": {
+        "event": "stage"
+      },
+      "eligible_parent_products": 96,
+      "status": "high_priority_hold",
+      "reason_codes": [
+        "MISSING_GKP_EXACT",
+        "STAGE_VS_PERFORMANCE_QUERY_LANGUAGE_UNRESOLVED"
+      ]
+    },
+    {
+      "code": "Q04_COSTUME_SKIRT",
+      "label": "Costume Skirt",
+      "dna_predicate": {
+        "sellable_component": "skirt"
+      },
+      "eligible_parent_products": 89,
+      "status": "hold",
+      "reason_codes": [
+        "MISSING_GKP_EXACT",
+        "SERP_GATE_UNRESOLVED"
+      ]
+    },
+    {
+      "code": "Q04_FESTIVAL_SKIRT",
+      "label": "Festival Skirt",
+      "dna_predicate": {
+        "sellable_component": "skirt",
+        "event": "festival"
+      },
+      "eligible_parent_products": 56,
+      "status": "hold",
+      "reason_codes": [
+        "MISSING_GKP_EXACT",
+        "TWO_AXIS_SERP_UNRESOLVED"
+      ]
+    },
+    {
+      "code": "Q04_COSTUME_HEADPIECE",
+      "label": "Costume Headpiece",
+      "dna_predicate": {
+        "sellable_component": "headpiece"
+      },
+      "eligible_parent_products": 34,
+      "status": "hold",
+      "reason_codes": [
+        "MISSING_GKP_EXACT",
+        "SERP_GATE_UNRESOLVED"
+      ]
+    },
+    {
+      "code": "Q04_FESTIVAL_HEADPIECE",
+      "label": "Festival Headpiece",
+      "dna_predicate": {
+        "sellable_component": "headpiece",
+        "event": "festival"
+      },
+      "eligible_parent_products": 11,
+      "status": "hold",
+      "reason_codes": [
+        "MISSING_GKP_EXACT",
+        "TWO_AXIS_SERP_UNRESOLVED"
+      ]
+    },
+    {
+      "code": "Q04_COSTUME_BODYSUIT",
+      "label": "Costume Bodysuit",
+      "dna_predicate": {
+        "sellable_component": "bodysuit"
+      },
+      "eligible_parent_products": 30,
+      "status": "hold",
+      "reason_codes": [
+        "MISSING_GKP_EXACT",
+        "SERP_GATE_UNRESOLVED"
+      ]
+    },
+    {
+      "code": "Q04_FESTIVAL_BODYSUIT",
+      "label": "Festival Bodysuit",
+      "dna_predicate": {
+        "sellable_component": "bodysuit",
+        "event": "festival"
+      },
+      "eligible_parent_products": 6,
+      "status": "hold",
+      "reason_codes": [
+        "MISSING_GKP_EXACT",
+        "DESIGN_FAMILY_COUNT_REQUIRED",
+        "TWO_AXIS_SERP_UNRESOLVED"
+      ]
+    },
+    {
+      "code": "Q04_COSTUME_BELT",
+      "label": "Costume Belt",
+      "dna_predicate": {
+        "sellable_component": "belt"
+      },
+      "eligible_parent_products": 13,
+      "status": "hold",
+      "reason_codes": [
+        "MISSING_GKP_EXACT",
+        "SERP_GATE_UNRESOLVED"
+      ]
+    },
+    {
+      "code": "Q04_COSTUME_MASK",
+      "label": "Costume Mask",
+      "dna_predicate": {
+        "sellable_component": "mask"
+      },
+      "eligible_parent_products": 11,
+      "status": "hold",
+      "reason_codes": [
+        "MISSING_GKP_EXACT",
+        "SERP_GATE_UNRESOLVED"
+      ]
+    },
+    {
+      "code": "Q04_FESTIVAL_MASK",
+      "label": "Festival Mask",
+      "dna_predicate": {
+        "sellable_component": "mask",
+        "event": "festival"
+      },
+      "eligible_parent_products": 6,
+      "status": "hold",
+      "reason_codes": [
+        "MISSING_GKP_EXACT",
+        "DESIGN_FAMILY_COUNT_REQUIRED",
+        "TWO_AXIS_SERP_UNRESOLVED"
+      ]
+    },
+    {
+      "code": "Q04_COSTUME_WINGS",
+      "label": "Costume Wings",
+      "dna_predicate": {
+        "sellable_component": "wings"
+      },
+      "eligible_parent_products": 4,
+      "status": "hold",
+      "reason_codes": [
+        "MISSING_GKP_EXACT",
+        "DESIGN_FAMILY_COUNT_REQUIRED",
+        "MINIMUM_DEPTH_BOUNDARY"
+      ]
+    }
+  ],
+  "event_product_jaccard": {
+    "burning man|festival": 0.357,
+    "burning man|rave": 0.214,
+    "burning man|stage": 0.037,
+    "festival|rave": 0.258,
+    "festival|stage": 0.183,
+    "rave|stage": 0.054
+  },
+  "notes": [
+    "Counts are commercial candidate inventory, not final design-family counts.",
+    "Current hard-coded /collections title matching must not be used as final authority.",
+    "Final indexable decisions require formal demand + SERP + design-family + ownership evidence."
+  ]
+}

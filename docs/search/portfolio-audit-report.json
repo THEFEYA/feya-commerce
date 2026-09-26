@@ -1,0 +1,16 @@
+{
+  "report_version": "search_foundation_replay_v1",
+  "source_observed_at": "2026-09-23T21:09:04.558009+00:00",
+  "mode": "read_only_offline_replay",
+  "scope": "Portfolio structure only. Product Truth, content approvals and live render were not re-evaluated.",
+  "page_count": 243,
+  "hold_count": 243,
+  "ownership_conflict_count": 0,
+  "invalid_ownership_count": 0,
+  "reason_counts": {
+    "page_spec_missing": 243
+  },
+  "can_publish": false,
+  "can_index": false,
+  "interpretation": "Missing new search specifications/ownership is a preparation gap, not revocation of existing product approvals."
+}

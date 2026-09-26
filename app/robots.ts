@@ -1,17 +1,24 @@
-import type { MetadataRoute } from 'next';
-import { absoluteSiteUrl, isSearchIndexingEnabled } from '@/lib/siteConfig';
+import type {MetadataRoute} from 'next';
+import {absoluteSiteUrl, isSearchIndexingEnabled} from '@/lib/siteConfig';
+import {closedReviewRequested} from '@/lib/searchReviewPresentation';
+import {readActiveSearchReleaseIndexItems} from '@/lib/searchReleaseIndexationServer';
 
-export default function robots(): MetadataRoute.Robots {
-  const indexingEnabled = isSearchIndexingEnabled();
+export const dynamic='force-dynamic';
 
-  return {
-    rules: [
-      {
-        userAgent: '*',
-        allow: '/',
-        disallow: ['/admin/', '/api/internal/'],
-      },
-    ],
-    ...(indexingEnabled ? { sitemap: absoluteSiteUrl('/sitemap.xml') } : {}),
+export default async function robots():Promise<MetadataRoute.Robots>{
+  if(closedReviewRequested(process.env)){
+    return{rules:[{userAgent:'*',disallow:'/'}]};
+  }
+
+  const indexingEnabled=isSearchIndexingEnabled();
+  const {release}=indexingEnabled?await readActiveSearchReleaseIndexItems():{release:null};
+
+  return{
+    rules:[{
+      userAgent:'*',
+      allow:'/',
+      disallow:['/admin/','/api/internal/'],
+    }],
+    ...(indexingEnabled&&release?{sitemap:absoluteSiteUrl('/sitemap.xml')}:{})
   };
 }

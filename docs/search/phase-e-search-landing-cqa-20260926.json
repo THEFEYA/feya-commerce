@@ -1,0 +1,60 @@
+{
+  "contract_version": "search_landing_cqa_v1",
+  "reviewed_at": "2026-09-26",
+  "reviewer_role": "CQA",
+  "content_pack": "docs/search/phase-e-search-landing-content-packs-draft-20260926.json",
+  "content_status": "PASS",
+  "release_status": "HOLD",
+  "checks": {
+    "page_coverage": "PASS_10_OF_10_BUSINESS_CASES",
+    "unique_titles_h1_meta": "PASS",
+    "title_meta_length_bounds": "PASS",
+    "intro_usefulness_bounds": "PASS",
+    "filler_and_robotic_phrase_gate": "PASS",
+    "forbidden_adult_risk_vocabulary_gate": "PASS",
+    "cross_page_text_overlap": "PASS_MAX_BELOW_0_35",
+    "claim_scope": "PASS_WITH_PRODUCT_TRUTH_GUARDRAILS",
+    "internal_link_targets": "PASS_BUSINESS_CASE_GRAPH_ONLY",
+    "keyword_density_target": "NOT_USED"
+  },
+  "page_specific_notes": {
+    "/collections/shoulder-armor": [
+      "Keep decorative/non-protective distinction explicit because broad SERP contains historical/protective armor."
+    ],
+    "/collections/festival-outfits": [
+      "Do not inherit generic festival-costume intent; current festival-costumes cluster failed the commercial collection gate."
+    ],
+    "/collections/rave-outfits": [
+      "Rave costumes may be owned by the same page as a separate query cluster; do not create a duplicate URL."
+    ],
+    "/collections/burning-man-looks": [
+      "Keep event-affiliation/weather/safety claims out; practical what-to-wear intent belongs to a future guide if eligible."
+    ],
+    "/collections/stage-outfits": [
+      "Primary evidence is performance costumes. Broad dance-costume and mixed stage clusters remain outside ownership."
+    ],
+    "/collections/bodysuits": [
+      "Do not apply hygiene/final-sale language to every bodysuit automatically."
+    ],
+    "/collections/costume-masks": [
+      "Explicitly decorative; no respirator/protective claims."
+    ],
+    "/collections/costume-headpieces": [
+      "No DIY/tutorial intent and no universal attachment/weight claims."
+    ],
+    "/collections/festival-skirts": [
+      "Configuration truth controls skirt-only/full-set availability."
+    ],
+    "/collections/costume-belts": [
+      "Decorative fashion/costume scope; utility/weapon/tool belt intent excluded."
+    ]
+  },
+  "release_blockers": [
+    "design_family_key is still provisional and not index-release authority",
+    "page specs remain review-state and inventory policy remains proposed",
+    "contextual link edges are proposed, not yet rendered live",
+    "content packs are not yet stored as active page release versions",
+    "technical selective-index release manifest is not yet approved"
+  ],
+  "decision": "Content is acceptable as a draft input to immutable page versions. This PASS does not authorize publication or indexing."
+}

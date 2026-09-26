@@ -1,0 +1,106 @@
+{
+  "batch_id": "owner-product-truth-20260924-01",
+  "status": "answered_for_launch_scope",
+  "purpose": "Close physical purchase-scope ambiguity; not keyword-axis reconfirmation",
+  "source_priority": "specific owner confirmation > options/variations and scoped text; keyword DNA axes do not prove composition",
+  "source_capture": "inventory-reconciliation-capture-20260924.json",
+  "questions": [
+    {
+      "number": 1,
+      "product_id": "0cd7c558-7344-4076-91a5-86f7f5fe0ad0",
+      "url": "https://i.etsystatic.com/54033853/r/il/ea032d/6783906845/il_fullxfull.6783906845_2oyv.jpg",
+      "sha256": "e7592b4bf7661ac5ada94a2e6b6ca1254c44d7189a40965d1ab157eb192608ff",
+      "bytes": 374184,
+      "status": "downloaded",
+      "label": "Золотой формованный нагрудный топ",
+      "question_ru": "Продаётся один нагрудный топ? Уточните материал и крепление сзади. В пределах одного размера цвет влияет на цену?",
+      "owner_response": {
+        "interpretation_ref": "owner-launch-scope-20260924.json",
+        "scope": "Do not treat unaddressed subquestions as confirmed."
+      },
+      "response_status": "deferred_by_owner",
+      "applies_to": "this canonical_product_id only",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "number": 2,
+      "product_id": "1ce50e76-c066-46b8-97ba-d6be92a593ff",
+      "url": "https://i.etsystatic.com/54033853/r/il/5d5909/6622718540/il_fullxfull.6622718540_nmvc.jpg",
+      "sha256": "4c8da300d5c46507927ebe3aa80ac7fe86abfb6718afe1d7e3189d2a6f040271",
+      "bytes": 574061,
+      "status": "downloaded",
+      "label": "Белый формованный нагрудный топ",
+      "question_ru": "Здесь продаётся только белый топ? Материал и крепление такие же, как у №1, или отличаются? В пределах размера цвет влияет на цену?",
+      "owner_response": {
+        "interpretation_ref": "owner-launch-scope-20260924.json",
+        "scope": "Do not treat unaddressed subquestions as confirmed."
+      },
+      "response_status": "deferred_by_owner",
+      "applies_to": "this canonical_product_id only",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "number": 3,
+      "product_id": "179e407a-5fed-4b42-ae19-ff220f939867",
+      "url": "https://i.etsystatic.com/54033853/r/il/d2b38f/6499829479/il_fullxfull.6499829479_nrbt.jpg",
+      "sha256": "e9bd66e49c225a173a2306d6dee63a2c1d6a484be172eda1072c86fafcc31bbd",
+      "bytes": 242850,
+      "status": "downloaded",
+      "label": "Асимметричный зеркальный комплект",
+      "question_ru": "Вариации Mirror Jacket / Mirror Leggings / Full Set: верх — асимметричная куртка с одним рукавом, а Leggings — пара отдельных чехлов на ноги или полноценные леггинсы? Что точно входит в Full Set?",
+      "owner_response": {
+        "interpretation_ref": "owner-launch-scope-20260924.json",
+        "scope": "Do not treat unaddressed subquestions as confirmed."
+      },
+      "response_status": "deferred_by_owner",
+      "applies_to": "this canonical_product_id only",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "number": 4,
+      "product_id": "2dddffcc-dd07-4d94-a4df-0217aac4f815",
+      "url": "https://i.etsystatic.com/54033853/r/il/18dc13/6575540878/il_fullxfull.6575540878_gax3.jpg",
+      "sha256": "42e27434e7ecead064d1074025eaeab7f4c3959bc8a7cfc0b6a4e5bcbac01a8b",
+      "bytes": 689130,
+      "status": "downloaded",
+      "label": "Зеркальный пиджак, низ и детали ног",
+      "question_ru": "Вариации Mirror Jacket / Mirror Short / Mirror Leggings / Full Set: Full Set включает пиджак, шорты (или трусики) и пару чехлов на ноги? Уточните, что означает Short и Leggings.",
+      "owner_response": {
+        "interpretation_ref": "owner-launch-scope-20260924.json",
+        "scope": "Do not treat unaddressed subquestions as confirmed."
+      },
+      "response_status": "deferred_by_owner",
+      "applies_to": "this canonical_product_id only",
+      "can_publish": false,
+      "can_index": false
+    },
+    {
+      "number": 5,
+      "product_id": "40384eea-fd82-40f4-98e7-804383c42796",
+      "url": "https://i.etsystatic.com/54033853/r/il/70fe6d/6783812454/il_fullxfull.6783812454_owe3.jpg",
+      "sha256": "c39bd377f6ab1dc08f4fd12851a8d1ba8cebae3d38402aa424594894b5bbdd89",
+      "bytes": 147902,
+      "status": "downloaded",
+      "label": "Золотой bra + skirt",
+      "question_ru": "Вариации Bra / Skirt / Full Set: полный комплект — золотой верх и юбка с поясом? Пояс входит в Skirt? Чёрная тканевая одежда не входит?",
+      "owner_response": {
+        "interpretation_ref": "owner-launch-scope-20260924.json",
+        "scope": "Do not treat unaddressed subquestions as confirmed."
+      },
+      "response_status": "composition_partially_confirmed",
+      "applies_to": "this canonical_product_id only",
+      "can_publish": false,
+      "can_index": false
+    }
+  ],
+  "excluded_repeat_question": {
+    "product_id": "320fede3-0406-428f-8091-c7a7986e07aa",
+    "reason": "Existing headpiece-only owner decision remains authoritative; repair legacy options without asking composition again."
+  },
+  "limits": "Answers about composition do not authorize inferred size equivalence, new prices, Cartesian variants, publication or indexing.",
+  "answer_ref": "owner-launch-scope-20260924.json",
+  "next_action": "No repeat questions on deferred items for initial launch. Continue existing supported catalog pilot."
+}

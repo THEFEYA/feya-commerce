@@ -1,0 +1,44 @@
+{
+  "contract_version": "editorial_content_pack_v1",
+  "path": "/guides/what-to-wear-to-burning-man",
+  "status": "CQA_PASS_RELEASE_HOLD",
+  "market": "US",
+  "locale": "en-US",
+  "primary_query_cluster": "QC_US_EN_BURNING_MAN_WHAT_TO_WEAR",
+  "primary_commercial_destination": "/collections/burning-man-looks",
+  "title": "What to Wear to Burning Man: Practical Costume Guide | TheFEYA",
+  "h1": "What to Wear to Burning Man",
+  "meta_description": "Plan a Burning Man costume around official desert, dust, visibility and Leave No Trace guidance, then build the visual look with TheFEYA.",
+  "sections": [
+    "Build around the official survival checklist",
+    "Plan for whiteouts separately from the outfit",
+    "Choose details that are less likely to become MOOP",
+    "Choose the silhouette after the practical layer is solved",
+    "Styling and survival are two different systems",
+    "Check fit and construction before the trip",
+    "Check the current Burning Man guidance before you go"
+  ],
+  "internal_links": [
+    "/collections/burning-man-looks",
+    "/collections/shoulder-armor",
+    "/collections/costume-headpieces",
+    "/collections/festival-skirts",
+    "/size-guide",
+    "/care"
+  ],
+  "official_source_brief": "docs/search/Burning_Man_Editorial_Source_Brief_2026.md",
+  "official_sources": [
+    "https://burningman.org/black-rock-city/preparation/",
+    "https://survival.burningman.org/survival-health-and-safety/survival/",
+    "https://survival.burningman.org/leave-no-trace/what-to-pack-and-what-to-leave-at-home/",
+    "https://burningman.org/black-rock-city/preparation/playa-living/weather/"
+  ],
+  "guardrails": [
+    "No Burning Man affiliation or endorsement claim",
+    "Costume does not replace goggles, dust masks, warm layers, rain gear or visibility equipment",
+    "No dust-proof, weather-proof, heat-safe, playa-safe or protective claim without exact product evidence",
+    "Official event guidance is separated from TheFEYA styling advice",
+    "No generic event-history padding"
+  ],
+  "index_authorized": false
+}

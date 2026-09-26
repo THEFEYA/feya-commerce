@@ -1,0 +1,935 @@
+{
+  "observed_at": "2026-09-24T00:55:12.512577+00:00",
+  "project_id": "ysnizcgzhdwdfdkjkhud",
+  "method": "SELECT catalog metadata and advisor report; no production row reads or writes",
+  "functions": [
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "owner": "postgres",
+      "options": [
+        "search_path=public"
+      ],
+      "identity": "feya_commerce_apply_seo_keyword_metric_import_v1(text,text)",
+      "definition": "CREATE OR REPLACE FUNCTION public.feya_commerce_apply_seo_keyword_metric_import_v1(p_batch_code text, p_source_file_name text DEFAULT NULL::text)\n RETURNS TABLE(inserted_snapshots integer)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare\n  v_inserted integer;\nbegin\n  insert into public.feya_commerce_seo_keyword_metric_snapshots_v1 (\n    keyword_norm,\n    source_api,\n    geo,\n    language,\n    avg_monthly_searches,\n    competition,\n    competition_index,\n    low_top_of_page_bid,\n    high_top_of_page_bid,\n    monthly_search_volumes_json,\n    fetched_at,\n    raw_payload_json,\n    data_freshness_status\n  )\n  select\n    r.keyword_norm,\n    'manual_keyword_metrics_import' as source_api,\n    r.geo,\n    r.language,\n    r.avg_monthly_searches,\n    r.competition,\n    r.competition_index,\n    r.low_top_of_page_bid,\n    r.high_top_of_page_bid,\n    case\n      when nullif(btrim(r.monthly_search_volumes_raw), '') is null then null::jsonb\n      when btrim(r.monthly_search_volumes_raw) ~ '^\\s*[\\[{]' then r.monthly_search_volumes_raw::jsonb\n      else jsonb_build_object('raw', r.monthly_search_volumes_raw)\n    end as monthly_search_volumes_json,\n    now() as fetched_at,\n    jsonb_build_object(\n      'batch_code', r.batch_code,\n      'keyword', r.keyword,\n      'keyword_norm', r.keyword_norm,\n      'source_file_name', r.source_file_name,\n      'imported_at', r.imported_at,\n      'import_status', r.import_status,\n      'import_note', r.import_note,\n      'bridge', 'manual_validation_export_import_v1'\n    ) as raw_payload_json,\n    'fresh_manual_import' as data_freshness_status\n  from public.feya_commerce_v_seo_keyword_metric_import_ready_v1 r\n  where r.batch_code = p_batch_code\n    and (p_source_file_name is null or r.source_file_name = p_source_file_name);\n\n  get diagnostics v_inserted = row_count;\n  return query select v_inserted;\nend;\n$function$\n",
+      "anon_execute": false,
+      "auth_execute": false,
+      "security_definer": true
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "owner": "postgres",
+      "options": null,
+      "identity": "feya_commerce_fn_promote_keyword_metric_import_v1(text)",
+      "definition": "CREATE OR REPLACE FUNCTION public.feya_commerce_fn_promote_keyword_metric_import_v1(p_batch_code text)\n RETURNS TABLE(batch_code text, normalized_rows integer, inserted_snapshots integer, updated_staging_rows integer, skipped_rows integer)\n LANGUAGE plpgsql\n SECURITY DEFINER\nAS $function$\ndeclare\n  v_normalized integer := 0;\n  v_inserted integer := 0;\n  v_updated integer := 0;\n  v_skipped integer := 0;\nbegin\n  update public.feya_commerce_seo_keyword_metric_import_staging_v1 s\n  set keyword_norm = lower(trim(s.keyword)),\n      import_status = coalesce(nullif(s.import_status, ''), 'pending')\n  where s.batch_code = p_batch_code\n    and (s.keyword_norm is null or btrim(s.keyword_norm) = '')\n    and s.keyword is not null;\n  get diagnostics v_normalized = row_count;\n\n  insert into public.feya_commerce_seo_keyword_metric_snapshots_v1 (\n    keyword_norm,\n    source_api,\n    geo,\n    language,\n    avg_monthly_searches,\n    competition,\n    competition_index,\n    low_top_of_page_bid,\n    high_top_of_page_bid,\n    monthly_search_volumes_json,\n    fetched_at,\n    raw_payload_json,\n    data_freshness_status\n  )\n  select\n    lower(trim(s.keyword_norm)) as keyword_norm,\n    'google_ads_csv'::text as source_api,\n    coalesce(nullif(s.geo, ''), 'US') as geo,\n    coalesce(nullif(s.language, ''), 'en') as language,\n    s.avg_monthly_searches,\n    nullif(s.competition, '') as competition,\n    s.competition_index,\n    s.low_top_of_page_bid,\n    s.high_top_of_page_bid,\n    case\n      when s.monthly_search_volumes_raw is not null and btrim(s.monthly_search_volumes_raw) <> ''\n        then jsonb_build_object('raw', s.monthly_search_volumes_raw)\n      else null::jsonb\n    end as monthly_search_volumes_json,\n    now() as fetched_at,\n    jsonb_build_object(\n      'batch_code', s.batch_code,\n      'source_file_name', s.source_file_name,\n      'import_row_id', s.import_row_id,\n      'imported_at', s.imported_at\n    ) as raw_payload_json,\n    'fresh_manual_import'::text as data_freshness_status\n  from public.feya_commerce_seo_keyword_metric_import_staging_v1 s\n  where s.batch_code = p_batch_code\n    and s.keyword_norm is not null\n    and btrim(s.keyword_norm) <> ''\n    and s.avg_monthly_searches is not null\n    and coalesce(s.import_status, 'pending') not in ('promoted_to_snapshots', 'error')\n    and not exists (\n      select 1\n      from public.feya_commerce_seo_keyword_metric_snapshots_v1 m\n      where m.keyword_norm = lower(trim(s.keyword_norm))\n        and m.geo = coalesce(nullif(s.geo, ''), 'US')\n        and m.language = coalesce(nullif(s.language, ''), 'en')\n        and m.source_api = 'google_ads_csv'\n        and m.raw_payload_json ->> 'batch_code' = s.batch_code\n    );\n  get diagnostics v_inserted = row_count;\n\n  update public.feya_commerce_seo_keyword_metric_import_staging_v1 s\n  set import_status = case\n        when s.keyword_norm is null or btrim(s.keyword_norm) = '' then 'error'\n        when s.avg_monthly_searches is null then 'error'\n        else 'promoted_to_snapshots'\n      end,\n      import_note = case\n        when s.keyword_norm is null or btrim(s.keyword_norm) = '' then 'Missing keyword_norm / keyword.'\n        when s.avg_monthly_searches is null then 'Missing avg_monthly_searches; row was not promoted.'\n        else 'Promoted to metric snapshots by feya_commerce_fn_promote_keyword_metric_import_v1.'\n      end\n  where s.batch_code = p_batch_code\n    and coalesce(s.import_status, 'pending') not in ('promoted_to_snapshots', 'error');\n  get diagnostics v_updated = row_count;\n\n  select count(*)::int\n  into v_skipped\n  from public.feya_commerce_seo_keyword_metric_import_staging_v1 s\n  where s.batch_code = p_batch_code\n    and s.import_status = 'error';\n\n  return query select p_batch_code, v_normalized, v_inserted, v_updated, v_skipped;\nend;\n$function$\n",
+      "anon_execute": false,
+      "auth_execute": false,
+      "security_definer": true
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "owner": "postgres",
+      "options": null,
+      "identity": "feya_fn_apply_manual_keyword_metrics_v1(text)",
+      "definition": "CREATE OR REPLACE FUNCTION public.feya_fn_apply_manual_keyword_metrics_v1(p_batch_code text DEFAULT NULL::text)\n RETURNS TABLE(updated_rows integer, matched_candidates integer, batch_filter text)\n LANGUAGE plpgsql\n SECURITY DEFINER\nAS $function$\ndeclare\n  v_updated integer := 0;\n  v_matched integer := 0;\nbegin\n  with latest_metric as (\n    select distinct on (s.keyword_norm)\n      s.keyword_norm,\n      s.batch_code,\n      s.geo,\n      s.language,\n      s.avg_monthly_searches,\n      s.competition,\n      s.competition_index,\n      s.low_top_of_page_bid,\n      s.high_top_of_page_bid,\n      s.imported_at\n    from public.feya_commerce_seo_keyword_metric_import_staging_v1 s\n    where s.keyword_norm is not null\n      and (p_batch_code is null or s.batch_code = p_batch_code)\n    order by s.keyword_norm, s.imported_at desc nulls last, s.import_row_id desc\n  )\n  select count(*)::int into v_matched\n  from public.feya_manual_keyword_candidate_v1 c\n  join latest_metric m on m.keyword_norm = c.keyword_norm;\n\n  with latest_metric as (\n    select distinct on (s.keyword_norm)\n      s.keyword_norm,\n      s.batch_code,\n      s.geo,\n      s.language,\n      s.avg_monthly_searches,\n      s.competition,\n      s.competition_index,\n      s.low_top_of_page_bid,\n      s.high_top_of_page_bid,\n      s.imported_at\n    from public.feya_commerce_seo_keyword_metric_import_staging_v1 s\n    where s.keyword_norm is not null\n      and (p_batch_code is null or s.batch_code = p_batch_code)\n    order by s.keyword_norm, s.imported_at desc nulls last, s.import_row_id desc\n  )\n  update public.feya_manual_keyword_candidate_v1 c\n  set avg_monthly_searches = m.avg_monthly_searches,\n      competition = m.competition,\n      competition_index = m.competition_index,\n      low_top_of_page_bid = m.low_top_of_page_bid,\n      high_top_of_page_bid = m.high_top_of_page_bid,\n      metric_geo = m.geo,\n      metric_language = m.language,\n      metric_batch_code = m.batch_code,\n      metric_imported_at = coalesce(m.imported_at, now()),\n      metrics_status = 'has_metric_import',\n      candidate_status = case when c.candidate_status = 'draft' then 'metric_imported' else c.candidate_status end,\n      updated_at = now()\n  from latest_metric m\n  where c.keyword_norm = m.keyword_norm;\n\n  get diagnostics v_updated = row_count;\n  return query select v_updated, v_matched, coalesce(p_batch_code, 'ALL_BATCHES');\nend;\n$function$\n",
+      "anon_execute": false,
+      "auth_execute": false,
+      "security_definer": true
+    },
+    {
+      "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+      "owner": "postgres",
+      "options": null,
+      "identity": "seo_keyword_bank_v1_set_updated_at()",
+      "definition": "CREATE OR REPLACE FUNCTION public.seo_keyword_bank_v1_set_updated_at()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nbegin\n  new.updated_at = now();\n  return new;\nend;\n$function$\n",
+      "anon_execute": true,
+      "auth_execute": true,
+      "security_definer": false
+    }
+  ],
+  "relations": [
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": true,
+      "kind": "r",
+      "name": "feya_commerce_seo_keyword_metric_import_staging_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": null,
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": true,
+      "kind": "r",
+      "name": "feya_commerce_seo_keyword_metric_snapshots_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": null,
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_case_admission_preview_safe_v1",
+      "owner": "postgres",
+      "options": [
+        "security_barrier=true"
+      ],
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "3cea1c2a14081d0afdc8ef4b4abd0d37",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_case_admission_preview_safe_v2",
+      "owner": "postgres",
+      "options": [
+        "security_barrier=true"
+      ],
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "7c40b11d515cd6136540cf706c9fe95f",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_growth_operational_metrics_safe_v1",
+      "owner": "postgres",
+      "options": [
+        "security_barrier=true"
+      ],
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "526ce0a964aac2ed3977e3fe388d0029",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_growth_signal_candidates_safe_v1",
+      "owner": "postgres",
+      "options": [
+        "security_barrier=true"
+      ],
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "c198a76e74a8f1403d7f190934854f34",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_growth_signal_candidates_safe_v2",
+      "owner": "postgres",
+      "options": [
+        "security_barrier=true"
+      ],
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "8afaea5da71f1ac22f3d485f24841023",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_query_cluster_proposal_candidates_v1",
+      "owner": "postgres",
+      "options": [
+        "security_barrier=true"
+      ],
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "e997ed92f8e2e898c826b82f6faddf1e",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_query_cluster_proposal_queue_safe_v1",
+      "owner": "postgres",
+      "options": [
+        "security_barrier=true"
+      ],
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "21b2fb98e4aad67ceb9153308c244289",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_query_cluster_review_queue_v1",
+      "owner": "postgres",
+      "options": [
+        "security_barrier=true"
+      ],
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "a5a475d2a5875d8be2595de8684655f2",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_api_validation_pilot_report_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "477b93711f70c93663c763aa867e7140",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_brief_system_status_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "4b72bec9b3354350735fafdf3a0da103",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_keyword_brief_pool_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "ec988f198b9a7cb2aa3515c4d248248f",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_keyword_candidate_promotion_dry_run_v2",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "e1679bd203ec6555cef8b21892fb219f",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_keyword_master_metric_export_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "2f24f623fc052cbbf6d603111bcdd9f4",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_keyword_master_to_bank_insert_dry_run_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "deae89fbb5d1724edb915fdaea374707",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_keyword_metric_export_google_ads_keywords_o",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "8b9d5f626bdd054448e6e28cad235f27",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_keyword_metric_export_google_ads_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "423ea2febc0a94131a7ba1c33a2ba9b6",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_keyword_metric_import_ready_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "3ad25b4a9a37a19bdd4c8729b09d582c",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_keyword_metric_import_template_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "8636b9d3595361399187350b74d83c42",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_keyword_metric_import_validation_report_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "127fd04e62798ad503326709646e82d5",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_keyword_metric_validation_queue_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "0e31e3c9a5690c6dc0fd9dafafa00e51",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_keyword_p1_guarded_promotion_dry_run_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "9b14fec3f4f16e167278d5a610547f20",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_keyword_p1_insert_payload_preview_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "3a7e054ee6b6a6caa7caac69b4369280",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_keyword_recommendation_summary_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "8e99eb41b91cd5840ddc00ce6b5b215d",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_keyword_recommendation_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "162bde36e4220e4ec003d34acad1ae66",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_keyword_score_preview_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "18796b84c9757662313c766871dbcff6",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_metric_system_status_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "24d0546bf6771e78d378592d587d56d2",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_next_action_queue_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "ff8707d052d6118502c95060ba9562d3",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_kw_candidate_v2",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "c3766bb2b1307229a42f0228c19f0edc",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_kw_candidate_v2_safe",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "686ee9d65a806234b75ca6c598bc58c1",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_kw_plan_candidates_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "aba6e9b7273003f16bd8adbebd593b2d",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_kw_plan_pipeline_status_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "41ce9c0be9f39eae3c0adec4861be56a",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_kw_product_fact_expansion_candidates_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "8ccc08275ba75f702b812e8e0b4d57ec",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_kw_product_fact_expansion_summary_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "f177f4d9475fe7083daec72aa1e77264",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_kw_product_fit_candidate_summary_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "7bdf6253e270732fe3f942c94ca3337a",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_kw_product_fit_candidate_summary_v2",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "085c78c159f75f150f6761ec25520733",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_kw_product_fit_candidates_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "6591d0746437f329b57c82fee4f770c9",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_kw_product_fit_candidates_v2",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "caeb787435905539dd58377bc5c83131",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_kw_product_fit_candidates_v3",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "d6934d2f1b54ea650d2c30eb55608110",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_kw_product_fit_insert_preview_summary_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "49e2506a2d633744bfb821b1e8ca5278",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_kw_product_fit_insert_preview_summary_v2",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "d4794c620867112f449cbd82fd8a2310",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_kw_product_fit_insert_preview_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "3254de71c6db5ab66a6d40e3213473df",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_kw_product_fit_insert_preview_v2",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "ab006317081a42dc5c3bf522de3d8e88",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_manual_keyword_metric_match_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "d9b4979446d5d8017e5e44060a44c1ca",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_metric_export_center_keywords_only_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "dbb11044f6c77872599c627ab0c23f9a",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_metric_export_center_sum_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "ca6818d411ca2bb4bd7cad0af2a28a30",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_metric_export_center_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "10b70d55513a99a50aed8ced6975468c",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_metric_import_center_status_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "31b245e549e4587cf1bf223a1e8b398e",
+      "service_select": true
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_metric_next_action_v1",
+      "owner": "postgres",
+      "options": null,
+      "anon_select": true,
+      "auth_select": true,
+      "definition_md5": "71a5032340c3189312a35196e3055b93",
+      "service_select": true
+    }
+  ],
+  "public_schema": {
+    "acl": "{pg_database_owner=UC/pg_database_owner,=U/pg_database_owner,postgres=U/pg_database_owner,anon=U/pg_database_owner,authenticated=U/pg_database_owner,service_role=U/pg_database_owner,retool_viewer=U/pg_database_owner}",
+    "owner": "pg_database_owner",
+    "anon_create": false,
+    "auth_create": false
+  },
+  "stand_in_relations": [
+    {
+      "rls": true,
+      "kind": "r",
+      "name": "feya_commerce_seo_keyword_ai_cleanup_v1",
+      "policies": 0,
+      "anon_select": true
+    },
+    {
+      "rls": true,
+      "kind": "r",
+      "name": "feya_commerce_seo_query_cluster_members_v1",
+      "policies": 0,
+      "anon_select": false
+    },
+    {
+      "rls": true,
+      "kind": "r",
+      "name": "feya_commerce_seo_query_clusters_v1",
+      "policies": 0,
+      "anon_select": false
+    },
+    {
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_product_seo_brief_safe_generation_queue_v1",
+      "policies": 0,
+      "anon_select": true
+    },
+    {
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_keyword_ai_cleanup_report_v1",
+      "policies": 0,
+      "anon_select": true
+    },
+    {
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_keyword_recommendation_v1",
+      "policies": 0,
+      "anon_select": true
+    },
+    {
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_keyword_score_preview_v1",
+      "policies": 0,
+      "anon_select": true
+    },
+    {
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_seo_keyword_validation_export_us_en_v1",
+      "policies": 0,
+      "anon_select": true
+    },
+    {
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_step6_product_builder_detail",
+      "policies": 0,
+      "anon_select": true
+    },
+    {
+      "rls": false,
+      "kind": "v",
+      "name": "feya_commerce_v_step7_storefront_products_api",
+      "policies": 0,
+      "anon_select": true
+    },
+    {
+      "rls": true,
+      "kind": "r",
+      "name": "feya_kw_place_plan_v2",
+      "policies": 0,
+      "anon_select": true
+    },
+    {
+      "rls": true,
+      "kind": "r",
+      "name": "feya_kw_universe_evidence_v1",
+      "policies": 0,
+      "anon_select": true
+    },
+    {
+      "rls": true,
+      "kind": "r",
+      "name": "feya_kw_universe_v1",
+      "policies": 0,
+      "anon_select": true
+    },
+    {
+      "rls": true,
+      "kind": "r",
+      "name": "feya_manual_keyword_candidate_v1",
+      "policies": 0,
+      "anon_select": true
+    },
+    {
+      "rls": false,
+      "kind": "v",
+      "name": "feya_v_metric_export_center_keywords_only_v1",
+      "policies": 0,
+      "anon_select": true
+    },
+    {
+      "rls": true,
+      "kind": "r",
+      "name": "seo_keyword_bank_v1_import_staging",
+      "policies": 0,
+      "anon_select": true
+    },
+    {
+      "rls": false,
+      "kind": "v",
+      "name": "vw_seo_keyword_bank_v1_for_listing_master",
+      "policies": 0,
+      "anon_select": true
+    }
+  ],
+  "function_references": [
+    {
+      "identity": "feya_commerce_apply_seo_keyword_metric_import_v1(text,text)",
+      "anon_execute": false,
+      "auth_execute": false,
+      "security_definer": true,
+      "relation_mentions": [
+        "feya_commerce_seo_keyword_metric_snapshots_v1",
+        "feya_commerce_v_seo_keyword_metric_import_ready_v1"
+      ]
+    },
+    {
+      "identity": "feya_fn_admit_signal_v1(text,text,text,text,uuid,text)",
+      "anon_execute": false,
+      "auth_execute": false,
+      "security_definer": true,
+      "relation_mentions": [
+        "feya_commerce_v_case_admission_preview_safe_v2"
+      ]
+    },
+    {
+      "identity": "feya_fn_apply_manual_keyword_metrics_v1(text)",
+      "anon_execute": false,
+      "auth_execute": false,
+      "security_definer": true,
+      "relation_mentions": [
+        "feya_commerce_seo_keyword_metric_import_staging_v1"
+      ]
+    },
+    {
+      "identity": "feya_fn_create_metric_request_batch_v1(text,integer)",
+      "anon_execute": false,
+      "auth_execute": false,
+      "security_definer": true,
+      "relation_mentions": [
+        "feya_v_metric_export_center_keywords_only_v1"
+      ]
+    },
+    {
+      "identity": "feya_fn_record_query_cluster_proposal_v1(text,text,text,text,text,jsonb,text,text,text,uuid,jsonb)",
+      "anon_execute": false,
+      "auth_execute": false,
+      "security_definer": true,
+      "relation_mentions": [
+        "feya_commerce_v_query_cluster_proposal_candidates_v1"
+      ]
+    },
+    {
+      "identity": "feya_fn_prepare_kw_plans_v1(text,integer)",
+      "anon_execute": false,
+      "auth_execute": false,
+      "security_definer": true,
+      "relation_mentions": [
+        "feya_commerce_v_seo_keyword_recommendation_v1"
+      ]
+    },
+    {
+      "identity": "feya_fn_prepare_kw_plans_v2(integer)",
+      "anon_execute": false,
+      "auth_execute": false,
+      "security_definer": true,
+      "relation_mentions": [
+        "feya_v_kw_candidate_v2",
+        "feya_v_kw_candidate_v2_safe"
+      ]
+    },
+    {
+      "identity": "feya_commerce_fn_promote_keyword_metric_import_v1(text)",
+      "anon_execute": false,
+      "auth_execute": false,
+      "security_definer": true,
+      "relation_mentions": [
+        "feya_commerce_seo_keyword_metric_import_staging_v1",
+        "feya_commerce_seo_keyword_metric_snapshots_v1"
+      ]
+    }
+  ],
+  "advisor_summary": [
+    {
+      "name": "rls_enabled_no_policy",
+      "count": 120,
+      "level": "INFO",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy",
+      "observed_at": "2026-09-24T00:54:19.329Z"
+    },
+    {
+      "name": "security_definer_view",
+      "count": 500,
+      "level": "ERROR",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0010_security_definer_view",
+      "observed_at": "2026-09-24T00:54:19.329Z"
+    },
+    {
+      "name": "function_search_path_mutable",
+      "count": 166,
+      "level": "WARN",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0011_function_search_path_mutable",
+      "observed_at": "2026-09-24T00:54:19.329Z"
+    },
+    {
+      "name": "rls_disabled_in_public",
+      "count": 166,
+      "level": "ERROR",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0013_rls_disabled_in_public",
+      "observed_at": "2026-09-24T00:54:19.329Z"
+    },
+    {
+      "name": "materialized_view_in_api",
+      "count": 4,
+      "level": "WARN",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0016_materialized_view_in_api",
+      "observed_at": "2026-09-24T00:54:19.329Z"
+    },
+    {
+      "name": "anon_security_definer_function_executable",
+      "count": 190,
+      "level": "WARN",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable",
+      "observed_at": "2026-09-24T00:54:19.329Z"
+    },
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "count": 190,
+      "level": "WARN",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable",
+      "observed_at": "2026-09-24T00:54:19.329Z"
+    },
+    {
+      "name": "auth_leaked_password_protection",
+      "count": 1,
+      "level": "WARN",
+      "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection",
+      "observed_at": null
+    }
+  ],
+  "limits": [
+    "Advisor counts are reported counts, not verified exploit counts; security_definer_view response may be capped at 500.",
+    "Function references use literal catalog-source mentions; dynamic SQL and other schemas are not a complete call graph.",
+    "Public relation privileges do not alone prove rows are visible through RLS.",
+    "17 runtime stand-ins are not production tables."
+  ]
+}

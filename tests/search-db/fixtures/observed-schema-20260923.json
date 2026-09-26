@@ -1,0 +1,5115 @@
+{
+  "scope": "14-table FK dependency closure; schema only; no customer/auth rows",
+  "views": [
+    {
+      "name": "feya_commerce_v_seo_pack_drafts_latest_v1",
+      "grants": [
+        {
+          "grantee": "postgres",
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "SELECT"
+        }
+      ],
+      "schema": "public",
+      "options": null,
+      "definition": " SELECT DISTINCT ON (canonical_product_id) id,\n    canonical_product_id,\n    matched_etsy_listing_id,\n    product_slug,\n    pack_version,\n    source_brief_version,\n    output_contract_version,\n    status,\n    review_status,\n    source_mode,\n    source_decision_id,\n    seo_title,\n    h1,\n    meta_description,\n    intro,\n    bullet_highlights,\n    faq,\n    image_alt_candidates,\n    internal_linking_hints,\n    product_truth_snapshot,\n    manual_focus_snapshot,\n    keyword_roles_snapshot,\n    metrics_status_snapshot,\n    qa_self_report,\n    similarity_check_snapshot,\n    agent_input_snapshot,\n    agent_output_snapshot,\n    validation_result_snapshot,\n    human_review_notes,\n    reviewer,\n    reviewed_at,\n    created_by,\n    created_at,\n    updated_at,\n    archived_at\n   FROM feya_commerce_seo_pack_drafts_v1 d\n  WHERE archived_at IS NULL\n  ORDER BY canonical_product_id, created_at DESC;"
+    },
+    {
+      "name": "feya_commerce_v_seo_pack_review_queue_v1",
+      "grants": [
+        {
+          "grantee": "postgres",
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "SELECT"
+        }
+      ],
+      "schema": "public",
+      "options": null,
+      "definition": " SELECT id,\n    canonical_product_id,\n    matched_etsy_listing_id,\n    product_slug,\n    status,\n    review_status,\n    source_mode,\n    seo_title,\n    h1,\n    meta_description,\n    COALESCE(metrics_status_snapshot ->> 'status'::text, 'missing'::text) AS metrics_status,\n    COALESCE(validation_result_snapshot ->> 'status'::text, 'not_checked'::text) AS validation_status,\n    COALESCE(qa_self_report ->> 'similarity_cannibalization'::text, 'not_checked'::text) AS similarity_status,\n    COALESCE(qa_self_report ->> 'image_alt_truth'::text, 'not_checked'::text) AS image_alt_status,\n    created_at,\n    updated_at,\n    reviewed_at\n   FROM feya_commerce_seo_pack_drafts_v1 d\n  WHERE archived_at IS NULL AND (status = ANY (ARRAY['draft_generated'::text, 'needs_human_review'::text, 'changes_requested'::text, 'approved_draft'::text, 'needs_similarity_check'::text, 'needs_image_alt_review'::text]))\n  ORDER BY updated_at DESC;"
+    }
+  ],
+  "tables": [
+    {
+      "rls": true,
+      "name": "users",
+      "owner": "supabase_auth_admin",
+      "grants": [
+        {
+          "grantee": "supabase_auth_admin",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "supabase_auth_admin",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "supabase_auth_admin",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "supabase_auth_admin",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "supabase_auth_admin",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "supabase_auth_admin",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "supabase_auth_admin",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "supabase_auth_admin",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "dashboard_user",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "dashboard_user",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "dashboard_user",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "dashboard_user",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "dashboard_user",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "dashboard_user",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "dashboard_user",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "dashboard_user",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": true,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        }
+      ],
+      "schema": "auth",
+      "columns": [
+        {
+          "name": "instance_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "aud",
+          "type": "character varying(255)",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "role",
+          "type": "character varying(255)",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "email",
+          "type": "character varying(255)",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "encrypted_password",
+          "type": "character varying(255)",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "email_confirmed_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "invited_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "confirmation_token",
+          "type": "character varying(255)",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "confirmation_sent_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "recovery_token",
+          "type": "character varying(255)",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "recovery_sent_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "email_change_token_new",
+          "type": "character varying(255)",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "email_change",
+          "type": "character varying(255)",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "email_change_sent_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "last_sign_in_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_app_meta_data",
+          "type": "jsonb",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_user_meta_data",
+          "type": "jsonb",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "is_super_admin",
+          "type": "boolean",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "phone",
+          "type": "text",
+          "default": "NULL::character varying",
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "phone_confirmed_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "phone_change",
+          "type": "text",
+          "default": "''::character varying",
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "phone_change_token",
+          "type": "character varying(255)",
+          "default": "''::character varying",
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "phone_change_sent_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "confirmed_at",
+          "type": "timestamp with time zone",
+          "default": "LEAST(email_confirmed_at, phone_confirmed_at)",
+          "identity": "",
+          "not_null": false,
+          "generated": "s"
+        },
+        {
+          "name": "email_change_token_current",
+          "type": "character varying(255)",
+          "default": "''::character varying",
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "email_change_confirm_status",
+          "type": "smallint",
+          "default": "0",
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "banned_until",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "reauthentication_token",
+          "type": "character varying(255)",
+          "default": "''::character varying",
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "reauthentication_sent_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "is_sso_user",
+          "type": "boolean",
+          "default": "false",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "deleted_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "is_anonymous",
+          "type": "boolean",
+          "default": "false",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX users_instance_id_idx ON auth.users USING btree (instance_id)",
+        "CREATE INDEX users_instance_id_email_idx ON auth.users USING btree (instance_id, lower((email)::text))",
+        "CREATE UNIQUE INDEX confirmation_token_idx ON auth.users USING btree (confirmation_token) WHERE ((confirmation_token)::text !~ '^[0-9 ]*$'::text)",
+        "CREATE UNIQUE INDEX recovery_token_idx ON auth.users USING btree (recovery_token) WHERE ((recovery_token)::text !~ '^[0-9 ]*$'::text)",
+        "CREATE UNIQUE INDEX email_change_token_current_idx ON auth.users USING btree (email_change_token_current) WHERE ((email_change_token_current)::text !~ '^[0-9 ]*$'::text)",
+        "CREATE UNIQUE INDEX email_change_token_new_idx ON auth.users USING btree (email_change_token_new) WHERE ((email_change_token_new)::text !~ '^[0-9 ]*$'::text)",
+        "CREATE UNIQUE INDEX reauthentication_token_idx ON auth.users USING btree (reauthentication_token) WHERE ((reauthentication_token)::text !~ '^[0-9 ]*$'::text)",
+        "CREATE UNIQUE INDEX users_email_partial_key ON auth.users USING btree (email) WHERE (is_sso_user = false)",
+        "CREATE INDEX users_is_anonymous_idx ON auth.users USING btree (is_anonymous)"
+      ],
+      "policies": [],
+      "triggers": [],
+      "force_rls": false,
+      "constraints": [
+        {
+          "name": "users_email_change_confirm_status_check",
+          "type": "c",
+          "definition": "CHECK (((email_change_confirm_status >= 0) AND (email_change_confirm_status <= 2)))"
+        },
+        {
+          "name": "users_phone_key",
+          "type": "u",
+          "definition": "UNIQUE (phone)"
+        },
+        {
+          "name": "users_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_commerce_component_families",
+      "owner": "postgres",
+      "grants": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        }
+      ],
+      "schema": "public",
+      "columns": [
+        {
+          "name": "component_family_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "canonical_name",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "normalized_name",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "component_group",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "public_sort_order",
+          "type": "integer",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "active_flag",
+          "type": "boolean",
+          "default": "true",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "is_default_whole_product",
+          "type": "boolean",
+          "default": "false",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [],
+      "policies": [],
+      "triggers": [
+        {
+          "name": "trg_feya_commerce_component_families_updated_at",
+          "definition": "CREATE TRIGGER trg_feya_commerce_component_families_updated_at BEFORE UPDATE ON public.feya_commerce_component_families FOR EACH ROW EXECUTE FUNCTION feya_commerce_set_updated_at()"
+        }
+      ],
+      "force_rls": false,
+      "constraints": [
+        {
+          "name": "feya_commerce_component_families_canonical_name_key",
+          "type": "u",
+          "definition": "UNIQUE (canonical_name)"
+        },
+        {
+          "name": "feya_commerce_component_families_normalized_name_key",
+          "type": "u",
+          "definition": "UNIQUE (normalized_name)"
+        },
+        {
+          "name": "feya_commerce_component_families_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (component_family_id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_commerce_import_batches",
+      "owner": "postgres",
+      "grants": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        }
+      ],
+      "schema": "public",
+      "columns": [
+        {
+          "name": "import_batch_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "source_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "shop_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "file_name",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "raw_file_reference",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "imported_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "row_count",
+          "type": "integer",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "parsing_status",
+          "type": "text",
+          "default": "'uploaded'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "error_summary",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_metadata",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [],
+      "policies": [],
+      "triggers": [
+        {
+          "name": "trg_feya_commerce_import_batches_updated_at",
+          "definition": "CREATE TRIGGER trg_feya_commerce_import_batches_updated_at BEFORE UPDATE ON public.feya_commerce_import_batches FOR EACH ROW EXECUTE FUNCTION feya_commerce_set_updated_at()"
+        }
+      ],
+      "force_rls": false,
+      "constraints": [
+        {
+          "name": "feya_commerce_import_batches_parsing_status_chk",
+          "type": "c",
+          "definition": "CHECK ((parsing_status = ANY (ARRAY['uploaded'::text, 'parsed'::text, 'partially_parsed'::text, 'failed'::text, 'archived'::text])))"
+        },
+        {
+          "name": "feya_commerce_import_batches_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (import_batch_id)"
+        },
+        {
+          "name": "feya_commerce_import_batches_row_count_chk",
+          "type": "c",
+          "definition": "CHECK (((row_count IS NULL) OR (row_count >= 0)))"
+        },
+        {
+          "name": "feya_commerce_import_batches_shop_code_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (shop_code) REFERENCES feya_commerce_shops(shop_code)"
+        },
+        {
+          "name": "feya_commerce_import_batches_source_type_chk",
+          "type": "c",
+          "definition": "CHECK ((source_type = ANY (ARRAY['etsy_csv'::text, 'price_master_json'::text, 'manual_file'::text, 'other'::text])))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_commerce_product_drafts",
+      "owner": "postgres",
+      "grants": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        }
+      ],
+      "schema": "public",
+      "columns": [
+        {
+          "name": "canonical_product_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "source_shop_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "primary_source_listing_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "matched_etsy_listing_id",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "source_url",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "draft_site_title",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "card_title",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "h1",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "seo_title",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "meta_description",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "product_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "primary_component_family_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "material",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "color",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "size_mode",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "fit_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "production_profile",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "shipping_profile",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "handmade_flag",
+          "type": "boolean",
+          "default": "true",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "styled_imagery_flag",
+          "type": "boolean",
+          "default": "false",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "publish_status",
+          "type": "text",
+          "default": "'draft'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "readiness_status",
+          "type": "text",
+          "default": "'not_started'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "do_not_publish_flag",
+          "type": "boolean",
+          "default": "false",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_ai_context",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX feya_commerce_product_drafts_source_idx ON public.feya_commerce_product_drafts USING btree (primary_source_listing_id)",
+        "CREATE INDEX feya_commerce_product_drafts_publish_idx ON public.feya_commerce_product_drafts USING btree (publish_status, readiness_status, do_not_publish_flag)"
+      ],
+      "policies": [],
+      "triggers": [
+        {
+          "name": "trg_feya_commerce_product_drafts_updated_at",
+          "definition": "CREATE TRIGGER trg_feya_commerce_product_drafts_updated_at BEFORE UPDATE ON public.feya_commerce_product_drafts FOR EACH ROW EXECUTE FUNCTION feya_commerce_set_updated_at()"
+        }
+      ],
+      "force_rls": false,
+      "constraints": [
+        {
+          "name": "feya_commerce_product_drafts_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (canonical_product_id)"
+        },
+        {
+          "name": "feya_commerce_product_drafts_primary_component_family_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (primary_component_family_id) REFERENCES feya_commerce_component_families(component_family_id)"
+        },
+        {
+          "name": "feya_commerce_product_drafts_primary_source_listing_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (primary_source_listing_id) REFERENCES feya_commerce_source_listings(source_listing_id)"
+        },
+        {
+          "name": "feya_commerce_product_drafts_source_shop_code_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (source_shop_code) REFERENCES feya_commerce_shops(shop_code)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_commerce_product_seo_brief_queue_v1",
+      "owner": "postgres",
+      "grants": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        }
+      ],
+      "schema": "public",
+      "columns": [
+        {
+          "name": "brief_queue_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "canonical_product_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "brief_type",
+          "type": "text",
+          "default": "'product_pdp_seo'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "target_language",
+          "type": "text",
+          "default": "'en'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "source_shop_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "matched_etsy_listing_id",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "source_url",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "product_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "material",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "color",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "current_title",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "readiness_status",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "priority_order",
+          "type": "integer",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "keyword_metric_status",
+          "type": "text",
+          "default": "'waiting_for_metrics'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "product_facts_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "target_blocks_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "generation_status",
+          "type": "text",
+          "default": "'queued'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "review_status",
+          "type": "text",
+          "default": "'pending'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [],
+      "policies": [],
+      "triggers": [],
+      "force_rls": false,
+      "constraints": [
+        {
+          "name": "feya_commerce_product_seo_bri_canonical_product_id_brief_ty_key",
+          "type": "u",
+          "definition": "UNIQUE (canonical_product_id, brief_type, target_language)"
+        },
+        {
+          "name": "feya_commerce_product_seo_brief_queue_v1_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (brief_queue_id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_commerce_seo_pack_draft_events_v1",
+      "owner": "postgres",
+      "grants": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "DELETE"
+        }
+      ],
+      "schema": "public",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "draft_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "canonical_product_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "event_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "from_status",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "to_status",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "actor",
+          "type": "text",
+          "default": "'system'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "note",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX feya_commerce_seo_pack_draft_events_v1_draft_idx ON public.feya_commerce_seo_pack_draft_events_v1 USING btree (draft_id, created_at DESC)",
+        "CREATE INDEX feya_commerce_seo_pack_draft_events_v1_product_idx ON public.feya_commerce_seo_pack_draft_events_v1 USING btree (canonical_product_id, created_at DESC)"
+      ],
+      "policies": [],
+      "triggers": [],
+      "force_rls": false,
+      "constraints": [
+        {
+          "name": "feya_commerce_seo_pack_draft_events_v1_draft_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (draft_id) REFERENCES feya_commerce_seo_pack_drafts_v1(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "feya_commerce_seo_pack_draft_events_v1_event_type_chk",
+          "type": "c",
+          "definition": "CHECK ((event_type = ANY (ARRAY['draft_created'::text, 'draft_updated'::text, 'validation_checked'::text, 'human_review_requested'::text, 'human_approved'::text, 'changes_requested'::text, 'rejected'::text, 'similarity_checked'::text, 'image_alt_checked'::text, 'cqa_checked'::text, 'ready_for_publish_marked'::text, 'archived'::text])))"
+        },
+        {
+          "name": "feya_commerce_seo_pack_draft_events_v1_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_commerce_seo_pack_drafts_v1",
+      "owner": "postgres",
+      "grants": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "DELETE"
+        }
+      ],
+      "schema": "public",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "canonical_product_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "matched_etsy_listing_id",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "product_slug",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "pack_version",
+          "type": "text",
+          "default": "'seo_pack_v1'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "source_brief_version",
+          "type": "text",
+          "default": "'seo_brief_v2_1'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "output_contract_version",
+          "type": "text",
+          "default": "'seo_agent_output_v1'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "default": "'draft_generated'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "review_status",
+          "type": "text",
+          "default": "'not_reviewed'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "source_mode",
+          "type": "text",
+          "default": "'brief_baseline'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "source_decision_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "seo_title",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "h1",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "meta_description",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "intro",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "bullet_highlights",
+          "type": "jsonb",
+          "default": "'[]'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "faq",
+          "type": "jsonb",
+          "default": "'[]'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "image_alt_candidates",
+          "type": "jsonb",
+          "default": "'[]'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "internal_linking_hints",
+          "type": "jsonb",
+          "default": "'[]'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "product_truth_snapshot",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "manual_focus_snapshot",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "keyword_roles_snapshot",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "metrics_status_snapshot",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "qa_self_report",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "similarity_check_snapshot",
+          "type": "jsonb",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "agent_input_snapshot",
+          "type": "jsonb",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "agent_output_snapshot",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "validation_result_snapshot",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "human_review_notes",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "reviewer",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "reviewed_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "created_by",
+          "type": "text",
+          "default": "'system'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "archived_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "cqa_status",
+          "type": "text",
+          "default": "'not_run'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "cqa_result_snapshot",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "cqa_reviewer",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "cqa_policy_version",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "cqa_reviewed_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "generation_run_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "proposal_hash",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "compiler_version",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "source_brief_queue_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX feya_commerce_seo_pack_drafts_v1_product_idx ON public.feya_commerce_seo_pack_drafts_v1 USING btree (canonical_product_id, created_at DESC)",
+        "CREATE INDEX feya_commerce_seo_pack_drafts_v1_status_idx ON public.feya_commerce_seo_pack_drafts_v1 USING btree (status, review_status, created_at DESC)",
+        "CREATE INDEX feya_commerce_seo_pack_drafts_v1_slug_idx ON public.feya_commerce_seo_pack_drafts_v1 USING btree (product_slug)",
+        "CREATE UNIQUE INDEX uq_feya_seo_pack_generation_run ON public.feya_commerce_seo_pack_drafts_v1 USING btree (generation_run_id) WHERE (generation_run_id IS NOT NULL)",
+        "CREATE UNIQUE INDEX uq_feya_seo_pack_product_proposal_hash ON public.feya_commerce_seo_pack_drafts_v1 USING btree (canonical_product_id, proposal_hash) WHERE (proposal_hash IS NOT NULL)"
+      ],
+      "policies": [],
+      "triggers": [
+        {
+          "name": "trg_feya_commerce_seo_pack_drafts_v1_touch",
+          "definition": "CREATE TRIGGER trg_feya_commerce_seo_pack_drafts_v1_touch BEFORE UPDATE ON public.feya_commerce_seo_pack_drafts_v1 FOR EACH ROW EXECUTE FUNCTION feya_commerce_touch_updated_at_v1()"
+        }
+      ],
+      "force_rls": false,
+      "constraints": [
+        {
+          "name": "feya_commerce_seo_pack_drafts_v1_cqa_status_chk",
+          "type": "c",
+          "definition": "CHECK ((cqa_status = ANY (ARRAY['not_run'::text, 'pass'::text, 'pass_with_warnings'::text, 'revision_required'::text, 'domain_review_required'::text, 'reject'::text])))"
+        },
+        {
+          "name": "feya_commerce_seo_pack_drafts_v1_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "feya_commerce_seo_pack_drafts_v1_publish_guard_chk",
+          "type": "c",
+          "definition": "CHECK (((status <> 'ready_for_publish'::text) OR ((review_status = 'approved'::text) AND (reviewed_at IS NOT NULL) AND (similarity_check_snapshot IS NOT NULL) AND (COALESCE((similarity_check_snapshot ->> 'status'::text), ''::text) = 'pass'::text) AND (COALESCE((qa_self_report ->> 'image_alt_truth'::text), ''::text) = 'pass'::text) AND (COALESCE((qa_self_report ->> 'component_claim_truth'::text), ''::text) = 'pass'::text) AND (COALESCE((validation_result_snapshot ->> 'status'::text), ''::text) = ANY (ARRAY['valid'::text, 'warning'::text])) AND (jsonb_typeof(COALESCE((validation_result_snapshot -> 'approval_blockers'::text), '[]'::jsonb)) = 'array'::text) AND (jsonb_array_length(COALESCE((validation_result_snapshot -> 'approval_blockers'::text), '[]'::jsonb)) = 0) AND (jsonb_typeof(COALESCE((validation_result_snapshot -> 'product_truth_blockers'::text), '[]'::jsonb)) = 'array'::text) AND (jsonb_array_length(COALESCE((validation_result_snapshot -> 'product_truth_blockers'::text), '[]'::jsonb)) = 0) AND (cqa_status = ANY (ARRAY['pass'::text, 'pass_with_warnings'::text])) AND (cqa_reviewed_at IS NOT NULL))))"
+        },
+        {
+          "name": "feya_commerce_seo_pack_drafts_v1_review_status_chk",
+          "type": "c",
+          "definition": "CHECK ((review_status = ANY (ARRAY['not_reviewed'::text, 'approved'::text, 'changes_requested'::text, 'rejected'::text])))"
+        },
+        {
+          "name": "feya_commerce_seo_pack_drafts_v1_source_brief_queue_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (source_brief_queue_id) REFERENCES feya_commerce_product_seo_brief_queue_v1(brief_queue_id) ON DELETE SET NULL"
+        },
+        {
+          "name": "feya_commerce_seo_pack_drafts_v1_source_mode_chk",
+          "type": "c",
+          "definition": "CHECK ((source_mode = ANY (ARRAY['brief_baseline'::text, 'mock_contract'::text, 'openai_draft'::text, 'human_edit'::text, 'growth_os_sco_shadow'::text])))"
+        },
+        {
+          "name": "feya_commerce_seo_pack_drafts_v1_status_chk",
+          "type": "c",
+          "definition": "CHECK ((status = ANY (ARRAY['draft_generated'::text, 'needs_human_review'::text, 'changes_requested'::text, 'rejected'::text, 'approved_draft'::text, 'needs_similarity_check'::text, 'needs_image_alt_review'::text, 'ready_for_publish'::text, 'published'::text, 'archived'::text])))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_commerce_seo_pages_v1",
+      "owner": "postgres",
+      "grants": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        }
+      ],
+      "schema": "public",
+      "columns": [
+        {
+          "name": "seo_page_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "page_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "canonical_product_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "url_path",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "canonical_url",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "market_code",
+          "type": "text",
+          "default": "'US'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "locale",
+          "type": "text",
+          "default": "'en-US'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "lifecycle_state",
+          "type": "text",
+          "default": "'bootstrap'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "indexation_intent",
+          "type": "text",
+          "default": "'candidate'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "portfolio_status",
+          "type": "text",
+          "default": "'active'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "protected_winner_flag",
+          "type": "boolean",
+          "default": "false",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "source_type",
+          "type": "text",
+          "default": "'manual'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "metadata_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX uq_feya_seo_pages_product_market_locale ON public.feya_commerce_seo_pages_v1 USING btree (canonical_product_id, market_code, locale) WHERE ((page_type = 'product'::text) AND (canonical_product_id IS NOT NULL) AND (portfolio_status <> 'retired'::text))",
+        "CREATE INDEX idx_feya_seo_pages_type_status ON public.feya_commerce_seo_pages_v1 USING btree (page_type, portfolio_status, lifecycle_state)"
+      ],
+      "policies": [],
+      "triggers": [],
+      "force_rls": false,
+      "constraints": [
+        {
+          "name": "feya_commerce_seo_pages_v1_canonical_product_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (canonical_product_id) REFERENCES feya_commerce_product_drafts(canonical_product_id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "feya_commerce_seo_pages_v1_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (seo_page_id)"
+        },
+        {
+          "name": "feya_seo_pages_indexation_intent_chk",
+          "type": "c",
+          "definition": "CHECK ((indexation_intent = ANY (ARRAY['candidate'::text, 'indexable'::text, 'noindex'::text, 'merge'::text, 'retire_review'::text])))"
+        },
+        {
+          "name": "feya_seo_pages_lifecycle_chk",
+          "type": "c",
+          "definition": "CHECK ((lifecycle_state = ANY (ARRAY['bootstrap'::text, 'planned'::text, 'deployed'::text, 'discovered'::text, 'indexing'::text, 'early_performance'::text, 'measurable'::text, 'mature'::text, 'retired'::text])))"
+        },
+        {
+          "name": "feya_seo_pages_market_locale_path_uniq",
+          "type": "u",
+          "definition": "UNIQUE (market_code, locale, url_path)"
+        },
+        {
+          "name": "feya_seo_pages_page_type_chk",
+          "type": "c",
+          "definition": "CHECK ((page_type = ANY (ARRAY['product'::text, 'landing'::text, 'editorial'::text])))"
+        },
+        {
+          "name": "feya_seo_pages_portfolio_status_chk",
+          "type": "c",
+          "definition": "CHECK ((portfolio_status = ANY (ARRAY['active'::text, 'hold'::text, 'deprecated'::text, 'retired'::text])))"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_commerce_shops",
+      "owner": "postgres",
+      "grants": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "anon",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        }
+      ],
+      "schema": "public",
+      "columns": [
+        {
+          "name": "shop_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "shop_name",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "default_currency",
+          "type": "text",
+          "default": "'USD'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "storefront_language",
+          "type": "text",
+          "default": "'en'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "admin_language",
+          "type": "text",
+          "default": "'ru'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "active_flag",
+          "type": "boolean",
+          "default": "true",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_metadata",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [],
+      "policies": [],
+      "triggers": [
+        {
+          "name": "trg_feya_commerce_shops_updated_at",
+          "definition": "CREATE TRIGGER trg_feya_commerce_shops_updated_at BEFORE UPDATE ON public.feya_commerce_shops FOR EACH ROW EXECUTE FUNCTION feya_commerce_set_updated_at()"
+        }
+      ],
+      "force_rls": false,
+      "constraints": [
+        {
+          "name": "feya_commerce_shops_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (shop_code)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_commerce_source_listings",
+      "owner": "postgres",
+      "grants": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        }
+      ],
+      "schema": "public",
+      "columns": [
+        {
+          "name": "source_listing_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "import_batch_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "shop_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "source_row_number",
+          "type": "integer",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "source_listing_external_id",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "etsy_listing_id",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "source_url",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_title",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_description",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_price_text",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_price_amount",
+          "type": "numeric(12,2)",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_currency",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_quantity",
+          "type": "integer",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_tags",
+          "type": "text[]",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_materials",
+          "type": "text[]",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_variation_1_name",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_variation_1_values",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_variation_2_name",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_variation_2_values",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_image_urls",
+          "type": "text[]",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "raw_payload",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "source_hash",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "ingest_status",
+          "type": "text",
+          "default": "'raw_imported'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX feya_commerce_source_listings_batch_row_uidx ON public.feya_commerce_source_listings USING btree (import_batch_id, source_row_number) WHERE (source_row_number IS NOT NULL)",
+        "CREATE INDEX feya_commerce_source_listings_etsy_listing_idx ON public.feya_commerce_source_listings USING btree (etsy_listing_id)",
+        "CREATE INDEX feya_commerce_source_listings_shop_idx ON public.feya_commerce_source_listings USING btree (shop_code)"
+      ],
+      "policies": [],
+      "triggers": [
+        {
+          "name": "trg_feya_commerce_source_listings_updated_at",
+          "definition": "CREATE TRIGGER trg_feya_commerce_source_listings_updated_at BEFORE UPDATE ON public.feya_commerce_source_listings FOR EACH ROW EXECUTE FUNCTION feya_commerce_set_updated_at()"
+        }
+      ],
+      "force_rls": false,
+      "constraints": [
+        {
+          "name": "feya_commerce_source_listings_import_batch_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (import_batch_id) REFERENCES feya_commerce_import_batches(import_batch_id)"
+        },
+        {
+          "name": "feya_commerce_source_listings_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (source_listing_id)"
+        },
+        {
+          "name": "feya_commerce_source_listings_quantity_chk",
+          "type": "c",
+          "definition": "CHECK (((raw_quantity IS NULL) OR (raw_quantity >= 0)))"
+        },
+        {
+          "name": "feya_commerce_source_listings_row_number_chk",
+          "type": "c",
+          "definition": "CHECK (((source_row_number IS NULL) OR (source_row_number > 0)))"
+        },
+        {
+          "name": "feya_commerce_source_listings_shop_code_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (shop_code) REFERENCES feya_commerce_shops(shop_code)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_growth_cases_v1",
+      "owner": "postgres",
+      "grants": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        }
+      ],
+      "schema": "public",
+      "columns": [
+        {
+          "name": "case_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "case_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "case_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "business_question",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "case_status",
+          "type": "text",
+          "default": "'OPEN'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "current_accountable_domain",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "ownership_epoch",
+          "type": "integer",
+          "default": "1",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "priority",
+          "type": "text",
+          "default": "'P2'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "maturity_state",
+          "type": "text",
+          "default": "'PRE_LAUNCH'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "materiality_score",
+          "type": "numeric",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "confidence_level",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "urgency_level",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "case_fingerprint",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "entity_scope_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "signal_refs_json",
+          "type": "jsonb",
+          "default": "'[]'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "strategy_version_ref",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "due_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "blocked_reason",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "parent_case_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "merged_into_case_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "created_by_type",
+          "type": "text",
+          "default": "'system'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "created_by_user_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "opened_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "closed_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "idempotency_key",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX uq_feya_growth_case_idempotency ON public.feya_growth_cases_v1 USING btree (idempotency_key) WHERE (idempotency_key IS NOT NULL)",
+        "CREATE UNIQUE INDEX uq_feya_growth_case_active_fingerprint ON public.feya_growth_cases_v1 USING btree (case_fingerprint) WHERE ((case_fingerprint IS NOT NULL) AND (case_status <> ALL (ARRAY['CLOSED'::text, 'CANCELLED'::text])))",
+        "CREATE INDEX idx_feya_growth_cases_owner_status ON public.feya_growth_cases_v1 USING btree (current_accountable_domain, case_status, priority)",
+        "CREATE INDEX idx_feya_growth_cases_expiry ON public.feya_growth_cases_v1 USING btree (expires_at) WHERE ((expires_at IS NOT NULL) AND (case_status <> ALL (ARRAY['CLOSED'::text, 'CANCELLED'::text])))"
+      ],
+      "policies": [],
+      "triggers": [],
+      "force_rls": false,
+      "constraints": [
+        {
+          "name": "feya_growth_case_creator_chk",
+          "type": "c",
+          "definition": "CHECK ((created_by_type = ANY (ARRAY['human'::text, 'agent'::text, 'system'::text])))"
+        },
+        {
+          "name": "feya_growth_case_maturity_chk",
+          "type": "c",
+          "definition": "CHECK ((maturity_state = ANY (ARRAY['PRE_LAUNCH'::text, 'LEARNING'::text, 'BASELINE_BUILDING'::text, 'OPERATIONAL'::text, 'MATURE'::text])))"
+        },
+        {
+          "name": "feya_growth_case_owner_chk",
+          "type": "c",
+          "definition": "CHECK ((current_accountable_domain = ANY (ARRAY['HUMAN_OWNER'::text, 'GROWTH_DIRECTOR'::text, 'OSPM'::text, 'CPIM'::text, 'GMEL'::text, 'SCO'::text, 'CQA'::text, 'TSEO'::text, 'GDAE'::text, 'CORE'::text])))"
+        },
+        {
+          "name": "feya_growth_case_priority_chk",
+          "type": "c",
+          "definition": "CHECK ((priority = ANY (ARRAY['P0'::text, 'P1'::text, 'P2'::text, 'P3'::text])))"
+        },
+        {
+          "name": "feya_growth_case_status_chk",
+          "type": "c",
+          "definition": "CHECK ((case_status = ANY (ARRAY['OPEN'::text, 'TRIAGED'::text, 'INVESTIGATING'::text, 'DECISION_READY'::text, 'ACTIONING'::text, 'MEASURING'::text, 'LEARNING'::text, 'CLOSED'::text, 'BLOCKED'::text, 'DEFERRED'::text, 'CANCELLED'::text, 'NOT_OBSERVABLE'::text])))"
+        },
+        {
+          "name": "feya_growth_cases_v1_case_code_key",
+          "type": "u",
+          "definition": "UNIQUE (case_code)"
+        },
+        {
+          "name": "feya_growth_cases_v1_created_by_user_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (created_by_user_id) REFERENCES auth.users(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "feya_growth_cases_v1_merged_into_case_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (merged_into_case_id) REFERENCES feya_growth_cases_v1(case_id) ON DELETE SET NULL"
+        },
+        {
+          "name": "feya_growth_cases_v1_ownership_epoch_check",
+          "type": "c",
+          "definition": "CHECK ((ownership_epoch > 0))"
+        },
+        {
+          "name": "feya_growth_cases_v1_parent_case_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (parent_case_id) REFERENCES feya_growth_cases_v1(case_id) ON DELETE SET NULL"
+        },
+        {
+          "name": "feya_growth_cases_v1_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (case_id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_growth_change_events_v1",
+      "owner": "postgres",
+      "grants": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        }
+      ],
+      "schema": "public",
+      "columns": [
+        {
+          "name": "change_event_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "event_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "change_domain",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "change_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "entity_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "entity_key",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "market_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "locale",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "case_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "execution_request_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "incident_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "version_before_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "version_after_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "source_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "source_ref",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "metadata_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "idempotency_key",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "event_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX uq_feya_change_event_idempotency ON public.feya_growth_change_events_v1 USING btree (idempotency_key) WHERE (idempotency_key IS NOT NULL)",
+        "CREATE INDEX idx_feya_change_events_entity_time ON public.feya_growth_change_events_v1 USING btree (entity_type, entity_key, event_at)",
+        "CREATE INDEX idx_feya_change_events_domain_time ON public.feya_growth_change_events_v1 USING btree (change_domain, event_at)"
+      ],
+      "policies": [],
+      "triggers": [],
+      "force_rls": false,
+      "constraints": [
+        {
+          "name": "feya_change_event_domain_chk",
+          "type": "c",
+          "definition": "CHECK ((change_domain = ANY (ARRAY['CONTENT'::text, 'SEO_PORTFOLIO'::text, 'TECHNICAL_SEO'::text, 'PRICE'::text, 'OFFER'::text, 'MEDIA'::text, 'COMMERCE'::text, 'POLICY'::text, 'MEASUREMENT'::text, 'INCIDENT'::text, 'MANUAL_OTHER'::text])))"
+        },
+        {
+          "name": "feya_change_event_source_chk",
+          "type": "c",
+          "definition": "CHECK ((source_type = ANY (ARRAY['human'::text, 'agent'::text, 'system'::text, 'external'::text])))"
+        },
+        {
+          "name": "feya_growth_change_events_v1_case_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (case_id) REFERENCES feya_growth_cases_v1(case_id) ON DELETE SET NULL"
+        },
+        {
+          "name": "feya_growth_change_events_v1_event_code_key",
+          "type": "u",
+          "definition": "UNIQUE (event_code)"
+        },
+        {
+          "name": "feya_growth_change_events_v1_execution_request_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (execution_request_id) REFERENCES feya_growth_execution_requests_v1(execution_request_id) ON DELETE SET NULL"
+        },
+        {
+          "name": "feya_growth_change_events_v1_incident_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (incident_id) REFERENCES feya_growth_incidents_v1(incident_id) ON DELETE SET NULL"
+        },
+        {
+          "name": "feya_growth_change_events_v1_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (change_event_id)"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_growth_execution_requests_v1",
+      "owner": "postgres",
+      "grants": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        }
+      ],
+      "schema": "public",
+      "columns": [
+        {
+          "name": "execution_request_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "request_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "action_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "action_capability_version",
+          "type": "integer",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "action_class",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "executor_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "approval_class",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "request_status",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "request_hash",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "approval_hash",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "mutation_domain",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "target_scope_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "target_version_refs_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "request_payload_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "rollback_plan_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "postflight_check_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "requested_by_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "requested_by_user_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "approved_by_user_id",
+          "type": "uuid",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "approval_reason",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "approved_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "idempotency_key",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX uq_feya_execution_request_idempotency ON public.feya_growth_execution_requests_v1 USING btree (idempotency_key) WHERE (idempotency_key IS NOT NULL)",
+        "CREATE INDEX idx_feya_execution_requests_status ON public.feya_growth_execution_requests_v1 USING btree (request_status, created_at)"
+      ],
+      "policies": [],
+      "triggers": [
+        {
+          "name": "trg_feya_guard_execution_request_material_v1",
+          "definition": "CREATE TRIGGER trg_feya_guard_execution_request_material_v1 BEFORE UPDATE ON public.feya_growth_execution_requests_v1 FOR EACH ROW EXECUTE FUNCTION feya_fn_guard_execution_request_material_v1()"
+        }
+      ],
+      "force_rls": false,
+      "constraints": [
+        {
+          "name": "feya_execution_request_requester_chk",
+          "type": "c",
+          "definition": "CHECK ((requested_by_type = ANY (ARRAY['human'::text, 'agent'::text, 'system'::text])))"
+        },
+        {
+          "name": "feya_execution_request_status_chk",
+          "type": "c",
+          "definition": "CHECK ((request_status = ANY (ARRAY['APPROVAL_REQUIRED'::text, 'APPROVED'::text, 'EXECUTING'::text, 'SUCCEEDED'::text, 'FAILED'::text, 'CANCELLED'::text, 'STALE'::text, 'ROLLED_BACK'::text])))"
+        },
+        {
+          "name": "feya_growth_execution_requests_v1_approved_by_user_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (approved_by_user_id) REFERENCES auth.users(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "feya_growth_execution_requests_v1_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (execution_request_id)"
+        },
+        {
+          "name": "feya_growth_execution_requests_v1_request_code_key",
+          "type": "u",
+          "definition": "UNIQUE (request_code)"
+        },
+        {
+          "name": "feya_growth_execution_requests_v1_requested_by_user_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (requested_by_user_id) REFERENCES auth.users(id) ON DELETE SET NULL"
+        }
+      ]
+    },
+    {
+      "rls": true,
+      "name": "feya_growth_incidents_v1",
+      "owner": "postgres",
+      "grants": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "MAINTAIN"
+        }
+      ],
+      "schema": "public",
+      "columns": [
+        {
+          "name": "incident_id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "incident_code",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "incident_type",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "severity",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "incident_status",
+          "type": "text",
+          "default": "'OPEN'::text",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "summary",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "root_cause_key",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "scope_json",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "freeze_mutations",
+          "type": "boolean",
+          "default": "false",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "freeze_domains_json",
+          "type": "jsonb",
+          "default": "'[]'::jsonb",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "detected_by",
+          "type": "text",
+          "default": null,
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "resolved_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "closed_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "identity": "",
+          "not_null": false,
+          "generated": ""
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "identity": "",
+          "not_null": true,
+          "generated": ""
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX uq_feya_incident_active_root_cause ON public.feya_growth_incidents_v1 USING btree (root_cause_key) WHERE (incident_status <> ALL (ARRAY['RESOLVED'::text, 'CLOSED'::text, 'CANCELLED'::text]))",
+        "CREATE INDEX idx_feya_incident_active_severity ON public.feya_growth_incidents_v1 USING btree (severity, incident_status, started_at) WHERE (incident_status <> ALL (ARRAY['RESOLVED'::text, 'CLOSED'::text, 'CANCELLED'::text]))"
+      ],
+      "policies": [],
+      "triggers": [],
+      "force_rls": false,
+      "constraints": [
+        {
+          "name": "feya_growth_incidents_v1_incident_code_key",
+          "type": "u",
+          "definition": "UNIQUE (incident_code)"
+        },
+        {
+          "name": "feya_growth_incidents_v1_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (incident_id)"
+        },
+        {
+          "name": "feya_incident_freeze_domains_array_chk",
+          "type": "c",
+          "definition": "CHECK ((jsonb_typeof(freeze_domains_json) = 'array'::text))"
+        },
+        {
+          "name": "feya_incident_severity_chk",
+          "type": "c",
+          "definition": "CHECK ((severity = ANY (ARRAY['P0'::text, 'P1'::text, 'P2'::text, 'P3'::text])))"
+        },
+        {
+          "name": "feya_incident_status_chk",
+          "type": "c",
+          "definition": "CHECK ((incident_status = ANY (ARRAY['OPEN'::text, 'INVESTIGATING'::text, 'MITIGATING'::text, 'STABILIZING'::text, 'RESOLVED'::text, 'CLOSED'::text, 'CANCELLED'::text])))"
+        }
+      ]
+    }
+  ],
+  "observed_at": "2026-09-23T22:27:55.977578+00:00",
+  "default_acls": [
+    {
+      "owner": "postgres",
+      "grants": [
+        {
+          "grantee": "postgres",
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "MAINTAIN"
+        }
+      ],
+      "schema": "public",
+      "object_type": "r"
+    },
+    {
+      "owner": "postgres",
+      "grants": [
+        {
+          "grantee": "postgres",
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "EXECUTE"
+        }
+      ],
+      "schema": "public",
+      "object_type": "f"
+    },
+    {
+      "owner": "postgres",
+      "grants": [
+        {
+          "grantee": "postgres",
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "USAGE"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "USAGE"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "USAGE"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "USAGE"
+        }
+      ],
+      "schema": "public",
+      "object_type": "S"
+    },
+    {
+      "owner": "supabase_admin",
+      "grants": [
+        {
+          "grantee": "postgres",
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "USAGE"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "USAGE"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "USAGE"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "USAGE"
+        }
+      ],
+      "schema": "public",
+      "object_type": "S"
+    },
+    {
+      "owner": "supabase_admin",
+      "grants": [
+        {
+          "grantee": "postgres",
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "MAINTAIN"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "INSERT"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "SELECT"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "UPDATE"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "DELETE"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "TRUNCATE"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "REFERENCES"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "TRIGGER"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "MAINTAIN"
+        }
+      ],
+      "schema": "public",
+      "object_type": "r"
+    },
+    {
+      "owner": "supabase_admin",
+      "grants": [
+        {
+          "grantee": "postgres",
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "anon",
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "authenticated",
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "EXECUTE"
+        }
+      ],
+      "schema": "public",
+      "object_type": "f"
+    }
+  ],
+  "server_version": "17.6",
+  "trigger_functions": [
+    {
+      "name": "feya_commerce_set_updated_at",
+      "schema": "public",
+      "definition": "CREATE OR REPLACE FUNCTION public.feya_commerce_set_updated_at()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nbegin\n  new.updated_at = now();\n  return new;\nend;\n$function$\n"
+    },
+    {
+      "name": "feya_commerce_touch_updated_at_v1",
+      "schema": "public",
+      "definition": "CREATE OR REPLACE FUNCTION public.feya_commerce_touch_updated_at_v1()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nbegin\n  new.updated_at = now();\n  return new;\nend;\n$function$\n"
+    },
+    {
+      "name": "feya_fn_guard_execution_request_material_v1",
+      "schema": "public",
+      "definition": "CREATE OR REPLACE FUNCTION public.feya_fn_guard_execution_request_material_v1()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO ''\nAS $function$\nbegin\n  if public.feya_fn_execution_request_material_json_v1(old)\n     is distinct from public.feya_fn_execution_request_material_json_v1(new) then\n    raise exception 'Execution request material fields are immutable; create a new request';\n  end if;\n\n  return new;\nend;\n$function$\n"
+    }
+  ],
+  "supporting_functions": [
+    {
+      "definition": "CREATE OR REPLACE FUNCTION public.feya_fn_execution_request_material_json_v1(p_row feya_growth_execution_requests_v1)\n RETURNS jsonb\n LANGUAGE sql\n IMMUTABLE\n SET search_path TO ''\nAS $function$\n  select jsonb_build_object(\n    'action_code',p_row.action_code,\n    'action_capability_version',p_row.action_capability_version,\n    'action_class',p_row.action_class,\n    'executor_type',p_row.executor_type,\n    'approval_class',p_row.approval_class,\n    'mutation_domain',p_row.mutation_domain,\n    'target_scope',p_row.target_scope_json,\n    'target_version_refs',p_row.target_version_refs_json,\n    'request_payload',p_row.request_payload_json,\n    'rollback_plan',p_row.rollback_plan_json,\n    'postflight_check',p_row.postflight_check_json\n  );\n$function$\n"
+    }
+  ]
+}

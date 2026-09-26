@@ -26,6 +26,7 @@ import { colorStyle } from '@/components/colors';
 import { ProductCard } from '@/components/ProductCard';
 import { SalePrice } from '@/components/SalePrice';
 import { resolveThefeyaRightPdpPanel } from '@/lib/thefeyaSeoDoctrine';
+import { trackEcommerceEvent } from '@/lib/measurementClient';
 import { resolveFullSetPriceComparison } from '@/lib/storefrontPriceComparison';
 import type { StorefrontProduct } from '@/lib/types';
 import { storefrontIncludedOptions } from '@/lib/storefrontIncludedOptions';
@@ -132,6 +133,9 @@ export function ProductDetailClient({
   const [added, setAdded] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const thumbnailRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const mainMediaRef = useRef<HTMLButtonElement | null>(null);
+  const lightboxCloseRef = useRef<HTMLButtonElement | null>(null);
+  const measuredViewProductRef = useRef('');
 
   const activeConfig = options.find((o, i) => optionKey(o, i) === configKey) || options[0] || null;
   const activeConfigIndex = activeConfig ? Math.max(0, options.indexOf(activeConfig)) : 0;
@@ -195,6 +199,43 @@ export function ProductDetailClient({
     thumbnailRefs.current[idx]?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
   }, [idx]);
 
+  useEffect(() => {
+    if (!p.canonical_product_id || measuredViewProductRef.current === p.canonical_product_id) return;
+    measuredViewProductRef.current = p.canonical_product_id;
+    trackEcommerceEvent('view_item',{
+      canonical_product_id:p.canonical_product_id,
+      sku_id:activeConfig?.configuration_id || activeConfig?.configuration_price_id || activeConfig?.source_price_row_id || null,
+      quantity:1,
+      item_price:sale,
+      item_value:sale,
+      currency,
+    },{currency,value:sale});
+  },[p.canonical_product_id,activeConfig,sale,currency]);
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const focusClose = () => lightboxCloseRef.current?.focus();
+    const frame = window.requestAnimationFrame(focusClose);
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setLightboxOpen(false);
+        return;
+      }
+      if (event.key === 'Tab') {
+        event.preventDefault();
+        focusClose();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      document.removeEventListener('keydown', onKeyDown);
+      previousFocus?.focus();
+    };
+  }, [lightboxOpen]);
+
   const moveImage = (direction: number) => {
     if (gallery.length <= 1) return;
     setIdx((idx + direction + gallery.length) % gallery.length);
@@ -234,6 +275,14 @@ export function ProductDetailClient({
     window.localStorage.setItem(CART_KEY, JSON.stringify(next));
     window.localStorage.setItem(COUNT_KEY, String(next.reduce((sum: number, item: { qty: number }) => sum + item.qty, 0)));
     window.dispatchEvent(new Event('storage'));
+    trackEcommerceEvent('add_to_cart',{
+      canonical_product_id:p.canonical_product_id,
+      sku_id:activeConfig?.configuration_id || activeConfig?.configuration_price_id || activeConfig?.source_price_row_id || null,
+      quantity:qty,
+      item_price:sale,
+      item_value:total,
+      currency,
+    },{currency,value:total});
     setAdded(true);
     if (goToCart) {
       window.location.href = '/cart';
@@ -255,16 +304,37 @@ export function ProductDetailClient({
     <section className="container-feya pb-4 grid grid-cols-12 gap-5 lg:gap-7">
       <div className="col-span-12 lg:col-span-7 grid grid-cols-12 gap-3 lg:gap-4">
         <div className="col-span-2 hidden lg:flex flex-col gap-3 max-h-[650px] overflow-y-auto pr-1">
-          {gallery.map((g, i) => <button ref={(node) => { thumbnailRefs.current[i] = node; }} key={`${i}-${g.url}`} onClick={() => setIdx(i)} className={`relative w-full aspect-[4/5] rounded-sm overflow-hidden border transition-all shrink-0 bg-[rgba(255,255,255,0.025)] ${idx === i ? 'border-white opacity-100' : 'border-[rgba(216,214,211,0.12)] opacity-55 hover:opacity-100'}`}>
+          {gallery.map((g, i) => <button
+            type="button"
+            ref={(node) => { thumbnailRefs.current[i] = node; }}
+            key={`${i}-${g.url}`}
+            onClick={() => setIdx(i)}
+            aria-label={`Show image ${i + 1} of ${gallery.length}`}
+            aria-pressed={idx === i}
+            className={`relative w-full aspect-[4/5] rounded-sm overflow-hidden border transition-all shrink-0 bg-[rgba(255,255,255,0.025)] ${idx === i ? 'border-white opacity-100' : 'border-[rgba(216,214,211,0.12)] opacity-55 hover:opacity-100'}`}>
             {g.url ? <img src={String(g.url)} alt="" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover object-center" /> : null}
           </button>)}
         </div>
         <div className="col-span-12 lg:col-span-10 flex justify-center">
-          <button type="button" onClick={() => main && setLightboxOpen(true)} className="relative w-full max-w-[520px] aspect-[4/5] rounded-md overflow-hidden bg-[rgba(255,255,255,0.025)] border border-[rgba(216,214,211,0.12)] text-left">
+          <button
+            ref={mainMediaRef}
+            type="button"
+            onClick={() => main && setLightboxOpen(true)}
+            onKeyDown={(event) => {
+              if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                moveImage(-1);
+              } else if (event.key === 'ArrowRight') {
+                event.preventDefault();
+                moveImage(1);
+              }
+            }}
+            aria-label={`Open image ${idx + 1} of ${gallery.length || 1}. Use Left and Right Arrow keys to browse images.`}
+            className="relative w-full max-w-[520px] aspect-[4/5] rounded-md overflow-hidden bg-[rgba(255,255,255,0.025)] border border-[rgba(216,214,211,0.12)] text-left">
             {main ? <img src={String(main)} alt={activeImage?.alt || shortHead} loading={idx === 0 ? 'eager' : 'lazy'} decoding="async" className="absolute inset-0 w-full h-full object-cover object-center" /> : null}
             {gallery.length > 1 ? <>
-              <span onClick={(event) => { event.stopPropagation(); moveImage(-1); }} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/45 backdrop-blur border border-white/15 flex items-center justify-center hover:bg-white hover:text-ink transition-all"><ChevronLeft size={17} /></span>
-              <span onClick={(event) => { event.stopPropagation(); moveImage(1); }} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/45 backdrop-blur border border-white/15 flex items-center justify-center hover:bg-white hover:text-ink transition-all"><ChevronRight size={17} /></span>
+              <span aria-hidden="true" onClick={(event) => { event.stopPropagation(); moveImage(-1); }} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/45 backdrop-blur border border-white/15 flex items-center justify-center hover:bg-white hover:text-ink transition-all"><ChevronLeft size={17} /></span>
+              <span aria-hidden="true" onClick={(event) => { event.stopPropagation(); moveImage(1); }} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/45 backdrop-blur border border-white/15 flex items-center justify-center hover:bg-white hover:text-ink transition-all"><ChevronRight size={17} /></span>
             </> : null}
             <span className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/55 backdrop-blur text-xs text-white">{idx + 1} / {gallery.length || 1}</span>
           </button>
@@ -280,11 +350,16 @@ export function ProductDetailClient({
 
         <div className="mt-2 relative">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Configuration</div><div className="eyebrow-dim">{options.length || 1} options</div></div>
-          <button type="button" onClick={() => setConfigOpen((open) => !open)} className="w-full h-10 rounded-md bg-[rgba(255,255,255,0.035)] border border-[rgba(216,214,211,0.18)] text-bone px-4 focus:outline-none focus:border-white flex items-center justify-between text-left">
+          <button
+            type="button"
+            aria-expanded={configOpen}
+            aria-controls="product-configuration-options"
+            onClick={() => setConfigOpen((open) => !open)}
+            className="w-full h-10 rounded-md bg-[rgba(255,255,255,0.035)] border border-[rgba(216,214,211,0.18)] text-bone px-4 focus:outline-none focus:border-white flex items-center justify-between text-left">
             <span className="truncate">{activeConfigLabel}</span>
             <ChevronDown size={15} className={`transition-transform ${configOpen ? 'rotate-180' : ''}`} />
           </button>
-          {configOpen ? <div className="absolute left-0 right-0 top-full mt-2 z-[80] rounded-lg border border-[rgba(216,214,211,.22)] bg-[rgba(5,5,8,.96)] p-1.5 shadow-[0_28px_80px_rgba(0,0,0,.75)] backdrop-blur-xl max-h-[250px] overflow-auto">
+          {configOpen ? <div id="product-configuration-options" className="absolute left-0 right-0 top-full mt-2 z-[80] rounded-lg border border-[rgba(216,214,211,.22)] bg-[rgba(5,5,8,.96)] p-1.5 shadow-[0_28px_80px_rgba(0,0,0,.75)] backdrop-blur-xl max-h-[250px] overflow-auto">
             {options.map((o, i) => {
               const key = optionKey(o, i);
               const active = key === configKey;
@@ -296,7 +371,7 @@ export function ProductDetailClient({
 
         <div className="mt-2">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Color · {selectedColor}</div><div className="eyebrow-dim">{colors.length || 1} shade</div></div>
-          <div className="flex gap-2">{colors.map((c, i) => <button key={c + i} onClick={() => {
+          <div className="flex gap-2">{colors.map((c, i) => <button type="button" key={c + i} aria-label={`Select color ${c}`} aria-pressed={c === selectedColor} onClick={() => {
             const variantIndex = options.findIndex(option => option.configuration_color === c);
             if (variantIndex >= 0) setConfigKey(optionKey(options[variantIndex], variantIndex));
             else setColorIdx(i);
@@ -305,7 +380,7 @@ export function ProductDetailClient({
 
         <div className="mt-2">
           <div className="flex items-center justify-between mb-1.5"><div className="eyebrow text-[10px]">Size · {size}</div><a href="#description" className="eyebrow-dim hover:text-white flex items-center gap-1"><Ruler size={12} /> Size guide</a></div>
-          <div className="flex flex-wrap gap-1.5">{SIZES.map((s) => <button key={s} onClick={() => setSize(s)} className={`size-pill ${size === s && s !== 'Custom' ? 'size-pill-active' : ''} ${size === s && s === 'Custom' ? 'size-pill-custom' : ''}`}>{s}</button>)}</div>
+          <div className="flex flex-wrap gap-1.5">{SIZES.map((s) => <button type="button" key={s} aria-pressed={size === s} onClick={() => setSize(s)} className={`size-pill ${size === s && s !== 'Custom' ? 'size-pill-active' : ''} ${size === s && s === 'Custom' ? 'size-pill-custom' : ''}`}>{s}</button>)}</div>
         </div>
 
         <div className="mt-3 rounded-md border border-[rgba(216,214,211,.10)] bg-[rgba(255,255,255,.018)] px-3 py-2 text-[11px] text-[var(--bone-dim)]">
@@ -316,8 +391,8 @@ export function ProductDetailClient({
         {previewMode
           ? <button type="button" disabled className="btn-chrome justify-center rounded-md h-10 w-full mt-2 opacity-45"><ShieldCheck size={14} /> Preview only</button>
           : <>
-            <div className="mt-2 grid grid-cols-[112px_1fr] gap-2.5"><div className="h-10 rounded-md border border-[rgba(216,214,211,0.18)] grid grid-cols-3 items-center"><button onClick={() => setQty(Math.max(1, qty - 1))}>−</button><span className="text-center">{qty}</span><button onClick={() => setQty(qty + 1)}>+</button></div><button className="btn-chrome justify-center rounded-md h-10" onClick={() => addToBag(false)}>{added ? <Check size={14} /> : <ShoppingBag size={14} />} Add to bag</button></div>
-            <button className="btn-gold justify-center rounded-md h-10 w-full mt-2" onClick={() => addToBag(true)}>Buy it now <ArrowUpRight size={13} /></button>
+            <div className="mt-2 grid grid-cols-[112px_1fr] gap-2.5"><div className="h-10 rounded-md border border-[rgba(216,214,211,0.18)] grid grid-cols-3 items-center"><button type="button" aria-label="Decrease quantity" onClick={() => setQty(Math.max(1, qty - 1))}>−</button><span className="text-center" aria-live="polite">{qty}</span><button type="button" aria-label="Increase quantity" onClick={() => setQty(qty + 1)}>+</button></div><button type="button" className="btn-chrome justify-center rounded-md h-10" onClick={() => addToBag(false)}>{added ? <Check size={14} /> : <ShoppingBag size={14} />} Add to bag</button></div>
+            <button type="button" className="btn-gold justify-center rounded-md h-10 w-full mt-2" onClick={() => addToBag(true)}>Buy it now <ArrowUpRight size={13} /></button>
           </>}
         <div className="recovered-policy-row mt-2.5 flex flex-wrap justify-center gap-4 text-[9px] tracking-[0.22em] uppercase"><a href="#save"><Heart size={11} className="inline mr-1" />Save</a><a href="#share"><Share2 size={11} className="inline mr-1" />Share</a><a href="#shipping"><Truck size={11} className="inline mr-1" />Shipping</a><a href="#returns"><RotateCcw size={11} className="inline mr-1" />Returns</a><a href="#policies"><FileText size={11} className="inline mr-1" />Store policies</a></div>
       </aside>
@@ -358,8 +433,13 @@ export function ProductDetailClient({
 
     {complete.length ? <section className="container-feya py-12"><div className="flex items-end justify-between mb-6"><div><div className="eyebrow-gold mb-3">Complete the look</div><h2 className="display-section text-bone" style={{ fontSize: 'clamp(36px,5vw,64px)' }}>Same world.</h2></div><Link href="/shop" className="btn-ghost">View all <ArrowUpRight size={13} /></Link></div><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">{complete.map((item, i) => <ProductCard key={item.canonical_product_id || i} product={item} index={i} />)}</div></section> : null}
 
-    {lightboxOpen ? <div className="fixed inset-0 z-[120] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setLightboxOpen(false)}>
-      <button type="button" className="absolute right-5 top-5 h-10 w-10 rounded-full border border-white/20 bg-black/40 text-white text-xl" onClick={() => setLightboxOpen(false)}>×</button>
+    {lightboxOpen ? <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Image viewer: ${shortHead}`}
+      className="fixed inset-0 z-[120] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
+      onClick={(event) => { if (event.target === event.currentTarget) setLightboxOpen(false); }}>
+      <button ref={lightboxCloseRef} type="button" aria-label="Close image viewer" className="absolute right-5 top-5 h-10 w-10 rounded-full border border-white/20 bg-black/40 text-white text-xl" onClick={() => setLightboxOpen(false)}>×</button>
       {main ? <img src={String(main)} alt={activeImage?.alt || shortHead} className="max-h-[90vh] max-w-full object-contain" /> : null}
     </div> : null}
   </div>;

@@ -1,0 +1,137 @@
+{
+  "contract_version": "metadata_review_audit_v1",
+  "mode": "offline_proposal_simulation",
+  "source_products_preserved": 208,
+  "visible_launch_candidates": 207,
+  "suppressed_product_ids": [
+    "d42dd678-7b11-4f38-890e-411de686f418"
+  ],
+  "redirect_candidates": [
+    {
+      "decision_id": "owner-gold-duplicate-20260924-01",
+      "from_product_id": "d42dd678-7b11-4f38-890e-411de686f418",
+      "to_product_id": "453ffb2e-2ed9-4e8d-b74c-e891604f9644",
+      "from_path": "/shop/unique-festival-outfit-with-gold-leather-shoulder-skirt-gold-metallic-armor-burning-man-clothing-for-women-luxury-rave-accessories-4324592783",
+      "to_path": "/shop/unique-festival-outfit-with-gold-leather-shoulder-skirt-gold-metallic-armor-burning-man-clothing-for-women-luxury-rave-accessories-4324575912",
+      "activation_authorized": false
+    }
+  ],
+  "reviewed_candidates": 64,
+  "summary": {
+    "proposed": 43,
+    "retain": 8,
+    "held": 12,
+    "suppressed_in_launch": 1
+  },
+  "title_groups_after_proposals": [
+    {
+      "normalized_text": "brown leather chest harness suspenders for men",
+      "product_ids": [
+        "7cf4ea37-cd11-4203-860c-7eed4ae965ba",
+        "882793f6-15ca-4617-a579-5cd47290ce72"
+      ]
+    },
+    {
+      "normalized_text": "gold warrior armor costume for women",
+      "product_ids": [
+        "0b7e5ccd-f5a3-4dd7-877f-1e21fbda9486",
+        "679c975c-b309-49dc-9207-f89fc96b84d1"
+      ]
+    },
+    {
+      "normalized_text": "men's gold warrior armor costume for burning man",
+      "product_ids": [
+        "1eb4b55c-dedf-4399-92fd-c94c8d962091",
+        "f746beae-43c9-4f4f-8307-301d136eda58"
+      ]
+    },
+    {
+      "normalized_text": "silver futuristic top and belt set for women",
+      "product_ids": [
+        "28c84d65-57b4-4b83-a2bc-6e4370ac188a",
+        "dc6e07c7-f758-4a6c-8f09-fa3f2d9f99cc"
+      ]
+    },
+    {
+      "normalized_text": "silver mirror bunny costume for women",
+      "product_ids": [
+        "6ddd240e-01ae-4ac8-800e-3a14dbac64a0",
+        "b9a476c7-b902-4fea-bead-ec5b2275e835"
+      ]
+    }
+  ],
+  "h1_groups_after_proposals": [
+    {
+      "normalized_text": "brown leather chest harness for men",
+      "product_ids": [
+        "7cf4ea37-cd11-4203-860c-7eed4ae965ba",
+        "882793f6-15ca-4617-a579-5cd47290ce72"
+      ]
+    },
+    {
+      "normalized_text": "men's gold warrior armor costume",
+      "product_ids": [
+        "1eb4b55c-dedf-4399-92fd-c94c8d962091",
+        "f746beae-43c9-4f4f-8307-301d136eda58"
+      ]
+    },
+    {
+      "normalized_text": "silver futuristic armor costume",
+      "product_ids": [
+        "a6beccc2-bbd3-4040-8e29-af06efd6dd97",
+        "f36acd08-1591-4e15-8ad2-96bc22ec4b77"
+      ]
+    },
+    {
+      "normalized_text": "silver futuristic top and belt set",
+      "product_ids": [
+        "28c84d65-57b4-4b83-a2bc-6e4370ac188a",
+        "dc6e07c7-f758-4a6c-8f09-fa3f2d9f99cc"
+      ]
+    },
+    {
+      "normalized_text": "silver mirror bunny costume",
+      "product_ids": [
+        "6ddd240e-01ae-4ac8-800e-3a14dbac64a0",
+        "b9a476c7-b902-4fea-bead-ec5b2275e835"
+      ]
+    }
+  ],
+  "residual_metadata_collision_products": 12,
+  "preservation": {
+    "existing_drafts_written": 0,
+    "full_descriptions_changed": 0,
+    "meta_descriptions_changed": 0,
+    "keywords_changed": 0,
+    "prices_changed": 0
+  },
+  "source_fingerprints": [
+    {
+      "path": "docs/search/approved-catalog-content-capture-20260924.json",
+      "sha256": "5b885141731e8b214d62826a1c42739402732bfb984f02fea302cdb309547553"
+    },
+    {
+      "path": "docs/search/approved-catalog-content-bindings-20260924.json",
+      "sha256": "334bd87294320a014ef8d13074d87f55f7c3affb00dbbbb3d7ca43ac175a35fa"
+    },
+    {
+      "path": "docs/search/metadata-distinction-queue-20260924.json",
+      "sha256": "e19a9b46182a1b3e69c5d2e0c9ce7fdaf3bc163091e3209694ecb14bc8c17dfe"
+    },
+    {
+      "path": "docs/search/metadata-distinction-review-20260924.json",
+      "sha256": "c76e3d52913b823f8f66c2a60b1a242b850d1c588d96ef3b93fa64fef5af48b5"
+    },
+    {
+      "path": "docs/search/approved-catalog-storefront-capture-20260924.json",
+      "sha256": "866342ea3c596aef10182941a5ac77f1cc4e388c8ce8789820a834337962b5a6"
+    },
+    {
+      "path": "docs/search/owner-product-decisions-20260924.json",
+      "sha256": "fe584af2643724007e20ba94ed4b9fbb299ea8c0ce2c2f2a1c0391e0a1748876"
+    }
+  ],
+  "can_publish": false,
+  "can_index": false,
+  "can_enable_checkout": false
+}

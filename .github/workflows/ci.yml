@@ -1,12 +1,11 @@
-name: Phase A CI
+name: FEYA validation
 
 on:
   pull_request:
-    branches:
-      - main
   push:
     branches:
       - main
+      - owner-ui-v1
 
 jobs:
   build:
@@ -23,7 +22,21 @@ jobs:
           node-version: 24
 
       - name: Install dependencies
-        run: npm install --no-audit --no-fund --silent
+        run: npm ci --no-audit --no-fund --silent
+
+      - name: Search policy simulations
+        run: npm run test:search
+
+      - name: Approved catalog proposal evidence
+        run: |
+          node --experimental-strip-types scripts/audit-metadata-review.ts --check
+          node --experimental-strip-types scripts/audit-approved-query-plan.ts --check
+
+      - name: Search migration constraints
+        run: npm run test:search-db
+
+      - name: Product truth and SEO compatibility
+        run: npm run test:seo
 
       - name: Typecheck
         run: npm run typecheck
@@ -35,3 +48,67 @@ jobs:
         run: |
           set -o pipefail
           npm run build 2>&1 | tail -n 120
+
+  postgres-integration:
+    name: PostgreSQL 17 — ${{ matrix.suite }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [observed-integration, metric-import, metric-readers, metric-function-hardening, metric-access-boundary, internal-view-access, google-ads-import, variant-draft, commerce-quote, offer-promotion, price-baseline-adoption, price-baseline-rehearsal, manual-configuration-repair, manual-price-governance, release-configuration-binding-repair]
+    services:
+      postgres:
+        image: postgres:17.6
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ephemeral-test-only
+          POSTGRES_DB: feya_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d feya_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund --silent
+      - name: Observed schema and concurrent transactions
+        env:
+          FEYA_TEST_DATABASE_URL: postgresql://postgres:ephemeral-test-only@127.0.0.1:5432/feya_test
+        run: node --experimental-strip-types --test tests/search-db/${{ matrix.suite }}.test.mjs
+
+  supabase-runtime:
+    name: Supabase Auth, PostgREST and browser
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.117.0
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund --silent
+      - name: Install Chromium for isolated UI verification
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Real local services and authenticated application flow
+        run: node --experimental-strip-types tests/runtime/metric-runtime.mjs
+      - name: Runtime evidence (no credentials or browser state)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metric-runtime-evidence
+          path: runtime-results/
+          retention-days: 7

@@ -303,6 +303,8 @@ export type SeoAgentInputContract = {
 };
 
 export type SeoAgentOutputContract = {
+  /** Server-owned provenance; absent on historical saved drafts. */
+  editorial_policy_version?: import('./seoEditorialPolicy').SeoEditorialPolicyVersion;
   contract_version: SeoAgentOutputContractVersion;
   status: SeoAgentDraftStatus;
   seo_title: string | null;

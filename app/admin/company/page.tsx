@@ -14,6 +14,7 @@ import { OwnerSignalDrawerClient } from '@/components/admin/OwnerSignalDrawerCli
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentOwnerAttention, presentSignal, presentWorkItem, formatDueTime, formatRelativeTime } from '@/lib/owner-ui/presenters';
 import { admissionLabel, priorityLabel, roleLabel, scopeLabel } from '@/lib/owner-ui/terminology';
+import { presentCommerceExecutionApprovals } from '@/lib/owner-ui/commerceApprovals';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -22,6 +23,7 @@ type Row = Record<string, unknown>;
 
 type TodayData = {
   attention: Row[];
+  commerceApprovals: Row[];
   signals: Row[];
   work: Row[];
   workTotal: number;
@@ -41,6 +43,7 @@ async function getTodayData(): Promise<TodayData> {
   if (!supabase) {
     return {
       attention: [],
+      commerceApprovals: [],
       signals: [],
       work: [],
       workTotal: 0,
@@ -61,6 +64,7 @@ async function getTodayData(): Promise<TodayData> {
     keywordReviewResult,
     cqaActionableResult,
     cqaAutomaticResult,
+    commerceApprovalsResult,
   ] = await Promise.all([
     supabase
       .from('feya_commerce_v_owner_attention_safe_v2')
@@ -108,6 +112,18 @@ async function getTodayData(): Promise<TodayData> {
       .from('feya_commerce_v_content_qa_shadow_status_safe_v1')
       .select('draft_id', { count: 'exact', head: true })
       .in('cqa_shadow_state', ['APPROVED_NEEDS_SIMILARITY_CHECK', 'NEEDS_PRECHECKS', 'APPROVED_NEEDS_COMPONENT_CLAIM_CHECK']),
+    supabase
+      .from('feya_growth_execution_requests_v1')
+      .select('execution_request_id,action_code,request_status,request_payload_json,created_at,updated_at')
+      .eq('request_status', 'APPROVAL_REQUIRED')
+      .in('action_code', [
+        'ADOPT_SOURCE_PRICE_BASELINE',
+        'REPAIR_RELEASE_CONFIGURATION_BINDINGS',
+        'REPAIR_MANUAL_CONFIGURATION_BINDINGS',
+        'ADOPT_MANUAL_PRICE_LANE_GOVERNANCE',
+        'ADOPT_COLOR_PRICE_LANE_GOVERNANCE',
+      ])
+      .order('created_at', { ascending: true }),
   ]);
 
   const firstError =
@@ -119,10 +135,12 @@ async function getTodayData(): Promise<TodayData> {
     productFactsResult.error ||
     keywordReviewResult.error ||
     cqaActionableResult.error ||
-    cqaAutomaticResult.error;
+    cqaAutomaticResult.error ||
+    commerceApprovalsResult.error;
   if (firstError) {
     return {
       attention: [],
+      commerceApprovals: [],
       signals: [],
       work: [],
       workTotal: 0,
@@ -135,6 +153,7 @@ async function getTodayData(): Promise<TodayData> {
 
   return {
     attention: (attentionResult.data || []) as Row[],
+    commerceApprovals: (commerceApprovalsResult.data || []) as Row[],
     signals: (signalResult.data || []) as Row[],
     work: (workResult.data || []) as Row[],
     workTotal: workResult.count || 0,
@@ -178,9 +197,11 @@ function pluralRu(value: number, one: string, few: string, many: string) {
 }
 
 export default async function AdminHomePage() {
-  const { attention, signals, work, workTotal, opportunities, readiness, operations, error } = await getTodayData();
+  const { attention, commerceApprovals, signals, work, workTotal, opportunities, readiness, operations, error } = await getTodayData();
 
-  const attentionVM = attention.map(presentOwnerAttention);
+  const attentionVM = attention.map((row) => ({ ...presentOwnerAttention(row), href: `/admin/company/owner-attention/${String(row.attention_id)}` }));
+  const commerceAttentionVM = presentCommerceExecutionApprovals(commerceApprovals);
+  const ownerDecisionItems = [...attentionVM, ...commerceAttentionVM];
   const attentionCodes = new Set(attentionVM.map((item) => item.sourceCode).filter(Boolean));
 
   const signalItems = signals
@@ -196,8 +217,8 @@ export default async function AdminHomePage() {
   const blockedScopes = readiness.filter((row) => String(row.scope_status || '').toUpperCase() === 'BLOCKED');
   const totalBlockers = readiness.reduce((sum, row) => sum + Number(row.blocking_count || 0), 0);
   const operationalQueueTotal = operations.productFacts + operations.keywordReview + operations.cqaActionable;
-  const decisionWord = pluralRu(attentionVM.length, 'решение', 'решения', 'решений');
-  const decisionVerb = attentionVM.length === 1 ? 'ждёт' : 'ждут';
+  const decisionWord = pluralRu(ownerDecisionItems.length, 'решение', 'решения', 'решений');
+  const decisionVerb = ownerDecisionItems.length === 1 ? 'ждёт' : 'ждут';
 
   return (
     <main className="owner-page">
@@ -218,17 +239,17 @@ export default async function AdminHomePage() {
         {!error ? (
           <section className="owner-command-brief" aria-label="Сводка на сегодня">
             <div className="owner-command-brief-main">
-              <div className={`owner-command-state${attentionVM.length ? ' is-attention' : ''}`}>
+              <div className={`owner-command-state${ownerDecisionItems.length ? ' is-attention' : ''}`}>
                 <span className="owner-command-state-dot" aria-hidden="true" />
-                {attentionVM.length ? 'Нужно ваше внимание' : 'Работа идёт'}
+                {ownerDecisionItems.length ? 'Нужно ваше внимание' : 'Работа идёт'}
               </div>
               <h2>
-                {attentionVM.length
-                  ? `${attentionVM.length} ${decisionWord} ${decisionVerb} вас`
+                {ownerDecisionItems.length
+                  ? `${ownerDecisionItems.length} ${decisionWord} ${decisionVerb} вас`
                   : 'Вашего решения сейчас не требуется'}
               </h2>
               <p>
-                {attentionVM.length
+                {ownerDecisionItems.length
                   ? 'Сначала разберите эти решения: они являются реальными точками human authority и могут удерживать следующий безопасный шаг.'
                   : totalBlockers
                     ? 'Команда продолжает подготовку к запуску. Ограничения ниже связаны с ещё не подключёнными данными и launch-gates, а не с аварией.'
@@ -238,8 +259,8 @@ export default async function AdminHomePage() {
             <div className="owner-command-brief-metrics" aria-label="Ключевые состояния">
               <Link href="/admin/company/owner-attention">
                 <span>Решения</span>
-                <strong>{attentionVM.length}</strong>
-                <small>{attentionVM.length ? 'нужно рассмотреть' : 'ничего не ждёт'}</small>
+                <strong>{ownerDecisionItems.length}</strong>
+                <small>{ownerDecisionItems.length ? 'нужно рассмотреть' : 'ничего не ждёт'}</small>
               </Link>
               <Link href="/admin/company/work#operational-queues">
                 <span>Рабочие очереди</span>
@@ -267,9 +288,9 @@ export default async function AdminHomePage() {
             <Link href="/admin/company/owner-attention" className="owner-button">Показать всё</Link>
           </div>
 
-          {attentionVM.length ? (
+          {ownerDecisionItems.length ? (
             <div className="owner-grid two">
-              {attentionVM.slice(0, 3).map((item) => (
+              {ownerDecisionItems.slice(0, 3).map((item) => (
                 <article className={`owner-card owner-decision-card ${toneClass(item.tone)}`} key={item.id}>
                   <div className="owner-card-meta">
                     <span className={`owner-status ${toneClass(item.tone)}`}>{item.priorityLabel}</span>
@@ -283,7 +304,7 @@ export default async function AdminHomePage() {
                     <span>{item.dueAt ? `Срок: ${formatDueTime(item.dueAt)}` : 'Жёсткого срока нет'}</span>
                   </div>
                   <div className="owner-actions">
-                    <Link href={`/admin/company/owner-attention/${item.id}`} className="owner-button primary owner-button-arrow">Рассмотреть <ArrowRight size={13} strokeWidth={1.8} aria-hidden="true" /></Link>
+                    <Link href={item.href} className="owner-button primary owner-button-arrow">Рассмотреть <ArrowRight size={13} strokeWidth={1.8} aria-hidden="true" /></Link>
                   </div>
                 </article>
               ))}
