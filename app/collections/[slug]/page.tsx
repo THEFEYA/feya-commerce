@@ -61,7 +61,7 @@ export default async function SearchLandingCandidatePage({params}:PageProps){
     mainEntity:{
       '@type':'ItemList',
       numberOfItems:products.length,
-      itemListElement:products.slice(0,100).map((product,index)=>({
+      itemListElement:products.map((product,index)=>({
         '@type':'ListItem',
         position:index+1,
         url:`https://thefeya.com/shop/${product.product_slug || product.canonical_product_id}`,
