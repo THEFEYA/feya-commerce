@@ -319,7 +319,7 @@ try {
   report.metric_access_advisor_pass=true;report.internal_view_access_advisor_pass=true;report.metric_access_contract='metric_access_boundary_v2';
   report.advisor_counts=Object.fromEntries([...new Set(parsed.map(f=>f.name))].sort().map(name=>[name,parsed.filter(f=>f.name===name).length]));
  });
- await verifyApprovedContentRuntime({db,browser,ownerPage,env,out,check,report});
+ await verifyApprovedContentRuntime({db,browser,ownerPage,env,out,check,report,adminEmail,password});
  await verifyClosedReviewRuntime({db,browser,ownerPage,env,out,check,report,otherEmail,password});
  report.next_write_path_verified=true;
  report.status='pass';await writeFile(join(out,'next.log'),appLog);
