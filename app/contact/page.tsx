@@ -7,10 +7,8 @@ import {isSellerOnlinePaymentsEnabled,SELLER_ONLINE_PROVIDER} from '@/lib/seller
 export async function generateMetadata():Promise<Metadata>{
   return{
     title:'Contact TheFEYA',
-      description:'Contact TheFEYA for product, order and store support.',
-      alternates:{canonical:'/contact'},
-      
-    };
+    description:'Contact TheFEYA for product, order and store support.',
+    alternates:{canonical:'/contact'},
     robots:await releaseRobotsForPath('/contact'),
   };
 }
