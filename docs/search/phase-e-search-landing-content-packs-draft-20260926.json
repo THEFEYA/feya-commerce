@@ -1,6 +1,6 @@
 {
   "contract_version": "search_landing_content_pack_draft_v1",
-  "status": "DRAFT_CQA_PENDING",
+  "status": "DRAFT_CQA_PASS_RELEASE_HOLD",
   "market": "US",
   "locale": "en-US",
   "generated_from": [
