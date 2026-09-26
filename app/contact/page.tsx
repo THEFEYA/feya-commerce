@@ -1,14 +1,19 @@
 import type {Metadata} from 'next';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
+import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
 import {isSellerOnlinePaymentsEnabled,SELLER_ONLINE_PROVIDER} from '@/lib/sellerOnlineProvider';
 
-export const metadata:Metadata={
-  title:'Contact TheFEYA',
-  description:'Contact TheFEYA for product, order and store support.',
-  alternates:{canonical:'/contact'},
-  robots:{index:false,follow:true},
-};
+export async function generateMetadata():Promise<Metadata>{
+  return{
+    title:'Contact TheFEYA',
+      description:'Contact TheFEYA for product, order and store support.',
+      alternates:{canonical:'/contact'},
+      
+    };
+    robots:await releaseRobotsForPath('/contact'),
+  };
+}
 
 export default function ContactPage(){
   const sellerOnlineEnabled=isSellerOnlinePaymentsEnabled();
