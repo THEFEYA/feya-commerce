@@ -1,11 +1,11 @@
 {
-  "snapshot_version": "phase_b_serp_classification_20260926",
+  "snapshot_version": "phase_b_serp_classification_20260926_v2",
   "market": "United States",
   "language": "English",
   "device": "desktop",
   "source": "HYPD serp_results (Google + aggregated provider data)",
   "captured_at": "2026-09-26",
-  "classification_policy": "C=collection/listing, P=PDP, E=editorial/how-to/reference, O=other/social/community. Collection hard gate: C>=0.50 OR C>=0.40 and a collection/listing appears in Top-3.",
+  "classification_policy": "C=collection/listing, P=PDP/product detail, E=editorial/how-to/reference, O=other/social/community. Collection hard gate: C>=0.50 OR C>=0.40 and a collection/listing appears in Top-3.",
   "queries": [
     {
       "keyword": "shoulder armor",
@@ -17,7 +17,7 @@
       "collection_share": 0.571,
       "top3_collection": true,
       "commercial_gate": "pass",
-      "notes": "Broad query includes historical/reenactment/protective armor; FEYA page must explicitly remain decorative/costume/stage, never protective."
+      "notes": "Broad query includes historical/reenactment/protective armor; FEYA intent must be decorative/costume/stage and exclude protective claims."
     },
     {
       "keyword": "shoulder armor costume",
@@ -97,7 +97,29 @@
       "commercial_gate": "pass"
     },
     {
+      "keyword": "festival costumes",
+      "organic_n": 8,
+      "C": 1,
+      "P": 2,
+      "E": 0,
+      "O": 5,
+      "collection_share": 0.125,
+      "top3_collection": false,
+      "commercial_gate": "fail"
+    },
+    {
       "keyword": "rave outfits",
+      "organic_n": 9,
+      "C": 7,
+      "P": 0,
+      "E": 0,
+      "O": 2,
+      "collection_share": 0.778,
+      "top3_collection": true,
+      "commercial_gate": "pass"
+    },
+    {
+      "keyword": "rave costumes",
       "organic_n": 9,
       "C": 7,
       "P": 0,
@@ -161,7 +183,7 @@
       "collection_share": 1,
       "top3_collection": true,
       "commercial_gate": "pass",
-      "notes": "High demand but broader dance-recital market; not automatically assigned to FEYA Stage/Performance owner."
+      "notes": "Very large recital/dancewear market; not automatically the same intent as FEYA stage/performance styling."
     },
     {
       "keyword": "showgirl costumes",
@@ -173,6 +195,18 @@
       "collection_share": 0.25,
       "top3_collection": true,
       "commercial_gate": "fail"
+    },
+    {
+      "keyword": "costume sets",
+      "organic_n": 8,
+      "C": 0,
+      "P": 4,
+      "E": 0,
+      "O": 4,
+      "collection_share": 0,
+      "top3_collection": false,
+      "commercial_gate": "fail",
+      "notes": "Observed SERP is product-detail/social dominated."
     },
     {
       "keyword": "costume bodysuit",
@@ -291,10 +325,15 @@
     "burning man outfits|burning man costumes": 0,
     "festival outfits|rave outfits": 0,
     "stage costumes|performance costumes": 0,
+    "stage outfits|performance costumes": 0,
     "costume bodysuit|festival bodysuit": 0,
     "costume masks|festival masks": 0,
     "costume headpiece|festival headpiece": 0,
     "costume skirt|festival skirt": 0
   },
-  "caution": "Single capture per query. URL overlap below 0.30 permits distinct-intent consideration but does not by itself force separate URLs."
+  "interpretation": [
+    "O10 below 0.30 means separate intent clusters are allowed; it does not require separate URLs.",
+    "One page may own multiple distinct query clusters if it satisfies the user jobs without thin duplication.",
+    "Single-capture SERP evidence is sufficient for Phase B business-case triage but must be retained and revalidated only if a defined trigger fires before index promotion."
+  ]
 }
