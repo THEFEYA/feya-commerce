@@ -1,3 +1,17 @@
+## Phase G selective-release foundation — 26.09.2026
+
+- An immutable search release model now exists in Supabase: releases, release items, and K01–K20 gate snapshots.
+- Organic Wave A v1 is materialized as 18 proposed index candidates + 210 explicit noindex dependencies (Shop, Cart, Account, 207 PDPs). Overall gate remains FAIL; indexing was not enabled.
+- Root metadata now fails closed. Only an ACTIVE immutable release may opt an exact URL into indexing.
+- Sitemap is active-release driven; robots advertises it only when an active release exists.
+- Home, collection owners/hub and trust pages use release-aware robots metadata.
+- `/cart` and `/account` are truthful noindex pre-launch routes, so public Header targets no longer resolve to missing pages.
+- Public Header/Footer destinations were reconciled to evidence-backed collections/trust pages where owners exist; the public `/admin` footer target and unsupported Berlin/brass/chrome footer claims were removed.
+- Burning Man editorial official-source review is complete; the guide remains planned/noindex until drafting + CQA.
+- Wave A v1 is historical evidence. Technical improvements after it will be represented by v2 rather than rewriting the v1 gate snapshot.
+
+**Next finite package:** exact-head CI/build + anonymous preview crawl; then create Wave A v2 with exact git/deployment binding and update only gates actually proven by that evidence. Terms/Privacy/seller identity, measurement/GSC and launch approval remain real blockers where applicable.
+
 ## Phase F editorial eligibility set 1 — 26.09.2026\n\n- Fresh US/en keyword evidence was collected for the first research-backed editorial hypotheses and persisted in the keyword snapshot store.\n- Existing `/size-guide` is upgraded as the intended primary owner for the informational `costume measurements` cluster; no duplicate measurement article is created.\n- `/guides/what-to-wear-to-burning-man` is registered only as a planned/noindex editorial business case. It remains HOLD until current official Burning Man guidance is reviewed before drafting.\n- Generic `how to clean vegan leather` is HOLD despite strong demand because the SERP intent is much broader than TheFEYA costume care; `/care` remains the correct customer-help page.\n- `how to store costumes` is HOLD because the captured SERP is noisy/unstable.\n- Stage/performance editorial remains HOLD until Q07/real informational query evidence exists; the commercial `performance costumes` owner remains `/collections/stage-outfits`.\n- This keeps the editorial portfolio intentionally small and prevents trust pages, collections and articles from cannibalizing each other.\n\n## Phase F pre-index shell checkpoint — 26.09.2026
 
 - Phase E immutable landing content versions are persisted for 10 evidence-backed business-case collections; all remain `noindex` / `review`.
