@@ -90,6 +90,11 @@ test('three-product color-price lane stays exact, waits for release repair, and 
     await db.exec(await variantDependenciesSQL({pglite:!nativeURL}));
     await ensureExecutionReceiptDependency(db);
     await seed(db,{pglite:!nativeURL});
+    await db.exec(`
+      create table if not exists public.feya_commerce_variant_identities_v1(canonical_product_id uuid);
+      create table if not exists public.feya_commerce_offer_variant_items_v1(canonical_product_id uuid);
+      create table if not exists public.feya_commerce_quote_receipts_v1(canonical_product_id uuid);
+    `);
     await db.exec(await migrationSQL());
 
     const before=await service(db,async()=> (await db.query('select public.feya_commerce_color_price_lane_evidence_v1() r')).rows[0].r);
