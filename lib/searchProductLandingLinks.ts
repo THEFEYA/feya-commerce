@@ -6,6 +6,7 @@ const SOURCE_REVISION='feya-review-207-20260924|approved-seo-pack-current|phase-
 
 export type ProductLandingLink={
   href:string;
+  slug:string;
   title:string;
   seoPageId:string;
   membershipSnapshotId:string;
@@ -62,6 +63,7 @@ export async function readProductLandingLinks(canonicalProductId:string):Promise
       if(!candidate||candidate.searchStatus!=='business_case_noindex')return null;
       return{
         href:path,
+        slug,
         title:candidate.title,
         seoPageId:String(page.seo_page_id),
         membershipSnapshotId:snapshotByPage.get(String(page.seo_page_id))||'',
