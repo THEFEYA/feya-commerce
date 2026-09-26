@@ -87,6 +87,27 @@ export function presentCommerceExecutionApproval(row: Row): CommerceExecutionApp
     return null;
   }
 
+
+  if (actionCode === 'ADOPT_COLOR_PRICE_LANE_GOVERNANCE') {
+    const products = ids(data.canonical_product_ids);
+    const prices = number(data.expected_price_rows);
+    const create = number(data.expected_create_configurations);
+    if(products!==3||prices!==9||create!==6)return null;
+    return {
+      id: `execution:${requestId}`,
+      sourceCode: actionCode,
+      priorityLabel: 'Важно',
+      tone: 'warning',
+      typeLabel: 'Подтверждение',
+      title: 'Подтвердить точные цены по цвету для 3 товаров',
+      whyNow: `Source evidence подтверждает ${prices} price rows для Black / Green / Brown у ${products} legacy products. Это реальное исключение из default price-neutral color rule; суммы сохраняются без изменений.`,
+      requiredAction: 'Проверить exact color-price evidence и подтвердить отдельный governance lane. Cartesian expansion запрещён.',
+      statusLabel: 'Открыто',
+      dueAt: null,
+      href: '/admin/company/color-price-governance',
+    };
+  }
+
   if (actionCode === 'ADOPT_MANUAL_PRICE_LANE_GOVERNANCE') {
     const prices = number(data.expected_price_rows);
     const configs = number(data.expected_configuration_rows);
