@@ -9,7 +9,7 @@ test('PDP related collection links come from immutable Page Portfolio membership
   assert.match(pdp,/readProductLandingLinks/);
   assert.doesNotMatch(pdp,/collectionsForProduct/);
   assert.doesNotMatch(pdp,/\/shop\?collection=/);
-  assert.match(pdp,/href=\{collection\.href\}/);
+  assert.match(pdp,/href=\{`\/collections\/\$\{collection\.slug\}`\}/);
 
   assert.match(helper,/feya_search_membership_items_v1/);
   assert.match(helper,/feya_search_membership_snapshots_v1/);
@@ -17,4 +17,5 @@ test('PDP related collection links come from immutable Page Portfolio membership
   assert.match(helper,/eligibility_status','eligible'/);
   assert.match(helper,/orderability_status','confirmed'/);
   assert.match(helper,/business_case_noindex/);
+  assert.match(helper,/slug,/);
 });
