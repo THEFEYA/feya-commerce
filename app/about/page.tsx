@@ -7,10 +7,8 @@ import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
 export async function generateMetadata():Promise<Metadata>{
   return{
     title:'About TheFEYA Atelier',
-      description:'Learn how TheFEYA approaches handmade stage, festival and performance pieces, from sculptural design to made-to-order production.',
-      alternates:{canonical:'/about'},
-      
-    };
+    description:'Learn how TheFEYA approaches handmade stage, festival and performance pieces, from sculptural design to made-to-order production.',
+    alternates:{canonical:'/about'},
     robots:await releaseRobotsForPath('/about'),
   };
 }
