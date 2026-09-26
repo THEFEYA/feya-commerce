@@ -123,6 +123,7 @@ export function setAnalyticsConsent(value:'granted'|'denied'){
     });
   }
   state();
+  window.dispatchEvent(new Event('feya:analytics-consent'));
 }
 
 export function setMeasurementPageContext(context:FeyaMeasurementPageContext|null){
