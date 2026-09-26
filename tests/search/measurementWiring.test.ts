@@ -18,7 +18,9 @@ test('measurement client requires explicit analytics consent before loading Goog
   assert.match(client,/googletagmanager\.com\/gtag\/js/);
   assert.match(client,/ensureGoogleTag\(\)/);
   assert.match(client,/ensureSessionId\(\)/);
-  assert.ok(client.indexOf("getAnalyticsConsent()!=='granted'")<client.indexOf('ensureSessionId()'),
+  const consentGate=client.indexOf("if(getAnalyticsConsent()!=='granted')");
+  const eventSession=client.indexOf('session_id:ensureSessionId()',consentGate);
+  assert.ok(consentGate>=0&&eventSession>consentGate,
     'Consent gate must appear before session identity creation in event flow');
 });
 
