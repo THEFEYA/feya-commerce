@@ -21,11 +21,13 @@ test('collection route reads one immutable page version + matching membership sn
   assert.match(helper,/SEARCH_LANDING_RELATED_LINK_NOT_IN_GRAPH/);
 });
 
-test('collection route keeps every preview noindex and renders visible breadcrumbs + structured data',async()=>{
+test('collection route is release-aware, renders breadcrumbs/schema, and hides internal status in production',async()=>{
   const page=await readFile(new URL('../../app/collections/[slug]/page.tsx',import.meta.url),'utf8');
-  assert.match(page,/robots:\{index:false,follow:true\}/);
+  assert.match(page,/releaseRobotsForPath/);
   assert.match(page,/aria-label="Breadcrumb"/);
   assert.match(page,/BreadcrumbList/);
   assert.match(page,/CollectionPage/);
-  assert.match(page,/Search release status:/);
+  assert.match(page,/showSearchPreviewStatus/);
+  assert.doesNotMatch(page,/Search release status:/);
+  assert.match(page,/if\(isHold\)notFound\(\)/);
 });
