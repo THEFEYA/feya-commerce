@@ -32,6 +32,8 @@ export type SearchLandingContent = {
   modules: SearchLandingContentModule[];
   related_links: SearchLandingRelatedLink[];
   faq: SearchLandingFaqItem[];
+  content_status: 'CQA_PASS';
+  release_status: 'HOLD';
 };
 
 export type SearchLandingBreadcrumb = {
@@ -68,6 +70,9 @@ function assertContent(value: unknown, expectedPath: string): SearchLandingConte
   if (row.path !== expectedPath) throw new Error('SEARCH_LANDING_CONTENT_PATH_MISMATCH');
   if (!Array.isArray(row.chips) || !Array.isArray(row.modules) || !Array.isArray(row.related_links) || !Array.isArray(row.faq)) {
     throw new Error('SEARCH_LANDING_CONTENT_COLLECTIONS_INVALID');
+  }
+  if (row.content_status !== 'CQA_PASS' || row.release_status !== 'HOLD') {
+    throw new Error('SEARCH_LANDING_CONTENT_NOT_CQA_HELD');
   }
   return row as unknown as SearchLandingContent;
 }
@@ -223,6 +228,7 @@ async function readSearchLandingReleaseInner(slug: string): Promise<SearchLandin
     .from('feya_search_membership_snapshots_v1')
     .select('membership_snapshot_id,expected_item_count,source_revision')
     .eq('membership_snapshot_id',snapshotId)
+    .eq('seo_page_id',pageId)
     .maybeSingle();
 
   if (snapshotError) throw new Error(`SEARCH_LANDING_SNAPSHOT_LOOKUP_FAILED:${snapshotError.message}`);
