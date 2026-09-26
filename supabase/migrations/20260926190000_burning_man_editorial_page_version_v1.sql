@@ -3,9 +3,18 @@
 begin;
 
 with target as (
-  select p.seo_page_id,s.*
+  select
+    p.seo_page_id,
+    s.family,
+    s.accountable_owner,
+    s.review_state,
+    s.user_intent,
+    s.primary_intent,
+    s.unique_value_brief,
+    s.truth_status,
+    s.excluded_queries_json
   from public.feya_commerce_seo_pages_v1 p
-  join public.feya_search_page_specs_v1 s using(seo_page_id)
+  join public.feya_search_page_specs_v1 s on s.seo_page_id=p.seo_page_id
   where p.market_code='US'
     and p.locale='en-US'
     and p.url_path='/guides/what-to-wear-to-burning-man'
