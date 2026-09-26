@@ -7,10 +7,8 @@ import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
 export async function generateMetadata():Promise<Metadata>{
   return{
     title:'Returns & Exchanges',
-      description:'TheFEYA return, exchange, remake and cancellation policy for made-to-order stage and festival pieces.',
-      alternates:{canonical:'/returns'},
-      
-    };
+    description:'TheFEYA return, exchange, remake and cancellation policy for made-to-order stage and festival pieces.',
+    alternates:{canonical:'/returns'},
     robots:await releaseRobotsForPath('/returns'),
   };
 }
