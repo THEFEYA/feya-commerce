@@ -1,0 +1,25 @@
+{
+  "contract_version": "foundational_page_cqa_v1",
+  "reviewed_at": "2026-09-26",
+  "reviewer_role": "CQA",
+  "content_status": "PASS",
+  "release_status": "HOLD",
+  "checks": {
+    "source_blob_bound": "PASS",
+    "unsupported_bestseller_or_new_arrival_claims": "PASS_REMOVED",
+    "legal_seller_identity_invention": "PASS_NONE",
+    "payment_provider_as_seller": "PASS_NONE",
+    "returns_mandatory_rights_guardrail": "PASS",
+    "shipping_event_deadline_guardrail": "PASS",
+    "care_material_scope": "PASS",
+    "size_guide_product_specific_fit_guardrail": "PASS",
+    "collections_owner_scope": "PASS",
+    "public_internal_admin_link": "PASS_REMOVED",
+    "terms_privacy_readiness": "HOLD_MISSING_FACTS"
+  },
+  "blockers": [
+    "Terms + contracting seller identity are still incomplete",
+    "Privacy policy still requires final data-flow inventory",
+    "Indexing requires an exact release that passes K01-K20"
+  ]
+}
