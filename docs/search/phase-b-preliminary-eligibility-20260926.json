@@ -1,48 +1,54 @@
 {
-  "decision_version": "phase_b_preliminary_eligibility_20260926",
+  "decision_version": "phase_b_preliminary_eligibility_20260926_v2",
   "policy_version": "Product DNA Search Architecture Decision Framework v1",
-  "link_assumption": "Approved future owners can receive at least one hub/ancestor plus >=2 contextual links (L=70). No URL is authorized for indexing until that graph exists.",
-  "cold_start_business_score": 50,
+  "market": "US",
+  "locale": "en-US",
+  "status": "SEARCH_AND_INVENTORY_TRIAGE_COMPLETE_CONTENT_AND_LINK_GATES_PENDING",
+  "rules": [
+    "No outcome below authorizes indexing.",
+    "Search gates use fresh US/en demand and captured SERP evidence.",
+    "Final INDEXABLE_COLLECTION still requires design-family proof, differentiation X>=50, internal-link support L>=40, no ownership veto and LandingScore>=70.",
+    "Ads competition/bids are not organic difficulty."
+  ],
   "candidates": [
     {
       "node": "SHOULDER_ARMOR",
       "primary_cluster": "shoulder armor",
+      "related_clusters": [
+        "shoulder armor costume",
+        "cosplay shoulder armor"
+      ],
       "products": 80,
       "D": 100,
       "P": 100,
-      "I": 57.1,
-      "X": 100,
-      "L": 70,
-      "O": 100,
-      "B": 50,
-      "score": 83.8,
-      "hard_gate": true,
-      "outcome": "INDEXABLE_CANDIDATE",
+      "serp_gate": "pass",
+      "outcome": "PROPOSE_LANDING_BUSINESS_CASE",
       "reason_codes": [
-        "INDEXABLE_ELIGIBLE",
+        "SEARCH_GATE_PASS",
+        "DEMAND_STRONG",
+        "DEPTH_STRONG",
         "DECORATIVE_ARMOR_INTENT_GUARDRAIL"
       ],
-      "notes": "Use shoulder armor costume/cosplay terms as secondary support; exclude ballistic/tactical/protective claims."
+      "notes": "Broad query contains protective/historical armor. FEYA page must be framed as decorative costume/stage shoulder armor; no protective claims."
     },
     {
       "node": "FASHION_HARNESS",
       "primary_cluster": "fashion harness",
+      "related_clusters": [
+        "body harness",
+        "clothing harness",
+        "women's body harness"
+      ],
       "products": 11,
       "D": 100,
       "P": 75,
-      "I": 22.2,
-      "X": null,
-      "L": 70,
-      "O": 100,
-      "B": 50,
-      "score": null,
-      "hard_gate": false,
+      "serp_gate": "fail",
       "outcome": "NON_INDEXABLE_FILTER",
       "reason_codes": [
         "COMMERCIAL_SERP_GATE_FAILED",
         "SEARCH_ONLY_AXIS_EXCLUDED"
       ],
-      "notes": "Keep sellable harness merchandising; do not let 29 search-only harness semantics inflate depth."
+      "notes": "Only sellable harness axes count; search-only harness semantics are excluded from depth."
     },
     {
       "node": "FESTIVAL_HARNESS",
@@ -50,13 +56,7 @@
       "products": 4,
       "D": 40,
       "P": 50,
-      "I": 12.5,
-      "X": null,
-      "L": 70,
-      "O": 100,
-      "B": 50,
-      "score": null,
-      "hard_gate": false,
+      "serp_gate": "fail",
       "outcome": "NON_INDEXABLE_FILTER",
       "reason_codes": [
         "COMMERCIAL_SERP_GATE_FAILED",
@@ -69,13 +69,7 @@
       "products": 2,
       "D": 40,
       "P": 25,
-      "I": null,
-      "X": null,
-      "L": 70,
-      "O": 100,
-      "B": 50,
-      "score": null,
-      "hard_gate": false,
+      "serp_gate": "not_required_after_depth_fail",
       "outcome": "PDP_KEYWORD_OR_FILTER",
       "reason_codes": [
         "THIN_PRODUCT_DEPTH"
@@ -84,89 +78,80 @@
     {
       "node": "FESTIVAL_OUTFITS",
       "primary_cluster": "festival outfits",
+      "separate_unowned_clusters": [
+        "festival costumes"
+      ],
       "products": 111,
       "D": 100,
       "P": 100,
-      "I": 60,
-      "X": 100,
-      "L": 70,
-      "O": 100,
-      "B": 50,
-      "score": 84.5,
-      "hard_gate": true,
-      "outcome": "INDEXABLE_CANDIDATE",
+      "serp_gate": "pass",
+      "outcome": "PROPOSE_LANDING_BUSINESS_CASE",
       "reason_codes": [
-        "INDEXABLE_ELIGIBLE"
+        "SEARCH_GATE_PASS",
+        "DEMAND_STRONG",
+        "DEPTH_STRONG"
       ]
     },
     {
       "node": "RAVE_OUTFITS",
       "primary_cluster": "rave outfits",
+      "additional_cluster_same_page_candidate": [
+        "rave costumes"
+      ],
       "products": 40,
       "D": 100,
       "P": 100,
-      "I": 77.8,
-      "X": 100,
-      "L": 70,
-      "O": 100,
-      "B": 50,
-      "score": 89,
-      "hard_gate": true,
-      "outcome": "INDEXABLE_CANDIDATE",
+      "serp_gate": "pass",
+      "outcome": "PROPOSE_LANDING_BUSINESS_CASE",
       "reason_codes": [
-        "INDEXABLE_ELIGIBLE"
-      ]
+        "SEARCH_GATE_PASS",
+        "DEMAND_STRONG",
+        "DEPTH_STRONG"
+      ],
+      "notes": "Rave costumes also passes commercial SERP; keep as separate query cluster initially and evaluate same-page ownership rather than creating a second URL."
     },
     {
       "node": "BURNING_MAN_OUTFITS",
       "primary_cluster": "burning man outfits",
-      "secondary_clusters": [
+      "additional_cluster_same_page_candidate": [
         "burning man costumes"
       ],
       "products": 45,
       "D": 100,
       "P": 100,
-      "I": 44.4,
-      "X": 100,
-      "L": 70,
-      "O": 100,
-      "B": 50,
-      "score": 80.6,
-      "hard_gate": true,
-      "outcome": "INDEXABLE_CANDIDATE",
+      "serp_gate": "pass",
+      "outcome": "PROPOSE_LANDING_BUSINESS_CASE",
       "reason_codes": [
-        "INDEXABLE_ELIGIBLE",
-        "SEASONAL_DEMAND_OVERRIDE_NOT_REQUIRED"
+        "SEARCH_GATE_PASS",
+        "DEMAND_STRONG",
+        "DEPTH_STRONG",
+        "SEASONAL"
       ],
-      "notes": "Do not create separate outfits/costumes owners; same product job can be served by one owner."
+      "notes": "Outfits and costumes are separate query clusters under current SERP evidence; one page may own both if Phase C confirms distinct modules do not require two pages."
     },
     {
       "node": "PERFORMANCE_COSTUMES",
       "primary_cluster": "performance costumes",
-      "secondary_clusters": [
+      "separate_hold_clusters": [
         "stage outfits",
-        "stage wear"
+        "stage costumes",
+        "performance outfits"
       ],
       "excluded_or_review": [
-        "stage costumes",
-        "dance costumes"
+        "dance costumes",
+        "showgirl costumes"
       ],
       "products": 96,
       "D": 70,
       "P": 100,
-      "I": 100,
-      "X": 100,
-      "L": 70,
-      "O": 100,
-      "B": 50,
-      "score": 88.5,
-      "hard_gate": true,
-      "outcome": "INDEXABLE_CANDIDATE",
+      "serp_gate": "pass",
+      "outcome": "PROPOSE_LANDING_BUSINESS_CASE",
       "reason_codes": [
-        "INDEXABLE_ELIGIBLE",
-        "PRODUCT_INTENT_FIT_REVIEW"
+        "SEARCH_GATE_PASS",
+        "DEPTH_STRONG",
+        "COMPETITOR_WHITE_SPACE"
       ],
-      "notes": "Stage costumes SERP fails; broad dance costumes is a much larger recital market and is not automatically targeted."
+      "notes": "Do not merge stage/performance phrases into one query cluster: observed SERPs are distinct. 'Dance costumes' is a much larger recital market and needs separate product-fit evidence."
     },
     {
       "node": "COSTUME_BODYSUITS",
@@ -174,16 +159,12 @@
       "products": 30,
       "D": 100,
       "P": 100,
-      "I": 100,
-      "X": 100,
-      "L": 70,
-      "O": 100,
-      "B": 50,
-      "score": 94.5,
-      "hard_gate": true,
-      "outcome": "INDEXABLE_CANDIDATE",
+      "serp_gate": "pass",
+      "outcome": "PROPOSE_LANDING_BUSINESS_CASE",
       "reason_codes": [
-        "INDEXABLE_ELIGIBLE"
+        "SEARCH_GATE_PASS",
+        "DEMAND_STRONG",
+        "DEPTH_STRONG"
       ]
     },
     {
@@ -193,17 +174,12 @@
       "distinct_primary_images": 6,
       "D": 70,
       "P": 50,
-      "I": 100,
-      "X": 100,
-      "L": 70,
-      "O": 100,
-      "B": 50,
-      "score": 78.5,
-      "hard_gate": true,
-      "outcome": "INDEXABLE_CANDIDATE_PENDING_FAMILY_KEY",
+      "serp_gate": "pass",
+      "outcome": "HOLD_FOR_DESIGN_FAMILY_AND_DIFFERENTIATION",
       "reason_codes": [
-        "INDEXABLE_ELIGIBLE",
-        "DESIGN_FAMILY_KEY_TO_MATERIALIZE"
+        "SEARCH_GATE_PASS",
+        "DESIGN_FAMILY_KEY_REQUIRED",
+        "LOWER_DEPTH"
       ]
     },
     {
@@ -212,16 +188,11 @@
       "products": 11,
       "D": 100,
       "P": 75,
-      "I": 88.9,
-      "X": 75,
-      "L": 70,
-      "O": 100,
-      "B": 50,
-      "score": 83,
-      "hard_gate": true,
-      "outcome": "INDEXABLE_CANDIDATE",
+      "serp_gate": "pass",
+      "outcome": "PROPOSE_LANDING_BUSINESS_CASE",
       "reason_codes": [
-        "INDEXABLE_ELIGIBLE"
+        "SEARCH_GATE_PASS",
+        "DEMAND_STRONG"
       ]
     },
     {
@@ -231,17 +202,12 @@
       "distinct_primary_images": 6,
       "D": 70,
       "P": 50,
-      "I": 62.5,
-      "X": 75,
-      "L": 70,
-      "O": 100,
-      "B": 50,
-      "score": 65.4,
-      "hard_gate": true,
-      "outcome": "HOLD_FILTER",
+      "serp_gate": "pass",
+      "outcome": "HOLD_FOR_DESIGN_FAMILY_AND_DIFFERENTIATION",
       "reason_codes": [
-        "LANDING_SCORE_BELOW_70",
-        "DESIGN_FAMILY_KEY_TO_MATERIALIZE"
+        "SEARCH_GATE_PASS",
+        "DESIGN_FAMILY_KEY_REQUIRED",
+        "LOWER_DEPTH"
       ]
     },
     {
@@ -250,16 +216,11 @@
       "products": 34,
       "D": 40,
       "P": 100,
-      "I": 66.7,
-      "X": 100,
-      "L": 70,
-      "O": 100,
-      "B": 50,
-      "score": 74.2,
-      "hard_gate": true,
-      "outcome": "INDEXABLE_CANDIDATE",
+      "serp_gate": "pass",
+      "outcome": "PROPOSE_LANDING_BUSINESS_CASE",
       "reason_codes": [
-        "INDEXABLE_ELIGIBLE"
+        "SEARCH_GATE_PASS",
+        "DEPTH_STRONG"
       ]
     },
     {
@@ -268,18 +229,13 @@
       "products": 11,
       "D": 40,
       "P": 75,
-      "I": 71.4,
-      "X": 100,
-      "L": 70,
-      "O": 100,
-      "B": 50,
-      "score": 70.4,
-      "hard_gate": true,
-      "outcome": "INDEXABLE_CANDIDATE",
+      "serp_gate": "pass",
+      "outcome": "HOLD_FOR_DIFFERENTIATION",
       "reason_codes": [
-        "INDEXABLE_ELIGIBLE"
-      ],
-      "notes": "Narrow pass under v1; keep separate only if final membership/content remains distinct from Costume Headpieces."
+        "SEARCH_GATE_PASS",
+        "NARROW_DEMAND",
+        "SEPARATE_INTENT_FROM_COSTUME_HEADPIECE"
+      ]
     },
     {
       "node": "COSTUME_SKIRTS",
@@ -287,13 +243,7 @@
       "products": 89,
       "D": 70,
       "P": 100,
-      "I": 0,
-      "X": null,
-      "L": 70,
-      "O": 100,
-      "B": 50,
-      "score": null,
-      "hard_gate": false,
+      "serp_gate": "fail",
       "outcome": "PDP_KEYWORD_OR_FILTER",
       "reason_codes": [
         "PDP_SERP_DOMINANT",
@@ -306,16 +256,12 @@
       "products": 56,
       "D": 100,
       "P": 100,
-      "I": 77.8,
-      "X": 75,
-      "L": 70,
-      "O": 100,
-      "B": 50,
-      "score": 85.2,
-      "hard_gate": true,
-      "outcome": "INDEXABLE_CANDIDATE",
+      "serp_gate": "pass",
+      "outcome": "PROPOSE_LANDING_BUSINESS_CASE",
       "reason_codes": [
-        "INDEXABLE_ELIGIBLE"
+        "SEARCH_GATE_PASS",
+        "DEMAND_STRONG",
+        "DEPTH_STRONG"
       ]
     },
     {
@@ -324,16 +270,11 @@
       "products": 13,
       "D": 70,
       "P": 75,
-      "I": 100,
-      "X": 100,
-      "L": 70,
-      "O": 100,
-      "B": 50,
-      "score": 83.5,
-      "hard_gate": true,
-      "outcome": "INDEXABLE_CANDIDATE",
+      "serp_gate": "pass",
+      "outcome": "PROPOSE_LANDING_BUSINESS_CASE",
       "reason_codes": [
-        "INDEXABLE_ELIGIBLE"
+        "SEARCH_GATE_PASS",
+        "DEPTH_PLAUSIBLE"
       ]
     },
     {
@@ -343,25 +284,56 @@
       "distinct_primary_images": 4,
       "D": 100,
       "P": 50,
-      "I": 11.1,
-      "X": null,
-      "L": 70,
-      "O": 100,
-      "B": 50,
-      "score": null,
-      "hard_gate": false,
+      "serp_gate": "fail",
       "outcome": "PDP_KEYWORD_OR_FILTER",
       "reason_codes": [
         "PDP_SERP_DOMINANT",
         "COMMERCIAL_SERP_GATE_FAILED",
         "MINIMUM_DEPTH_BOUNDARY"
       ]
+    },
+    {
+      "node": "COSTUME_SETS",
+      "primary_cluster": "costume sets",
+      "products": null,
+      "D": 70,
+      "P": null,
+      "serp_gate": "fail",
+      "outcome": "NO_DEDICATED_LANDING",
+      "reason_codes": [
+        "PDP_SERP_DOMINANT",
+        "COMMERCIAL_SERP_GATE_FAILED"
+      ]
+    },
+    {
+      "node": "FESTIVAL_COSTUMES",
+      "primary_cluster": "festival costumes",
+      "products": 111,
+      "D": 70,
+      "P": 100,
+      "serp_gate": "fail",
+      "outcome": "NO_SEPARATE_PRIMARY_OWNER_YET",
+      "reason_codes": [
+        "COMMERCIAL_SERP_GATE_FAILED",
+        "DO_NOT_MERGE_WITH_FESTIVAL_OUTFITS_WITHOUT_EVIDENCE"
+      ]
     }
   ],
+  "phase_c_business_case_candidates": [
+    "SHOULDER_ARMOR",
+    "FESTIVAL_OUTFITS",
+    "RAVE_OUTFITS",
+    "BURNING_MAN_OUTFITS",
+    "PERFORMANCE_COSTUMES",
+    "COSTUME_BODYSUITS",
+    "COSTUME_MASKS",
+    "COSTUME_HEADPIECES",
+    "FESTIVAL_SKIRTS",
+    "COSTUME_BELTS"
+  ],
   "constraints": [
-    "Scores are preliminary because design_family_key is not yet materialized in Page Portfolio.",
-    "X uses current product-set overlap plus planned unique modules; final X is recalculated after membership snapshots exist.",
-    "L=70 is a plan commitment, not a claim that links already exist.",
-    "No current outcome changes robots/indexation."
+    "Design-family keys are not yet canonical; Phase D must create a conservative family policy before final index promotion.",
+    "Differentiation modules and link edges are not yet approved, so no page is INDEXABLE_COLLECTION yet.",
+    "Current collection preview routes remain noindex."
   ]
 }
