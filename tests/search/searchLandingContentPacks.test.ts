@@ -20,7 +20,7 @@ test('Phase E content packs cover every and only current business-case collectio
   const expected=getBusinessCaseLandingCandidates().map((x)=>'/collections/'+x.slug).sort();
   const actual=pack.pages.map((x:any)=>x.path).sort();
   assert.deepEqual(actual,expected);
-  assert.equal(pack.status,'DRAFT_CQA_PENDING');
+  assert.equal(pack.status,'DRAFT_CQA_PASS_RELEASE_HOLD');
   assert.equal(pack.rules.index_authorized,false);
 });
 
