@@ -8,6 +8,10 @@ test('measurement runtime is mounted globally but remains environment gated',asy
   assert.match(layout,/MeasurementRuntime/);
   assert.match(route,/environment==='production'/);
   assert.match(route,/FEYA_ANALYTICS_ENABLED==='true'/);
+  assert.match(route,/FEYA_ANALYTICS_PRIVACY_READY==='true'/);
+  assert.match(layout,/AnalyticsConsentBanner/);
+  assert.match(layout,/publicLegalIdentityReady\(\)/);
+  assert.match(layout,/FEYA_ANALYTICS_PRIVACY_READY==='true'/);
   assert.match(route,/FEYA_GA4_MEASUREMENT_ID/);
   assert.match(route,/measurement_private_surface_excluded/);
   assert.match(route,/Cache-Control':'no-store/);
@@ -47,4 +51,15 @@ test('Growth OS registry describes measurement as available-with-limitations and
   assert.match(sql,/"default_state":"off"/);
   assert.match(sql,/"explicit_analytics_consent_required":true/);
   assert.match(sql,/"purchase_requires":\["transaction_id","server_order_receipt_id","currency","value","items"\]/);
+});
+
+test('privacy control is available only after legal/privacy/analytics readiness and supports later withdrawal',async()=>{
+  const consent=await readFile(new URL('../../components/AnalyticsConsentBanner.tsx',import.meta.url),'utf8');
+  const privacy=await readFile(new URL('../../app/privacy/page.tsx',import.meta.url),'utf8');
+  assert.match(consent,/Allow analytics/);
+  assert.match(consent,/Decline analytics/);
+  assert.match(consent,/setAnalyticsConsent\(value\)/);
+  assert.match(privacy,/AnalyticsConsentPreferences/);
+  assert.match(privacy,/FEYA_ANALYTICS_PRIVACY_READY==='true'/);
+  assert.match(privacy,/FEYA_ANALYTICS_ENABLED==='true'/);
 });
