@@ -40,6 +40,8 @@ export default async function SearchLandingCandidatePage({params}:PageProps){
 
   const {candidate,content,products,breadcrumbs,relatedLinks,membershipCount,holdReason,version,contentHash}=release;
   const isHold=candidate.searchStatus==='hold_noindex';
+  if(isHold)notFound();
+  const showSearchPreviewStatus=process.env.VERCEL_ENV!=='production'||process.env.FEYA_SHOW_SEARCH_PREVIEW_STATUS==='true';
 
   const breadcrumbLd={
     '@context':'https://schema.org',
@@ -101,17 +103,15 @@ export default async function SearchLandingCandidatePage({params}:PageProps){
       </div>
     </section>
 
-    <section className="container-feya pb-8">
+    {showSearchPreviewStatus?<section className="container-feya pb-8">
       <div className="rounded-xl border border-[rgba(212,178,106,.24)] bg-[rgba(212,178,106,.055)] p-5 text-[13px] leading-6 text-[var(--bone-dim)]">
-        <span className="text-bone">Search release status:</span>{' '}
-        {isHold
-          ? `hold / noindex. ${holdReason || 'This prototype has no approved search owner.'}`
-          : `CQA-passed preview / noindex. Page version v${version} and its immutable product membership are rendered together. Indexing is still blocked until the selective release gate.`}
-        {!isHold&&contentHash?<span className="ml-2 text-[10px] text-[var(--smoke)]">Content {contentHash.slice(0,12)}…</span>:null}
+        <span className="text-bone">Preview:</span> 
+        {`page version v${version} and its immutable product membership are rendered together.`}
+        {contentHash?<span className="ml-2 text-[10px] text-[var(--smoke)]">Content {contentHash.slice(0,12)}…</span>:null}
       </div>
-    </section>
+    </section>:null}
 
-    {!isHold&&content?<>
+    {content?<>
       <section className="container-feya pb-10">
         <div className="grid gap-4 lg:grid-cols-2">
           {content.modules.map((module)=>(
@@ -174,11 +174,7 @@ export default async function SearchLandingCandidatePage({params}:PageProps){
           </div>
         </div>
       </section>:null}
-    </>:<section className="container-feya pb-16 lg:pb-24">
-      <div className="rounded-xl border border-[rgba(216,214,211,.14)] p-6 text-[var(--bone-dim)]">
-        This prototype remains intentionally empty as an SEO collection. Products continue to be discoverable through Shop and evidence-backed collection owners.
-      </div>
-    </section>}
+    </>:null}
 
     <Footer/>
   </main>;
