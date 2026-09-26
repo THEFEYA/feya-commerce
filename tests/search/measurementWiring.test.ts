@@ -18,6 +18,7 @@ test('measurement client requires explicit analytics consent before loading Goog
   const runtime=await readFile(new URL('../../components/MeasurementRuntime.tsx',import.meta.url),'utf8');
   assert.match(runtime,/pathname\.startsWith\('\/admin'\)/);
   assert.match(runtime,/pathname\.startsWith\('\/api'\)/);
+  assert.match(runtime,/getAnalyticsConsent\(\)!=='granted'/);
   assert.match(client,/getAnalyticsConsent\(\)!=='granted'/);
   assert.match(client,/googletagmanager\.com\/gtag\/js/);
   assert.match(client,/ensureGoogleTag\(\)/);
