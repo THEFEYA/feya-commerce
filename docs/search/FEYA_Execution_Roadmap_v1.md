@@ -1,3 +1,18 @@
+## Phase G Wave A hardening checkpoint — 26.09.2026
+
+- The public indexation path is now fail-closed: root metadata defaults to noindex and only an ACTIVE immutable search release may opt an exact path into indexing.
+- Sitemap reads only ACTIVE release INDEX_CANDIDATE items; robots advertises that sitemap only when an active release exists.
+- A Human Owner-gated activation gateway exists in Supabase. It requires exact release hash + git SHA + all 20 gate rows with no FAIL; prepare never activates a release by itself.
+- Organic Wave A v1 remains immutable historical evidence and still has status GATE_FAILED. No active search release exists.
+- All 18 Wave A index-candidate pages now have immutable Page Portfolio page versions and confirmed truth status, including Home, Collections hub and the trust/support shell.
+- `/cart` and `/account` are truthful noindex pre-launch utilities; public navigation no longer targets missing routes.
+- Public Header/Footer routing was reconciled to evidence-backed collection/trust owners and the public `/admin` footer link was removed.
+- Homepage unsupported `Best sellers` / `New arrivals` labels were removed because the current rails are not evidence-sorted.
+- Burning Man official 2026 sources were reviewed, the guide was drafted from those sources, CQA-passed and stored as an immutable noindex editorial version. It remains outside Wave A.
+- Commerce authority is now materially complete for the sealed 207-product release: 856 variant identities, 207 variant heads, 207 offer heads, 856 offer items and 856 quote receipts; payment/order creation/indexing remain off.
+
+**Next finite package:** freeze the exact branch SHA only after CI/Vercel pass, create Organic Wave A v2 in runtime state with exact deployment evidence, then evaluate K01–K20 again without rewriting v1. Canonical-domain availability, Terms/seller identity, Privacy, GSC/measurement and Human Owner activation remain real blockers where still unresolved.
+
 ## Phase G selective-release foundation — 26.09.2026
 
 - An immutable search release model now exists in Supabase: releases, release items, and K01–K20 gate snapshots.
