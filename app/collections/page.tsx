@@ -4,13 +4,16 @@ import {ArrowUpRight} from 'lucide-react';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 import {getBusinessCaseLandingCandidates} from '@/config/searchLandingCandidates';
+import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
 
-export const metadata:Metadata={
-  title:'Shop TheFEYA Collections',
-  description:'Browse TheFEYA by product type, event and performance use through the current evidence-backed collection architecture.',
-  alternates:{canonical:'/collections'},
-  robots:{index:false,follow:true},
-};
+export async function generateMetadata():Promise<Metadata>{
+  return{
+    title:'Shop TheFEYA Collections',
+    description:'Browse TheFEYA by product type, event and performance use through the current evidence-backed collection architecture.',
+    alternates:{canonical:'/collections'},
+    robots:await releaseRobotsForPath('/collections'),
+  };
+}
 
 export default function CollectionsHubPage(){
   const collections=getBusinessCaseLandingCandidates();
