@@ -29,7 +29,7 @@ const FOOTER_COLUMNS = [
       ['About TheFEYA', '/about'],
       ['Contact', '/contact'],
       ['Collections', '/collections'],
-      ['Atelier OS', '/admin'],
+      ['Shipping & delivery', '/shipping'],
     ],
   },
 ];
