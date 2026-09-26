@@ -6,6 +6,7 @@ import {Footer} from '@/components/Footer';
 import {ProductCard} from '@/components/ProductCard';
 import {getSearchLandingCandidate} from '@/config/searchLandingCandidates';
 import {readSearchLandingRelease} from '@/lib/searchLandingPageServer';
+import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
 
 export const dynamic='force-dynamic';
 export const revalidate=0;
@@ -28,7 +29,7 @@ export async function generateMetadata({params}:PageProps):Promise<Metadata>{
     title:content?.seo_title || candidate.title,
     description:content?.meta_description || candidate.description,
     alternates:{canonical:`/collections/${candidate.slug}`},
-    robots:{index:false,follow:true},
+    robots:await releaseRobotsForPath(`/collections/${candidate.slug}`),
   };
 }
 
