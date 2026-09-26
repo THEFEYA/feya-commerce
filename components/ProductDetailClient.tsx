@@ -26,6 +26,7 @@ import { colorStyle } from '@/components/colors';
 import { ProductCard } from '@/components/ProductCard';
 import { SalePrice } from '@/components/SalePrice';
 import { resolveThefeyaRightPdpPanel } from '@/lib/thefeyaSeoDoctrine';
+import { trackEcommerceEvent } from '@/lib/measurementClient';
 import { resolveFullSetPriceComparison } from '@/lib/storefrontPriceComparison';
 import type { StorefrontProduct } from '@/lib/types';
 import { storefrontIncludedOptions } from '@/lib/storefrontIncludedOptions';
@@ -134,6 +135,7 @@ export function ProductDetailClient({
   const thumbnailRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const mainMediaRef = useRef<HTMLButtonElement | null>(null);
   const lightboxCloseRef = useRef<HTMLButtonElement | null>(null);
+  const measuredViewProductRef = useRef('');
 
   const activeConfig = options.find((o, i) => optionKey(o, i) === configKey) || options[0] || null;
   const activeConfigIndex = activeConfig ? Math.max(0, options.indexOf(activeConfig)) : 0;
@@ -198,6 +200,19 @@ export function ProductDetailClient({
   }, [idx]);
 
   useEffect(() => {
+    if (!p.canonical_product_id || measuredViewProductRef.current === p.canonical_product_id) return;
+    measuredViewProductRef.current = p.canonical_product_id;
+    trackEcommerceEvent('view_item',{
+      canonical_product_id:p.canonical_product_id,
+      sku_id:activeConfig?.configuration_id || activeConfig?.configuration_price_id || activeConfig?.source_price_row_id || null,
+      quantity:1,
+      item_price:sale,
+      item_value:sale,
+      currency,
+    },{currency,value:sale});
+  },[p.canonical_product_id,activeConfig,sale,currency]);
+
+  useEffect(() => {
     if (!lightboxOpen) return;
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const focusClose = () => lightboxCloseRef.current?.focus();
@@ -260,6 +275,14 @@ export function ProductDetailClient({
     window.localStorage.setItem(CART_KEY, JSON.stringify(next));
     window.localStorage.setItem(COUNT_KEY, String(next.reduce((sum: number, item: { qty: number }) => sum + item.qty, 0)));
     window.dispatchEvent(new Event('storage'));
+    trackEcommerceEvent('add_to_cart',{
+      canonical_product_id:p.canonical_product_id,
+      sku_id:activeConfig?.configuration_id || activeConfig?.configuration_price_id || activeConfig?.source_price_row_id || null,
+      quantity:qty,
+      item_price:sale,
+      item_value:total,
+      currency,
+    },{currency,value:total});
     setAdded(true);
     if (goToCart) {
       window.location.href = '/cart';
