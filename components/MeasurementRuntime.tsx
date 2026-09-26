@@ -9,6 +9,10 @@ export function MeasurementRuntime(){
   const pathname=usePathname();
 
   useEffect(()=>{
+    if(!pathname||pathname.startsWith('/admin')||pathname.startsWith('/api')){
+      setMeasurementPageContext(null);
+      return;
+    }
     let cancelled=false;
     const controller=new AbortController();
 
