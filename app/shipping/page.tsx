@@ -2,13 +2,18 @@ import type {Metadata} from 'next';
 import Link from 'next/link';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
+import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
 
-export const metadata:Metadata={
-  title:'Shipping & Delivery',
-  description:'TheFEYA production times, international shipping estimates, customs and delivery policy.',
-  alternates:{canonical:'/shipping'},
-  robots:{index:false,follow:true},
-};
+export async function generateMetadata():Promise<Metadata>{
+  return{
+    title:'Shipping & Delivery',
+      description:'TheFEYA production times, international shipping estimates, customs and delivery policy.',
+      alternates:{canonical:'/shipping'},
+      
+    };
+    robots:await releaseRobotsForPath('/shipping'),
+  };
+}
 
 export default function ShippingPage(){
   return <main className="relative min-h-screen">
