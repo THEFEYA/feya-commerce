@@ -29,6 +29,7 @@ async function getRows(): Promise<{ rows: Row[]; commerceRows: Row[]; error?: st
         'REPAIR_RELEASE_CONFIGURATION_BINDINGS',
         'REPAIR_MANUAL_CONFIGURATION_BINDINGS',
         'ADOPT_MANUAL_PRICE_LANE_GOVERNANCE',
+        'ADOPT_COLOR_PRICE_LANE_GOVERNANCE',
       ])
       .order('created_at', { ascending: true }),
   ]);
