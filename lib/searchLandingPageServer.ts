@@ -4,6 +4,7 @@ import type {StorefrontProduct} from '@/lib/types';
 import {getSupabaseServiceRoleClient} from '@/lib/supabaseAdmin';
 import {STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4} from '@/lib/storefront';
 import {getSearchLandingCandidate, type SearchLandingCandidate} from '@/config/searchLandingCandidates';
+import {readSearchReleasePathState} from '@/lib/searchReleaseIndexationServer';
 
 export type SearchLandingContentModule = {
   heading: string;
@@ -80,6 +81,7 @@ function assertContent(value: unknown, expectedPath: string): SearchLandingConte
 async function readBreadcrumbs(
   service: ReturnType<typeof getSupabaseServiceRoleClient>,
   pageId: string,
+  currentPageLabel?: string,
 ): Promise<SearchLandingBreadcrumb[]> {
   if (!service) return [];
 
@@ -101,7 +103,9 @@ async function readBreadcrumbs(
 
     let label = page.url_path === '/' ? 'Home' : page.url_path === '/shop' ? 'Shop' : page.url_path.split('/').filter(Boolean).pop() || 'Collection';
 
-    if (page.url_path.startsWith('/collections/')) {
+    if (currentId === pageId && currentPageLabel?.trim()) {
+      label = currentPageLabel.trim();
+    } else if (page.url_path.startsWith('/collections/')) {
       const {data: version} = await service
         .from('feya_search_page_versions_v1')
         .select('content_json,version_number')
@@ -205,19 +209,55 @@ async function readSearchLandingReleaseInner(slug: string): Promise<SearchLandin
 
   if (pageError) throw new Error(`SEARCH_LANDING_PAGE_LOOKUP_FAILED:${pageError.message}`);
   if (!page?.seo_page_id) throw new Error('SEARCH_LANDING_PAGE_NOT_REGISTERED');
-  if (page.indexation_intent !== 'noindex') throw new Error('SEARCH_LANDING_PREVIEW_MUST_REMAIN_NOINDEX');
 
   const pageId = String(page.seo_page_id);
-  const {data: version, error: versionError} = await service
-    .from('feya_search_page_versions_v1')
-    .select('version_number,membership_snapshot_id,content_hash,content_json')
-    .eq('seo_page_id',pageId)
-    .order('version_number',{ascending:false})
-    .limit(1)
-    .maybeSingle();
+  const releaseState = await readSearchReleasePathState(urlPath);
+  const activeBinding = releaseState.release && releaseState.included ? releaseState : null;
+
+  if (activeBinding) {
+    if (activeBinding.itemRole !== 'INDEX_CANDIDATE' || activeBinding.intendedIndexState !== 'index') {
+      throw new Error('SEARCH_LANDING_ACTIVE_RELEASE_ROLE_INVALID');
+    }
+    if (activeBinding.seoPageId !== pageId) {
+      throw new Error('SEARCH_LANDING_ACTIVE_RELEASE_PAGE_MISMATCH');
+    }
+    if (!activeBinding.pageVersionId || !activeBinding.membershipSnapshotId || !activeBinding.contentHash) {
+      throw new Error('SEARCH_LANDING_ACTIVE_RELEASE_BINDING_INCOMPLETE');
+    }
+  } else if (page.indexation_intent !== 'noindex') {
+    throw new Error('SEARCH_LANDING_PREVIEW_MUST_REMAIN_NOINDEX');
+  }
+
+  const versionResult = activeBinding
+    ? await service
+        .from('feya_search_page_versions_v1')
+        .select('page_version_id,version_number,membership_snapshot_id,content_hash,content_json')
+        .eq('seo_page_id',pageId)
+        .eq('page_version_id',activeBinding.pageVersionId)
+        .maybeSingle()
+    : await service
+        .from('feya_search_page_versions_v1')
+        .select('page_version_id,version_number,membership_snapshot_id,content_hash,content_json')
+        .eq('seo_page_id',pageId)
+        .order('version_number',{ascending:false})
+        .limit(1)
+        .maybeSingle();
+  const {data: version, error: versionError} = versionResult;
 
   if (versionError) throw new Error(`SEARCH_LANDING_VERSION_LOOKUP_FAILED:${versionError.message}`);
   if (!version?.membership_snapshot_id || !version?.content_hash) throw new Error('SEARCH_LANDING_VERSION_MISSING');
+
+  if (activeBinding) {
+    if (String(version.page_version_id) !== activeBinding.pageVersionId) {
+      throw new Error('SEARCH_LANDING_ACTIVE_RELEASE_VERSION_MISMATCH');
+    }
+    if (String(version.membership_snapshot_id) !== activeBinding.membershipSnapshotId) {
+      throw new Error('SEARCH_LANDING_ACTIVE_RELEASE_MEMBERSHIP_MISMATCH');
+    }
+    if (String(version.content_hash) !== activeBinding.contentHash) {
+      throw new Error('SEARCH_LANDING_ACTIVE_RELEASE_CONTENT_HASH_MISMATCH');
+    }
+  }
 
   const content = assertContent(version.content_json,urlPath);
   if (content.primary_cluster !== candidate.primaryCluster) {
@@ -270,7 +310,7 @@ async function readSearchLandingReleaseInner(slug: string): Promise<SearchLandin
   }
 
   const [breadcrumbs,relatedLinks] = await Promise.all([
-    readBreadcrumbs(service,pageId),
+    readBreadcrumbs(service,pageId,content.h1),
     readApprovedRelatedLinks(service,pageId,content),
   ]);
 
