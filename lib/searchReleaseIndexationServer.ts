@@ -18,6 +18,10 @@ export type SearchReleasePathState = {
   included:boolean;
   intendedIndexState:'index'|'noindex'|null;
   itemRole:'INDEX_CANDIDATE'|'NOINDEX_DEPENDENCY'|null;
+  seoPageId:string|null;
+  pageVersionId:string|null;
+  membershipSnapshotId:string|null;
+  contentHash:string|null;
 };
 
 const readActiveRelease=cache(async():Promise<ActiveSearchRelease|null>=>{
@@ -56,20 +60,24 @@ const readActiveRelease=cache(async():Promise<ActiveSearchRelease|null>=>{
 
 export const readSearchReleasePathState=cache(async(path:string):Promise<SearchReleasePathState>=>{
   const release=await readActiveRelease();
-  if(!release)return{release:null,path,included:false,intendedIndexState:null,itemRole:null};
+  if(!release)return{release:null,path,included:false,intendedIndexState:null,itemRole:null,seoPageId:null,pageVersionId:null,membershipSnapshotId:null,contentHash:null};
 
   const service=getSupabaseServiceRoleClient();
-  if(!service)return{release:null,path,included:false,intendedIndexState:null,itemRole:null};
+  if(!service)return{release:null,path,included:false,intendedIndexState:null,itemRole:null,seoPageId:null,pageVersionId:null,membershipSnapshotId:null,contentHash:null};
 
   const result=await service
     .from('feya_search_release_items_v1')
-    .select('item_role,intended_index_state,url_path_snapshot')
+    .select('seo_page_id,page_version_id,membership_snapshot_id,content_hash,item_role,intended_index_state,url_path_snapshot')
     .eq('release_id',release.releaseId)
     .eq('url_path_snapshot',path)
     .maybeSingle();
 
   if(result.error||!result.data)return{release,path,included:false,intendedIndexState:null,itemRole:null};
   const row=result.data as unknown as {
+    seo_page_id:string;
+    page_version_id:string|null;
+    membership_snapshot_id:string|null;
+    content_hash:string|null;
     item_role:'INDEX_CANDIDATE'|'NOINDEX_DEPENDENCY';
     intended_index_state:'index'|'noindex';
     url_path_snapshot:string;
@@ -80,6 +88,10 @@ export const readSearchReleasePathState=cache(async(path:string):Promise<SearchR
     included:true,
     intendedIndexState:row.intended_index_state,
     itemRole:row.item_role,
+    seoPageId:String(row.seo_page_id),
+    pageVersionId:row.page_version_id?String(row.page_version_id):null,
+    membershipSnapshotId:row.membership_snapshot_id?String(row.membership_snapshot_id):null,
+    contentHash:row.content_hash?String(row.content_hash):null,
   };
 });
 
