@@ -47,7 +47,7 @@ test('approved-copy wiring preserves prior PDP markup, classes and component lay
   const baseline = JSON.parse(readFileSync('config/product-os-pdp-jsx-baseline.json','utf8'));
   const source = readFileSync('app/shop/[slug]/page.tsx','utf8');
   assert.equal(pdpJsxHash(source), baseline.normalized_jsx_sha256);
-  assert.ok(source.includes('href={collection.href}'));
+  assert.ok(source.includes('href={`/collections/${collection.slug}`}'));
   assert.ok(source.includes('readProductLandingLinks'));
   assert.ok(source.includes('draft={approvedCopy?.draft} previewMode={Boolean(approvedCopy)}'));
 });
