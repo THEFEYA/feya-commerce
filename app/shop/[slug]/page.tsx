@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { ProductDetailClient } from '@/components/ProductDetailClient';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
-import { collectionsForProduct } from '@/lib/public-collections';
+import { readProductLandingLinks } from '@/lib/searchProductLandingLinks';
 import {
   STOREFRONT_FALLBACK_CARD_SELECT,
   STOREFRONT_MEDIA_FAST_SELECT,
@@ -202,7 +202,7 @@ export default async function ProductPage({ params }: PageProps) {
   if (!product) return <main className="min-h-screen"><Header /><div className="container-feya pt-40"><div className="glass rounded-xl p-6">Product not found. <Link className="text-gold" href="/shop">Back to shop</Link></div></div></main>;
 
   const jsonLd = productJsonLd(product, slug, approvedCopy);
-  const productCollections = collectionsForProduct(product);
+  const productCollections = await readProductLandingLinks(String(product.canonical_product_id || ''));
 
   return <main className="relative min-h-screen">
     <Header />
@@ -211,7 +211,7 @@ export default async function ProductPage({ params }: PageProps) {
     {productCollections.length ? <section className="container-feya py-10 border-t border-[rgba(216,214,211,.12)]">
       <div className="eyebrow-gold mb-4">Explore related collections</div>
       <div className="flex flex-wrap gap-2">
-        {productCollections.map((collection) => <Link key={collection.slug} href={`/shop?collection=${collection.slug}`} className="chip">{collection.title}</Link>)}
+        {productCollections.map((collection) => <Link key={collection.seoPageId} href={collection.href} className="chip">{collection.title}</Link>)}
       </div>
     </section> : null}
   </main>;
