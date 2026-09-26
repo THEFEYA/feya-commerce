@@ -1,3 +1,38 @@
+## M1 correction checkpoint — 26.09.2026
+
+A full production binding audit supersedes the earlier two-product structural assumption.
+
+**Authoritative release partition:**
+- 207 launch products / 856 price rows total.
+- 202 products / 841 rows = ordinary configuration-price lane after structural repair.
+- 2 products / 6 rows = manual-price lane; two owner price decisions stay unchanged.
+- 3 products / 9 rows = source-observed color-price exception lane; Black/Green/Brown genuinely have different source prices and must not be normalized into the default price-neutral color rule.
+- 202 + 2 + 3 = 207 products; 841 + 6 + 9 = 856 price rows.
+
+**Catalog-wide structural defect:**
+- 846 price rows use the source configuration axis.
+- 215 were already bound to the matching sellable configuration identity.
+- 631 rows across 203 products require deterministic rebinding and 631 missing sellable identities.
+- No downstream variant/offer/quote identities existed when this was discovered, so repair remains upstream and reversible.
+- Commercial amounts, currency and manual overrides are frozen throughout repair.
+
+Production now has `price_baseline_structural_guard_v1` and `release_configuration_binding_repair_v1`. Exact production request
+`bba281fa-c767-4392-bf24-de14634b47d0` is `APPROVAL_REQUIRED`; it covers 207 products / 856 rows / 631 rebinds and has no approval hash or execution receipt. Old 205/850 baseline and two-product repair requests are preserved only as audit history and are no longer actionable.
+
+**M1 remaining finite path:**
+1. Human Owner approves the exact catalog-wide structural repair; execute and verify 846/846 configuration-axis rows are aligned.
+2. Governance lanes:
+   - 202 / 841 unchanged-source baseline;
+   - 2 / 6 manual-price lane;
+   - 3 / 9 exact color-price exception lane.
+3. Bootstrap one stable draft variant per exact price-bearing tuple. Do not invent size variants: release source mappings contain no size-axis rows. Size remains non-price fulfillment/personalization data until a separate authoritative size-option contract exists.
+4. For ordinary configuration rows, variant tuple uses the exact `configuration_price_id` with color/size null unless source evidence provides a real selectable dimension.
+5. For the three color-price products, each exact price row is bound only to its matching color attribute; Cartesian expansion is forbidden.
+6. Promote exact active offers from governed rows and verify server quote for every orderable tuple.
+7. Order creation/payment/indexing remain OFF until their later macro gates.
+
+**Current Human Owner gate:** only the catalog-wide structural repair above. Color-price governance has been implemented as a separate exact lane but cannot prepare/execute until the structural repair is `SUCCEEDED`.
+
 ## Macro execution checkpoint — 25.09.2026
 
 From this point, FEYA work is reported by **macro milestone**, not by every internal E-step. Internal E9–E18 files remain audit history, not the operating roadmap.
