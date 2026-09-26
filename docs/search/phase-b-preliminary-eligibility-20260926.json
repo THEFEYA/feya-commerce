@@ -1,0 +1,367 @@
+{
+  "decision_version": "phase_b_preliminary_eligibility_20260926",
+  "policy_version": "Product DNA Search Architecture Decision Framework v1",
+  "link_assumption": "Approved future owners can receive at least one hub/ancestor plus >=2 contextual links (L=70). No URL is authorized for indexing until that graph exists.",
+  "cold_start_business_score": 50,
+  "candidates": [
+    {
+      "node": "SHOULDER_ARMOR",
+      "primary_cluster": "shoulder armor",
+      "products": 80,
+      "D": 100,
+      "P": 100,
+      "I": 57.1,
+      "X": 100,
+      "L": 70,
+      "O": 100,
+      "B": 50,
+      "score": 83.8,
+      "hard_gate": true,
+      "outcome": "INDEXABLE_CANDIDATE",
+      "reason_codes": [
+        "INDEXABLE_ELIGIBLE",
+        "DECORATIVE_ARMOR_INTENT_GUARDRAIL"
+      ],
+      "notes": "Use shoulder armor costume/cosplay terms as secondary support; exclude ballistic/tactical/protective claims."
+    },
+    {
+      "node": "FASHION_HARNESS",
+      "primary_cluster": "fashion harness",
+      "products": 11,
+      "D": 100,
+      "P": 75,
+      "I": 22.2,
+      "X": null,
+      "L": 70,
+      "O": 100,
+      "B": 50,
+      "score": null,
+      "hard_gate": false,
+      "outcome": "NON_INDEXABLE_FILTER",
+      "reason_codes": [
+        "COMMERCIAL_SERP_GATE_FAILED",
+        "SEARCH_ONLY_AXIS_EXCLUDED"
+      ],
+      "notes": "Keep sellable harness merchandising; do not let 29 search-only harness semantics inflate depth."
+    },
+    {
+      "node": "FESTIVAL_HARNESS",
+      "primary_cluster": "festival harness",
+      "products": 4,
+      "D": 40,
+      "P": 50,
+      "I": 12.5,
+      "X": null,
+      "L": 70,
+      "O": 100,
+      "B": 50,
+      "score": null,
+      "hard_gate": false,
+      "outcome": "NON_INDEXABLE_FILTER",
+      "reason_codes": [
+        "COMMERCIAL_SERP_GATE_FAILED",
+        "MINIMUM_DEPTH_BOUNDARY"
+      ]
+    },
+    {
+      "node": "VEGAN_LEATHER_HARNESS",
+      "primary_cluster": "vegan leather harness",
+      "products": 2,
+      "D": 40,
+      "P": 25,
+      "I": null,
+      "X": null,
+      "L": 70,
+      "O": 100,
+      "B": 50,
+      "score": null,
+      "hard_gate": false,
+      "outcome": "PDP_KEYWORD_OR_FILTER",
+      "reason_codes": [
+        "THIN_PRODUCT_DEPTH"
+      ]
+    },
+    {
+      "node": "FESTIVAL_OUTFITS",
+      "primary_cluster": "festival outfits",
+      "products": 111,
+      "D": 100,
+      "P": 100,
+      "I": 60,
+      "X": 100,
+      "L": 70,
+      "O": 100,
+      "B": 50,
+      "score": 84.5,
+      "hard_gate": true,
+      "outcome": "INDEXABLE_CANDIDATE",
+      "reason_codes": [
+        "INDEXABLE_ELIGIBLE"
+      ]
+    },
+    {
+      "node": "RAVE_OUTFITS",
+      "primary_cluster": "rave outfits",
+      "products": 40,
+      "D": 100,
+      "P": 100,
+      "I": 77.8,
+      "X": 100,
+      "L": 70,
+      "O": 100,
+      "B": 50,
+      "score": 89,
+      "hard_gate": true,
+      "outcome": "INDEXABLE_CANDIDATE",
+      "reason_codes": [
+        "INDEXABLE_ELIGIBLE"
+      ]
+    },
+    {
+      "node": "BURNING_MAN_OUTFITS",
+      "primary_cluster": "burning man outfits",
+      "secondary_clusters": [
+        "burning man costumes"
+      ],
+      "products": 45,
+      "D": 100,
+      "P": 100,
+      "I": 44.4,
+      "X": 100,
+      "L": 70,
+      "O": 100,
+      "B": 50,
+      "score": 80.6,
+      "hard_gate": true,
+      "outcome": "INDEXABLE_CANDIDATE",
+      "reason_codes": [
+        "INDEXABLE_ELIGIBLE",
+        "SEASONAL_DEMAND_OVERRIDE_NOT_REQUIRED"
+      ],
+      "notes": "Do not create separate outfits/costumes owners; same product job can be served by one owner."
+    },
+    {
+      "node": "PERFORMANCE_COSTUMES",
+      "primary_cluster": "performance costumes",
+      "secondary_clusters": [
+        "stage outfits",
+        "stage wear"
+      ],
+      "excluded_or_review": [
+        "stage costumes",
+        "dance costumes"
+      ],
+      "products": 96,
+      "D": 70,
+      "P": 100,
+      "I": 100,
+      "X": 100,
+      "L": 70,
+      "O": 100,
+      "B": 50,
+      "score": 88.5,
+      "hard_gate": true,
+      "outcome": "INDEXABLE_CANDIDATE",
+      "reason_codes": [
+        "INDEXABLE_ELIGIBLE",
+        "PRODUCT_INTENT_FIT_REVIEW"
+      ],
+      "notes": "Stage costumes SERP fails; broad dance costumes is a much larger recital market and is not automatically targeted."
+    },
+    {
+      "node": "COSTUME_BODYSUITS",
+      "primary_cluster": "costume bodysuit",
+      "products": 30,
+      "D": 100,
+      "P": 100,
+      "I": 100,
+      "X": 100,
+      "L": 70,
+      "O": 100,
+      "B": 50,
+      "score": 94.5,
+      "hard_gate": true,
+      "outcome": "INDEXABLE_CANDIDATE",
+      "reason_codes": [
+        "INDEXABLE_ELIGIBLE"
+      ]
+    },
+    {
+      "node": "FESTIVAL_BODYSUITS",
+      "primary_cluster": "festival bodysuit",
+      "products": 6,
+      "distinct_primary_images": 6,
+      "D": 70,
+      "P": 50,
+      "I": 100,
+      "X": 100,
+      "L": 70,
+      "O": 100,
+      "B": 50,
+      "score": 78.5,
+      "hard_gate": true,
+      "outcome": "INDEXABLE_CANDIDATE_PENDING_FAMILY_KEY",
+      "reason_codes": [
+        "INDEXABLE_ELIGIBLE",
+        "DESIGN_FAMILY_KEY_TO_MATERIALIZE"
+      ]
+    },
+    {
+      "node": "COSTUME_MASKS",
+      "primary_cluster": "costume masks",
+      "products": 11,
+      "D": 100,
+      "P": 75,
+      "I": 88.9,
+      "X": 75,
+      "L": 70,
+      "O": 100,
+      "B": 50,
+      "score": 83,
+      "hard_gate": true,
+      "outcome": "INDEXABLE_CANDIDATE",
+      "reason_codes": [
+        "INDEXABLE_ELIGIBLE"
+      ]
+    },
+    {
+      "node": "FESTIVAL_MASKS",
+      "primary_cluster": "festival masks",
+      "products": 6,
+      "distinct_primary_images": 6,
+      "D": 70,
+      "P": 50,
+      "I": 62.5,
+      "X": 75,
+      "L": 70,
+      "O": 100,
+      "B": 50,
+      "score": 65.4,
+      "hard_gate": true,
+      "outcome": "HOLD_FILTER",
+      "reason_codes": [
+        "LANDING_SCORE_BELOW_70",
+        "DESIGN_FAMILY_KEY_TO_MATERIALIZE"
+      ]
+    },
+    {
+      "node": "COSTUME_HEADPIECES",
+      "primary_cluster": "costume headpiece",
+      "products": 34,
+      "D": 40,
+      "P": 100,
+      "I": 66.7,
+      "X": 100,
+      "L": 70,
+      "O": 100,
+      "B": 50,
+      "score": 74.2,
+      "hard_gate": true,
+      "outcome": "INDEXABLE_CANDIDATE",
+      "reason_codes": [
+        "INDEXABLE_ELIGIBLE"
+      ]
+    },
+    {
+      "node": "FESTIVAL_HEADPIECES",
+      "primary_cluster": "festival headpiece",
+      "products": 11,
+      "D": 40,
+      "P": 75,
+      "I": 71.4,
+      "X": 100,
+      "L": 70,
+      "O": 100,
+      "B": 50,
+      "score": 70.4,
+      "hard_gate": true,
+      "outcome": "INDEXABLE_CANDIDATE",
+      "reason_codes": [
+        "INDEXABLE_ELIGIBLE"
+      ],
+      "notes": "Narrow pass under v1; keep separate only if final membership/content remains distinct from Costume Headpieces."
+    },
+    {
+      "node": "COSTUME_SKIRTS",
+      "primary_cluster": "costume skirt",
+      "products": 89,
+      "D": 70,
+      "P": 100,
+      "I": 0,
+      "X": null,
+      "L": 70,
+      "O": 100,
+      "B": 50,
+      "score": null,
+      "hard_gate": false,
+      "outcome": "PDP_KEYWORD_OR_FILTER",
+      "reason_codes": [
+        "PDP_SERP_DOMINANT",
+        "COMMERCIAL_SERP_GATE_FAILED"
+      ]
+    },
+    {
+      "node": "FESTIVAL_SKIRTS",
+      "primary_cluster": "festival skirt",
+      "products": 56,
+      "D": 100,
+      "P": 100,
+      "I": 77.8,
+      "X": 75,
+      "L": 70,
+      "O": 100,
+      "B": 50,
+      "score": 85.2,
+      "hard_gate": true,
+      "outcome": "INDEXABLE_CANDIDATE",
+      "reason_codes": [
+        "INDEXABLE_ELIGIBLE"
+      ]
+    },
+    {
+      "node": "COSTUME_BELTS",
+      "primary_cluster": "costume belt",
+      "products": 13,
+      "D": 70,
+      "P": 75,
+      "I": 100,
+      "X": 100,
+      "L": 70,
+      "O": 100,
+      "B": 50,
+      "score": 83.5,
+      "hard_gate": true,
+      "outcome": "INDEXABLE_CANDIDATE",
+      "reason_codes": [
+        "INDEXABLE_ELIGIBLE"
+      ]
+    },
+    {
+      "node": "COSTUME_WINGS",
+      "primary_cluster": "costume wings",
+      "products": 4,
+      "distinct_primary_images": 4,
+      "D": 100,
+      "P": 50,
+      "I": 11.1,
+      "X": null,
+      "L": 70,
+      "O": 100,
+      "B": 50,
+      "score": null,
+      "hard_gate": false,
+      "outcome": "PDP_KEYWORD_OR_FILTER",
+      "reason_codes": [
+        "PDP_SERP_DOMINANT",
+        "COMMERCIAL_SERP_GATE_FAILED",
+        "MINIMUM_DEPTH_BOUNDARY"
+      ]
+    }
+  ],
+  "constraints": [
+    "Scores are preliminary because design_family_key is not yet materialized in Page Portfolio.",
+    "X uses current product-set overlap plus planned unique modules; final X is recalculated after membership snapshots exist.",
+    "L=70 is a plan commitment, not a claim that links already exist.",
+    "No current outcome changes robots/indexation."
+  ]
+}
