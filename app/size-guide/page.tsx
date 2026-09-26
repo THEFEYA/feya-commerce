@@ -7,10 +7,8 @@ import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
 export async function generateMetadata():Promise<Metadata>{
   return{
     title:'Costume Measurements & Size Guide | TheFEYA',
-      description:'Learn how to take chest, waist, hip and height measurements for TheFEYA costume sizing and made-to-order fit requests.',
-      alternates:{canonical:'/size-guide'},
-      
-    };
+    description:'Learn how to take chest, waist, hip and height measurements for TheFEYA costume sizing and made-to-order fit requests.',
+    alternates:{canonical:'/size-guide'},
     robots:await releaseRobotsForPath('/size-guide'),
   };
 }
@@ -61,7 +59,9 @@ export default function SizeGuidePage(){
       <div className="mt-6 flex flex-wrap gap-3">
         <Link href="/contact" className="btn-ghost">Ask about sizing</Link>
         <Link href="/returns" className="btn-ghost">Returns & exchanges</Link>
-        <Link href="/collections/bodysuits" className="btn-ghost">Costume bodysuits</Link>\n        <Link href="/collections/stage-outfits" className="btn-ghost">Stage & performance</Link>\n        <Link href="/shop" className="btn-ghost">Shop products</Link>
+        <Link href="/collections/bodysuits" className="btn-ghost">Costume bodysuits</Link>
+        <Link href="/collections/stage-outfits" className="btn-ghost">Stage & performance</Link>
+        <Link href="/shop" className="btn-ghost">Shop products</Link>
       </div>
     </section>
     <Footer/>
