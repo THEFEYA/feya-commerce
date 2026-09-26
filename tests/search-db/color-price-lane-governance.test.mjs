@@ -132,12 +132,21 @@ test('three-product color-price lane stays exact, waits for release repair, and 
       '{}'::jsonb,1,true
     ) on conflict (registry_type,item_code,version_no) do update set active_flag=true,item_state='AVAILABLE_WITH_LIMITATIONS'`));
 
-    const releaseReq=await service(db,async()=> (await db.query(
-      "select * from public.feya_fn_create_execution_request_v1('REPAIR_RELEASE_CONFIGURATION_BINDINGS','COMMERCE_CONFIGURATION',$1::jsonb,'{}'::jsonb,'{}'::jsonb,'{}'::jsonb,'{}'::jsonb,'agent',null,$2)",[
-        JSON.stringify({entity_type:'RELEASE',entity_key:'feya-review-207-20260924'}),
-        'synthetic-release-repair-complete'
-      ])).rows[0]);
-    await service(db,()=>db.query('update public.feya_growth_execution_requests_v1 set request_status=\'SUCCEEDED\' where execution_request_id=$1',[releaseReq.execution_request_id]));
+    await service(db,()=>db.query(`insert into public.feya_growth_execution_requests_v1(
+      execution_request_id,request_code,action_code,action_capability_version,action_class,executor_type,approval_class,
+      request_status,request_hash,mutation_domain,target_scope_json,target_version_refs_json,request_payload_json,
+      rollback_plan_json,postflight_check_json,requested_by_type,idempotency_key
+    ) values(
+      '71000000-0000-4000-8000-000000000001'::uuid,'SYN-COLOR-DEPENDENCY','REPAIR_RELEASE_CONFIGURATION_BINDINGS',1,
+      'EXECUTABLE_WITH_APPROVAL','EXECUTION_GATEWAY','HUMAN_REQUIRED','SUCCEEDED',repeat('e',64),
+      'COMMERCE_CONFIGURATION',
+      '{"entity_type":"RELEASE","entity_key":"feya-review-207-20260924"}'::jsonb,
+      '{"release_ref":"feya-review-207-20260924"}'::jsonb,
+      '{"contract_version":"release_configuration_binding_repair_v1","synthetic_dependency":true}'::jsonb,
+      '{"mode":"test_dependency"}'::jsonb,
+      '{"commercial_values_unchanged":true}'::jsonb,
+      'agent','synthetic-release-repair-complete'
+    )`));
 
     const result=await service(db,async()=> (await db.query(
       'select public.feya_commerce_execute_color_price_lane_governance_v1($1) r',[prepared.execution_request_id]
