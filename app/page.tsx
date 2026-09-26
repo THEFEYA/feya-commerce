@@ -96,7 +96,7 @@ export default async function HomePage() {
             <p className="editorial-italic text-[var(--bone-dim)] text-lg lg:text-xl mt-6 max-w-xl">Statement pieces for stage, festival, desert and editorial styling. Designed by TheFEYA, with adjustable sizing and selected detail customization for existing designs.</p>
             <div className="flex flex-wrap gap-4 mt-8">
               <Link href="/shop" className="btn-chrome">Shop catalog <ArrowUpRight size={14} /></Link>
-              <Link href="/shop" className="btn-ghost">Explore collections <ArrowUpRight size={14} /></Link>
+              <Link href="/collections" className="btn-ghost">Explore collections <ArrowUpRight size={14} /></Link>
             </div>
           </div>
 
