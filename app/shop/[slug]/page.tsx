@@ -198,8 +198,11 @@ export default async function ProductPage({ params }: PageProps) {
   const { slug } = await params;
   const { product, related, error, approvedCopy, copyBlocked } = await getPresentation(slug);
   if (copyBlocked) notFound();
-  if (error) return <main className="min-h-screen"><Header /><div className="container-feya pt-40"><div className="glass rounded-xl p-6 text-bone-dim">{error}</div></div></main>;
-  if (!product) return <main className="min-h-screen"><Header /><div className="container-feya pt-40"><div className="glass rounded-xl p-6">Product not found. <Link className="text-gold" href="/shop">Back to shop</Link></div></div></main>;
+  if (error) {
+    if (error === 'Product not found.') notFound();
+    throw new Error(`STOREFRONT_PRODUCT_READ_FAILED:${error}`);
+  }
+  if (!product) notFound();
 
   const jsonLd = productJsonLd(product, slug, approvedCopy);
   const productCollections = await readProductLandingLinks(String(product.canonical_product_id || ''));
