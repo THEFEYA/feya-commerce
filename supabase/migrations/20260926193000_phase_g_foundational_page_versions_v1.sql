@@ -4,70 +4,14 @@ begin;
 
 with source_rows(url_path,family,source_blob_sha,title,h1,content_role) as (
   values
-(
-  "/"::text,
-  "home"::text,
-  "9557ec01693a5ffa88a5994d8bec85568961e1c3"::text,
-  "TheFEYA | Handmade Stagewear and Festival Looks"::text,
-  "Handmade stagewear for unforgettable looks"::text,
-  "brand_home"::text
-),
-(
-  "/collections"::text,
-  "subhub"::text,
-  "f72e34e9df14cdb07e0d5e0cb92f531d3101c1e1"::text,
-  "Shop TheFEYA Collections"::text,
-  "TheFEYA Collections"::text,
-  "collections_discovery_hub"::text
-),
-(
-  "/about"::text,
-  "trust"::text,
-  "3e0e4ba2c1c24be26a58890517d4c0e17ef8b6be"::text,
-  "About TheFEYA Atelier"::text,
-  "About TheFEYA"::text,
-  "about_atelier"::text
-),
-(
-  "/size-guide"::text,
-  "trust"::text,
-  "b43a3b40a508e1d6271ab765d81fb86948519f11"::text,
-  "Costume Measurements & Size Guide | TheFEYA"::text,
-  "Costume Measurements & Size Guide"::text,
-  "measurements_size_guide"::text
-),
-(
-  "/care"::text,
-  "trust"::text,
-  "00506068a54801ed416b2b636ab31335d92b0b29"::text,
-  "Costume Care & Storage | TheFEYA"::text,
-  "Care & Storage"::text,
-  "care_storage"::text
-),
-(
-  "/shipping"::text,
-  "trust"::text,
-  "3257bda85e32ac4ead534222ba0e60fb9c59ef5c"::text,
-  "Shipping & Delivery"::text,
-  "Shipping & Delivery"::text,
-  "shipping_policy"::text
-),
-(
-  "/returns"::text,
-  "trust"::text,
-  "68fe35eca407cb0d83e58eec1af76f1c6e98b1b1"::text,
-  "Returns & Exchanges"::text,
-  "Returns & Exchanges"::text,
-  "returns_policy"::text
-),
-(
-  "/contact"::text,
-  "trust"::text,
-  "3b7209fcee1ee5f70444e21ca6986f8775fca66c"::text,
-  "Contact TheFEYA"::text,
-  "Contact"::text,
-  "contact_support"::text
-)
+  ('/'::text,'home'::text,'9557ec01693a5ffa88a5994d8bec85568961e1c3'::text,'TheFEYA | Handmade Stagewear and Festival Looks'::text,'Handmade stagewear for unforgettable looks'::text,'brand_home'::text),
+  ('/collections','subhub','f72e34e9df14cdb07e0d5e0cb92f531d3101c1e1','Shop TheFEYA Collections','TheFEYA Collections','collections_discovery_hub'),
+  ('/about','trust','3e0e4ba2c1c24be26a58890517d4c0e17ef8b6be','About TheFEYA Atelier','About TheFEYA','about_atelier'),
+  ('/size-guide','trust','b43a3b40a508e1d6271ab765d81fb86948519f11','Costume Measurements & Size Guide | TheFEYA','Costume Measurements & Size Guide','measurements_size_guide'),
+  ('/care','trust','00506068a54801ed416b2b636ab31335d92b0b29','Costume Care & Storage | TheFEYA','Care & Storage','care_storage'),
+  ('/shipping','trust','3257bda85e32ac4ead534222ba0e60fb9c59ef5c','Shipping & Delivery','Shipping & Delivery','shipping_policy'),
+  ('/returns','trust','68fe35eca407cb0d83e58eec1af76f1c6e98b1b1','Returns & Exchanges','Returns & Exchanges','returns_policy'),
+  ('/contact','trust','3b7209fcee1ee5f70444e21ca6986f8775fca66c','Contact TheFEYA','Contact','contact_support')
 ),
 resolved as (
   select
