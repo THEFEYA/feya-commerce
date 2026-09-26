@@ -8,9 +8,25 @@ test('root defaults noindex and only active release may opt a path into indexing
   assert.match(layout,/robots: \{ index: false, follow: true, nocache: true \}/);
   assert.match(helper,/release_status','ACTIVE'/);
   assert.match(helper,/intended_index_state/);
+  assert.match(helper,/page_version_id/);
+  assert.match(helper,/membership_snapshot_id/);
+  assert.match(helper,/content_hash/);
   assert.match(helper,/INDEX_CANDIDATE/);
   assert.match(helper,/return\{index:true,follow:true\}/);
   assert.match(helper,/return\{index:false,follow:true,nocache:true\}/);
+});
+
+
+test('active collection rendering is pinned to the exact immutable release item',async()=>{
+  const renderer=await readFile(new URL('../../lib/searchLandingPageServer.ts',import.meta.url),'utf8');
+  assert.match(renderer,/readSearchReleasePathState/);
+  assert.match(renderer,/activeBinding\.pageVersionId/);
+  assert.match(renderer,/\.eq\('page_version_id',activeBinding\.pageVersionId\)/);
+  assert.match(renderer,/SEARCH_LANDING_ACTIVE_RELEASE_PAGE_MISMATCH/);
+  assert.match(renderer,/SEARCH_LANDING_ACTIVE_RELEASE_VERSION_MISMATCH/);
+  assert.match(renderer,/SEARCH_LANDING_ACTIVE_RELEASE_MEMBERSHIP_MISMATCH/);
+  assert.match(renderer,/SEARCH_LANDING_ACTIVE_RELEASE_CONTENT_HASH_MISMATCH/);
+  assert.match(renderer,/readBreadcrumbs\(service,pageId,content\.h1\)/);
 });
 
 test('sitemap is sourced only from active release index candidates',async()=>{
