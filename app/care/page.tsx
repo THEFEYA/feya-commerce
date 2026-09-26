@@ -7,10 +7,8 @@ import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
 export async function generateMetadata():Promise<Metadata>{
   return{
     title:'Costume Care & Storage | TheFEYA',
-      description:'Basic care and storage guidance for TheFEYA mirror-coated vegan leather, structured costume pieces and mixed-material designs.',
-      alternates:{canonical:'/care'},
-      
-    };
+    description:'Basic care and storage guidance for TheFEYA mirror-coated vegan leather, structured costume pieces and mixed-material designs.',
+    alternates:{canonical:'/care'},
     robots:await releaseRobotsForPath('/care'),
   };
 }
