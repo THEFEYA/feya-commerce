@@ -1,3 +1,20 @@
+## Macro reprioritization — 26.09.2026
+
+Human Owner challenged payment over-focus. The critical path is reset to the documented launch objective: prepare the site for a controlled first indexing, not complete payment-provider integration first.
+
+**Critical path from now:**
+1. M1 commerce authority remains CLOSED and is not re-audited without a recheck trigger.
+2. Finish M2 public trust shell only to the level needed for launch readiness: domain, contact, shipping/returns/terms/privacy/company disclosure. Seller-Online application/integration is a PARALLEL lane and must not block search architecture work unless checkout activation becomes the explicit launch dependency.
+3. M3 Search Portfolio is now the main implementation lane: materialize query clusters, page ownership, landing candidates, membership, content briefs, internal-link graph and release eligibility.
+4. Homepage is reviewed only after the approved landing graph exists, so its navigation/internal links point to real owners instead of /shop placeholders.
+5. Color/material/style/event/persona values remain filters by default. Promote to an indexable landing only through the documented demand + SERP + depth + differentiation + internal-link + ownership gates.
+6. Editorial/news is evidence-gated, not quota-driven. Launch a small useful resource set only where the informational task is distinct from a collection/product page.
+7. M4 selective indexing happens only after final portfolio owners, policy pages, canonical domain, sitemap/schema/crawl checks and approved release manifest are complete.
+
+**Current observed gap:** production SEO portfolio has product candidates only; no registered query clusters, no primary ownership rows and no ownership proposals are materialized yet. Existing hard-coded shop collection filters are UX helpers, not approved indexable SEO owners.
+
+**First M3 implementation package started:** seven historically researched collection/event candidates now have dedicated `/collections/[slug]` preview routes behind permanent `noindex` status until eligibility/ownership approval. This does not authorize indexing or create DNA-derived pages automatically.
+
 ## M2 policy/domain checkpoint — 26.09.2026
 
 - Canonical public domain confirmed by Human Owner: `https://thefeya.com`.
