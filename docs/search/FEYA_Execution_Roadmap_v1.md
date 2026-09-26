@@ -1,3 +1,24 @@
+## M1 CLOSED — 26.09.2026
+
+Commerce Truth → authoritative quote is complete for the sealed release `feya-review-207-20260924`.
+
+- 207/207 launch products are structurally aligned.
+- 856/856 governed price rows are strict-ready.
+- 631 collapsed configuration bindings were repaired without changing commercial values.
+- 202 products / 841 ordinary rows, 2 products / 6 manual-price rows, and 3 products / 9 exact color-price rows completed their dedicated governance lanes.
+- 856 stable variant identities exist; 207 current variant revisions/heads exist.
+- 207 active offers contain 856 exact active offer items.
+- 856 real server quote receipts were produced through `feya_commerce_create_quote_v1` for quantity 1.
+- 9 source-observed color-price rows bind only to their matching color; 0 size variants were synthesized; Cartesian expansion is false.
+- Commercial-values SHA256 remained `a01854f0727a499bf406d07f422b103a7d67c7838c9a62b38bed7c7a48a02bc0` before/after authority bootstrap.
+- Execution request `9f1151e3-4fb5-41b9-8922-878c85bfa81a` and its receipt are `SUCCEEDED`.
+- Variant/offer/quote runtime health remains ready.
+- Order creation, payment and indexing remain OFF.
+
+**M1 DONE condition satisfied:** every launch price-bearing tuple now has a stable variant, active exact offer and authoritative server quote path; browser display prices still have no authority to create an order.
+
+Next macro stage: **M2 — checkout / company / policies / domain**. Do not reopen M1 audits unless the no-repeat policy recheck triggers fire.
+
 > Operating rule from 26.09.2026: use `Verification_Budget_And_No_Repeat_Policy_20260926.md`. Persisted evidence is reused until a defined recheck trigger fires; unchanged facts are not re-audited just because a new chat/session started.
 
 ## M1 correction checkpoint — 26.09.2026
