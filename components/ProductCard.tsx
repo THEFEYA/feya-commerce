@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { colorStyle } from '@/components/colors';
+import { trackEcommerceEvent } from '@/lib/measurementClient';
 import { SalePrice } from '@/components/SalePrice';
 import type { StorefrontProduct } from '@/lib/types';
 import { colorOptions, mainCompareAtPrice, mainRegularPrice, productSlug, productTitle, worldLabel } from '@/lib/storefront';
@@ -101,7 +102,18 @@ export function ProductCard({ product: p, index = 0 }: { product: StorefrontProd
   const title = productTitle(p);
 
   return (
-    <Link prefetch={false} href={`/shop/${slug}`} data-testid={`product-card-${slug}`} className={`product-card reveal group block focus:outline-none focus-visible:ring-1 focus-visible:ring-white/60 ${hasHoverMedia ? 'has-hover-media' : ''}`} style={{ animationDelay: `${(index % 8) * 60}ms` }}>
+    <Link
+      prefetch={false}
+      href={`/shop/${slug}`}
+      data-testid={`product-card-${slug}`}
+      onClick={() => trackEcommerceEvent('select_item',{
+        canonical_product_id:p.canonical_product_id,
+        item_price:display,
+        item_value:display,
+        currency,
+      },{currency,value:display??undefined})}
+      className={`product-card reveal group block focus:outline-none focus-visible:ring-1 focus-visible:ring-white/60 ${hasHoverMedia ? 'has-hover-media' : ''}`}
+      style={{ animationDelay: `${(index % 8) * 60}ms` }}>
       <div className="img-wrap relative overflow-hidden">
         {primary ? <img src={primary} alt={title} loading="lazy" className={primaryClassName} /> : <div className="h-full grid place-items-center text-sm text-[var(--smoke)]">Missing image</div>}
         {video ? <video src={video} muted playsInline loop preload="metadata" className="hover-media absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" /> : cleanSwap ? <img src={cleanSwap} alt="" loading={index < 24 ? 'eager' : 'lazy'} decoding="async" className="hover-media absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" aria-hidden="true" /> : null}
