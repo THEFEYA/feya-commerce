@@ -7,7 +7,7 @@ import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { resolve, join } from 'node:path';
 
-export async function verifyApprovedContentRuntime({ db, browser, ownerPage, env, out, check, report }) {
+export async function verifyApprovedContentRuntime({ db, browser, ownerPage, env, out, check, report, adminEmail, password }) {
   assert.ok(['localhost', '127.0.0.1'].includes(db.connectionParameters.host));
   assert.equal(new URL(env.NEXT_PUBLIC_SUPABASE_URL).hostname, '127.0.0.1');
   const read = async path => JSON.parse(await readFile(path, 'utf8'));
@@ -71,7 +71,17 @@ export async function verifyApprovedContentRuntime({ db, browser, ownerPage, env
     });
     page = await ownerPage.context().newPage();
     const errors = []; page.on('pageerror', e => errors.push(e.message));
-    await page.goto(base+path); await page.getByRole('heading', {level:1, name:first.h1, exact:true}).waitFor();
+    // The review server runs on a second loopback port. Re-authenticate through its real
+    // Server Action instead of assuming a session created on the primary runtime server
+    // remains valid across every review-mode origin transition.
+    await page.goto(base+'/admin/login?next='+encodeURIComponent(path));
+    await page.getByLabel('Email',{exact:true}).fill(adminEmail);
+    await page.getByLabel('Пароль',{exact:true}).fill(password);
+    const loginResponse=page.waitForResponse(r=>r.request().method()==='POST'&&new URL(r.url()).pathname==='/admin/login');
+    await page.getByRole('button',{name:'Войти',exact:true}).click();
+    assert.equal((await loginResponse).status(),200);
+    await page.waitForURL('**'+path);
+    await page.getByRole('heading', {level:1, name:first.h1, exact:true}).waitFor();
     await check('All 208 actual Next server pages preserve approved copy, metadata, JSON-LD and noindex', async () => {
       for (const d of drafts) {
         const p = products.find(p => p.canonical_product_id === d.canonical_product_id);
