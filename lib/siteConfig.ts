@@ -4,7 +4,7 @@ export function getSiteUrl() {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
 
   try {
-    return new URL(configured || 'https://zofeya.com');
+    return new URL(configured || 'https://thefeya.com');
   } catch {
     return new URL('https://zofeya.com');
   }
