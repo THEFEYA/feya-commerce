@@ -1,15 +1,22 @@
 'use client';
 
-import {useEffect} from 'react';
+import {useEffect,useState} from 'react';
 import {usePathname} from 'next/navigation';
-import {setMeasurementPageContext,trackPageView} from '@/lib/measurementClient';
+import {getAnalyticsConsent,setMeasurementPageContext,trackPageView} from '@/lib/measurementClient';
 import type {FeyaMeasurementPageContext} from '@/lib/measurementContract';
 
 export function MeasurementRuntime(){
   const pathname=usePathname();
+  const [consentRevision,setConsentRevision]=useState(0);
 
   useEffect(()=>{
-    if(!pathname||pathname.startsWith('/admin')||pathname.startsWith('/api')){
+    const onConsent=()=>setConsentRevision((value)=>value+1);
+    window.addEventListener('feya:analytics-consent',onConsent);
+    return()=>window.removeEventListener('feya:analytics-consent',onConsent);
+  },[]);
+
+  useEffect(()=>{
+    if(!pathname||pathname.startsWith('/admin')||pathname.startsWith('/api')||getAnalyticsConsent()!=='granted'){
       setMeasurementPageContext(null);
       return;
     }
@@ -41,7 +48,7 @@ export function MeasurementRuntime(){
       cancelled=true;
       controller.abort();
     };
-  },[pathname]);
+  },[pathname,consentRevision]);
 
   return null;
 }
