@@ -211,7 +211,7 @@ export default async function ProductPage({ params }: PageProps) {
     {productCollections.length ? <section className="container-feya py-10 border-t border-[rgba(216,214,211,.12)]">
       <div className="eyebrow-gold mb-4">Explore related collections</div>
       <div className="flex flex-wrap gap-2">
-        {productCollections.map((collection) => <Link key={collection.seoPageId} href={collection.href} className="chip">{collection.title}</Link>)}
+        {productCollections.map((collection) => <Link key={collection.slug} href={`/collections/${collection.slug}`} className="chip">{collection.title}</Link>)}
       </div>
     </section> : null}
   </main>;
