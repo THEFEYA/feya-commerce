@@ -4,30 +4,13 @@ import Link from 'next/link';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 import {ProductCard} from '@/components/ProductCard';
-import {getSupabaseReadClient} from '@/lib/supabase';
-import {
-  STOREFRONT_V4_CARD_SELECT,
-  STOREFRONT_VIEW_V4,
-} from '@/lib/storefront';
-import {
-  candidateMatchesProduct,
-  getSearchLandingCandidate,
-} from '@/config/searchLandingCandidates';
+import {getSearchLandingCandidate} from '@/config/searchLandingCandidates';
+import {readSearchLandingMembership} from '@/lib/searchLandingMembership';
 
 export const dynamic='force-dynamic';
 export const revalidate=0;
 
 type PageProps={params:Promise<{slug:string}>};
-
-async function readCandidate(slug:string){
-  const candidate=getSearchLandingCandidate(slug);
-  if(!candidate)return null;
-  const supabase=getSupabaseReadClient();
-  if(!supabase)return {candidate,products:[]};
-  const result=await supabase.from(STOREFRONT_VIEW_V4).select(STOREFRONT_V4_CARD_SELECT).limit(500);
-  const products=(result.data||[]).filter((product)=>candidateMatchesProduct(candidate,product as Record<string,unknown>));
-  return {candidate,products};
-}
 
 export async function generateMetadata({params}:PageProps):Promise<Metadata>{
   const {slug}=await params;
@@ -43,9 +26,10 @@ export async function generateMetadata({params}:PageProps):Promise<Metadata>{
 
 export default async function SearchLandingCandidatePage({params}:PageProps){
   const {slug}=await params;
-  const data=await readCandidate(slug);
+  const data=await readSearchLandingMembership(slug);
   if(!data)notFound();
-  const {candidate,products}=data;
+  const {candidate,products,membershipCount,source}=data;
+  const isHold=candidate.searchStatus==='hold_noindex';
 
   return <main className="relative min-h-screen">
     <Header/>
@@ -59,15 +43,21 @@ export default async function SearchLandingCandidatePage({params}:PageProps){
 
     <section className="container-feya pb-8">
       <div className="rounded-xl border border-[rgba(212,178,106,.24)] bg-[rgba(212,178,106,.055)] p-5 text-[13px] leading-6 text-[var(--bone-dim)]">
-        <span className="text-bone">Search release status:</span> candidate preview only. This route is intentionally noindex until query-cluster ownership, demand/SERP eligibility, product-depth and internal-link gates are approved.
+        <span className="text-bone">Search release status:</span>{' '}
+        {isHold
+          ? `hold / noindex. ${candidate.holdReason || 'This prototype has no approved search owner.'}`
+          : 'business-case preview / noindex. Product membership is read from the immutable Phase D snapshot; indexing still requires design-family, differentiation, content/CQA and technical release gates.'}
       </div>
     </section>
 
-    <section className="container-feya pb-16 lg:pb-24">
+    {!isHold ? <section className="container-feya pb-16 lg:pb-24">
       <div className="flex items-end justify-between gap-6 mb-7">
         <div>
-          <div className="eyebrow-gold">Current matching catalog</div>
-          <h2 className="mt-3 text-bone text-2xl">{products.length} pieces in this candidate set</h2>
+          <div className="eyebrow-gold">Approved semantic membership · Preview</div>
+          <h2 className="mt-3 text-bone text-2xl">{membershipCount} orderable pieces in this evidence snapshot</h2>
+          <div className="mt-2 text-[11px] text-[var(--bone-dim)]">
+            Source: {source === 'immutable_membership_snapshot' ? 'immutable Product DNA membership snapshot' : source}
+          </div>
         </div>
         <Link href="/shop" className="btn-ghost">Shop all</Link>
       </div>
@@ -76,8 +66,12 @@ export default async function SearchLandingCandidatePage({params}:PageProps){
         ? <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 lg:gap-6">
             {products.map((product,index)=><ProductCard key={String(product.canonical_product_id)} product={product} index={index}/>)}
           </div>
-        : <div className="rounded-xl border border-[rgba(216,214,211,.14)] p-6 text-[var(--bone-dim)]">No current launch products satisfy this draft selection rule.</div>}
-    </section>
+        : <div className="rounded-xl border border-[rgba(216,214,211,.14)] p-6 text-[var(--bone-dim)]">No current release products are present in the immutable membership snapshot.</div>}
+    </section> : <section className="container-feya pb-16 lg:pb-24">
+      <div className="rounded-xl border border-[rgba(216,214,211,.14)] p-6 text-[var(--bone-dim)]">
+        This prototype remains intentionally empty as an SEO collection. Products continue to be discoverable through Shop and evidence-backed collection owners.
+      </div>
+    </section>}
     <Footer/>
   </main>;
 }
