@@ -206,7 +206,7 @@ on conflict (seo_page_id) do update set
   selection_rule_json=excluded.selection_rule_json,
   inventory_policy_json=excluded.inventory_policy_json,
   excluded_queries_json=excluded.excluded_queries_json,
-  evidence_refs_json=excluded.evidence_refs;
+  evidence_refs_json=excluded.evidence_refs_json;
 
 -- Canonical semantic clusters. 'approved' here means the semantic cluster definition is accepted by OSPM;
 -- it does NOT authorize a page to publish or index.
