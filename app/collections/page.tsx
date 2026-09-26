@@ -39,6 +39,22 @@ export default function CollectionsHubPage(){
           </Link>
         ))}
       </div>
+
+      <div className="mt-8 rounded-xl border border-[rgba(212,178,106,.24)] bg-[rgba(212,178,106,.05)] p-6 lg:p-7">
+        <div className="eyebrow-gold">Before you order</div>
+        <h2 className="mt-3 text-bone text-xl">Fit, care, shipping and store policies</h2>
+        <p className="mt-3 max-w-3xl text-[14px] leading-6 text-[var(--bone-dim)]">
+          Use the trust pages to check measurements, material care, delivery timing and the current exchange policy before choosing a product configuration.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Link href="/size-guide" className="btn-ghost">Measurements & sizing</Link>
+          <Link href="/care" className="btn-ghost">Care & storage</Link>
+          <Link href="/shipping" className="btn-ghost">Shipping</Link>
+          <Link href="/returns" className="btn-ghost">Returns & exchanges</Link>
+          <Link href="/about" className="btn-ghost">About TheFEYA</Link>
+          <Link href="/contact" className="btn-ghost">Contact</Link>
+        </div>
+      </div>
     </section>
     <Footer/>
   </main>;
