@@ -2,7 +2,7 @@
   "version": 1,
   "purpose": "Approved Product OS / storefront visual freeze. Update only after explicit owner approval.",
   "files": {
-    "app/page.tsx": "e0c74531631513bd394910ccd0b2f95d8be0f35f",
+    "app/page.tsx": "a9df91d89c5842c9a923b9f98273701bcc0fc4b2",
     "app/shop/page.tsx": "84d6a7370c9514fbc5b3060964fd066c16647c15",
     "app/shop/[slug]/page.tsx": "ed8b1a6c266eb93038e47f8ed91f3ec735228df0",
     "components/Header.tsx": "32908423bafee295150ded709a1c3e3cda5a8eb4",
