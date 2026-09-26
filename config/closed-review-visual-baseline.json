@@ -1,10 +1,11 @@
 {
   "source_commit": "dbc46e33d88a541ee75a4186ff7861fe98c0f3d1",
-  "scope": "Existing JSX class/style expressions and reviewed literal copy; homepage copy correction removes unsupported bestseller/new-arrival claims without changing layout.",
+  "scope": "Existing JSX class/style expressions and reviewed literal copy across release storefront surfaces; non-visual measurement/accessibility handlers do not alter the visual-token contract.",
   "surfaces": {
     "app/page.tsx": "001ef2019ab46fdfef355a1d2f6aeb5946789ccf1d0bc8f0412ee706c4249a37",
     "app/shop/page.tsx": "1c99a96c2cc81ebd095f643a5513f1dc07cf7dd467ac76ad412123b42ecbb3ae",
     "app/shop/[slug]/page.tsx": "730ebe65437ced0c8a5548bbbba3ba384b294cde9dd7eeb55ca0b1d69c2eefc3",
-    "components/ShopClient.tsx": "93cd8dec5bb7d4585cc8f9a36effa92bf0673432651cc2a20160d8a4636300bc"
+    "components/ShopClient.tsx": "93cd8dec5bb7d4585cc8f9a36effa92bf0673432651cc2a20160d8a4636300bc",
+    "components/ProductCard.tsx": "3d58a73ec75b1253e3587c2e5bbbd6838302310c9954d7d636194812c7f23dce"
   }
 }
