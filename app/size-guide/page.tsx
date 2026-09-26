@@ -2,13 +2,18 @@ import type {Metadata} from 'next';
 import Link from 'next/link';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
+import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
 
-export const metadata:Metadata={
-  title:'Costume Measurements & Size Guide | TheFEYA',
-  description:'Learn how to take chest, waist, hip and height measurements for TheFEYA costume sizing and made-to-order fit requests.',
-  alternates:{canonical:'/size-guide'},
-  robots:{index:false,follow:true},
-};
+export async function generateMetadata():Promise<Metadata>{
+  return{
+    title:'Costume Measurements & Size Guide | TheFEYA',
+      description:'Learn how to take chest, waist, hip and height measurements for TheFEYA costume sizing and made-to-order fit requests.',
+      alternates:{canonical:'/size-guide'},
+      
+    };
+    robots:await releaseRobotsForPath('/size-guide'),
+  };
+}
 
 const measures=[
   ['Chest / bust','Measure around the fullest part of the chest, keeping the tape level and comfortably close to the body.'],
