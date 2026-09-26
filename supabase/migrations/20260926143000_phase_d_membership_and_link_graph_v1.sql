@@ -34,12 +34,12 @@ with release_ids as (
 ),
 latest as (
   select distinct on (p.canonical_product_id)
-    p.canonical_product_id,p.draft_id,p.product_slug,p.manual_focus_snapshot,p.product_truth_snapshot,
+    p.canonical_product_id,p.id as draft_id,p.product_slug,p.manual_focus_snapshot,p.product_truth_snapshot,
     coalesce(p.reviewed_at,p.created_at) truth_time
   from public.feya_commerce_seo_pack_drafts_v1 p
   join release_ids r using(canonical_product_id)
   where p.review_status='approved' and p.archived_at is null
-  order by p.canonical_product_id,coalesce(p.reviewed_at,p.created_at) desc,p.draft_id desc
+  order by p.canonical_product_id,coalesce(p.reviewed_at,p.created_at) desc,p.id desc
 ),
 norm as (
   select
