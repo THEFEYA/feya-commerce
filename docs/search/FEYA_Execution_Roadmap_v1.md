@@ -1,3 +1,5 @@
+> Operating rule from 26.09.2026: use `Verification_Budget_And_No_Repeat_Policy_20260926.md`. Persisted evidence is reused until a defined recheck trigger fires; unchanged facts are not re-audited just because a new chat/session started.
+
 ## M1 correction checkpoint — 26.09.2026
 
 A full production binding audit supersedes the earlier two-product structural assumption.
