@@ -24,7 +24,8 @@ export async function readProductLandingLinks(canonicalProductId:string):Promise
     .eq('orderability_status','confirmed');
 
   if(itemError)throw new Error(`PRODUCT_LANDING_MEMBERSHIP_READ_FAILED:${itemError.message}`);
-  const snapshotIds=Array.from(new Set((items||[]).map((row)=>String(row.membership_snapshot_id)).filter(Boolean)));
+  const membershipRows=(items||[]) as unknown as Array<{membership_snapshot_id:string}>;
+  const snapshotIds=Array.from(new Set(membershipRows.map((row)=>String(row.membership_snapshot_id)).filter(Boolean)));
   if(!snapshotIds.length)return[];
 
   const {data:snapshots,error:snapshotError}=await service
@@ -34,7 +35,8 @@ export async function readProductLandingLinks(canonicalProductId:string):Promise
     .eq('source_revision',SOURCE_REVISION);
 
   if(snapshotError)throw new Error(`PRODUCT_LANDING_SNAPSHOT_READ_FAILED:${snapshotError.message}`);
-  const pageIds=Array.from(new Set((snapshots||[]).map((row)=>String(row.seo_page_id)).filter(Boolean)));
+  const snapshotRows=(snapshots||[]) as unknown as Array<{membership_snapshot_id:string;seo_page_id:string;source_revision:string}>;
+  const pageIds=Array.from(new Set(snapshotRows.map((row)=>String(row.seo_page_id)).filter(Boolean)));
   if(!pageIds.length)return[];
 
   const {data:pages,error:pageError}=await service
@@ -45,12 +47,13 @@ export async function readProductLandingLinks(canonicalProductId:string):Promise
 
   if(pageError)throw new Error(`PRODUCT_LANDING_PAGE_READ_FAILED:${pageError.message}`);
 
-  const snapshotByPage=new Map((snapshots||[]).map((row)=>[
+  const snapshotByPage=new Map(snapshotRows.map((row)=>[
     String(row.seo_page_id),
     String(row.membership_snapshot_id),
   ]));
+  const pageRows=(pages||[]) as unknown as Array<{seo_page_id:string;url_path:string;indexation_intent:string;portfolio_status:string}>;
 
-  return (pages||[])
+  return pageRows
     .map((page)=>{
       const path=String(page.url_path||'');
       if(!path.startsWith('/collections/'))return null;
