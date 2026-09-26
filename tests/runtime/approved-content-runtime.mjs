@@ -79,7 +79,7 @@ export async function verifyApprovedContentRuntime({ db, browser, ownerPage, env
     await page.getByLabel('Пароль',{exact:true}).fill(password);
     const loginResponse=page.waitForResponse(r=>r.request().method()==='POST'&&new URL(r.url()).pathname==='/admin/login');
     await page.getByRole('button',{name:'Войти',exact:true}).click();
-    assert.equal((await loginResponse).status(),200);
+    assert.equal((await loginResponse).status(),303);
     await page.waitForURL('**'+path);
     await page.getByRole('heading', {level:1, name:first.h1, exact:true}).waitFor();
     await check('All 208 actual Next server pages preserve approved copy, metadata, JSON-LD and noindex', async () => {
