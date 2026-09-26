@@ -21,10 +21,10 @@ export default function CollectionsHubPage(){
     <Header/>
     <section className="container-feya pt-36 pb-12 lg:pt-44 lg:pb-16">
       <div className="max-w-4xl">
-        <div className="eyebrow-gold mb-5">Shop by collection · Pre-index architecture</div>
+        <div className="eyebrow-gold mb-5">Shop by collection</div>
         <h1 className="font-tall text-bone leading-[.95]" style={{fontSize:'clamp(52px,7vw,96px)'}}>TheFEYA Collections</h1>
         <p className="editorial-italic mt-6 max-w-3xl text-lg leading-relaxed text-[var(--bone-dim)]">
-          Browse the current collection structure by product type, event and performance use. These routes are still intentionally noindex while their final release, navigation and technical gates are completed.
+          Browse TheFEYA by product type, event and performance use through a curated collection structure built around the current catalog.
         </p>
       </div>
     </section>
