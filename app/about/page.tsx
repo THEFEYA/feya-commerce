@@ -2,13 +2,18 @@ import type {Metadata} from 'next';
 import Link from 'next/link';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
+import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
 
-export const metadata:Metadata={
-  title:'About TheFEYA Atelier',
-  description:'Learn how TheFEYA approaches handmade stage, festival and performance pieces, from sculptural design to made-to-order production.',
-  alternates:{canonical:'/about'},
-  robots:{index:false,follow:true},
-};
+export async function generateMetadata():Promise<Metadata>{
+  return{
+    title:'About TheFEYA Atelier',
+      description:'Learn how TheFEYA approaches handmade stage, festival and performance pieces, from sculptural design to made-to-order production.',
+      alternates:{canonical:'/about'},
+      
+    };
+    robots:await releaseRobotsForPath('/about'),
+  };
+}
 
 export default function AboutPage(){
   return <main className="relative min-h-screen">
