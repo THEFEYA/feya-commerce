@@ -1,7 +1,8 @@
 'use client';
 
 import {useEffect,useState} from 'react';
-import {getAnalyticsConsent,setAnalyticsConsent,type FeyaAnalyticsConsent} from '@/lib/measurementClient';
+import {getAnalyticsConsent,setAnalyticsConsent} from '@/lib/measurementClient';
+import type {FeyaAnalyticsConsent} from '@/lib/measurementContract';
 
 export function AnalyticsConsentBanner({enabled}:{enabled:boolean}){
   const [consent,setConsent]=useState<FeyaAnalyticsConsent>('unset');
