@@ -95,7 +95,7 @@ export default async function HomePage() {
           <div className="lg:col-span-6">
             <div className="eyebrow-gold mb-5">TheFEYA · Original handmade designs</div>
             <h1 className="font-tall text-bone leading-[0.95] tracking-[0.03em]" style={{ fontSize: 'clamp(44px,5.5vw,82px)' }}>Handmade stagewear for unforgettable looks</h1>
-            <p className="editorial-italic text-[var(--bone-dim)] text-lg lg:text-xl mt-6 max-w-xl">Statement pieces for stage, festival, desert and editorial styling. Designed by TheFEYA, with adjustable sizing and selected detail customization for existing designs.</p>
+            <p className="editorial-italic text-[var(--bone-dim)] text-lg lg:text-xl mt-6 max-w-xl">Statement pieces for stage, festival, desert and editorial styling. Designed by TheFEYA, with fit guidance and selected customization available on supported designs.</p>
             <div className="flex flex-wrap gap-4 mt-8">
               <Link href="/shop" className="btn-chrome">Shop catalog <ArrowUpRight size={14} /></Link>
               <Link href="/collections" className="btn-ghost">Explore collections <ArrowUpRight size={14} /></Link>
@@ -115,7 +115,7 @@ export default async function HomePage() {
         <div className="absolute bottom-0 left-0 right-0 border-t border-[rgba(216,214,211,0.12)] bg-[rgba(7,7,10,0.45)] backdrop-blur">
           <div className="container-feya grid grid-cols-2 md:grid-cols-5 gap-4 py-5 text-[11px] tracking-[0.22em] uppercase text-[var(--bone-dim)]">
             <span className="flex items-center gap-2"><Scissors size={15} /> Handmade</span>
-            <span className="flex items-center gap-2"><Ruler size={15} /> Adjustable sizing</span>
+            <span className="flex items-center gap-2"><Ruler size={15} /> Fit guidance</span>
             <span className="flex items-center gap-2"><Truck size={15} /> Express options</span>
             <span className="flex items-center gap-2"><Globe2 size={15} /> Worldwide</span>
             <span className="flex items-center gap-2"><Sparkles size={15} /> Original designs</span>
@@ -123,9 +123,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <ProductRail title="Stage-ready statement pieces." kicker="Best sellers · Editorial picks" products={best} />
-      <ProductRail title="New for desert and festival styling." kicker="New arrivals · Handmade looks" products={fresh} />
-      <ProductRail title="Complete the look." kicker="Sets and statement pieces" products={express} />
+      <ProductRail title="Selected statement pieces." kicker="Current collection · TheFEYA" products={best} />
+      <ProductRail title="Explore more handmade designs." kicker="Current collection · More pieces" products={fresh} />
+      <ProductRail title="Discover more of the catalog." kicker="Current collection · More designs" products={express} />
     </main>
   );
 }
