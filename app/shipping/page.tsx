@@ -7,10 +7,8 @@ import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
 export async function generateMetadata():Promise<Metadata>{
   return{
     title:'Shipping & Delivery',
-      description:'TheFEYA production times, international shipping estimates, customs and delivery policy.',
-      alternates:{canonical:'/shipping'},
-      
-    };
+    description:'TheFEYA production times, international shipping estimates, customs and delivery policy.',
+    alternates:{canonical:'/shipping'},
     robots:await releaseRobotsForPath('/shipping'),
   };
 }
