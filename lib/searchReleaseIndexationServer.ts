@@ -72,7 +72,7 @@ export const readSearchReleasePathState=cache(async(path:string):Promise<SearchR
     .eq('url_path_snapshot',path)
     .maybeSingle();
 
-  if(result.error||!result.data)return{release,path,included:false,intendedIndexState:null,itemRole:null};
+  if(result.error||!result.data)return{release,path,included:false,intendedIndexState:null,itemRole:null,seoPageId:null,pageVersionId:null,membershipSnapshotId:null,contentHash:null};
   const row=result.data as unknown as {
     seo_page_id:string;
     page_version_id:string|null;
