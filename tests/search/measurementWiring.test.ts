@@ -38,3 +38,12 @@ test('storefront wiring emits only truthful pre-checkout ecommerce events',async
   assert.doesNotMatch(pdp,/track(?:Measurement|Ecommerce)Event\('purchase'/);
   assert.doesNotMatch(pdp,/trackEcommerceEvent\('begin_checkout'/);
 });
+
+test('Growth OS registry describes measurement as available-with-limitations and default off',async()=>{
+  const sql=await readFile(new URL('../../supabase/migrations/20260926213000_storefront_measurement_contract_v1.sql',import.meta.url),'utf8');
+  assert.match(sql,/'STOREFRONT_MEASUREMENT_CONTRACT'/);
+  assert.match(sql,/'AVAILABLE_WITH_LIMITATIONS'/);
+  assert.match(sql,/"default_state":"off"/);
+  assert.match(sql,/"explicit_analytics_consent_required":true/);
+  assert.match(sql,/"purchase_requires":\["transaction_id","server_order_receipt_id","currency","value","items"\]/);
+});
