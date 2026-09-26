@@ -146,6 +146,39 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       try{await noJs.route('**/*',route=>route.request().resourceType()==='image'?route.fulfill({status:200,contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800"><rect width="600" height="800" fill="#393128"/></svg>'}):route.request().resourceType()==='media'?route.abort():route.continue());const p=await noJs.newPage();await p.goto(base+'/shop');await p.getByRole('link',{name:'Show 20 more',exact:true}).click();await p.waitForURL('**/shop?page=2');assert.equal(await p.locator('a[data-testid^="product-card-"]').count(),20);}finally{await noJs.close();}
       assert.deepEqual(errors,[]);assert.equal(await page.locator('[data-nextjs-dialog]').count(),0);
     });
+    await check('Measurement context exposes stable IDs but remains fail-closed in preview without consent activation',async()=>{
+      await page.goto(base+path);
+      const response=await page.request.get(base+'/api/measurement/context?path='+encodeURIComponent(path));
+      assert.equal(response.status(),200);
+      const body=await response.json();
+      assert.equal(body.ok,true);
+      assert.equal(body.context.page_id,first.identity.seo_page_id);
+      assert.equal(body.context.canonical_product_id,first.identity.canonical_product_id);
+      assert.equal(body.context.environment,'preview');
+      assert.equal(body.context.measurement_enabled,false);
+      assert.equal(body.context.ga4_measurement_id,null);
+
+      await page.waitForFunction(()=>Boolean(window.__FEYA_MEASUREMENT_STATE__));
+      let state=await page.evaluate(()=>window.__FEYA_MEASUREMENT_STATE__);
+      assert.equal(state.consent,'unset');
+      assert.equal(state.sent,0);
+      assert.equal(await page.locator('script[src*="googletagmanager.com/gtag/js"]').count(),0);
+      assert.equal(await page.evaluate(()=>sessionStorage.getItem('feya_measurement_session_v1')),null);
+      assert.equal(await page.evaluate(()=>sessionStorage.getItem('feya_measurement_landing_page_v1')),null);
+
+      await page.evaluate(()=>localStorage.setItem('feya_analytics_consent_v1','granted'));
+      await page.reload();
+      await page.waitForFunction(()=>Boolean(window.__FEYA_MEASUREMENT_STATE__));
+      state=await page.evaluate(()=>window.__FEYA_MEASUREMENT_STATE__);
+      assert.equal(state.consent,'granted');
+      assert.equal(state.sent,0,'Preview environment must not emit analytics even if local consent is granted');
+      assert.ok(state.blocked>=1);
+      assert.equal(await page.locator('script[src*="googletagmanager.com/gtag/js"]').count(),0);
+      assert.equal(await page.evaluate(()=>sessionStorage.getItem('feya_measurement_session_v1')),null);
+      await page.evaluate(()=>localStorage.removeItem('feya_analytics_consent_v1'));
+      report.measurement_preview_fail_closed=true;
+    });
+
     await check('PDP keyboard flow covers gallery, configuration and modal focus without mouse-only dependency',async()=>{
       const galleryEntry=release.entries.find(e=>Array.isArray(e.product.media_gallery)&&e.product.media_gallery.length>1);
       assert.ok(galleryEntry,'Expected at least one multi-image release product');
