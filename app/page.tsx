@@ -2,11 +2,11 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { readClosedReviewPresentation } from '@/lib/searchReviewPresentationServer';
-import { closedReviewRequested } from '@/lib/searchReviewPresentation';
 import Link from 'next/link';
 import { ArrowUpRight, Globe2, Ruler, Scissors, Sparkles, Truck } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { ProductCard } from '@/components/ProductCard';
+import { releaseRobotsForPath } from '@/lib/searchReleaseIndexationServer';
 import { getSupabaseReadClient } from '@/lib/supabase';
 import {
   STOREFRONT_FALLBACK_CARD_SELECT,
@@ -20,12 +20,14 @@ import {
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export const metadata: Metadata = {
-  ...(closedReviewRequested(process.env) ? { robots: { index: false, follow: false } } : {}),
-  title: 'TheFEYA | Handmade Stagewear and Festival Looks',
-  description: 'Original handmade designs for stage, festival, desert and editorial looks. Adjustable sizing and selected color/detail customization for existing TheFEYA designs.',
-  alternates: { canonical: '/' },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: 'TheFEYA | Handmade Stagewear and Festival Looks',
+    description: 'Original handmade designs for stage, festival, desert and editorial looks. Adjustable sizing and selected color/detail customization for existing TheFEYA designs.',
+    alternates: { canonical: '/' },
+    robots: await releaseRobotsForPath('/'),
+  };
+}
 
 const HOME_PRODUCTS_LIMIT = 16;
 
