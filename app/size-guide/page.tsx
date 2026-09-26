@@ -4,8 +4,8 @@ import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 
 export const metadata:Metadata={
-  title:'Measurements & Size Guide | TheFEYA',
-  description:'How to choose a TheFEYA size and prepare chest, waist, hip and height measurements for made-to-order costume pieces.',
+  title:'Costume Measurements & Size Guide | TheFEYA',
+  description:'Learn how to take chest, waist, hip and height measurements for TheFEYA costume sizing and made-to-order fit requests.',
   alternates:{canonical:'/size-guide'},
   robots:{index:false,follow:true},
 };
@@ -23,9 +23,9 @@ export default function SizeGuidePage(){
     <section className="container-feya pt-36 pb-14 lg:pt-44 lg:pb-20">
       <div className="max-w-4xl">
         <div className="eyebrow-gold mb-5">Fit · Measurements · Made to order</div>
-        <h1 className="font-tall text-bone leading-[.95]" style={{fontSize:'clamp(52px,7vw,96px)'}}>Measurements & Size Guide</h1>
+        <h1 className="font-tall text-bone leading-[.95]" style={{fontSize:'clamp(52px,7vw,96px)'}}>Costume Measurements & Size Guide</h1>
         <p className="editorial-italic mt-6 max-w-3xl text-lg leading-relaxed text-[var(--bone-dim)]">
-          Start with the size options on the product page. When measurements are requested, send accurate body measurements rather than changing them to create extra ease yourself.
+          Use this guide to prepare the body measurements most often needed for costume sizing. Start with the size options on the product page; when measurements are requested, send accurate body measurements rather than changing them to create extra ease yourself.
         </p>
       </div>
     </section>
@@ -56,7 +56,7 @@ export default function SizeGuidePage(){
       <div className="mt-6 flex flex-wrap gap-3">
         <Link href="/contact" className="btn-ghost">Ask about sizing</Link>
         <Link href="/returns" className="btn-ghost">Returns & exchanges</Link>
-        <Link href="/shop" className="btn-ghost">Shop products</Link>
+        <Link href="/collections/bodysuits" className="btn-ghost">Costume bodysuits</Link>\n        <Link href="/collections/stage-outfits" className="btn-ghost">Stage & performance</Link>\n        <Link href="/shop" className="btn-ghost">Shop products</Link>
       </div>
     </section>
     <Footer/>
