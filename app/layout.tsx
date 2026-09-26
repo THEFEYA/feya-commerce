@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
-import { getSiteUrl, isSearchIndexingEnabled } from '@/lib/siteConfig';
+import { getSiteUrl } from '@/lib/siteConfig';
 import './globals.css';
-
-const searchIndexingEnabled = isSearchIndexingEnabled();
 
 export const metadata: Metadata = {
   metadataBase: getSiteUrl(),
@@ -11,9 +9,8 @@ export const metadata: Metadata = {
     template: '%s | TheFEYA',
   },
   description: 'Handmade stage, festival and performance fashion by TheFEYA.',
-  robots: searchIndexingEnabled
-    ? { index: true, follow: true }
-    : { index: false, follow: false, nocache: true },
+  // Fail closed globally. Only an ACTIVE immutable search release may opt a page into indexing.
+  robots: { index: false, follow: true, nocache: true },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
