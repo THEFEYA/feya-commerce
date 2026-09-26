@@ -147,6 +147,19 @@ export default async function SearchLandingCandidatePage({params}:PageProps){
         </div>
       </section>
 
+      <section className="container-feya pb-12 lg:pb-16">
+        <div className="rounded-xl border border-[rgba(212,178,106,.22)] bg-[rgba(212,178,106,.04)] p-6 lg:p-7">
+          <div className="eyebrow-gold">Before you order</div>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link href="/size-guide" className="btn-ghost">Measurements & sizing</Link>
+            <Link href="/care" className="btn-ghost">Care & storage</Link>
+            <Link href="/shipping" className="btn-ghost">Shipping</Link>
+            <Link href="/returns" className="btn-ghost">Returns & exchanges</Link>
+            <Link href="/contact" className="btn-ghost">Contact</Link>
+          </div>
+        </div>
+      </section>
+
       {content.faq.length?<section className="container-feya pb-16 lg:pb-24">
         <div className="max-w-4xl">
           <div className="eyebrow-gold">Questions</div>
