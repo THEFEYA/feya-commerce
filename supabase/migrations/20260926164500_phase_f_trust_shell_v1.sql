@@ -142,8 +142,8 @@ insert into public.feya_growth_registry_items_v1(
 )
 values
 (
-  'launch_blocker','PUBLIC_TERMS_AND_SELLER_IDENTITY','Terms + seller identity','HUMAN_OWNER',
-  'BLOCKED','facts_required',
+  'policy','PUBLIC_TERMS_AND_SELLER_IDENTITY','Terms + seller identity','HUMAN_OWNER',
+  'UNAVAILABLE','facts_required',
   'Public Terms and contracting-seller identity are required before the final legal/search release.',
   'Do not invent the legal seller name/address from a bank, payment processor or Seller-Online provider contact.',
   '{"phase":"F","blocks":["final_public_terms","merchant_release"],"indexing_scope":"trust_shell"}'::jsonb,
@@ -151,8 +151,8 @@ values
   1,true
 ),
 (
-  'launch_blocker','PUBLIC_PRIVACY_POLICY','Privacy policy','HUMAN_OWNER',
-  'BLOCKED','data_flow_inventory_required',
+  'policy','PUBLIC_PRIVACY_POLICY','Privacy policy','HUMAN_OWNER',
+  'UNAVAILABLE','data_flow_inventory_required',
   'Privacy policy must reflect the actual analytics, checkout, payment and contact data flows before final release.',
   'Do not publish a generic template that claims processors or tracking tools that are not actually active.',
   '{"phase":"F","blocks":["final_public_privacy"],"indexing_scope":"trust_shell"}'::jsonb,
