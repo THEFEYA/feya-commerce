@@ -1,0 +1,113 @@
+{
+  "contract_version": "phase_g_privacy_data_flow_v1",
+  "status": "review_ready_not_public_policy",
+  "generated_from_code_sha": "518a2a22298025bf57cb4d361c7a7b6a5b6479db",
+  "purpose": "Evidence manifest for K07/K18. This is not legal advice and is not a published Privacy Policy.",
+  "public_storefront": {
+    "contact": {
+      "mechanism": "mailto_link",
+      "address": "manager.feya@gmail.com",
+      "web_form": false,
+      "source": "app/contact/page.tsx"
+    },
+    "cart": {
+      "state": "prelaunch_inactive",
+      "client_storage": [
+        "feya_visual_cart_v1",
+        "feya_visual_bag"
+      ],
+      "server_order_creation": false,
+      "payment": false,
+      "source": [
+        "app/cart/page.tsx",
+        "components/ProductDetailClient.tsx"
+      ]
+    },
+    "account": {
+      "state": "inactive",
+      "customer_sign_in": false,
+      "source": "app/account/page.tsx"
+    }
+  },
+  "analytics": {
+    "state": "default_off",
+    "private_surfaces_excluded": [
+      "/admin",
+      "/api"
+    ],
+    "enable_conditions": [
+      "VERCEL_ENV=production",
+      "FEYA_ANALYTICS_ENABLED=true",
+      "valid FEYA_GA4_MEASUREMENT_ID",
+      "explicit analytics consent=granted"
+    ],
+    "consent_storage": {
+      "key": "feya_analytics_consent_v1",
+      "storage": "localStorage",
+      "values": [
+        "granted",
+        "denied"
+      ],
+      "default": "unset"
+    },
+    "session_identity": {
+      "storage": "sessionStorage",
+      "session_key": "feya_measurement_session_v1",
+      "landing_page_key": "feya_measurement_landing_page_v1",
+      "created_only_after_consent_and_measurement_enablement": true
+    },
+    "google_tag": {
+      "loaded_before_consent": false,
+      "ad_storage": "denied",
+      "ad_user_data": "denied",
+      "ad_personalization": "denied",
+      "automatic_page_view": false
+    },
+    "events": [
+      "page_view",
+      "select_item",
+      "view_item",
+      "add_to_cart",
+      "begin_checkout",
+      "purchase",
+      "web_vital"
+    ],
+    "current_storefront_emitters": [
+      "page_view",
+      "select_item",
+      "view_item",
+      "add_to_cart"
+    ],
+    "not_currently_emitted": [
+      "begin_checkout",
+      "purchase",
+      "web_vital"
+    ],
+    "stable_identifiers": [
+      "event_id",
+      "session_id",
+      "page_id",
+      "page_version_id",
+      "landing_page_id",
+      "release_id",
+      "canonical_product_id",
+      "sku_id"
+    ],
+    "direct_personal_fields_in_feya_event_contract": [],
+    "purchase_guard": "purchase requires transaction_id + server_order_receipt_id + currency + value + items; current storefront has no purchase emitter",
+    "source": [
+      "lib/measurementContract.ts",
+      "lib/measurementClient.ts",
+      "components/MeasurementRuntime.tsx",
+      "app/api/measurement/context/route.ts"
+    ]
+  },
+  "unresolved_for_public_privacy_policy": [
+    "contracting seller/controller legal identity",
+    "public seller/controller address",
+    "real production GA4 property/web stream and retention/settings",
+    "final consent UI and withdrawal/preferences surface",
+    "checkout/payment processor data flow once enabled",
+    "customer account/authentication data flow if enabled"
+  ]
+}
