@@ -5,6 +5,7 @@ import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 import {getPublicLegalIdentity} from '@/lib/publicLegalIdentity';
 import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
+import {AnalyticsConsentPreferences} from '@/components/AnalyticsConsentBanner';
 import {isSellerOnlinePaymentsEnabled,SELLER_ONLINE_PROVIDER} from '@/lib/sellerOnlineProvider';
 
 export async function generateMetadata():Promise<Metadata>{
@@ -22,7 +23,8 @@ export default function PrivacyPage(){
   const identity=getPublicLegalIdentity();
   if(!identity)notFound();
   const sellerOnlineEnabled=isSellerOnlinePaymentsEnabled();
-  const analyticsReady=process.env.FEYA_ANALYTICS_PRIVACY_READY==='true';
+  const analyticsReady=process.env.FEYA_ANALYTICS_PRIVACY_READY==='true'
+    && process.env.FEYA_ANALYTICS_ENABLED==='true';
 
   return <main className="relative min-h-screen">
     <Header/>
@@ -102,6 +104,13 @@ export default function PrivacyPage(){
           <div className="mt-4 space-y-3 text-[15px] leading-7 text-[var(--bone-dim)]">
             <p>Information is kept only as long as reasonably necessary for the purpose for which it was collected, to maintain required business records, resolve disputes, protect the service, or meet applicable legal obligations.</p>
             <p>If information you supplied is inaccurate or no longer needed for an active request, contact TheFEYA using the privacy contact above.</p>
+          </div>
+        </article>
+
+        <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-7">
+          <h2 className="text-bone text-xl">Analytics preferences</h2>
+          <div className="mt-4">
+            <AnalyticsConsentPreferences enabled={analyticsReady}/>
           </div>
         </article>
 
