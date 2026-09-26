@@ -18,9 +18,9 @@ const FOOTER_COLUMNS = [
     links: [
       ['Custom sizing', '/shop'],
       ['Made to order', '/shop'],
-      ['Production time', '/shipping'],
-      ['Express shipping', '/shipping'],
-      ['Shipping & returns', '/returns'],
+      ['Production time', '/shop'],
+      ['Express DHL', '/shop'],
+      ['Shipping & returns', '/shop'],
     ],
   },
   {
@@ -70,7 +70,7 @@ export function Footer() {
       </div>
       <div className="relative z-10 border-t border-[rgba(216,214,211,0.10)] bg-[rgba(7,7,10,0.65)]">
         <div className="container-feya py-3 flex flex-col md:flex-row items-start md:items-center justify-between gap-2 text-[10px] tracking-[0.34em] uppercase text-[rgba(200,194,181,0.58)]">
-          <span>© TheFEYA Atelier · Made to order</span>
+          <span>© TheFEYA Atelier · Berlin · Visual concept</span>
           <span>Design preview · sampled data · no checkout active</span>
         </div>
       </div>
