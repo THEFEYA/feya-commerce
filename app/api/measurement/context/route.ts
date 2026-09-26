@@ -43,6 +43,7 @@ export async function GET(request:NextRequest){
   const pageId=String(pageResult.data.seo_page_id);
   const releaseState=await readSearchReleasePathState(path);
   let pageVersionId=releaseState.pageVersionId;
+  let pageVersionLookupHealthy=true;
 
   if(!pageVersionId){
     const version=await service
@@ -52,15 +53,20 @@ export async function GET(request:NextRequest){
       .order('version_number',{ascending:false})
       .limit(1)
       .maybeSingle();
-    if(version.error)return NextResponse.json({ok:false,code:'measurement_page_version_lookup_failed'},{status:503,headers:{'Cache-Control':'no-store'}});
-    pageVersionId=version.data?.page_version_id?String(version.data.page_version_id):null;
+    if(version.error){
+      pageVersionLookupHealthy=false;
+      pageVersionId=null;
+    }else{
+      pageVersionId=version.data?.page_version_id?String(version.data.page_version_id):null;
+    }
   }
 
   const environment=measurementEnvironment();
   const measurementId=(process.env.FEYA_GA4_MEASUREMENT_ID||'').trim();
   const measurementEnabled=environment==='production'
     && process.env.FEYA_ANALYTICS_ENABLED==='true'
-    && /^G-[A-Z0-9]+$/i.test(measurementId);
+    && /^G-[A-Z0-9]+$/i.test(measurementId)
+    && pageVersionLookupHealthy;
 
   return NextResponse.json({
     ok:true,
@@ -73,6 +79,7 @@ export async function GET(request:NextRequest){
       environment,
       measurement_enabled:measurementEnabled,
       ga4_measurement_id:measurementEnabled?measurementId:null,
+      measurement_blocker:pageVersionLookupHealthy?null:'page_version_lookup_unavailable',
     }
   },{headers:{'Cache-Control':'no-store'}});
 }
