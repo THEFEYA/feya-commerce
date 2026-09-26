@@ -7,7 +7,7 @@ const releaseRef='feya-review-207-20260924';
 const productIds=Array.from({length:207},(_,i)=>`10000000-0000-4000-8000-${String(i+1).padStart(12,'0')}`);
 const evidence='a'.repeat(64);
 
-function row(){
+function row():any{
   return {
     action_code:'REPAIR_RELEASE_CONFIGURATION_BINDINGS',
     mutation_domain:'COMMERCE_CONFIGURATION',
