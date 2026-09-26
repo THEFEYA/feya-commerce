@@ -21,7 +21,18 @@ resolved as (
     p.url_path,
     s.membership_snapshot_id,
     c.content_json,
-    spec.*
+    spec.family,
+    spec.primary_parent_page_id,
+    spec.accountable_owner,
+    spec.review_state,
+    spec.user_intent,
+    spec.primary_intent,
+    spec.unique_value_brief,
+    spec.intent_evidence_status,
+    spec.truth_status,
+    spec.selection_rule_json,
+    spec.inventory_policy_json,
+    spec.excluded_queries_json
   from content_rows c
   join public.feya_commerce_seo_pages_v1 p
     on p.market_code='US' and p.locale='en-US' and p.url_path=c.url_path
