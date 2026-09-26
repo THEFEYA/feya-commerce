@@ -65,6 +65,7 @@ export async function GET(request:NextRequest){
   const measurementId=(process.env.FEYA_GA4_MEASUREMENT_ID||'').trim();
   const measurementEnabled=environment==='production'
     && process.env.FEYA_ANALYTICS_ENABLED==='true'
+    && process.env.FEYA_ANALYTICS_PRIVACY_READY==='true'
     && /^G-[A-Z0-9]+$/i.test(measurementId)
     && pageVersionLookupHealthy;
 
