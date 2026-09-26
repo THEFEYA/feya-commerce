@@ -1,3 +1,17 @@
+## Phase F pre-index shell checkpoint — 26.09.2026
+
+- Phase E immutable landing content versions are persisted for 10 evidence-backed business-case collections; all remain `noindex` / `review`.
+- `/collections/[slug]` now renders the same immutable page version + membership snapshot, with visible breadcrumbs, BreadcrumbList/CollectionPage JSON-LD, evidence-backed related links, product grid and trust links.
+- The old title/meta keyword-matching membership path has been removed from the renderer; hold prototypes such as `/collections/harness` and `/collections/outfits` stay explicitly empty/noindex.
+- `/collections` exists as a noindex crawlable discovery hub for the 10 current business-case collections. Homepage `Explore collections` routes to this hub without a visual redesign; the Product OS freeze hash was updated for this href-only change.
+- Phase F trust shell now includes `/about`, `/size-guide`, `/care`, plus existing `/shipping`, `/returns`, `/contact`; all are registered as trust-family pages and remain noindex.
+- The collections hub links to the trust shell, so current trust pages are not orphaned.
+- Terms + contracting seller identity are explicitly recorded as unavailable facts, not guessed from Seller-Online/provider data.
+- Privacy remains blocked until real analytics/checkout/payment/contact data flows are final enough to describe accurately.
+- Seller-Online remains a parallel payment lane and does not block Search Portfolio/content work.
+
+**Next finite package:** exact-head build/runtime proof for the new renderer, then Phase F homepage/navigation graph expansion using approved owners without redesign; after that prepare the first editorial eligibility set and the Phase G technical selective-release manifest.
+
 ## Macro reprioritization — 26.09.2026
 
 Human Owner challenged payment over-focus. The critical path is reset to the documented launch objective: prepare the site for a controlled first indexing, not complete payment-provider integration first.
