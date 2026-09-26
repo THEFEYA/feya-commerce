@@ -3,6 +3,12 @@
 -- Legal implementation must preserve non-waivable consumer rights in the buyer's applicable jurisdiction.
 begin;
 
+update public.feya_commerce_business_truth_v1
+set status='RETIRED',valid_to=now(),updated_at=now()
+where truth_code='ORDER_CANCELLATIONS'
+  and scope_type='GLOBAL' and scope_key='GLOBAL' and locale='en'
+  and status='ACTIVE' and valid_to is null;
+
 insert into public.feya_commerce_business_truth_v1(
   truth_code,truth_type,scope_type,scope_key,locale,value_json,public_copy,status,version_no,authority_type,source_note
 ) values
