@@ -2,13 +2,18 @@ import type {Metadata} from 'next';
 import Link from 'next/link';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
+import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
 
-export const metadata:Metadata={
-  title:'Returns & Exchanges',
-  description:'TheFEYA return, exchange, remake and cancellation policy for made-to-order stage and festival pieces.',
-  alternates:{canonical:'/returns'},
-  robots:{index:false,follow:true},
-};
+export async function generateMetadata():Promise<Metadata>{
+  return{
+    title:'Returns & Exchanges',
+      description:'TheFEYA return, exchange, remake and cancellation policy for made-to-order stage and festival pieces.',
+      alternates:{canonical:'/returns'},
+      
+    };
+    robots:await releaseRobotsForPath('/returns'),
+  };
+}
 
 const sections=[
   {
