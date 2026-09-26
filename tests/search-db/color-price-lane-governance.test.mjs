@@ -122,6 +122,16 @@ test('three-product color-price lane stays exact, waits for release repair, and 
       /release_repair_required/
     ));
 
+    await service(db,()=>db.query(`insert into public.feya_growth_registry_items_v1(
+      registry_type,item_code,item_name,owner_role,item_state,implementation_state,
+      public_summary,limitations_summary,config_json,evidence_json,version_no,active_flag
+    ) values(
+      'action_capability','REPAIR_RELEASE_CONFIGURATION_BINDINGS','Synthetic release repair dependency','CPIM',
+      'AVAILABLE_WITH_LIMITATIONS','test_dependency','Synthetic test dependency','Test only',
+      '{"action_class":"EXECUTABLE_WITH_APPROVAL","executor_type":"EXECUTION_GATEWAY","approval_class":"HUMAN_REQUIRED","production_mutation":true}'::jsonb,
+      '{}'::jsonb,1,true
+    ) on conflict (registry_type,item_code,version_no) do update set active_flag=true,item_state='AVAILABLE_WITH_LIMITATIONS'`));
+
     const releaseReq=await service(db,async()=> (await db.query(
       "select * from public.feya_fn_create_execution_request_v1('REPAIR_RELEASE_CONFIGURATION_BINDINGS','COMMERCE_CONFIGURATION',$1::jsonb,'{}'::jsonb,'{}'::jsonb,'{}'::jsonb,'{}'::jsonb,'agent',null,$2)",[
         JSON.stringify({entity_type:'RELEASE',entity_key:'feya-review-207-20260924'}),
