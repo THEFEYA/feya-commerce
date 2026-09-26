@@ -2,32 +2,24 @@
 -- This is navigation architecture only; no collection is authorized for indexing.
 begin;
 
-with root as (
-  select seo_page_id
-  from public.feya_commerce_seo_pages_v1
-  where market_code='US' and locale='en-US' and url_path='/'
-  limit 1
-),
-ins as (
-  insert into public.feya_commerce_seo_pages_v1(
-    seo_page_id,page_type,canonical_product_id,url_path,canonical_url,market_code,locale,
-    lifecycle_state,indexation_intent,portfolio_status,protected_winner_flag,source_type,metadata_json
-  )
-  values(
-    extensions.uuid_generate_v5(
-      '6ba7b810-9dad-11d1-80b4-00c04fd430c8'::uuid,
-      'thefeya:seo-page:US:en-US:/collections'
-    ),
-    'landing',null,'/collections','https://thefeya.com/collections','US','en-US',
-    'planned','noindex','hold',false,'phase_f_collections_hub',
-    '{"phase":"F","role":"collections_discovery_hub","index_authorized":false}'::jsonb
-  )
-  on conflict (market_code,locale,url_path) do update set
-    canonical_url=excluded.canonical_url,
-    metadata_json=public.feya_commerce_seo_pages_v1.metadata_json||excluded.metadata_json,
-    updated_at=now()
-  returning seo_page_id
+insert into public.feya_commerce_seo_pages_v1(
+  seo_page_id,page_type,canonical_product_id,url_path,canonical_url,market_code,locale,
+  lifecycle_state,indexation_intent,portfolio_status,protected_winner_flag,source_type,metadata_json
 )
+values(
+  extensions.uuid_generate_v5(
+    '6ba7b810-9dad-11d1-80b4-00c04fd430c8'::uuid,
+    'thefeya:seo-page:US:en-US:/collections'
+  ),
+  'landing',null,'/collections','https://thefeya.com/collections','US','en-US',
+  'planned','noindex','hold',false,'phase_f_collections_hub',
+  '{"phase":"F","role":"collections_discovery_hub","index_authorized":false}'::jsonb
+)
+on conflict (market_code,locale,url_path) do update set
+  canonical_url=excluded.canonical_url,
+  metadata_json=public.feya_commerce_seo_pages_v1.metadata_json||excluded.metadata_json,
+  updated_at=now();
+
 insert into public.feya_search_page_specs_v1(
   seo_page_id,family,primary_parent_page_id,accountable_owner,review_state,user_intent,primary_intent,
   unique_value_brief,intent_evidence_status,truth_status,utility_rationale,selection_rule_json,
@@ -44,7 +36,8 @@ select
   null,'[]'::jsonb,
   '[{"type":"phase_f","ref":"FEYA_PreIndex_Search_Architecture_Master_Prompt_v2_20260926.md"},{"type":"graph","source_version":"phase-f-20260926"}]'::jsonb
 from public.feya_commerce_seo_pages_v1 p
-cross join root r
+join public.feya_commerce_seo_pages_v1 r
+  on r.market_code='US' and r.locale='en-US' and r.url_path='/'
 where p.market_code='US' and p.locale='en-US' and p.url_path='/collections'
 on conflict (seo_page_id) do update set
   primary_parent_page_id=excluded.primary_parent_page_id,
