@@ -3,9 +3,9 @@ import test from 'node:test';
 import {readFile} from 'node:fs/promises';
 import {getBusinessCaseLandingCandidates} from '../../config/searchLandingCandidates.ts';
 
-test('collections hub exposes every current business-case collection and stays noindex',async()=>{
+test('collections hub exposes every current business-case collection through release-aware metadata',async()=>{
   const page=await readFile(new URL('../../app/collections/page.tsx',import.meta.url),'utf8');
-  assert.match(page,/robots:\{index:false,follow:true\}/);
+  assert.match(page,/releaseRobotsForPath/);
   assert.match(page,/getBusinessCaseLandingCandidates/);
   assert.match(page,/\/collections\/\$\{collection\.slug\}/);
   assert.equal(getBusinessCaseLandingCandidates().length,10);
