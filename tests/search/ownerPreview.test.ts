@@ -5,13 +5,35 @@ import {closedReviewMode,closedReviewRequested} from '../../lib/searchReviewPres
 import {inspectSearchEnvironment} from '../../lib/searchEnvironmentGate.ts';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
+import ts from 'typescript';
 
 const env = {VERCEL:'1',VERCEL_ENV:'preview',VERCEL_PROJECT_ID:'prj_ePIymo4sUG33wrRjHBxWrSlaxPID',VERCEL_GIT_COMMIT_REF:'work/search-architecture-foundation-20260923'};
-test('card prefetch correction preserves every existing visual/media byte',()=>{
+function visualTokens(source:string){
+ const file=ts.createSourceFile('ProductCard.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
+ const attributes:string[]=[],text:string[]=[];
+ const visit=(node:ts.Node)=>{
+  if(ts.isJsxAttribute(node)&&['className','style'].includes(node.name.getText(file)))attributes.push(node.getText(file));
+  if(ts.isJsxText(node)&&node.text.trim())text.push(node.text.trim());
+  ts.forEachChild(node,visit);
+ };
+ visit(file);
+ return createHash('sha256').update(JSON.stringify({attributes,text})).digest('hex');
+}
+test('card prefetch and measurement wiring preserve the frozen visual/media contract',()=>{
  const card=readFileSync('components/ProductCard.tsx','utf8');
  assert.equal((card.match(/prefetch=\{false\}/g)||[]).length,1);
- const before=Buffer.from(card.replace('prefetch={false}','prefetch'));
- assert.equal(createHash('sha1').update(`blob ${before.length}\0`).update(before).digest('hex'),'e72043d3b354ccad56d832fcb772aec577a26ddc');
+ const baseline=JSON.parse(readFileSync('config/closed-review-visual-baseline.json','utf8'));
+ assert.equal(visualTokens(card),baseline.surfaces['components/ProductCard.tsx']);
+ for(const invariant of [
+  "p.primary_image_url || ''",
+  'p.hover_image_url',
+  'p.secondary_image_url',
+  'collectUrls(product.media_gallery)',
+  "p.has_video ? (p.video_url || '') : ''",
+  'const hasHoverMedia = Boolean(video || cleanSwap)',
+  'group-hover:opacity-100',
+ ])assert.ok(card.includes(invariant),invariant);
+ assert.match(card,/trackEcommerceEvent\('select_item'/);
 });
 test('owner preview is confined to the authorized Vercel project and branch',()=>{
  assert.equal(isOwnerPreviewDeployment(env),true);
