@@ -11,10 +11,10 @@ const trustPages=[
   ['contact','Contact'],
 ];
 
-test('Phase F trust pages exist and stay noindex before final legal release',async()=>{
+test('Phase F trust pages exist and can index only through the active release manifest',async()=>{
   for(const [slug,h1] of trustPages){
     const source=await readFile(new URL('../../app/'+slug+'/page.tsx',import.meta.url),'utf8');
-    assert.ok(source.includes("robots:{index:false,follow:true}"),slug+': noindex');
+    assert.ok(source.includes("releaseRobotsForPath('/"+slug+"')"),slug+': release-aware robots');
     assert.ok(source.includes(h1),slug+': expected H1');
   }
 });
