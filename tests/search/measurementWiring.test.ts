@@ -9,11 +9,15 @@ test('measurement runtime is mounted globally but remains environment gated',asy
   assert.match(route,/environment==='production'/);
   assert.match(route,/FEYA_ANALYTICS_ENABLED==='true'/);
   assert.match(route,/FEYA_GA4_MEASUREMENT_ID/);
+  assert.match(route,/measurement_private_surface_excluded/);
   assert.match(route,/Cache-Control':'no-store/);
 });
 
 test('measurement client requires explicit analytics consent before loading Google tag or creating session identity',async()=>{
   const client=await readFile(new URL('../../lib/measurementClient.ts',import.meta.url),'utf8');
+  const runtime=await readFile(new URL('../../components/MeasurementRuntime.tsx',import.meta.url),'utf8');
+  assert.match(runtime,/pathname\.startsWith\('\/admin'\)/);
+  assert.match(runtime,/pathname\.startsWith\('\/api'\)/);
   assert.match(client,/getAnalyticsConsent\(\)!=='granted'/);
   assert.match(client,/googletagmanager\.com\/gtag\/js/);
   assert.match(client,/ensureGoogleTag\(\)/);
