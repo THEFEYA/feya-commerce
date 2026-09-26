@@ -534,7 +534,7 @@ begin
     where i.canonical_product_id=any(product_ids)
     order by i.canonical_product_id,i.variant_id
   loop
-    perform public.feya_commerce_create_quote_v1(quote_result->'payload');
+    perform public.feya_commerce_create_quote_v1(quote_result);
   end loop;
 
   select count(*) into inserted_quote_receipts
