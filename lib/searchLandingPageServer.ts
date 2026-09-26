@@ -115,13 +115,14 @@ async function readBreadcrumbs(
 
     chain.push({href: page.url_path, label});
 
-    const {data: spec, error: specError} = await service
+    const specResult = await service
       .from('feya_search_page_specs_v1')
       .select('primary_parent_page_id')
       .eq('seo_page_id', currentId)
       .maybeSingle();
-    if (specError) throw new Error(`SEARCH_LANDING_BREADCRUMB_SPEC_FAILED:${specError.message}`);
-    currentId = spec?.primary_parent_page_id ? String(spec.primary_parent_page_id) : null;
+    if (specResult.error) throw new Error(`SEARCH_LANDING_BREADCRUMB_SPEC_FAILED:${specResult.error.message}`);
+    const specRow = specResult.data as {primary_parent_page_id:string|null} | null;
+    currentId = specRow?.primary_parent_page_id ? String(specRow.primary_parent_page_id) : null;
   }
 
   return chain.reverse();
@@ -257,7 +258,8 @@ async function readSearchLandingReleaseInner(slug: string): Promise<SearchLandin
       .limit(500);
     if (productError) throw new Error(`SEARCH_LANDING_PRODUCT_READ_FAILED:${productError.message}`);
 
-    const byId = new Map((rows || []).map((row) => [String(row.canonical_product_id), row as StorefrontProduct]));
+    const typedRows = (rows || []) as unknown as StorefrontProduct[];
+    const byId = new Map(typedRows.map((row) => [String(row.canonical_product_id), row]));
     const missing = ids.filter((id) => !byId.has(id));
     if (missing.length) throw new Error(`SEARCH_LANDING_STOREFRONT_PARITY_FAILED:${missing.length}`);
 
