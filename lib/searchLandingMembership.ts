@@ -2,6 +2,7 @@ import 'server-only';
 import {getSupabaseServiceRoleClient} from '@/lib/supabaseAdmin';
 import {STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4} from '@/lib/storefront';
 import {getSearchLandingCandidate} from '@/config/searchLandingCandidates';
+import type {StorefrontProduct} from '@/lib/types';
 
 export const SEARCH_MEMBERSHIP_SOURCE_REVISION =
   'feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926';
@@ -12,7 +13,7 @@ type MembershipItem = {
 
 export type SearchLandingMembershipResult = {
   candidate: NonNullable<ReturnType<typeof getSearchLandingCandidate>>;
-  products: Record<string, unknown>[];
+  products: StorefrontProduct[];
   source: 'immutable_membership_snapshot' | 'hold_noindex';
   snapshotId: string | null;
   membershipCount: number;
@@ -100,7 +101,7 @@ export async function readSearchLandingMembership(
   if (productError) throw new Error(`SEARCH_LANDING_PRODUCT_READ_FAILED:${productError.message}`);
 
   const byId = new Map(
-    (products || []).map((product) => [String(product.canonical_product_id), product as Record<string, unknown>]),
+    (products || []).map((product) => [String(product.canonical_product_id), product as StorefrontProduct]),
   );
 
   const missing = ids.filter((id) => !byId.has(id));
@@ -110,7 +111,7 @@ export async function readSearchLandingMembership(
 
   const ordered = ids
     .map((id) => byId.get(id))
-    .filter((product): product is Record<string, unknown> => Boolean(product))
+    .filter((product): product is StorefrontProduct => Boolean(product))
     .sort((a, b) => String(a.card_title || '').localeCompare(String(b.card_title || ''), 'en'));
 
   return {
