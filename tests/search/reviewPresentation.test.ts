@@ -92,7 +92,9 @@ test('governed filters round-trip in page links; invalid/ambiguous and legacy un
     piece:'Shoulder',
     part:'Arms',
     event:['Festival','Rave'],
-    performance:['Stage'],
+    performance:['Stage','Showgirl'],
+    dance:['Go-Go'],
+    style:['Cyberpunk','Glam'],
     sort:'Price · high to low',
   };
   const url=new URL(shopPageHref(2,f),'https://example.test');
