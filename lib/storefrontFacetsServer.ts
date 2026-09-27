@@ -2,9 +2,13 @@ import 'server-only';
 
 import type { StorefrontProduct } from '@/lib/types';
 import { getSupabaseServiceRoleClient } from '@/lib/supabaseAdmin';
-import { buildStorefrontFacets, type StorefrontFacetTruthRow } from '@/lib/storefrontFacets';
+import {
+  buildStorefrontFacets,
+  STOREFRONT_FACET_CONTRACT_VERSION,
+  type StorefrontFacetSnapshotRow,
+} from '@/lib/storefrontFacets';
 
-const TRUTH_VIEW = 'feya_commerce_v_seo_product_truth_v4';
+const STOREFRONT_FACET_SNAPSHOT_CODE = 'feya-n7-20260927-v1';
 const MEMBERSHIP_SNAPSHOT_SOURCE = 'feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926';
 const FACET_CHUNK_SIZE = 100;
 
@@ -27,10 +31,9 @@ function chunks<T>(values: T[], size: number) {
   return result;
 }
 
-type SnapshotRow = {
+type MembershipSnapshotRow = {
   membership_snapshot_id: string;
   seo_page_id: string;
-  source_revision: string;
 };
 
 type PageRow = {
@@ -43,15 +46,29 @@ type MembershipRow = {
   membership_snapshot_id: string;
 };
 
+type FacetSnapshotMeta = {
+  facet_snapshot_id: string;
+  facet_contract_version: string;
+  product_count: number;
+  snapshot_hash: string;
+  snapshot_status: string;
+};
+
+type FacetSnapshotItem = StorefrontFacetSnapshotRow & {
+  facet_snapshot_id: string;
+  source_draft_id: string;
+  item_hash: string;
+};
+
 async function readImmutableMembershipCodes(service: any, ids: string[]) {
   const { data: snapshots, error: snapshotError } = await service
     .from('feya_search_membership_snapshots_v1')
-    .select('membership_snapshot_id,seo_page_id,source_revision')
+    .select('membership_snapshot_id,seo_page_id')
     .eq('source_revision', MEMBERSHIP_SNAPSHOT_SOURCE);
 
   if (snapshotError || !snapshots?.length) return new Map<string, Set<string>>();
 
-  const snapshotRows = snapshots as SnapshotRow[];
+  const snapshotRows = snapshots as MembershipSnapshotRow[];
   const pageIds = [...new Set(snapshotRows.map((row) => row.seo_page_id).filter(Boolean))];
 
   const { data: pages, error: pageError } = await service
@@ -98,6 +115,43 @@ async function readImmutableMembershipCodes(service: any, ids: string[]) {
   return membershipByProduct;
 }
 
+async function readFacetSnapshot(service: any, ids: string[]) {
+  const { data: meta, error: metaError } = await service
+    .from('feya_storefront_facet_snapshots_v1')
+    .select('facet_snapshot_id,facet_contract_version,product_count,snapshot_hash,snapshot_status')
+    .eq('snapshot_code', STOREFRONT_FACET_SNAPSHOT_CODE)
+    .eq('snapshot_status', 'PREVIEW')
+    .maybeSingle();
+
+  if (metaError || !meta) return new Map<string, FacetSnapshotItem>();
+
+  const snapshot = meta as FacetSnapshotMeta;
+  if (snapshot.facet_contract_version !== STOREFRONT_FACET_CONTRACT_VERSION) {
+    throw new Error('STOREFRONT_FACET_CONTRACT_MISMATCH');
+  }
+  if (snapshot.product_count !== 207 || !/^[0-9a-f]{64}$/.test(snapshot.snapshot_hash)) {
+    throw new Error('STOREFRONT_FACET_SNAPSHOT_INVALID');
+  }
+
+  const byProduct = new Map<string, FacetSnapshotItem>();
+
+  for (const idChunk of chunks(ids, FACET_CHUNK_SIZE)) {
+    const { data: items, error: itemError } = await service
+      .from('feya_storefront_facet_items_v1')
+      .select('facet_snapshot_id,canonical_product_id,source_draft_id,parent_components_json,child_components_json,component_groups_json,event_values_json,style_values_json,persona_values_json,canonical_color_label,item_hash')
+      .eq('facet_snapshot_id', snapshot.facet_snapshot_id)
+      .in('canonical_product_id', idChunk);
+
+    if (itemError) throw new Error(`STOREFRONT_FACET_SNAPSHOT_READ_FAILED:${itemError.message}`);
+
+    for (const item of (items || []) as FacetSnapshotItem[]) {
+      byProduct.set(item.canonical_product_id, item);
+    }
+  }
+
+  return byProduct;
+}
+
 export async function attachStorefrontFacets(products: StorefrontProduct[]): Promise<StorefrontProduct[]> {
   const ids = Array.from(new Set(products.map((product) => product.canonical_product_id).filter(Boolean)));
   if (!ids.length) return products;
@@ -105,30 +159,19 @@ export async function attachStorefrontFacets(products: StorefrontProduct[]): Pro
   const service = getSupabaseServiceRoleClient();
   if (!service) return products;
 
-  const truthRows: StorefrontFacetTruthRow[] = [];
-
-  for (const idChunk of chunks(ids, FACET_CHUNK_SIZE)) {
-    const truth = await service
-      .from(TRUTH_VIEW)
-      .select('canonical_product_id,parent_components_json,child_components_json,canonical_color_label')
-      .in('canonical_product_id', idChunk);
-
-    if (!truth.error && truth.data?.length) truthRows.push(...truth.data);
-  }
-
-  const [membershipByProduct] = await Promise.all([
+  const [snapshotByProduct, membershipByProduct] = await Promise.all([
+    readFacetSnapshot(service, ids),
     readImmutableMembershipCodes(service, ids),
   ]);
-
-  const truthByProduct = new Map(truthRows.map((row) => [row.canonical_product_id, row]));
 
   return products.map((product) => ({
     ...product,
     facets: buildStorefrontFacets(
-      truthByProduct.get(product.canonical_product_id),
+      snapshotByProduct.get(product.canonical_product_id),
       membershipByProduct.get(product.canonical_product_id) || [],
     ),
   }));
 }
 
+export const STOREFRONT_FACET_SNAPSHOT_SOURCE = STOREFRONT_FACET_SNAPSHOT_CODE;
 export const STOREFRONT_FACET_MEMBERSHIP_SOURCE = MEMBERSHIP_SNAPSHOT_SOURCE;
