@@ -33,21 +33,42 @@ export async function generateMetadata(): Promise<Metadata> {
 const HOME_PRODUCTS_LIMIT = 12;
 
 const PIECE_GATEWAYS = [
+  { label: 'Full Looks', href: '/shop?piece=Full%20Look', note: 'Multi-piece outfit configurations' },
   { label: 'Bodysuits', href: '/collections/bodysuits', note: 'Full-body statement pieces' },
   { label: 'Shoulders', href: '/collections/shoulder-armor', note: 'Shoulder pieces and armor-inspired forms' },
   { label: 'Masks', href: '/collections/costume-masks', note: 'Decorative costume masks' },
   { label: 'Headpieces', href: '/collections/costume-headpieces', note: 'Crowns, headpieces and sculpted forms' },
   { label: 'Belts', href: '/collections/costume-belts', note: 'Waist and belt pieces' },
+  { label: 'Wings', href: '/shop?piece=Wings', note: 'Wearable wings and back-mounted structures' },
+  { label: 'Tail', href: '/shop?piece=Tail', note: 'Sculptural tail pieces' },
+  { label: 'Spine', href: '/shop?piece=Spine', note: 'Decorative spine structures' },
 ] as const;
 
 const EVENT_GATEWAYS = [
   { label: 'Festival', href: '/collections/festival-outfits', note: 'Broad festival styling' },
   { label: 'Rave', href: '/collections/rave-outfits', note: 'Rave-focused looks and components' },
   { label: 'Burning Man', href: '/collections/burning-man-looks', note: 'Statement looks for Burning Man' },
+  { label: 'Halloween', href: '/shop?event=Halloween', note: 'Costume-led Halloween looks' },
+  { label: 'Pride', href: '/shop?event=Pride', note: 'Statement pieces for Pride styling' },
+  { label: 'Cosplay', href: '/shop?event=Cosplay', note: 'Character and fantasy-led costume pieces' },
 ] as const;
 
 const PERFORMANCE_GATEWAYS = [
   { label: 'Stage', href: '/collections/stage-outfits', note: 'Performance-focused pieces' },
+  { label: 'Showgirl', href: '/shop?performance=Showgirl', note: 'Showgirl-oriented statement looks' },
+  { label: 'Drag', href: '/shop?performance=Drag', note: 'Drag performance styling' },
+  { label: 'Go-Go', href: '/shop?dance=Go-Go', note: 'Go-go dance looks and components' },
+  { label: 'Pole', href: '/shop?dance=Pole', note: 'Pole performance styling' },
+] as const;
+
+const STYLE_GATEWAYS = [
+  { label: 'Cyberpunk', href: '/shop?style=Cyberpunk', note: 'Cyberpunk visual direction' },
+  { label: 'Futuristic', href: '/shop?style=Futuristic', note: 'Futuristic statement pieces' },
+  { label: 'Sci-Fi', href: '/shop?style=Sci-Fi', note: 'Sci-fi inspired costume styling' },
+  { label: 'Goth', href: '/shop?style=Goth', note: 'Dark goth visual direction' },
+  { label: 'Glam', href: '/shop?style=Glam', note: 'High-impact glam looks' },
+  { label: 'Warrior', href: '/shop?style=Warrior', note: 'Warrior-inspired sculptural looks' },
+  { label: 'Goddess', href: '/shop?style=Goddess', note: 'Goddess-inspired styling' },
 ] as const;
 
 async function mergeMedia(supabase, products) {
@@ -165,10 +186,17 @@ export default async function HomePage() {
       />
 
       <GatewaySection
-        kicker="Performance"
+        kicker="Performance & dance"
         title="Built for the visual moment."
-        description="Stage is the current governed performance destination. Additional performance and dance paths stay hidden until their product membership is confirmed."
+        description="Choose by performance context without turning those shopper refinements into duplicate SEO landing owners."
         items={PERFORMANCE_GATEWAYS}
+      />
+
+      <GatewaySection
+        kicker="Shop by style"
+        title="Choose the visual world."
+        description="Style is a governed storefront filter layer. It helps shoppers browse without creating a separate indexable page for every style label."
+        items={STYLE_GATEWAYS}
       />
 
       {currentPieces.length > 0 ? (
