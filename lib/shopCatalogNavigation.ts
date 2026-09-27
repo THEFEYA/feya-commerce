@@ -3,11 +3,13 @@ import { mainRegularPrice, productTitle } from './storefront.ts';
 
 export const SHOP_PAGE_SIZE = 20;
 
-export const PIECES = ['All', 'Bodysuit', 'Shoulder', 'Mask', 'Headpiece', 'Belt', 'Skirt', 'Leg Covers'];
+export const PIECES = ['All', 'Full Look', 'Bodysuit', 'Shoulder', 'Mask', 'Headpiece', 'Belt', 'Skirt', 'Leg Covers'];
 export const PARTS = ['Full Body', 'Upper Body', 'Arms', 'Lower Body', 'Legs', 'Head & Face', 'Special Structures'];
 export const COLORS = ['Gold', 'Silver', 'Black', 'White', 'Red', 'Holographic'];
-export const EVENTS = ['Festival', 'Rave', 'Burning Man'];
-export const PERFORMANCE = ['Stage'];
+export const EVENTS = ['Festival', 'Rave', 'Burning Man', 'Halloween', 'Pride', 'Cosplay'];
+export const PERFORMANCE = ['Stage', 'Showgirl', 'Drag'];
+export const DANCE = ['Go-Go', 'Pole'];
+export const STYLES = ['Cyberpunk', 'Futuristic', 'Sci-Fi', 'Goth', 'Glam', 'Warrior', 'Goddess'];
 export const SORTS = ['Recommended', 'Price · low to high', 'Price · high to low'];
 
 export type ShopFilters = {
@@ -18,6 +20,8 @@ export type ShopFilters = {
   color: string;
   event: string[];
   performance: string[];
+  dance: string[];
+  style: string[];
   search: string;
   sort: string;
 };
@@ -30,6 +34,8 @@ export const defaultShopFilters = (): ShopFilters => ({
   color: '',
   event: [],
   performance: [],
+  dance: [],
+  style: [],
   search: '',
   sort: SORTS[0],
 });
@@ -47,7 +53,7 @@ function listParam(raw: string, values: string[]) {
 
 export function parseShopNavigation(params: Record<string, string | string[] | undefined>): ShopNavigation | null {
   const scalar = (key: string) => typeof params[key] === 'string' ? params[key] as string : '';
-  const known = ['page','piece','part','min','max','color','event','performance','search','sort'];
+  const known = ['page','piece','part','min','max','color','event','performance','dance','style','search','sort'];
   if (Object.keys(params).some((key) => !known.includes(key))) return null;
   if (known.some((key) => Array.isArray(params[key]))) return null;
 
@@ -81,9 +87,13 @@ export function parseShopNavigation(params: Record<string, string | string[] | u
 
   const event = listParam(scalar('event'), EVENTS);
   const performance = listParam(scalar('performance'), PERFORMANCE);
-  if (event == null || performance == null) return null;
+  const dance = listParam(scalar('dance'), DANCE);
+  const style = listParam(scalar('style'), STYLES);
+  if (event == null || performance == null || dance == null || style == null) return null;
   filters.event = event;
   filters.performance = performance;
+  filters.dance = dance;
+  filters.style = style;
 
   for (const [param, key] of [['min','priceMin'],['max','priceMax']] as const) {
     const value = scalar(param);
@@ -114,6 +124,8 @@ export function shopPageHref(page: number, filters: ShopFilters = defaultShopFil
   if (filters.color) params.set('color', filters.color);
   if (filters.event.length) params.set('event', filters.event.join(','));
   if (filters.performance.length) params.set('performance', filters.performance.join(','));
+  if (filters.dance.length) params.set('dance', filters.dance.join(','));
+  if (filters.style.length) params.set('style', filters.style.join(','));
   if (filters.search) params.set('search', filters.search);
   if (filters.sort !== SORTS[0]) params.set('sort', filters.sort);
   if (page > 1) params.set('page', String(page));
@@ -146,6 +158,8 @@ export function filterShopProducts(products: StorefrontProduct[], filters: ShopF
 
     if (filters.event.length && !filters.event.some((value) => hasFacet(facets?.events, value))) return false;
     if (filters.performance.length && !filters.performance.some((value) => hasFacet(facets?.performance, value))) return false;
+    if (filters.dance.length && !filters.dance.some((value) => hasFacet(facets?.dance, value))) return false;
+    if (filters.style.length && !filters.style.some((value) => hasFacet(facets?.styles, value))) return false;
 
     return !filters.search || searchContains(product, filters.search);
   });
