@@ -1,0 +1,55 @@
+{
+  "checkpoint_version": "g-half-5-visual-approval-checkpoint-v1",
+  "generated_at": "2026-09-27",
+  "exact_git_sha": "7f919b420539fd9ece03037d456e77ac6838c8e5",
+  "exact_vercel_deployment": {
+    "id": "dpl_7jPSbg62ABRJ5qEL5Bni5voLHkJT",
+    "url": "feya-commerce-evlkej9kv-alexs-projects-5419f9ec.vercel.app",
+    "state": "READY",
+    "target": "preview"
+  },
+  "ci": {
+    "workflow_run_id": 36316091825,
+    "typecheck_and_build": "PASS",
+    "search_policy_simulations": "PASS",
+    "search_migration_constraints": "PASS",
+    "product_truth_compatibility": "PASS",
+    "admin_boundary": "PASS",
+    "browser_auth_runtime": "RUNNING_NO_FAILURE_AT_CHECKPOINT"
+  },
+  "data_state": {
+    "landing_page_v2_count": 10,
+    "landing_brief_v2_count": 10,
+    "public_jargon_matches": 0,
+    "content_hash_mismatch": 0,
+    "brief_binding_drift": 0,
+    "missing_related_edges": 0,
+    "active_search_release_count": 0
+  },
+  "ux_state": {
+    "discovery_contract": "config/searchDiscoveryArchitecture.ts",
+    "roles": [
+      "OWNER",
+      "INTERSECTION_OWNER",
+      "FILTER"
+    ],
+    "header": "reconciled",
+    "mobile_navigation": "reconciled",
+    "collections_hub": "grouped by Product Types / Events / Performance; styles remain filters",
+    "homepage": "6 evidence-backed collection gateways",
+    "public_copy": "shopper-facing; internal SEO jargon removed from landing v2"
+  },
+  "gates": {
+    "owner_visual_approval": "REQUIRED",
+    "production_promotion": "NOT_AUTHORIZED",
+    "anonymous_production_crawl": "WAITING_VISUAL_APPROVAL_AND_PROMOTION",
+    "indexing": "NOT_AUTHORIZED"
+  },
+  "next_after_owner_approval": [
+    "promote the exact approved deployment only",
+    "run G-half-6 anonymous production pre-index crawl",
+    "create a new immutable Search Release candidate",
+    "present exact release scope and blockers to Human Owner",
+    "do not activate Phase H without separate indexation approval"
+  ]
+}
