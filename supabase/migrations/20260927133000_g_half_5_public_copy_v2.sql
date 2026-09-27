@@ -83,6 +83,21 @@ with replacements(url_path,old_heading,new_heading,new_body) as (
     'Glam and futuristic directions are strongest here, with metallic, mirror and selected holographic finishes across the collection. Related product-type collections make it easier to compare bodysuit-led, armor-inspired and headpiece-led stage looks.'
   )
 ),
+intro_replacements(url_path,new_intro) as (
+  values
+  (
+    '/collections/costume-belts',
+    'TheFEYA costume belts are decorative waist pieces built for statement styling rather than everyday utility. Vegan leather is prominent in the current selection, with silver, gold and metallic finishes appearing across futuristic, glam and cosmic designs. Many products also include tops, shoulder pieces, chokers or leg accessories, so open the product page to confirm the exact belt-only or set configuration available to order.'
+  ),
+  (
+    '/collections/costume-headpieces',
+    'TheFEYA headpieces are built as visual anchors for costume and performance styling. Glam, fantasy and futuristic directions appear throughout the current selection, with vegan leather common and gold, silver, acrylic and mirror finishes represented across different designs. Many headpieces are offered within broader configurations with bodysuits, tops, masks, shoulder pieces or skirts, so the product page defines the exact combination available to order.'
+  ),
+  (
+    '/collections/festival-skirts',
+    'This page narrows the broader Festival collection to designs with a confirmed skirt option for festival styling. Glam and futuristic directions are especially common, with vegan leather, gold, silver, mirror, metallic and selected holographic finishes represented. Many designs also offer a top, shoulder piece or another coordinated component, while the product page shows whether the skirt is available alone or only within a set.'
+  )
+),
 candidate_pages as (
   select distinct p.seo_page_id,p.url_path
   from public.feya_search_v_candidate_membership_current_v1 c
@@ -101,29 +116,35 @@ rewritten as (
     s.*,
     cp.url_path,
     jsonb_set(
-      s.content_json,
-      '{modules}',
-      (
-        select jsonb_agg(
-          case
-            when r.url_path is not null then
-              jsonb_set(
-                jsonb_set(m.elem,'{heading}',to_jsonb(r.new_heading),false),
-                '{body}',to_jsonb(r.new_body),false
-              )
-            else m.elem
-          end
-          order by m.ord
-        )
-        from jsonb_array_elements(s.content_json->'modules') with ordinality m(elem,ord)
-        left join replacements r
-          on r.url_path=cp.url_path
-         and r.old_heading=m.elem->>'heading'
+      jsonb_set(
+        s.content_json,
+        '{modules}',
+        (
+          select jsonb_agg(
+            case
+              when r.url_path is not null then
+                jsonb_set(
+                  jsonb_set(m.elem,'{heading}',to_jsonb(r.new_heading),false),
+                  '{body}',to_jsonb(r.new_body),false
+                )
+              else m.elem
+            end
+            order by m.ord
+          )
+          from jsonb_array_elements(s.content_json->'modules') with ordinality m(elem,ord)
+          left join replacements r
+            on r.url_path=cp.url_path
+           and r.old_heading=m.elem->>'heading'
+        ),
+        false
       ),
+      '{intro}',
+      case when ir.url_path is not null then to_jsonb(ir.new_intro) else s.content_json->'intro' end,
       false
     ) new_content_json
   from source_v1 s
   join candidate_pages cp using(seo_page_id)
+  left join intro_replacements ir on ir.url_path=cp.url_path
 ),
 prepared as (
   select
