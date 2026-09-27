@@ -1,0 +1,557 @@
+{
+  "checkpoint_version": "g-half-3-page-portfolio-graph-reconciliation-v1",
+  "generated_at": "2026-09-27",
+  "active_search_release_count": 0,
+  "membership": {
+    "candidate_pages": 10,
+    "snapshots": [
+      {
+        "url_path": "/collections/bodysuits",
+        "family": "type_hub",
+        "review_state": "review",
+        "parent_path": "/shop",
+        "seo_page_id": "9dc10a3f-c4fb-5fec-95d1-5e348305d739",
+        "membership_snapshot_id": "ee4d8ca4-d4b9-5ed2-a872-6de63a984d84",
+        "rule_version": "selection_v1",
+        "source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+        "expected_item_count": 30,
+        "eligible_orderable_rows": 30,
+        "design_families": 29,
+        "missing_design_family": 0,
+        "nav_in": 6,
+        "nav_out": 3,
+        "product_links_out": 30
+      },
+      {
+        "url_path": "/collections/burning-man-looks",
+        "family": "event_hub",
+        "review_state": "review",
+        "parent_path": "/shop",
+        "seo_page_id": "fd5b7f21-f66d-5616-a33c-3d0c6974ad96",
+        "membership_snapshot_id": "432064a3-7985-5e33-9205-9804650ef0c4",
+        "rule_version": "selection_v1",
+        "source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+        "expected_item_count": 45,
+        "eligible_orderable_rows": 45,
+        "design_families": 43,
+        "missing_design_family": 0,
+        "nav_in": 8,
+        "nav_out": 7,
+        "product_links_out": 45
+      },
+      {
+        "url_path": "/collections/costume-belts",
+        "family": "type_hub",
+        "review_state": "review",
+        "parent_path": "/shop",
+        "seo_page_id": "d2e5e62a-36ba-5ebd-a7e4-2ac61d73ddab",
+        "membership_snapshot_id": "a0274d22-a133-5885-a3e3-472026e73aaf",
+        "rule_version": "selection_v1",
+        "source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+        "expected_item_count": 13,
+        "eligible_orderable_rows": 13,
+        "design_families": 13,
+        "missing_design_family": 0,
+        "nav_in": 6,
+        "nav_out": 3,
+        "product_links_out": 13
+      },
+      {
+        "url_path": "/collections/costume-headpieces",
+        "family": "type_hub",
+        "review_state": "review",
+        "parent_path": "/shop",
+        "seo_page_id": "cbd940dd-ab5a-58d7-8d4a-cd39e05baed0",
+        "membership_snapshot_id": "c40c1e2c-812f-58c0-a3c0-52a484791984",
+        "rule_version": "selection_v1",
+        "source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+        "expected_item_count": 34,
+        "eligible_orderable_rows": 34,
+        "design_families": 33,
+        "missing_design_family": 0,
+        "nav_in": 6,
+        "nav_out": 3,
+        "product_links_out": 34
+      },
+      {
+        "url_path": "/collections/costume-masks",
+        "family": "type_hub",
+        "review_state": "review",
+        "parent_path": "/shop",
+        "seo_page_id": "c67a177b-7712-5376-bf08-c4875399e692",
+        "membership_snapshot_id": "f9467392-7160-59e7-bab8-6230635d390c",
+        "rule_version": "selection_v1",
+        "source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+        "expected_item_count": 11,
+        "eligible_orderable_rows": 11,
+        "design_families": 11,
+        "missing_design_family": 0,
+        "nav_in": 6,
+        "nav_out": 3,
+        "product_links_out": 11
+      },
+      {
+        "url_path": "/collections/festival-outfits",
+        "family": "event_hub",
+        "review_state": "review",
+        "parent_path": "/shop",
+        "seo_page_id": "fa12f1a6-ede1-5ae3-9219-6b8ce8e82e66",
+        "membership_snapshot_id": "bd28a2c1-e334-581a-9e56-4dc400fb71f5",
+        "rule_version": "selection_v1",
+        "source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+        "expected_item_count": 111,
+        "eligible_orderable_rows": 111,
+        "design_families": 102,
+        "missing_design_family": 0,
+        "nav_in": 15,
+        "nav_out": 11,
+        "product_links_out": 111
+      },
+      {
+        "url_path": "/collections/festival-skirts",
+        "family": "subhub",
+        "review_state": "review",
+        "parent_path": "/collections/festival-outfits",
+        "seo_page_id": "e13692a0-5f96-5dca-9f48-cc5aa6e21d33",
+        "membership_snapshot_id": "94331a5a-2fb0-5989-bacf-1936d639fb19",
+        "rule_version": "selection_v1",
+        "source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+        "expected_item_count": 56,
+        "eligible_orderable_rows": 56,
+        "design_families": 51,
+        "missing_design_family": 0,
+        "nav_in": 5,
+        "nav_out": 3,
+        "product_links_out": 56
+      },
+      {
+        "url_path": "/collections/rave-outfits",
+        "family": "event_hub",
+        "review_state": "review",
+        "parent_path": "/shop",
+        "seo_page_id": "f027543c-d8f8-545a-895b-62e27b66b015",
+        "membership_snapshot_id": "b229a14f-03a6-506d-82d4-1a6665335288",
+        "rule_version": "selection_v1",
+        "source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+        "expected_item_count": 40,
+        "eligible_orderable_rows": 40,
+        "design_families": 38,
+        "missing_design_family": 0,
+        "nav_in": 8,
+        "nav_out": 6,
+        "product_links_out": 40
+      },
+      {
+        "url_path": "/collections/shoulder-armor",
+        "family": "type_hub",
+        "review_state": "review",
+        "parent_path": "/shop",
+        "seo_page_id": "5a7b76bf-36a0-516a-88f4-44f9a10ed410",
+        "membership_snapshot_id": "c5859f9f-50c8-5753-b528-bac2c22b1bac",
+        "rule_version": "selection_v1",
+        "source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+        "expected_item_count": 80,
+        "eligible_orderable_rows": 80,
+        "design_families": 72,
+        "missing_design_family": 0,
+        "nav_in": 7,
+        "nav_out": 3,
+        "product_links_out": 80
+      },
+      {
+        "url_path": "/collections/stage-outfits",
+        "family": "subhub",
+        "review_state": "review",
+        "parent_path": "/shop",
+        "seo_page_id": "8c40a74a-0a49-513a-832a-66bf0cb1b1c2",
+        "membership_snapshot_id": "db51050c-56f8-5fa6-99b5-e06a538d58da",
+        "rule_version": "selection_v1",
+        "source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+        "expected_item_count": 96,
+        "eligible_orderable_rows": 96,
+        "design_families": 94,
+        "missing_design_family": 0,
+        "nav_in": 7,
+        "nav_out": 7,
+        "product_links_out": 96
+      }
+    ],
+    "symmetric_membership_drift": 0,
+    "design_family_key_drift": 0,
+    "missing_design_family_keys": 0,
+    "hard_gate_design_family_min": 3,
+    "hard_gate_all_pass": true
+  },
+  "ownership": {
+    "primary_owner_conflicts": 0,
+    "burning_man_guide_reconciled": true,
+    "migration": "20260927093000_g_half_3_burning_man_guide_ownership_v1.sql",
+    "index_authorized": false
+  },
+  "graph": {
+    "immutable_related_links_total": 34,
+    "missing_related_link_targets": 0,
+    "missing_phase_e_related_edges": 0,
+    "prior_reconciliation_migration": "20260926233000_phase_e_related_link_graph_reconciliation_v1.sql",
+    "product_membership_edges_match_snapshots": true
+  },
+  "launch_product_collection_coverage": {
+    "launch_products": 207,
+    "shop_only_products": 14,
+    "policy": "Do not force products into irrelevant owners. Shop-only remains acceptable pre-index; future intent batches may assign additional relevant owners.",
+    "shop_only": [
+      {
+        "canonical_product_id": "17de9c7b-53d0-4a7d-90d0-3e79f26e3489",
+        "product_slug": "futuristic-stripper-outfit-silver-pole-wear-exotic-dance-costume-women-s-performance-clothing-1893491509",
+        "component": [
+          "top",
+          "skirt",
+          "panties",
+          "arms",
+          "choker"
+        ],
+        "event": [
+          "photoshoot"
+        ],
+        "style": [
+          "futuristic",
+          "cosmic",
+          "sci fi"
+        ],
+        "persona": [
+          "dancer",
+          "performer",
+          "showgirl",
+          "go go dancer",
+          "pole dancer"
+        ],
+        "material": [
+          "silver",
+          "vegan leather",
+          "metallic"
+        ],
+        "audience": [
+          "women"
+        ]
+      },
+      {
+        "canonical_product_id": "5124ce7f-daf1-45f7-bbe2-0f97f17ecaea",
+        "product_slug": "dark-queen-halloween-set-leather-chain-collar-spine-skirt-glove-for-sexy-witch-cosplay-costume-women-s-latex-outfit-adult-1785673048",
+        "component": [
+          "skirt",
+          "arms",
+          "choker",
+          "spine"
+        ],
+        "event": [
+          "halloween",
+          "cosplay",
+          "drag",
+          "photoshoot"
+        ],
+        "style": [
+          "goth",
+          "fantasy"
+        ],
+        "persona": [
+          "queen",
+          "drag queen",
+          "performer",
+          "showgirl",
+          "go go dancer",
+          "witch"
+        ],
+        "material": [
+          "black",
+          "vegan leather",
+          "chain"
+        ],
+        "audience": [
+          "women",
+          "drag"
+        ]
+      },
+      {
+        "canonical_product_id": "596c5ec2-e59e-484f-8f73-89221f2b4171",
+        "product_slug": "leather-punk-outfit-with-harness-set-choker-chest-harness-leg-garter-men-s-body-strap-leather-kinky-wear-sexy-fetish-costume-male-1858724751",
+        "component": [
+          "harness",
+          "legs",
+          "choker"
+        ],
+        "event": [
+          "pride"
+        ],
+        "style": [
+          "post apocalyptic",
+          "punk"
+        ],
+        "persona": null,
+        "material": [
+          "black",
+          "leather"
+        ],
+        "audience": [
+          "men"
+        ]
+      },
+      {
+        "canonical_product_id": "5bf3df64-84dc-4baf-84bd-8a94e1b06ccb",
+        "product_slug": "festival-couple-costume-set-futuristic-rave-outfits-for-men-women-burning-man-wear-4489232697",
+        "component": [
+          "shoulders",
+          "belt",
+          "arms"
+        ],
+        "event": [],
+        "style": [
+          "futuristic",
+          "cosmic",
+          "sci fi"
+        ],
+        "persona": [
+          "warrior",
+          "performer",
+          "couple"
+        ],
+        "material": [
+          "silver",
+          "vegan leather",
+          "metallic"
+        ],
+        "audience": [
+          "couples"
+        ]
+      },
+      {
+        "canonical_product_id": "7cf4ea37-cd11-4203-860c-7eed4ae965ba",
+        "product_slug": "luxury-brown-leather-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-body-belt-1867996009",
+        "component": [
+          "top",
+          "harness"
+        ],
+        "event": [
+          "photoshoot"
+        ],
+        "style": [
+          "classic"
+        ],
+        "persona": [],
+        "material": [
+          "brown",
+          "leather"
+        ],
+        "audience": [
+          "men"
+        ]
+      },
+      {
+        "canonical_product_id": "8441aa63-d524-4ee4-8bdb-2d7b3f6c3bcf",
+        "product_slug": "fashion-spine-armor-cosplay-set-black-leather-outfit-with-bodysuit-tail-and-leg-covers-for-halloween-and-themed-parties-latex-clothing-1780316635",
+        "component": [
+          "bodysuit",
+          "legs",
+          "tail"
+        ],
+        "event": [
+          "halloween",
+          "cosplay"
+        ],
+        "style": [
+          "goth",
+          "fantasy"
+        ],
+        "persona": null,
+        "material": [
+          "black",
+          "vegan leather"
+        ],
+        "audience": [
+          "women"
+        ]
+      },
+      {
+        "canonical_product_id": "882793f6-15ca-4617-a579-5cd47290ce72",
+        "product_slug": "fashionable-leather-suspenders-for-men-luxury-brown-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-belt-suspenders-1855580162",
+        "component": [
+          "harness"
+        ],
+        "event": [
+          "photoshoot"
+        ],
+        "style": [
+          "classic"
+        ],
+        "persona": [],
+        "material": [
+          "brown",
+          "leather"
+        ],
+        "audience": [
+          "men"
+        ]
+      },
+      {
+        "canonical_product_id": "88d4332c-95bc-4859-a31e-33d6ee89fb4d",
+        "product_slug": "unique-men-s-chest-harness-fetish-leather-harnesses-adjustable-bdsm-clothing-black-leather-body-belt-gay-pride-festival-outfit-1888669170",
+        "component": [
+          "harness"
+        ],
+        "event": [
+          "pride"
+        ],
+        "style": [],
+        "persona": [],
+        "material": [
+          "black",
+          "leather"
+        ],
+        "audience": [
+          "men"
+        ]
+      },
+      {
+        "canonical_product_id": "9d6047ad-406d-4279-a10b-2918e111d587",
+        "product_slug": "red-devil-costume-set-bodysuit-forearm-armor-and-tail-unique-cosplay-party-wear-drag-queen-outfit-spine-tail-costume-leather-clothes-1779245327",
+        "component": [
+          "bodysuit",
+          "arms",
+          "tail"
+        ],
+        "event": [
+          "halloween",
+          "cosplay"
+        ],
+        "style": [
+          "goth",
+          "fantasy"
+        ],
+        "persona": [
+          "demon",
+          "drag queen"
+        ],
+        "material": [
+          "leather",
+          "vegan leather"
+        ],
+        "audience": [
+          "women",
+          "drag"
+        ]
+      },
+      {
+        "canonical_product_id": "a6337955-4cb6-4270-8c0e-a178442350ac",
+        "product_slug": "metallic-futuristic-lingerie-set-sexy-festival-costume-set-pole-dance-wear-chrome-leather-clothing-women-for-cosmic-party-event-4327895836",
+        "component": [
+          "top",
+          "panties",
+          "choker"
+        ],
+        "event": [
+          "photoshoot"
+        ],
+        "style": [
+          "futuristic"
+        ],
+        "persona": [],
+        "material": [
+          "silver",
+          "vegan leather"
+        ],
+        "audience": [
+          "women"
+        ]
+      },
+      {
+        "canonical_product_id": "b3910e41-9de7-483f-8d88-5783e8d90607",
+        "product_slug": "unique-cosmic-festival-outfit-metallic-top-panties-silver-female-armor-wear-set-for-rave-futuristic-top-cyber-punk-harness-1810445741",
+        "component": [
+          "top",
+          "panties"
+        ],
+        "event": [
+          "photoshoot"
+        ],
+        "style": [
+          "futuristic"
+        ],
+        "persona": [
+          "performer"
+        ],
+        "material": [
+          "silver",
+          "vegan leather"
+        ],
+        "audience": [
+          "women"
+        ]
+      },
+      {
+        "canonical_product_id": "b8ab6fa1-1af6-4c52-b6fb-5b766e6d99da",
+        "product_slug": "leather-kinky-outfit-with-harnesses-set-choker-chest-harness-leg-garter-men-s-body-strap-leather-punk-wear-sexy-bdsm-fetish-costume-male-1866844403",
+        "component": [
+          "harness",
+          "legs",
+          "choker"
+        ],
+        "event": [
+          "pride"
+        ],
+        "style": [
+          "post apocalyptic",
+          "punk"
+        ],
+        "persona": null,
+        "material": [
+          "leather"
+        ],
+        "audience": [
+          "men"
+        ]
+      },
+      {
+        "canonical_product_id": "c3f1018e-665b-44a8-90db-ecc5bb64eedc",
+        "product_slug": "leather-harness-set-top-harness-garters-women-s-body-strap-leather-fetish-bondage-costume-full-body-belt-outfit-for-kinky-1865008271",
+        "component": [
+          "top",
+          "harness",
+          "belt"
+        ],
+        "event": [
+          "photoshoot"
+        ],
+        "style": [],
+        "persona": [],
+        "material": [
+          "black",
+          "leather"
+        ],
+        "audience": [
+          "women"
+        ]
+      },
+      {
+        "canonical_product_id": "de38a842-37c4-40a7-86b4-393341c4c9aa",
+        "product_slug": "deluxe-leather-harness-for-men-best-groomsmen-gift-vintage-brown-leather-harness-men-s-wedding-accessories-handmade-chest-harness-1871310023",
+        "component": [
+          "harness"
+        ],
+        "event": [
+          "photoshoot"
+        ],
+        "style": [
+          "classic"
+        ],
+        "persona": null,
+        "material": [
+          "brown",
+          "leather"
+        ],
+        "audience": [
+          "men"
+        ]
+      }
+    ]
+  },
+  "decision": "KEEP_CURRENT_10_MEMBERSHIP_SNAPSHOTS_AND_GRAPH; DO_NOT_CREATE_NEW_COLLECTIONS_IN_G_HALF_3"
+}
