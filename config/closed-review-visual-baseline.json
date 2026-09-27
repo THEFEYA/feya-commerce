@@ -1,8 +1,8 @@
 {
   "source_commit": "dbc46e33d88a541ee75a4186ff7861fe98c0f3d1",
-  "scope": "Existing reviewed storefront surfaces plus the G-half-5 homepage discovery gateway section; hard-404 semantics may remove obsolete missing-product error markup without changing valid PDP layout.",
+  "scope": "Existing reviewed storefront surfaces plus the G-half-5 shopper-facing homepage discovery gateway section; hard-404 semantics may remove obsolete missing-product error markup without changing valid PDP layout.",
   "surfaces": {
-    "app/page.tsx": "5bf5cd5ec1c603dda6f251f45e11b379b2d7d2a99e35d765255a216e00af75ff",
+    "app/page.tsx": "2cbe579a50eee10f58584ef212739f2a392e71139e36ea4b7c9f3f9a6cfeb588",
     "app/shop/page.tsx": "1c99a96c2cc81ebd095f643a5513f1dc07cf7dd467ac76ad412123b42ecbb3ae",
     "app/shop/[slug]/page.tsx": "faa5185977db273477a3a24de9fd99f08185b349a14ee2ab839340af63f853ab",
     "components/ShopClient.tsx": "93cd8dec5bb7d4585cc8f9a36effa92bf0673432651cc2a20160d8a4636300bc",
