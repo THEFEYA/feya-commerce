@@ -46,12 +46,12 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         code: 'shop_body',
         label: 'By Piece',
         items: [
-          { code: 'upper_body', label: 'Upper Body', role: 'filter', enabled: false },
-          { code: 'arms', label: 'Arms', role: 'group', enabled: true },
+          { code: 'upper_body', label: 'Upper Body', role: 'filter', href: '/shop?part=Upper%20Body', enabled: true },
+          { code: 'arms', label: 'Arms', role: 'filter', href: '/shop?part=Arms', enabled: true },
           { code: 'shoulders', label: 'Shoulders', role: 'owner', href: '/collections/shoulder-armor', enabled: true },
-          { code: 'lower_body', label: 'Lower Body', role: 'filter', enabled: false },
-          { code: 'legs', label: 'Legs', role: 'filter', enabled: false },
-          { code: 'head_face', label: 'Head & Face', role: 'group', enabled: true },
+          { code: 'lower_body', label: 'Lower Body', role: 'filter', href: '/shop?part=Lower%20Body', enabled: true },
+          { code: 'legs', label: 'Legs', role: 'filter', href: '/shop?part=Legs', enabled: true },
+          { code: 'head_face', label: 'Head & Face', role: 'filter', href: '/shop?part=Head%20%26%20Face', enabled: true },
           { code: 'masks', label: 'Masks', role: 'owner', href: '/collections/costume-masks', enabled: true },
           { code: 'headpieces', label: 'Headpieces', role: 'owner', href: '/collections/costume-headpieces', enabled: true },
           { code: 'belts', label: 'Belts', role: 'owner', href: '/collections/costume-belts', enabled: true },
@@ -142,4 +142,17 @@ export function enabledNavigationItems(group: StorefrontNavigationGroup) {
 
 export function navigationPanel(code: string) {
   return STOREFRONT_NAVIGATION_PANELS[code] || null;
+}
+
+
+export function panelHasEnabledItems(code: string) {
+  const panel = navigationPanel(code);
+  return Boolean(panel?.groups.some((group) => group.items.some((item) => item.enabled)));
+}
+
+export function publicPrimaryNavigation() {
+  return PRIMARY_NAVIGATION.filter((item) => {
+    if (!('panel' in item) || !item.panel) return true;
+    return panelHasEnabledItems(String(item.panel));
+  });
 }
