@@ -31,3 +31,14 @@ export function selectApprovedStorefrontCopy(input: {
     || !matchApprovedContentBinding(projection, binding)) return null;
   return projection.payload;
 }
+
+
+export function approvedContentPublicPilotMode(
+  env: Record<string,string|undefined>,
+  publicPilot: {enabled?:boolean;environment?:string;can_index?:boolean;can_enable_checkout?:boolean}|undefined,
+){
+  if(!publicPilot?.enabled)return 'disabled' as const;
+  if(env.VERCEL_ENV!==publicPilot.environment)return 'disabled' as const;
+  if(publicPilot.can_index!==false||publicPilot.can_enable_checkout!==false)return 'blocked' as const;
+  return 'pilot' as const;
+}
