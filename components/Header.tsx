@@ -6,8 +6,8 @@ import { Search, ShoppingBag, User, Menu, Heart, ArrowUpRight, ChevronDown, X } 
 import { useEffect, useMemo, useState } from 'react';
 import { FeyaButterfly, FeyaMark } from '@/components/FeyaMark';
 import {
-  PRIMARY_NAVIGATION,
   navigationPanel,
+  publicPrimaryNavigation,
   type StorefrontNavigationItem,
 } from '@/config/storefrontNavigation';
 
@@ -77,6 +77,7 @@ export function Header() {
   }, [pathname]);
 
   const panel = useMemo(() => openPanel ? navigationPanel(openPanel) : null, [openPanel]);
+  const primaryNavigation = useMemo(() => publicPrimaryNavigation(), []);
 
   return (
     <header
@@ -97,7 +98,7 @@ export function Header() {
         </Link>
 
         <nav className="hidden lg:flex items-center gap-7 xl:gap-9" data-testid="primary-nav">
-          {PRIMARY_NAVIGATION.map((item) => {
+          {primaryNavigation.map((item) => {
             const active = navIsActive(pathname, item.href, item.code);
             const hasPanel = 'panel' in item && Boolean(item.panel);
             return (
@@ -158,11 +159,11 @@ export function Header() {
             </div>
 
             <div className={`grid gap-10 ${panel.groups.length >= 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
-              {panel.groups.map((group) => (
+              {panel.groups.filter((group) => group.items.some((item) => item.enabled)).map((group) => (
                 <div key={group.code}>
                   <div className="text-[10px] uppercase tracking-[0.32em] text-[var(--gold-warm)] mb-4">{group.label}</div>
                   <div className="flex flex-wrap gap-2.5">
-                    {group.items.map((item) => <NavItemChip key={item.code} item={item} />)}
+                    {group.items.filter((item) => item.enabled).map((item) => <NavItemChip key={item.code} item={item} />)}
                   </div>
                 </div>
               ))}
@@ -179,7 +180,7 @@ export function Header() {
       {mobileOpen && (
         <div className="lg:hidden absolute left-0 right-0 top-full max-h-[calc(100vh-64px)] overflow-y-auto border-y border-[rgba(216,214,211,0.14)] bg-[rgba(7,7,10,0.98)] backdrop-blur-2xl shadow-[0_35px_90px_rgba(0,0,0,0.72)]">
           <div className="container-feya py-5">
-            {PRIMARY_NAVIGATION.map((item) => {
+            {primaryNavigation.map((item) => {
               const hasPanel = 'panel' in item && Boolean(item.panel);
               if (!hasPanel) {
                 return (
@@ -204,11 +205,11 @@ export function Header() {
                   </button>
                   {expanded && mobilePanel && (
                     <div className="pb-4">
-                      {mobilePanel.groups.map((group) => (
+                      {mobilePanel.groups.filter((group) => group.items.some((child) => child.enabled)).map((group) => (
                         <div key={group.code} className="mb-5 last:mb-0">
                           <div className="mb-2 text-[9px] uppercase tracking-[0.28em] text-[var(--gold-warm)]">{group.label}</div>
                           <div className="flex flex-wrap gap-2">
-                            {group.items.map((child) => <NavItemChip key={child.code} item={child} onNavigate={() => setMobileOpen(false)} />)}
+                            {group.items.filter((child) => child.enabled).map((child) => <NavItemChip key={child.code} item={child} onNavigate={() => setMobileOpen(false)} />)}
                           </div>
                         </div>
                       ))}
