@@ -460,6 +460,9 @@ function GeneratedDescription({
   canChooseSeparately: boolean;
   availabilitySentence: string;
 }) {
+  const whyIndex = blocks.findIndex((block) => block.block_key === 'why_youll_love_it');
+  const includedAfterIndex = whyIndex >= 0 ? whyIndex : 0;
+
   return <div>
     <div className="eyebrow-gold mb-3">{blocks[0]?.heading || 'About this piece'}</div>
     <h2 className="display-section text-bone mb-4" style={{ fontSize: 'clamp(24px, 2.3vw, 34px)' }}>{title}</h2>
@@ -469,7 +472,7 @@ function GeneratedDescription({
           {index > 0 ? <h3 className="text-bone text-[22px] leading-tight mb-2">{block.heading || humanize(block.block_key)}</h3> : null}
           <DisplayBody body={String(block.body || '')} />
         </article>
-        {index === 0 && includedLines.length
+        {index === includedAfterIndex && includedLines.length
           ? <IncludedDetail lines={includedLines} groups={coupleIncludedGroups} canChooseSeparately={canChooseSeparately} availabilitySentence={availabilitySentence} />
           : null}
       </div>)}
