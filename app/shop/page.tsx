@@ -8,7 +8,7 @@ import { filterShopProducts, parseShopNavigation, shopPageHref, SHOP_PAGE_SIZE }
 import { Header } from '@/components/Header';
 import { ShopClient } from '@/components/ShopClient';
 import { getMissingSupabaseEnvMessage, getSupabaseReadClient } from '@/lib/supabase';
-import { summarizeCollections } from '@/lib/public-collections';
+import { attachStorefrontFacets } from '@/lib/storefrontFacetsServer';
 import { STOREFRONT_CARD_SELECT, STOREFRONT_FALLBACK_CARD_SELECT, STOREFRONT_MEDIA_FAST_SELECT, STOREFRONT_MEDIA_FAST_VIEW, STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V1, STOREFRONT_VIEW_V2, STOREFRONT_VIEW_V3, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 
 export const dynamic = 'force-dynamic';
@@ -71,21 +71,32 @@ async function mergeMedia(supabase, products) {
 const getProducts = cache(async () => {
   const review = await readClosedReviewPresentation();
   if (review.status === 'blocked') notFound();
-  if (review.status === 'review') return { products: review.release.entries.map(e => e.product), review: true };
+
   const supabase = getSupabaseReadClient();
+
+  if (review.status === 'review') {
+    const reviewProducts = review.release.entries.map(e => e.product);
+    return {
+      products: supabase ? await attachStorefrontFacets(supabase, reviewProducts) : reviewProducts,
+      review: true,
+    };
+  }
+
   if (!supabase) return { products: [], error: getMissingSupabaseEnvMessage() };
 
+  const finalize = async (rows) => attachStorefrontFacets(supabase, await mergeMedia(supabase, rows));
+
   const v4 = await supabase.from(STOREFRONT_VIEW_V4).select(STOREFRONT_V4_CARD_SELECT).limit(SHOP_PRODUCTS_LIMIT);
-  if (!v4.error && v4.data?.length) return { products: await mergeMedia(supabase, v4.data) };
+  if (!v4.error && v4.data?.length) return { products: await finalize(v4.data) };
 
   const v3 = await supabase.from(STOREFRONT_VIEW_V3).select(STOREFRONT_CARD_SELECT).limit(SHOP_PRODUCTS_LIMIT);
-  if (!v3.error && v3.data?.length) return { products: await mergeMedia(supabase, v3.data) };
+  if (!v3.error && v3.data?.length) return { products: await finalize(v3.data) };
 
   const v2 = await supabase.from(STOREFRONT_VIEW_V2).select(STOREFRONT_FALLBACK_CARD_SELECT).limit(SHOP_PRODUCTS_LIMIT);
-  if (!v2.error && v2.data?.length) return { products: await mergeMedia(supabase, v2.data) };
+  if (!v2.error && v2.data?.length) return { products: await finalize(v2.data) };
 
   const v1 = await supabase.from(STOREFRONT_VIEW_V1).select(STOREFRONT_FALLBACK_CARD_SELECT).limit(SHOP_PRODUCTS_LIMIT);
-  if (!v1.error && v1.data?.length) return { products: await mergeMedia(supabase, v1.data) };
+  if (!v1.error && v1.data?.length) return { products: await finalize(v1.data) };
 
   return { products: [], error: v4.error?.message || v3.error?.message || v2.error?.message || v1.error?.message || 'No storefront products returned.' };
 });
@@ -108,7 +119,6 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
     if (navigation.page > Math.max(1, Math.ceil(count / SHOP_PAGE_SIZE))) notFound();
     if (params.page === '1') redirect(shopPageHref(1, navigation.filters));
   }
-  const collections = summarizeCollections(products);
-  return <main className="relative min-h-screen"><Header /><ShopClient key={navigation ? shopPageHref(navigation.page, navigation.filters) : 'legacy'} products={products} error={error} collections={collections} navigation={navigation} /></main>;
+  return <main className="relative min-h-screen"><Header /><ShopClient key={navigation ? shopPageHref(navigation.page, navigation.filters) : 'legacy'} products={products} error={error} navigation={navigation} /></main>;
 }
 
