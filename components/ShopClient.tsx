@@ -13,6 +13,8 @@ import {
   COLORS,
   EVENTS,
   PERFORMANCE,
+  DANCE,
+  STYLES,
   SORTS,
   defaultShopFilters,
   filterShopProducts,
@@ -56,6 +58,8 @@ export function ShopClient({
   const [color, setColor] = useState(initial.color);
   const [event, setEvent] = useState<string[]>(initial.event);
   const [performance, setPerformance] = useState<string[]>(initial.performance);
+  const [dance, setDance] = useState<string[]>(initial.dance);
+  const [style, setStyle] = useState<string[]>(initial.style);
   const [search, setSearch] = useState(initial.search);
   const [sort, setSort] = useState(initial.sort);
   const [sortOpen, setSortOpen] = useState(false);
@@ -69,18 +73,22 @@ export function ShopClient({
     const nextPart = allowedParamValue(params.get('part'), PARTS);
     const nextEvent = allowedParamValue(params.get('event'), EVENTS);
     const nextPerformance = allowedParamValue(params.get('performance'), PERFORMANCE);
+    const nextDance = allowedParamValue(params.get('dance'), DANCE);
+    const nextStyle = allowedParamValue(params.get('style'), STYLES);
     const nextSearch = params.get('search')?.trim() || '';
 
     if (nextPiece) setPiece(nextPiece);
     if (nextPart) setPart(nextPart);
     if (nextEvent) setEvent([nextEvent]);
     if (nextPerformance) setPerformance([nextPerformance]);
+    if (nextDance) setDance([nextDance]);
+    if (nextStyle) setStyle([nextStyle]);
     if (nextSearch) setSearch(nextSearch);
   }, [navigation]);
 
   const filters = useMemo(
-    () => ({ piece, part, priceMin, priceMax, color, event, performance, search, sort }),
-    [piece, part, priceMin, priceMax, color, event, performance, search, sort],
+    () => ({ piece, part, priceMin, priceMax, color, event, performance, dance, style, search, sort }),
+    [piece, part, priceMin, priceMax, color, event, performance, dance, style, search, sort],
   );
 
   const filtered = useMemo(() => filterShopProducts(products, filters), [products, filters]);
@@ -93,7 +101,7 @@ export function ShopClient({
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [piece, part, priceMin, priceMax, color, event, performance, search, sort]);
+  }, [piece, part, priceMin, priceMax, color, event, performance, dance, style, search, sort]);
 
   const visibleProducts = navigation
     ? filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
@@ -109,6 +117,8 @@ export function ShopClient({
     setColor('');
     setEvent([]);
     setPerformance([]);
+    setDance([]);
+    setStyle([]);
     setSearch('');
     setSort(SORTS[0]);
   };
@@ -120,6 +130,8 @@ export function ShopClient({
     Number(Boolean(color)) +
     event.length +
     performance.length +
+    dance.length +
+    style.length +
     Number(Boolean(search));
 
   return (
@@ -130,7 +142,7 @@ export function ShopClient({
           The <span className="editorial-italic text-gold-grad">shop</span>
         </h1>
         <p className="editorial-italic text-[var(--bone-dim)] mt-4 text-lg">
-          {products.length || 200} handmade designs. Filter by piece, body area, event or performance context.
+          {products.length || 200} handmade designs. Filter by piece, body area, event, performance or style.
         </p>
       </section>
 
@@ -235,6 +247,24 @@ export function ShopClient({
               {PERFORMANCE.map((value) => (
                 <button key={value} onClick={() => setPerformance(toggleValue(performance, value))} className="w-full flex items-center gap-2 text-left text-[12px] text-[var(--bone-dim)] py-1.5 hover:text-white">
                   <FilterBox checked={performance.includes(value)} />{value}
+                </button>
+              ))}
+            </div>
+
+            <div>
+              <div className="eyebrow text-[10.5px] mb-3">Dance</div>
+              {DANCE.map((value) => (
+                <button key={value} onClick={() => setDance(toggleValue(dance, value))} className="w-full flex items-center gap-2 text-left text-[12px] text-[var(--bone-dim)] py-1.5 hover:text-white">
+                  <FilterBox checked={dance.includes(value)} />{value}
+                </button>
+              ))}
+            </div>
+
+            <div>
+              <div className="eyebrow text-[10.5px] mb-3">Style</div>
+              {STYLES.map((value) => (
+                <button key={value} onClick={() => setStyle(toggleValue(style, value))} className="w-full flex items-center gap-2 text-left text-[12px] text-[var(--bone-dim)] py-1.5 hover:text-white">
+                  <FilterBox checked={style.includes(value)} />{value}
                 </button>
               ))}
             </div>
