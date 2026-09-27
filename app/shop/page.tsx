@@ -77,14 +77,14 @@ const getProducts = cache(async () => {
   if (review.status === 'review') {
     const reviewProducts = review.release.entries.map(e => e.product);
     return {
-      products: supabase ? await attachStorefrontFacets(supabase, reviewProducts) : reviewProducts,
+      products: await attachStorefrontFacets(reviewProducts),
       review: true,
     };
   }
 
   if (!supabase) return { products: [], error: getMissingSupabaseEnvMessage() };
 
-  const finalize = async (rows) => attachStorefrontFacets(supabase, await mergeMedia(supabase, rows));
+  const finalize = async (rows) => attachStorefrontFacets(await mergeMedia(supabase, rows));
 
   const v4 = await supabase.from(STOREFRONT_VIEW_V4).select(STOREFRONT_V4_CARD_SELECT).limit(SHOP_PRODUCTS_LIMIT);
   if (!v4.error && v4.data?.length) return { products: await finalize(v4.data) };
