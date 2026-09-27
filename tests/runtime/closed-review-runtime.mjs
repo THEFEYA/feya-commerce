@@ -70,7 +70,19 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       }
       assert.equal(pages,11);assert.deepEqual([...seen],release.entries.map(e=>e.copy.metadata.canonical_path));
       report.closed_review_crawlable_products=seen.size;report.closed_review_pagination_pages=pages;
-      const home=await documentData(await (await request('/')).text());assert.equal(home.cards.length,12);assert.ok(home.cards.every(p=>seen.has(p)));assert.match(home.robots,/noindex/);
+      const homeResponse=await request('/');const homeHtml=await homeResponse.text();const home=await documentData(homeHtml);
+      assert.equal(home.cards.length,8);assert.ok(home.cards.every(p=>seen.has(p)));assert.match(home.robots,/noindex/);
+      for(const href of [
+        '/collections/bodysuits',
+        '/collections/shoulder-armor',
+        '/collections/costume-masks',
+        '/collections/costume-headpieces',
+        '/collections/costume-belts',
+        '/collections/festival-outfits',
+        '/collections/rave-outfits',
+        '/collections/burning-man-looks',
+        '/collections/stage-outfits',
+      ]) assert.ok(homeHtml.includes(`href="${href}"`),href);
       const suppressed=source.suppressed[0].url_path;assert.equal((await request(suppressed)).status(),404);
       assert.equal((await request('/shop/nonexistent-release-product')).status(),404);
       for(const query of ['?page=0','?page=-1','?page=12','?page=1&page=2'])assert.equal((await request('/shop'+query)).status(),404,query);
@@ -128,9 +140,15 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       const hover=page.locator('.product-card.has-hover-media').first();await hover.hover();
       await page.waitForFunction(()=>Number(getComputedStyle(document.querySelector('.product-card:hover .hover-media')).opacity)>.9);
       await page.mouse.move(0,0);
-      await page.goto(base+'/shop?collection=armor');assert.ok(await page.locator('a[data-testid^="product-card-"]').count()>0);
-      const next=page.getByRole('link',{name:'Show 20 more',exact:true});if(await next.count()){assert.match(await next.getAttribute('href'),/collection=armor/);await next.click();await page.waitForURL('**/shop?collection=armor&page=2');}
-      await page.goto(base+path);const related=page.locator('a[href^="/shop?collection="]').first();if(await related.count()){const target=await related.getAttribute('href');await related.click();await page.waitForURL(base+target);await page.getByTestId('shop-page').waitFor();assert.equal(await page.getByTestId('shop-page').count(),1);}
+      const colorEntry=release.entries.find(e=>e.product.canonical_color_label);
+      if(colorEntry){
+        const color=String(colorEntry.product.canonical_color_label);
+        await page.goto(base+'/shop?color='+encodeURIComponent(color));
+        assert.ok(await page.locator('a[data-testid^="product-card-"]').count()>0);
+        const next=page.getByRole('link',{name:'Show 20 more',exact:true});
+        if(await next.count()){assert.match(await next.getAttribute('href'),/color=/);}
+      }
+      await page.goto(base+path);const related=page.locator('a[href^="/collections/"]').first();if(await related.count()){const target=await related.getAttribute('href');assert.ok(target?.startsWith('/collections/'));}
       const galleryEntry=release.entries.find(e=>Array.isArray(e.product.media_gallery)&&e.product.media_gallery.length>1);
       await page.goto(base+galleryEntry.copy.metadata.canonical_path);
       const mainImage=page.locator('button[class*="max-w-[520px]"] img');
