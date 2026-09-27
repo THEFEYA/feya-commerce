@@ -1,107 +1,156 @@
 import type { StorefrontProduct } from './types.ts';
-import { categoryLabel, colorLabel, mainRegularPrice, productTitle } from './storefront.ts';
-import { getPublicCollection, productMatchesCollection } from './public-collections.ts';
+import { mainRegularPrice, productTitle } from './storefront.ts';
 
 export const SHOP_PAGE_SIZE = 20;
-export const CATEGORIES = ['All', 'Corsets', 'Harness', 'Masks', 'Armor', 'Bodysuits', 'Stage Looks', 'Skirts', 'Accessories'];
+
+export const PIECES = ['All', 'Bodysuit', 'Shoulder', 'Mask', 'Headpiece', 'Belt', 'Skirt', 'Leg Covers'];
+export const PARTS = ['Full Body', 'Upper Body', 'Arms', 'Lower Body', 'Legs', 'Head & Face', 'Special Structures'];
 export const COLORS = ['Gold', 'Silver', 'Black', 'White', 'Red', 'Holographic'];
-export const SIZES = ['XS','S','M','L','XL','XXL','XXXL','Custom'];
-export const MATERIALS = ['Mirror Acrylic', 'Vegan Leather', 'Mirror Chrome', 'Holographic Vinyl', 'Resin'];
-export const OCCASIONS = ['Festival', 'Stage', 'Burning Man', 'Editorial', 'Carnival'];
-export const STYLES = ['Desert', 'Rave', 'Stage', 'Editorial', 'Futuristic', 'Goddess', 'Warrior'];
-export const PRODUCTION_TIMES = ['7–10 days', '14–21 days', '21–28 days', '30+ days'];
-export const SORTS = ['Editorial pick', 'Best sellers', 'Price · low to high', 'Price · high to low', 'Newest'];
+export const EVENTS = ['Festival', 'Rave', 'Burning Man'];
+export const PERFORMANCE = ['Stage'];
+export const SORTS = ['Recommended', 'Price · low to high', 'Price · high to low'];
 
 export type ShopFilters = {
-  category: string; priceMin: number; priceMax: number; color: string; size: string;
-  material: string; occasion: string[]; style: string[]; productionTime: string;
-  search: string; sort: string; collection: string;
+  piece: string;
+  part: string;
+  priceMin: number;
+  priceMax: number;
+  color: string;
+  event: string[];
+  performance: string[];
+  search: string;
+  sort: string;
 };
-export const defaultShopFilters = (): ShopFilters => ({ category: 'All', priceMin: 0, priceMax: 1000,
-  color: '', size: '', material: '', occasion: [], style: [], productionTime: '', search: '', sort: SORTS[0], collection: '' });
+
+export const defaultShopFilters = (): ShopFilters => ({
+  piece: 'All',
+  part: '',
+  priceMin: 0,
+  priceMax: 1000,
+  color: '',
+  event: [],
+  performance: [],
+  search: '',
+  sort: SORTS[0],
+});
+
 export type ShopNavigation = { page: number; filters: ShopFilters };
-const allowed = (value: string, values: string[]) => values.find(v => v.toLowerCase() === value.toLowerCase()) ?? '';
+
+const allowed = (value: string, values: string[]) => values.find((item) => item.toLowerCase() === value.toLowerCase()) ?? '';
+
+function listParam(raw: string, values: string[]) {
+  if (!raw) return [];
+  const list = raw.split(',').map((value) => allowed(value, values));
+  if (list.some((value) => !value)) return null;
+  return [...new Set(list)];
+}
 
 export function parseShopNavigation(params: Record<string, string | string[] | undefined>): ShopNavigation | null {
   const scalar = (key: string) => typeof params[key] === 'string' ? params[key] as string : '';
-  const known = ['page','category','min','max','color','size','material','occasion','style','production','search','sort','collection'];
-  if (known.some(k => Array.isArray(params[k]))) return null;
+  const known = ['page','piece','part','min','max','color','event','performance','search','sort'];
+  if (known.some((key) => Array.isArray(params[key]))) return null;
+
   const rawPage = scalar('page');
   if (rawPage && !/^[1-9][0-9]*$/.test(rawPage)) return null;
   const page = rawPage ? Number(rawPage) : 1;
   if (!Number.isSafeInteger(page)) return null;
+
   const filters = defaultShopFilters();
-  for (const [key, values] of Object.entries({category:CATEGORIES,color:COLORS,size:SIZES,material:MATERIALS,sort:SORTS})) {
-    const value = scalar(key);
-    if (value && !allowed(value,values)) return null;
-    if (value) (filters as unknown as Record<string, unknown>)[key] = allowed(value,values);
+
+  const piece = scalar('piece');
+  if (piece) {
+    const value = allowed(piece, PIECES);
+    if (!value) return null;
+    filters.piece = value;
   }
-  for (const [key, values] of Object.entries({occasion:OCCASIONS,style:STYLES})) {
-    const value = scalar(key);
-    const list = value ? value.split(',').map(v => allowed(v, values)) : [];
-    if (list.some(v => !v)) return null;
-    (filters as unknown as Record<string, unknown>)[key] = [...new Set(list)];
+
+  const part = scalar('part');
+  if (part) {
+    const value = allowed(part, PARTS);
+    if (!value) return null;
+    filters.part = value;
   }
+
+  const color = scalar('color');
+  if (color) {
+    const value = allowed(color, COLORS);
+    if (!value) return null;
+    filters.color = value;
+  }
+
+  const event = listParam(scalar('event'), EVENTS);
+  const performance = listParam(scalar('performance'), PERFORMANCE);
+  if (event == null || performance == null) return null;
+  filters.event = event;
+  filters.performance = performance;
+
   for (const [param, key] of [['min','priceMin'],['max','priceMax']] as const) {
     const value = scalar(param);
     if (value && (!/^\d+(?:\.\d{1,2})?$/.test(value) || Number(value) > 100000)) return null;
     if (value) filters[key] = Number(value);
   }
   if (filters.priceMin > filters.priceMax) return null;
-  filters.productionTime = scalar('production');
-  if (filters.productionTime && !PRODUCTION_TIMES.includes(filters.productionTime)) return null;
+
   filters.search = scalar('search').trim();
   if (filters.search.length > 160) return null;
-  filters.collection = scalar('collection');
-  if (filters.collection && !getPublicCollection(filters.collection)) return null;
-  return {page,filters};
+
+  const sort = scalar('sort');
+  if (sort) {
+    const value = allowed(sort, SORTS);
+    if (!value) return null;
+    filters.sort = value;
+  }
+
+  return { page, filters };
 }
 
 export function shopPageHref(page: number, filters: ShopFilters = defaultShopFilters()) {
-  const p = new URLSearchParams();
-  if (filters.collection) p.set('collection',filters.collection);
-  if (filters.category !== 'All') p.set('category',filters.category);
-  if (filters.priceMin !== 0) p.set('min',String(filters.priceMin));
-  if (filters.priceMax !== 1000) p.set('max',String(filters.priceMax));
-  for (const key of ['color','size','material','search'] as const) if (filters[key]) p.set(key,filters[key]);
-  if (filters.occasion.length) p.set('occasion',filters.occasion.join(','));
-  if (filters.style.length) p.set('style',filters.style.join(','));
-  if (filters.productionTime) p.set('production',filters.productionTime);
-  if (filters.sort !== SORTS[0]) p.set('sort',filters.sort);
-  if (page > 1) p.set('page',String(page));
-  return `/shop${p.size ? '?' + p.toString() : ''}`;
+  const params = new URLSearchParams();
+  if (filters.piece !== 'All') params.set('piece', filters.piece);
+  if (filters.part) params.set('part', filters.part);
+  if (filters.priceMin !== 0) params.set('min', String(filters.priceMin));
+  if (filters.priceMax !== 1000) params.set('max', String(filters.priceMax));
+  if (filters.color) params.set('color', filters.color);
+  if (filters.event.length) params.set('event', filters.event.join(','));
+  if (filters.performance.length) params.set('performance', filters.performance.join(','));
+  if (filters.search) params.set('search', filters.search);
+  if (filters.sort !== SORTS[0]) params.set('sort', filters.sort);
+  if (page > 1) params.set('page', String(page));
+  return `/shop${params.size ? '?' + params.toString() : ''}`;
 }
 
-function contains(p: StorefrontProduct, q: string) {
-  return `${productTitle(p)} ${p.meta_description || ''} ${p.material || ''} ${p.color || ''} ${p.product_type || ''} ${p.production_profile || ''} ${p.shipping_profile || ''}`.toLowerCase().includes(q.toLowerCase());
-}
-function matchesProduction(p: StorefrontProduct, value: string) {
-  const text = `${p.production_profile || ''} ${p.shipping_profile || ''} ${p.meta_description || ''}`.toLowerCase();
-  if (value === '7–10 days') return /7|10|express/.test(text);
-  if (value === '14–21 days') return /14|21|standard|ups|made/.test(text) || !text.trim();
-  if (value === '21–28 days') return /21|28/.test(text);
-  if (value === '30+ days') return /30|month/.test(text);
-  return true;
+function searchContains(product: StorefrontProduct, query: string) {
+  return `${productTitle(product)} ${product.meta_description || ''} ${product.product_type || ''}`
+    .toLowerCase()
+    .includes(query.toLowerCase());
 }
 
-/** Shared server/client behavior. Existing filters remain review-only, not DNA landing eligibility. */
-export function filterShopProducts(products: StorefrontProduct[], f: ShopFilters) {
-  const collection = f.collection ? getPublicCollection(f.collection) : null;
-  let list = products.filter(p => {
-    const price = mainRegularPrice(p) || 0;
-    if (collection && !productMatchesCollection(p,collection)) return false;
-    if (f.category !== 'All' && categoryLabel(p) !== f.category) return false;
-    if ((f.priceMin !== 0 || f.priceMax !== 1000) && (price < f.priceMin || price > f.priceMax)) return false;
-    if (f.color && colorLabel(p) !== f.color) return false;
-    if (f.size === 'Custom' && p.size_mode !== 'custom') return false;
-    if (f.material && !contains(p,f.material.replace('Mirror ',''))) return false;
-    if (f.occasion.length && !f.occasion.some(o => contains(p,o))) return false;
-    if (f.style.length && !f.style.some(s => contains(p,s))) return false;
-    if (f.productionTime && !matchesProduction(p,f.productionTime)) return false;
-    return !f.search || contains(p,f.search);
+function hasFacet(values: string[] | undefined, value: string) {
+  return Boolean(value && values?.includes(value));
+}
+
+export function filterShopProducts(products: StorefrontProduct[], filters: ShopFilters) {
+  let list = products.filter((product) => {
+    const price = mainRegularPrice(product) || 0;
+    const facets = product.facets;
+
+    if (filters.piece !== 'All' && !hasFacet(facets?.subtypes, filters.piece)) return false;
+    if (filters.part && !hasFacet(facets?.parts, filters.part)) return false;
+    if ((filters.priceMin !== 0 || filters.priceMax !== 1000) && (price < filters.priceMin || price > filters.priceMax)) return false;
+
+    if (filters.color) {
+      const canonical = facets?.colors?.length ? facets.colors : (product.canonical_color_label ? [product.canonical_color_label] : []);
+      if (!canonical.includes(filters.color)) return false;
+    }
+
+    if (filters.event.length && !filters.event.some((value) => hasFacet(facets?.events, value))) return false;
+    if (filters.performance.length && !filters.performance.some((value) => hasFacet(facets?.performance, value))) return false;
+
+    return !filters.search || searchContains(product, filters.search);
   });
-  if (f.sort === 'Price · low to high') list = list.sort((a,b)=>(mainRegularPrice(a)||0)-(mainRegularPrice(b)||0));
-  if (f.sort === 'Price · high to low') list = list.sort((a,b)=>(mainRegularPrice(b)||0)-(mainRegularPrice(a)||0));
-  if (f.sort === 'Newest') list = list.reverse();
+
+  if (filters.sort === 'Price · low to high') list = [...list].sort((a,b)=>(mainRegularPrice(a)||0)-(mainRegularPrice(b)||0));
+  if (filters.sort === 'Price · high to low') list = [...list].sort((a,b)=>(mainRegularPrice(b)||0)-(mainRegularPrice(a)||0));
+
   return list;
 }
