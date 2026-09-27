@@ -16,8 +16,12 @@ export async function verifyApprovedContentRuntime({ db, browser, ownerPage, env
   const manifest = await read('config/approved-content-review-bindings.json');
   const observed = await read('tests/search-db/fixtures/observed-schema-20260923.json');
   const first = drafts[0], product = products.find(p => p.canonical_product_id === first.canonical_product_id);
+  const excludedPilotIds = new Set(manifest.public_pilot?.excluded_canonical_product_ids || []);
+  const pilotFirst = drafts.find(d => !excludedPilotIds.has(d.canonical_product_id));
+  const pilotProduct = products.find(p => p.canonical_product_id === pilotFirst.canonical_product_id);
   const base = 'http://127.0.0.1:3002', path = `/shop/${product.product_slug}`;
-  let server, log = '', page;
+  const pilotBase = 'http://127.0.0.1:3003', pilotPath = `/shop/${pilotProduct.product_slug}`;
+  let server, pilotServer, log = '', page;
   await check('Approved-content runtime seeds all 208 captured versions into loopback fixtures', async () => {
     const fields = `canonical_product_id product_slug matched_etsy_listing_id source_url card_title h1 seo_title meta_description product_type material color size_mode production_profile shipping_profile handmade_flag styled_imagery_flag primary_image_url primary_image_alt secondary_image_url hover_image_url video_url media_count has_video min_price max_price currency price_contract_version price_source_mode price_confidence_status has_unverified_discount has_russian_public_label needs_price_review needs_label_review full_set_display_price_amount component_sum_display_price_amount full_set_savings_amount full_set_savings_percent category_label world_label canonical_color_label color_options configurations media_gallery`.split(' ');
     const numbers = new Set('media_count min_price max_price full_set_display_price_amount component_sum_display_price_amount full_set_savings_amount full_set_savings_percent'.split(' '));
@@ -157,11 +161,72 @@ export async function verifyApprovedContentRuntime({ db, browser, ownerPage, env
       const html = await response.text(); assert.ok(!html.includes(first.agent_output_snapshot.pdp_blocks[0].body));
       assert.ok(!html.includes('PRIVATE_APPROVAL_CANARY'));
     });
+
+    pilotServer = spawn(process.execPath, ['node_modules/next/dist/bin/next','start','--hostname','127.0.0.1','--port','3003'], {
+      env: {
+        ...env,
+        VERCEL: '1',
+        VERCEL_ENV: 'production',
+        FEYA_OWNER_PREVIEW_DISABLED: 'true',
+        FEYA_APPROVED_CONTENT_REVIEW: 'off',
+        FEYA_CLOSED_REVIEW_RELEASE: 'off',
+      },
+      stdio: ['ignore','pipe','pipe'],
+    });
+    pilotServer.stdout.on('data', b => { log += b; }); pilotServer.stderr.on('data', b => { log += b; });
+    let pilotReady = false;
+    for (let i=0;i<60;i++) {
+      try { if ((await fetch(pilotBase+pilotPath)).status === 200) { pilotReady=true; break; } } catch {}
+      await new Promise(r=>setTimeout(r,250));
+    }
+    assert.ok(pilotReady, 'Public pilot server did not start');
+
+    await check('Production public pilot renders exact approved copy without admin auth and stays noindex/purchase-disabled', async () => {
+      const response = await fetch(pilotBase+pilotPath);
+      assert.equal(response.status,200);
+      const html = await response.text();
+      assert.ok(!/PRIVATE_(APPROVAL|OUTPUT)_CANARY/.test(html));
+      assert.ok(html.includes(pilotFirst.agent_output_snapshot.pdp_blocks[0].body.split('\n')[0]));
+      const parsed = await page.evaluate(({html,d}) => {
+        const document = new DOMParser().parseFromString(html,'text/html');
+        const normalize = text => (text||'').replace(/\s+/g,' ').trim();
+        const headings = [...document.querySelectorAll('h2,h3')].map(n=>normalize(n.textContent));
+        return {
+          h1:normalize(document.querySelector('h1')?.textContent),
+          robots:document.querySelector('meta[name="robots"]')?.content,
+          title:document.title,
+          headings,
+          previewDisabled:[...document.querySelectorAll('button')].some(b=>/Preview only/i.test(b.textContent)&&b.disabled),
+          addToBagEnabled:[...document.querySelectorAll('button')].some(b=>/Add to bag/i.test(b.textContent)&&!b.disabled),
+          hasOffers:(()=>{const s=document.querySelector('script[type="application/ld+json]'); if(!s)return false; try{return 'offers' in JSON.parse(s.textContent)}catch{return false}})(),
+        };
+      }, {html,d:pilotFirst});
+      assert.equal(parsed.h1,pilotFirst.h1);
+      assert.equal(parsed.title,`${pilotFirst.seo_title} | TheFEYA`);
+      assert.match(parsed.robots,/noindex/);
+      assert.match(parsed.robots,/nofollow/);
+      assert.equal(parsed.previewDisabled,true);
+      assert.equal(parsed.addToBagEnabled,false);
+      assert.equal(parsed.hasOffers,false);
+      assert.ok(parsed.headings.includes('Why you’ll love it') || parsed.headings.includes("Why you'll love it"));
+      assert.ok(parsed.headings.includes('Ideal for'));
+    });
+
+    await check('Public pilot exact binding fails closed when pinned approval is revoked', async () => {
+      await db.query("update public.feya_commerce_seo_pack_drafts_v1 set review_status='changes_requested' where id=$1",[pilotFirst.id]);
+      assert.equal((await fetch(pilotBase+pilotPath)).status,404);
+      await db.query('update public.feya_commerce_seo_pack_drafts_v1 set review_status=$2 where id=$1',[pilotFirst.id,pilotFirst.review_status]);
+      assert.equal((await fetch(pilotBase+pilotPath)).status,200);
+    });
+
+    report.public_pdp_pilot_content_pass=true;
     report.approved_content_runtime_pass=true;
     report.limitations.push('Approved-copy runtime uses captured 208 drafts and a synthetic public catalog view; real price tuples, remote photos and hosted environment mapping are not certified.');
   } finally {
     await page?.close();
-    if(server) { server.kill('SIGTERM'); await Promise.race([once(server,'exit'),new Promise(r=>setTimeout(r,5000))]); if(server.exitCode===null)server.kill('SIGKILL'); }
+    for (const child of [pilotServer,server]) {
+      if(child) { child.kill('SIGTERM'); await Promise.race([once(child,'exit'),new Promise(r=>setTimeout(r,5000))]); if(child.exitCode===null)child.kill('SIGKILL'); }
+    }
     for(const key of ['NEXT_PUBLIC_SUPABASE_ANON_KEY','SUPABASE_SERVICE_ROLE_KEY','FEYA_INTERNAL_API_TOKEN']) if(env[key])log=log.replaceAll(env[key],'[redacted]');
     await writeFile(resolve(out,'approved-content-next.log'),log);
   }
