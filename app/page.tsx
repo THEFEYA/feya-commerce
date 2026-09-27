@@ -8,6 +8,7 @@ import { Header } from '@/components/Header';
 import { ProductCard } from '@/components/ProductCard';
 import { releaseRobotsForPath } from '@/lib/searchReleaseIndexationServer';
 import { getSupabaseReadClient } from '@/lib/supabase';
+import { HOME_COLLECTION_GATEWAYS, discoveryItemForPath } from '@/config/searchDiscoveryArchitecture';
 import {
   STOREFRONT_FALLBACK_CARD_SELECT,
   STOREFRONT_MEDIA_FAST_SELECT,
@@ -120,6 +121,31 @@ export default async function HomePage() {
             <span className="flex items-center gap-2"><Globe2 size={15} /> Worldwide</span>
             <span className="flex items-center gap-2"><Sparkles size={15} /> Original designs</span>
           </div>
+        </div>
+      </section>
+
+      <section className="container-feya py-14 lg:py-20 border-b border-[rgba(216,214,211,0.10)]">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between mb-8">
+          <div>
+            <div className="eyebrow-gold mb-4">Explore by intent</div>
+            <h2 className="display-section text-bone" style={{ fontSize: 'clamp(38px,5vw,68px)' }}>Start with the collection that matches your look.</h2>
+          </div>
+          <Link href="/collections" className="btn-ghost">All collections <ArrowUpRight size={13} /></Link>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {HOME_COLLECTION_GATEWAYS.map((href) => {
+            const item = discoveryItemForPath(href);
+            if (!item) return null;
+            return <Link
+              key={href}
+              href={href}
+              data-discovery-role={item.role}
+              className="group flex items-center justify-between gap-4 rounded-xl border border-[rgba(216,214,211,.14)] bg-white/[0.02] px-5 py-5 text-bone transition-all hover:border-[rgba(212,178,106,.45)] hover:bg-[rgba(212,178,106,.05)]"
+            >
+              <span className="text-[15px]">{item.label}</span>
+              <ArrowUpRight size={15} className="text-[var(--bone-dim)] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </Link>;
+          })}
         </div>
       </section>
 
