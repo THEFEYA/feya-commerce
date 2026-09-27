@@ -1,0 +1,51 @@
+{
+  "audit_version": "pdp-public-content-reconciliation-v1",
+  "audit_date": "2026-09-27",
+  "scope": "Organic pre-index public pilot PDP content",
+  "launch_products": 207,
+  "immutable_binding_manifest": "approved-catalog-20260924-v1",
+  "manifest_entries": 208,
+  "launch_bindings": 207,
+  "suppressed_duplicate_binding": "d42dd678-7b11-4f38-890e-411de686f418",
+  "binding_audit": {
+    "missing_drafts": 0,
+    "review_not_approved": 0,
+    "updated_at_mismatch": 0,
+    "seo_page_id_mismatch": 0,
+    "url_path_mismatch": 0,
+    "unsupported_pdp_block_shape": 0
+  },
+  "quality_state": {
+    "review_approved": 207,
+    "cqa_pass": 0,
+    "cqa_pending": 207
+  },
+  "public_projection_policy": {
+    "environment": "production",
+    "content_state": "review_approved_cqa_pending",
+    "exact_draft_binding": true,
+    "public_service_role_server_only": true,
+    "can_index": false,
+    "can_enable_checkout": false
+  },
+  "canonical_left_column": [
+    "about_this_piece",
+    "why_youll_love_it",
+    "configuration_specific_whats_included",
+    "ideal_for",
+    "main_description"
+  ],
+  "canonical_right_column": [
+    "sizing_and_fit",
+    "production_time",
+    "shipping_and_delivery",
+    "material",
+    "care"
+  ],
+  "future_index_requirement": "A PDP may not become an index candidate until its exact approved content version has passed CQA and is bound into an immutable Search Release.",
+  "evidence_notes": [
+    "All 207 launch products have current approved_draft + review_status=approved.",
+    "All 207 launch bindings match exact draft ID, updated_at, seo_page_id, URL path, and four-block approved projection.",
+    "All 207 launch drafts currently have cqa_status=not_run; public pilot visibility does not imply CQA PASS."
+  ]
+}
