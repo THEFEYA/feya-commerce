@@ -33,14 +33,15 @@ function DestinationCard({item}:{item:StorefrontNavigationItem}){
 function DiscoverySection({id,title,description,panelCode}:{id:string;title:string;description:string;panelCode:string}){
   const panel=STOREFRONT_NAVIGATION_PANELS[panelCode];
   if(!panel)return null;
+  const groups=panel.groups.filter((group)=>group.code!=='shop_help'&&group.items.some((item)=>item.enabled));
   return <section id={id} className="scroll-mt-32 border-t border-[rgba(216,214,211,.10)] py-12 lg:py-16">
     <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
       <div>
         <div className="eyebrow-gold mb-3">{title}</div>
         <p className="max-w-sm text-[14px] leading-6 text-[var(--bone-dim)]">{description}</p>
       </div>
-      <div className={`grid gap-8 ${panel.groups.filter((group)=>group.items.some((item)=>item.enabled)).length > 1 ? 'xl:grid-cols-2' : ''}`}>
-        {panel.groups.filter((group)=>group.items.some((item)=>item.enabled)).map((group)=><div key={group.code}>
+      <div className={`grid gap-8 ${groups.length > 1 ? 'xl:grid-cols-2' : ''}`}>
+        {groups.map((group)=><div key={group.code}>
           <div className="mb-4 text-[10px] uppercase tracking-[0.30em] text-[var(--gold-warm)]">{group.label}</div>
           <div className="grid gap-3 sm:grid-cols-2">
             {group.items.filter((item)=>item.enabled).map((item)=><DestinationCard key={item.code} item={item}/>)}
@@ -59,7 +60,7 @@ export default function CollectionsHubPage(){
         <div className="eyebrow-gold mb-5">Explore TheFEYA</div>
         <h1 className="font-tall text-bone leading-[.95]" style={{fontSize:'clamp(52px,7vw,96px)'}}>Shop by what matters to you</h1>
         <p className="editorial-italic mt-6 max-w-3xl text-lg leading-relaxed text-[var(--bone-dim)]">
-          Start with the piece, event, performance context or visual direction. Proven collection owners remain linked; newer discovery paths stay pre-index until their product mapping is complete.
+          Start with the piece, event, performance context or visual direction. Proven search owners keep their collection URLs; shopper refinements use the catalog without creating duplicate SEO pages.
         </p>
       </div>
     </section>
@@ -86,7 +87,7 @@ export default function CollectionsHubPage(){
       <DiscoverySection
         id="style"
         title="Shop by style"
-        description="Style paths are visible in the target architecture, but stay disabled until governed product memberships are ready."
+        description="Style paths are shopper filters backed by the governed facet snapshot; they do not create duplicate indexable landing owners."
         panelCode="style"
       />
 
