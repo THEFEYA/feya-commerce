@@ -26,14 +26,24 @@
     "approved Product DNA/approved styles"
   ],
   "cqa": {
-    "status": "PASS_PENDING_DB_POSTCHECK",
+    "status": "PASS",
     "checks": [
       "public copy remains truthful and product-selection oriented",
       "no safety or event-affiliation claims added",
       "no keyword stuffing added",
       "no ownership/membership semantics changed",
       "public SEO jargon blocklist must return zero matches"
-    ]
+    ],
+    "postcheck": {
+      "page_v2_count": 10,
+      "brief_v2_count": 10,
+      "brief_binding_drift": 0,
+      "active_release_count": 0,
+      "content_not_cqa_hold": 0,
+      "content_hash_mismatch": 0,
+      "missing_related_edges": 0,
+      "public_jargon_matches": 0
+    }
   },
   "publication": {
     "can_publish": false,
