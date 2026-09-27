@@ -48,6 +48,7 @@ function listParam(raw: string, values: string[]) {
 export function parseShopNavigation(params: Record<string, string | string[] | undefined>): ShopNavigation | null {
   const scalar = (key: string) => typeof params[key] === 'string' ? params[key] as string : '';
   const known = ['page','piece','part','min','max','color','event','performance','search','sort'];
+  if (Object.keys(params).some((key) => !known.includes(key))) return null;
   if (known.some((key) => Array.isArray(params[key]))) return null;
 
   const rawPage = scalar('page');
