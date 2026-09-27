@@ -3,7 +3,7 @@
   "purpose": "Approved Product OS / storefront visual freeze. Update only after explicit owner approval.",
   "files": {
     "app/page.tsx": "625c5cfc2af89ee703bf1009aa997417948bf86b",
-    "app/shop/page.tsx": "eefb6be1e7f31e765c42b11f77adbdd411de86a2",
+    "app/shop/page.tsx": "02e50ffcdbc674d8e16e28745e1a290932a9b086",
     "app/shop/[slug]/page.tsx": "adea41016aeec3d7c12ed2b9ef7dca74eba47c49",
     "components/Header.tsx": "0ad0f39ceeb779abb315f7ea97459e3790581f0d",
     "components/Footer.tsx": "7379f8f25ee9296f53302fefc6726009f8b3fa92",
