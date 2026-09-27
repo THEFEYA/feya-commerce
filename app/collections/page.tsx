@@ -9,7 +9,7 @@ import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
 export async function generateMetadata():Promise<Metadata>{
   return{
     title:'Shop TheFEYA Collections',
-    description:'Browse TheFEYA by product type, event and performance use through the current evidence-backed collection architecture.',
+    description:'Browse TheFEYA collections by product type, event and performance use, with curated paths into the current handmade catalog.',
     alternates:{canonical:'/collections'},
     robots:await releaseRobotsForPath('/collections'),
   };
@@ -64,9 +64,9 @@ export default function CollectionsHubPage(){
 
       {filterGroup?.items.length?<div className="mt-12 rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.02)] p-6 lg:p-7">
         <div className="eyebrow-gold">Explore the catalog</div>
-        <h2 className="mt-3 text-bone text-xl">Visual directions stay as filters until search intent is proven</h2>
+        <h2 className="mt-3 text-bone text-xl">Explore by visual direction</h2>
         <p className="mt-3 max-w-3xl text-[14px] leading-6 text-[var(--bone-dim)]">
-          These links refine the catalog without creating separate SEO landing pages.
+          Use these shortcuts to narrow the catalog by the visual direction you want.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           {filterGroup.items.map((item)=>(
