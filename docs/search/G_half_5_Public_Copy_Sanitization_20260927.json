@@ -1,0 +1,43 @@
+{
+  "checkpoint_version": "g-half-5-public-copy-sanitization-v1",
+  "generated_at": "2026-09-27",
+  "scope": "10 evidence-backed commercial landing pages",
+  "reason": "Remove internal SEO/system language from shopper-visible modules before visual approval and any indexing release.",
+  "invariants_unchanged": [
+    "seo_page_id and URL",
+    "query-cluster ownership",
+    "membership_snapshot_id",
+    "eligible products",
+    "design-family keys",
+    "selection rules",
+    "H1/title/meta/intro unless already shopper-facing",
+    "FAQ",
+    "related_links",
+    "release_status=HOLD",
+    "indexation remains disabled"
+  ],
+  "public_language_blocklist": [
+    "membership",
+    "SERP",
+    "indexable/indexed pages",
+    "SEO pages/SEO URLs",
+    "query ownership/query cluster",
+    "review candidates",
+    "approved Product DNA/approved styles"
+  ],
+  "cqa": {
+    "status": "PASS_PENDING_DB_POSTCHECK",
+    "checks": [
+      "public copy remains truthful and product-selection oriented",
+      "no safety or event-affiliation claims added",
+      "no keyword stuffing added",
+      "no ownership/membership semantics changed",
+      "public SEO jargon blocklist must return zero matches"
+    ]
+  },
+  "publication": {
+    "can_publish": false,
+    "can_index": false,
+    "visual_approval_required": true
+  }
+}
