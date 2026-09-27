@@ -1,0 +1,78 @@
+{
+  "contract_version": "g-half-5-discovery-ux-v1",
+  "generated_at": "2026-09-27",
+  "purpose": "Separate search owners from non-index discovery filters while keeping a simple shopper-facing navigation.",
+  "primary_navigation": [
+    {
+      "label": "Home",
+      "href": "/"
+    },
+    {
+      "label": "Shop",
+      "href": "/shop"
+    },
+    {
+      "label": "Collections",
+      "href": "/collections"
+    },
+    {
+      "label": "About Us",
+      "href": "/about"
+    },
+    {
+      "label": "Contact Us",
+      "href": "/contact"
+    }
+  ],
+  "discovery_roles": {
+    "OWNER": "Evidence-backed commercial landing. Still release-controlled and noindex until Human Owner approves exact Search Release.",
+    "INTERSECTION_OWNER": "Evidence-backed narrower landing whose intent is distinct from its parent.",
+    "FILTER": "UX refinement only. No standalone SEO ownership and no Search Release candidate while role=FILTER."
+  },
+  "groups": [
+    {
+      "code": "product_types",
+      "purpose": "Evergreen product-type backbone"
+    },
+    {
+      "code": "events",
+      "purpose": "Commercial event/occasion paths with proven query ownership"
+    },
+    {
+      "code": "performance",
+      "purpose": "Performance-first path distinct from broad dance-recital intent"
+    },
+    {
+      "code": "styles",
+      "purpose": "Non-index discovery filters until Q05/Q08 evidence proves a standalone owner"
+    }
+  ],
+  "homepage": {
+    "gateway_limit": 6,
+    "rule": "Use a small set of strong evidence-backed gateways; do not expose every DNA value as a homepage SEO link."
+  },
+  "collections_hub": {
+    "group_owner_routes": true,
+    "show_filter_layer_separately": true,
+    "trust_links_required": true
+  },
+  "landing_module_contract": [
+    "Breadcrumb",
+    "H1 + concise intent intro",
+    "discovery chips",
+    "unique selection/context modules",
+    "immutable product grid",
+    "related collections",
+    "sizing/care/shipping/returns/contact support links",
+    "FAQ only where current CQA-approved content supports it"
+  ],
+  "technical_rules": [
+    "All owner/navigation links are real Link/a href outputs.",
+    "Arbitrary filter combinations never become owner routes.",
+    "Root metadata remains fail-closed noindex; only ACTIVE immutable Search Release can opt approved paths into indexing.",
+    "Visual styling remains owner-reviewable and may change without changing discovery role or query ownership."
+  ],
+  "visual_status": "OWNER_VISUAL_APPROVAL_PENDING",
+  "can_publish": false,
+  "can_index": false
+}
