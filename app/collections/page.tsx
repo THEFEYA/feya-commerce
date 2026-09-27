@@ -39,11 +39,11 @@ function DiscoverySection({id,title,description,panelCode}:{id:string;title:stri
         <div className="eyebrow-gold mb-3">{title}</div>
         <p className="max-w-sm text-[14px] leading-6 text-[var(--bone-dim)]">{description}</p>
       </div>
-      <div className={`grid gap-8 ${panel.groups.length > 1 ? 'xl:grid-cols-2' : ''}`}>
-        {panel.groups.map((group)=><div key={group.code}>
+      <div className={`grid gap-8 ${panel.groups.filter((group)=>group.items.some((item)=>item.enabled)).length > 1 ? 'xl:grid-cols-2' : ''}`}>
+        {panel.groups.filter((group)=>group.items.some((item)=>item.enabled)).map((group)=><div key={group.code}>
           <div className="mb-4 text-[10px] uppercase tracking-[0.30em] text-[var(--gold-warm)]">{group.label}</div>
           <div className="grid gap-3 sm:grid-cols-2">
-            {group.items.map((item)=><DestinationCard key={item.code} item={item}/>)}
+            {group.items.filter((item)=>item.enabled).map((item)=><DestinationCard key={item.code} item={item}/>)}
           </div>
         </div>)}
       </div>
