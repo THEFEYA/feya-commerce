@@ -1669,5 +1669,16 @@
       "content_sha256": "938f815a4e4a3fc5455657abc1f46b6224ba56551773e484dc9d9792951cf91c",
       "url_path": "/shop/gold-fringe-harness-set-top-and-skirt-unique-festival-clothing-fashion-rave-outfit-metallic-leather-costume-performance-wear-1884437291"
     }
-  ]
+  ],
+  "public_pilot": {
+    "enabled": true,
+    "environment": "production",
+    "content_state": "review_approved_cqa_pending",
+    "launch_product_count": 207,
+    "can_index": false,
+    "can_enable_checkout": false,
+    "excluded_canonical_product_ids": [
+      "d42dd678-7b11-4f38-890e-411de686f418"
+    ]
+  }
 }
