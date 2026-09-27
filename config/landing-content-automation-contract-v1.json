@@ -1,0 +1,72 @@
+{
+  "contract_version": "feya_landing_content_automation_v1",
+  "purpose": "Generate or revise TheFEYA landing-page copy only from an immutable, evidence-backed landing brief.",
+  "source_of_truth": "public.feya_search_landing_briefs_v1",
+  "preconditions": [
+    "exact landing_brief_id exists",
+    "brief can_generate_draft=true",
+    "brief can_publish=false",
+    "brief can_index=false",
+    "one intended/active/protected primary owner exists for every owned primary cluster",
+    "membership_snapshot_id is immutable and still available",
+    "eligible_product_count >= 4",
+    "design_family_diversity >= 3",
+    "visual_plan.status=approved",
+    "link graph is reconciled"
+  ],
+  "forbidden_actions": [
+    "create a new URL from a DNA value",
+    "change page ownership",
+    "change membership",
+    "invent keyword demand",
+    "invent product facts, legal claims, shipping guarantees or event affiliation",
+    "create crawlable filter combinations",
+    "publish, index or submit sitemap",
+    "change checkout/payment state"
+  ],
+  "allowed_inputs": [
+    "user_job",
+    "primary_intent",
+    "primary_query_cluster",
+    "primary_query",
+    "secondary_clusters",
+    "supporting_queries",
+    "synonyms_close_variants",
+    "long_tail_variants",
+    "excluded_queries",
+    "eligible_products",
+    "design_family_diversity",
+    "merchandising_angle",
+    "discovery_chips",
+    "unique_modules",
+    "internal_links",
+    "visual_plan",
+    "faq_questions",
+    "structured_data_expectations",
+    "evidence_refs"
+  ],
+  "output_contract": {
+    "fields": [
+      "seo_title",
+      "h1",
+      "meta_description",
+      "intro",
+      "chips",
+      "modules",
+      "faq",
+      "related_links"
+    ],
+    "must_preserve_primary_owner": true,
+    "must_preserve_membership": true,
+    "must_preserve_excluded_queries": true,
+    "must_use_human_readable_non_stuffed_language": true
+  },
+  "post_generation": [
+    "run SCO self-check",
+    "run independent CQA",
+    "compare similarity/cannibalization",
+    "create a new immutable page version",
+    "reconcile related_links with feya_search_link_edges_v1",
+    "keep release HOLD/noindex until Human Owner approves exact Search Release"
+  ]
+}

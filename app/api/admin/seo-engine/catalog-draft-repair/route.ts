@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { stampCurrentSeoEditorialPolicy } from '@/lib/seoEditorialPolicy';
 import { NextResponse } from 'next/server';
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
 import {
@@ -92,6 +93,7 @@ export async function POST(request: Request) {
   }
 
   const commercialContext = {
+    editorial_policy_version: 'brand_mission_v2' as const,
     product_truth: bundle.seoPackDraft.product_truth,
     manual_focus: bundle.seoPackDraft.manual_focus,
     keyword_roles: bundle.seoPackDraft.keyword_roles,
@@ -124,7 +126,7 @@ export async function POST(request: Request) {
     body_identity_variant: claimPlan.body_identity_variant_en,
     product_color: bundle.seoPackDraft?.product_truth?.color,
   };
-  const deterministicOutput = normalizeRepairCandidate(currentOutput, identityNormalizationContext);
+  const deterministicOutput = stampCurrentSeoEditorialPolicy(normalizeRepairCandidate(currentOutput, identityNormalizationContext));
   const deterministicStructural = validateSeoAgentOutput(deterministicOutput);
   const deterministicCommercial = validateSeoCommercialCopy(deterministicOutput, commercialContext);
   const deterministicKeywordPlacement = validateSeoKeywordPlacement(

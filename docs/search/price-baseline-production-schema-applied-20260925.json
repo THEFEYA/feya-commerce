@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "checked_at": "2026-09-25",
+  "production_project_ref": "ysnizcgzhdwdfdkjkhud",
+  "repository_head_before_apply": "f9b51eb3cfee81bc1e8138aa5ae0b74d9106b8eb",
+  "ci_run": 36152898672,
+  "ci_conclusion": "success",
+  "repository_migration": "supabase/migrations/20260925170000_price_baseline_adoption_v1.sql",
+  "remote_migration": {
+    "version": "20260925153503",
+    "name": "price_baseline_adoption_v1",
+    "apply_success": true
+  },
+  "postflight": {
+    "preview_present": true,
+    "executor_present": true,
+    "service_can_preview": true,
+    "service_can_execute": true,
+    "anon_can_execute": false,
+    "authenticated_can_execute": false,
+    "action_capability_rows": 1,
+    "action_capability_state": "AVAILABLE_WITH_LIMITATIONS",
+    "implementation_state": "internal_price_baseline_adoption_only",
+    "clean_source_products": 205,
+    "clean_source_price_rows": 850,
+    "hold_products": 0,
+    "already_ready_products": 0,
+    "evidence_sha256": "500c7c18cca25ecee33adb399dfa2380042ed4946775ef95c64f727a8e8e5c6f",
+    "security_advisor_findings_for_new_functions": 0,
+    "performance_advisor_findings_for_new_functions": 0
+  },
+  "application_state": {
+    "vercel_live": false,
+    "production_target_detected": false,
+    "auth_users": 2,
+    "confirmed_auth_users": 2,
+    "users_with_sign_in": 0,
+    "owner_action_audit_rows": 0
+  },
+  "execution_state": {
+    "batch_prepare": false,
+    "human_approval": false,
+    "batch_execute": false,
+    "offer_promotion": false,
+    "payment": false,
+    "indexing": false
+  },
+  "current_decision": "SCHEMA_APPLIED_EXECUTION_STILL_STOP"
+}

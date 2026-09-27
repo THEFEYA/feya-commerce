@@ -186,7 +186,10 @@ Use for:
 - device
 
 Known limitation:
-anonymized queries are not present in bulk export.
+anonymized query text is not available. Bulk table rows marked
+is_anonymized_query remain useful for aggregate coverage; accept null or empty
+query text without inventing a keyword. The official table schema describes both
+representations: https://support.google.com/webmasters/answer/12917991?hl=en.
 
 Therefore absence of a query row is not proof that no such searches occurred.
 

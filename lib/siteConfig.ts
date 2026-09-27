@@ -1,15 +1,17 @@
+import { inspectSearchEnvironment } from './searchEnvironmentGate';
+
 export function getSiteUrl() {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
 
   try {
-    return new URL(configured || 'https://zofeya.com');
+    return new URL(configured || 'https://thefeya.com');
   } catch {
     return new URL('https://zofeya.com');
   }
 }
 
 export function isSearchIndexingEnabled() {
-  return process.env.FEYA_SEARCH_INDEXING_ENABLED === 'true';
+  return inspectSearchEnvironment(process.env).enabled;
 }
 
 export function isStructuredDataEnabled() {

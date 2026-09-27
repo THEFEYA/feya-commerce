@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { stampCurrentSeoEditorialPolicy } from './seoEditorialPolicy.ts';
 import type { SeoAgentOutputContract } from './seoPackContract.ts';
 import type { SeoAgentPromptContract } from './seoAgentDraftPrompt.ts';
 
@@ -301,7 +302,7 @@ export async function generateSeoDraftWithOpenAi(prompt: SeoAgentPromptContract,
     status: 'generated',
     model,
     response_id: payload?.id || null,
-    output: normalized.value,
+    output: stampCurrentSeoEditorialPolicy(normalized.value),
     raw_text: rawText,
     error: null,
     vision_input: visionInput,

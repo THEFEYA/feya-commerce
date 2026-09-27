@@ -1,0 +1,138 @@
+{
+  "manifest_version": "g-half-6-anonymous-production-crawl-v1",
+  "generated_at": "2026-09-27",
+  "execution_status": "WAITING_OWNER_VISUAL_APPROVAL_AND_EXACT_PRODUCTION_PROMOTION",
+  "target_origin": "https://thefeya.com",
+  "preconditions": [
+    "exact G-half-5 SHA has full CI PASS",
+    "Vercel deployment is READY",
+    "Human Owner visually approves exact preview",
+    "exact deployment is promoted to Production",
+    "ACTIVE Search Release remains 0 during this pre-index crawl"
+  ],
+  "expectations": {
+    "host_policy": "https://www.thefeya.com/* -> 308 https://thefeya.com/*",
+    "default_robots": "noindex, follow",
+    "sitemap": "contains zero index candidates while ACTIVE Search Release=0",
+    "missing_url_http_status": 404,
+    "missing_pdp_http_status": 404,
+    "preview_host_leakage": false,
+    "five_xx_allowed": false,
+    "checkout_active": false
+  },
+  "crawl_sets": {
+    "infrastructure": [
+      {
+        "path": "/robots.txt",
+        "expected_status": 200
+      },
+      {
+        "path": "/sitemap.xml",
+        "expected_status": 200
+      }
+    ],
+    "foundational": [
+      "/",
+      "/collections",
+      "/about",
+      "/size-guide",
+      "/care",
+      "/shipping",
+      "/returns",
+      "/contact"
+    ],
+    "commercial_landings": [
+      "/collections/bodysuits",
+      "/collections/burning-man-looks",
+      "/collections/costume-belts",
+      "/collections/costume-headpieces",
+      "/collections/costume-masks",
+      "/collections/festival-outfits",
+      "/collections/festival-skirts",
+      "/collections/rave-outfits",
+      "/collections/shoulder-armor",
+      "/collections/stage-outfits"
+    ],
+    "representative_pdps": [
+      {
+        "url_path": "/shop/gold-futuristic-armor-set-choker-collar-shoulder-armor-and-arm-bracers-performance-outfit-4511817111",
+        "candidate_code": "BURNING_MAN_OUTFITS",
+        "canonical_product_id": "0395cb11-424f-407f-a849-7ee3b617ab57"
+      },
+      {
+        "url_path": "/shop/men-s-silver-robot-armor-futuristic-cyborg-outfit-4506732837",
+        "candidate_code": "COSTUME_BELTS",
+        "canonical_product_id": "13300fb8-c39d-476f-9485-75747c4e6599"
+      },
+      {
+        "url_path": "/shop/gogo-costume-set-bodysuit-skirt-leg-covers-for-futuristic-dance-fashion-outfit-pj-showgirl-4389332118",
+        "candidate_code": "COSTUME_BODYSUITS",
+        "canonical_product_id": "09f51ad4-6b90-4311-aa5a-54f91cf4b7bf"
+      },
+      {
+        "url_path": "/shop/futuristic-cosplay-headpiece-festival-headdress-cyber-punk-wings-holographic-bodysuit-leg-covers-for-rave-festivals-and-burning-man-1890691940",
+        "candidate_code": "COSTUME_HEADPIECES",
+        "canonical_product_id": "12a0faf1-9c3c-44e2-bbf1-1583ac309a46"
+      },
+      {
+        "url_path": "/shop/rave-festival-outfit-with-mask-shoulder-top-skirt-bracelet-white-gold-leather-armor-wear-burning-man-costume-set-women-futuristic-suit-1842722795",
+        "candidate_code": "COSTUME_MASKS",
+        "canonical_product_id": "51d879ce-f762-4307-b896-efcb2ffd64e9"
+      },
+      {
+        "url_path": "/shop/gold-futuristic-armor-set-choker-collar-shoulder-armor-and-arm-bracers-performance-outfit-4511817111",
+        "candidate_code": "FESTIVAL_OUTFITS",
+        "canonical_product_id": "0395cb11-424f-407f-a849-7ee3b617ab57"
+      },
+      {
+        "url_path": "/shop/cosmic-festival-outfit-with-top-skirt-metallic-costume-set-party-rave-wear-unique-futuristic-outfit-cyber-punk-clothing-accessories-4367470907",
+        "candidate_code": "FESTIVAL_SKIRTS",
+        "canonical_product_id": "0403df9f-3ff9-498d-b3d9-69ad64b3dd4c"
+      },
+      {
+        "url_path": "/shop/metallic-fringe-harness-set-top-skirt-fashion-festival-clothing-chrome-rave-outfit-1890025125",
+        "candidate_code": "PERFORMANCE_COSTUMES",
+        "canonical_product_id": "067628e8-3ecd-4979-8501-6da61ca2f51a"
+      },
+      {
+        "url_path": "/shop/gold-futuristic-armor-set-choker-collar-shoulder-armor-and-arm-bracers-performance-outfit-4511817111",
+        "candidate_code": "RAVE_OUTFITS",
+        "canonical_product_id": "0395cb11-424f-407f-a849-7ee3b617ab57"
+      },
+      {
+        "url_path": "/shop/gold-futuristic-armor-set-choker-collar-shoulder-armor-and-arm-bracers-performance-outfit-4511817111",
+        "candidate_code": "SHOULDER_ARMOR",
+        "canonical_product_id": "0395cb11-424f-407f-a849-7ee3b617ab57"
+      }
+    ],
+    "utility_noindex": [
+      "/shop",
+      "/shop?style=Futuristic",
+      "/shop?category=Harness",
+      "/cart",
+      "/account"
+    ],
+    "negative_tests": [
+      "/this-url-must-not-exist-g-half-6",
+      "/shop/this-product-must-not-exist-g-half-6",
+      "/admin"
+    ]
+  },
+  "failure_conditions": [
+    "any public 5xx",
+    "soft 404 returns 200",
+    "any pre-index page emits index=true",
+    "sitemap contains an index candidate while no ACTIVE release exists",
+    "canonical host is not thefeya.com",
+    "www does not permanently redirect to apex",
+    "approved PDP copy silently falls back to generic copy",
+    "collection content version and membership snapshot do not match",
+    "related link is absent from reconciled graph",
+    "FILTER URL becomes an owner/index candidate",
+    "preview/Vercel hostname appears in canonical, OG URL or schema URL",
+    "private/admin surface exposes privileged data anonymously"
+  ],
+  "current_state": {
+    "active_search_release_count": 0
+  }
+}

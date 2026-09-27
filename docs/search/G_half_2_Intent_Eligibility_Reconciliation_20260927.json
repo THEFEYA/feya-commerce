@@ -1,0 +1,2671 @@
+{
+  "checkpoint_version": "g-half-2-intent-eligibility-reconciliation-v1",
+  "generated_at": "2026-09-27",
+  "market": "US",
+  "locale": "en-US",
+  "index_authorized": false,
+  "framework": {
+    "hard_gates": {
+      "commercial_serp_gate": "PASS",
+      "demand_score_min": 40,
+      "effective_product_depth_min": 4,
+      "distinct_design_families_min": 3,
+      "differentiation_min": 50,
+      "internal_link_support_min": 40,
+      "cannibalization_veto": false,
+      "landing_eligibility_score_min": 70
+    },
+    "note": "FEYA operational thresholds, not universal Google ranking rules."
+  },
+  "authority_reconciliation": [
+    {
+      "older_source": "FEYA_Keyword_Research_Queue_v1(4).json",
+      "older_state": "Q02/Q01/Q04 status=not_requested",
+      "current_source": "live Supabase query cluster registry",
+      "current_state": "Phase-B HYPD/SERP evidence exists for Q02/Q01/Q04 as of 2026-09-26",
+      "resolution": "live DB supersedes queue status; queue seed/order remains useful for Q03/Q08/Q05/Q06/Q07"
+    },
+    {
+      "source": "feya_v_axis_match_v1",
+      "limitation": "candidate-generation evidence only; never landing membership authority",
+      "resolution": "final membership remains Product Truth/orderability + immutable membership snapshot"
+    }
+  ],
+  "materialized_page_candidates": [
+    {
+      "candidate_code": "BURNING_MAN_OUTFITS",
+      "url_path": "/collections/burning-man-looks",
+      "eligible_products": 45,
+      "orderable_products": 45,
+      "design_families": 43,
+      "seo_page_id": "fd5b7f21-f66d-5616-a33c-3d0c6974ad96",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "family": "event_hub",
+      "review_state": "review",
+      "user_intent": "Shop TheFEYA pieces selected for Burning Man and desert-event styling.",
+      "primary_intent": "commercial Burning Man outfits",
+      "unique_value_brief": "Burning Man-specific product curation and practical outfit paths without claiming event affiliation or weather/safety guarantees.",
+      "intent_evidence_status": "confirmed",
+      "truth_status": "confirmed",
+      "selection_rule_json": {
+        "all": [
+          {
+            "op": "contains",
+            "field": "event",
+            "value": "burning man"
+          },
+          {
+            "op": "eq",
+            "field": "orderability",
+            "value": "confirmed"
+          }
+        ],
+        "version": "selection_v1",
+        "unknown_policy": "exclude_and_queue_review"
+      },
+      "inventory_policy_json": {
+        "status": "proposed",
+        "minimum_epd": 4,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "minimum_distinct_designs": 3
+      },
+      "excluded_queries_json": [
+        "what to wear to burning man"
+      ],
+      "evidence_refs_json": [
+        {
+          "type": "keyword_metrics",
+          "source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+        },
+        {
+          "ref": "phase-b-serp-classification-20260926.json",
+          "type": "serp"
+        },
+        {
+          "type": "inventory",
+          "eligible_products": 45
+        },
+        {
+          "type": "membership_snapshot",
+          "source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+          "design_family_status": "provisional_not_release_authority"
+        }
+      ]
+    },
+    {
+      "candidate_code": "COSTUME_BELTS",
+      "url_path": "/collections/costume-belts",
+      "eligible_products": 13,
+      "orderable_products": 13,
+      "design_families": 13,
+      "seo_page_id": "d2e5e62a-36ba-5ebd-a7e4-2ac61d73ddab",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "family": "type_hub",
+      "review_state": "review",
+      "user_intent": "Shop TheFEYA costume belts and decorative waist pieces.",
+      "primary_intent": "commercial costume belts",
+      "unique_value_brief": "Decorative costume/fashion belt owner; excludes utility, weapon and everyday belt intent.",
+      "intent_evidence_status": "confirmed",
+      "truth_status": "confirmed",
+      "selection_rule_json": {
+        "all": [
+          {
+            "op": "contains",
+            "field": "sellable_component",
+            "value": "belt"
+          },
+          {
+            "op": "eq",
+            "field": "orderability",
+            "value": "confirmed"
+          }
+        ],
+        "version": "selection_v1",
+        "unknown_policy": "exclude_and_queue_review"
+      },
+      "inventory_policy_json": {
+        "status": "proposed",
+        "minimum_epd": 4,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "minimum_distinct_designs": 3
+      },
+      "excluded_queries_json": [
+        "utility belt",
+        "gun belt",
+        "tool belt",
+        "everyday leather belt"
+      ],
+      "evidence_refs_json": [
+        {
+          "type": "keyword_metrics",
+          "source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+        },
+        {
+          "ref": "phase-b-serp-classification-20260926.json",
+          "type": "serp"
+        },
+        {
+          "type": "inventory",
+          "eligible_products": 13
+        },
+        {
+          "type": "membership_snapshot",
+          "source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+          "design_family_status": "provisional_not_release_authority"
+        }
+      ]
+    },
+    {
+      "candidate_code": "COSTUME_BODYSUITS",
+      "url_path": "/collections/bodysuits",
+      "eligible_products": 30,
+      "orderable_products": 30,
+      "design_families": 29,
+      "seo_page_id": "9dc10a3f-c4fb-5fec-95d1-5e348305d739",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "family": "type_hub",
+      "review_state": "review",
+      "user_intent": "Shop TheFEYA costume bodysuits.",
+      "primary_intent": "commercial costume bodysuits",
+      "unique_value_brief": "Product-type owner for complete bodysuit designs; event-specific variants remain separate candidates until differentiation is proven.",
+      "intent_evidence_status": "confirmed",
+      "truth_status": "confirmed",
+      "selection_rule_json": {
+        "all": [
+          {
+            "op": "contains",
+            "field": "sellable_component",
+            "value": "bodysuit"
+          },
+          {
+            "op": "eq",
+            "field": "orderability",
+            "value": "confirmed"
+          }
+        ],
+        "version": "selection_v1",
+        "unknown_policy": "exclude_and_queue_review"
+      },
+      "inventory_policy_json": {
+        "status": "proposed",
+        "minimum_epd": 4,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "minimum_distinct_designs": 3
+      },
+      "excluded_queries_json": [
+        "licensed character bodysuit",
+        "superhero bodysuit"
+      ],
+      "evidence_refs_json": [
+        {
+          "type": "keyword_metrics",
+          "source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+        },
+        {
+          "ref": "phase-b-serp-classification-20260926.json",
+          "type": "serp"
+        },
+        {
+          "type": "inventory",
+          "eligible_products": 30
+        },
+        {
+          "type": "membership_snapshot",
+          "source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+          "design_family_status": "provisional_not_release_authority"
+        }
+      ]
+    },
+    {
+      "candidate_code": "COSTUME_HEADPIECES",
+      "url_path": "/collections/costume-headpieces",
+      "eligible_products": 34,
+      "orderable_products": 34,
+      "design_families": 33,
+      "seo_page_id": "cbd940dd-ab5a-58d7-8d4a-cd39e05baed0",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "family": "type_hub",
+      "review_state": "review",
+      "user_intent": "Shop TheFEYA costume headpieces and sculptural headdresses.",
+      "primary_intent": "commercial costume headpieces",
+      "unique_value_brief": "Product-type owner for statement headpieces; DIY/tutorial intent is excluded.",
+      "intent_evidence_status": "confirmed",
+      "truth_status": "confirmed",
+      "selection_rule_json": {
+        "all": [
+          {
+            "op": "contains",
+            "field": "sellable_component",
+            "value": "headpiece"
+          },
+          {
+            "op": "eq",
+            "field": "orderability",
+            "value": "confirmed"
+          }
+        ],
+        "version": "selection_v1",
+        "unknown_policy": "exclude_and_queue_review"
+      },
+      "inventory_policy_json": {
+        "status": "proposed",
+        "minimum_epd": 4,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "minimum_distinct_designs": 3
+      },
+      "excluded_queries_json": [
+        "how to make a headpiece",
+        "headpiece tutorial"
+      ],
+      "evidence_refs_json": [
+        {
+          "type": "keyword_metrics",
+          "source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+        },
+        {
+          "ref": "phase-b-serp-classification-20260926.json",
+          "type": "serp"
+        },
+        {
+          "type": "inventory",
+          "eligible_products": 34
+        },
+        {
+          "type": "membership_snapshot",
+          "source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+          "design_family_status": "provisional_not_release_authority"
+        }
+      ]
+    },
+    {
+      "candidate_code": "COSTUME_MASKS",
+      "url_path": "/collections/costume-masks",
+      "eligible_products": 11,
+      "orderable_products": 11,
+      "design_families": 11,
+      "seo_page_id": "c67a177b-7712-5376-bf08-c4875399e692",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "family": "type_hub",
+      "review_state": "review",
+      "user_intent": "Shop decorative TheFEYA costume masks.",
+      "primary_intent": "commercial costume masks",
+      "unique_value_brief": "FEYA decorative/fashion mask selection; excludes respirator/safety and licensed-character intent.",
+      "intent_evidence_status": "confirmed",
+      "truth_status": "confirmed",
+      "selection_rule_json": {
+        "all": [
+          {
+            "op": "contains",
+            "field": "sellable_component",
+            "value": "mask"
+          },
+          {
+            "op": "eq",
+            "field": "orderability",
+            "value": "confirmed"
+          }
+        ],
+        "version": "selection_v1",
+        "unknown_policy": "exclude_and_queue_review"
+      },
+      "inventory_policy_json": {
+        "status": "proposed",
+        "minimum_epd": 4,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "minimum_distinct_designs": 3
+      },
+      "excluded_queries_json": [
+        "respirator mask",
+        "gas mask safety",
+        "jason mask",
+        "licensed character mask"
+      ],
+      "evidence_refs_json": [
+        {
+          "type": "keyword_metrics",
+          "source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+        },
+        {
+          "ref": "phase-b-serp-classification-20260926.json",
+          "type": "serp"
+        },
+        {
+          "type": "inventory",
+          "eligible_products": 11
+        },
+        {
+          "type": "membership_snapshot",
+          "source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+          "design_family_status": "provisional_not_release_authority"
+        }
+      ]
+    },
+    {
+      "candidate_code": "FESTIVAL_OUTFITS",
+      "url_path": "/collections/festival-outfits",
+      "eligible_products": 111,
+      "orderable_products": 111,
+      "design_families": 102,
+      "seo_page_id": "fa12f1a6-ede1-5ae3-9219-6b8ce8e82e66",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "family": "event_hub",
+      "review_state": "review",
+      "user_intent": "Shop TheFEYA statement pieces suitable for festival styling.",
+      "primary_intent": "commercial festival outfits",
+      "unique_value_brief": "Event-led selection across multiple FEYA product types, with practical merchandising instead of a generic tag-filter page.",
+      "intent_evidence_status": "confirmed",
+      "truth_status": "confirmed",
+      "selection_rule_json": {
+        "all": [
+          {
+            "op": "contains",
+            "field": "event",
+            "value": "festival"
+          },
+          {
+            "op": "eq",
+            "field": "orderability",
+            "value": "confirmed"
+          }
+        ],
+        "version": "selection_v1",
+        "unknown_policy": "exclude_and_queue_review"
+      },
+      "inventory_policy_json": {
+        "status": "proposed",
+        "minimum_epd": 4,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "minimum_distinct_designs": 3
+      },
+      "excluded_queries_json": [
+        "renaissance festival costumes",
+        "oktoberfest outfits"
+      ],
+      "evidence_refs_json": [
+        {
+          "type": "keyword_metrics",
+          "source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+        },
+        {
+          "ref": "phase-b-serp-classification-20260926.json",
+          "type": "serp"
+        },
+        {
+          "type": "inventory",
+          "eligible_products": 111
+        },
+        {
+          "type": "membership_snapshot",
+          "source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+          "design_family_status": "provisional_not_release_authority"
+        }
+      ]
+    },
+    {
+      "candidate_code": "FESTIVAL_SKIRTS",
+      "url_path": "/collections/festival-skirts",
+      "eligible_products": 56,
+      "orderable_products": 56,
+      "design_families": 51,
+      "seo_page_id": "e13692a0-5f96-5dca-9f48-cc5aa6e21d33",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "family": "subhub",
+      "review_state": "review",
+      "user_intent": "Shop TheFEYA skirts selected for festival styling.",
+      "primary_intent": "commercial festival skirts",
+      "unique_value_brief": "Intersection page justified by a collection-dominant festival-skirt SERP; generic costume-skirt intent remains PDP/filter.",
+      "intent_evidence_status": "confirmed",
+      "truth_status": "confirmed",
+      "selection_rule_json": {
+        "all": [
+          {
+            "op": "contains",
+            "field": "sellable_component",
+            "value": "skirt"
+          },
+          {
+            "op": "contains",
+            "field": "event",
+            "value": "festival"
+          },
+          {
+            "op": "eq",
+            "field": "orderability",
+            "value": "confirmed"
+          }
+        ],
+        "version": "selection_v1",
+        "unknown_policy": "exclude_and_queue_review"
+      },
+      "inventory_policy_json": {
+        "status": "proposed",
+        "minimum_epd": 4,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "minimum_distinct_designs": 3
+      },
+      "excluded_queries_json": [
+        "costume skirt"
+      ],
+      "evidence_refs_json": [
+        {
+          "type": "keyword_metrics",
+          "source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+        },
+        {
+          "ref": "phase-b-serp-classification-20260926.json",
+          "type": "serp"
+        },
+        {
+          "type": "inventory",
+          "eligible_products": 56
+        },
+        {
+          "type": "membership_snapshot",
+          "source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+          "design_family_status": "provisional_not_release_authority"
+        }
+      ]
+    },
+    {
+      "candidate_code": "PERFORMANCE_COSTUMES",
+      "url_path": "/collections/stage-outfits",
+      "eligible_products": 96,
+      "orderable_products": 96,
+      "design_families": 94,
+      "seo_page_id": "8c40a74a-0a49-513a-832a-66bf0cb1b1c2",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "family": "subhub",
+      "review_state": "review",
+      "user_intent": "Shop visual stage and performance costumes for performers.",
+      "primary_intent": "commercial performance costumes",
+      "unique_value_brief": "Performance-first FEYA assortment for dancers, DJs, drag performers and shows; avoids claiming broad recital/dancewear intent that the catalog has not proven.",
+      "intent_evidence_status": "confirmed",
+      "truth_status": "confirmed",
+      "selection_rule_json": {
+        "all": [
+          {
+            "op": "contains",
+            "field": "event",
+            "value": "stage"
+          },
+          {
+            "op": "eq",
+            "field": "orderability",
+            "value": "confirmed"
+          }
+        ],
+        "version": "selection_v1",
+        "unknown_policy": "exclude_and_queue_review"
+      },
+      "inventory_policy_json": {
+        "status": "proposed",
+        "minimum_epd": 4,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "minimum_distinct_designs": 3
+      },
+      "excluded_queries_json": [
+        "dance costumes",
+        "dance recital costumes",
+        "competition dance costumes",
+        "stage costume design"
+      ],
+      "evidence_refs_json": [
+        {
+          "type": "keyword_metrics",
+          "source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+        },
+        {
+          "ref": "phase-b-serp-classification-20260926.json",
+          "type": "serp"
+        },
+        {
+          "type": "inventory",
+          "eligible_products": 96
+        },
+        {
+          "ref": "Phase_B_Q02_Q01_Q04_Checkpoint_20260926.md",
+          "type": "competitor_gap"
+        },
+        {
+          "type": "membership_snapshot",
+          "source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+          "design_family_status": "provisional_not_release_authority"
+        }
+      ]
+    },
+    {
+      "candidate_code": "RAVE_OUTFITS",
+      "url_path": "/collections/rave-outfits",
+      "eligible_products": 40,
+      "orderable_products": 40,
+      "design_families": 38,
+      "seo_page_id": "f027543c-d8f8-545a-895b-62e27b66b015",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "family": "event_hub",
+      "review_state": "review",
+      "user_intent": "Shop TheFEYA rave outfits and statement performance pieces for EDM/nightlife styling.",
+      "primary_intent": "commercial rave outfits",
+      "unique_value_brief": "Rave-specific assortment and merchandising, distinct from generic festival ownership.",
+      "intent_evidence_status": "confirmed",
+      "truth_status": "confirmed",
+      "selection_rule_json": {
+        "all": [
+          {
+            "op": "contains",
+            "field": "event",
+            "value": "rave"
+          },
+          {
+            "op": "eq",
+            "field": "orderability",
+            "value": "confirmed"
+          }
+        ],
+        "version": "selection_v1",
+        "unknown_policy": "exclude_and_queue_review"
+      },
+      "inventory_policy_json": {
+        "status": "proposed",
+        "minimum_epd": 4,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "minimum_distinct_designs": 3
+      },
+      "excluded_queries_json": [],
+      "evidence_refs_json": [
+        {
+          "type": "keyword_metrics",
+          "source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+        },
+        {
+          "ref": "phase-b-serp-classification-20260926.json",
+          "type": "serp"
+        },
+        {
+          "type": "inventory",
+          "eligible_products": 40
+        },
+        {
+          "type": "membership_snapshot",
+          "source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+          "design_family_status": "provisional_not_release_authority"
+        }
+      ]
+    },
+    {
+      "candidate_code": "SHOULDER_ARMOR",
+      "url_path": "/collections/shoulder-armor",
+      "eligible_products": 80,
+      "orderable_products": 80,
+      "design_families": 72,
+      "seo_page_id": "5a7b76bf-36a0-516a-88f4-44f9a10ed410",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "family": "type_hub",
+      "review_state": "review",
+      "user_intent": "Shop decorative shoulder armor for costume, stage, cosplay and festival styling.",
+      "primary_intent": "commercial decorative shoulder armor",
+      "unique_value_brief": "Sculptural FEYA shoulder pieces with explicit decorative/non-protective positioning; separates fashion/performance use from tactical or historical protective armor.",
+      "intent_evidence_status": "confirmed",
+      "truth_status": "confirmed",
+      "selection_rule_json": {
+        "all": [
+          {
+            "op": "contains",
+            "field": "sellable_component",
+            "value": "shoulders"
+          },
+          {
+            "op": "eq",
+            "field": "orderability",
+            "value": "confirmed"
+          }
+        ],
+        "version": "selection_v1",
+        "unknown_policy": "exclude_and_queue_review"
+      },
+      "inventory_policy_json": {
+        "status": "proposed",
+        "minimum_epd": 4,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "minimum_distinct_designs": 3
+      },
+      "excluded_queries_json": [
+        "tactical shoulder armor",
+        "ballistic shoulder armor",
+        "motorcycle shoulder armor",
+        "protective shoulder armor",
+        "football shoulder pads"
+      ],
+      "evidence_refs_json": [
+        {
+          "type": "keyword_metrics",
+          "source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+        },
+        {
+          "ref": "phase-b-serp-classification-20260926.json",
+          "type": "serp"
+        },
+        {
+          "type": "inventory",
+          "eligible_products": 80
+        },
+        {
+          "type": "membership_snapshot",
+          "source_revision": "feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926",
+          "design_family_status": "provisional_not_release_authority"
+        }
+      ]
+    }
+  ],
+  "normalized_query_intent_nodes": [
+    {
+      "query_cluster_id": "cf768421-fdec-5d21-bf96-38a2bbc02590",
+      "cluster_code": "QC_US_EN_BURNING_MAN_COSTUMES",
+      "cluster_label": "Burning Man Costumes",
+      "normalized_intent": "burning man costume shopping",
+      "intent_type": "commercial",
+      "cluster_status": "approved",
+      "ams": 880,
+      "serp_gate": "pass",
+      "demand_score": 100,
+      "stored_outcome": "CANDIDATE_OWNER",
+      "reason": null,
+      "candidate_code": "BURNING_MAN_OUTFITS",
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 880,
+        "seed": "burning man costumes",
+        "serp_gate": "pass",
+        "demand_score": 100,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "candidate_same_page": "BURNING_MAN_OUTFITS",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "INDEXABLE_COLLECTION",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "95c06fd5-9904-53a9-aeb5-a86da735c9c5",
+      "cluster_code": "QC_US_EN_BURNING_MAN_OUTFITS",
+      "cluster_label": "Burning Man Outfits",
+      "normalized_intent": "burning man outfit shopping",
+      "intent_type": "commercial",
+      "cluster_status": "approved",
+      "ams": 2900,
+      "serp_gate": "pass",
+      "demand_score": 100,
+      "stored_outcome": "CANDIDATE_OWNER",
+      "reason": null,
+      "candidate_code": "BURNING_MAN_OUTFITS",
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 2900,
+        "seed": "burning man outfits",
+        "candidate": "BURNING_MAN_OUTFITS",
+        "serp_gate": "pass",
+        "demand_score": 100,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "INDEXABLE_COLLECTION",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "f20a3d4b-0187-55a1-85ba-c5855d7b6b08",
+      "cluster_code": "QC_US_EN_COSTUME_BELT",
+      "cluster_label": "Costume Belts",
+      "normalized_intent": "costume belt shopping",
+      "intent_type": "commercial",
+      "cluster_status": "approved",
+      "ams": 210,
+      "serp_gate": "pass",
+      "demand_score": 70,
+      "stored_outcome": "CANDIDATE_OWNER",
+      "reason": null,
+      "candidate_code": "COSTUME_BELTS",
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 210,
+        "seed": "costume belt",
+        "candidate": "COSTUME_BELTS",
+        "serp_gate": "pass",
+        "demand_score": 70,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "INDEXABLE_COLLECTION",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "fd829796-ed87-58c4-ac69-9a2cb2656dec",
+      "cluster_code": "QC_US_EN_COSTUME_BODYSUIT",
+      "cluster_label": "Costume Bodysuits",
+      "normalized_intent": "costume bodysuit shopping",
+      "intent_type": "commercial",
+      "cluster_status": "approved",
+      "ams": 720,
+      "serp_gate": "pass",
+      "demand_score": 100,
+      "stored_outcome": "CANDIDATE_OWNER",
+      "reason": null,
+      "candidate_code": "COSTUME_BODYSUITS",
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 720,
+        "seed": "costume bodysuit",
+        "candidate": "COSTUME_BODYSUITS",
+        "serp_gate": "pass",
+        "demand_score": 100,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "INDEXABLE_COLLECTION",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "4e690fc1-9585-5777-a475-91a4dc10c929",
+      "cluster_code": "QC_US_EN_COSTUME_HEADPIECE",
+      "cluster_label": "Costume Headpieces",
+      "normalized_intent": "costume headpiece shopping",
+      "intent_type": "commercial",
+      "cluster_status": "approved",
+      "ams": 70,
+      "serp_gate": "pass",
+      "demand_score": 40,
+      "stored_outcome": "CANDIDATE_OWNER",
+      "reason": null,
+      "candidate_code": "COSTUME_HEADPIECES",
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 70,
+        "seed": "costume headpiece",
+        "candidate": "COSTUME_HEADPIECES",
+        "serp_gate": "pass",
+        "demand_score": 40,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "INDEXABLE_COLLECTION",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "be285bc3-f58d-55ba-b3f1-f54e55529f28",
+      "cluster_code": "QC_US_EN_COSTUME_MASKS",
+      "cluster_label": "Costume Masks",
+      "normalized_intent": "costume mask shopping",
+      "intent_type": "commercial",
+      "cluster_status": "approved",
+      "ams": 2900,
+      "serp_gate": "pass",
+      "demand_score": 100,
+      "stored_outcome": "CANDIDATE_OWNER",
+      "reason": null,
+      "candidate_code": "COSTUME_MASKS",
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 2900,
+        "seed": "costume masks",
+        "candidate": "COSTUME_MASKS",
+        "serp_gate": "pass",
+        "demand_score": 100,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "INDEXABLE_COLLECTION",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "22b8018c-0f1e-5ef5-95e8-6bda9884f4be",
+      "cluster_code": "QC_US_EN_FESTIVAL_OUTFITS",
+      "cluster_label": "Festival Outfits",
+      "normalized_intent": "festival outfit shopping",
+      "intent_type": "commercial",
+      "cluster_status": "approved",
+      "ams": 18100,
+      "serp_gate": "pass",
+      "demand_score": 100,
+      "stored_outcome": "CANDIDATE_OWNER",
+      "reason": null,
+      "candidate_code": "FESTIVAL_OUTFITS",
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 18100,
+        "seed": "festival outfits",
+        "candidate": "FESTIVAL_OUTFITS",
+        "serp_gate": "pass",
+        "demand_score": 100,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "INDEXABLE_COLLECTION",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "408ca598-6e58-56a8-8b84-7c6b3afd8b9e",
+      "cluster_code": "QC_US_EN_FESTIVAL_SKIRT",
+      "cluster_label": "Festival Skirts",
+      "normalized_intent": "festival skirt shopping",
+      "intent_type": "commercial",
+      "cluster_status": "approved",
+      "ams": 720,
+      "serp_gate": "pass",
+      "demand_score": 100,
+      "stored_outcome": "CANDIDATE_OWNER",
+      "reason": null,
+      "candidate_code": "FESTIVAL_SKIRTS",
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 720,
+        "seed": "festival skirt",
+        "candidate": "FESTIVAL_SKIRTS",
+        "serp_gate": "pass",
+        "demand_score": 100,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "INDEXABLE_COLLECTION",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "8ed72bf7-f181-54c4-b4bf-190094d14dba",
+      "cluster_code": "QC_US_EN_PERFORMANCE_COSTUMES",
+      "cluster_label": "Performance Costumes",
+      "normalized_intent": "performance costume shopping",
+      "intent_type": "commercial",
+      "cluster_status": "approved",
+      "ams": 140,
+      "serp_gate": "pass",
+      "demand_score": 70,
+      "stored_outcome": "CANDIDATE_OWNER",
+      "reason": null,
+      "candidate_code": "PERFORMANCE_COSTUMES",
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 140,
+        "seed": "performance costumes",
+        "candidate": "PERFORMANCE_COSTUMES",
+        "serp_gate": "pass",
+        "demand_score": 70,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "INDEXABLE_COLLECTION",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "ffc511e3-5f75-54cd-96c9-9f2be6118676",
+      "cluster_code": "QC_US_EN_RAVE_COSTUMES",
+      "cluster_label": "Rave Costumes",
+      "normalized_intent": "rave costume shopping",
+      "intent_type": "commercial",
+      "cluster_status": "approved",
+      "ams": 1600,
+      "serp_gate": "pass",
+      "demand_score": 100,
+      "stored_outcome": "CANDIDATE_OWNER",
+      "reason": null,
+      "candidate_code": "RAVE_OUTFITS",
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 1600,
+        "seed": "rave costumes",
+        "serp_gate": "pass",
+        "demand_score": 100,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "candidate_same_page": "RAVE_OUTFITS",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "INDEXABLE_COLLECTION",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "eb24408f-b023-5da6-8d05-8c28a7d7ba8e",
+      "cluster_code": "QC_US_EN_RAVE_OUTFITS",
+      "cluster_label": "Rave Outfits",
+      "normalized_intent": "rave outfit shopping",
+      "intent_type": "commercial",
+      "cluster_status": "approved",
+      "ams": 60500,
+      "serp_gate": "pass",
+      "demand_score": 100,
+      "stored_outcome": "CANDIDATE_OWNER",
+      "reason": null,
+      "candidate_code": "RAVE_OUTFITS",
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 60500,
+        "seed": "rave outfits",
+        "candidate": "RAVE_OUTFITS",
+        "serp_gate": "pass",
+        "demand_score": 100,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "INDEXABLE_COLLECTION",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "bc7988fa-310d-5599-b5cf-d53140129a8e",
+      "cluster_code": "QC_US_EN_SHOULDER_ARMOR",
+      "cluster_label": "Shoulder Armor",
+      "normalized_intent": "decorative shoulder armor shopping",
+      "intent_type": "commercial",
+      "cluster_status": "approved",
+      "ams": 2900,
+      "serp_gate": "pass",
+      "demand_score": 100,
+      "stored_outcome": "CANDIDATE_OWNER",
+      "reason": null,
+      "candidate_code": "SHOULDER_ARMOR",
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 2900,
+        "seed": "shoulder armor",
+        "candidate": "SHOULDER_ARMOR",
+        "serp_gate": "pass",
+        "demand_score": 100,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "INDEXABLE_COLLECTION",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "4d5c0611-af11-55df-962a-601eefbbca92",
+      "cluster_code": "QC_US_EN_COSPLAY_SHOULDER_ARMOR",
+      "cluster_label": "Cosplay Shoulder Armor",
+      "normalized_intent": "cosplay shoulder armor",
+      "intent_type": "commercial",
+      "cluster_status": "hold",
+      "ams": 140,
+      "serp_gate": "fail",
+      "demand_score": 70,
+      "stored_outcome": null,
+      "reason": null,
+      "candidate_code": null,
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 140,
+        "seed": "cosplay shoulder armor",
+        "serp_gate": "fail",
+        "demand_score": 70,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "HOLD",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "bc7db4d7-7616-5dfb-9560-157ecb87ff44",
+      "cluster_code": "QC_US_EN_COSTUME_SETS",
+      "cluster_label": "Costume Sets",
+      "normalized_intent": "generic costume set shopping",
+      "intent_type": "commercial",
+      "cluster_status": "hold",
+      "ams": 140,
+      "serp_gate": "fail",
+      "demand_score": 70,
+      "stored_outcome": "NO_DEDICATED_LANDING",
+      "reason": null,
+      "candidate_code": null,
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 140,
+        "seed": "costume sets",
+        "outcome": "NO_DEDICATED_LANDING",
+        "serp_gate": "fail",
+        "demand_score": 70,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "NONE",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "e467e38f-e287-51bb-9975-b851485331fc",
+      "cluster_code": "QC_US_EN_COSTUME_SKIRT",
+      "cluster_label": "Costume Skirts",
+      "normalized_intent": "generic costume skirt shopping",
+      "intent_type": "commercial",
+      "cluster_status": "hold",
+      "ams": 260,
+      "serp_gate": "fail",
+      "demand_score": 70,
+      "stored_outcome": "PDP_KEYWORD_OR_FILTER",
+      "reason": null,
+      "candidate_code": null,
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 260,
+        "seed": "costume skirt",
+        "outcome": "PDP_KEYWORD_OR_FILTER",
+        "serp_gate": "fail",
+        "demand_score": 70,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "NON_INDEX_FILTER",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "cef37ee9-00fe-5170-bc5a-0788263cc7e8",
+      "cluster_code": "QC_US_EN_COSTUME_WINGS",
+      "cluster_label": "Costume Wings",
+      "normalized_intent": "costume wings shopping",
+      "intent_type": "commercial",
+      "cluster_status": "hold",
+      "ams": 1600,
+      "serp_gate": "fail",
+      "demand_score": 100,
+      "stored_outcome": "PDP_KEYWORD_OR_FILTER",
+      "reason": null,
+      "candidate_code": null,
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 1600,
+        "seed": "costume wings",
+        "outcome": "PDP_KEYWORD_OR_FILTER",
+        "serp_gate": "fail",
+        "demand_score": 100,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "NON_INDEX_FILTER",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "a5f00efe-dc37-5169-9e8e-1246250f0749",
+      "cluster_code": "QC_US_EN_DANCE_COSTUMES",
+      "cluster_label": "Dance Costumes",
+      "normalized_intent": "dance recital and performance costume market",
+      "intent_type": "commercial",
+      "cluster_status": "hold",
+      "ams": 27100,
+      "serp_gate": "pass",
+      "demand_score": 100,
+      "stored_outcome": null,
+      "reason": "BROADER_MARKET_PRODUCT_FIT_UNPROVEN",
+      "candidate_code": null,
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 27100,
+        "seed": "dance costumes",
+        "serp_gate": "pass",
+        "hold_reason": "BROADER_MARKET_PRODUCT_FIT_UNPROVEN",
+        "demand_score": 100,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "HOLD",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "9e0bda7d-1d77-5ae8-a55b-28510ab7d4d8",
+      "cluster_code": "QC_US_EN_FASHION_HARNESS",
+      "cluster_label": "Fashion Harness",
+      "normalized_intent": "fashion body harness shopping",
+      "intent_type": "commercial",
+      "cluster_status": "hold",
+      "ams": 590,
+      "serp_gate": "fail",
+      "demand_score": 100,
+      "stored_outcome": "NON_INDEXABLE_FILTER",
+      "reason": null,
+      "candidate_code": null,
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 590,
+        "seed": "fashion harness",
+        "outcome": "NON_INDEXABLE_FILTER",
+        "serp_gate": "fail",
+        "demand_score": 100,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "NON_INDEX_FILTER",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "eb58a76a-1117-5c2f-bcdf-ac1c42a4a707",
+      "cluster_code": "QC_US_EN_FESTIVAL_BODYSUIT",
+      "cluster_label": "Festival Bodysuits",
+      "normalized_intent": "festival bodysuit shopping",
+      "intent_type": "commercial",
+      "cluster_status": "hold",
+      "ams": 320,
+      "serp_gate": "pass",
+      "demand_score": 70,
+      "stored_outcome": null,
+      "reason": "DESIGN_FAMILY_AND_DIFFERENTIATION",
+      "candidate_code": null,
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 320,
+        "seed": "festival bodysuit",
+        "serp_gate": "pass",
+        "hold_reason": "DESIGN_FAMILY_AND_DIFFERENTIATION",
+        "demand_score": 70,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "HOLD",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "1be632e1-a365-595d-b3db-de1bd4e20e5b",
+      "cluster_code": "QC_US_EN_FESTIVAL_COSTUMES",
+      "cluster_label": "Festival Costumes",
+      "normalized_intent": "festival costume shopping",
+      "intent_type": "commercial",
+      "cluster_status": "hold",
+      "ams": 320,
+      "serp_gate": "fail",
+      "demand_score": 70,
+      "stored_outcome": null,
+      "reason": null,
+      "candidate_code": null,
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 320,
+        "seed": "festival costumes",
+        "serp_gate": "fail",
+        "demand_score": 70,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "HOLD",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "4321e7d8-7aa5-51e2-a9f0-7bfaaa77e8bc",
+      "cluster_code": "QC_US_EN_FESTIVAL_HARNESS",
+      "cluster_label": "Festival Harness",
+      "normalized_intent": "festival harness shopping",
+      "intent_type": "commercial",
+      "cluster_status": "hold",
+      "ams": 40,
+      "serp_gate": "fail",
+      "demand_score": 40,
+      "stored_outcome": "NON_INDEXABLE_FILTER",
+      "reason": null,
+      "candidate_code": null,
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 40,
+        "seed": "festival harness",
+        "outcome": "NON_INDEXABLE_FILTER",
+        "serp_gate": "fail",
+        "demand_score": 40,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "NON_INDEX_FILTER",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "cfd75370-b9e8-5ab6-91e9-811176a7d962",
+      "cluster_code": "QC_US_EN_FESTIVAL_HEADPIECE",
+      "cluster_label": "Festival Headpieces",
+      "normalized_intent": "festival headpiece shopping",
+      "intent_type": "commercial",
+      "cluster_status": "hold",
+      "ams": 50,
+      "serp_gate": "pass",
+      "demand_score": 40,
+      "stored_outcome": null,
+      "reason": "NARROW_DEMAND_AND_DIFFERENTIATION",
+      "candidate_code": null,
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 50,
+        "seed": "festival headpiece",
+        "serp_gate": "pass",
+        "hold_reason": "NARROW_DEMAND_AND_DIFFERENTIATION",
+        "demand_score": 40,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "HOLD",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "70fc4ad7-90d5-5b02-aebd-90b6d44c0f08",
+      "cluster_code": "QC_US_EN_FESTIVAL_MASKS",
+      "cluster_label": "Festival Masks",
+      "normalized_intent": "festival mask shopping",
+      "intent_type": "commercial",
+      "cluster_status": "hold",
+      "ams": 390,
+      "serp_gate": "pass",
+      "demand_score": 70,
+      "stored_outcome": null,
+      "reason": "DESIGN_FAMILY_AND_DIFFERENTIATION",
+      "candidate_code": null,
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 390,
+        "seed": "festival masks",
+        "serp_gate": "pass",
+        "hold_reason": "DESIGN_FAMILY_AND_DIFFERENTIATION",
+        "demand_score": 70,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "HOLD",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "5975024a-648a-511f-94dd-d7efe7bcbf12",
+      "cluster_code": "QC_US_EN_PERFORMANCE_OUTFITS",
+      "cluster_label": "Performance Outfits",
+      "normalized_intent": "performance outfit intent",
+      "intent_type": "commercial",
+      "cluster_status": "hold",
+      "ams": 260,
+      "serp_gate": "fail",
+      "demand_score": 70,
+      "stored_outcome": null,
+      "reason": null,
+      "candidate_code": null,
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 260,
+        "seed": "performance outfits",
+        "serp_gate": "fail",
+        "demand_score": 70,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "HOLD",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "bb5d478e-9a1a-5d7b-9051-3280f85f21fb",
+      "cluster_code": "QC_US_EN_SHOULDER_ARMOR_COSTUME",
+      "cluster_label": "Shoulder Armor Costume",
+      "normalized_intent": "costume-specific shoulder armor",
+      "intent_type": "commercial",
+      "cluster_status": "hold",
+      "ams": 170,
+      "serp_gate": "fail",
+      "demand_score": 70,
+      "stored_outcome": null,
+      "reason": null,
+      "candidate_code": null,
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 170,
+        "seed": "shoulder armor costume",
+        "serp_gate": "fail",
+        "demand_score": 70,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "HOLD",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "6cf95357-df12-59fe-a332-9f68dc981f62",
+      "cluster_code": "QC_US_EN_SHOWGIRL_COSTUMES",
+      "cluster_label": "Showgirl Costumes",
+      "normalized_intent": "showgirl costume intent",
+      "intent_type": "commercial",
+      "cluster_status": "hold",
+      "ams": 9900,
+      "serp_gate": "fail",
+      "demand_score": 100,
+      "stored_outcome": null,
+      "reason": null,
+      "candidate_code": null,
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 9900,
+        "seed": "showgirl costumes",
+        "serp_gate": "fail",
+        "demand_score": 100,
+        "future_batch": "Q05/persona",
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "HOLD",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "47b4cd62-e87b-5c61-9a95-3a827141cae7",
+      "cluster_code": "QC_US_EN_STAGE_COSTUMES",
+      "cluster_label": "Stage Costumes",
+      "normalized_intent": "stage costume intent",
+      "intent_type": "commercial",
+      "cluster_status": "hold",
+      "ams": 170,
+      "serp_gate": "fail",
+      "demand_score": 70,
+      "stored_outcome": null,
+      "reason": null,
+      "candidate_code": null,
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 170,
+        "seed": "stage costumes",
+        "serp_gate": "fail",
+        "demand_score": 70,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "HOLD",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "22d40c2a-d784-5c2b-9ece-7fb25e65eaf5",
+      "cluster_code": "QC_US_EN_STAGE_OUTFITS",
+      "cluster_label": "Stage Outfits",
+      "normalized_intent": "stage outfit intent",
+      "intent_type": "commercial",
+      "cluster_status": "hold",
+      "ams": 390,
+      "serp_gate": "fail",
+      "demand_score": 70,
+      "stored_outcome": null,
+      "reason": null,
+      "candidate_code": null,
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 390,
+        "seed": "stage outfits",
+        "serp_gate": "fail",
+        "demand_score": 70,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "HOLD",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "35779c6d-202c-5d71-96ed-9db4474d89f1",
+      "cluster_code": "QC_US_EN_VEGAN_LEATHER_HARNESS",
+      "cluster_label": "Vegan Leather Harness",
+      "normalized_intent": "vegan leather harness shopping",
+      "intent_type": "commercial",
+      "cluster_status": "hold",
+      "ams": 30,
+      "serp_gate": null,
+      "demand_score": 40,
+      "stored_outcome": "PDP_KEYWORD_OR_FILTER",
+      "reason": null,
+      "candidate_code": null,
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 30,
+        "seed": "vegan leather harness",
+        "outcome": "PDP_KEYWORD_OR_FILTER",
+        "demand_score": 40,
+        "depth_products": 2,
+        "policy_version": "Product DNA Search Architecture Decision Framework v1",
+        "serp_evidence_ref": "docs/search/phase-b-serp-classification-20260926.json",
+        "keyword_source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+      },
+      "reconciled_outcome": "NON_INDEX_FILTER",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "cbcc1a18-4ca8-5dc4-a69c-7df4a7ef89cb",
+      "cluster_code": "QC_US_EN_BURNING_MAN_WHAT_TO_WEAR",
+      "cluster_label": "What to Wear to Burning Man",
+      "normalized_intent": "practical informational guidance for choosing Burning Man clothing",
+      "intent_type": "informational",
+      "cluster_status": "approved",
+      "ams": 110,
+      "serp_gate": null,
+      "demand_score": null,
+      "stored_outcome": "EDITORIAL_GUIDE_BUSINESS_CASE",
+      "reason": null,
+      "candidate_code": null,
+      "owner_path": "/guides/what-to-wear-to-burning-man",
+      "evidence_json": {
+        "ams": 110,
+        "seed": "what to wear to burning man",
+        "decision": "EDITORIAL_GUIDE_BUSINESS_CASE",
+        "owner_path": "/guides/what-to-wear-to-burning-man",
+        "seasonality": "strong_jul_aug",
+        "serp_intent": "informational",
+        "editorial_eligibility_ref": "docs/search/Phase_F_Editorial_Eligibility_Set_1_20260926.md",
+        "keyword_source_request_id": "df1bf7a8-9534-4302-a1c6-44b3f0551200"
+      },
+      "reconciled_outcome": "EDITORIAL_GUIDE",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "74b97654-9b83-5821-8c43-2046300ed362",
+      "cluster_code": "QC_US_EN_COSTUME_MEASUREMENTS",
+      "cluster_label": "Costume Measurements",
+      "normalized_intent": "how to take body measurements for costume sizing",
+      "intent_type": "informational",
+      "cluster_status": "approved",
+      "ams": 90,
+      "serp_gate": null,
+      "demand_score": null,
+      "stored_outcome": "EXISTING_OWNER_UPGRADE",
+      "reason": null,
+      "candidate_code": null,
+      "owner_path": "/size-guide",
+      "evidence_json": {
+        "ams": 90,
+        "seed": "costume measurements",
+        "decision": "EXISTING_OWNER_UPGRADE",
+        "owner_path": "/size-guide",
+        "serp_intent": "informational",
+        "supporting_ams": 50,
+        "supporting_seed": "how to measure for a costume",
+        "editorial_eligibility_ref": "docs/search/Phase_F_Editorial_Eligibility_Set_1_20260926.md",
+        "keyword_source_request_id": "df1bf7a8-9534-4302-a1c6-44b3f0551200"
+      },
+      "reconciled_outcome": "EXISTING_OWNER_UPGRADE",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "a4afb5b7-1cbb-5822-ba9d-51d32efa0fb9",
+      "cluster_code": "QC_US_EN_COSTUME_STORAGE",
+      "cluster_label": "Costume Storage",
+      "normalized_intent": "how to store costumes",
+      "intent_type": "informational",
+      "cluster_status": "hold",
+      "ams": 140,
+      "serp_gate": null,
+      "demand_score": null,
+      "stored_outcome": "HOLD",
+      "reason": "UNSTABLE_LOW_QUALITY_SERP",
+      "candidate_code": null,
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 140,
+        "seed": "how to store costumes",
+        "reason": "UNSTABLE_LOW_QUALITY_SERP",
+        "decision": "HOLD",
+        "editorial_eligibility_ref": "docs/search/Phase_F_Editorial_Eligibility_Set_1_20260926.md",
+        "keyword_source_request_id": "df1bf7a8-9534-4302-a1c6-44b3f0551200"
+      },
+      "reconciled_outcome": "HOLD",
+      "index_authorized": false
+    },
+    {
+      "query_cluster_id": "db5ee857-73fa-5133-ba5a-af038faf6565",
+      "cluster_code": "QC_US_EN_VEGAN_LEATHER_CARE",
+      "cluster_label": "Vegan Leather Care",
+      "normalized_intent": "how to clean and care for vegan or faux leather",
+      "intent_type": "informational",
+      "cluster_status": "hold",
+      "ams": 2400,
+      "serp_gate": null,
+      "demand_score": null,
+      "stored_outcome": "HOLD",
+      "reason": "BROAD_MATERIAL_INTENT",
+      "candidate_code": null,
+      "owner_path": null,
+      "evidence_json": {
+        "ams": 2400,
+        "seed": "how to clean vegan leather",
+        "reason": "BROAD_MATERIAL_INTENT",
+        "decision": "HOLD",
+        "serp_intent": "informational",
+        "editorial_eligibility_ref": "docs/search/Phase_F_Editorial_Eligibility_Set_1_20260926.md",
+        "keyword_source_request_id": "df1bf7a8-9534-4302-a1c6-44b3f0551200"
+      },
+      "reconciled_outcome": "HOLD",
+      "index_authorized": false
+    }
+  ],
+  "intended_primary_owners": [
+    {
+      "cluster_code": "QC_US_EN_BURNING_MAN_COSTUMES",
+      "query_cluster_id": "cf768421-fdec-5d21-bf96-38a2bbc02590",
+      "ownership_role": "primary",
+      "ownership_status": "intended",
+      "seo_page_id": "fd5b7f21-f66d-5616-a33c-3d0c6974ad96",
+      "url_path": "/collections/burning-man-looks",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "evidence_json": {
+        "phase": "D",
+        "source": "Phase_B_Q02_Q01_Q04_Checkpoint_20260926.md",
+        "index_authorized": false,
+        "search_business_case": "approved_for_preindex_build"
+      }
+    },
+    {
+      "cluster_code": "QC_US_EN_BURNING_MAN_OUTFITS",
+      "query_cluster_id": "95c06fd5-9904-53a9-aeb5-a86da735c9c5",
+      "ownership_role": "primary",
+      "ownership_status": "intended",
+      "seo_page_id": "fd5b7f21-f66d-5616-a33c-3d0c6974ad96",
+      "url_path": "/collections/burning-man-looks",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "evidence_json": {
+        "phase": "D",
+        "source": "Phase_B_Q02_Q01_Q04_Checkpoint_20260926.md",
+        "index_authorized": false,
+        "search_business_case": "approved_for_preindex_build"
+      }
+    },
+    {
+      "cluster_code": "QC_US_EN_COSTUME_BELT",
+      "query_cluster_id": "f20a3d4b-0187-55a1-85ba-c5855d7b6b08",
+      "ownership_role": "primary",
+      "ownership_status": "intended",
+      "seo_page_id": "d2e5e62a-36ba-5ebd-a7e4-2ac61d73ddab",
+      "url_path": "/collections/costume-belts",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "evidence_json": {
+        "phase": "D",
+        "source": "Phase_B_Q02_Q01_Q04_Checkpoint_20260926.md",
+        "index_authorized": false,
+        "search_business_case": "approved_for_preindex_build"
+      }
+    },
+    {
+      "cluster_code": "QC_US_EN_COSTUME_BODYSUIT",
+      "query_cluster_id": "fd829796-ed87-58c4-ac69-9a2cb2656dec",
+      "ownership_role": "primary",
+      "ownership_status": "intended",
+      "seo_page_id": "9dc10a3f-c4fb-5fec-95d1-5e348305d739",
+      "url_path": "/collections/bodysuits",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "evidence_json": {
+        "phase": "D",
+        "source": "Phase_B_Q02_Q01_Q04_Checkpoint_20260926.md",
+        "index_authorized": false,
+        "search_business_case": "approved_for_preindex_build"
+      }
+    },
+    {
+      "cluster_code": "QC_US_EN_COSTUME_HEADPIECE",
+      "query_cluster_id": "4e690fc1-9585-5777-a475-91a4dc10c929",
+      "ownership_role": "primary",
+      "ownership_status": "intended",
+      "seo_page_id": "cbd940dd-ab5a-58d7-8d4a-cd39e05baed0",
+      "url_path": "/collections/costume-headpieces",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "evidence_json": {
+        "phase": "D",
+        "source": "Phase_B_Q02_Q01_Q04_Checkpoint_20260926.md",
+        "index_authorized": false,
+        "search_business_case": "approved_for_preindex_build"
+      }
+    },
+    {
+      "cluster_code": "QC_US_EN_COSTUME_MASKS",
+      "query_cluster_id": "be285bc3-f58d-55ba-b3f1-f54e55529f28",
+      "ownership_role": "primary",
+      "ownership_status": "intended",
+      "seo_page_id": "c67a177b-7712-5376-bf08-c4875399e692",
+      "url_path": "/collections/costume-masks",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "evidence_json": {
+        "phase": "D",
+        "source": "Phase_B_Q02_Q01_Q04_Checkpoint_20260926.md",
+        "index_authorized": false,
+        "search_business_case": "approved_for_preindex_build"
+      }
+    },
+    {
+      "cluster_code": "QC_US_EN_COSTUME_MEASUREMENTS",
+      "query_cluster_id": "74b97654-9b83-5821-8c43-2046300ed362",
+      "ownership_role": "primary",
+      "ownership_status": "intended",
+      "seo_page_id": "d74ceb96-94af-5c16-b3a9-5203140a12c7",
+      "url_path": "/size-guide",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "evidence_json": {
+        "phase": "F",
+        "decision": "EXISTING_OWNER_UPGRADE",
+        "index_authorized": false,
+        "prevents_duplicate_measurement_article": true
+      }
+    },
+    {
+      "cluster_code": "QC_US_EN_FESTIVAL_OUTFITS",
+      "query_cluster_id": "22b8018c-0f1e-5ef5-95e8-6bda9884f4be",
+      "ownership_role": "primary",
+      "ownership_status": "intended",
+      "seo_page_id": "fa12f1a6-ede1-5ae3-9219-6b8ce8e82e66",
+      "url_path": "/collections/festival-outfits",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "evidence_json": {
+        "phase": "D",
+        "source": "Phase_B_Q02_Q01_Q04_Checkpoint_20260926.md",
+        "index_authorized": false,
+        "search_business_case": "approved_for_preindex_build"
+      }
+    },
+    {
+      "cluster_code": "QC_US_EN_FESTIVAL_SKIRT",
+      "query_cluster_id": "408ca598-6e58-56a8-8b84-7c6b3afd8b9e",
+      "ownership_role": "primary",
+      "ownership_status": "intended",
+      "seo_page_id": "e13692a0-5f96-5dca-9f48-cc5aa6e21d33",
+      "url_path": "/collections/festival-skirts",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "evidence_json": {
+        "phase": "D",
+        "source": "Phase_B_Q02_Q01_Q04_Checkpoint_20260926.md",
+        "index_authorized": false,
+        "search_business_case": "approved_for_preindex_build"
+      }
+    },
+    {
+      "cluster_code": "QC_US_EN_PERFORMANCE_COSTUMES",
+      "query_cluster_id": "8ed72bf7-f181-54c4-b4bf-190094d14dba",
+      "ownership_role": "primary",
+      "ownership_status": "intended",
+      "seo_page_id": "8c40a74a-0a49-513a-832a-66bf0cb1b1c2",
+      "url_path": "/collections/stage-outfits",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "evidence_json": {
+        "phase": "D",
+        "source": "Phase_B_Q02_Q01_Q04_Checkpoint_20260926.md",
+        "index_authorized": false,
+        "search_business_case": "approved_for_preindex_build"
+      }
+    },
+    {
+      "cluster_code": "QC_US_EN_RAVE_COSTUMES",
+      "query_cluster_id": "ffc511e3-5f75-54cd-96c9-9f2be6118676",
+      "ownership_role": "primary",
+      "ownership_status": "intended",
+      "seo_page_id": "f027543c-d8f8-545a-895b-62e27b66b015",
+      "url_path": "/collections/rave-outfits",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "evidence_json": {
+        "phase": "D",
+        "source": "Phase_B_Q02_Q01_Q04_Checkpoint_20260926.md",
+        "index_authorized": false,
+        "search_business_case": "approved_for_preindex_build"
+      }
+    },
+    {
+      "cluster_code": "QC_US_EN_RAVE_OUTFITS",
+      "query_cluster_id": "eb24408f-b023-5da6-8d05-8c28a7d7ba8e",
+      "ownership_role": "primary",
+      "ownership_status": "intended",
+      "seo_page_id": "f027543c-d8f8-545a-895b-62e27b66b015",
+      "url_path": "/collections/rave-outfits",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "evidence_json": {
+        "phase": "D",
+        "source": "Phase_B_Q02_Q01_Q04_Checkpoint_20260926.md",
+        "index_authorized": false,
+        "search_business_case": "approved_for_preindex_build"
+      }
+    },
+    {
+      "cluster_code": "QC_US_EN_SHOULDER_ARMOR",
+      "query_cluster_id": "bc7988fa-310d-5599-b5cf-d53140129a8e",
+      "ownership_role": "primary",
+      "ownership_status": "intended",
+      "seo_page_id": "5a7b76bf-36a0-516a-88f4-44f9a10ed410",
+      "url_path": "/collections/shoulder-armor",
+      "page_type": "landing",
+      "portfolio_status": "hold",
+      "indexation_intent": "noindex",
+      "evidence_json": {
+        "phase": "D",
+        "source": "Phase_B_Q02_Q01_Q04_Checkpoint_20260926.md",
+        "index_authorized": false,
+        "search_business_case": "approved_for_preindex_build"
+      }
+    }
+  ],
+  "axis_seed_backlog": [
+    {
+      "axis_code": "color",
+      "term_code": "gold",
+      "term_name_en": "Gold",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 66,
+      "strong_launch_product_count": 66,
+      "research_batch": "Q08",
+      "default_outcome": "NON_INDEX_FILTER",
+      "reason": "COLOR_IS_UX_FILTER_UNTIL_Q08_PROVES_STANDALONE_INTENT",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "color",
+      "term_code": "red",
+      "term_name_en": "Red",
+      "axis_source": "business_support_axis",
+      "dna_canonical_flag": false,
+      "launch_product_count": 50,
+      "strong_launch_product_count": 12,
+      "research_batch": "Q08",
+      "default_outcome": "NON_INDEX_FILTER",
+      "reason": "COLOR_IS_UX_FILTER_UNTIL_Q08_PROVES_STANDALONE_INTENT",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "color",
+      "term_code": "silver",
+      "term_name_en": "Silver",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 48,
+      "strong_launch_product_count": 48,
+      "research_batch": "Q08",
+      "default_outcome": "NON_INDEX_FILTER",
+      "reason": "COLOR_IS_UX_FILTER_UNTIL_Q08_PROVES_STANDALONE_INTENT",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "color",
+      "term_code": "holographic",
+      "term_name_en": "Holographic / iridescent",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 14,
+      "strong_launch_product_count": 14,
+      "research_batch": "Q08",
+      "default_outcome": "NON_INDEX_FILTER",
+      "reason": "COLOR_IS_UX_FILTER_UNTIL_Q08_PROVES_STANDALONE_INTENT",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "color",
+      "term_code": "black",
+      "term_name_en": "Black",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 10,
+      "strong_launch_product_count": 10,
+      "research_batch": "Q08",
+      "default_outcome": "NON_INDEX_FILTER",
+      "reason": "COLOR_IS_UX_FILTER_UNTIL_Q08_PROVES_STANDALONE_INTENT",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "color",
+      "term_code": "white",
+      "term_name_en": "White",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 7,
+      "strong_launch_product_count": 5,
+      "research_batch": "Q08",
+      "default_outcome": "NON_INDEX_FILTER",
+      "reason": "COLOR_IS_UX_FILTER_UNTIL_Q08_PROVES_STANDALONE_INTENT",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "event",
+      "term_code": "festival_rave",
+      "term_name_en": "Festival / rave / EDM",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 118,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q01",
+      "default_outcome": "HOLD",
+      "reason": "BROAD_EVENT_ALREADY_RESOLVED_IN_QUERY_CLUSTER_REGISTRY",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "event",
+      "term_code": "burning_man",
+      "term_name_en": "Burning Man / desert festival",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 70,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q01",
+      "default_outcome": "HOLD",
+      "reason": "BROAD_EVENT_ALREADY_RESOLVED_IN_QUERY_CLUSTER_REGISTRY",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "event",
+      "term_code": "stage_performance",
+      "term_name_en": "Stage / performance",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 66,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q01",
+      "default_outcome": "HOLD",
+      "reason": "BROAD_EVENT_ALREADY_RESOLVED_IN_QUERY_CLUSTER_REGISTRY",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "event",
+      "term_code": "cosplay",
+      "term_name_en": "Cosplay",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 43,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q01_EXTENSION",
+      "default_outcome": "HOLD",
+      "reason": "EVENT_SEED_HAS_INVENTORY_BUT_NO_APPROVED_QUERY_CLUSTER_DECISION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "event",
+      "term_code": "halloween",
+      "term_name_en": "Halloween",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 21,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q01_EXTENSION",
+      "default_outcome": "HOLD",
+      "reason": "EVENT_SEED_HAS_INVENTORY_BUT_NO_APPROVED_QUERY_CLUSTER_DECISION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "event",
+      "term_code": "carnival",
+      "term_name_en": "Carnival / parade",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 12,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q01_EXTENSION",
+      "default_outcome": "HOLD",
+      "reason": "EVENT_SEED_HAS_INVENTORY_BUT_NO_APPROVED_QUERY_CLUSTER_DECISION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "event",
+      "term_code": "pole_dance",
+      "term_name_en": "Pole dance",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 8,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q01_EXTENSION",
+      "default_outcome": "HOLD",
+      "reason": "EVENT_SEED_HAS_INVENTORY_BUT_NO_APPROVED_QUERY_CLUSTER_DECISION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "event",
+      "term_code": "pride",
+      "term_name_en": "Pride / parade",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 3,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q01_EXTENSION",
+      "default_outcome": "HOLD",
+      "reason": "EVENT_SEED_HAS_INVENTORY_BUT_NO_APPROVED_QUERY_CLUSTER_DECISION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "material",
+      "term_code": "vegan_leather",
+      "term_name_en": "Vegan leather / faux leather",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 190,
+      "strong_launch_product_count": 190,
+      "research_batch": "Q08",
+      "default_outcome": "HOLD",
+      "reason": "MATERIAL_CAN_BE_COMMERCIAL_AXIS_BUT_REQUIRES_SERP_DEMAND_DIFFERENTIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "material",
+      "term_code": "mirror_acrylic",
+      "term_name_en": "Mirror acrylic / mirror plastic",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 14,
+      "strong_launch_product_count": 11,
+      "research_batch": "Q03",
+      "default_outcome": "HOLD",
+      "reason": "MATERIAL_CAN_BE_COMMERCIAL_AXIS_BUT_REQUIRES_SERP_DEMAND_DIFFERENTIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "material",
+      "term_code": "feathers",
+      "term_name_en": "Feathers",
+      "axis_source": "business_support_axis",
+      "dna_canonical_flag": false,
+      "launch_product_count": 8,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q08",
+      "default_outcome": "HOLD",
+      "reason": "MATERIAL_CAN_BE_COMMERCIAL_AXIS_BUT_REQUIRES_SERP_DEMAND_DIFFERENTIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "material",
+      "term_code": "stretch_fabric",
+      "term_name_en": "Stretch fabric",
+      "axis_source": "business_support_axis",
+      "dna_canonical_flag": false,
+      "launch_product_count": 1,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q08",
+      "default_outcome": "HOLD",
+      "reason": "MATERIAL_CAN_BE_COMMERCIAL_AXIS_BUT_REQUIRES_SERP_DEMAND_DIFFERENTIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "part",
+      "term_code": "arms",
+      "term_name_en": "Arms",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 91,
+      "strong_launch_product_count": 1,
+      "research_batch": "Q04_EXTENSION",
+      "default_outcome": "HOLD",
+      "reason": "TYPE_OR_SUBTYPE_HAS_INVENTORY_BUT_NO_APPROVED_QUERY_CLUSTER_DECISION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "part",
+      "term_code": "top",
+      "term_name_en": "Top",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 77,
+      "strong_launch_product_count": 18,
+      "research_batch": "Q04_EXTENSION",
+      "default_outcome": "HOLD",
+      "reason": "TYPE_OR_SUBTYPE_HAS_INVENTORY_BUT_NO_APPROVED_QUERY_CLUSTER_DECISION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "part",
+      "term_code": "skirt",
+      "term_name_en": "Skirt",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 70,
+      "strong_launch_product_count": 36,
+      "research_batch": "Q04",
+      "default_outcome": "HOLD",
+      "reason": "TYPE_SEED_PART_OF_OTHER_SHOP_TYPES_RESEARCH",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "part",
+      "term_code": "shoulders",
+      "term_name_en": "Shoulders",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 55,
+      "strong_launch_product_count": 20,
+      "research_batch": "Q02",
+      "default_outcome": "HOLD",
+      "reason": "TYPE_SEED_PART_OF_ARMOR_HARNESS_RESEARCH",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "part",
+      "term_code": "harness",
+      "term_name_en": "Harness",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 43,
+      "strong_launch_product_count": 42,
+      "research_batch": "Q02",
+      "default_outcome": "HOLD",
+      "reason": "TYPE_SEED_PART_OF_ARMOR_HARNESS_RESEARCH",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "part",
+      "term_code": "legs",
+      "term_name_en": "Leg covers / garters",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 36,
+      "strong_launch_product_count": 5,
+      "research_batch": "Q04_EXTENSION",
+      "default_outcome": "HOLD",
+      "reason": "TYPE_OR_SUBTYPE_HAS_INVENTORY_BUT_NO_APPROVED_QUERY_CLUSTER_DECISION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "part",
+      "term_code": "bodysuit",
+      "term_name_en": "Bodysuit",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 32,
+      "strong_launch_product_count": 30,
+      "research_batch": "Q04",
+      "default_outcome": "HOLD",
+      "reason": "TYPE_SEED_PART_OF_OTHER_SHOP_TYPES_RESEARCH",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "part",
+      "term_code": "headpiece",
+      "term_name_en": "Headpiece / crown",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 23,
+      "strong_launch_product_count": 5,
+      "research_batch": "Q04",
+      "default_outcome": "HOLD",
+      "reason": "TYPE_SEED_PART_OF_OTHER_SHOP_TYPES_RESEARCH",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "part",
+      "term_code": "dress",
+      "term_name_en": "Dress",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 17,
+      "strong_launch_product_count": 3,
+      "research_batch": "Q04_EXTENSION",
+      "default_outcome": "HOLD",
+      "reason": "TYPE_OR_SUBTYPE_HAS_INVENTORY_BUT_NO_APPROVED_QUERY_CLUSTER_DECISION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "part",
+      "term_code": "belt",
+      "term_name_en": "Belt",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 14,
+      "strong_launch_product_count": 1,
+      "research_batch": "Q04",
+      "default_outcome": "HOLD",
+      "reason": "TYPE_SEED_PART_OF_OTHER_SHOP_TYPES_RESEARCH",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "part",
+      "term_code": "spine",
+      "term_name_en": "Spine",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 14,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q04_EXTENSION",
+      "default_outcome": "HOLD",
+      "reason": "TYPE_OR_SUBTYPE_HAS_INVENTORY_BUT_NO_APPROVED_QUERY_CLUSTER_DECISION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "part",
+      "term_code": "mask",
+      "term_name_en": "Mask",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 13,
+      "strong_launch_product_count": 2,
+      "research_batch": "Q04",
+      "default_outcome": "HOLD",
+      "reason": "TYPE_SEED_PART_OF_OTHER_SHOP_TYPES_RESEARCH",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "part",
+      "term_code": "choker",
+      "term_name_en": "Choker / collar",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 12,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q04_EXTENSION",
+      "default_outcome": "HOLD",
+      "reason": "TYPE_OR_SUBTYPE_HAS_INVENTORY_BUT_NO_APPROVED_QUERY_CLUSTER_DECISION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "part",
+      "term_code": "tail",
+      "term_name_en": "Tail",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 10,
+      "strong_launch_product_count": 4,
+      "research_batch": "Q04_EXTENSION",
+      "default_outcome": "HOLD",
+      "reason": "TYPE_OR_SUBTYPE_HAS_INVENTORY_BUT_NO_APPROVED_QUERY_CLUSTER_DECISION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "part",
+      "term_code": "panties",
+      "term_name_en": "Panties / bottom",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 6,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q04_EXTENSION",
+      "default_outcome": "HOLD",
+      "reason": "TYPE_OR_SUBTYPE_HAS_INVENTORY_BUT_NO_APPROVED_QUERY_CLUSTER_DECISION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "part",
+      "term_code": "wings",
+      "term_name_en": "Wings",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 4,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q04",
+      "default_outcome": "HOLD",
+      "reason": "TYPE_SEED_PART_OF_OTHER_SHOP_TYPES_RESEARCH",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "part_subtype",
+      "term_code": "bra_top",
+      "term_name_en": "Bra top",
+      "axis_source": "feya_dna_subtype",
+      "dna_canonical_flag": true,
+      "launch_product_count": 30,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q04_EXTENSION",
+      "default_outcome": "HOLD",
+      "reason": "TYPE_OR_SUBTYPE_HAS_INVENTORY_BUT_NO_APPROVED_QUERY_CLUSTER_DECISION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "part_subtype",
+      "term_code": "corset_top",
+      "term_name_en": "Corset / bustier top",
+      "axis_source": "feya_dna_subtype",
+      "dna_canonical_flag": true,
+      "launch_product_count": 11,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q04_EXTENSION",
+      "default_outcome": "HOLD",
+      "reason": "TYPE_OR_SUBTYPE_HAS_INVENTORY_BUT_NO_APPROVED_QUERY_CLUSTER_DECISION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "part_subtype",
+      "term_code": "harness_top",
+      "term_name_en": "Harness top / strap top",
+      "axis_source": "feya_dna_subtype",
+      "dna_canonical_flag": true,
+      "launch_product_count": 9,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q04_EXTENSION",
+      "default_outcome": "HOLD",
+      "reason": "TYPE_OR_SUBTYPE_HAS_INVENTORY_BUT_NO_APPROVED_QUERY_CLUSTER_DECISION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "part_subtype",
+      "term_code": "acrylic_top",
+      "term_name_en": "Acrylic top / mirror top",
+      "axis_source": "feya_dna_subtype",
+      "dna_canonical_flag": true,
+      "launch_product_count": 3,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q04_EXTENSION",
+      "default_outcome": "HOLD",
+      "reason": "TYPE_OR_SUBTYPE_HAS_INVENTORY_BUT_NO_APPROVED_QUERY_CLUSTER_DECISION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "part_subtype",
+      "term_code": "vegan_leather_top",
+      "term_name_en": "Vegan leather top",
+      "axis_source": "feya_dna_subtype",
+      "dna_canonical_flag": true,
+      "launch_product_count": 3,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q04_EXTENSION",
+      "default_outcome": "HOLD",
+      "reason": "TYPE_OR_SUBTYPE_HAS_INVENTORY_BUT_NO_APPROVED_QUERY_CLUSTER_DECISION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "persona",
+      "term_code": "warrior",
+      "term_name_en": "Warrior / Amazon",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 83,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "persona",
+      "term_code": "dancer",
+      "term_name_en": "Dancer",
+      "axis_source": "business_support_axis",
+      "dna_canonical_flag": false,
+      "launch_product_count": 31,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "persona",
+      "term_code": "performer",
+      "term_name_en": "Performer / artist",
+      "axis_source": "business_support_axis",
+      "dna_canonical_flag": false,
+      "launch_product_count": 30,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "persona",
+      "term_code": "queen",
+      "term_name_en": "Queen / goddess",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 22,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "persona",
+      "term_code": "showgirl",
+      "term_name_en": "Showgirl",
+      "axis_source": "business_support_axis",
+      "dna_canonical_flag": false,
+      "launch_product_count": 22,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "persona",
+      "term_code": "drag_queen",
+      "term_name_en": "Drag queen",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 17,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "persona",
+      "term_code": "demon",
+      "term_name_en": "Demon / devil",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 11,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "persona",
+      "term_code": "robot",
+      "term_name_en": "Robot / android",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 8,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "persona",
+      "term_code": "angel",
+      "term_name_en": "Angel",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 6,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "persona",
+      "term_code": "witch",
+      "term_name_en": "Witch",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 6,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "persona",
+      "term_code": "cleopatra",
+      "term_name_en": "Cleopatra",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 4,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "style",
+      "term_code": "futuristic",
+      "term_name_en": "Futuristic",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 98,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "style",
+      "term_code": "glam",
+      "term_name_en": "Glam / luxury",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 63,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "style",
+      "term_code": "fashion",
+      "term_name_en": "Fashion / editorial",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 49,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "style",
+      "term_code": "punk",
+      "term_name_en": "Punk",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 41,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "style",
+      "term_code": "cosmic",
+      "term_name_en": "Cosmic / space",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 28,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "style",
+      "term_code": "cyberpunk",
+      "term_name_en": "Cyberpunk",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 25,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "style",
+      "term_code": "devil_angel",
+      "term_name_en": "Devil / Angel",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 17,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "style",
+      "term_code": "drag",
+      "term_name_en": "Drag style",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 17,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "style",
+      "term_code": "sci_fi_robot",
+      "term_name_en": "Sci-fi / robot",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 14,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "style",
+      "term_code": "burlesque",
+      "term_name_en": "Burlesque / cabaret",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 9,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "style",
+      "term_code": "apocalyptic",
+      "term_name_en": "Apocalyptic / wasteland",
+      "axis_source": "business_support_axis",
+      "dna_canonical_flag": false,
+      "launch_product_count": 7,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "style",
+      "term_code": "fetish",
+      "term_name_en": "Fetish aesthetic",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 6,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "style",
+      "term_code": "greek_egyptian",
+      "term_name_en": "Greek / Egyptian",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 6,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    },
+    {
+      "axis_code": "style",
+      "term_code": "goth",
+      "term_name_en": "Goth / gothic",
+      "axis_source": "feya_dna_canon",
+      "dna_canonical_flag": true,
+      "launch_product_count": 5,
+      "strong_launch_product_count": 0,
+      "research_batch": "Q05",
+      "default_outcome": "HOLD",
+      "reason": "STYLE_PERSONA_REQUIRES_SYNONYM_SERP_AND_DIFFERENTIATION_RECONCILIATION",
+      "index_authorized": false
+    }
+  ],
+  "audience_seed_backlog": [
+    {
+      "audience": "women",
+      "launch_product_count": 166,
+      "reconciled_outcome": "NON_INDEX_FILTER",
+      "reason": "AUDIENCE_IS_DISCOVERY_FILTER_UNTIL_DISTINCT_QUERY_INTENT_IS_RESEARCHED",
+      "index_authorized": false
+    },
+    {
+      "audience": "men",
+      "launch_product_count": 27,
+      "reconciled_outcome": "NON_INDEX_FILTER",
+      "reason": "AUDIENCE_IS_DISCOVERY_FILTER_UNTIL_DISTINCT_QUERY_INTENT_IS_RESEARCHED",
+      "index_authorized": false
+    },
+    {
+      "audience": "couples",
+      "launch_product_count": 6,
+      "reconciled_outcome": "NON_INDEX_FILTER",
+      "reason": "AUDIENCE_IS_DISCOVERY_FILTER_UNTIL_DISTINCT_QUERY_INTENT_IS_RESEARCHED",
+      "index_authorized": false
+    },
+    {
+      "audience": "drag",
+      "launch_product_count": 6,
+      "reconciled_outcome": "NON_INDEX_FILTER",
+      "reason": "AUDIENCE_IS_DISCOVERY_FILTER_UNTIL_DISTINCT_QUERY_INTENT_IS_RESEARCHED",
+      "index_authorized": false
+    }
+  ],
+  "configuration_policy": {
+    "outcome": "PDP_OWNER",
+    "standalone_indexable_pages": false,
+    "rationale": "Configurations are sellable choices within a canonical PDP; they may inform membership but do not create SEO URLs.",
+    "products_with_configurations": 207,
+    "products_with_multiple_configurations": 207,
+    "max_configurations_on_product": 8
+  },
+  "unresolved_research_order": [
+    "Q03",
+    "Q08",
+    "Q05",
+    "Q06",
+    "Q07"
+  ],
+  "launch_policy": {
+    "all_new_or_unresolved_axis_seeds": "HOLD or NON_INDEX_FILTER until query cluster + SERP + differentiation evidence exists",
+    "existing_approved_commercial_nodes": "retain pre-index business case; remain noindex until exact Search Release approval",
+    "no_new_urls_created": true
+  }
+}

@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
-import { getSiteUrl, isSearchIndexingEnabled } from '@/lib/siteConfig';
+import { getSiteUrl } from '@/lib/siteConfig';
+import { MeasurementRuntime } from '@/components/MeasurementRuntime';
+import { AnalyticsConsentBanner } from '@/components/AnalyticsConsentBanner';
+import { publicLegalIdentityReady } from '@/lib/publicLegalIdentity';
 import './globals.css';
-
-const searchIndexingEnabled = isSearchIndexingEnabled();
 
 export const metadata: Metadata = {
   metadataBase: getSiteUrl(),
@@ -11,15 +12,22 @@ export const metadata: Metadata = {
     template: '%s | TheFEYA',
   },
   description: 'Handmade stage, festival and performance fashion by TheFEYA.',
-  robots: searchIndexingEnabled
-    ? { index: true, follow: true }
-    : { index: false, follow: false, nocache: true },
+  // Fail closed globally. Only an ACTIVE immutable search release may opt a page into indexing.
+  robots: { index: false, follow: true, nocache: true },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const analyticsConsentReady=publicLegalIdentityReady()
+    && process.env.FEYA_ANALYTICS_PRIVACY_READY==='true'
+    && process.env.FEYA_ANALYTICS_ENABLED==='true';
+
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <MeasurementRuntime />
+        <AnalyticsConsentBanner enabled={analyticsConsentReady} />
+        {children}
+      </body>
     </html>
   );
 }

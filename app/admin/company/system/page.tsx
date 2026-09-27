@@ -5,7 +5,6 @@ import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminDa
 import { dataFreshnessLabel, ownerToneForStatus, scopeLabel, sourceHealthSummary, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
 import { getAdminAuthConfigStatus } from '@/lib/supabaseAuth';
 import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
-import { getSupabaseServiceRoleClient } from '@/lib/supabaseAdmin';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -47,7 +46,7 @@ async function getSystemData(): Promise<{
     error: getMissingAdminDataEnvMessage(),
   };
 
-  const serviceRole = getSupabaseServiceRoleClient();
+  const serviceRole = getAdminReadClient();
 
   const [
     readinessResult,

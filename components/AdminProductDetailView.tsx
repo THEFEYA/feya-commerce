@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { ArrowUpRight, Boxes, ImageIcon, ShieldAlert, Tags, WalletCards } from 'lucide-react';
 import { AdminReviewActionsClient } from '@/components/AdminReviewActionsClient';
+import { AdminVariantDraftClient } from '@/components/AdminVariantDraftClient';
 import { componentEvidenceLabel, type ComponentTruthDiagnostic } from '@/lib/adminComponentTruth';
 import { getProductFlags } from '@/lib/admin-readiness';
 import { asMediaGallery, categoryLabel, colorLabel, formatPrice, optionLabel, optionPrice, productSlug, productTitle, worldLabel } from '@/lib/storefront';
@@ -35,7 +36,7 @@ function Blocker({ label, active, detail }: { label: string; active: boolean; de
   return <div className={`rounded-xl border p-4 ${active ? 'border-[rgba(212,178,106,.30)] bg-[rgba(212,178,106,.06)]' : 'border-[rgba(216,214,211,.10)] bg-black/15'}`}><div className="eyebrow-dim mb-2">{label}</div><div className={active ? 'text-[var(--gold-warm)]' : 'text-[var(--bone-dim)]'}>{active ? `Требует работы${detail ? ` · ${detail}` : ''}` : 'ОК'}</div></div>;
 }
 
-export function AdminProductDetailView({ product, componentTruth }: { product: StorefrontProduct; componentTruth: ComponentTruthDiagnostic }) {
+export function AdminProductDetailView({ product, componentTruth, variantDraftEnabled = false }: { product: StorefrontProduct; componentTruth: ComponentTruthDiagnostic; variantDraftEnabled?: boolean }) {
   const flags = getProductFlags(product);
   const configs = flags.configs;
   const media = asMediaGallery(product);
@@ -139,6 +140,7 @@ export function AdminProductDetailView({ product, componentTruth }: { product: S
               </div>
             </div>
           </Panel>
+          {variantDraftEnabled && product.canonical_product_id ? <Panel title="Варианты товара" icon={Boxes}><AdminVariantDraftClient key={product.canonical_product_id} productId={product.canonical_product_id} /></Panel> : null}
         </div>
       </div>
     </section>

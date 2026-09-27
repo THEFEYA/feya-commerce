@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
-import { getInternalApiAuthStatus } from '@/lib/internalAuth';
+import { withInternalApi } from '@/lib/internalAuth';
+import { readInternalExecutionRequest } from '@/lib/internalExecutionRequest';
 import { recordOpenAiInvocation } from '@/lib/openAiUsage';
 import { getMissingSupabaseServiceRoleEnvMessage, getSupabaseServiceRoleClient } from '@/lib/supabaseAdmin';
 
@@ -395,15 +396,11 @@ async function runSco(rows: Array<{ productId: string; brief: UnknownRecord; tru
   return extractJsonPayload(getResponseText(payload));
 }
 
-export async function POST(request: NextRequest) {
-  const auth = getInternalApiAuthStatus(request);
-  if (!auth.authorized) {
-    return NextResponse.json({ ok: false, error: 'Unauthorized.' }, { status: 401 });
-  }
-
-  const body = (await request.json().catch(() => ({}))) as { limit?: unknown; dryRun?: unknown };
+async function handlePost(request: NextRequest) {
+  const execution = await readInternalExecutionRequest(request);
+  if (!execution.ok) return execution.response;
+  const { body, dryRun } = execution;
   const limit = clampLimit(body.limit);
-  const dryRun = body.dryRun !== false;
   const model = process.env.OPENAI_SCO_MODEL || DEFAULT_MODEL;
   const batchRunId = randomUUID();
 
@@ -638,3 +635,5 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export const POST = withInternalApi(handlePost);

@@ -165,7 +165,7 @@ export function sortedOptions(product: StorefrontProduct) {
   return Array.from(byLabel.values()).sort((a, b) => {
     const aLabel = optionLabel(a), bLabel = optionLabel(b);
     const aFull = isFullSetOption(a) || isFullSet(aLabel), bFull = isFullSetOption(b) || isFullSet(bLabel);
-    if (aFull !== bFull) return aFull ? 1 : -1;
+    if (aFull !== bFull) return aFull ? -1 : 1;
     const aSort = Number(a.sort_order || 0), bSort = Number(b.sort_order || 0);
     if (aSort !== bSort) return aSort - bSort;
     return (optionPrice(a) || 0) - (optionPrice(b) || 0);

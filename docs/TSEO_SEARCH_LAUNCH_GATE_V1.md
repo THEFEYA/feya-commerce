@@ -23,6 +23,12 @@ FEYA_SEARCH_INDEXING_ENABLED=false
 
 Default is false.
 
+Search foundation update (2026-09-23): the shared environment guard also requires
+`VERCEL_ENV=production`, `FEYA_CANONICAL_ORIGIN_CONFIRMED=true`, and an explicit
+valid HTTPS custom origin in `NEXT_PUBLIC_SITE_URL`. Preview/local hosts fail
+closed even if the global flag is inherited. This is an environment prerequisite,
+not completion of the page-level or unified release gate.
+
 When false:
 - global public metadata emits noindex/nofollow;
 - sitemap returns no product URLs;
@@ -65,12 +71,18 @@ sitemap = empty.
 
 When enabled:
 
-- homepage is included;
+- homepage is included only when explicitly registered as active/indexable;
 - portfolio pages are included only when:
   - indexation_intent=indexable
   - portfolio_status=active
 
 Candidate pages are excluded.
+
+The foundation reads all paginated portfolio rows, fails explicitly on source
+errors or ambiguous canonical paths, and omits lastmod until a meaningful public
+content-change timestamp is available. Operational updated_at is not lastmod.
+The immutable shared release manifest remains to be implemented before launch;
+this sitemap hardening alone is not launch authorization.
 
 A sitemap is a discovery/canonicalization signal, not proof of indexation.
 

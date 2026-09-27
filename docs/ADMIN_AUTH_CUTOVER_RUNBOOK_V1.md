@@ -174,6 +174,8 @@ Never expose direct browser table mutation merely because the owner is authentic
 
 ## Rollback
 
+24 September candidate amendment: [guarded admin + metric boundary](search/Admin_Metric_Access_Boundary_20260924.md) retires anonymous admin fallback. In this candidate, `FEYA_ADMIN_AUTH_REQUIRED=false` or missing returns 503 for protected routes; it is a lock, not a login bypass. The older pre-hardening instructions below describe the historical branch only. No production flag was changed. After metric access hardening, preserve authenticated server reads; permission rollback must be a reviewed migration and leaves the new access/write gate closed.
+
 If the auth cutover breaks the admin before admin-view hardening:
 
 - set FEYA_ADMIN_AUTH_REQUIRED=false;
@@ -202,3 +204,26 @@ The cutover is complete only when:
 - no owner write action bypasses authenticated server-side authority and durable audit;
 - FEYA_OWNER_ACTIONS_ENABLED is enabled only after the read boundary is verified;
 - security regression checks pass.
+
+
+## 25 Sep amendment — step-up auth for narrowly scoped owner mutations
+
+The all-admin cutover above remains the path for a fully private Admin. It is **not required merely to execute the prepared price-baseline owner action**.
+
+For the current owner-review preview, preserve direct read-only access and use the narrower step-up boundary:
+
+- `FEYA_ADMIN_AUTH_REQUIRED=false` may remain unchanged for the read-only owner preview;
+- `FEYA_OWNER_ACTION_AUTH_REQUIRED=true` requires a Supabase Auth + allowlisted owner only on explicitly registered owner-action endpoints;
+- `FEYA_OWNER_ACTIONS_ENABLED=true` is still an independent write circuit breaker;
+- each action keeps its own feature flag;
+- arbitrary preview writes remain blocked;
+- generic Execution Request approval is **not** in the step-up allowlist.
+
+Current price-baseline step-up endpoints:
+
+- `/api/admin/review/prices/baseline-adoption`
+- `/api/admin/review/prices/baseline-adoption/approval`
+
+The second route validates that the request is exactly `ADOPT_SOURCE_PRICE_BASELINE`, `COMMERCE_PRICE`, the sealed release, 205 clean product IDs and 850 price rows before it can call the canonical owner-approval RPC.
+
+This amendment prevents a temporary price-governance operation from forcing a login wall onto the read-only Product OS preview.

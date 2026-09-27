@@ -4,7 +4,7 @@ import type {
   SeoKeywordRoleItem,
 } from './seoPackContract.ts';
 import type { SeoAgentPromptContract } from './seoAgentDraftPrompt.ts';
-import { SEO_EDITORIAL_MEMORY_V6 } from './seoEditorialMemory.ts';
+import { SEO_EDITORIAL_MEMORY_V7 } from './seoEditorialMemory.ts';
 import { summarizeThefeyaSeoDoctrine } from './thefeyaSeoDoctrine.ts';
 import {
   buildCurrentSeoProductEvidence,
@@ -74,7 +74,7 @@ export type SeoWriterBriefV4 = {
     image_alt: SeoWriterKeyword[];
   };
   claim_plan: SeoDeterministicClaimPlan;
-  editorial_reference: 'seo_editorial_memory_v6';
+  editorial_reference: 'seo_editorial_memory_v7';
   ideal_for_portraits: SeoIdealForPortrait[];
   cosplay_positioning: string | null;
   code_owned_sections: string[];
@@ -265,7 +265,7 @@ export function buildCompactSeoWriterPrompt(
       image_alt: compactKeywords(input.keyword_roles.image_alt, 4),
     },
     claim_plan: claimPlan,
-    editorial_reference: SEO_EDITORIAL_MEMORY_V6.contract_version,
+    editorial_reference: SEO_EDITORIAL_MEMORY_V7.contract_version,
     ideal_for_portraits: idealForPortraits,
     cosplay_positioning: hasFocus(compactFocus.event, 'cosplay')
       ? 'Frame cosplay as an original studio interpretation with a fashion-led treatment of the selected mood or persona, creating a distinctive character of their own. Never promise an exact character match or explain replica comparisons to the shopper.'
@@ -370,7 +370,7 @@ export function validateSeoWriterBriefPreflight(
   const issues: SeoWriterBriefPreflight['issues'] = [];
   const values = collectStringValues({
     brief,
-    positive_editorial_memory: SEO_EDITORIAL_MEMORY_V6,
+    positive_editorial_memory: SEO_EDITORIAL_MEMORY_V7,
   });
 
   values.forEach((value, index) => {
@@ -392,7 +392,7 @@ export function validateSeoWriterBriefPreflight(
 }
 
 function compactWriterSystemPrompt() {
-  const frames = SEO_EDITORIAL_MEMORY_V6.positive_block_frames;
+  const frames = SEO_EDITORIAL_MEMORY_V7.positive_block_frames;
   return [
     'You are TheFEYA’s single product-copy writer. Return one seo_agent_output_v1 JSON object, no commentary.',
     'Write warm, vivid, specific en-US ecommerce copy. Use only the brief, claim_plan, approved keywords and selected focus; never expose evidence, approval, databases or review.',
@@ -404,7 +404,7 @@ function compactWriterSystemPrompt() {
     'About this piece: 45-60 words in 2-3 concrete sentences. Use one finish buyer_outcome_en. A multi-piece product remains an outfit/set/costume, but never recap two components; What’s Included owns inventory.',
     'Why you’ll love it: 3-4 concise bullets, one per assigned Why claim. Do not repeat purchase configuration.',
     'Ideal for: 4-5 varied ideal_for_portraits covering each selected axis naturally; any focus value appears at most twice.',
-    'Designed for self-expression is the final main_description/left_description block: 45-75 words, 3-4 we/our sentences, TheFEYA once, original design purpose and body_identity_variant_en. Close on a distinctive, memorable character that feels personal. Never prescribe unsold styling.',
+    'Designed for self-expression is the final main_description/left_description block: 45-75 words, 3-4 we/our sentences, TheFEYA once, original design purpose and individuality. Close on a distinctive, memorable character that feels personal; omit product color, material, finish, comfort, components and construction. Never prescribe unsold styling.',
     'Code owns What’s Included, right panel, bullets, FAQ and links. Return bullet_highlights, faq, internal_linking_hints and visual_truth.open_style_suggestions as empty arrays. Generate no What’s Included block.',
     'Return exactly one image_alt_candidate: visible color + body_identity_variant_en + one short visible pose/setting detail; never product_identity_en.',
     'Follow claim_plan finish exactly: gold/silver may be metal-inspired; black/red/white may be sleek and latex-like; holographic is smooth, shiny and subtly color-shifting, never metallic.',

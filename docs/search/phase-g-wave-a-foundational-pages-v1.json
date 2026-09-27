@@ -1,0 +1,96 @@
+{
+  "contract_version": "foundational_page_content_manifest_v1",
+  "status": "CQA_PASS_RELEASE_HOLD",
+  "market": "US",
+  "locale": "en-US",
+  "generated_at": "2026-09-26",
+  "pages": [
+    {
+      "path": "/",
+      "family": "home",
+      "source_file": "app/page.tsx",
+      "source_blob_sha": "9557ec01693a5ffa88a5994d8bec85568961e1c3",
+      "title": "TheFEYA | Handmade Stagewear and Festival Looks",
+      "h1": "Handmade stagewear for unforgettable looks",
+      "content_role": "brand_home",
+      "cqa_status": "PASS"
+    },
+    {
+      "path": "/collections",
+      "family": "subhub",
+      "source_file": "app/collections/page.tsx",
+      "source_blob_sha": "f72e34e9df14cdb07e0d5e0cb92f531d3101c1e1",
+      "title": "Shop TheFEYA Collections",
+      "h1": "TheFEYA Collections",
+      "content_role": "collections_discovery_hub",
+      "cqa_status": "PASS"
+    },
+    {
+      "path": "/about",
+      "family": "trust",
+      "source_file": "app/about/page.tsx",
+      "source_blob_sha": "3e0e4ba2c1c24be26a58890517d4c0e17ef8b6be",
+      "title": "About TheFEYA Atelier",
+      "h1": "About TheFEYA",
+      "content_role": "about_atelier",
+      "cqa_status": "PASS"
+    },
+    {
+      "path": "/size-guide",
+      "family": "trust",
+      "source_file": "app/size-guide/page.tsx",
+      "source_blob_sha": "b43a3b40a508e1d6271ab765d81fb86948519f11",
+      "title": "Costume Measurements & Size Guide | TheFEYA",
+      "h1": "Costume Measurements & Size Guide",
+      "content_role": "measurements_size_guide",
+      "cqa_status": "PASS"
+    },
+    {
+      "path": "/care",
+      "family": "trust",
+      "source_file": "app/care/page.tsx",
+      "source_blob_sha": "00506068a54801ed416b2b636ab31335d92b0b29",
+      "title": "Costume Care & Storage | TheFEYA",
+      "h1": "Care & Storage",
+      "content_role": "care_storage",
+      "cqa_status": "PASS"
+    },
+    {
+      "path": "/shipping",
+      "family": "trust",
+      "source_file": "app/shipping/page.tsx",
+      "source_blob_sha": "3257bda85e32ac4ead534222ba0e60fb9c59ef5c",
+      "title": "Shipping & Delivery",
+      "h1": "Shipping & Delivery",
+      "content_role": "shipping_policy",
+      "cqa_status": "PASS"
+    },
+    {
+      "path": "/returns",
+      "family": "trust",
+      "source_file": "app/returns/page.tsx",
+      "source_blob_sha": "68fe35eca407cb0d83e58eec1af76f1c6e98b1b1",
+      "title": "Returns & Exchanges",
+      "h1": "Returns & Exchanges",
+      "content_role": "returns_policy",
+      "cqa_status": "PASS"
+    },
+    {
+      "path": "/contact",
+      "family": "trust",
+      "source_file": "app/contact/page.tsx",
+      "source_blob_sha": "3b7209fcee1ee5f70444e21ca6986f8775fca66c",
+      "title": "Contact TheFEYA",
+      "h1": "Contact",
+      "content_role": "contact_support",
+      "cqa_status": "PASS"
+    }
+  ],
+  "constraints": [
+    "Code blob SHA is the immutable visible-content source for these foundational pages.",
+    "No page is authorized for indexing by this manifest.",
+    "Terms and Privacy are not included because their required facts are incomplete.",
+    "Payment-provider identity is not presented as the contracting seller identity.",
+    "Homepage bestseller/new-arrival claims were removed before this snapshot."
+  ]
+}

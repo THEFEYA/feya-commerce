@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "checked_at": "2026-09-25",
+  "production_project_ref": "ysnizcgzhdwdfdkjkhud",
+  "release_ref": "feya-review-207-20260924",
+  "repository_migration": "supabase/migrations/20260925200000_manual_price_lane_governance_v1.sql",
+  "production_observed": {
+    "governance_evidence_function_absent": true,
+    "governance_executor_absent": true,
+    "governance_migration_present": false,
+    "governance_active_capability_rows": 0,
+    "manual_repair_request_id": "3181a279-3f98-4faf-874f-788d20d8731a",
+    "manual_repair_request_pending": true,
+    "manual_repair_receipt_rows": 0,
+    "current_manual_repair_price_rows": 6,
+    "current_manual_repair_configuration_rows": 3,
+    "current_manual_repair_evidence_sha256": "19a84d86e52724753350d3c12d22ded4e6e19a0ab2c0dedb36a292a481e502ae"
+  },
+  "expected_schema_only_effect": {
+    "creates_evidence_reader": true,
+    "creates_approval_gated_executor": true,
+    "creates_action_capability": true,
+    "business_rows_changed": 0,
+    "payment": false,
+    "indexing": false
+  },
+  "expected_before_repair_execution": {
+    "governance_price_rows": 6,
+    "governance_configuration_rows_less_than_target": true,
+    "governance_candidate": false,
+    "governance_already_ready": false
+  },
+  "decision": "SCHEMA_SAFE_AFTER_EXACT_HEAD_GREEN__EXECUTION_BLOCKED_BY_REPAIR_AND_HUMAN_APPROVAL"
+}

@@ -1,0 +1,137 @@
+{
+  "contract_version": "owner_product_decisions_v1",
+  "decision_date": "2026-09-24",
+  "source": "Owner response in current conversation to Owner_Product_Questions_20260924.md; exact product mapping from that five-card review.",
+  "source_catalog_count": 208,
+  "status": "recorded_for_prepared_release_not_applied_to_production",
+  "can_publish": false,
+  "can_index": false,
+  "production_writes": 0,
+  "launch_selections": [
+    {
+      "decision_id": "owner-gold-duplicate-20260924-01",
+      "action": "suppress_duplicate_in_future_storefront",
+      "source": {
+        "canonical_product_id": "d42dd678-7b11-4f38-890e-411de686f418",
+        "seo_page_id": "d93693de-94d2-4e41-9eb1-0032d05664c7",
+        "draft_id": "0e0be164-5ef5-4051-a57f-19b421a9509a",
+        "draft_updated_at": "2026-09-18 13:17:47.376053+00",
+        "content_sha256": "c4f905f534780a997a8fcc5ed6c8a4e019c24097bb538e4b484481f05c5f3486"
+      },
+      "retained": {
+        "canonical_product_id": "453ffb2e-2ed9-4e8d-b74c-e891604f9644",
+        "seo_page_id": "d49da8d6-16e1-4667-908d-5a5014456d19",
+        "draft_id": "43377c00-4721-45ca-963c-6d4c428d5b4d",
+        "draft_updated_at": "2026-09-23 15:05:48.890681+00",
+        "content_sha256": "8ea2d2e50a64d01556873ef783fb527a0424d0be7ad823473a9923757e168798"
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "decision_id": "owner-gold-duplicate-20260924-01",
+      "product_ids": [
+        "453ffb2e-2ed9-4e8d-b74c-e891604f9644",
+        "d42dd678-7b11-4f38-890e-411de686f418"
+      ],
+      "owner_quote": "Это одна и та же фотография, скорее всего это один и тот же товар. Я не знаю, почему он продублирован. Оставляй одну тогда. Какую считаешь лучшее сгенерированное описание или вид внешний? Оставляй одну.",
+      "confirmed_action": "Keep one storefront listing; delegate selection to architect.",
+      "physical_identity_status": "probable_not_independently_confirmed",
+      "architect_selection": "453ffb2e-2ed9-4e8d-b74c-e891604f9644",
+      "selection_evidence": [
+        "Same cover and seven shared gallery records; no cover-quality advantage.",
+        "Retained approved draft updated 2026-09-23 describes layered curved panels and repeated fan-like details; other draft updated 2026-09-18 is less design-specific.",
+        "Option price IDs and source amounts differ; never migrate the other listing prices into the retained record."
+      ],
+      "preserve": [
+        "both canonical_product_id and seo_page_id",
+        "all drafts and historical approvals",
+        "all option/price IDs and amounts",
+        "source analytics and orders"
+      ],
+      "release_effect": "207 visible candidates from 208 source records. Redirect is only a future release candidate; no automatic deletion, redirect activation or physical-family assertion."
+    },
+    {
+      "decision_id": "owner-keep-witch-pair-20260924-02",
+      "product_ids": [
+        "340b160f-93e3-4389-866f-df79cc14dea8",
+        "83ea907b-a523-47cf-834f-5a1b16b80339"
+      ],
+      "owner_quote": "Может, она так задумана, поэтому оставляй обе.",
+      "confirmed_action": "Keep both listings and their existing selectable costume pieces.",
+      "intent_explanation_status": "owner_hypothesis_supported_by_source_headpiece_title",
+      "architect_proposal": {
+        "costume_page_product_id": "340b160f-93e3-4389-866f-df79cc14dea8",
+        "headpiece_page_product_id": "83ea907b-a523-47cf-834f-5a1b16b80339",
+        "headpiece_title": "Black Witch Horns Headpiece with Optional Costume Pieces",
+        "source_primary_keyword_rewrite": false
+      },
+      "physical_identity_status": "not_resolved_and_not_required_to_preserve_both",
+      "release_requirements": [
+        "Headpiece page needs useful headpiece-focused content and verified optional-pieces selector; title-only difference is not distinct intent evidence.",
+        "Assign exclusive query ownership after secondary-query and source-intent review; no new keyword metrics or automatic right to index both."
+      ]
+    },
+    {
+      "decision_id": "owner-glossy-vegan-armor-20260924-03",
+      "product_ids": [
+        "a83b1b51-79be-4cae-a943-661060a34080"
+      ],
+      "source_binding": {
+        "canonical_product_id": "a83b1b51-79be-4cae-a943-661060a34080",
+        "seo_page_id": "cb0352ac-4753-441b-800b-237f01e26e70",
+        "draft_id": "c1203762-3fb8-4000-9e58-8b259d5b0322",
+        "draft_updated_at": "2026-09-18 11:10:41.929629+00",
+        "content_sha256": "cf6b3eed34997f41fdda6e46af83e59b1f322dae5f2858a9972e19ee94166f53"
+      },
+      "owner_quote_material": "Сейчас из веганской кожи, там золотой или серебряный, или другие цвета, может, я добавлю",
+      "owner_quote_finish": "материал — глянцевая кожа веганская",
+      "owner_quote_selection": "Там возможность выбора рук и ногу или full set, а цвет выбирается отдельно.",
+      "current_material": "vegan leather",
+      "finish": "glossy",
+      "historical_materials": [
+        "acrylic",
+        "plastic"
+      ],
+      "configurations": [
+        "Arm Armor",
+        "Leg Armor",
+        "Full Set"
+      ],
+      "selection_dimensions_separate": true,
+      "owner_named_colors": [
+        "Gold",
+        "Silver"
+      ],
+      "future_colors": "Unspecified; do not create available variants.",
+      "owner_described_photo": "gold panels and black straps",
+      "captured_photo_observation": "silver arm and gold leg; image-specific observation, not a global default color",
+      "remaining_work": [
+        "Map gallery assets to confirmed color selections.",
+        "Persist explicit color IDs and exact supported tuples via Product OS writer.",
+        "Verify tuple-specific prices and sizes; this answer supplies neither."
+      ],
+      "not_confirmed": [
+        "all colors at every size/configuration",
+        "identical prices across colors",
+        "included costume accessories beyond arm/leg options",
+        "single fixed default color for all photos"
+      ]
+    }
+  ],
+  "pricing_policy": {
+    "decision_id": "owner-configuration-base-price-20260924-04",
+    "source": "Subsequent owner clarification in this conversation.",
+    "owner_quote": "цвета не влияют на стоимость. Стоимость влияет только варианты товаров, а цвета и материал не влияют на стоимость. В большинстве случаев. Может быть, конечно, будут какие-то исключения, но в большинстве случаев не влияет.",
+    "authority": "owner_confirmed_default_business_rule_with_explicit_exceptions",
+    "default_price_owner": "selected sellable configuration / existing configuration_price_id",
+    "color_effect": "neutral_unless_explicit_exception",
+    "material_effect": "neutral_unless_explicit_exception",
+    "exception_policy": "Explicit scoped override with evidence and reason; never infer surcharge from label, finish or material. An incomplete exception cannot fall back to the base price.",
+    "inheritance": "An explicitly available color selection references the same verified configuration quote. No copied amount and no new per-color price approval for the normal case.",
+    "revision_policy": "Product/attribute revisions and price revisions are separate; renaming or adding a price-neutral color does not revise the base quote.",
+    "availability_policy": "Price inheritance does not create availability, sizes, full Cartesian combinations or orderability.",
+    "historical_preservation": "Do not overwrite differing captured source amounts or infer size neutrality. Resolve imported price-row/configuration bindings and known exceptions explicitly.",
+    "current_material_policy": "Material is a product fact unless an actual selectable material option is recorded. Historical acrylic does not become a current option."
+  }
+}

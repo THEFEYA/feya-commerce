@@ -1,14 +1,12 @@
 // @ts-nocheck
+import { insertSeoDraftWithEvent, SEO_DRAFT_SAVE_CONTRACT, SEO_DRAFT_SAVE_HEALTH_RPC } from '@/lib/seoDraftAtomicStorage';
+import { stampCurrentSeoEditorialPolicy } from '@/lib/seoEditorialPolicy';
+import { validateSeoReviewDraft } from '@/lib/seoReviewDraftValidation';
 import { NextResponse } from 'next/server';
 import { getMissingSupabaseServiceEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
 import { buildMockSeoAgentOutput } from '@/lib/seoAgentMockDraft';
-import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
-import { validateSeoCommercialCopy } from '@/lib/seoCommercialCopyValidator';
-import { validateSeoKeywordPlacement } from '@/lib/seoKeywordPlacementValidator';
 import { normalizeReviewDraftForSeoPack } from '@/lib/seoReviewDraftNormalization';
-import { getSeoPackApprovalBlockers, getSeoPackReviewDraftStorageBlockers } from '@/lib/seoPackContract';
-import { assembleSeoProductPack } from '@/lib/seoFullPackAssembler';
 import { buildSeoDraftStoragePayload, seoDraftStoragePayloadGuardrails, summarizeSeoDraftStoragePayload } from '@/lib/seoDraftStoragePayload';
 
 export const dynamic = 'force-dynamic';
@@ -91,55 +89,13 @@ export async function POST(request: Request) {
 
   const providedAgentOutput = pickProvidedAgentOutput(body);
   const usesProvidedOpenAiOutput = requestedSourceMode === 'openai_draft' && Boolean(providedAgentOutput);
-  const agentOutput = usesProvidedOpenAiOutput
+  const agentOutput = stampCurrentSeoEditorialPolicy(usesProvidedOpenAiOutput
     ? normalizeReviewDraftForSeoPack(providedAgentOutput, bundle.seoPackDraft)
-    : buildMockSeoAgentOutput(bundle.aiAgentInput, bundle.brief);
-  const structuralValidation = validateSeoAgentOutput(agentOutput);
-  const commercialValidation = validateSeoCommercialCopy(agentOutput, {
-    product_truth: bundle.seoPackDraft.product_truth,
-    manual_focus: bundle.seoPackDraft.manual_focus,
-    keyword_roles: bundle.seoPackDraft.keyword_roles,
-  });
-  const keywordPlacementValidation = validateSeoKeywordPlacement(agentOutput, bundle.seoPackDraft);
-  const approvalBlockers = getSeoPackApprovalBlockers(bundle.seoPackDraft);
-  const reviewDraftStorageBlockers = getSeoPackReviewDraftStorageBlockers(bundle.seoPackDraft);
-  const assembledSeoPack = assembleSeoProductPack({
-    draft: bundle.seoPackDraft,
-    output: agentOutput,
-    structuralValidation,
-    commercialValidation,
-    keywordPlacementValidation,
-    productTruthBlockers: approvalBlockers,
-  });
-  const validationIssues = [
-    ...(structuralValidation.issues || []),
-    ...(commercialValidation.issues || []),
-    ...(keywordPlacementValidation.issues || []),
-    ...reviewDraftStorageBlockers.map((code) => ({
-      code: `review_draft_storage_${code}`,
-      severity: 'blocker',
-      message: `SEO review draft storage gate failed: ${code}.`,
-    })),
-    ...approvalBlockers.map((code) => ({
-      code: `approval_gate_${code}`,
-      severity: 'warning',
-      message: `SEO Pack remains blocked from Approval/Apply: ${code}.`,
-    })),
-  ];
-  const validationResult = {
-    ok: structuralValidation.ok && commercialValidation.ok && keywordPlacementValidation.ok && reviewDraftStorageBlockers.length === 0,
-    status: validationIssues.some((issue) => issue.severity === 'blocker')
-      ? 'blocked'
-      : validationIssues.length ? 'warning' : 'valid',
-    issues: validationIssues,
-    structural_validation: structuralValidation,
-    commercial_validation: commercialValidation,
-    keyword_placement_validation: keywordPlacementValidation,
-    review_draft_storage_blockers: reviewDraftStorageBlockers,
-    approval_blockers: approvalBlockers,
-    product_truth_blockers: approvalBlockers,
-    assembled_seo_pack: assembledSeoPack,
-  };
+    : buildMockSeoAgentOutput(bundle.aiAgentInput, bundle.brief));
+  const validationResult = validateSeoReviewDraft(agentOutput, bundle.seoPackDraft);
+  const approvalBlockers = validationResult.approval_blockers;
+  const reviewDraftStorageBlockers = validationResult.review_draft_storage_blockers;
+  const assembledSeoPack = validationResult.assembled_seo_pack;
   const storagePayload = buildSeoDraftStoragePayload({
     seoPackDraft: bundle.seoPackDraft,
     agentInput: bundle.aiAgentInput,
@@ -212,7 +168,7 @@ export async function POST(request: Request) {
     }, { status: 423 });
   }
 
-  const saveResult = await insertSeoDraftWithEvent(serviceClient, storagePayload);
+  const saveResult = await insertSeoDraftWithEvent(serviceClient, storagePayload, request.headers.get('Idempotency-Key'));
   if (!saveResult.ok) {
     return NextResponse.json({
       ok: false,
@@ -222,7 +178,7 @@ export async function POST(request: Request) {
       saved_draft: saveResult.draft || null,
       saved_event: saveResult.event || null,
       ...basePayload,
-    }, { status: 500 });
+    }, { status: saveResult.httpStatus });
   }
 
   return NextResponse.json({
@@ -234,8 +190,9 @@ export async function POST(request: Request) {
       : 'SEO review draft saved. No publish action was performed.',
     saved_draft: saveResult.draft,
     saved_event: saveResult.event,
+    replayed: saveResult.replayed,
     ...basePayload,
-  }, { status: 201 });
+  }, { status: saveResult.httpStatus });
 }
 
 function pickProvidedAgentOutput(body) {
@@ -253,59 +210,6 @@ function collectDraftSaveBlockers({ storageEnabled, dryRun, hasServiceClient, st
   if (requestedSourceMode === 'openai_draft' && !providedAgentOutput) blockers.push({ code: 'missing_openai_agent_output', message: 'source_mode=openai_draft requires agent_output from the generation response.' });
   if (!validationResult.ok) blockers.push({ code: 'output_validation_not_passing', message: 'SeoAgentOutputContract validation has blocker issues.' });
   return blockers;
-}
-
-async function insertSeoDraftWithEvent(serviceClient, storagePayload) {
-  const { data: draft, error: draftError } = await serviceClient
-    .from(STORAGE_TABLE)
-    .insert(storagePayload)
-    .select('id, canonical_product_id, product_slug, status, review_status, source_mode, created_at')
-    .single();
-
-  if (draftError || !draft?.id) {
-    return {
-      ok: false,
-      error: draftError?.message || 'Draft insert did not return an id.',
-      draft: draft || null,
-      event: null,
-    };
-  }
-
-  const eventPayload = {
-    draft_id: draft.id,
-    canonical_product_id: draft.canonical_product_id,
-    event_type: 'draft_created',
-    from_status: null,
-    to_status: draft.status,
-    actor: storagePayload.created_by || 'seo-engine-draft-save-route',
-    note: storagePayload.source_mode === 'openai_draft'
-      ? 'OpenAI SEO review draft saved by gated server route. No publish action was performed.'
-      : 'SEO review draft saved by gated server route. No publish action was performed.',
-    payload: {
-      source_mode: storagePayload.source_mode,
-      output_contract_version: storagePayload.output_contract_version,
-      validation_status: storagePayload.validation_result_snapshot?.status || 'not_checked',
-      validation_issue_count: storagePayload.validation_result_snapshot?.issues?.length || 0,
-      review_status: storagePayload.review_status,
-    },
-  };
-
-  const { data: event, error: eventError } = await serviceClient
-    .from(STORAGE_EVENTS_TABLE)
-    .insert(eventPayload)
-    .select('id, draft_id, canonical_product_id, event_type, to_status, created_at')
-    .single();
-
-  if (eventError || !event?.id) {
-    return {
-      ok: false,
-      error: eventError?.message || 'Event insert did not return an id.',
-      draft,
-      event: event || null,
-    };
-  }
-
-  return { ok: true, draft, event };
 }
 
 async function checkStorageContractHealth(serviceClient) {
@@ -332,6 +236,13 @@ async function checkStorageContractHealth(serviceClient) {
     checked.push({ ...item, ...result });
   }
 
+  try {
+    const { data, error } = await serviceClient.rpc(SEO_DRAFT_SAVE_HEALTH_RPC);
+    checked.push({ kind: 'function', name: SEO_DRAFT_SAVE_HEALTH_RPC, ok: !error && data === SEO_DRAFT_SAVE_CONTRACT, error_message: error?.message || null });
+  } catch (error) {
+    checked.push({ kind: 'function', name: SEO_DRAFT_SAVE_HEALTH_RPC, ok: false, error_message: String(error) });
+  }
+
   const missing = checked.filter((item) => !item.ok).map((item) => item.name);
   return {
     ok: missing.length === 0,
@@ -339,8 +250,8 @@ async function checkStorageContractHealth(serviceClient) {
     checked_objects: checked,
     missing_objects: missing,
     note: missing.length === 0
-      ? 'Storage contract tables/views are visible to the service-role client.'
-      : 'Apply docs/SEO_DRAFT_STORAGE_CONTRACT_V1.sql in Supabase SQL Editor, then run this check again.',
+      ? 'Storage tables/views and atomic save contract are visible to the service-role client.'
+      : 'Atomic save migration is missing or unavailable. Follow the reviewed staging rollout in docs/search/Atomic_Draft_Save_20260923.md.',
   };
 }
 
@@ -375,8 +286,8 @@ async function probeSupabaseObject(serviceClient, name: string, selectColumns: s
 
 function storageContractMeta() {
   return {
-    sql_file: 'docs/SEO_DRAFT_STORAGE_CONTRACT_V1.sql',
-    handoff_file: 'docs/SEO_DRAFT_STORAGE_HANDOFF_V1.md',
+    sql_file: 'supabase/migrations/20260923223420_seo_draft_atomic_save_v1.sql',
+    handoff_file: 'docs/search/Atomic_Draft_Save_20260923.md',
     main_table: STORAGE_TABLE,
     events_table: STORAGE_EVENTS_TABLE,
     latest_view: STORAGE_LATEST_VIEW,

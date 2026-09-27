@@ -4,35 +4,21 @@ import { usePathname } from 'next/navigation';
 import { Search, ShoppingBag, User, Menu, Heart, ArrowUpRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { FeyaButterfly, FeyaMark } from '@/components/FeyaMark';
+import { SEARCH_DISCOVERY_GROUPS, SEARCH_OWNER_DISCOVERY_ITEMS } from '@/config/searchDiscoveryArchitecture';
 
 const NAV = [
   { href: '/', label: 'Home' },
   { href: '/shop', label: 'Shop', mega: true },
-  { href: '/#about', label: 'About Us' },
-  { href: '/#contact', label: 'Contact Us' },
-];
-
-const CATALOG_GROUPS = [
-  { title: 'Categories', items: ['Corsets', 'Harness', 'Masks', 'Armor', 'Bodysuits', 'Stage Looks', 'Skirts', 'Accessories'] },
-  { title: 'Occasion', items: ['Festival', 'Stage', 'Burning Man', 'Editorial', 'Carnival'] },
-  { title: 'Style / World', items: ['Desert', 'Rave', 'Futuristic', 'Goddess', 'Warrior'] },
+  { href: '/collections', label: 'Collections' },
+  { href: '/about', label: 'About Us' },
+  { href: '/contact', label: 'Contact Us' },
 ];
 
 function navIsActive(pathname: string, href: string, label: string) {
   if (href === '/') return pathname === '/';
   if (label === 'Shop') return pathname === '/shop' || pathname.startsWith('/shop/');
-  return false;
-}
-
-function shopFilterHref(groupTitle: string, item: string) {
-  const params = new URLSearchParams();
-
-  if (groupTitle === 'Categories') params.set('category', item);
-  if (groupTitle === 'Occasion') params.set('occasion', item);
-  if (groupTitle === 'Style / World') params.set('style', item);
-
-  const query = params.toString();
-  return query ? `/shop?${query}` : '/shop';
+  if (label === 'Collections') return pathname === '/collections' || pathname.startsWith('/collections/');
+  return pathname === href;
 }
 
 export function Header() {
@@ -40,6 +26,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [count, setCount] = useState(0);
   const [megaOpen, setMegaOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -90,7 +77,12 @@ export function Header() {
             <span className="text-[10px] text-silver">·</span>
             <span className={`text-[11px] tabular-nums font-semibold ${count > 0 ? 'text-[var(--gold-warm)]' : ''}`}>{count}</span>
           </Link>
-          <button aria-label="Menu" className="lg:hidden w-9 h-9 flex items-center justify-center rounded-full border border-[rgba(216,214,211,0.18)] text-white"><Menu size={16} /></button>
+          <button
+            aria-label="Menu"
+            aria-expanded={mobileOpen}
+            onClick={() => setMobileOpen((value) => !value)}
+            className="lg:hidden w-9 h-9 flex items-center justify-center rounded-full border border-[rgba(216,214,211,0.18)] text-white"
+          ><Menu size={16} /></button>
         </div>
       </div>
       {megaOpen && (
@@ -103,14 +95,19 @@ export function Header() {
                 <p className="editorial-italic text-[15px] text-[var(--bone-dim)] leading-snug">Shop by piece, event and visual world.</p>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-10">
-              {CATALOG_GROUPS.map((group) => (
-                <div key={group.title}>
+            <div className="grid grid-cols-4 gap-8">
+              {SEARCH_DISCOVERY_GROUPS.map((group) => (
+                <div key={group.code}>
                   <div className="text-[10px] uppercase tracking-[0.32em] text-[var(--gold-warm)] mb-4">{group.title}</div>
                   <div className="flex flex-wrap gap-2.5">
                     {group.items.map((item) => (
-                      <Link key={item} href={shopFilterHref(group.title, item)} className="rounded-full border border-[rgba(216,214,211,0.14)] bg-white/[0.025] px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-[#D8D6D3] transition-all hover:border-[rgba(212,178,106,0.55)] hover:bg-[rgba(212,178,106,0.08)] hover:text-white hover:shadow-[0_0_22px_rgba(212,178,106,0.12)]">
-                        {item}
+                      <Link
+                        key={item.href + item.label}
+                        href={item.href}
+                        data-discovery-role={item.role}
+                        className="rounded-full border border-[rgba(216,214,211,0.14)] bg-white/[0.025] px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-[#D8D6D3] transition-all hover:border-[rgba(212,178,106,0.55)] hover:bg-[rgba(212,178,106,0.08)] hover:text-white hover:shadow-[0_0_22px_rgba(212,178,106,0.12)]"
+                      >
+                        {item.label}
                       </Link>
                     ))}
                   </div>
@@ -118,11 +115,47 @@ export function Header() {
               ))}
             </div>
           </div>
-          <div className="container-feya pb-5">
+          <div className="container-feya pb-5 flex flex-wrap items-center gap-6">
             <Link href="/shop" className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-[var(--bone-dim)] hover:text-white transition-colors">View full catalog <ArrowUpRight size={12} /></Link>
+            <Link href="/collections" className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-[var(--bone-dim)] hover:text-white transition-colors">All collections <ArrowUpRight size={12} /></Link>
           </div>
         </div>
       )}
+
+      {mobileOpen ? (
+        <div className="lg:hidden border-y border-[rgba(216,214,211,0.14)] bg-[rgba(7,7,10,0.96)] backdrop-blur-xl">
+          <div className="container-feya py-5">
+            <nav aria-label="Mobile navigation" className="grid grid-cols-2 gap-2">
+              {NAV.map((item) => (
+                <Link
+                  key={item.href + item.label}
+                  href={item.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="rounded-lg border border-[rgba(216,214,211,0.12)] px-4 py-3 text-[10px] uppercase tracking-[0.22em] text-[#D8D6D3]"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+            <div className="mt-5 border-t border-[rgba(216,214,211,0.10)] pt-5">
+              <div className="text-[9px] uppercase tracking-[0.3em] text-[var(--gold-warm)] mb-3">Evidence-backed collections</div>
+              <div className="flex flex-wrap gap-2">
+                {SEARCH_OWNER_DISCOVERY_ITEMS.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    data-discovery-role={item.role}
+                    className="rounded-full border border-[rgba(216,214,211,0.14)] px-3 py-2 text-[9px] uppercase tracking-[0.18em] text-[var(--bone-dim)]"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </header>
   );
 }

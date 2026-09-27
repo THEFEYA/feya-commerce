@@ -10,6 +10,7 @@ import {
   getCanonicalComponentTruthDiagnostic,
 } from '@/lib/adminComponentTruth';
 import { getSupabaseServiceClient } from '@/lib/supabase';
+import { isVariantDraftEnabled } from '@/lib/commerceVariantDraftServer';
 import { STOREFRONT_V4_PDP_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
 
@@ -95,5 +96,5 @@ export default async function AdminProductDetailPage({ params }: PageProps) {
   }
 
   const componentTruth = await getComponentTruth(product.canonical_product_id);
-  return <AdminProductDetailView product={product} componentTruth={componentTruth} />;
+  return <AdminProductDetailView product={product} componentTruth={componentTruth} variantDraftEnabled={isVariantDraftEnabled()} />;
 }

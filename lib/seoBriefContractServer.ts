@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { getMissingSupabaseEnvMessage, getSupabaseReadClient, getSupabaseServiceClient } from '@/lib/supabase';
+import { getMissingSupabaseServiceEnvMessage as getMissingSupabaseEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
 import { buildSeoCatalogBrief } from '@/lib/seoCatalogBrief';
 import { recommendCatalogKeywords } from '@/lib/seoCatalogKeywordRecommendation';
 import {
@@ -193,7 +193,7 @@ export async function buildSeoBriefContractBundle(productId: string) {
 
 export async function loadSeoBriefSource(productId: string) {
   const serviceClient = getSupabaseServiceClient();
-  const supabase = serviceClient || getSupabaseReadClient();
+  const supabase = serviceClient;
   if (!supabase) {
     return {
       product: null,
@@ -538,7 +538,7 @@ function attachStorefrontSellableOffer(product, storefrontProduct) {
 
 export async function loadLatestSavedSeoDraftContext(productId: string) {
   const serviceClient = getSupabaseServiceClient();
-  const supabase = serviceClient || getSupabaseReadClient();
+  const supabase = serviceClient;
   if (!supabase || !productId) return null;
 
   const result = await supabase
@@ -952,7 +952,7 @@ function extractPortfolioStrategy(latestSavedDraftContext) {
 
 async function loadLivePrimaryOwnershipStrategy(identityDraft, targetKeywordSelection) {
   const serviceClient = getSupabaseServiceClient();
-  const supabase = serviceClient || getSupabaseReadClient();
+  const supabase = serviceClient;
   const primaryKeyword = identityDraft?.keyword_roles?.primary?.[0] || null;
   if (!primaryKeyword) return null;
 

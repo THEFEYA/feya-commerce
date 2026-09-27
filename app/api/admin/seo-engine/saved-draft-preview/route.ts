@@ -1,14 +1,11 @@
 // @ts-nocheck
+import { stampCurrentSeoEditorialPolicy } from '@/lib/seoEditorialPolicy';
+import { validateSeoReviewDraft } from '@/lib/seoReviewDraftValidation';
 import { NextResponse } from 'next/server';
 import { getSupabaseServiceClient } from '@/lib/supabase';
 import { buildSavedDraftPreviewResult } from '@/lib/seoSavedDraftPreview';
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
 import { normalizeReviewDraftForSeoPack } from '@/lib/seoReviewDraftNormalization';
-import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
-import { validateSeoCommercialCopy } from '@/lib/seoCommercialCopyValidator';
-import { validateSeoKeywordPlacement } from '@/lib/seoKeywordPlacementValidator';
-import { getSeoPackApprovalBlockers } from '@/lib/seoPackContract';
-import { assembleSeoProductPack } from '@/lib/seoFullPackAssembler';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -94,40 +91,19 @@ export async function GET(request: Request) {
     }, { status: 404 });
   }
 
-  const output = normalizeReviewDraftForSeoPack(data.agent_output_snapshot || {}, bundle.seoPackDraft);
-  const structuralValidation = validateSeoAgentOutput(output);
-  const commercialValidation = validateSeoCommercialCopy(output, {
-    product_truth: bundle.seoPackDraft.product_truth,
-    manual_focus: bundle.seoPackDraft.manual_focus,
-    keyword_roles: bundle.seoPackDraft.keyword_roles,
-  });
-  const keywordPlacementValidation = validateSeoKeywordPlacement(output, bundle.seoPackDraft);
-  const approvalBlockers = getSeoPackApprovalBlockers(bundle.seoPackDraft);
-  const assembledSeoPack = assembleSeoProductPack({
-    draft: bundle.seoPackDraft,
-    output,
-    structuralValidation,
-    commercialValidation,
-    keywordPlacementValidation,
-    productTruthBlockers: approvalBlockers,
-  });
+  const output = stampCurrentSeoEditorialPolicy(normalizeReviewDraftForSeoPack(data.agent_output_snapshot || {}, bundle.seoPackDraft));
+  const validation = validateSeoReviewDraft(output, bundle.seoPackDraft);
   const result = buildSavedDraftPreviewResult({
     ...data,
     agent_output_snapshot: output,
-    validation_result_snapshot: {
-      ...(data.validation_result_snapshot || {}),
-      structural_validation: structuralValidation,
-      commercial_validation: commercialValidation,
-      keyword_placement_validation: keywordPlacementValidation,
-      approval_blockers: approvalBlockers,
-      product_truth_blockers: approvalBlockers,
-      assembled_seo_pack: assembledSeoPack,
-    },
+    validation_result_snapshot: validation,
   });
 
   return NextResponse.json({
     ...result,
     renormalized_for_resave: true,
+    validation_result: validation,
+    resave_ready: validation.ok,
     message: 'Latest saved review draft renormalized with the current zero-token pipeline. OpenAI was not called.',
     guardrails: [
       ...result.guardrails,

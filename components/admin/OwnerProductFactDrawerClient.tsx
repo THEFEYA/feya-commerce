@@ -1,9 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import { createPortal } from 'react-dom';
 import { useCallback, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { useOwnerDrawerA11y } from '@/components/admin/useOwnerDrawerA11y';
+import { AdminVariantDraftClient } from '@/components/AdminVariantDraftClient';
 
 export type ProductFactReviewDrawerRow = {
   fact_review_id: string;
@@ -29,7 +31,7 @@ function codes(v:unknown){return Array.isArray(v)?v.filter((x):x is string=>type
 function codeLabel(v:string){const m:Record<string,string>={PART_UNRESOLVED:'Не определена часть товара',COLOR_UNRESOLVED:'Не определён цвет',MATERIAL_UNRESOLVED:'Не определён материал',PRODUCT_TYPE_UNRESOLVED:'Не определён тип товара',FACT_GUARDRAIL_PRESENT:'Есть защитное ограничение'};return m[v]||v}
 function dateLabel(v:unknown){if(!v)return'не зафиксировано';const d=new Date(String(v));return Number.isNaN(d.getTime())?asText(v):new Intl.DateTimeFormat('ru-RU',{dateStyle:'short',timeStyle:'short'}).format(d)}
 
-export function OwnerProductFactDrawerClient({row}:{row:ProductFactReviewDrawerRow}){
+export function OwnerProductFactDrawerClient({row,variantDraftEnabled=false}:{row:ProductFactReviewDrawerRow;variantDraftEnabled?:boolean}){
   const [open,setOpen]=useState(false);
   const triggerRef=useRef<HTMLButtonElement|null>(null),closeRef=useRef<HTMLButtonElement|null>(null),dialogRef=useRef<HTMLElement|null>(null);
   const close=useCallback(()=>setOpen(false),[]);
@@ -37,7 +39,7 @@ export function OwnerProductFactDrawerClient({row}:{row:ProductFactReviewDrawerR
   const issues=codes(row.issue_codes_json);
   return <>
     <button ref={triggerRef} type="button" className="owner-button" onClick={()=>setOpen(true)}>Разобрать</button>
-    {open?<div className="fixed inset-0 z-[80]" role="presentation">
+    {open?createPortal(<div className="fixed inset-0 z-[80]" role="presentation">
       <button type="button" aria-label="Закрыть проверку факта" className="absolute inset-0 h-full w-full bg-black/65 backdrop-blur-[2px]" onClick={close}/>
       <aside ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby={`fact-drawer-${row.fact_review_id}`} className="owner-drawer absolute right-0 top-0 h-full w-full max-w-[560px] overflow-y-auto">
         <div className="owner-drawer-head sticky top-0 z-10 flex items-start justify-between gap-4 px-5 py-4">
@@ -76,12 +78,14 @@ export function OwnerProductFactDrawerClient({row}:{row:ProductFactReviewDrawerR
             <Link href="/admin/listing-master" className="owner-button">Listing Master</Link>
           </div>
 
+          {variantDraftEnabled ? <AdminVariantDraftClient key={row.canonical_product_id} productId={row.canonical_product_id} readOnly /> : null}
+
           <details className="owner-disclosure owner-disclosure-section">
             <summary><span><strong>Технические детали</strong><small>ID и состояние review</small></span><span className="owner-section-kicker">Advanced</span></summary>
             <div className="owner-disclosure-body owner-card-meta" style={{marginBottom:0}}><span title={row.fact_review_id}>Fact review ID</span><span title={row.canonical_product_id}>Product ID</span><span>{asText(row.review_status)}</span><span>обновлено: {dateLabel(row.updated_at)}</span></div>
           </details>
         </div>
       </aside>
-    </div>:null}
+    </div>,document.querySelector('.owner-shell') || document.body):null}
   </>;
 }

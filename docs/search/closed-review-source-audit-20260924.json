@@ -1,0 +1,15 @@
+{
+  "source_count": 208,
+  "visible_count": 207,
+  "suppressed_count": 1,
+  "can_publish": false,
+  "can_index": false,
+  "can_enable_checkout": false,
+  "fresh_approved_bindings_matched": 208,
+  "manifest_sha256": "6842ff45e4380758216f74cb309e557d68d5f6692a1206254beef954eab07440",
+  "release_id": "feya-review-207-20260924",
+  "captured_at": "2026-09-24T20:42:10.235Z",
+  "correction_overlay_applied": false,
+  "runtime_connected": false,
+  "production_writes": 0
+}

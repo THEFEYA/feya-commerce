@@ -1,0 +1,2177 @@
+{
+  "bundle_version": "g-half-4-landing-briefs-v1",
+  "generated_at": "2026-09-27",
+  "market": "US",
+  "locale": "en-US",
+  "landing_count": 10,
+  "policy": {
+    "no_copy_regeneration": true,
+    "no_new_urls": true,
+    "active_search_release_required": false,
+    "active_search_release_count_expected": 0,
+    "note": "These briefs reconcile existing Phase-E/CQA content and evidence. G-half-5 must provide an approved visual plan before future regeneration."
+  },
+  "briefs": [
+    {
+      "brief_contract_version": "feya_search_landing_brief_v1",
+      "brief_status": "G4_RECONCILED_VISUAL_PENDING",
+      "can_generate_draft": false,
+      "can_publish": false,
+      "can_index": false,
+      "identity": {
+        "seo_page_id": "9dc10a3f-c4fb-5fec-95d1-5e348305d739",
+        "url_path": "/collections/bodysuits",
+        "page_family": "type_hub",
+        "source_page_version_id": "d11690b7-0cf9-576b-8ec5-580e6fb0129e",
+        "source_page_version_number": 1,
+        "source_content_hash": "eaadd470163c37005d98de1e222b33892f8e7bc3a99a80945e3cf58408137c53",
+        "membership_snapshot_id": "ee4d8ca4-d4b9-5ed2-a872-6de63a984d84"
+      },
+      "user_job": "Shop TheFEYA costume bodysuits.",
+      "primary_intent": "commercial costume bodysuits",
+      "primary_query_cluster": "QC_US_EN_COSTUME_BODYSUIT",
+      "primary_query": "costume bodysuit",
+      "secondary_clusters": [],
+      "supporting_queries": [],
+      "synonyms_close_variants": [
+        "costume bodysuits"
+      ],
+      "long_tail_variants": [],
+      "long_tail_evidence_status": "not_separately_materialized",
+      "excluded_queries": [
+        "licensed character bodysuit",
+        "superhero bodysuit"
+      ],
+      "ownership_clusters": [
+        {
+          "cluster_code": "QC_US_EN_COSTUME_BODYSUIT",
+          "cluster_label": "Costume Bodysuits",
+          "ownership_role": "primary",
+          "normalized_intent": "costume bodysuit shopping"
+        }
+      ],
+      "eligible_products": [
+        "09f51ad4-6b90-4311-aa5a-54f91cf4b7bf",
+        "0e75d2f2-c345-440e-88e4-333b63caed09",
+        "12a0faf1-9c3c-44e2-bbf1-1583ac309a46",
+        "1af7458c-aaff-4460-a874-45c9ad4ccb8c",
+        "1dbf149a-739c-4afa-ba59-3b5f99acfb77",
+        "27786636-7021-4809-8e81-7f566a3436ae",
+        "2a39f8ec-b5c3-403c-8f1a-7e10bb0ab829",
+        "3ec78c4d-7cdb-4628-aa3b-083acefcbe45",
+        "50c370fb-3f41-4e49-8e3b-cbc5e1dd478b",
+        "5589b5ea-e21a-4e57-a4b2-b598bd8466d2",
+        "65e36680-71ca-44ba-9873-f7c962928642",
+        "6739b15c-f2f3-4a26-9e2a-3a0b5a3e2d2f",
+        "74634519-add3-490f-8ef3-3b4d74a7ca7d",
+        "81224290-77db-4738-923b-65a16d1c691a",
+        "8223ea35-644b-4bd8-bd05-4ba7810b116a",
+        "8242d255-f77f-4e9f-88a2-a5db326fa297",
+        "a3aa7148-889a-42de-9d2d-2e0fca631ed4",
+        "a606be83-50aa-462d-ae54-04e9ce7aeb3b",
+        "a74a2415-92a4-488c-b4d2-7bdeb601a0c4",
+        "a767a1c1-65e7-4c0a-bd18-7a92f8ea4986",
+        "a97ca78f-ed0d-4f17-a18d-8d54efd2679a",
+        "a9f110dc-4ed4-454f-9e28-f67ca5a042e1",
+        "b18d342a-c323-4f11-8c98-d5eb5f543e12",
+        "c661cd70-55e4-445e-97ab-591e22d02221",
+        "cb31d61b-027c-4c47-b7ba-bf16283ada9c",
+        "df030151-5853-46c1-be89-06f059224a44",
+        "e7238b1d-565c-4c4d-a7ae-a4402de80720",
+        "f81adf93-49a7-489c-b3a8-02520accce59",
+        "ff0996b6-f369-4313-baf5-2d465d9c06f2",
+        "ffa74da5-c2e1-4c3a-b460-50d1aae09f56"
+      ],
+      "eligible_product_count": 30,
+      "design_family_diversity": 29,
+      "merchandising_angle": "Product-type owner for complete bodysuit designs; event-specific variants remain separate candidates until differentiation is proven.",
+      "discovery_chips": [
+        "Glam",
+        "Fantasy",
+        "Futuristic",
+        "Vegan Leather",
+        "Holographic"
+      ],
+      "unique_modules": [
+        "Bodysuit first, complete look second",
+        "Choose by visual direction"
+      ],
+      "internal_links": {
+        "parent_path": "/shop",
+        "in": [
+          {
+            "kind": "navigation",
+            "path": "/"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/rave-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/stage-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/shop"
+          }
+        ],
+        "out": [
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/rave-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/stage-outfits"
+          }
+        ]
+      },
+      "visual_plan": {
+        "status": "pending_g_half_5",
+        "owner_action": "visual/publication approval required before regeneration or publication"
+      },
+      "faq_questions": [
+        "Does every bodysuit include the accessories shown in photos?",
+        "What is the return policy for bodysuits?"
+      ],
+      "structured_data_expectations": {
+        "current_renderer_contract": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ],
+        "verification_stage": "G_half_6_anonymous_production_crawl"
+      },
+      "evidence_refs": [
+        {
+          "ref": "docs/search/phase-e-search-landing-content-packs-draft-20260926.json",
+          "type": "content_pack"
+        },
+        {
+          "ref": "docs/search/phase-e-search-landing-cqa-20260926.json",
+          "type": "cqa",
+          "status": "PASS"
+        },
+        {
+          "type": "keyword_metrics",
+          "source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+        },
+        {
+          "id": "ee4d8ca4-d4b9-5ed2-a872-6de63a984d84",
+          "type": "membership_snapshot",
+          "release_status": "HOLD"
+        },
+        {
+          "type": "g_half_2_checkpoint",
+          "ref": "docs/search/G_half_2_Intent_Eligibility_Reconciliation_20260927.json"
+        },
+        {
+          "type": "g_half_3_checkpoint",
+          "ref": "docs/search/G_half_3_Page_Portfolio_Graph_Reconciliation_20260927.json"
+        }
+      ],
+      "automation_gate": {
+        "eligibility_required": true,
+        "exact_primary_owner_required": true,
+        "immutable_membership_required": true,
+        "reconciled_link_graph_required": true,
+        "visual_plan_required_before_new_generation": true,
+        "cqa_required_after_generation": true,
+        "human_publication_approval_required": true,
+        "human_indexation_approval_required": true
+      }
+    },
+    {
+      "brief_contract_version": "feya_search_landing_brief_v1",
+      "brief_status": "G4_RECONCILED_VISUAL_PENDING",
+      "can_generate_draft": false,
+      "can_publish": false,
+      "can_index": false,
+      "identity": {
+        "seo_page_id": "fd5b7f21-f66d-5616-a33c-3d0c6974ad96",
+        "url_path": "/collections/burning-man-looks",
+        "page_family": "event_hub",
+        "source_page_version_id": "4d7ddce4-ef53-5020-8c54-ebb3de526705",
+        "source_page_version_number": 1,
+        "source_content_hash": "9fa62fa74bfb82049f818e8a1450b5cf8476b8866d7d5ccd09677985a85c7435",
+        "membership_snapshot_id": "432064a3-7985-5e33-9205-9804650ef0c4"
+      },
+      "user_job": "Shop TheFEYA pieces selected for Burning Man and desert-event styling.",
+      "primary_intent": "commercial Burning Man outfits",
+      "primary_query_cluster": "QC_US_EN_BURNING_MAN_OUTFITS",
+      "primary_query": "burning man outfits",
+      "secondary_clusters": [
+        "QC_US_EN_BURNING_MAN_COSTUMES"
+      ],
+      "supporting_queries": [
+        {
+          "cluster_code": "QC_US_EN_BURNING_MAN_COSTUMES",
+          "keyword": "burning man costumes",
+          "role": "seed",
+          "ams": 880
+        }
+      ],
+      "synonyms_close_variants": [],
+      "long_tail_variants": [],
+      "long_tail_evidence_status": "not_separately_materialized",
+      "excluded_queries": [
+        "what to wear to burning man"
+      ],
+      "ownership_clusters": [
+        {
+          "cluster_code": "QC_US_EN_BURNING_MAN_COSTUMES",
+          "cluster_label": "Burning Man Costumes",
+          "ownership_role": "primary",
+          "normalized_intent": "burning man costume shopping"
+        },
+        {
+          "cluster_code": "QC_US_EN_BURNING_MAN_OUTFITS",
+          "cluster_label": "Burning Man Outfits",
+          "ownership_role": "primary",
+          "normalized_intent": "burning man outfit shopping"
+        }
+      ],
+      "eligible_products": [
+        "0395cb11-424f-407f-a849-7ee3b617ab57",
+        "09d41ed1-51be-43b0-aace-fc80e6e50f99",
+        "0b7e5ccd-f5a3-4dd7-877f-1e21fbda9486",
+        "1eb4b55c-dedf-4399-92fd-c94c8d962091",
+        "28c6558b-2738-4c60-ad55-6d4dbd14d698",
+        "39d33dfd-1a01-458a-94c7-8372f344bce5",
+        "3ba4ec57-7b0f-41ea-911d-5988b5088f1b",
+        "3cffa988-7f84-4fbf-b6e2-67a6164f7dc2",
+        "3ec78c4d-7cdb-4628-aa3b-083acefcbe45",
+        "457416ed-92b3-4450-a5b0-ff4e27ee11a2",
+        "481ca9fa-1100-439d-b52b-80caadba52a9",
+        "4b0c8180-774d-4d5c-a12c-0864f305d1cb",
+        "5044435f-d093-4437-9945-ff822b2df2d9",
+        "5cd806f8-8aaa-4b6e-ae6a-4acc716677a2",
+        "60ee8feb-32d3-4a8c-b64b-38d33433e2f2",
+        "679c975c-b309-49dc-9207-f89fc96b84d1",
+        "6bfcc9e6-3d45-4ef4-934f-12dd9dfc4532",
+        "764debf0-4d46-4d1d-a17b-2bb6f2dc5702",
+        "79754caa-9c09-4241-8c08-d0c9e60db460",
+        "7bf47f01-8114-4e8f-ba96-632f0fdd8d7d",
+        "818a1991-46e2-4628-ac61-6db77314c9af",
+        "8635ab3f-cf01-42fb-a4da-508c7fd0db65",
+        "8b321ebd-25ab-4d9b-ba30-2cfc3ba18094",
+        "a6a81b75-c4a2-4b64-a2a9-48a221b08dc1",
+        "a7109e93-df1f-43a6-bb6f-62bdf74e4c4f",
+        "a83b1b51-79be-4cae-a943-661060a34080",
+        "a875757c-140d-4fea-83f9-93098406c3b1",
+        "a97ca78f-ed0d-4f17-a18d-8d54efd2679a",
+        "adbb91ec-29d2-490f-9844-f73b22111e36",
+        "afdb0aea-7a68-45e8-bbdb-5b7b03ec71ea",
+        "b6e0171f-4d42-4d71-88b1-ee0d4e0e109e",
+        "bffb3644-a34d-437d-accc-4a661d1cac6f",
+        "c52eafde-baaa-44ec-8729-c54e6c2f5706",
+        "ce899f23-b983-4ede-ae81-3348757b1c15",
+        "d2a3b40c-fd74-4e25-93f5-cfce92b2d88b",
+        "dc6e07c7-f758-4a6c-8f09-fa3f2d9f99cc",
+        "df2227dc-3d74-4b19-848f-f9210e46dccd",
+        "f012a88f-44db-4e17-ba57-7f60bb7b5719",
+        "f44cb59b-1632-4c86-b376-8afd205a6e63",
+        "f6b85532-eae2-4036-badc-401141c2ad6e",
+        "f746beae-43c9-4f4f-8307-301d136eda58",
+        "f81adf93-49a7-489c-b3a8-02520accce59",
+        "f86a13ec-184e-4764-9813-33b18db7dbb3",
+        "fefd1c3e-2fd1-47c9-970f-c30962c1a737",
+        "ff0996b6-f369-4313-baf5-2d465d9c06f2"
+      ],
+      "eligible_product_count": 45,
+      "design_family_diversity": 43,
+      "merchandising_angle": "Burning Man-specific product curation and practical outfit paths without claiming event affiliation or weather/safety guarantees.",
+      "discovery_chips": [
+        "Futuristic",
+        "Post-Apocalyptic",
+        "Desert",
+        "Gold",
+        "Shoulders",
+        "Skirts"
+      ],
+      "unique_modules": [
+        "Choose the silhouette before the details",
+        "Commercial looks here, practical guidance in the guide"
+      ],
+      "internal_links": {
+        "parent_path": "/shop",
+        "in": [
+          {
+            "kind": "navigation",
+            "path": "/"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/costume-masks"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-skirts"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/shoulder-armor"
+          },
+          {
+            "kind": "navigation",
+            "path": "/shop"
+          }
+        ],
+        "out": [
+          {
+            "kind": "navigation",
+            "path": "/collections/costume-belts"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/costume-headpieces"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/costume-masks"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-skirts"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/shoulder-armor"
+          }
+        ]
+      },
+      "visual_plan": {
+        "status": "pending_g_half_5",
+        "owner_action": "visual/publication approval required before regeneration or publication"
+      },
+      "faq_questions": [
+        "Is delivery guaranteed before my event?",
+        "Are these official Burning Man products?"
+      ],
+      "structured_data_expectations": {
+        "current_renderer_contract": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ],
+        "verification_stage": "G_half_6_anonymous_production_crawl"
+      },
+      "evidence_refs": [
+        {
+          "ref": "docs/search/phase-e-search-landing-content-packs-draft-20260926.json",
+          "type": "content_pack"
+        },
+        {
+          "ref": "docs/search/phase-e-search-landing-cqa-20260926.json",
+          "type": "cqa",
+          "status": "PASS"
+        },
+        {
+          "type": "keyword_metrics",
+          "source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+        },
+        {
+          "id": "432064a3-7985-5e33-9205-9804650ef0c4",
+          "type": "membership_snapshot",
+          "release_status": "HOLD"
+        },
+        {
+          "type": "g_half_2_checkpoint",
+          "ref": "docs/search/G_half_2_Intent_Eligibility_Reconciliation_20260927.json"
+        },
+        {
+          "type": "g_half_3_checkpoint",
+          "ref": "docs/search/G_half_3_Page_Portfolio_Graph_Reconciliation_20260927.json"
+        }
+      ],
+      "automation_gate": {
+        "eligibility_required": true,
+        "exact_primary_owner_required": true,
+        "immutable_membership_required": true,
+        "reconciled_link_graph_required": true,
+        "visual_plan_required_before_new_generation": true,
+        "cqa_required_after_generation": true,
+        "human_publication_approval_required": true,
+        "human_indexation_approval_required": true
+      }
+    },
+    {
+      "brief_contract_version": "feya_search_landing_brief_v1",
+      "brief_status": "G4_RECONCILED_VISUAL_PENDING",
+      "can_generate_draft": false,
+      "can_publish": false,
+      "can_index": false,
+      "identity": {
+        "seo_page_id": "d2e5e62a-36ba-5ebd-a7e4-2ac61d73ddab",
+        "url_path": "/collections/costume-belts",
+        "page_family": "type_hub",
+        "source_page_version_id": "9c1b1f8e-419c-5616-95ae-b0d82338a011",
+        "source_page_version_number": 1,
+        "source_content_hash": "da031b3ab98028614d6f2fdb2e962fb465a1888fbff02877908ea97d11fb0ebe",
+        "membership_snapshot_id": "a0274d22-a133-5885-a3e3-472026e73aaf"
+      },
+      "user_job": "Shop TheFEYA costume belts and decorative waist pieces.",
+      "primary_intent": "commercial costume belts",
+      "primary_query_cluster": "QC_US_EN_COSTUME_BELT",
+      "primary_query": "costume belt",
+      "secondary_clusters": [],
+      "supporting_queries": [],
+      "synonyms_close_variants": [
+        "costume belts"
+      ],
+      "long_tail_variants": [],
+      "long_tail_evidence_status": "not_separately_materialized",
+      "excluded_queries": [
+        "utility belt",
+        "gun belt",
+        "tool belt",
+        "everyday leather belt"
+      ],
+      "ownership_clusters": [
+        {
+          "cluster_code": "QC_US_EN_COSTUME_BELT",
+          "cluster_label": "Costume Belts",
+          "ownership_role": "primary",
+          "normalized_intent": "costume belt shopping"
+        }
+      ],
+      "eligible_products": [
+        "13300fb8-c39d-476f-9485-75747c4e6599",
+        "28c84d65-57b4-4b83-a2bc-6e4370ac188a",
+        "29ebbf71-cd02-42fb-8372-55002ca56495",
+        "3013d058-8299-4c10-ba42-3c553799255b",
+        "56ac8372-da2a-444d-8b8e-4dc196520bf7",
+        "a3db3d94-aa6f-4d57-abce-905b31e14b4a",
+        "abf11fbb-9794-484d-b93c-1449fa3a9a44",
+        "c52eafde-baaa-44ec-8729-c54e6c2f5706",
+        "ca291096-219d-4269-981c-97f6929da308",
+        "dc6e07c7-f758-4a6c-8f09-fa3f2d9f99cc",
+        "e51e0a66-8358-41f9-bd51-2ab4833b24b3",
+        "f27fdb4d-d007-4d4c-899c-a50728c1ea4d",
+        "f96bb86c-43aa-49c1-a718-41fbe050a1ac"
+      ],
+      "eligible_product_count": 13,
+      "design_family_diversity": 13,
+      "merchandising_angle": "Decorative costume/fashion belt owner; excludes utility, weapon and everyday belt intent.",
+      "discovery_chips": [
+        "Silver",
+        "Gold",
+        "Metallic",
+        "Futuristic",
+        "Glam"
+      ],
+      "unique_modules": [
+        "Use the belt as a styling component",
+        "Decorative, not utility equipment"
+      ],
+      "internal_links": {
+        "parent_path": "/shop",
+        "in": [
+          {
+            "kind": "navigation",
+            "path": "/collections"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/burning-man-looks"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/rave-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/stage-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/shop"
+          }
+        ],
+        "out": [
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/rave-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/stage-outfits"
+          }
+        ]
+      },
+      "visual_plan": {
+        "status": "pending_g_half_5",
+        "owner_action": "visual/publication approval required before regeneration or publication"
+      },
+      "faq_questions": [
+        "Is the belt sold separately?",
+        "Are these utility belts?"
+      ],
+      "structured_data_expectations": {
+        "current_renderer_contract": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ],
+        "verification_stage": "G_half_6_anonymous_production_crawl"
+      },
+      "evidence_refs": [
+        {
+          "ref": "docs/search/phase-e-search-landing-content-packs-draft-20260926.json",
+          "type": "content_pack"
+        },
+        {
+          "ref": "docs/search/phase-e-search-landing-cqa-20260926.json",
+          "type": "cqa",
+          "status": "PASS"
+        },
+        {
+          "type": "keyword_metrics",
+          "source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+        },
+        {
+          "id": "a0274d22-a133-5885-a3e3-472026e73aaf",
+          "type": "membership_snapshot",
+          "release_status": "HOLD"
+        },
+        {
+          "type": "g_half_2_checkpoint",
+          "ref": "docs/search/G_half_2_Intent_Eligibility_Reconciliation_20260927.json"
+        },
+        {
+          "type": "g_half_3_checkpoint",
+          "ref": "docs/search/G_half_3_Page_Portfolio_Graph_Reconciliation_20260927.json"
+        }
+      ],
+      "automation_gate": {
+        "eligibility_required": true,
+        "exact_primary_owner_required": true,
+        "immutable_membership_required": true,
+        "reconciled_link_graph_required": true,
+        "visual_plan_required_before_new_generation": true,
+        "cqa_required_after_generation": true,
+        "human_publication_approval_required": true,
+        "human_indexation_approval_required": true
+      }
+    },
+    {
+      "brief_contract_version": "feya_search_landing_brief_v1",
+      "brief_status": "G4_RECONCILED_VISUAL_PENDING",
+      "can_generate_draft": false,
+      "can_publish": false,
+      "can_index": false,
+      "identity": {
+        "seo_page_id": "cbd940dd-ab5a-58d7-8d4a-cd39e05baed0",
+        "url_path": "/collections/costume-headpieces",
+        "page_family": "type_hub",
+        "source_page_version_id": "76768971-165a-561e-be4c-5f583e94e5a3",
+        "source_page_version_number": 1,
+        "source_content_hash": "ca66a649828c64ac1793053573f516d1660821943aa33b9393264fa2159cba6c",
+        "membership_snapshot_id": "c40c1e2c-812f-58c0-a3c0-52a484791984"
+      },
+      "user_job": "Shop TheFEYA costume headpieces and sculptural headdresses.",
+      "primary_intent": "commercial costume headpieces",
+      "primary_query_cluster": "QC_US_EN_COSTUME_HEADPIECE",
+      "primary_query": "costume headpiece",
+      "secondary_clusters": [],
+      "supporting_queries": [],
+      "synonyms_close_variants": [
+        "costume headpieces"
+      ],
+      "long_tail_variants": [],
+      "long_tail_evidence_status": "not_separately_materialized",
+      "excluded_queries": [
+        "how to make a headpiece",
+        "headpiece tutorial"
+      ],
+      "ownership_clusters": [
+        {
+          "cluster_code": "QC_US_EN_COSTUME_HEADPIECE",
+          "cluster_label": "Costume Headpieces",
+          "ownership_role": "primary",
+          "normalized_intent": "costume headpiece shopping"
+        }
+      ],
+      "eligible_products": [
+        "12a0faf1-9c3c-44e2-bbf1-1583ac309a46",
+        "1a8545eb-f997-4ddf-b6c9-c3c0afa1bd7c",
+        "1af7458c-aaff-4460-a874-45c9ad4ccb8c",
+        "1dbf149a-739c-4afa-ba59-3b5f99acfb77",
+        "2a39f8ec-b5c3-403c-8f1a-7e10bb0ab829",
+        "2b8d122f-5830-4bc6-8e11-7e3ae594c9b2",
+        "340b160f-93e3-4389-866f-df79cc14dea8",
+        "3ff937a2-838f-4986-be64-07b11faf8d17",
+        "50c370fb-3f41-4e49-8e3b-cbc5e1dd478b",
+        "51d879ce-f762-4307-b896-efcb2ffd64e9",
+        "5e034423-6c04-459b-b7d7-0d10ad564c4e",
+        "641ba42d-8ad9-4178-b0c6-d41c14fc8f66",
+        "6739b15c-f2f3-4a26-9e2a-3a0b5a3e2d2f",
+        "6ddd240e-01ae-4ac8-800e-3a14dbac64a0",
+        "72d8461a-1f64-40eb-b3f7-959a19a0c8fa",
+        "74634519-add3-490f-8ef3-3b4d74a7ca7d",
+        "7bc4e89c-155d-45b8-982f-46253b7ed18d",
+        "8223ea35-644b-4bd8-bd05-4ba7810b116a",
+        "83ea907b-a523-47cf-834f-5a1b16b80339",
+        "8b4e23fd-456e-462b-a6b3-8aaa0333debe",
+        "9d368368-12e9-4d61-9a5d-2ba9c4508861",
+        "a3aa7148-889a-42de-9d2d-2e0fca631ed4",
+        "a74a2415-92a4-488c-b4d2-7bdeb601a0c4",
+        "a767a1c1-65e7-4c0a-bd18-7a92f8ea4986",
+        "b18d342a-c323-4f11-8c98-d5eb5f543e12",
+        "b68d0386-ed1f-4410-8001-185bf3aaf25f",
+        "b9a476c7-b902-4fea-bead-ec5b2275e835",
+        "bc59df1d-edd3-4e63-9393-175c28d9be2b",
+        "c661cd70-55e4-445e-97ab-591e22d02221",
+        "c7b07eb1-d003-471b-a3f9-40b1c98edc19",
+        "c9ec5047-d7ca-4a97-9247-8d3fb56a3953",
+        "d0625355-308f-4edd-9c28-e358491c12a3",
+        "f6b85532-eae2-4036-badc-401141c2ad6e",
+        "ff0996b6-f369-4313-baf5-2d465d9c06f2"
+      ],
+      "eligible_product_count": 34,
+      "design_family_diversity": 33,
+      "merchandising_angle": "Product-type owner for statement headpieces; DIY/tutorial intent is excluded.",
+      "discovery_chips": [
+        "Glam",
+        "Fantasy",
+        "Futuristic",
+        "Gold",
+        "Silver",
+        "Mirror"
+      ],
+      "unique_modules": [
+        "Choose the visual role of the headpiece",
+        "Connect the headpiece to the full outfit"
+      ],
+      "internal_links": {
+        "parent_path": "/shop",
+        "in": [
+          {
+            "kind": "navigation",
+            "path": "/collections"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/burning-man-looks"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/costume-masks"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/stage-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/shop"
+          }
+        ],
+        "out": [
+          {
+            "kind": "navigation",
+            "path": "/collections/costume-masks"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/stage-outfits"
+          }
+        ]
+      },
+      "visual_plan": {
+        "status": "pending_g_half_5",
+        "owner_action": "visual/publication approval required before regeneration or publication"
+      },
+      "faq_questions": [
+        "How does a headpiece attach?",
+        "Can I order a headpiece without the rest of the costume?"
+      ],
+      "structured_data_expectations": {
+        "current_renderer_contract": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ],
+        "verification_stage": "G_half_6_anonymous_production_crawl"
+      },
+      "evidence_refs": [
+        {
+          "ref": "docs/search/phase-e-search-landing-content-packs-draft-20260926.json",
+          "type": "content_pack"
+        },
+        {
+          "ref": "docs/search/phase-e-search-landing-cqa-20260926.json",
+          "type": "cqa",
+          "status": "PASS"
+        },
+        {
+          "type": "keyword_metrics",
+          "source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+        },
+        {
+          "id": "c40c1e2c-812f-58c0-a3c0-52a484791984",
+          "type": "membership_snapshot",
+          "release_status": "HOLD"
+        },
+        {
+          "type": "g_half_2_checkpoint",
+          "ref": "docs/search/G_half_2_Intent_Eligibility_Reconciliation_20260927.json"
+        },
+        {
+          "type": "g_half_3_checkpoint",
+          "ref": "docs/search/G_half_3_Page_Portfolio_Graph_Reconciliation_20260927.json"
+        }
+      ],
+      "automation_gate": {
+        "eligibility_required": true,
+        "exact_primary_owner_required": true,
+        "immutable_membership_required": true,
+        "reconciled_link_graph_required": true,
+        "visual_plan_required_before_new_generation": true,
+        "cqa_required_after_generation": true,
+        "human_publication_approval_required": true,
+        "human_indexation_approval_required": true
+      }
+    },
+    {
+      "brief_contract_version": "feya_search_landing_brief_v1",
+      "brief_status": "G4_RECONCILED_VISUAL_PENDING",
+      "can_generate_draft": false,
+      "can_publish": false,
+      "can_index": false,
+      "identity": {
+        "seo_page_id": "c67a177b-7712-5376-bf08-c4875399e692",
+        "url_path": "/collections/costume-masks",
+        "page_family": "type_hub",
+        "source_page_version_id": "ee95bfd6-218f-5de3-b3d3-8a60d07f6de0",
+        "source_page_version_number": 1,
+        "source_content_hash": "ae8b7441b32a3da1eceaf527f6180225768fef27586ffc1885d3702442c9d596",
+        "membership_snapshot_id": "f9467392-7160-59e7-bab8-6230635d390c"
+      },
+      "user_job": "Shop decorative TheFEYA costume masks.",
+      "primary_intent": "commercial costume masks",
+      "primary_query_cluster": "QC_US_EN_COSTUME_MASKS",
+      "primary_query": "costume masks",
+      "secondary_clusters": [],
+      "supporting_queries": [],
+      "synonyms_close_variants": [
+        "costume mask"
+      ],
+      "long_tail_variants": [],
+      "long_tail_evidence_status": "not_separately_materialized",
+      "excluded_queries": [
+        "respirator mask",
+        "gas mask safety",
+        "jason mask",
+        "licensed character mask"
+      ],
+      "ownership_clusters": [
+        {
+          "cluster_code": "QC_US_EN_COSTUME_MASKS",
+          "cluster_label": "Costume Masks",
+          "ownership_role": "primary",
+          "normalized_intent": "costume mask shopping"
+        }
+      ],
+      "eligible_products": [
+        "51d879ce-f762-4307-b896-efcb2ffd64e9",
+        "6ddd240e-01ae-4ac8-800e-3a14dbac64a0",
+        "72d8461a-1f64-40eb-b3f7-959a19a0c8fa",
+        "7bf47f01-8114-4e8f-ba96-632f0fdd8d7d",
+        "b9a476c7-b902-4fea-bead-ec5b2275e835",
+        "bc59df1d-edd3-4e63-9393-175c28d9be2b",
+        "c7b07eb1-d003-471b-a3f9-40b1c98edc19",
+        "c9ec5047-d7ca-4a97-9247-8d3fb56a3953",
+        "d0625355-308f-4edd-9c28-e358491c12a3",
+        "f6b85532-eae2-4036-badc-401141c2ad6e",
+        "ff0996b6-f369-4313-baf5-2d465d9c06f2"
+      ],
+      "eligible_product_count": 11,
+      "design_family_diversity": 11,
+      "merchandising_angle": "FEYA decorative/fashion mask selection; excludes respirator/safety and licensed-character intent.",
+      "discovery_chips": [
+        "Silver",
+        "Gold",
+        "Futuristic",
+        "Glam",
+        "Mirror"
+      ],
+      "unique_modules": [
+        "Decorative masks, not safety equipment",
+        "Build the look around the mask"
+      ],
+      "internal_links": {
+        "parent_path": "/shop",
+        "in": [
+          {
+            "kind": "navigation",
+            "path": "/collections"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/burning-man-looks"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/costume-headpieces"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/stage-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/shop"
+          }
+        ],
+        "out": [
+          {
+            "kind": "navigation",
+            "path": "/collections/burning-man-looks"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/costume-headpieces"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-outfits"
+          }
+        ]
+      },
+      "visual_plan": {
+        "status": "pending_g_half_5",
+        "owner_action": "visual/publication approval required before regeneration or publication"
+      },
+      "faq_questions": [
+        "Are TheFEYA costume masks protective?",
+        "Is the full costume included with a mask?"
+      ],
+      "structured_data_expectations": {
+        "current_renderer_contract": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ],
+        "verification_stage": "G_half_6_anonymous_production_crawl"
+      },
+      "evidence_refs": [
+        {
+          "ref": "docs/search/phase-e-search-landing-content-packs-draft-20260926.json",
+          "type": "content_pack"
+        },
+        {
+          "ref": "docs/search/phase-e-search-landing-cqa-20260926.json",
+          "type": "cqa",
+          "status": "PASS"
+        },
+        {
+          "type": "keyword_metrics",
+          "source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+        },
+        {
+          "id": "f9467392-7160-59e7-bab8-6230635d390c",
+          "type": "membership_snapshot",
+          "release_status": "HOLD"
+        },
+        {
+          "type": "g_half_2_checkpoint",
+          "ref": "docs/search/G_half_2_Intent_Eligibility_Reconciliation_20260927.json"
+        },
+        {
+          "type": "g_half_3_checkpoint",
+          "ref": "docs/search/G_half_3_Page_Portfolio_Graph_Reconciliation_20260927.json"
+        }
+      ],
+      "automation_gate": {
+        "eligibility_required": true,
+        "exact_primary_owner_required": true,
+        "immutable_membership_required": true,
+        "reconciled_link_graph_required": true,
+        "visual_plan_required_before_new_generation": true,
+        "cqa_required_after_generation": true,
+        "human_publication_approval_required": true,
+        "human_indexation_approval_required": true
+      }
+    },
+    {
+      "brief_contract_version": "feya_search_landing_brief_v1",
+      "brief_status": "G4_RECONCILED_VISUAL_PENDING",
+      "can_generate_draft": false,
+      "can_publish": false,
+      "can_index": false,
+      "identity": {
+        "seo_page_id": "fa12f1a6-ede1-5ae3-9219-6b8ce8e82e66",
+        "url_path": "/collections/festival-outfits",
+        "page_family": "event_hub",
+        "source_page_version_id": "c0531e31-32dd-50c2-bdec-049dc3d259ae",
+        "source_page_version_number": 1,
+        "source_content_hash": "7630fb09e3a7f69446176e4483702413ecca4a30477feeb0de68bd1772ac2972",
+        "membership_snapshot_id": "bd28a2c1-e334-581a-9e56-4dc400fb71f5"
+      },
+      "user_job": "Shop TheFEYA statement pieces suitable for festival styling.",
+      "primary_intent": "commercial festival outfits",
+      "primary_query_cluster": "QC_US_EN_FESTIVAL_OUTFITS",
+      "primary_query": "festival outfits",
+      "secondary_clusters": [],
+      "supporting_queries": [],
+      "synonyms_close_variants": [
+        "festival clothes",
+        "festival outfits women",
+        "festival wear"
+      ],
+      "long_tail_variants": [],
+      "long_tail_evidence_status": "not_separately_materialized",
+      "excluded_queries": [
+        "renaissance festival costumes",
+        "oktoberfest outfits"
+      ],
+      "ownership_clusters": [
+        {
+          "cluster_code": "QC_US_EN_FESTIVAL_OUTFITS",
+          "cluster_label": "Festival Outfits",
+          "ownership_role": "primary",
+          "normalized_intent": "festival outfit shopping"
+        }
+      ],
+      "eligible_products": [
+        "0395cb11-424f-407f-a849-7ee3b617ab57",
+        "0403df9f-3ff9-498d-b3d9-69ad64b3dd4c",
+        "04099215-8328-4238-82dd-876bc3f2afdb",
+        "043406cd-0a96-45c5-8796-57c5cc4b276e",
+        "057fbd51-52f5-4404-b126-e5d75b8599f4",
+        "09d41ed1-51be-43b0-aace-fc80e6e50f99",
+        "0b7e5ccd-f5a3-4dd7-877f-1e21fbda9486",
+        "11bb0057-8c1f-4347-8c03-46856df0653c",
+        "11d2b7ca-3a13-4bcb-b1f2-b91565a20e7e",
+        "12111ddc-2364-4861-bd93-4bbc27ae4b28",
+        "12a0faf1-9c3c-44e2-bbf1-1583ac309a46",
+        "13300fb8-c39d-476f-9485-75747c4e6599",
+        "1eb4b55c-dedf-4399-92fd-c94c8d962091",
+        "1fc815c5-0165-468a-a6d8-e91c1cefcd61",
+        "1ff57e72-8360-4f9c-8e9c-768b66fe29e5",
+        "28c84d65-57b4-4b83-a2bc-6e4370ac188a",
+        "2973f3ae-6097-49c0-ab91-21a9697560cc",
+        "29ebbf71-cd02-42fb-8372-55002ca56495",
+        "2b8d122f-5830-4bc6-8e11-7e3ae594c9b2",
+        "31bde143-e483-454b-a397-14bcffa47f20",
+        "32b51b28-0570-49af-90f5-7bfdd7da5148",
+        "330fd9bc-f3d0-4eec-8e98-b36fb490b486",
+        "340b160f-93e3-4389-866f-df79cc14dea8",
+        "39d33dfd-1a01-458a-94c7-8372f344bce5",
+        "3a006050-ab78-4b4d-9964-ed8c9f32e923",
+        "3ba4ec57-7b0f-41ea-911d-5988b5088f1b",
+        "3ec78c4d-7cdb-4628-aa3b-083acefcbe45",
+        "40384eea-fd82-40f4-98e7-804383c42796",
+        "4311bc31-ee98-458e-8290-b663ee525a4c",
+        "453ffb2e-2ed9-4e8d-b74c-e891604f9644",
+        "457416ed-92b3-4450-a5b0-ff4e27ee11a2",
+        "481ca9fa-1100-439d-b52b-80caadba52a9",
+        "4b0c8180-774d-4d5c-a12c-0864f305d1cb",
+        "5044435f-d093-4437-9945-ff822b2df2d9",
+        "51487104-166f-45e0-a528-d8b27a6258d6",
+        "51d879ce-f762-4307-b896-efcb2ffd64e9",
+        "5602d557-9d98-454b-bc98-9b9ea84b442f",
+        "5cd806f8-8aaa-4b6e-ae6a-4acc716677a2",
+        "5e034423-6c04-459b-b7d7-0d10ad564c4e",
+        "5f0df65c-4b04-4905-80c5-53bd7e807063",
+        "60ee8feb-32d3-4a8c-b64b-38d33433e2f2",
+        "657bd6d8-fbe1-4441-abad-f574e3380897",
+        "65e36680-71ca-44ba-9873-f7c962928642",
+        "679c975c-b309-49dc-9207-f89fc96b84d1",
+        "6a4c1f02-8f02-4aca-b70d-8d9ac66b9b40",
+        "6a885710-fbee-4790-ba09-d56530f641f6",
+        "6bfcc9e6-3d45-4ef4-934f-12dd9dfc4532",
+        "764debf0-4d46-4d1d-a17b-2bb6f2dc5702",
+        "79754caa-9c09-4241-8c08-d0c9e60db460",
+        "7bb70eab-b2f5-4079-96e7-d116484d1466",
+        "7bf47f01-8114-4e8f-ba96-632f0fdd8d7d",
+        "7c220537-de7c-4157-99c3-ba1f9144d113",
+        "7e743440-3e9f-490c-b306-5c8c87969973",
+        "7e77810b-ee7d-46a4-91af-f24d1adcfd4a",
+        "818a1991-46e2-4628-ac61-6db77314c9af",
+        "83ea907b-a523-47cf-834f-5a1b16b80339",
+        "85752f94-b2d7-465e-ace2-40bb77977461",
+        "8635ab3f-cf01-42fb-a4da-508c7fd0db65",
+        "8b321ebd-25ab-4d9b-ba30-2cfc3ba18094",
+        "9c59e997-1e03-463b-8f3d-3259c71d05d0",
+        "9c845a5a-666a-47b4-99d6-9f0a393bfa1c",
+        "9d1d101d-e1d1-48fd-ac41-65c07dd5ce05",
+        "a3db3d94-aa6f-4d57-abce-905b31e14b4a",
+        "a6239781-34bb-42a1-85ae-91a733f7df65",
+        "a6a81b75-c4a2-4b64-a2a9-48a221b08dc1",
+        "a6beccc2-bbd3-4040-8e29-af06efd6dd97",
+        "a7109e93-df1f-43a6-bb6f-62bdf74e4c4f",
+        "a759b44e-1329-47a6-a444-0c9feabcc0ce",
+        "a83b1b51-79be-4cae-a943-661060a34080",
+        "a875757c-140d-4fea-83f9-93098406c3b1",
+        "a94b5c1b-3346-4868-b0f6-7a60d954530e",
+        "a97ca78f-ed0d-4f17-a18d-8d54efd2679a",
+        "ad0e3743-70cf-4b59-9da6-88080d7f3651",
+        "adbb91ec-29d2-490f-9844-f73b22111e36",
+        "afdb0aea-7a68-45e8-bbdb-5b7b03ec71ea",
+        "b0b2a75c-f301-45d6-857c-dd6575862619",
+        "b524764b-6dba-4c51-be55-f1ec92fc60cf",
+        "b5fbab09-1be1-439b-be72-582beceed09a",
+        "b6fe4fd9-400d-4fc4-a6e1-2e1dee936371",
+        "b7003343-6537-437d-9dab-cdf902d37b7e",
+        "bc59df1d-edd3-4e63-9393-175c28d9be2b",
+        "bffb3644-a34d-437d-accc-4a661d1cac6f",
+        "c35b5b75-7e6e-492b-9528-6a126384086e",
+        "c40e0895-a55a-4825-9592-cf6c23a14fe7",
+        "c52eafde-baaa-44ec-8729-c54e6c2f5706",
+        "c661cd70-55e4-445e-97ab-591e22d02221",
+        "c7b07eb1-d003-471b-a3f9-40b1c98edc19",
+        "ca33ac05-47a1-49c8-9782-a78e0fa552b9",
+        "ce899f23-b983-4ede-ae81-3348757b1c15",
+        "d0625355-308f-4edd-9c28-e358491c12a3",
+        "d06ab9d9-52c5-4f8c-b583-d9e5316eb69c",
+        "d2a3b40c-fd74-4e25-93f5-cfce92b2d88b",
+        "d42b9d73-1327-49fa-bfab-9a732b133772",
+        "dc6e07c7-f758-4a6c-8f09-fa3f2d9f99cc",
+        "df2227dc-3d74-4b19-848f-f9210e46dccd",
+        "dfd36bcb-88f9-40fb-95c9-8e6e4c609fdd",
+        "e247cf0a-cea9-4570-ab68-c8a5505a7845",
+        "e2d129b4-eb97-4ab4-ad6b-dfaef040b5fa",
+        "ea365de7-a807-40a1-abb4-374d9df7f156",
+        "ec204df6-13b6-4deb-b493-04391501d72d",
+        "f012a88f-44db-4e17-ba57-7f60bb7b5719",
+        "f3f7a334-3b77-44ce-bb2a-b0daff184ab1",
+        "f44cb59b-1632-4c86-b376-8afd205a6e63",
+        "f6b85532-eae2-4036-badc-401141c2ad6e",
+        "f746beae-43c9-4f4f-8307-301d136eda58",
+        "f81adf93-49a7-489c-b3a8-02520accce59",
+        "f86a13ec-184e-4764-9813-33b18db7dbb3",
+        "f96bb86c-43aa-49c1-a718-41fbe050a1ac",
+        "f972aed2-6061-4973-8b20-8e1d2c362d77",
+        "fefd1c3e-2fd1-47c9-970f-c30962c1a737",
+        "ffbf1db6-6fae-4606-afbe-013415d6421d"
+      ],
+      "eligible_product_count": 111,
+      "design_family_diversity": 102,
+      "merchandising_angle": "Event-led selection across multiple FEYA product types, with practical merchandising instead of a generic tag-filter page.",
+      "discovery_chips": [
+        "Shoulders",
+        "Skirts",
+        "Tops",
+        "Gold",
+        "Silver",
+        "Futuristic"
+      ],
+      "unique_modules": [
+        "Shop the look by product type",
+        "Use finish and visual direction as filters"
+      ],
+      "internal_links": {
+        "parent_path": "/shop",
+        "in": [
+          {
+            "kind": "navigation",
+            "path": "/"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/bodysuits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/burning-man-looks"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/costume-belts"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/costume-headpieces"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/costume-masks"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-skirts"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/rave-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/shoulder-armor"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/stage-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/shop"
+          }
+        ],
+        "out": [
+          {
+            "kind": "navigation",
+            "path": "/collections/bodysuits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/burning-man-looks"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/costume-belts"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/costume-headpieces"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/costume-masks"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-skirts"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/rave-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/shoulder-armor"
+          }
+        ]
+      },
+      "visual_plan": {
+        "status": "pending_g_half_5",
+        "owner_action": "visual/publication approval required before regeneration or publication"
+      },
+      "faq_questions": [
+        "Can I order a complete festival set?",
+        "Are every color and material priced the same?"
+      ],
+      "structured_data_expectations": {
+        "current_renderer_contract": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ],
+        "verification_stage": "G_half_6_anonymous_production_crawl"
+      },
+      "evidence_refs": [
+        {
+          "ref": "docs/search/phase-e-search-landing-content-packs-draft-20260926.json",
+          "type": "content_pack"
+        },
+        {
+          "ref": "docs/search/phase-e-search-landing-cqa-20260926.json",
+          "type": "cqa",
+          "status": "PASS"
+        },
+        {
+          "type": "keyword_metrics",
+          "source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+        },
+        {
+          "id": "bd28a2c1-e334-581a-9e56-4dc400fb71f5",
+          "type": "membership_snapshot",
+          "release_status": "HOLD"
+        },
+        {
+          "type": "g_half_2_checkpoint",
+          "ref": "docs/search/G_half_2_Intent_Eligibility_Reconciliation_20260927.json"
+        },
+        {
+          "type": "g_half_3_checkpoint",
+          "ref": "docs/search/G_half_3_Page_Portfolio_Graph_Reconciliation_20260927.json"
+        }
+      ],
+      "automation_gate": {
+        "eligibility_required": true,
+        "exact_primary_owner_required": true,
+        "immutable_membership_required": true,
+        "reconciled_link_graph_required": true,
+        "visual_plan_required_before_new_generation": true,
+        "cqa_required_after_generation": true,
+        "human_publication_approval_required": true,
+        "human_indexation_approval_required": true
+      }
+    },
+    {
+      "brief_contract_version": "feya_search_landing_brief_v1",
+      "brief_status": "G4_RECONCILED_VISUAL_PENDING",
+      "can_generate_draft": false,
+      "can_publish": false,
+      "can_index": false,
+      "identity": {
+        "seo_page_id": "e13692a0-5f96-5dca-9f48-cc5aa6e21d33",
+        "url_path": "/collections/festival-skirts",
+        "page_family": "subhub",
+        "source_page_version_id": "b0745170-966e-5e83-b12d-6c3da4924b05",
+        "source_page_version_number": 1,
+        "source_content_hash": "f6cf35db3d66b4614e0e5ddd388e16cb5ce173b2d350bd784416eced26b026cd",
+        "membership_snapshot_id": "94331a5a-2fb0-5989-bacf-1936d639fb19"
+      },
+      "user_job": "Shop TheFEYA skirts selected for festival styling.",
+      "primary_intent": "commercial festival skirts",
+      "primary_query_cluster": "QC_US_EN_FESTIVAL_SKIRT",
+      "primary_query": "festival skirt",
+      "secondary_clusters": [],
+      "supporting_queries": [],
+      "synonyms_close_variants": [
+        "festival skirts"
+      ],
+      "long_tail_variants": [],
+      "long_tail_evidence_status": "not_separately_materialized",
+      "excluded_queries": [
+        "costume skirt"
+      ],
+      "ownership_clusters": [
+        {
+          "cluster_code": "QC_US_EN_FESTIVAL_SKIRT",
+          "cluster_label": "Festival Skirts",
+          "ownership_role": "primary",
+          "normalized_intent": "festival skirt shopping"
+        }
+      ],
+      "eligible_products": [
+        "0403df9f-3ff9-498d-b3d9-69ad64b3dd4c",
+        "04099215-8328-4238-82dd-876bc3f2afdb",
+        "057fbd51-52f5-4404-b126-e5d75b8599f4",
+        "12111ddc-2364-4861-bd93-4bbc27ae4b28",
+        "1ff57e72-8360-4f9c-8e9c-768b66fe29e5",
+        "2b8d122f-5830-4bc6-8e11-7e3ae594c9b2",
+        "330fd9bc-f3d0-4eec-8e98-b36fb490b486",
+        "39d33dfd-1a01-458a-94c7-8372f344bce5",
+        "453ffb2e-2ed9-4e8d-b74c-e891604f9644",
+        "457416ed-92b3-4450-a5b0-ff4e27ee11a2",
+        "481ca9fa-1100-439d-b52b-80caadba52a9",
+        "4b0c8180-774d-4d5c-a12c-0864f305d1cb",
+        "5044435f-d093-4437-9945-ff822b2df2d9",
+        "51d879ce-f762-4307-b896-efcb2ffd64e9",
+        "5602d557-9d98-454b-bc98-9b9ea84b442f",
+        "5cd806f8-8aaa-4b6e-ae6a-4acc716677a2",
+        "5e034423-6c04-459b-b7d7-0d10ad564c4e",
+        "60ee8feb-32d3-4a8c-b64b-38d33433e2f2",
+        "657bd6d8-fbe1-4441-abad-f574e3380897",
+        "6a4c1f02-8f02-4aca-b70d-8d9ac66b9b40",
+        "764debf0-4d46-4d1d-a17b-2bb6f2dc5702",
+        "79754caa-9c09-4241-8c08-d0c9e60db460",
+        "7bb70eab-b2f5-4079-96e7-d116484d1466",
+        "7c220537-de7c-4157-99c3-ba1f9144d113",
+        "7e743440-3e9f-490c-b306-5c8c87969973",
+        "818a1991-46e2-4628-ac61-6db77314c9af",
+        "8635ab3f-cf01-42fb-a4da-508c7fd0db65",
+        "9c59e997-1e03-463b-8f3d-3259c71d05d0",
+        "9c845a5a-666a-47b4-99d6-9f0a393bfa1c",
+        "9d1d101d-e1d1-48fd-ac41-65c07dd5ce05",
+        "a6239781-34bb-42a1-85ae-91a733f7df65",
+        "a6a81b75-c4a2-4b64-a2a9-48a221b08dc1",
+        "a875757c-140d-4fea-83f9-93098406c3b1",
+        "ad0e3743-70cf-4b59-9da6-88080d7f3651",
+        "adbb91ec-29d2-490f-9844-f73b22111e36",
+        "afdb0aea-7a68-45e8-bbdb-5b7b03ec71ea",
+        "b524764b-6dba-4c51-be55-f1ec92fc60cf",
+        "b5fbab09-1be1-439b-be72-582beceed09a",
+        "b6fe4fd9-400d-4fc4-a6e1-2e1dee936371",
+        "b7003343-6537-437d-9dab-cdf902d37b7e",
+        "bc59df1d-edd3-4e63-9393-175c28d9be2b",
+        "bffb3644-a34d-437d-accc-4a661d1cac6f",
+        "c35b5b75-7e6e-492b-9528-6a126384086e",
+        "c40e0895-a55a-4825-9592-cf6c23a14fe7",
+        "ca33ac05-47a1-49c8-9782-a78e0fa552b9",
+        "d0625355-308f-4edd-9c28-e358491c12a3",
+        "d06ab9d9-52c5-4f8c-b583-d9e5316eb69c",
+        "d2a3b40c-fd74-4e25-93f5-cfce92b2d88b",
+        "df2227dc-3d74-4b19-848f-f9210e46dccd",
+        "dfd36bcb-88f9-40fb-95c9-8e6e4c609fdd",
+        "e247cf0a-cea9-4570-ab68-c8a5505a7845",
+        "ea365de7-a807-40a1-abb4-374d9df7f156",
+        "f44cb59b-1632-4c86-b376-8afd205a6e63",
+        "f6b85532-eae2-4036-badc-401141c2ad6e",
+        "f972aed2-6061-4973-8b20-8e1d2c362d77",
+        "ffbf1db6-6fae-4606-afbe-013415d6421d"
+      ],
+      "eligible_product_count": 56,
+      "design_family_diversity": 51,
+      "merchandising_angle": "Intersection page justified by a collection-dominant festival-skirt SERP; generic costume-skirt intent remains PDP/filter.",
+      "discovery_chips": [
+        "Gold",
+        "Silver",
+        "Mirror",
+        "Holographic",
+        "Glam",
+        "Futuristic"
+      ],
+      "unique_modules": [
+        "Skirt-only or coordinated set",
+        "A narrower job than Festival Outfits"
+      ],
+      "internal_links": {
+        "parent_path": "/collections/festival-outfits",
+        "in": [
+          {
+            "kind": "navigation",
+            "path": "/collections"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/burning-man-looks"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/rave-outfits"
+          }
+        ],
+        "out": [
+          {
+            "kind": "navigation",
+            "path": "/collections/burning-man-looks"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/rave-outfits"
+          }
+        ]
+      },
+      "visual_plan": {
+        "status": "pending_g_half_5",
+        "owner_action": "visual/publication approval required before regeneration or publication"
+      },
+      "faq_questions": [
+        "Can I buy only the skirt?",
+        "Do matching tops or accessories come automatically?"
+      ],
+      "structured_data_expectations": {
+        "current_renderer_contract": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ],
+        "verification_stage": "G_half_6_anonymous_production_crawl"
+      },
+      "evidence_refs": [
+        {
+          "ref": "docs/search/phase-e-search-landing-content-packs-draft-20260926.json",
+          "type": "content_pack"
+        },
+        {
+          "ref": "docs/search/phase-e-search-landing-cqa-20260926.json",
+          "type": "cqa",
+          "status": "PASS"
+        },
+        {
+          "type": "keyword_metrics",
+          "source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+        },
+        {
+          "id": "94331a5a-2fb0-5989-bacf-1936d639fb19",
+          "type": "membership_snapshot",
+          "release_status": "HOLD"
+        },
+        {
+          "type": "g_half_2_checkpoint",
+          "ref": "docs/search/G_half_2_Intent_Eligibility_Reconciliation_20260927.json"
+        },
+        {
+          "type": "g_half_3_checkpoint",
+          "ref": "docs/search/G_half_3_Page_Portfolio_Graph_Reconciliation_20260927.json"
+        }
+      ],
+      "automation_gate": {
+        "eligibility_required": true,
+        "exact_primary_owner_required": true,
+        "immutable_membership_required": true,
+        "reconciled_link_graph_required": true,
+        "visual_plan_required_before_new_generation": true,
+        "cqa_required_after_generation": true,
+        "human_publication_approval_required": true,
+        "human_indexation_approval_required": true
+      }
+    },
+    {
+      "brief_contract_version": "feya_search_landing_brief_v1",
+      "brief_status": "G4_RECONCILED_VISUAL_PENDING",
+      "can_generate_draft": false,
+      "can_publish": false,
+      "can_index": false,
+      "identity": {
+        "seo_page_id": "f027543c-d8f8-545a-895b-62e27b66b015",
+        "url_path": "/collections/rave-outfits",
+        "page_family": "event_hub",
+        "source_page_version_id": "7ab9095a-abea-505c-93d0-12f5363720b0",
+        "source_page_version_number": 1,
+        "source_content_hash": "747c168db8d566bf8ef5cab0734db042fafee5b4102931d50657bc32770b7298",
+        "membership_snapshot_id": "b229a14f-03a6-506d-82d4-1a6665335288"
+      },
+      "user_job": "Shop TheFEYA rave outfits and statement performance pieces for EDM/nightlife styling.",
+      "primary_intent": "commercial rave outfits",
+      "primary_query_cluster": "QC_US_EN_RAVE_OUTFITS",
+      "primary_query": "rave outfits",
+      "secondary_clusters": [
+        "QC_US_EN_RAVE_COSTUMES"
+      ],
+      "supporting_queries": [
+        {
+          "cluster_code": "QC_US_EN_RAVE_COSTUMES",
+          "keyword": "rave costumes",
+          "role": "seed",
+          "ams": 1600
+        }
+      ],
+      "synonyms_close_variants": [
+        "rave attire",
+        "rave clothes",
+        "rave outfits women",
+        "rave wear"
+      ],
+      "long_tail_variants": [],
+      "long_tail_evidence_status": "not_separately_materialized",
+      "excluded_queries": [],
+      "ownership_clusters": [
+        {
+          "cluster_code": "QC_US_EN_RAVE_COSTUMES",
+          "cluster_label": "Rave Costumes",
+          "ownership_role": "primary",
+          "normalized_intent": "rave costume shopping"
+        },
+        {
+          "cluster_code": "QC_US_EN_RAVE_OUTFITS",
+          "cluster_label": "Rave Outfits",
+          "ownership_role": "primary",
+          "normalized_intent": "rave outfit shopping"
+        }
+      ],
+      "eligible_products": [
+        "0395cb11-424f-407f-a849-7ee3b617ab57",
+        "0403df9f-3ff9-498d-b3d9-69ad64b3dd4c",
+        "04099215-8328-4238-82dd-876bc3f2afdb",
+        "11bb0057-8c1f-4347-8c03-46856df0653c",
+        "11d2b7ca-3a13-4bcb-b1f2-b91565a20e7e",
+        "158e7824-4876-4991-b506-e3f6f4aa8371",
+        "256c75b4-f378-4b21-8321-9d5766bd209c",
+        "2973f3ae-6097-49c0-ab91-21a9697560cc",
+        "39d33dfd-1a01-458a-94c7-8372f344bce5",
+        "3c08ea9c-76a9-4079-bc08-58fa8a831019",
+        "4033e707-98e2-45ad-9fd6-b7d615673fa3",
+        "453ffb2e-2ed9-4e8d-b74c-e891604f9644",
+        "4b0c8180-774d-4d5c-a12c-0864f305d1cb",
+        "5044435f-d093-4437-9945-ff822b2df2d9",
+        "51a30d6f-a588-49b9-b077-5f33488efd36",
+        "60ee8feb-32d3-4a8c-b64b-38d33433e2f2",
+        "6a4c1f02-8f02-4aca-b70d-8d9ac66b9b40",
+        "6bfcc9e6-3d45-4ef4-934f-12dd9dfc4532",
+        "72d8461a-1f64-40eb-b3f7-959a19a0c8fa",
+        "764debf0-4d46-4d1d-a17b-2bb6f2dc5702",
+        "79754caa-9c09-4241-8c08-d0c9e60db460",
+        "7e743440-3e9f-490c-b306-5c8c87969973",
+        "8b321ebd-25ab-4d9b-ba30-2cfc3ba18094",
+        "9c59e997-1e03-463b-8f3d-3259c71d05d0",
+        "a6a81b75-c4a2-4b64-a2a9-48a221b08dc1",
+        "a97ca78f-ed0d-4f17-a18d-8d54efd2679a",
+        "afdb0aea-7a68-45e8-bbdb-5b7b03ec71ea",
+        "b5fbab09-1be1-439b-be72-582beceed09a",
+        "b6fe4fd9-400d-4fc4-a6e1-2e1dee936371",
+        "c35b5b75-7e6e-492b-9528-6a126384086e",
+        "c40e0895-a55a-4825-9592-cf6c23a14fe7",
+        "ca291096-219d-4269-981c-97f6929da308",
+        "ca33ac05-47a1-49c8-9782-a78e0fa552b9",
+        "ce899f23-b983-4ede-ae81-3348757b1c15",
+        "dc6e07c7-f758-4a6c-8f09-fa3f2d9f99cc",
+        "dfd36bcb-88f9-40fb-95c9-8e6e4c609fdd",
+        "f0e73d70-cf3d-4557-8d59-142c78a106ac",
+        "f86a13ec-184e-4764-9813-33b18db7dbb3",
+        "f972aed2-6061-4973-8b20-8e1d2c362d77",
+        "fba170e8-582d-45fa-b954-f9136e733950"
+      ],
+      "eligible_product_count": 40,
+      "design_family_diversity": 38,
+      "merchandising_angle": "Rave-specific assortment and merchandising, distinct from generic festival ownership.",
+      "discovery_chips": [
+        "Metallic",
+        "Mirror",
+        "Holographic",
+        "Skirts",
+        "Shoulders",
+        "Tops"
+      ],
+      "unique_modules": [
+        "Build a rave look from the strongest piece",
+        "Futuristic, glam and cyber directions"
+      ],
+      "internal_links": {
+        "parent_path": "/shop",
+        "in": [
+          {
+            "kind": "navigation",
+            "path": "/"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/bodysuits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/costume-belts"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-skirts"
+          },
+          {
+            "kind": "navigation",
+            "path": "/shop"
+          }
+        ],
+        "out": [
+          {
+            "kind": "navigation",
+            "path": "/collections/bodysuits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/costume-belts"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-skirts"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/shoulder-armor"
+          }
+        ]
+      },
+      "visual_plan": {
+        "status": "pending_g_half_5",
+        "owner_action": "visual/publication approval required before regeneration or publication"
+      },
+      "faq_questions": [
+        "What is included with each rave outfit?",
+        "Can I choose a different size?"
+      ],
+      "structured_data_expectations": {
+        "current_renderer_contract": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ],
+        "verification_stage": "G_half_6_anonymous_production_crawl"
+      },
+      "evidence_refs": [
+        {
+          "ref": "docs/search/phase-e-search-landing-content-packs-draft-20260926.json",
+          "type": "content_pack"
+        },
+        {
+          "ref": "docs/search/phase-e-search-landing-cqa-20260926.json",
+          "type": "cqa",
+          "status": "PASS"
+        },
+        {
+          "type": "keyword_metrics",
+          "source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+        },
+        {
+          "id": "b229a14f-03a6-506d-82d4-1a6665335288",
+          "type": "membership_snapshot",
+          "release_status": "HOLD"
+        },
+        {
+          "type": "g_half_2_checkpoint",
+          "ref": "docs/search/G_half_2_Intent_Eligibility_Reconciliation_20260927.json"
+        },
+        {
+          "type": "g_half_3_checkpoint",
+          "ref": "docs/search/G_half_3_Page_Portfolio_Graph_Reconciliation_20260927.json"
+        }
+      ],
+      "automation_gate": {
+        "eligibility_required": true,
+        "exact_primary_owner_required": true,
+        "immutable_membership_required": true,
+        "reconciled_link_graph_required": true,
+        "visual_plan_required_before_new_generation": true,
+        "cqa_required_after_generation": true,
+        "human_publication_approval_required": true,
+        "human_indexation_approval_required": true
+      }
+    },
+    {
+      "brief_contract_version": "feya_search_landing_brief_v1",
+      "brief_status": "G4_RECONCILED_VISUAL_PENDING",
+      "can_generate_draft": false,
+      "can_publish": false,
+      "can_index": false,
+      "identity": {
+        "seo_page_id": "5a7b76bf-36a0-516a-88f4-44f9a10ed410",
+        "url_path": "/collections/shoulder-armor",
+        "page_family": "type_hub",
+        "source_page_version_id": "8f41bf85-bdba-5f73-a5b9-2066ab949b76",
+        "source_page_version_number": 1,
+        "source_content_hash": "d646e8bda71e5f3942ff8b913b813aeb70216fc4ee1e8d42473d2131104ed28f",
+        "membership_snapshot_id": "c5859f9f-50c8-5753-b528-bac2c22b1bac"
+      },
+      "user_job": "Shop decorative shoulder armor for costume, stage, cosplay and festival styling.",
+      "primary_intent": "commercial decorative shoulder armor",
+      "primary_query_cluster": "QC_US_EN_SHOULDER_ARMOR",
+      "primary_query": "shoulder armor",
+      "secondary_clusters": [],
+      "supporting_queries": [],
+      "synonyms_close_variants": [
+        "shoulder armour"
+      ],
+      "long_tail_variants": [],
+      "long_tail_evidence_status": "not_separately_materialized",
+      "excluded_queries": [
+        "tactical shoulder armor",
+        "ballistic shoulder armor",
+        "motorcycle shoulder armor",
+        "protective shoulder armor",
+        "football shoulder pads"
+      ],
+      "ownership_clusters": [
+        {
+          "cluster_code": "QC_US_EN_SHOULDER_ARMOR",
+          "cluster_label": "Shoulder Armor",
+          "ownership_role": "primary",
+          "normalized_intent": "decorative shoulder armor shopping"
+        }
+      ],
+      "eligible_products": [
+        "0395cb11-424f-407f-a849-7ee3b617ab57",
+        "04099215-8328-4238-82dd-876bc3f2afdb",
+        "043406cd-0a96-45c5-8796-57c5cc4b276e",
+        "057fbd51-52f5-4404-b126-e5d75b8599f4",
+        "098044e5-c452-4c52-a0a4-2b29120196e8",
+        "0b7e5ccd-f5a3-4dd7-877f-1e21fbda9486",
+        "12111ddc-2364-4861-bd93-4bbc27ae4b28",
+        "13300fb8-c39d-476f-9485-75747c4e6599",
+        "1dbf149a-739c-4afa-ba59-3b5f99acfb77",
+        "1eb4b55c-dedf-4399-92fd-c94c8d962091",
+        "1fc815c5-0165-468a-a6d8-e91c1cefcd61",
+        "1ff57e72-8360-4f9c-8e9c-768b66fe29e5",
+        "27786636-7021-4809-8e81-7f566a3436ae",
+        "28c6558b-2738-4c60-ad55-6d4dbd14d698",
+        "2973f3ae-6097-49c0-ab91-21a9697560cc",
+        "29ebbf71-cd02-42fb-8372-55002ca56495",
+        "3013d058-8299-4c10-ba42-3c553799255b",
+        "32b1e29b-d709-4e00-a95c-6ad0b4c92704",
+        "39d33dfd-1a01-458a-94c7-8372f344bce5",
+        "3ec78c4d-7cdb-4628-aa3b-083acefcbe45",
+        "4243eca2-4f2a-4a63-a352-b71e9fcb8256",
+        "4311bc31-ee98-458e-8290-b663ee525a4c",
+        "453ffb2e-2ed9-4e8d-b74c-e891604f9644",
+        "457416ed-92b3-4450-a5b0-ff4e27ee11a2",
+        "481ca9fa-1100-439d-b52b-80caadba52a9",
+        "4b0c8180-774d-4d5c-a12c-0864f305d1cb",
+        "4da73818-2f50-43de-b326-8b2c63b17983",
+        "5044435f-d093-4437-9945-ff822b2df2d9",
+        "51d879ce-f762-4307-b896-efcb2ffd64e9",
+        "5602d557-9d98-454b-bc98-9b9ea84b442f",
+        "56ac8372-da2a-444d-8b8e-4dc196520bf7",
+        "5e034423-6c04-459b-b7d7-0d10ad564c4e",
+        "5f0df65c-4b04-4905-80c5-53bd7e807063",
+        "641ba42d-8ad9-4178-b0c6-d41c14fc8f66",
+        "65e36680-71ca-44ba-9873-f7c962928642",
+        "764debf0-4d46-4d1d-a17b-2bb6f2dc5702",
+        "79754caa-9c09-4241-8c08-d0c9e60db460",
+        "7c220537-de7c-4157-99c3-ba1f9144d113",
+        "7e743440-3e9f-490c-b306-5c8c87969973",
+        "7e77810b-ee7d-46a4-91af-f24d1adcfd4a",
+        "818a1991-46e2-4628-ac61-6db77314c9af",
+        "85752f94-b2d7-465e-ace2-40bb77977461",
+        "8635ab3f-cf01-42fb-a4da-508c7fd0db65",
+        "8b321ebd-25ab-4d9b-ba30-2cfc3ba18094",
+        "8b4e23fd-456e-462b-a6b3-8aaa0333debe",
+        "9400d8af-b6b9-4b4a-b878-b97eba761e10",
+        "9c59e997-1e03-463b-8f3d-3259c71d05d0",
+        "9d368368-12e9-4d61-9a5d-2ba9c4508861",
+        "9e47719d-1afd-4298-808e-bacae86bbc38",
+        "a3db3d94-aa6f-4d57-abce-905b31e14b4a",
+        "a6a81b75-c4a2-4b64-a2a9-48a221b08dc1",
+        "a7109e93-df1f-43a6-bb6f-62bdf74e4c4f",
+        "a875757c-140d-4fea-83f9-93098406c3b1",
+        "a97ca78f-ed0d-4f17-a18d-8d54efd2679a",
+        "adbb91ec-29d2-490f-9844-f73b22111e36",
+        "afdb0aea-7a68-45e8-bbdb-5b7b03ec71ea",
+        "b0b2a75c-f301-45d6-857c-dd6575862619",
+        "b524764b-6dba-4c51-be55-f1ec92fc60cf",
+        "b5fbab09-1be1-439b-be72-582beceed09a",
+        "b68d0386-ed1f-4410-8001-185bf3aaf25f",
+        "bc59df1d-edd3-4e63-9393-175c28d9be2b",
+        "bffb3644-a34d-437d-accc-4a661d1cac6f",
+        "c40e0895-a55a-4825-9592-cf6c23a14fe7",
+        "c52eafde-baaa-44ec-8729-c54e6c2f5706",
+        "ca291096-219d-4269-981c-97f6929da308",
+        "ca33ac05-47a1-49c8-9782-a78e0fa552b9",
+        "cb31d61b-027c-4c47-b7ba-bf16283ada9c",
+        "ce899f23-b983-4ede-ae81-3348757b1c15",
+        "d2a3b40c-fd74-4e25-93f5-cfce92b2d88b",
+        "dfd36bcb-88f9-40fb-95c9-8e6e4c609fdd",
+        "e2d129b4-eb97-4ab4-ad6b-dfaef040b5fa",
+        "ea365de7-a807-40a1-abb4-374d9df7f156",
+        "f3d4bdd8-9ba0-400b-9cfc-e4a8097707fc",
+        "f44cb59b-1632-4c86-b376-8afd205a6e63",
+        "f6b85532-eae2-4036-badc-401141c2ad6e",
+        "f746beae-43c9-4f4f-8307-301d136eda58",
+        "f86a13ec-184e-4764-9813-33b18db7dbb3",
+        "f96bb86c-43aa-49c1-a718-41fbe050a1ac",
+        "f972aed2-6061-4973-8b20-8e1d2c362d77",
+        "ff0996b6-f369-4313-baf5-2d465d9c06f2"
+      ],
+      "eligible_product_count": 80,
+      "design_family_diversity": 72,
+      "merchandising_angle": "Sculptural FEYA shoulder pieces with explicit decorative/non-protective positioning; separates fashion/performance use from tactical or historical protective armor.",
+      "discovery_chips": [
+        "Gold",
+        "Silver",
+        "Futuristic",
+        "Glam",
+        "Warrior"
+      ],
+      "unique_modules": [
+        "Choose the role of the shoulder piece",
+        "From stage styling to futuristic costume"
+      ],
+      "internal_links": {
+        "parent_path": "/shop",
+        "in": [
+          {
+            "kind": "navigation",
+            "path": "/"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/burning-man-looks"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/rave-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/stage-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/shop"
+          }
+        ],
+        "out": [
+          {
+            "kind": "navigation",
+            "path": "/collections/burning-man-looks"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/stage-outfits"
+          }
+        ]
+      },
+      "visual_plan": {
+        "status": "pending_g_half_5",
+        "owner_action": "visual/publication approval required before regeneration or publication"
+      },
+      "faq_questions": [
+        "Is this protective shoulder armor?",
+        "Can I buy one shoulder or a full shoulder set?"
+      ],
+      "structured_data_expectations": {
+        "current_renderer_contract": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ],
+        "verification_stage": "G_half_6_anonymous_production_crawl"
+      },
+      "evidence_refs": [
+        {
+          "ref": "docs/search/phase-e-search-landing-content-packs-draft-20260926.json",
+          "type": "content_pack"
+        },
+        {
+          "ref": "docs/search/phase-e-search-landing-cqa-20260926.json",
+          "type": "cqa",
+          "status": "PASS"
+        },
+        {
+          "type": "keyword_metrics",
+          "source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+        },
+        {
+          "id": "c5859f9f-50c8-5753-b528-bac2c22b1bac",
+          "type": "membership_snapshot",
+          "release_status": "HOLD"
+        },
+        {
+          "type": "g_half_2_checkpoint",
+          "ref": "docs/search/G_half_2_Intent_Eligibility_Reconciliation_20260927.json"
+        },
+        {
+          "type": "g_half_3_checkpoint",
+          "ref": "docs/search/G_half_3_Page_Portfolio_Graph_Reconciliation_20260927.json"
+        }
+      ],
+      "automation_gate": {
+        "eligibility_required": true,
+        "exact_primary_owner_required": true,
+        "immutable_membership_required": true,
+        "reconciled_link_graph_required": true,
+        "visual_plan_required_before_new_generation": true,
+        "cqa_required_after_generation": true,
+        "human_publication_approval_required": true,
+        "human_indexation_approval_required": true
+      }
+    },
+    {
+      "brief_contract_version": "feya_search_landing_brief_v1",
+      "brief_status": "G4_RECONCILED_VISUAL_PENDING",
+      "can_generate_draft": false,
+      "can_publish": false,
+      "can_index": false,
+      "identity": {
+        "seo_page_id": "8c40a74a-0a49-513a-832a-66bf0cb1b1c2",
+        "url_path": "/collections/stage-outfits",
+        "page_family": "subhub",
+        "source_page_version_id": "4616bacc-f65f-5d3a-bb36-a6efb6829489",
+        "source_page_version_number": 1,
+        "source_content_hash": "841c523203292061dc507e29eeb9ca5c0efcbd6df7c4c7befca6260270f8c4c2",
+        "membership_snapshot_id": "db51050c-56f8-5fa6-99b5-e06a538d58da"
+      },
+      "user_job": "Shop visual stage and performance costumes for performers.",
+      "primary_intent": "commercial performance costumes",
+      "primary_query_cluster": "QC_US_EN_PERFORMANCE_COSTUMES",
+      "primary_query": "performance costumes",
+      "secondary_clusters": [],
+      "supporting_queries": [],
+      "synonyms_close_variants": [],
+      "long_tail_variants": [],
+      "long_tail_evidence_status": "not_separately_materialized",
+      "excluded_queries": [
+        "dance costumes",
+        "dance recital costumes",
+        "competition dance costumes",
+        "stage costume design"
+      ],
+      "ownership_clusters": [
+        {
+          "cluster_code": "QC_US_EN_PERFORMANCE_COSTUMES",
+          "cluster_label": "Performance Costumes",
+          "ownership_role": "primary",
+          "normalized_intent": "performance costume shopping"
+        }
+      ],
+      "eligible_products": [
+        "067628e8-3ecd-4979-8501-6da61ca2f51a",
+        "09f51ad4-6b90-4311-aa5a-54f91cf4b7bf",
+        "0e75d2f2-c345-440e-88e4-333b63caed09",
+        "103ff46a-892a-4961-80b1-e6996727c395",
+        "12111ddc-2364-4861-bd93-4bbc27ae4b28",
+        "12a0faf1-9c3c-44e2-bbf1-1583ac309a46",
+        "13300fb8-c39d-476f-9485-75747c4e6599",
+        "158e7824-4876-4991-b506-e3f6f4aa8371",
+        "187f01a3-40e0-4820-b3aa-1bccc1eea6d2",
+        "1a8545eb-f997-4ddf-b6c9-c3c0afa1bd7c",
+        "1af7458c-aaff-4460-a874-45c9ad4ccb8c",
+        "1fc815c5-0165-468a-a6d8-e91c1cefcd61",
+        "1ff57e72-8360-4f9c-8e9c-768b66fe29e5",
+        "256c75b4-f378-4b21-8321-9d5766bd209c",
+        "27786636-7021-4809-8e81-7f566a3436ae",
+        "29ebbf71-cd02-42fb-8372-55002ca56495",
+        "2b8d122f-5830-4bc6-8e11-7e3ae594c9b2",
+        "3013d058-8299-4c10-ba42-3c553799255b",
+        "32b51b28-0570-49af-90f5-7bfdd7da5148",
+        "340b160f-93e3-4389-866f-df79cc14dea8",
+        "3ff937a2-838f-4986-be64-07b11faf8d17",
+        "4033e707-98e2-45ad-9fd6-b7d615673fa3",
+        "40384eea-fd82-40f4-98e7-804383c42796",
+        "4243eca2-4f2a-4a63-a352-b71e9fcb8256",
+        "481ca9fa-1100-439d-b52b-80caadba52a9",
+        "4a4d2214-fc12-41a9-8ce3-f39272a8e22d",
+        "4da73818-2f50-43de-b326-8b2c63b17983",
+        "5255562a-0181-4fe3-bf4f-e5083f5638e5",
+        "5602d557-9d98-454b-bc98-9b9ea84b442f",
+        "56ac8372-da2a-444d-8b8e-4dc196520bf7",
+        "5cd806f8-8aaa-4b6e-ae6a-4acc716677a2",
+        "5e034423-6c04-459b-b7d7-0d10ad564c4e",
+        "641ba42d-8ad9-4178-b0c6-d41c14fc8f66",
+        "665296a0-f5ad-422c-837c-868f611c45c6",
+        "6739b15c-f2f3-4a26-9e2a-3a0b5a3e2d2f",
+        "6a4c1f02-8f02-4aca-b70d-8d9ac66b9b40",
+        "6bfcc9e6-3d45-4ef4-934f-12dd9dfc4532",
+        "6ddd240e-01ae-4ac8-800e-3a14dbac64a0",
+        "73735bd6-82e7-48fa-8b2e-235a13bbf4b0",
+        "74634519-add3-490f-8ef3-3b4d74a7ca7d",
+        "7bc4e89c-155d-45b8-982f-46253b7ed18d",
+        "7c220537-de7c-4157-99c3-ba1f9144d113",
+        "81224290-77db-4738-923b-65a16d1c691a",
+        "81fc83de-76aa-4733-9a88-f631e7699fa6",
+        "8223ea35-644b-4bd8-bd05-4ba7810b116a",
+        "8242d255-f77f-4e9f-88a2-a5db326fa297",
+        "82d2dc58-e635-4bc1-8571-2587641e627f",
+        "84cb55e1-a5a8-473c-abcd-17f0dc4161ab",
+        "8b4e23fd-456e-462b-a6b3-8aaa0333debe",
+        "8f4646f0-ea2b-48c3-af11-e22f0dec4f08",
+        "98600aa8-307b-4165-a8ae-38e347c114bd",
+        "9c845a5a-666a-47b4-99d6-9f0a393bfa1c",
+        "9d1d101d-e1d1-48fd-ac41-65c07dd5ce05",
+        "9d368368-12e9-4d61-9a5d-2ba9c4508861",
+        "9e47719d-1afd-4298-808e-bacae86bbc38",
+        "a3aa7148-889a-42de-9d2d-2e0fca631ed4",
+        "a3db3d94-aa6f-4d57-abce-905b31e14b4a",
+        "a606be83-50aa-462d-ae54-04e9ce7aeb3b",
+        "a6239781-34bb-42a1-85ae-91a733f7df65",
+        "a6beccc2-bbd3-4040-8e29-af06efd6dd97",
+        "a74a2415-92a4-488c-b4d2-7bdeb601a0c4",
+        "a759b44e-1329-47a6-a444-0c9feabcc0ce",
+        "a767a1c1-65e7-4c0a-bd18-7a92f8ea4986",
+        "a875757c-140d-4fea-83f9-93098406c3b1",
+        "a9f110dc-4ed4-454f-9e28-f67ca5a042e1",
+        "a9fa4b69-4f79-4669-bd60-783a05d12296",
+        "abf11fbb-9794-484d-b93c-1449fa3a9a44",
+        "ad0e3743-70cf-4b59-9da6-88080d7f3651",
+        "afdb0aea-7a68-45e8-bbdb-5b7b03ec71ea",
+        "b0b2a75c-f301-45d6-857c-dd6575862619",
+        "b18d342a-c323-4f11-8c98-d5eb5f543e12",
+        "b28d72d8-330b-400f-b595-124edc3f78f3",
+        "b9a476c7-b902-4fea-bead-ec5b2275e835",
+        "b9e7bdbd-1edd-41c5-af9e-8f3799469715",
+        "c661cd70-55e4-445e-97ab-591e22d02221",
+        "c7b07eb1-d003-471b-a3f9-40b1c98edc19",
+        "c9ec5047-d7ca-4a97-9247-8d3fb56a3953",
+        "ca291096-219d-4269-981c-97f6929da308",
+        "d0625355-308f-4edd-9c28-e358491c12a3",
+        "d17c17b6-76dd-429d-bf5c-ccd432cd1e0f",
+        "dcd0d24a-473b-4592-b56f-466fda984b1e",
+        "df030151-5853-46c1-be89-06f059224a44",
+        "e01ef0b1-6155-4d02-a3cd-413d272502b3",
+        "e247cf0a-cea9-4570-ab68-c8a5505a7845",
+        "e39f9164-4001-4f63-9407-a1ddd3d962dd",
+        "e46d7064-6d80-42db-b321-beb8bbdccc69",
+        "e51e0a66-8358-41f9-bd51-2ab4833b24b3",
+        "e7238b1d-565c-4c4d-a7ae-a4402de80720",
+        "edc709f1-3a74-43d6-bd00-6c0569392f1b",
+        "f27fdb4d-d007-4d4c-899c-a50728c1ea4d",
+        "f36acd08-1591-4e15-8ad2-96bc22ec4b77",
+        "f3d4bdd8-9ba0-400b-9cfc-e4a8097707fc",
+        "f473fb62-0440-473c-a7fb-a52dccafebc6",
+        "fdd42158-087b-4190-9eb8-fda7f7460258",
+        "ffa74da5-c2e1-4c3a-b460-50d1aae09f56",
+        "ffbf1db6-6fae-4606-afbe-013415d6421d"
+      ],
+      "eligible_product_count": 96,
+      "design_family_diversity": 94,
+      "merchandising_angle": "Performance-first FEYA assortment for dancers, DJs, drag performers and shows; avoids claiming broad recital/dancewear intent that the catalog has not proven.",
+      "discovery_chips": [
+        "Performer",
+        "Showgirl",
+        "Bodysuits",
+        "Headpieces",
+        "Gold",
+        "Silver"
+      ],
+      "unique_modules": [
+        "Shop by the role of the costume",
+        "Build a coherent stage image"
+      ],
+      "internal_links": {
+        "parent_path": "/shop",
+        "in": [
+          {
+            "kind": "navigation",
+            "path": "/"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/bodysuits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/costume-belts"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/costume-headpieces"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/shoulder-armor"
+          },
+          {
+            "kind": "navigation",
+            "path": "/shop"
+          }
+        ],
+        "out": [
+          {
+            "kind": "navigation",
+            "path": "/collections/bodysuits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/costume-belts"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/costume-headpieces"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/costume-masks"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/festival-outfits"
+          },
+          {
+            "kind": "navigation",
+            "path": "/collections/shoulder-armor"
+          }
+        ]
+      },
+      "visual_plan": {
+        "status": "pending_g_half_5",
+        "owner_action": "visual/publication approval required before regeneration or publication"
+      },
+      "faq_questions": [
+        "Do you make costumes for performance teams?",
+        "Are these dance competition costumes?"
+      ],
+      "structured_data_expectations": {
+        "current_renderer_contract": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ],
+        "verification_stage": "G_half_6_anonymous_production_crawl"
+      },
+      "evidence_refs": [
+        {
+          "ref": "docs/search/phase-e-search-landing-content-packs-draft-20260926.json",
+          "type": "content_pack"
+        },
+        {
+          "ref": "docs/search/phase-e-search-landing-cqa-20260926.json",
+          "type": "cqa",
+          "status": "PASS"
+        },
+        {
+          "type": "keyword_metrics",
+          "source_request_id": "5c524139-03dc-43c0-984b-5d530c4ebb9d"
+        },
+        {
+          "id": "db51050c-56f8-5fa6-99b5-e06a538d58da",
+          "type": "membership_snapshot",
+          "release_status": "HOLD"
+        },
+        {
+          "type": "g_half_2_checkpoint",
+          "ref": "docs/search/G_half_2_Intent_Eligibility_Reconciliation_20260927.json"
+        },
+        {
+          "type": "g_half_3_checkpoint",
+          "ref": "docs/search/G_half_3_Page_Portfolio_Graph_Reconciliation_20260927.json"
+        }
+      ],
+      "automation_gate": {
+        "eligibility_required": true,
+        "exact_primary_owner_required": true,
+        "immutable_membership_required": true,
+        "reconciled_link_graph_required": true,
+        "visual_plan_required_before_new_generation": true,
+        "cqa_required_after_generation": true,
+        "human_publication_approval_required": true,
+        "human_indexation_approval_required": true
+      }
+    }
+  ]
+}

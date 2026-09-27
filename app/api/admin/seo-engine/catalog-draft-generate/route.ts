@@ -145,6 +145,7 @@ export async function POST(request: Request) {
   const promptContract = compactWriter.prompt;
   const promptBuildMs = Date.now() - promptStartedAt;
   const commercialContext = {
+    editorial_policy_version: 'brand_mission_v2' as const,
     product_truth: bundle.seoPackDraft.product_truth,
     manual_focus: bundle.seoPackDraft.manual_focus,
     keyword_roles: bundle.seoPackDraft.keyword_roles,

@@ -25,6 +25,9 @@ for (const file of walk(ADMIN_ROOT)) {
   if (source.includes('getSupabaseReadClient')) {
     errors.push(`${path.relative(ROOT, file)} uses getSupabaseReadClient directly. Admin reads must go through getAdminReadClient or a service-only server path.`);
   }
+  if (source.includes('@/lib/supabaseAdmin')) {
+    errors.push(`${path.relative(ROOT, file)} imports the unscoped internal executor; use session-guarded adminData/supabase instead.`);
+  }
 
   if (source.startsWith("'use client'") || source.startsWith('"use client"')) {
     if (
@@ -58,10 +61,22 @@ for (const file of ALLOWED_RAW_READ_FILES) {
   }
 }
 
+for (const relative of ['lib/adminData.ts', 'lib/adminServerData.ts', 'lib/supabase.ts', 'lib/supabaseAdmin.ts']) {
+  const source = fs.readFileSync(path.join(ROOT, relative), 'utf8');
+  if (!source.includes("import 'server-only'")) errors.push(`${relative} must be server-only.`);
+}
+for (const relative of ['lib/adminData.ts', 'lib/seoBriefContractServer.ts']) {
+  if (fs.readFileSync(path.join(ROOT, relative), 'utf8').includes('getSupabaseReadClient')) errors.push(`${relative} must not fall back to anonymous reads.`);
+}
+for (const file of walk(path.join(ROOT, 'app/api/admin'))) {
+  const source = fs.readFileSync(file, 'utf8');
+  if (source.includes('@/lib/supabaseAdmin') || source.includes('getSupabaseReadClient')) errors.push(`${path.relative(ROOT, file)} bypasses the admin session data boundary.`);
+}
+
 const middlewarePath = path.join(ROOT, 'middleware.ts');
 const middleware = fs.existsSync(middlewarePath) ? fs.readFileSync(middlewarePath, 'utf8') : '';
 if (!middleware.includes("'/api/admin/:path*'") || !middleware.includes("'/admin/:path*'")) {
-  errors.push('middleware.ts must protect both /admin/:path* and /api/admin/:path* when FEYA admin auth is enabled.');
+  errors.push('middleware.ts must protect both /admin/:path* and /api/admin/:path*.');
 }
 
 if (errors.length) {

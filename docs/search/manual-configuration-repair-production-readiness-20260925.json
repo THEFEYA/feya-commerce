@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "checked_at": "2026-09-25",
+  "production_project_ref": "ysnizcgzhdwdfdkjkhud",
+  "release_ref": "feya-review-207-20260924",
+  "schema_status": "READY_FOR_SCHEMA_ONLY_APPLY_AFTER_EXACT_HEAD_CI",
+  "repository_migration": "supabase/migrations/20260925193000_manual_configuration_binding_repair_v1.sql",
+  "production_evidence": {
+    "price_rows": 6,
+    "configuration_rows": 3,
+    "evidence_sha256": "19a84d86e52724753350d3c12d22ded4e6e19a0ab2c0dedb36a292a481e502ae",
+    "proposed_identity_conflicts": 0,
+    "evidence_function_absent": true,
+    "executor_absent": true,
+    "active_capability_rows": 0,
+    "migration_present": false
+  },
+  "intended_effect": {
+    "new_sellable_configurations": 3,
+    "resulting_sellable_configurations": 6,
+    "price_amount_changes": 0,
+    "price_review_status_changes": 0,
+    "payment": false,
+    "indexing": false
+  },
+  "execution_authority": {
+    "schema_apply": "WAIT_FOR_EXACT_HEAD_CI",
+    "prepare_request": "STOP_UNTIL_SCHEMA_POSTFLIGHT",
+    "human_approval": "HUMAN_ONLY",
+    "execute_repair": "STOP_UNTIL_HUMAN_APPROVAL"
+  }
+}

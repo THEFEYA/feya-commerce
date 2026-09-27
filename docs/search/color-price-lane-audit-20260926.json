@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "status": "AUDITED_HELD_FOR_DEDICATED_GOVERNANCE",
+  "audited_at": "2026-09-26",
+  "release_ref": "feya-review-207-20260924",
+  "products": 3,
+  "price_rows": 9,
+  "source_axis": "color",
+  "source_price_equals_public_price_rows": 9,
+  "manual_override_rows": 0,
+  "currency": "EUR",
+  "minimum_confidence": 95,
+  "product_ids": [
+    "7cf4ea37-cd11-4203-860c-7eed4ae965ba",
+    "882793f6-15ca-4617-a579-5cd47290ce72",
+    "de38a842-37c4-40a7-86b4-393341c4c9aa"
+  ],
+  "colors_by_product": {
+    "7cf4ea37-cd11-4203-860c-7eed4ae965ba": {
+      "Black": 120.69,
+      "Green": 131.25,
+      "Brown": 141.83
+    },
+    "882793f6-15ca-4617-a579-5cd47290ce72": {
+      "Black": 120.69,
+      "Green": 131.25,
+      "Brown": 147.11
+    },
+    "de38a842-37c4-40a7-86b4-393341c4c9aa": {
+      "Black": 130.35,
+      "Green": 140.01,
+      "Brown": 159.31
+    }
+  },
+  "decision": "These are real source-observed price-bearing color choices. They must not be normalized into the default price-neutral color rule. Each row keeps its exact configuration_price_id and gains an exact sellable price-scope identity; later variants bind the same row to its matching color attribute without creating a Cartesian product.",
+  "execution_dependency": "REPAIR_RELEASE_CONFIGURATION_BINDINGS must be SUCCEEDED first.",
+  "safety": {
+    "source_amount_mutation_allowed": false,
+    "public_price_amount_mutation_allowed": false,
+    "currency_mutation_allowed": false,
+    "manual_override_mutation_allowed": false,
+    "payment_enabled": false,
+    "indexing_enabled": false
+  }
+}

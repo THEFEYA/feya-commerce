@@ -1,7 +1,7 @@
 import type { StorefrontProduct } from './types';
 import {
   resolveStorefrontSellableOffer,
-  sellableOfferIncludedLabels,
+  sellableOfferPurchaseUnitLabels,
 } from './storefrontSellableOffer.ts';
 
 type EvidenceRow = Record<string, unknown>;
@@ -17,7 +17,7 @@ export function storefrontIncludedOptions(
 ) {
   const currentOffer = resolveStorefrontSellableOffer(product);
   if (currentOffer.source_available) {
-    return sellableOfferIncludedLabels(currentOffer, activeConfiguration);
+    return sellableOfferPurchaseUnitLabels(currentOffer, activeConfiguration);
   }
 
   const record = product as Record<string, unknown>;

@@ -4,6 +4,7 @@ import {
   getSupabaseAuthServerClient,
   isAdminAuthRequired,
 } from '@/lib/supabaseAuth';
+import { isOwnerActionAuthRequired } from '@/lib/ownerActionStepUpPolicy';
 
 function parseCsv(value: string | undefined) {
   return new Set(
@@ -22,9 +23,10 @@ export function getOwnerActionConfigStatus() {
     process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY,
   );
   const actionSwitchEnabled = process.env.FEYA_OWNER_ACTIONS_ENABLED === 'true';
+  const actionAuthRequired = isOwnerActionAuthRequired(process.env);
 
   const blockers: string[] = [];
-  if (!auth.required) blockers.push('обязательный вход владельца ещё не включён');
+  if (!actionAuthRequired) blockers.push('защищённая авторизация owner actions ещё не включена');
   if (!auth.allowlistConfigured) blockers.push('allowlist владельца не настроен');
   if (!auth.supabaseUrlConfigured || !auth.publicKeyConfigured) blockers.push('Supabase Auth настроен не полностью');
   if (!serviceRoleConfigured) blockers.push('серверный защищённый исполнитель не настроен');
@@ -34,6 +36,8 @@ export function getOwnerActionConfigStatus() {
     ...auth,
     serviceRoleConfigured,
     actionSwitchEnabled,
+    actionAuthRequired,
+    fullAdminAuthRequired: isAdminAuthRequired(),
     ready: blockers.length === 0,
     blockers,
   };
@@ -42,8 +46,8 @@ export function getOwnerActionConfigStatus() {
 export async function requireOwnerActionActor() {
   const config = getOwnerActionConfigStatus();
 
-  if (!isAdminAuthRequired()) {
-    return { ok: false as const, status: 423, code: 'owner_auth_not_required', error: 'Owner actions are locked until mandatory admin authentication is enabled.' };
+  if (!isOwnerActionAuthRequired(process.env)) {
+    return { ok: false as const, status: 423, code: 'owner_action_auth_disabled', error: 'Owner actions are locked until protected step-up authentication is enabled.' };
   }
 
   if (!config.actionSwitchEnabled) {

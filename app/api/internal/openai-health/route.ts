@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getInternalApiAuthStatus } from '@/lib/internalAuth';
+import { NextResponse } from 'next/server';
+import { withInternalApi } from '@/lib/internalAuth';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,23 +35,14 @@ async function runTinyOpenAiCheck() {
   }
 }
 
-export async function GET(request: NextRequest) {
-  const auth = getInternalApiAuthStatus(request);
-  const openAiConfigured = Boolean(process.env.OPENAI_API_KEY);
-
+async function handleGet() {
   return NextResponse.json({
     routeOk: true,
-    openAiApiKeyConfigured: openAiConfigured,
-    feyaInternalApiTokenConfigured: auth.configured,
-    authorizedForTestCall: auth.authorized,
-    openAiTest: auth.authorized
-      ? await runTinyOpenAiCheck()
-      : {
-          attempted: false,
-          ok: null,
-          reason: auth.configured
-            ? 'Provide a valid internal token to run the safe OpenAI test call.'
-            : 'FEYA_INTERNAL_API_TOKEN is not configured, so no test call was attempted.',
-        },
+    openAiApiKeyConfigured: Boolean(process.env.OPENAI_API_KEY),
+    feyaInternalApiTokenConfigured: true,
+    authorizedForTestCall: true,
+    openAiTest: await runTinyOpenAiCheck(),
   });
 }
+
+export const GET = withInternalApi(handleGet);

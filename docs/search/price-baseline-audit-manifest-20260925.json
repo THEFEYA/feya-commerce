@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "status": "AUDITED_NOT_ADOPTED",
+  "audited_at": "2026-09-25",
+  "release_ref": "feya-review-207-20260924",
+  "release_source_sha256": "6842ff45e4380758216f74cb309e557d68d5f6692a1206254beef954eab07440",
+  "clean_source_rule": "all release products except explicit manual_override_product_ids after read-only production audit",
+  "counts": {
+    "release_products": 207,
+    "release_price_rows": 856,
+    "clean_source_products": 205,
+    "clean_source_price_rows": 850,
+    "manual_override_products": 2,
+    "manual_override_product_price_rows": 6,
+    "unexplained_hold_products": 0
+  },
+  "manual_override_product_ids": [
+    "057fbd51-52f5-4404-b126-e5d75b8599f4",
+    "5602d557-9d98-454b-bc98-9b9ea84b442f"
+  ],
+  "production_mutation": false
+}

@@ -73,7 +73,8 @@ Never expose OAuth secrets or account credentials in snapshot rows.
 - api_version
 - endpoint/method logical name
 - access_model
-- bid_currency_code = GOOGLE_CLOUD_PROJECT_OAUTH
+- access_model = GOOGLE_CLOUD_PROJECT_OAUTH (where applicable to the actual source)
+- bid_currency_code = actual ISO currency code supplied by the source, or null
 - source_request_id where Google returns one
 - source_payload_ref or sanitized payload hash
 - ingestion_run_id

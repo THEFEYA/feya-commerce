@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getInternalApiAuthStatus } from '@/lib/internalAuth';
+import { NextResponse } from 'next/server';
+import { withInternalApi } from '@/lib/internalAuth';
 
 export const dynamic = 'force-dynamic';
 
@@ -162,12 +162,7 @@ async function runGoogleAdsApiCheck(accessToken?: string): Promise<GoogleAdsApiC
   }
 }
 
-export async function GET(request: NextRequest) {
-  const auth = getInternalApiAuthStatus(request);
-  if (!auth.authorized) {
-    return NextResponse.json({ ok: false, error: 'Unauthorized.' }, { status: 401 });
-  }
-
+async function handleGet() {
   const presentEnv = getPresentEnv();
   const optionalEnv = getOptionalEnv();
   const missingEnv = getMissingEnv(presentEnv);
@@ -195,3 +190,5 @@ export async function GET(request: NextRequest) {
     timestamp: new Date().toISOString(),
   });
 }
+
+export const GET = withInternalApi(handleGet);
