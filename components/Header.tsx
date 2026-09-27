@@ -158,7 +158,7 @@ export function Header() {
               </div>
             </div>
 
-            <div className={`grid gap-10 ${panel.groups.length >= 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+            <div className={`grid gap-8 ${panel.groups.filter((group) => group.items.some((item) => item.enabled)).length >= 4 ? 'grid-cols-4' : panel.groups.filter((group) => group.items.some((item) => item.enabled)).length === 3 ? 'grid-cols-3' : panel.groups.filter((group) => group.items.some((item) => item.enabled)).length === 2 ? 'grid-cols-2' : 'grid-cols-1'}`}>
               {panel.groups.filter((group) => group.items.some((item) => item.enabled)).map((group) => (
                 <div key={group.code}>
                   <div className="text-[10px] uppercase tracking-[0.32em] text-[var(--gold-warm)] mb-4">{group.label}</div>
