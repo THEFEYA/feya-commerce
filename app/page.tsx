@@ -127,7 +127,7 @@ export default async function HomePage() {
       <section className="container-feya py-14 lg:py-20 border-b border-[rgba(216,214,211,0.10)]">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between mb-8">
           <div>
-            <div className="eyebrow-gold mb-4">Explore by intent</div>
+            <div className="eyebrow-gold mb-4">Explore collections</div>
             <h2 className="display-section text-bone" style={{ fontSize: 'clamp(38px,5vw,68px)' }}>Start with the collection that matches your look.</h2>
           </div>
           <Link href="/collections" className="btn-ghost">All collections <ArrowUpRight size={13} /></Link>
