@@ -100,9 +100,9 @@ test('approved event tree includes Rave children and excludes Stage from event a
     persona_values_json: ['showgirl','drag queen','go go dancer','pole dancer'],
   });
 
-  assert.deepEqual(facets.events, ['Festival','Rave','Burning Man','EDM','EDC','Coachella','Halloween','Pride','Cosplay']);
-  assert.deepEqual(facets.performance, ['Stage','Showgirl','Drag']);
-  assert.deepEqual(facets.dance, ['Go-Go','Pole']);
+  assert.deepEqual(facets.events, ['Festival','Rave','Burning Man','Halloween','Pride','Cosplay']);
+  assert.deepEqual(facets.performance, ['Stage','Showgirl','Drag Queen']);
+  assert.deepEqual(facets.dance, ['Go-Go','Pole Dancer']);
   assert.ok(!facets.events.includes('Stage'));
 });
 
@@ -110,7 +110,7 @@ test('Style and Persona remain distinct DNA axes and restore the full approved c
   const facets = buildStorefrontFacets({
     canonical_product_id: 'p7',
     style_values_json: ['glam','futuristic','cosmic','sci fi','cyberpunk','post apocalyptic','fantasy','goth','punk','burlesque','classic'],
-    persona_values_json: ['warrior','warrior princess','queen','robot','witch','alien','demon','goddess','angel','cleopatra','bunny'],
+    persona_values_json: ['warrior','warrior princess','queen','robot','witch','maleficent','alien','demon','goddess','angel','cleopatra','bunny'],
   });
 
   assert.deepEqual(
@@ -119,7 +119,7 @@ test('Style and Persona remain distinct DNA axes and restore the full approved c
   );
   assert.deepEqual(
     facets.personas,
-    ['Warrior','Queen','Robot','Witch','Alien','Demon','Goddess','Angel','Cleopatra','Bunny'],
+    ['Warrior','Queen','Robot','Witch','Maleficent','Alien','Demon','Goddess','Angel','Cleopatra','Bunny'],
   );
   assert.ok(!facets.styles.includes('Warrior'));
   assert.ok(!facets.styles.includes('Goddess'));
