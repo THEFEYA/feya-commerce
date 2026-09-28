@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ProductCard } from '@/components/ProductCard';
+import { HomePieceCarousel } from '@/components/HomePieceCarousel';
 import { HOME_PRESENTATION, homePresentationProductIds } from '@/config/homePresentation';
 import { readClosedReviewPresentation } from '@/lib/searchReviewPresentationServer';
 import { releaseRobotsForPath } from '@/lib/searchReleaseIndexationServer';
@@ -156,7 +157,7 @@ export default async function HomePage() {
                 Original handmade pieces and full looks for festival, stage, fashion and performance.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <Link href="/shop" className="visual-primary-cta">Shop catalog</Link>
+                <Link href="/shop" className="visual-primary-cta visual-hero-cta">Shop catalog</Link>
                 <Link href="/shop?piece=Full%20Look" className="visual-secondary-cta">Explore full looks</Link>
               </div>
             </div>
@@ -167,28 +168,24 @@ export default async function HomePage() {
       <EditorialSection
         eyebrow="Shop by piece"
         title="Build it piece by piece."
+        tone="plain"
         action={<Link href="/shop" className="visual-text-link">Shop all <ArrowUpRight size={13} /></Link>}
       >
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-          {HOME_PRESENTATION.pieceTiles.map((tile) => (
-            <Link
-              key={tile.code}
-              href={tile.href}
-              className="group relative aspect-[3/4] overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#111117]"
-            >
-              <TileMedia product={getProduct(tile.productId)} label={tile.label} />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent px-4 pb-4 pt-14">
-                <div className="flex items-center justify-between gap-3 text-[15px] text-[#f4f1ea] sm:text-[17px]">
-                  <span>{tile.label}</span>
-                  <ArrowUpRight size={14} className="shrink-0 text-[#d8b56d]" />
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+        <HomePieceCarousel
+          items={HOME_PRESENTATION.pieceTiles.map((tile) => {
+            const product = getProduct(tile.productId);
+            return {
+              code: tile.code,
+              label: tile.label,
+              href: tile.href,
+              imageUrl: product?.primary_image_url || '',
+              imageAlt: product?.primary_image_alt || productTitle(product) || tile.label,
+            };
+          })}
+        />
       </EditorialSection>
 
-      <EditorialSection eyebrow="Events & Performance" title="Dressed for where you’re going.">
+      <EditorialSection eyebrow="Events & Performance" title="Dressed for where you’re going." tone="raised">
         <div className="grid grid-cols-12 gap-3 lg:gap-4">
           {HOME_PRESENTATION.eventTiles.map((tile, index) => {
             const wide = index === 0 || index === 3;
@@ -196,7 +193,7 @@ export default async function HomePage() {
               <article
                 key={tile.code}
                 className={`group relative col-span-12 overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111117] md:col-span-6 ${wide ? 'lg:col-span-7' : 'lg:col-span-5'}`}
-                style={{ minHeight: wide ? 560 : 470 }}
+                style={{ minHeight: wide ? 500 : 420 }}
               >
                 <TileMedia product={getProduct(tile.productId)} label={tile.label} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent" />
@@ -220,7 +217,7 @@ export default async function HomePage() {
         </div>
       </EditorialSection>
 
-      <EditorialSection eyebrow="Shop the look" title="Complete looks, every piece considered.">
+      <EditorialSection eyebrow="Shop the look" title="Complete looks, every piece considered." tone="deep">
         <div className="grid gap-8 lg:grid-cols-[.8fr_1fr_1fr] lg:items-start">
           <div className="max-w-[360px] text-[15px] leading-7 text-[#aaa2a0]">
             Explore complete FEYA looks and open each design to choose the available configuration, size and color.
@@ -252,6 +249,7 @@ export default async function HomePage() {
         <EditorialSection
           eyebrow="Selected pieces"
           title="TheFEYA Edit"
+          tone="raised"
           action={<Link href="/shop" className="visual-text-link">Shop all <ArrowUpRight size={13} /></Link>}
         >
           <div className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 xl:grid-cols-4">
@@ -262,15 +260,15 @@ export default async function HomePage() {
         </EditorialSection>
       ) : null}
 
-      <EditorialSection eyebrow="Find your look" title="Start from a mood.">
+      <EditorialSection eyebrow="Find your look" title="Start from a mood." tone="deep">
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {HOME_PRESENTATION.findTiles.map((tile) => (
             <Link key={tile.code} href={tile.href} className="group relative aspect-[3/4] overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#111117]">
               <TileMedia product={getProduct(tile.productId)} label={tile.label} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 z-10 p-5">
+              <div className="visual-tile-label-band absolute inset-x-3 bottom-3 z-10 rounded-[10px] p-4">
                 <span className="visual-axis-pill">{tile.axis}</span>
-                <h3 className="font-tall mt-4 text-[clamp(24px,2.2vw,34px)] leading-none tracking-[.01em] text-[#f7f3ec]">{tile.label}</h3>
+                <h3 className="font-tall mt-3 text-[clamp(24px,2.2vw,34px)] leading-none tracking-[.01em] text-[#f7f3ec]">{tile.label}</h3>
               </div>
             </Link>
           ))}
