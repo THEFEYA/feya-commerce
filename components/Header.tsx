@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Search, ShoppingBag, User, Menu, Heart, ArrowUpRight, ChevronDown, X } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { FeyaButterfly, FeyaMark } from '@/components/FeyaMark';
 import {
   enabledNavigationGroups,
@@ -72,6 +72,7 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openMobileSection, setOpenMobileSection] = useState<string | null>('shop');
   const [stylePreviewLabel, setStylePreviewLabel] = useState(DEFAULT_STYLE_MEGA_PREVIEW);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -89,12 +90,35 @@ export function Header() {
   useEffect(() => {
     setMobileOpen(false);
     setOpenPanel(null);
+    cancelScheduledClose();
   }, [pathname]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setOpenPanel(null);
+      setMobileOpen(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   const primaryNavigation = useMemo(() => publicPrimaryNavigation(), []);
   const panel = useMemo(() => (openPanel ? navigationPanel(openPanel) : null), [openPanel]);
   const groups = useMemo(() => (openPanel ? enabledNavigationGroups(openPanel) : []), [openPanel]);
   const stylePreview = STYLE_MEGA_PREVIEWS[stylePreviewLabel] || STYLE_MEGA_PREVIEWS[DEFAULT_STYLE_MEGA_PREVIEW];
+
+  const cancelScheduledClose = () => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
+
+  const schedulePanelClose = () => {
+    cancelScheduledClose();
+    closeTimerRef.current = setTimeout(() => setOpenPanel(null), 180);
+  };
 
   return (
     <header
@@ -102,7 +126,8 @@ export function Header() {
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
         scrolled ? 'backdrop-blur-xl bg-[rgba(7,7,10,0.78)] border-b border-[rgba(216,214,211,0.18)]' : 'bg-transparent'
       }`}
-      onMouseLeave={() => setOpenPanel(null)}
+      onMouseEnter={cancelScheduledClose}
+      onMouseLeave={schedulePanelClose}
     >
       <div className={`overflow-hidden transition-all duration-500 ${scrolled ? 'max-h-0 opacity-0' : 'max-h-10 opacity-100'}`}>
         <div className="bg-gradient-to-r from-transparent via-[rgba(212,178,106,0.10)] to-transparent text-center py-2 text-[10px] tracking-[0.32em] uppercase text-silver">
@@ -124,8 +149,14 @@ export function Header() {
               <Link
                 key={item.code}
                 href={item.href}
-                onMouseEnter={() => setOpenPanel(hasPanel ? String(item.panel) : null)}
-                onFocus={() => setOpenPanel(hasPanel ? String(item.panel) : null)}
+                onMouseEnter={() => {
+                  cancelScheduledClose();
+                  setOpenPanel(hasPanel ? String(item.panel) : null);
+                }}
+                onFocus={() => {
+                  cancelScheduledClose();
+                  setOpenPanel(hasPanel ? String(item.panel) : null);
+                }}
                 className={`relative text-[11px] tracking-[0.24em] uppercase font-medium transition-colors duration-300 ${
                   active || (hasPanel && openPanel === item.panel)
                     ? 'text-white nav-active-glow'
@@ -171,7 +202,11 @@ export function Header() {
 
       {panel && groups.length > 0 ? (
         <div
-          onMouseEnter={() => setOpenPanel(panel.code)}
+          onMouseEnter={() => {
+            cancelScheduledClose();
+            setOpenPanel(panel.code);
+          }}
+          onMouseLeave={schedulePanelClose}
           className="hidden lg:block absolute left-0 right-0 top-full border-y border-[rgba(216,214,211,0.14)] bg-[linear-gradient(180deg,rgba(13,13,18,0.985),rgba(7,7,10,0.98))] backdrop-blur-2xl shadow-[0_35px_90px_rgba(0,0,0,0.72)]"
         >
           <div className="container-feya py-7">
