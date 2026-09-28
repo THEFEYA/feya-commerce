@@ -17,7 +17,7 @@ export async function generateMetadata():Promise<Metadata>{
 
 function DestinationCard({item}:{item:StorefrontNavigationItem}){
   if(!item.enabled || !item.href)return null;
-  return <div className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-5">
+  return <div className="rounded-xl border border-white/[.08] bg-[#111117] p-5 transition-colors hover:border-[rgba(216,181,109,.32)]">
     <Link href={item.href} className="group flex items-start justify-between gap-4 transition-colors hover:text-white">
       <h3 className="text-bone text-xl">{item.label}</h3>
       <ArrowUpRight size={15} className="mt-1 shrink-0 text-[var(--bone-dim)] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"/>
@@ -55,13 +55,13 @@ function DiscoverySection({id,title,description,panelCode}:{id:string;title:stri
 }
 
 export default function CollectionsHubPage(){
-  return <main className="relative min-h-screen">
+  return <main className="visual-commerce-shell relative min-h-screen">
     <Header/>
     <section className="container-feya pt-36 pb-8 lg:pt-44 lg:pb-10">
       <div className="max-w-4xl">
         <div className="eyebrow-gold mb-5">Explore TheFEYA</div>
-        <h1 className="font-tall text-bone leading-[.95]" style={{fontSize:'clamp(52px,7vw,96px)'}}>Shop by what matters to you</h1>
-        <p className="editorial-italic mt-6 max-w-3xl text-lg leading-relaxed text-[var(--bone-dim)]">
+        <h1 className="visual-display text-[clamp(48px,6vw,86px)] font-medium leading-[.94] tracking-[-.045em] text-[#f7f3ec]">Shop by what matters to you</h1>
+        <p className="mt-6 max-w-3xl text-[16px] leading-7 text-[#aaa2a0]">
           Start with the piece, event, performance context or visual direction. Proven search owners keep their collection URLs; shopper refinements use the catalog without creating duplicate SEO pages.
         </p>
       </div>
