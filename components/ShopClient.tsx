@@ -44,7 +44,7 @@ function FilterBox({ checked }: { checked: boolean }) {
       aria-hidden="true"
       className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-all ${
         checked
-          ? 'border-[#e6c886] bg-[#d4b26a] text-[#08080a] shadow-[0_0_0_3px_rgba(212,178,106,.10),0_0_14px_rgba(212,178,106,.20)]'
+          ? 'border-[#d8b56d] bg-transparent text-[#e6c886] shadow-[0_0_0_3px_rgba(212,178,106,.09),0_0_13px_rgba(212,178,106,.18)]'
           : 'border-[rgba(216,214,211,.34)] bg-transparent text-transparent'
       }`}
     >
@@ -607,7 +607,7 @@ export function ShopClient({
 
       <section className={`${embedded ? '' : 'container-feya'} grid grid-cols-12 gap-7 lg:gap-10 py-10`}>
         <aside className="hidden lg:block col-span-3 xl:col-span-2" data-testid="filter-sidebar">
-          <div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-x-hidden overflow-y-auto rounded-xl border border-white/[0.08] bg-[linear-gradient(180deg,#0f0f14,#0b0b0f)] p-4 pr-3 shadow-[0_18px_45px_rgba(0,0,0,.28)] [scrollbar-width:thin]">
+          <div className="rounded-xl border border-white/[0.08] bg-[linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.008))] p-4 shadow-[0_18px_45px_rgba(0,0,0,.20)]">
             <CatalogFilterPanel {...panelProps} />
           </div>
         </aside>
