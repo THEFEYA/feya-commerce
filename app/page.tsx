@@ -130,9 +130,13 @@ export default async function HomePage() {
   const getProduct = (id: string) => byId.get(id);
 
   const hero = getProduct(HOME_PRESENTATION.heroProductId);
-  const selected = HOME_PRESENTATION.selectedProductIds
+  const curatedSelected = HOME_PRESENTATION.selectedProductIds
     .map(getProduct)
     .filter(Boolean) as StorefrontProduct[];
+  const curatedSelectedIds = new Set(curatedSelected.map((product) => product.canonical_product_id));
+  const selectedFallbacks = [...byId.values()]
+    .filter((product) => !curatedSelectedIds.has(product.canonical_product_id));
+  const selected = [...curatedSelected, ...selectedFallbacks].slice(0, 8);
 
   return (
     <main className="visual-commerce-shell relative min-h-screen overflow-hidden">
