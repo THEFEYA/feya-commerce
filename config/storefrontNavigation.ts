@@ -33,8 +33,7 @@ const owner = (code:string,label:string,href:string,children?:StorefrontNavigati
 
 export const PRIMARY_NAVIGATION = [
   { code: 'shop', label: 'Shop', href: '/shop', panel: 'shop' },
-  { code: 'events', label: 'Events', href: '/collections#events', panel: 'events' },
-  { code: 'performance', label: 'Performance', href: '/collections#performance', panel: 'performance' },
+  { code: 'events_performance', label: 'Events & Performance', href: '/collections#events-performance', panel: 'events_performance' },
   { code: 'style', label: 'Style', href: '/collections#style', panel: 'style' },
   { code: 'about', label: 'About', href: '/about' },
 ] as const;
@@ -52,7 +51,6 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         items: [
           { code:'shop_all', label:'Shop All', href:'/shop', role:'support', enabled:true },
           filter('full_looks','Full Looks','/shop?piece=Full%20Look'),
-          filter('couple_looks','Couple Looks','/shop?audience=Couples'),
         ],
       },
       {
@@ -62,6 +60,8 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         description: 'Complete garments.',
         items: [
           owner('bodysuits','Bodysuits','/collections/bodysuits'),
+          { code:'dresses', label:'Dresses', href:'/shop?piece=Dress', role:'hold', enabled:true },
+          { code:'full_body_harnesses', label:'Full Body Harnesses', href:'/shop?piece=Full%20Body%20Harness', role:'hold', enabled:true },
         ],
       },
       {
@@ -132,12 +132,23 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
           filter('spine','Spine','/shop?piece=Spine'),
         ],
       },
+      {
+        code: 'shop_for',
+        label: 'Shop For',
+        description: 'Audience and paired-look browsing stays separate from Product Type and Search Ownership.',
+        items: [
+          filter('women','Women','/shop?audience=Women'),
+          filter('men','Men','/shop?audience=Men'),
+          { code:'unisex', label:'Unisex', href:'/shop?audience=Unisex', role:'hold', enabled:true },
+          filter('couples','Couples','/shop?audience=Couples'),
+        ],
+      },
     ],
   },
 
-  events: {
-    code: 'events',
-    label: 'Events',
+  events_performance: {
+    code: 'events_performance',
+    label: 'Events & Performance',
     groups: [
       {
         code: 'festival',
@@ -163,13 +174,6 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
           filter('cosplay','Cosplay','/shop?event=Cosplay'),
         ],
       },
-    ],
-  },
-
-  performance: {
-    code: 'performance',
-    label: 'Performance',
-    groups: [
       {
         code: 'performance_roles',
         label: 'Performance',
