@@ -405,10 +405,12 @@ export function ShopClient({
   products,
   error,
   navigation,
+  embedded = false,
 }: {
   products: StorefrontProduct[];
   error?: string;
   navigation?: ShopNavigation;
+  embedded?: boolean;
 }) {
   const initial = navigation?.filters ?? defaultShopFilters();
 
@@ -592,8 +594,8 @@ export function ShopClient({
   ];
 
   return (
-    <div data-testid="shop-page" className="visual-commerce-shell relative pt-24 lg:pt-28">
-      <section className="container-feya border-b border-white/[0.08] py-10 lg:py-14">
+    <div data-testid="shop-page" className={`visual-commerce-shell relative ${embedded ? 'pt-0' : 'pt-24 lg:pt-28'}`}>
+      {!embedded ? <section className="container-feya border-b border-white/[0.08] py-10 lg:py-14">
         <div className="mb-3 text-[10px] uppercase tracking-[0.18em] text-[#aaa2a0]">TheFEYA catalog</div>
         <h1 className="visual-display text-[clamp(48px,6vw,88px)] font-medium leading-[.92] tracking-[-.045em] text-[#f7f3ec]">
           Find your piece.
@@ -601,9 +603,9 @@ export function ShopClient({
         <p className="mt-5 max-w-2xl text-[15px] leading-7 text-[#aaa2a0]">
           Start with who you are shopping for, then narrow by body area and product type. Price, color and context come next.
         </p>
-      </section>
+      </section> : null}
 
-      <section className="container-feya grid grid-cols-12 gap-7 lg:gap-10 py-10">
+      <section className={`${embedded ? '' : 'container-feya'} grid grid-cols-12 gap-7 lg:gap-10 py-10`}>
         <aside className="hidden lg:block col-span-3 xl:col-span-2" data-testid="filter-sidebar">
           <div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-xl border border-white/[0.08] bg-[#0e0e12] p-4 pr-3 [scrollbar-width:thin]">
             <CatalogFilterPanel {...panelProps} />
