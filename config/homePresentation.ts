@@ -1,7 +1,7 @@
 export const HOME_PRESENTATION_VERSION = 'feya-home-visual-v1';
 
 export const HOME_PRESENTATION = {
-  heroProductId: '12111ddc-2364-4861-bd93-4bbc27ae4b28',
+  heroProductId: '043406cd-0a96-45c5-8796-57c5cc4b276e',
   pieceTiles: [
     { code: 'full-looks', label: 'Full Looks', href: '/shop?piece=Full%20Look', productId: '0403df9f-3ff9-498d-b3d9-69ad64b3dd4c' },
     { code: 'bodysuits', label: 'Bodysuits', href: '/collections/bodysuits', productId: '65e36680-71ca-44ba-9873-f7c962928642' },
