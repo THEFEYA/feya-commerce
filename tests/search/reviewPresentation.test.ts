@@ -92,8 +92,8 @@ test('governed filters round-trip in page links; invalid/ambiguous and legacy un
     piece:'Shoulder',
     part:'Arms',
     event:['Festival','Rave'],
-    performance:['Stage','Showgirl'],
-    dance:['Go-Go'],
+    performance:['Stage & Fashion','Showgirl'],
+    dance:['Go-Go Dancer'],
     style:['Cyberpunk','Glam'],
     sort:'Price · high to low',
   };
