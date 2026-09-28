@@ -217,33 +217,6 @@ export default async function HomePage() {
         </div>
       </EditorialSection>
 
-      <EditorialSection eyebrow="Shop the look" title="Complete looks, every piece considered." tone="deep">
-        <div className="grid gap-8 lg:grid-cols-[.8fr_1fr_1fr] lg:items-start">
-          <div className="max-w-[360px] text-[15px] leading-7 text-[#aaa2a0]">
-            Explore complete FEYA looks and open each design to choose the available configuration, size and color.
-          </div>
-          {HOME_PRESENTATION.lookTiles.map((look, index) => {
-            const product = getProduct(look.productId);
-            return (
-              <article key={look.code} className={index === 1 ? 'lg:mt-24' : ''}>
-                <Link href={product ? `/shop/${product.product_slug}` : '/shop'} className="group block">
-                  <div className="relative aspect-[4/5] overflow-hidden rounded-md border border-white/[0.07] bg-[#111117]">
-                    <TileMedia product={product} label={look.label} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  </div>
-                  <div className="mt-4 flex items-end justify-between gap-5">
-                    <div>
-                      <div className="text-[10px] uppercase tracking-[0.16em] text-[#aaa2a0]">{look.axis}</div>
-                      <h3 className="font-tall mt-1 text-[24px] leading-tight tracking-[.01em] text-[#f4f1ea]">{look.label}</h3>
-                    </div>
-                    <span className="visual-outline-cta">View full look</span>
-                  </div>
-                </Link>
-              </article>
-            );
-          })}
-        </div>
-      </EditorialSection>
 
       {selected.length ? (
         <EditorialSection
