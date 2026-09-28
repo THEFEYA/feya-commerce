@@ -58,6 +58,7 @@ export type StorefrontFacetSet = {
   performance: string[];
   dance: string[];
   styles: string[];
+  personas: string[];
   audience: string[];
   materials: string[];
   effects: string[];
