@@ -20,17 +20,26 @@ function navIsActive(pathname: string, href: string, code: string) {
 }
 
 function MegaLeaf({ item, onNavigate, nested = false }: { item: StorefrontNavigationItem; onNavigate?: () => void; nested?: boolean }) {
-  if (!item.enabled || !item.href) return null;
+  if (!item.enabled) return null;
+
+  const rowClass = `group flex items-center justify-between border-b border-white/[0.07] py-2.5 transition-colors ${nested ? 'pl-4 text-[10px] tracking-[0.14em]' : 'text-[11px] tracking-[0.16em]'} uppercase`;
+
   return (
     <div>
-      <Link
-        href={item.href}
-        onClick={onNavigate}
-        className={`group flex items-center justify-between border-b border-white/[0.07] py-2.5 transition-colors hover:text-white ${nested ? 'pl-4 text-[10px] tracking-[0.14em] text-[#9F9A90]' : 'text-[11px] tracking-[0.16em] text-[#C8C2B5]'} uppercase`}
-      >
-        <span>{item.label}</span>
-        <ArrowUpRight size={10} className="opacity-35 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100" />
-      </Link>
+      {item.href ? (
+        <Link
+          href={item.href}
+          onClick={onNavigate}
+          className={`${rowClass} text-[#C8C2B5] hover:text-white`}
+        >
+          <span>{item.label}</span>
+          <ArrowUpRight size={10} className="opacity-35 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100" />
+        </Link>
+      ) : (
+        <div aria-disabled="true" className={`${rowClass} cursor-default text-[rgba(200,194,181,.42)]`}>
+          <span>{item.label}</span>
+        </div>
+      )}
       {item.children?.length ? (
         <div className="border-l border-white/10">
           {item.children.filter((child) => child.enabled).map((child) => (
@@ -92,7 +101,7 @@ export function Header() {
           <FeyaMark variant="chrome" width={78} className="transition-transform duration-500 group-hover:scale-[1.03]" />
         </Link>
 
-        <nav className="hidden lg:flex items-center gap-7 xl:gap-9" data-testid="primary-nav">
+        <nav className="hidden lg:flex items-center gap-5 xl:gap-7" data-testid="primary-nav">
           {primaryNavigation.map((item) => {
             const active = navIsActive(pathname, item.href, item.code);
             const hasPanel = 'panel' in item && Boolean(item.panel);
