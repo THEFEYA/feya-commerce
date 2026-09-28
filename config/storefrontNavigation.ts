@@ -54,6 +54,17 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         ],
       },
       {
+        code: 'shop_for',
+        label: 'Shop For',
+        description: 'Audience and paired-look browsing stays separate from Product Type and Search Ownership.',
+        items: [
+          filter('women','Women','/shop?audience=Women'),
+          filter('men','Men','/shop?audience=Men'),
+          { code:'unisex', label:'Unisex', href:'/shop?audience=Unisex', role:'hold', enabled:true },
+          filter('couples','Couples','/shop?audience=Couples'),
+        ],
+      },
+      {
         code: 'full_body',
         label: 'Full Body',
         href: '/shop?part=Full%20Body',
@@ -99,16 +110,6 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         ],
       },
       {
-        code: 'legs',
-        label: 'Legs',
-        href: '/shop?part=Legs',
-        description: 'Leg covers and upper-leg accessories.',
-        items: [
-          filter('leg_covers','Leg Covers','/shop?piece=Leg%20Covers'),
-          filter('garters','Garters','/shop?piece=Garter'),
-        ],
-      },
-      {
         code: 'head_face',
         label: 'Head & Face',
         href: '/shop?part=Head%20%26%20Face',
@@ -122,6 +123,16 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         ],
       },
       {
+        code: 'legs',
+        label: 'Legs',
+        href: '/shop?part=Legs',
+        description: 'Leg covers and upper-leg accessories.',
+        items: [
+          filter('leg_covers','Leg Covers','/shop?piece=Leg%20Covers'),
+          filter('garters','Garters','/shop?piece=Garter'),
+        ],
+      },
+      {
         code: 'special',
         label: 'Special',
         href: '/shop?part=Special',
@@ -130,17 +141,6 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
           filter('wings','Wings','/shop?piece=Wings'),
           filter('tail','Tail','/shop?piece=Tail'),
           filter('spine','Spine','/shop?piece=Spine'),
-        ],
-      },
-      {
-        code: 'shop_for',
-        label: 'Shop For',
-        description: 'Audience and paired-look browsing stays separate from Product Type and Search Ownership.',
-        items: [
-          filter('women','Women','/shop?audience=Women'),
-          filter('men','Men','/shop?audience=Men'),
-          { code:'unisex', label:'Unisex', href:'/shop?audience=Unisex', role:'hold', enabled:true },
-          filter('couples','Couples','/shop?audience=Couples'),
         ],
       },
     ],
@@ -156,11 +156,7 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         href: '/collections/festival-outfits',
         description: 'Festival is the broad entry. Rave and Burning Man remain distinct shopper paths.',
         items: [
-          owner('rave','Rave','/collections/rave-outfits',[
-            filter('edm','EDM','/shop?event=EDM'),
-            filter('edc','EDC','/shop?event=EDC'),
-            filter('coachella','Coachella','/shop?event=Coachella'),
-          ]),
+          owner('rave','Rave','/collections/rave-outfits'),
           owner('burning_man','Burning Man','/collections/burning-man-looks'),
         ],
       },
@@ -182,7 +178,7 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         items: [
           owner('stage','Stage','/collections/stage-outfits'),
           filter('showgirl','Showgirl','/shop?performance=Showgirl'),
-          filter('drag','Drag','/shop?performance=Drag'),
+          filter('drag_queen','Drag Queen','/shop?performance=Drag%20Queen'),
         ],
       },
       {
@@ -191,7 +187,7 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         description: 'Movement-led performance paths.',
         items: [
           filter('go_go','Go-Go','/shop?dance=Go-Go'),
-          filter('pole','Pole','/shop?dance=Pole'),
+          filter('pole_dancer','Pole Dancer','/shop?dance=Pole%20Dancer'),
         ],
       },
     ],
@@ -227,6 +223,7 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
           filter('queen','Queen','/shop?persona=Queen'),
           filter('robot','Robot','/shop?persona=Robot'),
           filter('witch','Witch','/shop?persona=Witch'),
+          filter('maleficent','Maleficent','/shop?persona=Maleficent'),
           filter('alien','Alien','/shop?persona=Alien'),
           filter('demon','Demon','/shop?persona=Demon'),
           filter('goddess','Goddess','/shop?persona=Goddess'),
