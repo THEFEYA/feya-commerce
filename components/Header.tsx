@@ -166,7 +166,7 @@ export function Header() {
               </Link>
             </div>
 
-            <div className={`mt-5 grid gap-x-8 gap-y-8 ${panel.code === 'shop' || panel.code === 'events_performance' ? 'grid-cols-4' : 'grid-cols-2'}`}>
+            <div className={`mt-5 grid gap-x-8 gap-y-8 ${panel.code === 'shop' ? 'grid-cols-5' : panel.code === 'events_performance' ? 'grid-cols-4' : 'grid-cols-2'}`}>
               {groups.map((group) => (
                 <section key={group.code} className="min-w-0">
                   <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
