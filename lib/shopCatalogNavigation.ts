@@ -3,8 +3,8 @@ import { mainRegularPrice, productTitle } from './storefront.ts';
 
 export const SHOP_PAGE_SIZE = 20;
 
-export const PIECES = ['All', 'Full Look', 'Bodysuit', 'Shoulder', 'Mask', 'Headpiece', 'Belt', 'Skirt', 'Leg Covers', 'Wings', 'Tail', 'Spine'];
-export const PARTS = ['Full Body', 'Upper Body', 'Arms', 'Lower Body', 'Legs', 'Head & Face', 'Special Structures'];
+export const PIECES = ['All', 'Full Look', 'Bodysuit', 'Top', 'Corset', 'Harness', 'Shoulder', 'Bracelet / Cuff', 'Glove', 'Skirt', 'Belt', 'Panties / Bottom', 'Leg Covers', 'Garter', 'Mask', 'Headpiece', 'Choker / Collar', 'Wings', 'Tail', 'Spine'];
+export const PARTS = ['Full Body', 'Upper Body', 'Arms', 'Lower Body', 'Legs', 'Head & Face', 'Special'];
 export const COLORS = ['Gold', 'Silver', 'Black', 'White', 'Red', 'Holographic'];
 export const EVENTS = ['Festival', 'Rave', 'Burning Man', 'Halloween', 'Pride', 'Cosplay'];
 export const PERFORMANCE = ['Stage', 'Showgirl', 'Drag'];
