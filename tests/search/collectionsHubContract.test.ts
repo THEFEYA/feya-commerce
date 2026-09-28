@@ -3,19 +3,21 @@ import test from 'node:test';
 import { readFile } from 'node:fs/promises';
 import { STOREFRONT_NAVIGATION_PANELS } from '../../config/storefrontNavigation.ts';
 
-test('collections hub is release-aware and projects the typed storefront navigation contract', async () => {
+test('collections hub is release-aware and projects the merged shopper discovery contract', async () => {
   const page = await readFile(new URL('../../app/collections/page.tsx', import.meta.url), 'utf8');
 
   assert.match(page, /releaseRobotsForPath/);
   assert.match(page, /STOREFRONT_NAVIGATION_PANELS/);
   assert.match(page, /Shop by piece/);
-  assert.match(page, /Shop by event/);
-  assert.match(page, /Performance & dance/);
+  assert.match(page, /Events & performance/);
   assert.match(page, /Shop by style/);
+  assert.match(page, /panelCode="events_performance"/);
 
-  assert.equal(STOREFRONT_NAVIGATION_PANELS.events.groups[0].href, '/collections/festival-outfits');
-  assert.equal(STOREFRONT_NAVIGATION_PANELS.events.groups[0].items.find((item) => item.code === 'rave')?.href, '/collections/rave-outfits');
-  assert.equal(STOREFRONT_NAVIGATION_PANELS.events.groups[0].items.find((item) => item.code === 'burning_man')?.href, '/collections/burning-man-looks');
+  const panel = STOREFRONT_NAVIGATION_PANELS.events_performance;
+  assert.equal(panel.groups[0].href, '/collections/festival-outfits');
+  assert.equal(panel.groups[0].items.find((item) => item.code === 'rave')?.href, '/collections/rave-outfits');
+  assert.equal(panel.groups[0].items.find((item) => item.code === 'burning_man')?.href, '/collections/burning-man-looks');
+  assert.equal(panel.groups[2].items.find((item) => item.code === 'stage')?.href, '/collections/stage-outfits');
 });
 
 test('homepage crawl path points Explore collections at the server-rendered collection hub', async () => {
