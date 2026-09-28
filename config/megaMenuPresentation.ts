@@ -300,6 +300,13 @@ export const SHOP_MEGA_PREVIEWS: Record<string, MegaPreview> = {
     productSlug: 'futuristic-metallic-top-and-belt-cyber-stage-costume-set-4374165306',
     imageUrl: 'https://i.etsystatic.com/54033853/r/il/8b83a9/7269374765/il_fullxfull.7269374765_4hpk.jpg',
   },
+  'Bottoms': {
+    label: 'Bottoms',
+    axis: 'Style',
+    productId: '09f51ad4-6b90-4311-aa5a-54f91cf4b7bf',
+    productSlug: 'gogo-costume-set-bodysuit-skirt-leg-covers-for-futuristic-dance-fashion-outfit-pj-showgirl-4389332118',
+    imageUrl: 'https://i.etsystatic.com/54033853/r/il/255852/7348861353/il_fullxfull.7348861353_b9uy.jpg',
+  },
   'Head & Face': {
     label: 'Head & Face',
     axis: 'Style',
@@ -401,6 +408,13 @@ export const EVENTS_PERFORMANCE_MEGA_PREVIEWS: Record<string, MegaPreview> = {
   'Burning Man': STYLE_MEGA_PREVIEWS['Warrior'],
   'Other Events': STYLE_MEGA_PREVIEWS['Witch'],
   'Halloween': STYLE_MEGA_PREVIEWS['Witch'],
+  'Pride': {
+    label: 'Pride',
+    axis: 'Style',
+    productId: '4da73818-2f50-43de-b326-8b2c63b17983',
+    productSlug: 'gold-cyberpunk-costume-festival-armor-outfit-futuristic-burning-man-wear-4460639798',
+    imageUrl: 'https://i.etsystatic.com/54033853/r/il/c3fa19/7777842881/il_fullxfull.7777842881_jqk2.jpg',
+  },
   'Cosplay': STYLE_MEGA_PREVIEWS['Fantasy'],
   'Performance': STYLE_MEGA_PREVIEWS['Glam'],
   'Stage & Fashion': STYLE_MEGA_PREVIEWS['Glam'],
