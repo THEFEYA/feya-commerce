@@ -44,12 +44,31 @@ test('legacy Backpiece and Cape/Tunic never become launch special-structure face
     canonical_color_label: null,
   });
 
-  assert.ok(facets.parts.includes('Special Structures'));
+  assert.ok(facets.parts.includes('Special'));
   assert.ok(facets.subtypes.includes('Wings'));
   assert.ok(facets.subtypes.includes('Spine'));
   assert.ok(facets.subtypes.includes('Tail'));
   assert.ok(!facets.subtypes.includes('Backpiece'));
   assert.ok(!facets.subtypes.includes('Cape / Tunic'));
+});
+
+test('approved component axes add product categories without changing SEO ownership', () => {
+  const facets = buildStorefrontFacets({
+    canonical_product_id: 'p4a',
+    parent_components_json: [],
+    child_components_json: ['bracelet','glove','leg covers','garters','choker'],
+    component_groups_json: [],
+    component_values_json: ['top','corset','harness','skirt','belt','panties','legs','mask','headpiece'],
+  });
+
+  assert.ok(facets.parts.includes('Upper Body'));
+  assert.ok(facets.parts.includes('Arms'));
+  assert.ok(facets.parts.includes('Lower Body'));
+  assert.ok(facets.parts.includes('Legs'));
+  assert.ok(facets.parts.includes('Head & Face'));
+  for (const subtype of ['Top','Corset','Harness','Bracelet / Cuff','Glove','Skirt','Belt','Panties / Bottom','Leg Covers','Garter','Mask','Headpiece','Choker / Collar']) {
+    assert.ok(facets.subtypes.includes(subtype), subtype);
+  }
 });
 
 test('bundle with multiple confirmed children becomes a Full Look shopper facet', () => {
