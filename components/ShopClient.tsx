@@ -250,10 +250,6 @@ export function ShopClient({
                   <FilterBox checked={performance.includes(value)} />{value}
                 </button>
               ))}
-            </div>
-
-            <div>
-              <div className="eyebrow text-[10.5px] mb-3">Dance</div>
               {DANCE.map((value) => (
                 <button key={value} onClick={() => setDance(toggleValue(dance, value))} className="w-full flex items-center gap-2 text-left text-[12px] text-[var(--bone-dim)] py-1.5 hover:text-white">
                   <FilterBox checked={dance.includes(value)} />{value}
