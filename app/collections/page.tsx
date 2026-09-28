@@ -16,18 +16,20 @@ export async function generateMetadata():Promise<Metadata>{
 }
 
 function DestinationCard({item}:{item:StorefrontNavigationItem}){
-  const body=<>
-    <div className="mt-4 flex items-start justify-between gap-4">
+  if(!item.enabled || !item.href)return null;
+  return <div className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-5">
+    <Link href={item.href} className="group flex items-start justify-between gap-4 transition-colors hover:text-white">
       <h3 className="text-bone text-xl">{item.label}</h3>
-      {item.enabled && item.href ? <ArrowUpRight size={15} className="mt-1 shrink-0 text-[var(--bone-dim)] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"/> : null}
-    </div>
-  </>;
-
-  if(item.enabled && item.href){
-    return <Link href={item.href} className="group rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-5 transition-all hover:border-[rgba(212,178,106,.45)] hover:bg-[rgba(212,178,106,.05)]">{body}</Link>;
-  }
-
-  return <div aria-disabled="true" className="rounded-xl border border-[rgba(216,214,211,.08)] bg-[rgba(255,255,255,.015)] p-5 opacity-55">{body}</div>;
+      <ArrowUpRight size={15} className="mt-1 shrink-0 text-[var(--bone-dim)] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"/>
+    </Link>
+    {item.children?.length ? <div className="mt-4 border-l border-white/10 pl-4">
+      {item.children.filter((child)=>child.enabled&&child.href).map((child)=>
+        <Link key={child.code} href={child.href!} className="flex items-center justify-between border-b border-white/[.06] py-2 text-[11px] uppercase tracking-[.16em] text-[var(--bone-dim)] hover:text-white">
+          {child.label}<ArrowUpRight size={10}/>
+        </Link>
+      )}
+    </div> : null}
+  </div>;
 }
 
 function DiscoverySection({id,title,description,panelCode}:{id:string;title:string;description:string;panelCode:string}){
@@ -87,7 +89,7 @@ export default function CollectionsHubPage(){
       <DiscoverySection
         id="style"
         title="Shop by style"
-        description="Style paths are shopper filters backed by the governed facet snapshot; they do not create duplicate indexable landing owners."
+        description="Styles and personas are both available for browsing, but remain distinct Product DNA axes and do not create duplicate SEO owners automatically."
         panelCode="style"
       />
 
