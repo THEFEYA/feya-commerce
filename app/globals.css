@@ -4864,3 +4864,8 @@ a.owner-list-row:hover {
     animation-iteration-count: 1 !important;
   }
 }
+
+@keyframes feyaPreviewFade {
+  from { opacity: .28; transform: scale(1.012); }
+  to { opacity: 1; transform: scale(1); }
+}
