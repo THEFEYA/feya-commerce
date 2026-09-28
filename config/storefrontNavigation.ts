@@ -6,6 +6,7 @@ export type StorefrontNavigationItem = {
   role: StorefrontNavigationRole;
   href?: string;
   enabled: boolean;
+  children?: StorefrontNavigationItem[];
 };
 
 export type StorefrontNavigationGroup = {
@@ -22,6 +23,14 @@ export type StorefrontNavigationPanel = {
   groups: StorefrontNavigationGroup[];
 };
 
+const filter = (code:string,label:string,href:string,children?:StorefrontNavigationItem[]):StorefrontNavigationItem => ({
+  code,label,href,role:'filter',enabled:true,children,
+});
+
+const owner = (code:string,label:string,href:string,children?:StorefrontNavigationItem[]):StorefrontNavigationItem => ({
+  code,label,href,role:'owner',enabled:true,children,
+});
+
 export const PRIMARY_NAVIGATION = [
   { code: 'shop', label: 'Shop', href: '/shop', panel: 'shop' },
   { code: 'events', label: 'Events', href: '/collections#events', panel: 'events' },
@@ -36,55 +45,57 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
     label: 'Shop',
     groups: [
       {
-        code: 'all',
+        code: 'shop_all',
         label: 'Shop',
         href: '/shop',
-        description: 'Browse the complete catalog or start with a full look.',
+        description: 'Browse the complete catalog or start with a coordinated look.',
         items: [
-          { code: 'shop_all', label: 'Shop All', role: 'support', href: '/shop', enabled: true },
-          { code: 'full_looks', label: 'Full Looks', role: 'filter', href: '/shop?piece=Full%20Look', enabled: true },
+          { code:'shop_all', label:'Shop All', href:'/shop', role:'support', enabled:true },
+          filter('full_looks','Full Looks','/shop?piece=Full%20Look'),
+          filter('couple_looks','Couple Looks','/shop?audience=Couples'),
         ],
       },
       {
         code: 'full_body',
         label: 'Full Body',
         href: '/shop?part=Full%20Body',
-        description: 'Complete garments that cover the full body.',
+        description: 'Complete garments.',
         items: [
-          { code: 'bodysuits', label: 'Bodysuits', role: 'owner', href: '/collections/bodysuits', enabled: true },
+          owner('bodysuits','Bodysuits','/collections/bodysuits'),
         ],
       },
       {
         code: 'upper_body',
         label: 'Upper Body',
         href: '/shop?part=Upper%20Body',
-        description: 'Tops, corsets and harness-led upper-body pieces.',
+        description: 'Tops, bra tops, corsets and harness-led pieces.',
         items: [
-          { code: 'tops', label: 'Tops', role: 'filter', href: '/shop?piece=Top', enabled: true },
-          { code: 'corsets', label: 'Corsets', role: 'filter', href: '/shop?piece=Corset', enabled: true },
-          { code: 'harnesses', label: 'Harnesses', role: 'filter', href: '/shop?piece=Harness', enabled: true },
+          filter('tops','Tops','/shop?piece=Top'),
+          filter('bras','Bra Tops','/shop?piece=Bra'),
+          filter('corsets','Corsets','/shop?piece=Corset'),
+          filter('harnesses','Harnesses','/shop?piece=Harness'),
         ],
       },
       {
         code: 'arms',
         label: 'Arms',
         href: '/shop?part=Arms',
-        description: 'Shoulders, cuffs, bracelets and glove pieces.',
+        description: 'Arm-region pieces are grouped once; search aliases do not create duplicate categories.',
         items: [
-          { code: 'shoulders', label: 'Shoulders', role: 'owner', href: '/collections/shoulder-armor', enabled: true },
-          { code: 'bracelets_cuffs', label: 'Bracelets & Cuffs', role: 'filter', href: '/shop?piece=Bracelet%20%2F%20Cuff', enabled: true },
-          { code: 'gloves', label: 'Gloves', role: 'filter', href: '/shop?piece=Glove', enabled: true },
+          owner('shoulders','Shoulders','/collections/shoulder-armor'),
+          filter('bracelets_cuffs','Bracelets & Cuffs','/shop?piece=Bracelet%20%2F%20Cuff'),
+          filter('gloves','Gloves','/shop?piece=Glove'),
         ],
       },
       {
         code: 'lower_body',
         label: 'Lower Body',
         href: '/shop?part=Lower%20Body',
-        description: 'Skirts, belts and lower-body pieces.',
+        description: 'Skirts, belts and bottoms.',
         items: [
-          { code: 'skirts', label: 'Skirts', role: 'filter', href: '/shop?piece=Skirt', enabled: true },
-          { code: 'belts', label: 'Belts', role: 'owner', href: '/collections/costume-belts', enabled: true },
-          { code: 'bottoms', label: 'Bottoms', role: 'filter', href: '/shop?piece=Panties%20%2F%20Bottom', enabled: true },
+          filter('skirts','Skirts','/shop?piece=Skirt'),
+          owner('belts','Belts','/collections/costume-belts'),
+          filter('bottoms','Bottoms','/shop?piece=Panties%20%2F%20Bottom'),
         ],
       },
       {
@@ -93,8 +104,8 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         href: '/shop?part=Legs',
         description: 'Leg covers and upper-leg accessories.',
         items: [
-          { code: 'leg_covers', label: 'Leg Covers', role: 'filter', href: '/shop?piece=Leg%20Covers', enabled: true },
-          { code: 'garters', label: 'Garters', role: 'filter', href: '/shop?piece=Garter', enabled: true },
+          filter('leg_covers','Leg Covers','/shop?piece=Leg%20Covers'),
+          filter('garters','Garters','/shop?piece=Garter'),
         ],
       },
       {
@@ -103,24 +114,27 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         href: '/shop?part=Head%20%26%20Face',
         description: 'Masks, headpieces and neck pieces.',
         items: [
-          { code: 'masks', label: 'Masks', role: 'owner', href: '/collections/costume-masks', enabled: true },
-          { code: 'headpieces', label: 'Headpieces', role: 'owner', href: '/collections/costume-headpieces', enabled: true },
-          { code: 'chokers', label: 'Chokers', role: 'filter', href: '/shop?piece=Choker%20%2F%20Collar', enabled: true },
+          owner('masks','Masks','/collections/costume-masks'),
+          owner('headpieces','Headpieces','/collections/costume-headpieces'),
+          filter('horns','Horns','/shop?piece=Horns'),
+          filter('crowns','Crowns','/shop?piece=Crown'),
+          filter('chokers','Chokers','/shop?piece=Choker%20%2F%20Collar'),
         ],
       },
       {
         code: 'special',
         label: 'Special',
         href: '/shop?part=Special',
-        description: 'Special structures that sit outside the usual body-area groups.',
+        description: 'Special structures outside the usual body-area groups.',
         items: [
-          { code: 'wings', label: 'Wings', role: 'filter', href: '/shop?piece=Wings', enabled: true },
-          { code: 'tail', label: 'Tail', role: 'filter', href: '/shop?piece=Tail', enabled: true },
-          { code: 'spine', label: 'Spine', role: 'filter', href: '/shop?piece=Spine', enabled: true },
+          filter('wings','Wings','/shop?piece=Wings'),
+          filter('tail','Tail','/shop?piece=Tail'),
+          filter('spine','Spine','/shop?piece=Spine'),
         ],
       },
     ],
   },
+
   events: {
     code: 'events',
     label: 'Events',
@@ -129,50 +143,56 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         code: 'festival',
         label: 'Festival',
         href: '/collections/festival-outfits',
-        description: 'Festival is the broad entry; Rave and Burning Man remain distinct shopping paths.',
+        description: 'Festival is the broad entry. Rave and Burning Man remain distinct shopper paths.',
         items: [
-          { code: 'rave', label: 'Rave', role: 'owner', href: '/collections/rave-outfits', enabled: true },
-          { code: 'burning_man', label: 'Burning Man', role: 'owner', href: '/collections/burning-man-looks', enabled: true },
+          owner('rave','Rave','/collections/rave-outfits',[
+            filter('edm','EDM','/shop?event=EDM'),
+            filter('edc','EDC','/shop?event=EDC'),
+            filter('coachella','Coachella','/shop?event=Coachella'),
+          ]),
+          owner('burning_man','Burning Man','/collections/burning-man-looks'),
         ],
       },
       {
         code: 'other_events',
         label: 'Other Events',
-        description: 'Browse event-led looks without creating a separate SEO page for every occasion.',
+        description: 'Other current event-led paths with mapped inventory.',
         items: [
-          { code: 'halloween', label: 'Halloween', role: 'filter', href: '/shop?event=Halloween', enabled: true },
-          { code: 'pride', label: 'Pride', role: 'filter', href: '/shop?event=Pride', enabled: true },
-          { code: 'cosplay', label: 'Cosplay', role: 'filter', href: '/shop?event=Cosplay', enabled: true },
+          filter('halloween','Halloween','/shop?event=Halloween'),
+          filter('pride','Pride','/shop?event=Pride'),
+          filter('cosplay','Cosplay','/shop?event=Cosplay'),
         ],
       },
     ],
   },
+
   performance: {
     code: 'performance',
     label: 'Performance',
     groups: [
       {
-        code: 'performance_core',
+        code: 'performance_roles',
         label: 'Performance',
         href: '/collections/stage-outfits',
-        description: 'Artistic and stage-led looks where presentation is the main job.',
+        description: 'Artistic and stage-led presentation.',
         items: [
-          { code: 'stage', label: 'Stage', role: 'owner', href: '/collections/stage-outfits', enabled: true },
-          { code: 'showgirl', label: 'Showgirl', role: 'filter', href: '/shop?performance=Showgirl', enabled: true },
-          { code: 'drag', label: 'Drag', role: 'filter', href: '/shop?performance=Drag', enabled: true },
+          owner('stage','Stage','/collections/stage-outfits'),
+          filter('showgirl','Showgirl','/shop?performance=Showgirl'),
+          filter('drag','Drag','/shop?performance=Drag'),
         ],
       },
       {
         code: 'dance',
         label: 'Dance',
-        description: 'Movement-led paths for dance-specific browsing.',
+        description: 'Movement-led performance paths.',
         items: [
-          { code: 'go_go', label: 'Go-Go', role: 'filter', href: '/shop?dance=Go-Go', enabled: true },
-          { code: 'pole', label: 'Pole', role: 'filter', href: '/shop?dance=Pole', enabled: true },
+          filter('go_go','Go-Go','/shop?dance=Go-Go'),
+          filter('pole','Pole','/shop?dance=Pole'),
         ],
       },
     ],
   },
+
   style: {
     code: 'style',
     label: 'Style',
@@ -180,15 +200,35 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
       {
         code: 'styles',
         label: 'Styles',
-        description: 'Visual directions used as shopper filters, not duplicate SEO landing owners.',
+        description: 'Approved visual directions currently present in the 207-product catalog.',
         items: [
-          { code: 'cyberpunk', label: 'Cyberpunk', role: 'filter', href: '/shop?style=Cyberpunk', enabled: true },
-          { code: 'futuristic', label: 'Futuristic', role: 'filter', href: '/shop?style=Futuristic', enabled: true },
-          { code: 'sci_fi', label: 'Sci-Fi', role: 'filter', href: '/shop?style=Sci-Fi', enabled: true },
-          { code: 'goth', label: 'Goth', role: 'filter', href: '/shop?style=Goth', enabled: true },
-          { code: 'glam', label: 'Glam', role: 'filter', href: '/shop?style=Glam', enabled: true },
-          { code: 'warrior', label: 'Warrior', role: 'filter', href: '/shop?style=Warrior', enabled: true },
-          { code: 'goddess', label: 'Goddess', role: 'filter', href: '/shop?style=Goddess', enabled: true },
+          filter('glam','Glam','/shop?style=Glam'),
+          filter('futuristic','Futuristic','/shop?style=Futuristic'),
+          filter('sci_fi','Sci-Fi','/shop?style=Sci-Fi'),
+          filter('cyberpunk','Cyberpunk','/shop?style=Cyberpunk'),
+          filter('post_apocalyptic','Post-Apocalyptic','/shop?style=Post-Apocalyptic'),
+          filter('fantasy','Fantasy','/shop?style=Fantasy'),
+          filter('goth','Goth','/shop?style=Goth'),
+          filter('punk','Punk','/shop?style=Punk'),
+          filter('burlesque','Burlesque','/shop?style=Burlesque'),
+          filter('classic','Classic','/shop?style=Classic'),
+        ],
+      },
+      {
+        code: 'personas',
+        label: 'Personas',
+        description: 'Character and archetype browsing stays separate from Style in Product DNA.',
+        items: [
+          filter('warrior','Warrior','/shop?persona=Warrior'),
+          filter('queen','Queen','/shop?persona=Queen'),
+          filter('robot','Robot','/shop?persona=Robot'),
+          filter('witch','Witch','/shop?persona=Witch'),
+          filter('alien','Alien','/shop?persona=Alien'),
+          filter('demon','Demon','/shop?persona=Demon'),
+          filter('goddess','Goddess','/shop?persona=Goddess'),
+          filter('angel','Angel','/shop?persona=Angel'),
+          filter('cleopatra','Cleopatra','/shop?persona=Cleopatra'),
+          filter('bunny','Bunny','/shop?persona=Bunny'),
         ],
       },
     ],
