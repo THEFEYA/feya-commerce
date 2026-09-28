@@ -67,3 +67,37 @@ test('homepage sections have subtle depth bands and faded gold separators', () =
   assert.match(home,/tone="raised"/);
   assert.match(home,/tone="deep"/);
 });
+
+
+test('approved mood bands are full-width, centered and use plain secondary axis labels', () => {
+  const home = readFileSync('app/page.tsx','utf8');
+  const css = readFileSync('app/globals.css','utf8');
+  assert.match(home,/visual-tile-label-band visual-mood-label-band absolute inset-x-0 bottom-0/);
+  assert.match(home,/text-center/);
+  assert.match(css,/\.visual-tile-label-band::before/);
+  assert.match(css,/\.visual-axis-pill \{/);
+  assert.match(css,/border: 0;/);
+  assert.match(css,/background: transparent;/);
+});
+
+test('section dividers are single soft center-glow lines with stronger edge fade', () => {
+  const css = readFileSync('app/globals.css','utf8');
+  assert.match(css,/\.visual-home-section::before/);
+  assert.match(css,/transparent 12%/);
+  assert.match(css,/rgba\(216,181,109,\.20\) 50%/);
+  assert.match(css,/transparent 88%/);
+});
+
+test('Shop by Piece advances every three seconds and uses integrated full-width label bands', () => {
+  const source = readFileSync('components/HomePieceCarousel.tsx','utf8');
+  assert.match(source,/\}, 3000\);/);
+  assert.match(source,/visual-piece-label-band absolute inset-x-0 bottom-0/);
+});
+
+test('Buy It Now shimmer cadence is five seconds and PDP thumbnail rail is wider and closer', () => {
+  const css = readFileSync('app/globals.css','utf8');
+  const pdp = readFileSync('components/ProductDetailClient.tsx','utf8');
+  assert.match(css,/animation: feyaBuySweep 5s ease-in-out infinite/);
+  assert.match(pdp,/lg:grid-cols-\[118px_minmax\(0,1fr\)\]/);
+  assert.match(pdp,/lg:gap-2\.5/);
+});
