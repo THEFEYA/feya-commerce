@@ -77,7 +77,7 @@ export default function CollectionsHubPage(){
       <DiscoverySection
         id="events-performance"
         title="Events & performance"
-        description="Choose by occasion, stage/performance role or dance path. Festival, Performance and Dance remain distinct branches inside one shopper-facing menu."
+        description="Choose by occasion or performance role. Stage, fashion-show, showgirl, drag queen, go-go and pole paths are grouped into one Performance branch."
         panelCode="events_performance"
       />
       <DiscoverySection
