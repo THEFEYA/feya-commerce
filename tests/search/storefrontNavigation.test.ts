@@ -6,11 +6,23 @@ import {
 } from '../../config/storefrontNavigation.ts';
 
 test('global navigation merges events and performance while keeping Shop and Style distinct', () => {
-  assert.deepEqual(publicPrimaryNavigation().map((item) => item.code), ['shop','events_performance','style','about']);
-  assert.deepEqual(publicPrimaryNavigation().map((item) => item.label), ['Shop','Events & Performance','Style','About']);
+  assert.deepEqual(publicPrimaryNavigation().map((item) => item.code), ['shop','events_performance','style','about','shipping_payment','contact']);
+  assert.deepEqual(publicPrimaryNavigation().map((item) => item.label), ['Shop','Events & Performance','Style','About','Shipping & Payment','Contact']);
 
   const shopSerialized = JSON.stringify(STOREFRONT_NAVIGATION_PANELS.shop);
   assert.doesNotMatch(shopSerialized,/Size Guide|Shipping|Returns|Contact/);
+
+  const shopRoot = STOREFRONT_NAVIGATION_PANELS.shop.groups.find((group)=>group.code==='shop_all');
+  assert.deepEqual(
+    shopRoot?.items.map(({label,href,role})=>({label,href,role})),
+    [
+      {label:'Shop All',href:'/shop',role:'support'},
+      {label:'Full Looks',href:'/shop?piece=Full%20Look',role:'filter'},
+      {label:'Sale',href:undefined,role:'hold'},
+      {label:'New Arrivals',href:undefined,role:'hold'},
+      {label:'Best Sellers',href:undefined,role:'hold'},
+    ],
+  );
 });
 
 test('Shop contains the complete product tree plus audience browsing', () => {
@@ -49,8 +61,7 @@ test('Upper Body and Arms preserve owner-approved distinct product concepts', ()
   assert.deepEqual(
     upper?.items.map(({label,href})=>({label,href})),
     [
-      {label:'Tops',href:'/shop?piece=Top'},
-      {label:'Bra Tops',href:'/shop?piece=Bra'},
+      {label:'Tops & Bras',href:'/shop?piece=Tops%20%26%20Bras'},
       {label:'Corsets',href:'/shop?piece=Corset'},
       {label:'Harnesses',href:'/shop?piece=Harness'},
     ],
@@ -62,6 +73,7 @@ test('Upper Body and Arms preserve owner-approved distinct product concepts', ()
       {label:'Shoulders',href:'/collections/shoulder-armor'},
       {label:'Bracelets & Cuffs',href:'/shop?piece=Bracelet%20%2F%20Cuff'},
       {label:'Gloves',href:'/shop?piece=Glove'},
+      {label:'Full Arms',href:'/shop?piece=Full%20Arm'},
     ],
   );
 });
@@ -73,6 +85,9 @@ test('Head & Face and Special retain the agreed launch branches only', () => {
 
   assert.deepEqual(head?.items.map((item)=>item.label),['Masks','Headpieces','Horns','Crowns','Chokers']);
   assert.deepEqual(special?.items.map((item)=>item.label),['Wings','Tail','Spine']);
+
+  const legs = groups.find((group)=>group.code==='legs');
+  assert.deepEqual(legs?.items.map((item)=>item.label),['Leg Covers','Garters','Full Legs']);
 
   const serialized = JSON.stringify(STOREFRONT_NAVIGATION_PANELS);
   assert.doesNotMatch(serialized,/Backpiece|Back Piece|Cape\s*\/\s*Tunic|Tunic/i);
