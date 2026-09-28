@@ -1,7 +1,7 @@
 'use client';
 
 import { Check, ChevronDown, Search, SlidersHorizontal, X } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { colorStyle } from '@/components/colors';
 import { ProductCard } from '@/components/ProductCard';
 import { ShopPagination } from '@/components/ShopPagination';
@@ -62,7 +62,7 @@ function FilterSection({
   title: string;
   activeCount?: number;
   defaultOpen?: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen || activeCount > 0);
 
@@ -402,7 +402,7 @@ export function ShopClient({
     if (navigation) return;
     const params = new URLSearchParams(window.location.search);
 
-    const nextPiece = allowedParamValues(params.get('piece'), BODY_AREA_TREE.flatMap((group) => group.pieces).concat(['Full Look']));
+    const nextPiece = allowedParamValues(params.get('piece'), ['Full Look', ...BODY_AREA_TREE.flatMap((group) => group.pieces)]);
     const nextPart = allowedParamValues(params.get('part'), BODY_AREA_TREE.map((group) => group.part));
     const nextEvent = allowedParamValues(params.get('event'), EVENTS);
     const nextPerformance = allowedParamValues(params.get('performance'), PERFORMANCE);
