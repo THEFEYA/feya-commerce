@@ -54,11 +54,11 @@ const EVENT_GATEWAYS = [
 ] as const;
 
 const PERFORMANCE_GATEWAYS = [
-  { label: 'Stage', href: '/collections/stage-outfits', note: 'Performance-focused pieces' },
+  { label: 'Stage & Fashion', href: '/collections/stage-outfits', note: 'Stage and fashion-show performance pieces' },
   { label: 'Showgirl', href: '/shop?performance=Showgirl', note: 'Showgirl-oriented statement looks' },
-  { label: 'Drag', href: '/shop?performance=Drag', note: 'Drag performance styling' },
-  { label: 'Go-Go', href: '/shop?dance=Go-Go', note: 'Go-go dance looks and components' },
-  { label: 'Pole', href: '/shop?dance=Pole', note: 'Pole performance styling' },
+  { label: 'Drag Queen', href: '/shop?performance=Drag%20Queen', note: 'Drag performance styling' },
+  { label: 'Go-Go Dancer', href: '/shop?dance=Go-Go%20Dancer', note: 'Go-go performance looks and components' },
+  { label: 'Pole Dancer', href: '/shop?dance=Pole%20Dancer', note: 'Pole performance styling' },
 ] as const;
 
 const STYLE_GATEWAYS = [
@@ -186,9 +186,9 @@ export default async function HomePage() {
       />
 
       <GatewaySection
-        kicker="Performance & dance"
+        kicker="Performance"
         title="Built for the visual moment."
-        description="Choose by performance context without turning those shopper refinements into duplicate SEO landing owners."
+        description="Stage, fashion-show and movement-led performance paths are grouped together for shoppers without changing Search Ownership."
         items={PERFORMANCE_GATEWAYS}
       />
 
