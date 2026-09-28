@@ -362,8 +362,8 @@ export function Header() {
                     loading="eager"
                     className="absolute inset-0 h-full w-full object-cover animate-[feyaPreviewFade_.28s_ease_both]"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/92 via-black/20 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-5">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/62 via-black/10 to-transparent" />
+                  <div className="visual-tile-label-band visual-mega-preview-band absolute inset-x-0 bottom-0 p-5">
                     <div className="text-[9px] uppercase tracking-[.18em] text-[#e7cf96]">
                       {panel.code === 'style' ? menuPreview.axis : panel.code === 'shop' ? 'Product preview' : 'Look preview'}
                     </div>
