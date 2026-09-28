@@ -93,9 +93,9 @@ test('Head & Face and Special retain the agreed launch branches only', () => {
   assert.doesNotMatch(serialized,/Backpiece|Back Piece|Cape\s*\/\s*Tunic|Tunic/i);
 });
 
-test('combined Events & Performance panel keeps four semantic branches', () => {
+test('combined Events & Performance panel keeps events and one unified Performance branch', () => {
   const panel = STOREFRONT_NAVIGATION_PANELS.events_performance;
-  assert.deepEqual(panel.groups.map((group)=>group.label),['Festival','Other Events','Performance','Dance']);
+  assert.deepEqual(panel.groups.map((group)=>group.label),['Festival','Other Events','Performance']);
 
   const festival = panel.groups.find((group) => group.code === 'festival');
   const rave = festival?.items.find((item) => item.code === 'rave');
@@ -109,10 +109,9 @@ test('combined Events & Performance panel keeps four semantic branches', () => {
   assert.deepEqual(other?.items.map((item)=>item.label),['Halloween','Pride','Cosplay']);
 
   const performance = panel.groups.find((group) => group.code === 'performance_roles');
-  assert.deepEqual(performance?.items.map((item)=>item.label),['Stage','Showgirl','Drag Queen']);
-
-  const dance = panel.groups.find((group) => group.code === 'dance');
-  assert.deepEqual(dance?.items.map((item)=>item.label),['Go-Go','Pole Dancer']);
+  assert.deepEqual(performance?.items.map((item)=>item.label),[
+    'Stage & Fashion','Showgirl','Drag Queen','Go-Go Dancer','Pole Dancer'
+  ]);
 });
 
 test('Style menu restores the full catalog style vocabulary and keeps personas separate', () => {
@@ -132,7 +131,7 @@ test('search-owner collection routes remain separate from shopper filter URLs', 
     .flatMap((group)=>group.items);
 
   const shoulders = allItems.find((item)=>item.code==='shoulders');
-  const stage = allItems.find((item)=>item.code==='stage');
+  const stage = allItems.find((item)=>item.code==='stage_fashion');
   const punk = allItems.find((item)=>item.code==='punk');
   const warrior = allItems.find((item)=>item.code==='warrior');
 
