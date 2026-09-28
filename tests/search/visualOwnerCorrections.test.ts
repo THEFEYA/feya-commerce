@@ -101,3 +101,30 @@ test('Buy It Now shimmer cadence is five seconds and PDP thumbnail rail is wider
   assert.match(pdp,/lg:grid-cols-\[118px_minmax\(0,1fr\)\]/);
   assert.match(pdp,/lg:gap-2\.5/);
 });
+
+
+test('label bands stay at the bottom and never override absolute positioning', () => {
+  const css = readFileSync('app/globals.css','utf8');
+  const home = readFileSync('app/page.tsx','utf8');
+  const carousel = readFileSync('components/HomePieceCarousel.tsx','utf8');
+  const header = readFileSync('components/Header.tsx','utf8');
+
+  assert.doesNotMatch(css,/\.visual-tile-label-band \{\s*position: relative;/);
+  assert.match(home,/visual-mood-label-band absolute inset-x-0 bottom-0/);
+  assert.match(carousel,/visual-piece-label-band absolute inset-x-0 bottom-0/);
+  assert.match(header,/visual-mega-preview-band absolute inset-x-0 bottom-0/);
+});
+
+test('redundant Complete Looks homepage section is removed', () => {
+  const home = readFileSync('app/page.tsx','utf8');
+  assert.doesNotMatch(home,/Complete looks, every piece considered/);
+  assert.doesNotMatch(home,/eyebrow="Shop the look"/);
+});
+
+test('desktop catalog filters no longer sit inside framed outer or Body Area panels', () => {
+  const source = readFileSync('components/ShopClient.tsx','utf8');
+  assert.doesNotMatch(source,/rounded-xl border border-white\/\[0\.08\] bg-\[linear-gradient\(180deg,rgba\(255,255,255,\.025\),rgba\(255,255,255,\.008\)\)\]/);
+  assert.doesNotMatch(source,/divide-y divide-white\/\[0\.07\] rounded-lg border border-white\/\[0\.08\]/);
+  assert.match(source,/grid-cols-\[minmax\(0,1fr\)_auto_minmax\(0,1fr\)\]/);
+  assert.match(source,/grid-cols-2 gap-x-3 gap-y-3/);
+});
