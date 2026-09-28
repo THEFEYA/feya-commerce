@@ -26,7 +26,7 @@ test('homepage presentation exposes governed commerce destinations that render a
   assert.match(home, /HOME_PRESENTATION/);
   assert.match(home, /href=\{tile\.href\}/);
 
-  const allHrefs = [
+  const allHrefs: string[] = [
     ...HOME_PRESENTATION.pieceTiles.map((item) => item.href),
     ...HOME_PRESENTATION.eventTiles.flatMap((item) => [
       item.href,
