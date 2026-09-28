@@ -20,7 +20,7 @@ const FOOTER_COLUMNS = [
       ['Festival', '/collections/festival-outfits'],
       ['Rave', '/collections/rave-outfits'],
       ['Burning Man', '/collections/burning-man-looks'],
-      ['Stage', '/collections/stage-outfits'],
+      ['Stage & Fashion', '/collections/stage-outfits'],
       ['Festival skirts', '/collections/festival-skirts'],
     ],
   },
