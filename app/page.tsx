@@ -144,7 +144,7 @@ export default async function HomePage() {
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(6,6,8,.82)_0%,rgba(6,6,8,.35)_50%,rgba(6,6,8,.06)_82%),linear-gradient(0deg,rgba(6,6,8,.76)_0%,transparent_52%)]" />
           <div className="absolute inset-x-0 bottom-0 z-10 px-5 pb-8 sm:px-9 sm:pb-10 lg:px-[5vw] lg:pb-[5vw]">
             <div className="max-w-[720px]">
-              <div className="mb-5 text-[11px] uppercase tracking-[0.18em] text-[#e7cf96]">TheFEYA · Sculptural wear</div>
+              <div className="mb-5 text-[11px] uppercase tracking-[0.18em] text-[#e7cf96]">TheFEYA · Handmade stage & festival wear</div>
               <h1 className="visual-display m-0 max-w-[680px] text-[clamp(52px,7.3vw,112px)] font-medium leading-[.9] tracking-[-.045em] text-[#f7f3ec]">
                 Sculpted for the spotlight.
               </h1>
@@ -219,7 +219,7 @@ export default async function HomePage() {
       <EditorialSection eyebrow="Shop the look" title="Complete looks, every piece considered.">
         <div className="grid gap-8 lg:grid-cols-[.8fr_1fr_1fr] lg:items-start">
           <div className="max-w-[360px] text-[15px] leading-7 text-[#aaa2a0]">
-            Explore complete FEYA looks as real products first. Component-level look drawers will only be enabled when exact relationships are governed.
+            Explore complete FEYA looks and open each design to choose the available configuration, size and color.
           </div>
           {HOME_PRESENTATION.lookTiles.map((look, index) => {
             const product = getProduct(look.productId);
