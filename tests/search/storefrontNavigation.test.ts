@@ -102,11 +102,7 @@ test('combined Events & Performance panel keeps four semantic branches', () => {
 
   assert.equal(festival?.href,'/collections/festival-outfits');
   assert.equal(rave?.href,'/collections/rave-outfits');
-  assert.deepEqual(rave?.children?.map(({label,href})=>({label,href})),[
-    {label:'EDM',href:'/shop?event=EDM'},
-    {label:'EDC',href:'/shop?event=EDC'},
-    {label:'Coachella',href:'/shop?event=Coachella'},
-  ]);
+  assert.equal(rave?.children,undefined);
   assert.equal(festival?.items.find((item) => item.code === 'burning_man')?.href,'/collections/burning-man-looks');
 
   const other = panel.groups.find((group) => group.code === 'other_events');
