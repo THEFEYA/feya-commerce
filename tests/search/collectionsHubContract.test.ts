@@ -13,7 +13,7 @@ test('collections hub is release-aware and projects the typed storefront navigat
   assert.match(page, /Performance & dance/);
   assert.match(page, /Shop by style/);
 
-  assert.equal(STOREFRONT_NAVIGATION_PANELS.events.groups[0].items.find((item) => item.code === 'festival')?.href, '/collections/festival-outfits');
+  assert.equal(STOREFRONT_NAVIGATION_PANELS.events.groups[0].href, '/collections/festival-outfits');
   assert.equal(STOREFRONT_NAVIGATION_PANELS.events.groups[0].items.find((item) => item.code === 'rave')?.href, '/collections/rave-outfits');
   assert.equal(STOREFRONT_NAVIGATION_PANELS.events.groups[0].items.find((item) => item.code === 'burning_man')?.href, '/collections/burning-man-looks');
 });
