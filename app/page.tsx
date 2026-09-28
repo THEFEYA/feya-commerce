@@ -149,7 +149,7 @@ export default async function HomePage() {
           <div className="absolute inset-x-0 bottom-0 z-10 px-5 pb-8 sm:px-9 sm:pb-10 lg:px-[5vw] lg:pb-[5vw]">
             <div className="max-w-[720px]">
               <div className="mb-5 text-[11px] uppercase tracking-[0.18em] text-[#e7cf96]">TheFEYA · Handmade stage & festival wear</div>
-              <h1 className="visual-display m-0 max-w-[680px] text-[clamp(52px,7.3vw,112px)] font-medium leading-[.9] tracking-[-.045em] text-[#f7f3ec]">
+              <h1 className="font-tall m-0 max-w-[680px] text-[clamp(48px,6vw,86px)] leading-[.94] tracking-[.005em] text-[#f7f3ec]">
                 Sculpted for the spotlight.
               </h1>
               <p className="mt-6 max-w-[500px] text-[15px] leading-[1.65] text-[#d6cfc6] sm:text-[17px]">
@@ -202,7 +202,7 @@ export default async function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 z-10 p-6 lg:p-8">
                   <div className="mb-2 text-[10px] uppercase tracking-[0.18em] text-[#e7cf96]">{tile.eyebrow}</div>
-                  <h2 className="visual-display text-[clamp(30px,3.2vw,48px)] font-medium leading-none tracking-[-.03em] text-[#f7f3ec]">
+                  <h2 className="font-tall text-[clamp(28px,2.7vw,42px)] leading-[1.02] tracking-[.01em] text-[#f7f3ec]">
                     <Link href={tile.href}>{tile.label}</Link>
                   </h2>
                   <p className="mt-3 max-w-[520px] text-[14px] leading-6 text-[#d0c9c0]">{tile.description}</p>
@@ -237,7 +237,7 @@ export default async function HomePage() {
                   <div className="mt-4 flex items-end justify-between gap-5">
                     <div>
                       <div className="text-[10px] uppercase tracking-[0.16em] text-[#aaa2a0]">{look.axis}</div>
-                      <h3 className="visual-display mt-1 text-[25px] font-medium tracking-[-.02em] text-[#f4f1ea]">{look.label}</h3>
+                      <h3 className="font-tall mt-1 text-[24px] leading-tight tracking-[.01em] text-[#f4f1ea]">{look.label}</h3>
                     </div>
                     <span className="visual-outline-cta">View full look</span>
                   </div>
@@ -270,7 +270,7 @@ export default async function HomePage() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 z-10 p-5">
                 <span className="visual-axis-pill">{tile.axis}</span>
-                <h3 className="visual-display mt-4 text-[clamp(25px,2.5vw,38px)] font-medium leading-none tracking-[-.03em] text-[#f7f3ec]">{tile.label}</h3>
+                <h3 className="font-tall mt-4 text-[clamp(24px,2.2vw,34px)] leading-none tracking-[.01em] text-[#f7f3ec]">{tile.label}</h3>
               </div>
             </Link>
           ))}
@@ -304,11 +304,11 @@ function EditorialSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="container-feya py-[clamp(64px,8vw,120px)]">
+    <section className="container-feya py-[clamp(56px,7vw,96px)]">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-5 lg:mb-10">
         <div>
           <div className="mb-3 text-[10px] uppercase tracking-[0.18em] text-[#aaa2a0]">{eyebrow}</div>
-          <h2 className="visual-display text-[clamp(36px,4.6vw,64px)] font-medium leading-[.98] tracking-[-.04em] text-[#f7f3ec]">{title}</h2>
+          <h2 className="font-tall text-[clamp(32px,3.7vw,52px)] leading-[1.02] tracking-[.012em] text-[#f7f3ec]">{title}</h2>
         </div>
         {action}
       </div>
