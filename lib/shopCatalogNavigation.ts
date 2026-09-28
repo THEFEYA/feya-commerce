@@ -9,18 +9,19 @@ export const PIECES = [
   'Bodysuit',
   'Dress',
   'Full Body Harness',
-  'Top',
-  'Bra',
+  'Tops & Bras',
   'Corset',
   'Harness',
   'Shoulder',
   'Bracelet / Cuff',
   'Glove',
+  'Full Arm',
   'Skirt',
   'Belt',
   'Panties / Bottom',
   'Leg Covers',
   'Garter',
+  'Full Leg',
   'Mask',
   'Headpiece',
   'Horns',
@@ -196,6 +197,11 @@ function hasFacet(values: string[] | undefined, value: string) {
   return Boolean(value && values?.includes(value));
 }
 
+function pieceMatches(values: string[] | undefined, value: string) {
+  if (value === 'Tops & Bras') return Boolean(values?.includes('Top') || values?.includes('Bra'));
+  return hasFacet(values, value);
+}
+
 function matchesAny(selected: string[], values: string[] | undefined) {
   return !selected.length || selected.some((value) => hasFacet(values, value));
 }
@@ -205,7 +211,7 @@ export function filterShopProducts(products: StorefrontProduct[], filters: ShopF
     const price = mainRegularPrice(product) || 0;
     const facets = product.facets;
 
-    if (filters.piece !== 'All' && !hasFacet(facets?.subtypes, filters.piece)) return false;
+    if (filters.piece !== 'All' && !pieceMatches(facets?.subtypes, filters.piece)) return false;
     if (filters.part && !hasFacet(facets?.parts, filters.part)) return false;
     if ((filters.priceMin !== 0 || filters.priceMax !== 1000) && (price < filters.priceMin || price > filters.priceMax)) return false;
 
