@@ -15,6 +15,10 @@ import {
   PERFORMANCE,
   DANCE,
   STYLES,
+  PERSONAS,
+  AUDIENCES,
+  MATERIALS,
+  EFFECTS,
   SORTS,
   defaultShopFilters,
   filterShopProducts,
@@ -60,6 +64,10 @@ export function ShopClient({
   const [performance, setPerformance] = useState<string[]>(initial.performance);
   const [dance, setDance] = useState<string[]>(initial.dance);
   const [style, setStyle] = useState<string[]>(initial.style);
+  const [persona, setPersona] = useState<string[]>(initial.persona);
+  const [audience, setAudience] = useState<string[]>(initial.audience);
+  const [material, setMaterial] = useState<string[]>(initial.material);
+  const [effect, setEffect] = useState<string[]>(initial.effect);
   const [search, setSearch] = useState(initial.search);
   const [sort, setSort] = useState(initial.sort);
   const [sortOpen, setSortOpen] = useState(false);
@@ -75,6 +83,10 @@ export function ShopClient({
     const nextPerformance = allowedParamValue(params.get('performance'), PERFORMANCE);
     const nextDance = allowedParamValue(params.get('dance'), DANCE);
     const nextStyle = allowedParamValue(params.get('style'), STYLES);
+    const nextPersona = allowedParamValue(params.get('persona'), PERSONAS);
+    const nextAudience = allowedParamValue(params.get('audience'), AUDIENCES);
+    const nextMaterial = allowedParamValue(params.get('material'), MATERIALS);
+    const nextEffect = allowedParamValue(params.get('effect'), EFFECTS);
     const nextSearch = params.get('search')?.trim() || '';
 
     if (nextPiece) setPiece(nextPiece);
@@ -83,12 +95,16 @@ export function ShopClient({
     if (nextPerformance) setPerformance([nextPerformance]);
     if (nextDance) setDance([nextDance]);
     if (nextStyle) setStyle([nextStyle]);
+    if (nextPersona) setPersona([nextPersona]);
+    if (nextAudience) setAudience([nextAudience]);
+    if (nextMaterial) setMaterial([nextMaterial]);
+    if (nextEffect) setEffect([nextEffect]);
     if (nextSearch) setSearch(nextSearch);
   }, [navigation]);
 
   const filters = useMemo(
-    () => ({ piece, part, priceMin, priceMax, color, event, performance, dance, style, search, sort }),
-    [piece, part, priceMin, priceMax, color, event, performance, dance, style, search, sort],
+    () => ({ piece, part, priceMin, priceMax, color, event, performance, dance, style, persona, audience, material, effect, search, sort }),
+    [piece, part, priceMin, priceMax, color, event, performance, dance, style, persona, audience, material, effect, search, sort],
   );
 
   const filtered = useMemo(() => filterShopProducts(products, filters), [products, filters]);
@@ -101,7 +117,7 @@ export function ShopClient({
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [piece, part, priceMin, priceMax, color, event, performance, dance, style, search, sort]);
+  }, [piece, part, priceMin, priceMax, color, event, performance, dance, style, persona, audience, material, effect, search, sort]);
 
   const visibleProducts = navigation
     ? filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
@@ -119,6 +135,10 @@ export function ShopClient({
     setPerformance([]);
     setDance([]);
     setStyle([]);
+    setPersona([]);
+    setAudience([]);
+    setMaterial([]);
+    setEffect([]);
     setSearch('');
     setSort(SORTS[0]);
   };
@@ -132,6 +152,10 @@ export function ShopClient({
     performance.length +
     dance.length +
     style.length +
+    persona.length +
+    audience.length +
+    material.length +
+    effect.length +
     Number(Boolean(search));
 
   return (
@@ -242,6 +266,42 @@ export function ShopClient({
               {STYLES.map((value) => (
                 <button key={value} onClick={() => setStyle(toggleValue(style, value))} className="w-full flex items-center gap-2 text-left text-[12px] text-[var(--bone-dim)] py-1.5 hover:text-white">
                   <FilterBox checked={style.includes(value)} />{value}
+                </button>
+              ))}
+            </div>
+
+            <div>
+              <div className="eyebrow text-[10.5px] mb-3">Persona</div>
+              {PERSONAS.map((value) => (
+                <button key={value} onClick={() => setPersona(toggleValue(persona, value))} className="w-full flex items-center gap-2 text-left text-[12px] text-[var(--bone-dim)] py-1.5 hover:text-white">
+                  <FilterBox checked={persona.includes(value)} />{value}
+                </button>
+              ))}
+            </div>
+
+            <div>
+              <div className="eyebrow text-[10.5px] mb-3">Audience</div>
+              {AUDIENCES.map((value) => (
+                <button key={value} onClick={() => setAudience(toggleValue(audience, value))} className="w-full flex items-center gap-2 text-left text-[12px] text-[var(--bone-dim)] py-1.5 hover:text-white">
+                  <FilterBox checked={audience.includes(value)} />{value}
+                </button>
+              ))}
+            </div>
+
+            <div>
+              <div className="eyebrow text-[10.5px] mb-3">Material</div>
+              {MATERIALS.map((value) => (
+                <button key={value} onClick={() => setMaterial(toggleValue(material, value))} className="w-full flex items-center gap-2 text-left text-[12px] text-[var(--bone-dim)] py-1.5 hover:text-white">
+                  <FilterBox checked={material.includes(value)} />{value}
+                </button>
+              ))}
+            </div>
+
+            <div>
+              <div className="eyebrow text-[10.5px] mb-3">Visual effect</div>
+              {EFFECTS.map((value) => (
+                <button key={value} onClick={() => setEffect(toggleValue(effect, value))} className="w-full flex items-center gap-2 text-left text-[12px] text-[var(--bone-dim)] py-1.5 hover:text-white">
+                  <FilterBox checked={effect.includes(value)} />{value}
                 </button>
               ))}
             </div>
