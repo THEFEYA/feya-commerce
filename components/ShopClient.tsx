@@ -136,51 +136,15 @@ export function ShopClient({
 
   return (
     <div data-testid="shop-page" className="relative pt-24 lg:pt-28">
-      <section className="container-feya py-8 lg:py-10">
-        <div className="eyebrow mb-3 reveal">TheFEYA catalog · Governed storefront products</div>
+      <section className="container-feya py-8 lg:py-10 border-b border-[rgba(216,214,211,0.10)]">
+        <div className="eyebrow mb-3 reveal">TheFEYA catalog · Handmade statement pieces</div>
         <h1 className="display-hero text-bone reveal reveal-d1" style={{ fontSize: 'clamp(44px, 6.5vw, 96px)' }}>
           The <span className="editorial-italic text-gold-grad">shop</span>
         </h1>
-        <p className="editorial-italic text-[var(--bone-dim)] mt-4 text-lg">
-          {products.length || 200} handmade designs. Filter by piece, body area, event, performance or style.
+        <p className="editorial-italic text-[var(--bone-dim)] mt-4 text-lg max-w-3xl">
+          Start from the Shop menu when you want a specific piece. Once inside the catalog, refine by color, event, performance context or style.
         </p>
       </section>
-
-      <div className="sticky top-[62px] lg:top-[64px] z-30 border-y border-[rgba(216,214,211,0.12)] bg-[rgba(7,7,10,0.90)] backdrop-blur-xl category-tabs-recovered">
-        <div className="container-feya flex items-center gap-5 xl:gap-7 overflow-x-auto overflow-y-visible py-4 min-h-[58px] whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {PIECES.map((value) => (
-            <button
-              key={value}
-              onClick={() => setPiece(value)}
-              className={`chip shrink-0 ${piece === value ? 'chip-active' : ''}`}
-            >
-              {value}
-            </button>
-          ))}
-
-          <div className="ml-auto relative shrink-0">
-            <button onClick={() => setSortOpen((value) => !value)} className="chip flex items-center gap-2">
-              <SlidersHorizontal size={13} /> {sort}
-            </button>
-            {sortOpen && (
-              <div className="absolute right-0 top-full mt-2 w-[278px] rounded-xl border border-[rgba(216,214,211,.22)] bg-[rgba(5,5,8,.96)] p-2 z-[100] shadow-[0_28px_80px_rgba(0,0,0,.75)] backdrop-blur-xl flex flex-col gap-1 overflow-hidden">
-                {SORTS.map((value) => (
-                  <button
-                    key={value}
-                    onClick={() => {
-                      setSort(value);
-                      setSortOpen(false);
-                    }}
-                    className={`block w-full text-left px-4 py-2.5 rounded-lg text-[10px] tracking-[0.20em] uppercase transition-all ${sort === value ? 'text-[var(--gold-warm)] bg-[rgba(212,178,106,.12)]' : 'text-[var(--bone-dim)] hover:text-white hover:bg-white/8'}`}
-                  >
-                    {value}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
 
       <section className="container-feya grid grid-cols-12 gap-7 lg:gap-10 py-10">
         <aside className="hidden lg:block col-span-2" data-testid="filter-sidebar">
@@ -199,17 +163,25 @@ export function ShopClient({
             </div>
 
             <div>
-              <div className="eyebrow text-[10.5px] mb-3">Price</div>
-              <div className="relative h-7">
-                <div className="absolute top-3 left-0 right-0 h-px bg-[rgba(216,214,211,0.25)]" />
-                <input className="price-range absolute inset-x-0 top-0 w-full bg-transparent appearance-none" type="range" min="0" max="1000" value={priceMin} onChange={(event) => setPriceMin(Math.min(Number(event.target.value), priceMax - 10))} />
-                <input className="price-range absolute inset-x-0 top-0 w-full bg-transparent appearance-none" type="range" min="0" max="1000" value={priceMax} onChange={(event) => setPriceMax(Math.max(Number(event.target.value), priceMin + 10))} />
-              </div>
-              <div className="flex items-center gap-2 mt-2">
-                <input value={priceMin} onChange={(event) => setPriceMin(Number(event.target.value) || 0)} className="w-20 h-8 bg-white/5 border border-white/10 rounded px-2 text-xs" />
-                <span className="text-smoke">to</span>
-                <input value={priceMax} onChange={(event) => setPriceMax(Number(event.target.value) || 1000)} className="w-20 h-8 bg-white/5 border border-white/10 rounded px-2 text-xs" />
-              </div>
+              <div className="eyebrow text-[10.5px] mb-3">Piece</div>
+              {PIECES.filter((value) => value !== 'All').map((value) => (
+                <button
+                  key={value}
+                  onClick={() => setPiece(piece === value ? 'All' : value)}
+                  className="w-full flex items-center gap-2 text-left text-[12px] text-[var(--bone-dim)] py-1.5 hover:text-white"
+                >
+                  <FilterBox checked={piece === value} />{value}
+                </button>
+              ))}
+            </div>
+
+            <div>
+              <div className="eyebrow text-[10.5px] mb-3">Body area</div>
+              {PARTS.map((value) => (
+                <button key={value} onClick={() => setPart(part === value ? '' : value)} className="w-full flex items-center gap-2 text-left text-[12px] text-[var(--bone-dim)] py-1.5 hover:text-white">
+                  <FilterBox checked={part === value} />{value}
+                </button>
+              ))}
             </div>
 
             <div>
@@ -225,12 +197,17 @@ export function ShopClient({
             </div>
 
             <div>
-              <div className="eyebrow text-[10.5px] mb-3">Body area</div>
-              {PARTS.map((value) => (
-                <button key={value} onClick={() => setPart(part === value ? '' : value)} className="w-full flex items-center gap-2 text-left text-[12px] text-[var(--bone-dim)] py-1.5 hover:text-white">
-                  <FilterBox checked={part === value} />{value}
-                </button>
-              ))}
+              <div className="eyebrow text-[10.5px] mb-3">Price</div>
+              <div className="relative h-7">
+                <div className="absolute top-3 left-0 right-0 h-px bg-[rgba(216,214,211,0.25)]" />
+                <input className="price-range absolute inset-x-0 top-0 w-full bg-transparent appearance-none" type="range" min="0" max="1000" value={priceMin} onChange={(event) => setPriceMin(Math.min(Number(event.target.value), priceMax - 10))} />
+                <input className="price-range absolute inset-x-0 top-0 w-full bg-transparent appearance-none" type="range" min="0" max="1000" value={priceMax} onChange={(event) => setPriceMax(Math.max(Number(event.target.value), priceMin + 10))} />
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <input value={priceMin} onChange={(event) => setPriceMin(Number(event.target.value) || 0)} className="w-20 h-8 bg-white/5 border border-white/10 rounded px-2 text-xs" />
+                <span className="text-smoke">to</span>
+                <input value={priceMax} onChange={(event) => setPriceMax(Number(event.target.value) || 1000)} className="w-20 h-8 bg-white/5 border border-white/10 rounded px-2 text-xs" />
+              </div>
             </div>
 
             <div>
@@ -278,8 +255,29 @@ export function ShopClient({
         </aside>
 
         <main className="col-span-12 lg:col-span-10">
-          <div className="flex items-center justify-between mb-5">
+          <div className="relative flex items-center justify-between gap-4 mb-5 border-b border-white/10 pb-4">
             <div className="eyebrow-dim">Showing {visibleProducts.length} of {filtered.length} pieces</div>
+            <div className="relative shrink-0">
+              <button onClick={() => setSortOpen((value) => !value)} className="chip flex items-center gap-2">
+                <SlidersHorizontal size={13} /> {sort}
+              </button>
+              {sortOpen && (
+                <div className="absolute right-0 top-full mt-2 w-[278px] rounded-xl border border-[rgba(216,214,211,.22)] bg-[rgba(5,5,8,.96)] p-2 z-[100] shadow-[0_28px_80px_rgba(0,0,0,.75)] backdrop-blur-xl flex flex-col gap-1 overflow-hidden">
+                  {SORTS.map((value) => (
+                    <button
+                      key={value}
+                      onClick={() => {
+                        setSort(value);
+                        setSortOpen(false);
+                      }}
+                      className={`block w-full text-left px-4 py-2.5 rounded-lg text-[10px] tracking-[0.20em] uppercase transition-all ${sort === value ? 'text-[var(--gold-warm)] bg-[rgba(212,178,106,.12)]' : 'text-[var(--bone-dim)] hover:text-white hover:bg-white/8'}`}
+                    >
+                      {value}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {error && products.length === 0 ? <div className="glass rounded-xl p-6 text-bone-dim">{error}</div> : null}
