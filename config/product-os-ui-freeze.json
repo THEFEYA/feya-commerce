@@ -9,7 +9,7 @@
     "components/Footer.tsx": "2c9c24a5cd6459149731d7d6303f22d026d68599",
     "components/ProductCard.tsx": "f77744cec1c6db4b51244d6aca094a1c7ac3af36",
     "components/ProductDetailClient.tsx": "ce9136d8d6bc37e0867b1b9ba1d95085f49441cd",
-    "components/ShopClient.tsx": "f0fc89dd341a8c74b35375b3c5a3da1546222061",
+    "components/ShopClient.tsx": "4c96788f276462781d3869cd8175f54f99224639",
     "app/admin/listing-master/ListingMasterPage.tsx": "bf19fc79d0c4aa016cb2297e4c84e19d0e5b68d4",
     "app/admin/products/page.tsx": "a57b26f7ff496a4aec3312673ced79e1042fa83d",
     "app/admin/products/[slug]/page.tsx": "ae60458cfcb7098d118bffddec4d2a18801d5082",
