@@ -6,8 +6,10 @@ import { Search, ShoppingBag, User, Menu, Heart, ArrowUpRight, ChevronDown, X } 
 import { useEffect, useMemo, useState } from 'react';
 import { FeyaButterfly, FeyaMark } from '@/components/FeyaMark';
 import {
+  enabledNavigationGroups,
   navigationPanel,
   publicPrimaryNavigation,
+  type StorefrontNavigationGroup,
   type StorefrontNavigationItem,
 } from '@/config/storefrontNavigation';
 
@@ -18,35 +20,49 @@ function navIsActive(pathname: string, href: string, code: string) {
   return pathname === href;
 }
 
-function NavItemChip({ item, onNavigate }: { item: StorefrontNavigationItem; onNavigate?: () => void }) {
-  const className = 'rounded-full border px-4 py-2 text-[10px] uppercase tracking-[0.22em] transition-all';
-  if (item.enabled && item.href) {
+function MegaChildLink({ item, onNavigate }: { item: StorefrontNavigationItem; onNavigate?: () => void }) {
+  if (!item.enabled || !item.href) return null;
+  return (
+    <Link
+      href={item.href}
+      onClick={onNavigate}
+      className="group flex items-center justify-between border-b border-white/[0.08] py-3 text-[12px] tracking-[0.16em] uppercase text-[#C8C2B5] transition-colors hover:text-white"
+    >
+      <span>{item.label}</span>
+      <ArrowUpRight size={12} className="opacity-45 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100" />
+    </Link>
+  );
+}
+
+function MegaRootLink({
+  group,
+  active,
+  onEnter,
+}: {
+  group: StorefrontNavigationGroup;
+  active: boolean;
+  onEnter: () => void;
+}) {
+  const className = `group flex w-full items-center justify-between border-l px-4 py-3 text-left text-[11px] uppercase tracking-[0.22em] transition-all ${
+    active
+      ? 'border-[var(--gold)] bg-[rgba(212,178,106,.07)] text-white'
+      : 'border-white/10 text-[#AAA59B] hover:border-white/30 hover:text-white'
+  }`;
+
+  if (group.href) {
     return (
-      <Link
-        href={item.href}
-        onClick={onNavigate}
-        className={`${className} border-[rgba(216,214,211,0.14)] bg-white/[0.025] text-[#D8D6D3] hover:border-[rgba(212,178,106,0.55)] hover:bg-[rgba(212,178,106,0.08)] hover:text-white hover:shadow-[0_0_22px_rgba(212,178,106,0.12)]`}
-      >
-        {item.label}
+      <Link href={group.href} onMouseEnter={onEnter} onFocus={onEnter} className={className}>
+        <span>{group.label}</span>
+        <ArrowUpRight size={11} className={active ? 'opacity-80' : 'opacity-30 group-hover:opacity-70'} />
       </Link>
     );
   }
 
-  if (item.enabled) {
-    return (
-      <span className={`${className} border-[rgba(216,214,211,0.10)] bg-white/[0.015] text-[#B5B0A6]`}>
-        {item.label}
-      </span>
-    );
-  }
-
   return (
-    <span
-      aria-disabled="true"
-      className={`${className} cursor-default border-[rgba(216,214,211,0.07)] bg-transparent text-[rgba(200,194,181,0.38)]`}
-    >
-      {item.label}
-    </span>
+    <button type="button" onMouseEnter={onEnter} onFocus={onEnter} className={className}>
+      <span>{group.label}</span>
+      <ChevronDown size={11} className="-rotate-90 opacity-40" />
+    </button>
   );
 }
 
@@ -55,6 +71,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [count, setCount] = useState(0);
   const [openPanel, setOpenPanel] = useState<string | null>(null);
+  const [activeGroupCode, setActiveGroupCode] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openMobileSection, setOpenMobileSection] = useState<string | null>('shop');
 
@@ -74,16 +91,33 @@ export function Header() {
   useEffect(() => {
     setMobileOpen(false);
     setOpenPanel(null);
+    setActiveGroupCode(null);
   }, [pathname]);
 
-  const panel = useMemo(() => openPanel ? navigationPanel(openPanel) : null, [openPanel]);
   const primaryNavigation = useMemo(() => publicPrimaryNavigation(), []);
+  const panel = useMemo(() => (openPanel ? navigationPanel(openPanel) : null), [openPanel]);
+  const groups = useMemo(() => (openPanel ? enabledNavigationGroups(openPanel) : []), [openPanel]);
+  const activeGroup = useMemo(
+    () => groups.find((group) => group.code === activeGroupCode) || groups[0] || null,
+    [groups, activeGroupCode],
+  );
+
+  const openMegaPanel = (code: string) => {
+    const nextGroups = enabledNavigationGroups(code);
+    setOpenPanel(code);
+    setActiveGroupCode(nextGroups[0]?.code || null);
+  };
 
   return (
     <header
       data-testid="site-header"
-      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${scrolled ? 'backdrop-blur-xl bg-[rgba(7,7,10,0.78)] border-b border-[rgba(216,214,211,0.18)]' : 'bg-transparent'}`}
-      onMouseLeave={() => setOpenPanel(null)}
+      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
+        scrolled ? 'backdrop-blur-xl bg-[rgba(7,7,10,0.78)] border-b border-[rgba(216,214,211,0.18)]' : 'bg-transparent'
+      }`}
+      onMouseLeave={() => {
+        setOpenPanel(null);
+        setActiveGroupCode(null);
+      }}
     >
       <div className={`overflow-hidden transition-all duration-500 ${scrolled ? 'max-h-0 opacity-0' : 'max-h-10 opacity-100'}`}>
         <div className="bg-gradient-to-r from-transparent via-[rgba(212,178,106,0.10)] to-transparent text-center py-2 text-[10px] tracking-[0.32em] uppercase text-silver">
@@ -105,9 +139,13 @@ export function Header() {
               <Link
                 key={item.code}
                 href={item.href}
-                onMouseEnter={() => setOpenPanel(hasPanel ? String(item.panel) : null)}
-                onFocus={() => setOpenPanel(hasPanel ? String(item.panel) : null)}
-                className={`relative text-[11px] tracking-[0.24em] uppercase font-medium transition-colors duration-300 ${active || (hasPanel && openPanel === item.panel) ? 'text-white nav-active-glow' : 'text-[#C8C2B5] hover:text-white'}`}
+                onMouseEnter={() => (hasPanel ? openMegaPanel(String(item.panel)) : setOpenPanel(null))}
+                onFocus={() => (hasPanel ? openMegaPanel(String(item.panel)) : setOpenPanel(null))}
+                className={`relative text-[11px] tracking-[0.24em] uppercase font-medium transition-colors duration-300 ${
+                  active || (hasPanel && openPanel === item.panel)
+                    ? 'text-white nav-active-glow'
+                    : 'text-[#C8C2B5] hover:text-white'
+                }`}
               >
                 {item.label}
               </Link>
@@ -125,7 +163,11 @@ export function Header() {
           <Link href="/account" aria-label="Account" className="hidden sm:flex w-9 h-9 items-center justify-center rounded-full border border-transparent text-[#C8C2B5] hover:text-white hover:border-[rgba(216,214,211,0.4)] transition-all">
             <User size={15} strokeWidth={1.4} />
           </Link>
-          <Link href="/cart" aria-label="Bag" className={`relative flex items-center gap-2 px-3.5 h-9 rounded-full border transition-all ${count > 0 ? 'border-[var(--gold)] text-white bg-[rgba(212,178,106,0.10)]' : 'border-[rgba(216,214,211,0.4)] text-white'}`}>
+          <Link href="/cart" aria-label="Bag" className={`relative flex items-center gap-2 px-3.5 h-9 rounded-full border transition-all ${
+            count > 0
+              ? 'border-[var(--gold)] text-white bg-[rgba(212,178,106,0.10)]'
+              : 'border-[rgba(216,214,211,0.4)] text-white'
+          }`}>
             <ShoppingBag size={14} strokeWidth={1.4} />
             <span className="text-[10.5px] tracking-[0.22em] uppercase hidden md:inline">Bag</span>
             <span className="text-[10px] text-silver">·</span>
@@ -142,44 +184,59 @@ export function Header() {
         </div>
       </div>
 
-      {panel && (
+      {panel && activeGroup && (
         <div
           onMouseEnter={() => setOpenPanel(panel.code)}
-          className="hidden lg:block absolute left-0 right-0 top-full border-y border-[rgba(216,214,211,0.14)] bg-[linear-gradient(180deg,rgba(13,13,18,0.96),rgba(7,7,10,0.93))] backdrop-blur-2xl shadow-[0_35px_90px_rgba(0,0,0,0.72)]"
+          className="hidden lg:block absolute left-0 right-0 top-full border-y border-[rgba(216,214,211,0.14)] bg-[linear-gradient(180deg,rgba(13,13,18,0.98),rgba(7,7,10,0.97))] backdrop-blur-2xl shadow-[0_35px_90px_rgba(0,0,0,0.72)]"
         >
-          <div className="container-feya grid grid-cols-[220px_1fr] gap-12 py-7">
-            <div className="flex items-center gap-4 border-r border-[rgba(216,214,211,0.12)] pr-8">
-              <FeyaButterfly width={52} className="opacity-90" />
-              <div>
-                <div className="eyebrow-gold mb-2">{panel.label}</div>
-                <p className="editorial-italic text-[15px] text-[var(--bone-dim)] leading-snug">
-                  Shop by piece, event, performance and visual direction.
-                </p>
+          <div className="container-feya grid grid-cols-[260px_1fr] gap-10 py-7">
+            <div>
+              <div className="mb-4 text-[9px] uppercase tracking-[0.34em] text-[var(--gold-warm)]">{panel.label}</div>
+              <div className="space-y-1">
+                {groups.map((group) => (
+                  <MegaRootLink
+                    key={group.code}
+                    group={group}
+                    active={group.code === activeGroup.code}
+                    onEnter={() => setActiveGroupCode(group.code)}
+                  />
+                ))}
               </div>
             </div>
 
-            <div className={`grid gap-8 ${panel.groups.filter((group) => group.items.some((item) => item.enabled)).length >= 4 ? 'grid-cols-4' : panel.groups.filter((group) => group.items.some((item) => item.enabled)).length === 3 ? 'grid-cols-3' : panel.groups.filter((group) => group.items.some((item) => item.enabled)).length === 2 ? 'grid-cols-2' : 'grid-cols-1'}`}>
-              {panel.groups.filter((group) => group.items.some((item) => item.enabled)).map((group) => (
-                <div key={group.code}>
-                  <div className="text-[10px] uppercase tracking-[0.32em] text-[var(--gold-warm)] mb-4">{group.label}</div>
-                  <div className="flex flex-wrap gap-2.5">
-                    {group.items.filter((item) => item.enabled).map((item) => <NavItemChip key={item.code} item={item} />)}
+            <div className="border-l border-white/10 pl-10">
+              <div className="max-w-3xl">
+                <div className="flex items-end justify-between gap-6 border-b border-white/10 pb-4">
+                  <div>
+                    <div className="eyebrow-gold mb-2">{activeGroup.label}</div>
+                    {activeGroup.description ? (
+                      <p className="max-w-xl text-[14px] leading-6 text-[var(--bone-dim)]">{activeGroup.description}</p>
+                    ) : null}
                   </div>
+                  {activeGroup.href ? (
+                    <Link
+                      href={activeGroup.href}
+                      className="shrink-0 text-[10px] uppercase tracking-[0.24em] text-[var(--gold-warm)] hover:text-white transition-colors"
+                    >
+                      View all <ArrowUpRight size={11} className="inline-block ml-1" />
+                    </Link>
+                  ) : null}
                 </div>
-              ))}
+
+                <div className="grid grid-cols-2 gap-x-10 xl:grid-cols-3">
+                  {activeGroup.items.filter((item) => item.enabled).map((item) => (
+                    <MegaChildLink key={item.code} item={item} />
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="container-feya pb-5">
-            <Link href={panel.code === 'shop' ? '/shop' : `/collections#${panel.code}`} className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-[var(--bone-dim)] hover:text-white transition-colors">
-              Explore {panel.label.toLowerCase()} <ArrowUpRight size={12} />
-            </Link>
           </div>
         </div>
       )}
 
       {mobileOpen && (
         <div className="lg:hidden absolute left-0 right-0 top-full max-h-[calc(100vh-64px)] overflow-y-auto border-y border-[rgba(216,214,211,0.14)] bg-[rgba(7,7,10,0.98)] backdrop-blur-2xl shadow-[0_35px_90px_rgba(0,0,0,0.72)]">
-          <div className="container-feya py-5">
+          <div className="container-feya py-4">
             {primaryNavigation.map((item) => {
               const hasPanel = 'panel' in item && Boolean(item.panel);
               if (!hasPanel) {
@@ -190,8 +247,9 @@ export function Header() {
                 );
               }
 
-              const mobilePanel = navigationPanel(String(item.panel));
+              const mobileGroups = enabledNavigationGroups(String(item.panel));
               const expanded = openMobileSection === item.code;
+
               return (
                 <div key={item.code} className="border-b border-white/10">
                   <button
@@ -203,27 +261,36 @@ export function Header() {
                     {item.label}
                     <ChevronDown size={14} className={`transition-transform ${expanded ? 'rotate-180' : ''}`} />
                   </button>
-                  {expanded && mobilePanel && (
-                    <div className="pb-4">
-                      {mobilePanel.groups.filter((group) => group.items.some((child) => child.enabled)).map((group) => (
-                        <div key={group.code} className="mb-5 last:mb-0">
-                          <div className="mb-2 text-[9px] uppercase tracking-[0.28em] text-[var(--gold-warm)]">{group.label}</div>
-                          <div className="flex flex-wrap gap-2">
-                            {group.items.filter((child) => child.enabled).map((child) => <NavItemChip key={child.code} item={child} onNavigate={() => setMobileOpen(false)} />)}
+
+                  {expanded ? (
+                    <div className="pb-5">
+                      {mobileGroups.map((group) => (
+                        <div key={group.code} className="border-t border-white/[0.06] py-4 first:border-t-0 first:pt-0">
+                          <div className="flex items-center justify-between gap-3">
+                            {group.href ? (
+                              <Link
+                                href={group.href}
+                                onClick={() => setMobileOpen(false)}
+                                className="text-[10px] uppercase tracking-[0.26em] text-[var(--gold-warm)]"
+                              >
+                                {group.label}
+                              </Link>
+                            ) : (
+                              <div className="text-[10px] uppercase tracking-[0.26em] text-[var(--gold-warm)]">{group.label}</div>
+                            )}
+                          </div>
+                          <div className="mt-2 pl-3">
+                            {group.items.filter((child) => child.enabled).map((child) => (
+                              <MegaChildLink key={child.code} item={child} onNavigate={() => setMobileOpen(false)} />
+                            ))}
                           </div>
                         </div>
                       ))}
                     </div>
-                  )}
+                  ) : null}
                 </div>
               );
             })}
-
-            <div className="grid grid-cols-3 gap-2 pt-5">
-              <Link href="/size-guide" className="btn-ghost justify-center text-center">Size</Link>
-              <Link href="/shipping" className="btn-ghost justify-center text-center">Shipping</Link>
-              <Link href="/contact" className="btn-ghost justify-center text-center">Contact</Link>
-            </div>
           </div>
         </div>
       )}
