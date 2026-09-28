@@ -214,7 +214,7 @@ export function Header() {
               <div>
                 <div className="eyebrow-gold mb-1">{panel.label}</div>
                 <p className="text-[13px] leading-5 text-[var(--bone-dim)]">
-                  {panel.code === 'shop' ? 'Choose a product family.' : panel.code === 'events_performance' ? 'Choose the occasion, performance context or dance path.' : 'Choose a style or persona.'}
+                  {panel.code === 'shop' ? 'Choose a product family.' : panel.code === 'events_performance' ? 'Choose an event or performance path.' : 'Choose a style or persona.'}
                 </p>
               </div>
               <Link
