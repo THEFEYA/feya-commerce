@@ -6,7 +6,7 @@ const trustPages=[
   ['about','About TheFEYA'],
   ['size-guide','Measurements & Size Guide'],
   ['care','Care & Storage'],
-  ['shipping','Shipping & Delivery'],
+  ['shipping','Shipping & Payment'],
   ['returns','Returns & Exchanges'],
   ['contact','Contact'],
 ];
