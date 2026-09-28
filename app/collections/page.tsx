@@ -75,16 +75,10 @@ export default function CollectionsHubPage(){
         panelCode="shop"
       />
       <DiscoverySection
-        id="events"
-        title="Shop by event"
-        description="Festival is the broad entry; Rave and Burning Man remain distinct paths because they solve different shopping jobs."
-        panelCode="events"
-      />
-      <DiscoverySection
-        id="performance"
-        title="Performance & dance"
-        description="Performance and dance stay separate: Stage, Showgirl and Drag are presentation-led, while Go-Go and Pole are movement-led."
-        panelCode="performance"
+        id="events-performance"
+        title="Events & performance"
+        description="Choose by occasion, stage/performance role or dance path. Festival, Performance and Dance remain distinct branches inside one shopper-facing menu."
+        panelCode="events_performance"
       />
       <DiscoverySection
         id="style"
