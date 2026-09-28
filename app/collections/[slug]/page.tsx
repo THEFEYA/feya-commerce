@@ -3,10 +3,11 @@ import {notFound} from 'next/navigation';
 import Link from 'next/link';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
-import {ProductCard} from '@/components/ProductCard';
+import {ShopClient} from '@/components/ShopClient';
 import {getSearchLandingCandidate} from '@/config/searchLandingCandidates';
 import {readSearchLandingRelease} from '@/lib/searchLandingPageServer';
 import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
+import {attachStorefrontFacets} from '@/lib/storefrontFacetsServer';
 
 export const dynamic='force-dynamic';
 export const revalidate=0;
@@ -39,6 +40,7 @@ export default async function SearchLandingCandidatePage({params}:PageProps){
   if(!release)notFound();
 
   const {candidate,content,products,breadcrumbs,relatedLinks,membershipCount,holdReason,version,contentHash}=release;
+  const facetedProducts=await attachStorefrontFacets(products);
   const isHold=candidate.searchStatus==='hold_noindex';
   if(isHold)notFound();
   const showSearchPreviewStatus=process.env.VERCEL_ENV!=='production'||process.env.FEYA_SHOW_SEARCH_PREVIEW_STATUS==='true';
@@ -132,10 +134,8 @@ export default async function SearchLandingCandidatePage({params}:PageProps){
           <Link href="/shop" className="btn-ghost">Shop all</Link>
         </div>
 
-        {products.length
-          ? <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 lg:gap-6">
-              {products.map((product,index)=><ProductCard key={String(product.canonical_product_id)} product={product} index={index}/>)}
-            </div>
+        {facetedProducts.length
+          ? <ShopClient products={facetedProducts} embedded/>
           : <div className="rounded-xl border border-[rgba(216,214,211,.14)] p-6 text-[var(--bone-dim)]">No current release products are present in this immutable membership snapshot.</div>}
       </section>
 
