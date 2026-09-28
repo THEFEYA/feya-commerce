@@ -5,16 +5,40 @@ import {
   publicPrimaryNavigation,
 } from '../../config/storefrontNavigation.ts';
 
-test('global navigation stays compact while Shop contains the complete product tree', () => {
-  assert.deepEqual(publicPrimaryNavigation().map((item) => item.code), ['shop','events','performance','style','about']);
-
-  const groups = STOREFRONT_NAVIGATION_PANELS.shop.groups;
-  assert.deepEqual(groups.map((group) => group.label), [
-    'Shop','Full Body','Upper Body','Arms','Lower Body','Legs','Head & Face','Special',
-  ]);
+test('global navigation merges events and performance while keeping Shop and Style distinct', () => {
+  assert.deepEqual(publicPrimaryNavigation().map((item) => item.code), ['shop','events_performance','style','about']);
+  assert.deepEqual(publicPrimaryNavigation().map((item) => item.label), ['Shop','Events & Performance','Style','About']);
 
   const shopSerialized = JSON.stringify(STOREFRONT_NAVIGATION_PANELS.shop);
   assert.doesNotMatch(shopSerialized,/Size Guide|Shipping|Returns|Contact/);
+});
+
+test('Shop contains the complete product tree plus audience browsing', () => {
+  const groups = STOREFRONT_NAVIGATION_PANELS.shop.groups;
+  assert.deepEqual(groups.map((group) => group.label), [
+    'Shop','Full Body','Upper Body','Arms','Lower Body','Legs','Head & Face','Special','Shop For',
+  ]);
+
+  const fullBody = groups.find((group) => group.code === 'full_body');
+  assert.deepEqual(
+    fullBody?.items.map(({label,href,role})=>({label,href,role})),
+    [
+      {label:'Bodysuits',href:'/collections/bodysuits',role:'owner'},
+      {label:'Dresses',href:'/shop?piece=Dress',role:'hold'},
+      {label:'Full Body Harnesses',href:'/shop?piece=Full%20Body%20Harness',role:'hold'},
+    ],
+  );
+
+  const shopFor = groups.find((group) => group.code === 'shop_for');
+  assert.deepEqual(
+    shopFor?.items.map(({label,href,role})=>({label,href,role})),
+    [
+      {label:'Women',href:'/shop?audience=Women',role:'filter'},
+      {label:'Men',href:'/shop?audience=Men',role:'filter'},
+      {label:'Unisex',href:'/shop?audience=Unisex',role:'hold'},
+      {label:'Couples',href:'/shop?audience=Couples',role:'filter'},
+    ],
+  );
 });
 
 test('Upper Body and Arms preserve owner-approved distinct product concepts', () => {
@@ -42,26 +66,23 @@ test('Upper Body and Arms preserve owner-approved distinct product concepts', ()
   );
 });
 
-test('Head & Face and Special contain every current non-empty agreed branch', () => {
+test('Head & Face and Special retain the agreed launch branches only', () => {
   const groups = STOREFRONT_NAVIGATION_PANELS.shop.groups;
   const head = groups.find((group) => group.code === 'head_face');
   const special = groups.find((group) => group.code === 'special');
 
-  assert.deepEqual(
-    head?.items.map((item)=>item.label),
-    ['Masks','Headpieces','Horns','Crowns','Chokers'],
-  );
-  assert.deepEqual(
-    special?.items.map((item)=>item.label),
-    ['Wings','Tail','Spine'],
-  );
+  assert.deepEqual(head?.items.map((item)=>item.label),['Masks','Headpieces','Horns','Crowns','Chokers']);
+  assert.deepEqual(special?.items.map((item)=>item.label),['Wings','Tail','Spine']);
 
   const serialized = JSON.stringify(STOREFRONT_NAVIGATION_PANELS);
   assert.doesNotMatch(serialized,/Backpiece|Back Piece|Cape\s*\/\s*Tunic|Tunic/i);
 });
 
-test('Festival branches through Rave to EDM EDC and Coachella while Burning Man remains distinct', () => {
-  const festival = STOREFRONT_NAVIGATION_PANELS.events.groups.find((group) => group.code === 'festival');
+test('combined Events & Performance panel keeps four semantic branches', () => {
+  const panel = STOREFRONT_NAVIGATION_PANELS.events_performance;
+  assert.deepEqual(panel.groups.map((group)=>group.label),['Festival','Other Events','Performance','Dance']);
+
+  const festival = panel.groups.find((group) => group.code === 'festival');
   const rave = festival?.items.find((item) => item.code === 'rave');
 
   assert.equal(festival?.href,'/collections/festival-outfits');
@@ -72,16 +93,15 @@ test('Festival branches through Rave to EDM EDC and Coachella while Burning Man 
     {label:'Coachella',href:'/shop?event=Coachella'},
   ]);
   assert.equal(festival?.items.find((item) => item.code === 'burning_man')?.href,'/collections/burning-man-looks');
-});
 
-test('Other Events, Performance and Dance restore every current agreed shopper path', () => {
-  const other = STOREFRONT_NAVIGATION_PANELS.events.groups.find((group) => group.code === 'other_events');
+  const other = panel.groups.find((group) => group.code === 'other_events');
   assert.deepEqual(other?.items.map((item)=>item.label),['Halloween','Pride','Cosplay']);
 
-  const performance = STOREFRONT_NAVIGATION_PANELS.performance;
-  assert.deepEqual(performance.groups.map((group)=>group.label),['Performance','Dance']);
-  assert.deepEqual(performance.groups[0].items.map((item)=>item.label),['Stage','Showgirl','Drag']);
-  assert.deepEqual(performance.groups[1].items.map((item)=>item.label),['Go-Go','Pole']);
+  const performance = panel.groups.find((group) => group.code === 'performance_roles');
+  assert.deepEqual(performance?.items.map((item)=>item.label),['Stage','Showgirl','Drag']);
+
+  const dance = panel.groups.find((group) => group.code === 'dance');
+  assert.deepEqual(dance?.items.map((item)=>item.label),['Go-Go','Pole']);
 });
 
 test('Style menu restores the full catalog style vocabulary and keeps personas separate', () => {
