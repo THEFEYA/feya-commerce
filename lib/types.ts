@@ -51,6 +51,21 @@ export type StorefrontConfiguration = {
   [key: string]: unknown;
 };
 
+export type StorefrontFacetSet = {
+  parts: string[];
+  subtypes: string[];
+  events: string[];
+  performance: string[];
+  dance: string[];
+  styles: string[];
+  personas: string[];
+  audience: string[];
+  materials: string[];
+  effects: string[];
+  colors: string[];
+  mappingVersion: string;
+};
+
 export type StorefrontProduct = {
   canonical_product_id: string;
   product_slug: string | null;
@@ -102,6 +117,7 @@ export type StorefrontProduct = {
   world_label?: string | null;
   canonical_color_label?: string | null;
   color_options?: string[] | null;
+  facets?: StorefrontFacetSet;
 };
 
 export type ReviewQueueSummary = {

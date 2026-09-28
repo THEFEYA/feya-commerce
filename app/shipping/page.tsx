@@ -6,8 +6,8 @@ import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
 
 export async function generateMetadata():Promise<Metadata>{
   return{
-    title:'Shipping & Delivery',
-    description:'TheFEYA production times, international shipping estimates, customs and delivery policy.',
+    title:'Shipping & Payment',
+    description:'TheFEYA production times, international shipping estimates, payment information, customs and delivery policy.',
     alternates:{canonical:'/shipping'},
     robots:await releaseRobotsForPath('/shipping'),
   };
@@ -19,7 +19,7 @@ export default function ShippingPage(){
     <section className="container-feya pt-36 pb-14 lg:pt-44 lg:pb-20">
       <div className="max-w-4xl">
         <div className="eyebrow-gold mb-5">Worldwide delivery · Made to order</div>
-        <h1 className="font-tall text-bone leading-[.95]" style={{fontSize:'clamp(52px,7vw,96px)'}}>Shipping & Delivery</h1>
+        <h1 className="font-tall text-bone leading-[.95]" style={{fontSize:'clamp(52px,7vw,96px)'}}>Shipping & Payment</h1>
         <p className="editorial-italic mt-6 max-w-2xl text-lg leading-relaxed text-[var(--bone-dim)]">
           Each order moves through production first, then international delivery. Shipping estimates are planning ranges rather than event-date guarantees.
         </p>
@@ -46,6 +46,13 @@ export default function ShippingPage(){
       </div>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
+        <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-7">
+          <h2 className="text-bone text-xl">Payment</h2>
+          <div className="mt-4 space-y-3 text-[15px] leading-7 text-[var(--bone-dim)]">
+            <p>The payment methods available for an order will be shown at checkout before the order is submitted.</p>
+            <p>This pre-index storefront preview does not process live payments. No payment-method claim is published here until checkout is enabled and the payment configuration is approved.</p>
+          </div>
+        </article>
         <article className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-7">
           <h2 className="text-bone text-xl">Event dates are not guaranteed</h2>
           <div className="mt-4 space-y-3 text-[15px] leading-7 text-[var(--bone-dim)]">

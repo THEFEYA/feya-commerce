@@ -84,8 +84,19 @@ test('eleven disjoint server pages cover exactly 207 visible products in stable 
   assert.deepEqual(ids,products.map(p=>p.canonical_product_id));
 });
 
-test('filters round-trip in page links; invalid/ambiguous pages and unknown collection are rejected', () => {
-  const f={...defaultShopFilters(),search:'gold armor',color:'Gold',occasion:['Stage','Festival'],collection:'armor',sort:'Price · high to low'};
+test('governed filters round-trip in page links; invalid/ambiguous and legacy unknown params are rejected', () => {
+  const f={
+    ...defaultShopFilters(),
+    search:'gold armor',
+    color:'Gold',
+    piece:['Shoulder','Bracelet / Cuff'],
+    part:['Arms'],
+    event:['Festival','Rave'],
+    performance:['Stage & Fashion','Showgirl'],
+    dance:['Go-Go Dancer'],
+    style:['Cyberpunk','Glam'],
+    sort:'Price · high to low',
+  };
   const url=new URL(shopPageHref(2,f),'https://example.test');
   assert.deepEqual(parseShopNavigation(Object.fromEntries(url.searchParams)),{page:2,filters:f});
   for(const page of ['0','-1','1.5','1e2','01','NaN','999999999999999999999']) assert.equal(parseShopNavigation({page}),null);

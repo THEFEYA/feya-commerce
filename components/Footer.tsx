@@ -1,35 +1,39 @@
 import Link from 'next/link';
-import { Instagram, Mail, Music2 } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import { FeyaMark } from '@/components/FeyaMark';
 
 const FOOTER_COLUMNS = [
   {
-    title: 'Atelier',
+    title: 'Shop',
     links: [
       ['Shop all', '/shop'],
-      ['Festival looks', '/collections/festival-outfits'],
-      ['Stage pieces', '/collections/stage-outfits'],
-      ['Burning Man looks', '/collections/burning-man-looks'],
-      ['Rave looks', '/collections/rave-outfits'],
+      ['Bodysuits', '/collections/bodysuits'],
+      ['Shoulders', '/collections/shoulder-armor'],
+      ['Masks', '/collections/costume-masks'],
+      ['Headpieces', '/collections/costume-headpieces'],
+      ['Belts', '/collections/costume-belts'],
     ],
   },
   {
-    title: 'Studio',
+    title: 'Events & performance',
+    links: [
+      ['Festival', '/collections/festival-outfits'],
+      ['Rave', '/collections/rave-outfits'],
+      ['Burning Man', '/collections/burning-man-looks'],
+      ['Stage', '/collections/stage-outfits'],
+      ['Festival skirts', '/collections/festival-skirts'],
+    ],
+  },
+  {
+    title: 'Help & studio',
     links: [
       ['Measurements & sizing', '/size-guide'],
-      ['About the atelier', '/about'],
-      ['Production & shipping', '/shipping'],
+      ['Shipping & payment', '/shipping'],
       ['Care & storage', '/care'],
       ['Returns & exchanges', '/returns'],
-    ],
-  },
-  {
-    title: 'House',
-    links: [
       ['About TheFEYA', '/about'],
       ['Contact', '/contact'],
       ['Collections', '/collections'],
-      ['Shipping & delivery', '/shipping'],
     ],
   },
 ];
@@ -44,12 +48,16 @@ export function Footer() {
             <FeyaMark variant="chrome" width={96} />
           </Link>
           <p className="editorial-italic mt-7 max-w-sm text-[19px] leading-relaxed text-[var(--bone-dim)]">
-            Handmade stage, festival and performance pieces in mirror acrylic, mirror-coated vegan leather and mixed costume materials.
+            Handmade stage, festival and performance pieces in mirror acrylic and vegan leather, with product-specific materials shown on each design.
           </p>
           <div className="mt-8 flex items-center gap-4">
-            <Link href="/" aria-label="Instagram" className="w-11 h-11 rounded-full border border-[rgba(216,214,211,0.18)] flex items-center justify-center text-[var(--bone-dim)] hover:text-white hover:border-[rgba(216,214,211,0.45)] transition-all"><Instagram size={17} strokeWidth={1.4} /></Link>
-            <Link href="/" aria-label="TikTok" className="w-11 h-11 rounded-full border border-[rgba(216,214,211,0.18)] flex items-center justify-center text-[var(--bone-dim)] hover:text-white hover:border-[rgba(216,214,211,0.45)] transition-all"><Music2 size={17} strokeWidth={1.4} /></Link>
-            <Link href="mailto:manager.feya@gmail.com" aria-label="Email" className="w-11 h-11 rounded-full border border-[rgba(216,214,211,0.18)] flex items-center justify-center text-[var(--bone-dim)] hover:text-white hover:border-[rgba(216,214,211,0.45)] transition-all"><Mail size={17} strokeWidth={1.4} /></Link>
+            <Link
+              href="mailto:manager.feya@gmail.com"
+              aria-label="Email"
+              className="w-11 h-11 rounded-full border border-[rgba(216,214,211,0.18)] flex items-center justify-center text-[var(--bone-dim)] hover:text-white hover:border-[rgba(216,214,211,0.45)] transition-all"
+            >
+              <Mail size={17} strokeWidth={1.4} />
+            </Link>
           </div>
         </div>
 
@@ -68,6 +76,7 @@ export function Footer() {
           ))}
         </div>
       </div>
+
       <div className="relative z-10 border-t border-[rgba(216,214,211,0.10)] bg-[rgba(7,7,10,0.65)]">
         <div className="container-feya py-3 flex flex-col md:flex-row items-start md:items-center justify-between gap-2 text-[10px] tracking-[0.34em] uppercase text-[rgba(200,194,181,0.58)]">
           <span>© TheFEYA Atelier · Made to order</span>
