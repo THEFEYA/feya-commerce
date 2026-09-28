@@ -8,7 +8,7 @@ import {
   type StorefrontFacetSnapshotRow,
 } from '@/lib/storefrontFacets';
 
-const STOREFRONT_FACET_SNAPSHOT_CODE = 'feya-n7-20260927-v1';
+const STOREFRONT_FACET_SNAPSHOT_CODE = 'feya-n7-20260928-v2';
 const MEMBERSHIP_SNAPSHOT_SOURCE = 'feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926';
 const FACET_CHUNK_SIZE = 100;
 
@@ -138,7 +138,7 @@ async function readFacetSnapshot(service: any, ids: string[]) {
   for (const idChunk of chunks(ids, FACET_CHUNK_SIZE)) {
     const { data: items, error: itemError } = await service
       .from('feya_storefront_facet_items_v1')
-      .select('facet_snapshot_id,canonical_product_id,source_draft_id,parent_components_json,child_components_json,component_groups_json,event_values_json,style_values_json,persona_values_json,canonical_color_label,item_hash')
+      .select('facet_snapshot_id,canonical_product_id,source_draft_id,parent_components_json,child_components_json,component_groups_json,component_values_json,event_values_json,style_values_json,persona_values_json,audience_values_json,material_values_json,canonical_color_label,item_hash')
       .eq('facet_snapshot_id', snapshot.facet_snapshot_id)
       .in('canonical_product_id', idChunk);
 
