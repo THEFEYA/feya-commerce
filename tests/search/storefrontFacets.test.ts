@@ -8,6 +8,7 @@ test('arm-region aliases normalize into compact owner-approved DNA facets', () =
     parent_components_json: ['Arms', 'Shoulders'],
     child_components_json: ['shoulder_piece', 'bracelet', 'arm cuff', 'glove'],
     component_groups_json: ['arms','upper_body'],
+    sellable_component_values_json: ['arms','shoulders'],
     canonical_color_label: 'Gold',
   });
 
@@ -26,6 +27,7 @@ test('leg armor and leg cover wording collapse into Leg Covers while garter stay
     parent_components_json: ['Legs'],
     child_components_json: ['leg armor', 'leg covers', 'garters'],
     component_groups_json: ['legs'],
+    sellable_component_values_json: ['legs'],
     canonical_color_label: 'Silver',
   });
 
@@ -35,12 +37,13 @@ test('leg armor and leg cover wording collapse into Leg Covers while garter stay
   assert.ok(!facets.subtypes.includes('Leg Armor'));
 });
 
-test('legacy Backpiece and Cape/Tunic never become launch special-structure facets', () => {
+test('legacy Backpiece and Cape/Tunic never become launch special facets', () => {
   const facets = buildStorefrontFacets({
     canonical_product_id: 'p3',
     parent_components_json: ['Backpiece', 'Cape / Tunic', 'Wings', 'Spine', 'Tail'],
     child_components_json: ['wings', 'spine', 'tail'],
     component_groups_json: ['back'],
+    sellable_component_values_json: ['wings','spine','tail'],
     canonical_color_label: null,
   });
 
@@ -52,63 +55,96 @@ test('legacy Backpiece and Cape/Tunic never become launch special-structure face
   assert.ok(!facets.subtypes.includes('Cape / Tunic'));
 });
 
-test('approved component axes add product categories without changing SEO ownership', () => {
-  const facets = buildStorefrontFacets({
-    canonical_product_id: 'p4a',
-    parent_components_json: [],
-    child_components_json: ['bracelet','glove','leg covers','garters','choker'],
-    component_groups_json: [],
-    component_values_json: ['top','corset','harness','skirt','belt','panties','legs','mask','headpiece'],
-  });
-
-  assert.ok(facets.parts.includes('Upper Body'));
-  assert.ok(facets.parts.includes('Arms'));
-  assert.ok(facets.parts.includes('Lower Body'));
-  assert.ok(facets.parts.includes('Legs'));
-  assert.ok(facets.parts.includes('Head & Face'));
-  for (const subtype of ['Top','Corset','Harness','Bracelet / Cuff','Glove','Skirt','Belt','Panties / Bottom','Leg Covers','Garter','Mask','Headpiece','Choker / Collar']) {
-    assert.ok(facets.subtypes.includes(subtype), subtype);
-  }
-});
-
-test('bundle with multiple confirmed children becomes a Full Look shopper facet', () => {
+test('search-only component aliases do not create sellable shopper categories', () => {
   const facets = buildStorefrontFacets({
     canonical_product_id: 'p4',
     parent_components_json: ['Top','Skirt'],
     child_components_json: ['top','skirt'],
     component_groups_json: ['bundle','upper_body','lower_body'],
+    component_values_json: ['top','skirt','harness'],
+    sellable_component_values_json: ['top','skirt'],
   });
+
+  assert.ok(facets.parts.includes('Upper Body'));
+  assert.ok(facets.parts.includes('Lower Body'));
+  assert.ok(facets.subtypes.includes('Top'));
+  assert.ok(facets.subtypes.includes('Skirt'));
   assert.ok(facets.subtypes.includes('Full Look'));
+  assert.ok(!facets.subtypes.includes('Harness'));
 });
 
-test('approved event, performance, dance and style focus values map into the full N7 browse model', () => {
+test('sellable component axes restore the complete public product family tree', () => {
   const facets = buildStorefrontFacets({
     canonical_product_id: 'p5',
-    parent_components_json: ['Shoulders'],
-    child_components_json: ['shoulder_piece'],
-    component_groups_json: ['upper_body'],
-    event_values_json: ['festival','rave','burning man','halloween','pride','cosplay','stage','drag'],
-    style_values_json: ['cyberpunk','futuristic','sci fi','goth','glam'],
-    persona_values_json: ['showgirl','drag queen','go go dancer','pole dancer','warrior','goddess'],
+    child_components_json: ['bracelet','glove','leg covers','garters','horns','crown'],
+    sellable_component_values_json: ['bodysuit','top','bra','corset','harness','shoulders','arms','skirt','belt','panties','legs','mask','headpiece','choker','wings','tail','spine'],
+  });
+
+  for (const part of ['Full Body','Upper Body','Arms','Lower Body','Legs','Head & Face','Special']) {
+    assert.ok(facets.parts.includes(part), part);
+  }
+
+  for (const subtype of [
+    'Bodysuit','Top','Bra','Corset','Harness','Shoulder','Bracelet / Cuff','Glove',
+    'Skirt','Belt','Panties / Bottom','Leg Covers','Garter','Mask','Headpiece',
+    'Horns','Crown','Choker / Collar','Wings','Tail','Spine',
+  ]) {
+    assert.ok(facets.subtypes.includes(subtype), subtype);
+  }
+});
+
+test('approved event tree includes Rave children and excludes Stage from event axis', () => {
+  const facets = buildStorefrontFacets({
+    canonical_product_id: 'p6',
+    event_values_json: ['festival','rave','burning man','edm','edc','coachella','halloween','pride','cosplay','stage','drag'],
+    persona_values_json: ['showgirl','drag queen','go go dancer','pole dancer'],
+  });
+
+  assert.deepEqual(facets.events, ['Festival','Rave','Burning Man','EDM','EDC','Coachella','Halloween','Pride','Cosplay']);
+  assert.deepEqual(facets.performance, ['Stage','Showgirl','Drag']);
+  assert.deepEqual(facets.dance, ['Go-Go','Pole']);
+  assert.ok(!facets.events.includes('Stage'));
+});
+
+test('Style and Persona remain distinct DNA axes and restore the full approved catalog vocabulary', () => {
+  const facets = buildStorefrontFacets({
+    canonical_product_id: 'p7',
+    style_values_json: ['glam','futuristic','cosmic','sci fi','cyberpunk','post apocalyptic','fantasy','goth','punk','burlesque','classic'],
+    persona_values_json: ['warrior','warrior princess','queen','robot','witch','alien','demon','goddess','angel','cleopatra','bunny'],
+  });
+
+  assert.deepEqual(
+    facets.styles,
+    ['Glam','Futuristic','Sci-Fi','Cyberpunk','Post-Apocalyptic','Fantasy','Goth','Punk','Burlesque','Classic'],
+  );
+  assert.deepEqual(
+    facets.personas,
+    ['Warrior','Queen','Robot','Witch','Alien','Demon','Goddess','Angel','Cleopatra','Bunny'],
+  );
+  assert.ok(!facets.styles.includes('Warrior'));
+  assert.ok(!facets.styles.includes('Goddess'));
+});
+
+test('audience, material and visual-effect facets stay separate', () => {
+  const facets = buildStorefrontFacets({
+    canonical_product_id: 'p8',
+    audience_values_json: ['women','men','couples','drag'],
+    material_values_json: ['vegan leather','leather','fabric','acrylic','mirror','metallic','holographic','gold'],
     canonical_color_label: 'Gold',
   });
 
-  assert.deepEqual(facets.events, ['Festival','Rave','Burning Man','Halloween','Pride','Cosplay']);
-  assert.deepEqual(facets.performance, ['Stage','Showgirl','Drag']);
-  assert.deepEqual(facets.dance, ['Go-Go','Pole']);
-  assert.deepEqual(facets.styles, ['Cyberpunk','Futuristic','Sci-Fi','Goth','Glam','Warrior','Goddess']);
+  assert.deepEqual(facets.audience, ['Women','Men','Couples']);
+  assert.deepEqual(facets.materials, ['Vegan Leather','Natural Leather','Fabric / Textile','Acrylic / Mirror Plastic']);
+  assert.deepEqual(facets.effects, ['Mirror','Metallic','Iridescent']);
+  assert.deepEqual(facets.colors, ['Gold']);
 });
 
 test('SEO owner memberships remain a separate evidence layer from shopper labels', () => {
   const facets = buildStorefrontFacets(
     {
-      canonical_product_id: 'p6',
-      parent_components_json: ['Shoulders'],
+      canonical_product_id: 'p9',
       child_components_json: ['shoulder_piece'],
-      component_groups_json: ['upper_body'],
-      event_values_json: [],
-      style_values_json: [],
-      persona_values_json: [],
+      sellable_component_values_json: ['shoulders'],
       canonical_color_label: 'Gold',
     },
     ['SHOULDER_ARMOR','FESTIVAL_OUTFITS','RAVE_OUTFITS','BURNING_MAN_OUTFITS','PERFORMANCE_COSTUMES'],
