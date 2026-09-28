@@ -97,7 +97,17 @@ async function getPresentationProducts() {
   return new Map(products.map((product) => [product.canonical_product_id, product]));
 }
 
-function TileMedia({ product, label, className = '' }: { product?: StorefrontProduct; label: string; className?: string }) {
+function TileMedia({
+  product,
+  label,
+  className = '',
+  priority = false,
+}: {
+  product?: StorefrontProduct;
+  label: string;
+  className?: string;
+  priority?: boolean;
+}) {
   const src = product?.primary_image_url || '';
   if (!src) {
     return <div className={`absolute inset-0 bg-[radial-gradient(90%_70%_at_55%_20%,#28262d,#0d0d11)] ${className}`} />;
@@ -107,7 +117,8 @@ function TileMedia({ product, label, className = '' }: { product?: StorefrontPro
     <img
       src={src}
       alt={product.primary_image_alt || productTitle(product) || label}
-      loading="lazy"
+      loading={priority ? 'eager' : 'lazy'}
+      fetchPriority={priority ? 'high' : 'auto'}
       decoding="async"
       className={`absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] ${className}`}
     />
@@ -129,7 +140,7 @@ export default async function HomePage() {
 
       <section aria-label="Hero" className="px-2.5 pt-[108px] sm:px-4 lg:px-5 lg:pt-[116px]">
         <div className="group relative mx-auto min-h-[560px] max-h-[820px] h-[72vh] overflow-hidden rounded-md border border-white/[0.06] bg-[#0d0d11]">
-          <TileMedia product={hero} label="TheFEYA hero" className="scale-[1.01]" />
+          <TileMedia product={hero} label="TheFEYA hero" className="scale-[1.01]" priority />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(6,6,8,.82)_0%,rgba(6,6,8,.35)_50%,rgba(6,6,8,.06)_82%),linear-gradient(0deg,rgba(6,6,8,.76)_0%,transparent_52%)]" />
           <div className="absolute inset-x-0 bottom-0 z-10 px-5 pb-8 sm:px-9 sm:pb-10 lg:px-[5vw] lg:pb-[5vw]">
             <div className="max-w-[720px]">
