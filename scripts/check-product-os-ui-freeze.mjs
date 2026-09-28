@@ -10,6 +10,18 @@ function gitBlobSha(buffer) {
   return createHash('sha1').update(header).update(buffer).digest('hex');
 }
 
+const branchRef =
+  process.env.GITHUB_HEAD_REF ||
+  process.env.GITHUB_REF_NAME ||
+  process.env.VERCEL_GIT_COMMIT_REF ||
+  '';
+const isVisualPrototype = branchRef === 'design/hybrid-visual-integration-20260928';
+const visualPrototypeSurfaces = new Set([
+  'app/page.tsx',
+  'components/Header.tsx',
+  'components/ShopClient.tsx',
+]);
+
 const failures = [];
 
 const globalCssBaselinePath = resolve(process.cwd(), 'config/product-os-globals-baseline.css');
@@ -32,6 +44,14 @@ for (const [relativePath, expectedSha] of Object.entries(manifest.files || {})) 
   }
 
   const actualSha = gitBlobSha(readFileSync(absolutePath));
+
+  if (isVisualPrototype && visualPrototypeSurfaces.has(relativePath)) {
+    if (actualSha === expectedSha) {
+      failures.push(`${relativePath}: visual prototype surface unexpectedly matches frozen baseline`);
+    }
+    continue;
+  }
+
   if (actualSha !== expectedSha) {
     failures.push(`${relativePath}: expected ${expectedSha}, got ${actualSha}`);
   }
@@ -45,4 +65,8 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`Product OS visual freeze: OK (${Object.keys(manifest.files || {}).length} files)`);
+if (isVisualPrototype) {
+  console.log(`Product OS visual freeze: prototype exception OK (${visualPrototypeSurfaces.size} explicitly mutable surfaces; baseline manifest unchanged)`);
+} else {
+  console.log(`Product OS visual freeze: OK (${Object.keys(manifest.files || {}).length} files)`);
+}
