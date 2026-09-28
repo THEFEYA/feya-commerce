@@ -9,7 +9,6 @@ import {
   enabledNavigationGroups,
   navigationPanel,
   publicPrimaryNavigation,
-  type StorefrontNavigationGroup,
   type StorefrontNavigationItem,
 } from '@/config/storefrontNavigation';
 
@@ -20,49 +19,26 @@ function navIsActive(pathname: string, href: string, code: string) {
   return pathname === href;
 }
 
-function MegaChildLink({ item, onNavigate }: { item: StorefrontNavigationItem; onNavigate?: () => void }) {
+function MegaLeaf({ item, onNavigate, nested = false }: { item: StorefrontNavigationItem; onNavigate?: () => void; nested?: boolean }) {
   if (!item.enabled || !item.href) return null;
   return (
-    <Link
-      href={item.href}
-      onClick={onNavigate}
-      className="group flex items-center justify-between border-b border-white/[0.08] py-3 text-[12px] tracking-[0.16em] uppercase text-[#C8C2B5] transition-colors hover:text-white"
-    >
-      <span>{item.label}</span>
-      <ArrowUpRight size={12} className="opacity-45 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100" />
-    </Link>
-  );
-}
-
-function MegaRootLink({
-  group,
-  active,
-  onEnter,
-}: {
-  group: StorefrontNavigationGroup;
-  active: boolean;
-  onEnter: () => void;
-}) {
-  const className = `group flex w-full items-center justify-between border-l px-4 py-3 text-left text-[11px] uppercase tracking-[0.22em] transition-all ${
-    active
-      ? 'border-[var(--gold)] bg-[rgba(212,178,106,.07)] text-white'
-      : 'border-white/10 text-[#AAA59B] hover:border-white/30 hover:text-white'
-  }`;
-
-  if (group.href) {
-    return (
-      <Link href={group.href} onMouseEnter={onEnter} onFocus={onEnter} className={className}>
-        <span>{group.label}</span>
-        <ArrowUpRight size={11} className={active ? 'opacity-80' : 'opacity-30 group-hover:opacity-70'} />
+    <div>
+      <Link
+        href={item.href}
+        onClick={onNavigate}
+        className={`group flex items-center justify-between border-b border-white/[0.07] py-2.5 transition-colors hover:text-white ${nested ? 'pl-4 text-[10px] tracking-[0.14em] text-[#9F9A90]' : 'text-[11px] tracking-[0.16em] text-[#C8C2B5]'} uppercase`}
+      >
+        <span>{item.label}</span>
+        <ArrowUpRight size={10} className="opacity-35 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100" />
       </Link>
-    );
-  }
-
-  return (
-    <button type="button" onMouseEnter={onEnter} onFocus={onEnter} className={className}>
-      <span>{group.label}</span>
-      <ChevronDown size={11} className="-rotate-90 opacity-40" />
-    </button>
+      {item.children?.length ? (
+        <div className="border-l border-white/10">
+          {item.children.filter((child) => child.enabled).map((child) => (
+            <MegaLeaf key={child.code} item={child} onNavigate={onNavigate} nested />
+          ))}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -71,7 +47,6 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [count, setCount] = useState(0);
   const [openPanel, setOpenPanel] = useState<string | null>(null);
-  const [activeGroupCode, setActiveGroupCode] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openMobileSection, setOpenMobileSection] = useState<string | null>('shop');
 
@@ -91,22 +66,11 @@ export function Header() {
   useEffect(() => {
     setMobileOpen(false);
     setOpenPanel(null);
-    setActiveGroupCode(null);
   }, [pathname]);
 
   const primaryNavigation = useMemo(() => publicPrimaryNavigation(), []);
   const panel = useMemo(() => (openPanel ? navigationPanel(openPanel) : null), [openPanel]);
   const groups = useMemo(() => (openPanel ? enabledNavigationGroups(openPanel) : []), [openPanel]);
-  const activeGroup = useMemo(
-    () => groups.find((group) => group.code === activeGroupCode) || groups[0] || null,
-    [groups, activeGroupCode],
-  );
-
-  const openMegaPanel = (code: string) => {
-    const nextGroups = enabledNavigationGroups(code);
-    setOpenPanel(code);
-    setActiveGroupCode(nextGroups[0]?.code || null);
-  };
 
   return (
     <header
@@ -114,10 +78,7 @@ export function Header() {
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
         scrolled ? 'backdrop-blur-xl bg-[rgba(7,7,10,0.78)] border-b border-[rgba(216,214,211,0.18)]' : 'bg-transparent'
       }`}
-      onMouseLeave={() => {
-        setOpenPanel(null);
-        setActiveGroupCode(null);
-      }}
+      onMouseLeave={() => setOpenPanel(null)}
     >
       <div className={`overflow-hidden transition-all duration-500 ${scrolled ? 'max-h-0 opacity-0' : 'max-h-10 opacity-100'}`}>
         <div className="bg-gradient-to-r from-transparent via-[rgba(212,178,106,0.10)] to-transparent text-center py-2 text-[10px] tracking-[0.32em] uppercase text-silver">
@@ -139,8 +100,8 @@ export function Header() {
               <Link
                 key={item.code}
                 href={item.href}
-                onMouseEnter={() => (hasPanel ? openMegaPanel(String(item.panel)) : setOpenPanel(null))}
-                onFocus={() => (hasPanel ? openMegaPanel(String(item.panel)) : setOpenPanel(null))}
+                onMouseEnter={() => setOpenPanel(hasPanel ? String(item.panel) : null)}
+                onFocus={() => setOpenPanel(hasPanel ? String(item.panel) : null)}
                 className={`relative text-[11px] tracking-[0.24em] uppercase font-medium transition-colors duration-300 ${
                   active || (hasPanel && openPanel === item.panel)
                     ? 'text-white nav-active-glow'
@@ -184,58 +145,54 @@ export function Header() {
         </div>
       </div>
 
-      {panel && activeGroup && (
+      {panel && groups.length > 0 ? (
         <div
           onMouseEnter={() => setOpenPanel(panel.code)}
-          className="hidden lg:block absolute left-0 right-0 top-full border-y border-[rgba(216,214,211,0.14)] bg-[linear-gradient(180deg,rgba(13,13,18,0.98),rgba(7,7,10,0.97))] backdrop-blur-2xl shadow-[0_35px_90px_rgba(0,0,0,0.72)]"
+          className="hidden lg:block absolute left-0 right-0 top-full border-y border-[rgba(216,214,211,0.14)] bg-[linear-gradient(180deg,rgba(13,13,18,0.985),rgba(7,7,10,0.98))] backdrop-blur-2xl shadow-[0_35px_90px_rgba(0,0,0,0.72)]"
         >
-          <div className="container-feya grid grid-cols-[260px_1fr] gap-10 py-7">
-            <div>
-              <div className="mb-4 text-[9px] uppercase tracking-[0.34em] text-[var(--gold-warm)]">{panel.label}</div>
-              <div className="space-y-1">
-                {groups.map((group) => (
-                  <MegaRootLink
-                    key={group.code}
-                    group={group}
-                    active={group.code === activeGroup.code}
-                    onEnter={() => setActiveGroupCode(group.code)}
-                  />
-                ))}
+          <div className="container-feya py-7">
+            <div className="flex items-center justify-between gap-6 border-b border-white/10 pb-4">
+              <div>
+                <div className="eyebrow-gold mb-1">{panel.label}</div>
+                <p className="text-[13px] leading-5 text-[var(--bone-dim)]">
+                  {panel.code === 'shop' ? 'Choose a product family.' : panel.code === 'events' ? 'Choose where the look is going.' : panel.code === 'performance' ? 'Choose the performance job.' : 'Choose a style or persona.'}
+                </p>
               </div>
+              <Link
+                href={panel.code === 'shop' ? '/shop' : `/collections#${panel.code}`}
+                className="text-[10px] uppercase tracking-[0.24em] text-[var(--gold-warm)] hover:text-white transition-colors"
+              >
+                Explore {panel.label.toLowerCase()} <ArrowUpRight size={11} className="inline-block ml-1" />
+              </Link>
             </div>
 
-            <div className="border-l border-white/10 pl-10">
-              <div className="max-w-3xl">
-                <div className="flex items-end justify-between gap-6 border-b border-white/10 pb-4">
-                  <div>
-                    <div className="eyebrow-gold mb-2">{activeGroup.label}</div>
-                    {activeGroup.description ? (
-                      <p className="max-w-xl text-[14px] leading-6 text-[var(--bone-dim)]">{activeGroup.description}</p>
-                    ) : null}
+            <div className={`mt-5 grid gap-x-8 gap-y-8 ${panel.code === 'shop' ? 'grid-cols-4' : 'grid-cols-2'}`}>
+              {groups.map((group) => (
+                <section key={group.code} className="min-w-0">
+                  <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
+                    {group.href ? (
+                      <Link href={group.href} className="text-[10px] uppercase tracking-[0.28em] text-[var(--gold-warm)] hover:text-white transition-colors">
+                        {group.label}
+                      </Link>
+                    ) : (
+                      <div className="text-[10px] uppercase tracking-[0.28em] text-[var(--gold-warm)]">{group.label}</div>
+                    )}
+                    {group.href ? <ArrowUpRight size={10} className="text-[var(--gold-warm)] opacity-60" /> : null}
                   </div>
-                  {activeGroup.href ? (
-                    <Link
-                      href={activeGroup.href}
-                      className="shrink-0 text-[10px] uppercase tracking-[0.24em] text-[var(--gold-warm)] hover:text-white transition-colors"
-                    >
-                      View all <ArrowUpRight size={11} className="inline-block ml-1" />
-                    </Link>
-                  ) : null}
-                </div>
-
-                <div className="grid grid-cols-2 gap-x-10 xl:grid-cols-3">
-                  {activeGroup.items.filter((item) => item.enabled).map((item) => (
-                    <MegaChildLink key={item.code} item={item} />
-                  ))}
-                </div>
-              </div>
+                  <div className="mt-1">
+                    {group.items.filter((item) => item.enabled).map((item) => (
+                      <MegaLeaf key={item.code} item={item} />
+                    ))}
+                  </div>
+                </section>
+              ))}
             </div>
           </div>
         </div>
-      )}
+      ) : null}
 
       {mobileOpen && (
-        <div className="lg:hidden absolute left-0 right-0 top-full max-h-[calc(100vh-64px)] overflow-y-auto border-y border-[rgba(216,214,211,0.14)] bg-[rgba(7,7,10,0.98)] backdrop-blur-2xl shadow-[0_35px_90px_rgba(0,0,0,0.72)]">
+        <div className="lg:hidden absolute left-0 right-0 top-full max-h-[calc(100vh-64px)] overflow-y-auto border-y border-[rgba(216,214,211,0.14)] bg-[rgba(7,7,10,0.99)] backdrop-blur-2xl shadow-[0_35px_90px_rgba(0,0,0,0.72)]">
           <div className="container-feya py-4">
             {primaryNavigation.map((item) => {
               const hasPanel = 'panel' in item && Boolean(item.panel);
@@ -266,22 +223,20 @@ export function Header() {
                     <div className="pb-5">
                       {mobileGroups.map((group) => (
                         <div key={group.code} className="border-t border-white/[0.06] py-4 first:border-t-0 first:pt-0">
-                          <div className="flex items-center justify-between gap-3">
-                            {group.href ? (
-                              <Link
-                                href={group.href}
-                                onClick={() => setMobileOpen(false)}
-                                className="text-[10px] uppercase tracking-[0.26em] text-[var(--gold-warm)]"
-                              >
-                                {group.label}
-                              </Link>
-                            ) : (
-                              <div className="text-[10px] uppercase tracking-[0.26em] text-[var(--gold-warm)]">{group.label}</div>
-                            )}
-                          </div>
+                          {group.href ? (
+                            <Link
+                              href={group.href}
+                              onClick={() => setMobileOpen(false)}
+                              className="text-[10px] uppercase tracking-[0.26em] text-[var(--gold-warm)]"
+                            >
+                              {group.label}
+                            </Link>
+                          ) : (
+                            <div className="text-[10px] uppercase tracking-[0.26em] text-[var(--gold-warm)]">{group.label}</div>
+                          )}
                           <div className="mt-2 pl-3">
                             {group.items.filter((child) => child.enabled).map((child) => (
-                              <MegaChildLink key={child.code} item={child} onNavigate={() => setMobileOpen(false)} />
+                              <MegaLeaf key={child.code} item={child} onNavigate={() => setMobileOpen(false)} />
                             ))}
                           </div>
                         </div>
