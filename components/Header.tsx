@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Search, ShoppingBag, User, Menu, Heart, ArrowUpRight, ChevronDown, X } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Search, ShoppingBag, User, Menu, ArrowUpRight, ChevronDown, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FeyaButterfly, FeyaMark } from '@/components/FeyaMark';
 import {
@@ -66,12 +66,16 @@ function MegaLeaf({
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [count, setCount] = useState(0);
   const [openPanel, setOpenPanel] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openMobileSection, setOpenMobileSection] = useState<string | null>('shop');
   const [stylePreviewLabel, setStylePreviewLabel] = useState(DEFAULT_STYLE_MEGA_PREVIEW);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -90,14 +94,22 @@ export function Header() {
   useEffect(() => {
     setMobileOpen(false);
     setOpenPanel(null);
+    setSearchOpen(false);
     cancelScheduledClose();
   }, [pathname]);
+
+  useEffect(() => {
+    if (!searchOpen) return;
+    const frame = window.requestAnimationFrame(() => searchInputRef.current?.focus());
+    return () => window.cancelAnimationFrame(frame);
+  }, [searchOpen]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
       setOpenPanel(null);
       setMobileOpen(false);
+      setSearchOpen(false);
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
@@ -151,10 +163,12 @@ export function Header() {
                 href={item.href}
                 onMouseEnter={() => {
                   cancelScheduledClose();
+                  setSearchOpen(false);
                   setOpenPanel(hasPanel ? String(item.panel) : null);
                 }}
                 onFocus={() => {
                   cancelScheduledClose();
+                  setSearchOpen(false);
                   setOpenPanel(hasPanel ? String(item.panel) : null);
                 }}
                 className={`relative text-[11px] tracking-[0.24em] uppercase font-medium transition-colors duration-300 ${
@@ -170,11 +184,17 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <button aria-label="Search" className="hidden sm:flex w-9 h-9 items-center justify-center rounded-full border border-transparent text-[#C8C2B5] hover:text-white hover:border-[rgba(216,214,211,0.4)] transition-all">
-            <Search size={15} strokeWidth={1.4} />
-          </button>
-          <button aria-label="Wishlist" className="hidden sm:flex w-9 h-9 items-center justify-center rounded-full border border-transparent text-[#C8C2B5] hover:text-white hover:border-[rgba(216,214,211,0.4)] transition-all">
-            <Heart size={15} strokeWidth={1.4} />
+          <button
+            aria-label={searchOpen ? 'Close search' : 'Search'}
+            aria-expanded={searchOpen}
+            onClick={() => {
+              setOpenPanel(null);
+              setMobileOpen(false);
+              setSearchOpen((value) => !value);
+            }}
+            className="flex w-9 h-9 items-center justify-center rounded-full border border-transparent text-[#C8C2B5] hover:text-white hover:border-[rgba(216,214,211,0.4)] transition-all"
+          >
+            {searchOpen ? <X size={15} strokeWidth={1.4} /> : <Search size={15} strokeWidth={1.4} />}
           </button>
           <Link href="/account" aria-label="Account" className="hidden sm:flex w-9 h-9 items-center justify-center rounded-full border border-transparent text-[#C8C2B5] hover:text-white hover:border-[rgba(216,214,211,0.4)] transition-all">
             <User size={15} strokeWidth={1.4} />
@@ -199,6 +219,32 @@ export function Header() {
           </button>
         </div>
       </div>
+
+      {searchOpen ? (
+        <div className="absolute left-0 right-0 top-full border-y border-white/[0.10] bg-[rgba(8,8,10,.985)] shadow-[0_28px_80px_rgba(0,0,0,.68)] backdrop-blur-xl">
+          <form
+            role="search"
+            className="container-feya flex items-center gap-3 py-5"
+            onSubmit={(event) => {
+              event.preventDefault();
+              const value = searchQuery.trim();
+              setSearchOpen(false);
+              router.push(value ? `/shop?search=${encodeURIComponent(value)}` : '/shop');
+            }}
+          >
+            <Search size={18} strokeWidth={1.3} className="shrink-0 text-[#aaa2a0]" />
+            <input
+              ref={searchInputRef}
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              aria-label="Search TheFEYA products"
+              placeholder="Search products, looks and pieces…"
+              className="min-w-0 flex-1 bg-transparent text-[18px] text-[#f4f1ea] outline-none placeholder:text-[rgba(170,162,160,.48)]"
+            />
+            <button type="submit" className="visual-primary-cta !min-h-10 !px-5">Search</button>
+          </form>
+        </div>
+      ) : null}
 
       {panel && groups.length > 0 ? (
         <div
