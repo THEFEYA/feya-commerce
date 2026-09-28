@@ -4869,3 +4869,114 @@ a.owner-list-row:hover {
   from { opacity: .28; transform: scale(1.012); }
   to { opacity: 1; transform: scale(1); }
 }
+
+
+/* FEYA hybrid PDP skin — visual polish only. Geometry and interaction structure stay frozen. */
+[data-testid='product-page'] {
+  font-family: "Helvetica Neue", Helvetica, Arial, Manrope, sans-serif;
+  color: #f4f1ea;
+}
+
+[data-testid='product-page'] h1.font-tall,
+[data-testid='product-page'] .display-section,
+[data-testid='product-page'] .product-card-title {
+  font-family: "Helvetica Neue", Helvetica, Arial, Manrope, sans-serif;
+}
+
+[data-testid='product-page'] h1.font-tall {
+  font-weight: 500;
+  letter-spacing: -.035em !important;
+  line-height: 1.02 !important;
+}
+
+[data-testid='product-page'] .display-section {
+  font-weight: 500;
+  letter-spacing: -.025em;
+}
+
+[data-testid='product-page'] .editorial-italic {
+  font-family: "Helvetica Neue", Helvetica, Arial, Manrope, sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  color: #aaa2a0;
+}
+
+[data-testid='product-page'] section.container-feya.grid.grid-cols-12 > div button[aria-label^='Open image'] {
+  border-color: rgba(255,255,255,.09);
+  background: #111117;
+  box-shadow: 0 24px 60px -34px rgba(0,0,0,.9);
+}
+
+[data-testid='product-page'] section.container-feya.grid.grid-cols-12 > div button[aria-label^='Show image'] {
+  border-color: rgba(255,255,255,.09);
+  background: #111117;
+}
+
+[data-testid='product-page'] section.container-feya.grid.grid-cols-12 > div button[aria-label^='Show image'][aria-pressed='true'] {
+  border-color: rgba(216,181,109,.82);
+  box-shadow: 0 0 0 1px rgba(216,181,109,.18);
+}
+
+[data-testid='product-page'] aside > h1 + p {
+  color: #aaa2a0;
+}
+
+[data-testid='product-page'] aside button[aria-controls='product-configuration-options'],
+[data-testid='product-page'] aside .size-pill,
+[data-testid='product-page'] aside .grid.grid-cols-3 {
+  background-color: #111117;
+  border-color: rgba(255,255,255,.11);
+}
+
+[data-testid='product-page'] aside button[aria-controls='product-configuration-options']:hover,
+[data-testid='product-page'] aside .size-pill:hover {
+  border-color: rgba(216,181,109,.58);
+}
+
+[data-testid='product-page'] aside .size-pill-active {
+  color: #0b0b0d;
+  background: #f4f1ea;
+  border-color: #f4f1ea;
+  box-shadow: none;
+}
+
+[data-testid='product-page'] aside .size-pill-custom {
+  color: #0b0b0d;
+  background: #d8b56d;
+  border-color: #d8b56d;
+}
+
+[data-testid='product-page'] aside .btn-chrome {
+  color: #0b0b0d;
+  background: #f4f1ea;
+  border-color: #f4f1ea;
+  box-shadow: none;
+}
+
+[data-testid='product-page'] aside .btn-gold {
+  color: #0b0b0d;
+  background: #d8b56d;
+  border-color: #d8b56d;
+  box-shadow: 0 12px 30px rgba(216,181,109,.13);
+}
+
+[data-testid='product-page'] aside .btn-chrome:hover,
+[data-testid='product-page'] aside .btn-gold:hover {
+  filter: none;
+  transform: translateY(-1px);
+}
+
+[data-testid='product-page'] #description {
+  border-color: rgba(255,255,255,.08);
+}
+
+[data-testid='product-page'] #description p,
+[data-testid='product-page'] #description li {
+  color: #aaa2a0;
+}
+
+@media (max-width: 699px) {
+  [data-testid='product-page'] h1.font-tall {
+    letter-spacing: -.025em !important;
+  }
+}
