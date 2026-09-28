@@ -302,8 +302,8 @@ export function ProductDetailClient({
     </div> : null}
 
     <section className="container-feya pb-4 grid grid-cols-12 gap-5 lg:gap-7">
-      <div className="col-span-12 lg:col-span-7 grid grid-cols-12 gap-3 lg:gap-4">
-        <div className="col-span-2 hidden lg:flex flex-col gap-3 max-h-[650px] overflow-y-auto pr-1">
+      <div className="col-span-12 lg:col-span-7 grid grid-cols-12 gap-3 lg:grid-cols-[118px_minmax(0,1fr)] lg:gap-2.5">
+        <div className="hidden lg:flex flex-col gap-3 max-h-[650px] overflow-y-auto pr-0.5 [scrollbar-width:thin]">
           {gallery.map((g, i) => <button
             type="button"
             ref={(node) => { thumbnailRefs.current[i] = node; }}
@@ -315,7 +315,7 @@ export function ProductDetailClient({
             {g.url ? <img src={String(g.url)} alt="" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover object-center" /> : null}
           </button>)}
         </div>
-        <div className="col-span-12 lg:col-span-10 flex justify-center">
+        <div className="col-span-12 flex justify-center">
           <button
             ref={mainMediaRef}
             type="button"
