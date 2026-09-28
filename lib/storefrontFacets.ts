@@ -187,6 +187,7 @@ export function buildStorefrontFacets(
 
   if (focusAudience.has('women')) add(audience, 'Women');
   if (focusAudience.has('men')) add(audience, 'Men');
+  if (focusAudience.has('unisex')) add(audience, 'Unisex');
   if (focusAudience.has('couples')) add(audience, 'Couples');
 
   if (focusMaterials.has('vegan leather') || focusMaterials.has('faux leather')) add(materials, 'Vegan Leather');
