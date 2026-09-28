@@ -5084,16 +5084,16 @@ a.owner-list-row:hover {
   height: 1px;
   background: linear-gradient(90deg,
     transparent 0%,
-    transparent 12%,
-    rgba(216,181,109,.025) 24%,
-    rgba(216,181,109,.09) 38%,
-    rgba(216,181,109,.20) 50%,
-    rgba(216,181,109,.09) 62%,
-    rgba(216,181,109,.025) 76%,
-    transparent 88%,
+    transparent 18%,
+    rgba(216,181,109,.018) 28%,
+    rgba(216,181,109,.055) 40%,
+    rgba(216,181,109,.145) 50%,
+    rgba(216,181,109,.055) 60%,
+    rgba(216,181,109,.018) 72%,
+    transparent 82%,
     transparent 100%
   );
-  box-shadow: 0 0 10px rgba(216,181,109,.035);
+  box-shadow: 0 0 8px rgba(216,181,109,.022);
   pointer-events: none;
 }
 
@@ -5112,7 +5112,6 @@ a.owner-list-row:hover {
 }
 
 .visual-tile-label-band {
-  position: relative;
   background:
     linear-gradient(180deg, rgba(18,18,22,.24) 0%, rgba(12,12,16,.58) 42%, rgba(7,7,10,.92) 100%),
     radial-gradient(120% 90% at 50% 0%, rgba(255,255,255,.04), transparent 72%);
@@ -5129,14 +5128,14 @@ a.owner-list-row:hover {
   height: 1px;
   background: linear-gradient(90deg,
     transparent 0%,
-    rgba(216,181,109,.02) 16%,
-    rgba(216,181,109,.10) 34%,
-    rgba(216,181,109,.30) 50%,
-    rgba(216,181,109,.10) 66%,
-    rgba(216,181,109,.02) 84%,
+    rgba(216,181,109,.015) 18%,
+    rgba(216,181,109,.07) 36%,
+    rgba(216,181,109,.22) 50%,
+    rgba(216,181,109,.07) 64%,
+    rgba(216,181,109,.015) 82%,
     transparent 100%
   );
-  box-shadow: 0 0 8px rgba(216,181,109,.04);
+  box-shadow: 0 0 7px rgba(216,181,109,.025);
   pointer-events: none;
 }
 
@@ -5177,4 +5176,34 @@ a.owner-list-row:hover {
   [data-testid='product-page'] aside .btn-gold.w-full.mt-2::before {
     animation: none !important;
   }
+}
+
+
+.visual-mood-label-band,
+.visual-piece-label-band,
+.visual-mega-preview-band {
+  bottom: 0;
+  top: auto;
+}
+
+.visual-mood-label-band {
+  min-height: 104px;
+}
+
+.visual-piece-label-band {
+  min-height: 58px;
+}
+
+.visual-mega-preview-band {
+  min-height: 118px;
+}
+
+
+.visual-commerce-shell [data-testid='filter-sidebar'] {
+  min-width: 0;
+}
+
+.visual-commerce-shell [data-testid='filter-sidebar'] input,
+.visual-commerce-shell [data-testid='filter-sidebar'] button {
+  max-width: 100%;
 }
