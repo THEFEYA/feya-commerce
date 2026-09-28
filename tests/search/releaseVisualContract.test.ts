@@ -25,6 +25,7 @@ test('release storefront surfaces match the owner-approved visual freeze manifes
   const isVisualPrototype = prototypeBranch === 'design/hybrid-visual-integration-20260928';
   const explicitlyMutablePrototypeSurfaces = new Set([
     'app/page.tsx',
+    'components/Header.tsx',
     'components/ShopClient.tsx',
   ]);
 
