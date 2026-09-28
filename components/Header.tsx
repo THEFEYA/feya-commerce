@@ -155,7 +155,7 @@ export function Header() {
               <div>
                 <div className="eyebrow-gold mb-1">{panel.label}</div>
                 <p className="text-[13px] leading-5 text-[var(--bone-dim)]">
-                  {panel.code === 'shop' ? 'Choose a product family.' : panel.code === 'events' ? 'Choose where the look is going.' : panel.code === 'performance' ? 'Choose the performance job.' : 'Choose a style or persona.'}
+                  {panel.code === 'shop' ? 'Choose a product family.' : panel.code === 'events_performance' ? 'Choose the occasion, performance context or dance path.' : 'Choose a style or persona.'}
                 </p>
               </div>
               <Link
@@ -166,7 +166,7 @@ export function Header() {
               </Link>
             </div>
 
-            <div className={`mt-5 grid gap-x-8 gap-y-8 ${panel.code === 'shop' ? 'grid-cols-4' : 'grid-cols-2'}`}>
+            <div className={`mt-5 grid gap-x-8 gap-y-8 ${panel.code === 'shop' || panel.code === 'events_performance' ? 'grid-cols-4' : 'grid-cols-2'}`}>
               {groups.map((group) => (
                 <section key={group.code} className="min-w-0">
                   <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
