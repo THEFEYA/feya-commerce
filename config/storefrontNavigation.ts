@@ -65,7 +65,7 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         items: [
           filter('women','Women','/shop?audience=Women'),
           filter('men','Men','/shop?audience=Men'),
-          { code:'unisex', label:'Unisex', href:'/shop?audience=Unisex', role:'hold', enabled:true },
+          { code:'unisex', label:'Unisex', role:'hold', enabled:true },
           filter('couples','Couples','/shop?audience=Couples'),
         ],
       },
@@ -76,8 +76,8 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         description: 'Complete garments.',
         items: [
           owner('bodysuits','Bodysuits','/collections/bodysuits'),
-          { code:'dresses', label:'Dresses', href:'/shop?piece=Dress', role:'hold', enabled:true },
-          { code:'full_body_harnesses', label:'Full Body Harnesses', href:'/shop?piece=Full%20Body%20Harness', role:'hold', enabled:true },
+          { code:'dresses', label:'Dresses', role:'hold', enabled:true },
+          { code:'full_body_harnesses', label:'Full Body Harnesses', role:'hold', enabled:true },
         ],
       },
       {
@@ -100,7 +100,7 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
           owner('shoulders','Shoulders','/collections/shoulder-armor'),
           filter('bracelets_cuffs','Bracelets & Cuffs','/shop?piece=Bracelet%20%2F%20Cuff'),
           filter('gloves','Gloves','/shop?piece=Glove'),
-          { code:'full_arms', label:'Full Arms', href:'/shop?piece=Full%20Arm', role:'hold', enabled:true },
+          { code:'full_arms', label:'Full Arms', role:'hold', enabled:true },
         ],
       },
       {
@@ -135,7 +135,7 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         items: [
           filter('leg_covers','Leg Covers','/shop?piece=Leg%20Covers'),
           filter('garters','Garters','/shop?piece=Garter'),
-          { code:'full_legs', label:'Full Legs', href:'/shop?piece=Full%20Leg', role:'hold', enabled:true },
+          { code:'full_legs', label:'Full Legs', role:'hold', enabled:true },
         ],
       },
       {
