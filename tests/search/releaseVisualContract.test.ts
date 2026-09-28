@@ -26,6 +26,7 @@ test('release storefront surfaces match the owner-approved visual freeze manifes
   const explicitlyMutablePrototypeSurfaces = new Set([
     'app/page.tsx',
     'components/Header.tsx',
+    'components/Footer.tsx',
     'components/ShopClient.tsx',
   ]);
 
