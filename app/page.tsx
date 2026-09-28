@@ -265,10 +265,10 @@ export default async function HomePage() {
           {HOME_PRESENTATION.findTiles.map((tile) => (
             <Link key={tile.code} href={tile.href} className="group relative aspect-[3/4] overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#111117]">
               <TileMedia product={getProduct(tile.productId)} label={tile.label} />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
-              <div className="visual-tile-label-band absolute inset-x-3 bottom-3 z-10 rounded-[10px] p-4">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/78 via-black/16 to-transparent" />
+              <div className="visual-tile-label-band visual-mood-label-band absolute inset-x-0 bottom-0 z-10 px-4 pb-5 pt-5 text-center">
                 <span className="visual-axis-pill">{tile.axis}</span>
-                <h3 className="font-tall mt-3 text-[clamp(24px,2.2vw,34px)] leading-none tracking-[.01em] text-[#f7f3ec]">{tile.label}</h3>
+                <h3 className="font-tall mt-2 text-[clamp(24px,2.2vw,34px)] leading-none tracking-[.01em] text-[#f7f3ec]">{tile.label}</h3>
               </div>
             </Link>
           ))}
@@ -295,22 +295,26 @@ function EditorialSection({
   title,
   action,
   children,
+  tone = 'plain',
 }: {
   eyebrow: string;
   title: string;
   action?: React.ReactNode;
   children: React.ReactNode;
+  tone?: 'plain' | 'raised' | 'deep';
 }) {
   return (
-    <section className="container-feya py-[clamp(56px,7vw,96px)]">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-5 lg:mb-10">
-        <div>
-          <div className="mb-3 text-[10px] uppercase tracking-[0.18em] text-[#aaa2a0]">{eyebrow}</div>
-          <h2 className="font-tall text-[clamp(32px,3.7vw,52px)] leading-[1.02] tracking-[.012em] text-[#f7f3ec]">{title}</h2>
+    <section className={`visual-home-section visual-home-section--${tone}`}>
+      <div className="container-feya py-[clamp(56px,7vw,96px)]">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-5 lg:mb-10">
+          <div>
+            <div className="mb-3 text-[10px] uppercase tracking-[0.18em] text-[#aaa2a0]">{eyebrow}</div>
+            <h2 className="font-tall text-[clamp(32px,3.7vw,52px)] leading-[1.02] tracking-[.012em] text-[#f7f3ec]">{title}</h2>
+          </div>
+          {action}
         </div>
-        {action}
+        {children}
       </div>
-      {children}
     </section>
   );
 }
