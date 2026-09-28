@@ -4980,3 +4980,12 @@ a.owner-list-row:hover {
     letter-spacing: -.025em !important;
   }
 }
+
+
+.visual-commerce-shell.visual-commerce-embedded {
+  background: transparent;
+}
+
+.visual-commerce-shell.visual-commerce-embedded::before {
+  display: none;
+}
