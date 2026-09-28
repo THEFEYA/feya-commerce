@@ -403,11 +403,11 @@ export const SHOP_MEGA_PREVIEWS: Record<string, MegaPreview> = {
 export const DEFAULT_SHOP_MEGA_PREVIEW = 'Shop';
 
 export const EVENTS_PERFORMANCE_MEGA_PREVIEWS: Record<string, MegaPreview> = {
-  'Festival': SHOP_MEGA_PREVIEWS['Full Looks'],
-  'Rave': SHOP_MEGA_PREVIEWS['Full Looks'],
-  'Burning Man': STYLE_MEGA_PREVIEWS['Warrior'],
-  'Other Events': STYLE_MEGA_PREVIEWS['Witch'],
-  'Halloween': STYLE_MEGA_PREVIEWS['Witch'],
+  'Festival': { ...SHOP_MEGA_PREVIEWS['Full Looks'], label: 'Festival' },
+  'Rave': { ...SHOP_MEGA_PREVIEWS['Full Looks'], label: 'Rave' },
+  'Burning Man': { ...STYLE_MEGA_PREVIEWS['Warrior'], label: 'Burning Man' },
+  'Other Events': { ...STYLE_MEGA_PREVIEWS['Witch'], label: 'Other Events' },
+  'Halloween': { ...STYLE_MEGA_PREVIEWS['Witch'], label: 'Halloween' },
   'Pride': {
     label: 'Pride',
     axis: 'Style',
@@ -415,13 +415,13 @@ export const EVENTS_PERFORMANCE_MEGA_PREVIEWS: Record<string, MegaPreview> = {
     productSlug: 'gold-cyberpunk-costume-festival-armor-outfit-futuristic-burning-man-wear-4460639798',
     imageUrl: 'https://i.etsystatic.com/54033853/r/il/c3fa19/7777842881/il_fullxfull.7777842881_jqk2.jpg',
   },
-  'Cosplay': STYLE_MEGA_PREVIEWS['Fantasy'],
-  'Performance': STYLE_MEGA_PREVIEWS['Glam'],
-  'Stage & Fashion': STYLE_MEGA_PREVIEWS['Glam'],
-  'Showgirl': STYLE_MEGA_PREVIEWS['Glam'],
-  'Drag Queen': STYLE_MEGA_PREVIEWS['Angel'],
-  'Go-Go Dancer': SHOP_MEGA_PREVIEWS['Bodysuits'],
-  'Pole Dancer': SHOP_MEGA_PREVIEWS['Bodysuits'],
+  'Cosplay': { ...STYLE_MEGA_PREVIEWS['Fantasy'], label: 'Cosplay' },
+  'Performance': { ...STYLE_MEGA_PREVIEWS['Glam'], label: 'Performance' },
+  'Stage & Fashion': { ...STYLE_MEGA_PREVIEWS['Glam'], label: 'Stage & Fashion' },
+  'Showgirl': { ...STYLE_MEGA_PREVIEWS['Glam'], label: 'Showgirl' },
+  'Drag Queen': { ...STYLE_MEGA_PREVIEWS['Angel'], label: 'Drag Queen' },
+  'Go-Go Dancer': { ...SHOP_MEGA_PREVIEWS['Bodysuits'], label: 'Go-Go Dancer' },
+  'Pole Dancer': { ...SHOP_MEGA_PREVIEWS['Bodysuits'], label: 'Pole Dancer' },
 };
 
 export const DEFAULT_EVENTS_PERFORMANCE_MEGA_PREVIEW = 'Festival';
