@@ -180,19 +180,12 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         code: 'performance_roles',
         label: 'Performance',
         href: '/collections/stage-outfits',
-        description: 'Artistic and stage-led presentation.',
+        description: 'Stage, fashion-show and movement-led performance paths in one shopper group.',
         items: [
-          owner('stage','Stage','/collections/stage-outfits'),
+          owner('stage_fashion','Stage & Fashion','/collections/stage-outfits'),
           filter('showgirl','Showgirl','/shop?performance=Showgirl'),
           filter('drag_queen','Drag Queen','/shop?performance=Drag%20Queen'),
-        ],
-      },
-      {
-        code: 'dance',
-        label: 'Dance',
-        description: 'Movement-led performance paths.',
-        items: [
-          filter('go_go','Go-Go','/shop?dance=Go-Go'),
+          filter('go_go_dancer','Go-Go Dancer','/shop?dance=Go-Go%20Dancer'),
           filter('pole_dancer','Pole Dancer','/shop?dance=Pole%20Dancer'),
         ],
       },
