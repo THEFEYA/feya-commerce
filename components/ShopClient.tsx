@@ -154,7 +154,7 @@ function BodyAreaTree({
   };
 
   return (
-    <div className="divide-y divide-white/[0.07] rounded-lg border border-white/[0.08] bg-white/[0.015]">
+    <div className="divide-y divide-white/[0.07]">
       {BODY_AREA_TREE.map((group) => {
         const isOpen = expanded.includes(group.part);
         const childSelections = group.pieces.filter((piece) => pieces.includes(piece)).length;
@@ -163,7 +163,7 @@ function BodyAreaTree({
 
         return (
           <div key={group.part}>
-            <div className="flex items-center gap-2 px-3 py-2.5">
+            <div className="flex items-center gap-2 py-2.5">
               <button
                 type="button"
                 aria-label={`Select all ${group.part}`}
@@ -193,7 +193,7 @@ function BodyAreaTree({
             </div>
 
             {isOpen ? (
-              <div className="border-t border-white/[0.06] bg-black/10 px-3 py-2 pl-8">
+              <div className="border-t border-white/[0.06] py-2 pl-7">
                 <CheckboxList values={group.pieces} selected={pieces} onToggle={onTogglePiece} available={availablePieces} />
               </div>
             ) : null}
@@ -321,23 +321,23 @@ function CatalogFilterPanel({
             onChange={(event) => setPriceMax(Math.max(Number(event.target.value), filters.priceMin + 10))}
           />
         </div>
-        <div className="flex items-center gap-2 mt-2">
+        <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
           <input
             value={filters.priceMin}
             onChange={(event) => setPriceMin(Number(event.target.value) || 0)}
-            className="w-20 h-8 bg-white/5 border border-white/10 rounded px-2 text-xs"
+            className="min-w-0 w-full h-8 bg-white/5 border border-white/10 rounded px-2 text-xs"
           />
           <span className="text-smoke">to</span>
           <input
             value={filters.priceMax}
             onChange={(event) => setPriceMax(Number(event.target.value) || 1000)}
-            className="w-20 h-8 bg-white/5 border border-white/10 rounded px-2 text-xs"
+            className="min-w-0 w-full h-8 bg-white/5 border border-white/10 rounded px-2 text-xs"
           />
         </div>
       </FilterSection>
 
       <FilterSection title="Color" activeCount={filters.color ? 1 : 0} defaultOpen>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-3">
           {COLORS.map((value) => (
             <button
               key={value}
@@ -606,10 +606,8 @@ export function ShopClient({
       </section> : null}
 
       <section className={`${embedded ? '' : 'container-feya'} grid grid-cols-12 gap-7 lg:gap-10 py-10`}>
-        <aside className="hidden lg:block col-span-3 xl:col-span-2" data-testid="filter-sidebar">
-          <div className="rounded-xl border border-white/[0.08] bg-[linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.008))] p-4 shadow-[0_18px_45px_rgba(0,0,0,.20)]">
-            <CatalogFilterPanel {...panelProps} />
-          </div>
+        <aside className="hidden lg:block col-span-3 xl:col-span-2 pr-1" data-testid="filter-sidebar">
+          <CatalogFilterPanel {...panelProps} />
         </aside>
 
         <main className="col-span-12 lg:col-span-9 xl:col-span-10">
