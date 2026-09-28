@@ -9,10 +9,12 @@ test('homepage uses the owner-approved smaller tall editorial display typography
   assert.doesNotMatch(source,/text-\[clamp\(36px,4\.6vw,64px\)\]/);
 });
 
-test('catalog uses FEYA circular check controls and no noisy unmapped label copy', () => {
+test('catalog uses outlined circular FEYA checks and scrolls with the page', () => {
   const source = readFileSync('components/ShopClient.tsx','utf8');
   assert.match(source,/rounded-full border transition-all/);
+  assert.match(source,/border-\[#d8b56d\] bg-transparent text-\[#e6c886\]/);
   assert.doesNotMatch(source,/Not yet mapped/);
+  assert.doesNotMatch(source,/sticky top-24 max-h-\[calc\(100vh-7rem\)\]/);
   assert.match(source,/title="Audience"/);
   assert.ok(source.indexOf('title="Audience"') < source.indexOf('title="Body Area"'));
   assert.ok(source.indexOf('title="Body Area"') < source.indexOf('title="Price"'));
@@ -33,4 +35,35 @@ test('desktop mega menu reserves a right-side real-product preview for all disco
   assert.match(source,/grid-cols-\[minmax\(0,1fr\)_minmax\(280px,\.34fr\)\]/);
   assert.match(source,/Product preview/);
   assert.match(source,/Look preview/);
+});
+
+
+test('homepage Shop by Piece is a configurable real-image carousel with manual and automatic motion', () => {
+  const home = readFileSync('app/page.tsx','utf8');
+  const carousel = readFileSync('components/HomePieceCarousel.tsx','utf8');
+  assert.match(home,/HomePieceCarousel/);
+  assert.match(home,/HOME_PRESENTATION\.pieceTiles\.map/);
+  assert.match(carousel,/setInterval/);
+  assert.match(carousel,/scrollBy/);
+  assert.match(carousel,/prefers-reduced-motion/);
+  assert.match(carousel,/visual-tile-label-band/);
+});
+
+test('FEYA buttons keep dimensional gradients and use left-to-right shimmer instead of flat pulse', () => {
+  const css = readFileSync('app/globals.css','utf8');
+  assert.match(css,/\.visual-hero-cta::before/);
+  assert.match(css,/@keyframes feyaCtaSweep/);
+  assert.match(css,/\[data-testid='product-page'\] aside \.btn-gold\.w-full\.mt-2::before/);
+  assert.match(css,/@keyframes feyaBuySweep/);
+  assert.match(css,/linear-gradient\(180deg, #f2dda7 0%, #d4b26a 52%, #a87c31 100%\)/);
+});
+
+test('homepage sections have subtle depth bands and faded gold separators', () => {
+  const css = readFileSync('app/globals.css','utf8');
+  const home = readFileSync('app/page.tsx','utf8');
+  assert.match(css,/\.visual-home-section::before/);
+  assert.match(css,/\.visual-home-section--raised/);
+  assert.match(css,/\.visual-home-section--deep/);
+  assert.match(home,/tone="raised"/);
+  assert.match(home,/tone="deep"/);
 });
