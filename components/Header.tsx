@@ -11,6 +11,7 @@ import {
   publicPrimaryNavigation,
   type StorefrontNavigationItem,
 } from '@/config/storefrontNavigation';
+import { DEFAULT_STYLE_MEGA_PREVIEW, STYLE_MEGA_PREVIEWS } from '@/config/megaMenuPresentation';
 
 function navIsActive(pathname: string, href: string, code: string) {
   if (href === '/') return pathname === '/';
@@ -19,7 +20,17 @@ function navIsActive(pathname: string, href: string, code: string) {
   return pathname === href;
 }
 
-function MegaLeaf({ item, onNavigate, nested = false }: { item: StorefrontNavigationItem; onNavigate?: () => void; nested?: boolean }) {
+function MegaLeaf({
+  item,
+  onNavigate,
+  onPreview,
+  nested = false,
+}: {
+  item: StorefrontNavigationItem;
+  onNavigate?: () => void;
+  onPreview?: (label: string) => void;
+  nested?: boolean;
+}) {
   if (!item.enabled) return null;
 
   const rowClass = `group flex items-center justify-between border-b border-white/[0.07] py-2.5 transition-colors ${nested ? 'pl-4 text-[10px] tracking-[0.14em]' : 'text-[11px] tracking-[0.16em]'} uppercase`;
@@ -30,6 +41,8 @@ function MegaLeaf({ item, onNavigate, nested = false }: { item: StorefrontNaviga
         <Link
           href={item.href}
           onClick={onNavigate}
+          onMouseEnter={() => onPreview?.(item.label)}
+          onFocus={() => onPreview?.(item.label)}
           className={`${rowClass} text-[#C8C2B5] hover:text-white`}
         >
           <span>{item.label}</span>
@@ -43,7 +56,7 @@ function MegaLeaf({ item, onNavigate, nested = false }: { item: StorefrontNaviga
       {item.children?.length ? (
         <div className="border-l border-white/10">
           {item.children.filter((child) => child.enabled).map((child) => (
-            <MegaLeaf key={child.code} item={child} onNavigate={onNavigate} nested />
+            <MegaLeaf key={child.code} item={child} onNavigate={onNavigate} onPreview={onPreview} nested />
           ))}
         </div>
       ) : null}
@@ -58,6 +71,7 @@ export function Header() {
   const [openPanel, setOpenPanel] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openMobileSection, setOpenMobileSection] = useState<string | null>('shop');
+  const [stylePreviewLabel, setStylePreviewLabel] = useState(DEFAULT_STYLE_MEGA_PREVIEW);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -80,6 +94,7 @@ export function Header() {
   const primaryNavigation = useMemo(() => publicPrimaryNavigation(), []);
   const panel = useMemo(() => (openPanel ? navigationPanel(openPanel) : null), [openPanel]);
   const groups = useMemo(() => (openPanel ? enabledNavigationGroups(openPanel) : []), [openPanel]);
+  const stylePreview = STYLE_MEGA_PREVIEWS[stylePreviewLabel] || STYLE_MEGA_PREVIEWS[DEFAULT_STYLE_MEGA_PREVIEW];
 
   return (
     <header
@@ -175,7 +190,15 @@ export function Header() {
               </Link>
             </div>
 
-            <div className={`mt-5 grid gap-x-8 gap-y-8 ${panel.code === 'shop' ? 'grid-cols-5' : panel.code === 'events_performance' ? 'grid-cols-4' : 'grid-cols-2'}`}>
+            <div className={`mt-5 grid gap-x-8 gap-y-8 ${
+              panel.code === 'shop'
+                ? 'grid-cols-5'
+                : panel.code === 'events_performance'
+                  ? 'grid-cols-4'
+                  : panel.code === 'style'
+                    ? 'grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(260px,.9fr)]'
+                    : 'grid-cols-2'
+            }`}>
               {groups.map((group) => (
                 <section key={group.code} className="min-w-0">
                   <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
@@ -190,11 +213,37 @@ export function Header() {
                   </div>
                   <div className="mt-1">
                     {group.items.filter((item) => item.enabled).map((item) => (
-                      <MegaLeaf key={item.code} item={item} />
+                      <MegaLeaf
+                        key={item.code}
+                        item={item}
+                        onPreview={panel.code === 'style' ? setStylePreviewLabel : undefined}
+                      />
                     ))}
                   </div>
                 </section>
               ))}
+              {panel.code === 'style' && stylePreview ? (
+                <aside className="relative min-h-[330px] overflow-hidden rounded-[14px] border border-white/[0.08] bg-[#111117]">
+                  <img
+                    key={stylePreview.label}
+                    src={stylePreview.imageUrl}
+                    alt={`${stylePreview.label} visual preview`}
+                    loading="eager"
+                    className="absolute inset-0 h-full w-full object-cover animate-[feyaPreviewFade_.28s_ease_both]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 p-5">
+                    <div className="text-[9px] uppercase tracking-[.18em] text-[#e7cf96]">{stylePreview.axis}</div>
+                    <div className="visual-display mt-2 text-[28px] font-medium leading-none tracking-[-.03em] text-[#f7f3ec]">{stylePreview.label}</div>
+                    <Link
+                      href={`/shop/${stylePreview.productSlug}`}
+                      className="mt-4 inline-flex items-center gap-2 text-[10px] uppercase tracking-[.14em] text-[#d9d2c8] hover:text-white"
+                    >
+                      Preview piece <ArrowUpRight size={11} />
+                    </Link>
+                  </div>
+                </aside>
+              ) : null}
             </div>
           </div>
         </div>
