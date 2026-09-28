@@ -20,7 +20,10 @@ test('collections hub is release-aware and projects the merged shopper discovery
   assert.equal(panel.groups[2].items.find((item) => item.code === 'stage_fashion')?.href, '/collections/stage-outfits');
 });
 
-test('homepage crawl path points Explore collections at the server-rendered collection hub', async () => {
+test('homepage crawl paths expose governed commerce destinations in server HTML', async () => {
   const home = await readFile(new URL('../../app/page.tsx', import.meta.url), 'utf8');
-  assert.match(home, /href="\/collections" className="btn-ghost">Explore collections/);
+  assert.match(home, /href="\/shop"/);
+  assert.match(home, /href="\/collections\/festival-outfits"/);
+  assert.match(home, /href="\/collections\/stage-outfits"/);
+  assert.match(home, /href="\/collections\/shoulder-armor"/);
 });
