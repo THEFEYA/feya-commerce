@@ -28,7 +28,7 @@ const FOOTER_COLUMNS = [
     title: 'Help & studio',
     links: [
       ['Measurements & sizing', '/size-guide'],
-      ['Production & shipping', '/shipping'],
+      ['Shipping & payment', '/shipping'],
       ['Care & storage', '/care'],
       ['Returns & exchanges', '/returns'],
       ['About TheFEYA', '/about'],
