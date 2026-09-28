@@ -33,11 +33,11 @@ export const PIECES = [
 
 export const PARTS = ['Full Body', 'Upper Body', 'Arms', 'Lower Body', 'Legs', 'Head & Face', 'Special'];
 export const COLORS = ['Gold', 'Silver', 'Black', 'White', 'Red', 'Holographic'];
-export const EVENTS = ['Festival', 'Rave', 'Burning Man', 'EDM', 'EDC', 'Coachella', 'Halloween', 'Pride', 'Cosplay'];
-export const PERFORMANCE = ['Stage', 'Showgirl', 'Drag'];
-export const DANCE = ['Go-Go', 'Pole'];
+export const EVENTS = ['Festival', 'Rave', 'Burning Man', 'Halloween', 'Pride', 'Cosplay'];
+export const PERFORMANCE = ['Stage', 'Showgirl', 'Drag Queen'];
+export const DANCE = ['Go-Go', 'Pole Dancer'];
 export const STYLES = ['Glam', 'Futuristic', 'Sci-Fi', 'Cyberpunk', 'Post-Apocalyptic', 'Fantasy', 'Goth', 'Punk', 'Burlesque', 'Classic'];
-export const PERSONAS = ['Warrior', 'Queen', 'Robot', 'Witch', 'Alien', 'Demon', 'Goddess', 'Angel', 'Cleopatra', 'Bunny'];
+export const PERSONAS = ['Warrior', 'Queen', 'Robot', 'Witch', 'Maleficent', 'Alien', 'Demon', 'Goddess', 'Angel', 'Cleopatra', 'Bunny'];
 export const AUDIENCES = ['Women', 'Men', 'Unisex', 'Couples'];
 export const MATERIALS = ['Vegan Leather', 'Natural Leather', 'Fabric / Textile', 'Acrylic / Mirror Plastic'];
 export const EFFECTS = ['Mirror', 'Metallic', 'Iridescent'];
