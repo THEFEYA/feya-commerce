@@ -21,6 +21,7 @@ const visualPrototypeSurfaces = new Set([
   'components/Header.tsx',
   'components/Footer.tsx',
   'components/ShopClient.tsx',
+  'components/ProductDetailClient.tsx',
 ]);
 
 const failures = [];
