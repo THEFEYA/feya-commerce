@@ -1,5 +1,6 @@
 // @ts-nocheck
 import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight, Globe2, Ruler, Scissors, Sparkles, Truck } from 'lucide-react';
 import { notFound } from 'next/navigation';
