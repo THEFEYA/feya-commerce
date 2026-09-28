@@ -16,7 +16,7 @@ test('global navigation merges events and performance while keeping Shop and Sty
 test('Shop contains the complete product tree plus audience browsing', () => {
   const groups = STOREFRONT_NAVIGATION_PANELS.shop.groups;
   assert.deepEqual(groups.map((group) => group.label), [
-    'Shop','Full Body','Upper Body','Arms','Lower Body','Legs','Head & Face','Special','Shop For',
+    'Shop','Shop For','Full Body','Upper Body','Arms','Lower Body','Head & Face','Legs','Special',
   ]);
 
   const fullBody = groups.find((group) => group.code === 'full_body');
@@ -98,10 +98,10 @@ test('combined Events & Performance panel keeps four semantic branches', () => {
   assert.deepEqual(other?.items.map((item)=>item.label),['Halloween','Pride','Cosplay']);
 
   const performance = panel.groups.find((group) => group.code === 'performance_roles');
-  assert.deepEqual(performance?.items.map((item)=>item.label),['Stage','Showgirl','Drag']);
+  assert.deepEqual(performance?.items.map((item)=>item.label),['Stage','Showgirl','Drag Queen']);
 
   const dance = panel.groups.find((group) => group.code === 'dance');
-  assert.deepEqual(dance?.items.map((item)=>item.label),['Go-Go','Pole']);
+  assert.deepEqual(dance?.items.map((item)=>item.label),['Go-Go','Pole Dancer']);
 });
 
 test('Style menu restores the full catalog style vocabulary and keeps personas separate', () => {
@@ -111,7 +111,7 @@ test('Style menu restores the full catalog style vocabulary and keeps personas s
     'Glam','Futuristic','Sci-Fi','Cyberpunk','Post-Apocalyptic','Fantasy','Goth','Punk','Burlesque','Classic',
   ]);
   assert.deepEqual(style.groups[1].items.map((item)=>item.label),[
-    'Warrior','Queen','Robot','Witch','Alien','Demon','Goddess','Angel','Cleopatra','Bunny',
+    'Warrior','Queen','Robot','Witch','Maleficent','Alien','Demon','Goddess','Angel','Cleopatra','Bunny',
   ]);
 });
 
