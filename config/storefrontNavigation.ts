@@ -36,6 +36,8 @@ export const PRIMARY_NAVIGATION = [
   { code: 'events_performance', label: 'Events & Performance', href: '/collections#events-performance', panel: 'events_performance' },
   { code: 'style', label: 'Style', href: '/collections#style', panel: 'style' },
   { code: 'about', label: 'About', href: '/about' },
+  { code: 'shipping_payment', label: 'Shipping & Payment', href: '/shipping' },
+  { code: 'contact', label: 'Contact', href: '/contact' },
 ] as const;
 
 export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPanel> = {
@@ -51,6 +53,9 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         items: [
           { code:'shop_all', label:'Shop All', href:'/shop', role:'support', enabled:true },
           filter('full_looks','Full Looks','/shop?piece=Full%20Look'),
+          { code:'sale', label:'Sale', role:'hold', enabled:true },
+          { code:'new_arrivals', label:'New Arrivals', role:'hold', enabled:true },
+          { code:'best_sellers', label:'Best Sellers', role:'hold', enabled:true },
         ],
       },
       {
@@ -81,8 +86,7 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         href: '/shop?part=Upper%20Body',
         description: 'Tops, bra tops, corsets and harness-led pieces.',
         items: [
-          filter('tops','Tops','/shop?piece=Top'),
-          filter('bras','Bra Tops','/shop?piece=Bra'),
+          filter('tops_bras','Tops & Bras','/shop?piece=Tops%20%26%20Bras'),
           filter('corsets','Corsets','/shop?piece=Corset'),
           filter('harnesses','Harnesses','/shop?piece=Harness'),
         ],
@@ -96,6 +100,7 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
           owner('shoulders','Shoulders','/collections/shoulder-armor'),
           filter('bracelets_cuffs','Bracelets & Cuffs','/shop?piece=Bracelet%20%2F%20Cuff'),
           filter('gloves','Gloves','/shop?piece=Glove'),
+          { code:'full_arms', label:'Full Arms', href:'/shop?piece=Full%20Arm', role:'hold', enabled:true },
         ],
       },
       {
@@ -130,6 +135,7 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         items: [
           filter('leg_covers','Leg Covers','/shop?piece=Leg%20Covers'),
           filter('garters','Garters','/shop?piece=Garter'),
+          { code:'full_legs', label:'Full Legs', href:'/shop?piece=Full%20Leg', role:'hold', enabled:true },
         ],
       },
       {
