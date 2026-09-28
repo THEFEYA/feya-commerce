@@ -11,7 +11,14 @@ import {
   publicPrimaryNavigation,
   type StorefrontNavigationItem,
 } from '@/config/storefrontNavigation';
-import { DEFAULT_STYLE_MEGA_PREVIEW, STYLE_MEGA_PREVIEWS } from '@/config/megaMenuPresentation';
+import {
+  DEFAULT_EVENTS_PERFORMANCE_MEGA_PREVIEW,
+  DEFAULT_SHOP_MEGA_PREVIEW,
+  DEFAULT_STYLE_MEGA_PREVIEW,
+  EVENTS_PERFORMANCE_MEGA_PREVIEWS,
+  SHOP_MEGA_PREVIEWS,
+  STYLE_MEGA_PREVIEWS,
+} from '@/config/megaMenuPresentation';
 
 function navIsActive(pathname: string, href: string, code: string) {
   if (href === '/') return pathname === '/';
@@ -72,7 +79,7 @@ export function Header() {
   const [openPanel, setOpenPanel] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openMobileSection, setOpenMobileSection] = useState<string | null>('shop');
-  const [stylePreviewLabel, setStylePreviewLabel] = useState(DEFAULT_STYLE_MEGA_PREVIEW);
+  const [menuPreviewLabel, setMenuPreviewLabel] = useState(DEFAULT_SHOP_MEGA_PREVIEW);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -118,7 +125,19 @@ export function Header() {
   const primaryNavigation = useMemo(() => publicPrimaryNavigation(), []);
   const panel = useMemo(() => (openPanel ? navigationPanel(openPanel) : null), [openPanel]);
   const groups = useMemo(() => (openPanel ? enabledNavigationGroups(openPanel) : []), [openPanel]);
-  const stylePreview = STYLE_MEGA_PREVIEWS[stylePreviewLabel] || STYLE_MEGA_PREVIEWS[DEFAULT_STYLE_MEGA_PREVIEW];
+  const previewMap =
+    openPanel === 'shop'
+      ? SHOP_MEGA_PREVIEWS
+      : openPanel === 'events_performance'
+        ? EVENTS_PERFORMANCE_MEGA_PREVIEWS
+        : STYLE_MEGA_PREVIEWS;
+  const defaultPreviewLabel =
+    openPanel === 'shop'
+      ? DEFAULT_SHOP_MEGA_PREVIEW
+      : openPanel === 'events_performance'
+        ? DEFAULT_EVENTS_PERFORMANCE_MEGA_PREVIEW
+        : DEFAULT_STYLE_MEGA_PREVIEW;
+  const menuPreview = previewMap[menuPreviewLabel] || previewMap[defaultPreviewLabel];
 
   const cancelScheduledClose = () => {
     if (closeTimerRef.current) {
@@ -164,12 +183,28 @@ export function Header() {
                 onMouseEnter={() => {
                   cancelScheduledClose();
                   setSearchOpen(false);
-                  setOpenPanel(hasPanel ? String(item.panel) : null);
+                  const nextPanel = hasPanel ? String(item.panel) : null;
+                  setOpenPanel(nextPanel);
+                  setMenuPreviewLabel(
+                    nextPanel === 'shop'
+                      ? DEFAULT_SHOP_MEGA_PREVIEW
+                      : nextPanel === 'events_performance'
+                        ? DEFAULT_EVENTS_PERFORMANCE_MEGA_PREVIEW
+                        : DEFAULT_STYLE_MEGA_PREVIEW,
+                  );
                 }}
                 onFocus={() => {
                   cancelScheduledClose();
                   setSearchOpen(false);
-                  setOpenPanel(hasPanel ? String(item.panel) : null);
+                  const nextPanel = hasPanel ? String(item.panel) : null;
+                  setOpenPanel(nextPanel);
+                  setMenuPreviewLabel(
+                    nextPanel === 'shop'
+                      ? DEFAULT_SHOP_MEGA_PREVIEW
+                      : nextPanel === 'events_performance'
+                        ? DEFAULT_EVENTS_PERFORMANCE_MEGA_PREVIEW
+                        : DEFAULT_STYLE_MEGA_PREVIEW,
+                  );
                 }}
                 className={`relative text-[11px] tracking-[0.24em] uppercase font-medium transition-colors duration-300 ${
                   active || (hasPanel && openPanel === item.panel)
@@ -253,7 +288,7 @@ export function Header() {
             setOpenPanel(panel.code);
           }}
           onMouseLeave={schedulePanelClose}
-          className="hidden lg:block absolute left-0 right-0 top-full border-y border-[rgba(216,214,211,0.14)] bg-[linear-gradient(180deg,rgba(13,13,18,0.985),rgba(7,7,10,0.98))] backdrop-blur-2xl shadow-[0_35px_90px_rgba(0,0,0,0.72)]"
+          className="hidden lg:block absolute left-0 right-0 top-full max-h-[calc(100vh-7rem)] overflow-y-auto border-y border-[rgba(216,214,211,0.14)] bg-[linear-gradient(180deg,rgba(13,13,18,0.995),rgba(7,7,10,0.995))] backdrop-blur-2xl shadow-[0_35px_90px_rgba(0,0,0,0.82)]"
         >
           <div className="container-feya py-7">
             <div className="flex items-center justify-between gap-6 border-b border-white/10 pb-4">
@@ -271,53 +306,70 @@ export function Header() {
               </Link>
             </div>
 
-            <div className={`mt-5 grid gap-x-8 gap-y-8 ${
-              panel.code === 'shop'
-                ? 'grid-cols-5'
-                : panel.code === 'events_performance'
+            <div className="mt-5 grid grid-cols-[minmax(0,1fr)_minmax(280px,.34fr)] gap-8">
+              <div className={`grid min-w-0 gap-x-8 gap-y-8 ${
+                panel.code === 'shop'
                   ? 'grid-cols-4'
-                  : panel.code === 'style'
-                    ? 'grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(260px,.9fr)]'
+                  : panel.code === 'events_performance'
+                    ? 'grid-cols-3'
                     : 'grid-cols-2'
-            }`}>
-              {groups.map((group) => (
-                <section key={group.code} className="min-w-0">
-                  <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
-                    {group.href ? (
-                      <Link href={group.href} className="text-[10px] uppercase tracking-[0.28em] text-[var(--gold-warm)] hover:text-white transition-colors">
-                        {group.label}
-                      </Link>
-                    ) : (
-                      <div className="text-[10px] uppercase tracking-[0.28em] text-[var(--gold-warm)]">{group.label}</div>
-                    )}
-                    {group.href ? <ArrowUpRight size={10} className="text-[var(--gold-warm)] opacity-60" /> : null}
-                  </div>
-                  <div className="mt-1">
-                    {group.items.filter((item) => item.enabled).map((item) => (
-                      <MegaLeaf
-                        key={item.code}
-                        item={item}
-                        onPreview={panel.code === 'style' ? setStylePreviewLabel : undefined}
-                      />
-                    ))}
-                  </div>
-                </section>
-              ))}
-              {panel.code === 'style' && stylePreview ? (
-                <aside className="relative min-h-[330px] overflow-hidden rounded-[14px] border border-white/[0.08] bg-[#111117]">
+              }`}>
+                {groups.map((group) => (
+                  <section
+                    key={group.code}
+                    className="min-w-0"
+                    onMouseEnter={() => {
+                      if (previewMap[group.label]) setMenuPreviewLabel(group.label);
+                    }}
+                  >
+                    <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
+                      {group.href ? (
+                        <Link
+                          href={group.href}
+                          onFocus={() => {
+                            if (previewMap[group.label]) setMenuPreviewLabel(group.label);
+                          }}
+                          className="text-[10px] uppercase tracking-[0.28em] text-[var(--gold-warm)] hover:text-white transition-colors"
+                        >
+                          {group.label}
+                        </Link>
+                      ) : (
+                        <div className="text-[10px] uppercase tracking-[0.28em] text-[var(--gold-warm)]">{group.label}</div>
+                      )}
+                      {group.href ? <ArrowUpRight size={10} className="text-[var(--gold-warm)] opacity-60" /> : null}
+                    </div>
+                    <div className="mt-1">
+                      {group.items.filter((item) => item.enabled).map((item) => (
+                        <MegaLeaf
+                          key={item.code}
+                          item={item}
+                          onPreview={(label) => {
+                            if (previewMap[label]) setMenuPreviewLabel(label);
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                ))}
+              </div>
+
+              {menuPreview ? (
+                <aside className="sticky top-0 h-[390px] overflow-hidden rounded-[14px] border border-white/[0.08] bg-[#111117]">
                   <img
-                    key={stylePreview.label}
-                    src={stylePreview.imageUrl}
-                    alt={`${stylePreview.label} visual preview`}
+                    key={`${panel.code}:${menuPreview.label}`}
+                    src={menuPreview.imageUrl}
+                    alt={`${menuPreview.label} visual preview`}
                     loading="eager"
                     className="absolute inset-0 h-full w-full object-cover animate-[feyaPreviewFade_.28s_ease_both]"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/92 via-black/20 to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 p-5">
-                    <div className="text-[9px] uppercase tracking-[.18em] text-[#e7cf96]">{stylePreview.axis}</div>
-                    <div className="visual-display mt-2 text-[28px] font-medium leading-none tracking-[-.03em] text-[#f7f3ec]">{stylePreview.label}</div>
+                    <div className="text-[9px] uppercase tracking-[.18em] text-[#e7cf96]">
+                      {panel.code === 'style' ? menuPreview.axis : panel.code === 'shop' ? 'Product preview' : 'Look preview'}
+                    </div>
+                    <div className="font-tall mt-2 text-[30px] leading-none text-[#f7f3ec]">{menuPreview.label}</div>
                     <Link
-                      href={`/shop/${stylePreview.productSlug}`}
+                      href={`/shop/${menuPreview.productSlug}`}
                       className="mt-4 inline-flex items-center gap-2 text-[10px] uppercase tracking-[.14em] text-[#d9d2c8] hover:text-white"
                     >
                       Preview piece <ArrowUpRight size={11} />
