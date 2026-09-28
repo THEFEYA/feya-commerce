@@ -17,7 +17,7 @@ test('collections hub is release-aware and projects the merged shopper discovery
   assert.equal(panel.groups[0].href, '/collections/festival-outfits');
   assert.equal(panel.groups[0].items.find((item) => item.code === 'rave')?.href, '/collections/rave-outfits');
   assert.equal(panel.groups[0].items.find((item) => item.code === 'burning_man')?.href, '/collections/burning-man-looks');
-  assert.equal(panel.groups[2].items.find((item) => item.code === 'stage')?.href, '/collections/stage-outfits');
+  assert.equal(panel.groups[2].items.find((item) => item.code === 'stage_fashion')?.href, '/collections/stage-outfits');
 });
 
 test('homepage crawl path points Explore collections at the server-rendered collection hub', async () => {
