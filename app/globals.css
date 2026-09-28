@@ -4687,9 +4687,14 @@ a.owner-list-row:hover {
   z-index: 0;
 }
 
-.visual-commerce-shell > * {
+.visual-commerce-shell > section,
+.visual-commerce-shell > footer {
   position: relative;
   z-index: 1;
+}
+
+.visual-commerce-shell > header {
+  z-index: 60;
 }
 
 .visual-display {
@@ -4988,4 +4993,12 @@ a.owner-list-row:hover {
 
 .visual-commerce-shell.visual-commerce-embedded::before {
   display: none;
+}
+
+
+/* Premium catalog selection controls: avoid browser-blue focus boxes and keep FEYA gold focus language. */
+.visual-commerce-shell button:focus-visible,
+.visual-commerce-shell a:focus-visible {
+  outline-color: rgba(216,181,109,.72);
+  outline-offset: 3px;
 }
