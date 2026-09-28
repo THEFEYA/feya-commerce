@@ -101,8 +101,8 @@ test('approved event tree includes Rave children and excludes Stage from event a
   });
 
   assert.deepEqual(facets.events, ['Festival','Rave','Burning Man','Halloween','Pride','Cosplay']);
-  assert.deepEqual(facets.performance, ['Stage','Showgirl','Drag Queen']);
-  assert.deepEqual(facets.dance, ['Go-Go','Pole Dancer']);
+  assert.deepEqual(facets.performance, ['Stage & Fashion','Showgirl','Drag Queen']);
+  assert.deepEqual(facets.dance, ['Go-Go Dancer','Pole Dancer']);
   assert.ok(!facets.events.includes('Stage'));
 });
 
@@ -153,5 +153,5 @@ test('SEO owner memberships remain a separate evidence layer from shopper labels
   assert.deepEqual(facets.parts, ['Arms']);
   assert.ok(facets.subtypes.includes('Shoulder'));
   assert.deepEqual(facets.events, ['Festival','Rave','Burning Man']);
-  assert.deepEqual(facets.performance, ['Stage']);
+  assert.deepEqual(facets.performance, ['Stage & Fashion']);
 });
