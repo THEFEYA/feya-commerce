@@ -7,6 +7,8 @@ export const PIECES = [
   'All',
   'Full Look',
   'Bodysuit',
+  'Dress',
+  'Full Body Harness',
   'Top',
   'Bra',
   'Corset',
@@ -36,7 +38,7 @@ export const PERFORMANCE = ['Stage', 'Showgirl', 'Drag'];
 export const DANCE = ['Go-Go', 'Pole'];
 export const STYLES = ['Glam', 'Futuristic', 'Sci-Fi', 'Cyberpunk', 'Post-Apocalyptic', 'Fantasy', 'Goth', 'Punk', 'Burlesque', 'Classic'];
 export const PERSONAS = ['Warrior', 'Queen', 'Robot', 'Witch', 'Alien', 'Demon', 'Goddess', 'Angel', 'Cleopatra', 'Bunny'];
-export const AUDIENCES = ['Women', 'Men', 'Couples'];
+export const AUDIENCES = ['Women', 'Men', 'Unisex', 'Couples'];
 export const MATERIALS = ['Vegan Leather', 'Natural Leather', 'Fabric / Textile', 'Acrylic / Mirror Plastic'];
 export const EFFECTS = ['Mirror', 'Metallic', 'Iridescent'];
 export const SORTS = ['Recommended', 'Price · low to high', 'Price · high to low'];
