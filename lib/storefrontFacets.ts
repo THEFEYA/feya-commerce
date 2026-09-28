@@ -159,11 +159,11 @@ export function buildStorefrontFacets(
   if (focusEvents.has('pride')) add(events, 'Pride');
   if (focusEvents.has('cosplay')) add(events, 'Cosplay');
 
-  if (focusEvents.has('stage') || memberships.has('PERFORMANCE_COSTUMES')) add(performance, 'Stage');
+  if (focusEvents.has('stage') || memberships.has('PERFORMANCE_COSTUMES')) add(performance, 'Stage & Fashion');
   if (focusPersonas.has('showgirl')) add(performance, 'Showgirl');
   if (focusEvents.has('drag') || focusPersonas.has('drag queen')) add(performance, 'Drag Queen');
 
-  if (focusPersonas.has('go go dancer')) add(dance, 'Go-Go');
+  if (focusPersonas.has('go go dancer')) add(dance, 'Go-Go Dancer');
   if (focusPersonas.has('pole dancer')) add(dance, 'Pole Dancer');
 
   if (focusStyles.has('glam')) add(styles, 'Glam');
