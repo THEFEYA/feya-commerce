@@ -38,7 +38,7 @@ export function HomePieceCarousel({ items }: { items: HomePieceCarouselItem[] })
       } else {
         move(1);
       }
-    }, 5200);
+    }, 3000);
 
     return () => window.clearInterval(timer);
   }, [paused, items.length]);
@@ -75,7 +75,7 @@ export function HomePieceCarousel({ items }: { items: HomePieceCarouselItem[] })
               <div className="absolute inset-0 bg-[radial-gradient(90%_70%_at_55%_20%,#28262d,#0d0d11)]" />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
-            <div className="visual-tile-label-band absolute inset-x-3 bottom-3 flex items-center justify-between gap-3 rounded-[10px] px-4 py-3.5">
+            <div className="visual-tile-label-band visual-piece-label-band absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 px-4 py-3.5">
               <span className="font-tall text-[21px] leading-none tracking-[.015em] text-[#f4f1ea]">{item.label}</span>
               <ArrowUpRight size={14} className="shrink-0 text-[#d8b56d]" />
             </div>
