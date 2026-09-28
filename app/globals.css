@@ -4836,11 +4836,11 @@ a.owner-list-row:hover {
 }
 
 .visual-commerce-shell .product-card-title {
-  font-family: "Helvetica Neue", Helvetica, Arial, Manrope, sans-serif;
+  font-family: 'Cormorant Garamond', Italiana, serif;
   font-weight: 400;
-  letter-spacing: -.012em;
-  font-size: 16px;
-  line-height: 1.35;
+  letter-spacing: .02em;
+  font-size: 18px;
+  line-height: 1.22;
 }
 
 .visual-commerce-shell .product-card .img-wrap::after {
@@ -4856,7 +4856,7 @@ a.owner-list-row:hover {
   }
 
   .visual-commerce-shell .product-card-title {
-    font-size: 15px;
+    font-size: 17px;
   }
 }
 
