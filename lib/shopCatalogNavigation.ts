@@ -3,13 +3,42 @@ import { mainRegularPrice, productTitle } from './storefront.ts';
 
 export const SHOP_PAGE_SIZE = 20;
 
-export const PIECES = ['All', 'Full Look', 'Bodysuit', 'Top', 'Corset', 'Harness', 'Shoulder', 'Bracelet / Cuff', 'Glove', 'Skirt', 'Belt', 'Panties / Bottom', 'Leg Covers', 'Garter', 'Mask', 'Headpiece', 'Choker / Collar', 'Wings', 'Tail', 'Spine'];
+export const PIECES = [
+  'All',
+  'Full Look',
+  'Bodysuit',
+  'Top',
+  'Bra',
+  'Corset',
+  'Harness',
+  'Shoulder',
+  'Bracelet / Cuff',
+  'Glove',
+  'Skirt',
+  'Belt',
+  'Panties / Bottom',
+  'Leg Covers',
+  'Garter',
+  'Mask',
+  'Headpiece',
+  'Horns',
+  'Crown',
+  'Choker / Collar',
+  'Wings',
+  'Tail',
+  'Spine',
+];
+
 export const PARTS = ['Full Body', 'Upper Body', 'Arms', 'Lower Body', 'Legs', 'Head & Face', 'Special'];
 export const COLORS = ['Gold', 'Silver', 'Black', 'White', 'Red', 'Holographic'];
-export const EVENTS = ['Festival', 'Rave', 'Burning Man', 'Halloween', 'Pride', 'Cosplay'];
+export const EVENTS = ['Festival', 'Rave', 'Burning Man', 'EDM', 'EDC', 'Coachella', 'Halloween', 'Pride', 'Cosplay'];
 export const PERFORMANCE = ['Stage', 'Showgirl', 'Drag'];
 export const DANCE = ['Go-Go', 'Pole'];
-export const STYLES = ['Cyberpunk', 'Futuristic', 'Sci-Fi', 'Goth', 'Glam', 'Warrior', 'Goddess'];
+export const STYLES = ['Glam', 'Futuristic', 'Sci-Fi', 'Cyberpunk', 'Post-Apocalyptic', 'Fantasy', 'Goth', 'Punk', 'Burlesque', 'Classic'];
+export const PERSONAS = ['Warrior', 'Queen', 'Robot', 'Witch', 'Alien', 'Demon', 'Goddess', 'Angel', 'Cleopatra', 'Bunny'];
+export const AUDIENCES = ['Women', 'Men', 'Couples'];
+export const MATERIALS = ['Vegan Leather', 'Natural Leather', 'Fabric / Textile', 'Acrylic / Mirror Plastic'];
+export const EFFECTS = ['Mirror', 'Metallic', 'Iridescent'];
 export const SORTS = ['Recommended', 'Price · low to high', 'Price · high to low'];
 
 export type ShopFilters = {
@@ -22,6 +51,10 @@ export type ShopFilters = {
   performance: string[];
   dance: string[];
   style: string[];
+  persona: string[];
+  audience: string[];
+  material: string[];
+  effect: string[];
   search: string;
   sort: string;
 };
@@ -36,13 +69,18 @@ export const defaultShopFilters = (): ShopFilters => ({
   performance: [],
   dance: [],
   style: [],
+  persona: [],
+  audience: [],
+  material: [],
+  effect: [],
   search: '',
   sort: SORTS[0],
 });
 
 export type ShopNavigation = { page: number; filters: ShopFilters };
 
-const allowed = (value: string, values: string[]) => values.find((item) => item.toLowerCase() === value.toLowerCase()) ?? '';
+const allowed = (value: string, values: string[]) =>
+  values.find((item) => item.toLowerCase() === value.toLowerCase()) ?? '';
 
 function listParam(raw: string, values: string[]) {
   if (!raw) return [];
@@ -53,7 +91,7 @@ function listParam(raw: string, values: string[]) {
 
 export function parseShopNavigation(params: Record<string, string | string[] | undefined>): ShopNavigation | null {
   const scalar = (key: string) => typeof params[key] === 'string' ? params[key] as string : '';
-  const known = ['page','piece','part','min','max','color','event','performance','dance','style','search','sort'];
+  const known = ['page','piece','part','min','max','color','event','performance','dance','style','persona','audience','material','effect','search','sort'];
   if (Object.keys(params).some((key) => !known.includes(key))) return null;
   if (known.some((key) => Array.isArray(params[key]))) return null;
 
@@ -89,11 +127,21 @@ export function parseShopNavigation(params: Record<string, string | string[] | u
   const performance = listParam(scalar('performance'), PERFORMANCE);
   const dance = listParam(scalar('dance'), DANCE);
   const style = listParam(scalar('style'), STYLES);
-  if (event == null || performance == null || dance == null || style == null) return null;
-  filters.event = event;
-  filters.performance = performance;
-  filters.dance = dance;
-  filters.style = style;
+  const persona = listParam(scalar('persona'), PERSONAS);
+  const audience = listParam(scalar('audience'), AUDIENCES);
+  const material = listParam(scalar('material'), MATERIALS);
+  const effect = listParam(scalar('effect'), EFFECTS);
+
+  if ([event, performance, dance, style, persona, audience, material, effect].some((value) => value == null)) return null;
+
+  filters.event = event!;
+  filters.performance = performance!;
+  filters.dance = dance!;
+  filters.style = style!;
+  filters.persona = persona!;
+  filters.audience = audience!;
+  filters.material = material!;
+  filters.effect = effect!;
 
   for (const [param, key] of [['min','priceMin'],['max','priceMax']] as const) {
     const value = scalar(param);
@@ -126,6 +174,10 @@ export function shopPageHref(page: number, filters: ShopFilters = defaultShopFil
   if (filters.performance.length) params.set('performance', filters.performance.join(','));
   if (filters.dance.length) params.set('dance', filters.dance.join(','));
   if (filters.style.length) params.set('style', filters.style.join(','));
+  if (filters.persona.length) params.set('persona', filters.persona.join(','));
+  if (filters.audience.length) params.set('audience', filters.audience.join(','));
+  if (filters.material.length) params.set('material', filters.material.join(','));
+  if (filters.effect.length) params.set('effect', filters.effect.join(','));
   if (filters.search) params.set('search', filters.search);
   if (filters.sort !== SORTS[0]) params.set('sort', filters.sort);
   if (page > 1) params.set('page', String(page));
@@ -142,6 +194,10 @@ function hasFacet(values: string[] | undefined, value: string) {
   return Boolean(value && values?.includes(value));
 }
 
+function matchesAny(selected: string[], values: string[] | undefined) {
+  return !selected.length || selected.some((value) => hasFacet(values, value));
+}
+
 export function filterShopProducts(products: StorefrontProduct[], filters: ShopFilters) {
   let list = products.filter((product) => {
     const price = mainRegularPrice(product) || 0;
@@ -156,10 +212,14 @@ export function filterShopProducts(products: StorefrontProduct[], filters: ShopF
       if (!canonical.includes(filters.color)) return false;
     }
 
-    if (filters.event.length && !filters.event.some((value) => hasFacet(facets?.events, value))) return false;
-    if (filters.performance.length && !filters.performance.some((value) => hasFacet(facets?.performance, value))) return false;
-    if (filters.dance.length && !filters.dance.some((value) => hasFacet(facets?.dance, value))) return false;
-    if (filters.style.length && !filters.style.some((value) => hasFacet(facets?.styles, value))) return false;
+    if (!matchesAny(filters.event, facets?.events)) return false;
+    if (!matchesAny(filters.performance, facets?.performance)) return false;
+    if (!matchesAny(filters.dance, facets?.dance)) return false;
+    if (!matchesAny(filters.style, facets?.styles)) return false;
+    if (!matchesAny(filters.persona, facets?.personas)) return false;
+    if (!matchesAny(filters.audience, facets?.audience)) return false;
+    if (!matchesAny(filters.material, facets?.materials)) return false;
+    if (!matchesAny(filters.effect, facets?.effects)) return false;
 
     return !filters.search || searchContains(product, filters.search);
   });
