@@ -147,21 +147,24 @@ export function buildStorefrontFacets(
   if (sellable.has('spine')) add(subtypes, 'Spine');
 
   if (focusEvents.has('festival') || memberships.has('FESTIVAL_OUTFITS')) add(events, 'Festival');
-  if (focusEvents.has('rave') || memberships.has('RAVE_OUTFITS')) add(events, 'Rave');
+  if (
+    focusEvents.has('rave') ||
+    focusEvents.has('edm') ||
+    focusEvents.has('edc') ||
+    focusEvents.has('coachella') ||
+    memberships.has('RAVE_OUTFITS')
+  ) add(events, 'Rave');
   if (focusEvents.has('burning man') || memberships.has('BURNING_MAN_OUTFITS')) add(events, 'Burning Man');
-  if (focusEvents.has('edm')) add(events, 'EDM');
-  if (focusEvents.has('edc')) add(events, 'EDC');
-  if (focusEvents.has('coachella')) add(events, 'Coachella');
   if (focusEvents.has('halloween')) add(events, 'Halloween');
   if (focusEvents.has('pride')) add(events, 'Pride');
   if (focusEvents.has('cosplay')) add(events, 'Cosplay');
 
   if (focusEvents.has('stage') || memberships.has('PERFORMANCE_COSTUMES')) add(performance, 'Stage');
   if (focusPersonas.has('showgirl')) add(performance, 'Showgirl');
-  if (focusEvents.has('drag') || focusPersonas.has('drag queen')) add(performance, 'Drag');
+  if (focusEvents.has('drag') || focusPersonas.has('drag queen')) add(performance, 'Drag Queen');
 
   if (focusPersonas.has('go go dancer')) add(dance, 'Go-Go');
-  if (focusPersonas.has('pole dancer')) add(dance, 'Pole');
+  if (focusPersonas.has('pole dancer')) add(dance, 'Pole Dancer');
 
   if (focusStyles.has('glam')) add(styles, 'Glam');
   if (focusStyles.has('futuristic')) add(styles, 'Futuristic');
@@ -178,6 +181,7 @@ export function buildStorefrontFacets(
   if (focusPersonas.has('queen')) add(personas, 'Queen');
   if (focusPersonas.has('robot')) add(personas, 'Robot');
   if (focusPersonas.has('witch')) add(personas, 'Witch');
+  if (focusPersonas.has('maleficent')) add(personas, 'Maleficent');
   if (focusPersonas.has('alien')) add(personas, 'Alien');
   if (focusPersonas.has('demon')) add(personas, 'Demon');
   if (focusPersonas.has('goddess')) add(personas, 'Goddess');
