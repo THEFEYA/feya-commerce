@@ -1,4 +1,4 @@
-export const STOREFRONT_FACET_CONTRACT_VERSION = 'feya-storefront-facets-v3';
+export const STOREFRONT_FACET_CONTRACT_VERSION = 'feya-storefront-facets-v4';
 
 export type StorefrontFacetSet = {
   parts: string[];
@@ -7,6 +7,7 @@ export type StorefrontFacetSet = {
   performance: string[];
   dance: string[];
   styles: string[];
+  personas: string[];
   audience: string[];
   materials: string[];
   effects: string[];
@@ -20,6 +21,7 @@ export type StorefrontFacetSnapshotRow = {
   child_components_json?: unknown;
   component_groups_json?: unknown;
   component_values_json?: unknown;
+  sellable_component_values_json?: unknown;
   event_values_json?: unknown;
   style_values_json?: unknown;
   persona_values_json?: unknown;
@@ -51,6 +53,7 @@ export function buildStorefrontFacets(
   const children = new Set(childValues.map((value) => value.toLowerCase()));
   const groups = lowerSet(snapshot?.component_groups_json);
   const components = lowerSet(snapshot?.component_values_json);
+  const sellable = lowerSet(snapshot?.sellable_component_values_json);
   const focusEvents = lowerSet(snapshot?.event_values_json);
   const focusStyles = lowerSet(snapshot?.style_values_json);
   const focusPersonas = lowerSet(snapshot?.persona_values_json);
@@ -64,6 +67,7 @@ export function buildStorefrontFacets(
   const performance = new Set<string>();
   const dance = new Set<string>();
   const styles = new Set<string>();
+  const personas = new Set<string>();
   const audience = new Set<string>();
   const materials = new Set<string>();
   const effects = new Set<string>();
@@ -71,31 +75,22 @@ export function buildStorefrontFacets(
 
   if (groups.has('bundle') && childValues.length >= 2) add(subtypes, 'Full Look');
 
-  if (parents.has('Bodysuit') || children.has('bodysuit') || components.has('bodysuit') || memberships.has('COSTUME_BODYSUITS')) {
+  if (sellable.has('bodysuit') || memberships.has('COSTUME_BODYSUITS')) {
     add(parts, 'Full Body');
     add(subtypes, 'Bodysuit');
   }
 
-  if (
-    parents.has('Top') ||
-    children.has('top') ||
-    children.has('bra top') ||
-    children.has('corset') ||
-    components.has('top') ||
-    components.has('corset') ||
-    components.has('harness')
-  ) add(parts, 'Upper Body');
-
-  if (children.has('top') || components.has('top')) add(subtypes, 'Top');
-  if (children.has('bra top')) add(subtypes, 'Bra');
-  if (children.has('corset') || components.has('corset')) add(subtypes, 'Corset');
-  if (components.has('harness')) add(subtypes, 'Harness');
+  if (sellable.has('top') || sellable.has('bra') || sellable.has('corset') || sellable.has('harness')) {
+    add(parts, 'Upper Body');
+  }
+  if (sellable.has('top')) add(subtypes, 'Top');
+  if (sellable.has('bra')) add(subtypes, 'Bra');
+  if (sellable.has('corset')) add(subtypes, 'Corset');
+  if (sellable.has('harness')) add(subtypes, 'Harness');
 
   if (
-    parents.has('Arms') ||
-    parents.has('Shoulders') ||
-    components.has('arms') ||
-    components.has('shoulders') ||
+    sellable.has('arms') ||
+    sellable.has('shoulders') ||
     children.has('shoulder_piece') ||
     children.has('bracelet') ||
     children.has('arm cuff') ||
@@ -103,32 +98,24 @@ export function buildStorefrontFacets(
     memberships.has('SHOULDER_ARMOR')
   ) add(parts, 'Arms');
 
-  if (parents.has('Shoulders') || components.has('shoulders') || children.has('shoulder_piece') || memberships.has('SHOULDER_ARMOR')) add(subtypes, 'Shoulder');
+  if (sellable.has('shoulders') || children.has('shoulder_piece') || memberships.has('SHOULDER_ARMOR')) add(subtypes, 'Shoulder');
   if (children.has('bracelet') || children.has('arm cuff')) add(subtypes, 'Bracelet / Cuff');
   if (children.has('glove')) add(subtypes, 'Glove');
 
   if (
-    parents.has('Skirt') ||
-    parents.has('Panties') ||
-    parents.has('Waist / Belt') ||
-    components.has('skirt') ||
-    components.has('belt') ||
-    components.has('panties') ||
-    children.has('skirt') ||
-    children.has('open skirt') ||
-    children.has('panties') ||
-    children.has('belt') ||
+    sellable.has('skirt') ||
+    sellable.has('belt') ||
+    sellable.has('panties') ||
     memberships.has('COSTUME_BELTS') ||
     memberships.has('FESTIVAL_SKIRTS')
   ) add(parts, 'Lower Body');
 
-  if (parents.has('Skirt') || components.has('skirt') || children.has('skirt') || children.has('open skirt') || memberships.has('FESTIVAL_SKIRTS')) add(subtypes, 'Skirt');
-  if (parents.has('Waist / Belt') || components.has('belt') || children.has('belt') || memberships.has('COSTUME_BELTS')) add(subtypes, 'Belt');
-  if (parents.has('Panties') || components.has('panties') || children.has('panties')) add(subtypes, 'Panties / Bottom');
+  if (sellable.has('skirt') || memberships.has('FESTIVAL_SKIRTS')) add(subtypes, 'Skirt');
+  if (sellable.has('belt') || memberships.has('COSTUME_BELTS')) add(subtypes, 'Belt');
+  if (sellable.has('panties')) add(subtypes, 'Panties / Bottom');
 
   if (
-    parents.has('Legs') ||
-    components.has('legs') ||
+    sellable.has('legs') ||
     children.has('leg covers') ||
     children.has('leg armor') ||
     children.has('garters') ||
@@ -139,44 +126,32 @@ export function buildStorefrontFacets(
   if (children.has('garters') || children.has('leg straps / garters')) add(subtypes, 'Garter');
 
   if (
-    parents.has('Head / Headpiece') ||
-    parents.has('Neck / Choker') ||
-    components.has('mask') ||
-    components.has('headpiece') ||
-    components.has('choker') ||
-    children.has('headpiece') ||
+    sellable.has('mask') ||
+    sellable.has('headpiece') ||
+    sellable.has('choker') ||
     children.has('horns') ||
     children.has('crown') ||
-    children.has('choker') ||
     memberships.has('COSTUME_MASKS') ||
     memberships.has('COSTUME_HEADPIECES')
   ) add(parts, 'Head & Face');
 
-  if (components.has('mask') || memberships.has('COSTUME_MASKS')) add(subtypes, 'Mask');
-  if (parents.has('Head / Headpiece') || components.has('headpiece') || children.has('headpiece') || memberships.has('COSTUME_HEADPIECES')) add(subtypes, 'Headpiece');
-  if (parents.has('Neck / Choker') || components.has('choker') || children.has('choker')) add(subtypes, 'Choker / Collar');
+  if (sellable.has('mask') || memberships.has('COSTUME_MASKS')) add(subtypes, 'Mask');
+  if (sellable.has('headpiece') || memberships.has('COSTUME_HEADPIECES')) add(subtypes, 'Headpiece');
+  if (sellable.has('choker')) add(subtypes, 'Choker / Collar');
   if (children.has('horns')) add(subtypes, 'Horns');
   if (children.has('crown')) add(subtypes, 'Crown');
 
-  if (
-    parents.has('Wings') ||
-    parents.has('Tail') ||
-    parents.has('Spine') ||
-    components.has('wings') ||
-    components.has('tail') ||
-    components.has('spine') ||
-    children.has('wings') ||
-    children.has('tail') ||
-    children.has('spine')
-  ) add(parts, 'Special');
-
-  if (parents.has('Wings') || components.has('wings') || children.has('wings')) add(subtypes, 'Wings');
-  if (parents.has('Tail') || components.has('tail') || children.has('tail')) add(subtypes, 'Tail');
-  if (parents.has('Spine') || components.has('spine') || children.has('spine')) add(subtypes, 'Spine');
+  if (sellable.has('wings') || sellable.has('tail') || sellable.has('spine')) add(parts, 'Special');
+  if (sellable.has('wings')) add(subtypes, 'Wings');
+  if (sellable.has('tail')) add(subtypes, 'Tail');
+  if (sellable.has('spine')) add(subtypes, 'Spine');
 
   if (focusEvents.has('festival') || memberships.has('FESTIVAL_OUTFITS')) add(events, 'Festival');
   if (focusEvents.has('rave') || memberships.has('RAVE_OUTFITS')) add(events, 'Rave');
   if (focusEvents.has('burning man') || memberships.has('BURNING_MAN_OUTFITS')) add(events, 'Burning Man');
+  if (focusEvents.has('edm')) add(events, 'EDM');
+  if (focusEvents.has('edc')) add(events, 'EDC');
+  if (focusEvents.has('coachella')) add(events, 'Coachella');
   if (focusEvents.has('halloween')) add(events, 'Halloween');
   if (focusEvents.has('pride')) add(events, 'Pride');
   if (focusEvents.has('cosplay')) add(events, 'Cosplay');
@@ -188,26 +163,40 @@ export function buildStorefrontFacets(
   if (focusPersonas.has('go go dancer')) add(dance, 'Go-Go');
   if (focusPersonas.has('pole dancer')) add(dance, 'Pole');
 
-  if (focusStyles.has('cyberpunk')) add(styles, 'Cyberpunk');
-  if (focusStyles.has('futuristic')) add(styles, 'Futuristic');
-  if (focusStyles.has('sci fi')) add(styles, 'Sci-Fi');
-  if (focusStyles.has('goth')) add(styles, 'Goth');
   if (focusStyles.has('glam')) add(styles, 'Glam');
-  if (focusPersonas.has('warrior') || focusPersonas.has('warrior princess')) add(styles, 'Warrior');
-  if (focusPersonas.has('goddess')) add(styles, 'Goddess');
+  if (focusStyles.has('futuristic')) add(styles, 'Futuristic');
+  if (focusStyles.has('cosmic') || focusStyles.has('sci fi')) add(styles, 'Sci-Fi');
+  if (focusStyles.has('cyberpunk')) add(styles, 'Cyberpunk');
+  if (focusStyles.has('post apocalyptic')) add(styles, 'Post-Apocalyptic');
+  if (focusStyles.has('fantasy')) add(styles, 'Fantasy');
+  if (focusStyles.has('goth')) add(styles, 'Goth');
+  if (focusStyles.has('punk')) add(styles, 'Punk');
+  if (focusStyles.has('burlesque')) add(styles, 'Burlesque');
+  if (focusStyles.has('classic')) add(styles, 'Classic');
+
+  if (focusPersonas.has('warrior') || focusPersonas.has('warrior princess')) add(personas, 'Warrior');
+  if (focusPersonas.has('queen')) add(personas, 'Queen');
+  if (focusPersonas.has('robot')) add(personas, 'Robot');
+  if (focusPersonas.has('witch')) add(personas, 'Witch');
+  if (focusPersonas.has('alien')) add(personas, 'Alien');
+  if (focusPersonas.has('demon')) add(personas, 'Demon');
+  if (focusPersonas.has('goddess')) add(personas, 'Goddess');
+  if (focusPersonas.has('angel')) add(personas, 'Angel');
+  if (focusPersonas.has('cleopatra')) add(personas, 'Cleopatra');
+  if (focusPersonas.has('bunny')) add(personas, 'Bunny');
 
   if (focusAudience.has('women')) add(audience, 'Women');
   if (focusAudience.has('men')) add(audience, 'Men');
-  if (focusAudience.has('unisex')) add(audience, 'Unisex');
+  if (focusAudience.has('couples')) add(audience, 'Couples');
 
   if (focusMaterials.has('vegan leather') || focusMaterials.has('faux leather')) add(materials, 'Vegan Leather');
-  if (focusMaterials.has('natural leather') || focusMaterials.has('leather')) add(materials, 'Natural Leather');
+  if (focusMaterials.has('leather') || focusMaterials.has('natural leather')) add(materials, 'Natural Leather');
+  if (focusMaterials.has('fabric')) add(materials, 'Fabric / Textile');
   if (focusMaterials.has('acrylic') || focusMaterials.has('mirror acrylic') || focusMaterials.has('mirror plastic')) add(materials, 'Acrylic / Mirror Plastic');
 
+  if (focusMaterials.has('mirror')) add(effects, 'Mirror');
+  if (focusMaterials.has('metallic')) add(effects, 'Metallic');
   if (focusMaterials.has('holographic')) add(effects, 'Iridescent');
-  if (focusMaterials.has('gold') || focusMaterials.has('silver')) {
-    // Color-like legacy material tokens are kept out of Material; canonical color remains authoritative.
-  }
 
   if (snapshot?.canonical_color_label) add(colors, snapshot.canonical_color_label.trim());
 
@@ -218,6 +207,7 @@ export function buildStorefrontFacets(
     performance: [...performance],
     dance: [...dance],
     styles: [...styles],
+    personas: [...personas],
     audience: [...audience],
     materials: [...materials],
     effects: [...effects],
