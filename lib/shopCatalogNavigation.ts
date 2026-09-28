@@ -3,36 +3,22 @@ import { mainRegularPrice, productTitle } from './storefront.ts';
 
 export const SHOP_PAGE_SIZE = 20;
 
+export const BODY_AREA_TREE = [
+  { part: 'Full Body', pieces: ['Bodysuit', 'Dress', 'Full Body Harness'] },
+  { part: 'Upper Body', pieces: ['Tops & Bras', 'Corset', 'Harness'] },
+  { part: 'Arms', pieces: ['Shoulder', 'Bracelet / Cuff', 'Glove', 'Full Arm'] },
+  { part: 'Lower Body', pieces: ['Skirt', 'Belt', 'Panties / Bottom'] },
+  { part: 'Head & Face', pieces: ['Mask', 'Headpiece', 'Horns', 'Crown', 'Choker / Collar'] },
+  { part: 'Legs', pieces: ['Leg Covers', 'Garter', 'Full Leg'] },
+  { part: 'Special', pieces: ['Wings', 'Tail', 'Spine'] },
+] as const;
+
 export const PIECES = [
-  'All',
   'Full Look',
-  'Bodysuit',
-  'Dress',
-  'Full Body Harness',
-  'Tops & Bras',
-  'Corset',
-  'Harness',
-  'Shoulder',
-  'Bracelet / Cuff',
-  'Glove',
-  'Full Arm',
-  'Skirt',
-  'Belt',
-  'Panties / Bottom',
-  'Leg Covers',
-  'Garter',
-  'Full Leg',
-  'Mask',
-  'Headpiece',
-  'Horns',
-  'Crown',
-  'Choker / Collar',
-  'Wings',
-  'Tail',
-  'Spine',
+  ...BODY_AREA_TREE.flatMap((group) => group.pieces),
 ];
 
-export const PARTS = ['Full Body', 'Upper Body', 'Arms', 'Lower Body', 'Legs', 'Head & Face', 'Special'];
+export const PARTS = BODY_AREA_TREE.map((group) => group.part);
 export const COLORS = ['Gold', 'Silver', 'Black', 'White', 'Red', 'Holographic'];
 export const EVENTS = ['Festival', 'Rave', 'Burning Man', 'Halloween', 'Pride', 'Cosplay'];
 export const PERFORMANCE = ['Stage & Fashion', 'Showgirl', 'Drag Queen'];
@@ -44,9 +30,22 @@ export const MATERIALS = ['Vegan Leather', 'Natural Leather', 'Fabric / Textile'
 export const EFFECTS = ['Mirror', 'Metallic', 'Iridescent'];
 export const SORTS = ['Recommended', 'Price · low to high', 'Price · high to low'];
 
+export const FILTER_SECTION_ORDER = [
+  'Audience',
+  'Body Area',
+  'Price',
+  'Color',
+  'Event',
+  'Performance',
+  'Style',
+  'Persona',
+  'Material',
+  'Visual Effect',
+] as const;
+
 export type ShopFilters = {
-  piece: string;
-  part: string;
+  piece: string[];
+  part: string[];
   priceMin: number;
   priceMax: number;
   color: string;
@@ -63,8 +62,8 @@ export type ShopFilters = {
 };
 
 export const defaultShopFilters = (): ShopFilters => ({
-  piece: 'All',
-  part: '',
+  piece: [],
+  part: [],
   priceMin: 0,
   priceMax: 1000,
   color: '',
@@ -82,10 +81,10 @@ export const defaultShopFilters = (): ShopFilters => ({
 
 export type ShopNavigation = { page: number; filters: ShopFilters };
 
-const allowed = (value: string, values: string[]) =>
+const allowed = (value: string, values: readonly string[]) =>
   values.find((item) => item.toLowerCase() === value.toLowerCase()) ?? '';
 
-function listParam(raw: string, values: string[]) {
+function listParam(raw: string, values: readonly string[]) {
   if (!raw) return [];
   const list = raw.split(',').map((value) => allowed(value, values));
   if (list.some((value) => !value)) return null;
@@ -105,27 +104,8 @@ export function parseShopNavigation(params: Record<string, string | string[] | u
 
   const filters = defaultShopFilters();
 
-  const piece = scalar('piece');
-  if (piece) {
-    const value = allowed(piece, PIECES);
-    if (!value) return null;
-    filters.piece = value;
-  }
-
-  const part = scalar('part');
-  if (part) {
-    const value = allowed(part, PARTS);
-    if (!value) return null;
-    filters.part = value;
-  }
-
-  const color = scalar('color');
-  if (color) {
-    const value = allowed(color, COLORS);
-    if (!value) return null;
-    filters.color = value;
-  }
-
+  const piece = listParam(scalar('piece'), PIECES);
+  const part = listParam(scalar('part'), PARTS);
   const event = listParam(scalar('event'), EVENTS);
   const performance = listParam(scalar('performance'), PERFORMANCE);
   const dance = listParam(scalar('dance'), DANCE);
@@ -135,8 +115,10 @@ export function parseShopNavigation(params: Record<string, string | string[] | u
   const material = listParam(scalar('material'), MATERIALS);
   const effect = listParam(scalar('effect'), EFFECTS);
 
-  if ([event, performance, dance, style, persona, audience, material, effect].some((value) => value == null)) return null;
+  if ([piece, part, event, performance, dance, style, persona, audience, material, effect].some((value) => value == null)) return null;
 
+  filters.piece = piece!;
+  filters.part = part!;
   filters.event = event!;
   filters.performance = performance!;
   filters.dance = dance!;
@@ -145,6 +127,13 @@ export function parseShopNavigation(params: Record<string, string | string[] | u
   filters.audience = audience!;
   filters.material = material!;
   filters.effect = effect!;
+
+  const color = scalar('color');
+  if (color) {
+    const value = allowed(color, COLORS);
+    if (!value) return null;
+    filters.color = value;
+  }
 
   for (const [param, key] of [['min','priceMin'],['max','priceMax']] as const) {
     const value = scalar(param);
@@ -168,8 +157,8 @@ export function parseShopNavigation(params: Record<string, string | string[] | u
 
 export function shopPageHref(page: number, filters: ShopFilters = defaultShopFilters()) {
   const params = new URLSearchParams();
-  if (filters.piece !== 'All') params.set('piece', filters.piece);
-  if (filters.part) params.set('part', filters.part);
+  if (filters.piece.length) params.set('piece', filters.piece.join(','));
+  if (filters.part.length) params.set('part', filters.part.join(','));
   if (filters.priceMin !== 0) params.set('min', String(filters.priceMin));
   if (filters.priceMax !== 1000) params.set('max', String(filters.priceMax));
   if (filters.color) params.set('color', filters.color);
@@ -206,13 +195,17 @@ function matchesAny(selected: string[], values: string[] | undefined) {
   return !selected.length || selected.some((value) => hasFacet(values, value));
 }
 
+function matchesAnyPiece(selected: string[], values: string[] | undefined) {
+  return !selected.length || selected.some((value) => pieceMatches(values, value));
+}
+
 export function filterShopProducts(products: StorefrontProduct[], filters: ShopFilters) {
   let list = products.filter((product) => {
     const price = mainRegularPrice(product) || 0;
     const facets = product.facets;
 
-    if (filters.piece !== 'All' && !pieceMatches(facets?.subtypes, filters.piece)) return false;
-    if (filters.part && !hasFacet(facets?.parts, filters.part)) return false;
+    if (!matchesAnyPiece(filters.piece, facets?.subtypes)) return false;
+    if (!matchesAny(filters.part, facets?.parts)) return false;
     if ((filters.priceMin !== 0 || filters.priceMax !== 1000) && (price < filters.priceMin || price > filters.priceMax)) return false;
 
     if (filters.color) {
