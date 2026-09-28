@@ -594,7 +594,7 @@ export function ShopClient({
   ];
 
   return (
-    <div data-testid="shop-page" className={`visual-commerce-shell relative ${embedded ? 'pt-0' : 'pt-24 lg:pt-28'}`}>
+    <div data-testid="shop-page" className={`visual-commerce-shell relative ${embedded ? 'visual-commerce-embedded pt-0' : 'pt-24 lg:pt-28'}`}>
       {!embedded ? <section className="container-feya border-b border-white/[0.08] py-10 lg:py-14">
         <div className="mb-3 text-[10px] uppercase tracking-[0.18em] text-[#aaa2a0]">TheFEYA catalog</div>
         <h1 className="visual-display text-[clamp(48px,6vw,88px)] font-medium leading-[.92] tracking-[-.045em] text-[#f7f3ec]">
