@@ -4733,9 +4733,10 @@ a.owner-list-row:hover {
 }
 
 .visual-primary-cta:hover {
-  background: #e8c982;
+  background: linear-gradient(180deg, #f5e3b3 0%, #dfbf77 48%, #b38a40 100%);
   color: #0b0b0d;
   transform: translateY(-1px);
+  box-shadow: 0 15px 34px rgba(212,178,106,.21), 0 1px 0 rgba(255,255,255,.54) inset, 0 -8px 18px rgba(105,71,14,.12) inset;
 }
 
 .visual-secondary-cta {
@@ -4828,7 +4829,6 @@ a.owner-list-row:hover {
   background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.005));
   border-color: rgba(216,214,211,.08);
   box-shadow: 0 18px 44px -32px rgba(0,0,0,.74);
-  backdrop-filter: blur(2px);
 }
 
 .visual-commerce-shell .product-card:hover {
