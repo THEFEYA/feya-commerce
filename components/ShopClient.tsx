@@ -42,13 +42,13 @@ function FilterBox({ checked }: { checked: boolean }) {
   return (
     <span
       aria-hidden="true"
-      className={`w-3.5 h-3.5 border flex items-center justify-center transition-all ${
+      className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-all ${
         checked
-          ? 'border-[var(--gold)] text-[var(--gold-warm)] shadow-[0_0_10px_rgba(212,178,106,.22)]'
-          : 'border-[rgba(216,214,211,0.34)] text-transparent'
+          ? 'border-[#e6c886] bg-[#d4b26a] text-[#08080a] shadow-[0_0_0_3px_rgba(212,178,106,.10),0_0_14px_rgba(212,178,106,.20)]'
+          : 'border-[rgba(216,214,211,.34)] bg-transparent text-transparent'
       }`}
     >
-      {checked ? <Check size={10} strokeWidth={2.4} /> : null}
+      {checked ? <Check size={10} strokeWidth={3} /> : null}
     </span>
   );
 }
@@ -120,7 +120,7 @@ function CheckboxList({
               <FilterBox checked={checked} />
               <span>{value}</span>
             </span>
-            {disabled ? <span className="text-[9px] uppercase tracking-[.12em] text-[rgba(170,162,160,.28)]">Not yet mapped</span> : null}
+            {disabled ? <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-white/[.10]" /> : null}
           </button>
         );
       })}
@@ -169,7 +169,7 @@ function BodyAreaTree({
                 aria-label={`Select all ${group.part}`}
                 disabled={partDisabled}
                 onClick={() => onTogglePart(group.part)}
-                className={`shrink-0 ${partDisabled ? 'cursor-not-allowed opacity-35' : ''}`}
+                className={`shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d8b56d]/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0e0e12] ${partDisabled ? 'cursor-not-allowed opacity-35' : ''}`}
               >
                 <FilterBox checked={partChecked} />
               </button>
@@ -178,7 +178,7 @@ function BodyAreaTree({
                 type="button"
                 aria-expanded={isOpen}
                 onClick={() => toggleExpanded(group.part)}
-                className="flex min-w-0 flex-1 items-center justify-between gap-3 text-left"
+                className="flex min-w-0 flex-1 items-center justify-between gap-3 rounded-md text-left focus:outline-none focus-visible:ring-1 focus-visible:ring-[#d8b56d]/45"
               >
                 <span className={`text-[12px] ${partDisabled ? 'text-[rgba(210,206,196,.42)]' : 'text-[#D2CEC4]'}`}>{group.part}</span>
                 <span className="flex items-center gap-2">
@@ -607,7 +607,7 @@ export function ShopClient({
 
       <section className={`${embedded ? '' : 'container-feya'} grid grid-cols-12 gap-7 lg:gap-10 py-10`}>
         <aside className="hidden lg:block col-span-3 xl:col-span-2" data-testid="filter-sidebar">
-          <div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-xl border border-white/[0.08] bg-[#0e0e12] p-4 pr-3 [scrollbar-width:thin]">
+          <div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-x-hidden overflow-y-auto rounded-xl border border-white/[0.08] bg-[linear-gradient(180deg,#0f0f14,#0b0b0f)] p-4 pr-3 shadow-[0_18px_45px_rgba(0,0,0,.28)] [scrollbar-width:thin]">
             <CatalogFilterPanel {...panelProps} />
           </div>
         </aside>
