@@ -1,14 +1,16 @@
 // @ts-nocheck
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import { readClosedReviewPresentation } from '@/lib/searchReviewPresentationServer';
 import Link from 'next/link';
 import { ArrowUpRight, Globe2, Ruler, Scissors, Sparkles, Truck } from 'lucide-react';
+import { notFound } from 'next/navigation';
 import { Header } from '@/components/Header';
-import { ProductCard } from '@/components/ProductCard';
 import { Footer } from '@/components/Footer';
+import { ProductCard } from '@/components/ProductCard';
+import { HOME_PRESENTATION, homePresentationProductIds } from '@/config/homePresentation';
+import { readClosedReviewPresentation } from '@/lib/searchReviewPresentationServer';
 import { releaseRobotsForPath } from '@/lib/searchReleaseIndexationServer';
 import { getSupabaseReadClient } from '@/lib/supabase';
+import type { StorefrontProduct } from '@/lib/types';
 import {
   STOREFRONT_FALLBACK_CARD_SELECT,
   STOREFRONT_MEDIA_FAST_SELECT,
@@ -16,6 +18,7 @@ import {
   STOREFRONT_VIEW_V2,
   STOREFRONT_VIEW_V4,
   STOREFRONT_V4_CARD_SELECT,
+  productTitle,
 } from '@/lib/storefront';
 
 export const dynamic = 'force-dynamic';
@@ -30,48 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const HOME_PRODUCTS_LIMIT = 12;
-
-const PIECE_GATEWAYS = [
-  { label: 'Full Looks', href: '/shop?piece=Full%20Look', note: 'Multi-piece outfit configurations' },
-  { label: 'Bodysuits', href: '/collections/bodysuits', note: 'Full-body statement pieces' },
-  { label: 'Shoulders', href: '/collections/shoulder-armor', note: 'Shoulder pieces and armor-inspired forms' },
-  { label: 'Masks', href: '/collections/costume-masks', note: 'Decorative costume masks' },
-  { label: 'Headpieces', href: '/collections/costume-headpieces', note: 'Crowns, headpieces and sculpted forms' },
-  { label: 'Belts', href: '/collections/costume-belts', note: 'Waist and belt pieces' },
-  { label: 'Wings', href: '/shop?piece=Wings', note: 'Wearable wings and back-mounted structures' },
-  { label: 'Tail', href: '/shop?piece=Tail', note: 'Sculptural tail pieces' },
-  { label: 'Spine', href: '/shop?piece=Spine', note: 'Decorative spine structures' },
-] as const;
-
-const EVENT_GATEWAYS = [
-  { label: 'Festival', href: '/collections/festival-outfits', note: 'Broad festival styling' },
-  { label: 'Rave', href: '/collections/rave-outfits', note: 'Rave-focused looks and components' },
-  { label: 'Burning Man', href: '/collections/burning-man-looks', note: 'Statement looks for Burning Man' },
-  { label: 'Halloween', href: '/shop?event=Halloween', note: 'Costume-led Halloween looks' },
-  { label: 'Pride', href: '/shop?event=Pride', note: 'Statement pieces for Pride styling' },
-  { label: 'Cosplay', href: '/shop?event=Cosplay', note: 'Character and fantasy-led costume pieces' },
-] as const;
-
-const PERFORMANCE_GATEWAYS = [
-  { label: 'Stage & Fashion', href: '/collections/stage-outfits', note: 'Stage and fashion-show performance pieces' },
-  { label: 'Showgirl', href: '/shop?performance=Showgirl', note: 'Showgirl-oriented statement looks' },
-  { label: 'Drag Queen', href: '/shop?performance=Drag%20Queen', note: 'Drag performance styling' },
-  { label: 'Go-Go Dancer', href: '/shop?dance=Go-Go%20Dancer', note: 'Go-go performance looks and components' },
-  { label: 'Pole Dancer', href: '/shop?dance=Pole%20Dancer', note: 'Pole performance styling' },
-] as const;
-
-const STYLE_GATEWAYS = [
-  { label: 'Cyberpunk', href: '/shop?style=Cyberpunk', note: 'Cyberpunk visual direction' },
-  { label: 'Futuristic', href: '/shop?style=Futuristic', note: 'Futuristic statement pieces' },
-  { label: 'Sci-Fi', href: '/shop?style=Sci-Fi', note: 'Sci-fi inspired costume styling' },
-  { label: 'Goth', href: '/shop?style=Goth', note: 'Dark goth visual direction' },
-  { label: 'Glam', href: '/shop?style=Glam', note: 'High-impact glam looks' },
-  { label: 'Warrior', href: '/shop?style=Warrior', note: 'Warrior-inspired sculptural looks' },
-  { label: 'Goddess', href: '/shop?style=Goddess', note: 'Goddess-inspired styling' },
-] as const;
-
-async function mergeMedia(supabase, products) {
+async function mergeMedia(supabase, products: StorefrontProduct[]) {
   const slugs = products.map((product) => product.product_slug).filter(Boolean);
   if (!slugs.length) return products;
 
@@ -100,130 +62,212 @@ async function mergeMedia(supabase, products) {
   });
 }
 
-async function getProducts() {
+async function getPresentationProducts() {
+  const ids = homePresentationProductIds();
   const review = await readClosedReviewPresentation();
   if (review.status === 'blocked') notFound();
-  if (review.status === 'review') return review.release.entries.slice(0, HOME_PRODUCTS_LIMIT).map((entry) => entry.product);
+
+  if (review.status === 'review') {
+    const products = review.release.entries
+      .map((entry) => entry.product)
+      .filter((product) => ids.includes(product.canonical_product_id));
+    return new Map(products.map((product) => [product.canonical_product_id, product]));
+  }
 
   const supabase = getSupabaseReadClient();
-  if (!supabase) return [];
+  if (!supabase) return new Map<string, StorefrontProduct>();
 
-  const primary = await supabase.from(STOREFRONT_VIEW_V4).select(STOREFRONT_V4_CARD_SELECT).limit(HOME_PRODUCTS_LIMIT);
-  if (!primary.error && primary.data?.length) return mergeMedia(supabase, primary.data);
+  const primary = await supabase
+    .from(STOREFRONT_VIEW_V4)
+    .select(STOREFRONT_V4_CARD_SELECT)
+    .in('canonical_product_id', ids);
 
-  const fallback = await supabase.from(STOREFRONT_VIEW_V2).select(STOREFRONT_FALLBACK_CARD_SELECT).limit(HOME_PRODUCTS_LIMIT);
-  if (fallback.error || !fallback.data?.length) return [];
-  return mergeMedia(supabase, fallback.data);
+  let products: StorefrontProduct[] = [];
+  if (!primary.error && primary.data?.length) {
+    products = await mergeMedia(supabase, primary.data);
+  } else {
+    const fallback = await supabase
+      .from(STOREFRONT_VIEW_V2)
+      .select(STOREFRONT_FALLBACK_CARD_SELECT)
+      .in('canonical_product_id', ids);
+    if (!fallback.error && fallback.data?.length) products = await mergeMedia(supabase, fallback.data);
+  }
+
+  return new Map(products.map((product) => [product.canonical_product_id, product]));
+}
+
+function TileMedia({ product, label, className = '' }: { product?: StorefrontProduct; label: string; className?: string }) {
+  const src = product?.primary_image_url || '';
+  if (!src) {
+    return <div className={`absolute inset-0 bg-[radial-gradient(90%_70%_at_55%_20%,#28262d,#0d0d11)] ${className}`} />;
+  }
+
+  return (
+    <img
+      src={src}
+      alt={product.primary_image_alt || productTitle(product) || label}
+      loading="lazy"
+      decoding="async"
+      className={`absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] ${className}`}
+    />
+  );
 }
 
 export default async function HomePage() {
-  const products = await getProducts();
-  const heroProducts = products.slice(0, 3);
-  const currentPieces = products.slice(0, 8);
+  const byId = await getPresentationProducts();
+  const getProduct = (id: string) => byId.get(id);
+
+  const hero = getProduct(HOME_PRESENTATION.heroProductId);
+  const selected = HOME_PRESENTATION.selectedProductIds
+    .map(getProduct)
+    .filter(Boolean) as StorefrontProduct[];
 
   return (
-    <main className="relative min-h-screen overflow-hidden">
+    <main className="visual-commerce-shell relative min-h-screen overflow-hidden">
       <Header />
 
-      <section className="relative min-h-[560px] pt-28 lg:pt-32 flex items-center border-b border-[rgba(216,214,211,0.12)] overflow-hidden">
-        <div className="absolute inset-0 opacity-40">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_20%,rgba(216,214,211,0.26),transparent_32%),radial-gradient(circle_at_18%_82%,rgba(212,178,106,0.22),transparent_35%)]" />
-          <div className="absolute right-0 top-0 bottom-0 w-[50%] opacity-20 text-[13vw] font-display tracking-[-0.08em] text-white/10 flex items-center justify-center">FEYA</div>
-        </div>
-
-        <div className="container-feya relative z-10 grid lg:grid-cols-12 gap-8 items-center">
-          <div className="lg:col-span-6">
-            <div className="eyebrow-gold mb-5">TheFEYA · Original handmade designs</div>
-            <h1 className="font-tall text-bone leading-[0.95] tracking-[0.03em]" style={{ fontSize: 'clamp(44px,5.5vw,82px)' }}>
-              Handmade stagewear for unforgettable looks
-            </h1>
-            <p className="editorial-italic text-[var(--bone-dim)] text-lg lg:text-xl mt-6 max-w-xl">
-              Statement pieces for stage, festival, rave and Burning Man styling. Start with a product type, an event or a complete look.
-            </p>
-            <div className="flex flex-wrap gap-4 mt-8">
-              <Link href="/shop" className="btn-chrome">Shop catalog <ArrowUpRight size={14} /></Link>
-              <Link href="/collections" className="btn-ghost">Explore collections <ArrowUpRight size={14} /></Link>
+      <section aria-label="Hero" className="px-2.5 pt-[108px] sm:px-4 lg:px-5 lg:pt-[116px]">
+        <div className="group relative mx-auto min-h-[560px] max-h-[820px] h-[72vh] overflow-hidden rounded-md border border-white/[0.06] bg-[#0d0d11]">
+          <TileMedia product={hero} label="TheFEYA hero" className="scale-[1.01]" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(6,6,8,.82)_0%,rgba(6,6,8,.35)_50%,rgba(6,6,8,.06)_82%),linear-gradient(0deg,rgba(6,6,8,.76)_0%,transparent_52%)]" />
+          <div className="absolute inset-x-0 bottom-0 z-10 px-5 pb-8 sm:px-9 sm:pb-10 lg:px-[5vw] lg:pb-[5vw]">
+            <div className="max-w-[720px]">
+              <div className="mb-5 text-[11px] uppercase tracking-[0.18em] text-[#e7cf96]">TheFEYA · Sculptural wear</div>
+              <h1 className="visual-display m-0 max-w-[680px] text-[clamp(52px,7.3vw,112px)] font-medium leading-[.9] tracking-[-.045em] text-[#f7f3ec]">
+                Sculpted for the spotlight.
+              </h1>
+              <p className="mt-6 max-w-[500px] text-[15px] leading-[1.65] text-[#d6cfc6] sm:text-[17px]">
+                Original handmade pieces and full looks for festival, stage, fashion and performance.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link href="/shop" className="visual-primary-cta">Shop catalog</Link>
+                <Link href="/shop?piece=Full%20Look" className="visual-secondary-cta">Explore full looks</Link>
+              </div>
             </div>
-          </div>
-
-          <div className="lg:col-span-6 hidden lg:grid grid-cols-3 gap-4 opacity-90">
-            {heroProducts.map((product, index) => (
-              <Link
-                href={`/shop/${product.product_slug}`}
-                key={product.canonical_product_id}
-                className={`relative rounded-md overflow-hidden border border-white/10 ${index === 1 ? 'translate-y-8' : ''}`}
-              >
-                <img src={product.primary_image_url || ''} className="w-full h-[360px] object-cover" alt={product.primary_image_alt || product.card_title || ''} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        <div className="absolute bottom-0 left-0 right-0 border-t border-[rgba(216,214,211,0.12)] bg-[rgba(7,7,10,0.45)] backdrop-blur">
-          <div className="container-feya grid grid-cols-2 md:grid-cols-5 gap-4 py-5 text-[11px] tracking-[0.22em] uppercase text-[var(--bone-dim)]">
-            <span className="flex items-center gap-2"><Scissors size={15} /> Handmade</span>
-            <span className="flex items-center gap-2"><Ruler size={15} /> Fit guidance</span>
-            <span className="flex items-center gap-2"><Truck size={15} /> Express options</span>
-            <span className="flex items-center gap-2"><Globe2 size={15} /> Worldwide</span>
-            <span className="flex items-center gap-2"><Sparkles size={15} /> Original designs</span>
           </div>
         </div>
       </section>
 
-      <GatewaySection
-        kicker="Shop by piece"
-        title="Start with what you want to wear."
-        description="Use the physical product structure first. Search terms stay in the SEO layer without turning every synonym into a storefront category."
-        items={PIECE_GATEWAYS}
-      />
+      <EditorialSection
+        eyebrow="Shop by piece"
+        title="Build it piece by piece."
+        action={<Link href="/shop" className="visual-text-link">Shop all <ArrowUpRight size={13} /></Link>}
+      >
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+          {HOME_PRESENTATION.pieceTiles.map((tile) => (
+            <Link
+              key={tile.code}
+              href={tile.href}
+              className="group relative aspect-[3/4] overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#111117]"
+            >
+              <TileMedia product={getProduct(tile.productId)} label={tile.label} />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent px-4 pb-4 pt-14">
+                <div className="flex items-center justify-between gap-3 text-[15px] text-[#f4f1ea] sm:text-[17px]">
+                  <span>{tile.label}</span>
+                  <ArrowUpRight size={14} className="shrink-0 text-[#d8b56d]" />
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </EditorialSection>
 
-      <GatewaySection
-        kicker="Shop by event"
-        title="Choose the setting."
-        description="Festival is the broad entry. Rave and Burning Man remain separate because the shopping jobs and product mixes are different."
-        items={EVENT_GATEWAYS}
-      />
+      <EditorialSection eyebrow="Events & Performance" title="Dressed for where you’re going.">
+        <div className="grid grid-cols-12 gap-3 lg:gap-4">
+          {HOME_PRESENTATION.eventTiles.map((tile, index) => {
+            const wide = index === 0 || index === 3;
+            return (
+              <article
+                key={tile.code}
+                className={`group relative col-span-12 overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111117] md:col-span-6 ${wide ? 'lg:col-span-7' : 'lg:col-span-5'}`}
+                style={{ minHeight: wide ? 560 : 470 }}
+              >
+                <TileMedia product={getProduct(tile.productId)} label={tile.label} />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 z-10 p-6 lg:p-8">
+                  <div className="mb-2 text-[10px] uppercase tracking-[0.18em] text-[#e7cf96]">{tile.eyebrow}</div>
+                  <h2 className="visual-display text-[clamp(30px,3.2vw,48px)] font-medium leading-none tracking-[-.03em] text-[#f7f3ec]">
+                    <Link href={tile.href}>{tile.label}</Link>
+                  </h2>
+                  <p className="mt-3 max-w-[520px] text-[14px] leading-6 text-[#d0c9c0]">{tile.description}</p>
+                  {tile.shortcuts?.length ? (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {tile.shortcuts.map((shortcut) => (
+                        <Link key={shortcut.label} href={shortcut.href} className="visual-chip">{shortcut.label}</Link>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </EditorialSection>
 
-      <GatewaySection
-        kicker="Performance"
-        title="Built for the visual moment."
-        description="Stage, fashion-show and movement-led performance paths are grouped together for shoppers without changing Search Ownership."
-        items={PERFORMANCE_GATEWAYS}
-      />
+      <EditorialSection eyebrow="Shop the look" title="Complete looks, every piece considered.">
+        <div className="grid gap-8 lg:grid-cols-[.8fr_1fr_1fr] lg:items-start">
+          <div className="max-w-[360px] text-[15px] leading-7 text-[#aaa2a0]">
+            Explore complete FEYA looks as real products first. Component-level look drawers will only be enabled when exact relationships are governed.
+          </div>
+          {HOME_PRESENTATION.lookTiles.map((look, index) => {
+            const product = getProduct(look.productId);
+            return (
+              <article key={look.code} className={index === 1 ? 'lg:mt-24' : ''}>
+                <Link href={product ? `/shop/${product.product_slug}` : '/shop'} className="group block">
+                  <div className="relative aspect-[4/5] overflow-hidden rounded-md border border-white/[0.07] bg-[#111117]">
+                    <TileMedia product={product} label={look.label} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  </div>
+                  <div className="mt-4 flex items-end justify-between gap-5">
+                    <div>
+                      <div className="text-[10px] uppercase tracking-[0.16em] text-[#aaa2a0]">{look.axis}</div>
+                      <h3 className="visual-display mt-1 text-[25px] font-medium tracking-[-.02em] text-[#f4f1ea]">{look.label}</h3>
+                    </div>
+                    <span className="visual-outline-cta">View full look</span>
+                  </div>
+                </Link>
+              </article>
+            );
+          })}
+        </div>
+      </EditorialSection>
 
-      <GatewaySection
-        kicker="Shop by style"
-        title="Choose the visual world."
-        description="Style is a governed storefront filter layer. It helps shoppers browse without creating a separate indexable page for every style label."
-        items={STYLE_GATEWAYS}
-      />
-
-      {currentPieces.length > 0 ? (
-        <ProductRail
-          title="Current pieces."
-          kicker="TheFEYA catalog"
-          products={currentPieces}
-        />
+      {selected.length ? (
+        <EditorialSection
+          eyebrow="Selected pieces"
+          title="TheFEYA Edit"
+          action={<Link href="/shop" className="visual-text-link">Shop all <ArrowUpRight size={13} /></Link>}
+        >
+          <div className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 xl:grid-cols-4">
+            {selected.map((product, index) => (
+              <ProductCard key={product.canonical_product_id} product={product} index={index} />
+            ))}
+          </div>
+        </EditorialSection>
       ) : null}
 
-      <section className="container-feya pb-16 lg:pb-24">
-        <div className="rounded-xl border border-[rgba(212,178,106,.22)] bg-[rgba(212,178,106,.045)] p-7 lg:p-9">
-          <div className="eyebrow-gold mb-4">Before you order</div>
-          <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
-            <div>
-              <h2 className="text-bone text-2xl lg:text-3xl">Fit, shipping and care in one place.</h2>
-              <p className="mt-3 max-w-2xl text-[14px] leading-6 text-[var(--bone-dim)]">
-                Check measurements, production and delivery information, care guidance and the current returns policy before choosing a configuration.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Link href="/size-guide" className="btn-ghost">Size guide</Link>
-              <Link href="/shipping" className="btn-ghost">Shipping</Link>
-              <Link href="/care" className="btn-ghost">Care</Link>
-              <Link href="/returns" className="btn-ghost">Returns</Link>
-            </div>
-          </div>
+      <EditorialSection eyebrow="Find your look" title="Start from a mood.">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {HOME_PRESENTATION.findTiles.map((tile) => (
+            <Link key={tile.code} href={tile.href} className="group relative aspect-[3/4] overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#111117]">
+              <TileMedia product={getProduct(tile.productId)} label={tile.label} />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 z-10 p-5">
+                <span className="visual-axis-pill">{tile.axis}</span>
+                <h3 className="visual-display mt-4 text-[clamp(25px,2.5vw,38px)] font-medium leading-none tracking-[-.03em] text-[#f7f3ec]">{tile.label}</h3>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </EditorialSection>
+
+      <section className="container-feya py-14 lg:py-20">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-6 border-y border-white/[0.08] py-7 text-[10px] uppercase tracking-[0.18em] text-[#aaa2a0] md:grid-cols-5">
+          <span className="flex items-center gap-2"><Scissors size={14} /> Handmade</span>
+          <span className="flex items-center gap-2"><Ruler size={14} /> Fit guidance</span>
+          <span className="flex items-center gap-2"><Truck size={14} /> Express options</span>
+          <span className="flex items-center gap-2"><Globe2 size={14} /> Worldwide</span>
+          <span className="flex items-center gap-2"><Sparkles size={14} /> Original designs</span>
         </div>
       </section>
 
@@ -232,48 +276,27 @@ export default async function HomePage() {
   );
 }
 
-function GatewaySection({ kicker, title, description, items }) {
+function EditorialSection({
+  eyebrow,
+  title,
+  action,
+  children,
+}: {
+  eyebrow: string;
+  title: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
-    <section className="container-feya py-14 lg:py-20 border-b border-[rgba(216,214,211,.08)]">
-      <div className="grid gap-8 lg:grid-cols-[320px_1fr]">
+    <section className="container-feya py-[clamp(64px,8vw,120px)]">
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-5 lg:mb-10">
         <div>
-          <div className="eyebrow-gold mb-4">{kicker}</div>
-          <h2 className="display-section text-bone" style={{ fontSize: 'clamp(38px,4.8vw,68px)' }}>{title}</h2>
-          <p className="mt-4 text-[14px] leading-6 text-[var(--bone-dim)]">{description}</p>
+          <div className="mb-3 text-[10px] uppercase tracking-[0.18em] text-[#aaa2a0]">{eyebrow}</div>
+          <h2 className="visual-display text-[clamp(36px,4.6vw,64px)] font-medium leading-[.98] tracking-[-.04em] text-[#f7f3ec]">{title}</h2>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {items.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className="group rounded-xl border border-[rgba(216,214,211,.14)] bg-white/[.025] p-6 transition-all hover:border-[rgba(212,178,106,.45)] hover:bg-[rgba(212,178,106,.05)]"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <h3 className="text-xl text-bone">{item.label}</h3>
-                <ArrowUpRight size={15} className="mt-1 text-[var(--bone-dim)] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </div>
-              <p className="mt-3 text-[13px] leading-5 text-[var(--bone-dim)]">{item.note}</p>
-            </Link>
-          ))}
-        </div>
+        {action}
       </div>
-    </section>
-  );
-}
-
-function ProductRail({ title, kicker, products }) {
-  return (
-    <section className="container-feya py-14 lg:py-20">
-      <div className="flex items-end justify-between gap-8 mb-8">
-        <div>
-          <div className="eyebrow-gold mb-4">{kicker}</div>
-          <h2 className="display-section text-bone" style={{ fontSize: 'clamp(42px,6vw,82px)' }}>{title}</h2>
-        </div>
-        <Link href="/shop" className="btn-ghost hidden md:inline-flex">All pieces <ArrowUpRight size={13} /></Link>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 lg:gap-6">
-        {products.map((product, index) => <ProductCard key={product.canonical_product_id} product={product} index={index} />)}
-      </div>
+      {children}
     </section>
   );
 }
