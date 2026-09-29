@@ -48,9 +48,15 @@ export async function readApprovedStorefrontCopy(product: { canonical_product_id
   const client = getAdminServiceClient();
   if (!client) return blocked();
   try {
+    const hybridVisualPreview = isHybridVisualPreviewDeployment(process.env);
+    const draftQuery = hybridVisualPreview
+      ? client.from('feya_commerce_seo_pack_drafts_v1').select(DRAFT_SELECT)
+          .eq('id', matches[0].draft_id)
+          .eq('canonical_product_id', product.canonical_product_id!).maybeSingle()
+      : client.from('feya_commerce_v_seo_pack_drafts_latest_v1').select(DRAFT_SELECT)
+          .eq('canonical_product_id', product.canonical_product_id!).maybeSingle();
     const [draft, page] = await Promise.all([
-      client.from('feya_commerce_v_seo_pack_drafts_latest_v1').select(DRAFT_SELECT)
-        .eq('canonical_product_id', product.canonical_product_id!).maybeSingle(),
+      draftQuery,
       client.from('feya_commerce_seo_pages_v1').select('seo_page_id,canonical_product_id,url_path')
         .eq('canonical_product_id', product.canonical_product_id!).eq('page_type', 'product').maybeSingle(),
     ]);
@@ -64,7 +70,7 @@ export async function readApprovedStorefrontCopy(product: { canonical_product_id
     // project that latest approved snapshot here instead of silently falling back
     // to the legacy product description. Approval/status/path/shape checks still
     // come from prepareApprovedContentProjection; production remains manifest-pinned.
-    if (isHybridVisualPreviewDeployment(process.env)) {
+    if (!hybridVisualPreview) {
       const projection = prepareApprovedContentProjection({ product, draft: draft.data, page: page.data });
       if (projection.status === 'prepared' && projection.payload) {
         return { status: 'review', copy: projection.payload, offerSnapshot };
