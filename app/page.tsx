@@ -239,7 +239,7 @@ export default async function HomePage() {
             <Link key={tile.code} href={tile.href} className="group relative aspect-[3/4] overflow-hidden rounded-[14px] border border-[rgba(216,181,109,.10)] bg-[#111117] transition-[border-color,box-shadow] duration-300 hover:border-[rgba(216,181,109,.24)] hover:shadow-[0_22px_48px_-30px_rgba(216,181,109,.16)]">
               <TileMedia product={getProduct(tile.productId)} label={tile.label} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/78 via-black/16 to-transparent" />
-              <div className="visual-tile-label-band visual-mood-label-band absolute inset-x-0 bottom-0 z-10 px-4 pb-5 pt-5 text-center">
+              <div className="visual-tile-label-band visual-mood-label-band absolute inset-x-0 bottom-0 z-10 px-4 pb-4 pt-3 text-center">
                 <span className="visual-axis-pill">{tile.axis}</span>
                 <h3 className="font-tall mt-2 text-[clamp(24px,2.2vw,34px)] leading-none tracking-[.01em] text-[#f7f3ec]">{tile.label}</h3>
               </div>
