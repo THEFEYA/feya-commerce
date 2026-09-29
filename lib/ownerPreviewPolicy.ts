@@ -2,12 +2,17 @@
  * the access boundary for this one preview branch; this is not a public mode.
  * Only server-provided deployment metadata is accepted, never request headers.
  */
+const OWNER_PREVIEW_BRANCHES = new Set([
+  'work/search-architecture-foundation-20260923',
+  'design/hybrid-visual-integration-20260928',
+]);
+
 export function isOwnerPreviewDeployment(env: Record<string, string | undefined>) {
   return env.FEYA_OWNER_PREVIEW_DISABLED !== 'true'
     && env.VERCEL === '1'
     && env.VERCEL_ENV === 'preview'
     && env.VERCEL_PROJECT_ID === 'prj_ePIymo4sUG33wrRjHBxWrSlaxPID'
-    && env.VERCEL_GIT_COMMIT_REF === 'work/search-architecture-foundation-20260923';
+    && OWNER_PREVIEW_BRANCHES.has(env.VERCEL_GIT_COMMIT_REF || '');
 }
 
 /** GET/HEAD tables and the two audited, read-only Product Truth RPCs only. */
