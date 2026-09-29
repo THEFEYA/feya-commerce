@@ -39,6 +39,7 @@ test('owner preview is confined to the authorized Vercel project and approved pr
  assert.equal(isOwnerPreviewDeployment(env),true);
  assert.equal(isOwnerPreviewDeployment({...env,VERCEL_GIT_COMMIT_REF:'design/hybrid-visual-integration-20260928'}),true);
  assert.equal(isOwnerPreviewDeployment({...env,VERCEL_GIT_COMMIT_REF:'work/storefront-performance-foundation-20260930'}),true);
+ assert.equal(isOwnerPreviewDeployment({...env,VERCEL_GIT_COMMIT_REF:'work/storefront-next16-upgrade-20260930'}),true);
  for(const patch of [{VERCEL_ENV:'production'},{VERCEL_ENV:'development'},{VERCEL:''},{VERCEL_PROJECT_ID:'other'},{VERCEL_GIT_COMMIT_REF:'main'},{FEYA_OWNER_PREVIEW_DISABLED:'true'}]) assert.equal(isOwnerPreviewDeployment({...env,...patch}),false);
  for(const key of Object.keys(env)){const missing:Record<string,string>={...env};delete missing[key];assert.equal(isOwnerPreviewDeployment(missing),false);}
  assert.equal(isOwnerPreviewDeployment({}),false);
