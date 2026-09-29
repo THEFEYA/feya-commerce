@@ -84,9 +84,14 @@ export async function verifyOwnerActionStepUpRuntime({
     report.owner_preview_read_only_preserved=true;
     report.owner_action_execution_enabled=false;
   }finally{
-    server.kill('SIGTERM');
-    await Promise.race([once(server,'exit'),new Promise(r=>setTimeout(r,5000))]);
-    if(server.exitCode===null)server.kill('SIGKILL');
-    if(server.exitCode&&server.exitCode!==0) throw new Error('Step-up preview server failed: '+log.slice(-3000));
+    const exitedBeforeHarnessShutdown=server.exitCode!==null||server.signalCode!==null;
+    if(!exitedBeforeHarnessShutdown){
+      server.kill('SIGTERM');
+      await Promise.race([once(server,'exit'),new Promise(r=>setTimeout(r,5000))]);
+      if(server.exitCode===null&&server.signalCode===null)server.kill('SIGKILL');
+    }
+    if(exitedBeforeHarnessShutdown&&server.exitCode&&server.exitCode!==0){
+      throw new Error('Step-up preview server failed: '+log.slice(-3000));
+    }
   }
 }
