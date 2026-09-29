@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { projectApprovedOfferSnapshot } from '../../lib/storefrontApprovedOfferProjection.ts';
+import { applyOwnerReviewedStorefrontCorrections } from '../../lib/storefrontOwnerReviewedCorrections.ts';
 
 test('approved offer snapshot restores public labels while preserving current prices and ids', () => {
   const product = {
@@ -31,6 +32,10 @@ test('approved offer snapshot restores public labels while preserving current pr
   assert.deepEqual(projected.configurations.map((row: any) => row.display_price_amount), [135.10,144.76,199.39]);
   assert.deepEqual(projected.configurations.map((row: any) => row.configuration_id), ['a','b','c']);
   assert.deepEqual(projected.configurations[2].bundle_component_labels, ['Arm Guards','Shoulders']);
+  assert.equal(projected.approved_offer_snapshot_projected, true);
+
+  const repeatedCorrection: any = applyOwnerReviewedStorefrontCorrections(projected);
+  assert.deepEqual(repeatedCorrection.configurations.map((row: any) => row.public_label), ['Shoulders','Arm Guards','Full Set']);
 });
 
 test('approved offer projection fails closed on stale selector ids instead of partially mixing versions', () => {
