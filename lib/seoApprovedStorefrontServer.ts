@@ -2,7 +2,8 @@ import 'server-only';
 import manifest from '@/config/approved-content-review-bindings.json';
 import { getAdminServiceClient } from '@/lib/adminServerData';
 import { approvedContentReviewMode, selectApprovedStorefrontCopy } from './seoApprovedStorefrontPolicy';
-import type { ApprovedCopyPayload } from './seoApprovedContentProjection';
+import { prepareApprovedContentProjection, type ApprovedCopyPayload } from './seoApprovedContentProjection';
+import { isHybridVisualPreviewDeployment } from '@/lib/ownerPreviewPolicy';
 
 type Result = { status: 'disabled' | 'blocked'; copy: null } | { status: 'review'; copy: ApprovedCopyPayload };
 const DRAFT_SELECT = 'id,canonical_product_id,status,review_status,archived_at,updated_at,seo_title,h1,meta_description,intro,agent_output_snapshot';
@@ -29,6 +30,19 @@ export async function readApprovedStorefrontCopy(product: { canonical_product_id
     ]);
     if (draft.error || page.error || !draft.data || !page.data) return blocked();
     const copy = selectApprovedStorefrontCopy({ product, draft: draft.data, page: page.data }, matches[0]);
-    return copy ? { status: 'review', copy } : blocked();
+    if (copy) return { status: 'review', copy };
+
+    // The protected hybrid branch is an owner-review surface, not a release surface.
+    // If an owner-approved draft was re-saved after the frozen manifest was cut,
+    // project that latest approved snapshot here instead of silently falling back
+    // to the legacy product description. Approval/status/path/shape checks still
+    // come from prepareApprovedContentProjection; production remains manifest-pinned.
+    if (isHybridVisualPreviewDeployment(process.env)) {
+      const projection = prepareApprovedContentProjection({ product, draft: draft.data, page: page.data });
+      if (projection.status === 'prepared' && projection.payload) {
+        return { status: 'review', copy: projection.payload };
+      }
+    }
+    return blocked();
   } catch { return blocked(); }
 }
