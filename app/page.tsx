@@ -272,8 +272,8 @@ function EditorialSection({
 }: {
   eyebrow: string;
   title: string;
-  action?: React.ReactNode;
-  children: React.ReactNode;
+  action?: ReactNode;
+  children: ReactNode;
   tone?: 'plain' | 'raised' | 'deep';
 }) {
   return (
