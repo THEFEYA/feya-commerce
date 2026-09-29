@@ -83,9 +83,9 @@ test('approved mood bands are full-width, centered and use plain secondary axis 
 test('section dividers are single soft center-glow lines with stronger edge fade', () => {
   const css = readFileSync('app/globals.css','utf8');
   assert.match(css,/\.visual-home-section::before/);
-  assert.match(css,/transparent 12%/);
-  assert.match(css,/rgba\(216,181,109,\.20\) 50%/);
-  assert.match(css,/transparent 88%/);
+  assert.match(css,/transparent 18%/);
+  assert.match(css,/rgba\(216,181,109,\.19\) 50%/);
+  assert.match(css,/transparent 82%/);
 });
 
 test('Shop by Piece advances every three seconds and uses integrated full-width label bands', () => {
@@ -98,8 +98,8 @@ test('Buy It Now shimmer cadence is five seconds and PDP thumbnail rail is wider
   const css = readFileSync('app/globals.css','utf8');
   const pdp = readFileSync('components/ProductDetailClient.tsx','utf8');
   assert.match(css,/animation: feyaBuySweep 5s ease-in-out infinite/);
-  assert.match(pdp,/lg:grid-cols-\[118px_minmax\(0,1fr\)\]/);
-  assert.match(pdp,/lg:gap-2\.5/);
+  assert.match(pdp,/lg:grid-cols-\[126px_minmax\(0,1fr\)\]/);
+  assert.match(pdp,/lg:gap-2/);
 });
 
 
@@ -127,4 +127,27 @@ test('desktop catalog filters no longer sit inside framed outer or Body Area pan
   assert.doesNotMatch(source,/divide-y divide-white\/\[0\.07\] rounded-lg border border-white\/\[0\.08\]/);
   assert.match(source,/grid-cols-\[minmax\(0,1fr\)_auto_minmax\(0,1fr\)\]/);
   assert.match(source,/grid-cols-2 gap-x-3 gap-y-3/);
+});
+
+
+test('product cards keep a visible idle border and brighten with shadow on hover', () => {
+  const css = readFileSync('app/globals.css','utf8');
+  assert.match(css,/border-color: rgba\(216,214,211,\.17\)/);
+  assert.match(css,/border-color: rgba\(216,181,109,\.44\)/);
+  assert.match(css,/0 28px 58px -22px rgba\(0,0,0,\.86\)/);
+});
+
+test('mega preview and mood bands stay compact and remove white edge treatment', () => {
+  const css = readFileSync('app/globals.css','utf8');
+  const header = readFileSync('components/Header.tsx','utf8');
+  assert.match(css,/\.visual-mood-label-band \{[\s\S]*min-height: 86px/);
+  assert.match(css,/\.visual-mega-preview-band \{[\s\S]*min-height: 92px/);
+  assert.match(header,/border-\[rgba\(216,181,109,\.09\)\]/);
+  assert.match(header,/visual-mega-preview-band absolute inset-x-0 bottom-0 px-5 py-4/);
+});
+
+test('hover media crop stays anchored higher instead of drifting down', () => {
+  const css = readFileSync('app/globals.css','utf8');
+  assert.match(css,/\.visual-commerce-shell \.product-card \.primary-media,[\s\S]*object-position: 50% 30%/);
+  assert.match(css,/transform-origin: 50% 35%/);
 });
