@@ -18,6 +18,7 @@ const branchRef =
 const isVisualPrototype = branchRef === 'design/hybrid-visual-integration-20260928';
 const visualPrototypeSurfaces = new Set([
   'app/page.tsx',
+  'app/shop/[slug]/page.tsx',
   'components/Header.tsx',
   'components/Footer.tsx',
   'components/ShopClient.tsx',
