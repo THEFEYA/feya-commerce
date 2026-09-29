@@ -151,3 +151,27 @@ test('hover media crop stays anchored higher instead of drifting down', () => {
   assert.match(css,/\.visual-commerce-shell \.product-card \.primary-media,[\s\S]*object-position: 50% 30%/);
   assert.match(css,/transform-origin: 50% 35%/);
 });
+
+
+test('PDP main image stays in the first media row beside the wider thumbnail rail', () => {
+  const pdp = readFileSync('components/ProductDetailClient.tsx','utf8');
+  assert.match(pdp,/lg:grid-cols-\[132px_minmax\(0,1fr\)\]/);
+  assert.match(pdp,/col-span-12 lg:col-span-1 lg:self-start flex justify-center/);
+});
+
+test('homepage uses explicit soft gold-fade section dividers and compact trust strip', () => {
+  const home = readFileSync('app/page.tsx','utf8');
+  const css = readFileSync('app/globals.css','utf8');
+  assert.match(home,/visual-section-divider/);
+  assert.match(home,/container-feya py-7 lg:py-9/);
+  assert.match(css,/\.visual-section-divider \{/);
+});
+
+test('footer is compact and PDP configuration selector uses layered modern surfaces', () => {
+  const footer = readFileSync('components/Footer.tsx','utf8');
+  const css = readFileSync('app/globals.css','utf8');
+  assert.match(footer,/py-10 lg:py-12/);
+  assert.match(css,/\.feya-config-trigger/);
+  assert.match(css,/\.feya-config-menu/);
+  assert.match(css,/\.feya-config-option-active/);
+});
