@@ -143,7 +143,7 @@ test('mega preview and mood bands stay compact and remove white edge treatment',
   const header = readFileSync('components/Header.tsx','utf8');
   assert.match(css,/\.visual-mood-label-band \{[\s\S]*min-height: 82px/);
   assert.match(css,/\.visual-mega-preview-band \{[\s\S]*min-height: 86px/);
-  assert.match(header,/border-\[rgba\(216,181,109,\.08\)\]/);
+  assert.match(header,/border-\[rgba\(216,181,109,\.09\)\]/);
   assert.match(header,/visual-mega-preview-band absolute inset-x-0 bottom-0 px-5 py-4/);
 });
 
