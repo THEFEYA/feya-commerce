@@ -2,7 +2,7 @@ import 'server-only';
 import manifest from '@/config/approved-content-review-bindings.json';
 import { getAdminServiceClient } from '@/lib/adminServerData';
 import { approvedContentReviewMode, selectApprovedStorefrontCopy } from './seoApprovedStorefrontPolicy';
-import { prepareApprovedContentProjection, type ApprovedCopyPayload } from './seoApprovedContentProjection';
+import type { ApprovedCopyPayload } from './seoApprovedContentProjection';
 import { isHybridVisualPreviewDeployment } from '@/lib/ownerPreviewPolicy';
 import type { ApprovedOfferSnapshot } from '@/lib/storefrontApprovedOfferProjection';
 
@@ -70,12 +70,6 @@ export async function readApprovedStorefrontCopy(product: { canonical_product_id
     // project that latest approved snapshot here instead of silently falling back
     // to the legacy product description. Approval/status/path/shape checks still
     // come from prepareApprovedContentProjection; production remains manifest-pinned.
-    if (!hybridVisualPreview) {
-      const projection = prepareApprovedContentProjection({ product, draft: draft.data, page: page.data });
-      if (projection.status === 'prepared' && projection.payload) {
-        return { status: 'review', copy: projection.payload, offerSnapshot };
-      }
-    }
     return blocked();
   } catch { return blocked(); }
 }
