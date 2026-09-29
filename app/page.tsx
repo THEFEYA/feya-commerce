@@ -238,7 +238,7 @@ export default async function HomePage() {
       <EditorialSection eyebrow="Find your look" title="Start from a mood." tone="deep">
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {HOME_PRESENTATION.findTiles.map((tile) => (
-            <Link key={tile.code} href={tile.href} className="group relative aspect-[3/4] overflow-hidden rounded-[14px] border border-[rgba(216,181,109,.10)] bg-[#111117] transition-[border-color,box-shadow] duration-300 hover:border-[rgba(216,181,109,.24)] hover:shadow-[0_22px_48px_-30px_rgba(216,181,109,.16)]">
+            <Link key={tile.code} href={tile.href} className="visual-hover-sheen group relative aspect-[3/4] overflow-hidden rounded-[14px] border border-[rgba(216,181,109,.10)] bg-[#111117] transition-[border-color,box-shadow] duration-300 hover:border-[rgba(216,181,109,.24)] hover:shadow-[0_22px_48px_-30px_rgba(216,181,109,.16)]">
               <TileMedia product={getProduct(tile.productId)} label={tile.label} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/78 via-black/16 to-transparent" />
               <div className="visual-tile-label-band visual-mood-label-band absolute inset-x-0 bottom-0 z-10 px-4 pb-4 pt-3 text-center">
