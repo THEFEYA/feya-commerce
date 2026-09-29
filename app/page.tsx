@@ -10,6 +10,7 @@ import { ProductCard } from '@/components/ProductCard';
 import { HomePieceCarousel } from '@/components/HomePieceCarousel';
 import { HOME_PRESENTATION, homePresentationProductIds } from '@/config/homePresentation';
 import { readClosedReviewPresentation } from '@/lib/searchReviewPresentationServer';
+import { isHybridVisualPreviewDeployment } from '@/lib/ownerPreviewPolicy';
 import { releaseRobotsForPath } from '@/lib/searchReleaseIndexationServer';
 import { getSupabaseReadClient } from '@/lib/supabase';
 import type { StorefrontProduct } from '@/lib/types';
@@ -66,7 +67,8 @@ async function mergeMedia(supabase, products: StorefrontProduct[]) {
 
 async function getPresentationProducts() {
   const ids = homePresentationProductIds();
-  const review = await readClosedReviewPresentation();
+  const hybridVisualPreview = isHybridVisualPreviewDeployment(process.env);
+  const review = hybridVisualPreview ? { status: 'disabled' as const, release: null } : await readClosedReviewPresentation();
   if (review.status === 'blocked') notFound();
 
   if (review.status === 'review') {
