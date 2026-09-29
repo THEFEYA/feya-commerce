@@ -63,3 +63,11 @@ test('metadata proposals preserve descriptions and reject unknown fields, stale 
     }
   }
 });
+
+
+test('hybrid PDP uses live Product Truth plus immutable per-product approved copy instead of all-or-nothing closed release', () => {
+  const source = readFileSync('app/shop/[slug]/page.tsx','utf8');
+  assert.match(source,/isHybridVisualPreviewDeployment/);
+  assert.match(source,/hybridVisualPreview \? \{ status: 'disabled' as const, release: null \} : await readClosedReviewPresentation\(\)/);
+  assert.match(source,/readApprovedStorefrontCopy\(result\.product\)/);
+});
