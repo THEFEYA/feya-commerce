@@ -173,5 +173,6 @@ export function projectApprovedOfferSnapshot<T extends Row>(
     pdp_option_count: projected.length,
     has_multiple_pdp_options: projected.length > 1,
     needs_label_review: false,
+    approved_offer_snapshot_projected: true,
   };
 }
