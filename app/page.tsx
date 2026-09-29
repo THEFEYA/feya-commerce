@@ -248,8 +248,8 @@ export default async function HomePage() {
         </div>
       </EditorialSection>
 
-      <section className="container-feya py-14 lg:py-20">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-6 border-y border-white/[0.08] py-7 text-[10px] uppercase tracking-[0.18em] text-[#aaa2a0] md:grid-cols-5">
+      <section className="container-feya py-7 lg:py-9">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-4 border-y border-white/[0.08] py-5 text-[10px] uppercase tracking-[0.18em] text-[#aaa2a0] md:grid-cols-5">
           <span className="flex items-center gap-2"><Scissors size={14} /> Handmade</span>
           <span className="flex items-center gap-2"><Ruler size={14} /> Fit guidance</span>
           <span className="flex items-center gap-2"><Truck size={14} /> Express options</span>
@@ -278,7 +278,8 @@ function EditorialSection({
 }) {
   return (
     <section className={`visual-home-section visual-home-section--${tone}`}>
-      <div className="container-feya py-[clamp(56px,7vw,96px)]">
+      <div aria-hidden="true" className="visual-section-divider" />
+      <div className="container-feya py-[clamp(52px,6vw,84px)]">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-5 lg:mb-10">
           <div>
             <div className="mb-3 text-[10px] uppercase tracking-[0.18em] text-[#aaa2a0]">{eyebrow}</div>
