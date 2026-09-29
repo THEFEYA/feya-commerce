@@ -27,6 +27,7 @@ import { readApprovedStorefrontCopy } from '@/lib/seoApprovedStorefrontServer';
 import type { ApprovedCopyPayload } from '@/lib/seoApprovedContentProjection';
 import { readClosedReviewPresentation } from '@/lib/searchReviewPresentationServer';
 import { absoluteSiteUrl } from '@/lib/siteConfig';
+import { isHybridVisualPreviewDeployment } from '@/lib/ownerPreviewPolicy';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -153,7 +154,8 @@ async function getProduct(slug: string) {
 
 // One request-scoped source for head, JSON-LD and existing PDP props.
 const getPresentation = cache(async (slug: string) => {
-  const review = await readClosedReviewPresentation();
+  const hybridVisualPreview = isHybridVisualPreviewDeployment(process.env);
+  const review = hybridVisualPreview ? { status: 'disabled' as const, release: null } : await readClosedReviewPresentation();
   if (review.status === 'blocked') return { product: null, related: [], approvedCopy: null, copyBlocked: true, error: null };
   if (review.status === 'review') {
     const entry = review.release.entries.find(e => e.product.product_slug === slug);
