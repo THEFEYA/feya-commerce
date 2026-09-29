@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {isOwnerPreviewDeployment,ownerPreviewReadFetch} from '../../lib/ownerPreviewPolicy.ts';
+import {isHybridVisualPreviewDeployment,isOwnerPreviewDeployment,ownerPreviewReadFetch} from '../../lib/ownerPreviewPolicy.ts';
 import {closedReviewMode,closedReviewRequested} from '../../lib/searchReviewPresentation.ts';
 import {inspectSearchEnvironment} from '../../lib/searchEnvironmentGate.ts';
 import {readFileSync} from 'node:fs';
@@ -63,4 +63,12 @@ test('preview denies table writes, unknown RPCs, credentials, other origins and 
  for(const url of ['https://feya.test/rest/v1/rpc/delete_product','https://feya.test/auth/v1/admin/users','https://other.test/rest/v1/products','https://user:secret@feya.test/rest/v1/products']) assert.equal((await read(url)).status,423);
  assert.equal((await read(new Request('https://feya.test/rest/v1/products',{method:'DELETE'}))).status,423);
  assert.equal(calls,0);
+});
+
+
+test('hybrid visual preview helper is exact-branch only',()=>{
+ const hybrid={...env,VERCEL_GIT_COMMIT_REF:'design/hybrid-visual-integration-20260928'};
+ assert.equal(isHybridVisualPreviewDeployment(hybrid),true);
+ assert.equal(isHybridVisualPreviewDeployment(env),false);
+ assert.equal(isHybridVisualPreviewDeployment({...hybrid,VERCEL_ENV:'production'}),false);
 });
