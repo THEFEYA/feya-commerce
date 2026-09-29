@@ -26,7 +26,7 @@ test('approved offer snapshot restores public labels while preserving current pr
     ],
   };
 
-  const projected = projectApprovedOfferSnapshot(product, snapshot);
+  const projected: any = projectApprovedOfferSnapshot(product, snapshot);
   assert.deepEqual(projected.configurations.map((row: any) => row.public_label), ['Shoulders','Arm Guards','Full Set']);
   assert.deepEqual(projected.configurations.map((row: any) => row.display_price_amount), [135.10,144.76,199.39]);
   assert.deepEqual(projected.configurations.map((row: any) => row.configuration_id), ['a','b','c']);
@@ -56,7 +56,7 @@ test('optional configuration snapshot can restore labels when an older approved 
       { configuration_id: 'full', public_label: 'Full Set', display_price_amount: 311.20 },
     ],
   };
-  const projected = projectApprovedOfferSnapshot(product, {
+  const projected: any = projectApprovedOfferSnapshot(product, {
     optional_configurations: [
       { configuration_id: 'horns', public_label: 'Horns', component_code: 'horns', component_family: 'Headpiece', sort_order: 1 },
       { configuration_id: 'full', public_label: 'Full Set', component_code: 'full_set', component_family: 'Bundle', is_full_set: true, sort_order: 2 },
