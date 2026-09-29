@@ -28,6 +28,7 @@ test('release storefront surfaces match the owner-approved visual freeze manifes
     'components/Header.tsx',
     'components/Footer.tsx',
     'components/ShopClient.tsx',
+    'components/ProductDetailClient.tsx',
   ]);
 
   for (const path of storefrontSurfaces) {
