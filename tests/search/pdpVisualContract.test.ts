@@ -87,6 +87,8 @@ test('hybrid PDP projects option labels from the same approved SEO decision snap
   const page = readFileSync('app/shop/[slug]/page.tsx','utf8');
   const server = readFileSync('lib/seoApprovedStorefrontServer.ts','utf8');
   assert.ok(page.includes('projectApprovedOfferSnapshot(result.product, approved.offerSnapshot)'));
+  assert.ok(server.includes("client.from('feya_commerce_seo_pack_drafts_v1')"));
+  assert.ok(server.includes(".eq('id', matches[0].draft_id)"));
   assert.ok(server.includes('manual_focus_snapshot,product_truth_snapshot'));
   assert.ok(server.includes('sellable_offer_signature'));
   assert.ok(server.includes('optional_configurations'));
