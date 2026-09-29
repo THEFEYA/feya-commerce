@@ -354,7 +354,7 @@ export function Header() {
               </div>
 
               {menuPreview ? (
-                <aside className="sticky top-0 h-[390px] overflow-hidden rounded-[14px] border border-white/[0.08] bg-[#111117]">
+                <aside className="sticky top-0 h-[390px] overflow-hidden rounded-[14px] border border-[rgba(216,181,109,.09)] bg-[#111117]">
                   <img
                     key={`${panel.code}:${menuPreview.label}`}
                     src={menuPreview.imageUrl}
@@ -363,14 +363,14 @@ export function Header() {
                     className="absolute inset-0 h-full w-full object-cover animate-[feyaPreviewFade_.28s_ease_both]"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/62 via-black/10 to-transparent" />
-                  <div className="visual-tile-label-band visual-mega-preview-band absolute inset-x-0 bottom-0 p-5">
+                  <div className="visual-tile-label-band visual-mega-preview-band absolute inset-x-0 bottom-0 px-5 py-4">
                     <div className="text-[9px] uppercase tracking-[.18em] text-[#e7cf96]">
                       {panel.code === 'style' ? menuPreview.axis : panel.code === 'shop' ? 'Product preview' : 'Look preview'}
                     </div>
-                    <div className="font-tall mt-2 text-[30px] leading-none text-[#f7f3ec]">{menuPreview.label}</div>
+                    <div className="font-tall mt-1.5 text-[28px] leading-none text-[#f7f3ec]">{menuPreview.label}</div>
                     <Link
                       href={`/shop/${menuPreview.productSlug}`}
-                      className="mt-4 inline-flex items-center gap-2 text-[10px] uppercase tracking-[.14em] text-[#d9d2c8] hover:text-white"
+                      className="mt-3 inline-flex items-center gap-2 text-[10px] uppercase tracking-[.14em] text-[#d9d2c8] hover:text-white"
                     >
                       Preview piece <ArrowUpRight size={11} />
                     </Link>
