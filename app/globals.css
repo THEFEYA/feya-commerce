@@ -4827,14 +4827,14 @@ a.owner-list-row:hover {
 .visual-commerce-shell .product-card {
   border-radius: 10px;
   background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.005));
-  border-color: rgba(216,214,211,.17);
-  box-shadow: 0 16px 38px -30px rgba(0,0,0,.72), 0 0 0 1px rgba(255,255,255,.012) inset;
+  border-color: rgba(216,214,211,.20);
+  box-shadow: 0 16px 38px -30px rgba(0,0,0,.72), 0 0 0 1px rgba(255,255,255,.018) inset;
 }
 
 .visual-commerce-shell .product-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(216,181,109,.44);
-  box-shadow: 0 28px 58px -22px rgba(0,0,0,.86), 0 0 62px -28px rgba(216,181,109,.30), 0 0 0 1px rgba(216,181,109,.08) inset;
+  border-color: rgba(216,181,109,.46);
+  box-shadow: 0 30px 62px -22px rgba(0,0,0,.86), 0 0 62px -28px rgba(216,181,109,.30), 0 0 0 1px rgba(216,181,109,.08) inset;
 }
 
 .visual-commerce-shell .product-card-title {
@@ -5188,7 +5188,7 @@ a.owner-list-row:hover {
 }
 
 .visual-mood-label-band {
-  min-height: 86px;
+  min-height: 82px;
   border: 0 !important;
   border-radius: 0 !important;
 }
@@ -5200,7 +5200,7 @@ a.owner-list-row:hover {
 }
 
 .visual-mega-preview-band {
-  min-height: 92px;
+  min-height: 86px;
   border: 0 !important;
   border-radius: 0 !important;
 }
