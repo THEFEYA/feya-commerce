@@ -5050,7 +5050,8 @@ a.owner-list-row:hover {
   isolation: isolate;
 }
 
-[data-testid='product-page'] aside .btn-gold.w-full.mt-2::before {
+[data-testid='product-page'] aside .btn-gold.w-full.mt-2::before,
+[data-testid='product-page'] aside .btn-chrome:not(.w-full)::before {
   content: '';
   position: absolute;
   top: -30%;
@@ -5174,7 +5175,8 @@ a.owner-list-row:hover {
 
 @media (prefers-reduced-motion: reduce) {
   .visual-hero-cta::before,
-  [data-testid='product-page'] aside .btn-gold.w-full.mt-2::before {
+  [data-testid='product-page'] aside .btn-gold.w-full.mt-2::before,
+  [data-testid='product-page'] aside .btn-chrome:not(.w-full)::before {
     animation: none !important;
   }
 }
