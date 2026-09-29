@@ -15,7 +15,7 @@ const branchRef =
   process.env.GITHUB_REF_NAME ||
   process.env.VERCEL_GIT_COMMIT_REF ||
   '';
-const isVisualPrototype = branchRef === 'design/hybrid-visual-integration-20260928';
+const isVisualPrototype = branchRef.startsWith('design/hybrid-visual-');
 const visualPrototypeSurfaces = new Set([
   'app/page.tsx',
   'components/Header.tsx',
