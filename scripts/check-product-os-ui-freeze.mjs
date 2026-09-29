@@ -11,9 +11,9 @@ function gitBlobSha(buffer) {
 }
 
 const failures = [];
-
 const globalCssBaselinePath = resolve(process.cwd(), 'config/product-os-globals-baseline.css');
 const globalCssPath = resolve(process.cwd(), 'app/globals.css');
+
 if (!existsSync(globalCssBaselinePath) || !existsSync(globalCssPath)) {
   failures.push('global CSS baseline or app/globals.css is missing');
 } else {
@@ -30,11 +30,8 @@ for (const [relativePath, expectedSha] of Object.entries(manifest.files || {})) 
     failures.push(`${relativePath}: missing`);
     continue;
   }
-
   const actualSha = gitBlobSha(readFileSync(absolutePath));
-  if (actualSha !== expectedSha) {
-    failures.push(`${relativePath}: expected ${expectedSha}, got ${actualSha}`);
-  }
+  if (actualSha !== expectedSha) failures.push(`${relativePath}: expected ${expectedSha}, got ${actualSha}`);
 }
 
 if (failures.length) {
