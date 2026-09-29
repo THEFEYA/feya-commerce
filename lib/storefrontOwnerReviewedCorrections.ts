@@ -1935,12 +1935,6 @@ function correctSilverBraSkirtSet<T extends Record<string, any>>(product: T): T 
 }
 
 export function applyOwnerReviewedStorefrontCorrections<T extends Record<string, any>>(product: T): T {
-  // The protected hybrid owner preview may project the exact selector metadata
-  // captured with a human-approved SEO decision. That projection is deliberately
-  // the final presentation layer; re-running historical correction helpers after
-  // it would reintroduce stale/generic labels such as "Option N" or collapse
-  // approved bundle labels back to one component.
-  if (product?.approved_offer_snapshot_projected === true) return product;
   product = applyReconciledOfferCorrections(product);
   const productId = String(product?.canonical_product_id || '');
   if (productId === FINAL_GOLD_ARMOR_VARIANTS_ID) return correctFinalGoldArmorVariants(product);
