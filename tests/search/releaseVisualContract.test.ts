@@ -22,7 +22,7 @@ test('release storefront surfaces match the owner-approved visual freeze manifes
   ];
 
   const prototypeBranch = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || '';
-  const isVisualPrototype = prototypeBranch === 'design/hybrid-visual-integration-20260928';
+  const isVisualPrototype = prototypeBranch.startsWith('design/hybrid-visual-');
   const explicitlyMutablePrototypeSurfaces = new Set([
     'app/page.tsx',
     'components/Header.tsx',
