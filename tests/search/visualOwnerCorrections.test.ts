@@ -98,8 +98,8 @@ test('Buy It Now shimmer cadence is five seconds and PDP thumbnail rail is wider
   const css = readFileSync('app/globals.css','utf8');
   const pdp = readFileSync('components/ProductDetailClient.tsx','utf8');
   assert.match(css,/animation: feyaBuySweep 5s ease-in-out infinite/);
-  assert.match(pdp,/lg:grid-cols-\[132px_minmax\(0,1fr\)\]/);
-  assert.match(pdp,/lg:gap-2/);
+  assert.match(pdp,/lg:flex lg:items-start lg:gap-2/);
+  assert.match(pdp,/lg:w-\[132px\] lg:shrink-0/);
 });
 
 
@@ -155,8 +155,9 @@ test('hover media crop stays anchored higher instead of drifting down', () => {
 
 test('PDP main image stays in the first media row beside the wider thumbnail rail', () => {
   const pdp = readFileSync('components/ProductDetailClient.tsx','utf8');
-  assert.match(pdp,/lg:grid-cols-\[132px_minmax\(0,1fr\)\]/);
-  assert.match(pdp,/col-span-12 lg:col-span-1 lg:self-start flex justify-center/);
+  assert.match(pdp,/lg:flex lg:items-start lg:gap-2/);
+  assert.match(pdp,/lg:w-\[132px\] lg:shrink-0/);
+  assert.match(pdp,/col-span-12 lg:min-w-0 lg:flex-1 lg:self-start flex justify-center/);
 });
 
 test('homepage uses explicit soft gold-fade section dividers and compact trust strip', () => {
