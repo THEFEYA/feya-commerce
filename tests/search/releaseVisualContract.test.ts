@@ -12,6 +12,7 @@ test('release storefront surfaces match the owner-approved visual freeze manifes
   const manifest = JSON.parse(readFileSync('config/product-os-ui-freeze.json', 'utf8'));
   const storefrontSurfaces = [
     'app/page.tsx',
+    'app/shop/[slug]/page.tsx',
     'app/shop/page.tsx',
     'app/shop/[slug]/page.tsx',
     'components/Header.tsx',
