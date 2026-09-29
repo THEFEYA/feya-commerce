@@ -5225,3 +5225,103 @@ a.owner-list-row:hover {
 .visual-commerce-shell .product-card:hover .hover-media {
   object-position: 50% 30%;
 }
+
+
+/* Owner-approved final section rhythm: one soft gold-fade divider per homepage block. */
+.visual-home-section::before {
+  display: none;
+}
+
+.visual-section-divider {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  top: 0;
+  z-index: 3;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    transparent 14%,
+    rgba(216,181,109,.018) 27%,
+    rgba(216,181,109,.065) 40%,
+    rgba(216,181,109,.17) 50%,
+    rgba(216,181,109,.065) 60%,
+    rgba(216,181,109,.018) 73%,
+    transparent 86%,
+    transparent 100%
+  );
+  box-shadow: 0 0 9px rgba(216,181,109,.025);
+}
+
+/* PDP configuration selector: translucent layered depth, no flat black dropdown. */
+.feya-config-trigger {
+  border: 1px solid rgba(216,214,211,.17);
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.036), rgba(255,255,255,.012) 58%, rgba(216,181,109,.028)),
+    linear-gradient(180deg, rgba(22,22,28,.76), rgba(9,9,13,.82));
+  box-shadow:
+    0 12px 26px -20px rgba(0,0,0,.88),
+    0 1px 0 rgba(255,255,255,.035) inset,
+    0 -10px 22px -20px rgba(216,181,109,.18) inset;
+  backdrop-filter: blur(12px) saturate(112%);
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+.feya-config-trigger:hover,
+.feya-config-trigger[aria-expanded='true'] {
+  border-color: rgba(216,181,109,.38);
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.048), rgba(255,255,255,.015) 56%, rgba(216,181,109,.045)),
+    linear-gradient(180deg, rgba(24,24,30,.84), rgba(9,9,13,.88));
+  box-shadow:
+    0 16px 32px -22px rgba(0,0,0,.92),
+    0 0 28px -20px rgba(216,181,109,.24),
+    0 1px 0 rgba(255,255,255,.05) inset;
+}
+
+.feya-config-menu {
+  border: 1px solid rgba(216,181,109,.16);
+  border-radius: 10px;
+  padding: 7px;
+  background:
+    radial-gradient(115% 80% at 100% 0%, rgba(216,181,109,.055), transparent 58%),
+    linear-gradient(110deg, rgba(23,22,28,.94), rgba(10,10,14,.965) 58%, rgba(5,5,8,.985));
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.76),
+    0 0 44px -28px rgba(216,181,109,.28),
+    0 1px 0 rgba(255,255,255,.045) inset;
+  backdrop-filter: blur(22px) saturate(122%);
+}
+
+.feya-config-option {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
+}
+
+.feya-config-option::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.035), rgba(216,181,109,.035));
+  transition: opacity .2s ease;
+}
+
+.feya-config-option:hover {
+  border-color: rgba(216,214,211,.10);
+  background: rgba(255,255,255,.028);
+}
+
+.feya-config-option:hover::after,
+.feya-config-option-active::after {
+  opacity: 1;
+}
+
+.feya-config-option-active {
+  border-color: rgba(216,181,109,.20);
+  background: linear-gradient(90deg, rgba(216,181,109,.12), rgba(216,181,109,.035) 64%, transparent);
+  box-shadow: 0 8px 22px -20px rgba(216,181,109,.34) inset;
+}
