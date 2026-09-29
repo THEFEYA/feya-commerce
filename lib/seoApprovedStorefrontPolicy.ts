@@ -1,4 +1,5 @@
 import { prepareApprovedContentProjection, matchApprovedContentBinding } from './seoApprovedContentProjection.ts';
+import { isOwnerPreviewDeployment } from './ownerPreviewPolicy.ts';
 
 export type ApprovedReviewBinding = {
   canonical_product_id: string; seo_page_id: string; draft_id: string;
@@ -12,6 +13,7 @@ function versionTime(value: unknown) {
   return `${milliseconds}:${fraction.padEnd(6, '0').slice(3)}`;
 }
 export function approvedContentReviewMode(env: Record<string, string | undefined>, version: string) {
+  if (isOwnerPreviewDeployment(env)) return 'review' as const;
   const requested = env.FEYA_APPROVED_CONTENT_REVIEW;
   if (!requested || requested === 'off') return 'disabled' as const;
   if (requested !== version || !['preview', 'development'].includes(env.VERCEL_ENV ?? '')
