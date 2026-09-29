@@ -49,5 +49,12 @@ test('approved-copy wiring preserves prior PDP markup, classes and component lay
   assert.equal(pdpJsxHash(source), baseline.normalized_jsx_sha256);
   assert.ok(source.includes('href={`/collections/${collection.slug}`}'));
   assert.ok(source.includes('readProductLandingLinks'));
-  assert.ok(source.includes('draft={approvedCopy?.draft} previewMode={Boolean(approvedCopy)}'));
+  assert.ok(source.includes('const allowHybridPreviewCommerce = isHybridVisualPreviewDeployment(process.env);'));
+  assert.ok(source.includes('draft={approvedCopy?.draft} previewMode={Boolean(approvedCopy) && !allowHybridPreviewCommerce}'));
+});
+
+test('hybrid PDP keeps the purchase reminder sweep while approved SEO copy is projected', () => {
+  const css = readFileSync('app/globals.css','utf8');
+  assert.ok(css.includes("[data-testid='product-page'] aside .btn-gold.w-full.mt-2::before"));
+  assert.ok(css.includes('animation: feyaBuySweep 5s ease-in-out infinite'));
 });

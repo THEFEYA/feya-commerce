@@ -205,11 +205,16 @@ export default async function ProductPage({ params }: PageProps) {
 
   const jsonLd = productJsonLd(product, slug, approvedCopy);
   const productCollections = await readProductLandingLinks(String(product.canonical_product_id || ''));
+  // This exact Vercel branch is an owner-protected visual storefront review.
+  // Keep the immutable approved SEO copy projected, but do not replace the
+  // existing cart controls with the generic content-review "Preview only" CTA.
+  // Checkout/payment/indexing remain independently disabled by their own gates.
+  const allowHybridPreviewCommerce = isHybridVisualPreviewDeployment(process.env);
 
   return <main className="relative min-h-screen">
     <Header />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
-    <ProductDetailClient product={product} related={related} draft={approvedCopy?.draft} previewMode={Boolean(approvedCopy)} />
+    <ProductDetailClient product={product} related={related} draft={approvedCopy?.draft} previewMode={Boolean(approvedCopy) && !allowHybridPreviewCommerce} />
     {productCollections.length ? <section className="container-feya py-10 border-t border-[rgba(216,214,211,.12)]">
       <div className="eyebrow-gold mb-4">Explore related collections</div>
       <div className="flex flex-wrap gap-2">
