@@ -1,0 +1,1913 @@
+-- TheFEYA storefront slim card read model v1
+-- Additive only: no runtime reader is switched by this migration.
+-- Source binding is the owner-approved closed review release feya-review-207-20260924.
+
+create table if not exists public.feya_storefront_approved_product_bindings_v1 (
+  canonical_product_id uuid primary key,
+  seo_page_id uuid not null unique,
+  draft_id uuid not null unique,
+  content_sha256 text not null check (content_sha256 ~ '^[0-9a-f]{64}$'),
+  source_release_ref text not null check (source_release_ref = 'feya-review-207-20260924'),
+  product_slug_snapshot text not null unique,
+  created_at timestamptz not null default now()
+);
+
+comment on table public.feya_storefront_approved_product_bindings_v1 is
+  'Immutable storefront binding for the 207 owner-approved products in feya-review-207-20260924. Server-side only.';
+
+revoke all on public.feya_storefront_approved_product_bindings_v1 from public, anon, authenticated;
+grant select on public.feya_storefront_approved_product_bindings_v1 to service_role;
+
+insert into public.feya_storefront_approved_product_bindings_v1
+  (canonical_product_id, seo_page_id, draft_id, content_sha256, source_release_ref, product_slug_snapshot)
+values
+(
+  '0395cb11-424f-407f-a849-7ee3b617ab57'::uuid,
+  'd304acc3-a063-4c9b-89d0-e4f1260c3b7a'::uuid,
+  '7faba4bd-2089-423b-bb29-2e2546fb48e1'::uuid,
+  'bcaf25d81a75254a8774647780569ce9176dcf57ceca2e4d6a3166f1ef7ee25f',
+  'feya-review-207-20260924',
+  'gold-futuristic-armor-set-choker-collar-shoulder-armor-and-arm-bracers-performance-outfit-4511817111'
+),
+(
+  '0403df9f-3ff9-498d-b3d9-69ad64b3dd4c'::uuid,
+  '35aa78e4-572f-489e-8d16-390984f14517'::uuid,
+  'e00d0cdf-cd68-46d1-8b72-3b02a915cd76'::uuid,
+  'afaab677670d8cb765ef12e8aa4a3d5d4d39a5676e81c67ae361edef88a9671f',
+  'feya-review-207-20260924',
+  'cosmic-festival-outfit-with-top-skirt-metallic-costume-set-party-rave-wear-unique-futuristic-outfit-cyber-punk-clothing-accessories-4367470907'
+),
+(
+  '04099215-8328-4238-82dd-876bc3f2afdb'::uuid,
+  '66522bc1-5f79-4864-a249-9add8b7fe08d'::uuid,
+  '7045824a-d368-4171-b722-f46890c56c46'::uuid,
+  '72d39372f8a181013ffb06a820ecf5beb7427172d8955b878f6ad4879a1f43da',
+  'feya-review-207-20260924',
+  'white-festival-outfit-leather-harness-with-shoulders-leg-garters-and-open-skirt-desert-rave-wea-4341850172'
+),
+(
+  '043406cd-0a96-45c5-8796-57c5cc4b276e'::uuid,
+  'c598b8aa-1f8e-4745-bc41-383fc69e89df'::uuid,
+  '97041b3c-86f9-46ab-9d12-4993f136361c'::uuid,
+  '46e126dc37dffe5d6213be1d8d47da04a66cbe9e46312db09bc539bed99476d4',
+  'feya-review-207-20260924',
+  'golden-amazon-armor-costume-set-metallic-shoulder-armour-arms-covers-futuristic-outfit-cosplay-accessories-burning-man-costume-set-1890268726'
+),
+(
+  '057fbd51-52f5-4404-b126-e5d75b8599f4'::uuid,
+  '263838af-321c-43ee-8f8f-f40a303a2349'::uuid,
+  '0b6666ca-122f-44ea-b9b3-4d8276407b2d'::uuid,
+  '8dda05a299e2af1035bf6364ecbb87a3a484a3ed7f427a5aca569596fa51edcf',
+  'feya-review-207-20260924',
+  'festival-couple-costume-set-golden-leather-outfits-for-men-women-futuristic-costume-burning-man-wear-metallic-armor-rave-outfits-1765624488'
+),
+(
+  '067628e8-3ecd-4979-8501-6da61ca2f51a'::uuid,
+  '605b4561-62ca-4107-9f36-d3e495e343c6'::uuid,
+  '5200b0ec-d196-4d51-b751-1199a5985ccf'::uuid,
+  '20222585f95e9a5c8d2e9fe9c43bc8ae10b28ef4b0ff070ce67456dbcb8acd13',
+  'feya-review-207-20260924',
+  'metallic-fringe-harness-set-top-skirt-fashion-festival-clothing-chrome-rave-outfit-1890025125'
+),
+(
+  '098044e5-c452-4c52-a0a4-2b29120196e8'::uuid,
+  '942df4a1-037a-46f9-9f27-e226409fa18c'::uuid,
+  '8e2b6f97-b498-45f1-b397-209ee3aebc10'::uuid,
+  '06843ad12fd0fa0c3de35d8bf081f5e594c7131f95719160bc9778f0a50600c5',
+  'feya-review-207-20260924',
+  'red-martian-costume-set-shoulders-top-leg-covers-skirt-red-latex-outfit-futuristic-women-s-alian-cosplay-space-armor-wear-1764774832'
+),
+(
+  '09d41ed1-51be-43b0-aace-fc80e6e50f99'::uuid,
+  '14fa96b5-13fe-4a1a-99a6-c65a9b4a178d'::uuid,
+  'a34d07f0-4456-4223-a444-8444d4048c71'::uuid,
+  'e3e89bbe8f87a187730348a04260794ce8c8c033269314a5244f2344737737b9',
+  'feya-review-207-20260924',
+  'full-body-armor-costume-set-arm-leg-covers-for-burning-man-outfit-apocalyptic-robot-wear-metallic-cyborg-costume-futuristic-cosplay-1879373624'
+),
+(
+  '09f51ad4-6b90-4311-aa5a-54f91cf4b7bf'::uuid,
+  '69f74b52-01ee-485b-a99c-bc2fcb345d3b'::uuid,
+  '18d6bf56-3de6-40f0-9293-f4e43167d47f'::uuid,
+  '43deb09b51e6d2d8d5dc08218b01f6c7c6df25e79deadd074fd8ad582f15ed11',
+  'feya-review-207-20260924',
+  'gogo-costume-set-bodysuit-skirt-leg-covers-for-futuristic-dance-fashion-outfit-pj-showgirl-4389332118'
+),
+(
+  '0b7e5ccd-f5a3-4dd7-877f-1e21fbda9486'::uuid,
+  '279a6fa7-539c-4105-b3b3-0d740416037d'::uuid,
+  '7cba16de-9753-450f-91f3-01509fab770d'::uuid,
+  '8a574680a15b6bf469ea606a0bd618ffbf660d80267e45c1dca880759e11a772',
+  'feya-review-207-20260924',
+  'warrior-princess-outfit-golden-armor-costume-set-cyberpunk-rave-outfit-4482426736'
+),
+(
+  '0e75d2f2-c345-440e-88e4-333b63caed09'::uuid,
+  'd441fcfb-73dd-4a0d-bc2c-9906fc5d0c0f'::uuid,
+  '28d852e5-d41c-41da-b326-1c6771455462'::uuid,
+  '767fd1683a089381e91fa3109624caae75f5b87e86c0a2cecce4256beee551f4',
+  'feya-review-207-20260924',
+  'mirror-leggings-bodysuit-for-dance-performance-or-show-parties-mirror-leg-covers-body-suit-outfit-mirror-costume-women-stage-clothing-1807552560'
+),
+(
+  '103ff46a-892a-4961-80b1-e6996727c395'::uuid,
+  '3fda0cb4-dcc0-47d5-a35a-7532ac3afcbc'::uuid,
+  'a8323416-4ded-4945-88f2-cd1712cc5fe0'::uuid,
+  '744ef6f93af6f58e97e504f2638bfd5eab9bc11aa36afc156e553edf2fbc3548',
+  'feya-review-207-20260924',
+  'chrome-futuristic-clothing-set-silver-festival-dress-showgirl-wear-luxury-cosmic-look-metallic-dance-outfit-carnival-costume-4337148159'
+),
+(
+  '11bb0057-8c1f-4347-8c03-46856df0653c'::uuid,
+  'ca9f2bfd-b935-42ea-a00f-ea7959ebc02c'::uuid,
+  '0c7036d3-9c95-4396-bacd-f637f4393e85'::uuid,
+  'c401a64911829b50bd53b6f88105cd06b66c53c834ee715107d5491c9f1c26ad',
+  'feya-review-207-20260924',
+  'rave-festival-full-body-harness-adjustable-vegan-leather-straps-outfit-for-shows-performance-wear-edgy-fashion-body-belts-4316539455'
+),
+(
+  '11d2b7ca-3a13-4bcb-b1f2-b91565a20e7e'::uuid,
+  'df860e2e-a790-4588-ae27-a3b33efa19f8'::uuid,
+  'aef8ada3-deca-4451-a50e-82f91abee8e7'::uuid,
+  '61a6d7d0702a509fb2b9d5a84bcc1bff4489a23f9a1cd04d23f1a97ce1aa1c08',
+  'feya-review-207-20260924',
+  'best-festival-outfit-with-top-shoulders-skirt-metallic-harness-set-rave-wear-unique-festival-harness-rave-outfit-festival-accessories-1900339755'
+),
+(
+  '12111ddc-2364-4861-bd93-4bbc27ae4b28'::uuid,
+  'dfb0a6df-4c1b-454e-8a93-c2d95c62e34a'::uuid,
+  '9d06a6bb-79ae-46b5-a587-8ad0cc9b5018'::uuid,
+  '37f3cde08880fffcf7957ac5382f64a1d06869791822b7f0a5af0d6b57fb1a77',
+  'feya-review-207-20260924',
+  'showgirl-outfit-top-with-shoulders-skirt-party-stage-wear-unique-futuristic-outfit-performance-dance-clothing-4390447995'
+),
+(
+  '12a0faf1-9c3c-44e2-bbf1-1583ac309a46'::uuid,
+  'c56ac831-f73f-4a4a-a561-5531cebc76b3'::uuid,
+  'cb6d4d65-cbda-4037-bd2d-6a2f3ad4b624'::uuid,
+  '4ac5cc01456082e49a45556bcdb5f9f4d65929d2ada52bee60d7455beec8b94f',
+  'feya-review-207-20260924',
+  'futuristic-cosplay-headpiece-festival-headdress-cyber-punk-wings-holographic-bodysuit-leg-covers-for-rave-festivals-and-burning-man-1890691940'
+),
+(
+  '13300fb8-c39d-476f-9485-75747c4e6599'::uuid,
+  '179346ac-7471-4cd9-b4fa-67cc437197bc'::uuid,
+  '67245e16-9c2a-49f4-9f65-3d08d058cc36'::uuid,
+  '18d0793f534f62311564646c8b7f3b21f7f6323e3d4af7ad7c1f57855b16e6dd',
+  'feya-review-207-20260924',
+  'men-s-silver-robot-armor-futuristic-cyborg-outfit-4506732837'
+),
+(
+  '158e7824-4876-4991-b506-e3f6f4aa8371'::uuid,
+  'a921bebd-3caa-4fe1-a3e5-dbf5976dc277'::uuid,
+  '1c1c1459-d6c6-4f58-9f85-47a0225cbc03'::uuid,
+  '0bdb619d8a6aa49314c439e8e6bf87fa7e3cbdee3e082a83dbbabbdcf893896e',
+  'feya-review-207-20260924',
+  'metallic-futuristic-clothing-set-top-skirt-chrome-festival-dress-showgirl-wear-4507727106'
+),
+(
+  '17de9c7b-53d0-4a7d-90d0-3e79f26e3489'::uuid,
+  '9ca6273c-1be1-4f2d-8c75-6ae82f7ef8d9'::uuid,
+  'd41d8d61-05e6-4342-b0b7-35df5132824b'::uuid,
+  '50f6f127c1f4397e0453b0dc271367077bf3b628690054f2ff1f2933babac0a8',
+  'feya-review-207-20260924',
+  'futuristic-stripper-outfit-silver-pole-wear-exotic-dance-costume-women-s-performance-clothing-1893491509'
+),
+(
+  '187f01a3-40e0-4820-b3aa-1bccc1eea6d2'::uuid,
+  'b49b35b6-e794-449e-9469-5f6535417b16'::uuid,
+  '9e238294-d54e-496b-ab2e-452857e96da8'::uuid,
+  'ae18682cbb02857b6dc83e80fa082f9f6890b6e86caaed88fa905e5bc14801a1',
+  'feya-review-207-20260924',
+  'holographic-festival-outfit-with-top-panties-futuristic-harness-women-s-rave-wear-hologram-dance-outfit-festival-leather-accessories-4391585601'
+),
+(
+  '1a8545eb-f997-4ddf-b6c9-c3c0afa1bd7c'::uuid,
+  '39e0c9b6-aa7e-4949-ae34-79d65785afc0'::uuid,
+  '16c39834-2a60-434f-9235-4daebd5e3694'::uuid,
+  '83bcd3507b7870e49adbbce5c0d83330300bc12b513361dc91a064f7ed1e28e7',
+  'feya-review-207-20260924',
+  'festival-outfit-with-golden-feathers-leather-crown-headpiece-top-skirt-costume-set-rave-and-party-wear-unique-fashion-wear-gold-1823064231'
+),
+(
+  '1af7458c-aaff-4460-a874-45c9ad4ccb8c'::uuid,
+  'dbdebf1c-aef3-490c-bebf-b067fcef078f'::uuid,
+  '10e13b37-0428-4667-9cab-8e9f24490325'::uuid,
+  '8e6fe3a45b4d7344e0ff2a6e7359cbc8d0c24ea6448bc65be8ca2a8400eaaba7',
+  'feya-review-207-20260924',
+  'show-party-costume-set-bodysuit-and-helmet-with-horns-metalic-leg-garters-gold-body-chain-outfit-showgirl-cosplay-costume-4296965812'
+),
+(
+  '1dbf149a-739c-4afa-ba59-3b5f99acfb77'::uuid,
+  '96001b27-6baf-4284-8219-fbc5ad66dcad'::uuid,
+  '4e1d7ec7-3617-4ee0-b631-a1f37849c81e'::uuid,
+  '86219617b715bd70abffa8db1bdcb2cb8c1c544d48a54fc4b4333350f4773606',
+  'feya-review-207-20260924',
+  'black-leather-bodysuit-latex-bodysuit-drag-queen-costume-halloween-body-suit-witch-cosplay-outfit-dark-queen-party-bodysuit-1884800699'
+),
+(
+  '1eb4b55c-dedf-4399-92fd-c94c8d962091'::uuid,
+  'dec4e714-0f93-4a43-8e80-a547770f87e9'::uuid,
+  '54f3ea43-fe54-4b18-a49b-bac66129cc15'::uuid,
+  '98757c2ed05dfb9afaa2a6f4870e12d3f7d8f1503df4a1298205b13b2748249c',
+  'feya-review-207-20260924',
+  'desert-warrior-men-s-costume-burning-man-gold-armor-outfit-rave-festival-fashion-steampunk-leather-shoulders-futuristic-dune-wear-4326178885'
+),
+(
+  '1fc815c5-0165-468a-a6d8-e91c1cefcd61'::uuid,
+  '4ba554ea-f37e-4bf7-b4b3-bc526877f3b0'::uuid,
+  '1abe9c2f-a9bb-4c80-b83b-ba56a3be65c2'::uuid,
+  'cbf8e9ae21873df3163c46f4ab035d9c4fd9b7dce887afda87721a3c5f528d04',
+  'feya-review-207-20260924',
+  'futuristic-female-costume-set-festival-cosmic-wear-stage-costume-outfit-4475485632'
+),
+(
+  '1ff57e72-8360-4f9c-8e9c-768b66fe29e5'::uuid,
+  '2cc3a47c-ee4b-475c-b150-50b27ad07f2b'::uuid,
+  'af564efe-6c2e-4ba9-88c5-22c599b3ce7c'::uuid,
+  'c986028c8594e466a83d2b10df004f73b77a7ef17baa52b8dd0cd5ac69c0a4c9',
+  'feya-review-207-20260924',
+  'red-futuristic-costume-for-women-cosmic-fashion-outfit-4456615683'
+),
+(
+  '256c75b4-f378-4b21-8321-9d5766bd209c'::uuid,
+  '7ce0ba40-9b5a-4457-bd27-d098db663689'::uuid,
+  'c42aa8c4-9b85-4488-a686-64871859f946'::uuid,
+  '8e3a0449b59e4012f91321782953b18ce8188a16f19e724a2212eb271dabf98a',
+  'feya-review-207-20260924',
+  'holographic-costume-set-with-top-skirt-sparkling-rave-outfit-iridescent-stage-costume-leather-party-wear-showgirl-clothing-4333358949'
+),
+(
+  '27786636-7021-4809-8e81-7f566a3436ae'::uuid,
+  'f5cd6a84-c449-409d-8338-c92e39409bfc'::uuid,
+  '6f77cbcd-0803-4944-9f36-091d2074c77f'::uuid,
+  'c80214cf930edb78e3a5af4772c3e456eea0a9d0d1cae0f121d948ed289ba5d6',
+  'feya-review-207-20260924',
+  'red-leather-dragon-cosplay-sexy-latex-halloween-outfit-with-festival-armor-shoudelrs-bodysuit-leather-gloves-spine-tail-costume-1852762562'
+),
+(
+  '28c6558b-2738-4c60-ad55-6d4dbd14d698'::uuid,
+  '5dd00092-438a-4ae6-820e-001e05d29318'::uuid,
+  'f064038f-313a-4904-a22b-4446c752df6e'::uuid,
+  'e5d43a5fabb5e1e12b7ae5a5cc2066cefac4e33cf8d9e7b99ade585faaef3a60',
+  'feya-review-207-20260924',
+  'golden-festival-outfit-leather-harness-top-with-shoulders-open-skirt-fashion-rave-wear-burning-man-clothing-for-women-metallic-costume-4342129698'
+),
+(
+  '28c84d65-57b4-4b83-a2bc-6e4370ac188a'::uuid,
+  'dd58dcd3-2f13-4158-b23b-6c516b7696e5'::uuid,
+  '00080dec-47d5-4205-a344-5646483f66d5'::uuid,
+  '70b2237c8c10d5cdf18f5cdca4fe81ac7705b42e98554b3560491f7896c53b4c',
+  'feya-review-207-20260924',
+  'futuristic-metallic-top-and-belt-cyber-stage-costume-set-4374165306'
+),
+(
+  '2973f3ae-6097-49c0-ab91-21a9697560cc'::uuid,
+  '43bcf231-b468-46ff-8236-461444aed391'::uuid,
+  'd7e42243-ac23-4a22-ad21-d9469d8c0f73'::uuid,
+  '68cf78a2f4be7cfd3fd1232069c4349d6b02523761be1d07b672c426f10115ac',
+  'feya-review-207-20260924',
+  'cyberpunk-armor-set-silver-leather-shoulders-arm-bracelets-burning-man-outfit-4456102467'
+),
+(
+  '29ebbf71-cd02-42fb-8372-55002ca56495'::uuid,
+  '1a299ea9-4555-4a95-9be2-ec049837c855'::uuid,
+  'e7160f48-1dc6-4e2b-8d3a-f787cb6711fa'::uuid,
+  '08b72867ea234add73425b76cb593b31cbba024170d4933525cec927100dcb4c',
+  'feya-review-207-20260924',
+  'incredible-fashion-armored-wear-set-choker-bra-shoulders-belt-garters-shining-golden-suit-women-unique-futuristic-outfit-luxury-costume-1862235439'
+),
+(
+  '2a39f8ec-b5c3-403c-8f1a-7e10bb0ab829'::uuid,
+  '3842b391-1030-4d59-b50f-b37f25ad4fab'::uuid,
+  '37c47867-283a-4d72-b918-d9fae1532196'::uuid,
+  '6042d8e667d0894cd670475a2dc220e5617bc2bd1f382a5e0288ecfc16572aaf',
+  'feya-review-207-20260924',
+  'dark-witch-exclusive-halloween-costume-crown-headpiece-leather-bodysuit-garters-shoulder-cape-and-leg-covers-for-bold-cosplay-outfit-1785419292'
+),
+(
+  '2b8d122f-5830-4bc6-8e11-7e3ae594c9b2'::uuid,
+  '3e7852f8-7a7a-4bc3-9860-aa11dccd374b'::uuid,
+  '614da1d1-ce70-458d-9942-c3b536a20709'::uuid,
+  'fdd0addf4b6c3f2f693847dc337269b2d7b1eb7bc7a071f66772980d222c3d13',
+  'feya-review-207-20260924',
+  'festival-headpiece-with-golden-feathers-leather-crown-headdress-stage-top-skirt-costume-set-rave-party-wear-fashion-carnival-dress-1890486664'
+),
+(
+  '3013d058-8299-4c10-ba42-3c553799255b'::uuid,
+  '8d85db2e-c40c-4c00-b8e6-905267ecd256'::uuid,
+  '18ec6cf6-0c64-4027-80e7-92ca878f8d3b'::uuid,
+  'e361abdcc062201e8910d4fb7611bab0d3d9413474a071ac09e4c888799dc79b',
+  'feya-review-207-20260924',
+  'glaxy-festival-clothes-metallic-top-skirt-silver-costume-set-for-rave-wear-alien-clothes-unique-futuristic-outfit-cosmic-clothing-1858323533'
+),
+(
+  '31bde143-e483-454b-a397-14bcffa47f20'::uuid,
+  '0bed37a8-c9f7-4a8e-b213-903fc9d0abf3'::uuid,
+  '62ca28e0-2304-4824-bb3e-ada61f3f48f9'::uuid,
+  '30753bc7898f2a8d87d685f297a912bd91792fa98b84317ad77d647084dc54ce',
+  'feya-review-207-20260924',
+  'silver-spine-tail-costume-futuristic-bones-outfit-cyber-punk-accessories-4487555033'
+),
+(
+  '32b1e29b-d709-4e00-a95c-6ad0b4c92704'::uuid,
+  '0b81d44c-ba41-41cc-861f-db88b0312a4a'::uuid,
+  'd7690604-a925-48f8-bc2d-56548c3e279c'::uuid,
+  '69607e560a4176d86bf89e97ecd1e9ce12fb4b33ce27189c5445cacb54a22bda',
+  'feya-review-207-20260924',
+  'black-leather-halloween-costume-set-glam-punk-outfit-shoulder-top-and-mini-skirt-goth-garters-panties-costume-party-wear-4373243487'
+),
+(
+  '32b51b28-0570-49af-90f5-7bfdd7da5148'::uuid,
+  '9aec8380-2f47-4fa5-a3c6-6e3ac433b9df'::uuid,
+  'fc98de7f-a9e2-4daa-9f5a-2892e1e7e820'::uuid,
+  '872c36e0364d2e3a61adab2681c1a520b8f92eb3b1dab1fd2d1361b1cbcbac46',
+  'feya-review-207-20260924',
+  'festival-armored-costume-set-arm-leg-covers-for-burning-man-outfit-apocalyptic-costume-metallic-cyborg-costume-futuristic-armor-wear-1879391644'
+),
+(
+  '330fd9bc-f3d0-4eec-8e98-b36fb490b486'::uuid,
+  'db68e99b-08cc-4dde-bf94-d739118de002'::uuid,
+  '429f5fad-6bbf-46bc-9ded-750c95fbfe25'::uuid,
+  '70fce3963722f8076687299f573e8b3adca4f47ae45b2198d04c6f5b610ff0fb',
+  'feya-review-207-20260924',
+  'gold-festival-costume-with-top-skirt-dance-performance-wear-futuristic-apocalypse-festival-harness-1831762819'
+),
+(
+  '340b160f-93e3-4389-866f-df79cc14dea8'::uuid,
+  '21098ee7-fb6e-4e6e-96db-bfcd219ab652'::uuid,
+  '073dd41e-77b0-40d4-acdc-533f9b4d0904'::uuid,
+  'e0f42601489e2a8f2b0064aa6ae5675371023c05390b3617706ff187bd083429',
+  'feya-review-207-20260924',
+  'dark-witch-cosplay-costume-set-leather-horns-corset-spine-women-s-latex-halloween-outfit-festival-headpiece-carnivals-clothing-black-1865813989'
+),
+(
+  '39d33dfd-1a01-458a-94c7-8372f344bce5'::uuid,
+  'ee5309ad-5df5-4ea7-9254-1fa09fe3e664'::uuid,
+  'fa0b9776-50fb-42cd-8fb3-c00bf23eddfe'::uuid,
+  'adcab723f089887ebeb1312f866a110061b97ac23daae322e4dedb43bcd7070a',
+  'feya-review-207-20260924',
+  'cyber-punk-armor-set-shoulders-bracelets-leather-skirt-goth-rave-outfit-burning-man-mad-max-apocalypse-futuristic-festivals-armours-1863228028'
+),
+(
+  '3a006050-ab78-4b4d-9964-ed8c9f32e923'::uuid,
+  'a61a9314-7dbe-4aa4-a2ac-4e1bcb6b7fc0'::uuid,
+  'c757f59f-a8dc-4df7-920b-3b476b836151'::uuid,
+  '965bdd8a3b018265d3521406ef13bc5d2d565da2473f6b9d7e40ef2f1dc018f4',
+  'feya-review-207-20260924',
+  'men-s-silver-robot-arm-armor-futuristic-cyborg-sleeves-festival-wear-4463955343'
+),
+(
+  '3ba4ec57-7b0f-41ea-911d-5988b5088f1b'::uuid,
+  '3e94e4c9-62d8-4a9e-82d2-10913cb0d7d5'::uuid,
+  '3e37f455-1950-480e-a513-af3185dc8f67'::uuid,
+  '177ae5221a32fb78fad231d52ef9eb42ada7d51ce8b9d98eaea7fe654f14768f',
+  'feya-review-207-20260924',
+  'men-s-burning-man-outfit-gold-leather-chest-harness-rave-festival-fashion-wear-4496005817'
+),
+(
+  '3c08ea9c-76a9-4079-bc08-58fa8a831019'::uuid,
+  '5c1df6aa-3334-4927-a7da-9d9982b2e93b'::uuid,
+  '5bd75475-9cb8-4cf5-b029-a67292e0c838'::uuid,
+  'd686c948e7300dd90dd012df59805a5c722f8705438ae434a6f85a8dff703cb1',
+  'feya-review-207-20260924',
+  'best-futuristic-costume-set-festival-armored-outfit-metallic-rave-wear-silver-cosmic-clothing-cyber-armor-burning-man-party-wear-1892925089'
+),
+(
+  '3cffa988-7f84-4fbf-b6e2-67a6164f7dc2'::uuid,
+  'd949a49f-0c7d-4155-ac9a-83b9775b64cc'::uuid,
+  'e94a1bd3-9670-4e07-890b-ff2fb055ec19'::uuid,
+  'ef60dc7d347582bb53bc56793b41f12da962b9057de7dda29fd43a1f4a3dd2e3',
+  'feya-review-207-20260924',
+  'best-festival-outfit-with-one-shoulders-skirt-unique-rave-harness-armor-outfit-4490122240'
+),
+(
+  '3ec78c4d-7cdb-4628-aa3b-083acefcbe45'::uuid,
+  'c6a70e1a-fc03-417f-93f1-be24ca1ec264'::uuid,
+  '6ae0a6f8-dce3-4e73-93cb-2a5eaea5b498'::uuid,
+  '7349571cf93067fce3237cb9ef2e01ba22ca06a5eca807b2d7403f970ac0b897',
+  'feya-review-207-20260924',
+  'luxury-steam-punk-outfit-futuristic-shoulders-bodysuit-garters-for-festival-burning-man-cyber-punk-wear-cosmic-dance-costume-4377579894'
+),
+(
+  '3ff937a2-838f-4986-be64-07b11faf8d17'::uuid,
+  '6a3caecd-f263-451e-8370-11efb56752dc'::uuid,
+  '4d3c5a0b-11cb-4e08-a119-2f968c329612'::uuid,
+  'e68bfd38d736009e6d8c4b930980417ee9b24cb62dedc240e54bac1a7c1906f0',
+  'feya-review-207-20260924',
+  'golden-feather-festival-outfit-leather-crown-stage-costume-set-4373523076'
+),
+(
+  '4033e707-98e2-45ad-9fd6-b7d615673fa3'::uuid,
+  'fd84973f-2c9e-494d-9d7d-8a17ccdd608e'::uuid,
+  '3e540f07-42b2-4145-8055-4f881b720d6c'::uuid,
+  'e880a1ecf999ee397cfcf6f2473f1137dff466a3d28e0d610db106d9e90ea83e',
+  'feya-review-207-20260924',
+  'holographic-showgirl-outfit-iridescent-top-neon-open-skirt-vegan-leather-rave-dress-performance-dancewear-1784463593'
+),
+(
+  '40384eea-fd82-40f4-98e7-804383c42796'::uuid,
+  '48596b76-1afc-46cd-890e-5088211f62e9'::uuid,
+  '8b121a9f-e21e-4977-aa19-e5d497421332'::uuid,
+  '4ef429f3ea9f7925a9da2bfc4ce51bf2bad19c9366924eb606e60f56205cd703',
+  'feya-review-207-20260924',
+  'golden-festival-outfit-with-bra-skirt-gold-harness-set-festival-basque-accessories-1901540523'
+),
+(
+  '4243eca2-4f2a-4a63-a352-b71e9fcb8256'::uuid,
+  'bd49405b-4731-41e9-a722-1b797577fed3'::uuid,
+  '90cff4bf-24f0-4ee1-b860-4ff40c8f82c5'::uuid,
+  '2a1a5b6601df614edbaa4168323c1d8b5d592d87cd26357586b5b54b7f4734ac',
+  'feya-review-207-20260924',
+  'gorgeus-costume-set-golden-arms-shoulders-corset-top-leather-costume-for-stage-show-women-s-perofmance-clothing-fashion-party-wear-4450924664'
+),
+(
+  '4311bc31-ee98-458e-8290-b663ee525a4c'::uuid,
+  '3816f26c-ac6f-413e-9627-8e73d44a025e'::uuid,
+  'd8fb42d1-8126-4e60-bd3a-351d4814dabd'::uuid,
+  'e6d60c8207034afa2cd8dd8ecb6f796629ca5fe5996319c973449ef17c1435f0',
+  'feya-review-207-20260924',
+  'fashion-warrior-female-armor-costume-set-metallic-shoulder-top-panties-arms-covers-silver-futuristic-outfit-festival-burning-man-wear-4329393838'
+),
+(
+  '453ffb2e-2ed9-4e8d-b74c-e891604f9644'::uuid,
+  'd49da8d6-16e1-4667-908d-5a5014456d19'::uuid,
+  '43377c00-4721-45ca-963c-6d4c428d5b4d'::uuid,
+  '8ea2d2e50a64d01556873ef783fb527a0424d0be7ad823473a9923757e168798',
+  'feya-review-207-20260924',
+  'unique-festival-outfit-with-gold-leather-shoulder-skirt-gold-metallic-armor-burning-man-clothing-for-women-luxury-rave-accessories-4324575912'
+),
+(
+  '457416ed-92b3-4450-a5b0-ff4e27ee11a2'::uuid,
+  '10d98b15-ec68-4496-aaca-e3449fca8563'::uuid,
+  'c815d5ad-d47b-4c37-87b2-4ae50ef4b850'::uuid,
+  '64eb036c09800085d2bc8a39762656b44e5c3abe5fa7322aa85c7f129c21029e',
+  'feya-review-207-20260924',
+  'festival-outfit-with-top-shoulders-skirt-gold-metallic-harness-rave-armor-wear-burning-man-clothing-unique-festival-accessories-4321539799'
+),
+(
+  '481ca9fa-1100-439d-b52b-80caadba52a9'::uuid,
+  '1546e3ae-2218-43c5-af89-cc79655a5da1'::uuid,
+  'e4776bc0-fbed-4fce-92ae-49ca0355985f'::uuid,
+  '6e38bd5ef8feaad11add8fddacc5e5d0762a2ecfdbbc0ed1a57349199700a1f0',
+  'feya-review-207-20260924',
+  'desert-goddess-costume-set-fringe-harness-top-skirt-gold-festival-wear-for-burning-man-futuristic-cleopatra-outfit-4512145028'
+),
+(
+  '4a4d2214-fc12-41a9-8ce3-f39272a8e22d'::uuid,
+  '14263cde-4745-45cd-9136-25ad9e8a7e35'::uuid,
+  'd55e7d95-c40a-436e-8ce9-f88725d5ed1e'::uuid,
+  '56cd9f49ac00fde135dc93ea86b3c6469fb8640061c0c04025373396cb7191aa',
+  'feya-review-207-20260924',
+  'metallic-futuristic-costume-set-silver-festival-outfit-cosmic-outfit-pole-dance-costume-burning-man-outfit-chrome-performance-costume-1893505229'
+),
+(
+  '4b0c8180-774d-4d5c-a12c-0864f305d1cb'::uuid,
+  'c98b1f3f-64b0-4ec5-86e0-516e214f1557'::uuid,
+  'ab0bc6b6-0cc9-4a45-a4fd-45df32d87c42'::uuid,
+  '7dfb069225cbdfca82f68104364bc5a38fea6ffeef1b87585ca18acad173d64b',
+  'feya-review-207-20260924',
+  'burning-man-silver-outfit-cyber-warrior-men-s-costume-rave-festival-fashion-steampunk-leather-shoulder-futuristic-dune-wear-4487639486'
+),
+(
+  '4da73818-2f50-43de-b326-8b2c63b17983'::uuid,
+  '2d9d14b5-c40c-4a5a-af4d-200b4cbd0009'::uuid,
+  'f33b59e7-1266-4d6a-afdd-0a6e91174037'::uuid,
+  'b2e56c43e3a3fa285bde44eac71a2b005b9700679695f1d37d8fae9dfb945c60',
+  'feya-review-207-20260924',
+  'gold-cyberpunk-costume-festival-armor-outfit-futuristic-burning-man-wear-4460639798'
+),
+(
+  '5044435f-d093-4437-9945-ff822b2df2d9'::uuid,
+  '650304d4-6cce-4121-8cf6-c1ccc8a21796'::uuid,
+  '863a920d-64b9-47cf-8c15-43aac89c4cde'::uuid,
+  '479df71ed1a2588374239ef294892e106079ac786de91463ba855025e586d9c4',
+  'feya-review-207-20260924',
+  'black-rave-outfit-festival-leather-shoulders-sexy-goth-costume-glamour-punk-wear-burning-man-clothing-for-women-latex-armor-accessories-4346197969'
+),
+(
+  '50c370fb-3f41-4e49-8e3b-cbc5e1dd478b'::uuid,
+  'df8f2cbb-3318-4184-b89c-d8a618a09032'::uuid,
+  'f60f7d29-055e-40c3-80a9-5dc1a15acbe2'::uuid,
+  '7ed4a07586c184f5c6327c3bafab7316530fa779904d51934d26dac69b7ba7fc',
+  'feya-review-207-20260924',
+  'black-leather-crown-headpiece-dark-witch-halloween-halo-exclusive-show-costume-drag-queen-outfit-for-bold-cosplay-outfit-1904672353'
+),
+(
+  '5124ce7f-daf1-45f7-bbe2-0f97f17ecaea'::uuid,
+  '0b75dae5-e6c5-4e27-9663-eb6b72054711'::uuid,
+  'a21c15db-14e1-440b-9ac5-aea6a32aafc0'::uuid,
+  '5a948923493f53af2f5dcbd34a4b873a0651352b3c9c0ae766fd1a5d05ea1a94',
+  'feya-review-207-20260924',
+  'dark-queen-halloween-set-leather-chain-collar-spine-skirt-glove-for-sexy-witch-cosplay-costume-women-s-latex-outfit-adult-1785673048'
+),
+(
+  '51487104-166f-45e0-a528-d8b27a6258d6'::uuid,
+  '1d14302c-a3b0-470c-99bf-93b0dba5003c'::uuid,
+  '57f0ff48-ab5f-49ac-a184-33be4bb718c9'::uuid,
+  '3af899937d46c0987cd58f0826beace729374132038eeb8de84ed1303c87994a',
+  'feya-review-207-20260924',
+  'festival-clothes-set-top-fringe-skirt-rave-party-wear-unique-festival-harness-golden-carnival-costume-accessories-1760981376'
+),
+(
+  '51a30d6f-a588-49b9-b077-5f33488efd36'::uuid,
+  '5865768c-ed4b-4af5-9231-7709f89610a5'::uuid,
+  '7dea68fa-ce29-48da-bb76-892b630ecd04'::uuid,
+  '8e02a61525dd34c9ca33043be656b7fdfc81ed419f52d0a9e025652ef51be0ca',
+  'feya-review-207-20260924',
+  'holographic-armor-costume-for-cyber-punk-outfit-pride-armor-accessories-futuristic-cosplay-set-with-top-panties-leg-covers-bracelets-1829211017'
+),
+(
+  '51d879ce-f762-4307-b896-efcb2ffd64e9'::uuid,
+  '47dbc09a-d73f-4d0d-a146-4b1aed006d44'::uuid,
+  '50e5bc1b-cab7-41aa-b162-ee59d6a68213'::uuid,
+  '1debd373dbd4fcfda2018f6d5eefd3a69b323a836454d85cb604ca03bf822f40',
+  'feya-review-207-20260924',
+  'rave-festival-outfit-with-mask-shoulder-top-skirt-bracelet-white-gold-leather-armor-wear-burning-man-costume-set-women-futuristic-suit-1842722795'
+),
+(
+  '5255562a-0181-4fe3-bf4f-e5083f5638e5'::uuid,
+  '4a95b371-3ff6-4176-8717-59b43bf74ead'::uuid,
+  '7bf7a1f6-caa1-4c67-8ec7-db87abe4c7fa'::uuid,
+  'a819e8a41ecda257a652fdf8a57a534e7dcc7ff9c52b140b9e4552197b60653c',
+  'feya-review-207-20260924',
+  'fashion-costume-set-with-golden-leather-chain-bra-and-skirt-for-dance-party-and-performance-wear-1799675197'
+),
+(
+  '5589b5ea-e21a-4e57-a4b2-b598bd8466d2'::uuid,
+  'ee4aa9b4-7e96-4f9d-97e6-81ab7a79fbae'::uuid,
+  'cf566554-9762-4f32-87ce-7ba66478040e'::uuid,
+  'f770c4e3e7e773996d84755d901f3f8fa87eb47650ad5fd7c8c5954ae2bc0372',
+  'feya-review-207-20260924',
+  'party-dress-for-drag-queen-show-performance-costume-set-bodysuit-glove-stage-dress-sparkling-dress-pink-leather-dress-latex-dress-1884785723'
+),
+(
+  '5602d557-9d98-454b-bc98-9b9ea84b442f'::uuid,
+  '141ea379-4bfb-49a3-90b8-e53033622458'::uuid,
+  '4b88a37e-74ac-48c0-ae0e-65d90929e93c'::uuid,
+  '961f8a2fcda14097f649887fca175cdd5a309d0402c46a1c2fac827aa1c138b8',
+  'feya-review-207-20260924',
+  'hologram-festival-outfit-shimmering-harness-female-rave-costume-set-burning-man-clothing-music-party-wear-4342770881'
+),
+(
+  '56ac8372-da2a-444d-8b8e-4dc196520bf7'::uuid,
+  '6948a11c-cfb9-44a6-a473-2961e2e9c730'::uuid,
+  '6d3245e5-42a7-4c95-adfa-5a460ebf7599'::uuid,
+  'da365e7af50a32391c17cbdcfea0c18936b7e93753df826ea41e036f2aedb2c6',
+  'feya-review-207-20260924',
+  'goddess-golden-rave-outfit-futuristic-festival-armor-alien-costume-set-metallic-lingerie-wear-for-cosmic-burning-man-style-1868945709'
+),
+(
+  '596c5ec2-e59e-484f-8f73-89221f2b4171'::uuid,
+  '8cec8923-cc28-4036-b597-e9ff515d0593'::uuid,
+  '801eddb2-4b51-436f-a398-ee063add986e'::uuid,
+  '8e3e9fba3fb5908b43b19b8c86ec2a1d97eac6a0b72a9b19080d118d79262430',
+  'feya-review-207-20260924',
+  'leather-punk-outfit-with-harness-set-choker-chest-harness-leg-garter-men-s-body-strap-leather-kinky-wear-sexy-fetish-costume-male-1858724751'
+),
+(
+  '5bf3df64-84dc-4baf-84bd-8a94e1b06ccb'::uuid,
+  'aa560f36-6e4f-4af2-a44e-07d2bc286a01'::uuid,
+  'd585f5b6-7e59-46e1-adf1-36b70bba0fc3'::uuid,
+  'fe6a54820e35593727d23e4c56d3b037a4763fe908fa8e2e98a2967cdef65c0e',
+  'feya-review-207-20260924',
+  'festival-couple-costume-set-futuristic-rave-outfits-for-men-women-burning-man-wear-4489232697'
+),
+(
+  '5cd806f8-8aaa-4b6e-ae6a-4acc716677a2'::uuid,
+  '04a85970-d468-405b-b7d3-987870a41f68'::uuid,
+  '2f45a7fb-70e1-474d-8c2f-d77497b5c96b'::uuid,
+  'a6d293d290ff0ff76816efc37dba25d3830b144ace5168a50a279222508cc411',
+  'feya-review-207-20260924',
+  'desert-goddess-costume-set-fringe-harness-top-skirt-gold-festival-wear-for-burning-man-edm-party-look-futuristic-cleopatra-outfit-4341603545'
+),
+(
+  '5e034423-6c04-459b-b7d7-0d10ad564c4e'::uuid,
+  'bc348dec-ea1b-4e4c-97ed-1081b1c3bb45'::uuid,
+  '89889784-014a-42e0-a14e-3ede1d8fffbf'::uuid,
+  '16ad5266f7ca310a4802ceac817811cefc1ff92949a5d8592b881a57a143d079',
+  'feya-review-207-20260924',
+  'goddess-rave-outfit-fringe-skirt-harness-top-gold-metallic-festival-wear-for-burning-man-edm-party-look-futuristic-cleopatra-cosplay-4452695439'
+),
+(
+  '5f0df65c-4b04-4905-80c5-53bd7e807063'::uuid,
+  'c21cf29c-47ab-4ab5-ad53-f6f8533e328f'::uuid,
+  '53bd6f0b-fa12-4eb1-9413-4fb3052b4e5d'::uuid,
+  '1b7f7a3404b42258486734382d2434cd8e983340500ff0e95e29a60308c0a7ae',
+  'feya-review-207-20260924',
+  'female-warrior-armor-costume-set-metallic-shoulder-armour-arms-covers-chrome-futuristic-outfit-festival-accessories-burning-man-wear-4324250573'
+),
+(
+  '60ee8feb-32d3-4a8c-b64b-38d33433e2f2'::uuid,
+  '0b752645-a641-43aa-a724-7814a75a3132'::uuid,
+  '24cac9ef-47ea-4f4b-bcbd-ede2787f7193'::uuid,
+  '9ddd0e726e796d8d27a7150a7a4aa96f216640e7a4ab0011506f257b9e0b2ec6',
+  'feya-review-207-20260924',
+  'chic-festival-costume-set-for-burning-man-golden-harness-top-fringe-skirt-fashion-festival-clothing-futuristic-rave-outfit-1902123589'
+),
+(
+  '641ba42d-8ad9-4178-b0c6-d41c14fc8f66'::uuid,
+  '8073de22-9f16-4bde-99a4-943d03a14ee8'::uuid,
+  '1be0b79b-e698-453b-ac9d-225c4b04b3c8'::uuid,
+  '95ac013b5db133fc44c2312b61c1dcb65927284ef8f304f9c629ea6b760e500f',
+  'feya-review-207-20260924',
+  'gold-dragon-cosplay-set-mystical-headpiece-spine-shoulders-gloves-4494565518'
+),
+(
+  '657bd6d8-fbe1-4441-abad-f574e3380897'::uuid,
+  '25983942-17bc-4d6b-93dd-953902db60d9'::uuid,
+  'cd2ea1a8-2244-4a64-a915-d17782c2b7ef'::uuid,
+  '3c0575242101e89823c13dd42b1745c4640e6ab650c68373af5fb258f54c5ded',
+  'feya-review-207-20260924',
+  'cosmic-festival-outfit-with-top-skirt-metallic-harness-set-rave-wear-unique-futuristic-harness-party-outfit-festival-accessories-4303866388'
+),
+(
+  '65e36680-71ca-44ba-9873-f7c962928642'::uuid,
+  'b6a04155-f557-41cb-815c-9efca398ab78'::uuid,
+  '2cdb59ea-5f30-4975-bbbd-786f3bb31f6f'::uuid,
+  'cdf07207f1fa3278c41229e9184093400e682e7fdaadde00b0c1fcc5617607c1',
+  'feya-review-207-20260924',
+  'luxury-metallic-bodysuit-with-shoulder-bracelets-silver-female-armor-for-cosplay-chrome-drag-queen-outfit-metal-warrior-body-suit-4337549399'
+),
+(
+  '665296a0-f5ad-422c-837c-868f611c45c6'::uuid,
+  '9f495976-f7e8-4f94-aa18-f87b943ff49b'::uuid,
+  '04b92ec0-c1fd-44c0-9530-24e36799833f'::uuid,
+  'e3bb77c4dcba9800d854f64a63eaccdaa4c4f1d3dca7374a181cfd38fdb9ed08',
+  'feya-review-207-20260924',
+  'fashion-corset-skirt-for-event-wear-luxury-corset-basque-women-s-top-mirrored-belt-choker-4373546738'
+),
+(
+  '6739b15c-f2f3-4a26-9e2a-3a0b5a3e2d2f'::uuid,
+  '032461b9-56a9-4624-adea-d1cf4fe26442'::uuid,
+  '8439e097-0aaf-4ec1-a7b0-48bd50fc3d2b'::uuid,
+  '380cb531ce8873e4ac8fd0ceacdad2794ee133fdc930dda85b8cb5a5d0cd5ecf',
+  'feya-review-207-20260924',
+  'crypto-warrior-cosplay-costume-set-headpiece-wings-bodysuit-bracelets-leg-covers-futuristic-armor-outfit-1764754572'
+),
+(
+  '679c975c-b309-49dc-9207-f89fc96b84d1'::uuid,
+  'ceee0143-a49a-4eaa-bae8-116b7736a407'::uuid,
+  '006f9776-24e0-4890-aa93-6daecfc7013c'::uuid,
+  'effac5b43eef1ff4a1e2b8178af5a89ad7dd03f89647bd113e5fb27ee4ef48e6',
+  'feya-review-207-20260924',
+  'warrior-princess-outfit-gold-armor-costume-set-cyberpunk-rave-wear-4496855101'
+),
+(
+  '6a4c1f02-8f02-4aca-b70d-8d9ac66b9b40'::uuid,
+  '685a0463-e8e3-4740-8066-c0d48cbd0a8c'::uuid,
+  '707aea0e-4dd2-47d4-b9ba-b97ba881ab3f'::uuid,
+  '2694d3de1cdbac364149285d098bf2add215acb57392f9963ae329338c3d6fee',
+  'feya-review-207-20260924',
+  'holographic-festival-costume-set-neon-rave-outfit-for-women-iridescent-leather-costume-unique-party-costume-with-featers-show-girl-wear-1810732577'
+),
+(
+  '6a885710-fbee-4790-ba09-d56530f641f6'::uuid,
+  '13dbf3b4-91f9-46b6-87bb-b15da23aba8b'::uuid,
+  'de468afa-3495-4453-a3cc-35a6364920fb'::uuid,
+  '6df282195689436e0b51f965b063ccb9005a1fbbb7beeb4c467d269486bd965b',
+  'feya-review-207-20260924',
+  'metallic-spine-tail-outfit-unique-costume-for-futuristic-cosplay-outfit-silver-leather-masquerade-wear-halloween-accessories-1819713304'
+),
+(
+  '6bfcc9e6-3d45-4ef4-934f-12dd9dfc4532'::uuid,
+  'ed513b22-4909-45e8-9351-4375f6eac01d'::uuid,
+  '16069a9a-92ea-4266-9cf8-a2bfea403387'::uuid,
+  '34a4838c2a87c1e850606b90c67bab241f917324038dc6d2ea4dd8a51dba8a93',
+  'feya-review-207-20260924',
+  'cyber-punk-armor-set-for-women-arm-leg-covers-metallic-rave-outfit-for-burning-man-mad-max-apocalypse-futuristic-festivals-armours-1779417861'
+),
+(
+  '6ddd240e-01ae-4ac8-800e-3a14dbac64a0'::uuid,
+  'd08a64ab-31be-46f7-a4f7-9bd2c2e22d87'::uuid,
+  '15362257-26db-436f-9ef6-e8dce748dd06'::uuid,
+  '3318abcf2a390611cdb5afbbf9f3fefe1cf168de3571ec6529611ee902851e17',
+  'feya-review-207-20260924',
+  'broken-mirror-costume-set-reflective-outfit-with-bunny-mask-mirror-corset-over-the-knee-boots-stage-performance-dance-show-wear-1785354749'
+),
+(
+  '72d8461a-1f64-40eb-b3f7-959a19a0c8fa'::uuid,
+  '433869fa-2a9e-4b68-8803-15df57436bea'::uuid,
+  '38c33684-370e-4cf8-8689-7e45854c48c9'::uuid,
+  'eb46e32a812480e3cf48c5467418a9b97218f03b80f97a30ec77a1575eee8304',
+  'feya-review-207-20260924',
+  'mirror-clothes-for-women-reflective-bunny-mask-mirror-corset-over-the-knee-boots-stage-costume-performance-dance-show-outfit-1847125327'
+),
+(
+  '73735bd6-82e7-48fa-8b2e-235a13bbf4b0'::uuid,
+  'df8d6756-2fea-4b51-80b4-3602ae71f99f'::uuid,
+  '36c24bc8-9512-4230-a1ee-42cd4ab0dd4a'::uuid,
+  '97e069d25e604bfdec262f4054185fefe3e9b3eb12454e8d8c388c22d28e5b7a',
+  'feya-review-207-20260924',
+  'silver-spine-tail-costume-futuristic-bones-outfit-cyber-punk-accessories-1902240495'
+),
+(
+  '74634519-add3-490f-8ef3-3b4d74a7ca7d'::uuid,
+  '1125cda7-7baf-4c21-b2e5-54494d95af9a'::uuid,
+  '55203815-cc8f-4c5c-b34c-8783b7dca6cf'::uuid,
+  'd2a63480f23a30e3d2d4283244cb11d12d4f1a6a1397248ae2a7dabbfe60077e',
+  'feya-review-207-20260924',
+  'futuristic-wings-costume-set-rave-headpiece-cosplay-wings-holographic-bodysuit-and-leg-covers-for-festivals-cyber-carnival-outfit-1884227520'
+),
+(
+  '764debf0-4d46-4d1d-a17b-2bb6f2dc5702'::uuid,
+  '256f478c-dd3d-4593-b89c-d0423b3b7c7c'::uuid,
+  '837d0e23-ec23-4b0f-ac3d-f8bf31ffada7'::uuid,
+  '5b10906edea4773a0b17ed08f5d85e96cb61cae98dfce371b90de114847b0aed',
+  'feya-review-207-20260924',
+  'red-festival-outfit-rave-armor-costume-set-women-s-burning-man-costume-4477779047'
+),
+(
+  '79754caa-9c09-4241-8c08-d0c9e60db460'::uuid,
+  'f9f55f5b-4bcc-4c8f-9475-36ac889111c0'::uuid,
+  '607ec005-b2e6-4c24-b6e2-6d821ce9fae2'::uuid,
+  'c651156b16358d9c876b25e379337073e3b98cf1cb49245d13e01a07774f9f39',
+  'feya-review-207-20260924',
+  'cosmic-festival-outfit-with-top-shoulders-skirt-panties-silver-metallic-wear-female-rave-armor-burning-man-clothing-accessories-4327819365'
+),
+(
+  '7bb70eab-b2f5-4079-96e7-d116484d1466'::uuid,
+  '5c793109-ac58-47f3-a284-6cef9eeb5fa2'::uuid,
+  'fc7b08bc-db15-468a-9835-7e2e7130410e'::uuid,
+  '86531fc28091cdd38e7d1b2ae76961018c7578a8504f14bd9787fb9d3d13e307',
+  'feya-review-207-20260924',
+  'futuristic-silver-reflective-armor-set-metallic-festival-costume-sci-fi-cyberpunk-chest-plate-cosmic-fashion-for-drag-queen-stage-wear-1883724741'
+),
+(
+  '7bc4e89c-155d-45b8-982f-46253b7ed18d'::uuid,
+  '5f94f258-83c3-4eb4-a285-9ec708b383d3'::uuid,
+  '4ca4e878-4a0d-4b7f-9db5-9c906e69f4a0'::uuid,
+  '2004d7173f446594acc3e98dab9150b90360d9de6a2bd8f61bbcce479c0affd6',
+  'feya-review-207-20260924',
+  'carnival-dress-with-leather-feathers-crown-headpiece-top-skirt-stage-party-wear-burlesque-dress-showgirl-outfit-latex-petals-1881683502'
+),
+(
+  '7bf47f01-8114-4e8f-ba96-632f0fdd8d7d'::uuid,
+  '1cd4f5d0-6095-42a7-81ea-6300b117ffe8'::uuid,
+  '9b168a32-9633-4413-b781-942e29b89995'::uuid,
+  'c2739e6105f099adb00c80ec8fe2883e4c18674523d0703d78912550a4c649ac',
+  'feya-review-207-20260924',
+  'desert-warrior-men-s-costume-burning-man-gold-armor-outfit-rave-festival-fashion-steampunk-leather-shoulders-futuristic-dune-wear-4449718197'
+),
+(
+  '7c220537-de7c-4157-99c3-ba1f9144d113'::uuid,
+  '3281f38e-6801-4f75-b8fb-f9bf296c0a2d'::uuid,
+  '38083e53-ef4b-42ef-9e6a-504830f83b6b'::uuid,
+  'f4c096756b6a7b5e2e49df6c70680d1e3184e0dc8ac6bb2e15752b46273d4a68',
+  'feya-review-207-20260924',
+  'holographic-rave-outfit-with-top-shoulders-fringe-skirt-futuristic-harness-rave-wear-fashion-burning-man-outfit-festival-accessories-4332321981'
+),
+(
+  '7cf4ea37-cd11-4203-860c-7eed4ae965ba'::uuid,
+  '3f56fccc-2f1f-4d39-8e42-623783f4980d'::uuid,
+  '2e285671-5edc-4737-bf3f-58fcdaa50e32'::uuid,
+  'b7036d7301ddcaeaf01be60baab14f2d60653ff0c74a4bd1516fa38b0748a483',
+  'feya-review-207-20260924',
+  'luxury-brown-leather-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-body-belt-1867996009'
+),
+(
+  '7e743440-3e9f-490c-b306-5c8c87969973'::uuid,
+  '3f6f7050-59a7-4f7b-897c-017ce35e7605'::uuid,
+  '4adcda7f-20b3-4396-9f0a-4e839e716704'::uuid,
+  '7f5e027dc63d909fd6a2a61f52da5c4aad1a3a3555d9d1dbf7464eae4af1ad4d',
+  'feya-review-207-20260924',
+  'women-s-white-festival-outfit-for-rave-party-4475491525'
+),
+(
+  '7e77810b-ee7d-46a4-91af-f24d1adcfd4a'::uuid,
+  '25cf029f-079f-448c-83b2-ba4cd9fbff2c'::uuid,
+  '3f7b89fb-ba30-4563-a8a7-10d37749bdff'::uuid,
+  '409ac944b31ba7602b1b6ccd46bd06b4f5faac07e2628e1a35e19b330c2c8294',
+  'feya-review-207-20260924',
+  'red-glossy-armor-costume-set-leather-shoulder-armour-arm-covers-futuristic-outfit-cosplay-accessories-burning-man-fashion-costume-1890281650'
+),
+(
+  '81224290-77db-4738-923b-65a16d1c691a'::uuid,
+  'fcf01926-22da-430c-a309-6b529fe9750b'::uuid,
+  '6435ae60-5265-45c8-9247-1ba5ae44bf79'::uuid,
+  '6ba5b8b96225188602ad9e6962d6ffe7abbb81a454fb3332babcd3092def31d2',
+  'feya-review-207-20260924',
+  'pink-show-dress-drag-queen-costume-bodysuit-and-gloves-set-1845688122'
+),
+(
+  '818a1991-46e2-4628-ac61-6db77314c9af'::uuid,
+  '31e46479-5e0d-4637-a6cc-47a6250310c0'::uuid,
+  'fdfd9051-3ab4-4b6c-9584-a44187d3ebff'::uuid,
+  '57fd10432bbc8f04849ceef55133f1a3a49deaca5b6365e40e823b920738afb9',
+  'feya-review-207-20260924',
+  'metallic-festival-armor-outfit-silver-metallic-harness-rave-armor-wear-burning-man-clothing-chrome-female-warrior-cosplay-accessories-4322579452'
+),
+(
+  '81fc83de-76aa-4733-9a88-f631e7699fa6'::uuid,
+  '71128a5a-3099-436d-93c7-90b6356c1c39'::uuid,
+  'fa987b95-af93-4779-86d8-4b6e93b8f606'::uuid,
+  '207b2a0540ab50d3e167a424f2de1c50c616f9ba0b73afcb4bb43eb293e42fae',
+  'feya-review-207-20260924',
+  'metallic-costume-with-bra-skirt-silver-harness-set-chrome-pole-dance-wear-unique-festival-harness-burlesque-dance-basque-4303552278'
+),
+(
+  '8223ea35-644b-4bd8-bd05-4ba7810b116a'::uuid,
+  'f7efdc05-e297-4458-9b11-30057435ba1c'::uuid,
+  'c69960b7-b750-4ea4-8e20-442ccd9ccd9c'::uuid,
+  'dde78c88d627a33afa5e09da8ed911540585fe22542021b171d03e3fc6ea9efb',
+  'feya-review-207-20260924',
+  'party-bodysuit-with-helmet-with-horns-metalic-corset-and-leg-garters-golden-dance-outfit-event-clothing-for-women-cosplay-costume-set-1823479818'
+),
+(
+  '8242d255-f77f-4e9f-88a2-a5db326fa297'::uuid,
+  '62b2e981-0ffd-42bd-b153-acf5745f64c9'::uuid,
+  '14f2d810-8dd2-43db-846b-18890089cce0'::uuid,
+  'df83cb2a9056737d670865c6b33d7c6e3adfacef6bda12111aee26ede99a1d46',
+  'feya-review-207-20260924',
+  'futuristuic-bodysuit-with-sparkly-dark-blue-leather-butterfly-costume-set-drag-queen-body-suit-cyber-fantasy-outfit-fairy-costume-1884790737'
+),
+(
+  '82d2dc58-e635-4bc1-8571-2587641e627f'::uuid,
+  'b8f317e0-0e5e-4356-9dc2-e6fc7f4d7a5d'::uuid,
+  'eb85c657-c40e-4ea8-b03c-449e2450413d'::uuid,
+  '29ee5bbd6aea88dfcdf52ffc7cffda1f0380bb03f04c607c96bd62d276fffea6',
+  'feya-review-207-20260924',
+  'stage-costume-set-red-fairy-show-party-wear-performance-dress-festival-top-skirt-futuristic-clothes-latex-outfit-1818991059'
+),
+(
+  '83ea907b-a523-47cf-834f-5a1b16b80339'::uuid,
+  '60839d8b-ffcc-444e-aadf-2dac7e791867'::uuid,
+  'ade67a96-f701-4b43-87b7-bd17337790a6'::uuid,
+  '0ed00f397666e4dcbfb4125c1dac277d4b6c84f5f64c5d32982e37a9a17a08a3',
+  'feya-review-207-20260924',
+  'leather-horns-headpiece-for-cosplay-dark-witch-costume-set-black-latex-outfit-halloween-costume-festival-headdress-carnival-wear-1899634207'
+),
+(
+  '8441aa63-d524-4ee4-8bdb-2d7b3f6c3bcf'::uuid,
+  '2ad3f3b8-c64d-450a-aeb4-e22df927abf4'::uuid,
+  '771ceacc-085c-4e64-a58c-372bbbdfe413'::uuid,
+  '770eb3f86c6549213bb1a2cd0c18650a7f7843d88ba921ec550a8b2b6af42e75',
+  'feya-review-207-20260924',
+  'fashion-spine-armor-cosplay-set-black-leather-outfit-with-bodysuit-tail-and-leg-covers-for-halloween-and-themed-parties-latex-clothing-1780316635'
+),
+(
+  '84cb55e1-a5a8-473c-abcd-17f0dc4161ab'::uuid,
+  '40de81a4-c6da-4a97-b062-1ecb56e92346'::uuid,
+  '62091744-6fb3-4882-a9b4-705f5377988d'::uuid,
+  '91a568875bee299b18a1bf277c7d7b52cd2ba64bf2a6993fc74db5a9d233193b',
+  'feya-review-207-20260924',
+  'unique-fashion-costume-set-top-skirt-bracelet-glossy-red-leather-clothing-for-show-drag-queen-party-wear-cabare-burlesque-outfit-armor-1847174712'
+),
+(
+  '85752f94-b2d7-465e-ace2-40bb77977461'::uuid,
+  'ef84d30e-e376-45a1-ae45-97f1a0931ead'::uuid,
+  '9ef0aec0-85ed-468a-b99f-2ddf660677cb'::uuid,
+  'fda3ae78f1d91cb818db417e0e2c56a2d8f35c0f8f3ab16a19b34913ef562d31',
+  'feya-review-207-20260924',
+  'silver-futuristic-armor-set-shoulder-pauldrons-arm-bracers-chain-belt-festival-stage-costume-4508715749'
+),
+(
+  '8635ab3f-cf01-42fb-a4da-508c7fd0db65'::uuid,
+  'cdbdda70-b716-4996-9285-02c447a39e9e'::uuid,
+  '87dd6f05-8917-48fb-a011-78b8e67ada64'::uuid,
+  '19c3d50f975547f3561117204e55127ab07055c1da4324ba95b7070f29a5d1a0',
+  'feya-review-207-20260924',
+  'desert-warrior-gold-armor-dune-festival-costume-4476440494'
+),
+(
+  '882793f6-15ca-4617-a579-5cd47290ce72'::uuid,
+  '52101c34-3759-4740-9199-cc9b27c529c6'::uuid,
+  'f8f93a1f-cb74-4502-8c5e-91a4afb846fc'::uuid,
+  'dbd9c5f50ff5cac685f3f6bd5ab4329d1c921911e356240549df7e8fec91a284',
+  'feya-review-207-20260924',
+  'fashionable-leather-suspenders-for-men-luxury-brown-suspenders-groomsmen-gift-fashion-chest-harness-for-men-handmade-belt-suspenders-1855580162'
+),
+(
+  '88d4332c-95bc-4859-a31e-33d6ee89fb4d'::uuid,
+  'c293c676-1327-479b-99c2-9f792f11345f'::uuid,
+  '4314dc11-db2c-471b-ab07-7fc2eaeeffd5'::uuid,
+  '88d000fd7e10ea2d07c7ea651aa4e6a4d69e14d31f1580f14a1cbf09b29e44a4',
+  'feya-review-207-20260924',
+  'unique-men-s-chest-harness-fetish-leather-harnesses-adjustable-bdsm-clothing-black-leather-body-belt-gay-pride-festival-outfit-1888669170'
+),
+(
+  '8b321ebd-25ab-4d9b-ba30-2cfc3ba18094'::uuid,
+  '0a4c2d99-4086-4ed7-9e14-9d6f0f35c993'::uuid,
+  '7f5a636e-c39f-4b71-80c3-da15beedddef'::uuid,
+  '6fcb29b3602a14c7c19be1d73b41f837046752a10ab7d059494aa7e9f9638f41',
+  'feya-review-207-20260924',
+  'burning-man-gold-armor-outfit-desert-warrior-men-s-costume-rave-festival-fashion-steampunk-leather-shoulder-futuristic-dune-wear-4356540547'
+),
+(
+  '8b4e23fd-456e-462b-a6b3-8aaa0333debe'::uuid,
+  '7b1c8373-31a8-49ce-bd23-3c26d312b0a5'::uuid,
+  '4729d32e-4723-4c1f-8c23-ef91f1a50d54'::uuid,
+  'ff793dbe4a8d4489cc645d6da592cc4e2f73ccefd6e2c2f5dc0cda6cd73c3bff',
+  'feya-review-207-20260924',
+  'golden-horns-costume-set-metallic-bodysuit-with-horns-and-leg-covers-for-cosplay-parties-shows-carnivals-performances-4448567557'
+),
+(
+  '8f4646f0-ea2b-48c3-af11-e22f0dec4f08'::uuid,
+  '39a0cae6-7f02-489f-b909-189fb4fb5841'::uuid,
+  'aa6c93e1-9d6b-404e-9744-ad61f01f545f'::uuid,
+  '2f57e750fce67d3ec14766af2c16adc2e0f32ebe0cdf9c1e35a0d5ba497ef51f',
+  'feya-review-207-20260924',
+  'festival-costume-set-futuristic-armored-clothes-for-men-women-rave-parties-burning-man-golden-wear-1824045326'
+),
+(
+  '9400d8af-b6b9-4b4a-b878-b97eba761e10'::uuid,
+  '35edb479-0bef-41db-bfa1-e751f000d791'::uuid,
+  'e5f3762b-c23e-4633-8e51-d0959b8159e9'::uuid,
+  '1f9c0bfb6dadf3aff8b33e57b3b8b475175df3ffdf373196ea366192a536fa8d',
+  'feya-review-207-20260924',
+  'martian-queen-wear-with-choker-shoulders-top-skirt-futuristic-dress-costume-cosmic-party-outfit-fashion-clothing-for-alien-theme-costume-1785451272'
+),
+(
+  '98600aa8-307b-4165-a8ae-38e347c114bd'::uuid,
+  'cd2bbf1e-8db0-4d06-917a-3cf159473e9f'::uuid,
+  '83ed5c0f-e191-45d2-b13a-424f50952a80'::uuid,
+  '85d1bfcc402f4af9c99968c71bd29cd2139088456d10128fa327851fea78c15e',
+  'feya-review-207-20260924',
+  'mirror-plague-doctor-costume-reflective-polygonal-clothes-steampunk-masquerade-mask-halloween-futuristic-cosplay-gothic-festival-outfit-1882682017'
+),
+(
+  '9c59e997-1e03-463b-8f3d-3259c71d05d0'::uuid,
+  'f0a06e5e-7129-4e34-89f8-e8f0ff9c8855'::uuid,
+  'a4bf259f-9c50-4ad3-b43b-cbf09e444915'::uuid,
+  '0a905c1b2b4b6bc7e1e0a9778e77a57b4a757523d73c2f2c5952ba7670ca8700',
+  'feya-review-207-20260924',
+  'cool-festival-outfit-with-shoulders-skirt-metallic-harness-set-rave-wear-unique-festival-harness-rave-outfit-festival-accessories-1895831443'
+),
+(
+  '9c845a5a-666a-47b4-99d6-9f0a393bfa1c'::uuid,
+  'e4300f7f-4df4-4781-9501-7c53309bd103'::uuid,
+  '56529257-3f8d-4072-8471-d811e845ee87'::uuid,
+  '6cf976f306f3ddd2b29b559bd66b2ac7f7d8a0d3aa2a4330d3f6dae82a144d44',
+  'feya-review-207-20260924',
+  'metallic-gold-costume-set-armor-top-open-skirt-choker-bracers-4455606322'
+),
+(
+  '9d1d101d-e1d1-48fd-ac41-65c07dd5ce05'::uuid,
+  '433db880-3e3f-46e8-8e22-bc5b0e285da5'::uuid,
+  'f8fd816f-97b2-48e3-a4ba-5a8a704793d2'::uuid,
+  'cb11f8551e5a419f9f485b89c72034b0ee7a99a139cb0db4b9c4f12077f4012b',
+  'feya-review-207-20260924',
+  'silver-costume-with-bra-skirt-chrome-harness-set-futuristic-pole-dance-wear-unique-stage-harnesses-burlesque-dance-basque-silver-4332144176'
+),
+(
+  '9d368368-12e9-4d61-9a5d-2ba9c4508861'::uuid,
+  'cb834ca4-d4bd-4e9c-a707-afe99eef1569'::uuid,
+  '94327c88-e8d3-443f-8057-7408c31df847'::uuid,
+  '5dd8e6ffff3fba13f0b9adfd09ca8584078b86a8924ad9e14e4335f94120c91c',
+  'feya-review-207-20260924',
+  'gold-warrior-leather-armor-set-festival-amazon-costume-set-4484819335'
+),
+(
+  '9d6047ad-406d-4279-a10b-2918e111d587'::uuid,
+  '1829d138-d673-46d1-8306-94f2f8d6a19c'::uuid,
+  '557634fa-e0c4-4895-b999-bc9f038334d5'::uuid,
+  '54c33e1c05d3b5e427f479d81933d312af268c3695895e9d249afb79e080158a',
+  'feya-review-207-20260924',
+  'red-devil-costume-set-bodysuit-forearm-armor-and-tail-unique-cosplay-party-wear-drag-queen-outfit-spine-tail-costume-leather-clothes-1779245327'
+),
+(
+  '9e47719d-1afd-4298-808e-bacae86bbc38'::uuid,
+  'ad91d472-ee79-454e-a16f-1d848b47a73c'::uuid,
+  '64449f3e-4e7b-4e16-b100-7b09d5093b0c'::uuid,
+  'f28615745738a4b6854cd3bce08a3da2dc08199e906a8f9bfc7da5e9661297a6',
+  'feya-review-207-20260924',
+  'gorgeus-gold-costume-set-mirror-leather-top-shoulders-basque-garters-metallic-fashion-harness-pole-dance-wear-unique-burlesque-clothing-4332886854'
+),
+(
+  'a3aa7148-889a-42de-9d2d-2e0fca631ed4'::uuid,
+  'f90aa1c8-d8e7-464e-aba4-0a186c680ac7'::uuid,
+  '067f06e0-10dc-4609-a4c9-a98be8708ab9'::uuid,
+  'dc185ad3ec255385071fafceff480984ce06e1d1d1f207b805f5b960ecd7b1b0',
+  'feya-review-207-20260924',
+  'golden-horns-cosplay-set-metallic-bodysuit-and-leg-covers-4462077381'
+),
+(
+  'a3db3d94-aa6f-4d57-abce-905b31e14b4a'::uuid,
+  '06d6d98a-29a8-428b-b652-ada657e2ee5f'::uuid,
+  '6c492365-8ad3-4370-b203-e79b30e6d58d'::uuid,
+  '1e6c5c1bfac9b2b094bd67a3c53e87af6c89da11657fe5dbb0553e129d1dc7f1',
+  'feya-review-207-20260924',
+  'gold-goddess-armor-set-female-warrior-costume-fantasy-festival-outfit-futuristic-fashion-armor-unique-greek-inspired-look-4306378825'
+),
+(
+  'a606be83-50aa-462d-ae54-04e9ce7aeb3b'::uuid,
+  '4a78fda0-4421-4196-b2c0-bb0ade7e9521'::uuid,
+  '6455b451-9554-4823-8792-2bac428470be'::uuid,
+  '527ad9ee665605355de25a0d2c29d56661334b2f81d06b4512cdecebc46f32fc',
+  'feya-review-207-20260924',
+  'punk-bodysuit-with-black-leather-gothic-costume-set-latex-body-suit-shoulders-headpiece-women-s-fetish-body-women-1866836527'
+),
+(
+  'a6239781-34bb-42a1-85ae-91a733f7df65'::uuid,
+  '39dfac48-a217-41f9-83cb-20108e97256b'::uuid,
+  '8a62e4b1-6857-46af-a1a0-d9f0c5736472'::uuid,
+  'eee7bf98078db4ac43cad853c4272d1e22877e256b9f1eba528249d0397f89fd',
+  'feya-review-207-20260924',
+  'holographic-leather-feather-top-skirt-sparkling-rave-outfit-iridescent-stage-costume-party-wear-bra-with-petals-showgirl-clothing-4332119985'
+),
+(
+  'a6337955-4cb6-4270-8c0e-a178442350ac'::uuid,
+  '502f11d8-f705-474a-a7ab-d853c587aae9'::uuid,
+  '9203bb8b-2269-4ba9-9fae-37c3d1d4dc9d'::uuid,
+  'e2bd5e0a8ce75ddc197a3e87d43af5f49f56f86d4ee1c97b2c5a3a037e7b934f',
+  'feya-review-207-20260924',
+  'metallic-futuristic-lingerie-set-sexy-festival-costume-set-pole-dance-wear-chrome-leather-clothing-women-for-cosmic-party-event-4327895836'
+),
+(
+  'a6a81b75-c4a2-4b64-a2a9-48a221b08dc1'::uuid,
+  'f32f0ebc-87b3-4741-98f2-105cd2532c8d'::uuid,
+  '6d6f574f-7e31-4971-b160-0e1353b59acd'::uuid,
+  '7bd39dd5461226a6ec501b1b7a7374d33391676d3f135155cd84231947dbd419',
+  'feya-review-207-20260924',
+  'pink-rave-festival-outfit-for-desert-burning-man-party-4475237455'
+),
+(
+  'a6beccc2-bbd3-4040-8e29-af06efd6dd97'::uuid,
+  '7409b22a-e92a-4f46-8bb0-3d071f83d084'::uuid,
+  '550d57e0-8b3e-4486-8a6b-26808b340534'::uuid,
+  '3283dbf98b8ac618738c9f7869006d381cd56b79567e8be3196e8da51d33eae4',
+  'feya-review-207-20260924',
+  'fashion-armor-costume-set-with-metallic-corset-garters-leg-bracelet-drag-queen-futuristic-outfit-silver-cosplay-wear-1805788422'
+),
+(
+  'a7109e93-df1f-43a6-bb6f-62bdf74e4c4f'::uuid,
+  '47d903f1-2850-4b69-b9e6-ab1a2714a16a'::uuid,
+  'd54641ec-612e-40fb-b07c-dd2e0ae5be24'::uuid,
+  'c8e1e8faabd6447909bdaf10b4cf59fe4f12a266e0009d4c3a07a8abeb319bc3',
+  'feya-review-207-20260924',
+  'metallic-angel-armour-costume-set-golden-shoulders-armor-arm-covers-cyber-punk-accessories-burning-man-costume-1904440029'
+),
+(
+  'a74a2415-92a4-488c-b4d2-7bdeb601a0c4'::uuid,
+  'b1ea99fa-c697-4111-92ea-209336d6d8b5'::uuid,
+  'ecb7b991-175a-4a0c-b0b0-3bd6bffe79d3'::uuid,
+  'd4b861f0ee251f3727802f70ce68c5ae193a9097bf058b947d7a94733e0654a7',
+  'feya-review-207-20260924',
+  'golden-festival-horns-headpiece-drag-queen-costume-set-bodysuit-helmet-with-horns-metalic-leg-garters-body-chain-outfit-burning-man-4297325260'
+),
+(
+  'a759b44e-1329-47a6-a444-0c9feabcc0ce'::uuid,
+  'ea67e3c8-e2d5-4492-a2ec-e57d1becae1c'::uuid,
+  'fdba4aea-e5fa-420f-a291-e42981532cf4'::uuid,
+  '40740fe539450ccfbe0fa1526f6d1468ea29125ec5dede518efe47a08a254a3b',
+  'feya-review-207-20260924',
+  'festival-couple-costume-set-futuristic-outfits-for-men-women-golden-leather-costume-burning-man-wear-metallic-rave-armor-4302158749'
+),
+(
+  'a767a1c1-65e7-4c0a-bd18-7a92f8ea4986'::uuid,
+  '89e46eb1-11d0-46ab-be21-d0cc5bf6bc72'::uuid,
+  '20558e32-cf12-4a12-8bfc-f2c51d0e1b54'::uuid,
+  '6835b637b7797280ee541b682b6592fc1bea04302a1e3a32637f5dd41fd18115',
+  'feya-review-207-20260924',
+  'golden-horns-costume-set-metallic-bodysuit-with-horns-and-leg-covers-for-cosplay-parties-shows-carnivals-performances-1780729637'
+),
+(
+  'a83b1b51-79be-4cae-a943-661060a34080'::uuid,
+  'cb0352ac-4753-441b-800b-237f01e26e70'::uuid,
+  'c1203762-3fb8-4000-9e58-8b259d5b0322'::uuid,
+  'cf6b3eed34997f41fdda6e46af83e59b1f322dae5f2858a9972e19ee94166f53',
+  'feya-review-207-20260924',
+  'cyberpunk-armor-set-arm-leg-covers-for-futuristic-cosplay-apocalyptic-robot-wear-metallic-cyborg-costume-for-festival-burning-man-1810806419'
+),
+(
+  'a875757c-140d-4fea-83f9-93098406c3b1'::uuid,
+  'bef183c4-4771-4f51-8312-35de8e310b5d'::uuid,
+  'd4d244b5-3a62-4f35-a6e6-9c707e7b16df'::uuid,
+  '29f32847c7f346ba6f67f7ca4392d84d1a4d2d4bd54a62a1d3cc2ab8d3cba47b',
+  'feya-review-207-20260924',
+  'silver-amazon-armor-costume-set-metallic-shoulder-arms-covers-futuristic-outfit-cosplay-accessories-burning-man-wear-sci-fi-look-4331275101'
+),
+(
+  'a94b5c1b-3346-4868-b0f6-7a60d954530e'::uuid,
+  '60574695-ede3-40df-9723-60bb80b28975'::uuid,
+  '49c35be3-1ef1-43ef-962a-83554040605a'::uuid,
+  '3ea9752185605a461d48b0447467bb07b341b615b79153b00ac07d2e535bdabb',
+  'feya-review-207-20260924',
+  'gold-warrior-armor-set-cosplay-headpiece-harness-top-shoulder-armor-leg-covers-festival-outfit-metallic-leather-performer-costume-1885178663'
+),
+(
+  'a97ca78f-ed0d-4f17-a18d-8d54efd2679a'::uuid,
+  '406aa9f9-d9b1-41c6-aabd-f46ee6f291f9'::uuid,
+  '4e9fb5b1-1442-40bb-abec-59bdf2769cb1'::uuid,
+  'f310ec66321ccc142ce4bdf11bcca9bd5a5cbb36254bef52b0826cc9b14d8948',
+  'feya-review-207-20260924',
+  'glamorous-rave-bodysuit-festival-woman-outfit-festival-costume-set-party-rave-clothing-women-pink-iridescent-bodysuit-festival-catsuit-1870586860'
+),
+(
+  'a9f110dc-4ed4-454f-9e28-f67ca5a042e1'::uuid,
+  '04d81ba4-253d-40a0-8710-dd26cb6bbf29'::uuid,
+  '532fec8e-f35c-4774-9655-ba172c35122a'::uuid,
+  'ab0eb5bcff686a5d35f29d8d70ce7bc0aae93759bba8cb88a82b4e14b2db311d',
+  'feya-review-207-20260924',
+  'exclusive-dance-bodysuit-costume-set-women-s-futuristic-clothing-cosmic-fashion-outfit-unique-halloween-wear-gogo-pj-showgirl-4297324701'
+),
+(
+  'a9fa4b69-4f79-4669-bd60-783a05d12296'::uuid,
+  '69815dcb-64c0-494c-9f30-d2a65451c5d3'::uuid,
+  'f9c92656-38de-4551-89ab-b5ac2de5dd9d'::uuid,
+  'effef7b05000290ffdc7162b2baa593bb22ffbccc6f1b2e42d28d3389bc90561',
+  'feya-review-207-20260924',
+  'unique-fashion-costume-set-with-golden-leather-top-and-skirt-for-stage-show-perofmance-clothing-for-women-party-wear-crop-top-gold-basque-1842964832'
+),
+(
+  'abf11fbb-9794-484d-b93c-1449fa3a9a44'::uuid,
+  '36dfc300-03af-4b20-8bf3-584859baaac8'::uuid,
+  '651ee0b2-6fc6-4277-bb2c-490c0db166c9'::uuid,
+  '2a04ba70a5c52c2760c33a06de549623d9a8d7c2ac0a6dfd297857ad803f0a62',
+  'feya-review-207-20260924',
+  'luxury-leather-set-of-metallic-belt-necklace-stylish-waist-belt-women-s-fashion-accessories-formal-corset-for-dress-chrome-choker-1830552273'
+),
+(
+  'ad0e3743-70cf-4b59-9da6-88080d7f3651'::uuid,
+  '482c6b89-ff43-477f-8414-c90e1e117392'::uuid,
+  '37edf24d-7cf9-4b15-ae3c-342e8a99ae6a'::uuid,
+  'e18ad046435708f7c46ba8973e1baa7ee64337189910703154c62e99192da257',
+  'feya-review-207-20260924',
+  'holographic-feather-festival-outfit-stage-costume-set-4461233290'
+),
+(
+  'adbb91ec-29d2-490f-9844-f73b22111e36'::uuid,
+  '6a2125f0-51cf-441b-974d-db8f7028fa93'::uuid,
+  'e825f429-8514-49ec-919a-a9285b1b2ac8'::uuid,
+  '8766f6108eeff8e256b328f065fe1dd03335a54d21b10eeb2e4a6e85308b3333',
+  'feya-review-207-20260924',
+  'women-s-festival-fashion-set-for-burning-man-shoulders-top-skirt-4480909985'
+),
+(
+  'afdb0aea-7a68-45e8-bbdb-5b7b03ec71ea'::uuid,
+  '9ee7c993-84dd-48b5-b14d-d5ee608af43c'::uuid,
+  '9e36cb7d-f4f6-4606-a4c6-e49181296a67'::uuid,
+  'ca550a0e1114ec8c9fcef3a78dca217017b82b8ac724d450c220674b19013e80',
+  'feya-review-207-20260924',
+  'festival-outfit-with-top-shoulders-fringe-skirt-gold-metallic-harness-burning-man-clothing-4515171099'
+),
+(
+  'b0b2a75c-f301-45d6-857c-dd6575862619'::uuid,
+  '034a09ab-e64f-40cb-b603-6a148fd6a639'::uuid,
+  '39997eb3-8044-425d-b9ff-98f01561e203'::uuid,
+  '70bd3a7e40fadda0582de8fd856b58ee0bb6110cd4fdc2dcc8e346841fd21e27',
+  'feya-review-207-20260924',
+  'men-s-sci-fi-armor-outfit-futuristic-white-leather-costume-set-burning-man-wear-1890733162'
+),
+(
+  'b18d342a-c323-4f11-8c98-d5eb5f543e12'::uuid,
+  '357b5efb-33b8-48e2-bf88-0d69a1ae4008'::uuid,
+  'ea07a9eb-9879-47d5-a824-78572985c5ce'::uuid,
+  '998c7253a8545f1b37ab38c73b234a850156917ad06953c2e5110b1520b4bf2b',
+  'feya-review-207-20260924',
+  'gold-stage-costume-set-with-horns-headpiece-metallic-leather-bodysuit-leg-garters-show-party-outfit-women-s-peformance-clothing-1842478040'
+),
+(
+  'b28d72d8-330b-400f-b595-124edc3f78f3'::uuid,
+  '0455957a-7e8a-48e6-b4c8-b42f33c481e1'::uuid,
+  '2350f395-a15e-4847-b9f1-77a2da63ba37'::uuid,
+  '8f4cd749823b4fe559e773bd773cfb38b8b38e3027d8d32f5dd6a217b4cb5c22',
+  'feya-review-207-20260924',
+  'silver-festival-set-skirt-and-bra-metallic-outfit-for-women-sparkling-top-skirt-rave-wear-performance-clothing-unique-party-costume-1842881838'
+),
+(
+  'b3910e41-9de7-483f-8d88-5783e8d90607'::uuid,
+  '548d624b-d5bb-4d4b-8203-acb4236c2840'::uuid,
+  'cdafde3f-291e-4a27-9386-8b7261e24e17'::uuid,
+  '9e2e374cb7bfc6a869d19a9d2338fba29d8fb12f7df04ec51a5d5049bae3833b',
+  'feya-review-207-20260924',
+  'unique-cosmic-festival-outfit-metallic-top-panties-silver-female-armor-wear-set-for-rave-futuristic-top-cyber-punk-harness-1810445741'
+),
+(
+  'b524764b-6dba-4c51-be55-f1ec92fc60cf'::uuid,
+  '05d3abb9-347f-4f84-ab43-4030238c6a06'::uuid,
+  '193b9918-3415-41fc-be09-e39ef3751730'::uuid,
+  '0c9749fd33549af1b4db8c8f6c72ca0f8bf895c537c51ab45ba693ce3a82f937',
+  'feya-review-207-20260924',
+  'gold-amazon-armor-set-female-warrior-costume-fantasy-festival-outfit-cosplay-armored-body-plates-4369438053'
+),
+(
+  'b5fbab09-1be1-439b-be72-582beceed09a'::uuid,
+  '05964fb4-6ab7-4138-bf0c-5a25b4e6ef2a'::uuid,
+  'cd8b019a-c4b1-4c33-b7ab-eb938b2173ec'::uuid,
+  'c00d86defb804ce22f8cc2c49dda86e3e5ad18d8b3f1a6628d983ca635b8cbf7',
+  'feya-review-207-20260924',
+  'goddess-rave-outfit-fringe-skirt-harness-top-gold-metallic-festival-wear-for-burning-man-edm-party-look-futuristic-cleopatra-cosplay-4339552273'
+),
+(
+  'b68d0386-ed1f-4410-8001-185bf3aaf25f'::uuid,
+  '1ca066a4-1a2c-45ef-afed-65eb14f8083e'::uuid,
+  '73977f62-78ca-4e20-93c5-a5c197d5ce24'::uuid,
+  'e426c23fffa74f16712943ed968f7dac9032b0cd8b473e334f2707c0c9377f58',
+  'feya-review-207-20260924',
+  'metallic-dragon-cosplay-set-headpiece-shoulders-spine-glove-women-s-mystical-costume-for-theme-party-outfit-luxury-fashion-wear-adult-1858744979'
+),
+(
+  'b6e0171f-4d42-4d71-88b1-ee0d4e0e109e'::uuid,
+  '6a9dade5-768e-4eef-b02e-f8e921eefa64'::uuid,
+  'b3d08986-9223-47fa-9c1d-a8d4b8de18e0'::uuid,
+  'd172be1df9f762cdf0247a068dfda40e74bc2128157d367af4610d0b814cf7f1',
+  'feya-review-207-20260924',
+  'apocalyptic-warrior-men-s-costume-burning-man-gold-armor-outfit-rave-festival-fashion-steampunk-leather-shoulders-futuristic-dune-wear-4348580005'
+),
+(
+  'b6fe4fd9-400d-4fc4-a6e1-2e1dee936371'::uuid,
+  '3e4c6b34-2afe-4439-b535-c96df86f2cad'::uuid,
+  '1a3c0eef-e3f5-4dcb-ad88-5ef0f2a2c240'::uuid,
+  '901c83543d40485f524ef03f6e60aae3cc816d1c8a8404bebe158f2675140c2d',
+  'feya-review-207-20260924',
+  'black-rave-wear-set-collar-skirt-top-slave-shorts-punk-chain-futuristic-bralette-festival-chain-1866805089'
+),
+(
+  'b7003343-6537-437d-9dab-cdf902d37b7e'::uuid,
+  'c535d741-ade2-4e4c-8201-7982f655b304'::uuid,
+  '8a53f147-14a6-40e2-85e5-500aabc523c5'::uuid,
+  '7f6a0c65a0a272063ad416f8a479eab65f871f9ce0decbf4ea7cb1e2f1c62715',
+  'feya-review-207-20260924',
+  'cyber-punk-festival-outfit-metallic-top-skirt-bracelet-silver-armor-set-for-rave-futuristic-wear-fashion-apocalyptic-clothes-for-women-1811780825'
+),
+(
+  'b8ab6fa1-1af6-4c52-b6fb-5b766e6d99da'::uuid,
+  'd3ae25e3-aea2-476e-885b-ad84b20f42ad'::uuid,
+  '372c9930-1d8a-4b60-b3fe-91451ad87409'::uuid,
+  '01caf501e9a979a34602b3224a5aceb29480181ffa3c5b56b170c32c40e35c4e',
+  'feya-review-207-20260924',
+  'leather-kinky-outfit-with-harnesses-set-choker-chest-harness-leg-garter-men-s-body-strap-leather-punk-wear-sexy-bdsm-fetish-costume-male-1866844403'
+),
+(
+  'b9a476c7-b902-4fea-bead-ec5b2275e835'::uuid,
+  '67e745be-5282-4d75-9947-24f6b0610032'::uuid,
+  '85b8e5da-1c7c-4bc2-b6c2-93efb1e7c616'::uuid,
+  'e0567ab2eea7c4579d77a7a6277646b72c51d224eeb4cbffd0d91678f7d32b67',
+  'feya-review-207-20260924',
+  'mirror-bunny-mask-adult-reflective-outfit-with-rabbit-mask-mirror-corset-over-knee-boots-stage-costume-performance-dance-show-girl-outfit-1899491479'
+),
+(
+  'b9e7bdbd-1edd-41c5-af9e-8f3799469715'::uuid,
+  'b24a82de-420e-48d8-bb12-f56e50c39157'::uuid,
+  '99b7d826-a8a6-41e3-9f2f-4f59a68cd1ab'::uuid,
+  '1febf79a26486561412809d2d76782959ec08433941fcd0f7a78ebb519cc4839',
+  'feya-review-207-20260924',
+  'futuristic-silver-dance-set-festival-wear-for-rave-edc-burning-man-outfit-exotic-stripper-robot-showgirl-costume-metallic-party-wear-1899282209'
+),
+(
+  'bc59df1d-edd3-4e63-9393-175c28d9be2b'::uuid,
+  '9abb55cf-15b5-4ec0-9bda-4e4e8971d67c'::uuid,
+  '8e30fd06-7c4d-4ffa-92e6-74216b41002b'::uuid,
+  'c22ebaf52fdf9f4edc689409deb292564c54efe4adbbfedcb86611e9f8f8120e',
+  'feya-review-207-20260924',
+  'futuristic-festival-costume-for-burning-man-outfit-mask-shoulder-top-skirt-bracelet-white-silver-leather-armor-wear-cyber-punk-suit-1877356645'
+),
+(
+  'bffb3644-a34d-437d-accc-4a661d1cac6f'::uuid,
+  '57aee2ab-9558-4a8e-b309-8fd1c7416aed'::uuid,
+  '96c756af-3175-4044-a08a-656c4accec10'::uuid,
+  'cb080721fcb80c09a81baaa060d6ff2175ea28bdc077943c4fa0621de0f9e923',
+  'feya-review-207-20260924',
+  'white-rave-outfit-festival-leather-shoulders-rave-open-skirt-cyber-punk-wear-burning-man-clothing-for-women-latex-armor-accessories-4343466307'
+),
+(
+  'c35b5b75-7e6e-492b-9528-6a126384086e'::uuid,
+  'ac8ea374-5106-4027-b627-51657f2368f3'::uuid,
+  '88d36656-650e-49c2-931f-e1cefc39395d'::uuid,
+  '307cf44655b12ca6c8b22d7c4459e694b1a8769617ccabdb841461ea5ef5ddb3',
+  'feya-review-207-20260924',
+  'holographic-festival-feather-top-skirt-burning-man-clotging-sparkling-rave-outfit-iridescent-costume-party-bodysuit-with-petals-1887390026'
+),
+(
+  'c3f1018e-665b-44a8-90db-ecc5bb64eedc'::uuid,
+  'ffa5b568-6b98-4c1b-a981-e75ff5b4b6f6'::uuid,
+  '8c93b9f3-c305-4d72-81bf-e66ea5639efc'::uuid,
+  '7b64e1c8911da3463ca1949145b849ec6dc111c3f5acf573b85dc50d731b8f07',
+  'feya-review-207-20260924',
+  'leather-harness-set-top-harness-garters-women-s-body-strap-leather-fetish-bondage-costume-full-body-belt-outfit-for-kinky-1865008271'
+),
+(
+  'c40e0895-a55a-4825-9592-cf6c23a14fe7'::uuid,
+  'c0a0f236-5eb7-4bf6-aaa4-78d2e1b033d0'::uuid,
+  '2e98f82d-9e61-4a84-ab41-02583a93ce4a'::uuid,
+  'c385d5c432196d136419303136982bda466a78f77b6a1b2207363fecaba4b932',
+  'feya-review-207-20260924',
+  'holographic-festival-outfit-with-top-shoulders-skirt-iridescent-costume-set-rave-wear-unique-festival-harness-party-clothing-women-4321610013'
+),
+(
+  'c52eafde-baaa-44ec-8729-c54e6c2f5706'::uuid,
+  '248a257d-5de0-48ac-a623-7a8bee49a965'::uuid,
+  '22817b33-c435-4c41-9874-35e5737a7540'::uuid,
+  '6a4e92b7ae5d5a1dee993c05a1371273310f101c8c563dec6e6d59862a648d9c',
+  'feya-review-207-20260924',
+  'men-s-outfit-for-burning-man-desert-warrior-costume-rave-festival-fashion-steampunk-leather-shoulder-dune-armor-wear-space-cowboy-4352810754'
+),
+(
+  'c661cd70-55e4-445e-97ab-591e22d02221'::uuid,
+  'e8ebedf1-5e5b-4106-8e37-9ffa01a5e497'::uuid,
+  '79e01764-a3d9-4489-8204-ddac5b949c2c'::uuid,
+  '811949fd3399004f568fc550173147c775b455dbac6b8cab01443c94a3f212a4',
+  'feya-review-207-20260924',
+  'futuristic-warrior-cosplay-costume-set-headpiece-wings-bodysuit-bracelets-leg-covers-cyber-punk-armor-outfit-burning-man-costume-1887136618'
+),
+(
+  'c7b07eb1-d003-471b-a3f9-40b1c98edc19'::uuid,
+  'c48f5f92-6510-496b-9e77-e42d292ea226'::uuid,
+  'ffa3b1f4-f0b4-448e-b7ee-4f4606c64371'::uuid,
+  '375d32051cf4e390d6e598be17d75b724c1d20a5aba41aad0bc6cd27e0054a5b',
+  'feya-review-207-20260924',
+  'gold-women-s-costume-set-for-performance-mirror-cat-mask-top-belt-jewelry-luxury-leather-clothes-adult-4375406395'
+),
+(
+  'c9ec5047-d7ca-4a97-9247-8d3fb56a3953'::uuid,
+  'ca8dc241-8afa-4953-a882-08e0979eedf5'::uuid,
+  'd28bf09e-fe9e-4e58-b718-7d4f289f1cf0'::uuid,
+  '1173997d0a8362aa25402b91891dab2d962d5a74c107bc9ae8fdd24efb6d3c4c',
+  'feya-review-207-20260924',
+  'mirror-bunny-costume-set-golden-breastplate-mask-and-skirt-with-chains-performers-clothing-artists-outfits-theme-party-costume-dance-wear-1773779110'
+),
+(
+  'ca291096-219d-4269-981c-97f6929da308'::uuid,
+  '7c8f6fa1-866d-47c9-91c4-15630c566230'::uuid,
+  'e702c715-ff60-4c1c-a78e-16dda71374b8'::uuid,
+  'd8edf7bd19585824c64b7d5ffb1ffad1bfc02a5cb16ce701f435b62366443bc7',
+  'feya-review-207-20260924',
+  'gold-festival-armor-lingerie-set-burlesque-fashion-performance-outfit-for-stage-drag-queen-costume-celebrity-showwear-showgirl-costume-4317053177'
+),
+(
+  'ca33ac05-47a1-49c8-9782-a78e0fa552b9'::uuid,
+  '4c0198bd-0d36-4976-88ec-597a67c4db93'::uuid,
+  '2d4d4459-2002-49da-98c1-4137e581e221'::uuid,
+  '162e7be241470d903a60d00d237a45f18fde9d8dfcd3f87fe35868a742e2c02f',
+  'feya-review-207-20260924',
+  'gold-festival-outfit-harness-top-and-open-skirt-women-s-rave-wear-4365765560'
+),
+(
+  'cb31d61b-027c-4c47-b7ba-bf16283ada9c'::uuid,
+  'e7eea09f-e9ce-4af5-8707-e5230ec6f3a2'::uuid,
+  'f9a68682-070f-4563-b1e3-5712b9084795'::uuid,
+  'dfdf672f7a74be75d627d405690a0defeea6e91c2de6e1eef0f682b8bece5122',
+  'feya-review-207-20260924',
+  'red-leather-devil-cosplay-luxury-latex-halloween-outfit-with-fashion-armor-shoudelrs-bodysuit-gloves-spine-tail-1804455423'
+),
+(
+  'ce899f23-b983-4ede-ae81-3348757b1c15'::uuid,
+  '2359eaed-93f7-41be-af19-b98016378e1a'::uuid,
+  '49d72f39-cb4b-488a-adc9-1f1a0efdde20'::uuid,
+  '3bbcf37dab1aafdd860c0c7dba480f895efc5fb6070dd0e1e10e5a7023c26f78',
+  'feya-review-207-20260924',
+  'burning-man-costume-set-with-bracelet-armor-shoulder-harness-garters-silver-rave-outfit-women-cyberpunk-accessories-metallic-wear-1842725537'
+),
+(
+  'd0625355-308f-4edd-9c28-e358491c12a3'::uuid,
+  'd7c874f1-27fa-449f-a24a-f8049f11fdb0'::uuid,
+  'a4b1f524-c6c7-4f5b-8015-d11195528afd'::uuid,
+  'c750ee052a78c20ec4f02064aeb80b613130425ad77e2590118c9de7f18d6ca1',
+  'feya-review-207-20260924',
+  'carnival-dress-with-mask-top-skirt-bracelets-women-s-costume-for-show-silver-clothing-for-performances-metallic-dance-set-burlesque-wear-1859300877'
+),
+(
+  'd06ab9d9-52c5-4f8c-b583-d9e5316eb69c'::uuid,
+  'a545f5ee-2369-4077-932e-bdac8330c7ea'::uuid,
+  '40cc611a-3d5a-4967-95a4-8f1422c9c1b4'::uuid,
+  'a3ec4580cd89b315533d55dc9a6eb84caaa9a7a14f4533a82cda82f74d368c7d',
+  'feya-review-207-20260924',
+  'space-themed-metallic-clothing-set-golden-top-skirt-choker-and-bracers-for-cosmic-cosplay-futuristic-costume-gold-robot-outfit-1786396925'
+),
+(
+  'd17c17b6-76dd-429d-bf5c-ccd432cd1e0f'::uuid,
+  '3f3b9907-4ae9-48d0-9150-70148b932c19'::uuid,
+  '8b8570c7-dff2-4ddc-8b63-4af9c732f858'::uuid,
+  'eccfa5456bb6597ca76c82d993c76af70f6bac7dbdf94db2052177b3fad57a86',
+  'feya-review-207-20260924',
+  'golden-futurystic-skeleton-costume-spine-tail-accessories-body-chain-jewerly-1845559538'
+),
+(
+  'd2a3b40c-fd74-4e25-93f5-cfce92b2d88b'::uuid,
+  '36478f60-4e17-4914-a041-67e326cba27a'::uuid,
+  '57aa6c80-cde4-4ac0-8840-19146f239153'::uuid,
+  '657aebe0f33c797af9c676f1d404f2084c867f27049d9b4de9de6763ec95b1e5',
+  'feya-review-207-20260924',
+  'futuristic-desert-outfit-cosmic-costume-festival-armor-wear-burning-man-clothing-chrome-female-warrior-cosplay-metallic-accessories-4337230946'
+),
+(
+  'd42b9d73-1327-49fa-bfab-9a732b133772'::uuid,
+  '8b4fedbd-a047-4794-8863-a3c376538ee5'::uuid,
+  '7270a4b6-2647-4ab3-aedd-af1bf65f9e1a'::uuid,
+  '17772d0761e4910c5d03fe0c012f813c2ac3efee17059200112925972080e804',
+  'feya-review-207-20260924',
+  'best-festival-armor-outfit-leather-shoulders-skirt-gold-metallic-harness-rave-armor-wear-burning-man-clothing-festival-accessories-4340584466'
+),
+(
+  'dc6e07c7-f758-4a6c-8f09-fa3f2d9f99cc'::uuid,
+  'f121f5ed-54fc-4dda-9281-68a0a15c0ce8'::uuid,
+  '2056da93-fa99-424c-a3d1-14539d0c7535'::uuid,
+  '50f45f7badfa9be081d46f3d6f3446c6c71f0fa56ab45feafbd3ccab40b73d5f',
+  'feya-review-207-20260924',
+  'festival-outfit-for-women-rave-top-with-shoulders-and-belt-robot-costume-burning-man-clothes-set-4373111053'
+),
+(
+  'dcd0d24a-473b-4592-b56f-466fda984b1e'::uuid,
+  'ff9f35a5-4046-4c82-bd20-eca46b967a8d'::uuid,
+  'd5b783a8-ede9-4d19-b2f4-191e521f67fd'::uuid,
+  '427947880add2a1095776193f75d16ebc3957f298ece3cc0553ecb00b6c01fe0',
+  'feya-review-207-20260924',
+  'gold-performance-costume-set-exclusive-event-party-stagewear-with-top-belt-cuffs-luxury-showgirl-outfit-4373496299'
+),
+(
+  'de38a842-37c4-40a7-86b4-393341c4c9aa'::uuid,
+  '537e4579-3fd7-4b96-99c8-c3708b3aafa9'::uuid,
+  '2bc2470b-3c1d-4290-bcdd-56b61de2b5ce'::uuid,
+  '3c3e418fb3f44cfb51ade1e7337686521a315300735f54fa37dce1ddbd71f4ff',
+  'feya-review-207-20260924',
+  'deluxe-leather-harness-for-men-best-groomsmen-gift-vintage-brown-leather-harness-men-s-wedding-accessories-handmade-chest-harness-1871310023'
+),
+(
+  'df030151-5853-46c1-be89-06f059224a44'::uuid,
+  '643594ed-b34f-4e5e-a22b-f1656281db24'::uuid,
+  'df078502-283e-40ce-bf8b-5a7a33bb84d1'::uuid,
+  '604587d1114e64348c62bb9be7143068f12957a8f2502e26c02137a96fb5ce8b',
+  'feya-review-207-20260924',
+  'fashion-dancer-costume-set-mirror-bodysuit-over-the-knee-boots-for-stage-shows-performance-and-parties-1797355053'
+),
+(
+  'df2227dc-3d74-4b19-848f-f9210e46dccd'::uuid,
+  'fe0855b3-402b-467a-b11b-0505993d5836'::uuid,
+  '3db7fa24-90ef-42c6-aacd-e9ebca230e95'::uuid,
+  'fe09b09fe859a0bc7ba0b553101d6725d563eee2cb7756851a4e23ba35e90b5b',
+  'feya-review-207-20260924',
+  'best-futuristic-costume-set-festival-armored-outfit-gold-metallic-rave-wear-cosmic-fashion-clothing-cyber-armor-burning-man-party-wear-4395225905'
+),
+(
+  'dfd36bcb-88f9-40fb-95c9-8e6e4c609fdd'::uuid,
+  '85e5e2ea-2b81-496c-be15-4247cc1dda97'::uuid,
+  '198f3785-b825-4514-a592-993890c16aad'::uuid,
+  '1de407386960c191ebfa41550b5b41a3a30c7f7a0626afb41a0ef276680269d7',
+  'feya-review-207-20260924',
+  'holographic-rave-outfit-with-top-shoulders-fringe-skirt-futuristic-harness-fashion-burning-man-wear-festival-accessories-1887400834'
+),
+(
+  'e01ef0b1-6155-4d02-a3cd-413d272502b3'::uuid,
+  'ba259780-cffa-43d4-9ed3-a590a2bb49f4'::uuid,
+  '9668cfbe-0529-4b6c-91a4-352117c78d7f'::uuid,
+  'f55585e7ee2e405f4d405b672269ff0b12fd2150739983140c3bbe702542fa4f',
+  'feya-review-207-20260924',
+  'futuristic-stripper-outfit-chrome-skirt-top-bracelets-pole-dance-wear-silver-dancer-costume-gogo-showgirl-performance-clothing-4297340346'
+),
+(
+  'e247cf0a-cea9-4570-ab68-c8a5505a7845'::uuid,
+  '4ee43798-5796-4e69-aa17-134b3940536b'::uuid,
+  '7cab5a56-71cf-469b-b1d7-852fc4d09db4'::uuid,
+  'e622844a77faa5d122b29c320b60fbc187ad1460714bfd3ad9c4294355f17a9c',
+  'feya-review-207-20260924',
+  'chrome-futuristic-costume-set-festival-outfit-showgirl-wear-silver-cosmic-outfit-dance-carnival-clothing-1879309908'
+),
+(
+  'e2d129b4-eb97-4ab4-ad6b-dfaef040b5fa'::uuid,
+  '8d473024-9218-44c9-b422-4456c57b0384'::uuid,
+  '7b2776b2-2a37-4b10-b8ff-c7360184a53a'::uuid,
+  '7a94d59bf43271155bb2e30346b406a37f0d640b0ab13e9dfa0e282017a936fc',
+  'feya-review-207-20260924',
+  'men-s-white-angel-armor-outfit-futuristic-leather-harness-costume-pride-festival-wear-pole-dance-stage-clothing-4364725679'
+),
+(
+  'e39f9164-4001-4f63-9407-a1ddd3d962dd'::uuid,
+  '0784ce1e-7f8b-44e7-b8d9-e2a4cfa8bfee'::uuid,
+  '843e2b31-62fd-4a02-b17b-4424bd768027'::uuid,
+  '48325cd2c3740f8d4f51ce3e1e5df332f08d50c6ff0203dc0b2f193577442224',
+  'feya-review-207-20260924',
+  'cyberpunk-mirror-armor-costume-bodysuit-leg-covers-metallic-cyborg-cosplay-outfit-for-showgirl-performances-apocalyptic-robot-wear-1792447742'
+),
+(
+  'e46d7064-6d80-42db-b321-beb8bbdccc69'::uuid,
+  'b2a747fb-0c0c-4606-b0d4-bb52c563ad32'::uuid,
+  '4d2ccdb7-f44f-4da2-9676-55861feb843a'::uuid,
+  '0592535ceb89ce2af92100c6fb74c75bde94fa82da64093e606b9325c1fd3046',
+  'feya-review-207-20260924',
+  'silver-gogo-dress-women-s-futuristic-outfit-chrome-skirt-and-top-pole-dance-wear-metallic-dance-costume-showgirl-performance-clothing-4397331078'
+),
+(
+  'e51e0a66-8358-41f9-bd51-2ab4833b24b3'::uuid,
+  '15632a6c-602a-49f8-b252-92df09e8217f'::uuid,
+  '04917371-7ae7-491e-929f-0f2313b8097f'::uuid,
+  '1063b5b36db3e2e16aba0edc88eda0fbbdd8a3f33f15fe565f38ebb556bc9670',
+  'feya-review-207-20260924',
+  'men-s-cyberpunk-captain-armor-chrome-leather-costume-set-cosmic-warrior-cosplay-burning-man-armour-outfit-futuristic-apocaliptyc-wear-4364292059'
+),
+(
+  'e7238b1d-565c-4c4d-a7ae-a4402de80720'::uuid,
+  '3281a7e1-ef26-4d37-b5bd-7469685cc65a'::uuid,
+  '4f286d63-4595-4100-bfa4-9c37da0b4b9c'::uuid,
+  '81bfae7331e9eb322960352b6d3483c753ddfda759903ab804991129b264f534',
+  'feya-review-207-20260924',
+  'red-dance-costume-set-bodysuit-skirt-leg-covers-spine-tail-for-futuristic-clothes-dance-fashion-outfit-gogo-pj-costume-for-women-1804847653'
+),
+(
+  'ea365de7-a807-40a1-abb4-374d9df7f156'::uuid,
+  'c9d2aa1e-d26b-4309-9c02-67e0c2c38c47'::uuid,
+  '72301ba3-2129-4a25-8d7a-40c860bff6d5'::uuid,
+  '00750b2ad324cac120b54a17bf751f8028dcd0498f6111bd2dfea2483158a492',
+  'feya-review-207-20260924',
+  'golden-armor-costume-set-with-shoulder-and-leg-covers-metallic-leather-skirt-bracelets-shows-costume-for-carnivals-wear-performances-4328144233'
+),
+(
+  'ec204df6-13b6-4deb-b493-04391501d72d'::uuid,
+  'f404a809-8432-487c-97a5-4318a3963ee8'::uuid,
+  '621608a3-ebd1-464f-8c71-76d38441a829'::uuid,
+  '763a7839dc727c9e2af51e20d1cb5d26077e0011a5dea6d8be4bad8f495b1d49',
+  'feya-review-207-20260924',
+  'futuristic-female-warrior-costume-set-metallic-shoulder-top-bra-belt-garters-arms-covers-silver-armor-outfit-festival-burning-man-wear-4331115124'
+),
+(
+  'edc709f1-3a74-43d6-bd00-6c0569392f1b'::uuid,
+  '587f3aad-802f-4bc7-a357-ab37e3490a8d'::uuid,
+  'b05b5155-a39d-4dc8-bb98-63c9a464fa95'::uuid,
+  'fa2941d7fb58f69a973f9fdcd49f7852cca46720b14e78aee478081674635586',
+  'feya-review-207-20260924',
+  'silver-futuristic-dress-women-s-cosmic-costume-sci-fi-clothes-accessories-4507119072'
+),
+(
+  'f012a88f-44db-4e17-ba57-7f60bb7b5719'::uuid,
+  '336719af-5aaa-454f-a9ce-d71d8eff96b9'::uuid,
+  '6c177393-f60e-4294-8045-04fd22d8a23e'::uuid,
+  '552a4693104b65ee55b2b68b94c50567f1bb57959a4c71de7bea483894966842',
+  'feya-review-207-20260924',
+  'festival-couple-costume-set-futuristic-rave-outfits-for-men-women-burning-man-wear-4488185754'
+),
+(
+  'f0e73d70-cf3d-4557-8d59-142c78a106ac'::uuid,
+  '71100290-8134-4d3f-b4c1-c8abebeaa005'::uuid,
+  '03d8907c-0a13-4876-8698-723c2f7c3b67'::uuid,
+  '578be3341f61adb617e76797c8afd13e8062684ae01a24005399826315cedf19',
+  'feya-review-207-20260924',
+  'purpure-costume-set-rave-punk-glamour-top-and-skirt-for-music-party-outfit-women-s-clothing-foor-event-futuristic-leather-clothes-1861254697'
+),
+(
+  'f27fdb4d-d007-4d4c-899c-a50728c1ea4d'::uuid,
+  '80d2a7fa-5dcf-4e3c-993b-62c4bc0290e8'::uuid,
+  '89cea5bd-e278-4062-be1d-8387fd9bc45a'::uuid,
+  'e9eb58f1b7a1e92363cca65245ad4d036f02c01827c1002ddb1c6b5d1e6788eb',
+  'feya-review-207-20260924',
+  'silver-futuristic-costume-set-festival-armored-outfit-metallic-rave-wear-cosmic-fashion-clothing-cyber-armor-chrome-party-wear-4395263984'
+),
+(
+  'f36acd08-1591-4e15-8ad2-96bc22ec4b77'::uuid,
+  'ca777819-1c30-4416-ad77-9bdfadc426fb'::uuid,
+  '9303de31-91db-48a5-91e5-8c0cbdc44e76'::uuid,
+  'b92d2cc891375df624302b982eb15de90884b6180091080d4d00c747489170d0',
+  'feya-review-207-20260924',
+  'futuristic-metallic-corset-chrome-chest-armor-for-women-festival-outfit-cyper-punk-breastplate-cosmic-overbust-corset-silver-bodysuit-1870629554'
+),
+(
+  'f3d4bdd8-9ba0-400b-9cfc-e4a8097707fc'::uuid,
+  '2eff3bf1-57bb-40a0-aab6-3350a9638333'::uuid,
+  '7a2c2076-9848-46b6-9b6c-2544677edca0'::uuid,
+  '38478288a89e4cfb1cdf983e096fce1e9517daab351178b8bdebbcc07bddb7c9',
+  'feya-review-207-20260924',
+  'chrome-stage-armor-lingerie-set-burlesque-fashion-performance-outfit-futuristic-drag-queen-costume-celebrity-show-wear-showgirl-costume-4331068085'
+),
+(
+  'f3f7a334-3b77-44ce-bb2a-b0daff184ab1'::uuid,
+  'b384719a-df35-41af-8ec3-2a84d2f03cbe'::uuid,
+  '18e6d379-08f3-4db7-a207-0e8affe1b392'::uuid,
+  '218c5905343b73baf522b339e019997eb91c4bf4fe91976457a4c65960095686',
+  'feya-review-207-20260924',
+  'brutal-leather-harness-set-choker-top-harness-leg-garter-men-s-chest-harness-leather-kinky-wear-for-men-fetish-clothing-male-1844501236'
+),
+(
+  'f44cb59b-1632-4c86-b376-8afd205a6e63'::uuid,
+  '1e36c060-f1c1-404e-ade2-92827474a4d7'::uuid,
+  '26875bef-1dc5-4044-8044-fa3963999a89'::uuid,
+  '5e3daa206b2ffc8ee10836479781dd478771f3cc3e0ad0965916621ead9122fd',
+  'feya-review-207-20260924',
+  'gladiator-cosplay-costume-set-men-s-armor-outfit-desert-warrior-wear-golden-leather-shoulders-skirt-for-men-futuristic-male-armor-4352690758'
+),
+(
+  'f473fb62-0440-473c-a7fb-a52dccafebc6'::uuid,
+  'b1a5fe95-b922-444f-be38-295f207dcde9'::uuid,
+  '0235140f-f1f1-4ca1-9f8f-b47c63f2c20c'::uuid,
+  '45af7ca2bbbabbd13a955ea14ffd8d05c69f4d628bf94a024df253fb171d6c8f',
+  'feya-review-207-20260924',
+  'red-burlesque-dress-with-spine-tail-outrageous-costume-showgirl-theme-party-wear-for-women-drag-queen-outfit-fashion-leather-armor-1867311867'
+),
+(
+  'f6b85532-eae2-4036-badc-401141c2ad6e'::uuid,
+  'a1875d38-55ea-4cc9-a2bb-295b71199236'::uuid,
+  '29fa57ff-0362-487c-893f-9a0d8164c935'::uuid,
+  '2c93e935ca1e61538accaf15cda89840916b9ec051e465640ba671e7808fbb9f',
+  'feya-review-207-20260924',
+  'futuristic-festival-costume-for-burning-man-outfit-mask-shoulders-top-skirt-bracers-leather-cyber-punk-armor-4389402669'
+),
+(
+  'f746beae-43c9-4f4f-8307-301d136eda58'::uuid,
+  '5cafe8b7-f527-4f7f-836a-61ab8957cffa'::uuid,
+  'dbeda12b-b343-4685-bd69-b8c0d975c88b'::uuid,
+  'd18b61ec53de37955655cb2a4c0d9a50aead658070ae84f523e4eac58ce94d58',
+  'feya-review-207-20260924',
+  'desert-warrior-men-s-costume-burning-man-gold-armor-outfit-steampunk-leather-shoulders-arm-futuristic-dune-wear-4489659396'
+),
+(
+  'f81adf93-49a7-489c-b3a8-02520accce59'::uuid,
+  'c2c0b25c-620e-4c1b-bba7-1a6cb0632777'::uuid,
+  '9dda49c5-084a-4509-b1df-58e4461e3f9e'::uuid,
+  'd78015f1b85878e75461beef5444e0f8f613abf0dae811a1aba4f5b4cc8372cf',
+  'feya-review-207-20260924',
+  'rave-cosplay-outfit-with-bodysuit-arm-covers-leather-armor-wear-burning-man-costume-set-women-futuristic-desert-suit-luxury-dune-wear-4331805551'
+),
+(
+  'f86a13ec-184e-4764-9813-33b18db7dbb3'::uuid,
+  '7479eca4-2b66-4d4d-a4dd-ab7f25b178fe'::uuid,
+  'a722ddd7-1500-40f6-95ec-d3fe3ec8f461'::uuid,
+  '089b258cb9c3102a8f3aa2f9632409924b218b8becd245cddaeedacef68aa62a',
+  'feya-review-207-20260924',
+  'chrome-festival-outfit-metallic-top-skirt-silver-armor-set-for-burning-rave-wear-costume-alien-gear-futuristic-outfit-cyber-punk-1857311511'
+),
+(
+  'f96bb86c-43aa-49c1-a718-41fbe050a1ac'::uuid,
+  'c3734ac0-13a0-49f7-852d-c750faa08bba'::uuid,
+  '9fbd27bd-3881-40db-8520-73f542310d74'::uuid,
+  '46082d8e1b5f0d0dddbc1f329a24b1ace09ad45cc5b486cff79ba218f0f1bdaf',
+  'feya-review-207-20260924',
+  'silver-metallic-costume-set-rave-outfit-futuristic-alien-clothes-1818587058'
+),
+(
+  'f972aed2-6061-4973-8b20-8e1d2c362d77'::uuid,
+  '2fc11721-dfe3-49bd-b2ff-13449f347a43'::uuid,
+  '6edda51b-8629-4bb6-a510-3276061392d4'::uuid,
+  '746728e184d71649de9c190ad66eb11fac2f765d33c703c0f8b4770a9ce99278',
+  'feya-review-207-20260924',
+  'dance-costume-set-gold-leather-top-with-shoulders-and-skirt-futuristic-party-clothes-fashion-showgirl-outfit-gogo-pj-stage-perfotmance-4366965769'
+),
+(
+  'fba170e8-582d-45fa-b954-f9136e733950'::uuid,
+  '7320db67-f0c8-4283-beea-8ad1e183a4f9'::uuid,
+  '926aca55-f5c8-4a8b-af03-5df3d39f0abc'::uuid,
+  'f11a1ce04498ec8fc13bb6be79e0433b9cfb973454e2dccbac27dc981f935faa',
+  'feya-review-207-20260924',
+  'fashion-set-necklace-corset-skirt-for-stage-performance-wear-metalic-underbust-corset-leather-corset-dress-luxury-clothes-accessories-1859735365'
+),
+(
+  'fdd42158-087b-4190-9eb8-fda7f7460258'::uuid,
+  '158a8908-5fd0-40de-948f-c29862273394'::uuid,
+  'e3497818-ab14-4a33-9320-bf1fb32a19e6'::uuid,
+  '19a350537ef314b8269cddc12307e56443d037b5aead8c6e9ce66c921cbbcc76',
+  'feya-review-207-20260924',
+  'unique-silver-futuristic-bra-panty-set-female-armor-festival-outfit-metallic-rave-costume-exotic-dancewear-clubwear-stripper-clothes-1899259529'
+),
+(
+  'fefd1c3e-2fd1-47c9-970f-c30962c1a737'::uuid,
+  'ffa97236-f5a5-45d7-909c-75f20946e69e'::uuid,
+  '34d57a28-a8a0-4d46-b580-3931bff173ea'::uuid,
+  '1e5ccbf52662762a373f407e2ae5ecd90acb8b68075cdf238d533b122d70b38b',
+  'feya-review-207-20260924',
+  'festival-couple-costume-set-gold-futuristic-rave-outfits-for-men-women-burning-man-wear-4488971627'
+),
+(
+  'ff0996b6-f369-4313-baf5-2d465d9c06f2'::uuid,
+  'd0ddf9a9-187e-4b41-8767-316c2caf1ec9'::uuid,
+  '0b6ab3e7-8b40-4b6c-aa42-4f24d868e777'::uuid,
+  '3a58d21f534905bde3f441e9abddd9d219e1288b90f153732cf0885ceef81b42',
+  'feya-review-207-20260924',
+  'cyber-punk-costume-set-leather-armor-outfit-mad-max-gear-post-apocalyptic-wear-cosmic-festival-burning-man-accessories-1851558122'
+),
+(
+  'ffa74da5-c2e1-4c3a-b460-50d1aae09f56'::uuid,
+  '6a8b2084-f27e-4f62-a0c3-3ea31b6889d1'::uuid,
+  'bc8074ad-54fe-4e37-bc51-66a43f9eb417'::uuid,
+  '3e6aef25ef21e836f9331dd9e0a31802660783be9af03b527ea2653c16ad9812',
+  'feya-review-207-20260924',
+  'exclusive-dance-costume-set-fashion-bodysuit-over-knee-boots-for-stage-shows-performance-costumes-dancers-leg-covers-party-outfit-1890709428'
+),
+(
+  'ffbf1db6-6fae-4606-afbe-013415d6421d'::uuid,
+  '1f24c065-713f-478b-a8f5-b72789799e44'::uuid,
+  'e0323d90-1236-43cc-9d3e-673b5e6a3e18'::uuid,
+  '938f815a4e4a3fc5455657abc1f46b6224ba56551773e484dc9d9792951cf91c',
+  'feya-review-207-20260924',
+  'gold-fringe-harness-set-top-and-skirt-unique-festival-clothing-fashion-rave-outfit-metallic-leather-costume-performance-wear-1884437291'
+)
+on conflict (canonical_product_id) do nothing;
+
+do $$
+declare
+  v_count integer;
+begin
+  select count(*) into v_count
+  from public.feya_storefront_approved_product_bindings_v1
+  where source_release_ref='feya-review-207-20260924';
+  if v_count <> 207 then
+    raise exception 'FEYA_STOREFRONT_BINDING_COUNT_MISMATCH:%', v_count;
+  end if;
+end $$;
+
+create or replace view public.feya_storefront_product_cards_v1 as
+with membership_labeled as (
+  select
+    mi.canonical_product_id,
+    case p.url_path
+      when '/collections/shoulder-armor' then 'SHOULDER_ARMOR'
+      when '/collections/festival-outfits' then 'FESTIVAL_OUTFITS'
+      when '/collections/rave-outfits' then 'RAVE_OUTFITS'
+      when '/collections/burning-man-looks' then 'BURNING_MAN_OUTFITS'
+      when '/collections/stage-outfits' then 'PERFORMANCE_COSTUMES'
+      when '/collections/bodysuits' then 'COSTUME_BODYSUITS'
+      when '/collections/costume-masks' then 'COSTUME_MASKS'
+      when '/collections/costume-headpieces' then 'COSTUME_HEADPIECES'
+      when '/collections/festival-skirts' then 'FESTIVAL_SKIRTS'
+      when '/collections/costume-belts' then 'COSTUME_BELTS'
+      else null
+    end as membership_code
+  from public.feya_search_membership_items_v1 mi
+  join public.feya_search_membership_snapshots_v1 ms
+    on ms.membership_snapshot_id=mi.membership_snapshot_id
+  join public.feya_commerce_seo_pages_v1 p
+    on p.seo_page_id=ms.seo_page_id
+  where ms.source_revision='feya-review-207-20260924|approved-seo-pack-current|phase-d-20260926'
+    and mi.eligibility_status='eligible'
+    and mi.orderability_status='confirmed'
+),
+membership_codes as (
+  select canonical_product_id,
+         array_agg(distinct membership_code order by membership_code)
+           filter (where membership_code is not null) as membership_codes
+  from membership_labeled
+  group by canonical_product_id
+),
+facet_meta as (
+  select facet_snapshot_id,facet_contract_version,snapshot_hash,product_count
+  from public.feya_storefront_facet_snapshots_v1
+  where snapshot_code='feya-n7-20260928-v3'
+    and snapshot_status='PREVIEW'
+),
+base as (
+  select
+    b.canonical_product_id,
+    b.seo_page_id,
+    b.draft_id as source_draft_id,
+    b.content_sha256 as approved_content_sha256,
+    b.source_release_ref,
+    p.product_slug,
+    d.h1 as card_title,
+    d.h1,
+    d.seo_title,
+    d.meta_description,
+    p.product_type,
+    p.material,
+    p.color,
+    p.currency,
+    p.primary_image_url,
+    p.primary_image_alt,
+    p.secondary_image_url,
+    p.hover_image_url,
+    p.video_url,
+    p.has_video,
+    p.media_count,
+    p.min_price,
+    p.max_price,
+    p.full_set_display_price_amount,
+    p.category_label,
+    p.world_label,
+    p.canonical_color_label,
+    p.color_options,
+    p.configurations,
+    fi.parent_components_json,
+    fi.child_components_json,
+    fi.component_groups_json,
+    fi.component_values_json,
+    fi.sellable_component_values_json,
+    fi.event_values_json,
+    fi.style_values_json,
+    fi.persona_values_json,
+    fi.audience_values_json,
+    fi.material_values_json,
+    fm.facet_contract_version,
+    fm.snapshot_hash as facet_snapshot_hash,
+    coalesce(mc.membership_codes, array[]::text[]) as membership_codes
+  from public.feya_storefront_approved_product_bindings_v1 b
+  join public.feya_commerce_v_step7_storefront_products_api_v4 p
+    on p.canonical_product_id=b.canonical_product_id
+   and p.product_slug=b.product_slug_snapshot
+  join public.feya_commerce_seo_pack_drafts_v1 d
+    on d.id=b.draft_id
+   and d.canonical_product_id=b.canonical_product_id
+   and d.status='approved_draft'
+   and d.review_status='approved'
+   and d.archived_at is null
+  cross join facet_meta fm
+  join public.feya_storefront_facet_items_v1 fi
+    on fi.facet_snapshot_id=fm.facet_snapshot_id
+   and fi.canonical_product_id=b.canonical_product_id
+  left join membership_codes mc
+    on mc.canonical_product_id=b.canonical_product_id
+)
+select
+  canonical_product_id,
+  seo_page_id,
+  source_draft_id,
+  approved_content_sha256,
+  source_release_ref,
+  product_slug,
+  card_title,
+  h1,
+  seo_title,
+  meta_description,
+  product_type,
+  material,
+  color,
+  currency,
+  primary_image_url,
+  primary_image_alt,
+  secondary_image_url,
+  hover_image_url,
+  video_url,
+  has_video,
+  media_count,
+  min_price,
+  max_price,
+  coalesce(
+    (
+      select coalesce(
+        nullif(e->>'display_price_amount','')::numeric,
+        nullif(e->>'sale_price_amount','')::numeric,
+        nullif(e->>'base_price_amount','')::numeric,
+        nullif(e->>'price_amount','')::numeric,
+        nullif(e->>'price','')::numeric,
+        nullif(e->>'amount','')::numeric,
+        nullif(e->>'min_price','')::numeric,
+        nullif(e->>'max_price','')::numeric
+      )
+      from jsonb_array_elements(coalesce(configurations,'[]'::jsonb)) e
+      where coalesce(nullif(e->>'is_full_set','')::boolean,false)
+         or lower(coalesce(e->>'public_label',e->>'configuration_label',e->>'configuration_name',e->>'option_value',e->>'title',e->>'label',''))
+              ~ '(full[[:space:]]*set|complete[[:space:]]*set|complete[[:space:]]*look)'
+      order by coalesce(nullif(e->>'sort_order','')::integer,0),
+               coalesce(
+                 nullif(e->>'display_price_amount','')::numeric,
+                 nullif(e->>'sale_price_amount','')::numeric,
+                 nullif(e->>'base_price_amount','')::numeric,
+                 nullif(e->>'price_amount','')::numeric,
+                 nullif(e->>'price','')::numeric,
+                 nullif(e->>'amount','')::numeric,
+                 nullif(e->>'min_price','')::numeric,
+                 nullif(e->>'max_price','')::numeric
+               ) asc nulls last
+      limit 1
+    ),
+    (
+      select max(coalesce(
+        nullif(e->>'display_price_amount','')::numeric,
+        nullif(e->>'sale_price_amount','')::numeric,
+        nullif(e->>'base_price_amount','')::numeric,
+        nullif(e->>'price_amount','')::numeric,
+        nullif(e->>'price','')::numeric,
+        nullif(e->>'amount','')::numeric,
+        nullif(e->>'min_price','')::numeric,
+        nullif(e->>'max_price','')::numeric
+      ))
+      from jsonb_array_elements(coalesce(configurations,'[]'::jsonb)) e
+    ),
+    full_set_display_price_amount,
+    max_price,
+    min_price
+  ) as card_display_price_amount,
+  category_label,
+  world_label,
+  canonical_color_label,
+  color_options,
+  parent_components_json,
+  child_components_json,
+  component_groups_json,
+  component_values_json,
+  sellable_component_values_json,
+  event_values_json,
+  style_values_json,
+  persona_values_json,
+  audience_values_json,
+  material_values_json,
+  membership_codes,
+  facet_contract_version,
+  facet_snapshot_hash
+from base;
+
+comment on view public.feya_storefront_product_cards_v1 is
+  'Slim server-only card read model for the exact 207-product approved storefront corpus. No media_gallery or configurations are exposed.';
+
+revoke all on public.feya_storefront_product_cards_v1 from public, anon, authenticated;
+grant select on public.feya_storefront_product_cards_v1 to service_role;
+
+do $$
+declare
+  v_count integer;
+  v_distinct integer;
+  v_missing_images integer;
+  v_missing_facets integer;
+begin
+  select
+    count(*),
+    count(distinct canonical_product_id),
+    count(*) filter (where primary_image_url is null),
+    count(*) filter (where facet_contract_version <> 'feya-storefront-facets-v4')
+  into v_count,v_distinct,v_missing_images,v_missing_facets
+  from public.feya_storefront_product_cards_v1;
+
+  if v_count <> 207 or v_distinct <> 207 then
+    raise exception 'FEYA_CARD_READ_MODEL_COUNT_MISMATCH:%/%',v_count,v_distinct;
+  end if;
+  if v_missing_images <> 0 then
+    raise exception 'FEYA_CARD_READ_MODEL_MISSING_PRIMARY_IMAGE:%',v_missing_images;
+  end if;
+  if v_missing_facets <> 0 then
+    raise exception 'FEYA_CARD_READ_MODEL_FACET_CONTRACT_MISMATCH:%',v_missing_facets;
+  end if;
+end $$;
