@@ -56,5 +56,17 @@ test('approved-copy wiring preserves prior PDP markup, classes and component lay
 test('hybrid PDP keeps the purchase reminder sweep while approved SEO copy is projected', () => {
   const css = readFileSync('app/globals.css','utf8');
   assert.ok(css.includes("[data-testid='product-page'] aside .btn-gold.w-full.mt-2::before"));
+  assert.ok(css.includes("[data-testid='product-page'] aside .btn-chrome:not(.w-full)::before"));
   assert.ok(css.includes('animation: feyaBuySweep 5s ease-in-out infinite'));
+});
+
+test('PDP keeps the approved SEO description contract and code-owned support column', () => {
+  const source = readFileSync('components/ProductDetailClient.tsx','utf8');
+  assert.ok(source.includes('about_this_piece: 0'));
+  assert.ok(source.includes('why_youll_love_it: 1'));
+  assert.ok(source.includes('ideal_for: 2'));
+  assert.ok(source.includes('main_description: 3'));
+  assert.ok(source.includes('index === 0 && includedLines.length'));
+  assert.ok(source.includes('<IncludedDetail'));
+  assert.ok(source.includes('resolveThefeyaRightPdpPanel'));
 });
