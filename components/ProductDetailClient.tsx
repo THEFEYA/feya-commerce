@@ -303,7 +303,7 @@ export function ProductDetailClient({
 
     <section className="container-feya pb-4 grid grid-cols-12 gap-5 lg:gap-7">
       <div className="col-span-12 lg:col-span-7 grid grid-cols-12 gap-3 lg:grid-cols-[126px_minmax(0,1fr)] lg:gap-2">
-        <div className="hidden lg:flex flex-col gap-3 max-h-[650px] overflow-y-auto pr-0.5 [scrollbar-width:thin]">
+        <div className="hidden lg:flex flex-col gap-3 max-h-[650px] overflow-y-auto pr-0 [scrollbar-width:thin]">
           {gallery.map((g, i) => <button
             type="button"
             ref={(node) => { thumbnailRefs.current[i] = node; }}
