@@ -70,3 +70,24 @@ test('PDP keeps the approved SEO description contract and code-owned support col
   assert.ok(source.includes('<IncludedDetail'));
   assert.ok(source.includes('resolveThefeyaRightPdpPanel'));
 });
+
+
+test('hybrid homepage discovery tiles reuse the product-card hover sheen language', () => {
+  const page = readFileSync('app/page.tsx','utf8');
+  const carousel = readFileSync('components/HomePieceCarousel.tsx','utf8');
+  const css = readFileSync('app/globals.css','utf8');
+  assert.ok(page.includes('visual-hover-sheen group relative aspect-[3/4]'));
+  assert.ok(carousel.includes('visual-hover-sheen group relative aspect-[4/5]'));
+  assert.ok(css.includes('.visual-hover-sheen::after'));
+  assert.ok(css.includes('linear-gradient(110deg, transparent 30%, rgba(255,255,255,.18) 50%, transparent 70%)'));
+  assert.ok(css.includes('.visual-hover-sheen:hover::after'));
+});
+
+test('hybrid PDP projects option labels from the same approved SEO decision snapshot', () => {
+  const page = readFileSync('app/shop/[slug]/page.tsx','utf8');
+  const server = readFileSync('lib/seoApprovedStorefrontServer.ts','utf8');
+  assert.ok(page.includes('projectApprovedOfferSnapshot(result.product, approved.offerSnapshot)'));
+  assert.ok(server.includes('manual_focus_snapshot,product_truth_snapshot'));
+  assert.ok(server.includes('sellable_offer_signature'));
+  assert.ok(server.includes('optional_configurations'));
+});
