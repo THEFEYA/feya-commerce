@@ -22,10 +22,17 @@ test('all 208 current versions can feed the existing PDP; no review-only proposa
     assert.equal(copy.draft.pdp_blocks.length, 4);
   }
 });
-test('missing/unknown release, production target and disabled auth cannot activate review', () => {
+test('missing/unknown release, production target and disabled auth cannot activate ordinary review; protected owner preview can', () => {
   const env = { FEYA_APPROVED_CONTENT_REVIEW: manifest.version, VERCEL_ENV: 'preview', FEYA_ADMIN_AUTH_REQUIRED: 'true' };
+  const ownerPreviewEnv = {
+    VERCEL: '1',
+    VERCEL_ENV: 'preview',
+    VERCEL_PROJECT_ID: 'prj_ePIymo4sUG33wrRjHBxWrSlaxPID',
+    VERCEL_GIT_COMMIT_REF: 'design/hybrid-visual-integration-20260928',
+  };
   assert.equal(approvedContentReviewMode({}, manifest.version), 'disabled');
   assert.equal(approvedContentReviewMode(env, manifest.version), 'review');
+  assert.equal(approvedContentReviewMode(ownerPreviewEnv, manifest.version), 'review');
   for (const patch of [{ FEYA_APPROVED_CONTENT_REVIEW: 'true' }, { VERCEL_ENV: 'production' }, { VERCEL_ENV: undefined }, { FEYA_ADMIN_AUTH_REQUIRED: 'false' }]) {
     assert.equal(approvedContentReviewMode({ ...env, ...patch }, manifest.version), 'blocked');
   }
@@ -55,4 +62,12 @@ test('metadata proposals preserve descriptions and reject unknown fields, stale 
       assert.throws(() => previewMetadataReview(b.payload, b.identity, { ...review, ...patch }));
     }
   }
+});
+
+
+test('hybrid PDP uses live Product Truth plus immutable per-product approved copy instead of all-or-nothing closed release', () => {
+  const source = readFileSync('app/shop/[slug]/page.tsx','utf8');
+  assert.match(source,/isHybridVisualPreviewDeployment/);
+  assert.match(source,/hybridVisualPreview \? \{ status: 'disabled' as const, release: null \} : await readClosedReviewPresentation\(\)/);
+  assert.match(source,/readApprovedStorefrontCopy\(result\.product\)/);
 });

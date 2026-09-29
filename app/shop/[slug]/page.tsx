@@ -27,6 +27,8 @@ import { readApprovedStorefrontCopy } from '@/lib/seoApprovedStorefrontServer';
 import type { ApprovedCopyPayload } from '@/lib/seoApprovedContentProjection';
 import { readClosedReviewPresentation } from '@/lib/searchReviewPresentationServer';
 import { absoluteSiteUrl } from '@/lib/siteConfig';
+import { isHybridVisualPreviewDeployment } from '@/lib/ownerPreviewPolicy';
+import { projectApprovedOfferSnapshot } from '@/lib/storefrontApprovedOfferProjection';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -153,15 +155,25 @@ async function getProduct(slug: string) {
 
 // One request-scoped source for head, JSON-LD and existing PDP props.
 const getPresentation = cache(async (slug: string) => {
-  const review = await readClosedReviewPresentation();
-  if (review.status === 'blocked') return { product: null, related: [], approvedCopy: null, copyBlocked: true, error: null };
+  const hybridVisualPreview = isHybridVisualPreviewDeployment(process.env);
+  const review = hybridVisualPreview ? { status: 'disabled' as const, release: null } : await readClosedReviewPresentation();
+  if (review.status === 'blocked') return { product: null, related: [], approvedCopy: null, approvedOfferSnapshot: null, copyBlocked: true, error: null };
   if (review.status === 'review') {
     const entry = review.release.entries.find(e => e.product.product_slug === slug);
-    return { product: entry?.product ?? null, related: [], approvedCopy: entry?.copy ?? null, copyBlocked: !entry, error: null };
+    return { product: entry?.product ?? null, related: [], approvedCopy: entry?.copy ?? null, approvedOfferSnapshot: null, copyBlocked: !entry, error: null };
   }
   const result = await getProduct(slug);
   const approved = result.product ? await readApprovedStorefrontCopy(result.product) : null;
-  return { ...result, approvedCopy: approved?.copy ?? null, copyBlocked: approved?.status === 'blocked' };
+  const projectedProduct = hybridVisualPreview && result.product && approved?.status === 'review'
+    ? projectApprovedOfferSnapshot(result.product, approved.offerSnapshot)
+    : result.product;
+  return {
+    ...result,
+    product: projectedProduct,
+    approvedCopy: approved?.copy ?? null,
+    approvedOfferSnapshot: approved?.status === 'review' ? approved.offerSnapshot : null,
+    copyBlocked: approved?.status === 'blocked',
+  };
 });
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -203,11 +215,16 @@ export default async function ProductPage({ params }: PageProps) {
 
   const jsonLd = productJsonLd(product, slug, approvedCopy);
   const productCollections = await readProductLandingLinks(String(product.canonical_product_id || ''));
+  // This exact Vercel branch is an owner-protected visual storefront review.
+  // Keep the immutable approved SEO copy projected, but do not replace the
+  // existing cart controls with the generic content-review "Preview only" CTA.
+  // Checkout/payment/indexing remain independently disabled by their own gates.
+  const allowHybridPreviewCommerce = isHybridVisualPreviewDeployment(process.env);
 
   return <main className="relative min-h-screen">
     <Header />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
-    <ProductDetailClient product={product} related={related} draft={approvedCopy?.draft} previewMode={Boolean(approvedCopy)} />
+    <ProductDetailClient product={product} related={related} draft={approvedCopy?.draft} previewMode={Boolean(approvedCopy) && !allowHybridPreviewCommerce} />
     {productCollections.length ? <section className="container-feya py-10 border-t border-[rgba(216,214,211,.12)]">
       <div className="eyebrow-gold mb-4">Explore related collections</div>
       <div className="flex flex-wrap gap-2">

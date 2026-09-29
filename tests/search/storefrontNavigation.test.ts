@@ -36,8 +36,8 @@ test('Shop contains the complete product tree plus audience browsing', () => {
     fullBody?.items.map(({label,href,role})=>({label,href,role})),
     [
       {label:'Bodysuits',href:'/collections/bodysuits',role:'owner'},
-      {label:'Dresses',href:'/shop?piece=Dress',role:'hold'},
-      {label:'Full Body Harnesses',href:'/shop?piece=Full%20Body%20Harness',role:'hold'},
+      {label:'Dresses',href:undefined,role:'hold'},
+      {label:'Full Body Harnesses',href:undefined,role:'hold'},
     ],
   );
 
@@ -47,7 +47,7 @@ test('Shop contains the complete product tree plus audience browsing', () => {
     [
       {label:'Women',href:'/shop?audience=Women',role:'filter'},
       {label:'Men',href:'/shop?audience=Men',role:'filter'},
-      {label:'Unisex',href:'/shop?audience=Unisex',role:'hold'},
+      {label:'Unisex',href:undefined,role:'hold'},
       {label:'Couples',href:'/shop?audience=Couples',role:'filter'},
     ],
   );
@@ -73,7 +73,7 @@ test('Upper Body and Arms preserve owner-approved distinct product concepts', ()
       {label:'Shoulders',href:'/collections/shoulder-armor'},
       {label:'Bracelets & Cuffs',href:'/shop?piece=Bracelet%20%2F%20Cuff'},
       {label:'Gloves',href:'/shop?piece=Glove'},
-      {label:'Full Arms',href:'/shop?piece=Full%20Arm'},
+      {label:'Full Arms',href:undefined},
     ],
   );
 });

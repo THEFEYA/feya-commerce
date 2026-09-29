@@ -26,13 +26,13 @@ export default function PrivacyPage(){
   const analyticsReady=process.env.FEYA_ANALYTICS_PRIVACY_READY==='true'
     && process.env.FEYA_ANALYTICS_ENABLED==='true';
 
-  return <main className="relative min-h-screen">
+  return <main className="visual-commerce-shell relative min-h-screen">
     <Header/>
     <section className="container-feya pt-36 pb-14 lg:pt-44 lg:pb-20">
       <div className="max-w-4xl">
         <div className="eyebrow-gold mb-5">TheFEYA · Privacy</div>
-        <h1 className="font-tall text-bone leading-[.95]" style={{fontSize:'clamp(52px,7vw,96px)'}}>Privacy Policy</h1>
-        <p className="editorial-italic mt-6 max-w-3xl text-lg leading-relaxed text-[var(--bone-dim)]">
+        <h1 className="visual-display text-[clamp(48px,6vw,86px)] font-medium leading-[.94] tracking-[-.045em] text-[#f7f3ec]">Privacy Policy</h1>
+        <p className="mt-6 max-w-3xl text-[16px] leading-7 text-[#aaa2a0]">
           This policy describes the information used to operate the TheFEYA website, respond to enquiries and, when those features are enabled, measure storefront use or process orders.
         </p>
       </div>

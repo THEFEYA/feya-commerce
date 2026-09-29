@@ -49,5 +49,47 @@ test('approved-copy wiring preserves prior PDP markup, classes and component lay
   assert.equal(pdpJsxHash(source), baseline.normalized_jsx_sha256);
   assert.ok(source.includes('href={`/collections/${collection.slug}`}'));
   assert.ok(source.includes('readProductLandingLinks'));
-  assert.ok(source.includes('draft={approvedCopy?.draft} previewMode={Boolean(approvedCopy)}'));
+  assert.ok(source.includes('const allowHybridPreviewCommerce = isHybridVisualPreviewDeployment(process.env);'));
+  assert.ok(source.includes('draft={approvedCopy?.draft} previewMode={Boolean(approvedCopy) && !allowHybridPreviewCommerce}'));
+});
+
+test('hybrid PDP keeps the purchase reminder sweep while approved SEO copy is projected', () => {
+  const css = readFileSync('app/globals.css','utf8');
+  assert.ok(css.includes("[data-testid='product-page'] aside .btn-gold.w-full.mt-2::before"));
+  assert.ok(css.includes("[data-testid='product-page'] aside .btn-chrome:not(.w-full)::before"));
+  assert.ok(css.includes('animation: feyaBuySweep 5s ease-in-out infinite'));
+});
+
+test('PDP keeps the approved SEO description contract and code-owned support column', () => {
+  const source = readFileSync('components/ProductDetailClient.tsx','utf8');
+  assert.ok(source.includes('about_this_piece: 0'));
+  assert.ok(source.includes('why_youll_love_it: 1'));
+  assert.ok(source.includes('ideal_for: 2'));
+  assert.ok(source.includes('main_description: 3'));
+  assert.ok(source.includes('index === 0 && includedLines.length'));
+  assert.ok(source.includes('<IncludedDetail'));
+  assert.ok(source.includes('resolveThefeyaRightPdpPanel'));
+});
+
+
+test('hybrid homepage discovery tiles reuse the product-card hover sheen language', () => {
+  const page = readFileSync('app/page.tsx','utf8');
+  const carousel = readFileSync('components/HomePieceCarousel.tsx','utf8');
+  const css = readFileSync('app/globals.css','utf8');
+  assert.ok(page.includes('visual-hover-sheen group relative aspect-[3/4]'));
+  assert.ok(carousel.includes('visual-hover-sheen group relative aspect-[4/5]'));
+  assert.ok(css.includes('.visual-hover-sheen::after'));
+  assert.ok(css.includes('linear-gradient(110deg, transparent 30%, rgba(255,255,255,.18) 50%, transparent 70%)'));
+  assert.ok(css.includes('.visual-hover-sheen:hover::after'));
+});
+
+test('hybrid PDP projects option labels from the same approved SEO decision snapshot', () => {
+  const page = readFileSync('app/shop/[slug]/page.tsx','utf8');
+  const server = readFileSync('lib/seoApprovedStorefrontServer.ts','utf8');
+  assert.ok(page.includes('projectApprovedOfferSnapshot(result.product, approved.offerSnapshot)'));
+  assert.ok(server.includes("client.from('feya_commerce_seo_pack_drafts_v1')"));
+  assert.ok(server.includes(".eq('id', matches[0].draft_id)"));
+  assert.ok(server.includes('manual_focus_snapshot,product_truth_snapshot'));
+  assert.ok(server.includes('sellable_offer_signature'));
+  assert.ok(server.includes('optional_configurations'));
 });

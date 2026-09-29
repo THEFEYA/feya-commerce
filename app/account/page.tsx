@@ -11,12 +11,12 @@ export const metadata:Metadata={
 };
 
 export default function AccountPage(){
-  return <main className="relative min-h-screen">
+  return <main className="visual-commerce-shell relative min-h-screen">
     <Header/>
     <section className="container-feya pt-36 pb-16 lg:pt-44 lg:pb-24">
       <div className="max-w-3xl rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-7 lg:p-10">
         <div className="eyebrow-gold">Pre-launch storefront</div>
-        <h1 className="mt-4 font-tall text-bone leading-[.95]" style={{fontSize:'clamp(48px,6vw,82px)'}}>Account</h1>
+        <h1 className="visual-display mt-4 text-[clamp(46px,5.5vw,76px)] font-medium leading-[.94] tracking-[-.045em] text-[#f7f3ec]">Account</h1>
         <p className="mt-6 text-[15px] leading-7 text-[var(--bone-dim)]">
           Customer account sign-in is not active yet. This page exists so the current storefront does not send visitors to a broken route while checkout and account services are still disabled.
         </p>

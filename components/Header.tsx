@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Search, ShoppingBag, User, Menu, Heart, ArrowUpRight, ChevronDown, X } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Search, ShoppingBag, User, Menu, ArrowUpRight, ChevronDown, X } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { FeyaButterfly, FeyaMark } from '@/components/FeyaMark';
 import {
   enabledNavigationGroups,
@@ -11,6 +11,14 @@ import {
   publicPrimaryNavigation,
   type StorefrontNavigationItem,
 } from '@/config/storefrontNavigation';
+import {
+  DEFAULT_EVENTS_PERFORMANCE_MEGA_PREVIEW,
+  DEFAULT_SHOP_MEGA_PREVIEW,
+  DEFAULT_STYLE_MEGA_PREVIEW,
+  EVENTS_PERFORMANCE_MEGA_PREVIEWS,
+  SHOP_MEGA_PREVIEWS,
+  STYLE_MEGA_PREVIEWS,
+} from '@/config/megaMenuPresentation';
 
 function navIsActive(pathname: string, href: string, code: string) {
   if (href === '/') return pathname === '/';
@@ -19,7 +27,17 @@ function navIsActive(pathname: string, href: string, code: string) {
   return pathname === href;
 }
 
-function MegaLeaf({ item, onNavigate, nested = false }: { item: StorefrontNavigationItem; onNavigate?: () => void; nested?: boolean }) {
+function MegaLeaf({
+  item,
+  onNavigate,
+  onPreview,
+  nested = false,
+}: {
+  item: StorefrontNavigationItem;
+  onNavigate?: () => void;
+  onPreview?: (label: string) => void;
+  nested?: boolean;
+}) {
   if (!item.enabled) return null;
 
   const rowClass = `group flex items-center justify-between border-b border-white/[0.07] py-2.5 transition-colors ${nested ? 'pl-4 text-[10px] tracking-[0.14em]' : 'text-[11px] tracking-[0.16em]'} uppercase`;
@@ -30,6 +48,8 @@ function MegaLeaf({ item, onNavigate, nested = false }: { item: StorefrontNaviga
         <Link
           href={item.href}
           onClick={onNavigate}
+          onMouseEnter={() => onPreview?.(item.label)}
+          onFocus={() => onPreview?.(item.label)}
           className={`${rowClass} text-[#C8C2B5] hover:text-white`}
         >
           <span>{item.label}</span>
@@ -43,7 +63,7 @@ function MegaLeaf({ item, onNavigate, nested = false }: { item: StorefrontNaviga
       {item.children?.length ? (
         <div className="border-l border-white/10">
           {item.children.filter((child) => child.enabled).map((child) => (
-            <MegaLeaf key={child.code} item={child} onNavigate={onNavigate} nested />
+            <MegaLeaf key={child.code} item={child} onNavigate={onNavigate} onPreview={onPreview} nested />
           ))}
         </div>
       ) : null}
@@ -53,11 +73,17 @@ function MegaLeaf({ item, onNavigate, nested = false }: { item: StorefrontNaviga
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [count, setCount] = useState(0);
   const [openPanel, setOpenPanel] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openMobileSection, setOpenMobileSection] = useState<string | null>('shop');
+  const [menuPreviewLabel, setMenuPreviewLabel] = useState(DEFAULT_SHOP_MEGA_PREVIEW);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -75,11 +101,55 @@ export function Header() {
   useEffect(() => {
     setMobileOpen(false);
     setOpenPanel(null);
+    setSearchOpen(false);
+    cancelScheduledClose();
   }, [pathname]);
+
+  useEffect(() => {
+    if (!searchOpen) return;
+    const frame = window.requestAnimationFrame(() => searchInputRef.current?.focus());
+    return () => window.cancelAnimationFrame(frame);
+  }, [searchOpen]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setOpenPanel(null);
+      setMobileOpen(false);
+      setSearchOpen(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   const primaryNavigation = useMemo(() => publicPrimaryNavigation(), []);
   const panel = useMemo(() => (openPanel ? navigationPanel(openPanel) : null), [openPanel]);
   const groups = useMemo(() => (openPanel ? enabledNavigationGroups(openPanel) : []), [openPanel]);
+  const previewMap =
+    openPanel === 'shop'
+      ? SHOP_MEGA_PREVIEWS
+      : openPanel === 'events_performance'
+        ? EVENTS_PERFORMANCE_MEGA_PREVIEWS
+        : STYLE_MEGA_PREVIEWS;
+  const defaultPreviewLabel =
+    openPanel === 'shop'
+      ? DEFAULT_SHOP_MEGA_PREVIEW
+      : openPanel === 'events_performance'
+        ? DEFAULT_EVENTS_PERFORMANCE_MEGA_PREVIEW
+        : DEFAULT_STYLE_MEGA_PREVIEW;
+  const menuPreview = previewMap[menuPreviewLabel] || previewMap[defaultPreviewLabel];
+
+  const cancelScheduledClose = () => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
+
+  const schedulePanelClose = () => {
+    cancelScheduledClose();
+    closeTimerRef.current = setTimeout(() => setOpenPanel(null), 180);
+  };
 
   return (
     <header
@@ -87,7 +157,8 @@ export function Header() {
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
         scrolled ? 'backdrop-blur-xl bg-[rgba(7,7,10,0.78)] border-b border-[rgba(216,214,211,0.18)]' : 'bg-transparent'
       }`}
-      onMouseLeave={() => setOpenPanel(null)}
+      onMouseEnter={cancelScheduledClose}
+      onMouseLeave={schedulePanelClose}
     >
       <div className={`overflow-hidden transition-all duration-500 ${scrolled ? 'max-h-0 opacity-0' : 'max-h-10 opacity-100'}`}>
         <div className="bg-gradient-to-r from-transparent via-[rgba(212,178,106,0.10)] to-transparent text-center py-2 text-[10px] tracking-[0.32em] uppercase text-silver">
@@ -109,8 +180,32 @@ export function Header() {
               <Link
                 key={item.code}
                 href={item.href}
-                onMouseEnter={() => setOpenPanel(hasPanel ? String(item.panel) : null)}
-                onFocus={() => setOpenPanel(hasPanel ? String(item.panel) : null)}
+                onMouseEnter={() => {
+                  cancelScheduledClose();
+                  setSearchOpen(false);
+                  const nextPanel = hasPanel ? String(item.panel) : null;
+                  setOpenPanel(nextPanel);
+                  setMenuPreviewLabel(
+                    nextPanel === 'shop'
+                      ? DEFAULT_SHOP_MEGA_PREVIEW
+                      : nextPanel === 'events_performance'
+                        ? DEFAULT_EVENTS_PERFORMANCE_MEGA_PREVIEW
+                        : DEFAULT_STYLE_MEGA_PREVIEW,
+                  );
+                }}
+                onFocus={() => {
+                  cancelScheduledClose();
+                  setSearchOpen(false);
+                  const nextPanel = hasPanel ? String(item.panel) : null;
+                  setOpenPanel(nextPanel);
+                  setMenuPreviewLabel(
+                    nextPanel === 'shop'
+                      ? DEFAULT_SHOP_MEGA_PREVIEW
+                      : nextPanel === 'events_performance'
+                        ? DEFAULT_EVENTS_PERFORMANCE_MEGA_PREVIEW
+                        : DEFAULT_STYLE_MEGA_PREVIEW,
+                  );
+                }}
                 className={`relative text-[11px] tracking-[0.24em] uppercase font-medium transition-colors duration-300 ${
                   active || (hasPanel && openPanel === item.panel)
                     ? 'text-white nav-active-glow'
@@ -124,11 +219,17 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <button aria-label="Search" className="hidden sm:flex w-9 h-9 items-center justify-center rounded-full border border-transparent text-[#C8C2B5] hover:text-white hover:border-[rgba(216,214,211,0.4)] transition-all">
-            <Search size={15} strokeWidth={1.4} />
-          </button>
-          <button aria-label="Wishlist" className="hidden sm:flex w-9 h-9 items-center justify-center rounded-full border border-transparent text-[#C8C2B5] hover:text-white hover:border-[rgba(216,214,211,0.4)] transition-all">
-            <Heart size={15} strokeWidth={1.4} />
+          <button
+            aria-label={searchOpen ? 'Close search' : 'Search'}
+            aria-expanded={searchOpen}
+            onClick={() => {
+              setOpenPanel(null);
+              setMobileOpen(false);
+              setSearchOpen((value) => !value);
+            }}
+            className="flex w-9 h-9 items-center justify-center rounded-full border border-transparent text-[#C8C2B5] hover:text-white hover:border-[rgba(216,214,211,0.4)] transition-all"
+          >
+            {searchOpen ? <X size={15} strokeWidth={1.4} /> : <Search size={15} strokeWidth={1.4} />}
           </button>
           <Link href="/account" aria-label="Account" className="hidden sm:flex w-9 h-9 items-center justify-center rounded-full border border-transparent text-[#C8C2B5] hover:text-white hover:border-[rgba(216,214,211,0.4)] transition-all">
             <User size={15} strokeWidth={1.4} />
@@ -154,17 +255,47 @@ export function Header() {
         </div>
       </div>
 
+      {searchOpen ? (
+        <div className="absolute left-0 right-0 top-full border-y border-white/[0.10] bg-[rgba(8,8,10,.985)] shadow-[0_28px_80px_rgba(0,0,0,.68)] backdrop-blur-xl">
+          <form
+            role="search"
+            className="container-feya flex items-center gap-3 py-5"
+            onSubmit={(event) => {
+              event.preventDefault();
+              const value = searchQuery.trim();
+              setSearchOpen(false);
+              router.push(value ? `/shop?search=${encodeURIComponent(value)}` : '/shop');
+            }}
+          >
+            <Search size={18} strokeWidth={1.3} className="shrink-0 text-[#aaa2a0]" />
+            <input
+              ref={searchInputRef}
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              aria-label="Search TheFEYA products"
+              placeholder="Search products, looks and pieces…"
+              className="min-w-0 flex-1 bg-transparent text-[18px] text-[#f4f1ea] outline-none placeholder:text-[rgba(170,162,160,.48)]"
+            />
+            <button type="submit" className="visual-primary-cta !min-h-10 !px-5">Search</button>
+          </form>
+        </div>
+      ) : null}
+
       {panel && groups.length > 0 ? (
         <div
-          onMouseEnter={() => setOpenPanel(panel.code)}
-          className="hidden lg:block absolute left-0 right-0 top-full border-y border-[rgba(216,214,211,0.14)] bg-[linear-gradient(180deg,rgba(13,13,18,0.985),rgba(7,7,10,0.98))] backdrop-blur-2xl shadow-[0_35px_90px_rgba(0,0,0,0.72)]"
+          onMouseEnter={() => {
+            cancelScheduledClose();
+            setOpenPanel(panel.code);
+          }}
+          onMouseLeave={schedulePanelClose}
+          className="hidden lg:block absolute left-0 right-0 top-full max-h-[calc(100vh-7rem)] overflow-y-auto border-y border-[rgba(216,214,211,0.14)] bg-[linear-gradient(180deg,rgba(13,13,18,0.995),rgba(7,7,10,0.995))] backdrop-blur-2xl shadow-[0_35px_90px_rgba(0,0,0,0.82)]"
         >
           <div className="container-feya py-7">
             <div className="flex items-center justify-between gap-6 border-b border-white/10 pb-4">
               <div>
                 <div className="eyebrow-gold mb-1">{panel.label}</div>
                 <p className="text-[13px] leading-5 text-[var(--bone-dim)]">
-                  {panel.code === 'shop' ? 'Choose a product family.' : panel.code === 'events_performance' ? 'Choose the occasion, performance context or dance path.' : 'Choose a style or persona.'}
+                  {panel.code === 'shop' ? 'Choose a product family.' : panel.code === 'events_performance' ? 'Choose an event or performance path.' : 'Choose a style or persona.'}
                 </p>
               </div>
               <Link
@@ -175,26 +306,77 @@ export function Header() {
               </Link>
             </div>
 
-            <div className={`mt-5 grid gap-x-8 gap-y-8 ${panel.code === 'shop' ? 'grid-cols-5' : panel.code === 'events_performance' ? 'grid-cols-4' : 'grid-cols-2'}`}>
-              {groups.map((group) => (
-                <section key={group.code} className="min-w-0">
-                  <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
-                    {group.href ? (
-                      <Link href={group.href} className="text-[10px] uppercase tracking-[0.28em] text-[var(--gold-warm)] hover:text-white transition-colors">
-                        {group.label}
-                      </Link>
-                    ) : (
-                      <div className="text-[10px] uppercase tracking-[0.28em] text-[var(--gold-warm)]">{group.label}</div>
-                    )}
-                    {group.href ? <ArrowUpRight size={10} className="text-[var(--gold-warm)] opacity-60" /> : null}
+            <div className="mt-5 grid grid-cols-[minmax(0,1fr)_minmax(280px,.34fr)] gap-8">
+              <div className={`grid min-w-0 gap-x-8 gap-y-8 ${
+                panel.code === 'shop'
+                  ? 'grid-cols-4'
+                  : panel.code === 'events_performance'
+                    ? 'grid-cols-3'
+                    : 'grid-cols-2'
+              }`}>
+                {groups.map((group) => (
+                  <section
+                    key={group.code}
+                    className="min-w-0"
+                    onMouseEnter={() => {
+                      if (previewMap[group.label]) setMenuPreviewLabel(group.label);
+                    }}
+                  >
+                    <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
+                      {group.href ? (
+                        <Link
+                          href={group.href}
+                          onFocus={() => {
+                            if (previewMap[group.label]) setMenuPreviewLabel(group.label);
+                          }}
+                          className="text-[10px] uppercase tracking-[0.28em] text-[var(--gold-warm)] hover:text-white transition-colors"
+                        >
+                          {group.label}
+                        </Link>
+                      ) : (
+                        <div className="text-[10px] uppercase tracking-[0.28em] text-[var(--gold-warm)]">{group.label}</div>
+                      )}
+                      {group.href ? <ArrowUpRight size={10} className="text-[var(--gold-warm)] opacity-60" /> : null}
+                    </div>
+                    <div className="mt-1">
+                      {group.items.filter((item) => item.enabled).map((item) => (
+                        <MegaLeaf
+                          key={item.code}
+                          item={item}
+                          onPreview={(label) => {
+                            if (previewMap[label]) setMenuPreviewLabel(label);
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                ))}
+              </div>
+
+              {menuPreview ? (
+                <aside className="sticky top-0 h-[390px] overflow-hidden rounded-[14px] border border-[rgba(216,181,109,.09)] bg-[#111117]">
+                  <img
+                    key={`${panel.code}:${menuPreview.label}`}
+                    src={menuPreview.imageUrl}
+                    alt={`${menuPreview.label} visual preview`}
+                    loading="eager"
+                    className="absolute inset-0 h-full w-full object-cover animate-[feyaPreviewFade_.28s_ease_both]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/62 via-black/10 to-transparent" />
+                  <div className="visual-tile-label-band visual-mega-preview-band absolute inset-x-0 bottom-0 px-5 py-4">
+                    <div className="text-[9px] uppercase tracking-[.18em] text-[#e7cf96]">
+                      {panel.code === 'style' ? menuPreview.axis : panel.code === 'shop' ? 'Product preview' : 'Look preview'}
+                    </div>
+                    <div className="font-tall mt-1.5 text-[28px] leading-none text-[#f7f3ec]">{menuPreview.label}</div>
+                    <Link
+                      href={`/shop/${menuPreview.productSlug}`}
+                      className="mt-3 inline-flex items-center gap-2 text-[10px] uppercase tracking-[.14em] text-[#d9d2c8] hover:text-white"
+                    >
+                      Preview piece <ArrowUpRight size={11} />
+                    </Link>
                   </div>
-                  <div className="mt-1">
-                    {group.items.filter((item) => item.enabled).map((item) => (
-                      <MegaLeaf key={item.code} item={item} />
-                    ))}
-                  </div>
-                </section>
-              ))}
+                </aside>
+              ) : null}
             </div>
           </div>
         </div>

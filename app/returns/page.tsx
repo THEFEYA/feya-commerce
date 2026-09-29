@@ -60,13 +60,13 @@ const sections=[
 ];
 
 export default function ReturnsPage(){
-  return <main className="relative min-h-screen">
+  return <main className="visual-commerce-shell relative min-h-screen">
     <Header/>
     <section className="container-feya pt-36 pb-14 lg:pt-44 lg:pb-20">
       <div className="max-w-4xl">
         <div className="eyebrow-gold mb-5">Store policy · Made to order</div>
-        <h1 className="font-tall text-bone leading-[.95]" style={{fontSize:'clamp(52px,7vw,96px)'}}>Returns & Exchanges</h1>
-        <p className="editorial-italic mt-6 max-w-2xl text-lg leading-relaxed text-[var(--bone-dim)]">
+        <h1 className="visual-display text-[clamp(48px,6vw,86px)] font-medium leading-[.94] tracking-[-.045em] text-[#f7f3ec]">Returns & Exchanges</h1>
+        <p className="mt-6 max-w-2xl text-[16px] leading-7 text-[#aaa2a0]">
           TheFEYA creates statement pieces for stage, festival, performance and editorial use. Our policy is designed to resolve genuine fit, production and order issues without turning made-to-order pieces into a free-rental service.
         </p>
       </div>

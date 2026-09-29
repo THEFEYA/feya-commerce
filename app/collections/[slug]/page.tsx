@@ -3,10 +3,11 @@ import {notFound} from 'next/navigation';
 import Link from 'next/link';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
-import {ProductCard} from '@/components/ProductCard';
+import {ShopClient} from '@/components/ShopClient';
 import {getSearchLandingCandidate} from '@/config/searchLandingCandidates';
 import {readSearchLandingRelease} from '@/lib/searchLandingPageServer';
 import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
+import {attachStorefrontFacets} from '@/lib/storefrontFacetsServer';
 
 export const dynamic='force-dynamic';
 export const revalidate=0;
@@ -39,6 +40,7 @@ export default async function SearchLandingCandidatePage({params}:PageProps){
   if(!release)notFound();
 
   const {candidate,content,products,breadcrumbs,relatedLinks,membershipCount,holdReason,version,contentHash}=release;
+  const facetedProducts=await attachStorefrontFacets(products);
   const isHold=candidate.searchStatus==='hold_noindex';
   if(isHold)notFound();
   const showSearchPreviewStatus=process.env.VERCEL_ENV!=='production'||process.env.FEYA_SHOW_SEARCH_PREVIEW_STATUS==='true';
@@ -73,7 +75,7 @@ export default async function SearchLandingCandidatePage({params}:PageProps){
     },
   }:null;
 
-  return <main className="relative min-h-screen">
+  return <main className="visual-commerce-shell relative min-h-screen">
     <Header/>
     <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(breadcrumbLd)}/>
     {collectionLd?<script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(collectionLd)}/>:null}
@@ -94,8 +96,8 @@ export default async function SearchLandingCandidatePage({params}:PageProps){
     <section className="container-feya pb-10 lg:pb-14">
       <div className="max-w-4xl">
         <div className="eyebrow-gold mb-5">{candidate.eyebrow}</div>
-        <h1 className="font-tall text-bone leading-[.95]" style={{fontSize:'clamp(52px,7vw,96px)'}}>{content?.h1 || candidate.title}</h1>
-        <p className="editorial-italic mt-6 max-w-3xl text-lg leading-relaxed text-[var(--bone-dim)]">{content?.intro || candidate.description}</p>
+        <h1 className="visual-display text-[clamp(48px,6vw,86px)] font-medium leading-[.94] tracking-[-.045em] text-[#f7f3ec]">{content?.h1 || candidate.title}</h1>
+        <p className="mt-6 max-w-3xl text-[16px] leading-7 text-[#aaa2a0]">{content?.intro || candidate.description}</p>
 
         {content?.chips?.length?<div className="mt-7 flex flex-wrap gap-2" aria-label="Collection themes">
           {content.chips.map((chip)=><span key={chip} className="rounded-full border border-[rgba(216,214,211,.18)] px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] text-[var(--bone-dim)]">{chip}</span>)}
@@ -115,7 +117,7 @@ export default async function SearchLandingCandidatePage({params}:PageProps){
       <section className="container-feya pb-10">
         <div className="grid gap-4 lg:grid-cols-2">
           {content.modules.map((module)=>(
-            <article key={module.heading} className="rounded-xl border border-[rgba(216,214,211,.14)] bg-[rgba(255,255,255,.025)] p-6 lg:p-7">
+            <article key={module.heading} className="rounded-xl border border-white/[.08] bg-[#111117] p-6 lg:p-7">
               <h2 className="text-bone text-xl">{module.heading}</h2>
               <p className="mt-4 text-[15px] leading-7 text-[var(--bone-dim)]">{module.body}</p>
             </article>
@@ -132,10 +134,8 @@ export default async function SearchLandingCandidatePage({params}:PageProps){
           <Link href="/shop" className="btn-ghost">Shop all</Link>
         </div>
 
-        {products.length
-          ? <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 lg:gap-6">
-              {products.map((product,index)=><ProductCard key={String(product.canonical_product_id)} product={product} index={index}/>)}
-            </div>
+        {facetedProducts.length
+          ? <ShopClient products={facetedProducts} embedded/>
           : <div className="rounded-xl border border-[rgba(216,214,211,.14)] p-6 text-[var(--bone-dim)]">No current release products are present in this immutable membership snapshot.</div>}
       </section>
 

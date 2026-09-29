@@ -302,8 +302,8 @@ export function ProductDetailClient({
     </div> : null}
 
     <section className="container-feya pb-4 grid grid-cols-12 gap-5 lg:gap-7">
-      <div className="col-span-12 lg:col-span-7 grid grid-cols-12 gap-3 lg:gap-4">
-        <div className="col-span-2 hidden lg:flex flex-col gap-3 max-h-[650px] overflow-y-auto pr-1">
+      <div className="col-span-12 lg:col-span-7 grid grid-cols-12 gap-3 lg:flex lg:items-start lg:gap-2">
+        <div className="hidden lg:flex lg:w-[132px] lg:shrink-0 flex-col gap-3 max-h-[650px] overflow-y-auto pr-0 [scrollbar-width:thin]">
           {gallery.map((g, i) => <button
             type="button"
             ref={(node) => { thumbnailRefs.current[i] = node; }}
@@ -315,7 +315,7 @@ export function ProductDetailClient({
             {g.url ? <img src={String(g.url)} alt="" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover object-center" /> : null}
           </button>)}
         </div>
-        <div className="col-span-12 lg:col-span-10 flex justify-center">
+        <div className="col-span-12 lg:min-w-0 lg:flex-1 lg:self-start flex justify-center">
           <button
             ref={mainMediaRef}
             type="button"
@@ -355,15 +355,15 @@ export function ProductDetailClient({
             aria-expanded={configOpen}
             aria-controls="product-configuration-options"
             onClick={() => setConfigOpen((open) => !open)}
-            className="w-full h-10 rounded-md bg-[rgba(255,255,255,0.035)] border border-[rgba(216,214,211,0.18)] text-bone px-4 focus:outline-none focus:border-white flex items-center justify-between text-left">
+            className="feya-config-trigger w-full h-10 rounded-md text-bone px-4 focus:outline-none flex items-center justify-between text-left">
             <span className="truncate">{activeConfigLabel}</span>
             <ChevronDown size={15} className={`transition-transform ${configOpen ? 'rotate-180' : ''}`} />
           </button>
-          {configOpen ? <div id="product-configuration-options" className="absolute left-0 right-0 top-full mt-2 z-[80] rounded-lg border border-[rgba(216,214,211,.22)] bg-[rgba(5,5,8,.96)] p-1.5 shadow-[0_28px_80px_rgba(0,0,0,.75)] backdrop-blur-xl max-h-[250px] overflow-auto">
+          {configOpen ? <div id="product-configuration-options" className="feya-config-menu absolute left-0 right-0 top-full mt-2 z-[80] max-h-[250px] overflow-auto">
             {options.map((o, i) => {
               const key = optionKey(o, i);
               const active = key === configKey;
-              return <button key={key} type="button" onClick={() => { setConfigKey(key); setConfigOpen(false); }} className={`w-full text-left px-4 py-2.5 rounded-md text-[13px] transition-all ${active ? 'bg-[rgba(212,178,106,.14)] text-[var(--gold-warm)]' : 'text-[var(--bone-dim)] hover:text-white hover:bg-white/10'}`}>{optionLabel(o, i)}</button>;
+              return <button key={key} type="button" onClick={() => { setConfigKey(key); setConfigOpen(false); }} className={`feya-config-option w-full text-left px-4 py-2.5 rounded-md text-[13px] transition-all ${active ? 'feya-config-option-active text-[var(--gold-warm)]' : 'text-[var(--bone-dim)] hover:text-white'}`}>{optionLabel(o, i)}</button>;
             })}
           </div> : null}
         </div>

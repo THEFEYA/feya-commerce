@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFile } from 'node:fs/promises';
 import { STOREFRONT_NAVIGATION_PANELS } from '../../config/storefrontNavigation.ts';
+import { HOME_PRESENTATION } from '../../config/homePresentation.ts';
 
 test('collections hub is release-aware and projects the merged shopper discovery contract', async () => {
   const page = await readFile(new URL('../../app/collections/page.tsx', import.meta.url), 'utf8');
@@ -20,7 +21,27 @@ test('collections hub is release-aware and projects the merged shopper discovery
   assert.equal(panel.groups[2].items.find((item) => item.code === 'stage_fashion')?.href, '/collections/stage-outfits');
 });
 
-test('homepage crawl path points Explore collections at the server-rendered collection hub', async () => {
+test('homepage presentation exposes governed commerce destinations that render as server links', async () => {
   const home = await readFile(new URL('../../app/page.tsx', import.meta.url), 'utf8');
-  assert.match(home, /href="\/collections" className="btn-ghost">Explore collections/);
+  assert.match(home, /HOME_PRESENTATION/);
+  assert.match(home, /href=\{tile\.href\}/);
+
+  const allHrefs: string[] = [
+    ...HOME_PRESENTATION.pieceTiles.map((item) => item.href),
+    ...HOME_PRESENTATION.eventTiles.flatMap((item) => [
+      item.href,
+      ...('shortcuts' in item && item.shortcuts ? item.shortcuts.map((shortcut) => shortcut.href) : []),
+    ]),
+    ...HOME_PRESENTATION.findTiles.map((item) => item.href),
+  ];
+
+  for (const href of [
+    '/shop',
+    '/collections/festival-outfits',
+    '/collections/stage-outfits',
+    '/collections/shoulder-armor',
+  ]) {
+    if (href === '/shop') continue;
+    assert.ok(allHrefs.includes(href), href);
+  }
 });

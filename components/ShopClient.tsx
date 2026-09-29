@@ -42,13 +42,13 @@ function FilterBox({ checked }: { checked: boolean }) {
   return (
     <span
       aria-hidden="true"
-      className={`w-3.5 h-3.5 border flex items-center justify-center transition-all ${
+      className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-all ${
         checked
-          ? 'border-[var(--gold)] text-[var(--gold-warm)] shadow-[0_0_10px_rgba(212,178,106,.22)]'
-          : 'border-[rgba(216,214,211,0.34)] text-transparent'
+          ? 'border-[#d8b56d] bg-transparent text-[#e6c886] shadow-[0_0_0_3px_rgba(212,178,106,.09),0_0_13px_rgba(212,178,106,.18)]'
+          : 'border-[rgba(216,214,211,.34)] bg-transparent text-transparent'
       }`}
     >
-      {checked ? <Check size={10} strokeWidth={2.4} /> : null}
+      {checked ? <Check size={10} strokeWidth={3} /> : null}
     </span>
   );
 }
@@ -94,24 +94,36 @@ function CheckboxList({
   values,
   selected,
   onToggle,
+  available,
 }: {
   values: readonly string[];
   selected: string[];
   onToggle: (value: string) => void;
+  available?: Set<string>;
 }) {
   return (
     <div className="space-y-0.5">
-      {values.map((value) => (
-        <button
-          key={value}
-          type="button"
-          onClick={() => onToggle(value)}
-          className="flex w-full items-center gap-2 py-1.5 text-left text-[12px] text-[var(--bone-dim)] transition-colors hover:text-white"
-        >
-          <FilterBox checked={selected.includes(value)} />
-          <span>{value}</span>
-        </button>
-      ))}
+      {values.map((value) => {
+        const checked = selected.includes(value);
+        const disabled = Boolean(available && !available.has(value) && !checked);
+        return (
+          <button
+            key={value}
+            type="button"
+            disabled={disabled}
+            onClick={() => onToggle(value)}
+            className={`flex w-full items-center justify-between gap-2 py-1.5 text-left text-[12px] transition-colors ${
+              disabled ? 'cursor-not-allowed text-[rgba(170,162,160,.38)]' : 'text-[var(--bone-dim)] hover:text-white'
+            }`}
+          >
+            <span className="flex items-center gap-2">
+              <FilterBox checked={checked} />
+              <span>{value}</span>
+            </span>
+            {disabled ? <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-white/[.10]" /> : null}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -121,11 +133,15 @@ function BodyAreaTree({
   pieces,
   onTogglePart,
   onTogglePiece,
+  availableParts,
+  availablePieces,
 }: {
   parts: string[];
   pieces: string[];
   onTogglePart: (value: string) => void;
   onTogglePiece: (value: string) => void;
+  availableParts: Set<string>;
+  availablePieces: Set<string>;
 }) {
   const initiallyExpanded = BODY_AREA_TREE
     .filter((group) => parts.includes(group.part) || group.pieces.some((piece) => pieces.includes(piece)))
@@ -138,30 +154,33 @@ function BodyAreaTree({
   };
 
   return (
-    <div className="divide-y divide-white/[0.07] rounded-lg border border-white/[0.08] bg-white/[0.015]">
+    <div className="divide-y divide-white/[0.07]">
       {BODY_AREA_TREE.map((group) => {
         const isOpen = expanded.includes(group.part);
         const childSelections = group.pieces.filter((piece) => pieces.includes(piece)).length;
+        const partChecked = parts.includes(group.part);
+        const partDisabled = !availableParts.has(group.part) && !partChecked;
 
         return (
           <div key={group.part}>
-            <div className="flex items-center gap-2 px-3 py-2.5">
+            <div className="flex items-center gap-2 py-2.5">
               <button
                 type="button"
                 aria-label={`Select all ${group.part}`}
+                disabled={partDisabled}
                 onClick={() => onTogglePart(group.part)}
-                className="shrink-0"
+                className={`shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d8b56d]/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0e0e12] ${partDisabled ? 'cursor-not-allowed opacity-35' : ''}`}
               >
-                <FilterBox checked={parts.includes(group.part)} />
+                <FilterBox checked={partChecked} />
               </button>
 
               <button
                 type="button"
                 aria-expanded={isOpen}
                 onClick={() => toggleExpanded(group.part)}
-                className="flex min-w-0 flex-1 items-center justify-between gap-3 text-left"
+                className="flex min-w-0 flex-1 items-center justify-between gap-3 rounded-md text-left focus:outline-none focus-visible:ring-1 focus-visible:ring-[#d8b56d]/45"
               >
-                <span className="text-[12px] text-[#D2CEC4]">{group.part}</span>
+                <span className={`text-[12px] ${partDisabled ? 'text-[rgba(210,206,196,.42)]' : 'text-[#D2CEC4]'}`}>{group.part}</span>
                 <span className="flex items-center gap-2">
                   {childSelections > 0 ? (
                     <span className="rounded-full border border-white/10 px-1.5 py-0.5 text-[9px] text-[var(--gold-warm)]">
@@ -174,8 +193,8 @@ function BodyAreaTree({
             </div>
 
             {isOpen ? (
-              <div className="border-t border-white/[0.06] bg-black/10 px-3 py-2 pl-8">
-                <CheckboxList values={group.pieces} selected={pieces} onToggle={onTogglePiece} />
+              <div className="border-t border-white/[0.06] py-2 pl-7">
+                <CheckboxList values={group.pieces} selected={pieces} onToggle={onTogglePiece} available={availablePieces} />
               </div>
             ) : null}
           </div>
@@ -203,6 +222,18 @@ type FilterPanelProps = {
   setEffect: (value: string[]) => void;
   clear: () => void;
   activeCount: number;
+  availability: {
+    audience: Set<string>;
+    parts: Set<string>;
+    pieces: Set<string>;
+    events: Set<string>;
+    performance: Set<string>;
+    dance: Set<string>;
+    styles: Set<string>;
+    personas: Set<string>;
+    materials: Set<string>;
+    effects: Set<string>;
+  };
 };
 
 function CatalogFilterPanel({
@@ -223,6 +254,7 @@ function CatalogFilterPanel({
   setEffect,
   clear,
   activeCount,
+  availability,
 }: FilterPanelProps) {
   const toggleAudience = (value: string) => setAudience(toggleValue(filters.audience, value));
   const togglePart = (value: string) => setPart(toggleValue(filters.part, value));
@@ -251,7 +283,7 @@ function CatalogFilterPanel({
       </div>
 
       <FilterSection title="Audience" activeCount={filters.audience.length} defaultOpen>
-        <CheckboxList values={AUDIENCES} selected={filters.audience} onToggle={toggleAudience} />
+        <CheckboxList values={AUDIENCES} selected={filters.audience} onToggle={toggleAudience} available={availability.audience} />
       </FilterSection>
 
       <FilterSection title="Body Area" activeCount={filters.part.length + filters.piece.length} defaultOpen>
@@ -260,6 +292,8 @@ function CatalogFilterPanel({
           pieces={filters.piece}
           onTogglePart={togglePart}
           onTogglePiece={togglePiece}
+          availableParts={availability.parts}
+          availablePieces={availability.pieces}
         />
       </FilterSection>
 
@@ -287,23 +321,23 @@ function CatalogFilterPanel({
             onChange={(event) => setPriceMax(Math.max(Number(event.target.value), filters.priceMin + 10))}
           />
         </div>
-        <div className="flex items-center gap-2 mt-2">
+        <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
           <input
             value={filters.priceMin}
             onChange={(event) => setPriceMin(Number(event.target.value) || 0)}
-            className="w-20 h-8 bg-white/5 border border-white/10 rounded px-2 text-xs"
+            className="min-w-0 w-full h-8 bg-white/5 border border-white/10 rounded px-2 text-xs"
           />
           <span className="text-smoke">to</span>
           <input
             value={filters.priceMax}
             onChange={(event) => setPriceMax(Number(event.target.value) || 1000)}
-            className="w-20 h-8 bg-white/5 border border-white/10 rounded px-2 text-xs"
+            className="min-w-0 w-full h-8 bg-white/5 border border-white/10 rounded px-2 text-xs"
           />
         </div>
       </FilterSection>
 
       <FilterSection title="Color" activeCount={filters.color ? 1 : 0} defaultOpen>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-3">
           {COLORS.map((value) => (
             <button
               key={value}
@@ -328,30 +362,30 @@ function CatalogFilterPanel({
       </FilterSection>
 
       <FilterSection title="Event" activeCount={filters.event.length}>
-        <CheckboxList values={EVENTS} selected={filters.event} onToggle={toggleEvent} />
+        <CheckboxList values={EVENTS} selected={filters.event} onToggle={toggleEvent} available={availability.events} />
       </FilterSection>
 
       <FilterSection title="Performance" activeCount={filters.performance.length + filters.dance.length}>
-        <CheckboxList values={PERFORMANCE} selected={filters.performance} onToggle={togglePerformance} />
+        <CheckboxList values={PERFORMANCE} selected={filters.performance} onToggle={togglePerformance} available={availability.performance} />
         <div className="mt-1">
-          <CheckboxList values={DANCE} selected={filters.dance} onToggle={toggleDance} />
+          <CheckboxList values={DANCE} selected={filters.dance} onToggle={toggleDance} available={availability.dance} />
         </div>
       </FilterSection>
 
       <FilterSection title="Style" activeCount={filters.style.length}>
-        <CheckboxList values={STYLES} selected={filters.style} onToggle={toggleStyle} />
+        <CheckboxList values={STYLES} selected={filters.style} onToggle={toggleStyle} available={availability.styles} />
       </FilterSection>
 
       <FilterSection title="Persona" activeCount={filters.persona.length}>
-        <CheckboxList values={PERSONAS} selected={filters.persona} onToggle={togglePersona} />
+        <CheckboxList values={PERSONAS} selected={filters.persona} onToggle={togglePersona} available={availability.personas} />
       </FilterSection>
 
       <FilterSection title="Material" activeCount={filters.material.length}>
-        <CheckboxList values={MATERIALS} selected={filters.material} onToggle={toggleMaterial} />
+        <CheckboxList values={MATERIALS} selected={filters.material} onToggle={toggleMaterial} available={availability.materials} />
       </FilterSection>
 
       <FilterSection title="Visual Effect" activeCount={filters.effect.length}>
-        <CheckboxList values={EFFECTS} selected={filters.effect} onToggle={toggleEffect} />
+        <CheckboxList values={EFFECTS} selected={filters.effect} onToggle={toggleEffect} available={availability.effects} />
       </FilterSection>
 
       {activeCount > 0 ? (
@@ -371,10 +405,12 @@ export function ShopClient({
   products,
   error,
   navigation,
+  embedded = false,
 }: {
   products: StorefrontProduct[];
   error?: string;
   navigation?: ShopNavigation;
+  embedded?: boolean;
 }) {
   const initial = navigation?.filters ?? defaultShopFilters();
 
@@ -450,6 +486,27 @@ export function ShopClient({
 
   const filtered = useMemo(() => filterShopProducts(products, filters), [products, filters]);
 
+  const availability = useMemo(() => {
+    const collect = (key: keyof NonNullable<StorefrontProduct['facets']>) =>
+      new Set(products.flatMap((product) => {
+        const value = product.facets?.[key];
+        return Array.isArray(value) ? value : [];
+      }));
+
+    return {
+      audience: collect('audience'),
+      parts: collect('parts'),
+      pieces: collect('subtypes'),
+      events: collect('events'),
+      performance: collect('performance'),
+      dance: collect('dance'),
+      styles: collect('styles'),
+      personas: collect('personas'),
+      materials: collect('materials'),
+      effects: collect('effects'),
+    };
+  }, [products]);
+
   const [previousFilters, setPreviousFilters] = useState(filters);
   if (previousFilters !== filters) {
     setPreviousFilters(filters);
@@ -517,25 +574,40 @@ export function ShopClient({
     setEffect,
     clear,
     activeCount,
+    availability,
   };
 
+  const activeChips = [
+    ...audience.map((value) => ({ key: `audience:${value}`, label: value, remove: () => setAudience((current) => current.filter((item) => item !== value)) })),
+    ...part.map((value) => ({ key: `part:${value}`, label: value, remove: () => setPart((current) => current.filter((item) => item !== value)) })),
+    ...piece.map((value) => ({ key: `piece:${value}`, label: value, remove: () => setPiece((current) => current.filter((item) => item !== value)) })),
+    ...(priceMin > 0 || priceMax < 1000 ? [{ key: 'price', label: `€${priceMin}–€${priceMax}`, remove: () => { setPriceMin(0); setPriceMax(1000); } }] : []),
+    ...(color ? [{ key: 'color', label: color, remove: () => setColor('') }] : []),
+    ...event.map((value) => ({ key: `event:${value}`, label: value, remove: () => setEvent((current) => current.filter((item) => item !== value)) })),
+    ...performance.map((value) => ({ key: `performance:${value}`, label: value, remove: () => setPerformance((current) => current.filter((item) => item !== value)) })),
+    ...dance.map((value) => ({ key: `dance:${value}`, label: value, remove: () => setDance((current) => current.filter((item) => item !== value)) })),
+    ...style.map((value) => ({ key: `style:${value}`, label: value, remove: () => setStyle((current) => current.filter((item) => item !== value)) })),
+    ...persona.map((value) => ({ key: `persona:${value}`, label: value, remove: () => setPersona((current) => current.filter((item) => item !== value)) })),
+    ...material.map((value) => ({ key: `material:${value}`, label: value, remove: () => setMaterial((current) => current.filter((item) => item !== value)) })),
+    ...effect.map((value) => ({ key: `effect:${value}`, label: value, remove: () => setEffect((current) => current.filter((item) => item !== value)) })),
+    ...(search ? [{ key: 'search', label: `Search: ${search}`, remove: () => setSearch('') }] : []),
+  ];
+
   return (
-    <div data-testid="shop-page" className="relative pt-24 lg:pt-28">
-      <section className="container-feya py-8 lg:py-10 border-b border-[rgba(216,214,211,0.10)]">
-        <div className="eyebrow mb-3 reveal">TheFEYA catalog · Handmade statement pieces</div>
-        <h1 className="display-hero text-bone reveal reveal-d1" style={{ fontSize: 'clamp(44px, 6.5vw, 96px)' }}>
-          The <span className="editorial-italic text-gold-grad">shop</span>
+    <div data-testid="shop-page" className={`visual-commerce-shell relative ${embedded ? 'visual-commerce-embedded pt-0' : 'pt-24 lg:pt-28'}`}>
+      {!embedded ? <section className="container-feya border-b border-white/[0.08] py-10 lg:py-14">
+        <div className="mb-3 text-[10px] uppercase tracking-[0.18em] text-[#aaa2a0]">TheFEYA catalog</div>
+        <h1 className="visual-display text-[clamp(48px,6vw,88px)] font-medium leading-[.92] tracking-[-.045em] text-[#f7f3ec]">
+          Find your piece.
         </h1>
-        <p className="editorial-italic text-[var(--bone-dim)] mt-4 text-lg max-w-3xl">
+        <p className="mt-5 max-w-2xl text-[15px] leading-7 text-[#aaa2a0]">
           Start with who you are shopping for, then narrow by body area and product type. Price, color and context come next.
         </p>
-      </section>
+      </section> : null}
 
-      <section className="container-feya grid grid-cols-12 gap-7 lg:gap-10 py-10">
-        <aside className="hidden lg:block col-span-3 xl:col-span-2" data-testid="filter-sidebar">
-          <div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto pr-2 [scrollbar-width:thin]">
-            <CatalogFilterPanel {...panelProps} />
-          </div>
+      <section className={`${embedded ? '' : 'container-feya'} grid grid-cols-12 gap-7 lg:gap-10 py-10`}>
+        <aside className="hidden lg:block col-span-3 xl:col-span-2 pr-1" data-testid="filter-sidebar">
+          <CatalogFilterPanel {...panelProps} />
         </aside>
 
         <main className="col-span-12 lg:col-span-9 xl:col-span-10">
@@ -579,10 +651,33 @@ export function ShopClient({
             </div>
           </div>
 
+          {activeChips.length ? (
+            <div className="mb-6 flex flex-wrap items-center gap-2">
+              {activeChips.map((chip) => (
+                <button
+                  key={chip.key}
+                  type="button"
+                  onClick={chip.remove}
+                  aria-label={`Remove filter ${chip.label}`}
+                  className="inline-flex min-h-8 items-center gap-2 rounded-full border border-white/[0.12] bg-[#17171e] px-3 text-[10px] uppercase tracking-[.12em] text-[#d9d2c8] transition-colors hover:border-[#d8b56d] hover:text-white"
+                >
+                  {chip.label}<X size={10} />
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={clear}
+                className="min-h-8 px-2 text-[10px] uppercase tracking-[.12em] text-[#e7cf96] hover:text-white"
+              >
+                Clear all
+              </button>
+            </div>
+          ) : null}
+
           {error && products.length === 0 ? <div className="glass rounded-xl p-6 text-bone-dim">{error}</div> : null}
           {products.length > 0 && filtered.length === 0 ? <div className="glass rounded-xl p-6 text-bone-dim">No products match these filters.</div> : null}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 lg:gap-6">
+          <div className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {visibleProducts.map((product, index) => <ProductCard key={product.canonical_product_id} product={product} index={index} />)}
           </div>
 
@@ -605,7 +700,7 @@ export function ShopClient({
             className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             onClick={() => setMobileFiltersOpen(false)}
           />
-          <aside className="absolute right-0 top-0 h-full w-[min(92vw,390px)] overflow-y-auto border-l border-white/10 bg-[rgba(7,7,10,.985)] p-5 shadow-[-30px_0_80px_rgba(0,0,0,.55)]">
+          <aside className="absolute right-0 top-0 h-full w-[min(92vw,390px)] overflow-y-auto border-l border-white/10 bg-[#0c0c10] p-5 shadow-[-30px_0_80px_rgba(0,0,0,.62)]">
             <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-4">
               <div>
                 <div className="eyebrow-gold">Filters</div>
