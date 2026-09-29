@@ -82,10 +82,10 @@ test('approved mood bands are full-width, centered and use plain secondary axis 
 
 test('section dividers are single soft center-glow lines with stronger edge fade', () => {
   const css = readFileSync('app/globals.css','utf8');
-  assert.match(css,/\.visual-home-section::before/);
-  assert.match(css,/transparent 18%/);
-  assert.match(css,/rgba\(216,181,109,\.18\) 50%/);
-  assert.match(css,/transparent 82%/);
+  assert.match(css,/\.visual-section-divider \{/);
+  assert.match(css,/transparent 14%/);
+  assert.match(css,/rgba\(216,181,109,\.17\) 50%/);
+  assert.match(css,/transparent 86%/);
 });
 
 test('Shop by Piece advances every three seconds and uses integrated full-width label bands', () => {
@@ -132,7 +132,7 @@ test('desktop catalog filters no longer sit inside framed outer or Body Area pan
 
 test('product cards keep a visible idle border and brighten with shadow on hover', () => {
   const css = readFileSync('app/globals.css','utf8');
-  assert.match(css,/border-color: rgba\(216,214,211,\.17\)/);
+  assert.match(css,/border-color: rgba\(216,214,211,\.20\)/);
   assert.match(css,/border-color: rgba\(216,181,109,\.46\)/);
   assert.match(css,/0 30px 62px -22px rgba\(0,0,0,\.86\)/);
 });
@@ -141,7 +141,7 @@ test('mega preview and mood bands stay compact and remove white edge treatment',
   const css = readFileSync('app/globals.css','utf8');
   const header = readFileSync('components/Header.tsx','utf8');
   assert.match(css,/\.visual-mood-label-band \{[\s\S]*min-height: 82px/);
-  assert.match(css,/\.visual-mega-preview-band \{[\s\S]*min-height: 88px/);
+  assert.match(css,/\.visual-mega-preview-band \{[\s\S]*min-height: 86px/);
   assert.match(header,/border-\[rgba\(216,181,109,\.08\)\]/);
   assert.match(header,/visual-mega-preview-band absolute inset-x-0 bottom-0 px-5 py-4/);
 });
