@@ -35,3 +35,9 @@ export function ownerPreviewReadFetch(transport: typeof fetch, supabaseUrl: stri
     return transport(input, {...init, cache: 'no-store', redirect: 'error'});
   };
 }
+
+
+export function isHybridVisualPreviewDeployment(env: Record<string, string | undefined>) {
+  return isOwnerPreviewDeployment(env)
+    && env.VERCEL_GIT_COMMIT_REF === 'design/hybrid-visual-integration-20260928';
+}
