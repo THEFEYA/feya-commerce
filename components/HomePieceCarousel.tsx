@@ -61,7 +61,7 @@ export function HomePieceCarousel({ items }: { items: HomePieceCarouselItem[] })
             data-piece-card
             key={item.code}
             href={item.href}
-            className="group relative aspect-[4/5] w-[clamp(250px,23vw,340px)] shrink-0 snap-start overflow-hidden rounded-[14px] border border-white/[0.07] bg-[rgba(255,255,255,.018)] shadow-[0_24px_55px_-36px_rgba(0,0,0,.85)]"
+            className="visual-hover-sheen group relative aspect-[4/5] w-[clamp(250px,23vw,340px)] shrink-0 snap-start overflow-hidden rounded-[14px] border border-white/[0.07] bg-[rgba(255,255,255,.018)] shadow-[0_24px_55px_-36px_rgba(0,0,0,.85)]"
           >
             {item.imageUrl ? (
               <img
