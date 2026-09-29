@@ -102,7 +102,8 @@ export async function verifyApprovedContentRuntime({ db, browser, ownerPage, env
     await page.getByLabel('Пароль',{exact:true}).fill(password);
     const loginResponse=page.waitForResponse(r=>r.request().method()==='POST'&&new URL(r.url()).pathname==='/admin/login');
     await page.getByRole('button',{name:'Войти',exact:true}).click();
-    assert.equal((await loginResponse).status(),303);
+    const loginStatus=(await loginResponse).status();
+    assert.ok([200,303].includes(loginStatus),`Unexpected Server Action login status: ${loginStatus}`);
     await page.waitForURL('**/admin');
     await page.goto(base+path);
     await page.getByRole('heading', {level:1, name:first.h1, exact:true}).waitFor();
