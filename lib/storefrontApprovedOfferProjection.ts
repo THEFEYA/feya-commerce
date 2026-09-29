@@ -15,6 +15,7 @@ type SignatureRow = {
   aggregate: boolean;
   full_set: boolean;
   members: string[];
+  optional?: Row;
 };
 
 function configurationId(row: Row) {
@@ -35,35 +36,37 @@ function parseSignature(value: unknown): SignatureRow[] {
   const raw = cleanText(value);
   const prefix = 'storefront-sellable-offer-v1:';
   if (!raw.startsWith(prefix)) return [];
+
   try {
     const parsed = JSON.parse(raw.slice(prefix.length));
     if (!Array.isArray(parsed)) return [];
-    return parsed
-      .map((row): SignatureRow | null => {
-        if (!row || typeof row !== 'object') return null;
-        const id = cleanText(row.id);
-        const label = cleanText(row.label);
-        if (!id || !label) return null;
-        return {
-          id,
-          code: cleanText(row.code),
-          family: cleanText(row.family),
-          label,
-          aggregate: row.aggregate === true,
-          full_set: row.full_set === true,
-          members: Array.isArray(row.members) ? row.members.map(cleanText).filter(Boolean) : [],
-        };
-      })
-      .filter((row): row is SignatureRow => Boolean(row));
+
+    const rows: SignatureRow[] = [];
+    for (const value of parsed) {
+      if (!value || typeof value !== 'object') continue;
+      const row = value as Row;
+      const id = cleanText(row.id);
+      const label = cleanText(row.label);
+      if (!id || !label) continue;
+      rows.push({
+        id,
+        code: cleanText(row.code),
+        family: cleanText(row.family),
+        label,
+        aggregate: row.aggregate === true,
+        full_set: row.full_set === true,
+        members: Array.isArray(row.members) ? row.members.map(cleanText).filter(Boolean) : [],
+      });
+    }
+    return rows;
   } catch {
     return [];
   }
 }
 
 function optionalRows(value: unknown): Row[] {
-  return Array.isArray(value)
-    ? value.filter((row) => row && typeof row === 'object') as Row[]
-    : [];
+  if (!Array.isArray(value)) return [];
+  return value.filter((row) => Boolean(row) && typeof row === 'object') as Row[];
 }
 
 function familyLabel(value: string) {
@@ -78,8 +81,7 @@ function familyLabel(value: string) {
  * SEO draft. It never invents prices or identifiers:
  * - current configuration rows remain the price/identity authority;
  * - approved draft snapshots only restore public label/order/membership metadata;
- * - projection is all-or-nothing when a signature is present, so stale IDs cannot
- *   partially rewrite a live selector.
+ * - projection is all-or-nothing when snapshot IDs no longer match current rows.
  */
 export function projectApprovedOfferSnapshot<T extends Row>(
   product: T,
@@ -89,52 +91,61 @@ export function projectApprovedOfferSnapshot<T extends Row>(
 
   const signature = parseSignature(snapshot.sellable_offer_signature);
   const optional = optionalRows(snapshot.optional_configurations);
-  const optionalById = new Map(optional.map((row) => [configurationId(row), row]).filter(([id]) => Boolean(id)));
-  const currentById = new Map(
-    product.configurations
-      .map((row: Row) => [configurationId(row), row] as const)
-      .filter(([id]) => Boolean(id)),
-  );
 
-  const projectionRows: Array<SignatureRow & { optional?: Row }> = signature.length
-    ? signature.map((row) => ({ ...row, optional: optionalById.get(row.id) }))
-    : optional
-      .map((row) => {
-        const id = configurationId(row);
-        const label = cleanText(row.public_label)
-          || cleanText(row.configuration_label)
-          || cleanText(row.configuration_name);
-        if (!id || !label) return null;
-        return {
-          id,
-          code: cleanText(row.component_code),
-          family: cleanText(row.component_family),
-          label,
-          aggregate: row.is_bundle === true || row.is_full_set === true,
-          full_set: row.is_full_set === true,
-          members: Array.isArray(row.bundle_component_codes)
-            ? row.bundle_component_codes.map(cleanText).filter(Boolean)
-            : [],
-          optional: row,
-        };
-      })
-      .filter((row): row is SignatureRow & { optional?: Row } => Boolean(row));
+  const optionalById = new Map<string, Row>();
+  for (const row of optional) {
+    const id = configurationId(row);
+    if (id) optionalById.set(id, row);
+  }
+
+  const currentById = new Map<string, Row>();
+  for (const row of product.configurations as Row[]) {
+    const id = configurationId(row);
+    if (id) currentById.set(id, row);
+  }
+
+  const projectionRows: SignatureRow[] = [];
+  if (signature.length) {
+    for (const row of signature) {
+      projectionRows.push({ ...row, optional: optionalById.get(row.id) });
+    }
+  } else {
+    for (const option of optional) {
+      const id = configurationId(option);
+      const label = cleanText(option.public_label)
+        || cleanText(option.configuration_label)
+        || cleanText(option.configuration_name);
+      if (!id || !label) continue;
+      projectionRows.push({
+        id,
+        code: cleanText(option.component_code),
+        family: cleanText(option.component_family),
+        label,
+        aggregate: option.is_bundle === true || option.is_full_set === true,
+        full_set: option.is_full_set === true,
+        members: Array.isArray(option.bundle_component_codes)
+          ? option.bundle_component_codes.map(cleanText).filter(Boolean)
+          : [],
+        optional: option,
+      });
+    }
+  }
 
   if (!projectionRows.length) return product;
 
-  // The approved selector snapshot may be older than the current relational
-  // configuration set. In that case do not apply a partial historical selector.
-  if (projectionRows.some((row) => !currentById.has(row.id))) return product;
+  // Never mix a partial historical selector with a changed current offer.
+  for (const row of projectionRows) {
+    if (!currentById.has(row.id)) return product;
+  }
 
-  const labelByCode = new Map(
-    projectionRows
-      .filter((row) => row.code)
-      .map((row) => [row.code, row.label]),
-  );
+  const labelByCode = new Map<string, string>();
+  for (const row of projectionRows) {
+    if (row.code) labelByCode.set(row.code, row.label);
+  }
 
-  const projected = projectionRows.map((entry, index) => {
-    const current = currentById.get(entry.id)!;
-    const option = entry.optional || optionalById.get(entry.id) || {};
+  const projected: Row[] = projectionRows.map((entry, index) => {
+    const current = currentById.get(entry.id) as Row;
+    const option: Row = entry.optional || optionalById.get(entry.id) || {};
     const memberLabels = entry.members
       .map((code) => labelByCode.get(code) || code)
       .filter(Boolean);
