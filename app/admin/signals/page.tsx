@@ -4,10 +4,6 @@ import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { CaseAdmissionPreviewRow, GrowthSignalCandidateRow } from '@/lib/types';
 import { admissionLabel, admissionReasonLabel, priorityLabel, roleLabel, signalCopy, statusLabel } from '@/lib/owner-ui/terminology';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 async function getSignals(): Promise<{
   rows: GrowthSignalCandidateRow[];
   admissionByFingerprint: Map<string, CaseAdmissionPreviewRow>;
