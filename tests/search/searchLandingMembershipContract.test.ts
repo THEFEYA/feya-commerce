@@ -6,7 +6,7 @@ test('collection route reads one immutable page version + matching membership sn
   const page=await readFile(new URL('../../app/collections/[slug]/page.tsx',import.meta.url),'utf8');
   const helper=await readFile(new URL('../../lib/searchLandingPageServer.ts',import.meta.url),'utf8');
 
-  assert.match(page,/readSearchLandingRelease/);
+  assert.match(page,/readCachedSearchLandingRelease/);
   assert.doesNotMatch(page,/candidateMatchesProduct|matchTerms/);
 
   assert.match(helper,/feya_search_page_versions_v1/);
