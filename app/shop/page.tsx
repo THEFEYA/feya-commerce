@@ -8,9 +8,6 @@ import { Header } from '@/components/Header';
 import { readApprovedStorefrontCardProductsV1 } from '@/lib/storefrontCardReadModelServer';
 import { ShopClient } from '@/components/ShopClient';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 async function getProducts() {
   const reviewGate = await readClosedReviewPresentation();
   if (reviewGate.status === 'blocked') notFound();
