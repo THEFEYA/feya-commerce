@@ -4,8 +4,6 @@ import {requireOwnerActionActor} from '@/lib/ownerActionAuth';
 import {colorPriceGovernanceApprovalScopeDecision} from '@/lib/commerceColorPriceGovernanceApproval';
 
 export const runtime='nodejs';
-export const dynamic='force-dynamic';
-
 const RELEASE_REF=String((audit as any).release_ref||'');
 const PRODUCT_IDS=((audit as any).product_ids||[]).map(String).sort();
 const reply=(body:unknown,status=200)=>NextResponse.json(body,{status,headers:{'Cache-Control':'private, no-store','X-Robots-Tag':'noindex, nofollow'}});
