@@ -8,6 +8,8 @@ import {
 test('global navigation merges events and performance while keeping Shop and Style distinct', () => {
   assert.deepEqual(publicPrimaryNavigation().map((item) => item.code), ['shop','events_performance','style','about','shipping_payment','contact']);
   assert.deepEqual(publicPrimaryNavigation().map((item) => item.label), ['Shop','Events & Performance','Style','About','Shipping & Payment','Contact']);
+  assert.equal(publicPrimaryNavigation().find((item)=>item.code==='events_performance')?.href,'/events-performance');
+  assert.equal(publicPrimaryNavigation().find((item)=>item.code==='style')?.href,'/style');
 
   const shopSerialized = JSON.stringify(STOREFRONT_NAVIGATION_PANELS.shop);
   assert.doesNotMatch(shopSerialized,/Size Guide|Shipping|Returns|Contact/);
