@@ -2,10 +2,6 @@
 import Link from 'next/link';
 import FirstRealDraftClient from '@/app/admin/seo-engine/first-real-draft/FirstRealDraftClient';
 import { getSupabaseServiceClient } from '@/lib/supabase';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const ROW_LIMIT = 1000;
 const ROW_SELECT = 'product_slug,card_title,current_seo_title,current_meta_description,current_h1,current_primary_image_alt,applied_seo_title,applied_meta_description,applied_h1,applied_primary_image_alt';
 
