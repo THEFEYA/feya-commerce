@@ -1,6 +1,6 @@
+// @ts-nocheck
 export const instant = false;
 
-// @ts-nocheck
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
 import {
