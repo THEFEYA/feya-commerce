@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getMissingSupabaseServiceEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
 
-export const runtime = 'nodejs';
 export async function GET() {
   const supabase = getSupabaseServiceClient();
   if (!supabase) {
