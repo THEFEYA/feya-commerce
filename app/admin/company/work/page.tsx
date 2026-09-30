@@ -1,5 +1,6 @@
 export const instant = false;
 
+import { connection } from 'next/server';
 import Link from 'next/link';
 import { ArrowRight, Bot, CircleAlert, Eye, Layers3, ShieldCheck, Workflow } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
@@ -191,6 +192,7 @@ const GROUP_ORDER = [
 ];
 
 export default async function AdminWorkPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; owner?: string }> }) {
+  await connection();
   const params = await searchParams;
   const { work, attention, roles, handoffs, workflowEvents, operations, error } = await getWorkData();
   const q = String(params.q || '').trim().toLowerCase();
