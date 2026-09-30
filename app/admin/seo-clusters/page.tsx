@@ -2,10 +2,6 @@ import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { QueryClusterReviewRow } from '@/lib/types';
 import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const QUEUE_LIMIT = 500;
 
 async function getQueue(): Promise<{ rows: QueryClusterReviewRow[]; error?: string }> {
