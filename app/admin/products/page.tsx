@@ -4,10 +4,6 @@ import Link from 'next/link';
 import { ArrowUpRight, Boxes, CheckCircle2, ImageIcon, Search, Tags, WalletCards } from 'lucide-react';
 import { AdminProductsFilterClient } from '@/components/AdminProductsFilterClient';
 import type { AdminProductTableRow, ReadinessTone, ReviewChip } from '@/lib/admin-readiness';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const ADMIN_PRODUCTS_VIEW = 'feya_commerce_v_step6_product_catalog_overview';
 const STOREFRONT_ENRICHMENT_VIEW = 'feya_commerce_v_step7_storefront_products_api_v4';
 const ADMIN_PRODUCTS_LIMIT = 500;
