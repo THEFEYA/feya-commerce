@@ -4,6 +4,7 @@ export const instant = false;
 import type { Metadata } from 'next';
 import { cache } from 'react';
 import { notFound } from 'next/navigation';
+import { connection } from 'next/server';
 import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { ProductDetailClient } from '@/components/ProductDetailClient';
@@ -206,6 +207,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function ProductPage({ params }: PageProps) {
+  await connection();
   const { slug } = await params;
   const { product, related, error, approvedCopy, copyBlocked } = await getPresentation(slug);
   if (copyBlocked) notFound();
