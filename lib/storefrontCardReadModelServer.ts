@@ -63,10 +63,10 @@ const CARD_SELECT = [
 ].join(',');
 
 /**
- * Exact approved-corpus read only.
+ * Exact approved-corpus raw reader.
  *
- * Intentionally NOT cached yet. The master performance plan requires the invalidation
- * contract to be proven before persistent storefront caching is enabled.
+ * Deliberately remains uncached so route-specific public cache wrappers can attach
+ * the correct invalidation scope (catalog-wide for Shop, product-scoped for Home).
  */
 export async function readApprovedStorefrontCardRowsV1(): Promise<StorefrontCardReadRowV1[]> {
   const service = getSupabaseServiceRoleClient();

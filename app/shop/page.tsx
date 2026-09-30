@@ -1,14 +1,14 @@
 // @ts-nocheck
-export const instant = false;
+export const instant = true;
 
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { notFound, redirect } from 'next/navigation';
-import { connection } from 'next/server';
 import { readClosedReviewPresentation } from '@/lib/searchReviewPresentationServer';
 import { closedReviewRequested } from '@/lib/searchReviewPresentation';
 import { filterShopProducts, parseShopNavigation, shopPageHref, SHOP_PAGE_SIZE } from '@/lib/shopCatalogNavigation';
 import { Header } from '@/components/Header';
-import { readApprovedStorefrontCardProductsV1 } from '@/lib/storefrontCardReadModelServer';
+import { readCachedApprovedStorefrontCatalogV1 } from '@/lib/storefrontCatalogCacheServer';
 import { ShopClient } from '@/components/ShopClient';
 
 async function getProducts() {
@@ -17,7 +17,7 @@ async function getProducts() {
   const review = reviewGate.status === 'review';
   try {
     return {
-      products: await readApprovedStorefrontCardProductsV1(),
+      products: await readCachedApprovedStorefrontCatalogV1(),
       review,
     };
   } catch (error) {
@@ -40,10 +40,23 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
     ...(closedReviewRequested(process.env) ? { robots: { index: false, follow: false } } : {}) };
 }
 
-export default async function ShopPage({ searchParams }: ShopPageProps) {
-  await connection();
-  const { products, error, review } = await getProducts();
+export default function ShopPage(props: ShopPageProps) {
+  return <Suspense fallback={<ShopRouteFallback />}>
+    <ResolvedShopPage {...props} />
+  </Suspense>;
+}
+
+function ShopRouteFallback() {
+  return <main className="relative min-h-screen">
+    <Suspense fallback={null}><Header /></Suspense>
+  </main>;
+}
+
+async function ResolvedShopPage({ searchParams }: ShopPageProps) {
+  // Resolve URL runtime data first so Cache Components can prerender/stream the
+  // shell without touching the catalog source during build-time prerendering.
   const params = await searchParams;
+  const { products, error, review } = await getProducts();
   const navigation = review ? parseShopNavigation(params) : undefined;
   if (review && !navigation) notFound();
   if (navigation) {

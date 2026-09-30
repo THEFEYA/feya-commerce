@@ -30,19 +30,23 @@ test('owner Server Action uses updateTag only after authenticated owner gate',()
   assert.ok(!source.includes("revalidateTag(tag,'max')"));
 });
 
-test('invalidation ledger is service-only; Shop stays blocked while the Phase 6 support slice activates',()=>{
+test('invalidation ledger is service-only and the final Phase 6 Shop cache uses governed catalog tags',()=>{
   const migration=readFileSync('supabase/migrations/20260930234500_storefront_cache_invalidation_ledger_v1.sql','utf8');
   const cardLoader=readFileSync('lib/storefrontCardReadModelServer.ts','utf8');
+  const cache=readFileSync('lib/storefrontCatalogCacheServer.ts','utf8');
   const shop=readFileSync('app/shop/page.tsx','utf8');
   assert.ok(migration.includes('revoke all on public.feya_storefront_cache_invalidations_v1 from public,anon,authenticated'));
   assert.ok(migration.includes('grant select,insert,update on public.feya_storefront_cache_invalidations_v1 to service_role'));
-  assert.ok(cardLoader.includes('Intentionally NOT cached yet'));
+  assert.ok(cardLoader.includes('Deliberately remains uncached'));
   assert.ok(!cardLoader.includes("'use cache'"));
-  assert.ok(!cardLoader.includes('unstable_cache'));
-  assert.ok(!/export\\s+const\\s+(?:dynamic|revalidate|fetchCache|runtime)\\s*=/.test(shop));
-  assert.ok(shop.includes("import { connection } from 'next/server'"));
-  assert.ok(shop.includes('await connection()'));
-  assert.ok(shop.includes('export const instant = false'));
+  assert.ok(cache.includes("'use cache'"));
+  assert.ok(cache.includes("cacheLife('max')"));
+  assert.ok(cache.includes('STOREFRONT_CACHE_TAGS.site'));
+  assert.ok(cache.includes('STOREFRONT_CACHE_TAGS.catalog'));
+  assert.ok(!shop.includes("from 'next/server'"));
+  assert.ok(!shop.includes('await connection()'));
+  assert.ok(shop.includes('export const instant = true'));
+  assert.ok(shop.includes('readCachedApprovedStorefrontCatalogV1'));
   const layout=readFileSync('app/layout.tsx','utf8');
   assert.ok(!layout.includes('export const instant = false'));
 });

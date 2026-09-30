@@ -2,9 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-test('Shop runtime uses the exact slim read model without media fan-out', () => {
+test('Shop runtime uses the exact slim read model through the governed catalog cache without media fan-out', () => {
   const page = readFileSync('app/shop/page.tsx','utf8');
-  assert.ok(page.includes('readApprovedStorefrontCardProductsV1'));
+  const cache = readFileSync('lib/storefrontCatalogCacheServer.ts','utf8');
+  assert.ok(page.includes('readCachedApprovedStorefrontCatalogV1'));
+  assert.ok(cache.includes('readApprovedStorefrontCardProductsV1'));
   assert.ok(page.includes('readClosedReviewPresentation'));
   assert.ok(page.includes("if (reviewGate.status === 'blocked') notFound()"));
   assert.ok(!page.includes('MEDIA_LOOKUP_CHUNK_SIZE'));
@@ -34,4 +36,9 @@ test('slim adapter preserves existing price/filter APIs without heavyweight PDP 
   assert.ok(source.includes('configurations: []'));
   assert.ok(!source.includes("'use cache'"));
   assert.ok(!source.includes('unstable_cache'));
+  const cache = readFileSync('lib/storefrontCatalogCacheServer.ts','utf8');
+  assert.ok(cache.includes("'use cache'"));
+  assert.ok(cache.includes("cacheLife('max')"));
+  assert.ok(cache.includes('STOREFRONT_CACHE_TAGS.site'));
+  assert.ok(cache.includes('STOREFRONT_CACHE_TAGS.catalog'));
 });

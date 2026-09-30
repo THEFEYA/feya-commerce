@@ -39,6 +39,7 @@ test('only the first Phase 6 support slice is instant while all remaining route 
     'app/returns/page.tsx',
     'app/shipping/page.tsx',
     'app/shop/[slug]/page.tsx',
+    'app/shop/page.tsx',
   ]);
   const wrongMode:string[]=[];
   const directiveBreaks:string[]=[];
@@ -68,15 +69,16 @@ test('URL-dependent client hooks are isolated behind Suspense for instant routes
   const layout=readFileSync('app/layout.tsx','utf8');
   const collection=readFileSync('app/collections/[slug]/page.tsx','utf8');
   const pdp=readFileSync('app/shop/[slug]/page.tsx','utf8');
+  const shop=readFileSync('app/shop/page.tsx','utf8');
   assert.ok(layout.includes("<Suspense fallback={null}><MeasurementRuntime /></Suspense>"));
   assert.ok(collection.includes("<Suspense fallback={null}><Header/></Suspense>"));
   assert.ok(pdp.includes("<Suspense fallback={null}><Header /></Suspense>"));
+  assert.ok(shop.includes("<Suspense fallback={null}><Header /></Suspense>"));
 });
 
 test('legacy force-dynamic behavior is preserved with connection() until each storefront route is intentionally cached',()=>{
   const required=[
     'app/admin/layout.tsx',
-    'app/shop/page.tsx',
   ];
   for(const path of required){
     const source=readFileSync(path,'utf8');
@@ -99,6 +101,12 @@ test('legacy force-dynamic behavior is preserved with connection() until each st
   assert.ok(home.includes('async function HomeBody()'));
   assert.ok(home.includes('await connection()'));
   assert.ok(home.includes('<Suspense fallback={<HomeBodyFallback />}>'));
+
+  const shop=readFileSync('app/shop/page.tsx','utf8');
+  assert.ok(!shop.includes('await connection()'));
+  assert.ok(shop.includes('export const instant = true'));
+  assert.ok(shop.includes('readCachedApprovedStorefrontCatalogV1'));
+  assert.ok(shop.includes('<Suspense fallback={<ShopRouteFallback />}>'));
 
   for(const path of [
     'app/about/page.tsx',
