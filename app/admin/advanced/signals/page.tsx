@@ -1,3 +1,5 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { CaseAdmissionPreviewRow, GrowthSignalCandidateRow } from '@/lib/types';
