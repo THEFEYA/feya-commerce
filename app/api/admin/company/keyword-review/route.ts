@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireOwnerActionActor } from '@/lib/ownerActionAuth';
 
-export const runtime = 'nodejs';
 type Input = {
   cleanup_id?: number | string;
   expected_review_status?: string;
