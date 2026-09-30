@@ -5,6 +5,8 @@ import { AnalyticsConsentBanner } from '@/components/AnalyticsConsentBanner';
 import { publicLegalIdentityReady } from '@/lib/publicLegalIdentity';
 import './globals.css';
 
+export const instant = false;
+
 export const metadata: Metadata = {
   metadataBase: getSiteUrl(),
   title: {
