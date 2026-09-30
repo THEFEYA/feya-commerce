@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { withInternalApi } from '@/lib/internalAuth';
 
-export const dynamic = 'force-dynamic';
-
 const REQUIRED_ENV_KEYS = [
   'GOOGLE_ADS_CLIENT_ID',
   'GOOGLE_ADS_CLIENT_SECRET',
