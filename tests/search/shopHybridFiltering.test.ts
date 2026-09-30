@@ -14,13 +14,13 @@ import {
 test('shop URL grammar validates filters, accepts attribution params and rejects unknown state',()=>{
   const parsed=parseShopNavigation({
     color:'gold',
-    piece:'Skirt,Skirt',
+    piece:' Skirt ,Dress,Skirt',
     utm_source:'google',
     gclid:'fixture-click',
   });
   assert.ok(parsed);
   assert.equal(parsed.filters.color,'Gold');
-  assert.deepEqual(parsed.filters.piece,['Skirt']);
+  assert.deepEqual(parsed.filters.piece,['Dress','Skirt']);
   assert.equal(isShopTrackingParam('utm_campaign'),true);
   assert.equal(isShopTrackingParam('GCLID'),true);
   assert.equal(parseShopNavigation({mystery:'value'}),null);
@@ -34,6 +34,10 @@ test('shop normalization omits defaults, canonicalizes values and preserves trac
   const canonical=shopPageHref(parsed.page,parsed.filters);
   assert.equal(canonical,'/shop?color=Gold');
   assert.equal(shopHrefWithTracking(canonical,{utm_source:'google',gclid:'abc'}),'/shop?color=Gold&utm_source=google&gclid=abc');
+  const multi=parseShopNavigation({piece:'Skirt,Dress'});
+  assert.ok(multi);
+  assert.equal(shopPageHref(multi.page,multi.filters),'/shop?piece=Dress%2CSkirt');
+  assert.equal(shopNavigationNeedsNormalization({piece:'Skirt,Dress'},multi),true);
 
   const normalized=parseShopNavigation({color:'Gold'});
   assert.ok(normalized);
