@@ -42,6 +42,7 @@ Supported events:
 
 - product_changed
 - product_media_changed
+- product_stock_changed
 - product_slug_changed
 - product_unpublished
 - collection_membership_changed
@@ -117,6 +118,7 @@ The next cache phase may assign these tags to cached readers only after:
 
 1. this contract passes CI;
 2. the dedicated revalidation secret is configured in the target environment;
-3. a synthetic invalidation round-trip is proven;
-4. the audit ledger records accepted → delivered correctly;
-5. the storefront read model/runtime parity gate is green.
+3. a synthetic invalidation round-trip is proven against the real Route Handler;
+4. the audit ledger records accepted → delivered correctly and idempotent replay does not duplicate rows;
+5. product, media, stock, slug, unpublish, membership and content mutation scopes all have deterministic tag/path plans;
+6. the storefront read model/runtime parity gate is green.
