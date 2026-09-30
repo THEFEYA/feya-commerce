@@ -24,7 +24,7 @@ This file is a checkpoint against the canonical master so implementation does no
 | 4 — Swap Public Shop Data Layer | COMPLETE | `/shop` now uses the exact 207-product slim read model with legacy media/query fan-out removed; closed-review runtime, Typecheck/build, FEYA validation run `36699053147`, and Vercel preview all pass on commit `5ba38c841663f794fa2d630582d8b93cba4db8d2`. `force-dynamic` / `revalidate=0` remain intentionally unchanged. |
 | 5 — Invalidation Plumbing | COMPLETE IN CODE / HOSTED ACTIVATION REQUIRED BEFORE PHASE 6 | PR #33 is rebased onto the green Phase 4 head. FEYA validation run `36700072296` and Vercel pass on commit `ccfab2a96403148853f7052954b8e341dbdad789`. The real internal Route Handler is exercised in isolated Supabase/Next runtime: dedicated-secret auth, stock invalidation scope, accepted→delivered audit logging and idempotent replay all pass. Product/media/stock/slug/unpublish/membership/content scopes are explicit. Phase 6 later activated persistent public caching under this invalidation contract. |
 | 6 — Route Caching | COMPLETE | Support/policy → owner collections → PDPs → homepage → `/shop` are activated in the master order. `/shop` uses the exact approved 207-product slim catalog behind governed `site`/`catalog` tags; closed-review auth and URL state remain outside shared cache. FEYA validation run `36787995563` and Vercel preview `dpl_9FYs6ypVBjpqGLGNaQ6NgTXwDjhM` are green on commit `567202af61a0f3f6d6a7e396a89204e3da62aa18`. |
-| 7 — Hybrid Shop Filtering | IN PROGRESS | Phase 6 cached catalog foundation is green. Current work is direct-load SSR from the slim cache, normalized/noindex filter URLs, zero-network client filtering and deterministic URL state without changing the approved Shop visual UX. |
+| 7 — Hybrid Shop Filtering | COMPLETE — PRELAUNCH GATE | Direct filtered URLs SSR from the same cached 207-product slim index; filter values/keys normalize deterministically; distinct filter states are `noindex, follow` and stay outside Search Release ownership; client filtering is zero-network with History API URL state and `useDeferredValue`; invalid/zero-result direct states fail closed. FEYA validation run `36790117475` is green on commit `e0e387d175d8014dab7bdaad8e65ab0c770a6894`; Vercel preview `dpl_CYG5pm1aFfRtSwF7H2auiM3WQQpP` is READY. Mobile filtering passed the isolated browser lab gate; this is not a field-INP claim, which remains post-launch RUM work. |
 | 8 — Navigation / Hub UX | NOT STARTED | Search ownership and visual contracts remain unchanged until this phase. |
 | 9 — Owner Route Alignment | NOT STARTED | Owner decision required for reserved URL renames before indexation. |
 | 10 — Image / Bundle / Prefetch Optimization | NOT STARTED | Starts after data/cache architecture is stable. |
@@ -34,15 +34,15 @@ This file is a checkpoint against the canonical master so implementation does no
 
 ## Current single engineering objective
 
-Finish **Phase 7 — /shop hybrid filtering** without changing storefront visuals:
+Execute **Phase 8 — Navigation / Hub correction** without redesigning the owner-approved storefront:
 
-1. direct `/shop?...` loads parse and validate deterministic filter state on the server against the same cached 207-product slim index;
-2. distinct filter utility URLs remain `noindex, follow` and out of the Search Release/sitemap;
-3. normalized direct URLs self-canonicalize; defaults and case variants normalize; attribution parameters never become canonical filter state;
-4. in-page filter interaction remains zero-network and writes shareable state with the History API while retaining the approved load-more UX;
-5. use deferred/memoized client filtering so the current-size catalog stays responsive; do not claim field INP before production data exists;
-6. invalid, impossible or zero-result direct filter states fail closed where appropriate;
-7. do not start Phase 8, Search Release, or new SEO-copy work until the Phase 7 gate is complete.
+1. preserve `SHOP -> /shop`;
+2. give `EVENTS & PERFORMANCE` a light product-led hub and `STYLE` a light discovery hub instead of routing parent clicks into a dense registry anchor;
+3. keep `/collections` as a curated directory of approved owner destinations, not a public governance registry;
+4. separate parent anchor navigation from chevron/disclosure controls with correct desktop hover/focus/Escape behavior;
+5. keep the mobile drawer accordion model and add an explicit `View all` / group destination as the first child where a group destination exists;
+6. preserve the same important crawlable destination set across desktop/mobile and keep HOLD/filter states visibly subordinate to approved owners;
+7. do not start Phase 9 URL-owner renames or Search Release activation until Phase 8 passes its visual/crawl/accessibility gate.
 ## Do not repeat
 
 The following work is already closed and must not be re-researched/rebuilt unless a concrete regression invalidates its evidence:
