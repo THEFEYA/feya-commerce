@@ -1,4 +1,4 @@
-export const instant = false;
+export const instant = true;
 
 import type {Metadata} from 'next';
 import {Header} from '@/components/Header';

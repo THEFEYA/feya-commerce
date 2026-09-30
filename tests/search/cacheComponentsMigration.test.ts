@@ -23,21 +23,32 @@ test('Cache Components migration has no legacy route cache segment exports',()=>
   assert.deepEqual(offenders,[],`legacy cache route exports remain:\n${offenders.join('\n')}`);
 });
 
-test('Phase 6 enables Cache Components and keeps global instant validation opted out during migration',()=>{
+test('Phase 6 enables Cache Components and removes the root-wide Block before activating the first named slice',()=>{
   const config=readFileSync('next.config.ts','utf8');
   const layout=readFileSync('app/layout.tsx','utf8');
   assert.ok(config.includes('cacheComponents: true'));
-  assert.ok(layout.includes('export const instant = false'));
+  assert.ok(!layout.includes('export const instant = false'));
 });
 
-
-test('all page/layout/default segments are explicitly opted out until Phase 6 activates them route by route',()=>{
-  const missing:string[]=[];
+test('only the first Phase 6 support slice is instant while all remaining route segments stay blocked',()=>{
+  const activated=new Set([
+    'app/about/page.tsx',
+    'app/contact/page.tsx',
+    'app/returns/page.tsx',
+    'app/shipping/page.tsx',
+  ]);
+  const wrongMode:string[]=[];
   const directiveBreaks:string[]=[];
   for(const path of walk('app')){
     if(!/(?:page|layout|default)\.(?:ts|tsx|js|jsx)$/.test(path))continue;
     const source=readFileSync(path,'utf8');
-    if(!source.includes('export const instant = false'))missing.push(path);
+    if(path==='app/layout.tsx'){
+      if(source.includes('export const instant = false'))wrongMode.push(path);
+    }else if(activated.has(path)){
+      if(!source.includes('export const instant = true')||source.includes('export const instant = false'))wrongMode.push(path);
+    }else if(!source.includes('export const instant = false')){
+      wrongMode.push(path);
+    }
     if(source.includes('// @ts-nocheck')&&!source.trimStart().startsWith('// @ts-nocheck'))directiveBreaks.push(path);
     const lines=source.split(/\r?\n/);
     const firstCode=lines.find(line=>{
@@ -46,10 +57,9 @@ test('all page/layout/default segments are explicitly opted out until Phase 6 ac
     })?.trim();
     if((source.includes("'use client'")||source.includes('"use client"'))&&firstCode!=="'use client';"&&firstCode!=='"use client";')directiveBreaks.push(path);
   }
-  assert.deepEqual(missing,[],`instant opt-out missing:\n${missing.join('\n')}`);
+  assert.deepEqual(wrongMode,[],`unexpected Phase 6 instant mode:\n${wrongMode.join('\n')}`);
   assert.deepEqual([...new Set(directiveBreaks)],[],`top directives displaced:\n${[...new Set(directiveBreaks)].join('\n')}`);
 });
-
 
 test('legacy force-dynamic behavior is preserved with connection() until each storefront route is intentionally cached',()=>{
   const required=[
