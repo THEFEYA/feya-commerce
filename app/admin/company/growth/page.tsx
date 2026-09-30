@@ -1,5 +1,6 @@
 export const instant = false;
 
+import { connection } from 'next/server';
 import Link from 'next/link';
 import { FileSearch, GitBranch, SearchCheck, ShieldCheck, Sparkles, TrendingUp } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
@@ -165,6 +166,7 @@ function toneClass(tone: string) {
 }
 
 export default async function AdminGrowthPage() {
+  await connection();
   const data = await getGrowthData();
   const map = new Map(data.capabilities.map((row) => [String(row.capability_code), row]));
   const healthMap = new Map(data.sourceHealth.map((row) => [String(row.source_code), row]));
