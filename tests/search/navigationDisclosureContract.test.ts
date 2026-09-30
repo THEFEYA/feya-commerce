@@ -16,7 +16,8 @@ test('Phase 8 desktop parents are real links with adjacent disclosure buttons',(
 
 test('mega-menu and mobile drawer links stay in rendered markup while disclosures hide visually',()=>{
   const header=readFileSync('components/Header.tsx','utf8');
-  assert.match(header,/primaryNavigation\.filter\(\(item\) => 'panel' in item/);
+  assert.match(header,/primaryNavigation\.map\(\(parentItem\) =>/);
+  assert.match(header,/if \(!\('panel' in parentItem\) \|\| !parentItem\.panel\) return null/);
   assert.match(header,/aria-hidden=\{!expanded\}/);
   assert.doesNotMatch(header,/\{panel && groups\.length > 0 \?/);
   assert.match(header,/id="mobile-site-navigation"/);
