@@ -4,7 +4,6 @@ import audit from '@/docs/search/price-baseline-audit-manifest-20260925.json';
 import structureAudit from '@/docs/search/configuration-binding-audit-20260925.json';
 import { requireOwnerActionActor } from '@/lib/ownerActionAuth';
 
-export const runtime='nodejs';
 const RELEASE_REF=String((audit as any).release_ref||'');
 const MANUAL_IDS=new Set<string>(((audit as any).manual_override_product_ids||[]).map(String));
 const COLOR_PRICE_IDS=new Set<string>(((structureAudit as any).color_price_axis_product_ids||[]).map(String));
