@@ -1,4 +1,6 @@
 // @ts-nocheck
+export const instant = false;
+
 import Link from 'next/link';
 import FirstRealDraftClient from '@/app/admin/seo-engine/first-real-draft/FirstRealDraftClient';
 import { getSupabaseServiceClient } from '@/lib/supabase';
