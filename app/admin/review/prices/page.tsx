@@ -11,10 +11,6 @@ import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
 import { classifyConfigurationQuoteReadiness } from '@/lib/commerceQuoteReadiness';
 import { classifyProductPriceAdoption, type PriceAdoptionEvidence } from '@/lib/commercePriceAdoption';
 import sourceJson from '@/docs/search/closed-review-source-manifest-20260924.json';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const PRICE_REVIEW_LIMIT = 500;
 const QUOTE_PRICE_PAGE = 1000;
 const RELEASE_PRODUCT_IDS = new Set(
