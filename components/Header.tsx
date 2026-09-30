@@ -347,7 +347,8 @@ export function Header() {
         </div>
       ) : null}
 
-      {primaryNavigation.filter((item) => 'panel' in item && Boolean(item.panel)).map((parentItem) => {
+      {primaryNavigation.map((parentItem) => {
+        if (!('panel' in parentItem) || !parentItem.panel) return null;
         const panelCode = String(parentItem.panel);
         const panel = navigationPanel(panelCode);
         const groups = enabledNavigationGroups(panelCode);
