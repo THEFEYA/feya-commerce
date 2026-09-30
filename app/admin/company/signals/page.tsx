@@ -6,10 +6,6 @@ import { presentSignal } from '@/lib/owner-ui/presenters';
 import { admissionLabel } from '@/lib/owner-ui/terminology';
 import { OwnerSignalDrawerClient } from '@/components/admin/OwnerSignalDrawerClient';
 import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 type Row = Record<string, unknown>;
 
 async function getSignals(): Promise<{ rows: Row[]; error?: string }> {
