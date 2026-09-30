@@ -201,7 +201,9 @@ export function shopNavigationNeedsNormalization(
   const actual=new URLSearchParams();
   for (const key of SHOP_FILTER_PARAM_ORDER) {
     const value=params[key];
+    // Empty/default filter keys are not canonical state and must disappear.
     if (typeof value==='string' && value) actual.set(key,value);
+    else if (value!==undefined) return true;
   }
   const expected=new URL(shopPageHref(navigation.page,navigation.filters),'https://thefeya.invalid').searchParams;
   return actual.toString()!==expected.toString();
