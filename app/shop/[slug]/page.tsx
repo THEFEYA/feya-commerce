@@ -30,9 +30,6 @@ import { absoluteSiteUrl } from '@/lib/siteConfig';
 import { isHybridVisualPreviewDeployment } from '@/lib/ownerPreviewPolicy';
 import { projectApprovedOfferSnapshot } from '@/lib/storefrontApprovedOfferProjection';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 type PageProps = { params: Promise<{ slug: string }> };
 type SupabaseReader = NonNullable<ReturnType<typeof getSupabaseReadClient>>;
 
