@@ -6,8 +6,6 @@ import { requireOwnerActionActor } from '@/lib/ownerActionAuth';
 import { priceBaselineApprovalScopeDecision } from '@/lib/commercePriceBaselineApproval';
 
 export const runtime='nodejs';
-export const dynamic='force-dynamic';
-
 const RELEASE_REF=String((audit as any).release_ref||'');
 const MANUAL_IDS=new Set<string>(((audit as any).manual_override_product_ids||[]).map(String));
 const COLOR_PRICE_IDS=new Set<string>(((structureAudit as any).color_price_axis_product_ids||[]).map(String));
