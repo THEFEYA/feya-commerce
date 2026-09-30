@@ -2,7 +2,7 @@ import {
   EVENTS_PERFORMANCE_MEGA_PREVIEWS,
   SHOP_MEGA_PREVIEWS,
   STYLE_MEGA_PREVIEWS,
-} from '@/config/megaMenuPresentation';
+} from './megaMenuPresentation.ts';
 
 export type DiscoveryHubTile = {
   code: string;
