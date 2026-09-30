@@ -18,7 +18,9 @@ test('storefront card read model is additive, exact-corpus and server-only', () 
   assert.ok(migration.includes("revoke all on public.feya_storefront_product_cards_v1 from public, anon, authenticated"));
   assert.ok(migration.includes("grant select on public.feya_storefront_product_cards_v1 to service_role"));
   assert.ok(migration.includes("v_count <> 207"));
+  assert.ok(migration.includes('p.media_count::integer as media_count'));
 
+  assert.ok(parity.includes('p.media_count::integer as media_count'));
   assert.ok(parity.includes('distinct on (label_norm)'));
   assert.ok(parity.includes('option_price desc nulls last'));
   assert.ok(parity.includes("grant select on public.feya_storefront_product_cards_v1 to service_role"));
