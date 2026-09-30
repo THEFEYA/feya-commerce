@@ -15,6 +15,62 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
   const binding=await read('config/closed-review-presentation-binding.json');
   const release=prepareReviewPresentation(source,binding.source_sha256);
   assert.equal(release.presentation_sha256,binding.presentation_sha256);
+
+  // Phase 4 runtime proof must exercise the actual Phase 3 card read model.
+  // The isolated runtime previously restored only the legacy product view, so the
+  // new server-only card relation did not exist and /shop correctly failed closed.
+  // Restore the immutable facet shell, then apply the real card migrations.
+  await check('Closed-review fixture restores exact 207-product card read model',async()=>{
+    for(const migration of [
+      'supabase/migrations/20260927212500_storefront_facet_snapshot_v1.sql',
+      'supabase/migrations/20260928114500_storefront_facet_snapshot_axes_v2.sql',
+      'supabase/migrations/20260928122000_storefront_facet_sellable_axis_v3.sql',
+    ]) await db.query(await readFile(migration,'utf8'));
+
+    const facetSnapshotId='00000000-0000-4000-8000-000000000207';
+    await db.query(
+      `insert into public.feya_storefront_facet_snapshots_v1(
+        facet_snapshot_id,snapshot_code,facet_contract_version,source_revision,source_release_ref,
+        product_count,snapshot_hash,snapshot_status,evidence_json
+      ) values($1,'feya-n7-20260928-v3','feya-storefront-facets-v4',
+        'runtime-closed-review-facet-shell','feya-review-207-20260924',207,$2,'PREVIEW',$3::jsonb)`,
+      [facetSnapshotId,'f'.repeat(64),JSON.stringify({source:'runtime_exact_release_shell'})]
+    );
+    for(const entry of release.entries){
+      await db.query(
+        `insert into public.feya_storefront_facet_items_v1(
+          facet_snapshot_id,canonical_product_id,source_draft_id,
+          parent_components_json,child_components_json,component_groups_json,
+          event_values_json,style_values_json,persona_values_json,canonical_color_label,
+          item_hash,evidence_json,component_values_json,audience_values_json,material_values_json,
+          sellable_component_values_json
+        ) values($1,$2,$3,'[]'::jsonb,'[]'::jsonb,'[]'::jsonb,'[]'::jsonb,'[]'::jsonb,
+          '[]'::jsonb,$4,$5,$6::jsonb,'[]'::jsonb,'[]'::jsonb,'[]'::jsonb,'[]'::jsonb)`,
+        [
+          facetSnapshotId,
+          entry.identity.canonical_product_id,
+          entry.identity.draft_id,
+          entry.product.canonical_color_label || null,
+          entry.identity.content_sha256,
+          JSON.stringify({source:'runtime_exact_release_shell'}),
+        ]
+      );
+    }
+
+    for(const migration of [
+      'supabase/migrations/20260930231500_storefront_product_card_read_model_v1.sql',
+      'supabase/migrations/20260930232500_storefront_product_card_price_parity_v2.sql',
+      'supabase/migrations/20260930233500_storefront_product_card_snapshot_v3.sql',
+      'supabase/migrations/20260930235500_storefront_card_exact_identity_v4.sql',
+    ]) await db.query(await readFile(migration,'utf8'));
+
+    await db.query("notify pgrst, 'reload schema'");
+    const state=await db.query(
+      `select count(*)::int n,count(distinct canonical_product_id)::int distinct_n
+       from public.feya_storefront_product_cards_v1`
+    );
+    assert.deepEqual(state.rows[0],{n:207,distinct_n:207});
+  });
   const first=release.entries[0], path=first.copy.metadata.canonical_path, base='http://127.0.0.1:3004';
   let server,page,outsiderContext,log='';
   const request=async route=>ownerPage.request.get(base+route);
