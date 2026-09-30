@@ -16,9 +16,9 @@ function walk(dir:string):string[]{
 test('Cache Components migration has no legacy route cache segment exports',()=>{
   const offenders:string[]=[];
   for(const path of walk('app')){
-    if(!/(?:page|layout|default|route)\.(?:ts|tsx|js|jsx)$/.test(path))continue;
+    if(!/(?:page|layout|default|route)\.(?:ts|tsx|js|jsx)$/.test(path) && !/^app\/(?:robots|sitemap)\.ts$/.test(path))continue;
     const source=readFileSync(path,'utf8');
-    if(/export\s+const\s+(?:dynamic|revalidate|fetchCache)\s*=/.test(source))offenders.push(path);
+    if(/export\s+const\s+(?:dynamic|revalidate|fetchCache|runtime)\s*=/.test(source))offenders.push(path);
   }
   assert.deepEqual(offenders,[],`legacy cache route exports remain:\n${offenders.join('\n')}`);
 });
