@@ -4,10 +4,6 @@ import { OwnerDataSourceDrawerClient } from '@/components/admin/OwnerDataSourceD
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { DataSourceHealthRow } from '@/lib/types';
 import { dataFreshnessLabel, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 async function getRows(): Promise<{ rows: DataSourceHealthRow[]; error?: string }> {
   const supabase = getAdminReadClient();
   if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
