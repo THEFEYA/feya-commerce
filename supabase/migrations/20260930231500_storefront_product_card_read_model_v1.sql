@@ -1752,7 +1752,7 @@ base as (
     p.hover_image_url,
     p.video_url,
     p.has_video,
-    p.media_count,
+    p.media_count::integer as media_count,
     p.min_price,
     p.max_price,
     p.full_set_display_price_amount,
