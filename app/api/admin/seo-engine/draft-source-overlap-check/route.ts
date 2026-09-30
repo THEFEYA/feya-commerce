@@ -4,8 +4,6 @@ import { getMissingSupabaseServiceEnvMessage, getSupabaseServiceClient } from '@
 import { STOREFRONT_VIEW_V1, STOREFRONT_VIEW_V2, STOREFRONT_VIEW_V3, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 import { tokenizeSeoPortfolioDraft } from '@/lib/seoPortfolioOverlap';
 
-export const dynamic = 'force-dynamic';
-
 const STORAGE_TABLE = 'feya_commerce_seo_pack_drafts_v1';
 const STORAGE_EVENTS_TABLE = 'feya_commerce_seo_pack_draft_events_v1';
 const STORAGE_FLAG = 'FEYA_SEO_DRAFT_STORAGE_ENABLED';
