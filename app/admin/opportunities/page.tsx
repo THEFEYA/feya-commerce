@@ -1,3 +1,5 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { OwnerOpportunityDrawerClient } from '@/components/admin/OwnerOpportunityDrawerClient';

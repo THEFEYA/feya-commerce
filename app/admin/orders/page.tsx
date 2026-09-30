@@ -1,3 +1,5 @@
+export const instant = false;
+
 import { ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 import { AdminOrdersSavedClient } from '@/components/AdminOrdersSavedClient';

@@ -1,3 +1,5 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { GrowthMetricRegistryRow, GrowthOperationalMetricRow } from '@/lib/types';
