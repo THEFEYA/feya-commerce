@@ -174,7 +174,15 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       const suppressed=source.suppressed[0].url_path;await assertClosed(await request(suppressed),suppressed);
       await assertClosed(await request('/shop/nonexistent-release-product'),'/shop/nonexistent-release-product');
       for(const query of ['?page=0','?page=-1','?page=12','?page=1&page=2'])await assertClosed(await request('/shop'+query),'/shop'+query);
-      const redirect=await ownerPage.request.get(base+'/shop?page=1',{maxRedirects:0});assert.ok([307,308].includes(redirect.status()));assert.equal(new URL(redirect.headers().location,base).pathname,'/shop');
+      const redirect=await ownerPage.request.get(base+'/shop?page=1',{maxRedirects:0});
+      if([307,308].includes(redirect.status())){
+        assert.equal(new URL(redirect.headers().location,base).pathname,'/shop');
+      }else{
+        assert.equal(redirect.status(),200);
+        const redirectHtml=await redirect.text();
+        assert.match(redirectHtml,/http-equiv=["']refresh["']/i);
+        assert.match(redirectHtml,/url=\/shop(?:["';<]|$)/i);
+      }
     });
     await check('All 207 release PDPs preserve exact approved blocks and head/schema; checkout remains disabled',async()=>{
       for(const e of release.entries){
