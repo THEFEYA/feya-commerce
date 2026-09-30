@@ -1,3 +1,5 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { CircleAlert, Eye, Route, Wrench } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
