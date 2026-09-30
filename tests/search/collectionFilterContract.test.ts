@@ -14,6 +14,7 @@ test('governed collection pages reuse the exact canonical Shop filter component'
 test('embedded ShopClient preserves membership scope and only filters the supplied products', () => {
   const source = readFileSync('components/ShopClient.tsx','utf8');
   assert.match(source,/embedded = false/);
-  assert.match(source,/filterShopProducts\(products, filters\)/);
+  assert.match(source,/filterShopProducts\(products, deferredFilters\)/);
+  assert.match(source,/if \(navigation \|\| embedded \|\| typeof window==='undefined'\) return;/);
   assert.doesNotMatch(source,/fetch\(|supabase/i);
 });
