@@ -5,9 +5,6 @@ import { ArrowUpRight, FileSearch, ImageIcon, Link2, SearchCheck, Shapes } from 
 import { AdminQueueQuickReviewClient } from '@/components/AdminQueueQuickReviewClient';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontConfiguration, StorefrontProduct } from '@/lib/types';
-
-export const revalidate = 300;
-
 const SEO_LIMIT = 250;
 
 function parseConfigurations(value: unknown): StorefrontConfiguration[] {
