@@ -4,10 +4,6 @@ import { OwnerOpportunityDrawerClient } from '@/components/admin/OwnerOpportunit
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { GrowthOpportunityRow } from '@/lib/types';
 import { roleLabel } from '@/lib/owner-ui/terminology';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 async function getRows(): Promise<{ rows: GrowthOpportunityRow[]; error?: string }> {
   const supabase = getAdminReadClient();
   if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
