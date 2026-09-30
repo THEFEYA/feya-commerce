@@ -4,10 +4,6 @@ import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminDa
 import type { RoleActivationRow } from '@/lib/types';
 import { formatRelativeTime, presentRole } from '@/lib/owner-ui/presenters';
 import { OwnerRoleDrawerClient } from '@/components/admin/OwnerRoleDrawerClient';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 type WorkRow = {
   current_accountable_domain?: string | null;
   case_status?: string | null;
