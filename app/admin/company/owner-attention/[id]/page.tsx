@@ -1,5 +1,6 @@
 export const instant = false;
 
+import { connection } from 'next/server';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
@@ -56,6 +57,7 @@ function List({ items }: { items: string[] }) {
 }
 
 export default async function OwnerDecisionDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  await connection();
   const { id } = await params;
   const { row, events, error } = await getAttention(id);
 
