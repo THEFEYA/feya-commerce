@@ -9,10 +9,6 @@ import { buildSeoDraftSuggestion } from '@/lib/seo-draft-suggestions';
 import { buildRuleBasedKeywordCandidates } from '@/lib/seo-keyword-candidates';
 import { buildSeoScores, type SeoScoreStage } from '@/lib/seo-scoring';
 import type { StorefrontProduct } from '@/lib/types';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const SEO_LAB_DETAIL_PRODUCTS_LIMIT = 500;
 
 type PageProps = { params: Promise<{ slug: string }> };
