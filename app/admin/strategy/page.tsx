@@ -6,10 +6,6 @@ import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminDa
 import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
 import type { GrowthInitiativeRow, GrowthObjectiveEventRow, GrowthObjectiveRow, GrowthStrategyRow } from '@/lib/types';
 import { roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 async function getData(): Promise<{
   strategies: GrowthStrategyRow[];
   objectives: GrowthObjectiveRow[];
