@@ -4,7 +4,6 @@ import structureAudit from '@/docs/search/configuration-binding-audit-20260925.j
 import {requireOwnerActionActor} from '@/lib/ownerActionAuth';
 import {releaseConfigurationRepairApprovalScopeDecision} from '@/lib/commerceReleaseConfigurationRepairApproval';
 
-export const runtime='nodejs';
 const RELEASE_REF=String((structureAudit as any).release_ref||'');
 const PRODUCT_IDS=((release as any).entries||[]).map((entry:any)=>String(entry?.identity?.canonical_product_id||'')).filter(Boolean).sort();
 const reply=(body:unknown,status=200)=>NextResponse.json(body,{status,headers:{'Cache-Control':'private, no-store','X-Robots-Tag':'noindex, nofollow'}});
