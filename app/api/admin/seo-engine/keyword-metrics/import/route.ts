@@ -7,8 +7,6 @@ import { getSupabaseAuthServerClient } from '@/lib/supabaseAuth';
 import { adminAccessDecision } from '@/lib/adminAccess';
 
 export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
-
 /** Existing admin endpoint. Previous target tables were absent; do not create a parallel metric core. */
 export async function POST(request: NextRequest) {
   try {
