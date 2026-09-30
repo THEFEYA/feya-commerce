@@ -422,7 +422,7 @@ export const EVENTS_PERFORMANCE_MEGA_PREVIEWS: Record<string, MegaPreview> = {
   'Drag Queen': { ...STYLE_MEGA_PREVIEWS['Angel'], label: 'Drag Queen' },
   'Go-Go Dancer': { ...SHOP_MEGA_PREVIEWS['Bodysuits'], label: 'Go-Go Dancer' },
   'Pole Dancer': { ...SHOP_MEGA_PREVIEWS['Bodysuits'], label: 'Pole Dancer' },
+  'Festival Skirts': { ...SHOP_MEGA_PREVIEWS['Skirts'], label: 'Festival Skirts' },
 };
 
-  'Festival Skirts': { ...SHOP_MEGA_PREVIEWS['Skirts'], label: 'Festival Skirts' },
 export const DEFAULT_EVENTS_PERFORMANCE_MEGA_PREVIEW = 'Festival';
