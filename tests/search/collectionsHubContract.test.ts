@@ -55,3 +55,24 @@ test('all ten approved owners have crawlable directory links and Event hub cover
     ],
   );
 });
+
+
+test('Style hub uses one desktop shortcut row, hides zero-state shortcuts and opens the Style filter group',async()=>{
+  const component=await readFile(new URL('../../components/DiscoveryHubPage.tsx',import.meta.url),'utf8');
+  const style=await readFile(new URL('../../app/style/page.tsx',import.meta.url),'utf8');
+  const server=await readFile(new URL('../../lib/discoveryHubServer.ts',import.meta.url),'utf8');
+  assert.match(component,/tiles\.length>5\?'lg:grid-cols-8':'lg:grid-cols-5'/);
+  assert.match(style,/readStyleTileAvailability/);
+  assert.match(style,/availability\.map\(\(entry\)=>entry\.tile\)/);
+  assert.match(style,/defaultOpenFilterSections=\{\['Style'\]\}/);
+  assert.match(server,/filter\(\(entry\)=>entry\.count>0\)/);
+});
+
+test('discovery hub product data keeps closed-review auth outside the shared catalog cache',async()=>{
+  const server=await readFile(new URL('../../lib/discoveryHubServer.ts',import.meta.url),'utf8');
+  assert.match(server,/readClosedReviewPresentation/);
+  assert.match(server,/if\(review\.status==='blocked'\)return null/);
+  assert.match(server,/readCachedApprovedStorefrontCatalogV1/);
+  assert.match(server,/review\.release\.entries/);
+  assert.doesNotMatch(server,/'use cache'/);
+});
