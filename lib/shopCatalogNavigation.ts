@@ -2,6 +2,7 @@ import type { StorefrontProduct } from './types.ts';
 import { mainRegularPrice, productTitle } from './storefront.ts';
 
 export const SHOP_PAGE_SIZE = 20;
+export const SHOP_MAX_PARAM_LENGTH = 512;
 
 export const BODY_AREA_TREE = [
   { part: 'Full Body', pieces: ['Bodysuit', 'Dress', 'Full Body Harness'] },
@@ -111,6 +112,7 @@ function listParam(raw: string, values: readonly string[]) {
 export function parseShopNavigation(params: Record<string, string | string[] | undefined>): ShopNavigation | null {
   const scalar = (key: string) => typeof params[key] === 'string' ? params[key] as string : '';
   const known = SHOP_FILTER_PARAM_ORDER;
+  if (known.some((key) => typeof params[key] === 'string' && (params[key] as string).length > SHOP_MAX_PARAM_LENGTH)) return null;
   if (Object.keys(params).some((key) => !known.includes(key as typeof known[number]) && !isShopTrackingParam(key))) return null;
   if (known.some((key) => Array.isArray(params[key]))) return null;
 
