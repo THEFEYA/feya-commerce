@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getMissingSupabaseServiceEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
 
-export const runtime = 'nodejs';
 const ALLOWED_TARGET_FIELDS = new Set([
   'seo_title',
   'meta_description',
