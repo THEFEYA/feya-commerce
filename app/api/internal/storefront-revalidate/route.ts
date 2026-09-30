@@ -11,8 +11,6 @@ import {
 } from '@/lib/storefrontCacheInvalidationAuditServer';
 import { withStorefrontRevalidationAuth } from '@/lib/storefrontRevalidationAuth';
 
-export const dynamic='force-dynamic';
-
 async function handler(request:NextRequest) {
   let body:StorefrontInvalidationInput;
   try {
