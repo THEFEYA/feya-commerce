@@ -1,4 +1,6 @@
 // @ts-nocheck
+export const instant = false;
+
 import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 import { readClosedReviewPresentation } from '@/lib/searchReviewPresentationServer';
