@@ -2,6 +2,7 @@ export const instant = false;
 
 import type {Metadata} from 'next';
 import {notFound} from 'next/navigation';
+import {connection} from 'next/server';
 import Link from 'next/link';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
@@ -34,6 +35,7 @@ export async function generateMetadata({params}:PageProps):Promise<Metadata>{
 }
 
 export default async function SearchLandingCandidatePage({params}:PageProps){
+  await connection();
   const {slug}=await params;
   const release=await readSearchLandingRelease(slug);
   if(!release)notFound();
