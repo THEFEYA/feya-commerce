@@ -1,5 +1,6 @@
 export const instant = false;
 
+import { connection } from 'next/server';
 import Link from 'next/link';
 import { History, ShieldCheck } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
@@ -53,6 +54,7 @@ function relativeBucket(value: unknown) {
 }
 
 export default async function AdminChangesPage() {
+  await connection();
   const { rows, error } = await getChanges();
   const linkedExecution = rows.filter((row) => row.execution_request_id).length;
   const linkedCases = rows.filter((row) => row.case_id).length;
