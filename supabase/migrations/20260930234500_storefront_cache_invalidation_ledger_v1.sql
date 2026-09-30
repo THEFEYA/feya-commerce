@@ -18,7 +18,7 @@ create table if not exists public.feya_storefront_cache_invalidations_v1 (
   delivered_at timestamptz,
   constraint feya_storefront_cache_invalidations_event_ck check (
     event_type in (
-      'product_changed','product_media_changed','product_slug_changed','product_unpublished',
+      'product_changed','product_media_changed','product_stock_changed','product_slug_changed','product_unpublished',
       'collection_membership_changed','collection_content_changed','landing_page_changed',
       'policy_changed','home_content_changed','global_content_changed'
     )
