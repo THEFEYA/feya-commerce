@@ -2,10 +2,6 @@ import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { GrowthMetricRegistryRow, GrowthOperationalMetricRow } from '@/lib/types';
 import { roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 async function getMetrics(): Promise<{
   registry: GrowthMetricRegistryRow[];
   values: GrowthOperationalMetricRow[];
