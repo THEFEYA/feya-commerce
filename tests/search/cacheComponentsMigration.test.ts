@@ -37,6 +37,7 @@ test('only the first Phase 6 support slice is instant while all remaining route 
     'app/collections/[slug]/page.tsx',
     'app/returns/page.tsx',
     'app/shipping/page.tsx',
+    'app/shop/[slug]/page.tsx',
   ]);
   const wrongMode:string[]=[];
   const directiveBreaks:string[]=[];
@@ -65,15 +66,16 @@ test('only the first Phase 6 support slice is instant while all remaining route 
 test('URL-dependent client hooks are isolated behind Suspense for instant routes',()=>{
   const layout=readFileSync('app/layout.tsx','utf8');
   const collection=readFileSync('app/collections/[slug]/page.tsx','utf8');
+  const pdp=readFileSync('app/shop/[slug]/page.tsx','utf8');
   assert.ok(layout.includes("<Suspense fallback={null}><MeasurementRuntime /></Suspense>"));
   assert.ok(collection.includes("<Suspense fallback={null}><Header/></Suspense>"));
+  assert.ok(pdp.includes("<Suspense fallback={null}><Header /></Suspense>"));
 });
 
 test('legacy force-dynamic behavior is preserved with connection() until each storefront route is intentionally cached',()=>{
   const required=[
     'app/admin/layout.tsx',
     'app/page.tsx',
-    'app/shop/[slug]/page.tsx',
     'app/shop/page.tsx',
   ];
   for(const path of required){
@@ -85,6 +87,11 @@ test('legacy force-dynamic behavior is preserved with connection() until each st
   const collection=readFileSync('app/collections/[slug]/page.tsx','utf8');
   assert.ok(!collection.includes('await connection()'));
   assert.ok(collection.includes('export const instant = true'));
+
+  const pdp=readFileSync('app/shop/[slug]/page.tsx','utf8');
+  assert.ok(!pdp.includes('await connection()'));
+  assert.ok(pdp.includes('export const instant = true'));
+  assert.ok(pdp.includes('readCachedStorefrontProductPresentation'));
 
   for(const path of [
     'app/about/page.tsx',
