@@ -3,8 +3,6 @@ import { requireOwnerActionActor } from '@/lib/ownerActionAuth';
 import { manualRepairApprovalScopeDecision } from '@/lib/commerceManualConfigurationRepairApproval';
 
 export const runtime='nodejs';
-export const dynamic='force-dynamic';
-
 const RELEASE_REF='feya-review-207-20260924';
 const PRODUCT_IDS=[
   '057fbd51-52f5-4404-b126-e5d75b8599f4',
