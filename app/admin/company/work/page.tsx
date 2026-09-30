@@ -7,10 +7,6 @@ import { OwnerWorkDrawerClient } from '@/components/admin/OwnerWorkDrawerClient'
 import { OwnerRoleDrawerClient } from '@/components/admin/OwnerRoleDrawerClient';
 import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
 import type { GrowthHandoffRow, GrowthWorkflowEventRow } from '@/lib/types';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 type Row = Record<string, unknown>;
 
 async function getWorkData(): Promise<{
