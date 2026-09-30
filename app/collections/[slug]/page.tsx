@@ -9,9 +9,6 @@ import {readSearchLandingRelease} from '@/lib/searchLandingPageServer';
 import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
 import {attachStorefrontFacets} from '@/lib/storefrontFacetsServer';
 
-export const dynamic='force-dynamic';
-export const revalidate=0;
-
 type PageProps={params:Promise<{slug:string}>};
 
 function jsonLd(value:unknown){
