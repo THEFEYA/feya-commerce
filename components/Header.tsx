@@ -347,165 +347,204 @@ export function Header() {
         </div>
       ) : null}
 
-      {panel && groups.length > 0 ? (
-        <div
-          onMouseEnter={() => {
-            cancelScheduledClose();
-            setOpenPanel(panel.code);
-          }}
-          onMouseLeave={schedulePanelClose}
-          className="hidden lg:block absolute left-0 right-0 top-full max-h-[calc(100vh-7rem)] overflow-y-auto border-y border-[rgba(216,214,211,0.14)] bg-[linear-gradient(180deg,rgba(13,13,18,0.995),rgba(7,7,10,0.995))] backdrop-blur-2xl shadow-[0_35px_90px_rgba(0,0,0,0.82)]"
-        >
-          <div className="container-feya py-7">
-            <div className="flex items-center justify-between gap-6 border-b border-white/10 pb-4">
-              <div>
-                <div className="eyebrow-gold mb-1">{panel.label}</div>
-                <p className="text-[13px] leading-5 text-[var(--bone-dim)]">
-                  {panel.code === 'shop' ? 'Choose a product family.' : panel.code === 'events_performance' ? 'Choose an event or performance path.' : 'Choose a style or persona.'}
-                </p>
-              </div>
-              <Link
-                href={panel.code === 'shop' ? '/shop' : `/collections#${panel.code}`}
-                className="text-[10px] uppercase tracking-[0.24em] text-[var(--gold-warm)] hover:text-white transition-colors"
-              >
-                Explore {panel.label.toLowerCase()} <ArrowUpRight size={11} className="inline-block ml-1" />
-              </Link>
-            </div>
+      {primaryNavigation.filter((item) => 'panel' in item && Boolean(item.panel)).map((parentItem) => {
+        const panelCode = String(parentItem.panel);
+        const panel = navigationPanel(panelCode);
+        const groups = enabledNavigationGroups(panelCode);
+        if (!panel || !groups.length) return null;
+        const previewMap =
+          panelCode === 'shop'
+            ? SHOP_MEGA_PREVIEWS
+            : panelCode === 'events_performance'
+              ? EVENTS_PERFORMANCE_MEGA_PREVIEWS
+              : STYLE_MEGA_PREVIEWS;
+        const defaultPreviewLabel = defaultPreviewForPanel(panelCode);
+        const activePreviewLabel = openPanel === panelCode ? menuPreviewLabel : defaultPreviewLabel;
+        const menuPreview = previewMap[activePreviewLabel] || previewMap[defaultPreviewLabel];
+        const expanded = openPanel === panelCode;
 
-            <div className="mt-5 grid grid-cols-[minmax(0,1fr)_minmax(280px,.34fr)] gap-8">
-              <div className={`grid min-w-0 gap-x-8 gap-y-8 ${
-                panel.code === 'shop'
-                  ? 'grid-cols-4'
-                  : panel.code === 'events_performance'
-                    ? 'grid-cols-3'
-                    : 'grid-cols-2'
-              }`}>
-                {groups.map((group) => (
-                  <section
-                    key={group.code}
-                    className="min-w-0"
-                    onMouseEnter={() => {
-                      if (previewMap[group.label]) setMenuPreviewLabel(group.label);
-                    }}
+        return (
+          <div
+            key={panelCode}
+            id={`nav-panel-${panelCode}`}
+            aria-hidden={!expanded}
+            onMouseEnter={() => {
+              cancelScheduledClose();
+              cancelScheduledOpen();
+              if (!expanded) openNavigationPanel(panelCode);
+            }}
+            onMouseLeave={schedulePanelClose}
+            className={`${expanded ? 'hidden lg:block' : 'hidden'} absolute left-0 right-0 top-full max-h-[calc(100vh-7rem)] overflow-y-auto border-y border-[rgba(216,214,211,0.14)] bg-[linear-gradient(180deg,rgba(13,13,18,0.995),rgba(7,7,10,0.995))] backdrop-blur-2xl shadow-[0_35px_90px_rgba(0,0,0,0.82)]`}
+          >
+            <div className="container-feya py-7">
+              <div className="flex items-center justify-between gap-6 border-b border-white/10 pb-4">
+                <div>
+                  <div className="eyebrow-gold mb-1">{panel.label}</div>
+                  <p className="text-[13px] leading-5 text-[var(--bone-dim)]">
+                    {panel.code === 'shop' ? 'Choose a product family.' : panel.code === 'events_performance' ? 'Choose an event or performance path.' : 'Choose a style or persona.'}
+                  </p>
+                </div>
+                <Link
+                  href={parentItem.href}
+                  onClick={() => setOpenPanel(null)}
+                  className="text-[10px] uppercase tracking-[0.24em] text-[var(--gold-warm)] hover:text-white transition-colors"
+                >
+                  View all {panel.label.toLowerCase()} <ArrowUpRight size={11} className="inline-block ml-1" />
+                </Link>
+              </div>
+
+              <div className="mt-5 grid grid-cols-[minmax(0,1fr)_minmax(280px,.34fr)] gap-8">
+                <div className={`grid min-w-0 gap-x-8 gap-y-8 ${
+                  panel.code === 'shop'
+                    ? 'grid-cols-4'
+                    : panel.code === 'events_performance'
+                      ? 'grid-cols-3'
+                      : 'grid-cols-2'
+                }`}>
+                  {groups.map((group) => (
+                    <section
+                      key={group.code}
+                      className="min-w-0"
+                      onMouseEnter={() => {
+                        if (previewMap[group.label]) setMenuPreviewLabel(group.label);
+                      }}
+                    >
+                      <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
+                        {group.href ? (
+                          <Link
+                            href={group.href}
+                            onFocus={() => {
+                              if (previewMap[group.label]) setMenuPreviewLabel(group.label);
+                            }}
+                            onClick={() => setOpenPanel(null)}
+                            className="text-[10px] uppercase tracking-[0.28em] text-[var(--gold-warm)] hover:text-white transition-colors"
+                          >
+                            {group.label}
+                          </Link>
+                        ) : (
+                          <div className="text-[10px] uppercase tracking-[0.28em] text-[var(--gold-warm)]">{group.label}</div>
+                        )}
+                        {group.href ? <ArrowUpRight size={10} className="text-[var(--gold-warm)] opacity-60" /> : null}
+                      </div>
+                      <div className="mt-1">
+                        {group.items.filter((item) => item.enabled).map((item) => (
+                          <MegaLeaf
+                            key={item.code}
+                            item={item}
+                            onNavigate={() => setOpenPanel(null)}
+                            onPreview={(label) => {
+                              if (previewMap[label]) setMenuPreviewLabel(label);
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </section>
+                  ))}
+                </div>
+
+                {menuPreview ? (
+                  <aside className="sticky top-0 h-[390px] overflow-hidden rounded-[14px] border border-[rgba(216,181,109,.09)] bg-[#111117]">
+                    <img
+                      key={`${panel.code}:${menuPreview.label}`}
+                      src={menuPreview.imageUrl}
+                      alt={`${menuPreview.label} visual preview`}
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover animate-[feyaPreviewFade_.28s_ease_both]"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/62 via-black/10 to-transparent" />
+                    <div className="visual-tile-label-band visual-mega-preview-band absolute inset-x-0 bottom-0 px-5 py-4">
+                      <div className="text-[9px] uppercase tracking-[.18em] text-[#e7cf96]">
+                        {panel.code === 'style' ? menuPreview.axis : panel.code === 'shop' ? 'Product preview' : 'Look preview'}
+                      </div>
+                      <div className="font-tall mt-1.5 text-[28px] leading-none text-[#f7f3ec]">{menuPreview.label}</div>
+                      <Link
+                        href={`/shop/${menuPreview.productSlug}`}
+                        onClick={() => setOpenPanel(null)}
+                        className="mt-3 inline-flex items-center gap-2 text-[10px] uppercase tracking-[.14em] text-[#d9d2c8] hover:text-white"
+                      >
+                        Preview piece <ArrowUpRight size={11} />
+                      </Link>
+                    </div>
+                  </aside>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+
+      <div
+        id="mobile-site-navigation"
+        ref={mobileDialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Site navigation"
+        aria-hidden={!mobileOpen}
+        className={`${mobileOpen ? 'lg:hidden' : 'hidden'} absolute left-0 right-0 top-full max-h-[calc(100vh-64px)] overflow-y-auto border-y border-[rgba(216,214,211,0.14)] bg-[rgba(7,7,10,0.99)] backdrop-blur-2xl shadow-[0_35px_90px_rgba(0,0,0,0.72)]`}
+      >
+        <div className="container-feya py-4">
+          {primaryNavigation.map((item) => {
+            const hasPanel = 'panel' in item && Boolean(item.panel);
+            if (!hasPanel) {
+              return (
+                <Link key={item.code} href={item.href} onClick={() => setMobileOpen(false)} className="block border-b border-white/10 py-4 text-[12px] uppercase tracking-[0.24em] text-[#D8D6D3]">
+                  {item.label}
+                </Link>
+              );
+            }
+
+            const mobileGroups = enabledNavigationGroups(String(item.panel));
+            const expanded = openMobileSection === item.code;
+            const mobilePanelId = `mobile-panel-${item.code}`;
+
+            return (
+              <div key={item.code} className="border-b border-white/10">
+                <button
+                  type="button"
+                  aria-expanded={expanded}
+                  aria-controls={mobilePanelId}
+                  onClick={() => setOpenMobileSection(expanded ? null : item.code)}
+                  className="flex min-h-11 w-full items-center justify-between py-4 text-left text-[12px] uppercase tracking-[0.24em] text-[#D8D6D3]"
+                >
+                  {item.label}
+                  <ChevronDown size={14} className={`transition-transform ${expanded ? 'rotate-180' : ''}`} />
+                </button>
+
+                <div id={mobilePanelId} className={expanded ? 'pb-5' : 'hidden'}>
+                  <Link
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    className="mb-4 flex min-h-11 items-center justify-between border-t border-white/[0.06] py-3 text-[10px] uppercase tracking-[0.20em] text-[var(--gold-warm)]"
                   >
-                    <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
+                    {item.code === 'shop' ? 'Shop all' : `View all ${item.label}`}
+                    <ArrowUpRight size={11}/>
+                  </Link>
+                  {mobileGroups.map((group) => (
+                    <div key={group.code} className="border-t border-white/[0.06] py-4 first:border-t-0 first:pt-0">
                       {group.href ? (
                         <Link
                           href={group.href}
-                          onFocus={() => {
-                            if (previewMap[group.label]) setMenuPreviewLabel(group.label);
-                          }}
-                          className="text-[10px] uppercase tracking-[0.28em] text-[var(--gold-warm)] hover:text-white transition-colors"
+                          onClick={() => setMobileOpen(false)}
+                          className="text-[10px] uppercase tracking-[0.26em] text-[var(--gold-warm)]"
                         >
                           {group.label}
                         </Link>
                       ) : (
-                        <div className="text-[10px] uppercase tracking-[0.28em] text-[var(--gold-warm)]">{group.label}</div>
+                        <div className="text-[10px] uppercase tracking-[0.26em] text-[var(--gold-warm)]">{group.label}</div>
                       )}
-                      {group.href ? <ArrowUpRight size={10} className="text-[var(--gold-warm)] opacity-60" /> : null}
+                      <div className="mt-2 pl-3">
+                        {group.items.filter((child) => child.enabled).map((child) => (
+                          <MegaLeaf key={child.code} item={child} onNavigate={() => setMobileOpen(false)} />
+                        ))}
+                      </div>
                     </div>
-                    <div className="mt-1">
-                      {group.items.filter((item) => item.enabled).map((item) => (
-                        <MegaLeaf
-                          key={item.code}
-                          item={item}
-                          onPreview={(label) => {
-                            if (previewMap[label]) setMenuPreviewLabel(label);
-                          }}
-                        />
-                      ))}
-                    </div>
-                  </section>
-                ))}
-              </div>
-
-              {menuPreview ? (
-                <aside className="sticky top-0 h-[390px] overflow-hidden rounded-[14px] border border-[rgba(216,181,109,.09)] bg-[#111117]">
-                  <img
-                    key={`${panel.code}:${menuPreview.label}`}
-                    src={menuPreview.imageUrl}
-                    alt={`${menuPreview.label} visual preview`}
-                    loading="eager"
-                    className="absolute inset-0 h-full w-full object-cover animate-[feyaPreviewFade_.28s_ease_both]"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/62 via-black/10 to-transparent" />
-                  <div className="visual-tile-label-band visual-mega-preview-band absolute inset-x-0 bottom-0 px-5 py-4">
-                    <div className="text-[9px] uppercase tracking-[.18em] text-[#e7cf96]">
-                      {panel.code === 'style' ? menuPreview.axis : panel.code === 'shop' ? 'Product preview' : 'Look preview'}
-                    </div>
-                    <div className="font-tall mt-1.5 text-[28px] leading-none text-[#f7f3ec]">{menuPreview.label}</div>
-                    <Link
-                      href={`/shop/${menuPreview.productSlug}`}
-                      className="mt-3 inline-flex items-center gap-2 text-[10px] uppercase tracking-[.14em] text-[#d9d2c8] hover:text-white"
-                    >
-                      Preview piece <ArrowUpRight size={11} />
-                    </Link>
-                  </div>
-                </aside>
-              ) : null}
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {mobileOpen && (
-        <div className="lg:hidden absolute left-0 right-0 top-full max-h-[calc(100vh-64px)] overflow-y-auto border-y border-[rgba(216,214,211,0.14)] bg-[rgba(7,7,10,0.99)] backdrop-blur-2xl shadow-[0_35px_90px_rgba(0,0,0,0.72)]">
-          <div className="container-feya py-4">
-            {primaryNavigation.map((item) => {
-              const hasPanel = 'panel' in item && Boolean(item.panel);
-              if (!hasPanel) {
-                return (
-                  <Link key={item.code} href={item.href} className="block border-b border-white/10 py-4 text-[12px] uppercase tracking-[0.24em] text-[#D8D6D3]">
-                    {item.label}
-                  </Link>
-                );
-              }
-
-              const mobileGroups = enabledNavigationGroups(String(item.panel));
-              const expanded = openMobileSection === item.code;
-
-              return (
-                <div key={item.code} className="border-b border-white/10">
-                  <button
-                    type="button"
-                    aria-expanded={expanded}
-                    onClick={() => setOpenMobileSection(expanded ? null : item.code)}
-                    className="flex w-full items-center justify-between py-4 text-left text-[12px] uppercase tracking-[0.24em] text-[#D8D6D3]"
-                  >
-                    {item.label}
-                    <ChevronDown size={14} className={`transition-transform ${expanded ? 'rotate-180' : ''}`} />
-                  </button>
-
-                  {expanded ? (
-                    <div className="pb-5">
-                      {mobileGroups.map((group) => (
-                        <div key={group.code} className="border-t border-white/[0.06] py-4 first:border-t-0 first:pt-0">
-                          {group.href ? (
-                            <Link
-                              href={group.href}
-                              onClick={() => setMobileOpen(false)}
-                              className="text-[10px] uppercase tracking-[0.26em] text-[var(--gold-warm)]"
-                            >
-                              {group.label}
-                            </Link>
-                          ) : (
-                            <div className="text-[10px] uppercase tracking-[0.26em] text-[var(--gold-warm)]">{group.label}</div>
-                          )}
-                          <div className="mt-2 pl-3">
-                            {group.items.filter((child) => child.enabled).map((child) => (
-                              <MegaLeaf key={child.code} item={child} onNavigate={() => setMobileOpen(false)} />
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : null}
+                  ))}
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
         </div>
-      )}
+      </div>
     </header>
   );
 }
