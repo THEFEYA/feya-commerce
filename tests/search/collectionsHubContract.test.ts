@@ -13,7 +13,7 @@ test('Phase 8 gives Events & Performance and Style dedicated product-led hubs',a
     assert.match(source,/releaseRobotsForPath/);
   }
   assert.match(events,/EVENTS_PERFORMANCE_HUB_TILES/);
-  assert.match(style,/STYLE_HUB_TILES/);
+  assert.match(style,/readStyleTileAvailability/);
   assert.equal(EVENTS_PERFORMANCE_HUB_TILES.every((tile)=>tile.role==='owner'),true);
   assert.equal(STYLE_HUB_TILES.every((tile)=>tile.role==='filter'),true);
 });
