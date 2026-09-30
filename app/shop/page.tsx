@@ -1,6 +1,7 @@
 // @ts-nocheck
 import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
+import { readClosedReviewPresentation } from '@/lib/searchReviewPresentationServer';
 import { closedReviewRequested } from '@/lib/searchReviewPresentation';
 import { filterShopProducts, parseShopNavigation, shopPageHref, SHOP_PAGE_SIZE } from '@/lib/shopCatalogNavigation';
 import { Header } from '@/components/Header';
@@ -11,7 +12,9 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 async function getProducts() {
-  const review = closedReviewRequested(process.env);
+  const reviewGate = await readClosedReviewPresentation();
+  if (reviewGate.status === 'blocked') notFound();
+  const review = reviewGate.status === 'review';
   try {
     return {
       products: await readApprovedStorefrontCardProductsV1(),
