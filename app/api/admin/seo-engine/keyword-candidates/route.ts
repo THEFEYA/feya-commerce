@@ -6,8 +6,6 @@ import { buildKeywordCandidateInsertRows } from '@/lib/seo-keyword-candidates';
 import type { StorefrontProduct } from '@/lib/types';
 
 export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
-
 type GenerateInput = {
   product_slug?: string;
 };
