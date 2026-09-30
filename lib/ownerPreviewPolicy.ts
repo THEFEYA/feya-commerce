@@ -1,10 +1,11 @@
 /** Owner-authorized visual review, 2026-09-24. Vercel Deployment Protection is
- * the access boundary for this one preview branch; this is not a public mode.
+ * the access boundary for these explicitly approved preview branches; this is not a public mode.
  * Only server-provided deployment metadata is accepted, never request headers.
  */
 const OWNER_PREVIEW_BRANCHES = new Set([
   'work/search-architecture-foundation-20260923',
   'design/hybrid-visual-integration-20260928',
+  'work/storefront-performance-foundation-20260930',
 ]);
 
 export function isOwnerPreviewDeployment(env: Record<string, string | undefined>) {
@@ -39,5 +40,8 @@ export function ownerPreviewReadFetch(transport: typeof fetch, supabaseUrl: stri
 
 export function isHybridVisualPreviewDeployment(env: Record<string, string | undefined>) {
   return isOwnerPreviewDeployment(env)
-    && env.VERCEL_GIT_COMMIT_REF === 'design/hybrid-visual-integration-20260928';
+    && [
+      'design/hybrid-visual-integration-20260928',
+      'work/storefront-performance-foundation-20260930',
+    ].includes(env.VERCEL_GIT_COMMIT_REF || '');
 }

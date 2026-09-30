@@ -10,25 +10,10 @@ function gitBlobSha(buffer) {
   return createHash('sha1').update(header).update(buffer).digest('hex');
 }
 
-const branchRef =
-  process.env.GITHUB_HEAD_REF ||
-  process.env.GITHUB_REF_NAME ||
-  process.env.VERCEL_GIT_COMMIT_REF ||
-  '';
-const isVisualPrototype = branchRef === 'design/hybrid-visual-integration-20260928';
-const visualPrototypeSurfaces = new Set([
-  'app/page.tsx',
-  'app/shop/[slug]/page.tsx',
-  'components/Header.tsx',
-  'components/Footer.tsx',
-  'components/ShopClient.tsx',
-  'components/ProductDetailClient.tsx',
-]);
-
 const failures = [];
-
 const globalCssBaselinePath = resolve(process.cwd(), 'config/product-os-globals-baseline.css');
 const globalCssPath = resolve(process.cwd(), 'app/globals.css');
+
 if (!existsSync(globalCssBaselinePath) || !existsSync(globalCssPath)) {
   failures.push('global CSS baseline or app/globals.css is missing');
 } else {
@@ -45,19 +30,8 @@ for (const [relativePath, expectedSha] of Object.entries(manifest.files || {})) 
     failures.push(`${relativePath}: missing`);
     continue;
   }
-
   const actualSha = gitBlobSha(readFileSync(absolutePath));
-
-  if (isVisualPrototype && visualPrototypeSurfaces.has(relativePath)) {
-    if (actualSha === expectedSha) {
-      failures.push(`${relativePath}: visual prototype surface unexpectedly matches frozen baseline`);
-    }
-    continue;
-  }
-
-  if (actualSha !== expectedSha) {
-    failures.push(`${relativePath}: expected ${expectedSha}, got ${actualSha}`);
-  }
+  if (actualSha !== expectedSha) failures.push(`${relativePath}: expected ${expectedSha}, got ${actualSha}`);
 }
 
 if (failures.length) {
@@ -68,8 +42,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-if (isVisualPrototype) {
-  console.log(`Product OS visual freeze: prototype exception OK (${visualPrototypeSurfaces.size} explicitly mutable surfaces; baseline manifest unchanged)`);
-} else {
-  console.log(`Product OS visual freeze: OK (${Object.keys(manifest.files || {}).length} files)`);
-}
+console.log(`Product OS visual freeze: OK (${Object.keys(manifest.files || {}).length} files)`);
