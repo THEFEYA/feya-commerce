@@ -29,3 +29,23 @@ test('Phase 6 enables Cache Components and keeps global instant validation opted
   assert.ok(config.includes('cacheComponents: true'));
   assert.ok(layout.includes('export const instant = false'));
 });
+
+
+test('all page/layout/default segments are explicitly opted out until Phase 6 activates them route by route',()=>{
+  const missing:string[]=[];
+  const directiveBreaks:string[]=[];
+  for(const path of walk('app')){
+    if(!/(?:page|layout|default)\.(?:ts|tsx|js|jsx)$/.test(path))continue;
+    const source=readFileSync(path,'utf8');
+    if(!source.includes('export const instant = false'))missing.push(path);
+    if(source.includes('// @ts-nocheck')&&!source.trimStart().startsWith('// @ts-nocheck'))directiveBreaks.push(path);
+    const lines=source.split(/\r?\n/);
+    const firstCode=lines.find(line=>{
+      const value=line.trim();
+      return value && !value.startsWith('//');
+    })?.trim();
+    if((source.includes("'use client'")||source.includes('"use client"'))&&firstCode!=="'use client';"&&firstCode!=='"use client";')directiveBreaks.push(path);
+  }
+  assert.deepEqual(missing,[],`instant opt-out missing:\n${missing.join('\n')}`);
+  assert.deepEqual([...new Set(directiveBreaks)],[],`top directives displaced:\n${[...new Set(directiveBreaks)].join('\n')}`);
+});
