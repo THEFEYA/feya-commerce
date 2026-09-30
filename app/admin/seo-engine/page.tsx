@@ -2,10 +2,6 @@
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, Database, FileCheck2, FileText, FlaskConical, Layers3, SearchCheck, ShieldCheck } from 'lucide-react';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const SOURCE_SELECT = 'source_code,source_name,source_type,connection_status,priority_level,notes';
 const STATUS_SELECT = 'product_slug,collection_slug,page_type,brief_status,primary_keyword,asset_status,check_status,qa_approved';
 
