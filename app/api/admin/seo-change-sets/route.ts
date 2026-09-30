@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getMissingSupabaseServiceEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
 
-export const runtime = 'nodejs';
 const SEO_CHANGE_SETS_SELECT = 'change_set_id,product_slug,canonical_product_id,source_event_id,source_route,target_field,current_value,proposed_value,reason,rule_pack_version,template_pack_version,status,reviewed_at,applied_at,created_at';
 
 const ALLOWED_TARGET_FIELDS = new Set([
