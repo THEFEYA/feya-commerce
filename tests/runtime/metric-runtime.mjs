@@ -77,7 +77,9 @@ try {
    insert into public.${snapshots}(snapshot_id,keyword_norm,source_api,geo,language,avg_monthly_searches,data_freshness_status) values(900,'synthetic shoulder armor','google_ads_csv','US','en',90,'fresh_manual_import');
    insert into public.${staging}(import_row_id,batch_code,keyword_norm,avg_monthly_searches,import_status) values(900,'legacy-fixture','synthetic shoulder armor',90,'promoted_to_snapshots');`);
   await db.query(await metricMigrationSQL());await db.query(await readerMigrationSQL());await db.query(await functionHardeningSQL());await db.query(await accessBoundarySQL());await db.query(await internalViewAccessSQL());
-  await db.query(await readFile('supabase/migrations/20260924095003_google_ads_atomic_evidence_v1.sql','utf8'));await db.query("notify pgrst, 'reload schema'");
+  await db.query(await readFile('supabase/migrations/20260924095003_google_ads_atomic_evidence_v1.sql','utf8'));
+  await db.query(await readFile('supabase/migrations/20260930234500_storefront_cache_invalidation_ledger_v1.sql','utf8'));
+  await db.query("notify pgrst, 'reload schema'");
  });
  service=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
  await check('PostgREST exposes storage, reader and access service-only contracts',async()=>{
@@ -116,16 +118,35 @@ try {
   const shortlist=await service.from('feya_commerce_v_page_ownership_shortlist_v1').select('seo_page_id,shortlist_method');assert.equal(shortlist.error,null);
   assert.equal(shortlist.data[0].seo_page_id,'20000000-0000-4000-8000-000000000024');assert.equal(shortlist.data[0].shortlist_method,'lexical_candidate_retrieval_not_ownership');
  });
- const internalToken=randomUUID();runtimeSecrets.push(internalToken);
+ const internalToken=randomUUID(),storefrontRevalidationToken=randomUUID();runtimeSecrets.push(internalToken,storefrontRevalidationToken);
  googleProvider=await startGoogleProviderFixture();
  const internalRoutes=[['content-prechecks','POST'],['content-qa','POST'],['google-ads-health','GET'],['google-ads-keyword-metrics','GET'],['google-ads-keyword-metrics','POST'],['openai-health','GET'],['page-ownership-proposals','POST'],['query-cluster-proposals','POST'],['sco-shadow','POST'],['seo-keyword-cleanup','POST'],['seo-keyword-review','POST']];
- const env={...cleanEnv,FEYA_INTERNAL_API_TOKEN:internalToken,NODE_ENV:'production',NEXT_TELEMETRY_DISABLED:'1',NEXT_PUBLIC_SUPABASE_URL:url,NEXT_PUBLIC_SUPABASE_ANON_KEY:anon,SUPABASE_SERVICE_ROLE_KEY:key,FEYA_ADMIN_AUTH_REQUIRED:'true',FEYA_ADMIN_ALLOWED_USER_IDS:admin.data.user.id,FEYA_ADMIN_ALLOWED_EMAILS:adminEmail,FEYA_METRIC_IMPORT_STORAGE_ENABLED:'true',FEYA_SEARCH_INDEXING_ENABLED:'false'};
+ const env={...cleanEnv,FEYA_INTERNAL_API_TOKEN:internalToken,FEYA_STOREFRONT_REVALIDATION_TOKEN:storefrontRevalidationToken,NODE_ENV:'production',NEXT_TELEMETRY_DISABLED:'1',NEXT_PUBLIC_SUPABASE_URL:url,NEXT_PUBLIC_SUPABASE_ANON_KEY:anon,SUPABASE_SERVICE_ROLE_KEY:key,FEYA_ADMIN_AUTH_REQUIRED:'true',FEYA_ADMIN_ALLOWED_USER_IDS:admin.data.user.id,FEYA_ADMIN_ALLOWED_EMAILS:adminEmail,FEYA_METRIC_IMPORT_STORAGE_ENABLED:'true',FEYA_SEARCH_INDEXING_ENABLED:'false'};
  Object.assign(env,{FEYA_GOOGLE_ADS_IMPORT_ENABLED:'true',GOOGLE_ADS_CUSTOMER_ID:'1234567890',GOOGLE_ADS_CLIENT_ID:'synthetic-client-id',GOOGLE_ADS_CLIENT_SECRET:'synthetic-client-secret',GOOGLE_ADS_REFRESH_TOKEN:'synthetic-refresh-token',FEYA_TEST_GOOGLE_ORIGIN:googleProvider.origin,NODE_OPTIONS:'--require='+resolve('tests/runtime/google-fetch-preload.cjs')});
  console.log('Building the unchanged production Next application against the isolated stack.');
  await new Promise((res,rej)=>{const p=spawn('npm',['run','build'],{env,stdio:['ignore','pipe','pipe']});let log='';p.stdout.on('data',b=>{log+=b;});p.stderr.on('data',b=>{log+=b;});p.on('error',rej);p.on('exit',async code=>{await writeFile(join(out,'build.log'),log);code===0?res():rej(Error('Next build failed; see build.log'));});});
  server=spawn(process.execPath,['node_modules/next/dist/bin/next','start','--hostname','127.0.0.1','--port','3000'],{env,stdio:['ignore','pipe','pipe']});server.stdout.on('data',b=>{appLog+=b;});server.stderr.on('data',b=>{appLog+=b;});
  let ready=false;for(let i=0;i<80;i++){try{const r=await fetch(base+'/admin/login');if(r.status===200){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,500));}assert.equal(ready,true,'Next did not start');
  browser=await chromium.launch({headless:true});const anonymous=await browser.newContext();const anonymousPage=await anonymous.newPage();
+ await check('Storefront revalidation route authenticates, derives stock scope, audits delivery and replays idempotently',async()=>{
+  const endpoint=base+'/api/internal/storefront-revalidate';
+  const requestKey='runtime-stock-invalidation-0001';
+  const payload={event_type:'product_stock_changed',canonical_product_id:'0395cb11-424f-407f-a849-7ee3b617ab57',product_slug:'runtime-stock-product',collection_slugs:['rave-outfits','festival-outfits'],source_ref:'runtime:stock'};
+  const denied=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':requestKey,'x-feya-storefront-revalidation-token':'wrong-token'},body:JSON.stringify(payload)});
+  assert.equal(denied.status,401);assert.match(denied.headers.get('cache-control'),/private.*no-store/);
+  assert.equal((await db.query('select count(*)::int n from public.feya_storefront_cache_invalidations_v1')).rows[0].n,0);
+  const call=()=>fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':requestKey,'x-feya-storefront-revalidation-token':storefrontRevalidationToken},body:JSON.stringify(payload)});
+  const first=await call();assert.equal(first.status,202);assert.match(first.headers.get('cache-control'),/private.*no-store/);const body=await first.json();
+  assert.equal(body.ok,true);assert.equal(body.replayed,false);assert.equal(body.event_type,'product_stock_changed');
+  assert.deepEqual(body.tags,['catalog','collection:festival-outfits','collection:rave-outfits','product:0395cb11-424f-407f-a849-7ee3b617ab57']);
+  assert.deepEqual(body.paths,['/collections/festival-outfits','/collections/rave-outfits','/shop','/shop/runtime-stock-product']);
+  const audit=(await db.query("select event_type,entity_type,entity_id,tags_json,paths_json,source_type,source_ref,delivery_mode,delivery_status,delivered_at from public.feya_storefront_cache_invalidations_v1 where request_key=$1",[requestKey])).rows[0];
+  assert.equal(audit.event_type,'product_stock_changed');assert.equal(audit.entity_type,'product');assert.equal(audit.entity_id,payload.canonical_product_id);assert.equal(audit.source_type,'internal_api');assert.equal(audit.source_ref,'runtime:stock');assert.equal(audit.delivery_mode,'revalidate_tag_max');assert.equal(audit.delivery_status,'delivered');assert.ok(audit.delivered_at);
+  assert.deepEqual(audit.tags_json,body.tags);assert.deepEqual(audit.paths_json,body.paths);
+  const replay=await call();assert.equal(replay.status,200);const replayBody=await replay.json();assert.equal(replayBody.ok,true);assert.equal(replayBody.replayed,true);assert.equal(replayBody.invalidation_id,body.invalidation_id);
+  assert.equal((await db.query('select count(*)::int n from public.feya_storefront_cache_invalidations_v1')).rows[0].n,1);
+  report.storefront_invalidation_runtime_pass=true;
+ });
  await check('Next denies anonymous API calls and redirects protected pages to login',async()=>{
   assert.equal((await api(anonymousPage,{rows:[input()]})).status,401);
   assert.equal((await api(anonymousPage,{dry_run:false,rows:[input()]})).status,401);
