@@ -70,3 +70,15 @@ test('public Shop client seeds direct URLs server-side then keeps filter interac
   assert.match(client,/isShopTrackingParam/);
   assert.doesNotMatch(client,/fetch\(|XMLHttpRequest|axios/i);
 });
+
+
+test('filter utility URLs stay noindex and outside the Search Release sitemap owner graph',()=>{
+  const page=readFileSync('app/shop/page.tsx','utf8');
+  const sitemap=readFileSync('app/sitemap.ts','utf8');
+  const release=readFileSync('lib/searchReleaseIndexationServer.ts','utf8');
+
+  assert.match(page,/utilityState[\s\S]*robots: \{ index: false, follow: true \}/);
+  assert.match(sitemap,/readActiveSearchReleaseIndexItems/);
+  assert.doesNotMatch(sitemap,/shopCatalogNavigation|searchParams|filterShopProducts/);
+  assert.doesNotMatch(release,/shopCatalogNavigation|filterShopProducts/);
+});
