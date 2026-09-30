@@ -5,10 +5,6 @@ import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient'
 import { OwnerProposalReviewClient } from '@/components/admin/OwnerProposalReviewClient';
 import { OwnerProposalApplyClient } from '@/components/admin/OwnerProposalApplyClient';
 import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 async function getData(): Promise<{
   readiness: PageIndexabilityReadinessRow[];
   proposals: IndexabilityProposalRow[];
