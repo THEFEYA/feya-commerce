@@ -5,10 +5,6 @@ import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminDa
 import { dataFreshnessLabel, ownerToneForStatus, scopeLabel, sourceHealthSummary, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
 import { getAdminAuthConfigStatus } from '@/lib/supabaseAuth';
 import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 type Row = Record<string, unknown>;
 
 async function getSystemData(): Promise<{
