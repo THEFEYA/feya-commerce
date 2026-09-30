@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { withInternalApi } from '@/lib/internalAuth';
 
-export const dynamic = 'force-dynamic';
-
 async function runTinyOpenAiCheck() {
   const apiKey = process.env.OPENAI_API_KEY;
 
