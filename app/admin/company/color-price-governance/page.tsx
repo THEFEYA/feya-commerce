@@ -1,3 +1,5 @@
+export const instant = false;
+
 import Link from 'next/link';
 import {Palette,ShieldCheck} from 'lucide-react';
 import {AdminColorPriceGovernanceClient} from '@/components/AdminColorPriceGovernanceClient';

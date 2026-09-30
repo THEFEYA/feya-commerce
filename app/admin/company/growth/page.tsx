@@ -1,3 +1,5 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { FileSearch, GitBranch, SearchCheck, ShieldCheck, Sparkles, TrendingUp } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
