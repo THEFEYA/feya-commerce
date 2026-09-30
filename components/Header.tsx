@@ -84,6 +84,10 @@ export function Header() {
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const disclosureRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const mobileMenuButtonRef = useRef<HTMLButtonElement | null>(null);
+  const mobileDialogRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -114,30 +118,52 @@ export function Header() {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
-      setOpenPanel(null);
-      setMobileOpen(false);
+      if (mobileOpen) {
+        setMobileOpen(false);
+        window.requestAnimationFrame(() => mobileMenuButtonRef.current?.focus());
+        return;
+      }
+      if (openPanel) {
+        const disclosure = disclosureRefs.current[openPanel];
+        setOpenPanel(null);
+        window.requestAnimationFrame(() => disclosure?.focus());
+        return;
+      }
       setSearchOpen(false);
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, []);
+  }, [mobileOpen, openPanel]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const dialog = mobileDialogRef.current;
+    if (!dialog) return;
+    const focusable = () => [...dialog.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),input:not([disabled])')]
+      .filter((element) => element.offsetParent !== null);
+    const frame = window.requestAnimationFrame(() => focusable()[0]?.focus());
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab') return;
+      const items = focusable();
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    dialog.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      dialog.removeEventListener('keydown', onKeyDown);
+    };
+  }, [mobileOpen]);
 
   const primaryNavigation = useMemo(() => publicPrimaryNavigation(), []);
-  const panel = useMemo(() => (openPanel ? navigationPanel(openPanel) : null), [openPanel]);
-  const groups = useMemo(() => (openPanel ? enabledNavigationGroups(openPanel) : []), [openPanel]);
-  const previewMap =
-    openPanel === 'shop'
-      ? SHOP_MEGA_PREVIEWS
-      : openPanel === 'events_performance'
-        ? EVENTS_PERFORMANCE_MEGA_PREVIEWS
-        : STYLE_MEGA_PREVIEWS;
-  const defaultPreviewLabel =
-    openPanel === 'shop'
-      ? DEFAULT_SHOP_MEGA_PREVIEW
-      : openPanel === 'events_performance'
-        ? DEFAULT_EVENTS_PERFORMANCE_MEGA_PREVIEW
-        : DEFAULT_STYLE_MEGA_PREVIEW;
-  const menuPreview = previewMap[menuPreviewLabel] || previewMap[defaultPreviewLabel];
 
   const cancelScheduledClose = () => {
     if (closeTimerRef.current) {
@@ -146,9 +172,39 @@ export function Header() {
     }
   };
 
-  const schedulePanelClose = () => {
+  const cancelScheduledOpen = () => {
+    if (openTimerRef.current) {
+      clearTimeout(openTimerRef.current);
+      openTimerRef.current = null;
+    }
+  };
+
+  const defaultPreviewForPanel = (panelCode: string) =>
+    panelCode === 'shop'
+      ? DEFAULT_SHOP_MEGA_PREVIEW
+      : panelCode === 'events_performance'
+        ? DEFAULT_EVENTS_PERFORMANCE_MEGA_PREVIEW
+        : DEFAULT_STYLE_MEGA_PREVIEW;
+
+  const openNavigationPanel = (panelCode: string) => {
     cancelScheduledClose();
-    closeTimerRef.current = setTimeout(() => setOpenPanel(null), 180);
+    cancelScheduledOpen();
+    setSearchOpen(false);
+    setOpenPanel(panelCode);
+    setMenuPreviewLabel(defaultPreviewForPanel(panelCode));
+  };
+
+  const schedulePanelOpen = (panelCode: string) => {
+    cancelScheduledOpen();
+    cancelScheduledClose();
+    const delay = openPanel && openPanel !== panelCode ? 80 : 320;
+    openTimerRef.current = setTimeout(() => openNavigationPanel(panelCode), delay);
+  };
+
+  const schedulePanelClose = () => {
+    cancelScheduledOpen();
+    cancelScheduledClose();
+    closeTimerRef.current = setTimeout(() => setOpenPanel(null), 300);
   };
 
   return (
@@ -159,6 +215,9 @@ export function Header() {
       }`}
       onMouseEnter={cancelScheduledClose}
       onMouseLeave={schedulePanelClose}
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOpenPanel(null);
+      }}
     >
       <div className={`overflow-hidden transition-all duration-500 ${scrolled ? 'max-h-0 opacity-0' : 'max-h-10 opacity-100'}`}>
         <div className="bg-gradient-to-r from-transparent via-[rgba(212,178,106,0.10)] to-transparent text-center py-2 text-[10px] tracking-[0.32em] uppercase text-silver">
@@ -172,50 +231,55 @@ export function Header() {
           <FeyaMark variant="chrome" width={78} className="transition-transform duration-500 group-hover:scale-[1.03]" />
         </Link>
 
-        <nav className="hidden lg:flex items-center gap-5 xl:gap-7" data-testid="primary-nav">
-          {primaryNavigation.map((item) => {
-            const active = navIsActive(pathname, item.href, item.code);
-            const hasPanel = 'panel' in item && Boolean(item.panel);
-            return (
-              <Link
-                key={item.code}
-                href={item.href}
-                onMouseEnter={() => {
-                  cancelScheduledClose();
-                  setSearchOpen(false);
-                  const nextPanel = hasPanel ? String(item.panel) : null;
-                  setOpenPanel(nextPanel);
-                  setMenuPreviewLabel(
-                    nextPanel === 'shop'
-                      ? DEFAULT_SHOP_MEGA_PREVIEW
-                      : nextPanel === 'events_performance'
-                        ? DEFAULT_EVENTS_PERFORMANCE_MEGA_PREVIEW
-                        : DEFAULT_STYLE_MEGA_PREVIEW,
-                  );
-                }}
-                onFocus={() => {
-                  cancelScheduledClose();
-                  setSearchOpen(false);
-                  const nextPanel = hasPanel ? String(item.panel) : null;
-                  setOpenPanel(nextPanel);
-                  setMenuPreviewLabel(
-                    nextPanel === 'shop'
-                      ? DEFAULT_SHOP_MEGA_PREVIEW
-                      : nextPanel === 'events_performance'
-                        ? DEFAULT_EVENTS_PERFORMANCE_MEGA_PREVIEW
-                        : DEFAULT_STYLE_MEGA_PREVIEW,
-                  );
-                }}
-                className={`relative text-[11px] tracking-[0.24em] uppercase font-medium transition-colors duration-300 ${
-                  active || (hasPanel && openPanel === item.panel)
-                    ? 'text-white nav-active-glow'
-                    : 'text-[#C8C2B5] hover:text-white'
-                }`}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
+        <nav aria-label="Main" className="hidden lg:block" data-testid="primary-nav">
+          <ul className="flex items-center gap-5 xl:gap-7">
+            {primaryNavigation.map((item) => {
+              const active = navIsActive(pathname, item.href, item.code);
+              const hasPanel = 'panel' in item && Boolean(item.panel);
+              const panelCode = hasPanel ? String(item.panel) : '';
+              const expanded = hasPanel && openPanel === panelCode;
+              return (
+                <li key={item.code} className="flex items-center">
+                  <Link
+                    href={item.href}
+                    aria-current={active ? 'page' : undefined}
+                    onMouseEnter={() => {
+                      if (hasPanel) schedulePanelOpen(panelCode);
+                      else {
+                        cancelScheduledOpen();
+                        setOpenPanel(null);
+                      }
+                    }}
+                    onMouseLeave={() => {
+                      if (hasPanel) schedulePanelClose();
+                    }}
+                    className={`relative py-3 text-[11px] tracking-[0.24em] uppercase font-medium transition-colors duration-300 ${
+                      active || expanded
+                        ? 'text-white nav-active-glow'
+                        : 'text-[#C8C2B5] hover:text-white'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                  {hasPanel ? (
+                    <button
+                      ref={(node) => { disclosureRefs.current[panelCode] = node; }}
+                      type="button"
+                      aria-label={`${item.label} submenu`}
+                      aria-expanded={expanded}
+                      aria-controls={`nav-panel-${panelCode}`}
+                      onMouseEnter={() => schedulePanelOpen(panelCode)}
+                      onMouseLeave={schedulePanelClose}
+                      onClick={() => expanded ? setOpenPanel(null) : openNavigationPanel(panelCode)}
+                      className="relative -ml-3 -mr-3 flex h-11 w-11 items-center justify-center rounded-full text-[#C8C2B5] transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#d8b56d]/55"
+                    >
+                      <ChevronDown size={12} className={`transition-transform ${expanded ? 'rotate-180' : ''}`}/>
+                    </button>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
         </nav>
 
         <div className="flex items-center gap-2">
@@ -245,8 +309,10 @@ export function Header() {
             <span className={`text-[11px] tabular-nums font-semibold ${count > 0 ? 'text-[var(--gold-warm)]' : ''}`}>{count}</span>
           </Link>
           <button
+            ref={mobileMenuButtonRef}
             aria-label={mobileOpen ? 'Close menu' : 'Menu'}
             aria-expanded={mobileOpen}
+            aria-controls="mobile-site-navigation"
             onClick={() => setMobileOpen((value) => !value)}
             className="lg:hidden w-9 h-9 flex items-center justify-center rounded-full border border-[rgba(216,214,211,0.18)] text-white"
           >
