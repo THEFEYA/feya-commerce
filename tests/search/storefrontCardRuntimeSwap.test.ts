@@ -5,6 +5,8 @@ import { readFileSync } from 'node:fs';
 test('Shop runtime uses the exact slim read model without media fan-out', () => {
   const page = readFileSync('app/shop/page.tsx','utf8');
   assert.ok(page.includes('readApprovedStorefrontCardProductsV1'));
+  assert.ok(page.includes('readClosedReviewPresentation'));
+  assert.ok(page.includes("if (reviewGate.status === 'blocked') notFound()"));
   assert.ok(!page.includes('MEDIA_LOOKUP_CHUNK_SIZE'));
   assert.ok(!page.includes('SHOP_PRODUCTS_LIMIT'));
   assert.ok(!page.includes('fetchMediaForSlugs'));
