@@ -21,8 +21,8 @@ This file is a checkpoint against the canonical master so implementation does no
 | 2 — Safe Framework Upgrade | COMPLETE | Next.js 16.3.7 compatibility branch passed FEYA validation and Vercel preview in `dub1`. |
 | 3A — Slim Product Card Read Model | COMPLETE | Exact 207-product service-only projection; card/content/price parity passed. |
 | 3B — Product Detail Read Model | COMPLETE | Exact 207-product service-only PDP projection; 207/207 rows, 0 raw product/media differences, 0 empty galleries/configurations; PR #34 CI green. |
-| 4 — Swap Public Shop Data Layer | IN PROGRESS | Shop loader branch is intentionally still dynamic/no-cache. Runtime gate currently being repaired so CI exercises the real Phase 3 read model instead of a legacy-only local fixture. |
-| 5 — Invalidation Plumbing | PREPARED, BLOCKED ON PHASE 4 | Contract exists in PR #33; do not enable caching before Phase 4 is green. |
+| 4 — Swap Public Shop Data Layer | COMPLETE | `/shop` now uses the exact 207-product slim read model with legacy media/query fan-out removed; closed-review runtime, Typecheck/build, FEYA validation run `36699053147`, and Vercel preview all pass on commit `5ba38c841663f794fa2d630582d8b93cba4db8d2`. `force-dynamic` / `revalidate=0` remain intentionally unchanged. |
+| 5 — Invalidation Plumbing | IN PROGRESS | Existing contract from PR #33 can now be reconciled onto the Phase 4 head. Persistent public caching remains disabled until deterministic admin + DB-originated refresh paths and audit evidence pass. |
 | 6 — Route Caching | NOT STARTED | Requires Phase 5 deterministic invalidation proof. |
 | 7 — Hybrid Shop Filtering | NOT STARTED | Requires stable cached catalog foundation. |
 | 8 — Navigation / Hub UX | NOT STARTED | Search ownership and visual contracts remain unchanged until this phase. |
@@ -34,13 +34,13 @@ This file is a checkpoint against the canonical master so implementation does no
 
 ## Current single engineering objective
 
-Finish **Phase 4** without changing UI or enabling caching:
+Finish **Phase 5** without enabling persistent public caching:
 
-1. make isolated CI restore the actual 207-product card read model;
-2. require /shop to render 200 from that model in closed-review runtime;
-3. preserve the existing 207-product ordering, labels, prices, images, filters and pagination;
-4. keep `dynamic='force-dynamic'` / `revalidate=0`;
-5. only after the runtime suite is green may Phase 5 proceed.
+1. reconcile the prepared invalidation contract onto the now-green Phase 4 head without reintroducing stale card migrations or preview-policy drift;
+2. preserve the centralized tag grammar and idempotent secret-authenticated revalidation path;
+3. prove authenticated admin invalidation, DB-originated revalidation, audit logging, slug old/new invalidation and unpublish coverage;
+4. keep public route caching disabled while this proof runs;
+5. only after the Phase 5 suite is green may Phase 6 enable caching route by route.
 
 ## Do not repeat
 
