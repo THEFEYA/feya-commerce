@@ -1,7 +1,7 @@
 'use client';
 
 import { Check, ChevronDown, Search, SlidersHorizontal, X } from 'lucide-react';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useDeferredValue, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { colorStyle } from '@/components/colors';
 import { ProductCard } from '@/components/ProductCard';
 import { ShopPagination } from '@/components/ShopPagination';
@@ -21,6 +21,8 @@ import {
   STYLES,
   defaultShopFilters,
   filterShopProducts,
+  isShopTrackingParam,
+  shopPageHref,
   type ShopFilters,
   type ShopNavigation,
 } from '@/lib/shopCatalogNavigation';
@@ -405,14 +407,17 @@ export function ShopClient({
   products,
   error,
   navigation,
+  initialNavigation,
   embedded = false,
 }: {
   products: StorefrontProduct[];
   error?: string;
   navigation?: ShopNavigation;
+  initialNavigation?: ShopNavigation;
   embedded?: boolean;
 }) {
-  const initial = navigation?.filters ?? defaultShopFilters();
+  const seedNavigation=navigation ?? initialNavigation;
+  const initial = seedNavigation?.filters ?? defaultShopFilters();
 
   const [page, setPage] = useState(navigation?.page ?? 1);
   const [piece, setPiece] = useState<string[]>(initial.piece);
@@ -435,7 +440,7 @@ export function ShopClient({
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   useEffect(() => {
-    if (navigation) return;
+    if (navigation || initialNavigation || embedded) return;
     const params = new URLSearchParams(window.location.search);
 
     const nextPiece = allowedParamValues(params.get('piece'), ['Full Look', ...BODY_AREA_TREE.flatMap((group) => group.pieces)]);
@@ -461,7 +466,7 @@ export function ShopClient({
     if (nextMaterial.length) setMaterial(nextMaterial);
     if (nextEffect.length) setEffect(nextEffect);
     if (nextSearch) setSearch(nextSearch);
-  }, [navigation]);
+  }, [navigation, initialNavigation, embedded]);
 
   const filters = useMemo(
     () => ({
@@ -484,7 +489,21 @@ export function ShopClient({
     [piece, part, priceMin, priceMax, color, event, performance, dance, style, persona, audience, material, effect, search, sort],
   );
 
-  const filtered = useMemo(() => filterShopProducts(products, filters), [products, filters]);
+  useEffect(() => {
+    if (navigation || embedded || typeof window==='undefined') return;
+    const baseHref=shopPageHref(1,filters);
+    const target=new URL(baseHref,window.location.origin);
+    const current=new URLSearchParams(window.location.search);
+    for (const [key,value] of current.entries()) {
+      if (isShopTrackingParam(key)) target.searchParams.append(key,value);
+    }
+    const nextHref=target.pathname+(target.searchParams.size?'?'+target.searchParams.toString():'');
+    const currentHref=window.location.pathname+window.location.search;
+    if (nextHref!==currentHref) window.history.replaceState(window.history.state,'',nextHref);
+  }, [navigation, embedded, filters]);
+
+  const deferredFilters = useDeferredValue(filters);
+  const filtered = useMemo(() => filterShopProducts(products, deferredFilters), [products, deferredFilters]);
 
   const availability = useMemo(() => {
     const collect = (key: keyof NonNullable<StorefrontProduct['facets']>) =>

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFileSync} from 'node:fs';
 
-test('final Phase 6 Shop slice streams URL state before reading the persistent catalog cache',()=>{
+test('Phase 7 keeps one persistent slim catalog while URL state stays request-scoped',()=>{
   const page=readFileSync('app/shop/page.tsx','utf8');
   const cache=readFileSync('lib/storefrontCatalogCacheServer.ts','utf8');
   assert.match(page,/export const instant = true/);
@@ -17,12 +17,17 @@ test('final Phase 6 Shop slice streams URL state before reading the persistent c
   assert.match(cache,/STOREFRONT_CACHE_TAGS\.catalog/);
 });
 
-test('Shop review and URL enforcement stay request-scoped outside the shared cache',()=>{
+test('Phase 7 direct-filter validation, normalization and review auth stay outside the shared cache',()=>{
   const page=readFileSync('app/shop/page.tsx','utf8');
   const cache=readFileSync('lib/storefrontCatalogCacheServer.ts','utf8');
   assert.match(page,/readClosedReviewPresentation/);
   assert.match(page,/if \(reviewGate\.status === 'blocked'\) notFound\(\)/);
-  assert.match(page,/if \(review && !navigation\) notFound\(\)/);
-  assert.match(page,/redirect\(shopPageHref\(1, navigation\.filters\)\)/);
+  assert.match(page,/const navigation = parseShopNavigation\(params\)/);
+  assert.match(page,/if \(!navigation\) notFound\(\)/);
+  assert.match(page,/shopNavigationHasUtilityState/);
+  assert.match(page,/filteredCount===0\) notFound\(\)/);
+  assert.match(page,/shopNavigationNeedsNormalization/);
+  assert.match(page,/redirect\(shopHrefWithTracking\(normalizedHref,params\)\)/);
+  assert.match(page,/initialNavigation=\{initialNavigation\}/);
   assert.doesNotMatch(cache,/readClosedReviewPresentation|closedReviewRequested|cookies\(|headers\(|getClaims|getUser/);
 });

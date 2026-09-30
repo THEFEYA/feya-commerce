@@ -6,7 +6,16 @@ import { Suspense } from 'react';
 import { notFound, redirect } from 'next/navigation';
 import { readClosedReviewPresentation } from '@/lib/searchReviewPresentationServer';
 import { closedReviewRequested } from '@/lib/searchReviewPresentation';
-import { filterShopProducts, parseShopNavigation, shopPageHref, SHOP_PAGE_SIZE } from '@/lib/shopCatalogNavigation';
+import {
+  filterShopProducts,
+  parseShopNavigation,
+  shopHrefWithTracking,
+  shopNavigationHasFilterState,
+  shopNavigationHasUtilityState,
+  shopNavigationNeedsNormalization,
+  shopPageHref,
+  SHOP_PAGE_SIZE,
+} from '@/lib/shopCatalogNavigation';
 import { Header } from '@/components/Header';
 import { readCachedApprovedStorefrontCatalogV1 } from '@/lib/storefrontCatalogCacheServer';
 import { ShopClient } from '@/components/ShopClient';
@@ -36,8 +45,16 @@ type ShopPageProps = { searchParams: Promise<Record<string, string | string[] | 
 
 export async function generateMetadata({ searchParams }: ShopPageProps): Promise<Metadata> {
   const query = parseShopNavigation(await searchParams);
-  return { title: 'Shop', alternates: { canonical: query ? shopPageHref(query.page, query.filters) : '/shop' },
-    ...(closedReviewRequested(process.env) ? { robots: { index: false, follow: false } } : {}) };
+  const filterState=Boolean(query&&shopNavigationHasFilterState(query));
+  return {
+    title: 'Shop',
+    alternates: { canonical: query ? shopPageHref(query.page, query.filters) : '/shop' },
+    ...(closedReviewRequested(process.env)
+      ? { robots: { index: false, follow: false } }
+      : filterState
+        ? { robots: { index: false, follow: true } }
+        : {}),
+  };
 }
 
 export default function ShopPage(props: ShopPageProps) {
@@ -53,17 +70,35 @@ function ShopRouteFallback() {
 }
 
 async function ResolvedShopPage({ searchParams }: ShopPageProps) {
-  // Resolve URL runtime data first so Cache Components can prerender/stream the
-  // shell without touching the catalog source during build-time prerendering.
+  // URL state is request-time; the 207-product slim catalog remains one shared cache.
   const params = await searchParams;
+  const navigation = parseShopNavigation(params);
+  if (!navigation) notFound();
+
   const { products, error, review } = await getProducts();
-  const navigation = review ? parseShopNavigation(params) : undefined;
-  if (review && !navigation) notFound();
-  if (navigation) {
-    const count = filterShopProducts(products, navigation.filters).length;
-    if (navigation.page > Math.max(1, Math.ceil(count / SHOP_PAGE_SIZE))) notFound();
-    if (params.page === '1') redirect(shopPageHref(1, navigation.filters));
+  const filteredCount = filterShopProducts(products, navigation.filters).length;
+  const utilityState = shopNavigationHasUtilityState(navigation);
+
+  if (products.length && utilityState && filteredCount===0) notFound();
+  if (navigation.page > Math.max(1, Math.ceil(filteredCount / SHOP_PAGE_SIZE))) notFound();
+
+  const normalizedHref=shopPageHref(navigation.page,navigation.filters);
+  if (shopNavigationNeedsNormalization(params,navigation)) {
+    redirect(shopHrefWithTracking(normalizedHref,params));
   }
-  return <main className="relative min-h-screen"><Header /><ShopClient key={navigation ? shopPageHref(navigation.page, navigation.filters) : 'legacy'} products={products} error={error} navigation={navigation} /></main>;
+
+  // Closed review and explicit page>1 keep crawlable real-anchor pagination.
+  // Normal page-1 browsing keeps the approved zero-network load-more UX while
+  // receiving normalized server filters for direct-load SSR.
+  const strictNavigation = review || navigation.page>1 ? navigation : undefined;
+  const initialNavigation = strictNavigation ? undefined : navigation;
+
+  return <main className="relative min-h-screen"><Header /><ShopClient
+    key={normalizedHref}
+    products={products}
+    error={error}
+    navigation={strictNavigation}
+    initialNavigation={initialNavigation}
+  /></main>;
 }
 

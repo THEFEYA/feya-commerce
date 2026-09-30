@@ -236,6 +236,47 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       finally{await db.query('update public.feya_commerce_seo_pages_v1 set url_path=$2 where seo_page_id=$1',[first.identity.seo_page_id,path]);}
       assert.equal((await request('/shop')).status(),200);
     });
+    await check('Public Shop direct filter SSR matches zero-network client filtering',async()=>{
+      const publicBase='http://127.0.0.1:3000';
+      const term='Gold';
+      const direct=await ownerPage.request.get(publicBase+'/shop?search='+encodeURIComponent(term));
+      assert.equal(direct.status(),200);
+      const directDoc=await documentData(await direct.text());
+      assert.ok(directDoc.cards.length>0&&directDoc.cards.length<=20);
+      assert.match(directDoc.robots||'',/noindex/);
+
+      await page.setViewportSize({width:390,height:844});
+      await page.goto(publicBase+'/shop');
+      await page.getByTestId('shop-page').waitFor();
+      await page.getByRole('button',{name:/^Filters/}).click();
+      const mobilePanel=page.locator('aside').last();
+      await mobilePanel.getByPlaceholder('Search TheFEYA…').waitFor();
+
+      let dataRequests=0;
+      const countRequest=request=>{
+        if(['document','xhr','fetch'].includes(request.resourceType()))dataRequests++;
+      };
+      page.on('request',countRequest);
+      await mobilePanel.getByPlaceholder('Search TheFEYA…').fill(term);
+      await page.waitForFunction(
+        expected=>{
+          const cards=[...document.querySelectorAll('a[data-testid^="product-card-"]')].map(node=>node.getAttribute('href'));
+          return JSON.stringify(cards)===JSON.stringify(expected);
+        },
+        directDoc.cards,
+      );
+      page.off('request',countRequest);
+
+      assert.equal(new URL(page.url()).searchParams.get('search'),term);
+      assert.equal(dataRequests,0,'In-page filter state must not cause a document/fetch/xhr round trip');
+      const clientCards=await page.locator('a[data-testid^="product-card-"]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')));
+      assert.deepEqual(clientCards,directDoc.cards);
+      report.shop_phase7_zero_network_filter_pass=true;
+      report.shop_phase7_direct_filter_ssr_pass=true;
+      report.shop_phase7_mobile_filter_lab_pass=true;
+      report.limitations.push('Phase 7 mobile filtering is verified as a zero-network lab interaction only; field INP requires post-launch RUM.');
+    });
+
     await check('Hydrated and JavaScript-disabled pagination, filters, related links, hover and gallery work',async()=>{
       await page.setViewportSize({width:1440,height:1000});await page.goto(base+'/shop');
       await page.getByRole('link',{name:'Show 20 more',exact:true}).click();await page.waitForURL('**/shop?page=2');

@@ -94,7 +94,7 @@ test('governed filters round-trip in page links; invalid/ambiguous and legacy un
     event:['Festival','Rave'],
     performance:['Stage & Fashion','Showgirl'],
     dance:['Go-Go Dancer'],
-    style:['Cyberpunk','Glam'],
+    style:['Glam','Cyberpunk'],
     sort:'Price · high to low',
   };
   const url=new URL(shopPageHref(2,f),'https://example.test');

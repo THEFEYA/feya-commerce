@@ -2,6 +2,7 @@ import type { StorefrontProduct } from './types.ts';
 import { mainRegularPrice, productTitle } from './storefront.ts';
 
 export const SHOP_PAGE_SIZE = 20;
+export const SHOP_MAX_PARAM_LENGTH = 512;
 
 export const BODY_AREA_TREE = [
   { part: 'Full Body', pieces: ['Bodysuit', 'Dress', 'Full Body Harness'] },
@@ -81,20 +82,38 @@ export const defaultShopFilters = (): ShopFilters => ({
 
 export type ShopNavigation = { page: number; filters: ShopFilters };
 
-const allowed = (value: string, values: readonly string[]) =>
-  values.find((item) => item.toLowerCase() === value.toLowerCase()) ?? '';
+export const SHOP_FILTER_PARAM_ORDER = [
+  'piece','part','min','max','color','event','performance','dance',
+  'style','persona','audience','material','effect','search','sort','page',
+] as const;
+
+const SHOP_TRACKING_PARAM_EXACT = new Set([
+  'gclid','dclid','gbraid','wbraid','fbclid','msclkid',
+]);
+
+export function isShopTrackingParam(key: string) {
+  const normalized=String(key||'').trim().toLowerCase();
+  return normalized.startsWith('utm_') || SHOP_TRACKING_PARAM_EXACT.has(normalized);
+}
+
+const allowed = (value: string, values: readonly string[]) => {
+  const normalized=value.trim().toLowerCase();
+  return values.find((item) => item.toLowerCase() === normalized) ?? '';
+};
 
 function listParam(raw: string, values: readonly string[]) {
   if (!raw) return [];
   const list = raw.split(',').map((value) => allowed(value, values));
   if (list.some((value) => !value)) return null;
-  return [...new Set(list)];
+  const unique=[...new Set(list)];
+  return unique.sort((a,b)=>values.indexOf(a)-values.indexOf(b));
 }
 
 export function parseShopNavigation(params: Record<string, string | string[] | undefined>): ShopNavigation | null {
   const scalar = (key: string) => typeof params[key] === 'string' ? params[key] as string : '';
-  const known = ['page','piece','part','min','max','color','event','performance','dance','style','persona','audience','material','effect','search','sort'];
-  if (Object.keys(params).some((key) => !known.includes(key))) return null;
+  const known = SHOP_FILTER_PARAM_ORDER;
+  if (known.some((key) => typeof params[key] === 'string' && (params[key] as string).length > SHOP_MAX_PARAM_LENGTH)) return null;
+  if (Object.keys(params).some((key) => !known.includes(key as typeof known[number]) && !isShopTrackingParam(key))) return null;
   if (known.some((key) => Array.isArray(params[key]))) return null;
 
   const rawPage = scalar('page');
@@ -174,6 +193,45 @@ export function shopPageHref(page: number, filters: ShopFilters = defaultShopFil
   if (filters.sort !== SORTS[0]) params.set('sort', filters.sort);
   if (page > 1) params.set('page', String(page));
   return `/shop${params.size ? '?' + params.toString() : ''}`;
+}
+
+export function shopNavigationHasFilterState(navigation: ShopNavigation) {
+  return shopPageHref(1, navigation.filters) !== '/shop';
+}
+
+export function shopNavigationHasUtilityState(navigation: ShopNavigation) {
+  return navigation.page > 1 || shopNavigationHasFilterState(navigation);
+}
+
+export function shopNavigationNeedsNormalization(
+  params: Record<string, string | string[] | undefined>,
+  navigation: ShopNavigation,
+) {
+  const actual=new URLSearchParams();
+  for (const key of SHOP_FILTER_PARAM_ORDER) {
+    const value=params[key];
+    // Empty/default filter keys are not canonical state and must disappear.
+    if (typeof value==='string' && value) actual.set(key,value);
+    else if (value!==undefined) return true;
+  }
+  const expected=new URL(shopPageHref(navigation.page,navigation.filters),'https://thefeya.invalid').searchParams;
+  return actual.toString()!==expected.toString();
+}
+
+export function shopHrefWithTracking(
+  href: string,
+  params: Record<string, string | string[] | undefined>,
+) {
+  const target=new URL(href,'https://thefeya.invalid');
+  for (const [key,value] of Object.entries(params)) {
+    if (!isShopTrackingParam(key)) continue;
+    if (Array.isArray(value)) {
+      for (const entry of value) if (entry) target.searchParams.append(key,entry);
+    } else if (typeof value==='string' && value) {
+      target.searchParams.append(key,value);
+    }
+  }
+  return target.pathname+(target.searchParams.size?'?'+target.searchParams.toString():'');
 }
 
 function searchContains(product: StorefrontProduct, query: string) {
