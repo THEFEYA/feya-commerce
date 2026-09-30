@@ -1,10 +1,6 @@
 import Link from 'next/link';
 import {Palette,ShieldCheck} from 'lucide-react';
 import {AdminColorPriceGovernanceClient} from '@/components/AdminColorPriceGovernanceClient';
-
-export const dynamic='force-dynamic';
-export const revalidate=0;
-
 export default function ColorPriceGovernancePage(){
   return <main className="owner-page">
     <div className="owner-page-inner">
