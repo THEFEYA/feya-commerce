@@ -13,8 +13,7 @@ test('Shop runtime uses the exact slim read model without media fan-out', () => 
   assert.ok(!page.includes('mergeMedia'));
   assert.ok(!page.includes('STOREFRONT_MEDIA_FAST_VIEW'));
   assert.ok(!page.includes('STOREFRONT_VIEW_V4'));
-  assert.ok(page.includes("export const dynamic = 'force-dynamic'"));
-  assert.ok(page.includes('export const revalidate = 0'));
+  assert.ok(!/export\\s+const\\s+(?:dynamic|revalidate|fetchCache|runtime)\\s*=/.test(page));
 });
 
 test('Phase 4 changes data loading only and preserves the frozen Shop composition', () => {
