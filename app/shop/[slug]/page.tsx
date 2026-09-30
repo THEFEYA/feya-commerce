@@ -155,6 +155,7 @@ async function getProduct(slug: string) {
 
 // One request-scoped source for head, JSON-LD and existing PDP props.
 const getPresentation = cache(async (slug: string) => {
+  await connection();
   const hybridVisualPreview = isHybridVisualPreviewDeployment(process.env);
   const review = hybridVisualPreview ? { status: 'disabled' as const, release: null } : await readClosedReviewPresentation();
   if (review.status === 'blocked') return { product: null, related: [], approvedCopy: null, approvedOfferSnapshot: null, copyBlocked: true, error: null };
