@@ -40,6 +40,8 @@ test('invalidation ledger is service-only and public Shop caching is not activat
   assert.ok(!cardLoader.includes("'use cache'"));
   assert.ok(!cardLoader.includes('unstable_cache'));
   assert.ok(!/export\\s+const\\s+(?:dynamic|revalidate|fetchCache|runtime)\\s*=/.test(shop));
+  assert.ok(shop.includes("import { connection } from 'next/server'"));
+  assert.ok(shop.includes('await connection()'));
   const layout=readFileSync('app/layout.tsx','utf8');
   assert.ok(layout.includes('export const instant = false'));
 });
