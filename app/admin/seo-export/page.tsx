@@ -8,10 +8,6 @@ import { buildSeoDraftSuggestion } from '@/lib/seo-draft-suggestions';
 import { getSeoScore } from '@/lib/seo-scoring';
 import type { AdminReviewEvent } from '@/lib/admin-readiness';
 import type { StorefrontProduct } from '@/lib/types';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const SEO_EXPORT_PRODUCTS_LIMIT = 500;
 
 async function loadProducts() {
