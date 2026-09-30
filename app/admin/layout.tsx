@@ -1,6 +1,7 @@
 export const instant = false;
 
 import type { Metadata } from 'next';
+import { connection } from 'next/server';
 import type { ReactNode } from 'react';
 import AdminLegacyShell from '@/components/admin/AdminLegacyShell';
 
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
+export default async function AdminLayout({ children }: { children: ReactNode }) {
+  await connection();
   return <AdminLegacyShell>{children}</AdminLegacyShell>;
 }
