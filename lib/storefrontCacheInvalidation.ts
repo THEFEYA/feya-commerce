@@ -8,6 +8,7 @@ export const STOREFRONT_CACHE_TAGS = {
 export type StorefrontInvalidationEventType =
   | 'product_changed'
   | 'product_media_changed'
+  | 'product_stock_changed'
   | 'product_slug_changed'
   | 'product_unpublished'
   | 'collection_membership_changed'
@@ -123,6 +124,7 @@ export function buildStorefrontInvalidationPlan(input: StorefrontInvalidationInp
   switch(event) {
     case 'product_changed':
     case 'product_media_changed':
+    case 'product_stock_changed':
     case 'product_unpublished': {
       if (!productId || !slug) throw new Error('STOREFRONT_INVALIDATION_PRODUCT_SCOPE_REQUIRED');
       entityType='product'; entityId=productId;
