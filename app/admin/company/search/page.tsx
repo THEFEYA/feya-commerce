@@ -1,3 +1,5 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';

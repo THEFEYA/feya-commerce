@@ -1,3 +1,5 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { Database, LockKeyhole, PlayCircle, ShieldCheck, Siren, UserCheck } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
