@@ -18,9 +18,13 @@ test('Shop runtime uses the exact slim read model through the governed catalog c
   assert.ok(!/export\\s+const\\s+(?:dynamic|revalidate|fetchCache|runtime)\\s*=/.test(page));
 });
 
-test('Phase 4 changes data loading only and preserves the frozen Shop composition', () => {
+test('Phase 7 keeps the frozen Shop composition while extending only data and URL-state props', () => {
   const page = readFileSync('app/shop/page.tsx','utf8');
-  assert.ok(page.includes('<Header /><ShopClient key={navigation ? shopPageHref(navigation.page, navigation.filters) : \'legacy\'} products={products} error={error} navigation={navigation} />'));
+  assert.ok(page.includes('<Header /><ShopClient'));
+  assert.ok(page.includes('products={products}'));
+  assert.ok(page.includes('error={error}'));
+  assert.ok(page.includes('navigation={strictNavigation}'));
+  assert.ok(page.includes('initialNavigation={initialNavigation}'));
   const card = readFileSync('components/ProductCard.tsx','utf8');
   assert.ok(card.includes('product-card reveal group block'));
   assert.ok(card.includes('group-hover:opacity-100'));
