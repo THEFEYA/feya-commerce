@@ -1,4 +1,6 @@
 // @ts-nocheck
+export const instant = false;
+
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, FileText, Ruler, Sparkles, Truck, RotateCcw } from 'lucide-react';
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
