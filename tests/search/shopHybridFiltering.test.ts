@@ -26,6 +26,7 @@ test('shop URL grammar validates filters, accepts attribution params and rejects
   assert.equal(isShopTrackingParam('GCLID'),true);
   assert.equal(parseShopNavigation({mystery:'value'}),null);
   assert.equal(parseShopNavigation({color:['Gold','Silver']}),null);
+  assert.equal(parseShopNavigation({piece:'Skirt,'.repeat(100)}),null);
 });
 
 test('shop normalization omits defaults, canonicalizes values and preserves tracking outside canonicals',()=>{
