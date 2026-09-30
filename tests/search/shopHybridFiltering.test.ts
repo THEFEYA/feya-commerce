@@ -6,6 +6,7 @@ import {
   isShopTrackingParam,
   parseShopNavigation,
   shopHrefWithTracking,
+  shopNavigationHasFilterState,
   shopNavigationHasUtilityState,
   shopNavigationNeedsNormalization,
   shopPageHref,
@@ -49,11 +50,15 @@ test('shop normalization omits defaults, canonicalizes values and preserves trac
   assert.equal(shopPageHref(empty.page,empty.filters),'/shop');
 });
 
-test('only real filters or explicit pagination create Shop utility URL state',()=>{
+test('filter utility state is distinct from pagination while both remain validated URL state',()=>{
   const base={page:1,filters:defaultShopFilters()};
+  assert.equal(shopNavigationHasFilterState(base),false);
   assert.equal(shopNavigationHasUtilityState(base),false);
+  assert.equal(shopNavigationHasFilterState({...base,page:2}),false);
   assert.equal(shopNavigationHasUtilityState({...base,page:2}),true);
-  assert.equal(shopNavigationHasUtilityState({page:1,filters:{...defaultShopFilters(),color:'Gold'}}),true);
+  const filtered={page:1,filters:{...defaultShopFilters(),color:'Gold'}};
+  assert.equal(shopNavigationHasFilterState(filtered),true);
+  assert.equal(shopNavigationHasUtilityState(filtered),true);
 });
 
 test('public Shop client seeds direct URLs server-side then keeps filter interaction zero-network',()=>{
@@ -77,7 +82,7 @@ test('filter utility URLs stay noindex and outside the Search Release sitemap ow
   const sitemap=readFileSync('app/sitemap.ts','utf8');
   const release=readFileSync('lib/searchReleaseIndexationServer.ts','utf8');
 
-  assert.match(page,/utilityState[\s\S]*robots: \{ index: false, follow: true \}/);
+  assert.match(page,/filterState[\s\S]*robots: \{ index: false, follow: true \}/);
   assert.match(sitemap,/readActiveSearchReleaseIndexItems/);
   assert.doesNotMatch(sitemap,/shopCatalogNavigation|searchParams|filterShopProducts/);
   assert.doesNotMatch(release,/shopCatalogNavigation|filterShopProducts/);
