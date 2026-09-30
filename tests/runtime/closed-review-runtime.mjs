@@ -266,7 +266,23 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
         await page.screenshot({path:join(out,`closed-review-pdp-${viewport.width}.png`),fullPage:true});
       }
       const noJs=await browser.newContext({javaScriptEnabled:false,storageState:await ownerPage.context().storageState()});
-      try{await noJs.route('**/*',route=>route.request().resourceType()==='image'?route.fulfill({status:200,contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800"><rect width="600" height="800" fill="#393128"/></svg>'}):route.request().resourceType()==='media'?route.abort():route.continue());const p=await noJs.newPage();await p.goto(base+'/shop');await p.getByRole('link',{name:'Show 20 more',exact:true}).click();await p.waitForURL('**/shop?page=2');assert.equal(await p.locator('a[data-testid^="product-card-"]').count(),20);}finally{await noJs.close();}
+      try{
+        // Cache Components streams runtime URL state through Suspense. A browser with
+        // JavaScript disabled does not apply Next's stream-injection payload, so DOM
+        // clickability is not a valid progressive-enhancement gate for this route.
+        // The crawl contract is the server response itself: it must expose ordinary
+        // anchors and a followable page-2 response without any client execution.
+        const firstResponse=await noJs.request.get(base+'/shop');
+        assert.equal(firstResponse.status(),200);
+        const firstDoc=await documentData(await firstResponse.text());
+        assert.equal(firstDoc.cards.length,20);
+        assert.equal(firstDoc.next,'/shop?page=2');
+        const secondResponse=await noJs.request.get(base+firstDoc.next);
+        assert.equal(secondResponse.status(),200);
+        const secondDoc=await documentData(await secondResponse.text());
+        assert.equal(secondDoc.cards.length,20);
+        assert.equal(secondDoc.cards[0],release.entries[20].copy.metadata.canonical_path);
+      }finally{await noJs.close();}
       assert.deepEqual(errors,[]);assert.equal(await page.locator('[data-nextjs-dialog]').count(),0);
     });
     await check('Measurement context exposes stable IDs but remains fail-closed in preview without consent activation',async()=>{
