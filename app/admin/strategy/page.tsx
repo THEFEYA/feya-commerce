@@ -1,3 +1,5 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { OwnerInitiativeDrawerClient } from '@/components/admin/OwnerInitiativeDrawerClient';
 import { OwnerObjectiveDrawerClient } from '@/components/admin/OwnerObjectiveDrawerClient';
