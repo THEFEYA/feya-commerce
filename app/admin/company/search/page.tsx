@@ -2,10 +2,6 @@ import Link from 'next/link';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentSignal, presentWorkItem } from '@/lib/owner-ui/presenters';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 type Row = Record<string, unknown>;
 
 async function searchOwnerData(query: string): Promise<{
