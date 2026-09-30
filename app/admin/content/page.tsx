@@ -7,10 +7,6 @@ import { getProductEvents, getProductFlags, getProductReadiness, type AdminRevie
 import { getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const CONTENT_PRODUCTS_LIMIT = 500;
 
 async function loadProducts() {
