@@ -49,3 +49,33 @@ test('all page/layout/default segments are explicitly opted out until Phase 6 ac
   assert.deepEqual(missing,[],`instant opt-out missing:\n${missing.join('\n')}`);
   assert.deepEqual([...new Set(directiveBreaks)],[],`top directives displaced:\n${[...new Set(directiveBreaks)].join('\n')}`);
 });
+
+
+test('legacy force-dynamic behavior is preserved with connection() until each storefront route is intentionally cached',()=>{
+  const required=[
+    'app/admin/layout.tsx',
+    'app/page.tsx',
+    'app/collections/[slug]/page.tsx',
+    'app/shop/[slug]/page.tsx',
+    'app/shop/page.tsx',
+  ];
+  for(const path of required){
+    const source=readFileSync(path,'utf8');
+    assert.ok(source.includes("from 'next/server'"),path);
+    assert.ok(source.includes('connection'),path);
+    assert.ok(source.includes('await connection()'),path);
+  }
+  for(const path of [
+    'app/about/page.tsx',
+    'app/care/page.tsx',
+    'app/contact/page.tsx',
+    'app/privacy/page.tsx',
+    'app/returns/page.tsx',
+    'app/shipping/page.tsx',
+    'app/size-guide/page.tsx',
+    'app/terms/page.tsx',
+  ]){
+    const source=readFileSync(path,'utf8');
+    assert.ok(!source.includes('await connection()'),path);
+  }
+});
