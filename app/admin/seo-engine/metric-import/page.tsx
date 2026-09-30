@@ -6,10 +6,6 @@ import { STOREFRONT_VIEW_V1, productSlug, productTitle } from '@/lib/storefront'
 import { buildSeoPilotBrief } from '@/lib/seoPilotDraft';
 import { buildSeoMetricImportContract } from '@/lib/seoMetricImportContract';
 import { CsvMetricTemplateButton } from './CsvMetricTemplateButton';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const PRODUCT_SELECT = 'canonical_product_id,product_slug,matched_etsy_listing_id,card_title,h1,product_type,material,color,primary_image_url,min_price,max_price,currency,storefront_candidate_flag';
 const KEYWORD_SELECT = 'keyword,keyword_norm,priority_tier,validation_status,cleanup_pipeline_status,should_validate_api,should_hold,warning_flags';
 const FALLBACK_PRODUCT = { canonical_product_id: '4511817111', product_slug: 'gold-futuristic-armor-set-choker-collar-shoulder-armor-and-arm-bracers-performance-outfit-4511817111', matched_etsy_listing_id: '4511817111', card_title: 'Gold Futuristic Armor Set, Choker Collar, Shoulder Armor and Arm Bracers, Performance Outfit', h1: 'Gold Futuristic Armor Set, Choker Collar, Shoulder Armor and Arm Bracers, Performance Outfit', product_type: 'Armor', material: 'Fabric, Leather, Faux leather', color: 'Gold', primary_image_url: null, min_price: 79, max_price: 308, currency: 'EUR', storefront_candidate_flag: true };
