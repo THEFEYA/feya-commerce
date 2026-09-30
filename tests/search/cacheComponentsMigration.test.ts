@@ -34,6 +34,7 @@ test('only the first Phase 6 support slice is instant while all remaining route 
   const activated=new Set([
     'app/about/page.tsx',
     'app/contact/page.tsx',
+    'app/collections/[slug]/page.tsx',
     'app/returns/page.tsx',
     'app/shipping/page.tsx',
   ]);
@@ -65,7 +66,6 @@ test('legacy force-dynamic behavior is preserved with connection() until each st
   const required=[
     'app/admin/layout.tsx',
     'app/page.tsx',
-    'app/collections/[slug]/page.tsx',
     'app/shop/[slug]/page.tsx',
     'app/shop/page.tsx',
   ];
@@ -75,6 +75,10 @@ test('legacy force-dynamic behavior is preserved with connection() until each st
     assert.ok(source.includes('connection'),path);
     assert.ok(source.includes('await connection()'),path);
   }
+  const collection=readFileSync('app/collections/[slug]/page.tsx','utf8');
+  assert.ok(!collection.includes('await connection()'));
+  assert.ok(collection.includes('export const instant = true'));
+
   for(const path of [
     'app/about/page.tsx',
     'app/care/page.tsx',

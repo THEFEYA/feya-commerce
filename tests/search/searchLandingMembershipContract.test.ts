@@ -31,3 +31,22 @@ test('collection route is release-aware, renders breadcrumbs/schema, and hides i
   assert.doesNotMatch(page,/Search release status:/);
   assert.match(page,/if\(isHold\)notFound\(\)/);
 });
+
+
+test('owner collection presentation is persistent-cache backed and tag-invalidated without changing final UI',async()=>{
+  const page=await readFile(new URL('../../app/collections/[slug]/page.tsx',import.meta.url),'utf8');
+  const helper=await readFile(new URL('../../lib/searchLandingPageServer.ts',import.meta.url),'utf8');
+
+  assert.match(page,/export const instant = true/);
+  assert.match(page,/Suspense/);
+  assert.match(page,/readCachedSearchLandingRelease/);
+  assert.doesNotMatch(page,/await connection\(\)/);
+
+  assert.match(helper,/'use cache'/);
+  assert.match(helper,/cacheLife\('max'\)/);
+  assert.match(helper,/STOREFRONT_CACHE_TAGS\.site/);
+  assert.match(helper,/STOREFRONT_CACHE_TAGS\.catalog/);
+  assert.match(helper,/STOREFRONT_CACHE_TAGS\.collections/);
+  assert.match(helper,/storefrontCacheTagForCollection/);
+  assert.match(helper,/attachStorefrontFacets/);
+});
