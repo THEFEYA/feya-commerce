@@ -1,4 +1,6 @@
 // @ts-nocheck
+export const instant = false;
+
 import Link from 'next/link';
 import { getSupabaseServiceClient } from '@/lib/supabase';
 const ROW_LIMIT = 1000;
