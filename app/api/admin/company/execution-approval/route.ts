@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireOwnerActionActor } from '@/lib/ownerActionAuth';
 
 export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
-
 type Input = {
   execution_request_id?: string;
   expected_status?: string;
