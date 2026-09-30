@@ -238,6 +238,13 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
     });
     await check('Public Shop direct filter SSR matches zero-network client filtering',async()=>{
       const publicBase='http://127.0.0.1:3000';
+      const term='Gold';
+      const direct=await ownerPage.request.get(publicBase+'/shop?search='+encodeURIComponent(term));
+      assert.equal(direct.status(),200);
+      const directDoc=await documentData(await direct.text());
+      assert.ok(directDoc.cards.length>0&&directDoc.cards.length<=20);
+      assert.match(directDoc.robots||'',/noindex/);
+
       await page.setViewportSize({width:1440,height:1000});
       await page.goto(publicBase+'/shop');
       await page.getByTestId('shop-page').waitFor();
@@ -247,19 +254,20 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
         if(['document','xhr','fetch'].includes(request.resourceType()))dataRequests++;
       };
       page.on('request',countRequest);
-      await page.getByPlaceholder('Search TheFEYA…').fill('Gold');
-      await page.waitForFunction(()=>new URL(location.href).searchParams.get('search')==='Gold');
+      await page.getByPlaceholder('Search TheFEYA…').fill(term);
+      await page.waitForFunction(
+        expected=>{
+          const cards=[...document.querySelectorAll('a[data-testid^="product-card-"]')].map(node=>node.getAttribute('href'));
+          return JSON.stringify(cards)===JSON.stringify(expected);
+        },
+        directDoc.cards,
+      );
       page.off('request',countRequest);
+
+      assert.equal(new URL(page.url()).searchParams.get('search'),term);
       assert.equal(dataRequests,0,'In-page filter state must not cause a document/fetch/xhr round trip');
-
       const clientCards=await page.locator('a[data-testid^="product-card-"]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')));
-      assert.ok(clientCards.length>0&&clientCards.length<=20);
-
-      const direct=await ownerPage.request.get(page.url());
-      assert.equal(direct.status(),200);
-      const directDoc=await documentData(await direct.text());
-      assert.deepEqual(directDoc.cards,clientCards);
-      assert.match(directDoc.robots||'',/noindex/);
+      assert.deepEqual(clientCards,directDoc.cards);
       report.shop_phase7_zero_network_filter_pass=true;
       report.shop_phase7_direct_filter_ssr_pass=true;
     });
