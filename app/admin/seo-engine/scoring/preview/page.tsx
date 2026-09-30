@@ -1,3 +1,5 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { CsvScoringPreview } from './CsvScoringPreview';
