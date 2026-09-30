@@ -1,4 +1,6 @@
 // @ts-nocheck
+export const instant = false;
+
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, Clock3, Database, ShieldAlert } from 'lucide-react';
 import { getSupabaseServiceClient } from '@/lib/supabase';
