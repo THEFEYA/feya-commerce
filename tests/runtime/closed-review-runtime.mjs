@@ -178,10 +178,19 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       if([307,308].includes(redirect.status())){
         assert.equal(new URL(redirect.headers().location,base).pathname,'/shop');
       }else{
+        // Under Cache Components the redirect may be encoded in the streamed RSC
+        // payload rather than as a literal HTML meta-refresh in this request mode.
+        // Assert the normalized server head, then verify the observable browser
+        // navigation instead of depending on Next.js' private stream encoding.
         assert.equal(redirect.status(),200);
         const redirectHtml=await redirect.text();
-        assert.match(redirectHtml,/http-equiv=["']refresh["']/i);
-        assert.match(redirectHtml,/url=\/shop(?:["';<]|$)/i);
+        const redirectedHead=await documentData(redirectHtml);
+        assert.equal(new URL(redirectedHead.canonical).pathname,'/shop');
+        assert.match(redirectedHead.robots,/noindex/);
+        await page.goto(base+'/shop?page=1');
+        await page.waitForURL(url=>url.pathname==='/shop'&&!url.search,{timeout:10000});
+        assert.equal(new URL(page.url()).pathname,'/shop');
+        assert.equal(new URL(page.url()).search,'');
       }
     });
     await check('All 207 release PDPs preserve exact approved blocks and head/schema; checkout remains disabled',async()=>{
