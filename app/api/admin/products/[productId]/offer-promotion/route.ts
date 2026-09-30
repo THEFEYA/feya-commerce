@@ -5,7 +5,6 @@ import { requireOfferPromotionActor } from '@/lib/commerceOfferPromotionServer';
 import { OfferPromotionStorageError,parseOfferPromotionRequest,promoteOffer } from '@/lib/commerceOfferPromotionStorage';
 
 export const runtime='nodejs';
-export const dynamic='force-dynamic';
 type Context={params:Promise<{productId:string}>};
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const reply=(body:unknown,status=200)=>NextResponse.json(body,{status,headers:{'Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow'}});
