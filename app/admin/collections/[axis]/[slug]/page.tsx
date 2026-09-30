@@ -7,9 +7,6 @@ import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront'
 import { buildSeoCollectionPlans, type SeoCollectionPlanStage } from '@/lib/seo-collection-planning';
 import type { AdminReviewEvent } from '@/lib/admin-readiness';
 import type { StorefrontProduct } from '@/lib/types';
-
-export const revalidate = 300;
-
 type PageProps = { params: Promise<{ axis: string; slug: string }> };
 
 async function loadProducts() {
