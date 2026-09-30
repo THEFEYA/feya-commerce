@@ -1,4 +1,6 @@
 // @ts-nocheck
+export const instant = false;
+
 import Link from 'next/link';
 import { getMissingSupabaseEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
 const REVIEW_VIEW = 'feya_commerce_v_seo_commercial_new_candidate_review_queue_v1';
