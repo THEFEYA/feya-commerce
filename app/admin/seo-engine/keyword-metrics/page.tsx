@@ -4,10 +4,6 @@ import Link from 'next/link';
 import { loadMetricStatus } from '@/lib/searchMetricStatus';
 import { ArrowUpRight, Database, FileText, UploadCloud } from 'lucide-react';
 import { AdminKeywordMetricsImportForm } from '@/components/AdminKeywordMetricsImportForm';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 async function loadStatus() {
   const supabase = getAdminReadClient();
   const empty = { rows: [], totalRows: 0, totalKeywords: 0 };
