@@ -24,9 +24,6 @@ import {
   productTitle,
 } from '@/lib/storefront';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: 'TheFEYA | Handmade Stagewear and Festival Looks',
