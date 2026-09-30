@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight, Globe2, Ruler, Scissors, Sparkles, Truck } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import { connection } from 'next/server';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ProductCard } from '@/components/ProductCard';
@@ -128,6 +129,7 @@ function TileMedia({
 }
 
 export default async function HomePage() {
+  await connection();
   const byId = await getPresentationProducts();
   const getProduct = (id: string) => byId.get(id);
 
