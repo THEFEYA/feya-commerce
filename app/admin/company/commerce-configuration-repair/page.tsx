@@ -1,10 +1,6 @@
 import Link from 'next/link';
 import {GitBranch,ShieldCheck} from 'lucide-react';
 import {AdminReleaseConfigurationRepairClient} from '@/components/AdminReleaseConfigurationRepairClient';
-
-export const dynamic='force-dynamic';
-export const revalidate=0;
-
 export default function ReleaseConfigurationRepairPage(){
   return <main className="owner-page">
     <div className="owner-page-inner">
