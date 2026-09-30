@@ -1,4 +1,6 @@
 // @ts-nocheck
+export const instant = false;
+
 import Link from 'next/link';
 import { AdminSeoChangeSetCreateClient } from '@/components/AdminSeoChangeSetCreateClient';
 import { getMissingSupabaseEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
