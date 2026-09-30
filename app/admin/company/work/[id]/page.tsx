@@ -4,10 +4,6 @@ import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminDa
 import { presentWorkItem } from '@/lib/owner-ui/presenters';
 import { OwnerWorkDetailContent } from '@/components/admin/OwnerWorkDetailContent';
 import type { GrowthHandoffRow, GrowthWorkflowEventRow } from '@/lib/types';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 type Row = Record<string, unknown>;
 
 async function getWorkItem(id: string): Promise<{
