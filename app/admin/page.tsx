@@ -7,9 +7,6 @@ import { getProductEvents, getProductFlags, getProductReadiness, type AdminRevie
 import { getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
-
-export const revalidate = 300;
-
 const ADMIN_MODULES = [
   { href: '/admin/products', label: 'Каталог товаров', note: 'v4 products, readiness, конфигурации, media', icon: PackageSearch },
   { href: '/admin/review/labels', label: 'Label Review', note: 'публичные labels и русские raw-флаги', icon: Tags },
