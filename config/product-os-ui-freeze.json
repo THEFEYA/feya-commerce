@@ -5,11 +5,11 @@
     "app/page.tsx": "f89d8ee0a35b9313e36d19e971df39c617490579",
     "app/shop/page.tsx": "36d78b9ae668f657381e9a05fb6de1c20ca2d49f",
     "app/shop/[slug]/page.tsx": "0dc39167914e3734966debb54c07cf1786f96cc4",
-    "components/Header.tsx": "a0c9427ddf56ca5f7c51ecd4b8f55e6a5223469e",
+    "components/Header.tsx": "0dd176577b60fcf09f10fd0d75ac39000fa26f51",
     "components/Footer.tsx": "7df1bdf27494def8d3e4aaa39b62ff875aaacdf9",
     "components/ProductCard.tsx": "f77744cec1c6db4b51244d6aca094a1c7ac3af36",
     "components/ProductDetailClient.tsx": "67f5aad44dbce9e46b2327df48396093bc50b875",
-    "components/ShopClient.tsx": "fb9167e57fed976340fb508a0c456a0db8e49bd5",
+    "components/ShopClient.tsx": "004219dfb04e63947e6fc58c632137d30bb0123a",
     "app/admin/listing-master/ListingMasterPage.tsx": "bf19fc79d0c4aa016cb2297e4c84e19d0e5b68d4",
     "app/admin/products/page.tsx": "116d6739cc88c923cb905aaeca5610a3b1b6e38a",
     "app/admin/products/[slug]/page.tsx": "381f6fb39937b9ac967dff7a4d0ac8bb2e68bb2d",
@@ -42,6 +42,10 @@
     "app/admin/seo-applied-values/page.tsx": "9c00123171dceebe5486c58d280c22d6b25388c3",
     "app/admin/seo-storefront-preview/page.tsx": "a1198cbcd9eec52f27fb0af1d851640aa5e25b83",
     "app/admin/seo-gate/page.tsx": "c3694b0698591b5c86238e7ff75c227531d36e5d",
-    "app/admin/orders/page.tsx": "c96230b0bfd63485a25a25ca0ff9ea2e53c47713"
+    "app/admin/orders/page.tsx": "c96230b0bfd63485a25a25ca0ff9ea2e53c47713",
+    "components/DiscoveryHubPage.tsx": "b6989c28592e509ca16f0f20e3c9d637f46531d7",
+    "app/events-performance/page.tsx": "fda4f7c42656147c51b3a9874f6852c41d7979ec",
+    "app/style/page.tsx": "16d0924017828d8fb75244accc719cf5141e1a14",
+    "app/collections/page.tsx": "516cc43bf3b526a506db089e32f0fbd0f8ee7a5a"
   }
 }
