@@ -5,10 +5,6 @@ import { OwnerObjectiveDrawerClient } from '@/components/admin/OwnerObjectiveDra
 import type { GrowthObjectiveEventRow, GrowthObjectiveRow } from '@/lib/types';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { capabilityOwnerSummary, dataFreshnessLabel, ownerToneForStatus, statusLabel } from '@/lib/owner-ui/terminology';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 type Row = Record<string, unknown>;
 
 const CAPABILITY_CODES = [
