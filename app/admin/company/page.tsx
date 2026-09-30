@@ -1,5 +1,6 @@
 export const instant = false;
 
+import { connection } from 'next/server';
 import Link from 'next/link';
 import {
   Activity,
@@ -195,6 +196,7 @@ function pluralRu(value: number, one: string, few: string, many: string) {
 }
 
 export default async function AdminHomePage() {
+  await connection();
   const { attention, commerceApprovals, signals, work, workTotal, opportunities, readiness, operations, error } = await getTodayData();
 
   const attentionVM = attention.map((row) => ({ ...presentOwnerAttention(row), href: `/admin/company/owner-attention/${String(row.attention_id)}` }));
