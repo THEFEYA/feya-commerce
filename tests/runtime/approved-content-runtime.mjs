@@ -162,9 +162,20 @@ export async function verifyApprovedContentRuntime({ db, browser, ownerPage, env
     await check('Revocation and stale copy fail closed; restored version works without process restart', async () => {
       for (const sql of ["review_status='changes_requested'", "updated_at=updated_at+interval '1 microsecond'", "agent_output_snapshot=jsonb_set(agent_output_snapshot,'{h1}','\"Changed content\"')"]) {
         await db.query(`update public.feya_commerce_seo_pack_drafts_v1 set ${sql} where id=$1`,[first.id]);
-        const response = await ownerPage.request.get(base+path); assert.equal(response.status(),404);
+        const response = await ownerPage.request.get(base+path);
+        const blockedHtml = await response.text();
+        assert.ok([200,404].includes(response.status()), `Unexpected revoked review status: ${response.status()}`);
+        assert.ok(!blockedHtml.includes(first.intro));
+        assert.ok(!blockedHtml.includes('PRIVATE_APPROVAL_CANARY'));
+        assert.ok(!blockedHtml.includes('PRIVATE_OUTPUT_CANARY'));
+        if (response.status() === 200) {
+          assert.match(blockedHtml, /name=["']robots["']/i);
+          assert.match(blockedHtml, /noindex/i);
+        }
         await db.query('update public.feya_commerce_seo_pack_drafts_v1 set review_status=$2,updated_at=$3,agent_output_snapshot=$4::jsonb where id=$1',[first.id,first.review_status,first.updated_at,JSON.stringify(first.agent_output_snapshot)]);
-        assert.equal((await ownerPage.request.get(base+path)).status(),200);
+        const restored = await ownerPage.request.get(base+path);
+        assert.equal(restored.status(),200);
+        assert.ok((await restored.text()).includes(first.intro));
       }
     });
     await check('Default-off server retains original storefront behavior for the same fixture', async () => {
