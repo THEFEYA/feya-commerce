@@ -70,6 +70,24 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
        from public.feya_storefront_product_cards_v1`
     );
     assert.deepEqual(state.rows[0],{n:207,distinct_n:207});
+
+    // Wait on the Data API schema cache, not wall-clock sleep. The public Shop
+    // loader uses PostgREST, so SQL visibility alone is not a sufficient gate.
+    let cardApiReady=false,lastStatus=0,lastBody='';
+    for(let i=0;i<40;i++){
+      const response=await fetch(
+        env.NEXT_PUBLIC_SUPABASE_URL+'/rest/v1/feya_storefront_product_cards_v1?select=canonical_product_id&limit=1',
+        {headers:{
+          apikey:env.SUPABASE_SERVICE_ROLE_KEY,
+          authorization:'Bearer '+env.SUPABASE_SERVICE_ROLE_KEY,
+        }}
+      );
+      lastStatus=response.status;
+      lastBody=await response.text();
+      if(response.ok){cardApiReady=true;break;}
+      await new Promise(r=>setTimeout(r,200));
+    }
+    assert.equal(cardApiReady,true,'Card read model not visible through PostgREST: '+lastStatus+' '+lastBody.slice(0,160));
   });
   const first=release.entries[0], path=first.copy.metadata.canonical_path, base='http://127.0.0.1:3004';
   let server,page,outsiderContext,log='';
