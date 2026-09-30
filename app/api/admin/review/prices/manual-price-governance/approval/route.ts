@@ -1,7 +1,7 @@
 import {NextRequest,NextResponse} from 'next/server';
 import {requireOwnerActionActor} from '@/lib/ownerActionAuth';
 import {manualPriceGovernanceApprovalDecision} from '@/lib/commerceManualPriceGovernanceApproval';
-export const runtime='nodejs';const RELEASE_REF='feya-review-207-20260924';
+const RELEASE_REF='feya-review-207-20260924';
 const PRODUCT_IDS=['057fbd51-52f5-4404-b126-e5d75b8599f4','5602d557-9d98-454b-bc98-9b9ea84b442f'].sort();
 const reply=(body:unknown,status=200)=>NextResponse.json(body,{status,headers:{'Cache-Control':'private, no-store','X-Robots-Tag':'noindex, nofollow'}});
 const enabled=()=>process.env.FEYA_COMMERCE_MANUAL_PRICE_GOVERNANCE_ENABLED==='true';
