@@ -1,3 +1,5 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { ArrowUpRight, ShieldAlert } from 'lucide-react';
 import { CsvMetricImportValidator } from '../CsvMetricImportValidator';
