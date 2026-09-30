@@ -236,6 +236,34 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       finally{await db.query('update public.feya_commerce_seo_pages_v1 set url_path=$2 where seo_page_id=$1',[first.identity.seo_page_id,path]);}
       assert.equal((await request('/shop')).status(),200);
     });
+    await check('Public Shop direct filter SSR matches zero-network client filtering',async()=>{
+      const publicBase='http://127.0.0.1:3000';
+      await page.setViewportSize({width:1440,height:1000});
+      await page.goto(publicBase+'/shop');
+      await page.getByTestId('shop-page').waitFor();
+
+      let dataRequests=0;
+      const countRequest=request=>{
+        if(['document','xhr','fetch'].includes(request.resourceType()))dataRequests++;
+      };
+      page.on('request',countRequest);
+      await page.getByPlaceholder('Search TheFEYA…').fill('Gold');
+      await page.waitForFunction(()=>new URL(location.href).searchParams.get('search')==='Gold');
+      page.off('request',countRequest);
+      assert.equal(dataRequests,0,'In-page filter state must not cause a document/fetch/xhr round trip');
+
+      const clientCards=await page.locator('a[data-testid^="product-card-"]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')));
+      assert.ok(clientCards.length>0&&clientCards.length<=20);
+
+      const direct=await ownerPage.request.get(page.url());
+      assert.equal(direct.status(),200);
+      const directDoc=await documentData(await direct.text());
+      assert.deepEqual(directDoc.cards,clientCards);
+      assert.match(directDoc.robots||'',/noindex/);
+      report.shop_phase7_zero_network_filter_pass=true;
+      report.shop_phase7_direct_filter_ssr_pass=true;
+    });
+
     await check('Hydrated and JavaScript-disabled pagination, filters, related links, hover and gallery work',async()=>{
       await page.setViewportSize({width:1440,height:1000});await page.goto(base+'/shop');
       await page.getByRole('link',{name:'Show 20 more',exact:true}).click();await page.waitForURL('**/shop?page=2');
