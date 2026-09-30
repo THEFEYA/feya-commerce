@@ -1,9 +1,5 @@
 import Link from 'next/link';
 import { ArrowUpRight, ShieldCheck } from 'lucide-react';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const DECISIONS = [
   { title: 'Похожесть товаров — не штраф', text: 'Для Google это не Etsy-локомотив, который съедает показы внутри одного marketplace. Похожесть используем как сигнал продуктовой линии и как подсказку для разведения углов текста.' },
   { title: 'Блокируем только почти дубль', text: 'Красный блокер нужен только если совпадают главный ключ, угол заголовка и описание почти один в один, либо если страница не добавляет нового смысла для пользователя.' },
