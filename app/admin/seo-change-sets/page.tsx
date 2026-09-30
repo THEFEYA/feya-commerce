@@ -1,4 +1,6 @@
 // @ts-nocheck
+export const instant = false;
+
 import Link from 'next/link';
 import { ArrowUpRight, Database, FileText } from 'lucide-react';
 import { AdminSeoChangeSetStatusClient } from '@/components/AdminSeoChangeSetStatusClient';
