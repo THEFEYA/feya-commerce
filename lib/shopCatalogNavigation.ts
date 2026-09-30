@@ -95,14 +95,17 @@ export function isShopTrackingParam(key: string) {
   return normalized.startsWith('utm_') || SHOP_TRACKING_PARAM_EXACT.has(normalized);
 }
 
-const allowed = (value: string, values: readonly string[]) =>
-  values.find((item) => item.toLowerCase() === value.toLowerCase()) ?? '';
+const allowed = (value: string, values: readonly string[]) => {
+  const normalized=value.trim().toLowerCase();
+  return values.find((item) => item.toLowerCase() === normalized) ?? '';
+};
 
 function listParam(raw: string, values: readonly string[]) {
   if (!raw) return [];
   const list = raw.split(',').map((value) => allowed(value, values));
   if (list.some((value) => !value)) return null;
-  return [...new Set(list)];
+  const unique=[...new Set(list)];
+  return unique.sort((a,b)=>values.indexOf(a)-values.indexOf(b));
 }
 
 export function parseShopNavigation(params: Record<string, string | string[] | undefined>): ShopNavigation | null {
