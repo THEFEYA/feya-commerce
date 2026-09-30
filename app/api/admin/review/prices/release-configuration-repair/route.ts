@@ -3,7 +3,6 @@ import release from '@/docs/search/closed-review-source-manifest-20260924.json';
 import structureAudit from '@/docs/search/configuration-binding-audit-20260925.json';
 import {requireOwnerActionActor} from '@/lib/ownerActionAuth';
 
-export const runtime='nodejs';
 const RELEASE_REF=String((structureAudit as any).release_ref||'');
 const PRODUCT_IDS=((release as any).entries||[])
   .map((entry:any)=>String(entry?.identity?.canonical_product_id||'')).filter(Boolean).sort();
