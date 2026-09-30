@@ -245,16 +245,19 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       assert.ok(directDoc.cards.length>0&&directDoc.cards.length<=20);
       assert.match(directDoc.robots||'',/noindex/);
 
-      await page.setViewportSize({width:1440,height:1000});
+      await page.setViewportSize({width:390,height:844});
       await page.goto(publicBase+'/shop');
       await page.getByTestId('shop-page').waitFor();
+      await page.getByRole('button',{name:/^Filters/}).click();
+      const mobilePanel=page.locator('aside').last();
+      await mobilePanel.getByPlaceholder('Search TheFEYA…').waitFor();
 
       let dataRequests=0;
       const countRequest=request=>{
         if(['document','xhr','fetch'].includes(request.resourceType()))dataRequests++;
       };
       page.on('request',countRequest);
-      await page.getByPlaceholder('Search TheFEYA…').fill(term);
+      await mobilePanel.getByPlaceholder('Search TheFEYA…').fill(term);
       await page.waitForFunction(
         expected=>{
           const cards=[...document.querySelectorAll('a[data-testid^="product-card-"]')].map(node=>node.getAttribute('href'));
@@ -270,6 +273,8 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       assert.deepEqual(clientCards,directDoc.cards);
       report.shop_phase7_zero_network_filter_pass=true;
       report.shop_phase7_direct_filter_ssr_pass=true;
+      report.shop_phase7_mobile_filter_lab_pass=true;
+      report.limitations.push('Phase 7 mobile filtering is verified as a zero-network lab interaction only; field INP requires post-launch RUM.');
     });
 
     await check('Hydrated and JavaScript-disabled pagination, filters, related links, hover and gallery work',async()=>{
