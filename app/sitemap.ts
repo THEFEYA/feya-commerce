@@ -1,9 +1,13 @@
 import type {MetadataRoute} from 'next';
+import {connection} from 'next/server';
 import {closedReviewRequested} from '@/lib/searchReviewPresentation';
 import {getSiteUrl, isSearchIndexingEnabled} from '@/lib/siteConfig';
 import {readActiveSearchReleaseIndexItems} from '@/lib/searchReleaseIndexationServer';
 
 export default async function sitemap():Promise<MetadataRoute.Sitemap>{
+  // ACTIVE Search Release is mutable governance state; keep the sitemap request-time
+  // until the release-activation invalidation path is explicitly cache-bound later.
+  await connection();
   if(closedReviewRequested(process.env)||!isSearchIndexingEnabled())return[];
 
   const {release,items}=await readActiveSearchReleaseIndexItems();
