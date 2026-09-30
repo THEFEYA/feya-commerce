@@ -35,6 +35,7 @@ test('only the first Phase 6 support slice is instant while all remaining route 
     'app/about/page.tsx',
     'app/contact/page.tsx',
     'app/collections/[slug]/page.tsx',
+    'app/page.tsx',
     'app/returns/page.tsx',
     'app/shipping/page.tsx',
     'app/shop/[slug]/page.tsx',
@@ -75,7 +76,6 @@ test('URL-dependent client hooks are isolated behind Suspense for instant routes
 test('legacy force-dynamic behavior is preserved with connection() until each storefront route is intentionally cached',()=>{
   const required=[
     'app/admin/layout.tsx',
-    'app/page.tsx',
     'app/shop/page.tsx',
   ];
   for(const path of required){
@@ -92,6 +92,13 @@ test('legacy force-dynamic behavior is preserved with connection() until each st
   assert.ok(!pdp.includes('await connection()'));
   assert.ok(pdp.includes('export const instant = true'));
   assert.ok(pdp.includes('readCachedStorefrontProductPresentation'));
+
+  const home=readFileSync('app/page.tsx','utf8');
+  assert.ok(home.includes('export const instant = true'));
+  assert.ok(home.includes('readCachedHomePresentationProducts'));
+  assert.ok(home.includes('async function HomeBody()'));
+  assert.ok(home.includes('await connection()'));
+  assert.ok(home.includes('<Suspense fallback={<HomeBodyFallback />}>'));
 
   for(const path of [
     'app/about/page.tsx',

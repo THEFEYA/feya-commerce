@@ -10,7 +10,7 @@ This file is a checkpoint against the canonical master so implementation does no
 - Product DNA / shopper taxonomy / labels / relationships: **FROZEN**
 - Search Release: **NOT ACTIVE**
 - Checkout/payment: **NOT ACTIVATED**
-- Persistent public storefront caching: **NOT ACTIVATED**
+- Persistent public storefront caching: **PHASE 6 PARTIALLY ACTIVATED / GOVERNED**
 
 ## Execution sequence
 
@@ -23,7 +23,7 @@ This file is a checkpoint against the canonical master so implementation does no
 | 3B — Product Detail Read Model | COMPLETE | Exact 207-product service-only PDP projection; 207/207 rows, 0 raw product/media differences, 0 empty galleries/configurations; PR #34 CI green. |
 | 4 — Swap Public Shop Data Layer | COMPLETE | `/shop` now uses the exact 207-product slim read model with legacy media/query fan-out removed; closed-review runtime, Typecheck/build, FEYA validation run `36699053147`, and Vercel preview all pass on commit `5ba38c841663f794fa2d630582d8b93cba4db8d2`. `force-dynamic` / `revalidate=0` remain intentionally unchanged. |
 | 5 — Invalidation Plumbing | COMPLETE IN CODE / HOSTED ACTIVATION REQUIRED BEFORE PHASE 6 | PR #33 is rebased onto the green Phase 4 head. FEYA validation run `36700072296` and Vercel pass on commit `ccfab2a96403148853f7052954b8e341dbdad789`. The real internal Route Handler is exercised in isolated Supabase/Next runtime: dedicated-secret auth, stock invalidation scope, accepted→delivered audit logging and idempotent replay all pass. Product/media/stock/slug/unpublish/membership/content scopes are explicit. Persistent public caching remains disabled. |
-| 6 — Route Caching | IN PROGRESS — COMPATIBILITY MIGRATION | Phase 5 is green. PR #35 enables Next.js Cache Components and removes legacy `dynamic` / `revalidate` / `fetchCache` / explicit runtime segment exports that conflict with the migration. The old `force-dynamic` behavior is now preserved explicitly with `connection()` at the admin shell and the four public runtime routes (home, owner collection, PDP, `/shop`). Support/policy pages remain connection-free for the first cache activation slice. Public visual output and indexing gates remain frozen; no persistent storefront reader cache is activated until this compatibility branch is green. |
+| 6 — Route Caching | IN PROGRESS — HOMEPAGE SLICE | Cache Components compatibility is green. Support/policy pages are instant/static; owner collections are PPR with governed persistent cache; PDPs are PPR on the exact 207-product detail projection with Phase 5 product/catalog/collection invalidation and full CI green in run `36783712816`. Homepage is the current named slice; `/shop` remains blocked/request-time until the homepage gate is green. Public visual output and Search Release/indexation remain frozen. |
 | 7 — Hybrid Shop Filtering | NOT STARTED | Requires stable cached catalog foundation. |
 | 8 — Navigation / Hub UX | NOT STARTED | Search ownership and visual contracts remain unchanged until this phase. |
 | 9 — Owner Route Alignment | NOT STARTED | Owner decision required for reserved URL renames before indexation. |
@@ -36,9 +36,9 @@ This file is a checkpoint against the canonical master so implementation does no
 
 Finish **Phase 6 compatibility migration**, then activate caching in the master order without changing storefront visuals:
 
-1. get the Cache Components compatibility branch green after removing incompatible legacy route-segment exports and preserving request-time behavior with `connection()` where the old app was dynamic;
-2. keep admin, homepage, owner collections, PDPs and `/shop` request-time until their named cache slice begins;
-3. after the compatibility gate is green, activate **support/policy pages first**, then owner collections → PDPs → homepage → `/shop`;
+1. preserve the already-green support/policy → owner collections → PDP cache slices without reopening them;
+2. activate the homepage as PPR: request/review authorization stays outside shared cache while the exact approved homepage product data is persistently cached;
+3. after the homepage gate is green, activate `/shop` as the final Phase 6 route slice;
 4. attach only the Phase 5 governed tags/paths to cached readers and keep mutation invalidation deterministic;
 5. preserve the frozen visual output, exact 207-product approved corpus, closed-review authorization and Search Release/indexation fail-closed controls;
 6. do not start Phase 7, Search Release, or new SEO-copy work until the Phase 6 route-caching gate is complete.
