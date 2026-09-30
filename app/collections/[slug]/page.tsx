@@ -41,7 +41,7 @@ export default function SearchLandingCandidatePage(props:PageProps){
 
 function CollectionRouteFallback(){
   return <main className="visual-commerce-shell relative min-h-screen" aria-busy="true">
-    <Header/>
+    <Suspense fallback={null}><Header/></Suspense>
     <section className="container-feya pt-32 pb-16 lg:pt-40">
       <div className="min-h-[45vh]"/>
     </section>

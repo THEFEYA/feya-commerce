@@ -62,6 +62,13 @@ test('only the first Phase 6 support slice is instant while all remaining route 
   assert.deepEqual([...new Set(directiveBreaks)],[],`top directives displaced:\n${[...new Set(directiveBreaks)].join('\n')}`);
 });
 
+test('URL-dependent client hooks are isolated behind Suspense for instant routes',()=>{
+  const layout=readFileSync('app/layout.tsx','utf8');
+  const collection=readFileSync('app/collections/[slug]/page.tsx','utf8');
+  assert.ok(layout.includes("<Suspense fallback={null}><MeasurementRuntime /></Suspense>"));
+  assert.ok(collection.includes("<Suspense fallback={null}><Header/></Suspense>"));
+});
+
 test('legacy force-dynamic behavior is preserved with connection() until each storefront route is intentionally cached',()=>{
   const required=[
     'app/admin/layout.tsx',
