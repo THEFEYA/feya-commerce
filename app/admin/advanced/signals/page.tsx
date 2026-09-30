@@ -1,10 +1,6 @@
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { CaseAdmissionPreviewRow, GrowthSignalCandidateRow } from '@/lib/types';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 async function getSignals(): Promise<{
   rows: GrowthSignalCandidateRow[];
   admissionByFingerprint: Map<string, CaseAdmissionPreviewRow>;
