@@ -6,7 +6,6 @@ import { GOOGLE_ADS_BATCH_STATUSES, GOOGLE_ADS_HEALTH_RPC, GOOGLE_ADS_IMPORT_CON
 import { getOAuthAccessToken, getGoogleAdsCustomerContext, runGoogleAdsKeywordMetrics, GoogleAdsApiError } from '@/lib/googleAdsProvider';
 import { METRIC_IMPORT_RPC, metricImportWriteBlockers, verifyMetricReaderBoundary } from '@/lib/searchMetricAtomicStorage';
 
-export const dynamic = 'force-dynamic';
 const rights={can_assign_primary:false,can_publish:false,can_index:false};
 const reply=(body:Record<string,unknown>,status=200)=>NextResponse.json({...rights,...body},{status});
 
