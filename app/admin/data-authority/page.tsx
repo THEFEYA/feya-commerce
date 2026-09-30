@@ -1,3 +1,5 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { Database, Layers3, ShieldCheck } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
