@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
+import {Suspense} from 'react';
 import { getSiteUrl } from '@/lib/siteConfig';
 import { MeasurementRuntime } from '@/components/MeasurementRuntime';
 import { AnalyticsConsentBanner } from '@/components/AnalyticsConsentBanner';
 import { publicLegalIdentityReady } from '@/lib/publicLegalIdentity';
 import './globals.css';
+
 
 export const metadata: Metadata = {
   metadataBase: getSiteUrl(),
@@ -24,7 +26,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body>
-        <MeasurementRuntime />
+        <Suspense fallback={null}><MeasurementRuntime /></Suspense>
         <AnalyticsConsentBanner enabled={analyticsConsentReady} />
         {children}
       </body>

@@ -7,6 +7,10 @@ on:
       - main
       - owner-ui-v1
 
+concurrency:
+  group: feya-validation-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Typecheck and build

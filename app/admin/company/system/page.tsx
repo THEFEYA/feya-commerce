@@ -1,3 +1,6 @@
+export const instant = false;
+
+import { connection } from 'next/server';
 import Link from 'next/link';
 import { Database, LockKeyhole, PlayCircle, ShieldCheck, Siren, UserCheck } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
@@ -5,10 +8,6 @@ import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminDa
 import { dataFreshnessLabel, ownerToneForStatus, scopeLabel, sourceHealthSummary, sourceLabel, statusLabel } from '@/lib/owner-ui/terminology';
 import { getAdminAuthConfigStatus } from '@/lib/supabaseAuth';
 import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 type Row = Record<string, unknown>;
 
 async function getSystemData(): Promise<{
@@ -188,6 +187,7 @@ function sourceTimestamp(value: unknown) {
 }
 
 export default async function AdminSystemPage() {
+  await connection();
   const { readiness, sources, actions, executionRequests, activeIncidents, mutationFreezes, ownerActionAudit, adminBoundary, aiUsage, error } = await getSystemData();
   const ownerAuth = getAdminAuthConfigStatus();
   const ownerActions = getOwnerActionConfigStatus();

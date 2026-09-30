@@ -1,10 +1,8 @@
 // @ts-nocheck
+export const instant = false;
+
 import Link from 'next/link';
 import { getMissingSupabaseEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const REVIEW_VIEW = 'feya_commerce_v_seo_commercial_new_candidate_review_queue_v1';
 const SELECT = 'commercial_id,source_batch,keyword,keyword_norm,normalized_market,normalized_language,avg_monthly_searches,competition,competition_index,suggested_bucket,operator_decision,target_bank_bucket,decision_note,review_priority,suggested_usage';
 const BATCH = 'commercial_v1_a_google_ads_stats_2026_07_05';

@@ -1,13 +1,11 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { CircleAlert, ShieldCheck, TestTube2 } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { ScenarioReleaseReadinessRow, ScenarioTestRegistryRow } from '@/lib/types';
 import { statusLabel } from '@/lib/owner-ui/terminology';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 async function getData(): Promise<{ scenarios: ScenarioTestRegistryRow[]; readiness: ScenarioReleaseReadinessRow | null; error?: string }> {
   const supabase = getAdminReadClient();
   if (!supabase) return { scenarios: [], readiness: null, error: getMissingAdminDataEnvMessage() };

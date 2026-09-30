@@ -1,3 +1,5 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { loginAdmin } from './actions';
 import { isAdminAuthRequired } from '@/lib/supabaseAuth';

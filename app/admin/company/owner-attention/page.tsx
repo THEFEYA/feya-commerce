@@ -1,12 +1,10 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { formatDueTime, presentOwnerAttention } from '@/lib/owner-ui/presenters';
 import { presentCommerceExecutionApprovals } from '@/lib/owner-ui/commerceApprovals';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 type Row = Record<string, unknown>;
 
 async function getRows(): Promise<{ rows: Row[]; commerceRows: Row[]; error?: string }> {

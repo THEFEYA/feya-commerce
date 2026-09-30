@@ -1,4 +1,6 @@
 // @ts-nocheck
+export const instant = false;
+
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, FileSearch, Layers3, ListTree, ShieldAlert } from 'lucide-react';
@@ -7,9 +9,6 @@ import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront'
 import { buildSeoCollectionPlans, type SeoCollectionPlanStage } from '@/lib/seo-collection-planning';
 import type { AdminReviewEvent } from '@/lib/admin-readiness';
 import type { StorefrontProduct } from '@/lib/types';
-
-export const revalidate = 300;
-
 type PageProps = { params: Promise<{ axis: string; slug: string }> };
 
 async function loadProducts() {

@@ -1,14 +1,12 @@
 // @ts-nocheck
+export const instant = false;
+
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, Clock3, Database, ShieldAlert } from 'lucide-react';
 import { getSupabaseServiceClient } from '@/lib/supabase';
 import SeoDraftReviewActionsClient from './SeoDraftReviewActionsClient';
 import SeoDraftSimilarityCheckClient from './SeoDraftSimilarityCheckClient';
 import SeoDraftSourceOverlapCheckClient from './SeoDraftSourceOverlapCheckClient';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const SAVED_DRAFT_QUEUE_LIMIT = 100;
 const DRAFT_EVENTS_LIMIT = 300;
 const DRAFT_DETAILS_TABLE = 'feya_commerce_seo_pack_drafts_v1';

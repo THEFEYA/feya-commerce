@@ -1,13 +1,11 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { presentWorkItem } from '@/lib/owner-ui/presenters';
 import { OwnerWorkDetailContent } from '@/components/admin/OwnerWorkDetailContent';
 import type { GrowthHandoffRow, GrowthWorkflowEventRow } from '@/lib/types';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 type Row = Record<string, unknown>;
 
 async function getWorkItem(id: string): Promise<{

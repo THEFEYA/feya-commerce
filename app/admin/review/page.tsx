@@ -1,11 +1,9 @@
 // @ts-nocheck
+export const instant = false;
+
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
 import type { ReviewQueueSummary } from '@/lib/types';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const REVIEW_QUEUE_SUMMARY_SELECT = [
   'queue_code',
   'status',

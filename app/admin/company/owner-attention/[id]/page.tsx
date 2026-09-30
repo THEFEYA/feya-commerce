@@ -1,3 +1,6 @@
+export const instant = false;
+
+import { connection } from 'next/server';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
@@ -5,10 +8,6 @@ import { ownerDecisionPlan } from '@/lib/owner-ui/decisions';
 import { formatDueTime, presentOwnerAttention } from '@/lib/owner-ui/presenters';
 import { OwnerAttentionDecisionClient } from '@/components/admin/OwnerAttentionDecisionClient';
 import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 type Row = Record<string, unknown>;
 
 async function getAttention(id: string): Promise<{ row?: Row; events: Row[]; error?: string }> {
@@ -58,6 +57,7 @@ function List({ items }: { items: string[] }) {
 }
 
 export default async function OwnerDecisionDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  await connection();
   const { id } = await params;
   const { row, events, error } = await getAttention(id);
 

@@ -6,8 +6,6 @@ import { recordOpenAiInvocation } from '@/lib/openAiUsage';
 import { getMissingSupabaseServiceRoleEnvMessage, getSupabaseServiceRoleClient } from '@/lib/supabaseAdmin';
 import type { SeoKeywordCleanupReportRow } from '@/lib/types';
 
-export const dynamic = 'force-dynamic';
-
 type CleanupResult = {
   keyword_id: string | null;
   keyword_norm: string | null;

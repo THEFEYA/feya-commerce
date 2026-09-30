@@ -2,8 +2,6 @@ import {NextRequest,NextResponse} from 'next/server';
 import {getSupabaseServiceRoleClient} from '@/lib/supabaseAdmin';
 import {readSearchReleasePathState} from '@/lib/searchReleaseIndexationServer';
 
-export const dynamic='force-dynamic';
-
 function normalizePath(value:string|null){
   if(!value)return null;
   let decoded:string;

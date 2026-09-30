@@ -9,7 +9,7 @@ test('storefront card read model is additive, exact-corpus and server-only', () 
 
   assert.ok(source.startsWith("import 'server-only';"));
   assert.ok(source.includes("STOREFRONT_CARD_READ_MODEL_EXPECTED_COUNT = 207"));
-  assert.ok(source.includes("Intentionally NOT cached yet"));
+  assert.ok(source.includes("Deliberately remains uncached"));
   assert.ok(!source.includes('unstable_cache'));
   assert.ok(!source.includes("'use cache'"));
 

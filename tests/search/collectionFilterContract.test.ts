@@ -4,8 +4,10 @@ import { readFileSync } from 'node:fs';
 
 test('governed collection pages reuse the exact canonical Shop filter component', () => {
   const source = readFileSync('app/collections/[slug]/page.tsx','utf8');
+  const helper = readFileSync('lib/searchLandingPageServer.ts','utf8');
   assert.match(source,/import \{ShopClient\} from '@\/components\/ShopClient'/);
-  assert.match(source,/attachStorefrontFacets\(products\)/);
+  assert.match(source,/readCachedSearchLandingRelease/);
+  assert.match(helper,/attachStorefrontFacets\(release\.products\)/);
   assert.match(source,/<ShopClient products=\{facetedProducts\} embedded\/>/);
 });
 

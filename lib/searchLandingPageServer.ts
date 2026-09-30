@@ -1,10 +1,13 @@
 import 'server-only';
 import {cache} from 'react';
+import {cacheLife, cacheTag} from 'next/cache';
 import type {StorefrontProduct} from '@/lib/types';
 import {getSupabaseServiceRoleClient} from '@/lib/supabaseAdmin';
 import {STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4} from '@/lib/storefront';
 import {getSearchLandingCandidate, type SearchLandingCandidate} from '@/config/searchLandingCandidates';
 import {readSearchReleasePathState} from '@/lib/searchReleaseIndexationServer';
+import {attachStorefrontFacets} from '@/lib/storefrontFacetsServer';
+import {STOREFRONT_CACHE_TAGS, storefrontCacheTagForCollection} from '@/lib/storefrontCacheInvalidation';
 
 export type SearchLandingContentModule = {
   heading: string;
@@ -330,4 +333,27 @@ async function readSearchLandingReleaseInner(slug: string): Promise<SearchLandin
   };
 }
 
+async function readCachedSearchLandingReleaseInner(slug:string):Promise<SearchLandingRelease|null>{
+  'use cache';
+  const candidate=getSearchLandingCandidate(slug);
+  if(!candidate)return null;
+
+  cacheLife('max');
+  cacheTag(
+    STOREFRONT_CACHE_TAGS.site,
+    STOREFRONT_CACHE_TAGS.catalog,
+    STOREFRONT_CACHE_TAGS.collections,
+    storefrontCacheTagForCollection(candidate.slug),
+  );
+
+  const release=await readSearchLandingReleaseInner(candidate.slug);
+  if(!release||!release.products.length)return release;
+
+  return{
+    ...release,
+    products:await attachStorefrontFacets(release.products),
+  };
+}
+
+export const readCachedSearchLandingRelease = readCachedSearchLandingReleaseInner;
 export const readSearchLandingRelease = cache(readSearchLandingReleaseInner);

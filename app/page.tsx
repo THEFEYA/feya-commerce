@@ -1,9 +1,12 @@
 // @ts-nocheck
+export const instant = true;
+
 import type { Metadata } from 'next';
-import type { ReactNode } from 'react';
+import { Suspense, type ReactNode } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight, Globe2, Ruler, Scissors, Sparkles, Truck } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import { connection } from 'next/server';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ProductCard } from '@/components/ProductCard';
@@ -12,20 +15,9 @@ import { HOME_PRESENTATION, homePresentationProductIds } from '@/config/homePres
 import { readClosedReviewPresentation } from '@/lib/searchReviewPresentationServer';
 import { isHybridVisualPreviewDeployment } from '@/lib/ownerPreviewPolicy';
 import { releaseRobotsForPath } from '@/lib/searchReleaseIndexationServer';
-import { getSupabaseReadClient } from '@/lib/supabase';
 import type { StorefrontProduct } from '@/lib/types';
-import {
-  STOREFRONT_FALLBACK_CARD_SELECT,
-  STOREFRONT_MEDIA_FAST_SELECT,
-  STOREFRONT_MEDIA_FAST_VIEW,
-  STOREFRONT_VIEW_V2,
-  STOREFRONT_VIEW_V4,
-  STOREFRONT_V4_CARD_SELECT,
-  productTitle,
-} from '@/lib/storefront';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+import { productTitle } from '@/lib/storefront';
+import { readCachedHomePresentationProducts } from '@/lib/homePresentationServer';
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -34,35 +26,6 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: { canonical: '/' },
     robots: await releaseRobotsForPath('/'),
   };
-}
-
-async function mergeMedia(supabase, products: StorefrontProduct[]) {
-  const slugs = products.map((product) => product.product_slug).filter(Boolean);
-  if (!slugs.length) return products;
-
-  const media = await supabase
-    .from(STOREFRONT_MEDIA_FAST_VIEW)
-    .select(STOREFRONT_MEDIA_FAST_SELECT)
-    .in('product_slug', slugs);
-
-  if (media.error || !media.data?.length) return products;
-  const bySlug = new Map(media.data.map((item) => [item.product_slug, item]));
-
-  return products.map((product) => {
-    const item = bySlug.get(product.product_slug);
-    if (!item) return product;
-    return {
-      ...product,
-      primary_image_url: item.primary_image_url || product.primary_image_url,
-      primary_image_alt: item.primary_image_alt || product.primary_image_alt,
-      secondary_image_url: item.secondary_image_url || product.secondary_image_url,
-      hover_image_url: item.hover_image_url || product.hover_image_url,
-      video_url: item.video_url || product.video_url,
-      has_video: item.has_video ?? product.has_video,
-      media_count: item.media_count ?? product.media_count,
-      media_gallery: item.media_gallery || product.media_gallery,
-    };
-  });
 }
 
 async function getPresentationProducts() {
@@ -78,26 +41,12 @@ async function getPresentationProducts() {
     return new Map(products.map((product) => [product.canonical_product_id, product]));
   }
 
-  const supabase = getSupabaseReadClient();
-  if (!supabase) return new Map<string, StorefrontProduct>();
-
-  const primary = await supabase
-    .from(STOREFRONT_VIEW_V4)
-    .select(STOREFRONT_V4_CARD_SELECT)
-    .in('canonical_product_id', ids);
-
-  let products: StorefrontProduct[] = [];
-  if (!primary.error && primary.data?.length) {
-    products = await mergeMedia(supabase, primary.data);
-  } else {
-    const fallback = await supabase
-      .from(STOREFRONT_VIEW_V2)
-      .select(STOREFRONT_FALLBACK_CARD_SELECT)
-      .in('canonical_product_id', ids);
-    if (!fallback.error && fallback.data?.length) products = await mergeMedia(supabase, fallback.data);
+  try {
+    const products = await readCachedHomePresentationProducts();
+    return new Map(products.map((product) => [product.canonical_product_id, product]));
+  } catch {
+    return new Map<string, StorefrontProduct>();
   }
-
-  return new Map(products.map((product) => [product.canonical_product_id, product]));
 }
 
 function TileMedia({
@@ -128,7 +77,24 @@ function TileMedia({
   );
 }
 
-export default async function HomePage() {
+export default function HomePage() {
+  return (
+    <main className="visual-commerce-shell relative min-h-screen overflow-hidden">
+      <Suspense fallback={null}><Header /></Suspense>
+      <Suspense fallback={<HomeBodyFallback />}>
+        <HomeBody />
+      </Suspense>
+      <Footer />
+    </main>
+  );
+}
+
+function HomeBodyFallback() {
+  return <div className="min-h-[80vh]" aria-busy="true" />;
+}
+
+async function HomeBody() {
+  await connection();
   const byId = await getPresentationProducts();
   const getProduct = (id: string) => byId.get(id);
 
@@ -142,9 +108,7 @@ export default async function HomePage() {
   const selected = [...curatedSelected, ...selectedFallbacks].slice(0, 8);
 
   return (
-    <main className="visual-commerce-shell relative min-h-screen overflow-hidden">
-      <Header />
-
+    <>
       <section aria-label="Hero" className="px-2.5 pt-[108px] sm:px-4 lg:px-5 lg:pt-[116px]">
         <div className="group relative mx-auto min-h-[560px] max-h-[820px] h-[72vh] overflow-hidden rounded-md border border-white/[0.06] bg-[#0d0d11]">
           <TileMedia product={hero} label="TheFEYA hero" className="scale-[1.01]" priority />
@@ -260,8 +224,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <Footer />
-    </main>
+    </>
   );
 }
 

@@ -1,3 +1,5 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { CircleAlert, ShieldCheck, Workflow } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
@@ -6,10 +8,6 @@ import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminDa
 import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
 import type { ExecutionGatewayRow } from '@/lib/types';
 import { statusLabel } from '@/lib/owner-ui/terminology';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 async function getRows(): Promise<{ rows: ExecutionGatewayRow[]; error?: string }> {
   const supabase = getAdminReadClient();
   if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };

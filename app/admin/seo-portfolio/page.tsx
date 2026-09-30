@@ -1,11 +1,9 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { SeoPagePortfolioRow } from '@/lib/types';
 import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const PORTFOLIO_LIMIT = 350;
 
 async function getPortfolio(): Promise<{ rows: SeoPagePortfolioRow[]; error?: string }> {

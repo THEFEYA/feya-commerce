@@ -69,15 +69,37 @@ export async function verifyApprovedContentRuntime({ db, browser, ownerPage, env
         values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb,'PRIVATE_APPROVAL_CANARY')`,
       [d.id,d.canonical_product_id,d.product_slug,d.status,d.review_status,d.updated_at,d.seo_title,d.h1,d.meta_description,d.intro,JSON.stringify({ ...d.agent_output_snapshot, private_canary: 'PRIVATE_OUTPUT_CANARY' })]);
     }
+
+    await db.query(`
+      create view public.feya_storefront_product_details_v1 with(security_invoker=true) as
+      select
+        (p.data->>'canonical_product_id')::uuid as canonical_product_id,
+        sp.seo_page_id,
+        d.id as source_draft_id,
+        repeat('a',64) as approved_content_sha256,
+        'feya-review-207-20260924'::text as source_release_ref,
+        '/shop/'||(p.data->>'product_slug') as url_path_snapshot,
+        p.data->>'product_slug' as product_slug,
+        p.data as product_json
+      from public.runtime_approved_products p
+      join public.feya_commerce_seo_pages_v1 sp
+        on sp.canonical_product_id=(p.data->>'canonical_product_id')::uuid
+       and sp.page_type='product'
+      join public.feya_commerce_seo_pack_drafts_v1 d
+        on d.canonical_product_id=(p.data->>'canonical_product_id')::uuid;
+      revoke all on public.feya_storefront_product_details_v1 from public,anon,authenticated,service_role;
+      grant select on public.feya_storefront_product_details_v1 to service_role;
+    `);
     await db.query("notify pgrst, 'reload schema'");
     assert.equal((await db.query('select count(*)::int n from public.runtime_approved_products')).rows[0].n, 208);
+    assert.equal((await db.query('select count(*)::int n from public.feya_storefront_product_details_v1')).rows[0].n, 208);
     // Wait on concrete PostgREST schema readiness, not a fixed sleep.
     let ready = false;
     for (let i = 0; i < 30; i++) {
-      const r = await fetch(`${env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/feya_commerce_v_step7_storefront_products_api_v4?select=canonical_product_id&limit=1`, { headers: { apikey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY } });
+      const r = await fetch(`${env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/feya_storefront_product_details_v1?select=canonical_product_id&limit=1`, { headers: { apikey: env.SUPABASE_SERVICE_ROLE_KEY, authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}` } });
       if (r.ok) { ready = true; break; } await new Promise(r => setTimeout(r, 200));
     }
-    assert.ok(ready, 'PostgREST catalog fixture did not become ready');
+    assert.ok(ready, 'PostgREST PDP detail fixture did not become ready');
   });
   try {
     server = spawn(process.execPath, ['node_modules/next/dist/bin/next','start','--hostname','127.0.0.1','--port','3002'], {
@@ -88,8 +110,21 @@ export async function verifyApprovedContentRuntime({ db, browser, ownerPage, env
     for (let i=0;i<60;i++) { try { if ((await fetch(base+'/admin/login')).status === 200) { ready=true; break; } } catch {} await new Promise(r=>setTimeout(r,250)); }
     assert.ok(ready, 'Review server did not start');
     await check('Anonymous visitor cannot read approved PDP review or receive private draft details', async () => {
-      const response = await fetch(base+path); assert.equal(response.status, 404);
-      const html = await response.text(); assert.ok(!html.includes(first.intro)); assert.ok(!html.includes('PRIVATE_APPROVAL_CANARY'));
+      const response = await fetch(base+path);
+      const html = await response.text();
+
+      // Under Cache Components the protected PDP is request-time and can stream before
+      // notFound() terminates the route segment. Next.js documents streamed not-found
+      // responses as HTTP 200 with an injected noindex marker; a non-streamed response
+      // remains HTTP 404. Security is the content boundary, not forcing a legacy status.
+      assert.ok([200, 404].includes(response.status), `Unexpected anonymous review status: ${response.status}`);
+      assert.ok(!html.includes(first.intro));
+      assert.ok(!html.includes('PRIVATE_APPROVAL_CANARY'));
+      assert.ok(!html.includes('PRIVATE_OUTPUT_CANARY'));
+      if (response.status === 200) {
+        assert.match(html, /name=["']robots["']/i);
+        assert.match(html, /noindex/i);
+      }
     });
     page = await ownerPage.context().newPage();
     const errors = []; page.on('pageerror', e => errors.push(e.message));
@@ -149,9 +184,20 @@ export async function verifyApprovedContentRuntime({ db, browser, ownerPage, env
     await check('Revocation and stale copy fail closed; restored version works without process restart', async () => {
       for (const sql of ["review_status='changes_requested'", "updated_at=updated_at+interval '1 microsecond'", "agent_output_snapshot=jsonb_set(agent_output_snapshot,'{h1}','\"Changed content\"')"]) {
         await db.query(`update public.feya_commerce_seo_pack_drafts_v1 set ${sql} where id=$1`,[first.id]);
-        const response = await ownerPage.request.get(base+path); assert.equal(response.status(),404);
+        const response = await ownerPage.request.get(base+path);
+        const blockedHtml = await response.text();
+        assert.ok([200,404].includes(response.status()), `Unexpected revoked review status: ${response.status()}`);
+        assert.ok(!blockedHtml.includes(first.intro));
+        assert.ok(!blockedHtml.includes('PRIVATE_APPROVAL_CANARY'));
+        assert.ok(!blockedHtml.includes('PRIVATE_OUTPUT_CANARY'));
+        if (response.status() === 200) {
+          assert.match(blockedHtml, /name=["']robots["']/i);
+          assert.match(blockedHtml, /noindex/i);
+        }
         await db.query('update public.feya_commerce_seo_pack_drafts_v1 set review_status=$2,updated_at=$3,agent_output_snapshot=$4::jsonb where id=$1',[first.id,first.review_status,first.updated_at,JSON.stringify(first.agent_output_snapshot)]);
-        assert.equal((await ownerPage.request.get(base+path)).status(),200);
+        const restored = await ownerPage.request.get(base+path);
+        assert.equal(restored.status(),200);
+        assert.ok((await restored.text()).includes(first.intro));
       }
     });
     await check('Default-off server retains original storefront behavior for the same fixture', async () => {

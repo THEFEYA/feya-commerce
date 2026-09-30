@@ -1,13 +1,11 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { KeywordCleanupReviewStatusRow } from '@/lib/types';
 import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
 import { OwnerKeywordReviewClient } from '@/components/admin/OwnerKeywordReviewClient';
 import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const REVIEW_LIMIT = 500;
 
 async function getRows(): Promise<{ rows: KeywordCleanupReviewStatusRow[]; error?: string }> {

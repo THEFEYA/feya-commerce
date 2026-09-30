@@ -1,7 +1,4 @@
 import { NextResponse } from 'next/server';
-
-export const dynamic = 'force-dynamic';
-
 const REPLACEMENT_ROUTE = '/api/admin/seo-engine/catalog-draft-generate';
 
 export async function GET() {

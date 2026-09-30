@@ -1,10 +1,8 @@
 // @ts-nocheck
+export const instant = false;
+
 import Link from 'next/link';
 import { getSupabaseServiceClient } from '@/lib/supabase';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const ROW_LIMIT = 1000;
 
 type Row = {

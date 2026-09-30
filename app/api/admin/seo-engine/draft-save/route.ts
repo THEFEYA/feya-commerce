@@ -9,8 +9,6 @@ import { buildMockSeoAgentOutput } from '@/lib/seoAgentMockDraft';
 import { normalizeReviewDraftForSeoPack } from '@/lib/seoReviewDraftNormalization';
 import { buildSeoDraftStoragePayload, seoDraftStoragePayloadGuardrails, summarizeSeoDraftStoragePayload } from '@/lib/seoDraftStoragePayload';
 
-export const dynamic = 'force-dynamic';
-
 const STORAGE_TABLE = 'feya_commerce_seo_pack_drafts_v1';
 const STORAGE_EVENTS_TABLE = 'feya_commerce_seo_pack_draft_events_v1';
 const STORAGE_LATEST_VIEW = 'feya_commerce_v_seo_pack_drafts_latest_v1';

@@ -1,9 +1,6 @@
 // @ts-nocheck
 import { NextResponse } from 'next/server';
 import { buildSeoBriefContractBundle, buildSeoBriefSourceSummary, readOnlyContractGuardrails } from '@/lib/seoBriefContractServer';
-
-export const dynamic = 'force-dynamic';
-
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const productId = String(url.searchParams.get('product_id') || '').trim();

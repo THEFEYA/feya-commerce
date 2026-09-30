@@ -1,11 +1,9 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { LaunchReadinessGateRow, LaunchReadinessSummaryRow } from '@/lib/types';
 import { gateTitle, launchGateOwnerCopy, roleLabel, scopeLabel, statusLabel } from '@/lib/owner-ui/terminology';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 async function getReadiness(): Promise<{
   summary: LaunchReadinessSummaryRow[];
   gates: LaunchReadinessGateRow[];

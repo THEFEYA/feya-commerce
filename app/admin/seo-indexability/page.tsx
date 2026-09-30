@@ -1,3 +1,5 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { IndexabilityProposalRow, PageIndexabilityReadinessRow } from '@/lib/types';
@@ -5,10 +7,6 @@ import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient'
 import { OwnerProposalReviewClient } from '@/components/admin/OwnerProposalReviewClient';
 import { OwnerProposalApplyClient } from '@/components/admin/OwnerProposalApplyClient';
 import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 async function getData(): Promise<{
   readiness: PageIndexabilityReadinessRow[];
   proposals: IndexabilityProposalRow[];

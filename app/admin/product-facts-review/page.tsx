@@ -1,12 +1,10 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
 import { OwnerProductFactDrawerClient } from '@/components/admin/OwnerProductFactDrawerClient';
 import { isVariantDraftEnabled } from '@/lib/commerceVariantDraftServer';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const REVIEW_LIMIT = 250;
 
 type ProductFactReviewRow = {

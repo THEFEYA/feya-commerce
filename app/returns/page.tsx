@@ -1,3 +1,5 @@
+export const instant = true;
+
 import type {Metadata} from 'next';
 import Link from 'next/link';
 import {Header} from '@/components/Header';

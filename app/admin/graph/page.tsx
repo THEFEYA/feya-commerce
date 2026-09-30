@@ -1,4 +1,6 @@
 // @ts-nocheck
+export const instant = false;
+
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, Blocks, CheckCircle2, CircleDot, Layers3, Palette, Shirt, Sparkles, TriangleAlert } from 'lucide-react';
@@ -7,9 +9,6 @@ import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront'
 import { buildSeoCollectionCandidates, summarizeSeoGraph, type SeoCollectionCandidate } from '@/lib/seo-product-graph';
 import type { AdminReviewEvent } from '@/lib/admin-readiness';
 import type { StorefrontProduct } from '@/lib/types';
-
-export const revalidate = 300;
-
 async function loadProducts() {
   const supabase = getAdminReadClient();
   if (!supabase) return { products: [], error: getMissingAdminDataEnvMessage() };

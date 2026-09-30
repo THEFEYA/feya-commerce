@@ -1,3 +1,6 @@
+export const instant = false;
+
+import { connection } from 'next/server';
 import Link from 'next/link';
 import { FileSearch, GitBranch, SearchCheck, ShieldCheck, Sparkles, TrendingUp } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
@@ -5,10 +8,6 @@ import { OwnerObjectiveDrawerClient } from '@/components/admin/OwnerObjectiveDra
 import type { GrowthObjectiveEventRow, GrowthObjectiveRow } from '@/lib/types';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import { capabilityOwnerSummary, dataFreshnessLabel, ownerToneForStatus, statusLabel } from '@/lib/owner-ui/terminology';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 type Row = Record<string, unknown>;
 
 const CAPABILITY_CODES = [
@@ -167,6 +166,7 @@ function toneClass(tone: string) {
 }
 
 export default async function AdminGrowthPage() {
+  await connection();
   const data = await getGrowthData();
   const map = new Map(data.capabilities.map((row) => [String(row.capability_code), row]));
   const healthMap = new Map(data.sourceHealth.map((row) => [String(row.source_code), row]));

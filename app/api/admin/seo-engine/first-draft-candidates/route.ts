@@ -13,8 +13,6 @@ import {
   getSeoPrimaryConflictBlockersForDecision,
 } from '@/lib/seoPrimaryKeywordOwnership';
 
-export const dynamic = 'force-dynamic';
-
 const PILOT_PRODUCT_ID = 'b6e0171f-4d42-4d71-88b1-ee0d4e0e109e';
 const GENERIC_GENERATION_ROUTE = '/api/admin/seo-engine/catalog-draft-generate';
 const DECISIONS_TABLE = 'feya_commerce_listing_master_decisions_v1';

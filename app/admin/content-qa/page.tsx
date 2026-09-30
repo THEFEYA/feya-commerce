@@ -1,3 +1,5 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { ContentQaShadowRow } from '@/lib/types';
@@ -5,10 +7,6 @@ import { statusLabel } from '@/lib/owner-ui/terminology';
 import { OwnerSavedViewsClient } from '@/components/admin/OwnerSavedViewsClient';
 import { OwnerContentQaDrawerClient } from '@/components/admin/OwnerContentQaDrawerClient';
 import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const CQA_QUEUE_LIMIT = 300;
 
 async function getQueue(): Promise<{ rows: ContentQaShadowRow[]; error?: string }> {

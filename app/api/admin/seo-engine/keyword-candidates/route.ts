@@ -5,9 +5,6 @@ import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug } from '@/li
 import { buildKeywordCandidateInsertRows } from '@/lib/seo-keyword-candidates';
 import type { StorefrontProduct } from '@/lib/types';
 
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
-
 type GenerateInput = {
   product_slug?: string;
 };

@@ -7,9 +7,6 @@ import {
 } from '@/lib/adminComponentTruth';
 import { getMissingSupabaseServiceEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
 
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
-
 const ALLOWED_EVENT_TYPES = new Set([
   'label_review_approved',
   'price_review_approved',

@@ -1,13 +1,11 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { OwnerLearningDrawerClient } from '@/components/admin/OwnerLearningDrawerClient';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { LearningRegistryRow } from '@/lib/types';
 import { statusLabel } from '@/lib/owner-ui/terminology';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 async function getRows(): Promise<{ rows: LearningRegistryRow[]; error?: string }> {
   const supabase = getAdminReadClient();
   if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };

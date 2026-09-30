@@ -1,4 +1,6 @@
 // @ts-nocheck
+export const instant = false;
+
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, FileSearch, ImageIcon, Rocket, ShieldAlert } from 'lucide-react';
@@ -7,10 +9,6 @@ import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront'
 import { buildSearchPlans, summarizeSearchPlans, type SearchStage } from '@/lib/search-readiness';
 import type { AdminReviewEvent } from '@/lib/admin-readiness';
 import type { StorefrontProduct } from '@/lib/types';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const INDEXATION_PRODUCTS_LIMIT = 500;
 
 async function loadProducts() {

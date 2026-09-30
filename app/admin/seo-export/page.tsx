@@ -1,4 +1,6 @@
 // @ts-nocheck
+export const instant = false;
+
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, FileSearch, FileText, ShieldAlert } from 'lucide-react';
@@ -8,10 +10,6 @@ import { buildSeoDraftSuggestion } from '@/lib/seo-draft-suggestions';
 import { getSeoScore } from '@/lib/seo-scoring';
 import type { AdminReviewEvent } from '@/lib/admin-readiness';
 import type { StorefrontProduct } from '@/lib/types';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const SEO_EXPORT_PRODUCTS_LIMIT = 500;
 
 async function loadProducts() {

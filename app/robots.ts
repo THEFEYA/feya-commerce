@@ -1,11 +1,13 @@
 import type {MetadataRoute} from 'next';
+import {connection} from 'next/server';
 import {absoluteSiteUrl, isSearchIndexingEnabled} from '@/lib/siteConfig';
 import {closedReviewRequested} from '@/lib/searchReviewPresentation';
 import {readActiveSearchReleaseIndexItems} from '@/lib/searchReleaseIndexationServer';
 
-export const dynamic='force-dynamic';
-
 export default async function robots():Promise<MetadataRoute.Robots>{
+  // Search-release/closed-review state is runtime governance during Phase 6.
+  // Do not freeze robots.txt at build time before the release gate is activated.
+  await connection();
   if(closedReviewRequested(process.env)){
     return{rules:[{userAgent:'*',disallow:'/'}]};
   }

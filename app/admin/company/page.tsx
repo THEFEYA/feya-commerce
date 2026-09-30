@@ -1,3 +1,6 @@
+export const instant = false;
+
+import { connection } from 'next/server';
 import Link from 'next/link';
 import {
   Activity,
@@ -15,10 +18,6 @@ import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminDa
 import { presentOwnerAttention, presentSignal, presentWorkItem, formatDueTime, formatRelativeTime } from '@/lib/owner-ui/presenters';
 import { admissionLabel, priorityLabel, roleLabel, scopeLabel } from '@/lib/owner-ui/terminology';
 import { presentCommerceExecutionApprovals } from '@/lib/owner-ui/commerceApprovals';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 type Row = Record<string, unknown>;
 
 type TodayData = {
@@ -197,6 +196,7 @@ function pluralRu(value: number, one: string, few: string, many: string) {
 }
 
 export default async function AdminHomePage() {
+  await connection();
   const { attention, commerceApprovals, signals, work, workTotal, opportunities, readiness, operations, error } = await getTodayData();
 
   const attentionVM = attention.map((row) => ({ ...presentOwnerAttention(row), href: `/admin/company/owner-attention/${String(row.attention_id)}` }));

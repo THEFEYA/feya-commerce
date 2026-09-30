@@ -3,8 +3,6 @@ import { withInternalApi } from '@/lib/internalAuth';
 import { readInternalExecutionRequest } from '@/lib/internalExecutionRequest';
 import { getMissingSupabaseServiceRoleEnvMessage, getSupabaseServiceRoleClient } from '@/lib/supabaseAdmin';
 
-export const dynamic = 'force-dynamic';
-
 type UnknownRecord = Record<string, unknown>;
 
 const DEFAULT_LIMIT = 5;

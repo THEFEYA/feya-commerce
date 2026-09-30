@@ -7,9 +7,6 @@ import { buildSavedDraftPreviewResult } from '@/lib/seoSavedDraftPreview';
 import { buildSeoBriefContractBundle } from '@/lib/seoBriefContractServer';
 import { normalizeReviewDraftForSeoPack } from '@/lib/seoReviewDraftNormalization';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const LATEST_DRAFT_VIEW = 'feya_commerce_v_seo_pack_drafts_latest_v1';
 const SELECT = [
   'id',

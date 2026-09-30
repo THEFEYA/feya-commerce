@@ -1,14 +1,12 @@
 // @ts-nocheck
+export const instant = false;
+
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, BarChart3, FileSearch, FileText, ImageIcon, Layers3, ShieldAlert } from 'lucide-react';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 import { buildSeoScores, summarizeSeoScores, type SeoScoreStage } from '@/lib/seo-scoring';
 import type { StorefrontProduct } from '@/lib/types';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const SEO_LAB_PRODUCTS_LIMIT = 500;
 
 async function loadProducts() {

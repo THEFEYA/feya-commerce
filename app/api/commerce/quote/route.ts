@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCommerceQuoteServerClient } from '@/lib/commerceQuoteServer';
 import { createCommerceQuote, CommerceQuoteStorageError } from '@/lib/commerceQuoteStorage';
 
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
-
 const reply = (body: unknown, status = 200) => NextResponse.json(body, {
   status,
   headers: { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' },

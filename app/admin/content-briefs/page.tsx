@@ -1,13 +1,11 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { Layers3, ShieldCheck, Workflow } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { OwnerContentBriefDrawerClient } from '@/components/admin/OwnerContentBriefDrawerClient';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { ContentBriefCompilerStatusRow } from '@/lib/types';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const BRIEF_LIMIT = 400;
 
 async function getBriefs(): Promise<{ rows: ContentBriefCompilerStatusRow[]; error?: string }> {

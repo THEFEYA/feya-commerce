@@ -1,10 +1,8 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { CsvScoringPreview } from './CsvScoringPreview';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 export default function SeoScoringPreviewPage() {
   return <main className="min-h-screen bg-[radial-gradient(circle_at_80%_0%,rgba(212,178,106,.13),transparent_32%),linear-gradient(180deg,#07070A,#111016_45%,#07070A)]">
     <section className="container-feya pt-7 pb-12">

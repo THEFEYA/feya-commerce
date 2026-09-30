@@ -5,8 +5,6 @@ import { readInternalExecutionRequest } from '@/lib/internalExecutionRequest';
 import { recordOpenAiInvocation } from '@/lib/openAiUsage';
 import { getMissingSupabaseServiceRoleEnvMessage, getSupabaseServiceRoleClient } from '@/lib/supabaseAdmin';
 
-export const dynamic = 'force-dynamic';
-
 type UnknownRecord = Record<string, unknown>;
 
 type OwnershipRecommendation = {

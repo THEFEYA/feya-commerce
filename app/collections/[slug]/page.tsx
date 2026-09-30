@@ -1,16 +1,15 @@
+export const instant = true;
+
 import type {Metadata} from 'next';
 import {notFound} from 'next/navigation';
 import Link from 'next/link';
+import {Suspense} from 'react';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 import {ShopClient} from '@/components/ShopClient';
 import {getSearchLandingCandidate} from '@/config/searchLandingCandidates';
-import {readSearchLandingRelease} from '@/lib/searchLandingPageServer';
+import {readCachedSearchLandingRelease} from '@/lib/searchLandingPageServer';
 import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
-import {attachStorefrontFacets} from '@/lib/storefrontFacetsServer';
-
-export const dynamic='force-dynamic';
-export const revalidate=0;
 
 type PageProps={params:Promise<{slug:string}>};
 
@@ -23,7 +22,7 @@ export async function generateMetadata({params}:PageProps):Promise<Metadata>{
   const candidate=getSearchLandingCandidate(slug);
   if(!candidate)return {title:'Collection not found',robots:{index:false,follow:true}};
 
-  const release=await readSearchLandingRelease(slug);
+  const release=await readCachedSearchLandingRelease(slug);
   const content=release?.content;
 
   return {
@@ -34,13 +33,29 @@ export async function generateMetadata({params}:PageProps):Promise<Metadata>{
   };
 }
 
-export default async function SearchLandingCandidatePage({params}:PageProps){
+export default function SearchLandingCandidatePage(props:PageProps){
+  return <Suspense fallback={<CollectionRouteFallback/>}>
+    <ResolvedSearchLandingCandidatePage {...props}/>
+  </Suspense>;
+}
+
+function CollectionRouteFallback(){
+  return <main className="visual-commerce-shell relative min-h-screen" aria-busy="true">
+    <Suspense fallback={null}><Header/></Suspense>
+    <section className="container-feya pt-32 pb-16 lg:pt-40">
+      <div className="min-h-[45vh]"/>
+    </section>
+    <Footer/>
+  </main>;
+}
+
+async function ResolvedSearchLandingCandidatePage({params}:PageProps){
   const {slug}=await params;
-  const release=await readSearchLandingRelease(slug);
+  const release=await readCachedSearchLandingRelease(slug);
   if(!release)notFound();
 
   const {candidate,content,products,breadcrumbs,relatedLinks,membershipCount,holdReason,version,contentHash}=release;
-  const facetedProducts=await attachStorefrontFacets(products);
+  const facetedProducts=products;
   const isHold=candidate.searchStatus==='hold_noindex';
   if(isHold)notFound();
   const showSearchPreviewStatus=process.env.VERCEL_ENV!=='production'||process.env.FEYA_SHOW_SEARCH_PREVIEW_STATUS==='true';

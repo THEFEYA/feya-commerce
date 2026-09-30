@@ -1,13 +1,11 @@
+export const instant = false;
+
 import Link from 'next/link';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { OwnerExperimentDrawerClient } from '@/components/admin/OwnerExperimentDrawerClient';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { ChangeEventRow, ExperimentRegistryRow } from '@/lib/types';
 import { statusLabel } from '@/lib/owner-ui/terminology';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 async function getData(): Promise<{
   experiments: ExperimentRegistryRow[];
   changes: ChangeEventRow[];

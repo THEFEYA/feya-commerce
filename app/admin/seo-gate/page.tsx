@@ -1,11 +1,9 @@
 // @ts-nocheck
+export const instant = false;
+
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, FileText, ShieldAlert } from 'lucide-react';
 import { getSupabaseServiceClient } from '@/lib/supabase';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 type ChangeSetRow = { status: string };
 type AppliedRow = { product_slug: string; target_field: string };
 type PreviewRow = {

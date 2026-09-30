@@ -1,4 +1,6 @@
 // @ts-nocheck
+export const instant = false;
+
 import Link from 'next/link';
 import { AdminSeoChangeSetCreateClient } from '@/components/AdminSeoChangeSetCreateClient';
 import { getMissingSupabaseEnvMessage, getSupabaseServiceClient } from '@/lib/supabase';
@@ -6,10 +8,6 @@ import { STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 import { buildSeoApplyPreviews, summarizeSeoApplyPreviews } from '@/lib/seo-apply-preview';
 import type { AdminReviewEvent } from '@/lib/admin-readiness';
 import type { StorefrontProduct } from '@/lib/types';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const SEO_APPLY_PRODUCTS_LIMIT = 500;
 const SEO_APPLY_VISIBLE_LIMIT = 50;
 const PRODUCT_SELECT = [

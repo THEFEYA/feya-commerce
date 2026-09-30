@@ -1,4 +1,6 @@
 // @ts-nocheck
+export const instant = false;
+
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, FileText, ImageIcon, MessageSquareText, ShieldAlert } from 'lucide-react';
@@ -7,10 +9,6 @@ import { getProductEvents, getProductFlags, getProductReadiness, type AdminRevie
 import { getSupabaseServiceClient } from '@/lib/supabase';
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4, productSlug, productTitle, worldLabel } from '@/lib/storefront';
 import type { StorefrontProduct } from '@/lib/types';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const CONTENT_PRODUCTS_LIMIT = 500;
 
 async function loadProducts() {

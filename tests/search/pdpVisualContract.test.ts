@@ -7,6 +7,15 @@ import ts from 'typescript';
 // The visible PDP markup remains hash-frozen. Functional collection href/data
 // routing is normalized out so the visual contract tests only visual structure.
 export function pdpJsxHash(source: string) {
+  // Route-level Suspense is delivery plumbing, not part of the frozen resolved PDP.
+  // Normalize it back to the prior async page shape before hashing visible markup.
+  const wrapperStart = source.indexOf('export default function ProductPage(props: PageProps)');
+  const resolvedMarker = 'async function ResolvedProductPage({ params }: PageProps) {';
+  const resolvedStart = source.indexOf(resolvedMarker);
+  if (wrapperStart >= 0 && resolvedStart > wrapperStart) {
+    source = source.slice(0, wrapperStart)
+      + source.slice(resolvedStart).replace(resolvedMarker, 'export default async function ProductPage({ params }: PageProps) {');
+  }
   source = source
     .replace('href={collection.href}', 'href={\`/shop?collection=\${collection.slug}\`}');
 
@@ -92,4 +101,14 @@ test('hybrid PDP projects option labels from the same approved SEO decision snap
   assert.ok(server.includes('manual_focus_snapshot,product_truth_snapshot'));
   assert.ok(server.includes('sellable_offer_signature'));
   assert.ok(server.includes('optional_configurations'));
+});
+
+
+test('PDP metadata/schema helpers stay defined during Phase 6 data-path swaps', () => {
+  const source = readFileSync('app/shop/[slug]/page.tsx','utf8');
+  assert.match(source,/function canonicalProductUrl\(/);
+  assert.match(source,/function productDescription\(/);
+  assert.match(source,/function productImages\(/);
+  assert.match(source,/function productJsonLd\(/);
+  assert.match(source,/const jsonLd = productJsonLd\(product, slug, approvedCopy\)/);
 });
