@@ -2,10 +2,6 @@ import Link from 'next/link';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { BusinessTruthStatusRow } from '@/lib/types';
 import { statusLabel } from '@/lib/owner-ui/terminology';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 async function getTruth(): Promise<{ rows: BusinessTruthStatusRow[]; error?: string }> {
   const supabase = getAdminReadClient();
   if (!supabase) return { rows: [], error: getMissingAdminDataEnvMessage() };
