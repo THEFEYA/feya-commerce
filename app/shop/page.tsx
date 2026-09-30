@@ -3,6 +3,7 @@ export const instant = false;
 
 import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
+import { connection } from 'next/server';
 import { readClosedReviewPresentation } from '@/lib/searchReviewPresentationServer';
 import { closedReviewRequested } from '@/lib/searchReviewPresentation';
 import { filterShopProducts, parseShopNavigation, shopPageHref, SHOP_PAGE_SIZE } from '@/lib/shopCatalogNavigation';
@@ -40,6 +41,7 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
 }
 
 export default async function ShopPage({ searchParams }: ShopPageProps) {
+  await connection();
   const { products, error, review } = await getProducts();
   const params = await searchParams;
   const navigation = review ? parseShopNavigation(params) : undefined;
