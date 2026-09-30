@@ -2,8 +2,6 @@
 import { NextResponse } from 'next/server';
 import { buildPilotKeywordBankFallbackBundle } from '@/lib/seoPilotKeywordBankFallback';
 
-export const dynamic = 'force-dynamic';
-
 const PILOT_PRODUCT_ID = 'b6e0171f-4d42-4d71-88b1-ee0d4e0e109e';
 
 export async function GET() {
