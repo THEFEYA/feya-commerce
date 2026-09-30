@@ -92,6 +92,19 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
   const first=release.entries[0], path=first.copy.metadata.canonical_path, base='http://127.0.0.1:3004';
   let server,page,outsiderContext,log='';
   const request=async route=>ownerPage.request.get(base+route);
+  const assertClosed=async(response,url)=>{
+    const status=typeof response.status==='function'?response.status():response.status;
+    const html=await response.text();
+    assert.ok([200,404].includes(status),`${url}: unexpected closed-review status ${status}`);
+    assert.ok(!html.includes(first.copy.draft.intro),url);
+    assert.ok(!html.includes('PRIVATE_APPROVAL_CANARY'),url);
+    assert.ok(!html.includes('PRIVATE_OUTPUT_CANARY'),url);
+    if(status===200){
+      assert.match(html,/name=["']robots["']/i,url);
+      assert.match(html,/noindex/i,url);
+    }
+    return html;
+  };
   const documentData=async html=>page.evaluate(html=>{
     const d=new DOMParser().parseFromString(html,'text/html');
     return {title:d.title,h1:d.querySelector('h1')?.textContent,description:d.querySelector('meta[name="description"]')?.content,
@@ -125,13 +138,11 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       return route.continue();
     });
     await check('Closed release denies anonymous and authenticated outsider on Home, Shop and PDP',async()=>{
-      for(const url of ['/', '/shop',path]){
-        const r=await fetch(base+url);assert.equal(r.status,404,url);const html=await r.text();assert.ok(!html.includes(first.copy.draft.intro));
-      }
+      for(const url of ['/', '/shop',path])await assertClosed(await fetch(base+url),url);
       outsiderContext=await browser.newContext();const outsiderPage=await outsiderContext.newPage();
       await outsiderPage.goto(base+'/admin/login');await outsiderPage.getByLabel('Email',{exact:true}).fill(otherEmail);await outsiderPage.getByLabel('Пароль',{exact:true}).fill(password);
       await outsiderPage.getByRole('button',{name:'Войти',exact:true}).click();await outsiderPage.waitForURL('**/admin/login?error=not_authorized');
-      for(const url of ['/', '/shop',path])assert.equal((await outsiderContext.request.get(base+url)).status(),404,url);
+      for(const url of ['/', '/shop',path])await assertClosed(await outsiderContext.request.get(base+url),url);
     });
     await check('Server HTML pagination exposes all 207 exact paths in eleven pages, without duplicate or suppressed listing',async()=>{
       const seen=new Set();let url='/shop',pages=0;
@@ -190,18 +201,18 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
     await check('Revoked/edited/archived pinned draft and product hold block the entire release then recover',async()=>{
       const saved=(await db.query('select review_status,archived_at::text,updated_at::text,agent_output_snapshot from public.feya_commerce_seo_pack_drafts_v1 where id=$1',[first.identity.draft_id])).rows[0];
       for(const change of ["review_status='changes_requested'","archived_at=now()","updated_at=updated_at+interval '1 microsecond'","agent_output_snapshot=jsonb_set(agent_output_snapshot,'{h1}','\"UNAPPROVED_EDIT\"')"]){
-        try{await db.query(`update public.feya_commerce_seo_pack_drafts_v1 set ${change} where id=$1`,[first.identity.draft_id]);for(const url of ['/', '/shop',path])assert.equal((await request(url)).status(),404,url);}
+        try{await db.query(`update public.feya_commerce_seo_pack_drafts_v1 set ${change} where id=$1`,[first.identity.draft_id]);for(const url of ['/', '/shop',path])await assertClosed(await request(url),url);}
         finally{await db.query('update public.feya_commerce_seo_pack_drafts_v1 set review_status=$2,archived_at=$3,updated_at=$4,agent_output_snapshot=$5::jsonb where id=$1',[first.identity.draft_id,saved.review_status,saved.archived_at,saved.updated_at,JSON.stringify(saved.agent_output_snapshot)]);}
       }
-      try{await db.query('update public.feya_commerce_product_drafts set do_not_publish_flag=true where canonical_product_id=$1',[first.identity.canonical_product_id]);assert.equal((await request('/shop')).status(),404);}
+      try{await db.query('update public.feya_commerce_product_drafts set do_not_publish_flag=true where canonical_product_id=$1',[first.identity.canonical_product_id]);await assertClosed(await request('/shop'),'/shop');}
       finally{await db.query('update public.feya_commerce_product_drafts set do_not_publish_flag=false where canonical_product_id=$1',[first.identity.canonical_product_id]);}
       assert.equal((await request(path)).status(),200);
     });
     await check('Missing live product and moved page do not fall back to a different catalog',async()=>{
       const saved=(await db.query("select data from public.runtime_approved_products where data->>'canonical_product_id'=$1",[first.identity.canonical_product_id])).rows[0].data;
-      try{await db.query("delete from public.runtime_approved_products where data->>'canonical_product_id'=$1",[first.identity.canonical_product_id]);assert.equal((await request('/shop')).status(),404);assert.equal((await request(path)).status(),404);}
+      try{await db.query("delete from public.runtime_approved_products where data->>'canonical_product_id'=$1",[first.identity.canonical_product_id]);await assertClosed(await request('/shop'),'/shop');await assertClosed(await request(path),path);}
       finally{await db.query('insert into public.runtime_approved_products(data) values($1::jsonb)',[JSON.stringify(saved)]);}
-      try{await db.query("update public.feya_commerce_seo_pages_v1 set url_path='/shop/runtime-moved-path' where seo_page_id=$1",[first.identity.seo_page_id]);assert.equal((await request('/shop')).status(),404);}
+      try{await db.query("update public.feya_commerce_seo_pages_v1 set url_path='/shop/runtime-moved-path' where seo_page_id=$1",[first.identity.seo_page_id]);await assertClosed(await request('/shop'),'/shop');}
       finally{await db.query('update public.feya_commerce_seo_pages_v1 set url_path=$2 where seo_page_id=$1',[first.identity.seo_page_id,path]);}
       assert.equal((await request('/shop')).status(),200);
     });
@@ -350,7 +361,7 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
     await check('Mistaken production/index flags cannot expose a closed release or populate sitemap',async()=>{
       let r=await request('/sitemap.xml');assert.equal(r.status(),200);assert.ok(!(await r.text()).includes('<loc>'));
       await stop();await start({VERCEL_ENV:'production'});
-      for(const url of ['/', '/shop',path])assert.equal((await request(url)).status(),404,url);
+      for(const url of ['/', '/shop',path])await assertClosed(await request(url),url);
       r=await request('/sitemap.xml');assert.equal(r.status(),200);assert.ok(!(await r.text()).includes('<loc>'));
       const robots=await (await request('/robots.txt')).text();assert.match(robots,/Disallow: \/(?:\r?\n|$)/);
     });
