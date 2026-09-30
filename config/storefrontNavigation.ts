@@ -164,6 +164,7 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         items: [
           owner('rave','Rave','/collections/rave-outfits'),
           owner('burning_man','Burning Man','/collections/burning-man-looks'),
+          owner('festival_skirts','Festival Skirts','/collections/festival-skirts'),
         ],
       },
       {
