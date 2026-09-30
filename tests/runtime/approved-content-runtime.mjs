@@ -88,8 +88,21 @@ export async function verifyApprovedContentRuntime({ db, browser, ownerPage, env
     for (let i=0;i<60;i++) { try { if ((await fetch(base+'/admin/login')).status === 200) { ready=true; break; } } catch {} await new Promise(r=>setTimeout(r,250)); }
     assert.ok(ready, 'Review server did not start');
     await check('Anonymous visitor cannot read approved PDP review or receive private draft details', async () => {
-      const response = await fetch(base+path); assert.equal(response.status, 404);
-      const html = await response.text(); assert.ok(!html.includes(first.intro)); assert.ok(!html.includes('PRIVATE_APPROVAL_CANARY'));
+      const response = await fetch(base+path);
+      const html = await response.text();
+
+      // Under Cache Components the protected PDP is request-time and can stream before
+      // notFound() terminates the route segment. Next.js documents streamed not-found
+      // responses as HTTP 200 with an injected noindex marker; a non-streamed response
+      // remains HTTP 404. Security is the content boundary, not forcing a legacy status.
+      assert.ok([200, 404].includes(response.status), `Unexpected anonymous review status: ${response.status}`);
+      assert.ok(!html.includes(first.intro));
+      assert.ok(!html.includes('PRIVATE_APPROVAL_CANARY'));
+      assert.ok(!html.includes('PRIVATE_OUTPUT_CANARY'));
+      if (response.status === 200) {
+        assert.match(html, /name=["']robots["']/i);
+        assert.match(html, /noindex/i);
+      }
     });
     page = await ownerPage.context().newPage();
     const errors = []; page.on('pageerror', e => errors.push(e.message));
