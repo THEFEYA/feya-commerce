@@ -38,6 +38,11 @@ test('shop normalization omits defaults, canonicalizes values and preserves trac
   const normalized=parseShopNavigation({color:'Gold'});
   assert.ok(normalized);
   assert.equal(shopNavigationNeedsNormalization({color:'Gold'},normalized),false);
+
+  const empty=parseShopNavigation({search:''});
+  assert.ok(empty);
+  assert.equal(shopNavigationNeedsNormalization({search:''},empty),true);
+  assert.equal(shopPageHref(empty.page,empty.filters),'/shop');
 });
 
 test('only real filters or explicit pagination create Shop utility URL state',()=>{
@@ -56,6 +61,7 @@ test('public Shop client seeds direct URLs server-side then keeps filter interac
   assert.match(client,/initialNavigation\?: ShopNavigation/);
   assert.match(client,/useDeferredValue\(filters\)/);
   assert.match(client,/window\.history\.replaceState/);
+  assert.doesNotMatch(client,/window\.history\.pushState/);
   assert.match(client,/shopPageHref\(1,filters\)/);
   assert.match(client,/isShopTrackingParam/);
   assert.doesNotMatch(client,/fetch\(|XMLHttpRequest|axios/i);
