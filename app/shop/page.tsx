@@ -10,6 +10,7 @@ import {
   filterShopProducts,
   parseShopNavigation,
   shopHrefWithTracking,
+  shopNavigationHasFilterState,
   shopNavigationHasUtilityState,
   shopNavigationNeedsNormalization,
   shopPageHref,
@@ -44,13 +45,13 @@ type ShopPageProps = { searchParams: Promise<Record<string, string | string[] | 
 
 export async function generateMetadata({ searchParams }: ShopPageProps): Promise<Metadata> {
   const query = parseShopNavigation(await searchParams);
-  const utilityState=Boolean(query&&shopNavigationHasUtilityState(query));
+  const filterState=Boolean(query&&shopNavigationHasFilterState(query));
   return {
     title: 'Shop',
     alternates: { canonical: query ? shopPageHref(query.page, query.filters) : '/shop' },
     ...(closedReviewRequested(process.env)
       ? { robots: { index: false, follow: false } }
-      : utilityState
+      : filterState
         ? { robots: { index: false, follow: true } }
         : {}),
   };
