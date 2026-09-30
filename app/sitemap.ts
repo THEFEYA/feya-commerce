@@ -3,8 +3,6 @@ import {closedReviewRequested} from '@/lib/searchReviewPresentation';
 import {getSiteUrl, isSearchIndexingEnabled} from '@/lib/siteConfig';
 import {readActiveSearchReleaseIndexItems} from '@/lib/searchReleaseIndexationServer';
 
-export const dynamic='force-dynamic';
-
 export default async function sitemap():Promise<MetadataRoute.Sitemap>{
   if(closedReviewRequested(process.env)||!isSearchIndexingEnabled())return[];
 
