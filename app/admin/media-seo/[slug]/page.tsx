@@ -5,10 +5,6 @@ import { ArrowUpRight, CheckCircle2, FileImage, ImageIcon, RefreshCw, Scaling, T
 import { STOREFRONT_V4_CARD_SELECT, STOREFRONT_VIEW_V4 } from '@/lib/storefront';
 import { buildMediaSeoPlans, type MediaSeoStage } from '@/lib/media-seo';
 import type { StorefrontProduct } from '@/lib/types';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const MEDIA_SEO_DETAIL_PRODUCTS_LIMIT = 500;
 
 type PageProps = { params: Promise<{ slug: string }> };
