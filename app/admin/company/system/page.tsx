@@ -1,5 +1,6 @@
 export const instant = false;
 
+import { connection } from 'next/server';
 import Link from 'next/link';
 import { Database, LockKeyhole, PlayCircle, ShieldCheck, Siren, UserCheck } from 'lucide-react';
 import { OwnerDataError } from '@/components/admin/OwnerDataError';
@@ -186,6 +187,7 @@ function sourceTimestamp(value: unknown) {
 }
 
 export default async function AdminSystemPage() {
+  await connection();
   const { readiness, sources, actions, executionRequests, activeIncidents, mutationFreezes, ownerActionAudit, adminBoundary, aiUsage, error } = await getSystemData();
   const ownerAuth = getAdminAuthConfigStatus();
   const ownerActions = getOwnerActionConfigStatus();
