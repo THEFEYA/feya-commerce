@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireOwnerActionActor } from '@/lib/ownerActionAuth';
 
-export const runtime = 'nodejs';
 type ProposalKind = 'QUERY_CLUSTER' | 'PAGE_OWNERSHIP' | 'INDEXABILITY';
 
 type Input = {
