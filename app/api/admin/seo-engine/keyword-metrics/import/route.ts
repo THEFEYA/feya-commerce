@@ -6,7 +6,6 @@ import { getSupabaseServiceClient } from '@/lib/supabase';
 import { getSupabaseAuthServerClient } from '@/lib/supabaseAuth';
 import { adminAccessDecision } from '@/lib/adminAccess';
 
-export const runtime = 'nodejs';
 /** Existing admin endpoint. Previous target tables were absent; do not create a parallel metric core. */
 export async function POST(request: NextRequest) {
   try {
