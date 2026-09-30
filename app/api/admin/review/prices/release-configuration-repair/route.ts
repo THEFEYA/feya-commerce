@@ -4,8 +4,6 @@ import structureAudit from '@/docs/search/configuration-binding-audit-20260925.j
 import {requireOwnerActionActor} from '@/lib/ownerActionAuth';
 
 export const runtime='nodejs';
-export const dynamic='force-dynamic';
-
 const RELEASE_REF=String((structureAudit as any).release_ref||'');
 const PRODUCT_IDS=((release as any).entries||[])
   .map((entry:any)=>String(entry?.identity?.canonical_product_id||'')).filter(Boolean).sort();
