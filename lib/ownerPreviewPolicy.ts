@@ -7,6 +7,7 @@ const OWNER_PREVIEW_BRANCHES = new Set([
   'design/hybrid-visual-integration-20260928',
   'work/storefront-performance-foundation-20260930',
   'work/storefront-next16-upgrade-20260930',
+  'work/storefront-card-runtime-swap-20260930',
 ]);
 
 export function isOwnerPreviewDeployment(env: Record<string, string | undefined>) {
@@ -45,5 +46,6 @@ export function isHybridVisualPreviewDeployment(env: Record<string, string | und
       'design/hybrid-visual-integration-20260928',
       'work/storefront-performance-foundation-20260930',
       'work/storefront-next16-upgrade-20260930',
+      'work/storefront-card-runtime-swap-20260930',
     ].includes(env.VERCEL_GIT_COMMIT_REF || '');
 }
