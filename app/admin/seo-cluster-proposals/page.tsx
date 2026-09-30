@@ -6,10 +6,6 @@ import { OwnerProposalApplyClient } from '@/components/admin/OwnerProposalApplyC
 import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { QueryClusterProposalCandidateRow, QueryClusterProposalRow } from '@/lib/types';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 async function getData(): Promise<{
   candidates: QueryClusterProposalCandidateRow[];
   proposals: QueryClusterProposalRow[];
