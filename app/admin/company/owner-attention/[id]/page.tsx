@@ -5,10 +5,6 @@ import { ownerDecisionPlan } from '@/lib/owner-ui/decisions';
 import { formatDueTime, presentOwnerAttention } from '@/lib/owner-ui/presenters';
 import { OwnerAttentionDecisionClient } from '@/components/admin/OwnerAttentionDecisionClient';
 import { getOwnerActionConfigStatus } from '@/lib/ownerActionAuth';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 type Row = Record<string, unknown>;
 
 async function getAttention(id: string): Promise<{ row?: Row; events: Row[]; error?: string }> {
