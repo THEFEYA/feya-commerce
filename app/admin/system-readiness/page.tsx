@@ -3,10 +3,6 @@ import { OwnerDataError } from '@/components/admin/OwnerDataError';
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { GrowthCapabilityStatusRow } from '@/lib/types';
 import { capabilityLabel, capabilityOwnerSummary, implementationStateLabel, roleLabel, statusLabel } from '@/lib/owner-ui/terminology';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 async function getCapabilities(): Promise<{ rows: GrowthCapabilityStatusRow[]; error?: string }> {
   const supabase = getAdminReadClient();
 
