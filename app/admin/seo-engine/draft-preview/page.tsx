@@ -7,10 +7,6 @@ import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
 import { buildSeoAgentPromptContract, summarizeSeoAgentPromptContract } from '@/lib/seoAgentDraftPrompt';
 import SeoDraftSavePreflightClient from './SeoDraftSavePreflightClient';
 import SeoAiDraftGenerateClient from './SeoAiDraftGenerateClient';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 function param(value) {
   if (typeof value === 'string') return value;
   if (Array.isArray(value) && typeof value[0] === 'string') return value[0];
