@@ -6,9 +6,6 @@ import { buildSeoAgentPromptContract, summarizeSeoAgentPromptContract } from '@/
 import { buildMockSeoAgentOutput } from '@/lib/seoAgentMockDraft';
 import { validateSeoAgentOutput } from '@/lib/seoAgentOutputValidator';
 import { generateSeoDraftWithOpenAi } from '@/lib/seoOpenAiDraftGenerator';
-
-export const dynamic = 'force-dynamic';
-
 const GENERATED_SECTIONS = [
   'seo_title',
   'h1',
