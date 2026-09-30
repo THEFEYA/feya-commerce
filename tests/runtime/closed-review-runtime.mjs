@@ -202,7 +202,10 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
         assert.ok(!('offers' in d.schema));assert.equal(d.disabled,true);
         const normalized=e.copy.draft.pdp_blocks.map(b=>b.body.split('\n').map(l=>l.replace(/^\s*(?:[-*•●▪◦]+|\d+[.)])\s*/,'').trim()).filter(Boolean).join(' ').replace(/\s+/g,' ').trim());
         assert.ok(normalized.every(b=>d.blocks.includes(b)),e.identity.canonical_product_id);assert.ok(!/PRIVATE_(APPROVAL|OUTPUT)_CANARY/.test(html));
-        assert.ok(!html.includes('href="/collections/'));
+        // Phase 8 intentionally renders crawlable global collection links in Header.
+        // This release fixture has no product-membership links, so scope the proof to
+        // the PDP-specific related-collections module instead of the whole document.
+        assert.ok(!html.includes('Explore related collections'));
       }
       report.closed_review_rendered_products=207;
     });
