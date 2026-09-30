@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
 
-export const dynamic = 'force-dynamic';
-
 type OpenAiHealthStatus = 'ready' | 'missing_key' | 'blocked_client_leak_risk';
 
 export async function GET() {
