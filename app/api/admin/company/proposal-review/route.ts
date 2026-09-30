@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireOwnerActionActor } from '@/lib/ownerActionAuth';
 
 export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
-
 type ProposalKind = 'QUERY_CLUSTER' | 'PAGE_OWNERSHIP' | 'INDEXABILITY';
 
 type Input = {
