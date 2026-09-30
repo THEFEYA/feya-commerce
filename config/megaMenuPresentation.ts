@@ -424,4 +424,5 @@ export const EVENTS_PERFORMANCE_MEGA_PREVIEWS: Record<string, MegaPreview> = {
   'Pole Dancer': { ...SHOP_MEGA_PREVIEWS['Bodysuits'], label: 'Pole Dancer' },
 };
 
+  'Festival Skirts': { ...SHOP_MEGA_PREVIEWS['Skirts'], label: 'Festival Skirts' },
 export const DEFAULT_EVENTS_PERFORMANCE_MEGA_PREVIEW = 'Festival';
