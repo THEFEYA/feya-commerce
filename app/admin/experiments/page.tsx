@@ -4,10 +4,6 @@ import { OwnerExperimentDrawerClient } from '@/components/admin/OwnerExperimentD
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import type { ChangeEventRow, ExperimentRegistryRow } from '@/lib/types';
 import { statusLabel } from '@/lib/owner-ui/terminology';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 async function getData(): Promise<{
   experiments: ExperimentRegistryRow[];
   changes: ChangeEventRow[];
