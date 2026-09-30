@@ -1,4 +1,6 @@
 // @ts-nocheck
+export const instant = false;
+
 import { getAdminReadClient, getMissingAdminDataEnvMessage } from '@/lib/adminData';
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, DatabaseZap, FileText, Gauge, Layers3, Search, ShieldAlert, Sparkles } from 'lucide-react';
