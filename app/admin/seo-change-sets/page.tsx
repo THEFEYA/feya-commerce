@@ -3,10 +3,6 @@ import Link from 'next/link';
 import { ArrowUpRight, Database, FileText } from 'lucide-react';
 import { AdminSeoChangeSetStatusClient } from '@/components/AdminSeoChangeSetStatusClient';
 import { getSupabaseServiceClient } from '@/lib/supabase';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const SEO_CHANGE_SETS_LIMIT = 1000;
 
 type Row = {
