@@ -193,8 +193,12 @@ export function shopPageHref(page: number, filters: ShopFilters = defaultShopFil
   return `/shop${params.size ? '?' + params.toString() : ''}`;
 }
 
+export function shopNavigationHasFilterState(navigation: ShopNavigation) {
+  return shopPageHref(1, navigation.filters) !== '/shop';
+}
+
 export function shopNavigationHasUtilityState(navigation: ShopNavigation) {
-  return navigation.page > 1 || shopPageHref(1, navigation.filters) !== '/shop';
+  return navigation.page > 1 || shopNavigationHasFilterState(navigation);
 }
 
 export function shopNavigationNeedsNormalization(
