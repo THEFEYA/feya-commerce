@@ -7,8 +7,6 @@ import {
   SEO_PORTFOLIO_WARNING_THRESHOLD,
 } from '@/lib/seoPortfolioOverlap';
 
-export const dynamic = 'force-dynamic';
-
 const STORAGE_TABLE = 'feya_commerce_seo_pack_drafts_v1';
 const STORAGE_EVENTS_TABLE = 'feya_commerce_seo_pack_draft_events_v1';
 const STORAGE_FLAG = 'FEYA_SEO_DRAFT_STORAGE_ENABLED';
