@@ -1,10 +1,6 @@
 import Link from 'next/link';
 import { ArrowUpRight, ShieldAlert } from 'lucide-react';
 import { CsvMetricImportValidator } from '../CsvMetricImportValidator';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 function Panel({ title, children, icon: Icon }: { title: string; children: React.ReactNode; icon?: React.ComponentType<{ size?: number; className?: string }> }) {
   return <div className="rounded-2xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.025)] overflow-hidden">
     <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-[rgba(216,214,211,.10)]"><div className="eyebrow-gold">{title}</div>{Icon ? <Icon size={16} className="text-[var(--gold-warm)]" /> : null}</div>
