@@ -32,6 +32,17 @@ test('product change invalidates catalog, exact product and affected collections
   ]);
 });
 
+test('stock change invalidates the catalog, PDP and governed collection memberships',()=>{
+  const plan=buildStorefrontInvalidationPlan({
+    event_type:'product_stock_changed',
+    canonical_product_id:product,
+    product_slug:'gold-futuristic-armor',
+    collection_slugs:['festival-outfits'],
+  });
+  assert.deepEqual(plan.tags,['catalog','collection:festival-outfits',`product:${product}`]);
+  assert.deepEqual(plan.paths,['/collections/festival-outfits','/shop','/shop/gold-futuristic-armor']);
+});
+
 test('slug change invalidates both old and new PDP paths without using long slug tags',()=>{
   const plan=buildStorefrontInvalidationPlan({
     event_type:'product_slug_changed',
