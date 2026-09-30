@@ -22,7 +22,8 @@ export async function verifyApprovedContentRuntime({ db, browser, ownerPage, env
     const fields = `canonical_product_id product_slug matched_etsy_listing_id source_url card_title h1 seo_title meta_description product_type material color size_mode production_profile shipping_profile handmade_flag styled_imagery_flag primary_image_url primary_image_alt secondary_image_url hover_image_url video_url media_count has_video min_price max_price currency price_contract_version price_source_mode price_confidence_status has_unverified_discount has_russian_public_label needs_price_review needs_label_review full_set_display_price_amount component_sum_display_price_amount full_set_savings_amount full_set_savings_percent category_label world_label canonical_color_label color_options configurations media_gallery`.split(' ');
     const numbers = new Set('media_count min_price max_price full_set_display_price_amount component_sum_display_price_amount full_set_savings_amount full_set_savings_percent'.split(' '));
     const jsonFields = new Set(['configurations', 'color_options', 'media_gallery']);
-    const columns = fields.map(f => `${f} ${jsonFields.has(f) ? 'jsonb' : numbers.has(f) ? 'numeric' : /^(has_|needs_)|_flag$/.test(f) ? 'boolean' : 'text'}`).join(',');
+    const uuidFields = new Set(['canonical_product_id']);
+    const columns = fields.map(f => `${f} ${jsonFields.has(f) ? 'jsonb' : uuidFields.has(f) ? 'uuid' : numbers.has(f) ? 'numeric' : /^(has_|needs_)|_flag$/.test(f) ? 'boolean' : 'text'}`).join(',');
     await db.query(`create table public.runtime_approved_products(data jsonb not null);
       alter table public.runtime_approved_products enable row level security;
       create policy fixture_public_product_read on public.runtime_approved_products for select to anon,authenticated using(true);
