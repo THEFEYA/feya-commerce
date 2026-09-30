@@ -18,8 +18,6 @@ import {
 import { generateSeoDraftWithOpenAi } from '@/lib/seoOpenAiDraftGenerator';
 import { normalizeSeoEditorialCandidate } from '@/lib/seoEditorialCandidateSelection';
 import { getSeoPortfolioGenerationBlockers } from '@/lib/seoPrimaryKeywordOwnership';
-
-export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
 const GENERATED_SECTIONS = [
