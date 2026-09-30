@@ -106,6 +106,7 @@ test('combined Events & Performance panel keeps events and one unified Performan
   assert.equal(rave?.href,'/collections/rave-outfits');
   assert.equal(rave?.children,undefined);
   assert.equal(festival?.items.find((item) => item.code === 'burning_man')?.href,'/collections/burning-man-looks');
+  assert.equal(festival?.items.find((item) => item.code === 'festival_skirts')?.href,'/collections/festival-skirts');
 
   const other = panel.groups.find((group) => group.code === 'other_events');
   assert.deepEqual(other?.items.map((item)=>item.label),['Halloween','Pride','Cosplay']);
@@ -145,4 +146,28 @@ test('search-owner collection routes remain separate from shopper filter URLs', 
   assert.equal(punk?.href,'/shop?style=Punk');
   assert.equal(warrior?.role,'filter');
   assert.equal(warrior?.href,'/shop?persona=Warrior');
+});
+
+
+test('all ten approved owners are one click from the global navigation',()=>{
+  const hrefs=new Set(
+    Object.values(STOREFRONT_NAVIGATION_PANELS)
+      .flatMap((panel)=>panel.groups)
+      .flatMap((group)=>[
+        ...(group.href ? [group.href] : []),
+        ...group.items.filter((item)=>item.enabled&&item.href).map((item)=>item.href!),
+      ]),
+  );
+  for(const href of [
+    '/collections/shoulder-armor',
+    '/collections/bodysuits',
+    '/collections/costume-masks',
+    '/collections/costume-headpieces',
+    '/collections/costume-belts',
+    '/collections/festival-outfits',
+    '/collections/rave-outfits',
+    '/collections/burning-man-looks',
+    '/collections/stage-outfits',
+    '/collections/festival-skirts',
+  ]) assert.equal(hrefs.has(href),true,href);
 });
