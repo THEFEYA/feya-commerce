@@ -12,6 +12,10 @@ test('Phase 8 desktop parents are real links with adjacent disclosure buttons',(
   assert.match(header,/schedulePanelOpen\(panelCode\)/);
   assert.match(header,/openPanel !== panelCode \? 80 : 320/);
   assert.match(header,/setTimeout\(\(\) => setOpenPanel\(null\), 300\)/);
+  assert.match(header,/primary-nav-link/);
+  assert.match(header,/panelFocusables\(panelCode\)/);
+  assert.match(header,/handlePanelTab\(event,panelCode\)/);
+  assert.match(header,/disclosureRefs\.current\[panelCode\]\?\.focus\(\)/);
 });
 
 test('mega-menu and mobile drawer links stay in rendered markup while disclosures hide visually',()=>{
