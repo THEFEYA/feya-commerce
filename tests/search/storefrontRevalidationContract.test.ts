@@ -30,7 +30,7 @@ test('owner Server Action uses updateTag only after authenticated owner gate',()
   assert.ok(!source.includes("revalidateTag(tag,'max')"));
 });
 
-test('invalidation ledger is service-only and caching remains disabled in this phase',()=>{
+test('invalidation ledger is service-only and public Shop caching is not activated yet',()=>{
   const migration=readFileSync('supabase/migrations/20260930234500_storefront_cache_invalidation_ledger_v1.sql','utf8');
   const cardLoader=readFileSync('lib/storefrontCardReadModelServer.ts','utf8');
   const shop=readFileSync('app/shop/page.tsx','utf8');
@@ -39,6 +39,7 @@ test('invalidation ledger is service-only and caching remains disabled in this p
   assert.ok(cardLoader.includes('Intentionally NOT cached yet'));
   assert.ok(!cardLoader.includes("'use cache'"));
   assert.ok(!cardLoader.includes('unstable_cache'));
-  assert.ok(shop.includes("export const dynamic = 'force-dynamic'"));
-  assert.ok(shop.includes('export const revalidate = 0'));
+  assert.ok(!/export\\s+const\\s+(?:dynamic|revalidate|fetchCache|runtime)\\s*=/.test(shop));
+  const layout=readFileSync('app/layout.tsx','utf8');
+  assert.ok(layout.includes('export const instant = false'));
 });
