@@ -102,3 +102,13 @@ test('hybrid PDP projects option labels from the same approved SEO decision snap
   assert.ok(server.includes('sellable_offer_signature'));
   assert.ok(server.includes('optional_configurations'));
 });
+
+
+test('PDP metadata/schema helpers stay defined during Phase 6 data-path swaps', () => {
+  const source = readFileSync('app/shop/[slug]/page.tsx','utf8');
+  assert.match(source,/function canonicalProductUrl\(/);
+  assert.match(source,/function productDescription\(/);
+  assert.match(source,/function productImages\(/);
+  assert.match(source,/function productJsonLd\(/);
+  assert.match(source,/const jsonLd = productJsonLd\(product, slug, approvedCopy\)/);
+});
