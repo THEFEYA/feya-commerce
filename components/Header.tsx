@@ -207,6 +207,35 @@ export function Header() {
     closeTimerRef.current = setTimeout(() => setOpenPanel(null), 300);
   };
 
+  const panelFocusables = (panelCode: string) => {
+    const panel=document.getElementById(`nav-panel-${panelCode}`);
+    if(!panel)return [];
+    return [...panel.querySelectorAll<HTMLElement>('a[href],button:not([disabled])')]
+      .filter((element)=>element.offsetParent!==null);
+  };
+
+  const focusNextTopLevelLink = (panelCode: string) => {
+    const currentIndex=primaryNavigation.findIndex((item)=>'panel' in item && String(item.panel||'')===panelCode);
+    const next=primaryNavigation[currentIndex+1];
+    if(next)document.getElementById(`primary-nav-link-${next.code}`)?.focus();
+  };
+
+  const handlePanelTab = (event: React.KeyboardEvent<HTMLDivElement>, panelCode: string) => {
+    if(event.key!=='Tab')return;
+    const items=panelFocusables(panelCode);
+    if(!items.length)return;
+    const first=items[0];
+    const last=items[items.length-1];
+    if(event.shiftKey&&document.activeElement===first){
+      event.preventDefault();
+      disclosureRefs.current[panelCode]?.focus();
+    }else if(!event.shiftKey&&document.activeElement===last){
+      event.preventDefault();
+      setOpenPanel(null);
+      focusNextTopLevelLink(panelCode);
+    }
+  };
+
   return (
     <header
       data-testid="site-header"
@@ -241,6 +270,7 @@ export function Header() {
               return (
                 <li key={item.code} className="flex items-center">
                   <Link
+                    id={`primary-nav-link-${item.code}`}
                     href={item.href}
                     aria-current={active ? 'page' : undefined}
                     onMouseEnter={() => {
@@ -271,6 +301,15 @@ export function Header() {
                       onMouseEnter={() => schedulePanelOpen(panelCode)}
                       onMouseLeave={schedulePanelClose}
                       onClick={() => expanded ? setOpenPanel(null) : openNavigationPanel(panelCode)}
+                      onKeyDown={(event) => {
+                        if(event.key==='Tab'&&!event.shiftKey&&expanded){
+                          const first=panelFocusables(panelCode)[0];
+                          if(first){
+                            event.preventDefault();
+                            first.focus();
+                          }
+                        }
+                      }}
                       className="relative -ml-3 -mr-3 flex h-11 w-11 items-center justify-center rounded-full text-[#C8C2B5] transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#d8b56d]/55"
                     >
                       <ChevronDown size={12} className={`transition-transform ${expanded ? 'rotate-180' : ''}`}/>
@@ -375,6 +414,7 @@ export function Header() {
               if (!expanded) openNavigationPanel(panelCode);
             }}
             onMouseLeave={schedulePanelClose}
+            onKeyDown={(event) => handlePanelTab(event,panelCode)}
             className={`${expanded ? 'hidden lg:block' : 'hidden'} absolute left-0 right-0 top-full max-h-[calc(100vh-7rem)] overflow-y-auto border-y border-[rgba(216,214,211,0.14)] bg-[linear-gradient(180deg,rgba(13,13,18,0.995),rgba(7,7,10,0.995))] backdrop-blur-2xl shadow-[0_35px_90px_rgba(0,0,0,0.82)]`}
           >
             <div className="container-feya py-7">

@@ -5,8 +5,9 @@ import type {DiscoveryHubTile} from '@/config/discoveryHubs';
 import type {StorefrontProduct} from '@/lib/types';
 
 export function DiscoveryTileRow({tiles}:{tiles:DiscoveryHubTile[]}){
+  const desktopColumns=tiles.length>5?'lg:grid-cols-8':'lg:grid-cols-5';
   return <div className="-mx-4 overflow-x-auto px-4 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-    <div className="flex min-w-max gap-3 lg:grid lg:min-w-0 lg:grid-cols-5">
+    <div className={`flex min-w-max gap-3 lg:grid lg:min-w-0 ${desktopColumns}`}>
       {tiles.map((tile)=>(
         <Link
           key={tile.code}
@@ -27,6 +28,12 @@ export function DiscoveryTileRow({tiles}:{tiles:DiscoveryHubTile[]}){
   </div>;
 }
 
-export function DiscoveryHubProducts({products}:{products:StorefrontProduct[]}){
-  return <ShopClient products={products} embedded/>;
+export function DiscoveryHubProducts({
+  products,
+  defaultOpenFilterSections = [],
+}:{
+  products:StorefrontProduct[];
+  defaultOpenFilterSections?:string[];
+}){
+  return <ShopClient products={products} embedded defaultOpenFilterSections={defaultOpenFilterSections}/>;
 }

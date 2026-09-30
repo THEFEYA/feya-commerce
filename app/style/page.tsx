@@ -3,12 +3,12 @@ export const instant = true;
 
 import type {Metadata} from 'next';
 import {Suspense} from 'react';
+import {notFound} from 'next/navigation';
 import {connection} from 'next/server';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 import {DiscoveryHubProducts,DiscoveryTileRow} from '@/components/DiscoveryHubPage';
-import {STYLE_HUB_TILES} from '@/config/discoveryHubs';
-import {readStyleHubProducts} from '@/lib/discoveryHubServer';
+import {readStyleHubProducts,readStyleTileAvailability} from '@/lib/discoveryHubServer';
 import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
 
 export async function generateMetadata():Promise<Metadata>{
@@ -20,10 +20,20 @@ export async function generateMetadata():Promise<Metadata>{
   };
 }
 
-async function StyleProducts(){
+async function StyleHubBody(){
   await connection();
-  const products=await readStyleHubProducts();
-  return <DiscoveryHubProducts products={products}/>;
+  const [products,availability]=await Promise.all([
+    readStyleHubProducts(),
+    readStyleTileAvailability(),
+  ]);
+  if(!products||!availability)notFound();
+  const tiles=availability.map((entry)=>entry.tile);
+  return <>
+    <div className="mt-8 lg:mt-10"><DiscoveryTileRow tiles={tiles}/></div>
+    <section className="border-t border-white/[0.08] pb-14 pt-2 lg:pb-20">
+      <DiscoveryHubProducts products={products} defaultOpenFilterSections={['Style']}/>
+    </section>
+  </>;
 }
 
 export default function StyleHubPage(){
@@ -35,10 +45,7 @@ export default function StyleHubPage(){
         <h1 className="visual-display text-[clamp(46px,6vw,82px)] font-medium leading-[.94] tracking-[-.045em] text-[#f7f3ec]">Start from the mood.</h1>
         <p className="mt-5 max-w-2xl text-[15px] leading-7 text-[#aaa2a0]">Choose a visual direction, then refine the pieces without turning every style into a separate search page.</p>
       </div>
-      <div className="mt-8 lg:mt-10"><DiscoveryTileRow tiles={STYLE_HUB_TILES}/></div>
-    </section>
-    <section className="container-feya border-t border-white/[0.08] pb-14 pt-2 lg:pb-20">
-      <Suspense fallback={<div className="min-h-[520px]" aria-busy="true"/>}><StyleProducts/></Suspense>
+      <Suspense fallback={<div className="min-h-[620px]" aria-busy="true"/>}><StyleHubBody/></Suspense>
     </section>
     <Footer/>
   </main>;
