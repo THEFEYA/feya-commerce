@@ -120,7 +120,7 @@ jobs:
 
   phase12-production-origin:
     name: Phase 12 production origin crawl
-    if: (github.event_name == 'pull_request' && github.head_ref == 'work/search-release-phase12-readiness-20261001') || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    if: (github.event_name == 'pull_request' && startsWith(github.head_ref, 'work/phase12-')) || (github.event_name == 'pull_request' && github.head_ref == 'work/search-release-phase12-readiness-20261001') || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
