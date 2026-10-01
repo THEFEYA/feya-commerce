@@ -298,8 +298,6 @@ export function Header() {
                       aria-label={`${item.label} submenu`}
                       aria-expanded={expanded}
                       aria-controls={`nav-panel-${panelCode}`}
-                      onMouseEnter={() => schedulePanelOpen(panelCode)}
-                      onMouseLeave={schedulePanelClose}
                       onClick={() => expanded ? setOpenPanel(null) : openNavigationPanel(panelCode)}
                       onKeyDown={(event) => {
                         if(event.key==='Tab'&&!event.shiftKey&&expanded){
