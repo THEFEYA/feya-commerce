@@ -25,7 +25,7 @@ export async function generateMetadata({params}:PageProps):Promise<Metadata>{
   const path=`/collections/${candidate.slug}`;
   const [metadata,robots]=await Promise.all([
     readCachedSearchLandingMetadata(slug),
-    releaseRobotsForPath(path),
+    releaseRobotsForPath(`/collections/${candidate.slug}`),
   ]);
   const content=metadata?.content;
 
