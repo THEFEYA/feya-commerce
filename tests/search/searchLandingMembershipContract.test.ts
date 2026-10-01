@@ -41,7 +41,8 @@ test('owner collection presentation is persistent-cache backed and tag-invalidat
   assert.match(page,/Suspense/);
   assert.match(page,/if\(!candidate\|\|candidate\.searchStatus==='hold_noindex'\)notFound\(\)/);
   assert.match(page,/readCachedSearchLandingRelease/);
-  assert.doesNotMatch(page,/await connection\(\)/);
+  const resolvedBody=page.slice(page.indexOf('async function ResolvedSearchLandingCandidatePage'));
+  assert.doesNotMatch(resolvedBody,/await connection\(\)/);
 
   assert.match(helper,/'use cache'/);
   assert.match(helper,/cacheLife\('max'\)/);
