@@ -17,18 +17,19 @@ export function pdpJsxHash(source: string) {
       + source.slice(resolvedStart).replace(resolvedMarker, 'export default async function ProductPage({ params }: PageProps) {');
   }
   source = source
-    .replace('href={collection.href}', 'href={\`/shop?collection=\${collection.slug}\`}');
+    .replace('href={collection.href}', 'href={\`/shop?collection=\${collection.slug}\`}')
+    // Phase 11 adds a non-visual BreadcrumbList JSON-LD node. Remove exactly that
+    // line before the JSX AST visual hash so the frozen UI baseline still measures
+    // visible structure rather than structured-data plumbing.
+    .split('\n')
+    .filter(line => !line.includes('JSON.stringify(breadcrumbLd)'))
+    .join('\n');
 
   const file = ts.createSourceFile('page.tsx', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
   const printer = ts.createPrinter({ removeComments: true });
   const nodes: string[] = [];
   const transform: ts.TransformerFactory<ts.Node> = context => root => {
     const visit: ts.Visitor = node => {
-      if (ts.isJsxSelfClosingElement(node)
-        && node.tagName.getText(file) === 'script'
-        && node.getText(file).includes('JSON.stringify(breadcrumbLd)')) {
-        return undefined;
-      }
       if (ts.isJsxSelfClosingElement(node) && node.tagName.getText(file) === 'ProductDetailClient') {
         const attributes = node.attributes.properties.filter(
           p => !ts.isJsxAttribute(p) || !['draft','previewMode'].includes(p.name.getText(file)),
