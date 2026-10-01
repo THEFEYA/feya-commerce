@@ -543,6 +543,7 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
 
       await page.setViewportSize({width:390,height:844});
       await page.goto(base+'/shop');
+      await page.waitForLoadState('networkidle');
       const menu=page.getByRole('button',{name:'Menu',exact:true});
       await menu.click();
       await page.getByRole('dialog',{name:'Site navigation'}).waitFor();
