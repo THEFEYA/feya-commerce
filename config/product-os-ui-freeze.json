@@ -46,6 +46,6 @@
     "components/DiscoveryHubPage.tsx": "b6989c28592e509ca16f0f20e3c9d637f46531d7",
     "app/events-performance/page.tsx": "fda4f7c42656147c51b3a9874f6852c41d7979ec",
     "app/style/page.tsx": "16d0924017828d8fb75244accc719cf5141e1a14",
-    "app/collections/page.tsx": "516cc43bf3b526a506db089e32f0fbd0f8ee7a5a"
+    "app/collections/page.tsx": "0d7ad69690457809aa350d004f478f9125ec2106"
   }
 }
