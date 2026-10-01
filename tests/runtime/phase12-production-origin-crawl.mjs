@@ -61,7 +61,7 @@ function hasNoindex(signals,headers){
   if(xrobots.includes('noindex'))return true;
   return signals.robots.some(r=>r.content.includes('noindex'));
 }
-async function fetchHead(path,{redirect='manual',timeoutMs=20000,maxBytes=262144}={}){
+async function fetchHead(path,{redirect='manual',timeoutMs=20000,maxBytes=1572864}={}){
   let lastError;
   for(let attempt=1;attempt<=3;attempt++){
     const controller=new AbortController();
@@ -85,7 +85,10 @@ async function fetchHead(path,{redirect='manual',timeoutMs=20000,maxBytes=262144
             const {done,value}=await reader.read();
             if(done)break;
             html+=decoder.decode(value,{stream:true});
-            if(/<\/head>/i.test(html))break;
+            const hasCanonical=/<link\b[^>]*rel=["'][^"']*canonical[^"']*["'][^>]*>/i.test(html)
+              || /<link\b[^>]*href=["'][^"']+["'][^>]*rel=["'][^"']*canonical[^"']*["'][^>]*>/i.test(html);
+            const hasRobots=/<meta\b[^>]*name=["'](?:robots|googlebot)["'][^>]*>/i.test(html);
+            if(hasCanonical&&hasRobots)break;
           }
         }finally{
           try{await reader.cancel();}catch{}
