@@ -2,13 +2,13 @@
   "version": 1,
   "purpose": "Approved Product OS / storefront visual freeze. Update only after explicit owner approval.",
   "files": {
-    "app/page.tsx": "f89d8ee0a35b9313e36d19e971df39c617490579",
+    "app/page.tsx": "0cc8e17b87530b4123f85e01a515bba75e0affa6",
     "app/shop/page.tsx": "36d78b9ae668f657381e9a05fb6de1c20ca2d49f",
     "app/shop/[slug]/page.tsx": "0dc39167914e3734966debb54c07cf1786f96cc4",
-    "components/Header.tsx": "3bc93d3d6a64426b703243486ccb85dd889271c0",
+    "components/Header.tsx": "026fdcd4fd42c1ad2c4630d876a82890466603d6",
     "components/Footer.tsx": "7df1bdf27494def8d3e4aaa39b62ff875aaacdf9",
-    "components/ProductCard.tsx": "f77744cec1c6db4b51244d6aca094a1c7ac3af36",
-    "components/ProductDetailClient.tsx": "67f5aad44dbce9e46b2327df48396093bc50b875",
+    "components/ProductCard.tsx": "e43c91bdc279962d064662094c6b7343f7f7d43c",
+    "components/ProductDetailClient.tsx": "5f2961fff450a8499b9936989ae950f993ac0b1a",
     "components/ShopClient.tsx": "004219dfb04e63947e6fc58c632137d30bb0123a",
     "app/admin/listing-master/ListingMasterPage.tsx": "bf19fc79d0c4aa016cb2297e4c84e19d0e5b68d4",
     "app/admin/products/page.tsx": "116d6739cc88c923cb905aaeca5610a3b1b6e38a",
@@ -43,9 +43,9 @@
     "app/admin/seo-storefront-preview/page.tsx": "a1198cbcd9eec52f27fb0af1d851640aa5e25b83",
     "app/admin/seo-gate/page.tsx": "c3694b0698591b5c86238e7ff75c227531d36e5d",
     "app/admin/orders/page.tsx": "c96230b0bfd63485a25a25ca0ff9ea2e53c47713",
-    "components/DiscoveryHubPage.tsx": "b6989c28592e509ca16f0f20e3c9d637f46531d7",
+    "components/DiscoveryHubPage.tsx": "7e5c96280963350193cf534651abae1ecdfb9bee",
     "app/events-performance/page.tsx": "320f63d32458a8f605f89f1d5a38c6d37f7947cb",
     "app/style/page.tsx": "b7e5b0313f8b757088b99c040da38938656eb443",
-    "app/collections/page.tsx": "0d7ad69690457809aa350d004f478f9125ec2106"
+    "app/collections/page.tsx": "19032e410ff150398833f8abb833314e261b5a94"
   }
 }
