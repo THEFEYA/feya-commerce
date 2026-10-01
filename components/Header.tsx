@@ -244,6 +244,10 @@ export function Header() {
       }`}
       onMouseEnter={cancelScheduledClose}
       onMouseLeave={schedulePanelClose}
+      onFocusCapture={() => {
+        cancelScheduledOpen();
+        cancelScheduledClose();
+      }}
       onBlurCapture={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOpenPanel(null);
       }}
