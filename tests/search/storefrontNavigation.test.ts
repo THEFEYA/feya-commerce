@@ -105,7 +105,7 @@ test('combined Events & Performance panel keeps events and one unified Performan
   assert.equal(festival?.href,'/collections/festival-outfits');
   assert.equal(rave?.href,'/collections/rave-outfits');
   assert.equal(rave?.children,undefined);
-  assert.equal(festival?.items.find((item) => item.code === 'burning_man')?.href,'/collections/burning-man-looks');
+  assert.equal(festival?.items.find((item) => item.code === 'burning_man')?.href,'/collections/burning-man-outfits');
   assert.equal(festival?.items.find((item) => item.code === 'festival_skirts')?.href,'/collections/festival-skirts');
 
   const other = panel.groups.find((group) => group.code === 'other_events');
@@ -141,7 +141,7 @@ test('search-owner collection routes remain separate from shopper filter URLs', 
   assert.equal(shoulders?.role,'owner');
   assert.equal(shoulders?.href,'/collections/shoulder-armor');
   assert.equal(stage?.role,'owner');
-  assert.equal(stage?.href,'/collections/stage-outfits');
+  assert.equal(stage?.href,'/collections/performance-costumes');
   assert.equal(punk?.role,'filter');
   assert.equal(punk?.href,'/shop?style=Punk');
   assert.equal(warrior?.role,'filter');
@@ -166,8 +166,8 @@ test('all ten approved owners are one click from the global navigation',()=>{
     '/collections/costume-belts',
     '/collections/festival-outfits',
     '/collections/rave-outfits',
-    '/collections/burning-man-looks',
-    '/collections/stage-outfits',
+    '/collections/burning-man-outfits',
+    '/collections/performance-costumes',
     '/collections/festival-skirts',
   ]) assert.equal(hrefs.has(href),true,href);
 });
