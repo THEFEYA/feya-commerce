@@ -348,7 +348,8 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       await parent.focus();
       assert.equal(await disclosure.getAttribute('aria-expanded'),'false');
       await disclosure.focus();
-      await page.keyboard.press('Enter');
+      assert.equal(await disclosure.evaluate(node=>node===document.activeElement),true);
+      await disclosure.press('Enter');
       await page.waitForFunction(
         ()=>document.querySelector('[aria-label="Events & Performance submenu"]')?.getAttribute('aria-expanded')==='true',
       );
