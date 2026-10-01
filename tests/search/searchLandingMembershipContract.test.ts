@@ -37,8 +37,9 @@ test('owner collection presentation is persistent-cache backed and tag-invalidat
   const page=await readFile(new URL('../../app/collections/[slug]/page.tsx',import.meta.url),'utf8');
   const helper=await readFile(new URL('../../lib/searchLandingPageServer.ts',import.meta.url),'utf8');
 
-  assert.match(page,/export const instant = true/);
+  assert.match(page,/export const instant = false/);
   assert.match(page,/Suspense/);
+  assert.match(page,/if\(!candidate\|\|candidate\.searchStatus==='hold_noindex'\)notFound\(\)/);
   assert.match(page,/readCachedSearchLandingRelease/);
   assert.doesNotMatch(page,/await connection\(\)/);
 
