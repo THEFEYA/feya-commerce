@@ -2,11 +2,13 @@ import 'server-only';
 
 import {cacheLife,cacheTag} from 'next/cache';
 import {getSupabaseServiceRoleClient} from '@/lib/supabaseAdmin';
-import {STOREFRONT_CARD_READ_MODEL_V1} from '@/lib/storefrontCardReadModelServer';
 import {
   STOREFRONT_CACHE_TAGS,
   storefrontCacheTagForProduct,
 } from '@/lib/storefrontCacheInvalidation';
+
+export const STOREFRONT_PRODUCT_METADATA_SNAPSHOT_V1='feya_storefront_product_card_snapshots_v1';
+export const STOREFRONT_PRODUCT_METADATA_RELEASE_V1='feya-review-207-20260924';
 
 export type StorefrontProductMetadataV1={
   canonicalProductId:string;
@@ -22,8 +24,8 @@ async function readStorefrontProductMetadataV1(slug:string):Promise<StorefrontPr
   if(!service)throw new Error('STOREFRONT_PRODUCT_METADATA_SERVICE_UNAVAILABLE');
 
   const {data,error}=await service
-    .from(STOREFRONT_CARD_READ_MODEL_V1)
-    .select('canonical_product_id,product_slug,seo_title,card_title,h1,meta_description,primary_image_url,secondary_image_url,hover_image_url,approved_content_sha256')
+    .from(STOREFRONT_PRODUCT_METADATA_SNAPSHOT_V1)
+    .select('canonical_product_id,seo_page_id,draft_id,content_sha256,source_release_ref,product_slug,seo_title,card_title,h1,meta_description,primary_image_url,secondary_image_url,hover_image_url')
     .eq('product_slug',slug)
     .maybeSingle();
 
@@ -40,10 +42,18 @@ async function readStorefrontProductMetadataV1(slug:string):Promise<StorefrontPr
     primary_image_url:string|null;
     secondary_image_url:string|null;
     hover_image_url:string|null;
-    approved_content_sha256:string;
+    seo_page_id:string;
+    draft_id:string;
+    content_sha256:string;
+    source_release_ref:string;
   };
 
-  if(!row.canonical_product_id||!row.product_slug||!/^[0-9a-f]{64}$/.test(row.approved_content_sha256||'')){
+  if(
+    !row.canonical_product_id
+    || !row.product_slug
+    || row.source_release_ref!==STOREFRONT_PRODUCT_METADATA_RELEASE_V1
+    || !/^[0-9a-f]{64}$/.test(row.content_sha256||'')
+  ){
     throw new Error('STOREFRONT_PRODUCT_METADATA_IDENTITY_INVALID');
   }
 
@@ -61,7 +71,7 @@ async function readStorefrontProductMetadataV1(slug:string):Promise<StorefrontPr
     title,
     description,
     images,
-    contentHash:row.approved_content_sha256,
+    contentHash:row.content_sha256,
   };
 }
 

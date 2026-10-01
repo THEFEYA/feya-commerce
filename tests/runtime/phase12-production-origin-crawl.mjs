@@ -3,7 +3,10 @@ import { resolve4, resolve6, resolveCname } from 'node:dns/promises';
 
 const manifest=JSON.parse(await readFile(new URL('./fixtures/phase12-wave-a-v10-production-crawl.json',import.meta.url),'utf8'));
 const origin=new URL(manifest.release.targetOrigin).origin;
-const seoCrawlerUserAgent='Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
+// Next.js 16.3.8 only switches to blocking metadata for its htmlLimitedBots
+// matcher. Google-InspectionTool is the Search Console crawler and is explicitly
+// covered by that matcher; bare "Googlebot" is not in the current default regex.
+const seoCrawlerUserAgent='Mozilla/5.0 (compatible; Google-InspectionTool/1.0)';
 const productNoindexSampleCount=Math.min(24,manifest.productNoindexPaths.length);
 const productNoindexSamplePaths=Array.from(
   new Set(Array.from({length:productNoindexSampleCount},(_,index)=>{
