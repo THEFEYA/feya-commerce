@@ -115,7 +115,25 @@ Explicitly not index candidates in Wave A:
 Costume Headpieces stays in the 18-page corpus by owner decision.
 Maleficent remains a non-owner shopper filter/persona label by owner decision and does not create an indexable page.
 
-## 5. Last historical release
+## 5. Foundational exact-binding refresh
+
+Phase 12 refreshed the eight foundational Wave A pages to immutable **v2** because their old Phase G v1 source blobs no longer matched the current Phase 11-validated storefront files.
+
+Hosted migration applied successfully:
+
+`phase12_foundational_page_versions_v2`
+
+Postflight:
+- 8/8 latest foundational versions = v2;
+- exact current Git blob SHA match = 8/8;
+- current title/H1 match = 8/8;
+- content hash equals SHA256(content_json::text) = 8/8;
+- content status = CQA_PASS;
+- release status = HOLD;
+- ACTIVE Search Release count remains 0.
+
+This closes the K11 source/version drift before a new release is materialized. Historical foundational v1 rows remain immutable.
+## 6. Last historical release
 
 Latest previously materialized release:
 
@@ -131,7 +149,7 @@ Latest previously materialized release:
 
 Do not reactivate v9. It contains retired owner URLs and predates Phases 8–11 plus the owner-approved rename migration.
 
-## 6. Historical FAIL gates that still matter
+## 7. Historical FAIL gates that still matter
 
 The v9 release had 16 PASS / EXCLUDED_APPROVED gates and four FAIL gates.
 
@@ -180,7 +198,7 @@ K20 remains fail-closed until:
 3. the exact release id/hash/path list is shown to the owner;
 4. the owner approves that exact immutable release.
 
-## 7. Activation boundary
+## 8. Activation boundary
 
 `feya_search_prepare_release_activation_v1` is **not a dry-run**.
 
@@ -195,7 +213,7 @@ Therefore:
 - do not submit sitemap or activate Merchant/Search Console release before the technical gate;
 - preserve ACTIVE release count = 0.
 
-## 8. Next engineering steps
+## 9. Next engineering steps
 
 Allowed before activation:
 
