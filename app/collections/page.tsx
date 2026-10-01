@@ -50,6 +50,7 @@ export default function CollectionsHubPage(){
                   <div className="text-[9px] uppercase tracking-[.18em] text-[#e7cf96]">{tile.eyebrow}</div>
                   <h2 className="font-tall mt-1.5 text-[26px] leading-none text-[#f7f3ec]">{tile.label}</h2>
                   <p className="mt-2 text-[11px] leading-4 text-[#d0c9c0]">{tile.description}</p>
+                  {'pieceCount' in tile && tile.pieceCount ? <div className="mt-2 text-[9px] uppercase tracking-[.14em] text-[#a9a198]">{tile.pieceCount} pieces</div> : null}
                   <span className="mt-3 inline-flex items-center gap-1.5 text-[9px] uppercase tracking-[.15em] text-[#d9d2c8]">Shop collection <ArrowUpRight size={10}/></span>
                 </div>
               </Link>
