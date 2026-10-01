@@ -586,7 +586,7 @@ function ReviewsSection({ summary }: { summary: { average: number; count: number
     {summary.items.length ? <div className="mt-5 grid gap-4 lg:grid-cols-3">{summary.items.slice(0, 3).map((review) => <article key={review.id} className="rounded-xl border border-[rgba(216,214,211,.12)] bg-[rgba(255,255,255,.02)] p-5">
       <div className="flex items-start justify-between gap-4"><div><div className="text-bone text-[13px]">{review.author}</div><div className="mt-1 text-[10px] uppercase tracking-[.14em] text-[var(--smoke)]">{review.date}</div></div><div className="flex gap-0.5 text-[var(--gold-warm)]"><Stars value={review.rating} size={11} /></div></div>
       <p className="mt-4 text-[14px] leading-relaxed text-[var(--bone-dim)]">{review.body}</p>
-      {review.images.length ? <div className="mt-4 flex gap-2">{review.images.slice(0, 3).map((image) => <img key={image} src={image} alt="Customer review" className="h-16 w-16 rounded-md object-cover border border-[rgba(216,214,211,.12)]" />)}</div> : null}
+      {review.images.length ? <div className="mt-4 flex gap-2">{review.images.slice(0, 3).map((image) => <Image key={image} src={image} alt="Customer review" width={64} height={64} sizes="64px" loading="lazy" className="h-16 w-16 rounded-md object-cover border border-[rgba(216,214,211,.12)]" />)}</div> : null}
     </article>)}</div> : null}
   </section>;
 }
