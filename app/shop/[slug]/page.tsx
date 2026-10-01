@@ -10,6 +10,8 @@ import { ProductDetailClient } from '@/components/ProductDetailClient';
 import { readProductLandingLinks } from '@/lib/searchProductLandingLinks';
 import { getMedia, productTitle } from '@/lib/storefront';
 import { readCachedStorefrontProductPresentation } from '@/lib/storefrontProductPresentationServer';
+import { readCachedStorefrontProductMetadataV1 } from '@/lib/storefrontProductMetadataServer';
+import { releaseRobotsForPath } from '@/lib/searchReleaseIndexationServer';
 import type { StorefrontProduct } from '@/lib/types';
 import { readApprovedStorefrontCopy } from '@/lib/seoApprovedStorefrontServer';
 import type { ApprovedCopyPayload } from '@/lib/seoApprovedContentProjection';
@@ -110,30 +112,31 @@ const getPresentation = cache(async (slug: string) => {
 });
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const { product, approvedCopy, copyBlocked } = await getPresentation(slug);
+  const path=`/shop/${slug}`;
+  const [metadata,robots]=await Promise.all([
+    readCachedStorefrontProductMetadataV1(slug),
+    releaseRobotsForPath(path),
+  ]);
 
-  if (!product || copyBlocked) {
-    return {
-      title: 'Product not found | TheFEYA',
-      robots: { index: false, follow: true },
+  if(!metadata){
+    return{
+      title:'Product not found | TheFEYA',
+      alternates:{canonical:path},
+      robots:{index:false,follow:true},
     };
   }
 
-  const title = approvedCopy?.metadata.title || productTitle(product);
-  const description = approvedCopy?.metadata.description || productDescription(product);
-  const images = productImages(product);
-
-  return {
-    ...(approvedCopy ? { robots: { index: false, follow: false } } : {}),
-    title,
-    description,
-    alternates: { canonical: `/shop/${slug}` },
-    openGraph: {
-      title,
-      description,
-      url: `/shop/${slug}`,
-      type: 'website',
-      images: images.slice(0, 4),
+  return{
+    robots,
+    title:metadata.title,
+    description:metadata.description,
+    alternates:{canonical:path},
+    openGraph:{
+      title:metadata.title,
+      description:metadata.description,
+      url:path,
+      type:'website',
+      images:metadata.images.slice(0,4),
     },
   };
 }
