@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Search, ShoppingBag, User, Menu, ArrowUpRight, ChevronDown, X } from 'lucide-react';
@@ -487,10 +488,12 @@ export function Header() {
 
                 {menuPreview ? (
                   <aside className="sticky top-0 h-[390px] overflow-hidden rounded-[14px] border border-[rgba(216,181,109,.09)] bg-[#111117]">
-                    <img
+                    <Image
                       key={`${panel.code}:${menuPreview.label}`}
                       src={menuPreview.imageUrl}
                       alt={`${menuPreview.label} visual preview`}
+                      fill
+                      sizes="(max-width: 1280px) 30vw, 360px"
                       loading="lazy"
                       className="absolute inset-0 h-full w-full object-cover animate-[feyaPreviewFade_.28s_ease_both]"
                     />
