@@ -10,6 +10,7 @@ test('Phase 10 card media uses the Next image pipeline and intent-only hover del
 
   assert.match(nextConfig,/hostname:\s*'i\.etsystatic\.com'/);
   assert.doesNotMatch(nextConfig,/unoptimized:\s*true/);
+  assert.match(nextConfig,/minimumCacheTTL:\s*60 \* 60 \* 24 \* 7/);
 
   assert.match(card,/import Image from 'next\/image'/);
   assert.match(card,/prefetch=\{false\}/);
