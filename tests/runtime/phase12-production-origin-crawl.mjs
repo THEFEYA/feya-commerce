@@ -29,9 +29,11 @@ function normalizeUrl(value){
   return u.toString();
 }
 function attr(tag,name){
-  const re=new RegExp("(?:^|\\\\s)"+name+"\\\\s*=\\\\s*(?:\\\"([^\\\"]*)\\\"|'([^']*)'|([^\\\\s>]+))","i");
-  const m=tag.match(re);
-  return m?(m[1]??m[2]??m[3]??''):null;
+  const wanted=name.toLowerCase();
+  for(const match of tag.matchAll(/([^\\s=/>]+)\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))/g)){
+    if(String(match[1]||'').toLowerCase()===wanted)return match[2]??match[3]??match[4]??'';
+  }
+  return null;
 }
 function headSignals(html){
   const metas=[...html.matchAll(/<meta\\b[^>]*>/gi)].map(m=>m[0]);
