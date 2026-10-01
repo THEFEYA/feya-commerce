@@ -2,10 +2,13 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { adminAccessDecision } from '@/lib/adminAccess';
 import { isOwnerPreviewDeployment } from '@/lib/ownerPreviewPolicy';
+import { PENDING_SEARCH_OWNER_RENAMES } from '@/config/searchOwnerRoutes';
 import {
   isOwnerActionStepUpPath,
   ownerPreviewMutationAllowed,
 } from '@/lib/ownerActionStepUpPolicy';
+
+const PENDING_SEARCH_OWNER_PATHS = new Set(PENDING_SEARCH_OWNER_RENAMES.map((route) => route.preferredPath));
 
 function getPublicKey() {
   return process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || null;
@@ -17,6 +20,16 @@ export async function middleware(request: NextRequest) {
   const isLogin = pathname === '/admin/login';
   const isStepUpOwnerAction = isOwnerActionStepUpPath(pathname);
   const ownerPreview = isOwnerPreviewDeployment(process.env);
+
+  if (PENDING_SEARCH_OWNER_PATHS.has(pathname as `/collections/${string}`)) {
+    return new NextResponse('Not Found', {
+      status: 404,
+      headers: {
+        'Cache-Control': 'public, max-age=0, must-revalidate',
+        'X-Robots-Tag': 'noindex, nofollow, noarchive',
+      },
+    });
+  }
 
   if (isLogin) {
     if (ownerPreview && !ownerPreviewMutationAllowed(pathname, request.method, process.env)) {
@@ -158,5 +171,10 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/api/admin/:path*'],
+  matcher: [
+    '/admin/:path*',
+    '/api/admin/:path*',
+    '/collections/burning-man-outfits',
+    '/collections/performance-costumes',
+  ],
 };

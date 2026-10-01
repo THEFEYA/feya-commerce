@@ -13,8 +13,171 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
   const read=async path=>JSON.parse(await readFile(path,'utf8'));
   const source=await read('docs/search/closed-review-source-manifest-20260924.json');
   const binding=await read('config/closed-review-presentation-binding.json');
+  const ownerEvidence=await read('tests/runtime/fixtures/phase9-search-owner-evidence-20261001.json');
   const release=prepareReviewPresentation(source,binding.source_sha256);
   assert.equal(release.presentation_sha256,binding.presentation_sha256);
+
+  const restorePhase9OwnerEvidence=async()=>check('Phase 9 fixture restores the hosted immutable owner evidence',async()=>{
+    assert.equal(ownerEvidence.contract,'phase9_search_owner_evidence_v1');
+    assert.equal(ownerEvidence.pages.length,12);
+    assert.equal(ownerEvidence.page_specs.length,12);
+    assert.equal(ownerEvidence.membership_snapshots.length,10);
+    assert.equal(ownerEvidence.membership_items.length,516);
+    assert.equal(ownerEvidence.page_versions.length,10);
+    assert.equal(ownerEvidence.link_edges.length,43);
+
+    await db.query('begin');
+    try{
+      await db.query(`
+        insert into public.feya_commerce_seo_pages_v1(
+          seo_page_id,page_type,url_path,canonical_product_id,market_code,locale,
+          lifecycle_state,indexation_intent,portfolio_status
+        )
+        select
+          seo_page_id,page_type,url_path,canonical_product_id,market_code,locale,
+          lifecycle_state,indexation_intent,portfolio_status
+        from jsonb_to_recordset($1::jsonb) as x(
+          seo_page_id uuid,page_type text,url_path text,canonical_product_id uuid,
+          market_code text,locale text,lifecycle_state text,indexation_intent text,portfolio_status text
+        )
+        on conflict (seo_page_id) do update set
+          page_type=excluded.page_type,
+          url_path=excluded.url_path,
+          canonical_product_id=excluded.canonical_product_id,
+          market_code=excluded.market_code,
+          locale=excluded.locale,
+          lifecycle_state=excluded.lifecycle_state,
+          indexation_intent=excluded.indexation_intent,
+          portfolio_status=excluded.portfolio_status
+      `,[JSON.stringify(ownerEvidence.pages)]);
+
+      await db.query(`
+        insert into public.feya_search_page_specs_v1(
+          seo_page_id,family,primary_parent_page_id,accountable_owner,review_state,
+          user_intent,primary_intent,unique_value_brief,intent_evidence_status,truth_status,
+          utility_rationale,selection_rule_json,inventory_policy_json,excluded_queries_json,evidence_refs_json
+        )
+        select
+          seo_page_id,family,primary_parent_page_id,accountable_owner,review_state,
+          user_intent,primary_intent,unique_value_brief,intent_evidence_status,truth_status,
+          utility_rationale,selection_rule_json,inventory_policy_json,excluded_queries_json,evidence_refs_json
+        from jsonb_to_recordset($1::jsonb) as x(
+          seo_page_id uuid,family text,primary_parent_page_id uuid,accountable_owner text,review_state text,
+          user_intent text,primary_intent text,unique_value_brief text,intent_evidence_status text,truth_status text,
+          utility_rationale text,selection_rule_json jsonb,inventory_policy_json jsonb,
+          excluded_queries_json jsonb,evidence_refs_json jsonb
+        )
+        on conflict (seo_page_id) do update set
+          family=excluded.family,
+          primary_parent_page_id=excluded.primary_parent_page_id,
+          accountable_owner=excluded.accountable_owner,
+          review_state=excluded.review_state,
+          user_intent=excluded.user_intent,
+          primary_intent=excluded.primary_intent,
+          unique_value_brief=excluded.unique_value_brief,
+          intent_evidence_status=excluded.intent_evidence_status,
+          truth_status=excluded.truth_status,
+          utility_rationale=excluded.utility_rationale,
+          selection_rule_json=excluded.selection_rule_json,
+          inventory_policy_json=excluded.inventory_policy_json,
+          excluded_queries_json=excluded.excluded_queries_json,
+          evidence_refs_json=excluded.evidence_refs_json
+      `,[JSON.stringify(ownerEvidence.page_specs)]);
+
+      await db.query(`
+        insert into public.feya_search_membership_snapshots_v1(
+          membership_snapshot_id,seo_page_id,rule_version,source_revision,expected_item_count,captured_at
+        )
+        select membership_snapshot_id,seo_page_id,rule_version,source_revision,expected_item_count,captured_at
+        from jsonb_to_recordset($1::jsonb) as x(
+          membership_snapshot_id uuid,seo_page_id uuid,rule_version text,source_revision text,
+          expected_item_count integer,captured_at timestamptz
+        )
+        on conflict (membership_snapshot_id) do nothing
+      `,[JSON.stringify(ownerEvidence.membership_snapshots)]);
+
+      await db.query(`
+        insert into public.feya_search_membership_items_v1(
+          membership_snapshot_id,canonical_product_id,design_family_key,eligibility_status,orderability_status,
+          truth_version,evidence_refs_json,reason_codes_json
+        )
+        select
+          membership_snapshot_id,canonical_product_id,design_family_key,eligibility_status,orderability_status,
+          truth_version,evidence_refs_json,reason_codes_json
+        from jsonb_to_recordset($1::jsonb) as x(
+          membership_snapshot_id uuid,canonical_product_id uuid,design_family_key text,
+          eligibility_status text,orderability_status text,truth_version text,
+          evidence_refs_json jsonb,reason_codes_json jsonb
+        )
+        on conflict (membership_snapshot_id,canonical_product_id) do nothing
+      `,[JSON.stringify(ownerEvidence.membership_items)]);
+
+      await db.query(`
+        insert into public.feya_search_page_versions_v1(
+          page_version_id,seo_page_id,version_number,membership_snapshot_id,
+          content_hash,spec_json,content_json,evidence_refs_json
+        )
+        select
+          page_version_id,seo_page_id,version_number,membership_snapshot_id,
+          content_hash,spec_json,content_json,evidence_refs_json
+        from jsonb_to_recordset($1::jsonb) as x(
+          page_version_id uuid,seo_page_id uuid,version_number integer,membership_snapshot_id uuid,
+          content_hash text,spec_json jsonb,content_json jsonb,evidence_refs_json jsonb
+        )
+        on conflict (seo_page_id,version_number) do nothing
+      `,[JSON.stringify(ownerEvidence.page_versions)]);
+
+      await db.query(`
+        insert into public.feya_search_link_edges_v1(
+          link_edge_id,from_page_id,to_page_id,link_kind,generation_mode,status,evidence_refs_json,source_version
+        )
+        select
+          link_edge_id,from_page_id,to_page_id,link_kind,generation_mode,status,evidence_refs_json,source_version
+        from jsonb_to_recordset($1::jsonb) as x(
+          link_edge_id uuid,from_page_id uuid,to_page_id uuid,link_kind text,generation_mode text,
+          status text,evidence_refs_json jsonb,source_version text
+        )
+        on conflict (from_page_id,to_page_id,link_kind,source_version) do nothing
+      `,[JSON.stringify(ownerEvidence.link_edges)]);
+
+      await db.query('commit');
+    }catch(error){
+      await db.query('rollback');
+      throw error;
+    }
+
+    const state=await db.query(`
+      select p.url_path,s.expected_item_count,count(i.canonical_product_id)::int item_count,
+             max(v.version_number)::int latest_version
+      from public.feya_search_membership_snapshots_v1 s
+      join public.feya_commerce_seo_pages_v1 p on p.seo_page_id=s.seo_page_id
+      join public.feya_search_membership_items_v1 i using(membership_snapshot_id)
+      join public.feya_search_page_versions_v1 v
+        on v.seo_page_id=s.seo_page_id and v.membership_snapshot_id=s.membership_snapshot_id
+      where s.source_revision=$1
+      group by p.url_path,s.expected_item_count
+      order by p.url_path
+    `,[ownerEvidence.source_revision]);
+    const expected=new Map([
+      ['/collections/shoulder-armor',80],
+      ['/collections/bodysuits',30],
+      ['/collections/costume-masks',11],
+      ['/collections/costume-headpieces',34],
+      ['/collections/costume-belts',13],
+      ['/collections/festival-outfits',111],
+      ['/collections/rave-outfits',40],
+      ['/collections/burning-man-looks',45],
+      ['/collections/stage-outfits',96],
+      ['/collections/festival-skirts',56],
+    ]);
+    assert.equal(state.rows.length,10);
+    for(const row of state.rows){
+      assert.equal(row.expected_item_count,expected.get(row.url_path),row.url_path);
+      assert.equal(row.item_count,row.expected_item_count,row.url_path);
+      assert.equal(row.latest_version,2,row.url_path);
+    }
+    report.phase9_owner_evidence_fixture_pass=true;
+  });
 
   // Phase 4 runtime proof must exercise the actual Phase 3 card read model.
   // The isolated runtime previously restored only the legacy product view, so the
@@ -342,13 +505,15 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
 
       await page.setViewportSize({width:1440,height:1000});
       await page.goto(base+'/shop');
+      await page.waitForLoadState('networkidle');
       const nav=page.getByTestId('primary-nav');
       const parent=nav.getByRole('link',{name:'Events & Performance',exact:true});
       const disclosure=nav.getByRole('button',{name:'Events & Performance submenu',exact:true});
       await parent.focus();
       assert.equal(await disclosure.getAttribute('aria-expanded'),'false');
       await disclosure.focus();
-      await page.keyboard.press('Enter');
+      assert.equal(await disclosure.evaluate(node=>node===document.activeElement),true);
+      await disclosure.press('Enter');
       await page.waitForFunction(
         ()=>document.querySelector('[aria-label="Events & Performance submenu"]')?.getAttribute('aria-expanded')==='true',
       );
@@ -356,6 +521,9 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       await page.keyboard.press('Tab');
       assert.equal(await page.evaluate(()=>document.activeElement?.closest('#nav-panel-events_performance')?.id),'nav-panel-events_performance');
       await page.keyboard.press('Escape');
+      await page.waitForFunction(
+        ()=>document.activeElement?.getAttribute('aria-label')==='Events & Performance submenu',
+      );
       assert.equal(await disclosure.getAttribute('aria-expanded'),'false');
       assert.equal(await disclosure.evaluate(node=>node===document.activeElement),true);
 
@@ -375,6 +543,7 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
 
       await page.setViewportSize({width:390,height:844});
       await page.goto(base+'/shop');
+      await page.waitForLoadState('networkidle');
       const menu=page.getByRole('button',{name:'Menu',exact:true});
       await menu.click();
       await page.getByRole('dialog',{name:'Site navigation'}).waitFor();
@@ -386,6 +555,50 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
 
       report.phase8_navigation_keyboard_pass=true;
       report.phase8_owner_link_parity_pass=true;
+    });
+
+    await restorePhase9OwnerEvidence();
+
+    await check('Phase 9 current owner routes preserve governed membership and stay noindex before rename approval',async()=>{
+      const owners=[
+        ['/collections/shoulder-armor',80],
+        ['/collections/bodysuits',30],
+        ['/collections/costume-masks',11],
+        ['/collections/costume-headpieces',34],
+        ['/collections/costume-belts',13],
+        ['/collections/festival-outfits',111],
+        ['/collections/rave-outfits',40],
+        ['/collections/burning-man-looks',45],
+        ['/collections/stage-outfits',96],
+        ['/collections/festival-skirts',56],
+      ];
+      for(const [ownerPath,count] of owners){
+        const response=await request(ownerPath);
+        assert.equal(response.status(),200,ownerPath);
+
+        await page.goto(base+ownerPath,{waitUntil:'domcontentloaded'});
+        await page.getByText(`${count} orderable pieces`,{exact:true}).waitFor();
+
+        await page.waitForFunction((expectedPath)=>{
+          const canonical=document.querySelector('link[rel="canonical"]')?.getAttribute('href')||'';
+          try{return new URL(canonical,location.origin).pathname===expectedPath;}catch{return false;}
+        },ownerPath);
+        await page.waitForFunction(
+          ()=>/noindex/i.test(document.querySelector('meta[name="robots"]')?.getAttribute('content')||''),
+        );
+
+        const canonicalHref=await page.locator('link[rel="canonical"]').getAttribute('href');
+        const robotsContent=await page.locator('meta[name="robots"]').getAttribute('content');
+        assert.ok(canonicalHref,ownerPath+' canonical');
+        assert.equal(new URL(canonicalHref,base).pathname,ownerPath,ownerPath);
+        assert.match(robotsContent||'',/noindex/i,ownerPath);
+      }
+      for(const pending of ['/collections/burning-man-outfits','/collections/performance-costumes']){
+        const response=await request(pending);
+        assert.equal(response.status(),404,pending);
+      }
+      report.phase9_current_owner_routes_pass=true;
+      report.phase9_pending_rename_routes_absent=true;
     });
 
     await check('Measurement context exposes stable IDs but remains fail-closed in preview without consent activation',async()=>{
