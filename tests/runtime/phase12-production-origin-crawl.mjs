@@ -243,15 +243,13 @@ if(!canonicalOriginReady){
   result.deepCrawlSkipped=true;
   result.deepCrawlSkipReason='K02 canonical production origin is not serving the Phase 12 storefront; K14 remains blocked.';
 }else{
-for(const path of manifest.indexCandidates){
-  try{
-    const entry=await checkNoindexPath(path);
-    result.indexCandidates.push(entry);
-    if(!entry.pass)fail('Wave A candidate failed pre-activation crawl contract',entry);
-  }catch(error){
-    const entry={path,pass:false,error:String(error?.message||error)};
-    result.indexCandidates.push(entry);fail('Wave A candidate fetch failed',entry);
-  }
+const indexCandidateEntries=await mapLimit(manifest.indexCandidates,6,async path=>checkNoindexPath(path));
+for(const entry of indexCandidateEntries){
+  result.indexCandidates.push(entry);
+  if(!entry.pass)fail(
+    entry.error?'Wave A candidate fetch failed':'Wave A candidate failed pre-activation crawl contract',
+    entry
+  );
 }
 
 for(const item of manifest.retiredRedirects){
