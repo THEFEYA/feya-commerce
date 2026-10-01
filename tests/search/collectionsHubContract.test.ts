@@ -40,8 +40,8 @@ test('all ten approved owners have crawlable directory links and Event hub cover
     '/collections/costume-belts',
     '/collections/festival-outfits',
     '/collections/rave-outfits',
-    '/collections/burning-man-looks',
-    '/collections/stage-outfits',
+    '/collections/burning-man-outfits',
+    '/collections/performance-costumes',
     '/collections/festival-skirts',
   ]) assert.equal(directoryHrefs.has(href),true,href);
   assert.deepEqual(
@@ -49,8 +49,8 @@ test('all ten approved owners have crawlable directory links and Event hub cover
     [
       '/collections/festival-outfits',
       '/collections/rave-outfits',
-      '/collections/burning-man-looks',
-      '/collections/stage-outfits',
+      '/collections/burning-man-outfits',
+      '/collections/performance-costumes',
       '/collections/festival-skirts',
     ],
   );
@@ -91,8 +91,8 @@ test('curated directory exposes governed membership count evidence without inven
       '/collections/costume-belts':13,
       '/collections/festival-outfits':111,
       '/collections/rave-outfits':40,
-      '/collections/burning-man-looks':45,
-      '/collections/stage-outfits':96,
+      '/collections/burning-man-outfits':45,
+      '/collections/performance-costumes':96,
       '/collections/festival-skirts':56,
     },
   );

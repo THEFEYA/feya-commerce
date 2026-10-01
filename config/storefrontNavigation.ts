@@ -163,7 +163,7 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         description: 'Festival is the broad entry. Rave and Burning Man remain distinct shopper paths.',
         items: [
           owner('rave','Rave','/collections/rave-outfits'),
-          owner('burning_man','Burning Man','/collections/burning-man-looks'),
+          owner('burning_man','Burning Man','/collections/burning-man-outfits'),
           owner('festival_skirts','Festival Skirts','/collections/festival-skirts'),
         ],
       },
@@ -180,10 +180,10 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
       {
         code: 'performance_roles',
         label: 'Performance',
-        href: '/collections/stage-outfits',
+        href: '/collections/performance-costumes',
         description: 'Stage, fashion-show and movement-led performance paths in one shopper group.',
         items: [
-          owner('stage_fashion','Stage & Fashion','/collections/stage-outfits'),
+          owner('stage_fashion','Stage & Fashion','/collections/performance-costumes'),
           filter('showgirl','Showgirl','/shop?performance=Showgirl'),
           filter('drag_queen','Drag Queen','/shop?performance=Drag%20Queen'),
           filter('go_go_dancer','Go-Go Dancer','/shop?dance=Go-Go%20Dancer'),

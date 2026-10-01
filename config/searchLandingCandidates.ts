@@ -57,7 +57,7 @@ export const SEARCH_LANDING_CANDIDATES: SearchLandingCandidate[] = [
   },
   {
     code: 'BURNING_MAN_OUTFITS',
-    slug: 'burning-man-looks',
+    slug: 'burning-man-outfits',
     title: 'Burning Man Looks',
     eyebrow: 'Collection business case · Event',
     description: 'TheFEYA pieces whose approved Product DNA includes Burning Man, presented without event-affiliation, weather or safety guarantees.',
@@ -67,7 +67,7 @@ export const SEARCH_LANDING_CANDIDATES: SearchLandingCandidate[] = [
   },
   {
     code: 'PERFORMANCE_COSTUMES',
-    slug: 'stage-outfits',
+    slug: 'performance-costumes',
     title: 'Stage & Performance Costumes',
     eyebrow: 'Collection business case · Performance',
     description: 'Current TheFEYA pieces selected for stage and performance use. Broad recital and generic dance-costume markets are not assumed to belong here.',

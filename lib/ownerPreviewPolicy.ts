@@ -14,6 +14,8 @@ const OWNER_PREVIEW_BRANCHES = new Set([
   'work/search-owner-route-phase9-20261001',
   'work/storefront-next1638-security-20261001',
   'work/storefront-media-performance-phase10-20261001',
+  'work/seo-content-structured-data-phase11-20261001',
+  'work/search-release-phase12-readiness-20261001',
 ]);
 
 export function isOwnerPreviewDeployment(env: Record<string, string | undefined>) {

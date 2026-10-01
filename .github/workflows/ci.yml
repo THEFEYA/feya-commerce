@@ -116,3 +116,46 @@ jobs:
           name: metric-runtime-evidence
           path: runtime-results/
           retention-days: 7
+
+
+  phase12-production-origin:
+    name: Phase 12 production origin crawl
+    if: (github.event_name == 'pull_request' && github.head_ref == 'work/search-release-phase12-readiness-20261001') || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout exact Phase 12 head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Anonymous canonical-origin crawl
+        env:
+          PHASE12_ALLOW_BLOCKED: ${{ github.event_name == 'pull_request' && 'true' || 'false' }}
+        run: |
+          if [ "${GITHUB_EVENT_NAME}" = "push" ]; then
+            for attempt in $(seq 1 40); do
+              echo "Phase 12 production crawl attempt ${attempt}/40"
+              if node tests/runtime/phase12-production-origin-crawl.mjs; then
+                exit 0
+              fi
+              sleep 15
+            done
+            exit 1
+          fi
+          node tests/runtime/phase12-production-origin-crawl.mjs
+
+      - name: Production crawl evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase12-production-origin-crawl
+          path: runtime-results/phase12-production-origin-crawl.json
+          retention-days: 30
