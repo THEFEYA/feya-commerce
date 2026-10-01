@@ -33,13 +33,9 @@ export async function generateMetadata({params}:PageProps):Promise<Metadata>{
   };
 }
 
-export default async function SearchLandingCandidatePage({params}:PageProps){
-  const {slug}=await params;
-  const candidate=getSearchLandingCandidate(slug);
-  if(!candidate||candidate.searchStatus==='hold_noindex')notFound();
-
+export default function SearchLandingCandidatePage(props:PageProps){
   return <Suspense fallback={<CollectionRouteFallback/>}>
-    <ResolvedSearchLandingCandidatePage slug={slug}/>
+    <ResolvedSearchLandingCandidatePage {...props}/>
   </Suspense>;
 }
 
@@ -53,7 +49,8 @@ function CollectionRouteFallback(){
   </main>;
 }
 
-async function ResolvedSearchLandingCandidatePage({slug}:{slug:string}){
+async function ResolvedSearchLandingCandidatePage({params}:PageProps){
+  const {slug}=await params;
   const release=await readCachedSearchLandingRelease(slug);
   if(!release)notFound();
 
