@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -56,6 +57,12 @@ import {
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Custom'];
 const CART_KEY = 'feya_visual_cart_v1';
 const COUNT_KEY = 'feya_visual_bag';
+const PDP_MAIN_IMAGE_SIZES = '(max-width: 1023px) calc(100vw - 2rem), 520px';
+
+function isInlineImageSource(src: string) {
+  return src.startsWith('data:') || src.startsWith('blob:');
+}
+
 const GENERATED_DESCRIPTION_BLOCK_ORDER: Record<string, number> = {
   about_this_piece: 0,
   why_youll_love_it: 1,
@@ -312,7 +319,7 @@ export function ProductDetailClient({
             aria-label={`Show image ${i + 1} of ${gallery.length}`}
             aria-pressed={idx === i}
             className={`relative w-full aspect-[4/5] rounded-sm overflow-hidden border transition-all shrink-0 bg-[rgba(255,255,255,0.025)] ${idx === i ? 'border-white opacity-100' : 'border-[rgba(216,214,211,0.12)] opacity-55 hover:opacity-100'}`}>
-            {g.url ? <img src={String(g.url)} alt="" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover object-center" /> : null}
+            {g.url ? <Image src={String(g.url)} alt="" fill sizes="132px" loading="lazy" decoding="async" unoptimized={isInlineImageSource(String(g.url))} className="object-cover object-center" /> : null}
           </button>)}
         </div>
         <div className="col-span-12 lg:min-w-0 lg:flex-1 lg:self-start flex justify-center">
@@ -331,7 +338,17 @@ export function ProductDetailClient({
             }}
             aria-label={`Open image ${idx + 1} of ${gallery.length || 1}. Use Left and Right Arrow keys to browse images.`}
             className="relative w-full max-w-[520px] aspect-[4/5] rounded-md overflow-hidden bg-[rgba(255,255,255,0.025)] border border-[rgba(216,214,211,0.12)] text-left">
-            {main ? <img src={String(main)} alt={activeImage?.alt || shortHead} loading={idx === 0 ? 'eager' : 'lazy'} decoding="async" className="absolute inset-0 w-full h-full object-cover object-center" /> : null}
+            {main ? <Image
+              src={String(main)}
+              alt={activeImage?.alt || shortHead}
+              fill
+              sizes={PDP_MAIN_IMAGE_SIZES}
+              preload={idx === 0}
+              {...(idx === 0 ? {} : { loading: 'lazy' as const })}
+              decoding="async"
+              unoptimized={isInlineImageSource(String(main))}
+              className="object-cover object-center"
+            /> : null}
             {gallery.length > 1 ? <>
               <span aria-hidden="true" onClick={(event) => { event.stopPropagation(); moveImage(-1); }} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/45 backdrop-blur border border-white/15 flex items-center justify-center hover:bg-white hover:text-ink transition-all"><ChevronLeft size={17} /></span>
               <span aria-hidden="true" onClick={(event) => { event.stopPropagation(); moveImage(1); }} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/45 backdrop-blur border border-white/15 flex items-center justify-center hover:bg-white hover:text-ink transition-all"><ChevronRight size={17} /></span>
@@ -439,8 +456,19 @@ export function ProductDetailClient({
       aria-label={`Image viewer: ${shortHead}`}
       className="fixed inset-0 z-[120] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
       onClick={(event) => { if (event.target === event.currentTarget) setLightboxOpen(false); }}>
-      <button ref={lightboxCloseRef} type="button" aria-label="Close image viewer" className="absolute right-5 top-5 h-10 w-10 rounded-full border border-white/20 bg-black/40 text-white text-xl" onClick={() => setLightboxOpen(false)}>×</button>
-      {main ? <img src={String(main)} alt={activeImage?.alt || shortHead} className="max-h-[90vh] max-w-full object-contain" /> : null}
+      <button ref={lightboxCloseRef} type="button" aria-label="Close image viewer" className="absolute right-5 top-5 z-10 h-10 w-10 rounded-full border border-white/20 bg-black/40 text-white text-xl" onClick={() => setLightboxOpen(false)}>×</button>
+      {main ? <div className="relative h-[90vh] w-[90vw]">
+        <Image
+          src={String(main)}
+          alt={activeImage?.alt || shortHead}
+          fill
+          sizes="90vw"
+          loading="lazy"
+          decoding="async"
+          unoptimized={isInlineImageSource(String(main))}
+          className="object-contain"
+        />
+      </div> : null}
     </div> : null}
   </div>;
 }
