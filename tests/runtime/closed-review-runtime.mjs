@@ -347,9 +347,12 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       const disclosure=nav.getByRole('button',{name:'Events & Performance submenu',exact:true});
       await parent.focus();
       assert.equal(await disclosure.getAttribute('aria-expanded'),'false');
-      await disclosure.click();
-      assert.equal(await disclosure.getAttribute('aria-expanded'),'true');
       await disclosure.focus();
+      await page.keyboard.press('Enter');
+      await page.waitForFunction(
+        ()=>document.querySelector('[aria-label="Events & Performance submenu"]')?.getAttribute('aria-expanded')==='true',
+      );
+      assert.equal(await disclosure.getAttribute('aria-expanded'),'true');
       await page.keyboard.press('Tab');
       assert.equal(await page.evaluate(()=>document.activeElement?.closest('#nav-panel-events_performance')?.id),'nav-panel-events_performance');
       await page.keyboard.press('Escape');
