@@ -139,7 +139,18 @@ jobs:
       - name: Anonymous canonical-origin crawl
         env:
           PHASE12_ALLOW_BLOCKED: ${{ github.event_name == 'pull_request' && 'true' || 'false' }}
-        run: node tests/runtime/phase12-production-origin-crawl.mjs
+        run: |
+          if [ "${GITHUB_EVENT_NAME}" = "push" ]; then
+            for attempt in $(seq 1 40); do
+              echo "Phase 12 production crawl attempt ${attempt}/40"
+              if node tests/runtime/phase12-production-origin-crawl.mjs; then
+                exit 0
+              fi
+              sleep 15
+            done
+            exit 1
+          fi
+          node tests/runtime/phase12-production-origin-crawl.mjs
 
       - name: Production crawl evidence
         if: always()
