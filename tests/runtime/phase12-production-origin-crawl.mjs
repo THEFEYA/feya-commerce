@@ -91,7 +91,11 @@ async function fetchHead(path,{redirect='manual',timeoutMs=20000,maxBytes=157286
             if(hasCanonical&&hasRobots)break;
           }
         }finally{
-          try{await reader.cancel();}catch{}
+          // Do not await stream cancellation: some production streaming responses
+          // can keep the cancellation promise open after the metadata we need was read.
+          // The request controller is aborted immediately to release the socket.
+          try{void reader.cancel().catch(()=>{});}catch{}
+          controller.abort();
         }
       }
       clearTimeout(timer);
