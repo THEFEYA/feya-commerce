@@ -30,14 +30,14 @@ function normalizeUrl(value){
 }
 function attr(tag,name){
   const wanted=name.toLowerCase();
-  for(const match of tag.matchAll(/([^\\s=/>]+)\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))/g)){
+  for(const match of tag.matchAll(/([^\s=/>]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g)){
     if(String(match[1]||'').toLowerCase()===wanted)return match[2]??match[3]??match[4]??'';
   }
   return null;
 }
 function headSignals(html){
-  const metas=[...html.matchAll(/<meta\\b[^>]*>/gi)].map(m=>m[0]);
-  const links=[...html.matchAll(/<link\\b[^>]*>/gi)].map(m=>m[0]);
+  const metas=[...html.matchAll(/<meta\b[^>]*>/gi)].map(m=>m[0]);
+  const links=[...html.matchAll(/<link\b[^>]*>/gi)].map(m=>m[0]);
   const robots=[];
   for(const tag of metas){
     const name=(attr(tag,'name')||'').toLowerCase();
@@ -47,7 +47,7 @@ function headSignals(html){
   }
   let canonical=null;
   for(const tag of links){
-    const rel=(attr(tag,'rel')||'').toLowerCase().split(/\\s+/);
+    const rel=(attr(tag,'rel')||'').toLowerCase().split(/\s+/);
     if(rel.includes('canonical')){
       canonical=attr(tag,'href');
       break;
@@ -84,7 +84,7 @@ async function fetchHead(path,{redirect='manual',timeoutMs=20000,maxBytes=262144
             const {done,value}=await reader.read();
             if(done)break;
             html+=decoder.decode(value,{stream:true});
-            if(/<\\/head>/i.test(html))break;
+            if(/<\/head>/i.test(html))break;
           }
         }finally{
           try{await reader.cancel();}catch{}
@@ -273,7 +273,7 @@ for(const path of manifest.filterNoindexPaths){
 
 try{
   const response=await fetchText('/robots.txt');
-  const hasSitemap=/^\\s*Sitemap:/im.test(response.text);
+  const hasSitemap=/^\s*Sitemap:/im.test(response.text);
   const disallowAdmin=/Disallow:\s*\/admin\//i.test(response.text);
   const disallowInternal=/Disallow:\s*\/api\/internal\//i.test(response.text);
   const entry={status:response.status,hasSitemap,disallowAdmin,disallowInternal,body:response.text.slice(0,4000),pass:response.status===200&&!hasSitemap&&disallowAdmin&&disallowInternal};
@@ -283,7 +283,7 @@ try{
 
 try{
   const response=await fetchText('/sitemap.xml');
-  const urlCount=(response.text.match(/<url(?:\\s|>)/gi)||[]).length;
+  const urlCount=(response.text.match(/<url(?:\s|>)/gi)||[]).length;
   const entry={status:response.status,urlCount,body:response.text.slice(0,4000),pass:response.status===200&&urlCount===0};
   result.sitemap=entry;
   if(!entry.pass)fail('sitemap.xml exposed URLs before activation',entry);
