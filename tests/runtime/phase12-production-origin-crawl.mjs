@@ -349,3 +349,7 @@ if(result.errors.length){
     process.exitCode=1;
   }
 }
+// Node/undici may retain keep-alive handles after the crawl has completed.
+// This is a standalone CI gate, so terminate deterministically after all
+// evidence has been awaited and written to disk.
+process.exit(process.exitCode??0);
