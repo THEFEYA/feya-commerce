@@ -8,7 +8,7 @@ import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
 import {ShopClient} from '@/components/ShopClient';
 import {getSearchLandingCandidate} from '@/config/searchLandingCandidates';
-import {readCachedSearchLandingRelease} from '@/lib/searchLandingPageServer';
+import {readCachedSearchLandingMetadata, readCachedSearchLandingRelease} from '@/lib/searchLandingPageServer';
 import {releaseRobotsForPath} from '@/lib/searchReleaseIndexationServer';
 
 type PageProps={params:Promise<{slug:string}>};
@@ -22,14 +22,18 @@ export async function generateMetadata({params}:PageProps):Promise<Metadata>{
   const candidate=getSearchLandingCandidate(slug);
   if(!candidate)return {title:'Collection not found',robots:{index:false,follow:true}};
 
-  const release=await readCachedSearchLandingRelease(slug);
-  const content=release?.content;
+  const path=`/collections/${candidate.slug}`;
+  const [metadata,robots]=await Promise.all([
+    readCachedSearchLandingMetadata(slug),
+    releaseRobotsForPath(path),
+  ]);
+  const content=metadata?.content;
 
   return {
     title:content?.seo_title || candidate.title,
     description:content?.meta_description || candidate.description,
-    alternates:{canonical:`/collections/${candidate.slug}`},
-    robots:await releaseRobotsForPath(`/collections/${candidate.slug}`),
+    alternates:{canonical:path},
+    robots,
   };
 }
 
