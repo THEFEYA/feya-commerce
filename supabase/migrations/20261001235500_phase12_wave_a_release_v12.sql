@@ -20,7 +20,7 @@ begin
   from public.feya_search_releases_v1
   where release_code='organic-wave-a-20260926' and release_version=11;
   if prior_count<>1 then
-    raise exception 'phase12_wave_a_v12_requires_v10:%',prior_count;
+    raise exception 'phase12_wave_a_v12_requires_v11:%',prior_count;
   end if;
 
   if exists(
@@ -59,17 +59,17 @@ select
   null,
   p.gate_policy_version,
   p.scope_json || jsonb_build_object(
-    'release_basis','phase12_production_origin_and_crawl_verified',
+    'release_basis','phase12_production_crawl_and_gsc_domain_verified',
     'previous_release_version',11,
     'production_git_sha','7699e7cdcfc1cdf75716f006d5533fe1efbdf4b7',
     'production_deployment_id','dpl_D3KccMszK6sVmsuib4GT5F3mR9fS',
     'production_crawl_run_id',36924805355,
     'production_crawl_job_id',110579381872,
-    'production_crawl_artifact_id',0
+    'production_crawl_artifact_id',11193221853
   ),
   jsonb_build_object(
     'overall','FAIL',
-    'reason','Canonical production and anonymous crawl now pass; Only exact Human Owner approval remains fail-closed.',
+    'reason','Canonical production, anonymous crawl and the verified GSC Domain property now pass; only exact Human Owner approval remains fail-closed.',
     'ci_run_id',36924805355,
     'vercel_deployment_id','dpl_D3KccMszK6sVmsuib4GT5F3mR9fS',
     'production_crawl_job_id',110579381872
@@ -213,7 +213,7 @@ select
       'anonymous_production_crawl_completed',true,
       'ci_run_id',36924805355,
       'crawler_job_id',110579381872,
-      'crawler_artifact_id',0,
+      'crawler_artifact_id',11193221853,
       'index_candidates_checked',18,
       'index_candidates_passed',18,
       'product_noindex_manifest_count',207,
@@ -302,7 +302,7 @@ set release_hash=encode(extensions.digest(convert_to(material.body::text,'UTF8')
       'ci_run_id',36924805355,
       'vercel_deployment_id','dpl_D3KccMszK6sVmsuib4GT5F3mR9fS',
       'production_crawl_job_id',110579381872,
-      'production_crawl_artifact_id',0
+      'production_crawl_artifact_id',11193221853
     ),
     updated_at=now()
 from material
