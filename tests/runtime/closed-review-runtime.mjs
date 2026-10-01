@@ -13,12 +13,12 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
   const read=async path=>JSON.parse(await readFile(path,'utf8'));
   const source=await read('docs/search/closed-review-source-manifest-20260924.json');
   const binding=await read('config/closed-review-presentation-binding.json');
-  const ownerEvidence=await read('tests/runtime/fixtures/phase9-search-owner-evidence-20261001.json');
+  const ownerEvidence=await read('tests/runtime/fixtures/phase12-search-owner-evidence-20261001.json');
   const release=prepareReviewPresentation(source,binding.source_sha256);
   assert.equal(release.presentation_sha256,binding.presentation_sha256);
 
-  const restorePhase9OwnerEvidence=async()=>check('Phase 9 fixture restores the hosted immutable owner evidence',async()=>{
-    assert.equal(ownerEvidence.contract,'phase9_search_owner_evidence_v1');
+  const restorePhase12OwnerEvidence=async()=>check('Phase 12 fixture restores the owner-approved hosted immutable evidence',async()=>{
+    assert.equal(ownerEvidence.contract,'phase12_search_owner_evidence_v1');
     assert.equal(ownerEvidence.pages.length,12);
     assert.equal(ownerEvidence.page_specs.length,12);
     assert.equal(ownerEvidence.membership_snapshots.length,10);
@@ -30,19 +30,20 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
     try{
       await db.query(`
         insert into public.feya_commerce_seo_pages_v1(
-          seo_page_id,page_type,url_path,canonical_product_id,market_code,locale,
+          seo_page_id,page_type,url_path,canonical_url,canonical_product_id,market_code,locale,
           lifecycle_state,indexation_intent,portfolio_status
         )
         select
-          seo_page_id,page_type,url_path,canonical_product_id,market_code,locale,
+          seo_page_id,page_type,url_path,canonical_url,canonical_product_id,market_code,locale,
           lifecycle_state,indexation_intent,portfolio_status
         from jsonb_to_recordset($1::jsonb) as x(
-          seo_page_id uuid,page_type text,url_path text,canonical_product_id uuid,
+          seo_page_id uuid,page_type text,url_path text,canonical_url text,canonical_product_id uuid,
           market_code text,locale text,lifecycle_state text,indexation_intent text,portfolio_status text
         )
         on conflict (seo_page_id) do update set
           page_type=excluded.page_type,
           url_path=excluded.url_path,
+          canonical_url=excluded.canonical_url,
           canonical_product_id=excluded.canonical_product_id,
           market_code=excluded.market_code,
           locale=excluded.locale,
@@ -166,17 +167,29 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       ['/collections/costume-belts',13],
       ['/collections/festival-outfits',111],
       ['/collections/rave-outfits',40],
-      ['/collections/burning-man-looks',45],
-      ['/collections/stage-outfits',96],
+      ['/collections/burning-man-outfits',45],
+      ['/collections/performance-costumes',96],
       ['/collections/festival-skirts',56],
+    ]);
+    const expectedVersion=new Map([
+      ['/collections/shoulder-armor',3],
+      ['/collections/bodysuits',3],
+      ['/collections/costume-masks',3],
+      ['/collections/costume-headpieces',3],
+      ['/collections/costume-belts',3],
+      ['/collections/festival-outfits',3],
+      ['/collections/rave-outfits',2],
+      ['/collections/burning-man-outfits',3],
+      ['/collections/performance-costumes',3],
+      ['/collections/festival-skirts',3],
     ]);
     assert.equal(state.rows.length,10);
     for(const row of state.rows){
       assert.equal(row.expected_item_count,expected.get(row.url_path),row.url_path);
       assert.equal(row.item_count,row.expected_item_count,row.url_path);
-      assert.equal(row.latest_version,2,row.url_path);
+      assert.equal(row.latest_version,expectedVersion.get(row.url_path),row.url_path);
     }
-    report.phase9_owner_evidence_fixture_pass=true;
+    report.phase12_owner_evidence_fixture_pass=true;
   });
 
   // Phase 4 runtime proof must exercise the actual Phase 3 card read model.
@@ -329,8 +342,8 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
         '/collections/costume-belts',
         '/collections/festival-outfits',
         '/collections/rave-outfits',
-        '/collections/burning-man-looks',
-        '/collections/stage-outfits',
+        '/collections/burning-man-outfits',
+        '/collections/performance-costumes',
       ]) assert.ok(homeHtml.includes(`href="${href}"`),href);
       // Cache Components can stream the static shell before notFound() resolves, so
       // Phase 6 accepts Next's documented 200+noindex streamed-not-found semantics.
@@ -500,7 +513,7 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       const owners=[
         '/collections/shoulder-armor','/collections/bodysuits','/collections/costume-masks',
         '/collections/costume-headpieces','/collections/costume-belts','/collections/festival-outfits',
-        '/collections/rave-outfits','/collections/burning-man-looks','/collections/stage-outfits',
+        '/collections/rave-outfits','/collections/burning-man-outfits','/collections/performance-costumes',
         '/collections/festival-skirts',
       ];
       for(const route of ['/events-performance','/style','/collections']){
@@ -561,9 +574,9 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       report.phase8_owner_link_parity_pass=true;
     });
 
-    await restorePhase9OwnerEvidence();
+    await restorePhase12OwnerEvidence();
 
-    await check('Phase 9 current owner routes preserve governed membership and stay noindex before rename approval',async()=>{
+    await check('Phase 12 owner-approved routes preserve governed membership, noindex and permanent aliases',async()=>{
       const owners=[
         ['/collections/shoulder-armor',80],
         ['/collections/bodysuits',30],
@@ -572,8 +585,8 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
         ['/collections/costume-belts',13],
         ['/collections/festival-outfits',111],
         ['/collections/rave-outfits',40],
-        ['/collections/burning-man-looks',45],
-        ['/collections/stage-outfits',96],
+        ['/collections/burning-man-outfits',45],
+        ['/collections/performance-costumes',96],
         ['/collections/festival-skirts',56],
       ];
       for(const [ownerPath,count] of owners){
@@ -597,12 +610,18 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
         assert.equal(new URL(canonicalHref,base).pathname,ownerPath,ownerPath);
         assert.match(robotsContent||'',/noindex/i,ownerPath);
       }
-      for(const pending of ['/collections/burning-man-outfits','/collections/performance-costumes']){
-        const response=await request(pending);
-        assert.equal(response.status(),404,pending);
+
+      for(const [oldPath,newPath] of [
+        ['/collections/burning-man-looks','/collections/burning-man-outfits'],
+        ['/collections/stage-outfits','/collections/performance-costumes'],
+      ]){
+        const response=await ownerPage.request.get(base+oldPath,{maxRedirects:0});
+        assert.equal(response.status(),308,oldPath);
+        assert.equal(new URL(response.headers().location,base).pathname,newPath,oldPath);
       }
-      report.phase9_current_owner_routes_pass=true;
-      report.phase9_pending_rename_routes_absent=true;
+
+      report.phase12_current_owner_routes_pass=true;
+      report.phase12_owner_redirects_pass=true;
     });
 
     await check('Measurement context exposes stable IDs but remains fail-closed in preview without consent activation',async()=>{
