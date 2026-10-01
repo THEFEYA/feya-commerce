@@ -410,10 +410,14 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
         const response=await request(ownerPath);
         assert.equal(response.status(),200,ownerPath);
         const html=await response.text();
-        const data=await documentData(html);
-        assert.equal(new URL(data.canonical,base).pathname,ownerPath,ownerPath);
-        assert.match(data.robots||'',/noindex/i,ownerPath);
         assert.ok(html.includes(`${count} orderable pieces`),ownerPath);
+
+        await page.goto(base+ownerPath,{waitUntil:'domcontentloaded'});
+        const canonicalHref=await page.locator('link[rel="canonical"]').getAttribute('href');
+        const robotsContent=await page.locator('meta[name="robots"]').getAttribute('content');
+        assert.ok(canonicalHref,ownerPath+' canonical');
+        assert.equal(new URL(canonicalHref,base).pathname,ownerPath,ownerPath);
+        assert.match(robotsContent||'',/noindex/i,ownerPath);
       }
       for(const pending of ['/collections/burning-man-outfits','/collections/performance-costumes']){
         const response=await request(pending);
