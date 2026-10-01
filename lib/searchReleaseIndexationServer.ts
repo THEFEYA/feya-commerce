@@ -1,5 +1,6 @@
 import 'server-only';
 import {cache} from 'react';
+import {connection} from 'next/server';
 import type {Metadata} from 'next';
 import {getSupabaseServiceRoleClient} from '@/lib/supabaseAdmin';
 import {getSiteUrl, isSearchIndexingEnabled} from '@/lib/siteConfig';
@@ -96,6 +97,10 @@ export const readSearchReleasePathState=cache(async(path:string):Promise<SearchR
 });
 
 export async function releaseRobotsForPath(path:string):Promise<Metadata['robots']>{
+  // ACTIVE Search Release is mutable production governance. Resolve release-bound
+  // robots at request time so activating or retiring a release never requires
+  // baking indexation state into a build artifact.
+  await connection();
   const state=await readSearchReleasePathState(path);
   if(state.included&&state.intendedIndexState==='index'){
     return{index:true,follow:true};
