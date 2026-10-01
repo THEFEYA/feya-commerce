@@ -17,7 +17,7 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
   const release=prepareReviewPresentation(source,binding.source_sha256);
   assert.equal(release.presentation_sha256,binding.presentation_sha256);
 
-  await check('Phase 9 fixture restores the hosted immutable owner evidence',async()=>{
+  const restorePhase9OwnerEvidence=async()=>check('Phase 9 fixture restores the hosted immutable owner evidence',async()=>{
     assert.equal(ownerEvidence.contract,'phase9_search_owner_evidence_v1');
     assert.equal(ownerEvidence.pages.length,12);
     assert.equal(ownerEvidence.page_specs.length,12);
@@ -555,6 +555,8 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       report.phase8_navigation_keyboard_pass=true;
       report.phase8_owner_link_parity_pass=true;
     });
+
+    await restorePhase9OwnerEvidence();
 
     await check('Phase 9 current owner routes preserve governed membership and stay noindex before rename approval',async()=>{
       const owners=[
