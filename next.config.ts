@@ -2,6 +2,12 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+  async redirects() {
+    return [
+      { source: '/collections/burning-man-looks', destination: '/collections/burning-man-outfits', permanent: true },
+      { source: '/collections/stage-outfits', destination: '/collections/performance-costumes', permanent: true },
+    ];
+  },
   images: {
     remotePatterns: [
       {
