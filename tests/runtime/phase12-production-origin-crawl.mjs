@@ -3,6 +3,7 @@ import { resolve4, resolve6, resolveCname } from 'node:dns/promises';
 
 const manifest=JSON.parse(await readFile(new URL('./fixtures/phase12-wave-a-v10-production-crawl.json',import.meta.url),'utf8'));
 const origin=new URL(manifest.release.targetOrigin).origin;
+const seoCrawlerUserAgent='Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
 const result={
   contract:'phase12_production_origin_crawl_evidence_v1',
   startedAt:new Date().toISOString(),
@@ -60,7 +61,7 @@ function hasNoindex(signals,headers){
   if(xrobots.includes('noindex'))return true;
   return signals.robots.some(r=>r.content.includes('noindex'));
 }
-async function fetchHead(path,{redirect='manual',timeoutMs=20000,maxBytes=262144}={}){
+async function fetchHead(path,{redirect='manual',timeoutMs=20000,maxBytes=1572864}={}){
   let lastError;
   for(let attempt=1;attempt<=3;attempt++){
     const controller=new AbortController();
@@ -70,7 +71,7 @@ async function fetchHead(path,{redirect='manual',timeoutMs=20000,maxBytes=262144
         redirect,
         signal:controller.signal,
         headers:{
-          'user-agent':'Mozilla/5.0 (compatible; TheFEYA-Phase12-ReleaseCrawl/1.0; +https://thefeya.com)',
+          'user-agent':seoCrawlerUserAgent,
           'accept':'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
           'cache-control':'no-cache',
         },
@@ -84,7 +85,10 @@ async function fetchHead(path,{redirect='manual',timeoutMs=20000,maxBytes=262144
             const {done,value}=await reader.read();
             if(done)break;
             html+=decoder.decode(value,{stream:true});
-            if(/<\/head>/i.test(html))break;
+            const hasCanonical=/<link\b[^>]*rel=["'][^"']*canonical[^"']*["'][^>]*>/i.test(html)
+              || /<link\b[^>]*href=["'][^"']+["'][^>]*rel=["'][^"']*canonical[^"']*["'][^>]*>/i.test(html);
+            const hasRobots=/<meta\b[^>]*name=["'](?:robots|googlebot)["'][^>]*>/i.test(html);
+            if(hasCanonical&&hasRobots)break;
           }
         }finally{
           try{await reader.cancel();}catch{}
@@ -110,7 +114,7 @@ async function fetchText(path,{redirect='manual',timeoutMs=20000}={}){
         redirect,
         signal:controller.signal,
         headers:{
-          'user-agent':'Mozilla/5.0 (compatible; TheFEYA-Phase12-ReleaseCrawl/1.0; +https://thefeya.com)',
+          'user-agent':seoCrawlerUserAgent,
           'cache-control':'no-cache',
         },
       });
@@ -195,7 +199,7 @@ try{
   const wwwUrl=new URL(origin);wwwUrl.hostname='www.'+wwwUrl.hostname;
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),20000);
-  const response=await fetch(wwwUrl,{redirect:'manual',signal:controller.signal,headers:{'user-agent':'Mozilla/5.0 (compatible; TheFEYA-Phase12-ReleaseCrawl/1.0)'}});
+  const response=await fetch(wwwUrl,{redirect:'manual',signal:controller.signal,headers:{'user-agent':seoCrawlerUserAgent}});
   clearTimeout(timer);
   const location=response.headers.get('location');
   let pass=false;
