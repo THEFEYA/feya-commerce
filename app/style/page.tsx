@@ -1,4 +1,3 @@
-// @ts-nocheck
 export const instant = true;
 
 import type {Metadata} from 'next';
