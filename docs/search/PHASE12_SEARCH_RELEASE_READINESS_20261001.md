@@ -2,7 +2,7 @@
 
 Canonical source: **TheFEYA Storefront, Search & Performance Architecture v1.0**, Phase 12.
 
-This checkpoint is readiness + owner-decision implementation only. It does **not** prepare or activate a Search Release.
+This checkpoint covers readiness, owner-decision implementation and materialization of a fresh immutable Wave A v10. It does **not** prepare or activate Search Release indexing.
 
 ## 1. Phase 12 MASTER contract
 
@@ -133,46 +133,82 @@ Postflight:
 - ACTIVE Search Release count remains 0.
 
 This closes the K11 source/version drift before a new release is materialized. Historical foundational v1 rows remain immutable.
-## 6. Last historical release
+## 6. Fresh immutable Wave A v10
 
-Latest previously materialized release:
+After the owner-approved routes, foundational page versions and full Phase 12 CI were green, a new immutable release snapshot was materialized.
+
+Hosted v10:
 
 - code: `organic-wave-a-20260926`
+- version: `10`
+- release id: `b35147c7-2be1-5de7-87a4-36ea92d2d2f5`
+- release hash: `5c110b89aa6cd6a22cc7eca23fc78ad71f305e1e66810ec92aa6dbf0e83f39df`
+- git SHA: `51f4973a516bcd1205d123681f66dc2ff2d44bfb`
+- release status: `GATE_FAILED`
+- FEYA validation: `36868549729 = SUCCESS`
+- Vercel deployment: `dpl_Hi5Nszioi84NjDhDBwTNE4573RQi = READY`
+- total release items: 228
+- index candidates: 18
+- noindex dependencies: 210
+- product noindex dependencies: 207
+- active Search Release count after materialization: 0
+
+Release scope uses the owner-approved canonical routes:
+
+- `/collections/burning-man-outfits`
+- `/collections/performance-costumes`
+
+The retired routes are not present in the v10 item set.
+
+Product dependencies bind to the current immutable
+`feya_storefront_approved_product_bindings_v1.content_sha256`
+for all 207 approved PDPs rather than the now-null legacy draft `proposal_hash`.
+
+Fresh gate summary:
+
+- PASS: 13
+- EXCLUDED_APPROVED: 3
+- FAIL: 4
+- failed gates: `K02`, `K14`, `K19`, `K20`
+
+The release remains intentionally non-active.
+
+### 6.1 Historical v9 release
+
+Previous materialized release:
+
 - version: 9
 - release id: `e6f3b105-b23b-5623-93ae-9e5ba36ac5c3`
 - hash: `26cfb3598d009633c3cf44095a4c46ddc97ea961f25b142dad682ed69815fc7b`
-- status: `GATE_FAILED`
 - historical git SHA: `3bde4097e7b1d038f34ab44d39b38675c96333da`
-- historical index candidates: 18
-- historical noindex dependencies: 210
-- index activation authorized: false
+- status: `GATE_FAILED`
 
 Do not reactivate v9. It contains retired owner URLs and predates Phases 8–11 plus the owner-approved rename migration.
 
-## 7. Historical FAIL gates that still matter
-
-The v9 release had 16 PASS / EXCLUDED_APPROVED gates and four FAIL gates.
+## 7. Current FAIL gates
 
 ### K02 — canonical production origin
 
-Historical state: canonical origin was not serving current feya-commerce.
+Fresh 2026-10-01 public behavior still returns HTTP 502 for `https://thefeya.com/`.
 
-Fresh 2026-10-01 public check still returns HTTP 502 for `https://thefeya.com/`.
-
-User reports the domain has been configured in Vercel, but current public behavior is the release authority. K02 remains FAIL until the canonical host serves the current storefront correctly.
+User reports the domain has been configured in Vercel, but current public behavior is the release authority. K02 remains FAIL until the canonical host serves the validated storefront correctly.
 
 Required:
+
 - verify `thefeya.com` project assignment/DNS;
 - verify `www.thefeya.com` redirect/canonical behavior;
-- confirm canonical origin returns the current storefront.
+- confirm canonical origin serves the storefront represented by git SHA `51f4973a516bcd1205d123681f66dc2ff2d44bfb`.
 
 ### K14 — anonymous production crawl
 
-Blocked by K02. After canonical domain resolution:
-- crawl the exact Wave A corpus anonymously on the production origin;
+Blocked by K02.
+
+After canonical domain resolution:
+
+- crawl the exact 18-page Wave A corpus anonymously on the production origin;
 - verify 200/308/404/canonical/robots state;
-- verify old owner routes 308 to the new canonical routes;
-- verify no query/filter/private URLs enter the index corpus.
+- verify both retired owner routes 308 to the new canonical routes;
+- verify `/shop`, all 207 PDPs, filter/query states and private routes remain outside the index corpus.
 
 ### K19 — Search Console Domain property
 
@@ -180,50 +216,52 @@ Fresh GSC Wizard check on 2026-10-01 still lists only:
 
 `https://thefeya.com/`
 
-The required Domain property `sc-domain:thefeya.com` is not connected.
+Required Domain property:
 
-Required:
-- create/verify `sc-domain:thefeya.com` in Google Search Console via DNS;
-- then register/connect it in GSC Wizard.
+`sc-domain:thefeya.com`
 
-Current tools can register an already verified Domain property but cannot perform DNS verification.
+The current tools can register an already verified Domain property but cannot perform its DNS verification. K19 stays FAIL until that property is verified in Google Search Console and connected to GSC Wizard.
 
 ### K20 — exact release-hash owner approval
 
-The user has approved the **corpus decisions**, but a new immutable release id/hash does not exist yet.
+The Human Owner approved the corpus and route/taxonomy decisions, but the exact newly materialized immutable release hash has not yet been approved.
 
-K20 remains fail-closed until:
-1. a new release is materialized against the final validated Phase 12 git SHA;
-2. fresh K01–K20 evidence is attached;
-3. the exact release id/hash/path list is shown to the owner;
-4. the owner approves that exact immutable release.
+Exact approval target:
+
+- release id: `b35147c7-2be1-5de7-87a4-36ea92d2d2f5`
+- release version: `10`
+- release hash: `5c110b89aa6cd6a22cc7eca23fc78ad71f305e1e66810ec92aa6dbf0e83f39df`
+- git SHA: `51f4973a516bcd1205d123681f66dc2ff2d44bfb`
+- index candidate count: 18
+
+K20 must remain FAIL until the owner explicitly approves this exact immutable release.
 
 ## 8. Activation boundary
 
 `feya_search_prepare_release_activation_v1` is **not a dry-run**.
 
 It:
+
 - requires exact release id/hash/git SHA;
 - requires exactly 20 gates and zero FAIL;
 - creates an `ACTIVATE_SEARCH_RELEASE` execution request;
 - changes release state to `APPROVAL_REQUIRED`.
 
 Therefore:
-- do not call prepare/execute activation while K02/K14/K19 remain FAIL;
+
+- do not call prepare/execute activation while K02/K14/K19/K20 remain FAIL;
 - do not submit sitemap or activate Merchant/Search Console release before the technical gate;
 - preserve ACTIVE release count = 0.
 
-## 9. Next engineering steps
+## 9. Remaining Phase 12 work
 
-Allowed before activation:
+The release itself now exists. Remaining work is limited to the four fail-closed gates:
 
-1. finish CI/Vercel validation of the owner-approved rename change-set;
-2. resolve canonical domain serving/DNS assignment;
-3. connect verified GSC Domain property;
-4. materialize a **new** immutable 18-page Wave A release pinned to the final validated Phase 12 git SHA and current page versions;
-5. rebuild K01–K20 from fresh evidence;
-6. run anonymous canonical-origin crawl;
-7. present exact release id/hash/path list for final K20 owner approval;
-8. only then run the governed preparation/execution activation flow.
+1. resolve canonical production origin serving so K02 can pass;
+2. run the anonymous production-origin crawl so K14 can pass;
+3. verify/connect `sc-domain:thefeya.com` so K19 can pass;
+4. obtain explicit Human Owner approval of the exact v10 release id/hash so K20 can pass;
+5. after all 20 gates are PASS / EXCLUDED_APPROVED, call the governed prepare/approval/execute activation flow;
+6. only after activation, verify sitemap/robots against the exact ACTIVE release and perform Search Console submission/postflight.
 
 No Search Release has been activated by this branch.
