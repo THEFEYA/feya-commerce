@@ -340,9 +340,9 @@ await writeFile('runtime-results/phase12-production-origin-crawl.json',JSON.stri
 console.log(JSON.stringify(result.summary,null,2));
 if(result.errors.length){
   console.error(JSON.stringify(result.errors.slice(0,30),null,2));
-  const allowBlocked=process.env.PHASE12_ALLOW_BLOCKED==='true'&&!canonicalOriginReady;
+  const allowBlocked=process.env.PHASE12_ALLOW_BLOCKED==='true';
   if(allowBlocked){
-    console.log('Phase 12 production crawl is intentionally non-blocking before production cutover; K02/K14 remain fail-closed.');
+    console.log('Phase 12 production crawl evidence is non-blocking on pull requests; the strict gate runs after the change reaches production.');
   }else{
     process.exitCode=1;
   }
