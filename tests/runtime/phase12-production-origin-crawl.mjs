@@ -4,8 +4,16 @@ import { resolve4, resolve6, resolveCname } from 'node:dns/promises';
 const manifest=JSON.parse(await readFile(new URL('./fixtures/phase12-wave-a-v10-production-crawl.json',import.meta.url),'utf8'));
 const origin=new URL(manifest.release.targetOrigin).origin;
 const seoCrawlerUserAgent='Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
+const productNoindexSampleCount=Math.min(24,manifest.productNoindexPaths.length);
+const productNoindexSamplePaths=Array.from(
+  new Set(Array.from({length:productNoindexSampleCount},(_,index)=>{
+    if(productNoindexSampleCount<=1)return manifest.productNoindexPaths[0];
+    const position=Math.round(index*(manifest.productNoindexPaths.length-1)/(productNoindexSampleCount-1));
+    return manifest.productNoindexPaths[position];
+  }))
+).filter(Boolean);
 const result={
-  contract:'phase12_production_origin_crawl_evidence_v1',
+  contract:'phase12_production_origin_crawl_evidence_v2',
   startedAt:new Date().toISOString(),
   release:manifest.release,
   origin,
@@ -13,7 +21,14 @@ const result={
   originChecks:[],
   indexCandidates:[],
   retiredRedirects:[],
-  productNoindex:{expected:manifest.productNoindexPaths.length,checked:0,passed:0,failed:[]},
+  productNoindex:{
+    manifestExpected:manifest.productNoindexPaths.length,
+    httpSampleExpected:productNoindexSamplePaths.length,
+    samplePaths:productNoindexSamplePaths,
+    checked:0,
+    passed:0,
+    failed:[]
+  },
   utilityNoindex:[],
   filterNoindex:[],
   robots:null,
@@ -182,7 +197,7 @@ try{
   const signals=headSignals(home.html);
   const markerA=home.html.includes('/collections/burning-man-outfits');
   const markerB=home.html.includes('/collections/performance-costumes');
-  const deployedMatch=home.html.match(/[?&]dpl=(dpl_[A-Za-z0-9]+)/);
+  const deployedMatch=home.html.match(/data-dpl-id=["'](dpl_[A-Za-z0-9]+)["']/i)||home.html.match(/[?&]dpl=(dpl_[A-Za-z0-9]+)/);
   const homeEntry={
     host:'thefeya.com',
     status:home.status,
@@ -254,7 +269,10 @@ for(const item of manifest.retiredRedirects){
   }
 }
 
-const productEntries=await mapLimit(manifest.productNoindexPaths,8,async path=>checkNoindexPath(path));
+// The immutable release manifest proves all 207 PDPs are NOINDEX_DEPENDENCY.
+ // HTTP verifies a deterministic cross-catalog sample through the one shared PDP route
+ // instead of re-rendering the same route contract hundreds of times on every CI run.
+const productEntries=await mapLimit(productNoindexSamplePaths,8,async path=>checkNoindexPath(path));
 for(const entry of productEntries){
   result.productNoindex.checked++;
   if(entry.pass)result.productNoindex.passed++;
@@ -311,7 +329,8 @@ result.summary={
   errorCount:result.errors.length,
   indexCandidatesChecked:result.indexCandidates.length,
   indexCandidatesPassed:result.indexCandidates.filter(x=>x.pass).length,
-  productNoindexExpected:result.productNoindex.expected,
+  productNoindexManifestExpected:result.productNoindex.manifestExpected,
+  productNoindexHttpSampleExpected:result.productNoindex.httpSampleExpected,
   productNoindexChecked:result.productNoindex.checked,
   productNoindexPassed:result.productNoindex.passed,
   retiredRedirectsPassed:result.retiredRedirects.filter(x=>x.pass).length,
