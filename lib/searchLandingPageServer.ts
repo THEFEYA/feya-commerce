@@ -60,6 +60,16 @@ export type SearchLandingRelease = {
   source: 'immutable_page_version' | 'hold_noindex';
 };
 
+
+export type SearchLandingMetadata = {
+  candidate: SearchLandingCandidate;
+  pageId: string | null;
+  version: number | null;
+  contentHash: string | null;
+  content: SearchLandingContent | null;
+  source: 'active_release_version' | 'candidate_fallback' | 'hold_noindex';
+};
+
 function assertContent(value: unknown, expectedPath: string): SearchLandingContent {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     throw new Error('SEARCH_LANDING_CONTENT_INVALID');
@@ -79,6 +89,80 @@ function assertContent(value: unknown, expectedPath: string): SearchLandingConte
     throw new Error('SEARCH_LANDING_CONTENT_NOT_CQA_HELD');
   }
   return row as unknown as SearchLandingContent;
+}
+
+async function readSearchLandingMetadataInner(slug:string):Promise<SearchLandingMetadata|null>{
+  const candidate=getSearchLandingCandidate(slug);
+  if(!candidate)return null;
+
+  if(candidate.searchStatus==='hold_noindex'){
+    return{
+      candidate,
+      pageId:null,
+      version:null,
+      contentHash:null,
+      content:null,
+      source:'hold_noindex',
+    };
+  }
+
+  const urlPath=`/collections/${candidate.slug}`;
+  const releaseState=await readSearchReleasePathState(urlPath);
+  const activeBinding=releaseState.release&&releaseState.included?releaseState:null;
+
+  // Before Search Release activation, the route is intentionally noindex.
+  // Do not pull the complete collection payload merely to build its <head>;
+  // the approved candidate copy is a safe pre-index fallback.
+  if(!activeBinding){
+    return{
+      candidate,
+      pageId:null,
+      version:null,
+      contentHash:null,
+      content:null,
+      source:'candidate_fallback',
+    };
+  }
+
+  if(activeBinding.itemRole!=='INDEX_CANDIDATE'||activeBinding.intendedIndexState!=='index'){
+    throw new Error('SEARCH_LANDING_METADATA_ACTIVE_RELEASE_ROLE_INVALID');
+  }
+  if(!activeBinding.seoPageId||!activeBinding.pageVersionId||!activeBinding.contentHash){
+    throw new Error('SEARCH_LANDING_METADATA_ACTIVE_RELEASE_BINDING_INCOMPLETE');
+  }
+
+  const service=getSupabaseServiceRoleClient();
+  if(!service)throw new Error('SEARCH_LANDING_METADATA_SERVICE_ROLE_NOT_CONFIGURED');
+
+  const {data:version,error}=await service
+    .from('feya_search_page_versions_v1')
+    .select('page_version_id,seo_page_id,version_number,membership_snapshot_id,content_hash,content_json')
+    .eq('page_version_id',activeBinding.pageVersionId)
+    .eq('seo_page_id',activeBinding.seoPageId)
+    .maybeSingle();
+
+  if(error)throw new Error(`SEARCH_LANDING_METADATA_VERSION_LOOKUP_FAILED:${error.message}`);
+  if(!version?.page_version_id||!version?.content_hash)throw new Error('SEARCH_LANDING_METADATA_VERSION_MISSING');
+  if(String(version.content_hash)!==activeBinding.contentHash){
+    throw new Error('SEARCH_LANDING_METADATA_CONTENT_HASH_MISMATCH');
+  }
+  if(activeBinding.membershipSnapshotId&&String(version.membership_snapshot_id)!==activeBinding.membershipSnapshotId){
+    throw new Error('SEARCH_LANDING_METADATA_MEMBERSHIP_MISMATCH');
+  }
+
+  const content=assertContent(version.content_json,urlPath);
+  if(content.primary_cluster!==candidate.primaryCluster){
+    throw new Error('SEARCH_LANDING_METADATA_PRIMARY_CLUSTER_MISMATCH');
+  }
+
+  return{
+    candidate,
+    pageId:activeBinding.seoPageId,
+    version:Number(version.version_number),
+    contentHash:String(version.content_hash),
+    content,
+    source:'active_release_version',
+  };
 }
 
 async function readBreadcrumbs(
@@ -333,6 +417,21 @@ async function readSearchLandingReleaseInner(slug: string): Promise<SearchLandin
   };
 }
 
+async function readCachedSearchLandingMetadataInner(slug:string):Promise<SearchLandingMetadata|null>{
+  'use cache';
+  const candidate=getSearchLandingCandidate(slug);
+  if(!candidate)return null;
+
+  cacheLife('max');
+  cacheTag(
+    STOREFRONT_CACHE_TAGS.site,
+    STOREFRONT_CACHE_TAGS.collections,
+    storefrontCacheTagForCollection(candidate.slug),
+  );
+
+  return readSearchLandingMetadataInner(candidate.slug);
+}
+
 async function readCachedSearchLandingReleaseInner(slug:string):Promise<SearchLandingRelease|null>{
   'use cache';
   const candidate=getSearchLandingCandidate(slug);
@@ -355,5 +454,7 @@ async function readCachedSearchLandingReleaseInner(slug:string):Promise<SearchLa
   };
 }
 
+export const readCachedSearchLandingMetadata = readCachedSearchLandingMetadataInner;
+export const readSearchLandingMetadata = cache(readSearchLandingMetadataInner);
 export const readCachedSearchLandingRelease = readCachedSearchLandingReleaseInner;
 export const readSearchLandingRelease = cache(readSearchLandingReleaseInner);

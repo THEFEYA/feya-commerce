@@ -10,8 +10,13 @@ import { ProductDetailClient } from '@/components/ProductDetailClient';
 import { readProductLandingLinks } from '@/lib/searchProductLandingLinks';
 import { getMedia, productTitle } from '@/lib/storefront';
 import { readCachedStorefrontProductPresentation } from '@/lib/storefrontProductPresentationServer';
+import { readCachedStorefrontProductMetadataV1 } from '@/lib/storefrontProductMetadataServer';
+import { releaseRobotsForPath } from '@/lib/searchReleaseIndexationServer';
 import type { StorefrontProduct } from '@/lib/types';
 import { readApprovedStorefrontCopy } from '@/lib/seoApprovedStorefrontServer';
+import approvedContentManifest from '@/config/approved-content-review-bindings.json';
+import { approvedContentReviewMode } from '@/lib/seoApprovedStorefrontPolicy';
+import { closedReviewRequested } from '@/lib/searchReviewPresentation';
 import type { ApprovedCopyPayload } from '@/lib/seoApprovedContentProjection';
 import { readClosedReviewPresentation } from '@/lib/searchReviewPresentationServer';
 import { absoluteSiteUrl } from '@/lib/siteConfig';
@@ -110,30 +115,66 @@ const getPresentation = cache(async (slug: string) => {
 });
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const { product, approvedCopy, copyBlocked } = await getPresentation(slug);
+  const path=`/shop/${slug}`;
+  const protectedReviewMetadata = isHybridVisualPreviewDeployment(process.env)
+    || closedReviewRequested(process.env)
+    || approvedContentReviewMode(process.env, approvedContentManifest.version) !== 'disabled';
 
-  if (!product || copyBlocked) {
-    return {
-      title: 'Product not found | TheFEYA',
-      robots: { index: false, follow: true },
+  // Protected review modes intentionally project pinned owner-approved copy and
+  // must keep their authenticated/request-scoped source path. Public production
+  // uses the slim metadata read model below so search-crawler <head> generation
+  // does not depend on the full PDP presentation payload.
+  if(protectedReviewMetadata){
+    const {product,approvedCopy,copyBlocked}=await getPresentation(slug);
+    if(!product||copyBlocked){
+      return{
+        title:'Product not found | TheFEYA',
+        robots:{index:false,follow:true},
+      };
+    }
+
+    const title=approvedCopy?.metadata.title||productTitle(product);
+    const description=approvedCopy?.metadata.description||productDescription(product);
+    const images=productImages(product);
+    return{
+      robots:approvedCopy?{index:false,follow:false}:await releaseRobotsForPath(path),
+      title,
+      description,
+      alternates:{canonical:path},
+      openGraph:{
+        title,
+        description,
+        url:path,
+        type:'website',
+        images:images.slice(0,4),
+      },
     };
   }
 
-  const title = approvedCopy?.metadata.title || productTitle(product);
-  const description = approvedCopy?.metadata.description || productDescription(product);
-  const images = productImages(product);
+  const [metadata,robots]=await Promise.all([
+    readCachedStorefrontProductMetadataV1(slug),
+    releaseRobotsForPath(path),
+  ]);
 
-  return {
-    ...(approvedCopy ? { robots: { index: false, follow: false } } : {}),
-    title,
-    description,
-    alternates: { canonical: `/shop/${slug}` },
-    openGraph: {
-      title,
-      description,
-      url: `/shop/${slug}`,
-      type: 'website',
-      images: images.slice(0, 4),
+  if(!metadata){
+    return{
+      title:'Product not found | TheFEYA',
+      alternates:{canonical:path},
+      robots:{index:false,follow:true},
+    };
+  }
+
+  return{
+    robots,
+    title:metadata.title,
+    description:metadata.description,
+    alternates:{canonical:path},
+    openGraph:{
+      title:metadata.title,
+      description:metadata.description,
+      url:path,
+      type:'website',
+      images:metadata.images.slice(0,4),
     },
   };
 }
