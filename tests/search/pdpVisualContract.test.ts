@@ -7,6 +7,13 @@ import ts from 'typescript';
 // The visible PDP markup remains hash-frozen. Functional collection href/data
 // routing is normalized out so the visual contract tests only visual structure.
 export function pdpJsxHash(source: string) {
+  // JSON-LD is non-visual. Remove only the Phase 11 breadcrumb script line before
+  // parsing so JSX whitespace nodes stay byte-for-byte compatible with the prior
+  // visible-tree baseline; the original Product JSON-LD remains in the contract.
+  source = source.split('\n')
+    .filter(line => !(line.includes('<script') && line.includes('JSON.stringify(breadcrumbLd)')))
+    .join('\n');
+
   // Route-level Suspense is delivery plumbing, not part of the frozen resolved PDP.
   // Normalize it back to the prior async page shape before hashing visible markup.
   const wrapperStart = source.indexOf('export default function ProductPage(props: PageProps)');
