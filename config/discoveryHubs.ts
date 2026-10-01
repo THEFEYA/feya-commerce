@@ -42,9 +42,9 @@ export const EVENTS_PERFORMANCE_HUB_TILES:DiscoveryHubTile[]=[
     role:'owner',
   },
   {
-    code:'burning-man-looks',pieceCount:45,
+    code:'burning-man-outfits',pieceCount:45,
     label:'Burning Man Looks',
-    href:'/collections/burning-man-looks',
+    href:'/collections/burning-man-outfits',
     eyebrow:'Desert',
     description:'Sculptural statement pieces for desert-event styling.',
     imageUrl:imageFrom(EVENTS_PERFORMANCE_MEGA_PREVIEWS,'Burning Man'),
@@ -52,9 +52,9 @@ export const EVENTS_PERFORMANCE_HUB_TILES:DiscoveryHubTile[]=[
     role:'owner',
   },
   {
-    code:'stage-outfits',pieceCount:96,
+    code:'performance-costumes',pieceCount:96,
     label:'Stage & Performance',
-    href:'/collections/stage-outfits',
+    href:'/collections/performance-costumes',
     eyebrow:'Performance',
     description:'Camera-facing pieces for stage, fashion and live performance.',
     imageUrl:imageFrom(EVENTS_PERFORMANCE_MEGA_PREVIEWS,'Stage & Fashion'),
