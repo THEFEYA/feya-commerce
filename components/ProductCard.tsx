@@ -1,5 +1,8 @@
 'use client';
+import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useRef, useState } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { colorStyle } from '@/components/colors';
 import { trackEcommerceEvent } from '@/lib/measurementClient';
@@ -77,6 +80,12 @@ function galleryUrls(product: StorefrontProduct) {
   return uniqueUrls(collectUrls(product.media_gallery));
 }
 
+const PRODUCT_CARD_IMAGE_SIZES = '(max-width: 639px) calc(100vw - 2rem), (max-width: 1023px) calc(50vw - 2rem), (max-width: 1279px) 25vw, 21vw';
+
+function isInlineImage(src: string) {
+  return src.startsWith('data:') || src.startsWith('blob:');
+}
+
 export function ProductCard({ product: p, index = 0 }: { product: StorefrontProduct; index?: number }) {
   const primary = p.primary_image_url || '';
   const gallery = galleryUrls(p);
@@ -88,9 +97,10 @@ export function ProductCard({ product: p, index = 0 }: { product: StorefrontProd
   const cleanSwap = mediaCandidates.find((url) => url && url !== primary) || '';
   const video = p.has_video ? (p.video_url || '') : '';
   const hasHoverMedia = Boolean(video || cleanSwap);
-  const primaryClassName = hasHoverMedia
-    ? 'primary-media transition-opacity duration-500 group-hover:opacity-0'
-    : 'primary-static-media h-full w-full object-cover transition-transform duration-700';
+  const router = useRouter();
+  const [hoverIntent, setHoverIntent] = useState(false);
+  const [hoverReady, setHoverReady] = useState(false);
+  const prefetchedRef = useRef(false);
   const colors = colorOptions(p);
   const display = mainRegularPrice(p);
   const compareAt = mainCompareAtPrice(p);
@@ -100,23 +110,75 @@ export function ProductCard({ product: p, index = 0 }: { product: StorefrontProd
   const currency = p.currency || 'EUR';
   const slug = productSlug(p);
   const title = productTitle(p);
+  const href = `/shop/${slug}`;
+  const primaryClassName = hoverReady
+    ? 'primary-media transition-opacity duration-500 group-hover:opacity-0'
+    : 'primary-static-media h-full w-full object-cover transition-transform duration-700';
+  const hoverClassName = hoverReady
+    ? 'hover-media absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100'
+    : 'absolute inset-0 h-full w-full object-cover opacity-0';
+
+  const primeIntent = () => {
+    if (!prefetchedRef.current) {
+      prefetchedRef.current = true;
+      router.prefetch(href);
+    }
+    if (hasHoverMedia) setHoverIntent(true);
+  };
 
   return (
     <Link
       prefetch={false}
-      href={`/shop/${slug}`}
+      href={href}
       data-testid={`product-card-${slug}`}
+      onPointerEnter={primeIntent}
+      onFocus={primeIntent}
+      onTouchStart={primeIntent}
       onClick={() => trackEcommerceEvent('select_item',{
         canonical_product_id:p.canonical_product_id,
         item_price:display,
         item_value:display,
         currency,
       },{currency,value:display??undefined})}
-      className={`product-card reveal group block focus:outline-none focus-visible:ring-1 focus-visible:ring-white/60 ${hasHoverMedia ? 'has-hover-media' : ''}`}
+      className={`product-card reveal group block focus:outline-none focus-visible:ring-1 focus-visible:ring-white/60 ${hoverReady ? 'has-hover-media' : ''}`}
       style={{ animationDelay: `${(index % 8) * 60}ms` }}>
       <div className="img-wrap relative overflow-hidden">
-        {primary ? <img src={primary} alt={title} loading="lazy" className={primaryClassName} /> : <div className="h-full grid place-items-center text-sm text-[var(--smoke)]">Missing image</div>}
-        {video ? <video src={video} muted playsInline loop preload="metadata" className="hover-media absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" /> : cleanSwap ? <img src={cleanSwap} alt="" loading={index < 24 ? 'eager' : 'lazy'} decoding="async" className="hover-media absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" aria-hidden="true" /> : null}
+        {primary ? (
+          <Image
+            src={primary}
+            alt={title}
+            fill
+            sizes={PRODUCT_CARD_IMAGE_SIZES}
+            loading="lazy"
+            decoding="async"
+            unoptimized={isInlineImage(primary)}
+            className={primaryClassName}
+          />
+        ) : <div className="h-full grid place-items-center text-sm text-[var(--smoke)]">Missing image</div>}
+        {video && hoverIntent ? (
+          <video
+            src={video}
+            muted
+            playsInline
+            loop
+            preload="metadata"
+            onLoadedData={() => setHoverReady(true)}
+            className={hoverClassName}
+          />
+        ) : cleanSwap && hoverIntent ? (
+          <Image
+            src={cleanSwap}
+            alt=""
+            fill
+            sizes={PRODUCT_CARD_IMAGE_SIZES}
+            loading="lazy"
+            decoding="async"
+            unoptimized={isInlineImage(cleanSwap)}
+            onLoad={() => setHoverReady(true)}
+            className={hoverClassName}
+            aria-hidden="true"
+          />
+        ) : null}
       </div>
       <div className="flex flex-col gap-1.5 px-4 py-4 lg:px-5 lg:py-5">
         <h3 className="product-card-title text-bone text-[18px] lg:text-[19px] leading-[1.15] line-clamp-2 min-h-[2.45em]" title={title}>{title}</h3>
