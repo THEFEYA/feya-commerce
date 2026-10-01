@@ -409,7 +409,7 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
         assert.equal(response.status(),200,ownerPath);
         const html=await response.text();
         const data=await documentData(html);
-        assert.equal(new URL(data.canonical).pathname,ownerPath,ownerPath);
+        assert.equal(new URL(data.canonical,base).pathname,ownerPath,ownerPath);
         assert.match(data.robots||'',/noindex/i,ownerPath);
         assert.ok(html.includes(`${count} orderable pieces`),ownerPath);
       }
