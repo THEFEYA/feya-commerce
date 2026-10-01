@@ -342,6 +342,7 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
 
       await page.setViewportSize({width:1440,height:1000});
       await page.goto(base+'/shop');
+      await page.waitForLoadState('networkidle');
       const nav=page.getByTestId('primary-nav');
       const parent=nav.getByRole('link',{name:'Events & Performance',exact:true});
       const disclosure=nav.getByRole('button',{name:'Events & Performance submenu',exact:true});
