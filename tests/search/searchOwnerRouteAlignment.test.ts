@@ -44,15 +44,13 @@ test('public navigation still uses the approved current routes until the owner a
 
 test('owner pages stay release-gated noindex and related PDP links come only from governed memberships',()=>{
   const collection=readFileSync('app/collections/[slug]/page.tsx','utf8');
+  const admission=readFileSync('app/collections/[slug]/layout.tsx','utf8');
   const related=readFileSync('lib/searchProductLandingLinks.ts','utf8');
   const release=readFileSync('lib/searchReleaseIndexationServer.ts','utf8');
-  assert.match(collection,/releaseRobotsForPath\(\`\/collections\/\${candidate\.slug\}\`\)/);
-  assert.match(collection,/if\(!candidate\|\|candidate\.searchStatus==='hold_noindex'\)notFound\(\)/);
-  assert.ok(
-    collection.indexOf("if(!candidate||candidate.searchStatus==='hold_noindex')notFound()")
-      < collection.indexOf('return <Suspense'),
-    'Unknown or HOLD collection slugs must fail before streaming starts',
-  );
+  assert.match(collection,/releaseRobotsForPath\(\`\/collections\/\$\{candidate\.slug\}\`\)/);
+  assert.match(collection,/export const instant = true/);
+  assert.match(admission,/export const instant = false/);
+  assert.match(admission,/if\(!candidate\|\|candidate\.searchStatus==='hold_noindex'\)notFound\(\)/);
   assert.match(related,/feya_search_membership_items_v1/);
   assert.match(related,/eligibility_status','eligible'/);
   assert.match(related,/orderability_status','confirmed'/);
