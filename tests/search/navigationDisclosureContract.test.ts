@@ -48,3 +48,14 @@ test('top-level destinations follow the Phase 8 hub contract',()=>{
   assert.ok(STOREFRONT_NAVIGATION_PANELS.events_performance.groups.length>0);
   assert.ok(STOREFRONT_NAVIGATION_PANELS.style.groups.length>0);
 });
+
+
+test('chevron hover does not pre-toggle the disclosure before an intentional click',()=>{
+  const header=readFileSync('components/Header.tsx','utf8');
+  const buttonStart=header.indexOf('aria-label={`${item.label} submenu`}');
+  const buttonEnd=header.indexOf('</button>',buttonStart);
+  assert.ok(buttonStart>=0&&buttonEnd>buttonStart);
+  const button=header.slice(buttonStart,buttonEnd);
+  assert.doesNotMatch(button,/onMouseEnter=|onMouseLeave=/);
+  assert.match(button,/onClick=\{\(\) => expanded \? setOpenPanel\(null\) : openNavigationPanel\(panelCode\)\}/);
+});
