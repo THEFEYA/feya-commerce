@@ -19,8 +19,8 @@ const FOOTER_COLUMNS = [
     links: [
       ['Festival', '/collections/festival-outfits'],
       ['Rave', '/collections/rave-outfits'],
-      ['Burning Man', '/collections/burning-man-looks'],
-      ['Stage & Fashion', '/collections/stage-outfits'],
+      ['Burning Man', '/collections/burning-man-outfits'],
+      ['Stage & Fashion', '/collections/performance-costumes'],
       ['Festival skirts', '/collections/festival-skirts'],
     ],
   },
