@@ -9,7 +9,7 @@ test('Search Release executor uses an unambiguous release-id local variable',()=
   assert.match(source,/where r\.release_id=v_release_id/);
   assert.doesNotMatch(source,/where r\.release_id=release_id\b/);
   assert.match(source,/feya_fn_execution_request_human_approval_valid_v1/);
-  assert.match(source,/active_release_count_conflict/);
+  assert.match(source,/search_release_activation_active_count_conflict/);
   assert.match(source,/'payment_enabled',false/);
   assert.match(source,/'order_creation_enabled',false/);
 });
