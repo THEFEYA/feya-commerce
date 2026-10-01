@@ -7,6 +7,7 @@ import {
 export type DiscoveryHubTile = {
   code: string;
   label: string;
+  pieceCount?: number;
   href: string;
   eyebrow: string;
   description: string;
@@ -21,7 +22,7 @@ function imageFrom(map:Record<string,{imageUrl:string}>,label:string){
 
 export const EVENTS_PERFORMANCE_HUB_TILES:DiscoveryHubTile[]=[
   {
-    code:'festival-outfits',
+    code:'festival-outfits',pieceCount:111,
     label:'Festival Outfits',
     href:'/collections/festival-outfits',
     eyebrow:'Festival',
@@ -31,7 +32,7 @@ export const EVENTS_PERFORMANCE_HUB_TILES:DiscoveryHubTile[]=[
     role:'owner',
   },
   {
-    code:'rave-outfits',
+    code:'rave-outfits',pieceCount:40,
     label:'Rave Outfits',
     href:'/collections/rave-outfits',
     eyebrow:'Rave',
@@ -41,7 +42,7 @@ export const EVENTS_PERFORMANCE_HUB_TILES:DiscoveryHubTile[]=[
     role:'owner',
   },
   {
-    code:'burning-man-looks',
+    code:'burning-man-looks',pieceCount:45,
     label:'Burning Man Looks',
     href:'/collections/burning-man-looks',
     eyebrow:'Desert',
@@ -51,7 +52,7 @@ export const EVENTS_PERFORMANCE_HUB_TILES:DiscoveryHubTile[]=[
     role:'owner',
   },
   {
-    code:'stage-outfits',
+    code:'stage-outfits',pieceCount:96,
     label:'Stage & Performance',
     href:'/collections/stage-outfits',
     eyebrow:'Performance',
@@ -61,7 +62,7 @@ export const EVENTS_PERFORMANCE_HUB_TILES:DiscoveryHubTile[]=[
     role:'owner',
   },
   {
-    code:'festival-skirts',
+    code:'festival-skirts',pieceCount:56,
     label:'Festival Skirts',
     href:'/collections/festival-skirts',
     eyebrow:'Festival · Skirts',
@@ -92,6 +93,8 @@ export const STYLE_HUB_TILES:DiscoveryHubTile[]=[
   role:'filter' as const,
 }));
 
+// Governed counts from the latest approved pre-index membership snapshots (2026-10-01).
+// They are snapshot evidence, not live inventory or sales metrics.
 export const COLLECTION_DIRECTORY_GROUPS=[
   {
     code:'shop',
@@ -99,27 +102,27 @@ export const COLLECTION_DIRECTORY_GROUPS=[
     description:'Start from the piece you want, then refine by fit, color and context.',
     tiles:[
       {
-        code:'shoulder-armor',label:'Shoulder Armor',href:'/collections/shoulder-armor',eyebrow:'Upper body',
+        code:'shoulder-armor',pieceCount:80,label:'Shoulder Armor',href:'/collections/shoulder-armor',eyebrow:'Upper body',
         description:'Sculptural shoulder pieces for stage, festival and costume styling.',
         imageUrl:imageFrom(SHOP_MEGA_PREVIEWS,'Shoulders'),imageAlt:'Shoulder armor by TheFEYA',role:'owner' as const,
       },
       {
-        code:'bodysuits',label:'Costume Bodysuits',href:'/collections/bodysuits',eyebrow:'Full body',
+        code:'bodysuits',pieceCount:30,label:'Costume Bodysuits',href:'/collections/bodysuits',eyebrow:'Full body',
         description:'Complete bodysuit designs for performance and statement looks.',
         imageUrl:imageFrom(SHOP_MEGA_PREVIEWS,'Bodysuits'),imageAlt:'Costume bodysuit by TheFEYA',role:'owner' as const,
       },
       {
-        code:'costume-masks',label:'Costume Masks',href:'/collections/costume-masks',eyebrow:'Head & face',
+        code:'costume-masks',pieceCount:11,label:'Costume Masks',href:'/collections/costume-masks',eyebrow:'Head & face',
         description:'Decorative masks for stage, costume and editorial styling.',
         imageUrl:imageFrom(SHOP_MEGA_PREVIEWS,'Masks'),imageAlt:'Costume mask by TheFEYA',role:'owner' as const,
       },
       {
-        code:'costume-headpieces',label:'Costume Headpieces',href:'/collections/costume-headpieces',eyebrow:'Head & face',
+        code:'costume-headpieces',pieceCount:34,label:'Costume Headpieces',href:'/collections/costume-headpieces',eyebrow:'Head & face',
         description:'Sculptural crowns and headpieces for complete looks.',
         imageUrl:imageFrom(SHOP_MEGA_PREVIEWS,'Headpieces'),imageAlt:'Costume headpiece by TheFEYA',role:'owner' as const,
       },
       {
-        code:'costume-belts',label:'Costume Belts',href:'/collections/costume-belts',eyebrow:'Lower body',
+        code:'costume-belts',pieceCount:13,label:'Costume Belts',href:'/collections/costume-belts',eyebrow:'Lower body',
         description:'Decorative waist pieces designed to finish a coordinated look.',
         imageUrl:imageFrom(SHOP_MEGA_PREVIEWS,'Belts'),imageAlt:'Costume belt by TheFEYA',role:'owner' as const,
       },
