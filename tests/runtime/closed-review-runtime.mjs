@@ -276,6 +276,7 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       next:[...d.querySelectorAll('nav[aria-label="Catalog pages"] a')].find(a=>a.textContent==='Show 20 more')?.getAttribute('href'),
       links:[...d.querySelectorAll('a[href^="/shop?collection="]')].map(a=>a.getAttribute('href')),
       schema:d.querySelector('script[type="application/ld+json"]')?JSON.parse(d.querySelector('script[type="application/ld+json"]').textContent):null,
+      schemas:[...d.querySelectorAll('script[type="application/ld+json"]')].map(node=>JSON.parse(node.textContent||'null')).filter(Boolean),
       disabled:[...d.querySelectorAll('button')].some(b=>/Preview only/.test(b.textContent)&&b.disabled),
       blocks:[...d.querySelectorAll('article')].map(a=>([...a.querySelectorAll('p,li')].map(n=>n.textContent).join(' ')).replace(/\s+/g,' ').trim()),
     };
@@ -363,6 +364,9 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
         assert.equal(d.h1,e.copy.draft.h1);assert.equal(d.title,e.copy.metadata.title+' | TheFEYA');assert.equal(d.description,e.copy.metadata.description);
         assert.match(d.robots,/noindex/);assert.match(d.robots,/nofollow/);assert.equal(d.schema.url,d.canonical);assert.equal(d.schema.name,e.copy.draft.h1);
         assert.ok(!('offers' in d.schema));assert.equal(d.disabled,true);
+        assert.deepEqual(d.schemas.map(schema=>schema['@type']),['Product','BreadcrumbList']);
+        assert.ok(!d.schemas.some(schema=>schema['@type']==='Offer'||schema['@type']==='ProductGroup'));
+        assert.deepEqual(d.schemas[1].itemListElement.map(item=>item.name),['Home','Shop',e.copy.draft.h1]);
         const normalized=e.copy.draft.pdp_blocks.map(b=>b.body.split('\n').map(l=>l.replace(/^\s*(?:[-*•●▪◦]+|\d+[.)])\s*/,'').trim()).filter(Boolean).join(' ').replace(/\s+/g,' ').trim());
         assert.ok(normalized.every(b=>d.blocks.includes(b)),e.identity.canonical_product_id);assert.ok(!/PRIVATE_(APPROVAL|OUTPUT)_CANARY/.test(html));
         // Phase 8 intentionally renders crawlable global collection links in Header.
