@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Search, ShoppingBag, User, Menu, ArrowUpRight, ChevronDown, X } from 'lucide-react';
@@ -487,12 +488,15 @@ export function Header() {
 
                 {menuPreview ? (
                   <aside className="sticky top-0 h-[390px] overflow-hidden rounded-[14px] border border-[rgba(216,181,109,.09)] bg-[#111117]">
-                    <img
+                    <Image
                       key={`${panel.code}:${menuPreview.label}`}
                       src={menuPreview.imageUrl}
                       alt={`${menuPreview.label} visual preview`}
+                      fill
+                      sizes="360px"
                       loading="lazy"
-                      className="absolute inset-0 h-full w-full object-cover animate-[feyaPreviewFade_.28s_ease_both]"
+                      unoptimized={menuPreview.imageUrl.startsWith('data:') || menuPreview.imageUrl.startsWith('blob:')}
+                      className="object-cover animate-[feyaPreviewFade_.28s_ease_both]"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/62 via-black/10 to-transparent" />
                     <div className="visual-tile-label-band visual-mega-preview-band absolute inset-x-0 bottom-0 px-5 py-4">
