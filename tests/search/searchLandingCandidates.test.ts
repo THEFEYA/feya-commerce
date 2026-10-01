@@ -12,8 +12,8 @@ test('Phase C exposes exactly ten noindex landing business cases',()=>{
   assert.deepEqual(
     business.map((x)=>x.slug).sort(),
     [
-      'bodysuits','burning-man-looks','costume-belts','costume-headpieces','costume-masks',
-      'festival-outfits','festival-skirts','rave-outfits','shoulder-armor','stage-outfits',
+      'bodysuits','burning-man-outfits','costume-belts','costume-headpieces','costume-masks',
+      'festival-outfits','festival-skirts','performance-costumes','rave-outfits','shoulder-armor',
     ].sort(),
   );
   assert.ok(business.every((x)=>x.searchStatus==='business_case_noindex'));
