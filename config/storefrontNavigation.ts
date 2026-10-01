@@ -33,8 +33,8 @@ const owner = (code:string,label:string,href:string,children?:StorefrontNavigati
 
 export const PRIMARY_NAVIGATION = [
   { code: 'shop', label: 'Shop', href: '/shop', panel: 'shop' },
-  { code: 'events_performance', label: 'Events & Performance', href: '/collections#events-performance', panel: 'events_performance' },
-  { code: 'style', label: 'Style', href: '/collections#style', panel: 'style' },
+  { code: 'events_performance', label: 'Events & Performance', href: '/events-performance', panel: 'events_performance' },
+  { code: 'style', label: 'Style', href: '/style', panel: 'style' },
   { code: 'about', label: 'About', href: '/about' },
   { code: 'shipping_payment', label: 'Shipping & Payment', href: '/shipping' },
   { code: 'contact', label: 'Contact', href: '/contact' },
@@ -164,6 +164,7 @@ export const STOREFRONT_NAVIGATION_PANELS: Record<string, StorefrontNavigationPa
         items: [
           owner('rave','Rave','/collections/rave-outfits'),
           owner('burning_man','Burning Man','/collections/burning-man-looks'),
+          owner('festival_skirts','Festival Skirts','/collections/festival-skirts'),
         ],
       },
       {

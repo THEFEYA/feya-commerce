@@ -10,6 +10,7 @@ const OWNER_PREVIEW_BRANCHES = new Set([
   'work/storefront-invalidation-contract-20260930',
   'work/storefront-card-runtime-swap-20260930',
   'work/storefront-route-cache-phase6-20260930',
+  'work/navigation-hub-phase8-20261001',
 ]);
 
 export function isOwnerPreviewDeployment(env: Record<string, string | undefined>) {

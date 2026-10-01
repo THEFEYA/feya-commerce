@@ -224,6 +224,7 @@ type FilterPanelProps = {
   setEffect: (value: string[]) => void;
   clear: () => void;
   activeCount: number;
+  defaultOpenFilterSections?: string[];
   availability: {
     audience: Set<string>;
     parts: Set<string>;
@@ -256,6 +257,7 @@ function CatalogFilterPanel({
   setEffect,
   clear,
   activeCount,
+  defaultOpenFilterSections = [],
   availability,
 }: FilterPanelProps) {
   const toggleAudience = (value: string) => setAudience(toggleValue(filters.audience, value));
@@ -363,30 +365,30 @@ function CatalogFilterPanel({
         </div>
       </FilterSection>
 
-      <FilterSection title="Event" activeCount={filters.event.length}>
+      <FilterSection title="Event" activeCount={filters.event.length} defaultOpen={defaultOpenFilterSections.includes('Event')}>
         <CheckboxList values={EVENTS} selected={filters.event} onToggle={toggleEvent} available={availability.events} />
       </FilterSection>
 
-      <FilterSection title="Performance" activeCount={filters.performance.length + filters.dance.length}>
+      <FilterSection title="Performance" activeCount={filters.performance.length + filters.dance.length} defaultOpen={defaultOpenFilterSections.includes('Performance')}>
         <CheckboxList values={PERFORMANCE} selected={filters.performance} onToggle={togglePerformance} available={availability.performance} />
         <div className="mt-1">
           <CheckboxList values={DANCE} selected={filters.dance} onToggle={toggleDance} available={availability.dance} />
         </div>
       </FilterSection>
 
-      <FilterSection title="Style" activeCount={filters.style.length}>
+      <FilterSection title="Style" activeCount={filters.style.length} defaultOpen={defaultOpenFilterSections.includes('Style')}>
         <CheckboxList values={STYLES} selected={filters.style} onToggle={toggleStyle} available={availability.styles} />
       </FilterSection>
 
-      <FilterSection title="Persona" activeCount={filters.persona.length}>
+      <FilterSection title="Persona" activeCount={filters.persona.length} defaultOpen={defaultOpenFilterSections.includes('Persona')}>
         <CheckboxList values={PERSONAS} selected={filters.persona} onToggle={togglePersona} available={availability.personas} />
       </FilterSection>
 
-      <FilterSection title="Material" activeCount={filters.material.length}>
+      <FilterSection title="Material" activeCount={filters.material.length} defaultOpen={defaultOpenFilterSections.includes('Material')}>
         <CheckboxList values={MATERIALS} selected={filters.material} onToggle={toggleMaterial} available={availability.materials} />
       </FilterSection>
 
-      <FilterSection title="Visual Effect" activeCount={filters.effect.length}>
+      <FilterSection title="Visual Effect" activeCount={filters.effect.length} defaultOpen={defaultOpenFilterSections.includes('Visual Effect')}>
         <CheckboxList values={EFFECTS} selected={filters.effect} onToggle={toggleEffect} available={availability.effects} />
       </FilterSection>
 
@@ -408,12 +410,14 @@ export function ShopClient({
   error,
   navigation,
   initialNavigation,
+  defaultOpenFilterSections = [],
   embedded = false,
 }: {
   products: StorefrontProduct[];
   error?: string;
   navigation?: ShopNavigation;
   initialNavigation?: ShopNavigation;
+  defaultOpenFilterSections?: string[];
   embedded?: boolean;
 }) {
   const seedNavigation=navigation ?? initialNavigation;
@@ -593,6 +597,7 @@ export function ShopClient({
     setEffect,
     clear,
     activeCount,
+    defaultOpenFilterSections,
     availability,
   };
 

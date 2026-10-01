@@ -202,7 +202,10 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
         assert.ok(!('offers' in d.schema));assert.equal(d.disabled,true);
         const normalized=e.copy.draft.pdp_blocks.map(b=>b.body.split('\n').map(l=>l.replace(/^\s*(?:[-*•●▪◦]+|\d+[.)])\s*/,'').trim()).filter(Boolean).join(' ').replace(/\s+/g,' ').trim());
         assert.ok(normalized.every(b=>d.blocks.includes(b)),e.identity.canonical_product_id);assert.ok(!/PRIVATE_(APPROVAL|OUTPUT)_CANARY/.test(html));
-        assert.ok(!html.includes('href="/collections/'));
+        // Phase 8 intentionally renders crawlable global collection links in Header.
+        // This release fixture has no product-membership links, so scope the proof to
+        // the PDP-specific related-collections module instead of the whole document.
+        assert.ok(!html.includes('Explore related collections'));
       }
       report.closed_review_rendered_products=207;
     });
@@ -326,6 +329,65 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       }finally{await noJs.close();}
       assert.deepEqual(errors,[]);assert.equal(await page.locator('[data-nextjs-dialog]').count(),0);
     });
+    await check('Phase 8 navigation hubs preserve keyboard and owner-link parity',async()=>{
+      const owners=[
+        '/collections/shoulder-armor','/collections/bodysuits','/collections/costume-masks',
+        '/collections/costume-headpieces','/collections/costume-belts','/collections/festival-outfits',
+        '/collections/rave-outfits','/collections/burning-man-looks','/collections/stage-outfits',
+        '/collections/festival-skirts',
+      ];
+      for(const route of ['/events-performance','/style','/collections']){
+        assert.equal((await request(route)).status(),200,route);
+      }
+
+      await page.setViewportSize({width:1440,height:1000});
+      await page.goto(base+'/shop');
+      const nav=page.getByTestId('primary-nav');
+      const parent=nav.getByRole('link',{name:'Events & Performance',exact:true});
+      const disclosure=nav.getByRole('button',{name:'Events & Performance submenu',exact:true});
+      await parent.focus();
+      assert.equal(await disclosure.getAttribute('aria-expanded'),'false');
+      await disclosure.focus();
+      await page.keyboard.press('Enter');
+      await page.waitForFunction(
+        ()=>document.querySelector('[aria-label="Events & Performance submenu"]')?.getAttribute('aria-expanded')==='true',
+      );
+      assert.equal(await disclosure.getAttribute('aria-expanded'),'true');
+      await page.keyboard.press('Tab');
+      assert.equal(await page.evaluate(()=>document.activeElement?.closest('#nav-panel-events_performance')?.id),'nav-panel-events_performance');
+      await page.keyboard.press('Escape');
+      assert.equal(await disclosure.getAttribute('aria-expanded'),'false');
+      assert.equal(await disclosure.evaluate(node=>node===document.activeElement),true);
+
+      const hrefs=await page.evaluate(()=>({
+        desktop:[...document.querySelectorAll('[id^="nav-panel-"] a[href]')].map(n=>n.getAttribute('href')),
+        mobile:[...document.querySelectorAll('#mobile-site-navigation a[href]')].map(n=>n.getAttribute('href')),
+      }));
+      for(const href of owners){
+        assert.ok(hrefs.desktop.includes(href),href);
+        assert.ok(hrefs.mobile.includes(href),href);
+      }
+
+      await page.goto(base+'/style');
+      await page.getByTestId('shop-page').waitFor();
+      const styleFilter=page.getByTestId('filter-sidebar').getByRole('button',{name:'Style',exact:true});
+      assert.equal(await styleFilter.getAttribute('aria-expanded'),'true');
+
+      await page.setViewportSize({width:390,height:844});
+      await page.goto(base+'/shop');
+      const menu=page.getByRole('button',{name:'Menu',exact:true});
+      await menu.click();
+      await page.getByRole('dialog',{name:'Site navigation'}).waitFor();
+      await page.waitForFunction(()=>Boolean(document.activeElement?.closest('#mobile-site-navigation')));
+      assert.equal(await page.evaluate(()=>Boolean(document.activeElement?.closest('#mobile-site-navigation'))),true);
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')==='Menu');
+      assert.equal(await menu.evaluate(node=>node===document.activeElement),true);
+
+      report.phase8_navigation_keyboard_pass=true;
+      report.phase8_owner_link_parity_pass=true;
+    });
+
     await check('Measurement context exposes stable IDs but remains fail-closed in preview without consent activation',async()=>{
       await page.goto(base+path);
       const response=await page.request.get(base+'/api/measurement/context?path='+encodeURIComponent(path));

@@ -35,11 +35,14 @@ test('only the first Phase 6 support slice is instant while all remaining route 
     'app/about/page.tsx',
     'app/contact/page.tsx',
     'app/collections/[slug]/page.tsx',
+    'app/collections/page.tsx',
+    'app/events-performance/page.tsx',
     'app/page.tsx',
     'app/returns/page.tsx',
     'app/shipping/page.tsx',
     'app/shop/[slug]/page.tsx',
     'app/shop/page.tsx',
+    'app/style/page.tsx',
   ]);
   const wrongMode:string[]=[];
   const directiveBreaks:string[]=[];
