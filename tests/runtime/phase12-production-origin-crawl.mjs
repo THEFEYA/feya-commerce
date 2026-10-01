@@ -174,11 +174,13 @@ try{
   const signals=headSignals(home.html);
   const markerA=home.html.includes('/collections/burning-man-outfits');
   const markerB=home.html.includes('/collections/performance-costumes');
+  const deployedMatch=home.html.match(/[?&]dpl=(dpl_[A-Za-z0-9]+)/);
   const homeEntry={
     host:'thefeya.com',
     status:home.status,
     canonical:signals.canonical?normalizeUrl(signals.canonical):null,
     noindex:hasNoindex(signals,home.headers),
+    deploymentId:deployedMatch?.[1]||null,
     phase12Markers:{burningManOwner:markerA,performanceOwner:markerB},
     pass:home.status===200
       && normalizeUrl(signals.canonical||'/')===normalizeUrl('/')
@@ -213,6 +215,11 @@ try{
   if(!pass)fail('www host is neither a canonical redirect nor a canonicalized noindex page',entry);
 }catch(error){fail('www production origin fetch failed',{error:String(error?.message||error)});}
 
+const canonicalOriginReady=result.originChecks.some(entry=>entry.host==='thefeya.com'&&entry.pass);
+if(!canonicalOriginReady){
+  result.deepCrawlSkipped=true;
+  result.deepCrawlSkipReason='K02 canonical production origin is not serving the Phase 12 storefront; K14 remains blocked.';
+}else{
 for(const path of manifest.indexCandidates){
   try{
     const entry=await checkNoindexPath(path);
@@ -269,6 +276,7 @@ for(const path of manifest.filterNoindexPaths){
     const entry={path,pass:false,error:String(error?.message||error)};
     result.filterNoindex.push(entry);fail('Filter state fetch failed',entry);
   }
+}
 }
 
 try{
