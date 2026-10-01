@@ -40,6 +40,14 @@ export function pdpJsxHash(source: string) {
     return ts.visitNode(root, visit) as ts.Node;
   };
   const collect = (node: ts.Node) => {
+    if (ts.isJsxSelfClosingElement(node) && node.tagName.getText(file) === 'script') {
+      const typeAttribute = node.attributes.properties.find(
+        p => ts.isJsxAttribute(p) && p.name.getText(file) === 'type',
+      );
+      if (typeAttribute && ts.isJsxAttribute(typeAttribute)
+        && typeAttribute.initializer && ts.isStringLiteral(typeAttribute.initializer)
+        && typeAttribute.initializer.text === 'application/ld+json') return;
+    }
     if (ts.isJsxElement(node) || ts.isJsxSelfClosingElement(node) || ts.isJsxFragment(node)) {
       const transformed = ts.transform(node, [transform]);
       nodes.push(printer.printNode(ts.EmitHint.Unspecified, transformed.transformed[0], file));
