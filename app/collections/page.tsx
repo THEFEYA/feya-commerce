@@ -1,6 +1,7 @@
 export const instant = true;
 
 import type {Metadata} from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import {ArrowUpRight} from 'lucide-react';
 import {Suspense} from 'react';
@@ -44,7 +45,7 @@ export default function CollectionsHubPage(){
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {group.tiles.map((tile)=>(
               <Link key={tile.code} href={tile.href} className="visual-hover-sheen group relative aspect-[4/5] overflow-hidden rounded-[14px] border border-[rgba(216,181,109,.10)] bg-[#111117] hover:border-[rgba(216,181,109,.26)]">
-                {tile.imageUrl ? <img src={tile.imageUrl} alt={tile.imageAlt} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.035]"/> : null}
+                {tile.imageUrl ? <Image src={tile.imageUrl} alt={tile.imageAlt} fill sizes="(max-width: 639px) calc(100vw - 48px), (max-width: 1023px) calc(50vw - 32px), (max-width: 1279px) 33vw, 20vw" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.035]"/> : null}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/84 via-black/12 to-transparent"/>
                 <div className="visual-tile-label-band absolute inset-x-0 bottom-0 z-10 px-4 pb-4 pt-3">
                   <div className="text-[9px] uppercase tracking-[.18em] text-[#e7cf96]">{tile.eyebrow}</div>

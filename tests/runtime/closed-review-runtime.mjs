@@ -682,6 +682,55 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       report.closed_review_keyboard_pass=true;
     });
 
+    await check('Phase 10 media delivery removes eager hover bytes and audits frozen font delivery',async()=>{
+      const firstPage=release.entries.slice(0,20);
+      const primarySources=new Set(firstPage.map((entry)=>String(entry.product.primary_image_url||'')).filter(Boolean));
+      const hoverEntry=firstPage.find((entry)=>{
+        const hover=String(entry.product.hover_image_url||'');
+        return hover && hover!==String(entry.product.primary_image_url||'') && !primarySources.has(hover);
+      });
+      assert.ok(hoverEntry,'Expected a first-page product with a unique hover image');
+
+      const requestedSources=[];
+      const sourceForRequest=(request)=>{
+        if(request.resourceType()!=='image')return null;
+        const url=new URL(request.url());
+        return url.pathname==='/_next/image' ? url.searchParams.get('url') : request.url();
+      };
+      const collect=(request)=>{
+        const source=sourceForRequest(request);
+        if(source)requestedSources.push(source);
+      };
+      page.on('request',collect);
+      await page.goto(base+'/shop',{waitUntil:'networkidle'});
+      const firstCardImage=page.locator('a[data-testid^="product-card-"] img').first();
+      await firstCardImage.waitFor();
+      assert.match(await firstCardImage.getAttribute('src'),/^\/_next\/image\?/);
+
+      const hoverSource=String(hoverEntry.product.hover_image_url);
+      assert.equal(requestedSources.includes(hoverSource),false,'Hidden hover media must not transfer before intent');
+
+      const hoverCard=page.locator(`a[href="${hoverEntry.copy.metadata.canonical_path}"]`).first();
+      const hoverRequest=page.waitForRequest((request)=>sourceForRequest(request)===hoverSource);
+      await hoverCard.hover();
+      await hoverRequest;
+      page.off('request',collect);
+
+      await page.goto(base+'/',{waitUntil:'networkidle'});
+      assert.equal(await page.locator('img[fetchpriority="high"]').count(),1,'Homepage must expose one high-priority LCP image');
+      const fontRequests=await page.evaluate(()=>performance.getEntriesByType('resource')
+        .map((entry)=>entry.name)
+        .filter((name)=>name.includes('fonts.googleapis.com')||name.includes('fonts.gstatic.com')));
+
+      report.phase10_media_delivery={
+        optimized_card_src:true,
+        hover_deferred_until_intent:true,
+        one_home_lcp_priority:true,
+        font_delivery:'retained_google_fonts_due_frozen_visual_contract',
+        observed_google_font_requests:fontRequests.length,
+      };
+    });
+
     await check('Release lab asset budgets guard JavaScript and CSS regressions without claiming field CWV',async()=>{
       const routes=['/shop',path];
       const budgets={maxScriptBytes:2500000,maxStyleBytes:600000,maxScriptResources:48,maxStyleResources:16};
