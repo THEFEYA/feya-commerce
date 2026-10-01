@@ -3,6 +3,7 @@ import { resolve4, resolve6, resolveCname } from 'node:dns/promises';
 
 const manifest=JSON.parse(await readFile(new URL('./fixtures/phase12-wave-a-v10-production-crawl.json',import.meta.url),'utf8'));
 const origin=new URL(manifest.release.targetOrigin).origin;
+const seoCrawlerUserAgent='Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
 const result={
   contract:'phase12_production_origin_crawl_evidence_v1',
   startedAt:new Date().toISOString(),
@@ -70,7 +71,7 @@ async function fetchHead(path,{redirect='manual',timeoutMs=20000,maxBytes=262144
         redirect,
         signal:controller.signal,
         headers:{
-          'user-agent':'Mozilla/5.0 (compatible; TheFEYA-Phase12-ReleaseCrawl/1.0; +https://thefeya.com)',
+          'user-agent':seoCrawlerUserAgent,
           'accept':'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
           'cache-control':'no-cache',
         },
@@ -110,7 +111,7 @@ async function fetchText(path,{redirect='manual',timeoutMs=20000}={}){
         redirect,
         signal:controller.signal,
         headers:{
-          'user-agent':'Mozilla/5.0 (compatible; TheFEYA-Phase12-ReleaseCrawl/1.0; +https://thefeya.com)',
+          'user-agent':seoCrawlerUserAgent,
           'cache-control':'no-cache',
         },
       });
@@ -195,7 +196,7 @@ try{
   const wwwUrl=new URL(origin);wwwUrl.hostname='www.'+wwwUrl.hostname;
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),20000);
-  const response=await fetch(wwwUrl,{redirect:'manual',signal:controller.signal,headers:{'user-agent':'Mozilla/5.0 (compatible; TheFEYA-Phase12-ReleaseCrawl/1.0)'}});
+  const response=await fetch(wwwUrl,{redirect:'manual',signal:controller.signal,headers:{'user-agent':seoCrawlerUserAgent}});
   clearTimeout(timer);
   const location=response.headers.get('location');
   let pass=false;
