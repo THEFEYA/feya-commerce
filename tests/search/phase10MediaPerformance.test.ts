@@ -33,3 +33,33 @@ test('Phase 10 keeps the approved product-card geometry contract',async()=>{
   assert.match(css,/\.product-card \.img-wrap \{[^}]*aspect-ratio:\s*4 \/ 5/);
   assert.match(css,/\.product-card \.img-wrap img,[^\n]*object-fit:\s*cover/);
 });
+
+test('Phase 10 optimizes all initial public storefront media while preserving one PDP lightbox source image',async()=>{
+  const paths=[
+    '../../app/page.tsx',
+    '../../components/HomePieceCarousel.tsx',
+    '../../components/DiscoveryHubPage.tsx',
+    '../../app/collections/page.tsx',
+    '../../components/Header.tsx',
+    '../../components/ProductDetailClient.tsx',
+  ];
+  const [home,carousel,discovery,collections,header,pdp]=await Promise.all(
+    paths.map((path)=>readFile(new URL(path,import.meta.url),'utf8')),
+  );
+
+  for(const source of [home,carousel,discovery,collections,header,pdp]){
+    assert.match(source,/import Image from 'next\/image'/);
+  }
+  for(const source of [home,carousel,discovery,collections,header]){
+    assert.doesNotMatch(source,/<img\b/);
+  }
+
+  assert.match(home,/sizes="100vw" priority/);
+  assert.equal((home.match(/\bpriority \/>/g)||[]).length,1,'Homepage must expose exactly one explicit LCP-priority TileMedia');
+  assert.match(home,/fetchPriority=\{priority \? 'high' : 'auto'\}/);
+
+  assert.match(pdp,/sizes="132px"/);
+  assert.match(pdp,/sizes="\(max-width: 1023px\) calc\(100vw - 48px\), 520px"/);
+  assert.match(pdp,/fetchPriority=\{idx === 0 \? 'high' : 'auto'\}/);
+  assert.equal((pdp.match(/<img\b/g)||[]).length,1,'Only the interaction-gated lightbox may keep a raw source image');
+});
