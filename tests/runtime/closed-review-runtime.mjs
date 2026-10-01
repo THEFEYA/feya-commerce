@@ -409,10 +409,18 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       for(const [ownerPath,count] of owners){
         const response=await request(ownerPath);
         assert.equal(response.status(),200,ownerPath);
-        const html=await response.text();
-        assert.ok(html.includes(`${count} orderable pieces`),ownerPath);
 
         await page.goto(base+ownerPath,{waitUntil:'domcontentloaded'});
+        await page.getByText(`${count} orderable pieces`,{exact:true}).waitFor();
+
+        await page.waitForFunction((expectedPath)=>{
+          const canonical=document.querySelector('link[rel="canonical"]')?.getAttribute('href')||'';
+          try{return new URL(canonical,location.origin).pathname===expectedPath;}catch{return false;}
+        },ownerPath);
+        await page.waitForFunction(
+          ()=>/noindex/i.test(document.querySelector('meta[name="robots"]')?.getAttribute('content')||''),
+        );
+
         const canonicalHref=await page.locator('link[rel="canonical"]').getAttribute('href');
         const robotsContent=await page.locator('meta[name="robots"]').getAttribute('content');
         assert.ok(canonicalHref,ownerPath+' canonical');
