@@ -63,3 +63,29 @@ test('Phase 10 optimizes all initial public storefront media while preserving on
   assert.match(pdp,/fetchPriority=\{idx === 0 \? 'high' : 'auto'\}/);
   assert.equal((pdp.match(/<img\b/g)||[]).length,1,'Only the interaction-gated lightbox may keep a raw source image');
 });
+
+test('Phase 10 self-hosts the approved font set without a browser Google Fonts request',async()=>{
+  const [layout,css,mark]=await Promise.all([
+    readFile(new URL('../../app/layout.tsx',import.meta.url),'utf8'),
+    readFile(new URL('../../app/globals.css',import.meta.url),'utf8'),
+    readFile(new URL('../../components/FeyaMark.tsx',import.meta.url),'utf8'),
+  ]);
+
+  assert.match(layout,/from 'next\/font\/google'/);
+  assert.match(layout,/Manrope\(/);
+  assert.match(layout,/Cormorant_Garamond\(/);
+  assert.match(layout,/Italiana\(/);
+  assert.match(layout,/variable:'--font-manrope'/);
+  assert.match(layout,/variable:'--font-cormorant'/);
+  assert.match(layout,/variable:'--font-italiana'/);
+  assert.match(layout,/style:'normal'/);
+  assert.match(layout,/manrope\.variable/);
+  assert.match(layout,/cormorant\.variable/);
+  assert.match(layout,/italiana\.variable/);
+
+  assert.doesNotMatch(css,/fonts\.googleapis\.com/);
+  assert.doesNotMatch(css,/@import\s+url\(/);
+  assert.match(css,/font-family:\s*var\(--font-manrope\)/);
+  assert.match(css,/font-family:\s*var\(--font-italiana\),\s*var\(--font-cormorant\)/);
+  assert.match(mark,/var\(--font-italiana\), var\(--font-cormorant\), serif/);
+});
