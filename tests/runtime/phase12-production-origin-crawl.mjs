@@ -315,5 +315,10 @@ await writeFile('runtime-results/phase12-production-origin-crawl.json',JSON.stri
 console.log(JSON.stringify(result.summary,null,2));
 if(result.errors.length){
   console.error(JSON.stringify(result.errors.slice(0,30),null,2));
-  process.exitCode=1;
+  const allowBlocked=process.env.PHASE12_ALLOW_BLOCKED==='true'&&!canonicalOriginReady;
+  if(allowBlocked){
+    console.log('Phase 12 production crawl is intentionally non-blocking before production cutover; K02/K14 remain fail-closed.');
+  }else{
+    process.exitCode=1;
+  }
 }
