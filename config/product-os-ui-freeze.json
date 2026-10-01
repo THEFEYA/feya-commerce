@@ -4,7 +4,7 @@
   "files": {
     "app/page.tsx": "fab61054050db08ec9bb356a201444939feae7f5",
     "app/shop/page.tsx": "36d78b9ae668f657381e9a05fb6de1c20ca2d49f",
-    "app/shop/[slug]/page.tsx": "0dc39167914e3734966debb54c07cf1786f96cc4",
+    "app/shop/[slug]/page.tsx": "c6402fed2a1a8d32e2620fd9f5ae8b2a5455d117",
     "components/Header.tsx": "db8ccf04844c2a6a1ca04dc36cfd20c495b376d0",
     "components/Footer.tsx": "7df1bdf27494def8d3e4aaa39b62ff875aaacdf9",
     "components/ProductCard.tsx": "a4b3bc2e86dcb85e62286d2c26e5af3985e04bc9",
