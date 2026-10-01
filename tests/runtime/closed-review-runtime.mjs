@@ -356,6 +356,9 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       await page.keyboard.press('Tab');
       assert.equal(await page.evaluate(()=>document.activeElement?.closest('#nav-panel-events_performance')?.id),'nav-panel-events_performance');
       await page.keyboard.press('Escape');
+      await page.waitForFunction(
+        ()=>document.activeElement?.getAttribute('aria-label')==='Events & Performance submenu',
+      );
       assert.equal(await disclosure.getAttribute('aria-expanded'),'false');
       assert.equal(await disclosure.evaluate(node=>node===document.activeElement),true);
 
