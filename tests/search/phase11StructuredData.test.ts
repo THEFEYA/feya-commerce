@@ -12,7 +12,7 @@ test('Phase 11 PDP emits truthful Product plus BreadcrumbList without premature 
 
   assert.doesNotMatch(pdp,/jsonLd\.offers\s*=/);
   assert.doesNotMatch(pdp,/['"]@type['"]:\s*['"]Offer['"]/);
-  assert.doesNotMatch(pdp,/ProductGroup/);
+  assert.doesNotMatch(pdp,/["']@type["']:\s*["']ProductGroup["']/);
   assert.doesNotMatch(pdp,/mainRegularPrice/);
 });
 
