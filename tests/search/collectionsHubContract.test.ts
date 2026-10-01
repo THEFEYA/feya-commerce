@@ -76,3 +76,24 @@ test('discovery hub product data keeps closed-review auth outside the shared cat
   assert.match(server,/review\.release\.entries/);
   assert.doesNotMatch(server,/'use cache'/);
 });
+
+
+test('curated directory exposes governed membership count evidence without inventing live metrics',()=>{
+  const owners=COLLECTION_DIRECTORY_GROUPS.flatMap((group)=>group.tiles);
+  assert.equal(owners.every((tile)=>'pieceCount' in tile&&Number(tile.pieceCount)>0),true);
+  assert.deepEqual(
+    Object.fromEntries(owners.map((tile)=>[tile.href,tile.pieceCount])),
+    {
+      '/collections/shoulder-armor':80,
+      '/collections/bodysuits':30,
+      '/collections/costume-masks':11,
+      '/collections/costume-headpieces':34,
+      '/collections/costume-belts':13,
+      '/collections/festival-outfits':111,
+      '/collections/rave-outfits':40,
+      '/collections/burning-man-looks':45,
+      '/collections/stage-outfits':96,
+      '/collections/festival-skirts':56,
+    },
+  );
+});
