@@ -13,7 +13,7 @@ export function FeyaMark({ variant = 'chrome', width = 96, className = '' }: { v
   return (
     <svg viewBox="0 0 200 56" width={width} height={(width * 56) / 200} className={className} role="img" aria-label="FEYA">
       <defs><linearGradient id={`feya-grad-${uid}`} x1="0" y1="0" x2="0" y2="1">{stops.map((s, i) => <stop key={i} offset={s.o} stopColor={s.c} />)}</linearGradient></defs>
-      <text x="0" y="44" fontSize="52" letterSpacing="4" fill={`url(#feya-grad-${uid})`} style={{ fontFamily: 'Italiana, Cormorant Garamond, serif', fontWeight: 400 }}>FEYA</text>
+      <text x="0" y="44" fontSize="52" letterSpacing="4" fill={`url(#feya-grad-${uid})`} style={{ fontFamily: 'var(--font-italiana), var(--font-cormorant), serif', fontWeight: 400 }}>FEYA</text>
     </svg>
   );
 }
