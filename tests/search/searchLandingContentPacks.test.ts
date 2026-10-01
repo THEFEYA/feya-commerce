@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFile} from 'node:fs/promises';
 import {getBusinessCaseLandingCandidates} from '../../config/searchLandingCandidates.ts';
+import {APPROVED_SEARCH_OWNER_RENAMES} from '../../config/searchOwnerRoutes.ts';
 
 function tokens(value:string){
   return new Set(value.toLowerCase().replace(/[^a-z0-9 ]+/g,' ').split(/\s+/).filter((x)=>x.length>2));
@@ -18,7 +19,10 @@ test('Phase E content packs cover every and only current business-case collectio
   const raw=await readFile(new URL('../../docs/search/phase-e-search-landing-content-packs-draft-20260926.json',import.meta.url),'utf8');
   const pack=JSON.parse(raw);
   const expected=getBusinessCaseLandingCandidates().map((x)=>'/collections/'+x.slug).sort();
-  const actual=pack.pages.map((x:any)=>x.path).sort();
+  const approvedAliases=new Map(
+    APPROVED_SEARCH_OWNER_RENAMES.map((route)=>[route.previousPath,route.currentPath]),
+  );
+  const actual=pack.pages.map((x:any)=>approvedAliases.get(x.path)||x.path).sort();
   assert.deepEqual(actual,expected);
   assert.equal(pack.status,'DRAFT_CQA_PASS_RELEASE_HOLD');
   assert.equal(pack.rules.index_authorized,false);
