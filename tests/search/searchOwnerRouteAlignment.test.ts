@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFileSync} from 'node:fs';
-import {SEARCH_OWNER_ROUTES,PENDING_SEARCH_OWNER_RENAMES} from '../../config/searchOwnerRoutes.ts';
+import {SEARCH_OWNER_ROUTES,PENDING_SEARCH_OWNER_RENAMES,APPROVED_SEARCH_OWNER_RENAMES} from '../../config/searchOwnerRoutes.ts';
 import {getBusinessCaseLandingCandidates,getSearchLandingCandidate} from '../../config/searchLandingCandidates.ts';
 
 test('Phase 9 binds exactly ten commercial owners to the current governed landing routes',()=>{
@@ -17,29 +17,32 @@ test('Phase 9 binds exactly ten commercial owners to the current governed landin
   }
 });
 
-test('only Burning Man and Performance are owner-pending pre-index renames',()=>{
+test('Burning Man and Performance renames are owner-approved and no rename remains pending',()=>{
+  assert.equal(PENDING_SEARCH_OWNER_RENAMES.length,0);
   assert.deepEqual(
-    PENDING_SEARCH_OWNER_RENAMES.map((route)=>[route.currentPath,route.preferredPath]),
+    APPROVED_SEARCH_OWNER_RENAMES.map((route)=>[route.previousPath,route.currentPath]),
     [
       ['/collections/burning-man-looks','/collections/burning-man-outfits'],
       ['/collections/stage-outfits','/collections/performance-costumes'],
     ],
   );
-  assert.equal(getSearchLandingCandidate('burning-man-outfits'),null);
-  assert.equal(getSearchLandingCandidate('performance-costumes'),null);
+  assert.equal(getSearchLandingCandidate('burning-man-outfits')?.code,'BURNING_MAN_OUTFITS');
+  assert.equal(getSearchLandingCandidate('performance-costumes')?.code,'PERFORMANCE_COSTUMES');
+  assert.equal(getSearchLandingCandidate('burning-man-looks'),null);
+  assert.equal(getSearchLandingCandidate('stage-outfits'),null);
 });
 
-test('public navigation still uses the approved current routes until the owner approves renames',()=>{
+test('public navigation uses canonical owner routes and never links to retired slugs',()=>{
   const sources=[
     readFileSync('config/storefrontNavigation.ts','utf8'),
     readFileSync('config/discoveryHubs.ts','utf8'),
     readFileSync('config/homePresentation.ts','utf8'),
     readFileSync('components/Footer.tsx','utf8'),
   ].join('\n');
-  assert.match(sources,/\/collections\/burning-man-looks/);
-  assert.match(sources,/\/collections\/stage-outfits/);
-  assert.doesNotMatch(sources,/\/collections\/burning-man-outfits/);
-  assert.doesNotMatch(sources,/\/collections\/performance-costumes/);
+  assert.match(sources,/\/collections\/burning-man-outfits/);
+  assert.match(sources,/\/collections\/performance-costumes/);
+  assert.doesNotMatch(sources,/\/collections\/burning-man-looks/);
+  assert.doesNotMatch(sources,/\/collections\/stage-outfits/);
 });
 
 test('owner pages stay release-gated noindex and related PDP links come only from governed memberships',()=>{
@@ -61,16 +64,23 @@ test('owner pages stay release-gated noindex and related PDP links come only fro
   assert.match(release,/return\{index:false,follow:true,nocache:true\}/);
 });
 
-test('owner-pending preferred URLs fail at the HTTP boundary until approval',()=>{
+test('preferred owner URLs are no longer blocked by pre-approval middleware',()=>{
   const middleware=readFileSync('middleware.ts','utf8');
-  assert.match(middleware,/PENDING_SEARCH_OWNER_RENAMES/);
-  assert.match(middleware,/PENDING_SEARCH_OWNER_PATHS\.has/);
-  assert.match(middleware,/status:\s*404/);
-  assert.match(middleware,/\/collections\/burning-man-outfits/);
-  assert.match(middleware,/\/collections\/performance-costumes/);
+  assert.doesNotMatch(middleware,/PENDING_SEARCH_OWNER_RENAMES|PENDING_SEARCH_OWNER_PATHS/);
+  assert.doesNotMatch(middleware,/\/collections\/burning-man-outfits|\/collections\/performance-costumes/);
 });
 
-test('Phase 9 does not install redirects before the explicit owner decision',()=>{
+test('owner-approved old URLs have permanent redirects and migration preserves canonical history',()=>{
   const nextConfig=readFileSync('next.config.ts','utf8');
-  assert.doesNotMatch(nextConfig,/burning-man-outfits|performance-costumes/);
+  const migration=readFileSync('supabase/migrations/20261001143000_phase12_owner_route_renames_v1.sql','utf8');
+
+  assert.match(nextConfig,/source: '\/collections\/burning-man-looks', destination: '\/collections\/burning-man-outfits', permanent: true/);
+  assert.match(nextConfig,/source: '\/collections\/stage-outfits', destination: '\/collections\/performance-costumes', permanent: true/);
+  assert.match(migration,/OWNER_APPROVED_PREINDEX_ROUTE_RENAME/);
+  assert.match(migration,/feya_commerce_seo_page_url_history_v1/);
+  assert.match(migration,/feya_search_page_versions_v1/);
+  assert.match(migration,/version_number\+1/);
+  assert.match(migration,/extensions\.digest/);
+  assert.match(migration,/phase12_owner_route_rename_requires_zero_active_search_releases/);
+  assert.match(migration,/phase12_owner_route_rename_stale_latest_content/);
 });
