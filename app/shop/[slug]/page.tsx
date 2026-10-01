@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { ProductDetailClient } from '@/components/ProductDetailClient';
 import { readProductLandingLinks } from '@/lib/searchProductLandingLinks';
-import { getMedia, mainRegularPrice, productTitle } from '@/lib/storefront';
+import { getMedia, productTitle } from '@/lib/storefront';
 import { readCachedStorefrontProductPresentation } from '@/lib/storefrontProductPresentationServer';
 import type { StorefrontProduct } from '@/lib/types';
 import { readApprovedStorefrontCopy } from '@/lib/seoApprovedStorefrontServer';
@@ -43,8 +43,11 @@ function productImages(product: StorefrontProduct) {
 }
 
 function productJsonLd(product: StorefrontProduct, slug: string, approvedCopy: ApprovedCopyPayload | null = null) {
-  const price = mainRegularPrice(product);
-  const jsonLd: Record<string, unknown> = {
+  // Phase 11 stays truthful to the current commerce boundary:
+  // active internal offer revisions exist, but public order creation/payment are not enabled.
+  // Merchant Offer/ProductGroup markup is added only when the page can actually preselect
+  // and purchase the represented variant through a crawlable public URL.
+  return {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: approvedCopy?.draft.h1 || productTitle(product),
@@ -57,19 +60,23 @@ function productJsonLd(product: StorefrontProduct, slug: string, approvedCopy: A
       name: 'TheFEYA',
     },
   };
+}
 
-  if (!approvedCopy && price != null) {
-    jsonLd.offers = {
-      '@type': 'Offer',
-      url: canonicalProductUrl(slug),
-      price: String(price),
-      priceCurrency: product.currency || 'EUR',
-      availability: 'https://schema.org/PreOrder',
-      itemCondition: 'https://schema.org/NewCondition',
-    };
-  }
-
-  return jsonLd;
+function productBreadcrumbJsonLd(product: StorefrontProduct, slug: string, approvedCopy: ApprovedCopyPayload | null = null) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://thefeya.com/' },
+      { '@type': 'ListItem', position: 2, name: 'Shop', item: 'https://thefeya.com/shop' },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: approvedCopy?.draft.h1 || productTitle(product),
+        item: canonicalProductUrl(slug),
+      },
+    ],
+  };
 }
 
 // One request-scoped source for head, JSON-LD and existing PDP props.
@@ -151,6 +158,7 @@ async function ResolvedProductPage({ params }: PageProps) {
   if (!product) return <main className="min-h-screen"><Header /><div className="container-feya pt-40"><div className="glass rounded-xl p-6">Product not found. <Link className="text-gold" href="/shop">Back to shop</Link></div></div></main>;
 
   const jsonLd = productJsonLd(product, slug, approvedCopy);
+  const breadcrumbLd = productBreadcrumbJsonLd(product, slug, approvedCopy);
   const productCollections = cachedProductCollections ?? await readProductLandingLinks(String(product.canonical_product_id || ''));
   // This exact Vercel branch is an owner-protected visual storefront review.
   // Keep the immutable approved SEO copy projected, but do not replace the
@@ -161,6 +169,7 @@ async function ResolvedProductPage({ params }: PageProps) {
   return <main className="relative min-h-screen">
     <Header />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd).replace(/</g, '\\u003c') }} />
     <ProductDetailClient product={product} related={related} draft={approvedCopy?.draft} previewMode={Boolean(approvedCopy) && !allowHybridPreviewCommerce} />
     {productCollections.length ? <section className="container-feya py-10 border-t border-[rgba(216,214,211,.12)]">
       <div className="eyebrow-gold mb-4">Explore related collections</div>
