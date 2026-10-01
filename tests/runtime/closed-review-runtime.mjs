@@ -378,8 +378,10 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       const menu=page.getByRole('button',{name:'Menu',exact:true});
       await menu.click();
       await page.getByRole('dialog',{name:'Site navigation'}).waitFor();
+      await page.waitForFunction(()=>Boolean(document.activeElement?.closest('#mobile-site-navigation')));
       assert.equal(await page.evaluate(()=>Boolean(document.activeElement?.closest('#mobile-site-navigation'))),true);
       await page.keyboard.press('Escape');
+      await page.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')==='Menu');
       assert.equal(await menu.evaluate(node=>node===document.activeElement),true);
 
       report.phase8_navigation_keyboard_pass=true;
