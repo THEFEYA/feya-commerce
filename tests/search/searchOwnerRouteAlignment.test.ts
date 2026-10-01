@@ -47,6 +47,12 @@ test('owner pages stay release-gated noindex and related PDP links come only fro
   const related=readFileSync('lib/searchProductLandingLinks.ts','utf8');
   const release=readFileSync('lib/searchReleaseIndexationServer.ts','utf8');
   assert.match(collection,/releaseRobotsForPath\(\`\/collections\/\${candidate\.slug\}\`\)/);
+  assert.match(collection,/if\(!candidate\|\|candidate\.searchStatus==='hold_noindex'\)notFound\(\)/);
+  assert.ok(
+    collection.indexOf("if(!candidate||candidate.searchStatus==='hold_noindex')notFound()")
+      < collection.indexOf('return <Suspense'),
+    'Unknown or HOLD collection slugs must fail before streaming starts',
+  );
   assert.match(related,/feya_search_membership_items_v1/);
   assert.match(related,/eligibility_status','eligible'/);
   assert.match(related,/orderability_status','confirmed'/);
