@@ -3,9 +3,13 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   cacheComponents: true,
   images: {
-    // Phase A uses source image URLs from imported Etsy/media data.
-    // Keep preview permissive without requiring a complete remote host allowlist yet.
-    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'i.etsystatic.com',
+        pathname: '/54033853/**',
+      },
+    ],
   },
 };
 
