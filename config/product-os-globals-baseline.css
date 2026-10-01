@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Italiana&family=Manrope:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -21,29 +22,29 @@
 }
 
 * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-html, body { margin: 0; padding: 0; background: var(--ink); color: var(--bone); font-family: var(--font-manrope), system-ui, sans-serif; font-weight: 400; line-height: 1.55; }
+html, body { margin: 0; padding: 0; background: var(--ink); color: var(--bone); font-family: Manrope, system-ui, sans-serif; font-weight: 400; line-height: 1.55; }
 body { min-height: 100vh; background: radial-gradient(1200px 700px at 85% -10%, rgba(216, 214, 211, 0.20), transparent 60%), radial-gradient(900px 600px at -10% 25%, rgba(198, 139, 74, 0.16), transparent 70%), radial-gradient(800px 500px at 50% 110%, rgba(212, 178, 106, 0.14), transparent 65%), linear-gradient(180deg, #07070A 0%, #111016 38%, #07070A 100%); background-attachment: fixed; }
 ::selection { background: rgba(216,214,211,.35); color: var(--ink); }
 a { color: inherit; text-decoration: none; }
 button, input, select, textarea { font: inherit; }
 button { cursor: pointer; }
 
-.font-display { font-family: var(--font-italiana), var(--font-cormorant), serif; font-weight: 400; }
-.font-editorial { font-family: var(--font-cormorant), serif; }
-.font-tall { font-family: var(--font-italiana), var(--font-cormorant), serif; font-weight: 400; letter-spacing: .02em; line-height: 1.15; }
-.font-price { font-family: var(--font-manrope), Inter, sans-serif; font-weight: 500; letter-spacing: .008em; font-stretch: condensed; font-feature-settings: 'tnum' on, 'lnum' on; }
-.font-price-strike { font-family: var(--font-manrope), Inter, sans-serif; font-weight: 400; letter-spacing: .002em; font-feature-settings: 'tnum' on, 'lnum' on; }
-.font-sans { font-family: var(--font-manrope), system-ui, sans-serif; }
-.product-card-title { font-family: var(--font-cormorant), var(--font-italiana), serif; font-weight: 400; letter-spacing: .035em; }
+.font-display { font-family: Italiana, 'Cormorant Garamond', serif; font-weight: 400; }
+.font-editorial { font-family: 'Cormorant Garamond', serif; }
+.font-tall { font-family: Italiana, 'Cormorant Garamond', serif; font-weight: 400; letter-spacing: .02em; line-height: 1.15; }
+.font-price { font-family: Manrope, Inter, sans-serif; font-weight: 500; letter-spacing: .008em; font-stretch: condensed; font-feature-settings: 'tnum' on, 'lnum' on; }
+.font-price-strike { font-family: Manrope, Inter, sans-serif; font-weight: 400; letter-spacing: .002em; font-feature-settings: 'tnum' on, 'lnum' on; }
+.font-sans { font-family: Manrope, system-ui, sans-serif; }
+.product-card-title { font-family: 'Cormorant Garamond', Italiana, serif; font-weight: 400; letter-spacing: .035em; }
 .product-card-title::first-letter { letter-spacing: .02em; }
 
-.eyebrow, .eyebrow-gold, .eyebrow-dim { font-family: var(--font-manrope), sans-serif; text-transform: uppercase; font-size: 11px; font-weight: 600; letter-spacing: .32em; }
+.eyebrow, .eyebrow-gold, .eyebrow-dim { font-family: Manrope, sans-serif; text-transform: uppercase; font-size: 11px; font-weight: 600; letter-spacing: .32em; }
 .eyebrow { color: var(--silver); }
 .eyebrow-gold { background: linear-gradient(180deg, #EFD9A6, #D4B26A 55%, #8C6F36); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 .eyebrow-dim { color: var(--smoke); font-size: 10.5px; font-weight: 500; letter-spacing: .3em; }
-.display-hero { font-family: var(--font-italiana), serif; font-weight: 400; line-height: .88; letter-spacing: -.005em; }
-.display-section { font-family: var(--font-italiana), serif; font-weight: 400; line-height: .96; }
-.editorial-italic { font-family: var(--font-cormorant), serif; font-style: italic; font-weight: 300; }
+.display-hero { font-family: Italiana, serif; font-weight: 400; line-height: .88; letter-spacing: -.005em; }
+.display-section { font-family: Italiana, serif; font-weight: 400; line-height: .96; }
+.editorial-italic { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 300; }
 .text-chrome { background: linear-gradient(180deg, #fff 0%, #E5E4E1 30%, #BFC1C5 55%, #6E6F73 78%, #C7C7C9 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 .text-gold-grad { background: linear-gradient(180deg, #F5E2B0 0%, #E6C886 30%, #D4B26A 55%, #8C6F36 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 
@@ -52,7 +53,7 @@ button { cursor: pointer; }
 .container-feya { width: 100%; max-width: 1480px; margin: 0 auto; padding: 0 24px; }
 @media (min-width: 1024px) { .container-feya { padding: 0 56px; } }
 
-.btn-chrome, .btn-gold, .btn-ghost { display: inline-flex; align-items: center; gap: 12px; padding: 15px 30px; font-family: var(--font-manrope), sans-serif; font-size: 12px; font-weight: 600; letter-spacing: .28em; text-transform: uppercase; border-radius: 999px; transition: transform .3s ease, box-shadow .3s ease, filter .3s ease; position: relative; overflow: hidden; }
+.btn-chrome, .btn-gold, .btn-ghost { display: inline-flex; align-items: center; gap: 12px; padding: 15px 30px; font-family: Manrope, sans-serif; font-size: 12px; font-weight: 600; letter-spacing: .28em; text-transform: uppercase; border-radius: 999px; transition: transform .3s ease, box-shadow .3s ease, filter .3s ease; position: relative; overflow: hidden; }
 .btn-chrome { color: #0A0A0E; background: linear-gradient(180deg, #fff 0%, #E5E4E1 25%, #BFC1C5 55%, #8E8D8B 100%); border: 1px solid rgba(255,255,255,.5); box-shadow: 0 12px 32px rgba(216,214,211,.20), 0 1px 0 rgba(255,255,255,.6) inset; }
 .btn-gold { color: #0A0A0E; background: linear-gradient(180deg, #F0DCAA, #D4B26A 55%, #A9823E); border: 1px solid rgba(212,178,106,.55); box-shadow: 0 12px 32px rgba(212,178,106,.16), 0 1px 0 rgba(255,255,255,.35) inset; }
 .btn-ghost { color: var(--bone); background: transparent; border: 1px solid rgba(216,214,211,.22); }
@@ -60,7 +61,7 @@ button { cursor: pointer; }
 [data-testid='product-page'] .btn-gold.w-full.mt-2 { animation: buyPulse 5s ease-in-out infinite; }
 @keyframes buyPulse { 0%, 82%, 100% { box-shadow: 0 12px 32px rgba(212,178,106,.16), 0 1px 0 rgba(255,255,255,.35) inset; transform: translateY(0); filter: brightness(1); } 88% { box-shadow: 0 0 0 1px rgba(245,226,176,.58), 0 0 28px rgba(212,178,106,.34), 0 1px 0 rgba(255,255,255,.45) inset; filter: brightness(1.08); } 93% { box-shadow: 0 0 0 1px rgba(245,226,176,.42), 0 0 18px rgba(212,178,106,.24), 0 1px 0 rgba(255,255,255,.40) inset; } }
 
-.chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; font-family: var(--font-manrope), sans-serif; font-size: 10.5px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase; color: var(--bone-dim); background: rgba(255,255,255,.03); border: 1px solid rgba(216,214,211,.10); border-radius: 999px; transition: all .25s ease; white-space: nowrap; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; font-family: Manrope, sans-serif; font-size: 10.5px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase; color: var(--bone-dim); background: rgba(255,255,255,.03); border: 1px solid rgba(216,214,211,.10); border-radius: 999px; transition: all .25s ease; white-space: nowrap; }
 .chip:hover { color: var(--bone); border-color: rgba(216,214,211,.45); background: rgba(216,214,211,.06); }
 .chip-active { color: #0A0A0E; background: linear-gradient(180deg, #fff, #BFC1C5); border-color: rgba(255,255,255,.7); box-shadow: 0 6px 20px rgba(216,214,211,.25); }
 .nav-active-glow { text-shadow: 0 0 16px rgba(212,178,106,.45); }
@@ -69,7 +70,7 @@ button { cursor: pointer; }
 .category-tabs-recovered .chip { border-color: transparent; background: transparent; padding-left: 0; padding-right: 0; position: relative; }
 .category-tabs-recovered .chip-active::after, .category-tabs-recovered .chip:hover::after { content: ''; position: absolute; left: 0; right: 0; bottom: -4px; height: 1px; background: linear-gradient(90deg, transparent, rgba(212,178,106,.9), transparent); box-shadow: 0 0 16px rgba(212,178,106,.45); }
 
-.size-pill { display: inline-flex; align-items: center; justify-content: center; min-width: 52px; height: 44px; padding: 0 14px; font-family: var(--font-manrope), sans-serif; font-size: 12px; font-weight: 600; letter-spacing: .18em; color: var(--bone); background: rgba(255,255,255,.025); border: 1px solid rgba(216,214,211,.18); border-radius: 6px; transition: all .2s ease; }
+.size-pill { display: inline-flex; align-items: center; justify-content: center; min-width: 52px; height: 44px; padding: 0 14px; font-family: Manrope, sans-serif; font-size: 12px; font-weight: 600; letter-spacing: .18em; color: var(--bone); background: rgba(255,255,255,.025); border: 1px solid rgba(216,214,211,.18); border-radius: 6px; transition: all .2s ease; }
 .size-pill:hover { border-color: rgba(216,214,211,.6); background: rgba(216,214,211,.05); }
 .size-pill-active { background: linear-gradient(180deg, #fff, #BFC1C5); color: #0A0A0E; border-color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.18), 0 6px 18px rgba(216,214,211,.20); }
 .size-pill-custom { background: linear-gradient(180deg, #F0DCAA, #D4B26A); color: #0A0A0E; border-color: rgba(212,178,106,.7); }
