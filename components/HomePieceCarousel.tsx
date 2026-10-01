@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -64,12 +65,15 @@ export function HomePieceCarousel({ items }: { items: HomePieceCarouselItem[] })
             className="visual-hover-sheen group relative aspect-[4/5] w-[clamp(250px,23vw,340px)] shrink-0 snap-start overflow-hidden rounded-[14px] border border-white/[0.07] bg-[rgba(255,255,255,.018)] shadow-[0_24px_55px_-36px_rgba(0,0,0,.85)]"
           >
             {item.imageUrl ? (
-              <img
+              <Image
                 src={item.imageUrl}
                 alt={item.imageAlt}
+                fill
+                sizes="(max-width: 639px) 250px, 23vw"
                 loading="lazy"
                 decoding="async"
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035]"
+                unoptimized={item.imageUrl.startsWith('data:') || item.imageUrl.startsWith('blob:')}
+                className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035]"
               />
             ) : (
               <div className="absolute inset-0 bg-[radial-gradient(90%_70%_at_55%_20%,#28262d,#0d0d11)]" />
