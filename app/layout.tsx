@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import {Suspense} from 'react';
+import {connection} from 'next/server';
 import { getSiteUrl } from '@/lib/siteConfig';
 import { MeasurementRuntime } from '@/components/MeasurementRuntime';
 import { AnalyticsConsentBanner } from '@/components/AnalyticsConsentBanner';
@@ -18,6 +19,14 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true, nocache: true },
 };
 
+async function SearchReleaseRuntimeMarker(){
+  // Search Release activation is mutable runtime governance. This null marker
+  // gives release-aware generateMetadata() a request-time boundary while Cache
+  // Components can continue prerendering the visible storefront shell.
+  await connection();
+  return null;
+}
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const analyticsConsentReady=publicLegalIdentityReady()
     && process.env.FEYA_ANALYTICS_PRIVACY_READY==='true'
@@ -26,6 +35,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body>
+        <Suspense fallback={null}><SearchReleaseRuntimeMarker /></Suspense>
         <Suspense fallback={null}><MeasurementRuntime /></Suspense>
         <AnalyticsConsentBanner enabled={analyticsConsentReady} />
         {children}

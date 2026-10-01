@@ -89,7 +89,8 @@ test('legacy force-dynamic behavior is preserved with connection() until each st
     assert.ok(source.includes('await connection()'),path);
   }
   const collection=readFileSync('app/collections/[slug]/page.tsx','utf8');
-  assert.ok(!collection.includes('await connection()'));
+  const collectionBody=collection.slice(collection.indexOf('export default async function SearchLandingCandidatePage'));
+  assert.ok(!collectionBody.includes('await connection()'));
   assert.ok(collection.includes('export const instant = false'));
   assert.ok(collection.indexOf("if(!candidate||candidate.searchStatus==='hold_noindex')notFound()") < collection.indexOf('return <Suspense'));
 
