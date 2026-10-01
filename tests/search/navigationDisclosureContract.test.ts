@@ -59,3 +59,11 @@ test('chevron hover does not pre-toggle the disclosure before an intentional cli
   assert.doesNotMatch(button,/onMouseEnter=|onMouseLeave=/);
   assert.match(button,/onClick=\{\(\) => expanded \? setOpenPanel\(null\) : openNavigationPanel\(panelCode\)\}/);
 });
+
+
+test('keyboard focus cancels pending pointer intent so focus never races hover state',()=>{
+  const header=readFileSync('components/Header.tsx','utf8');
+  assert.match(header,/onFocusCapture=\{\(\) => \{/);
+  assert.match(header,/onFocusCapture=\{\(\) => \{[\s\S]{0,180}cancelScheduledOpen\(\)/);
+  assert.match(header,/onFocusCapture=\{\(\) => \{[\s\S]{0,180}cancelScheduledClose\(\)/);
+});
