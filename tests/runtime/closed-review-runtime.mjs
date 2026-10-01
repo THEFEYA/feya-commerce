@@ -388,6 +388,36 @@ export async function verifyClosedReviewRuntime({db,browser,ownerPage,env,out,ch
       report.phase8_owner_link_parity_pass=true;
     });
 
+    await check('Phase 9 current owner routes preserve governed membership and stay noindex before rename approval',async()=>{
+      const owners=[
+        ['/collections/shoulder-armor',80],
+        ['/collections/bodysuits',30],
+        ['/collections/costume-masks',11],
+        ['/collections/costume-headpieces',34],
+        ['/collections/costume-belts',13],
+        ['/collections/festival-outfits',111],
+        ['/collections/rave-outfits',40],
+        ['/collections/burning-man-looks',45],
+        ['/collections/stage-outfits',96],
+        ['/collections/festival-skirts',56],
+      ];
+      for(const [ownerPath,count] of owners){
+        const response=await request(ownerPath);
+        assert.equal(response.status(),200,ownerPath);
+        const html=await response.text();
+        const data=await documentData(html);
+        assert.equal(new URL(data.canonical).pathname,ownerPath,ownerPath);
+        assert.match(data.robots||'',/noindex/i,ownerPath);
+        assert.ok(html.includes(`${count} orderable pieces`),ownerPath);
+      }
+      for(const pending of ['/collections/burning-man-outfits','/collections/performance-costumes']){
+        const response=await request(pending);
+        assert.equal(response.status(),404,pending);
+      }
+      report.phase9_current_owner_routes_pass=true;
+      report.phase9_pending_rename_routes_absent=true;
+    });
+
     await check('Measurement context exposes stable IDs but remains fail-closed in preview without consent activation',async()=>{
       await page.goto(base+path);
       const response=await page.request.get(base+'/api/measurement/context?path='+encodeURIComponent(path));
