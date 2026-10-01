@@ -3,6 +3,7 @@ export const instant = true;
 
 import type { Metadata } from 'next';
 import { Suspense, type ReactNode } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowUpRight, Globe2, Ruler, Scissors, Sparkles, Truck } from 'lucide-react';
 import { notFound } from 'next/navigation';
@@ -54,25 +55,32 @@ function TileMedia({
   label,
   className = '',
   priority = false,
+  sizes = '100vw',
 }: {
   product?: StorefrontProduct;
   label: string;
   className?: string;
   priority?: boolean;
+  sizes?: string;
 }) {
   const src = product?.primary_image_url || '';
   if (!src) {
     return <div className={`absolute inset-0 bg-[radial-gradient(90%_70%_at_55%_20%,#28262d,#0d0d11)] ${className}`} />;
   }
 
+  const inline = src.startsWith('data:') || src.startsWith('blob:');
+
   return (
-    <img
+    <Image
       src={src}
       alt={product.primary_image_alt || productTitle(product) || label}
-      loading={priority ? 'eager' : 'lazy'}
-      fetchPriority={priority ? 'high' : 'auto'}
+      fill
+      sizes={sizes}
+      preload={priority}
+      {...(!priority ? { loading: 'lazy' as const } : {})}
       decoding="async"
-      className={`absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] ${className}`}
+      unoptimized={inline}
+      className={`object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] ${className}`}
     />
   );
 }
@@ -111,7 +119,7 @@ async function HomeBody() {
     <>
       <section aria-label="Hero" className="px-2.5 pt-[108px] sm:px-4 lg:px-5 lg:pt-[116px]">
         <div className="group relative mx-auto min-h-[560px] max-h-[820px] h-[72vh] overflow-hidden rounded-md border border-white/[0.06] bg-[#0d0d11]">
-          <TileMedia product={hero} label="TheFEYA hero" className="scale-[1.01]" priority />
+          <TileMedia product={hero} label="TheFEYA hero" className="scale-[1.01]" priority sizes="100vw" />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(6,6,8,.82)_0%,rgba(6,6,8,.35)_50%,rgba(6,6,8,.06)_82%),linear-gradient(0deg,rgba(6,6,8,.76)_0%,transparent_52%)]" />
           <div className="absolute inset-x-0 bottom-0 z-10 px-5 pb-8 sm:px-9 sm:pb-10 lg:px-[5vw] lg:pb-[5vw]">
             <div className="max-w-[720px]">
@@ -161,7 +169,13 @@ async function HomeBody() {
                 className={`group relative col-span-12 overflow-hidden rounded-2xl border border-white/[0.07] bg-[#111117] md:col-span-6 ${wide ? 'lg:col-span-7' : 'lg:col-span-5'}`}
                 style={{ minHeight: wide ? 500 : 420 }}
               >
-                <TileMedia product={getProduct(tile.productId)} label={tile.label} />
+                <TileMedia
+                  product={getProduct(tile.productId)}
+                  label={tile.label}
+                  sizes={wide
+                    ? '(max-width: 767px) calc(100vw - 2rem), (max-width: 1023px) 50vw, 58vw'
+                    : '(max-width: 767px) calc(100vw - 2rem), (max-width: 1023px) 50vw, 42vw'}
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 z-10 p-6 lg:p-8">
                   <div className="mb-2 text-[10px] uppercase tracking-[0.18em] text-[#e7cf96]">{tile.eyebrow}</div>
@@ -203,7 +217,11 @@ async function HomeBody() {
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {HOME_PRESENTATION.findTiles.map((tile) => (
             <Link key={tile.code} href={tile.href} className="visual-hover-sheen group relative aspect-[3/4] overflow-hidden rounded-[14px] border border-[rgba(216,181,109,.10)] bg-[#111117] transition-[border-color,box-shadow] duration-300 hover:border-[rgba(216,181,109,.24)] hover:shadow-[0_22px_48px_-30px_rgba(216,181,109,.16)]">
-              <TileMedia product={getProduct(tile.productId)} label={tile.label} />
+              <TileMedia
+                product={getProduct(tile.productId)}
+                label={tile.label}
+                sizes="(max-width: 1023px) 50vw, 25vw"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-black/78 via-black/16 to-transparent" />
               <div className="visual-tile-label-band visual-mood-label-band absolute inset-x-0 bottom-0 z-10 px-4 pb-4 pt-3 text-center">
                 <span className="visual-axis-pill">{tile.axis}</span>
