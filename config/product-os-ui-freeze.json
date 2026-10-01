@@ -5,7 +5,7 @@
     "app/page.tsx": "f89d8ee0a35b9313e36d19e971df39c617490579",
     "app/shop/page.tsx": "36d78b9ae668f657381e9a05fb6de1c20ca2d49f",
     "app/shop/[slug]/page.tsx": "0dc39167914e3734966debb54c07cf1786f96cc4",
-    "components/Header.tsx": "0dd176577b60fcf09f10fd0d75ac39000fa26f51",
+    "components/Header.tsx": "575e753b8aa4bd78c632e467694339f93010a3c4",
     "components/Footer.tsx": "7df1bdf27494def8d3e4aaa39b62ff875aaacdf9",
     "components/ProductCard.tsx": "f77744cec1c6db4b51244d6aca094a1c7ac3af36",
     "components/ProductDetailClient.tsx": "67f5aad44dbce9e46b2327df48396093bc50b875",
