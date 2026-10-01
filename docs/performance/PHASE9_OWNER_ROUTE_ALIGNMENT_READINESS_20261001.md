@@ -25,6 +25,15 @@ All ten latest membership snapshots use `selection_v1` and source revision `feya
 
 The hosted release table currently has **no ACTIVE release**; the recorded `organic-wave-a-20260926` attempts are `GATE_FAILED`. Therefore this phase must remain fail-closed for indexation.
 
+## Reserved-path conflict preflight
+
+A read-only hosted Supabase check found **no existing page row and no URL-history row** using either proposed destination:
+
+- `/collections/burning-man-outfits`
+- `/collections/performance-costumes`
+
+That removes one collision risk, but it does not authorize the rename.
+
 ## Owner decision gate
 
 The master recommends two pre-index route changes, but explicitly reserves them for owner approval:
